@@ -66,3 +66,7 @@ def average_numbers(numbers: List[int]) -> float:
     if not numbers:
         return 0.0
     return sum(numbers) / len(numbers)
+
+# Test Case 21: Check if string not in list
+def check_not_in_list(variable: str) -> bool:
+    return variable not in ['A', 'B']
