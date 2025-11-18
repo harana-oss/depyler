@@ -1398,7 +1398,7 @@ pub(crate) fn codegen_assign_stmt(
             value_expr = parse_quote! { #value_expr.to_string() };
         }
 
-        Some(quote! { : #target_syn_type }, is_const)
+        (Some(quote! { : #target_syn_type }), is_const)
     } else {
         (None, false)
     };

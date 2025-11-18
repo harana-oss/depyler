@@ -463,7 +463,10 @@ impl ExprConverter {
 
         // DEPYLER-0382: Handle *args unpacking for supported functions
         // Check if any args use the Starred expression (unpacking operator)
-        let has_starred = c.args.iter().any(|arg| matches!(arg, ast::Expr::Starred(_)));
+        let has_starred = c
+            .args
+            .iter()
+            .any(|arg| matches!(arg, ast::Expr::Starred(_)));
 
         if has_starred {
             // Special handling for os.path.join(*parts)
@@ -476,7 +479,11 @@ impl ExprConverter {
                             && attr.attr.as_str() == "join"
                         {
                             // Extract the starred argument
-                            if let Some(ast::Expr::Starred(starred)) = c.args.iter().find(|arg| matches!(arg, ast::Expr::Starred(_))) {
+                            if let Some(ast::Expr::Starred(starred)) = c
+                                .args
+                                .iter()
+                                .find(|arg| matches!(arg, ast::Expr::Starred(_)))
+                            {
                                 let parts_expr = Self::convert(*starred.value.clone())?;
 
                                 // Create a method call: parts.join(MAIN_SEPARATOR_STR)
@@ -496,7 +503,11 @@ impl ExprConverter {
             if let ast::Expr::Name(name) = &*c.func {
                 if name.id.as_str() == "print" {
                     // Extract the starred argument
-                    if let Some(ast::Expr::Starred(starred)) = c.args.iter().find(|arg| matches!(arg, ast::Expr::Starred(_))) {
+                    if let Some(ast::Expr::Starred(starred)) = c
+                        .args
+                        .iter()
+                        .find(|arg| matches!(arg, ast::Expr::Starred(_)))
+                    {
                         let items_expr = Self::convert(*starred.value.clone())?;
 
                         // Create a special Call that the Rust generator knows how to handle
