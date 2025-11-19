@@ -480,17 +480,17 @@ The following Priority 1 (Critical Fixes) and Priority 2 (Core Features) tasks h
     - [ ] Warn about limitations
 
 ### Dataclass Support
-- [ ] Convert `@dataclass` to Rust structs
-  - [ ] Dataclass detection and parsing
-    - [ ] Identify @dataclass decorator
-    - [ ] Parse class attributes with types
+- [x] Convert `@dataclass` to Rust structs (basic support implemented)
+  - [x] Dataclass detection and parsing
+    - [x] Identify @dataclass decorator
+    - [x] Parse class attributes with types
     - [ ] Handle default values
     - [ ] Support field() specifications
     - [ ] Extract metadata (frozen, order, etc.)
-  - [ ] Struct generation
-    - [ ] Generate Rust struct definition
-    - [ ] Add visibility modifiers
-    - [ ] Include documentation comments
+  - [x] Struct generation
+    - [x] Generate Rust struct definition
+    - [x] Add visibility modifiers
+    - [x] Include documentation comments
     - [ ] Handle generic dataclasses
     - [ ] Support inheritance
 - [ ] Implement field ownership inference
@@ -531,11 +531,11 @@ The following Priority 1 (Critical Fixes) and Priority 2 (Core Features) tasks h
     - [ ] Implement hash caching
     - [ ] Add memory pooling
     - [ ] Support zero-copy cloning
-- [ ] Generate appropriate derive macros
-  - [ ] Standard derives
-    - [ ] Debug for all dataclasses
-    - [ ] Clone based on field types
-    - [ ] PartialEq/Eq when ordered=False
+- [x] Generate appropriate derive macros (basic support)
+  - [x] Standard derives
+    - [x] Debug for all dataclasses
+    - [x] Clone based on field types
+    - [x] PartialEq for dataclasses
     - [ ] PartialOrd/Ord when ordered=True
     - [ ] Hash for hashable types
   - [ ] Serde integration

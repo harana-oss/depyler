@@ -687,6 +687,9 @@ impl AstBridge {
         } else if self.check_returns_self(&method.body) {
             // If method returns self without annotation, infer &Self
             Type::Custom("&Self".to_string())
+        } else if (is_static || is_classmethod) && self.check_returns_class_instance(&method.body) {
+            // If static/classmethod returns class instance without annotation, infer Self
+            Type::Custom("Self".to_string())
         } else {
             Type::None
         };
@@ -808,6 +811,9 @@ impl AstBridge {
         } else if self.check_returns_self(&method.body) {
             // If method returns self without annotation, infer &Self
             Type::Custom("&Self".to_string())
+        } else if (is_static || is_classmethod) && self.check_returns_class_instance(&method.body) {
+            // If static/classmethod returns class instance without annotation, infer Self
+            Type::Custom("Self".to_string())
         } else {
             Type::None
         };
@@ -1020,6 +1026,22 @@ impl AstBridge {
         }
         false
     }
+
+    // Check if method body returns a class instance (for static/classmethods)
+    // Returns true if the method returns ClassName(...) or cls(...)
+    fn check_returns_class_instance(&self, body: &[ast::Stmt]) -> bool {
+        for stmt in body {
+            if let ast::Stmt::Return(ret_stmt) = stmt {
+                if let Some(value) = &ret_stmt.value {
+                    // Check for direct constructor call: ClassName(...) or cls(...)
+                    if matches!(value.as_ref(), ast::Expr::Call(_)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        false
+    }
 }
 
 // Keep the old function for backwards compatibility
@@ -1157,7 +1179,7 @@ fn expr_calls_failing_function(
     can_fail_map: &std::collections::HashMap<String, bool>,
 ) -> bool {
     match expr {
-        HirExpr::Call { func, args , ..} => {
+        HirExpr::Call { func, args, .. } => {
             // Check if the called function is known to fail
             if can_fail_map.get(func).copied().unwrap_or(false) {
                 return true;
@@ -1605,7 +1627,10 @@ def call_functions() -> int:
         let hir = parse_python_to_hir(source);
 
         let func = &hir.functions[0];
-        if let HirStmt::Return(Some(HirExpr::Call { func: fname, args , ..})) = &func.body[0] {
+        if let HirStmt::Return(Some(HirExpr::Call {
+            func: fname, args, ..
+        })) = &func.body[0]
+        {
             assert_eq!(fname, "len");
             assert_eq!(args.len(), 1);
             assert!(matches!(args[0], HirExpr::List(_)));

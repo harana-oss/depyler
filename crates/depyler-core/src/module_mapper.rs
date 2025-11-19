@@ -152,6 +152,19 @@ impl ModuleMapper {
         );
 
         module_map.insert(
+            "dataclasses".to_string(),
+            ModuleMapping {
+                rust_path: "".to_string(), // No direct mapping, handled via derives
+                is_external: false,
+                version: None,
+                item_map: HashMap::from([
+                    ("dataclass".to_string(), "".to_string()), // Decorator, no Rust equivalent
+                    ("field".to_string(), "".to_string()),     // Handled by struct fields
+                ]),
+            },
+        );
+
+        module_map.insert(
             "collections".to_string(),
             ModuleMapping {
                 rust_path: "std::collections".to_string(),
