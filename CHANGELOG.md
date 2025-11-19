@@ -4,6 +4,83 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### ✨ Features: Enhanced Dataclass Support
+
+**Impact**: Improved transpilation of Python @dataclass decorator with proper derive generation and return type inference
+**Test Status**: ✅ 10/10 dataclass tests passing, 508/508 core tests passing (100%)
+**Quality Gates**: ✅ All tests passing, Clippy clean
+
+#### Dataclass Transpilation Enhancements
+
+- **Automatic Derive Generation**: Dataclasses now generate `#[derive(Debug, Clone, PartialEq)]` (vs. `Debug, Clone` for regular classes)
+- **Import Mapping**: Added `dataclasses` module to module mapper to prevent TODO comments in generated code
+- **Return Type Inference**: Static methods and class methods that return class instances now correctly generate `-> Self` return type
+- **Constructor Generation**: Automatic `new()` method generation for dataclasses with proper field initialization
+
+**Features**:
+- ✅ **@dataclass decorator recognition** and proper struct generation
+- ✅ **Enhanced derives** with PartialEq for dataclasses
+- ✅ **Return type inference** for factory methods (@staticmethod, @classmethod)
+- ✅ **Module mapping** prevents unnecessary TODO comments for dataclasses import
+- ✅ **Comprehensive testing** with 10 integration tests covering all scenarios
+
+**Example**:
+```python
+from dataclasses import dataclass
+
+@dataclass
+class Person:
+    name: str
+    age: int
+
+    def greet(self) -> str:
+        return f"Hello, I'm {self.name}"
+
+    @staticmethod
+    def create_sample():
+        return Person("Sample", 25)
+```
+
+Transpiles to:
+```rust
+#[derive(Debug, Clone, PartialEq)]
+pub struct Person {
+    pub name: String,
+    pub age: i64,
+}
+
+impl Person {
+    pub fn new(name: String, age: i64) -> Self {
+        Self { name, age }
+    }
+
+    pub fn greet(&self) -> String {
+        format!("Hello, I'm {}", self.name)
+    }
+
+    pub fn create_sample() -> Self {
+        Person::new("Sample".to_string(), 25)
+    }
+}
+```
+
+**Files Modified**:
+- `crates/depyler-core/src/module_mapper.rs` - Added dataclasses module mapping
+- `crates/depyler-core/src/ast_bridge.rs` - Added return type inference for factory methods
+- `crates/depyler-core/tests/dataclass_test.rs` - Added 10 comprehensive tests
+- `examples/basic_class_test.py` - Added dataclass examples with Person and Product classes
+
+**Test Coverage**:
+- Basic dataclass with fields
+- Dataclass with instance methods
+- Dataclass with static methods
+- Dataclass with class methods
+- Dataclass with multiple decorators
+- Default values and optional fields
+- Factory methods returning Self
+
+---
+
 ### ✨ Features: Automatic Cargo.toml Generation (DEPYLER-0384)
 
 **Ticket**: DEPYLER-0384
