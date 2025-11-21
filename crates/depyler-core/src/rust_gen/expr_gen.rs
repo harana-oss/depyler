@@ -191,19 +191,36 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                         Ok(parse_quote! { #right_expr.contains(#left_expr) })
                     }
                 } else {
-                    // DEPYLER-0449: Dict/HashMap uses .get(key).is_some() for compatibility
-                    // This works for BOTH HashMap AND serde_json::Value:
-                    // - HashMap<K, V>: .get(&K) -> Option<&V>
-                    // - serde_json::Value: .get(&str) -> Option<&Value>
-                    //
-                    // Using .get().is_some() instead of .contains_key() because:
-                    // 1. serde_json::Value doesn't have .contains_key() method
-                    // 2. .get().is_some() is equivalent to .contains_key() for HashMap
-                    // 3. Works universally for both HashMap and Value types
-                    if needs_borrow {
-                        Ok(parse_quote! { #right_expr.get(&#left_expr).is_some() })
+                    // DEPYLER-0303 + DEPYLER-0449: Dict/HashMap membership check
+                    // For typed dicts (HashMap<K, V>), use .contains_key() which is more idiomatic
+                    // For untyped dicts (serde_json::Value), use .get().is_some() for compatibility
+                    
+                    // Check if we know the type is a typed Dict/HashMap
+                    let is_typed_dict = if let HirExpr::Var(name) = right {
+                        self.ctx.var_types.get(name)
+                            .map(|t| matches!(t, Type::Dict(_, _)))
+                            .unwrap_or(false)
                     } else {
-                        Ok(parse_quote! { #right_expr.get(#left_expr).is_some() })
+                        false
+                    };
+                    
+                    if is_typed_dict {
+                        // Use .contains_key() for typed HashMap<K, V>
+                        if needs_borrow {
+                            Ok(parse_quote! { #right_expr.contains_key(&#left_expr) })
+                        } else {
+                            Ok(parse_quote! { #right_expr.contains_key(#left_expr) })
+                        }
+                    } else {
+                        // Use .get().is_some() for untyped dicts (serde_json::Value)
+                        // This works for BOTH HashMap AND serde_json::Value:
+                        // - HashMap<K, V>: .get(&K) -> Option<&V>
+                        // - serde_json::Value: .get(&str) -> Option<&Value>
+                        if needs_borrow {
+                            Ok(parse_quote! { #right_expr.get(&#left_expr).is_some() })
+                        } else {
+                            Ok(parse_quote! { #right_expr.get(#left_expr).is_some() })
+                        }
                     }
                 }
             }
@@ -248,14 +265,33 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                         Ok(parse_quote! { !#right_expr.contains(#left_expr) })
                     }
                 } else {
-                    // DEPYLER-0449: Dict/HashMap uses .get(key).is_some() for compatibility
-                    // Same as BinOp::In, but negated - works for both HashMap and Value
-                    // (DEPYLER-0326: Fix Phase 2A auto-borrowing in condition contexts)
-                    // (DEPYLER-0329: Avoid double-borrowing for reference-type parameters)
-                    if needs_borrow {
-                        Ok(parse_quote! { !#right_expr.get(&#left_expr).is_some() })
+                    // DEPYLER-0303 + DEPYLER-0449: Dict/HashMap membership check (negated)
+                    // For typed dicts (HashMap<K, V>), use .contains_key() which is more idiomatic
+                    // For untyped dicts (serde_json::Value), use .get().is_some() for compatibility
+                    
+                    // Check if we know the type is a typed Dict/HashMap
+                    let is_typed_dict = if let HirExpr::Var(name) = right {
+                        self.ctx.var_types.get(name)
+                            .map(|t| matches!(t, Type::Dict(_, _)))
+                            .unwrap_or(false)
                     } else {
-                        Ok(parse_quote! { !#right_expr.get(#left_expr).is_some() })
+                        false
+                    };
+                    
+                    if is_typed_dict {
+                        // Use .contains_key() for typed HashMap<K, V>
+                        if needs_borrow {
+                            Ok(parse_quote! { !#right_expr.contains_key(&#left_expr) })
+                        } else {
+                            Ok(parse_quote! { !#right_expr.contains_key(#left_expr) })
+                        }
+                    } else {
+                        // Use .get().is_some() for untyped dicts (serde_json::Value)
+                        if needs_borrow {
+                            Ok(parse_quote! { !#right_expr.get(&#left_expr).is_some() })
+                        } else {
+                            Ok(parse_quote! { !#right_expr.get(#left_expr).is_some() })
+                        }
                     }
                 }
             }
