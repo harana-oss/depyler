@@ -326,7 +326,8 @@ pub(crate) fn codegen_expr_stmt(
                                                     _ => {
                                                         // DEPYLER-0447: Track custom validator functions
                                                         // e.g., type=email_address → track "email_address"
-                                                        ctx.validator_functions.insert(type_name.clone());
+                                                        ctx.validator_functions
+                                                            .insert(type_name.clone());
                                                     }
                                                 }
                                             }
@@ -618,6 +619,10 @@ pub(crate) fn codegen_raise_stmt(
         // DEPYLER-0398: Handle argparse.ArgumentTypeError specially
         // Pattern: raise argparse.ArgumentTypeError("message")
         // Extract message and use directly in panic!/error
+        //
+        // DEPYLER-0295: Also handle ValueError, TypeError, KeyError, IndexError
+        // Pattern: raise ValueError("message")
+        // Extract the message to avoid double-wrapping ValueError::new(ValueError::new(...))
         let exc_expr = match exc {
             // Pattern 1: argparse.ArgumentTypeError(msg)
             HirExpr::MethodCall {
@@ -634,6 +639,17 @@ pub(crate) fn codegen_raise_stmt(
             }
             // Pattern 2: ArgumentTypeError(msg) - if imported
             HirExpr::Call { func, args, .. } if func == "ArgumentTypeError" && !args.is_empty() => {
+                args[0].to_rust_expr(ctx)?
+            }
+            // Pattern 3: ValueError(msg), TypeError(msg), etc. - extract message to avoid double-wrapping
+            HirExpr::Call { func, args, .. }
+                if (func == "ValueError"
+                    || func == "TypeError"
+                    || func == "KeyError"
+                    || func == "IndexError"
+                    || func == "ZeroDivisionError")
+                    && !args.is_empty() =>
+            {
                 args[0].to_rust_expr(ctx)?
             }
             // Default: use exception as-is
@@ -674,6 +690,7 @@ pub(crate) fn codegen_raise_stmt(
                     || exception_type == "TypeError"
                     || exception_type == "KeyError"
                     || exception_type == "IndexError"
+                    || exception_type == "ZeroDivisionError"
                 {
                     let exc_type = safe_ident(&exception_type);
                     Ok(quote! { return Err(Box::new(#exc_type::new(#exc_expr))); })
@@ -688,6 +705,7 @@ pub(crate) fn codegen_raise_stmt(
                     || exception_type == "TypeError"
                     || exception_type == "KeyError"
                     || exception_type == "IndexError"
+                    || exception_type == "ZeroDivisionError"
                 {
                     let exc_type = safe_ident(&exception_type);
                     Ok(quote! { return Err(#exc_type::new(#exc_expr)); })
@@ -1330,16 +1348,20 @@ pub(crate) fn codegen_for_stmt(
         // Try to apply CSV iteration mapping from stdlib_mappings
         // This transforms: for row in reader
         // Into: for result in reader.deserialize::<HashMap<String, String>>()
-        if let Some(pattern) = ctx.stdlib_mappings.get_iteration_pattern("csv", "DictReader") {
+        if let Some(pattern) = ctx
+            .stdlib_mappings
+            .get_iteration_pattern("csv", "DictReader")
+        {
             // Check if pattern yields Results
-            if let crate::stdlib_mappings::RustPattern::IterationPattern { yields_results, .. } = pattern {
+            if let crate::stdlib_mappings::RustPattern::IterationPattern {
+                yields_results, ..
+            } = pattern
+            {
                 csv_yields_results = *yields_results;
             }
 
-            let rust_code = pattern.generate_rust_code(
-                &iter_expr.to_token_stream().to_string(),
-                &[]
-            );
+            let rust_code =
+                pattern.generate_rust_code(&iter_expr.to_token_stream().to_string(), &[]);
             if let Ok(expr) = syn::parse_str::<syn::Expr>(&rust_code) {
                 // Set needs_csv flag
                 ctx.needs_csv = true;
@@ -2152,8 +2174,9 @@ pub(crate) fn codegen_assign_index(
                                 true
                             }
                         }
-                        HirExpr::Binary { .. }
-                        | HirExpr::Literal(crate::hir::Literal::Int(_)) => true,
+                        HirExpr::Binary { .. } | HirExpr::Literal(crate::hir::Literal::Int(_)) => {
+                            true
+                        }
                         _ => false,
                     }
                 }

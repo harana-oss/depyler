@@ -1327,8 +1327,18 @@ impl RustCodeGen for HirFunction {
         // Perform lifetime analysis with automatic elision (DEPYLER-0275)
         let mut lifetime_inference = LifetimeInference::new();
         let lifetime_result = lifetime_inference
-            .apply_elision_rules(self, ctx.type_mapper)
-            .unwrap_or_else(|| lifetime_inference.analyze_function(self, ctx.type_mapper));
+            .apply_elision_rules_with_interprocedural(
+                self,
+                ctx.type_mapper,
+                ctx.interprocedural_analysis,
+            )
+            .unwrap_or_else(|| {
+                lifetime_inference.analyze_function_with_interprocedural(
+                    self,
+                    ctx.type_mapper,
+                    ctx.interprocedural_analysis,
+                )
+            });
 
         // Generate combined generic parameters (lifetimes + type params)
         let generic_params = codegen_generic_params(&type_params, &lifetime_result.lifetime_params);
