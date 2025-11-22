@@ -136,12 +136,28 @@ fn scan_expr_for_validators(expr: &HirExpr, ctx: &mut CodeGenContext) {
 /// Complexity: 7 (stmt loop + match + if + expr scan + method match)
 fn analyze_mutable_vars(stmts: &[HirStmt], ctx: &mut CodeGenContext, params: &[HirParam]) {
     let mut declared = HashSet::new();
+    let mut loop_var_origins: HashMap<String, String> = HashMap::new();
 
     // DEPYLER-0312: Pre-populate declared with function parameters
     // This allows the reassignment detection logic below to catch parameter mutations
     // Example: def gcd(a, b): a = temp  # Now detected as reassignment → mut a
     for param in params {
         declared.insert(param.name.clone());
+    }
+
+    fn extract_param_from_expr(expr: &HirExpr, declared: &HashSet<String>) -> Option<String> {
+        match expr {
+            HirExpr::Var(name) => {
+                if declared.contains(name) {
+                    Some(name.clone())
+                } else {
+                    None
+                }
+            }
+            HirExpr::Attribute { value, .. } => extract_param_from_expr(value, declared),
+            HirExpr::Index { base, .. } => extract_param_from_expr(base, declared),
+            _ => None,
+        }
     }
 
     fn analyze_expr_for_mutations(
@@ -247,6 +263,7 @@ fn analyze_mutable_vars(stmts: &[HirStmt], ctx: &mut CodeGenContext, params: &[H
         mutable: &mut HashSet<String>,
         var_types: &mut HashMap<String, String>,
         mutating_methods: &HashMap<String, HashSet<String>>,
+        loop_var_origins: &mut HashMap<String, String>,
     ) {
         match stmt {
             HirStmt::Assign { target, value, .. } => {
@@ -283,18 +300,32 @@ fn analyze_mutable_vars(stmts: &[HirStmt], ctx: &mut CodeGenContext, params: &[H
                             }
                         }
                     }
-                    AssignTarget::Attribute { value, .. } => {
+                    AssignTarget::Attribute { value: obj, .. } => {
                         // DEPYLER-0235 FIX: Property writes require the base object to be mutable
                         // e.g., `b.size = 20` requires `let mut b = ...`
-                        if let HirExpr::Var(var_name) = value.as_ref() {
-                            mutable.insert(var_name.clone());
+                        // Also check if this is a loop variable that traces back to a parameter
+                        if let HirExpr::Var(var_name) = obj.as_ref() {
+                            if let Some(param_name) = loop_var_origins.get(var_name) {
+                                // Mutating through a loop variable - mark the source parameter as mutable
+                                mutable.insert(param_name.clone());
+                            } else {
+                                // Direct variable mutation
+                                mutable.insert(var_name.clone());
+                            }
                         }
                     }
                     AssignTarget::Index { base, .. } => {
                         // DEPYLER-0235 FIX: Index assignments also require mutability
                         // e.g., `arr[i] = value` requires `let mut arr = ...`
+                        // Also check if this is a loop variable that traces back to a parameter
                         if let HirExpr::Var(var_name) = base.as_ref() {
-                            mutable.insert(var_name.clone());
+                            if let Some(param_name) = loop_var_origins.get(var_name) {
+                                // Mutating through a loop variable - mark the source parameter as mutable
+                                mutable.insert(param_name.clone());
+                            } else {
+                                // Direct variable mutation
+                                mutable.insert(var_name.clone());
+                            }
                         }
                     }
                 }
@@ -314,11 +345,25 @@ fn analyze_mutable_vars(stmts: &[HirStmt], ctx: &mut CodeGenContext, params: &[H
             } => {
                 analyze_expr_for_mutations(condition, mutable, var_types, mutating_methods);
                 for stmt in then_body {
-                    analyze_stmt(stmt, declared, mutable, var_types, mutating_methods);
+                    analyze_stmt(
+                        stmt,
+                        declared,
+                        mutable,
+                        var_types,
+                        mutating_methods,
+                        loop_var_origins,
+                    );
                 }
                 if let Some(else_stmts) = else_body {
                     for stmt in else_stmts {
-                        analyze_stmt(stmt, declared, mutable, var_types, mutating_methods);
+                        analyze_stmt(
+                            stmt,
+                            declared,
+                            mutable,
+                            var_types,
+                            mutating_methods,
+                            loop_var_origins,
+                        );
                     }
                 }
             }
@@ -327,12 +372,33 @@ fn analyze_mutable_vars(stmts: &[HirStmt], ctx: &mut CodeGenContext, params: &[H
             } => {
                 analyze_expr_for_mutations(condition, mutable, var_types, mutating_methods);
                 for stmt in body {
-                    analyze_stmt(stmt, declared, mutable, var_types, mutating_methods);
+                    analyze_stmt(
+                        stmt,
+                        declared,
+                        mutable,
+                        var_types,
+                        mutating_methods,
+                        loop_var_origins,
+                    );
                 }
             }
-            HirStmt::For { body, .. } => {
+            HirStmt::For { target, iter, body } => {
+                // Track the origin of the loop variable
+                if let AssignTarget::Symbol(loop_var) = target {
+                    if let Some(param_name) = extract_param_from_expr(iter, declared) {
+                        loop_var_origins.insert(loop_var.clone(), param_name);
+                    }
+                }
+
                 for stmt in body {
-                    analyze_stmt(stmt, declared, mutable, var_types, mutating_methods);
+                    analyze_stmt(
+                        stmt,
+                        declared,
+                        mutable,
+                        var_types,
+                        mutating_methods,
+                        loop_var_origins,
+                    );
                 }
             }
             _ => {}
@@ -348,6 +414,7 @@ fn analyze_mutable_vars(stmts: &[HirStmt], ctx: &mut CodeGenContext, params: &[H
             &mut ctx.mutable_vars,
             &mut var_types,
             mutating_methods,
+            &mut loop_var_origins,
         );
     }
 }
@@ -606,6 +673,10 @@ pub fn generate_rust_file(
 ) -> Result<(String, Vec<cargo_toml_gen::Dependency>)> {
     let module_mapper = crate::module_mapper::ModuleMapper::new();
 
+    // INTERPROCEDURAL ANALYSIS: Analyze cross-function mutations
+    let mut interprocedural_analyzer = crate::interprocedural::InterproceduralAnalyzer::new(module);
+    let interprocedural_analysis = interprocedural_analyzer.analyze();
+
     // Process imports to populate the context
     let (imported_modules, imported_items) =
         process_module_imports(&module.imports, &module_mapper);
@@ -693,6 +764,7 @@ pub fn generate_rust_file(
         current_subcommand_fields: None, // DEPYLER-0425: Subcommand field extraction
         validator_functions: HashSet::new(), // DEPYLER-0447: Track argparse validator functions
         stdlib_mappings: crate::stdlib_mappings::StdlibMappings::new(), // DEPYLER-0452: Stdlib API mappings
+        interprocedural_analysis: Some(&interprocedural_analysis), // Interprocedural mutation analysis
     };
 
     // Analyze all functions first for string optimization
@@ -882,6 +954,7 @@ mod tests {
             current_subcommand_fields: None, // DEPYLER-0425: Subcommand field extraction
             validator_functions: HashSet::new(), // DEPYLER-0447: Track argparse validator functions
             stdlib_mappings: crate::stdlib_mappings::StdlibMappings::new(), // DEPYLER-0452
+            interprocedural_analysis: None,
         }
     }
 
