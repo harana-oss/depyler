@@ -104,8 +104,7 @@ pub(crate) fn codegen_generic_params(
                 .bounds
                 .iter()
                 .map(|b| {
-                    let bound: syn::Path =
-                        syn::parse_str(b).unwrap_or_else(|_| parse_quote! { Clone });
+                    let bound: syn::Path = syn::parse_str(b).unwrap_or_else(|_| parse_quote! { Clone });
                     quote! { #bound }
                 })
                 .collect();
@@ -118,9 +117,7 @@ pub(crate) fn codegen_generic_params(
 
 /// Generate where clause for lifetime bounds (where 'a: 'b, 'c: 'd)
 #[inline]
-pub(crate) fn codegen_where_clause(
-    lifetime_bounds: &[(String, String)],
-) -> proc_macro2::TokenStream {
+pub(crate) fn codegen_where_clause(lifetime_bounds: &[(String, String)]) -> proc_macro2::TokenStream {
     if lifetime_bounds.is_empty() {
         return quote! {};
     }
@@ -307,21 +304,20 @@ fn codegen_single_param(
         let rust_type = &inferred.rust_type;
 
         // Handle Union type placeholders
-        let actual_rust_type =
-            if let crate::type_mapper::RustType::Enum { name, variants: _ } = rust_type {
-                if name == "UnionType" {
-                    if let Type::Union(types) = &param.ty {
-                        let enum_name = ctx.process_union_type(types);
-                        crate::type_mapper::RustType::Custom(enum_name)
-                    } else {
-                        rust_type.clone()
-                    }
+        let actual_rust_type = if let crate::type_mapper::RustType::Enum { name, variants: _ } = rust_type {
+            if name == "UnionType" {
+                if let Type::Union(types) = &param.ty {
+                    let enum_name = ctx.process_union_type(types);
+                    crate::type_mapper::RustType::Custom(enum_name)
                 } else {
                     rust_type.clone()
                 }
             } else {
                 rust_type.clone()
-            };
+            }
+        } else {
+            rust_type.clone()
+        };
 
         update_import_needs(ctx, &actual_rust_type);
 
@@ -333,13 +329,8 @@ fn codegen_single_param(
             inferred_with_mut.needs_mut = true;
         }
 
-        let ty = apply_param_borrowing_strategy(
-            &param.name,
-            &actual_rust_type,
-            &inferred_with_mut,
-            lifetime_result,
-            ctx,
-        )?;
+        let ty =
+            apply_param_borrowing_strategy(&param.name, &actual_rust_type, &inferred_with_mut, lifetime_result, ctx)?;
 
         Ok(if is_param_mutated {
             quote! { mut #param_ident: #ty }
@@ -496,15 +487,14 @@ enum StringMethodReturnType {
 fn classify_string_method(method_name: &str) -> StringMethodReturnType {
     match method_name {
         // Transformation methods that return owned String
-        "upper" | "lower" | "strip" | "lstrip" | "rstrip" | "replace" | "format" | "title"
-        | "capitalize" | "swapcase" | "expandtabs" | "center" | "ljust" | "rjust" | "zfill" => {
-            StringMethodReturnType::Owned
-        }
+        "upper" | "lower" | "strip" | "lstrip" | "rstrip" | "replace" | "format" | "title" | "capitalize"
+        | "swapcase" | "expandtabs" | "center" | "ljust" | "rjust" | "zfill" => StringMethodReturnType::Owned,
 
         // Query/test methods that return bool or &str (borrowed)
-        "startswith" | "endswith" | "isalpha" | "isdigit" | "isalnum" | "isspace" | "islower"
-        | "isupper" | "istitle" | "isascii" | "isprintable" | "find" | "rfind" | "index"
-        | "rindex" | "count" => StringMethodReturnType::Borrowed,
+        "startswith" | "endswith" | "isalpha" | "isdigit" | "isalnum" | "isspace" | "islower" | "isupper"
+        | "istitle" | "isascii" | "isprintable" | "find" | "rfind" | "index" | "rindex" | "count" => {
+            StringMethodReturnType::Borrowed
+        }
 
         // Default: assume owned to be safe
         _ => StringMethodReturnType::Owned,
@@ -641,10 +631,7 @@ fn infer_return_type_from_body(body: &[HirStmt]) -> Option<Type> {
     // If all return types are the same (ignoring Unknown), use that type
     let first_known = return_types.iter().find(|t| !matches!(t, Type::Unknown));
     if let Some(first) = first_known {
-        if return_types
-            .iter()
-            .all(|t| matches!(t, Type::Unknown) || t == first)
-        {
+        if return_types.iter().all(|t| matches!(t, Type::Unknown) || t == first) {
             return Some(first.clone());
         }
     }
@@ -684,9 +671,7 @@ fn build_var_type_env(stmts: &[HirStmt], var_types: &mut std::collections::HashM
                 }
             }
             HirStmt::If {
-                then_body,
-                else_body,
-                ..
+                then_body, else_body, ..
             } => {
                 build_var_type_env(then_body, var_types);
                 if let Some(else_stmts) = else_body {
@@ -736,9 +721,7 @@ fn collect_return_types_with_env(
                 types.push(Type::None);
             }
             HirStmt::If {
-                then_body,
-                else_body,
-                ..
+                then_body, else_body, ..
             } => {
                 collect_return_types_with_env(then_body, types, var_types);
                 if let Some(else_stmts) = else_body {
@@ -774,10 +757,7 @@ fn collect_return_types_with_env(
 }
 
 /// Infer expression type with access to variable type environment
-fn infer_expr_type_with_env(
-    expr: &HirExpr,
-    var_types: &std::collections::HashMap<String, Type>,
-) -> Type {
+fn infer_expr_type_with_env(expr: &HirExpr, var_types: &std::collections::HashMap<String, Type>) -> Type {
     match expr {
         // DEPYLER-0415: Look up variable types in the environment
         HirExpr::Var(name) => var_types.get(name).cloned().unwrap_or(Type::Unknown),
@@ -786,14 +766,7 @@ fn infer_expr_type_with_env(
         HirExpr::Binary { op, left, right } => {
             if matches!(
                 op,
-                BinOp::Eq
-                    | BinOp::NotEq
-                    | BinOp::Lt
-                    | BinOp::LtEq
-                    | BinOp::Gt
-                    | BinOp::GtEq
-                    | BinOp::In
-                    | BinOp::NotIn
+                BinOp::Eq | BinOp::NotEq | BinOp::Lt | BinOp::LtEq | BinOp::Gt | BinOp::GtEq | BinOp::In | BinOp::NotIn
             ) {
                 return Type::Bool;
             }
@@ -802,9 +775,7 @@ fn infer_expr_type_with_env(
             if matches!(op, BinOp::Mul) {
                 match (left.as_ref(), right.as_ref()) {
                     // Pattern: [elem] * n
-                    (HirExpr::List(elems), &HirExpr::Literal(Literal::Int(size)))
-                        if elems.len() == 1 && size > 0 =>
-                    {
+                    (HirExpr::List(elems), &HirExpr::Literal(Literal::Int(size))) if elems.len() == 1 && size > 0 => {
                         let elem_type = infer_expr_type_with_env(&elems[0], var_types);
                         return if size <= 32 {
                             Type::Array {
@@ -816,9 +787,7 @@ fn infer_expr_type_with_env(
                         };
                     }
                     // Pattern: n * [elem]
-                    (&HirExpr::Literal(Literal::Int(size)), HirExpr::List(elems))
-                        if elems.len() == 1 && size > 0 =>
-                    {
+                    (&HirExpr::Literal(Literal::Int(size)), HirExpr::List(elems)) if elems.len() == 1 && size > 0 => {
                         let elem_type = infer_expr_type_with_env(&elems[0], var_types);
                         return if size <= 32 {
                             Type::Array {
@@ -853,10 +822,7 @@ fn infer_expr_type_with_env(
         }
         // DEPYLER-0420: Handle tuples with environment for variable lookups
         HirExpr::Tuple(elems) => {
-            let elem_types: Vec<Type> = elems
-                .iter()
-                .map(|e| infer_expr_type_with_env(e, var_types))
-                .collect();
+            let elem_types: Vec<Type> = elems.iter().map(|e| infer_expr_type_with_env(e, var_types)).collect();
             Type::Tuple(elem_types)
         }
         // For other cases, use the simple version
@@ -876,14 +842,7 @@ fn infer_expr_type_simple(expr: &HirExpr) -> Type {
             // Comparison operators always return bool
             if matches!(
                 op,
-                BinOp::Eq
-                    | BinOp::NotEq
-                    | BinOp::Lt
-                    | BinOp::LtEq
-                    | BinOp::Gt
-                    | BinOp::GtEq
-                    | BinOp::In
-                    | BinOp::NotIn
+                BinOp::Eq | BinOp::NotEq | BinOp::Lt | BinOp::LtEq | BinOp::Gt | BinOp::GtEq | BinOp::In | BinOp::NotIn
             ) {
                 return Type::Bool;
             }
@@ -892,9 +851,7 @@ fn infer_expr_type_simple(expr: &HirExpr) -> Type {
             if matches!(op, BinOp::Mul) {
                 match (left.as_ref(), right.as_ref()) {
                     // Pattern: [elem] * n
-                    (HirExpr::List(elems), &HirExpr::Literal(Literal::Int(size)))
-                        if elems.len() == 1 && size > 0 =>
-                    {
+                    (HirExpr::List(elems), &HirExpr::Literal(Literal::Int(size))) if elems.len() == 1 && size > 0 => {
                         let elem_type = infer_expr_type_simple(&elems[0]);
                         return if size <= 32 {
                             Type::Array {
@@ -906,9 +863,7 @@ fn infer_expr_type_simple(expr: &HirExpr) -> Type {
                         };
                     }
                     // Pattern: n * [elem]
-                    (&HirExpr::Literal(Literal::Int(size)), HirExpr::List(elems))
-                        if elems.len() == 1 && size > 0 =>
-                    {
+                    (&HirExpr::Literal(Literal::Int(size)), HirExpr::List(elems)) if elems.len() == 1 && size > 0 => {
                         let elem_type = infer_expr_type_simple(&elems[0]);
                         return if size <= 32 {
                             Type::Array {
@@ -1018,11 +973,10 @@ fn infer_expr_type_simple(expr: &HirExpr) -> Type {
         HirExpr::MethodCall { object, method, .. } => {
             match method.as_str() {
                 // String methods that return String
-                "upper" | "lower" | "strip" | "lstrip" | "rstrip" | "replace" | "title"
-                | "capitalize" | "join" | "format" => Type::String,
+                "upper" | "lower" | "strip" | "lstrip" | "rstrip" | "replace" | "title" | "capitalize" | "join"
+                | "format" => Type::String,
                 // String methods that return bool
-                "startswith" | "endswith" | "isdigit" | "isalpha" | "isalnum" | "isupper"
-                | "islower" => Type::Bool,
+                "startswith" | "endswith" | "isdigit" | "isalpha" | "isalnum" | "isupper" | "islower" => Type::Bool,
                 // String methods that return int
                 "find" | "rfind" | "index" | "rindex" | "count" => Type::Int,
                 // String methods that return list
@@ -1137,13 +1091,12 @@ pub(crate) fn codegen_return_type(
 
     // v3.16.0 Phase 1: Override return type to String if function returns owned via string methods
     // This prevents lifetime analysis from incorrectly converting to borrowed &str
-    let rust_ret_type =
-        if matches!(func.ret_type, Type::String) && function_returns_owned_string(func) {
-            // Force owned String return, don't use lifetime borrowing
-            crate::type_mapper::RustType::String
-        } else {
-            rust_ret_type
-        };
+    let rust_ret_type = if matches!(func.ret_type, Type::String) && function_returns_owned_string(func) {
+        // Force owned String return, don't use lifetime borrowing
+        crate::type_mapper::RustType::String
+    } else {
+        rust_ret_type
+    };
 
     // Update import needs based on return type
     update_import_needs(ctx, &rust_ret_type);
@@ -1208,8 +1161,8 @@ pub(crate) fn codegen_return_type(
 
     let return_type = if matches!(rust_ret_type, crate::type_mapper::RustType::Unit) {
         if can_fail {
-            let error_type: syn::Type = syn::parse_str(&error_type_str)
-                .unwrap_or_else(|_| parse_quote! { Box<dyn std::error::Error> });
+            let error_type: syn::Type =
+                syn::parse_str(&error_type_str).unwrap_or_else(|_| parse_quote! { Box<dyn std::error::Error> });
             quote! { -> Result<(), #error_type> }
         } else {
             quote! {}
@@ -1220,8 +1173,8 @@ pub(crate) fn codegen_return_type(
         // DEPYLER-0270: Check if function returns string concatenation
         // String concatenation (format!(), a + b) always returns owned String
         // Never use Cow for concatenation results
-        let returns_concatenation = matches!(func.ret_type, crate::hir::Type::String)
-            && function_returns_string_concatenation(func);
+        let returns_concatenation =
+            matches!(func.ret_type, crate::hir::Type::String) && function_returns_string_concatenation(func);
 
         // Check if any parameter escapes through return and uses Cow
         let mut uses_cow_return = false;
@@ -1229,10 +1182,7 @@ pub(crate) fn codegen_return_type(
             // Only consider Cow if NOT doing string concatenation
             for param in &func.params {
                 if let Some(strategy) = lifetime_result.borrowing_strategies.get(&param.name) {
-                    if matches!(
-                        strategy,
-                        crate::borrowing_context::BorrowingStrategy::UseCow { .. }
-                    ) {
+                    if matches!(strategy, crate::borrowing_context::BorrowingStrategy::UseCow { .. }) {
                         if let Some(_usage) = lifetime_result.param_lifetimes.get(&param.name) {
                             // If a Cow parameter escapes, return type should also be Cow
                             if matches!(func.ret_type, crate::hir::Type::String) {
@@ -1257,16 +1207,14 @@ pub(crate) fn codegen_return_type(
         } else {
             // v3.16.0 Phase 1: Check if function returns owned String via transformation methods
             // If so, don't convert to borrowed &str even if lifetime analysis suggests it
-            let returns_owned_string =
-                matches!(func.ret_type, Type::String) && function_returns_owned_string(func);
+            let returns_owned_string = matches!(func.ret_type, Type::String) && function_returns_owned_string(func);
 
             // Apply return lifetime if needed (unless returning owned String)
             if let Some(ref return_lt) = lifetime_result.return_lifetime {
                 // Check if the return type needs lifetime substitution
                 if matches!(
                     rust_ret_type,
-                    crate::type_mapper::RustType::Str { .. }
-                        | crate::type_mapper::RustType::Reference { .. }
+                    crate::type_mapper::RustType::Str { .. } | crate::type_mapper::RustType::Reference { .. }
                 ) && !returns_owned_string
                 {
                     // Only apply lifetime if NOT returning owned String
@@ -1291,8 +1239,8 @@ pub(crate) fn codegen_return_type(
         }
 
         if can_fail {
-            let error_type: syn::Type = syn::parse_str(&error_type_str)
-                .unwrap_or_else(|_| parse_quote! { Box<dyn std::error::Error> });
+            let error_type: syn::Type =
+                syn::parse_str(&error_type_str).unwrap_or_else(|_| parse_quote! { Box<dyn std::error::Error> });
             quote! { -> Result<#ty, #error_type> }
         } else {
             quote! { -> #ty }
@@ -1327,18 +1275,8 @@ impl RustCodeGen for HirFunction {
         // Perform lifetime analysis with automatic elision (DEPYLER-0275)
         let mut lifetime_inference = LifetimeInference::new();
         let lifetime_result = lifetime_inference
-            .apply_elision_rules_with_interprocedural(
-                self,
-                ctx.type_mapper,
-                ctx.interprocedural_analysis,
-            )
-            .unwrap_or_else(|| {
-                lifetime_inference.analyze_function_with_interprocedural(
-                    self,
-                    ctx.type_mapper,
-                    ctx.interprocedural_analysis,
-                )
-            });
+            .apply_elision_rules_with_interprocedural(self, ctx.type_mapper, None)
+            .unwrap_or_else(|| lifetime_inference.analyze_function_with_interprocedural(self, ctx.type_mapper, None));
 
         // Generate combined generic parameters (lifetimes + type params)
         let generic_params = codegen_generic_params(&type_params, &lifetime_result.lifetime_params);
@@ -1370,17 +1308,18 @@ impl RustCodeGen for HirFunction {
         // ctx.function_param_borrows
         //     .insert(self.name.clone(), param_borrows);
 
+        // DEPYLER-0364: Parameter name tracking for kwargs reordering
+        // TODO: This feature is not yet fully implemented - the field was removed
+        // from CodeGenContext. Kwargs are currently appended as positional args.
+        // See expr_gen.rs line 1165 for current kwargs handling.
+
         // Generate return type with Result wrapper and lifetime handling
-        let (return_type, rust_ret_type, can_fail, error_type) =
-            codegen_return_type(self, &lifetime_result, ctx)?;
+        let (return_type, rust_ret_type, can_fail, error_type) = codegen_return_type(self, &lifetime_result, ctx)?;
 
         // DEPYLER-0425: Analyze subcommand field access BEFORE generating body
         // This sets ctx.current_subcommand_fields so expression generation can rewrite args.field → field
         let subcommand_info = if ctx.argparser_tracker.has_subcommands() {
-            crate::rust_gen::argparse_transform::analyze_subcommand_field_access(
-                self,
-                &ctx.argparser_tracker,
-            )
+            crate::rust_gen::argparse_transform::analyze_subcommand_field_access(self, &ctx.argparser_tracker)
         } else {
             None
         };
@@ -1405,18 +1344,14 @@ impl RustCodeGen for HirFunction {
                 ctx.needs_clap = true;
 
                 // DEPYLER-0399: Generate Commands enum if subcommands exist
-                let commands_enum = crate::rust_gen::argparse_transform::generate_commands_enum(
-                    &ctx.argparser_tracker,
-                );
+                let commands_enum = crate::rust_gen::argparse_transform::generate_commands_enum(&ctx.argparser_tracker);
                 if !commands_enum.is_empty() {
                     ctx.generated_commands_enum = Some(commands_enum);
                 }
 
                 // Generate the Args struct definition
-                let args_struct = crate::rust_gen::argparse_transform::generate_args_struct(
-                    parser_info,
-                    &ctx.argparser_tracker,
-                );
+                let args_struct =
+                    crate::rust_gen::argparse_transform::generate_args_struct(parser_info, &ctx.argparser_tracker);
                 ctx.generated_args_struct = Some(args_struct);
 
                 // Note: ArgumentParser-related statements are filtered in stmt_gen.rs
@@ -1452,10 +1387,7 @@ impl RustCodeGen for HirFunction {
         // This fixes functions with side effects that use error handling (raise/try/except)
         // Also handles Type::Unknown (functions without type annotations that don't explicitly return)
         if can_fail {
-            let needs_ok = self
-                .body
-                .last()
-                .is_none_or(|stmt| !matches!(stmt, HirStmt::Return(_)));
+            let needs_ok = self.body.last().is_none_or(|stmt| !matches!(stmt, HirStmt::Return(_)));
             if needs_ok {
                 // For functions returning unit type (or Unknown which defaults to unit), add Ok(())
                 // For functions returning values with explicit returns, they already have Ok() wrapping
@@ -1466,11 +1398,7 @@ impl RustCodeGen for HirFunction {
         }
 
         // Add documentation and custom attributes
-        let attrs = codegen_function_attrs(
-            &self.docstring,
-            &self.properties,
-            &self.annotations.custom_attributes,
-        );
+        let attrs = codegen_function_attrs(&self.docstring, &self.properties, &self.annotations.custom_attributes);
 
         // Check if function is a generator (contains yield)
         let func_tokens = if self.properties.is_generator {
