@@ -9661,12 +9661,15 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             {
                 if let HirExpr::Literal(Literal::Int(n)) = **operand {
                     let offset = n as usize;
-                    // Special case for -1: use .last()
+                    // Special case for -1: use .last().cloned()
+                    // Works for both Copy and non-Copy types (like String, Vec)
                     if offset == 1 {
-                        return Ok(parse_quote! { *#base_expr.last().unwrap() });
+                        return Ok(parse_quote! { #base_expr.last().cloned().unwrap_or_default() });
                     }
-                    // For other negative indices, use direct indexing: items[items.len() - N]
-                    return Ok(parse_quote! { #base_expr[#base_expr.len() - #offset] });
+                    // For other negative indices, use .get().cloned() to avoid copy issues
+                    return Ok(parse_quote! { 
+                        #base_expr.get(#base_expr.len().saturating_sub(#offset)).cloned().unwrap_or_default()
+                    });
                 }
             }
 
@@ -9675,10 +9678,8 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             // This avoids unnecessary temporary variables and runtime checks
             if let HirExpr::Literal(Literal::Int(n)) = index {
                 let idx_value = *n as usize;
-                // Special case for 0: use .first()
-                if idx_value == 0 {
-                    return Ok(parse_quote! { *#base_expr.first().unwrap() });
-                }
+                // Use consistent .get().cloned().unwrap_or_default() for all indices
+                // This works for both Copy and non-Copy types (like String)
                 return Ok(parse_quote! {
                     #base_expr.get(#idx_value).cloned().unwrap_or_default()
                 });

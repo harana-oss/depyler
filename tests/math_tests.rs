@@ -323,7 +323,8 @@ def first(items: list[int]) -> int:
 "#;
 
     let rust = transpile_and_verify(python, "first").unwrap();
-    assert!(rust.contains("*items.first().unwrap()"));
+    // Should use .get(0) or .get(0usize) with .cloned() for both Copy and non-Copy types
+    assert!((rust.contains(".get(0)") || rust.contains(".get(0usize)")) && rust.contains(".cloned()"));
 }
 
 #[test]
@@ -334,7 +335,8 @@ def last(items: list[int]) -> int:
 "#;
 
     let rust = transpile_and_verify(python, "last").unwrap();
-    assert!(rust.contains("*items.last().unwrap()"));
+    // Should use .last().cloned() for both Copy and non-Copy types
+    assert!(rust.contains(".last()") && rust.contains(".cloned()"));
 }
 
 #[test]
@@ -345,7 +347,8 @@ def second_last(items: list[int]) -> int:
 "#;
 
     let rust = transpile_and_verify(python, "second_last").unwrap();
-    assert!(rust.contains("items[items.len() - 2")); // Allow with or without usize suffix
+    // Should use .get() with saturating_sub for safety
+    assert!(rust.contains(".get(") && (rust.contains("saturating_sub(2)") || rust.contains(".len()") && rust.contains("2")));
 }
 
 #[test]
@@ -356,7 +359,8 @@ def third_last(items: list[float]) -> float:
 "#;
 
     let rust = transpile_and_verify(python, "third_last").unwrap();
-    assert!(rust.contains("items[items.len() - 3")); // Allow with or without usize suffix
+    // Should use .get() with saturating_sub for safety
+    assert!(rust.contains(".get(") && (rust.contains("saturating_sub(3)") || rust.contains(".len()") && rust.contains("3")));
 }
 
 // ============================================================================

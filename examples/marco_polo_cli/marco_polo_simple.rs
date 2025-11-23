@@ -28,11 +28,7 @@ pub fn generate_number(min_val: i32, max_val: i32) -> Result<i32, ZeroDivisionEr
         let r_nonzero = r != 0;
         let signs_differ = r_negative != b_negative;
         let needs_adjustment = r_nonzero && signs_differ;
-        if needs_adjustment {
-            q - 1
-        } else {
-            q
-        }
+        if needs_adjustment { q - 1 } else { q }
     })
 }
 #[doc = "Provide a hint based on the guess."]
@@ -103,11 +99,7 @@ pub fn calculate_average(total: i32, count: i32) -> Result<f64, ZeroDivisionErro
 #[doc = "Format game statistics as string."]
 #[doc = " Depyler: verified panic-free"]
 #[doc = " Depyler: proven to terminate"]
-pub fn format_statistics(
-    score: i32,
-    attempts: i32,
-    rounds: i32,
-) -> Result<String, Box<dyn std::error::Error>> {
+pub fn format_statistics(score: i32, attempts: i32, rounds: i32) -> Result<String, Box<dyn std::error::Error>> {
     let avg = calculate_average(attempts, rounds)?;
     let mut result = "Game Statistics:\n";
     let _cse_temp_0 = score.to_string();
@@ -157,7 +149,7 @@ pub fn play_simple_round(target: i32, max_attempts: i32) -> i32 {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use quickcheck::{quickcheck, TestResult};
+    use quickcheck::{TestResult, quickcheck};
     #[test]
     fn test_generate_number_examples() {
         assert_eq!(generate_number(0, 0), 0);
