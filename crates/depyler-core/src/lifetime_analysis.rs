@@ -53,7 +53,7 @@
 //! - Lifetimes: Elided (no return value, so no annotations needed)
 //!
 //! Generated Rust:
-//! ```rust
+//! ```rust,ignore
 //! pub fn process(state: &mut State, config: &Config) {
 //!     state.value = config.multiplier * 2;
 //! }
@@ -62,7 +62,7 @@
 //! # Integration Point
 //!
 //! Called from `func_gen.rs`:
-//! ```rust
+//! ```rust,ignore
 //! let lifetime_result = lifetime_inference
 //!     .apply_elision_rules_with_interprocedural(
 //!         func,

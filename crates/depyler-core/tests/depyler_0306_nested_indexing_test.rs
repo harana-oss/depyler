@@ -18,9 +18,7 @@ def find_first_match(matrix: list[list[int]], target: int) -> tuple[int, int]:
 "#;
 
     let pipeline = DepylerPipeline::new();
-    let rust_code = pipeline
-        .transpile(python_code)
-        .expect("Transpilation failed");
+    let rust_code = pipeline.transpile(python_code).expect("Transpilation failed");
 
     // Should NOT contain block expressions in range
     assert!(
@@ -56,9 +54,7 @@ def count_matches_in_matrix(matrix: list[list[int]], target: int) -> int:
 "#;
 
     let pipeline = DepylerPipeline::new();
-    let rust_code = pipeline
-        .transpile(python_code)
-        .expect("Transpilation failed");
+    let rust_code = pipeline.transpile(python_code).expect("Transpilation failed");
 
     // Should NOT contain block expressions in range
     assert!(
@@ -87,9 +83,7 @@ def sum_matrix(matrix: list[list[int]]) -> int:
 "#;
 
     let pipeline = DepylerPipeline::new();
-    let rust_code = pipeline
-        .transpile(python_code)
-        .expect("Transpilation failed");
+    let rust_code = pipeline.transpile(python_code).expect("Transpilation failed");
 
     // Should NOT contain block expressions in range
     assert!(
@@ -115,9 +109,7 @@ def sum_3d(cube: list[list[list[int]]]) -> int:
 "#;
 
     let pipeline = DepylerPipeline::new();
-    let rust_code = pipeline
-        .transpile(python_code)
-        .expect("Transpilation failed");
+    let rust_code = pipeline.transpile(python_code).expect("Transpilation failed");
 
     // Should NOT contain block expressions in range
     assert!(
@@ -156,9 +148,7 @@ def sum_diagonal(matrix: list[list[int]]) -> int:
 "#;
 
     let pipeline = DepylerPipeline::new();
-    let rust_code = pipeline
-        .transpile(python_code)
-        .expect("Transpilation failed");
+    let rust_code = pipeline.transpile(python_code).expect("Transpilation failed");
 
     // Should use inline .get() for simple variable indices
     assert!(
@@ -178,9 +168,7 @@ def access_next(arr: list[int], i: int) -> int:
 "#;
 
     let pipeline = DepylerPipeline::new();
-    let rust_code = pipeline
-        .transpile(python_code)
-        .expect("Transpilation failed");
+    let rust_code = pipeline.transpile(python_code).expect("Transpilation failed");
 
     // Complex expression (i + 1) should still use block for negative index handling
     // This ensures we didn't break the original functionality
@@ -201,14 +189,13 @@ def get_last(arr: list[int]) -> int:
 "#;
 
     let pipeline = DepylerPipeline::new();
-    let rust_code = pipeline
-        .transpile(python_code)
-        .expect("Transpilation failed");
+    let rust_code = pipeline.transpile(python_code).expect("Transpilation failed");
 
     // Negative literal should use special handling
+    // For arr[-1], we use .last() which is more idiomatic than saturating_sub
     assert!(
-        rust_code.contains("saturating_sub") || rust_code.contains("len()"),
-        "Negative literal indices should use special handling"
+        rust_code.contains(".last()") || rust_code.contains("saturating_sub") || rust_code.contains("len()"),
+        "Negative literal indices should use special handling (like .last())"
     );
 
     println!("Generated Rust code:\n{}", rust_code);
@@ -234,9 +221,7 @@ def transpose(matrix: list[list[int]]) -> list[list[int]]:
 "#;
 
     let pipeline = DepylerPipeline::new();
-    let rust_code = pipeline
-        .transpile(python_code)
-        .expect("Transpilation failed");
+    let rust_code = pipeline.transpile(python_code).expect("Transpilation failed");
 
     // Should NOT contain block expressions in range
     assert!(
@@ -271,9 +256,7 @@ def matrix_multiply(a: list[list[int]], b: list[list[int]]) -> list[list[int]]:
 "#;
 
     let pipeline = DepylerPipeline::new();
-    let rust_code = pipeline
-        .transpile(python_code)
-        .expect("Transpilation failed");
+    let rust_code = pipeline.transpile(python_code).expect("Transpilation failed");
 
     // Should NOT contain block expressions in any range
     assert!(

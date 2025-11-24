@@ -17,12 +17,19 @@
 //!
 //! # Example
 //!
-//! ```rust
+//! ```rust,no_run
 //! use depyler_core::interprocedural::InterproceduralAnalyzer;
 //! use depyler_core::hir::HirModule;
 //!
-//! let module = HirModule { /* ... */ };
-//! let analyzer = InterproceduralAnalyzer::new(&module);
+//! let module = HirModule {
+//!     functions: vec![],
+//!     imports: vec![],
+//!     type_aliases: vec![],
+//!     protocols: vec![],
+//!     classes: vec![],
+//!     constants: vec![],
+//! };
+//! let mut analyzer = InterproceduralAnalyzer::new(&module);
 //! let analysis = analyzer.analyze();
 //!
 //! // Check if a parameter needs to be mutable

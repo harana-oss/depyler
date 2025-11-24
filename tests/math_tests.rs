@@ -348,7 +348,9 @@ def second_last(items: list[int]) -> int:
 
     let rust = transpile_and_verify(python, "second_last").unwrap();
     // Should use .get() with saturating_sub for safety
-    assert!(rust.contains(".get(") && (rust.contains("saturating_sub(2)") || rust.contains(".len()") && rust.contains("2")));
+    assert!(
+        rust.contains(".get(") && (rust.contains("saturating_sub(2)") || rust.contains(".len()") && rust.contains("2"))
+    );
 }
 
 #[test]
@@ -360,7 +362,9 @@ def third_last(items: list[float]) -> float:
 
     let rust = transpile_and_verify(python, "third_last").unwrap();
     // Should use .get() with saturating_sub for safety
-    assert!(rust.contains(".get(") && (rust.contains("saturating_sub(3)") || rust.contains(".len()") && rust.contains("3")));
+    assert!(
+        rust.contains(".get(") && (rust.contains("saturating_sub(3)") || rust.contains(".len()") && rust.contains("3"))
+    );
 }
 
 // ============================================================================
