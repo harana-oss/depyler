@@ -2485,26 +2485,11 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                             parse_quote! { &#arg_expr }
                         }
                     } else {
-                        // For string literals to owned String params, add .to_string()
+                        // STRING_INTEROP: For string literals, always add .to_string()
+                        // Since all string parameters are now String type (not &str),
+                        // string literals must be converted to owned String
                         if matches!(hir_arg, HirExpr::Literal(crate::hir::Literal::String(_))) {
-                            let param_is_borrowed = self
-                                .ctx
-                                .function_param_borrows
-                                .get(func)
-                                .and_then(|borrows| borrows.get(param_idx))
-                                .copied()
-                                // DEPYLER-0364 FIX: Default to borrowed (&str) for string parameters
-                                // Python str params almost always become &str in Rust after borrowing analysis
-                                // This avoids adding unnecessary .to_string() for function calls
-                                .unwrap_or(true);
-
-                            if !param_is_borrowed {
-                                // Parameter expects String (owned), add .to_string()
-                                parse_quote! { #arg_expr.to_string() }
-                            } else {
-                                // Parameter expects &str (borrowed), use as-is
-                                arg_expr.clone()
-                            }
+                            parse_quote! { #arg_expr.to_string() }
                         } else {
                             arg_expr.clone()
                         }
