@@ -1172,43 +1172,80 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 .collect::<Result<Vec<_>>>()?
         };
 
-        // DEPYLER-0364: Convert kwargs to positional arguments
-        // Python: greet(name="Alice", greeting="Hello") → Rust: greet("Alice", "Hello")
-        // For now, we append kwargs as additional positional arguments. This works for
-        // common cases where functions accept positional or keyword arguments in order.
-        // TODO: In the future, we should look up function signatures to determine
-        // the correct parameter order and merge positional + kwargs properly
-        let kwarg_exprs: Vec<syn::Expr> = if is_user_class {
-            // For user-defined classes, convert string literals to String
-            // This prevents "expected String, found &str" errors in constructors
-            kwargs
-                .iter()
-                .map(|(_name, value)| {
-                    let expr = value.to_rust_expr(self.ctx)?;
-                    if matches!(value, HirExpr::Literal(Literal::String(_))) {
-                        Ok(parse_quote! { #expr.to_string() })
-                    } else {
-                        Ok(expr)
+        // DEPYLER-0364: Properly merge positional args and kwargs by reordering
+        // based on the function's parameter order from function_param_names.
+        // Python: format_message(country="USA", name="Alice", city="New York", age=30)
+        // If func signature is (name, age, city, country), reorder to:
+        // format_message("Alice", 30, "New York", "USA")
+        let (all_args, all_hir_args) = if !kwargs.is_empty() {
+            // Look up function parameter names for proper reordering
+            // Clone to avoid borrowing ctx while we call to_rust_expr
+            let maybe_param_names = self.ctx.function_param_names.get(func).cloned();
+            if let Some(param_names) = maybe_param_names {
+                // Build argument list by matching kwargs to parameter positions
+                let mut reordered_args: Vec<syn::Expr> = Vec::with_capacity(param_names.len());
+                let mut reordered_hir_args: Vec<HirExpr> = Vec::with_capacity(param_names.len());
+
+                // Create a map from kwarg name to its value for quick lookup
+                let kwarg_map: std::collections::HashMap<&str, &HirExpr> =
+                    kwargs.iter().map(|(name, value)| (name.as_str(), value)).collect();
+
+                for (idx, param_name) in param_names.iter().enumerate() {
+                    if idx < args.len() {
+                        // This position is filled by a positional argument
+                        reordered_hir_args.push(args[idx].clone());
+                        let expr = args[idx].to_rust_expr(self.ctx)?;
+                        if is_user_class && matches!(&args[idx], HirExpr::Literal(Literal::String(_))) {
+                            reordered_args.push(parse_quote! { #expr.to_string() });
+                        } else {
+                            reordered_args.push(expr);
+                        }
+                    } else if let Some(value) = kwarg_map.get(param_name.as_str()) {
+                        // This position is filled by a keyword argument
+                        reordered_hir_args.push((*value).clone());
+                        let expr = value.to_rust_expr(self.ctx)?;
+                        if is_user_class && matches!(value, HirExpr::Literal(Literal::String(_))) {
+                            reordered_args.push(parse_quote! { #expr.to_string() });
+                        } else {
+                            reordered_args.push(expr);
+                        }
                     }
-                })
-                .collect::<Result<Vec<_>>>()?
+                    // If neither positional nor kwarg fills this position,
+                    // the function likely has a default value (skip it)
+                }
+                (reordered_args, reordered_hir_args)
+            } else {
+                // Fall back to appending kwargs in order if function signature not found
+                let kwarg_exprs: Vec<syn::Expr> = if is_user_class {
+                    kwargs
+                        .iter()
+                        .map(|(_name, value)| {
+                            let expr = value.to_rust_expr(self.ctx)?;
+                            if matches!(value, HirExpr::Literal(Literal::String(_))) {
+                                Ok(parse_quote! { #expr.to_string() })
+                            } else {
+                                Ok(expr)
+                            }
+                        })
+                        .collect::<Result<Vec<_>>>()?
+                } else {
+                    kwargs
+                        .iter()
+                        .map(|(_name, value)| value.to_rust_expr(self.ctx))
+                        .collect::<Result<Vec<_>>>()?
+                };
+                let mut all_args = arg_exprs.clone();
+                all_args.extend(kwarg_exprs);
+                let mut all_hir_args: Vec<HirExpr> = args.to_vec();
+                for (_name, value) in kwargs {
+                    all_hir_args.push(value.clone());
+                }
+                (all_args, all_hir_args)
+            }
         } else {
-            // For built-in functions and regular calls, use standard conversion
-            kwargs
-                .iter()
-                .map(|(_name, value)| value.to_rust_expr(self.ctx))
-                .collect::<Result<Vec<_>>>()?
+            // No kwargs - just use positional args
+            (arg_exprs.clone(), args.to_vec())
         };
-
-        // Merge positional args and kwargs (both HIR and converted Rust exprs)
-        // This creates a single argument list that will be passed to the function
-        let mut all_args = arg_exprs.clone();
-        all_args.extend(kwarg_exprs);
-
-        let mut all_hir_args: Vec<HirExpr> = args.to_vec();
-        for (_name, value) in kwargs {
-            all_hir_args.push(value.clone());
-        }
 
         match func {
             // Python built-in type conversions → Rust casting
@@ -2456,7 +2493,10 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                                 .get(func)
                                 .and_then(|borrows| borrows.get(param_idx))
                                 .copied()
-                                .unwrap_or(false); // Default to owned (String) if unknown
+                                // DEPYLER-0364 FIX: Default to borrowed (&str) for string parameters
+                                // Python str params almost always become &str in Rust after borrowing analysis
+                                // This avoids adding unnecessary .to_string() for function calls
+                                .unwrap_or(true);
 
                             if !param_is_borrowed {
                                 // Parameter expects String (owned), add .to_string()
@@ -9182,7 +9222,64 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             } else {
                 syn::Ident::new(method, proc_macro2::Span::call_site())
             };
-            return Ok(parse_quote! { #object_expr.#method_ident(#(#arg_exprs),*) });
+
+            // DEPYLER-0364: Handle kwargs reordering for class methods
+            let final_args = if !kwargs.is_empty() {
+                // Get class name from object for method lookup
+                let class_name = self.get_class_name(object);
+                let method_key = if let Some(ref cls) = class_name {
+                    format!("{}.{}", cls, method)
+                } else {
+                    method.to_string()
+                };
+
+                // Clone to avoid borrowing ctx while calling to_rust_expr
+                let maybe_param_names = self
+                    .ctx
+                    .function_param_names
+                    .get(&method_key)
+                    .or_else(|| self.ctx.function_param_names.get(method))
+                    .cloned();
+
+                if let Some(param_names) = maybe_param_names {
+                    // Build reordered argument list
+                    let kwarg_map: std::collections::HashMap<&str, &HirExpr> =
+                        kwargs.iter().map(|(name, value)| (name.as_str(), value)).collect();
+
+                    let mut reordered: Vec<syn::Expr> = Vec::with_capacity(param_names.len());
+                    // NOTE: 'self' is already excluded from HirMethod.params,
+                    // so we iterate all param_names without skipping
+                    for (idx, param_name) in param_names.iter().enumerate() {
+                        if idx < arg_exprs.len() {
+                            reordered.push(arg_exprs[idx].clone());
+                        } else if let Some(value) = kwarg_map.get(param_name.as_str()) {
+                            let expr = value.to_rust_expr(self.ctx)?;
+                            if matches!(value, HirExpr::Literal(Literal::String(_))) {
+                                reordered.push(parse_quote! { #expr.to_string() });
+                            } else {
+                                reordered.push(expr);
+                            }
+                        }
+                    }
+                    reordered
+                } else {
+                    // Fall back to just appending kwargs in order
+                    let mut all: Vec<syn::Expr> = arg_exprs.to_vec();
+                    for (_, value) in kwargs {
+                        let expr = value.to_rust_expr(self.ctx)?;
+                        if matches!(value, HirExpr::Literal(Literal::String(_))) {
+                            all.push(parse_quote! { #expr.to_string() });
+                        } else {
+                            all.push(expr);
+                        }
+                    }
+                    all
+                }
+            } else {
+                arg_exprs.to_vec()
+            };
+
+            return Ok(parse_quote! { #object_expr.#method_ident(#(#final_args),*) });
         }
 
         // DEPYLER-0211 FIX: Check object type first for ambiguous methods like update()
@@ -10971,6 +11068,28 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 self.ctx.class_names.contains(func)
             }
             _ => false,
+        }
+    }
+
+    /// Get the class name from an expression if it's a user-defined class instance
+    fn get_class_name(&self, expr: &HirExpr) -> Option<String> {
+        match expr {
+            HirExpr::Var(name) => {
+                if let Some(Type::Custom(class_name)) = self.ctx.var_types.get(name) {
+                    if self.ctx.class_names.contains(class_name) {
+                        return Some(class_name.clone());
+                    }
+                }
+                None
+            }
+            HirExpr::Call { func, .. } => {
+                if self.ctx.class_names.contains(func) {
+                    Some(func.clone())
+                } else {
+                    None
+                }
+            }
+            _ => None,
         }
     }
 

@@ -1,4 +1,4 @@
-//! DEPYLER-0364: Keyword Arguments End-to-End Transpilation Tests
+//! Keyword Arguments End-to-End Transpilation Tests
 //!
 //! Tests to verify that keyword arguments (kwargs) are correctly transpiled from Python
 //! to Rust throughout the entire compilation pipeline (AST→HIR→Rust code generation).
@@ -7,7 +7,7 @@
 use depyler_core::DepylerPipeline;
 
 #[test]
-fn test_kwargs_mixed_positional_and_named() {
+fn test_mixed_positional_and_named() {
     let python = r#"
 def greet(name: str, greeting: str = "Hello") -> str:
     return f"{greeting}, {name}!"
@@ -21,11 +21,13 @@ def test() -> str:
 
     assert!(result.is_ok(), "Transpilation failed: {:?}", result.err());
     let rust_code = result.unwrap();
-    assert!(rust_code.contains(r#"greet("Alice".to_string(), "Hi".to_string())"#));
+    eprintln!("Generated code:\n{}", rust_code);
+    // Parameters are &str (borrowed), so no .to_string() needed
+    assert!(rust_code.contains(r#"greet("Alice", "Hi")"#));
 }
 
 #[test]
-fn test_kwargs_all_named_arguments() {
+fn test_all_named_arguments() {
     let python = r#"
 def configure(width: int, height: int, title: str) -> dict:
     return {"width": width, "height": height, "title": title}
@@ -39,12 +41,12 @@ def test() -> dict:
 
     assert!(result.is_ok(), "Transpilation failed: {:?}", result.err());
     let rust_code = result.unwrap();
-    assert!(rust_code.contains(r#"configure(800, 600, "My App".to_string())"#));
+    // Parameters are &str (borrowed), so no .to_string() needed
+    assert!(rust_code.contains(r#"configure(800, 600, "My App")"#));
 }
 
 #[test]
-#[ignore = "TODO: kwargs argument reordering not fully implemented"]
-fn test_kwargs_multiple_named_after_positional() {
+fn test_multiple_named_after_positional() {
     let python = r#"
 def calculate(a: int, b: int, operation: str = "add", verbose: bool = False) -> int:
     if operation == "add":
@@ -64,12 +66,12 @@ def test() -> int:
 
     assert!(result.is_ok(), "Transpilation failed: {:?}", result.err());
     let rust_code = result.unwrap();
+    eprintln!("Generated code:\n{}", rust_code);
     assert!(rust_code.contains(r#"calculate(10, 20, "add", true)"#));
 }
 
 #[test]
-#[ignore = "TODO: kwargs argument reordering not fully implemented"]
-fn test_kwargs_method_calls_with_named_args() {
+fn test_method_calls_with_named_args() {
     let python = r#"
 class MyObject:
     def setup(self, mode: str = "basic", timeout: int = 10, retry: bool = False):
@@ -87,11 +89,14 @@ def test():
 
     assert!(result.is_ok(), "Transpilation failed: {:?}", result.err());
     let rust_code = result.unwrap();
+    eprintln!("Generated code:\n{}", rust_code);
+    // Class method str parameters currently use owned String type
+    // so .to_string() is needed for string literals
     assert!(rust_code.contains(r#".setup("advanced".to_string(), 30, true)"#));
 }
 
 #[test]
-fn test_kwargs_nested_function_calls() {
+fn test_nested_function_calls() {
     let python = r#"
 def inner(x: int, y: int) -> int:
     return x + y
@@ -112,7 +117,7 @@ def test() -> int:
 }
 
 #[test]
-fn test_kwargs_only_positional_args() {
+fn test_only_positional_args() {
     let python = r#"
 def add(a: int, b: int) -> int:
     return a + b
@@ -130,7 +135,7 @@ def test() -> int:
 }
 
 #[test]
-fn test_kwargs_with_complex_expressions() {
+fn test_with_complex_expressions() {
     let python = r#"
 def configure(width: int, height: int, enabled: bool, title: str) -> dict:
     return {"width": width, "height": height, "enabled": enabled, "title": title}
@@ -162,7 +167,7 @@ def test() -> dict:
 }
 
 #[test]
-fn test_kwargs_string_literals_converted_properly() {
+fn test_string_literals_converted_properly() {
     let python = r#"
 def greet(name: str, greeting: str) -> str:
     return f"{greeting}, {name}!"
@@ -190,7 +195,7 @@ def test() -> str:
 }
 
 #[test]
-fn test_kwargs_builtin_functions_with_kwargs() {
+fn test_builtin_functions_with() {
     let python = r#"
 def test() -> str:
     # Python's open() with kwargs
@@ -215,7 +220,7 @@ def test() -> str:
 }
 
 #[test]
-fn test_kwargs_empty_function_call_no_args() {
+fn test_empty_function_call_no_args() {
     let python = r#"
 def no_params() -> int:
     return 42
@@ -233,8 +238,7 @@ def test() -> int:
 }
 
 #[test]
-#[ignore = "TODO: kwargs argument reordering not fully implemented"]
-fn test_kwargs_reordered_arguments() {
+fn test_reordered_arguments() {
     let python = r#"
 def format_message(name: str, age: int, city: str, country: str) -> str:
     return f"{name} is {age} years old from {city}, {country}"
@@ -248,21 +252,21 @@ def test() -> str:
 
     assert!(result.is_ok(), "Transpilation failed: {:?}", result.err());
     let rust_code = result.unwrap();
+    eprintln!("Generated code:\n{}", rust_code);
 
     // Check that the arguments appear in the correct order (ignoring whitespace/formatting)
     // Expected order: name="Alice", age=30, city="New York", country="USA"
+    // Parameters are &str (borrowed), so no .to_string() needed
     let call_start = rust_code
         .find("format_message(")
         .expect("format_message call not found");
     let call_section = &rust_code[call_start..];
 
     // Find the positions of each argument in the call
-    let alice_pos = call_section.find(r#""Alice".to_string()"#).expect("Alice not found");
+    let alice_pos = call_section.find(r#""Alice""#).expect("Alice not found");
     let age_pos = call_section.find("30").expect("30 not found");
-    let newyork_pos = call_section
-        .find(r#""New York".to_string()"#)
-        .expect("New York not found");
-    let usa_pos = call_section.find(r#""USA".to_string()"#).expect("USA not found");
+    let newyork_pos = call_section.find(r#""New York""#).expect("New York not found");
+    let usa_pos = call_section.find(r#""USA""#).expect("USA not found");
 
     // Verify they appear in the correct order
     assert!(alice_pos < age_pos, "Alice should come before age");
@@ -271,8 +275,7 @@ def test() -> str:
 }
 
 #[test]
-#[ignore = "TODO: kwargs argument reordering not fully implemented"]
-fn test_kwargs_mixed_positional_and_reordered_named() {
+fn test_mixed_positional_and_reordered_named() {
     let python = r#"
 def build_url(protocol: str, host: str, port: int, path: str) -> str:
     return f"{protocol}://{host}:{port}/{path}"
@@ -286,20 +289,51 @@ def test() -> str:
 
     assert!(result.is_ok(), "Transpilation failed: {:?}", result.err());
     let rust_code = result.unwrap();
+    eprintln!("Generated code:\n{}", rust_code);
 
     let call_start = rust_code.find("build_url(").expect("build_url call not found");
     let call_section = &rust_code[call_start..];
 
     // Find the positions of each argument in the call
-    let https_pos = call_section.find(r#""https".to_string()"#).expect("https not found");
-    let example_pos = call_section
-        .find(r#""example.com".to_string()"#)
-        .expect("example.com not found");
+    // Parameters are &str (borrowed), so no .to_string() needed
+    let https_pos = call_section.find(r#""https""#).expect("https not found");
+    let example_pos = call_section.find(r#""example.com""#).expect("example.com not found");
     let port_pos = call_section.find("443").expect("443 not found");
-    let api_pos = call_section.find(r#""api".to_string()"#).expect("api not found");
+    let api_pos = call_section.find(r#""api""#).expect("api not found");
 
     // Verify they appear in the correct order: protocol, host, port, path
     assert!(https_pos < example_pos, "https should come before example.com");
     assert!(example_pos < port_pos, "example.com should come before 443");
     assert!(port_pos < api_pos, "443 should come before api (kwargs reordered)");
+}
+
+#[test]
+fn test_generic_function_with_optional_default() {
+    let python = r#"
+from typing import TypeVar, Iterable, Optional
+
+T = TypeVar('T')
+
+def first(iterable: Iterable[T], default: Optional[T] = None) -> Optional[T]:
+    for item in iterable:
+        return item
+    return default
+
+def test() -> Optional[int]:
+    numbers = [1, 2, 3]
+    return first(numbers, default=0)
+"#;
+
+    let pipeline = DepylerPipeline::new();
+    let result = pipeline.transpile(python);
+
+    assert!(result.is_ok(), "Transpilation failed: {:?}", result.err());
+    let rust_code = result.unwrap();
+    eprintln!("Generated code:\n{}", rust_code);
+    // Rust doesn't support default values in function signatures
+    // Check for the generated function signature without `= None`
+    assert!(
+        rust_code.contains("first<T: Clone>(iterable: &Iterable<T>, default: Option<T>)"),
+        "Expected generic function signature with Option<T> parameter\n{rust_code}"
+    );
 }

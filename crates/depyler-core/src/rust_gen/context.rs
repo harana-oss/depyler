@@ -146,6 +146,11 @@ pub struct CodeGenContext<'a> {
     /// When passing these to other functions expecting &mut, don't add another &mut
     /// Cleared at the start of each function generation, populated by codegen_single_param
     pub current_func_mut_ref_params: HashSet<String>,
+
+    /// DEPYLER-0364: Track function parameter names for kwargs reordering
+    /// Maps function name -> Vec of parameter names in order
+    /// Used to reorder keyword arguments to match the function signature
+    pub function_param_names: HashMap<String, Vec<String>>,
 }
 
 impl<'a> CodeGenContext<'a> {

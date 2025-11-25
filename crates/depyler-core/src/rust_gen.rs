@@ -1208,6 +1208,7 @@ pub fn generate_rust_file(
         validator_functions: HashSet::new(), // DEPYLER-0447: Track argparse validator functions
         stdlib_mappings: crate::stdlib_mappings::StdlibMappings::new(), // DEPYLER-0452: Stdlib API mappings
         current_func_mut_ref_params: HashSet::new(), // Track &mut ref params in current function
+        function_param_names: std::collections::HashMap::new(), // DEPYLER-0364: Track function parameter names
     };
 
     // Analyze all functions first for string optimization
@@ -1233,6 +1234,23 @@ pub fn generate_rust_file(
     for func in &module.functions {
         if func.properties.can_fail && matches!(func.ret_type, Type::Bool) {
             ctx.result_bool_functions.insert(func.name.clone());
+        }
+    }
+
+    // DEPYLER-0364: Populate function parameter names map for kwargs reordering
+    // This allows convert_call to reorder keyword arguments to match function signatures
+    for func in &module.functions {
+        let param_names: Vec<String> = func.params.iter().map(|p| p.name.clone()).collect();
+        ctx.function_param_names.insert(func.name.clone(), param_names);
+    }
+    // Also track class method parameter names
+    for class in &module.classes {
+        for method in &class.methods {
+            let method_key = format!("{}.{}", class.name, method.name);
+            let param_names: Vec<String> = method.params.iter().map(|p| p.name.clone()).collect();
+            ctx.function_param_names.insert(method_key, param_names.clone());
+            // Also store just the method name for unqualified calls
+            ctx.function_param_names.insert(method.name.clone(), param_names);
         }
     }
 
@@ -1398,6 +1416,7 @@ mod tests {
             validator_functions: HashSet::new(), // DEPYLER-0447: Track argparse validator functions
             stdlib_mappings: crate::stdlib_mappings::StdlibMappings::new(), // DEPYLER-0452
             current_func_mut_ref_params: HashSet::new(), // Track &mut ref params in current function
+            function_param_names: std::collections::HashMap::new(), // DEPYLER-0364: Track function parameter names
         }
     }
 
