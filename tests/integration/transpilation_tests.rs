@@ -2,8 +2,8 @@ use std::fs;
 use std::process::Command;
 use tempfile::TempDir;
 
+use depyler_analysis::PropertyVerifier;
 use depyler_core::{Config, DepylerPipeline};
-use depyler_verify::PropertyVerifier;
 
 #[derive(Debug)]
 pub struct TranspilationTestHarness {
@@ -27,11 +27,7 @@ impl TranspilationTestHarness {
         }
     }
 
-    pub fn test_transpilation(
-        &self,
-        python_source: &str,
-        expected_rust: &str,
-    ) -> Result<(), String> {
+    pub fn test_transpilation(&self, python_source: &str, expected_rust: &str) -> Result<(), String> {
         // 1. Transpile Python to Rust
         let result = self
             .pipeline
@@ -132,7 +128,7 @@ impl TranspilationTestHarness {
 
             for result in verification_results {
                 match result.status {
-                    depyler_verify::PropertyStatus::Violated(msg) => {
+                    depyler_analysis::PropertyStatus::Violated(msg) => {
                         return Err(format!("Property verification failed: {msg}"));
                     }
                     _ => continue,

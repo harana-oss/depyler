@@ -3,7 +3,7 @@ use crate::cargo_toml_gen; // DEPYLER-0384: Cargo.toml generation
 use crate::hir::*;
 use crate::string_optimization::StringOptimizer;
 use anyhow::Result;
-use quote::{quote, ToTokens};
+use quote::{ToTokens, quote};
 use std::collections::{HashMap, HashSet};
 use syn::{self, parse_quote};
 
@@ -27,10 +27,9 @@ use format::format_rust_code;
 use import_gen::process_module_imports;
 #[cfg(test)]
 use stmt_gen::{
-    codegen_assign_attribute, codegen_assign_index, codegen_assign_symbol, codegen_assign_tuple,
-    codegen_break_stmt, codegen_continue_stmt, codegen_expr_stmt, codegen_pass_stmt,
-    codegen_raise_stmt, codegen_return_stmt, codegen_try_stmt, codegen_while_stmt,
-    codegen_with_stmt,
+    codegen_assign_attribute, codegen_assign_index, codegen_assign_symbol, codegen_assign_tuple, codegen_break_stmt,
+    codegen_continue_stmt, codegen_expr_stmt, codegen_pass_stmt, codegen_raise_stmt, codegen_return_stmt,
+    codegen_try_stmt, codegen_while_stmt, codegen_with_stmt,
 };
 
 // Public re-exports for external modules (union_enum_gen, etc.)
@@ -78,7 +77,9 @@ fn scan_stmts_for_validators(stmts: &[HirStmt], ctx: &mut CodeGenContext) {
             HirStmt::Expr(expr) => {
                 scan_expr_for_validators(expr, ctx);
             }
-            HirStmt::If { then_body, else_body, .. } => {
+            HirStmt::If {
+                then_body, else_body, ..
+            } => {
                 scan_stmts_for_validators(then_body, ctx);
                 if let Some(ref else_stmts) = else_body {
                     scan_stmts_for_validators(else_stmts, ctx);
@@ -90,7 +91,12 @@ fn scan_stmts_for_validators(stmts: &[HirStmt], ctx: &mut CodeGenContext) {
             HirStmt::For { body, .. } => {
                 scan_stmts_for_validators(body, ctx);
             }
-            HirStmt::Try { body, handlers, orelse, finalbody } => {
+            HirStmt::Try {
+                body,
+                handlers,
+                orelse,
+                finalbody,
+            } => {
                 scan_stmts_for_validators(body, ctx);
                 for handler in handlers {
                     scan_stmts_for_validators(&handler.body, ctx);
@@ -127,6 +133,491 @@ fn scan_expr_for_validators(expr: &HirExpr, ctx: &mut CodeGenContext) {
     }
 }
 
+/// Pre-analyze all functions to determine which parameters need mutable borrows.
+/// This must run BEFORE function code generation so call sites know whether to use &mut.
+///
+/// The analysis is done in two passes:
+/// 1. First pass: detect direct mutations for all functions
+/// 2. Second pass: propagate mutations through call chains (if param.field is passed
+///    to a function that mutates its parameter, the original param also needs &mut)
+///
+/// Populates ctx.function_param_muts with function_name -> Vec<bool>
+/// where each bool indicates if the corresponding parameter needs &mut.
+fn pre_analyze_parameter_mutability(ctx: &mut CodeGenContext, functions: &[HirFunction]) {
+    // Pass 1: Direct mutation analysis
+    for func in functions {
+        let param_muts: Vec<bool> = func
+            .params
+            .iter()
+            .map(|param| is_parameter_mutated(&param.name, &func.body))
+            .collect();
+        ctx.function_param_muts.insert(func.name.clone(), param_muts);
+    }
+
+    // Pass 2: Propagate mutations through call chains
+    // If a function passes param.field to another function that mutates it,
+    // the param itself needs to be mutable
+    let mut changed = true;
+    while changed {
+        changed = false;
+        for func in functions {
+            for (param_idx, param) in func.params.iter().enumerate() {
+                // Skip if already marked as needing mut
+                if ctx
+                    .function_param_muts
+                    .get(&func.name)
+                    .and_then(|v| v.get(param_idx))
+                    .copied()
+                    .unwrap_or(false)
+                {
+                    continue;
+                }
+
+                // Check if any call passes param.field to a function that mutates it
+                if param_attr_passed_to_mutating_func(&param.name, &func.body, &ctx.function_param_muts) {
+                    if let Some(muts) = ctx.function_param_muts.get_mut(&func.name) {
+                        if let Some(m) = muts.get_mut(param_idx) {
+                            *m = true;
+                            changed = true;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Pass 3: Propagate &mut requirement DOWN the call chain
+    // If a function has &mut param and passes it to another function,
+    // that called function must also accept &mut (for type compatibility)
+    let mut changed = true;
+    while changed {
+        changed = false;
+        for func in functions {
+            for (param_idx, param) in func.params.iter().enumerate() {
+                // Only propagate from params that are already marked as needing mut
+                let needs_mut = ctx
+                    .function_param_muts
+                    .get(&func.name)
+                    .and_then(|v| v.get(param_idx))
+                    .copied()
+                    .unwrap_or(false);
+
+                if needs_mut {
+                    // Find all functions called with this param
+                    propagate_mut_to_callees(&param.name, &func.body, &mut ctx.function_param_muts, &mut changed);
+                }
+            }
+        }
+    }
+
+    // Debug: print final function_param_muts
+    #[cfg(debug_assertions)]
+    for (func_name, muts) in &ctx.function_param_muts {
+        eprintln!("DEBUG function_param_muts: {} = {:?}", func_name, muts);
+    }
+}
+
+/// Propagate &mut requirement to called functions
+fn propagate_mut_to_callees(
+    param_name: &str,
+    body: &[HirStmt],
+    function_param_muts: &mut HashMap<String, Vec<bool>>,
+    changed: &mut bool,
+) {
+    for stmt in body {
+        propagate_mut_to_callees_stmt(param_name, stmt, function_param_muts, changed);
+    }
+}
+
+fn propagate_mut_to_callees_stmt(
+    param_name: &str,
+    stmt: &HirStmt,
+    function_param_muts: &mut HashMap<String, Vec<bool>>,
+    changed: &mut bool,
+) {
+    match stmt {
+        HirStmt::Expr(expr) | HirStmt::Assign { value: expr, .. } => {
+            propagate_mut_to_callees_expr(param_name, expr, function_param_muts, changed);
+        }
+        HirStmt::If {
+            then_body,
+            else_body,
+            condition,
+            ..
+        } => {
+            propagate_mut_to_callees_expr(param_name, condition, function_param_muts, changed);
+            for s in then_body {
+                propagate_mut_to_callees_stmt(param_name, s, function_param_muts, changed);
+            }
+            if let Some(eb) = else_body {
+                for s in eb {
+                    propagate_mut_to_callees_stmt(param_name, s, function_param_muts, changed);
+                }
+            }
+        }
+        HirStmt::While { body, condition, .. } => {
+            propagate_mut_to_callees_expr(param_name, condition, function_param_muts, changed);
+            for s in body {
+                propagate_mut_to_callees_stmt(param_name, s, function_param_muts, changed);
+            }
+        }
+        HirStmt::For { body, .. } => {
+            for s in body {
+                propagate_mut_to_callees_stmt(param_name, s, function_param_muts, changed);
+            }
+        }
+        _ => {}
+    }
+}
+
+fn propagate_mut_to_callees_expr(
+    param_name: &str,
+    expr: &HirExpr,
+    function_param_muts: &mut HashMap<String, Vec<bool>>,
+    changed: &mut bool,
+) {
+    match expr {
+        HirExpr::Call { func, args, .. } => {
+            // Check if param is passed to this function
+            for (arg_idx, arg) in args.iter().enumerate() {
+                let is_param = matches!(arg, HirExpr::Var(name) if name == param_name);
+                let is_param_attr = is_param_attribute_access(param_name, arg);
+
+                if is_param || is_param_attr {
+                    // Mark this function's parameter as needing mut
+                    if let Some(muts) = function_param_muts.get_mut(func) {
+                        if let Some(m) = muts.get_mut(arg_idx) {
+                            if !*m {
+                                *m = true;
+                                *changed = true;
+                            }
+                        }
+                    }
+                }
+            }
+            // Recurse into args
+            for arg in args {
+                propagate_mut_to_callees_expr(param_name, arg, function_param_muts, changed);
+            }
+        }
+        HirExpr::Binary { left, right, .. } => {
+            propagate_mut_to_callees_expr(param_name, left, function_param_muts, changed);
+            propagate_mut_to_callees_expr(param_name, right, function_param_muts, changed);
+        }
+        _ => {}
+    }
+}
+
+/// Check if param.field is passed to a function that mutates that parameter position
+fn param_attr_passed_to_mutating_func(
+    param_name: &str,
+    body: &[HirStmt],
+    function_param_muts: &HashMap<String, Vec<bool>>,
+) -> bool {
+    for stmt in body {
+        if stmt_passes_param_attr_to_mutating_func(param_name, stmt, function_param_muts) {
+            return true;
+        }
+    }
+    false
+}
+
+fn stmt_passes_param_attr_to_mutating_func(
+    param_name: &str,
+    stmt: &HirStmt,
+    function_param_muts: &HashMap<String, Vec<bool>>,
+) -> bool {
+    match stmt {
+        HirStmt::Expr(expr) | HirStmt::Assign { value: expr, .. } => {
+            expr_passes_param_attr_to_mutating_func(param_name, expr, function_param_muts)
+        }
+        HirStmt::If {
+            then_body,
+            else_body,
+            condition,
+            ..
+        } => {
+            expr_passes_param_attr_to_mutating_func(param_name, condition, function_param_muts)
+                || body_passes_param_attr_to_mutating_func(param_name, then_body, function_param_muts)
+                || else_body
+                    .as_ref()
+                    .is_some_and(|eb| body_passes_param_attr_to_mutating_func(param_name, eb, function_param_muts))
+        }
+        HirStmt::While { body, condition, .. } => {
+            expr_passes_param_attr_to_mutating_func(param_name, condition, function_param_muts)
+                || body_passes_param_attr_to_mutating_func(param_name, body, function_param_muts)
+        }
+        HirStmt::For { body, .. } => body_passes_param_attr_to_mutating_func(param_name, body, function_param_muts),
+        HirStmt::Return(Some(expr)) => expr_passes_param_attr_to_mutating_func(param_name, expr, function_param_muts),
+        _ => false,
+    }
+}
+
+fn body_passes_param_attr_to_mutating_func(
+    param_name: &str,
+    body: &[HirStmt],
+    function_param_muts: &HashMap<String, Vec<bool>>,
+) -> bool {
+    body.iter()
+        .any(|s| stmt_passes_param_attr_to_mutating_func(param_name, s, function_param_muts))
+}
+
+fn expr_passes_param_attr_to_mutating_func(
+    param_name: &str,
+    expr: &HirExpr,
+    function_param_muts: &HashMap<String, Vec<bool>>,
+) -> bool {
+    match expr {
+        HirExpr::Call { func, args, kwargs } => {
+            // Check each argument to see if it's the param itself or param.field
+            for (arg_idx, arg) in args.iter().enumerate() {
+                // Check if argument is param.field
+                if is_param_attribute_access(param_name, arg) {
+                    // Check if this function's parameter at arg_idx needs mut
+                    if function_param_muts
+                        .get(func)
+                        .and_then(|muts| muts.get(arg_idx))
+                        .copied()
+                        .unwrap_or(false)
+                    {
+                        return true;
+                    }
+                }
+                // Also check if argument is param itself (direct pass)
+                if let HirExpr::Var(var_name) = arg {
+                    if var_name == param_name {
+                        // Check if this function's parameter at arg_idx needs mut
+                        if function_param_muts
+                            .get(func)
+                            .and_then(|muts| muts.get(arg_idx))
+                            .copied()
+                            .unwrap_or(false)
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+            // Also check kwargs
+            for (_, arg) in kwargs {
+                if is_param_attribute_access(param_name, arg) {
+                    // Conservative: if any kwarg is param.field, might need mut
+                    // (We'd need to know param positions for kwargs to be precise)
+                }
+            }
+            // Recursively check args and kwargs
+            args.iter()
+                .any(|a| expr_passes_param_attr_to_mutating_func(param_name, a, function_param_muts))
+                || kwargs
+                    .iter()
+                    .any(|(_, v)| expr_passes_param_attr_to_mutating_func(param_name, v, function_param_muts))
+        }
+        HirExpr::MethodCall { args, .. } => args
+            .iter()
+            .any(|a| expr_passes_param_attr_to_mutating_func(param_name, a, function_param_muts)),
+        HirExpr::Binary { left, right, .. } => {
+            expr_passes_param_attr_to_mutating_func(param_name, left, function_param_muts)
+                || expr_passes_param_attr_to_mutating_func(param_name, right, function_param_muts)
+        }
+        HirExpr::Unary { operand, .. } => {
+            expr_passes_param_attr_to_mutating_func(param_name, operand, function_param_muts)
+        }
+        _ => false,
+    }
+}
+
+/// Check if expression is an attribute access on a specific parameter
+/// e.g., state.data where param_name == "state"
+fn is_param_attribute_access(param_name: &str, expr: &HirExpr) -> bool {
+    match expr {
+        HirExpr::Attribute { value, .. } => {
+            if let HirExpr::Var(var_name) = value.as_ref() {
+                var_name == param_name
+            } else {
+                is_param_attribute_access(param_name, value)
+            }
+        }
+        _ => false,
+    }
+}
+
+/// Check if a parameter is mutated in the function body
+fn is_parameter_mutated(param_name: &str, body: &[HirStmt]) -> bool {
+    for stmt in body {
+        if stmt_mutates_param(param_name, stmt) {
+            return true;
+        }
+    }
+    false
+}
+
+/// Check if a statement mutates a specific parameter
+fn stmt_mutates_param(param_name: &str, stmt: &HirStmt) -> bool {
+    match stmt {
+        HirStmt::Assign { target, value, .. } => {
+            // Check if target is the parameter or an attribute of it
+            let target_mutates = match target {
+                AssignTarget::Symbol(name) if name == param_name => true,
+                AssignTarget::Attribute { value: base, .. } => {
+                    if let HirExpr::Var(var_name) = base.as_ref() {
+                        var_name == param_name
+                    } else {
+                        expr_contains_param_mutation(param_name, base)
+                    }
+                }
+                AssignTarget::Index { base, .. } => {
+                    if let HirExpr::Var(var_name) = base.as_ref() {
+                        var_name == param_name
+                    } else {
+                        false
+                    }
+                }
+                _ => false,
+            };
+            target_mutates || expr_mutates_param(param_name, value)
+        }
+        HirStmt::Expr(expr) => expr_mutates_param(param_name, expr),
+        HirStmt::If {
+            then_body,
+            else_body,
+            condition,
+            ..
+        } => {
+            expr_mutates_param(param_name, condition)
+                || body_mutates_param(param_name, then_body)
+                || else_body.as_ref().is_some_and(|eb| body_mutates_param(param_name, eb))
+        }
+        HirStmt::While { body, condition, .. } => {
+            expr_mutates_param(param_name, condition) || body_mutates_param(param_name, body)
+        }
+        HirStmt::For { target, iter, body, .. } => {
+            // Check if the iterator expression is an attribute access on the parameter
+            // and the loop body mutates the loop variable (requires &mut iteration)
+            let loop_var = match target {
+                AssignTarget::Symbol(name) => Some(name.as_str()),
+                _ => None,
+            };
+
+            let iter_on_param = matches_param_attribute(param_name, iter);
+            let body_mutates_loop_var = loop_var.is_some_and(|lv| body_mutates_param(lv, body));
+
+            // If iterating over param.field and mutating loop var, param needs &mut
+            (iter_on_param && body_mutates_loop_var) || body_mutates_param(param_name, body)
+        }
+        HirStmt::Return(Some(expr)) => expr_mutates_param(param_name, expr),
+        HirStmt::Try {
+            body,
+            handlers,
+            orelse,
+            finalbody,
+        } => {
+            body_mutates_param(param_name, body)
+                || handlers.iter().any(|h| body_mutates_param(param_name, &h.body))
+                || orelse.as_ref().is_some_and(|o| body_mutates_param(param_name, o))
+                || finalbody.as_ref().is_some_and(|f| body_mutates_param(param_name, f))
+        }
+        _ => false,
+    }
+}
+
+fn body_mutates_param(param_name: &str, body: &[HirStmt]) -> bool {
+    body.iter().any(|stmt| stmt_mutates_param(param_name, stmt))
+}
+
+/// Check if an expression mutates a parameter (via method call)
+fn expr_mutates_param(param_name: &str, expr: &HirExpr) -> bool {
+    match expr {
+        HirExpr::MethodCall {
+            object, method, args, ..
+        } => {
+            // Check if this is a mutating method call on the parameter or its attributes
+            // e.g., state.append(...) or state.data.update(...)
+            let object_involves_param = expr_involves_param(param_name, object);
+            if object_involves_param && is_mutating_method_name(method) {
+                return true;
+            }
+            // Only recurse into args to check for mutations there
+            args.iter().any(|a| expr_mutates_param(param_name, a))
+        }
+        HirExpr::Call { func: _, args, kwargs } => {
+            // Check if the parameter is passed to a function that mutates it
+            // This requires checking ctx.function_param_muts, but we're pre-populating
+            // so we can't check other functions yet. For now, just check args.
+            args.iter().any(|a| expr_mutates_param(param_name, a))
+                || kwargs.iter().any(|(_, v)| expr_mutates_param(param_name, v))
+        }
+        HirExpr::Binary { left, right, .. } => {
+            expr_mutates_param(param_name, left) || expr_mutates_param(param_name, right)
+        }
+        HirExpr::Unary { operand, .. } => expr_mutates_param(param_name, operand),
+        HirExpr::IfExpr { test, body, orelse } => {
+            expr_mutates_param(param_name, test)
+                || expr_mutates_param(param_name, body)
+                || expr_mutates_param(param_name, orelse)
+        }
+        HirExpr::List(items) | HirExpr::Tuple(items) | HirExpr::Set(items) => {
+            items.iter().any(|i| expr_mutates_param(param_name, i))
+        }
+        HirExpr::Dict(pairs) => pairs
+            .iter()
+            .any(|(k, v)| expr_mutates_param(param_name, k) || expr_mutates_param(param_name, v)),
+        HirExpr::Index { base, index } => expr_mutates_param(param_name, base) || expr_mutates_param(param_name, index),
+        HirExpr::Attribute { value, .. } => expr_mutates_param(param_name, value),
+        _ => false,
+    }
+}
+
+/// Check if expression involves a parameter (directly or via attribute access)
+/// This is used to check if a method call might affect the parameter.
+/// e.g., expr_involves_param("state", state) => true
+/// e.g., expr_involves_param("state", state.data) => true
+fn expr_involves_param(param_name: &str, expr: &HirExpr) -> bool {
+    match expr {
+        HirExpr::Var(name) => name == param_name,
+        HirExpr::Attribute { value, .. } => expr_involves_param(param_name, value),
+        _ => false,
+    }
+}
+
+/// Check if expression contains nested param mutation (for attribute access chains)
+fn expr_contains_param_mutation(param_name: &str, expr: &HirExpr) -> bool {
+    match expr {
+        HirExpr::Var(name) => name == param_name,
+        HirExpr::Attribute { value, .. } => expr_contains_param_mutation(param_name, value),
+        _ => false,
+    }
+}
+
+/// Check if a method name is known to mutate its receiver
+fn is_mutating_method_name(method: &str) -> bool {
+    matches!(
+        method,
+        // List methods
+        "append" | "extend" | "insert" | "remove" | "pop" | "clear" | "reverse" | "sort" |
+        // Dict methods  
+        "update" | "setdefault" | "popitem" |
+        // Set methods
+        "add" | "discard" | "difference_update" | "intersection_update" |
+        // Rust Vec methods (in case they're used)
+        "push" | "truncate"
+    )
+}
+
+/// Check if an expression is an attribute access on a specific parameter
+/// e.g., matches_param_attribute("state", state.items) => true
+fn matches_param_attribute(param_name: &str, expr: &HirExpr) -> bool {
+    match expr {
+        HirExpr::Attribute { value, .. } => {
+            if let HirExpr::Var(var_name) = value.as_ref() {
+                var_name == param_name
+            } else {
+                matches_param_attribute(param_name, value)
+            }
+        }
+        _ => false,
+    }
+}
+
 /// Analyze which variables are reassigned (mutated) in a list of statements
 ///
 /// Populates ctx.mutable_vars with variables that are:
@@ -153,10 +644,7 @@ fn analyze_mutable_vars(stmts: &[HirStmt], ctx: &mut CodeGenContext, params: &[H
     ) {
         match expr {
             HirExpr::MethodCall {
-                object,
-                method,
-                args,
-                ..
+                object, method, args, ..
             } => {
                 // Check if this is a mutating method call
                 let is_mut = if is_mutating_method(method) {
@@ -205,10 +693,7 @@ fn analyze_mutable_vars(stmts: &[HirStmt], ctx: &mut CodeGenContext, params: &[H
                 analyze_expr_for_mutations(body, mutable, var_types, mutating_methods);
                 analyze_expr_for_mutations(orelse, mutable, var_types, mutating_methods);
             }
-            HirExpr::List(items)
-            | HirExpr::Tuple(items)
-            | HirExpr::Set(items)
-            | HirExpr::FrozenSet(items) => {
+            HirExpr::List(items) | HirExpr::Tuple(items) | HirExpr::Set(items) | HirExpr::FrozenSet(items) => {
                 for item in items {
                     analyze_expr_for_mutations(item, mutable, var_types, mutating_methods);
                 }
@@ -323,15 +808,54 @@ fn analyze_mutable_vars(stmts: &[HirStmt], ctx: &mut CodeGenContext, params: &[H
                     }
                 }
             }
-            HirStmt::While {
-                condition, body, ..
-            } => {
+            HirStmt::While { condition, body, .. } => {
                 analyze_expr_for_mutations(condition, mutable, var_types, mutating_methods);
                 for stmt in body {
                     analyze_stmt(stmt, declared, mutable, var_types, mutating_methods);
                 }
             }
-            HirStmt::For { body, .. } => {
+            HirStmt::For { target, iter, body } => {
+                // Check if iterating over a parameter's field and mutating the loop variable
+                // This requires the parameter itself to be mutable
+                let loop_var = match target {
+                    AssignTarget::Symbol(name) => Some(name.as_str()),
+                    _ => None,
+                };
+
+                // Check if any param in `declared` (function parameters) is being iterated
+                // and the loop body mutates the loop variable
+                if let Some(lv) = loop_var {
+                    // Temporarily add loop var to declared
+                    declared.insert(lv.to_string());
+
+                    // Check if any statement in body mutates the loop variable
+                    let body_mutates_loop_var = body.iter().any(|stmt| {
+                        if let HirStmt::Assign {
+                            target: AssignTarget::Attribute { value, .. },
+                            ..
+                        } = stmt
+                        {
+                            if let HirExpr::Var(var_name) = value.as_ref() {
+                                var_name == lv
+                            } else {
+                                false
+                            }
+                        } else {
+                            false
+                        }
+                    });
+
+                    // If the iterator is an attribute access and body mutates loop var,
+                    // mark the base as mutable
+                    if body_mutates_loop_var {
+                        if let HirExpr::Attribute { value, .. } = iter {
+                            if let HirExpr::Var(var_name) = value.as_ref() {
+                                mutable.insert(var_name.clone());
+                            }
+                        }
+                    }
+                }
+
                 for stmt in body {
                     analyze_stmt(stmt, declared, mutable, var_types, mutating_methods);
                 }
@@ -398,9 +922,7 @@ fn convert_functions_to_rust(
 ///
 /// # Complexity
 /// ~6 (loop + if + string ops)
-fn deduplicate_use_statements(
-    items: Vec<proc_macro2::TokenStream>,
-) -> Vec<proc_macro2::TokenStream> {
+fn deduplicate_use_statements(items: Vec<proc_macro2::TokenStream>) -> Vec<proc_macro2::TokenStream> {
     let mut seen = std::collections::HashSet::new();
     let mut deduped = Vec::new();
 
@@ -428,10 +950,7 @@ fn generate_conditional_imports(ctx: &CodeGenContext) -> Vec<proc_macro2::TokenS
     let conditional_imports = [
         (ctx.needs_hashmap, quote! { use std::collections::HashMap; }),
         (ctx.needs_hashset, quote! { use std::collections::HashSet; }),
-        (
-            ctx.needs_vecdeque,
-            quote! { use std::collections::VecDeque; },
-        ),
+        (ctx.needs_vecdeque, quote! { use std::collections::VecDeque; }),
         (ctx.needs_fnv_hashmap, quote! { use fnv::FnvHashMap; }),
         (ctx.needs_ahash_hashmap, quote! { use ahash::AHashMap; }),
         (ctx.needs_arc, quote! { use std::sync::Arc; }),
@@ -490,8 +1009,7 @@ fn generate_import_tokens(
             continue; // Skip duplicate
         }
 
-        let path: syn::Path =
-            syn::parse_str(&import.path).unwrap_or_else(|_| parse_quote! { unknown });
+        let path: syn::Path = syn::parse_str(&import.path).unwrap_or_else(|_| parse_quote! { unknown });
         if let Some(alias) = import.alias {
             let alias_ident = syn::Ident::new(&alias, proc_macro2::Span::call_site());
             items.push(quote! { use #path as #alias_ident; });
@@ -608,19 +1126,13 @@ pub fn generate_rust_file(
     let module_mapper = crate::module_mapper::ModuleMapper::new();
 
     // Process imports to populate the context
-    let (imported_modules, imported_items) =
-        process_module_imports(&module.imports, &module_mapper);
+    let (imported_modules, imported_items) = process_module_imports(&module.imports, &module_mapper);
 
     // Extract class names from module (DEPYLER-0230: distinguish user classes from builtins)
-    let class_names: HashSet<String> = module
-        .classes
-        .iter()
-        .map(|class| class.name.clone())
-        .collect();
+    let class_names: HashSet<String> = module.classes.iter().map(|class| class.name.clone()).collect();
 
     // DEPYLER-0231: Build map of mutating methods (class_name -> set of method names)
-    let mut mutating_methods: std::collections::HashMap<String, HashSet<String>> =
-        std::collections::HashMap::new();
+    let mut mutating_methods: std::collections::HashMap<String, HashSet<String>> = std::collections::HashMap::new();
     for class in &module.classes {
         let mut mut_methods = HashSet::new();
         for method in &class.methods {
@@ -682,11 +1194,12 @@ pub fn generate_rust_file(
         mutating_methods,
         function_return_types: std::collections::HashMap::new(), // DEPYLER-0269: Track function return types
         function_param_borrows: std::collections::HashMap::new(), // DEPYLER-0270: Track parameter borrowing
-        tuple_iter_vars: HashSet::new(), // DEPYLER-0307 Fix #9: Track tuple iteration variables
+        function_param_muts: std::collections::HashMap::new(),   // Track parameters needing &mut
+        tuple_iter_vars: HashSet::new(),                         // DEPYLER-0307 Fix #9: Track tuple iteration variables
         is_final_statement: false, // DEPYLER-0271: Track final statement for expression-based returns
         result_bool_functions: HashSet::new(), // DEPYLER-0308: Track functions returning Result<bool>
         result_returning_functions: HashSet::new(), // DEPYLER-0270: Track ALL Result-returning functions
-        current_error_type: None, // DEPYLER-0310: Track error type for raise statement wrapping
+        current_error_type: None,  // DEPYLER-0310: Track error type for raise statement wrapping
         exception_scopes: Vec::new(), // DEPYLER-0333: Exception scope tracking stack
         argparser_tracker: argparse_transform::ArgParserTracker::new(), // DEPYLER-0363: Track ArgumentParser patterns
         generated_args_struct: None, // DEPYLER-0424: Args struct (hoisted to module level)
@@ -694,6 +1207,7 @@ pub fn generate_rust_file(
         current_subcommand_fields: None, // DEPYLER-0425: Subcommand field extraction
         validator_functions: HashSet::new(), // DEPYLER-0447: Track argparse validator functions
         stdlib_mappings: crate::stdlib_mappings::StdlibMappings::new(), // DEPYLER-0452: Stdlib API mappings
+        current_func_mut_ref_params: HashSet::new(), // Track &mut ref params in current function
     };
 
     // Analyze all functions first for string optimization
@@ -721,6 +1235,10 @@ pub fn generate_rust_file(
             ctx.result_bool_functions.insert(func.name.clone());
         }
     }
+
+    // Pre-analyze all functions for parameter mutability
+    // This populates function_param_muts so call sites know whether to use &mut
+    pre_analyze_parameter_mutability(&mut ctx, &module.functions);
 
     // Convert classes first (they might be used by functions)
     let classes = convert_classes_to_rust(&module.classes, ctx.type_mapper)?;
@@ -794,10 +1312,7 @@ pub fn generate_rust_file(
         formatted_code = format!("use serde_json;\n{}", formatted_code);
         // Add missing Cargo.toml dependencies
         dependencies.push(cargo_toml_gen::Dependency::new("serde_json", "1.0"));
-        dependencies.push(
-            cargo_toml_gen::Dependency::new("serde", "1.0")
-                .with_features(vec!["derive".to_string()]),
-        );
+        dependencies.push(cargo_toml_gen::Dependency::new("serde", "1.0").with_features(vec!["derive".to_string()]));
         // Re-format to ensure imports are properly ordered
         formatted_code = format_rust_code(formatted_code);
     }
@@ -820,9 +1335,7 @@ mod tests {
         let type_mapper: &'static TypeMapper = Box::leak(Box::new(TypeMapper::default()));
         CodeGenContext {
             type_mapper,
-            annotation_aware_mapper: AnnotationAwareTypeMapper::with_base_mapper(
-                type_mapper.clone(),
-            ),
+            annotation_aware_mapper: AnnotationAwareTypeMapper::with_base_mapper(type_mapper.clone()),
             string_optimizer: StringOptimizer::new(),
             union_enum_generator: crate::union_enum_gen::UnionEnumGenerator::new(),
             generated_enums: Vec::new(),
@@ -871,18 +1384,20 @@ mod tests {
             mutating_methods: std::collections::HashMap::new(),
             function_return_types: std::collections::HashMap::new(), // DEPYLER-0269: Track function return types
             function_param_borrows: std::collections::HashMap::new(), // DEPYLER-0270: Track parameter borrowing
+            function_param_muts: std::collections::HashMap::new(),   // Track parameters needing &mut
             tuple_iter_vars: HashSet::new(), // DEPYLER-0307 Fix #9: Track tuple iteration variables
-            is_final_statement: false, // DEPYLER-0271: Track final statement for expression-based returns
+            is_final_statement: false,       // DEPYLER-0271: Track final statement for expression-based returns
             result_bool_functions: HashSet::new(), // DEPYLER-0308: Track functions returning Result<bool>
             result_returning_functions: HashSet::new(), // DEPYLER-0270: Track ALL Result-returning functions
-            current_error_type: None, // DEPYLER-0310: Track error type for raise statement wrapping
-            exception_scopes: Vec::new(), // DEPYLER-0333: Exception scope tracking stack
+            current_error_type: None,        // DEPYLER-0310: Track error type for raise statement wrapping
+            exception_scopes: Vec::new(),    // DEPYLER-0333: Exception scope tracking stack
             argparser_tracker: argparse_transform::ArgParserTracker::new(), // DEPYLER-0363: Track ArgumentParser patterns
             generated_args_struct: None, // DEPYLER-0424: Args struct (hoisted to module level)
             generated_commands_enum: None, // DEPYLER-0424: Commands enum (hoisted to module level)
             current_subcommand_fields: None, // DEPYLER-0425: Subcommand field extraction
             validator_functions: HashSet::new(), // DEPYLER-0447: Track argparse validator functions
             stdlib_mappings: crate::stdlib_mappings::StdlibMappings::new(), // DEPYLER-0452
+            current_func_mut_ref_params: HashSet::new(), // Track &mut ref params in current function
         }
     }
 
@@ -914,10 +1429,7 @@ mod tests {
         assert!(code.contains("i32"));
         // DEPYLER-0271: Final return statements use expression-based returns (no `return` keyword)
         // The function body should contain the expression result without explicit `return`
-        assert!(
-            code.contains("a + b"),
-            "Function should contain expression 'a + b'"
-        );
+        assert!(code.contains("a + b"), "Function should contain expression 'a + b'");
     }
 
     #[test]
@@ -931,9 +1443,9 @@ mod tests {
             then_body: vec![HirStmt::Return(Some(HirExpr::Literal(Literal::String(
                 "positive".to_string(),
             ))))],
-            else_body: Some(vec![HirStmt::Return(Some(HirExpr::Literal(
-                Literal::String("negative".to_string()),
-            )))]),
+            else_body: Some(vec![HirStmt::Return(Some(HirExpr::Literal(Literal::String(
+                "negative".to_string(),
+            ))))]),
         };
 
         let mut ctx = create_test_context();
@@ -965,10 +1477,7 @@ mod tests {
         assert!(code.contains("3"));
 
         // Test non-literal list still uses vec!
-        let var_list = HirExpr::List(vec![
-            HirExpr::Var("x".to_string()),
-            HirExpr::Var("y".to_string()),
-        ]);
+        let var_list = HirExpr::List(vec![HirExpr::Var("x".to_string()), HirExpr::Var("y".to_string())]);
 
         let expr2 = var_list.to_rust_expr(&mut ctx).unwrap();
         let code2 = quote! { #expr2 }.to_string();
@@ -1113,10 +1622,7 @@ mod tests {
         ctx.current_function_can_fail = true; // Function returns Result, so raise becomes return Err
 
         let result = codegen_raise_stmt(&None, &mut ctx).unwrap();
-        assert_eq!(
-            result.to_string(),
-            "return Err (\"Exception raised\" . into ()) ;"
-        );
+        assert_eq!(result.to_string(), "return Err (\"Exception raised\" . into ()) ;");
     }
 
     // NOTE: With statement with target incomplete - requires full implementation (tracked in DEPYLER-0424)
@@ -1287,11 +1793,7 @@ mod tests {
 
         // Should generate cast for variables to prevent bool arithmetic errors
         assert!(code.contains("x"), "Expected 'x', got: {}", code);
-        assert!(
-            code.contains("as i32"),
-            "Should contain 'as i32' cast, got: {}",
-            code
-        );
+        assert!(code.contains("as i32"), "Should contain 'as i32' cast, got: {}", code);
     }
 
     #[test]
@@ -1307,11 +1809,7 @@ mod tests {
         let result = call_expr.to_rust_expr(&mut ctx).unwrap();
         let code = quote! { #result }.to_string();
 
-        assert!(
-            code.contains("as f64"),
-            "Expected '(y) as f64', got: {}",
-            code
-        );
+        assert!(code.contains("as f64"), "Expected '(y) as f64', got: {}", code);
     }
 
     #[test]
@@ -1351,11 +1849,7 @@ mod tests {
         let result = call_expr.to_rust_expr(&mut ctx).unwrap();
         let code = quote! { #result }.to_string();
 
-        assert!(
-            code.contains("as bool"),
-            "Expected '(flag) as bool', got: {}",
-            code
-        );
+        assert!(code.contains("as bool"), "Expected '(flag) as bool', got: {}", code);
     }
 
     #[test]
@@ -1384,21 +1878,9 @@ mod tests {
         let code = quote! { #result }.to_string();
 
         // Should generate cast for expressions to prevent bool arithmetic errors
-        assert!(
-            code.contains("low"),
-            "Expected 'low' variable, got: {}",
-            code
-        );
-        assert!(
-            code.contains("high"),
-            "Expected 'high' variable, got: {}",
-            code
-        );
-        assert!(
-            code.contains("as i32"),
-            "Should contain 'as i32' cast, got: {}",
-            code
-        );
+        assert!(code.contains("low"), "Expected 'low' variable, got: {}", code);
+        assert!(code.contains("high"), "Expected 'high' variable, got: {}", code);
+        assert!(code.contains("as i32"), "Should contain 'as i32' cast, got: {}", code);
     }
 
     #[test]

@@ -1,6 +1,6 @@
+use depyler_analysis::*;
 use depyler_annotations::TranspilationAnnotations;
 use depyler_core::hir::*;
-use depyler_quality::*;
 use smallvec::smallvec;
 
 fn create_simple_function() -> HirFunction {
@@ -59,9 +59,7 @@ fn create_complex_function() -> HirFunction {
                 }))],
                 else_body: Some(vec![HirStmt::Return(Some(HirExpr::Var("a".to_string())))]),
             }],
-            else_body: Some(vec![HirStmt::Return(Some(HirExpr::Literal(Literal::Int(
-                0,
-            ))))]),
+            else_body: Some(vec![HirStmt::Return(Some(HirExpr::Literal(Literal::Int(0))))]),
         }],
         properties: FunctionProperties::default(),
         annotations: TranspilationAnnotations::default(),
@@ -160,18 +158,9 @@ fn test_quality_requirements_evaluation() {
     let req_max_tdg = QualityRequirement::MaxPmatTdg(2.0);
 
     // Just ensure they can be created and used
-    assert!(matches!(
-        req_coverage,
-        QualityRequirement::MinTestCoverage(_)
-    ));
-    assert!(matches!(
-        req_complexity,
-        QualityRequirement::MaxComplexity(_)
-    ));
-    assert!(matches!(
-        req_compilation,
-        QualityRequirement::CompilationSuccess
-    ));
+    assert!(matches!(req_coverage, QualityRequirement::MinTestCoverage(_)));
+    assert!(matches!(req_complexity, QualityRequirement::MaxComplexity(_)));
+    assert!(matches!(req_compilation, QualityRequirement::CompilationSuccess));
     assert!(matches!(req_clippy, QualityRequirement::ClippyClean));
     assert!(matches!(req_panic_free, QualityRequirement::PanicFree));
     assert!(matches!(req_energy, QualityRequirement::EnergyEfficient(_)));

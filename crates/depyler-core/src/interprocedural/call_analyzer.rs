@@ -4,8 +4,8 @@
 //! and propagates mutation/borrowing requirements back to the caller.
 
 use crate::hir::{AssignTarget, HirExpr, HirFunction, HirStmt};
-use crate::interprocedural::signature_registry::{FunctionSignatureRegistry, ParamSignature};
 use crate::interprocedural::BorrowKind;
+use crate::interprocedural::signature_registry::FunctionSignatureRegistry;
 use std::collections::{HashMap, HashSet};
 
 /// Analyzes function calls to propagate borrowing requirements
@@ -15,7 +15,7 @@ pub struct CallSiteAnalyzer<'a> {
     /// Current function being analyzed
     current_function: Option<String>,
     /// Tracking mutations propagated through calls
-    propagated_mutations: HashMap<String, HashSet<String>>,
+    _propagated_mutations: HashMap<String, HashSet<String>>,
 }
 
 impl<'a> CallSiteAnalyzer<'a> {
@@ -24,30 +24,26 @@ impl<'a> CallSiteAnalyzer<'a> {
         Self {
             registry,
             current_function: None,
-            propagated_mutations: HashMap::new(),
+            _propagated_mutations: HashMap::new(),
         }
     }
-    
+
     /// Analyze all function calls in a function
     pub fn analyze_function(&mut self, func: &HirFunction) -> CallAnalysisResult {
         self.current_function = Some(func.name.clone());
         let mut required_mutable_vars = HashSet::new();
         let mut borrow_insertions = HashMap::new();
-        
+
         for stmt in &func.body {
-            self.analyze_stmt_for_calls(
-                stmt,
-                &mut required_mutable_vars,
-                &mut borrow_insertions,
-            );
+            self.analyze_stmt_for_calls(stmt, &mut required_mutable_vars, &mut borrow_insertions);
         }
-        
+
         CallAnalysisResult {
             required_mutable_vars,
             borrow_insertions,
         }
     }
-    
+
     /// Analyze a statement for function calls
     fn analyze_stmt_for_calls(
         &mut self,
@@ -58,7 +54,7 @@ impl<'a> CallSiteAnalyzer<'a> {
         match stmt {
             HirStmt::Assign { value, target, .. } => {
                 self.analyze_expr_for_calls(value, required_mutable_vars, borrow_insertions);
-                
+
                 // Check if assignment target involves mutation
                 if let AssignTarget::Index { base, .. } = target {
                     if let Some(root_var) = extract_root_var(base) {
@@ -69,7 +65,11 @@ impl<'a> CallSiteAnalyzer<'a> {
             HirStmt::Return(Some(expr)) => {
                 self.analyze_expr_for_calls(expr, required_mutable_vars, borrow_insertions);
             }
-            HirStmt::If { condition, then_body, else_body } => {
+            HirStmt::If {
+                condition,
+                then_body,
+                else_body,
+            } => {
                 self.analyze_expr_for_calls(condition, required_mutable_vars, borrow_insertions);
                 for stmt in then_body {
                     self.analyze_stmt_for_calls(stmt, required_mutable_vars, borrow_insertions);
@@ -108,7 +108,7 @@ impl<'a> CallSiteAnalyzer<'a> {
             _ => {}
         }
     }
-    
+
     /// Analyze an expression for function calls
     fn analyze_expr_for_calls(
         &mut self,
@@ -120,14 +120,16 @@ impl<'a> CallSiteAnalyzer<'a> {
             HirExpr::Call { func, args, .. } => {
                 self.analyze_call(func, args, required_mutable_vars, borrow_insertions);
             }
-            HirExpr::MethodCall { object, method, args, .. } => {
+            HirExpr::MethodCall {
+                object, method, args, ..
+            } => {
                 // Check if method is mutating
                 if is_mutating_method(method) {
                     if let Some(root_var) = extract_root_var(object) {
                         required_mutable_vars.insert(root_var);
                     }
                 }
-                
+
                 self.analyze_expr_for_calls(object, required_mutable_vars, borrow_insertions);
                 for arg in args {
                     self.analyze_expr_for_calls(arg, required_mutable_vars, borrow_insertions);
@@ -164,7 +166,7 @@ impl<'a> CallSiteAnalyzer<'a> {
             _ => {}
         }
     }
-    
+
     /// Analyze a specific function call
     fn analyze_call(
         &mut self,
@@ -180,7 +182,7 @@ impl<'a> CallSiteAnalyzer<'a> {
                 // If parameter is mutated in callee, propagate to caller
                 if param.is_mutated {
                     self.propagate_mutation(arg, required_mutable_vars);
-                    
+
                     // Record that we need to insert &mut at call site
                     borrow_insertions
                         .entry(arg_index)
@@ -193,13 +195,9 @@ impl<'a> CallSiteAnalyzer<'a> {
             }
         }
     }
-    
+
     /// Propagate mutation requirement through field access chain
-    fn propagate_mutation(
-        &mut self,
-        arg: &HirExpr,
-        required_mutable_vars: &mut HashSet<String>,
-    ) {
+    fn propagate_mutation(&mut self, arg: &HirExpr, required_mutable_vars: &mut HashSet<String>) {
         // Extract the root variable and field path
         // e.g., state.data -> root: "state", path: ["data"]
         if let Some(root_var) = extract_root_var(arg) {
@@ -257,23 +255,23 @@ pub struct BorrowInsertion {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::hir::{HirFunction, FunctionProperties, HirParam, Type as PythonType};
+    use crate::hir::{FunctionProperties, HirFunction, HirParam, Type as PythonType};
     use crate::interprocedural::signature_registry::FunctionSignatureRegistry;
     use depyler_annotations::TranspilationAnnotations;
     use smallvec::smallvec;
-    
+
     #[test]
     fn test_extract_root_var() {
         let var_expr = HirExpr::Var("state".to_string());
         assert_eq!(extract_root_var(&var_expr), Some("state".to_string()));
-        
+
         let attr_expr = HirExpr::Attribute {
             value: Box::new(HirExpr::Var("state".to_string())),
             attr: "data".to_string(),
         };
         assert_eq!(extract_root_var(&attr_expr), Some("state".to_string()));
     }
-    
+
     #[test]
     fn test_is_mutating_method() {
         assert!(is_mutating_method("append"));

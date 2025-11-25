@@ -51,7 +51,6 @@ pub mod backend;
 pub mod borrowing;
 pub mod borrowing_context;
 pub mod cargo_toml_gen;
-pub mod chaos;
 pub mod codegen;
 pub mod const_generic_inference;
 pub mod debug;
@@ -96,9 +95,7 @@ use serde::{Deserialize, Serialize};
 // Re-export backend traits and types
 pub use backend::{TranspilationBackend, TranspilationTarget, ValidationError};
 pub use error::TranspileError;
-pub use simplified_hir::{
-    Hir, HirBinaryOp, HirExpr, HirLiteral, HirParam, HirStatement, HirType, HirUnaryOp,
-};
+pub use simplified_hir::{Hir, HirBinaryOp, HirExpr, HirLiteral, HirParam, HirStatement, HirType, HirUnaryOp};
 
 /// The main transpilation pipeline for converting Python code to multiple targets
 ///
@@ -262,7 +259,7 @@ impl DepylerPipeline {
     pub fn new() -> Self {
         Self {
             analyzer: CoreAnalyzer {
-                metrics_enabled: true,
+                metrics_enabled: false,
                 type_inference_enabled: true,
             },
             transpiler: DirectTranspiler {
@@ -400,15 +397,11 @@ impl DepylerPipeline {
                                 if hint_param == &param.name
                                     && matches!(
                                         hint.confidence,
-                                        type_hints::Confidence::High
-                                            | type_hints::Confidence::Certain
+                                        type_hints::Confidence::High | type_hints::Confidence::Certain
                                     )
                                 {
                                     param.ty = hint.suggested_type.clone();
-                                    eprintln!(
-                                        "Applied type hint: {} -> {:?}",
-                                        param.name, param.ty
-                                    );
+                                    eprintln!("Applied type hint: {} -> {:?}", param.name, param.ty);
                                     break;
                                 }
                             }
@@ -453,9 +446,8 @@ impl DepylerPipeline {
 
         // Run migration suggestions analysis
         if self.analyzer.metrics_enabled {
-            let mut migration_analyzer = migration_suggestions::MigrationAnalyzer::new(
-                migration_suggestions::MigrationConfig::default(),
-            );
+            let mut migration_analyzer =
+                migration_suggestions::MigrationAnalyzer::new(migration_suggestions::MigrationConfig::default());
             let suggestions = migration_analyzer.analyze_program(&hir_program);
             if !suggestions.is_empty() {
                 eprintln!("{}", migration_analyzer.format_suggestions(&suggestions));
@@ -464,9 +456,8 @@ impl DepylerPipeline {
 
         // Run performance warnings analysis
         if self.analyzer.metrics_enabled {
-            let mut perf_analyzer = performance_warnings::PerformanceAnalyzer::new(
-                performance_warnings::PerformanceConfig::default(),
-            );
+            let mut perf_analyzer =
+                performance_warnings::PerformanceAnalyzer::new(performance_warnings::PerformanceConfig::default());
             let warnings = perf_analyzer.analyze_program(&hir_program);
             if !warnings.is_empty() {
                 eprintln!("{}", perf_analyzer.format_warnings(&warnings));
@@ -538,15 +529,11 @@ impl DepylerPipeline {
                                 if hint_param == &param.name
                                     && matches!(
                                         hint.confidence,
-                                        type_hints::Confidence::High
-                                            | type_hints::Confidence::Certain
+                                        type_hints::Confidence::High | type_hints::Confidence::Certain
                                     )
                                 {
                                     param.ty = hint.suggested_type.clone();
-                                    eprintln!(
-                                        "Applied type hint: {} -> {:?}",
-                                        param.name, param.ty
-                                    );
+                                    eprintln!("Applied type hint: {} -> {:?}", param.name, param.ty);
                                     break;
                                 }
                             }
@@ -591,9 +578,8 @@ impl DepylerPipeline {
 
         // Run migration suggestions analysis
         if self.analyzer.metrics_enabled {
-            let mut migration_analyzer = migration_suggestions::MigrationAnalyzer::new(
-                migration_suggestions::MigrationConfig::default(),
-            );
+            let mut migration_analyzer =
+                migration_suggestions::MigrationAnalyzer::new(migration_suggestions::MigrationConfig::default());
             let suggestions = migration_analyzer.analyze_program(&hir_program);
             if !suggestions.is_empty() {
                 eprintln!("{}", migration_analyzer.format_suggestions(&suggestions));
@@ -602,9 +588,8 @@ impl DepylerPipeline {
 
         // Run performance warnings analysis
         if self.analyzer.metrics_enabled {
-            let mut perf_analyzer = performance_warnings::PerformanceAnalyzer::new(
-                performance_warnings::PerformanceConfig::default(),
-            );
+            let mut perf_analyzer =
+                performance_warnings::PerformanceAnalyzer::new(performance_warnings::PerformanceConfig::default());
             let warnings = perf_analyzer.analyze_program(&hir_program);
             if !warnings.is_empty() {
                 eprintln!("{}", perf_analyzer.format_warnings(&warnings));
@@ -632,8 +617,7 @@ impl DepylerPipeline {
 
         // Generate Rust code using the unified generation system
         // DEPYLER-0384: generate_rust_file now returns (code, dependencies)
-        let (rust_code, _dependencies) =
-            rust_gen::generate_rust_file(&optimized_hir, &self.transpiler.type_mapper)?;
+        let (rust_code, _dependencies) = rust_gen::generate_rust_file(&optimized_hir, &self.transpiler.type_mapper)?;
 
         Ok(rust_code)
     }
@@ -655,8 +639,7 @@ impl DepylerPipeline {
         use rustpython_ast::Suite;
         use rustpython_parser::Parse;
 
-        let statements = Suite::parse(source, "<input>")
-            .map_err(|e| anyhow::anyhow!("Python parse error: {}", e))?;
+        let statements = Suite::parse(source, "<input>").map_err(|e| anyhow::anyhow!("Python parse error: {}", e))?;
 
         Ok(rustpython_ast::Mod::Module(rustpython_ast::ModModule {
             body: statements,
@@ -846,14 +829,8 @@ def process_list(items: List[str]) -> Optional[str]:
         let hir = pipeline.parse_to_hir(python_code).unwrap();
         assert_eq!(hir.functions.len(), 1);
         let func = &hir.functions[0];
-        assert_eq!(
-            func.params[0].ty,
-            hir::Type::List(Box::new(hir::Type::String))
-        );
-        assert_eq!(
-            func.ret_type,
-            hir::Type::Optional(Box::new(hir::Type::String))
-        );
+        assert_eq!(func.params[0].ty, hir::Type::List(Box::new(hir::Type::String)));
+        assert_eq!(func.ret_type, hir::Type::Optional(Box::new(hir::Type::String)));
     }
 
     #[test]
@@ -935,9 +912,6 @@ def create_map() -> Dict[str, int]:
         let func = &hir.functions[0];
 
         // Verify hash strategy was extracted
-        assert_eq!(
-            func.annotations.hash_strategy,
-            depyler_annotations::HashStrategy::Fnv
-        );
+        assert_eq!(func.annotations.hash_strategy, depyler_annotations::HashStrategy::Fnv);
     }
 }

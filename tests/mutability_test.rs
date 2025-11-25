@@ -25,7 +25,7 @@ def assign_string_constant(state: State) -> None:
     let result = pipeline.transpile(python);
     assert!(result.is_ok());
     let rust_code = result.unwrap();
-    assert!(rust_code.contains("state: &mut State"));
+    assert!(rust_code.contains("state: &mut State"), "\n{rust_code}");
 }
 
 #[test]
@@ -47,7 +47,7 @@ def assign_string_variable(state: State) -> None:
     let result = pipeline.transpile(python);
     assert!(result.is_ok());
     let rust_code = result.unwrap();
-    assert!(rust_code.contains("state: &mut State"));
+    assert!(rust_code.contains("state: &mut State"), "\n{rust_code}");
 }
 
 #[test]
@@ -70,7 +70,7 @@ def compare_strings(state: State) -> bool:
     let result = pipeline.transpile(python);
     assert!(result.is_ok());
     let rust_code = result.unwrap();
-    assert!(rust_code.contains("state: &State"));
+    assert!(rust_code.contains("state: &State"), "\n{rust_code}");
 }
 
 #[test]
@@ -91,7 +91,7 @@ def mutate_strings(state: State) -> None:
     let result = pipeline.transpile(python);
     assert!(result.is_ok());
     let rust_code = result.unwrap();
-    assert!(rust_code.contains("state: &mut State"));
+    assert!(rust_code.contains("state: &mut State"), "\n{rust_code}");
 }
 
 #[test]
@@ -118,8 +118,8 @@ def multiple_string_ops(state: State) -> None:
     let result = pipeline.transpile(python);
     assert!(result.is_ok());
     let rust_code = result.unwrap();
-    assert!(rust_code.contains("state: &mut State"));
-    assert!(rust_code.contains("let mut result_str"));
+    assert!(rust_code.contains("state: &mut State"), "\n{rust_code}");
+    assert!(rust_code.contains("let mut result_str"), "\n{rust_code}");
 }
 
 #[test]
@@ -147,8 +147,8 @@ def string_comparison_assignment(state: State) -> None:
     let result = pipeline.transpile(python);
     assert!(result.is_ok());
     let rust_code = result.unwrap();
-    assert!(rust_code.contains("state: &mut State"));
-    assert!(rust_code.contains("let mut attempt_result"));
+    assert!(rust_code.contains("state: &mut State"), "\n{rust_code}");
+    assert!(rust_code.contains("let mut attempt_result"), "\n{rust_code}");
 }
 
 // ============================================================================
@@ -175,7 +175,7 @@ def caller_function_simple(state: State) -> None:
     let result = pipeline.transpile(python);
     assert!(result.is_ok());
     let rust_code = result.unwrap();
-    assert!(rust_code.contains("state: &mut State"));
+    assert!(rust_code.contains("state: &mut State"), "\n{rust_code}");
 }
 
 #[test]
@@ -203,7 +203,7 @@ def caller_function_simple(state: State) -> None:
     let result = pipeline.transpile(python);
     assert!(result.is_ok());
     let rust_code = result.unwrap();
-    assert!(rust_code.contains("state: &mut State"));
+    assert!(rust_code.contains("state: &mut State"), "\n{rust_code}");
 }
 
 #[test]
@@ -230,7 +230,7 @@ def caller_function_with_return(state: State) -> None:
     let result = pipeline.transpile(python);
     assert!(result.is_ok());
     let rust_code = result.unwrap();
-    assert!(rust_code.contains("state: &mut State"));
+    assert!(rust_code.contains("state: &mut State"), "\n{rust_code}");
 }
 
 #[test]
@@ -257,11 +257,9 @@ def caller_function_with_params(state: State) -> None:
     let result = pipeline.transpile(python);
     assert!(result.is_ok());
     let rust_code = result.unwrap();
-    // Note: Currently the transpiler may use value types for state when there are additional parameters
-    // This assertion tests for the ideal case where state should be &mut State
-    assert!(rust_code.contains("state: &mut State"));
-    assert!(rust_code.contains("add_value:"));
-    assert!(rust_code.contains("set_name:"));
+    assert!(rust_code.contains("state: &mut State"), "\n{rust_code}");
+    assert!(rust_code.contains("add_value:"), "\n{rust_code}");
+    assert!(rust_code.contains("set_name:"), "\n{rust_code}");
 }
 
 #[test]
@@ -291,7 +289,7 @@ def caller_function_conditional(state: State) -> None:
     let result = pipeline.transpile(python);
     assert!(result.is_ok());
     let rust_code = result.unwrap();
-    assert!(rust_code.contains("state: &mut State"));
+    assert!(rust_code.contains("state: &mut State"), "\n{rust_code}");
 }
 
 #[test]
@@ -328,7 +326,7 @@ def top_level_function(state: State) -> None:
     let result = pipeline.transpile(python);
     assert!(result.is_ok());
     let rust_code = result.unwrap();
-    assert!(rust_code.contains("state: &mut State"));
+    assert!(rust_code.contains("state: &mut State"), "\n{rust_code}");
 }
 
 // ============================================================================
@@ -353,10 +351,8 @@ def append_to_list(state: State) -> None:
     let result = pipeline.transpile(python);
     assert!(result.is_ok());
     let rust_code = result.unwrap();
-    // When calling mutating methods on fields, state must be &mut
-    // The method call itself doesn't need explicit &mut (it's implicit)
-    assert!(rust_code.contains("state: &mut State"));
-    assert!(rust_code.contains("state.items.push"));
+    assert!(rust_code.contains("state: &mut State"), "\n{rust_code}");
+    assert!(rust_code.contains("state.items.push"), "\n{rust_code}");
 }
 
 #[test]
@@ -377,7 +373,7 @@ def modify_list_element(state: State) -> None:
     let result = pipeline.transpile(python);
     assert!(result.is_ok());
     let rust_code = result.unwrap();
-    assert!(rust_code.contains("state: &mut State"));
+    assert!(rust_code.contains("state: &mut State"), "\n{rust_code}");
 }
 
 #[test]
@@ -400,7 +396,7 @@ def read_list(state: State) -> int:
     let result = pipeline.transpile(python);
     assert!(result.is_ok());
     let rust_code = result.unwrap();
-    assert!(rust_code.contains("state: &State"));
+    assert!(rust_code.contains("state: &State"), "\n{rust_code}");
 }
 
 #[test]
@@ -421,9 +417,8 @@ def extend_list(state: State) -> None:
     let result = pipeline.transpile(python);
     assert!(result.is_ok());
     let rust_code = result.unwrap();
-    // When calling mutating methods on fields, state must be &mut
-    assert!(rust_code.contains("state: &mut State"));
-    assert!(rust_code.contains("state.items.extend"));
+    assert!(rust_code.contains("state: &mut State"), "\n{rust_code}");
+    assert!(rust_code.contains("state.items.extend"), "\n{rust_code}");
 }
 
 #[test]
@@ -443,9 +438,8 @@ def clear_list(state: State) -> None:
     let result = pipeline.transpile(python);
     assert!(result.is_ok());
     let rust_code = result.unwrap();
-    // When calling mutating methods on fields, state must be &mut
-    assert!(rust_code.contains("state: &mut State"));
-    assert!(rust_code.contains("state.items.clear"));
+    assert!(rust_code.contains("state: &mut State"), "\n{rust_code}");
+    assert!(rust_code.contains("state.items.clear"), "\n{rust_code}");
 }
 
 // ============================================================================
@@ -472,7 +466,7 @@ def loop_with_mutation(state: State) -> None:
     let result = pipeline.transpile(python);
     assert!(result.is_ok());
     let rust_code = result.unwrap();
-    assert!(rust_code.contains("state: &mut State"));
+    assert!(rust_code.contains("state: &mut State"), "\n{rust_code}");
 }
 
 #[test]
@@ -495,7 +489,7 @@ def loop_read_only(state: State) -> int:
     let result = pipeline.transpile(python);
     assert!(result.is_ok());
     let rust_code = result.unwrap();
-    assert!(rust_code.contains("state: &State"));
+    assert!(rust_code.contains("state: &State"), "\n{rust_code}");
 }
 
 #[test]
@@ -516,7 +510,7 @@ def double_values(state: State) -> None:
     let result = pipeline.transpile(python);
     assert!(result.is_ok());
     let rust_code = result.unwrap();
-    assert!(rust_code.contains("state: &mut State"));
+    assert!(rust_code.contains("state: &mut State"), "\n{rust_code}");
 }
 
 #[test]
@@ -539,7 +533,7 @@ def conditional_loop_mutation(state: State) -> None:
     let result = pipeline.transpile(python);
     assert!(result.is_ok());
     let rust_code = result.unwrap();
-    assert!(rust_code.contains("state: &mut State"));
+    assert!(rust_code.contains("state: &mut State"), "\n{rust_code}");
 }
 
 // ============================================================================
@@ -566,8 +560,8 @@ def iterate_immutable(state: State) -> int:
     let result = pipeline.transpile(python);
     assert!(result.is_ok());
     let rust_code = result.unwrap();
-    assert!(rust_code.contains("state: &State"));
-    assert!(rust_code.contains("&state.items"));
+    assert!(rust_code.contains("state: &State"), "\n{rust_code}");
+    assert!(rust_code.contains("&state.items"), "\n{rust_code}");
 }
 
 #[test]
@@ -589,7 +583,7 @@ def iterate_and_modify_elements(state: State) -> None:
     let result = pipeline.transpile(python);
     assert!(result.is_ok());
     let rust_code = result.unwrap();
-    assert!(rust_code.contains("state: &mut State"));
+    assert!(rust_code.contains("state: &mut State"), "\n{rust_code}");
 }
 
 #[test]
@@ -610,8 +604,7 @@ def print_names(state: State) -> None:
     let result = pipeline.transpile(python);
     assert!(result.is_ok());
     let rust_code = result.unwrap();
-    // Should use &State since we're only reading
-    assert!(rust_code.contains("state: &State"));
+    assert!(rust_code.contains("state: &State"), "\n{rust_code}");
 }
 
 #[test]
@@ -635,7 +628,7 @@ def find_large_values(state: State) -> list[int]:
     let result = pipeline.transpile(python);
     assert!(result.is_ok());
     let rust_code = result.unwrap();
-    assert!(rust_code.contains("state: &State"));
+    assert!(rust_code.contains("state: &State"), "\n{rust_code}");
 }
 
 #[test]
@@ -658,9 +651,8 @@ def find_index(state: State, target: str) -> int:
     let result = pipeline.transpile(python);
     assert!(result.is_ok());
     let rust_code = result.unwrap();
-    assert!(rust_code.contains("state: &State"));
-    // DEPYLER-0318: For enumerate with field access, should use .iter().enumerate()
-    assert!(rust_code.contains(".iter().enumerate()"));
+    assert!(rust_code.contains("state: &State"), "\n{rust_code}");
+    assert!(rust_code.contains(".iter().enumerate()"), "\n{rust_code}");
 }
 
 #[test]
@@ -683,7 +675,7 @@ def collect_large_indices(state: State) -> None:
     let result = pipeline.transpile(python);
     assert!(result.is_ok());
     let rust_code = result.unwrap();
-    assert!(rust_code.contains("state: &mut State"));
+    assert!(rust_code.contains("state: &mut State"), "\n{rust_code}");
 }
 
 #[test]
@@ -707,8 +699,7 @@ def sum_pairs(state: State) -> int:
     let result = pipeline.transpile(python);
     assert!(result.is_ok());
     let rust_code = result.unwrap();
-    assert!(rust_code.contains("state: &State"));
-    // Should use .iter().zip() in Rust
+    assert!(rust_code.contains("state: &State"), "\n{rust_code}");
 }
 
 #[test]
@@ -731,9 +722,8 @@ def sum_reversed(state: State) -> int:
     let result = pipeline.transpile(python);
     assert!(result.is_ok());
     let rust_code = result.unwrap();
-    assert!(rust_code.contains("state: &State"));
-    // DEPYLER-0318: For reversed with field access, should use .iter().rev()
-    assert!(rust_code.contains(".iter().rev()"));
+    assert!(rust_code.contains("state: &State"), "\n{rust_code}");
+    assert!(rust_code.contains(".iter().rev()"), "\n{rust_code}");
 }
 
 #[test]
@@ -754,8 +744,7 @@ def filter_values(state: State, threshold: int) -> None:
     let result = pipeline.transpile(python);
     assert!(result.is_ok());
     let rust_code = result.unwrap();
-    assert!(rust_code.contains("state: &mut State"));
-    // List comprehension should use .iter() and .collect()
+    assert!(rust_code.contains("state: &mut State"), "\n{rust_code}");
 }
 
 #[test]
@@ -779,11 +768,10 @@ def sum_matrix(state: State) -> int:
     let result = pipeline.transpile(python);
     assert!(result.is_ok());
     let rust_code = result.unwrap();
-    assert!(rust_code.contains("state: &State"));
+    assert!(rust_code.contains("state: &State"), "\n{rust_code}");
 }
 
 #[test]
-#[ignore = "TODO: Requires clone insertion logic in interprocedural analysis"]
 fn test_iter_mut_pattern() {
     let python = r#"
 from dataclasses import dataclass
@@ -805,8 +793,8 @@ def increment_all_items(state: State) -> None:
     let result = pipeline.transpile(python);
     assert!(result.is_ok());
     let rust_code = result.unwrap();
-    assert!(rust_code.contains("state: &mut State"));
-    assert!(rust_code.contains("&mut state.items") || rust_code.contains("state.items.iter_mut"));
+    assert!(rust_code.contains("state: &mut State"), "\n{rust_code}");
+    assert!(rust_code.contains("for item in &mut state.items"), "\n{rust_code}");
 }
 
 #[test]
@@ -829,9 +817,9 @@ def iterate_with_reassignment(state: State) -> int:
     let result = pipeline.transpile(python);
     assert!(result.is_ok());
     let rust_code = result.unwrap();
-    assert!(rust_code.contains("state: &State"));
-    assert!(rust_code.contains("let mut x"));
-    assert!(rust_code.contains("&state.items"));
+    assert!(rust_code.contains("state: &State"), "\n{rust_code}");
+    assert!(rust_code.contains("let mut x"), "\n{rust_code}");
+    assert!(rust_code.contains("&state.items"), "\n{rust_code}");
 }
 
 #[test]
@@ -862,8 +850,8 @@ def process(state: State) -> int:
     let result = pipeline.transpile(python);
     assert!(result.is_ok());
     let rust_code = result.unwrap();
-    assert!(rust_code.contains("state: &State"));
-    assert!(rust_code.contains("&state.middle.inner.items"));
+    assert!(rust_code.contains("state: &State"), "\n{rust_code}");
+    assert!(rust_code.contains("&state.middle.inner.items"), "\n{rust_code}");
 }
 
 #[test]
@@ -894,12 +882,12 @@ def find_in_nested(state: State, target: str) -> int:
     let result = pipeline.transpile(python);
     assert!(result.is_ok());
     let rust_code = result.unwrap();
-    assert!(rust_code.contains("state: &State"));
-    assert!(rust_code.contains(".iter().enumerate()"));
+    assert!(rust_code.contains("state: &State"), "\n{rust_code}");
+    assert!(rust_code.contains(".iter().enumerate()"), "\n{rust_code}");
 }
 
 #[test]
-#[ignore = "TODO: Requires clone insertion logic in interprocedural analysis"]
+
 fn test_nested_field_access_with_mutation() {
     let python = r#"
 from dataclasses import dataclass
@@ -929,9 +917,11 @@ def increment_nested(state: State) -> None:
     let result = pipeline.transpile(python);
     assert!(result.is_ok());
     let rust_code = result.unwrap();
-    assert!(rust_code.contains("state: &mut State"));
-    // DEPYLER-0318: Should use &mut for nested field access when mutating
-    assert!(rust_code.contains("&mut state.middle.inner.items") || rust_code.contains(".iter_mut()"));
+    assert!(
+        rust_code.contains("increment_nested(state: &mut State)"),
+        "\n{rust_code}"
+    );
+    assert!(rust_code.contains("&mut state.middle.inner.items"), "\n{rust_code}");
 }
 
 // ============================================================================
@@ -958,8 +948,8 @@ def use_mutable_local(state: State) -> None:
     let result = pipeline.transpile(python);
     assert!(result.is_ok());
     let rust_code = result.unwrap();
-    assert!(rust_code.contains("state: &mut State"));
-    assert!(rust_code.contains("let mut temp"));
+    assert!(rust_code.contains("state: &mut State"), "\n{rust_code}");
+    assert!(rust_code.contains("let mut temp"), "\n{rust_code}");
 }
 
 #[test]
@@ -983,8 +973,8 @@ def build_local_list(state: State) -> None:
     let result = pipeline.transpile(python);
     assert!(result.is_ok());
     let rust_code = result.unwrap();
-    assert!(rust_code.contains("state: &mut State"));
-    assert!(rust_code.contains("let mut temp_list"));
+    assert!(rust_code.contains("state: &mut State"), "\n{rust_code}");
+    assert!(rust_code.contains("let mut temp_list"), "\n{rust_code}");
 }
 
 #[test]
@@ -1005,8 +995,8 @@ def use_immutable_local(state: State) -> int:
     let result = pipeline.transpile(python);
     assert!(result.is_ok());
     let rust_code = result.unwrap();
-    assert!(rust_code.contains("state: &State"));
-    assert!(!rust_code.contains("let mut temp"));
+    assert!(rust_code.contains("state: &State"), "\n{rust_code}");
+    assert!(!rust_code.contains("let mut temp"), "\n{rust_code}");
 }
 
 // ============================================================================
@@ -1032,7 +1022,7 @@ def while_loop_mutation(state: State) -> None:
     let result = pipeline.transpile(python);
     assert!(result.is_ok());
     let rust_code = result.unwrap();
-    assert!(rust_code.contains("state: &mut State"));
+    assert!(rust_code.contains("state: &mut State"), "\n{rust_code}");
 }
 
 #[test]
@@ -1056,7 +1046,7 @@ def while_loop_read(state: State) -> int:
     let result = pipeline.transpile(python);
     assert!(result.is_ok());
     let rust_code = result.unwrap();
-    assert!(rust_code.contains("state: &State"));
+    assert!(rust_code.contains("state: &State"), "\n{rust_code}");
 }
 
 // ============================================================================
@@ -1081,7 +1071,7 @@ def insert_into_dict(state: State) -> None:
     let result = pipeline.transpile(python);
     assert!(result.is_ok());
     let rust_code = result.unwrap();
-    assert!(rust_code.contains("state: &mut State"));
+    assert!(rust_code.contains("state: &mut State"), "\n{rust_code}");
 }
 
 #[test]
@@ -1102,7 +1092,7 @@ def read_from_dict(state: State) -> int:
     let result = pipeline.transpile(python);
     assert!(result.is_ok());
     let rust_code = result.unwrap();
-    assert!(rust_code.contains("state: &State"));
+    assert!(rust_code.contains("state: &State"), "\n{rust_code}");
 }
 
 // ============================================================================
@@ -1126,7 +1116,7 @@ def modify_nested_list(state: State) -> None:
     let result = pipeline.transpile(python);
     assert!(result.is_ok());
     let rust_code = result.unwrap();
-    assert!(rust_code.contains("state: &mut State"));
+    assert!(rust_code.contains("state: &mut State"), "\n{rust_code}");
 }
 
 #[test]
@@ -1150,9 +1140,8 @@ def mutate_multiple_fields(state: State) -> None:
     let result = pipeline.transpile(python);
     assert!(result.is_ok());
     let rust_code = result.unwrap();
-    assert!(rust_code.contains("state: &mut State"));
-    // Method calls don't need explicit &mut
-    assert!(rust_code.contains("state.items.push"));
+    assert!(rust_code.contains("state: &mut State"), "\n{rust_code}");
+    assert!(rust_code.contains("state.items.push"), "\n{rust_code}");
 }
 
 #[test]
@@ -1177,9 +1166,8 @@ def conditional_mutations(state: State) -> None:
     let result = pipeline.transpile(python);
     assert!(result.is_ok());
     let rust_code = result.unwrap();
-    assert!(rust_code.contains("state: &mut State"));
-    // Method calls don't need explicit &mut
-    assert!(rust_code.contains("state.items.push"));
+    assert!(rust_code.contains("state: &mut State"), "\n{rust_code}");
+    assert!(rust_code.contains("state.items.push"), "\n{rust_code}");
 }
 
 // ============================================================================
@@ -1210,8 +1198,8 @@ def update_both(record_a: RecordA, record_b: RecordB) -> None:
     let result = pipeline.transpile(python);
     assert!(result.is_ok());
     let rust_code = result.unwrap();
-    assert!(rust_code.contains("record_a: &mut RecordA"));
-    assert!(rust_code.contains("record_b: &mut RecordB"));
+    assert!(rust_code.contains("record_a: &mut RecordA"), "\n{rust_code}");
+    assert!(rust_code.contains("record_b: &mut RecordB"), "\n{rust_code}");
 }
 
 #[test]
@@ -1239,8 +1227,8 @@ def update_state_from_config(state: State, config: Config) -> None:
     let result = pipeline.transpile(python);
     assert!(result.is_ok());
     let rust_code = result.unwrap();
-    assert!(rust_code.contains("state: &mut State"));
-    assert!(rust_code.contains("config: &Config"));
+    assert!(rust_code.contains("state: &mut State"), "\n{rust_code}");
+    assert!(rust_code.contains("config: &Config"), "\n{rust_code}");
 }
 
 #[test]
@@ -1262,9 +1250,9 @@ def add_value(state: State, value: int, label: str) -> None:
     let result = pipeline.transpile(python);
     assert!(result.is_ok());
     let rust_code = result.unwrap();
-    assert!(rust_code.contains("state: &mut State"));
-    assert!(rust_code.contains("value: i32")); // i32 is the default for Python int
-    assert!(rust_code.contains("label: &str"));
+    assert!(rust_code.contains("state: &mut State"), "\n{rust_code}");
+    assert!(rust_code.contains("value: i32"), "\n{rust_code}");
+    assert!(rust_code.contains("label: &str"), "\n{rust_code}");
 }
 
 #[test]
@@ -1293,9 +1281,9 @@ def process_data(source: Source, dest: Destination, config: Config) -> None:
     let result = pipeline.transpile(python);
     assert!(result.is_ok());
     let rust_code = result.unwrap();
-    assert!(rust_code.contains("source: &Source"));
-    assert!(rust_code.contains("dest: &mut Destination"));
-    assert!(rust_code.contains("config: &Config"));
+    assert!(rust_code.contains("source: &Source"), "\n{rust_code}");
+    assert!(rust_code.contains("dest: &mut Destination"), "\n{rust_code}");
+    assert!(rust_code.contains("config: &Config"), "\n{rust_code}");
 }
 
 #[test]
@@ -1321,13 +1309,12 @@ def process(counter: Counter) -> None:
     let result = pipeline.transpile(python);
     assert!(result.is_ok());
     let rust_code = result.unwrap();
-    // Both functions should take &mut Counter
-    assert!(rust_code.contains("counter: &mut Counter"));
-    assert!(rust_code.contains("amount: i32")); // i32 is the default for Python int
+    assert!(rust_code.contains("counter: &mut Counter"), "\n{rust_code}");
+    assert!(rust_code.contains("amount: i32"), "\n{rust_code}");
 }
 
 #[test]
-#[ignore = "TODO: Requires clone insertion logic in interprocedural analysis"]
+
 fn test_mutable_list_parameter() {
     let python = r#"
 from dataclasses import dataclass
@@ -1348,9 +1335,9 @@ def use_helper(state: State) -> None:
     let result = pipeline.transpile(python);
     assert!(result.is_ok());
     let rust_code = result.unwrap();
-    // modify_list should take &mut Vec<i64>
-    assert!(rust_code.contains("items: &mut Vec"));
-    assert!(rust_code.contains("state: &mut State"));
+    assert!(rust_code.contains("modify_list(items: &mut Vec<i32>)"), "\n{rust_code}");
+    assert!(rust_code.contains("use_helper(state: &mut State)"), "\n{rust_code}");
+    assert!(rust_code.contains("modify_list(&mut state.numbers)"), "\n{rust_code}");
 }
 
 #[test]
@@ -1376,7 +1363,7 @@ def mutate_nested(outer: Outer) -> None:
     let result = pipeline.transpile(python);
     assert!(result.is_ok());
     let rust_code = result.unwrap();
-    assert!(rust_code.contains("outer: &mut Outer"));
+    assert!(rust_code.contains("outer: &mut Outer"), "\n{rust_code}");
 }
 
 #[test]
@@ -1400,8 +1387,7 @@ def calculate_sum(data: Data) -> int:
     let result = pipeline.transpile(python);
     assert!(result.is_ok());
     let rust_code = result.unwrap();
-    // Should be immutable reference since only reading
-    assert!(rust_code.contains("data: &Data"));
+    assert!(rust_code.contains("data: &Data"), "\n{rust_code}");
 }
 
 #[test]
@@ -1429,8 +1415,8 @@ def caller(input: Input, output: Output) -> None:
     let result = pipeline.transpile(python);
     assert!(result.is_ok());
     let rust_code = result.unwrap();
-    assert!(rust_code.contains("input: &Input"));
-    assert!(rust_code.contains("output: &mut Output"));
+    assert!(rust_code.contains("input: &Input"), "\n{rust_code}");
+    assert!(rust_code.contains("output: &mut Output"), "\n{rust_code}");
 }
 
 #[test]
@@ -1458,9 +1444,8 @@ def conditional_update(state_a: StateA, state_b: StateB) -> None:
     let result = pipeline.transpile(python);
     assert!(result.is_ok());
     let rust_code = result.unwrap();
-    // Both should be mutable since both can be mutated
-    assert!(rust_code.contains("state_a: &mut StateA"));
-    assert!(rust_code.contains("state_b: &mut StateB"));
+    assert!(rust_code.contains("state_a: &mut StateA"), "\n{rust_code}");
+    assert!(rust_code.contains("state_b: &mut StateB"), "\n{rust_code}");
 }
 
 #[test]
@@ -1482,12 +1467,12 @@ def swap_values(a: Container, b: Container) -> None:
     let result = pipeline.transpile(python);
     assert!(result.is_ok());
     let rust_code = result.unwrap();
-    assert!(rust_code.contains("a: &mut Container"));
-    assert!(rust_code.contains("b: &mut Container"));
+    assert!(rust_code.contains("a: &mut Container"), "\n{rust_code}");
+    assert!(rust_code.contains("b: &mut Container"), "\n{rust_code}");
 }
 
 #[test]
-#[ignore = "TODO: Requires clone insertion logic in interprocedural analysis"]
+
 fn test_dict_parameter_mutation() {
     let python = r#"
 from dataclasses import dataclass
@@ -1507,12 +1492,15 @@ def use_helper(state: State) -> None:
     let result = pipeline.transpile(python);
     assert!(result.is_ok());
     let rust_code = result.unwrap();
-    assert!(rust_code.contains("data: &mut HashMap"));
-    assert!(rust_code.contains("state: &mut State"));
+    assert!(
+        rust_code.contains("pub fn update_dict(data: &mut HashMap<String, i32>, key: String, value: i32)"),
+        "\n{rust_code}"
+    );
+    assert!(rust_code.contains("fn use_helper(state: &mut State)"), "\n{rust_code}");
 }
 
 #[test]
-#[ignore = "TODO: Requires clone insertion logic in interprocedural analysis"]
+
 fn test_indirect_mutation_by_value() {
     let python = r#"
 from dataclasses import dataclass
@@ -1533,13 +1521,16 @@ def indirect_mutate(state: State) -> None:
     assert!(result.is_ok());
     let rust_code = result.unwrap();
 
-    assert!(rust_code.contains("fn mutate(state: &mut State)"));
-    assert!(rust_code.contains("fn indirect_mutate(mut state: State)"));
-    assert!(rust_code.contains("mutate(&mut state)"));
+    assert!(rust_code.contains("fn mutate(state: &mut State)"), "\n{rust_code}");
+    assert!(
+        rust_code.contains("fn indirect_mutate(state: &mut State)"),
+        "\n{rust_code}"
+    );
+    assert!(rust_code.contains("mutate(state)"), "\n{rust_code}");
 }
 
 #[test]
-#[ignore = "TODO: Requires clone insertion logic in interprocedural analysis"]
+
 fn test_pass_by_value_chain() {
     let python = r#"
 from dataclasses import dataclass
@@ -1565,15 +1556,37 @@ def third(state: State) -> None:
     assert!(result.is_ok());
     let rust_code = result.unwrap();
 
-    assert!(rust_code.contains("pub fn first(mut state: State)"));
-    assert!(rust_code.contains("second(state.clone())"));
-    assert!(rust_code.contains("third(state.clone())"));
-    assert!(rust_code.contains("second(mut state: State)"));
-    assert!(rust_code.contains("third(mut state: State)"));
+    assert!(rust_code.contains("first(state: &mut State)"), "\n{rust_code}");
+    assert!(rust_code.contains("second(state: &mut State)"), "\n{rust_code}");
+    assert!(rust_code.contains("third(state: &mut State)"), "\n{rust_code}");
 }
 
 #[test]
-#[ignore = "TODO: Requires clone insertion logic in interprocedural analysis"]
+fn test_indirect_mutation_through_callee() {
+    let python = r#"
+from dataclasses import dataclass
+
+@dataclass
+class State:
+    item: str
+
+def first(state: State) -> None:
+    second(state)
+
+def second(state: State) -> None:
+    state.item = "update"
+"#;
+
+    let pipeline = DepylerPipeline::new();
+    let result = pipeline.transpile(python);
+    assert!(result.is_ok());
+    let rust_code = result.unwrap();
+    assert!(rust_code.contains("fn first(state: &mut State)"), "\n{rust_code}");
+    assert!(rust_code.contains("second(state)"), "\n{rust_code}");
+    assert!(rust_code.contains("fn second(state: &mut State)"), "\n{rust_code}");
+}
+
+#[test]
 fn test_multi_function_state_mutation() {
     let python = r#"
 from dataclasses import dataclass
@@ -1595,7 +1608,7 @@ def second(state: State) -> None:
     assert!(result.is_ok());
     let rust_code = result.unwrap();
 
-    assert!(rust_code.contains("pub fn first(mut state: State)"));
-    assert!(rust_code.contains("pub fn second(state: &mut State)"));
-    assert!(rust_code.contains("second(&mut state)"));
+    assert!(rust_code.contains("pub fn first(state: &mut State)"), "\n{rust_code}");
+    assert!(rust_code.contains("pub fn second(state: &mut State)"), "\n{rust_code}");
+    assert!(rust_code.contains("second(state)"), "\n{rust_code}");
 }

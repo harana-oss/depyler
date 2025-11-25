@@ -1,10 +1,10 @@
 use anyhow::Result;
 use colored::Colorize;
+use depyler_analysis::QualityAnalyzer;
 use depyler_annotations::{AnnotationParser, AnnotationValidator};
 use depyler_core::DepylerPipeline;
-use depyler_quality::QualityAnalyzer;
-use dialoguer::{theme::ColorfulTheme, Confirm, MultiSelect};
-use rustpython_parser::{parse, Mode};
+use dialoguer::{Confirm, MultiSelect, theme::ColorfulTheme};
+use rustpython_parser::{Mode, parse};
 use std::fs;
 
 #[cfg(test)]
@@ -150,16 +150,8 @@ impl InteractiveSession {
     pub fn run(&mut self, input_file: &str, annotate_mode: bool) -> Result<()> {
         let python_source = fs::read_to_string(input_file)?;
 
-        println!(
-            "{}",
-            "Depyler Interactive Transpilation Session"
-                .bright_blue()
-                .bold()
-        );
-        println!(
-            "{}",
-            "════════════════════════════════════════".bright_blue()
-        );
+        println!("{}", "Depyler Interactive Transpilation Session".bright_blue().bold());
+        println!("{}", "════════════════════════════════════════".bright_blue());
         println!();
 
         // Initial transpilation attempt
@@ -204,11 +196,7 @@ impl InteractiveSession {
         Ok((rust_code, warnings))
     }
 
-    fn handle_successful_transpilation(
-        &self,
-        rust_code: &str,
-        warnings: Vec<String>,
-    ) -> Result<()> {
+    fn handle_successful_transpilation(&self, rust_code: &str, warnings: Vec<String>) -> Result<()> {
         println!("{} Transpilation successful!", "✅".green());
         println!("Generated {} lines of Rust code", rust_code.lines().count());
 
@@ -235,10 +223,7 @@ impl InteractiveSession {
     }
 
     fn run_annotation_workflow(&mut self, python_source: &str, input_file: &str) -> Result<()> {
-        println!(
-            "{} Analyzing code for annotation opportunities...",
-            "🔍".bright_cyan()
-        );
+        println!("{} Analyzing code for annotation opportunities...", "🔍".bright_cyan());
 
         // Generate suggestions
         let suggestions = self.generate_annotation_suggestions(python_source)?;
@@ -282,10 +267,7 @@ impl InteractiveSession {
         }
 
         // Show diff
-        println!(
-            "\n{} Modified source with annotations:",
-            "📄".bright_green()
-        );
+        println!("\n{} Modified source with annotations:", "📄".bright_green());
         self.show_diff(python_source, &modified_source)?;
 
         // Confirm save
@@ -315,10 +297,7 @@ impl InteractiveSession {
         Ok(())
     }
 
-    fn generate_annotation_suggestions(
-        &self,
-        python_source: &str,
-    ) -> Result<Vec<AnnotationSuggestion>> {
+    fn generate_annotation_suggestions(&self, python_source: &str) -> Result<Vec<AnnotationSuggestion>> {
         let mut suggestions = Vec::new();
 
         // Parse Python to analyze structure
@@ -339,8 +318,7 @@ impl InteractiveSession {
                     function_name: func.name.clone(),
                     suggestion_type: SuggestionType::Performance,
                     annotation: "# @depyler: optimization_level = \"aggressive\"".to_string(),
-                    reason: "Nested loops detected - aggressive optimization recommended"
-                        .to_string(),
+                    reason: "Nested loops detected - aggressive optimization recommended".to_string(),
                     impact: ImpactLevel::High,
                 });
 
@@ -358,8 +336,7 @@ impl InteractiveSession {
                     function_name: func.name.clone(),
                     suggestion_type: SuggestionType::Performance,
                     annotation: "# @depyler: optimization_hint = \"unroll_loops[4]\"".to_string(),
-                    reason: "Simple numeric loop detected - unrolling can improve performance"
-                        .to_string(),
+                    reason: "Simple numeric loop detected - unrolling can improve performance".to_string(),
                     impact: ImpactLevel::Medium,
                 });
             }
@@ -381,8 +358,7 @@ impl InteractiveSession {
                         function_name: func.name.clone(),
                         suggestion_type: SuggestionType::Memory,
                         annotation: "# @depyler: ownership = \"borrowed\"".to_string(),
-                        reason: "Function only reads collections - borrowing reduces memory usage"
-                            .to_string(),
+                        reason: "Function only reads collections - borrowing reduces memory usage".to_string(),
                         impact: ImpactLevel::Medium,
                     });
                 }
@@ -394,8 +370,7 @@ impl InteractiveSession {
                         function_name: func.name.clone(),
                         suggestion_type: SuggestionType::Memory,
                         annotation: "# @depyler: hash_strategy = \"fnv\"".to_string(),
-                        reason: "Frequent lookups detected - FNV hash is faster for small keys"
-                            .to_string(),
+                        reason: "Frequent lookups detected - FNV hash is faster for small keys".to_string(),
                         impact: ImpactLevel::Medium,
                     });
                 }
@@ -418,8 +393,7 @@ impl InteractiveSession {
                         function_name: func.name.clone(),
                         suggestion_type: SuggestionType::TypeStrategy,
                         annotation: "# @depyler: string_strategy = \"zero_copy\"".to_string(),
-                        reason: "Function only reads strings - zero-copy improves performance"
-                            .to_string(),
+                        reason: "Function only reads strings - zero-copy improves performance".to_string(),
                         impact: ImpactLevel::Medium,
                     });
                 }
@@ -432,8 +406,7 @@ impl InteractiveSession {
                     function_name: func.name.clone(),
                     suggestion_type: SuggestionType::Safety,
                     annotation: "# @depyler: bounds_checking = \"explicit\"".to_string(),
-                    reason: "Collection access detected - explicit bounds checking prevents panics"
-                        .to_string(),
+                    reason: "Collection access detected - explicit bounds checking prevents panics".to_string(),
                     impact: ImpactLevel::High,
                 });
 
@@ -442,8 +415,7 @@ impl InteractiveSession {
                     function_name: func.name.clone(),
                     suggestion_type: SuggestionType::ErrorHandling,
                     annotation: "# @depyler: panic_behavior = \"convert_to_result\"".to_string(),
-                    reason: "Potential panic points detected - convert to Result for safety"
-                        .to_string(),
+                    reason: "Potential panic points detected - convert to Result for safety".to_string(),
                     impact: ImpactLevel::High,
                 });
             }
@@ -479,9 +451,7 @@ impl InteractiveSession {
                     function_name: func.name.clone(),
                     suggestion_type: SuggestionType::ErrorHandling,
                     annotation: "# @depyler: error_strategy = \"result_type\"".to_string(),
-                    reason:
-                        "Optional return type - consider using Result for better error handling"
-                            .to_string(),
+                    reason: "Optional return type - consider using Result for better error handling".to_string(),
                     impact: ImpactLevel::Low,
                 });
             }
@@ -518,10 +488,7 @@ impl InteractiveSession {
         );
         println!("   Annotation: {}", suggestion.annotation.bright_green());
         println!("   Reason: {}", suggestion.reason);
-        println!(
-            "   Impact: {}",
-            format!("{:?}", suggestion.impact).color(impact_color)
-        );
+        println!("   Impact: {}", format!("{:?}", suggestion.impact).color(impact_color));
     }
 
     fn apply_annotation(&self, source: &str, suggestion: &AnnotationSuggestion) -> Result<String> {
@@ -568,10 +535,7 @@ impl InteractiveSession {
     }
 
     fn suggest_improvements(&self, python_source: &str, rust_code: &str) -> Result<()> {
-        println!(
-            "\n{} Analyzing for potential improvements...",
-            "🔍".bright_cyan()
-        );
+        println!("\n{} Analyzing for potential improvements...", "🔍".bright_cyan());
 
         // Quality analysis
         let ast = parse(python_source, Mode::Module, "<input>")?;
@@ -580,19 +544,13 @@ impl InteractiveSession {
             .python_to_hir(ast)?;
         let quality_report = self.quality_analyzer.analyze_quality(&hir.functions)?;
 
-        if quality_report.overall_status == depyler_quality::QualityStatus::Passed {
+        if quality_report.overall_status == depyler_analysis::QualityStatus::Passed {
             println!("✅ Code quality meets all standards!");
         } else {
-            println!(
-                "\n{} Quality improvement suggestions:",
-                "💡".bright_yellow()
-            );
+            println!("\n{} Quality improvement suggestions:", "💡".bright_yellow());
 
             for failed_gate in &quality_report.gates_failed {
-                println!(
-                    "  • {}: {}",
-                    failed_gate.gate_name, failed_gate.actual_value
-                );
+                println!("  • {}: {}", failed_gate.gate_name, failed_gate.actual_value);
             }
         }
 
@@ -613,9 +571,7 @@ impl InteractiveSession {
         stmts.iter().any(|stmt| match stmt {
             HirStmt::For { .. } | HirStmt::While { .. } => true,
             HirStmt::If {
-                then_body,
-                else_body,
-                ..
+                then_body, else_body, ..
             } => self.has_loops(then_body) || else_body.as_ref().is_some_and(|e| self.has_loops(e)),
             _ => false,
         })
@@ -626,13 +582,8 @@ impl InteractiveSession {
         stmts.iter().any(|stmt| match stmt {
             HirStmt::For { body, .. } | HirStmt::While { body, .. } => self.has_loops(body),
             HirStmt::If {
-                then_body,
-                else_body,
-                ..
-            } => {
-                self.has_nested_loops(then_body)
-                    || else_body.as_ref().is_some_and(|e| self.has_nested_loops(e))
-            }
+                then_body, else_body, ..
+            } => self.has_nested_loops(then_body) || else_body.as_ref().is_some_and(|e| self.has_nested_loops(e)),
             _ => false,
         })
     }
@@ -674,18 +625,12 @@ impl InteractiveSession {
             }
             HirStmt::Expr(_) => false,
             HirStmt::If {
-                then_body,
-                else_body,
-                ..
+                then_body, else_body, ..
             } => {
                 self.has_modification_patterns(then_body)
-                    || else_body
-                        .as_ref()
-                        .is_some_and(|e| self.has_modification_patterns(e))
+                    || else_body.as_ref().is_some_and(|e| self.has_modification_patterns(e))
             }
-            HirStmt::For { body, .. } | HirStmt::While { body, .. } => {
-                self.has_modification_patterns(body)
-            }
+            HirStmt::For { body, .. } | HirStmt::While { body, .. } => self.has_modification_patterns(body),
             _ => false,
         })
     }
@@ -705,10 +650,7 @@ impl InteractiveSession {
 
     fn has_string_operations(&self, func: &depyler_core::hir::HirFunction) -> bool {
         use depyler_core::hir::Type;
-        func.params
-            .iter()
-            .any(|param| matches!(param.ty, Type::String))
-            || matches!(func.ret_type, Type::String)
+        func.params.iter().any(|param| matches!(param.ty, Type::String)) || matches!(func.ret_type, Type::String)
     }
 
     fn has_string_concatenation(&self, stmts: &[depyler_core::hir::HirStmt]) -> bool {
@@ -790,18 +732,12 @@ impl InteractiveSession {
             .iter()
             .map(|stmt| match stmt {
                 HirStmt::If {
-                    then_body,
-                    else_body,
-                    ..
+                    then_body, else_body, ..
                 } => {
                     1 + self.calculate_complexity(then_body)
-                        + else_body
-                            .as_ref()
-                            .map_or(0, |e| self.calculate_complexity(e))
+                        + else_body.as_ref().map_or(0, |e| self.calculate_complexity(e))
                 }
-                HirStmt::For { body, .. } | HirStmt::While { body, .. } => {
-                    3 + self.calculate_complexity(body)
-                }
+                HirStmt::For { body, .. } | HirStmt::While { body, .. } => 3 + self.calculate_complexity(body),
                 // Match statements not yet supported in HIR
                 _ => 1,
             })

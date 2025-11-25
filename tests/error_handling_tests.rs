@@ -1,8 +1,8 @@
+use depyler_analysis::{QualityAnalyzer, QualityError};
 use depyler_annotations::TranspilationAnnotations;
 use depyler_annotations::{AnnotationError, AnnotationParser};
-use depyler_core::hir::*;
 use depyler_core::DepylerPipeline;
-use depyler_quality::{QualityAnalyzer, QualityError};
+use depyler_core::hir::*;
 use smallvec::smallvec;
 
 #[test]
@@ -18,10 +18,7 @@ fn test_pipeline_invalid_python_syntax() {
 
     for invalid_python in invalid_cases {
         let result = pipeline.transpile(invalid_python);
-        assert!(
-            result.is_err(),
-            "Should fail for invalid Python: {invalid_python}"
-        );
+        assert!(result.is_err(), "Should fail for invalid Python: {invalid_python}");
     }
 
     // These might succeed or fail depending on parsing - just check they don't panic
@@ -187,10 +184,7 @@ fn test_error_types_creation() {
         key: "test_key".to_string(),
         value: "test_value".to_string(),
     };
-    assert!(matches!(
-        invalid_value_error,
-        AnnotationError::InvalidValue { .. }
-    ));
+    assert!(matches!(invalid_value_error, AnnotationError::InvalidValue { .. }));
 
     let syntax_error = AnnotationError::InvalidSyntax("test syntax".to_string());
     assert!(matches!(syntax_error, AnnotationError::InvalidSyntax(_)));
@@ -207,16 +201,10 @@ fn test_quality_error_types() {
     let metric_failed = QualityError::MetricCalculationFailed {
         metric: "Test Metric".to_string(),
     };
-    assert!(matches!(
-        metric_failed,
-        QualityError::MetricCalculationFailed { .. }
-    ));
+    assert!(matches!(metric_failed, QualityError::MetricCalculationFailed { .. }));
 
     let coverage_unavailable = QualityError::CoverageUnavailable;
-    assert!(matches!(
-        coverage_unavailable,
-        QualityError::CoverageUnavailable
-    ));
+    assert!(matches!(coverage_unavailable, QualityError::CoverageUnavailable));
 }
 
 #[test]
@@ -298,8 +286,7 @@ fn test_annotation_parser_unicode() {
     let parser = AnnotationParser::new();
 
     // Test annotation parsing with Unicode
-    let unicode_annotation =
-        "# @depyler: type_strategy = \"conservative\"\n# Comment with Unicode: 测试";
+    let unicode_annotation = "# @depyler: type_strategy = \"conservative\"\n# Comment with Unicode: 测试";
 
     let result = parser.parse_annotations(unicode_annotation);
     assert!(result.is_ok());

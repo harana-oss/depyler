@@ -2499,17 +2499,34 @@ pub(crate) fn codegen_assign_index(
     };
 
     // DEPYLER-0449: Detect if base is serde_json::Value (needs .as_object_mut())
-    // Heuristic: check variable name patterns that suggest Value type
+    // Check variable type from context first, then fall back to name heuristic
     let needs_as_object_mut = if let HirExpr::Var(base_name) = base {
         if !is_numeric_index {
-            let name_str = base_name.as_str();
-            // Variables commonly used with serde_json::Value
-            name_str == "config"
-                || name_str == "data"
-                || name_str == "value"
-                || name_str == "current"
-                || name_str == "obj"
-                || name_str == "json"
+            // First check actual type from context
+            if let Some(var_type) = ctx.var_types.get(base_name) {
+                // If we know the type is Dict/HashMap, don't use as_object_mut
+                if matches!(var_type, Type::Dict(_, _)) {
+                    false
+                } else {
+                    // For Unknown types, use name heuristic
+                    let name_str = base_name.as_str();
+                    // Variables commonly used with serde_json::Value
+                    name_str == "config"
+                        || name_str == "value"
+                        || name_str == "current"
+                        || name_str == "obj"
+                        || name_str == "json"
+                }
+            } else {
+                // No type info available, use name heuristic
+                // But exclude "data" as it's commonly used for HashMap
+                let name_str = base_name.as_str();
+                name_str == "config"
+                    || name_str == "value"
+                    || name_str == "current"
+                    || name_str == "obj"
+                    || name_str == "json"
+            }
         } else {
             false
         }

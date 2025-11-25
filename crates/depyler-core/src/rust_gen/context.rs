@@ -95,6 +95,10 @@ pub struct CodeGenContext<'a> {
     /// Maps function name -> Vec of booleans (true if param is borrowed, false if owned)
     /// Used to determine whether to add & when passing List/Dict/Set arguments
     pub function_param_borrows: HashMap<String, Vec<bool>>,
+    /// Track function parameters that need mutable borrows (&mut T)
+    /// Maps function name -> Vec of booleans (true if param needs &mut, false otherwise)
+    /// Used to generate &mut arg instead of &arg at call sites
+    pub function_param_muts: HashMap<String, Vec<bool>>,
     /// DEPYLER-0307 Fix #9: Track variables that iterate over tuples (from zip())
     /// Used to generate tuple field access syntax (tuple.0, tuple.1) instead of vector indexing
     pub tuple_iter_vars: HashSet<String>,
@@ -137,6 +141,11 @@ pub struct CodeGenContext<'a> {
     /// DEPYLER-0452: Stdlib API mapping system for Python→Rust API translations
     /// Maps Python stdlib patterns (module, class, attribute) to Rust code patterns
     pub stdlib_mappings: crate::stdlib_mappings::StdlibMappings,
+
+    /// Track parameters in the current function that are &mut references
+    /// When passing these to other functions expecting &mut, don't add another &mut
+    /// Cleared at the start of each function generation, populated by codegen_single_param
+    pub current_func_mut_ref_params: HashSet<String>,
 }
 
 impl<'a> CodeGenContext<'a> {
@@ -161,9 +170,7 @@ impl<'a> CodeGenContext<'a> {
     /// # Complexity
     /// 2 (iterator + any)
     pub fn is_declared(&self, var_name: &str) -> bool {
-        self.declared_vars
-            .iter()
-            .any(|scope| scope.contains(var_name))
+        self.declared_vars.iter().any(|scope| scope.contains(var_name))
     }
 
     /// Declare a variable in the current scope
@@ -202,9 +209,7 @@ impl<'a> CodeGenContext<'a> {
     /// # Complexity
     /// 2 (last + unwrap_or)
     pub fn current_exception_scope(&self) -> &ExceptionScope {
-        self.exception_scopes
-            .last()
-            .unwrap_or(&ExceptionScope::Unhandled)
+        self.exception_scopes.last().unwrap_or(&ExceptionScope::Unhandled)
     }
 
     /// Check if currently inside a try block
@@ -212,10 +217,7 @@ impl<'a> CodeGenContext<'a> {
     /// # Complexity
     /// 2 (current_exception_scope + matches)
     pub fn is_in_try_block(&self) -> bool {
-        matches!(
-            self.current_exception_scope(),
-            ExceptionScope::TryCaught { .. }
-        )
+        matches!(self.current_exception_scope(), ExceptionScope::TryCaught { .. })
     }
 
     /// Check if a specific exception type is handled by current try block
@@ -240,8 +242,7 @@ impl<'a> CodeGenContext<'a> {
     /// # Complexity
     /// 1 (simple push)
     pub fn enter_try_scope(&mut self, handled_types: Vec<String>) {
-        self.exception_scopes
-            .push(ExceptionScope::TryCaught { handled_types });
+        self.exception_scopes.push(ExceptionScope::TryCaught { handled_types });
     }
 
     /// Enter an exception handler scope

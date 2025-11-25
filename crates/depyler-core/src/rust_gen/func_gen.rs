@@ -270,17 +270,34 @@ fn codegen_single_param(
         return Ok(quote! { #param_ident: &Args });
     }
 
+    // DEPYLER-0XXX: Check if interprocedural analysis requires &mut for this param
+    // This handles cases where the param is passed down a call chain from a borrowing caller
+    let param_idx = func.params.iter().position(|p| p.name == param.name);
+    let interprocedural_needs_mut = param_idx
+        .and_then(|idx| {
+            ctx.function_param_muts
+                .get(&func.name)
+                .and_then(|muts| muts.get(idx))
+                .copied()
+        })
+        .unwrap_or(false);
+
     // DEPYLER-0312: Use mutable_vars populated by analyze_mutable_vars
     // This handles ALL mutation patterns: direct assignment, method calls, and parameter reassignments
     // The analyze_mutable_vars function already checked all mutation patterns in codegen_function_body
     let is_mutated_in_body = ctx.mutable_vars.contains(&param.name);
 
+    // DEPYLER-0XXX: If interprocedural analysis says needs_mut but no direct mutation,
+    // this means the param is passed from a caller that borrows - must also borrow
+    let force_borrow_from_call_chain = interprocedural_needs_mut && !is_mutated_in_body;
+
     // Only apply `mut` if ownership is taken (not borrowed)
     // Borrowed parameters (&T, &mut T) handle mutability in the type itself
-    let takes_ownership = matches!(
-        lifetime_result.borrowing_strategies.get(&param.name),
-        Some(crate::borrowing_context::BorrowingStrategy::TakeOwnership) | None
-    );
+    let takes_ownership = !force_borrow_from_call_chain
+        && matches!(
+            lifetime_result.borrowing_strategies.get(&param.name),
+            Some(crate::borrowing_context::BorrowingStrategy::TakeOwnership) | None
+        );
 
     let is_param_mutated = is_mutated_in_body && takes_ownership;
 
@@ -300,6 +317,12 @@ fn codegen_single_param(
     }
 
     // Get the inferred parameter info
+    #[cfg(debug_assertions)]
+    eprintln!(
+        "DEBUG codegen_single_param: func={}, param={}, interprocedural_needs_mut={}, is_mutated_in_body={}, force_borrow_from_call_chain={}",
+        func.name, param.name, interprocedural_needs_mut, is_mutated_in_body, force_borrow_from_call_chain
+    );
+
     if let Some(inferred) = lifetime_result.param_lifetimes.get(&param.name) {
         let rust_type = &inferred.rust_type;
 
@@ -324,9 +347,18 @@ fn codegen_single_param(
         // DEPYLER-0330: Override needs_mut for borrowed parameters that are mutated
         // If analyze_mutable_vars detected mutation (via .remove(), .clear(), etc.)
         // and this parameter will be borrowed (&T), upgrade to &mut T
+        // DEPYLER-0XXX: Also force &mut if call chain propagation requires it
         let mut inferred_with_mut = inferred.clone();
-        if is_mutated_in_body && inferred.should_borrow {
+        if force_borrow_from_call_chain {
+            // Force borrowing with &mut for call chain requirements
+            inferred_with_mut.should_borrow = true;
             inferred_with_mut.needs_mut = true;
+            // Track this parameter as already being &mut so we don't add &mut again at call sites
+            ctx.current_func_mut_ref_params.insert(param.name.clone());
+        } else if is_mutated_in_body && inferred.should_borrow {
+            inferred_with_mut.needs_mut = true;
+            // Track this parameter as already being &mut
+            ctx.current_func_mut_ref_params.insert(param.name.clone());
         }
 
         let ty =
@@ -345,11 +377,16 @@ fn codegen_single_param(
         update_import_needs(ctx, &rust_type);
         let ty = rust_type_to_syn(&rust_type)?;
 
-        Ok(if is_param_mutated {
-            quote! { mut #param_ident: #ty }
+        // DEPYLER-0XXX: If call chain propagation requires borrowing, apply &mut
+        if force_borrow_from_call_chain {
+            // Track this parameter as already being &mut so we don't add &mut again at call sites
+            ctx.current_func_mut_ref_params.insert(param.name.clone());
+            Ok(quote! { #param_ident: &mut #ty })
+        } else if is_param_mutated {
+            Ok(quote! { mut #param_ident: #ty })
         } else {
-            quote! { #param_ident: #ty }
-        })
+            Ok(quote! { #param_ident: #ty })
+        }
     }
 }
 
@@ -1286,7 +1323,16 @@ impl RustCodeGen for HirFunction {
 
         // DEPYLER-0312: Analyze mutability BEFORE generating parameters
         // This populates ctx.mutable_vars which codegen_single_param uses to determine `mut` keyword
+        // IMPORTANT: Clear mutable_vars before analyzing - each function gets its own analysis
+        ctx.mutable_vars.clear();
+        // Clear mut ref params tracking - each function tracks its own &mut ref params
+        ctx.current_func_mut_ref_params.clear();
         analyze_mutable_vars(&self.body, ctx, &self.params);
+
+        // NOTE: We intentionally do NOT add function_param_muts to mutable_vars here.
+        // Direct mutations are detected by analyze_mutable_vars.
+        // The function_param_muts is used in codegen_single_param to determine
+        // if we need &mut due to call chain propagation.
 
         // Convert parameters using lifetime analysis results
         let params = codegen_function_params(self, &lifetime_result, ctx)?;

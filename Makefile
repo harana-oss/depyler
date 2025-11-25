@@ -662,8 +662,7 @@ deploy-status: ## Show deployment status for all platforms
 	@echo "⏳ Homebrew:     Not yet submitted"
 	@echo "⏳ AUR:          Not yet submitted"
 	@echo "✅ GitHub:       https://github.com/paiml/depyler"
-# #@ Chaos Engineering & Fuzz Testing (Renacer Pattern)
-.PHONY: tier1 tier2 tier3 chaos-test fuzz chaos-gentle chaos-aggressive chaos-full
+.PHONY: tier1 tier2 tier3 fuzz
 .PHONY: tier1
 tier1: ## Fast tests (<5s) - Format, clippy, unit tests
 	@echo "🔬 Tier 1: Fast validation (<5s)"
@@ -678,22 +677,6 @@ tier2: tier1 ## Integration tests (<30s) - Tier1 + integration
 tier3: tier2 ## Full validation (<5m) - Tier2 + all features
 	@echo "🔬 Tier 3: Full validation (<5m)"
 	@$(CARGO) test --all-targets --all-features --quiet
-.PHONY: chaos-test
-chaos-test: ## Chaos engineering tests (basic)
-	@echo "💥 Running chaos engineering tests..."
-	@$(CARGO) test -p depyler-core --test chaos_tests --features chaos-basic
-.PHONY: chaos-gentle
-chaos-gentle: ## Gentle chaos testing (development)
-	@echo "💥 Running gentle chaos tests..."
-	@$(CARGO) test --features chaos-basic -- --nocapture chaos_tests::test_gentle_preset
-.PHONY: chaos-aggressive
-chaos-aggressive: ## Aggressive chaos testing (CI/CD)
-	@echo "💥 Running aggressive chaos tests..."
-	@$(CARGO) test --features chaos-basic -- --nocapture chaos_tests::test_aggressive_preset
-.PHONY: chaos-full
-chaos-full: ## Full chaos testing (network + byzantine)
-	@echo "💥 Running full chaos test suite..."
-	@$(CARGO) test --features chaos-full --quiet
 .PHONY: fuzz
 fuzz: ## Fuzz testing (60s) - Requires nightly Rust
 	@if ! rustup toolchain list | grep -q nightly; then echo "❌ Nightly Rust not found! Install with: rustup install nightly"; exit 1; fi

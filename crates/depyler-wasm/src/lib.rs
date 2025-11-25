@@ -419,11 +419,7 @@ impl DepylerWasm {
     /// assert!(result.rust_code().contains("fn square"));
     /// ```
     #[wasm_bindgen]
-    pub fn transpile(
-        &self,
-        python_code: &str,
-        options: &WasmTranspileOptions,
-    ) -> Result<WasmTranspileResult, JsValue> {
+    pub fn transpile(&self, python_code: &str, options: &WasmTranspileOptions) -> Result<WasmTranspileResult, JsValue> {
         if !self.initialized {
             return Err(JsValue::from_str("DepylerWasm not initialized"));
         }
@@ -616,14 +612,12 @@ impl DepylerWasm {
             },
             std_dev_ms: {
                 let mean = results.iter().sum::<f64>() / results.len() as f64;
-                let variance =
-                    results.iter().map(|&x| (x - mean).powi(2)).sum::<f64>() / results.len() as f64;
+                let variance = results.iter().map(|&x| (x - mean).powi(2)).sum::<f64>() / results.len() as f64;
                 variance.sqrt()
             },
         };
 
-        serde_wasm_bindgen::to_value(&benchmark_result)
-            .map_err(|e| JsValue::from_str(&e.to_string()))
+        serde_wasm_bindgen::to_value(&benchmark_result).map_err(|e| JsValue::from_str(&e.to_string()))
     }
 }
 
@@ -943,10 +937,7 @@ mod unit_tests {
     #[test]
     fn test_extract_function_name() {
         assert_eq!(extract_function_name("def foo():"), Some("foo".to_string()));
-        assert_eq!(
-            extract_function_name("def bar(a, b):"),
-            Some("bar".to_string())
-        );
+        assert_eq!(extract_function_name("def bar(a, b):"), Some("bar".to_string()));
         assert_eq!(
             extract_function_name("  def baz(x: int) -> int:"),
             Some("baz".to_string())
@@ -999,19 +990,13 @@ mod unit_tests {
         assert!(calculate_maintainability_score(basic) >= 0.8);
 
         let with_docs = "/// Documentation\nfn foo() {}";
-        assert!(
-            calculate_maintainability_score(with_docs) > calculate_maintainability_score(basic)
-        );
+        assert!(calculate_maintainability_score(with_docs) > calculate_maintainability_score(basic));
 
         let with_tests = "#[test]\nfn test_foo() {}";
-        assert!(
-            calculate_maintainability_score(with_tests) > calculate_maintainability_score(basic)
-        );
+        assert!(calculate_maintainability_score(with_tests) > calculate_maintainability_score(basic));
 
         let with_result = "fn foo() -> Result<i32, Error> {}";
-        assert!(
-            calculate_maintainability_score(with_result) > calculate_maintainability_score(basic)
-        );
+        assert!(calculate_maintainability_score(with_result) > calculate_maintainability_score(basic));
     }
 
     #[test]
@@ -1089,7 +1074,7 @@ fn calculate_avg_complexity(hir: &depyler_core::hir::HirModule) -> f64 {
     let total_complexity: u32 = hir
         .functions
         .iter()
-        .map(|f| depyler_analyzer::calculate_cyclomatic(&f.body))
+        .map(|f| depyler_analysis::calculate_cyclomatic(&f.body))
         .sum();
 
     total_complexity as f64 / hir.functions.len() as f64

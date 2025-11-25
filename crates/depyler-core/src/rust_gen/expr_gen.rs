@@ -2284,7 +2284,8 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             // Strategy:
             // 1. Look up function signature to see which params are borrowed
             // 2. Only borrow if: (a) arg is List/Dict/Set AND (b) function expects borrow
-            // 3. Otherwise pass as-is (either owned or primitive)
+            // 3. Check if param needs &mut (mutated in callee) or just &
+            // 4. Otherwise pass as-is (either owned or primitive)
             let borrowed_args: Vec<syn::Expr> = hir_args
                 .iter()
                 .zip(args.iter())
@@ -2304,6 +2305,15 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                             return parse_quote! { &#arg_expr };
                         }
                     }
+
+                    // Check if the parameter in the called function needs &mut
+                    let needs_mut = self
+                        .ctx
+                        .function_param_muts
+                        .get(func)
+                        .and_then(|muts| muts.get(param_idx))
+                        .copied()
+                        .unwrap_or(false);
 
                     // Check if this param should be borrowed by looking up function signature
                     let should_borrow = match hir_arg {
@@ -2329,10 +2339,13 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                                         .copied()
                                         .unwrap_or(true) // Default to borrow (&str) if unknown
                                 } else {
-                                    false
+                                    // For user-defined types passed to functions that mutate them,
+                                    // check if the parameter needs &mut
+                                    needs_mut
                                 }
                             } else {
-                                false
+                                // Unknown type - check if it needs mutation
+                                needs_mut
                             }
                         }
                         // DEPYLER-0359: Auto-borrow list/dict/set literals when calling functions
@@ -2351,7 +2364,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                         // we need to add .to_string()
                         HirExpr::Literal(crate::hir::Literal::String(_)) => {
                             // Check if function param is borrowed (true = &str, false = String)
-                            let param_is_borrowed = self
+                            let _param_is_borrowed = self
                                 .ctx
                                 .function_param_borrows
                                 .get(func)
@@ -2396,6 +2409,18 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                                 false
                             }
                         }
+                        // Check for attribute access (e.g., state.numbers)
+                        HirExpr::Attribute { .. } => {
+                            // Attribute access on user types needs borrowing if param expects it
+                            needs_mut
+                                || self
+                                    .ctx
+                                    .function_param_borrows
+                                    .get(func)
+                                    .and_then(|borrows| borrows.get(param_idx))
+                                    .copied()
+                                    .unwrap_or(false)
+                        }
                         _ => {
                             // Fallback: check if expression creates a Vec via .to_vec()
                             let expr_string = quote! { #arg_expr }.to_string();
@@ -2403,8 +2428,25 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                         }
                     };
 
-                    if should_borrow {
-                        parse_quote! { &#arg_expr }
+                    // Check if the variable is already a &mut reference in current function
+                    // If so, we don't need to add &mut again
+                    let is_already_mut_ref = if let HirExpr::Var(var_name) = hir_arg {
+                        self.ctx.current_func_mut_ref_params.contains(var_name)
+                    } else {
+                        false
+                    };
+
+                    if should_borrow || needs_mut {
+                        if needs_mut {
+                            if is_already_mut_ref {
+                                // Variable is already &mut T, just pass it directly
+                                arg_expr.clone()
+                            } else {
+                                parse_quote! { &mut #arg_expr }
+                            }
+                        } else {
+                            parse_quote! { &#arg_expr }
+                        }
                     } else {
                         // For string literals to owned String params, add .to_string()
                         if matches!(hir_arg, HirExpr::Literal(crate::hir::Literal::String(_))) {

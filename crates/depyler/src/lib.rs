@@ -56,15 +56,14 @@
 use anyhow::Result;
 use clap::{Parser, Subcommand};
 use colored::Colorize;
-use depyler_analyzer::Analyzer;
+use depyler_analysis::{Analyzer, QualityAnalyzer};
 use depyler_core::{
+    DepylerPipeline,
     lambda_codegen::{LambdaCodeGenerator, LambdaProject},
     lambda_inference::{AnalysisReport, LambdaTypeInferencer},
     lambda_optimizer::LambdaOptimizer,
     lambda_testing::LambdaTestHarness,
-    DepylerPipeline,
 };
-use depyler_quality::QualityAnalyzer;
 use indicatif::{ProgressBar, ProgressStyle};
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -516,18 +515,12 @@ pub enum LambdaCommands {
 
 /// Handle compile command (DEPYLER-0380)
 /// Complexity: 3 (within ≤10 target)
-pub fn compile_command(
-    input: PathBuf,
-    output: Option<PathBuf>,
-    profile: String,
-    verbose: bool,
-) -> Result<()> {
+pub fn compile_command(input: PathBuf, output: Option<PathBuf>, profile: String, verbose: bool) -> Result<()> {
     if verbose {
         println!("🔨 Compiling {} to native binary...", input.display());
     }
 
-    let binary_path =
-        compile_cmd::compile_python_to_binary(&input, output.as_deref(), Some(&profile))?;
+    let binary_path = compile_cmd::compile_python_to_binary(&input, output.as_deref(), Some(&profile))?;
 
     println!("✅ Binary created: {}", binary_path.display());
     Ok(())
@@ -585,18 +578,9 @@ pub fn transpile_command(
     if trace {
         eprintln!("\n=== TRANSPILATION TRACE ===");
         eprintln!("Phase 1: Pipeline Initialization");
-        eprintln!(
-            "  - Verification: {}",
-            if verify { "enabled" } else { "disabled" }
-        );
-        eprintln!(
-            "  - Debug mode: {}",
-            if debug { "enabled" } else { "disabled" }
-        );
-        eprintln!(
-            "  - Source map: {}",
-            if source_map { "enabled" } else { "disabled" }
-        );
+        eprintln!("  - Verification: {}", if verify { "enabled" } else { "disabled" });
+        eprintln!("  - Debug mode: {}", if debug { "enabled" } else { "disabled" });
+        eprintln!("  - Source map: {}", if source_map { "enabled" } else { "disabled" });
         eprintln!();
     }
     // Parse Python
@@ -665,17 +649,11 @@ pub fn transpile_command(
             .unwrap_or("transpiled_package");
 
         // Extract source file name for [[bin]] path (DEPYLER-0392)
-        let source_file_name = output_path
-            .file_name()
-            .and_then(|s| s.to_str())
-            .unwrap_or("main.rs");
+        let source_file_name = output_path.file_name().and_then(|s| s.to_str()).unwrap_or("main.rs");
 
         // Generate Cargo.toml content
-        let cargo_toml_content = depyler_core::cargo_toml_gen::generate_cargo_toml(
-            package_name,
-            source_file_name,
-            &dependencies,
-        );
+        let cargo_toml_content =
+            depyler_core::cargo_toml_gen::generate_cargo_toml(package_name, source_file_name, &dependencies);
 
         // Write Cargo.toml to the same directory as the output file
         let mut cargo_toml_path = output_path.clone();
@@ -704,11 +682,7 @@ pub fn transpile_command(
     let throughput = (source_size as f64 / 1024.0) / parse_time.as_secs_f64();
 
     println!("📄 Source: {} ({} bytes)", input.display(), source_size);
-    println!(
-        "📝 Output: {} ({} bytes)",
-        output_path.display(),
-        rust_code.len()
-    );
+    println!("📝 Output: {} ({} bytes)", output_path.display(), rust_code.len());
 
     // DEPYLER-0384: Show Cargo.toml generation
     if !dependencies.is_empty() {
@@ -739,7 +713,7 @@ pub fn analyze_command(input: PathBuf, format: String) -> Result<()> {
 
     // Parse to HIR
     let ast = {
-        use rustpython_parser::{parse, Mode};
+        use rustpython_parser::{Mode, parse};
         parse(&python_source, Mode::Module, "<input>")?
     };
     let hir = depyler_core::ast_bridge::python_to_hir(ast)?;
@@ -755,24 +729,14 @@ pub fn analyze_command(input: PathBuf, format: String) -> Result<()> {
         }
         _ => {
             // Text format
-            println!(
-                "Source: {} ({} KB)",
-                input.display(),
-                python_source.len() / 1024
-            );
+            println!("Source: {} ({} KB)", input.display(), python_source.len() / 1024);
             println!("Functions: {}", analysis.module_metrics.total_functions);
             println!(
                 "Avg Cyclomatic: {:.1}",
                 analysis.module_metrics.avg_cyclomatic_complexity
             );
-            println!(
-                "Max Cognitive: {}",
-                analysis.module_metrics.max_cognitive_complexity
-            );
-            println!(
-                "Type Coverage: {:.0}%",
-                analysis.type_coverage.coverage_percentage
-            );
+            println!("Max Cognitive: {}", analysis.module_metrics.max_cognitive_complexity);
+            println!("Type Coverage: {:.0}%", analysis.type_coverage.coverage_percentage);
         }
     }
 
@@ -818,8 +782,7 @@ pub fn quality_check_command(
     let quality_analyzer = QualityAnalyzer::new();
     quality_analyzer.print_quality_report(&report);
 
-    let validations =
-        validate_quality_targets(&report, min_tdg, max_tdg, max_complexity, min_coverage);
+    let validations = validate_quality_targets(&report, min_tdg, max_tdg, max_complexity, min_coverage);
     print_validation_results(&validations);
 
     let compilation_results = check_compilation_quality(&input)?;
@@ -839,7 +802,7 @@ pub struct QualityValidations {
     pub complexity_ok: bool,
     pub coverage_ok: bool,
     pub all_passed: bool,
-    pub report: depyler_quality::QualityReport,
+    pub report: depyler_analysis::QualityReport,
     pub min_tdg: f64,
     pub max_tdg: f64,
     pub max_complexity: u32,
@@ -852,10 +815,10 @@ pub struct CompilationResults {
     pub all_passed: bool,
 }
 
-pub fn generate_quality_report(input: &std::path::Path) -> Result<depyler_quality::QualityReport> {
+pub fn generate_quality_report(input: &std::path::Path) -> Result<depyler_analysis::QualityReport> {
     let python_source = fs::read_to_string(input)?;
     let ast = {
-        use rustpython_parser::{parse, Mode};
+        use rustpython_parser::{Mode, parse};
         parse(&python_source, Mode::Module, "<input>")?
     };
     let hir = depyler_core::ast_bridge::python_to_hir(ast)?;
@@ -864,7 +827,7 @@ pub fn generate_quality_report(input: &std::path::Path) -> Result<depyler_qualit
 }
 
 pub fn validate_quality_targets(
-    report: &depyler_quality::QualityReport,
+    report: &depyler_analysis::QualityReport,
     min_tdg: f64,
     max_tdg: f64,
     max_complexity: u32,
@@ -899,21 +862,13 @@ pub fn print_validation_results(validations: &QualityValidations) {
     );
     println!(
         "  {} Complexity: {} (target: ≤{})",
-        if validations.complexity_ok {
-            "✅"
-        } else {
-            "❌"
-        },
+        if validations.complexity_ok { "✅" } else { "❌" },
         validations.report.complexity_metrics.cyclomatic_complexity,
         validations.max_complexity
     );
     println!(
         "  {} Coverage: {:.1}% (target: ≥{}%)",
-        if validations.coverage_ok {
-            "✅"
-        } else {
-            "❌"
-        },
+        if validations.coverage_ok { "✅" } else { "❌" },
         validations.report.coverage_metrics.line_coverage * 100.0,
         validations.min_coverage
     );
@@ -936,20 +891,12 @@ pub fn print_compilation_results(results: &CompilationResults) {
     println!(
         "  {} rustc compilation: {}",
         if results.compilation_ok { "✅" } else { "❌" },
-        if results.compilation_ok {
-            "PASS"
-        } else {
-            "FAIL"
-        }
+        if results.compilation_ok { "PASS" } else { "FAIL" }
     );
     println!(
         "  {} clippy: {}",
         if results.clippy_ok { "✅" } else { "❌" },
-        if results.clippy_ok {
-            "CLEAN"
-        } else {
-            "WARNINGS"
-        }
+        if results.clippy_ok { "CLEAN" } else { "WARNINGS" }
     );
 }
 
@@ -957,12 +904,7 @@ pub fn interactive_command(input: PathBuf, annotate: bool) -> Result<()> {
     interactive::run_interactive_session(&input.to_string_lossy(), annotate)
 }
 
-pub fn inspect_command(
-    input: PathBuf,
-    repr: String,
-    format: String,
-    output: Option<PathBuf>,
-) -> Result<()> {
+pub fn inspect_command(input: PathBuf, repr: String, format: String, output: Option<PathBuf>) -> Result<()> {
     let python_source = fs::read_to_string(&input)?;
     let pipeline = DepylerPipeline::new();
 
@@ -996,7 +938,7 @@ pub fn inspect_command(
 }
 
 pub fn inspect_python_ast(python_source: &str, format: &str) -> Result<String> {
-    use rustpython_parser::{parse, Mode};
+    use rustpython_parser::{Mode, parse};
 
     let ast = parse(python_source, Mode::Module, "<input>")?;
 
@@ -1027,10 +969,7 @@ pub fn format_python_ast_pretty(ast: &rustpython_ast::Mod) -> String {
 
     match ast {
         rustpython_ast::Mod::Module(module) => {
-            output.push_str(&format!(
-                "Module with {} statements:\n\n",
-                module.body.len()
-            ));
+            output.push_str(&format!("Module with {} statements:\n\n", module.body.len()));
 
             for (i, stmt) in module.body.iter().enumerate() {
                 output.push_str(&format!("Statement {}: ", i + 1));
@@ -1047,11 +986,7 @@ pub fn format_python_ast_pretty(ast: &rustpython_ast::Mod) -> String {
 pub fn format_stmt_summary(stmt: &rustpython_ast::Stmt) -> String {
     match stmt {
         rustpython_ast::Stmt::FunctionDef(func) => {
-            format!(
-                "Function '{}' with {} parameters",
-                func.name,
-                func.args.args.len()
-            )
+            format!("Function '{}' with {} parameters", func.name, func.args.args.len())
         }
         rustpython_ast::Stmt::Return(_) => "Return statement".to_string(),
         rustpython_ast::Stmt::Assign(_) => "Assignment".to_string(),
@@ -1059,11 +994,7 @@ pub fn format_stmt_summary(stmt: &rustpython_ast::Stmt) -> String {
         rustpython_ast::Stmt::While(_) => "While loop".to_string(),
         rustpython_ast::Stmt::For(_) => "For loop".to_string(),
         rustpython_ast::Stmt::Expr(_) => "Expression statement".to_string(),
-        _ => format!("{stmt:?}")
-            .split('(')
-            .next()
-            .unwrap_or("Unknown")
-            .to_string(),
+        _ => format!("{stmt:?}").split('(').next().unwrap_or("Unknown").to_string(),
     }
 }
 
@@ -1156,15 +1087,9 @@ pub fn debug_command(
     }
 
     if let Some(rust_file) = gen_script {
-        let source_file = source
-            .ok_or_else(|| anyhow::anyhow!("--source is required when using --gen-script"))?;
+        let source_file = source.ok_or_else(|| anyhow::anyhow!("--source is required when using --gen-script"))?;
 
-        debug_cmd::generate_debugger_script(
-            &source_file,
-            &rust_file,
-            &debugger,
-            output.as_deref(),
-        )?;
+        debug_cmd::generate_debugger_script(&source_file, &rust_file, &debugger, output.as_deref())?;
     } else {
         println!("Use --tips for debugging guide or --gen-script to generate debugger scripts");
         println!("Use --spydecy <file> for interactive debugging");
@@ -1240,24 +1165,14 @@ pub fn lambda_analyze_command(input: PathBuf, format: String, confidence: f64) -
             println!("🔍 Lambda Event Type Analysis");
             println!("==============================");
             println!("📄 File: {}", input.display());
-            println!(
-                "🎯 Inferred Event Type: {:?}",
-                analysis_report.inferred_event_type
-            );
+            println!("🎯 Inferred Event Type: {:?}", analysis_report.inferred_event_type);
             println!("📊 Confidence Scores:");
             for (event_type, confidence) in &analysis_report.confidence_scores {
                 println!("   {event_type:?}: {confidence:.2}");
             }
-            println!(
-                "🔍 Detected Patterns: {}",
-                analysis_report.detected_patterns.len()
-            );
+            println!("🔍 Detected Patterns: {}", analysis_report.detected_patterns.len());
             for pattern in &analysis_report.detected_patterns {
-                println!(
-                    "   - {:?}: {:?}",
-                    pattern.pattern_type,
-                    pattern.access_chain.join(".")
-                );
+                println!("   - {:?}: {:?}", pattern.pattern_type, pattern.access_chain.join("."));
             }
 
             if !analysis_report.recommendations.is_empty() {
@@ -1280,21 +1195,13 @@ fn infer_and_map_event_type(
     inferred_type: depyler_core::lambda_inference::EventType,
 ) -> depyler_annotations::LambdaEventType {
     match inferred_type {
-        depyler_core::lambda_inference::EventType::S3Event => {
-            depyler_annotations::LambdaEventType::S3Event
-        }
+        depyler_core::lambda_inference::EventType::S3Event => depyler_annotations::LambdaEventType::S3Event,
         depyler_core::lambda_inference::EventType::ApiGatewayV2Http => {
             depyler_annotations::LambdaEventType::ApiGatewayV2HttpRequest
         }
-        depyler_core::lambda_inference::EventType::SnsEvent => {
-            depyler_annotations::LambdaEventType::SnsEvent
-        }
-        depyler_core::lambda_inference::EventType::SqsEvent => {
-            depyler_annotations::LambdaEventType::SqsEvent
-        }
-        depyler_core::lambda_inference::EventType::DynamodbEvent => {
-            depyler_annotations::LambdaEventType::DynamodbEvent
-        }
+        depyler_core::lambda_inference::EventType::SnsEvent => depyler_annotations::LambdaEventType::SnsEvent,
+        depyler_core::lambda_inference::EventType::SqsEvent => depyler_annotations::LambdaEventType::SqsEvent,
+        depyler_core::lambda_inference::EventType::DynamodbEvent => depyler_annotations::LambdaEventType::DynamodbEvent,
         depyler_core::lambda_inference::EventType::EventBridge => {
             depyler_annotations::LambdaEventType::EventBridgeEvent(None)
         }
@@ -1375,11 +1282,7 @@ fn write_lambda_project_files(output_dir: &Path, project: &LambdaProject) -> Res
 /// Writes deployment templates (SAM/CDK) if deploy flag is set
 ///
 /// Complexity: 3 (deploy check + 2 optional template writes)
-fn write_deployment_templates(
-    output_dir: &Path,
-    project: &LambdaProject,
-    deploy: bool,
-) -> Result<()> {
+fn write_deployment_templates(output_dir: &Path, project: &LambdaProject, deploy: bool) -> Result<()> {
     if deploy {
         if let Some(ref sam_template) = project.sam_template {
             fs::write(output_dir.join("template.yaml"), sam_template)?;
@@ -1435,15 +1338,9 @@ fn print_lambda_summary(
     println!("📄 Input: {}", input.display());
     println!("📁 Output: {}", output_dir.display());
     println!("🎯 Event Type: {:?}", analysis.inferred_event_type);
-    println!(
-        "⚡ Optimizations: {}",
-        if optimize { "Enabled" } else { "Standard" }
-    );
+    println!("⚡ Optimizations: {}", if optimize { "Enabled" } else { "Standard" });
     println!("🧪 Tests: {}", if tests { "Generated" } else { "Skipped" });
-    println!(
-        "🚀 Deploy Templates: {}",
-        if deploy { "Generated" } else { "Skipped" }
-    );
+    println!("🚀 Deploy Templates: {}", if deploy { "Generated" } else { "Skipped" });
     println!("⏱️  Total Time: {:.2}ms", total_time.as_millis());
 
     println!("\n📋 Next Steps:");
@@ -1490,23 +1387,19 @@ pub fn lambda_convert_command(
         .parse_annotations(&python_source)
         .unwrap_or_default();
 
-    let lambda_annotations =
-        annotations
-            .lambda_annotations
-            .unwrap_or_else(|| depyler_annotations::LambdaAnnotations {
-                event_type: Some(infer_and_map_event_type(
-                    analysis.inferred_event_type.clone(),
-                )),
-                ..Default::default()
-            });
+    let lambda_annotations = annotations
+        .lambda_annotations
+        .unwrap_or_else(|| depyler_annotations::LambdaAnnotations {
+            event_type: Some(infer_and_map_event_type(analysis.inferred_event_type.clone())),
+            ..Default::default()
+        });
     pb.inc(1);
 
     // Step 3: Transpile to Rust
     pb.set_message("🦀 Transpiling to Rust...");
     let rust_code = pipeline.transpile(&python_source)?;
 
-    let generation_context =
-        create_lambda_generation_context(&lambda_annotations, rust_code, &input);
+    let generation_context = create_lambda_generation_context(&lambda_annotations, rust_code, &input);
     pb.inc(1);
 
     // Step 4: Generate optimized Lambda project
@@ -1518,10 +1411,10 @@ pub fn lambda_convert_command(
     // Step 5: Write output
     pb.set_message("📁 Writing project files...");
     let output_dir = output.unwrap_or_else(|| {
-        input.parent().unwrap().join(format!(
-            "{}_lambda",
-            input.file_stem().unwrap().to_string_lossy()
-        ))
+        input
+            .parent()
+            .unwrap()
+            .join(format!("{}_lambda", input.file_stem().unwrap().to_string_lossy()))
     });
 
     write_lambda_project_files(&output_dir, &project)?;
@@ -1537,25 +1430,12 @@ pub fn lambda_convert_command(
 
     // Print summary
     let total_time = start.elapsed();
-    print_lambda_summary(
-        &input,
-        &output_dir,
-        &analysis,
-        optimize,
-        tests,
-        deploy,
-        total_time,
-    );
+    print_lambda_summary(&input, &output_dir, &analysis, optimize, tests, deploy, total_time);
 
     Ok(())
 }
 
-pub fn lambda_test_command(
-    input: PathBuf,
-    event: Option<String>,
-    benchmark: bool,
-    load_test: bool,
-) -> Result<()> {
+pub fn lambda_test_command(input: PathBuf, event: Option<String>, benchmark: bool, load_test: bool) -> Result<()> {
     if !input.join("Cargo.toml").exists() {
         return Err(anyhow::anyhow!("Not a valid Lambda project directory"));
     }
@@ -1692,8 +1572,7 @@ pub fn lambda_deploy_command(
     let current_dir = std::env::current_dir()?;
     std::env::set_current_dir(&input)?;
 
-    let func_name =
-        function_name.unwrap_or_else(|| input.file_name().unwrap().to_string_lossy().to_string());
+    let func_name = function_name.unwrap_or_else(|| input.file_name().unwrap().to_string_lossy().to_string());
 
     if dry_run {
         println!("🔍 Dry run deployment for function: {func_name}");
@@ -1735,12 +1614,7 @@ pub fn lambda_deploy_command(
     Ok(())
 }
 
-pub async fn agent_start_command(
-    port: u16,
-    debug: bool,
-    config: Option<PathBuf>,
-    foreground: bool,
-) -> Result<()> {
+pub async fn agent_start_command(port: u16, debug: bool, config: Option<PathBuf>, foreground: bool) -> Result<()> {
     use crate::agent::daemon::{AgentDaemon, DaemonConfig};
 
     let config = if let Some(config_path) = config {
@@ -1885,12 +1759,7 @@ mod tests {
     fn test_inspect_command_python_ast() {
         let (_temp_dir, input_path) = create_test_python_file("def hello() -> int: return 42");
 
-        let result = inspect_command(
-            input_path,
-            "python-ast".to_string(),
-            "debug".to_string(),
-            None,
-        );
+        let result = inspect_command(input_path, "python-ast".to_string(), "debug".to_string(), None);
         assert!(result.is_ok());
     }
 

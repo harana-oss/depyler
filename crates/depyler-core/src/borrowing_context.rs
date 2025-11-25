@@ -102,6 +102,9 @@ pub struct ParameterUsagePattern {
     pub is_mutated: bool,
     /// Parameter is moved/consumed (passed to function that takes ownership)
     pub is_moved: bool,
+    /// Parameter is used after being passed to a function (multi-use pattern)
+    /// If true, we can't move to the first function; must borrow
+    pub used_after_function_call: bool,
     /// Parameter escapes through return
     pub escapes_through_return: bool,
     /// Parameter is stored in a struct/container
@@ -198,10 +201,7 @@ pub enum BorrowingInsight {
     /// Parameter access pattern suggests Copy trait
     SuggestCopyDerive(String),
     /// Multiple mutable borrows detected
-    PotentialBorrowConflict {
-        param: String,
-        locations: Vec<String>,
-    },
+    PotentialBorrowConflict { param: String, locations: Vec<String> },
 }
 
 impl BorrowingContext {
@@ -217,11 +217,7 @@ impl BorrowingContext {
     }
 
     /// Analyze a function to determine optimal borrowing strategies
-    pub fn analyze_function(
-        &mut self,
-        func: &HirFunction,
-        type_mapper: &TypeMapper,
-    ) -> BorrowingAnalysisResult {
+    pub fn analyze_function(&mut self, func: &HirFunction, type_mapper: &TypeMapper) -> BorrowingAnalysisResult {
         // Initialize parameter tracking
         for param in &func.params {
             self.param_usage
@@ -354,11 +350,7 @@ impl BorrowingContext {
                 }
                 self.context_stack.pop();
             }
-            HirStmt::For {
-                target: _,
-                iter,
-                body,
-            } => {
+            HirStmt::For { target: _, iter, body } => {
                 self.context_stack.push(AnalysisContext::Loop);
                 self.analyze_expression(iter, 0);
                 for stmt in body {
@@ -487,6 +479,14 @@ impl BorrowingContext {
                 for (i, arg) in args.iter().enumerate() {
                     // Check if directly passing a parameter
                     if let HirExpr::Var(name) = arg {
+                        // DEPYLER-0XXX: Check if this var was already passed to a function
+                        // If so, mark as used_after_function_call
+                        if self.moved_vars.contains(name) {
+                            if let Some(usage) = self.param_usage.get_mut(name) {
+                                usage.used_after_function_call = true;
+                            }
+                        }
+
                         let takes_ownership = self.function_takes_ownership(func, i);
                         if let Some(usage) = self.param_usage.get_mut(name) {
                             // Conservative: assume ownership transfer unless we know better
@@ -577,10 +577,7 @@ impl BorrowingContext {
                 self.analyze_expression(expr, borrow_depth + 1);
             }
             HirExpr::MethodCall {
-                object,
-                method,
-                args,
-                ..
+                object, method, args, ..
             } => {
                 // Check if this is a mutating method call on a parameter
                 let in_loop = self.is_in_loop();
@@ -731,17 +728,12 @@ impl BorrowingContext {
                 self.analyze_expression(body, borrow_depth);
                 self.analyze_expression(orelse, borrow_depth);
             }
-            HirExpr::SortByKey {
-                iterable, key_body, ..
-            } => {
+            HirExpr::SortByKey { iterable, key_body, .. } => {
                 // Analyze the iterable and the key lambda body
                 self.analyze_expression(iterable, borrow_depth);
                 self.analyze_expression(key_body, borrow_depth);
             }
-            HirExpr::GeneratorExp {
-                element,
-                generators,
-            } => {
+            HirExpr::GeneratorExp { element, generators } => {
                 // Analyze element expression and all generator iterables
                 self.analyze_expression(element, borrow_depth);
                 for gen in generators {
@@ -857,29 +849,15 @@ impl BorrowingContext {
     }
 
     /// Determine optimal borrowing strategies based on usage patterns
-    fn determine_strategies(
-        &self,
-        func: &HirFunction,
-        type_mapper: &TypeMapper,
-    ) -> BorrowingAnalysisResult {
+    fn determine_strategies(&self, func: &HirFunction, type_mapper: &TypeMapper) -> BorrowingAnalysisResult {
         let mut strategies = IndexMap::new();
         let mut insights = Vec::new();
 
         for param in &func.params {
-            let usage = self
-                .param_usage
-                .get(&param.name)
-                .cloned()
-                .unwrap_or_default();
+            let usage = self.param_usage.get(&param.name).cloned().unwrap_or_default();
             let rust_type = type_mapper.map_type(&param.ty);
 
-            let strategy = self.determine_parameter_strategy(
-                &param.name,
-                &usage,
-                &rust_type,
-                &param.ty,
-                &mut insights,
-            );
+            let strategy = self.determine_parameter_strategy(&param.name, &usage, &rust_type, &param.ty, &mut insights);
 
             strategies.insert(param.name.clone(), strategy);
         }
@@ -904,7 +882,31 @@ impl BorrowingContext {
             insights.push(BorrowingInsight::SuggestCopyDerive(param_name.to_string()));
         }
 
-        // If parameter is moved, we must take ownership
+        // DEPYLER-0XXX: If parameter is used after being passed to a function, must borrow
+        // This handles multi-use patterns like:
+        //   func1(state)
+        //   func2(state)  # state used again after func1
+        // If we moved to func1, func2 would fail
+        if usage.used_after_function_call {
+            if usage.is_mutated {
+                return BorrowingStrategy::BorrowMutable { lifetime: None };
+            } else {
+                // Even if not mutated locally, we might need &mut for the callee
+                // Let's be conservative and use &mut if any function call is involved
+                return BorrowingStrategy::BorrowMutable { lifetime: None };
+            }
+        }
+
+        // DEPYLER-0XXX: If parameter is moved AND mutated, prefer borrowing
+        // This handles cases like:
+        //   state.x = 10  # mutation
+        //   func(state)   # would be move, but we need to borrow
+        // If we took ownership, we couldn't mutate before passing
+        if usage.is_moved && usage.is_mutated {
+            return BorrowingStrategy::BorrowMutable { lifetime: None };
+        }
+
+        // If parameter is moved (but not mutated), take ownership
         if usage.is_moved {
             // Check if move is necessary
             if !usage.escapes_through_return && !usage.is_stored {
@@ -925,9 +927,7 @@ impl BorrowingContext {
 
         // If parameter is stored in a structure, consider shared ownership
         if usage.is_stored {
-            return BorrowingStrategy::UseSharedOwnership {
-                is_thread_safe: false,
-            };
+            return BorrowingStrategy::UseSharedOwnership { is_thread_safe: false };
         }
 
         // If used in closure, determine capture strategy
@@ -958,11 +958,7 @@ impl BorrowingContext {
     }
 
     /// Determine optimal string handling strategy
-    fn determine_string_strategy(
-        &self,
-        _param_name: &str,
-        usage: &ParameterUsagePattern,
-    ) -> BorrowingStrategy {
+    fn determine_string_strategy(&self, _param_name: &str, usage: &ParameterUsagePattern) -> BorrowingStrategy {
         // For strings that are reassigned (not string mutation itself),
         // we can actually take ownership since we're replacing the entire string
         // This is a Python-specific pattern where `s = s + "!"` creates a new string
@@ -1064,10 +1060,7 @@ mod tests {
 
         // String parameter should be borrowed (not moved)
         let s_strategy = result.param_strategies.get("s").unwrap();
-        assert!(matches!(
-            s_strategy,
-            BorrowingStrategy::BorrowImmutable { .. }
-        ));
+        assert!(matches!(s_strategy, BorrowingStrategy::BorrowImmutable { .. }));
     }
 
     #[test]
@@ -1084,10 +1077,7 @@ mod tests {
             ret_type: PythonType::None,
             body: vec![HirStmt::Expr(HirExpr::Call {
                 func: "append".to_string(),
-                args: vec![
-                    HirExpr::Var("lst".to_string()),
-                    HirExpr::Literal(Literal::Int(42)),
-                ],
+                args: vec![HirExpr::Var("lst".to_string()), HirExpr::Literal(Literal::Int(42))],
                 kwargs: vec![],
             })],
             properties: FunctionProperties::default(),
