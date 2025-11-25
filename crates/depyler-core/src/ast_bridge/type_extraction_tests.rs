@@ -293,7 +293,6 @@ fn test_extract_type_with_name_expr() {
     assert_eq!(ty, Type::Int);
 }
 
-// DEPYLER-0273: PEP 604 Union Type Syntax Tests
 #[test]
 fn test_pep604_union_int_or_none() {
     // Python 3.10+ syntax: int | None → Optional[int]

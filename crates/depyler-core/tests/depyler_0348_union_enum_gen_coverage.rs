@@ -1,4 +1,4 @@
-//! DEPYLER-0348: union_enum_gen.rs Coverage Tests
+//! issue: union_enum_gen.rs Coverage Tests
 //!
 //! **EXTREME TDD Protocol - Coverage Boost**
 //!

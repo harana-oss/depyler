@@ -1,4 +1,4 @@
-//! TDD Tests for @staticmethod Decorator (DEPYLER-0112 Phase 1)
+//! TDD Tests for @staticmethod Decorator 
 //!
 //! Phase 1: @staticmethod decorator support
 //! Python: @staticmethod def method() → Rust: fn method() (no &self)

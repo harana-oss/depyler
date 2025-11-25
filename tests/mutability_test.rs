@@ -1252,7 +1252,7 @@ def add_value(state: State, value: int, label: str) -> None:
     let rust_code = result.unwrap();
     assert!(rust_code.contains("state: &mut State"), "\n{rust_code}");
     assert!(rust_code.contains("value: i32"), "\n{rust_code}");
-    assert!(rust_code.contains("label: &str"), "\n{rust_code}");
+    assert!(rust_code.contains("label: String"), "\n{rust_code}");
 }
 
 #[test]

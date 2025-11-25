@@ -11,28 +11,20 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::path::PathBuf;
 
-/// Source mapping information
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SourceMap {
-    /// Original Python source file
     pub source_file: PathBuf,
-    /// Generated Rust file
     pub target_file: PathBuf,
-    /// Mapping entries
     pub mappings: Vec<SourceMapping>,
-    /// Function mappings
     pub function_map: HashMap<String, FunctionMapping>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SourceMapping {
-    /// Python source location
     pub python_line: usize,
     pub python_column: usize,
-    /// Rust target location
     pub rust_line: usize,
     pub rust_column: usize,
-    /// Optional symbol name
     pub symbol: Option<String>,
 }
 
@@ -77,7 +69,6 @@ impl DebugInfoGenerator {
         }
     }
 
-    /// Add a source mapping
     pub fn add_mapping(
         &mut self,
         python_line: usize,
@@ -97,7 +88,6 @@ impl DebugInfoGenerator {
         });
     }
 
-    /// Add a function mapping
     pub fn add_function_mapping(&mut self, func: &HirFunction, rust_start: usize) {
         if self.debug_level == DebugLevel::None {
             return;
@@ -117,17 +107,14 @@ impl DebugInfoGenerator {
         );
     }
 
-    /// Increment line counter (for tracking generated code)
     pub fn new_line(&mut self) {
         self.current_rust_line += 1;
     }
 
-    /// Get the source map
     pub fn source_map(&self) -> &SourceMap {
         &self.source_map
     }
 
-    /// Generate debug annotations for a function
     pub fn generate_function_debug(&self, func: &HirFunction) -> String {
         match self.debug_level {
             DebugLevel::None => String::new(),
@@ -143,7 +130,6 @@ impl DebugInfoGenerator {
         }
     }
 
-    /// Generate debug print for a variable
     pub fn generate_debug_print(&self, var_name: &str, var_type: &Type) -> String {
         match self.debug_level {
             DebugLevel::None => String::new(),
@@ -171,12 +157,10 @@ impl DebugRuntime {
         "depyler_breakpoint!()"
     }
 
-    /// Generate an assertion with debug info
     pub fn debug_assert(condition: &str, message: &str) -> String {
         format!("debug_assert!({}, \"{}\");", condition, message)
     }
 
-    /// Generate a trace point
     pub fn trace_point(location: &str) -> String {
         format!("depyler_trace!(\"{}\");", location)
     }
@@ -274,7 +258,6 @@ impl Default for DebugConfig {
     }
 }
 
-/// Helper macros for generated code
 pub fn generate_debug_macros() -> String {
     r#"
 // Depyler debugging macros

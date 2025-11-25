@@ -15,7 +15,6 @@ use std::path::PathBuf;
 
 #[derive(Debug, Args)]
 pub struct ProfileArgs {
-    /// Path to Python file to profile
     pub file: PathBuf,
 
     /// Enable instruction counting
@@ -78,31 +77,28 @@ pub fn handle_profile_command(args: ProfileArgs) -> Result<()> {
 
     let mut profiler = Profiler::new(config);
 
-    // Analyze the program
-    // let report = profiler.analyze_program(&hir_program);
+    let report = profiler.analyze_program(&hir_program);
+    println!("{}", report.format_report());
 
-    // Display the main report
-    // println!("{}", report.format_report());
+    // Generate flamegraph data if requested
+    if args.flamegraph {
+        let flamegraph_data = report.generate_flamegraph_data();
 
-    // // Generate flamegraph data if requested
-    // if args.flamegraph {
-    //     let flamegraph_data = report.generate_flamegraph_data();
+        if let Some(output_path) = args.flamegraph_output {
+            fs::write(output_path, flamegraph_data)?;
+            println!("\n🔥 Flamegraph data written to file");
+        } else {
+            println!("\n🔥 Flamegraph Data (collapsed format):");
+            println!("{}", flamegraph_data);
+        }
+    }
 
-    //     if let Some(output_path) = args.flamegraph_output {
-    //         fs::write(output_path, flamegraph_data)?;
-    //         println!("\n🔥 Flamegraph data written to file");
-    //     } else {
-    //         println!("\n🔥 Flamegraph Data (collapsed format):");
-    //         println!("{}", flamegraph_data);
-    //     }
-    // }
-
-    // // Generate perf annotations if requested
-    // if let Some(output_path) = args.perf_output {
-    //     let perf_annotations = report.generate_perf_annotations();
-    //     fs::write(output_path, perf_annotations)?;
-    //     println!("\n📊 Perf annotations written to file");
-    // }
+    // Generate perf annotations if requested
+    if let Some(output_path) = args.perf_output {
+        let perf_annotations = report.generate_perf_annotations();
+        fs::write(output_path, perf_annotations)?;
+        println!("\n📊 Perf annotations written to file");
+    }
 
     Ok(())
 }

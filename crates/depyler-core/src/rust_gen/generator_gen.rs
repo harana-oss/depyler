@@ -59,7 +59,6 @@ fn generate_param_fields(
 
 /// Extract the Item type for the Iterator from generator return type
 ///
-/// DEPYLER-0263 FIX: Infer yield type from yield analysis, not func.ret_type.
 /// func.ret_type is often Type::Unknown for generators, which maps to DynamicType.
 /// Instead, we analyze the actual yield expressions to infer the concrete type.
 ///
@@ -71,7 +70,6 @@ fn extract_generator_item_type(
     yield_analysis: &YieldAnalysis,
     ctx: &CodeGenContext,
 ) -> Result<syn::Type> {
-    // DEPYLER-0263: Infer type from first yield expression if func.ret_type is Unknown
     let yield_type =
         if matches!(func.ret_type, Type::Unknown) && !yield_analysis.yield_points.is_empty() {
             // Infer from first yield expression
@@ -87,7 +85,6 @@ fn extract_generator_item_type(
 
 /// Infer type from a yield expression
 ///
-/// # Complexity: 2 (match + return)
 #[inline]
 fn infer_yield_type(expr: &HirExpr) -> Type {
     match expr {
@@ -147,7 +144,6 @@ fn generate_param_initializers(
 
 /// Get default value expression for Int type
 ///
-/// # Complexity: 1
 #[inline]
 fn default_int() -> proc_macro2::TokenStream {
     quote! { 0 }
@@ -155,7 +151,6 @@ fn default_int() -> proc_macro2::TokenStream {
 
 /// Get default value expression for Float type
 ///
-/// # Complexity: 1
 #[inline]
 fn default_float() -> proc_macro2::TokenStream {
     quote! { 0.0 }
@@ -163,7 +158,6 @@ fn default_float() -> proc_macro2::TokenStream {
 
 /// Get default value expression for Bool type
 ///
-/// # Complexity: 1
 #[inline]
 fn default_bool() -> proc_macro2::TokenStream {
     quote! { false }
@@ -171,7 +165,6 @@ fn default_bool() -> proc_macro2::TokenStream {
 
 /// Get default value expression for String type
 ///
-/// # Complexity: 1
 #[inline]
 fn default_string() -> proc_macro2::TokenStream {
     quote! { String::new() }
@@ -179,7 +172,6 @@ fn default_string() -> proc_macro2::TokenStream {
 
 /// Get default value expression for other types
 ///
-/// # Complexity: 1
 #[inline]
 fn default_generic() -> proc_macro2::TokenStream {
     quote! { Default::default() }
@@ -204,15 +196,12 @@ fn get_default_value_for_type(ty: &Type) -> proc_macro2::TokenStream {
 
 /// Generate state struct name by converting snake_case to PascalCase
 ///
-/// DEPYLER-0259: Converts snake_case to PascalCase properly
 /// Examples: count_up → CountUpState, counter → CounterState
 ///
-/// # Complexity: 6 (within ≤10 target)
 #[inline]
 fn generate_state_struct_name(name: &syn::Ident) -> syn::Ident {
     let name_str = name.to_string();
 
-    // DEPYLER-0259 FIX: Convert snake_case to PascalCase properly
     let pascal_case = name_str
         .split('_')
         .map(|word| {
@@ -230,7 +219,6 @@ fn generate_state_struct_name(name: &syn::Ident) -> syn::Ident {
 
 /// Populate generator state variables in context
 ///
-/// # Complexity: 3 (clear + 2 loops)
 #[inline]
 fn populate_generator_state_vars(ctx: &mut CodeGenContext, state_info: &GeneratorStateInfo) {
     ctx.generator_state_vars.clear();
@@ -244,7 +232,6 @@ fn populate_generator_state_vars(ctx: &mut CodeGenContext, state_info: &Generato
 
 /// Generate generator body statements with proper context flags
 ///
-/// # Complexity: 4 (set flag + collect + clear flag + clear vars)
 #[inline]
 fn generate_generator_body(
     func: &HirFunction,
@@ -266,7 +253,6 @@ fn generate_generator_body(
 
 /// Convert HirExpr to syn::Expr for code generation
 ///
-/// # Complexity: 1 (direct conversion)
 #[inline]
 fn hir_expr_to_syn(expr: &HirExpr, ctx: &mut CodeGenContext) -> Result<syn::Expr> {
     // Use the ToRustExpr trait to convert HIR expression to syn::Expr
@@ -275,17 +261,14 @@ fn hir_expr_to_syn(expr: &HirExpr, ctx: &mut CodeGenContext) -> Result<syn::Expr
 
 /// Generate multi-state match arms for sequential yields
 ///
-/// DEPYLER-0262 Phase 3A: Transforms sequential yield points into proper state machine.
 /// Each yield becomes a separate state with resumption at the next statement.
 ///
-/// # Complexity: 5 (iterate yields + generate arms)
 #[inline]
 fn generate_simple_multi_state_match(
     yield_analysis: &YieldAnalysis,
     _func: &HirFunction,
     ctx: &mut CodeGenContext,
 ) -> Result<proc_macro2::TokenStream> {
-    // DEPYLER-0263: Set generator context flag for proper variable scoping
     ctx.in_generator = true;
 
     let mut match_arms = Vec::new();
@@ -346,7 +329,6 @@ fn generate_simple_multi_state_match(
 
 /// Generate loop with yield transformation
 ///
-/// DEPYLER-0262 Phase 3B: Transforms simple loops with single yield into state machines.
 /// Handles pattern: `while condition: yield value; increment`
 ///
 /// Strategy:
@@ -354,14 +336,12 @@ fn generate_simple_multi_state_match(
 /// - Generate initialization code (statements before loop)
 /// - Generate loop state that checks condition and yields properly
 ///
-/// # Complexity: 8 (within ≤10 target)
 #[inline]
 fn generate_simple_loop_with_yield(
     func: &HirFunction,
     yield_analysis: &YieldAnalysis,
     ctx: &mut CodeGenContext,
 ) -> Result<proc_macro2::TokenStream> {
-    // DEPYLER-0263: Set generator context flag for proper variable scoping
     ctx.in_generator = true;
 
     // Find the loop statement in the function body
@@ -416,7 +396,6 @@ fn generate_simple_loop_with_yield(
 
 /// Extract loop information from function body
 ///
-/// # Complexity: 5
 #[inline]
 fn extract_loop_info(func: &HirFunction) -> Result<LoopInfo> {
     // Find the While statement in the body
@@ -464,7 +443,6 @@ struct LoopInfo {
 
 /// Generate initialization statements before loop
 ///
-/// # Complexity: 2
 #[inline]
 fn generate_loop_init_stmts(
     stmts: &[HirStmt],
@@ -476,7 +454,6 @@ fn generate_loop_init_stmts(
 
 /// Generate loop body statements (after yield)
 ///
-/// # Complexity: 2
 #[inline]
 fn generate_loop_body_stmts(
     stmts: &[HirStmt],
@@ -524,10 +501,8 @@ pub fn codegen_generator_function(
     // Analyze generator state requirements
     let state_info = GeneratorStateInfo::analyze(func);
 
-    // DEPYLER-0262 Phase 2: Analyze yield points for state machine transformation
     let yield_analysis = YieldAnalysis::analyze(func);
 
-    // DEPYLER-0262 Phase 3A: Check if we can use simple multi-state transformation
     let use_simple_multi_state =
         yield_analysis.has_yields() && yield_analysis.yield_points.iter().all(|yp| yp.depth == 0);
 
@@ -549,13 +524,11 @@ pub fn codegen_generator_function(
         state: usize
     };
 
-    // DEPYLER-0263: Extract yield value type, inferring from yield expressions if needed
     let item_type = extract_generator_item_type(func, &yield_analysis, ctx)?;
 
     // Populate generator state variables for scoping
     populate_generator_state_vars(ctx, &state_info);
 
-    // DEPYLER-0262 Phase 3B: Check if we have simple loop with yield pattern
     let has_while_loop = func
         .body
         .iter()
@@ -565,10 +538,8 @@ pub fn codegen_generator_function(
 
     // Generate state machine implementation based on yield analysis
     let state_machine_impl = if use_simple_multi_state {
-        // DEPYLER-0262 Phase 3A: Multi-state transformation for sequential yields
         generate_simple_multi_state_match(&yield_analysis, func, ctx)?
     } else if has_while_loop && has_loop_yields && yield_analysis.yield_points.len() == 1 {
-        // DEPYLER-0262 Phase 3B: Simple loop with single yield pattern
         generate_simple_loop_with_yield(func, &yield_analysis, ctx)?
     } else {
         // Fallback: Single-state implementation (for complex cases or no yields)
@@ -632,7 +603,7 @@ mod tests {
         assert_eq!(
             result.to_string(),
             "CountUpState",
-            "DEPYLER-0259: Should convert snake_case to PascalCase, not just capitalize first char"
+            "Should convert snake_case to PascalCase, not just capitalize first char"
         );
     }
 

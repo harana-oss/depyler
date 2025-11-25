@@ -156,9 +156,7 @@ impl TranspilationBackend for RuchyBackend {
                 if let Some(error) = get_parse_error(code) {
                     return Err(ValidationError::InvalidSyntax(error));
                 }
-                return Err(ValidationError::InvalidSyntax(
-                    "Invalid Ruchy syntax".to_string(),
-                ));
+                return Err(ValidationError::InvalidSyntax("Invalid Ruchy syntax".to_string()));
             }
         }
 
@@ -182,9 +180,7 @@ impl TranspilationBackend for RuchyBackend {
             }
 
             if paren_count != 0 || brace_count != 0 || bracket_count != 0 {
-                return Err(ValidationError::InvalidSyntax(
-                    "Unmatched brackets".to_string(),
-                ));
+                return Err(ValidationError::InvalidSyntax("Unmatched brackets".to_string()));
             }
         }
 
@@ -205,38 +201,18 @@ impl TranspilationBackend for RuchyBackend {
     }
 }
 
-/// Configuration for the Ruchy backend
 #[derive(Debug, Clone)]
 pub struct RuchyConfig {
-    /// Enable pipeline operator transformations
     pub use_pipelines: bool,
-
-    /// Convert async/await to actor system
     pub use_actors: bool,
-
-    /// Enable DataFrame optimizations
     pub optimize_dataframes: bool,
-
-    /// Use string interpolation
     pub use_string_interpolation: bool,
-
-    /// Maximum line length for formatting
     pub max_line_length: usize,
-
-    /// Indentation width
     pub indent_width: usize,
-
-    /// Optimization level (0-3)
     pub optimization_level: u8,
-
-    /// Enable integrated interpreter for execution
     #[cfg(feature = "interpreter")]
     pub use_interpreter: bool,
-
-    /// Enable property-based testing
     pub enable_property_tests: bool,
-
-    /// Enable MCP integration for tool support
     #[cfg(feature = "interpreter")]
     pub enable_mcp: bool,
 }

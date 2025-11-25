@@ -1,4 +1,4 @@
-//! TDD Tests for Class Support (DEPYLER-0111 Phase 1)
+//! TDD Tests for Class Support 
 //!
 //! Phase 1: Simple classes with __init__ method
 //! This test MUST FAIL initially (Red phase), then pass after implementation (Green phase)

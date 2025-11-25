@@ -1,10 +1,10 @@
 //! Extended coverage tests for type_mapper.rs
 //!
 //! Target: type_mapper.rs gaps (153 uncovered lines)
-//! Coverage focus: DEPYLER-0264, primitive types, helper functions, edge cases
+//! Coverage focus: issue, primitive types, helper functions, edge cases
 //!
 //! Test Strategy:
-//! - DEPYLER-0264: Unknown type → serde_json::Value
+//! - issue: Unknown type → serde_json::Value
 //! - Primitive type mappings (Int, Float, Bool, None)
 //! - String strategy variations
 //! - Int width preferences (i32, i64, isize)
@@ -14,7 +14,7 @@
 
 use depyler_core::DepylerPipeline;
 
-/// Unit Test: DEPYLER-0264 - Unknown type mapping
+/// Unit Test: issue - Unknown type mapping
 ///
 /// Verifies: Unknown → serde_json::Value (line 124)
 #[test]

@@ -54,7 +54,6 @@ impl FunctionSignatureRegistry {
         self.signatures.contains_key(name)
     }
 
-    /// Get number of registered functions
     pub fn len(&self) -> usize {
         self.signatures.len()
     }

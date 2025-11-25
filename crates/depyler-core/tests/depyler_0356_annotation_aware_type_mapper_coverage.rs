@@ -1,4 +1,4 @@
-//! DEPYLER-0356: annotation_aware_type_mapper.rs Coverage Tests
+//! issue: annotation_aware_type_mapper.rs Coverage Tests
 //!
 //! **EXTREME TDD Protocol - Coverage Boost**
 //!
@@ -640,7 +640,7 @@ mod property_tests {
             let dict_type = PythonType::Dict(Box::new(PythonType::String), Box::new(PythonType::Int));
             let rust_type = mapper.map_type_with_annotations(&dict_type, &annotations);
 
-            // Should always use HashMap (DEPYLER-0278)
+            // Should always use HashMap 
             let rust_str = rust_type.to_rust_string();
             prop_assert!(
                 rust_str.contains("HashMap"),

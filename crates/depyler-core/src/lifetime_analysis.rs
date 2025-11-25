@@ -91,16 +91,11 @@ pub struct LifetimeInference {
     param_analysis: HashMap<String, ParamUsage>,
 }
 
-/// Information about a variable's lifetime
 #[derive(Debug, Clone)]
 pub struct LifetimeInfo {
-    /// The inferred lifetime name (e.g., "'a", "'b")
     pub name: String,
-    /// Whether this lifetime is static
     pub is_static: bool,
-    /// Variables that this lifetime must outlive
     pub outlives: HashSet<String>,
-    /// Source of this lifetime (parameter, local, etc.)
     pub source: LifetimeSource,
 }
 
@@ -119,20 +114,13 @@ pub enum LifetimeSource {
     Field(String),
 }
 
-/// How a parameter is used in a function
 #[derive(Debug, Clone, Default)]
 pub struct ParamUsage {
-    /// Parameter is mutated
     pub is_mutated: bool,
-    /// Parameter is moved/consumed
     pub is_moved: bool,
-    /// Parameter escapes (returned or stored)
     pub escapes: bool,
-    /// Parameter is only read
     pub is_read_only: bool,
-    /// Parameter is used in loops
     pub used_in_loop: bool,
-    /// Nested borrows exist
     pub has_nested_borrows: bool,
 }
 
@@ -147,31 +135,20 @@ pub enum LifetimeConstraint {
     AtLeast,
 }
 
-/// Result of lifetime inference for a function
 #[derive(Debug, Clone)]
 pub struct LifetimeResult {
-    /// Inferred parameter lifetimes
     pub param_lifetimes: IndexMap<String, InferredParam>,
-    /// Return type lifetime
     pub return_lifetime: Option<String>,
-    /// Additional lifetime parameters needed
     pub lifetime_params: Vec<String>,
-    /// Lifetime bounds (e.g., "'a: 'b")
     pub lifetime_bounds: Vec<(String, String)>,
-    /// Borrowing strategies for parameters
     pub borrowing_strategies: IndexMap<String, BorrowingStrategy>,
 }
 
-/// Inferred parameter information
 #[derive(Debug, Clone)]
 pub struct InferredParam {
-    /// Should be borrowed instead of owned
     pub should_borrow: bool,
-    /// Needs mutable borrow
     pub needs_mut: bool,
-    /// Lifetime name if borrowed
     pub lifetime: Option<String>,
-    /// Original Rust type
     pub rust_type: RustType,
 }
 
@@ -241,8 +218,7 @@ impl LifetimeInference {
     ) -> LifetimeResult {
         // Use enhanced borrowing context for comprehensive analysis
         let mut borrowing_ctx = BorrowingContext::new(Some(func.ret_type.clone()));
-        let borrowing_result =
-            borrowing_ctx.analyze_function_with_interprocedural(func, type_mapper, interprocedural);
+        let borrowing_result = borrowing_ctx.analyze_function_with_interprocedural(func, type_mapper, interprocedural);
 
         // Convert borrowing strategies to lifetime information
         let mut param_lifetimes = IndexMap::new();
@@ -331,13 +307,7 @@ impl LifetimeInference {
 
     /// Recursively analyze statements for parameter usage
     #[allow(dead_code)]
-    fn analyze_stmt_for_param(
-        &self,
-        param: &str,
-        stmt: &HirStmt,
-        usage: &mut ParamUsage,
-        in_loop: bool,
-    ) {
+    fn analyze_stmt_for_param(&self, param: &str, stmt: &HirStmt, usage: &mut ParamUsage, in_loop: bool) {
         match stmt {
             HirStmt::Expr(expr) => self.analyze_expr_for_param(param, expr, usage, in_loop, false),
             HirStmt::Assign { target, value, .. } => {
@@ -463,7 +433,6 @@ impl LifetimeInference {
                     }
                 }
             }
-            // DEPYLER-0427: Nested function support
             // Analyze nested function body for parameter usage
             HirStmt::FunctionDef { body, .. } => {
                 for stmt in body {
@@ -543,13 +512,9 @@ impl LifetimeInference {
             }
             HirExpr::Literal(_) => {}
             HirExpr::MethodCall {
-                object,
-                method,
-                args,
-                ..
+                object, method, args, ..
             } => {
                 // Check if this is a mutating method call on our parameter
-                // DEPYLER-0318: Handle nested attributes like param.field.mutate()
                 if is_mutating_method(method) {
                     if let Some(root_var) = extract_root_var(object) {
                         if root_var == param {
@@ -671,17 +636,12 @@ impl LifetimeInference {
                 self.analyze_expr_for_param(param, body, usage, in_loop, in_return);
                 self.analyze_expr_for_param(param, orelse, usage, in_loop, in_return);
             }
-            HirExpr::SortByKey {
-                iterable, key_body, ..
-            } => {
+            HirExpr::SortByKey { iterable, key_body, .. } => {
                 // Analyze the iterable and key lambda body
                 self.analyze_expr_for_param(param, iterable, usage, in_loop, in_return);
                 self.analyze_expr_for_param(param, key_body, usage, in_loop, in_return);
             }
-            HirExpr::GeneratorExp {
-                element,
-                generators,
-            } => {
+            HirExpr::GeneratorExp { element, generators } => {
                 // Analyze element and all generator components
                 self.analyze_expr_for_param(param, element, usage, in_loop, in_return);
                 for gen in generators {
@@ -704,19 +664,13 @@ impl LifetimeInference {
         let mut result = IndexMap::new();
 
         for param in &func.params {
-            let usage = self
-                .param_analysis
-                .get(&param.name)
-                .cloned()
-                .unwrap_or_default();
+            let usage = self.param_analysis.get(&param.name).cloned().unwrap_or_default();
             let rust_type = type_mapper.map_type(&param.ty);
 
             // Determine if we should borrow or take ownership
             // If parameter escapes (returned) and it's the same type as return, it should be moved
-            let escapes_as_self =
-                usage.escapes && rust_type == type_mapper.map_return_type(&func.ret_type);
-            let should_borrow =
-                !usage.is_moved && !escapes_as_self && (usage.is_read_only || usage.is_mutated);
+            let escapes_as_self = usage.escapes && rust_type == type_mapper.map_return_type(&func.ret_type);
+            let should_borrow = !usage.is_moved && !escapes_as_self && (usage.is_read_only || usage.is_mutated);
             let needs_mut = usage.is_mutated;
 
             let lifetime = if should_borrow {
@@ -789,12 +743,8 @@ impl LifetimeInference {
             RustType::Str { .. } => true,
             RustType::Reference { .. } => true,
             RustType::Cow { .. } => true,
-            RustType::Vec(inner) | RustType::Option(inner) => {
-                self.return_type_needs_lifetime(inner)
-            }
-            RustType::Result(ok, err) => {
-                self.return_type_needs_lifetime(ok) || self.return_type_needs_lifetime(err)
-            }
+            RustType::Vec(inner) | RustType::Option(inner) => self.return_type_needs_lifetime(inner),
+            RustType::Result(ok, err) => self.return_type_needs_lifetime(ok) || self.return_type_needs_lifetime(err),
             RustType::Tuple(types) => types.iter().any(|t| self.return_type_needs_lifetime(t)),
             _ => false,
         }
@@ -833,8 +783,7 @@ impl LifetimeInference {
         interprocedural: Option<&crate::interprocedural::InterproceduralAnalysis>,
     ) -> Option<LifetimeResult> {
         // First, do the full analysis WITH interprocedural context
-        let full_result =
-            self.analyze_function_with_interprocedural(func, type_mapper, interprocedural);
+        let full_result = self.analyze_function_with_interprocedural(func, type_mapper, interprocedural);
 
         // Count reference parameters
         let ref_params: Vec<_> = full_result
@@ -859,7 +808,6 @@ impl LifetimeInference {
 
         if ref_params.len() == 1 {
             // Rule 2: Single input lifetime can be elided
-            // DEPYLER-0275: Elide lifetime even if return doesn't use it
             // Rust's elision rules allow omitting explicit lifetime in single-param functions
             return Some(LifetimeResult {
                 param_lifetimes: full_result.param_lifetimes,

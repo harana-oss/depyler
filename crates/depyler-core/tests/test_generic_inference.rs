@@ -15,7 +15,6 @@ def identity(x: T) -> T:
     // Should generate a generic function
     assert!(rust_code.contains("pub fn identity<T: Clone>(x: T)"));
     assert!(rust_code.contains("-> T"));
-    // DEPYLER-0271: Final statement uses implicit return (idiomatic Rust)
     // Function body should be just "x" not "return x;"
     assert!(
         !rust_code.contains("return x"),

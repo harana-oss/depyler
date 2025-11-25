@@ -1,4 +1,3 @@
-// DEPYLER-0363: ArgParse transpilation tests
 // Status: RED phase - These tests MUST fail initially
 //
 // Tests verify that Python argparse code transpiles to compiling Rust clap code.
@@ -108,12 +107,12 @@ def main():
 }
 
 #[test]
-#[ignore] // RED phase - Requires DEPYLER-0364 (HIR kwargs support)
+#[ignore] // RED phase - Requires issue (HIR kwargs support)
 fn test_depyler_0363_argparse_positional_argument() {
     // NOTE: This test requires HIR enhancement to preserve keyword arguments.
     // Current HIR MethodCall only has args: Vec<HirExpr>, so nargs/type/help are lost.
     // For now, we can only generate basic String fields from argument names.
-    // Full test blocked on: DEPYLER-0364
+    // Full test blocked on: issue
 
     let python = r#"
 import argparse
@@ -131,7 +130,7 @@ def main() -> int:
 
     eprintln!("Generated Rust code:\n{}\n", rust);
 
-    // CURRENT CAPABILITIES (without DEPYLER-0364):
+    // CURRENT CAPABILITIES (without issue):
     // - Can extract argument name: ✓
     // - Can generate clap struct: ✓
     // - Can't extract nargs/type/help: ✗ (HIR limitation)
@@ -145,7 +144,7 @@ def main() -> int:
     assert!(rust.contains("files"), "Should have files field");
     assert!(rust.contains("Args::parse()"), "Should call Args::parse()");
 
-    // Additional type/nargs assertions require DEPYLER-0364 (HIR kwargs preservation)
+    // Additional type/nargs assertions require issue (HIR kwargs preservation)
 
     // Note: Skipping compilation check - test harness uses standalone rustc without clap dependency
     // Compilation verified manually and in integration tests with proper cargo environment

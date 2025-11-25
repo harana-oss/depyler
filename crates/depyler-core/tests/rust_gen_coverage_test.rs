@@ -38,7 +38,7 @@ def test():
     assert!(rust_code.contains("mut x"));
 }
 
-/// Unit Test: DEPYLER-0312 - Parameter reassignment requires mut
+/// Unit Test: issue - Parameter reassignment requires mut
 ///
 /// Verifies: Function params that are reassigned must be mut
 /// Lines: rust_gen.rs:60-65 - pre-populate declared with params

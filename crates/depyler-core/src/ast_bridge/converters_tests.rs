@@ -388,7 +388,6 @@ fn test_convert_aug_assign() {
     }
 }
 
-// DEPYLER-0148: Tests for dict/list augmented assignment support
 #[test]
 fn test_dict_aug_assign_add() {
     let stmt = parse_stmt("word_count[word] += 1");
@@ -658,7 +657,7 @@ fn test_convert_set_comp() {
 
 #[test]
 fn test_yield_expression_supported() {
-    // Yield expressions are now supported (DEPYLER-0115 Phase 1)
+    // Yield expressions are now supported 
     let expr = parse_expr("(yield 42)");
     let result = ExprConverter::convert(expr);
     assert!(result.is_ok());
@@ -674,7 +673,7 @@ fn test_yield_expression_supported() {
 
 #[test]
 fn test_error_on_chained_comparison() {
-    // Updated: chained comparisons now supported (DEPYLER-0124)
+    // Updated: chained comparisons now supported 
     // Pattern: a < b < c becomes (a < b) and (b < c)
     let expr = parse_expr("a < b < c");
     let result = ExprConverter::convert(expr);
@@ -701,7 +700,7 @@ fn test_error_on_chained_comparison() {
 
 #[test]
 fn test_multiple_assign_targets_now_supported() {
-    // Updated: tuple assignment is now supported (DEPYLER-0101)
+    // Updated: tuple assignment is now supported 
     let stmt = parse_stmt("a, b = 1, 2");
     let result = StmtConverter::convert(stmt);
     assert!(result.is_ok());
@@ -715,7 +714,6 @@ fn test_multiple_assign_targets_now_supported() {
     }
 }
 
-// DEPYLER-0101: Tests for 'is None' / 'is not None' operator support
 #[test]
 fn test_is_none_converts_to_method_call() {
     let expr = parse_expr("x is None");
@@ -781,7 +779,6 @@ fn test_complex_expr_is_none() {
 }
 
 #[allow(clippy::cognitive_complexity)]
-// DEPYLER-0101: Tests for tuple assignment/unpacking support
 #[test]
 fn test_tuple_assignment_simple() {
     let stmt = parse_stmt("a, b = 0, 1");

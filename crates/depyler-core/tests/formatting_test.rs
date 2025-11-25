@@ -1,4 +1,4 @@
-// Integration test for DEPYLER-0220: Rust code generation formatting
+// Integration test for Rust code generation formatting
 //
 // RED Phase Test - This test MUST FAIL initially to prove it works
 //
@@ -172,10 +172,10 @@ def log_error(message: str) -> None:
 fn test_depyler_0220_codegen_formatting_impl_blocks() {
     // This test is INTENTIONALLY IGNORED because it uses f-strings, which aren't yet supported.
     // The test is valid but requires f-string transpilation to be implemented first.
-    //
+
     // Current error: "Expression type not yet supported: FString"
     // Required feature: Python f-string → Rust format!() macro translation
-    //
+
     // This test should be re-enabled once f-strings are implemented.
 
     // ARRANGE: Python class with multiple impl blocks
@@ -223,14 +223,14 @@ class Point:
 fn test_depyler_0220_codegen_formatting_comprehensive() {
     // This test is INTENTIONALLY IGNORED because it uses f-strings, which aren't yet supported.
     // The test is valid but requires f-string transpilation to be implemented first.
-    //
+
     // Current error: "Expression type not yet supported: FString"
     // Required feature: Python f-string → Rust format!() macro translation
-    //
+
     // F-strings used in this test:
     // - f"Invalid {field}: {value}" (line 243)
     // - f"Validator(rules={len(self.rules)})" (line 248)
-    //
+
     // This test should be re-enabled once f-strings are implemented.
 
     // ARRANGE: Comprehensive Python code combining all patterns

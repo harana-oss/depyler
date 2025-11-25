@@ -1,4 +1,3 @@
-// DEPYLER-0425: Subcommand Field Access Requires Pattern Matching
 //
 // This test verifies that when handler functions access subcommand-specific fields
 // (like args.url in a clone handler), the transpiler generates proper pattern matching

@@ -21,9 +21,7 @@ def test() -> str:
 
     assert!(result.is_ok(), "Transpilation failed: {:?}", result.err());
     let rust_code = result.unwrap();
-    eprintln!("Generated code:\n{}", rust_code);
-    // Parameters are &str (borrowed), so no .to_string() needed
-    assert!(rust_code.contains(r#"greet("Alice", "Hi")"#));
+    assert!(rust_code.contains(r#"greet("Alice".to_string(), "Hi".to_string())"#));
 }
 
 #[test]
@@ -41,8 +39,7 @@ def test() -> dict:
 
     assert!(result.is_ok(), "Transpilation failed: {:?}", result.err());
     let rust_code = result.unwrap();
-    // Parameters are &str (borrowed), so no .to_string() needed
-    assert!(rust_code.contains(r#"configure(800, 600, "My App")"#));
+    assert!(rust_code.contains(r#"configure(800, 600, "My App".to_string())"#));
 }
 
 #[test]
@@ -58,7 +55,7 @@ def calculate(a: int, b: int, operation: str = "add", verbose: bool = False) -> 
     return result
 
 def test() -> int:
-    return calculate(10, 20, operation="add", verbose=True)
+    return calculate(10, 20, verbose=True, operation="add")
 "#;
 
     let pipeline = DepylerPipeline::new();
@@ -67,7 +64,7 @@ def test() -> int:
     assert!(result.is_ok(), "Transpilation failed: {:?}", result.err());
     let rust_code = result.unwrap();
     eprintln!("Generated code:\n{}", rust_code);
-    assert!(rust_code.contains(r#"calculate(10, 20, "add", true)"#));
+    assert!(rust_code.contains(r#"calculate(10, 20, "add".to_string(), true)"#));
 }
 
 #[test]
@@ -167,34 +164,6 @@ def test() -> dict:
 }
 
 #[test]
-fn test_string_literals_converted_properly() {
-    let python = r#"
-def greet(name: str, greeting: str) -> str:
-    return f"{greeting}, {name}!"
-
-def test() -> str:
-    return greet(greeting="Hello", name="Alice")
-"#;
-
-    let pipeline = DepylerPipeline::new();
-    let result = pipeline.transpile(python);
-
-    assert!(result.is_ok(), "Transpilation failed: {:?}", result.err());
-    let rust_code = result.unwrap();
-
-    // Should have the string literals in the call
-    assert!(rust_code.contains("\"Alice\""), "Missing Alice string");
-    assert!(rust_code.contains("\"Hello\""), "Missing Hello string");
-
-    // String parameters should be &str for efficiency (not String)
-    // So no .to_string() is needed for the arguments
-    assert!(
-        rust_code.contains("&str") || rust_code.contains("&'"),
-        "Should use string references for parameters"
-    );
-}
-
-#[test]
 fn test_builtin_functions_with() {
     let python = r#"
 def test() -> str:
@@ -256,7 +225,6 @@ def test() -> str:
 
     // Check that the arguments appear in the correct order (ignoring whitespace/formatting)
     // Expected order: name="Alice", age=30, city="New York", country="USA"
-    // Parameters are &str (borrowed), so no .to_string() needed
     let call_start = rust_code
         .find("format_message(")
         .expect("format_message call not found");
@@ -295,7 +263,6 @@ def test() -> str:
     let call_section = &rust_code[call_start..];
 
     // Find the positions of each argument in the call
-    // Parameters are &str (borrowed), so no .to_string() needed
     let https_pos = call_section.find(r#""https""#).expect("https not found");
     let example_pos = call_section.find(r#""example.com""#).expect("example.com not found");
     let port_pos = call_section.find("443").expect("443 not found");

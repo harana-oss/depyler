@@ -1,6 +1,6 @@
 //! expr_gen.rs Coverage Expansion Tests
 //!
-//! DEPYLER-0151 Phase 2B: Property + Mutation testing for expression generation
+//! issue Phase 2B: Property + Mutation testing for expression generation
 //! Target: 64.15% → 75%+ coverage (492 missed lines)
 //!
 //! Test Structure (MANDATORY):
@@ -303,7 +303,7 @@ mod mutation_tests {
         // 1. list.append → list.extend (wrong method selection)
         // 2. .push() → .pop() (wrong Rust method)
         // 3. Method parameter count (append takes 1 arg, not 0)
-        //
+
         // Kill Strategy:
         // - Verify correct Rust method is generated (.push not .pop)
         // - Verify method takes correct number of parameters
@@ -340,7 +340,7 @@ def test_list_methods():
         // 1. Python // → Rust / (wrong: truncates towards zero, not floor)
         // 2. Remove sign adjustment logic (wrong: breaks negative results)
         // 3. Remove remainder check (wrong: adjusts when not needed)
-        //
+
         // Kill Strategy:
         // - Verify floor division includes sign/remainder checks
         // - Verify adjustment logic is present
@@ -379,7 +379,7 @@ def floor_div_test(a: int, b: int) -> int:
         // 1. .filter() → .map() order swap (wrong: map then filter vs filter then map)
         // 2. Remove .filter() entirely (wrong: loses condition)
         // 3. Remove .collect() (wrong: returns iterator not Vec)
-        //
+
         // Kill Strategy:
         // - Verify .filter() appears before .map() in chain
         // - Verify .collect() converts to Vec
@@ -429,7 +429,7 @@ def filtered_comp():
         // 1. HashSet::new() → Vec::new() (wrong collection type)
         // 2. .insert() → .push() (wrong method for sets)
         // 3. Remove HashSet import (would fail compilation)
-        //
+
         // Kill Strategy:
         // - Verify HashSet is used for set literals
         // - Verify .insert() is used (not .push())
@@ -466,12 +466,10 @@ def make_set():
 }
 
 // ============================================================================
-// DEPYLER-0171, 0172, 0173, 0174: Builtin Conversion Functions
 // ============================================================================
 
 #[test]
 fn test_counter_builtin_conversion() {
-    // DEPYLER-0171: Counter(iterable) should count elements and create HashMap
     let pipeline = DepylerPipeline::new();
     let python_code = r#"
 from collections import Counter
@@ -497,7 +495,6 @@ def count_items(items):
 
 #[test]
 fn test_dict_builtin_conversion() {
-    // DEPYLER-0172: dict(mapping) should convert mapping to HashMap
     let pipeline = DepylerPipeline::new();
     let python_code = r#"
 def convert_to_dict(mapping):
@@ -517,7 +514,6 @@ def convert_to_dict(mapping):
 
 #[test]
 fn test_dict_empty_constructor() {
-    // DEPYLER-0172: dict() with no args should create empty HashMap
     let pipeline = DepylerPipeline::new();
     let python_code = r#"
 def make_empty_dict():
@@ -536,7 +532,6 @@ def make_empty_dict():
 
 #[test]
 fn test_deque_builtin_conversion() {
-    // DEPYLER-0173: deque(iterable) should create VecDeque from iterable
     let pipeline = DepylerPipeline::new();
     let python_code = r#"
 from collections import deque
@@ -562,7 +557,6 @@ def make_deque(items):
 
 #[test]
 fn test_list_builtin_conversion() {
-    // DEPYLER-0174: list(iterable) should convert iterable to Vec
     let pipeline = DepylerPipeline::new();
     let python_code = r#"
 def convert_to_list(iterable):
@@ -584,7 +578,6 @@ def convert_to_list(iterable):
 
 #[test]
 fn test_list_empty_constructor() {
-    // DEPYLER-0174: list() with no args should create empty Vec
     let pipeline = DepylerPipeline::new();
     let python_code = r#"
 def make_empty_list():

@@ -1,4 +1,4 @@
-//! DEPYLER-0440: Option Type Mismatch in If-Elif-Else with None Assignment
+//! issue: Option Type Mismatch in If-Elif-Else with None Assignment
 //!
 //! **Problem**: Variables initialized with `None` then reassigned in if-elif-else
 //! generate `Option<T>` type but assign unwrapped values, causing compilation failure.
@@ -15,7 +15,7 @@ use depyler_core::DepylerPipeline;
 /// Basic pattern: None followed by reassignment in both branches.
 /// The generated code must compile without Option type mismatches.
 ///
-/// Verifies: DEPYLER-0440 core issue
+/// Verifies: issue core issue
 #[test]
 fn test_depyler_0440_simple_none_if_else() {
     let source = r#"

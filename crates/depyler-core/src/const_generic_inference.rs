@@ -174,7 +174,7 @@ impl ConstGenericInferencer {
         // DISABLED: This transformation was causing list[int] -> [i32; 5]
         // which breaks semantics (dynamic list becomes fixed array)
 
-        // NOTE: Re-enable const generic inference with proper opt-in mechanism (tracked in DEPYLER-0424):
+        // NOTE: Re-enable const generic inference with proper opt-in mechanism ():
         // - Check for @depyler annotations like `# @depyler: use_arrays = true`
         // - Only transform when explicitly requested
         // - Never transform return types unless user uses array syntax
@@ -675,7 +675,7 @@ mod tests {
         assert_eq!(inferencer.detect_fixed_size_pattern(&expr), Some(10));
     }
 
-    // NOTE: Const generic array inference incomplete - requires full implementation (tracked in DEPYLER-0424)
+    // NOTE: Const generic array inference incomplete - requires full implementation ()
     // This test was written ahead of implementation (aspirational test)
     // Tracked in roadmap: Complete const generic inference feature
     #[test]

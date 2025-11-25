@@ -1,40 +1,29 @@
 //! Optimization passes for generated Rust code
 
-use crate::hir::{
-    AssignTarget, BinOp, HirExpr, HirFunction, HirProgram, HirStmt, Literal, UnaryOp,
-};
+use crate::hir::{AssignTarget, BinOp, HirExpr, HirFunction, HirProgram, HirStmt, Literal, UnaryOp};
 use std::collections::{HashMap, HashSet};
 use std::hash::{Hash, Hasher};
 
-/// Main optimizer that runs various optimization passes
 pub struct Optimizer {
-    /// Configuration for optimization passes
     config: OptimizerConfig,
 }
 
 #[derive(Debug, Clone)]
 pub struct OptimizerConfig {
-    /// Enable inlining of small functions
     pub inline_functions: bool,
-    /// Enable dead code elimination
     pub eliminate_dead_code: bool,
-    /// Enable constant propagation
     pub propagate_constants: bool,
-    /// Enable common subexpression elimination
     pub eliminate_common_subexpressions: bool,
-    /// Maximum function size for inlining (in HIR nodes)
     pub inline_threshold: usize,
 }
 
 impl Default for OptimizerConfig {
     fn default() -> Self {
         Self {
-            // DEPYLER-0161: Disabled broken inlining optimization
             // KNOWN ISSUE: Inlining pass marks functions as "Trivial" but doesn't inline them,
             // then dead code elimination removes assignments, leaving undefined variables.
-            // NOTE: Fix inlining logic before re-enabling (tracked in DEPYLER-0161)
+            // NOTE: Fix inlining logic before re-enabling ()
             inline_functions: false,
-            // DEPYLER-0363: Temporarily disable dead code elimination to debug argparse issue
             eliminate_dead_code: false,
             propagate_constants: true,
             eliminate_common_subexpressions: true,
@@ -48,24 +37,19 @@ impl Optimizer {
         Self { config }
     }
 
-    /// Run all optimization passes on a HIR program
     pub fn optimize_program(&mut self, mut program: HirProgram) -> HirProgram {
-        // Pass 1: Constant propagation
         if self.config.propagate_constants {
             program = self.propagate_constants_program(program);
         }
 
-        // Pass 2: Dead code elimination
         if self.config.eliminate_dead_code {
             program = self.eliminate_dead_code_program(program);
         }
 
-        // Pass 3: Function inlining
         if self.config.inline_functions {
             program = self.inline_functions_program(program);
         }
 
-        // Pass 4: Common subexpression elimination
         if self.config.eliminate_common_subexpressions {
             program = self.eliminate_common_subexpressions_program(program);
         }
@@ -73,29 +57,23 @@ impl Optimizer {
         program
     }
 
-    /// Propagate constant values through the program
     fn propagate_constants_program(&self, mut program: HirProgram) -> HirProgram {
         let mut constants = HashMap::new();
 
-        // First pass: find which variables are mutated (assigned more than once)
         let mut mutated_vars = HashSet::new();
         for func in &program.functions {
             self.collect_mutated_vars_function(func, &mut mutated_vars);
         }
 
-        // DEPYLER-0269 Fix: Second pass - collect all variable READS
         let mut read_vars = HashSet::new();
         for func in &program.functions {
             self.collect_read_vars_function(func, &mut read_vars);
         }
 
-        // Third pass: collect constants (but skip mutated OR read variables)
-        // DEPYLER-0269: Only propagate constants for dead code (assigned but never read)
         for func in &program.functions {
             self.collect_constants_function(func, &mut constants, &mutated_vars, &read_vars);
         }
 
-        // Fourth pass: propagate constants
         for func in &mut program.functions {
             self.propagate_constants_function(func, &constants);
         }
@@ -103,15 +81,10 @@ impl Optimizer {
         program
     }
 
-    fn collect_mutated_vars_function(
-        &self,
-        func: &HirFunction,
-        mutated_vars: &mut HashSet<String>,
-    ) {
+    fn collect_mutated_vars_function(&self, func: &HirFunction, mutated_vars: &mut HashSet<String>) {
         let mut assignments = HashMap::new();
         self.count_assignments_stmt(&func.body, &mut assignments);
 
-        // Any variable assigned more than once is mutated
         for (var, count) in assignments {
             if count > 1 {
                 mutated_vars.insert(var);
@@ -119,18 +92,15 @@ impl Optimizer {
         }
     }
 
-    /// DEPYLER-0269: Collect all variables that are actually USED (read)
     fn collect_read_vars_function(&self, func: &HirFunction, read_vars: &mut HashSet<String>) {
         for stmt in &func.body {
             Self::collect_read_vars_stmt(stmt, read_vars);
         }
     }
 
-    /// DEPYLER-0269: Recursively collect variable reads from statements
     fn collect_read_vars_stmt(stmt: &HirStmt, read_vars: &mut HashSet<String>) {
         match stmt {
             HirStmt::Assign { value, .. } => {
-                // Variable reads in the RHS of assignment
                 Self::collect_read_vars_expr(value, read_vars);
             }
             HirStmt::Expr(expr) => {
@@ -170,11 +140,9 @@ impl Optimizer {
         }
     }
 
-    /// DEPYLER-0269: Recursively collect variable reads from expressions
     fn collect_read_vars_expr(expr: &HirExpr, read_vars: &mut HashSet<String>) {
         match expr {
             HirExpr::Var(name) => {
-                // This is a variable READ - mark as used
                 read_vars.insert(name.clone());
             }
             HirExpr::Binary { left, right, .. } => {
@@ -219,11 +187,7 @@ impl Optimizer {
         }
     }
 
-    fn count_assignments_in_single_stmt(
-        &self,
-        stmt: &HirStmt,
-        assignments: &mut HashMap<String, usize>,
-    ) {
+    fn count_assignments_in_single_stmt(&self, stmt: &HirStmt, assignments: &mut HashMap<String, usize>) {
         match stmt {
             HirStmt::Assign {
                 target: AssignTarget::Symbol(name),
@@ -232,9 +196,7 @@ impl Optimizer {
                 *assignments.entry(name.clone()).or_insert(0) += 1;
             }
             HirStmt::If {
-                then_body,
-                else_body,
-                ..
+                then_body, else_body, ..
             } => {
                 self.count_assignments_stmt(then_body, assignments);
                 if let Some(else_stmts) = else_body {
@@ -273,23 +235,13 @@ impl Optimizer {
                 value,
                 ..
             } => {
-                // DEPYLER-0269 Fix: Only propagate constants for dead code
-                // Skip variables that are:
-                // 1. Mutated (assigned more than once) - already checked
-                // 2. Actually USED (read anywhere) - NEW CHECK
-                // This prevents unused variable warnings for user-defined constants
-                if !mutated_vars.contains(name)
-                    && !used_vars.contains(name)  // DEPYLER-0269: Skip used variables!
-                    && self.is_constant_expr(value)
-                {
+                if !mutated_vars.contains(name) && !used_vars.contains(name) && self.is_constant_expr(value) {
                     constants.insert(name.clone(), value.clone());
                 }
             }
             HirStmt::Assign { .. } => {}
             HirStmt::If {
-                then_body,
-                else_body,
-                ..
+                then_body, else_body, ..
             } => {
                 for s in then_body {
                     self.collect_constants_stmt(s, constants, mutated_vars, used_vars);
@@ -313,11 +265,7 @@ impl Optimizer {
         is_constant_expr_inner(expr)
     }
 
-    fn propagate_constants_function(
-        &self,
-        func: &mut HirFunction,
-        constants: &HashMap<String, HirExpr>,
-    ) {
+    fn propagate_constants_function(&self, func: &mut HirFunction, constants: &HashMap<String, HirExpr>) {
         for stmt in &mut func.body {
             self.propagate_constants_stmt(stmt, constants);
         }
@@ -376,7 +324,6 @@ impl Optimizer {
                 self.propagate_constants_expr(left, constants);
                 self.propagate_constants_expr(right, constants);
 
-                // Try to evaluate constant expressions
                 if let Some(result) = self.evaluate_constant_binop(expr) {
                     *expr = result;
                 }
@@ -384,7 +331,6 @@ impl Optimizer {
             HirExpr::Unary { operand, .. } => {
                 self.propagate_constants_expr(operand, constants);
 
-                // Try to evaluate constant expressions
                 if let Some(result) = self.evaluate_constant_unaryop(expr) {
                     *expr = result;
                 }
@@ -421,46 +367,30 @@ impl Optimizer {
     fn evaluate_constant_binop(&self, expr: &HirExpr) -> Option<HirExpr> {
         if let HirExpr::Binary { left, right, op } = expr {
             match (left.as_ref(), right.as_ref(), op) {
-                (
-                    HirExpr::Literal(Literal::Int(a)),
-                    HirExpr::Literal(Literal::Int(b)),
-                    BinOp::Add,
-                ) => Some(HirExpr::Literal(Literal::Int(a + b))),
-                (
-                    HirExpr::Literal(Literal::Int(a)),
-                    HirExpr::Literal(Literal::Int(b)),
-                    BinOp::Sub,
-                ) => Some(HirExpr::Literal(Literal::Int(a - b))),
-                (
-                    HirExpr::Literal(Literal::Int(a)),
-                    HirExpr::Literal(Literal::Int(b)),
-                    BinOp::Mul,
-                ) => Some(HirExpr::Literal(Literal::Int(a * b))),
-                (
-                    HirExpr::Literal(Literal::Int(a)),
-                    HirExpr::Literal(Literal::Int(b)),
-                    BinOp::Div,
-                ) if *b != 0 => Some(HirExpr::Literal(Literal::Int(a / b))),
-                (
-                    HirExpr::Literal(Literal::Float(a)),
-                    HirExpr::Literal(Literal::Float(b)),
-                    BinOp::Add,
-                ) => Some(HirExpr::Literal(Literal::Float(a + b))),
-                (
-                    HirExpr::Literal(Literal::Float(a)),
-                    HirExpr::Literal(Literal::Float(b)),
-                    BinOp::Sub,
-                ) => Some(HirExpr::Literal(Literal::Float(a - b))),
-                (
-                    HirExpr::Literal(Literal::Float(a)),
-                    HirExpr::Literal(Literal::Float(b)),
-                    BinOp::Mul,
-                ) => Some(HirExpr::Literal(Literal::Float(a * b))),
-                (
-                    HirExpr::Literal(Literal::Float(a)),
-                    HirExpr::Literal(Literal::Float(b)),
-                    BinOp::Div,
-                ) if *b != 0.0 => Some(HirExpr::Literal(Literal::Float(a / b))),
+                (HirExpr::Literal(Literal::Int(a)), HirExpr::Literal(Literal::Int(b)), BinOp::Add) => {
+                    Some(HirExpr::Literal(Literal::Int(a + b)))
+                }
+                (HirExpr::Literal(Literal::Int(a)), HirExpr::Literal(Literal::Int(b)), BinOp::Sub) => {
+                    Some(HirExpr::Literal(Literal::Int(a - b)))
+                }
+                (HirExpr::Literal(Literal::Int(a)), HirExpr::Literal(Literal::Int(b)), BinOp::Mul) => {
+                    Some(HirExpr::Literal(Literal::Int(a * b)))
+                }
+                (HirExpr::Literal(Literal::Int(a)), HirExpr::Literal(Literal::Int(b)), BinOp::Div) if *b != 0 => {
+                    Some(HirExpr::Literal(Literal::Int(a / b)))
+                }
+                (HirExpr::Literal(Literal::Float(a)), HirExpr::Literal(Literal::Float(b)), BinOp::Add) => {
+                    Some(HirExpr::Literal(Literal::Float(a + b)))
+                }
+                (HirExpr::Literal(Literal::Float(a)), HirExpr::Literal(Literal::Float(b)), BinOp::Sub) => {
+                    Some(HirExpr::Literal(Literal::Float(a - b)))
+                }
+                (HirExpr::Literal(Literal::Float(a)), HirExpr::Literal(Literal::Float(b)), BinOp::Mul) => {
+                    Some(HirExpr::Literal(Literal::Float(a * b)))
+                }
+                (HirExpr::Literal(Literal::Float(a)), HirExpr::Literal(Literal::Float(b)), BinOp::Div) if *b != 0.0 => {
+                    Some(HirExpr::Literal(Literal::Float(a / b)))
+                }
                 _ => None,
             }
         } else {
@@ -471,15 +401,9 @@ impl Optimizer {
     fn evaluate_constant_unaryop(&self, expr: &HirExpr) -> Option<HirExpr> {
         if let HirExpr::Unary { op, operand } = expr {
             match (operand.as_ref(), op) {
-                (HirExpr::Literal(Literal::Int(n)), UnaryOp::Neg) => {
-                    Some(HirExpr::Literal(Literal::Int(-n)))
-                }
-                (HirExpr::Literal(Literal::Float(f)), UnaryOp::Neg) => {
-                    Some(HirExpr::Literal(Literal::Float(-f)))
-                }
-                (HirExpr::Literal(Literal::Bool(b)), UnaryOp::Not) => {
-                    Some(HirExpr::Literal(Literal::Bool(!b)))
-                }
+                (HirExpr::Literal(Literal::Int(n)), UnaryOp::Neg) => Some(HirExpr::Literal(Literal::Int(-n))),
+                (HirExpr::Literal(Literal::Float(f)), UnaryOp::Neg) => Some(HirExpr::Literal(Literal::Float(-f))),
+                (HirExpr::Literal(Literal::Bool(b)), UnaryOp::Not) => Some(HirExpr::Literal(Literal::Bool(!b))),
                 _ => None,
             }
         } else {
@@ -536,21 +460,18 @@ impl Optimizer {
             } = stmt
             {
                 // Keep if: truly used OR has side effects (including renamed _varname)
-                used_vars.contains_key(name)
-                    || side_effect_vars.contains(name.trim_start_matches('_'))
+                used_vars.contains_key(name) || side_effect_vars.contains(name.trim_start_matches('_'))
             } else {
                 true
             }
         });
     }
 
-    /// DEPYLER-0270 Fix #1 (Updated): Collect truly used variables (referenced, not just assigned)
     /// This version does NOT mark side-effect assignments as used - that's handled separately
     /// in eliminate_dead_code_function to allow renaming them to `_varname`.
     fn collect_truly_used_vars_stmt(&self, stmt: &HirStmt, used: &mut HashMap<String, bool>) {
         match stmt {
             HirStmt::Assign { target, value, .. } => {
-                // DEPYLER-0235 FIX: Collect variables from assignment targets
                 // This fixes property writes like `b.size = 20` where `b` is used on LHS
                 self.collect_used_vars_assign_target(target, used);
                 self.collect_used_vars_expr(value, used);
@@ -594,7 +515,6 @@ impl Optimizer {
         }
     }
 
-    /// DEPYLER-0270 Fix #1: Check if expression contains indexing operations
     /// Returns true if the expression tree contains any Index nodes, which indicate
     /// operations that can fail (e.g., list[0], dict["key"]) and have side effects.
     ///
@@ -603,14 +523,10 @@ impl Optimizer {
     fn expr_contains_index(expr: &HirExpr) -> bool {
         match expr {
             HirExpr::Index { .. } => true,
-            HirExpr::Binary { left, right, .. } => {
-                Self::expr_contains_index(left) || Self::expr_contains_index(right)
-            }
+            HirExpr::Binary { left, right, .. } => Self::expr_contains_index(left) || Self::expr_contains_index(right),
             HirExpr::Unary { operand, .. } => Self::expr_contains_index(operand),
             HirExpr::Call { args, .. } => args.iter().any(Self::expr_contains_index),
-            HirExpr::List(items) | HirExpr::Tuple(items) => {
-                items.iter().any(Self::expr_contains_index)
-            }
+            HirExpr::List(items) | HirExpr::Tuple(items) => items.iter().any(Self::expr_contains_index),
             HirExpr::Dict(pairs) => pairs
                 .iter()
                 .any(|(k, v)| Self::expr_contains_index(k) || Self::expr_contains_index(v)),
@@ -638,11 +554,7 @@ impl Optimizer {
         collect_used_vars_expr_inner(expr, used);
     }
 
-    fn collect_used_vars_assign_target(
-        &self,
-        target: &AssignTarget,
-        used: &mut HashMap<String, bool>,
-    ) {
+    fn collect_used_vars_assign_target(&self, target: &AssignTarget, used: &mut HashMap<String, bool>) {
         match target {
             AssignTarget::Symbol(_) => {
                 // Simple variable assignment - no variables used on LHS
@@ -728,8 +640,7 @@ impl Optimizer {
                     value,
                     type_annotation,
                 } => {
-                    let (new_value, extra_stmts) =
-                        self.process_expr_for_cse(value, cse_map, temp_counter);
+                    let (new_value, extra_stmts) = self.process_expr_for_cse(value, cse_map, temp_counter);
                     new_body.extend(extra_stmts);
                     new_body.push(HirStmt::Assign {
                         target: target.clone(),
@@ -738,14 +649,12 @@ impl Optimizer {
                     });
                 }
                 HirStmt::Return(Some(expr)) => {
-                    // DEPYLER-0275 FIX: Skip CSE for final return with simple expressions
                     // This avoids unnecessary `let _cse_temp_0 = expr; _cse_temp_0` pattern
                     if is_final_stmt && self.is_simple_return_expr(expr) {
                         // Don't create CSE temp for final simple returns
                         new_body.push(HirStmt::Return(Some(expr.clone())));
                     } else {
-                        let (new_expr, extra_stmts) =
-                            self.process_expr_for_cse(expr, cse_map, temp_counter);
+                        let (new_expr, extra_stmts) = self.process_expr_for_cse(expr, cse_map, temp_counter);
                         new_body.extend(extra_stmts);
                         new_body.push(HirStmt::Return(Some(new_expr)));
                     }
@@ -755,14 +664,12 @@ impl Optimizer {
                     then_body,
                     else_body,
                 } => {
-                    let (new_condition, extra_stmts) =
-                        self.process_expr_for_cse(condition, cse_map, temp_counter);
+                    let (new_condition, extra_stmts) = self.process_expr_for_cse(condition, cse_map, temp_counter);
                     new_body.extend(extra_stmts);
 
                     // CSE within branches (with separate scopes)
                     let mut then_cse = cse_map.clone();
-                    let new_then =
-                        self.eliminate_cse_in_body(then_body, &mut then_cse, temp_counter);
+                    let new_then = self.eliminate_cse_in_body(then_body, &mut then_cse, temp_counter);
 
                     let new_else = else_body.as_ref().map(|else_stmts| {
                         let mut else_cse = cse_map.clone();
@@ -795,8 +702,7 @@ impl Optimizer {
             HirExpr::Binary { left, right, op } => {
                 // Recursively process operands
                 let (new_left, left_stmts) = self.process_expr_for_cse(left, cse_map, temp_counter);
-                let (new_right, right_stmts) =
-                    self.process_expr_for_cse(right, cse_map, temp_counter);
+                let (new_right, right_stmts) = self.process_expr_for_cse(right, cse_map, temp_counter);
                 extra_stmts.extend(left_stmts);
                 extra_stmts.extend(right_stmts);
 
@@ -835,8 +741,7 @@ impl Optimizer {
                 // Process arguments
                 let mut new_args = Vec::new();
                 for arg in args {
-                    let (new_arg, arg_stmts) =
-                        self.process_expr_for_cse(arg, cse_map, temp_counter);
+                    let (new_arg, arg_stmts) = self.process_expr_for_cse(arg, cse_map, temp_counter);
                     extra_stmts.extend(arg_stmts);
                     new_args.push(new_arg);
                 }
@@ -882,7 +787,6 @@ impl Optimizer {
         }
     }
 
-    /// DEPYLER-0275: Check if expression is simple enough to return directly
     /// without creating a CSE temporary variable.
     /// Simple expressions: literals, variables, basic operations, method calls
     fn is_simple_return_expr(&self, expr: &HirExpr) -> bool {
@@ -901,8 +805,7 @@ impl Optimizer {
     fn is_pure_function(&self, func: &str) -> bool {
         // List of known pure functions
         let pure_functions = [
-            "abs", "len", "min", "max", "sum", "str", "int", "float", "bool", "round", "pow",
-            "sqrt",
+            "abs", "len", "min", "max", "sum", "str", "int", "float", "bool", "round", "pow", "sqrt",
         ];
         pure_functions.contains(&func)
     }
@@ -961,9 +864,7 @@ fn is_constant_expr_inner(expr: &HirExpr) -> bool {
     match expr {
         HirExpr::Literal(_) => true,
         HirExpr::Unary { operand, .. } => is_constant_expr_inner(operand),
-        HirExpr::Binary { left, right, .. } => {
-            is_constant_expr_inner(left) && is_constant_expr_inner(right)
-        }
+        HirExpr::Binary { left, right, .. } => is_constant_expr_inner(left) && is_constant_expr_inner(right),
         _ => false,
     }
 }
@@ -986,7 +887,6 @@ fn collect_used_vars_expr_inner(expr: &HirExpr, used: &mut HashMap<String, bool>
             }
         }
         HirExpr::Tuple(items) => {
-            // DEPYLER-0161 FIX: Collect variables from tuple expressions
             // This was causing dead code elimination to remove assignments
             // for variables used in tuple returns like: return (a, b, c)
             for item in items {
@@ -1048,7 +948,6 @@ fn collect_used_vars_expr_inner(expr: &HirExpr, used: &mut HashMap<String, bool>
             stop,
             step,
         } => {
-            // DEPYLER-0209 FIX: Collect variables from slice expressions
             // This was causing dead code elimination to remove assignments
             // for variables used in slice operations like: numbers[2:7]
             collect_used_vars_expr_inner(base, used);
@@ -1063,13 +962,11 @@ fn collect_used_vars_expr_inner(expr: &HirExpr, used: &mut HashMap<String, bool>
             }
         }
         HirExpr::Attribute { value, .. } => {
-            // DEPYLER-0229 FIX: Collect variables from attribute access expressions
             // This was causing dead code elimination to remove assignments
             // for variables used in attribute access like: p.x + p.y
             collect_used_vars_expr_inner(value, used);
         }
         HirExpr::Index { base, index } => {
-            // DEPYLER-0229 FIX: Collect variables from index expressions
             // This was causing dead code elimination to remove assignments
             // for variables used in indexing like: data[key]
             collect_used_vars_expr_inner(base, used);
@@ -1082,15 +979,12 @@ fn collect_used_vars_expr_inner(expr: &HirExpr, used: &mut HashMap<String, bool>
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::hir::{
-        AssignTarget, FunctionProperties, HirExpr, HirFunction, HirProgram, HirStmt, Literal, Type,
-    };
+    use crate::hir::{AssignTarget, FunctionProperties, HirExpr, HirFunction, HirProgram, HirStmt, Literal, Type};
     use depyler_annotations::TranspilationAnnotations;
     use smallvec::smallvec;
 
     #[test]
     fn test_constant_propagation() {
-        // DEPYLER-0269: Current implementation is conservative -
         // only propagates constants that are NEVER READ (dead code)
         // This test validates the current behavior
         let mut optimizer = Optimizer::new(OptimizerConfig::default());
@@ -1142,7 +1036,6 @@ mod tests {
 
     #[test]
     fn test_dead_code_elimination() {
-        // DEPYLER-0363: Dead code elimination is DISABLED by default
         // due to previous bugs. This test validates current behavior.
         let mut optimizer = Optimizer::new(OptimizerConfig::default());
 
@@ -1237,10 +1130,7 @@ mod tests {
         );
 
         // At minimum, the return statement should exist
-        let has_return = func
-            .body
-            .iter()
-            .any(|stmt| matches!(stmt, HirStmt::Return(_)));
+        let has_return = func.body.iter().any(|stmt| matches!(stmt, HirStmt::Return(_)));
         assert!(has_return, "Return statement should be preserved");
     }
 }

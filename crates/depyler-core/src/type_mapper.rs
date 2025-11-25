@@ -119,7 +119,6 @@ impl TypeMapper {
 
     pub fn map_type(&self, py_type: &PythonType) -> RustType {
         match py_type {
-            // DEPYLER-0264: Map Unknown to serde_json::Value instead of undefined DynamicType
             // This matches the pattern used for untyped Dict/List (lines 158-161)
             PythonType::Unknown => RustType::Custom("serde_json::Value".to_string()),
             PythonType::Int => RustType::Primitive(match self.width_preference {
@@ -164,7 +163,6 @@ impl TypeMapper {
                             "serde_json::Value".to_string(),
                         ))),
                         "Set" => RustType::HashSet(Box::new(RustType::String)),
-                        // DEPYLER-0379: Handle generic tuple annotation
                         // Python `-> tuple` (without type parameters) maps to empty Rust tuple `()`
                         // This is a fallback - ideally type should be inferred from return value
                         "tuple" => RustType::Tuple(vec![]),

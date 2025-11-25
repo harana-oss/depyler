@@ -1,4 +1,4 @@
-//! TDD Tests for sorted() with key parameter (DEPYLER-0122)
+//! TDD Tests for sorted() with key parameter 
 //!
 //! Python's sorted(iterable, key=lambda ...) should convert to Rust's sort_by_key pattern:
 //! Python: sorted(words, key=lambda x: len(x))

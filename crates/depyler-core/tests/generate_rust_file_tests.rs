@@ -1,4 +1,3 @@
-// DEPYLER-0004: Tests for generate_rust_file function
 //
 // EXTREME TDD: These tests are written BEFORE refactoring to ensure
 // behavior preservation during Extract Method pattern application.

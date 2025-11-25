@@ -1,4 +1,4 @@
-//! DEPYLER-0351: ide.rs Coverage Tests
+//! issue: ide.rs Coverage Tests
 //!
 //! **EXTREME TDD Protocol - Coverage Boost**
 //!

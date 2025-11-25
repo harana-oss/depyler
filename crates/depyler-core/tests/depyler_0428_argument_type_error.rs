@@ -1,4 +1,3 @@
-// DEPYLER-0428: argparse.ArgumentTypeError support
 //
 // Tests that custom validators using argparse.ArgumentTypeError
 // correctly map to Rust Result<T, String> pattern.

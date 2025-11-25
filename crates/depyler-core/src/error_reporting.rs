@@ -6,22 +6,14 @@ use colored::Colorize;
 use rustpython_ast::Ranged;
 use std::fmt;
 
-/// Enhanced error with source location and context
 #[derive(Debug)]
 pub struct EnhancedError {
-    /// The base error
     pub error: ErrorKind,
-    /// Source file path
     pub file_path: Option<String>,
-    /// Line number (1-indexed)
     pub line: Option<usize>,
-    /// Column number (1-indexed)
     pub column: Option<usize>,
-    /// The source line containing the error
     pub source_line: Option<String>,
-    /// Helpful suggestion for fixing the error
     pub suggestion: Option<String>,
-    /// Related information
     pub notes: Vec<String>,
 }
 

@@ -1,4 +1,4 @@
-//! TDD Tests for @classmethod Decorator (DEPYLER-0112 Phase 2)
+//! TDD Tests for @classmethod Decorator 
 //!
 //! Phase 2: @classmethod decorator support
 //! Python: @classmethod def method(cls) → Rust: fn method() -> Self (or appropriate factory)

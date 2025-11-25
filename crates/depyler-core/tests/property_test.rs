@@ -1,4 +1,4 @@
-//! TDD Tests for @property Decorator (DEPYLER-0112 Phase 3)
+//! TDD Tests for @property Decorator 
 //!
 //! Phase 3: @property decorator support
 //! Python: @property def method(self) → Rust: pub fn method(&self) (getter method)

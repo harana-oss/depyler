@@ -1,4 +1,3 @@
-// DEPYLER-0302 Phase 3: String Slicing with Negative Indices
 // Tests for fixing string slicing code generation
 // Issue: String slicing generated Vec operations (.to_vec(), .iter()) instead of string operations (.chars())
 
@@ -248,7 +247,6 @@ def last_elements(arr: list[int]) -> list[int]:
 
 #[test]
 fn test_regression_string_methods_still_work() {
-    // DEPYLER-0302 Phase 1 & 2 should still work
     let python_code = r#"
 def process_string(s: str) -> str:
     repeated = s * 3
@@ -260,10 +258,10 @@ def process_string(s: str) -> str:
         .transpile(python_code)
         .expect("Transpilation failed");
 
-    // Should have string repetition (DEPYLER-0302 Phase 2)
+    // Should have string repetition 
     assert!(
         rust_code.contains(".repeat("),
-        "String repetition should still work (DEPYLER-0302 Phase 2)"
+        "String repetition should still work "
     );
 
     println!("✅ String methods still work:\n{}", rust_code);

@@ -1,4 +1,4 @@
-//! TDD Tests for Try/Except Error Handling (DEPYLER-0114 Phase 1)
+//! TDD Tests for Try/Except Error Handling 
 //!
 //! Phase 1: Simple try/except blocks
 //! Python: try/except → Rust: Result<T, E> or match patterns

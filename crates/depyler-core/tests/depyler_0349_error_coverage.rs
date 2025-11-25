@@ -1,4 +1,4 @@
-//! DEPYLER-0349: error.rs Coverage Tests
+//! issue: error.rs Coverage Tests
 //!
 //! **EXTREME TDD Protocol - Coverage Boost**
 //!

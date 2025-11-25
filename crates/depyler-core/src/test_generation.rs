@@ -8,16 +8,11 @@ use anyhow::Result;
 use quote::quote;
 use syn;
 
-/// Configuration for test generation
 #[derive(Debug, Clone)]
 pub struct TestGenConfig {
-    /// Generate property-based tests
     pub generate_property_tests: bool,
-    /// Generate example-based tests
     pub generate_example_tests: bool,
-    /// Maximum number of test cases for quickcheck
     pub max_test_cases: usize,
-    /// Generate shrinking tests
     pub enable_shrinking: bool,
 }
 
@@ -44,12 +39,8 @@ impl TestGenerator {
 
     /// Generate test items for a single function (without mod tests wrapper)
     ///
-    /// DEPYLER-0280 FIX: This generates test functions only, not the module wrapper.
     /// The module wrapper should be added once at the file level.
-    pub fn generate_test_items_for_function(
-        &self,
-        func: &HirFunction,
-    ) -> Result<Vec<proc_macro2::TokenStream>> {
+    pub fn generate_test_items_for_function(&self, func: &HirFunction) -> Result<Vec<proc_macro2::TokenStream>> {
         // Only generate tests for pure functions
         if !func.properties.is_pure {
             return Ok(Vec::new());
@@ -76,12 +67,8 @@ impl TestGenerator {
 
     /// Generate a complete test module for multiple functions
     ///
-    /// DEPYLER-0280 FIX: Wraps all test items in a single `mod tests {}` block.
     /// This prevents "the name `tests` is defined multiple times" errors.
-    pub fn generate_tests_module(
-        &self,
-        functions: &[HirFunction],
-    ) -> Result<Option<proc_macro2::TokenStream>> {
+    pub fn generate_tests_module(&self, functions: &[HirFunction]) -> Result<Option<proc_macro2::TokenStream>> {
         let mut all_test_items = Vec::new();
 
         // Collect test items from all functions
@@ -109,11 +96,10 @@ impl TestGenerator {
 
     /// Generate tests for a function if applicable (DEPRECATED - use generate_tests_module instead)
     ///
-    /// DEPYLER-0280: This function is deprecated because it creates duplicate `mod tests {}` blocks.
     /// Use `generate_tests_module()` for module-level test generation instead.
     #[deprecated(
         since = "3.19.22",
-        note = "Use generate_tests_module() to avoid duplicate mod tests blocks (DEPYLER-0280)"
+        note = "Use generate_tests_module() to avoid duplicate mod tests blocks "
     )]
     pub fn generate_tests(&self, func: &HirFunction) -> Result<Option<proc_macro2::TokenStream>> {
         let test_items = self.generate_test_items_for_function(func)?;
@@ -134,15 +120,9 @@ impl TestGenerator {
     }
 
     /// Generate property-based test for a function
-    fn generate_property_test(
-        &self,
-        func: &HirFunction,
-    ) -> Result<Option<proc_macro2::TokenStream>> {
+    fn generate_property_test(&self, func: &HirFunction) -> Result<Option<proc_macro2::TokenStream>> {
         let func_name = syn::Ident::new(&func.name, proc_macro2::Span::call_site());
-        let test_name = syn::Ident::new(
-            &format!("quickcheck_{}", func.name),
-            proc_macro2::Span::call_site(),
-        );
+        let test_name = syn::Ident::new(&format!("quickcheck_{}", func.name), proc_macro2::Span::call_site());
 
         // Determine properties to test based on function analysis
         let properties = self.analyze_function_properties(func);
@@ -164,7 +144,6 @@ impl TestGenerator {
             .map(|param| syn::Ident::new(&param.name, proc_macro2::Span::call_site()))
             .collect();
 
-        // DEPYLER-0281: Pass function parameters for type-aware conversions
         let property_checks: Vec<_> = properties
             .iter()
             .map(|prop| self.property_to_assertion(prop, &func_name, &param_names, &func.params))
@@ -184,14 +163,8 @@ impl TestGenerator {
     }
 
     /// Generate example-based test
-    fn generate_example_test(
-        &self,
-        func: &HirFunction,
-    ) -> Result<Option<proc_macro2::TokenStream>> {
-        let test_name = syn::Ident::new(
-            &format!("test_{}_examples", func.name),
-            proc_macro2::Span::call_site(),
-        );
+    fn generate_example_test(&self, func: &HirFunction) -> Result<Option<proc_macro2::TokenStream>> {
+        let test_name = syn::Ident::new(&format!("test_{}_examples", func.name), proc_macro2::Span::call_site());
 
         // Generate test cases based on function type
         let test_cases = self.generate_test_cases(func);
@@ -210,9 +183,8 @@ impl TestGenerator {
 
     /// Analyze function to determine testable properties
     fn analyze_function_properties(&self, func: &HirFunction) -> Vec<TestProperty> {
-        // DEPYLER-0282 FIXED: String parameters now correctly use Cow<'_, str> instead of
         // Cow<'static, str>, so property tests work properly with local String values.
-        // The DEPYLER-0281 workaround has been removed.
+        // The workaround has been removed.
 
         let mut properties = Vec::new();
 
@@ -264,14 +236,12 @@ impl TestGenerator {
     fn is_commutative(&self, func: &HirFunction) -> bool {
         if func.params.len() == 2 && func.body.len() == 1 {
             if let HirStmt::Return(Some(HirExpr::Binary { op, left, right })) = &func.body[0] {
-                // DEPYLER-0286 FIX: String concatenation (BinOp::Add on strings) is NOT commutative!
                 // "ab" + "cd" ≠ "cd" + "ab"
                 // Only numeric addition is commutative, not string concatenation.
 
                 // Check if this is string concatenation (Add with String parameters)
                 let is_string_concat = matches!(op, BinOp::Add)
-                    && (matches!(func.params[0].ty, Type::String)
-                        || matches!(func.params[1].ty, Type::String));
+                    && (matches!(func.params[0].ty, Type::String) || matches!(func.params[1].ty, Type::String));
 
                 // If it's string concatenation, it's NOT commutative
                 if is_string_concat {
@@ -329,7 +299,6 @@ impl TestGenerator {
 
     /// Check if function is a sorting function
     fn is_sorting_function(&self, func: &HirFunction) -> bool {
-        // DEPYLER-0189: Must have at least one parameter to be a sorting function
         !func.params.is_empty() && func.name.contains("sort")
     }
 
@@ -351,17 +320,11 @@ impl TestGenerator {
 
     /// Convert a property test argument to match function signature
     ///
-    /// DEPYLER-0281 FIX: Property tests use simple QuickCheck types (String, Vec<T>),
     /// but functions may have complex signatures (Cow<'static, str>, &Vec<T>).
     /// This function generates conversion code to bridge the gap.
-    fn convert_arg_for_property_test(
-        &self,
-        ty: &Type,
-        arg_name: &syn::Ident,
-    ) -> proc_macro2::TokenStream {
+    fn convert_arg_for_property_test(&self, ty: &Type, arg_name: &syn::Ident) -> proc_macro2::TokenStream {
         match ty {
             Type::String => {
-                // DEPYLER-0281 FIX: String parameters may become Cow<'static, str> or &str
                 // Use (&*arg).into() which converts via type inference:
                 //   - For `fn f(s: Cow<'static, str>)`: &str → Cow::Owned via From<String> after clone
                 //   - For `fn f(s: &str)`: &str → &str (into() is no-op when T: Copy)
@@ -385,7 +348,6 @@ impl TestGenerator {
 
     /// Convert property to assertion code
     ///
-    /// DEPYLER-0281: Now accepts func_params to enable type-aware argument conversions.
     /// This ensures property tests work with complex types like Cow<'static, str>.
     fn property_to_assertion(
         &self,
@@ -396,13 +358,11 @@ impl TestGenerator {
     ) -> proc_macro2::TokenStream {
         match prop {
             TestProperty::Identity => {
-                // DEPYLER-0189: Bounds check before accessing params
                 if params.is_empty() || func_params.is_empty() {
                     return quote! {};
                 }
                 let param = &params[0];
 
-                // DEPYLER-0281: Convert argument to match function signature
                 let param_converted = self.convert_arg_for_property_test(&func_params[0].ty, param);
 
                 quote! {
@@ -413,41 +373,34 @@ impl TestGenerator {
                 }
             }
             TestProperty::Commutative => {
-                // DEPYLER-0189: Bounds check before accessing params
                 if params.len() < 2 || func_params.len() < 2 {
                     return quote! {};
                 }
                 let (a, b) = (&params[0], &params[1]);
 
-                // DEPYLER-0281 FIX: Convert arguments to match function signature
                 // QuickCheck generates simple types (String), but functions may expect
                 // complex types (Cow<'static, str>). Convert accordingly.
                 let a_converted = self.convert_arg_for_property_test(&func_params[0].ty, a);
                 let b_converted = self.convert_arg_for_property_test(&func_params[1].ty, b);
 
-                // DEPYLER-0284 FIX: Check for potential overflow with integer addition
-                // DEPYLER-0285 FIX: Check for NaN in float operations
-                let special_value_check = if matches!(func_params[0].ty, Type::Int)
-                    && matches!(func_params[1].ty, Type::Int)
-                {
-                    quote! {
-                        // Skip test if values would overflow
-                        if (#a > 0 && #b > i32::MAX - #a) || (#a < 0 && #b < i32::MIN - #a) {
-                            return TestResult::discard();
+                let special_value_check =
+                    if matches!(func_params[0].ty, Type::Int) && matches!(func_params[1].ty, Type::Int) {
+                        quote! {
+                            // Skip test if values would overflow
+                            if (#a > 0 && #b > i32::MAX - #a) || (#a < 0 && #b < i32::MIN - #a) {
+                                return TestResult::discard();
+                            }
                         }
-                    }
-                } else if matches!(func_params[0].ty, Type::Float)
-                    && matches!(func_params[1].ty, Type::Float)
-                {
-                    quote! {
-                        // Skip test if either value is NaN or infinite
-                        if #a.is_nan() || #b.is_nan() || #a.is_infinite() || #b.is_infinite() {
-                            return TestResult::discard();
+                    } else if matches!(func_params[0].ty, Type::Float) && matches!(func_params[1].ty, Type::Float) {
+                        quote! {
+                            // Skip test if either value is NaN or infinite
+                            if #a.is_nan() || #b.is_nan() || #a.is_infinite() || #b.is_infinite() {
+                                return TestResult::discard();
+                            }
                         }
-                    }
-                } else {
-                    quote! {}
-                };
+                    } else {
+                        quote! {}
+                    };
 
                 quote! {
                     #special_value_check
@@ -459,13 +412,10 @@ impl TestGenerator {
                 }
             }
             TestProperty::NonNegative => {
-                // DEPYLER-0281: Convert all arguments to match function signature
                 let converted_args: Vec<_> = params
                     .iter()
                     .zip(func_params.iter())
-                    .map(|(param, func_param)| {
-                        self.convert_arg_for_property_test(&func_param.ty, param)
-                    })
+                    .map(|(param, func_param)| self.convert_arg_for_property_test(&func_param.ty, param))
                     .collect();
 
                 quote! {
@@ -476,13 +426,11 @@ impl TestGenerator {
                 }
             }
             TestProperty::LengthPreserving => {
-                // DEPYLER-0189: Bounds check before accessing params
                 if params.is_empty() || func_params.is_empty() {
                     return quote! {};
                 }
                 let param = &params[0];
 
-                // DEPYLER-0281: Convert argument to match function signature
                 let param_converted = self.convert_arg_for_property_test(&func_params[0].ty, param);
 
                 quote! {
@@ -494,13 +442,10 @@ impl TestGenerator {
                 }
             }
             TestProperty::Sorted => {
-                // DEPYLER-0281: Convert all arguments to match function signature
                 let converted_args: Vec<_> = params
                     .iter()
                     .zip(func_params.iter())
-                    .map(|(param, func_param)| {
-                        self.convert_arg_for_property_test(&func_param.ty, param)
-                    })
+                    .map(|(param, func_param)| self.convert_arg_for_property_test(&func_param.ty, param))
                     .collect();
 
                 quote! {
@@ -513,13 +458,11 @@ impl TestGenerator {
                 }
             }
             TestProperty::SameElements => {
-                // DEPYLER-0189: Bounds check before accessing params
                 if params.is_empty() || func_params.is_empty() {
                     return quote! {};
                 }
                 let param = &params[0];
 
-                // DEPYLER-0281: Convert argument to match function signature
                 let param_converted = self.convert_arg_for_property_test(&func_params[0].ty, param);
 
                 quote! {
@@ -533,13 +476,10 @@ impl TestGenerator {
                 }
             }
             TestProperty::Idempotent => {
-                // DEPYLER-0281: Convert all arguments to match function signature
                 let converted_args: Vec<_> = params
                     .iter()
                     .zip(func_params.iter())
-                    .map(|(param, func_param)| {
-                        self.convert_arg_for_property_test(&func_param.ty, param)
-                    })
+                    .map(|(param, func_param)| self.convert_arg_for_property_test(&func_param.ty, param))
                     .collect();
 
                 quote! {
@@ -568,7 +508,6 @@ impl TestGenerator {
                 });
             }
             (Type::Int, 1) => {
-                // DEPYLER-0269: Check actual parameter type before generating test values
                 let param_type = &func.params[0].ty;
                 match param_type {
                     Type::Int => {
@@ -591,7 +530,6 @@ impl TestGenerator {
                         }
                     }
                     Type::List(_) => {
-                        // DEPYLER-0283 FIX: List parameter returning int
                         // Detect if it's a sum function vs length function by name
                         if func.name.contains("sum") {
                             // Sum function - test sum of elements
@@ -600,9 +538,7 @@ impl TestGenerator {
                                 assert_eq!(#func_name(&vec![1]), 1);
                                 assert_eq!(#func_name(&vec![1, 2, 3]), 6);  // 1+2+3=6
                             });
-                        } else if func.name.contains("len")
-                            || func.name.contains("count")
-                            || func.name.contains("size")
+                        } else if func.name.contains("len") || func.name.contains("count") || func.name.contains("size")
                         {
                             // Length/count function - test length
                             cases.push(quote! {
@@ -632,10 +568,7 @@ impl TestGenerator {
                     }
                 }
             }
-            (Type::Int, 2)
-                if matches!(&func.params[0].ty, Type::Int)
-                    && matches!(&func.params[1].ty, Type::Int) =>
-            {
+            (Type::Int, 2) if matches!(&func.params[0].ty, Type::Int) && matches!(&func.params[1].ty, Type::Int) => {
                 // Two integer parameters - test basic cases
                 cases.push(quote! {
                     assert_eq!(#func_name(0, 0), 0);

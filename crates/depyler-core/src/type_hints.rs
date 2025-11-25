@@ -48,7 +48,7 @@ struct InferenceContext {
     constraints: Vec<TypeConstraint>,
     /// Usage patterns
     usage_patterns: HashMap<String, Vec<UsagePattern>>,
-    /// Loop variable sources (DEPYLER-0451 Phase 1c)
+    /// Loop variable sources 
     /// Maps loop variable → iterable variable (e.g., "item" → "items")
     loop_var_sources: HashMap<String, String>,
 }
@@ -282,14 +282,12 @@ impl TypeHintProvider {
             } => self.analyze_if_stmt(condition, then_body, else_body),
             HirStmt::While { condition, body } => self.analyze_while_stmt(condition, body),
             HirStmt::For { target, iter, body } => self.analyze_for_stmt(target, iter, body),
-            // DEPYLER-0436: Analyze Try blocks to infer types from exception handlers
             HirStmt::Try {
                 body,
                 handlers,
                 finalbody,
                 ..
             } => self.analyze_try_stmt(body, handlers, finalbody),
-            // DEPYLER-0432: Analyze With statements to infer types from context (e.g., open(filepath))
             HirStmt::With { context, body, .. } => self.analyze_with_stmt(context, body),
             HirStmt::Expr(expr) => self.analyze_expr(expr),
             _ => Ok(()),
@@ -302,7 +300,6 @@ impl TypeHintProvider {
         then_body: &[HirStmt],
         else_body: &Option<Vec<HirStmt>>,
     ) -> Result<()> {
-        // DEPYLER-0432: If condition is a simple variable, infer bool type
         self.infer_bool_from_condition(condition);
         self.analyze_expr(condition)?;
         self.analyze_body(then_body)?;
@@ -313,13 +310,11 @@ impl TypeHintProvider {
     }
 
     fn analyze_while_stmt(&mut self, condition: &HirExpr, body: &[HirStmt]) -> Result<()> {
-        // DEPYLER-0432: If condition is a simple variable, infer bool type
         self.infer_bool_from_condition(condition);
         self.analyze_expr(condition)?;
         self.analyze_body(body)
     }
 
-    /// DEPYLER-0432: Infer bool type for variables used directly in conditions
     fn infer_bool_from_condition(&mut self, condition: &HirExpr) {
         if let HirExpr::Var(var) = condition {
             // Variable used directly as condition → likely bool
@@ -341,7 +336,6 @@ impl TypeHintProvider {
         iter: &HirExpr,
         body: &[HirStmt],
     ) -> Result<()> {
-        // DEPYLER-0451 Phase 1c: Track loop variable sources for back-propagation
         // For simple symbol targets: for item in items: ...
         if let crate::hir::AssignTarget::Symbol(target_name) = target {
             // Track the loop variable source
@@ -357,7 +351,6 @@ impl TypeHintProvider {
         // Analyze the loop body (this will collect constraints on loop variables)
         self.analyze_body(body)?;
 
-        // DEPYLER-0451 Phase 1c: Back-propagate element types to collection types
         // After analyzing the body, we know how loop variables are used
         // Apply those constraints to the iterable parameters
         if let crate::hir::AssignTarget::Symbol(target_name) = target {
@@ -389,7 +382,6 @@ impl TypeHintProvider {
         Ok(())
     }
 
-    /// DEPYLER-0432: Analyze with statement context expressions
     fn analyze_with_stmt(&mut self, context: &HirExpr, body: &[HirStmt]) -> Result<()> {
         // Analyze the context expression (e.g., open(filepath))
         self.analyze_expr(context)?;
@@ -408,13 +400,11 @@ impl TypeHintProvider {
                 ..
             } => self.analyze_method_call(object, method, args),
             HirExpr::Index { base, index } => self.analyze_indexing(base, index),
-            // DEPYLER-0451 Phase 1b: F-string type inference
             HirExpr::FString { parts } => self.analyze_fstring(parts),
             _ => Ok(()),
         }
     }
 
-    /// DEPYLER-0451 Phase 1b: Infer String type for variables used in f-strings
     fn analyze_fstring(&mut self, parts: &[crate::hir::FStringPart]) -> Result<()> {
         use crate::hir::FStringPart;
 
@@ -529,7 +519,6 @@ impl TypeHintProvider {
         Ok(())
     }
 
-    /// DEPYLER-0451 Phase 1c: Back-propagate element type constraints to collection types
     /// Example: `for item in items: total += item`
     /// - `item` gets Int constraint from arithmetic
     /// - Back-propagate: `items` should be &[Int]
@@ -551,7 +540,6 @@ impl TypeHintProvider {
             })
             .collect();
 
-        // DEPYLER-0451: Also infer from usage patterns if no explicit constraints
         if loop_var_constraints.is_empty() {
             if let Some(patterns) = self.context.usage_patterns.get(loop_var) {
                 for pattern in patterns {
@@ -599,7 +587,6 @@ impl TypeHintProvider {
         // Record numeric usage patterns
         match op {
             BinOp::Add | BinOp::Sub | BinOp::Mul | BinOp::Div => {
-                // DEPYLER-0451: Stronger type inference for arithmetic with literals
                 // If one operand is an integer literal, infer the variable as Int
                 self.infer_int_from_arithmetic(left, right);
 
@@ -618,7 +605,6 @@ impl TypeHintProvider {
         Ok(())
     }
 
-    /// DEPYLER-0451: Infer Int type when variable is used in arithmetic with integer literal
     fn infer_int_from_arithmetic(&mut self, left: &HirExpr, right: &HirExpr) {
         use crate::hir::Literal;
 
@@ -651,7 +637,6 @@ impl TypeHintProvider {
         }
     }
 
-    /// DEPYLER-0432: Detect open(filepath) - filepath should be &str
     fn analyze_open_call(&mut self, args: &[HirExpr]) {
         if let Some(HirExpr::Var(var)) = args.first() {
             // open(filepath) means filepath is a file path (String/&str)
@@ -672,7 +657,6 @@ impl TypeHintProvider {
 
     fn analyze_conversion_call(&mut self, func: &str, args: &[HirExpr]) {
         if let Some(HirExpr::Var(var)) = args.first() {
-            // DEPYLER-0436: int(value) means value is a string being parsed
             // This is the argparse validator pattern: def validator(value): int(value)
             if func == "int" {
                 // Add evidence that this variable is a String (will map to &str)

@@ -1,4 +1,4 @@
-//! DEPYLER-0345: codegen.rs Coverage Tests
+//! issue: codegen.rs Coverage Tests
 //!
 //! **EXTREME TDD Protocol - Coverage Boost**
 //!

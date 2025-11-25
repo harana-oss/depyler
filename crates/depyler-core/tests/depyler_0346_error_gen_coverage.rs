@@ -1,4 +1,4 @@
-//! DEPYLER-0346: error_gen.rs Coverage Tests
+//! issue: error_gen.rs Coverage Tests
 //!
 //! **EXTREME TDD Protocol - Coverage Boost**
 //!

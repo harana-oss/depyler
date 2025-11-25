@@ -1,4 +1,4 @@
-//! DEPYLER-0439: If-Elif-Else Variable Shadowing Bug
+//! issue: If-Elif-Else Variable Shadowing Bug
 //!
 //! **Problem**: Nested if-elif-else chains generate duplicate `let mut`
 //! declarations for hoisted variables, causing compilation failures.
@@ -15,7 +15,7 @@ use depyler_core::DepylerPipeline;
 /// Python's if-elif-else chains should generate a single variable declaration,
 /// not duplicate declarations in each nested else branch.
 ///
-/// Verifies: DEPYLER-0439 core issue
+/// Verifies: issue core issue
 #[test]
 fn test_depyler_0439_simple_if_elif_else_single_declaration() {
     let source = r#"

@@ -113,7 +113,6 @@ impl StmtConverter {
     }
 
     fn convert_while(w: ast::StmtWhile) -> Result<HirStmt> {
-        // DEPYLER-0383: Detect walrus operator (NamedExpr) in while condition
         // Python: while chunk := f.read(8192):
         // Rust: loop { let chunk = f.read(8192); if chunk.is_empty() { break; } ... }
         if let ast::Expr::NamedExpr(named) = *w.test {
@@ -312,7 +311,6 @@ impl StmtConverter {
 
     /// Convert nested function definition (inner functions)
     ///
-    /// DEPYLER-0427: Support for Python nested functions
     /// Converts nested function definitions to Rust inner functions
     fn convert_nested_function_def(func: ast::StmtFunctionDef) -> Result<HirStmt> {
         let name = func.name.to_string();
@@ -371,7 +369,6 @@ impl ExprConverter {
             ast::Expr::Yield(y) => Self::convert_yield(y),
             ast::Expr::JoinedStr(js) => Self::convert_fstring(js),
             ast::Expr::IfExp(i) => Self::convert_ifexp(i),
-            // DEPYLER-0382: Handle starred expressions (e.g., *args in function calls)
             // When used as a regular argument, just unwrap and pass the inner expression
             ast::Expr::Starred(s) => Self::convert(*s.value),
             _ => bail!("Expression type not yet supported"),
@@ -473,7 +470,6 @@ impl ExprConverter {
                     });
                 }
 
-                // DEPYLER-0307: If reverse=True but no key, create SortByKey with identity function
                 // This ensures the reverse parameter is preserved in the HIR
                 if reverse {
                     if c.args.is_empty() {
@@ -495,7 +491,6 @@ impl ExprConverter {
             }
         }
 
-        // DEPYLER-0382: Handle *args unpacking for supported functions
         // Check if any args use the Starred expression (unpacking operator)
         let has_starred = c
             .args
@@ -558,7 +553,6 @@ impl ExprConverter {
             // Python: func(*items) where func is user-defined
             // Rust: func(items) where func accepts &[T] or Vec<T>
             // This allows forwarding variadic arguments without special handling
-            // DEPYLER-0382: General forwarding for user-defined variadic functions
             // We don't need to bail - just convert the starred args to regular args by unwrapping them
         }
 
@@ -568,7 +562,6 @@ impl ExprConverter {
             .map(Self::convert)
             .collect::<Result<Vec<_>>>()?;
 
-        // DEPYLER-0364: Extract keyword arguments from Python AST
         let kwargs: Vec<(String, HirExpr)> = c
             .keywords
             .into_iter()
@@ -1045,7 +1038,6 @@ impl ExprConverter {
 }
 
 // ============================================================================
-// DEPYLER-0427: Helper functions for nested function support
 // ============================================================================
 
 /// Convert parameters for nested functions

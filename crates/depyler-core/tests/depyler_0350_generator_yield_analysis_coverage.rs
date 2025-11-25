@@ -1,4 +1,4 @@
-//! DEPYLER-0350: generator_yield_analysis.rs Coverage Tests
+//! issue: generator_yield_analysis.rs Coverage Tests
 //!
 //! **EXTREME TDD Protocol - Coverage Boost**
 //!

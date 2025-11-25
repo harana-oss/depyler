@@ -1,9 +1,9 @@
-//! DEPYLER-0327: Try Block Analysis for Exception Type Generation
+//! issue: Try Block Analysis for Exception Type Generation
 //!
 //! Tests that exception types are generated even when caught internally in try/except blocks.
 //!
 //! ## Problem
-//! Before DEPYLER-0327, the property analyzer didn't analyze try/except blocks, so exception
+//! Before issue, the property analyzer didn't analyze try/except blocks, so exception
 //! types used only within caught contexts were never generated, causing compilation errors.
 //!
 //! Example:
@@ -20,7 +20,7 @@
 //! Before fix: ValueError::new used but struct ValueError not generated → E0433
 //! After fix: ValueError struct generated because try/except block is analyzed
 //!
-//! ## Solution (DEPYLER-0327)
+//! ## Solution 
 //! 1. Added Try block case to stmt_can_fail() in properties.rs
 //! 2. Collect exception types from handler signatures (exception_type field)
 //! 3. Always collect error_types even if can_fail=false (caught internally)
@@ -212,18 +212,18 @@ def func_b(x: int) -> int:
 }
 
 #[test]
-#[ignore = "BLOCKED: Requires DEPYLER-0333 (exception scope tracking) - Currently generates return Err() in non-Result function"]
+#[ignore = "BLOCKED: Requires issue (exception scope tracking) - Currently generates return Err() in non-Result function"]
 fn test_try_except_compiles_caught_exceptions() {
     // This test is INTENTIONALLY IGNORED because it requires exception scope tracking
-    // (DEPYLER-0333) to work correctly.
-    //
+    //  to work correctly.
+
     // Current behavior: Generates `return Err(ValueError::new(...))` even in functions
     // returning `i32`, causing E0308 type mismatch.
-    //
-    // Expected behavior (after DEPYLER-0333): Should detect that ValueError is caught
+
+    // Expected behavior (after issue): Should detect that ValueError is caught
     // internally and generate `return 0` (the except handler default) instead of Err().
-    //
-    // This test documents the expected behavior once DEPYLER-0333 is implemented.
+
+    // This test documents the expected behavior once issue is implemented.
 
     let python_code = r#"
 def operation_with_cleanup(value: int) -> int:
@@ -336,7 +336,7 @@ def get_first_element(data: list[int]) -> int:
 
 #[test]
 fn test_try_except_string_type_inference_integration() {
-    // Integration test combining DEPYLER-0327 (Try block analysis)
+    // Integration test combining issue (Try block analysis)
     // with String type inference improvements
     let python_code = r#"
 def parse_and_validate(data: list[str], index: int) -> int:

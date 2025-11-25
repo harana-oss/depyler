@@ -1,4 +1,3 @@
-// DEPYLER-0282: Test that String parameters don't use Cow<'static, str>
 // This test demonstrates the bug and will initially FAIL
 
 use depyler_core::DepylerPipeline;
@@ -46,7 +45,7 @@ def concatenate(a: str, b: str) -> str:
     return a + b
 "#;
 
-    // WHEN: We transpile with test generation (disabled for now due to DEPYLER-0281 workaround)
+    // WHEN: We transpile with test generation (disabled for now due to issue workaround)
     let pipeline = DepylerPipeline::new();
     let generated_code = pipeline
         .transpile(python_code)
@@ -66,7 +65,6 @@ mod test_local_strings {{
 
     #[test]
     fn test_with_local_strings() {{
-        // DEPYLER-0357: Parameters use &str (not Cow), so we pass borrowed references
         // This works because &str accepts both &String and &'static str
         let a = String::from("hello");
         let b = String::from("world");
@@ -110,7 +108,7 @@ mod test_local_strings {{
         } else {
             // Different compilation error - still fail but with different message
             panic!(
-                "Compilation failed (may be unrelated to DEPYLER-0282):\n{}\n\n\
+                "Compilation failed (may be unrelated to issue):\n{}\n\n\
                  Generated code:\n{}",
                 stderr, generated_code
             );

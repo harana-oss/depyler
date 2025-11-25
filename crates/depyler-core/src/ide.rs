@@ -61,7 +61,6 @@ impl IdeIntegration {
         Self::default()
     }
 
-    /// Index symbols from HIR for navigation
     pub fn index_symbols(&mut self, module: &HirModule, source: &str) {
         // Index functions
         for func in &module.functions {
@@ -171,7 +170,6 @@ impl IdeIntegration {
             .push(symbol);
     }
 
-    /// Get symbol at position for hover/goto definition
     pub fn symbol_at_position(&self, position: TextSize) -> Option<&Symbol> {
         for symbols in self.symbols.values() {
             for symbol in symbols {
@@ -183,7 +181,6 @@ impl IdeIntegration {
         None
     }
 
-    /// Find all references to a symbol
     pub fn find_references(&self, symbol_name: &str) -> Vec<&Symbol> {
         self.symbols
             .get(symbol_name)
@@ -191,7 +188,6 @@ impl IdeIntegration {
             .unwrap_or_default()
     }
 
-    /// Get completion suggestions at position
     pub fn completions_at_position(
         &self,
         _position: TextSize,
@@ -223,17 +219,14 @@ impl IdeIntegration {
         completions
     }
 
-    /// Add a diagnostic
     pub fn add_diagnostic(&mut self, diagnostic: Diagnostic) {
         self.diagnostics.push(diagnostic);
     }
 
-    /// Get all diagnostics
     pub fn diagnostics(&self) -> &[Diagnostic] {
         &self.diagnostics
     }
 
-    /// Convert errors to diagnostics
     pub fn add_error(&mut self, error: &ErrorKind, range: TextRange) {
         let diagnostic = Diagnostic {
             range,
@@ -245,7 +238,6 @@ impl IdeIntegration {
         self.add_diagnostic(diagnostic);
     }
 
-    /// Add a warning diagnostic
     pub fn add_warning(&mut self, message: String, range: TextRange) {
         let diagnostic = Diagnostic {
             range,
@@ -276,7 +268,6 @@ pub enum CompletionKind {
     Module,
 }
 
-/// Generate hover information for a symbol
 pub fn generate_hover_info(symbol: &Symbol) -> String {
     let mut hover = String::new();
 
@@ -300,7 +291,6 @@ pub trait IdeContext {
     fn get_diagnostics(&self) -> &[Diagnostic];
 }
 
-/// Create IDE integration from transpilation result
 pub fn create_ide_integration(module: &HirModule, source: &str) -> IdeIntegration {
     let mut ide = IdeIntegration::new();
     ide.index_symbols(module, source);

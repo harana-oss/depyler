@@ -1,20 +1,20 @@
 //! Targeted coverage tests for func_gen.rs parameter handling
 //!
 //! Target: codegen_single_param, apply_param_borrowing_strategy, is_param_used_in_body
-//! Coverage focus: DEPYLER-0270, DEPYLER-0275, DEPYLER-0282, DEPYLER-0312, DEPYLER-0330
+//! Coverage focus: issue
 //!
 //! Test Strategy:
-//! - DEPYLER-0270: Unused parameter prefixing with _
-//! - DEPYLER-0275: Lifetime elision
-//! - DEPYLER-0282: No 'static lifetimes for parameters
-//! - DEPYLER-0312: Mutable parameter tracking
-//! - DEPYLER-0330: Borrowed parameter mutation detection
+//! - issue: Unused parameter prefixing with _
+//! - issue: Lifetime elision
+//! - issue: No 'static lifetimes for parameters
+//! - issue: Mutable parameter tracking
+//! - issue: Borrowed parameter mutation detection
 //! - Cow<'_, str> parameter strategies
 //! - Parameter usage detection edge cases
 
 use depyler_core::DepylerPipeline;
 
-/// Unit Test: DEPYLER-0270 - Unused parameter prefixing
+/// Unit Test: issue - Unused parameter prefixing
 ///
 /// Verifies: Unused parameters are prefixed with _ to suppress warnings
 #[test]
@@ -31,7 +31,7 @@ def unused_param(x: int, y: int) -> int:
     // (actual behavior depends on implementation)
 }
 
-/// Unit Test: DEPYLER-0270 - All parameters used
+/// Unit Test: issue - All parameters used
 ///
 /// Verifies: Used parameters are NOT prefixed with _
 #[test]
@@ -46,7 +46,7 @@ def all_used(x: int, y: int) -> int:
     assert!(rust_code.contains("fn all_used"));
 }
 
-/// Unit Test: DEPYLER-0312 - Mutable parameter (ownership)
+/// Unit Test: issue - Mutable parameter (ownership)
 ///
 /// Verifies: Parameters that are reassigned get `mut` keyword
 #[test]
@@ -64,7 +64,7 @@ def mutate_param(x: int) -> int:
     // Should have `mut x` since x is reassigned
 }
 
-/// Unit Test: DEPYLER-0330 - Mutable borrowed parameter
+/// Unit Test: issue - Mutable borrowed parameter
 ///
 /// Verifies: Borrowed parameters that are mutated get &mut T
 #[test]
@@ -81,7 +81,7 @@ def mutate_list(items: list[int]) -> list[int]:
     // items should be &mut Vec<i32> since .append() mutates
 }
 
-/// Unit Test: DEPYLER-0330 - Multiple mutations on borrowed parameter
+/// Unit Test: issue - Multiple mutations on borrowed parameter
 ///
 /// Verifies: Multiple mutation methods upgrade to &mut
 #[test]
@@ -99,7 +99,7 @@ def multi_mutate(items: list[int]) -> list[int]:
     assert!(rust_code.contains("fn multi_mutate"));
 }
 
-/// Unit Test: DEPYLER-0275 - Lifetime elision (no explicit lifetimes)
+/// Unit Test: issue - Lifetime elision (no explicit lifetimes)
 ///
 /// Verifies: When no lifetime parameters exist, lifetimes are elided
 #[test]
@@ -115,7 +115,7 @@ def simple_borrow(s: str) -> int:
     // Should use &str (elided lifetime) not &'a str
 }
 
-/// Unit Test: DEPYLER-0282 - No 'static for parameters
+/// Unit Test: issue - No 'static for parameters
 ///
 /// Verifies: Parameters should NEVER use 'static lifetime
 #[test]

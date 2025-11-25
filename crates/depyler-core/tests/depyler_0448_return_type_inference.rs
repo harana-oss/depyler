@@ -1,4 +1,3 @@
-// DEPYLER-0448: Return Type and Constant Type Inference Defaults to i32
 //
 // Bug: Type inference for function return types and constants defaults to i32
 // when the transpiler cannot determine the actual type from Python source.
@@ -131,7 +130,7 @@ def get_items():
 }
 
 #[test]
-#[ignore = "TODO: DEPYLER-0448 - mixed return type inference should use Value"]
+#[ignore = "TODO: issue - mixed return type inference should use Value"]
 fn test_depyler_0448_mixed_returns_use_value() {
     let python = r#"
 def get_mixed(flag):

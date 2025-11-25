@@ -1,4 +1,3 @@
-// DEPYLER-0302 Phase 1: String Method Quick Wins Test
 // Tests for lstrip, rstrip, isalnum methods
 
 use depyler_core::DepylerPipeline;

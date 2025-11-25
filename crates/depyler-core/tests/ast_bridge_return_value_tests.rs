@@ -1,4 +1,3 @@
-// DEPYLER-0021 Phase 4: Return Value Mutation Kill Tests
 //
 // Target: Return value mutations that change function outputs
 //

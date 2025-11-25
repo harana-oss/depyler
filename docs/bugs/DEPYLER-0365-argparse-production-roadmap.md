@@ -459,7 +459,7 @@ args = parser.parse_args()
 ### Documentation
 - ✅ Updated CLAUDE.md with HIR extension process
 - ✅ Updated README with argparse support status
-- ✅ Added examples/argparse_cli with 5+ working examples
+- ✅ Added examples/cli/argparse_cli with 5+ working examples
 - ✅ API documentation for all new functions
 
 ### Validation

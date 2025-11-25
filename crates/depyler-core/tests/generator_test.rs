@@ -1,4 +1,4 @@
-//! TDD Tests for Generator Functions (DEPYLER-0115 Phase 1)
+//! TDD Tests for Generator Functions 
 //!
 //! Phase 1: Simple yield statements
 //! Python: yield → Rust: Iterator trait implementation

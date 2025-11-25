@@ -1,4 +1,3 @@
-// DEPYLER-0307: Test sorted() with reverse parameter
 // Tests for sorted() builtin with reverse=True/False parameter handling
 
 use depyler_core::DepylerPipeline;

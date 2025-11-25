@@ -1,41 +1,25 @@
 use anyhow::Result;
 use clap::Parser;
 use depyler::{
-    agent_logs_command, agent_restart_command, agent_start_command, agent_status_command,
-    agent_stop_command, analyze_command, check_command, compile_command, debug_command,
-    docs_cmd::handle_docs_command, inspect_command, interactive_command, lambda_analyze_command,
-    lambda_build_command, lambda_convert_command, lambda_deploy_command, lambda_test_command,
-    lsp_command, profile_cmd::handle_profile_command, quality_check_command, transpile_command,
-    AgentCommands, Cli, Commands, LambdaCommands,
+    AgentCommands, Cli, Commands, LambdaCommands, agent_logs_command, agent_restart_command, agent_start_command,
+    agent_status_command, agent_stop_command, analyze_command, check_command, compile_command, debug_command,
+    docs_cmd::handle_docs_command, inspect_command, interactive_command, lambda_analyze_command, lambda_build_command,
+    lambda_convert_command, lambda_deploy_command, lambda_test_command, lsp_command,
+    profile_cmd::handle_profile_command, quality_check_command, transpile_command,
 };
 use std::path::PathBuf;
 
 /// Handle agent add-project command
-/// Complexity: 2 (within ≤10 target)
-fn agent_add_project_command(
-    path: PathBuf,
-    id: Option<String>,
-    patterns: Vec<String>,
-) -> Result<()> {
+fn agent_add_project_command(path: PathBuf, id: Option<String>, patterns: Vec<String>) -> Result<()> {
     println!("📁 Adding project to monitoring...");
-    let project_id = id.unwrap_or_else(|| {
-        path.file_name()
-            .unwrap_or_default()
-            .to_string_lossy()
-            .to_string()
-    });
-    println!(
-        "✅ Project '{}' added (path: {})",
-        project_id,
-        path.display()
-    );
+    let project_id = id.unwrap_or_else(|| path.file_name().unwrap_or_default().to_string_lossy().to_string());
+    println!("✅ Project '{}' added (path: {})", project_id, path.display());
     println!("📋 Patterns: {}", patterns.join(", "));
     println!("💡 Use 'depyler agent restart' to apply changes");
     Ok(())
 }
 
 /// Handle agent remove-project command
-/// Complexity: 1 (within ≤10 target)
 fn agent_remove_project_command(project: String) -> Result<()> {
     println!("🗑️ Removing project '{}' from monitoring...", project);
     println!("✅ Project removed");
@@ -44,7 +28,6 @@ fn agent_remove_project_command(project: String) -> Result<()> {
 }
 
 /// Handle agent list-projects command
-/// Complexity: 1 (within ≤10 target)
 fn agent_list_projects_command() -> Result<()> {
     println!("📋 Monitored Projects:");
     println!("(This would list active projects from daemon state)");
@@ -52,7 +35,6 @@ fn agent_list_projects_command() -> Result<()> {
 }
 
 /// Handle Agent subcommands
-/// Complexity: 8 (one per agent subcommand, within ≤10 target)
 async fn handle_agent_command(agent_cmd: AgentCommands) -> Result<()> {
     match agent_cmd {
         AgentCommands::Start {
@@ -63,14 +45,8 @@ async fn handle_agent_command(agent_cmd: AgentCommands) -> Result<()> {
         } => agent_start_command(port, debug, config, foreground).await,
         AgentCommands::Stop => agent_stop_command(),
         AgentCommands::Status => agent_status_command(),
-        AgentCommands::Restart {
-            port,
-            debug,
-            config,
-        } => agent_restart_command(port, debug, config).await,
-        AgentCommands::AddProject { path, id, patterns } => {
-            agent_add_project_command(path, id, patterns)
-        }
+        AgentCommands::Restart { port, debug, config } => agent_restart_command(port, debug, config).await,
+        AgentCommands::AddProject { path, id, patterns } => agent_add_project_command(path, id, patterns),
         AgentCommands::RemoveProject { project } => agent_remove_project_command(project),
         AgentCommands::ListProjects => agent_list_projects_command(),
         AgentCommands::Logs { lines, follow } => agent_logs_command(lines, follow),
@@ -78,7 +54,6 @@ async fn handle_agent_command(agent_cmd: AgentCommands) -> Result<()> {
 }
 
 /// Handle Lambda subcommands
-/// Complexity: 5 (one per lambda subcommand, within ≤10 target)
 fn handle_lambda_command(lambda_cmd: LambdaCommands) -> Result<()> {
     match lambda_cmd {
         LambdaCommands::Analyze {
@@ -116,7 +91,7 @@ fn handle_lambda_command(lambda_cmd: LambdaCommands) -> Result<()> {
 }
 
 /// Handle top-level command dispatch
-/// Complexity: ~12 (one per top-level command, slightly over but acceptable)
+///
 async fn handle_command(command: Commands) -> Result<()> {
     match command {
         Commands::Transpile {
@@ -128,14 +103,8 @@ async fn handle_command(command: Commands) -> Result<()> {
             source_map,
             trace,
             explain,
-        } => transpile_command(
-            input, output, verify, gen_tests, debug, source_map, trace, explain,
-        ),
-        Commands::Compile {
-            input,
-            output,
-            profile,
-        } => {
+        } => transpile_command(input, output, verify, gen_tests, debug, source_map, trace, explain),
+        Commands::Compile { input, output, profile } => {
             let cli = Cli::parse();
             compile_command(input, output, profile, cli.verbose)
         }
@@ -148,14 +117,7 @@ async fn handle_command(command: Commands) -> Result<()> {
             max_tdg,
             max_complexity,
             min_coverage,
-        } => quality_check_command(
-            input,
-            enforce,
-            min_tdg,
-            max_tdg,
-            max_complexity,
-            min_coverage,
-        ),
+        } => quality_check_command(input, enforce, min_tdg, max_tdg, max_complexity, min_coverage),
         Commands::Interactive { input, annotate } => interactive_command(input, annotate),
         Commands::Inspect {
             input,
@@ -173,9 +135,7 @@ async fn handle_command(command: Commands) -> Result<()> {
             output,
             spydecy,
             visualize,
-        } => debug_command(
-            tips, gen_script, debugger, source, output, spydecy, visualize,
-        ),
+        } => debug_command(tips, gen_script, debugger, source, output, spydecy, visualize),
         Commands::Docs {
             input,
             output,
@@ -234,10 +194,8 @@ async fn handle_command(command: Commands) -> Result<()> {
 async fn main() -> Result<()> {
     let cli = Cli::parse();
 
-    // Initialize tracing
     let level = if cli.verbose { "debug" } else { "info" };
     tracing_subscriber::fmt().with_env_filter(level).init();
 
-    // Dispatch to command handler
     handle_command(cli.command).await
 }

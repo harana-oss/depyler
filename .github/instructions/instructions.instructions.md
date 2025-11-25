@@ -1,6 +1,11 @@
 ---
 applyTo: '**/*.rs'
 ---
+## Behaviour
+
+1. Do not generate length summary comments. One or two sentence max.
+2. When I asked you to go through ALL of something. Don't just do the open files.
+
 ## Tests
 
 1. Never use `#[ignore]` attribute.
@@ -13,4 +18,4 @@ applyTo: '**/*.rs'
 ## Code
 
 1. Do not create markdown files unless specifically asked.
-2. Do not add unnecessary comments. Only add comments that clarify complex logic.
+2. Do not add unnecessary comments when the code is self-explanatory. Only add comments that clarify complex logic.

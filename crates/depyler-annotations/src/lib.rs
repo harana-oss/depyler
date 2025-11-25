@@ -272,7 +272,6 @@ pub struct AnnotationParser {
 pub struct AnnotationValidator;
 
 impl AnnotationValidator {
-    /// Creates a new annotation validator.
     pub fn new() -> Self {
         Self
     }
@@ -370,7 +369,6 @@ impl Default for AnnotationExtractor {
 }
 
 impl AnnotationExtractor {
-    /// Creates a new annotation extractor with pre-compiled regex patterns.
     pub fn new() -> Self {
         Self::default()
     }

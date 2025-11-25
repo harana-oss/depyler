@@ -1,4 +1,4 @@
-//! DEPYLER-0424: Test argparse handler function parameter types
+//! issue: Test argparse handler function parameter types
 //!
 //! Verifies that functions receiving parse_args() result are typed as `&Args`
 //! instead of `&serde_json::Value`.

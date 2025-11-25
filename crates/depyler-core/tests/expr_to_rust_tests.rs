@@ -1,4 +1,3 @@
-// DEPYLER-0005: Tests for expr_to_rust_tokens function
 //
 // EXTREME TDD: These tests are written to ensure behavior preservation
 // during Extract Method pattern application.

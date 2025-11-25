@@ -13,7 +13,6 @@ def process_string(s: str) -> int:
     let rust_code = pipeline.transpile(python_code).unwrap();
     println!("Generated code:\n{}", rust_code);
 
-    // DEPYLER-0357: Uses lifetime elision (&str) instead of explicit lifetimes
     // String doesn't escape, so we can borrow immutably
     assert!(
         rust_code.contains("s: &str"),
@@ -33,7 +32,6 @@ def identity(s: str) -> str:
     let rust_code = pipeline.transpile(python_code).unwrap();
     println!("Generated code for identity:\n{}", rust_code);
 
-    // DEPYLER-0357: Uses String instead of Cow for escaping strings
     // Previous Cow<'static> behavior caused lifetime mismatch compilation errors
     assert!(
         rust_code.contains("s: String") && rust_code.contains("-> String"),
@@ -55,7 +53,6 @@ def select_string(s1: str, s2: str, use_first: bool) -> str:
     let rust_code = pipeline.transpile(python_code).unwrap();
     println!("Generated code for select_string:\n{}", rust_code);
 
-    // DEPYLER-0357: Parameters that escape take ownership
     // Multiple string params that escape both use String
     assert!(
         rust_code.contains("s1: String") && rust_code.contains("s2: String"),

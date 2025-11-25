@@ -129,7 +129,6 @@ fn test_map_whole_module_import() {
     let mapper = ModuleMapper::new();
 
     // Test "import os" style
-    // DEPYLER-0363: Now generates actual use statement with alias
     let import = Import {
         module: "os".to_string(),
         items: vec![],
@@ -344,12 +343,10 @@ fn test_empty_imports_dependencies() {
 }
 
 // ============================================================================
-// DEPYLER-0170: Fix HashMap Import Path Generation
 // ============================================================================
 
 #[test]
 fn test_collections_hashmap_import_path() {
-    // DEPYLER-0170: HashMap should be imported as a type, not HashMap::new
     let mapper = ModuleMapper::new();
 
     let import = Import {
@@ -378,7 +375,6 @@ fn test_collections_hashmap_import_path() {
 
 #[test]
 fn test_collections_deque_import_path() {
-    // DEPYLER-0173: VecDeque should be imported correctly
     let mapper = ModuleMapper::new();
 
     let import = Import {

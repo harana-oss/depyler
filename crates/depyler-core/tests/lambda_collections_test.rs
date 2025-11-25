@@ -1,4 +1,4 @@
-//! TDD Tests for Lambda Expressions in Collections (DEPYLER-0113)
+//! TDD Tests for Lambda Expressions in Collections 
 //!
 //! Lambda expressions used with collection operations:
 //! Python: lambda x: x * 2 → Rust: |x| x * 2

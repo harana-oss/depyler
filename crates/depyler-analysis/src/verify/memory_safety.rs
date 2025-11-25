@@ -62,7 +62,6 @@ impl MemorySafetyAnalyzer {
         }
     }
 
-    /// Analyze a function for memory safety violations
     pub fn analyze_function(&mut self, func: &HirFunction) -> VerificationResult {
         let mut violations = Vec::new();
 
@@ -401,7 +400,6 @@ impl MemorySafetyAnalyzer {
     }
 }
 
-/// Check for null pointer dereferences
 pub fn check_null_safety(func: &HirFunction) -> Vec<MemorySafetyViolation> {
     let mut violations = Vec::new();
 

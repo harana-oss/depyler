@@ -1,4 +1,3 @@
-// DEPYLER-0437: Try/except control flow - exception handler branching
 //
 // Tests that try/except blocks generate proper match expressions with
 // exception-specific branches, not sequential code.
@@ -6,7 +5,7 @@
 // Root cause: Try blocks transpiled sequentially without exception handlers
 // Solution: Generate match expressions for fallible operations in try blocks
 //
-// Parent: DEPYLER-0428 (ArgumentTypeError support)
+// Parent: issue (ArgumentTypeError support)
 
 use depyler_core::DepylerPipeline;
 

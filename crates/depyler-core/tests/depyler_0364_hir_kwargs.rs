@@ -1,4 +1,4 @@
-//! DEPYLER-0364: HIR Keyword Arguments Support Tests
+//! issue: HIR Keyword Arguments Support Tests
 //!
 //! Tests to verify that keyword arguments are properly preserved during AST→HIR conversion
 //! and correctly handled throughout the transpilation pipeline.

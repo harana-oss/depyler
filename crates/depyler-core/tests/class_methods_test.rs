@@ -1,4 +1,4 @@
-//! TDD Tests for Class Instance Methods (DEPYLER-0111 Phase 2)
+//! TDD Tests for Class Instance Methods 
 //!
 //! Phase 2: Instance methods on classes
 //! Python: def method(self, ...) → Rust: fn method(&self, ...) or fn method(&mut self, ...)

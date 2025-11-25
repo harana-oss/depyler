@@ -341,7 +341,7 @@ def return_plain(text: str) -> str:
 }
 
 // ============================================================================
-// contains_string_concatenation Coverage Tests (DEPYLER-0270)
+// contains_string_concatenation Coverage Tests 
 // ============================================================================
 
 /// Unit Test: Detect string concatenation with Add operator

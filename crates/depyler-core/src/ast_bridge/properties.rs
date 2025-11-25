@@ -138,7 +138,6 @@ impl FunctionAnalyzer {
             if stmt_can_fail {
                 can_fail = true;
             }
-            // DEPYLER-0327 Fix #4: Always collect error types even if not can_fail
             // This ensures exception types used in try/except blocks are generated
             error_types.append(&mut stmt_errors);
         }
@@ -194,7 +193,6 @@ impl FunctionAnalyzer {
 
                 (iter_fail || body_fail, all_errors)
             }
-            // DEPYLER-0327 Fix #2: Analyze try/except blocks for error types
             // This ensures exception types used in try blocks are generated
             // even if they're caught internally (needed for type definitions)
             HirStmt::Try {
@@ -206,7 +204,6 @@ impl FunctionAnalyzer {
                 // Collect error types from try body
                 let (_body_fail, mut body_errors) = Self::check_can_fail(body);
 
-                // DEPYLER-0428: Track which exception types are CAUGHT vs RAISED
                 let mut caught_exceptions: Vec<String> = Vec::new();
                 let mut raised_in_handlers: Vec<String> = Vec::new();
 
@@ -216,7 +213,6 @@ impl FunctionAnalyzer {
                     // Track which exception this handler catches
                     if let Some(ref exc_type) = handler.exception_type {
                         caught_exceptions.push(exc_type.clone());
-                        // DEPYLER-0327 Fix #3: Add exception types from handler signatures
                         // This ensures types like ValueError are generated even if only caught
                         body_errors.push(exc_type.clone());
                     }
@@ -241,7 +237,6 @@ impl FunctionAnalyzer {
                 all_errors.append(&mut handler_errors);
                 all_errors.extend(finally_errors);
 
-                // DEPYLER-0428: Try block can_fail=true if handler raises UNCAUGHT exceptions
                 // Example: try/except ValueError → raise ArgumentTypeError
                 // - caught_exceptions = ["ValueError"]
                 // - raised_in_handlers = ["ArgumentTypeError"]
@@ -252,7 +247,6 @@ impl FunctionAnalyzer {
 
                 (has_uncaught_exceptions, all_errors)
             }
-            // DEPYLER-0432: With statements using open() are fallible (file I/O)
             HirStmt::With { context, body, .. } => {
                 // Check if context expression uses open() call
                 let context_uses_open = matches!(context, HirExpr::Call { func, .. } if func.as_str() == "open");
@@ -282,7 +276,6 @@ impl FunctionAnalyzer {
                 ..
             } => (true, vec!["ZeroDivisionError".to_string()]),
             HirExpr::Call { func, args, .. } => {
-                // DEPYLER-0217 FIX: Check if function can fail based on context
                 // int() only fails when parsing strings, not when casting typed values
                 let func_errors = match func.as_str() {
                     "int" => {
@@ -346,7 +339,6 @@ impl FunctionAnalyzer {
         match exception {
             Some(HirExpr::Call { func, .. }) => func.clone(),
             Some(HirExpr::Var(name)) => name.clone(),
-            // DEPYLER-0428: Handle argparse.ArgumentTypeError pattern
             Some(HirExpr::MethodCall { method, .. }) => method.clone(),
             _ => "Exception".to_string(),
         }

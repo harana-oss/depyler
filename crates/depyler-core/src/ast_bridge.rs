@@ -221,7 +221,6 @@ impl AstBridge {
             }
         }
 
-        // DEPYLER-0359: Propagate can_fail through function calls
         // If a function calls another function that can fail, mark it as can_fail too
         propagate_can_fail_through_calls(&mut functions);
 
@@ -633,7 +632,6 @@ impl AstBridge {
                         });
                     }
                 }
-                // DEPYLER-0422 Fix #11: Handle simple assignments for IntEnum members
                 // Five-Whys Root Cause:
                 // 1. Why: No constants generated for IntEnum classes
                 // 2. Why: IntEnum members like RED = 1 aren't being extracted
@@ -1144,7 +1142,6 @@ pub fn python_to_hir(module: ast::Mod) -> Result<HirModule> {
     AstBridge::new().python_to_hir(module)
 }
 
-/// DEPYLER-0359: Propagate can_fail property through function call chains
 ///
 /// This function performs a fixed-point iteration to propagate the `can_fail` property
 /// from callees to callers. If function A calls function B, and B can fail, then A

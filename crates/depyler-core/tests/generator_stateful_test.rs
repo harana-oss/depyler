@@ -1,4 +1,4 @@
-//! TDD Tests for Stateful Generators (DEPYLER-0115 Phase 2)
+//! TDD Tests for Stateful Generators 
 //!
 //! Phase 2: Generator state management and resumable execution
 //! Python: Stateful yield → Rust: Iterator with state machine

@@ -2,25 +2,17 @@
 use crate::hir::{HirExpr, HirFunction, HirProgram, HirStmt, Type};
 use colored::Colorize;
 
-/// Migration suggestion analyzer that identifies Python patterns and suggests Rust idioms
 pub struct MigrationAnalyzer {
-    /// Collected suggestions for the current analysis
     suggestions: Vec<MigrationSuggestion>,
-    /// Configuration for suggestion generation
     config: MigrationConfig,
 }
 
 #[derive(Debug, Clone)]
 pub struct MigrationConfig {
-    /// Enable suggestions for iterator patterns
     pub suggest_iterators: bool,
-    /// Enable suggestions for error handling
     pub suggest_error_handling: bool,
-    /// Enable suggestions for ownership patterns
     pub suggest_ownership: bool,
-    /// Enable suggestions for performance improvements
     pub suggest_performance: bool,
-    /// Verbosity level (0-2)
     pub verbosity: u8,
 }
 
@@ -38,51 +30,32 @@ impl Default for MigrationConfig {
 
 #[derive(Debug, Clone)]
 pub struct MigrationSuggestion {
-    /// Type of suggestion
     pub category: SuggestionCategory,
-    /// Severity/importance
     pub severity: Severity,
-    /// Brief description
     pub title: String,
-    /// Detailed explanation
     pub description: String,
-    /// Python code example
     pub python_example: String,
-    /// Suggested Rust idiom
     pub rust_suggestion: String,
-    /// Additional notes or warnings
     pub notes: Vec<String>,
-    /// Source location if applicable
     pub location: Option<SourceLocation>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum SuggestionCategory {
-    /// Iterator and functional patterns
     Iterator,
-    /// Error handling patterns
     ErrorHandling,
-    /// Ownership and borrowing
     Ownership,
-    /// Performance optimizations
     Performance,
-    /// Type system usage
     TypeSystem,
-    /// Concurrency patterns
     Concurrency,
-    /// API design
     ApiDesign,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub enum Severity {
-    /// Nice to have
     Info,
-    /// Recommended change
     Warning,
-    /// Important for idiomatic Rust
     Important,
-    /// Critical for correctness/performance
     Critical,
 }
 
@@ -119,43 +92,41 @@ impl MigrationAnalyzer {
     pub fn analyze_program(&mut self, program: &HirProgram) -> Vec<MigrationSuggestion> {
         self.suggestions.clear();
 
-        // Analyze each function
         for func in &program.functions {
             self.analyze_function(func);
         }
 
-        // Sort suggestions by severity
         self.suggestions.sort_by(|a, b| b.severity.cmp(&a.severity));
 
         self.suggestions.clone()
     }
 
     fn analyze_function(&mut self, func: &HirFunction) {
-        // Check function-level patterns
         self.check_function_patterns(func);
 
-        // Analyze function body
         for (idx, stmt) in func.body.iter().enumerate() {
             self.analyze_stmt(stmt, func, idx);
         }
     }
 
     fn check_function_patterns(&mut self, func: &HirFunction) {
-        // Check for list comprehension opportunities
         if self.has_accumulator_pattern(&func.body) {
             self.add_suggestion(MigrationSuggestion {
                 category: SuggestionCategory::Iterator,
                 severity: Severity::Warning,
                 title: format!("Consider using iterator methods in '{}'", func.name),
-                description: "This function uses an accumulator pattern that could be replaced with iterator methods".to_string(),
+                description: "This function uses an accumulator pattern that could be replaced with iterator methods"
+                    .to_string(),
                 python_example: r#"result = []
 for item in items:
     if condition(item):
-        result.append(transform(item))"#.to_string(),
+        result.append(transform(item))"#
+                    .to_string(),
                 rust_suggestion: r#"let result: Vec<_> = items.iter()
     .filter(|item| condition(item))
     .map(|item| transform(item))
-    .collect();"#.to_string(),
+    .collect();"#
+                    .to_string(),
                 notes: vec![
                     "Iterator chains are more idiomatic and often more efficient".to_string(),
                     "They avoid intermediate allocations".to_string(),
@@ -172,10 +143,7 @@ for item in items:
             self.add_suggestion(MigrationSuggestion {
                 category: SuggestionCategory::ErrorHandling,
                 severity: Severity::Important,
-                title: format!(
-                    "Use Result<T, E> instead of Option<T> for errors in '{}'",
-                    func.name
-                ),
+                title: format!("Use Result<T, E> instead of Option<T> for errors in '{}'", func.name),
                 description: "Returning None for errors loses error information".to_string(),
                 python_example: r#"def process(data):
     if not valid(data):
@@ -200,15 +168,11 @@ for item in items:
             });
         }
 
-        // Check for mutable parameter patterns
         if self.has_mutable_parameter_pattern(func) {
             self.add_suggestion(MigrationSuggestion {
                 category: SuggestionCategory::Ownership,
                 severity: Severity::Important,
-                title: format!(
-                    "Consider ownership transfer or mutable reference in '{}'",
-                    func.name
-                ),
+                title: format!("Consider ownership transfer or mutable reference in '{}'", func.name),
                 description: "This function appears to modify its parameters".to_string(),
                 python_example: r#"def modify_list(lst):
     lst.append(42)
@@ -267,18 +231,13 @@ fn modify_list(mut lst: Vec<i32>) -> Vec<i32> {
         func: &HirFunction,
         line: usize,
     ) {
-        // Check for enumerate pattern
-        if let HirExpr::Call {
-            func: fname, args, ..
-        } = iter
-        {
+        if let HirExpr::Call { func: fname, args, .. } = iter {
             if fname == "enumerate" && !args.is_empty() {
                 self.add_suggestion(MigrationSuggestion {
                     category: SuggestionCategory::Iterator,
                     severity: Severity::Info,
                     title: "Use .enumerate() iterator method".to_string(),
-                    description: "Rust's enumerate() is an iterator method, not a function"
-                        .to_string(),
+                    description: "Rust's enumerate() is an iterator method, not a function".to_string(),
                     python_example: "for i, item in enumerate(items):".to_string(),
                     rust_suggestion: "for (i, item) in items.iter().enumerate() {".to_string(),
                     notes: vec!["Iterator methods are more idiomatic in Rust".to_string()],
@@ -290,14 +249,12 @@ fn modify_list(mut lst: Vec<i32>) -> Vec<i32> {
             }
         }
 
-        // Check for filter + map patterns in loop body
         if self.has_filter_map_pattern(body) {
             self.add_suggestion(MigrationSuggestion {
                 category: SuggestionCategory::Iterator,
                 severity: Severity::Warning,
                 title: "Consider filter_map() for conditional transformation".to_string(),
-                description: "Combining filter and map operations can be more efficient"
-                    .to_string(),
+                description: "Combining filter and map operations can be more efficient".to_string(),
                 python_example: r#"result = []
 for item in items:
     if condition(item):
@@ -322,14 +279,7 @@ for item in items:
         }
     }
 
-    fn analyze_while_loop(
-        &mut self,
-        condition: &HirExpr,
-        _body: &[HirStmt],
-        func: &HirFunction,
-        line: usize,
-    ) {
-        // Check for while True pattern
+    fn analyze_while_loop(&mut self, condition: &HirExpr, _body: &[HirStmt], func: &HirFunction, line: usize) {
         if let HirExpr::Literal(crate::hir::Literal::Bool(true)) = condition {
             self.add_suggestion(MigrationSuggestion {
                 category: SuggestionCategory::Iterator,
@@ -358,14 +308,12 @@ for item in items:
         func: &HirFunction,
         line: usize,
     ) {
-        // Check for type checking patterns
         if self.is_type_check(condition) {
             self.add_suggestion(MigrationSuggestion {
                 category: SuggestionCategory::TypeSystem,
                 severity: Severity::Important,
                 title: "Use Rust's type system instead of runtime type checks".to_string(),
-                description: "Rust's static typing eliminates the need for runtime type checks"
-                    .to_string(),
+                description: "Rust's static typing eliminates the need for runtime type checks".to_string(),
                 python_example: r#"if isinstance(value, str):
     process_string(value)
 elif isinstance(value, int):
@@ -393,7 +341,6 @@ match value {
             });
         }
 
-        // Check for None checking patterns
         if self.is_none_check(condition) && else_body.is_some() {
             self.add_suggestion(MigrationSuggestion {
                 category: SuggestionCategory::ErrorHandling,
@@ -434,15 +381,13 @@ match value {
         func: &HirFunction,
         line: usize,
     ) {
-        // Check for list/dict comprehension patterns
         if let HirExpr::Call { func: fname, .. } = value {
             if fname == "list" || fname == "dict" {
                 self.add_suggestion(MigrationSuggestion {
                     category: SuggestionCategory::Performance,
                     severity: Severity::Info,
                     title: "Consider using collect() for building collections".to_string(),
-                    description: "Rust's collect() is more efficient than repeated push operations"
-                        .to_string(),
+                    description: "Rust's collect() is more efficient than repeated push operations".to_string(),
                     python_example: "[x * 2 for x in range(10)]".to_string(),
                     rust_suggestion: "(0..10).map(|x| x * 2).collect::<Vec<_>>()".to_string(),
                     notes: vec!["collect() can optimize capacity allocation".to_string()],
@@ -454,7 +399,6 @@ match value {
             }
         }
 
-        // Check for string concatenation patterns
         if self.is_string_concatenation(value) {
             self.add_suggestion(MigrationSuggestion {
                 category: SuggestionCategory::Performance,
@@ -600,8 +544,7 @@ for item in items {
         } = expr
         {
             // Simplified check - would need type info for accuracy
-            return matches!(left.as_ref(), HirExpr::Var(_))
-                || matches!(right.as_ref(), HirExpr::Var(_));
+            return matches!(left.as_ref(), HirExpr::Var(_)) || matches!(right.as_ref(), HirExpr::Var(_));
         }
         false
     }
@@ -645,11 +588,7 @@ for item in items {
     }
 
     fn format_header(&self) -> String {
-        format!(
-            "\n{}\n{}\n\n",
-            "Migration Suggestions".bold().blue(),
-            "═".repeat(50)
-        )
+        format!("\n{}\n{}\n\n", "Migration Suggestions".bold().blue(), "═".repeat(50))
     }
 
     fn format_single_suggestion(&self, suggestion: &MigrationSuggestion, idx: usize) -> String {
@@ -686,11 +625,7 @@ for item in items {
     fn format_suggestion_metadata(&self, suggestion: &MigrationSuggestion) -> String {
         let mut output = format!("   {} {:?}\n", "Category:".dimmed(), suggestion.category);
 
-        output.push_str(&format!(
-            "   {} {}\n",
-            "Why:".dimmed(),
-            suggestion.description
-        ));
+        output.push_str(&format!("   {} {}\n", "Why:".dimmed(), suggestion.description));
 
         if let Some(loc) = &suggestion.location {
             output.push_str(&format!(
@@ -738,14 +673,8 @@ for item in items {
     }
 
     fn format_summary(&self, suggestions: &[MigrationSuggestion]) -> String {
-        let critical_count = suggestions
-            .iter()
-            .filter(|s| s.severity == Severity::Critical)
-            .count();
-        let important_count = suggestions
-            .iter()
-            .filter(|s| s.severity == Severity::Important)
-            .count();
+        let critical_count = suggestions.iter().filter(|s| s.severity == Severity::Critical).count();
+        let important_count = suggestions.iter().filter(|s| s.severity == Severity::Important).count();
 
         format!(
             "{} {} suggestions ({} critical, {} important)\n",
@@ -853,10 +782,7 @@ mod tests {
         let body = vec![HirStmt::If {
             condition: HirExpr::Call {
                 func: "isinstance".to_string(),
-                args: vec![
-                    HirExpr::Var("value".to_string()),
-                    HirExpr::Var("str".to_string()),
-                ],
+                args: vec![HirExpr::Var("value".to_string()), HirExpr::Var("str".to_string())],
                 kwargs: vec![],
             },
             then_body: vec![HirStmt::Expr(HirExpr::Call {
@@ -916,9 +842,7 @@ mod tests {
             .find(|s| s.category == SuggestionCategory::ErrorHandling)
             .expect("Should have error handling suggestion");
 
-        assert!(
-            suggestion.title.contains("pattern matching") || suggestion.title.contains("if-let")
-        );
+        assert!(suggestion.title.contains("pattern matching") || suggestion.title.contains("if-let"));
         assert!(suggestion.rust_suggestion.contains("if let Some"));
     }
 
@@ -952,10 +876,7 @@ mod tests {
     fn test_mutable_parameter_pattern() {
         let func = HirFunction {
             name: "modify_list".to_string(),
-            params: smallvec![HirParam::new(
-                "lst".to_string(),
-                Type::List(Box::new(Type::Int))
-            )],
+            params: smallvec![HirParam::new("lst".to_string(), Type::List(Box::new(Type::Int)))],
             ret_type: Type::Unknown,
             body: vec![HirStmt::Expr(HirExpr::MethodCall {
                 object: Box::new(HirExpr::Var("lst".to_string())),
@@ -1027,10 +948,7 @@ mod tests {
         let mut analyzer = MigrationAnalyzer::new(MigrationConfig::default());
 
         // Create a function that will not generate any automatic suggestions
-        let _func = create_test_function(
-            "test",
-            vec![HirStmt::Return(Some(HirExpr::Literal(Literal::Int(42))))],
-        );
+        let _func = create_test_function("test", vec![HirStmt::Return(Some(HirExpr::Literal(Literal::Int(42))))]);
 
         // Manually add suggestions with different severities
         analyzer.suggestions.push(MigrationSuggestion {
@@ -1067,9 +985,7 @@ mod tests {
         });
 
         // Sort by severity manually
-        analyzer
-            .suggestions
-            .sort_by(|a, b| b.severity.cmp(&a.severity));
+        analyzer.suggestions.sort_by(|a, b| b.severity.cmp(&a.severity));
 
         // Check that suggestions are sorted by severity (highest first)
         assert_eq!(analyzer.suggestions[0].severity, Severity::Critical);
@@ -1133,10 +1049,7 @@ mod tests {
     #[test]
     fn test_suggestion_category_equality() {
         assert_eq!(SuggestionCategory::Iterator, SuggestionCategory::Iterator);
-        assert_ne!(
-            SuggestionCategory::Iterator,
-            SuggestionCategory::ErrorHandling
-        );
+        assert_ne!(SuggestionCategory::Iterator, SuggestionCategory::ErrorHandling);
     }
 
     #[test]
@@ -1204,10 +1117,7 @@ mod tests {
             HirStmt::If {
                 condition: HirExpr::Call {
                     func: "isinstance".to_string(),
-                    args: vec![
-                        HirExpr::Var("x".to_string()),
-                        HirExpr::Var("int".to_string()),
-                    ],
+                    args: vec![HirExpr::Var("x".to_string()), HirExpr::Var("int".to_string())],
                     kwargs: vec![],
                 },
                 then_body: vec![],
@@ -1272,10 +1182,7 @@ mod tests {
 
         analyzer.analyze_function(&func);
         assert!(!analyzer.suggestions.is_empty());
-        assert_eq!(
-            analyzer.suggestions[0].category,
-            SuggestionCategory::Iterator
-        );
+        assert_eq!(analyzer.suggestions[0].category, SuggestionCategory::Iterator);
     }
 
     // Note: none-as-error detection is not yet implemented.
@@ -1305,10 +1212,12 @@ mod tests {
         let mut analyzer = MigrationAnalyzer::new(MigrationConfig::default());
         analyzer.analyze_function(&func);
 
-        assert!(analyzer
-            .suggestions
-            .iter()
-            .any(|s| s.category == SuggestionCategory::ErrorHandling));
+        assert!(
+            analyzer
+                .suggestions
+                .iter()
+                .any(|s| s.category == SuggestionCategory::ErrorHandling)
+        );
     }
 
     #[test]
@@ -1322,9 +1231,6 @@ mod tests {
         let mut analyzer = MigrationAnalyzer::new(MigrationConfig::default());
 
         analyzer.analyze_function(&func);
-        assert!(analyzer
-            .suggestions
-            .iter()
-            .any(|s| s.title.contains("loop")));
+        assert!(analyzer.suggestions.iter().any(|s| s.title.contains("loop")));
     }
 }

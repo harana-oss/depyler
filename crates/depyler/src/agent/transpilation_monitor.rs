@@ -10,47 +10,25 @@ use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use std::time::{Duration, SystemTime};
-use tokio::sync::{mpsc, RwLock};
+use tokio::sync::{RwLock, mpsc};
 use tokio::time::interval;
 use tracing::{debug, error, info};
 
-/// Transpilation monitoring engine for automatic Python-to-Rust conversion
 pub struct TranspilationMonitorEngine {
-    /// Configuration
     config: TranspilationMonitorConfig,
-
-    /// File system watchers by project
     watchers: Arc<RwLock<HashMap<String, RecommendedWatcher>>>,
-
-    /// Current metrics by project
     metrics: Arc<RwLock<HashMap<String, TranspilationMetrics>>>,
-
-    /// Event sender for transpilation updates
     event_sender: Option<mpsc::Sender<TranspilationEvent>>,
-
-    /// Event receiver for external consumption
     event_receiver: Option<mpsc::Receiver<TranspilationEvent>>,
 }
 
-/// Configuration for transpilation monitoring
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TranspilationMonitorConfig {
-    /// Update interval for periodic checks
     pub update_interval: Duration,
-
-    /// File patterns to watch for transpilation
     pub watch_patterns: Vec<String>,
-
-    /// Debounce interval to avoid excessive transpilations
     pub debounce_interval: Duration,
-
-    /// Maximum number of files to transpile per batch
     pub max_batch_size: usize,
-
-    /// Auto-transpile on file changes
     pub auto_transpile: bool,
-
-    /// Verification level for transpiled code
     pub verification_level: String,
 }
 
@@ -67,34 +45,16 @@ impl Default for TranspilationMonitorConfig {
     }
 }
 
-/// Transpilation metrics for a project
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TranspilationMetrics {
-    /// Project identifier
     pub project_id: String,
-
-    /// Last update timestamp
     pub last_updated: SystemTime,
-
-    /// Total files transpiled
     pub files_transpiled: u64,
-
-    /// Successful transpilations
     pub successful_transpilations: u64,
-
-    /// Failed transpilations
     pub failed_transpilations: u64,
-
-    /// Average transpilation time (milliseconds)
     pub avg_transpilation_time_ms: u64,
-
-    /// Total Python lines processed
     pub total_python_lines: usize,
-
-    /// Total Rust lines generated
     pub total_rust_lines: usize,
-
-    /// Last error message (if any)
     pub last_error: Option<String>,
 }
 
@@ -210,12 +170,7 @@ impl TranspilationMonitorEngine {
     }
 
     /// Start monitoring a project
-    pub async fn add_project(
-        &mut self,
-        project_id: String,
-        path: PathBuf,
-        patterns: Vec<String>,
-    ) -> Result<()> {
+    pub async fn add_project(&mut self, project_id: String, path: PathBuf, patterns: Vec<String>) -> Result<()> {
         info!(
             "Adding project '{}' to transpilation monitoring at {}",
             project_id,
@@ -244,14 +199,8 @@ impl TranspilationMonitorEngine {
         let watch_patterns = patterns.clone();
         tokio::spawn(async move {
             while let Some(event) = rx.recv().await {
-                if let Err(e) = Self::handle_fs_event(
-                    &event_sender,
-                    &project_id_clone,
-                    &project_path,
-                    &watch_patterns,
-                    event,
-                )
-                .await
+                if let Err(e) =
+                    Self::handle_fs_event(&event_sender, &project_id_clone, &project_path, &watch_patterns, event).await
                 {
                     error!("Failed to handle file system event: {}", e);
                 }
@@ -292,10 +241,7 @@ impl TranspilationMonitorEngine {
 
     /// Stop monitoring a project
     pub async fn remove_project(&mut self, project_id: &str) -> Result<()> {
-        info!(
-            "Removing project '{}' from transpilation monitoring",
-            project_id
-        );
+        info!("Removing project '{}' from transpilation monitoring", project_id);
 
         // Remove watcher
         {
@@ -321,19 +267,16 @@ impl TranspilationMonitorEngine {
         Ok(())
     }
 
-    /// Get metrics for a specific project
     pub async fn get_project_metrics(&self, project_id: &str) -> Option<TranspilationMetrics> {
         let metrics = self.metrics.read().await;
         metrics.get(project_id).cloned()
     }
 
-    /// Get metrics for all projects
     pub async fn get_all_metrics(&self) -> HashMap<String, TranspilationMetrics> {
         let metrics = self.metrics.read().await;
         metrics.clone()
     }
 
-    /// Get event receiver for consuming transpilation events
     pub fn get_event_receiver(&mut self) -> mpsc::Receiver<TranspilationEvent> {
         self.event_receiver.take().unwrap()
     }
@@ -417,8 +360,7 @@ impl TranspilationMonitorEngine {
                 let total_time = project_metrics.avg_transpilation_time_ms
                     * (project_metrics.successful_transpilations - 1)
                     + transpilation_time_ms;
-                project_metrics.avg_transpilation_time_ms =
-                    total_time / project_metrics.successful_transpilations;
+                project_metrics.avg_transpilation_time_ms = total_time / project_metrics.successful_transpilations;
             } else {
                 project_metrics.failed_transpilations += 1;
                 project_metrics.last_error = error_message;

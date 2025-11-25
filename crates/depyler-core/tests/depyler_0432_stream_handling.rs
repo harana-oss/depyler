@@ -1,4 +1,3 @@
-// DEPYLER-0432: sys.stdin/stdout Stream Handling and File I/O
 //
 // This test suite validates the transpilation of Python I/O operations
 // to Rust, including:
@@ -8,7 +7,7 @@
 // - Argument-less argparse subcommands
 //
 // Created: 2025-11-19
-// Ticket: https://github.com/paiml/depyler/issues/DEPYLER-0432
+// Ticket: https://github.com/paiml/depyler/issues/issue
 
 use depyler_core::DepylerPipeline;
 
@@ -128,7 +127,7 @@ def read_file(filepath):
 // ====================================================================================
 
 #[test]
-#[ignore] // DEPYLER-0432: Binary mode requires mode parameter detection (separate feature)
+#[ignore] // Binary mode requires mode parameter detection (separate feature)
 fn test_DEPYLER_0432_04_file_read_binary() {
     let python = r#"
 def read_binary(filepath):
@@ -142,10 +141,7 @@ def read_binary(filepath):
 
     let rust_code = result.unwrap();
 
-    // Should use File::open
     assert_contains(&rust_code, "std::fs::File::open");
-
-    // Should use read_to_end for binary mode
     let has_read_to_end = rust_code.contains("read_to_end");
     let has_vec_u8 = rust_code.contains("Vec<u8>");
 
@@ -220,8 +216,7 @@ def main():
 
     // Parameter should be inferred as &str (not serde_json::Value)
     // Check function signature
-    let has_str_param = rust_code.contains("filepath: &str")
-        || rust_code.contains("filepath: String");
+    let has_str_param = rust_code.contains("filepath: &str") || rust_code.contains("filepath: String");
 
     // Should NOT use serde_json::Value for file paths
     let has_value_param = rust_code.contains("filepath: serde_json::Value");
@@ -262,8 +257,8 @@ def main():
     let has_bool_param = rust_code.contains("verbose: bool");
 
     // Should NOT use serde_json::Value for boolean flags
-    let has_value_param = rust_code.contains("verbose: &serde_json::Value")
-        || rust_code.contains("verbose: serde_json::Value");
+    let has_value_param =
+        rust_code.contains("verbose: &serde_json::Value") || rust_code.contains("verbose: serde_json::Value");
 
     assert!(
         has_bool_param && !has_value_param,
@@ -312,14 +307,9 @@ def main():
 
     // Should generate enum variant for stdin subcommand
     // Pattern: Stdin, (unit variant) OR Stdin { } (empty struct)
-    let has_stdin_variant = rust_code.contains("Stdin,")
-        || rust_code.contains("Stdin {");
+    let has_stdin_variant = rust_code.contains("Stdin,") || rust_code.contains("Stdin {");
 
-    assert!(
-        has_stdin_variant,
-        "Expected Stdin enum variant, got:\n{}",
-        rust_code
-    );
+    assert!(has_stdin_variant, "Expected Stdin enum variant, got:\n{}", rust_code);
 
     // Should also generate Read variant with file field
     assert_contains(&rust_code, "Read");
@@ -331,7 +321,7 @@ def main():
 // ====================================================================================
 
 #[test]
-#[ignore] // DEPYLER-0432: Hex encoding requires separate implementation (binascii/hex module)
+#[ignore] // Hex encoding requires separate implementation (binascii/hex module)
 fn test_DEPYLER_0432_09_hex_encoding() {
     let python = r#"
 def show_hex(data):
@@ -347,8 +337,7 @@ def show_hex(data):
 
     // Should use hex::encode() OR manual hex formatting
     let has_hex_encode = rust_code.contains("hex::encode");
-    let has_hex_format = rust_code.contains("format!(\"{:02x}\"")
-        || rust_code.contains("format!(\"{:x}\"");
+    let has_hex_format = rust_code.contains("format!(\"{:02x}\"") || rust_code.contains("format!(\"{:x}\"");
 
     assert!(
         has_hex_encode || has_hex_format,
@@ -402,8 +391,7 @@ fn test_DEPYLER_0432_11_stream_processor_integration() {
     // Read the actual stream_processor.py from reprorusted-python-cli
     let python_file = "/home/user/reprorusted-python-cli/examples/example_io_streams/stream_processor.py";
 
-    let python_code = std::fs::read_to_string(python_file)
-        .expect("Failed to read stream_processor.py");
+    let python_code = std::fs::read_to_string(python_file).expect("Failed to read stream_processor.py");
 
     let result = transpile_python(&python_code);
     assert!(result.is_ok(), "Transpilation failed: {:?}", result.err());
@@ -411,8 +399,7 @@ fn test_DEPYLER_0432_11_stream_processor_integration() {
     let rust_code = result.unwrap();
 
     // Write to temp file for manual inspection
-    std::fs::write("/tmp/stream_processor_test.rs", &rust_code)
-        .expect("Failed to write test output");
+    std::fs::write("/tmp/stream_processor_test.rs", &rust_code).expect("Failed to write test output");
 
     // Verify key patterns are present
     assert_contains(&rust_code, "std::io::stdin()");
@@ -435,10 +422,13 @@ fn test_DEPYLER_0432_11_stream_processor_integration() {
 
     let compile_result = std::process::Command::new("rustc")
         .args(&[
-            "--crate-type", "bin",
-            "--edition", "2021",
+            "--crate-type",
+            "bin",
+            "--edition",
+            "2021",
             "/tmp/stream_processor_test.rs",
-            "-o", "/tmp/stream_processor_test",
+            "-o",
+            "/tmp/stream_processor_test",
         ])
         .output();
 
@@ -447,8 +437,10 @@ fn test_DEPYLER_0432_11_stream_processor_integration() {
         let error_count = stderr.matches("error[E").count();
 
         println!("Compilation errors: {}", error_count);
-        println!("First 50 lines of errors:\n{}",
-            stderr.lines().take(50).collect::<Vec<_>>().join("\n"));
+        println!(
+            "First 50 lines of errors:\n{}",
+            stderr.lines().take(50).collect::<Vec<_>>().join("\n")
+        );
 
         // In RED phase, we expect errors. Track progress:
         // Initial: 32 errors

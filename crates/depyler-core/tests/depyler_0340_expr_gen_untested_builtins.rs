@@ -1,4 +1,4 @@
-//! DEPYLER-0340: expr_gen.rs Untested Builtin Functions Coverage
+//! issue: expr_gen.rs Untested Builtin Functions Coverage
 //!
 //! **EXTREME TDD Protocol - Coverage Boost**
 //!

@@ -1,4 +1,4 @@
-//! Comprehensive tests for lambda_convert_command (DEPYLER-0011)
+//! Comprehensive tests for lambda_convert_command 
 //!
 //! EXTREME TDD: These tests are written BEFORE refactoring to establish
 //! a GREEN baseline and ensure zero regressions during complexity reduction.
@@ -171,7 +171,7 @@ fn test_conversion_with_deploy_templates() {
     // NOTE: Current implementation doesn't generate separate template files
     // The deploy flag is accepted but templates are always None in LambdaProject
     // This test just verifies the command succeeds with deploy=true
-    //
+
     // Future Enhancement: SAM/CDK template generation for deployment automation
     // would require additional infrastructure code generation beyond core transpilation
 

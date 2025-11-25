@@ -5,7 +5,7 @@
 
 use crate::hir::*;
 use crate::rust_gen::context::{CodeGenContext, RustCodeGen, ToRustExpr};
-use crate::rust_gen::keywords::safe_ident; // DEPYLER-0023: Keyword escaping
+use crate::rust_gen::keywords::safe_ident; // Keyword escaping
 use crate::rust_gen::type_gen::rust_type_to_syn;
 use anyhow::{Result, bail};
 use quote::{ToTokens, quote};
@@ -37,9 +37,7 @@ fn extract_nested_indices_tokens(expr: &HirExpr, ctx: &mut CodeGenContext) -> Re
 
 /// Check if an HIR expression returns usize (needs cast to i32)
 ///
-/// DEPYLER-0272: Only add casts for expressions that actually return usize.
 /// This prevents unnecessary casts like `(a: i32) as i32`.
-/// Complexity: 4 (recursive pattern matching)
 fn expr_returns_usize(expr: &HirExpr) -> bool {
     match expr {
         // Method calls that return usize
@@ -59,9 +57,7 @@ fn expr_returns_usize(expr: &HirExpr) -> bool {
 
 /// Check if a type annotation requires explicit conversion
 ///
-/// DEPYLER-0272 FIX: Now checks the actual expression to determine if cast is needed.
 /// Only adds cast when expression returns usize (from len(), count(), etc.)
-/// Complexity: 3 (type check + expression check)
 fn needs_type_conversion(target_type: &Type, expr: &HirExpr) -> bool {
     match target_type {
         Type::Int => {
@@ -80,7 +76,6 @@ fn needs_type_conversion(target_type: &Type, expr: &HirExpr) -> bool {
 /// Apply type conversion to value expression
 ///
 /// Wraps the expression with appropriate conversion (e.g., `as i32`)
-/// Complexity: 2 (simple match)
 fn apply_type_conversion(value_expr: syn::Expr, target_type: &Type) -> syn::Expr {
     match target_type {
         Type::Int => {
@@ -97,7 +92,7 @@ fn apply_type_conversion(value_expr: syn::Expr, target_type: &Type) -> syn::Expr
 }
 
 // ============================================================================
-// Statement Code Generation Helpers (DEPYLER-0140 Phase 1)
+// Statement Code Generation Helpers 
 // Extracted to reduce complexity of HirStmt::to_rust_tokens
 // ============================================================================
 
@@ -149,7 +144,6 @@ pub(crate) fn codegen_continue_stmt(label: &Option<String>) -> Result<proc_macro
 /// Generate code for expression statement
 #[inline]
 pub(crate) fn codegen_expr_stmt(expr: &HirExpr, ctx: &mut CodeGenContext) -> Result<proc_macro2::TokenStream> {
-    // DEPYLER-0363: Detect parser.add_argument(...) method calls
     // Pattern: parser.add_argument("files", nargs="+", type=Path, action="store_true", help="...")
     if let HirExpr::MethodCall {
         object,
@@ -158,14 +152,12 @@ pub(crate) fn codegen_expr_stmt(expr: &HirExpr, ctx: &mut CodeGenContext) -> Res
         kwargs,
     } = expr
     {
-        // DEPYLER-0394: Skip ALL parser method calls when using clap derive
         // ArgumentParser methods that should be ignored:
         // - add_argument() → accumulated into Args struct
         // - add_argument_group() → not needed with clap (uses struct fields)
         // - set_defaults() → not needed (use field defaults)
         // - add_mutually_exclusive_group() → use clap group attributes
         if let HirExpr::Var(var_name) = object.as_ref() {
-            // DEPYLER-0399: Check if this is a subcommand parser first (highest priority)
             if let Some(subcommand_info) = ctx.argparser_tracker.get_subcommand_mut(var_name) {
                 // This is a subcommand parser - route add_argument to subcommand
                 if method == "add_argument" {
@@ -198,7 +190,6 @@ pub(crate) fn codegen_expr_stmt(expr: &HirExpr, ctx: &mut CodeGenContext) -> Res
                                                 arg.arg_type = Some(crate::hir::Type::Custom("PathBuf".to_string()))
                                             }
                                             _ => {
-                                                // DEPYLER-0447: Track custom validator functions
                                                 // e.g., type=email_address → track "email_address"
                                                 ctx.validator_functions.insert(type_name.clone());
                                             }
@@ -225,7 +216,6 @@ pub(crate) fn codegen_expr_stmt(expr: &HirExpr, ctx: &mut CodeGenContext) -> Res
                 }
             }
 
-            // DEPYLER-0396: Check if this variable is a tracked ArgumentParser OR an argument group
             // If it's a group, resolve to the parent parser (recursively for nested groups)
             let parser_var = if ctx.argparser_tracker.get_parser(var_name).is_some() {
                 var_name.clone()
@@ -243,7 +233,6 @@ pub(crate) fn codegen_expr_stmt(expr: &HirExpr, ctx: &mut CodeGenContext) -> Res
                     "add_argument" => {
                         // Process add_argument to extract argument details
                         if let Some(_parser_info) = ctx.argparser_tracker.get_parser_mut(&parser_var) {
-                            // DEPYLER-0365 Phase 5: Extract argument names (can be multiple: "-o", "--output")
                             // First arg is required, second is optional (for dual short+long flags)
                             if let Some(HirExpr::Literal(crate::hir::Literal::String(first_arg))) = args.first() {
                                 let mut arg =
@@ -258,11 +247,9 @@ pub(crate) fn codegen_expr_stmt(expr: &HirExpr, ctx: &mut CodeGenContext) -> Res
                                     }
                                 }
 
-                                // DEPYLER-0364: Extract keyword arguments from HIR
                                 for (kw_name, kw_value) in kwargs {
                                     match kw_name.as_str() {
                                         "nargs" => {
-                                            // DEPYLER-0370: Handle both string and int nargs
                                             match kw_value {
                                                 HirExpr::Literal(crate::hir::Literal::String(nargs_val)) => {
                                                     arg.nargs = Some(nargs_val.clone());
@@ -274,7 +261,6 @@ pub(crate) fn codegen_expr_stmt(expr: &HirExpr, ctx: &mut CodeGenContext) -> Res
                                             }
                                         }
                                         "type" => {
-                                            // DEPYLER-0367: Map Python types to Rust types
                                             if let HirExpr::Var(type_name) = kw_value {
                                                 match type_name.as_str() {
                                                     "str" => arg.arg_type = Some(crate::hir::Type::String),
@@ -286,7 +272,6 @@ pub(crate) fn codegen_expr_stmt(expr: &HirExpr, ctx: &mut CodeGenContext) -> Res
                                                             Some(crate::hir::Type::Custom("PathBuf".to_string()));
                                                     }
                                                     _ => {
-                                                        // DEPYLER-0447: Track custom validator functions
                                                         // e.g., type=email_address → track "email_address"
                                                         ctx.validator_functions.insert(type_name.clone());
                                                     }
@@ -308,19 +293,16 @@ pub(crate) fn codegen_expr_stmt(expr: &HirExpr, ctx: &mut CodeGenContext) -> Res
                                             arg.default = Some(kw_value.clone());
                                         }
                                         "required" => {
-                                            // DEPYLER-0367: Handle required=True/False
                                             if let HirExpr::Literal(crate::hir::Literal::Bool(req)) = kw_value {
                                                 arg.required = Some(*req);
                                             }
                                         }
                                         "dest" => {
-                                            // DEPYLER-0371: Handle dest="var_name"
                                             if let HirExpr::Literal(crate::hir::Literal::String(dest_name)) = kw_value {
                                                 arg.dest = Some(dest_name.clone());
                                             }
                                         }
                                         "metavar" => {
-                                            // DEPYLER-0372: Handle metavar="FILE"
                                             if let HirExpr::Literal(crate::hir::Literal::String(metavar_name)) =
                                                 kw_value
                                             {
@@ -328,7 +310,6 @@ pub(crate) fn codegen_expr_stmt(expr: &HirExpr, ctx: &mut CodeGenContext) -> Res
                                             }
                                         }
                                         "choices" => {
-                                            // DEPYLER-0373: Handle choices=["a", "b", "c"]
                                             if let HirExpr::List(items) = kw_value {
                                                 let mut choices = Vec::new();
                                                 for item in items {
@@ -342,7 +323,6 @@ pub(crate) fn codegen_expr_stmt(expr: &HirExpr, ctx: &mut CodeGenContext) -> Res
                                             }
                                         }
                                         "const" => {
-                                            // DEPYLER-0374/0375: Handle const value
                                             arg.const_value = Some(kw_value.clone());
                                         }
                                         _ => {
@@ -359,7 +339,6 @@ pub(crate) fn codegen_expr_stmt(expr: &HirExpr, ctx: &mut CodeGenContext) -> Res
                         }
                     }
                     "add_argument_group" | "add_mutually_exclusive_group" | "set_defaults" => {
-                        // DEPYLER-0394: Skip these parser configuration methods
                         // With clap derive, argument groups are handled by struct field organization
                         // Mutually exclusive groups use #[group] attributes
                         // Defaults use field default values
@@ -378,7 +357,7 @@ pub(crate) fn codegen_expr_stmt(expr: &HirExpr, ctx: &mut CodeGenContext) -> Res
 }
 
 // ============================================================================
-// Statement Code Generation Helpers (DEPYLER-0140 Phase 2)
+// Statement Code Generation Helpers 
 // Medium-complexity handlers extracted from HirStmt::to_rust_tokens
 // ============================================================================
 
@@ -391,7 +370,6 @@ pub(crate) fn codegen_return_stmt(
     if let Some(e) = expr {
         let mut expr_tokens = e.to_rust_expr(ctx)?;
 
-        // DEPYLER-0241: Apply type conversion if needed (e.g., usize -> i32 from enumerate())
         if let Some(return_type) = &ctx.current_return_type {
             // Unwrap Optional to get the underlying type
             let target_type = match return_type {
@@ -399,7 +377,6 @@ pub(crate) fn codegen_return_stmt(
                 other => other,
             };
 
-            // DEPYLER-0272: Pass expression to check if cast is actually needed
             if needs_type_conversion(target_type, e) {
                 expr_tokens = apply_type_conversion(expr_tokens, target_type);
             }
@@ -408,13 +385,12 @@ pub(crate) fn codegen_return_stmt(
         // Check if return type is Optional and wrap value in Some()
         let is_optional_return = matches!(ctx.current_return_type.as_ref(), Some(Type::Optional(_)));
 
-        // DEPYLER-0330: DISABLED - Heuristic too broad, breaks plain int variables named "result"
         // Original logic: Unwrap Option-typed variables when returning from non-Optional function
         // Problem: Can't distinguish between:
         //   1. result = d.get(key)  # Option<T> - needs unwrap
         //   2. result = 0           # i32 - breaks with unwrap
-        // NOTE: Re-enable unwrap_or optimization when HIR has type tracking (tracked in DEPYLER-0424)
-        //
+        // NOTE: Re-enable unwrap_or optimization when HIR has type tracking ()
+
         // if !is_optional_return {
         //     if let HirExpr::Var(var_name) = e {
         //         let is_primitive_return = matches!(
@@ -430,11 +406,9 @@ pub(crate) fn codegen_return_stmt(
         // Check if the expression is None literal
         let is_none_literal = matches!(e, HirExpr::Literal(Literal::None));
 
-        // DEPYLER-0271: For final statement in function, omit `return` keyword (idiomatic Rust)
         // Early returns (not final) keep the `return` keyword
         let use_return_keyword = !ctx.is_final_statement;
 
-        // DEPYLER-0357: Check if function returns void (None in Python -> () in Rust)
         // Must check this BEFORE is_optional_return to avoid false positive
         // Python `-> None` maps to Rust `()`, not `Option<T>`
         let is_void_return = matches!(ctx.current_return_type.as_ref(), Some(Type::None));
@@ -455,7 +429,6 @@ pub(crate) fn codegen_return_stmt(
                     Ok(quote! { Ok(Some(#expr_tokens)) })
                 }
             } else if is_optional_return && is_none_literal {
-                // DEPYLER-0277: Return None for Optional types (not ())
                 if use_return_keyword {
                     Ok(quote! { return Ok(None); })
                 } else {
@@ -483,7 +456,6 @@ pub(crate) fn codegen_return_stmt(
                 Ok(quote! { Some(#expr_tokens) })
             }
         } else if is_optional_return && is_none_literal {
-            // DEPYLER-0277: Return None for Optional types (not ()) - non-Result case
             if use_return_keyword {
                 Ok(quote! { return None; })
             } else {
@@ -523,7 +495,6 @@ pub(crate) fn codegen_return_stmt(
 
 /// Generate code for While loop statement
 ///
-/// DEPYLER-0421: Applies Python truthiness conversion to the condition
 #[inline]
 pub(crate) fn codegen_while_stmt(
     condition: &HirExpr,
@@ -532,7 +503,6 @@ pub(crate) fn codegen_while_stmt(
 ) -> Result<proc_macro2::TokenStream> {
     let mut cond = condition.to_rust_expr(ctx)?;
 
-    // DEPYLER-0421: Apply Python truthiness conversion for while loops
     // Convert non-boolean expressions to boolean (e.g., `while queue` where queue: VecDeque)
     cond = apply_truthiness_conversion(condition, cond, ctx);
 
@@ -548,8 +518,6 @@ pub(crate) fn codegen_while_stmt(
 
 /// Generate code for Raise (exception) statement
 ///
-/// DEPYLER-0310: Wraps exceptions with Box::new() when error type is Box<dyn Error>
-/// DEPYLER-0333: Uses scope tracking to determine error handling strategy
 #[inline]
 pub(crate) fn codegen_raise_stmt(
     exception: &Option<HirExpr>,
@@ -557,11 +525,9 @@ pub(crate) fn codegen_raise_stmt(
 ) -> Result<proc_macro2::TokenStream> {
     // For V1, we'll implement basic error handling
     if let Some(exc) = exception {
-        // DEPYLER-0398: Handle argparse.ArgumentTypeError specially
         // Pattern: raise argparse.ArgumentTypeError("message")
         // Extract message and use directly in panic!/error
-        //
-        // DEPYLER-0295: Also handle ValueError, TypeError, KeyError, IndexError
+
         // Pattern: raise ValueError("message")
         // Extract the message to avoid double-wrapping ValueError::new(ValueError::new(...))
         let exc_expr = match exc {
@@ -594,10 +560,8 @@ pub(crate) fn codegen_raise_stmt(
             _ => exc.to_rust_expr(ctx)?,
         };
 
-        // DEPYLER-0333: Extract exception type to check if it's handled
         let exception_type = extract_exception_type(exc);
 
-        // DEPYLER-0438: Set error type flag for generation
         match exception_type.as_str() {
             "ValueError" => ctx.needs_valueerror = true,
             "ArgumentTypeError" => ctx.needs_argumenttypeerror = true,
@@ -606,21 +570,18 @@ pub(crate) fn codegen_raise_stmt(
             _ => {}
         }
 
-        // DEPYLER-0333: Check if exception is caught by current try block
         if ctx.is_exception_handled(&exception_type) {
             // Exception is caught - for now use panic! (control flow jump is complex)
-            // NOTE: Implement proper exception control flow to jump to handler (tracked in DEPYLER-0424)
+            // NOTE: Implement proper exception control flow to jump to handler ()
             Ok(quote! { panic!("{}", #exc_expr); })
         } else if ctx.current_function_can_fail {
             // Exception propagates to caller - use return Err
-            // DEPYLER-0310: Check if we need to wrap with Box::new()
             let needs_boxing = matches!(
                 ctx.current_error_type,
                 Some(crate::rust_gen::context::ErrorType::DynBox)
             );
 
             if needs_boxing {
-                // DEPYLER-0438: Wrap exception in error type constructor if it's a known exception
                 // format!() returns String which doesn't implement std::error::Error
                 // Need to wrap in ValueError::new(), ArgumentTypeError::new(), etc.
                 if exception_type == "ValueError"
@@ -636,7 +597,6 @@ pub(crate) fn codegen_raise_stmt(
                     Ok(quote! { return Err(Box::new(#exc_expr)); })
                 }
             } else {
-                // DEPYLER-0455: Also wrap exception in type constructor when not boxing
                 // Without this, `return Err(format!(...))` returns String instead of ExceptionType
                 if exception_type == "ValueError"
                     || exception_type == "ArgumentTypeError"
@@ -661,7 +621,6 @@ pub(crate) fn codegen_raise_stmt(
     }
 }
 
-/// DEPYLER-0333: Extract exception type from raise statement expression
 ///
 /// # Complexity
 /// 2 (match + clone)
@@ -685,7 +644,6 @@ pub(crate) fn codegen_with_stmt(
     // Convert context expression
     let context_expr = context.to_rust_expr(ctx)?;
 
-    // DEPYLER-0357: Save and restore is_final_statement flag so return statements
     // in with blocks get the explicit 'return' keyword (not treated as final statement)
     let saved_is_final = ctx.is_final_statement;
     ctx.is_final_statement = false;
@@ -699,7 +657,6 @@ pub(crate) fn codegen_with_stmt(
     // Restore is_final_statement flag
     ctx.is_final_statement = saved_is_final;
 
-    // DEPYLER-0387: Detect if context is from open() builtin
     // open() returns std::fs::File which doesn't have __enter__() method
     // For File objects, bind directly; for custom context managers, call __enter__()
     let is_file_open = matches!(
@@ -711,19 +668,16 @@ pub(crate) fn codegen_with_stmt(
     // or binds File directly for open() calls
     // Note: __exit__() is not yet called (Drop trait implementation pending)
     if let Some(var_name) = target {
-        let var_ident = safe_ident(var_name); // DEPYLER-0023
+        let var_ident = safe_ident(var_name);
         ctx.declare_var(var_name);
 
         if is_file_open {
-            // DEPYLER-0387: For open() calls, bind File directly (no __enter__)
-            // DEPYLER-0417: No block wrapper - Python allows accessing variables from with blocks
             Ok(quote! {
                 let #var_ident = #context_expr;
                 #(#body_stmts)*
             })
         } else {
             // For custom context managers, call __enter__()
-            // DEPYLER-0417: No block wrapper - Python allows accessing variables from with blocks
             Ok(quote! {
                 let _context = #context_expr;
                 let #var_ident = _context.__enter__();
@@ -731,7 +685,6 @@ pub(crate) fn codegen_with_stmt(
             })
         }
     } else {
-        // DEPYLER-0417: No block wrapper - Python allows accessing variables from with blocks
         Ok(quote! {
             let _context = #context_expr;
             #(#body_stmts)*
@@ -740,7 +693,7 @@ pub(crate) fn codegen_with_stmt(
 }
 
 // ============================================================================
-// Statement Code Generation Helpers (DEPYLER-0140 Phase 3)
+// Statement Code Generation Helpers 
 // Complex handlers extracted from HirStmt::to_rust_tokens
 // ============================================================================
 
@@ -755,7 +708,7 @@ pub(crate) fn codegen_with_stmt(
 /// - Float: expr != 0.0
 /// - Bool: expr (no conversion)
 ///
-/// # DEPYLER-0339
+/// #
 /// Fixes: `if val` where `val: String` failing to compile
 fn apply_truthiness_conversion(condition: &HirExpr, cond_expr: syn::Expr, ctx: &CodeGenContext) -> syn::Expr {
     // Check if this is a variable reference that needs truthiness conversion
@@ -789,7 +742,6 @@ fn apply_truthiness_conversion(condition: &HirExpr, cond_expr: syn::Expr, ctx: &
         }
     }
 
-    // DEPYLER-0446: Check if this is an attribute access to an optional argparse field
     // Python: if args.output (where output is optional)
     // Rust: if args.output.is_some()
     if let HirExpr::Attribute { value, attr } = condition {
@@ -830,7 +782,6 @@ fn apply_truthiness_conversion(condition: &HirExpr, cond_expr: syn::Expr, ctx: &
         }
     }
 
-    // DEPYLER-0455: Fallback - detect Option types by method call patterns
     // Check if this looks like an Option<T> based on common patterns:
     // - Variable from `env::var(...).ok()` call
     // - Method calls that return Option (dict.get(), etc.)
@@ -842,7 +793,6 @@ fn apply_truthiness_conversion(condition: &HirExpr, cond_expr: syn::Expr, ctx: &
     cond_expr
 }
 
-/// DEPYLER-0455: Heuristic to detect if an expression likely returns Option<T>
 ///
 /// Checks for common patterns that return Option:
 /// - Calls to methods ending with .ok() (Result → Option conversion)
@@ -864,7 +814,6 @@ fn looks_like_option_expr(expr: &HirExpr) -> bool {
     }
 }
 
-/// DEPYLER-0379: Extract all simple symbol assignments from a statement block
 ///
 /// Returns a set of variable names that are assigned (not reassigned) in the block.
 /// Only captures simple symbol assignments like `x = value`, not `x[i] = value` or `x.attr = value`.
@@ -918,7 +867,6 @@ fn extract_assigned_symbols(stmts: &[HirStmt]) -> std::collections::HashSet<Stri
 
 /// Generate code for If statement with optional else clause
 ///
-/// DEPYLER-0379: Implements variable hoisting for if/else blocks to fix scope issues.
 /// Variables assigned in BOTH if and else branches are hoisted before the if statement.
 #[inline]
 pub(crate) fn codegen_if_stmt(
@@ -929,7 +877,6 @@ pub(crate) fn codegen_if_stmt(
 ) -> Result<proc_macro2::TokenStream> {
     use std::collections::HashSet;
 
-    // DEPYLER-0399: Detect subcommand dispatch pattern and convert to match
     if ctx.argparser_tracker.has_subcommands() {
         if let Some(match_stmt) = try_generate_subcommand_match(condition, then_body, else_body, ctx)? {
             return Ok(match_stmt);
@@ -938,7 +885,6 @@ pub(crate) fn codegen_if_stmt(
 
     let mut cond = condition.to_rust_expr(ctx)?;
 
-    // DEPYLER-0308: Auto-unwrap Result<bool> in if conditions
     // When a function returns Result<bool, E> (like is_even with modulo),
     // we need to unwrap it for use in boolean context
     // Check if the condition is a Call to a function that returns Result<bool>
@@ -950,11 +896,9 @@ pub(crate) fn codegen_if_stmt(
         }
     }
 
-    // DEPYLER-0339: Apply Python truthiness conversion
     // Convert non-boolean expressions to boolean (e.g., `if val` where val: String)
     cond = apply_truthiness_conversion(condition, cond, ctx);
 
-    // DEPYLER-0379: Variable hoisting - find variables assigned in BOTH branches
     let hoisted_vars: HashSet<String> = if let Some(else_stmts) = else_body {
         let then_vars = extract_assigned_symbols(then_body);
         let else_vars = extract_assigned_symbols(else_stmts);
@@ -963,11 +907,8 @@ pub(crate) fn codegen_if_stmt(
         HashSet::new()
     };
 
-    // DEPYLER-0379: Generate hoisted variable declarations
-    // DEPYLER-0439: Skip variables already declared in parent scope (prevents shadowing)
     let mut hoisted_decls = Vec::new();
     for var_name in &hoisted_vars {
-        // DEPYLER-0439: Skip if variable is already declared in parent scope
         if ctx.is_declared(var_name) {
             continue;
         }
@@ -981,7 +922,7 @@ pub(crate) fn codegen_if_stmt(
             }
         });
 
-        let var_ident = safe_ident(var_name); // DEPYLER-0023
+        let var_ident = safe_ident(var_name);
 
         if let Some(ty) = var_type {
             let rust_type = ctx.type_mapper.map_type(&ty);
@@ -1028,7 +969,6 @@ pub(crate) fn codegen_if_stmt(
     }
 }
 
-/// DEPYLER-0379: Find the type annotation for a variable in a statement block
 ///
 /// Searches for the first Assign statement that assigns to the given variable
 /// and returns its type annotation if present.
@@ -1061,7 +1001,6 @@ fn is_var_used_in_expr(var_name: &str, expr: &HirExpr) -> bool {
         HirExpr::Unary { operand, .. } => is_var_used_in_expr(var_name, operand),
         HirExpr::Call { func: _, args, .. } => args.iter().any(|arg| is_var_used_in_expr(var_name, arg)),
         HirExpr::MethodCall { object, args, .. } => {
-            // DEPYLER-0307 Fix #6: Check method receiver and arguments for variable usage
             is_var_used_in_expr(var_name, object) || args.iter().any(|arg| is_var_used_in_expr(var_name, arg))
         }
         HirExpr::Index { base, index } => is_var_used_in_expr(var_name, base) || is_var_used_in_expr(var_name, index),
@@ -1110,7 +1049,6 @@ fn is_var_used_in_assign_target(var_name: &str, target: &AssignTarget) -> bool {
 }
 
 /// Check if a variable is used in a statement
-/// DEPYLER-0303 Phase 2: Fixed to check assignment targets too (for `d[k] = v`)
 fn is_var_used_in_stmt(var_name: &str, stmt: &HirStmt) -> bool {
     match stmt {
         HirStmt::Assign { target, value, .. } => {
@@ -1243,7 +1181,6 @@ pub(crate) fn codegen_for_stmt(
     body: &[HirStmt],
     ctx: &mut CodeGenContext,
 ) -> Result<proc_macro2::TokenStream> {
-    // DEPYLER-0272: Check if loop variable(s) are used in body
     // If unused, prefix with _ to avoid unused variable warnings with -D warnings
 
     // Generate target pattern based on AssignTarget type
@@ -1255,7 +1192,7 @@ pub(crate) fn codegen_for_stmt(
             // If unused, prefix with underscore
             let var_name = if is_used { name.clone() } else { format!("_{}", name) };
 
-            let ident = safe_ident(&var_name); // DEPYLER-0023
+            let ident = safe_ident(&var_name);
             parse_quote! { #ident }
         }
         AssignTarget::Tuple(targets) => {
@@ -1267,7 +1204,7 @@ pub(crate) fn codegen_for_stmt(
                         // Check if this specific tuple element is used
                         let is_used = body.iter().any(|stmt| is_var_used_in_stmt(s, stmt));
                         let var_name = if is_used { s.clone() } else { format!("_{}", s) };
-                        safe_ident(&var_name) // DEPYLER-0023
+                        safe_ident(&var_name)
                     }
                     _ => panic!("Nested tuple unpacking not supported in for loops"),
                 })
@@ -1279,7 +1216,6 @@ pub(crate) fn codegen_for_stmt(
 
     let mut iter_expr = iter.to_rust_expr(ctx)?;
 
-    // DEPYLER-0318: For loop borrow generation
     // When iterating over field accesses (e.g., state.items), we MUST use borrows
     // because Rust doesn't allow moving out of struct fields.
     // Determine whether to use & or &mut based on loop body mutations.
@@ -1300,13 +1236,11 @@ pub(crate) fn codegen_for_stmt(
         (None, false)
     };
 
-    // DEPYLER-0388: Handle sys.stdin iteration
     // Python: for line in sys.stdin:
     // Rust: for line in std::io::stdin().lock().lines()
     let is_stdin_iter = matches!(iter, HirExpr::Attribute { value, attr }
         if matches!(&**value, HirExpr::Var(m) if m == "sys") && attr == "stdin");
 
-    // DEPYLER-0388: Handle File object iteration from open()
     // Python: for line in f: (where f = open(...))
     // Rust: use BufReader for efficient line-by-line reading
     // Check if this variable might be a File object
@@ -1329,7 +1263,6 @@ pub(crate) fn codegen_for_stmt(
         // We map to unwrap_or_default() to handle errors gracefully
         iter_expr = parse_quote! { #iter_expr.lines().map(|l| l.unwrap_or_default()) };
     } else if is_file_iter {
-        // DEPYLER-0452 Phase 3: Use BufReader::new(f).lines() for File iteration
         // This is the idiomatic Rust way to iterate over file lines
         // Method call syntax (.lines()) is preferred over trait syntax (BufRead::lines())
         iter_expr = parse_quote! {
@@ -1338,7 +1271,6 @@ pub(crate) fn codegen_for_stmt(
         };
     }
 
-    // DEPYLER-0452: Handle CSV Reader iteration
     // Check if variable name suggests CSV reader (heuristic-based)
     let is_csv_reader = if let HirExpr::Var(var_name) = iter {
         var_name == "reader"
@@ -1372,7 +1304,6 @@ pub(crate) fn codegen_for_stmt(
         }
     }
 
-    // DEPYLER-0318: Apply borrow operator for field access iterators
     // If we determined that a borrow is needed (field access on a parameter),
     // wrap the iterator expression with & or &mut, OR use .iter()/.iter_mut() for special calls
     if let Some(needs_mut) = needs_field_borrow {
@@ -1417,13 +1348,10 @@ pub(crate) fn codegen_for_stmt(
     // Also skip for field access iterators that we just added borrows to
     if !is_stdin_iter && !is_file_iter && !is_csv_reader && needs_field_borrow.is_none() && !is_special_call {
         if let HirExpr::Var(var_name) = iter {
-            // DEPYLER-0419: First check type information from context
             // This is more reliable than name heuristics
             let is_string_type = ctx.var_types.get(var_name).is_some_and(|t| matches!(t, Type::String));
 
-            // DEPYLER-0300/0302: Fall back to name-based heuristics if type not available
             // Strings use .chars() instead of .iter().cloned()
-            // DEPYLER-0302: Exclude plurals (strings, words, etc.) which are collections
             let is_string_name = {
                 let n = var_name.as_str();
                 // Exact matches (singular forms only)
@@ -1445,7 +1373,6 @@ pub(crate) fn codegen_for_stmt(
                 iter_expr = parse_quote! { #iter_expr.chars() };
             } else {
                 // For collections, use .iter().cloned()
-                // DEPYLER-0265: Use .iter().cloned() to automatically clone items
                 // This handles both Copy types (int, float, bool) and Clone types (String, Vec, etc.)
                 // For Copy types, .cloned() is optimized to a simple bit-copy by the compiler.
                 // For Clone types, it calls .clone() which is correct for Rust.
@@ -1457,7 +1384,6 @@ pub(crate) fn codegen_for_stmt(
 
     ctx.enter_scope();
 
-    // DEPYLER-0339: Track loop variable types for truthiness conversion
     // Extract element type from iterator and add to var_types
     let element_type = match iter {
         HirExpr::Var(var_name) => {
@@ -1516,13 +1442,11 @@ pub(crate) fn codegen_for_stmt(
     let body_stmts: Vec<_> = body.iter().map(|s| s.to_rust_tokens(ctx)).collect::<Result<Vec<_>>>()?;
     ctx.exit_scope();
 
-    // DEPYLER-0307 Fix #8: Handle enumerate() usize index casting
     // When iterating with enumerate(), the first element of the tuple is usize
     // If we're destructuring a tuple and the iterator is enumerate(), cast the first variable to i32
     let needs_enumerate_cast = matches!(iter, HirExpr::Call { func, .. } if func == "enumerate")
         && matches!(target, AssignTarget::Tuple(targets) if !targets.is_empty());
 
-    // DEPYLER-0317: Handle string iteration char→String conversion
     // When iterating over strings with .chars(), convert char to String for HashMap<String, _> compatibility
     // Check if we're iterating over a string (will use .chars()) AND target is a simple symbol
     let needs_char_to_string = matches!(iter, HirExpr::Var(name) if {
@@ -1541,13 +1465,12 @@ pub(crate) fn codegen_for_stmt(
         // Get the first variable name from the tuple pattern (the index from enumerate)
         if let AssignTarget::Tuple(targets) = target {
             if let Some(AssignTarget::Symbol(index_var)) = targets.first() {
-                // DEPYLER-0272 Fix: Only add cast if index variable is actually used
                 // If unused, it will be prefixed with _ in target_pattern, so no cast needed
                 let is_index_used = body.iter().any(|stmt| is_var_used_in_stmt(index_var, stmt));
 
                 if is_index_used {
                     // Add a cast statement at the beginning of the loop body
-                    let index_ident = safe_ident(index_var); // DEPYLER-0023
+                    let index_ident = safe_ident(index_var);
                     Ok(quote! {
                         for #target_pattern in #iter_expr {
                             let #index_ident = #index_ident as i32;
@@ -1577,12 +1500,11 @@ pub(crate) fn codegen_for_stmt(
             })
         }
     } else if needs_char_to_string {
-        // DEPYLER-0317: Convert char to String for HashMap<String, _> operations
         // Python: for char in s: freq[char] = ...
         // Rust: for _char in s.chars() { let char = _char.to_string(); ... }
         if let AssignTarget::Symbol(var_name) = target {
-            let var_ident = safe_ident(var_name); // DEPYLER-0023
-            let temp_ident = safe_ident(&format!("_{}", var_name)); // DEPYLER-0023
+            let var_ident = safe_ident(var_name);
+            let temp_ident = safe_ident(&format!("_{}", var_name));
             Ok(quote! {
                 for #temp_ident in #iter_expr {
                     let #var_ident = #temp_ident.to_string();
@@ -1597,12 +1519,11 @@ pub(crate) fn codegen_for_stmt(
             })
         }
     } else if csv_yields_results {
-        // DEPYLER-0452: Unwrap Results from CSV deserialize iteration
         // Python: for row in reader
         // Rust: for result in reader.deserialize() { let row = result?; ... }
         if let AssignTarget::Symbol(var_name) = target {
-            let var_ident = safe_ident(var_name); // DEPYLER-0023
-            let result_ident = safe_ident("result"); // DEPYLER-0023
+            let var_ident = safe_ident(var_name);
+            let result_ident = safe_ident("result");
             Ok(quote! {
                 for #result_ident in #iter_expr {
                     let #var_ident = #result_ident?;
@@ -1661,7 +1582,6 @@ pub(crate) fn codegen_assign_stmt(
     type_annotation: &Option<Type>,
     ctx: &mut CodeGenContext,
 ) -> Result<proc_macro2::TokenStream> {
-    // DEPYLER-0399: Transform CSE assignments for subcommand comparisons
     // When we have subcommands, assignments like `_cse_temp_0 = args.command == "clone"`
     // would try to compare Commands enum to string (won't compile).
     // Transform into a match expression that returns bool:
@@ -1680,10 +1600,9 @@ pub(crate) fn codegen_assign_stmt(
         }
     }
 
-    // DEPYLER-0440: Skip None-placeholder assignments
     // When a variable is initialized with None and later reassigned in if-elif-else,
     // skip the initial None assignment to avoid Option<T> type mismatch.
-    // The hoisting logic (DEPYLER-0439) will handle the declaration with correct type.
+    // The hoisting logic  will handle the declaration with correct type.
     if let AssignTarget::Symbol(var_name) = target {
         if matches!(value, HirExpr::Literal(Literal::None)) && ctx.mutable_vars.contains(var_name) {
             // This is a None placeholder that will be reassigned - skip it
@@ -1691,7 +1610,6 @@ pub(crate) fn codegen_assign_stmt(
         }
     }
 
-    // DEPYLER-0363: Detect ArgumentParser patterns for clap transformation
     // Pattern 1: parser = argparse.ArgumentParser(...) [MethodCall with object=argparse]
     // Pattern 2: args = parser.parse_args() [MethodCall with object=parser]
     if let AssignTarget::Symbol(var_name) = target {
@@ -1748,7 +1666,6 @@ pub(crate) fn codegen_assign_stmt(
                 }
             }
 
-            // DEPYLER-0394/0396: Skip assignments to parser configuration method results
             // Pattern: group = parser.add_argument_group(...)
             //      OR: nested_group = group.add_mutually_exclusive_group(...)
             // These methods aren't needed with clap derive - skip the assignment
@@ -1762,7 +1679,6 @@ pub(crate) fn codegen_assign_stmt(
                         || ctx.argparser_tracker.get_parser_for_group(parent_var).is_some();
 
                     if is_parser_or_group {
-                        // DEPYLER-0396: Register the group variable so we can track
                         // add_argument() calls on it later (e.g., input_group.add_argument())
                         // This handles both:
                         //   - group = parser.add_argument_group() → register group → parser
@@ -1778,7 +1694,6 @@ pub(crate) fn codegen_assign_stmt(
                 }
             }
 
-            // DEPYLER-0399: Detect subparsers = parser.add_subparsers(dest="command", required=True)
             if method == "add_subparsers" {
                 if let HirExpr::Var(parser_var) = object.as_ref() {
                     if ctx.argparser_tracker.get_parser(parser_var).is_some() {
@@ -1805,7 +1720,6 @@ pub(crate) fn codegen_assign_stmt(
                 }
             }
 
-            // DEPYLER-0399: Detect parser_clone = subparsers.add_parser("clone", help="...")
             if method == "add_parser" {
                 if let HirExpr::Var(subparsers_var) = object.as_ref() {
                     if ctx.argparser_tracker.get_subparsers(subparsers_var).is_some() {
@@ -1835,7 +1749,6 @@ pub(crate) fn codegen_assign_stmt(
         }
     }
 
-    // DEPYLER-0279: Detect and handle dict augmented assignment pattern
     // If we have dict[key] += value, avoid borrow-after-move by evaluating old value first
     if is_dict_augassign_pattern(target, value) {
         if let AssignTarget::Index { base, index } = target {
@@ -1865,13 +1778,8 @@ pub(crate) fn codegen_assign_stmt(
         }
     }
 
-    // DEPYLER-0232: Track variable types for class instances
     // This allows proper method dispatch for user-defined classes
-    // DEPYLER-0224: Also track types for set/dict/list literals for proper method dispatch
-    // DEPYLER-0301: Track list/vec types from slicing operations
-    // DEPYLER-0327 Fix #1: Track String type from Vec<String>.get() method calls
     if let AssignTarget::Symbol(var_name) = target {
-        // DEPYLER-0272: Track type from type annotation for function return values
         // This enables correct {:?} vs {} selection in println! for collections
         // Example: result = merge(&a, &b) where merge returns Vec<i32>
         if let Some(annot_type) = type_annotation {
@@ -1889,7 +1797,6 @@ pub(crate) fn codegen_assign_stmt(
                 if ctx.class_names.contains(func) {
                     ctx.var_types.insert(var_name.clone(), Type::Custom(func.clone()));
                 }
-                // DEPYLER-0309: Track builtin collection constructors for proper method dispatch
                 // This enables correct HashSet.contains() vs HashMap.contains_key() selection
                 else if func == "set" {
                     // Infer element type from type annotation or default to Int
@@ -1900,7 +1807,6 @@ pub(crate) fn codegen_assign_stmt(
                     };
                     ctx.var_types.insert(var_name.clone(), Type::Set(Box::new(elem_type)));
                 }
-                // DEPYLER-0269: Track user-defined function return types
                 // Lookup function return type and track it for Display trait selection
                 // Enables: result = merge(&a, &b) where merge returns list[int]
                 else if let Some(ret_type) = ctx.function_return_types.get(func) {
@@ -1908,7 +1814,6 @@ pub(crate) fn codegen_assign_stmt(
                         ctx.var_types.insert(var_name.clone(), ret_type.clone());
                     }
                 }
-                // DEPYLER-0431: Track re.search(), re.match(), re.find() module functions
                 // These all return Option<Match> in Rust
                 else if matches!(func.as_str(), "search" | "match" | "find") {
                     // Only track if this looks like a regex call (needs more context to be sure)
@@ -1919,7 +1824,6 @@ pub(crate) fn codegen_assign_stmt(
                 }
             }
             HirExpr::List(elements) => {
-                // DEPYLER-0269: Track list type from literal for auto-borrowing
                 // When v = [1, 2], mark v as List(Int) so it gets borrowed when calling f(&v)
                 let elem_type = if let Some(Type::List(elem)) = type_annotation {
                     elem.as_ref().clone()
@@ -1933,7 +1837,6 @@ pub(crate) fn codegen_assign_stmt(
                 ctx.var_types.insert(var_name.clone(), Type::List(Box::new(elem_type)));
             }
             HirExpr::Dict(items) => {
-                // DEPYLER-0269: Track dict type from literal for auto-borrowing
                 // When info = {"a": 1}, mark info as Dict(String, Int) so it gets borrowed
                 let (key_type, val_type) = if let Some(Type::Dict(k, v)) = type_annotation {
                     (k.as_ref().clone(), v.as_ref().clone())
@@ -1948,7 +1851,7 @@ pub(crate) fn codegen_assign_stmt(
                     .insert(var_name.clone(), Type::Dict(Box::new(key_type), Box::new(val_type)));
             }
             HirExpr::Set(elements) | HirExpr::FrozenSet(elements) => {
-                // Track set type from literal for proper method dispatch (DEPYLER-0224)
+                // Track set type from literal for proper method dispatch 
                 // Use type annotation if available, otherwise infer from elements
                 let elem_type = if let Some(Type::Set(elem)) = type_annotation {
                     elem.as_ref().clone()
@@ -1962,7 +1865,6 @@ pub(crate) fn codegen_assign_stmt(
                 ctx.var_types.insert(var_name.clone(), Type::Set(Box::new(elem_type)));
             }
             HirExpr::Slice { base, .. } => {
-                // DEPYLER-0301: Track sliced lists as owned Vec types
                 // When rest = numbers[1:], mark rest as List(Int) so it gets borrowed on call
                 // Infer element type from base variable if available
                 let elem_type = if let HirExpr::Var(base_var) = base.as_ref() {
@@ -1976,7 +1878,6 @@ pub(crate) fn codegen_assign_stmt(
                 };
                 ctx.var_types.insert(var_name.clone(), Type::List(Box::new(elem_type)));
             }
-            // DEPYLER-0327 Fix #1: Track types for method call results
             // E.g., value_str = data.get(...) where data: Vec<String> → value_str: String
             HirExpr::MethodCall { object, method, .. } => {
                 // Track .get() on Vec<String> returning String
@@ -1989,7 +1890,6 @@ pub(crate) fn codegen_assign_stmt(
                         }
                     }
                 }
-                // DEPYLER-0421: String methods that return Vec<String> (for truthiness)
                 // Track .split() and .split_whitespace() as List(String) for truthiness conversion
                 else if matches!(method.as_str(), "split" | "split_whitespace" | "splitlines") {
                     ctx.var_types
@@ -2002,7 +1902,6 @@ pub(crate) fn codegen_assign_stmt(
                 ) {
                     ctx.var_types.insert(var_name.clone(), Type::String);
                 }
-                // DEPYLER-0431: Regex methods that return Option<Match>
                 // Track .find(), .search(), .match() as Optional for truthiness conversion
                 else if matches!(method.as_str(), "find" | "search" | "match") {
                     // Check if this is a regex method call (on compiled regex object)
@@ -2011,12 +1910,10 @@ pub(crate) fn codegen_assign_stmt(
                         .insert(var_name.clone(), Type::Optional(Box::new(Type::Unknown)));
                 }
             }
-            // DEPYLER-0269: Track string literal assignments as String type
             // When message = "hello", track message as String so it gets borrowed when calling f(&str)
             HirExpr::Literal(Literal::String(_)) => {
                 ctx.var_types.insert(var_name.clone(), Type::String);
             }
-            // DEPYLER-0431: Track integer/float literal assignments for truthiness conversion
             // When match = 5, track match as Int so `if match:` becomes `if match != 0`
             HirExpr::Literal(Literal::Int(_)) => {
                 ctx.var_types.insert(var_name.clone(), Type::Int);
@@ -2033,19 +1930,17 @@ pub(crate) fn codegen_assign_stmt(
 
     let mut value_expr = value.to_rust_expr(ctx)?;
 
-    // DEPYLER-0270: Auto-unwrap Result-returning function calls in assignments
     // When assigning from a function that returns Result<T, E> in a non-Result context,
     // we need to unwrap it.
-    //
-    // DEPYLER-0422 Fix #8: Also add `?` when BOTH caller and callee return Result
+
     // Fix #6 removed automatic `?` from expr_gen.rs, so we need to add it here at the
     // statement level where we know the variable type context.
-    //
+
     // Five-Whys Root Cause:
     // 1. Why: expected `i32`, found `Result<i32, Box<dyn Error>>`
     // 2. Why: Variable `position: i32` assigned Result-returning function without unwrap
     // 3. Why: Neither `?` nor `.unwrap()` added to function call
-    // 4. Why: Fix #6 removed `?` from expr_gen, and DEPYLER-0270 only adds `.unwrap()` for non-Result callers
+    // 4. Why: Fix #6 removed `?` from expr_gen, and only adds `.unwrap()` for non-Result callers
     // 5. ROOT CAUSE: Missing `?` for Result→Result propagation after Fix #6
     if let HirExpr::Call { func, .. } = value {
         if ctx.result_returning_functions.contains(func) {
@@ -2070,7 +1965,6 @@ pub(crate) fn codegen_assign_stmt(
         let target_rust_type = ctx.type_mapper.map_type(actual_type);
         let target_syn_type = rust_type_to_syn(&target_rust_type)?;
 
-        // DEPYLER-0272: Check if we need type conversion (e.g., usize to i32, &str to String)
         // Pass the value expression to determine if cast is actually needed
         // NOTE: This handles string literals → String conversion via apply_type_conversion
         if needs_type_conversion(actual_type, value) {
@@ -2107,7 +2001,6 @@ pub(crate) fn codegen_assign_symbol(
     is_final: bool,
     ctx: &mut CodeGenContext,
 ) -> Result<proc_macro2::TokenStream> {
-    // DEPYLER-0023: Use safe_ident to escape Rust keywords (match, type, impl, etc.)
     let target_ident = safe_ident(symbol);
 
     // Inside generators, check if variable is a state variable
@@ -2152,7 +2045,6 @@ pub(crate) fn codegen_assign_index(
 ) -> Result<proc_macro2::TokenStream> {
     let mut final_index = index.to_rust_expr(ctx)?;
 
-    // DEPYLER-0304: Type-aware subscript assignment detection
     // Check base variable type to determine if this is Vec or HashMap
     // Vec.insert() requires usize index, HashMap.insert() takes key of any type
     let is_numeric_index = if let HirExpr::Var(base_name) = base {
@@ -2164,7 +2056,6 @@ pub(crate) fn codegen_assign_index(
                 Type::Dict(_, _) => false, // Dict/HashMap → key (not numeric)
                 _ => {
                     // Fall back to index heuristic for other types
-                    // DEPYLER-0449: Check if index looks like a string key before assuming numeric
                     match index {
                         HirExpr::Var(name) => {
                             let name_str = name.as_str();
@@ -2194,7 +2085,6 @@ pub(crate) fn codegen_assign_index(
             }
         } else {
             // No type info - use heuristic
-            // DEPYLER-0449: Check if index looks like a string key before assuming numeric
             match index {
                 HirExpr::Var(name) => {
                     let name_str = name.as_str();
@@ -2223,7 +2113,6 @@ pub(crate) fn codegen_assign_index(
         }
     } else {
         // Base is not a simple variable - use heuristic
-        // DEPYLER-0449: Check if index looks like a string key before assuming numeric
         match index {
             HirExpr::Var(name) => {
                 let name_str = name.as_str();
@@ -2260,7 +2149,6 @@ pub(crate) fn codegen_assign_index(
     // Extract the base and all intermediate indices
     let (base_expr, indices) = extract_nested_indices_tokens(base, ctx)?;
 
-    // DEPYLER-0403: Convert string literals to String for Dict<String, String> values
     // Check if value_expr is a string literal and the dict value type is String
     let value_expr = if !is_numeric_index {
         // Get the base variable name to look up its type
@@ -2314,7 +2202,6 @@ pub(crate) fn codegen_assign_index(
         value_expr
     };
 
-    // DEPYLER-0449: Detect if base is serde_json::Value (needs .as_object_mut())
     // Check variable type from context first, then fall back to name heuristic
     let needs_as_object_mut = if let HirExpr::Var(base_name) = base {
         if !is_numeric_index {
@@ -2353,11 +2240,9 @@ pub(crate) fn codegen_assign_index(
     if indices.is_empty() {
         // Simple assignment: d[k] = v OR list[i] = x
         if is_numeric_index {
-            // DEPYLER-0314: Vec.insert(index as usize, value)
             // Wrap in parentheses to ensure correct operator precedence
             Ok(quote! { #base_expr.insert((#final_index) as usize, #value_expr); })
         } else if needs_as_object_mut {
-            // DEPYLER-0449: serde_json::Value needs .as_object_mut() for insert
             Ok(quote! { #base_expr.as_object_mut().unwrap().insert(#final_index, #value_expr); })
         } else {
             // HashMap.insert(key, value)
@@ -2373,11 +2258,9 @@ pub(crate) fn codegen_assign_index(
         }
 
         if is_numeric_index {
-            // DEPYLER-0314: Vec.insert(index as usize, value)
             // Wrap in parentheses to ensure correct operator precedence
             Ok(quote! { #chain.insert((#final_index) as usize, #value_expr); })
         } else if needs_as_object_mut {
-            // DEPYLER-0449: serde_json::Value needs .as_object_mut() for insert
             Ok(quote! { #chain.as_object_mut().unwrap().insert(#final_index, #value_expr); })
         } else {
             // HashMap.insert(key, value)
@@ -2424,7 +2307,7 @@ pub(crate) fn codegen_assign_tuple(
                 // All variables exist, do reassignment
                 let idents: Vec<_> = symbols
                     .iter()
-                    .map(|s| safe_ident(s)) // DEPYLER-0023
+                    .map(|s| safe_ident(s))
                     .collect();
                 Ok(quote! { (#(#idents),*) = #value_expr; })
             } else {
@@ -2433,7 +2316,7 @@ pub(crate) fn codegen_assign_tuple(
                 let idents_with_mut: Vec<_> = symbols
                     .iter()
                     .map(|s| {
-                        let ident = safe_ident(s); // DEPYLER-0023
+                        let ident = safe_ident(s);
                         if ctx.mutable_vars.contains(*s) {
                             quote! { mut #ident }
                         } else {
@@ -2458,10 +2341,8 @@ pub(crate) fn codegen_try_stmt(
     finalbody: &Option<Vec<HirStmt>>,
     ctx: &mut CodeGenContext,
 ) -> Result<proc_macro2::TokenStream> {
-    // DEPYLER-0358: Detect simple try-except pattern for optimization
     // Pattern: try { return int(str_var) } except ValueError { return literal }
     // We can optimize this to: s.parse::<i32>().unwrap_or(literal)
-    // DEPYLER-0359: Exclude patterns with exception binding (except E as e:)
     // Those need proper match with Err(e) binding
     let simple_pattern_info =
         if body.len() == 1 && handlers.len() == 1 && handlers[0].body.len() == 1 && handlers[0].name.is_none()
@@ -2503,14 +2384,11 @@ pub(crate) fn codegen_try_stmt(
             None
         };
 
-    // DEPYLER-0333: Extract handled exception types for scope tracking
     let handled_types: Vec<String> = handlers.iter().filter_map(|h| h.exception_type.clone()).collect();
 
-    // DEPYLER-0333: Enter try block scope with handled exception types
     // Empty list means bare except (catches all exceptions)
     ctx.enter_try_scope(handled_types.clone());
 
-    // DEPYLER-0360: Check for floor division with ZeroDivisionError handler BEFORE generating try_stmts
     let has_zero_div_handler = handlers
         .iter()
         .any(|h| h.exception_type.as_deref() == Some("ZeroDivisionError"));
@@ -2530,7 +2408,6 @@ pub(crate) fn codegen_try_stmt(
 
                 // Generate handler body
                 ctx.enter_scope();
-                // DEPYLER-0360: Ensure return keyword is included in handler
                 let old_is_final = ctx.is_final_statement;
                 ctx.is_final_statement = false;
                 let handler_stmts: Vec<_> = handlers[zero_div_handler_idx]
@@ -2544,7 +2421,6 @@ pub(crate) fn codegen_try_stmt(
                 // Generate try block expression (with params shadowing)
                 let floor_div_result = expr.to_rust_expr(ctx)?;
 
-                // DEPYLER-0333: Exit try block scope
                 ctx.exit_exception_scope();
 
                 // Generate: if divisor == 0 { handler } else { floor_div_result }
@@ -2580,7 +2456,6 @@ pub(crate) fn codegen_try_stmt(
     }
 
     // Convert try body to statements
-    // DEPYLER-0395: Try block statements should include 'return' keyword
     // Save and temporarily disable is_final_statement so return statements
     // in try blocks get the explicit 'return' keyword (needed for proper exception handling)
     let saved_is_final = ctx.is_final_statement;
@@ -2593,13 +2468,11 @@ pub(crate) fn codegen_try_stmt(
     // Restore is_final_statement flag
     ctx.is_final_statement = saved_is_final;
 
-    // DEPYLER-0333: Exit try block scope
     ctx.exit_exception_scope();
 
     // Generate except handler code
     let mut handler_tokens = Vec::new();
     for handler in handlers {
-        // DEPYLER-0333: Enter handler scope for each except clause
         ctx.enter_handler_scope();
         ctx.enter_scope();
 
@@ -2608,7 +2481,6 @@ pub(crate) fn codegen_try_stmt(
             ctx.declare_var(var_name);
         }
 
-        // DEPYLER-0357: Handler statements should include 'return' keyword
         // Save and temporarily disable is_final_statement so return statements
         // in handlers get the explicit 'return' keyword (needed for proper exception handling)
         let saved_is_final = ctx.is_final_statement;
@@ -2623,7 +2495,6 @@ pub(crate) fn codegen_try_stmt(
         // Restore is_final_statement flag
         ctx.is_final_statement = saved_is_final;
         ctx.exit_scope();
-        // DEPYLER-0333: Exit handler scope
         ctx.exit_exception_scope();
 
         handler_tokens.push(quote! { #(#handler_stmts)* });
@@ -2655,7 +2526,6 @@ pub(crate) fn codegen_try_stmt(
             Ok(quote! { #(#try_stmts)* })
         }
     } else {
-        // DEPYLER-0437/0429: Generate proper match expressions for parse() patterns
         // Check if try_stmts contains a .parse() call that we can convert to match
         if handlers.len() == 1 {
             if let Some((var_name, parse_expr_str, remaining_stmts)) = extract_parse_from_tokens(&try_stmts) {
@@ -2669,7 +2539,6 @@ pub(crate) fn codegen_try_stmt(
                 // Generate Err branch (handler body)
                 let err_body = &handler_tokens[0];
 
-                // DEPYLER-0429: Check if exception variable should be bound
                 let err_pattern = if let Some(exc_var) = &handlers[0].name {
                     // Bind exception variable: Err(e) => { ... }
                     let exc_ident = safe_ident(exc_var);
@@ -2708,7 +2577,6 @@ pub(crate) fn codegen_try_stmt(
             let try_code = quote! { #(#try_stmts)* };
             let try_str = try_code.to_string();
 
-            // DEPYLER-0358: Replace unwrap_or_default() with unwrap_or(exception_value)
             // This handles the case where int(str) generates .parse().unwrap_or_default()
             // but we want .parse().unwrap_or(-1) based on the except clause
             if try_str.contains("unwrap_or_default") {
@@ -2754,10 +2622,8 @@ pub(crate) fn codegen_try_stmt(
                 }
             }
         } else {
-            // DEPYLER-0357: Non-simple patterns - use original concatenation logic
             // Execute try block statements, then if we have a single handler, use it
             if handlers.len() == 1 {
-                // DEPYLER-0359: Check if handler has exception binding for proper match generation
                 if handlers[0].name.is_some() && body.len() == 1 {
                     if let HirStmt::Return(Some(HirExpr::Call { func, args, .. })) = &body[0] {
                         if func == "int" && args.len() == 1 {
@@ -2768,7 +2634,7 @@ pub(crate) fn codegen_try_stmt(
                                 .name
                                 .as_ref()
                                 .map(|s| {
-                                    safe_ident(s) // DEPYLER-0023
+                                    safe_ident(s)
                                 })
                                 .unwrap();
 
@@ -2802,7 +2668,6 @@ pub(crate) fn codegen_try_stmt(
                     }
                 }
 
-                // DEPYLER-0362/0444: Check if try block has error handling (unwrap_or_default, .expect())
                 // If so, don't concatenate handler as it creates invalid syntax or unreachable code
                 let try_code_str = quote! { #(#try_stmts)* }.to_string();
                 let has_error_handling = try_code_str.contains("unwrap_or_default")
@@ -2822,13 +2687,12 @@ pub(crate) fn codegen_try_stmt(
                         Ok(quote! { #(#try_stmts)* })
                     }
                 } else {
-                    // DEPYLER-0444: Check if handler has exception variable binding
                     // If so, skip handler code since we can't bind it in unconditional context
                     let has_exception_binding = handlers[0].name.is_some();
 
                     if has_exception_binding {
                         // Skip handler code - it would reference unbound exception variable
-                        // NOTE: This means exception handlers are not fully implemented (tracked in DEPYLER-0424)
+                        // NOTE: This means exception handlers are not fully implemented ()
                         if let Some(finally_code) = finally_stmts {
                             Ok(quote! {
                                 {
@@ -2851,8 +2715,7 @@ pub(crate) fn codegen_try_stmt(
                                 }
                             })
                         } else {
-                            // DEPYLER-0357: Include handler code after try block
-                            // NOTE: This executes both unconditionally - need proper conditional logic (tracked in DEPYLER-0424)
+                            // NOTE: This executes both unconditionally - need proper conditional logic ()
                             // based on which operations can panic (ZeroDivisionError, IndexError, etc.)
                             Ok(quote! {
                                 {
@@ -2864,7 +2727,6 @@ pub(crate) fn codegen_try_stmt(
                     }
                 }
             } else {
-                // DEPYLER-0359: Multiple handlers - generate conditional error handling
                 // For operations like int(data) with multiple exception types, we need proper
                 // match-based error handling instead of simple unwrap_or
 
@@ -2884,7 +2746,7 @@ pub(crate) fn codegen_try_stmt(
                                     .name
                                     .as_ref()
                                     .map(|s| {
-                                        safe_ident(s) // DEPYLER-0023
+                                        safe_ident(s)
                                     })
                                     .unwrap();
 
@@ -2911,13 +2773,12 @@ pub(crate) fn codegen_try_stmt(
                                     });
                                 }
                             } else if handlers.len() >= 2 {
-                                // DEPYLER-0361: Multiple handlers for int() - include ALL handlers
                                 // Convert: try { return int(data) } except ValueError {...} except TypeError {...}
                                 // To: if let Ok(v) = data.parse::<i32>() { v } else { handler1; handler2; }
 
                                 // NOTE: Rust's parse() returns a single error type, so we can't dispatch
                                 // to specific handlers. We execute all handlers sequentially.
-                                // This is semantically incorrect but compiles. NOTE: Improve error dispatch logic (tracked in DEPYLER-0424)
+                                // This is semantically incorrect but compiles. NOTE: Improve error dispatch logic ()
 
                                 if let Some(finally_code) = finally_stmts {
                                     return Ok(quote! {
@@ -2946,7 +2807,6 @@ pub(crate) fn codegen_try_stmt(
                     }
                 }
 
-                // DEPYLER-0362: Check if try block already handles errors (e.g., unwrap_or_default)
                 // In that case, don't concatenate handler tokens as it creates invalid syntax
                 let try_code_str = quote! { #(#try_stmts)* }.to_string();
                 let has_error_handling =
@@ -2965,7 +2825,6 @@ pub(crate) fn codegen_try_stmt(
                         Ok(quote! { #(#try_stmts)* })
                     }
                 } else {
-                    // DEPYLER-0359: Multiple handlers - include them all
                     // Note: Floor division with ZeroDivisionError is handled earlier (line 1366)
                     if let Some(finally_code) = finally_stmts {
                         Ok(quote! {
@@ -2989,7 +2848,6 @@ pub(crate) fn codegen_try_stmt(
     }
 }
 
-/// DEPYLER-0437: Extract .parse() call from generated token stream
 ///
 /// Looks for pattern: `let var = expr.parse::<i32>().unwrap_or_default();`
 /// Returns: (variable_name, parse_expression_without_unwrap_or, remaining_statements)
@@ -3037,7 +2895,6 @@ fn extract_parse_from_tokens(
     None
 }
 
-/// DEPYLER-0359: Check if an expression contains floor division operation
 fn contains_floor_div(expr: &HirExpr) -> bool {
     match expr {
         HirExpr::Binary {
@@ -3055,7 +2912,6 @@ fn contains_floor_div(expr: &HirExpr) -> bool {
     }
 }
 
-/// DEPYLER-0360: Extract the divisor (right operand) from a floor division expression
 fn extract_divisor_from_floor_div(expr: &HirExpr) -> Result<&HirExpr> {
     match expr {
         HirExpr::Binary {
@@ -3078,7 +2934,6 @@ fn extract_divisor_from_floor_div(expr: &HirExpr) -> Result<&HirExpr> {
     }
 }
 
-/// DEPYLER-0399: Extract string literal from HirExpr
 ///
 /// # Complexity
 /// 2 (pattern match + string clone)
@@ -3089,7 +2944,6 @@ fn extract_string_literal(expr: &HirExpr) -> String {
     }
 }
 
-/// DEPYLER-0399: Extract string value from kwarg by name
 ///
 /// # Complexity
 /// 4 (iterator + filter + match)
@@ -3100,7 +2954,6 @@ fn extract_kwarg_string(kwargs: &[(String, HirExpr)], key: &str) -> Option<Strin
     })
 }
 
-/// DEPYLER-0399: Extract boolean value from kwarg by name
 ///
 /// # Complexity
 /// 4 (iterator + filter + match)
@@ -3112,7 +2965,6 @@ fn extract_kwarg_bool(kwargs: &[(String, HirExpr)], key: &str) -> Option<bool> {
     })
 }
 
-/// DEPYLER-0399: Try to generate a match statement for subcommand dispatch
 ///
 /// Detects patterns like:
 /// ```python
@@ -3228,7 +3080,6 @@ fn try_generate_subcommand_match(
     }))
 }
 
-/// DEPYLER-0399: Check if expression is a subcommand check pattern
 ///
 /// Returns the command name if pattern matches: args.command == "string"
 fn is_subcommand_check(expr: &HirExpr) -> Option<String> {
@@ -3256,7 +3107,6 @@ fn is_subcommand_check(expr: &HirExpr) -> Option<String> {
     }
 }
 
-/// DEPYLER-0399: Convert string to PascalCase for enum variants
 fn to_pascal_case_subcommand(s: &str) -> String {
     s.split(&['-', '_'][..])
         .map(|word| {
@@ -3310,7 +3160,6 @@ impl RustCodeGen for HirStmt {
 }
 
 // ============================================================================
-// DEPYLER-0427: Nested Function Code Generation
 // ============================================================================
 
 /// Convert HIR Type to proc_macro2::TokenStream for code generation

@@ -247,7 +247,6 @@ impl LambdaTestHarness {
         self
     }
 
-    /// Add a custom test event
     pub fn add_test_event(&mut self, event_type: LambdaEventType, test_event: TestEvent) {
         self.test_events
             .entry(event_type)
@@ -255,7 +254,6 @@ impl LambdaTestHarness {
             .push(test_event);
     }
 
-    /// Generate test suite for a Lambda function
     pub fn generate_test_suite(&self, annotations: &LambdaAnnotations) -> Result<String> {
         let mut test_code = String::new();
 
@@ -551,7 +549,6 @@ mod tests {{
         .to_string()
     }
 
-    /// Generate a complete test script for cargo lambda test
     pub fn generate_cargo_lambda_test_script(
         &self,
         annotations: &LambdaAnnotations,
@@ -610,7 +607,6 @@ mod tests {{
         Ok(script)
     }
 
-    /// Generate a GitHub Actions workflow for Lambda testing
     pub fn generate_github_actions_workflow(
         &self,
         annotations: &LambdaAnnotations,
@@ -729,7 +725,6 @@ jobs:
         Ok(yaml)
     }
 
-    /// Generate local development testing script
     pub fn generate_local_dev_script(&self) -> String {
         r#"#!/bin/bash
 # Local development testing script
@@ -777,7 +772,6 @@ echo "🎉 Development testing finished!"
         .to_string()
     }
 
-    /// Generate load testing script
     pub fn generate_load_test_script(&self, annotations: &LambdaAnnotations) -> Result<String> {
         Ok(format!(
             r#"#!/bin/bash

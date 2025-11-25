@@ -124,7 +124,7 @@ pub enum Commands {
         explain: bool,
     },
 
-    /// Compile Python to standalone binary (DEPYLER-0380)
+    /// Compile Python to standalone binary
     Compile {
         /// Input Python file
         input: PathBuf,
@@ -513,8 +513,6 @@ pub enum LambdaCommands {
     },
 }
 
-/// Handle compile command (DEPYLER-0380)
-/// Complexity: 3 (within ≤10 target)
 pub fn compile_command(input: PathBuf, output: Option<PathBuf>, profile: String, verbose: bool) -> Result<()> {
     if verbose {
         println!("🔨 Compiling {} to native binary...", input.display());
@@ -539,11 +537,9 @@ pub fn transpile_command(
 ) -> Result<()> {
     let start = Instant::now();
 
-    // Read input file
     let python_source = fs::read_to_string(&input)?;
     let source_size = python_source.len();
 
-    // Create progress bar
     let pb = ProgressBar::new(4);
     pb.set_style(
         ProgressStyle::default_bar()
@@ -552,7 +548,6 @@ pub fn transpile_command(
             .progress_chars("#>-"),
     );
 
-    // Initialize pipeline
     pb.set_message("Initializing pipeline...");
     let mut pipeline = DepylerPipeline::new();
     if verify {
@@ -574,7 +569,6 @@ pub fn transpile_command(
     }
     pb.inc(1);
 
-    // Trace: Pipeline initialization
     if trace {
         eprintln!("\n=== TRANSPILATION TRACE ===");
         eprintln!("Phase 1: Pipeline Initialization");
@@ -583,22 +577,19 @@ pub fn transpile_command(
         eprintln!("  - Source map: {}", if source_map { "enabled" } else { "disabled" });
         eprintln!();
     }
-    // Parse Python
+
     pb.set_message("Parsing Python source...");
     let parse_start = Instant::now();
 
-    // Trace: AST parsing
     if trace {
         eprintln!("Phase 2: AST Parsing");
         eprintln!("  - Input size: {} bytes", source_size);
         eprintln!("  - Parsing Python source...");
     }
 
-    // DEPYLER-0384: Use transpile_with_dependencies to get both code and dependencies
     let (rust_code, dependencies) = pipeline.transpile_with_dependencies(&python_source)?;
     let parse_time = parse_start.elapsed();
 
-    // Trace: Transpilation complete
     if trace {
         eprintln!("  - Parse time: {:.2}ms", parse_time.as_millis());
         eprintln!("\nPhase 3: Code Generation");
@@ -608,7 +599,6 @@ pub fn transpile_command(
         eprintln!();
     }
 
-    // Explain: Transformation decisions
     if explain {
         eprintln!("\n=== TRANSPILATION EXPLANATION ===");
         eprintln!("Transformation Decisions:");
@@ -623,14 +613,11 @@ pub fn transpile_command(
 
     pb.inc(1);
 
-    // Analyze if requested
     if verify {
         pb.set_message("Analyzing code...");
-        // Analysis would happen here
         pb.inc(1);
     }
 
-    // Generate output
     pb.set_message("Writing output...");
     let output_path = output.unwrap_or_else(|| {
         let mut path = input.clone();
@@ -640,22 +627,17 @@ pub fn transpile_command(
 
     fs::write(&output_path, &rust_code)?;
 
-    // DEPYLER-0384: Generate and write Cargo.toml if dependencies exist
     if !dependencies.is_empty() {
-        // Extract package name from output file stem (e.g., "example_stdlib" from "example_stdlib.rs")
         let package_name = output_path
             .file_stem()
             .and_then(|s| s.to_str())
             .unwrap_or("transpiled_package");
 
-        // Extract source file name for [[bin]] path (DEPYLER-0392)
         let source_file_name = output_path.file_name().and_then(|s| s.to_str()).unwrap_or("main.rs");
 
-        // Generate Cargo.toml content
         let cargo_toml_content =
             depyler_core::cargo_toml_gen::generate_cargo_toml(package_name, source_file_name, &dependencies);
 
-        // Write Cargo.toml to the same directory as the output file
         let mut cargo_toml_path = output_path.clone();
         cargo_toml_path.set_file_name("Cargo.toml");
 
@@ -670,21 +652,17 @@ pub fn transpile_command(
 
     pb.finish_and_clear();
 
-    // Generate tests if requested
     if gen_tests {
         let test_path = output_path.with_extension("test.rs");
-        // Test generation would happen here
         println!("✅ Generated tests: {}", test_path.display());
     }
 
-    // Print summary
     let total_time = start.elapsed();
     let throughput = (source_size as f64 / 1024.0) / parse_time.as_secs_f64();
 
     println!("📄 Source: {} ({} bytes)", input.display(), source_size);
     println!("📝 Output: {} ({} bytes)", output_path.display(), rust_code.len());
 
-    // DEPYLER-0384: Show Cargo.toml generation
     if !dependencies.is_empty() {
         let mut cargo_toml_path = output_path.clone();
         cargo_toml_path.set_file_name("Cargo.toml");
@@ -707,18 +685,15 @@ pub fn transpile_command(
 }
 
 pub fn analyze_command(input: PathBuf, format: String) -> Result<()> {
-    // Read and parse
     let python_source = fs::read_to_string(&input)?;
     let _pipeline = DepylerPipeline::new();
 
-    // Parse to HIR
     let ast = {
         use rustpython_parser::{Mode, parse};
         parse(&python_source, Mode::Module, "<input>")?
     };
     let hir = depyler_core::ast_bridge::python_to_hir(ast)?;
 
-    // Analyze
     let analyzer = Analyzer::new();
     let analysis = analyzer.analyze(&hir)?;
 
@@ -728,7 +703,6 @@ pub fn analyze_command(input: PathBuf, format: String) -> Result<()> {
             println!("{json}");
         }
         _ => {
-            // Text format
             println!("Source: {} ({} KB)", input.display(), python_source.len() / 1024);
             println!("Functions: {}", analysis.module_metrics.total_functions);
             println!(
@@ -747,7 +721,6 @@ pub fn check_command(input: PathBuf) -> Result<()> {
     let python_source = fs::read_to_string(&input)?;
     let pipeline = DepylerPipeline::new();
 
-    // Try to transpile
     match pipeline.transpile(&python_source) {
         Ok(_) => {
             println!("✓ {} can be transpiled directly", input.display());
@@ -943,10 +916,7 @@ pub fn inspect_python_ast(python_source: &str, format: &str) -> Result<String> {
     let ast = parse(python_source, Mode::Module, "<input>")?;
 
     match format {
-        "json" => {
-            // rustpython_ast doesn't implement Serialize, so use debug format for JSON
-            Ok(format!("{ast:#?}"))
-        }
+        "json" => Ok(format!("{ast:#?}")),
         "debug" => Ok(format!("{ast:#?}")),
         "pretty" => Ok(format_python_ast_pretty(&ast)),
         _ => Err(anyhow::anyhow!("Unknown format: {}", format)),
@@ -1003,7 +973,6 @@ pub fn format_hir_pretty(hir: &depyler_core::hir::HirModule) -> String {
     output.push_str("🦀 Depyler HIR Structure\n");
     output.push_str("=========================\n\n");
 
-    // Functions
     output.push_str(&format!("🔧 Functions ({}):\n", hir.functions.len()));
     for (i, func) in hir.functions.iter().enumerate() {
         output.push_str(&format!("\n{}. Function: {}\n", i + 1, func.name));
@@ -1023,7 +992,6 @@ pub fn format_hir_pretty(hir: &depyler_core::hir::HirModule) -> String {
 }
 
 pub fn check_rust_compilation(python_file: &std::path::Path) -> Result<bool> {
-    // Convert Python file to expected Rust file
     let rust_file = python_file.with_extension("rs");
     check_rust_compilation_for_file(rust_file.to_str().unwrap())
 }
@@ -1190,7 +1158,6 @@ pub fn lambda_analyze_command(input: PathBuf, format: String, confidence: f64) -
 /// Maps EventType from depyler_core to LambdaEventType from depyler_annotations
 ///
 /// This helper converts between the two enum types used in different crates.
-/// Complexity: 7 (one match with 7 arms)
 fn infer_and_map_event_type(
     inferred_type: depyler_core::lambda_inference::EventType,
 ) -> depyler_annotations::LambdaEventType {
@@ -1212,7 +1179,6 @@ fn infer_and_map_event_type(
 /// Creates a LambdaGenerationContext from annotations and transpiled Rust code
 ///
 /// This helper builds the context structure needed for Lambda code generation.
-/// Complexity: 1 (simple struct construction)
 fn create_lambda_generation_context(
     lambda_annotations: &depyler_annotations::LambdaAnnotations,
     rust_code: String,
@@ -1232,7 +1198,6 @@ fn create_lambda_generation_context(
 
 /// Configures LambdaCodeGenerator with optimization profile if requested
 ///
-/// Complexity: 3 (optimize check + nested if + optimization setup)
 fn setup_lambda_generator(
     optimize: bool,
     lambda_annotations: &depyler_annotations::LambdaAnnotations,
@@ -1256,7 +1221,6 @@ fn setup_lambda_generator(
 
 /// Writes core Lambda project files (main.rs, Cargo.toml, build.sh, README.md)
 ///
-/// Complexity: 2 (Unix permission check)
 fn write_lambda_project_files(output_dir: &Path, project: &LambdaProject) -> Result<()> {
     fs::create_dir_all(output_dir)?;
     fs::create_dir_all(output_dir.join("src"))?;
@@ -1281,7 +1245,6 @@ fn write_lambda_project_files(output_dir: &Path, project: &LambdaProject) -> Res
 
 /// Writes deployment templates (SAM/CDK) if deploy flag is set
 ///
-/// Complexity: 3 (deploy check + 2 optional template writes)
 fn write_deployment_templates(output_dir: &Path, project: &LambdaProject, deploy: bool) -> Result<()> {
     if deploy {
         if let Some(ref sam_template) = project.sam_template {
@@ -1296,7 +1259,6 @@ fn write_deployment_templates(output_dir: &Path, project: &LambdaProject, deploy
 
 /// Generates and writes test suite files if tests flag is set
 ///
-/// Complexity: 3 (tests check + Unix permission check)
 fn generate_and_write_tests(
     output_dir: &Path,
     lambda_annotations: &depyler_annotations::LambdaAnnotations,
@@ -1323,7 +1285,6 @@ fn generate_and_write_tests(
 
 /// Prints completion summary and next steps
 ///
-/// Complexity: 3 (optimize/tests/deploy conditionals in output)
 #[allow(clippy::too_many_arguments)]
 fn print_lambda_summary(
     input: &Path,

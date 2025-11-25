@@ -6,15 +6,14 @@
 use anyhow::Result;
 use clap::Args;
 use depyler_core::{
-    documentation::{DocConfig, DocGenerator},
     DepylerPipeline,
+    documentation::{DocConfig, DocGenerator},
 };
 use std::fs;
 use std::path::{Path, PathBuf};
 
 #[derive(Debug, Args)]
 pub struct DocsArgs {
-    /// Path to Python file or directory
     pub input: PathBuf,
 
     /// Output directory for documentation
@@ -176,10 +175,7 @@ fn generate_index(args: &DocsArgs) -> Result<()> {
         if path.extension().is_some_and(|ext| ext == "md") {
             if let Some(name) = path.file_stem() {
                 let name_str = name.to_string_lossy();
-                if !name_str.ends_with("_api")
-                    && !name_str.ends_with("_usage")
-                    && name_str != "index"
-                {
+                if !name_str.ends_with("_api") && !name_str.ends_with("_usage") && name_str != "index" {
                     modules.push(name_str.to_string());
                 }
             }

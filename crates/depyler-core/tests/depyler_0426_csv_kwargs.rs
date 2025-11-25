@@ -1,4 +1,3 @@
-// DEPYLER-0426: csv.DictWriter keyword argument support
 //
 // Tests that csv.DictWriter(file, fieldnames=['col1', 'col2']) correctly
 // threads keyword arguments through the method call chain.

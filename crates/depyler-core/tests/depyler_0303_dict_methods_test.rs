@@ -1,4 +1,3 @@
-// DEPYLER-0303 Phase 1: Dictionary/HashMap Method Quick Wins Test
 // Tests for:
 // 1. &&str vs &str fixes (contains_key, remove)
 // 2. Immutable HashMap parameters (mut keyword for insert, clear)
@@ -89,7 +88,6 @@ def has_key(d: dict[str, int], key: str) -> bool:
         "Should NOT contain &&key double reference"
     );
 
-    // DEPYLER-0449: Now uses .get(&key).is_some() instead of .contains_key()
     // This works for both HashMap and serde_json::Value
     assert!(
         rust_code.contains(".get(&key).is_some()") || rust_code.contains(".get(key).is_some()"),

@@ -43,7 +43,6 @@ impl TypeExtractor {
             ast::Expr::Subscript(s) => Self::extract_generic_type(s),
             // Handle None constant (used in -> None return annotations)
             ast::Expr::Constant(c) if matches!(c.value, ast::Constant::None) => Ok(Type::None),
-            // DEPYLER-0273: Handle PEP 604 union syntax (int | None)
             ast::Expr::BinOp(b) if matches!(b.op, ast::Operator::BitOr) => {
                 Self::extract_union_from_binop(b)
             }
@@ -206,12 +205,10 @@ impl TypeExtractor {
         }
     }
 
-    /// DEPYLER-0273: Extract union type from PEP 604 binary operator syntax (T | U)
     ///
     /// Handles Python 3.10+ union type syntax like `int | None`, `int | str | None`.
     /// Special case: `T | None` is converted to `Optional[T]` (Rust's `Option<T>`)
     ///
-    /// Complexity: 8 (recursive collection of union types)
     fn extract_union_from_binop(b: &ast::ExprBinOp) -> Result<Type> {
         // Collect all types in the union chain (left | middle | right)
         let mut types = Vec::new();

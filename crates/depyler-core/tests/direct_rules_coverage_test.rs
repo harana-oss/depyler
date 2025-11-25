@@ -1,6 +1,6 @@
 //! direct_rules.rs Coverage Expansion Tests
 //!
-//! DEPYLER-0152 Phase 2C: Property + Mutation testing for type conversion and code generation
+//! issue Phase 2C: Property + Mutation testing for type conversion and code generation
 //! Target: 63.80% → 75%+ coverage (629 missed lines)
 //!
 //! Test Structure (MANDATORY):
@@ -290,7 +290,7 @@ mod mutation_tests {
         // 1. int → i64 instead of i32 (wrong default type)
         // 2. float → f32 instead of f64 (wrong default type)
         // 3. list → Array instead of Vec (wrong container)
-        //
+
         // Kill Strategy:
         // - Verify int maps to i32 (not i64)
         // - Verify float maps to f64 (not f32)
@@ -330,7 +330,7 @@ def typed_function(i_val: int, f_val: float, items: list[int]) -> int:
         // 1. % → / (modulo → division)
         // 2. // → / (floor division → regular division)
         // 3. ** → * (power → multiplication)
-        //
+
         // Kill Strategy:
         // - Verify % operator is preserved for modulo
         // - Verify // generates floor division logic
@@ -359,7 +359,7 @@ def operations(a: int, b: int) -> int:
         // 1. let → const (wrong mutability)
         // 2. = → := (wrong syntax)
         // 3. Remove let keyword (invalid Rust)
-        //
+
         // Kill Strategy:
         // - Verify let keyword or CSE temps are used for intermediate values
         // - Verify = is used for assignment
@@ -397,7 +397,7 @@ def assign_vars():
         // 1. struct → enum (wrong type)
         // 2. pub struct → struct (wrong visibility)
         // 3. Missing field declarations (incomplete struct)
-        //
+
         // Kill Strategy:
         // - Verify struct keyword is used
         // - Verify fields are generated from __init__

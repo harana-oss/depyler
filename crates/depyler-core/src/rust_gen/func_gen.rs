@@ -16,7 +16,6 @@ use syn::{self, parse_quote};
 use super::analyze_mutable_vars;
 
 /// Check if a name is a Rust keyword that requires raw identifier syntax
-/// DEPYLER-0306: Copied from expr_gen.rs to support method name keyword handling
 fn is_rust_keyword(name: &str) -> bool {
     matches!(
         name,
@@ -177,7 +176,6 @@ pub(crate) fn codegen_function_attrs(
 }
 
 // ============================================================================
-// DEPYLER-0141 Phase 2: Medium Complexity Helpers
 // ============================================================================
 
 /// Process function body statements with proper scoping
@@ -192,7 +190,6 @@ pub(crate) fn codegen_function_body(
     ctx.enter_scope();
     ctx.current_function_can_fail = can_fail;
     ctx.current_return_type = Some(func.ret_type.clone());
-    // DEPYLER-0310: Set error type for raise statement wrapping
     ctx.current_error_type = error_type;
 
     for param in &func.params {
@@ -201,10 +198,8 @@ pub(crate) fn codegen_function_body(
         ctx.var_types.insert(param.name.clone(), param.ty.clone());
     }
 
-    // DEPYLER-0312 NOTE: analyze_mutable_vars is now called in impl RustCodeGen BEFORE
     // codegen_function_params, so ctx.mutable_vars is already populated here
 
-    // DEPYLER-0271: Convert body, marking final statement for expression-based returns
     let body_len = func.body.len();
     let body_stmts: Vec<_> = func
         .body
@@ -225,7 +220,6 @@ pub(crate) fn codegen_function_body(
 }
 
 // ============================================================================
-// DEPYLER-0141 Phase 3: Complex Sections
 // ============================================================================
 
 // ========== Phase 3a: Parameter Conversion ==========
@@ -251,12 +245,10 @@ fn codegen_single_param(
     ctx: &mut CodeGenContext,
 ) -> Result<proc_macro2::TokenStream> {
     // Use parameter name directly to ensure signature matches body references
-    // DEPYLER-0357: Removed underscore prefixing logic that was causing compilation errors
     // Parameter names in signature must match exactly how they're referenced in function body
     let param_name = param.name.clone();
     let param_ident = syn::Ident::new(&param_name, proc_macro2::Span::call_site());
 
-    // DEPYLER-0424: Check if this parameter is the argparse args variable
     // If so, type it as &Args instead of default type mapping
     let is_argparse_args = ctx.argparser_tracker.parsers.values().any(|parser_info| {
         parser_info
@@ -270,7 +262,6 @@ fn codegen_single_param(
         return Ok(quote! { #param_ident: &Args });
     }
 
-    // DEPYLER-0XXX: Check if interprocedural analysis requires &mut for this param
     // This handles cases where the param is passed down a call chain from a borrowing caller
     let param_idx = func.params.iter().position(|p| p.name == param.name);
     let interprocedural_needs_mut = param_idx
@@ -282,12 +273,10 @@ fn codegen_single_param(
         })
         .unwrap_or(false);
 
-    // DEPYLER-0312: Use mutable_vars populated by analyze_mutable_vars
     // This handles ALL mutation patterns: direct assignment, method calls, and parameter reassignments
     // The analyze_mutable_vars function already checked all mutation patterns in codegen_function_body
     let is_mutated_in_body = ctx.mutable_vars.contains(&param.name);
 
-    // DEPYLER-0XXX: If interprocedural analysis says needs_mut but no direct mutation,
     // this means the param is passed from a caller that borrows - must also borrow
     let force_borrow_from_call_chain = interprocedural_needs_mut && !is_mutated_in_body;
 
@@ -301,7 +290,6 @@ fn codegen_single_param(
 
     let is_param_mutated = is_mutated_in_body && takes_ownership;
 
-    // DEPYLER-0447: Detect argparse validator functions (tracked at add_argument() call sites)
     // These should ALWAYS have &str parameter type regardless of type inference
     // Validators are detected when processing add_argument(type=validator_func)
     let is_argparse_validator = ctx.validator_functions.contains(&func.name);
@@ -344,10 +332,8 @@ fn codegen_single_param(
 
         update_import_needs(ctx, &actual_rust_type);
 
-        // DEPYLER-0330: Override needs_mut for borrowed parameters that are mutated
         // If analyze_mutable_vars detected mutation (via .remove(), .clear(), etc.)
         // and this parameter will be borrowed (&T), upgrade to &mut T
-        // DEPYLER-0XXX: Also force &mut if call chain propagation requires it
         let mut inferred_with_mut = inferred.clone();
         if force_borrow_from_call_chain {
             // Force borrowing with &mut for call chain requirements
@@ -377,7 +363,6 @@ fn codegen_single_param(
         update_import_needs(ctx, &rust_type);
         let ty = rust_type_to_syn(&rust_type)?;
 
-        // DEPYLER-0XXX: If call chain propagation requires borrowing, apply &mut
         if force_borrow_from_call_chain {
             // Track this parameter as already being &mut so we don't add &mut again at call sites
             ctx.current_func_mut_ref_params.insert(param.name.clone());
@@ -400,7 +385,6 @@ fn apply_param_borrowing_strategy(
 ) -> Result<syn::Type> {
     let mut ty = rust_type_to_syn(rust_type)?;
 
-    // DEPYLER-0275: Check if lifetimes should be elided
     // If lifetime_params is empty, Rust's elision rules apply - don't add explicit lifetimes
     let should_elide_lifetimes = lifetime_result.lifetime_params.is_empty();
 
@@ -410,7 +394,6 @@ fn apply_param_borrowing_strategy(
             crate::borrowing_context::BorrowingStrategy::UseCow { lifetime } => {
                 ctx.needs_cow = true;
 
-                // DEPYLER-0282 FIX: Parameters should NEVER use 'static lifetime
                 // For parameters, we need borrowed data that can be passed from local scope
                 // Use generic lifetime or elide it - never 'static for parameters
                 if should_elide_lifetimes {
@@ -451,7 +434,6 @@ fn apply_param_borrowing_strategy(
 }
 
 /// Apply borrowing (&, &mut, with lifetime) to a type
-/// DEPYLER-0275: Added should_elide_lifetimes parameter to respect Rust elision rules
 fn apply_borrowing_to_type(
     mut ty: syn::Type,
     rust_type: &crate::type_mapper::RustType,
@@ -460,7 +442,6 @@ fn apply_borrowing_to_type(
 ) -> Result<syn::Type> {
     // Special case for strings: use &str instead of &String
     if matches!(rust_type, crate::type_mapper::RustType::String) {
-        // DEPYLER-0275: Elide lifetime if elision rules apply
         if should_elide_lifetimes || inferred.lifetime.is_none() {
             ty = if inferred.needs_mut {
                 parse_quote! { &mut str }
@@ -483,7 +464,6 @@ fn apply_borrowing_to_type(
         }
     } else {
         // Non-string types
-        // DEPYLER-0275: Elide lifetime if elision rules apply
         if should_elide_lifetimes || inferred.lifetime.is_none() {
             ty = if inferred.needs_mut {
                 parse_quote! { &mut #ty }
@@ -591,8 +571,6 @@ fn function_returns_owned_string(func: &HirFunction) -> bool {
     false
 }
 
-// DEPYLER-0270: String Concatenation Detection
-
 /// Check if an expression contains string concatenation (which returns owned String)
 fn contains_string_concatenation(expr: &HirExpr) -> bool {
     match expr {
@@ -640,19 +618,17 @@ pub(crate) fn return_type_expects_float(ty: &Type) -> bool {
     }
 }
 
-// ========== DEPYLER-0410: Return Type Inference from Body ==========
+// ========== Return Type Inference from Body ==========
 
 /// Infer return type from function body when no annotation is provided
 /// Returns None if type cannot be inferred or there are no return statements
 fn infer_return_type_from_body(body: &[HirStmt]) -> Option<Type> {
-    // DEPYLER-0415: Build type environment from variable assignments
     let mut var_types: std::collections::HashMap<String, Type> = std::collections::HashMap::new();
     build_var_type_env(body, &mut var_types);
 
     let mut return_types = Vec::new();
     collect_return_types_with_env(body, &mut return_types, &var_types);
 
-    // DEPYLER-0412: Also check for trailing expression (implicit return)
     // If the last statement is an expression without return, it's an implicit return
     if let Some(HirStmt::Expr(expr)) = body.last() {
         let trailing_type = infer_expr_type_with_env(expr, &var_types);
@@ -673,11 +649,10 @@ fn infer_return_type_from_body(body: &[HirStmt]) -> Option<Type> {
         }
     }
 
-    // DEPYLER-0448: Do NOT default Unknown to Int - this causes dict/list/Value returns
     // to be incorrectly typed as i32. Instead, return None and let the type mapper
     // handle the fallback (which will use serde_json::Value for complex types).
-    //
-    // Previous behavior (DEPYLER-0422): Defaulted Unknown → Int for lambda returns
+
+    // Previous behavior : Defaulted Unknown → Int for lambda returns
     // Problem: This also affected dict/list returns, causing E0308 errors
     // New behavior: Return None for Unknown types, allowing proper Value fallback
     if return_types.iter().all(|t| matches!(t, Type::Unknown)) {
@@ -690,7 +665,7 @@ fn infer_return_type_from_body(body: &[HirStmt]) -> Option<Type> {
     first_known.cloned()
 }
 
-// ========== DEPYLER-0415: Variable Type Environment ==========
+// ========== Variable Type Environment ==========
 
 /// Build a type environment by collecting variable assignments
 fn build_var_type_env(stmts: &[HirStmt], var_types: &mut std::collections::HashMap<String, Type>) {
@@ -701,7 +676,6 @@ fn build_var_type_env(stmts: &[HirStmt], var_types: &mut std::collections::HashM
                 value,
                 ..
             } => {
-                // DEPYLER-0415: Use the environment we're building for lookups
                 let value_type = infer_expr_type_with_env(value, var_types);
                 if !matches!(value_type, Type::Unknown) {
                     var_types.insert(name.clone(), value_type);
@@ -796,7 +770,6 @@ fn collect_return_types_with_env(
 /// Infer expression type with access to variable type environment
 fn infer_expr_type_with_env(expr: &HirExpr, var_types: &std::collections::HashMap<String, Type>) -> Type {
     match expr {
-        // DEPYLER-0415: Look up variable types in the environment
         HirExpr::Var(name) => var_types.get(name).cloned().unwrap_or(Type::Unknown),
         // For other expressions, delegate to the simple version
         // but recurse with environment for nested expressions
@@ -808,7 +781,6 @@ fn infer_expr_type_with_env(expr: &HirExpr, var_types: &std::collections::HashMa
                 return Type::Bool;
             }
 
-            // DEPYLER-0420: Detect array repeat patterns: [elem] * n or n * [elem]
             if matches!(op, BinOp::Mul) {
                 match (left.as_ref(), right.as_ref()) {
                     // Pattern: [elem] * n
@@ -857,7 +829,6 @@ fn infer_expr_type_with_env(expr: &HirExpr, var_types: &std::collections::HashMa
                 infer_expr_type_with_env(orelse, var_types)
             }
         }
-        // DEPYLER-0420: Handle tuples with environment for variable lookups
         HirExpr::Tuple(elems) => {
             let elem_types: Vec<Type> = elems.iter().map(|e| infer_expr_type_with_env(e, var_types)).collect();
             Type::Tuple(elem_types)
@@ -868,7 +839,7 @@ fn infer_expr_type_with_env(expr: &HirExpr, var_types: &std::collections::HashMa
 }
 
 // NOTE: collect_return_types() removed - replaced by collect_return_types_with_env()
-// which provides better type inference using variable type environment (DEPYLER-0415)
+// which provides better type inference using variable type environment
 
 /// Simple expression type inference without context
 /// Handles common cases like literals, comparisons, and arithmetic
@@ -884,7 +855,6 @@ fn infer_expr_type_simple(expr: &HirExpr) -> Type {
                 return Type::Bool;
             }
 
-            // DEPYLER-0420: Detect array repeat patterns: [elem] * n or n * [elem]
             if matches!(op, BinOp::Mul) {
                 match (left.as_ref(), right.as_ref()) {
                     // Pattern: [elem] * n
@@ -970,7 +940,6 @@ fn infer_expr_type_simple(expr: &HirExpr) -> Type {
                 infer_expr_type_simple(orelse)
             }
         }
-        // DEPYLER-0414: Add Index expression type inference
         HirExpr::Index { base, .. } => {
             // For arr[i], return element type of the container
             match infer_expr_type_simple(base) {
@@ -981,14 +950,11 @@ fn infer_expr_type_simple(expr: &HirExpr) -> Type {
                 _ => Type::Int,               // Default to Int for array-like indexing
             }
         }
-        // DEPYLER-0414: Add Slice expression type inference
         HirExpr::Slice { base, .. } => {
             // Slicing returns same container type
             infer_expr_type_simple(base)
         }
-        // DEPYLER-0414: Add FString type inference (always String)
         HirExpr::FString { .. } => Type::String,
-        // DEPYLER-0414: Add Call expression type inference
         HirExpr::Call { func, .. } => {
             // Common builtin functions with known return types
             match func.as_str() {
@@ -1006,7 +972,6 @@ fn infer_expr_type_simple(expr: &HirExpr) -> Type {
                 _ => Type::Unknown,
             }
         }
-        // DEPYLER-0414: Add MethodCall expression type inference
         HirExpr::MethodCall { object, method, .. } => {
             match method.as_str() {
                 // String methods that return String
@@ -1038,16 +1003,12 @@ fn infer_expr_type_simple(expr: &HirExpr) -> Type {
                 _ => Type::Unknown,
             }
         }
-        // DEPYLER-0414: Add ListComp type inference
         HirExpr::ListComp { element, .. } => Type::List(Box::new(infer_expr_type_simple(element))),
-        // DEPYLER-0414: Add SetComp type inference
         HirExpr::SetComp { element, .. } => Type::Set(Box::new(infer_expr_type_simple(element))),
-        // DEPYLER-0414: Add DictComp type inference
         HirExpr::DictComp { key, value, .. } => Type::Dict(
             Box::new(infer_expr_type_simple(key)),
             Box::new(infer_expr_type_simple(value)),
         ),
-        // DEPYLER-0414: Add Attribute type inference
         HirExpr::Attribute { attr, .. } => {
             // Common attributes with known types
             match attr.as_str() {
@@ -1075,7 +1036,6 @@ fn literal_to_type(lit: &Literal) -> Type {
 
 /// Generate return type with Result wrapper and lifetime handling
 ///
-/// DEPYLER-0310: Now returns ErrorType (4th tuple element) for raise statement wrapping
 #[inline]
 pub(crate) fn codegen_return_type(
     func: &HirFunction,
@@ -1087,8 +1047,6 @@ pub(crate) fn codegen_return_type(
     bool,
     Option<crate::rust_gen::context::ErrorType>,
 )> {
-    // DEPYLER-0410: Infer return type from body when annotation is Unknown
-    // DEPYLER-0420: Also infer when tuple/list contains Unknown elements
     let should_infer = matches!(func.ret_type, Type::Unknown)
         || matches!(&func.ret_type, Type::Tuple(elems) if elems.iter().any(|t| matches!(t, Type::Unknown)))
         || matches!(&func.ret_type, Type::List(elem) if matches!(**elem, Type::Unknown));
@@ -1151,12 +1109,10 @@ pub(crate) fn codegen_return_type(
         "Box<dyn std::error::Error>".to_string()
     };
 
-    // DEPYLER-0447: Validators always use Box<dyn Error> for compatibility with clap
     if ctx.validator_functions.contains(&func.name) {
         error_type_str = "Box<dyn std::error::Error>".to_string();
     }
 
-    // DEPYLER-0310: Determine ErrorType for raise statement wrapping
     // If Box<dyn Error>, we need to wrap exceptions with Box::new()
     // If concrete type, no wrapping needed
     let error_type = if can_fail {
@@ -1169,7 +1125,6 @@ pub(crate) fn codegen_return_type(
         None
     };
 
-    // DEPYLER-0327 Fix #5: Mark error types as needed for type generation
     // Check BOTH error_type_str (for functions that return Result) AND
     // func.properties.error_types (for types used in try/except blocks)
     if error_type_str.contains("ZeroDivisionError") {
@@ -1207,7 +1162,6 @@ pub(crate) fn codegen_return_type(
     } else {
         let mut ty = rust_type_to_syn(&rust_ret_type)?;
 
-        // DEPYLER-0270: Check if function returns string concatenation
         // String concatenation (format!(), a + b) always returns owned String
         // Never use Cow for concatenation results
         let returns_concatenation =
@@ -1292,14 +1246,12 @@ pub(crate) fn codegen_return_type(
 
 impl RustCodeGen for HirFunction {
     fn to_rust_tokens(&self, ctx: &mut CodeGenContext) -> Result<proc_macro2::TokenStream> {
-        // DEPYLER-0306 FIX: Use raw identifiers for function names that are Rust keywords
         let name = if is_rust_keyword(&self.name) {
             syn::Ident::new_raw(&self.name, proc_macro2::Span::call_site())
         } else {
             syn::Ident::new(&self.name, proc_macro2::Span::call_site())
         };
 
-        // DEPYLER-0269: Track function return type for Display trait selection
         // Store function return type in ctx for later lookup when processing assignments
         // This enables tracking `result = merge(&a, &b)` where merge returns list[int]
         ctx.function_return_types
@@ -1309,7 +1261,7 @@ impl RustCodeGen for HirFunction {
         let mut generic_registry = crate::generic_inference::TypeVarRegistry::new();
         let type_params = generic_registry.infer_function_generics(self)?;
 
-        // Perform lifetime analysis with automatic elision (DEPYLER-0275)
+        // Perform lifetime analysis with automatic elision
         let mut lifetime_inference = LifetimeInference::new();
         let lifetime_result = lifetime_inference
             .apply_elision_rules_with_interprocedural(self, ctx.type_mapper, None)
@@ -1321,7 +1273,6 @@ impl RustCodeGen for HirFunction {
         // Generate lifetime bounds
         let where_clause = codegen_where_clause(&lifetime_result.lifetime_bounds);
 
-        // DEPYLER-0312: Analyze mutability BEFORE generating parameters
         // This populates ctx.mutable_vars which codegen_single_param uses to determine `mut` keyword
         // IMPORTANT: Clear mutable_vars before analyzing - each function gets its own analysis
         ctx.mutable_vars.clear();
@@ -1354,7 +1305,6 @@ impl RustCodeGen for HirFunction {
         // ctx.function_param_borrows
         //     .insert(self.name.clone(), param_borrows);
 
-        // DEPYLER-0364: Parameter name tracking for kwargs reordering
         // TODO: This feature is not yet fully implemented - the field was removed
         // from CodeGenContext. Kwargs are currently appended as positional args.
         // See expr_gen.rs line 1165 for current kwargs handling.
@@ -1362,7 +1312,6 @@ impl RustCodeGen for HirFunction {
         // Generate return type with Result wrapper and lifetime handling
         let (return_type, rust_ret_type, can_fail, error_type) = codegen_return_type(self, &lifetime_result, ctx)?;
 
-        // DEPYLER-0425: Analyze subcommand field access BEFORE generating body
         // This sets ctx.current_subcommand_fields so expression generation can rewrite args.field → field
         let subcommand_info = if ctx.argparser_tracker.has_subcommands() {
             crate::rust_gen::argparse_transform::analyze_subcommand_field_access(self, &ctx.argparser_tracker)
@@ -1381,15 +1330,11 @@ impl RustCodeGen for HirFunction {
         // Clear the subcommand fields context after body generation
         ctx.current_subcommand_fields = None;
 
-        // DEPYLER-0363: Check if ArgumentParser was detected and generate Args struct
-        // DEPYLER-0424: Store Args struct and Commands enum in context for module-level emission
         // (hoisted outside function to make Args accessible to handler functions)
         if ctx.argparser_tracker.has_parsers() {
             if let Some(parser_info) = ctx.argparser_tracker.get_first_parser() {
-                // DEPYLER-0384: Set flag to include clap dependency in Cargo.toml
                 ctx.needs_clap = true;
 
-                // DEPYLER-0399: Generate Commands enum if subcommands exist
                 let commands_enum = crate::rust_gen::argparse_transform::generate_commands_enum(&ctx.argparser_tracker);
                 if !commands_enum.is_empty() {
                     ctx.generated_commands_enum = Some(commands_enum);
@@ -1408,7 +1353,6 @@ impl RustCodeGen for HirFunction {
             // It will be cleared after all functions are generated
         }
 
-        // DEPYLER-0425: Wrap handler functions with subcommand pattern matching
         // If this function accesses subcommand-specific fields, wrap body in pattern matching
         if let Some((variant_name, fields)) = subcommand_info {
             // Get args parameter name (first parameter)
@@ -1424,12 +1368,10 @@ impl RustCodeGen for HirFunction {
             }
         }
 
-        // DEPYLER-0270: Add Ok(()) for functions with Result<(), E> return type
         // When Python function has `-> None` but uses fallible operations (e.g., indexing),
         // the Rust return type becomes `Result<(), IndexError>` and needs Ok(()) at the end
         // Only add Ok(()) if the function doesn't already end with a return statement
-        //
-        // DEPYLER-0450: Extended to handle all Result return types, not just Type::None
+
         // This fixes functions with side effects that use error handling (raise/try/except)
         // Also handles Type::Unknown (functions without type annotations that don't explicitly return)
         if can_fail {

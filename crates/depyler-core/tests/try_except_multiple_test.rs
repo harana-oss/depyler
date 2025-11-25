@@ -1,4 +1,4 @@
-//! TDD Tests for Try/Except - Multiple Exception Handlers (DEPYLER-0114 Phase 2)
+//! TDD Tests for Try/Except - Multiple Exception Handlers 
 //!
 //! Phase 2: Multiple except clauses with different exception types
 //! Python: Multiple except blocks → Rust: Match on error types

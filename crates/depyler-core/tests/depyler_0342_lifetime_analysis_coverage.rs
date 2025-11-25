@@ -1,4 +1,4 @@
-//! DEPYLER-0342: lifetime_analysis.rs Coverage Tests
+//! issue: lifetime_analysis.rs Coverage Tests
 //!
 //! **EXTREME TDD Protocol - Coverage Boost**
 //!

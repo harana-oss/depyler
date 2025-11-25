@@ -345,7 +345,6 @@ impl DepylerPipeline {
     ///
     /// Transpiles Python source code and returns both Rust code and Cargo dependencies
     ///
-    /// DEPYLER-0384: This method returns the generated Rust code along with the list
     /// of Cargo dependencies needed to build it. Use this when you need to generate
     /// a complete Cargo project with Cargo.toml.
     ///
@@ -410,7 +409,6 @@ impl DepylerPipeline {
                 }
 
                 // Apply return type hints
-                // DEPYLER-0400: Accept Medium confidence for return types from explicit returns
                 if matches!(func.ret_type, hir::Type::Unknown) {
                     for hint in &hints {
                         if matches!(hint.target, type_hints::HintTarget::Return)
@@ -542,7 +540,6 @@ impl DepylerPipeline {
                 }
 
                 // Apply return type hints
-                // DEPYLER-0400: Accept Medium confidence for return types from explicit returns
                 if matches!(func.ret_type, hir::Type::Unknown) {
                     for hint in &hints {
                         if matches!(hint.target, type_hints::HintTarget::Return)
@@ -616,7 +613,6 @@ impl DepylerPipeline {
         };
 
         // Generate Rust code using the unified generation system
-        // DEPYLER-0384: generate_rust_file now returns (code, dependencies)
         let (rust_code, _dependencies) = rust_gen::generate_rust_file(&optimized_hir, &self.transpiler.type_mapper)?;
 
         Ok(rust_code)

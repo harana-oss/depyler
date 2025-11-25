@@ -19,7 +19,6 @@ impl UnionEnumGenerator {
 
     /// Generate an enum for a Union type, returning the enum name
     pub fn generate_union_enum(&mut self, types: &[Type]) -> (String, proc_macro2::TokenStream) {
-        // Check if we've already generated an enum for these types
         let mut sorted_types = types.to_vec();
         sorted_types.sort_by_key(|t| format!("{:?}", t));
 
@@ -27,10 +26,8 @@ impl UnionEnumGenerator {
             return (cached_name.clone(), quote! {});
         }
 
-        // Generate a descriptive enum name
         let enum_name = self.generate_enum_name(&sorted_types);
 
-        // Generate variant names and types
         let variants: Vec<_> = sorted_types
             .iter()
             .enumerate()
@@ -40,7 +37,6 @@ impl UnionEnumGenerator {
             })
             .collect();
 
-        // Generate the enum definition
         let enum_ident = syn::Ident::new(&enum_name, proc_macro2::Span::call_site());
         let variant_defs: Vec<_> = variants
             .iter()
@@ -67,10 +63,8 @@ impl UnionEnumGenerator {
             }
         };
 
-        // Generate conversion implementations
         let from_impls = self.generate_from_impls(&enum_ident, &variants);
 
-        // Generate match helper methods
         let match_methods = self.generate_match_methods(&enum_ident, &variants);
 
         let full_definition = quote! {
@@ -83,14 +77,12 @@ impl UnionEnumGenerator {
             }
         };
 
-        // Cache the enum name
         self.enum_cache.insert(sorted_types, enum_name.clone());
 
         (enum_name, full_definition)
     }
 
     fn generate_enum_name(&mut self, types: &[Type]) -> String {
-        // Try to generate a meaningful name based on types
         let type_names: Vec<String> = types
             .iter()
             .map(|t| match t {
@@ -135,11 +127,7 @@ impl UnionEnumGenerator {
         mapper.map_type(ty)
     }
 
-    fn generate_from_impls(
-        &self,
-        enum_ident: &syn::Ident,
-        variants: &[(String, &Type)],
-    ) -> proc_macro2::TokenStream {
+    fn generate_from_impls(&self, enum_ident: &syn::Ident, variants: &[(String, &Type)]) -> proc_macro2::TokenStream {
         let from_impls: Vec<_> = variants
             .iter()
             .filter(|(_, ty)| !matches!(ty, Type::None))
@@ -257,12 +245,7 @@ mod tests {
     #[test]
     fn test_complex_union() {
         let mut generator = UnionEnumGenerator::new();
-        let types = vec![
-            Type::Int,
-            Type::String,
-            Type::List(Box::new(Type::Float)),
-            Type::Bool,
-        ];
+        let types = vec![Type::Int, Type::String, Type::List(Box::new(Type::Float)), Type::Bool];
 
         let (name, _) = generator.generate_union_enum(&types);
         assert_eq!(name, "UnionType1");

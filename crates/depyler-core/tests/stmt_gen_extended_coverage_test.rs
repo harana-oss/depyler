@@ -85,7 +85,7 @@ def test():
 /// Unit Test: Raise caught exception tracking
 ///
 /// Verifies: Lines 317-323 - exception is caught by try block
-/// Expected: Proper exception scope tracking (DEPYLER-0333)
+/// Expected: Proper exception scope tracking 
 #[test]
 fn test_raise_caught_exception_scope() {
     let pipeline = DepylerPipeline::new();
@@ -230,7 +230,7 @@ def test(x: int) -> int:
 /// Unit Test: Return with type conversion (usize to i32)
 ///
 /// Verifies: Lines 172-182 - type conversion in return with annotation
-/// Expected: as i32 cast for usize→i32 (DEPYLER-0241/0272)
+/// Expected: as i32 cast for usize→i32 
 #[test]
 fn test_return_with_type_conversion_usize_to_i32() {
     let pipeline = DepylerPipeline::new();
@@ -271,7 +271,7 @@ def maybe_find(items: list[int], target: int) -> Optional[int]:
 /// Unit Test: Return None in Optional Result context
 ///
 /// Verifies: Lines 223-229, 260-265 - None literal for Optional in Result
-/// Expected: Ok(None) not Ok(()) (DEPYLER-0277)
+/// Expected: Ok(None) not Ok(()) 
 #[test]
 fn test_return_none_optional_result() {
     let pipeline = DepylerPipeline::new();
@@ -331,7 +331,7 @@ def validate(x: int):
 /// Unit Test: Return as final statement (no return keyword)
 ///
 /// Verifies: Lines 252-253, 277 - final statement without return keyword
-/// Expected: No return keyword, just expression (DEPYLER-0271 idiomatic Rust)
+/// Expected: No return keyword, just expression 
 #[test]
 fn test_return_final_statement_implicit() {
     let pipeline = DepylerPipeline::new();
@@ -474,7 +474,7 @@ def create_set(x: int) -> set[int]:
 /// Unit Test: Class instance type tracking
 ///
 /// Verifies: Lines 846-851 - class constructor type tracking
-/// Expected: Tracks instance as Type::Custom("Point") (DEPYLER-0232)
+/// Expected: Tracks instance as Type::Custom("Point") 
 #[test]
 fn test_assign_class_instance_type_tracking() {
     let pipeline = DepylerPipeline::new();
@@ -497,7 +497,7 @@ def test():
 /// Unit Test: set() builtin constructor type tracking
 ///
 /// Verifies: Lines 854-862 - set() constructor type tracking
-/// Expected: Tracks as Type::Set(Int) (DEPYLER-0309)
+/// Expected: Tracks as Type::Set(Int) 
 #[test]
 fn test_assign_set_builtin_constructor() {
     let pipeline = DepylerPipeline::new();
@@ -538,7 +538,7 @@ def test():
 /// Unit Test: Index assignment with type-aware Vec detection
 ///
 /// Verifies: Lines 1049-1080 - type-aware Vec vs HashMap detection
-/// Expected: .insert() for Vec (DEPYLER-0304)
+/// Expected: .insert() for Vec 
 #[test]
 fn test_assign_index_vec_with_type_info() {
     let pipeline = DepylerPipeline::new();
@@ -619,7 +619,7 @@ def test():
 /// Unit Test: Function return type tracking for assignment
 ///
 /// Verifies: Lines 867-871 - function return type tracking
-/// Expected: Tracks result as Vec<i32> (DEPYLER-0269)
+/// Expected: Tracks result as Vec<i32> 
 #[test]
 fn test_assign_function_return_type_tracking() {
     let pipeline = DepylerPipeline::new();

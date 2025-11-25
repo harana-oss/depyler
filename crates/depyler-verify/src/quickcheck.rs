@@ -83,7 +83,6 @@ impl TypedValue {
     }
 }
 
-// DEPYLER-0024: Helper functions to reduce complexity (extracted from shrink_value)
 fn shrink_integer(i: i64) -> Vec<serde_json::Value> {
     if i == 0 {
         return vec![];

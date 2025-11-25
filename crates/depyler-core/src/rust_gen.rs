@@ -1,5 +1,5 @@
 use crate::annotation_aware_type_mapper::AnnotationAwareTypeMapper;
-use crate::cargo_toml_gen; // DEPYLER-0384: Cargo.toml generation
+use crate::cargo_toml_gen; // Cargo.toml generation
 use crate::hir::*;
 use crate::string_optimization::StringOptimizer;
 use anyhow::Result;
@@ -17,7 +17,7 @@ mod format;
 mod func_gen;
 mod generator_gen;
 mod import_gen;
-pub mod keywords; // DEPYLER-0023: Centralized keyword escaping
+pub mod keywords; // Centralized keyword escaping
 mod stmt_gen;
 mod type_gen;
 
@@ -33,7 +33,7 @@ use stmt_gen::{
 };
 
 // Public re-exports for external modules (union_enum_gen, etc.)
-pub use argparse_transform::ArgParserTracker; // DEPYLER-0384: Export for testing
+pub use argparse_transform::ArgParserTracker; // Export for testing
 pub use context::{CodeGenContext, RustCodeGen, ToRustExpr};
 pub use type_gen::rust_type_to_syn;
 
@@ -43,21 +43,18 @@ pub(crate) use func_gen::return_type_expects_float;
 /// Analyze functions for string optimization
 ///
 /// Performs string optimization analysis on all functions.
-/// Complexity: 2 (well within ≤10 target)
 fn analyze_string_optimization(ctx: &mut CodeGenContext, functions: &[HirFunction]) {
     for func in functions {
         ctx.string_optimizer.analyze_function(func);
     }
 }
 
-/// DEPYLER-0447: Analyze function bodies AND constants to find argparse validators
 ///
 /// Scans all statements in function bodies and constant expressions to find
 /// add_argument(type=validator_func) calls. Populates ctx.validator_functions
 /// with function names used as type= parameters.
 /// This must run BEFORE function signature generation so parameter types can be corrected.
 ///
-/// Complexity: 8 (func loop + const loop + stmt loop + match + expr match + kwargs loop + filter)
 fn analyze_validators(ctx: &mut CodeGenContext, functions: &[HirFunction], constants: &[HirConstant]) {
     // Scan function bodies
     for func in functions {
@@ -653,13 +650,11 @@ fn matches_param_attribute(param_name: &str, expr: &HirExpr) -> bool {
 /// Populates ctx.mutable_vars with variables that are:
 /// 1. Reassigned after declaration (x = 1; x = 2)
 /// 2. Mutated via method calls (.push(), .extend(), .insert(), .remove(), .pop(), etc.)
-/// 3. DEPYLER-0312: Function parameters that are reassigned (requires mut)
+/// 3. Function parameters that are reassigned (requires mut)
 ///
-/// Complexity: 7 (stmt loop + match + if + expr scan + method match)
 fn analyze_mutable_vars(stmts: &[HirStmt], ctx: &mut CodeGenContext, params: &[HirParam]) {
     let mut declared = HashSet::new();
 
-    // DEPYLER-0312: Pre-populate declared with function parameters
     // This allows the reassignment detection logic below to catch parameter mutations
     // Example: def gcd(a, b): a = temp  # Now detected as reassignment → mut a
     for param in params {
@@ -800,14 +795,12 @@ fn analyze_mutable_vars(stmts: &[HirStmt], ctx: &mut CodeGenContext, params: &[H
                         }
                     }
                     AssignTarget::Attribute { value, .. } => {
-                        // DEPYLER-0235 FIX: Property writes require the base object to be mutable
                         // e.g., `b.size = 20` requires `let mut b = ...`
                         if let HirExpr::Var(var_name) = value.as_ref() {
                             mutable.insert(var_name.clone());
                         }
                     }
                     AssignTarget::Index { base, .. } => {
-                        // DEPYLER-0235 FIX: Index assignments also require mutability
                         // e.g., `arr[i] = value` requires `let mut arr = ...`
                         if let HirExpr::Var(var_name) = base.as_ref() {
                             mutable.insert(var_name.clone());
@@ -910,7 +903,6 @@ fn analyze_mutable_vars(stmts: &[HirStmt], ctx: &mut CodeGenContext, params: &[H
 /// Convert Python classes to Rust structs
 ///
 /// Processes all classes and generates token streams.
-/// Complexity: 3 (well within ≤10 target)
 fn convert_classes_to_rust(
     classes: &[HirClass],
     type_mapper: &crate::type_mapper::TypeMapper,
@@ -929,7 +921,6 @@ fn convert_classes_to_rust(
 /// Convert HIR functions to Rust token streams
 ///
 /// Processes all functions using the code generation context.
-/// Complexity: 2 (well within ≤10 target)
 fn convert_functions_to_rust(
     functions: &[HirFunction],
     ctx: &mut CodeGenContext,
@@ -943,10 +934,8 @@ fn convert_functions_to_rust(
 /// Generate conditional imports based on code generation context
 ///
 /// Adds imports for collections and smart pointers as needed.
-/// Complexity: 1 (data-driven approach, well within ≤10 target)
 /// Deduplicate use statements to avoid E0252 errors
 ///
-/// DEPYLER-0335 FIX #1: Multiple sources can generate the same import.
 /// For example, both generate_import_tokens and generate_conditional_imports
 /// might add `use std::collections::HashMap;`.
 ///
@@ -1002,7 +991,7 @@ fn generate_conditional_imports(ctx: &CodeGenContext) -> Vec<proc_macro2::TokenS
 /// Generate import token streams from Python imports
 ///
 /// Maps Python imports to Rust use statements.
-/// Complexity: ~7-8 (within ≤10 target)
+///
 fn generate_import_tokens(
     imports: &[Import],
     module_mapper: &crate::module_mapper::ModuleMapper,
@@ -1027,7 +1016,6 @@ fn generate_import_tokens(
         }
     }
 
-    // DEPYLER-0335 FIX #1: Deduplicate imports using HashSet
     // Multiple Python imports can map to same Rust type (e.g., defaultdict + Counter -> HashMap)
     let mut seen_paths = std::collections::HashSet::new();
 
@@ -1076,7 +1064,6 @@ fn generate_import_tokens(
 /// Generate interned string constant tokens
 ///
 /// Generates constant definitions for interned strings.
-/// Complexity: 2 (well within ≤10 target)
 fn generate_interned_string_tokens(optimizer: &StringOptimizer) -> Vec<proc_macro2::TokenStream> {
     let interned_constants = optimizer.generate_interned_constants();
     interned_constants
@@ -1110,7 +1097,6 @@ fn generate_constant_tokens(
             let syn_type = type_gen::rust_type_to_syn(&rust_type)?;
             quote! { : #syn_type }
         } else {
-            // DEPYLER-0448: Infer type from expression (not just literals)
             match &constant.value {
                 // Literal types
                 HirExpr::Literal(Literal::Int(_)) => quote! { : i32 },
@@ -1118,19 +1104,16 @@ fn generate_constant_tokens(
                 HirExpr::Literal(Literal::String(_)) => quote! { : &str },
                 HirExpr::Literal(Literal::Bool(_)) => quote! { : bool },
 
-                // DEPYLER-0448: Dict types → serde_json::Value (safe fallback)
                 HirExpr::Dict { .. } => {
                     ctx.needs_serde_json = true;
                     quote! { : serde_json::Value }
                 }
 
-                // DEPYLER-0448: List types → serde_json::Value (safe fallback)
                 HirExpr::List { .. } => {
                     ctx.needs_serde_json = true;
                     quote! { : serde_json::Value }
                 }
 
-                // DEPYLER-0448: Default fallback → serde_json::Value (NOT i32)
                 _ => {
                     ctx.needs_serde_json = true;
                     quote! { : serde_json::Value }
@@ -1158,10 +1141,9 @@ pub fn generate_rust_file(
     // Process imports to populate the context
     let (imported_modules, imported_items) = process_module_imports(&module.imports, &module_mapper);
 
-    // Extract class names from module (DEPYLER-0230: distinguish user classes from builtins)
+    // Extract class names from module
     let class_names: HashSet<String> = module.classes.iter().map(|class| class.name.clone()).collect();
 
-    // DEPYLER-0231: Build map of mutating methods (class_name -> set of method names)
     let mut mutating_methods: std::collections::HashMap<String, HashSet<String>> = std::collections::HashMap::new();
     for class in &module.classes {
         let mut mut_methods = HashSet::new();
@@ -1222,23 +1204,23 @@ pub fn generate_rust_file(
         var_types: std::collections::HashMap::new(),
         class_names,
         mutating_methods,
-        function_return_types: std::collections::HashMap::new(), // DEPYLER-0269: Track function return types
-        function_param_borrows: std::collections::HashMap::new(), // DEPYLER-0270: Track parameter borrowing
+        function_return_types: std::collections::HashMap::new(), // Track function return types
+        function_param_borrows: std::collections::HashMap::new(), // Track parameter borrowing
         function_param_muts: std::collections::HashMap::new(),   // Track parameters needing &mut
-        tuple_iter_vars: HashSet::new(),                         // DEPYLER-0307 Fix #9: Track tuple iteration variables
-        is_final_statement: false, // DEPYLER-0271: Track final statement for expression-based returns
-        result_bool_functions: HashSet::new(), // DEPYLER-0308: Track functions returning Result<bool>
-        result_returning_functions: HashSet::new(), // DEPYLER-0270: Track ALL Result-returning functions
-        current_error_type: None,  // DEPYLER-0310: Track error type for raise statement wrapping
-        exception_scopes: Vec::new(), // DEPYLER-0333: Exception scope tracking stack
-        argparser_tracker: argparse_transform::ArgParserTracker::new(), // DEPYLER-0363: Track ArgumentParser patterns
-        generated_args_struct: None, // DEPYLER-0424: Args struct (hoisted to module level)
-        generated_commands_enum: None, // DEPYLER-0424: Commands enum (hoisted to module level)
-        current_subcommand_fields: None, // DEPYLER-0425: Subcommand field extraction
-        validator_functions: HashSet::new(), // DEPYLER-0447: Track argparse validator functions
-        stdlib_mappings: crate::stdlib_mappings::StdlibMappings::new(), // DEPYLER-0452: Stdlib API mappings
-        current_func_mut_ref_params: HashSet::new(), // Track &mut ref params in current function
-        function_param_names: std::collections::HashMap::new(), // DEPYLER-0364: Track function parameter names
+        tuple_iter_vars: HashSet::new(),                         // Track tuple iteration variables
+        is_final_statement: false,                               // Track final statement for expression-based returns
+        result_bool_functions: HashSet::new(),                   // Track functions returning Result<bool>
+        result_returning_functions: HashSet::new(),              // Track ALL Result-returning functions
+        current_error_type: None,                                // Track error type for raise statement wrapping
+        exception_scopes: Vec::new(),                            // Exception scope tracking stack
+        argparser_tracker: argparse_transform::ArgParserTracker::new(), // Track ArgumentParser patterns
+        generated_args_struct: None,                             // Args struct (hoisted to module level)
+        generated_commands_enum: None,                           // Commands enum (hoisted to module level)
+        current_subcommand_fields: None,                         // Subcommand field extraction
+        validator_functions: HashSet::new(),                     // Track argparse validator functions
+        stdlib_mappings: crate::stdlib_mappings::StdlibMappings::new(), // Stdlib API mappings
+        current_func_mut_ref_params: HashSet::new(),             // Track &mut ref params in current function
+        function_param_names: std::collections::HashMap::new(),  // Track function parameter names
     };
 
     // Analyze all functions first for string optimization
@@ -1247,11 +1229,9 @@ pub fn generate_rust_file(
     // Finalize interned string names (resolve collisions)
     ctx.string_optimizer.finalize_interned_names();
 
-    // DEPYLER-0447: Scan all function bodies and constants for argparse validators
     // Must run BEFORE function conversion so validator parameter types are correct
     analyze_validators(&mut ctx, &module.functions, &module.constants);
 
-    // DEPYLER-0270: Populate Result-returning functions map
     // All functions that can_fail return Result<T, E> and need unwrapping at call sites
     for func in &module.functions {
         if func.properties.can_fail {
@@ -1259,7 +1239,6 @@ pub fn generate_rust_file(
         }
     }
 
-    // DEPYLER-0308: Populate Result<bool> functions map
     // Functions that can_fail and return Bool need unwrapping in boolean contexts
     for func in &module.functions {
         if func.properties.can_fail && matches!(func.ret_type, Type::Bool) {
@@ -1267,7 +1246,6 @@ pub fn generate_rust_file(
         }
     }
 
-    // DEPYLER-0364: Populate function parameter names map for kwargs reordering
     // This allows convert_call to reorder keyword arguments to match function signatures
     for func in &module.functions {
         let param_names: Vec<String> = func.params.iter().map(|p| p.name.clone()).collect();
@@ -1314,7 +1292,6 @@ pub fn generate_rust_file(
     // Add collection imports if needed
     items.extend(generate_conditional_imports(&ctx));
 
-    // DEPYLER-0335 FIX #1: Deduplicate imports across all sources
     // Both generate_import_tokens and generate_conditional_imports can add HashMap
     items = deduplicate_use_statements(items);
 
@@ -1327,7 +1304,6 @@ pub fn generate_rust_file(
     // Add classes
     items.extend(classes);
 
-    // DEPYLER-0424: Add ArgumentParser-generated structs at module level
     // (before functions so handler functions can reference Args type)
     if let Some(ref commands_enum) = ctx.generated_commands_enum {
         items.push(commands_enum.clone());
@@ -1340,7 +1316,6 @@ pub fn generate_rust_file(
     items.extend(functions);
 
     // Generate tests for all functions in a single test module
-    // DEPYLER-0280 FIX: Use generate_tests_module() to create a single `mod tests {}` block
     // instead of one per function, which caused "the name `tests` is defined multiple times" errors
     let test_gen = crate::test_generation::TestGenerator::new(Default::default());
     if let Some(test_module) = test_gen.generate_tests_module(&module.functions)? {
@@ -1351,13 +1326,11 @@ pub fn generate_rust_file(
         #(#items)*
     };
 
-    // DEPYLER-0384: Extract dependencies from context (BEFORE post-processing)
     let mut dependencies = cargo_toml_gen::extract_dependencies(&ctx);
 
     // Format the code first (this is when tokens become readable strings)
     let mut formatted_code = format_rust_code(file.to_string());
 
-    // DEPYLER-0393: Post-process FORMATTED code to detect missed dependencies
     // TokenStreams don't have literal strings - must scan AFTER formatting
     if formatted_code.contains("serde_json::") && !ctx.needs_serde_json {
         // Add missing import at the beginning
@@ -1434,23 +1407,23 @@ mod tests {
             var_types: std::collections::HashMap::new(),
             class_names: HashSet::new(),
             mutating_methods: std::collections::HashMap::new(),
-            function_return_types: std::collections::HashMap::new(), // DEPYLER-0269: Track function return types
-            function_param_borrows: std::collections::HashMap::new(), // DEPYLER-0270: Track parameter borrowing
+            function_return_types: std::collections::HashMap::new(), // Track function return types
+            function_param_borrows: std::collections::HashMap::new(), // Track parameter borrowing
             function_param_muts: std::collections::HashMap::new(),   // Track parameters needing &mut
-            tuple_iter_vars: HashSet::new(), // DEPYLER-0307 Fix #9: Track tuple iteration variables
-            is_final_statement: false,       // DEPYLER-0271: Track final statement for expression-based returns
-            result_bool_functions: HashSet::new(), // DEPYLER-0308: Track functions returning Result<bool>
-            result_returning_functions: HashSet::new(), // DEPYLER-0270: Track ALL Result-returning functions
-            current_error_type: None,        // DEPYLER-0310: Track error type for raise statement wrapping
-            exception_scopes: Vec::new(),    // DEPYLER-0333: Exception scope tracking stack
-            argparser_tracker: argparse_transform::ArgParserTracker::new(), // DEPYLER-0363: Track ArgumentParser patterns
-            generated_args_struct: None, // DEPYLER-0424: Args struct (hoisted to module level)
-            generated_commands_enum: None, // DEPYLER-0424: Commands enum (hoisted to module level)
-            current_subcommand_fields: None, // DEPYLER-0425: Subcommand field extraction
-            validator_functions: HashSet::new(), // DEPYLER-0447: Track argparse validator functions
-            stdlib_mappings: crate::stdlib_mappings::StdlibMappings::new(), // DEPYLER-0452
+            tuple_iter_vars: HashSet::new(),                         // Track tuple iteration variables
+            is_final_statement: false, // Track final statement for expression-based returns
+            result_bool_functions: HashSet::new(), // Track functions returning Result<bool>
+            result_returning_functions: HashSet::new(), // Track ALL Result-returning functions
+            current_error_type: None,  // Track error type for raise statement wrapping
+            exception_scopes: Vec::new(), // Exception scope tracking stack
+            argparser_tracker: argparse_transform::ArgParserTracker::new(), // Track ArgumentParser patterns
+            generated_args_struct: None, // Args struct (hoisted to module level)
+            generated_commands_enum: None, // Commands enum (hoisted to module level)
+            current_subcommand_fields: None, // Subcommand field extraction
+            validator_functions: HashSet::new(), // Track argparse validator functions
+            stdlib_mappings: crate::stdlib_mappings::StdlibMappings::new(),
             current_func_mut_ref_params: HashSet::new(), // Track &mut ref params in current function
-            function_param_names: std::collections::HashMap::new(), // DEPYLER-0364: Track function parameter names
+            function_param_names: std::collections::HashMap::new(), // Track function parameter names
         }
     }
 
@@ -1480,7 +1453,6 @@ mod tests {
 
         assert!(code.contains("pub fn add"));
         assert!(code.contains("i32"));
-        // DEPYLER-0271: Final return statements use expression-based returns (no `return` keyword)
         // The function body should contain the expression result without explicit `return`
         assert!(code.contains("a + b"), "Function should contain expression 'a + b'");
     }
@@ -1576,7 +1548,6 @@ mod tests {
     }
 
     // ========================================================================
-    // DEPYLER-0140 Phase 1: Tests for extracted statement handlers
     // ========================================================================
 
     #[test]
@@ -1621,7 +1592,6 @@ mod tests {
     }
 
     // ========================================================================
-    // DEPYLER-0140 Phase 2: Tests for medium-complexity statement handlers
     // ========================================================================
 
     #[test]
@@ -1678,7 +1648,7 @@ mod tests {
         assert_eq!(result.to_string(), "return Err (\"Exception raised\" . into ()) ;");
     }
 
-    // NOTE: With statement with target incomplete - requires full implementation (tracked in DEPYLER-0424)
+    // NOTE: With statement with target incomplete - requires full implementation ()
     // This test was written ahead of implementation (aspirational test)
     // Tracked in roadmap: Complete with statement target binding support
     #[test]
@@ -1790,7 +1760,6 @@ mod tests {
 
         let result = codegen_try_stmt(&body, &handlers, &None, &mut ctx).unwrap();
         let result_str = result.to_string();
-        // DEPYLER-0257 REFACTOR v3: Simplified try/except (no Result wrapper)
         // Just executes try block statements directly
         assert!(!result_str.is_empty(), "Should generate code");
         // Code should be simple block execution (no complex patterns for now)
@@ -1822,16 +1791,14 @@ mod tests {
 
         let result = codegen_try_stmt(&body, &handlers, &finally, &mut ctx).unwrap();
         let result_str = result.to_string();
-        // DEPYLER-0257 REFACTOR v3: Simplified try/except with finally
         // Executes try block then finally block
         assert!(!result_str.is_empty(), "Should generate code");
         // Code should execute try block and finally block
     }
 
-    // Phase 1b/1c tests - Type conversion functions (DEPYLER-0149, DEPYLER-0216)
+    // Phase 1b/1c tests - Type conversion functions
     #[test]
     fn test_int_cast_conversion() {
-        // DEPYLER-0216 FIX: Python: int(x) → Rust: (x) as i32 (always cast variables)
         // Previous behavior (no cast) caused "cannot add bool to bool" errors
         // when x is a bool variable: int(flag1) + int(flag2) → flag1 + flag2 (ERROR!)
         let call_expr = HirExpr::Call {
@@ -1885,7 +1852,7 @@ mod tests {
         );
     }
 
-    // NOTE: Boolean casting incomplete - requires type cast implementation (tracked in DEPYLER-0424)
+    // NOTE: Boolean casting incomplete - requires type cast implementation ()
     // This test was written ahead of implementation (aspirational test)
     // Tracked in roadmap: Implement bool() builtin casting
     #[test]
@@ -1907,7 +1874,6 @@ mod tests {
 
     #[test]
     fn test_int_cast_with_expression() {
-        // DEPYLER-0216 FIX: Python: int((low + high) / 2) → Rust: ((low + high) / 2) as i32
         // Previous behavior (no cast) caused "cannot add bool to bool" errors
         // when expression might be bool: int(x > 0) + int(y > 0) → (x > 0) + (y > 0) (ERROR!)
         let division = HirExpr::Binary {

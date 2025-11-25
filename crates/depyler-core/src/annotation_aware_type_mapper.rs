@@ -99,10 +99,9 @@ impl AnnotationAwareTypeMapper {
         let key_rust = self.map_type_with_annotations(key, annotations);
         let value_rust = self.map_type_with_annotations(value, annotations);
 
-        // DEPYLER-0278: Always use std::HashMap for standalone file transpilation
         // FnvHashMap and AHashMap require external crate dependencies that may not be available
         // For standalone files, we prioritize compilation success over optimization
-        // NOTE: In the future, detect Cargo project context and use hash_strategy only within projects (tracked in DEPYLER-0424)
+        // NOTE: In the future, detect Cargo project context and use hash_strategy only within projects ()
         let hash_map_type = "HashMap";
 
         // Note: hash_strategy annotation is currently ignored for standalone transpilation
@@ -279,7 +278,6 @@ mod tests {
             RustType::Custom("HashMap<String, i32>".to_string())
         );
 
-        // DEPYLER-0278: hash_strategy annotation is ignored for standalone transpilation
         // All hash strategies now map to HashMap (compilation success over optimization)
 
         // Test Fnv strategy (ignored, uses HashMap)

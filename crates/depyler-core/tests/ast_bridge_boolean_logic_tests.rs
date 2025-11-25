@@ -1,4 +1,3 @@
-// DEPYLER-0021 Phase 2: Boolean Logic Mutation Kill Tests
 //
 // Target: 13 MISSED mutations involving boolean operator swaps (&&/||)
 //

@@ -106,7 +106,6 @@ impl LambdaCodeGenerator {
         self
     }
 
-    /// Generate complete Lambda Rust project from Python handler
     pub fn generate_lambda_project(
         &self,
         context: &LambdaGenerationContext,
@@ -133,7 +132,6 @@ impl LambdaCodeGenerator {
         Ok(project)
     }
 
-    /// Generate the main handler Rust code
     pub fn generate_handler(&self, context: &LambdaGenerationContext) -> Result<String> {
         let template = match &context.event_type {
             Some(LambdaEventType::SqsEvent) if context.annotations.batch_failure_reporting => {
@@ -179,7 +177,6 @@ impl LambdaCodeGenerator {
         Ok(code)
     }
 
-    /// Generate Cargo.toml for Lambda project
     pub fn generate_cargo_toml(&self, context: &LambdaGenerationContext) -> Result<String> {
         let template = self
             .templates
@@ -228,7 +225,6 @@ impl LambdaCodeGenerator {
         Ok(cargo_toml)
     }
 
-    /// Generate build script for cargo-lambda
     pub fn generate_build_script(&self, context: &LambdaGenerationContext) -> Result<String> {
         let template = self
             .templates
@@ -246,7 +242,6 @@ impl LambdaCodeGenerator {
         Ok(script)
     }
 
-    /// Generate SAM template
     pub fn generate_sam_template(&self, context: &LambdaGenerationContext) -> Result<String> {
         let template = self
             .templates
@@ -272,7 +267,6 @@ impl LambdaCodeGenerator {
         Ok(sam)
     }
 
-    /// Generate CDK construct
     pub fn generate_cdk_construct(&self, context: &LambdaGenerationContext) -> Result<String> {
         let template = self
             .templates

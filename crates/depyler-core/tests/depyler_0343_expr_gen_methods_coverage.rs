@@ -1,4 +1,4 @@
-//! DEPYLER-0343: expr_gen.rs String/List/Dict Methods Coverage
+//! issue: expr_gen.rs String/List/Dict Methods Coverage
 //!
 //! **EXTREME TDD Protocol - Coverage Boost Phase 1**
 //!

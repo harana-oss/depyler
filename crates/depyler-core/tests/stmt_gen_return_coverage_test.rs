@@ -4,11 +4,11 @@
 //! Coverage focus: Optional wrapping, Result wrapping, type conversion, final vs early returns
 //!
 //! Test Strategy:
-//! - Optional return types with Some() wrapping (DEPYLER-0277)
+//! - Optional return types with Some() wrapping 
 //! - Result return types with Ok() wrapping
 //! - None literal handling
-//! - Type conversion (e.g., usize→i32) (DEPYLER-0241/0272)
-//! - Final statement vs early return (DEPYLER-0271)
+//! - Type conversion (e.g., usize→i32) 
+//! - Final statement vs early return 
 //! - Empty returns (unit, Ok(()), Ok(None))
 
 use depyler_core::DepylerPipeline;
@@ -31,7 +31,7 @@ def get_value() -> int:
 
 /// Unit Test: Early return (not final statement)
 ///
-/// Verifies: DEPYLER-0271 - early returns keep 'return' keyword (lines 213, 249-250)
+/// Verifies: issue - early returns keep 'return' keyword (lines 213, 249-250)
 #[test]
 fn test_early_return() {
     let pipeline = DepylerPipeline::new();
@@ -49,7 +49,7 @@ def check_value(x: int) -> int:
 
 /// Unit Test: Optional return with Some() wrapping
 ///
-/// Verifies: DEPYLER-0277 Optional wrapping (lines 235-241)
+/// Verifies: issue Optional wrapping (lines 235-241)
 #[test]
 fn test_optional_return_some() {
     let pipeline = DepylerPipeline::new();
@@ -68,7 +68,7 @@ def find_value(items: list[int], target: int) -> int | None:
 
 /// Unit Test: Optional return with None literal
 ///
-/// Verifies: DEPYLER-0277 None literal handling (lines 242-248)
+/// Verifies: issue None literal handling (lines 242-248)
 #[test]
 fn test_optional_return_none() {
     let pipeline = DepylerPipeline::new();
@@ -104,7 +104,7 @@ def divide(a: int, b: int) -> int:
 
 /// Unit Test: Result + Optional return with Ok(Some()) wrapping
 ///
-/// Verifies: DEPYLER-0277 Ok(Some()) for Optional in can-fail (lines 216-222)
+/// Verifies: issue Ok(Some()) for Optional in can-fail (lines 216-222)
 #[test]
 fn test_result_optional_return_some() {
     let pipeline = DepylerPipeline::new();
@@ -125,7 +125,7 @@ def safe_find(items: list[int], target: int) -> int | None:
 
 /// Unit Test: Result + Optional return with Ok(None) for None literal
 ///
-/// Verifies: DEPYLER-0277 Ok(None) handling (lines 223-229)
+/// Verifies: issue Ok(None) handling (lines 223-229)
 #[test]
 fn test_result_optional_return_none() {
     let pipeline = DepylerPipeline::new();
@@ -196,7 +196,7 @@ def find_if_valid(items: list[int]) -> int | None:
 
 /// Unit Test: Type conversion on return (usize → i32)
 ///
-/// Verifies: DEPYLER-0241/0272 type conversion (lines 172-183)
+/// Verifies: issue type conversion (lines 172-183)
 #[test]
 fn test_type_conversion_on_return() {
     let pipeline = DepylerPipeline::new();
@@ -212,7 +212,7 @@ def count_items(items: list[int]) -> int:
 
 /// Unit Test: Final return (no keyword) vs early return (with keyword)
 ///
-/// Verifies: DEPYLER-0271 idiomatic Rust (lines 211-213)
+/// Verifies: issue idiomatic Rust (lines 211-213)
 #[test]
 fn test_final_vs_early_return() {
     let pipeline = DepylerPipeline::new();

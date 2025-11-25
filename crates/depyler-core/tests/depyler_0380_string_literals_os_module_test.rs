@@ -1,4 +1,4 @@
-//! DEPYLER-0380: String Literals and os Module Transpilation Bugs
+//! issue: String Literals and os Module Transpilation Bugs
 //!
 //! This test suite covers three critical P0 bugs:
 //! - Bug #1: String literal to String conversion (missing .to_string())

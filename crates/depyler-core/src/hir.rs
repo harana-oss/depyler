@@ -376,7 +376,6 @@ pub enum HirExpr {
     Call {
         func: Symbol,
         args: Vec<HirExpr>,
-        /// DEPYLER-0364: Keyword arguments preserved from Python AST
         /// Format: Vec<(arg_name, value_expr)>
         /// Empty for calls without kwargs
         kwargs: Vec<(Symbol, HirExpr)>,
@@ -385,7 +384,6 @@ pub enum HirExpr {
         object: Box<HirExpr>,
         method: Symbol,
         args: Vec<HirExpr>,
-        /// DEPYLER-0364: Keyword arguments preserved from Python AST
         /// Format: Vec<(arg_name, value_expr)>
         /// Empty for calls without kwargs
         kwargs: Vec<(Symbol, HirExpr)>,
@@ -544,7 +542,6 @@ pub enum ConstGeneric {
     Expression(String),
 }
 
-/// DEPYLER-0333: Exception scope tracking for try/except blocks
 ///
 /// Tracks whether code is executing inside a try/except block to determine
 /// appropriate error handling strategy:

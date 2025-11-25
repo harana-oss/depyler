@@ -1,4 +1,4 @@
-//! ArgumentParser → Clap transformation (DEPYLER-0363)
+//! ArgumentParser → Clap transformation
 //!
 //! This module handles the structural transformation of Python argparse
 //! patterns to Rust clap derive macros.
@@ -38,7 +38,7 @@ use std::collections::HashMap;
 
 /// Convert HIR Type to Rust type string for argparse arguments
 ///
-/// # DEPYLER-0364: Type Mapping
+/// # Type Mapping
 /// Maps Python types to idiomatic Rust types for CLI arguments:
 /// - int → i32
 /// - str → String
@@ -62,25 +62,12 @@ fn type_to_rust_string(ty: &Type) -> String {
     }
 }
 
-/// Tracks an ArgumentParser instance being built
-///
-/// # Complexity
-/// N/A (data structure)
 #[derive(Debug, Clone, PartialEq)]
 pub struct ArgParserInfo {
-    /// Variable name assigned to ArgumentParser (e.g., "parser")
     pub parser_var: String,
-
-    /// Description from ArgumentParser(description="...")
     pub description: Option<String>,
-
-    /// Epilog from ArgumentParser(epilog="...")
     pub epilog: Option<String>,
-
-    /// All arguments added via add_argument()
     pub arguments: Vec<ArgParserArgument>,
-
-    /// Variable name for parse_args() result (e.g., "args")
     pub args_var: Option<String>,
 }
 
@@ -116,49 +103,21 @@ impl ArgParserInfo {
     }
 }
 
-/// Represents a single argument definition from add_argument()
-///
-/// # Complexity
-/// N/A (data structure)
 #[derive(Debug, Clone, PartialEq)]
 pub struct ArgParserArgument {
-    /// Positional name or short flag (e.g., "files", "-v")
     pub name: String,
-
-    /// Long flag name (e.g., "--verbose")
     pub long: Option<String>,
-
-    /// Number of arguments: "+", "*", "?", or number
     pub nargs: Option<String>,
-
-    /// Type annotation (e.g., Path, int, str)
     pub arg_type: Option<Type>,
-
-    /// Action: "store_true", "store_false", "store", "append"
     pub action: Option<String>,
-
-    /// Default value
     pub default: Option<HirExpr>,
-
-    /// Help text
     pub help: Option<String>,
-
-    /// Whether this is a required positional argument
     pub is_positional: bool,
-
-    /// DEPYLER-0367: Whether this flag is required (required=True)
     pub required: Option<bool>,
-
-    /// DEPYLER-0371: Custom destination variable name (dest="var_name")
     pub dest: Option<String>,
-
-    /// DEPYLER-0372: Metavar for help display (metavar="FILE")
     pub metavar: Option<String>,
-
-    /// DEPYLER-0373: Restricted value choices (choices=["a", "b", "c"])
     pub choices: Option<Vec<String>>,
 
-    /// DEPYLER-0374: Constant value for action="store_const" or nargs="?" with const
     pub const_value: Option<HirExpr>,
 }
 
@@ -190,9 +149,8 @@ impl ArgParserArgument {
     ///
     /// # Complexity
     /// 3 (string operations)
-    /// # DEPYLER-0371: Use dest parameter if present
+    /// # Use dest parameter if present
     pub fn rust_field_name(&self) -> String {
-        // DEPYLER-0371: If dest is specified, use that as the field name
         if let Some(ref dest) = self.dest {
             return dest.replace('-', "_");
         }
@@ -205,7 +163,6 @@ impl ArgParserArgument {
             long.trim_start_matches("--").replace('-', "_")
         } else {
             // Use flag name without leading hyphens (convert hyphens to underscores)
-            // DEPYLER-0366: Handle flags like --no-color → no_color
             self.name.trim_start_matches('-').replace('-', "_")
         }
     }
@@ -216,7 +173,6 @@ impl ArgParserArgument {
     /// 7 (multiple match + string checks)
     pub fn rust_type(&self) -> String {
         // action="store_true"/"store_false"/"store_const" → bool
-        // DEPYLER-0375: action="store_const" also maps to bool
         if self.action.as_deref() == Some("store_true")
             || self.action.as_deref() == Some("store_false")
             || self.action.as_deref() == Some("store_const")
@@ -229,7 +185,6 @@ impl ArgParserArgument {
             return "u8".to_string();
         }
 
-        // DEPYLER-0368: action="append" → Vec<T> (collects multiple flag uses)
         if self.action.as_deref() == Some("append") {
             let inner_type = self
                 .arg_type
@@ -249,7 +204,6 @@ impl ArgParserArgument {
             return format!("Vec<{}>", inner_type);
         }
 
-        // DEPYLER-0370: nargs=N (specific number) → Vec<T>
         if let Some(nargs_str) = self.nargs.as_deref() {
             if nargs_str.parse::<usize>().is_ok() {
                 let inner_type = self
@@ -262,7 +216,6 @@ impl ArgParserArgument {
         }
 
         // nargs="?" → Option<T>
-        // DEPYLER-0374: Handle const parameter with nargs="?" separately in generate_args_struct
         if self.nargs.as_deref() == Some("?") {
             let inner_type = self
                 .arg_type
@@ -280,7 +233,6 @@ impl ArgParserArgument {
     }
 }
 
-/// DEPYLER-0399: Information about a subparser collection (from add_subparsers())
 ///
 /// # Complexity
 /// N/A (data structure)
@@ -299,7 +251,6 @@ pub struct SubparserInfo {
     pub help: Option<String>,
 }
 
-/// DEPYLER-0399: Information about a single subcommand
 ///
 /// # Complexity
 /// N/A (data structure)
@@ -327,16 +278,13 @@ pub struct ArgParserTracker {
     /// Currently active ArgumentParser instances (keyed by variable name)
     pub parsers: HashMap<String, ArgParserInfo>,
 
-    /// DEPYLER-0396: Map argument group variables to their parent parser
     /// e.g., "input_group" → "parser"
     /// This allows tracking add_argument() calls on groups
     pub group_to_parser: HashMap<String, String>,
 
-    /// DEPYLER-0399: Subparser collections (variable → info)
     /// Maps subparsers variable name to parent parser info
     pub subparsers: HashMap<String, SubparserInfo>,
 
-    /// DEPYLER-0399: Subcommands (parser variable → info)
     /// Maps subcommand parser variable (e.g., "parser_clone") to subcommand details
     pub subcommands: HashMap<String, SubcommandInfo>,
 
@@ -383,13 +331,12 @@ impl ArgParserTracker {
     /// 2 (hashmap clears)
     pub fn clear(&mut self) {
         self.parsers.clear();
-        self.group_to_parser.clear(); // DEPYLER-0396
-        self.subparsers.clear(); // DEPYLER-0399
-        self.subcommands.clear(); // DEPYLER-0399
+        self.group_to_parser.clear();
+        self.subparsers.clear();
+        self.subcommands.clear();
         self.struct_generated = false;
     }
 
-    /// DEPYLER-0396: Register an argument group variable
     /// Maps group variable name to its parent parser
     ///
     /// # Complexity
@@ -398,7 +345,6 @@ impl ArgParserTracker {
         self.group_to_parser.insert(group_var, parser_var);
     }
 
-    /// DEPYLER-0396: Get parser variable name for a group variable
     /// Returns the parent parser if this variable is an argument group
     /// Recursively resolves nested groups (e.g., format_group → output_group → parser)
     ///
@@ -430,7 +376,6 @@ impl ArgParserTracker {
         }
     }
 
-    /// DEPYLER-0399: Register a subparser collection
     /// Pattern: subparsers = parser.add_subparsers(dest="command", required=True)
     ///
     /// # Complexity
@@ -439,7 +384,6 @@ impl ArgParserTracker {
         self.subparsers.insert(subparsers_var, info);
     }
 
-    /// DEPYLER-0399: Get subparser collection info
     ///
     /// # Complexity
     /// 1 (hashmap lookup)
@@ -447,7 +391,6 @@ impl ArgParserTracker {
         self.subparsers.get(subparsers_var)
     }
 
-    /// DEPYLER-0399: Get mutable subparser collection info
     ///
     /// # Complexity
     /// 1 (hashmap lookup)
@@ -455,7 +398,6 @@ impl ArgParserTracker {
         self.subparsers.get_mut(subparsers_var)
     }
 
-    /// DEPYLER-0399: Register a subcommand
     /// Pattern: parser_clone = subparsers.add_parser("clone", help="...")
     ///
     /// # Complexity
@@ -464,7 +406,6 @@ impl ArgParserTracker {
         self.subcommands.insert(subcommand_var, info);
     }
 
-    /// DEPYLER-0399: Get subcommand info
     ///
     /// # Complexity
     /// 1 (hashmap lookup)
@@ -472,7 +413,6 @@ impl ArgParserTracker {
         self.subcommands.get(subcommand_var)
     }
 
-    /// DEPYLER-0399: Get mutable subcommand info
     ///
     /// # Complexity
     /// 1 (hashmap lookup)
@@ -496,7 +436,6 @@ impl ArgParserTracker {
         self.parsers.values().next()
     }
 
-    /// DEPYLER-0399: Check if any subcommands are defined
     ///
     /// # Complexity
     /// 1 (hashmap empty check)
@@ -505,7 +444,6 @@ impl ArgParserTracker {
     }
 }
 
-/// DEPYLER-0399: Generate Commands enum from subcommands
 ///
 /// # Complexity
 /// 8 (iteration + quote operations)
@@ -600,10 +538,7 @@ fn to_pascal_case(s: &str) -> String {
 ///
 /// # Complexity
 /// 8 (multiple loops and quote operations)
-pub fn generate_args_struct(
-    parser_info: &ArgParserInfo,
-    tracker: &ArgParserTracker,
-) -> proc_macro2::TokenStream {
+pub fn generate_args_struct(parser_info: &ArgParserInfo, tracker: &ArgParserTracker) -> proc_macro2::TokenStream {
     use quote::quote;
     use syn::parse_quote;
 
@@ -612,10 +547,8 @@ pub fn generate_args_struct(
         .arguments
         .iter()
         .map(|arg| {
-            let field_name =
-                syn::Ident::new(&arg.rust_field_name(), proc_macro2::Span::call_site());
+            let field_name = syn::Ident::new(&arg.rust_field_name(), proc_macro2::Span::call_site());
 
-            // DEPYLER-0367: Determine if field should be Option<T>
             let base_type_str = arg.rust_type();
 
             // Don't wrap in Option if:
@@ -625,17 +558,12 @@ pub fn generate_args_struct(
             // - Is positional
             // - Has action with implicit default (store_true/false/count → bool/u8)
             // - Has nargs="+" (required, 1 or more)
-            // - DEPYLER-0368: Has action="append" (Vec handles absence as empty)
-            // - DEPYLER-0375: Has action="store_const" (bool with implicit default)
+            // - Has action="append" (Vec handles absence as empty)
+            // - Has action="store_const" (bool with implicit default)
             let has_implicit_default = matches!(
                 arg.action.as_deref(),
-                Some("store_true")
-                    | Some("store_false")
-                    | Some("count")
-                    | Some("append")
-                    | Some("store_const")
+                Some("store_true") | Some("store_false") | Some("count") | Some("append") | Some("store_const")
             );
-            // DEPYLER-0370: nargs="+" or nargs=N (specific number) are required
             let is_required_nargs = arg.nargs.as_deref() == Some("+")
                 || arg
                     .nargs
@@ -661,18 +589,15 @@ pub fn generate_args_struct(
             let mut attrs = vec![];
 
             if !arg.is_positional {
-                // DEPYLER-0365 Phase 5 + DEPYLER-0371: Proper flag detection with dest support
                 // Three cases:
                 // 1. Both short and long: "-o" + "--output" → #[arg(short = 'o', long)]
                 // 2. Long only: "--debug" → #[arg(long)]
                 // 3. Short only: "-v" → #[arg(short = 'v')]
-                // DEPYLER-0371: If dest is present, use long = "flag_name"
 
                 if arg.long.is_some() {
                     // Case 1: Both short and long flags
                     let short_str = arg.name.trim_start_matches('-');
                     if let Some(short) = short_str.chars().next() {
-                        // DEPYLER-0371: If dest is present, specify long name explicitly
                         if arg.dest.is_some() {
                             let long_name = arg.long.as_ref().unwrap().trim_start_matches("--");
                             attrs.push(quote! {
@@ -686,7 +611,6 @@ pub fn generate_args_struct(
                     }
                 } else if arg.name.starts_with("--") {
                     // Case 2: Long flag only (--debug)
-                    // DEPYLER-0371: If dest is present, specify long name explicitly
                     if arg.dest.is_some() {
                         let long_name = arg.name.trim_start_matches("--");
                         attrs.push(quote! {
@@ -708,7 +632,6 @@ pub fn generate_args_struct(
                 }
             }
 
-            // DEPYLER-0367: Add default value if present
             if let Some(crate::hir::HirExpr::Literal(lit)) = arg.default.as_ref() {
                 // Convert HIR literal to string for default_value attribute
                 let default_str_opt = match lit {
@@ -725,7 +648,6 @@ pub fn generate_args_struct(
                 }
             }
 
-            // DEPYLER-0374: Add default_missing_value for const + nargs="?"
             if arg.nargs.as_deref() == Some("?") && arg.const_value.is_some() {
                 if let Some(crate::hir::HirExpr::Literal(lit)) = arg.const_value.as_ref() {
                     let const_str_opt = match lit {
@@ -743,7 +665,6 @@ pub fn generate_args_struct(
                 }
             }
 
-            // DEPYLER-0370: Add num_args for nargs=N (specific number)
             if let Some(nargs_str) = arg.nargs.as_deref() {
                 if let Ok(n) = nargs_str.parse::<usize>() {
                     // Create a literal integer token
@@ -754,14 +675,12 @@ pub fn generate_args_struct(
                 }
             }
 
-            // DEPYLER-0372: Add value_name for metavar
             if let Some(ref metavar) = arg.metavar {
                 attrs.push(quote! {
                     #[arg(value_name = #metavar)]
                 });
             }
 
-            // DEPYLER-0373: Add value_parser for choices
             if let Some(ref choices) = arg.choices {
                 let choice_strs: Vec<_> = choices.iter().collect();
                 attrs.push(quote! {
@@ -769,7 +688,6 @@ pub fn generate_args_struct(
                 });
             }
 
-            // DEPYLER-0378: Add action attributes for special actions
             match arg.action.as_deref() {
                 Some("count") => {
                     attrs.push(quote! {
@@ -789,7 +707,6 @@ pub fn generate_args_struct(
                 _ => {}
             }
 
-            // DEPYLER-0369/0375: Add default_value_t for store_false/store_const
             if arg.action.as_deref() == Some("store_false") {
                 // store_false means default is true, becomes false when present
                 attrs.push(quote! {
@@ -797,9 +714,7 @@ pub fn generate_args_struct(
                 });
             } else if arg.action.as_deref() == Some("store_const") && arg.const_value.is_some() {
                 // store_const: default is false, becomes const value when present
-                if let Some(crate::hir::HirExpr::Literal(crate::hir::Literal::Bool(_val))) =
-                    arg.const_value.as_ref()
-                {
+                if let Some(crate::hir::HirExpr::Literal(crate::hir::Literal::Bool(_val))) = arg.const_value.as_ref() {
                     attrs.push(quote! {
                         #[arg(default_value_t = false)]
                     });
@@ -820,7 +735,6 @@ pub fn generate_args_struct(
         })
         .collect();
 
-    // DEPYLER-0399: Add command field if subcommands exist
     if tracker.has_subcommands() {
         fields.push(quote! {
             #[command(subcommand)]
@@ -851,7 +765,6 @@ pub fn generate_args_struct(
     }
 }
 
-/// DEPYLER-0425: Analyze which subcommand fields are accessed in a function
 ///
 /// Returns: Option<(variant_name, Vec<field_names>)>
 ///
@@ -909,67 +822,25 @@ pub fn analyze_subcommand_field_access(
                     }
                 }
                 // Recurse into value
-                walk_expr(
-                    value,
-                    args_param,
-                    field_to_variant,
-                    accessed_fields,
-                    detected_variant,
-                );
+                walk_expr(value, args_param, field_to_variant, accessed_fields, detected_variant);
             }
             HirExpr::Binary { left, right, .. } => {
-                walk_expr(
-                    left,
-                    args_param,
-                    field_to_variant,
-                    accessed_fields,
-                    detected_variant,
-                );
-                walk_expr(
-                    right,
-                    args_param,
-                    field_to_variant,
-                    accessed_fields,
-                    detected_variant,
-                );
+                walk_expr(left, args_param, field_to_variant, accessed_fields, detected_variant);
+                walk_expr(right, args_param, field_to_variant, accessed_fields, detected_variant);
             }
             HirExpr::Unary { operand, .. } => {
-                walk_expr(
-                    operand,
-                    args_param,
-                    field_to_variant,
-                    accessed_fields,
-                    detected_variant,
-                );
+                walk_expr(operand, args_param, field_to_variant, accessed_fields, detected_variant);
             }
             HirExpr::Call { args, .. } => {
                 // Note: func is a Symbol, not an HirExpr
                 for arg in args {
-                    walk_expr(
-                        arg,
-                        args_param,
-                        field_to_variant,
-                        accessed_fields,
-                        detected_variant,
-                    );
+                    walk_expr(arg, args_param, field_to_variant, accessed_fields, detected_variant);
                 }
             }
             HirExpr::MethodCall { object, args, .. } => {
-                walk_expr(
-                    object,
-                    args_param,
-                    field_to_variant,
-                    accessed_fields,
-                    detected_variant,
-                );
+                walk_expr(object, args_param, field_to_variant, accessed_fields, detected_variant);
                 for arg in args {
-                    walk_expr(
-                        arg,
-                        args_param,
-                        field_to_variant,
-                        accessed_fields,
-                        detected_variant,
-                    );
+                    walk_expr(arg, args_param, field_to_variant, accessed_fields, detected_variant);
                 }
             }
             HirExpr::List(elements)
@@ -977,48 +848,18 @@ pub fn analyze_subcommand_field_access(
             | HirExpr::Set(elements)
             | HirExpr::FrozenSet(elements) => {
                 for elem in elements {
-                    walk_expr(
-                        elem,
-                        args_param,
-                        field_to_variant,
-                        accessed_fields,
-                        detected_variant,
-                    );
+                    walk_expr(elem, args_param, field_to_variant, accessed_fields, detected_variant);
                 }
             }
             HirExpr::Dict(items) => {
                 for (key, value) in items {
-                    walk_expr(
-                        key,
-                        args_param,
-                        field_to_variant,
-                        accessed_fields,
-                        detected_variant,
-                    );
-                    walk_expr(
-                        value,
-                        args_param,
-                        field_to_variant,
-                        accessed_fields,
-                        detected_variant,
-                    );
+                    walk_expr(key, args_param, field_to_variant, accessed_fields, detected_variant);
+                    walk_expr(value, args_param, field_to_variant, accessed_fields, detected_variant);
                 }
             }
             HirExpr::Index { base, index } => {
-                walk_expr(
-                    base,
-                    args_param,
-                    field_to_variant,
-                    accessed_fields,
-                    detected_variant,
-                );
-                walk_expr(
-                    index,
-                    args_param,
-                    field_to_variant,
-                    accessed_fields,
-                    detected_variant,
-                );
+                walk_expr(base, args_param, field_to_variant, accessed_fields, detected_variant);
+                walk_expr(index, args_param, field_to_variant, accessed_fields, detected_variant);
             }
             HirExpr::Slice {
                 base,
@@ -1026,49 +867,19 @@ pub fn analyze_subcommand_field_access(
                 stop,
                 step,
             } => {
-                walk_expr(
-                    base,
-                    args_param,
-                    field_to_variant,
-                    accessed_fields,
-                    detected_variant,
-                );
+                walk_expr(base, args_param, field_to_variant, accessed_fields, detected_variant);
                 if let Some(s) = start {
-                    walk_expr(
-                        s,
-                        args_param,
-                        field_to_variant,
-                        accessed_fields,
-                        detected_variant,
-                    );
+                    walk_expr(s, args_param, field_to_variant, accessed_fields, detected_variant);
                 }
                 if let Some(s) = stop {
-                    walk_expr(
-                        s,
-                        args_param,
-                        field_to_variant,
-                        accessed_fields,
-                        detected_variant,
-                    );
+                    walk_expr(s, args_param, field_to_variant, accessed_fields, detected_variant);
                 }
                 if let Some(s) = step {
-                    walk_expr(
-                        s,
-                        args_param,
-                        field_to_variant,
-                        accessed_fields,
-                        detected_variant,
-                    );
+                    walk_expr(s, args_param, field_to_variant, accessed_fields, detected_variant);
                 }
             }
             HirExpr::Borrow { expr, .. } => {
-                walk_expr(
-                    expr,
-                    args_param,
-                    field_to_variant,
-                    accessed_fields,
-                    detected_variant,
-                );
+                walk_expr(expr, args_param, field_to_variant, accessed_fields, detected_variant);
             }
             HirExpr::ListComp {
                 element,
@@ -1082,28 +893,10 @@ pub fn analyze_subcommand_field_access(
                 condition,
                 ..
             } => {
-                walk_expr(
-                    element,
-                    args_param,
-                    field_to_variant,
-                    accessed_fields,
-                    detected_variant,
-                );
-                walk_expr(
-                    iter,
-                    args_param,
-                    field_to_variant,
-                    accessed_fields,
-                    detected_variant,
-                );
+                walk_expr(element, args_param, field_to_variant, accessed_fields, detected_variant);
+                walk_expr(iter, args_param, field_to_variant, accessed_fields, detected_variant);
                 if let Some(cond) = condition {
-                    walk_expr(
-                        cond,
-                        args_param,
-                        field_to_variant,
-                        accessed_fields,
-                        detected_variant,
-                    );
+                    walk_expr(cond, args_param, field_to_variant, accessed_fields, detected_variant);
                 }
             }
             HirExpr::DictComp {
@@ -1113,86 +906,29 @@ pub fn analyze_subcommand_field_access(
                 condition,
                 ..
             } => {
-                walk_expr(
-                    key,
-                    args_param,
-                    field_to_variant,
-                    accessed_fields,
-                    detected_variant,
-                );
-                walk_expr(
-                    value,
-                    args_param,
-                    field_to_variant,
-                    accessed_fields,
-                    detected_variant,
-                );
-                walk_expr(
-                    iter,
-                    args_param,
-                    field_to_variant,
-                    accessed_fields,
-                    detected_variant,
-                );
+                walk_expr(key, args_param, field_to_variant, accessed_fields, detected_variant);
+                walk_expr(value, args_param, field_to_variant, accessed_fields, detected_variant);
+                walk_expr(iter, args_param, field_to_variant, accessed_fields, detected_variant);
                 if let Some(cond) = condition {
-                    walk_expr(
-                        cond,
-                        args_param,
-                        field_to_variant,
-                        accessed_fields,
-                        detected_variant,
-                    );
+                    walk_expr(cond, args_param, field_to_variant, accessed_fields, detected_variant);
                 }
             }
             HirExpr::Lambda { body, .. } => {
-                walk_expr(
-                    body,
-                    args_param,
-                    field_to_variant,
-                    accessed_fields,
-                    detected_variant,
-                );
+                walk_expr(body, args_param, field_to_variant, accessed_fields, detected_variant);
             }
             HirExpr::FString { parts } => {
-                // DEPYLER-0425: Walk f-string interpolated expressions
                 for part in parts {
                     if let crate::hir::FStringPart::Expr(expr) = part {
-                        walk_expr(
-                            expr,
-                            args_param,
-                            field_to_variant,
-                            accessed_fields,
-                            detected_variant,
-                        );
+                        walk_expr(expr, args_param, field_to_variant, accessed_fields, detected_variant);
                     }
                 }
             }
             HirExpr::IfExpr { test, body, orelse } => {
-                walk_expr(
-                    test,
-                    args_param,
-                    field_to_variant,
-                    accessed_fields,
-                    detected_variant,
-                );
-                walk_expr(
-                    body,
-                    args_param,
-                    field_to_variant,
-                    accessed_fields,
-                    detected_variant,
-                );
-                walk_expr(
-                    orelse,
-                    args_param,
-                    field_to_variant,
-                    accessed_fields,
-                    detected_variant,
-                );
+                walk_expr(test, args_param, field_to_variant, accessed_fields, detected_variant);
+                walk_expr(body, args_param, field_to_variant, accessed_fields, detected_variant);
+                walk_expr(orelse, args_param, field_to_variant, accessed_fields, detected_variant);
             }
-            HirExpr::SortByKey {
-                iterable, key_body, ..
-            } => {
+            HirExpr::SortByKey { iterable, key_body, .. } => {
                 walk_expr(
                     iterable,
                     args_param,
@@ -1208,17 +944,8 @@ pub fn analyze_subcommand_field_access(
                     detected_variant,
                 );
             }
-            HirExpr::GeneratorExp {
-                element,
-                generators,
-            } => {
-                walk_expr(
-                    element,
-                    args_param,
-                    field_to_variant,
-                    accessed_fields,
-                    detected_variant,
-                );
+            HirExpr::GeneratorExp { element, generators } => {
+                walk_expr(element, args_param, field_to_variant, accessed_fields, detected_variant);
                 for gen in generators {
                     walk_expr(
                         &gen.iter,
@@ -1228,33 +955,15 @@ pub fn analyze_subcommand_field_access(
                         detected_variant,
                     );
                     for cond in &gen.conditions {
-                        walk_expr(
-                            cond,
-                            args_param,
-                            field_to_variant,
-                            accessed_fields,
-                            detected_variant,
-                        );
+                        walk_expr(cond, args_param, field_to_variant, accessed_fields, detected_variant);
                     }
                 }
             }
             HirExpr::Await { value } => {
-                walk_expr(
-                    value,
-                    args_param,
-                    field_to_variant,
-                    accessed_fields,
-                    detected_variant,
-                );
+                walk_expr(value, args_param, field_to_variant, accessed_fields, detected_variant);
             }
             HirExpr::Yield { value: Some(v) } => {
-                walk_expr(
-                    v,
-                    args_param,
-                    field_to_variant,
-                    accessed_fields,
-                    detected_variant,
-                );
+                walk_expr(v, args_param, field_to_variant, accessed_fields, detected_variant);
             }
             HirExpr::Yield { value: None } => {}
             _ => {}
@@ -1270,27 +979,13 @@ pub fn analyze_subcommand_field_access(
         detected_variant: &mut Option<String>,
     ) {
         match stmt {
-            HirStmt::Expr(expr) => walk_expr(
-                expr,
-                args_param,
-                field_to_variant,
-                accessed_fields,
-                detected_variant,
-            ),
-            HirStmt::Assign { value, .. } => walk_expr(
-                value,
-                args_param,
-                field_to_variant,
-                accessed_fields,
-                detected_variant,
-            ),
-            HirStmt::Return(Some(expr)) => walk_expr(
-                expr,
-                args_param,
-                field_to_variant,
-                accessed_fields,
-                detected_variant,
-            ),
+            HirStmt::Expr(expr) => walk_expr(expr, args_param, field_to_variant, accessed_fields, detected_variant),
+            HirStmt::Assign { value, .. } => {
+                walk_expr(value, args_param, field_to_variant, accessed_fields, detected_variant)
+            }
+            HirStmt::Return(Some(expr)) => {
+                walk_expr(expr, args_param, field_to_variant, accessed_fields, detected_variant)
+            }
             HirStmt::If {
                 condition,
                 then_body,
@@ -1304,23 +999,11 @@ pub fn analyze_subcommand_field_access(
                     detected_variant,
                 );
                 for s in then_body {
-                    walk_stmt(
-                        s,
-                        args_param,
-                        field_to_variant,
-                        accessed_fields,
-                        detected_variant,
-                    );
+                    walk_stmt(s, args_param, field_to_variant, accessed_fields, detected_variant);
                 }
                 if let Some(else_stmts) = else_body {
                     for s in else_stmts {
-                        walk_stmt(
-                            s,
-                            args_param,
-                            field_to_variant,
-                            accessed_fields,
-                            detected_variant,
-                        );
+                        walk_stmt(s, args_param, field_to_variant, accessed_fields, detected_variant);
                     }
                 }
             }
@@ -1333,42 +1016,18 @@ pub fn analyze_subcommand_field_access(
                     detected_variant,
                 );
                 for s in body {
-                    walk_stmt(
-                        s,
-                        args_param,
-                        field_to_variant,
-                        accessed_fields,
-                        detected_variant,
-                    );
+                    walk_stmt(s, args_param, field_to_variant, accessed_fields, detected_variant);
                 }
             }
             HirStmt::For { body, .. } => {
                 for s in body {
-                    walk_stmt(
-                        s,
-                        args_param,
-                        field_to_variant,
-                        accessed_fields,
-                        detected_variant,
-                    );
+                    walk_stmt(s, args_param, field_to_variant, accessed_fields, detected_variant);
                 }
             }
             HirStmt::With { context, body, .. } => {
-                walk_expr(
-                    context,
-                    args_param,
-                    field_to_variant,
-                    accessed_fields,
-                    detected_variant,
-                );
+                walk_expr(context, args_param, field_to_variant, accessed_fields, detected_variant);
                 for s in body {
-                    walk_stmt(
-                        s,
-                        args_param,
-                        field_to_variant,
-                        accessed_fields,
-                        detected_variant,
-                    );
+                    walk_stmt(s, args_param, field_to_variant, accessed_fields, detected_variant);
                 }
             }
             HirStmt::Try {
@@ -1378,56 +1037,26 @@ pub fn analyze_subcommand_field_access(
                 finalbody,
             } => {
                 for s in body {
-                    walk_stmt(
-                        s,
-                        args_param,
-                        field_to_variant,
-                        accessed_fields,
-                        detected_variant,
-                    );
+                    walk_stmt(s, args_param, field_to_variant, accessed_fields, detected_variant);
                 }
                 for handler in handlers {
                     for s in &handler.body {
-                        walk_stmt(
-                            s,
-                            args_param,
-                            field_to_variant,
-                            accessed_fields,
-                            detected_variant,
-                        );
+                        walk_stmt(s, args_param, field_to_variant, accessed_fields, detected_variant);
                     }
                 }
                 if let Some(orelse_stmts) = orelse {
                     for s in orelse_stmts {
-                        walk_stmt(
-                            s,
-                            args_param,
-                            field_to_variant,
-                            accessed_fields,
-                            detected_variant,
-                        );
+                        walk_stmt(s, args_param, field_to_variant, accessed_fields, detected_variant);
                     }
                 }
                 if let Some(final_stmts) = finalbody {
                     for s in final_stmts {
-                        walk_stmt(
-                            s,
-                            args_param,
-                            field_to_variant,
-                            accessed_fields,
-                            detected_variant,
-                        );
+                        walk_stmt(s, args_param, field_to_variant, accessed_fields, detected_variant);
                     }
                 }
             }
             HirStmt::Assert { test, msg } => {
-                walk_expr(
-                    test,
-                    args_param,
-                    field_to_variant,
-                    accessed_fields,
-                    detected_variant,
-                );
+                walk_expr(test, args_param, field_to_variant, accessed_fields, detected_variant);
                 if let Some(msg_expr) = msg {
                     walk_expr(
                         msg_expr,
@@ -1440,13 +1069,7 @@ pub fn analyze_subcommand_field_access(
             }
             HirStmt::Raise { exception, cause } => {
                 if let Some(exc) = exception {
-                    walk_expr(
-                        exc,
-                        args_param,
-                        field_to_variant,
-                        accessed_fields,
-                        detected_variant,
-                    );
+                    walk_expr(exc, args_param, field_to_variant, accessed_fields, detected_variant);
                 }
                 if let Some(cause_expr) = cause {
                     walk_expr(
@@ -1482,7 +1105,6 @@ pub fn analyze_subcommand_field_access(
     }
 }
 
-/// DEPYLER-0425: Wrap function body statements in pattern matching for subcommand field extraction
 ///
 /// # Complexity
 /// 5 (quote operations + iteration)

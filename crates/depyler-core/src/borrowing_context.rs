@@ -288,7 +288,6 @@ impl BorrowingContext {
                     }
                     AssignTarget::Attribute { value: obj, .. } => {
                         // Assigning to parameter.field mutates the parameter
-                        // DEPYLER-0318: Handle nested attributes like param.field.subfield = val
                         if let Some(root_var) = extract_root_var(obj) {
                             if let Some(usage) = self.param_usage.get_mut(&root_var) {
                                 usage.is_mutated = true;
@@ -303,7 +302,6 @@ impl BorrowingContext {
                     }
                     AssignTarget::Index { base: obj, .. } => {
                         // Assigning to parameter[index] mutates the parameter
-                        // DEPYLER-0318: Handle nested access like param.field[index] = val
                         if let Some(root_var) = extract_root_var(obj) {
                             if let Some(usage) = self.param_usage.get_mut(&root_var) {
                                 usage.is_mutated = true;
@@ -427,7 +425,6 @@ impl BorrowingContext {
                     }
                 }
             }
-            // DEPYLER-0427: Nested function support
             // Analyze nested function body for parameter usage
             HirStmt::FunctionDef { body, .. } => {
                 for stmt in body {
@@ -479,7 +476,6 @@ impl BorrowingContext {
                 for (i, arg) in args.iter().enumerate() {
                     // Check if directly passing a parameter
                     if let HirExpr::Var(name) = arg {
-                        // DEPYLER-0XXX: Check if this var was already passed to a function
                         // If so, mark as used_after_function_call
                         if self.moved_vars.contains(name) {
                             if let Some(usage) = self.param_usage.get_mut(name) {
@@ -502,7 +498,6 @@ impl BorrowingContext {
                             });
                         }
                     } else if let Some(root_var) = extract_root_var(arg) {
-                        // DEPYLER-0318: If passing a field (e.g., state.items) to a function,
                         // and the function mutates that parameter, the root object must be marked as mutated
                         let needs_mut = self.function_requires_mutable_param(func, i);
                         let takes_ownership = self.function_takes_ownership(func, i);
@@ -584,7 +579,6 @@ impl BorrowingContext {
                 let in_conditional = self.is_in_conditional();
                 let is_mutating = is_mutating_method(method);
 
-                // DEPYLER-0318: Extract root variable from nested attribute access
                 // e.g., state.items.append() should mark 'state' as mutated
                 if is_mutating {
                     if let Some(root_var) = extract_root_var(object) {
@@ -747,7 +741,6 @@ impl BorrowingContext {
     }
 
     /// Analyze expression in return context
-    /// DEPYLER-0303: Only mark parameters as escaping if they are DIRECTLY returned,
     /// not when used in operations that produce different types (e.g., `key in dict` → bool)
     fn analyze_expression_for_return(&mut self, expr: &HirExpr) {
         match expr {
@@ -800,7 +793,6 @@ impl BorrowingContext {
             "find",
             "index",
             "count",
-            // DEPYLER-0436: Type conversion functions borrow their arguments
             "int",
             "float",
             "bool",
@@ -877,12 +869,12 @@ impl BorrowingContext {
         python_type: &PythonType,
         insights: &mut Vec<BorrowingInsight>,
     ) -> BorrowingStrategy {
-        // Always check if type is Copy for insights
+        // Check if type is Copy first - Copy types can simply be copied, no borrowing needed
         if self.is_copy_type(rust_type) {
             insights.push(BorrowingInsight::SuggestCopyDerive(param_name.to_string()));
+            return BorrowingStrategy::TakeOwnership; // Cheap to copy
         }
 
-        // DEPYLER-0XXX: If parameter is used after being passed to a function, must borrow
         // This handles multi-use patterns like:
         //   func1(state)
         //   func2(state)  # state used again after func1
@@ -897,7 +889,6 @@ impl BorrowingContext {
             }
         }
 
-        // DEPYLER-0XXX: If parameter is moved AND mutated, prefer borrowing
         // This handles cases like:
         //   state.x = 10  # mutation
         //   func(state)   # would be move, but we need to borrow
@@ -934,11 +925,6 @@ impl BorrowingContext {
         if usage.used_in_closure {
             // Complex analysis needed - for now, be conservative
             return BorrowingStrategy::TakeOwnership;
-        }
-
-        // Check if type is Copy - take ownership (cheap)
-        if self.is_copy_type(rust_type) {
-            return BorrowingStrategy::TakeOwnership; // Cheap to copy
         }
 
         // String-specific optimizations

@@ -1,4 +1,4 @@
-//! DEPYLER-0295: ValueError Type Generation Tests
+//! issue: ValueError Type Generation Tests
 //!
 //! Tests that ValueError is properly generated when Python code raises ValueError.
 //!
@@ -311,7 +311,6 @@ def safe_divide(x: int, y: int) -> int:
     // NOTE: When multiple different exception types are raised in a single function,
     // the transpiler currently uses Box<dyn std::error::Error> and doesn't generate
     // specific error type definitions. This is a known limitation, separate from
-    // DEPYLER-0295. DEPYLER-0295 specifically fixes single-error-type generation.
 
     // Should use Box<dyn std::error::Error> for multiple error types
     assert!(

@@ -1,4 +1,4 @@
-//! DEPYLER-0354: simplified_hir.rs Coverage Tests
+//! issue: simplified_hir.rs Coverage Tests
 //!
 //! **EXTREME TDD Protocol - Coverage Boost**
 //!

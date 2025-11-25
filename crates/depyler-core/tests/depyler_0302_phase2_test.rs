@@ -1,4 +1,3 @@
-// DEPYLER-0302 Phase 2: String Method Medium Wins Test
 // Tests for:
 // 1. String multiplication (s * n → .repeat())
 // 2. title() method with custom implementation

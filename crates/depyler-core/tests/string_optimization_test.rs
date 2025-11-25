@@ -60,7 +60,6 @@ def concat_strings(a: str, b: str) -> str:
     let rust_code = pipeline.transpile(python_code).unwrap();
     println!("Generated code for concat_strings:\n{}", rust_code);
 
-    // DEPYLER-0357: String concatenation uses format! for borrowed strings
     // This is more idiomatic than + operator when both operands are &str
     assert!(
         rust_code.contains("format!") || rust_code.contains("+"),
@@ -206,7 +205,7 @@ mod mutation_tests {
         // 1. String literal handling (multiple uses)
         // 2. String type consistency
         // 3. Proper string conversion (.to_string() where needed)
-        //
+
         // Kill Strategy:
         // - Verify string literals are emitted correctly
         // - Verify repeated strings work without errors
@@ -244,7 +243,7 @@ def use_repeated_string():
         // 1. .to_string() placement (where needed vs not needed)
         // 2. String::from() usage (unnecessary allocation)
         // 3. Owned vs borrowed type selection
-        //
+
         // Kill Strategy:
         // - Verify string literals are converted to String when assigned to variables
         // - Mutation removing necessary conversions would cause type errors
@@ -277,7 +276,7 @@ def use_string():
         // 1. + operator removal (would break concatenation)
         // 2. format! macro substitution (alternative approach)
         // 3. Operator precedence changes
-        //
+
         // Kill Strategy:
         // - Verify + operator or format! exists for concatenation
         // - Verify operand ordering is preserved

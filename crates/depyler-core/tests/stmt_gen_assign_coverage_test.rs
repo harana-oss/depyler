@@ -16,7 +16,7 @@ use depyler_core::DepylerPipeline;
 
 /// Unit Test: Dict augmented assignment with +=
 ///
-/// Verifies: DEPYLER-0279 dict augmented assignment pattern (lines 797-825)
+/// Verifies: issue dict augmented assignment pattern (lines 797-825)
 /// Tests: is_dict_augassign_pattern() detection and special handling
 #[test]
 fn test_dict_augmented_add() {
@@ -32,7 +32,7 @@ def increment_dict_value():
     // Should generate: let _old_val = d.get(&key).cloned().unwrap_or_default();
     //                  d.insert(key, _old_val + value);
     assert!(rust_code.contains("fn increment_dict_value"));
-    // Verify no borrow-after-move error (DEPYLER-0279 fix)
+    // Verify no borrow-after-move error 
     assert!(rust_code.contains("insert") || rust_code.contains("get"));
 }
 
@@ -106,7 +106,7 @@ def modulo_dict_value():
 
 /// Unit Test: Type annotation tracking for List
 ///
-/// Verifies: DEPYLER-0272 type annotation tracking (lines 836-840)
+/// Verifies: issue type annotation tracking (lines 836-840)
 /// Purpose: Enables correct {:?} vs {} selection in println! for collections
 #[test]
 fn test_type_tracking_list_annotation() {
@@ -159,7 +159,7 @@ def unique_items() -> set[int]:
 
 /// Unit Test: Type tracking from Vec<String>.get()
 ///
-/// Verifies: DEPYLER-0327 Fix #1 - String type from Vec<String>.get() (lines 842-910)
+/// Verifies: issue Fix #1 - String type from Vec<String>.get() (lines 842-910)
 /// This was a specific bug fix for tracking String type from method calls
 #[test]
 fn test_type_tracking_string_from_vec_get() {
@@ -177,7 +177,7 @@ def get_name(names: list[str], index: int) -> str:
 
 /// Unit Test: Type tracking from list literal
 ///
-/// Verifies: DEPYLER-0224 list literal type tracking (lines 912-918)
+/// Verifies: issue list literal type tracking (lines 912-918)
 #[test]
 fn test_type_tracking_list_literal() {
     let pipeline = DepylerPipeline::new();
@@ -228,7 +228,7 @@ def literal_set():
 
 /// Unit Test: Type tracking from slicing operation
 ///
-/// Verifies: DEPYLER-0301 list/vec type from slicing (lines 936-956)
+/// Verifies: issue list/vec type from slicing (lines 936-956)
 #[test]
 fn test_type_tracking_slice() {
     let pipeline = DepylerPipeline::new();
@@ -262,7 +262,7 @@ def append_and_return(items: list[int], value: int) -> list[int]:
 
 /// Unit Test: Result-returning function unwrapping
 ///
-/// Verifies: DEPYLER-0270 Result unwrapping in assignments (lines 949-958)
+/// Verifies: issue Result unwrapping in assignments (lines 949-958)
 #[test]
 fn test_result_unwrapping_assignment() {
     let pipeline = DepylerPipeline::new();
@@ -279,7 +279,7 @@ def safe_get(d: dict[str, int], key: str) -> int:
 
 /// Unit Test: Non-Result assignment (regression test)
 ///
-/// Verifies: DEPYLER-0330 disabled heuristic doesn't break plain assignments
+/// Verifies: issue disabled heuristic doesn't break plain assignments
 #[test]
 fn test_plain_assignment_no_unwrap() {
     let pipeline = DepylerPipeline::new();

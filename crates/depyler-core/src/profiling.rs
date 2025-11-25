@@ -22,17 +22,11 @@ pub struct Profiler {
 
 #[derive(Debug, Clone)]
 pub struct ProfileConfig {
-    /// Enable instruction counting
     pub count_instructions: bool,
-    /// Enable memory allocation tracking
     pub track_allocations: bool,
-    /// Enable hot path detection
     pub detect_hot_paths: bool,
-    /// Minimum samples for hot path detection
     pub hot_path_threshold: usize,
-    /// Generate flame graph data
     pub generate_flamegraph: bool,
-    /// Include performance hints
     pub include_hints: bool,
 }
 
@@ -51,45 +45,29 @@ impl Default for ProfileConfig {
 
 #[derive(Debug, Clone)]
 pub struct FunctionMetrics {
-    /// Function name
     pub name: String,
-    /// Estimated instruction count
     pub instruction_count: usize,
-    /// Estimated memory allocations
     pub allocation_count: usize,
-    /// Estimated execution time (relative)
     pub estimated_time: f64,
-    /// Number of times called (if detectable)
     pub call_count: usize,
-    /// Percentage of total program time
     pub time_percentage: f64,
-    /// Whether this is a hot function
     pub is_hot: bool,
 }
 
 #[derive(Debug, Clone)]
 pub struct HotPath {
-    /// Functions in the call chain
     pub call_chain: Vec<String>,
-    /// Estimated percentage of execution time
     pub time_percentage: f64,
-    /// Loop depth in the path
     pub loop_depth: usize,
-    /// Whether path contains I/O
     pub has_io: bool,
 }
 
 #[derive(Debug, Clone)]
 pub struct PerformancePrediction {
-    /// Type of prediction
     pub category: PredictionCategory,
-    /// Confidence level (0.0 to 1.0)
     pub confidence: f64,
-    /// Predicted speedup factor
     pub speedup_factor: f64,
-    /// Explanation
     pub explanation: String,
-    /// Affected functions
     pub functions: Vec<String>,
 }
 
@@ -109,14 +87,10 @@ pub enum PredictionCategory {
     ParallelizationOpportunity,
 }
 
-/// Profiling annotations that can be added to generated code
 #[derive(Debug, Clone)]
 pub struct ProfilingAnnotation {
-    /// Annotation type
     pub kind: AnnotationKind,
-    /// Target function or location
     pub target: String,
-    /// Annotation value
     pub value: String,
 }
 
@@ -142,7 +116,6 @@ impl Profiler {
         }
     }
 
-    /// Analyze a program for profiling insights
     pub fn analyze_program(&mut self, program: &HirProgram) -> ProfilingReport {
         // Clear previous results
         self.metrics.clear();
@@ -453,25 +426,17 @@ impl Profiler {
     }
 }
 
-/// Profiling report containing all analysis results
 #[derive(Debug, Clone)]
 pub struct ProfilingReport {
-    /// Function-level metrics
     pub metrics: HashMap<String, FunctionMetrics>,
-    /// Detected hot paths
     pub hot_paths: Vec<HotPath>,
-    /// Performance predictions
     pub predictions: Vec<PerformancePrediction>,
-    /// Total instruction count estimate
     pub total_instructions: usize,
-    /// Total allocation count estimate
     pub total_allocations: usize,
-    /// Profiling annotations for code generation
     pub annotations: Vec<ProfilingAnnotation>,
 }
 
 impl ProfilingReport {
-    /// Format the report for display
     pub fn format_report(&self) -> String {
         let output = String::new();
         // self.format_header(&mut output);
@@ -562,7 +527,6 @@ impl ProfilingReport {
         }
     }
 
-    /// Generate flame graph data in collapsed format
     pub fn generate_flamegraph_data(&self) -> String {
         let mut lines = Vec::new();
 
@@ -577,7 +541,6 @@ impl ProfilingReport {
         lines.join("\n")
     }
 
-    /// Generate perf-compatible annotations
     pub fn generate_perf_annotations(&self) -> String {
         let annotations: Vec<String> = self
             .annotations

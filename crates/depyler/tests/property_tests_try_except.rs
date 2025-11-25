@@ -1,4 +1,4 @@
-//! Property tests for try/except transpilation (DEPYLER-0257)
+//! Property tests for try/except transpilation 
 //!
 //! This module implements property-based testing for try/except functionality
 //! using QuickCheck with 10,000+ iterations per property.

@@ -1,4 +1,3 @@
-// DEPYLER-0293: Test int(str) string-to-integer parsing
 // Tests for fixing int(str) to generate .parse::<i32>() instead of invalid cast
 
 use depyler_core::DepylerPipeline;

@@ -2,7 +2,6 @@ use depyler_core::DepylerPipeline;
 
 #[test]
 fn test_tuple_exception_types_compiles() {
-    // DEPYLER-0362: Tuple exception types should generate proper code
     let python = r#"
 def multi_except(s: str) -> int:
     try:
@@ -23,7 +22,6 @@ def multi_except(s: str) -> int:
     let rust_code = result.unwrap();
     println!("Generated code:\n{}", rust_code);
 
-    // DEPYLER-0362: Currently, tuple exception handlers with multiple statements
     // (like print + return) are not fully implemented. The code compiles but
     // doesn't execute the handler body. This is a TODO for proper error dispatch.
     // For now, we just verify it compiles.
@@ -45,7 +43,7 @@ def multi_except(s: str) -> int:
     if !output.status.success() {
         let stderr = String::from_utf8_lossy(&output.stderr);
         panic!(
-            "❌ DEPYLER-0362: Generated code should compile!\n\nGenerated code:\n{}\n\nCompilation errors:\n{}",
+            "❌ issue: Generated code should compile!\n\nGenerated code:\n{}\n\nCompilation errors:\n{}",
             rust_code, stderr
         );
     }

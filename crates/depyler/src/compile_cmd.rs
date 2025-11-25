@@ -1,4 +1,4 @@
-//! DEPYLER-0380: Compile Command Implementation
+//! Compile Command Implementation
 //!
 //! **EXTREME TDD - GREEN Phase**
 //!
@@ -8,7 +8,7 @@
 //! 3. Build executable binary
 //! 4. Return path to binary
 //!
-//! Complexity: ≤10 per function
+//!
 //! TDG Score: A (≤2.0)
 //! Coverage: ≥85%
 
@@ -29,7 +29,6 @@ use std::process::Command;
 /// # Returns
 /// Path to the compiled binary
 ///
-/// Complexity: 8 (within ≤10 target)
 pub fn compile_python_to_binary(
     input: &Path,
     output: Option<&Path>,
@@ -49,7 +48,7 @@ pub fn compile_python_to_binary(
             .progress_chars("█▓▒░ "),
     );
 
-    // Step 1: Transpile Python → Rust (DEPYLER-0384: with dependency tracking)
+    // Step 1: Transpile Python → Rust 
     pb.set_message("Transpiling Python to Rust...");
     let python_code = fs::read_to_string(input)
         .with_context(|| format!("Failed to read input file: {}", input.display()))?;
@@ -60,7 +59,7 @@ pub fn compile_python_to_binary(
         .context("Failed to transpile Python to Rust")?;
     pb.inc(1);
 
-    // Step 2: Create Cargo project (DEPYLER-0384: with automatic dependencies)
+    // Step 2: Create Cargo project 
     pb.set_message("Creating Cargo project...");
     let project_dir = create_cargo_project(input, &rust_code, &dependencies)?;
     pb.inc(1);
@@ -82,9 +81,7 @@ pub fn compile_python_to_binary(
 
 /// Create a Cargo project with the transpiled Rust code
 ///
-/// DEPYLER-0384: Now accepts dependencies for automatic Cargo.toml generation
 ///
-/// Complexity: 3 (within ≤10 target)
 fn create_cargo_project(
     input: &Path,
     rust_code: &str,
@@ -101,10 +98,9 @@ fn create_cargo_project(
     // Create project structure
     fs::create_dir_all(project_dir.join("src")).context("Failed to create src directory")?;
 
-    // DEPYLER-0384, DEPYLER-0392: Generate Cargo.toml with automatic dependencies and [[bin]] section
     let cargo_toml = depyler_core::cargo_toml_gen::generate_cargo_toml(
         project_name,
-        "src/main.rs", // DEPYLER-0392: Path to binary source
+        "src/main.rs", // Path to binary source
         dependencies,
     );
     fs::write(project_dir.join("Cargo.toml"), cargo_toml).context("Failed to write Cargo.toml")?;
@@ -117,7 +113,6 @@ fn create_cargo_project(
 
 /// Build the Cargo project
 ///
-/// Complexity: 2 (within ≤10 target)
 fn build_cargo_project(project_dir: &Path, profile: &str) -> Result<()> {
     let mut cmd = Command::new("cargo");
     cmd.arg("build")
@@ -140,7 +135,6 @@ fn build_cargo_project(project_dir: &Path, profile: &str) -> Result<()> {
 
 /// Copy the built binary to the final location
 ///
-/// Complexity: 4 (within ≤10 target)
 fn finalize_binary(
     project_dir: &Path,
     input: &Path,
@@ -209,7 +203,6 @@ mod tests {
         let input = temp.path().join("test.py");
         fs::write(&input, "").unwrap();
 
-        // DEPYLER-0384: Empty dependencies list for basic test
         let dependencies = vec![];
         let project_dir = create_cargo_project(&input, rust_code, &dependencies).unwrap();
 
@@ -219,7 +212,6 @@ mod tests {
         let main_content = fs::read_to_string(project_dir.join("src/main.rs")).unwrap();
         assert!(main_content.contains("test"));
 
-        // DEPYLER-0384: Verify Cargo.toml has package section
         let cargo_content = fs::read_to_string(project_dir.join("Cargo.toml")).unwrap();
         assert!(cargo_content.contains("[package]"));
         assert!(cargo_content.contains("name = \"test\""));

@@ -1,4 +1,3 @@
-// DEPYLER-0021 Phase 3: Comparison Operator Mutation Kill Tests
 //
 // Target: 15 MISSED mutations involving comparison operator swaps
 //

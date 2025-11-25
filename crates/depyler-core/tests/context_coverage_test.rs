@@ -357,12 +357,11 @@ class MyClass:
 }
 
 // ============================================================================
-// DEPYLER-0333: Exception Scope Tracking Tests
 // ============================================================================
 // Target: Lines 173-236 (completely untested)
 // Coverage Impact: 65.71% → 82-85%
 
-/// Unit Test: DEPYLER-0333 - Try/except with bare except clause
+/// Unit Test: issue - Try/except with bare except clause
 ///
 /// Verifies: Exception scope tracking, bare except (catches all)
 /// Coverage: Lines 173-236 (exception scope methods)
@@ -383,7 +382,7 @@ def try_bare_except():
     assert!(rust_code.contains("fn try_bare_except"));
 }
 
-/// Unit Test: DEPYLER-0333 - Try/except with specific exception type
+/// Unit Test: issue - Try/except with specific exception type
 ///
 /// Verifies: Specific exception handling (ValueError)
 /// Coverage: Lines 204-211 (is_exception_handled)
@@ -404,7 +403,7 @@ def try_specific():
     assert!(rust_code.contains("fn try_specific"));
 }
 
-/// Unit Test: DEPYLER-0333 - Try/except with multiple exception types
+/// Unit Test: issue - Try/except with multiple exception types
 ///
 /// Verifies: Multiple handled types in exception scope
 /// Coverage: Lines 217-220 (enter_try_scope with vec)
@@ -426,7 +425,7 @@ def try_multiple():
     assert!(rust_code.contains("fn try_multiple"));
 }
 
-/// Unit Test: DEPYLER-0333 - Nested try/except blocks
+/// Unit Test: issue - Nested try/except blocks
 ///
 /// Verifies: Exception scope stack LIFO behavior
 /// Coverage: Lines 217-236 (enter/exit scope stack)
@@ -451,7 +450,7 @@ def nested_try():
     assert!(rust_code.contains("fn nested_try"));
 }
 
-/// Unit Test: DEPYLER-0333 - Try/except/finally
+/// Unit Test: issue - Try/except/finally
 ///
 /// Verifies: Finally block handling
 /// Coverage: Lines 226-228 (enter_handler_scope)
@@ -475,7 +474,7 @@ def try_finally():
     assert!(rust_code.contains("fn try_finally"));
 }
 
-/// Unit Test: DEPYLER-0333 - Try with else clause
+/// Unit Test: issue - Try with else clause
 ///
 /// Verifies: Else clause in try/except
 /// Coverage: Exception scope tracking
@@ -498,7 +497,7 @@ def try_else():
     assert!(rust_code.contains("fn try_else"));
 }
 
-/// Unit Test: DEPYLER-0333 - Function without try/except (unhandled)
+/// Unit Test: issue - Function without try/except (unhandled)
 ///
 /// Verifies: Unhandled exception scope (empty stack)
 /// Coverage: Lines 179-183 (current_exception_scope unwrap_or)
@@ -516,7 +515,7 @@ def unhandled_exception():
     assert!(result.is_ok() || result.is_err());
 }
 
-/// Unit Test: DEPYLER-0333 - Raise inside try block
+/// Unit Test: issue - Raise inside try block
 ///
 /// Verifies: Raise statement inside try block
 /// Coverage: Lines 189-194 (is_in_try_block)
@@ -538,7 +537,7 @@ def raise_in_try(x: int):
     assert!(rust_code.contains("fn raise_in_try"));
 }
 
-/// Unit Test: DEPYLER-0333 - Raise inside except handler
+/// Unit Test: issue - Raise inside except handler
 ///
 /// Verifies: Raise statement inside except handler
 /// Coverage: Lines 226-228 (Handler scope)
@@ -559,7 +558,7 @@ def raise_in_handler():
     assert!(result.is_ok() || result.is_err());
 }
 
-/// Unit Test: DEPYLER-0333 - Multiple sequential try blocks
+/// Unit Test: issue - Multiple sequential try blocks
 ///
 /// Verifies: Sequential try blocks (not nested)
 /// Coverage: Lines 217-236 (enter/exit multiple times)
@@ -586,7 +585,7 @@ def sequential_try():
     assert!(rust_code.contains("fn sequential_try"));
 }
 
-/// Unit Test: DEPYLER-0333 - Try block with return in except
+/// Unit Test: issue - Try block with return in except
 ///
 /// Verifies: Early return in except handler
 /// Coverage: Exception scope with control flow
@@ -607,7 +606,7 @@ def return_in_except(x: int):
     assert!(rust_code.contains("fn return_in_except"));
 }
 
-/// Unit Test: DEPYLER-0333 - Try block in loop
+/// Unit Test: issue - Try block in loop
 ///
 /// Verifies: Exception scope inside loop
 /// Coverage: Exception scope with loop interaction
@@ -630,7 +629,7 @@ def try_in_loop():
     assert!(rust_code.contains("fn try_in_loop"));
 }
 
-/// Unit Test: DEPYLER-0333 - Empty except block
+/// Unit Test: issue - Empty except block
 ///
 /// Verifies: Except block with pass
 /// Coverage: Exception scope with empty handler
@@ -651,7 +650,7 @@ def empty_except():
     assert!(rust_code.contains("fn empty_except"));
 }
 
-/// Unit Test: DEPYLER-0333 - Try with multiple except clauses
+/// Unit Test: issue - Try with multiple except clauses
 ///
 /// Verifies: Multiple except clauses (different exception types)
 /// Coverage: Lines 204-211 (multiple is_exception_handled calls)
@@ -676,7 +675,7 @@ def multiple_except():
     assert!(rust_code.contains("fn multiple_except"));
 }
 
-/// Property Test: DEPYLER-0333 - Exception scope stack integrity
+/// Property Test: issue - Exception scope stack integrity
 ///
 /// Property: Scope stack should maintain LIFO invariant
 ///
@@ -712,7 +711,7 @@ def nested_scopes():
     assert!(rust_code.contains("fn nested_scopes"));
 }
 
-/// Property Test: DEPYLER-0333 - Exception handling correctness
+/// Property Test: issue - Exception handling correctness
 ///
 /// Property: Bare except should handle all exceptions
 #[test]
@@ -734,7 +733,7 @@ def bare_catches_all():
     assert!(rust_code.contains("fn bare_catches_all"));
 }
 
-/// Integration Test: DEPYLER-0333 - Complex exception handling
+/// Integration Test: issue - Complex exception handling
 ///
 /// Verifies: All exception scope features together
 #[test]

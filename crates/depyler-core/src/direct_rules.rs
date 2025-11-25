@@ -5,7 +5,6 @@ use quote::quote;
 use syn::{self, parse_quote};
 
 /// Check if a name is a Rust keyword that requires raw identifier syntax
-/// DEPYLER-0306: Copied from expr_gen.rs to support method name keyword handling
 fn is_rust_keyword(name: &str) -> bool {
     matches!(
         name,
@@ -642,7 +641,6 @@ fn stmt_mutates_self(stmt: &HirStmt) -> bool {
     }
 }
 
-/// DEPYLER-0422 Fix #10: Infer return type from method body
 /// Similar to infer_return_type_from_body in func_gen.rs
 fn infer_method_return_type(body: &[HirStmt]) -> Option<Type> {
     let mut return_types = Vec::new();
@@ -755,7 +753,6 @@ fn convert_method_to_impl_item(
     method: &HirMethod,
     type_mapper: &TypeMapper,
 ) -> Result<syn::ImplItemFn> {
-    // DEPYLER-0306 FIX: Use raw identifiers for method names that are Rust keywords
     let method_name = if is_rust_keyword(&method.name) {
         syn::Ident::new_raw(&method.name, proc_macro2::Span::call_site())
     } else {
@@ -804,7 +801,7 @@ fn convert_method_to_impl_item(
         }));
     }
 
-    // Convert return type - infer if Unknown or None (DEPYLER-0422 Fix #10)
+    // Convert return type - infer if Unknown or None 
     // Five-Whys Root Cause:
     // 1. Why: expected `()`, found `bool` in __exit__ method
     // 2. Why: Method has no return type annotation, so ret_type is Unknown/None
@@ -1301,7 +1298,6 @@ fn convert_body_with_context(
 
 /// Convert simple variable assignment: `x = value`
 ///
-/// Complexity: 1 (no branching)
 fn convert_symbol_assignment(symbol: &str, value_expr: syn::Expr) -> Result<syn::Stmt> {
     let target_ident = syn::Ident::new(symbol, proc_macro2::Span::call_site());
     let stmt = syn::Stmt::Local(syn::Local {
@@ -1327,7 +1323,6 @@ fn convert_symbol_assignment(symbol: &str, value_expr: syn::Expr) -> Result<syn:
 /// Convert subscript assignment: `d[k] = value` or `d[k1][k2] = value`
 ///
 /// Handles both simple and nested subscript assignments.
-/// Complexity: 3 (if + loop with nested if)
 fn convert_index_assignment(
     base: &HirExpr,
     index: &HirExpr,
@@ -1362,7 +1357,6 @@ fn convert_index_assignment(
 
 /// Convert attribute assignment: `obj.attr = value`
 ///
-/// Complexity: 1 (no branching)
 fn convert_attribute_assignment(
     base: &HirExpr,
     attr: &str,
@@ -1386,7 +1380,7 @@ fn convert_attribute_assignment(
 /// - Index: `d[k] = value` or `d[k1][k2] = value`
 /// - Attribute: `obj.attr = value`
 ///
-/// Complexity: ~8 (match with 3 arms + nested complexity from index helper)
+///
 #[allow(dead_code)]
 fn convert_assign_stmt(
     target: &AssignTarget,
@@ -1697,7 +1691,6 @@ fn convert_stmt_with_context(
             // Pass statement generates empty statement
             Ok(syn::Stmt::Expr(parse_quote! { {} }, None))
         }
-        // DEPYLER-0427: Nested function support - delegate to main rust_gen module
         HirStmt::FunctionDef { .. } => {
             // Nested functions are handled by the main rust_gen module
             // direct_rules is a legacy optimization path
@@ -1857,7 +1850,6 @@ impl<'a> ExprConverter<'a> {
                 // Note: This implementation works for integers with proper floor semantics.
                 // Type-based dispatch for float division (using .floor()) would be ideal
                 // but requires full type inference integration. This is a known limitation.
-                // DEPYLER-0236: Use intermediate variables to avoid formatting issues with != operator
 
                 Ok(parse_quote! {
                     {
@@ -1927,12 +1919,10 @@ impl<'a> ExprConverter<'a> {
                         }
                     }
                     // Float literal base: always use .powf()
-                    // DEPYLER-0408: Cast float literal to f64 for concrete type
                     (HirExpr::Literal(Literal::Float(_)), _) => Ok(parse_quote! {
                         (#left_expr as f64).powf(#right_expr as f64)
                     }),
                     // Any base with float exponent: use .powf()
-                    // DEPYLER-0408: Cast float literal exponent to f64 for concrete type
                     (_, HirExpr::Literal(Literal::Float(_))) => Ok(parse_quote! {
                         (#left_expr as f64).powf(#right_expr as f64)
                     }),
@@ -1940,7 +1930,6 @@ impl<'a> ExprConverter<'a> {
                     _ => {
                         // For non-literal expressions, we need runtime type checking
                         // This is a conservative approach that works for common cases
-                        // DEPYLER-0405: Cast both sides to i64 for type-safe comparison
                         Ok(parse_quote! {
                             {
                                 // Try integer power first if exponent can be u32
@@ -1949,7 +1938,6 @@ impl<'a> ExprConverter<'a> {
                                         .expect("Power operation overflowed")
                                 } else {
                                     // Fall back to float power for negative or large exponents
-                                    // DEPYLER-0401: Use i32 to match common Python int mapping
                                     (#left_expr as f64).powf(#right_expr as f64) as i32
                                 }
                             }
@@ -2099,7 +2087,6 @@ impl<'a> ExprConverter<'a> {
     fn convert_set_constructor(&self, args: &[syn::Expr]) -> Result<syn::Expr> {
         if args.is_empty() {
             // Empty set: set()
-            // DEPYLER-0409: Use default type i32 to avoid "type annotations needed" error
             // when the variable is unused or type can't be inferred from context
             Ok(parse_quote! { HashSet::<i32>::new() })
         } else if args.len() == 1 {
@@ -2116,7 +2103,6 @@ impl<'a> ExprConverter<'a> {
     fn convert_frozenset_constructor(&self, args: &[syn::Expr]) -> Result<syn::Expr> {
         if args.is_empty() {
             // Empty frozenset: frozenset()
-            // DEPYLER-0409: Use default type i32 for empty sets
             Ok(parse_quote! { std::sync::Arc::new(HashSet::<i32>::new()) })
         } else if args.len() == 1 {
             // Frozenset from iterable: frozenset([1, 2, 3])
@@ -2434,7 +2420,7 @@ impl<'a> ExprConverter<'a> {
                 }
             }
 
-            // String methods - DEPYLER-0413
+            // String methods
             "upper" => {
                 if !arg_exprs.is_empty() {
                     bail!("upper() takes no arguments");

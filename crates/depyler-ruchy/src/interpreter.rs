@@ -3,7 +3,7 @@
 //! This module provides integration with the Ruchy v1.5.0+ interpreter,
 //! leveraging the SELF-HOSTING capability and significant performance improvements.
 
-use anyhow::{anyhow, Result};
+use anyhow::{Result, anyhow};
 use std::collections::HashMap;
 
 #[cfg(feature = "interpreter")]
@@ -11,23 +11,18 @@ use ruchy::{compile, run_repl};
 
 use crate::RuchyConfig;
 
-/// Wrapper around the Ruchy interpreter with enhanced capabilities
 pub struct RuchyInterpreter {
-    /// Configuration for interpreter behavior
     #[allow(dead_code)]
     config: RuchyConfig,
 
-    /// Runtime context for variable bindings
     context: HashMap<String, String>,
 
-    /// Whether MCP integration is enabled
     #[cfg(feature = "interpreter")]
     #[allow(dead_code)]
     mcp_enabled: bool,
 }
 
 impl RuchyInterpreter {
-    /// Creates a new Ruchy interpreter with default settings
     pub fn new() -> Self {
         Self {
             config: RuchyConfig::default(),
@@ -37,7 +32,6 @@ impl RuchyInterpreter {
         }
     }
 
-    /// Creates a Ruchy interpreter with custom configuration
     pub fn with_config(config: &RuchyConfig) -> Self {
         Self {
             config: config.clone(),
@@ -85,17 +79,14 @@ impl RuchyInterpreter {
         false
     }
 
-    /// Sets a context variable for code execution
     pub fn set_context(&mut self, key: String, value: String) {
         self.context.insert(key, value);
     }
 
-    /// Gets a context variable
     pub fn get_context(&self, key: &str) -> Option<&String> {
         self.context.get(key)
     }
 
-    /// Clears all context variables
     pub fn clear_context(&mut self) {
         self.context.clear();
     }
@@ -109,9 +100,7 @@ impl RuchyInterpreter {
     /// Fallback REPL for builds without interpreter feature
     #[cfg(not(feature = "interpreter"))]
     pub fn start_repl(&self) -> Result<()> {
-        Err(anyhow!(
-            "REPL not available. Rebuild with --features interpreter"
-        ))
+        Err(anyhow!("REPL not available. Rebuild with --features interpreter"))
     }
 
     /// Benchmarks the interpreter performance
@@ -142,19 +131,11 @@ impl Default for RuchyInterpreter {
     }
 }
 
-/// Results from interpreter benchmarking
 #[derive(Debug, Clone)]
 pub struct BenchmarkResults {
-    /// Number of iterations performed
     pub iterations: usize,
-
-    /// Total execution time in milliseconds
     pub total_time_ms: u128,
-
-    /// Average execution time per iteration in milliseconds
     pub avg_time_ms: f64,
-
-    /// Throughput in operations per second
     pub throughput_ops_per_sec: u64,
 }
 
@@ -163,10 +144,7 @@ impl std::fmt::Display for BenchmarkResults {
         write!(
             f,
             "Benchmark Results:\n  Iterations: {}\n  Total time: {}ms\n  Avg time: {:.2}ms\n  Throughput: {} ops/sec",
-            self.iterations,
-            self.total_time_ms,
-            self.avg_time_ms,
-            self.throughput_ops_per_sec
+            self.iterations, self.total_time_ms, self.avg_time_ms, self.throughput_ops_per_sec
         )
     }
 }

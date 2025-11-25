@@ -1,4 +1,3 @@
-// DEPYLER-0303 Phase 2: Dictionary/HashMap Method Medium Wins Test
 // Tests for:
 // 1. Cow<str> over-complication → simple &str (1 error)
 // 2. Option unwrapping with None checks (1 error)
@@ -287,7 +286,6 @@ def dict_ops(d: dict[str, int]) -> None:
         rust_code.contains(".remove(") || rust_code.contains(".pop("),
         "Should still handle .pop() method"
     );
-    // DEPYLER-0449: Now uses .get().is_some() instead of .contains_key()
     assert!(
         rust_code.contains(".get(") && rust_code.contains(".is_some()"),
         "Should use .get().is_some() for membership test"

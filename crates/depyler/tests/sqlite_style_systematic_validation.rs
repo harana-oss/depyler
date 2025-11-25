@@ -505,7 +505,6 @@ def test() -> set[int]:
 
 #[test]
 fn test_depyler_0224_set_remove_with_variable() {
-    // DEPYLER-0224: set.remove() should use HashSet::remove(), not list position logic
     let python = r#"
 def test(value: int) -> set[int]:
     numbers = {1, 2, 3, 4, 5}
@@ -908,7 +907,7 @@ def test() -> int:
 // ============================================================================
 
 #[test]
-#[ignore] // DEPYLER-0257: Result-based exception handling not yet implemented for value-returning functions
+#[ignore] // Result-based exception handling not yet implemented for value-returning functions
 fn test_56_try_except_basic() {
     let python = r#"
 def test(x: int) -> int:
@@ -923,7 +922,7 @@ def test(x: int) -> int:
 }
 
 #[test]
-#[ignore] // DEPYLER-0257: Result-based exception handling not yet implemented for value-returning functions
+#[ignore] // Result-based exception handling not yet implemented for value-returning functions
 fn test_57_try_except_with_type() {
     let python = r#"
 def test(x: int) -> int:
@@ -938,7 +937,7 @@ def test(x: int) -> int:
 }
 
 #[test]
-#[ignore] // DEPYLER-0257: Result-based exception handling not yet implemented for value-returning functions
+#[ignore] // Result-based exception handling not yet implemented for value-returning functions
 fn test_58_try_except_finally() {
     let python = r#"
 def test(x: int) -> int:
@@ -957,7 +956,7 @@ def test(x: int) -> int:
 }
 
 #[test]
-#[ignore] // DEPYLER-0257: Result-based exception handling not yet implemented for value-returning functions
+#[ignore] // Result-based exception handling not yet implemented for value-returning functions
 fn test_59_multiple_except() {
     let python = r#"
 def test(x: int, y: int) -> int:

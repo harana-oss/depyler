@@ -4,18 +4,18 @@
 //! Coverage focus: Enumerate patterns, string iteration, unused variables, tuple unpacking
 //!
 //! Test Strategy:
-//! - Unused variable detection and _ prefixing (DEPYLER-0272)
+//! - Unused variable detection and _ prefixing 
 //! - Tuple unpacking with mixed used/unused elements
 //! - String vs collection iteration (.chars() vs .iter().cloned())
-//! - Enumerate pattern with type conversion (DEPYLER-0307)
-//! - Char-to-String conversion for dict keys (DEPYLER-0317)
+//! - Enumerate pattern with type conversion 
+//! - Char-to-String conversion for dict keys 
 //! - Edge cases and property tests
 
 use depyler_core::DepylerPipeline;
 
 /// Unit Test: Unused loop variable with underscore prefix
 ///
-/// Verifies: DEPYLER-0272 unused variable detection (lines 578-590)
+/// Verifies: issue unused variable detection (lines 578-590)
 /// Should prefix unused variable with _ to avoid warnings
 #[test]
 fn test_unused_loop_variable() {
@@ -73,7 +73,7 @@ def process_pairs(pairs: list[tuple[int, int]]) -> int:
 
 /// Unit Test: Tuple unpacking with first element unused
 ///
-/// Verifies: DEPYLER-0272 mixed used/unused in tuple (lines 594-609)
+/// Verifies: issue mixed used/unused in tuple (lines 594-609)
 #[test]
 fn test_tuple_unpacking_first_unused() {
     let pipeline = DepylerPipeline::new();
@@ -130,7 +130,7 @@ def count_pairs(pairs: list[tuple[int, int]]) -> int:
 
 /// Unit Test: String iteration detection (singular form)
 ///
-/// Verifies: DEPYLER-0300/0302 string detection heuristic (lines 620-652)
+/// Verifies: issue string detection heuristic (lines 620-652)
 /// Strings use .chars() instead of .iter().cloned()
 #[test]
 fn test_string_iteration_singular() {
@@ -221,7 +221,7 @@ def sum_numbers(numbers: list[int]) -> int:
 
 /// Unit Test: Plural form should NOT match string pattern
 ///
-/// Verifies: DEPYLER-0302 plural exclusion (lines 623-637)
+/// Verifies: issue plural exclusion (lines 623-637)
 #[test]
 fn test_plural_not_string() {
     let pipeline = DepylerPipeline::new();
@@ -239,7 +239,7 @@ def process_strings(strings: list[str]) -> int:
 
 /// Unit Test: Enumerate with used index and value
 ///
-/// Verifies: DEPYLER-0307 enumerate with type cast (lines 676-710)
+/// Verifies: issue enumerate with type cast (lines 676-710)
 /// Index (usize) should be cast to i32 when used
 #[test]
 fn test_enumerate_index_used() {
@@ -259,7 +259,7 @@ def indexed_sum(items: list[int]) -> int:
 
 /// Unit Test: Enumerate with unused index
 ///
-/// Verifies: DEPYLER-0272 fix - no cast when index unused (lines 698-717)
+/// Verifies: issue fix - no cast when index unused (lines 698-717)
 #[test]
 fn test_enumerate_index_unused() {
     let python_code = r#"
@@ -272,7 +272,7 @@ def process_values(items: list[str]) -> int:
     return count
 "#;
 
-    // This is the exact test case from DEPYLER-0272 that was failing
+    // This is the exact test case from issue that was failing
     let pipeline = DepylerPipeline::new();
     let result = pipeline.transpile(python_code);
 
@@ -302,7 +302,7 @@ def count_items(items: list[int]) -> int:
 
 /// Unit Test: Char-to-String conversion for dict keys
 ///
-/// Verifies: DEPYLER-0317 char→String for HashMap (lines 679-752)
+/// Verifies: issue char→String for HashMap (lines 679-752)
 #[test]
 fn test_char_to_string_conversion() {
     let pipeline = DepylerPipeline::new();

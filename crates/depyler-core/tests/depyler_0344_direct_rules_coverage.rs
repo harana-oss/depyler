@@ -1,4 +1,4 @@
-//! DEPYLER-0344: direct_rules.rs Coverage Tests
+//! issue: direct_rules.rs Coverage Tests
 //!
 //! **EXTREME TDD Protocol - Coverage Boost**
 //!

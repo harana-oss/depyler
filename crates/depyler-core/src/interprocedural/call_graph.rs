@@ -20,7 +20,6 @@ pub struct CallGraph {
 }
 
 impl CallGraph {
-    /// Create a new empty call graph
     pub fn new() -> Self {
         Self {
             callees: HashMap::new(),
@@ -49,7 +48,6 @@ impl CallGraph {
             .insert(caller);
     }
 
-    /// Get all functions called by a given function
     pub fn get_callees(&self, func_name: &str) -> Vec<&str> {
         self.callees
             .get(func_name)
@@ -57,7 +55,6 @@ impl CallGraph {
             .unwrap_or_default()
     }
 
-    /// Get all functions that call a given function
     pub fn get_callers(&self, func_name: &str) -> Vec<&str> {
         self.callers
             .get(func_name)
@@ -65,7 +62,6 @@ impl CallGraph {
             .unwrap_or_default()
     }
 
-    /// Get all function names in the graph
     pub fn functions(&self) -> impl Iterator<Item = &String> {
         self.functions.iter()
     }

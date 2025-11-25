@@ -66,8 +66,7 @@ fn contains_unused_variable_warning(rust_code: &str, var_name: &str) -> bool {
         .expect("Failed to run rustc");
 
     let stderr = String::from_utf8_lossy(&output.stderr);
-    let has_warning =
-        stderr.contains("unused variable") && stderr.contains(&format!("`{}`", var_name));
+    let has_warning = stderr.contains("unused variable") && stderr.contains(&format!("`{}`", var_name));
 
     let _ = fs::remove_file(temp_file);
     has_warning
@@ -189,7 +188,10 @@ def repeat_operations(n: int) -> int:
     assert!(result.is_ok(), "Transpilation failed: {:?}", result.err());
 
     let rust_code = result.unwrap();
-    println!("Generated code:\n{}", rust_code);
+    assert!(
+        rust_code.contains("fn repeat_operations"),
+        "Expected function repeat_operations not found"
+    );
 
     // Both loops should have underscored variables
     // for _i in 0..n { ... }
@@ -324,12 +326,7 @@ def f(start: int, end: int) -> int:
         println!("\nTesting pattern: {}", name);
         let pipeline = DepylerPipeline::new();
         let result = pipeline.transpile(python);
-        assert!(
-            result.is_ok(),
-            "Transpilation failed for {}: {:?}",
-            name,
-            result.err()
-        );
+        assert!(result.is_ok(), "Transpilation failed for {}: {:?}", name, result.err());
 
         let rust_code = result.unwrap();
         assert_compiles(&rust_code, &format!("pattern_{}", name.replace(' ', "_")));

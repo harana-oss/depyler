@@ -1,4 +1,3 @@
-/// DEPYLER-0290 & DEPYLER-0292: Collection Operation Tests
 ///
 /// These tests verify that the transpiler correctly handles:
 /// 1. Vector concatenation (list1 + list2)
@@ -20,7 +19,6 @@ def concat_lists(list1: list[int], list2: list[int]) -> list[int]:
         .transpile(python_code)
         .expect("Transpilation should succeed");
 
-    // DEPYLER-0290: The generated code should handle Vec concatenation
     // Should NOT generate: list1 + list2 (invalid for &Vec)
     // Should generate: iterator chain or extend pattern
 
@@ -67,7 +65,7 @@ def concat_lists(list1: list[int], list2: list[int]) -> list[int]:
     if !output.status.success() {
         let stderr = String::from_utf8_lossy(&output.stderr);
         panic!(
-            "DEPYLER-0290: Generated code should compile!\n\nGenerated code:\n{}\n\nRustc errors:\n{}",
+            "issue: Generated code should compile!\n\nGenerated code:\n{}\n\nRustc errors:\n{}",
             generated_code, stderr
         );
     }
@@ -92,7 +90,6 @@ def extend_list(list1: list[int], list2: list[int]) -> list[int]:
         .transpile(python_code)
         .expect("Transpilation should succeed");
 
-    // DEPYLER-0292: The generated code should handle extend() properly
     // Should NOT generate: result.extend(list2) where list2 is &Vec
     // Should generate: result.extend(list2.iter().cloned())
 
@@ -141,7 +138,7 @@ def extend_list(list1: list[int], list2: list[int]) -> list[int]:
     if !output.status.success() {
         let stderr = String::from_utf8_lossy(&output.stderr);
         panic!(
-            "DEPYLER-0292: Generated code should compile!\n\nGenerated code:\n{}\n\nRustc errors:\n{}",
+            "issue: Generated code should compile!\n\nGenerated code:\n{}\n\nRustc errors:\n{}",
             generated_code, stderr
         );
     }

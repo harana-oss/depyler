@@ -1,4 +1,4 @@
-// EXTREME TDD: Tests for default parameter functionality (DEPYLER-0104)
+// EXTREME TDD: Tests for default parameter functionality 
 // These tests define the expected behavior BEFORE implementation
 
 use depyler_annotations::TranspilationAnnotations;

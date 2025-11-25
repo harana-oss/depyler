@@ -8,16 +8,11 @@
 use crate::hir::{HirExpr, HirFunction, HirStmt, Type};
 use std::collections::HashSet;
 
-/// Information about a generator's state requirements
 #[derive(Debug, Clone)]
 pub struct GeneratorStateInfo {
-    /// Local variables that need to be in the state struct
     pub state_variables: Vec<StateVariable>,
-    /// Parameters that are used after yield points
     pub captured_params: Vec<String>,
-    /// Number of yield points in the function
     pub yield_count: usize,
-    /// Whether the generator has loops
     pub has_loops: bool,
 }
 
@@ -28,7 +23,6 @@ pub struct StateVariable {
 }
 
 impl GeneratorStateInfo {
-    /// Analyze a generator function to determine state requirements
     pub fn analyze(func: &HirFunction) -> Self {
         let mut analyzer = StateAnalyzer {
             state_variables: Vec::new(),
@@ -40,7 +34,6 @@ impl GeneratorStateInfo {
 
         analyzer.analyze_statements(&func.body);
 
-        // Convert param names to Vec
         let captured_params: Vec<String> = func
             .params
             .iter()
@@ -101,8 +94,6 @@ impl StateAnalyzer {
         }
     }
 
-    /// DEPYLER-0258: Infer type from value expression when no annotation provided
-    /// Complexity: 8 (within ≤10 target)
     fn infer_type_from_expression(expr: &HirExpr) -> Type {
         match expr {
             HirExpr::Literal(lit) => match lit {
@@ -114,7 +105,6 @@ impl StateAnalyzer {
                 crate::hir::Literal::None => Type::None,
             },
             HirExpr::List(items) => {
-                // Infer element type from first item
                 let elem_type = items
                     .first()
                     .map(Self::infer_type_from_expression)
@@ -123,22 +113,15 @@ impl StateAnalyzer {
             }
             HirExpr::Dict(_) => Type::Dict(Box::new(Type::String), Box::new(Type::Unknown)),
             HirExpr::Set(_) => Type::Set(Box::new(Type::Unknown)),
-            // For complex expressions, default to Unknown
             _ => Type::Unknown,
         }
     }
 
-    fn analyze_assign(
-        &mut self,
-        target: &crate::hir::AssignTarget,
-        value: &HirExpr,
-        type_annotation: &Option<Type>,
-    ) {
+    fn analyze_assign(&mut self, target: &crate::hir::AssignTarget, value: &HirExpr, type_annotation: &Option<Type>) {
         if let crate::hir::AssignTarget::Symbol(name) = target {
             let name_str = name.as_str();
             if !self.declared_vars.contains(name_str) {
                 self.declared_vars.insert(name_str.to_string());
-                // DEPYLER-0258 FIX: Infer type from value expression if no annotation
                 let ty = type_annotation
                     .clone()
                     .unwrap_or_else(|| Self::infer_type_from_expression(value));
@@ -163,12 +146,7 @@ impl StateAnalyzer {
         self.analyze_statements(body);
     }
 
-    fn analyze_if_stmt(
-        &mut self,
-        condition: &HirExpr,
-        then_body: &[HirStmt],
-        else_body: &Option<Vec<HirStmt>>,
-    ) {
+    fn analyze_if_stmt(&mut self, condition: &HirExpr, then_body: &[HirStmt], else_body: &Option<Vec<HirStmt>>) {
         self.analyze_expression(condition);
         self.analyze_statements(then_body);
         if let Some(else_stmts) = else_body {
@@ -271,11 +249,7 @@ mod tests {
 
         assert_eq!(state_info.yield_count, 1, "Should find 1 yield");
         assert!(state_info.has_loops, "Should detect loop");
-        assert_eq!(
-            state_info.state_variables.len(),
-            1,
-            "Should find 'current' variable"
-        );
+        assert_eq!(state_info.state_variables.len(), 1, "Should find 'current' variable");
         assert_eq!(state_info.state_variables[0].name, "current");
         assert!(
             state_info.captured_params.contains(&"n".to_string()),
@@ -331,11 +305,7 @@ mod tests {
         let state_info = GeneratorStateInfo::analyze(&func);
 
         // Assert: Should find state variable 'i'
-        assert_eq!(
-            state_info.state_variables.len(),
-            1,
-            "Should find 'i' variable"
-        );
+        assert_eq!(state_info.state_variables.len(), 1, "Should find 'i' variable");
         assert_eq!(state_info.state_variables[0].name, "i");
 
         // Assert: Type should be inferred as Int from literal value
@@ -343,7 +313,7 @@ mod tests {
         assert_eq!(
             state_info.state_variables[0].ty,
             Type::Int,
-            "DEPYLER-0258: Should infer Type::Int from literal value, not Type::Unknown"
+            "Should infer Type::Int from literal value, not Type::Unknown"
         );
     }
 }

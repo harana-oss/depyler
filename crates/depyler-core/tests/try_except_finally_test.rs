@@ -1,4 +1,4 @@
-//! TDD Tests for Try/Except/Finally (DEPYLER-0114 Phase 3)
+//! TDD Tests for Try/Except/Finally 
 //!
 //! Phase 3: Finally clause for cleanup guarantees
 //! Python: finally: → Rust: Cleanup code that always executes

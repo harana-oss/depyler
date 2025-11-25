@@ -1,4 +1,3 @@
-// DEPYLER-0021 Phase 5: Match Arm Deletion & Negation Mutation Kill Tests
 //
 // Target: Remaining mutations to reach 90%+ kill rate
 //

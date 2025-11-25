@@ -73,7 +73,6 @@ impl LifetimeAnalyzer {
         Self::default()
     }
 
-    /// Analyze a function for lifetime violations
     pub fn analyze_function(&mut self, func: &HirFunction) -> Vec<LifetimeViolation> {
         self.violations.clear();
         self.active_borrows.push(BorrowSet {
@@ -457,12 +456,10 @@ impl LifetimeAnalyzer {
         }
     }
 
-    /// Get all detected violations
     pub fn get_violations(&self) -> &[LifetimeViolation] {
         &self.violations
     }
 
-    /// Check if the analyzed code is lifetime-safe
     pub fn is_lifetime_safe(&self) -> bool {
         self.violations.is_empty()
     }

@@ -1,4 +1,3 @@
-// DEPYLER-0103: Property tests for type mapper
 // Validates Python→Rust type mapping correctness
 
 use depyler_core::hir::Type as PythonType;

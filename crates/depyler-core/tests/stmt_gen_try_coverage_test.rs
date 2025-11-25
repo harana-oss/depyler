@@ -4,7 +4,7 @@
 //! Coverage focus: try/except/finally patterns, exception scope tracking
 //!
 //! Test Strategy:
-//! - Try/except basic patterns (DEPYLER-0333)
+//! - Try/except basic patterns 
 //! - Try/finally without except
 //! - Try/except/finally combinations
 //! - Exception type tracking and scope management
@@ -34,7 +34,7 @@ def divide(a: int, b: int) -> int:
 
 /// Unit Test: Try/except with specific exception type
 ///
-/// Verifies: Exception type handling (DEPYLER-0333, lines 1188-1191)
+/// Verifies: Exception type handling 
 #[test]
 fn test_try_except_specific_exception() {
     let pipeline = DepylerPipeline::new();

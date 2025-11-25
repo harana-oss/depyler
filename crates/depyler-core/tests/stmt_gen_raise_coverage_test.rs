@@ -6,8 +6,8 @@
 //! Test Strategy:
 //! - Raise in can-fail functions (return Err)
 //! - Raise in non-can-fail functions (panic!)
-//! - Raise within try/except blocks (DEPYLER-0333)
-//! - Box::new() wrapping (DEPYLER-0310)
+//! - Raise within try/except blocks 
+//! - Box::new() wrapping 
 //! - Bare raise (no exception specified)
 //! - Different exception types
 

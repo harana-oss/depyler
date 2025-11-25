@@ -94,8 +94,8 @@ Python's `json.dumps(result, indent=2)` produces pretty-printed output with 2-sp
 ## Files Affected
 
 - `crates/depyler-core/src/rust_gen/argparse_transform.rs`: Action generation logic
-- `examples/comprehensive_cli/main.rs`: Generated output (needs re-transpilation)
-- `examples/comprehensive_cli/tests/integration_test.rs`: Test expectations
+- `examples/cli/comprehensive_cli/main.rs`: Generated output (needs re-transpilation)
+- `examples/cli/comprehensive_cli/tests/integration_test.rs`: Test expectations
 
 ## Next Steps
 

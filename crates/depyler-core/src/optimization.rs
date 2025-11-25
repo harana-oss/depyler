@@ -35,7 +35,6 @@ impl PerformanceOptimizer {
             }
         }
 
-        // Apply specific performance hints
         let hints = func.annotations.performance_hints.clone();
         for hint in &hints {
             self.apply_performance_hint(func, hint);
@@ -43,25 +42,21 @@ impl PerformanceOptimizer {
     }
 
     fn apply_conservative_optimizations(&mut self, func: &mut HirFunction) {
-        // Only apply safe, guaranteed optimizations
         self.constant_folding(&mut func.body);
         self.dead_code_elimination(&mut func.body);
     }
 
     fn apply_standard_optimizations(&mut self, func: &mut HirFunction) {
-        // Apply conservative optimizations plus more
         self.apply_conservative_optimizations(func);
         self.common_subexpression_elimination(&mut func.body);
         self.strength_reduction(&mut func.body);
     }
 
     fn apply_aggressive_optimizations(&mut self, func: &mut HirFunction) {
-        // Apply all optimizations
         self.apply_standard_optimizations(func);
         self.loop_unrolling(&mut func.body, 4);
         self.inline_small_functions(&mut func.body);
 
-        // If bounds checking is disabled, remove bounds checks
         if func.annotations.bounds_checking == depyler_annotations::BoundsChecking::Disabled {
             self.remove_bounds_checks(&mut func.body);
         }
@@ -82,7 +77,6 @@ impl PerformanceOptimizer {
                 self.optimize_for_throughput(&mut func.body);
             }
             PerformanceHint::PerformanceCritical => {
-                // Apply all applicable optimizations
                 self.inline_small_functions(&mut func.body);
                 self.vectorize_loops(&mut func.body);
             }
@@ -95,8 +89,7 @@ impl PerformanceOptimizer {
             self.fold_constants_in_stmt(stmt);
         }
 
-        self.optimizations_applied
-            .push("constant_folding".to_string());
+        self.optimizations_applied.push("constant_folding".to_string());
     }
 
     fn fold_constants_in_stmt(&mut self, stmt: &mut HirStmt) {
@@ -144,14 +137,10 @@ impl PerformanceOptimizer {
 
     fn fold_constants_expr(&self, expr: &mut HirExpr) {
         if let HirExpr::Binary { op, left, right } = expr {
-            // Recursively fold constants in operands
             self.fold_constants_expr(left);
             self.fold_constants_expr(right);
 
-            // If both operands are constants, evaluate the operation
-            if let (HirExpr::Literal(left_lit), HirExpr::Literal(right_lit)) =
-                (left.as_ref(), right.as_ref())
-            {
+            if let (HirExpr::Literal(left_lit), HirExpr::Literal(right_lit)) = (left.as_ref(), right.as_ref()) {
                 if let Some(folded) = self.evaluate_binary_op(*op, left_lit, right_lit) {
                     *expr = HirExpr::Literal(folded);
                 }
@@ -180,7 +169,6 @@ impl PerformanceOptimizer {
 
     /// Dead code elimination
     fn dead_code_elimination(&mut self, stmts: &mut Vec<HirStmt>) {
-        // Simple DCE: remove statements after unconditional return
         let mut found_return = false;
         stmts.retain(|stmt| {
             if found_return {
@@ -193,8 +181,7 @@ impl PerformanceOptimizer {
             }
         });
 
-        self.optimizations_applied
-            .push("dead_code_elimination".to_string());
+        self.optimizations_applied.push("dead_code_elimination".to_string());
     }
 
     /// Common subexpression elimination
@@ -218,8 +205,7 @@ impl PerformanceOptimizer {
             }
         }
 
-        self.optimizations_applied
-            .push("strength_reduction".to_string());
+        self.optimizations_applied.push("strength_reduction".to_string());
     }
 
     fn reduce_strength_expr(&self, expr: &mut HirExpr) {
@@ -266,43 +252,37 @@ impl PerformanceOptimizer {
             }
         }
 
-        self.optimizations_applied
-            .push(format!("loop_unrolling_{factor}"));
+        self.optimizations_applied.push(format!("loop_unrolling_{factor}"));
     }
 
     /// Vectorization for SIMD operations
     fn vectorize_loops(&mut self, _stmts: &mut [HirStmt]) {
         // Simplified vectorization - would need pattern matching for real implementation
-        self.optimizations_applied
-            .push("vectorize_loops".to_string());
+        self.optimizations_applied.push("vectorize_loops".to_string());
     }
 
     /// Inline small functions
     fn inline_small_functions(&mut self, _stmts: &mut [HirStmt]) {
         // Simplified inlining - would need call graph analysis
-        self.optimizations_applied
-            .push("inline_small_functions".to_string());
+        self.optimizations_applied.push("inline_small_functions".to_string());
     }
 
     /// Remove bounds checks (unsafe optimization)
     fn remove_bounds_checks(&mut self, _stmts: &mut [HirStmt]) {
         // Would remove array bounds checks - requires careful analysis
-        self.optimizations_applied
-            .push("remove_bounds_checks".to_string());
+        self.optimizations_applied.push("remove_bounds_checks".to_string());
     }
 
     /// Optimize for low latency
     fn optimize_for_latency(&mut self, _stmts: &mut [HirStmt]) {
         // Prioritize reducing critical path length
-        self.optimizations_applied
-            .push("optimize_for_latency".to_string());
+        self.optimizations_applied.push("optimize_for_latency".to_string());
     }
 
     /// Optimize for high throughput
     fn optimize_for_throughput(&mut self, _stmts: &mut [HirStmt]) {
         // Prioritize parallelism and vectorization
-        self.optimizations_applied
-            .push("optimize_for_throughput".to_string());
+        self.optimizations_applied.push("optimize_for_throughput".to_string());
     }
 
     /// Get list of optimizations that were applied
@@ -440,9 +420,7 @@ mod tests {
             optimization_level: OptimizationLevel::Aggressive,
             ..Default::default()
         };
-        annotations
-            .performance_hints
-            .push(PerformanceHint::Vectorize);
+        annotations.performance_hints.push(PerformanceHint::Vectorize);
 
         let mut func = HirFunction {
             name: "test".to_string(),

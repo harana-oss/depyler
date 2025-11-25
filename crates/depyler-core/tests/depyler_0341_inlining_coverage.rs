@@ -1,4 +1,4 @@
-//! DEPYLER-0341: inlining.rs Coverage Tests
+//! issue: inlining.rs Coverage Tests
 //!
 //! **EXTREME TDD Protocol - Coverage Boost**
 //!

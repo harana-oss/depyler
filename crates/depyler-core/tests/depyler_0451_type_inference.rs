@@ -1,10 +1,9 @@
-// DEPYLER-0451: Type Inference Improvements
 //
 // This test suite validates systematic type inference from usage context,
 // reducing reliance on serde_json::Value for unannotated parameters.
 //
 // Created: 2025-11-21
-// Ticket: https://github.com/paiml/depyler/issues/DEPYLER-0451
+// Ticket: https://github.com/paiml/depyler/issues/issue
 
 use depyler_core::DepylerPipeline;
 
@@ -277,7 +276,7 @@ def process(data, flag):
 // ====================================================================================
 
 #[test]
-#[ignore] // DEPYLER-0451: Phase 3 - Context-aware stdlib API inference
+#[ignore] // Phase 3 - Context-aware stdlib API inference
 fn test_DEPYLER_0451_08_csv_reader_inference() {
     let python = r#"
 import csv
@@ -353,7 +352,7 @@ def get_length(text: str) -> int:
 // ====================================================================================
 
 #[test]
-#[ignore = "TODO: DEPYLER-0451 - better type inference for function parameters from usage"]
+#[ignore = "TODO: issue - better type inference for function parameters from usage"]
 fn test_DEPYLER_0451_10_multiple_parameters() {
     let python = r#"
 def search(items, target):

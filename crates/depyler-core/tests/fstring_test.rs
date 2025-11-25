@@ -1,4 +1,4 @@
-//! TDD Tests for F-String Support (DEPYLER-0110 Phase 1)
+//! TDD Tests for F-String Support 
 //!
 //! This test MUST FAIL initially (Red phase), then pass after implementation (Green phase)
 //!

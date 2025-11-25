@@ -145,7 +145,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 // - HashSet: container.contains(&x)
                 // - HashMap/dict: container.contains_key(&x)
 
-                // DEPYLER-0380 Bug #3: Handle `var in os.environ`
                 // os.environ in Python is like a dict, but in Rust we check with std::env::var().is_ok()
                 if let HirExpr::Attribute { value, attr } = right {
                     if let HirExpr::Var(module_name) = &**value {
@@ -156,7 +155,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     }
                 }
 
-                // DEPYLER-0321: Use type-aware string detection
                 let is_string = self.is_string_type(right);
 
                 // Check if right side is a set based on type information
@@ -165,20 +163,18 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 // Check if right side is a list/array
                 let is_list = self.is_list_expr(right);
 
-                // DEPYLER-0321 + DEPYLER-0304: Type-aware containment method selection
                 // - String: .contains() method
                 // - Set: .contains() method
                 // - List/Array: .contains() method
                 // - HashMap: .contains_key() method with smart reference handling
 
-                // DEPYLER-0422 Fix #12: HashMap borrowing for owned values
                 // Five-Whys Root Cause:
                 // 1. Why: E0308 - expected `&_`, found `String` for contains_key(item)
                 // 2. Why: The transpiler doesn't add & when item is owned
                 // 3. Why: needs_borrow returns false when type is Type::String
                 // 4. Why: Logic is inverted: !matches!(...Type::String) returns false for owned String
                 // 5. ROOT CAUSE: The borrowing detection logic is backwards
-                //
+
                 // Always add & for HashMap methods. The HIR Type::String doesn't
                 // distinguish between owned String and borrowed &str, so we can't reliably
                 // detect when to skip the borrow. Since most cases (iterators with .cloned(),
@@ -193,11 +189,10 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                         Ok(parse_quote! { #right_expr.contains(#left_expr) })
                     }
                 } else {
-                    // DEPYLER-0449: Dict/HashMap uses .get(key).is_some() for compatibility
                     // This works for BOTH HashMap AND serde_json::Value:
                     // - HashMap<K, V>: .get(&K) -> Option<&V>
                     // - serde_json::Value: .get(&str) -> Option<&Value>
-                    //
+
                     // Using .get().is_some() instead of .contains_key() because:
                     // 1. serde_json::Value doesn't have .contains_key() method
                     // 2. .get().is_some() is equivalent to .contains_key() for HashMap
@@ -212,7 +207,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             BinOp::NotIn => {
                 // Convert "x not in container" to !container.method(&x)
 
-                // DEPYLER-0380 Bug #3: Handle `var not in os.environ`
                 // os.environ in Python is like a dict, but in Rust we check with !std::env::var().is_ok()
                 if let HirExpr::Attribute { value, attr } = right {
                     if let HirExpr::Var(module_name) = &**value {
@@ -223,7 +217,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     }
                 }
 
-                // DEPYLER-0321: Use type-aware string detection
                 let is_string = self.is_string_type(right);
 
                 // Check if right side is a set based on type information
@@ -232,10 +225,8 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 // Check if right side is a list/array
                 let is_list = self.is_list_expr(right);
 
-                // DEPYLER-0321 + DEPYLER-0304: Type-aware containment method selection
                 // Same logic as BinOp::In, but negated
 
-                // DEPYLER-0329: Check if left is already a reference to avoid double-borrowing
                 let needs_borrow = if let HirExpr::Var(var_name) = left {
                     !matches!(self.ctx.var_types.get(var_name), Some(Type::String))
                 } else {
@@ -250,10 +241,9 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                         Ok(parse_quote! { !#right_expr.contains(#left_expr) })
                     }
                 } else {
-                    // DEPYLER-0449: Dict/HashMap uses .get(key).is_some() for compatibility
                     // Same as BinOp::In, but negated - works for both HashMap and Value
-                    // (DEPYLER-0326: Fix Phase 2A auto-borrowing in condition contexts)
-                    // (DEPYLER-0329: Avoid double-borrowing for reference-type parameters)
+                    // 
+                    // 
                     if needs_borrow {
                         Ok(parse_quote! { !#right_expr.get(&#left_expr).is_some() })
                     } else {
@@ -262,14 +252,10 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 }
             }
             BinOp::Add => {
-                // DEPYLER-0290 FIX: Special handling for list concatenation
-                // DEPYLER-0299 Pattern #4 FIX: Don't assume all Var + Var is list concatenation
-                // DEPYLER-0271 FIX: Check variable types for list concatenation
 
                 // Check if we're dealing with lists/vectors (explicit detection only)
                 let is_definitely_list = self.is_list_expr(left) || self.is_list_expr(right);
 
-                // DEPYLER-0271 FIX: Also check if variables have List type
                 let is_list_var = match (left, right) {
                     (HirExpr::Var(name), _) | (_, HirExpr::Var(name)) => self
                         .ctx
@@ -280,7 +266,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     _ => false,
                 };
 
-                // DEPYLER-0311 FIX: Check if we're dealing with slice expressions
                 // Slices produce Vec via .to_vec(), so slice + slice needs extend pattern
                 let is_slice_concat = matches!(left, HirExpr::Slice { .. }) || matches!(right, HirExpr::Slice { .. });
 
@@ -331,7 +316,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     }
                 })
             }
-            // DEPYLER-0303 Phase 3 Fix #7: Dict merge operator |
             // Python 3.9+ supports d1 | d2 for dictionary merge
             // Translate to: { let mut result = d1; result.extend(d2); result }
             BinOp::BitOr if self.is_dict_expr(left) || self.is_dict_expr(right) => {
@@ -365,7 +349,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 }
             }
             BinOp::Mul => {
-                // DEPYLER-0302 Phase 2: String repetition (s * n or n * s)
                 // Check if we have string * integer or integer * string
                 let left_is_string = self.is_string_base(left);
                 let right_is_string = self.is_string_base(right);
@@ -390,7 +373,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                         let size_lit = syn::LitInt::new(&size.to_string(), proc_macro2::Span::call_site());
                         Ok(parse_quote! { [#elem; #size_lit] })
                     }
-                    // DEPYLER-0420: Pattern: [x] * n (large arrays → Vec)
                     (HirExpr::List(elts), HirExpr::Literal(Literal::Int(size))) if elts.len() == 1 && *size > 32 => {
                         let elem = elts[0].to_rust_expr(self.ctx)?;
                         let size_lit = syn::LitInt::new(&size.to_string(), proc_macro2::Span::call_site());
@@ -404,7 +386,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                         let size_lit = syn::LitInt::new(&size.to_string(), proc_macro2::Span::call_site());
                         Ok(parse_quote! { [#elem; #size_lit] })
                     }
-                    // DEPYLER-0420: Pattern: n * [x] (large arrays → Vec)
                     (HirExpr::Literal(Literal::Int(size)), HirExpr::List(elts)) if elts.len() == 1 && *size > 32 => {
                         let elem = elts[0].to_rust_expr(self.ctx)?;
                         let size_lit = syn::LitInt::new(&size.to_string(), proc_macro2::Span::call_site());
@@ -437,7 +418,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 } else {
                     // Regular division (int/int → int, float/float → float)
                     let rust_op = convert_binop(op)?;
-                    // DEPYLER-0339: Construct syn::ExprBinary directly instead of using parse_quote!
                     Ok(syn::Expr::Binary(syn::ExprBinary {
                         attrs: vec![],
                         left: Box::new(left_expr),
@@ -519,7 +499,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     }
                 }
             }
-            // DEPYLER-0422: Logical operators need Python truthiness conversion
             // Python: `if a and b:` where a, b are strings/lists/etc.
             // Rust: `if (!a.is_empty()) && (!b.is_empty())`
             BinOp::And | BinOp::Or => {
@@ -536,7 +515,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             }
             _ => {
                 let rust_op = convert_binop(op)?;
-                // DEPYLER-0339: Construct syn::ExprBinary directly instead of using parse_quote!
                 // parse_quote! doesn't properly handle interpolated syn::BinOp values
                 Ok(syn::Expr::Binary(syn::ExprBinary {
                     attrs: vec![],
@@ -552,7 +530,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         let operand_expr = operand.to_rust_expr(self.ctx)?;
         match op {
             UnaryOp::Not => {
-                // DEPYLER-0266: Check if operand is a collection type
                 // For collections (list, dict, set, string), use .is_empty() instead of !
                 // because Rust doesn't allow ! operator on non-bool types
                 let is_collection = if let HirExpr::Var(var_name) = operand {
@@ -565,7 +542,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     false
                 };
 
-                // DEPYLER-0443: Check if operand is a regex method call returning Option<Match>
                 // Python: `if not re.match(...)` or `if not compiled.find(...)`
                 // Rust: Cannot use ! on Option<Match>, need .is_none()
                 let is_option_returning_call = if let HirExpr::MethodCall {
@@ -605,7 +581,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     }
 
     fn convert_call(&mut self, func: &str, args: &[HirExpr], kwargs: &[(String, HirExpr)]) -> Result<syn::Expr> {
-        // DEPYLER-0382: Handle os.path.join(*parts) starred unpacking
         if func == "__os_path_join_starred" {
             if args.len() != 1 {
                 bail!("__os_path_join_starred expects exactly 1 argument");
@@ -620,7 +595,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             });
         }
 
-        // DEPYLER-0382: Handle print(*items) starred unpacking
         if func == "__print_starred" {
             if args.len() != 1 {
                 bail!("__print_starred expects exactly 1 argument");
@@ -636,7 +610,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             });
         }
 
-        // DEPYLER-0422 Fix #5: Handle numpy-style array initialization functions
         // Python: zeros(n) → Rust: vec![0; n]
         // Python: ones(n) → Rust: vec![1; n]
         // Python: full(n, val) → Rust: vec![val; n]
@@ -656,14 +629,13 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             return Ok(parse_quote! { vec![#value_expr; #size_expr as usize] });
         }
 
-        // DEPYLER-0363: Handle ArgumentParser() → Skip for now, will be replaced with struct generation
         // ArgumentParser pattern requires complex transformation:
         // - Accumulate add_argument() calls
         // - Generate #[derive(Parser)] struct
         // - Replace parse_args() with Args::parse()
         // For now, return unit to make code compile while transformation is implemented
         if func.contains("ArgumentParser") {
-            // NOTE: Full argparse implementation requires generating Args struct with clap derives (tracked in DEPYLER-0363)
+            // NOTE: Full argparse implementation requires generating Args struct with clap derives ()
             // For now, just return unit to allow compilation
             return Ok(parse_quote! { () });
         }
@@ -684,7 +656,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             }
         }
 
-        // DEPYLER-0178: Handle filter() with lambda → convert to Rust iterator pattern
         if func == "filter" && args.len() == 2 {
             if let HirExpr::Lambda { params, body } = &args[0] {
                 if params.len() != 1 {
@@ -726,7 +697,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             return Ok(parse_quote! { #gen_expr.max() });
         }
 
-        // DEPYLER-0190: Handle sorted(iterable) → { let mut result = iterable.clone(); result.sort(); result }
         if func == "sorted" && args.len() == 1 {
             let iter_expr = args[0].to_rust_expr(self.ctx)?;
             return Ok(parse_quote! {
@@ -738,7 +708,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             });
         }
 
-        // DEPYLER-0191: Handle reversed(iterable) → iterable.into_iter().rev().collect()
         if func == "reversed" && args.len() == 1 {
             let iter_expr = args[0].to_rust_expr(self.ctx)?;
             return Ok(parse_quote! {
@@ -750,18 +719,14 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             });
         }
 
-        // DEPYLER-0022: Handle memoryview(data) → data (identity/no-op)
         // Rust byte slices (&[u8]) already provide memoryview functionality (zero-copy view)
         // Python's memoryview provides a buffer interface - Rust slices are already references
         if func == "memoryview" && args.len() == 1 {
             return args[0].to_rust_expr(self.ctx);
         }
 
-        // DEPYLER-0247: Handle sum(iterable) → iterable.iter().sum::<T>()
         // Need turbofish type annotation to help Rust's type inference
-        // DEPYLER-0307 Fix #2: Handle sum(range(...))
         // Ranges in Rust (0..n) are already iterators - don't call .iter() on them
-        // DEPYLER-0307 Phase 2 Fix: Wrap range in parentheses for correct precedence
         if func == "sum" && args.len() == 1 {
             if let HirExpr::Call { func: range_func, .. } = &args[0] {
                 if range_func == "range" {
@@ -783,10 +748,8 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 }
             }
 
-            // DEPYLER-0303 Phase 3 Fix #8: Optimize sum(d.values()) and sum(d.keys())
             // .values()/.keys() already return Vec, but we can optimize by using the iterator directly
             // This avoids .collect::<Vec<_>>().iter() pattern
-            // DEPYLER-0328: Use element type for sum(), not return type
             if let HirExpr::MethodCall {
                 object,
                 method,
@@ -797,7 +760,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 if (method == "values" || method == "keys") && method_args.is_empty() {
                     let object_expr = object.to_rust_expr(self.ctx)?;
 
-                    // DEPYLER-0328: Infer sum type from collection element type, not return type
                     // For d.values() where d: HashMap<K, i32>, sum should be .sum::<i32>()
                     // even if function returns f64 (the cast happens after sum)
                     let target_type = if method == "values" {
@@ -861,12 +823,10 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             return crate::rust_gen::builtins::handle_min(args, self.ctx);
         }
 
-        // DEPYLER-0248: Handle abs(value) → value.abs()
         if func == "abs" {
             return crate::rust_gen::builtins::handle_abs(args, self.ctx);
         }
 
-        // DEPYLER-0307 Fix #1: Handle any() with generator expressions
         // Generator expressions (e.g., any(n > 0 for n in numbers)) return iterators
         // Don't call .iter() on them - call .any() directly
         if func == "any" && args.len() == 1 && matches!(args[0], HirExpr::GeneratorExp { .. }) {
@@ -874,13 +834,11 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             return Ok(parse_quote! { #gen_expr.any(|x| x) });
         }
 
-        // DEPYLER-0249: Handle any(iterable) → iterable.iter().any(|&x| x)
         if func == "any" && args.len() == 1 {
             let iter_expr = args[0].to_rust_expr(self.ctx)?;
             return Ok(parse_quote! { #iter_expr.iter().any(|&x| x) });
         }
 
-        // DEPYLER-0307 Fix #1: Handle all() with generator expressions
         // Generator expressions (e.g., all(n > 0 for n in numbers)) return iterators
         // Don't call .iter() on them - call .all() directly
         if func == "all" && args.len() == 1 && matches!(args[0], HirExpr::GeneratorExp { .. }) {
@@ -888,7 +846,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             return Ok(parse_quote! { #gen_expr.all(|x| x) });
         }
 
-        // DEPYLER-0250: Handle all(iterable) → iterable.iter().all(|&x| x)
         if func == "all" && args.len() == 1 {
             let iter_expr = args[0].to_rust_expr(self.ctx)?;
             return Ok(parse_quote! { #iter_expr.iter().all(|&x| x) });
@@ -904,20 +861,16 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             return crate::rust_gen::builtins::handle_pow(args, self.ctx);
         }
 
-        // DEPYLER-0253: Handle chr(code) → char::from_u32(code as u32).unwrap().to_string()
         if func == "chr" && args.len() == 1 {
             let code_expr = args[0].to_rust_expr(self.ctx)?;
             return Ok(parse_quote! { char::from_u32(#code_expr as u32).unwrap().to_string() });
         }
 
-        // DEPYLER-0254: Handle ord(char) → char.chars().next().unwrap() as i32
-        // DEPYLER-0357: Python ord() returns int (i32), not unsigned
         if func == "ord" && args.len() == 1 {
             let char_expr = args[0].to_rust_expr(self.ctx)?;
             return Ok(parse_quote! { #char_expr.chars().next().unwrap() as i32 });
         }
 
-        // DEPYLER-0255: Handle bool(value) → value != 0
         if func == "bool" && args.len() == 1 {
             let value_expr = args[0].to_rust_expr(self.ctx)?;
             return Ok(parse_quote! { #value_expr != 0 });
@@ -1108,7 +1061,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         }
 
         // Handle zip(a, b, ...) → a.into_iter().zip(b.into_iter())...
-        // DEPYLER-0303 Phase 3 Fix #6: Use .into_iter() for owned collections
         // When zip() receives function parameters of type Vec<T>, we need to consume them
         // to yield owned values, not references. This is critical for dict(zip(...)) patterns.
         if func == "zip" && args.len() >= 2 {
@@ -1141,7 +1093,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             return Ok(chain);
         }
 
-        // DEPYLER-0269: Handle isinstance(value, type) → true
         // In statically-typed Rust, type system guarantees make runtime checks unnecessary
         // isinstance(x, T) where x: T is always true at compile-time
         if func == "isinstance" && args.len() == 2 {
@@ -1149,10 +1100,8 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             return Ok(parse_quote! { true });
         }
 
-        // DEPYLER-0230: Check if func is a user-defined class before treating as builtin
         let is_user_class = self.ctx.class_names.contains(func);
 
-        // DEPYLER-0234: For user-defined class constructors, convert string literals to String
         // This fixes "expected String, found &str" errors when calling constructors
         let arg_exprs: Vec<syn::Expr> = if is_user_class {
             args.iter()
@@ -1172,7 +1121,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 .collect::<Result<Vec<_>>>()?
         };
 
-        // DEPYLER-0364: Properly merge positional args and kwargs by reordering
         // based on the function's parameter order from function_param_names.
         // Python: format_message(country="USA", name="Alice", city="New York", age=30)
         // If func signature is (name, age, city, country), reorder to:
@@ -1259,8 +1207,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             "zeros" | "ones" | "full" => self.convert_array_init_call(func, &all_hir_args, &arg_exprs),
             "set" => self.convert_set_constructor(&arg_exprs),
             "frozenset" => self.convert_frozenset_constructor(&arg_exprs),
-            // DEPYLER-0171, 0172, 0173, 0174: Collection conversion builtins
-            // DEPYLER-0230: Only treat as builtin if not a user-defined class
             "Counter" if !is_user_class => self.convert_counter_builtin(&arg_exprs),
             "dict" if !is_user_class => self.convert_dict_builtin(&arg_exprs),
             "deque" if !is_user_class => self.convert_deque_builtin(&arg_exprs),
@@ -1288,7 +1234,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             "ord" => self.convert_ord_builtin(&arg_exprs),
             "hash" => self.convert_hash_builtin(&arg_exprs),
             "repr" => self.convert_repr_builtin(&arg_exprs),
-            // DEPYLER-0387: File I/O builtin
             "open" => self.convert_open_builtin(&all_hir_args, &arg_exprs),
             // DEPYLER-STDLIB-50: next(), getattr(), iter(), type()
             "next" => self.convert_next_builtin(&arg_exprs),
@@ -1379,7 +1324,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         }
         let arg = &args[0];
 
-        // DEPYLER-0276: Keep cast for CSE compatibility
         // Python's len() returns int (maps to i32)
         // Rust's .len() returns usize, so we cast to i32
         // CSE optimization runs before return statement processing, so we need the cast here
@@ -1398,13 +1342,11 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         // 2. Convert floats to integers (truncation via as i32)
         // 3. Convert bools to integers (False→0, True→1 via as i32)
         // 4. Ensure integer type for indexing (via as i32)
-        //
-        // DEPYLER-0307 Fix #7: Check if variable is String type
+
         // String variables need .parse().unwrap_or_default() not 'as i32' cast
-        //
-        // DEPYLER-0327 Fix #1: Improved type inference for method calls
+
         // Check if expression is a String-typed method call (e.g., Vec<String>.get())
-        //
+
         // Strategy:
         // - For String variables/params → .parse().unwrap_or_default()
         // - For String literals → .parse().unwrap_or_default()
@@ -1417,13 +1359,10 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 // Integer literals don't need casting
                 HirExpr::Literal(Literal::Int(_)) => return Ok(arg.clone()),
 
-                // DEPYLER-0327 Fix #1: String literals need parsing
                 HirExpr::Literal(Literal::String(_)) => {
                     return Ok(parse_quote! { #arg.parse::<i32>().unwrap_or_default() });
                 }
 
-                // DEPYLER-0307 Fix #7: Check if variable is String type
-                // DEPYLER-0327 Fix #1: Also use heuristic for variable names
                 HirExpr::Var(var_name) => {
                     // Check the variable's actual type first (type-based decision)
                     if let Some(var_type) = self.ctx.var_types.get(var_name) {
@@ -1459,14 +1398,12 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
 
                     if looks_like_string {
                         // String → int requires parsing, not casting
-                        // DEPYLER-0293: Use turbofish syntax to specify target type
                         return Ok(parse_quote! { #arg.parse::<i32>().unwrap_or_default() });
                     }
                     // Default: use as i32 cast for other types
                     return Ok(parse_quote! { (#arg) as i32 });
                 }
 
-                // DEPYLER-0327 Fix #1: Check if method call returns String type
                 // E.g., Vec<String>.get() or str methods
                 HirExpr::MethodCall {
                     object,
@@ -1557,12 +1494,10 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         // Python: range(10, 0, -1) → Rust: (0..10).rev()
         Ok(parse_quote! {
             {
-                // DEPYLER-0313: Cast to i32 before abs() to avoid ambiguous numeric type
                 let step = (#step as i32).abs() as usize;
                 if step == 0 {
                     panic!("range() arg 3 must not be zero");
                 }
-                // DEPYLER-0316: Always use .step_by() for consistent iterator type
                 // This avoids if/else branches returning different types:
                 // - Rev<Range<i32>> vs StepBy<Rev<Range<i32>>>
                 // Using step.max(1) ensures step is never 0 (already checked above)
@@ -1657,7 +1592,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         self.ctx.needs_hashset = true;
         if args.is_empty() {
             // Empty set: set()
-            // DEPYLER-0409: Use default type i32 to avoid "type annotations needed" error
             // when the variable is unused or type can't be inferred from context
             Ok(parse_quote! { HashSet::<i32>::new() })
         } else if args.len() == 1 {
@@ -1676,7 +1610,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         if args.is_empty() {
             // Empty frozenset: frozenset()
             // In Rust, we can use Arc<HashSet> to make it immutable
-            // DEPYLER-0409: Use default type i32 for empty sets
             Ok(parse_quote! { std::sync::Arc::new(HashSet::<i32>::new()) })
         } else if args.len() == 1 {
             // Frozenset from iterable: frozenset([1, 2, 3])
@@ -1690,11 +1623,9 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     }
 
     // ========================================================================
-    // DEPYLER-0171, 0172, 0173, 0174: Collection Conversion Builtins
     // ========================================================================
 
     fn convert_counter_builtin(&mut self, args: &[syn::Expr]) -> Result<syn::Expr> {
-        // DEPYLER-0171: Counter(iterable) counts elements and creates HashMap
         self.ctx.needs_hashmap = true;
         if args.is_empty() {
             // Counter() with no args → empty HashMap
@@ -1714,7 +1645,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     }
 
     fn convert_dict_builtin(&mut self, args: &[syn::Expr]) -> Result<syn::Expr> {
-        // DEPYLER-0172: dict() converts mapping/iterable to HashMap
         self.ctx.needs_hashmap = true;
         if args.is_empty() {
             // dict() with no args → empty HashMap
@@ -1731,7 +1661,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     }
 
     fn convert_deque_builtin(&mut self, args: &[syn::Expr]) -> Result<syn::Expr> {
-        // DEPYLER-0173: deque(iterable) creates VecDeque from iterable
         self.ctx.needs_vecdeque = true;
         if args.is_empty() {
             // deque() with no args → empty VecDeque
@@ -1748,30 +1677,25 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     }
 
     fn convert_list_builtin(&mut self, args: &[syn::Expr]) -> Result<syn::Expr> {
-        // DEPYLER-0174: list(iterable) converts iterable to Vec
         if args.is_empty() {
             // list() with no args → empty Vec
             Ok(parse_quote! { Vec::new() })
         } else if args.len() == 1 {
             let arg = &args[0];
 
-            // DEPYLER-0177: Check if expression already collected
             // map(lambda...) already includes .collect(), don't add another
             if self.already_collected(arg) {
                 Ok(arg.clone())
             } else if self.is_range_expr(arg) {
-                // DEPYLER-0179: range(5) → (0..5).collect()
                 Ok(parse_quote! {
                     (#arg).collect::<Vec<_>>()
                 })
             } else if self.is_iterator_expr(arg) {
-                // DEPYLER-0176: zip(), enumerate() return iterators
                 // Don't add redundant .into_iter()
                 Ok(parse_quote! {
                     #arg.collect::<Vec<_>>()
                 })
             } else if self.is_csv_reader_var(arg) {
-                // DEPYLER-0452: CSV DictReader → use deserialize() for list conversion
                 // list(reader) → reader.deserialize::<HashMap<String, String>>().collect()
                 self.ctx.needs_csv = true;
                 Ok(parse_quote! {
@@ -2018,7 +1942,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     }
 
     /// Convert Python open() to Rust file I/O
-    /// DEPYLER-0387: File I/O builtin for context managers
     ///
     /// Maps Python open() to Rust std::fs:
     /// - open(path) or open(path, 'r') → std::fs::File::open(path)?
@@ -2184,7 +2107,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         }
     }
 
-    /// DEPYLER-0452: Check if expression is a CSV reader variable
     /// Uses heuristic name-based detection (reader, csv_reader, etc.)
     fn is_csv_reader_var(&self, expr: &syn::Expr) -> bool {
         if let syn::Expr::Path(path) = expr {
@@ -2206,7 +2128,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 // print() with no arguments → println!()
                 Ok(parse_quote! { println!() })
             } else if args.len() == 1 {
-                // DEPYLER-0272 FIX: Use {:?} for collections that don't implement Display
                 // Check if arg is a collection type (Vec, HashMap, HashSet)
                 let needs_debug = if let Some(hir_arg) = hir_args.first() {
                     match hir_arg {
@@ -2241,7 +2162,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 }
             } else {
                 // print(a, b, c) → println!("{} {} {}", a, b, c) or with {:?} for collections
-                // DEPYLER-0272 FIX: Use {:?} for each collection argument
                 let format_specs: Vec<&str> = hir_args
                     .iter()
                     .map(|hir_arg| {
@@ -2293,7 +2213,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             // Treat as constructor call - ClassName::new(args)
             let class_ident = syn::Ident::new(func, proc_macro2::Span::call_site());
             if args.is_empty() {
-                // DEPYLER-0233: Only apply default argument heuristics for Python stdlib types
                 // User-defined classes should always generate ClassName::new() with no args
                 let is_user_class = self.ctx.class_names.contains(func);
 
@@ -2312,12 +2231,9 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             // Regular function call
             let func_ident = syn::Ident::new(func, proc_macro2::Span::call_site());
 
-            // DEPYLER-0301 Fix: Auto-borrow Vec/List arguments when calling functions
-            // DEPYLER-0269 Fix: Auto-borrow Dict/HashMap/Set arguments when calling functions
-            // DEPYLER-0270 Fix: Check function signature before auto-borrowing
             // When passing a Vec/HashMap/HashSet variable to a function expecting &Vec/&HashMap/&HashSet, automatically borrow it
             // This handles cases like: sum_list_recursive(rest) where rest is Vec but param is &Vec
-            //
+
             // Strategy:
             // 1. Look up function signature to see which params are borrowed
             // 2. Only borrow if: (a) arg is List/Dict/Set AND (b) function expects borrow
@@ -2328,7 +2244,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 .zip(args.iter())
                 .enumerate()
                 .map(|(param_idx, (hir_arg, arg_expr))| {
-                    // DEPYLER-0424: Check if argument is argparse args variable
                     // If so, always pass by reference (&args)
                     if let HirExpr::Var(var_name) = hir_arg {
                         let is_argparse_args = self.ctx.argparser_tracker.parsers.values().any(|parser_info| {
@@ -2366,7 +2281,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                                         .copied()
                                         .unwrap_or(true) // Default to borrow if unknown
                                 } else if matches!(var_type, Type::String) {
-                                    // DEPYLER-0269: Auto-borrow String variables when passing to &str params
                                     // If function param expects &str (borrowed=true), add &
                                     // If function param expects String (borrowed=false), pass as-is
                                     self.ctx
@@ -2385,7 +2299,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                                 needs_mut
                             }
                         }
-                        // DEPYLER-0359: Auto-borrow list/dict/set literals when calling functions
                         // List literal [1, 2, 3] should be passed as &vec![1, 2, 3]
                         HirExpr::List(_) | HirExpr::Dict(_) | HirExpr::Set(_) => {
                             // Check if function param expects a borrow
@@ -2497,17 +2410,15 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 })
                 .collect();
 
-            // DEPYLER-0422 Fix #6: Remove automatic `?` operator for function calls
-            // DEPYLER-0287 was too broad - it added `?` to ALL function calls when inside a Result-returning function.
             // This caused E0277 errors (279 errors!) when calling functions that return plain types (i32, Vec, etc.).
-            //
+
             // Root Cause Analysis:
             // 1. Why: `?` operator applied to i32/Vec (non-Result types)
             // 2. Why: Transpiler adds `?` to all function calls inside Result-returning functions
-            // 3. Why: DEPYLER-0287 unconditionally adds `?` when current_function_can_fail is true
+            // 3. Why: unconditionally adds `?` when current_function_can_fail is true
             // 4. Why: No check if the CALLED function actually returns Result
             // 5. ROOT CAUSE: Overly aggressive error propagation heuristic
-            //
+
             // Solution: Don't automatically add `?` to function calls. Let explicit error handling
             // in Python (try/except) determine when Result types are needed.
             // If specific cases need `?` for recursive calls, those should be handled specially.
@@ -2516,7 +2427,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     }
 
     // ========================================================================
-    // DEPYLER-0142 Phase 1: Preamble Helpers
     // ========================================================================
 
     /// Try to convert classmethod call (cls.method())
@@ -2540,7 +2450,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         Ok(None)
     }
 
-    /// DEPYLER-0021: Handle struct module methods (pack, unpack, calcsize)
     /// Only supports format codes 'i' (signed 32-bit int) and 'ii' (two ints)
     fn try_convert_struct_method(&mut self, method: &str, args: &[HirExpr]) -> Result<Option<syn::Expr>> {
         match method {
@@ -2685,7 +2594,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 }
                 let obj = &arg_exprs[0];
 
-                // DEPYLER-0377: Check if indent parameter is provided
                 // json.dumps(result, indent=2) has 2 arguments after HIR conversion
                 // (keyword args become positional args in HIR)
                 if arg_exprs.len() >= 2 {
@@ -2793,9 +2701,8 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 let pattern = &arg_exprs[0];
                 let text = &arg_exprs[1];
 
-                // DEPYLER-0389: re.match() in Python only matches at the beginning
                 // Returns Option<Match> to support .group() calls
-                // NOTE: Add start-of-string constraint in future (check match.start() == 0 or prepend ^) (tracked in DEPYLER-0389)
+                // NOTE: Add start-of-string constraint in future (check match.start() == 0 or prepend ^) ()
                 // For now, using .find() like search() - compatible with Match object usage
                 parse_quote! { regex::Regex::new(#pattern).unwrap().find(#text) }
             }
@@ -3250,7 +3157,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             }
 
             // DictWriter (simplified)
-            // DEPYLER-0426: Handle both positional and keyword arguments
             // csv.DictWriter(file, fieldnames=[...]) or csv.DictWriter(file, fieldnames=...)
             "DictWriter" => {
                 // Get file argument (first positional arg required)
@@ -3292,7 +3198,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     }
 
     /// Try to convert os module method calls
-    /// DEPYLER-0380-BUG-2: os.getenv() with default values
     ///
     /// Maps Python os module to Rust std::env:
     /// - os.getenv(key) → std::env::var(key)?
@@ -3323,7 +3228,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     let key = &arg_exprs[0];
                     let default = &arg_exprs[1];
 
-                    // DEPYLER-0380: Handle default value properly
                     // Python's os.getenv() always returns str, so the default must be converted to String.
                     // The unwrap_or_else closure must return String, so we always add .to_string()
                     // to ensure the default value is owned.
@@ -3341,7 +3245,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     }
 
     /// Try to convert os.environ method calls
-    /// DEPYLER-0386: os.environ dictionary-like interface for environment variables
     ///
     /// Maps Python os.environ methods to Rust std::env:
     /// - os.environ.get(key) → std::env::var(key).ok()
@@ -3387,13 +3290,12 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     }
 
     /// Convert subprocess.run() to std::process::Command
-    /// DEPYLER-0391: Subprocess module for executing system commands
     ///
     /// Maps Python subprocess.run() to Rust std::process::Command:
     /// - subprocess.run(cmd) → Command::new(cmd[0]).args(&cmd[1..]).status()
     /// - capture_output=True → .output() instead of .status()
     /// - cwd=path → .current_dir(path)
-    /// - check=True → verify exit status (NOTE: add error handling tracked in DEPYLER-0424)
+    /// - check=True → verify exit status (NOTE: add error handling )
     ///
     /// Returns anonymous struct with: returncode, stdout, stderr
     ///
@@ -4315,7 +4217,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                         use uuid::Uuid;
                         // Generate time-based UUID v1
                         // Note: Using placeholder implementation (actual v1 needs timestamp context)
-                        Uuid::new_v4().to_string()  // NOTE: Implement proper UUID v1 with timestamp (tracked in DEPYLER-0424)
+                        Uuid::new_v4().to_string()  // NOTE: Implement proper UUID v1 with timestamp ()
                     }
                 }
             }
@@ -4373,7 +4275,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 let key = &arg_exprs[0];
                 let msg = &arg_exprs[1];
 
-                // NOTE: Parse digestmod argument (arg_exprs[2]) to support multiple HMAC algorithms (tracked in DEPYLER-0424)
+                // NOTE: Parse digestmod argument (arg_exprs[2]) to support multiple HMAC algorithms ()
                 // For now, hardcode SHA256 as most common
 
                 // hmac.new(key, msg, hashlib.sha256) → HMAC-SHA256 hex digest
@@ -4416,7 +4318,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     }
 
     /// Try to convert platform module method calls
-    /// DEPYLER-0430: platform module - system information
     ///
     /// Maps Python platform module to Rust std::env::consts:
     /// - platform.system() → std::env::consts::OS
@@ -4546,7 +4447,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 let data = &arg_exprs[0];
 
                 // Simplified implementation - basic quoted-printable
-                // NOTE: Full RFC 1521 quoted-printable implementation (tracked in DEPYLER-0424)
+                // NOTE: Full RFC 1521 quoted-printable implementation ()
                 parse_quote! {
                     {
                         // Simple QP: replace special chars, preserve printable ASCII
@@ -4571,7 +4472,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 let data = &arg_exprs[0];
 
                 // Simplified QP decoder
-                // NOTE: Full RFC 1521 quoted-printable implementation (tracked in DEPYLER-0424)
+                // NOTE: Full RFC 1521 quoted-printable implementation ()
                 parse_quote! {
                     {
                         let s = std::str::from_utf8(#data).expect("Invalid UTF-8");
@@ -4602,7 +4503,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 let data = &arg_exprs[0];
 
                 // Simplified UU encoding (basic implementation)
-                // NOTE: Full UU encoding with proper line wrapping (tracked in DEPYLER-0424)
+                // NOTE: Full UU encoding with proper line wrapping ()
                 parse_quote! {
                     {
                         let bytes: &[u8] = #data;
@@ -4631,7 +4532,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 let data = &arg_exprs[0];
 
                 // Simplified UU decoding (basic implementation)
-                // NOTE: Full UU decoding implementation (tracked in DEPYLER-0424)
+                // NOTE: Full UU decoding implementation ()
                 parse_quote! {
                     {
                         let bytes: &[u8] = #data;
@@ -4875,7 +4776,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 let pattern = &arg_exprs[1];
 
                 // Simplified implementation: convert pattern to regex and match
-                // NOTE: Proper fnmatch pattern translation with case sensitivity (tracked in DEPYLER-0424)
+                // NOTE: Proper fnmatch pattern translation with case sensitivity ()
                 parse_quote! {
                     {
                         // Convert fnmatch pattern to regex
@@ -4980,7 +4881,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 let s = &arg_exprs[0];
 
                 // Simplified shell split (handles basic quotes)
-                // NOTE: Use shell-words crate for full POSIX shell compliance (tracked in DEPYLER-0424)
+                // NOTE: Use shell-words crate for full POSIX shell compliance ()
                 parse_quote! {
                     {
                         let input = #s;
@@ -6535,7 +6436,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 let value = &arg_exprs[0];
                 // quantize(Decimal("0.01")) → round to 2 decimal places
                 // For now, we'll use round_dp(2) as a simple approximation
-                // NOTE: More sophisticated Decimal quantization based on quantum value (tracked in DEPYLER-0424)
+                // NOTE: More sophisticated Decimal quantization based on quantum value ()
                 parse_quote! { #value.round_dp(2) }
             }
 
@@ -7295,7 +7196,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 let a = &arg_exprs[0];
                 let b = &arg_exprs[1];
                 // For now, implement simple Euclidean algorithm inline
-                // NOTE: Use num_integer::gcd crate for better performance (tracked in DEPYLER-0424)
+                // NOTE: Use num_integer::gcd crate for better performance ()
                 parse_quote! {
                     {
                         let mut a = (#a as i64).abs();
@@ -7554,7 +7455,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         args: &[HirExpr],
         kwargs: &[(String, HirExpr)],
     ) -> Result<Option<syn::Expr>> {
-        // DEPYLER-0386: Handle os.environ.get() and other os.environ methods
         // os.environ.get('VAR') → std::env::var('VAR').ok()
         // os.environ.get('VAR', 'default') → std::env::var('VAR').unwrap_or_else(|_| 'default'.to_string())
         if let HirExpr::Attribute { value, attr } = object {
@@ -7562,7 +7462,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 if module_name == "os" && attr == "environ" {
                     return self.try_convert_os_environ_method(method, args);
                 }
-                // DEPYLER-0430: Handle os.path.exists(), os.path.join(), etc.
                 // os.path.exists(path) → Path::new(path).exists()
                 // os.path.join(a, b) → PathBuf::from(a).join(b)
                 if module_name == "os" && attr == "path" {
@@ -7572,7 +7471,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         }
 
         if let HirExpr::Var(module_name) = object {
-            // DEPYLER-0021: Handle struct module (pack, unpack, calcsize)
             if module_name == "struct" {
                 return self.try_convert_struct_method(method, args);
             }
@@ -7651,12 +7549,10 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             }
 
             // DEPYLER-STDLIB-CSV: CSV file operations
-            // DEPYLER-0426: Pass kwargs for DictWriter(file, fieldnames=...)
             if module_name == "csv" {
                 return self.try_convert_csv_method(method, args, kwargs);
             }
 
-            // DEPYLER-0380: os module operations (getenv, etc.)
             // Must be checked before os.path to handle non-path os functions
             if module_name == "os" {
                 if let Some(result) = self.try_convert_os_method(method, args)? {
@@ -7697,7 +7593,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 return self.try_convert_hmac_method(method, args);
             }
 
-            // DEPYLER-0430: platform module - system information
             if module_name == "platform" {
                 return self.try_convert_platform_method(method, args);
             }
@@ -7772,7 +7667,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 return self.try_convert_pprint_method(method, args);
             }
 
-            // DEPYLER-0335 FIX #2: Get rust_path and rust_name before converting args (avoid borrow conflict)
             let module_info = self.ctx.imported_modules.get(module_name).and_then(|mapping| {
                 mapping
                     .item_map
@@ -7787,7 +7681,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     .map(|arg| arg.to_rust_expr(self.ctx))
                     .collect::<Result<Vec<_>>>()?;
 
-                // DEPYLER-0335 FIX #2: Special handling for math module functions (use method syntax)
                 // Python: math.sqrt(x) → Rust: x.sqrt() or f64::sqrt(x)
                 if module_name == "math" && !arg_exprs.is_empty() {
                     let receiver = &arg_exprs[0];
@@ -7795,7 +7688,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     return Ok(Some(parse_quote! { (#receiver).#method_ident() }));
                 }
 
-                // DEPYLER-0335 FIX #2: Use rust_path from mapping instead of hardcoding "std"
                 // Build the Rust function path using the module's rust_path
                 let path_parts: Vec<&str> = rust_name.split("::").collect();
 
@@ -7841,7 +7733,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     }
 
     // ========================================================================
-    // DEPYLER-0142 Phase 2: Category Handlers
     // ========================================================================
 
     /// Handle list methods (append, extend, pop, insert, remove, sort)
@@ -7862,7 +7753,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 }
                 let arg = &arg_exprs[0];
 
-                // DEPYLER-0422 Fix #7: Convert &str literals to String when pushing to Vec<String>
                 // Five-Whys Root Cause:
                 // 1. Why: expected String, found &str
                 // 2. Why: String literal "X" is &str, but Vec<String>.push() needs String
@@ -7895,7 +7785,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 }
             }
             "extend" => {
-                // DEPYLER-0292: Handle iterator conversion for extend()
                 if arg_exprs.len() != 1 {
                     bail!("extend() requires exactly one argument");
                 }
@@ -7913,14 +7802,12 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 }
             }
             "pop" => {
-                // DEPYLER-0210 FIX: Handle pop() for sets, dicts, and lists
                 // Disambiguate based on argument count FIRST, then object type
 
                 if arg_exprs.len() == 2 {
                     // Only dict.pop(key, default) takes 2 arguments
                     let key = &arg_exprs[0];
                     let default = &arg_exprs[1];
-                    // DEPYLER-0303: Don't add & for string literals or variables
                     let needs_ref = !hir_args.is_empty()
                         && !matches!(
                             hir_args[0],
@@ -7950,7 +7837,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                         bail!("dict literal pop() requires exactly 1 argument (key)");
                     }
                     let key = &arg_exprs[0];
-                    // DEPYLER-0303: Don't add & for string literals or variables
                     let needs_ref = !hir_args.is_empty()
                         && !matches!(
                             hir_args[0],
@@ -7984,7 +7870,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                         Ok(parse_quote! { #object_expr.remove(#arg as usize) })
                     } else {
                         // dict.pop(key) - HashMap::remove() takes &K by reference
-                        // DEPYLER-0303: Don't add & for string literals or variables
                         let needs_ref = !hir_args.is_empty()
                             && !matches!(
                                 hir_args[0],
@@ -8055,7 +7940,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             "copy" => {
                 // Python: list.copy() -> shallow copy OR copy.copy(x) -> shallow copy
                 // Rust: list.clone() OR x.clone()
-                // DEPYLER-0024 FIX: Handle copy.copy(x) from copy module
                 if arg_exprs.len() == 1 {
                     // This is copy.copy(x) from the copy module being misparsed as method call
                     // Just clone the argument directly
@@ -8085,7 +7969,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 Ok(parse_quote! { #object_expr.reverse() })
             }
             "sort" => {
-                // DEPYLER-0445: Python: list.sort(key=func, reverse=False)
                 // Rust: list.sort_by_key(|x| func(x)) or list.sort()
 
                 // Check for `key` kwarg
@@ -8145,7 +8028,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             "get" => {
                 if arg_exprs.len() == 1 {
                     let key = &arg_exprs[0];
-                    // DEPYLER-0330: Keep dict.get() as Option to support .is_none() checks
                     // Python: result = d.get(key); if result is None: ...
                     // Rust: let result = d.get(key).cloned(); if result.is_none() { ... }
 
@@ -8170,7 +8052,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 if !arg_exprs.is_empty() {
                     bail!("keys() takes no arguments");
                 }
-                // DEPYLER-0303 Phase 3 Fix #8: Return Vec for compatibility
                 // .keys() returns an iterator, but Python's dict.keys() returns a list-like view
                 // We collect to Vec for better ergonomics (indexing, len(), etc.)
                 Ok(parse_quote! { #object_expr.keys().cloned().collect::<Vec<_>>() })
@@ -8179,9 +8060,8 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 if !arg_exprs.is_empty() {
                     bail!("values() takes no arguments");
                 }
-                // DEPYLER-0303 Phase 3 Fix #8: Return Vec for compatibility
                 // However, this causes redundant .collect().iter() in sum(d.values())
-                // NOTE: Consider context-aware return type (Vec vs Iterator) for optimization (tracked in DEPYLER-0303)
+                // NOTE: Consider context-aware return type (Vec vs Iterator) for optimization ()
                 Ok(parse_quote! { #object_expr.values().cloned().collect::<Vec<_>>() })
             }
             "items" => {
@@ -8195,8 +8075,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     bail!("update() requires exactly one argument");
                 }
                 let arg = &arg_exprs[0];
-                // DEPYLER-0304 Phase 2B: Fix iterator reference handling
-                // DEPYLER-0357: When iterating over owned HashMap<K, V>, iterator yields (K, V)
                 // insert() expects (K, V), so we just use the values directly
                 Ok(parse_quote! {
                     for (k, v) in #arg {
@@ -8326,7 +8204,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 if arg_exprs.is_empty() {
                     Ok(parse_quote! { #object_expr.split_whitespace().map(|s| s.to_string()).collect::<Vec<String>>() })
                 } else if arg_exprs.len() == 1 {
-                    // DEPYLER-0225: Extract bare string literal for Pattern trait compatibility
                     let sep = match &hir_args[0] {
                         HirExpr::Literal(Literal::String(s)) => parse_quote! { #s },
                         _ => arg_exprs[0].clone(),
@@ -8337,7 +8214,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 }
             }
             "join" => {
-                // DEPYLER-0196: sep.join(iterable) → iterable.join(sep)
                 // Use bare string literal for separator without .to_string()
                 if hir_args.len() != 1 {
                     bail!("join() requires exactly one argument");
@@ -8351,8 +8227,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 Ok(parse_quote! { #iterable.join(#separator) })
             }
             "replace" => {
-                // DEPYLER-0195: str.replace(old, new) → .replace(old, new)
-                // DEPYLER-0301: str.replace(old, new, count) → .replacen(old, new, count)
                 // Use bare string literals without .to_string() for correct types
                 if hir_args.len() < 2 || hir_args.len() > 3 {
                     bail!("replace() requires 2 or 3 arguments");
@@ -8379,7 +8253,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 }
             }
             "find" => {
-                // DEPYLER-0197/0338: str.find(sub[, start]) → .find(sub).map(|i| i as i32).unwrap_or(-1)
                 // Python's find() returns -1 if not found, Rust's returns Option<usize>
                 // Python supports optional start parameter: str.find(sub, start)
                 if hir_args.is_empty() || hir_args.len() > 2 {
@@ -8412,7 +8285,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 }
             }
             "count" => {
-                // DEPYLER-0198/0226: str.count(sub) → .matches(sub).count() as i32
                 // Extract bare string literal for Pattern trait compatibility
                 if hir_args.len() != 1 {
                     bail!("count() requires exactly one argument");
@@ -8424,42 +8296,36 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 Ok(parse_quote! { #object_expr.matches(#substring).count() as i32 })
             }
             "isdigit" => {
-                // DEPYLER-0199: str.isdigit() → .chars().all(|c| c.is_numeric())
                 if !arg_exprs.is_empty() {
                     bail!("isdigit() takes no arguments");
                 }
                 Ok(parse_quote! { #object_expr.chars().all(|c| c.is_numeric()) })
             }
             "isalpha" => {
-                // DEPYLER-0200: str.isalpha() → .chars().all(|c| c.is_alphabetic())
                 if !arg_exprs.is_empty() {
                     bail!("isalpha() takes no arguments");
                 }
                 Ok(parse_quote! { #object_expr.chars().all(|c| c.is_alphabetic()) })
             }
             "lstrip" => {
-                // DEPYLER-0302: str.lstrip() → .trim_start()
                 if !arg_exprs.is_empty() {
                     bail!("lstrip() with arguments not supported in V1");
                 }
                 Ok(parse_quote! { #object_expr.trim_start().to_string() })
             }
             "rstrip" => {
-                // DEPYLER-0302: str.rstrip() → .trim_end()
                 if !arg_exprs.is_empty() {
                     bail!("rstrip() with arguments not supported in V1");
                 }
                 Ok(parse_quote! { #object_expr.trim_end().to_string() })
             }
             "isalnum" => {
-                // DEPYLER-0302: str.isalnum() → .chars().all(|c| c.is_alphanumeric())
                 if !arg_exprs.is_empty() {
                     bail!("isalnum() takes no arguments");
                 }
                 Ok(parse_quote! { #object_expr.chars().all(|c| c.is_alphanumeric()) })
             }
             "title" => {
-                // DEPYLER-0302 Phase 2: str.title() → custom title case implementation
                 // Python's title() capitalizes the first letter of each word
                 if !arg_exprs.is_empty() {
                     bail!("title() takes no arguments");
@@ -8751,7 +8617,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 Ok(parse_quote! { #object_expr.insert(#arg) })
             }
             "remove" => {
-                // DEPYLER-0224: Set.remove(value) - remove value or panic if not found
                 if arg_exprs.len() != 1 {
                     bail!("remove() requires exactly one argument");
                 }
@@ -8776,7 +8641,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 Ok(parse_quote! { #object_expr.clear() })
             }
             "update" => {
-                // DEPYLER-0211 FIX: Set.update(other) - add all elements from other set
                 if arg_exprs.len() != 1 {
                     bail!("update() requires exactly one argument");
                 }
@@ -8788,7 +8652,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 })
             }
             "intersection_update" => {
-                // DEPYLER-0212 FIX: Set.intersection_update(other) - keep only common elements
                 // Note: This generates an expression that returns (), suitable for ExprStmt
                 if arg_exprs.len() != 1 {
                     bail!("intersection_update() requires exactly one argument");
@@ -8803,7 +8666,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 })
             }
             "difference_update" => {
-                // DEPYLER-0213 FIX: Set.difference_update(other) - remove elements in other
                 // Note: This generates an expression that returns (), suitable for ExprStmt
                 if arg_exprs.len() != 1 {
                     bail!("difference_update() requires exactly one argument");
@@ -8893,7 +8755,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
 
     /// Handle regex methods (findall)
     #[inline]
-    /// DEPYLER-0431: Convert regex instance method calls
     /// Handles both compiled Regex methods and Match object methods
     fn convert_regex_method(
         &mut self,
@@ -8915,7 +8776,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 })
             }
 
-            // DEPYLER-0431: compiled.match(text) → compiled.find(text)
             // Python re.match() only matches at start, but Rust .find() searches anywhere
             // For now, use .find() - exact match-at-start behavior tracked separately
             "match" => {
@@ -8957,7 +8817,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             }
 
             // match.groups() → extract all capture groups
-            // DEPYLER-0442: Implement match.groups() using captured group extraction
             // Python: match.groups() returns tuple of all captured groups (excluding group 0)
             // Rust: We need to track that this came from .captures() not .find()
             // For now, return empty tuple - will be enhanced when we track capture vs match
@@ -9010,7 +8869,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         }
     }
 
-    /// DEPYLER-0381: Convert sys I/O stream method calls
     /// sys.stdout.write(msg) → writeln!(std::io::stdout(), "{}", msg).unwrap()
     /// sys.stdin.read() → { let mut s = String::new(); std::io::stdin().read_to_string(&mut s).unwrap(); s }
     /// sys.stdout.flush() → std::io::stdout().flush().unwrap()
@@ -9090,21 +8948,18 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         hir_args: &[HirExpr],
         kwargs: &[(String, HirExpr)],
     ) -> Result<syn::Expr> {
-        // DEPYLER-0363: Handle parse_args() → Skip for now, will be replaced with Args::parse()
         // ArgumentParser.parse_args() requires full struct transformation
         // For now, return unit to allow compilation
         if method == "parse_args" {
-            // NOTE: Full argparse implementation requires Args::parse() call (tracked in DEPYLER-0363)
+            // NOTE: Full argparse implementation requires Args::parse() call ()
             return Ok(parse_quote! { () });
         }
 
-        // DEPYLER-0363: Handle add_argument() → Skip for now, will be accumulated for struct generation
         if method == "add_argument" {
-            // NOTE: Accumulate add_argument calls to generate struct fields (tracked in DEPYLER-0363)
+            // NOTE: Accumulate add_argument calls to generate struct fields ()
             return Ok(parse_quote! { () });
         }
 
-        // DEPYLER-0381: Handle sys I/O stream method calls
         // Check if object is a sys I/O stream (sys.stdin(), sys.stdout(), sys.stderr())
         if let HirExpr::Attribute { value, attr } = object {
             if let HirExpr::Var(module) = &**value {
@@ -9114,7 +8969,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             }
         }
 
-        // DEPYLER-0432: Handle file I/O .read() method
         // Python: f.read() → Rust: read_to_string() or read_to_end()
         if method == "read" && arg_exprs.is_empty() {
             // f.read() with no arguments → read entire file
@@ -9130,7 +8984,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             });
         }
 
-        // DEPYLER-0389: Handle regex Match.group() method
         // Python: match.group(0) or match.group(n)
         // Rust: match.as_str() for group(0), or handle numbered groups
         if method == "group" {
@@ -9164,7 +9017,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             });
         }
 
-        // DEPYLER-0413: Handle string methods FIRST before class instance check
         // String methods like upper/lower should be converted even for method parameters
         // that might be typed as class instances (due to how we track types)
         if matches!(
@@ -9196,19 +9048,16 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             return self.convert_string_method(object, object_expr, method, arg_exprs, hir_args);
         }
 
-        // DEPYLER-0232 FIX: Check for user-defined class instances
         // User-defined classes can have methods with names like "add" that conflict with
         // built-in collection methods. We must prioritize user-defined methods.
         if self.is_class_instance(object) {
             // This is a user-defined class instance - use generic method call
-            // DEPYLER-0306 FIX: Use raw identifiers for method names that are Rust keywords
             let method_ident = if Self::is_rust_keyword(method) {
                 syn::Ident::new_raw(method, proc_macro2::Span::call_site())
             } else {
                 syn::Ident::new(method, proc_macro2::Span::call_site())
             };
 
-            // DEPYLER-0364: Handle kwargs reordering for class methods
             let final_args = if !kwargs.is_empty() {
                 // Get class name from object for method lookup
                 let class_name = self.get_class_name(object);
@@ -9267,7 +9116,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             return Ok(parse_quote! { #object_expr.#method_ident(#(#final_args),*) });
         }
 
-        // DEPYLER-0211 FIX: Check object type first for ambiguous methods like update()
         // Both sets and dicts have update(), so we need to disambiguate
 
         // Check for set-specific context first
@@ -9309,8 +9157,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 self.convert_list_method(object_expr, object, method, arg_exprs, hir_args, kwargs)
             }
 
-            // DEPYLER-0226: Disambiguate count() for list vs string
-            // DEPYLER-0302: Improved heuristic using is_string_base()
             "count" => {
                 // Heuristic: Check if object is string-typed using is_string_base()
                 // This covers string literals, variables with str type annotations, and string method results
@@ -9323,7 +9169,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 }
             }
 
-            // DEPYLER-0223: Disambiguate update() for dict vs set
             "update" => {
                 // Check if argument is a set or dict literal
                 if !hir_args.is_empty() && self.is_set_expr(&hir_args[0]) {
@@ -9335,7 +9180,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 }
             }
 
-            // DEPYLER-0422: Disambiguate .get() for list vs dict
             // List/Vec .get() takes usize by value, Dict .get() takes &K by reference
             "get" => {
                 // Only use list handler when we're CERTAIN it's a list (not dict)
@@ -9384,7 +9228,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             | "issuperset"
             | "isdisjoint" => self.convert_set_method(object_expr, method, arg_exprs),
 
-            // DEPYLER-0431: Regex methods (compiled Regex + Match object)
             // Compiled Regex: findall, match, search (note: "find" conflicts with string.find())
             // Match object: group, groups, start, end, span, as_str
             // NOTE: Only route to regex handler if object is actually a regex type
@@ -9393,13 +9236,12 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 self.convert_regex_method(object_expr, method, arg_exprs)
             }
 
-            // DEPYLER-0431 + DEPYLER-0306: Special handling for "match" method
             // "match" is a Rust keyword AND a regex method, so we need to:
             // 1. Check if object is a regex type → route to convert_regex_method
             // 2. Otherwise → escape as keyword in default case
             "match" if self.is_regex_expr(object) => self.convert_regex_method(object_expr, method, arg_exprs),
 
-            // Path instance methods (DEPYLER-0363)
+            // Path instance methods 
             "read_text" => {
                 // filepath.read_text() → std::fs::read_to_string(filepath).unwrap()
                 if !arg_exprs.is_empty() {
@@ -9410,7 +9252,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
 
             // Default: generic method call
             _ => {
-                // DEPYLER-0306 FIX: Use raw identifiers for method names that are Rust keywords
                 let method_ident = if Self::is_rust_keyword(method) {
                     syn::Ident::new_raw(method, proc_macro2::Span::call_site())
                 } else {
@@ -9428,7 +9269,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         args: &[HirExpr],
         kwargs: &[(String, HirExpr)],
     ) -> Result<syn::Expr> {
-        // DEPYLER-0413: Handle string methods FIRST before any other checks
         // This ensures string methods like upper/lower are converted even when
         // inside class methods where parameters might be mistyped as class instances
         if matches!(
@@ -9465,7 +9305,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             return self.convert_string_method(object, &object_expr, method, &arg_exprs, args);
         }
 
-        // DEPYLER-0416: Check if this is a static method call on a class (e.g., Point.origin())
         // Convert to ClassName::method(args)
         if let HirExpr::Var(class_name) = object {
             if class_name.chars().next().map(|c| c.is_uppercase()).unwrap_or(false) {
@@ -9486,7 +9325,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         }
 
         // Try module method handling
-        // DEPYLER-0426: Pass kwargs to module method converter
         if let Some(result) = self.try_convert_module_method(object, method, args, kwargs)? {
             return Ok(result);
         }
@@ -9497,14 +9335,12 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             .map(|arg| arg.to_rust_expr(self.ctx))
             .collect::<Result<Vec<_>>>()?;
 
-        // DEPYLER-0445: Pass original args and kwargs separately to convert_instance_method
         // Some methods like sort(key=func) need to preserve keyword argument names
         // For other methods, they can merge kwargs as positional if needed
         self.convert_instance_method(object, &object_expr, method, &arg_exprs, args, kwargs)
     }
 
     fn convert_index(&mut self, base: &HirExpr, index: &HirExpr) -> Result<syn::Expr> {
-        // DEPYLER-0386: Handle os.environ['VAR'] → std::env::var('VAR').unwrap_or_default()
         // Must check this before evaluating base_expr to avoid trying to convert os.environ
         if let HirExpr::Attribute { value, attr } = base {
             if let HirExpr::Var(module_name) = &**value {
@@ -9517,7 +9353,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
 
         let mut base_expr = base.to_rust_expr(self.ctx)?;
 
-        // DEPYLER-0270: Auto-unwrap Result-returning function calls
         // When base is a function call that returns Result<HashMap/Vec, E>,
         // we need to unwrap it with ? before calling .get() or indexing
         // Example: get_config()["name"] → get_config()?.get("name")...
@@ -9527,7 +9362,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             }
         }
 
-        // DEPYLER-0422 Fix #3 & #4: Handle tuple indexing with actual type information
         // Python: tuple[0], tuple[1] → Rust: tuple.0, tuple.1
         // Also handles chained indexing: list_of_tuples[i][j] → list_of_tuples.get(i).0
         let should_use_tuple_syntax = if let HirExpr::Literal(Literal::Int(idx)) = index {
@@ -9541,7 +9375,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                         matches!(var_name.as_str(), "pair" | "entry" | "item" | "elem" | "tuple" | "row")
                     }
                 } else if let HirExpr::Index { base: inner_base, .. } = base {
-                    // DEPYLER-0422 Fix #4: Case 2: Chained indexing (e.g., word_counts[j][1])
                     // Check if we're indexing into a List[Tuple]
                     if let HirExpr::Var(var_name) = &**inner_base {
                         if let Some(Type::List(element_type)) = self.ctx.var_types.get(var_name) {
@@ -9570,7 +9403,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             }
         }
 
-        // DEPYLER-0299 Pattern #3 FIX: Check if base is a String type for character access
         let is_string_base = self.is_string_base(base);
 
         // Discriminate between HashMap and Vec access based on base type or index type
@@ -9595,15 +9427,12 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 }
             }
         } else if is_string_base {
-            // DEPYLER-0299 Pattern #3: String character access with numeric index
             // Strings cannot use .get(usize), must use .chars().nth()
             let index_expr = index.to_rust_expr(self.ctx)?;
 
-            // DEPYLER-0267 FIX: Use .chars().nth() for proper character access
             // This returns Option<char>, then convert to String
             Ok(parse_quote! {
                 {
-                    // DEPYLER-0307 Fix #11: Use borrow to avoid moving the base expression
                     let base = &#base_expr;
                     let idx: i32 = #index_expr;
                     let actual_idx = if idx < 0 {
@@ -9638,7 +9467,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 }
             }
 
-            // DEPYLER-0357: Check if index is a positive integer literal
             // For literal indices like p[0], generate simple inline code: .get(0)
             // This avoids unnecessary temporary variables and runtime checks
             if let HirExpr::Literal(Literal::Int(n)) = index {
@@ -9650,7 +9478,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 });
             }
 
-            // DEPYLER-0306 FIX: Check if index is a simple variable (not a complex expression)
             // Simple variables in for loops like `for i in range(len(arr))` are guaranteed >= 0
             // For these, we can use simpler inline code that works in range contexts
             let is_simple_var = matches!(index, HirExpr::Var(_));
@@ -9663,10 +9490,8 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 })
             } else {
                 // Complex expression - use block with full negative index handling
-                // DEPYLER-0288: Explicitly type idx as i32 to support negation
                 Ok(parse_quote! {
                     {
-                        // DEPYLER-0307 Fix #11: Use borrow to avoid moving the base expression
                         let base = &#base_expr;
                         let idx: i32 = #index_expr;
                         let actual_idx = if idx < 0 {
@@ -9675,7 +9500,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                         } else {
                             idx as usize
                         };
-                        // DEPYLER-0267: Use .cloned() instead of .copied() for non-Copy types (String, Vec, etc.)
                         base.get(actual_idx).cloned().unwrap_or_default()
                     }
                 })
@@ -9694,7 +9518,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         // Check 2: Is base expression a Dict/HashMap type?
         // We need to look at the base's inferred type
         if let HirExpr::Var(sym) = base {
-            // DEPYLER-0449: First check actual variable type if known
             if let Some(var_type) = self.ctx.var_types.get(sym) {
                 // If variable is typed as serde_json::Value or Dict, use string indexing
                 if matches!(var_type, Type::Dict(_, _)) {
@@ -9705,8 +9528,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             // Try to find the variable's type in the current function context
             // For parameters, we can check the function signature
             // For local variables, this is harder without full type inference
-            //
-            // DEPYLER-0422: Removed "data" from heuristic - too broad, catches sorted_data, dataset, etc.
+
             // Only use "dict" or "map" which are more specific to HashMap variables
             let name = sym.as_str();
             if (name.contains("dict") || name.contains("map") || name.contains("config") || name.contains("value"))
@@ -9729,7 +9551,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     fn is_string_variable(&self, expr: &HirExpr) -> bool {
         match expr {
             HirExpr::Var(sym) => {
-                // DEPYLER-0449: First check actual variable type if known
                 if let Some(var_type) = self.ctx.var_types.get(sym) {
                     // If variable is typed as String, it's a string index
                     if matches!(var_type, Type::String) {
@@ -9739,7 +9560,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
 
                 // Fallback to heuristics
                 let name = sym.as_str();
-                // DEPYLER-0449: Expanded to include common loop variables like "k"
                 // Heuristic: variable names like "key", "name", "id", "word", etc.
                 name == "key"
                     || name == "k" // Common loop variable for keys
@@ -9776,13 +9596,11 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         }
     }
 
-    /// DEPYLER-0299 Pattern #3: Check if base expression is a String type (heuristic)
     /// Returns true if base is likely a String/str type (not Vec/List)
     fn is_string_base(&self, expr: &HirExpr) -> bool {
         match expr {
             HirExpr::Literal(Literal::String(_)) => true,
             HirExpr::Var(sym) => {
-                // DEPYLER-0267 FIX: Only match singular string-like names, NOT plurals
                 // "words" (plural) is likely list[str], not str!
                 // "word" (singular) without 's' ending is likely str
                 let name = sym.as_str();
@@ -9815,7 +9633,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         }
     }
 
-    /// DEPYLER-0327 Fix #1: Check if method call returns String type
     /// Used to detect .get() on Vec<String> and similar patterns
     ///
     /// # Complexity
@@ -9850,7 +9667,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     ) -> Result<syn::Expr> {
         let base_expr = base.to_rust_expr(self.ctx)?;
 
-        // DEPYLER-0302 Phase 3: Check if we're slicing a string
         let is_string = self.is_string_base(base);
 
         // Convert slice parameters
@@ -9872,7 +9688,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             None
         };
 
-        // DEPYLER-0302 Phase 3: Generate string-specific slice code
         if is_string {
             return self.convert_string_slice(base_expr, start_expr, stop_expr, step_expr);
         }
@@ -10050,7 +9865,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         }
     }
 
-    /// DEPYLER-0302 Phase 3: String-specific slice code generation
     /// Handles string slicing with proper char boundaries and negative indices
     fn convert_string_slice(
         &mut self,
@@ -10259,7 +10073,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     }
 
     fn convert_list(&mut self, elts: &[HirExpr]) -> Result<syn::Expr> {
-        // DEPYLER-0269 FIX: Convert string literals to owned Strings
         // List literals with string elements should use Vec<String> not Vec<&str>
         // This ensures they can be passed to functions expecting &Vec<String>
         let elt_exprs: Vec<syn::Expr> = elts
@@ -10280,7 +10093,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     }
 
     fn convert_dict(&mut self, items: &[(HirExpr, HirExpr)]) -> Result<syn::Expr> {
-        // DEPYLER-0376: Detect heterogeneous dicts (mixed value types)
         // For mixed types, use serde_json::json! instead of HashMap
         let has_mixed_types = self.dict_has_mixed_types(items)?;
 
@@ -10312,14 +10124,12 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             let mut key_expr = key.to_rust_expr(self.ctx)?;
             let mut val_expr = value.to_rust_expr(self.ctx)?;
 
-            // DEPYLER-0270 FIX: ALWAYS convert string literal keys to owned Strings
             // Dict literals should use HashMap<String, V> not HashMap<&str, V>
             // This ensures they can be passed to functions expecting HashMap<String, V>
             if matches!(key, HirExpr::Literal(Literal::String(_))) {
                 key_expr = parse_quote! { #key_expr.to_string() };
             }
 
-            // DEPYLER-0270 FIX: Also convert string literal VALUES to owned Strings
             // This ensures type consistency: all values in the HashMap have the same type
             // Without this, mixing "literal" (& str) and variable.to_string() (String) causes errors
             if matches!(value, HirExpr::Literal(Literal::String(_))) {
@@ -10329,7 +10139,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             insert_stmts.push(quote! { map.insert(#key_expr, #val_expr); });
         }
 
-        // DEPYLER-0279: Only add `mut` if there are items to insert
         // Empty dicts don't need mutable bindings
         if items.is_empty() {
             Ok(parse_quote! {
@@ -10349,8 +10158,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         }
     }
 
-    /// DEPYLER-0376: Check if dict has heterogeneous value types
-    /// DEPYLER-0270 FIX: Only flag as heterogeneous when we have strong evidence
     fn dict_has_mixed_types(&self, items: &[(HirExpr, HirExpr)]) -> Result<bool> {
         if items.len() <= 1 {
             return Ok(false); // Single type or empty
@@ -10425,7 +10232,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     }
 
     fn convert_attribute(&mut self, value: &HirExpr, attr: &str) -> Result<syn::Expr> {
-        // DEPYLER-0425: Handle subcommand field access (args.url → url)
         // If this is accessing a subcommand-specific field on args parameter,
         // generate just the field name (it's extracted via pattern matching)
         if let HirExpr::Var(var_name) = value {
@@ -10461,7 +10267,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         // Handle classmethod cls.ATTR → Self::ATTR
         if let HirExpr::Var(var_name) = value {
             if var_name == "cls" && self.ctx.is_classmethod {
-                // DEPYLER-0306 FIX: Use raw identifiers for attributes that are Rust keywords
                 let attr_ident = if Self::is_rust_keyword(attr) {
                     syn::Ident::new_raw(attr, proc_macro2::Span::call_site())
                 } else {
@@ -10470,7 +10275,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 return Ok(parse_quote! { Self::#attr_ident });
             }
 
-            // DEPYLER-0422 Fix #11: Detect enum constant access patterns
             // TypeName.CONSTANT → TypeName::CONSTANT
             // Five-Whys Root Cause:
             // 1. Why: E0423 - expected value, found struct 'Color'
@@ -10478,7 +10282,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             // 3. Why: Default attribute access uses dot syntax
             // 4. Why: No detection for type constant access vs field access
             // 5. ROOT CAUSE: Need to use :: for type-level constants
-            //
+
             // Heuristic: If name starts with uppercase and attr is ALL_CAPS, it's likely an enum constant
             let first_char = var_name.chars().next().unwrap_or('a');
             let is_type_name = first_char.is_uppercase();
@@ -10543,7 +10347,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             // DEPYLER-STDLIB-SYS: Handle sys module attributes
             // sys.argv → std::env::args().collect()
             // sys.platform → compile-time platform string
-            // DEPYLER-0381: sys.stdin/stdout/stderr → std::io::stdin()/stdout()/stderr()
             if module_name == "sys" {
                 let result = match attr {
                     "argv" => parse_quote! { std::env::args().collect::<Vec<String>>() },
@@ -10559,11 +10362,9 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                         let platform = "unknown";
                         parse_quote! { #platform.to_string() }
                     }
-                    // DEPYLER-0381: I/O stream attributes (functions in Rust, not objects)
                     "stdin" => parse_quote! { std::io::stdin() },
                     "stdout" => parse_quote! { std::io::stdout() },
                     "stderr" => parse_quote! { std::io::stderr() },
-                    // DEPYLER-0381: version_info as a tuple (major, minor)
                     // Note: Python's sys.version_info is a 5-tuple (major, minor, micro, releaselevel, serial)
                     // but most comparisons use only (major, minor), so we return a 2-tuple for compatibility
                     "version_info" => {
@@ -10578,7 +10379,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 return Ok(result);
             }
 
-            // DEPYLER-0335 FIX #2: Get rust_path and rust_name (clone to avoid borrow issues)
             let module_info = self.ctx.imported_modules.get(module_name).and_then(|mapping| {
                 mapping
                     .item_map
@@ -10590,7 +10390,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 // Map to the Rust equivalent
                 let path_parts: Vec<&str> = rust_name.split("::").collect();
                 if path_parts.len() > 1 {
-                    // DEPYLER-0335 FIX #2: Use rust_path from mapping instead of hardcoding "std"
                     let base_path: syn::Path = syn::parse_str(&rust_path).unwrap_or_else(|_| parse_quote! { std });
                     let mut path = quote! { #base_path };
                     for part in path_parts {
@@ -10623,7 +10422,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             }
 
             // DEPYLER-STDLIB-PATHLIB: Path properties
-            // DEPYLER-0357: Removed overly-aggressive "name" special case
             // The .name attribute should only map to .file_name() for Path types
             // For generic objects (like in sorted(people, key=lambda p: p.name)),
             // .name should be preserved as-is and fall through to default handling
@@ -10688,7 +10486,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             }
         }
 
-        // DEPYLER-0452: Check stdlib API mappings before default fallback
         // Try common CSV patterns (heuristic-based for now)
         if let Some(mapping) = self.ctx.stdlib_mappings.lookup("csv", "DictReader", attr) {
             // Found a CSV DictReader mapping - apply it
@@ -10707,7 +10504,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         }
 
         // Default behavior for non-module attributes
-        // DEPYLER-0306 FIX: Use raw identifiers for attributes that are Rust keywords
         let attr_ident = if Self::is_rust_keyword(attr) {
             syn::Ident::new_raw(attr, proc_macro2::Span::call_site())
         } else {
@@ -10736,7 +10532,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         let iter_expr = iter.to_rust_expr(self.ctx)?;
         let element_expr = element.to_rust_expr(self.ctx)?;
 
-        // DEPYLER-0299 FIX: Proper iterator handling for comprehensions
         // Strategy:
         // - Use .iter() to explicitly borrow elements
         // - Use pattern matching |&x| in filter closure to dereference once
@@ -10745,7 +10540,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
 
         let is_range = self.is_range_expr(&iter_expr);
 
-        // DEPYLER-0454: Detect CSV reader variables in list comprehensions
         // CSV readers can't use .into_iter() - they need .deserialize()
         let is_csv_reader = if let HirExpr::Var(var_name) = iter {
             var_name == "reader"
@@ -10757,7 +10551,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         };
 
         if let Some(cond) = condition {
-            // DEPYLER-0299 Fix: Add dereferences to target variable in condition
             // Filter closures receive &T even after .clone().into_iter()
             // So we need to generate *x for variable uses in the condition
             let cond_with_deref = self.add_deref_to_var_uses(cond, target)?;
@@ -10773,7 +10566,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                         .collect::<Vec<_>>()
                 })
             } else if is_csv_reader {
-                // DEPYLER-0454: CSV reader in list comprehension
                 // Use .deserialize() instead of .into_iter()
                 // CSV DictReader yields HashMap<String, String>
                 self.ctx.needs_csv = true;
@@ -10787,7 +10579,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                         .collect::<Vec<_>>()
                 })
             } else {
-                // DEPYLER-0299 Fix: Clone the collection, then use .into_iter()
                 // Filter closures still receive &T, so we deref in the condition
                 Ok(parse_quote! {
                     #iter_expr
@@ -10808,7 +10599,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                         .collect::<Vec<_>>()
                 })
             } else if is_csv_reader {
-                // DEPYLER-0454: CSV reader in list comprehension (no filter)
                 // Use .deserialize() instead of .into_iter()
                 // CSV DictReader yields HashMap<String, String>
                 self.ctx.needs_csv = true;
@@ -10820,7 +10610,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                         .collect::<Vec<_>>()
                 })
             } else {
-                // DEPYLER-0299 Fix: Clone the collection, then use .into_iter()
                 // Same fix needed for map-only comprehensions (no filter)
                 // .into_iter() on &Vec<T> yields &T, causing issues in map closures
                 Ok(parse_quote! {
@@ -10922,7 +10711,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         }
     }
 
-    /// DEPYLER-0321: Check if expression is a string type
     /// Used to distinguish string.contains() from HashMap.contains_key()
     ///
     /// # Complexity
@@ -10943,7 +10731,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         }
     }
 
-    /// DEPYLER-0303 Phase 3 Fix #7: Check if expression is a dict/HashMap
     /// Used for dict merge operator (|) and other dict-specific operations
     ///
     /// # Complexity
@@ -10964,7 +10751,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         }
     }
 
-    /// DEPYLER-0344: Check if expression is a regex object
     /// Used to distinguish regex.match() from obj.match() where "match" is a user method
     fn is_regex_expr(&self, expr: &HirExpr) -> bool {
         match expr {
@@ -11007,7 +10793,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         }
     }
 
-    /// DEPYLER-0303 Phase 3 Fix #6: Check if expression is an owned collection
     /// Used to determine if zip() should use .into_iter() (owned) vs .iter() (borrowed)
     ///
     /// Returns true if:
@@ -11113,7 +10898,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     }
 
     fn convert_set_operation(&self, op: BinOp, left: syn::Expr, right: syn::Expr) -> Result<syn::Expr> {
-        // DEPYLER-0412: Add explicit type annotation to collect() for set operations
         match op {
             BinOp::BitAnd => Ok(parse_quote! {
                 #left.intersection(&#right).cloned().collect::<std::collections::HashSet<_>>()
@@ -11138,13 +10922,12 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         iter: &HirExpr,
         condition: &Option<Box<HirExpr>>,
     ) -> Result<syn::Expr> {
-        // DEPYLER-0299 Pattern #5 FIX: Proper iterator handling for set comprehensions
         // Uses the same strategy as list comprehensions:
         // - Ranges are already iterators, use them directly
         // - Collections need .iter() to get an iterator
         // - Use .cloned() to convert &T to T
         // - Place .cloned() AFTER .filter() so filter sees &T
-        //
+
         // Key insight: .filter(|x| ...) receives &Item where Item is the iterator's item type.
         // So .iter().filter() means x is &&T, but .iter().filter().cloned() means filter gets &T
         // and then .cloned() converts to T for the next stage.
@@ -11204,13 +10987,12 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         iter: &HirExpr,
         condition: &Option<Box<HirExpr>>,
     ) -> Result<syn::Expr> {
-        // DEPYLER-0299 Pattern #5 FIX: Proper iterator handling for dict comprehensions
         // Uses the same strategy as list comprehensions:
         // - Ranges are already iterators, use them directly
         // - Collections need .iter() to get an iterator
         // - Use .cloned() to convert &T to T
         // - Place .cloned() AFTER .filter() so filter sees &T
-        //
+
         // Key insight: .filter(|x| ...) receives &Item where Item is the iterator's item type.
         // So .iter().filter() means x is &&T, but .iter().filter().cloned() means filter gets &T
         // and then .cloned() converts to T for the next stage.
@@ -11350,14 +11132,12 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     template.push_str(s);
                 }
                 FStringPart::Expr(expr) => {
-                    // DEPYLER-0438/0441/0446: Smart formatting based on expression type
                     // - Collections (Vec, HashMap, HashSet): Use {:?} debug formatting
                     // - Scalars (String, i32, f64, bool): Use {} Display formatting
                     // - Option types: Unwrap with .unwrap_or_default() or display "None"
                     // This matches Python semantics where lists/dicts have their own repr
                     let arg_expr = expr.to_rust_expr(self.ctx)?;
 
-                    // DEPYLER-0446: Check if this is an Option<T> field (e.g., optional CLI arg)
                     let is_option = match expr.as_ref() {
                         HirExpr::Attribute { value, attr } => {
                             if let HirExpr::Var(obj_name) = value.as_ref() {
@@ -11461,7 +11241,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                         _ => false,
                     };
 
-                    // DEPYLER-0446: Wrap Option types to handle Display trait
                     let final_arg = if is_option {
                         // Option<T> doesn't implement Display, so we need to unwrap it
                         // For string-like types, display the value or "None"
@@ -11502,7 +11281,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     }
 
     fn convert_ifexpr(&mut self, test: &HirExpr, body: &HirExpr, orelse: &HirExpr) -> Result<syn::Expr> {
-        // DEPYLER-0377: Optimize `x if x else default` pattern
         // Python: `args.include if args.include else []` (check if list is non-empty)
         // Rust: Just `args.include` (clap initializes Vec to empty, so redundant check)
         // This pattern is common with argparse + Vec/Option fields
@@ -11516,7 +11294,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         let body_expr = body.to_rust_expr(self.ctx)?;
         let orelse_expr = orelse.to_rust_expr(self.ctx)?;
 
-        // DEPYLER-0377: Apply Python truthiness conversion to ternary expressions
         // Python: `val if val else default` where val is String/List/Dict/Set/Optional/Int/Float
         // Without conversion: `if val` fails (expected bool, found Vec/String/etc)
         // With conversion: `if !val.is_empty()` / `if val.is_some()` / `if val != 0`
@@ -11575,7 +11352,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     ) -> Result<syn::Expr> {
         let iter_expr = iterable.to_rust_expr(self.ctx)?;
 
-        // DEPYLER-0307: Check if this is an identity function (lambda x: x)
         // If so, use simple .sort() instead of .sort_by_key()
         let is_identity = key_params.len() == 1 && matches!(key_body, HirExpr::Var(v) if v == &key_params[0]);
 
@@ -11651,7 +11427,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             let element_expr = element.to_rust_expr(self.ctx)?;
             let target_pat = self.parse_target_pattern(&gen.target)?;
 
-            // DEPYLER-0454: Detect CSV reader variables in generator expressions
             let is_csv_reader = if let HirExpr::Var(var_name) = &*gen.iter {
                 var_name == "reader"
                     || var_name.contains("csv")
@@ -11661,13 +11436,10 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 false
             };
 
-            // DEPYLER-0307 Fix #10: Use .iter().copied() for borrowed collections
-            // DEPYLER-0454 Extension: Use .deserialize() for CSV readers
             // When the iterator is a variable (likely a borrowed parameter like &Vec<i32>),
             // use .iter().copied() to get owned values instead of references
             // This prevents type mismatches like `&i32` vs `i32` in generator expressions
             let mut chain: syn::Expr = if is_csv_reader {
-                // DEPYLER-0454: CSV reader - use deserialize pattern
                 self.ctx.needs_csv = true;
                 parse_quote! { #iter_expr.deserialize::<std::collections::HashMap<String, String>>().filter_map(|result| result.ok()) }
             } else if matches!(&*gen.iter, HirExpr::Var(_)) {
@@ -11813,7 +11585,6 @@ impl ToRustExpr for HirExpr {
                 args,
                 kwargs,
             } => {
-                // DEPYLER-0391: Handle subprocess.run() with keyword arguments
                 // subprocess.run(cmd, capture_output=True, cwd=cwd, check=check)
                 // Must handle kwargs here before they're lost
                 if let HirExpr::Var(module_name) = &**object {
@@ -11822,7 +11593,6 @@ impl ToRustExpr for HirExpr {
                     }
                 }
 
-                // DEPYLER-0426: Pass kwargs to convert_method_call
                 converter.convert_method_call(object, method, args, kwargs)
             }
             HirExpr::Index { base, index } => converter.convert_index(base, index),
@@ -11922,7 +11692,6 @@ fn literal_to_rust_expr(
             parse_quote! { #lit }
         }
         Literal::None => {
-            // DEPYLER-0357: Python None maps to Rust None (for Option types)
             // When Python code uses None explicitly (e.g., in ternary expressions),
             // it should become Rust's None, not ()
             parse_quote! { None }

@@ -1,4 +1,4 @@
-//! TDD Tests for Class Attributes (DEPYLER-0111 Phase 3)
+//! TDD Tests for Class Attributes 
 //!
 //! Phase 3: Class-level attributes (static/constant fields)
 //! Python: class Foo: x = 10 → Rust: impl Foo { const X: i32 = 10; } or static

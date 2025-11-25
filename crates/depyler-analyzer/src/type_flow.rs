@@ -211,7 +211,6 @@ impl TypeInferencer {
                     self.infer_body(finally_stmts)?;
                 }
             }
-            // DEPYLER-0427: Nested function support
             // Analyze nested function body for type inference
             HirStmt::FunctionDef { body, .. } => {
                 self.infer_body(body)?;
@@ -763,7 +762,6 @@ mod tests {
         assert_eq!(result, Type::Unknown);
     }
 
-    // DEPYLER-0022: Mutation Kill Tests (46 MISSED mutations @ 0% baseline)
 
     // Category 1: HirExpr Match Arm Deletions (10 mutations, lines 186-195)
 

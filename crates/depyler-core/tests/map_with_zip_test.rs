@@ -1,4 +1,4 @@
-//! TDD Tests for map() with Multiple Iterables (DEPYLER-0121)
+//! TDD Tests for map() with Multiple Iterables 
 //!
 //! Python's map() with multiple iterables should convert to Rust's zip + map pattern:
 //! Python: list(map(lambda x, y: x + y, list1, list2))

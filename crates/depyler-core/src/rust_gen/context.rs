@@ -12,7 +12,6 @@ use std::collections::{HashMap, HashSet};
 
 /// Error type classification for Result<T, E> return types
 ///
-/// DEPYLER-0310: Tracks whether function uses Box<dyn Error> (mixed types)
 /// or a concrete error type (single type). This determines if raise statements
 /// need Box::new() wrapper.
 ///
@@ -56,7 +55,7 @@ pub struct CodeGenContext<'a> {
     pub needs_serde_json: bool,
     pub needs_regex: bool,
     pub needs_chrono: bool,
-    pub needs_clap: bool, // DEPYLER-0384: Track clap dependency for ArgumentParser
+    pub needs_clap: bool, // Track clap dependency for ArgumentParser
     pub needs_csv: bool,
     pub needs_rust_decimal: bool,
     pub needs_num_rational: bool,
@@ -87,69 +86,28 @@ pub struct CodeGenContext<'a> {
     pub var_types: HashMap<String, Type>,
     pub class_names: HashSet<String>,
     pub mutating_methods: HashMap<String, HashSet<String>>,
-    /// DEPYLER-0269: Track function return types for Display trait selection
-    /// Maps function name -> return type, populated during function generation
-    /// Used to track types of variables assigned from function calls
     pub function_return_types: HashMap<String, Type>,
-    /// DEPYLER-0270: Track function parameter borrowing for auto-borrow decisions
-    /// Maps function name -> Vec of booleans (true if param is borrowed, false if owned)
-    /// Used to determine whether to add & when passing List/Dict/Set arguments
     pub function_param_borrows: HashMap<String, Vec<bool>>,
     /// Track function parameters that need mutable borrows (&mut T)
-    /// Maps function name -> Vec of booleans (true if param needs &mut, false otherwise)
-    /// Used to generate &mut arg instead of &arg at call sites
     pub function_param_muts: HashMap<String, Vec<bool>>,
-    /// DEPYLER-0307 Fix #9: Track variables that iterate over tuples (from zip())
-    /// Used to generate tuple field access syntax (tuple.0, tuple.1) instead of vector indexing
     pub tuple_iter_vars: HashSet<String>,
-    /// DEPYLER-0271: Tracks if current statement is the final statement in its block
-    /// Used to generate idiomatic expression-based returns (no `return` keyword)
     pub is_final_statement: bool,
-    /// DEPYLER-0308: Track functions that return Result<bool, E>
-    /// Used to auto-unwrap in boolean contexts (if/while conditions)
     pub result_bool_functions: HashSet<String>,
-    /// DEPYLER-0270: Track ALL functions that return Result<T, E>
-    /// Used to auto-unwrap at call sites in non-Result functions
     pub result_returning_functions: HashSet<String>,
-    /// DEPYLER-0310: Current function's error type (for raise statement wrapping)
-    /// None if function doesn't return Result, Some(ErrorType) if it does
     pub current_error_type: Option<ErrorType>,
-    /// DEPYLER-0333: Stack of exception scopes for try/except tracking
-    /// Tracks whether code is inside try/except blocks to determine error handling strategy
-    /// Empty stack = Unhandled scope (exceptions propagate to caller)
     pub exception_scopes: Vec<ExceptionScope>,
-    /// DEPYLER-0363: Track ArgumentParser patterns for clap transformation
-    /// Accumulates ArgumentParser instances and add_argument calls
-    /// to generate #[derive(Parser)] struct definitions
     pub argparser_tracker: crate::rust_gen::argparse_transform::ArgParserTracker,
-    /// DEPYLER-0424: Generated Args struct for ArgumentParser (emitted at module level)
-    /// Stored here so it can be hoisted outside main() function
     pub generated_args_struct: Option<proc_macro2::TokenStream>,
-    /// DEPYLER-0424: Generated Commands enum for subcommands (emitted at module level)
-    /// Stored here so it can be hoisted outside main() function
     pub generated_commands_enum: Option<proc_macro2::TokenStream>,
-    /// DEPYLER-0425: Current function's subcommand fields (for expression rewriting)
-    /// If current function accesses subcommand fields, this maps field names to variant name
-    /// Used by expr_gen to rewrite args.field → field (extracted via pattern matching)
     pub current_subcommand_fields: Option<std::collections::HashSet<String>>,
 
-    /// DEPYLER-0447: Track argparse validator functions (type= parameter in add_argument)
-    /// These functions should have &str parameter type regardless of type inference
-    /// Populated when processing add_argument(type=validator_func) calls
     pub validator_functions: std::collections::HashSet<String>,
 
-    /// DEPYLER-0452: Stdlib API mapping system for Python→Rust API translations
-    /// Maps Python stdlib patterns (module, class, attribute) to Rust code patterns
     pub stdlib_mappings: crate::stdlib_mappings::StdlibMappings,
 
     /// Track parameters in the current function that are &mut references
-    /// When passing these to other functions expecting &mut, don't add another &mut
-    /// Cleared at the start of each function generation, populated by codegen_single_param
     pub current_func_mut_ref_params: HashSet<String>,
 
-    /// DEPYLER-0364: Track function parameter names for kwargs reordering
-    /// Maps function name -> Vec of parameter names in order
-    /// Used to reorder keyword arguments to match the function signature
     pub function_param_names: HashMap<String, Vec<String>>,
 }
 
@@ -204,7 +162,6 @@ impl<'a> CodeGenContext<'a> {
     }
 
     // ========================================================================
-    // DEPYLER-0333: Exception Scope Tracking
     // ========================================================================
 
     /// Get the current exception scope

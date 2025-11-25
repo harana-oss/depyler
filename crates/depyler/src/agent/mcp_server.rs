@@ -4,11 +4,9 @@
 //! providing Python-to-Rust transpilation tools for Claude Code integration.
 
 use async_trait::async_trait;
-use pmcp::{
-    Error, RequestHandlerExtra, Result, Server, ServerCapabilities, ToolCapabilities, ToolHandler,
-};
+use pmcp::{Error, RequestHandlerExtra, Result, Server, ServerCapabilities, ToolCapabilities, ToolHandler};
 use serde::{Deserialize, Serialize};
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use tokio::sync::Mutex;
@@ -16,31 +14,16 @@ use tracing::{debug, info, warn};
 
 use depyler_core::DepylerPipeline;
 
-/// Depyler MCP Server using PMCP SDK
-///
-/// Provides Python-to-Rust transpilation capabilities through MCP protocol,
-/// leveraging the pmcp SDK for high-performance JSON-RPC handling.
 pub struct DepylerMcpServer {
-    /// Server state for tracking projects and sessions
     state: Arc<Mutex<ServerState>>,
 }
 
-/// Server state for tracking transpilation projects and statistics
 #[derive(Debug)]
 pub struct ServerState {
-    /// Active transpilation projects
     projects: std::collections::HashMap<String, ProjectInfo>,
-
-    /// Total files transpiled
     total_transpilations: u64,
-
-    /// Successful transpilations
     successful_transpilations: u64,
-
-    /// Failed transpilations  
     failed_transpilations: u64,
-
-    /// Server start time
     start_time: std::time::SystemTime,
 }
 
@@ -56,27 +39,16 @@ impl Default for ServerState {
     }
 }
 
-/// Information about a monitored project
 #[derive(Debug, Clone, Serialize)]
 struct ProjectInfo {
-    /// Project name
     name: String,
-
-    /// Root path
     path: PathBuf,
-
-    /// Watch patterns
     patterns: Vec<String>,
-
-    /// Files transpiled in this project
     files_transpiled: u64,
-
-    /// Last transpilation time
     last_transpilation: Option<std::time::SystemTime>,
 }
 
 impl DepylerMcpServer {
-    /// Create a new Depyler MCP server
     pub fn new() -> Self {
         Self {
             state: Arc::new(Mutex::new(ServerState {
@@ -86,14 +58,12 @@ impl DepylerMcpServer {
         }
     }
 
-    /// Shutdown the MCP server
     pub async fn shutdown(&self) -> Result<()> {
         // Clean up any resources here
         debug!("Shutting down Depyler MCP server");
         Ok(())
     }
 
-    /// Run the MCP server with stdio transport
     pub async fn run(&self) -> Result<()> {
         info!("Starting Depyler MCP Server using PMCP SDK");
 
@@ -123,10 +93,7 @@ impl DepylerMcpServer {
                 GetTranspilationStatusTool::new(self.state.clone()),
             )
             .tool("verify_rust_code", VerifyRustCodeTool::new())
-            .tool(
-                "analyze_python_compatibility",
-                AnalyzePythonCompatibilityTool::new(),
-            )
+            .tool("analyze_python_compatibility", AnalyzePythonCompatibilityTool::new())
             .build()?;
 
         info!(
@@ -150,7 +117,6 @@ impl Default for DepylerMcpServer {
 
 // Tool Implementations using PMCP ToolHandler pattern
 
-/// Tool for transpiling a single Python file to Rust
 pub struct TranspilePythonFileTool {
     state: Arc<Mutex<ServerState>>,
 }
@@ -177,30 +143,25 @@ impl ToolHandler for TranspilePythonFileTool {
     async fn handle(&self, args: Value, _extra: RequestHandlerExtra) -> Result<Value> {
         debug!("Handling transpile_python_file with args: {}", args);
 
-        let params: TranspileFileArgs = serde_json::from_value(args)
-            .map_err(|e| Error::validation(format!("Invalid arguments: {}", e)))?;
+        let params: TranspileFileArgs =
+            serde_json::from_value(args).map_err(|e| Error::validation(format!("Invalid arguments: {}", e)))?;
 
         let file_path = PathBuf::from(&params.file_path);
 
         // Validate file exists and is Python
         if !file_path.exists() {
-            return Err(Error::validation(format!(
-                "File not found: {}",
-                params.file_path
-            )));
+            return Err(Error::validation(format!("File not found: {}", params.file_path)));
         }
 
         if file_path.extension().and_then(|s| s.to_str()) != Some("py") {
-            return Err(Error::validation(
-                "File must have .py extension".to_string(),
-            ));
+            return Err(Error::validation("File must have .py extension".to_string()));
         }
 
         let start_time = std::time::Instant::now();
 
         // Read Python source
-        let source = std::fs::read_to_string(&file_path)
-            .map_err(|e| Error::internal(format!("Failed to read file: {}", e)))?;
+        let source =
+            std::fs::read_to_string(&file_path).map_err(|e| Error::internal(format!("Failed to read file: {}", e)))?;
 
         let python_lines = source.lines().count();
 
@@ -293,7 +254,6 @@ impl ToolHandler for TranspilePythonFileTool {
     }
 }
 
-/// Tool for transpiling an entire Python directory
 pub struct TranspilePythonDirectoryTool {
     state: Arc<Mutex<ServerState>>,
 }
@@ -320,8 +280,8 @@ impl ToolHandler for TranspilePythonDirectoryTool {
     async fn handle(&self, args: Value, _extra: RequestHandlerExtra) -> Result<Value> {
         debug!("Handling transpile_python_directory with args: {}", args);
 
-        let params: TranspileDirectoryArgs = serde_json::from_value(args)
-            .map_err(|e| Error::validation(format!("Invalid arguments: {}", e)))?;
+        let params: TranspileDirectoryArgs =
+            serde_json::from_value(args).map_err(|e| Error::validation(format!("Invalid arguments: {}", e)))?;
 
         let dir_path = PathBuf::from(&params.directory_path);
 
@@ -377,11 +337,8 @@ impl ToolHandler for TranspilePythonDirectoryTool {
 
                     let output_path = match &params.output_directory {
                         Some(out_dir) => {
-                            let relative_path =
-                                python_file.strip_prefix(&dir_path).unwrap_or(python_file);
-                            PathBuf::from(out_dir)
-                                .join(relative_path)
-                                .with_extension("rs")
+                            let relative_path = python_file.strip_prefix(&dir_path).unwrap_or(python_file);
+                            PathBuf::from(out_dir).join(relative_path).with_extension("rs")
                         }
                         None => python_file.with_extension("rs"),
                     };
@@ -390,11 +347,7 @@ impl ToolHandler for TranspilePythonDirectoryTool {
                     if let Some(parent) = output_path.parent() {
                         if let Err(e) = std::fs::create_dir_all(parent) {
                             failed_count += 1;
-                            errors.push(format!(
-                                "Failed to create directory {}: {}",
-                                parent.display(),
-                                e
-                            ));
+                            errors.push(format!("Failed to create directory {}: {}", parent.display(), e));
                             continue;
                         }
                     }
@@ -408,11 +361,7 @@ impl ToolHandler for TranspilePythonDirectoryTool {
                 }
                 Err(e) => {
                     failed_count += 1;
-                    errors.push(format!(
-                        "Transpilation failed for {}: {}",
-                        python_file.display(),
-                        e
-                    ));
+                    errors.push(format!("Transpilation failed for {}: {}", python_file.display(), e));
                 }
             }
         }
@@ -471,7 +420,6 @@ impl ToolHandler for TranspilePythonDirectoryTool {
     }
 }
 
-/// Tool for monitoring Python projects for automatic transpilation
 pub struct MonitorPythonProjectTool {
     state: Arc<Mutex<ServerState>>,
 }
@@ -496,8 +444,8 @@ impl ToolHandler for MonitorPythonProjectTool {
     async fn handle(&self, args: Value, _extra: RequestHandlerExtra) -> Result<Value> {
         debug!("Handling monitor_python_project with args: {}", args);
 
-        let params: MonitorProjectArgs = serde_json::from_value(args)
-            .map_err(|e| Error::validation(format!("Invalid arguments: {}", e)))?;
+        let params: MonitorProjectArgs =
+            serde_json::from_value(args).map_err(|e| Error::validation(format!("Invalid arguments: {}", e)))?;
 
         let project_path = PathBuf::from(&params.project_path);
 
@@ -516,9 +464,7 @@ impl ToolHandler for MonitorPythonProjectTool {
                 .to_string()
         });
 
-        let watch_patterns = params
-            .watch_patterns
-            .unwrap_or_else(|| vec!["**/*.py".to_string()]);
+        let watch_patterns = params.watch_patterns.unwrap_or_else(|| vec!["**/*.py".to_string()]);
 
         // Add to monitored projects
         {
@@ -562,7 +508,6 @@ impl ToolHandler for MonitorPythonProjectTool {
     }
 }
 
-/// Tool for getting transpilation status and statistics
 pub struct GetTranspilationStatusTool {
     state: Arc<Mutex<ServerState>>,
 }
@@ -586,8 +531,8 @@ impl ToolHandler for GetTranspilationStatusTool {
     async fn handle(&self, args: Value, _extra: RequestHandlerExtra) -> Result<Value> {
         debug!("Handling get_transpilation_status with args: {}", args);
 
-        let params: GetStatusArgs = serde_json::from_value(args)
-            .map_err(|e| Error::validation(format!("Invalid arguments: {}", e)))?;
+        let params: GetStatusArgs =
+            serde_json::from_value(args).map_err(|e| Error::validation(format!("Invalid arguments: {}", e)))?;
 
         let state = self.state.lock().await;
         let uptime = state.start_time.elapsed().unwrap_or_default();
@@ -675,7 +620,6 @@ impl ToolHandler for GetTranspilationStatusTool {
     }
 }
 
-/// Tool for verifying generated Rust code
 pub struct VerifyRustCodeTool;
 
 impl Default for VerifyRustCodeTool {
@@ -702,8 +646,8 @@ impl ToolHandler for VerifyRustCodeTool {
     async fn handle(&self, args: Value, _extra: RequestHandlerExtra) -> Result<Value> {
         debug!("Handling verify_rust_code with args: {}", args);
 
-        let params: VerifyRustArgs = serde_json::from_value(args)
-            .map_err(|e| Error::validation(format!("Invalid arguments: {}", e)))?;
+        let params: VerifyRustArgs =
+            serde_json::from_value(args).map_err(|e| Error::validation(format!("Invalid arguments: {}", e)))?;
 
         let rust_file = PathBuf::from(&params.rust_file_path);
         if !rust_file.exists() {
@@ -742,7 +686,6 @@ impl ToolHandler for VerifyRustCodeTool {
     }
 }
 
-/// Tool for analyzing Python code compatibility with Depyler
 pub struct AnalyzePythonCompatibilityTool;
 
 impl Default for AnalyzePythonCompatibilityTool {
@@ -767,8 +710,8 @@ impl ToolHandler for AnalyzePythonCompatibilityTool {
     async fn handle(&self, args: Value, _extra: RequestHandlerExtra) -> Result<Value> {
         debug!("Handling analyze_python_compatibility with args: {}", args);
 
-        let params: AnalyzeCompatibilityArgs = serde_json::from_value(args)
-            .map_err(|e| Error::validation(format!("Invalid arguments: {}", e)))?;
+        let params: AnalyzeCompatibilityArgs =
+            serde_json::from_value(args).map_err(|e| Error::validation(format!("Invalid arguments: {}", e)))?;
 
         let python_file = PathBuf::from(&params.python_file_path);
         if !python_file.exists() {
@@ -815,12 +758,10 @@ impl ToolHandler for AnalyzePythonCompatibilityTool {
 /// Find all Python files in a directory
 #[allow(clippy::result_large_err)]
 fn find_python_files(dir: &PathBuf, recursive: bool, files: &mut Vec<PathBuf>) -> Result<()> {
-    let entries = std::fs::read_dir(dir)
-        .map_err(|e| Error::internal(format!("Failed to read directory: {}", e)))?;
+    let entries = std::fs::read_dir(dir).map_err(|e| Error::internal(format!("Failed to read directory: {}", e)))?;
 
     for entry in entries {
-        let entry =
-            entry.map_err(|e| Error::internal(format!("Failed to read directory entry: {}", e)))?;
+        let entry = entry.map_err(|e| Error::internal(format!("Failed to read directory entry: {}", e)))?;
         let path = entry.path();
 
         if path.is_file() && path.extension().and_then(|s| s.to_str()) == Some("py") {
@@ -868,11 +809,7 @@ async fn verify_rust_code(rust_file: &Path, level: &str) -> Result<Value> {
             // Clippy checks
             let output = std::process::Command::new("cargo")
                 .args(["clippy", "--", "-D", "warnings"])
-                .current_dir(
-                    rust_file
-                        .parent()
-                        .unwrap_or_else(|| std::path::Path::new(".")),
-                )
+                .current_dir(rust_file.parent().unwrap_or_else(|| std::path::Path::new(".")))
                 .output()
                 .map_err(|e| Error::internal(format!("Failed to run clippy: {}", e)))?;
 
@@ -881,12 +818,7 @@ async fn verify_rust_code(rust_file: &Path, level: &str) -> Result<Value> {
                 messages.push(String::from_utf8_lossy(&output.stderr).to_string());
             }
         }
-        _ => {
-            return Err(Error::validation(format!(
-                "Unknown verification level: {}",
-                level
-            )))
-        }
+        _ => return Err(Error::validation(format!("Unknown verification level: {}", level))),
     }
 
     let verification_time = start_time.elapsed();
@@ -930,9 +862,7 @@ async fn analyze_python_compatibility(source: &str) -> Result<Value> {
     }
 
     let compatibility_score = if !lines.is_empty() {
-        ((supported_features.len() as f64)
-            / (supported_features.len() + unsupported_features.len()) as f64)
-            * 100.0
+        ((supported_features.len() as f64) / (supported_features.len() + unsupported_features.len()) as f64) * 100.0
     } else {
         100.0
     };

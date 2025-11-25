@@ -1,6 +1,6 @@
 use crate::hir::*;
-use anyhow::{bail, Result};
-use quote::{quote, ToTokens};
+use anyhow::{Result, bail};
+use quote::{ToTokens, quote};
 use std::collections::HashSet;
 use syn;
 
@@ -8,19 +8,16 @@ pub fn generate_rust(file: syn::File) -> Result<String> {
     let tokens = file.to_token_stream();
     let rust_code = tokens.to_string();
 
-    // Format the code (in a real implementation, we'd use rustfmt)
     Ok(prettify_rust_code(rust_code))
 }
 
 pub fn hir_to_rust(hir: &HirModule) -> Result<String> {
     let mut rust_items = Vec::new();
 
-    // Add necessary imports
     if needs_std_collections(hir) {
         rust_items.push(quote! { use std::collections::HashMap; });
     }
 
-    // Convert each function
     for func in &hir.functions {
         let rust_func = convert_function_to_rust(func)?;
         rust_items.push(rust_func);
@@ -66,16 +63,10 @@ fn stmt_uses_hashmap(stmt: &HirStmt) -> bool {
         } => {
             expr_uses_hashmap(condition)
                 || function_body_uses_hashmap(then_body)
-                || else_body
-                    .as_ref()
-                    .is_some_and(|body| function_body_uses_hashmap(body))
+                || else_body.as_ref().is_some_and(|body| function_body_uses_hashmap(body))
         }
-        HirStmt::While { condition, body } => {
-            expr_uses_hashmap(condition) || function_body_uses_hashmap(body)
-        }
-        HirStmt::For { iter, body, .. } => {
-            expr_uses_hashmap(iter) || function_body_uses_hashmap(body)
-        }
+        HirStmt::While { condition, body } => expr_uses_hashmap(condition) || function_body_uses_hashmap(body),
+        HirStmt::For { iter, body, .. } => expr_uses_hashmap(iter) || function_body_uses_hashmap(body),
         HirStmt::Expr(expr) => expr_uses_hashmap(expr),
         _ => false,
     }
@@ -113,9 +104,7 @@ impl ScopeTracker {
     }
 
     fn is_declared(&self, var_name: &str) -> bool {
-        self.declared_vars
-            .iter()
-            .any(|scope| scope.contains(var_name))
+        self.declared_vars.iter().any(|scope| scope.contains(var_name))
     }
 
     fn declare_var(&mut self, var_name: &str) {
@@ -253,7 +242,6 @@ fn stmt_to_rust_tokens(stmt: &HirStmt) -> Result<proc_macro2::TokenStream> {
     stmt_to_rust_tokens_with_scope(stmt, &mut scope_tracker)
 }
 
-// DEPYLER-0012: Helper functions to reduce complexity (extracted from stmt_to_rust_tokens_with_scope)
 fn handle_assign_target(
     target: &AssignTarget,
     value_tokens: proc_macro2::TokenStream,
@@ -419,16 +407,9 @@ fn handle_for_stmt(
     })
 }
 
-fn handle_with_stmt(
-    context: &HirExpr,
-    target: &Option<String>,
-    body: &[HirStmt],
-) -> Result<proc_macro2::TokenStream> {
+fn handle_with_stmt(context: &HirExpr, target: &Option<String>, body: &[HirStmt]) -> Result<proc_macro2::TokenStream> {
     let context_tokens = expr_to_rust_tokens(context)?;
-    let body_tokens: Vec<_> = body
-        .iter()
-        .map(stmt_to_rust_tokens)
-        .collect::<Result<_>>()?;
+    let body_tokens: Vec<_> = body.iter().map(stmt_to_rust_tokens).collect::<Result<_>>()?;
 
     if let Some(var_name) = target {
         let var_ident = syn::Ident::new(var_name, proc_macro2::Span::call_site());
@@ -476,10 +457,7 @@ fn stmt_to_rust_tokens_with_scope(
             let expr_tokens = expr_to_rust_tokens(expr)?;
             Ok(quote! { #expr_tokens; })
         }
-        HirStmt::Raise {
-            exception,
-            cause: _,
-        } => {
+        HirStmt::Raise { exception, cause: _ } => {
             // Simple error handling for codegen - just generate a panic for now
             if let Some(exc) = exception {
                 let exc_tokens = expr_to_rust_tokens(exc)?;
@@ -490,8 +468,7 @@ fn stmt_to_rust_tokens_with_scope(
         }
         HirStmt::Break { label } => {
             if let Some(label_name) = label {
-                let label_ident =
-                    syn::Lifetime::new(&format!("'{}", label_name), proc_macro2::Span::call_site());
+                let label_ident = syn::Lifetime::new(&format!("'{}", label_name), proc_macro2::Span::call_site());
                 Ok(quote! { break #label_ident; })
             } else {
                 Ok(quote! { break; })
@@ -499,18 +476,13 @@ fn stmt_to_rust_tokens_with_scope(
         }
         HirStmt::Continue { label } => {
             if let Some(label_name) = label {
-                let label_ident =
-                    syn::Lifetime::new(&format!("'{}", label_name), proc_macro2::Span::call_site());
+                let label_ident = syn::Lifetime::new(&format!("'{}", label_name), proc_macro2::Span::call_site());
                 Ok(quote! { continue #label_ident; })
             } else {
                 Ok(quote! { continue; })
             }
         }
-        HirStmt::With {
-            context,
-            target,
-            body,
-        } => handle_with_stmt(context, target, body),
+        HirStmt::With { context, target, body } => handle_with_stmt(context, target, body),
         HirStmt::Try {
             body,
             handlers,
@@ -596,7 +568,6 @@ fn stmt_to_rust_tokens_with_scope(
             // Pass statement generates no code
             Ok(quote! {})
         }
-        // DEPYLER-0427: Nested function support - delegate to rust_gen module
         HirStmt::FunctionDef { .. } => {
             // This is handled by the main rust_gen module
             // This codegen.rs module is a legacy simplified codegen path
@@ -607,12 +578,8 @@ fn stmt_to_rust_tokens_with_scope(
 }
 
 /// Convert binary expression to Rust tokens with special operator handling
-/// Complexity: ~6-7 (within ≤10 target)
-fn binary_expr_to_rust_tokens(
-    op: &BinOp,
-    left: &HirExpr,
-    right: &HirExpr,
-) -> Result<proc_macro2::TokenStream> {
+///
+fn binary_expr_to_rust_tokens(op: &BinOp, left: &HirExpr, right: &HirExpr) -> Result<proc_macro2::TokenStream> {
     let left_tokens = expr_to_rust_tokens(left)?;
     let right_tokens = expr_to_rust_tokens(right)?;
 
@@ -625,7 +592,6 @@ fn binary_expr_to_rust_tokens(
         BinOp::FloorDiv => {
             // Python floor division semantics
             // For now, assume numeric types and use the integer floor division formula
-            // DEPYLER-0236: Use intermediate variables to avoid formatting issues with != operator
             Ok(quote! {
                 {
                     let a = #left_tokens;
@@ -649,28 +615,19 @@ fn binary_expr_to_rust_tokens(
 }
 
 /// Convert function call expression to Rust tokens
-/// Complexity: 1 (within ≤10 target)
 fn call_expr_to_rust_tokens(func: &str, args: &[HirExpr]) -> Result<proc_macro2::TokenStream> {
     let func_ident = syn::Ident::new(func, proc_macro2::Span::call_site());
-    let arg_tokens: Vec<_> = args
-        .iter()
-        .map(expr_to_rust_tokens)
-        .collect::<Result<Vec<_>>>()?;
+    let arg_tokens: Vec<_> = args.iter().map(expr_to_rust_tokens).collect::<Result<Vec<_>>>()?;
     Ok(quote! { #func_ident(#(#arg_tokens),*) })
 }
 
 /// Convert list literal to Rust vec! macro
-/// Complexity: 1 (within ≤10 target)
 fn list_literal_to_rust_tokens(items: &[HirExpr]) -> Result<proc_macro2::TokenStream> {
-    let item_tokens: Vec<_> = items
-        .iter()
-        .map(expr_to_rust_tokens)
-        .collect::<Result<Vec<_>>>()?;
+    let item_tokens: Vec<_> = items.iter().map(expr_to_rust_tokens).collect::<Result<Vec<_>>>()?;
     Ok(quote! { vec![#(#item_tokens),*] })
 }
 
 /// Convert dict literal to Rust HashMap
-/// Complexity: 2 (within ≤10 target)
 fn dict_literal_to_rust_tokens(items: &[(HirExpr, HirExpr)]) -> Result<proc_macro2::TokenStream> {
     let mut entries = Vec::new();
     for (key, value) in items {
@@ -688,17 +645,12 @@ fn dict_literal_to_rust_tokens(items: &[(HirExpr, HirExpr)]) -> Result<proc_macr
 }
 
 /// Convert tuple literal to Rust tuple
-/// Complexity: 1 (within ≤10 target)
 fn tuple_literal_to_rust_tokens(items: &[HirExpr]) -> Result<proc_macro2::TokenStream> {
-    let item_tokens: Vec<_> = items
-        .iter()
-        .map(expr_to_rust_tokens)
-        .collect::<Result<Vec<_>>>()?;
+    let item_tokens: Vec<_> = items.iter().map(expr_to_rust_tokens).collect::<Result<Vec<_>>>()?;
     Ok(quote! { (#(#item_tokens),*) })
 }
 
 /// Convert borrow expression to Rust reference
-/// Complexity: 2 (if-else, within ≤10 target)
 fn borrow_expr_to_rust_tokens(expr: &HirExpr, mutable: bool) -> Result<proc_macro2::TokenStream> {
     let expr_tokens = expr_to_rust_tokens(expr)?;
     if mutable {
@@ -709,23 +661,14 @@ fn borrow_expr_to_rust_tokens(expr: &HirExpr, mutable: bool) -> Result<proc_macr
 }
 
 /// Convert method call expression to Rust method call
-/// Complexity: 1 (within ≤10 target)
-fn method_call_to_rust_tokens(
-    object: &HirExpr,
-    method: &str,
-    args: &[HirExpr],
-) -> Result<proc_macro2::TokenStream> {
+fn method_call_to_rust_tokens(object: &HirExpr, method: &str, args: &[HirExpr]) -> Result<proc_macro2::TokenStream> {
     let obj_tokens = expr_to_rust_tokens(object)?;
     let method_ident = syn::Ident::new(method, proc_macro2::Span::call_site());
-    let arg_tokens: Vec<_> = args
-        .iter()
-        .map(expr_to_rust_tokens)
-        .collect::<Result<Vec<_>>>()?;
+    let arg_tokens: Vec<_> = args.iter().map(expr_to_rust_tokens).collect::<Result<Vec<_>>>()?;
     Ok(quote! { #obj_tokens.#method_ident(#(#arg_tokens),*) })
 }
 
 /// Convert slice expression to Rust slice notation
-/// Complexity: 5 (match arms, within ≤10 target)
 fn slice_expr_to_rust_tokens(
     base: &HirExpr,
     start: &Option<Box<HirExpr>>,
@@ -757,7 +700,6 @@ fn slice_expr_to_rust_tokens(
 }
 
 /// Convert list comprehension to Rust iterator chain
-/// Complexity: 2 (if-else for condition, within ≤10 target)
 fn list_comp_to_rust_tokens(
     element: &HirExpr,
     target: &str,
@@ -790,13 +732,9 @@ fn list_comp_to_rust_tokens(
 }
 
 /// Convert lambda expression to Rust closure
-/// Complexity: 2 (if-else for params, within ≤10 target)
 fn lambda_to_rust_tokens(params: &[String], body: &HirExpr) -> Result<proc_macro2::TokenStream> {
     // Convert parameters to identifiers
-    let param_idents: Vec<proc_macro2::Ident> = params
-        .iter()
-        .map(|p| quote::format_ident!("{}", p))
-        .collect();
+    let param_idents: Vec<proc_macro2::Ident> = params.iter().map(|p| quote::format_ident!("{}", p)).collect();
 
     // Convert body
     let body_tokens = expr_to_rust_tokens(body)?;
@@ -810,12 +748,8 @@ fn lambda_to_rust_tokens(params: &[String], body: &HirExpr) -> Result<proc_macro
 }
 
 /// Convert set literal to Rust HashSet
-/// Complexity: 1 (within ≤10 target)
 fn set_literal_to_rust_tokens(items: &[HirExpr]) -> Result<proc_macro2::TokenStream> {
-    let item_tokens: Vec<_> = items
-        .iter()
-        .map(expr_to_rust_tokens)
-        .collect::<Result<Vec<_>>>()?;
+    let item_tokens: Vec<_> = items.iter().map(expr_to_rust_tokens).collect::<Result<Vec<_>>>()?;
     Ok(quote! {
         {
             let mut set = HashSet::new();
@@ -826,12 +760,8 @@ fn set_literal_to_rust_tokens(items: &[HirExpr]) -> Result<proc_macro2::TokenStr
 }
 
 /// Convert frozenset literal to Rust Arc<HashSet>
-/// Complexity: 1 (within ≤10 target)
 fn frozen_set_to_rust_tokens(items: &[HirExpr]) -> Result<proc_macro2::TokenStream> {
-    let item_tokens: Vec<_> = items
-        .iter()
-        .map(expr_to_rust_tokens)
-        .collect::<Result<Vec<_>>>()?;
+    let item_tokens: Vec<_> = items.iter().map(expr_to_rust_tokens).collect::<Result<Vec<_>>>()?;
     Ok(quote! {
         {
             let mut set = HashSet::new();
@@ -842,7 +772,6 @@ fn frozen_set_to_rust_tokens(items: &[HirExpr]) -> Result<proc_macro2::TokenStre
 }
 
 /// Convert set comprehension to Rust iterator chain
-/// Complexity: 2 (if-else for condition, within ≤10 target)
 fn set_comp_to_rust_tokens(
     element: &HirExpr,
     target: &str,
@@ -875,7 +804,6 @@ fn set_comp_to_rust_tokens(
 }
 
 /// Convert dict comprehension to Rust iterator chain
-/// Complexity: 2 (if-else for condition, within ≤10 target)
 fn dict_comp_to_rust_tokens(
     key: &HirExpr,
     value: &HirExpr,
@@ -938,10 +866,7 @@ fn expr_to_rust_tokens(expr: &HirExpr) -> Result<proc_macro2::TokenStream> {
         }
         HirExpr::Borrow { expr, mutable } => borrow_expr_to_rust_tokens(expr, *mutable),
         HirExpr::MethodCall {
-            object,
-            method,
-            args,
-            ..
+            object, method, args, ..
         } => method_call_to_rust_tokens(object, method, args),
         HirExpr::Slice {
             base,
@@ -1073,7 +998,7 @@ fn binop_to_rust_tokens(op: &BinOp) -> proc_macro2::TokenStream {
         BinOp::BitXor => quote! { ^ },
         BinOp::LShift => quote! { << },
         BinOp::RShift => quote! { >> },
-        BinOp::In => quote! { .contains }, // Special handling needed
+        BinOp::In => quote! { .contains },        // Special handling needed
         BinOp::NotIn => quote! { .not_contains }, // Special handling needed
     }
 }
@@ -1093,10 +1018,7 @@ fn prettify_rust_code(code: String) -> String {
         .replace(" { ", " {\n    ")
         .replace(" } ", "\n}\n")
         .replace("} ;", "};")
-        .replace(
-            "use std :: collections :: HashMap ;",
-            "use std::collections::HashMap;",
-        )
+        .replace("use std :: collections :: HashMap ;", "use std::collections::HashMap;")
         // Fix method call spacing
         .replace(" . ", ".")
         // Fix operators with spaces BEFORE paren fixes
@@ -1260,9 +1182,9 @@ mod tests {
             then_body: vec![HirStmt::Return(Some(HirExpr::Literal(Literal::String(
                 "positive".to_string(),
             ))))],
-            else_body: Some(vec![HirStmt::Return(Some(HirExpr::Literal(
-                Literal::String("negative".to_string()),
-            )))]),
+            else_body: Some(vec![HirStmt::Return(Some(HirExpr::Literal(Literal::String(
+                "negative".to_string(),
+            ))))]),
         };
 
         let tokens = stmt_to_rust_tokens(&if_stmt).unwrap();
@@ -1386,14 +1308,12 @@ mod tests {
 
         let tokens = expr_to_rust_tokens(&neg_floor_div).unwrap();
         let code = tokens.to_string();
-        // DEPYLER-0236: Floor division now uses intermediate boolean variables
         assert!(code.contains("let r_negative = r < 0"));
         assert!(code.contains("let b_negative = b < 0"));
         assert!(code.contains("let signs_differ = r_negative != b_negative"));
         assert!(code.contains("let needs_adjustment = r_nonzero && signs_differ"));
     }
 
-    // DEPYLER-0012: Comprehensive tests for stmt_to_rust_tokens_with_scope
     // Target: Reduce complexity from 25 to ≤10
     // Coverage: All 10 statement types with scope tracking
 
@@ -1735,9 +1655,7 @@ mod tests {
                 kwargs: vec![],
             },
             target: None,
-            body: vec![HirStmt::Expr(HirExpr::Literal(Literal::String(
-                "critical".to_string(),
-            )))],
+            body: vec![HirStmt::Expr(HirExpr::Literal(Literal::String("critical".to_string())))],
         };
         let tokens = stmt_to_rust_tokens_with_scope(&stmt, &mut scope).unwrap();
         let code = tokens.to_string();

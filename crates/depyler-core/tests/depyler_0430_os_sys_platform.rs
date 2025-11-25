@@ -1,4 +1,3 @@
-// DEPYLER-0430: os/sys/platform Module Gaps
 // Tests for platform module and os.path operations
 
 use depyler_core::DepylerPipeline;

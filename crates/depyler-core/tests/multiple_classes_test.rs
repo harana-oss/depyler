@@ -1,4 +1,4 @@
-//! TDD Tests for Multiple Classes (DEPYLER-0111 Phase 4)
+//! TDD Tests for Multiple Classes 
 //!
 //! Phase 4: Multiple class definitions in the same module
 //! Tests class composition, interaction, and proper code organization

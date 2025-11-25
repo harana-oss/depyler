@@ -15,13 +15,9 @@ pub struct ModuleMapper {
 
 #[derive(Debug, Clone)]
 pub struct ModuleMapping {
-    /// The Rust crate or module path
     pub rust_path: String,
-    /// Whether this requires an external crate dependency
     pub is_external: bool,
-    /// Optional crate version requirement
     pub version: Option<String>,
-    /// Item-specific mappings within the module
     pub item_map: HashMap<String, String>,
 }
 
@@ -158,7 +154,6 @@ impl ModuleMapper {
                 is_external: false,
                 version: None,
                 item_map: HashMap::from([
-                    // DEPYLER-0170: Map to HashMap type, not HashMap::new
                     // Constructor calls are handled separately in expr_gen.rs
                     ("defaultdict".to_string(), "HashMap".to_string()),
                     ("Counter".to_string(), "HashMap".to_string()),
@@ -333,7 +328,6 @@ impl ModuleMapper {
             },
         );
 
-        // DEPYLER-0363: Map argparse to clap
         // Note: This requires special handling in codegen for structural transformation
         module_map.insert(
             "argparse".to_string(),
@@ -378,7 +372,6 @@ impl ModuleMapper {
         if let Some(mapping) = self.module_map.get(&import.module) {
             // If no specific items, it's a whole module import
             if import.items.is_empty() {
-                // DEPYLER-0363: For mapped modules, emit the Rust equivalent
                 // For argparse, this means `use clap::Parser;`
                 if !mapping.rust_path.is_empty() {
                     // For external crates like argparse->clap, import the main trait/type
@@ -447,7 +440,7 @@ impl ModuleMapper {
             // Unknown module - create a placeholder or warning
             rust_imports.push(RustImport {
                 path: format!(
-                    "// NOTE: Map Python module '{}' (tracked in DEPYLER-0424)",
+                    "// NOTE: Map Python module '{}' ()",
                     import.module
                 ),
                 alias: None,

@@ -1,4 +1,4 @@
-//! Test for dict access with variable string keys (DEPYLER-0095)
+//! Test for dict access with variable string keys 
 //!
 //! This test ensures that dict access with string variables generates correct
 //! HashMap.get() calls, not incorrect "as usize" casts.

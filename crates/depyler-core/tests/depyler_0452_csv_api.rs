@@ -1,10 +1,9 @@
-// DEPYLER-0452: CSV/Stdlib API Codegen Fix
 //
 // This test suite validates correct Rust code generation for Python stdlib APIs,
 // specifically focusing on csv module and file I/O patterns.
 //
 // Created: 2025-11-21
-// Ticket: https://github.com/paiml/depyler/issues/DEPYLER-0452
+// Ticket: https://github.com/paiml/depyler/issues/issue
 
 use depyler_core::DepylerPipeline;
 
@@ -212,16 +211,16 @@ def filter_csv(filepath, column, value):
 }
 
 // ====================================================================================
-// Test 6: CSV Reader in Generator Expression (DEPYLER-0454)
+// Test 6: CSV Reader in Generator Expression 
 // ====================================================================================
 //
-// CRITICAL BUG: DEPYLER-0452 fixed CSV iteration in `for` loops, but NOT in
+// CRITICAL BUG: issue fixed CSV iteration in `for` loops, but NOT in
 // generator expressions or filter/map chains.
 //
 // The pattern `reader.iter().filter().map()` incorrectly generates `.iter()` call,
 // but csv::Reader<R> has no `.iter()` method. Should use `.deserialize()` instead.
 //
-// This test MUST FAIL until DEPYLER-0454 is fixed.
+// This test MUST FAIL until issue is fixed.
 
 #[test]
 fn test_DEPYLER_0454_csv_reader_generator_expression() {
@@ -256,7 +255,7 @@ def filter_csv_generator(filepath, column, value):
 }
 
 // ====================================================================================
-// Test 7: CSV Reader in Method Chain (DEPYLER-0454)
+// Test 7: CSV Reader in Method Chain 
 // ====================================================================================
 //
 // Alternative test case focusing on functional-style method chains.

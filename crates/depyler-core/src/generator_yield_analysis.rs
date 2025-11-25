@@ -1,6 +1,6 @@
 //! Generator Yield Point Analysis
 //!
-//! DEPYLER-0262: This module analyzes generator functions to identify yield points
+//! This module analyzes generator functions to identify yield points
 //! and plan the state machine transformation needed for proper coroutine execution.
 //!
 //! ## Problem
@@ -17,32 +17,22 @@
 use crate::hir::{HirExpr, HirFunction, HirStmt};
 use std::collections::HashMap;
 
-/// Represents a single yield point in the generator
 #[derive(Debug, Clone, PartialEq)]
 pub struct YieldPoint {
-    /// State number for this yield point
     pub state_id: usize,
-    /// The expression being yielded
     pub yield_expr: HirExpr,
-    /// Variables that must be preserved across this yield
     pub live_vars: Vec<String>,
-    /// Nesting depth (for loop handling)
     pub depth: usize,
 }
 
-/// Analysis result containing all yield points and transformation metadata
 #[derive(Debug, Clone)]
 pub struct YieldAnalysis {
-    /// All yield points found in the function, in execution order
     pub yield_points: Vec<YieldPoint>,
-    /// Variables that need to be in state struct (modified between yields)
     pub state_variables: Vec<String>,
-    /// Map from state_id to the next statement after the yield
     pub resume_points: HashMap<usize, usize>,
 }
 
 impl YieldAnalysis {
-    /// Create a new empty analysis
     pub fn new() -> Self {
         Self {
             yield_points: Vec::new(),
@@ -56,24 +46,20 @@ impl YieldAnalysis {
     /// This is the entry point for yield point analysis. It walks the function
     /// body and identifies every yield statement, assigning state numbers.
     ///
-    /// # Complexity: 3 (create + analyze + finalize)
     pub fn analyze(func: &HirFunction) -> Self {
         let mut analysis = Self::new();
-        let mut state_counter = 1; // State 0 is initialization
+        let mut state_counter = 1;
 
-        // Walk function body and find all yields
         for (idx, stmt) in func.body.iter().enumerate() {
             Self::analyze_stmt(stmt, &mut analysis, &mut state_counter, 0, idx);
         }
 
-        // Finalize analysis (compute live variables, etc.)
         analysis.finalize();
         analysis
     }
 
     /// Recursively analyze a statement for yield points
     ///
-    /// # Complexity: 6 (delegated to helpers)
     fn analyze_stmt(
         stmt: &HirStmt,
         analysis: &mut YieldAnalysis,
@@ -86,18 +72,9 @@ impl YieldAnalysis {
                 Self::analyze_expr_stmt(expr, analysis, state_counter, depth, stmt_idx);
             }
             HirStmt::If {
-                then_body,
-                else_body,
-                ..
+                then_body, else_body, ..
             } => {
-                Self::analyze_if_stmt(
-                    then_body,
-                    else_body,
-                    analysis,
-                    state_counter,
-                    depth,
-                    stmt_idx,
-                );
+                Self::analyze_if_stmt(then_body, else_body, analysis, state_counter, depth, stmt_idx);
             }
             HirStmt::While { body, .. } | HirStmt::For { body, .. } => {
                 Self::analyze_loop_stmt(body, analysis, state_counter, depth, stmt_idx);
@@ -121,15 +98,12 @@ impl YieldAnalysis {
             HirStmt::With { body, .. } => {
                 Self::analyze_with_stmt(body, analysis, state_counter, depth, stmt_idx);
             }
-            _ => {
-                // Other statements don't affect control flow for yields
-            }
+            _ => {}
         }
     }
 
     /// Analyze expression statement for yield
     ///
-    /// # Complexity: 2
     #[inline]
     fn analyze_expr_stmt(
         expr: &HirExpr,
@@ -153,7 +127,6 @@ impl YieldAnalysis {
 
     /// Analyze if statement branches
     ///
-    /// # Complexity: 3
     #[inline]
     fn analyze_if_stmt(
         then_body: &[HirStmt],
@@ -175,7 +148,6 @@ impl YieldAnalysis {
 
     /// Analyze loop body with increased depth
     ///
-    /// # Complexity: 2
     #[inline]
     fn analyze_loop_stmt(
         body: &[HirStmt],
@@ -191,7 +163,6 @@ impl YieldAnalysis {
 
     /// Analyze try/except/else/finally blocks
     ///
-    /// # Complexity: 5
     #[inline]
     fn analyze_try_stmt(
         body: &[HirStmt],
@@ -225,7 +196,6 @@ impl YieldAnalysis {
 
     /// Analyze with statement body
     ///
-    /// # Complexity: 2
     #[inline]
     fn analyze_with_stmt(
         body: &[HirStmt],
@@ -241,7 +211,6 @@ impl YieldAnalysis {
 
     /// Extract yield expression if present
     ///
-    /// # Complexity: 2 (match + clone)
     fn extract_yield_expr(expr: &HirExpr) -> Option<HirExpr> {
         match expr {
             HirExpr::Yield { value } => value.as_ref().map(|v| *v.clone()),
@@ -251,9 +220,8 @@ impl YieldAnalysis {
 
     /// Finalize analysis by computing live variables and state variables
     ///
-    /// # Complexity: 2 (placeholder for future liveness analysis)
     fn finalize(&mut self) {
-        // NOTE: Implement liveness analysis to determine which variables need capturing (tracked in DEPYLER-0424)
+        // NOTE: Implement liveness analysis to determine which variables need capturing ()
         // need to be preserved in the state struct.
         // For now, we'll rely on the existing GeneratorStateInfo analysis.
     }

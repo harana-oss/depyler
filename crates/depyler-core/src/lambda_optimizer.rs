@@ -143,7 +143,6 @@ impl LambdaOptimizer {
         self
     }
 
-    /// Generate optimization plan based on Lambda annotations and event type
     pub fn generate_optimization_plan(
         &self,
         annotations: &LambdaAnnotations,
@@ -394,7 +393,6 @@ static INIT: extern "C" fn() = {{
         Ok(())
     }
 
-    /// Generate Cargo profile for Lambda optimization
     pub fn generate_lambda_profile(&self, plan: &OptimizationPlan) -> String {
         let mut profile = String::from("\n[profile.lambda]\ninherits = \"release\"\n");
 
@@ -410,7 +408,6 @@ static INIT: extern "C" fn() = {{
         profile
     }
 
-    /// Generate build script with optimization flags
     pub fn generate_optimized_build_script(
         &self,
         plan: &OptimizationPlan,
@@ -494,7 +491,6 @@ echo "Build completed successfully!"
         script
     }
 
-    /// Generate performance monitoring code
     pub fn generate_performance_monitoring(&self, _annotations: &LambdaAnnotations) -> String {
         format!(
             r#"
@@ -555,7 +551,6 @@ mod performance {{
             .is_some_and(|config| config.enabled)
     }
 
-    /// Estimate performance impact of optimizations
     pub fn estimate_performance_impact(&self, plan: &OptimizationPlan) -> PerformanceEstimate {
         let mut estimate = PerformanceEstimate::default();
 

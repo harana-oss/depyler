@@ -1,4 +1,3 @@
-// DEPYLER-0449: Dict Operations Generate Wrong Method Calls on serde_json::Value
 //
 // Bug: Dict operations (in, [], .get()) on serde_json::Value generate HashMap
 // method calls that don't exist on the Value type.

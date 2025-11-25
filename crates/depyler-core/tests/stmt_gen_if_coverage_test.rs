@@ -6,7 +6,7 @@
 //! Test Strategy:
 //! - Basic if without else
 //! - If with else clause
-//! - Result<bool> auto-unwrapping (DEPYLER-0308)
+//! - Result<bool> auto-unwrapping 
 //! - Nested if statements
 //! - Multiple statements in then/else bodies
 //! - Complex conditions

@@ -1,4 +1,3 @@
-// DEPYLER-0436: argparse validator parameter type inference
 //
 // Tests that parameters in argparse custom validators are correctly
 // inferred as &str (not serde_json::Value).
@@ -6,7 +5,7 @@
 // Root cause: Type inference doesn't detect argparse validator pattern
 // Solution: When function is used as argparse type= validator, first param should be &str
 //
-// Parent: DEPYLER-0428 (ArgumentTypeError support)
+// Parent: issue (ArgumentTypeError support)
 
 use depyler_core::DepylerPipeline;
 
@@ -87,7 +86,6 @@ def validator(value):
 
 #[test]
 fn test_DEPYLER_0436_parse_error_handling() {
-    // DEPYLER-0436: Even in try/except blocks, parameter type should be inferred as &str
     let python = r#"
 def validator(value):
     try:
@@ -106,7 +104,6 @@ def validator(value):
 
     let rust = result.unwrap();
 
-    // DEPYLER-0436: Parameter should be &str, NOT serde_json::Value
     assert!(
         rust.contains("value: &str"),
         "Parameter 'value' should be &str even in try/except. Got: {}",
@@ -120,7 +117,7 @@ def validator(value):
         rust
     );
 
-    // NOTE: Result return type is DEPYLER-0437's responsibility (try/except control flow)
+    // NOTE: Result return type is issue responsibility (try/except control flow)
 }
 
 #[test]

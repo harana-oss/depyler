@@ -1,4 +1,3 @@
-// DEPYLER-0450: Missing Ok() Wrapper for Result Return Types
 //
 // Bug: Functions with Result<T, E> return types are missing the final Ok() wrapper,
 // causing the function body to implicitly return () instead of Result<T, E>.
@@ -92,7 +91,7 @@ def update_config(config, key, value):
 }
 
 #[test]
-#[ignore] // DEPYLER-0450: Requires 'del' statement support (not yet implemented)
+#[ignore] // Requires 'del' statement support (not yet implemented)
 fn test_depyler_0450_nested_blocks() {
     let python = r#"
 def nested_operations(data):
@@ -110,7 +109,7 @@ def nested_operations(data):
 }
 
 #[test]
-#[ignore] // DEPYLER-0450: Requires 'with' statement to set can_fail=true (separate bug)
+#[ignore] // Requires 'with' statement to set can_fail=true (separate bug)
 fn test_depyler_0450_file_operations() {
     let python = r#"
 def write_file(path, content):
@@ -265,7 +264,7 @@ def safe_divide(a, b):
 }
 
 #[test]
-#[ignore] // DEPYLER-0450: Requires 'with' statement to set can_fail=true (separate bug)
+#[ignore] // Requires 'with' statement to set can_fail=true (separate bug)
 fn test_depyler_0450_multiple_error_types() {
     let python = r#"
 def read_and_parse(path):
@@ -468,7 +467,7 @@ def set_nested_value(config, key, value):
 }
 
 #[test]
-#[ignore] // DEPYLER-0450: Requires import statement and csv operations support (separate bug)
+#[ignore] // Requires import statement and csv operations support (separate bug)
 fn test_depyler_0450_csv_filter() {
     let python = r#"
 def filter_csv(input_file, output_file, column, value):
@@ -497,7 +496,7 @@ def filter_csv(input_file, output_file, column, value):
 }
 
 #[test]
-#[ignore] // DEPYLER-0450: Requires import statement and os module support (separate bug)
+#[ignore] // Requires import statement and os module support (separate bug)
 fn test_depyler_0450_env_check() {
     let python = r#"
 def check_environment(key):

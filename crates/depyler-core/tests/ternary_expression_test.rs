@@ -1,4 +1,4 @@
-//! TDD Tests for Ternary/Conditional Expressions (DEPYLER-0120)
+//! TDD Tests for Ternary/Conditional Expressions 
 //!
 //! Python ternary expressions: `value_if_true if condition else value_if_false`
 //! Rust if expressions: `if condition { value_if_true } else { value_if_false }`

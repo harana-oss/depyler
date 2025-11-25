@@ -1,6 +1,6 @@
 //! Cargo.toml generation from CodeGenContext dependencies
 //!
-//! DEPYLER-0384: Automatically generates Cargo.toml with correct dependencies
+//! Automatically generates Cargo.toml with correct dependencies
 //! based on the needs_* flags tracked during code generation.
 
 use crate::rust_gen::CodeGenContext;
@@ -123,7 +123,6 @@ pub fn extract_dependencies(ctx: &CodeGenContext) -> Vec<Dependency> {
         deps.push(Dependency::new("rand", "0.8"));
     }
 
-    // DEPYLER-0384: Check if ArgumentParser was used (needs clap)
     if ctx.needs_clap {
         deps.push(Dependency::new("clap", "4.5").with_features(vec!["derive".to_string()]));
     }
@@ -133,7 +132,6 @@ pub fn extract_dependencies(ctx: &CodeGenContext) -> Vec<Dependency> {
 
 /// Generate complete Cargo.toml content
 ///
-/// DEPYLER-0392: Now includes [[bin]] section to ensure generated manifests
 /// are complete and can be built by Cargo without manual editing.
 pub fn generate_cargo_toml(package_name: &str, source_file_path: &str, dependencies: &[Dependency]) -> String {
     let mut toml = String::new();
@@ -145,7 +143,7 @@ pub fn generate_cargo_toml(package_name: &str, source_file_path: &str, dependenc
     toml.push_str("edition = \"2021\"\n");
     toml.push('\n');
 
-    // Binary section (DEPYLER-0392: Required for cargo build to work)
+    // Binary section
     toml.push_str("[[bin]]\n");
     toml.push_str(&format!("name = \"{}\"\n", package_name));
     toml.push_str(&format!("path = \"{}\"\n", source_file_path));
@@ -188,7 +186,6 @@ mod tests {
         assert!(toml.contains("name = \"test_pkg\""));
         assert!(toml.contains("version = \"0.1.0\""));
         assert!(toml.contains("edition = \"2021\""));
-        // DEPYLER-0392: Verify [[bin]] section exists
         assert!(toml.contains("[[bin]]"));
         assert!(toml.contains("path = \"test_pkg.rs\""));
     }
@@ -208,7 +205,6 @@ mod tests {
     }
 
     // ========================================================================
-    // DEPYLER-0384: Property Tests for Cargo.toml Generation
     // ========================================================================
 
     /// Property Test: Generated TOML must be valid TOML syntax
@@ -351,8 +347,8 @@ mod tests {
             generated_args_struct: None,
             generated_commands_enum: None,
             current_subcommand_fields: None,
-            validator_functions: std::collections::HashSet::new(), // DEPYLER-0447
-            stdlib_mappings: crate::stdlib_mappings::StdlibMappings::new(), // DEPYLER-0452
+            validator_functions: std::collections::HashSet::new(),
+            stdlib_mappings: crate::stdlib_mappings::StdlibMappings::new(),
             current_func_mut_ref_params: std::collections::HashSet::new(),
             function_param_names: std::collections::HashMap::new(),
         };
@@ -441,8 +437,8 @@ mod tests {
             generated_args_struct: None,
             generated_commands_enum: None,
             current_subcommand_fields: None,
-            validator_functions: std::collections::HashSet::new(), // DEPYLER-0447
-            stdlib_mappings: crate::stdlib_mappings::StdlibMappings::new(), // DEPYLER-0452
+            validator_functions: std::collections::HashSet::new(),
+            stdlib_mappings: crate::stdlib_mappings::StdlibMappings::new(),
             current_func_mut_ref_params: HashSet::new(),
             function_param_names: std::collections::HashMap::new(),
         };
@@ -528,8 +524,8 @@ mod tests {
             generated_args_struct: None,
             generated_commands_enum: None,
             current_subcommand_fields: None,
-            validator_functions: std::collections::HashSet::new(), // DEPYLER-0447
-            stdlib_mappings: crate::stdlib_mappings::StdlibMappings::new(), // DEPYLER-0452
+            validator_functions: std::collections::HashSet::new(),
+            stdlib_mappings: crate::stdlib_mappings::StdlibMappings::new(),
             current_func_mut_ref_params: HashSet::new(),
             function_param_names: std::collections::HashMap::new(),
         };
@@ -623,8 +619,8 @@ mod tests {
             generated_args_struct: None,
             generated_commands_enum: None,
             current_subcommand_fields: None,
-            validator_functions: std::collections::HashSet::new(), // DEPYLER-0447
-            stdlib_mappings: crate::stdlib_mappings::StdlibMappings::new(), // DEPYLER-0452
+            validator_functions: std::collections::HashSet::new(),
+            stdlib_mappings: crate::stdlib_mappings::StdlibMappings::new(),
             current_func_mut_ref_params: HashSet::new(),
             function_param_names: std::collections::HashMap::new(),
         };
@@ -632,7 +628,7 @@ mod tests {
         let deps = extract_dependencies(&ctx);
 
         // Invariant: clap must have derive feature for #[derive(Parser)]
-        let clap_dep = deps.iter().mutfind(|d| d.crate_name == "clap");
+        let clap_dep = deps.iter().find(|d| d.crate_name == "clap");
         assert!(clap_dep.is_some(), "Should have clap");
         assert!(
             clap_dep.unwrap().features.contains(&"derive".to_string()),

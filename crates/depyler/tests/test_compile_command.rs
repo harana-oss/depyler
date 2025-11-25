@@ -1,4 +1,4 @@
-//! DEPYLER-0380: Compile Command Tests - GREEN Phase
+//! Compile Command Tests - GREEN Phase
 //!
 //! **EXTREME TDD Protocol**
 //!
@@ -10,7 +10,7 @@
 //!
 //! Target Coverage: ≥85%
 //! TDG Score: A (≤2.0)
-//! Complexity: ≤10 per function
+//!
 
 use assert_cmd::cargo::CommandCargoExt;
 use assert_cmd::prelude::*;

@@ -4,7 +4,7 @@
 //! Coverage focus: Type-aware subscript assignment, Vec vs HashMap detection
 //!
 //! Test Strategy:
-//! - List/Vec assignment with numeric indices (DEPYLER-0304, DEPYLER-0314)
+//! - List/Vec assignment with numeric indices 
 //! - Dict/HashMap assignment with key-based indices
 //! - Type-tracked detection (Type::List, Type::Dict)
 //! - Heuristic-based detection (when no type info)
@@ -15,7 +15,7 @@ use depyler_core::DepylerPipeline;
 
 /// Unit Test: Simple list assignment with literal index
 ///
-/// Verifies: Vec.insert with numeric index (DEPYLER-0304, lines 1087-1090)
+/// Verifies: Vec.insert with numeric index 
 #[test]
 fn test_list_assignment_literal_index() {
     let pipeline = DepylerPipeline::new();
@@ -31,7 +31,7 @@ def update_list(items: list[int]) -> list[int]:
 
 /// Unit Test: List assignment with variable index
 ///
-/// Verifies: Vec.insert with variable index (DEPYLER-0314, lines 1088-1090)
+/// Verifies: Vec.insert with variable index 
 #[test]
 fn test_list_assignment_variable_index() {
     let pipeline = DepylerPipeline::new();
@@ -63,7 +63,7 @@ def update_next_item(items: list[int], i: int) -> list[int]:
 
 /// Unit Test: Simple dict assignment with string key
 ///
-/// Verifies: HashMap.insert with key (DEPYLER-0304, lines 1092-1093)
+/// Verifies: HashMap.insert with key 
 #[test]
 fn test_dict_assignment_string_key() {
     let pipeline = DepylerPipeline::new();
@@ -193,7 +193,7 @@ def update_dict_of_lists(data: dict[str, list[int]], key: str) -> dict[str, list
 
 /// Unit Test: Index type conversion for Vec
 ///
-/// Verifies: as usize conversion (DEPYLER-0314, lines 1090, 1107)
+/// Verifies: as usize conversion 
 #[test]
 fn test_index_type_conversion() {
     let pipeline = DepylerPipeline::new();

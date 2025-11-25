@@ -2,7 +2,6 @@ use depyler_core::DepylerPipeline;
 
 #[test]
 fn test_multiple_exception_handlers_compiles() {
-    // DEPYLER-0361: Multiple exception handlers should ALL be generated
     let python = r#"
 def parse_value(s: str) -> int:
     try:
@@ -53,7 +52,7 @@ def parse_value(s: str) -> int:
     if !output.status.success() {
         let stderr = String::from_utf8_lossy(&output.stderr);
         panic!(
-            "❌ DEPYLER-0361: Generated code should compile!\n\nGenerated code:\n{}\n\nCompilation errors:\n{}",
+            "❌ issue: Generated code should compile!\n\nGenerated code:\n{}\n\nCompilation errors:\n{}",
             rust_code, stderr
         );
     }

@@ -1,4 +1,4 @@
-//! DEPYLER-0023: Rust keyword escaping utilities
+//! Rust keyword escaping utilities
 //!
 //! Centralized module for handling Rust keywords when generating identifiers.
 //! Ensures Python variable names that are Rust keywords get properly escaped.
