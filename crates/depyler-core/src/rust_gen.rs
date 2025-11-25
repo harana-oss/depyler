@@ -217,6 +217,36 @@ fn pre_analyze_parameter_mutability(ctx: &mut CodeGenContext, functions: &[HirFu
     }
 }
 
+/// Pre-analyze all functions to determine which parameters should be borrowed vs owned.
+/// This must run AFTER pre_analyze_parameter_mutability and BEFORE function code generation
+/// so that call sites know whether to add & or .to_string() for arguments.
+///
+/// Populates ctx.function_param_borrows with function_name -> Vec<bool>
+/// where each bool indicates if the corresponding parameter is borrowed (true = &str, false = String).
+fn pre_analyze_parameter_borrowing(ctx: &mut CodeGenContext, functions: &[HirFunction]) {
+    use crate::borrowing_context::BorrowingContext;
+    use crate::lifetime_analysis::LifetimeInference;
+
+    for func in functions {
+        let mut lifetime_inference = LifetimeInference::new();
+        let lifetime_result = lifetime_inference.analyze_function(func, ctx.type_mapper);
+
+        let param_borrows: Vec<bool> = func
+            .params
+            .iter()
+            .map(|param| {
+                lifetime_result
+                    .param_lifetimes
+                    .get(&param.name)
+                    .map(|inferred| inferred.should_borrow)
+                    .unwrap_or(false) // Default to NOT borrowed (owned) if unknown
+            })
+            .collect();
+
+        ctx.function_param_borrows.insert(func.name.clone(), param_borrows);
+    }
+}
+
 /// Propagate &mut requirement to called functions
 fn propagate_mut_to_callees(
     param_name: &str,
@@ -1257,6 +1287,10 @@ pub fn generate_rust_file(
     // Pre-analyze all functions for parameter mutability
     // This populates function_param_muts so call sites know whether to use &mut
     pre_analyze_parameter_mutability(&mut ctx, &module.functions);
+
+    // Pre-analyze all functions for parameter borrowing
+    // This populates function_param_borrows so call sites know whether to add & or .to_string()
+    pre_analyze_parameter_borrowing(&mut ctx, &module.functions);
 
     // Convert classes first (they might be used by functions)
     let classes = convert_classes_to_rust(&module.classes, ctx.type_mapper)?;

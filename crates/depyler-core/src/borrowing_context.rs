@@ -958,37 +958,15 @@ impl BorrowingContext {
     }
 
     /// Determine optimal string handling strategy
-    fn determine_string_strategy(&self, _param_name: &str, usage: &ParameterUsagePattern) -> BorrowingStrategy {
-        // For strings that are reassigned (not string mutation itself),
-        // we can actually take ownership since we're replacing the entire string
-        // This is a Python-specific pattern where `s = s + "!"` creates a new string
-
-        // If string is moved to another function, we need ownership
-        if usage.is_moved {
-            return BorrowingStrategy::TakeOwnership;
-        }
-
-        // If string is reassigned (Python pattern), take ownership
-        // This must come before escape check to handle mutation correctly
-        if usage.is_mutated {
-            return BorrowingStrategy::TakeOwnership;
-        }
-
-        // If string escapes, we need to take ownership to avoid lifetime issues
-        // DEPYLER-0357: Fixed Cow lifetime mismatch bug
-        // Previous behavior: Generated Cow<'static, str> which creates impossible
-        // lifetime constraints when returning borrowed parameters
-        // New behavior: Use owned String for simplicity and correctness
-        if usage.escapes_through_return {
-            return BorrowingStrategy::TakeOwnership;
-        }
-
-        // For read-only strings, prefer borrowing
-        if usage.is_read && !usage.is_moved && !usage.is_mutated {
-            return BorrowingStrategy::BorrowImmutable { lifetime: None };
-        }
-
-        // Default to ownership for simplicity
+    /// STRING_INTEROP: Always use owned String for Python str parameters
+    /// This ensures consistent semantics with Python where strings are immutable values.
+    /// Using String instead of &str:
+    /// - Matches Python's value semantics for strings
+    /// - Simplifies interoperability (no lifetime issues)
+    /// - Allows straightforward function composition
+    fn determine_string_strategy(&self, _param_name: &str, _usage: &ParameterUsagePattern) -> BorrowingStrategy {
+        // Always take ownership for strings - matches Python semantics
+        // Python strings are immutable values, so Rust String is the closest match
         BorrowingStrategy::TakeOwnership
     }
 

@@ -632,7 +632,7 @@ mod tests {
         let deps = extract_dependencies(&ctx);
 
         // Invariant: clap must have derive feature for #[derive(Parser)]
-        let clap_dep = deps.iter().find(|d| d.crate_name == "clap");
+        let clap_dep = deps.iter().mutfind(|d| d.crate_name == "clap");
         assert!(clap_dep.is_some(), "Should have clap");
         assert!(
             clap_dep.unwrap().features.contains(&"derive".to_string()),
