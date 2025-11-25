@@ -354,6 +354,7 @@ mod tests {
             validator_functions: std::collections::HashSet::new(), // DEPYLER-0447
             stdlib_mappings: crate::stdlib_mappings::StdlibMappings::new(), // DEPYLER-0452
             current_func_mut_ref_params: std::collections::HashSet::new(),
+            function_param_names: std::collections::HashMap::new(),
         };
 
         // Property: Calling extract_dependencies multiple times returns same result
@@ -443,6 +444,7 @@ mod tests {
             validator_functions: std::collections::HashSet::new(), // DEPYLER-0447
             stdlib_mappings: crate::stdlib_mappings::StdlibMappings::new(), // DEPYLER-0452
             current_func_mut_ref_params: HashSet::new(),
+            function_param_names: std::collections::HashMap::new(),
         };
 
         let deps = extract_dependencies(&ctx);
@@ -529,6 +531,7 @@ mod tests {
             validator_functions: std::collections::HashSet::new(), // DEPYLER-0447
             stdlib_mappings: crate::stdlib_mappings::StdlibMappings::new(), // DEPYLER-0452
             current_func_mut_ref_params: HashSet::new(),
+            function_param_names: std::collections::HashMap::new(),
         };
 
         let deps = extract_dependencies(&ctx);
@@ -623,6 +626,7 @@ mod tests {
             validator_functions: std::collections::HashSet::new(), // DEPYLER-0447
             stdlib_mappings: crate::stdlib_mappings::StdlibMappings::new(), // DEPYLER-0452
             current_func_mut_ref_params: HashSet::new(),
+            function_param_names: std::collections::HashMap::new(),
         };
 
         let deps = extract_dependencies(&ctx);

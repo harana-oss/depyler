@@ -105,7 +105,7 @@ def format_message(name: str) -> str:
 "#;
 
     let rust_code = pipeline.transpile(python_code).unwrap();
-    assert!(rust_code.contains("fn format_message(name: &str) -> String"));
+    assert!(rust_code.contains("fn format_message(name: String) -> String"));
     assert!(rust_code.contains("format!"));
 }
 
@@ -125,8 +125,8 @@ def main() -> None:
 "#;
 
     let rust_code = pipeline.transpile(python_code).unwrap();
-    assert!(rust_code.contains("fn inner(s: &str) -> String"));
-    assert!(rust_code.contains("fn outer(s: &str) -> String"));
+    assert!(rust_code.contains("fn inner(s: String) -> String"));
+    assert!(rust_code.contains("fn outer(s: String) -> String"));
     assert!(rust_code.contains("format!"));
     assert!(rust_code.contains("outer(\"test\")"));
     assert!(rust_code.contains("inner(&format!") || rust_code.contains("inner(& format!"));
