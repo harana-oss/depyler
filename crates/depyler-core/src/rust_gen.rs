@@ -40,15 +40,6 @@ pub use type_gen::rust_type_to_syn;
 // Internal re-exports for cross-module access
 pub(crate) use func_gen::return_type_expects_float;
 
-/// Analyze functions for string optimization
-///
-/// Performs string optimization analysis on all functions.
-fn analyze_string_optimization(ctx: &mut CodeGenContext, functions: &[HirFunction]) {
-    for func in functions {
-        ctx.string_optimizer.analyze_function(func);
-    }
-}
-
 ///
 /// Scans all statements in function bodies and constant expressions to find
 /// add_argument(type=validator_func) calls. Populates ctx.validator_functions
@@ -1061,17 +1052,6 @@ fn generate_import_tokens(
     items
 }
 
-/// Generate interned string constant tokens
-///
-/// Generates constant definitions for interned strings.
-fn generate_interned_string_tokens(optimizer: &StringOptimizer) -> Vec<proc_macro2::TokenStream> {
-    let interned_constants = optimizer.generate_interned_constants();
-    interned_constants
-        .into_iter()
-        .filter_map(|constant| constant.parse().ok())
-        .collect()
-}
-
 /// Generate module-level constant tokens
 ///
 /// Generates `pub const` declarations for module-level constants.
@@ -1223,12 +1203,6 @@ pub fn generate_rust_file(
         function_param_names: std::collections::HashMap::new(),  // Track function parameter names
     };
 
-    // Analyze all functions first for string optimization
-    analyze_string_optimization(&mut ctx, &module.functions);
-
-    // Finalize interned string names (resolve collisions)
-    ctx.string_optimizer.finalize_interned_names();
-
     // Must run BEFORE function conversion so validator parameter types are correct
     analyze_validators(&mut ctx, &module.functions, &module.constants);
 
@@ -1282,9 +1256,6 @@ pub fn generate_rust_file(
     // Add module imports (create new mapper for token generation)
     let import_mapper = crate::module_mapper::ModuleMapper::new();
     items.extend(generate_import_tokens(&module.imports, &import_mapper));
-
-    // Add interned string constants
-    items.extend(generate_interned_string_tokens(&ctx.string_optimizer));
 
     // Add module-level constants
     items.extend(generate_constant_tokens(&module.constants, &mut ctx)?);

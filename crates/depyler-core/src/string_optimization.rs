@@ -1,5 +1,5 @@
 use crate::hir::{AssignTarget, HirExpr, HirFunction, HirStmt, Literal, Type};
-use std::collections::{HashMap, HashSet};
+use std::collections::HashSet;
 
 /// Analyzes string usage patterns to determine optimal string types
 #[derive(Debug)]
@@ -12,12 +12,6 @@ pub struct StringOptimizer {
     returned_strings: HashSet<String>,
     /// Strings used in multiple contexts (may need Cow)
     mixed_usage_strings: HashSet<String>,
-    /// String literal frequency counter for interning decisions
-    string_literal_count: HashMap<String, usize>,
-    /// Strings that should be interned due to frequent use
-    interned_strings: HashSet<String>,
-    /// Mapping from string literal to its unique constant name
-    interned_names: HashMap<String, String>,
 }
 
 impl Default for StringOptimizer {
@@ -27,9 +21,6 @@ impl Default for StringOptimizer {
             immutable_params: HashSet::new(),
             returned_strings: HashSet::new(),
             mixed_usage_strings: HashSet::new(),
-            string_literal_count: HashMap::new(),
-            interned_strings: HashSet::new(),
-            interned_names: HashMap::new(),
         }
     }
 }
@@ -200,69 +191,11 @@ impl StringOptimizer {
     }
 
     fn analyze_string_literal(&mut self, s: &str, is_returned: bool) {
-        *self.string_literal_count.entry(s.to_string()).or_insert(0) += 1;
-
-        if self.string_literal_count.get(s).copied().unwrap_or(0) > 3 {
-            self.interned_strings.insert(s.to_string());
-        }
-
         if is_returned {
             self.returned_strings.insert(s.to_string());
         } else {
             self.read_only_strings.insert(s.to_string());
         }
-    }
-
-    /// Finalize interned string names, resolving any collisions
-    /// This must be called after analysis and before code generation
-    pub fn finalize_interned_names(&mut self) {
-        if !self.interned_names.is_empty() {
-            // Already finalized
-            return;
-        }
-
-        // Map from base constant name to list of actual string values
-        let mut name_map: HashMap<String, Vec<String>> = HashMap::new();
-
-        // Group strings by their base constant name
-        for s in &self.interned_strings {
-            let base_name = self.generate_base_const_name(s);
-            name_map.entry(base_name).or_default().push(s.clone());
-        }
-
-        // Assign unique names, adding suffixes for collisions
-        for (base_name, strings) in name_map {
-            if strings.len() == 1 {
-                // No collision, use base name
-                self.interned_names.insert(strings[0].clone(), base_name);
-            } else {
-                // Collision detected, add numeric suffixes
-                for (idx, s) in strings.iter().enumerate() {
-                    let unique_name = format!("{}_{}", base_name, idx + 1);
-                    self.interned_names.insert(s.clone(), unique_name);
-                }
-            }
-        }
-    }
-
-    /// Generate base constant name from string content (may have collisions)
-    fn generate_base_const_name(&self, s: &str) -> String {
-        // Convert to uppercase, replace non-alphanumeric with underscore
-        let name = s
-            .chars()
-            .map(|c| match c {
-                'a'..='z' | 'A'..='Z' | '0'..='9' => c.to_ascii_uppercase(),
-                _ => '_',
-            })
-            .collect::<String>();
-
-        let base_name = if name.is_empty() {
-            "EMPTY".to_string()
-        } else {
-            name
-        };
-
-        format!("STR_{}", base_name)
     }
 
     fn analyze_var_usage(&mut self, name: &str, is_returned: bool) {
@@ -346,33 +279,6 @@ impl StringOptimizer {
             method,
             "push_str" | "push" | "insert" | "insert_str" | "replace_range" | "clear" | "truncate"
         )
-    }
-
-    /// Check if a string literal should be interned
-    pub fn should_intern(&self, s: &str) -> bool {
-        self.interned_strings.contains(s)
-    }
-
-    /// Get interned string name for a literal
-    /// Returns the unique constant name for an interned string
-    pub fn get_interned_name(&self, s: &str) -> Option<String> {
-        // Return the finalized name from the cache
-        self.interned_names.get(s).cloned()
-    }
-
-    /// Generate interned string constants
-    pub fn generate_interned_constants(&self) -> Vec<String> {
-        let mut constants = Vec::new();
-
-        for (string_value, const_name) in &self.interned_names {
-            constants.push(format!(
-                "const {}: &'static str = \"{}\";",
-                const_name,
-                escape_string(string_value)
-            ));
-        }
-
-        constants
     }
 }
 

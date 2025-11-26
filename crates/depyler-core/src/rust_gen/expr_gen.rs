@@ -242,8 +242,8 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     }
                 } else {
                     // Same as BinOp::In, but negated - works for both HashMap and Value
-                    // 
-                    // 
+                    //
+                    //
                     if needs_borrow {
                         Ok(parse_quote! { !#right_expr.get(&#left_expr).is_some() })
                     } else {
@@ -252,7 +252,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 }
             }
             BinOp::Add => {
-
                 // Check if we're dealing with lists/vectors (explicit detection only)
                 let is_definitely_list = self.is_list_expr(left) || self.is_list_expr(right);
 
@@ -9241,7 +9240,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             // 2. Otherwise → escape as keyword in default case
             "match" if self.is_regex_expr(object) => self.convert_regex_method(object_expr, method, arg_exprs),
 
-            // Path instance methods 
+            // Path instance methods
             "read_text" => {
                 // filepath.read_text() → std::fs::read_to_string(filepath).unwrap()
                 if !arg_exprs.is_empty() {
@@ -11647,7 +11646,7 @@ impl ToRustExpr for HirExpr {
 
 fn literal_to_rust_expr(
     lit: &Literal,
-    string_optimizer: &StringOptimizer,
+    _string_optimizer: &StringOptimizer,
     _needs_cow: &bool,
     ctx: &CodeGenContext,
 ) -> syn::Expr {
@@ -11669,16 +11668,10 @@ fn literal_to_rust_expr(
             parse_quote! { #lit }
         }
         Literal::String(s) => {
-            // Check if this string should be interned
-            if let Some(interned_name) = string_optimizer.get_interned_name(s) {
-                let ident = syn::Ident::new(&interned_name, proc_macro2::Span::call_site());
-                parse_quote! { #ident }
-            } else {
-                // String literals are emitted directly as &str
-                // They'll be converted to String when needed (variable assignment, owned params, etc.)
-                let lit = syn::LitStr::new(s, proc_macro2::Span::call_site());
-                parse_quote! { #lit }
-            }
+            // String literals are emitted directly as &str
+            // They'll be converted to String when needed (variable assignment, owned params, etc.)
+            let lit = syn::LitStr::new(s, proc_macro2::Span::call_site());
+            parse_quote! { #lit }
         }
         Literal::Bytes(b) => {
             // Generate Rust byte array: &[u8] slice from byte values
