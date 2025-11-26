@@ -53,6 +53,7 @@ pub mod borrowing_context;
 pub mod cargo_toml_gen;
 pub mod codegen;
 pub mod const_generic_inference;
+pub mod dataflow;
 pub mod debug;
 pub mod direct_rules;
 pub mod documentation;
@@ -625,10 +626,29 @@ impl DepylerPipeline {
             .python_to_hir(ast)
     }
 
+    /// Parse Python source and apply true dataflow-based type inference
+    /// 
+    /// This method performs complete type inference using dataflow analysis
+    /// to produce definitive types rather than heuristic-based hints.
+    pub fn parse_to_typed_hir(&self, source: &str) -> Result<hir::HirModule> {
+        let mut hir = self.parse_to_hir(source)?;
+        
+        // Apply dataflow-based type inference
+        let inferencer = dataflow::DataflowTypeInferencer::new();
+        inferencer.apply_types_to_module(&mut hir);
+        
+        Ok(hir)
+    }
+
+    /// Analyze a single function using dataflow type inference
+    pub fn infer_function_types(&self, func: &hir::HirFunction) -> dataflow::InferredTypes {
+        let inferencer = dataflow::DataflowTypeInferencer::new();
+        inferencer.infer_function(func)
+    }
+
     pub fn analyze_to_typed_hir(&self, source: &str) -> Result<hir::HirModule> {
-        // For now, just return the HIR without type analysis
-        // In the future, this would add type inference
-        self.parse_to_hir(source)
+        // Now uses dataflow analysis for proper type inference
+        self.parse_to_typed_hir(source)
     }
 
     pub fn parse_python(&self, source: &str) -> Result<rustpython_ast::Mod> {
