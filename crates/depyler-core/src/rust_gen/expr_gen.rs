@@ -1343,14 +1343,14 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         // 3. Convert bools to integers (False→0, True→1 via as i32)
         // 4. Ensure integer type for indexing (via as i32)
 
-        // String variables need .parse().unwrap_or_default() not 'as i32' cast
+        // String variables need .parse().unwrap() not 'as i32' cast
 
         // Check if expression is a String-typed method call (e.g., Vec<String>.get())
 
         // Strategy:
-        // - For String variables/params → .parse().unwrap_or_default()
-        // - For String literals → .parse().unwrap_or_default()
-        // - For String-typed method calls → .parse().unwrap_or_default()
+        // - For String variables/params → .parse().unwrap()
+        // - For String literals → .parse().unwrap()
+        // - For String-typed method calls → .parse().unwrap()
         // - For known bool expressions → as i32 cast
         // - For integer literals → no cast needed
         // - For other variables → as i32 cast conservatively
@@ -1360,7 +1360,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 HirExpr::Literal(Literal::Int(_)) => return Ok(arg.clone()),
 
                 HirExpr::Literal(Literal::String(_)) => {
-                    return Ok(parse_quote! { #arg.parse::<i32>().unwrap_or_default() });
+                    return Ok(parse_quote! { #arg.parse::<i32>().unwrap() });
                 }
 
                 HirExpr::Var(var_name) => {
@@ -1369,7 +1369,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                         match var_type {
                             // String types require parsing
                             Type::String => {
-                                return Ok(parse_quote! { #arg.parse::<i32>().unwrap_or_default() });
+                                return Ok(parse_quote! { #arg.parse::<i32>().unwrap() });
                             }
                             // Numeric types use simple cast
                             Type::Int | Type::Float | Type::Bool => {
@@ -1398,7 +1398,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
 
                     if looks_like_string {
                         // String → int requires parsing, not casting
-                        return Ok(parse_quote! { #arg.parse::<i32>().unwrap_or_default() });
+                        return Ok(parse_quote! { #arg.parse::<i32>().unwrap() });
                     }
                     // Default: use as i32 cast for other types
                     return Ok(parse_quote! { (#arg) as i32 });
@@ -1413,7 +1413,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 } => {
                     // Check if this is .get() on a Vec<String> or similar
                     if self.is_string_method_call(object, method, method_args) {
-                        return Ok(parse_quote! { #arg.parse::<i32>().unwrap_or_default() });
+                        return Ok(parse_quote! { #arg.parse::<i32>().unwrap() });
                     }
                     // Otherwise, use default cast
                     return Ok(parse_quote! { (#arg) as i32 });
@@ -7849,7 +7849,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     }
                 } else if arg_exprs.is_empty() {
                     // List.pop() with no arguments - remove last element
-                    Ok(parse_quote! { #object_expr.pop().unwrap_or_default() })
+                    Ok(parse_quote! { #object_expr.pop().unwrap() })
                 } else {
                     // 1 argument: could be list.pop(index) OR dict.pop(key)
                     // Use multiple heuristics to disambiguate:
@@ -9346,7 +9346,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             if let HirExpr::Var(module_name) = &**value {
                 if module_name == "os" && attr == "environ" {
                     let index_expr = index.to_rust_expr(self.ctx)?;
-                    return Ok(parse_quote! { std::env::var(#index_expr).unwrap_or_default() });
+                    return Ok(parse_quote! { std::env::var(#index_expr).unwrap() });
                 }
             }
         }
@@ -9414,7 +9414,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 HirExpr::Literal(Literal::String(s)) => {
                     // String literal - use it directly without .to_string()
                     Ok(parse_quote! {
-                        #base_expr.get(#s).cloned().unwrap_or_default()
+                        #base_expr.get(#s).cloned().unwrap()
                     })
                 }
                 _ => {
@@ -9422,7 +9422,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     // HashMap.get() expects &K, so we need to borrow the key
                     let index_expr = index.to_rust_expr(self.ctx)?;
                     Ok(parse_quote! {
-                        #base_expr.get(&#index_expr).cloned().unwrap_or_default()
+                        #base_expr.get(&#index_expr).cloned().unwrap()
                     })
                 }
             }
@@ -9440,7 +9440,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     } else {
                         idx as usize
                     };
-                    base.chars().nth(actual_idx).map(|c| c.to_string()).unwrap_or_default()
+                    base.chars().nth(actual_idx).map(|c| c.to_string()).unwrap()
                 }
             })
         } else {
@@ -9458,11 +9458,11 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     // Special case for -1: use .last().cloned()
                     // Works for both Copy and non-Copy types (like String, Vec)
                     if offset == 1 {
-                        return Ok(parse_quote! { #base_expr.last().cloned().unwrap_or_default() });
+                        return Ok(parse_quote! { #base_expr.last().cloned().unwrap() });
                     }
                     // For other negative indices, use .get().cloned() to avoid copy issues
                     return Ok(parse_quote! {
-                        #base_expr.get(#base_expr.len().saturating_sub(#offset)).cloned().unwrap_or_default()
+                        #base_expr.get(#base_expr.len().saturating_sub(#offset)).cloned().unwrap()
                     });
                 }
             }
@@ -9471,10 +9471,10 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             // This avoids unnecessary temporary variables and runtime checks
             if let HirExpr::Literal(Literal::Int(n)) = index {
                 let idx_value = *n as usize;
-                // Use consistent .get().cloned().unwrap_or_default() for all indices
+                // Use consistent .get().cloned().unwrap() for all indices
                 // This works for both Copy and non-Copy types (like String)
                 return Ok(parse_quote! {
-                    #base_expr.get(#idx_value).cloned().unwrap_or_default()
+                    #base_expr.get(#idx_value).cloned().unwrap()
                 });
             }
 
@@ -9486,7 +9486,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 // Simple variable index - use inline expression (works in range contexts)
                 // This avoids block expressions that break in `for j in 0..matrix[i].len()`
                 Ok(parse_quote! {
-                    #base_expr.get(#index_expr as usize).cloned().unwrap_or_default()
+                    #base_expr.get(#index_expr as usize).cloned().unwrap()
                 })
             } else {
                 // Complex expression - use block with full negative index handling
@@ -9500,7 +9500,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                         } else {
                             idx as usize
                         };
-                        base.get(actual_idx).cloned().unwrap_or_default()
+                        base.get(actual_idx).cloned().unwrap()
                     }
                 })
             }
@@ -11134,7 +11134,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 FStringPart::Expr(expr) => {
                     // - Collections (Vec, HashMap, HashSet): Use {:?} debug formatting
                     // - Scalars (String, i32, f64, bool): Use {} Display formatting
-                    // - Option types: Unwrap with .unwrap_or_default() or display "None"
+                    // - Option types: Display "None" or unwrapped value
                     // This matches Python semantics where lists/dicts have their own repr
                     let arg_expr = expr.to_rust_expr(self.ctx)?;
 
@@ -11244,7 +11244,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     let final_arg = if is_option {
                         // Option<T> doesn't implement Display, so we need to unwrap it
                         // For string-like types, display the value or "None"
-                        // For numeric types, use unwrap_or_default()
                         parse_quote! {
                             {
                                 match &#arg_expr {

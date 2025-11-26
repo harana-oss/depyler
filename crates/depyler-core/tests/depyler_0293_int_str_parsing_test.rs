@@ -41,14 +41,15 @@ def safe_parse_int(s: str) -> int:
         .transpile(python_code)
         .expect("Transpilation failed");
 
-    // Should use .parse::<i32>() with error handling
+    // Should use .parse::<i32>() for string to int conversion
     assert!(
         rust_code.contains(".parse::<i32>()"),
         "Should use .parse::<i32>() for int(str) in try block"
     );
+    // Should use unwrap() - panics if invalid (Python semantics for ValueError)
     assert!(
-        rust_code.contains("unwrap_or"),
-        "Should use unwrap_or for error handling"
+        rust_code.contains(".unwrap()"),
+        "Should use unwrap() for int parsing"
     );
 }
 
@@ -123,12 +124,10 @@ def safe_parse_int(s: str) -> int:
         .transpile(python_code)
         .expect("Transpilation failed");
 
-    // Write simple test code WITHOUT auto-generated quickcheck tests
+    // Write simple test code that tests parse().unwrap() behavior
     let test_code = r#"
-pub fn safe_parse_int(s: String) -> i32 {
-    {
-        s.parse::<i32>().unwrap_or_default()
-    }
+pub fn parse_int(s: String) -> i32 {
+    s.parse::<i32>().unwrap()
 }
 
 #[cfg(test)]
@@ -137,17 +136,16 @@ mod tests {
 
     #[test]
     fn test_parse_valid_number() {
-        assert_eq!(safe_parse_int("42".to_string()), 42);
-        assert_eq!(safe_parse_int("123".to_string()), 123);
-        assert_eq!(safe_parse_int("-10".to_string()), -10);
+        assert_eq!(parse_int("42".to_string()), 42);
+        assert_eq!(parse_int("123".to_string()), 123);
+        assert_eq!(parse_int("-10".to_string()), -10);
     }
 
     #[test]
-    fn test_parse_invalid_returns_default() {
-        // unwrap_or_default() returns 0 for i32
-        assert_eq!(safe_parse_int("abc".to_string()), 0);
-        assert_eq!(safe_parse_int("".to_string()), 0);
-        assert_eq!(safe_parse_int("12.34".to_string()), 0);
+    #[should_panic]
+    fn test_parse_invalid_panics() {
+        // unwrap() panics on invalid input
+        parse_int("abc".to_string());
     }
 }
 "#;

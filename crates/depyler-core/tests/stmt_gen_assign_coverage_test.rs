@@ -29,7 +29,7 @@ def increment_dict_value():
 "#;
     let rust_code = pipeline.transpile(python_code).unwrap();
 
-    // Should generate: let _old_val = d.get(&key).cloned().unwrap_or_default();
+    // Should generate: let _old_val = d.get(&key).cloned().unwrap();
     //                  d.insert(key, _old_val + value);
     assert!(rust_code.contains("fn increment_dict_value"));
     // Verify no borrow-after-move error 

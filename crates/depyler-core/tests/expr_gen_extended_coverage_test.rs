@@ -192,7 +192,7 @@ def negate_flag(enabled: bool) -> bool:
 /// Unit Test: int() cast on string variable (should use .parse())
 ///
 /// Verifies: convert_int_cast() with Type::String detection
-/// Expected: Generates .parse().unwrap_or_default() not "as i32"
+/// Expected: Generates .parse().unwrap() not "as i32"
 #[test]
 fn test_int_cast_from_string() {
     let pipeline = DepylerPipeline::new();

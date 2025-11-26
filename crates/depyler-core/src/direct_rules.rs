@@ -1,6 +1,6 @@
 use crate::hir::*;
 use crate::type_mapper::{RustType, TypeMapper};
-use anyhow::{bail, Result};
+use anyhow::{Result, bail};
 use quote::quote;
 use syn::{self, parse_quote};
 
@@ -63,10 +63,7 @@ fn is_rust_keyword(name: &str) -> bool {
 
 /// Helper to build nested dictionary access for assignment
 /// Returns (base_expr, access_chain) where access_chain is a vec of index expressions
-fn extract_nested_indices(
-    expr: &HirExpr,
-    type_mapper: &TypeMapper,
-) -> Result<(syn::Expr, Vec<syn::Expr>)> {
+fn extract_nested_indices(expr: &HirExpr, type_mapper: &TypeMapper) -> Result<(syn::Expr, Vec<syn::Expr>)> {
     let mut indices = Vec::new();
     let mut current = expr;
 
@@ -307,16 +304,12 @@ fn convert_protocol_to_trait(protocol: &Protocol, type_mapper: &TypeMapper) -> R
 /// let items = convert_class_to_struct(&class, &type_mapper).unwrap();
 /// assert!(!items.is_empty()); // Should have at least the struct definition
 /// ```
-pub fn convert_class_to_struct(
-    class: &HirClass,
-    type_mapper: &TypeMapper,
-) -> Result<Vec<syn::Item>> {
+pub fn convert_class_to_struct(class: &HirClass, type_mapper: &TypeMapper) -> Result<Vec<syn::Item>> {
     let mut items = Vec::new();
     let struct_name = syn::Ident::new(&class.name, proc_macro2::Span::call_site());
 
     // Separate instance fields from class fields (constants/statics)
-    let (instance_fields, class_fields): (Vec<_>, Vec<_>) =
-        class.fields.iter().partition(|f| !f.is_class_var);
+    let (instance_fields, class_fields): (Vec<_>, Vec<_>) = class.fields.iter().partition(|f| !f.is_class_var);
 
     // Generate struct fields (only instance fields)
     let mut fields = Vec::new();
@@ -338,9 +331,9 @@ pub fn convert_class_to_struct(
     // Create the struct
     let struct_item = syn::Item::Struct(syn::ItemStruct {
         attrs: if class.is_dataclass {
-            vec![parse_quote! { #[derive(Debug, Clone, PartialEq)] }]
+            vec![parse_quote! { #[derive(Debug, Clone, Copy, PartialEq)] }]
         } else {
-            vec![parse_quote! { #[derive(Debug, Clone)] }]
+            vec![parse_quote! { #[derive(Debug, Clone, Copy)] }]
         },
         vis: syn::Visibility::Public(syn::Token![pub](proc_macro2::Span::call_site())),
         struct_token: syn::Token![struct](proc_macro2::Span::call_site()),
@@ -550,11 +543,7 @@ fn convert_init_to_new(
         let field_ident = syn::Ident::new(&field.name, proc_macro2::Span::call_site());
 
         // Check if this field matches a parameter name
-        if init_method
-            .params
-            .iter()
-            .any(|param| param.name == field.name)
-        {
+        if init_method.params.iter().any(|param| param.name == field.name) {
             // Initialize from parameter
             field_inits.push(quote! { #field_ident });
         } else {
@@ -625,18 +614,14 @@ fn stmt_mutates_self(stmt: &HirStmt) -> bool {
                 if matches!(value.as_ref(), HirExpr::Var(sym) if sym.as_str() == "self"))
         }
         HirStmt::If {
-            then_body,
-            else_body,
-            ..
+            then_body, else_body, ..
         } => {
             then_body.iter().any(stmt_mutates_self)
                 || else_body
                     .as_ref()
                     .is_some_and(|body| body.iter().any(stmt_mutates_self))
         }
-        HirStmt::While { body, .. } | HirStmt::For { body, .. } => {
-            body.iter().any(stmt_mutates_self)
-        }
+        HirStmt::While { body, .. } | HirStmt::For { body, .. } => body.iter().any(stmt_mutates_self),
         _ => false,
     }
 }
@@ -653,10 +638,7 @@ fn infer_method_return_type(body: &[HirStmt]) -> Option<Type> {
     // If all return types are the same (ignoring Unknown), use that type
     let first_known = return_types.iter().find(|t| !matches!(t, Type::Unknown));
     if let Some(first) = first_known {
-        if return_types
-            .iter()
-            .all(|t| matches!(t, Type::Unknown) || t == first)
-        {
+        if return_types.iter().all(|t| matches!(t, Type::Unknown) || t == first) {
             return Some(first.clone());
         }
     }
@@ -676,9 +658,7 @@ fn collect_method_return_types(stmts: &[HirStmt], types: &mut Vec<Type>) {
                 types.push(Type::None);
             }
             HirStmt::If {
-                then_body,
-                else_body,
-                ..
+                then_body, else_body, ..
             } => {
                 collect_method_return_types(then_body, types);
                 if let Some(else_stmts) = else_body {
@@ -708,14 +688,7 @@ fn infer_expr_type(expr: &HirExpr) -> Type {
             // Comparison operators return bool
             if matches!(
                 op,
-                BinOp::Eq
-                    | BinOp::NotEq
-                    | BinOp::Lt
-                    | BinOp::LtEq
-                    | BinOp::Gt
-                    | BinOp::GtEq
-                    | BinOp::In
-                    | BinOp::NotIn
+                BinOp::Eq | BinOp::NotEq | BinOp::Lt | BinOp::LtEq | BinOp::Gt | BinOp::GtEq | BinOp::In | BinOp::NotIn
             ) {
                 return Type::Bool;
             }
@@ -749,10 +722,7 @@ fn infer_expr_type(expr: &HirExpr) -> Type {
     }
 }
 
-fn convert_method_to_impl_item(
-    method: &HirMethod,
-    type_mapper: &TypeMapper,
-) -> Result<syn::ImplItemFn> {
+fn convert_method_to_impl_item(method: &HirMethod, type_mapper: &TypeMapper) -> Result<syn::ImplItemFn> {
     let method_name = if is_rust_keyword(&method.name) {
         syn::Ident::new_raw(&method.name, proc_macro2::Span::call_site())
     } else {
@@ -801,7 +771,7 @@ fn convert_method_to_impl_item(
         }));
     }
 
-    // Convert return type - infer if Unknown or None 
+    // Convert return type - infer if Unknown or None
     // Five-Whys Root Cause:
     // 1. Why: expected `()`, found `bool` in __exit__ method
     // 2. Why: Method has no return type annotation, so ret_type is Unknown/None
@@ -848,10 +818,7 @@ fn convert_method_to_impl_item(
             output: if matches!(effective_ret_type, Type::None) {
                 syn::ReturnType::Default
             } else {
-                syn::ReturnType::Type(
-                    syn::Token![->](proc_macro2::Span::call_site()),
-                    Box::new(ret_type),
-                )
+                syn::ReturnType::Type(syn::Token![->](proc_macro2::Span::call_site()), Box::new(ret_type))
             },
         },
         block: body,
@@ -919,10 +886,7 @@ fn convert_protocol_method_to_trait_method(
         paren_token: syn::token::Paren::default(),
         inputs,
         variadic: None,
-        output: syn::ReturnType::Type(
-            syn::Token![->](proc_macro2::Span::call_site()),
-            Box::new(return_type),
-        ),
+        output: syn::ReturnType::Type(syn::Token![->](proc_macro2::Span::call_site()), Box::new(return_type)),
     };
 
     // Create trait method (with or without default implementation)
@@ -957,8 +921,8 @@ fn convert_simple_type(rust_type: &RustType) -> Result<syn::Type> {
                 parse_quote! { &Self }
             } else if name.contains("::") {
                 // Handle qualified paths like "serde_json::Value"
-                let path: syn::Path = syn::parse_str(name)
-                    .unwrap_or_else(|_| panic!("Failed to parse type path: {}", name));
+                let path: syn::Path =
+                    syn::parse_str(name).unwrap_or_else(|_| panic!("Failed to parse type path: {}", name));
                 parse_quote! { #path }
             } else {
                 let ident = syn::Ident::new(name, proc_macro2::Span::call_site());
@@ -1007,16 +971,14 @@ fn convert_lifetime_type(rust_type: &RustType) -> Result<syn::Type> {
     Ok(match rust_type {
         Str { lifetime } => {
             if let Some(lt) = lifetime {
-                let lifetime_token =
-                    syn::Lifetime::new(&format!("'{}", lt), proc_macro2::Span::call_site());
+                let lifetime_token = syn::Lifetime::new(&format!("'{}", lt), proc_macro2::Span::call_site());
                 parse_quote! { &#lifetime_token str }
             } else {
                 parse_quote! { &str }
             }
         }
         Cow { lifetime } => {
-            let lifetime_token =
-                syn::Lifetime::new(&format!("'{}", lifetime), proc_macro2::Span::call_site());
+            let lifetime_token = syn::Lifetime::new(&format!("'{}", lifetime), proc_macro2::Span::call_site());
             parse_quote! { std::borrow::Cow<#lifetime_token, str> }
         }
         _ => unreachable!("convert_lifetime_type called with non-lifetime type"),
@@ -1070,15 +1032,13 @@ fn convert_complex_type(rust_type: &RustType) -> Result<syn::Type> {
     use RustType::*;
     Ok(match rust_type {
         Tuple(types) => {
-            let type_tokens: anyhow::Result<std::vec::Vec<_>> =
-                types.iter().map(rust_type_to_syn_type).collect();
+            let type_tokens: anyhow::Result<std::vec::Vec<_>> = types.iter().map(rust_type_to_syn_type).collect();
             let type_tokens = type_tokens?;
             parse_quote! { (#(#type_tokens),*) }
         }
         Generic { base, params } => {
             let base_ident = syn::Ident::new(base, proc_macro2::Span::call_site());
-            let param_types: anyhow::Result<std::vec::Vec<_>> =
-                params.iter().map(rust_type_to_syn_type).collect();
+            let param_types: anyhow::Result<std::vec::Vec<_>> = params.iter().map(rust_type_to_syn_type).collect();
             let param_types = param_types?;
             parse_quote! { #base_ident<#(#param_types),*> }
         }
@@ -1137,9 +1097,7 @@ fn rust_type_to_syn_type(rust_type: &RustType) -> Result<syn::Type> {
         Unsupported(name) => convert_unsupported_type(name)?,
 
         // Container types - delegate to helper
-        Vec(_) | HashMap(_, _) | Option(_) | Result(_, _) | HashSet(_) => {
-            convert_container_type(rust_type)?
-        }
+        Vec(_) | HashMap(_, _) | Option(_) | Result(_, _) | HashSet(_) => convert_container_type(rust_type)?,
 
         // Complex types - delegate to helper
         Tuple(_) | Generic { .. } | Reference { .. } => convert_complex_type(rust_type)?,
@@ -1382,11 +1340,7 @@ fn convert_attribute_assignment(
 ///
 ///
 #[allow(dead_code)]
-fn convert_assign_stmt(
-    target: &AssignTarget,
-    value: &HirExpr,
-    type_mapper: &TypeMapper,
-) -> Result<syn::Stmt> {
+fn convert_assign_stmt(target: &AssignTarget, value: &HirExpr, type_mapper: &TypeMapper) -> Result<syn::Stmt> {
     let value_expr = convert_expr(value, type_mapper)?;
     convert_assign_stmt_with_expr(target, value_expr, type_mapper)
 }
@@ -1398,9 +1352,7 @@ fn convert_assign_stmt_with_expr(
 ) -> Result<syn::Stmt> {
     match target {
         AssignTarget::Symbol(symbol) => convert_symbol_assignment(symbol, value_expr),
-        AssignTarget::Index { base, index } => {
-            convert_index_assignment(base, index, value_expr, type_mapper)
-        }
+        AssignTarget::Index { base, index } => convert_index_assignment(base, index, value_expr, type_mapper),
         AssignTarget::Attribute { value: base, attr } => {
             convert_attribute_assignment(base, attr, value_expr, type_mapper)
         }
@@ -1461,11 +1413,7 @@ fn convert_stmt(stmt: &HirStmt, type_mapper: &TypeMapper) -> Result<syn::Stmt> {
     convert_stmt_with_context(stmt, type_mapper, false)
 }
 
-fn convert_stmt_with_context(
-    stmt: &HirStmt,
-    type_mapper: &TypeMapper,
-    is_classmethod: bool,
-) -> Result<syn::Stmt> {
+fn convert_stmt_with_context(stmt: &HirStmt, type_mapper: &TypeMapper, is_classmethod: bool) -> Result<syn::Stmt> {
     match stmt {
         HirStmt::Assign { target, value, .. } => {
             // For assignments, we need to convert the value expression with classmethod context
@@ -1492,8 +1440,7 @@ fn convert_stmt_with_context(
             let then_block = convert_block_with_context(then_body, type_mapper, is_classmethod)?;
 
             let if_expr = if let Some(else_stmts) = else_body {
-                let else_block =
-                    convert_block_with_context(else_stmts, type_mapper, is_classmethod)?;
+                let else_block = convert_block_with_context(else_stmts, type_mapper, is_classmethod)?;
                 parse_quote! {
                     if #cond #then_block else #else_block
                 }
@@ -1526,9 +1473,7 @@ fn convert_stmt_with_context(
                     let idents: Vec<syn::Ident> = targets
                         .iter()
                         .map(|t| match t {
-                            AssignTarget::Symbol(s) => {
-                                syn::Ident::new(s, proc_macro2::Span::call_site())
-                            }
+                            AssignTarget::Symbol(s) => syn::Ident::new(s, proc_macro2::Span::call_site()),
                             _ => panic!("Nested tuple unpacking not supported in for loops"),
                         })
                         .collect();
@@ -1550,10 +1495,7 @@ fn convert_stmt_with_context(
             let rust_expr = convert_expr_with_context(expr, type_mapper, is_classmethod)?;
             Ok(syn::Stmt::Expr(rust_expr, Some(Default::default())))
         }
-        HirStmt::Raise {
-            exception,
-            cause: _,
-        } => {
+        HirStmt::Raise { exception, cause: _ } => {
             // Convert to Rust panic for direct rules
             let panic_expr = if let Some(exc) = exception {
                 let exc_expr = convert_expr_with_context(exc, type_mapper, is_classmethod)?;
@@ -1565,8 +1507,7 @@ fn convert_stmt_with_context(
         }
         HirStmt::Break { label } => {
             let break_expr = if let Some(label_name) = label {
-                let label_ident =
-                    syn::Lifetime::new(&format!("'{}", label_name), proc_macro2::Span::call_site());
+                let label_ident = syn::Lifetime::new(&format!("'{}", label_name), proc_macro2::Span::call_site());
                 parse_quote! { break #label_ident }
             } else {
                 parse_quote! { break }
@@ -1575,19 +1516,14 @@ fn convert_stmt_with_context(
         }
         HirStmt::Continue { label } => {
             let continue_expr = if let Some(label_name) = label {
-                let label_ident =
-                    syn::Lifetime::new(&format!("'{}", label_name), proc_macro2::Span::call_site());
+                let label_ident = syn::Lifetime::new(&format!("'{}", label_name), proc_macro2::Span::call_site());
                 parse_quote! { continue #label_ident }
             } else {
                 parse_quote! { continue }
             };
             Ok(syn::Stmt::Expr(continue_expr, Some(Default::default())))
         }
-        HirStmt::With {
-            context,
-            target,
-            body,
-        } => {
+        HirStmt::With { context, target, body } => {
             // Convert context expression
             let context_expr = convert_expr_with_context(context, type_mapper, is_classmethod)?;
 
@@ -1631,8 +1567,7 @@ fn convert_stmt_with_context(
 
             // Convert except handlers (use first handler for simplicity)
             if let Some(handler) = handlers.first() {
-                let handler_block =
-                    convert_block_with_context(&handler.body, type_mapper, is_classmethod)?;
+                let handler_block = convert_block_with_context(&handler.body, type_mapper, is_classmethod)?;
 
                 let block_expr = if let Some(finally_stmts) = finally_block {
                     parse_quote! {
@@ -1704,11 +1639,7 @@ fn convert_block(stmts: &[HirStmt], type_mapper: &TypeMapper) -> Result<syn::Blo
     convert_block_with_context(stmts, type_mapper, false)
 }
 
-fn convert_block_with_context(
-    stmts: &[HirStmt],
-    type_mapper: &TypeMapper,
-    is_classmethod: bool,
-) -> Result<syn::Block> {
+fn convert_block_with_context(stmts: &[HirStmt], type_mapper: &TypeMapper, is_classmethod: bool) -> Result<syn::Block> {
     let rust_stmts = convert_body_with_context(stmts, type_mapper, is_classmethod)?;
     Ok(syn::Block {
         brace_token: Default::default(),
@@ -1723,11 +1654,7 @@ fn convert_expr(expr: &HirExpr, type_mapper: &TypeMapper) -> Result<syn::Expr> {
 }
 
 /// Convert HIR expressions with classmethod context
-fn convert_expr_with_context(
-    expr: &HirExpr,
-    type_mapper: &TypeMapper,
-    is_classmethod: bool,
-) -> Result<syn::Expr> {
+fn convert_expr_with_context(expr: &HirExpr, type_mapper: &TypeMapper, is_classmethod: bool) -> Result<syn::Expr> {
     let converter = ExprConverter::with_classmethod(type_mapper, is_classmethod);
     converter.convert(expr)
 }
@@ -1770,10 +1697,7 @@ impl<'a> ExprConverter<'a> {
             HirExpr::FrozenSet(elts) => self.convert_frozenset(elts),
             HirExpr::Lambda { params, body } => self.convert_lambda(params, body),
             HirExpr::MethodCall {
-                object,
-                method,
-                args,
-                ..
+                object, method, args, ..
             } => self.convert_method_call(object, method, args),
             HirExpr::ListComp {
                 element,
@@ -1824,9 +1748,7 @@ impl<'a> ExprConverter<'a> {
                 Ok(parse_quote! { !#right_expr.contains_key(&#left_expr) })
             }
             // Set operators - check if both operands are sets
-            BinOp::BitAnd | BinOp::BitOr | BinOp::BitXor
-                if self.is_set_expr(left) && self.is_set_expr(right) =>
-            {
+            BinOp::BitAnd | BinOp::BitOr | BinOp::BitXor if self.is_set_expr(left) && self.is_set_expr(right) => {
                 self.convert_set_operation(op, left_expr, right_expr)
             }
             BinOp::Sub if self.is_set_expr(left) && self.is_set_expr(right) => {
@@ -1874,8 +1796,7 @@ impl<'a> ExprConverter<'a> {
                         if elts.len() == 1 && *size > 0 && *size <= 32 =>
                     {
                         let elem = self.convert(&elts[0])?;
-                        let size_lit =
-                            syn::LitInt::new(&size.to_string(), proc_macro2::Span::call_site());
+                        let size_lit = syn::LitInt::new(&size.to_string(), proc_macro2::Span::call_site());
                         Ok(parse_quote! { [#elem; #size_lit] })
                     }
                     // Pattern: n * [x]
@@ -1883,8 +1804,7 @@ impl<'a> ExprConverter<'a> {
                         if elts.len() == 1 && *size > 0 && *size <= 32 =>
                     {
                         let elem = self.convert(&elts[0])?;
-                        let size_lit =
-                            syn::LitInt::new(&size.to_string(), proc_macro2::Span::call_site());
+                        let size_lit = syn::LitInt::new(&size.to_string(), proc_macro2::Span::call_site());
                         Ok(parse_quote! { [#elem; #size_lit] })
                     }
                     // Default multiplication
@@ -1965,17 +1885,11 @@ impl<'a> ExprConverter<'a> {
     fn convert_call(&self, func: &str, args: &[HirExpr]) -> Result<syn::Expr> {
         // Handle classmethod cls(args) → Self::new(args)
         if func == "cls" && self.is_classmethod {
-            let arg_exprs: Vec<syn::Expr> = args
-                .iter()
-                .map(|arg| self.convert(arg))
-                .collect::<Result<Vec<_>>>()?;
+            let arg_exprs: Vec<syn::Expr> = args.iter().map(|arg| self.convert(arg)).collect::<Result<Vec<_>>>()?;
             return Ok(parse_quote! { Self::new(#(#arg_exprs),*) });
         }
 
-        let arg_exprs: Vec<syn::Expr> = args
-            .iter()
-            .map(|arg| self.convert(arg))
-            .collect::<Result<Vec<_>>>()?;
+        let arg_exprs: Vec<syn::Expr> = args.iter().map(|arg| self.convert(arg)).collect::<Result<Vec<_>>>()?;
 
         match func {
             "len" => self.convert_len_call(&arg_exprs),
@@ -2014,12 +1928,7 @@ impl<'a> ExprConverter<'a> {
         }
     }
 
-    fn convert_array_init_call(
-        &self,
-        func: &str,
-        args: &[HirExpr],
-        _arg_exprs: &[syn::Expr],
-    ) -> Result<syn::Expr> {
+    fn convert_array_init_call(&self, func: &str, args: &[HirExpr], _arg_exprs: &[syn::Expr]) -> Result<syn::Expr> {
         // Handle zeros(n), ones(n), full(n, value) patterns
         if args.is_empty() {
             bail!("{} requires at least one argument", func);
@@ -2111,10 +2020,7 @@ impl<'a> ExprConverter<'a> {
                 std::sync::Arc::new(#arg.into_iter().collect::<HashSet<_>>())
             })
         } else {
-            bail!(
-                "frozenset() takes at most 1 argument ({} given)",
-                args.len()
-            )
+            bail!("frozenset() takes at most 1 argument ({} given)", args.len())
         }
     }
 
@@ -2136,12 +2042,7 @@ impl<'a> ExprConverter<'a> {
         }
 
         // Check if this might be a constructor call (capitalized name)
-        if func
-            .chars()
-            .next()
-            .map(|c| c.is_uppercase())
-            .unwrap_or(false)
-        {
+        if func.chars().next().map(|c| c.is_uppercase()).unwrap_or(false) {
             // Treat as constructor call - ClassName::new(args)
             let class_ident = syn::Ident::new(func, proc_macro2::Span::call_site());
             if args.is_empty() {
@@ -2174,10 +2075,7 @@ impl<'a> ExprConverter<'a> {
     }
 
     fn convert_list(&self, elts: &[HirExpr]) -> Result<syn::Expr> {
-        let elt_exprs: Vec<syn::Expr> = elts
-            .iter()
-            .map(|e| self.convert(e))
-            .collect::<Result<Vec<_>>>()?;
+        let elt_exprs: Vec<syn::Expr> = elts.iter().map(|e| self.convert(e)).collect::<Result<Vec<_>>>()?;
 
         // Check if this list has a known fixed size that should be an array
         // Arrays are preferred for small fixed sizes (typically < 32 elements)
@@ -2219,10 +2117,7 @@ impl<'a> ExprConverter<'a> {
     }
 
     fn convert_tuple(&self, elts: &[HirExpr]) -> Result<syn::Expr> {
-        let elt_exprs: Vec<syn::Expr> = elts
-            .iter()
-            .map(|e| self.convert(e))
-            .collect::<Result<Vec<_>>>()?;
+        let elt_exprs: Vec<syn::Expr> = elts.iter().map(|e| self.convert(e)).collect::<Result<Vec<_>>>()?;
         Ok(parse_quote! { (#(#elt_exprs),*) })
     }
 
@@ -2275,12 +2170,7 @@ impl<'a> ExprConverter<'a> {
         }
     }
 
-    fn convert_set_operation(
-        &self,
-        op: BinOp,
-        left: syn::Expr,
-        right: syn::Expr,
-    ) -> Result<syn::Expr> {
+    fn convert_set_operation(&self, op: BinOp, left: syn::Expr, right: syn::Expr) -> Result<syn::Expr> {
         match op {
             BinOp::BitAnd => Ok(parse_quote! {
                 #left.intersection(&#right).cloned().collect()
@@ -2298,48 +2188,29 @@ impl<'a> ExprConverter<'a> {
         }
     }
 
-    fn convert_method_call(
-        &self,
-        object: &HirExpr,
-        method: &str,
-        args: &[HirExpr],
-    ) -> Result<syn::Expr> {
+    fn convert_method_call(&self, object: &HirExpr, method: &str, args: &[HirExpr]) -> Result<syn::Expr> {
         // Handle classmethod cls.method() → Self::method()
         if let HirExpr::Var(var_name) = object {
             if var_name == "cls" && self.is_classmethod {
                 let method_ident = syn::Ident::new(method, proc_macro2::Span::call_site());
-                let arg_exprs: Vec<syn::Expr> = args
-                    .iter()
-                    .map(|arg| self.convert(arg))
-                    .collect::<Result<Vec<_>>>()?;
+                let arg_exprs: Vec<syn::Expr> = args.iter().map(|arg| self.convert(arg)).collect::<Result<Vec<_>>>()?;
                 return Ok(parse_quote! { Self::#method_ident(#(#arg_exprs),*) });
             }
         }
 
         // Check if this is a static method call on a class (e.g., Counter.create_with_value)
         if let HirExpr::Var(class_name) = object {
-            if class_name
-                .chars()
-                .next()
-                .map(|c| c.is_uppercase())
-                .unwrap_or(false)
-            {
+            if class_name.chars().next().map(|c| c.is_uppercase()).unwrap_or(false) {
                 // This is likely a static method call - convert to ClassName::method(args)
                 let class_ident = syn::Ident::new(class_name, proc_macro2::Span::call_site());
                 let method_ident = syn::Ident::new(method, proc_macro2::Span::call_site());
-                let arg_exprs: Vec<syn::Expr> = args
-                    .iter()
-                    .map(|arg| self.convert(arg))
-                    .collect::<Result<Vec<_>>>()?;
+                let arg_exprs: Vec<syn::Expr> = args.iter().map(|arg| self.convert(arg)).collect::<Result<Vec<_>>>()?;
                 return Ok(parse_quote! { #class_ident::#method_ident(#(#arg_exprs),*) });
             }
         }
 
         let object_expr = self.convert(object)?;
-        let arg_exprs: Vec<syn::Expr> = args
-            .iter()
-            .map(|arg| self.convert(arg))
-            .collect::<Result<Vec<_>>>()?;
+        let arg_exprs: Vec<syn::Expr> = args.iter().map(|arg| self.convert(arg)).collect::<Result<Vec<_>>>()?;
 
         // Map Python collection methods to Rust equivalents
         match method {
@@ -2412,7 +2283,7 @@ impl<'a> ExprConverter<'a> {
                 } else {
                     // List pop
                     if arg_exprs.is_empty() {
-                        Ok(parse_quote! { #object_expr.pop().unwrap_or_default() })
+                        Ok(parse_quote! { #object_expr.pop().unwrap() })
                     } else {
                         let idx = &arg_exprs[0];
                         Ok(parse_quote! { #object_expr.remove(#idx as usize) })
@@ -2467,14 +2338,10 @@ impl<'a> ExprConverter<'a> {
             }
             "split" => {
                 if arg_exprs.is_empty() {
-                    Ok(
-                        parse_quote! { #object_expr.split_whitespace().map(|s| s.to_string()).collect::<Vec<String>>() },
-                    )
+                    Ok(parse_quote! { #object_expr.split_whitespace().map(|s| s.to_string()).collect::<Vec<String>>() })
                 } else if arg_exprs.len() == 1 {
                     let sep = &arg_exprs[0];
-                    Ok(
-                        parse_quote! { #object_expr.split(#sep).map(|s| s.to_string()).collect::<Vec<String>>() },
-                    )
+                    Ok(parse_quote! { #object_expr.split(#sep).map(|s| s.to_string()).collect::<Vec<String>>() })
                 } else {
                     bail!("split() with maxsplit not supported");
                 }
@@ -2512,25 +2379,19 @@ impl<'a> ExprConverter<'a> {
                 if !arg_exprs.is_empty() {
                     bail!("isdigit() takes no arguments");
                 }
-                Ok(
-                    parse_quote! { !#object_expr.is_empty() && #object_expr.chars().all(|c| c.is_ascii_digit()) },
-                )
+                Ok(parse_quote! { !#object_expr.is_empty() && #object_expr.chars().all(|c| c.is_ascii_digit()) })
             }
             "isalpha" => {
                 if !arg_exprs.is_empty() {
                     bail!("isalpha() takes no arguments");
                 }
-                Ok(
-                    parse_quote! { !#object_expr.is_empty() && #object_expr.chars().all(|c| c.is_alphabetic()) },
-                )
+                Ok(parse_quote! { !#object_expr.is_empty() && #object_expr.chars().all(|c| c.is_alphabetic()) })
             }
             "isalnum" => {
                 if !arg_exprs.is_empty() {
                     bail!("isalnum() takes no arguments");
                 }
-                Ok(
-                    parse_quote! { !#object_expr.is_empty() && #object_expr.chars().all(|c| c.is_alphanumeric()) },
-                )
+                Ok(parse_quote! { !#object_expr.is_empty() && #object_expr.chars().all(|c| c.is_alphanumeric()) })
             }
 
             // Generic method call fallback
@@ -2721,26 +2582,18 @@ fn convert_literal(lit: &Literal) -> syn::Expr {
 fn convert_binop(op: BinOp) -> Result<syn::BinOp> {
     match op {
         // Arithmetic operators
-        BinOp::Add
-        | BinOp::Sub
-        | BinOp::Mul
-        | BinOp::Div
-        | BinOp::Mod
-        | BinOp::FloorDiv
-        | BinOp::Pow => convert_arithmetic_op(op),
+        BinOp::Add | BinOp::Sub | BinOp::Mul | BinOp::Div | BinOp::Mod | BinOp::FloorDiv | BinOp::Pow => {
+            convert_arithmetic_op(op)
+        }
 
         // Comparison operators
-        BinOp::Eq | BinOp::NotEq | BinOp::Lt | BinOp::LtEq | BinOp::Gt | BinOp::GtEq => {
-            convert_comparison_op(op)
-        }
+        BinOp::Eq | BinOp::NotEq | BinOp::Lt | BinOp::LtEq | BinOp::Gt | BinOp::GtEq => convert_comparison_op(op),
 
         // Logical operators
         BinOp::And | BinOp::Or => convert_logical_op(op),
 
         // Bitwise operators
-        BinOp::BitAnd | BinOp::BitOr | BinOp::BitXor | BinOp::LShift | BinOp::RShift => {
-            convert_bitwise_op(op)
-        }
+        BinOp::BitAnd | BinOp::BitOr | BinOp::BitXor | BinOp::LShift | BinOp::RShift => convert_bitwise_op(op),
 
         // Special membership operators
         BinOp::In | BinOp::NotIn => {
@@ -2939,10 +2792,7 @@ mod tests {
 
         let call_expr = HirExpr::Call {
             func: "range".to_string(),
-            args: vec![
-                HirExpr::Literal(Literal::Int(1)),
-                HirExpr::Literal(Literal::Int(10)),
-            ],
+            args: vec![HirExpr::Literal(Literal::Int(1)), HirExpr::Literal(Literal::Int(10))],
             kwargs: vec![],
         };
 
@@ -2967,10 +2817,7 @@ mod tests {
         assert!(matches!(result, syn::Expr::Array(_)));
 
         // Test non-literal list (should generate vec!)
-        let var_list = HirExpr::List(vec![
-            HirExpr::Var("x".to_string()),
-            HirExpr::Var("y".to_string()),
-        ]);
+        let var_list = HirExpr::List(vec![HirExpr::Var("x".to_string()), HirExpr::Var("y".to_string())]);
 
         let result2 = converter.convert(&var_list).unwrap();
         // Non-literal lists should generate vec! macro

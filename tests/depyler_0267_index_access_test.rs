@@ -1,19 +1,6 @@
 // ============================================================================
 // DEPYLER-0267: Index Access Bug - `.copied()` Used for Non-Copy Types
 // ============================================================================
-// BUG: Index access generates `.copied()` for all types, but String doesn't
-// implement Copy trait - should use `.cloned()` instead
-//
-// ROOT CAUSE: expr_gen.rs lines 2130 and 2146 use `.copied()` unconditionally
-// for Vec/List index access, but HashMap access (lines 2102, 2110) correctly
-// uses `.cloned()` for String keys
-//
-// FIX: Change `.copied()` to `.cloned()` for Vec/List index access
-//
-// DISCOVERED: DEPYLER-0265 test suite (final failing test with String list)
-// SEVERITY: P0 BLOCKING - prevents compilation of index access on non-Copy types
-// ============================================================================
-
 use depyler_core::DepylerPipeline;
 use std::process::Command;
 
