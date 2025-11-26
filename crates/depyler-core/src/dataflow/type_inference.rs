@@ -3,8 +3,91 @@
 use super::cfg::CfgBuilder;
 use super::lattice::{LatticeType, TypeState};
 use super::solver::{FixpointSolver, TypePropagation};
+use crate::ast_bridge::AstBridge;
 use crate::hir::{HirFunction, HirModule, HirStmt, Type};
+use anyhow::Result;
+use rustpython_ast::Suite;
+use rustpython_parser::Parse;
 use std::collections::HashMap;
+
+/// Infer types for all functions in a Python source string.
+///
+/// This is a convenience function that parses Python code and runs
+/// dataflow-based type inference on all functions.
+///
+/// # Example
+/// ```ignore
+/// use depyler_core::dataflow::infer_python;
+///
+/// let result = infer_python(r#"
+/// def greet(name: str) -> str:
+///     result = []
+///     result.append("Hello, ")
+///     result.append(name)
+///     return "".join(result)
+/// "#)?;
+///
+/// for (func_name, types) in result {
+///     println!("Function: {}", func_name);
+///     println!("  Return type: {:?}", types.return_type);
+///     for (var, ty) in types.all_variables() {
+///         println!("  {}: {:?}", var, ty);
+///     }
+/// }
+/// ```
+pub fn infer_python(source: &str) -> Result<HashMap<String, InferredTypes>> {
+    // Parse Python source to AST
+    let statements = Suite::parse(source, "<input>")
+        .map_err(|e| anyhow::anyhow!("Python parse error: {}", e))?;
+
+    let ast = rustpython_ast::Mod::Module(rustpython_ast::ModModule {
+        body: statements,
+        type_ignores: vec![],
+        range: Default::default(),
+    });
+
+    // Convert to HIR
+    let hir_module = AstBridge::new()
+        .with_source(source.to_string())
+        .python_to_hir(ast)?;
+
+    // Run type inference on each function
+    let inferencer = DataflowTypeInferencer::new();
+    let mut results = HashMap::new();
+
+    for func in &hir_module.functions {
+        let inferred = inferencer.infer_function(func);
+        results.insert(func.name.clone(), inferred);
+    }
+
+    Ok(results)
+}
+
+/// Infer types for a single Python function string.
+///
+/// # Example
+/// ```ignore
+/// use depyler_core::dataflow::infer_python_function;
+///
+/// let types = infer_python_function(r#"
+/// def process(items: list[int]) -> int:
+///     total = 0
+///     for item in items:
+///         total += item
+///     return total
+/// "#)?;
+///
+/// println!("Return type: {:?}", types.return_type);
+/// println!("total: {:?}", types.get_variable_type("total"));
+/// ```
+pub fn infer_python_function(source: &str) -> Result<InferredTypes> {
+    let results = infer_python(source)?;
+    
+    results
+        .into_values()
+        .next()
+        .ok_or_else(|| anyhow::anyhow!("No function found in source"))
+}
 
 /// Result of dataflow type inference
 #[derive(Debug, Clone)]
