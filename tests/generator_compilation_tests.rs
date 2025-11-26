@@ -91,7 +91,7 @@ fn test_DEPYLER_0260_simple_generator_compiles() {
         let stdout = String::from_utf8_lossy(&output.stdout);
         eprintln!("=== DEPYLER-0260 COMPILATION FAILURE ===");
         eprintln!("Generated Rust code:");
-        eprintln!("{}", rust_code);
+        e
         eprintln!("\n=== rustc stderr ===");
         eprintln!("{}", stderr);
         eprintln!("\n=== rustc stdout ===");

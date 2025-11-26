@@ -59,7 +59,7 @@ class DataProcessor:
         eprintln!("{}", stdout);
         eprintln!("{}", stderr);
         eprintln!("\n=== GENERATED CODE ===");
-        eprintln!("{}", rust_code);
+
         eprintln!("\n=== END ===\n");
 
         panic!(

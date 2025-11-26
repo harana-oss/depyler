@@ -96,21 +96,15 @@ impl LifetimeAnalyzer {
 
     fn analyze_stmt(&mut self, stmt: &HirStmt, scope_depth: usize) {
         match stmt {
-            HirStmt::Assign { target, value, .. } => {
-                self.analyze_assign_stmt(target, value, scope_depth)
-            }
+            HirStmt::Assign { target, value, .. } => self.analyze_assign_stmt(target, value, scope_depth),
             HirStmt::Return(Some(expr)) => self.analyze_return_stmt(expr, scope_depth),
             HirStmt::If {
                 condition,
                 then_body,
                 else_body,
             } => self.analyze_if_stmt(condition, then_body, else_body, scope_depth),
-            HirStmt::While { condition, body } => {
-                self.analyze_while_stmt(condition, body, scope_depth)
-            }
-            HirStmt::For { target, iter, body } => {
-                self.analyze_for_stmt(target, iter, body, scope_depth)
-            }
+            HirStmt::While { condition, body } => self.analyze_while_stmt(condition, body, scope_depth),
+            HirStmt::For { target, iter, body } => self.analyze_for_stmt(target, iter, body, scope_depth),
             _ => {}
         }
     }
@@ -156,13 +150,7 @@ impl LifetimeAnalyzer {
         self.analyze_scoped_body(body, scope_depth);
     }
 
-    fn analyze_for_stmt(
-        &mut self,
-        target: &AssignTarget,
-        iter: &HirExpr,
-        body: &[HirStmt],
-        scope_depth: usize,
-    ) {
+    fn analyze_for_stmt(&mut self, target: &AssignTarget, iter: &HirExpr, body: &[HirStmt], scope_depth: usize) {
         self.analyze_expr(iter, scope_depth);
         self.check_iterator_invalidation(iter, body);
 
@@ -201,19 +189,12 @@ impl LifetimeAnalyzer {
     fn analyze_expr(&mut self, expr: &HirExpr, scope_depth: usize) {
         match expr {
             HirExpr::Var(name) => self.check_var_borrow(name),
-            HirExpr::Borrow { expr, mutable } => {
-                self.check_borrow_expr(expr, *mutable, scope_depth)
-            }
-            HirExpr::Binary { left, right, .. } => {
-                self.analyze_binary_expr(left, right, scope_depth)
-            }
+            HirExpr::Borrow { expr, mutable } => self.check_borrow_expr(expr, *mutable, scope_depth),
+            HirExpr::Binary { left, right, .. } => self.analyze_binary_expr(left, right, scope_depth),
             HirExpr::Call { func, args, .. } => self.analyze_call_expr(func, args, scope_depth),
             HirExpr::Index { base, index } => self.analyze_index_expr(base, index, scope_depth),
             HirExpr::MethodCall {
-                object,
-                method,
-                args,
-                ..
+                object, method, args, ..
             } => self.analyze_method_call_expr(object, method, args, scope_depth),
             HirExpr::Attribute { value, .. } => self.analyze_expr(value, scope_depth),
             _ => {}
@@ -295,11 +276,7 @@ impl LifetimeAnalyzer {
         self.analyze_expr(index, scope_depth);
 
         if let HirExpr::Var(name) = base {
-            if self
-                .active_borrows
-                .iter()
-                .any(|bs| bs.borrowed.contains_key(name))
-            {
+            if self.active_borrows.iter().any(|bs| bs.borrowed.contains_key(name)) {
                 self.violations.push(LifetimeViolation {
                     kind: ViolationKind::ConflictingBorrows,
                     variable: name.clone(),
@@ -310,13 +287,7 @@ impl LifetimeAnalyzer {
         }
     }
 
-    fn analyze_method_call_expr(
-        &mut self,
-        object: &HirExpr,
-        method: &str,
-        args: &[HirExpr],
-        scope_depth: usize,
-    ) {
+    fn analyze_method_call_expr(&mut self, object: &HirExpr, method: &str, args: &[HirExpr], scope_depth: usize) {
         self.analyze_expr(object, scope_depth);
 
         if self.is_mutating_method(method) {
@@ -466,10 +437,7 @@ impl LifetimeAnalyzer {
     fn modifies_collection(&self, stmt: &HirStmt, collection_name: &str) -> bool {
         if let HirStmt::Expr(HirExpr::Call { func, args, .. }) = stmt {
             // Check for methods that modify collections
-            if matches!(
-                func.as_str(),
-                "append" | "insert" | "remove" | "pop" | "clear"
-            ) {
+            if matches!(func.as_str(), "append" | "insert" | "remove" | "pop" | "clear") {
                 if let Some(HirExpr::Var(name)) = args.first() {
                     return name == collection_name;
                 }
@@ -554,11 +522,9 @@ mod tests {
                 iter: HirExpr::Var("items".to_string()),
                 body: vec![HirStmt::Expr(HirExpr::Call {
                     func: "append".to_string(),
-                    args: vec![
-                        HirExpr::Var("items".to_string()),
-                        HirExpr::Literal(Literal::Int(42)),
-                    ],
+                    args: vec![HirExpr::Var("items".to_string()), HirExpr::Literal(Literal::Int(42))],
                     kwargs: vec![],
+                    type_params: vec![],
                 })],
             }],
             properties: FunctionProperties::default(),

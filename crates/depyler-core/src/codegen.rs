@@ -1258,6 +1258,8 @@ mod tests {
             func: "len".to_string(),
             args: vec![HirExpr::List(vec![HirExpr::Literal(Literal::Int(1))])],
             kwargs: vec![],
+                type_params: vec![],
+
         };
 
         let tokens = expr_to_rust_tokens(&call).unwrap();
@@ -1458,6 +1460,8 @@ mod tests {
                 func: "print".to_string(),
                 args: vec![HirExpr::Literal(Literal::String("yes".to_string()))],
                 kwargs: vec![],
+                type_params: vec![],
+
             })],
             else_body: None,
         };
@@ -1517,6 +1521,8 @@ mod tests {
                 func: "range".to_string(),
                 args: vec![HirExpr::Literal(Literal::Int(5))],
                 kwargs: vec![],
+                type_params: vec![],
+
             },
             body: vec![HirStmt::Expr(HirExpr::Var("i".to_string()))],
         };
@@ -1536,6 +1542,8 @@ mod tests {
             func: "println".to_string(),
             args: vec![HirExpr::Literal(Literal::String("hello".to_string()))],
             kwargs: vec![],
+                type_params: vec![],
+
         });
         let tokens = stmt_to_rust_tokens_with_scope(&stmt, &mut scope).unwrap();
         let code = tokens.to_string();
@@ -1628,12 +1636,16 @@ mod tests {
                 func: "open".to_string(),
                 args: vec![HirExpr::Literal(Literal::String("file.txt".to_string()))],
                 kwargs: vec![],
+                type_params: vec![],
+
             },
             target: Some("f".to_string()),
             body: vec![HirStmt::Expr(HirExpr::Call {
                 func: "read".to_string(),
                 args: vec![HirExpr::Var("f".to_string())],
                 kwargs: vec![],
+                type_params: vec![],
+
             })],
         };
         let tokens = stmt_to_rust_tokens_with_scope(&stmt, &mut scope).unwrap();
@@ -1653,6 +1665,8 @@ mod tests {
                 func: "lock".to_string(),
                 args: vec![],
                 kwargs: vec![],
+                type_params: vec![],
+
             },
             target: None,
             body: vec![HirStmt::Expr(HirExpr::Literal(Literal::String("critical".to_string())))],

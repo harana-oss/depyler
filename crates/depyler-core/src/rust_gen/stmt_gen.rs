@@ -150,6 +150,7 @@ pub(crate) fn codegen_expr_stmt(expr: &HirExpr, ctx: &mut CodeGenContext) -> Res
         method,
         args,
         kwargs,
+        type_params: _,
     } = expr
     {
         // ArgumentParser methods that should be ignored:

@@ -548,6 +548,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     method,
                     args: _,
                     kwargs: _,
+                    type_params: _,
                 } = operand
                 {
                     // Regex methods that return Option<Match>
@@ -556,6 +557,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     func,
                     args: _,
                     kwargs: _,
+                    type_params: _,
                 } = operand
                 {
                     // Module-level regex functions (re.match, re.search, re.find)
@@ -9339,6 +9341,107 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         self.convert_instance_method(object, &object_expr, method, &arg_exprs, args, kwargs)
     }
 
+    fn convert_call_with_type_params(
+        &mut self,
+        func: &str,
+        args: &[HirExpr],
+        kwargs: &[(String, HirExpr)],
+        type_params: &[Type],
+    ) -> Result<syn::Expr> {
+        // If no type params, delegate to regular convert_call
+        if type_params.is_empty() {
+            return self.convert_call(func, args, kwargs);
+        }
+
+        // Generate turbofish syntax: func::<T1, T2>(args)
+        let arg_exprs: Vec<syn::Expr> = args
+            .iter()
+            .map(|arg| arg.to_rust_expr(self.ctx))
+            .collect::<Result<Vec<_>>>()?;
+
+        let func_ident = syn::Ident::new(func, proc_macro2::Span::call_site());
+        let type_tokens = self.convert_type_params_to_tokens(type_params);
+
+        Ok(parse_quote! { #func_ident::<#type_tokens>(#(#arg_exprs),*) })
+    }
+
+    fn convert_method_call_with_type_params(
+        &mut self,
+        object: &HirExpr,
+        method: &str,
+        args: &[HirExpr],
+        kwargs: &[(String, HirExpr)],
+        type_params: &[Type],
+    ) -> Result<syn::Expr> {
+        // If no type params, delegate to regular convert_method_call
+        if type_params.is_empty() {
+            return self.convert_method_call(object, method, args, kwargs);
+        }
+
+        // Generate turbofish syntax: obj.method::<T1, T2>(args)
+        let object_expr = object.to_rust_expr(self.ctx)?;
+        let arg_exprs: Vec<syn::Expr> = args
+            .iter()
+            .map(|arg| arg.to_rust_expr(self.ctx))
+            .collect::<Result<Vec<_>>>()?;
+
+        let method_ident = syn::Ident::new(method, proc_macro2::Span::call_site());
+        let type_tokens = self.convert_type_params_to_tokens(type_params);
+
+        Ok(parse_quote! { #object_expr.#method_ident::<#type_tokens>(#(#arg_exprs),*) })
+    }
+
+    fn convert_type_params_to_tokens(&self, type_params: &[Type]) -> proc_macro2::TokenStream {
+        let type_tokens: Vec<proc_macro2::TokenStream> = type_params
+            .iter()
+            .map(|t| self.type_to_tokens(t))
+            .collect();
+        quote! { #(#type_tokens),* }
+    }
+
+    fn type_to_tokens(&self, ty: &Type) -> proc_macro2::TokenStream {
+        match ty {
+            Type::Int => quote! { i32 },
+            Type::Float => quote! { f64 },
+            Type::String => quote! { String },
+            Type::Bool => quote! { bool },
+            Type::List(inner) => {
+                let inner_tokens = self.type_to_tokens(inner);
+                quote! { Vec<#inner_tokens> }
+            }
+            Type::Dict(k, v) => {
+                let k_tokens = self.type_to_tokens(k);
+                let v_tokens = self.type_to_tokens(v);
+                quote! { HashMap<#k_tokens, #v_tokens> }
+            }
+            Type::Set(inner) => {
+                let inner_tokens = self.type_to_tokens(inner);
+                quote! { HashSet<#inner_tokens> }
+            }
+            Type::Tuple(types) => {
+                let type_tokens: Vec<proc_macro2::TokenStream> = types
+                    .iter()
+                    .map(|t| self.type_to_tokens(t))
+                    .collect();
+                quote! { (#(#type_tokens),*) }
+            }
+            Type::Optional(inner) => {
+                let inner_tokens = self.type_to_tokens(inner);
+                quote! { Option<#inner_tokens> }
+            }
+            Type::TypeVar(name) => {
+                let ident = syn::Ident::new(name, proc_macro2::Span::call_site());
+                quote! { #ident }
+            }
+            Type::Custom(name) => {
+                let ident = syn::Ident::new(name, proc_macro2::Span::call_site());
+                quote! { #ident }
+            }
+            Type::Unknown => quote! { _ },
+            _ => quote! { _ },
+        }
+    }
+
     fn convert_index(&mut self, base: &HirExpr, index: &HirExpr) -> Result<syn::Expr> {
         // Must check this before evaluating base_expr to avoid trying to convert os.environ
         if let HirExpr::Attribute { value, attr } = base {
@@ -11576,12 +11679,15 @@ impl ToRustExpr for HirExpr {
             HirExpr::Var(name) => converter.convert_variable(name),
             HirExpr::Binary { op, left, right } => converter.convert_binary(*op, left, right),
             HirExpr::Unary { op, operand } => converter.convert_unary(op, operand),
-            HirExpr::Call { func, args, kwargs } => converter.convert_call(func, args, kwargs),
+            HirExpr::Call { func, args, kwargs, type_params } => {
+                converter.convert_call_with_type_params(func, args, kwargs, type_params)
+            }
             HirExpr::MethodCall {
                 object,
                 method,
                 args,
                 kwargs,
+                type_params,
             } => {
                 // subprocess.run(cmd, capture_output=True, cwd=cwd, check=check)
                 // Must handle kwargs here before they're lost
@@ -11591,7 +11697,7 @@ impl ToRustExpr for HirExpr {
                     }
                 }
 
-                converter.convert_method_call(object, method, args, kwargs)
+                converter.convert_method_call_with_type_params(object, method, args, kwargs, type_params)
             }
             HirExpr::Index { base, index } => converter.convert_index(base, index),
             HirExpr::Slice {

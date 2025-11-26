@@ -2712,6 +2712,8 @@ mod tests {
             func: "len".to_string(),
             args: vec![HirExpr::Var("arr".to_string())],
             kwargs: vec![],
+                type_params: vec![],
+
         };
 
         let result = converter.convert(&call_expr).unwrap();
@@ -2728,6 +2730,8 @@ mod tests {
             func: "range".to_string(),
             args: vec![HirExpr::Literal(Literal::Int(10))],
             kwargs: vec![],
+                type_params: vec![],
+
         };
 
         let result = converter.convert(&call_expr).unwrap();
@@ -2779,6 +2783,8 @@ mod tests {
             func: "zeros".to_string(),
             args: vec![HirExpr::Literal(Literal::Int(5))],
             kwargs: vec![],
+                type_params: vec![],
+
         };
 
         let result = converter.convert(&zeros_call).unwrap();
@@ -2794,6 +2800,8 @@ mod tests {
             func: "range".to_string(),
             args: vec![HirExpr::Literal(Literal::Int(1)), HirExpr::Literal(Literal::Int(10))],
             kwargs: vec![],
+                type_params: vec![],
+
         };
 
         let result = converter.convert(&call_expr).unwrap();

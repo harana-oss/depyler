@@ -761,6 +761,7 @@ mod tests {
                 func: "enumerate".to_string(),
                 args: vec![HirExpr::Var("items".to_string())],
                 kwargs: vec![],
+                type_params: vec![],
             },
             body: vec![HirStmt::Expr(HirExpr::Var("i".to_string()))],
         }];
@@ -784,11 +785,13 @@ mod tests {
                 func: "isinstance".to_string(),
                 args: vec![HirExpr::Var("value".to_string()), HirExpr::Var("str".to_string())],
                 kwargs: vec![],
+                type_params: vec![],
             },
             then_body: vec![HirStmt::Expr(HirExpr::Call {
                 func: "process_string".to_string(),
                 args: vec![HirExpr::Var("value".to_string())],
                 kwargs: vec![],
+                type_params: vec![],
             })],
             else_body: None,
         }];
@@ -822,11 +825,13 @@ mod tests {
                 func: "process".to_string(),
                 args: vec![HirExpr::Var("value".to_string())],
                 kwargs: vec![],
+                type_params: vec![],
             })],
             else_body: Some(vec![HirStmt::Expr(HirExpr::Call {
                 func: "handle_none".to_string(),
                 args: vec![],
                 kwargs: vec![],
+                type_params: vec![],
             })]),
         }];
 
@@ -883,6 +888,7 @@ mod tests {
                 method: "append".to_string(),
                 args: vec![HirExpr::Literal(Literal::Int(42))],
                 kwargs: vec![],
+                type_params: vec![],
             })],
             properties: FunctionProperties::default(),
             annotations: Default::default(),
@@ -912,6 +918,7 @@ mod tests {
                     func: "condition".to_string(),
                     args: vec![HirExpr::Var("item".to_string())],
                     kwargs: vec![],
+                type_params: vec![],
                 },
                 then_body: vec![HirStmt::Expr(HirExpr::MethodCall {
                     object: Box::new(HirExpr::Var("result".to_string())),
@@ -920,8 +927,10 @@ mod tests {
                         func: "transform".to_string(),
                         args: vec![HirExpr::Var("item".to_string())],
                         kwargs: vec![],
+                type_params: vec![],
                     }],
                     kwargs: vec![],
+                type_params: vec![],
                 })],
                 else_body: None,
             }],
@@ -1060,6 +1069,7 @@ mod tests {
                 func: "list".to_string(),
                 args: vec![HirExpr::List(vec![])],
                 kwargs: vec![],
+                type_params: vec![],
             },
             type_annotation: None,
         }];
@@ -1119,6 +1129,7 @@ mod tests {
                     func: "isinstance".to_string(),
                     args: vec![HirExpr::Var("x".to_string()), HirExpr::Var("int".to_string())],
                     kwargs: vec![],
+                type_params: vec![],
                 },
                 then_body: vec![],
                 else_body: None,
@@ -1173,6 +1184,7 @@ mod tests {
                     method: "append".to_string(),
                     args: vec![HirExpr::Var("item".to_string())],
                     kwargs: vec![],
+                type_params: vec![],
                 })],
             },
         ];

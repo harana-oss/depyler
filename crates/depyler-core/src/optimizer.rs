@@ -737,7 +737,7 @@ impl Optimizer {
                     (new_expr, extra_stmts)
                 }
             }
-            HirExpr::Call { func, args, .. } if self.is_pure_function(func) => {
+            HirExpr::Call { func, args, type_params, .. } if self.is_pure_function(func) => {
                 // Process arguments
                 let mut new_args = Vec::new();
                 for arg in args {
@@ -750,6 +750,7 @@ impl Optimizer {
                     func: func.clone(),
                     args: new_args,
                     kwargs: vec![],
+                    type_params: type_params.clone(),
                 };
 
                 let hash = self.hash_expr(&new_expr);

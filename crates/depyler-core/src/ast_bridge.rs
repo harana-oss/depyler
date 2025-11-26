@@ -1,5 +1,5 @@
 use crate::hir::*;
-use anyhow::{bail, Result};
+use anyhow::{Result, bail};
 use depyler_annotations::{AnnotationExtractor, AnnotationParser, TranspilationAnnotations};
 use rustpython_ast::{self as ast};
 
@@ -7,7 +7,7 @@ mod converters;
 mod properties;
 mod type_extraction;
 
-pub use converters::{ExprConverter, StmtConverter};
+pub use converters::{ExprConverter, SpanContext, StmtConverter};
 pub use properties::FunctionAnalyzer;
 pub use type_extraction::TypeExtractor;
 
@@ -282,18 +282,14 @@ impl AstBridge {
         })
     }
 
-    fn extract_function_annotations(
-        &self,
-        func: &ast::StmtFunctionDef,
-    ) -> TranspilationAnnotations {
+    fn extract_function_annotations(&self, func: &ast::StmtFunctionDef) -> TranspilationAnnotations {
         // Try to extract from source code comments first
         if let Some(source) = &self.source_code {
             if let Some(annotation_text) = self
                 .annotation_extractor
                 .extract_function_annotations(source, &func.name)
             {
-                if let Ok(annotations) = self.annotation_parser.parse_annotations(&annotation_text)
-                {
+                if let Ok(annotations) = self.annotation_parser.parse_annotations(&annotation_text) {
                     return annotations;
                 }
             }
@@ -313,18 +309,14 @@ impl AstBridge {
         TranspilationAnnotations::default()
     }
 
-    fn extract_async_function_annotations(
-        &self,
-        func: &ast::StmtAsyncFunctionDef,
-    ) -> TranspilationAnnotations {
+    fn extract_async_function_annotations(&self, func: &ast::StmtAsyncFunctionDef) -> TranspilationAnnotations {
         // Try to extract from source code comments first
         if let Some(source) = &self.source_code {
             if let Some(annotation_text) = self
                 .annotation_extractor
                 .extract_function_annotations(source, &func.name)
             {
-                if let Ok(annotations) = self.annotation_parser.parse_annotations(&annotation_text)
-                {
+                if let Ok(annotations) = self.annotation_parser.parse_annotations(&annotation_text) {
                     return annotations;
                 }
             }
@@ -392,10 +384,7 @@ impl AstBridge {
         }))
     }
 
-    fn try_convert_annotated_type_alias(
-        &self,
-        ann_assign: &ast::StmtAnnAssign,
-    ) -> Result<Option<TypeAlias>> {
+    fn try_convert_annotated_type_alias(&self, ann_assign: &ast::StmtAnnAssign) -> Result<Option<TypeAlias>> {
         // Look for patterns like: UserId: TypeAlias = int
         let target = match ann_assign.target.as_ref() {
             ast::Expr::Name(name) => name.id.as_str(),
@@ -470,10 +459,7 @@ impl AstBridge {
     }
 
     /// Try to convert an annotated assignment to a module-level constant
-    fn try_convert_annotated_constant(
-        &self,
-        ann_assign: &ast::StmtAnnAssign,
-    ) -> Result<Option<HirConstant>> {
+    fn try_convert_annotated_constant(&self, ann_assign: &ast::StmtAnnAssign) -> Result<Option<HirConstant>> {
         let name = match ann_assign.target.as_ref() {
             ast::Expr::Name(n) => n.id.to_string(),
             _ => return Ok(None), // Skip complex assignment targets
@@ -539,9 +525,10 @@ impl AstBridge {
         let type_params = self.extract_class_type_params(class);
 
         // Check for @runtime_checkable decorator
-        let is_runtime_checkable = class.decorator_list.iter().any(|decorator| {
-            matches!(decorator, ast::Expr::Name(n) if n.id.as_str() == "runtime_checkable")
-        });
+        let is_runtime_checkable = class
+            .decorator_list
+            .iter()
+            .any(|decorator| matches!(decorator, ast::Expr::Name(n) if n.id.as_str() == "runtime_checkable"));
 
         // Extract methods from class body
         let mut methods = Vec::new();
@@ -653,8 +640,7 @@ impl AstBridge {
                                 let field_type = Type::Int;
 
                                 // Convert the value expression
-                                let converted_value =
-                                    ExprConverter::convert(assign.value.as_ref().clone())?;
+                                let converted_value = ExprConverter::convert(assign.value.as_ref().clone())?;
 
                                 fields.push(HirField {
                                     name: field_name,
@@ -695,11 +681,7 @@ impl AstBridge {
         }))
     }
 
-    fn convert_method(
-        &self,
-        method: &ast::StmtFunctionDef,
-        is_async: bool,
-    ) -> Result<Option<HirMethod>> {
+    fn convert_method(&self, method: &ast::StmtFunctionDef, is_async: bool) -> Result<Option<HirMethod>> {
         use smallvec::smallvec;
 
         let name = method.name.to_string();
@@ -809,10 +791,7 @@ impl AstBridge {
         }))
     }
 
-    fn convert_async_method(
-        &self,
-        method: &ast::StmtAsyncFunctionDef,
-    ) -> Result<Option<HirMethod>> {
+    fn convert_async_method(&self, method: &ast::StmtAsyncFunctionDef) -> Result<Option<HirMethod>> {
         use smallvec::smallvec;
 
         let name = method.name.to_string();
@@ -979,9 +958,10 @@ impl AstBridge {
         let ret_type = TypeExtractor::extract_return_type(&func.returns)?;
 
         // Check if method has @abstractmethod decorator
-        let is_optional = !func.decorator_list.iter().any(|decorator| {
-            matches!(decorator, ast::Expr::Name(n) if n.id.as_str() == "abstractmethod")
-        });
+        let is_optional = !func
+            .decorator_list
+            .iter()
+            .any(|decorator| matches!(decorator, ast::Expr::Name(n) if n.id.as_str() == "abstractmethod"));
 
         // Check if method has a default implementation (non-empty body beyond docstring)
         let has_default = self.method_has_default_implementation(&func.body);
@@ -1051,18 +1031,17 @@ impl AstBridge {
                                 let field_name = attr.attr.to_string();
 
                                 // Try to infer type from the assigned value
-                                let field_type =
-                                    if let ast::Expr::Name(value_name) = assign.value.as_ref() {
-                                        // If assigning a parameter, use its type
-                                        param_types
-                                            .get(value_name.id.as_str())
-                                            .cloned()
-                                            .unwrap_or(Type::Unknown)
-                                    } else {
-                                        // Otherwise, try to infer from literal or default to Unknown
-                                        self.infer_type_from_expr(assign.value.as_ref())
-                                            .unwrap_or(Type::Unknown)
-                                    };
+                                let field_type = if let ast::Expr::Name(value_name) = assign.value.as_ref() {
+                                    // If assigning a parameter, use its type
+                                    param_types
+                                        .get(value_name.id.as_str())
+                                        .cloned()
+                                        .unwrap_or(Type::Unknown)
+                                } else {
+                                    // Otherwise, try to infer from literal or default to Unknown
+                                    self.infer_type_from_expr(assign.value.as_ref())
+                                        .unwrap_or(Type::Unknown)
+                                };
 
                                 fields.push(HirField {
                                     name: field_name,
@@ -1091,9 +1070,7 @@ impl AstBridge {
                 _ => None,
             },
             ast::Expr::List(_) => Some(Type::List(Box::new(Type::Unknown))),
-            ast::Expr::Dict(_) => {
-                Some(Type::Dict(Box::new(Type::Unknown), Box::new(Type::Unknown)))
-            }
+            ast::Expr::Dict(_) => Some(Type::Dict(Box::new(Type::Unknown), Box::new(Type::Unknown))),
             ast::Expr::Set(_) => Some(Type::Set(Box::new(Type::Unknown))),
             _ => None,
         }
@@ -1183,10 +1160,7 @@ fn propagate_can_fail_through_calls(functions: &mut [HirFunction]) {
 }
 
 /// Check if a statement sequence contains calls to functions that can fail
-fn calls_failing_function(
-    stmts: &[HirStmt],
-    can_fail_map: &std::collections::HashMap<String, bool>,
-) -> bool {
+fn calls_failing_function(stmts: &[HirStmt], can_fail_map: &std::collections::HashMap<String, bool>) -> bool {
     for stmt in stmts {
         if stmt_calls_failing_function(stmt, can_fail_map) {
             return true;
@@ -1196,10 +1170,7 @@ fn calls_failing_function(
 }
 
 /// Check if a statement calls a function that can fail
-fn stmt_calls_failing_function(
-    stmt: &HirStmt,
-    can_fail_map: &std::collections::HashMap<String, bool>,
-) -> bool {
+fn stmt_calls_failing_function(stmt: &HirStmt, can_fail_map: &std::collections::HashMap<String, bool>) -> bool {
     match stmt {
         HirStmt::Return(Some(expr)) | HirStmt::Expr(expr) | HirStmt::Assign { value: expr, .. } => {
             expr_calls_failing_function(expr, can_fail_map)
@@ -1217,12 +1188,10 @@ fn stmt_calls_failing_function(
                     .unwrap_or(false)
         }
         HirStmt::While { condition, body } => {
-            expr_calls_failing_function(condition, can_fail_map)
-                || calls_failing_function(body, can_fail_map)
+            expr_calls_failing_function(condition, can_fail_map) || calls_failing_function(body, can_fail_map)
         }
         HirStmt::For { iter, body, .. } => {
-            expr_calls_failing_function(iter, can_fail_map)
-                || calls_failing_function(body, can_fail_map)
+            expr_calls_failing_function(iter, can_fail_map) || calls_failing_function(body, can_fail_map)
         }
         HirStmt::Try {
             body,
@@ -1231,9 +1200,7 @@ fn stmt_calls_failing_function(
             ..
         } => {
             calls_failing_function(body, can_fail_map)
-                || handlers
-                    .iter()
-                    .any(|h| calls_failing_function(&h.body, can_fail_map))
+                || handlers.iter().any(|h| calls_failing_function(&h.body, can_fail_map))
                 || finalbody
                     .as_ref()
                     .map(|fb| calls_failing_function(fb, can_fail_map))
@@ -1244,10 +1211,7 @@ fn stmt_calls_failing_function(
 }
 
 /// Check if an expression contains calls to functions that can fail
-fn expr_calls_failing_function(
-    expr: &HirExpr,
-    can_fail_map: &std::collections::HashMap<String, bool>,
-) -> bool {
+fn expr_calls_failing_function(expr: &HirExpr, can_fail_map: &std::collections::HashMap<String, bool>) -> bool {
     match expr {
         HirExpr::Call { func, args, .. } => {
             // Check if the called function is known to fail
@@ -1255,26 +1219,21 @@ fn expr_calls_failing_function(
                 return true;
             }
             // Also check arguments recursively
-            args.iter()
-                .any(|arg| expr_calls_failing_function(arg, can_fail_map))
+            args.iter().any(|arg| expr_calls_failing_function(arg, can_fail_map))
         }
         HirExpr::Binary { left, right, .. } => {
-            expr_calls_failing_function(left, can_fail_map)
-                || expr_calls_failing_function(right, can_fail_map)
+            expr_calls_failing_function(left, can_fail_map) || expr_calls_failing_function(right, can_fail_map)
         }
         HirExpr::Unary { operand, .. } => expr_calls_failing_function(operand, can_fail_map),
-        HirExpr::List(elements) | HirExpr::Tuple(elements) | HirExpr::Set(elements) => elements
-            .iter()
-            .any(|e| expr_calls_failing_function(e, can_fail_map)),
+        HirExpr::List(elements) | HirExpr::Tuple(elements) | HirExpr::Set(elements) => {
+            elements.iter().any(|e| expr_calls_failing_function(e, can_fail_map))
+        }
         HirExpr::MethodCall { object, args, .. } => {
             expr_calls_failing_function(object, can_fail_map)
-                || args
-                    .iter()
-                    .any(|arg| expr_calls_failing_function(arg, can_fail_map))
+                || args.iter().any(|arg| expr_calls_failing_function(arg, can_fail_map))
         }
         HirExpr::Index { base, index } => {
-            expr_calls_failing_function(base, can_fail_map)
-                || expr_calls_failing_function(index, can_fail_map)
+            expr_calls_failing_function(base, can_fail_map) || expr_calls_failing_function(index, can_fail_map)
         }
         HirExpr::Slice { base, .. } => expr_calls_failing_function(base, can_fail_map),
         _ => false,
@@ -1342,11 +1301,7 @@ pub(crate) fn extract_assign_target(expr: &ast::Expr) -> Result<AssignTarget> {
             })
         }
         ast::Expr::Tuple(t) => {
-            let targets = t
-                .elts
-                .iter()
-                .map(extract_assign_target)
-                .collect::<Result<Vec<_>>>()?;
+            let targets = t.elts.iter().map(extract_assign_target).collect::<Result<Vec<_>>>()?;
             Ok(AssignTarget::Tuple(targets))
         }
         _ => bail!("Unsupported assignment target"),
@@ -1669,20 +1624,8 @@ def unary_ops(x: int) -> int:
             right,
         })) = &func.body[0]
         {
-            assert!(matches!(
-                left.as_ref(),
-                HirExpr::Unary {
-                    op: UnaryOp::Neg,
-                    ..
-                }
-            ));
-            assert!(matches!(
-                right.as_ref(),
-                HirExpr::Unary {
-                    op: UnaryOp::Pos,
-                    ..
-                }
-            ));
+            assert!(matches!(left.as_ref(), HirExpr::Unary { op: UnaryOp::Neg, .. }));
+            assert!(matches!(right.as_ref(), HirExpr::Unary { op: UnaryOp::Pos, .. }));
         } else {
             panic!("Expected unary operations");
         }
@@ -1697,10 +1640,7 @@ def call_functions() -> int:
         let hir = parse_python_to_hir(source);
 
         let func = &hir.functions[0];
-        if let HirStmt::Return(Some(HirExpr::Call {
-            func: fname, args, ..
-        })) = &func.body[0]
-        {
+        if let HirStmt::Return(Some(HirExpr::Call { func: fname, args, .. })) = &func.body[0] {
             assert_eq!(fname, "len");
             assert_eq!(args.len(), 1);
             assert!(matches!(args[0], HirExpr::List(_)));
@@ -1753,14 +1693,16 @@ def compute(data: List[float]) -> float:
         let hir = parse_python_to_hir(source);
 
         let func = &hir.functions[0];
-        assert!(func
-            .annotations
-            .performance_hints
-            .contains(&depyler_annotations::PerformanceHint::PerformanceCritical));
-        assert!(func
-            .annotations
-            .performance_hints
-            .contains(&depyler_annotations::PerformanceHint::Vectorize));
+        assert!(
+            func.annotations
+                .performance_hints
+                .contains(&depyler_annotations::PerformanceHint::PerformanceCritical)
+        );
+        assert!(
+            func.annotations
+                .performance_hints
+                .contains(&depyler_annotations::PerformanceHint::Vectorize)
+        );
         assert_eq!(
             func.annotations.bounds_checking,
             depyler_annotations::BoundsChecking::Disabled

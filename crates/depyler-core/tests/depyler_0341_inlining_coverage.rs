@@ -214,6 +214,7 @@ fn test_call_graph_simple_call() {
             func: "helper".to_string(),
             args: vec![],
             kwargs: vec![],
+            type_params: vec![],
         }))],
         properties: FunctionProperties::default(),
         annotations: TranspilationAnnotations::default(),

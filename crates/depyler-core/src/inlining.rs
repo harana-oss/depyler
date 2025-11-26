@@ -974,13 +974,14 @@ fn transform_expr_for_inlining_inner(expr: &HirExpr, params: &[crate::hir::HirPa
             operand: Box::new(transform_expr_for_inlining_inner(operand, params)),
             op: *op,
         },
-        HirExpr::Call { func, args, .. } => HirExpr::Call {
+        HirExpr::Call { func, args, type_params, .. } => HirExpr::Call {
             func: func.clone(),
             args: args
                 .iter()
                 .map(|a| transform_expr_for_inlining_inner(a, params))
                 .collect(),
             kwargs: vec![],
+            type_params: type_params.clone(),
         },
         _ => expr.clone(),
     }
@@ -1056,6 +1057,7 @@ mod tests {
             method: "append".to_string(),
             args: vec![HirExpr::Literal(Literal::Int(42))],
             kwargs: vec![],
+            type_params: vec![],
         };
 
         let _analyzer = InliningAnalyzer::new(InliningConfig::default());

@@ -45,7 +45,6 @@ def find_min(numbers: list[int]) -> int:
 
     // Debugging: Print generated code
     eprintln!("=== DEPYLER-0265: Generated Rust Code (comparison) ===");
-    eprintln!("{}", rust_code);
 
     // Write to temp file
     let temp_file = "/tmp/test_depyler_0265_comparison.rs";

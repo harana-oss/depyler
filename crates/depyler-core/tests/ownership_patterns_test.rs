@@ -22,6 +22,7 @@ fn test_read_only_string_borrowed() {
             func: "len".to_string(),
             args: vec![HirExpr::Var("text".to_string())],
             kwargs: vec![],
+            type_params: vec![],
         }))],
         properties: FunctionProperties::default(),
         annotations: TranspilationAnnotations::default(),
@@ -32,10 +33,7 @@ fn test_read_only_string_borrowed() {
     let strategy = result.param_strategies.get("text").unwrap();
 
     // Should borrow immutably
-    assert_eq!(
-        *strategy,
-        BorrowingStrategy::BorrowImmutable { lifetime: None }
-    );
+    assert_eq!(*strategy, BorrowingStrategy::BorrowImmutable { lifetime: None });
 }
 
 #[test]
@@ -53,11 +51,9 @@ fn test_list_append_takes_ownership() {
         ret_type: PythonType::None,
         body: vec![HirStmt::Expr(HirExpr::Call {
             func: "append".to_string(),
-            args: vec![
-                HirExpr::Var("items".to_string()),
-                HirExpr::Literal(Literal::Int(42)),
-            ],
+            args: vec![HirExpr::Var("items".to_string()), HirExpr::Literal(Literal::Int(42))],
             kwargs: vec![],
+            type_params: vec![],
         })],
         properties: FunctionProperties::default(),
         annotations: TranspilationAnnotations::default(),
@@ -119,10 +115,7 @@ fn test_string_concatenation_uses_cow() {
     let strategy = result.param_strategies.get("prefix").unwrap();
 
     // we can borrow it immutably since the concatenation creates a new String
-    assert_eq!(
-        *strategy,
-        BorrowingStrategy::BorrowImmutable { lifetime: None }
-    );
+    assert_eq!(*strategy, BorrowingStrategy::BorrowImmutable { lifetime: None });
 }
 
 #[test]
@@ -174,6 +167,7 @@ fn test_unnecessary_move_detection() {
             func: "unknown_function".to_string(), // Conservative: assumes ownership
             args: vec![HirExpr::Var("msg".to_string())],
             kwargs: vec![],
+            type_params: vec![],
         })],
         properties: FunctionProperties::default(),
         annotations: TranspilationAnnotations::default(),
@@ -215,11 +209,9 @@ fn test_loop_usage_affects_borrowing() {
                 body: vec![HirStmt::If {
                     condition: HirExpr::Call {
                         func: "contains".to_string(),
-                        args: vec![
-                            HirExpr::Var("haystack".to_string()),
-                            HirExpr::Var("needle".to_string()),
-                        ],
+                        args: vec![HirExpr::Var("haystack".to_string()), HirExpr::Var("needle".to_string())],
                         kwargs: vec![],
+                        type_params: vec![],
                     },
                     then_body: vec![HirStmt::Assign {
                         target: depyler_core::hir::AssignTarget::Symbol("count".to_string()),
@@ -250,8 +242,5 @@ fn test_loop_usage_affects_borrowing() {
         *haystack_strategy,
         BorrowingStrategy::BorrowImmutable { lifetime: None }
     );
-    assert_eq!(
-        *needle_strategy,
-        BorrowingStrategy::BorrowImmutable { lifetime: None }
-    );
+    assert_eq!(*needle_strategy, BorrowingStrategy::BorrowImmutable { lifetime: None });
 }

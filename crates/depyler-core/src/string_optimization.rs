@@ -382,6 +382,8 @@ mod tests {
                 func: "print".to_string(),
                 args: vec![HirExpr::Literal(Literal::String("hello".to_string()))],
                 kwargs: vec![],
+                type_params: vec![],
+
             })],
             properties: FunctionProperties::default(),
             annotations: Default::default(),
@@ -436,6 +438,8 @@ mod tests {
                 func: "len".to_string(),
                 args: vec![HirExpr::Var("s".to_string())],
                 kwargs: vec![],
+                type_params: vec![],
+
             }))],
             properties: FunctionProperties::default(),
             annotations: Default::default(),

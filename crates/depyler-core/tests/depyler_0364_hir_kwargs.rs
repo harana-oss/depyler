@@ -6,7 +6,7 @@
 use anyhow::Result;
 use depyler_core::ast_bridge::AstBridge;
 use depyler_core::hir::{HirExpr, HirModule, HirStmt, Literal};
-use rustpython_parser::{parse, Mode};
+use rustpython_parser::{Mode, parse};
 
 fn transpile_to_hir(python_code: &str) -> Result<HirModule> {
     let ast = parse(python_code, Mode::Module, "<test>")?;
@@ -28,7 +28,12 @@ def foo():
     // Verify kwargs are preserved
     match &func.body[0] {
         HirStmt::Assign { value, .. } => match value {
-            HirExpr::Call { func, args, kwargs } => {
+            HirExpr::Call {
+                func,
+                args,
+                kwargs,
+                type_params,
+            } => {
                 assert_eq!(func, "bar");
                 assert_eq!(args.len(), 1);
                 assert_eq!(kwargs.len(), 1);
@@ -58,7 +63,12 @@ def foo():
     // Verify kwargs are preserved
     match &func.body[0] {
         HirStmt::Assign { value, .. } => match value {
-            HirExpr::Call { func, args, kwargs } => {
+            HirExpr::Call {
+                func,
+                args,
+                kwargs,
+                type_params,
+            } => {
                 assert_eq!(func, "bar");
                 assert_eq!(args.len(), 2);
                 assert_eq!(kwargs.len(), 2);
@@ -89,6 +99,7 @@ def foo():
             method,
             args,
             kwargs,
+            type_params,
         }) => {
             assert!(matches!(object.as_ref(), HirExpr::Var(v) if v == "parser"));
             assert_eq!(method, "add_argument");
@@ -138,7 +149,12 @@ def foo():
     let func = &hir.functions[0];
     match &func.body[0] {
         HirStmt::Assign { value, .. } => match value {
-            HirExpr::Call { func, args, kwargs } => {
+            HirExpr::Call {
+                func,
+                args,
+                kwargs,
+                type_params,
+            } => {
                 assert_eq!(func, "outer");
                 assert_eq!(args.len(), 1);
                 assert_eq!(kwargs.len(), 1);
@@ -199,10 +215,7 @@ def foo():
     match &func.body[0] {
         HirStmt::Assign { value, .. } => match value {
             HirExpr::MethodCall {
-                method,
-                args,
-                kwargs,
-                ..
+                method, args, kwargs, ..
             } => {
                 assert_eq!(method, "ArgumentParser");
                 assert_eq!(args.len(), 0);
@@ -227,10 +240,7 @@ def foo():
     let func = &hir.functions[0];
     match &func.body[0] {
         HirStmt::Expr(HirExpr::MethodCall {
-            method,
-            args,
-            kwargs,
-            ..
+            method, args, kwargs, ..
         }) => {
             assert_eq!(method, "add_argument");
             assert_eq!(args.len(), 1);
@@ -254,7 +264,12 @@ def foo():
     let func = &hir.functions[0];
     match &func.body[0] {
         HirStmt::Assign { value, .. } => match value {
-            HirExpr::Call { func, args, kwargs } => {
+            HirExpr::Call {
+                func,
+                args,
+                kwargs,
+                type_params,
+            } => {
                 assert_eq!(func, "open");
                 assert_eq!(args.len(), 1);
                 assert_eq!(kwargs.len(), 2);

@@ -15,6 +15,25 @@ impl fmt::Display for SourceLocation {
     }
 }
 
+impl SourceLocation {
+    pub fn new(file: impl Into<String>, line: usize, column: usize) -> Self {
+        Self {
+            file: file.into(),
+            line,
+            column,
+        }
+    }
+
+    /// Create a SourceLocation from a HIR Span
+    pub fn from_span(span: &crate::hir::Span, file: impl Into<String>) -> Self {
+        Self {
+            file: file.into(),
+            line: span.start_line as usize,
+            column: span.start_col as usize,
+        }
+    }
+}
+
 /// Types of transpilation errors
 #[derive(Debug, Error)]
 pub enum ErrorKind {
@@ -71,6 +90,21 @@ impl TranspileError {
     pub fn with_location(mut self, location: SourceLocation) -> Self {
         self.location = Some(location);
         self
+    }
+
+    /// Add location information from a HIR Span
+    pub fn with_span(mut self, span: &crate::hir::Span, file: impl Into<String>) -> Self {
+        self.location = Some(SourceLocation::from_span(span, file));
+        self
+    }
+
+    /// Add location information from an optional span
+    pub fn with_optional_span(self, span: Option<&crate::hir::Span>, file: impl Into<String>) -> Self {
+        if let Some(s) = span {
+            self.with_span(s, file)
+        } else {
+            self
+        }
     }
 
     /// Add context to the error

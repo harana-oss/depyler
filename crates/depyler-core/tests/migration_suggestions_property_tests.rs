@@ -217,7 +217,7 @@ proptest! {
                     condition: HirExpr::Call { func: "isinstance".to_string(), args: vec![
                             HirExpr::Var(var_name),
                             HirExpr::Var(type_name),
-                        ], kwargs: vec![] },
+                        ], kwargs: vec![], type_params: vec![] },
                     then_body: vec![HirStmt::Expr(HirExpr::Literal(Literal::None))],
                     else_body: None,
                 }
@@ -258,7 +258,7 @@ proptest! {
             body: vec![
                 HirStmt::For {
                     target: AssignTarget::Symbol(target),
-                    iter: HirExpr::Call { func: "enumerate".to_string(), args: vec![HirExpr::Var(items)], kwargs: vec![] },
+                    iter: HirExpr::Call { func: "enumerate".to_string(), args: vec![HirExpr::Var(items)], kwargs: vec![], type_params: vec![] },
                     body: vec![HirStmt::Expr(HirExpr::Literal(Literal::None))],
                 }
             ],

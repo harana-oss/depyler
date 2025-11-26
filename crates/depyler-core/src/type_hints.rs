@@ -1160,6 +1160,8 @@ mod tests {
                 method: "upper".to_string(),
                 args: vec![],
                 kwargs: vec![],
+                type_params: vec![],
+
             })],
             properties: FunctionProperties::default(),
             annotations: Default::default(),

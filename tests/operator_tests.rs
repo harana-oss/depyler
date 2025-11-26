@@ -1,8 +1,6 @@
 use depyler_annotations::TranspilationAnnotations;
 use depyler_core::direct_rules::apply_rules;
-use depyler_core::hir::{
-    AssignTarget, BinOp, HirExpr, HirFunction, HirModule, HirParam, HirStmt, Literal, Type,
-};
+use depyler_core::hir::{AssignTarget, BinOp, HirExpr, HirFunction, HirModule, HirParam, HirStmt, Literal, Type};
 use depyler_core::rust_gen::generate_rust_file;
 use depyler_core::type_mapper::TypeMapper;
 use quote::ToTokens;
@@ -435,10 +433,7 @@ fn test_array_length_subtraction_safety() {
     let module = HirModule {
         functions: vec![HirFunction {
             name: "safe_last_index".to_string(),
-            params: smallvec![HirParam::new(
-                "arr".to_string(),
-                Type::List(Box::new(Type::Int))
-            )],
+            params: smallvec![HirParam::new("arr".to_string(), Type::List(Box::new(Type::Int)))],
             ret_type: Type::Int,
             body: vec![HirStmt::Return(Some(HirExpr::Binary {
                 op: BinOp::Sub,
@@ -446,6 +441,7 @@ fn test_array_length_subtraction_safety() {
                     func: "len".to_string(),
                     args: vec![HirExpr::Var("arr".to_string())],
                     kwargs: vec![],
+                    type_params: vec![],
                 }),
                 right: Box::new(HirExpr::Literal(Literal::Int(1))),
             }))],
@@ -526,6 +522,7 @@ fn test_len_variable_subtraction_safety() {
                     func: "len".to_string(),
                     args: vec![HirExpr::Var("items".to_string())],
                     kwargs: vec![],
+                    type_params: vec![],
                 }),
                 right: Box::new(HirExpr::Var("offset".to_string())),
             }))],

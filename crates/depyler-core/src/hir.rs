@@ -4,6 +4,116 @@ use smallvec::SmallVec;
 
 pub type Symbol = String;
 
+/// Source span tracking the original Python source location
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize, Default)]
+pub struct Span {
+    pub start_line: u32,
+    pub start_col: u32,
+    pub end_line: u32,
+    pub end_col: u32,
+}
+
+impl Span {
+    pub fn new(start_line: u32, start_col: u32, end_line: u32, end_col: u32) -> Self {
+        Self {
+            start_line,
+            start_col,
+            end_line,
+            end_col,
+        }
+    }
+
+    /// Create a span from a rustpython_ast TextRange using source code for line/col calculation
+    pub fn from_text_range(range: rustpython_ast::text_size::TextRange, source: &str) -> Self {
+        let (start_line, start_col) = offset_to_line_col(source, range.start().into());
+        let (end_line, end_col) = offset_to_line_col(source, range.end().into());
+        Self {
+            start_line: start_line as u32,
+            start_col: start_col as u32,
+            end_line: end_line as u32,
+            end_col: end_col as u32,
+        }
+    }
+}
+
+impl std::fmt::Display for Span {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}:{}", self.start_line, self.start_col)
+    }
+}
+
+/// Convert byte offset to (line, column), both 1-indexed
+fn offset_to_line_col(source: &str, offset: u32) -> (usize, usize) {
+    let mut line = 1;
+    let mut col = 1;
+    let offset = offset as usize;
+
+    for (i, ch) in source.chars().enumerate() {
+        if i >= offset {
+            break;
+        }
+        if ch == '\n' {
+            line += 1;
+            col = 1;
+        } else {
+            col += 1;
+        }
+    }
+
+    (line, col)
+}
+
+/// Wrapper that attaches a source span to any HIR node
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct Spanned<T> {
+    pub node: T,
+    pub span: Option<Span>,
+}
+
+impl<T> Spanned<T> {
+    pub fn new(node: T) -> Self {
+        Self { node, span: None }
+    }
+
+    pub fn with_span(node: T, span: Span) -> Self {
+        Self { node, span: Some(span) }
+    }
+
+    /// Get the inner node
+    pub fn into_inner(self) -> T {
+        self.node
+    }
+}
+
+impl<T> std::ops::Deref for Spanned<T> {
+    type Target = T;
+
+    fn deref(&self) -> &Self::Target {
+        &self.node
+    }
+}
+
+impl<T> std::ops::DerefMut for Spanned<T> {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.node
+    }
+}
+
+impl<T: Default> Default for Spanned<T> {
+    fn default() -> Self {
+        Self {
+            node: T::default(),
+            span: None,
+        }
+    }
+}
+
+/// A statement with optional source location tracking
+pub type SpannedStmt = Spanned<HirStmt>;
+
+/// An expression with optional source location tracking  
+pub type SpannedExpr = Spanned<HirExpr>;
+
 /// Helper for creating parameter SmallVecs in tests
 #[cfg(test)]
 #[macro_export]
@@ -283,10 +393,7 @@ pub enum AssignTarget {
     /// Simple variable assignment: x = value
     Symbol(Symbol),
     /// Subscript assignment: x[key] = value
-    Index {
-        base: Box<HirExpr>,
-        index: Box<HirExpr>,
-    },
+    Index { base: Box<HirExpr>, index: Box<HirExpr> },
     /// Attribute assignment: x.attr = value (for future use)
     Attribute { value: Box<HirExpr>, attr: Symbol },
     /// Tuple unpacking: (a, b) = value or a, b = value
@@ -379,6 +486,9 @@ pub enum HirExpr {
         /// Format: Vec<(arg_name, value_expr)>
         /// Empty for calls without kwargs
         kwargs: Vec<(Symbol, HirExpr)>,
+        /// Explicit type parameters for generic calls like `func[int]()`
+        #[serde(default, skip_serializing_if = "Vec::is_empty")]
+        type_params: Vec<Type>,
     },
     MethodCall {
         object: Box<HirExpr>,
@@ -387,6 +497,9 @@ pub enum HirExpr {
         /// Format: Vec<(arg_name, value_expr)>
         /// Empty for calls without kwargs
         kwargs: Vec<(Symbol, HirExpr)>,
+        /// Explicit type parameters for generic method calls like `obj.method[int]()`
+        #[serde(default, skip_serializing_if = "Vec::is_empty")]
+        type_params: Vec<Type>,
     },
     Index {
         base: Box<HirExpr>,

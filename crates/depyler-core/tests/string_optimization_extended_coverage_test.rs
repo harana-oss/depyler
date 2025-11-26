@@ -37,8 +37,7 @@ fn test_escape_char_all_sequences() {
     ];
 
     for (input, expected_escaped) in test_cases {
-        let code =
-            generate_optimized_string(&optimizer, &StringContext::Literal(input.to_string()));
+        let code = generate_optimized_string(&optimizer, &StringContext::Literal(input.to_string()));
         // Should contain the escaped version
         assert!(
             code.contains(expected_escaped) || code.contains(input),
@@ -90,11 +89,7 @@ fn test_string_literal_special_chars() {
         params: vec![].into(),
         ret_type: Type::None,
         body: (0..5)
-            .map(|_| {
-                HirStmt::Expr(HirExpr::Literal(Literal::String(
-                    "hello-world!@#".to_string(),
-                )))
-            })
+            .map(|_| HirStmt::Expr(HirExpr::Literal(Literal::String("hello-world!@#".to_string()))))
             .collect(),
         properties: FunctionProperties::default(),
         annotations: Default::default(),
@@ -136,6 +131,7 @@ fn test_is_mutating_method_all_methods() {
                 func: method.to_string(),
                 args: vec![HirExpr::Var("s".to_string())],
                 kwargs: vec![],
+                type_params: vec![],
             })],
             properties: FunctionProperties::default(),
             annotations: Default::default(),
@@ -357,11 +353,13 @@ fn test_is_string_expr_call_functions() {
                 func: "str".to_string(),
                 args: vec![HirExpr::Literal(Literal::Int(42))],
                 kwargs: vec![],
+                type_params: vec![],
             }),
             right: Box::new(HirExpr::Call {
                 func: "format".to_string(),
                 args: vec![],
                 kwargs: vec![],
+                type_params: vec![],
             }),
         }))],
         properties: FunctionProperties::default(),
@@ -472,9 +470,7 @@ fn test_string_literal_frequency_single() {
         name: "test".to_string(),
         params: vec![].into(),
         ret_type: Type::None,
-        body: vec![HirStmt::Expr(HirExpr::Literal(Literal::String(
-            "single".to_string(),
-        )))],
+        body: vec![HirStmt::Expr(HirExpr::Literal(Literal::String("single".to_string())))],
         properties: FunctionProperties::default(),
         annotations: Default::default(),
         docstring: None,
@@ -612,28 +608,21 @@ fn test_mutation_escape_sequences() {
     let optimizer = StringOptimizer::new();
 
     // Test Case 1: Quote escaping must be correct
-    let code1 = generate_optimized_string(
-        &optimizer,
-        &StringContext::Literal("test\"quote".to_string()),
-    );
+    let code1 = generate_optimized_string(&optimizer, &StringContext::Literal("test\"quote".to_string()));
     assert!(
         code1.contains("\\\"") || code1.contains("test"),
         "Quote must be escaped"
     );
 
     // Test Case 2: Backslash escaping must be correct
-    let code2 = generate_optimized_string(
-        &optimizer,
-        &StringContext::Literal("back\\slash".to_string()),
-    );
+    let code2 = generate_optimized_string(&optimizer, &StringContext::Literal("back\\slash".to_string()));
     assert!(
         code2.contains("\\\\") || code2.contains("back"),
         "Backslash must be escaped"
     );
 
     // Test Case 3: Newline escaping must be correct
-    let code3 =
-        generate_optimized_string(&optimizer, &StringContext::Literal("new\nline".to_string()));
+    let code3 = generate_optimized_string(&optimizer, &StringContext::Literal("new\nline".to_string()));
     assert!(
         code3.contains("\\n") || code3.contains("new"),
         "Newline must be escaped"
@@ -653,9 +642,7 @@ fn test_mutation_string_literal_frequency() {
         name: "test".to_string(),
         params: vec![].into(),
         ret_type: Type::None,
-        body: vec![HirStmt::Expr(HirExpr::Literal(Literal::String(
-            "s".to_string(),
-        )))],
+        body: vec![HirStmt::Expr(HirExpr::Literal(Literal::String("s".to_string())))],
         properties: FunctionProperties::default(),
         annotations: Default::default(),
         docstring: None,
@@ -698,6 +685,7 @@ fn test_mutation_mixed_usage_detection() {
             func: "len".to_string(),
             args: vec![HirExpr::Var("s".to_string())],
             kwargs: vec![],
+            type_params: vec![],
         }))],
         properties: FunctionProperties::default(),
         annotations: Default::default(),

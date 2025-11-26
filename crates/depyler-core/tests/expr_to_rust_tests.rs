@@ -178,6 +178,7 @@ mod call_tests {
             func: "foo".to_string(),
             args: vec![],
             kwargs: vec![],
+            type_params: vec![],
         };
         assert!(matches!(expr, HirExpr::Call { .. }));
     }
@@ -188,6 +189,7 @@ mod call_tests {
             func: "add".to_string(),
             args: vec![create_int_literal(1), create_int_literal(2)],
             kwargs: vec![],
+            type_params: vec![],
         };
         assert!(matches!(expr, HirExpr::Call { .. }));
     }
@@ -205,6 +207,7 @@ mod call_tests {
                 },
             ],
             kwargs: vec![],
+            type_params: vec![],
         };
         assert!(matches!(expr, HirExpr::Call { .. }));
     }
@@ -329,6 +332,7 @@ mod method_call_tests {
             method: "len".to_string(),
             args: vec![],
             kwargs: vec![],
+            type_params: vec![],
         };
         assert!(matches!(expr, HirExpr::MethodCall { .. }));
     }
@@ -340,6 +344,7 @@ mod method_call_tests {
             method: "add".to_string(),
             args: vec![create_int_literal(42)],
             kwargs: vec![],
+            type_params: vec![],
         };
         assert!(matches!(expr, HirExpr::MethodCall { .. }));
     }
@@ -513,6 +518,7 @@ mod async_tests {
                 func: "async_func".to_string(),
                 args: vec![],
                 kwargs: vec![],
+                type_params: vec![],
             }),
         };
         assert!(matches!(expr, HirExpr::Await { .. }));
@@ -536,6 +542,7 @@ mod regression_tests {
                 method: "process".to_string(),
                 args: vec![create_int_literal(42)],
                 kwargs: vec![],
+                type_params: vec![],
             }),
             right: Box::new(HirExpr::ListComp {
                 element: Box::new(HirExpr::Binary {

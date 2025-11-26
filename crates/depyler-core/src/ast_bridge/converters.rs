@@ -1,14 +1,34 @@
-use super::{
-    convert_aug_op, convert_binop, convert_body, convert_cmpop, convert_unaryop,
-    extract_assign_target,
-};
+use super::{convert_aug_op, convert_binop, convert_body, convert_cmpop, convert_unaryop, extract_assign_target};
 use crate::hir::*;
-use anyhow::{bail, Result};
-use rustpython_ast::{self as ast};
+use anyhow::{Result, bail};
+use rustpython_ast::{self as ast, Ranged};
 
 #[cfg(test)]
 #[path = "converters_tests.rs"]
 mod tests;
+
+/// Context for tracking source spans during conversion
+#[derive(Clone, Default)]
+pub struct SpanContext {
+    source: Option<String>,
+}
+
+impl SpanContext {
+    pub fn new() -> Self {
+        Self { source: None }
+    }
+
+    pub fn with_source(source: impl Into<String>) -> Self {
+        Self {
+            source: Some(source.into()),
+        }
+    }
+
+    /// Extract a span from an AST node that implements Ranged
+    pub fn span_from<T: Ranged>(&self, node: &T) -> Option<Span> {
+        self.source.as_ref().map(|src| Span::from_text_range(node.range(), src))
+    }
+}
 
 /// Statement converter to reduce complexity
 ///
@@ -59,6 +79,13 @@ impl StmtConverter {
         }
     }
 
+    /// Convert a statement with source span tracking
+    pub fn convert_with_span(stmt: ast::Stmt, ctx: &SpanContext) -> Result<SpannedStmt> {
+        let span = ctx.span_from(&stmt);
+        let node = Self::convert(stmt)?;
+        Ok(Spanned { node, span })
+    }
+
     fn convert_assign(a: ast::StmtAssign) -> Result<HirStmt> {
         if a.targets.len() != 1 {
             bail!("Multiple assignment targets not supported");
@@ -81,9 +108,7 @@ impl StmtConverter {
         };
 
         // Extract type annotation
-        let type_annotation = Some(super::type_extraction::TypeExtractor::extract_type(
-            &a.annotation,
-        )?);
+        let type_annotation = Some(super::type_extraction::TypeExtractor::extract_type(&a.annotation)?);
 
         Ok(HirStmt::Assign {
             target,
@@ -145,6 +170,7 @@ impl StmtConverter {
                     method: "is_empty".to_string(),
                     args: vec![],
                     kwargs: vec![],
+                    type_params: vec![],
                 },
                 then_body: vec![HirStmt::Break { label: None }],
                 else_body: None,
@@ -247,11 +273,7 @@ impl StmtConverter {
             .map(super::convert_stmt)
             .collect::<Result<Vec<_>>>()?;
 
-        Ok(HirStmt::With {
-            context,
-            target,
-            body,
-        })
+        Ok(HirStmt::With { context, target, body })
     }
 
     fn convert_try(t: ast::StmtTry) -> Result<HirStmt> {
@@ -375,6 +397,13 @@ impl ExprConverter {
         }
     }
 
+    /// Convert an expression with source span tracking
+    pub fn convert_with_span(expr: ast::Expr, ctx: &SpanContext) -> Result<SpannedExpr> {
+        let span = ctx.span_from(&expr);
+        let node = Self::convert(expr)?;
+        Ok(Spanned { node, span })
+    }
+
     fn convert_constant(c: ast::ExprConstant) -> Result<HirExpr> {
         let lit = match &c.value {
             ast::Constant::Int(i) => {
@@ -453,12 +482,7 @@ impl ExprConverter {
                     let iterable = Box::new(Self::convert(c.args[0].clone())?);
 
                     // Extract lambda parameters and body
-                    let key_params: Vec<String> = lambda
-                        .args
-                        .args
-                        .iter()
-                        .map(|arg| arg.def.arg.to_string())
-                        .collect();
+                    let key_params: Vec<String> = lambda.args.args.iter().map(|arg| arg.def.arg.to_string()).collect();
 
                     let key_body = Box::new(Self::convert(*lambda.body.clone())?);
 
@@ -492,10 +516,7 @@ impl ExprConverter {
         }
 
         // Check if any args use the Starred expression (unpacking operator)
-        let has_starred = c
-            .args
-            .iter()
-            .any(|arg| matches!(arg, ast::Expr::Starred(_)));
+        let has_starred = c.args.iter().any(|arg| matches!(arg, ast::Expr::Starred(_)));
 
         if has_starred {
             // Special handling for os.path.join(*parts)
@@ -508,10 +529,8 @@ impl ExprConverter {
                             && attr.attr.as_str() == "join"
                         {
                             // Extract the starred argument
-                            if let Some(ast::Expr::Starred(starred)) = c
-                                .args
-                                .iter()
-                                .find(|arg| matches!(arg, ast::Expr::Starred(_)))
+                            if let Some(ast::Expr::Starred(starred)) =
+                                c.args.iter().find(|arg| matches!(arg, ast::Expr::Starred(_)))
                             {
                                 let parts_expr = Self::convert(*starred.value.clone())?;
 
@@ -521,6 +540,7 @@ impl ExprConverter {
                                     func: "__os_path_join_starred".to_string(),
                                     args: vec![parts_expr],
                                     kwargs: vec![],
+                                    type_params: vec![],
                                 });
                             }
                         }
@@ -532,10 +552,8 @@ impl ExprConverter {
             if let ast::Expr::Name(name) = &*c.func {
                 if name.id.as_str() == "print" {
                     // Extract the starred argument
-                    if let Some(ast::Expr::Starred(starred)) = c
-                        .args
-                        .iter()
-                        .find(|arg| matches!(arg, ast::Expr::Starred(_)))
+                    if let Some(ast::Expr::Starred(starred)) =
+                        c.args.iter().find(|arg| matches!(arg, ast::Expr::Starred(_)))
                     {
                         let items_expr = Self::convert(*starred.value.clone())?;
 
@@ -544,6 +562,7 @@ impl ExprConverter {
                             func: "__print_starred".to_string(),
                             args: vec![items_expr],
                             kwargs: vec![],
+                            type_params: vec![],
                         });
                     }
                 }
@@ -556,11 +575,7 @@ impl ExprConverter {
             // We don't need to bail - just convert the starred args to regular args by unwrapping them
         }
 
-        let args = c
-            .args
-            .into_iter()
-            .map(Self::convert)
-            .collect::<Result<Vec<_>>>()?;
+        let args = c.args.into_iter().map(Self::convert).collect::<Result<Vec<_>>>()?;
 
         let kwargs: Vec<(String, HirExpr)> = c
             .keywords
@@ -580,7 +595,12 @@ impl ExprConverter {
             ast::Expr::Name(n) => {
                 // Simple function call
                 let func = n.id.to_string();
-                Ok(HirExpr::Call { func, args, kwargs })
+                Ok(HirExpr::Call {
+                    func,
+                    args,
+                    kwargs,
+                    type_params: vec![],
+                })
             }
             ast::Expr::Attribute(attr) => {
                 // Method call
@@ -591,7 +611,38 @@ impl ExprConverter {
                     method,
                     args,
                     kwargs,
+                    type_params: vec![],
                 })
+            }
+            ast::Expr::Subscript(subscript) => {
+                // Generic function/method call: func[Type](args) or obj.method[Type](args)
+                let type_params = Self::extract_type_params_from_slice(&subscript.slice)?;
+
+                match &*subscript.value {
+                    ast::Expr::Name(n) => {
+                        // Generic function call: func[Type](args)
+                        let func = n.id.to_string();
+                        Ok(HirExpr::Call {
+                            func,
+                            args,
+                            kwargs,
+                            type_params,
+                        })
+                    }
+                    ast::Expr::Attribute(attr) => {
+                        // Generic method call: obj.method[Type](args)
+                        let object = Box::new(Self::convert(*attr.value.clone())?);
+                        let method = attr.attr.to_string();
+                        Ok(HirExpr::MethodCall {
+                            object,
+                            method,
+                            args,
+                            kwargs,
+                            type_params,
+                        })
+                    }
+                    _ => bail!("Unsupported generic call base: {:?}", subscript.value),
+                }
             }
             _ => bail!("Unsupported function call type: {:?}", c.func),
         }
@@ -639,11 +690,7 @@ impl ExprConverter {
     }
 
     fn convert_list(l: ast::ExprList) -> Result<HirExpr> {
-        let elts = l
-            .elts
-            .into_iter()
-            .map(Self::convert)
-            .collect::<Result<Vec<_>>>()?;
+        let elts = l.elts.into_iter().map(Self::convert).collect::<Result<Vec<_>>>()?;
         Ok(HirExpr::List(elts))
     }
 
@@ -662,11 +709,7 @@ impl ExprConverter {
     }
 
     fn convert_tuple(t: ast::ExprTuple) -> Result<HirExpr> {
-        let elts = t
-            .elts
-            .into_iter()
-            .map(Self::convert)
-            .collect::<Result<Vec<_>>>()?;
+        let elts = t.elts.into_iter().map(Self::convert).collect::<Result<Vec<_>>>()?;
         Ok(HirExpr::Tuple(elts))
     }
 
@@ -705,10 +748,7 @@ impl ExprConverter {
         }
 
         // Special handling for 'is None', 'is True', 'is False' patterns (single comparison only)
-        if c.ops.len() == 1
-            && c.comparators.len() == 1
-            && matches!(c.ops[0], ast::CmpOp::Is | ast::CmpOp::IsNot)
-        {
+        if c.ops.len() == 1 && c.comparators.len() == 1 && matches!(c.ops[0], ast::CmpOp::Is | ast::CmpOp::IsNot) {
             let comparator = &c.comparators[0];
             // Check if comparing with None
             let is_none_comparison = matches!(comparator, ast::Expr::Constant(ref cons)
@@ -727,6 +767,7 @@ impl ExprConverter {
                     method,
                     args: vec![],
                     kwargs: vec![],
+                    type_params: vec![],
                 });
             }
 
@@ -952,20 +993,12 @@ impl ExprConverter {
             });
         }
 
-        Ok(HirExpr::GeneratorExp {
-            element,
-            generators,
-        })
+        Ok(HirExpr::GeneratorExp { element, generators })
     }
 
     fn convert_lambda(l: ast::ExprLambda) -> Result<HirExpr> {
         // Extract parameter names
-        let params: Vec<String> = l
-            .args
-            .args
-            .iter()
-            .map(|arg| arg.def.arg.to_string())
-            .collect();
+        let params: Vec<String> = l.args.args.iter().map(|arg| arg.def.arg.to_string()).collect();
 
         // Convert body expression
         let body = Box::new(super::convert_expr(*l.body)?);
@@ -994,11 +1027,7 @@ impl ExprConverter {
     }
 
     fn convert_yield(y: ast::ExprYield) -> Result<HirExpr> {
-        let value = y
-            .value
-            .map(|v| Self::convert(*v))
-            .transpose()?
-            .map(Box::new);
+        let value = y.value.map(|v| Self::convert(*v)).transpose()?.map(Box::new);
         Ok(HirExpr::Yield { value })
     }
 
@@ -1034,6 +1063,38 @@ impl ExprConverter {
         let body = Box::new(Self::convert(*i.body)?);
         let orelse = Box::new(Self::convert(*i.orelse)?);
         Ok(HirExpr::IfExpr { test, body, orelse })
+    }
+
+    /// Extract type parameters from a subscript slice for generic calls.
+    /// Handles both single type params `func[int]` and multiple `func[int, str]`.
+    fn extract_type_params_from_slice(slice: &ast::Expr) -> Result<Vec<Type>> {
+        match slice {
+            ast::Expr::Name(n) => {
+                // Single type parameter: func[int]
+                let ty = super::type_extraction::TypeExtractor::extract_simple_type(&n.id)?;
+                Ok(vec![ty])
+            }
+            ast::Expr::Tuple(t) => {
+                // Multiple type parameters: func[int, str]
+                t.elts
+                    .iter()
+                    .map(|e| match e {
+                        ast::Expr::Name(n) => super::type_extraction::TypeExtractor::extract_simple_type(&n.id),
+                        ast::Expr::Subscript(_) => {
+                            // Nested generic type: func[List[int]]
+                            super::type_extraction::TypeExtractor::extract_type(e)
+                        }
+                        _ => bail!("Unsupported type parameter expression: {:?}", e),
+                    })
+                    .collect()
+            }
+            ast::Expr::Subscript(_) => {
+                // Nested generic: func[List[int]]
+                let ty = super::type_extraction::TypeExtractor::extract_type(slice)?;
+                Ok(vec![ty])
+            }
+            _ => bail!("Unsupported type parameter slice: {:?}", slice),
+        }
     }
 }
 

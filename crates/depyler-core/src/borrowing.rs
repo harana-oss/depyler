@@ -423,6 +423,8 @@ mod tests {
                 func: "len".to_string(),
                 args: vec![HirExpr::Var("x".to_string())],
                 kwargs: vec![],
+                type_params: vec![],
+
             }))],
             properties: FunctionProperties::default(),
             annotations: TranspilationAnnotations::default(),
@@ -454,6 +456,8 @@ mod tests {
                     HirExpr::Literal(Literal::Int(42)),
                 ],
                 kwargs: vec![],
+                type_params: vec![],
+
             })],
             properties: FunctionProperties::default(),
             annotations: TranspilationAnnotations::default(),
@@ -822,6 +826,8 @@ mod tests {
             func: "func".to_string(),
             args: vec![HirExpr::Var("a".to_string()), HirExpr::Var("b".to_string())],
             kwargs: vec![],
+                type_params: vec![],
+
         };
 
         ctx.analyze_expr(&expr);

@@ -37,7 +37,6 @@ def sum_list(numbers: list) -> int:
 
     // Debugging: Print generated code before compilation
     eprintln!("=== DEPYLER-0264: Generated Rust Code ===");
-    eprintln!("{}", rust_code);
 
     // Write to temp file
     let temp_file = "/tmp/test_depyler_0264_untyped_list.rs";

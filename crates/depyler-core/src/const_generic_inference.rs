@@ -670,6 +670,8 @@ mod tests {
             func: "zeros".to_string(),
             args: vec![HirExpr::Literal(Literal::Int(10))],
             kwargs: vec![],
+                type_params: vec![],
+
         };
 
         assert_eq!(inferencer.detect_fixed_size_pattern(&expr), Some(10));
@@ -724,6 +726,8 @@ mod tests {
                 func: "len".to_string(),
                 args: vec![HirExpr::Var("arr".to_string())],
                 kwargs: vec![],
+                type_params: vec![],
+
             }),
             right: Box::new(HirExpr::Literal(Literal::Int(5))),
         };

@@ -837,6 +837,8 @@ mod tests {
                 func: "range".to_string(),
                 args: vec![HirExpr::Literal(Literal::Int(10))],
                 kwargs: vec![],
+                type_params: vec![],
+
             },
             body: vec![HirStmt::Assign {
                 target: AssignTarget::Symbol("s".to_string()),
@@ -906,6 +908,8 @@ mod tests {
                     func: "sorted".to_string(),
                     args: vec![HirExpr::Var("data".to_string())],
                     kwargs: vec![],
+                type_params: vec![],
+
                 },
                 type_annotation: None,
             }],

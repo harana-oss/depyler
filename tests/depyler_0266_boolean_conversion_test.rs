@@ -38,7 +38,6 @@ def is_empty_list(items: list[int]) -> bool:
 
     // Debugging: Print generated code
     eprintln!("=== DEPYLER-0266: Generated Rust Code (list) ===");
-    eprintln!("{}", rust_code);
 
     // Write to temp file
     let temp_file = "/tmp/test_depyler_0266_list.rs";

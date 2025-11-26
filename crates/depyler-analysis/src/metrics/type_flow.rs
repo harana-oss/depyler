@@ -383,7 +383,7 @@ impl TypeInferencer {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use depyler_core::hir::{BinOp, HirParam, Literal, UnaryOp};
+    use depyler_core::hir::{BinOp, Literal};
 
     #[test]
     fn test_type_environment_new() {

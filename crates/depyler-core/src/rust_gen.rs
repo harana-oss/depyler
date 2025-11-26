@@ -386,7 +386,7 @@ fn expr_passes_param_attr_to_mutating_func(
     function_param_muts: &HashMap<String, Vec<bool>>,
 ) -> bool {
     match expr {
-        HirExpr::Call { func, args, kwargs } => {
+        HirExpr::Call { func, args, kwargs, .. } => {
             // Check each argument to see if it's the param itself or param.field
             for (arg_idx, arg) in args.iter().enumerate() {
                 // Check if argument is param.field
@@ -557,7 +557,7 @@ fn expr_mutates_param(param_name: &str, expr: &HirExpr) -> bool {
             // Only recurse into args to check for mutations there
             args.iter().any(|a| expr_mutates_param(param_name, a))
         }
-        HirExpr::Call { func: _, args, kwargs } => {
+        HirExpr::Call { func: _, args, kwargs, .. } => {
             // Check if the parameter is passed to a function that mutates it
             // This requires checking ctx.function_param_muts, but we're pre-populating
             // so we can't check other functions yet. For now, just check args.
@@ -1776,6 +1776,7 @@ mod tests {
             func: "int".to_string(),
             args: vec![HirExpr::Var("x".to_string())],
             kwargs: vec![],
+                type_params: vec![],
         };
 
         let mut ctx = create_test_context();
@@ -1794,6 +1795,7 @@ mod tests {
             func: "float".to_string(),
             args: vec![HirExpr::Var("y".to_string())],
             kwargs: vec![],
+                type_params: vec![],
         };
 
         let mut ctx = create_test_context();
@@ -1810,6 +1812,7 @@ mod tests {
             func: "str".to_string(),
             args: vec![HirExpr::Var("value".to_string())],
             kwargs: vec![],
+                type_params: vec![],
         };
 
         let mut ctx = create_test_context();
@@ -1834,6 +1837,7 @@ mod tests {
             func: "bool".to_string(),
             args: vec![HirExpr::Var("flag".to_string())],
             kwargs: vec![],
+                type_params: vec![],
         };
 
         let mut ctx = create_test_context();
@@ -1861,6 +1865,7 @@ mod tests {
             func: "int".to_string(),
             args: vec![division],
             kwargs: vec![],
+                type_params: vec![],
         };
 
         let mut ctx = create_test_context();
@@ -1933,6 +1938,7 @@ mod tests {
                 method: "upper".to_string(),
                 args: vec![],
                 kwargs: vec![],
+                type_params: vec![],
             }))],
             properties: FunctionProperties::default(),
             annotations: TranspilationAnnotations::default(),
@@ -1966,6 +1972,7 @@ mod tests {
                 method: "lower".to_string(),
                 args: vec![],
                 kwargs: vec![],
+                type_params: vec![],
             }))],
             properties: FunctionProperties::default(),
             annotations: TranspilationAnnotations::default(),
@@ -1992,6 +1999,7 @@ mod tests {
                 method: "strip".to_string(),
                 args: vec![],
                 kwargs: vec![],
+                type_params: vec![],
             }))],
             properties: FunctionProperties::default(),
             annotations: TranspilationAnnotations::default(),

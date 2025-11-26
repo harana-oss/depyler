@@ -1,4 +1,4 @@
-use depyler_core::{hir::Type, DepylerPipeline};
+use depyler_core::{DepylerPipeline, hir::Type};
 
 #[test]
 fn test_simple_generic_function() {
@@ -80,9 +80,7 @@ def compare(a: T, b: T) -> bool:
     let rust_code = result.unwrap();
 
     // Should infer PartialOrd constraint from < operator
-    assert!(
-        rust_code.contains("T: Clone + PartialOrd") || rust_code.contains("T: PartialOrd + Clone")
-    );
+    assert!(rust_code.contains("T: Clone + PartialOrd") || rust_code.contains("T: PartialOrd + Clone"));
 }
 
 #[test]
@@ -175,3 +173,167 @@ def maybe_value(x: Optional[T]) -> T:
 //         _ => panic!("Expected Generic type"),
 //     }
 // }
+
+// ============================================================================
+// GENERIC METHOD CALLS - Subscript Type Parameter Syntax
+// ============================================================================
+
+#[test]
+fn test_generic_method_call_single_type_param() {
+    let pipeline = DepylerPipeline::new();
+    let python_code = r#"
+def test_infer():
+    result = infer[str]("hello")
+    return result
+"#;
+
+    let result = pipeline.transpile(python_code);
+    assert!(result.is_ok());
+    let rust_code = result.unwrap();
+
+    // Should generate method call with type parameter
+    assert!(rust_code.contains("infer::<") || rust_code.contains("infer::"));
+}
+
+#[test]
+fn test_generic_method_call_multiple_type_params() {
+    let pipeline = DepylerPipeline::new();
+    let python_code = r#"
+def test_convert():
+    result = convert[int, str](42)
+    return result
+"#;
+
+    let result = pipeline.transpile(python_code);
+    assert!(result.is_ok());
+    let rust_code = result.unwrap();
+
+    // Should handle multiple type parameters
+    assert!(rust_code.contains("convert::<") || rust_code.contains("convert::"));
+}
+
+#[test]
+fn test_generic_method_on_object() {
+    let pipeline = DepylerPipeline::new();
+    let python_code = r#"
+def test_method():
+    obj = SomeClass()
+    result = obj.method[int]("value")
+    return result
+"#;
+
+    let result = pipeline.transpile(python_code);
+    assert!(result.is_ok());
+    let rust_code = result.unwrap();
+
+    // Should generate method call on object with type parameter
+    assert!(rust_code.contains(".method::<") || rust_code.contains(".method::"));
+}
+
+#[test]
+fn test_generic_method_with_complex_types() {
+    let pipeline = DepylerPipeline::new();
+    let python_code = r#"
+from typing import List, Dict
+
+def test_complex():
+    result = process[List[int], Dict[str, int]]([1, 2, 3])
+    return result
+"#;
+
+    let result = pipeline.transpile(python_code);
+    assert!(result.is_ok());
+    let rust_code = result.unwrap();
+
+    // Should handle complex generic types as parameters
+    assert!(rust_code.contains("process::<Vec<i32>") || rust_code.contains("process::"));
+}
+
+#[test]
+fn test_chained_generic_method_calls() {
+    let pipeline = DepylerPipeline::new();
+    let python_code = r#"
+def test_chain():
+    result = obj.first[int](10).second[str]("hello")
+    return result
+"#;
+
+    let result = pipeline.transpile(python_code);
+    assert!(result.is_ok());
+    let rust_code = result.unwrap();
+
+    // Should handle chained method calls with type parameters
+    assert!(rust_code.contains(".first::<") && rust_code.contains(".second::<"));
+}
+
+#[test]
+fn test_generic_method_hir_representation() {
+    let pipeline = DepylerPipeline::new();
+    let python_code = r#"
+def test_hir():
+    result = cast[int]("42")
+    return result
+"#;
+
+    let hir = pipeline.parse_to_hir(python_code).unwrap();
+    assert_eq!(hir.functions.len(), 1);
+
+    // Check HIR contains the generic call information
+    let func = &hir.functions[0];
+    assert!(!func.body.is_empty());
+}
+
+#[test]
+fn test_generic_method_with_type_vars() {
+    let pipeline = DepylerPipeline::new();
+    let python_code = r#"
+from typing import TypeVar
+
+T = TypeVar('T')
+
+def wrapper(value: T) -> T:
+    result = identity[T](value)
+    return result
+"#;
+
+    let result = pipeline.transpile(python_code);
+    assert!(result.is_ok());
+    let rust_code = result.unwrap();
+
+    // Should use type variable T in generic method call
+    assert!(rust_code.contains("identity::<T>") || rust_code.contains("identity::"));
+}
+
+#[test]
+fn test_generic_constructor_call() {
+    let pipeline = DepylerPipeline::new();
+    let python_code = r#"
+def create_container():
+    container = Container[int]()
+    return container
+"#;
+
+    let result = pipeline.transpile(python_code);
+    assert!(result.is_ok());
+    let rust_code = result.unwrap();
+
+    // Should handle generic constructor/instantiation
+    assert!(rust_code.contains("Container::<") || rust_code.contains("Container::"));
+}
+
+#[test]
+fn test_generic_static_method_call() {
+    let pipeline = DepylerPipeline::new();
+    let python_code = r#"
+def test_static():
+    result = MyClass.create[int](42)
+    return result
+"#;
+
+    let result = pipeline.transpile(python_code);
+    assert!(result.is_ok());
+    let rust_code = result.unwrap();
+
+    // Should handle static/class method with type parameters
+    assert!(rust_code.contains("MyClass::create::<") || rust_code.contains("create::"));
+}

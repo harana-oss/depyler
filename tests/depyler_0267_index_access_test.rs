@@ -24,7 +24,6 @@ def get_string(items: list[str], index: int) -> str:
 
     // Debugging: Print generated code
     eprintln!("=== DEPYLER-0267: Generated Rust Code (string index) ===");
-    eprintln!("{}", rust_code);
 
     // Write to temp file
     let temp_file = "/tmp/test_depyler_0267_string_index.rs";
