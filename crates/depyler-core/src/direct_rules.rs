@@ -331,9 +331,9 @@ pub fn convert_class_to_struct(class: &HirClass, type_mapper: &TypeMapper) -> Re
     // Create the struct
     let struct_item = syn::Item::Struct(syn::ItemStruct {
         attrs: if class.is_dataclass {
-            vec![parse_quote! { #[derive(Debug, Clone, Copy, PartialEq)] }]
+            vec![parse_quote! { #[derive(Debug, Clone, PartialEq)] }]
         } else {
-            vec![parse_quote! { #[derive(Debug, Clone, Copy)] }]
+            vec![parse_quote! { #[derive(Debug, Clone)] }]
         },
         vis: syn::Visibility::Public(syn::Token![pub](proc_macro2::Span::call_site())),
         struct_token: syn::Token![struct](proc_macro2::Span::call_site()),
