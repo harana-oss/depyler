@@ -8030,20 +8030,26 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 if arg_exprs.len() == 1 {
                     let key = &arg_exprs[0];
                     // Python: result = d.get(key); if result is None: ...
-                    // Rust: let result = d.get(key).cloned(); if result.is_none() { ... }
+                    // Rust: let result = d.get(&key).cloned(); if result.is_none() { ... }
 
-                    // For HashMap<String, V>, .get() can accept &str directly
-                    // String literals like "key" should be passed as-is (they're &str)
-                    // Don't add & prefix - .get() already takes a reference
-                    let key_expr: syn::Expr = parse_quote! { #key };
+                    // For HashMap<String, V>, .get() expects &String (or &str)
+                    // String literals like "key" work as-is (they're &str)
+                    // String variables need & prefix to pass by reference
+                    let key_expr: syn::Expr = match &hir_args[0] {
+                        HirExpr::Literal(Literal::String(_)) => parse_quote! { #key },
+                        _ => parse_quote! { &#key },
+                    };
 
                     // Return Option - downstream code will handle unwrapping if needed
                     Ok(parse_quote! { #object_expr.get(#key_expr).cloned() })
                 } else if arg_exprs.len() == 2 {
                     let key = &arg_exprs[0];
                     let default = &arg_exprs[1];
-                    // Same as above - no & prefix needed
-                    let key_expr: syn::Expr = parse_quote! { #key };
+                    // Same as above - add & prefix for non-literal keys
+                    let key_expr: syn::Expr = match &hir_args[0] {
+                        HirExpr::Literal(Literal::String(_)) => parse_quote! { #key },
+                        _ => parse_quote! { &#key },
+                    };
                     Ok(parse_quote! { #object_expr.get(#key_expr).cloned().unwrap_or(#default) })
                 } else {
                     bail!("get() requires 1 or 2 arguments");
@@ -8184,9 +8190,13 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     bail!("startswith() requires exactly one argument");
                 }
                 // Extract bare string literal for Pattern trait compatibility
-                let prefix = match &hir_args[0] {
+                // For variables, add & to satisfy Pattern trait bound
+                let prefix: syn::Expr = match &hir_args[0] {
                     HirExpr::Literal(Literal::String(s)) => parse_quote! { #s },
-                    _ => arg_exprs[0].clone(),
+                    _ => {
+                        let arg = &arg_exprs[0];
+                        parse_quote! { &#arg }
+                    }
                 };
                 Ok(parse_quote! { #object_expr.starts_with(#prefix) })
             }
@@ -8195,9 +8205,13 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     bail!("endswith() requires exactly one argument");
                 }
                 // Extract bare string literal for Pattern trait compatibility
-                let suffix = match &hir_args[0] {
+                // For variables, add & to satisfy Pattern trait bound
+                let suffix: syn::Expr = match &hir_args[0] {
                     HirExpr::Literal(Literal::String(s)) => parse_quote! { #s },
-                    _ => arg_exprs[0].clone(),
+                    _ => {
+                        let arg = &arg_exprs[0];
+                        parse_quote! { &#arg }
+                    }
                 };
                 Ok(parse_quote! { #object_expr.ends_with(#suffix) })
             }
@@ -8205,9 +8219,13 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 if arg_exprs.is_empty() {
                     Ok(parse_quote! { #object_expr.split_whitespace().map(|s| s.to_string()).collect::<Vec<String>>() })
                 } else if arg_exprs.len() == 1 {
-                    let sep = match &hir_args[0] {
+                    // For variables, add & to satisfy Pattern trait bound
+                    let sep: syn::Expr = match &hir_args[0] {
                         HirExpr::Literal(Literal::String(s)) => parse_quote! { #s },
-                        _ => arg_exprs[0].clone(),
+                        _ => {
+                            let arg = &arg_exprs[0];
+                            parse_quote! { &#arg }
+                        }
                     };
                     Ok(parse_quote! { #object_expr.split(#sep).map(|s| s.to_string()).collect::<Vec<String>>() })
                 } else {
@@ -8229,17 +8247,24 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             }
             "replace" => {
                 // Use bare string literals without .to_string() for correct types
+                // For variables, add & to satisfy Pattern trait bound
                 if hir_args.len() < 2 || hir_args.len() > 3 {
                     bail!("replace() requires 2 or 3 arguments");
                 }
                 // Extract bare string literals for arguments
-                let old = match &hir_args[0] {
+                let old: syn::Expr = match &hir_args[0] {
                     HirExpr::Literal(Literal::String(s)) => parse_quote! { #s },
-                    _ => arg_exprs[0].clone(),
+                    _ => {
+                        let arg = &arg_exprs[0];
+                        parse_quote! { &#arg }
+                    }
                 };
-                let new = match &hir_args[1] {
+                let new: syn::Expr = match &hir_args[1] {
                     HirExpr::Literal(Literal::String(s)) => parse_quote! { #s },
-                    _ => arg_exprs[1].clone(),
+                    _ => {
+                        let arg = &arg_exprs[1];
+                        parse_quote! { &#arg }
+                    }
                 };
 
                 if hir_args.len() == 3 {
@@ -8261,9 +8286,13 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 }
 
                 // Extract bare string literal for Pattern trait compatibility
-                let substring = match &hir_args[0] {
+                // For variables, add & to satisfy Pattern trait bound
+                let substring: syn::Expr = match &hir_args[0] {
                     HirExpr::Literal(Literal::String(s)) => parse_quote! { #s },
-                    _ => arg_exprs[0].clone(),
+                    _ => {
+                        let arg = &arg_exprs[0];
+                        parse_quote! { &#arg }
+                    }
                 };
 
                 if hir_args.len() == 2 {

@@ -1,11 +1,11 @@
 [package]
-name = "test_kwargs_support_final"
+name = "test_annotated_no_value"
 version = "0.1.0"
 edition = "2021"
 
 [[bin]]
-name = "test_kwargs_support_final"
-path = "test_kwargs_support_final.rs"
+name = "test_annotated_no_value"
+path = "test_annotated_no_value.rs"
 
 [dependencies]
 serde_json = "1.0"

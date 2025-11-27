@@ -159,10 +159,7 @@ fn test_convert_method_call() {
     let result = ExprConverter::convert(expr).unwrap();
     match result {
         HirExpr::MethodCall {
-            object,
-            method,
-            args,
-            ..
+            object, method, args, ..
         } => {
             assert!(matches!(*object, HirExpr::Var(ref name) if name == "obj"));
             assert_eq!(method, "method");
@@ -259,12 +256,8 @@ fn test_convert_slice() {
             step,
         } => {
             assert!(matches!(*base, HirExpr::Var(ref name) if name == "arr"));
-            assert!(
-                matches!(start, Some(ref s) if matches!(**s, HirExpr::Literal(Literal::Int(1))))
-            );
-            assert!(
-                matches!(stop, Some(ref s) if matches!(**s, HirExpr::Literal(Literal::Int(5))))
-            );
+            assert!(matches!(start, Some(ref s) if matches!(**s, HirExpr::Literal(Literal::Int(1)))));
+            assert!(matches!(stop, Some(ref s) if matches!(**s, HirExpr::Literal(Literal::Int(5)))));
             assert!(step.is_none());
         }
         _ => panic!("Expected slice operation"),
@@ -313,9 +306,7 @@ fn test_convert_list_comp_with_condition() {
     let expr = parse_expr("[x for x in range(10) if x % 2 == 0]");
     let result = ExprConverter::convert(expr).unwrap();
     match result {
-        HirExpr::ListComp {
-            target, condition, ..
-        } => {
+        HirExpr::ListComp { target, condition, .. } => {
             assert_eq!(target, "x");
             assert!(condition.is_some());
         }
@@ -607,11 +598,7 @@ fn test_convert_with() {
     let stmt = parse_stmt("with open('file') as f:\n    data = f.read()");
     let result = StmtConverter::convert(stmt).unwrap();
     match result {
-        HirStmt::With {
-            context,
-            target,
-            body,
-        } => {
+        HirStmt::With { context, target, body } => {
             assert!(matches!(context, HirExpr::Call { .. }));
             assert_eq!(target, Some("f".to_string()));
             assert_eq!(body.len(), 1);
@@ -657,7 +644,7 @@ fn test_convert_set_comp() {
 
 #[test]
 fn test_yield_expression_supported() {
-    // Yield expressions are now supported 
+    // Yield expressions are now supported
     let expr = parse_expr("(yield 42)");
     let result = ExprConverter::convert(expr);
     assert!(result.is_ok());
@@ -673,14 +660,11 @@ fn test_yield_expression_supported() {
 
 #[test]
 fn test_error_on_chained_comparison() {
-    // Updated: chained comparisons now supported 
+    // Updated: chained comparisons now supported
     // Pattern: a < b < c becomes (a < b) and (b < c)
     let expr = parse_expr("a < b < c");
     let result = ExprConverter::convert(expr);
-    assert!(
-        result.is_ok(),
-        "Chained comparisons should now be supported"
-    );
+    assert!(result.is_ok(), "Chained comparisons should now be supported");
 
     // Verify it's desugared to binary AND of two comparisons
     match result.unwrap() {
@@ -700,7 +684,7 @@ fn test_error_on_chained_comparison() {
 
 #[test]
 fn test_multiple_assign_targets_now_supported() {
-    // Updated: tuple assignment is now supported 
+    // Updated: tuple assignment is now supported
     let stmt = parse_stmt("a, b = 1, 2");
     let result = StmtConverter::convert(stmt);
     assert!(result.is_ok());
@@ -721,10 +705,7 @@ fn test_is_none_converts_to_method_call() {
 
     match result {
         HirExpr::MethodCall {
-            object,
-            method,
-            args,
-            ..
+            object, method, args, ..
         } => {
             assert_eq!(method, "is_none");
             assert!(args.is_empty());
@@ -742,10 +723,7 @@ fn test_is_not_none_converts_to_is_some() {
 
     match result {
         HirExpr::MethodCall {
-            object,
-            method,
-            args,
-            ..
+            object, method, args, ..
         } => {
             assert_eq!(method, "is_some");
             assert!(args.is_empty());
@@ -870,5 +848,95 @@ fn test_tuple_assignment_swap() {
             }
         }
         _ => panic!("Expected Assign statement"),
+    }
+}
+
+#[test]
+fn test_convert_ann_assign_without_value_int() {
+    let stmt = parse_stmt("x: int");
+    let result = StmtConverter::convert(stmt).unwrap();
+    match result {
+        HirStmt::Assign {
+            target,
+            value,
+            type_annotation,
+        } => {
+            assert!(matches!(target, AssignTarget::Symbol(ref s) if s == "x"));
+            assert!(matches!(value, HirExpr::Literal(Literal::Int(0))));
+            assert!(matches!(type_annotation, Some(Type::Int)));
+        }
+        _ => panic!("Expected annotated assignment"),
+    }
+}
+
+#[test]
+fn test_convert_ann_assign_without_value_string() {
+    let stmt = parse_stmt("name: str");
+    let result = StmtConverter::convert(stmt).unwrap();
+    match result {
+        HirStmt::Assign {
+            target,
+            value,
+            type_annotation,
+        } => {
+            assert!(matches!(target, AssignTarget::Symbol(ref s) if s == "name"));
+            assert!(matches!(value, HirExpr::Literal(Literal::String(ref s)) if s.is_empty()));
+            assert!(matches!(type_annotation, Some(Type::String)));
+        }
+        _ => panic!("Expected annotated assignment"),
+    }
+}
+
+#[test]
+fn test_convert_ann_assign_without_value_custom_type() {
+    let stmt = parse_stmt("field_position: FieldPosition");
+    let result = StmtConverter::convert(stmt).unwrap();
+    match result {
+        HirStmt::Assign {
+            target,
+            value,
+            type_annotation,
+        } => {
+            assert!(matches!(target, AssignTarget::Symbol(ref s) if s == "field_position"));
+            assert!(matches!(value, HirExpr::Literal(Literal::None)));
+            assert!(matches!(type_annotation, Some(Type::Custom(ref s)) if s == "FieldPosition"));
+        }
+        _ => panic!("Expected annotated assignment"),
+    }
+}
+
+#[test]
+fn test_convert_ann_assign_without_value_list() {
+    let stmt = parse_stmt("items: list[int]");
+    let result = StmtConverter::convert(stmt).unwrap();
+    match result {
+        HirStmt::Assign {
+            target,
+            value,
+            type_annotation,
+        } => {
+            assert!(matches!(target, AssignTarget::Symbol(ref s) if s == "items"));
+            assert!(matches!(value, HirExpr::List(ref v) if v.is_empty()));
+            assert!(matches!(type_annotation, Some(Type::List(_))));
+        }
+        _ => panic!("Expected annotated assignment"),
+    }
+}
+
+#[test]
+fn test_convert_ann_assign_without_value_optional() {
+    let stmt = parse_stmt("value: Optional[str]");
+    let result = StmtConverter::convert(stmt).unwrap();
+    match result {
+        HirStmt::Assign {
+            target,
+            value,
+            type_annotation,
+        } => {
+            assert!(matches!(target, AssignTarget::Symbol(ref s) if s == "value"));
+            assert!(matches!(value, HirExpr::Literal(Literal::None)));
+            assert!(matches!(type_annotation, Some(Type::Optional(_))));
+        }
+        _ => panic!("Expected annotated assignment"),
     }
 }

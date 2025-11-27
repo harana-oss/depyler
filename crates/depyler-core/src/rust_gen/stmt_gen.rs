@@ -92,7 +92,7 @@ fn apply_type_conversion(value_expr: syn::Expr, target_type: &Type) -> syn::Expr
 }
 
 // ============================================================================
-// Statement Code Generation Helpers 
+// Statement Code Generation Helpers
 // Extracted to reduce complexity of HirStmt::to_rust_tokens
 // ============================================================================
 
@@ -250,17 +250,15 @@ pub(crate) fn codegen_expr_stmt(expr: &HirExpr, ctx: &mut CodeGenContext) -> Res
 
                                 for (kw_name, kw_value) in kwargs {
                                     match kw_name.as_str() {
-                                        "nargs" => {
-                                            match kw_value {
-                                                HirExpr::Literal(crate::hir::Literal::String(nargs_val)) => {
-                                                    arg.nargs = Some(nargs_val.clone());
-                                                }
-                                                HirExpr::Literal(crate::hir::Literal::Int(n)) => {
-                                                    arg.nargs = Some(n.to_string());
-                                                }
-                                                _ => {}
+                                        "nargs" => match kw_value {
+                                            HirExpr::Literal(crate::hir::Literal::String(nargs_val)) => {
+                                                arg.nargs = Some(nargs_val.clone());
                                             }
-                                        }
+                                            HirExpr::Literal(crate::hir::Literal::Int(n)) => {
+                                                arg.nargs = Some(n.to_string());
+                                            }
+                                            _ => {}
+                                        },
                                         "type" => {
                                             if let HirExpr::Var(type_name) = kw_value {
                                                 match type_name.as_str() {
@@ -358,7 +356,7 @@ pub(crate) fn codegen_expr_stmt(expr: &HirExpr, ctx: &mut CodeGenContext) -> Res
 }
 
 // ============================================================================
-// Statement Code Generation Helpers 
+// Statement Code Generation Helpers
 // Medium-complexity handlers extracted from HirStmt::to_rust_tokens
 // ============================================================================
 
@@ -694,7 +692,7 @@ pub(crate) fn codegen_with_stmt(
 }
 
 // ============================================================================
-// Statement Code Generation Helpers 
+// Statement Code Generation Helpers
 // Complex handlers extracted from HirStmt::to_rust_tokens
 // ============================================================================
 
@@ -1843,7 +1841,7 @@ pub(crate) fn codegen_assign_stmt(
                     .insert(var_name.clone(), Type::Dict(Box::new(key_type), Box::new(val_type)));
             }
             HirExpr::Set(elements) | HirExpr::FrozenSet(elements) => {
-                // Track set type from literal for proper method dispatch 
+                // Track set type from literal for proper method dispatch
                 // Use type annotation if available, otherwise infer from elements
                 let elem_type = if let Some(Type::Set(elem)) = type_annotation {
                     elem.as_ref().clone()
@@ -1992,7 +1990,9 @@ pub(crate) fn codegen_assign_stmt(
             matches!(target_type, Type::Optional(_))
         } else if ctx.is_declared(symbol) {
             // Check if variable was previously declared with Optional type
-            ctx.var_types.get(symbol).map_or(false, |ty| matches!(ty, Type::Optional(_)))
+            ctx.var_types
+                .get(symbol)
+                .map_or(false, |ty| matches!(ty, Type::Optional(_)))
         } else {
             false
         };
@@ -2326,10 +2326,7 @@ pub(crate) fn codegen_assign_tuple(
 
             if all_declared {
                 // All variables exist, do reassignment
-                let idents: Vec<_> = symbols
-                    .iter()
-                    .map(|s| safe_ident(s))
-                    .collect();
+                let idents: Vec<_> = symbols.iter().map(|s| safe_ident(s)).collect();
                 Ok(quote! { (#(#idents),*) = #value_expr; })
             } else {
                 // First declaration - mark each variable individually
@@ -2651,13 +2648,7 @@ pub(crate) fn codegen_try_stmt(
                             // Single handler with exception binding - use match with Err(e)
                             let arg_expr = args[0].to_rust_expr(ctx)?;
                             let handler_body = &handler_tokens[0];
-                            let err_var = handlers[0]
-                                .name
-                                .as_ref()
-                                .map(|s| {
-                                    safe_ident(s)
-                                })
-                                .unwrap();
+                            let err_var = handlers[0].name.as_ref().map(|s| safe_ident(s)).unwrap();
 
                             if let Some(finally_body) = finalbody {
                                 let finally_stmts: Vec<_> = finally_body
@@ -2763,13 +2754,7 @@ pub(crate) fn codegen_try_stmt(
                             if has_exception_binding && handlers.len() == 1 {
                                 // Single handler with exception binding - use match with Err(e)
                                 let handler_body = &handler_tokens[0];
-                                let err_var = handlers[0]
-                                    .name
-                                    .as_ref()
-                                    .map(|s| {
-                                        safe_ident(s)
-                                    })
-                                    .unwrap();
+                                let err_var = handlers[0].name.as_ref().map(|s| safe_ident(s)).unwrap();
 
                                 if let Some(finally_code) = finally_stmts {
                                     return Ok(quote! {
