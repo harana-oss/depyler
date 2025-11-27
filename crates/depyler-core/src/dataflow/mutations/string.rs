@@ -1,19 +1,21 @@
 //! String/Bytearray mutation handlers for type inference
 
-use crate::hir::{HirExpr, Type};
 use super::{MutationHandler, refine_element_type};
 use crate::dataflow::lattice::{TypeLattice, TypeState};
+use crate::hir::{HirExpr, Type};
 
 /// Handler for bytearray.append(byte)
 pub struct BytearrayAppendMutation;
 
 impl MutationHandler for BytearrayAppendMutation {
-    fn method_name(&self) -> &'static str { "append" }
-    
+    fn method_name(&self) -> &'static str {
+        "append"
+    }
+
     fn applies_to(&self, ty: &Type, method: &str) -> bool {
         method == "append" && matches!(ty, Type::Custom(name) if name == "bytearray")
     }
-    
+
     fn compute_type(
         &self,
         current_ty: &Type,
@@ -34,12 +36,14 @@ impl MutationHandler for BytearrayAppendMutation {
 pub struct BytearrayExtendMutation;
 
 impl MutationHandler for BytearrayExtendMutation {
-    fn method_name(&self) -> &'static str { "extend" }
-    
+    fn method_name(&self) -> &'static str {
+        "extend"
+    }
+
     fn applies_to(&self, ty: &Type, method: &str) -> bool {
         method == "extend" && matches!(ty, Type::Custom(name) if name == "bytearray")
     }
-    
+
     fn compute_type(
         &self,
         current_ty: &Type,
@@ -59,15 +63,15 @@ impl MutationHandler for BytearrayExtendMutation {
 #[cfg(test)]
 mod tests {
     use super::*;
-    
+
     fn make_state() -> TypeState {
         TypeState::new()
     }
-    
+
     fn dummy_infer(_expr: &HirExpr, _state: &TypeState) -> Type {
         Type::Unknown
     }
-    
+
     #[test]
     fn test_bytearray_append_preserves_type() {
         let handler = BytearrayAppendMutation;

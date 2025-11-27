@@ -3,29 +3,29 @@
 //! Each mutation method (append, extend, add, etc.) has its own handler
 //! that knows how to refine container types based on the mutation.
 
+mod deque;
+mod dict;
 mod list;
 mod set;
-mod dict;
-mod deque;
 mod string;
 
-use crate::hir::{HirExpr, Type};
 use super::lattice::{LatticeType, TypeLattice, TypeState};
+use crate::hir::{HirExpr, Type};
 
+pub use deque::*;
+pub use dict::*;
 pub use list::*;
 pub use set::*;
-pub use dict::*;
-pub use deque::*;
 pub use string::*;
 
 /// Trait for mutation handlers that can refine types
 pub trait MutationHandler {
     /// The method name this handler responds to (e.g., "append", "add")
     fn method_name(&self) -> &'static str;
-    
+
     /// Check if this handler applies to the given type and method
     fn applies_to(&self, ty: &Type, method: &str) -> bool;
-    
+
     /// Compute the new type after mutation
     fn compute_type(
         &self,
@@ -44,7 +44,7 @@ pub struct MutationRegistry {
 impl MutationRegistry {
     pub fn new() -> Self {
         let mut registry = Self { handlers: Vec::new() };
-        
+
         // Register list mutations
         registry.register(Box::new(list::AppendMutation));
         registry.register(Box::new(list::ExtendMutation));
@@ -54,7 +54,7 @@ impl MutationRegistry {
         registry.register(Box::new(list::ClearMutation));
         registry.register(Box::new(list::SortMutation));
         registry.register(Box::new(list::ReverseMutation));
-        
+
         // Register set mutations
         registry.register(Box::new(set::AddMutation));
         registry.register(Box::new(set::SetUpdateMutation));
@@ -65,31 +65,31 @@ impl MutationRegistry {
         registry.register(Box::new(set::DifferenceUpdateMutation));
         registry.register(Box::new(set::IntersectionUpdateMutation));
         registry.register(Box::new(set::SymmetricDifferenceUpdateMutation));
-        
+
         // Register dict mutations
         registry.register(Box::new(dict::DictUpdateMutation));
         registry.register(Box::new(dict::SetDefaultMutation));
         registry.register(Box::new(dict::DictPopMutation));
         registry.register(Box::new(dict::PopItemMutation));
         registry.register(Box::new(dict::DictClearMutation));
-        
+
         // Register deque mutations
         registry.register(Box::new(deque::AppendLeftMutation));
         registry.register(Box::new(deque::PopLeftMutation));
         registry.register(Box::new(deque::ExtendLeftMutation));
         registry.register(Box::new(deque::RotateMutation));
-        
+
         // Register string mutations (in-place for bytearray, etc.)
         registry.register(Box::new(string::BytearrayAppendMutation));
         registry.register(Box::new(string::BytearrayExtendMutation));
-        
+
         registry
     }
-    
+
     pub fn register(&mut self, handler: Box<dyn MutationHandler + Send + Sync>) {
         self.handlers.push(handler);
     }
-    
+
     /// Find and apply the appropriate mutation handler
     pub fn compute_mutation_type(
         &self,
@@ -107,11 +107,11 @@ impl MutationRegistry {
                 }
             }
         }
-        
+
         // Fallback for unknown containers being mutated
         self.handle_unknown_container(current_ty, method, args, state, infer_expr)
     }
-    
+
     /// Handle mutations on Type::Unknown containers
     fn handle_unknown_container(
         &self,
@@ -138,7 +138,7 @@ impl MutationRegistry {
                     Some(Type::List(Box::new(Type::Unknown)))
                 }
             }
-            
+
             // Unknown being mutated with set methods
             (Type::Unknown, "add" | "update" | "discard") => {
                 if let Some(arg) = args.first() {
@@ -153,7 +153,7 @@ impl MutationRegistry {
                     Some(Type::Set(Box::new(Type::Unknown)))
                 }
             }
-            
+
             // Unknown being mutated with deque methods
             (Type::Unknown, "appendleft" | "extendleft" | "popleft") => {
                 if let Some(arg) = args.first() {
@@ -168,7 +168,7 @@ impl MutationRegistry {
                     Some(Type::Custom("deque".to_string()))
                 }
             }
-            
+
             _ => None,
         }
     }
@@ -187,8 +187,7 @@ pub fn refine_element_type(current: &Type, new: &Type) -> Type {
     } else if matches!(new, Type::Unknown) {
         current.clone()
     } else {
-        let joined = LatticeType::from_hir_type(current)
-            .join(&LatticeType::from_hir_type(new));
+        let joined = LatticeType::from_hir_type(current).join(&LatticeType::from_hir_type(new));
         joined.to_hir_type()
     }
 }

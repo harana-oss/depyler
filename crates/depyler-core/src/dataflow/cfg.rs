@@ -113,15 +113,15 @@ impl Cfg {
             exit: BlockId::EXIT,
             next_block_id: 0,
         };
-        
+
         // Create entry block
         let entry = cfg.new_block();
         cfg.entry = entry;
-        
+
         // Create exit block
         let exit = cfg.new_block();
         cfg.exit = exit;
-        
+
         cfg
     }
 
@@ -240,7 +240,10 @@ impl CfgBuilder {
         self.build_body(&func.body);
 
         // If no explicit return, add implicit return None
-        if self.cfg.blocks.get(&self.current_block)
+        if self
+            .cfg
+            .blocks
+            .get(&self.current_block)
             .is_some_and(|b| b.terminator.is_none())
         {
             self.cfg.set_terminator(self.current_block, Terminator::Return(None));
@@ -266,10 +269,8 @@ impl CfgBuilder {
                 self.build_assign(target, value, type_annotation.clone());
             }
             HirStmt::Return(expr) => {
-                self.cfg.set_terminator(
-                    self.current_block,
-                    Terminator::Return(expr.clone()),
-                );
+                self.cfg
+                    .set_terminator(self.current_block, Terminator::Return(expr.clone()));
                 self.cfg.add_edge(self.current_block, self.cfg.exit);
                 // Create new unreachable block for any following statements
                 self.current_block = self.cfg.new_block();
@@ -292,14 +293,16 @@ impl CfgBuilder {
             }
             HirStmt::Break { .. } => {
                 if let Some(ctx) = self.loop_stack.last() {
-                    self.cfg.set_terminator(self.current_block, Terminator::Goto(ctx.break_block));
+                    self.cfg
+                        .set_terminator(self.current_block, Terminator::Goto(ctx.break_block));
                     self.cfg.add_edge(self.current_block, ctx.break_block);
                 }
                 self.current_block = self.cfg.new_block();
             }
             HirStmt::Continue { .. } => {
                 if let Some(ctx) = self.loop_stack.last() {
-                    self.cfg.set_terminator(self.current_block, Terminator::Goto(ctx.continue_block));
+                    self.cfg
+                        .set_terminator(self.current_block, Terminator::Goto(ctx.continue_block));
                     self.cfg.add_edge(self.current_block, ctx.continue_block);
                 }
                 self.current_block = self.cfg.new_block();
@@ -321,7 +324,12 @@ impl CfgBuilder {
                 self.cfg.set_terminator(self.current_block, Terminator::Unreachable);
                 self.current_block = self.cfg.new_block();
             }
-            HirStmt::Try { body, handlers, orelse, finalbody } => {
+            HirStmt::Try {
+                body,
+                handlers,
+                orelse,
+                finalbody,
+            } => {
                 // Simplified: treat try block as sequential
                 self.build_body(body);
                 for handler in handlers {
@@ -334,7 +342,11 @@ impl CfgBuilder {
                     self.build_body(finally_stmts);
                 }
             }
-            HirStmt::With { context: _, target: _, body } => {
+            HirStmt::With {
+                context: _,
+                target: _,
+                body,
+            } => {
                 self.build_body(body);
             }
             HirStmt::FunctionDef { .. } => {
@@ -383,12 +395,7 @@ impl CfgBuilder {
         }
     }
 
-    fn build_if(
-        &mut self,
-        condition: &HirExpr,
-        then_body: &[HirStmt],
-        else_body: &Option<Vec<HirStmt>>,
-    ) {
+    fn build_if(&mut self, condition: &HirExpr, then_body: &[HirStmt], else_body: &Option<Vec<HirStmt>>) {
         let then_block = self.cfg.new_block();
         let else_block = self.cfg.new_block();
         let merge_block = self.cfg.new_block();
@@ -408,10 +415,14 @@ impl CfgBuilder {
         // Build then branch
         self.current_block = then_block;
         self.build_body(then_body);
-        if self.cfg.blocks.get(&self.current_block)
+        if self
+            .cfg
+            .blocks
+            .get(&self.current_block)
             .is_some_and(|b| b.terminator.is_none())
         {
-            self.cfg.set_terminator(self.current_block, Terminator::Goto(merge_block));
+            self.cfg
+                .set_terminator(self.current_block, Terminator::Goto(merge_block));
             self.cfg.add_edge(self.current_block, merge_block);
         }
 
@@ -420,10 +431,14 @@ impl CfgBuilder {
         if let Some(else_stmts) = else_body {
             self.build_body(else_stmts);
         }
-        if self.cfg.blocks.get(&self.current_block)
+        if self
+            .cfg
+            .blocks
+            .get(&self.current_block)
             .is_some_and(|b| b.terminator.is_none())
         {
-            self.cfg.set_terminator(self.current_block, Terminator::Goto(merge_block));
+            self.cfg
+                .set_terminator(self.current_block, Terminator::Goto(merge_block));
             self.cfg.add_edge(self.current_block, merge_block);
         }
 
@@ -436,7 +451,8 @@ impl CfgBuilder {
         let exit_block = self.cfg.new_block();
 
         // Jump to header
-        self.cfg.set_terminator(self.current_block, Terminator::Goto(header_block));
+        self.cfg
+            .set_terminator(self.current_block, Terminator::Goto(header_block));
         self.cfg.add_edge(self.current_block, header_block);
 
         // Header block with loop condition
@@ -461,10 +477,14 @@ impl CfgBuilder {
         self.loop_stack.pop();
 
         // Back edge to header
-        if self.cfg.blocks.get(&self.current_block)
+        if self
+            .cfg
+            .blocks
+            .get(&self.current_block)
             .is_some_and(|b| b.terminator.is_none())
         {
-            self.cfg.set_terminator(self.current_block, Terminator::Goto(header_block));
+            self.cfg
+                .set_terminator(self.current_block, Terminator::Goto(header_block));
             self.cfg.add_edge(self.current_block, header_block);
         }
 
@@ -477,7 +497,8 @@ impl CfgBuilder {
         let exit_block = self.cfg.new_block();
 
         // Jump to header
-        self.cfg.set_terminator(self.current_block, Terminator::Goto(header_block));
+        self.cfg
+            .set_terminator(self.current_block, Terminator::Goto(header_block));
         self.cfg.add_edge(self.current_block, header_block);
 
         // Header - assign iterator element to target (simplified)
@@ -538,10 +559,14 @@ impl CfgBuilder {
         self.loop_stack.pop();
 
         // Back edge
-        if self.cfg.blocks.get(&self.current_block)
+        if self
+            .cfg
+            .blocks
+            .get(&self.current_block)
             .is_some_and(|b| b.terminator.is_none())
         {
-            self.cfg.set_terminator(self.current_block, Terminator::Goto(header_block));
+            self.cfg
+                .set_terminator(self.current_block, Terminator::Goto(header_block));
             self.cfg.add_edge(self.current_block, header_block);
         }
 
@@ -583,7 +608,7 @@ mod tests {
         );
 
         let cfg = CfgBuilder::new().build_function(&func);
-        
+
         assert!(cfg.blocks.len() >= 2);
         assert!(cfg.blocks.contains_key(&cfg.entry));
         assert!(cfg.blocks.contains_key(&cfg.exit));
@@ -594,24 +619,22 @@ mod tests {
         let func = make_function(
             "with_if",
             vec![HirParam::new("x".to_string(), Type::Int)],
-            vec![
-                HirStmt::If {
-                    condition: HirExpr::Binary {
-                        op: BinOp::Gt,
-                        left: Box::new(HirExpr::Var("x".to_string())),
-                        right: Box::new(HirExpr::Literal(Literal::Int(0))),
-                    },
-                    then_body: vec![HirStmt::Return(Some(HirExpr::Literal(Literal::Int(1))))],
-                    else_body: Some(vec![HirStmt::Return(Some(HirExpr::Literal(Literal::Int(0))))]),
+            vec![HirStmt::If {
+                condition: HirExpr::Binary {
+                    op: BinOp::Gt,
+                    left: Box::new(HirExpr::Var("x".to_string())),
+                    right: Box::new(HirExpr::Literal(Literal::Int(0))),
                 },
-            ],
+                then_body: vec![HirStmt::Return(Some(HirExpr::Literal(Literal::Int(1))))],
+                else_body: Some(vec![HirStmt::Return(Some(HirExpr::Literal(Literal::Int(0))))]),
+            }],
         );
 
         let cfg = CfgBuilder::new().build_function(&func);
-        
+
         // Should have entry, then block, else block, merge block, exit
         assert!(cfg.blocks.len() >= 4);
-        
+
         // Entry block should have branch terminator
         let entry_block = cfg.blocks.get(&cfg.entry).unwrap();
         assert!(matches!(entry_block.terminator, Some(Terminator::Branch { .. })));
@@ -649,11 +672,12 @@ mod tests {
         );
 
         let cfg = CfgBuilder::new().build_function(&func);
-        
+
         // Should have back edge for the loop
-        let has_loop_terminator = cfg.blocks.values().any(|b| {
-            matches!(b.terminator, Some(Terminator::Loop { .. }))
-        });
+        let has_loop_terminator = cfg
+            .blocks
+            .values()
+            .any(|b| matches!(b.terminator, Some(Terminator::Loop { .. })));
         assert!(has_loop_terminator);
     }
 
@@ -667,7 +691,7 @@ mod tests {
 
         let cfg = CfgBuilder::new().build_function(&func);
         let rpo = cfg.reverse_postorder();
-        
+
         // Entry should come first in RPO
         assert_eq!(rpo[0], cfg.entry);
     }
@@ -701,11 +725,12 @@ mod tests {
         );
 
         let cfg = CfgBuilder::new().build_function(&func);
-        
+
         // Should have loop structure
-        let has_loop = cfg.blocks.values().any(|b| {
-            matches!(b.terminator, Some(Terminator::Loop { .. }))
-        });
+        let has_loop = cfg
+            .blocks
+            .values()
+            .any(|b| matches!(b.terminator, Some(Terminator::Loop { .. })));
         assert!(has_loop);
     }
 
@@ -714,22 +739,18 @@ mod tests {
         let func = make_function(
             "with_break",
             vec![],
-            vec![
-                HirStmt::While {
+            vec![HirStmt::While {
+                condition: HirExpr::Literal(Literal::Bool(true)),
+                body: vec![HirStmt::If {
                     condition: HirExpr::Literal(Literal::Bool(true)),
-                    body: vec![
-                        HirStmt::If {
-                            condition: HirExpr::Literal(Literal::Bool(true)),
-                            then_body: vec![HirStmt::Break { label: None }],
-                            else_body: Some(vec![HirStmt::Continue { label: None }]),
-                        },
-                    ],
-                },
-            ],
+                    then_body: vec![HirStmt::Break { label: None }],
+                    else_body: Some(vec![HirStmt::Continue { label: None }]),
+                }],
+            }],
         );
 
         let cfg = CfgBuilder::new().build_function(&func);
-        
+
         // Should have multiple blocks due to break/continue
         assert!(cfg.blocks.len() >= 5);
     }

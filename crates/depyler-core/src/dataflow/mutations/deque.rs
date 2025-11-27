@@ -3,13 +3,12 @@
 //! Note: Deques are represented as `Type::Custom("deque")` in the HIR.
 //! We track them using Generic type for element type information.
 
-use crate::hir::{HirExpr, Type};
 use super::MutationHandler;
 use crate::dataflow::lattice::{TypeLattice, TypeState};
+use crate::hir::{HirExpr, Type};
 
 fn is_deque(ty: &Type) -> bool {
-    matches!(ty, Type::Custom(name) if name == "deque")
-        || matches!(ty, Type::Generic { base, .. } if base == "deque")
+    matches!(ty, Type::Custom(name) if name == "deque") || matches!(ty, Type::Generic { base, .. } if base == "deque")
 }
 
 fn make_deque_type(elem_ty: Type) -> Type {
@@ -23,12 +22,14 @@ fn make_deque_type(elem_ty: Type) -> Type {
 pub struct AppendLeftMutation;
 
 impl MutationHandler for AppendLeftMutation {
-    fn method_name(&self) -> &'static str { "appendleft" }
-    
+    fn method_name(&self) -> &'static str {
+        "appendleft"
+    }
+
     fn applies_to(&self, ty: &Type, method: &str) -> bool {
         method == "appendleft" && is_deque(ty)
     }
-    
+
     fn compute_type(
         &self,
         current_ty: &Type,
@@ -39,7 +40,7 @@ impl MutationHandler for AppendLeftMutation {
         if !is_deque(current_ty) {
             return None;
         }
-        
+
         if let Some(arg) = args.first() {
             let arg_type = infer_expr(arg, state);
             return Some(make_deque_type(arg_type));
@@ -52,12 +53,14 @@ impl MutationHandler for AppendLeftMutation {
 pub struct PopLeftMutation;
 
 impl MutationHandler for PopLeftMutation {
-    fn method_name(&self) -> &'static str { "popleft" }
-    
+    fn method_name(&self) -> &'static str {
+        "popleft"
+    }
+
     fn applies_to(&self, ty: &Type, method: &str) -> bool {
         method == "popleft" && is_deque(ty)
     }
-    
+
     fn compute_type(
         &self,
         current_ty: &Type,
@@ -77,12 +80,14 @@ impl MutationHandler for PopLeftMutation {
 pub struct ExtendLeftMutation;
 
 impl MutationHandler for ExtendLeftMutation {
-    fn method_name(&self) -> &'static str { "extendleft" }
-    
+    fn method_name(&self) -> &'static str {
+        "extendleft"
+    }
+
     fn applies_to(&self, ty: &Type, method: &str) -> bool {
         method == "extendleft" && is_deque(ty)
     }
-    
+
     fn compute_type(
         &self,
         current_ty: &Type,
@@ -93,7 +98,7 @@ impl MutationHandler for ExtendLeftMutation {
         if !is_deque(current_ty) {
             return None;
         }
-        
+
         if let Some(arg) = args.first() {
             let arg_type = infer_expr(arg, state);
             let elem_ty = TypeLattice::element_type(&arg_type);
@@ -107,12 +112,14 @@ impl MutationHandler for ExtendLeftMutation {
 pub struct RotateMutation;
 
 impl MutationHandler for RotateMutation {
-    fn method_name(&self) -> &'static str { "rotate" }
-    
+    fn method_name(&self) -> &'static str {
+        "rotate"
+    }
+
     fn applies_to(&self, ty: &Type, method: &str) -> bool {
         method == "rotate" && is_deque(ty)
     }
-    
+
     fn compute_type(
         &self,
         current_ty: &Type,
@@ -132,23 +139,21 @@ impl MutationHandler for RotateMutation {
 mod tests {
     use super::*;
     use crate::hir::Literal;
-    
+
     fn make_state() -> TypeState {
         TypeState::new()
     }
-    
+
     fn infer_literal(expr: &HirExpr, _state: &TypeState) -> Type {
         match expr {
             HirExpr::Literal(Literal::Int(_)) => Type::Int,
             HirExpr::Literal(Literal::String(_)) => Type::String,
             HirExpr::Literal(Literal::Float(_)) => Type::Float,
-            HirExpr::List(elems) if !elems.is_empty() => {
-                Type::List(Box::new(infer_literal(&elems[0], _state)))
-            }
+            HirExpr::List(elems) if !elems.is_empty() => Type::List(Box::new(infer_literal(&elems[0], _state))),
             _ => Type::Unknown,
         }
     }
-    
+
     #[test]
     fn test_appendleft_refines_element_type() {
         let handler = AppendLeftMutation;
@@ -159,7 +164,7 @@ mod tests {
         let result = handler.compute_type(&deque_ty, &args, &state, &infer_literal);
         assert!(matches!(
             result,
-            Some(Type::Generic { base, params }) 
+            Some(Type::Generic { base, params })
                 if base == "deque" && params.len() == 1 && matches!(params[0], Type::Int)
         ));
     }
@@ -171,9 +176,7 @@ mod tests {
         let state = make_state();
         let args = vec![HirExpr::List(vec![])];
 
-        let infer_fn = |_: &HirExpr, _: &TypeState| -> Type {
-            Type::List(Box::new(Type::Float))
-        };
+        let infer_fn = |_: &HirExpr, _: &TypeState| -> Type { Type::List(Box::new(Type::Float)) };
 
         let result = handler.compute_type(&deque_ty, &args, &state, &infer_fn);
         assert!(matches!(

@@ -337,3 +337,35 @@ def test_static():
     // Should handle static/class method with type parameters
     assert!(rust_code.contains("MyClass::create::<") || rust_code.contains("create::"));
 }
+
+#[test]
+fn test_generic_call_with_keyword_args_and_array() {
+    let pipeline = DepylerPipeline::new();
+    let python_code = r#"
+def test_func():
+    result = call[Type](name = "name", input = [random.random(), float(int(2400 - 1200))])
+    return result
+"#;
+
+    let result = pipeline.transpile(python_code);
+    assert!(result.is_ok(), "Transpilation failed: {:?}", result.err());
+    let rust_code = result.unwrap();
+
+    println!("Generated Rust code:\n{}", rust_code);
+
+    // Should generate a generic call with turbofish syntax
+    assert!(rust_code.contains("call::<Type>"), 
+        "Expected generic call syntax with turbofish, got:\n{}", rust_code);
+    
+    // Should have the string literal "name" as first argument
+    assert!(rust_code.contains("\"name\""), 
+        "Expected first argument 'name', got:\n{}", rust_code);
+    
+    // Should have an array/vector literal with random.random() call
+    assert!(rust_code.contains("vec!") && rust_code.contains("rand::random"), 
+        "Expected array/vector literal with rand::random call, got:\n{}", rust_code);
+    
+    // Should have the arithmetic computation (2400 - 1200)
+    assert!(rust_code.contains("2400") && rust_code.contains("1200"), 
+        "Expected arithmetic computation with 2400 and 1200, got:\n{}", rust_code);
+}

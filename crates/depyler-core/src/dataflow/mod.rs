@@ -17,4 +17,4 @@ pub use cfg::{BasicBlock, BlockId, Cfg, CfgBuilder, CfgEdge, Terminator};
 pub use lattice::{TypeLattice, TypeState};
 pub use mutations::MutationRegistry;
 pub use solver::{DataflowAnalysis, DataflowDirection, FixpointSolver, TypePropagation};
-pub use type_inference::{infer_python, infer_python_function, DataflowTypeInferencer, InferredTypes};
+pub use type_inference::{DataflowTypeInferencer, InferredTypes, infer_python, infer_python_function};

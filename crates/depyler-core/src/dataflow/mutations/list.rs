@@ -1,19 +1,21 @@
 //! List mutation handlers for type inference
 
-use crate::hir::{HirExpr, Type};
 use super::{MutationHandler, refine_element_type};
 use crate::dataflow::lattice::{TypeLattice, TypeState};
+use crate::hir::{HirExpr, Type};
 
 /// Handler for list.append(element)
 pub struct AppendMutation;
 
 impl MutationHandler for AppendMutation {
-    fn method_name(&self) -> &'static str { "append" }
-    
+    fn method_name(&self) -> &'static str {
+        "append"
+    }
+
     fn applies_to(&self, ty: &Type, method: &str) -> bool {
         method == "append" && matches!(ty, Type::List(_))
     }
-    
+
     fn compute_type(
         &self,
         current_ty: &Type,
@@ -36,12 +38,14 @@ impl MutationHandler for AppendMutation {
 pub struct ExtendMutation;
 
 impl MutationHandler for ExtendMutation {
-    fn method_name(&self) -> &'static str { "extend" }
-    
+    fn method_name(&self) -> &'static str {
+        "extend"
+    }
+
     fn applies_to(&self, ty: &Type, method: &str) -> bool {
         method == "extend" && matches!(ty, Type::List(_))
     }
-    
+
     fn compute_type(
         &self,
         current_ty: &Type,
@@ -65,12 +69,14 @@ impl MutationHandler for ExtendMutation {
 pub struct InsertMutation;
 
 impl MutationHandler for InsertMutation {
-    fn method_name(&self) -> &'static str { "insert" }
-    
+    fn method_name(&self) -> &'static str {
+        "insert"
+    }
+
     fn applies_to(&self, ty: &Type, method: &str) -> bool {
         method == "insert" && matches!(ty, Type::List(_))
     }
-    
+
     fn compute_type(
         &self,
         current_ty: &Type,
@@ -94,12 +100,14 @@ impl MutationHandler for InsertMutation {
 pub struct PopMutation;
 
 impl MutationHandler for PopMutation {
-    fn method_name(&self) -> &'static str { "pop" }
-    
+    fn method_name(&self) -> &'static str {
+        "pop"
+    }
+
     fn applies_to(&self, ty: &Type, method: &str) -> bool {
         method == "pop" && matches!(ty, Type::List(_))
     }
-    
+
     fn compute_type(
         &self,
         current_ty: &Type,
@@ -120,12 +128,14 @@ impl MutationHandler for PopMutation {
 pub struct RemoveMutation;
 
 impl MutationHandler for RemoveMutation {
-    fn method_name(&self) -> &'static str { "remove" }
-    
+    fn method_name(&self) -> &'static str {
+        "remove"
+    }
+
     fn applies_to(&self, ty: &Type, method: &str) -> bool {
         method == "remove" && matches!(ty, Type::List(_))
     }
-    
+
     fn compute_type(
         &self,
         current_ty: &Type,
@@ -145,12 +155,14 @@ impl MutationHandler for RemoveMutation {
 pub struct ClearMutation;
 
 impl MutationHandler for ClearMutation {
-    fn method_name(&self) -> &'static str { "clear" }
-    
+    fn method_name(&self) -> &'static str {
+        "clear"
+    }
+
     fn applies_to(&self, ty: &Type, method: &str) -> bool {
         method == "clear" && matches!(ty, Type::List(_))
     }
-    
+
     fn compute_type(
         &self,
         current_ty: &Type,
@@ -170,12 +182,14 @@ impl MutationHandler for ClearMutation {
 pub struct SortMutation;
 
 impl MutationHandler for SortMutation {
-    fn method_name(&self) -> &'static str { "sort" }
-    
+    fn method_name(&self) -> &'static str {
+        "sort"
+    }
+
     fn applies_to(&self, ty: &Type, method: &str) -> bool {
         method == "sort" && matches!(ty, Type::List(_))
     }
-    
+
     fn compute_type(
         &self,
         current_ty: &Type,
@@ -195,12 +209,14 @@ impl MutationHandler for SortMutation {
 pub struct ReverseMutation;
 
 impl MutationHandler for ReverseMutation {
-    fn method_name(&self) -> &'static str { "reverse" }
-    
+    fn method_name(&self) -> &'static str {
+        "reverse"
+    }
+
     fn applies_to(&self, ty: &Type, method: &str) -> bool {
         method == "reverse" && matches!(ty, Type::List(_))
     }
-    
+
     fn compute_type(
         &self,
         current_ty: &Type,
@@ -220,66 +236,64 @@ impl MutationHandler for ReverseMutation {
 mod tests {
     use super::*;
     use crate::hir::Literal;
-    
+
     fn make_state() -> TypeState {
         TypeState::new()
     }
-    
+
     fn infer_literal(expr: &HirExpr, _state: &TypeState) -> Type {
         match expr {
             HirExpr::Literal(Literal::Int(_)) => Type::Int,
             HirExpr::Literal(Literal::String(_)) => Type::String,
             HirExpr::Literal(Literal::Float(_)) => Type::Float,
-            HirExpr::List(elems) if !elems.is_empty() => {
-                Type::List(Box::new(infer_literal(&elems[0], _state)))
-            }
+            HirExpr::List(elems) if !elems.is_empty() => Type::List(Box::new(infer_literal(&elems[0], _state))),
             _ => Type::Unknown,
         }
     }
-    
+
     #[test]
     fn test_append_refines_unknown() {
         let handler = AppendMutation;
         let current = Type::List(Box::new(Type::Unknown));
         let args = vec![HirExpr::Literal(Literal::Int(42))];
         let state = make_state();
-        
+
         let result = handler.compute_type(&current, &args, &state, &infer_literal);
         assert_eq!(result, Some(Type::List(Box::new(Type::Int))));
     }
-    
+
     #[test]
     fn test_append_preserves_type() {
         let handler = AppendMutation;
         let current = Type::List(Box::new(Type::Int));
         let args = vec![HirExpr::Literal(Literal::Int(42))];
         let state = make_state();
-        
+
         let result = handler.compute_type(&current, &args, &state, &infer_literal);
         assert_eq!(result, Some(Type::List(Box::new(Type::Int))));
     }
-    
+
     #[test]
     fn test_extend_with_list() {
         let handler = ExtendMutation;
         let current = Type::List(Box::new(Type::Unknown));
         let args = vec![HirExpr::List(vec![HirExpr::Literal(Literal::String("a".to_string()))])];
         let state = make_state();
-        
+
         let result = handler.compute_type(&current, &args, &state, &infer_literal);
         assert_eq!(result, Some(Type::List(Box::new(Type::String))));
     }
-    
+
     #[test]
     fn test_insert_second_arg() {
         let handler = InsertMutation;
         let current = Type::List(Box::new(Type::Unknown));
         let args = vec![
-            HirExpr::Literal(Literal::Int(0)), // index
+            HirExpr::Literal(Literal::Int(0)),                      // index
             HirExpr::Literal(Literal::String("value".to_string())), // value
         ];
         let state = make_state();
-        
+
         let result = handler.compute_type(&current, &args, &state, &infer_literal);
         assert_eq!(result, Some(Type::List(Box::new(Type::String))));
     }

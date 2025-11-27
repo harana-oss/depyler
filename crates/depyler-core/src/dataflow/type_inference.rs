@@ -37,8 +37,7 @@ use std::collections::HashMap;
 /// ```
 pub fn infer_python(source: &str) -> Result<HashMap<String, InferredTypes>> {
     // Parse Python source to AST
-    let statements = Suite::parse(source, "<input>")
-        .map_err(|e| anyhow::anyhow!("Python parse error: {}", e))?;
+    let statements = Suite::parse(source, "<input>").map_err(|e| anyhow::anyhow!("Python parse error: {}", e))?;
 
     let ast = rustpython_ast::Mod::Module(rustpython_ast::ModModule {
         body: statements,
@@ -47,9 +46,7 @@ pub fn infer_python(source: &str) -> Result<HashMap<String, InferredTypes>> {
     });
 
     // Convert to HIR
-    let hir_module = AstBridge::new()
-        .with_source(source.to_string())
-        .python_to_hir(ast)?;
+    let hir_module = AstBridge::new().with_source(source.to_string()).python_to_hir(ast)?;
 
     // Run type inference on each function
     let inferencer = DataflowTypeInferencer::new();
@@ -82,7 +79,7 @@ pub fn infer_python(source: &str) -> Result<HashMap<String, InferredTypes>> {
 /// ```
 pub fn infer_python_function(source: &str) -> Result<InferredTypes> {
     let results = infer_python(source)?;
-    
+
     results
         .into_values()
         .next()
@@ -164,7 +161,7 @@ impl DataflowTypeInferencer {
 
         // Extract final types from all exit points
         let mut variable_types: HashMap<String, Type> = HashMap::new();
-        
+
         // Merge types from all blocks (take most specific from any reachable point)
         for (_, state) in &result.out_facts {
             for (var, ty) in &state.vars {
@@ -260,7 +257,11 @@ impl DataflowTypeInferencer {
     fn apply_types_to_body(&self, body: &mut [HirStmt], inferred: &InferredTypes) {
         for stmt in body {
             match stmt {
-                HirStmt::Assign { target, type_annotation, .. } => {
+                HirStmt::Assign {
+                    target,
+                    type_annotation,
+                    ..
+                } => {
                     if type_annotation.is_none() {
                         if let crate::hir::AssignTarget::Symbol(name) = target {
                             if let Some(ty) = inferred.variable_types.get(name) {
@@ -271,7 +272,9 @@ impl DataflowTypeInferencer {
                         }
                     }
                 }
-                HirStmt::If { then_body, else_body, .. } => {
+                HirStmt::If {
+                    then_body, else_body, ..
+                } => {
                     self.apply_types_to_body(then_body, inferred);
                     if let Some(else_stmts) = else_body {
                         self.apply_types_to_body(else_stmts, inferred);
@@ -283,7 +286,12 @@ impl DataflowTypeInferencer {
                 HirStmt::For { body, .. } => {
                     self.apply_types_to_body(body, inferred);
                 }
-                HirStmt::Try { body, handlers, orelse, finalbody } => {
+                HirStmt::Try {
+                    body,
+                    handlers,
+                    orelse,
+                    finalbody,
+                } => {
                     self.apply_types_to_body(body, inferred);
                     for handler in handlers {
                         self.apply_types_to_body(&mut handler.body, inferred);
@@ -341,9 +349,7 @@ impl DataflowTypeInferencer {
         return_types: &mut Vec<Type>,
     ) {
         // Get a merged state from all facts for expression type inference
-        let merged_state = out_facts.values().fold(TypeState::new(), |acc, state| {
-            acc.join(state)
-        });
+        let merged_state = out_facts.values().fold(TypeState::new(), |acc, state| acc.join(state));
         let analysis = TypePropagation::new(HashMap::new());
 
         for stmt in body {
@@ -355,7 +361,9 @@ impl DataflowTypeInferencer {
                 HirStmt::Return(None) => {
                     return_types.push(Type::None);
                 }
-                HirStmt::If { then_body, else_body, .. } => {
+                HirStmt::If {
+                    then_body, else_body, ..
+                } => {
                     self.collect_return_types(then_body, out_facts, return_types);
                     if let Some(else_stmts) = else_body {
                         self.collect_return_types(else_stmts, out_facts, return_types);
@@ -364,7 +372,12 @@ impl DataflowTypeInferencer {
                 HirStmt::While { body, .. } | HirStmt::For { body, .. } => {
                     self.collect_return_types(body, out_facts, return_types);
                 }
-                HirStmt::Try { body, handlers, orelse, finalbody } => {
+                HirStmt::Try {
+                    body,
+                    handlers,
+                    orelse,
+                    finalbody,
+                } => {
                     self.collect_return_types(body, out_facts, return_types);
                     for handler in handlers {
                         self.collect_return_types(&handler.body, out_facts, return_types);
@@ -541,12 +554,10 @@ mod tests {
             vec![
                 HirStmt::Assign {
                     target: AssignTarget::Symbol("data".to_string()),
-                    value: HirExpr::Dict(vec![
-                        (
-                            HirExpr::Literal(Literal::String("key".to_string())),
-                            HirExpr::Literal(Literal::Int(42)),
-                        ),
-                    ]),
+                    value: HirExpr::Dict(vec![(
+                        HirExpr::Literal(Literal::String("key".to_string())),
+                        HirExpr::Literal(Literal::Int(42)),
+                    )]),
                     type_annotation: None,
                 },
                 HirStmt::Return(Some(HirExpr::Var("data".to_string()))),
@@ -633,13 +644,11 @@ mod tests {
             "no_return",
             vec![],
             Type::Unknown,
-            vec![
-                HirStmt::Assign {
-                    target: AssignTarget::Symbol("x".to_string()),
-                    value: HirExpr::Literal(Literal::Int(42)),
-                    type_annotation: None,
-                },
-            ],
+            vec![HirStmt::Assign {
+                target: AssignTarget::Symbol("x".to_string()),
+                value: HirExpr::Literal(Literal::Int(42)),
+                type_annotation: None,
+            }],
         );
 
         let inferencer = DataflowTypeInferencer::new();
@@ -655,17 +664,15 @@ mod tests {
             "multi_return",
             vec![HirParam::new("x".to_string(), Type::Int)],
             Type::Unknown,
-            vec![
-                HirStmt::If {
-                    condition: HirExpr::Binary {
-                        op: BinOp::Gt,
-                        left: Box::new(HirExpr::Var("x".to_string())),
-                        right: Box::new(HirExpr::Literal(Literal::Int(0))),
-                    },
-                    then_body: vec![HirStmt::Return(Some(HirExpr::Literal(Literal::Int(1))))],
-                    else_body: Some(vec![HirStmt::Return(Some(HirExpr::Literal(Literal::Int(-1))))]),
+            vec![HirStmt::If {
+                condition: HirExpr::Binary {
+                    op: BinOp::Gt,
+                    left: Box::new(HirExpr::Var("x".to_string())),
+                    right: Box::new(HirExpr::Literal(Literal::Int(0))),
                 },
-            ],
+                then_body: vec![HirStmt::Return(Some(HirExpr::Literal(Literal::Int(1))))],
+                else_body: Some(vec![HirStmt::Return(Some(HirExpr::Literal(Literal::Int(-1))))]),
+            }],
         );
 
         let inferencer = DataflowTypeInferencer::new();

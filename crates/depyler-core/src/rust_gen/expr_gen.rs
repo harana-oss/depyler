@@ -9354,15 +9354,56 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         }
 
         // Generate turbofish syntax: func::<T1, T2>(args)
-        let arg_exprs: Vec<syn::Expr> = args
-            .iter()
-            .map(|arg| arg.to_rust_expr(self.ctx))
-            .collect::<Result<Vec<_>>>()?;
+        // First, we need to handle kwargs by merging them with args
+        let all_args = if !kwargs.is_empty() {
+            // Look up function parameter names for proper reordering
+            let maybe_param_names = self.ctx.function_param_names.get(func).cloned();
+            if let Some(param_names) = maybe_param_names {
+                // Build argument list by matching kwargs to parameter positions
+                let mut reordered_args: Vec<syn::Expr> = Vec::with_capacity(param_names.len());
+
+                // Create a map from kwarg name to its value for quick lookup
+                let kwarg_map: std::collections::HashMap<&str, &HirExpr> =
+                    kwargs.iter().map(|(name, value)| (name.as_str(), value)).collect();
+
+                for (idx, param_name) in param_names.iter().enumerate() {
+                    if idx < args.len() {
+                        // This position is filled by a positional argument
+                        reordered_args.push(args[idx].to_rust_expr(self.ctx)?);
+                    } else if let Some(value) = kwarg_map.get(param_name.as_str()) {
+                        // This position is filled by a keyword argument
+                        reordered_args.push(value.to_rust_expr(self.ctx)?);
+                    }
+                    // If neither positional nor kwarg fills this position,
+                    // the function likely has a default value (skip it)
+                }
+                reordered_args
+            } else {
+                // Fall back to appending kwargs in order if function signature not found
+                let mut arg_exprs: Vec<syn::Expr> = args
+                    .iter()
+                    .map(|arg| arg.to_rust_expr(self.ctx))
+                    .collect::<Result<Vec<_>>>()?;
+                
+                let kwarg_exprs: Vec<syn::Expr> = kwargs
+                    .iter()
+                    .map(|(_name, value)| value.to_rust_expr(self.ctx))
+                    .collect::<Result<Vec<_>>>()?;
+                
+                arg_exprs.extend(kwarg_exprs);
+                arg_exprs
+            }
+        } else {
+            // No kwargs - just convert positional args
+            args.iter()
+                .map(|arg| arg.to_rust_expr(self.ctx))
+                .collect::<Result<Vec<_>>>()?
+        };
 
         let func_ident = syn::Ident::new(func, proc_macro2::Span::call_site());
         let type_tokens = self.convert_type_params_to_tokens(type_params);
 
-        Ok(parse_quote! { #func_ident::<#type_tokens>(#(#arg_exprs),*) })
+        Ok(parse_quote! { #func_ident::<#type_tokens>(#(#all_args),*) })
     }
 
     fn convert_method_call_with_type_params(

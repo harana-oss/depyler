@@ -227,7 +227,7 @@ pub struct TypePropagation {
 impl TypePropagation {
     pub fn new(param_types: HashMap<String, Type>) -> Self {
         let mut builtins = HashMap::new();
-        
+
         // Common built-in function return types
         builtins.insert("len".to_string(), Type::Int);
         builtins.insert("range".to_string(), Type::Custom("range".to_string()));
@@ -236,7 +236,10 @@ impl TypePropagation {
         builtins.insert("str".to_string(), Type::String);
         builtins.insert("bool".to_string(), Type::Bool);
         builtins.insert("list".to_string(), Type::List(Box::new(Type::Unknown)));
-        builtins.insert("dict".to_string(), Type::Dict(Box::new(Type::Unknown), Box::new(Type::Unknown)));
+        builtins.insert(
+            "dict".to_string(),
+            Type::Dict(Box::new(Type::Unknown), Box::new(Type::Unknown)),
+        );
         builtins.insert("set".to_string(), Type::Set(Box::new(Type::Unknown)));
         builtins.insert("abs".to_string(), Type::Unknown); // Depends on input
         builtins.insert("min".to_string(), Type::Unknown);
@@ -244,14 +247,20 @@ impl TypePropagation {
         builtins.insert("sum".to_string(), Type::Unknown);
         builtins.insert("sorted".to_string(), Type::List(Box::new(Type::Unknown)));
         builtins.insert("reversed".to_string(), Type::List(Box::new(Type::Unknown)));
-        builtins.insert("enumerate".to_string(), Type::List(Box::new(Type::Tuple(vec![Type::Int, Type::Unknown]))));
-        builtins.insert("zip".to_string(), Type::List(Box::new(Type::Tuple(vec![Type::Unknown, Type::Unknown]))));
+        builtins.insert(
+            "enumerate".to_string(),
+            Type::List(Box::new(Type::Tuple(vec![Type::Int, Type::Unknown]))),
+        );
+        builtins.insert(
+            "zip".to_string(),
+            Type::List(Box::new(Type::Tuple(vec![Type::Unknown, Type::Unknown]))),
+        );
         builtins.insert("map".to_string(), Type::List(Box::new(Type::Unknown)));
         builtins.insert("filter".to_string(), Type::List(Box::new(Type::Unknown)));
         builtins.insert("print".to_string(), Type::None);
         builtins.insert("input".to_string(), Type::String);
         builtins.insert("open".to_string(), Type::Custom("file".to_string()));
-        
+
         Self {
             initial_types: param_types,
             builtins,
@@ -273,12 +282,10 @@ impl TypePropagation {
                 let operand_ty = self.infer_expr_type(operand, state);
                 TypeLattice::unary_op_type(*op, &operand_ty)
             }
-            HirExpr::Call { func, args, .. } => {
-                self.infer_call_type(func, args, state)
-            }
-            HirExpr::MethodCall { object, method, args, .. } => {
-                self.infer_method_call_type(object, method, args, state)
-            }
+            HirExpr::Call { func, args, .. } => self.infer_call_type(func, args, state),
+            HirExpr::MethodCall {
+                object, method, args, ..
+            } => self.infer_method_call_type(object, method, args, state),
             HirExpr::Index { base, .. } => {
                 let base_ty = self.infer_expr_type(base, state);
                 TypeLattice::element_type(&base_ty)
@@ -287,9 +294,7 @@ impl TypePropagation {
                 // Slice returns same type as base
                 self.infer_expr_type(base, state)
             }
-            HirExpr::Attribute { value, attr } => {
-                self.infer_attribute_type(value, attr, state)
-            }
+            HirExpr::Attribute { value, attr } => self.infer_attribute_type(value, attr, state),
             HirExpr::List(elems) => {
                 if elems.is_empty() {
                     Type::List(Box::new(Type::Unknown))
@@ -309,10 +314,7 @@ impl TypePropagation {
                 }
             }
             HirExpr::Tuple(elems) => {
-                let types: Vec<Type> = elems
-                    .iter()
-                    .map(|e| self.infer_expr_type(e, state))
-                    .collect();
+                let types: Vec<Type> = elems.iter().map(|e| self.infer_expr_type(e, state)).collect();
                 Type::Tuple(types)
             }
             HirExpr::Set(elems) => {
@@ -327,21 +329,15 @@ impl TypePropagation {
                 // For comprehensions, we'd need to analyze the iteration
                 Type::List(Box::new(self.infer_expr_type(element, state)))
             }
-            HirExpr::SetComp { element, .. } => {
-                Type::Set(Box::new(self.infer_expr_type(element, state)))
-            }
-            HirExpr::DictComp { key, value, .. } => {
-                Type::Dict(
-                    Box::new(self.infer_expr_type(key, state)),
-                    Box::new(self.infer_expr_type(value, state)),
-                )
-            }
-            HirExpr::Lambda { .. } => {
-                Type::Function {
-                    params: vec![Type::Unknown],
-                    ret: Box::new(Type::Unknown),
-                }
-            }
+            HirExpr::SetComp { element, .. } => Type::Set(Box::new(self.infer_expr_type(element, state))),
+            HirExpr::DictComp { key, value, .. } => Type::Dict(
+                Box::new(self.infer_expr_type(key, state)),
+                Box::new(self.infer_expr_type(value, state)),
+            ),
+            HirExpr::Lambda { .. } => Type::Function {
+                params: vec![Type::Unknown],
+                ret: Box::new(Type::Unknown),
+            },
             HirExpr::IfExpr { body, orelse, .. } => {
                 // Join types from both branches
                 let then_ty = self.infer_expr_type(body, state);
@@ -355,9 +351,7 @@ impl TypePropagation {
                 // Await returns the inner type of the future
                 self.infer_expr_type(value, state)
             }
-            HirExpr::Yield { value } => {
-                value.as_ref().map_or(Type::None, |v| self.infer_expr_type(v, state))
-            }
+            HirExpr::Yield { value } => value.as_ref().map_or(Type::None, |v| self.infer_expr_type(v, state)),
             HirExpr::Borrow { expr, .. } => self.infer_expr_type(expr, state),
             HirExpr::FrozenSet(elems) => {
                 if elems.is_empty() {
@@ -376,9 +370,7 @@ impl TypePropagation {
                     _ => Type::List(Box::new(Type::Unknown)),
                 }
             }
-            HirExpr::GeneratorExp { element, .. } => {
-                Type::Custom("generator".to_string())
-            }
+            HirExpr::GeneratorExp { element, .. } => Type::Custom("generator".to_string()),
         }
     }
 
@@ -390,7 +382,7 @@ impl TypePropagation {
                 return TypeLattice::element_type(&iter_ty);
             }
         }
-        
+
         // Check builtins first
         if let Some(ret_ty) = self.builtins.get(func) {
             // Special handling for type-dependent builtins
@@ -410,19 +402,19 @@ impl TypePropagation {
             }
             return ret_ty.clone();
         }
-        
+
         // Check if it's a variable holding a callable
         let var_ty = state.get(func).to_hir_type();
         if let Type::Function { ret, .. } = var_ty {
             return *ret;
         }
-        
+
         Type::Unknown
     }
 
     fn infer_method_call_type(&self, object: &HirExpr, method: &str, _args: &[HirExpr], state: &TypeState) -> Type {
         let obj_ty = self.infer_expr_type(object, state);
-        
+
         match (&obj_ty, method) {
             // String methods
             (Type::String, "upper" | "lower" | "strip" | "lstrip" | "rstrip" | "title" | "capitalize") => Type::String,
@@ -432,13 +424,13 @@ impl TypePropagation {
             (Type::String, "startswith" | "endswith" | "isalpha" | "isdigit" | "isalnum" | "isspace") => Type::Bool,
             (Type::String, "replace" | "format") => Type::String,
             (Type::String, "encode") => Type::Custom("bytes".to_string()),
-            
+
             // List methods
             (Type::List(elem), "append" | "extend" | "insert" | "remove" | "clear" | "reverse" | "sort") => Type::None,
             (Type::List(elem), "pop") => *elem.clone(),
             (Type::List(_), "index" | "count") => Type::Int,
             (Type::List(elem), "copy") => Type::List(elem.clone()),
-            
+
             // Dict methods
             (Type::Dict(_, v), "get" | "pop" | "setdefault") => Type::Optional(v.clone()),
             (Type::Dict(k, _), "keys") => Type::List(k.clone()),
@@ -446,13 +438,15 @@ impl TypePropagation {
             (Type::Dict(k, v), "items") => Type::List(Box::new(Type::Tuple(vec![*k.clone(), *v.clone()]))),
             (Type::Dict(_, _), "update" | "clear") => Type::None,
             (Type::Dict(k, v), "copy") => Type::Dict(k.clone(), v.clone()),
-            
+
             // Set methods
             (Type::Set(elem), "add" | "remove" | "discard" | "clear" | "update") => Type::None,
             (Type::Set(elem), "pop") => *elem.clone(),
-            (Type::Set(elem), "copy" | "union" | "intersection" | "difference" | "symmetric_difference") => Type::Set(elem.clone()),
+            (Type::Set(elem), "copy" | "union" | "intersection" | "difference" | "symmetric_difference") => {
+                Type::Set(elem.clone())
+            }
             (Type::Set(_), "issubset" | "issuperset" | "isdisjoint") => Type::Bool,
-            
+
             _ => Type::Unknown,
         }
     }
@@ -465,7 +459,7 @@ impl TypePropagation {
     /// Infer the element type from an iterator expression (for for-loops)
     pub fn infer_iterator_element_type(&self, iter: &HirExpr, state: &TypeState) -> Type {
         let iter_ty = self.infer_expr_type(iter, state);
-        
+
         match &iter_ty {
             Type::List(elem) => *elem.clone(),
             Type::Set(elem) => *elem.clone(),
@@ -482,21 +476,21 @@ impl TypePropagation {
         let base_ty = state.get(base).to_hir_type();
         let index_ty = self.infer_expr_type(index, state);
         let value_ty = self.infer_expr_type(value, state);
-        
+
         let new_ty = match &base_ty {
             Type::List(elem) => {
                 // Refine list element type
-                let joined = LatticeType::from_hir_type(elem)
-                    .join(&LatticeType::from_hir_type(&value_ty));
+                let joined = LatticeType::from_hir_type(elem).join(&LatticeType::from_hir_type(&value_ty));
                 Some(Type::List(Box::new(joined.to_hir_type())))
             }
             Type::Dict(key, val) => {
                 // Refine dict key and value types
-                let joined_key = LatticeType::from_hir_type(key)
-                    .join(&LatticeType::from_hir_type(&index_ty));
-                let joined_val = LatticeType::from_hir_type(val)
-                    .join(&LatticeType::from_hir_type(&value_ty));
-                Some(Type::Dict(Box::new(joined_key.to_hir_type()), Box::new(joined_val.to_hir_type())))
+                let joined_key = LatticeType::from_hir_type(key).join(&LatticeType::from_hir_type(&index_ty));
+                let joined_val = LatticeType::from_hir_type(val).join(&LatticeType::from_hir_type(&value_ty));
+                Some(Type::Dict(
+                    Box::new(joined_key.to_hir_type()),
+                    Box::new(joined_val.to_hir_type()),
+                ))
             }
             Type::Unknown => {
                 // Infer type from usage: dict[k] = v suggests Dict type
@@ -504,7 +498,7 @@ impl TypePropagation {
             }
             _ => None, // No refinement possible
         };
-        
+
         if let Some(ty) = new_ty {
             if ty != base_ty {
                 state.set(base.to_string(), LatticeType::from_hir_type(&ty));
@@ -514,11 +508,14 @@ impl TypePropagation {
 
     /// Apply type mutation from expression statements (method calls)
     fn apply_expr_mutation(&self, state: &mut TypeState, expr: &HirExpr) {
-        if let HirExpr::MethodCall { object, method, args, .. } = expr {
+        if let HirExpr::MethodCall {
+            object, method, args, ..
+        } = expr
+        {
             // Extract the base variable name if this is a simple variable
             if let HirExpr::Var(var_name) = object.as_ref() {
                 let current_ty = state.get(var_name).to_hir_type();
-                
+
                 if let Some(new_ty) = self.compute_mutation_type(&current_ty, method, args, state) {
                     state.set(var_name.clone(), LatticeType::from_hir_type(&new_ty));
                 }
@@ -527,10 +524,17 @@ impl TypePropagation {
     }
 
     /// Compute the new type after a mutating method call
-    fn compute_mutation_type(&self, current_ty: &Type, method: &str, args: &[HirExpr], state: &TypeState) -> Option<Type> {
+    fn compute_mutation_type(
+        &self,
+        current_ty: &Type,
+        method: &str,
+        args: &[HirExpr],
+        state: &TypeState,
+    ) -> Option<Type> {
         // Delegate to the modular mutation registry
         let infer_fn = |expr: &HirExpr, st: &TypeState| self.infer_expr_type(expr, st);
-        self.mutation_registry.compute_mutation_type(current_ty, method, args, state, &infer_fn)
+        self.mutation_registry
+            .compute_mutation_type(current_ty, method, args, state, &infer_fn)
     }
 }
 
@@ -566,10 +570,14 @@ impl DataflowAnalysis for TypePropagation {
 
     fn transfer(&self, block: &BasicBlock, input: &TypeState) -> TypeState {
         let mut state = input.clone();
-        
+
         for stmt in &block.stmts {
             match stmt {
-                CfgStmt::Assign { target, value, type_annotation } => {
+                CfgStmt::Assign {
+                    target,
+                    value,
+                    type_annotation,
+                } => {
                     let ty = if let Some(ann) = type_annotation {
                         // Explicit annotation takes precedence
                         LatticeType::from_hir_type(ann)
@@ -593,14 +601,14 @@ impl DataflowAnalysis for TypePropagation {
                 }
             }
         }
-        
+
         // Handle terminator for additional type info (e.g., from for-loop headers)
         if let Some(term) = &block.terminator {
             if let Terminator::Loop { .. } = term {
                 // Loop variables were already handled in CFG construction
             }
         }
-        
+
         state
     }
 }
@@ -649,9 +657,10 @@ mod tests {
         let result = FixpointSolver::solve(&analysis, &cfg);
 
         // Check that x and y are both Int at exit
-        let exit_state = result.out_facts.values().find(|s| {
-            s.get("x") == LatticeType::Concrete(Type::Int)
-        });
+        let exit_state = result
+            .out_facts
+            .values()
+            .find(|s| s.get("x") == LatticeType::Concrete(Type::Int));
         assert!(exit_state.is_some());
     }
 
@@ -715,9 +724,10 @@ mod tests {
         let result = FixpointSolver::solve(&analysis, &cfg);
 
         // After merge, x should still be Int (same type in both branches)
-        let has_int_x = result.out_facts.values().any(|s| {
-            s.get("x") == LatticeType::Concrete(Type::Int)
-        });
+        let has_int_x = result
+            .out_facts
+            .values()
+            .any(|s| s.get("x") == LatticeType::Concrete(Type::Int));
         assert!(has_int_x);
     }
 
@@ -786,7 +796,10 @@ mod tests {
     fn test_builtin_call_type_inference() {
         let analysis = TypePropagation::new(HashMap::new());
         let mut state = TypeState::new();
-        state.set("items".to_string(), LatticeType::Concrete(Type::List(Box::new(Type::Int))));
+        state.set(
+            "items".to_string(),
+            LatticeType::Concrete(Type::List(Box::new(Type::Int))),
+        );
 
         // len() returns int
         assert_eq!(
@@ -806,7 +819,10 @@ mod tests {
         let analysis = TypePropagation::new(HashMap::new());
         let mut state = TypeState::new();
         state.set("s".to_string(), LatticeType::Concrete(Type::String));
-        state.set("items".to_string(), LatticeType::Concrete(Type::List(Box::new(Type::Int))));
+        state.set(
+            "items".to_string(),
+            LatticeType::Concrete(Type::List(Box::new(Type::Int))),
+        );
 
         // String.upper() returns String
         assert_eq!(
@@ -868,11 +884,12 @@ mod tests {
 
         // Should converge quickly (within ~10 iterations for this simple case)
         assert!(result.iterations < 50);
-        
+
         // i should be Int after the loop
-        let has_int_i = result.out_facts.values().any(|s| {
-            s.get("i") == LatticeType::Concrete(Type::Int)
-        });
+        let has_int_i = result
+            .out_facts
+            .values()
+            .any(|s| s.get("i") == LatticeType::Concrete(Type::Int));
         assert!(has_int_i);
     }
 }

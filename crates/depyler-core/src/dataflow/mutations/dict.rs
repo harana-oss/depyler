@@ -1,19 +1,21 @@
 //! Dict mutation handlers for type inference
 
-use crate::hir::{HirExpr, Type};
 use super::{MutationHandler, refine_element_type};
 use crate::dataflow::lattice::TypeState;
+use crate::hir::{HirExpr, Type};
 
 /// Handler for dict.update(other)
 pub struct DictUpdateMutation;
 
 impl MutationHandler for DictUpdateMutation {
-    fn method_name(&self) -> &'static str { "update" }
-    
+    fn method_name(&self) -> &'static str {
+        "update"
+    }
+
     fn applies_to(&self, ty: &Type, method: &str) -> bool {
         method == "update" && matches!(ty, Type::Dict(_, _))
     }
-    
+
     fn compute_type(
         &self,
         current_ty: &Type,
@@ -40,12 +42,14 @@ impl MutationHandler for DictUpdateMutation {
 pub struct SetDefaultMutation;
 
 impl MutationHandler for SetDefaultMutation {
-    fn method_name(&self) -> &'static str { "setdefault" }
-    
+    fn method_name(&self) -> &'static str {
+        "setdefault"
+    }
+
     fn applies_to(&self, ty: &Type, method: &str) -> bool {
         method == "setdefault" && matches!(ty, Type::Dict(_, _))
     }
-    
+
     fn compute_type(
         &self,
         current_ty: &Type,
@@ -77,12 +81,14 @@ impl MutationHandler for SetDefaultMutation {
 pub struct DictPopMutation;
 
 impl MutationHandler for DictPopMutation {
-    fn method_name(&self) -> &'static str { "pop" }
-    
+    fn method_name(&self) -> &'static str {
+        "pop"
+    }
+
     fn applies_to(&self, ty: &Type, method: &str) -> bool {
         method == "pop" && matches!(ty, Type::Dict(_, _))
     }
-    
+
     fn compute_type(
         &self,
         current_ty: &Type,
@@ -102,12 +108,14 @@ impl MutationHandler for DictPopMutation {
 pub struct PopItemMutation;
 
 impl MutationHandler for PopItemMutation {
-    fn method_name(&self) -> &'static str { "popitem" }
-    
+    fn method_name(&self) -> &'static str {
+        "popitem"
+    }
+
     fn applies_to(&self, ty: &Type, method: &str) -> bool {
         method == "popitem" && matches!(ty, Type::Dict(_, _))
     }
-    
+
     fn compute_type(
         &self,
         current_ty: &Type,
@@ -127,12 +135,14 @@ impl MutationHandler for PopItemMutation {
 pub struct DictClearMutation;
 
 impl MutationHandler for DictClearMutation {
-    fn method_name(&self) -> &'static str { "clear" }
-    
+    fn method_name(&self) -> &'static str {
+        "clear"
+    }
+
     fn applies_to(&self, ty: &Type, method: &str) -> bool {
         method == "clear" && matches!(ty, Type::Dict(_, _))
     }
-    
+
     fn compute_type(
         &self,
         current_ty: &Type,
@@ -152,26 +162,23 @@ impl MutationHandler for DictClearMutation {
 mod tests {
     use super::*;
     use crate::hir::Literal;
-    
+
     fn make_state() -> TypeState {
         TypeState::new()
     }
-    
+
     fn infer_literal(expr: &HirExpr, _state: &TypeState) -> Type {
         match expr {
             HirExpr::Literal(Literal::Int(_)) => Type::Int,
             HirExpr::Literal(Literal::String(_)) => Type::String,
             HirExpr::Dict(pairs) if !pairs.is_empty() => {
                 let (k, v) = &pairs[0];
-                Type::Dict(
-                    Box::new(infer_literal(k, _state)),
-                    Box::new(infer_literal(v, _state)),
-                )
+                Type::Dict(Box::new(infer_literal(k, _state)), Box::new(infer_literal(v, _state)))
             }
             _ => Type::Unknown,
         }
     }
-    
+
     #[test]
     fn test_dict_update_refines_types() {
         let handler = DictUpdateMutation;
@@ -179,9 +186,7 @@ mod tests {
         let state = make_state();
         let args = vec![HirExpr::Dict(vec![])];
 
-        let infer_fn = |_: &HirExpr, _: &TypeState| -> Type {
-            Type::Dict(Box::new(Type::String), Box::new(Type::Int))
-        };
+        let infer_fn = |_: &HirExpr, _: &TypeState| -> Type { Type::Dict(Box::new(Type::String), Box::new(Type::Int)) };
 
         let result = handler.compute_type(&dict_ty, &args, &state, &infer_fn);
         assert!(matches!(
