@@ -21,7 +21,7 @@ use depyler_core::union_enum_gen::UnionEnumGenerator;
 // ============================================================================
 
 #[test]
-fn test_depyler_0348_variant_name_int() {
+fn test_variant_name_int() {
     let mut generator = UnionEnumGenerator::new();
     let types = vec![Type::Int, Type::String];
     let (_name, tokens) = generator.generate_union_enum(&types);
@@ -32,7 +32,7 @@ fn test_depyler_0348_variant_name_int() {
 }
 
 #[test]
-fn test_depyler_0348_variant_name_float() {
+fn test_variant_name_float() {
     let mut generator = UnionEnumGenerator::new();
     let types = vec![Type::Float, Type::Int];
     let (_name, tokens) = generator.generate_union_enum(&types);
@@ -43,7 +43,7 @@ fn test_depyler_0348_variant_name_float() {
 }
 
 #[test]
-fn test_depyler_0348_variant_name_string() {
+fn test_variant_name_string() {
     let mut generator = UnionEnumGenerator::new();
     let types = vec![Type::String, Type::Int];
     let (_name, tokens) = generator.generate_union_enum(&types);
@@ -54,7 +54,7 @@ fn test_depyler_0348_variant_name_string() {
 }
 
 #[test]
-fn test_depyler_0348_variant_name_bool() {
+fn test_variant_name_bool() {
     let mut generator = UnionEnumGenerator::new();
     let types = vec![Type::Bool, Type::Int];
     let (_name, tokens) = generator.generate_union_enum(&types);
@@ -65,7 +65,7 @@ fn test_depyler_0348_variant_name_bool() {
 }
 
 #[test]
-fn test_depyler_0348_variant_name_none() {
+fn test_variant_name_none() {
     let mut generator = UnionEnumGenerator::new();
     let types = vec![Type::None, Type::Int];
     let (_name, tokens) = generator.generate_union_enum(&types);
@@ -76,7 +76,7 @@ fn test_depyler_0348_variant_name_none() {
 }
 
 #[test]
-fn test_depyler_0348_variant_name_list() {
+fn test_variant_name_list() {
     let mut generator = UnionEnumGenerator::new();
     let types = vec![Type::List(Box::new(Type::Int)), Type::String];
     let (_name, tokens) = generator.generate_union_enum(&types);
@@ -87,7 +87,7 @@ fn test_depyler_0348_variant_name_list() {
 }
 
 #[test]
-fn test_depyler_0348_variant_name_dict() {
+fn test_variant_name_dict() {
     let mut generator = UnionEnumGenerator::new();
     let types = vec![
         Type::Dict(Box::new(Type::String), Box::new(Type::Int)),
@@ -101,7 +101,7 @@ fn test_depyler_0348_variant_name_dict() {
 }
 
 #[test]
-fn test_depyler_0348_variant_name_custom() {
+fn test_variant_name_custom() {
     let mut generator = UnionEnumGenerator::new();
     let types = vec![Type::Custom("MyClass".to_string()), Type::Int];
     let (_name, tokens) = generator.generate_union_enum(&types);
@@ -112,7 +112,7 @@ fn test_depyler_0348_variant_name_custom() {
 }
 
 #[test]
-fn test_depyler_0348_variant_name_typevar() {
+fn test_variant_name_typevar() {
     let mut generator = UnionEnumGenerator::new();
     let types = vec![Type::TypeVar("T".to_string()), Type::Int];
     let (_name, tokens) = generator.generate_union_enum(&types);
@@ -130,7 +130,7 @@ fn test_depyler_0348_variant_name_typevar() {
 // ============================================================================
 
 #[test]
-fn test_depyler_0348_enum_naming_two_types() {
+fn test_enum_naming_two_types() {
     let mut generator = UnionEnumGenerator::new();
     let types = vec![Type::Int, Type::String];
     let (name, _) = generator.generate_union_enum(&types);
@@ -140,7 +140,7 @@ fn test_depyler_0348_enum_naming_two_types() {
 }
 
 #[test]
-fn test_depyler_0348_enum_naming_three_types() {
+fn test_enum_naming_three_types() {
     let mut generator = UnionEnumGenerator::new();
     let types = vec![Type::Int, Type::String, Type::Bool];
     let (name, _) = generator.generate_union_enum(&types);
@@ -150,7 +150,7 @@ fn test_depyler_0348_enum_naming_three_types() {
 }
 
 #[test]
-fn test_depyler_0348_enum_naming_four_types() {
+fn test_enum_naming_four_types() {
     let mut generator = UnionEnumGenerator::new();
     let types = vec![Type::Int, Type::String, Type::Bool, Type::Float];
     let (name, _) = generator.generate_union_enum(&types);
@@ -160,7 +160,7 @@ fn test_depyler_0348_enum_naming_four_types() {
 }
 
 #[test]
-fn test_depyler_0348_enum_naming_five_types() {
+fn test_enum_naming_five_types() {
     let mut generator = UnionEnumGenerator::new();
 
     // First union with 5 types
@@ -181,7 +181,7 @@ fn test_depyler_0348_enum_naming_five_types() {
 }
 
 #[test]
-fn test_depyler_0348_enum_naming_counter_increments() {
+fn test_enum_naming_counter_increments() {
     let mut generator = UnionEnumGenerator::new();
 
     // Generate multiple DIFFERENT complex unions to test counter increments
@@ -216,7 +216,7 @@ fn test_depyler_0348_enum_naming_counter_increments() {
 // ============================================================================
 
 #[test]
-fn test_depyler_0348_from_impls_generated() {
+fn test_from_impls_generated() {
     let mut generator = UnionEnumGenerator::new();
     let types = vec![Type::Int, Type::String];
     let (_name, tokens) = generator.generate_union_enum(&types);
@@ -232,7 +232,7 @@ fn test_depyler_0348_from_impls_generated() {
 }
 
 #[test]
-fn test_depyler_0348_from_impls_skip_none() {
+fn test_from_impls_skip_none() {
     let mut generator = UnionEnumGenerator::new();
     let types = vec![Type::Int, Type::None];
     let (_name, tokens) = generator.generate_union_enum(&types);
@@ -250,7 +250,7 @@ fn test_depyler_0348_from_impls_skip_none() {
 }
 
 #[test]
-fn test_depyler_0348_from_impls_multiple_types() {
+fn test_from_impls_multiple_types() {
     let mut generator = UnionEnumGenerator::new();
     let types = vec![Type::Int, Type::String, Type::Bool, Type::Float];
     let (_name, tokens) = generator.generate_union_enum(&types);
@@ -266,7 +266,7 @@ fn test_depyler_0348_from_impls_multiple_types() {
 // ============================================================================
 
 #[test]
-fn test_depyler_0348_is_methods_generated() {
+fn test_is_methods_generated() {
     let mut generator = UnionEnumGenerator::new();
     let types = vec![Type::Int, Type::String];
     let (_name, tokens) = generator.generate_union_enum(&types);
@@ -282,7 +282,7 @@ fn test_depyler_0348_is_methods_generated() {
 }
 
 #[test]
-fn test_depyler_0348_as_methods_generated() {
+fn test_as_methods_generated() {
     let mut generator = UnionEnumGenerator::new();
     let types = vec![Type::Int, Type::String];
     let (_name, tokens) = generator.generate_union_enum(&types);
@@ -298,7 +298,7 @@ fn test_depyler_0348_as_methods_generated() {
 }
 
 #[test]
-fn test_depyler_0348_is_none_method() {
+fn test_is_none_method() {
     let mut generator = UnionEnumGenerator::new();
     let types = vec![Type::String, Type::None];
     let (_name, tokens) = generator.generate_union_enum(&types);
@@ -309,7 +309,7 @@ fn test_depyler_0348_is_none_method() {
 }
 
 #[test]
-fn test_depyler_0348_as_methods_skip_none() {
+fn test_as_methods_skip_none() {
     let mut generator = UnionEnumGenerator::new();
     let types = vec![Type::Int, Type::None];
     let (_name, tokens) = generator.generate_union_enum(&types);
@@ -321,7 +321,7 @@ fn test_depyler_0348_as_methods_skip_none() {
 }
 
 #[test]
-fn test_depyler_0348_match_methods_all_variants() {
+fn test_match_methods_all_variants() {
     let mut generator = UnionEnumGenerator::new();
     let types = vec![Type::Int, Type::String, Type::Bool];
     let (_name, tokens) = generator.generate_union_enum(&types);
@@ -342,7 +342,7 @@ fn test_depyler_0348_match_methods_all_variants() {
 // ============================================================================
 
 #[test]
-fn test_depyler_0348_caching_nested_types() {
+fn test_caching_nested_types() {
     let mut generator = UnionEnumGenerator::new();
 
     let types1 = vec![
@@ -369,7 +369,7 @@ fn test_depyler_0348_caching_nested_types() {
 }
 
 #[test]
-fn test_depyler_0348_caching_custom_types() {
+fn test_caching_custom_types() {
     let mut generator = UnionEnumGenerator::new();
 
     let types1 = vec![Type::Custom("Foo".to_string()), Type::Int];
@@ -384,7 +384,7 @@ fn test_depyler_0348_caching_custom_types() {
 }
 
 #[test]
-fn test_depyler_0348_caching_different_unions() {
+fn test_caching_different_unions() {
     let mut generator = UnionEnumGenerator::new();
 
     let types1 = vec![Type::Int, Type::String];
@@ -404,7 +404,7 @@ fn test_depyler_0348_caching_different_unions() {
 // ============================================================================
 
 #[test]
-fn test_depyler_0348_deeply_nested_types() {
+fn test_deeply_nested_types() {
     let mut generator = UnionEnumGenerator::new();
 
     // List[Dict[String, List[Int]]]
@@ -422,7 +422,7 @@ fn test_depyler_0348_deeply_nested_types() {
 }
 
 #[test]
-fn test_depyler_0348_all_basic_types() {
+fn test_all_basic_types() {
     let mut generator = UnionEnumGenerator::new();
 
     let types = vec![
@@ -447,7 +447,7 @@ fn test_depyler_0348_all_basic_types() {
 }
 
 #[test]
-fn test_depyler_0348_single_type() {
+fn test_single_type() {
     let mut generator = UnionEnumGenerator::new();
     let types = vec![Type::Int];
     let (_name, tokens) = generator.generate_union_enum(&types);

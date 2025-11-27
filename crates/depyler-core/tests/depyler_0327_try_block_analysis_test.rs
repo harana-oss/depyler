@@ -36,7 +36,6 @@
 use depyler_core::DepylerPipeline;
 
 #[test]
-#[ignore = "TODO: try-except currently generates panic! instead of Result types"]
 fn test_try_except_generates_caught_exception_types() {
     let python_code = r#"
 def operation_with_cleanup(value: int) -> int:
@@ -173,7 +172,6 @@ def nested_operations(data: list[str], index: int) -> int:
 }
 
 #[test]
-#[ignore = "TODO: try-except currently generates panic! instead of Result types"]
 fn test_try_except_with_multiple_functions() {
     let python_code = r#"
 def func_a(x: int) -> int:
@@ -212,7 +210,6 @@ def func_b(x: int) -> int:
 }
 
 #[test]
-#[ignore = "BLOCKED: Requires issue (exception scope tracking) - Currently generates return Err() in non-Result function"]
 fn test_try_except_compiles_caught_exceptions() {
     // This test is INTENTIONALLY IGNORED because it requires exception scope tracking
     //  to work correctly.
@@ -250,14 +247,14 @@ fn main() {
 "#
     );
 
-    std::fs::write("/tmp/test_depyler_0327_compiles.rs", test_code).expect("Failed to write test file");
+    std::fs::write("/tmp/test_compiles.rs", test_code).expect("Failed to write test file");
 
     let output = std::process::Command::new("rustc")
         .arg("--crate-type")
         .arg("bin")
-        .arg("/tmp/test_depyler_0327_compiles.rs")
+        .arg("/tmp/test_compiles.rs")
         .arg("-o")
-        .arg("/tmp/test_depyler_0327_compiles")
+        .arg("/tmp/test_compiles")
         .output()
         .expect("Failed to run rustc");
 

@@ -6,7 +6,6 @@ use depyler_core::transpile_python_to_rust;
 
 // DEPYLER-STDLIB-DECIMAL-001: Decimal creation and basic operations
 #[test]
-#[ignore = "DEPYLER-STDLIB-DECIMAL: Not implemented yet - RED phase"]
 fn test_decimal_constructor() {
     let python = r#"
 from decimal import Decimal
@@ -22,7 +21,6 @@ def create_decimal(value: str) -> Decimal:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-DECIMAL: Not implemented yet - RED phase"]
 fn test_decimal_from_float() {
     let python = r#"
 from decimal import Decimal
@@ -38,7 +36,6 @@ def decimal_from_float(value: float) -> Decimal:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-DECIMAL: Not implemented yet - RED phase"]
 fn test_decimal_from_int() {
     let python = r#"
 from decimal import Decimal
@@ -55,7 +52,6 @@ def decimal_from_int(value: int) -> Decimal:
 
 // DEPYLER-STDLIB-DECIMAL-002: Arithmetic operations
 #[test]
-#[ignore = "DEPYLER-STDLIB-DECIMAL: Not implemented yet - RED phase"]
 fn test_decimal_add() {
     let python = r#"
 from decimal import Decimal
@@ -71,7 +67,6 @@ def add_decimals(a: Decimal, b: Decimal) -> Decimal:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-DECIMAL: Not implemented yet - RED phase"]
 fn test_decimal_subtract() {
     let python = r#"
 from decimal import Decimal
@@ -87,7 +82,6 @@ def subtract_decimals(a: Decimal, b: Decimal) -> Decimal:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-DECIMAL: Not implemented yet - RED phase"]
 fn test_decimal_multiply() {
     let python = r#"
 from decimal import Decimal
@@ -103,7 +97,6 @@ def multiply_decimals(a: Decimal, b: Decimal) -> Decimal:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-DECIMAL: Not implemented yet - RED phase"]
 fn test_decimal_divide() {
     let python = r#"
 from decimal import Decimal
@@ -120,7 +113,6 @@ def divide_decimals(a: Decimal, b: Decimal) -> Decimal:
 
 // DEPYLER-STDLIB-DECIMAL-003: Comparison operations
 #[test]
-#[ignore = "DEPYLER-STDLIB-DECIMAL: Not implemented yet - RED phase"]
 fn test_decimal_compare() {
     let python = r#"
 from decimal import Decimal
@@ -136,7 +128,6 @@ def compare_decimals(a: Decimal, b: Decimal) -> int:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-DECIMAL: Not implemented yet - RED phase"]
 fn test_decimal_equality() {
     let python = r#"
 from decimal import Decimal
@@ -153,7 +144,6 @@ def equals_decimals(a: Decimal, b: Decimal) -> bool:
 
 // DEPYLER-STDLIB-DECIMAL-004: Rounding and quantization
 #[test]
-#[ignore = "DEPYLER-STDLIB-DECIMAL: Not implemented yet - RED phase"]
 fn test_decimal_quantize() {
     let python = r#"
 from decimal import Decimal
@@ -169,7 +159,6 @@ def quantize_decimal(value: Decimal, quantum: Decimal) -> Decimal:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-DECIMAL: Not implemented yet - RED phase"]
 fn test_decimal_round() {
     let python = r#"
 from decimal import Decimal
@@ -186,7 +175,6 @@ def round_decimal(value: Decimal, places: int) -> Decimal:
 
 // DEPYLER-STDLIB-DECIMAL-005: Mathematical operations
 #[test]
-#[ignore = "DEPYLER-STDLIB-DECIMAL: Not implemented yet - RED phase"]
 fn test_decimal_sqrt() {
     let python = r#"
 from decimal import Decimal
@@ -202,7 +190,6 @@ def sqrt_decimal(value: Decimal) -> Decimal:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-DECIMAL: Not implemented yet - RED phase"]
 fn test_decimal_exp() {
     let python = r#"
 from decimal import Decimal
@@ -218,7 +205,6 @@ def exp_decimal(value: Decimal) -> Decimal:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-DECIMAL: Not implemented yet - RED phase"]
 fn test_decimal_ln() {
     let python = r#"
 from decimal import Decimal
@@ -234,7 +220,6 @@ def ln_decimal(value: Decimal) -> Decimal:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-DECIMAL: Not implemented yet - RED phase"]
 fn test_decimal_log10() {
     let python = r#"
 from decimal import Decimal
@@ -251,7 +236,6 @@ def log10_decimal(value: Decimal) -> Decimal:
 
 // DEPYLER-STDLIB-DECIMAL-006: Conversion and string operations
 #[test]
-#[ignore = "DEPYLER-STDLIB-DECIMAL: Not implemented yet - RED phase"]
 fn test_decimal_to_integral() {
     let python = r#"
 from decimal import Decimal
@@ -267,7 +251,6 @@ def to_integral(value: Decimal) -> Decimal:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-DECIMAL: Not implemented yet - RED phase"]
 fn test_decimal_abs() {
     let python = r#"
 from decimal import Decimal
@@ -283,7 +266,6 @@ def abs_decimal(value: Decimal) -> Decimal:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-DECIMAL: Not implemented yet - RED phase"]
 fn test_decimal_negate() {
     let python = r#"
 from decimal import Decimal
@@ -300,7 +282,6 @@ def negate_decimal(value: Decimal) -> Decimal:
 
 // DEPYLER-STDLIB-DECIMAL-007: Special values and predicates
 #[test]
-#[ignore = "DEPYLER-STDLIB-DECIMAL: Not implemented yet - RED phase"]
 fn test_decimal_is_nan() {
     let python = r#"
 from decimal import Decimal
@@ -316,7 +297,6 @@ def check_is_nan(value: Decimal) -> bool:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-DECIMAL: Not implemented yet - RED phase"]
 fn test_decimal_is_infinite() {
     let python = r#"
 from decimal import Decimal
@@ -332,7 +312,6 @@ def check_is_infinite(value: Decimal) -> bool:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-DECIMAL: Not implemented yet - RED phase"]
 fn test_decimal_is_finite() {
     let python = r#"
 from decimal import Decimal
@@ -349,7 +328,6 @@ def check_is_finite(value: Decimal) -> bool:
 
 // DEPYLER-STDLIB-DECIMAL-008: Sign operations
 #[test]
-#[ignore = "DEPYLER-STDLIB-DECIMAL: Not implemented yet - RED phase"]
 fn test_decimal_is_signed() {
     let python = r#"
 from decimal import Decimal
@@ -365,7 +343,6 @@ def check_is_signed(value: Decimal) -> bool:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-DECIMAL: Not implemented yet - RED phase"]
 fn test_decimal_copy_sign() {
     let python = r#"
 from decimal import Decimal

@@ -6,7 +6,6 @@ use depyler_core::transpile_python_to_rust;
 
 // DEPYLER-STDLIB-DATETIME-BASICS-001: Current date
 #[test]
-#[ignore = "DEPYLER-STDLIB-DATETIME: Not implemented yet - RED phase"]
 fn test_date_today() {
     let python = r#"
 import datetime
@@ -23,7 +22,6 @@ def get_today() -> datetime.date:
 
 // DEPYLER-STDLIB-DATETIME-BASICS-002: Current datetime
 #[test]
-#[ignore = "DEPYLER-STDLIB-DATETIME: Not implemented yet - RED phase"]
 fn test_datetime_now() {
     let python = r#"
 import datetime
@@ -40,7 +38,6 @@ def get_now() -> datetime.datetime:
 
 // DEPYLER-STDLIB-DATETIME-BASICS-003: Create timedelta
 #[test]
-#[ignore = "DEPYLER-STDLIB-DATETIME: Not implemented yet - RED phase"]
 fn test_timedelta() {
     let python = r#"
 import datetime

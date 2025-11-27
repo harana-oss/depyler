@@ -20,9 +20,7 @@ fn transpile_python(python: &str) -> anyhow::Result<String> {
 }
 
 #[test]
-#[ignore = "TODO: issue - argparse validator return type inference not yet implemented"]
-#[ignore = "TODO: issue - argparse validator return type inference not yet implemented"]
-fn test_depyler_0447_identity_validator_returns_string() {
+fn test_identity_validator_returns_string() {
     let py = r#"
 import argparse
 import re
@@ -73,8 +71,7 @@ def main():
 }
 
 #[test]
-#[ignore = "TODO: issue - argparse validator return type inference not yet implemented"]
-fn test_depyler_0447_converting_validator_returns_converted_type() {
+fn test_converting_validator_returns_converted_type() {
     let py = r#"
 import argparse
 
@@ -115,8 +112,7 @@ def main():
 }
 
 #[test]
-#[ignore = "TODO: issue - argparse validator return type inference not yet implemented"]
-fn test_depyler_0447_string_method_validator_returns_string() {
+fn test_string_method_validator_returns_string() {
     let py = r#"
 import argparse
 
@@ -155,8 +151,7 @@ def main():
 }
 
 #[test]
-#[ignore = "TODO: issue - argparse validator return type inference not yet implemented"]
-fn test_depyler_0447_lowercase_validator_returns_string() {
+fn test_lowercase_validator_returns_string() {
     let py = r#"
 import argparse
 
@@ -188,8 +183,7 @@ def main():
 }
 
 #[test]
-#[ignore = "TODO: issue - argparse validator return type inference not yet implemented"]
-fn test_depyler_0447_strip_validator_returns_string() {
+fn test_strip_validator_returns_string() {
     let py = r#"
 import argparse
 
@@ -221,8 +215,7 @@ def main():
 }
 
 #[test]
-#[ignore = "TODO: issue - argparse validator return type inference not yet implemented"]
-fn test_depyler_0447_float_validator_returns_float() {
+fn test_float_validator_returns_float() {
     let py = r#"
 import argparse
 

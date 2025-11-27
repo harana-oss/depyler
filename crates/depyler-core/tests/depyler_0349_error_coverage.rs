@@ -22,7 +22,7 @@ use depyler_core::error::*;
 // ============================================================================
 
 #[test]
-fn test_depyler_0349_source_location_display() {
+fn test_source_location_display() {
     let loc = SourceLocation {
         file: "main.py".to_string(),
         line: 42,
@@ -34,7 +34,7 @@ fn test_depyler_0349_source_location_display() {
 }
 
 #[test]
-fn test_depyler_0349_source_location_clone_eq() {
+fn test_source_location_clone_eq() {
     let loc1 = SourceLocation {
         file: "test.py".to_string(),
         line: 10,
@@ -46,7 +46,7 @@ fn test_depyler_0349_source_location_clone_eq() {
 }
 
 #[test]
-fn test_depyler_0349_source_location_debug() {
+fn test_source_location_debug() {
     let loc = SourceLocation {
         file: "example.py".to_string(),
         line: 1,
@@ -63,21 +63,21 @@ fn test_depyler_0349_source_location_debug() {
 // ============================================================================
 
 #[test]
-fn test_depyler_0349_error_kind_parse_error() {
+fn test_error_kind_parse_error() {
     let err = TranspileError::new(ErrorKind::ParseError);
     let display = format!("{}", err);
     assert!(display.contains("Python parse error"));
 }
 
 #[test]
-fn test_depyler_0349_error_kind_unsupported_feature() {
+fn test_error_kind_unsupported_feature() {
     let err = TranspileError::new(ErrorKind::UnsupportedFeature("generators".to_string()));
     let display = format!("{}", err);
     assert!(display.contains("Unsupported Python feature"));
 }
 
 #[test]
-fn test_depyler_0349_error_kind_type_inference() {
+fn test_error_kind_type_inference() {
     let err = TranspileError::new(ErrorKind::TypeInferenceError(
         "cannot infer type for variable 'x'".to_string(),
     ));
@@ -86,7 +86,7 @@ fn test_depyler_0349_error_kind_type_inference() {
 }
 
 #[test]
-fn test_depyler_0349_error_kind_invalid_type_annotation() {
+fn test_error_kind_invalid_type_annotation() {
     let err = TranspileError::new(ErrorKind::InvalidTypeAnnotation(
         "List[int, str]".to_string(),
     ));
@@ -95,7 +95,7 @@ fn test_depyler_0349_error_kind_invalid_type_annotation() {
 }
 
 #[test]
-fn test_depyler_0349_error_kind_type_mismatch() {
+fn test_error_kind_type_mismatch() {
     let err = TranspileError::new(ErrorKind::TypeMismatch {
         expected: "int".to_string(),
         found: "str".to_string(),
@@ -106,7 +106,7 @@ fn test_depyler_0349_error_kind_type_mismatch() {
 }
 
 #[test]
-fn test_depyler_0349_error_kind_code_generation() {
+fn test_error_kind_code_generation() {
     let err = TranspileError::new(ErrorKind::CodeGenerationError(
         "failed to generate function body".to_string(),
     ));
@@ -115,7 +115,7 @@ fn test_depyler_0349_error_kind_code_generation() {
 }
 
 #[test]
-fn test_depyler_0349_error_kind_verification() {
+fn test_error_kind_verification() {
     let err = TranspileError::new(ErrorKind::VerificationError(
         "generated code does not compile".to_string(),
     ));
@@ -124,7 +124,7 @@ fn test_depyler_0349_error_kind_verification() {
 }
 
 #[test]
-fn test_depyler_0349_error_kind_internal() {
+fn test_error_kind_internal() {
     let err = TranspileError::new(ErrorKind::InternalError(
         "unexpected compiler state".to_string(),
     ));
@@ -137,7 +137,7 @@ fn test_depyler_0349_error_kind_internal() {
 // ============================================================================
 
 #[test]
-fn test_depyler_0349_with_source_io_error() {
+fn test_with_source_io_error() {
     let io_err = std::io::Error::new(std::io::ErrorKind::NotFound, "file not found");
     let err = TranspileError::new(ErrorKind::ParseError).with_source(io_err);
 
@@ -145,7 +145,7 @@ fn test_depyler_0349_with_source_io_error() {
 }
 
 #[test]
-fn test_depyler_0349_with_source_custom_error() {
+fn test_with_source_custom_error() {
     #[derive(Debug)]
     struct CustomError(String);
 
@@ -165,7 +165,7 @@ fn test_depyler_0349_with_source_custom_error() {
 }
 
 #[test]
-fn test_depyler_0349_with_source_and_context() {
+fn test_with_source_and_context() {
     let io_err = std::io::Error::new(std::io::ErrorKind::PermissionDenied, "access denied");
     let err = TranspileError::new(ErrorKind::ParseError)
         .with_source(io_err)
@@ -181,7 +181,7 @@ fn test_depyler_0349_with_source_and_context() {
 // ============================================================================
 
 #[test]
-fn test_depyler_0349_result_ext_ok() {
+fn test_result_ext_ok() {
     let result: Result<i32, TranspileError> = Ok(42);
     let with_ctx = result.with_context("test context");
 
@@ -190,7 +190,7 @@ fn test_depyler_0349_result_ext_ok() {
 }
 
 #[test]
-fn test_depyler_0349_result_ext_err() {
+fn test_result_ext_err() {
     let result: Result<i32, TranspileError> = Err(TranspileError::new(ErrorKind::ParseError));
     let with_ctx = result.with_context("while parsing function");
 
@@ -201,7 +201,7 @@ fn test_depyler_0349_result_ext_err() {
 }
 
 #[test]
-fn test_depyler_0349_result_ext_chain_context() {
+fn test_result_ext_chain_context() {
     let result: Result<String, TranspileError> = Err(TranspileError::new(
         ErrorKind::TypeInferenceError("unknown".to_string()),
     ));
@@ -221,7 +221,7 @@ fn test_depyler_0349_result_ext_chain_context() {
 // ============================================================================
 
 #[test]
-fn test_depyler_0349_from_anyhow_error() {
+fn test_from_anyhow_error() {
     let anyhow_err = anyhow::anyhow!("something went wrong");
     let transpile_err: TranspileError = anyhow_err.into();
 
@@ -229,7 +229,7 @@ fn test_depyler_0349_from_anyhow_error() {
 }
 
 #[test]
-fn test_depyler_0349_from_anyhow_with_context() {
+fn test_from_anyhow_with_context() {
     let anyhow_err = anyhow::anyhow!("database connection failed");
     let transpile_err: TranspileError = anyhow_err.into();
     let with_ctx = transpile_err.with_context("loading configuration");
@@ -244,7 +244,7 @@ fn test_depyler_0349_from_anyhow_with_context() {
 // ============================================================================
 
 #[test]
-fn test_depyler_0349_transpile_bail_basic() {
+fn test_transpile_bail_basic() {
     #[allow(clippy::result_large_err)]
     fn test_fn() -> TranspileResult<i32> {
         depyler_core::transpile_bail!(ErrorKind::ParseError);
@@ -256,7 +256,7 @@ fn test_depyler_0349_transpile_bail_basic() {
 }
 
 #[test]
-fn test_depyler_0349_transpile_bail_with_context() {
+fn test_transpile_bail_with_context() {
     #[allow(clippy::result_large_err)]
     fn test_fn() -> TranspileResult<String> {
         depyler_core::transpile_bail!(
@@ -278,7 +278,7 @@ fn test_depyler_0349_transpile_bail_with_context() {
 // ============================================================================
 
 #[test]
-fn test_depyler_0349_type_mismatch_all_fields() {
+fn test_type_mismatch_all_fields() {
     let err = TranspileError::new(ErrorKind::TypeMismatch {
         expected: "List[int]".to_string(),
         found: "Dict[str, int]".to_string(),
@@ -290,7 +290,7 @@ fn test_depyler_0349_type_mismatch_all_fields() {
 }
 
 #[test]
-fn test_depyler_0349_type_mismatch_with_location() {
+fn test_type_mismatch_with_location() {
     let loc = SourceLocation {
         file: "types.py".to_string(),
         line: 15,
@@ -314,7 +314,7 @@ fn test_depyler_0349_type_mismatch_with_location() {
 // ============================================================================
 
 #[test]
-fn test_depyler_0349_empty_context_not_displayed() {
+fn test_empty_context_not_displayed() {
     let err = TranspileError::new(ErrorKind::ParseError);
     let display = format!("{}", err);
 
@@ -323,7 +323,7 @@ fn test_depyler_0349_empty_context_not_displayed() {
 }
 
 #[test]
-fn test_depyler_0349_location_none_not_displayed() {
+fn test_location_none_not_displayed() {
     let err = TranspileError::new(ErrorKind::CodeGenerationError("test".to_string()));
     let display = format!("{}", err);
 
@@ -332,7 +332,7 @@ fn test_depyler_0349_location_none_not_displayed() {
 }
 
 #[test]
-fn test_depyler_0349_multiple_context_items() {
+fn test_multiple_context_items() {
     let err = TranspileError::new(ErrorKind::VerificationError("test".to_string()))
         .with_context("context 1")
         .with_context("context 2")
@@ -348,7 +348,7 @@ fn test_depyler_0349_multiple_context_items() {
 }
 
 #[test]
-fn test_depyler_0349_full_error_all_features() {
+fn test_full_error_all_features() {
     let loc = SourceLocation {
         file: "complex.py".to_string(),
         line: 100,

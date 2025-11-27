@@ -14,7 +14,7 @@ fn transpile_python(python: &str) -> anyhow::Result<String> {
 }
 
 #[test]
-fn test_DEPYLER_0426_csv_dictwriter_basic() {
+fn test_csv_dictwriter_basic() {
     // Basic csv.DictWriter with fieldnames kwarg
     let python = r#"
 import csv
@@ -46,7 +46,7 @@ def write_data(filename):
 }
 
 #[test]
-fn test_DEPYLER_0426_csv_dictwriter_multiple_fields() {
+fn test_csv_dictwriter_multiple_fields() {
     // csv.DictWriter with multiple fieldnames
     let python = r#"
 import csv
@@ -63,7 +63,7 @@ writer = csv.DictWriter(output, fieldnames=['id', 'name', 'email', 'age'])
 }
 
 #[test]
-fn test_DEPYLER_0426_csv_dictwriter_positional_args() {
+fn test_csv_dictwriter_positional_args() {
     // Ensure positional args still work (backward compatibility)
     let python = r#"
 import csv
@@ -84,7 +84,7 @@ writer = csv.DictWriter(f, fieldnames=fields)
 }
 
 #[test]
-fn test_DEPYLER_0426_real_world_csv_filter() {
+fn test_real_world_csv_filter() {
     // Actual pattern from csv_filter.py
     let python = r#"
 import csv
@@ -121,7 +121,7 @@ def filter_csv(input_file, column, value, output_file=None):
 }
 
 #[test]
-fn test_DEPYLER_0426_property_based_fieldnames() {
+fn test_property_based_fieldnames() {
     // Property: fieldnames can be any expression (variable, literal, list comp)
     let test_cases = vec![
         ("csv.DictWriter(f, fieldnames=['a', 'b'])", "literal list"),

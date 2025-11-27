@@ -15,7 +15,7 @@ use depyler_core::pipeline::DepylerPipeline;
 
 #[test]
 #[allow(non_snake_case)]
-fn test_DEPYLER_0271_simple_function_final_return_omitted() {
+fn test_simple_function_final_return_omitted() {
     let python = r#"
 def add(a: int, b: int) -> int:
     return a + b
@@ -42,7 +42,7 @@ def add(a: int, b: int) -> int:
 
 #[test]
 #[allow(non_snake_case)]
-fn test_DEPYLER_0271_early_return_preserved() {
+fn test_early_return_preserved() {
     let python = r#"
 def max_value(a: int, b: int) -> int:
     if a > b:
@@ -80,7 +80,7 @@ def max_value(a: int, b: int) -> int:
 
 #[test]
 #[allow(non_snake_case)]
-fn test_DEPYLER_0271_boolean_return() {
+fn test_boolean_return() {
     let python = r#"
 def check_positive(x: int) -> bool:
     return x > 0
@@ -100,7 +100,7 @@ def check_positive(x: int) -> bool:
 
 #[test]
 #[allow(non_snake_case)]
-fn test_DEPYLER_0271_literal_return() {
+fn test_literal_return() {
     let python = r#"
 def always_true(x: int) -> bool:
     return True
@@ -128,7 +128,7 @@ def always_true(x: int) -> bool:
 
 #[test]
 #[allow(non_snake_case)]
-fn test_DEPYLER_0271_multiple_statements_final_return() {
+fn test_multiple_statements_final_return() {
     let python = r#"
 def multiply(a: int, b: int) -> int:
     result = a * b
@@ -157,7 +157,7 @@ def multiply(a: int, b: int) -> int:
 
 #[test]
 #[allow(non_snake_case)]
-fn test_DEPYLER_0271_string_concatenation_return() {
+fn test_string_concatenation_return() {
     let python = r#"
 def concat(a: str, b: str) -> str:
     return a + b
@@ -185,7 +185,7 @@ def concat(a: str, b: str) -> str:
 
 #[test]
 #[allow(non_snake_case)]
-fn test_DEPYLER_0271_if_else_both_branches_final() {
+fn test_if_else_both_branches_final() {
     let python = r#"
 def max_of_two(a: float, b: float) -> float:
     if a > b:
@@ -220,7 +220,7 @@ def max_of_two(a: float, b: float) -> float:
 
 #[test]
 #[allow(non_snake_case)]
-fn test_DEPYLER_0271_compilation_check() {
+fn test_compilation_check() {
     // Comprehensive test: transpile a function and verify it compiles
     let python = r#"
 def calculate(x: int, y: int) -> int:

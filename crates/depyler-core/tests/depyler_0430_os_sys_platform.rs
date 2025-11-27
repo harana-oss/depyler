@@ -1,9 +1,6 @@
 // Tests for platform module and os.path operations
 
 use depyler_core::DepylerPipeline;
-use std::io::Write;
-use std::process::Command;
-use tempfile::NamedTempFile;
 
 /// Helper function to transpile Python code
 fn transpile_python(python: &str) -> anyhow::Result<String> {
@@ -11,29 +8,8 @@ fn transpile_python(python: &str) -> anyhow::Result<String> {
     pipeline.transpile(python)
 }
 
-/// Helper function to compile Rust code
-fn compile_rust_code(rust_code: &str) -> bool {
-    let mut temp_file = NamedTempFile::new().expect("Failed to create temp file");
-    temp_file
-        .write_all(rust_code.as_bytes())
-        .expect("Failed to write to temp file");
-
-    let output = Command::new("rustc")
-        .arg("--crate-type")
-        .arg("lib")
-        .arg("--crate-name")
-        .arg("depyler_test")
-        .arg("--edition")
-        .arg("2021")
-        .arg(temp_file.path())
-        .output()
-        .expect("Failed to run rustc");
-
-    output.status.success()
-}
-
 #[test]
-fn test_DEPYLER_0430_01_platform_system() {
+fn test_01_platform_system() {
     // Python: platform.system()
     // Expected: std::env::consts::OS
     let python_code = r#"
@@ -64,7 +40,7 @@ def get_os():
 }
 
 #[test]
-fn test_DEPYLER_0430_02_platform_machine() {
+fn test_02_platform_machine() {
     // Python: platform.machine()
     // Expected: std::env::consts::ARCH
     let python_code = r#"
@@ -94,7 +70,7 @@ def get_arch():
 }
 
 #[test]
-fn test_DEPYLER_0430_03_path_exists() {
+fn test_03_path_exists() {
     // Python: os.path.exists(path)
     // Expected: Path::new(path).exists()
     let python_code = r#"
@@ -126,7 +102,7 @@ def check_file(path):
 }
 
 #[test]
-fn test_DEPYLER_0430_04_path_isfile() {
+fn test_04_path_isfile() {
     // Python: os.path.isfile(path)
     // Expected: Path::new(path).is_file()
     let python_code = r#"
@@ -157,7 +133,7 @@ def is_regular_file(path):
 }
 
 #[test]
-fn test_DEPYLER_0430_05_path_expanduser() {
+fn test_05_path_expanduser() {
     // Python: os.path.expanduser("~/file")
     // Expected: expand ~ to home directory (no external crate needed)
     let python_code = r#"
@@ -167,8 +143,7 @@ def expand_home(path):
     return os.path.expanduser(path)
 "#;
 
-    let rust_code =
-        transpile_python(python_code).expect("Failed to transpile os.path.expanduser()");
+    let rust_code = transpile_python(python_code).expect("Failed to transpile os.path.expanduser()");
 
     // MUST expand ~ to home directory using std::env
     assert!(
@@ -188,7 +163,7 @@ def expand_home(path):
 }
 
 #[test]
-fn test_DEPYLER_0430_06_path_dirname_basename() {
+fn test_06_path_dirname_basename() {
     // Python: os.path.dirname(path), os.path.basename(path)
     // Expected: .parent(), .file_name()
     let python_code = r#"
@@ -200,8 +175,7 @@ def split_path(path):
     return (dir_name, base_name)
 "#;
 
-    let rust_code =
-        transpile_python(python_code).expect("Failed to transpile os.path.dirname/basename()");
+    let rust_code = transpile_python(python_code).expect("Failed to transpile os.path.dirname/basename()");
 
     // MUST use instance methods
     assert!(
@@ -227,7 +201,7 @@ def split_path(path):
 }
 
 #[test]
-fn test_DEPYLER_0430_07_env_info_integration() {
+fn test_07_env_info_integration() {
     // Full env_info.py integration test
     // This test verifies all platform/path operations work together
     let python_code = r#"
@@ -249,8 +223,7 @@ def get_env_info(config_path):
     return "Not found"
 "#;
 
-    let rust_code =
-        transpile_python(python_code).expect("Failed to transpile env_info integration");
+    let rust_code = transpile_python(python_code).expect("Failed to transpile env_info integration");
 
     // MUST contain platform module mappings
     assert!(

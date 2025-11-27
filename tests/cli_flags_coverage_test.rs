@@ -17,11 +17,7 @@ use tempfile::TempDir;
 /// Test helper: Create a simple Python file for testing
 fn create_test_py_file(dir: &TempDir, filename: &str) -> std::path::PathBuf {
     let file_path = dir.path().join(filename);
-    fs::write(
-        &file_path,
-        "def add(a: int, b: int) -> int:\n    return a + b",
-    )
-    .unwrap();
+    fs::write(&file_path, "def add(a: int, b: int) -> int:\n    return a + b").unwrap();
     file_path
 }
 
@@ -221,12 +217,7 @@ fn test_quality_check_with_min_tdg() {
 
     Command::cargo_bin("depyler")
         .unwrap()
-        .args([
-            "quality-check",
-            input.to_str().unwrap(),
-            "--min-tdg",
-            "0.5",
-        ])
+        .args(["quality-check", input.to_str().unwrap(), "--min-tdg", "0.5"])
         .assert()
         .success();
 }
@@ -238,12 +229,7 @@ fn test_quality_check_with_max_tdg() {
 
     Command::cargo_bin("depyler")
         .unwrap()
-        .args([
-            "quality-check",
-            input.to_str().unwrap(),
-            "--max-tdg",
-            "3.0",
-        ])
+        .args(["quality-check", input.to_str().unwrap(), "--max-tdg", "3.0"])
         .assert()
         .success();
 }
@@ -255,12 +241,7 @@ fn test_quality_check_with_max_complexity() {
 
     Command::cargo_bin("depyler")
         .unwrap()
-        .args([
-            "quality-check",
-            input.to_str().unwrap(),
-            "--max-complexity",
-            "15",
-        ])
+        .args(["quality-check", input.to_str().unwrap(), "--max-complexity", "15"])
         .assert()
         .success();
 }
@@ -272,12 +253,7 @@ fn test_quality_check_with_min_coverage() {
 
     Command::cargo_bin("depyler")
         .unwrap()
-        .args([
-            "quality-check",
-            input.to_str().unwrap(),
-            "--min-coverage",
-            "70",
-        ])
+        .args(["quality-check", input.to_str().unwrap(), "--min-coverage", "70"])
         .assert()
         .success();
 }
@@ -311,7 +287,6 @@ fn test_quality_check_all_flags() {
 // ============================================================================
 
 #[test]
-#[ignore] // Interactive mode requires TTY
 fn test_interactive_basic() {
     let temp_dir = TempDir::new().unwrap();
     let input = create_test_py_file(&temp_dir, "test.py");
@@ -323,7 +298,6 @@ fn test_interactive_basic() {
 }
 
 #[test]
-#[ignore] // Interactive mode requires TTY
 fn test_interactive_with_annotate() {
     let temp_dir = TempDir::new().unwrap();
     let input = create_test_py_file(&temp_dir, "test.py");
@@ -357,12 +331,7 @@ fn test_inspect_repr_python_ast() {
 
     Command::cargo_bin("depyler")
         .unwrap()
-        .args([
-            "inspect",
-            input.to_str().unwrap(),
-            "--repr",
-            "python-ast",
-        ])
+        .args(["inspect", input.to_str().unwrap(), "--repr", "python-ast"])
         .assert()
         .success();
 }
@@ -435,12 +404,7 @@ fn test_inspect_with_output_file() {
 
     Command::cargo_bin("depyler")
         .unwrap()
-        .args([
-            "inspect",
-            input.to_str().unwrap(),
-            "--output",
-            output.to_str().unwrap(),
-        ])
+        .args(["inspect", input.to_str().unwrap(), "--output", output.to_str().unwrap()])
         .assert()
         .success();
 
@@ -475,7 +439,6 @@ fn test_inspect_all_flags() {
 // ============================================================================
 
 #[test]
-#[ignore] // LSP starts a server, difficult to test in CI
 fn test_lsp_basic() {
     Command::cargo_bin("depyler")
         .unwrap()
@@ -485,7 +448,6 @@ fn test_lsp_basic() {
 }
 
 #[test]
-#[ignore] // LSP starts a server
 fn test_lsp_with_port() {
     Command::cargo_bin("depyler")
         .unwrap()
@@ -495,7 +457,6 @@ fn test_lsp_with_port() {
 }
 
 #[test]
-#[ignore] // LSP starts a server
 fn test_lsp_with_verbose() {
     Command::cargo_bin("depyler")
         .unwrap()
@@ -575,12 +536,7 @@ fn test_docs_basic() {
 
     Command::cargo_bin("depyler")
         .unwrap()
-        .args([
-            "docs",
-            input.to_str().unwrap(),
-            "--output",
-            output.to_str().unwrap(),
-        ])
+        .args(["docs", input.to_str().unwrap(), "--output", output.to_str().unwrap()])
         .assert()
         .success();
 }
@@ -709,12 +665,7 @@ fn test_profile_hot_path_threshold() {
 
     Command::cargo_bin("depyler")
         .unwrap()
-        .args([
-            "profile",
-            input.to_str().unwrap(),
-            "--hot-path-threshold",
-            "200",
-        ])
+        .args(["profile", input.to_str().unwrap(), "--hot-path-threshold", "200"])
         .assert()
         .success();
 }
@@ -757,7 +708,6 @@ fn test_profile_with_output_files() {
 // ============================================================================
 
 #[test]
-#[ignore] // Agent starts a daemon
 fn test_agent_start_basic() {
     Command::cargo_bin("depyler")
         .unwrap()
@@ -767,7 +717,6 @@ fn test_agent_start_basic() {
 }
 
 #[test]
-#[ignore] // Agent command
 fn test_agent_start_with_port() {
     Command::cargo_bin("depyler")
         .unwrap()
@@ -777,7 +726,6 @@ fn test_agent_start_with_port() {
 }
 
 #[test]
-#[ignore] // Agent command
 fn test_agent_start_with_debug() {
     Command::cargo_bin("depyler")
         .unwrap()
@@ -787,7 +735,6 @@ fn test_agent_start_with_debug() {
 }
 
 #[test]
-#[ignore] // Agent command
 fn test_agent_start_foreground() {
     Command::cargo_bin("depyler")
         .unwrap()

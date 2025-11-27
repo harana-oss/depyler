@@ -104,7 +104,6 @@ def hash_sha384(data: bytes) -> str:
 
 // DEPYLER-STDLIB-HASHLIB-003: SHA3 family
 #[test]
-#[ignore = "DEPYLER-STDLIB-HASHLIB: Not implemented yet - RED phase"]
 fn test_hashlib_sha3_256() {
     let python = r#"
 import hashlib
@@ -120,7 +119,6 @@ def hash_sha3_256(data: bytes) -> str:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-HASHLIB: Not implemented yet - RED phase"]
 fn test_hashlib_sha3_512() {
     let python = r#"
 import hashlib
@@ -170,7 +168,6 @@ def hash_blake2s(data: bytes) -> str:
 
 // DEPYLER-STDLIB-HASHLIB-005: SHAKE algorithms (extendable-output)
 #[test]
-#[ignore = "DEPYLER-STDLIB-HASHLIB: Not implemented yet - RED phase"]
 fn test_hashlib_shake_128() {
     let python = r#"
 import hashlib
@@ -186,7 +183,6 @@ def hash_shake_128(data: bytes, length: int) -> str:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-HASHLIB: Not implemented yet - RED phase"]
 fn test_hashlib_shake_256() {
     let python = r#"
 import hashlib
@@ -203,7 +199,6 @@ def hash_shake_256(data: bytes, length: int) -> str:
 
 // DEPYLER-STDLIB-HASHLIB-006: Hash object methods
 #[test]
-#[ignore = "DEPYLER-STDLIB-HASHLIB: Not implemented yet - RED phase"]
 fn test_hashlib_update() {
     let python = r#"
 import hashlib
@@ -222,7 +217,6 @@ def incremental_hash(data1: bytes, data2: bytes) -> str:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-HASHLIB: Not implemented yet - RED phase"]
 fn test_hashlib_digest() {
     let python = r#"
 import hashlib
@@ -239,7 +233,6 @@ def hash_digest(data: bytes) -> bytes:
 
 // DEPYLER-STDLIB-HASHLIB-007: Constructor patterns
 #[test]
-#[ignore = "DEPYLER-STDLIB-HASHLIB: Not implemented yet - RED phase"]
 fn test_hashlib_new() {
     let python = r#"
 import hashlib
@@ -256,7 +249,6 @@ def hash_with_new(algo: str, data: bytes) -> str:
 
 // DEPYLER-STDLIB-HASHLIB-008: Algorithm availability
 #[test]
-#[ignore = "DEPYLER-STDLIB-HASHLIB: Not implemented yet - RED phase"]
 fn test_hashlib_algorithms_available() {
     let python = r#"
 import hashlib

@@ -38,7 +38,7 @@ fn assert_not_contains(rust_code: &str, pattern: &str) {
 // ====================================================================================
 
 #[test]
-fn test_DEPYLER_0452_01_csv_dictreader_creation() {
+fn test_01_csv_dictreader_creation() {
     let python = r#"
 import csv
 
@@ -73,7 +73,7 @@ def read_csv(filepath):
 // ====================================================================================
 
 #[test]
-fn test_DEPYLER_0452_02_csv_fieldnames_access() {
+fn test_02_csv_fieldnames_access() {
     let python = r#"
 import csv
 
@@ -105,7 +105,7 @@ def get_headers(filepath):
 // ====================================================================================
 
 #[test]
-fn test_DEPYLER_0452_03_csv_row_iteration() {
+fn test_03_csv_row_iteration() {
     let python = r#"
 import csv
 
@@ -141,7 +141,7 @@ def print_rows(filepath):
 // ====================================================================================
 
 #[test]
-fn test_DEPYLER_0452_04_csv_row_item_access() {
+fn test_04_csv_row_item_access() {
     let python = r#"
 import csv
 
@@ -176,7 +176,7 @@ def get_column(filepath, column_name):
 // ====================================================================================
 
 #[test]
-fn test_DEPYLER_0452_05_csv_filtering() {
+fn test_05_csv_filtering() {
     let python = r#"
 import csv
 
@@ -223,7 +223,7 @@ def filter_csv(filepath, column, value):
 // This test MUST FAIL until issue is fixed.
 
 #[test]
-fn test_DEPYLER_0454_csv_reader_generator_expression() {
+fn test_csv_reader_generator_expression() {
     let python = r#"
 import csv
 
@@ -262,7 +262,7 @@ def filter_csv_generator(filepath, column, value):
 // Python's generator expressions often transpile to Rust iterator chains.
 
 #[test]
-fn test_DEPYLER_0454_csv_reader_method_chain() {
+fn test_csv_reader_method_chain() {
     let python = r#"
 import csv
 
@@ -296,7 +296,7 @@ def filter_and_map_csv(filepath):
 // ====================================================================================
 
 #[test]
-fn test_DEPYLER_0452_06_file_line_iteration() {
+fn test_06_file_line_iteration() {
     let python = r#"
 def read_lines(filepath):
     with open(filepath) as f:

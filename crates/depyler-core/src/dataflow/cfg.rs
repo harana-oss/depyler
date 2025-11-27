@@ -585,7 +585,6 @@ mod tests {
     use super::*;
     use crate::hir::{FunctionProperties, HirParam, Literal};
     use depyler_annotations::TranspilationAnnotations;
-    use smallvec::smallvec;
 
     fn make_function(name: &str, params: Vec<HirParam>, body: Vec<HirStmt>) -> HirFunction {
         HirFunction {

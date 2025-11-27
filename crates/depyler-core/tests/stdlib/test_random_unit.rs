@@ -6,7 +6,6 @@ use depyler_core::transpile_python_to_rust;
 
 // DEPYLER-STDLIB-RANDOM-001: Basic random functions
 #[test]
-#[ignore = "DEPYLER-STDLIB-RANDOM: Not implemented yet - RED phase"]
 fn test_random_random() {
     let python = r#"
 import random
@@ -22,7 +21,6 @@ def get_random() -> float:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-RANDOM: Not implemented yet - RED phase"]
 fn test_random_randint() {
     let python = r#"
 import random
@@ -38,7 +36,6 @@ def get_random_int(a: int, b: int) -> int:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-RANDOM: Not implemented yet - RED phase"]
 fn test_random_uniform() {
     let python = r#"
 import random
@@ -54,7 +51,6 @@ def get_uniform(a: float, b: float) -> float:
 
 // DEPYLER-STDLIB-RANDOM-002: Sequence functions
 #[test]
-#[ignore = "DEPYLER-STDLIB-RANDOM: Not implemented yet - RED phase"]
 fn test_random_choice() {
     let python = r#"
 import random
@@ -69,7 +65,6 @@ def pick_random(items: list[int]) -> int:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-RANDOM: Not implemented yet - RED phase"]
 fn test_random_shuffle() {
     let python = r#"
 import random
@@ -84,7 +79,6 @@ def shuffle_list(items: list[int]) -> None:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-RANDOM: Not implemented yet - RED phase"]
 fn test_random_sample() {
     let python = r#"
 import random
@@ -100,7 +94,6 @@ def sample_items(items: list[int], k: int) -> list[int]:
 
 // DEPYLER-STDLIB-RANDOM-003: Distribution functions
 #[test]
-#[ignore = "DEPYLER-STDLIB-RANDOM: Not implemented yet - RED phase"]
 fn test_random_gauss() {
     let python = r#"
 import random
@@ -115,7 +108,6 @@ def get_normal(mu: float, sigma: float) -> float:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-RANDOM: Not implemented yet - RED phase"]
 fn test_random_expovariate() {
     let python = r#"
 import random
@@ -131,7 +123,6 @@ def get_exponential(lambd: float) -> float:
 
 // DEPYLER-STDLIB-RANDOM-004: Seed and state
 #[test]
-#[ignore = "DEPYLER-STDLIB-RANDOM: Not implemented yet - RED phase"]
 fn test_random_seed() {
     let python = r#"
 import random
@@ -147,7 +138,6 @@ def seed_rng(seed: int) -> None:
 
 // DEPYLER-STDLIB-RANDOM-005: Range functions
 #[test]
-#[ignore = "DEPYLER-STDLIB-RANDOM: Not implemented yet - RED phase"]
 fn test_random_randrange() {
     let python = r#"
 import random

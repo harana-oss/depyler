@@ -11,7 +11,6 @@ use depyler_core::transpile_python_to_rust;
 
 // DEPYLER-STDLIB-55-001: Translate string
 #[test]
-#[ignore = "DEPYLER-STDLIB-55: Not implemented yet - RED phase"]
 fn test_str_translate() {
     let python = r#"
 def translate_str(s: str, table: dict) -> str:
@@ -24,7 +23,6 @@ def translate_str(s: str, table: dict) -> str:
 
 // DEPYLER-STDLIB-55-002: Format with positional args
 #[test]
-#[ignore = "DEPYLER-STDLIB-55: Not implemented yet - RED phase"]
 fn test_str_format() {
     let python = r#"
 def format_str(template: str, value: int) -> str:
@@ -37,7 +35,6 @@ def format_str(template: str, value: int) -> str:
 
 // DEPYLER-STDLIB-55-003: Left strip
 #[test]
-#[ignore = "DEPYLER-STDLIB-55: Not implemented yet - RED phase"]
 fn test_str_lstrip() {
     let python = r#"
 def left_strip(s: str) -> str:
@@ -50,7 +47,6 @@ def left_strip(s: str) -> str:
 
 // DEPYLER-STDLIB-55-004: Right strip
 #[test]
-#[ignore = "DEPYLER-STDLIB-55: Not implemented yet - RED phase"]
 fn test_str_rstrip() {
     let python = r#"
 def right_strip(s: str) -> str:
@@ -63,7 +59,6 @@ def right_strip(s: str) -> str:
 
 // DEPYLER-STDLIB-55-005: Remove prefix
 #[test]
-#[ignore = "DEPYLER-STDLIB-55: Not implemented yet - RED phase"]
 fn test_str_removeprefix() {
     let python = r#"
 def remove_prefix(s: str, prefix: str) -> str:
@@ -76,7 +71,6 @@ def remove_prefix(s: str, prefix: str) -> str:
 
 // DEPYLER-STDLIB-55-006: Remove suffix
 #[test]
-#[ignore = "DEPYLER-STDLIB-55: Not implemented yet - RED phase"]
 fn test_str_removesuffix() {
     let python = r#"
 def remove_suffix(s: str, suffix: str) -> str:
@@ -89,7 +83,6 @@ def remove_suffix(s: str, suffix: str) -> str:
 
 // DEPYLER-STDLIB-55-007: Is ASCII
 #[test]
-#[ignore = "DEPYLER-STDLIB-55: Not implemented yet - RED phase"]
 fn test_str_isascii() {
     let python = r#"
 def is_ascii(s: str) -> bool:
@@ -102,7 +95,6 @@ def is_ascii(s: str) -> bool:
 
 // DEPYLER-STDLIB-55-008: Is identifier
 #[test]
-#[ignore = "DEPYLER-STDLIB-55: Not implemented yet - RED phase"]
 fn test_str_isidentifier() {
     let python = r#"
 def is_identifier(s: str) -> bool:
@@ -115,7 +107,6 @@ def is_identifier(s: str) -> bool:
 
 // DEPYLER-STDLIB-55-009: Is space
 #[test]
-#[ignore = "DEPYLER-STDLIB-55: Not implemented yet - RED phase"]
 fn test_str_isspace() {
     let python = r#"
 def is_space(s: str) -> bool:
@@ -128,7 +119,6 @@ def is_space(s: str) -> bool:
 
 // DEPYLER-STDLIB-55-010: Is decimal
 #[test]
-#[ignore = "DEPYLER-STDLIB-55: Not implemented yet - RED phase"]
 fn test_str_isdecimal() {
     let python = r#"
 def is_decimal(s: str) -> bool:
@@ -143,7 +133,6 @@ def is_decimal(s: str) -> bool:
 
 // DEPYLER-STDLIB-55-011: Sort in place
 #[test]
-#[ignore = "DEPYLER-STDLIB-55: Not implemented yet - RED phase"]
 fn test_list_sort() {
     let python = r#"
 def sort_list(lst: list) -> None:
@@ -156,7 +145,6 @@ def sort_list(lst: list) -> None:
 
 // DEPYLER-STDLIB-55-012: Count occurrences
 #[test]
-#[ignore = "DEPYLER-STDLIB-55: Not implemented yet - RED phase"]
 fn test_list_count() {
     let python = r#"
 def count_items(lst: list, item: int) -> int:
@@ -169,7 +157,6 @@ def count_items(lst: list, item: int) -> int:
 
 // DEPYLER-STDLIB-55-013: Pop with index
 #[test]
-#[ignore = "DEPYLER-STDLIB-55: Not implemented yet - RED phase"]
 fn test_list_pop() {
     let python = r#"
 def pop_item(lst: list, index: int) -> int:
@@ -182,7 +169,6 @@ def pop_item(lst: list, index: int) -> int:
 
 // DEPYLER-STDLIB-55-014: Insert at index
 #[test]
-#[ignore = "DEPYLER-STDLIB-55: Not implemented yet - RED phase"]
 fn test_list_insert() {
     let python = r#"
 def insert_item(lst: list, index: int, value: int) -> None:
@@ -195,7 +181,6 @@ def insert_item(lst: list, index: int, value: int) -> None:
 
 // DEPYLER-STDLIB-55-015: Remove first occurrence
 #[test]
-#[ignore = "DEPYLER-STDLIB-55: Not implemented yet - RED phase"]
 fn test_list_remove() {
     let python = r#"
 def remove_item(lst: list, value: int) -> None:
@@ -210,7 +195,6 @@ def remove_item(lst: list, value: int) -> None:
 
 // DEPYLER-STDLIB-55-016: Greatest common divisor
 #[test]
-#[ignore = "DEPYLER-STDLIB-55: Not implemented yet - RED phase"]
 fn test_math_gcd() {
     let python = r#"
 import math
@@ -225,7 +209,6 @@ def gcd_func(a: int, b: int) -> int:
 
 // DEPYLER-STDLIB-55-017: Least common multiple
 #[test]
-#[ignore = "DEPYLER-STDLIB-55: Not implemented yet - RED phase"]
 fn test_math_lcm() {
     let python = r#"
 import math
@@ -240,7 +223,6 @@ def lcm_func(a: int, b: int) -> int:
 
 // DEPYLER-STDLIB-55-018: Absolute value
 #[test]
-#[ignore = "DEPYLER-STDLIB-55: Not implemented yet - RED phase"]
 fn test_math_fabs() {
     let python = r#"
 import math
@@ -255,7 +237,6 @@ def fabs_func(x: float) -> float:
 
 // DEPYLER-STDLIB-55-019: Truncate
 #[test]
-#[ignore = "DEPYLER-STDLIB-55: Not implemented yet - RED phase"]
 fn test_math_trunc() {
     let python = r#"
 import math
@@ -270,7 +251,6 @@ def trunc_func(x: float) -> int:
 
 // DEPYLER-STDLIB-55-020: Modulo
 #[test]
-#[ignore = "DEPYLER-STDLIB-55: Not implemented yet - RED phase"]
 fn test_math_fmod() {
     let python = r#"
 import math
@@ -287,7 +267,6 @@ def fmod_func(x: float, y: float) -> float:
 
 // DEPYLER-STDLIB-55-021: Callable check
 #[test]
-#[ignore = "DEPYLER-STDLIB-55: Not implemented yet - RED phase"]
 fn test_callable_builtin() {
     let python = r#"
 def is_callable(obj) -> bool:
@@ -300,7 +279,6 @@ def is_callable(obj) -> bool:
 
 // DEPYLER-STDLIB-55-022: Slice object
 #[test]
-#[ignore = "DEPYLER-STDLIB-55: Not implemented yet - RED phase"]
 fn test_slice_builtin() {
     let python = r#"
 def make_slice(start: int, stop: int) -> slice:
@@ -313,7 +291,6 @@ def make_slice(start: int, stop: int) -> slice:
 
 // DEPYLER-STDLIB-55-023: Bytes conversion
 #[test]
-#[ignore = "DEPYLER-STDLIB-55: Not implemented yet - RED phase"]
 fn test_bytes_builtin() {
     let python = r#"
 def to_bytes(s: str) -> bytes:
@@ -326,7 +303,6 @@ def to_bytes(s: str) -> bytes:
 
 // DEPYLER-STDLIB-55-024: Compile (stub)
 #[test]
-#[ignore = "DEPYLER-STDLIB-55: Not implemented yet - RED phase"]
 fn test_compile_builtin() {
     let python = r#"
 def compile_code(source: str) -> object:
@@ -339,7 +315,6 @@ def compile_code(source: str) -> object:
 
 // DEPYLER-STDLIB-55-025: Eval (stub)
 #[test]
-#[ignore = "DEPYLER-STDLIB-55: Not implemented yet - RED phase"]
 fn test_eval_builtin() {
     let python = r#"
 def eval_expr(expr: str) -> int:

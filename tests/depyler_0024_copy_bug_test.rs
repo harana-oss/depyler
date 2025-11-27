@@ -11,7 +11,7 @@
 use depyler_core::DepylerPipeline;
 
 #[test]
-fn test_depyler_0024_copy_copy_list_invalid_codegen() {
+fn test_copy_copy_list_invalid_codegen() {
     // DEPYLER-0024: copy.copy() for lists generates invalid Rust code
     let python_code = r#"
 import copy
@@ -52,7 +52,7 @@ def test_shallow_copy() -> int:
 }
 
 #[test]
-fn test_depyler_0024_copy_copy_dict_works() {
+fn test_copy_copy_dict_works() {
     // DEPYLER-0024: Verify copy.copy() for dicts works (regression check)
     let python_code = r#"
 import copy
@@ -79,7 +79,7 @@ def test_dict_copy() -> int:
 }
 
 #[test]
-fn test_depyler_0024_copy_deepcopy_list_works() {
+fn test_copy_deepcopy_list_works() {
     // DEPYLER-0024: Verify copy.deepcopy() still works (regression check)
     let python_code = r#"
 import copy

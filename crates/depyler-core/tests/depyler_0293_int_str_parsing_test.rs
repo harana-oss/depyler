@@ -150,16 +150,16 @@ mod tests {
 }
 "#;
 
-    std::fs::write("/tmp/test_depyler_0293_behavior.rs", test_code)
+    std::fs::write("/tmp/test_behavior.rs", test_code)
         .expect("Failed to write test file");
 
     // Compile with tests
     let compile_output = Command::new("rustc")
         .args([
             "--test",
-            "/tmp/test_depyler_0293_behavior.rs",
+            "/tmp/test_behavior.rs",
             "-o",
-            "/tmp/test_depyler_0293_behavior_bin",
+            "/tmp/test_behavior_bin",
         ])
         .output()
         .expect("Failed to compile test");
@@ -171,7 +171,7 @@ mod tests {
     );
 
     // Run tests
-    let test_output = Command::new("/tmp/test_depyler_0293_behavior_bin")
+    let test_output = Command::new("/tmp/test_behavior_bin")
         .output()
         .expect("Failed to run test");
 

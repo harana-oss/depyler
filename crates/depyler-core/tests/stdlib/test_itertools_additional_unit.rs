@@ -9,7 +9,6 @@ use depyler_core::transpile_python_to_rust;
 
 // DEPYLER-STDLIB-ITERTOOLS-ADDITIONAL-001: Zip longest
 #[test]
-#[ignore = "DEPYLER-STDLIB-ITERTOOLS: Not implemented yet - RED phase"]
 fn test_zip_longest() {
     let python = r#"
 import itertools
@@ -26,7 +25,6 @@ def zip_with_fill(a: list, b: list) -> list:
 
 // DEPYLER-STDLIB-ITERTOOLS-ADDITIONAL-002: Filter false
 #[test]
-#[ignore = "DEPYLER-STDLIB-ITERTOOLS: Not implemented yet - RED phase"]
 fn test_filterfalse() {
     let python = r#"
 import itertools
@@ -43,7 +41,6 @@ def filter_not(items: list, pred) -> list:
 
 // DEPYLER-STDLIB-ITERTOOLS-ADDITIONAL-003: Star map
 #[test]
-#[ignore = "DEPYLER-STDLIB-ITERTOOLS: Not implemented yet - RED phase"]
 fn test_starmap() {
     let python = r#"
 import itertools

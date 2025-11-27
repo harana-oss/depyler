@@ -21,7 +21,6 @@ use depyler_core::DepylerPipeline;
 // ============================================================================
 
 #[test]
-#[ignore = "Keyword method name escaping not yet implemented in transpiler"]
 fn test_method_name_type_keyword() {
     let pipeline = DepylerPipeline::new();
     let python_code = r#"
@@ -41,7 +40,6 @@ def test_type(obj):
 }
 
 #[test]
-#[ignore = "Keyword method name escaping not yet implemented in transpiler"]
 fn test_method_name_as_keyword() {
     let pipeline = DepylerPipeline::new();
     let python_code = r#"
@@ -61,7 +59,6 @@ def test_as(obj):
 }
 
 #[test]
-#[ignore = "Keyword method name escaping not yet implemented in transpiler"]
 fn test_method_name_in_keyword() {
     let pipeline = DepylerPipeline::new();
     let python_code = r#"
@@ -117,7 +114,6 @@ def test_ref(obj):
 }
 
 #[test]
-#[ignore = "match() requires arguments - unimplemented feature"]
 fn test_method_name_match_keyword() {
     let pipeline = DepylerPipeline::new();
     let python_code = r#"
@@ -330,7 +326,6 @@ def test_pow(a: float) -> float:
 // ============================================================================
 
 #[test]
-#[ignore = "zeros() not yet implemented - requires numpy support"]
 fn test_zeros_static_size() {
     let pipeline = DepylerPipeline::new();
     let python_code = r#"
@@ -349,7 +344,6 @@ def test_zeros() -> list:
 }
 
 #[test]
-#[ignore = "ones() not yet implemented - requires numpy support"]
 fn test_ones_static_size() {
     let pipeline = DepylerPipeline::new();
     let python_code = r#"
@@ -368,7 +362,6 @@ def test_ones() -> list:
 }
 
 #[test]
-#[ignore = "full() not yet implemented - requires numpy support"]
 fn test_full_static_value() {
     let pipeline = DepylerPipeline::new();
     let python_code = r#"
@@ -387,7 +380,6 @@ def test_full() -> list:
 }
 
 #[test]
-#[ignore = "zeros() not yet implemented - requires numpy support"]
 fn test_zeros_dynamic_size() {
     let pipeline = DepylerPipeline::new();
     let python_code = r#"
@@ -406,7 +398,6 @@ def test_zeros(n: int) -> list:
 }
 
 #[test]
-#[ignore = "zeros() not yet implemented - requires numpy support"]
 fn test_zeros_edge_size() {
     let pipeline = DepylerPipeline::new();
     let python_code = r#"
@@ -528,7 +519,6 @@ def test_floordiv(a: int, b: int) -> int:
 // ============================================================================
 
 #[test]
-#[ignore = "Keyword method name escaping not yet implemented in transpiler"]
 fn test_method_chaining_with_keywords() {
     let pipeline = DepylerPipeline::new();
     let python_code = r#"

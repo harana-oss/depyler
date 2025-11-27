@@ -60,7 +60,6 @@ def safe_divide(a: int, b: int) -> int:
 }
 
 #[test]
-#[ignore = "issue: Not implemented yet - RED phase"]
 fn test_0333_02_nested_try_except_blocks() {
     // Pattern: Nested try blocks with different exception types
     let python = r#"
@@ -103,7 +102,6 @@ def nested_operations(data: list[int]) -> int:
 }
 
 #[test]
-#[ignore = "issue: Not implemented yet - RED phase"]
 fn test_0333_03_try_except_finally() {
     // Pattern: Try/except/finally block
     let python = r#"
@@ -137,7 +135,6 @@ def with_finally(x: int) -> int:
 }
 
 #[test]
-#[ignore = "issue: Not implemented yet - RED phase"]
 fn test_0333_04_raise_in_try_block_caught() {
     // Pattern: raise inside try block with matching handler
     let python = r#"
@@ -177,7 +174,6 @@ def validate_positive(n: int) -> int:
 }
 
 #[test]
-#[ignore = "issue: Not implemented yet - RED phase"]
 fn test_0333_05_raise_outside_try_block_panic() {
     // Pattern: raise outside try block in non-Result function
     let python = r#"
@@ -220,7 +216,6 @@ def validate_positive(n: int) -> int:
 }
 
 #[test]
-#[ignore = "issue: Not implemented yet - RED phase"]
 fn test_0333_06_multiple_exception_types_in_handlers() {
     // Pattern: Multiple exception types handled separately
     let python = r#"
@@ -260,7 +255,6 @@ def process(data: list[int], divisor: int) -> int:
 }
 
 #[test]
-#[ignore = "issue: Not implemented yet - RED phase"]
 fn test_0333_07_bare_except_clause() {
     // Pattern: Bare except (catches all exceptions)
     let python = r#"
@@ -290,7 +284,6 @@ def safe_operation(x: int, y: int) -> int:
 }
 
 #[test]
-#[ignore = "issue: Not implemented yet - RED phase"]
 fn test_0333_08_exception_reraising() {
     // Pattern: Exception caught and re-raised
     let python = r#"
@@ -321,7 +314,6 @@ def logged_divide(a: int, b: int) -> int:
 }
 
 #[test]
-#[ignore = "issue: Not implemented yet - RED phase"]
 fn test_0333_09_function_call_can_raise_in_try() {
     // Pattern: Function call that can raise, inside try block
     let python = r#"
@@ -359,7 +351,6 @@ def parse_int(s: str) -> int:
 }
 
 #[test]
-#[ignore = "issue: Not implemented yet - RED phase"]
 fn test_0333_10_mixed_result_and_panic_functions() {
     // Pattern: Function that can both panic and return Result
     let python = r#"
@@ -405,7 +396,6 @@ def complex_operation(x: int, y: int) -> int:
 // ============================================================================
 
 #[test]
-#[ignore = "issue: Not implemented yet - RED phase"]
 fn test_0333_compilation_safe_divide() {
     // Integration test: Verify generated code compiles without errors
     let python = r#"
@@ -465,7 +455,6 @@ mod property_tests {
     // Property 1: Try blocks always have matching exception handlers
     proptest! {
         #[test]
-        #[ignore = "issue: Not implemented yet - RED phase"]
         fn prop_try_blocks_have_handlers(exception_type in "ValueError|ZeroDivisionError|IndexError") {
             let python = format!(r#"
 def test_function(x: int) -> int:
@@ -488,7 +477,6 @@ def test_function(x: int) -> int:
     // Property 2: Nested try blocks maintain proper scope nesting
     proptest! {
         #[test]
-        #[ignore = "issue: Not implemented yet - RED phase"]
         fn prop_nested_try_blocks_well_formed(depth in 1..=3usize) {
             // Generate nested try blocks
             let mut python = String::from("def test_function(x: int) -> int:\n");
@@ -517,7 +505,6 @@ def test_function(x: int) -> int:
     // Property 3: Caught exceptions never generate ? operator
     proptest! {
         #[test]
-        #[ignore = "issue: Not implemented yet - RED phase"]
         fn prop_caught_exceptions_no_question_mark(operation in "[+\\-*/]") {
             let python = format!(r#"
 def test_function(a: int, b: int) -> int:

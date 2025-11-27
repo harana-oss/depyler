@@ -14,7 +14,7 @@ fn transpile_and_compile(python_code: &str) -> Result<String, Box<dyn std::error
 // ============================================================================
 
 #[test]
-fn test_depyler_0382_os_path_join_starred_basic() {
+fn test_os_path_join_starred_basic() {
     let python = r#"
 import os
 
@@ -39,7 +39,7 @@ def join_paths(*parts: str) -> str:
 }
 
 #[test]
-fn test_depyler_0382_os_path_join_starred_with_list() {
+fn test_os_path_join_starred_with_list() {
     let python = r#"
 import os
 
@@ -56,7 +56,7 @@ def test() -> str:
 }
 
 #[test]
-fn test_depyler_0382_os_path_join_starred_mixed_args() {
+fn test_os_path_join_starred_mixed_args() {
     let python = r#"
 import os
 
@@ -76,7 +76,7 @@ def test(base: str, *rest: str) -> str:
 // ============================================================================
 
 #[test]
-fn test_depyler_0382_print_starred() {
+fn test_print_starred() {
     let python = r#"
 def print_all(*items):
     print(*items)
@@ -91,7 +91,7 @@ def print_all(*items):
 // ============================================================================
 
 #[test]
-fn test_depyler_0382_unsupported_function_error() {
+fn test_unsupported_function_error() {
     let python = r#"
 def test(*args):
     some_custom_func(*args)

@@ -46,7 +46,7 @@ fn assert_compiles(rust_code: &str, test_name: &str) {
 }
 
 #[test]
-fn test_depyler_0271_main_without_return_type_compiles() {
+fn test_main_without_return_type_compiles() {
     // Test Case: main() without return type annotation
     // Expected: pub fn main() { ... } (no return type)
     // Bug: pub fn main() -> serde_json::Value { ... }
@@ -76,7 +76,7 @@ def main():
 }
 
 #[test]
-fn test_depyler_0271_main_with_none_return_type_compiles() {
+fn test_main_with_none_return_type_compiles() {
     // Test Case: main() with explicit -> None
     // Expected: pub fn main() { ... } (no return type annotation)
     let python = r#"
@@ -98,7 +98,7 @@ def main() -> None:
 }
 
 #[test]
-fn test_depyler_0271_regular_function_without_return_type_compiles() {
+fn test_regular_function_without_return_type_compiles() {
     // Test Case: Regular (non-main) function without return type
     // Expected: pub fn helper() { ... }
     let python = r#"
@@ -126,7 +126,7 @@ def main() -> None:
 }
 
 #[test]
-fn test_depyler_0271_function_with_none_return_compiles() {
+fn test_function_with_none_return_compiles() {
     // Test Case: Function with explicit -> None
     // Expected: pub fn process() { ... }
     let python = r#"
@@ -154,7 +154,7 @@ def main() -> None:
 }
 
 #[test]
-fn test_depyler_0271_mixed_return_types_compiles() {
+fn test_mixed_return_types_compiles() {
     // Test Case: Mix of functions with/without return types
     // Expected: Only functions with actual return values have -> Type
     let python = r#"
@@ -193,7 +193,7 @@ def main():
 }
 
 #[test]
-fn test_depyler_0271_main_with_early_return_compiles() {
+fn test_main_with_early_return_compiles() {
     // Test Case: main() with early return (but no value)
     // Expected: pub fn main() { ... } with return; statements
     let python = r#"
@@ -218,7 +218,7 @@ def main() -> None:
 }
 
 #[test]
-fn test_depyler_0271_benchmark_main_pattern_compiles() {
+fn test_benchmark_main_pattern_compiles() {
     // Test Case: The EXACT pattern from compute_intensive.py benchmark
     // This is the real-world case that triggered the bug
     let python = r#"
@@ -259,7 +259,7 @@ def main():
 }
 
 #[test]
-fn test_depyler_0271_regression_functions_with_return_values() {
+fn test_regression_functions_with_return_values() {
     // Regression Test: Ensure functions with actual return types still work
     // This verifies we didn't break anything with the None/unit type fix
     let python = r#"

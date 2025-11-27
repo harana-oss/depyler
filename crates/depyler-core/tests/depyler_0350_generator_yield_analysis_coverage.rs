@@ -22,7 +22,7 @@ use smallvec::smallvec;
 // ============================================================================
 
 #[test]
-fn test_depyler_0350_no_yields_empty_analysis() {
+fn test_no_yields_empty_analysis() {
     // Test: Function with no yields should return empty analysis
     let func = HirFunction {
         name: "no_yield".to_string(),
@@ -46,7 +46,7 @@ fn test_depyler_0350_no_yields_empty_analysis() {
 }
 
 #[test]
-fn test_depyler_0350_default_trait_creates_empty() {
+fn test_default_trait_creates_empty() {
     // Test: Default trait should create same structure as new()
     let default_analysis = YieldAnalysis::default();
     let new_analysis = YieldAnalysis::new();
@@ -60,7 +60,7 @@ fn test_depyler_0350_default_trait_creates_empty() {
 }
 
 #[test]
-fn test_depyler_0350_has_yields_true_case() {
+fn test_has_yields_true_case() {
     // Test: has_yields() returns true when yields exist
     let func = HirFunction {
         name: "with_yield".to_string(),
@@ -88,7 +88,7 @@ fn test_depyler_0350_has_yields_true_case() {
 // ============================================================================
 
 #[test]
-fn test_depyler_0350_for_loop_with_yield() {
+fn test_for_loop_with_yield() {
     // Test: Yield inside for loop should be detected with depth tracking
     let func = HirFunction {
         name: "for_generator".to_string(),
@@ -117,7 +117,7 @@ fn test_depyler_0350_for_loop_with_yield() {
 }
 
 #[test]
-fn test_depyler_0350_nested_for_loops_with_yields() {
+fn test_nested_for_loops_with_yields() {
     // Test: Nested for loops with yields should track increasing depth
     let func = HirFunction {
         name: "nested_for".to_string(),
@@ -153,7 +153,7 @@ fn test_depyler_0350_nested_for_loops_with_yields() {
 // ============================================================================
 
 #[test]
-fn test_depyler_0350_if_branch_with_yield() {
+fn test_if_branch_with_yield() {
     // Test: Yield in if branch (no else)
     let func = HirFunction {
         name: "if_yield".to_string(),
@@ -181,7 +181,7 @@ fn test_depyler_0350_if_branch_with_yield() {
 }
 
 #[test]
-fn test_depyler_0350_if_else_both_with_yields() {
+fn test_if_else_both_with_yields() {
     // Test: Yields in both if and else branches
     let func = HirFunction {
         name: "if_else_yield".to_string(),
@@ -212,7 +212,7 @@ fn test_depyler_0350_if_else_both_with_yields() {
 }
 
 #[test]
-fn test_depyler_0350_nested_if_with_yields() {
+fn test_nested_if_with_yields() {
     // Test: Nested if statements with yields
     let func = HirFunction {
         name: "nested_if".to_string(),
@@ -251,7 +251,7 @@ fn test_depyler_0350_nested_if_with_yields() {
 // ============================================================================
 
 #[test]
-fn test_depyler_0350_try_block_with_yield() {
+fn test_try_block_with_yield() {
     // Test: Yield in try block body
     let func = HirFunction {
         name: "try_yield".to_string(),
@@ -279,7 +279,7 @@ fn test_depyler_0350_try_block_with_yield() {
 }
 
 #[test]
-fn test_depyler_0350_except_handler_with_yield() {
+fn test_except_handler_with_yield() {
     // Test: Yield in except handler
     let func = HirFunction {
         name: "except_yield".to_string(),
@@ -311,7 +311,7 @@ fn test_depyler_0350_except_handler_with_yield() {
 }
 
 #[test]
-fn test_depyler_0350_try_else_with_yield() {
+fn test_try_else_with_yield() {
     // Test: Yield in try else clause
     let func = HirFunction {
         name: "try_else_yield".to_string(),
@@ -339,7 +339,7 @@ fn test_depyler_0350_try_else_with_yield() {
 }
 
 #[test]
-fn test_depyler_0350_finally_with_yield() {
+fn test_finally_with_yield() {
     // Test: Yield in finally block
     let func = HirFunction {
         name: "finally_yield".to_string(),
@@ -367,7 +367,7 @@ fn test_depyler_0350_finally_with_yield() {
 }
 
 #[test]
-fn test_depyler_0350_try_all_sections_with_yields() {
+fn test_try_all_sections_with_yields() {
     // Test: Yields in try, except, else, and finally
     let func = HirFunction {
         name: "try_complete".to_string(),
@@ -414,7 +414,7 @@ fn test_depyler_0350_try_all_sections_with_yields() {
 // ============================================================================
 
 #[test]
-fn test_depyler_0350_with_statement_yield() {
+fn test_with_statement_yield() {
     // Test: Yield inside with statement
     let func = HirFunction {
         name: "with_yield".to_string(),
@@ -441,7 +441,7 @@ fn test_depyler_0350_with_statement_yield() {
 }
 
 #[test]
-fn test_depyler_0350_nested_with_statements() {
+fn test_nested_with_statements() {
     // Test: Nested with statements with yields
     let func = HirFunction {
         name: "nested_with".to_string(),
@@ -476,7 +476,7 @@ fn test_depyler_0350_nested_with_statements() {
 // ============================================================================
 
 #[test]
-fn test_depyler_0350_resume_points_sequential() {
+fn test_resume_points_sequential() {
     // Test: Resume points correctly track statement indices
     let func = HirFunction {
         name: "resume_test".to_string(),
@@ -519,7 +519,7 @@ fn test_depyler_0350_resume_points_sequential() {
 // ============================================================================
 
 #[test]
-fn test_depyler_0350_non_yield_expr_ignored() {
+fn test_non_yield_expr_ignored() {
     // Test: Non-yield expressions should not be detected as yields
     let func = HirFunction {
         name: "no_yield_expr".to_string(),
@@ -556,7 +556,7 @@ fn test_depyler_0350_non_yield_expr_ignored() {
 }
 
 #[test]
-fn test_depyler_0350_yield_with_none_value() {
+fn test_yield_with_none_value() {
     // Test: Yield with None value (bare yield)
     let func = HirFunction {
         name: "bare_yield".to_string(),
@@ -586,7 +586,7 @@ fn test_depyler_0350_yield_with_none_value() {
 // ============================================================================
 
 #[test]
-fn test_depyler_0350_mixed_control_flow() {
+fn test_mixed_control_flow() {
     // Test: Complex mix of control flow with multiple yields
     let func = HirFunction {
         name: "complex".to_string(),
@@ -622,7 +622,7 @@ fn test_depyler_0350_mixed_control_flow() {
 }
 
 #[test]
-fn test_depyler_0350_while_loop_multiple_yields() {
+fn test_while_loop_multiple_yields() {
     // Test: While loop with multiple yields in body
     let func = HirFunction {
         name: "while_multi".to_string(),
@@ -659,7 +659,7 @@ fn test_depyler_0350_while_loop_multiple_yields() {
 // ============================================================================
 
 #[test]
-fn test_depyler_0350_yield_point_clone_eq() {
+fn test_yield_point_clone_eq() {
     // Test: YieldPoint implements Clone and PartialEq correctly
     let yp1 = YieldPoint {
         state_id: 1,
@@ -676,7 +676,7 @@ fn test_depyler_0350_yield_point_clone_eq() {
 }
 
 #[test]
-fn test_depyler_0350_yield_point_debug() {
+fn test_yield_point_debug() {
     // Test: YieldPoint implements Debug
     let yp = YieldPoint {
         state_id: 5,

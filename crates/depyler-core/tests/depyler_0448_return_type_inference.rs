@@ -20,7 +20,7 @@ fn transpile_python(python: &str) -> anyhow::Result<String> {
 // =============================================================================
 
 #[test]
-fn test_depyler_0448_dict_return_infers_hashmap() {
+fn test_dict_return_infers_hashmap() {
     let python = r#"
 def create_config():
     return {"host": "localhost", "port": 5432}
@@ -43,7 +43,7 @@ def create_config():
 }
 
 #[test]
-fn test_depyler_0448_int_return_infers_i32() {
+fn test_int_return_infers_i32() {
     let python = r#"
 def get_count():
     return 42
@@ -59,7 +59,7 @@ def get_count():
 }
 
 #[test]
-fn test_depyler_0448_string_return_infers_string() {
+fn test_string_return_infers_string() {
     let python = r#"
 def get_name():
     return "Alice"
@@ -75,7 +75,7 @@ def get_name():
 }
 
 #[test]
-fn test_depyler_0448_bool_return_infers_bool() {
+fn test_bool_return_infers_bool() {
     let python = r#"
 def is_valid():
     return True
@@ -91,7 +91,7 @@ def is_valid():
 }
 
 #[test]
-fn test_depyler_0448_float_return_infers_f64() {
+fn test_float_return_infers_f64() {
     let python = r#"
 def get_pi():
     return 3.14159
@@ -107,7 +107,7 @@ def get_pi():
 }
 
 #[test]
-fn test_depyler_0448_list_return_infers_vec() {
+fn test_list_return_infers_vec() {
     let python = r#"
 def get_items():
     return [1, 2, 3]
@@ -130,8 +130,7 @@ def get_items():
 }
 
 #[test]
-#[ignore = "TODO: issue - mixed return type inference should use Value"]
-fn test_depyler_0448_mixed_returns_use_value() {
+fn test_mixed_returns_use_value() {
     let python = r#"
 def get_mixed(flag):
     if flag:
@@ -157,7 +156,7 @@ def get_mixed(flag):
 }
 
 #[test]
-fn test_depyler_0448_no_return_infers_unit() {
+fn test_no_return_infers_unit() {
     let python = r#"
 def do_something():
     print("hello")
@@ -173,7 +172,7 @@ def do_something():
 }
 
 #[test]
-fn test_depyler_0448_none_return_infers_unit() {
+fn test_none_return_infers_unit() {
     let python = r#"
 def returns_none():
     return None
@@ -193,7 +192,7 @@ def returns_none():
 // =============================================================================
 
 #[test]
-fn test_depyler_0448_dict_constant_infers_hashmap() {
+fn test_dict_constant_infers_hashmap() {
     let python = r#"
 DEFAULT_CONFIG = {"host": "localhost", "port": 5432}
 "#;
@@ -215,7 +214,7 @@ DEFAULT_CONFIG = {"host": "localhost", "port": 5432}
 }
 
 #[test]
-fn test_depyler_0448_int_constant_infers_i32() {
+fn test_int_constant_infers_i32() {
     let python = r#"
 MAX_RETRIES = 3
 "#;
@@ -230,7 +229,7 @@ MAX_RETRIES = 3
 }
 
 #[test]
-fn test_depyler_0448_string_constant_infers_string() {
+fn test_string_constant_infers_string() {
     let python = r#"
 APP_NAME = "MyApp"
 "#;
@@ -245,7 +244,7 @@ APP_NAME = "MyApp"
 }
 
 #[test]
-fn test_depyler_0448_bool_constant_infers_bool() {
+fn test_bool_constant_infers_bool() {
     let python = r#"
 DEBUG_MODE = True
 "#;
@@ -260,7 +259,7 @@ DEBUG_MODE = True
 }
 
 #[test]
-fn test_depyler_0448_list_constant_infers_vec() {
+fn test_list_constant_infers_vec() {
     let python = r#"
 ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
 "#;
@@ -286,7 +285,7 @@ ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
 // =============================================================================
 
 #[test]
-fn test_depyler_0448_if_else_same_type_returns() {
+fn test_if_else_same_type_returns() {
     let python = r#"
 def get_value(flag):
     if flag:
@@ -305,7 +304,7 @@ def get_value(flag):
 }
 
 #[test]
-fn test_depyler_0448_nested_if_returns() {
+fn test_nested_if_returns() {
     let python = r#"
 def categorize(score):
     if score > 90:
@@ -330,7 +329,7 @@ def categorize(score):
 // =============================================================================
 
 #[test]
-fn test_depyler_0448_load_config_example() {
+fn test_load_config_example() {
     let python = r#"
 DEFAULT_CONFIG = {"host": "localhost", "port": 5432}
 
@@ -357,7 +356,7 @@ def load_config(path):
 }
 
 #[test]
-fn test_depyler_0448_create_dict_function() {
+fn test_create_dict_function() {
     let python = r#"
 def create_dict():
     return {}
@@ -373,7 +372,7 @@ def create_dict():
 }
 
 #[test]
-fn test_depyler_0448_nested_dict_return() {
+fn test_nested_dict_return() {
     let python = r#"
 def get_nested():
     return {
@@ -401,7 +400,7 @@ def get_nested():
 // =============================================================================
 
 #[test]
-fn test_depyler_0448_multiple_return_statements() {
+fn test_multiple_return_statements() {
     let python = r#"
 def process(data):
     if not data:
@@ -421,7 +420,7 @@ def process(data):
 }
 
 #[test]
-fn test_depyler_0448_early_return() {
+fn test_early_return() {
     let python = r#"
 def validate(value):
     if value < 0:
@@ -439,7 +438,7 @@ def validate(value):
 }
 
 #[test]
-fn test_depyler_0448_return_variable() {
+fn test_return_variable() {
     let python = r#"
 def calculate():
     result = {"sum": 10, "count": 2}
@@ -460,7 +459,7 @@ def calculate():
 // =============================================================================
 
 #[test]
-fn test_depyler_0448_simple_dict_compiles() {
+fn test_simple_dict_compiles() {
     let python = r#"
 def create_config():
     return {"host": "localhost"}
@@ -472,7 +471,7 @@ def create_config():
 }
 
 #[test]
-fn test_depyler_0448_conditional_dict_compiles() {
+fn test_conditional_dict_compiles() {
     let python = r#"
 def get_config(use_default):
     if use_default:

@@ -6,7 +6,6 @@ use depyler_core::transpile_python_to_rust;
 
 // DEPYLER-STDLIB-GLOB-001: Pattern matching
 #[test]
-#[ignore = "DEPYLER-STDLIB-GLOB: Not implemented yet - RED phase"]
 fn test_glob() {
     let python = r#"
 import glob
@@ -22,7 +21,6 @@ def find_files(pattern: str) -> list:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-GLOB: Not implemented yet - RED phase"]
 fn test_iglob() {
     let python = r#"
 import glob

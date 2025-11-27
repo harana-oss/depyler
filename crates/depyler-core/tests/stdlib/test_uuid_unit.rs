@@ -22,7 +22,6 @@ def generate_uuid1() -> str:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-UUID: Not implemented yet - RED phase"]
 fn test_uuid_uuid3() {
     let python = r#"
 import uuid
@@ -55,7 +54,6 @@ def generate_uuid4() -> str:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-UUID: Not implemented yet - RED phase"]
 fn test_uuid_uuid5() {
     let python = r#"
 import uuid
@@ -72,7 +70,6 @@ def generate_uuid5(namespace: uuid.UUID, name: str) -> str:
 
 // DEPYLER-STDLIB-UUID-002: Predefined namespaces
 #[test]
-#[ignore = "DEPYLER-STDLIB-UUID: Not implemented yet - RED phase"]
 fn test_uuid_namespace_dns() {
     let python = r#"
 import uuid
@@ -88,7 +85,6 @@ def get_namespace_dns() -> uuid.UUID:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-UUID: Not implemented yet - RED phase"]
 fn test_uuid_namespace_url() {
     let python = r#"
 import uuid
@@ -104,7 +100,6 @@ def get_namespace_url() -> uuid.UUID:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-UUID: Not implemented yet - RED phase"]
 fn test_uuid_namespace_oid() {
     let python = r#"
 import uuid
@@ -120,7 +115,6 @@ def get_namespace_oid() -> uuid.UUID:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-UUID: Not implemented yet - RED phase"]
 fn test_uuid_namespace_x500() {
     let python = r#"
 import uuid
@@ -137,7 +131,6 @@ def get_namespace_x500() -> uuid.UUID:
 
 // DEPYLER-STDLIB-UUID-003: UUID parsing
 #[test]
-#[ignore = "DEPYLER-STDLIB-UUID: Not implemented yet - RED phase"]
 fn test_uuid_from_string() {
     let python = r#"
 import uuid
@@ -153,7 +146,6 @@ def parse_uuid(uuid_str: str) -> uuid.UUID:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-UUID: Not implemented yet - RED phase"]
 fn test_uuid_from_bytes() {
     let python = r#"
 import uuid
@@ -170,7 +162,6 @@ def parse_uuid_bytes(uuid_bytes: bytes) -> uuid.UUID:
 
 // DEPYLER-STDLIB-UUID-004: UUID properties
 #[test]
-#[ignore = "DEPYLER-STDLIB-UUID: Not implemented yet - RED phase"]
 fn test_uuid_hex_property() {
     let python = r#"
 import uuid
@@ -186,7 +177,6 @@ def get_uuid_hex(u: uuid.UUID) -> str:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-UUID: Not implemented yet - RED phase"]
 fn test_uuid_int_property() {
     let python = r#"
 import uuid

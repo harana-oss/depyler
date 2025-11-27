@@ -32,7 +32,6 @@ mod integration_benchmarks {
 
     /// Comprehensive integration benchmark testing full pipeline
     #[test]
-    #[ignore = "Timing-sensitive test - flaky in parallel test execution and CI environments"]
     fn comprehensive_integration_benchmark() {
         println!("=== Comprehensive Integration Benchmark ===");
 
@@ -214,7 +213,6 @@ def sample_function(x: int, y: int) -> int:
 
     /// Benchmark memory usage patterns
     #[test]
-    #[ignore = "Timing sensitive test may fail in CI"]
     fn memory_usage_benchmark() {
         println!("=== Memory Usage Benchmark ===");
 
@@ -261,7 +259,6 @@ def sample_function(x: int, y: int) -> int:
 
     /// Benchmark error handling performance
     #[test]
-    #[ignore = "Timing-sensitive test - error handling timeout varies with system load"]
     fn error_handling_benchmark() {
         println!("=== Error Handling Performance Benchmark ===");
 
@@ -311,7 +308,6 @@ def sample_function(x: int, y: int) -> int:
 
     /// Benchmark concurrent access patterns
     #[test]
-    #[ignore] // Timing-sensitive benchmark - flaky in CI environments
     fn concurrent_access_benchmark() {
         use std::sync::Arc;
         use std::thread;

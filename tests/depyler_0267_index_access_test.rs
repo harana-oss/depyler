@@ -6,7 +6,7 @@ use std::process::Command;
 
 #[test]
 #[allow(non_snake_case)]
-fn test_DEPYLER_0267_string_list_index_compiles() {
+fn test_string_list_index_compiles() {
     // DEPYLER-0267: `items[i]` for String list generates `.copied()` which fails
     // RED Phase: This test MUST FAIL initially
 
@@ -26,7 +26,7 @@ def get_string(items: list[str], index: int) -> str:
     eprintln!("=== DEPYLER-0267: Generated Rust Code (string index) ===");
 
     // Write to temp file
-    let temp_file = "/tmp/test_depyler_0267_string_index.rs";
+    let temp_file = "/tmp/test_string_index.rs";
     std::fs::write(temp_file, &rust_code).expect("DEPYLER-0267: Failed to write temp file");
 
     // Attempt to compile with rustc
@@ -37,7 +37,7 @@ def get_string(items: list[str], index: int) -> str:
         .arg("2021")
         .arg(temp_file)
         .arg("-o")
-        .arg("/tmp/test_depyler_0267_string_index.rlib")
+        .arg("/tmp/test_string_index.rlib")
         .output()
         .expect("DEPYLER-0267: Failed to run rustc");
 
@@ -78,7 +78,7 @@ def get_string(items: list[str], index: int) -> str:
 
 #[test]
 #[allow(non_snake_case)]
-fn test_DEPYLER_0267_vec_list_index_compiles() {
+fn test_vec_list_index_compiles() {
     // DEPYLER-0267: Nested list indexing (Vec<Vec<int>> → Vec<int>)
 
     let python_code = r#"
@@ -94,7 +94,7 @@ def get_row(matrix: list[list[int]], row: int) -> list[int]:
     let rust_code = result.unwrap();
 
     // Write to temp file
-    let temp_file = "/tmp/test_depyler_0267_vec_index.rs";
+    let temp_file = "/tmp/test_vec_index.rs";
     std::fs::write(temp_file, &rust_code).expect("DEPYLER-0267: Failed to write temp file");
 
     // Attempt to compile
@@ -105,7 +105,7 @@ def get_row(matrix: list[list[int]], row: int) -> list[int]:
         .arg("2021")
         .arg(temp_file)
         .arg("-o")
-        .arg("/tmp/test_depyler_0267_vec_index.rlib")
+        .arg("/tmp/test_vec_index.rlib")
         .output()
         .expect("DEPYLER-0267: Failed to run rustc");
 
@@ -136,7 +136,7 @@ def get_row(matrix: list[list[int]], row: int) -> list[int]:
 
 #[test]
 #[allow(non_snake_case)]
-fn test_DEPYLER_0267_copy_types_still_work() {
+fn test_copy_types_still_work() {
     // DEPYLER-0267: Ensure Copy types (int, float) still work with fix
 
     let python_code = r#"
@@ -152,7 +152,7 @@ def get_int(nums: list[int], index: int) -> int:
     let rust_code = result.unwrap();
 
     // Write to temp file
-    let temp_file = "/tmp/test_depyler_0267_copy_type.rs";
+    let temp_file = "/tmp/test_copy_type.rs";
     std::fs::write(temp_file, &rust_code).expect("DEPYLER-0267: Failed to write temp file");
 
     // Attempt to compile
@@ -163,7 +163,7 @@ def get_int(nums: list[int], index: int) -> int:
         .arg("2021")
         .arg(temp_file)
         .arg("-o")
-        .arg("/tmp/test_depyler_0267_copy_type.rlib")
+        .arg("/tmp/test_copy_type.rlib")
         .output()
         .expect("DEPYLER-0267: Failed to run rustc");
 
@@ -185,7 +185,7 @@ def get_int(nums: list[int], index: int) -> int:
 
 #[test]
 #[allow(non_snake_case)]
-fn test_DEPYLER_0267_negative_index_string_compiles() {
+fn test_negative_index_string_compiles() {
     // DEPYLER-0267: Negative index with String list
     // NOTE: This also has DEPYLER-0268 bug (index negation), so expect different error
 
@@ -202,7 +202,7 @@ def get_last_string(items: list[str]) -> str:
     let rust_code = result.unwrap();
 
     // Write to temp file
-    let temp_file = "/tmp/test_depyler_0267_negative_string.rs";
+    let temp_file = "/tmp/test_negative_string.rs";
     std::fs::write(temp_file, &rust_code).expect("DEPYLER-0267: Failed to write temp file");
 
     // Attempt to compile
@@ -213,7 +213,7 @@ def get_last_string(items: list[str]) -> str:
         .arg("2021")
         .arg(temp_file)
         .arg("-o")
-        .arg("/tmp/test_depyler_0267_negative_string.rlib")
+        .arg("/tmp/test_negative_string.rlib")
         .output()
         .expect("DEPYLER-0267: Failed to run rustc");
 

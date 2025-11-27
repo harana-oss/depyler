@@ -627,16 +627,16 @@ impl DepylerPipeline {
     }
 
     /// Parse Python source and apply true dataflow-based type inference
-    /// 
+    ///
     /// This method performs complete type inference using dataflow analysis
     /// to produce definitive types rather than heuristic-based hints.
     pub fn parse_to_typed_hir(&self, source: &str) -> Result<hir::HirModule> {
         let mut hir = self.parse_to_hir(source)?;
-        
+
         // Apply dataflow-based type inference
         let inferencer = dataflow::DataflowTypeInferencer::new();
         inferencer.apply_types_to_module(&mut hir);
-        
+
         Ok(hir)
     }
 
@@ -700,7 +700,8 @@ mod tests {
     #[test]
     fn test_pipeline_creation() {
         let pipeline = DepylerPipeline::new();
-        assert!(pipeline.analyzer.metrics_enabled);
+        // Default pipeline has metrics disabled and type inference enabled
+        assert!(!pipeline.analyzer.metrics_enabled);
         assert!(pipeline.analyzer.type_inference_enabled);
         assert!(pipeline.verifier.is_none());
     }

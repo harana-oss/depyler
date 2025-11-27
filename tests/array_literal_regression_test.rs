@@ -162,7 +162,6 @@ mod property_tests {
     }
 
     #[test]
-    #[ignore] // Enable after fix
     fn test_property_array_assignments() {
         quickcheck(prop_array_assignment_generates_valid_rust as fn(usize) -> TestResult);
     }

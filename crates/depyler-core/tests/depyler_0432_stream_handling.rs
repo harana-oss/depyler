@@ -42,7 +42,7 @@ fn assert_not_contains(rust_code: &str, pattern: &str) {
 // ====================================================================================
 
 #[test]
-fn test_DEPYLER_0432_01_sys_stdin_iteration() {
+fn test_01_sys_stdin_iteration() {
     let python = r#"
 import sys
 
@@ -69,7 +69,7 @@ def process_stdin():
 // ====================================================================================
 
 #[test]
-fn test_DEPYLER_0432_02_sys_stderr_print() {
+fn test_02_sys_stderr_print() {
     let python = r#"
 import sys
 
@@ -99,7 +99,7 @@ def log_error(msg):
 // ====================================================================================
 
 #[test]
-fn test_DEPYLER_0432_03_file_read_text() {
+fn test_03_file_read_text() {
     let python = r#"
 def read_file(filepath):
     with open(filepath) as f:
@@ -127,8 +127,7 @@ def read_file(filepath):
 // ====================================================================================
 
 #[test]
-#[ignore] // Binary mode requires mode parameter detection (separate feature)
-fn test_DEPYLER_0432_04_file_read_binary() {
+fn test_04_file_read_binary() {
     let python = r#"
 def read_binary(filepath):
     with open(filepath, "rb") as f:
@@ -157,7 +156,7 @@ def read_binary(filepath):
 // ====================================================================================
 
 #[test]
-fn test_DEPYLER_0432_05_file_iteration() {
+fn test_05_file_iteration() {
     let python = r#"
 def count_lines(filepath):
     count = 0
@@ -193,7 +192,7 @@ def count_lines(filepath):
 // ====================================================================================
 
 #[test]
-fn test_DEPYLER_0432_06_argparse_string_param_inference() {
+fn test_06_argparse_string_param_inference() {
     let python = r#"
 import argparse
 
@@ -233,7 +232,7 @@ def main():
 // ====================================================================================
 
 #[test]
-fn test_DEPYLER_0432_07_argparse_bool_param_inference() {
+fn test_07_argparse_bool_param_inference() {
     let python = r#"
 import argparse
 
@@ -272,7 +271,7 @@ def main():
 // ====================================================================================
 
 #[test]
-fn test_DEPYLER_0432_08_argumentless_subcommand() {
+fn test_08_argumentless_subcommand() {
     let python = r#"
 import argparse
 import sys
@@ -321,8 +320,7 @@ def main():
 // ====================================================================================
 
 #[test]
-#[ignore] // Hex encoding requires separate implementation (binascii/hex module)
-fn test_DEPYLER_0432_09_hex_encoding() {
+fn test_09_hex_encoding() {
     let python = r#"
 def show_hex(data):
     hex_str = data[:10].hex()
@@ -354,7 +352,7 @@ def show_hex(data):
 // ====================================================================================
 
 #[test]
-fn test_DEPYLER_0432_10_tempfile_translation() {
+fn test_10_tempfile_translation() {
     let python = r#"
 import tempfile
 
@@ -386,8 +384,7 @@ def create_temp():
 // ====================================================================================
 
 #[test]
-#[ignore] // Run separately due to large file
-fn test_DEPYLER_0432_11_stream_processor_integration() {
+fn test_11_stream_processor_integration() {
     // Read the actual stream_processor.py from reprorusted-python-cli
     let python_file = "/home/user/reprorusted-python-cli/examples/example_io_streams/stream_processor.py";
 

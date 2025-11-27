@@ -1,7 +1,7 @@
 //! String/Bytearray mutation handlers for type inference
 
-use super::{MutationHandler, refine_element_type};
-use crate::dataflow::lattice::{TypeLattice, TypeState};
+use super::MutationHandler;
+use crate::dataflow::lattice::TypeState;
 use crate::hir::{HirExpr, Type};
 
 /// Handler for bytearray.append(byte)

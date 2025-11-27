@@ -164,7 +164,6 @@ fn test_position_conversion_roundtrip() {
 }
 
 #[test]
-#[ignore = "Implementation has boundary issues"]
 fn test_get_prefix_at_position() {
     let server = LspServer::new();
     let text = "def test_function(): pass";

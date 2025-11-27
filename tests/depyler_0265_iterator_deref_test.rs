@@ -21,7 +21,7 @@ use std::process::Command;
 
 #[test]
 #[allow(non_snake_case)]
-fn test_DEPYLER_0265_for_loop_comparison_compiles() {
+fn test_for_loop_comparison_compiles() {
     // DEPYLER-0265: For loop with comparison generates type mismatch
     // RED Phase: This test MUST FAIL initially
 
@@ -47,7 +47,7 @@ def find_min(numbers: list[int]) -> int:
     eprintln!("=== DEPYLER-0265: Generated Rust Code (comparison) ===");
 
     // Write to temp file
-    let temp_file = "/tmp/test_depyler_0265_comparison.rs";
+    let temp_file = "/tmp/test_comparison.rs";
     std::fs::write(temp_file, &rust_code).expect("DEPYLER-0265: Failed to write temp file");
 
     // Attempt to compile with rustc
@@ -58,7 +58,7 @@ def find_min(numbers: list[int]) -> int:
         .arg("2021")
         .arg(temp_file)
         .arg("-o")
-        .arg("/tmp/test_depyler_0265_comparison.rlib")
+        .arg("/tmp/test_comparison.rlib")
         .output()
         .expect("DEPYLER-0265: Failed to run rustc");
 
@@ -101,7 +101,7 @@ def find_min(numbers: list[int]) -> int:
 
 #[test]
 #[allow(non_snake_case)]
-fn test_DEPYLER_0265_for_loop_arithmetic_compiles() {
+fn test_for_loop_arithmetic_compiles() {
     // DEPYLER-0265: For loop with arithmetic generates type mismatch
 
     let python_code = r#"
@@ -120,7 +120,7 @@ def sum_list(numbers: list[int]) -> int:
     let rust_code = result.unwrap();
 
     // Write to temp file
-    let temp_file = "/tmp/test_depyler_0265_arithmetic.rs";
+    let temp_file = "/tmp/test_arithmetic.rs";
     std::fs::write(temp_file, &rust_code).expect("DEPYLER-0265: Failed to write temp file");
 
     // Attempt to compile
@@ -131,7 +131,7 @@ def sum_list(numbers: list[int]) -> int:
         .arg("2021")
         .arg(temp_file)
         .arg("-o")
-        .arg("/tmp/test_depyler_0265_arithmetic.rlib")
+        .arg("/tmp/test_arithmetic.rlib")
         .output()
         .expect("DEPYLER-0265: Failed to run rustc");
 
@@ -162,7 +162,7 @@ def sum_list(numbers: list[int]) -> int:
 
 #[test]
 #[allow(non_snake_case)]
-fn test_DEPYLER_0265_for_loop_assignment_compiles() {
+fn test_for_loop_assignment_compiles() {
     // DEPYLER-0265: For loop with assignment generates type mismatch
 
     let python_code = r#"
@@ -184,7 +184,7 @@ def find_max(numbers: list[int]) -> int:
     let rust_code = result.unwrap();
 
     // Write to temp file
-    let temp_file = "/tmp/test_depyler_0265_assignment.rs";
+    let temp_file = "/tmp/test_assignment.rs";
     std::fs::write(temp_file, &rust_code).expect("DEPYLER-0265: Failed to write temp file");
 
     // Attempt to compile
@@ -195,7 +195,7 @@ def find_max(numbers: list[int]) -> int:
         .arg("2021")
         .arg(temp_file)
         .arg("-o")
-        .arg("/tmp/test_depyler_0265_assignment.rlib")
+        .arg("/tmp/test_assignment.rlib")
         .output()
         .expect("DEPYLER-0265: Failed to run rustc");
 
@@ -226,7 +226,7 @@ def find_max(numbers: list[int]) -> int:
 
 #[test]
 #[allow(non_snake_case)]
-fn test_DEPYLER_0265_for_loop_string_compiles() {
+fn test_for_loop_string_compiles() {
     // DEPYLER-0265: For loop over strings (non-Copy types)
 
     let python_code = r#"
@@ -248,7 +248,7 @@ def find_longest(words: list[str]) -> str:
     let rust_code = result.unwrap();
 
     // Write to temp file
-    let temp_file = "/tmp/test_depyler_0265_string.rs";
+    let temp_file = "/tmp/test_string.rs";
     std::fs::write(temp_file, &rust_code).expect("DEPYLER-0265: Failed to write temp file");
 
     // Attempt to compile
@@ -259,7 +259,7 @@ def find_longest(words: list[str]) -> str:
         .arg("2021")
         .arg(temp_file)
         .arg("-o")
-        .arg("/tmp/test_depyler_0265_string.rlib")
+        .arg("/tmp/test_string.rlib")
         .output()
         .expect("DEPYLER-0265: Failed to run rustc");
 

@@ -36,7 +36,6 @@ def get_lowercase() -> str:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-STRING: Not implemented yet - RED phase"]
 fn test_string_ascii_uppercase() {
     let python = r#"
 import string
@@ -67,7 +66,6 @@ def get_digits() -> str:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-STRING: Not implemented yet - RED phase"]
 fn test_string_hexdigits() {
     let python = r#"
 import string
@@ -83,7 +81,6 @@ def get_hexdigits() -> str:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-STRING: Not implemented yet - RED phase"]
 fn test_string_octdigits() {
     let python = r#"
 import string
@@ -129,7 +126,6 @@ def get_whitespace() -> str:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-STRING: Not implemented yet - RED phase"]
 fn test_string_printable() {
     let python = r#"
 import string
@@ -146,7 +142,6 @@ def get_printable() -> str:
 
 // DEPYLER-STDLIB-STRING-002: String formatting (Template class)
 #[test]
-#[ignore = "DEPYLER-STDLIB-STRING: Not implemented yet - RED phase"]
 fn test_string_template_substitute() {
     let python = r#"
 import string
@@ -163,7 +158,6 @@ def format_template(name: str) -> str:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-STRING: Not implemented yet - RED phase"]
 fn test_string_template_safe_substitute() {
     let python = r#"
 import string
@@ -197,7 +191,6 @@ def capitalize_words(text: str) -> str:
 
 // DEPYLER-STDLIB-STRING-004: Formatter class
 #[test]
-#[ignore = "DEPYLER-STDLIB-STRING: Not implemented yet - RED phase"]
 fn test_string_formatter_format() {
     let python = r#"
 import string
@@ -214,7 +207,6 @@ def format_string(fmt: str, value: int) -> str:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-STRING: Not implemented yet - RED phase"]
 fn test_string_formatter_vformat() {
     let python = r#"
 import string
@@ -232,7 +224,6 @@ def vformat_string(fmt: str, args: list, kwargs: dict) -> str:
 
 // DEPYLER-STDLIB-STRING-005: Character classification helpers
 #[test]
-#[ignore = "DEPYLER-STDLIB-STRING: Not implemented yet - RED phase"]
 fn test_check_if_digit() {
     let python = r#"
 import string
@@ -248,7 +239,6 @@ def is_digit_char(c: str) -> bool:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-STRING: Not implemented yet - RED phase"]
 fn test_check_if_letter() {
     let python = r#"
 import string

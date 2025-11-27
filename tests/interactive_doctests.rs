@@ -73,16 +73,11 @@ impl InteractiveDoctest {
     pub fn execute(&mut self, python_code: &str) -> Result<String, String> {
         let start = Instant::now();
 
-        let result = self
-            .pipeline
-            .transpile(python_code)
-            .map_err(|e| e.to_string());
+        let result = self.pipeline.transpile(python_code).map_err(|e| e.to_string());
 
         let duration = start.elapsed().as_micros();
-        self.performance_metrics.insert(
-            format!("execution_{}", self.session_history.len()),
-            duration,
-        );
+        self.performance_metrics
+            .insert(format!("execution_{}", self.session_history.len()), duration);
 
         // Store in session history
         match &result {
@@ -91,8 +86,7 @@ impl InteractiveDoctest {
                     .push((python_code.to_string(), Ok(rust_code.clone())));
             }
             Err(error) => {
-                self.session_history
-                    .push((python_code.to_string(), Err(error.clone())));
+                self.session_history.push((python_code.to_string(), Err(error.clone())));
             }
         }
 
@@ -361,15 +355,8 @@ impl ErrorConditionDoctest {
     /// let catalog = error_doc.get_error_catalog();
     /// assert_eq!(catalog.len(), 5);
     /// ```
-    pub fn test_error_condition(
-        &mut self,
-        python_code: &str,
-        error_category: &str,
-    ) -> Result<String, String> {
-        let result = self
-            .pipeline
-            .transpile(python_code)
-            .map_err(|e| e.to_string());
+    pub fn test_error_condition(&mut self, python_code: &str, error_category: &str) -> Result<String, String> {
+        let result = self.pipeline.transpile(python_code).map_err(|e| e.to_string());
 
         // Catalog the error if it occurred
         if let Err(ref error_msg) = result {
@@ -405,10 +392,7 @@ impl ErrorConditionDoctest {
     /// assert_eq!(validation.failed_as_expected, 3);
     /// assert_eq!(validation.unexpectedly_succeeded, 0);
     /// ```
-    pub fn validate_expected_errors(
-        &mut self,
-        test_cases: &[(&str, &str)],
-    ) -> ErrorValidationResults {
+    pub fn validate_expected_errors(&mut self, test_cases: &[(&str, &str)]) -> ErrorValidationResults {
         let mut failed_as_expected = 0;
         let mut unexpectedly_succeeded = 0;
         let mut validation_details = Vec::new();
@@ -418,11 +402,7 @@ impl ErrorConditionDoctest {
 
             if result.is_err() {
                 failed_as_expected += 1;
-                validation_details.push((
-                    description.to_string(),
-                    true,
-                    result.err().map(|e| e.to_string()),
-                ));
+                validation_details.push((description.to_string(), true, result.err().map(|e| e.to_string())));
             } else {
                 unexpectedly_succeeded += 1;
                 validation_details.push((description.to_string(), false, None));
@@ -499,10 +479,7 @@ impl WorkflowDoctest {
 
     /// Adds a step to the workflow
     pub fn add_step(&mut self, step_name: &str, python_code: &str) {
-        let result = self
-            .pipeline
-            .transpile(python_code)
-            .map_err(|e| e.to_string());
+        let result = self.pipeline.transpile(python_code).map_err(|e| e.to_string());
 
         self.workflow_steps
             .push((step_name.to_string(), python_code.to_string(), result));
@@ -626,7 +603,6 @@ mod tests {
 
     /// Test performance benchmark doctests
     #[test]
-    #[ignore] // Timing-sensitive benchmark - flaky in CI environments
     fn test_performance_benchmark_doctests() {
         println!("=== Performance Benchmark Doctests Test ===");
 
@@ -649,11 +625,7 @@ def fibonacci(n: int) -> int:
         assert!(complex_duration < 500_000); // Less than 500ms
 
         // Test statistical benchmarking
-        let stats = bench.benchmark_iterations(
-            "def test_func(x: int) -> int: return x * 2 + 1",
-            "arithmetic_test",
-            5,
-        );
+        let stats = bench.benchmark_iterations("def test_func(x: int) -> int: return x * 2 + 1", "arithmetic_test", 5);
 
         println!(
             "Benchmark stats: min={} μs, max={} μs, avg={} μs",
@@ -690,10 +662,7 @@ def fibonacci(n: int) -> int:
             ("def broken_function(\n    return 42", "syntax_error"),
             ("if condition\n    print('missing colon')", "missing_colon"),
             ("def f(): return x y", "invalid_expression"),
-            (
-                "async def unsupported(): await something()",
-                "unsupported_feature",
-            ),
+            ("async def unsupported(): await something()", "unsupported_feature"),
             ("def f(: pass", "invalid_parameter"),
         ];
 
@@ -718,9 +687,7 @@ def fibonacci(n: int) -> int:
         let validation = error_doc.validate_expected_errors(&validation_cases);
         println!(
             "Error validation: {}/{} failed as expected, {} unexpectedly succeeded",
-            validation.failed_as_expected,
-            validation.total_tests,
-            validation.unexpectedly_succeeded
+            validation.failed_as_expected, validation.total_tests, validation.unexpectedly_succeeded
         );
 
         assert_eq!(validation.total_tests, 3);
@@ -736,10 +703,7 @@ def fibonacci(n: int) -> int:
         let mut workflow = WorkflowDoctest::new();
 
         // Build a complete workflow
-        workflow.add_step(
-            "Simple Function",
-            "def add(a: int, b: int) -> int: return a + b",
-        );
+        workflow.add_step("Simple Function", "def add(a: int, b: int) -> int: return a + b");
         workflow.add_step(
             "Control Flow",
             "def max_val(a: int, b: int) -> int: return a if a > b else b",
@@ -777,12 +741,7 @@ def process_data(data: list) -> dict:
 
         // Check step details
         for (i, (name, _code, success, error)) in results.step_details.iter().enumerate() {
-            println!(
-                "Step {}: '{}' - {}",
-                i + 1,
-                name,
-                if *success { "✓" } else { "✗" }
-            );
+            println!("Step {}: '{}' - {}", i + 1, name, if *success { "✓" } else { "✗" });
             if let Some(err) = error {
                 println!("  Error: {}", err.chars().take(100).collect::<String>());
             }
@@ -795,7 +754,6 @@ def process_data(data: list) -> dict:
 
     /// Test comprehensive doctest integration
     #[test]
-    #[ignore] // Timing-sensitive benchmark - flaky in CI environments
     fn test_comprehensive_doctest_integration() {
         println!("=== Comprehensive Doctest Integration Test ===");
 
@@ -806,8 +764,7 @@ def process_data(data: list) -> dict:
         let mut workflow = WorkflowDoctest::new();
 
         // Common test function
-        let test_function =
-            "def factorial(n: int) -> int: return 1 if n <= 1 else n * factorial(n - 1)";
+        let test_function = "def factorial(n: int) -> int: return 1 if n <= 1 else n * factorial(n - 1)";
 
         // Test in interactive session
         let interactive_result = interactive.execute(test_function);
@@ -821,8 +778,7 @@ def process_data(data: list) -> dict:
         workflow.add_step("Recursive Function", test_function);
 
         // Test error conditions
-        let error_result =
-            error_doc.test_error_condition("def factorial(n: int", "incomplete_factorial");
+        let error_result = error_doc.test_error_condition("def factorial(n: int", "incomplete_factorial");
         println!("Error test result: {:?}", error_result.is_err());
 
         // Verify integration
@@ -838,7 +794,6 @@ def process_data(data: list) -> dict:
 
     /// Test doctest performance characteristics
     #[test]
-    #[ignore] // Timing-sensitive benchmark - flaky in CI environments
     fn test_doctest_performance_characteristics() {
         println!("=== Doctest Performance Characteristics Test ===");
 
@@ -872,12 +827,7 @@ def process_data(data: list) -> dict:
 
         // Verify all tests complete quickly
         for (name, duration) in &durations {
-            assert!(
-                duration < &100_000,
-                "{} took too long: {} μs",
-                name,
-                duration
-            );
+            assert!(duration < &100_000, "{} took too long: {} μs", name, duration);
         }
 
         // Check that complexity generally correlates with time (allowing variance)
@@ -898,11 +848,7 @@ def process_data(data: list) -> dict:
         );
 
         // Test statistical consistency
-        let stats = benchmark.benchmark_iterations(
-            "def consistent_test(): return 42",
-            "consistency_test",
-            10,
-        );
+        let stats = benchmark.benchmark_iterations("def consistent_test(): return 42", "consistency_test", 10);
 
         let consistency_ratio = stats.max_duration as f64 / stats.min_duration as f64;
         println!("Consistency ratio: {:.2}x (max/min)", consistency_ratio);

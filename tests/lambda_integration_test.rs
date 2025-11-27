@@ -6,7 +6,6 @@ use std::process::Command;
 use tempfile::TempDir;
 
 #[test]
-#[ignore] // Run with: cargo test lambda_integration_test -- --ignored --nocapture
 fn test_full_lambda_workflow() -> Result<()> {
     println!("🚀 Starting full Lambda workflow test...\n");
 
@@ -28,10 +27,7 @@ def lambda_handler(event: dict, context: dict) -> int:
     let lambda_path = temp_path.join("lambda_demo.py");
     fs::write(&lambda_path, lambda_source)?;
 
-    println!(
-        "📝 Created test Lambda function at: {}",
-        lambda_path.display()
-    );
+    println!("📝 Created test Lambda function at: {}", lambda_path.display());
 
     // Step 1: Analyze the Lambda function
     println!("\n1️⃣ Analyzing Lambda function...");
@@ -74,31 +70,16 @@ def lambda_handler(event: dict, context: dict) -> int:
     assert!(output_dir.exists(), "Output directory should be created");
 
     // Verify generated files
-    assert!(
-        output_dir.join("Cargo.toml").exists(),
-        "Cargo.toml should exist"
-    );
-    assert!(
-        output_dir.join("src/main.rs").exists(),
-        "main.rs should exist"
-    );
-    assert!(
-        output_dir.join("build.sh").exists(),
-        "build.sh should exist"
-    );
-    assert!(
-        output_dir.join("README.md").exists(),
-        "README.md should exist"
-    );
+    assert!(output_dir.join("Cargo.toml").exists(), "Cargo.toml should exist");
+    assert!(output_dir.join("src/main.rs").exists(), "main.rs should exist");
+    assert!(output_dir.join("build.sh").exists(), "build.sh should exist");
+    assert!(output_dir.join("README.md").exists(), "README.md should exist");
 
     // Read and verify Cargo.toml
     let cargo_toml = fs::read_to_string(output_dir.join("Cargo.toml"))?;
     println!("\n📦 Generated Cargo.toml:");
     println!("{cargo_toml}");
-    assert!(
-        cargo_toml.contains("lambda_runtime"),
-        "Should include lambda_runtime"
-    );
+    assert!(cargo_toml.contains("lambda_runtime"), "Should include lambda_runtime");
     assert!(
         cargo_toml.contains("aws-lambda-events"),
         "Should include aws-lambda-events"
@@ -112,15 +93,9 @@ def lambda_handler(event: dict, context: dict) -> int:
         println!("{:3}: {}", i + 1, line);
     }
     // Check for key Lambda components (the template might not be fully rendered in tests)
-    assert!(
-        main_rs.contains("lambda_runtime"),
-        "Should use lambda_runtime"
-    );
+    assert!(main_rs.contains("lambda_runtime"), "Should use lambda_runtime");
     assert!(main_rs.contains("handler"), "Should have handler function");
-    assert!(
-        main_rs.contains("lambda_handler"),
-        "Should contain transpiled function"
-    );
+    assert!(main_rs.contains("lambda_handler"), "Should contain transpiled function");
 
     // Step 3: Check if we can compile the generated code
     println!("\n3️⃣ Checking if generated code compiles...");
@@ -287,33 +262,22 @@ def handler(event, context):
     for (name, code) in patterns {
         println!("\nTesting {name} pattern...");
 
-        let file_path = temp_dir.path().join(format!(
-            "{}_handler.py",
-            name.to_lowercase().replace(' ', "_")
-        ));
+        let file_path = temp_dir
+            .path()
+            .join(format!("{}_handler.py", name.to_lowercase().replace(' ', "_")));
         fs::write(&file_path, code)?;
 
         let output = Command::new(env!("CARGO_BIN_EXE_depyler"))
-            .args([
-                "lambda",
-                "analyze",
-                file_path.to_str().unwrap(),
-                "--format",
-                "json",
-            ])
+            .args(["lambda", "analyze", file_path.to_str().unwrap(), "--format", "json"])
             .output()?;
 
-        assert!(
-            output.status.success(),
-            "{name} pattern analysis should succeed"
-        );
+        assert!(output.status.success(), "{name} pattern analysis should succeed");
 
         let stdout = String::from_utf8_lossy(&output.stdout);
         println!("Analysis result: {stdout}");
 
         // Just verify it produces valid JSON
-        let _: serde_json::Value =
-            serde_json::from_str(&stdout).expect("Should produce valid JSON output");
+        let _: serde_json::Value = serde_json::from_str(&stdout).expect("Should produce valid JSON output");
     }
 
     Ok(())

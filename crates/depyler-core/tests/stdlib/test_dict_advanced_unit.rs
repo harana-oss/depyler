@@ -65,7 +65,6 @@ def pop_item(d: dict) -> tuple:
 
 // DEPYLER-STDLIB-DICT-ADVANCED-005: Create dict from keys
 #[test]
-#[ignore = "DEPYLER-STDLIB-DICT: Not implemented yet - RED phase"]
 fn test_dict_fromkeys() {
     let python = r#"
 def dict_from_keys(keys: list, value: int) -> dict:

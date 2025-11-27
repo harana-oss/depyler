@@ -18,7 +18,7 @@ use std::process::Command;
 
 #[test]
 #[allow(non_snake_case)]
-fn test_DEPYLER_0270_string_concat_returns_string() {
+fn test_string_concat_returns_string() {
     // RED Phase: This test MUST FAIL initially with Cow in return type
     let python = r#"
 def concat(a: str, b: str) -> str:
@@ -70,7 +70,7 @@ def concat(a: str, b: str) -> str:
 
 #[test]
 #[allow(non_snake_case)]
-fn test_DEPYLER_0270_string_concat_compiles() {
+fn test_string_concat_compiles() {
     // RED Phase: Generated code should compile (will fail until fix)
     let python = r#"
 def concat(a: str, b: str) -> str:
@@ -81,7 +81,7 @@ def concat(a: str, b: str) -> str:
     let rust = pipeline.transpile(python).unwrap();
 
     // Write to temp file
-    let temp_file = "/tmp/test_depyler_0270_concat.rs";
+    let temp_file = "/tmp/test_concat.rs";
     std::fs::write(temp_file, &rust).expect("Failed to write temp file");
 
     // Attempt to compile with rustc
@@ -92,7 +92,7 @@ def concat(a: str, b: str) -> str:
         .arg("2021")
         .arg(temp_file)
         .arg("-o")
-        .arg("/tmp/test_depyler_0270_concat.rlib")
+        .arg("/tmp/test_concat.rlib")
         .output()
         .expect("Failed to run rustc");
 
@@ -120,7 +120,7 @@ def concat(a: str, b: str) -> str:
 
 #[test]
 #[allow(non_snake_case)]
-fn test_DEPYLER_0270_fstring_returns_string() {
+fn test_fstring_returns_string() {
     // RED Phase: F-strings should also return String, not Cow
     let python = r#"
 def format_name(first: str, last: str) -> str:
@@ -136,7 +136,7 @@ def format_name(first: str, last: str) -> str:
 
 #[test]
 #[allow(non_snake_case)]
-fn test_DEPYLER_0270_format_call_returns_string() {
+fn test_format_call_returns_string() {
     // RED Phase: Explicit format() calls should return String
     let python = r#"
 def format_msg(name: str, count: int) -> str:
@@ -152,7 +152,7 @@ def format_msg(name: str, count: int) -> str:
 
 #[test]
 #[allow(non_snake_case)]
-fn test_DEPYLER_0270_multiple_concat_returns_string() {
+fn test_multiple_concat_returns_string() {
     // RED Phase: Multiple string concatenations should return String
     let python = r#"
 def concat_three(a: str, b: str, c: str) -> str:

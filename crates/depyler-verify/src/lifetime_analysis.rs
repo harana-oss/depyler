@@ -476,7 +476,6 @@ mod tests {
     use depyler_core::hir::*;
 
     #[test]
-    #[ignore = "Lifetime analysis not fully implemented yet"]
     fn test_dangling_reference_detection() {
         let mut analyzer = LifetimeAnalyzer::new();
 

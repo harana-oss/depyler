@@ -1482,7 +1482,7 @@ pub fn lambda_build_command(
     };
 
     let mut build_cmd = Command::new("cargo");
-    build_cmd.args(["lambda", "build", "--release", arch_flag]);
+    build_cmd.args(["lambda", "build", arch_flag]);
 
     if optimize_size || optimize_cold_start {
         build_cmd.arg("--profile").arg("lambda");

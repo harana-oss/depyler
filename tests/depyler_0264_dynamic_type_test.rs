@@ -16,7 +16,7 @@ use std::process::Command;
 
 #[test]
 #[allow(non_snake_case)]
-fn test_DEPYLER_0264_untyped_list_parameter_compiles() {
+fn test_untyped_list_parameter_compiles() {
     // DEPYLER-0264: Untyped list parameters generate Vec<DynamicType> which doesn't compile
     // RED Phase: This test MUST FAIL initially because DynamicType is undefined
 
@@ -39,7 +39,7 @@ def sum_list(numbers: list) -> int:
     eprintln!("=== DEPYLER-0264: Generated Rust Code ===");
 
     // Write to temp file
-    let temp_file = "/tmp/test_depyler_0264_untyped_list.rs";
+    let temp_file = "/tmp/test_untyped_list.rs";
     std::fs::write(temp_file, &rust_code).expect("DEPYLER-0264: Failed to write temp file");
 
     // Attempt to compile with rustc
@@ -50,7 +50,7 @@ def sum_list(numbers: list) -> int:
         .arg("2021")
         .arg(temp_file)
         .arg("-o")
-        .arg("/tmp/test_depyler_0264_untyped_list.rlib")
+        .arg("/tmp/test_untyped_list.rlib")
         .output()
         .expect("DEPYLER-0264: Failed to run rustc");
 
@@ -98,7 +98,7 @@ def sum_list(numbers: list) -> int:
 
 #[test]
 #[allow(non_snake_case)]
-fn test_DEPYLER_0264_untyped_dict_parameter_compiles() {
+fn test_untyped_dict_parameter_compiles() {
     // DEPYLER-0264: Untyped dict parameters also generate HashMap<DynamicType, DynamicType>
     // This is a related bug - same root cause
 
@@ -117,7 +117,7 @@ def get_value(data: dict, key: str) -> int:
     let rust_code = result.unwrap();
 
     // Write to temp file
-    let temp_file = "/tmp/test_depyler_0264_untyped_dict.rs";
+    let temp_file = "/tmp/test_untyped_dict.rs";
     std::fs::write(temp_file, &rust_code).expect("DEPYLER-0264: Failed to write temp file");
 
     // Attempt to compile
@@ -128,7 +128,7 @@ def get_value(data: dict, key: str) -> int:
         .arg("2021")
         .arg(temp_file)
         .arg("-o")
-        .arg("/tmp/test_depyler_0264_untyped_dict.rlib")
+        .arg("/tmp/test_untyped_dict.rlib")
         .output()
         .expect("DEPYLER-0264: Failed to run rustc");
 
@@ -157,7 +157,7 @@ def get_value(data: dict, key: str) -> int:
 
 #[test]
 #[allow(non_snake_case)]
-fn test_DEPYLER_0264_untyped_set_parameter_compiles() {
+fn test_untyped_set_parameter_compiles() {
     // DEPYLER-0264: Untyped set parameters also generate HashSet<DynamicType>
     // This is a related bug - same root cause
 
@@ -174,7 +174,7 @@ def count_unique(items: set) -> int:
     let rust_code = result.unwrap();
 
     // Write to temp file
-    let temp_file = "/tmp/test_depyler_0264_untyped_set.rs";
+    let temp_file = "/tmp/test_untyped_set.rs";
     std::fs::write(temp_file, &rust_code).expect("DEPYLER-0264: Failed to write temp file");
 
     // Attempt to compile
@@ -185,7 +185,7 @@ def count_unique(items: set) -> int:
         .arg("2021")
         .arg(temp_file)
         .arg("-o")
-        .arg("/tmp/test_depyler_0264_untyped_set.rlib")
+        .arg("/tmp/test_untyped_set.rlib")
         .output()
         .expect("DEPYLER-0264: Failed to run rustc");
 

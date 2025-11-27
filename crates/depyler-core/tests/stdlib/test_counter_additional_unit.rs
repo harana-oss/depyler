@@ -6,7 +6,6 @@ use depyler_core::transpile_python_to_rust;
 
 // DEPYLER-STDLIB-COUNTER-ADDITIONAL-001: Most common elements
 #[test]
-#[ignore = "DEPYLER-STDLIB-COUNTER: Not implemented yet - RED phase"]
 fn test_most_common() {
     let python = r#"
 from collections import Counter
@@ -22,7 +21,6 @@ def get_top_items(counter: Counter, n: int) -> list:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-COUNTER: Not implemented yet - RED phase"]
 fn test_elements() {
     let python = r#"
 from collections import Counter
@@ -38,7 +36,6 @@ def get_all_elements(counter: Counter) -> list:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-COUNTER: Not implemented yet - RED phase"]
 fn test_total() {
     let python = r#"
 from collections import Counter

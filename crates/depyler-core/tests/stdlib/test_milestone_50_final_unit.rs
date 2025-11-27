@@ -208,7 +208,6 @@ def get_next(items: list) -> int:
 
 // DEPYLER-STDLIB-50-017: Get attribute (NOT FULLY SUPPORTED - skipped)
 #[test]
-#[ignore = "DEPYLER-STDLIB-50: getattr() requires dynamic dispatch - not fully supported"]
 fn test_getattr_builtin() {
     let python = r#"
 def get_attr(obj, name: str) -> str:

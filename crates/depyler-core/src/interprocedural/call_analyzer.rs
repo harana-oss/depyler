@@ -255,10 +255,6 @@ pub struct BorrowInsertion {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::hir::{FunctionProperties, HirFunction, HirParam, Type as PythonType};
-    use crate::interprocedural::signature_registry::FunctionSignatureRegistry;
-    use depyler_annotations::TranspilationAnnotations;
-    use smallvec::smallvec;
 
     #[test]
     fn test_extract_root_var() {

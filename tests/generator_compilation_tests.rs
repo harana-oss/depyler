@@ -15,7 +15,7 @@ use smallvec::smallvec;
 
 #[test]
 #[allow(non_snake_case)]
-fn test_DEPYLER_0260_simple_generator_compiles() {
+fn test_simple_generator_compiles() {
     // RED Phase Test: This test MUST FAIL initially
     // Create a simple generator function
     let module = HirModule {
@@ -69,7 +69,7 @@ fn test_DEPYLER_0260_simple_generator_compiles() {
         .expect("DEPYLER-0260: Code generation should not fail");
 
     // Write to temp file
-    let temp_file = "/tmp/test_depyler_0260_generator.rs";
+    let temp_file = "/tmp/test_generator.rs";
     std::fs::write(temp_file, &rust_code)
         .expect("DEPYLER-0260: Failed to write temp file");
 
@@ -81,7 +81,7 @@ fn test_DEPYLER_0260_simple_generator_compiles() {
         .arg("warnings")
         .arg(temp_file)
         .arg("-o")
-        .arg("/tmp/test_depyler_0260_generator.rlib")
+        .arg("/tmp/test_generator.rlib")
         .output()
         .expect("DEPYLER-0260: Failed to run rustc");
 
@@ -108,12 +108,12 @@ fn test_DEPYLER_0260_simple_generator_compiles() {
 
     // Cleanup
     let _ = std::fs::remove_file(temp_file);
-    let _ = std::fs::remove_file("/tmp/test_depyler_0260_generator.rlib");
+    let _ = std::fs::remove_file("/tmp/test_generator.rlib");
 }
 
 #[test]
 #[allow(non_snake_case)]
-fn test_DEPYLER_0260_generator_no_dynamictype() {
+fn test_generator_no_dynamictype() {
     // RED Phase Test: Verify generated code doesn't use DynamicType
     let module = HirModule {
         functions: vec![HirFunction {
@@ -160,7 +160,7 @@ fn test_DEPYLER_0260_generator_no_dynamictype() {
 
 #[test]
 #[allow(non_snake_case)]
-fn test_DEPYLER_0260_fibonacci_generator_compiles() {
+fn test_fibonacci_generator_compiles() {
     // RED Phase Test: Fibonacci generator must compile
     let module = HirModule {
         functions: vec![HirFunction {
@@ -237,7 +237,7 @@ fn test_DEPYLER_0260_fibonacci_generator_compiles() {
     let (rust_code, _dependencies) = generate_rust_file(&module, &type_mapper)
         .expect("Code generation should not fail");
 
-    let temp_file = "/tmp/test_depyler_0260_fibonacci.rs";
+    let temp_file = "/tmp/test_fibonacci.rs";
     std::fs::write(temp_file, &rust_code)
         .expect("Failed to write temp file");
 
@@ -248,7 +248,7 @@ fn test_DEPYLER_0260_fibonacci_generator_compiles() {
         .arg("warnings")
         .arg(temp_file)
         .arg("-o")
-        .arg("/tmp/test_depyler_0260_fibonacci.rlib")
+        .arg("/tmp/test_fibonacci.rlib")
         .output()
         .expect("Failed to run rustc");
 
@@ -261,5 +261,5 @@ fn test_DEPYLER_0260_fibonacci_generator_compiles() {
 
     // Cleanup
     let _ = std::fs::remove_file(temp_file);
-    let _ = std::fs::remove_file("/tmp/test_depyler_0260_fibonacci.rlib");
+    let _ = std::fs::remove_file("/tmp/test_fibonacci.rlib");
 }

@@ -6,7 +6,6 @@ use depyler_core::transpile_python_to_rust;
 
 // DEPYLER-STDLIB-ARRAY-001: Array creation and manipulation
 #[test]
-#[ignore = "DEPYLER-STDLIB-ARRAY: Not implemented yet - RED phase"]
 fn test_array_creation() {
     let python = r#"
 import array
@@ -22,7 +21,6 @@ def create_int_array(values: list) -> array.array:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-ARRAY: Not implemented yet - RED phase"]
 fn test_array_append() {
     let python = r#"
 import array
@@ -38,7 +36,6 @@ def append_to_array(arr: array.array, value: int) -> None:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-ARRAY: Not implemented yet - RED phase"]
 fn test_array_extend() {
     let python = r#"
 import array
@@ -55,7 +52,6 @@ def extend_array(arr: array.array, values: list) -> None:
 
 // DEPYLER-STDLIB-ARRAY-002: Array operations
 #[test]
-#[ignore = "DEPYLER-STDLIB-ARRAY: Not implemented yet - RED phase"]
 fn test_array_pop() {
     let python = r#"
 import array
@@ -71,7 +67,6 @@ def pop_from_array(arr: array.array) -> int:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-ARRAY: Not implemented yet - RED phase"]
 fn test_array_tolist() {
     let python = r#"
 import array

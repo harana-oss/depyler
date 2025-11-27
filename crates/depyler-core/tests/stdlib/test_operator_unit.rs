@@ -6,7 +6,6 @@ use depyler_core::transpile_python_to_rust;
 
 // DEPYLER-STDLIB-OPERATOR-001: Attribute and item getters
 #[test]
-#[ignore = "DEPYLER-STDLIB-OPERATOR: Not implemented yet - RED phase"]
 fn test_attrgetter() {
     let python = r#"
 import operator
@@ -23,7 +22,6 @@ def get_name_attr(obj) -> str:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-OPERATOR: Not implemented yet - RED phase"]
 fn test_itemgetter() {
     let python = r#"
 import operator
@@ -41,7 +39,6 @@ def get_first_item(obj) -> object:
 
 // DEPYLER-STDLIB-OPERATOR-002: Method caller
 #[test]
-#[ignore = "DEPYLER-STDLIB-OPERATOR: Not implemented yet - RED phase"]
 fn test_methodcaller() {
     let python = r#"
 import operator

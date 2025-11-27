@@ -24,7 +24,6 @@ def create_hmac(key: bytes, msg: bytes) -> str:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-HMAC: Not implemented yet - RED phase"]
 fn test_hmac_new_md5() {
     let python = r#"
 import hmac
@@ -42,7 +41,6 @@ def create_hmac_md5(key: bytes, msg: bytes) -> str:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-HMAC: Not implemented yet - RED phase"]
 fn test_hmac_sha1() {
     let python = r#"
 import hmac
@@ -61,7 +59,6 @@ def create_hmac_sha1(key: bytes, msg: bytes) -> str:
 
 // DEPYLER-STDLIB-HMAC-002: Simplified API (using digestmod string)
 #[test]
-#[ignore = "DEPYLER-STDLIB-HMAC: Not implemented yet - RED phase"]
 fn test_hmac_digestmod_string() {
     let python = r#"
 import hmac
@@ -79,7 +76,6 @@ def create_hmac_simple(key: bytes, msg: bytes) -> str:
 
 // DEPYLER-STDLIB-HMAC-003: HMAC object methods
 #[test]
-#[ignore = "DEPYLER-STDLIB-HMAC: Not implemented yet - RED phase"]
 fn test_hmac_update() {
     let python = r#"
 import hmac
@@ -99,7 +95,6 @@ def incremental_hmac(key: bytes, msg1: bytes, msg2: bytes) -> str:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-HMAC: Not implemented yet - RED phase"]
 fn test_hmac_digest() {
     let python = r#"
 import hmac
@@ -133,7 +128,6 @@ def verify_hmac(a: bytes, b: bytes) -> bool:
 
 // DEPYLER-STDLIB-HMAC-005: Common algorithms
 #[test]
-#[ignore = "DEPYLER-STDLIB-HMAC: Not implemented yet - RED phase"]
 fn test_hmac_sha512() {
     let python = r#"
 import hmac
@@ -151,7 +145,6 @@ def hmac_sha512(key: bytes, msg: bytes) -> str:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-HMAC: Not implemented yet - RED phase"]
 fn test_hmac_sha384() {
     let python = r#"
 import hmac

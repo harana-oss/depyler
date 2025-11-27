@@ -21,7 +21,7 @@ fn transpile_python(python: &str) -> anyhow::Result<String> {
 // =============================================================================
 
 #[test]
-fn test_depyler_0450_side_effect_function() {
+fn test_side_effect_function() {
     let python = r#"
 def set_value(data, key, value):
     try:
@@ -39,18 +39,14 @@ def set_value(data, key, value):
     );
 
     // Should end with Ok(())
-    assert!(
-        rust.contains("Ok(())"),
-        "Should end with Ok(()). Generated:\n{}",
-        rust
-    );
+    assert!(rust.contains("Ok(())"), "Should end with Ok(()). Generated:\n{}", rust);
 
     // Should compile
     assert!(!rust.is_empty());
 }
 
 #[test]
-fn test_depyler_0450_loop_with_side_effects() {
+fn test_loop_with_side_effects() {
     let python = r#"
 def process_items(items):
     for item in items:
@@ -66,7 +62,7 @@ def process_items(items):
 }
 
 #[test]
-fn test_depyler_0450_conditional_side_effects() {
+fn test_conditional_side_effects() {
     let python = r#"
 def update_config(config, key, value):
     if key not in config:
@@ -83,16 +79,11 @@ def update_config(config, key, value):
     );
 
     // Should end with Ok(())
-    assert!(
-        rust.contains("Ok(())"),
-        "Should end with Ok(()). Generated:\n{}",
-        rust
-    );
+    assert!(rust.contains("Ok(())"), "Should end with Ok(()). Generated:\n{}", rust);
 }
 
 #[test]
-#[ignore] // Requires 'del' statement support (not yet implemented)
-fn test_depyler_0450_nested_blocks() {
+fn test_nested_blocks() {
     let python = r#"
 def nested_operations(data):
     try:
@@ -109,8 +100,7 @@ def nested_operations(data):
 }
 
 #[test]
-#[ignore] // Requires 'with' statement to set can_fail=true (separate bug)
-fn test_depyler_0450_file_operations() {
+fn test_file_operations() {
     let python = r#"
 def write_file(path, content):
     try:
@@ -134,7 +124,7 @@ def write_file(path, content):
 // =============================================================================
 
 #[test]
-fn test_depyler_0450_return_primitive() {
+fn test_return_primitive() {
     let python = r#"
 def get_count(items):
     try:
@@ -160,7 +150,7 @@ def get_count(items):
 }
 
 #[test]
-fn test_depyler_0450_return_string() {
+fn test_return_string() {
     let python = r#"
 def get_name(data, key):
     if key not in data:
@@ -177,7 +167,7 @@ def get_name(data, key):
 }
 
 #[test]
-fn test_depyler_0450_return_collection() {
+fn test_return_collection() {
     let python = r#"
 def filter_items(items, condition):
     try:
@@ -199,7 +189,7 @@ def filter_items(items, condition):
 }
 
 #[test]
-fn test_depyler_0450_return_optional() {
+fn test_return_optional() {
     let python = r#"
 def find_item(items, key):
     try:
@@ -217,7 +207,7 @@ def find_item(items, key):
 }
 
 #[test]
-fn test_depyler_0450_mixed_return_paths() {
+fn test_mixed_return_paths() {
     let python = r#"
 def get_value_or_default(data, key, default):
     try:
@@ -241,7 +231,7 @@ def get_value_or_default(data, key, default):
 // =============================================================================
 
 #[test]
-fn test_depyler_0450_function_with_try_except() {
+fn test_function_with_try_except() {
     let python = r#"
 def safe_divide(a, b):
     try:
@@ -264,8 +254,7 @@ def safe_divide(a, b):
 }
 
 #[test]
-#[ignore] // Requires 'with' statement to set can_fail=true (separate bug)
-fn test_depyler_0450_multiple_error_types() {
+fn test_multiple_error_types() {
     let python = r#"
 def read_and_parse(path):
     try:
@@ -287,7 +276,7 @@ def read_and_parse(path):
 }
 
 #[test]
-fn test_depyler_0450_custom_error_type() {
+fn test_custom_error_type() {
     let python = r#"
 class CustomError(Exception):
     pass
@@ -304,7 +293,7 @@ def validate_data(data):
 }
 
 #[test]
-fn test_depyler_0450_nested_try_except() {
+fn test_nested_try_except() {
     let python = r#"
 def nested_operations(data):
     try:
@@ -323,7 +312,7 @@ def nested_operations(data):
 }
 
 #[test]
-fn test_depyler_0450_error_propagation() {
+fn test_error_propagation() {
     let python = r#"
 def chain_operations(data):
     try:
@@ -348,7 +337,7 @@ def chain_operations(data):
 // =============================================================================
 
 #[test]
-fn test_depyler_0450_empty_function() {
+fn test_empty_function() {
     let python = r#"
 def empty_function():
     pass
@@ -360,7 +349,7 @@ def empty_function():
 }
 
 #[test]
-fn test_depyler_0450_single_statement() {
+fn test_single_statement() {
     let python = r#"
 def single_statement(x):
     try:
@@ -378,7 +367,7 @@ def single_statement(x):
 }
 
 #[test]
-fn test_depyler_0450_explicit_return_only() {
+fn test_explicit_return_only() {
     let python = r#"
 def explicit_return(x):
     if x > 0:
@@ -398,7 +387,7 @@ def explicit_return(x):
 }
 
 #[test]
-fn test_depyler_0450_no_error_handling() {
+fn test_no_error_handling() {
     let python = r#"
 def simple_function(x, y):
     result = x + y
@@ -411,7 +400,7 @@ def simple_function(x, y):
 }
 
 #[test]
-fn test_depyler_0450_already_wrapped_ok() {
+fn test_already_wrapped_ok() {
     // This tests that we don't double-wrap Ok(Ok(()))
     let python = r#"
 def safe_operation(data):
@@ -439,7 +428,7 @@ def safe_operation(data):
 // =============================================================================
 
 #[test]
-fn test_depyler_0450_config_set_nested_value() {
+fn test_config_set_nested_value() {
     let python = r#"
 def set_nested_value(config, key, value):
     keys = key.split(".")
@@ -467,8 +456,7 @@ def set_nested_value(config, key, value):
 }
 
 #[test]
-#[ignore] // Requires import statement and csv operations support (separate bug)
-fn test_depyler_0450_csv_filter() {
+fn test_csv_filter() {
     let python = r#"
 def filter_csv(input_file, output_file, column, value):
     import csv
@@ -496,8 +484,7 @@ def filter_csv(input_file, output_file, column, value):
 }
 
 #[test]
-#[ignore] // Requires import statement and os module support (separate bug)
-fn test_depyler_0450_env_check() {
+fn test_env_check() {
     let python = r#"
 def check_environment(key):
     import os
@@ -519,7 +506,7 @@ def check_environment(key):
 }
 
 #[test]
-fn test_depyler_0450_complex_control_flow() {
+fn test_complex_control_flow() {
     let python = r#"
 def complex_operation(data, mode):
     try:
@@ -546,7 +533,7 @@ def complex_operation(data, mode):
 }
 
 #[test]
-fn test_depyler_0450_side_effect_with_raise() {
+fn test_side_effect_with_raise() {
     let python = r#"
 def validate_and_update(config, key, value):
     if key not in ["name", "age", "email"]:

@@ -68,7 +68,7 @@ fn contains_borrow_error(rust_code: &str) -> bool {
 }
 
 #[test]
-fn test_DEPYLER_0269_basic_reference_parameter_compiles() {
+fn test_basic_reference_parameter_compiles() {
     // Test Case: Function accepts &Vec<i32>, caller passes owned Vec<i32>
     // Expected: Transpiler adds & automatically
     let python = r#"
@@ -100,7 +100,7 @@ def main() -> None:
 }
 
 #[test]
-fn test_DEPYLER_0269_multiple_reference_parameters_compiles() {
+fn test_multiple_reference_parameters_compiles() {
     // Test Case: Function with multiple reference parameters
     // Expected: Add & to all arguments that need it
     let python = r#"
@@ -132,7 +132,7 @@ def main() -> None:
 }
 
 #[test]
-fn test_DEPYLER_0269_string_reference_parameter_compiles() {
+fn test_string_reference_parameter_compiles() {
     // Test Case: String parameter (expects &str or &String)
     // Expected: Add & when passing owned String
     let python = r#"
@@ -163,7 +163,7 @@ def main() -> None:
 }
 
 #[test]
-fn test_DEPYLER_0269_dict_reference_parameter_compiles() {
+fn test_dict_reference_parameter_compiles() {
     // Test Case: Dict parameter (expects &HashMap)
     // Expected: Add & when passing owned HashMap
     let python = r#"
@@ -194,10 +194,9 @@ def main() -> None:
 }
 
 #[test]
-#[ignore = "Diagnostic test - run manually to verify current error messages"]
-fn test_DEPYLER_0269_verify_current_bug() {
+fn test_verify_current_bug() {
     // This test verifies the bug exists by checking for borrow error messages
-    // Run with: cargo test test_DEPYLER_0269_verify_current_bug -- --ignored --nocapture
+    // Run with: cargo test test_verify_current_bug -- --ignored --nocapture
     let python = r#"
 def process(data: list[int]) -> int:
     return len(data)
@@ -226,7 +225,7 @@ def main() -> None:
 
 // Property-based test: Verify ANY reference parameter gets & automatically
 #[test]
-fn test_DEPYLER_0269_reference_parameter_types() {
+fn test_reference_parameter_types() {
     // Test various collection types that should all get & added
     let test_cases = vec![
         (

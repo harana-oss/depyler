@@ -20,7 +20,7 @@ fn transpile_python(python: &str) -> anyhow::Result<String> {
 // =============================================================================
 
 #[test]
-fn test_depyler_0449_dict_contains_key_on_value() {
+fn test_dict_contains_key_on_value() {
     let python = r#"
 config = {"host": "localhost", "port": 5432}
 
@@ -45,7 +45,7 @@ def has_host(config):
 }
 
 #[test]
-fn test_depyler_0449_dict_in_loop() {
+fn test_dict_in_loop() {
     let python = r#"
 def check_keys(data, keys):
     for key in keys:
@@ -64,7 +64,7 @@ def check_keys(data, keys):
 }
 
 #[test]
-fn test_depyler_0449_isinstance_and_in() {
+fn test_isinstance_and_in() {
     let python = r#"
 def get_value(data, key):
     if isinstance(data, dict) and key in data:
@@ -81,7 +81,7 @@ def get_value(data, key):
 }
 
 #[test]
-fn test_depyler_0449_not_in_operator() {
+fn test_not_in_operator() {
     let python = r#"
 def is_missing(data, key):
     return key not in data
@@ -97,7 +97,7 @@ def is_missing(data, key):
 // =============================================================================
 
 #[test]
-fn test_depyler_0449_dict_indexing_on_value() {
+fn test_dict_indexing_on_value() {
     let python = r#"
 config = {"host": "localhost"}
 
@@ -122,7 +122,7 @@ def get_host(config):
 }
 
 #[test]
-fn test_depyler_0449_nested_dict_access() {
+fn test_nested_dict_access() {
     let python = r#"
 def get_nested(config, key):
     keys = key.split(".")
@@ -142,7 +142,7 @@ def get_nested(config, key):
 }
 
 #[test]
-fn test_depyler_0449_dict_subscript_assign() {
+fn test_dict_subscript_assign() {
     let python = r#"
 def set_value(data, key, value):
     data[key] = value
@@ -157,7 +157,7 @@ def set_value(data, key, value):
 }
 
 #[test]
-fn test_depyler_0449_dict_get_or_default() {
+fn test_dict_get_or_default() {
     let python = r#"
 config = {"host": "localhost"}
 
@@ -175,7 +175,7 @@ def get_port(config):
 // =============================================================================
 
 #[test]
-fn test_depyler_0449_iterate_dict_keys() {
+fn test_iterate_dict_keys() {
     let python = r#"
 def print_keys(data):
     for key in data:
@@ -188,7 +188,7 @@ def print_keys(data):
 }
 
 #[test]
-fn test_depyler_0449_iterate_dict_values() {
+fn test_iterate_dict_values() {
     let python = r#"
 def sum_values(data):
     total = 0
@@ -203,7 +203,7 @@ def sum_values(data):
 }
 
 #[test]
-fn test_depyler_0449_iterate_dict_items() {
+fn test_iterate_dict_items() {
     let python = r#"
 def print_items(data):
     for key, value in data.items():
@@ -220,7 +220,7 @@ def print_items(data):
 // =============================================================================
 
 #[test]
-fn test_depyler_0449_dict_get_method() {
+fn test_dict_get_method() {
     let python = r#"
 def safe_get(data, key, default):
     return data.get(key, default)
@@ -236,7 +236,7 @@ def safe_get(data, key, default):
 }
 
 #[test]
-fn test_depyler_0449_dict_keys_method() {
+fn test_dict_keys_method() {
     let python = r#"
 def get_keys(data):
     return list(data.keys())
@@ -248,7 +248,7 @@ def get_keys(data):
 }
 
 #[test]
-fn test_depyler_0449_dict_update() {
+fn test_dict_update() {
     let python = r#"
 def merge_dicts(target, source):
     target.update(source)
@@ -260,7 +260,7 @@ def merge_dicts(target, source):
 }
 
 #[test]
-fn test_depyler_0449_dict_pop() {
+fn test_dict_pop() {
     let python = r#"
 def remove_key(data, key):
     return data.pop(key, None)
@@ -276,7 +276,7 @@ def remove_key(data, key):
 // =============================================================================
 
 #[test]
-fn test_depyler_0449_config_get_nested() {
+fn test_config_get_nested() {
     let python = r#"
 DEFAULT_CONFIG = {"host": "localhost", "port": 5432}
 
@@ -308,7 +308,7 @@ def get_nested_value(config, key):
 }
 
 #[test]
-fn test_depyler_0449_config_set_nested() {
+fn test_config_set_nested() {
     let python = r#"
 def set_nested_value(config, key, new_value):
     keys = key.split(".")
@@ -330,7 +330,7 @@ def set_nested_value(config, key, new_value):
 }
 
 #[test]
-fn test_depyler_0449_dict_comprehension_filter() {
+fn test_dict_comprehension_filter() {
     let python = r#"
 def filter_dict(data, keys):
     return {k: data[k] for k in keys if k in data}
@@ -349,7 +349,7 @@ def filter_dict(data, keys):
 // =============================================================================
 
 #[test]
-fn test_depyler_0449_empty_dict() {
+fn test_empty_dict() {
     let python = r#"
 def is_empty(data):
     return len(data) == 0
@@ -361,7 +361,7 @@ def is_empty(data):
 }
 
 #[test]
-fn test_depyler_0449_dict_bool_context() {
+fn test_dict_bool_context() {
     let python = r#"
 def has_data(data):
     if data:
@@ -375,7 +375,7 @@ def has_data(data):
 }
 
 #[test]
-fn test_depyler_0449_dict_comparison() {
+fn test_dict_comparison() {
     let python = r#"
 def dicts_equal(a, b):
     return a == b
@@ -392,7 +392,7 @@ def dicts_equal(a, b):
 
 #[test]
 #[ignore] // Ignore until GREEN phase is complete
-fn test_depyler_0449_config_manager_compiles() {
+fn test_config_manager_compiles() {
     // This test requires the actual config_manager.py file
     // Will be enabled when we verify the fix works on real examples
     let python = r#"
@@ -436,7 +436,7 @@ def set_nested_value(config, key, new_value):
 // =============================================================================
 
 #[test]
-fn test_depyler_0449_simple_lookup_compiles() {
+fn test_simple_lookup_compiles() {
     let python = r#"
 def get_value(data, key):
     if key in data:
@@ -450,7 +450,7 @@ def get_value(data, key):
 }
 
 #[test]
-fn test_depyler_0449_dict_mutation_compiles() {
+fn test_dict_mutation_compiles() {
     let python = r#"
 def add_item(data, key, value):
     data[key] = value

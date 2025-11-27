@@ -6,7 +6,6 @@ use depyler_core::transpile_python_to_rust;
 
 // DEPYLER-STDLIB-URLLIB-PARSE-001: URL parsing
 #[test]
-#[ignore = "DEPYLER-STDLIB-URLLIB-PARSE: Not implemented yet - RED phase"]
 fn test_urlparse() {
     let python = r#"
 from urllib.parse import urlparse
@@ -23,7 +22,6 @@ def parse_url(url: str) -> tuple:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-URLLIB-PARSE: Not implemented yet - RED phase"]
 fn test_urlunparse() {
     let python = r#"
 from urllib.parse import urlunparse
@@ -135,7 +133,6 @@ def parse_query(qs: str) -> dict:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-URLLIB-PARSE: Not implemented yet - RED phase"]
 fn test_parse_qsl() {
     let python = r#"
 from urllib.parse import parse_qsl
@@ -152,7 +149,6 @@ def parse_query_list(qs: str) -> list:
 
 // DEPYLER-STDLIB-URLLIB-PARSE-004: URL joining
 #[test]
-#[ignore = "DEPYLER-STDLIB-URLLIB-PARSE: Not implemented yet - RED phase"]
 fn test_urljoin() {
     let python = r#"
 from urllib.parse import urljoin
@@ -169,7 +165,6 @@ def join_url(base: str, url: str) -> str:
 
 // DEPYLER-STDLIB-URLLIB-PARSE-005: URL components
 #[test]
-#[ignore = "DEPYLER-STDLIB-URLLIB-PARSE: Not implemented yet - RED phase"]
 fn test_urlsplit() {
     let python = r#"
 from urllib.parse import urlsplit
@@ -186,7 +181,6 @@ def split_url(url: str) -> tuple:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-URLLIB-PARSE: Not implemented yet - RED phase"]
 fn test_urlunsplit() {
     let python = r#"
 from urllib.parse import urlunsplit

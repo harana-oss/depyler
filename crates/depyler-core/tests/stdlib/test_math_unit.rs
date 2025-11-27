@@ -41,7 +41,6 @@ def calculate_sin(x: float) -> float:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-MATH: Not implemented yet - RED phase"]
 fn test_math_cos() {
     let python = r#"
 import math
@@ -55,7 +54,6 @@ def calculate_cos(x: float) -> float:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-MATH: Not implemented yet - RED phase"]
 fn test_math_tan() {
     let python = r#"
 import math
@@ -83,7 +81,6 @@ def calculate_sqrt(x: float) -> float:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-MATH: Not implemented yet - RED phase"]
 fn test_math_pow() {
     let python = r#"
 import math
@@ -97,7 +94,6 @@ def calculate_pow(x: float, y: float) -> float:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-MATH: Not implemented yet - RED phase"]
 fn test_math_exp() {
     let python = r#"
 import math
@@ -111,7 +107,6 @@ def calculate_exp(x: float) -> float:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-MATH: Not implemented yet - RED phase"]
 fn test_math_log() {
     let python = r#"
 import math
@@ -125,7 +120,6 @@ def calculate_log(x: float) -> float:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-MATH: Not implemented yet - RED phase"]
 fn test_math_log10() {
     let python = r#"
 import math
@@ -140,7 +134,6 @@ def calculate_log10(x: float) -> float:
 
 // DEPYLER-STDLIB-MATH-003: Ceiling and floor functions
 #[test]
-#[ignore = "DEPYLER-STDLIB-MATH: Not implemented yet - RED phase"]
 fn test_math_ceil() {
     let python = r#"
 import math
@@ -154,7 +147,6 @@ def calculate_ceil(x: float) -> int:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-MATH: Not implemented yet - RED phase"]
 fn test_math_floor() {
     let python = r#"
 import math
@@ -168,7 +160,6 @@ def calculate_floor(x: float) -> int:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-MATH: Not implemented yet - RED phase"]
 fn test_math_trunc() {
     let python = r#"
 import math
@@ -196,7 +187,6 @@ def get_pi() -> float:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-MATH: Not implemented yet - RED phase"]
 fn test_math_e() {
     let python = r#"
 import math
@@ -210,7 +200,6 @@ def get_e() -> float:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-MATH: Not implemented yet - RED phase"]
 fn test_math_tau() {
     let python = r#"
 import math
@@ -225,7 +214,6 @@ def get_tau() -> float:
 
 // DEPYLER-STDLIB-MATH-005: Hyperbolic functions
 #[test]
-#[ignore = "DEPYLER-STDLIB-MATH: Not implemented yet - RED phase"]
 fn test_math_sinh() {
     let python = r#"
 import math
@@ -239,7 +227,6 @@ def calculate_sinh(x: float) -> float:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-MATH: Not implemented yet - RED phase"]
 fn test_math_cosh() {
     let python = r#"
 import math
@@ -253,7 +240,6 @@ def calculate_cosh(x: float) -> float:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-MATH: Not implemented yet - RED phase"]
 fn test_math_tanh() {
     let python = r#"
 import math
@@ -268,7 +254,6 @@ def calculate_tanh(x: float) -> float:
 
 // DEPYLER-STDLIB-MATH-006: Absolute value and sign
 #[test]
-#[ignore = "DEPYLER-STDLIB-MATH: Not implemented yet - RED phase"]
 fn test_math_fabs() {
     let python = r#"
 import math
@@ -282,7 +267,6 @@ def calculate_fabs(x: float) -> float:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-MATH: Not implemented yet - RED phase"]
 fn test_math_copysign() {
     let python = r#"
 import math
@@ -297,7 +281,6 @@ def calculate_copysign(x: float, y: float) -> float:
 
 // DEPYLER-STDLIB-MATH-007: Factorial and combinations
 #[test]
-#[ignore = "DEPYLER-STDLIB-MATH: Not implemented yet - RED phase"]
 fn test_math_factorial() {
     let python = r#"
 import math
@@ -312,7 +295,6 @@ def calculate_factorial(n: int) -> int:
 
 // DEPYLER-STDLIB-MATH-008: Degrees and radians conversion
 #[test]
-#[ignore = "DEPYLER-STDLIB-MATH: Not implemented yet - RED phase"]
 fn test_math_degrees() {
     let python = r#"
 import math
@@ -326,7 +308,6 @@ def convert_to_degrees(x: float) -> float:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-MATH: Not implemented yet - RED phase"]
 fn test_math_radians() {
     let python = r#"
 import math
@@ -341,7 +322,6 @@ def convert_to_radians(x: float) -> float:
 
 // DEPYLER-STDLIB-MATH-009: GCD and LCM
 #[test]
-#[ignore = "DEPYLER-STDLIB-MATH: Not implemented yet - RED phase"]
 fn test_math_gcd() {
     let python = r#"
 import math
@@ -356,7 +336,6 @@ def calculate_gcd(a: int, b: int) -> int:
 
 // DEPYLER-STDLIB-MATH-010: Special values
 #[test]
-#[ignore = "DEPYLER-STDLIB-MATH: Not implemented yet - RED phase"]
 fn test_math_inf() {
     let python = r#"
 import math
@@ -370,7 +349,6 @@ def get_inf() -> float:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-MATH: Not implemented yet - RED phase"]
 fn test_math_nan() {
     let python = r#"
 import math
@@ -384,7 +362,6 @@ def get_nan() -> float:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-MATH: Not implemented yet - RED phase"]
 fn test_math_isnan() {
     let python = r#"
 import math
@@ -398,7 +375,6 @@ def check_nan(x: float) -> bool:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-MATH: Not implemented yet - RED phase"]
 fn test_math_isinf() {
     let python = r#"
 import math
@@ -412,7 +388,6 @@ def check_inf(x: float) -> bool:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-MATH: Not implemented yet - RED phase"]
 fn test_math_isfinite() {
     let python = r#"
 import math
@@ -427,7 +402,6 @@ def check_finite(x: float) -> bool:
 
 // DEPYLER-STDLIB-MATH-011: Complex usage patterns
 #[test]
-#[ignore = "DEPYLER-STDLIB-MATH: Not implemented yet - RED phase"]
 fn test_math_combined_operations() {
     let python = r#"
 import math
@@ -462,7 +436,6 @@ def calculate_distance(x1: float, y1: float, x2: float, y2: float) -> float:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-MATH: Not implemented yet - RED phase"]
 fn test_math_circle_area() {
     let python = r#"
 import math
@@ -477,7 +450,6 @@ def circle_area(radius: float) -> float:
 
 // DEPYLER-STDLIB-MATH-012: Inverse trigonometric functions
 #[test]
-#[ignore = "DEPYLER-STDLIB-MATH: Not implemented yet - RED phase"]
 fn test_math_asin() {
     let python = r#"
 import math
@@ -491,7 +463,6 @@ def calculate_asin(x: float) -> float:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-MATH: Not implemented yet - RED phase"]
 fn test_math_acos() {
     let python = r#"
 import math
@@ -505,7 +476,6 @@ def calculate_acos(x: float) -> float:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-MATH: Not implemented yet - RED phase"]
 fn test_math_atan() {
     let python = r#"
 import math
@@ -519,7 +489,6 @@ def calculate_atan(x: float) -> float:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-MATH: Not implemented yet - RED phase"]
 fn test_math_atan2() {
     let python = r#"
 import math
@@ -534,7 +503,6 @@ def calculate_atan2(y: float, x: float) -> float:
 
 // DEPYLER-STDLIB-MATH-013: Additional functions
 #[test]
-#[ignore = "DEPYLER-STDLIB-MATH: Not implemented yet - RED phase"]
 fn test_math_ldexp() {
     let python = r#"
 import math
@@ -548,7 +516,6 @@ def calculate_ldexp(x: float, i: int) -> float:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-MATH: Not implemented yet - RED phase"]
 fn test_math_frexp() {
     let python = r#"
 import math

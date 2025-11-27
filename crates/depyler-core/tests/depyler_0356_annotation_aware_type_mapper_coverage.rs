@@ -27,7 +27,7 @@ use depyler_core::type_mapper::{PrimitiveType, RustType, TypeMapper};
 // ============================================================================
 
 #[test]
-fn test_depyler_0356_new_constructor() {
+fn test_new_constructor() {
     let mapper = AnnotationAwareTypeMapper::new();
     let annotations = TranspilationAnnotations::default();
 
@@ -37,7 +37,7 @@ fn test_depyler_0356_new_constructor() {
 }
 
 #[test]
-fn test_depyler_0356_default_trait() {
+fn test_default_trait() {
     let mapper = AnnotationAwareTypeMapper::default();
     let annotations = TranspilationAnnotations::default();
 
@@ -47,7 +47,7 @@ fn test_depyler_0356_default_trait() {
 }
 
 #[test]
-fn test_depyler_0356_with_base_mapper() {
+fn test_with_base_mapper() {
     let custom_base = TypeMapper::new();
     let mapper = AnnotationAwareTypeMapper::with_base_mapper(custom_base);
     let annotations = TranspilationAnnotations::default();
@@ -62,7 +62,7 @@ fn test_depyler_0356_with_base_mapper() {
 // ============================================================================
 
 #[test]
-fn test_depyler_0356_conservative_string_borrowed() {
+fn test_conservative_string_borrowed() {
     let mapper = AnnotationAwareTypeMapper::new();
     let annotations = TranspilationAnnotations {
         string_strategy: StringStrategy::Conservative,
@@ -80,7 +80,7 @@ fn test_depyler_0356_conservative_string_borrowed() {
 }
 
 #[test]
-fn test_depyler_0356_conservative_string_owned() {
+fn test_conservative_string_owned() {
     let mapper = AnnotationAwareTypeMapper::new();
     let annotations = TranspilationAnnotations {
         string_strategy: StringStrategy::Conservative,
@@ -93,7 +93,7 @@ fn test_depyler_0356_conservative_string_owned() {
 }
 
 #[test]
-fn test_depyler_0356_conservative_string_shared() {
+fn test_conservative_string_shared() {
     let mapper = AnnotationAwareTypeMapper::new();
     let mut annotations = TranspilationAnnotations::default();
     annotations.string_strategy = StringStrategy::Conservative;
@@ -108,7 +108,7 @@ fn test_depyler_0356_conservative_string_shared() {
 // ============================================================================
 
 #[test]
-fn test_depyler_0356_list_shared_no_thread_safety() {
+fn test_list_shared_no_thread_safety() {
     let mapper = AnnotationAwareTypeMapper::new();
     let mut annotations = TranspilationAnnotations::default();
     annotations.ownership_model = OwnershipModel::Shared;
@@ -121,7 +121,7 @@ fn test_depyler_0356_list_shared_no_thread_safety() {
 }
 
 #[test]
-fn test_depyler_0356_list_shared_with_thread_safety() {
+fn test_list_shared_with_thread_safety() {
     let mapper = AnnotationAwareTypeMapper::new();
     let annotations = TranspilationAnnotations {
         ownership_model: OwnershipModel::Shared,
@@ -140,7 +140,7 @@ fn test_depyler_0356_list_shared_with_thread_safety() {
 // ============================================================================
 
 #[test]
-fn test_depyler_0356_dict_borrowed() {
+fn test_dict_borrowed() {
     let mapper = AnnotationAwareTypeMapper::new();
     let mut annotations = TranspilationAnnotations::default();
     annotations.ownership_model = OwnershipModel::Borrowed;
@@ -167,7 +167,7 @@ fn test_depyler_0356_dict_borrowed() {
 }
 
 #[test]
-fn test_depyler_0356_dict_shared_thread_safe() {
+fn test_dict_shared_thread_safe() {
     let mapper = AnnotationAwareTypeMapper::new();
     let annotations = TranspilationAnnotations {
         ownership_model: OwnershipModel::Shared,
@@ -185,7 +185,7 @@ fn test_depyler_0356_dict_shared_thread_safe() {
 }
 
 #[test]
-fn test_depyler_0356_dict_shared_not_thread_safe() {
+fn test_dict_shared_not_thread_safe() {
     let mapper = AnnotationAwareTypeMapper::new();
     let mut annotations = TranspilationAnnotations::default();
     annotations.ownership_model = OwnershipModel::Shared;
@@ -205,7 +205,7 @@ fn test_depyler_0356_dict_shared_not_thread_safe() {
 // ============================================================================
 
 #[test]
-fn test_depyler_0356_needs_reference_borrowed_non_copy() {
+fn test_needs_reference_borrowed_non_copy() {
     let mapper = AnnotationAwareTypeMapper::new();
     let mut annotations = TranspilationAnnotations::default();
     annotations.ownership_model = OwnershipModel::Borrowed;
@@ -215,7 +215,7 @@ fn test_depyler_0356_needs_reference_borrowed_non_copy() {
 }
 
 #[test]
-fn test_depyler_0356_needs_reference_borrowed_copy() {
+fn test_needs_reference_borrowed_copy() {
     let mapper = AnnotationAwareTypeMapper::new();
     let mut annotations = TranspilationAnnotations::default();
     annotations.ownership_model = OwnershipModel::Borrowed;
@@ -225,7 +225,7 @@ fn test_depyler_0356_needs_reference_borrowed_copy() {
 }
 
 #[test]
-fn test_depyler_0356_needs_reference_owned() {
+fn test_needs_reference_owned() {
     let mapper = AnnotationAwareTypeMapper::new();
     let mut annotations = TranspilationAnnotations::default();
     annotations.ownership_model = OwnershipModel::Owned;
@@ -235,7 +235,7 @@ fn test_depyler_0356_needs_reference_owned() {
 }
 
 #[test]
-fn test_depyler_0356_needs_reference_shared() {
+fn test_needs_reference_shared() {
     let mapper = AnnotationAwareTypeMapper::new();
     let mut annotations = TranspilationAnnotations::default();
     annotations.ownership_model = OwnershipModel::Shared;
@@ -249,7 +249,7 @@ fn test_depyler_0356_needs_reference_shared() {
 // ============================================================================
 
 #[test]
-fn test_depyler_0356_return_type_none_default_strategy() {
+fn test_return_type_none_default_strategy() {
     let mapper = AnnotationAwareTypeMapper::new();
     let annotations = TranspilationAnnotations::default();
 
@@ -258,7 +258,7 @@ fn test_depyler_0356_return_type_none_default_strategy() {
 }
 
 #[test]
-fn test_depyler_0356_return_type_none_result_strategy() {
+fn test_return_type_none_result_strategy() {
     let mapper = AnnotationAwareTypeMapper::new();
     let mut annotations = TranspilationAnnotations::default();
     annotations.error_strategy = ErrorStrategy::ResultType;
@@ -274,7 +274,7 @@ fn test_depyler_0356_return_type_none_result_strategy() {
 }
 
 #[test]
-fn test_depyler_0356_return_type_unknown() {
+fn test_return_type_unknown() {
     let mapper = AnnotationAwareTypeMapper::new();
     let annotations = TranspilationAnnotations::default();
 
@@ -283,7 +283,7 @@ fn test_depyler_0356_return_type_unknown() {
 }
 
 #[test]
-fn test_depyler_0356_return_type_concrete() {
+fn test_return_type_concrete() {
     let mapper = AnnotationAwareTypeMapper::new();
     let annotations = TranspilationAnnotations::default();
 
@@ -296,7 +296,7 @@ fn test_depyler_0356_return_type_concrete() {
 // ============================================================================
 
 #[test]
-fn test_depyler_0356_base_mapper_fallback_int() {
+fn test_base_mapper_fallback_int() {
     let mapper = AnnotationAwareTypeMapper::new();
     let annotations = TranspilationAnnotations::default();
 
@@ -305,7 +305,7 @@ fn test_depyler_0356_base_mapper_fallback_int() {
 }
 
 #[test]
-fn test_depyler_0356_base_mapper_fallback_float() {
+fn test_base_mapper_fallback_float() {
     let mapper = AnnotationAwareTypeMapper::new();
     let annotations = TranspilationAnnotations::default();
 
@@ -314,7 +314,7 @@ fn test_depyler_0356_base_mapper_fallback_float() {
 }
 
 #[test]
-fn test_depyler_0356_base_mapper_fallback_bool() {
+fn test_base_mapper_fallback_bool() {
     let mapper = AnnotationAwareTypeMapper::new();
     let annotations = TranspilationAnnotations::default();
 
@@ -323,7 +323,7 @@ fn test_depyler_0356_base_mapper_fallback_bool() {
 }
 
 #[test]
-fn test_depyler_0356_base_mapper_fallback_none() {
+fn test_base_mapper_fallback_none() {
     let mapper = AnnotationAwareTypeMapper::new();
     let annotations = TranspilationAnnotations::default();
 
@@ -332,7 +332,7 @@ fn test_depyler_0356_base_mapper_fallback_none() {
 }
 
 #[test]
-fn test_depyler_0356_base_mapper_fallback_custom() {
+fn test_base_mapper_fallback_custom() {
     let mapper = AnnotationAwareTypeMapper::new();
     let annotations = TranspilationAnnotations::default();
 
@@ -346,7 +346,7 @@ fn test_depyler_0356_base_mapper_fallback_custom() {
 // ============================================================================
 
 #[test]
-fn test_depyler_0356_nested_list_of_lists() {
+fn test_nested_list_of_lists() {
     let mapper = AnnotationAwareTypeMapper::new();
     let annotations = TranspilationAnnotations::default();
 
@@ -362,7 +362,7 @@ fn test_depyler_0356_nested_list_of_lists() {
 }
 
 #[test]
-fn test_depyler_0356_nested_dict_with_list_values() {
+fn test_nested_dict_with_list_values() {
     let mapper = AnnotationAwareTypeMapper::new();
     let annotations = TranspilationAnnotations::default();
 
@@ -379,7 +379,7 @@ fn test_depyler_0356_nested_dict_with_list_values() {
 }
 
 #[test]
-fn test_depyler_0356_nested_optional_list() {
+fn test_nested_optional_list() {
     let mapper = AnnotationAwareTypeMapper::new();
     let annotations = TranspilationAnnotations::default();
 
@@ -394,7 +394,7 @@ fn test_depyler_0356_nested_optional_list() {
 }
 
 #[test]
-fn test_depyler_0356_nested_optional_dict() {
+fn test_nested_optional_dict() {
     let mapper = AnnotationAwareTypeMapper::new();
     let annotations = TranspilationAnnotations::default();
 
@@ -415,7 +415,7 @@ fn test_depyler_0356_nested_optional_dict() {
 // ============================================================================
 
 #[test]
-fn test_depyler_0356_zero_copy_borrowed_list() {
+fn test_zero_copy_borrowed_list() {
     let mapper = AnnotationAwareTypeMapper::new();
     let annotations = TranspilationAnnotations {
         string_strategy: StringStrategy::ZeroCopy,
@@ -450,7 +450,7 @@ fn test_depyler_0356_zero_copy_borrowed_list() {
 }
 
 #[test]
-fn test_depyler_0356_result_type_optional_string() {
+fn test_result_type_optional_string() {
     let mapper = AnnotationAwareTypeMapper::new();
     let mut annotations = TranspilationAnnotations::default();
     annotations.error_strategy = ErrorStrategy::ResultType;
@@ -468,7 +468,7 @@ fn test_depyler_0356_result_type_optional_string() {
 }
 
 #[test]
-fn test_depyler_0356_shared_thread_safe_nested_dict() {
+fn test_shared_thread_safe_nested_dict() {
     let mapper = AnnotationAwareTypeMapper::new();
     let annotations = TranspilationAnnotations {
         ownership_model: OwnershipModel::Shared,
@@ -497,7 +497,7 @@ fn test_depyler_0356_shared_thread_safe_nested_dict() {
 // ============================================================================
 
 #[test]
-fn test_depyler_0356_deeply_nested_types() {
+fn test_deeply_nested_types() {
     let mapper = AnnotationAwareTypeMapper::new();
     let annotations = TranspilationAnnotations::default();
 
@@ -518,7 +518,7 @@ fn test_depyler_0356_deeply_nested_types() {
 }
 
 #[test]
-fn test_depyler_0356_mixed_ownership_annotations() {
+fn test_mixed_ownership_annotations() {
     let mapper = AnnotationAwareTypeMapper::new();
 
     // Test that inner types inherit annotations
@@ -540,7 +540,7 @@ fn test_depyler_0356_mixed_ownership_annotations() {
 }
 
 #[test]
-fn test_depyler_0356_empty_annotations() {
+fn test_empty_annotations() {
     let mapper = AnnotationAwareTypeMapper::new();
     let annotations = TranspilationAnnotations::default();
 
@@ -674,7 +674,7 @@ mod property_tests {
 // ============================================================================
 
 #[test]
-fn test_depyler_0356_integration_api_response_type() {
+fn test_integration_api_response_type() {
     let mapper = AnnotationAwareTypeMapper::new();
     let annotations = TranspilationAnnotations {
         ownership_model: OwnershipModel::Owned,
@@ -701,7 +701,7 @@ fn test_depyler_0356_integration_api_response_type() {
 }
 
 #[test]
-fn test_depyler_0356_integration_zero_copy_parser() {
+fn test_integration_zero_copy_parser() {
     let mapper = AnnotationAwareTypeMapper::new();
     let annotations = TranspilationAnnotations {
         string_strategy: StringStrategy::ZeroCopy,
@@ -726,7 +726,7 @@ fn test_depyler_0356_integration_zero_copy_parser() {
 }
 
 #[test]
-fn test_depyler_0356_integration_thread_safe_cache() {
+fn test_integration_thread_safe_cache() {
     let mapper = AnnotationAwareTypeMapper::new();
     let annotations = TranspilationAnnotations {
         ownership_model: OwnershipModel::Shared,

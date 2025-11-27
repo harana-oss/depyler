@@ -22,7 +22,6 @@ def terminate(code: int) -> None:
 
 // DEPYLER-STDLIB-SYS-002: Standard streams
 #[test]
-#[ignore = "DEPYLER-STDLIB-SYS: Not implemented yet - RED phase"]
 fn test_stdout_write() {
     let python = r#"
 import sys
@@ -38,7 +37,6 @@ def write_stdout(message: str) -> None:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-SYS: Not implemented yet - RED phase"]
 fn test_stderr_write() {
     let python = r#"
 import sys

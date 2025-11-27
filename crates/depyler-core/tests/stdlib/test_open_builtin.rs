@@ -6,7 +6,6 @@ use depyler_core::transpile_python_to_rust;
 
 // DEPYLER-STDLIB-OPEN-001: Basic file opening modes
 #[test]
-#[ignore = "DEPYLER-STDLIB-OPEN: Not implemented yet - RED phase"]
 fn test_open_read_mode() {
     let python = r#"
 def read_file(path: str) -> str:
@@ -21,7 +20,6 @@ def read_file(path: str) -> str:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-OPEN: Not implemented yet - RED phase"]
 fn test_open_write_mode() {
     let python = r#"
 def write_file(path: str, content: str) -> None:
@@ -36,7 +34,6 @@ def write_file(path: str, content: str) -> None:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-OPEN: Not implemented yet - RED phase"]
 fn test_open_append_mode() {
     let python = r#"
 def append_file(path: str, content: str) -> None:
@@ -51,7 +48,6 @@ def append_file(path: str, content: str) -> None:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-OPEN: Not implemented yet - RED phase"]
 fn test_open_read_write_mode() {
     let python = r#"
 def open_read_write(path: str) -> None:
@@ -68,7 +64,6 @@ def open_read_write(path: str) -> None:
 
 // DEPYLER-STDLIB-OPEN-002: Binary modes
 #[test]
-#[ignore = "DEPYLER-STDLIB-OPEN: Not implemented yet - RED phase"]
 fn test_open_binary_read() {
     let python = r#"
 def read_binary(path: str) -> bytes:
@@ -83,7 +78,6 @@ def read_binary(path: str) -> bytes:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-OPEN: Not implemented yet - RED phase"]
 fn test_open_binary_write() {
     let python = r#"
 def write_binary(path: str, data: bytes) -> None:
@@ -99,7 +93,6 @@ def write_binary(path: str, data: bytes) -> None:
 
 // DEPYLER-STDLIB-OPEN-003: File operations with encoding
 #[test]
-#[ignore = "DEPYLER-STDLIB-OPEN: Not implemented yet - RED phase"]
 fn test_open_with_encoding() {
     let python = r#"
 def read_utf8(path: str) -> str:
@@ -115,7 +108,6 @@ def read_utf8(path: str) -> str:
 
 // DEPYLER-STDLIB-OPEN-004: File context manager (with statement)
 #[test]
-#[ignore = "DEPYLER-STDLIB-OPEN: Not implemented yet - RED phase"]
 fn test_open_context_manager() {
     let python = r#"
 def use_context_manager(path: str) -> str:
@@ -131,7 +123,6 @@ def use_context_manager(path: str) -> str:
 
 // DEPYLER-STDLIB-OPEN-005: Default mode behavior
 #[test]
-#[ignore = "DEPYLER-STDLIB-OPEN: Not implemented yet - RED phase"]
 fn test_open_default_mode() {
     let python = r#"
 def open_default(path: str) -> str:
@@ -147,7 +138,6 @@ def open_default(path: str) -> str:
 
 // DEPYLER-STDLIB-OPEN-006: Error handling
 #[test]
-#[ignore = "DEPYLER-STDLIB-OPEN: Not implemented yet - RED phase"]
 fn test_open_error_handling() {
     let python = r#"
 def safe_read(path: str) -> str:

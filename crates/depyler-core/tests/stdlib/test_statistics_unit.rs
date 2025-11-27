@@ -6,7 +6,6 @@ use depyler_core::transpile_python_to_rust;
 
 // DEPYLER-STDLIB-STATISTICS-001: Averages and measures of central location
 #[test]
-#[ignore = "DEPYLER-STDLIB-STATISTICS: Not implemented yet - RED phase"]
 fn test_statistics_mean() {
     let python = r#"
 import statistics
@@ -22,7 +21,6 @@ def calculate_mean(data: list[float]) -> float:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-STATISTICS: Not implemented yet - RED phase"]
 fn test_statistics_median() {
     let python = r#"
 import statistics
@@ -37,7 +35,6 @@ def calculate_median(data: list[float]) -> float:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-STATISTICS: Not implemented yet - RED phase"]
 fn test_statistics_mode() {
     let python = r#"
 import statistics
@@ -53,7 +50,6 @@ def calculate_mode(data: list[int]) -> int:
 
 // DEPYLER-STDLIB-STATISTICS-002: Measures of spread
 #[test]
-#[ignore = "DEPYLER-STDLIB-STATISTICS: Not implemented yet - RED phase"]
 fn test_statistics_stdev() {
     let python = r#"
 import statistics
@@ -68,7 +64,6 @@ def calculate_stdev(data: list[float]) -> float:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-STATISTICS: Not implemented yet - RED phase"]
 fn test_statistics_variance() {
     let python = r#"
 import statistics
@@ -83,7 +78,6 @@ def calculate_variance(data: list[float]) -> float:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-STATISTICS: Not implemented yet - RED phase"]
 fn test_statistics_pstdev() {
     let python = r#"
 import statistics
@@ -98,7 +92,6 @@ def calculate_pstdev(data: list[float]) -> float:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-STATISTICS: Not implemented yet - RED phase"]
 fn test_statistics_pvariance() {
     let python = r#"
 import statistics
@@ -114,7 +107,6 @@ def calculate_pvariance(data: list[float]) -> float:
 
 // DEPYLER-STDLIB-STATISTICS-003: Quartiles and percentiles
 #[test]
-#[ignore = "DEPYLER-STDLIB-STATISTICS: Not implemented yet - RED phase"]
 fn test_statistics_quantiles() {
     let python = r#"
 import statistics
@@ -130,7 +122,6 @@ def calculate_quantiles(data: list[float], n: int) -> list[float]:
 
 // DEPYLER-STDLIB-STATISTICS-004: Additional functions
 #[test]
-#[ignore = "DEPYLER-STDLIB-STATISTICS: Not implemented yet - RED phase"]
 fn test_statistics_harmonic_mean() {
     let python = r#"
 import statistics
@@ -145,7 +136,6 @@ def calculate_harmonic_mean(data: list[float]) -> float:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-STATISTICS: Not implemented yet - RED phase"]
 fn test_statistics_geometric_mean() {
     let python = r#"
 import statistics

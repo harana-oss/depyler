@@ -14,7 +14,7 @@ fn transpile_to_hir(python_code: &str) -> Result<HirModule> {
 }
 
 #[test]
-fn test_depyler_0364_call_with_single_kwarg() {
+fn test_call_with_single_kwarg() {
     let python = r#"
 def foo():
     result = bar(10, baz="hello")
@@ -50,7 +50,7 @@ def foo():
 }
 
 #[test]
-fn test_depyler_0364_call_with_multiple_kwargs() {
+fn test_call_with_multiple_kwargs() {
     let python = r#"
 def foo():
     result = bar(10, 20, baz=30, qux="hello")
@@ -82,7 +82,7 @@ def foo():
 }
 
 #[test]
-fn test_depyler_0364_method_call_with_kwargs() {
+fn test_method_call_with_kwargs() {
     let python = r#"
 def foo():
     parser.add_argument("name", nargs="+", help="Name")
@@ -113,7 +113,7 @@ def foo():
 }
 
 #[test]
-fn test_depyler_0364_kwargs_with_complex_expressions() {
+fn test_kwargs_with_complex_expressions() {
     let python = r#"
 def foo():
     result = bar(x=10 + 20, y=func())
@@ -139,7 +139,7 @@ def foo():
 }
 
 #[test]
-fn test_depyler_0364_kwargs_with_nested_calls() {
+fn test_kwargs_with_nested_calls() {
     let python = r#"
 def foo():
     result = outer(inner(x=10), y=20)
@@ -180,7 +180,7 @@ def foo():
 }
 
 #[test]
-fn test_depyler_0364_empty_kwargs_backward_compat() {
+fn test_empty_kwargs_backward_compat() {
     let python = r#"
 def foo():
     result = bar(10, 20)
@@ -200,7 +200,7 @@ def foo():
 }
 
 #[test]
-fn test_depyler_0364_argparse_argumentparser_kwargs() {
+fn test_argparse_argumentparser_kwargs() {
     let python = r#"
 import argparse
 
@@ -230,7 +230,7 @@ def foo():
 }
 
 #[test]
-fn test_depyler_0364_argparse_add_argument_kwargs() {
+fn test_argparse_add_argument_kwargs() {
     let python = r#"
 def foo():
     parser.add_argument("files", nargs="+", type=str, help="Files to process")
@@ -254,7 +254,7 @@ def foo():
 }
 
 #[test]
-fn test_depyler_0364_file_open_with_kwargs() {
+fn test_file_open_with_kwargs() {
     let python = r#"
 def foo():
     f = open(filename, mode="r", encoding="utf-8")
@@ -283,7 +283,7 @@ def foo():
 }
 
 #[test]
-fn test_depyler_0364_kwargs_order_preserved() {
+fn test_kwargs_order_preserved() {
     let python = r#"
 def foo():
     result = bar(a=1, b=2, c=3, d=4)

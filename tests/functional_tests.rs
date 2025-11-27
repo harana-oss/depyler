@@ -1,7 +1,6 @@
 // use serde_json::json;  // Not needed since test is commented out
 
 #[tokio::test]
-#[ignore = "MCP API has changed - needs update"]
 async fn test_mcp_server_functionality() {
     // MCP API has changed - this test needs to be updated
     // Commenting out to avoid compilation errors
@@ -72,7 +71,6 @@ async fn test_mcp_server_functionality() {
 }
 
 #[test]
-#[ignore] // This test requires building the binary which can timeout in CI
 fn test_cli_functionality() {
     use std::fs;
     use std::process::Command;
@@ -85,7 +83,7 @@ fn test_cli_functionality() {
 
     // Test CLI transpile command - use cargo run instead of direct binary
     let output = Command::new("cargo")
-        .args(["run", "--release", "--", "transpile", "test_cli.py"])
+        .args(["run", "--", "transpile", "test_cli.py"])
         .output()
         .expect("Failed to execute CLI command");
 
@@ -100,7 +98,7 @@ fn test_cli_functionality() {
 
     // Test CLI check command
     let output = Command::new("cargo")
-        .args(["run", "--release", "--", "check", "test_cli.py"])
+        .args(["run", "--", "check", "test_cli.py"])
         .output()
         .expect("Failed to execute CLI check command");
 
@@ -108,7 +106,7 @@ fn test_cli_functionality() {
 
     // Test CLI analyze command
     let output = Command::new("cargo")
-        .args(["run", "--release", "--", "analyze", "test_cli.py"])
+        .args(["run", "--", "analyze", "test_cli.py"])
         .output()
         .expect("Failed to execute CLI analyze command");
 
@@ -133,17 +131,11 @@ fn test_integration_transpilation_pipeline() {
     let python_code = "def square(n: int) -> int:\n    return n * n";
     let result = pipeline.transpile(python_code);
 
-    assert!(
-        result.is_ok(),
-        "Simple function should transpile successfully"
-    );
+    assert!(result.is_ok(), "Simple function should transpile successfully");
 
     if let Ok(rust_code) = result {
         assert!(rust_code.contains("square"), "Should contain function name");
-        assert!(
-            rust_code.contains("i32"),
-            "Should contain Rust integer type"
-        );
+        assert!(rust_code.contains("i32"), "Should contain Rust integer type");
         // DEPYLER-0271: Transpiler uses implicit return for final statements (idiomatic Rust)
         // Accept either "return" (early returns) or "n * n" (implicit return)
         assert!(

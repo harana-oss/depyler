@@ -66,7 +66,7 @@ fn contains_result_method_error(rust_code: &str) -> bool {
 }
 
 #[test]
-fn test_DEPYLER_0270_dict_result_unwrapping_compiles() {
+fn test_dict_result_unwrapping_compiles() {
     // Test Case: Function returns dict[str, int] but uses indexing (generates Result)
     // Expected: Call site automatically unwraps Result before accessing dict methods
     let python = r#"
@@ -108,7 +108,7 @@ def main() -> None:
 }
 
 #[test]
-fn test_DEPYLER_0270_multiple_result_accesses_compiles() {
+fn test_multiple_result_accesses_compiles() {
     // Test Case: Multiple dict accesses after Result-returning function call
     // Expected: Unwrap once, then all accesses work
     let python = r#"
@@ -143,7 +143,7 @@ def main() -> None:
 }
 
 #[test]
-fn test_DEPYLER_0270_list_result_unwrapping_compiles() {
+fn test_list_result_unwrapping_compiles() {
     // Test Case: Function returns list but uses dict indexing (Result wrapper)
     // Expected: Call site unwraps Result before list operations
     let python = r#"
@@ -175,7 +175,7 @@ def main() -> None:
 }
 
 #[test]
-fn test_DEPYLER_0270_chained_dict_access_compiles() {
+fn test_chained_dict_access_compiles() {
     // Test Case: Immediate dict access after function call (chained)
     // Expected: Unwrap before accessing, or use .unwrap().get() pattern
     let python = r#"
@@ -205,7 +205,7 @@ def main() -> None:
 }
 
 #[test]
-fn test_DEPYLER_0270_dict_get_method_compiles() {
+fn test_dict_get_method_compiles() {
     // Test Case: Using .get() method on dict from Result-returning function
     // This is the EXACT pattern from compute_intensive.py benchmark
     // Expected: Result unwrapped before calling .get()
@@ -249,10 +249,9 @@ def main() -> None:
 }
 
 #[test]
-#[ignore = "Diagnostic test - run manually to verify current error messages"]
-fn test_DEPYLER_0270_verify_current_bug() {
+fn test_verify_current_bug() {
     // This test verifies the bug exists by checking for Result method error
-    // Run with: cargo test test_DEPYLER_0270_verify_current_bug -- --ignored --nocapture
+    // Run with: cargo test test_verify_current_bug -- --ignored --nocapture
     let python = r#"
 def get_dict(nums: list[int]) -> dict[str, int]:
     val = nums[0]  # Triggers Result wrapper
@@ -283,7 +282,7 @@ def main() -> None:
 
 // Property-based test: Verify ANY Result-returning function gets unwrapped
 #[test]
-fn test_DEPYLER_0270_various_result_patterns() {
+fn test_various_result_patterns() {
     // Test various patterns that should all unwrap Results
     let test_cases = vec![
         (

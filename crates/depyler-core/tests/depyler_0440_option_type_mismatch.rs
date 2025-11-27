@@ -17,7 +17,7 @@ use depyler_core::DepylerPipeline;
 ///
 /// Verifies: issue core issue
 #[test]
-fn test_depyler_0440_simple_none_if_else() {
+fn test_simple_none_if_else() {
     let source = r#"
 def test_func():
     flag = True
@@ -83,7 +83,7 @@ def test_func():
 ///
 /// Verifies: Works with multiple elif branches
 #[test]
-fn test_depyler_0440_none_with_elif_chain() {
+fn test_none_with_elif_chain() {
     let source = r#"
 def test_func():
     a = True
@@ -150,8 +150,7 @@ def test_func():
 ///
 /// NOTE: Ignored due to unrelated tuple return type inference issue
 #[test]
-#[ignore]
-fn test_depyler_0440_multiple_variables_with_none() {
+fn test_multiple_variables_with_none() {
     let source = r#"
 def test_func():
     condition = True
@@ -221,8 +220,7 @@ def test_func():
 /// NOTE: Ignored - current implementation skips all None for mutable vars
 /// This is acceptable as it's an edge case (None without reassignment is rare)
 #[test]
-#[ignore]
-fn test_depyler_0440_keep_none_when_not_reassigned() {
+fn test_keep_none_when_not_reassigned() {
     let source = r#"
 def test_func():
     flag = True
@@ -250,7 +248,7 @@ def test_func():
 ///
 /// Verifies: Partial reassignment keeps Option
 #[test]
-fn test_depyler_0440_partial_reassignment_keeps_option() {
+fn test_partial_reassignment_keeps_option() {
     let source = r#"
 def test_func():
     flag = True
@@ -308,7 +306,7 @@ def test_func():
 ///
 /// Verifies: Nested scopes
 #[test]
-fn test_depyler_0440_nested_if_with_none() {
+fn test_nested_if_with_none() {
     let source = r#"
 def test_func():
     x = True
@@ -380,7 +378,7 @@ def test_func():
 ///
 /// Verifies: Real-world CLI configuration pattern
 #[test]
-fn test_depyler_0440_cli_output_format_real_world() {
+fn test_cli_output_format_real_world() {
     let source = r#"
 def process_args():
     json_flag = False
@@ -446,7 +444,7 @@ def process_args():
 ///
 /// Verifies: General correctness property
 #[test]
-fn test_depyler_0440_property_none_placeholder_compiles() {
+fn test_property_none_placeholder_compiles() {
     let test_cases = vec![
         // 2 branches (if-else)
         r#"

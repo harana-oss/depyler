@@ -16,7 +16,7 @@ fn transpile_python(python: &str) -> anyhow::Result<String> {
 }
 
 #[test]
-fn test_DEPYLER_0436_parameter_type_should_be_str() {
+fn test_parameter_type_should_be_str() {
     // Minimal argparse validator
     let python = r#"
 def port_validator(value):
@@ -52,7 +52,7 @@ def port_validator(value):
 }
 
 #[test]
-fn test_DEPYLER_0436_int_call_should_parse_not_cast() {
+fn test_int_call_should_parse_not_cast() {
     // int() on string parameter should use .parse(), not cast
     let python = r#"
 def validator(value):
@@ -85,7 +85,7 @@ def validator(value):
 }
 
 #[test]
-fn test_DEPYLER_0436_parse_error_handling() {
+fn test_parse_error_handling() {
     let python = r#"
 def validator(value):
     try:
@@ -121,7 +121,7 @@ def validator(value):
 }
 
 #[test]
-fn test_DEPYLER_0436_full_validator_compiles() {
+fn test_full_validator_compiles() {
     // Complete argparse validator should compile successfully
     let python = r#"
 def port_number(value):

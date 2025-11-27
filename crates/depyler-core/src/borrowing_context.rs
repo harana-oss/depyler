@@ -1005,7 +1005,7 @@ mod tests {
     }
 
     #[test]
-    fn test_string_borrowing() {
+    fn test_string_ownership() {
         let mut ctx = BorrowingContext::new(Some(PythonType::Int));
         let type_mapper = TypeMapper::new();
 
@@ -1026,9 +1026,9 @@ mod tests {
 
         let result = ctx.analyze_function(&func, &type_mapper);
 
-        // String parameter should be borrowed (not moved)
+        // String parameters take ownership to match Python's value semantics
         let s_strategy = result.param_strategies.get("s").unwrap();
-        assert!(matches!(s_strategy, BorrowingStrategy::BorrowImmutable { .. }));
+        assert!(matches!(s_strategy, BorrowingStrategy::TakeOwnership));
     }
 
     #[test]

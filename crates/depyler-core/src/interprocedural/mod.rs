@@ -49,7 +49,7 @@ pub use mutation_propagation::{MutationInfo, MutationPropagator, PropagationResu
 pub use signature_registry::{FunctionSignature, FunctionSignatureRegistry, ParamSignature};
 
 use crate::hir::HirModule;
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 
 /// Main interprocedural analysis coordinator
 ///
@@ -90,8 +90,7 @@ impl<'a> InterproceduralAnalyzer<'a> {
     /// Run the complete interprocedural analysis
     pub fn analyze(&mut self) -> InterproceduralAnalysis {
         // Phase 3: Propagate mutations
-        let mut propagator =
-            MutationPropagator::new(&self.registry, &self.call_graph).with_module(self.module);
+        let mut propagator = MutationPropagator::new(&self.registry, &self.call_graph).with_module(self.module);
 
         let result = propagator.propagate();
         self.mutations = result.mutations.clone();

@@ -14,7 +14,7 @@ fn transpile_python(python: &str) -> anyhow::Result<String> {
 }
 
 #[test]
-fn test_DEPYLER_0428_port_number_validator() {
+fn test_port_number_validator() {
     // Port number validator from complex_cli.py
     let python = r#"
 import argparse
@@ -61,7 +61,7 @@ def port_number(value):
 }
 
 #[test]
-fn test_DEPYLER_0428_positive_int_validator() {
+fn test_positive_int_validator() {
     // Positive int validator from complex_cli.py
     let python = r#"
 import argparse
@@ -89,7 +89,7 @@ def positive_int(value):
 }
 
 #[test]
-fn test_DEPYLER_0428_email_validator() {
+fn test_email_validator() {
     // Email address validator from complex_cli.py
     let python = r#"
 import argparse
@@ -115,7 +115,7 @@ def email_address(value):
 }
 
 #[test]
-fn test_DEPYLER_0428_simple_validator() {
+fn test_simple_validator() {
     // Simplified validator (no try/except)
     let python = r#"
 import argparse
@@ -139,7 +139,7 @@ def validate_range(value):
 }
 
 #[test]
-fn test_DEPYLER_0428_real_world_complex_cli() {
+fn test_real_world_complex_cli() {
     // Actual pattern from complex_cli.py (all three validators)
     let python = r#"
 import argparse
@@ -193,7 +193,7 @@ def email_address(value):
 }
 
 #[test]
-fn test_DEPYLER_0428_property_based_error_messages() {
+fn test_property_based_error_messages() {
     // Property: ArgumentTypeError can have any expression as message
     let test_cases = vec![
         (

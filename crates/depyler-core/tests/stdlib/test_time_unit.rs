@@ -36,7 +36,6 @@ def get_monotonic_time() -> float:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-TIME: Not implemented yet - RED phase"]
 fn test_time_perf_counter() {
     let python = r#"
 import time
@@ -52,7 +51,6 @@ def get_perf_counter() -> float:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-TIME: Not implemented yet - RED phase"]
 fn test_time_process_time() {
     let python = r#"
 import time
@@ -85,7 +83,6 @@ def sleep_seconds(seconds: float) -> None:
 
 // DEPYLER-STDLIB-TIME-003: Time formatting functions
 #[test]
-#[ignore = "DEPYLER-STDLIB-TIME: Not implemented yet - RED phase"]
 fn test_time_ctime() {
     let python = r#"
 import time
@@ -101,7 +98,6 @@ def format_time(timestamp: float) -> str:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-TIME: Not implemented yet - RED phase"]
 fn test_time_strftime() {
     let python = r#"
 import time
@@ -117,7 +113,6 @@ def format_with_pattern(pattern: str, timestamp: tuple) -> str:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-TIME: Not implemented yet - RED phase"]
 fn test_time_strptime() {
     let python = r#"
 import time
@@ -164,7 +159,6 @@ def get_localtime(timestamp: float) -> tuple:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-TIME: Not implemented yet - RED phase"]
 fn test_time_mktime() {
     let python = r#"
 import time
@@ -181,7 +175,6 @@ def tuple_to_timestamp(time_tuple: tuple) -> float:
 
 // DEPYLER-STDLIB-TIME-005: Timezone functions
 #[test]
-#[ignore = "DEPYLER-STDLIB-TIME: Not implemented yet - RED phase"]
 fn test_time_timezone() {
     let python = r#"
 import time
@@ -197,7 +190,6 @@ def get_timezone() -> int:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-TIME: Not implemented yet - RED phase"]
 fn test_time_tzname() {
     let python = r#"
 import time
@@ -213,7 +205,6 @@ def get_tzname() -> tuple:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-TIME: Not implemented yet - RED phase"]
 fn test_time_daylight() {
     let python = r#"
 import time
@@ -230,7 +221,6 @@ def has_daylight_saving() -> int:
 
 // DEPYLER-STDLIB-TIME-006: Thread time functions
 #[test]
-#[ignore = "DEPYLER-STDLIB-TIME: Not implemented yet - RED phase"]
 fn test_time_thread_time() {
     let python = r#"
 import time
@@ -247,7 +237,6 @@ def get_thread_time() -> float:
 
 // DEPYLER-STDLIB-TIME-007: Clock resolution functions
 #[test]
-#[ignore = "DEPYLER-STDLIB-TIME: Not implemented yet - RED phase"]
 fn test_time_get_clock_info() {
     let python = r#"
 import time
@@ -263,7 +252,6 @@ def get_clock_info(name: str) -> dict:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-TIME: Not implemented yet - RED phase"]
 fn test_time_clock_getres() {
     let python = r#"
 import time
@@ -280,7 +268,6 @@ def get_clock_resolution() -> float:
 
 // DEPYLER-STDLIB-TIME-008: Timestamp conversion
 #[test]
-#[ignore = "DEPYLER-STDLIB-TIME: Not implemented yet - RED phase"]
 fn test_time_asctime() {
     let python = r#"
 import time

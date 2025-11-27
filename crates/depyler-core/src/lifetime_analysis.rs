@@ -926,11 +926,10 @@ mod tests {
 
         let result = inference.analyze_function(&func, &type_mapper);
 
-        // Should infer that 's' can be borrowed
+        // String parameters take ownership (not borrowed) to match Python semantics
         let s_param = result.param_lifetimes.get("s").unwrap();
-        assert!(s_param.should_borrow);
+        assert!(!s_param.should_borrow);
         assert!(!s_param.needs_mut);
-        assert!(s_param.lifetime.is_some());
     }
 
     #[test]

@@ -28,7 +28,7 @@ fn transpile_and_compile(python_code: &str) -> Result<String, Box<dyn std::error
 // ============================================================================
 
 #[test]
-fn test_depyler_0380_bug1_basic_string_literal() {
+fn test_bug1_basic_string_literal() {
     let python = r#"
 def test() -> str:
     version: str = "Python 3.x"
@@ -47,7 +47,7 @@ def test() -> str:
 }
 
 #[test]
-fn test_depyler_0380_bug1_empty_string_literal() {
+fn test_bug1_empty_string_literal() {
     let python = r#"
 def test() -> str:
     empty: str = ""
@@ -59,7 +59,7 @@ def test() -> str:
 }
 
 #[test]
-fn test_depyler_0380_bug1_unicode_string_literal() {
+fn test_bug1_unicode_string_literal() {
     let python = r#"
 def test() -> str:
     emoji: str = "🚀"
@@ -71,7 +71,7 @@ def test() -> str:
 }
 
 #[test]
-fn test_depyler_0380_bug1_multiline_string_literal() {
+fn test_bug1_multiline_string_literal() {
     let python = r#"
 def test() -> str:
     text: str = "line1\nline2"
@@ -83,7 +83,7 @@ def test() -> str:
 }
 
 #[test]
-fn test_depyler_0380_bug1_escaped_quotes() {
+fn test_bug1_escaped_quotes() {
     let python = r#"
 def test() -> str:
     quoted: str = "He said \"hello\""
@@ -99,7 +99,7 @@ def test() -> str:
 // ============================================================================
 
 #[test]
-fn test_depyler_0380_bug2_getenv_with_default() {
+fn test_bug2_getenv_with_default() {
     let python = r#"
 import os
 
@@ -125,7 +125,7 @@ def test() -> str:
 }
 
 #[test]
-fn test_depyler_0380_bug2_getenv_without_default() {
+fn test_bug2_getenv_without_default() {
     let python = r#"
 import os
 
@@ -150,7 +150,7 @@ def test() -> str:
 }
 
 #[test]
-fn test_depyler_0380_bug2_getenv_empty_default() {
+fn test_bug2_getenv_empty_default() {
     let python = r#"
 import os
 
@@ -165,7 +165,7 @@ def test() -> str:
 }
 
 #[test]
-fn test_depyler_0380_bug2_getenv_complex_default() {
+fn test_bug2_getenv_complex_default() {
     let python = r#"
 import os
 
@@ -184,7 +184,7 @@ def test() -> str:
 // ============================================================================
 
 #[test]
-fn test_depyler_0380_bug3_environ_membership_check() {
+fn test_bug3_environ_membership_check() {
     let python = r#"
 import os
 
@@ -214,7 +214,7 @@ def test() -> bool:
 }
 
 #[test]
-fn test_depyler_0380_bug3_environ_not_in() {
+fn test_bug3_environ_not_in() {
     let python = r#"
 import os
 
@@ -230,7 +230,7 @@ def test() -> bool:
 }
 
 #[test]
-fn test_depyler_0380_bug3_environ_variable_key() {
+fn test_bug3_environ_variable_key() {
     let python = r#"
 import os
 
@@ -249,7 +249,7 @@ def test(key: str) -> bool:
 // ============================================================================
 
 #[test]
-fn test_depyler_0380_integration_all_bugs() {
+fn test_integration_all_bugs() {
     let python = r#"
 import os
 
@@ -281,7 +281,7 @@ def test_all_features() -> str:
 }
 
 #[test]
-fn test_depyler_0380_integration_multiple_getenv() {
+fn test_integration_multiple_getenv() {
     let python = r#"
 import os
 
@@ -300,7 +300,7 @@ def test() -> str:
 }
 
 #[test]
-fn test_depyler_0380_integration_environ_check_and_getenv() {
+fn test_integration_environ_check_and_getenv() {
     let python = r#"
 import os
 
@@ -430,7 +430,7 @@ def test() -> bool:
 // ============================================================================
 
 #[test]
-fn test_depyler_0380_regression_no_double_to_string() {
+fn test_regression_no_double_to_string() {
     // Verify we don't add double .to_string().to_string()
     let python = r#"
 import os
@@ -450,7 +450,7 @@ def test() -> str:
 }
 
 #[test]
-fn test_depyler_0380_edge_case_nested_environ_checks() {
+fn test_edge_case_nested_environ_checks() {
     let python = r#"
 import os
 
@@ -469,7 +469,7 @@ def test() -> bool:
 }
 
 #[test]
-fn test_depyler_0380_edge_case_environ_in_condition() {
+fn test_edge_case_environ_in_condition() {
     let python = r#"
 import os
 

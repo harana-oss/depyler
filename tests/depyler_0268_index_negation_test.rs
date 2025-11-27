@@ -18,7 +18,7 @@ use std::process::Command;
 
 #[test]
 #[allow(non_snake_case)]
-fn test_DEPYLER_0268_negative_index_last_item_compiles() {
+fn test_negative_index_last_item_compiles() {
     // DEPYLER-0268: `items[-1]` generates `(-idx) as usize` which fails
     // RED Phase: This test MUST FAIL initially with "cannot apply unary operator `-`"
 
@@ -39,7 +39,7 @@ def get_last(items: list[str]) -> str:
     eprintln!("{}", rust_code);
 
     // Write to temp file
-    let temp_file = "/tmp/test_depyler_0268_negative_last.rs";
+    let temp_file = "/tmp/test_negative_last.rs";
     std::fs::write(temp_file, &rust_code).expect("DEPYLER-0268: Failed to write temp file");
 
     // Attempt to compile with rustc
@@ -50,7 +50,7 @@ def get_last(items: list[str]) -> str:
         .arg("2021")
         .arg(temp_file)
         .arg("-o")
-        .arg("/tmp/test_depyler_0268_negative_last.rlib")
+        .arg("/tmp/test_negative_last.rlib")
         .output()
         .expect("DEPYLER-0268: Failed to run rustc");
 
@@ -93,7 +93,7 @@ def get_last(items: list[str]) -> str:
 
 #[test]
 #[allow(non_snake_case)]
-fn test_DEPYLER_0268_negative_index_second_last_compiles() {
+fn test_negative_index_second_last_compiles() {
     // DEPYLER-0268: `items[-2]` for second-to-last item
 
     let python_code = r#"
@@ -109,7 +109,7 @@ def get_second_last(nums: list[int]) -> int:
     let rust_code = result.unwrap();
 
     // Write to temp file
-    let temp_file = "/tmp/test_depyler_0268_negative_second_last.rs";
+    let temp_file = "/tmp/test_negative_second_last.rs";
     std::fs::write(temp_file, &rust_code).expect("DEPYLER-0268: Failed to write temp file");
 
     // Attempt to compile
@@ -120,7 +120,7 @@ def get_second_last(nums: list[int]) -> int:
         .arg("2021")
         .arg(temp_file)
         .arg("-o")
-        .arg("/tmp/test_depyler_0268_negative_second_last.rlib")
+        .arg("/tmp/test_negative_second_last.rlib")
         .output()
         .expect("DEPYLER-0268: Failed to run rustc");
 
@@ -151,7 +151,7 @@ def get_second_last(nums: list[int]) -> int:
 
 #[test]
 #[allow(non_snake_case)]
-fn test_DEPYLER_0268_runtime_negative_index_compiles() {
+fn test_runtime_negative_index_compiles() {
     // DEPYLER-0268: Runtime negative index handling (both positive and negative)
 
     let python_code = r#"
@@ -167,7 +167,7 @@ def get_by_index(items: list[str], idx: int) -> str:
     let rust_code = result.unwrap();
 
     // Write to temp file
-    let temp_file = "/tmp/test_depyler_0268_runtime_index.rs";
+    let temp_file = "/tmp/test_runtime_index.rs";
     std::fs::write(temp_file, &rust_code).expect("DEPYLER-0268: Failed to write temp file");
 
     // Attempt to compile
@@ -178,7 +178,7 @@ def get_by_index(items: list[str], idx: int) -> str:
         .arg("2021")
         .arg(temp_file)
         .arg("-o")
-        .arg("/tmp/test_depyler_0268_runtime_index.rlib")
+        .arg("/tmp/test_runtime_index.rlib")
         .output()
         .expect("DEPYLER-0268: Failed to run rustc");
 
@@ -209,7 +209,7 @@ def get_by_index(items: list[str], idx: int) -> str:
 
 #[test]
 #[allow(non_snake_case)]
-fn test_DEPYLER_0268_nested_collection_negative_index_compiles() {
+fn test_nested_collection_negative_index_compiles() {
     // DEPYLER-0268: Negative index with nested collections (Vec<Vec<int>>)
 
     let python_code = r#"
@@ -225,7 +225,7 @@ def get_last_row(matrix: list[list[int]]) -> list[int]:
     let rust_code = result.unwrap();
 
     // Write to temp file
-    let temp_file = "/tmp/test_depyler_0268_nested_negative.rs";
+    let temp_file = "/tmp/test_nested_negative.rs";
     std::fs::write(temp_file, &rust_code).expect("DEPYLER-0268: Failed to write temp file");
 
     // Attempt to compile
@@ -236,7 +236,7 @@ def get_last_row(matrix: list[list[int]]) -> list[int]:
         .arg("2021")
         .arg(temp_file)
         .arg("-o")
-        .arg("/tmp/test_depyler_0268_nested_negative.rlib")
+        .arg("/tmp/test_nested_negative.rlib")
         .output()
         .expect("DEPYLER-0268: Failed to run rustc");
 
@@ -267,7 +267,7 @@ def get_last_row(matrix: list[list[int]]) -> list[int]:
 
 #[test]
 #[allow(non_snake_case)]
-fn test_DEPYLER_0268_positive_index_still_works() {
+fn test_positive_index_still_works() {
     // DEPYLER-0268: Ensure positive indices still work after fix (regression test)
 
     let python_code = r#"
@@ -283,7 +283,7 @@ def get_first(items: list[int]) -> int:
     let rust_code = result.unwrap();
 
     // Write to temp file
-    let temp_file = "/tmp/test_depyler_0268_positive_index.rs";
+    let temp_file = "/tmp/test_positive_index.rs";
     std::fs::write(temp_file, &rust_code).expect("DEPYLER-0268: Failed to write temp file");
 
     // Attempt to compile
@@ -294,7 +294,7 @@ def get_first(items: list[int]) -> int:
         .arg("2021")
         .arg(temp_file)
         .arg("-o")
-        .arg("/tmp/test_depyler_0268_positive_index.rlib")
+        .arg("/tmp/test_positive_index.rlib")
         .output()
         .expect("DEPYLER-0268: Failed to run rustc");
 

@@ -152,16 +152,16 @@ fn main() {
 "#
     );
 
-    std::fs::write("/tmp/test_depyler_0295_compiles.rs", test_code)
+    std::fs::write("/tmp/test_compiles.rs", test_code)
         .expect("Failed to write test file");
 
     // Attempt compilation
     let output = std::process::Command::new("rustc")
         .arg("--crate-type")
         .arg("bin")
-        .arg("/tmp/test_depyler_0295_compiles.rs")
+        .arg("/tmp/test_compiles.rs")
         .arg("-o")
-        .arg("/tmp/test_depyler_0295_compiles")
+        .arg("/tmp/test_compiles")
         .output()
         .expect("Failed to run rustc");
 
@@ -208,16 +208,16 @@ fn main() {
 "#
     );
 
-    std::fs::write("/tmp/test_depyler_0295_behavior.rs", test_code)
+    std::fs::write("/tmp/test_behavior.rs", test_code)
         .expect("Failed to write test file");
 
     // Compile
     let compile_output = std::process::Command::new("rustc")
         .arg("--crate-type")
         .arg("bin")
-        .arg("/tmp/test_depyler_0295_behavior.rs")
+        .arg("/tmp/test_behavior.rs")
         .arg("-o")
-        .arg("/tmp/test_depyler_0295_behavior")
+        .arg("/tmp/test_behavior")
         .output()
         .expect("Failed to run rustc");
 
@@ -228,7 +228,7 @@ fn main() {
     );
 
     // Run the test
-    let run_output = std::process::Command::new("/tmp/test_depyler_0295_behavior")
+    let run_output = std::process::Command::new("/tmp/test_behavior")
         .output()
         .expect("Failed to run test binary");
 

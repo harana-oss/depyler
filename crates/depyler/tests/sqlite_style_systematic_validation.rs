@@ -18,10 +18,7 @@
 use depyler_core::DepylerPipeline;
 
 /// Helper function to transpile Python code and verify it compiles
-fn transpile_and_verify(
-    python: &str,
-    test_name: &str,
-) -> Result<String, Box<dyn std::error::Error>> {
+fn transpile_and_verify(python: &str, test_name: &str) -> Result<String, Box<dyn std::error::Error>> {
     let pipeline = DepylerPipeline::new();
     let rust_code = pipeline.transpile(python)?;
 
@@ -111,7 +108,6 @@ def test() -> bool:
 }
 
 #[test]
-#[ignore = "Transpiler bug: None literal generates untyped Option - needs DEPYLER ticket"]
 fn test_05_literals_none() {
     let python = r#"
 def test() -> None:
@@ -324,7 +320,6 @@ def test() -> int:
 // ============================================================================
 
 #[test]
-#[ignore = "Transpiler bug: Empty list generates untyped Vec - needs DEPYLER ticket"]
 fn test_21_list_creation() {
     let python = r#"
 def test() -> list[int]:
@@ -396,7 +391,6 @@ def test() -> list[int]:
 // ============================================================================
 
 #[test]
-#[ignore = "Transpiler bug: Empty dict generates untyped HashMap - needs DEPYLER ticket"]
 fn test_26_dict_creation() {
     let python = r#"
 def test() -> dict[str, int]:
@@ -504,7 +498,7 @@ def test() -> set[int]:
 }
 
 #[test]
-fn test_depyler_0224_set_remove_with_variable() {
+fn test_set_remove_with_variable() {
     let python = r#"
 def test(value: int) -> set[int]:
     numbers = {1, 2, 3, 4, 5}
@@ -907,7 +901,6 @@ def test() -> int:
 // ============================================================================
 
 #[test]
-#[ignore] // Result-based exception handling not yet implemented for value-returning functions
 fn test_56_try_except_basic() {
     let python = r#"
 def test(x: int) -> int:
@@ -922,7 +915,6 @@ def test(x: int) -> int:
 }
 
 #[test]
-#[ignore] // Result-based exception handling not yet implemented for value-returning functions
 fn test_57_try_except_with_type() {
     let python = r#"
 def test(x: int) -> int:
@@ -937,7 +929,6 @@ def test(x: int) -> int:
 }
 
 #[test]
-#[ignore] // Result-based exception handling not yet implemented for value-returning functions
 fn test_58_try_except_finally() {
     let python = r#"
 def test(x: int) -> int:
@@ -956,7 +947,6 @@ def test(x: int) -> int:
 }
 
 #[test]
-#[ignore] // Result-based exception handling not yet implemented for value-returning functions
 fn test_59_multiple_except() {
     let python = r#"
 def test(x: int, y: int) -> int:
@@ -973,7 +963,6 @@ def test(x: int, y: int) -> int:
 }
 
 #[test]
-#[ignore] // Raise exception generates undefined ValueError type - tracked for future enhancement
 fn test_60_raise_exception() {
     let python = r#"
 def test(x: int) -> int:
@@ -1098,7 +1087,6 @@ def test() -> int:
 }
 
 #[test]
-#[ignore] // Generators with return generate incorrect code - tracked for future enhancement
 fn test_67_generator_with_return() {
     let python = r#"
 def fibonacci(n: int):
@@ -1121,7 +1109,6 @@ def test() -> int:
 }
 
 #[test]
-#[ignore] // Generator expressions generate incorrect code - tracked for future enhancement
 fn test_68_generator_expression() {
     let python = r#"
 def test() -> int:
@@ -1134,7 +1121,6 @@ def test() -> int:
 }
 
 #[test]
-#[ignore] // Yield from generates incorrect code - tracked for future enhancement
 fn test_69_yield_from() {
     let python = r#"
 def inner():
@@ -1154,7 +1140,6 @@ def test() -> int:
 }
 
 #[test]
-#[ignore] // Generator methods generate incorrect code - tracked for future enhancement
 fn test_70_generator_method() {
     let python = r#"
 class Counter:
@@ -1180,7 +1165,6 @@ def test() -> int:
 // ============================================================================
 
 #[test]
-#[ignore] // Decorators generate incorrect code - tracked for future enhancement
 fn test_71_simple_decorator() {
     let python = r#"
 def my_decorator(func):
@@ -1201,7 +1185,6 @@ def test() -> str:
 }
 
 #[test]
-#[ignore] // Decorators with args generate incorrect code - tracked for future enhancement
 fn test_72_decorator_with_args() {
     let python = r#"
 def repeat(times: int):
@@ -1224,7 +1207,6 @@ def test() -> str:
 }
 
 #[test]
-#[ignore] // Multiple decorators generate incorrect code - tracked for future enhancement
 fn test_73_multiple_decorators() {
     let python = r#"
 def decorator1(func):
@@ -1251,7 +1233,6 @@ def test() -> int:
 }
 
 #[test]
-#[ignore] // Class decorators generate incorrect code - tracked for future enhancement
 fn test_74_class_decorator() {
     let python = r#"
 def class_decorator(cls):
@@ -1384,7 +1365,6 @@ def test() -> int:
 }
 
 #[test]
-#[ignore] // Multiple context managers generate incorrect code - tracked for future enhancement
 fn test_80_multiple_context_managers() {
     let python = r#"
 class File1:
@@ -1452,7 +1432,6 @@ def lookup(data: dict[str, int], key: str) -> int:
 }
 
 #[test]
-#[ignore] // Optional type annotation generates incomplete code - tracked for future enhancement
 fn test_84_optional_type_annotation() {
     let python = r#"
 def maybe_value(x: int | None) -> int:
@@ -1466,7 +1445,6 @@ def maybe_value(x: int | None) -> int:
 }
 
 #[test]
-#[ignore] // Generic type annotations generate incomplete code - tracked for future enhancement
 fn test_85_generic_type_annotation() {
     let python = r#"
 def first_element(items: list[int | str]) -> int | str:
@@ -1539,7 +1517,6 @@ def pair_sum(a: list[int], b: list[int]) -> list[int]:
 }
 
 #[test]
-#[ignore] // Iterator protocol (__iter__, __next__) generates incomplete code - tracked for future enhancement
 fn test_90_custom_iterator() {
     let python = r#"
 class Counter:
@@ -1570,7 +1547,6 @@ def test() -> int:
 // ============================================================================
 
 #[test]
-#[ignore] // Match statement generates incomplete code - tracked for future enhancement
 fn test_91_match_statement() {
     let python = r#"
 def classify(x: int) -> str:
@@ -1588,7 +1564,6 @@ def classify(x: int) -> str:
 }
 
 #[test]
-#[ignore] // Match with guards generates incomplete code - tracked for future enhancement
 fn test_92_match_with_guard() {
     let python = r#"
 def process(x: int) -> str:
@@ -1606,7 +1581,6 @@ def process(x: int) -> str:
 }
 
 #[test]
-#[ignore] // Match with pattern unpacking generates incomplete code - tracked for future enhancement
 fn test_93_match_pattern_unpacking() {
     let python = r#"
 def first_and_rest(items: list[int]) -> int:
@@ -1622,7 +1596,6 @@ def first_and_rest(items: list[int]) -> int:
 }
 
 #[test]
-#[ignore] // Match with or patterns generates incomplete code - tracked for future enhancement
 fn test_94_match_or_patterns() {
     let python = r#"
 def is_boundary(x: int) -> bool:
@@ -1638,7 +1611,6 @@ def is_boundary(x: int) -> bool:
 }
 
 #[test]
-#[ignore] // Match with capture patterns generates incomplete code - tracked for future enhancement
 fn test_95_match_capture_patterns() {
     let python = r#"
 def extract_value(data: dict[str, int]) -> int:
@@ -1694,7 +1666,6 @@ def test(numbers: list[int]) -> list[int]:
 }
 
 #[test]
-#[ignore] // Closures with capture generate incomplete code - tracked for future enhancement
 fn test_99_closure_with_capture() {
     let python = r#"
 def make_adder(x: int):
@@ -1712,7 +1683,6 @@ def test() -> int:
 }
 
 #[test]
-#[ignore] // Nested functions generate incomplete code - tracked for future enhancement
 fn test_100_nested_functions() {
     let python = r#"
 def outer(x: int) -> int:
@@ -1962,7 +1932,6 @@ def test_str(value: int) -> str:
 }
 
 #[test]
-#[ignore = "int(float) not implemented - generates invalid parse() call"]
 fn test_125_builtin_int() {
     let python = r#"
 def test_int(value: float) -> int:

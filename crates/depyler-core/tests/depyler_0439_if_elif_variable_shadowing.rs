@@ -17,7 +17,7 @@ use depyler_core::DepylerPipeline;
 ///
 /// Verifies: issue core issue
 #[test]
-fn test_depyler_0439_simple_if_elif_else_single_declaration() {
+fn test_simple_if_elif_else_single_declaration() {
     let source = r#"
 def test_func():
     condition1 = True
@@ -57,7 +57,7 @@ def test_func():
 ///
 /// Verifies: Multiple nesting levels (3 elif statements)
 #[test]
-fn test_depyler_0439_triple_elif_chain_no_duplicates() {
+fn test_triple_elif_chain_no_duplicates() {
     let source = r#"
 def test_func():
     a = True
@@ -103,7 +103,7 @@ def test_func():
 ///
 /// Verifies: Only duplicates of SAME variable are prevented
 #[test]
-fn test_depyler_0439_nested_if_independent_variables_allowed() {
+fn test_nested_if_independent_variables_allowed() {
     let source = r#"
 def test_func():
     x = True
@@ -148,7 +148,7 @@ def test_func():
 ///
 /// Verifies: Real-world CLI output format selection pattern
 #[test]
-fn test_depyler_0439_cli_output_format_pattern() {
+fn test_cli_output_format_pattern() {
     let source = r#"
 def process_args():
     json_flag = False
@@ -186,7 +186,7 @@ def process_args():
 ///
 /// Verifies: Initial value + elif reassignment pattern
 #[test]
-fn test_depyler_0439_initial_assignment_plus_elif() {
+fn test_initial_assignment_plus_elif() {
     let source = r#"
 def test_func():
     a = True
@@ -219,7 +219,7 @@ def test_func():
 ///
 /// Verifies: Multiple hoisted variables simultaneously
 #[test]
-fn test_depyler_0439_multiple_variables_elif_chain() {
+fn test_multiple_variables_elif_chain() {
     let source = r#"
 def test_func():
     condition = True
@@ -265,7 +265,7 @@ def test_func():
 ///
 /// Verifies: End-to-end compilation success
 #[test]
-fn test_depyler_0439_generated_code_compiles() {
+fn test_generated_code_compiles() {
     let source = r#"
 def test_func():
     flag1 = True
@@ -321,7 +321,7 @@ def test_func():
 ///
 /// Verifies: Performance and correctness at depth
 #[test]
-fn test_depyler_0439_deeply_nested_elif_stress_test() {
+fn test_deeply_nested_elif_stress_test() {
     let source = r#"
 def test_func():
     c1 = False
@@ -370,7 +370,7 @@ def test_func():
 ///
 /// This is a property that should hold for ALL valid elif chains.
 #[test]
-fn test_depyler_0439_property_single_declaration_invariant() {
+fn test_property_single_declaration_invariant() {
     // Test various configurations
     let test_cases = vec![
         // 2 branches (if-else)

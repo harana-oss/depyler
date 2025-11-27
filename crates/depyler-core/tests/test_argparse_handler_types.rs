@@ -11,7 +11,7 @@ fn transpile_str(python: &str) -> Result<String, Box<dyn std::error::Error>> {
 }
 
 #[test]
-fn test_DEPYLER_0424_handler_function_simple() {
+fn test_handler_function_simple() {
     let python = r#"
 import argparse
 
@@ -53,7 +53,7 @@ def handle_command(args):
 }
 
 #[test]
-fn test_DEPYLER_0424_subcommand_handlers() {
+fn test_subcommand_handlers() {
     let python = r#"
 import argparse
 
@@ -98,7 +98,7 @@ def handle_clone(args):
 }
 
 #[test]
-fn test_DEPYLER_0424_multiple_handlers() {
+fn test_multiple_handlers() {
     let python = r#"
 import argparse
 
@@ -139,7 +139,7 @@ def handler_two(args):
 }
 
 #[test]
-fn test_DEPYLER_0424_different_var_name() {
+fn test_different_var_name() {
     let python = r#"
 import argparse
 

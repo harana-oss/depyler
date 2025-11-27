@@ -96,25 +96,6 @@ fn test_invalid_file_handling() {
 }
 
 #[test]
-#[ignore] // Interactive mode requires TTY and is difficult to test in CI
-fn test_interactive_mode_basic() {
-    let temp_dir = TempDir::new().unwrap();
-    let input_file = temp_dir.path().join("test.py");
-
-    fs::write(
-        &input_file,
-        "def interactive_func(a: int) -> int:\n    return a * 3",
-    )
-    .unwrap();
-
-    // Test interactive mode without user input (should handle gracefully)
-    // Note: This test is disabled in CI because it requires TTY and timeout command
-    // which may not be available on all platforms
-
-    // For manual testing, run: cargo test test_interactive_mode_basic -- --ignored
-}
-
-#[test]
 fn test_pipeline_error_handling() {
     let pipeline = DepylerPipeline::new();
 

@@ -18,7 +18,7 @@ use depyler_core::DepylerPipeline;
 // ============================================================================
 
 #[test]
-fn test_DEPYLER_0427_simple_nested_function() {
+fn test_simple_nested_function() {
     let python = r#"
 def outer():
     def inner(x):
@@ -42,7 +42,7 @@ def outer():
 }
 
 #[test]
-fn test_DEPYLER_0427_nested_with_multiple_params() {
+fn test_nested_with_multiple_params() {
     let python = r#"
 def outer():
     def add(a, b):
@@ -63,7 +63,7 @@ def outer():
 }
 
 #[test]
-fn test_DEPYLER_0427_nested_called_multiple_times() {
+fn test_nested_called_multiple_times() {
     let python = r#"
 def outer():
     def double(x):
@@ -87,7 +87,7 @@ def outer():
 // ============================================================================
 
 #[test]
-fn test_DEPYLER_0427_nested_with_closure_single_capture() {
+fn test_nested_with_closure_single_capture() {
     let python = r#"
 def outer(y):
     def inner(x):
@@ -111,7 +111,7 @@ def outer(y):
 }
 
 #[test]
-fn test_DEPYLER_0427_nested_with_multiple_captures() {
+fn test_nested_with_multiple_captures() {
     let python = r#"
 def outer(y, z):
     def inner(x):
@@ -133,7 +133,7 @@ def outer(y, z):
 // ============================================================================
 
 #[test]
-fn test_DEPYLER_0427_csv_filter_matches_all_filters() {
+fn test_csv_filter_matches_all_filters() {
     // Test the actual nested function from csv_filter.py
     let python = r#"
 def filter_csv_advanced(input_file, filters):
@@ -161,7 +161,7 @@ def filter_csv_advanced(input_file, filters):
 }
 
 #[test]
-fn test_DEPYLER_0427_log_analyzer_extract_hour() {
+fn test_log_analyzer_extract_hour() {
     // Test the actual nested function from log_analyzer.py
     let python = r#"
 def group_by_hour(file_path):
@@ -194,7 +194,7 @@ def group_by_hour(file_path):
 // ============================================================================
 
 #[test]
-fn test_DEPYLER_0427_csv_filter_full_file() {
+fn test_csv_filter_full_file() {
     let csv_filter_path =
         "/home/noah/src/reprorusted-python-cli/examples/example_csv_filter/csv_filter.py";
 
@@ -232,7 +232,7 @@ fn test_DEPYLER_0427_csv_filter_full_file() {
 }
 
 #[test]
-fn test_DEPYLER_0427_log_analyzer_full_file() {
+fn test_log_analyzer_full_file() {
     let log_analyzer_path =
         "/home/noah/src/reprorusted-python-cli/examples/example_log_analyzer/log_analyzer.py";
 
@@ -262,7 +262,7 @@ fn test_DEPYLER_0427_log_analyzer_full_file() {
 // ============================================================================
 
 #[test]
-fn test_DEPYLER_0427_nested_function_with_docstring() {
+fn test_nested_function_with_docstring() {
     let python = r#"
 def outer():
     def inner(x):
@@ -281,7 +281,7 @@ def outer():
 }
 
 #[test]
-fn test_DEPYLER_0427_nested_function_with_type_hints() {
+fn test_nested_function_with_type_hints() {
     let python = r#"
 def outer():
     def inner(x: int) -> int:

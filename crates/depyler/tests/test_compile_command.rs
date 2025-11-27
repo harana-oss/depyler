@@ -29,7 +29,7 @@ fn setup_python_file(filename: &str, content: &str) -> (TempDir, PathBuf) {
 }
 
 #[test]
-fn test_depyler_0380_compile_command_exists() {
+fn test_compile_command_exists() {
     // Test Case: `depyler compile --help` should work
     // Expected: Help text mentioning compile subcommand
 
@@ -42,7 +42,7 @@ fn test_depyler_0380_compile_command_exists() {
 }
 
 #[test]
-fn test_depyler_0380_compile_hello_world() {
+fn test_compile_hello_world() {
     // Test Case: Compile simple hello world Python script
     // Expected: Binary created and outputs "Hello, World!"
     // Bug: Not implemented yet (RED phase)
@@ -81,7 +81,7 @@ if __name__ == '__main__':
 }
 
 #[test]
-fn test_depyler_0380_compile_with_args() {
+fn test_compile_with_args() {
     // Test Case: Compile script that takes command-line arguments
     // Expected: Binary accepts args and processes them correctly
 
@@ -119,7 +119,7 @@ if __name__ == '__main__':
 }
 
 #[test]
-fn test_depyler_0380_compile_with_output_flag() {
+fn test_compile_with_output_flag() {
     // Test Case: Specify custom output path with -o flag
     // Expected: Binary created at specified location
 
@@ -155,7 +155,7 @@ if __name__ == '__main__':
 }
 
 #[test]
-fn test_depyler_0380_compile_with_profile_release() {
+fn test_compile_with_profile_release() {
     // Test Case: Compile with --profile release flag
     // Expected: Binary optimized for release
 
@@ -196,7 +196,7 @@ if __name__ == '__main__':
 }
 
 #[test]
-fn test_depyler_0380_compile_missing_file_error() {
+fn test_compile_missing_file_error() {
     // Test Case: Try to compile non-existent file
     // Expected: Clear error message
 
@@ -209,7 +209,7 @@ fn test_depyler_0380_compile_missing_file_error() {
 }
 
 #[test]
-fn test_depyler_0380_compile_invalid_python_error() {
+fn test_compile_invalid_python_error() {
     // Test Case: Try to compile syntactically invalid Python
     // Expected: Clear parse error
 

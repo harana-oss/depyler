@@ -17,9 +17,7 @@ fn transpile(python_code: &str) -> String {
 
 fn compile_rust_as_bin(rust_code: &str) -> Result<(), String> {
     let mut temp_file = NamedTempFile::new().map_err(|e| e.to_string())?;
-    temp_file
-        .write_all(rust_code.as_bytes())
-        .map_err(|e| e.to_string())?;
+    temp_file.write_all(rust_code.as_bytes()).map_err(|e| e.to_string())?;
 
     let output = Command::new("rustc")
         .arg("--crate-type")
@@ -44,8 +42,7 @@ fn compile_rust_as_bin(rust_code: &str) -> Result<(), String> {
 }
 
 #[test]
-#[ignore] // RED phase - expected to fail
-fn test_depyler_0363_argparse_basic_import() {
+fn test_argparse_basic_import() {
     let python = r#"
 import argparse
 
@@ -72,8 +69,7 @@ def main():
 }
 
 #[test]
-#[ignore] // RED phase - expected to fail
-fn test_depyler_0363_argparse_argument_parser() {
+fn test_argparse_argument_parser() {
     let python = r#"
 import argparse
 
@@ -97,18 +93,14 @@ def main():
 
     // Must NOT contain Python artifacts
     assert!(!rust.contains("argparse"), "Should not contain 'argparse'");
-    assert!(
-        !rust.contains("ArgumentParser"),
-        "Should not contain 'ArgumentParser'"
-    );
+    assert!(!rust.contains("ArgumentParser"), "Should not contain 'ArgumentParser'");
 
     // Must compile
     compile_rust_as_bin(&rust).expect("Generated Rust code should compile");
 }
 
 #[test]
-#[ignore] // RED phase - Requires issue (HIR kwargs support)
-fn test_depyler_0363_argparse_positional_argument() {
+fn test_argparse_positional_argument() {
     // NOTE: This test requires HIR enhancement to preserve keyword arguments.
     // Current HIR MethodCall only has args: Vec<HirExpr>, so nargs/type/help are lost.
     // For now, we can only generate basic String fields from argument names.
@@ -151,8 +143,7 @@ def main() -> int:
 }
 
 #[test]
-#[ignore] // RED phase - expected to fail
-fn test_depyler_0363_argparse_optional_flags() {
+fn test_argparse_optional_flags() {
     let python = r#"
 import argparse
 
@@ -185,8 +176,7 @@ def main():
 }
 
 #[test]
-#[ignore] // RED phase - expected to fail
-fn test_depyler_0363_path_read_text_method() {
+fn test_path_read_text_method() {
     let python = r#"
 from pathlib import Path
 
@@ -221,8 +211,7 @@ def read_file(filepath: Path) -> str:
 }
 
 #[test]
-#[ignore] // RED phase - expected to fail
-fn test_depyler_0363_string_splitlines_method() {
+fn test_string_splitlines_method() {
     let python = r#"
 def count_lines(text: str) -> int:
     lines = text.splitlines()
@@ -246,8 +235,7 @@ def count_lines(text: str) -> int:
 }
 
 #[test]
-#[ignore] // RED phase - expected to fail
-fn test_depyler_0363_string_split_whitespace() {
+fn test_string_split_whitespace() {
     let python = r#"
 def count_words(text: str) -> int:
     words = text.split()
@@ -259,17 +247,13 @@ def count_words(text: str) -> int:
     eprintln!("Generated Rust code:\n{}\n", rust);
 
     // Should use .split_whitespace()
-    assert!(
-        rust.contains("split_whitespace"),
-        "Should use split_whitespace()"
-    );
+    assert!(rust.contains("split_whitespace"), "Should use split_whitespace()");
 
     // Note: Skipping compilation - test transpiles function only, not full program
 }
 
 #[test]
-#[ignore] // RED phase - expected to fail
-fn test_depyler_0363_try_except_with_ioerror() {
+fn test_try_except_with_ioerror() {
     let python = r#"
 from pathlib import Path
 
@@ -287,26 +271,22 @@ def safe_read(filepath: Path) -> str:
     eprintln!("Generated Rust code:\n{}\n", rust);
 
     // Should use match on Result
-    assert!(
-        rust.contains("match"),
-        "Should use match for error handling"
-    );
+    assert!(rust.contains("match"), "Should use match for error handling");
     assert!(
         rust.contains("Ok(") && rust.contains("Err("),
         "Should have Ok and Err branches"
     );
 
     // Should NOT have orphaned statements
-    let brace_count = rust.chars().filter(|&c| c == '{').count() as i32
-        - rust.chars().filter(|&c| c == '}').count() as i32;
+    let brace_count =
+        rust.chars().filter(|&c| c == '{').count() as i32 - rust.chars().filter(|&c| c == '}').count() as i32;
     assert_eq!(brace_count, 0, "Braces should be balanced");
 
     // Note: Skipping compilation - test transpiles function only, not full program
 }
 
 #[test]
-#[ignore] // RED phase - expected to fail
-fn test_depyler_0363_wordcount_full_integration() {
+fn test_wordcount_full_integration() {
     let python = r#"
 #!/usr/bin/env python3
 import argparse
@@ -352,10 +332,7 @@ if __name__ == "__main__":
 
     // High-level checks
     assert!(!rust.contains("TODO"), "Should not have TODO comments");
-    assert!(
-        !rust.contains("argparse"),
-        "Should not contain Python argparse"
-    );
+    assert!(!rust.contains("argparse"), "Should not contain Python argparse");
     assert!(rust.contains("clap"), "Should use clap");
 
     // Must compile
@@ -364,8 +341,7 @@ if __name__ == "__main__":
 
 // Property test: any valid argparse code should transpile to compiling Rust
 #[test]
-#[ignore] // RED phase
-fn test_depyler_0363_property_argparse_always_compiles() {
+fn test_property_argparse_always_compiles() {
     // Simple smoke test - full property test would use proptest crate
     let test_cases = vec![
         r#"
@@ -386,7 +362,6 @@ parser.add_argument("-v", "--verbose", action="store_true")
 
     for (i, python) in test_cases.iter().enumerate() {
         let rust = transpile(python);
-        compile_rust_as_bin(&rust)
-            .unwrap_or_else(|e| panic!("Test case {} failed to compile: {}", i, e));
+        compile_rust_as_bin(&rust).unwrap_or_else(|e| panic!("Test case {} failed to compile: {}", i, e));
     }
 }

@@ -18,7 +18,7 @@ use std::process::Command;
 
 #[test]
 #[allow(non_snake_case)]
-fn test_DEPYLER_0266_list_empty_check_compiles() {
+fn test_list_empty_check_compiles() {
     // DEPYLER-0266: `if not items:` generates `if !items` which fails
     // RED Phase: This test MUST FAIL initially
 
@@ -40,7 +40,7 @@ def is_empty_list(items: list[int]) -> bool:
     eprintln!("=== DEPYLER-0266: Generated Rust Code (list) ===");
 
     // Write to temp file
-    let temp_file = "/tmp/test_depyler_0266_list.rs";
+    let temp_file = "/tmp/test_list.rs";
     std::fs::write(temp_file, &rust_code).expect("DEPYLER-0266: Failed to write temp file");
 
     // Attempt to compile with rustc
@@ -51,7 +51,7 @@ def is_empty_list(items: list[int]) -> bool:
         .arg("2021")
         .arg(temp_file)
         .arg("-o")
-        .arg("/tmp/test_depyler_0266_list.rlib")
+        .arg("/tmp/test_list.rlib")
         .output()
         .expect("DEPYLER-0266: Failed to run rustc");
 
@@ -92,7 +92,7 @@ def is_empty_list(items: list[int]) -> bool:
 
 #[test]
 #[allow(non_snake_case)]
-fn test_DEPYLER_0266_string_empty_check_compiles() {
+fn test_string_empty_check_compiles() {
     // DEPYLER-0266: `if not text:` generates `if !text` for strings
 
     let python_code = r#"
@@ -110,7 +110,7 @@ def is_empty_string(text: str) -> bool:
     let rust_code = result.unwrap();
 
     // Write to temp file
-    let temp_file = "/tmp/test_depyler_0266_string.rs";
+    let temp_file = "/tmp/test_string.rs";
     std::fs::write(temp_file, &rust_code).expect("DEPYLER-0266: Failed to write temp file");
 
     // Attempt to compile
@@ -121,7 +121,7 @@ def is_empty_string(text: str) -> bool:
         .arg("2021")
         .arg(temp_file)
         .arg("-o")
-        .arg("/tmp/test_depyler_0266_string.rlib")
+        .arg("/tmp/test_string.rlib")
         .output()
         .expect("DEPYLER-0266: Failed to run rustc");
 
@@ -152,7 +152,7 @@ def is_empty_string(text: str) -> bool:
 
 #[test]
 #[allow(non_snake_case)]
-fn test_DEPYLER_0266_dict_empty_check_compiles() {
+fn test_dict_empty_check_compiles() {
     // DEPYLER-0266: `if not mapping:` for dict types
 
     let python_code = r#"
@@ -170,7 +170,7 @@ def is_empty_dict(mapping: dict[str, int]) -> bool:
     let rust_code = result.unwrap();
 
     // Write to temp file
-    let temp_file = "/tmp/test_depyler_0266_dict.rs";
+    let temp_file = "/tmp/test_dict.rs";
     std::fs::write(temp_file, &rust_code).expect("DEPYLER-0266: Failed to write temp file");
 
     // Attempt to compile
@@ -181,7 +181,7 @@ def is_empty_dict(mapping: dict[str, int]) -> bool:
         .arg("2021")
         .arg(temp_file)
         .arg("-o")
-        .arg("/tmp/test_depyler_0266_dict.rlib")
+        .arg("/tmp/test_dict.rlib")
         .output()
         .expect("DEPYLER-0266: Failed to run rustc");
 
@@ -212,7 +212,7 @@ def is_empty_dict(mapping: dict[str, int]) -> bool:
 
 #[test]
 #[allow(non_snake_case)]
-fn test_DEPYLER_0266_guard_clause_pattern_compiles() {
+fn test_guard_clause_pattern_compiles() {
     // DEPYLER-0266: Common guard clause pattern with early return
 
     let python_code = r#"
@@ -233,7 +233,7 @@ def process_items(items: list[int]) -> int:
     let rust_code = result.unwrap();
 
     // Write to temp file
-    let temp_file = "/tmp/test_depyler_0266_guard.rs";
+    let temp_file = "/tmp/test_guard.rs";
     std::fs::write(temp_file, &rust_code).expect("DEPYLER-0266: Failed to write temp file");
 
     // Attempt to compile
@@ -244,7 +244,7 @@ def process_items(items: list[int]) -> int:
         .arg("2021")
         .arg(temp_file)
         .arg("-o")
-        .arg("/tmp/test_depyler_0266_guard.rlib")
+        .arg("/tmp/test_guard.rlib")
         .output()
         .expect("DEPYLER-0266: Failed to run rustc");
 
@@ -275,7 +275,7 @@ def process_items(items: list[int]) -> int:
 
 #[test]
 #[allow(non_snake_case)]
-fn test_DEPYLER_0266_boolean_not_still_works() {
+fn test_boolean_not_still_works() {
     // DEPYLER-0266: Ensure regular boolean `not` still works correctly
 
     let python_code = r#"
@@ -293,7 +293,7 @@ def negate_bool(flag: bool) -> bool:
     let rust_code = result.unwrap();
 
     // Write to temp file
-    let temp_file = "/tmp/test_depyler_0266_bool.rs";
+    let temp_file = "/tmp/test_bool.rs";
     std::fs::write(temp_file, &rust_code).expect("DEPYLER-0266: Failed to write temp file");
 
     // Attempt to compile
@@ -304,7 +304,7 @@ def negate_bool(flag: bool) -> bool:
         .arg("2021")
         .arg(temp_file)
         .arg("-o")
-        .arg("/tmp/test_depyler_0266_bool.rlib")
+        .arg("/tmp/test_bool.rlib")
         .output()
         .expect("DEPYLER-0266: Failed to run rustc");
 

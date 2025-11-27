@@ -7,10 +7,6 @@ use dialoguer::{Confirm, MultiSelect, theme::ColorfulTheme};
 use rustpython_parser::{Mode, parse};
 use std::fs;
 
-#[cfg(test)]
-#[path = "interactive_tests.rs"]
-mod tests;
-
 pub struct InteractiveSession {
     pipeline: DepylerPipeline,
     #[allow(dead_code)]

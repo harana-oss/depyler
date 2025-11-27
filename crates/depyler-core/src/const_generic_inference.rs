@@ -681,7 +681,6 @@ mod tests {
     // This test was written ahead of implementation (aspirational test)
     // Tracked in roadmap: Complete const generic inference feature
     #[test]
-    #[ignore = "Incomplete feature: Const generic array inference not yet implemented"]
     fn test_function_analysis() {
         let mut inferencer = ConstGenericInferencer::new();
 

@@ -73,7 +73,7 @@ fn contains_unused_variable_warning(rust_code: &str, var_name: &str) -> bool {
 }
 
 #[test]
-fn test_DEPYLER_0272_range_loop_unused_variable_compiles() {
+fn test_range_loop_unused_variable_compiles() {
     // Test Case: Classic Fibonacci pattern - range loop with unused index
     // This is the EXACT pattern from the failing DEPYLER-0271 test
     let python = r#"
@@ -109,7 +109,7 @@ def fibonacci(n: int) -> int:
 }
 
 #[test]
-fn test_DEPYLER_0272_list_loop_unused_variable_compiles() {
+fn test_list_loop_unused_variable_compiles() {
     // Test Case: Iterating over list but not using loop variable
     // Common pattern for counting or side effects
     let python = r#"
@@ -135,7 +135,7 @@ def count_iterations(items: list[int]) -> int:
 }
 
 #[test]
-fn test_DEPYLER_0272_used_variable_not_prefixed() {
+fn test_used_variable_not_prefixed() {
     // Test Case: Loop variable IS used - should NOT add underscore
     // Regression test to ensure we don't break working code
     let python = r#"
@@ -166,7 +166,7 @@ def sum_list(numbers: list[int]) -> int:
 }
 
 #[test]
-fn test_DEPYLER_0272_multiple_unused_loops_compile() {
+fn test_multiple_unused_loops_compile() {
     // Test Case: Multiple loops with unused variables
     // Ensure fix works across multiple loops in same function
     let python = r#"
@@ -201,7 +201,7 @@ def repeat_operations(n: int) -> int:
 }
 
 #[test]
-fn test_DEPYLER_0272_nested_loops_unused_compiles() {
+fn test_nested_loops_unused_compiles() {
     // Test Case: Nested loops where outer variable is unused
     let python = r#"
 def nested_count(outer: list[int], inner: list[int]) -> int:
@@ -229,7 +229,7 @@ def nested_count(outer: list[int], inner: list[int]) -> int:
 }
 
 #[test]
-fn test_DEPYLER_0272_enumerate_pattern_unused_index() {
+fn test_enumerate_pattern_unused_index() {
     // Test Case: Using enumerate() but only using value, not index
     // Python: for i, val in enumerate(items)
     // If only val is used, i should become _i
@@ -257,10 +257,9 @@ def process_values(items: list[str]) -> int:
 }
 
 #[test]
-#[ignore = "Diagnostic test - run manually to verify current bug"]
-fn test_DEPYLER_0272_verify_current_bug() {
+fn test_verify_current_bug() {
     // This test verifies the bug exists by checking for unused variable warning
-    // Run with: cargo test test_DEPYLER_0272_verify_current_bug -- --ignored --nocapture
+    // Run with: cargo test test_verify_current_bug -- --ignored --nocapture
     let python = r#"
 def simple_loop(n: int) -> int:
     result = 0
@@ -288,7 +287,7 @@ def simple_loop(n: int) -> int:
 
 // Property-based test: Verify various unused loop patterns
 #[test]
-fn test_DEPYLER_0272_various_unused_patterns() {
+fn test_various_unused_patterns() {
     let test_cases = vec![
         (
             "simple range",

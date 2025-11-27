@@ -14,7 +14,7 @@
 use depyler_core::DepylerPipeline;
 
 #[test]
-fn test_depyler_0023_match_keyword_panic() {
+fn test_match_keyword_panic() {
     // DEPYLER-0023: 'match' is a Rust keyword, causes panic
     let python_code = r#"
 def test_match_keyword() -> int:
@@ -42,7 +42,7 @@ def test_match_keyword() -> int:
 }
 
 #[test]
-fn test_depyler_0023_type_keyword_panic() {
+fn test_type_keyword_panic() {
     // DEPYLER-0023: 'type' is a Rust keyword
     let python_code = r#"
 def test_type_keyword() -> int:
@@ -67,7 +67,7 @@ def test_type_keyword() -> int:
 }
 
 #[test]
-fn test_depyler_0023_impl_keyword_panic() {
+fn test_impl_keyword_panic() {
     // DEPYLER-0023: 'impl' is a Rust keyword
     let python_code = r#"
 def test_impl_keyword() -> int:
@@ -92,7 +92,7 @@ def test_impl_keyword() -> int:
 }
 
 #[test]
-fn test_depyler_0023_re_module_original_case() {
+fn test_re_module_original_case() {
     // DEPYLER-0023: Original failing test from TDD Book
     let python_code = r#"
 import re

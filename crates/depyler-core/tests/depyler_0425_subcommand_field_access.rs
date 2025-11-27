@@ -11,7 +11,7 @@ fn transpile_str(python: &str) -> Result<String, Box<dyn std::error::Error>> {
 }
 
 #[test]
-fn test_DEPYLER_0425_basic_subcommand_field_extraction() {
+fn test_basic_subcommand_field_extraction() {
     let python = r#"
 import argparse
 
@@ -55,7 +55,7 @@ if __name__ == "__main__":
 }
 
 #[test]
-fn test_DEPYLER_0425_multiple_subcommand_fields() {
+fn test_multiple_subcommand_fields() {
     let python = r#"
 import argparse
 
@@ -94,7 +94,7 @@ if __name__ == "__main__":
 }
 
 #[test]
-fn test_DEPYLER_0425_global_and_subcommand_fields() {
+fn test_global_and_subcommand_fields() {
     let python = r#"
 import argparse
 
@@ -146,7 +146,7 @@ if __name__ == "__main__":
 }
 
 #[test]
-fn test_DEPYLER_0425_multiple_subcommands() {
+fn test_multiple_subcommands() {
     let python = r#"
 import argparse
 
@@ -203,7 +203,7 @@ if __name__ == "__main__":
 }
 
 #[test]
-fn test_DEPYLER_0425_git_clone_example() {
+fn test_git_clone_example() {
     // This is the actual git_clone.py example that's failing
     let python = r#"
 import argparse

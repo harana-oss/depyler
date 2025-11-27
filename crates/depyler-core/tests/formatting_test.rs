@@ -10,7 +10,7 @@ use std::fs;
 use std::process::Command;
 
 #[test]
-fn test_depyler_0220_codegen_formatting_rustfmt_compliant() {
+fn test_codegen_formatting_rustfmt_compliant() {
     // ARRANGE: Python code with class (simple error handling)
     let python_code = r#"
 class CustomError(Exception):
@@ -36,7 +36,7 @@ class DataProcessor:
     let rust_code = result.unwrap();
 
     // Write to temporary file for rustfmt validation
-    let temp_file = "/tmp/test_DEPYLER_0220_formatting.rs";
+    let temp_file = "/tmp/test_formatting.rs";
     fs::write(temp_file, &rust_code).expect("Failed to write temp file");
 
     // ASSERT: Generated code passes rustfmt --check
@@ -77,7 +77,7 @@ class DataProcessor:
 }
 
 #[test]
-fn test_depyler_0220_codegen_formatting_generics() {
+fn test_codegen_formatting_generics() {
     // ARRANGE: Python code that generates generic parameters
     let python_code = r#"
 from typing import Generic, TypeVar
@@ -131,7 +131,7 @@ class Container(Generic[T]):
 }
 
 #[test]
-fn test_depyler_0220_codegen_formatting_macros() {
+fn test_codegen_formatting_macros() {
     // ARRANGE: Python code that generates macro calls
     let python_code = r#"
 def format_message(name: str, value: int) -> str:
@@ -168,8 +168,7 @@ def log_error(message: str) -> None:
 }
 
 #[test]
-#[ignore = "BLOCKED: Requires f-string support - Test uses f\"Point({self.x}, {self.y})\" which isn't yet implemented"]
-fn test_depyler_0220_codegen_formatting_impl_blocks() {
+fn test_codegen_formatting_impl_blocks() {
     // This test is INTENTIONALLY IGNORED because it uses f-strings, which aren't yet supported.
     // The test is valid but requires f-string transpilation to be implemented first.
 
@@ -219,8 +218,7 @@ class Point:
 }
 
 #[test]
-#[ignore = "BLOCKED: Requires f-string support - Test uses multiple f-strings which aren't yet implemented"]
-fn test_depyler_0220_codegen_formatting_comprehensive() {
+fn test_codegen_formatting_comprehensive() {
     // This test is INTENTIONALLY IGNORED because it uses f-strings, which aren't yet supported.
     // The test is valid but requires f-string transpilation to be implemented first.
 
@@ -269,7 +267,7 @@ class Validator:
     let rust_code = result.unwrap();
 
     // Write to temp file for comprehensive rustfmt check
-    let temp_file = "/tmp/test_DEPYLER_0220_comprehensive.rs";
+    let temp_file = "/tmp/test_comprehensive.rs";
     fs::write(temp_file, &rust_code).expect("Failed to write temp file");
 
     // ASSERT: Must pass rustfmt --check

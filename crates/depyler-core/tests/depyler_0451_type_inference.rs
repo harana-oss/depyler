@@ -23,22 +23,12 @@ fn assert_contains(rust_code: &str, pattern: &str) {
     );
 }
 
-/// Helper function to check if generated Rust code does NOT contain a pattern
-fn assert_not_contains(rust_code: &str, pattern: &str) {
-    assert!(
-        !rust_code.contains(pattern),
-        "Unexpected pattern found:\n  Pattern: {}\n  Code:\n{}",
-        pattern,
-        rust_code
-    );
-}
-
 // ====================================================================================
 // Test 1: File Path Parameter Inference (from open() usage)
 // ====================================================================================
 
 #[test]
-fn test_DEPYLER_0451_01_file_path_inference() {
+fn test_01_file_path_inference() {
     let python = r#"
 def read_file(filepath):
     with open(filepath) as f:
@@ -69,7 +59,7 @@ def read_file(filepath):
 // ====================================================================================
 
 #[test]
-fn test_DEPYLER_0451_02_integer_inference() {
+fn test_02_integer_inference() {
     let python = r#"
 def increment(x):
     return x + 1
@@ -100,7 +90,7 @@ def increment(x):
 // ====================================================================================
 
 #[test]
-fn test_DEPYLER_0451_03_string_method_inference() {
+fn test_03_string_method_inference() {
     let python = r#"
 def greet(name):
     return f"Hello, {name}"
@@ -130,7 +120,7 @@ def greet(name):
 // ====================================================================================
 
 #[test]
-fn test_DEPYLER_0451_04_string_upper_inference() {
+fn test_04_string_upper_inference() {
     let python = r#"
 def uppercase(text):
     return text.upper()
@@ -163,7 +153,7 @@ def uppercase(text):
 // ====================================================================================
 
 #[test]
-fn test_DEPYLER_0451_05_list_iteration_inference() {
+fn test_05_list_iteration_inference() {
     let python = r#"
 def sum_list(items):
     total = 0
@@ -201,7 +191,7 @@ def sum_list(items):
 // ====================================================================================
 
 #[test]
-fn test_DEPYLER_0451_06_boolean_inference() {
+fn test_06_boolean_inference() {
     let python = r#"
 def conditional(flag):
     if flag:
@@ -233,7 +223,7 @@ def conditional(flag):
 // ====================================================================================
 
 #[test]
-fn test_DEPYLER_0451_07_mixed_inference() {
+fn test_07_mixed_inference() {
     let python = r#"
 def process(data, flag):
     if flag:
@@ -276,8 +266,7 @@ def process(data, flag):
 // ====================================================================================
 
 #[test]
-#[ignore] // Phase 3 - Context-aware stdlib API inference
-fn test_DEPYLER_0451_08_csv_reader_inference() {
+fn test_08_csv_reader_inference() {
     let python = r#"
 import csv
 
@@ -315,7 +304,7 @@ def process_csv(path):
 // ====================================================================================
 
 #[test]
-fn test_DEPYLER_0451_09_return_type_propagation() {
+fn test_09_return_type_propagation() {
     let python = r#"
 def get_length(text: str) -> int:
     return len(text)
@@ -352,8 +341,7 @@ def get_length(text: str) -> int:
 // ====================================================================================
 
 #[test]
-#[ignore = "TODO: issue - better type inference for function parameters from usage"]
-fn test_DEPYLER_0451_10_multiple_parameters() {
+fn test_10_multiple_parameters() {
     let python = r#"
 def search(items, target):
     for item in items:

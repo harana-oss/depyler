@@ -9,7 +9,6 @@ use depyler_core::transpile_python_to_rust;
 // =============================================================================
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-FRACTIONS: Implementation in progress"]
 fn test_fraction_from_ints() {
     let python = r#"
 from fractions import Fraction
@@ -22,7 +21,6 @@ def create_fraction(num: int, denom: int) -> Fraction:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-FRACTIONS: Implementation in progress"]
 fn test_fraction_from_string() {
     let python = r#"
 from fractions import Fraction
@@ -35,7 +33,6 @@ def parse_fraction(s: str) -> Fraction:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-FRACTIONS: Implementation in progress"]
 fn test_fraction_from_float() {
     let python = r#"
 from fractions import Fraction
@@ -52,7 +49,6 @@ def fraction_from_float(f: float) -> Fraction:
 // =============================================================================
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-FRACTIONS: Implementation in progress"]
 fn test_fraction_add() {
     let python = r#"
 from fractions import Fraction
@@ -65,7 +61,6 @@ def add_fractions(a: Fraction, b: Fraction) -> Fraction:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-FRACTIONS: Implementation in progress"]
 fn test_fraction_subtract() {
     let python = r#"
 from fractions import Fraction
@@ -78,7 +73,6 @@ def subtract_fractions(a: Fraction, b: Fraction) -> Fraction:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-FRACTIONS: Implementation in progress"]
 fn test_fraction_multiply() {
     let python = r#"
 from fractions import Fraction
@@ -91,7 +85,6 @@ def multiply_fractions(a: Fraction, b: Fraction) -> Fraction:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-FRACTIONS: Implementation in progress"]
 fn test_fraction_divide() {
     let python = r#"
 from fractions import Fraction
@@ -108,7 +101,6 @@ def divide_fractions(a: Fraction, b: Fraction) -> Fraction:
 // =============================================================================
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-FRACTIONS: Implementation in progress"]
 fn test_fraction_numerator() {
     let python = r#"
 from fractions import Fraction
@@ -121,7 +113,6 @@ def get_numerator(f: Fraction) -> int:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-FRACTIONS: Implementation in progress"]
 fn test_fraction_denominator() {
     let python = r#"
 from fractions import Fraction
@@ -138,7 +129,6 @@ def get_denominator(f: Fraction) -> int:
 // =============================================================================
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-FRACTIONS: Implementation in progress"]
 fn test_fraction_limit_denominator() {
     let python = r#"
 from fractions import Fraction
@@ -151,7 +141,6 @@ def limit_denom(f: Fraction, max_denom: int) -> Fraction:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-FRACTIONS: Implementation in progress"]
 fn test_fraction_as_integer_ratio() {
     let python = r#"
 from fractions import Fraction
@@ -168,7 +157,6 @@ def to_ratio(f: Fraction) -> tuple:
 // =============================================================================
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-FRACTIONS: Implementation in progress"]
 fn test_fraction_to_float() {
     let python = r#"
 from fractions import Fraction
@@ -181,7 +169,6 @@ def to_float(f: Fraction) -> float:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-FRACTIONS: Implementation in progress"]
 fn test_fraction_to_int() {
     let python = r#"
 from fractions import Fraction
@@ -198,7 +185,6 @@ def to_int(f: Fraction) -> int:
 // =============================================================================
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-FRACTIONS: Implementation in progress"]
 fn test_fraction_equal() {
     let python = r#"
 from fractions import Fraction
@@ -211,7 +197,6 @@ def fractions_equal(a: Fraction, b: Fraction) -> bool:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-FRACTIONS: Implementation in progress"]
 fn test_fraction_less_than() {
     let python = r#"
 from fractions import Fraction

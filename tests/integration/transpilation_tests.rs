@@ -207,7 +207,6 @@ def classify_number(n: int) -> str:
     }
 
     #[test]
-    #[ignore = "MCP API has changed - needs update"]
     fn test_mcp_functionality() {
         // MCP API has changed - this test needs to be updated
         // Commenting out to avoid compilation errors

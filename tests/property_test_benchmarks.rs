@@ -103,27 +103,29 @@ def func3(z: int) -> int:
 
     /// Benchmark property test generator performance
     #[test]
-    #[ignore = "Causes stack overflow with large generated values - needs generator size limiting"]
     fn benchmark_property_generators() {
-        use quickcheck::{quickcheck, TestResult};
+        use quickcheck::{QuickCheck, TestResult};
 
         println!("=== Property Generator Performance ===");
 
-        // Benchmark simple property test
+        // Benchmark simple property test with limited iterations for fast execution
         let start = Instant::now();
-        quickcheck(|x: i32, y: i32| -> TestResult {
-            let pipeline = DepylerPipeline::new();
-            let test_code = format!(
-                "def test(a: int, b: int) -> int: return {} + {}",
-                x.abs() % 1000,
-                y.abs() % 1000
-            );
+        QuickCheck::new()
+            .tests(10) // Limit to 10 iterations for benchmark
+            .max_tests(10)
+            .quickcheck(|x: i32, y: i32| -> TestResult {
+                let pipeline = DepylerPipeline::new();
+                let test_code = format!(
+                    "def test(a: int, b: int) -> int: return {} + {}",
+                    x.abs() % 1000,
+                    y.abs() % 1000
+                );
 
-            match pipeline.transpile(&test_code) {
-                Ok(_) => TestResult::passed(),
-                Err(_) => TestResult::discard(),
-            }
-        } as fn(i32, i32) -> TestResult);
+                match pipeline.transpile(&test_code) {
+                    Ok(_) => TestResult::passed(),
+                    Err(_) => TestResult::discard(),
+                }
+            } as fn(i32, i32) -> TestResult);
         let generator_duration = start.elapsed();
 
         println!("Property Generator: {:?}", generator_duration);
@@ -235,16 +237,27 @@ def complex_function(n: int) -> int:
 
     /// Performance regression test - ensure no performance degradation
     #[test]
-    #[ignore = "Timing-sensitive test - varies significantly with system load (67-78ms observed)"]
     fn performance_regression_test() {
         let pipeline = DepylerPipeline::new();
 
         println!("=== Performance Regression Tests ===");
 
         let regression_test_cases = vec![
-            ("Basic Function", "def f(x: int) -> int: return x", Duration::from_millis(50)),
-            ("With Control Flow", "def f(x: int) -> int: return x if x > 0 else 0", Duration::from_millis(100)),
-            ("With Loop", "def f(n: int) -> int:\n    total = 0\n    for i in range(n):\n        total += i\n    return total", Duration::from_millis(150)),
+            (
+                "Basic Function",
+                "def f(x: int) -> int: return x",
+                Duration::from_millis(50),
+            ),
+            (
+                "With Control Flow",
+                "def f(x: int) -> int: return x if x > 0 else 0",
+                Duration::from_millis(100),
+            ),
+            (
+                "With Loop",
+                "def f(n: int) -> int:\n    total = 0\n    for i in range(n):\n        total += i\n    return total",
+                Duration::from_millis(150),
+            ),
         ];
 
         for (name, code, max_duration) in regression_test_cases {
@@ -272,7 +285,6 @@ def complex_function(n: int) -> int:
 
     /// Test scalability with increasing input sizes
     #[test]
-    #[ignore] // Timing-sensitive benchmark - flaky in CI environments
     fn test_scalability_patterns() {
         let pipeline = DepylerPipeline::new();
 

@@ -17,7 +17,7 @@ use std::process::Command;
 
 #[test]
 #[allow(non_snake_case)]
-fn test_DEPYLER_0269_isinstance_int_removed() {
+fn test_isinstance_int_removed() {
     // RED Phase: This test MUST FAIL initially with isinstance in output
     let python = r#"
 def check_int(x: int) -> bool:
@@ -58,7 +58,7 @@ def check_int(x: int) -> bool:
 
 #[test]
 #[allow(non_snake_case)]
-fn test_DEPYLER_0269_isinstance_str_removed() {
+fn test_isinstance_str_removed() {
     // RED Phase: isinstance(s, str) should also be removed
     let python = r#"
 def check_str(s: str) -> bool:
@@ -74,7 +74,7 @@ def check_str(s: str) -> bool:
 
 #[test]
 #[allow(non_snake_case)]
-fn test_DEPYLER_0269_isinstance_compiles() {
+fn test_isinstance_compiles() {
     // RED Phase: Generated code should compile (will fail until fix)
     let python = r#"
 def check_type(value: int) -> bool:
@@ -124,7 +124,7 @@ def check_type(value: int) -> bool:
 
 #[test]
 #[allow(non_snake_case)]
-fn test_DEPYLER_0269_isinstance_multiple_types() {
+fn test_isinstance_multiple_types() {
     // RED Phase: Multiple isinstance calls should all be removed
     let python = r#"
 def check_types(x: int, s: str) -> bool:
@@ -151,7 +151,7 @@ def check_types(x: int, s: str) -> bool:
 
 #[test]
 #[allow(non_snake_case)]
-fn test_DEPYLER_0269_isinstance_in_if_statement() {
+fn test_isinstance_in_if_statement() {
     // RED Phase: isinstance in if statement should work
     let python = r#"
 def validate(data: str) -> bool:
@@ -167,7 +167,7 @@ def validate(data: str) -> bool:
     assert!(rust.contains("true"), "Should contain true");
 
     // Should compile
-    let temp_file = "/tmp/test_depyler_0269_if.rs";
+    let temp_file = "/tmp/test_if.rs";
     std::fs::write(temp_file, &rust).unwrap();
 
     let output = Command::new("rustc")
@@ -184,7 +184,7 @@ def validate(data: str) -> bool:
 
 #[test]
 #[allow(non_snake_case)]
-fn test_DEPYLER_0269_isinstance_with_float() {
+fn test_isinstance_with_float() {
     // RED Phase: isinstance with float type
     let python = r#"
 def check_float(x: float) -> bool:
@@ -200,7 +200,7 @@ def check_float(x: float) -> bool:
 
 #[test]
 #[allow(non_snake_case)]
-fn test_DEPYLER_0269_isinstance_with_bool() {
+fn test_isinstance_with_bool() {
     // RED Phase: isinstance with bool type
     let python = r#"
 def check_bool(b: bool) -> bool:

@@ -53,7 +53,6 @@ def find_all_numbers(text: str) -> list:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-RE: Not implemented yet - RED phase"]
 fn test_re_finditer() {
     let python = r#"
 import re
@@ -86,7 +85,6 @@ def replace_digits(text: str) -> str:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-RE: Not implemented yet - RED phase"]
 fn test_re_subn() {
     let python = r#"
 import re
@@ -119,7 +117,6 @@ def compile_pattern():
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-RE: Not implemented yet - RED phase"]
 fn test_re_compile_with_flags() {
     let python = r#"
 import re
@@ -152,7 +149,6 @@ def split_by_pattern(text: str) -> list:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-RE: Not implemented yet - RED phase"]
 fn test_re_split_with_maxsplit() {
     let python = r#"
 import re
@@ -185,7 +181,6 @@ def escape_special_chars(text: str) -> str:
 
 // DEPYLER-STDLIB-RE-006: Match object methods
 #[test]
-#[ignore = "DEPYLER-STDLIB-RE: Not implemented yet - RED phase"]
 fn test_match_group() {
     let python = r#"
 import re
@@ -204,7 +199,6 @@ def extract_group(text: str) -> str:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-RE: Not implemented yet - RED phase"]
 fn test_match_groups() {
     let python = r#"
 import re
@@ -223,7 +217,6 @@ def extract_all_groups(text: str) -> tuple:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-RE: Not implemented yet - RED phase"]
 fn test_match_start_end() {
     let python = r#"
 import re
@@ -243,7 +236,6 @@ def find_position(text: str) -> int:
 
 // DEPYLER-STDLIB-RE-007: Flags
 #[test]
-#[ignore = "DEPYLER-STDLIB-RE: Not implemented yet - RED phase"]
 fn test_re_ignorecase_flag() {
     let python = r#"
 import re
@@ -260,7 +252,6 @@ def case_insensitive_search(text: str) -> bool:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-RE: Not implemented yet - RED phase"]
 fn test_re_multiline_flag() {
     let python = r#"
 import re
@@ -277,7 +268,6 @@ def multiline_search(text: str) -> bool:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-RE: Not implemented yet - RED phase"]
 fn test_re_dotall_flag() {
     let python = r#"
 import re
@@ -295,7 +285,6 @@ def dotall_search(text: str) -> bool:
 
 // DEPYLER-STDLIB-RE-008: Pattern object methods
 #[test]
-#[ignore = "DEPYLER-STDLIB-RE: Not implemented yet - RED phase"]
 fn test_pattern_search() {
     let python = r#"
 import re
@@ -313,7 +302,6 @@ def pattern_search(text: str) -> bool:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-RE: Not implemented yet - RED phase"]
 fn test_pattern_findall() {
     let python = r#"
 import re

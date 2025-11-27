@@ -38,7 +38,6 @@ def test_divmod(a: int, b: int):
 }
 
 #[test]
-#[ignore = "TODO: pow() with 3 arguments (modular exponentiation) not yet implemented"]
 fn test_pow_builtin_with_modulo() {
     let pipeline = DepylerPipeline::new();
     let python_code = r#"
@@ -209,7 +208,6 @@ def test_type(obj: int) -> str:
 }
 
 #[test]
-#[ignore = "getattr() not yet implemented - requires runtime reflection"]
 fn test_getattr_builtin() {
     let pipeline = DepylerPipeline::new();
     let python_code = r#"
@@ -310,7 +308,6 @@ def test_reversed(items: list):
 }
 
 #[test]
-#[ignore = "enumerate(start=N) not yet implemented"]
 fn test_enumerate_with_start() {
     let pipeline = DepylerPipeline::new();
     let python_code = r#"

@@ -22,7 +22,6 @@ def sum_all(numbers: list) -> int:
 
 // DEPYLER-STDLIB-FUNCTOOLS-002: Partial application
 #[test]
-#[ignore = "DEPYLER-STDLIB-FUNCTOOLS: Not implemented yet - RED phase"]
 fn test_partial() {
     let python = r#"
 import functools
@@ -41,7 +40,6 @@ def create_doubler() -> callable:
 
 // DEPYLER-STDLIB-FUNCTOOLS-003: LRU cache
 #[test]
-#[ignore = "DEPYLER-STDLIB-FUNCTOOLS: Not implemented yet - RED phase"]
 fn test_lru_cache() {
     let python = r#"
 import functools

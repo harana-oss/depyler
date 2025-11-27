@@ -591,7 +591,7 @@ mod tests {
 
     #[test]
     #[allow(non_snake_case)]
-    fn test_depyler_0259_snake_case_to_pascal_case_naming() {
+    fn test_snake_case_to_pascal_case_naming() {
         // BUG #2: generate_state_struct_name only capitalizes first character
         // Input: "count_up" → Current: "Count_upState" (WRONG)
         // Input: "count_up" → Expected: "CountUpState" (CORRECT)
@@ -609,7 +609,7 @@ mod tests {
 
     #[test]
     #[allow(non_snake_case)]
-    fn test_depyler_0259_single_word_naming() {
+    fn test_single_word_naming() {
         // Edge case: single word (no underscores)
         let input_name = syn::Ident::new("counter", proc_macro2::Span::call_site());
         let result = generate_state_struct_name(&input_name);
@@ -620,7 +620,7 @@ mod tests {
 
     #[test]
     #[allow(non_snake_case)]
-    fn test_depyler_0259_multiple_words_naming() {
+    fn test_multiple_words_naming() {
         // Test with multiple underscores
         let input_name = syn::Ident::new(
             "fibonacci_generator_with_memo",

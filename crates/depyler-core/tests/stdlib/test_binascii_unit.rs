@@ -182,7 +182,6 @@ def hex_to_bytes_alt(data: bytes) -> bytes:
 
 // DEPYLER-STDLIB-BINASCII-007: RFC 1751 encoding
 #[test]
-#[ignore = "DEPYLER-STDLIB-BINASCII: Not implemented yet - RED phase"]
 fn test_binascii_b2a_hqx() {
     let python = r#"
 import binascii
@@ -198,7 +197,6 @@ def bytes_to_hqx(data: bytes) -> bytes:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-BINASCII: Not implemented yet - RED phase"]
 fn test_binascii_a2b_hqx() {
     let python = r#"
 import binascii

@@ -510,7 +510,7 @@ def calculate_sum(numbers: List[int]) -> int:
 // ============================================================================
 
 #[test]
-fn test_depyler_0161_simple_array_literal_missing_assignment() {
+fn test_simple_array_literal_missing_assignment() {
     // DEPYLER-0161: Critical bug - array assignments are dropped
     let python_code = r#"
 def test_array():
@@ -540,7 +540,7 @@ def test_array():
 }
 
 #[test]
-fn test_depyler_0161_multiple_array_assignments_dropped() {
+fn test_multiple_array_assignments_dropped() {
     // DEPYLER-0161: Multiple array assignments all dropped
     let python_code = r#"
 def test_arrays():
@@ -579,7 +579,7 @@ def test_arrays():
 }
 
 #[test]
-fn test_depyler_0161_boolean_array_assignment_dropped() {
+fn test_boolean_array_assignment_dropped() {
     // DEPYLER-0161: Boolean arrays also affected
     let python_code = r#"
 def test_bool_array():
@@ -617,7 +617,7 @@ def test_bool_array():
 // ============================================================================
 
 #[test]
-fn test_depyler_0024_copy_copy_list_invalid_codegen() {
+fn test_copy_copy_list_invalid_codegen() {
     // DEPYLER-0024: copy.copy() for lists generates invalid Rust code
     let python_code = r#"
 import copy
@@ -658,7 +658,7 @@ def test_shallow_copy() -> int:
 }
 
 #[test]
-fn test_depyler_0024_copy_copy_dict_works() {
+fn test_copy_copy_dict_works() {
     // DEPYLER-0024: Verify copy.copy() for dicts works (regression check)
     let python_code = r#"
 import copy
@@ -685,7 +685,7 @@ def test_dict_copy() -> int:
 }
 
 #[test]
-fn test_depyler_0024_copy_deepcopy_list_works() {
+fn test_copy_deepcopy_list_works() {
     // DEPYLER-0024: Verify copy.deepcopy() still works (regression check)
     let python_code = r#"
 import copy
@@ -712,7 +712,7 @@ def test_deep_copy() -> int:
 }
 #[test]
 #[allow(non_snake_case)]
-fn test_DEPYLER_0264_untyped_list_parameter_compiles() {
+fn test_untyped_list_parameter_compiles() {
     // DEPYLER-0264: Untyped list parameters generate Vec<DynamicType> which doesn't compile
     // RED Phase: This test MUST FAIL initially because DynamicType is undefined
     
@@ -736,7 +736,7 @@ def sum_list(numbers: list) -> int:
     e
 
     // Write to temp file
-    let temp_file = "/tmp/test_depyler_0264_untyped_list.rs";
+    let temp_file = "/tmp/test_untyped_list.rs";
     std::fs::write(temp_file, &rust_code)
         .expect("DEPYLER-0264: Failed to write temp file");
 
@@ -748,7 +748,7 @@ def sum_list(numbers: list) -> int:
         .arg("2021")
         .arg(temp_file)
         .arg("-o")
-        .arg("/tmp/test_depyler_0264_untyped_list.rlib")
+        .arg("/tmp/test_untyped_list.rlib")
         .output()
         .expect("DEPYLER-0264: Failed to run rustc");
 
@@ -798,7 +798,7 @@ def sum_list(numbers: list) -> int:
 
 #[test]
 #[allow(non_snake_case)]
-fn test_DEPYLER_0264_untyped_dict_parameter_compiles() {
+fn test_untyped_dict_parameter_compiles() {
     // DEPYLER-0264: Untyped dict parameters also generate HashMap<DynamicType, DynamicType>
     // This is a related bug - same root cause
     
@@ -815,7 +815,7 @@ def get_value(data: dict, key: str) -> int:
     let rust_code = result.unwrap();
 
     // Write to temp file
-    let temp_file = "/tmp/test_depyler_0264_untyped_dict.rs";
+    let temp_file = "/tmp/test_untyped_dict.rs";
     std::fs::write(temp_file, &rust_code)
         .expect("DEPYLER-0264: Failed to write temp file");
 
@@ -827,7 +827,7 @@ def get_value(data: dict, key: str) -> int:
         .arg("2021")
         .arg(temp_file)
         .arg("-o")
-        .arg("/tmp/test_depyler_0264_untyped_dict.rlib")
+        .arg("/tmp/test_untyped_dict.rlib")
         .output()
         .expect("DEPYLER-0264: Failed to run rustc");
 

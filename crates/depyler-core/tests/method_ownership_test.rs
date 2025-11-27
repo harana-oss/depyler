@@ -23,7 +23,6 @@ def add_to_list(items: List[str], new_item: str):
 }
 
 #[test]
-#[ignore = "Dictionary assignment not yet supported"]
 fn test_hashmap_insert_takes_ownership() {
     let pipeline = DepylerPipeline::new();
     let python_code = r#"
@@ -39,7 +38,7 @@ def add_to_dict(data: Dict[str, int], key: str, value: int):
 }
 
 #[test]
-fn test_string_method_borrowing() {
+fn test_string_method_ownership() {
     let pipeline = DepylerPipeline::new();
     let python_code = r#"
 def check_string(s: str) -> bool:
@@ -49,12 +48,9 @@ def check_string(s: str) -> bool:
     let rust_code = pipeline.transpile(python_code).unwrap();
     println!("Generated code for check_string:\n{}", rust_code);
 
-    // String methods like startswith should borrow, not move
-    assert!(
-        rust_code.contains("starts_with"),
-        "Should use starts_with method"
-    );
-    assert!(rust_code.contains("&"), "Should borrow string parameter");
+    // String parameters take ownership (String, not &str) to match Python semantics
+    assert!(rust_code.contains("starts_with"), "Should use starts_with method");
+    assert!(rust_code.contains("s: String"), "Should take String ownership");
 }
 
 #[test]
@@ -70,10 +66,7 @@ def process_string(s: str) -> str:
 
     // Method chains should handle ownership correctly
     assert!(rust_code.contains("trim"), "Should use trim method");
-    assert!(
-        rust_code.contains("to_uppercase"),
-        "Should use to_uppercase method"
-    );
+    assert!(rust_code.contains("to_uppercase"), "Should use to_uppercase method");
 }
 
 #[test]
@@ -95,7 +88,6 @@ def sum_list(numbers: List[int]) -> int:
 }
 
 #[test]
-#[ignore = "Classes not yet supported"]
 fn test_self_consuming_method() {
     let pipeline = DepylerPipeline::new();
     let python_code = r#"

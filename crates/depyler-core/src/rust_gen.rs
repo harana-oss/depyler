@@ -212,7 +212,6 @@ fn pre_analyze_parameter_mutability(ctx: &mut CodeGenContext, functions: &[HirFu
 /// Populates ctx.function_param_borrows with function_name -> Vec<bool>
 /// where each bool indicates if the corresponding parameter is borrowed (true = &str, false = String).
 fn pre_analyze_parameter_borrowing(ctx: &mut CodeGenContext, functions: &[HirFunction]) {
-    use crate::borrowing_context::BorrowingContext;
     use crate::lifetime_analysis::LifetimeInference;
 
     for func in functions {
@@ -557,7 +556,9 @@ fn expr_mutates_param(param_name: &str, expr: &HirExpr) -> bool {
             // Only recurse into args to check for mutations there
             args.iter().any(|a| expr_mutates_param(param_name, a))
         }
-        HirExpr::Call { func: _, args, kwargs, .. } => {
+        HirExpr::Call {
+            func: _, args, kwargs, ..
+        } => {
             // Check if the parameter is passed to a function that mutates it
             // This requires checking ctx.function_param_muts, but we're pre-populating
             // so we can't check other functions yet. For now, just check args.
@@ -872,6 +873,35 @@ fn analyze_mutable_vars(stmts: &[HirStmt], ctx: &mut CodeGenContext, params: &[H
 
                 for stmt in body {
                     analyze_stmt(stmt, declared, mutable, var_types, mutating_methods);
+                }
+            }
+            HirStmt::Try {
+                body,
+                handlers,
+                orelse,
+                finalbody,
+            } => {
+                // Analyze try block for mutations
+                for stmt in body {
+                    analyze_stmt(stmt, declared, mutable, var_types, mutating_methods);
+                }
+                // Analyze except handlers
+                for handler in handlers {
+                    for stmt in &handler.body {
+                        analyze_stmt(stmt, declared, mutable, var_types, mutating_methods);
+                    }
+                }
+                // Analyze else block
+                if let Some(else_stmts) = orelse {
+                    for stmt in else_stmts {
+                        analyze_stmt(stmt, declared, mutable, var_types, mutating_methods);
+                    }
+                }
+                // Analyze finally block
+                if let Some(finally_stmts) = finalbody {
+                    for stmt in finally_stmts {
+                        analyze_stmt(stmt, declared, mutable, var_types, mutating_methods);
+                    }
                 }
             }
             _ => {}
@@ -1623,7 +1653,6 @@ mod tests {
     // This test was written ahead of implementation (aspirational test)
     // Tracked in roadmap: Complete with statement target binding support
     #[test]
-    #[ignore = "Incomplete feature: With statement target binding not yet implemented"]
     fn test_codegen_with_stmt_with_target() {
         use crate::hir::Literal;
 
@@ -1776,7 +1805,7 @@ mod tests {
             func: "int".to_string(),
             args: vec![HirExpr::Var("x".to_string())],
             kwargs: vec![],
-                type_params: vec![],
+            type_params: vec![],
         };
 
         let mut ctx = create_test_context();
@@ -1795,7 +1824,7 @@ mod tests {
             func: "float".to_string(),
             args: vec![HirExpr::Var("y".to_string())],
             kwargs: vec![],
-                type_params: vec![],
+            type_params: vec![],
         };
 
         let mut ctx = create_test_context();
@@ -1812,7 +1841,7 @@ mod tests {
             func: "str".to_string(),
             args: vec![HirExpr::Var("value".to_string())],
             kwargs: vec![],
-                type_params: vec![],
+            type_params: vec![],
         };
 
         let mut ctx = create_test_context();
@@ -1830,14 +1859,13 @@ mod tests {
     // This test was written ahead of implementation (aspirational test)
     // Tracked in roadmap: Implement bool() builtin casting
     #[test]
-    #[ignore = "Incomplete feature: bool() casting not yet implemented"]
     fn test_bool_cast_conversion() {
         // Python: bool(x) → Rust: (x) as bool
         let call_expr = HirExpr::Call {
             func: "bool".to_string(),
             args: vec![HirExpr::Var("flag".to_string())],
             kwargs: vec![],
-                type_params: vec![],
+            type_params: vec![],
         };
 
         let mut ctx = create_test_context();
@@ -1865,7 +1893,7 @@ mod tests {
             func: "int".to_string(),
             args: vec![division],
             kwargs: vec![],
-                type_params: vec![],
+            type_params: vec![],
         };
 
         let mut ctx = create_test_context();

@@ -37,7 +37,6 @@ def deserialize_data(s: str) -> dict:
 
 // DEPYLER-STDLIB-JSON-002: File-based functions
 #[test]
-#[ignore = "DEPYLER-STDLIB-JSON: Not implemented yet - RED phase"]
 fn test_json_dump() {
     let python = r#"
 import json
@@ -53,7 +52,6 @@ def write_json(data: dict, filename: str) -> None:
 }
 
 #[test]
-#[ignore = "DEPYLER-STDLIB-JSON: Not implemented yet - RED phase"]
 fn test_json_load() {
     let python = r#"
 import json
