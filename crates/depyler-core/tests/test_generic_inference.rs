@@ -354,18 +354,30 @@ def test_func():
     println!("Generated Rust code:\n{}", rust_code);
 
     // Should generate a generic call with turbofish syntax
-    assert!(rust_code.contains("call::<Type>"), 
-        "Expected generic call syntax with turbofish, got:\n{}", rust_code);
-    
+    assert!(
+        rust_code.contains("call::<Type>"),
+        "Expected generic call syntax with turbofish, got:\n{}",
+        rust_code
+    );
+
     // Should have the string literal "name" as first argument
-    assert!(rust_code.contains("\"name\""), 
-        "Expected first argument 'name', got:\n{}", rust_code);
-    
+    assert!(
+        rust_code.contains("\"name\""),
+        "Expected first argument 'name', got:\n{}",
+        rust_code
+    );
+
     // Should have an array/vector literal with random.random() call
-    assert!(rust_code.contains("vec!") && rust_code.contains("rand::random"), 
-        "Expected array/vector literal with rand::random call, got:\n{}", rust_code);
-    
+    assert!(
+        rust_code.contains("vec!") && rust_code.contains("rand::random"),
+        "Expected array/vector literal with rand::random call, got:\n{}",
+        rust_code
+    );
+
     // Should have the arithmetic computation (2400 - 1200)
-    assert!(rust_code.contains("2400") && rust_code.contains("1200"), 
-        "Expected arithmetic computation with 2400 and 1200, got:\n{}", rust_code);
+    assert!(
+        rust_code.contains("2400") && rust_code.contains("1200"),
+        "Expected arithmetic computation with 2400 and 1200, got:\n{}",
+        rust_code
+    );
 }

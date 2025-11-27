@@ -28,7 +28,7 @@ fn assert_variable_type(inferred: &InferredTypes, var_name: &str, expected: Type
 /// Helper to transpile Python to Rust and check that it compiles
 fn assert_transpiles_successfully(python: &str) {
     let pipeline = DepylerPipeline::new();
-    let result = pipeline.transpile_to_rust(python);
+    let result = pipeline.transpile(python);
     assert!(result.is_ok(), "Transpilation failed: {:?}", result.err());
     let rust_code = result.unwrap();
     println!("Generated Rust code:\n{}", rust_code);
@@ -410,4 +410,83 @@ def test():
         }
         Err(e) => panic!("Type inference failed: {}", e),
     }
+}
+
+// ============================================================================
+// Tests for comparison operators returning boolean
+// ============================================================================
+
+#[test]
+fn test_comparison_float_literals_returns_bool() {
+    // Test: 0.0 == 0.0 should be inferred as bool
+    let python = r#"
+def test():
+    x = 0.0 == 0.0
+    return x
+"#;
+    let inferred = infer_types(python);
+    assert_variable_type(&inferred, "x", Type::Bool);
+}
+
+#[test]
+fn test_comparison_float_cast_returns_bool() {
+    // Test: float(0) == 0.0 should be inferred as bool
+    let python = r#"
+def test():
+    y = float(0) == 0.0
+    return y
+"#;
+    let inferred = infer_types(python);
+    assert_variable_type(&inferred, "y", Type::Bool);
+}
+
+#[test]
+fn test_comparison_string_method_returns_bool() {
+    // Test: upper("str") == "STR" should be inferred as bool
+    // Note: In Python, str.upper() is a method call, not a function
+    let python = r#"
+def test():
+    z = "str".upper() == "STR"
+    return z
+"#;
+    let inferred = infer_types(python);
+    assert_variable_type(&inferred, "z", Type::Bool);
+}
+
+#[test]
+fn test_all_comparison_operators_return_bool() {
+    // Test all comparison operators: ==, !=, <, <=, >, >=
+    let python = r#"
+def test():
+    eq = 0.0 == 0.0
+    ne = 0.0 != 1.0
+    lt = 0.0 < 1.0
+    le = 0.0 <= 1.0
+    gt = 1.0 > 0.0
+    ge = 1.0 >= 0.0
+    return eq
+"#;
+    let inferred = infer_types(python);
+    assert_variable_type(&inferred, "eq", Type::Bool);
+    assert_variable_type(&inferred, "ne", Type::Bool);
+    assert_variable_type(&inferred, "lt", Type::Bool);
+    assert_variable_type(&inferred, "le", Type::Bool);
+    assert_variable_type(&inferred, "gt", Type::Bool);
+    assert_variable_type(&inferred, "ge", Type::Bool);
+}
+
+#[test]
+fn test_comparison_with_type_casting_returns_bool() {
+    // Test multiple comparisons with type casting
+    let python = r#"
+def test():
+    x = 0.0 == 0.0
+    y = float(0) == 0.0
+    z = "str".upper() == "STR"
+    return x and y and z
+"#;
+    let inferred = infer_types(python);
+    assert_variable_type(&inferred, "x", Type::Bool);
+    assert_variable_type(&inferred, "y", Type::Bool);
+    assert_variable_type(&inferred, "z", Type::Bool);
 }

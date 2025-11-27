@@ -160,3 +160,34 @@ def build_string() -> str:
     let rust_code = pipeline.transpile(python_code).unwrap();
     assert!(rust_code.contains("build_string() -> String"), "\n{rust_code}");
 }
+
+#[test]
+fn test_generic_take_str_with_variable_and_literal() {
+    let pipeline = DepylerPipeline::new();
+    let python_code = r#"
+from typing import TypeVar
+
+T = TypeVar('T')
+
+def take_str(s: str) -> str:
+    return s
+
+def main() -> None:
+    msg = "hello"
+    result1 = take_str(msg)
+    result2 = take_str("world")
+"#;
+
+    let rust_code = pipeline.transpile(python_code).unwrap();
+    // Function signature should use String, not &str
+    assert!(rust_code.contains("fn take_str(s: String) -> String"), "\n{rust_code}");
+    
+    // Variable should be a String
+    assert!(rust_code.contains("let msg = \"hello\".to_string()"), "\n{rust_code}");
+    
+    // Variable passed directly (already a String)
+    assert!(rust_code.contains("let result1 = take_str(msg)"), "\n{rust_code}");
+    
+    // Literal should be converted to String
+    assert!(rust_code.contains("let result2 = take_str(\"world\".to_string())"), "\n{rust_code}");
+}

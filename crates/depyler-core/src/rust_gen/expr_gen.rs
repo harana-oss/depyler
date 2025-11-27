@@ -9384,12 +9384,12 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     .iter()
                     .map(|arg| arg.to_rust_expr(self.ctx))
                     .collect::<Result<Vec<_>>>()?;
-                
+
                 let kwarg_exprs: Vec<syn::Expr> = kwargs
                     .iter()
                     .map(|(_name, value)| value.to_rust_expr(self.ctx))
                     .collect::<Result<Vec<_>>>()?;
-                
+
                 arg_exprs.extend(kwarg_exprs);
                 arg_exprs
             }
@@ -9433,10 +9433,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     }
 
     fn convert_type_params_to_tokens(&self, type_params: &[Type]) -> proc_macro2::TokenStream {
-        let type_tokens: Vec<proc_macro2::TokenStream> = type_params
-            .iter()
-            .map(|t| self.type_to_tokens(t))
-            .collect();
+        let type_tokens: Vec<proc_macro2::TokenStream> = type_params.iter().map(|t| self.type_to_tokens(t)).collect();
         quote! { #(#type_tokens),* }
     }
 
@@ -9460,10 +9457,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 quote! { HashSet<#inner_tokens> }
             }
             Type::Tuple(types) => {
-                let type_tokens: Vec<proc_macro2::TokenStream> = types
-                    .iter()
-                    .map(|t| self.type_to_tokens(t))
-                    .collect();
+                let type_tokens: Vec<proc_macro2::TokenStream> = types.iter().map(|t| self.type_to_tokens(t)).collect();
                 quote! { (#(#type_tokens),*) }
             }
             Type::Optional(inner) => {
@@ -11720,9 +11714,12 @@ impl ToRustExpr for HirExpr {
             HirExpr::Var(name) => converter.convert_variable(name),
             HirExpr::Binary { op, left, right } => converter.convert_binary(*op, left, right),
             HirExpr::Unary { op, operand } => converter.convert_unary(op, operand),
-            HirExpr::Call { func, args, kwargs, type_params } => {
-                converter.convert_call_with_type_params(func, args, kwargs, type_params)
-            }
+            HirExpr::Call {
+                func,
+                args,
+                kwargs,
+                type_params,
+            } => converter.convert_call_with_type_params(func, args, kwargs, type_params),
             HirExpr::MethodCall {
                 object,
                 method,
