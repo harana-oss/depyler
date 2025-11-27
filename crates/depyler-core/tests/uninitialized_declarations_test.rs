@@ -25,10 +25,16 @@ def process():
     let rust_code = pipeline.transpile(python_code).unwrap();
 
     // Should generate: let mut count: i32;
-    assert!(rust_code.contains("let mut count: i32;"), 
-            "Expected 'let mut count: i32;' in generated code:\n{}", rust_code);
-    assert!(rust_code.contains("count = 5"), 
-            "Expected assignment 'count = 5' in generated code:\n{}", rust_code);
+    assert!(
+        rust_code.contains("let mut count: i32;"),
+        "Expected 'let mut count: i32;' in generated code:\n{}",
+        rust_code
+    );
+    assert!(
+        rust_code.contains("count = 5"),
+        "Expected assignment 'count = 5' in generated code:\n{}",
+        rust_code
+    );
 }
 
 /// Test string type annotation without initial value
@@ -44,10 +50,16 @@ def process():
     let rust_code = pipeline.transpile(python_code).unwrap();
 
     // Should generate: let mut name: String;
-    assert!(rust_code.contains("let mut name: String;") || rust_code.contains("let mut name : String ;"), 
-            "Expected 'let mut name: String;' in generated code:\n{}", rust_code);
-    assert!(rust_code.contains("name = \"Alice\"") || rust_code.contains("name = String :: from(\"Alice\")"),
-            "Expected name assignment in generated code:\n{}", rust_code);
+    assert!(
+        rust_code.contains("let mut name: String;") || rust_code.contains("let mut name : String ;"),
+        "Expected 'let mut name: String;' in generated code:\n{}",
+        rust_code
+    );
+    assert!(
+        rust_code.contains("name = \"Alice\"") || rust_code.contains("name = String :: from(\"Alice\")"),
+        "Expected name assignment in generated code:\n{}",
+        rust_code
+    );
 }
 
 /// Test bool type annotation without initial value
@@ -63,10 +75,16 @@ def check():
     let rust_code = pipeline.transpile(python_code).unwrap();
 
     // Should generate: let mut valid: bool;
-    assert!(rust_code.contains("let mut valid: bool;") || rust_code.contains("let mut valid : bool ;"),
-            "Expected 'let mut valid: bool;' in generated code:\n{}", rust_code);
-    assert!(rust_code.contains("valid = true"),
-            "Expected assignment 'valid = true' in generated code:\n{}", rust_code);
+    assert!(
+        rust_code.contains("let mut valid: bool;") || rust_code.contains("let mut valid : bool ;"),
+        "Expected 'let mut valid: bool;' in generated code:\n{}",
+        rust_code
+    );
+    assert!(
+        rust_code.contains("valid = true"),
+        "Expected assignment 'valid = true' in generated code:\n{}",
+        rust_code
+    );
 }
 
 /// Test custom type annotation without initial value
@@ -82,8 +100,11 @@ def process():
     let rust_code = pipeline.transpile(python_code).unwrap();
 
     // Should generate: let mut position: FieldPosition;
-    assert!(rust_code.contains("position: FieldPosition;") || rust_code.contains("position : FieldPosition ;"),
-            "Expected 'position: FieldPosition;' in generated code:\n{}", rust_code);
+    assert!(
+        rust_code.contains("position: FieldPosition;") || rust_code.contains("position : FieldPosition ;"),
+        "Expected 'position: FieldPosition;' in generated code:\n{}",
+        rust_code
+    );
 }
 
 /// Test Optional type annotation without initial value
@@ -99,8 +120,11 @@ def process():
     let rust_code = pipeline.transpile(python_code).unwrap();
 
     // Should generate: let mut value: Option<i32>;
-    assert!(rust_code.contains("value: Option") || rust_code.contains("value : Option"),
-            "Expected 'value: Option<i32>;' in generated code:\n{}", rust_code);
+    assert!(
+        rust_code.contains("value: Option") || rust_code.contains("value : Option"),
+        "Expected 'value: Option<i32>;' in generated code:\n{}",
+        rust_code
+    );
 }
 
 /// Test multiple uninitialized declarations
@@ -122,12 +146,21 @@ def process():
     let rust_code = pipeline.transpile(python_code).unwrap();
 
     // Should generate declarations for all three
-    assert!(rust_code.contains("field_position") && rust_code.contains("FieldPosition"),
-            "Expected field_position declaration in:\n{}", rust_code);
-    assert!(rust_code.contains("new_team") && rust_code.contains("String"),
-            "Expected new_team declaration in:\n{}", rust_code);
-    assert!(rust_code.contains("valid") && rust_code.contains("bool"),
-            "Expected valid declaration in:\n{}", rust_code);
+    assert!(
+        rust_code.contains("field_position") && rust_code.contains("FieldPosition"),
+        "Expected field_position declaration in:\n{}",
+        rust_code
+    );
+    assert!(
+        rust_code.contains("new_team") && rust_code.contains("String"),
+        "Expected new_team declaration in:\n{}",
+        rust_code
+    );
+    assert!(
+        rust_code.contains("valid") && rust_code.contains("bool"),
+        "Expected valid declaration in:\n{}",
+        rust_code
+    );
 }
 
 /// Test uninitialized declaration followed by conditional assignment
@@ -146,12 +179,18 @@ def process(flag: bool):
     let rust_code = pipeline.transpile(python_code).unwrap();
 
     // Should generate: let mut result: i32;
-    assert!(rust_code.contains("let mut result: i32;") || rust_code.contains("let mut result : i32 ;"),
-            "Expected 'let mut result: i32;' in generated code:\n{}", rust_code);
-    
+    assert!(
+        rust_code.contains("let mut result: i32;") || rust_code.contains("let mut result : i32 ;"),
+        "Expected 'let mut result: i32;' in generated code:\n{}",
+        rust_code
+    );
+
     // Should have both assignments in if/else branches
-    assert!(rust_code.contains("result = 10") && rust_code.contains("result = 20"),
-            "Expected conditional assignments in generated code:\n{}", rust_code);
+    assert!(
+        rust_code.contains("result = 10") && rust_code.contains("result = 20"),
+        "Expected conditional assignments in generated code:\n{}",
+        rust_code
+    );
 }
 
 /// Test that annotated assignment WITH value still works correctly
@@ -166,18 +205,22 @@ def process():
     let rust_code = pipeline.transpile(python_code).unwrap();
 
     // Should generate: let count: i32 = 42; (or let mut if mutated)
-    assert!(rust_code.contains("count") && rust_code.contains("42"),
-            "Expected count = 42 in generated code:\n{}", rust_code);
-    
+    assert!(
+        rust_code.contains("count") && rust_code.contains("42"),
+        "Expected count = 42 in generated code:\n{}",
+        rust_code
+    );
+
     // Should NOT have separate declaration line
-    let count_lines: Vec<&str> = rust_code.lines()
-        .filter(|line| line.contains("count"))
-        .collect();
-    
+    let count_lines: Vec<&str> = rust_code.lines().filter(|line| line.contains("count")).collect();
+
     // Should be one or two lines (declaration+assignment or combined), not three
-    assert!(count_lines.len() <= 2,
-            "Expected at most 2 lines with 'count', found {} in:\n{}", 
-            count_lines.len(), rust_code);
+    assert!(
+        count_lines.len() <= 2,
+        "Expected at most 2 lines with 'count', found {} in:\n{}",
+        count_lines.len(),
+        rust_code
+    );
 }
 
 /// Test uninitialized float declaration
@@ -193,8 +236,11 @@ def calculate():
     let rust_code = pipeline.transpile(python_code).unwrap();
 
     // Should generate: let mut result: f64;
-    assert!(rust_code.contains("result: f64;") || rust_code.contains("result : f64 ;"),
-            "Expected 'result: f64;' in generated code:\n{}", rust_code);
+    assert!(
+        rust_code.contains("result: f64;") || rust_code.contains("result : f64 ;"),
+        "Expected 'result: f64;' in generated code:\n{}",
+        rust_code
+    );
 }
 
 /// Test uninitialized list type declaration
@@ -210,8 +256,11 @@ def process():
     let rust_code = pipeline.transpile(python_code).unwrap();
 
     // Should generate: let mut items: Vec<i32>;
-    assert!(rust_code.contains("items") && rust_code.contains("Vec"),
-            "Expected items: Vec declaration in generated code:\n{}", rust_code);
+    assert!(
+        rust_code.contains("items") && rust_code.contains("Vec"),
+        "Expected items: Vec declaration in generated code:\n{}",
+        rust_code
+    );
 }
 
 /// Test that immutable uninitialized declaration works (if never reassigned after first assignment)
@@ -228,10 +277,16 @@ def process():
     let rust_code = pipeline.transpile(python_code).unwrap();
 
     // Should generate declaration (may be let or let mut depending on mutability analysis)
-    assert!(rust_code.contains("value") && rust_code.contains("i32"),
-            "Expected value: i32 declaration in generated code:\n{}", rust_code);
-    assert!(rust_code.contains("100"),
-            "Expected value = 100 in generated code:\n{}", rust_code);
+    assert!(
+        rust_code.contains("value") && rust_code.contains("i32"),
+        "Expected value: i32 declaration in generated code:\n{}",
+        rust_code
+    );
+    assert!(
+        rust_code.contains("100"),
+        "Expected value = 100 in generated code:\n{}",
+        rust_code
+    );
 }
 
 /// Test error handling: uninitialized used in expression (should fail at compile time in Rust)
@@ -245,15 +300,21 @@ def bad_usage():
     count: int
     return count  # Used without assignment - invalid in both Python and Rust
 "#;
-    
+
     // Should transpile without error (semantic checking is Rust compiler's job)
     let result = pipeline.transpile(python_code);
-    
+
     // We generate Rust code; it will fail at Rust compile time with proper error
-    assert!(result.is_ok(), "Should generate Rust code (even if semantically invalid)");
-    
+    assert!(
+        result.is_ok(),
+        "Should generate Rust code (even if semantically invalid)"
+    );
+
     if let Ok(rust_code) = result {
-        assert!(rust_code.contains("count: i32;") || rust_code.contains("count : i32 ;"),
-                "Expected declaration in generated code:\n{}", rust_code);
+        assert!(
+            rust_code.contains("count: i32;") || rust_code.contains("count : i32 ;"),
+            "Expected declaration in generated code:\n{}",
+            rust_code
+        );
     }
 }

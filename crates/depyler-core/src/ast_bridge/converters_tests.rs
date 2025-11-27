@@ -862,7 +862,11 @@ fn test_convert_ann_assign_without_value_int() {
             type_annotation,
         } => {
             assert!(matches!(target, AssignTarget::Symbol(ref s) if s == "x"));
-            assert!(matches!(value, HirExpr::Uninitialized), "Expected Uninitialized, got {:?}", value);
+            assert!(
+                matches!(value, HirExpr::Uninitialized),
+                "Expected Uninitialized, got {:?}",
+                value
+            );
             assert!(matches!(type_annotation, Some(Type::Int)));
         }
         _ => panic!("Expected annotated assignment"),
@@ -977,4 +981,3 @@ fn test_convert_ann_assign_with_value_still_works() {
         _ => panic!("Expected annotated assignment"),
     }
 }
-

@@ -534,8 +534,8 @@ fn contains_owned_string_method(expr: &HirExpr) -> bool {
             // Check both branches of conditional
             contains_owned_string_method(body) || contains_owned_string_method(orelse)
         }
-    HirExpr::Call { .. }
-    | HirExpr::Var(_)
+        HirExpr::Call { .. }
+        | HirExpr::Var(_)
         | HirExpr::Literal(_)
         | HirExpr::List(_)
         | HirExpr::Dict(_)
@@ -555,7 +555,7 @@ fn contains_owned_string_method(expr: &HirExpr) -> bool {
         | HirExpr::Yield { .. }
         | HirExpr::SortByKey { .. }
         | HirExpr::GeneratorExp { .. } => false,
-        | HirExpr::Uninitialized => false,
+        HirExpr::Uninitialized => false,
     }
 }
 

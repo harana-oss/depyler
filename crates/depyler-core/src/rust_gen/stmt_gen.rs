@@ -1031,6 +1031,50 @@ fn is_var_used_in_expr(var_name: &str, expr: &HirExpr) -> bool {
             crate::hir::FStringPart::Expr(expr) => is_var_used_in_expr(var_name, expr),
             crate::hir::FStringPart::Literal(_) => false,
         }),
+        HirExpr::ListComp {
+            element,
+            target: _,
+            iter,
+            condition,
+        }
+        | HirExpr::SetComp {
+            element,
+            target: _,
+            iter,
+            condition,
+        } => {
+            // Check if variable is used in the element expression, iterator, or condition
+            // Note: We intentionally skip checking the target (comprehension variable)
+            // since it's scoped to the comprehension
+            is_var_used_in_expr(var_name, element)
+                || is_var_used_in_expr(var_name, iter)
+                || condition
+                    .as_ref()
+                    .is_some_and(|cond| is_var_used_in_expr(var_name, cond))
+        }
+        HirExpr::DictComp {
+            key,
+            value,
+            target: _,
+            iter,
+            condition,
+        } => {
+            // Check if variable is used in key, value, iterator, or condition
+            is_var_used_in_expr(var_name, key)
+                || is_var_used_in_expr(var_name, value)
+                || is_var_used_in_expr(var_name, iter)
+                || condition
+                    .as_ref()
+                    .is_some_and(|cond| is_var_used_in_expr(var_name, cond))
+        }
+        HirExpr::GeneratorExp { element, generators } => {
+            // Check element and all generators
+            is_var_used_in_expr(var_name, element)
+                || generators.iter().any(|gen| {
+                    is_var_used_in_expr(var_name, &gen.iter)
+                        || gen.conditions.iter().any(|cond| is_var_used_in_expr(var_name, cond))
+                })
+        }
         _ => false, // Literals and other expressions don't reference variables
     }
 }
