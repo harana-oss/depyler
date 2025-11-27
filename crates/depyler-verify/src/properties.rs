@@ -34,9 +34,7 @@ pub fn generate_quickcheck_tests(func: &HirFunction, _iterations: usize) -> Resu
 }
 
 fn has_numeric_types(params: &[depyler_core::hir::HirParam]) -> bool {
-    params
-        .iter()
-        .any(|param| matches!(param.ty, Type::Int | Type::Float))
+    params.iter().any(|param| matches!(param.ty, Type::Int | Type::Float))
 }
 
 fn has_container_params(params: &[depyler_core::hir::HirParam]) -> bool {
@@ -169,9 +167,7 @@ fn generate_termination_test(func: &HirFunction) -> Result<String> {
 
     test.push_str("    #[test]\n");
     test.push_str(&format!("    fn test_{func_name}_terminates() {{\n"));
-    test.push_str(
-        "        // For functions proven to terminate, we generate specific test cases\n",
-    );
+    test.push_str("        // For functions proven to terminate, we generate specific test cases\n");
 
     // Generate simple test cases
     test.push_str(&format!("        let result = {func_name}("));
@@ -183,7 +179,7 @@ fn generate_termination_test(func: &HirFunction) -> Result<String> {
             Type::Float => "3.14",
             Type::String => "\"test\".to_string()",
             Type::Bool => "true",
-            Type::List(_) => "&vec![1, 2, 3]",
+            Type::List(_) => "vec![1, 2, 3]",
             _ => "Default::default()",
         })
         .map(|s| s.to_string())
@@ -320,16 +316,10 @@ mod tests {
         let params_with_int = vec![depyler_core::hir::HirParam::new("x".to_string(), Type::Int)];
         assert!(has_numeric_types(&params_with_int));
 
-        let params_with_float = vec![depyler_core::hir::HirParam::new(
-            "x".to_string(),
-            Type::Float,
-        )];
+        let params_with_float = vec![depyler_core::hir::HirParam::new("x".to_string(), Type::Float)];
         assert!(has_numeric_types(&params_with_float));
 
-        let params_without_numeric = vec![depyler_core::hir::HirParam::new(
-            "x".to_string(),
-            Type::String,
-        )];
+        let params_without_numeric = vec![depyler_core::hir::HirParam::new("x".to_string(), Type::String)];
         assert!(!has_numeric_types(&params_without_numeric));
     }
 
@@ -347,8 +337,7 @@ mod tests {
         )];
         assert!(has_container_params(&params_with_dict));
 
-        let params_without_containers =
-            vec![depyler_core::hir::HirParam::new("x".to_string(), Type::Int)];
+        let params_without_containers = vec![depyler_core::hir::HirParam::new("x".to_string(), Type::Int)];
         assert!(!has_container_params(&params_without_containers));
     }
 
@@ -418,10 +407,7 @@ mod tests {
         assert_eq!(type_to_rust_string(&Type::Bool), "bool");
         assert_eq!(type_to_rust_string(&Type::None), "()");
 
-        assert_eq!(
-            type_to_rust_string(&Type::List(Box::new(Type::Int))),
-            "Vec<i32>"
-        );
+        assert_eq!(type_to_rust_string(&Type::List(Box::new(Type::Int))), "Vec<i32>");
 
         assert_eq!(
             type_to_rust_string(&Type::Dict(Box::new(Type::String), Box::new(Type::Int))),
@@ -441,10 +427,7 @@ mod tests {
     fn test_generate_quickcheck_tests_no_properties() {
         let func = create_test_function(
             "simple",
-            vec![depyler_core::hir::HirParam::new(
-                "x".to_string(),
-                Type::String,
-            )],
+            vec![depyler_core::hir::HirParam::new("x".to_string(), Type::String)],
             Type::String,
             FunctionProperties::default(),
         );
@@ -478,10 +461,7 @@ mod tests {
         let func = create_test_function(
             "complex_func",
             vec![
-                depyler_core::hir::HirParam::new(
-                    "nums".to_string(),
-                    Type::List(Box::new(Type::Int)),
-                ),
+                depyler_core::hir::HirParam::new("nums".to_string(), Type::List(Box::new(Type::Int))),
                 depyler_core::hir::HirParam::new("threshold".to_string(), Type::Float),
                 depyler_core::hir::HirParam::new("count".to_string(), Type::Int),
             ],

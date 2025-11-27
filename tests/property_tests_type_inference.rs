@@ -1,4 +1,4 @@
-use depyler_core::{hir::Type, DepylerPipeline};
+use depyler_core::{DepylerPipeline, hir::Type};
 use quickcheck::TestResult;
 
 /// Property: Type inference should be sound (never produce invalid types)
@@ -8,10 +8,7 @@ fn prop_type_inference_soundness(literal_type: u8, value: i32) -> TestResult {
     let (python_type, python_value) = match literal_type % 4 {
         0 => ("int", value.to_string()),
         1 => ("str", format!("\"{}\"", value.abs())),
-        2 => (
-            "bool",
-            if value % 2 == 0 { "True" } else { "False" }.to_string(),
-        ),
+        2 => ("bool", if value % 2 == 0 { "True" } else { "False" }.to_string()),
         _ => ("float", format!("{}.0", value)),
     };
 
@@ -51,10 +48,7 @@ fn prop_generic_type_handling(container_type: u8) -> TestResult {
         _ => ("Tuple[int, str]", "(42, \"hello\")"),
     };
 
-    let python_source = format!(
-        "def test_func() -> {}:\n    return {}",
-        python_type, python_value
-    );
+    let python_source = format!("def test_func() -> {}:\n    return {}", python_type, python_value);
 
     let pipeline = DepylerPipeline::new();
 
@@ -201,10 +195,7 @@ fn prop_method_call_type_preservation(method: u8) -> TestResult {
             "def test_func() -> {}:\n    s = \"hello\"\n    return s.{}()",
             expected_ret, method_name
         ),
-        "list" => format!(
-            "def test_func():\n    lst = [1, 2, 3]\n    lst.{}(4)",
-            method_name
-        ),
+        "list" => format!("def test_func():\n    lst = [1, 2, 3]\n    lst.{}(4)", method_name),
         _ => return TestResult::discard(),
     };
 

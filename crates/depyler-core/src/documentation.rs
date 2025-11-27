@@ -196,13 +196,7 @@ impl DocGenerator {
         if !class.fields.is_empty() {
             doc.push_str("**Fields:**\n");
             for field in &class.fields {
-                writeln!(
-                    doc,
-                    "- `{}`: {}",
-                    field.name,
-                    self.format_type(&field.field_type)
-                )
-                .unwrap();
+                writeln!(doc, "- `{}`: {}", field.name, self.format_type(&field.field_type)).unwrap();
             }
             doc.push('\n');
         }
@@ -250,18 +244,12 @@ impl DocGenerator {
         doc.push_str("When migrating from Python to the generated Rust code, note:\n\n");
         doc.push_str("1. **Type Safety**: All types are now statically checked at compile time\n");
         doc.push_str("2. **Memory Management**: Rust's ownership system ensures memory safety\n");
-        doc.push_str(
-            "3. **Error Handling**: Python exceptions are converted to Rust `Result` types\n",
-        );
+        doc.push_str("3. **Error Handling**: Python exceptions are converted to Rust `Result` types\n");
         doc.push_str("4. **Performance**: Expect significant performance improvements\n\n");
 
         // Specific migration notes for functions
         for func in &module.functions {
-            if func
-                .params
-                .iter()
-                .any(|param| matches!(param.ty, Type::List(_)))
-            {
+            if func.params.iter().any(|param| matches!(param.ty, Type::List(_))) {
                 writeln!(
                     doc,
                     "- `{}`: List parameters are passed as slices (`&[T]`) for efficiency",
@@ -306,11 +294,7 @@ impl DocGenerator {
             doc.push_str("- May have deep recursion, consider iterative implementation\n");
         }
 
-        if func
-            .params
-            .iter()
-            .any(|param| matches!(param.ty, Type::String))
-        {
+        if func.params.iter().any(|param| matches!(param.ty, Type::String)) {
             doc.push_str("- String parameters use `&str` for zero-copy performance\n");
         }
 
@@ -377,11 +361,7 @@ fn format_type_inner(ty: &Type) -> String {
         Type::Float => "f64".to_string(),
         Type::String => "&str".to_string(),
         Type::List(inner) => format!("&[{}]", format_type_inner(inner)),
-        Type::Dict(key, val) => format!(
-            "HashMap<{}, {}>",
-            format_type_inner(key),
-            format_type_inner(val)
-        ),
+        Type::Dict(key, val) => format!("HashMap<{}, {}>", format_type_inner(key), format_type_inner(val)),
         Type::Tuple(types) => {
             let inner: Vec<String> = types.iter().map(format_type_inner).collect();
             format!("({})", inner.join(", "))
@@ -404,17 +384,10 @@ fn format_type_inner(ty: &Type) -> String {
         }
         Type::Function { params, ret } => {
             let param_types: Vec<String> = params.iter().map(format_type_inner).collect();
-            format!(
-                "fn({}) -> {}",
-                param_types.join(", "),
-                format_type_inner(ret)
-            )
+            format!("fn({}) -> {}", param_types.join(", "), format_type_inner(ret))
         }
         Type::TypeVar(name) => name.clone(),
-        Type::Array {
-            element_type,
-            size: _,
-        } => format!("&[{}]", format_type_inner(element_type)),
+        Type::Array { element_type, size: _ } => format!("&[{}]", format_type_inner(element_type)),
     }
 }
 
@@ -425,8 +398,8 @@ impl DocGenerator {
             Type::Int => "42".to_string(),
             Type::Float => "3.14".to_string(),
             Type::String => "\"example\"".to_string(),
-            Type::List(_) => "&vec![1, 2, 3]".to_string(),
-            Type::Dict(_, _) => "&HashMap::new()".to_string(),
+            Type::List(_) => "vec![1, 2, 3]".to_string(),
+            Type::Dict(_, _) => "HashMap::new()".to_string(),
             Type::Optional(_) => "Some(value)".to_string(),
             _ => name.to_string(),
         }
@@ -518,10 +491,7 @@ mod tests {
 
     fn create_test_module() -> HirModule {
         HirModule {
-            functions: vec![
-                create_test_function("add"),
-                create_test_function("multiply"),
-            ],
+            functions: vec![create_test_function("add"), create_test_function("multiply")],
             imports: vec![],
             type_aliases: vec![],
             protocols: vec![],
@@ -573,10 +543,7 @@ mod tests {
 
         assert_eq!(generator.format_type(&Type::Int), "i32");
         assert_eq!(generator.format_type(&Type::String), "&str");
-        assert_eq!(
-            generator.format_type(&Type::List(Box::new(Type::Int))),
-            "&[i32]"
-        );
+        assert_eq!(generator.format_type(&Type::List(Box::new(Type::Int))), "&[i32]");
         assert_eq!(
             generator.format_type(&Type::Optional(Box::new(Type::String))),
             "Option<&str>"
@@ -672,10 +639,7 @@ mod tests {
 
         let func = HirFunction {
             name: "process_list".to_string(),
-            params: smallvec![HirParam::new(
-                "items".to_string(),
-                Type::List(Box::new(Type::Int))
-            ),],
+            params: smallvec![HirParam::new("items".to_string(), Type::List(Box::new(Type::Int))),],
             ret_type: Type::Optional(Box::new(Type::Int)),
             body: vec![],
             properties: FunctionProperties::default(),

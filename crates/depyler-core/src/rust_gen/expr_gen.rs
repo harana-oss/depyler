@@ -2300,15 +2300,10 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                                 needs_mut
                             }
                         }
-                        // List literal [1, 2, 3] should be passed as &vec![1, 2, 3]
+                        // List literal [1, 2, 3] should be passed as vec![1, 2, 3] (owned)
                         HirExpr::List(_) | HirExpr::Dict(_) | HirExpr::Set(_) => {
-                            // Check if function param expects a borrow
-                            self.ctx
-                                .function_param_borrows
-                                .get(func)
-                                .and_then(|borrows| borrows.get(param_idx))
-                                .copied()
-                                .unwrap_or(true) // Default to borrow if unknown
+                            // Pass list literals as owned values, not borrowed
+                            false
                         }
                         // Check if string literal needs .to_string()
                         // String literals are &str, but if function expects String (owned),

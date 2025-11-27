@@ -534,24 +534,24 @@ impl TestGenerator {
                         if func.name.contains("sum") {
                             // Sum function - test sum of elements
                             cases.push(quote! {
-                                assert_eq!(#func_name(&vec![]), 0);
-                                assert_eq!(#func_name(&vec![1]), 1);
-                                assert_eq!(#func_name(&vec![1, 2, 3]), 6);  // 1+2+3=6
+                                assert_eq!(#func_name(vec![]), 0);
+                                assert_eq!(#func_name(vec![1]), 1);
+                                assert_eq!(#func_name(vec![1, 2, 3]), 6);  // 1+2+3=6
                             });
                         } else if func.name.contains("len") || func.name.contains("count") || func.name.contains("size")
                         {
                             // Length/count function - test length
                             cases.push(quote! {
-                                assert_eq!(#func_name(&vec![]), 0);
-                                assert_eq!(#func_name(&vec![1]), 1);
-                                assert_eq!(#func_name(&vec![1, 2, 3]), 3);
+                                assert_eq!(#func_name(vec![]), 0);
+                                assert_eq!(#func_name(vec![1]), 1);
+                                assert_eq!(#func_name(vec![1, 2, 3]), 3);
                             });
                         } else {
                             // Unknown function - use conservative length-based test
                             cases.push(quote! {
-                                assert_eq!(#func_name(&vec![]), 0);
-                                assert_eq!(#func_name(&vec![1]), 1);
-                                assert_eq!(#func_name(&vec![1, 2, 3]), 3);
+                                assert_eq!(#func_name(vec![]), 0);
+                                assert_eq!(#func_name(vec![1]), 1);
+                                assert_eq!(#func_name(vec![1, 2, 3]), 3);
                             });
                         }
                     }
