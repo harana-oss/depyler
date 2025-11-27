@@ -25,9 +25,7 @@ def test_basic_comprehension():
 
         // Check for iterator patterns
         assert!(
-            rust_code.contains("map")
-                || rust_code.contains("filter")
-                || rust_code.contains("collect"),
+            rust_code.contains("map") || rust_code.contains("filter") || rust_code.contains("collect"),
             "Should generate iterator-based code"
         );
     }
@@ -208,33 +206,34 @@ fn test_comprehension_variable_naming_in_loop() {
 from dataclasses import dataclass
 
 @dataclass
-class Parts:
+class Container:
+    parts: list[Part]
+
+@dataclass
+class Part:
     value: int
 
 def test_variable_naming():
-    parts = [Parts(5), Parts(15), Parts(25), Parts(35)]
+    parts = [Part(5), Part(15), Part(25), Part(35)]
+    container = Container(parts=parts)
     items: list[int] = [10, 20, 30, 40]
     
     for item in items:
-        selected_part = [part for part in parts if part.value < item]
-    
+        selected_part = [part for part in container.parts if part.value < item]
+        sum = sum(part.value for part in container.parts if part.value < item)
+
     return len(items)
 "#;
 
     let result = pipeline.transpile(python_code);
-    println!("Variable naming comprehension result: {:?}", result);
-
     if let Ok(rust_code) = result {
-        println!("Generated variable naming code:\n{}", rust_code);
-        
-        // The critical check: the outer loop variable should be "item" not "_item"
-        // and should be properly used in the comprehension condition
+        println!("{}", rust_code);
+
         assert!(
             rust_code.contains("item") && !rust_code.contains("_item"),
             "Loop variable should be 'item', not '_item'"
         );
-        
-        // Verify that the comprehension is using the loop variable correctly
+
         assert!(
             rust_code.contains("part") || rust_code.contains("filter"),
             "Should generate comprehension with part variable or filter"

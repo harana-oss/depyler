@@ -10583,17 +10583,15 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             }
 
             // DEPYLER-STDLIB-PATHLIB: Path properties
-            // The .name attribute should only map to .file_name() for Path types
-            // For generic objects (like in sorted(people, key=lambda p: p.name)),
-            // .name should be preserved as-is and fall through to default handling
-            "stem" => {
+            // Only apply these transformations when the value is actually a Path type
+            "stem" if self.is_path_expr(value) => {
                 // p.stem → p.file_stem().unwrap().to_str().unwrap().to_string()
                 return Ok(parse_quote! {
                     #value_expr.file_stem().unwrap().to_str().unwrap().to_string()
                 });
             }
 
-            "suffix" => {
+            "suffix" if self.is_path_expr(value) => {
                 // p.suffix → p.extension().map(|e| format!(".{}", e.to_str().unwrap())).unwrap_or_default()
                 return Ok(parse_quote! {
                     #value_expr.extension()
@@ -10602,14 +10600,14 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 });
             }
 
-            "parent" => {
+            "parent" if self.is_path_expr(value) => {
                 // p.parent → p.parent().unwrap().to_path_buf()
                 return Ok(parse_quote! {
                     #value_expr.parent().unwrap().to_path_buf()
                 });
             }
 
-            "parts" => {
+            "parts" if self.is_path_expr(value) => {
                 // p.parts → p.components().map(|c| c.as_os_str().to_str().unwrap().to_string()).collect()
                 return Ok(parse_quote! {
                     #value_expr.components()
@@ -10933,6 +10931,29 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 if attr == "compile" {
                     if let HirExpr::Var(module) = &**value {
                         return module == "re";
+                    }
+                }
+                false
+            }
+            _ => false,
+        }
+    }
+
+    fn is_path_expr(&self, expr: &HirExpr) -> bool {
+        match expr {
+            HirExpr::Call { func, .. } if func == "Path" || func == "PathBuf" => true,
+            HirExpr::Var(name) => {
+                if let Some(Type::Custom(type_name)) = self.ctx.var_types.get(name) {
+                    type_name == "Path" || type_name == "PathBuf"
+                } else {
+                    let n = name.as_str();
+                    n == "path" || n.ends_with("_path") || n.ends_with("Path")
+                }
+            }
+            HirExpr::Attribute { value, attr } => {
+                if attr == "path" || attr == "cwd" || attr == "home" {
+                    if let HirExpr::Var(module) = &**value {
+                        return module == "Path" || module == "pathlib";
                     }
                 }
                 false
