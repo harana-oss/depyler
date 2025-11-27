@@ -2382,6 +2382,18 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                         false
                     };
 
+                    // Check if this is a field access on a &mut ref parameter
+                    // In that case, we can't move the field out - we must clone
+                    let needs_clone_for_move = if let HirExpr::Attribute { value, .. } = hir_arg {
+                        if let HirExpr::Var(base_var) = &**value {
+                            self.ctx.current_func_mut_ref_params.contains(base_var)
+                        } else {
+                            false
+                        }
+                    } else {
+                        false
+                    };
+
                     if should_borrow || needs_mut {
                         if needs_mut {
                             if is_already_mut_ref {
@@ -2393,6 +2405,9 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                         } else {
                             parse_quote! { &#arg_expr }
                         }
+                    } else if needs_clone_for_move {
+                        // Field access on &mut ref - must clone to get owned value
+                        parse_quote! { #arg_expr.clone() }
                     } else {
                         // STRING_INTEROP: For string literals, always add .to_string()
                         // Since all string parameters are now String type (not &str),

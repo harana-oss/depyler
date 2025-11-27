@@ -181,13 +181,48 @@ def main() -> None:
     let rust_code = pipeline.transpile(python_code).unwrap();
     // Function signature should use String, not &str
     assert!(rust_code.contains("fn take_str(s: String) -> String"), "\n{rust_code}");
-    
+
     // Variable should be a String
     assert!(rust_code.contains("let msg = \"hello\".to_string()"), "\n{rust_code}");
-    
+
     // Variable passed directly (already a String)
     assert!(rust_code.contains("let result1 = take_str(msg)"), "\n{rust_code}");
-    
-    // Literal should be converted to String
-    assert!(rust_code.contains("let result2 = take_str(\"world\".to_string())"), "\n{rust_code}");
+
+    assert!(
+        rust_code.contains("let result2 = take_str(\"world\".to_string())"),
+        "\n{rust_code}"
+    );
+}
+
+#[test]
+fn test_dataclass_state_mutation_with_chained_calls() {
+    let pipeline = DepylerPipeline::new();
+    let python_code = r#"
+from dataclasses import dataclass
+
+@dataclass
+class State:
+    val: str
+
+def one(state: State) -> None:
+    state.val = "new"
+    two(state)
+
+def two(state: State) -> None:
+    three(state, val=state.val)
+
+def three(state: State, val: str) -> None:
+    pass
+"#;
+
+    let rust_code = pipeline.transpile(python_code).unwrap();
+    assert!(rust_code.contains("struct State"), "\n{rust_code}");
+    assert!(rust_code.contains("val: String"), "\n{rust_code}");
+    assert!(rust_code.contains("fn one(state: &mut State)"), "\n{rust_code}");
+    assert!(rust_code.contains("fn two(state: &mut State)"), "\n{rust_code}");
+    assert!(
+        rust_code.contains("fn three(state: &mut State, val: String)"),
+        "\n{rust_code}"
+    );
+    assert!(rust_code.contains("three(state, state.val.clone()"), "\n{rust_code}");
 }
