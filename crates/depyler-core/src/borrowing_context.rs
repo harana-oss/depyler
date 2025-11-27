@@ -737,6 +737,9 @@ impl BorrowingContext {
                     }
                 }
             }
+            HirExpr::Uninitialized => {
+                // Nothing to analyze for uninitialized marker
+            }
         }
     }
 

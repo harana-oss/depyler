@@ -1929,7 +1929,16 @@ pub(crate) fn codegen_assign_stmt(
         }
     }
 
-    let mut value_expr = value.to_rust_expr(ctx)?;
+    // Handle uninitialized annotated declarations (Python: `x: T`)
+    let is_uninitialized = matches!(value, HirExpr::Uninitialized);
+
+    // Convert the value expression unless it's an Uninitialized marker
+    let mut value_expr = if is_uninitialized {
+        // Placeholder; won't be used when is_uninitialized is true
+        parse_quote! { () }
+    } else {
+        value.to_rust_expr(ctx)?
+    };
 
     // When assigning from a function that returns Result<T, E> in a non-Result context,
     // we need to unwrap it.
@@ -2000,6 +2009,41 @@ pub(crate) fn codegen_assign_stmt(
         // Wrap non-None values in Some() when assigning to Option<T>
         if is_optional_type && !matches!(value, HirExpr::Literal(Literal::None)) {
             value_expr = parse_quote! { Some(#value_expr) };
+        }
+    }
+
+    // If this is an annotated declaration without a value, emit a declaration
+    // without initializer. Only supported for simple symbol targets.
+    if is_uninitialized {
+        if let AssignTarget::Symbol(symbol) = target {
+            // Declare the variable in the current scope
+            ctx.declare_var(symbol);
+            let target_ident = safe_ident(symbol);
+
+            // If mutable, include mut
+            let mutability = if ctx.mutable_vars.contains(symbol) {
+                quote! { mut }
+            } else {
+                quote! {}
+            };
+
+            if let Some(type_ann) = type_annotation_tokens {
+                // let mut x: Type;
+                return Ok(quote! { let #mutability #target_ident #type_ann; });
+            } else {
+                // No type annotation - emit simple declaration without initializer
+                // This is not valid Rust, so fall back to declaring with a unit value
+                // to avoid generating invalid code. Prefer explicit type annotations
+                // in source to avoid this path.
+                if ctx.mutable_vars.contains(symbol) {
+                    return Ok(quote! { let mut #target_ident = (); });
+                } else {
+                    return Ok(quote! { let #target_ident = (); });
+                }
+            }
+        } else {
+            // Annotated declarations without values for complex targets are unsupported
+            bail!("Annotated assignment without value for non-symbol target not supported")
         }
     }
 

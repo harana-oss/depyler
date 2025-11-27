@@ -106,46 +106,13 @@ impl StmtConverter {
         let type_annotation = Some(super::type_extraction::TypeExtractor::extract_type(&a.annotation)?);
 
         // Handle annotated assignments without values (e.g., `x: int` or `field: CustomType`)
-        // Python allows type annotations without initialization - we'll use appropriate defaults
+        // Python allows type annotations without initialization. Represent such
+        // declarations with a special Uninitialized expression so the Rust
+        // generator can emit a declaration without an initializer.
         let value = if let Some(v) = a.value {
             super::convert_expr(*v)?
         } else {
-            // No value provided - create a default based on the type annotation
-            match type_annotation.as_ref().unwrap() {
-                Type::Int => HirExpr::Literal(Literal::Int(0)),
-                Type::Float => HirExpr::Literal(Literal::Float(0.0)),
-                Type::String => HirExpr::Literal(Literal::String(String::new())),
-                Type::Bool => HirExpr::Literal(Literal::Bool(false)),
-                Type::List(_) => HirExpr::List(vec![]),
-                Type::Dict(_, _) => HirExpr::Dict(vec![]),
-                Type::Set(_) => HirExpr::Set(vec![]),
-                Type::Tuple(types) => {
-                    // Create tuple with default values for each type
-                    let defaults: Vec<HirExpr> = types
-                        .iter()
-                        .map(|t| match t {
-                            Type::Int => HirExpr::Literal(Literal::Int(0)),
-                            Type::Float => HirExpr::Literal(Literal::Float(0.0)),
-                            Type::String => HirExpr::Literal(Literal::String(String::new())),
-                            Type::Bool => HirExpr::Literal(Literal::Bool(false)),
-                            _ => HirExpr::Literal(Literal::None),
-                        })
-                        .collect();
-                    HirExpr::Tuple(defaults)
-                }
-                // For Optional, Custom types, Function types, TypeVars, Generics, Unions, Arrays, Final, Unknown, None
-                // use None as placeholder - this will be properly handled by the Rust generator as Option<T>
-                Type::Optional(_)
-                | Type::Custom(_)
-                | Type::Function { .. }
-                | Type::TypeVar(_)
-                | Type::Generic { .. }
-                | Type::Union(_)
-                | Type::Array { .. }
-                | Type::Final(_)
-                | Type::Unknown
-                | Type::None => HirExpr::Literal(Literal::None),
-            }
+            HirExpr::Uninitialized
         };
 
         Ok(HirStmt::Assign {

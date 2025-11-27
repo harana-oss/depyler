@@ -868,6 +868,7 @@ fn expr_to_rust_tokens(expr: &HirExpr) -> Result<proc_macro2::TokenStream> {
         HirExpr::MethodCall {
             object, method, args, ..
         } => method_call_to_rust_tokens(object, method, args),
+        HirExpr::Uninitialized => bail!("Uninitialized expression cannot be converted to Rust tokens"),
         HirExpr::Slice {
             base,
             start,

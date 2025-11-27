@@ -564,6 +564,12 @@ pub enum HirExpr {
     Yield {
         value: Option<Box<HirExpr>>,
     },
+    /// Marker for annotated declarations without an initializer (Python: "x: T")
+    ///
+    /// Used to represent a variable that has a type annotation but no value. This
+    /// allows the code generator to emit a declaration with a type but no
+    /// initializer (e.g., `let mut x: T;`).
+    Uninitialized,
     // Ternary/conditional expression (Python: x if cond else y)
     IfExpr {
         test: Box<HirExpr>,

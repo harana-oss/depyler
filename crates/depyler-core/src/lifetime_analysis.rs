@@ -651,6 +651,9 @@ impl LifetimeInference {
                     }
                 }
             }
+            HirExpr::Uninitialized => {
+                // nothing to do
+            }
         }
     }
 

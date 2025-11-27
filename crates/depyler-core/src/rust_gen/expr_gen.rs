@@ -11813,6 +11813,7 @@ impl ToRustExpr for HirExpr {
             HirExpr::GeneratorExp { element, generators } => {
                 converter.convert_generator_expression(element, generators)
             }
+            HirExpr::Uninitialized => bail!("Uninitialized expression cannot be converted to a Rust expression"),
         }
     }
 }

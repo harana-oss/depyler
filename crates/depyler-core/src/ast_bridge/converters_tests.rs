@@ -862,7 +862,7 @@ fn test_convert_ann_assign_without_value_int() {
             type_annotation,
         } => {
             assert!(matches!(target, AssignTarget::Symbol(ref s) if s == "x"));
-            assert!(matches!(value, HirExpr::Literal(Literal::Int(0))));
+            assert!(matches!(value, HirExpr::Uninitialized), "Expected Uninitialized, got {:?}", value);
             assert!(matches!(type_annotation, Some(Type::Int)));
         }
         _ => panic!("Expected annotated assignment"),
@@ -880,7 +880,7 @@ fn test_convert_ann_assign_without_value_string() {
             type_annotation,
         } => {
             assert!(matches!(target, AssignTarget::Symbol(ref s) if s == "name"));
-            assert!(matches!(value, HirExpr::Literal(Literal::String(ref s)) if s.is_empty()));
+            assert!(matches!(value, HirExpr::Uninitialized));
             assert!(matches!(type_annotation, Some(Type::String)));
         }
         _ => panic!("Expected annotated assignment"),
@@ -898,7 +898,7 @@ fn test_convert_ann_assign_without_value_custom_type() {
             type_annotation,
         } => {
             assert!(matches!(target, AssignTarget::Symbol(ref s) if s == "field_position"));
-            assert!(matches!(value, HirExpr::Literal(Literal::None)));
+            assert!(matches!(value, HirExpr::Uninitialized));
             assert!(matches!(type_annotation, Some(Type::Custom(ref s)) if s == "FieldPosition"));
         }
         _ => panic!("Expected annotated assignment"),
@@ -916,7 +916,7 @@ fn test_convert_ann_assign_without_value_list() {
             type_annotation,
         } => {
             assert!(matches!(target, AssignTarget::Symbol(ref s) if s == "items"));
-            assert!(matches!(value, HirExpr::List(ref v) if v.is_empty()));
+            assert!(matches!(value, HirExpr::Uninitialized));
             assert!(matches!(type_annotation, Some(Type::List(_))));
         }
         _ => panic!("Expected annotated assignment"),
@@ -934,9 +934,47 @@ fn test_convert_ann_assign_without_value_optional() {
             type_annotation,
         } => {
             assert!(matches!(target, AssignTarget::Symbol(ref s) if s == "value"));
-            assert!(matches!(value, HirExpr::Literal(Literal::None)));
+            assert!(matches!(value, HirExpr::Uninitialized));
             assert!(matches!(type_annotation, Some(Type::Optional(_))));
         }
         _ => panic!("Expected annotated assignment"),
     }
 }
+
+#[test]
+fn test_convert_ann_assign_without_value_bool() {
+    let stmt = parse_stmt("valid: bool");
+    let result = StmtConverter::convert(stmt).unwrap();
+    match result {
+        HirStmt::Assign {
+            target,
+            value,
+            type_annotation,
+        } => {
+            assert!(matches!(target, AssignTarget::Symbol(ref s) if s == "valid"));
+            assert!(matches!(value, HirExpr::Uninitialized));
+            assert!(matches!(type_annotation, Some(Type::Bool)));
+        }
+        _ => panic!("Expected annotated assignment"),
+    }
+}
+
+#[test]
+fn test_convert_ann_assign_with_value_still_works() {
+    // Ensure we didn't break existing behavior for annotated assignments WITH values
+    let stmt = parse_stmt("count: int = 42");
+    let result = StmtConverter::convert(stmt).unwrap();
+    match result {
+        HirStmt::Assign {
+            target,
+            value,
+            type_annotation,
+        } => {
+            assert!(matches!(target, AssignTarget::Symbol(ref s) if s == "count"));
+            assert!(matches!(value, HirExpr::Literal(Literal::Int(42))));
+            assert!(matches!(type_annotation, Some(Type::Int)));
+        }
+        _ => panic!("Expected annotated assignment"),
+    }
+}
+

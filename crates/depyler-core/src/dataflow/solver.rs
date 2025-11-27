@@ -315,8 +315,9 @@ impl TypePropagation {
             }
             HirExpr::Tuple(elems) => {
                 let types: Vec<Type> = elems.iter().map(|e| self.infer_expr_type(e, state)).collect();
-                Type::Tuple(types)
+                Type::Tuple(types) // Treat Uninitialized as Unknown
             }
+            HirExpr::Uninitialized => Type::Unknown,
             HirExpr::Set(elems) => {
                 if elems.is_empty() {
                     Type::Set(Box::new(Type::Unknown))
