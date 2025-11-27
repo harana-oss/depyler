@@ -1601,16 +1601,6 @@ pub(crate) fn codegen_assign_stmt(
         }
     }
 
-    // When a variable is initialized with None and later reassigned in if-elif-else,
-    // skip the initial None assignment to avoid Option<T> type mismatch.
-    // The hoisting logic  will handle the declaration with correct type.
-    if let AssignTarget::Symbol(var_name) = target {
-        if matches!(value, HirExpr::Literal(Literal::None)) && ctx.mutable_vars.contains(var_name) {
-            // This is a None placeholder that will be reassigned - skip it
-            return Ok(quote! {});
-        }
-    }
-
     // Pattern 1: parser = argparse.ArgumentParser(...) [MethodCall with object=argparse]
     // Pattern 2: args = parser.parse_args() [MethodCall with object=parser]
     if let AssignTarget::Symbol(var_name) = target {
@@ -1783,9 +1773,10 @@ pub(crate) fn codegen_assign_stmt(
     if let AssignTarget::Symbol(var_name) = target {
         // This enables correct {:?} vs {} selection in println! for collections
         // Example: result = merge(&a, &b) where merge returns Vec<i32>
+        // Also track Optional types for proper Some() wrapping in reassignments
         if let Some(annot_type) = type_annotation {
             match annot_type {
-                Type::List(_) | Type::Dict(_, _) | Type::Set(_) => {
+                Type::List(_) | Type::Dict(_, _) | Type::Set(_) | Type::Optional(_) => {
                     ctx.var_types.insert(var_name.clone(), annot_type.clone());
                 }
                 _ => {}
@@ -1912,18 +1903,29 @@ pub(crate) fn codegen_assign_stmt(
                 }
             }
             // When message = "hello", track message as String so it gets borrowed when calling f(&str)
+            // But preserve Optional wrapper if the variable was declared as Optional[str]
             HirExpr::Literal(Literal::String(_)) => {
-                ctx.var_types.insert(var_name.clone(), Type::String);
+                // Only update if not already tracked, or if tracked but not Optional
+                if !ctx.var_types.contains_key(var_name) {
+                    ctx.var_types.insert(var_name.clone(), Type::String);
+                }
             }
             // When match = 5, track match as Int so `if match:` becomes `if match != 0`
+            // But preserve Optional wrapper if the variable was declared as Optional[int]
             HirExpr::Literal(Literal::Int(_)) => {
-                ctx.var_types.insert(var_name.clone(), Type::Int);
+                if !ctx.var_types.contains_key(var_name) {
+                    ctx.var_types.insert(var_name.clone(), Type::Int);
+                }
             }
             HirExpr::Literal(Literal::Float(_)) => {
-                ctx.var_types.insert(var_name.clone(), Type::Float);
+                if !ctx.var_types.contains_key(var_name) {
+                    ctx.var_types.insert(var_name.clone(), Type::Float);
+                }
             }
             HirExpr::Literal(Literal::Bool(_)) => {
-                ctx.var_types.insert(var_name.clone(), Type::Bool);
+                if !ctx.var_types.contains_key(var_name) {
+                    ctx.var_types.insert(var_name.clone(), Type::Bool);
+                }
             }
             _ => {}
         }
@@ -1982,6 +1984,24 @@ pub(crate) fn codegen_assign_stmt(
         }
         (None, false)
     };
+
+    // When assigning to an Option<T> variable, wrap non-None values in Some()
+    if let AssignTarget::Symbol(symbol) = target {
+        // Check if the variable has an Optional type (either from annotation or previous declaration)
+        let is_optional_type = if let Some(target_type) = type_annotation {
+            matches!(target_type, Type::Optional(_))
+        } else if ctx.is_declared(symbol) {
+            // Check if variable was previously declared with Optional type
+            ctx.var_types.get(symbol).map_or(false, |ty| matches!(ty, Type::Optional(_)))
+        } else {
+            false
+        };
+
+        // Wrap non-None values in Some() when assigning to Option<T>
+        if is_optional_type && !matches!(value, HirExpr::Literal(Literal::None)) {
+            value_expr = parse_quote! { Some(#value_expr) };
+        }
+    }
 
     match target {
         AssignTarget::Symbol(symbol) => {

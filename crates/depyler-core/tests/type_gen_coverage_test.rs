@@ -169,12 +169,7 @@ def test_{}(x: {}) -> {}:
         );
         let result = pipeline.transpile(&python_code);
 
-        assert!(
-            result.is_ok(),
-            "Failed to transpile {}: {:?}",
-            type_name,
-            result.err()
-        );
+        assert!(result.is_ok(), "Failed to transpile {}: {:?}", type_name, result.err());
     }
 }
 
@@ -459,6 +454,31 @@ def maybe_int(flag: bool) -> Optional[int]:
     assert!(rust_code.contains("Option"));
 }
 
+/// Unit Test: Optional field reassignment in loop
+///
+/// Verifies: Optional<T> field assignment in while loop
+/// Expected: Option<String> with Some() wrapping for non-None assignments
+#[test]
+fn test_optional_field_in_loop() {
+    let pipeline = DepylerPipeline::new();
+
+    let python_code = r#"
+from typing import Optional
+def optional() -> None:
+  field: Optional[str] = None
+  while True:
+    field = "6"
+  print(field)
+"#;
+    let rust_code = pipeline.transpile(python_code).unwrap();
+
+    assert!(rust_code.contains("fn optional"));
+    assert!(rust_code.contains("Option<String>"));
+    assert!(rust_code.contains("= None"));
+    // Non-None assignments to Optional variables should be wrapped in Some()
+    assert!(rust_code.contains("Some("));
+}
+
 /// Unit Test: Union types
 ///
 /// Verifies: Union type handling
@@ -578,12 +598,7 @@ def test_{}_type() -> {}:
         );
         let result = pipeline.transpile(&python_code);
 
-        assert!(
-            result.is_ok(),
-            "Failed to transpile {} type: {:?}",
-            name,
-            result.err()
-        );
+        assert!(result.is_ok(), "Failed to transpile {} type: {:?}", name, result.err());
     }
 }
 
