@@ -11617,6 +11617,9 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 false
             };
 
+            // Check if it's a range expression
+            let is_range = matches!(&*gen.iter, HirExpr::Call { func, .. } if func == "range");
+
             // When the iterator is a variable (likely a borrowed parameter like &Vec<i32>),
             // use .iter().copied() to get owned values instead of references
             // This prevents type mismatches like `&i32` vs `i32` in generator expressions
@@ -11626,9 +11629,12 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             } else if matches!(&*gen.iter, HirExpr::Var(_)) {
                 // Variable iteration - likely borrowed, use .iter().copied()
                 parse_quote! { #iter_expr.iter().copied() }
-            } else {
-                // Direct expression (ranges, lists, etc.) - use .into_iter()
+            } else if is_range {
+                // Ranges are already iterators, don't need clone
                 parse_quote! { #iter_expr.into_iter() }
+            } else {
+                // Field access, method calls, etc. - clone before consuming
+                parse_quote! { #iter_expr.clone().into_iter() }
             };
 
             // Add filters for each condition
