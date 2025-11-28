@@ -790,6 +790,7 @@ impl BorrowingContext {
             "isinstance",
             "hasattr",
             "getattr",
+            "setattr",
             "contains",
             "startswith",
             "endswith",

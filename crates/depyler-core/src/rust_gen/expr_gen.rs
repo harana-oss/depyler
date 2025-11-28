@@ -1236,9 +1236,10 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             "hash" => self.convert_hash_builtin(&arg_exprs),
             "repr" => self.convert_repr_builtin(&arg_exprs),
             "open" => self.convert_open_builtin(&all_hir_args, &arg_exprs),
-            // DEPYLER-STDLIB-50: next(), getattr(), iter(), type()
+            // DEPYLER-STDLIB-50: next(), getattr(), setattr(), iter(), type()
             "next" => self.convert_next_builtin(&arg_exprs),
             "getattr" => self.convert_getattr_builtin(&arg_exprs),
+            "setattr" => self.convert_setattr_builtin(&all_hir_args),
             "iter" => self.convert_iter_builtin(&arg_exprs),
             "type" => self.convert_type_builtin(&arg_exprs),
             _ => self.convert_generic_call(func, &all_hir_args, &all_args),
@@ -2047,6 +2048,35 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         // Full getattr() requires runtime attribute lookup which isn't possible in Rust
         // For now, we'll bail as it needs special handling
         bail!("getattr() requires dynamic attribute access not fully supported yet")
+    }
+
+    /// setattr(obj, name, value) → obj.name = value
+    ///
+    /// Python's setattr() sets an attribute on an object dynamically. In Rust, we generate
+    /// a direct field assignment when the attribute name is a string literal.
+    fn convert_setattr_builtin(&mut self, hir_args: &[HirExpr]) -> Result<syn::Expr> {
+        if hir_args.len() != 3 {
+            bail!("setattr() requires exactly 3 arguments (object, name, value)");
+        }
+
+        let obj_expr = hir_args[0].to_rust_expr(self.ctx)?;
+        let value_expr = hir_args[2].to_rust_expr(self.ctx)?;
+
+        // Extract attribute name - must be a string literal for static Rust compilation
+        match &hir_args[1] {
+            HirExpr::Literal(Literal::String(attr_name)) => {
+                let attr_ident = syn::Ident::new(attr_name, proc_macro2::Span::call_site());
+                // Generate: { obj.attr = value; }
+                Ok(parse_quote! {
+                    {
+                        #obj_expr.#attr_ident = #value_expr;
+                    }
+                })
+            }
+            _ => {
+                bail!("setattr() attribute name must be a string literal for Rust compilation")
+            }
+        }
     }
 
     // DEPYLER-STDLIB-50: iter() - create iterator

@@ -229,6 +229,28 @@ def test_getattr(p: Point, attr: str):
     );
 }
 
+#[test]
+fn test_setattr_builtin() {
+    let pipeline = DepylerPipeline::new();
+    let python_code = r#"
+class Point:
+    x: int
+    y: int
+
+def test_setattr(p: Point):
+    setattr(p, "x", 42)
+"#;
+
+    let rust_code = pipeline.transpile(python_code).unwrap();
+    println!("Generated setattr() code:\n{}", rust_code);
+
+    // setattr(obj, "attr", value) should generate obj.attr = value
+    assert!(
+        rust_code.contains(".x = 42") || rust_code.contains(".x ="),
+        "setattr() should generate field assignment"
+    );
+}
+
 // ============================================================================
 // ITERATOR BUILTINS
 // ============================================================================
