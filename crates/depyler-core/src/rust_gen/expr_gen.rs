@@ -9433,9 +9433,17 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 arg_exprs
             }
         } else {
-            // No kwargs - just convert positional args
+            // No kwargs - just convert positional args with string literal handling
             args.iter()
-                .map(|arg| arg.to_rust_expr(self.ctx))
+                .map(|arg| {
+                    let expr = arg.to_rust_expr(self.ctx)?;
+                    // STRING_INTEROP: For string literals, add .to_string()
+                    if matches!(arg, HirExpr::Literal(crate::hir::Literal::String(_))) {
+                        Ok(parse_quote! { #expr.to_string() })
+                    } else {
+                        Ok(expr)
+                    }
+                })
                 .collect::<Result<Vec<_>>>()?
         };
 

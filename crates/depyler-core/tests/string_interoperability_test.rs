@@ -252,3 +252,27 @@ def one(state: State) -> None:
     assert!(rust_code.contains("\"Three\".to_string()"), "\n{rust_code}");
     assert!(rust_code.contains("var = state.val.clone();"), "\n{rust_code}");
 }
+
+#[test]
+fn test_generic_function_call_with_string_literal() {
+    let pipeline = DepylerPipeline::new();
+    let python_code = r#"
+@dataclass
+class Test:
+  val: str
+
+def infer[T](str: str) -> None:
+  pass
+
+def main() -> None:
+  infer[Test]("test")
+"#;
+
+    let rust_code = pipeline.transpile(python_code).unwrap();
+    assert!(rust_code.contains("struct Test"), "\n{rust_code}");
+    assert!(rust_code.contains("val: String"), "\n{rust_code}");
+    assert!(
+        rust_code.contains("infer::<Test>(\"test\".to_string())"),
+        "\n{rust_code}"
+    );
+}
