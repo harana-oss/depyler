@@ -1290,15 +1290,27 @@ pub fn generate_rust_file(
     analyze_validators(&mut ctx, &module.functions, &module.constants);
 
     // All functions that can_fail return Result<T, E> and need unwrapping at call sites
+    // When error_strategy is Panic, functions panic on error instead of returning Result
     for func in &module.functions {
-        if func.properties.can_fail {
+        let uses_result = func.properties.can_fail
+            && !matches!(
+                func.annotations.error_strategy,
+                depyler_annotations::ErrorStrategy::Panic
+            );
+        if uses_result {
             ctx.result_returning_functions.insert(func.name.clone());
         }
     }
 
     // Functions that can_fail and return Bool need unwrapping in boolean contexts
+    // (only if they actually return Result, i.e., error_strategy is not Panic)
     for func in &module.functions {
-        if func.properties.can_fail && matches!(func.ret_type, Type::Bool) {
+        let uses_result = func.properties.can_fail
+            && !matches!(
+                func.annotations.error_strategy,
+                depyler_annotations::ErrorStrategy::Panic
+            );
+        if uses_result && matches!(func.ret_type, Type::Bool) {
             ctx.result_bool_functions.insert(func.name.clone());
         }
     }
