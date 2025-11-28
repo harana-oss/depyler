@@ -226,3 +226,23 @@ def three(state: State, val: str) -> None:
     );
     assert!(rust_code.contains("three(state, state.val.clone()"), "\n{rust_code}");
 }
+
+#[test]
+fn test_ternary_assignment_in_nested_if() {
+    let pipeline = DepylerPipeline::new();
+    let python_code = r#"
+def one() -> None:
+    if True:
+        var = "One" if True else "Two"
+    else:
+        var = "Three"
+"#;
+
+    let rust_code = pipeline.transpile(python_code).unwrap();
+    println!("{rust_code}");
+    assert!(
+        rust_code.contains("var = if true { \"One\".to_string() } else { \"Two\".to_string() };"),
+        "\n{rust_code}"
+    );
+    assert!(rust_code.contains("\"Three\".to_string()"), "\n{rust_code}");
+}

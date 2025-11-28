@@ -11487,8 +11487,20 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         }
 
         let mut test_expr = test.to_rust_expr(self.ctx)?;
-        let body_expr = body.to_rust_expr(self.ctx)?;
-        let orelse_expr = orelse.to_rust_expr(self.ctx)?;
+        let mut body_expr = body.to_rust_expr(self.ctx)?;
+        let mut orelse_expr = orelse.to_rust_expr(self.ctx)?;
+
+        // Ensure type consistency: if either branch is a string literal, wrap with .to_string()
+        let body_is_string_lit = matches!(body, HirExpr::Literal(Literal::String(_)));
+        let orelse_is_string_lit = matches!(orelse, HirExpr::Literal(Literal::String(_)));
+        if body_is_string_lit || orelse_is_string_lit {
+            if body_is_string_lit {
+                body_expr = parse_quote! { #body_expr.to_string() };
+            }
+            if orelse_is_string_lit {
+                orelse_expr = parse_quote! { #orelse_expr.to_string() };
+            }
+        }
 
         // Python: `val if val else default` where val is String/List/Dict/Set/Optional/Int/Float
         // Without conversion: `if val` fails (expected bool, found Vec/String/etc)

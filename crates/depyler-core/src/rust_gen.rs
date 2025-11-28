@@ -854,8 +854,7 @@ fn analyze_mutable_vars(stmts: &[HirStmt], ctx: &mut CodeGenContext, params: &[H
                     HashSet::new()
                 };
                 // Variables assigned in both branches (deferred init)
-                let deferred_init_vars: HashSet<String> =
-                    then_new_vars.intersection(&else_new_vars).cloned().collect();
+                let deferred_init_vars: HashSet<String> = then_new_vars.intersection(&else_new_vars).cloned().collect();
 
                 // Pre-declare deferred init vars so they don't get marked as mutable
                 for var in &deferred_init_vars {
