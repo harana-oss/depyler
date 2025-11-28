@@ -24,6 +24,7 @@ use depyler_core::DepylerPipeline;
 #[test]
 fn test_valueerror_type_generated() {
     let python_code = r#"
+# @depyler: error_strategy = "result_type"
 def check_positive(x: int) -> int:
     if x < 0:
         raise ValueError("negative value")
@@ -63,6 +64,7 @@ def check_positive(x: int) -> int:
 #[test]
 fn test_valueerror_return_type() {
     let python_code = r#"
+# @depyler: error_strategy = "result_type"
 def validate_range(x: int) -> int:
     if x < 0 or x > 100:
         raise ValueError("value must be 0-100")
@@ -90,16 +92,19 @@ def validate_range(x: int) -> int:
 #[test]
 fn test_valueerror_multiple_functions() {
     let python_code = r#"
+# @depyler: error_strategy = "result_type"
 def check_positive(x: int) -> int:
     if x < 0:
         raise ValueError("negative")
     return x
 
+# @depyler: error_strategy = "result_type"
 def check_range(x: int) -> int:
     if x < 0 or x > 100:
         raise ValueError("out of range")
     return x
 
+# @depyler: error_strategy = "result_type"
 def validate(x: int) -> int:
     if x == 42:
         raise ValueError("forbidden value")
@@ -129,6 +134,7 @@ def validate(x: int) -> int:
 #[test]
 fn test_valueerror_compiles() {
     let python_code = r#"
+# @depyler: error_strategy = "result_type"
 def check_positive(x: int) -> int:
     if x < 0:
         raise ValueError("negative value")
@@ -175,6 +181,7 @@ fn main() {
 #[test]
 fn test_valueerror_behavior() {
     let python_code = r#"
+# @depyler: error_strategy = "result_type"
 def check_positive(x: int) -> int:
     if x < 0:
         raise ValueError("negative value")
@@ -295,6 +302,7 @@ def add(x: int, y: int) -> int:
 #[test]
 fn test_valueerror_with_zerodivisionerror() {
     let python_code = r#"
+# @depyler: error_strategy = "result_type"
 def safe_divide(x: int, y: int) -> int:
     if y == 0:
         raise ZeroDivisionError("division by zero")

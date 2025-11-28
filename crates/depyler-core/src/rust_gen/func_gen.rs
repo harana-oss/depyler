@@ -1098,7 +1098,12 @@ pub(crate) fn codegen_return_type(
     update_import_needs(ctx, &rust_ret_type);
 
     // Check if function can fail and needs Result wrapper
-    let can_fail = func.properties.can_fail;
+    // When error_strategy is Panic, functions panic on error instead of returning Result
+    let can_fail = func.properties.can_fail
+        && !matches!(
+            func.annotations.error_strategy,
+            depyler_annotations::ErrorStrategy::Panic
+        );
     let mut error_type_str = if can_fail && !func.properties.error_types.is_empty() {
         // Use first error type or generic for mixed types
         if func.properties.error_types.len() == 1 {
