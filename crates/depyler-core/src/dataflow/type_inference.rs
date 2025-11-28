@@ -37,8 +37,7 @@ use std::collections::HashMap;
 /// ```
 pub fn infer_python(source: &str) -> Result<HashMap<String, InferredTypes>> {
     // Parse Python source to AST
-    let statements = Suite::parse(source, "<input>")
-        .map_err(|e| anyhow::anyhow!("Python parse error: {}", e))?;
+    let statements = Suite::parse(source, "<input>").map_err(|e| anyhow::anyhow!("Python parse error: {}", e))?;
 
     let ast = rustpython_ast::Mod::Module(rustpython_ast::ModModule {
         body: statements,
@@ -47,9 +46,7 @@ pub fn infer_python(source: &str) -> Result<HashMap<String, InferredTypes>> {
     });
 
     // Convert to HIR
-    let hir_module = AstBridge::new()
-        .with_source(source.to_string())
-        .python_to_hir(ast)?;
+    let hir_module = AstBridge::new().with_source(source.to_string()).python_to_hir(ast)?;
 
     // Use infer_module which handles interprocedural analysis
     let inferencer = DataflowTypeInferencer::new();
@@ -75,8 +72,7 @@ pub fn infer_python(source: &str) -> Result<HashMap<String, InferredTypes>> {
 /// ```
 pub fn infer_python_function(source: &str) -> Result<InferredTypes> {
     // Parse Python source to AST
-    let statements = Suite::parse(source, "<input>")
-        .map_err(|e| anyhow::anyhow!("Python parse error: {}", e))?;
+    let statements = Suite::parse(source, "<input>").map_err(|e| anyhow::anyhow!("Python parse error: {}", e))?;
 
     let ast = rustpython_ast::Mod::Module(rustpython_ast::ModModule {
         body: statements,
@@ -85,9 +81,7 @@ pub fn infer_python_function(source: &str) -> Result<InferredTypes> {
     });
 
     // Convert to HIR
-    let hir_module = AstBridge::new()
-        .with_source(source.to_string())
-        .python_to_hir(ast)?;
+    let hir_module = AstBridge::new().with_source(source.to_string()).python_to_hir(ast)?;
 
     // Get the last function (typically what the user wants when testing)
     let last_func = hir_module
@@ -185,8 +179,7 @@ impl DataflowTypeInferencer {
 
         // Build CFG and run dataflow analysis
         let cfg = CfgBuilder::new().build_function(func);
-        let analysis =
-            TypePropagation::new(param_types.clone()).with_user_functions(user_functions.clone());
+        let analysis = TypePropagation::new(param_types.clone()).with_user_functions(user_functions.clone());
         let result = FixpointSolver::solve(&analysis, &cfg);
 
         // Extract final types from all exit points
