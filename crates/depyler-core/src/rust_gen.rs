@@ -744,6 +744,36 @@ fn analyze_mutable_vars(stmts: &[HirStmt], ctx: &mut CodeGenContext, params: &[H
         )
     }
 
+    /// Collect variables that are assigned in a block but not yet in `declared`
+    fn collect_new_assignments(stmts: &[HirStmt], declared: &HashSet<String>) -> HashSet<String> {
+        let mut new_vars = HashSet::new();
+        for stmt in stmts {
+            if let HirStmt::Assign {
+                target: AssignTarget::Symbol(name),
+                ..
+            } = stmt
+            {
+                if !declared.contains(name) {
+                    new_vars.insert(name.clone());
+                }
+            }
+        }
+        new_vars
+    }
+
+    /// Check if stmt is the first assignment of a deferred init variable
+    fn is_first_deferred_assignment(stmt: &HirStmt, deferred_vars: &HashSet<String>) -> bool {
+        if let HirStmt::Assign {
+            target: AssignTarget::Symbol(name),
+            ..
+        } = stmt
+        {
+            deferred_vars.contains(name)
+        } else {
+            false
+        }
+    }
+
     fn analyze_stmt(
         stmt: &HirStmt,
         declared: &mut HashSet<String>,
@@ -814,12 +844,36 @@ fn analyze_mutable_vars(stmts: &[HirStmt], ctx: &mut CodeGenContext, params: &[H
                 ..
             } => {
                 analyze_expr_for_mutations(condition, mutable, var_types, mutating_methods);
-                for stmt in then_body {
-                    analyze_stmt(stmt, declared, mutable, var_types, mutating_methods);
+
+                // Detect deferred initialization: variables first assigned in BOTH branches
+                // These should NOT be marked as mutable since they're only assigned once
+                let then_new_vars = collect_new_assignments(then_body, declared);
+                let else_new_vars = if let Some(else_stmts) = else_body {
+                    collect_new_assignments(else_stmts, declared)
+                } else {
+                    HashSet::new()
+                };
+                // Variables assigned in both branches (deferred init)
+                let deferred_init_vars: HashSet<String> =
+                    then_new_vars.intersection(&else_new_vars).cloned().collect();
+
+                // Pre-declare deferred init vars so they don't get marked as mutable
+                for var in &deferred_init_vars {
+                    declared.insert(var.clone());
                 }
+
+                // Process then_body, skipping first assignments of deferred init vars
+                for stmt in then_body {
+                    if !is_first_deferred_assignment(stmt, &deferred_init_vars) {
+                        analyze_stmt(stmt, declared, mutable, var_types, mutating_methods);
+                    }
+                }
+                // Process else_body, skipping first assignments of deferred init vars
                 if let Some(else_stmts) = else_body {
                     for stmt in else_stmts {
-                        analyze_stmt(stmt, declared, mutable, var_types, mutating_methods);
+                        if !is_first_deferred_assignment(stmt, &deferred_init_vars) {
+                            analyze_stmt(stmt, declared, mutable, var_types, mutating_methods);
+                        }
                     }
                 }
             }

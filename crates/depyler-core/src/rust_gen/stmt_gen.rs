@@ -922,15 +922,24 @@ pub(crate) fn codegen_if_stmt(
         });
 
         let var_ident = safe_ident(var_name);
+        let needs_mut = ctx.mutable_vars.contains(var_name);
 
         if let Some(ty) = var_type {
             let rust_type = ctx.type_mapper.map_type(&ty);
             let syn_type = rust_type_to_syn(&rust_type)?;
-            hoisted_decls.push(quote! { let mut #var_ident: #syn_type; });
+            if needs_mut {
+                hoisted_decls.push(quote! { let mut #var_ident: #syn_type; });
+            } else {
+                hoisted_decls.push(quote! { let #var_ident: #syn_type; });
+            }
         } else {
             // No type annotation - use type inference placeholder
             // Rust will infer the type from the assignments in the branches
-            hoisted_decls.push(quote! { let mut #var_ident; });
+            if needs_mut {
+                hoisted_decls.push(quote! { let mut #var_ident; });
+            } else {
+                hoisted_decls.push(quote! { let #var_ident; });
+            }
         }
 
         // Mark variable as declared so assignments use `var = value` not `let var = value`

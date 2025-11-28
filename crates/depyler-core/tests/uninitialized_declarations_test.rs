@@ -193,6 +193,36 @@ def process(flag: bool):
     );
 }
 
+/// Test string variable assigned in both branches of if/else (deferred initialization)
+#[test]
+fn test_string_conditional_assignment() {
+    let pipeline = DepylerPipeline::new();
+    let python_code = r#"
+def process():
+    if True:
+        val = "one"
+    else:
+        val = "two"
+    return val
+"#;
+    let rust_code = pipeline.transpile(python_code).unwrap();
+    println!("Generated Rust code:\n{}", rust_code);
+
+    // Should be immutable since val is only assigned once (in whichever branch executes)
+    assert!(
+        rust_code.contains("let val;"),
+        "Expected immutable 'let val;' (not 'let mut val;') in generated code:\n{}",
+        rust_code
+    );
+
+    // Should have both string assignments
+    assert!(
+        rust_code.contains("\"one\"") && rust_code.contains("\"two\""),
+        "Expected both string assignments in generated code:\n{}",
+        rust_code
+    );
+}
+
 /// Test that annotated assignment WITH value still works correctly
 #[test]
 fn test_annotated_with_value_unchanged() {
