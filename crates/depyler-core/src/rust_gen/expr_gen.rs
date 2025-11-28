@@ -9408,10 +9408,24 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 for (idx, param_name) in param_names.iter().enumerate() {
                     if idx < args.len() {
                         // This position is filled by a positional argument
-                        reordered_args.push(args[idx].to_rust_expr(self.ctx)?);
+                        let expr = args[idx].to_rust_expr(self.ctx)?;
+                        // STRING_INTEROP: For string literals, add .to_string()
+                        let expr = if matches!(&args[idx], HirExpr::Literal(crate::hir::Literal::String(_))) {
+                            parse_quote! { #expr.to_string() }
+                        } else {
+                            expr
+                        };
+                        reordered_args.push(expr);
                     } else if let Some(value) = kwarg_map.get(param_name.as_str()) {
                         // This position is filled by a keyword argument
-                        reordered_args.push(value.to_rust_expr(self.ctx)?);
+                        let expr = value.to_rust_expr(self.ctx)?;
+                        // STRING_INTEROP: For string literals, add .to_string()
+                        let expr = if matches!(value, HirExpr::Literal(crate::hir::Literal::String(_))) {
+                            parse_quote! { #expr.to_string() }
+                        } else {
+                            expr
+                        };
+                        reordered_args.push(expr);
                     }
                     // If neither positional nor kwarg fills this position,
                     // the function likely has a default value (skip it)
@@ -9421,12 +9435,28 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 // Fall back to appending kwargs in order if function signature not found
                 let mut arg_exprs: Vec<syn::Expr> = args
                     .iter()
-                    .map(|arg| arg.to_rust_expr(self.ctx))
+                    .map(|arg| {
+                        let expr = arg.to_rust_expr(self.ctx)?;
+                        // STRING_INTEROP: For string literals, add .to_string()
+                        if matches!(arg, HirExpr::Literal(crate::hir::Literal::String(_))) {
+                            Ok(parse_quote! { #expr.to_string() })
+                        } else {
+                            Ok(expr)
+                        }
+                    })
                     .collect::<Result<Vec<_>>>()?;
 
                 let kwarg_exprs: Vec<syn::Expr> = kwargs
                     .iter()
-                    .map(|(_name, value)| value.to_rust_expr(self.ctx))
+                    .map(|(_name, value)| {
+                        let expr = value.to_rust_expr(self.ctx)?;
+                        // STRING_INTEROP: For string literals, add .to_string()
+                        if matches!(value, HirExpr::Literal(crate::hir::Literal::String(_))) {
+                            Ok(parse_quote! { #expr.to_string() })
+                        } else {
+                            Ok(expr)
+                        }
+                    })
                     .collect::<Result<Vec<_>>>()?;
 
                 arg_exprs.extend(kwarg_exprs);

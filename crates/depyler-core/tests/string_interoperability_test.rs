@@ -261,18 +261,39 @@ fn test_generic_function_call_with_string_literal() {
 class Test:
   val: str
 
-def infer[T](str: str) -> None:
+def infer_a[T](str: str) -> None:
+  pass
+
+def infer_b[T](str: str, list: list[str]) -> None:
+  pass
+
+def infer_c[T](str: str, list: list[str]) -> None:
   pass
 
 def main() -> None:
-  infer[Test]("test")
+  infer_a[Test]("test")
+  infer_b[Test]("test", ["test"])
+  infer_c[Test](str = "test", list = ["test"])
+  infer_d[Test](list = ["test"], str = "test")
 "#;
 
     let rust_code = pipeline.transpile(python_code).unwrap();
     assert!(rust_code.contains("struct Test"), "\n{rust_code}");
     assert!(rust_code.contains("val: String"), "\n{rust_code}");
     assert!(
-        rust_code.contains("infer::<Test>(\"test\".to_string())"),
+        rust_code.contains("infer_a::<Test>(\"test\".to_string())"),
+        "\n{rust_code}"
+    );
+    assert!(
+        rust_code.contains("infer_b::<Test>(\"test\".to_string(), vec![\"test\".to_string()])"),
+        "\n{rust_code}"
+    );
+    assert!(
+        rust_code.contains("infer_c::<Test>(\"test\".to_string(), vec![\"test\".to_string()])"),
+        "\n{rust_code}"
+    );
+    assert!(
+        rust_code.contains("infer_d::<Test>(vec![\"test\".to_string()], \"test\".to_string())"),
         "\n{rust_code}"
     );
 }
