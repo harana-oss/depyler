@@ -15,6 +15,7 @@ applyTo: '**/*.rs'
     c. Be unique and specific to the intention of the test.
     d. Avoid unnecessary complexity. Keep tests simple and focused.
 3. Before creating a new test file look for existing files that can be extended.
+4. Cargo tests are run with "cargo test --test ..."
 
 ## Code
 

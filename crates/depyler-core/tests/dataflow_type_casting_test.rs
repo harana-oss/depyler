@@ -490,3 +490,120 @@ def test():
     assert_variable_type(&inferred, "y", Type::Bool);
     assert_variable_type(&inferred, "z", Type::Bool);
 }
+
+#[test]
+fn test_dataclass_optional_list_subscript_access() {
+    let python = r#"
+@dataclass
+class State:
+    list: list[float]
+
+def one():
+    model: State
+    result = model.list[0] == 1.0
+    return result
+"#;
+    match infer_python_function(python) {
+        Ok(inferred) => {
+            println!("Inferred types for dataclass optional list subscript access:");
+            for (var, ty) in &inferred.variable_types {
+                println!("  {}: {:?}", var, ty);
+            }
+            println!("  return_type: {:?}", inferred.return_type);
+            assert_variable_type(&inferred, "result", Type::Bool);
+        }
+        Err(e) => panic!("Type inference failed: {}", e),
+    }
+}
+
+#[test]
+fn test_dataclass_list_subscript_int_cast() {
+    let python = r#"
+@dataclass
+class State:
+    list: list[float]
+
+def one():f
+    model: State
+    result = int(model.list[0])
+    return result
+"#;
+    match infer_python_function(python) {
+        Ok(inferred) => {
+            println!("Inferred types for dataclass list subscript int cast:");
+            for (var, ty) in &inferred.variable_types {
+                println!("  {}: {:?}", var, ty);
+            }
+            println!("  return_type: {:?}", inferred.return_type);
+            assert_variable_type(&inferred, "result", Type::Int);
+        }
+        Err(e) => panic!("Type inference failed: {}", e),
+    }
+}
+
+#[test]
+fn test_dict_subscript_assignment_inference() {
+    let python = r#"
+def test():
+    test1["item"] = "one"
+    one = test1["one"]
+
+    test2["item"] = int(1.0)
+    two = test2["item"]
+
+    test3["item"] = int(1.0) == 1
+    three = test3["item"]
+"#;
+    match infer_python_function(python) {
+        Ok(inferred) => {
+            println!("Inferred types for dict subscript assignment:");
+            for (var, ty) in &inferred.variable_types {
+                println!("  {}: {:?}", var, ty);
+            }
+            println!("  return_type: {:?}", inferred.return_type);
+        }
+        Err(e) => panic!("Type inference failed: {}", e),
+    }
+}
+
+#[test]
+fn test_dict_subscript_with_return_type_annotation() {
+    let python = r#"
+def test() -> dict[str, Any]:
+    test1["item"] = "one"
+    one = test1["one"]
+    return test1
+"#;
+    match infer_python_function(python) {
+        Ok(inferred) => {
+            println!("Inferred types for dict subscript with return annotation:");
+            for (var, ty) in &inferred.variable_types {
+                println!("  {}: {:?}", var, ty);
+            }
+            println!("  return_type: {:?}", inferred.return_type);
+        }
+        Err(e) => panic!("Type inference failed: {}", e),
+    }
+}
+
+#[test]
+fn test_nested_type_casting_functions() {
+    let python = r#"
+def test():
+    one = int(1.0)
+    two = float(int(1.0))
+    three = round(float(int(1.0)))
+    four = abs(float(int(1.0)))
+    five = upper("test")
+"#;
+    match infer_python_function(python) {
+        Ok(inferred) => {
+            println!("Inferred types for nested type casting functions:");
+            for (var, ty) in &inferred.variable_types {
+                println!("  {}: {:?}", var, ty);
+            }
+            println!("  return_type: {:?}", inferred.return_type);
+        }
+        Err(e) => panic!("Type inference failed: {}", e),
+    }
+}

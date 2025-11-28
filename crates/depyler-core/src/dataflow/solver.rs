@@ -261,6 +261,47 @@ impl TypePropagation {
         builtins.insert("input".to_string(), Type::String);
         builtins.insert("open".to_string(), Type::Custom("file".to_string()));
 
+        // Math functions
+        builtins.insert("round".to_string(), Type::Int);
+        builtins.insert("pow".to_string(), Type::Unknown); // Depends on input
+        builtins.insert("divmod".to_string(), Type::Tuple(vec![Type::Int, Type::Int]));
+
+        // String functions (standalone, not methods)
+        builtins.insert("upper".to_string(), Type::String);
+        builtins.insert("lower".to_string(), Type::String);
+        builtins.insert("ord".to_string(), Type::Int);
+        builtins.insert("chr".to_string(), Type::String);
+        builtins.insert("repr".to_string(), Type::String);
+        builtins.insert("ascii".to_string(), Type::String);
+
+        // Numeric conversion functions
+        builtins.insert("hex".to_string(), Type::String);
+        builtins.insert("oct".to_string(), Type::String);
+        builtins.insert("bin".to_string(), Type::String);
+
+        // Type checking functions
+        builtins.insert("type".to_string(), Type::Custom("type".to_string()));
+        builtins.insert("isinstance".to_string(), Type::Bool);
+        builtins.insert("issubclass".to_string(), Type::Bool);
+        builtins.insert("callable".to_string(), Type::Bool);
+        builtins.insert("hasattr".to_string(), Type::Bool);
+        builtins.insert("getattr".to_string(), Type::Unknown);
+        builtins.insert("setattr".to_string(), Type::None);
+        builtins.insert("delattr".to_string(), Type::None);
+
+        // Collection functions
+        builtins.insert("any".to_string(), Type::Bool);
+        builtins.insert("all".to_string(), Type::Bool);
+        builtins.insert("tuple".to_string(), Type::Tuple(vec![Type::Unknown]));
+        builtins.insert("frozenset".to_string(), Type::Set(Box::new(Type::Unknown)));
+
+        // Other common functions
+        builtins.insert("id".to_string(), Type::Int);
+        builtins.insert("hash".to_string(), Type::Int);
+        builtins.insert("iter".to_string(), Type::Custom("iterator".to_string()));
+        builtins.insert("next".to_string(), Type::Unknown);
+        builtins.insert("format".to_string(), Type::String);
+
         Self {
             initial_types: param_types,
             builtins,
@@ -388,7 +429,7 @@ impl TypePropagation {
         if let Some(ret_ty) = self.builtins.get(func) {
             // Special handling for type-dependent builtins
             match func {
-                "abs" | "min" | "max" => {
+                "abs" | "min" | "max" | "pow" => {
                     if let Some(arg) = args.first() {
                         return self.infer_expr_type(arg, state);
                     }
