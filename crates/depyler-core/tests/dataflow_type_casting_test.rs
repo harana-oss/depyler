@@ -523,7 +523,7 @@ fn test_dataclass_list_subscript_int_cast() {
 class State:
     list: list[float]
 
-def one():f
+def one():
     model: State
     result = int(model.list[0])
     return result
@@ -606,4 +606,43 @@ def test():
         }
         Err(e) => panic!("Type inference failed: {}", e),
     }
+}
+
+#[test]
+fn test_dataclass_dict_output_with_int_cast() {
+    let python = r#"
+@dataclass
+class State:
+    list: list[float]
+
+def one() -> dict[str, Any]:
+   outputs = {}
+   state: State = two[State]()
+   outputs["item"] = int(state.list[0])
+   temp_output = outputs["item"]
+   return outputs
+"#;
+    match infer_python_function(python) {
+        Ok(inferred) => {
+            println!("Inferred types for dataclass dict output with int cast:");
+            for (var, ty) in &inferred.variable_types {
+                println!("  {}: {:?}", var, ty);
+            }
+            println!("  return_type: {:?}", inferred.return_type);
+        }
+        Err(e) => panic!("Type inference failed: {}", e),
+    }
+}
+
+#[test]
+fn test_function_call_return_type_inference() {
+    let python = r#"
+def one(i: int) -> int:
+    return i
+
+def two():
+    val = one(1)
+"#;
+    let inferred = infer_types(python);
+    assert_variable_type(&inferred, "val", Type::Int);
 }

@@ -220,6 +220,8 @@ pub struct TypePropagation {
     initial_types: HashMap<String, Type>,
     /// Built-in function signatures
     builtins: HashMap<String, Type>,
+    /// User-defined function return types from the same module
+    user_functions: HashMap<String, Type>,
     /// Modular mutation handlers for container type inference
     mutation_registry: MutationRegistry,
 }
@@ -305,8 +307,15 @@ impl TypePropagation {
         Self {
             initial_types: param_types,
             builtins,
+            user_functions: HashMap::new(),
             mutation_registry: MutationRegistry::new(),
         }
+    }
+
+    /// Set user-defined function signatures for interprocedural analysis
+    pub fn with_user_functions(mut self, functions: HashMap<String, Type>) -> Self {
+        self.user_functions = functions;
+        self
     }
 
     /// Infer type of an expression given current type state
@@ -442,6 +451,11 @@ impl TypePropagation {
                 }
                 _ => {}
             }
+            return ret_ty.clone();
+        }
+
+        // Check user-defined functions from the same module
+        if let Some(ret_ty) = self.user_functions.get(func) {
             return ret_ty.clone();
         }
 

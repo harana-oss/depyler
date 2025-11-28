@@ -37,7 +37,8 @@ use std::collections::HashMap;
 /// ```
 pub fn infer_python(source: &str) -> Result<HashMap<String, InferredTypes>> {
     // Parse Python source to AST
-    let statements = Suite::parse(source, "<input>").map_err(|e| anyhow::anyhow!("Python parse error: {}", e))?;
+    let statements = Suite::parse(source, "<input>")
+        .map_err(|e| anyhow::anyhow!("Python parse error: {}", e))?;
 
     let ast = rustpython_ast::Mod::Module(rustpython_ast::ModModule {
         body: statements,
@@ -46,18 +47,13 @@ pub fn infer_python(source: &str) -> Result<HashMap<String, InferredTypes>> {
     });
 
     // Convert to HIR
-    let hir_module = AstBridge::new().with_source(source.to_string()).python_to_hir(ast)?;
+    let hir_module = AstBridge::new()
+        .with_source(source.to_string())
+        .python_to_hir(ast)?;
 
-    // Run type inference on each function
+    // Use infer_module which handles interprocedural analysis
     let inferencer = DataflowTypeInferencer::new();
-    let mut results = HashMap::new();
-
-    for func in &hir_module.functions {
-        let inferred = inferencer.infer_function(func);
-        results.insert(func.name.clone(), inferred);
-    }
-
-    Ok(results)
+    Ok(inferencer.infer_module(&hir_module))
 }
 
 /// Infer types for a single Python function string.
@@ -78,12 +74,35 @@ pub fn infer_python(source: &str) -> Result<HashMap<String, InferredTypes>> {
 /// println!("total: {:?}", types.get_variable_type("total"));
 /// ```
 pub fn infer_python_function(source: &str) -> Result<InferredTypes> {
-    let results = infer_python(source)?;
+    // Parse Python source to AST
+    let statements = Suite::parse(source, "<input>")
+        .map_err(|e| anyhow::anyhow!("Python parse error: {}", e))?;
+
+    let ast = rustpython_ast::Mod::Module(rustpython_ast::ModModule {
+        body: statements,
+        type_ignores: vec![],
+        range: Default::default(),
+    });
+
+    // Convert to HIR
+    let hir_module = AstBridge::new()
+        .with_source(source.to_string())
+        .python_to_hir(ast)?;
+
+    // Get the last function (typically what the user wants when testing)
+    let last_func = hir_module
+        .functions
+        .last()
+        .ok_or_else(|| anyhow::anyhow!("No function found in source"))?;
+
+    // Run type inference with module context
+    let inferencer = DataflowTypeInferencer::new();
+    let results = inferencer.infer_module(&hir_module);
 
     results
-        .into_values()
-        .next()
-        .ok_or_else(|| anyhow::anyhow!("No function found in source"))
+        .get(&last_func.name)
+        .cloned()
+        .ok_or_else(|| anyhow::anyhow!("Failed to infer types for function"))
 }
 
 /// Result of dataflow type inference
@@ -142,7 +161,17 @@ impl DataflowTypeInferencer {
     }
 
     /// Infer types for a single function
+    /// Infer types for a single function
     pub fn infer_function(&self, func: &HirFunction) -> InferredTypes {
+        self.infer_function_with_context(func, &HashMap::new())
+    }
+
+    /// Infer types for a single function with knowledge of other function signatures
+    pub fn infer_function_with_context(
+        &self,
+        func: &HirFunction,
+        user_functions: &HashMap<String, Type>,
+    ) -> InferredTypes {
         // Collect initial parameter types
         let mut param_types: HashMap<String, Type> = HashMap::new();
         for param in &func.params {
@@ -156,7 +185,8 @@ impl DataflowTypeInferencer {
 
         // Build CFG and run dataflow analysis
         let cfg = CfgBuilder::new().build_function(func);
-        let analysis = TypePropagation::new(param_types.clone());
+        let analysis =
+            TypePropagation::new(param_types.clone()).with_user_functions(user_functions.clone());
         let result = FixpointSolver::solve(&analysis, &cfg);
 
         // Extract final types from all exit points
@@ -215,9 +245,21 @@ impl DataflowTypeInferencer {
 
     /// Infer types for all functions in a module
     pub fn infer_module(&self, module: &HirModule) -> HashMap<String, InferredTypes> {
+        // First pass: collect all function return types from annotations
+        let mut user_functions: HashMap<String, Type> = HashMap::new();
+        for func in &module.functions {
+            if self.use_annotations && !matches!(func.ret_type, Type::Unknown) {
+                user_functions.insert(func.name.clone(), func.ret_type.clone());
+            }
+        }
+
+        // Second pass: infer types with knowledge of other functions
         let mut results = HashMap::new();
         for func in &module.functions {
-            results.insert(func.name.clone(), self.infer_function(func));
+            results.insert(
+                func.name.clone(),
+                self.infer_function_with_context(func, &user_functions),
+            );
         }
         results
     }
