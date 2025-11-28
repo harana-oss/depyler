@@ -231,11 +231,16 @@ def three(state: State, val: str) -> None:
 fn test_ternary_assignment_in_nested_if() {
     let pipeline = DepylerPipeline::new();
     let python_code = r#"
-def one() -> None:
+@dataclass
+class State:
+    val: str
+
+def one(state: State) -> None:
     if True:
         var = "One" if True else "Two"
     else:
         var = "Three"
+    var = state.val
 "#;
 
     let rust_code = pipeline.transpile(python_code).unwrap();
@@ -245,4 +250,5 @@ def one() -> None:
         "\n{rust_code}"
     );
     assert!(rust_code.contains("\"Three\".to_string()"), "\n{rust_code}");
+    assert!(rust_code.contains("var = state.val.clone();"), "\n{rust_code}");
 }

@@ -2042,6 +2042,16 @@ pub(crate) fn codegen_assign_stmt(
         if matches!(value, HirExpr::Literal(Literal::String(_))) {
             value_expr = parse_quote! { #value_expr.to_string() };
         }
+        // When assigning from struct field access (e.g., state.val where val: String),
+        // we need to clone since String doesn't implement Copy and we can't move from borrow
+        else if let HirExpr::Attribute { value: obj, .. } = value {
+            if let HirExpr::Var(var_name) = obj.as_ref() {
+                // Check if the variable is a user-defined class type (borrowed struct parameter)
+                if let Some(Type::Custom(_)) = ctx.var_types.get(var_name) {
+                    value_expr = parse_quote! { #value_expr.clone() };
+                }
+            }
+        }
         (None, false)
     };
 
