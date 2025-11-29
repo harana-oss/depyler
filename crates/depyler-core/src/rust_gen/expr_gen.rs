@@ -2071,6 +2071,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     ///
     /// Python's setattr() sets an attribute on an object dynamically. In Rust, we generate
     /// a direct field assignment when the attribute name is a string literal.
+    /// String literals get `.to_string()`, and String/object variables get `.clone()`.
     fn convert_setattr_builtin(&mut self, hir_args: &[HirExpr]) -> Result<syn::Expr> {
         if hir_args.len() != 3 {
             bail!("setattr() requires exactly 3 arguments (object, name, value)");
@@ -2078,12 +2079,28 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
 
         let obj_expr = hir_args[0].to_rust_expr(self.ctx)?;
         
-        // Check if value is a string literal - needs .to_string() for String fields
+        // Handle value based on its type - strings and objects need special handling
         let value_expr = match &hir_args[2] {
+            // String literal → .to_string()
             HirExpr::Literal(Literal::String(_)) => {
                 let raw_expr = hir_args[2].to_rust_expr(self.ctx)?;
                 parse_quote! { #raw_expr.to_string() }
             }
+            // Variable → check type and clone if String or Custom object
+            HirExpr::Var(var_name) => {
+                let raw_expr = hir_args[2].to_rust_expr(self.ctx)?;
+                if let Some(var_type) = self.ctx.var_types.get(var_name) {
+                    match var_type {
+                        Type::String | Type::Custom(_) => {
+                            parse_quote! { #raw_expr.clone() }
+                        }
+                        _ => raw_expr
+                    }
+                } else {
+                    raw_expr
+                }
+            }
+            // Other expressions (literals, method calls, etc.) → use as-is
             _ => hir_args[2].to_rust_expr(self.ctx)?
         };
 

@@ -54,7 +54,44 @@ def set_count(c: Counter, new_count: int) -> None:
 "#;
 
     let rust = transpile_only(python).unwrap();
+    // Integer variables don't need clone
     assert!(rust.contains("c.count = new_count"));
+    assert!(!rust.contains("clone"));
+}
+
+#[test]
+fn test_setattr_string_variable_clones() {
+    let python = r#"
+class Person:
+    name: str
+
+def set_name(p: Person, new_name: str) -> None:
+    setattr(p, "name", new_name)
+"#;
+
+    let rust = transpile_only(python).unwrap();
+    println!("Generated Rust code:\n{}", rust);
+    // String variables should be cloned
+    assert!(rust.contains("new_name.clone()"));
+}
+
+#[test]
+fn test_setattr_object_variable_clones() {
+    let python = r#"
+class Inner:
+    value: int
+
+class Outer:
+    inner: Inner
+
+def set_inner(o: Outer, new_inner: Inner) -> None:
+    setattr(o, "inner", new_inner)
+"#;
+
+    let rust = transpile_only(python).unwrap();
+    println!("Generated Rust code:\n{}", rust);
+    // Object variables should be cloned
+    assert!(rust.contains("new_inner.clone()"));
 }
 
 #[test]
