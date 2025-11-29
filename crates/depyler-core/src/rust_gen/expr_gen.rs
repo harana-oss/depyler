@@ -2078,7 +2078,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         }
 
         let obj_expr = hir_args[0].to_rust_expr(self.ctx)?;
-        
+
         // Handle value based on its type - strings and objects need special handling
         let value_expr = match &hir_args[2] {
             // String literal → .to_string()
@@ -2094,14 +2094,14 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                         Type::String | Type::Custom(_) => {
                             parse_quote! { #raw_expr.clone() }
                         }
-                        _ => raw_expr
+                        _ => raw_expr,
                     }
                 } else {
                     raw_expr
                 }
             }
             // Other expressions (literals, method calls, etc.) → use as-is
-            _ => hir_args[2].to_rust_expr(self.ctx)?
+            _ => hir_args[2].to_rust_expr(self.ctx)?,
         };
 
         // Extract attribute name - must be a string literal for static Rust compilation

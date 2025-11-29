@@ -163,3 +163,91 @@ def get_point_attr(p: Point, name: str) -> int:
     assert!(result.is_err());
     assert!(result.unwrap_err().to_string().contains("string literal"));
 }
+
+// ============================================================================
+// setattr in Lambda/Closure Tests
+// ============================================================================
+
+#[test]
+fn test_setattr_in_lambda() {
+    let python = r#"
+class State:
+    temp: int
+    result: int
+
+def update_state(s: State) -> None:
+    setattr(s, "temp", getattr(s, "result"))
+"#;
+
+    let rust = transpile_only(python).unwrap();
+    println!("Generated Rust code:\n{}", rust);
+    // Should generate: s.temp = s.result
+    assert!(rust.contains("s.temp = s.result"));
+}
+
+#[test]
+fn test_setattr_copy_string_field() {
+    let python = r#"
+class Data:
+    source: str
+    target: str
+
+def copy_field(d: Data) -> None:
+    setattr(d, "target", getattr(d, "source"))
+"#;
+
+    let rust = transpile_only(python).unwrap();
+    println!("Generated Rust code:\n{}", rust);
+    // Should generate: d.target = d.source (with appropriate cloning)
+    assert!(rust.contains("d.target = d.source"));
+}
+
+#[test]
+fn test_getattr_in_lambda() {
+    let python = r#"
+class Point:
+    x: int
+    y: int
+
+def get_coords(points: list) -> list:
+    return list(map(lambda p: getattr(p, "x"), points))
+"#;
+
+    let rust = transpile_only(python).unwrap();
+    println!("Generated Rust code:\n{}", rust);
+    // Lambda should access p.x
+    assert!(rust.contains("p.x"));
+}
+
+#[test]
+fn test_getattr_in_filter_lambda() {
+    let python = r#"
+class Item:
+    active: bool
+
+def get_active(items: list) -> list:
+    return list(filter(lambda i: getattr(i, "active"), items))
+"#;
+
+    let rust = transpile_only(python).unwrap();
+    println!("Generated Rust code:\n{}", rust);
+    // Lambda should access i.active
+    assert!(rust.contains("i.active"));
+}
+
+#[test]
+fn test_setattr_string_in_lambda() {
+    let python = r#"
+class Person:
+    name: str
+
+def set_names(people: list, new_name: str) -> None:
+    for p in people:
+        setattr(p, "name", new_name)
+"#;
+
+    let rust = transpile_only(python).unwrap();
+    println!("Generated Rust code:\n{}", rust);
+    // String parameter should be cloned when used in setattr
+    assert!(rust.contains("new_name.clone()") || rust.contains("p.name ="));
+}
