@@ -300,19 +300,19 @@ fn test_setattr_struct_value_in_lambda() {
     // Test: update(lambda s: setattr(s, "config", new_config)) where new_config is a struct
     let python = r#"
 class Config:
-    value: int
+    value: str
 
 class State:
-    config: Config
+    value: str
 
 def apply_config(states: list, new_config: Config) -> list:
-    return list(map(lambda s: setattr(s, "config", new_config), states))
+    return list(map(lambda s: setattr(s, "value", new_config.value), states))
 "#;
 
     let rust = transpile_only(python).unwrap();
     println!("Generated Rust code:\n{}", rust);
     // Lambda should set s.config with the struct value cloned
-    assert!(rust.contains("s.config") || rust.contains(".config ="));
+    assert!(rust.contains("s.value = new_config.value.clone()"))
 }
 
 #[test]

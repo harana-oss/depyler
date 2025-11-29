@@ -2100,6 +2100,20 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     raw_expr
                 }
             }
+            // Attribute access → check base type and clone if String/Custom field
+            HirExpr::Attribute { value, .. } => {
+                let raw_expr = hir_args[2].to_rust_expr(self.ctx)?;
+                // If base is a Custom type, clone the field access (it's likely String or another struct)
+                if let HirExpr::Var(base_var) = value.as_ref() {
+                    if let Some(Type::Custom(_)) = self.ctx.var_types.get(base_var) {
+                        parse_quote! { #raw_expr.clone() }
+                    } else {
+                        raw_expr
+                    }
+                } else {
+                    raw_expr
+                }
+            }
             // Other expressions (literals, method calls, etc.) → use as-is
             _ => hir_args[2].to_rust_expr(self.ctx)?,
         };
