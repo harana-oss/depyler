@@ -251,3 +251,88 @@ def set_names(people: list, new_name: str) -> None:
     // String parameter should be cloned when used in setattr
     assert!(rust.contains("new_name.clone()") || rust.contains("p.name ="));
 }
+
+#[test]
+fn test_setattr_struct_in_loop() {
+    let python = r#"
+class Config:
+    value: int
+
+class Container:
+    config: Config
+
+def update_configs(containers: list, new_config: Config) -> None:
+    for c in containers:
+        setattr(c, "config", new_config)
+"#;
+
+    let rust = transpile_only(python).unwrap();
+    println!("Generated Rust code:\n{}", rust);
+    // Struct parameter should be cloned when used in setattr within a loop
+    assert!(rust.contains("new_config.clone()"));
+}
+
+#[test]
+fn test_setattr_struct_from_getattr_in_loop() {
+    let python = r#"
+class Inner:
+    data: int
+
+class Source:
+    inner: Inner
+
+class Target:
+    inner: Inner
+
+def copy_inner(sources: list, targets: list) -> None:
+    for i in range(len(sources)):
+        setattr(targets[i], "inner", getattr(sources[i], "inner"))
+"#;
+
+    let rust = transpile_only(python).unwrap();
+    println!("Generated Rust code:\n{}", rust);
+    // Should generate field access for both getattr and setattr
+    assert!(rust.contains(".inner"));
+}
+
+#[test]
+fn test_setattr_struct_value_in_lambda() {
+    // Test: update(lambda s: setattr(s, "config", new_config)) where new_config is a struct
+    let python = r#"
+class Config:
+    value: int
+
+class State:
+    config: Config
+
+def apply_config(states: list, new_config: Config) -> list:
+    return list(map(lambda s: setattr(s, "config", new_config), states))
+"#;
+
+    let rust = transpile_only(python).unwrap();
+    println!("Generated Rust code:\n{}", rust);
+    // Lambda should set s.config with the struct value cloned
+    assert!(rust.contains("s.config") || rust.contains(".config ="));
+}
+
+#[test]
+fn test_setattr_mut_struct_ref_in_lambda() {
+    // Test: setattr(state, "config", config) where state should be &mut State
+    let python = r#"
+class Config:
+    value: int
+
+class State:
+    config: Config
+
+def update_with_config(state: State, config: Config) -> None:
+    setattr(state, "config", config)
+"#;
+
+    let rust = transpile_only(python).unwrap();
+    println!("Generated Rust code:\n{}", rust);
+    // state should be &mut State since setattr mutates it
+    assert!(rust.contains("state: &mut State"));
+    // config should be cloned when assigning
+    assert!(rust.contains("config.clone()"));
+}

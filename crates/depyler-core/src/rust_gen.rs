@@ -700,7 +700,13 @@ fn analyze_mutable_vars(stmts: &[HirStmt], ctx: &mut CodeGenContext, params: &[H
             HirExpr::Unary { operand, .. } => {
                 analyze_expr_for_mutations(operand, mutable, var_types, mutating_methods);
             }
-            HirExpr::Call { args, .. } => {
+            HirExpr::Call { func, args, .. } => {
+                // setattr(obj, name, value) mutates obj - mark it as mutable
+                if func == "setattr" && !args.is_empty() {
+                    if let HirExpr::Var(var_name) = &args[0] {
+                        mutable.insert(var_name.clone());
+                    }
+                }
                 for arg in args {
                     analyze_expr_for_mutations(arg, mutable, var_types, mutating_methods);
                 }
