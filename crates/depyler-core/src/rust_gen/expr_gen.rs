@@ -1238,7 +1238,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             "open" => self.convert_open_builtin(&all_hir_args, &arg_exprs),
             // DEPYLER-STDLIB-50: next(), getattr(), setattr(), iter(), type()
             "next" => self.convert_next_builtin(&arg_exprs),
-            "getattr" => self.convert_getattr_builtin(&arg_exprs),
+            "getattr" => self.convert_getattr_builtin(&all_hir_args),
             "setattr" => self.convert_setattr_builtin(&all_hir_args),
             "iter" => self.convert_iter_builtin(&arg_exprs),
             "type" => self.convert_type_builtin(&arg_exprs),
@@ -2040,14 +2040,31 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     }
 
     // DEPYLER-STDLIB-50: getattr() - get attribute by name
-    fn convert_getattr_builtin(&self, args: &[syn::Expr]) -> Result<syn::Expr> {
-        if args.len() < 2 || args.len() > 3 {
+    /// getattr(obj, name) → obj.name
+    /// getattr(obj, name, default) → obj.name (default is ignored in static Rust)
+    ///
+    /// Python's getattr() retrieves an attribute on an object dynamically. In Rust, we generate
+    /// a direct field access when the attribute name is a string literal.
+    fn convert_getattr_builtin(&mut self, hir_args: &[HirExpr]) -> Result<syn::Expr> {
+        if hir_args.len() < 2 || hir_args.len() > 3 {
             bail!("getattr() requires 2 or 3 arguments (object, name, optional default)");
         }
-        // Note: This is a simplified implementation
-        // Full getattr() requires runtime attribute lookup which isn't possible in Rust
-        // For now, we'll bail as it needs special handling
-        bail!("getattr() requires dynamic attribute access not fully supported yet")
+
+        let obj_expr = hir_args[0].to_rust_expr(self.ctx)?;
+
+        // Extract attribute name - must be a string literal for static Rust compilation
+        match &hir_args[1] {
+            HirExpr::Literal(Literal::String(attr_name)) => {
+                let attr_ident = syn::Ident::new(attr_name, proc_macro2::Span::call_site());
+                // Generate: obj.attr
+                // Note: If a default is provided, it's ignored since static field access
+                // either succeeds (field exists) or fails at compile time (field doesn't exist)
+                Ok(parse_quote! { #obj_expr.#attr_ident })
+            }
+            _ => {
+                bail!("getattr() attribute name must be a string literal for Rust compilation")
+            }
+        }
     }
 
     /// setattr(obj, name, value) → obj.name = value
@@ -2060,7 +2077,15 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         }
 
         let obj_expr = hir_args[0].to_rust_expr(self.ctx)?;
-        let value_expr = hir_args[2].to_rust_expr(self.ctx)?;
+        
+        // Check if value is a string literal - needs .to_string() for String fields
+        let value_expr = match &hir_args[2] {
+            HirExpr::Literal(Literal::String(_)) => {
+                let raw_expr = hir_args[2].to_rust_expr(self.ctx)?;
+                parse_quote! { #raw_expr.to_string() }
+            }
+            _ => hir_args[2].to_rust_expr(self.ctx)?
+        };
 
         // Extract attribute name - must be a string literal for static Rust compilation
         match &hir_args[1] {

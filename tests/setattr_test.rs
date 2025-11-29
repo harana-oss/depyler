@@ -22,6 +22,7 @@ def set_config_value(c: Config) -> None:
 "#;
 
     let rust = transpile_only(python).unwrap();
+    println!("Generated Rust code:\n{}", rust);
     // When field name is a literal, it should generate direct field assignment
     assert!(rust.contains("c.value = 42"));
 }
@@ -37,7 +38,9 @@ def set_name(p: Person) -> None:
 "#;
 
     let rust = transpile_only(python).unwrap();
-    assert!(rust.contains(r#"p.name = "Alice""#));
+    println!("Generated Rust code:\n{}", rust);
+    // String values should be converted to String (not &str)
+    assert!(rust.contains(r#"p.name = "Alice".to_string()"#) || rust.contains(r#"p.name = String::from("Alice")"#));
 }
 
 #[test]
@@ -64,6 +67,59 @@ class Point:
 
 def set_point_attr(p: Point, name: str, value: int) -> None:
     setattr(p, name, value)
+"#;
+
+    let result = transpile_only(python);
+    assert!(result.is_err());
+    assert!(result.unwrap_err().to_string().contains("string literal"));
+}
+
+// ============================================================================
+// getattr Tests
+// ============================================================================
+
+#[test]
+fn test_getattr_literal_field() {
+    let python = r#"
+class Config:
+    value: int
+
+def get_config_value(c: Config) -> int:
+    return getattr(c, "value")
+"#;
+
+    let rust = transpile_only(python).unwrap();
+    println!("Generated Rust code:\n{}", rust);
+    // When field name is a literal, it should generate direct field access
+    assert!(rust.contains("c.value"));
+}
+
+#[test]
+fn test_getattr_with_default() {
+    let python = r#"
+class Person:
+    name: str
+
+def get_name(p: Person) -> str:
+    return getattr(p, "name", "Unknown")
+"#;
+
+    let rust = transpile_only(python).unwrap();
+    println!("Generated Rust code:\n{}", rust);
+    // Default is ignored in static Rust - just generate field access
+    assert!(rust.contains("p.name"));
+}
+
+#[test]
+fn test_getattr_dynamic_name_errors() {
+    // Dynamic attribute names cannot be transpiled to static Rust
+    let python = r#"
+class Point:
+    x: int
+    y: int
+
+def get_point_attr(p: Point, name: str) -> int:
+    return getattr(p, name)
 "#;
 
     let result = transpile_only(python);
