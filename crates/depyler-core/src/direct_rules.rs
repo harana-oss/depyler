@@ -331,7 +331,7 @@ pub fn convert_class_to_struct(class: &HirClass, type_mapper: &TypeMapper) -> Re
     // Create the struct
     let struct_item = syn::Item::Struct(syn::ItemStruct {
         attrs: if class.is_dataclass {
-            vec![parse_quote! { #[derive(Debug, Clone, PartialEq)] }]
+            vec![parse_quote! { #[derive(Debug, Clone, PartialEq, Default)] }]
         } else {
             vec![parse_quote! { #[derive(Debug, Clone)] }]
         },
@@ -2712,8 +2712,7 @@ mod tests {
             func: "len".to_string(),
             args: vec![HirExpr::Var("arr".to_string())],
             kwargs: vec![],
-                type_params: vec![],
-
+            type_params: vec![],
         };
 
         let result = converter.convert(&call_expr).unwrap();
@@ -2730,8 +2729,7 @@ mod tests {
             func: "range".to_string(),
             args: vec![HirExpr::Literal(Literal::Int(10))],
             kwargs: vec![],
-                type_params: vec![],
-
+            type_params: vec![],
         };
 
         let result = converter.convert(&call_expr).unwrap();
@@ -2783,8 +2781,7 @@ mod tests {
             func: "zeros".to_string(),
             args: vec![HirExpr::Literal(Literal::Int(5))],
             kwargs: vec![],
-                type_params: vec![],
-
+            type_params: vec![],
         };
 
         let result = converter.convert(&zeros_call).unwrap();
@@ -2800,8 +2797,7 @@ mod tests {
             func: "range".to_string(),
             args: vec![HirExpr::Literal(Literal::Int(1)), HirExpr::Literal(Literal::Int(10))],
             kwargs: vec![],
-                type_params: vec![],
-
+            type_params: vec![],
         };
 
         let result = converter.convert(&call_expr).unwrap();
