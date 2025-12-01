@@ -277,18 +277,9 @@ fn test_index_function_with_multiple_params() {
     assert_eq!(refs.len(), 1);
 
     let detail = refs[0].detail.as_ref().unwrap();
-    assert!(
-        detail.contains("a: Int"),
-        "Detail should contain parameter a"
-    );
-    assert!(
-        detail.contains("b: String"),
-        "Detail should contain parameter b"
-    );
-    assert!(
-        detail.contains("c: Bool"),
-        "Detail should contain parameter c"
-    );
+    assert!(detail.contains("a: Int"), "Detail should contain parameter a");
+    assert!(detail.contains("b: String"), "Detail should contain parameter b");
+    assert!(detail.contains("c: Bool"), "Detail should contain parameter c");
 }
 
 #[test]
@@ -374,10 +365,7 @@ fn test_index_field_type_annotation() {
     assert_eq!(field_refs.len(), 1);
 
     let detail = field_refs[0].detail.as_ref().unwrap();
-    assert!(
-        detail.contains("items:"),
-        "Field detail should contain name"
-    );
+    assert!(detail.contains("items:"), "Field detail should contain name");
     assert!(detail.contains("List"), "Field detail should contain type");
 }
 
@@ -481,11 +469,7 @@ fn test_find_references_none() {
     let ide = IdeIntegration::new();
 
     let refs = ide.find_references("nonexistent");
-    assert_eq!(
-        refs.len(),
-        0,
-        "Should find no references for nonexistent symbol"
-    );
+    assert_eq!(refs.len(), 0, "Should find no references for nonexistent symbol");
 }
 
 // ============================================================================
@@ -528,11 +512,7 @@ fn test_completions_empty_prefix() {
     ide.index_symbols(&module, "def func1(): pass\nclass class1: pass");
 
     let completions = ide.completions_at_position(TextSize::from(0), "");
-    assert_eq!(
-        completions.len(),
-        2,
-        "Empty prefix should return all symbols"
-    );
+    assert_eq!(completions.len(), 2, "Empty prefix should return all symbols");
 }
 
 #[test]
@@ -673,11 +653,7 @@ fn test_add_diagnostic() {
 fn test_diagnostics_retrieval() {
     let mut ide = IdeIntegration::new();
 
-    assert_eq!(
-        ide.diagnostics().len(),
-        0,
-        "Should start with no diagnostics"
-    );
+    assert_eq!(ide.diagnostics().len(), 0, "Should start with no diagnostics");
 
     let diag1 = Diagnostic {
         range: TextRange::new(TextSize::from(0), TextSize::from(10)),
@@ -888,10 +864,7 @@ fn test_symbol_boundary_position() {
 
     // At end boundary (exclusive in TextRange)
     let result = ide.symbol_at_position(TextSize::from(100));
-    assert!(
-        result.is_none(),
-        "Should not find symbol at exclusive end boundary"
-    );
+    assert!(result.is_none(), "Should not find symbol at exclusive end boundary");
 
     // Inside range
     let result = ide.symbol_at_position(TextSize::from(50));

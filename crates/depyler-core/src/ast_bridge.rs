@@ -339,10 +339,7 @@ impl AstBridge {
     fn extract_class_annotations(&self, class: &ast::StmtClassDef) -> TranspilationAnnotations {
         // Try to extract from source code comments first
         if let Some(source) = &self.source_code {
-            if let Some(annotation_text) = self
-                .annotation_extractor
-                .extract_class_annotations(source, &class.name)
-            {
+            if let Some(annotation_text) = self.annotation_extractor.extract_class_annotations(source, &class.name) {
                 if let Ok(annotations) = self.annotation_parser.parse_annotations(&annotation_text) {
                     return annotations;
                 }

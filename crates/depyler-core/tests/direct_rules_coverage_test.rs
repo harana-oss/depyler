@@ -26,10 +26,7 @@ def add_ints(a: int, b: int) -> int:
     println!("Generated int type conversion:\n{}", rust_code);
 
     // Should use i32 for Python int
-    assert!(
-        rust_code.contains("i32"),
-        "Python int should map to Rust i32"
-    );
+    assert!(rust_code.contains("i32"), "Python int should map to Rust i32");
 }
 
 #[test]
@@ -44,10 +41,7 @@ def calc_float(x: float) -> float:
     println!("Generated float type conversion:\n{}", rust_code);
 
     // Should use f64 for Python float
-    assert!(
-        rust_code.contains("f64"),
-        "Python float should map to Rust f64"
-    );
+    assert!(rust_code.contains("f64"), "Python float should map to Rust f64");
 }
 
 #[test]
@@ -62,10 +56,7 @@ def process_list(items: list[int]) -> list[int]:
     println!("Generated list type conversion:\n{}", rust_code);
 
     // Should use Vec for Python list
-    assert!(
-        rust_code.contains("Vec"),
-        "Python list should map to Rust Vec"
-    );
+    assert!(rust_code.contains("Vec"), "Python list should map to Rust Vec");
 }
 
 #[test]
@@ -80,10 +71,7 @@ def process_dict(data: dict[str, int]) -> dict[str, int]:
     println!("Generated dict type conversion:\n{}", rust_code);
 
     // Should use HashMap for Python dict
-    assert!(
-        rust_code.contains("HashMap"),
-        "Python dict should map to Rust HashMap"
-    );
+    assert!(rust_code.contains("HashMap"), "Python dict should map to Rust HashMap");
 }
 
 // ============================================================================
@@ -454,14 +442,8 @@ class Point:
         rust_code.contains("derive"),
         "Generated struct should have derive attribute"
     );
-    assert!(
-        rust_code.contains("Debug"),
-        "Generated struct should derive Debug"
-    );
-    assert!(
-        rust_code.contains("Clone"),
-        "Generated struct should derive Clone"
-    );
+    assert!(rust_code.contains("Debug"), "Generated struct should derive Debug");
+    assert!(rust_code.contains("Clone"), "Generated struct should derive Clone");
 }
 
 #[test]
@@ -469,6 +451,7 @@ fn test_class_additional_derives_annotation() {
     let pipeline = DepylerPipeline::new();
     let python_code = r#"
 # @depyler: additional_derives = "Serialize, Deserialize, Hash"
+@dataclass
 class User:
     def __init__(self, name: str, email: str):
         self.name = name
@@ -479,14 +462,8 @@ class User:
     println!("Generated struct with additional derives:\n{}", rust_code);
 
     // Should contain default derives
-    assert!(
-        rust_code.contains("Debug"),
-        "Generated struct should derive Debug"
-    );
-    assert!(
-        rust_code.contains("Clone"),
-        "Generated struct should derive Clone"
-    );
+    assert!(rust_code.contains("Debug"), "Generated struct should derive Debug");
+    assert!(rust_code.contains("Clone"), "Generated struct should derive Clone");
 
     // Should contain additional derives from annotation
     assert!(
@@ -581,8 +558,5 @@ class Item:
     );
 
     // Hash should be present
-    assert!(
-        rust_code.contains("Hash"),
-        "Generated struct should derive Hash"
-    );
+    assert!(rust_code.contains("Hash"), "Generated struct should derive Hash");
 }

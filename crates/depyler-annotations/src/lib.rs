@@ -291,8 +291,7 @@ impl AnnotationValidator {
         if annotations.string_strategy == StringStrategy::ZeroCopy
             && annotations.ownership_model == OwnershipModel::Owned
         {
-            errors
-                .push("Zero-copy string strategy conflicts with owned ownership model".to_string());
+            errors.push("Zero-copy string strategy conflicts with owned ownership model".to_string());
         }
 
         if annotations.thread_safety == ThreadSafety::Required
@@ -310,16 +309,10 @@ impl AnnotationValidator {
         if annotations.optimization_level == OptimizationLevel::Aggressive
             && annotations.bounds_checking == BoundsChecking::Explicit
         {
-            errors.push(
-                "Aggressive optimization may conflict with explicit bounds checking".to_string(),
-            );
+            errors.push("Aggressive optimization may conflict with explicit bounds checking".to_string());
         }
 
-        if errors.is_empty() {
-            Ok(())
-        } else {
-            Err(errors)
-        }
+        if errors.is_empty() { Ok(()) } else { Err(errors) }
     }
 
     pub fn suggest_improvements(&self, annotations: &TranspilationAnnotations) -> Vec<String> {
@@ -330,17 +323,13 @@ impl AnnotationValidator {
             .contains(&PerformanceHint::PerformanceCritical)
             && annotations.optimization_level != OptimizationLevel::Aggressive
         {
-            suggestions.push(
-                "Consider using optimization_level = \"aggressive\" for performance critical code"
-                    .to_string(),
-            );
+            suggestions
+                .push("Consider using optimization_level = \"aggressive\" for performance critical code".to_string());
         }
 
-        if annotations.thread_safety == ThreadSafety::Required
-            && annotations.ownership_model != OwnershipModel::Shared
+        if annotations.thread_safety == ThreadSafety::Required && annotations.ownership_model != OwnershipModel::Shared
         {
-            suggestions
-                .push("Consider using ownership = \"shared\" for thread-safe code".to_string());
+            suggestions.push("Consider using ownership = \"shared\" for thread-safe code".to_string());
         }
 
         if annotations.service_type == Some(ServiceType::WebApi)
@@ -348,8 +337,7 @@ impl AnnotationValidator {
                 .performance_hints
                 .contains(&PerformanceHint::OptimizeForLatency)
         {
-            suggestions
-                .push("Consider adding optimization_hint = \"latency\" for web APIs".to_string());
+            suggestions.push("Consider adding optimization_hint = \"latency\" for web APIs".to_string());
         }
 
         suggestions
@@ -381,11 +369,7 @@ impl AnnotationExtractor {
     /// # Panics
     ///
     /// Panics if regex patterns fail to match (should not happen with valid regex).
-    pub fn extract_function_annotations(
-        &self,
-        source: &str,
-        function_name: &str,
-    ) -> Option<String> {
+    pub fn extract_function_annotations(&self, source: &str, function_name: &str) -> Option<String> {
         let lines: Vec<&str> = source.lines().collect();
 
         for (i, line) in lines.iter().enumerate() {
@@ -395,8 +379,7 @@ impl AnnotationExtractor {
                     let mut annotations = Vec::new();
                     let mut j = i.saturating_sub(1);
 
-                    while j < i && (lines[j].trim().starts_with('#') || lines[j].trim().is_empty())
-                    {
+                    while j < i && (lines[j].trim().starts_with('#') || lines[j].trim().is_empty()) {
                         if lines[j].contains("@depyler:") {
                             annotations.push(lines[j]);
                         }
@@ -427,19 +410,25 @@ impl AnnotationExtractor {
         for (i, line) in lines.iter().enumerate() {
             if let Some(captures) = self.class_pattern.captures(line) {
                 if captures.get(1).unwrap().as_str() == class_name {
-                    // Collect annotations above the class
+                    // Collect annotations above the class (may be above decorators)
                     let mut annotations = Vec::new();
                     let mut j = i.saturating_sub(1);
 
-                    while j < i && (lines[j].trim().starts_with('#') || lines[j].trim().is_empty())
-                    {
-                        if lines[j].contains("@depyler:") {
-                            annotations.push(lines[j]);
-                        }
-                        if j == 0 {
+                    // Walk backwards through comments, empty lines, and decorators
+                    while j < i {
+                        let trimmed = lines[j].trim();
+                        if trimmed.starts_with('#') || trimmed.is_empty() || trimmed.starts_with('@') {
+                            if trimmed.contains("@depyler:") {
+                                annotations.push(lines[j]);
+                            }
+                            if j == 0 {
+                                break;
+                            }
+                            j = j.saturating_sub(1);
+                        } else {
+                            // Hit a non-comment, non-empty, non-decorator line - stop
                             break;
                         }
-                        j = j.saturating_sub(1);
                     }
 
                     if !annotations.is_empty() {
@@ -468,7 +457,8 @@ impl AnnotationParser {
     pub fn new() -> Self {
         let pattern =
             // This regex is statically known to be valid
-            Regex::new(r"#\s*@depyler:\s*(\w+)\s*=\s*(.+)")
+            // Match both comment-style (# @depyler:) and docstring-style (@depyler:) annotations
+            Regex::new(r"(?:#\s*)?@depyler:\s*(\w+)\s*=\s*(.+)")
                 .unwrap_or_else(|e| panic!("Failed to compile annotation regex: {e}"));
         Self { pattern }
     }
@@ -482,10 +472,7 @@ impl AnnotationParser {
     /// # Panics
     ///
     /// Panics if the regex fails to capture groups (should not happen with valid regex).
-    pub fn parse_annotations(
-        &self,
-        source: &str,
-    ) -> Result<TranspilationAnnotations, AnnotationError> {
+    pub fn parse_annotations(&self, source: &str) -> Result<TranspilationAnnotations, AnnotationError> {
         let mut annotations = TranspilationAnnotations::default();
         let mut parsed_values: HashMap<String, String> = HashMap::new();
 
@@ -541,11 +528,7 @@ impl AnnotationParser {
                 }
 
                 // Optimization annotations (5)
-                "optimization_level"
-                | "performance_critical"
-                | "vectorize"
-                | "unroll_loops"
-                | "optimization_hint" => {
+                "optimization_level" | "performance_critical" | "vectorize" | "unroll_loops" | "optimization_hint" => {
                     self.apply_optimization_annotation(annotations, &key, &value)?;
                 }
 
@@ -641,16 +624,12 @@ impl AnnotationParser {
             }
             "performance_critical" => {
                 if value == "true" {
-                    annotations
-                        .performance_hints
-                        .push(PerformanceHint::PerformanceCritical);
+                    annotations.performance_hints.push(PerformanceHint::PerformanceCritical);
                 }
             }
             "vectorize" => {
                 if value == "true" {
-                    annotations
-                        .performance_hints
-                        .push(PerformanceHint::Vectorize);
+                    annotations.performance_hints.push(PerformanceHint::Vectorize);
                 }
             }
             "unroll_loops" => {
@@ -658,9 +637,7 @@ impl AnnotationParser {
                     key: key.to_string(),
                     value: value.to_string(),
                 })?;
-                annotations
-                    .performance_hints
-                    .push(PerformanceHint::UnrollLoops(count));
+                annotations.performance_hints.push(PerformanceHint::UnrollLoops(count));
             }
             "optimization_hint" => {
                 self.apply_optimization_hint(annotations, value)?;
@@ -678,12 +655,8 @@ impl AnnotationParser {
         value: &str,
     ) -> Result<(), AnnotationError> {
         match value {
-            "vectorize" => annotations
-                .performance_hints
-                .push(PerformanceHint::Vectorize),
-            "latency" => annotations
-                .performance_hints
-                .push(PerformanceHint::OptimizeForLatency),
+            "vectorize" => annotations.performance_hints.push(PerformanceHint::Vectorize),
+            "latency" => annotations.performance_hints.push(PerformanceHint::OptimizeForLatency),
             "throughput" => annotations
                 .performance_hints
                 .push(PerformanceHint::OptimizeForThroughput),
@@ -694,7 +667,7 @@ impl AnnotationParser {
                 return Err(AnnotationError::InvalidValue {
                     key: "optimization_hint".to_string(),
                     value: value.to_string(),
-                })
+                });
             }
         }
         Ok(())
@@ -836,10 +809,7 @@ impl AnnotationParser {
             "lambda_runtime" | "event_type" | "architecture" => {
                 self.apply_lambda_config(lambda_annotations, key, value)?;
             }
-            "cold_start_optimize"
-            | "batch_failure_reporting"
-            | "custom_serialization"
-            | "tracing" => {
+            "cold_start_optimize" | "batch_failure_reporting" | "custom_serialization" | "tracing" => {
                 self.apply_lambda_flags(lambda_annotations, key, value);
             }
             "memory_size" | "timeout" => {
@@ -875,12 +845,7 @@ impl AnnotationParser {
 
     /// Apply lambda feature flags (cold_start_optimize, batch_failure_reporting, custom_serialization, tracing)
     #[inline]
-    fn apply_lambda_flags(
-        &self,
-        lambda_annotations: &mut LambdaAnnotations,
-        key: &str,
-        value: &str,
-    ) {
+    fn apply_lambda_flags(&self, lambda_annotations: &mut LambdaAnnotations, key: &str, value: &str) {
         match key {
             "cold_start_optimize" => {
                 lambda_annotations.cold_start_optimize = value == "true";
@@ -908,18 +873,16 @@ impl AnnotationParser {
     ) -> Result<(), AnnotationError> {
         match key {
             "memory_size" => {
-                lambda_annotations.memory_size =
-                    value.parse().map_err(|_| AnnotationError::InvalidValue {
-                        key: key.to_string(),
-                        value: value.to_string(),
-                    })?;
+                lambda_annotations.memory_size = value.parse().map_err(|_| AnnotationError::InvalidValue {
+                    key: key.to_string(),
+                    value: value.to_string(),
+                })?;
             }
             "timeout" => {
-                lambda_annotations.timeout =
-                    Some(value.parse().map_err(|_| AnnotationError::InvalidValue {
-                        key: key.to_string(),
-                        value: value.to_string(),
-                    })?);
+                lambda_annotations.timeout = Some(value.parse().map_err(|_| AnnotationError::InvalidValue {
+                    key: key.to_string(),
+                    value: value.to_string(),
+                })?);
             }
             _ => unreachable!("apply_lambda_numeric called with non-numeric key"),
         }
@@ -1009,10 +972,7 @@ impl AnnotationParser {
         }
     }
 
-    fn parse_interior_mutability(
-        &self,
-        value: &str,
-    ) -> Result<InteriorMutability, AnnotationError> {
+    fn parse_interior_mutability(&self, value: &str) -> Result<InteriorMutability, AnnotationError> {
         match value {
             "none" => Ok(InteriorMutability::None),
             "arc_mutex" => Ok(InteriorMutability::ArcMutex),
@@ -1129,10 +1089,7 @@ impl AnnotationParser {
         }
     }
 
-    fn parse_compatibility_layer(
-        &self,
-        value: &str,
-    ) -> Result<CompatibilityLayer, AnnotationError> {
+    fn parse_compatibility_layer(&self, value: &str) -> Result<CompatibilityLayer, AnnotationError> {
         match value {
             "pyo3" => Ok(CompatibilityLayer::PyO3),
             "ctypes" => Ok(CompatibilityLayer::CTypes),
@@ -1156,11 +1113,10 @@ impl AnnotationParser {
         // Quick path for common types
         let event_type = match value {
             "auto" => LambdaEventType::Auto,
-            "S3Event" | "SqsEvent" | "SnsEvent" | "DynamodbEvent" | "CloudwatchEvent"
-            | "KinesisEvent" => self.parse_aws_service_event(value),
-            "APIGatewayProxyRequest" | "APIGatewayV2HttpRequest" => {
-                self.parse_api_gateway_event(value)
+            "S3Event" | "SqsEvent" | "SnsEvent" | "DynamodbEvent" | "CloudwatchEvent" | "KinesisEvent" => {
+                self.parse_aws_service_event(value)
             }
+            "APIGatewayProxyRequest" | "APIGatewayV2HttpRequest" => self.parse_api_gateway_event(value),
             _ => self.parse_custom_event_type(value),
         };
         Ok(event_type)
@@ -1246,15 +1202,13 @@ def fast_function():
         "#;
 
         let annotations = parser.parse_annotations(source).unwrap();
-        assert!(annotations
-            .performance_hints
-            .contains(&PerformanceHint::PerformanceCritical));
-        assert!(annotations
-            .performance_hints
-            .contains(&PerformanceHint::Vectorize));
-        assert!(annotations
-            .performance_hints
-            .contains(&PerformanceHint::UnrollLoops(4)));
+        assert!(
+            annotations
+                .performance_hints
+                .contains(&PerformanceHint::PerformanceCritical)
+        );
+        assert!(annotations.performance_hints.contains(&PerformanceHint::Vectorize));
+        assert!(annotations.performance_hints.contains(&PerformanceHint::UnrollLoops(4)));
     }
 
     #[test]
@@ -1297,10 +1251,7 @@ def thread_safe_function():
 
         let annotations = parser.parse_annotations(source).unwrap();
         assert_eq!(annotations.thread_safety, ThreadSafety::Required);
-        assert_eq!(
-            annotations.interior_mutability,
-            InteriorMutability::ArcMutex
-        );
+        assert_eq!(annotations.interior_mutability, InteriorMutability::ArcMutex);
     }
 
     #[test]
@@ -1349,13 +1300,8 @@ def optimized_function():
         "#;
 
         let annotations = parser.parse_annotations(source).unwrap();
-        assert!(annotations
-            .performance_hints
-            .contains(&PerformanceHint::Vectorize));
-        assert_eq!(
-            annotations.optimization_level,
-            OptimizationLevel::Aggressive
-        );
+        assert!(annotations.performance_hints.contains(&PerformanceHint::Vectorize));
+        assert_eq!(annotations.optimization_level, OptimizationLevel::Aggressive);
     }
 
     #[test]
@@ -1401,14 +1347,8 @@ def service_function():
 
         let annotations = parser.parse_annotations(source).unwrap();
         assert_eq!(annotations.service_type, Some(ServiceType::WebApi));
-        assert_eq!(
-            annotations.migration_strategy,
-            Some(MigrationStrategy::Incremental)
-        );
-        assert_eq!(
-            annotations.compatibility_layer,
-            Some(CompatibilityLayer::PyO3)
-        );
+        assert_eq!(annotations.migration_strategy, Some(MigrationStrategy::Incremental));
+        assert_eq!(annotations.compatibility_layer, Some(CompatibilityLayer::PyO3));
     }
 
     #[test]
@@ -1424,9 +1364,7 @@ def verified_function():
 
         let annotations = parser.parse_annotations(source).unwrap();
         assert_eq!(annotations.termination, Termination::Proven);
-        assert!(annotations
-            .invariants
-            .contains(&"left <= right".to_string()));
+        assert!(annotations.invariants.contains(&"left <= right".to_string()));
         assert!(annotations.verify_bounds);
     }
 
@@ -1498,9 +1436,7 @@ def handler(event, context):
         let lambda_annotations = annotations.lambda_annotations.unwrap();
         assert_eq!(
             lambda_annotations.event_type,
-            Some(LambdaEventType::EventBridgeEvent(Some(
-                "OrderEvent".to_string()
-            )))
+            Some(LambdaEventType::EventBridgeEvent(Some("OrderEvent".to_string())))
         );
         assert!(lambda_annotations.custom_serialization);
     }
@@ -1518,10 +1454,7 @@ def handler(event, context):
 
         let annotations = parser.parse_annotations(source).unwrap();
         let lambda_annotations = annotations.lambda_annotations.unwrap();
-        assert_eq!(
-            lambda_annotations.event_type,
-            Some(LambdaEventType::SqsEvent)
-        );
+        assert_eq!(lambda_annotations.event_type, Some(LambdaEventType::SqsEvent));
         assert!(lambda_annotations.batch_failure_reporting);
         assert!(lambda_annotations.tracing_enabled);
     }
@@ -1603,15 +1536,14 @@ def hot_function():
         "#;
 
         let annotations = parser.parse_annotations(source).unwrap();
-        assert_eq!(
-            annotations.optimization_level,
-            OptimizationLevel::Aggressive
-        );
+        assert_eq!(annotations.optimization_level, OptimizationLevel::Aggressive);
         assert_eq!(annotations.custom_attributes.len(), 1);
         assert_eq!(annotations.custom_attributes[0], "inline(always)");
-        assert!(annotations
-            .performance_hints
-            .contains(&PerformanceHint::PerformanceCritical));
+        assert!(
+            annotations
+                .performance_hints
+                .contains(&PerformanceHint::PerformanceCritical)
+        );
     }
 
     #[test]
