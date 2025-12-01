@@ -431,3 +431,158 @@ class Counter:
         );
     }
 }
+
+// ============================================================================
+// ADDITIONAL DERIVES TESTS
+// ============================================================================
+
+#[test]
+fn test_class_default_derives() {
+    let pipeline = DepylerPipeline::new();
+    let python_code = r#"
+class Point:
+    def __init__(self, x: int, y: int):
+        self.x = x
+        self.y = y
+"#;
+
+    let rust_code = pipeline.transpile(python_code).unwrap();
+    println!("Generated struct with default derives:\n{}", rust_code);
+
+    // Should contain default derives
+    assert!(
+        rust_code.contains("derive"),
+        "Generated struct should have derive attribute"
+    );
+    assert!(
+        rust_code.contains("Debug"),
+        "Generated struct should derive Debug"
+    );
+    assert!(
+        rust_code.contains("Clone"),
+        "Generated struct should derive Clone"
+    );
+}
+
+#[test]
+fn test_class_additional_derives_annotation() {
+    let pipeline = DepylerPipeline::new();
+    let python_code = r#"
+# @depyler: additional_derives = "Serialize, Deserialize, Hash"
+class User:
+    def __init__(self, name: str, email: str):
+        self.name = name
+        self.email = email
+"#;
+
+    let rust_code = pipeline.transpile(python_code).unwrap();
+    println!("Generated struct with additional derives:\n{}", rust_code);
+
+    // Should contain default derives
+    assert!(
+        rust_code.contains("Debug"),
+        "Generated struct should derive Debug"
+    );
+    assert!(
+        rust_code.contains("Clone"),
+        "Generated struct should derive Clone"
+    );
+
+    // Should contain additional derives from annotation
+    assert!(
+        rust_code.contains("Serialize"),
+        "Generated struct should derive Serialize from annotation"
+    );
+    assert!(
+        rust_code.contains("Deserialize"),
+        "Generated struct should derive Deserialize from annotation"
+    );
+    assert!(
+        rust_code.contains("Hash"),
+        "Generated struct should derive Hash from annotation"
+    );
+}
+
+#[test]
+fn test_class_single_additional_derive() {
+    let pipeline = DepylerPipeline::new();
+    let python_code = r#"
+# @depyler: additional_derives = "Eq"
+class Counter:
+    def __init__(self, value: int):
+        self.value = value
+"#;
+
+    let rust_code = pipeline.transpile(python_code).unwrap();
+    println!("Generated struct with single additional derive:\n{}", rust_code);
+
+    assert!(
+        rust_code.contains("Eq"),
+        "Generated struct should derive Eq from annotation"
+    );
+}
+
+#[test]
+fn test_class_additional_derives_in_docstring() {
+    let pipeline = DepylerPipeline::new();
+    let python_code = r#"
+class Config:
+    """
+    Configuration class for the application.
+    
+    @depyler: additional_derives = "Default, Copy"
+    """
+    def __init__(self, timeout: int, retries: int):
+        self.timeout = timeout
+        self.retries = retries
+"#;
+
+    let rust_code = pipeline.transpile(python_code).unwrap();
+    println!("Generated struct with derives from docstring:\n{}", rust_code);
+
+    // Should contain additional derives from docstring annotation
+    assert!(
+        rust_code.contains("Default"),
+        "Generated struct should derive Default from docstring annotation"
+    );
+    assert!(
+        rust_code.contains("Copy"),
+        "Generated struct should derive Copy from docstring annotation"
+    );
+}
+
+#[test]
+fn test_additional_derives_no_duplicates() {
+    let pipeline = DepylerPipeline::new();
+    let python_code = r#"
+# @depyler: additional_derives = "Debug, Clone, Hash"
+class Item:
+    def __init__(self, id: int):
+        self.id = id
+"#;
+
+    let rust_code = pipeline.transpile(python_code).unwrap();
+    println!("Generated struct (checking no duplicates):\n{}", rust_code);
+
+    // Count occurrences of Debug - should only appear once
+    let debug_count = rust_code.matches("Debug").count();
+    assert_eq!(
+        debug_count, 1,
+        "Debug should appear exactly once (no duplicates), found {} times",
+        debug_count
+    );
+
+    // Count occurrences of Clone - should only appear once
+    let clone_count = rust_code.matches("Clone").count();
+    assert_eq!(
+        clone_count, 1,
+        "Clone should appear exactly once (no duplicates), found {} times",
+        clone_count
+    );
+
+    // Hash should be present
+    assert!(
+        rust_code.contains("Hash"),
+        "Generated struct should derive Hash"
+    );
+}

@@ -341,7 +341,7 @@ impl AstBridge {
         if let Some(source) = &self.source_code {
             if let Some(annotation_text) = self
                 .annotation_extractor
-                .extract_function_annotations(source, &class.name)
+                .extract_class_annotations(source, &class.name)
             {
                 if let Ok(annotations) = self.annotation_parser.parse_annotations(&annotation_text) {
                     return annotations;
