@@ -256,6 +256,36 @@ fn convert_protocol_to_trait(protocol: &Protocol, type_mapper: &TypeMapper) -> R
     }))
 }
 
+/// Build derive attributes for a struct, combining default derives with additional derives from annotations.
+fn build_derive_attributes(class: &HirClass) -> Vec<syn::Attribute> {
+    // Start with base derives depending on whether it's a dataclass
+    let mut derives: Vec<String> = if class.is_dataclass {
+        vec![
+            "Debug".to_string(),
+            "Clone".to_string(),
+            "PartialEq".to_string(),
+            "Default".to_string(),
+        ]
+    } else {
+        vec!["Debug".to_string(), "Clone".to_string()]
+    };
+
+    // Add additional derives from annotations (avoiding duplicates)
+    for derive in &class.annotations.additional_derives {
+        if !derives.iter().any(|d| d == derive) {
+            derives.push(derive.clone());
+        }
+    }
+
+    // Build the derive attribute
+    let derive_idents: Vec<syn::Ident> = derives
+        .iter()
+        .map(|d| syn::Ident::new(d, proc_macro2::Span::call_site()))
+        .collect();
+
+    vec![parse_quote! { #[derive(#(#derive_idents),*)] }]
+}
+
 /// Convert a HIR class to Rust struct and impl blocks
 ///
 /// This function transforms a Python-like class in HIR representation
@@ -276,6 +306,7 @@ fn convert_protocol_to_trait(protocol: &Protocol, type_mapper: &TypeMapper) -> R
 /// use depyler_core::hir::*;
 /// use depyler_core::direct_rules::convert_class_to_struct;
 /// use depyler_core::type_mapper::TypeMapper;
+/// use depyler_annotations::TranspilationAnnotations;
 /// use smallvec::smallvec;
 ///
 /// let class = HirClass {
@@ -298,6 +329,7 @@ fn convert_protocol_to_trait(protocol: &Protocol, type_mapper: &TypeMapper) -> R
 ///     methods: vec![],
 ///     is_dataclass: true,
 ///     docstring: Some("A 2D point".to_string()),
+///     annotations: TranspilationAnnotations::default(),
 /// };
 ///
 /// let type_mapper = TypeMapper::new();
@@ -328,13 +360,12 @@ pub fn convert_class_to_struct(class: &HirClass, type_mapper: &TypeMapper) -> Re
         });
     }
 
+    // Build derive attributes including any additional derives from annotations
+    let derive_attrs = build_derive_attributes(class);
+
     // Create the struct
     let struct_item = syn::Item::Struct(syn::ItemStruct {
-        attrs: if class.is_dataclass {
-            vec![parse_quote! { #[derive(Debug, Clone, PartialEq, Default)] }]
-        } else {
-            vec![parse_quote! { #[derive(Debug, Clone)] }]
-        },
+        attrs: derive_attrs,
         vis: syn::Visibility::Public(syn::Token![pub](proc_macro2::Span::call_site())),
         struct_token: syn::Token![struct](proc_macro2::Span::call_site()),
         ident: struct_name.clone(),

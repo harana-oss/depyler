@@ -336,6 +336,33 @@ impl AstBridge {
         TranspilationAnnotations::default()
     }
 
+    fn extract_class_annotations(&self, class: &ast::StmtClassDef) -> TranspilationAnnotations {
+        // Try to extract from source code comments first
+        if let Some(source) = &self.source_code {
+            if let Some(annotation_text) = self
+                .annotation_extractor
+                .extract_function_annotations(source, &class.name)
+            {
+                if let Ok(annotations) = self.annotation_parser.parse_annotations(&annotation_text) {
+                    return annotations;
+                }
+            }
+        }
+
+        // Fallback: Try to extract from docstring if present
+        if let Some(ast::Stmt::Expr(expr)) = class.body.first() {
+            if let ast::Expr::Constant(constant) = expr.value.as_ref() {
+                if let ast::Constant::Str(docstring) = &constant.value {
+                    if let Ok(annotations) = self.annotation_parser.parse_annotations(docstring) {
+                        return annotations;
+                    }
+                }
+            }
+        }
+
+        TranspilationAnnotations::default()
+    }
+
     fn try_convert_type_alias(&self, assign: &ast::StmtAssign) -> Result<Option<TypeAlias>> {
         // Look for patterns like: UserId = int or UserId = NewType('UserId', int)
         if assign.targets.len() != 1 {
@@ -554,6 +581,9 @@ impl AstBridge {
         // Extract docstring if present
         let docstring = self.extract_class_docstring(&class.body);
 
+        // Extract class annotations (from docstring or source comments)
+        let annotations = self.extract_class_annotations(class);
+
         // Check if it's a dataclass
         let is_dataclass = class.decorator_list.iter().any(|d| {
             matches!(d, ast::Expr::Name(n) if n.id.as_str() == "dataclass")
@@ -678,6 +708,7 @@ impl AstBridge {
             fields,
             is_dataclass,
             docstring,
+            annotations,
         }))
     }
 

@@ -293,6 +293,7 @@ pub struct HirClass {
     pub fields: Vec<HirField>,
     pub is_dataclass: bool,
     pub docstring: Option<String>,
+    pub annotations: TranspilationAnnotations,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

@@ -1,5 +1,6 @@
 #[cfg(test)]
 mod tests {
+    use depyler_annotations::TranspilationAnnotations;
     use depyler_core::direct_rules::apply_rules;
     use depyler_core::hir::*;
     use depyler_core::type_mapper::TypeMapper;
@@ -89,6 +90,7 @@ mod tests {
             fields: vec![],
             is_dataclass: false,
             docstring: None,
+            annotations: TranspilationAnnotations::default(),
         });
 
         let type_mapper = TypeMapper::new();
@@ -112,6 +114,7 @@ mod tests {
             }],
             is_dataclass: true,
             docstring: None,
+            annotations: TranspilationAnnotations::default(),
         });
 
         let type_mapper = TypeMapper::new();
@@ -279,6 +282,7 @@ mod tests {
             fields: vec![],
             is_dataclass: false,
             docstring: None,
+            annotations: TranspilationAnnotations::default(),
         });
 
         let type_mapper = TypeMapper::new();

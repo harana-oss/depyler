@@ -472,6 +472,7 @@ impl DocGenerator {
 mod tests {
     use super::*;
     use crate::hir::*;
+    use depyler_annotations::TranspilationAnnotations;
     use smallvec::smallvec;
 
     fn create_test_function(name: &str) -> HirFunction {
@@ -606,6 +607,7 @@ mod tests {
             base_classes: vec![],
             is_dataclass: false,
             docstring: Some("A test class.".to_string()),
+            annotations: TranspilationAnnotations::default(),
         };
 
         let module = HirModule {

@@ -42,6 +42,8 @@ pub struct TranspilationAnnotations {
     // Lambda-specific annotations
     pub lambda_annotations: Option<LambdaAnnotations>,
     pub custom_attributes: Vec<String>,
+    /// Additional derive macros to add to generated structs (e.g., "Serialize", "Hash")
+    pub additional_derives: Vec<String>,
 }
 
 impl Default for TranspilationAnnotations {
@@ -70,6 +72,7 @@ impl Default for TranspilationAnnotations {
             pattern: None,
             lambda_annotations: None,
             custom_attributes: Vec::new(),
+            additional_derives: Vec::new(),
         }
     }
 }
@@ -494,6 +497,14 @@ impl AnnotationParser {
                 // Special handling for custom_attribute - accumulate instead of replace
                 if key == "custom_attribute" {
                     annotations.custom_attributes.push(value.to_string());
+                } else if key == "additional_derives" {
+                    // Parse comma-separated derives and accumulate
+                    for derive in value.split(',') {
+                        let derive = derive.trim();
+                        if !derive.is_empty() {
+                            annotations.additional_derives.push(derive.to_string());
+                        }
+                    }
                 } else {
                     parsed_values.insert(key, value.to_string());
                 }
@@ -1613,5 +1624,63 @@ def my_function():
 
         let annotations = parser.parse_annotations(source).unwrap();
         assert_eq!(annotations.custom_attributes.len(), 0);
+    }
+
+    #[test]
+    fn test_additional_derives_single() {
+        let parser = AnnotationParser::new();
+        let source = r#"
+# @depyler: additional_derives = "Serialize"
+class MyClass:
+    pass
+        "#;
+
+        let annotations = parser.parse_annotations(source).unwrap();
+        assert_eq!(annotations.additional_derives.len(), 1);
+        assert_eq!(annotations.additional_derives[0], "Serialize");
+    }
+
+    #[test]
+    fn test_additional_derives_comma_separated() {
+        let parser = AnnotationParser::new();
+        let source = r#"
+# @depyler: additional_derives = "Serialize, Deserialize, Hash"
+class MyClass:
+    pass
+        "#;
+
+        let annotations = parser.parse_annotations(source).unwrap();
+        assert_eq!(annotations.additional_derives.len(), 3);
+        assert_eq!(annotations.additional_derives[0], "Serialize");
+        assert_eq!(annotations.additional_derives[1], "Deserialize");
+        assert_eq!(annotations.additional_derives[2], "Hash");
+    }
+
+    #[test]
+    fn test_additional_derives_multiple_lines() {
+        let parser = AnnotationParser::new();
+        let source = r#"
+# @depyler: additional_derives = "Serialize"
+# @depyler: additional_derives = "Deserialize"
+class MyClass:
+    pass
+        "#;
+
+        let annotations = parser.parse_annotations(source).unwrap();
+        assert_eq!(annotations.additional_derives.len(), 2);
+        assert_eq!(annotations.additional_derives[0], "Serialize");
+        assert_eq!(annotations.additional_derives[1], "Deserialize");
+    }
+
+    #[test]
+    fn test_additional_derives_empty() {
+        let parser = AnnotationParser::new();
+        let source = r#"
+class MyClass:
+    pass
+        "#;
+
+        let annotations = parser.parse_annotations(source).unwrap();
+        assert_eq!(annotations.additional_derives.len(), 0);
     }
 }
