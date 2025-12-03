@@ -91,6 +91,37 @@ fn apply_type_conversion(value_expr: syn::Expr, target_type: &Type) -> syn::Expr
     }
 }
 
+/// Check if an expression already returns an Optional type.
+/// Used to avoid double-wrapping in Some() when returning Optional values.
+fn expr_is_optional(expr: &HirExpr, ctx: &CodeGenContext) -> bool {
+    match expr {
+        // Variable - check its type in context
+        HirExpr::Var(name) => {
+            matches!(ctx.var_types.get(name), Some(Type::Optional(_)))
+        }
+        // Attribute access - check class field type
+        HirExpr::Attribute { value, attr } => {
+            if let HirExpr::Var(base_name) = value.as_ref() {
+                // Look up the base variable's type
+                if let Some(base_type) = ctx.var_types.get(base_name) {
+                    if let Type::Custom(class_name) = base_type {
+                        // Look up the field type in the class
+                        if let Some(fields) = ctx.class_field_types.get(class_name) {
+                            return matches!(fields.get(attr), Some(Type::Optional(_)));
+                        }
+                    }
+                }
+            }
+            false
+        }
+        // Method calls that return Optional
+        HirExpr::MethodCall { method, .. } => {
+            matches!(method.as_str(), "get")
+        }
+        _ => false,
+    }
+}
+
 // ============================================================================
 // Statement Code Generation Helpers
 // Extracted to reduce complexity of HirStmt::to_rust_tokens
@@ -421,11 +452,22 @@ pub(crate) fn codegen_return_stmt(
                     Ok(quote! { Ok(()) })
                 }
             } else if is_optional_return && !is_none_literal {
-                // Wrap value in Some() for Optional return types
-                if use_return_keyword {
-                    Ok(quote! { return Ok(Some(#expr_tokens)); })
+                // Check if expression is already Optional to avoid double-wrapping
+                let expr_already_optional = expr_is_optional(e, ctx);
+                if expr_already_optional {
+                    // Expression is already Option<T>, don't wrap in Some()
+                    if use_return_keyword {
+                        Ok(quote! { return Ok(#expr_tokens); })
+                    } else {
+                        Ok(quote! { Ok(#expr_tokens) })
+                    }
                 } else {
-                    Ok(quote! { Ok(Some(#expr_tokens)) })
+                    // Wrap value in Some() for Optional return types
+                    if use_return_keyword {
+                        Ok(quote! { return Ok(Some(#expr_tokens)); })
+                    } else {
+                        Ok(quote! { Ok(Some(#expr_tokens)) })
+                    }
                 }
             } else if is_optional_return && is_none_literal {
                 if use_return_keyword {
@@ -448,11 +490,22 @@ pub(crate) fn codegen_return_stmt(
                 Ok(quote! { () })
             }
         } else if is_optional_return && !is_none_literal {
-            // Wrap value in Some() for Optional return types
-            if use_return_keyword {
-                Ok(quote! { return Some(#expr_tokens); })
+            // Check if expression is already Optional to avoid double-wrapping
+            let expr_already_optional = expr_is_optional(e, ctx);
+            if expr_already_optional {
+                // Expression is already Option<T>, don't wrap in Some()
+                if use_return_keyword {
+                    Ok(quote! { return #expr_tokens; })
+                } else {
+                    Ok(quote! { #expr_tokens })
+                }
             } else {
-                Ok(quote! { Some(#expr_tokens) })
+                // Wrap value in Some() for Optional return types
+                if use_return_keyword {
+                    Ok(quote! { return Some(#expr_tokens); })
+                } else {
+                    Ok(quote! { Some(#expr_tokens) })
+                }
             }
         } else if is_optional_return && is_none_literal {
             if use_return_keyword {

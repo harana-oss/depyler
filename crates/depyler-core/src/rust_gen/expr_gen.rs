@@ -315,10 +315,14 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 // Slices produce Vec via .to_vec(), so slice + slice needs extend pattern
                 let is_slice_concat = matches!(left, HirExpr::Slice { .. }) || matches!(right, HirExpr::Slice { .. });
 
-                // Check if we're dealing with strings (literals or type-inferred)
+                // Check if we're dealing with strings (literals, type-inferred, or heuristic)
                 let is_definitely_string = matches!(left, HirExpr::Literal(Literal::String(_)))
                     || matches!(right, HirExpr::Literal(Literal::String(_)))
-                    || matches!(self.ctx.current_return_type, Some(Type::String));
+                    || matches!(self.ctx.current_return_type, Some(Type::String))
+                    || self.is_string_base(left)
+                    || self.is_string_base(right)
+                    || self.is_string_type_from_context(left)
+                    || self.is_string_type_from_context(right);
 
                 if (is_definitely_list || is_slice_concat || is_list_var) && !is_definitely_string {
                     // List/slice concatenation - use chain pattern for references
@@ -10022,6 +10026,49 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     || name == "text"
                     || name.ends_with("_key")
                     || name.ends_with("_name")
+            }
+            _ => false,
+        }
+    }
+
+    /// Check if expression is String type using context type information
+    fn is_string_type_from_context(&self, expr: &HirExpr) -> bool {
+        match expr {
+            HirExpr::Var(name) => {
+                // Check var_types for String type
+                self.ctx.var_types.get(name).map_or(false, |t| matches!(t, Type::String))
+            }
+            HirExpr::Attribute { value, attr } => {
+                // Check class field types for attribute access like `state.separator`
+                if let HirExpr::Var(obj_name) = value.as_ref() {
+                    // Look up object type - if it's a known class, check its field types
+                    if let Some(obj_type) = self.ctx.var_types.get(obj_name) {
+                        if let Type::Custom(class_name) = obj_type {
+                            if let Some(field_types) = self.ctx.class_field_types.get(class_name) {
+                                return field_types.get(attr).map_or(false, |t| matches!(t, Type::String));
+                            }
+                        }
+                    }
+                    // Also check if the class name matches directly
+                    for (class_name, field_types) in &self.ctx.class_field_types {
+                        if self.ctx.class_names.contains(class_name) {
+                            if let Some(t) = field_types.get(attr) {
+                                if matches!(t, Type::String) {
+                                    return true;
+                                }
+                            }
+                        }
+                    }
+                }
+                false
+            }
+            HirExpr::MethodCall { object, method, .. } => {
+                // Methods that return strings
+                let string_methods = ["clone", "to_string", "trim", "strip", "upper", "lower", "title"];
+                if string_methods.contains(&method.as_str()) {
+                    return self.is_string_type_from_context(object) || self.is_string_base(object);
+                }
+                false
             }
             _ => false,
         }

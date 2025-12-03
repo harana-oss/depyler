@@ -46,7 +46,7 @@ pub fn transpile_and_compile(python_source: &str, expected_patterns: &[&str]) ->
     compile_result
 }
 
-/// Transpiles Python source and verifies expected patterns without compiling.
+/// Transpiles Python source, verifies expected patterns, and compiles the output.
 pub fn transpile_and_check(python_source: &str, expected_patterns: &[&str]) -> String {
     let pipeline = DepylerPipeline::new();
     let result = pipeline.transpile(python_source);
@@ -62,10 +62,17 @@ pub fn transpile_and_check(python_source: &str, expected_patterns: &[&str]) -> S
         );
     }
 
+    let compile_result = compile_rust_code(&rust_code);
+    assert!(
+        compile_result.compilation_success,
+        "Rust compilation failed:\n{}\n\nGenerated code:\n{rust_code}",
+        compile_result.compilation_stderr
+    );
+
     rust_code
 }
 
-/// Transpiles Python source and verifies patterns are absent without compiling.
+/// Transpiles Python source, verifies patterns are absent, and compiles the output.
 pub fn transpile_check_absent(python_source: &str, absent_patterns: &[&str]) -> String {
     let pipeline = DepylerPipeline::new();
     let result = pipeline.transpile(python_source);
@@ -80,6 +87,13 @@ pub fn transpile_check_absent(python_source: &str, absent_patterns: &[&str]) -> 
             "Pattern should NOT appear in generated Rust code.\nPattern: {pattern}\n\nGenerated code:\n{rust_code}"
         );
     }
+
+    let compile_result = compile_rust_code(&rust_code);
+    assert!(
+        compile_result.compilation_success,
+        "Rust compilation failed:\n{}\n\nGenerated code:\n{rust_code}",
+        compile_result.compilation_stderr
+    );
 
     rust_code
 }
@@ -99,10 +113,16 @@ pub fn compile_rust_code(rust_code: &str) -> TranspileCompileResult {
     let temp_dir = TempDir::new().expect("Failed to create temp directory");
     let rust_file = temp_dir.path().join("test_output.rs");
 
+    // Only add HashMap import if not already present
+    let hashmap_import = if rust_code.contains("use std::collections::HashMap") {
+        ""
+    } else {
+        "use std::collections::HashMap;\n"
+    };
+
     let full_code = format!(
         r#"#![allow(dead_code, unused_variables, unused_mut)]
-use std::collections::HashMap;
-
+{hashmap_import}
 {rust_code}
 
 fn main() {{}}
