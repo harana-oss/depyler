@@ -2571,19 +2571,20 @@ impl<'a> ExprConverter<'a> {
                 if !arg_exprs.is_empty() {
                     bail!("strip() with arguments not supported");
                 }
-                Ok(parse_quote! { #object_expr.trim().to_string() })
+                // Just use trim() - if chained with methods like to_lowercase(), they return String
+                Ok(parse_quote! { #object_expr.trim() })
             }
             "lstrip" => {
                 if !arg_exprs.is_empty() {
                     bail!("lstrip() with arguments not supported");
                 }
-                Ok(parse_quote! { #object_expr.trim_start().to_string() })
+                Ok(parse_quote! { #object_expr.trim_start() })
             }
             "rstrip" => {
                 if !arg_exprs.is_empty() {
                     bail!("rstrip() with arguments not supported");
                 }
-                Ok(parse_quote! { #object_expr.trim_end().to_string() })
+                Ok(parse_quote! { #object_expr.trim_end() })
             }
             "startswith" => {
                 if arg_exprs.len() != 1 {
@@ -2601,10 +2602,10 @@ impl<'a> ExprConverter<'a> {
             }
             "split" => {
                 if arg_exprs.is_empty() {
-                    Ok(parse_quote! { #object_expr.split_whitespace().map(|s| s.to_string()).collect::<Vec<String>>() })
+                    Ok(parse_quote! { #object_expr.split_whitespace().map(|s| s.to_string()).collect() })
                 } else if arg_exprs.len() == 1 {
                     let sep = &arg_exprs[0];
-                    Ok(parse_quote! { #object_expr.split(#sep).map(|s| s.to_string()).collect::<Vec<String>>() })
+                    Ok(parse_quote! { #object_expr.split(#sep).map(|s| s.to_string()).collect() })
                 } else {
                     bail!("split() with maxsplit not supported");
                 }
@@ -2614,7 +2615,8 @@ impl<'a> ExprConverter<'a> {
                     bail!("join() requires exactly one argument");
                 }
                 let iterable = &arg_exprs[0];
-                Ok(parse_quote! { #iterable.join(#object_expr) })
+                // Add & for variable separators
+                Ok(parse_quote! { #iterable.join(&#object_expr) })
             }
             "replace" => {
                 if arg_exprs.len() != 2 {

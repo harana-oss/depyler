@@ -405,8 +405,8 @@ pub(crate) fn codegen_return_stmt(
         // Check if the expression is None literal
         let is_none_literal = matches!(e, HirExpr::Literal(Literal::None));
 
-        // Early returns (not final) keep the `return` keyword
-        let use_return_keyword = !ctx.is_final_statement;
+        // Always use explicit return keyword for clarity and Python-like behavior
+        let use_return_keyword = true;
 
         // Must check this BEFORE is_optional_return to avoid false positive
         // Python `-> None` maps to Rust `()`, not `Option<T>`
@@ -463,12 +463,13 @@ pub(crate) fn codegen_return_stmt(
         } else if use_return_keyword {
             Ok(quote! { return #expr_tokens; })
         } else {
-            Ok(quote! { #expr_tokens })
+            Ok(quote! { return #expr_tokens; })
         }
     } else if ctx.current_function_can_fail {
         // No expression - check if return type is Optional
         let is_optional_return = matches!(ctx.current_return_type.as_ref(), Some(Type::Optional(_)));
-        let use_return_keyword = !ctx.is_final_statement;
+        // Always use explicit return keyword
+        let use_return_keyword = true;
 
         if is_optional_return {
             if use_return_keyword {
@@ -482,7 +483,8 @@ pub(crate) fn codegen_return_stmt(
             Ok(quote! { Ok(()) })
         }
     } else {
-        let use_return_keyword = !ctx.is_final_statement;
+        // Always use explicit return keyword
+        let use_return_keyword = true;
         if use_return_keyword {
             Ok(quote! { return; })
         } else {

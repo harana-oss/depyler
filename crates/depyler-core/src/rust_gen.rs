@@ -1288,6 +1288,17 @@ pub fn generate_rust_file(
     // Extract class names from module
     let class_names: HashSet<String> = module.classes.iter().map(|class| class.name.clone()).collect();
 
+    // Extract class field types for ownership analysis
+    let mut class_field_types: std::collections::HashMap<String, std::collections::HashMap<String, crate::hir::Type>> =
+        std::collections::HashMap::new();
+    for class in &module.classes {
+        let mut field_types = std::collections::HashMap::new();
+        for field in &class.fields {
+            field_types.insert(field.name.clone(), field.field_type.clone());
+        }
+        class_field_types.insert(class.name.clone(), field_types);
+    }
+
     let mut mutating_methods: std::collections::HashMap<String, HashSet<String>> = std::collections::HashMap::new();
     for class in &module.classes {
         let mut mut_methods = HashSet::new();
@@ -1348,6 +1359,7 @@ pub fn generate_rust_file(
         generator_state_vars: HashSet::new(),
         var_types: std::collections::HashMap::new(),
         class_names,
+        class_field_types,
         mutating_methods,
         function_return_types: std::collections::HashMap::new(), // Track function return types
         function_param_borrows: std::collections::HashMap::new(), // Track parameter borrowing
@@ -1555,6 +1567,7 @@ mod tests {
             generator_state_vars: HashSet::new(),
             var_types: std::collections::HashMap::new(),
             class_names: HashSet::new(),
+            class_field_types: std::collections::HashMap::new(),
             mutating_methods: std::collections::HashMap::new(),
             function_return_types: std::collections::HashMap::new(), // Track function return types
             function_param_borrows: std::collections::HashMap::new(), // Track parameter borrowing

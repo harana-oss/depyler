@@ -277,12 +277,8 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 let is_list = self.is_list_expr(right);
 
                 // Same logic as BinOp::In, but negated
-
-                let needs_borrow = if let HirExpr::Var(var_name) = left {
-                    !matches!(self.ctx.var_types.get(var_name), Some(Type::String))
-                } else {
-                    true
-                };
+                // For string contains, always need &sub because str::contains takes &str/Pattern
+                let needs_borrow = true;
 
                 if is_string || is_set || is_list {
                     // Strings, Sets, and Lists all use .contains(&value)
@@ -8434,7 +8430,9 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 if !arg_exprs.is_empty() {
                     bail!("strip() with arguments not supported in V1");
                 }
-                Ok(parse_quote! { #object_expr.trim().to_string() })
+                // Just use trim() - if chained with methods like to_lowercase(), they return String
+                // If used standalone where String is needed, the caller handles conversion
+                Ok(parse_quote! { #object_expr.trim() })
             }
             "startswith" => {
                 if hir_args.len() != 1 {
@@ -8468,7 +8466,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             }
             "split" => {
                 if arg_exprs.is_empty() {
-                    Ok(parse_quote! { #object_expr.split_whitespace().map(|s| s.to_string()).collect::<Vec<String>>() })
+                    Ok(parse_quote! { #object_expr.split_whitespace().map(|s| s.to_string()).collect() })
                 } else if arg_exprs.len() == 1 {
                     // For variables, add & to satisfy Pattern trait bound
                     let sep: syn::Expr = match &hir_args[0] {
@@ -8478,7 +8476,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                             parse_quote! { &#arg }
                         }
                     };
-                    Ok(parse_quote! { #object_expr.split(#sep).map(|s| s.to_string()).collect::<Vec<String>>() })
+                    Ok(parse_quote! { #object_expr.split(#sep).map(|s| s.to_string()).collect() })
                 } else {
                     bail!("split() with maxsplit not supported in V1");
                 }
@@ -8489,10 +8487,10 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     bail!("join() requires exactly one argument");
                 }
                 let iterable = &arg_exprs[0];
-                // Extract bare string literal for separator
-                let separator = match hir_object {
+                // Extract bare string literal for separator, add & for variables
+                let separator: syn::Expr = match hir_object {
                     HirExpr::Literal(Literal::String(s)) => parse_quote! { #s },
-                    _ => object_expr.clone(),
+                    _ => parse_quote! { &#object_expr },
                 };
                 Ok(parse_quote! { #iterable.join(#separator) })
             }
@@ -8592,13 +8590,13 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 if !arg_exprs.is_empty() {
                     bail!("lstrip() with arguments not supported in V1");
                 }
-                Ok(parse_quote! { #object_expr.trim_start().to_string() })
+                Ok(parse_quote! { #object_expr.trim_start() })
             }
             "rstrip" => {
                 if !arg_exprs.is_empty() {
                     bail!("rstrip() with arguments not supported in V1");
                 }
-                Ok(parse_quote! { #object_expr.trim_end().to_string() })
+                Ok(parse_quote! { #object_expr.trim_end() })
             }
             "isalnum" => {
                 if !arg_exprs.is_empty() {
@@ -10646,9 +10644,37 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     }
 
     fn convert_tuple(&mut self, elts: &[HirExpr]) -> Result<syn::Expr> {
+        // Track variable names to detect duplicates that need cloning
+        let mut var_occurrences: std::collections::HashMap<String, Vec<usize>> =
+            std::collections::HashMap::new();
+        for (idx, elt) in elts.iter().enumerate() {
+            if let HirExpr::Var(name) = elt {
+                var_occurrences.entry(name.clone()).or_default().push(idx);
+            }
+        }
+
+        // Find variables that appear more than once - all but last need clone
+        let mut needs_clone_at: std::collections::HashSet<usize> = std::collections::HashSet::new();
+        for indices in var_occurrences.values() {
+            if indices.len() > 1 {
+                // Clone all but the last occurrence
+                for &idx in &indices[..indices.len() - 1] {
+                    needs_clone_at.insert(idx);
+                }
+            }
+        }
+
         let elt_exprs: Vec<syn::Expr> = elts
             .iter()
-            .map(|e| e.to_rust_expr(self.ctx))
+            .enumerate()
+            .map(|(idx, e)| {
+                let expr = e.to_rust_expr(self.ctx)?;
+                if needs_clone_at.contains(&idx) {
+                    Ok(parse_quote! { #expr.clone() })
+                } else {
+                    Ok(expr)
+                }
+            })
             .collect::<Result<Vec<_>>>()?;
         Ok(parse_quote! { (#(#elt_exprs),*) })
     }
@@ -10962,7 +10988,75 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         } else {
             syn::Ident::new(attr, proc_macro2::Span::call_site())
         };
-        Ok(parse_quote! { #value_expr.#attr_ident })
+
+        // Check if field is a String type and needs cloning
+        // When accessing a String field through a reference, we need .clone() to get an owned String
+        let needs_clone = self.field_needs_clone(value, attr);
+
+        if needs_clone {
+            Ok(parse_quote! { #value_expr.#attr_ident.clone() })
+        } else {
+            Ok(parse_quote! { #value_expr.#attr_ident })
+        }
+    }
+
+    /// Check if a field access needs .clone() based on the field type
+    fn field_needs_clone(&self, value: &HirExpr, attr: &str) -> bool {
+        // Get the class name from the value expression
+        let class_name = match value {
+            HirExpr::Var(var_name) => {
+                // Check if the variable is of a Custom type (struct)
+                if let Some(Type::Custom(name)) = self.ctx.var_types.get(var_name) {
+                    Some(name.clone())
+                } else {
+                    None
+                }
+            }
+            HirExpr::Attribute {
+                value: inner_value,
+                attr: inner_attr,
+            } => {
+                // Nested attribute access (e.g., o.inner.value)
+                // First get the type of o.inner, then check its field type
+                if let Some(inner_class) = self.get_attr_type_name(inner_value, inner_attr) {
+                    Some(inner_class)
+                } else {
+                    None
+                }
+            }
+            _ => None,
+        };
+
+        if let Some(class_name) = class_name {
+            // Look up the field type in class_field_types
+            if let Some(field_types) = self.ctx.class_field_types.get(&class_name) {
+                if let Some(field_type) = field_types.get(attr) {
+                    // Only clone String fields, not Custom types (structs)
+                    // Custom types don't need clone because we're accessing them as references
+                    return matches!(field_type, Type::String);
+                }
+            }
+        }
+        false
+    }
+
+    /// Get the type name for an attribute access expression
+    fn get_attr_type_name(&self, value: &HirExpr, attr: &str) -> Option<String> {
+        match value {
+            HirExpr::Var(var_name) => {
+                // Get the class name from the variable type
+                if let Some(Type::Custom(class_name)) = self.ctx.var_types.get(var_name) {
+                    // Look up the field type
+                    if let Some(field_types) = self.ctx.class_field_types.get(class_name) {
+                        if let Some(Type::Custom(field_class)) = field_types.get(attr) {
+                            return Some(field_class.clone());
+                        }
+                    }
+                }
+                None
+            }
+            _ => None,
+        }
     }
 
     fn convert_borrow(&mut self, expr: &HirExpr, mutable: bool) -> Result<syn::Expr> {
@@ -11262,10 +11356,13 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         match expr {
             HirExpr::List(_) => true,
             HirExpr::Call { func, .. } if func == "list" => true,
-            HirExpr::Var(_name) => {
-                // For rust_gen, we're more conservative since we don't have type info
-                // Only treat explicit list literals and calls as lists
-                false
+            HirExpr::Var(name) => {
+                // Check type info for variables
+                if let Some(var_type) = self.ctx.var_types.get(name) {
+                    matches!(var_type, Type::List(_))
+                } else {
+                    false
+                }
             }
             _ => false,
         }
