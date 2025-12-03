@@ -2044,7 +2044,8 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     /// getattr(obj, name, default) → obj.name (default is ignored in static Rust)
     ///
     /// Python's getattr() retrieves an attribute on an object dynamically. In Rust, we generate
-    /// a direct field access when the attribute name is a string literal.
+    /// a direct field access when the attribute name is a string literal, or HashMap access
+    /// when the attribute name is an f-string (dynamic attribute access).
     fn convert_getattr_builtin(&mut self, hir_args: &[HirExpr]) -> Result<syn::Expr> {
         if hir_args.len() < 2 || hir_args.len() > 3 {
             bail!("getattr() requires 2 or 3 arguments (object, name, optional default)");
@@ -2052,17 +2053,45 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
 
         let obj_expr = hir_args[0].to_rust_expr(self.ctx)?;
 
-        // Extract attribute name - must be a string literal for static Rust compilation
         match &hir_args[1] {
+            // Static attribute name - generate direct field access
             HirExpr::Literal(Literal::String(attr_name)) => {
                 let attr_ident = syn::Ident::new(attr_name, proc_macro2::Span::call_site());
-                // Generate: obj.attr
-                // Note: If a default is provided, it's ignored since static field access
-                // either succeeds (field exists) or fails at compile time (field doesn't exist)
                 Ok(parse_quote! { #obj_expr.#attr_ident })
             }
+            // Dynamic attribute name (f-string) - generate HashMap-style access
+            HirExpr::FString { parts } => {
+                let key_expr = self.convert_fstring(parts)?;
+                if hir_args.len() == 3 {
+                    let default_expr = hir_args[2].to_rust_expr(self.ctx)?;
+                    Ok(parse_quote! {
+                        #obj_expr.get(&#key_expr).cloned().unwrap_or(#default_expr)
+                    })
+                } else {
+                    Ok(parse_quote! {
+                        #obj_expr.get(&#key_expr).cloned().expect("attribute not found")
+                    })
+                }
+            }
+            // Variable containing the attribute name - generate HashMap-style access
+            HirExpr::Var(_) => {
+                let key_expr = hir_args[1].to_rust_expr(self.ctx)?;
+                if hir_args.len() == 3 {
+                    let default_expr = hir_args[2].to_rust_expr(self.ctx)?;
+                    Ok(parse_quote! {
+                        #obj_expr.get(&#key_expr).cloned().unwrap_or(#default_expr)
+                    })
+                } else {
+                    Ok(parse_quote! {
+                        #obj_expr.get(&#key_expr).cloned().expect("attribute not found")
+                    })
+                }
+            }
             _ => {
-                bail!("getattr() attribute name must be a string literal for Rust compilation")
+                bail!(
+                    "getattr() attribute name must be a string literal, f-string, or variable. \
+                    For dynamic attribute access, consider using a Dict/HashMap instead of a struct."
+                )
             }
         }
     }
@@ -2118,8 +2147,9 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             _ => hir_args[2].to_rust_expr(self.ctx)?,
         };
 
-        // Extract attribute name - must be a string literal for static Rust compilation
+        // Extract attribute name
         match &hir_args[1] {
+            // Static attribute name - generate direct field assignment
             HirExpr::Literal(Literal::String(attr_name)) => {
                 let attr_ident = syn::Ident::new(attr_name, proc_macro2::Span::call_site());
                 // Generate: { obj.attr = value; }
@@ -2129,8 +2159,29 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     }
                 })
             }
+            // Dynamic attribute name (f-string) - generate HashMap-style insert
+            HirExpr::FString { parts } => {
+                let key_expr = self.convert_fstring(parts)?;
+                Ok(parse_quote! {
+                    {
+                        #obj_expr.insert(#key_expr, #value_expr);
+                    }
+                })
+            }
+            // Variable containing the attribute name - generate HashMap-style insert
+            HirExpr::Var(_) => {
+                let key_expr = hir_args[1].to_rust_expr(self.ctx)?;
+                Ok(parse_quote! {
+                    {
+                        #obj_expr.insert(#key_expr.to_string(), #value_expr);
+                    }
+                })
+            }
             _ => {
-                bail!("setattr() attribute name must be a string literal for Rust compilation")
+                bail!(
+                    "setattr() attribute name must be a string literal, f-string, or variable. \
+                    For dynamic attribute access, consider using a Dict/HashMap instead of a struct."
+                )
             }
         }
     }

@@ -95,8 +95,8 @@ def set_inner(o: Outer, new_inner: Inner) -> None:
 }
 
 #[test]
-fn test_setattr_dynamic_name_errors() {
-    // Dynamic attribute names cannot be transpiled to static Rust
+fn test_setattr_dynamic_name_generates_hashmap_insert() {
+    // Dynamic attribute names generate HashMap-style insert
     let python = r#"
 class Point:
     x: int
@@ -106,9 +106,10 @@ def set_point_attr(p: Point, name: str, value: int) -> None:
     setattr(p, name, value)
 "#;
 
-    let result = transpile_only(python);
-    assert!(result.is_err());
-    assert!(result.unwrap_err().to_string().contains("string literal"));
+    let rust = transpile_only(python).unwrap();
+    println!("Generated Rust code:\n{}", rust);
+    // Should generate HashMap-style .insert() for dynamic attribute name
+    assert!(rust.contains(".insert("));
 }
 
 // ============================================================================
@@ -148,8 +149,8 @@ def get_name(p: Person) -> str:
 }
 
 #[test]
-fn test_getattr_dynamic_name_errors() {
-    // Dynamic attribute names cannot be transpiled to static Rust
+fn test_getattr_dynamic_name_generates_hashmap_access() {
+    // Dynamic attribute names generate HashMap-style access
     let python = r#"
 class Point:
     x: int
@@ -159,9 +160,10 @@ def get_point_attr(p: Point, name: str) -> int:
     return getattr(p, name)
 "#;
 
-    let result = transpile_only(python);
-    assert!(result.is_err());
-    assert!(result.unwrap_err().to_string().contains("string literal"));
+    let rust = transpile_only(python).unwrap();
+    println!("Generated Rust code:\n{}", rust);
+    // Should generate HashMap-style .get() access for dynamic attribute name
+    assert!(rust.contains(".get("));
 }
 
 // ============================================================================
@@ -335,4 +337,54 @@ def update_with_config(state: State, config: Config) -> None:
     assert!(rust.contains("state: &mut State"));
     // config should be cloned when assigning
     assert!(rust.contains("config.clone()"));
+}
+
+// ============================================================================
+// getattr/setattr with f-string attribute names
+// ============================================================================
+
+#[test]
+fn test_getattr_fstring_attribute() {
+    // f-string attribute names generate HashMap-style access
+    let python = r#"
+def get_team_stat(stats: dict, team: str) -> int:
+    return getattr(stats, f'{team}_score')
+"#;
+
+    let rust = transpile_only(python).unwrap();
+    println!("Generated Rust code:\n{}", rust);
+    // Should generate format! for the key and .get() access
+    assert!(rust.contains("format!"));
+    assert!(rust.contains(".get("));
+}
+
+#[test]
+fn test_getattr_fstring_with_default() {
+    // f-string attribute names with default value
+    let python = r#"
+def get_team_stat_or_default(stats: dict, team: str) -> int:
+    return getattr(stats, f'{team}_score', 0)
+"#;
+
+    let rust = transpile_only(python).unwrap();
+    println!("Generated Rust code:\n{}", rust);
+    // Should generate format! for the key and .get() with unwrap_or
+    assert!(rust.contains("format!"));
+    assert!(rust.contains(".get("));
+    assert!(rust.contains("unwrap_or"));
+}
+
+#[test]
+fn test_setattr_fstring_attribute() {
+    // f-string attribute names generate HashMap-style insert
+    let python = r#"
+def set_team_stat(stats: dict, team: str, value: int) -> None:
+    setattr(stats, f'{team}_score', value)
+"#;
+
+    let rust = transpile_only(python).unwrap();
+    println!("Generated Rust code:\n{}", rust);
+    // Should generate format! for the key and .insert()
+    assert!(rust.contains("format!"));
+    assert!(rust.contains(".insert("));
 }

@@ -8,10 +8,7 @@ use syn::parse_quote;
 
 pub fn handle_round(args: &[HirExpr], ctx: &mut CodeGenContext) -> Result<syn::Expr> {
     if args.is_empty() || args.len() > 2 {
-        anyhow::bail!(
-            "round() takes 1 or 2 arguments ({} given)",
-            args.len()
-        );
+        anyhow::bail!("round() takes 1 or 2 arguments ({} given)", args.len());
     }
 
     let value_expr = args[0].to_rust_expr(ctx)?;
