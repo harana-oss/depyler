@@ -1430,9 +1430,12 @@ fn convert_assign_stmt_with_expr(
     match target {
         AssignTarget::Symbol(symbol) => convert_symbol_assignment(symbol, value_expr),
         AssignTarget::Index { base, index } => convert_index_assignment(base, index, value_expr, type_mapper),
-        AssignTarget::Slice { base, start, stop, step } => {
-            convert_slice_assignment(base, start, stop, step, value_expr, type_mapper)
-        }
+        AssignTarget::Slice {
+            base,
+            start,
+            stop,
+            step,
+        } => convert_slice_assignment(base, start, stop, step, value_expr, type_mapper),
         AssignTarget::Attribute { value: base, attr } => {
             convert_attribute_assignment(base, attr, value_expr, type_mapper)
         }
@@ -1481,11 +1484,90 @@ fn convert_assign_stmt_with_expr(
                     }))
                 }
                 None => {
-                    bail!("Complex tuple unpacking not yet supported")
+                    // Handle complex tuple unpacking with index targets
+                    convert_complex_tuple_unpack(targets, value_expr, type_mapper)
                 }
             }
         }
     }
+}
+
+/// Convert complex tuple unpacking (with index targets) to a block of statements
+fn convert_complex_tuple_unpack(
+    targets: &[AssignTarget],
+    value_expr: syn::Expr,
+    type_mapper: &TypeMapper,
+) -> Result<syn::Stmt> {
+    // Generate temporary variable names
+    let temp_names: Vec<syn::Ident> = (0..targets.len())
+        .map(|i| syn::Ident::new(&format!("_swap_tmp{}", i), proc_macro2::Span::call_site()))
+        .collect();
+
+    // Create tuple pattern for temporaries
+    let pat = syn::Pat::Tuple(syn::PatTuple {
+        attrs: vec![],
+        paren_token: syn::token::Paren::default(),
+        elems: temp_names
+            .iter()
+            .map(|ident| {
+                syn::Pat::Ident(syn::PatIdent {
+                    attrs: vec![],
+                    by_ref: None,
+                    mutability: None,
+                    ident: ident.clone(),
+                    subpat: None,
+                })
+            })
+            .collect(),
+    });
+
+    // Create the let statement to capture temporaries
+    let capture_stmt = syn::Stmt::Local(syn::Local {
+        attrs: vec![],
+        let_token: syn::token::Let::default(),
+        pat,
+        init: Some(syn::LocalInit {
+            eq_token: syn::token::Eq::default(),
+            expr: Box::new(value_expr),
+            diverge: None,
+        }),
+        semi_token: syn::token::Semi::default(),
+    });
+
+    // Generate individual assignments
+    let mut stmts = vec![capture_stmt];
+    for (i, target) in targets.iter().enumerate() {
+        let temp_ident = &temp_names[i];
+        let temp_expr: syn::Expr = parse_quote! { #temp_ident };
+
+        let assign_stmt = match target {
+            AssignTarget::Symbol(symbol) => convert_symbol_assignment(symbol, temp_expr)?,
+            AssignTarget::Index { base, index } => {
+                let base_expr = convert_expr(base, type_mapper)?;
+                let index_expr = convert_expr(index, type_mapper)?;
+                let assign: syn::Expr = parse_quote! { #base_expr[#index_expr as usize] = #temp_expr };
+                syn::Stmt::Expr(assign, Some(syn::token::Semi::default()))
+            }
+            AssignTarget::Attribute { value: base, attr } => {
+                convert_attribute_assignment(base, attr, temp_expr, type_mapper)?
+            }
+            AssignTarget::Tuple(_) => bail!("Nested tuple unpacking not supported"),
+            AssignTarget::Slice { .. } => bail!("Slice target in tuple unpacking not supported"),
+        };
+        stmts.push(assign_stmt);
+    }
+
+    // Wrap in a block
+    let block: syn::Expr = syn::Expr::Block(syn::ExprBlock {
+        attrs: vec![],
+        label: None,
+        block: syn::Block {
+            brace_token: syn::token::Brace::default(),
+            stmts,
+        },
+    });
+
+    Ok(syn::Stmt::Expr(block, Some(syn::token::Semi::default())))
 }
 
 #[allow(dead_code)]

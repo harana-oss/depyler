@@ -1612,3 +1612,26 @@ def second(state: State) -> None:
     assert!(rust_code.contains("pub fn second(state: &mut State)"), "\n{rust_code}");
     assert!(rust_code.contains("second(state)"), "\n{rust_code}");
 }
+
+// ============================================================================
+// Tuple Swap with Array Indices
+// ============================================================================
+
+#[test]
+fn test_tuple_swap_array_indices_mutability() {
+    let python = r#"
+def swap_elements():
+    a = [1, 2, 3]
+    a[0], a[2] = a[2], a[0]
+    return a
+"#;
+
+    let pipeline = DepylerPipeline::new();
+    let result = pipeline.transpile(python);
+    assert!(result.is_ok());
+    let rust_code = result.unwrap();
+    println!("Generated code:\n{rust_code}");
+
+    // The array 'a' must be mutable since we're modifying its elements
+    assert!(rust_code.contains("let mut a"), "Array 'a' should be declared mutable:\n{rust_code}");
+}

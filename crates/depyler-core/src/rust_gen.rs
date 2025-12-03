@@ -811,14 +811,29 @@ fn analyze_mutable_vars(stmts: &[HirStmt], ctx: &mut CodeGenContext, params: &[H
                     AssignTarget::Tuple(targets) => {
                         // Tuple assignment - analyze each element
                         for t in targets {
-                            if let AssignTarget::Symbol(name) = t {
-                                if declared.contains(name) {
-                                    // Variable is being reassigned - mark as mutable
-                                    mutable.insert(name.clone());
-                                } else {
-                                    // First declaration
-                                    declared.insert(name.clone());
+                            match t {
+                                AssignTarget::Symbol(name) => {
+                                    if declared.contains(name) {
+                                        // Variable is being reassigned - mark as mutable
+                                        mutable.insert(name.clone());
+                                    } else {
+                                        // First declaration
+                                        declared.insert(name.clone());
+                                    }
                                 }
+                                AssignTarget::Index { base, .. } => {
+                                    // e.g., `a[0], a[2] = ...` requires `let mut a = ...`
+                                    if let HirExpr::Var(var_name) = base.as_ref() {
+                                        mutable.insert(var_name.clone());
+                                    }
+                                }
+                                AssignTarget::Attribute { value, .. } => {
+                                    // e.g., `obj.x, obj.y = ...` requires `let mut obj = ...`
+                                    if let HirExpr::Var(var_name) = value.as_ref() {
+                                        mutable.insert(var_name.clone());
+                                    }
+                                }
+                                _ => {}
                             }
                         }
                     }
@@ -1949,8 +1964,12 @@ mod tests {
         let result = call_expr.to_rust_expr(&mut ctx).unwrap();
         let code = quote! { #result }.to_string();
 
-    // bool() currently implemented as a non-zero check; accept either casting or comparison
-    assert!(code.contains("as bool") || code.contains("!= 0"), "Expected '(flag) as bool' or 'flag != 0', got: {}", code);
+        // bool() currently implemented as a non-zero check; accept either casting or comparison
+        assert!(
+            code.contains("as bool") || code.contains("!= 0"),
+            "Expected '(flag) as bool' or 'flag != 0', got: {}",
+            code
+        );
     }
 
     #[test]

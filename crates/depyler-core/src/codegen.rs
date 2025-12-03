@@ -298,7 +298,8 @@ fn handle_assign_target(
                     }
                 }
                 None => {
-                    anyhow::bail!("Complex tuple unpacking not yet supported")
+                    // Handle complex tuple unpacking with index targets
+                    codegen_complex_tuple_unpack(targets, value_tokens)
                 }
             }
         }
@@ -311,6 +312,53 @@ fn handle_assign_target(
             })
         }
     }
+}
+
+/// Generate code for complex tuple unpacking (with index targets)
+fn codegen_complex_tuple_unpack(
+    targets: &[AssignTarget],
+    value_tokens: proc_macro2::TokenStream,
+) -> Result<proc_macro2::TokenStream> {
+    // Generate temporary variable names
+    let temp_names: Vec<syn::Ident> = (0..targets.len())
+        .map(|i| syn::Ident::new(&format!("_swap_tmp{}", i), proc_macro2::Span::call_site()))
+        .collect();
+
+    // Create tuple pattern for temporaries
+    let temp_pattern: Vec<_> = temp_names.iter().map(|name| quote! { #name }).collect();
+    let capture_stmt = quote! { let (#(#temp_pattern),*) = #value_tokens; };
+
+    // Generate individual assignments
+    let mut assignments = Vec::new();
+    for (i, target) in targets.iter().enumerate() {
+        let temp_name = &temp_names[i];
+        let assign = match target {
+            AssignTarget::Symbol(symbol) => {
+                let ident = syn::Ident::new(symbol, proc_macro2::Span::call_site());
+                quote! { #ident = #temp_name; }
+            }
+            AssignTarget::Index { base, index } => {
+                let base_tokens = expr_to_rust_tokens(base)?;
+                let index_tokens = expr_to_rust_tokens(index)?;
+                quote! { #base_tokens[#index_tokens as usize] = #temp_name; }
+            }
+            AssignTarget::Attribute { value: base, attr } => {
+                let base_tokens = expr_to_rust_tokens(base)?;
+                let attr_ident = syn::Ident::new(attr.as_str(), proc_macro2::Span::call_site());
+                quote! { #base_tokens.#attr_ident = #temp_name; }
+            }
+            AssignTarget::Tuple(_) => anyhow::bail!("Nested tuple unpacking not supported"),
+            AssignTarget::Slice { .. } => anyhow::bail!("Slice target in tuple unpacking not supported"),
+        };
+        assignments.push(assign);
+    }
+
+    Ok(quote! {
+        {
+            #capture_stmt
+            #(#assignments)*
+        }
+    })
 }
 
 fn handle_if_stmt(

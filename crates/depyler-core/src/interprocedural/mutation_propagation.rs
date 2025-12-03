@@ -79,12 +79,9 @@ impl MutationInfo {
 
     /// Merge another mutation info into this one
     pub fn merge(&mut self, other: &MutationInfo) {
-        self.mutated_params
-            .extend(other.mutated_params.iter().cloned());
-        self.borrowed_params
-            .extend(other.borrowed_params.iter().cloned());
-        self.mutated_locals
-            .extend(other.mutated_locals.iter().cloned());
+        self.mutated_params.extend(other.mutated_params.iter().cloned());
+        self.borrowed_params.extend(other.borrowed_params.iter().cloned());
+        self.mutated_locals.extend(other.mutated_locals.iter().cloned());
     }
 }
 
@@ -237,8 +234,38 @@ impl<'a> MutationPropagator<'a> {
                             }
                         }
                     }
-                    AssignTarget::Tuple(_) => {
-                        // Tuple unpacking - for now, skip detailed analysis
+                    AssignTarget::Tuple(targets) => {
+                        // Tuple unpacking - analyze each target for mutations
+                        for t in targets {
+                            match t {
+                                AssignTarget::Symbol(name) => {
+                                    if param_names.contains(name) {
+                                        mutation_info.mutated_params.insert(name.clone());
+                                    } else {
+                                        mutation_info.mutated_locals.insert(name.clone());
+                                    }
+                                }
+                                AssignTarget::Index { base, .. } => {
+                                    if let Some(root_var) = extract_root_var(base) {
+                                        if param_names.contains(&root_var) {
+                                            mutation_info.mutated_params.insert(root_var);
+                                        } else {
+                                            mutation_info.mutated_locals.insert(root_var);
+                                        }
+                                    }
+                                }
+                                AssignTarget::Attribute { value, .. } => {
+                                    if let Some(root_var) = extract_root_var(value) {
+                                        if param_names.contains(&root_var) {
+                                            mutation_info.mutated_params.insert(root_var);
+                                        } else {
+                                            mutation_info.mutated_locals.insert(root_var);
+                                        }
+                                    }
+                                }
+                                _ => {}
+                            }
+                        }
                     }
                 }
 
@@ -291,10 +318,7 @@ impl<'a> MutationPropagator<'a> {
     ) {
         match expr {
             HirExpr::MethodCall {
-                object,
-                method,
-                args,
-                ..
+                object, method, args, ..
             } => {
                 // Check if method is mutating
                 if is_mutating_method(method) {
@@ -421,9 +445,7 @@ impl<'a> MutationPropagator<'a> {
                 }
             }
             HirStmt::If {
-                then_body,
-                else_body,
-                ..
+                then_body, else_body, ..
             } => {
                 for stmt in then_body {
                     changed |= self.propagate_calls_in_stmt(stmt, new_mutations, param_names);

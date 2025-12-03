@@ -242,3 +242,7 @@ path = "../../tests/mutability_test.rs"
 [[test]]
 name = "default_arguments_test"
 path = "../../tests/default_arguments_test.rs"
+
+[[test]]
+name = "assignment_test"
+path = "../../tests/assignment_test.rs"

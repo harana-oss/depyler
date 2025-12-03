@@ -565,7 +565,12 @@ impl Optimizer {
                 self.collect_used_vars_expr(base, used);
                 self.collect_used_vars_expr(index, used);
             }
-            AssignTarget::Slice { base, start, stop, step } => {
+            AssignTarget::Slice {
+                base,
+                start,
+                stop,
+                step,
+            } => {
                 // Collect from base and slice bounds
                 self.collect_used_vars_expr(base, used);
                 if let Some(s) = start {
@@ -750,7 +755,12 @@ impl Optimizer {
                     (new_expr, extra_stmts)
                 }
             }
-            HirExpr::Call { func, args, type_params, .. } if self.is_pure_function(func) => {
+            HirExpr::Call {
+                func,
+                args,
+                type_params,
+                ..
+            } if self.is_pure_function(func) => {
                 // Process arguments
                 let mut new_args = Vec::new();
                 for arg in args {

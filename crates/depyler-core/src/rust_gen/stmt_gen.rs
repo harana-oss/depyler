@@ -1096,7 +1096,12 @@ fn is_var_used_in_assign_target(var_name: &str, target: &AssignTarget) -> bool {
         AssignTarget::Index { base, index } => {
             is_var_used_in_expr(var_name, base) || is_var_used_in_expr(var_name, index)
         }
-        AssignTarget::Slice { base, start, stop, step } => {
+        AssignTarget::Slice {
+            base,
+            start,
+            stop,
+            step,
+        } => {
             is_var_used_in_expr(var_name, base)
                 || start.as_ref().is_some_and(|s| is_var_used_in_expr(var_name, s))
                 || stop.as_ref().is_some_and(|s| is_var_used_in_expr(var_name, s))
@@ -2476,9 +2481,63 @@ pub(crate) fn codegen_assign_tuple(
             }
         }
         None => {
-            bail!("Complex tuple unpacking not yet supported")
+            // Handle complex tuple unpacking with index targets
+            // Pattern: a[0], a[2] = a[2], a[0] (swap pattern)
+            codegen_complex_tuple_unpack(targets, value_expr, ctx)
         }
     }
+}
+
+/// Generate code for complex tuple unpacking (with index targets)
+fn codegen_complex_tuple_unpack(
+    targets: &[AssignTarget],
+    value_expr: syn::Expr,
+    ctx: &mut CodeGenContext,
+) -> Result<proc_macro2::TokenStream> {
+    // Generate temporary variables to capture RHS values first
+    let temp_names: Vec<syn::Ident> = (0..targets.len())
+        .map(|i| syn::Ident::new(&format!("_swap_tmp{}", i), proc_macro2::Span::call_site()))
+        .collect();
+
+    // Create tuple pattern for temporaries: let (_swap_tmp0, _swap_tmp1, ...) = value_expr;
+    let temp_pattern: Vec<_> = temp_names.iter().map(|name| quote! { #name }).collect();
+    let capture_stmt = quote! { let (#(#temp_pattern),*) = #value_expr; };
+
+    // Generate individual assignments from temporaries to targets
+    let mut assignments = Vec::new();
+    for (i, target) in targets.iter().enumerate() {
+        let temp_name = &temp_names[i];
+        let assign = match target {
+            AssignTarget::Symbol(symbol) => {
+                let ident = safe_ident(symbol);
+                quote! { #ident = #temp_name; }
+            }
+            AssignTarget::Index { base, index } => {
+                let base_expr = base.to_rust_expr(ctx)?;
+                let index_expr = index.to_rust_expr(ctx)?;
+                quote! { #base_expr[#index_expr as usize] = #temp_name; }
+            }
+            AssignTarget::Attribute { value: base, attr } => {
+                let base_expr = base.to_rust_expr(ctx)?;
+                let attr_ident = syn::Ident::new(attr, proc_macro2::Span::call_site());
+                quote! { #base_expr.#attr_ident = #temp_name; }
+            }
+            AssignTarget::Tuple(_) => {
+                bail!("Nested tuple unpacking not supported")
+            }
+            AssignTarget::Slice { .. } => {
+                bail!("Slice target in tuple unpacking not supported")
+            }
+        };
+        assignments.push(assign);
+    }
+
+    Ok(quote! {
+        {
+            #capture_stmt
+            #(#assignments)*
+        }
+    })
 }
 
 /// Generate code for Try/except/finally statement
