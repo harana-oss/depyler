@@ -573,6 +573,37 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     _ => unreachable!(),
                 }
             }
+            BinOp::Eq | BinOp::NotEq => {
+                // When comparing String with a string literal, convert the literal to String
+                let left_is_string = self.is_string_type(left);
+                let right_is_string = self.is_string_type(right);
+                let left_is_literal = matches!(left, HirExpr::Literal(Literal::String(_)));
+                let right_is_literal = matches!(right, HirExpr::Literal(Literal::String(_)));
+
+                let final_left = if !left_is_literal && left_is_string && right_is_literal {
+                    left_expr
+                } else if left_is_literal && right_is_string && !right_is_literal {
+                    parse_quote! { #left_expr.to_string() }
+                } else {
+                    left_expr
+                };
+
+                let final_right = if !right_is_literal && right_is_string && left_is_literal {
+                    right_expr
+                } else if right_is_literal && left_is_string && !left_is_literal {
+                    parse_quote! { #right_expr.to_string() }
+                } else {
+                    right_expr
+                };
+
+                let rust_op = convert_binop(op)?;
+                Ok(syn::Expr::Binary(syn::ExprBinary {
+                    attrs: vec![],
+                    left: Box::new(final_left),
+                    op: rust_op,
+                    right: Box::new(final_right),
+                }))
+            }
             _ => {
                 let rust_op = convert_binop(op)?;
                 // parse_quote! doesn't properly handle interpolated syn::BinOp values

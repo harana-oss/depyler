@@ -314,3 +314,27 @@ def main() -> None:
         "Tuple should be converted to array for iteration\n{rust_code}"
     );
 }
+
+#[test]
+fn test_ternary_with_state_field_access() {
+    let pipeline = DepylerPipeline::new();
+    let python_code = r#"
+@dataclass
+class Item:
+    name: str
+
+@dataclass
+class State:
+    items1: list[Item]
+    items2: list[Item]
+
+def get_item(state: State, name: str) -> list[Item]:
+    return state.items1 if name == "One" else state.items2
+"#;
+
+    let rust_code = pipeline.transpile(python_code).unwrap();
+    assert!(
+        rust_code.contains("name == \"One\".to_string()"),
+        "\n{rust_code}"
+    );
+}
