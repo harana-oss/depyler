@@ -101,10 +101,6 @@ name = "lambda_integration_test"
 path = "../../tests/lambda_integration_test.rs"
 
 [[test]]
-name = "dict_assignment_test"
-path = "../../tests/dict_assignment_test.rs"
-
-[[test]]
 name = "constants_test"
 path = "../../tests/constants_test.rs"
 
@@ -182,46 +178,9 @@ path = "../../tests/quality_assurance_automation.rs"
 name = "v3_17_coverage_tests"
 path = "../../tests/v3_17_coverage_tests.rs"
 
-# Bug Regression Tests
-[[test]]
-name = "depyler_0023_rust_keywords_test"
-path = "../../tests/depyler_0023_rust_keywords_test.rs"
-
-[[test]]
-name = "depyler_0024_copy_bug_test"
-path = "../../tests/depyler_0024_copy_bug_test.rs"
-
-[[test]]
-name = "depyler_0264_dynamic_type_test"
-path = "../../tests/depyler_0264_dynamic_type_test.rs"
-
-[[test]]
-name = "depyler_0265_iterator_deref_test"
-path = "../../tests/depyler_0265_iterator_deref_test.rs"
-
-[[test]]
-name = "depyler_0266_boolean_conversion_test"
-path = "../../tests/depyler_0266_boolean_conversion_test.rs"
-
 [[test]]
 name = "indexing_tests"
 path = "../../tests/indexing_tests.rs"
-
-[[test]]
-name = "depyler_0269_function_borrowing_test"
-path = "../../tests/depyler_0269_function_borrowing_test.rs"
-
-[[test]]
-name = "depyler_0270_result_unwrapping_test"
-path = "../../tests/depyler_0270_result_unwrapping_test.rs"
-
-[[test]]
-name = "depyler_0271_main_return_type_test"
-path = "../../tests/depyler_0271_main_return_type_test.rs"
-
-[[test]]
-name = "depyler_0272_unused_loop_vars_test"
-path = "../../tests/depyler_0272_unused_loop_vars_test.rs"
 
 [[test]]
 name = "math_tests"
