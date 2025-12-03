@@ -10645,8 +10645,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
 
     fn convert_tuple(&mut self, elts: &[HirExpr]) -> Result<syn::Expr> {
         // Track variable names to detect duplicates that need cloning
-        let mut var_occurrences: std::collections::HashMap<String, Vec<usize>> =
-            std::collections::HashMap::new();
+        let mut var_occurrences: std::collections::HashMap<String, Vec<usize>> = std::collections::HashMap::new();
         for (idx, elt) in elts.iter().enumerate() {
             if let HirExpr::Var(name) = elt {
                 var_occurrences.entry(name.clone()).or_default().push(idx);
@@ -10654,12 +10653,18 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         }
 
         // Find variables that appear more than once - all but last need clone
+        // But only for non-Copy types
         let mut needs_clone_at: std::collections::HashSet<usize> = std::collections::HashSet::new();
-        for indices in var_occurrences.values() {
+        for (var_name, indices) in var_occurrences.iter() {
             if indices.len() > 1 {
-                // Clone all but the last occurrence
-                for &idx in &indices[..indices.len() - 1] {
-                    needs_clone_at.insert(idx);
+                // Check if the variable type is Copy
+                let var_type = self.ctx.var_types.get(var_name);
+                let is_copy = var_type.is_some_and(|t| !Self::type_needs_clone(t));
+                if !is_copy {
+                    // Clone all but the last occurrence for non-Copy types
+                    for &idx in &indices[..indices.len() - 1] {
+                        needs_clone_at.insert(idx);
+                    }
                 }
             }
         }
@@ -11031,13 +11036,32 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             // Look up the field type in class_field_types
             if let Some(field_types) = self.ctx.class_field_types.get(&class_name) {
                 if let Some(field_type) = field_types.get(attr) {
-                    // Only clone String fields, not Custom types (structs)
-                    // Custom types don't need clone because we're accessing them as references
-                    return matches!(field_type, Type::String);
+                    // Clone all non-Copy types when accessing through a borrowed reference
+                    return Self::type_needs_clone(field_type);
                 }
             }
         }
         false
+    }
+
+    /// Check if a type needs .clone() (i.e., is not Copy)
+    fn type_needs_clone(ty: &Type) -> bool {
+        match ty {
+            // Copy types - don't need clone
+            Type::Int | Type::Float | Type::Bool | Type::None => false,
+            // Non-Copy types - need clone
+            Type::String | Type::List(_) | Type::Dict(_, _) | Type::Set(_) | Type::Custom(_) => true,
+            // Optional needs clone if inner type needs clone
+            Type::Optional(inner) => Self::type_needs_clone(inner),
+            // Tuple needs clone if any element needs clone
+            Type::Tuple(types) => types.iter().any(Self::type_needs_clone),
+            // Arrays, Generics, Functions, etc. - assume need clone for safety
+            Type::Array { .. } | Type::Generic { .. } | Type::Function { .. } | Type::Union(_) => true,
+            // TypeVar and Unknown - assume need clone
+            Type::TypeVar(_) | Type::Unknown => true,
+            // Final wraps another type
+            Type::Final(inner) => Self::type_needs_clone(inner),
+        }
     }
 
     /// Get the type name for an attribute access expression
@@ -12180,7 +12204,15 @@ impl ToRustExpr for HirExpr {
                 }
                 Ok(expr)
             }
-            HirExpr::Var(name) => converter.convert_variable(name),
+            HirExpr::Var(name) => {
+                let base_expr = converter.convert_variable(name)?;
+                // Check if we need to clone this variable (non-Copy type with multiple uses)
+                if ctx.var_needs_clone(name) {
+                    Ok(parse_quote! { #base_expr.clone() })
+                } else {
+                    Ok(base_expr)
+                }
+            }
             HirExpr::Binary { op, left, right } => converter.convert_binary(*op, left, right),
             HirExpr::Unary { op, operand } => converter.convert_unary(op, operand),
             HirExpr::Call {

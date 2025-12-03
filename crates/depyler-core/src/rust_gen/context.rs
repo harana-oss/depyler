@@ -112,6 +112,11 @@ pub struct CodeGenContext<'a> {
     pub current_func_mut_ref_params: HashSet<String>,
 
     pub function_param_names: HashMap<String, Vec<String>>,
+
+    /// Track how many times each variable is used in the current function (for clone analysis)
+    pub var_usage_counts: HashMap<String, usize>,
+    /// Track how many times we've seen each variable during code generation
+    pub var_usage_current: HashMap<String, usize>,
 }
 
 impl<'a> CodeGenContext<'a> {
@@ -251,6 +256,252 @@ impl<'a> CodeGenContext<'a> {
             }
             crate::hir::HirExpr::Literal(crate::hir::Literal::Int(_)) => true,
             _ => false,
+        }
+    }
+
+    /// Reset variable usage tracking for a new function
+    pub fn reset_var_usage(&mut self) {
+        self.var_usage_counts.clear();
+        self.var_usage_current.clear();
+    }
+
+    /// Increment usage count for a variable during analysis
+    pub fn count_var_use(&mut self, var_name: &str) {
+        *self.var_usage_counts.entry(var_name.to_string()).or_insert(0) += 1;
+    }
+
+    /// Check if this is the last use of a variable (can move instead of clone)
+    pub fn is_last_var_use(&mut self, var_name: &str) -> bool {
+        let total = self.var_usage_counts.get(var_name).copied().unwrap_or(1);
+        let current = self.var_usage_current.entry(var_name.to_string()).or_insert(0);
+        *current += 1;
+        *current >= total
+    }
+
+    /// Check if a variable needs cloning (non-Copy type with multiple uses)
+    pub fn var_needs_clone(&mut self, var_name: &str) -> bool {
+        // Check if the variable type is non-Copy
+        let var_type = self.var_types.get(var_name);
+        let is_non_copy = var_type.is_some_and(|t| Self::type_needs_clone(t));
+
+        if !is_non_copy {
+            return false;
+        }
+
+        // Check if this is the last use
+        !self.is_last_var_use(var_name)
+    }
+
+    /// Check if a type needs clone (is not Copy)
+    fn type_needs_clone(ty: &Type) -> bool {
+        match ty {
+            // Copy types - don't need clone
+            Type::Int | Type::Float | Type::Bool | Type::None => false,
+            // Non-Copy types - need clone
+            Type::String | Type::List(_) | Type::Dict(_, _) | Type::Set(_) | Type::Custom(_) => true,
+            // Optional needs clone if inner type needs clone
+            Type::Optional(inner) => Self::type_needs_clone(inner),
+            // Tuple needs clone if any element needs clone
+            Type::Tuple(types) => types.iter().any(Self::type_needs_clone),
+            // Arrays, Generics, Functions, etc. - assume need clone for safety
+            Type::Array { .. } | Type::Generic { .. } | Type::Function { .. } | Type::Union(_) => true,
+            // TypeVar and Unknown - assume need clone
+            Type::TypeVar(_) | Type::Unknown => true,
+            // Final wraps another type
+            Type::Final(inner) => Self::type_needs_clone(inner),
+        }
+    }
+
+    /// Analyze variable usage in function body before code generation
+    pub fn analyze_var_usage(&mut self, stmts: &[crate::hir::HirStmt]) {
+        self.reset_var_usage();
+        for stmt in stmts {
+            self.count_var_uses_in_stmt(stmt);
+        }
+    }
+
+    fn count_var_uses_in_stmt(&mut self, stmt: &crate::hir::HirStmt) {
+        use crate::hir::HirStmt;
+        match stmt {
+            HirStmt::Assign { value, .. } => {
+                self.count_var_uses_in_expr(value);
+            }
+            HirStmt::Expr(expr) => {
+                self.count_var_uses_in_expr(expr);
+            }
+            HirStmt::Return(Some(expr)) => {
+                self.count_var_uses_in_expr(expr);
+            }
+            HirStmt::If {
+                condition,
+                then_body,
+                else_body,
+            } => {
+                self.count_var_uses_in_expr(condition);
+                for s in then_body {
+                    self.count_var_uses_in_stmt(s);
+                }
+                if let Some(else_stmts) = else_body {
+                    for s in else_stmts {
+                        self.count_var_uses_in_stmt(s);
+                    }
+                }
+            }
+            HirStmt::While { condition, body } => {
+                self.count_var_uses_in_expr(condition);
+                for s in body {
+                    self.count_var_uses_in_stmt(s);
+                }
+            }
+            HirStmt::For { iter, body, .. } => {
+                self.count_var_uses_in_expr(iter);
+                for s in body {
+                    self.count_var_uses_in_stmt(s);
+                }
+            }
+            HirStmt::Assert { test, msg, .. } => {
+                self.count_var_uses_in_expr(test);
+                if let Some(m) = msg {
+                    self.count_var_uses_in_expr(m);
+                }
+            }
+            HirStmt::Raise { exception, .. } => {
+                if let Some(e) = exception {
+                    self.count_var_uses_in_expr(e);
+                }
+            }
+            HirStmt::Try {
+                body,
+                handlers,
+                orelse,
+                finalbody,
+            } => {
+                for s in body {
+                    self.count_var_uses_in_stmt(s);
+                }
+                for handler in handlers {
+                    for s in &handler.body {
+                        self.count_var_uses_in_stmt(s);
+                    }
+                }
+                if let Some(els) = orelse {
+                    for s in els {
+                        self.count_var_uses_in_stmt(s);
+                    }
+                }
+                if let Some(fin) = finalbody {
+                    for s in fin {
+                        self.count_var_uses_in_stmt(s);
+                    }
+                }
+            }
+            HirStmt::With { context, body, .. } => {
+                self.count_var_uses_in_expr(context);
+                for s in body {
+                    self.count_var_uses_in_stmt(s);
+                }
+            }
+            _ => {}
+        }
+    }
+
+    fn count_var_uses_in_expr(&mut self, expr: &crate::hir::HirExpr) {
+        use crate::hir::HirExpr;
+        match expr {
+            HirExpr::Var(name) => {
+                self.count_var_use(name);
+            }
+            HirExpr::Binary { left, right, .. } => {
+                self.count_var_uses_in_expr(left);
+                self.count_var_uses_in_expr(right);
+            }
+            HirExpr::Unary { operand, .. } => {
+                self.count_var_uses_in_expr(operand);
+            }
+            HirExpr::Call { args, kwargs, .. } => {
+                for arg in args {
+                    self.count_var_uses_in_expr(arg);
+                }
+                for (_, v) in kwargs {
+                    self.count_var_uses_in_expr(v);
+                }
+            }
+            HirExpr::MethodCall {
+                object, args, kwargs, ..
+            } => {
+                // Method calls borrow the receiver, so if the object is just a variable,
+                // don't count it as a consuming use. Only count nested expressions.
+                if !matches!(**object, HirExpr::Var(_)) {
+                    self.count_var_uses_in_expr(object);
+                }
+                for arg in args {
+                    self.count_var_uses_in_expr(arg);
+                }
+                for (_, v) in kwargs {
+                    self.count_var_uses_in_expr(v);
+                }
+            }
+            HirExpr::Attribute { value, .. } => {
+                // Attribute access borrows the object (e.g., person.name gives &String),
+                // so accessing person.first_name and person.last_name doesn't consume person.
+                // Only count nested expressions, not direct variable access.
+                if !matches!(**value, HirExpr::Var(_)) {
+                    self.count_var_uses_in_expr(value);
+                }
+            }
+            HirExpr::Index { base, index } => {
+                self.count_var_uses_in_expr(base);
+                self.count_var_uses_in_expr(index);
+            }
+            HirExpr::Slice {
+                base,
+                start,
+                stop,
+                step,
+            } => {
+                self.count_var_uses_in_expr(base);
+                if let Some(l) = start {
+                    self.count_var_uses_in_expr(l);
+                }
+                if let Some(u) = stop {
+                    self.count_var_uses_in_expr(u);
+                }
+                if let Some(s) = step {
+                    self.count_var_uses_in_expr(s);
+                }
+            }
+            HirExpr::List(elts) | HirExpr::Tuple(elts) | HirExpr::Set(elts) => {
+                for e in elts {
+                    self.count_var_uses_in_expr(e);
+                }
+            }
+            HirExpr::Dict(pairs) => {
+                for (k, v) in pairs {
+                    self.count_var_uses_in_expr(k);
+                    self.count_var_uses_in_expr(v);
+                }
+            }
+            HirExpr::IfExpr { test, body, orelse } => {
+                self.count_var_uses_in_expr(test);
+                self.count_var_uses_in_expr(body);
+                self.count_var_uses_in_expr(orelse);
+            }
+            HirExpr::ListComp {
+                element,
+                target: _,
+                iter,
+                condition,
+            } => {
+                self.count_var_uses_in_expr(element);
+                self.count_var_uses_in_expr(iter);
+                if let Some(c) = condition {
+                    self.count_var_uses_in_expr(c);
+                }
+            }
+            HirExpr::Lambda { body, .. } => {
+                self.count_var_uses_in_expr(body);
+            }
+            _ => {}
         }
     }
 }

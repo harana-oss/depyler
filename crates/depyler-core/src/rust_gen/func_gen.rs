@@ -363,7 +363,10 @@ fn codegen_single_param(
         update_import_needs(ctx, &rust_type);
         let ty = rust_type_to_syn(&rust_type)?;
         // If annotation maps to String and parameter isn't mutated, prefer &str for ergonomics
-        if matches!(rust_type, crate::type_mapper::RustType::String) && !is_param_mutated && !force_borrow_from_call_chain {
+        if matches!(rust_type, crate::type_mapper::RustType::String)
+            && !is_param_mutated
+            && !force_borrow_from_call_chain
+        {
             let borrowed: syn::Type = parse_quote! { &str };
             Ok(quote! { #param_ident: #borrowed })
         } else if force_borrow_from_call_chain {
@@ -1341,6 +1344,9 @@ impl RustCodeGen for HirFunction {
         if let Some((_, ref fields)) = subcommand_info {
             ctx.current_subcommand_fields = Some(fields.iter().cloned().collect());
         }
+
+        // Analyze variable usage for clone detection before generating code
+        ctx.analyze_var_usage(&self.body);
 
         // Process function body with proper scoping (expressions will now be rewritten if needed)
         let mut body_stmts = codegen_function_body(self, can_fail, error_type, ctx)?;

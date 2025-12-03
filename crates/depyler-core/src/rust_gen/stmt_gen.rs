@@ -1155,6 +1155,36 @@ fn is_var_used_in_stmt(var_name: &str, stmt: &HirStmt) -> bool {
     }
 }
 
+/// Generate field access expression without adding .clone()
+/// Used for iteration contexts where we want to borrow, not clone
+fn generate_field_access_without_clone(iter: &HirExpr, ctx: &mut CodeGenContext) -> Result<syn::Expr> {
+    match iter {
+        HirExpr::Attribute { value, attr } => {
+            let value_expr = generate_field_access_without_clone(value, ctx)?;
+            let attr_ident = syn::Ident::new(attr, proc_macro2::Span::call_site());
+            Ok(parse_quote! { #value_expr.#attr_ident })
+        }
+        HirExpr::Var(name) => {
+            let ident = safe_ident(name);
+            Ok(parse_quote! { #ident })
+        }
+        HirExpr::Call { func, args, .. } if func == "enumerate" || func == "reversed" => {
+            // Handle enumerate(field) and reversed(field)
+            if !args.is_empty() {
+                let inner = generate_field_access_without_clone(&args[0], ctx)?;
+                if func == "enumerate" {
+                    Ok(parse_quote! { #inner.iter().enumerate() })
+                } else {
+                    Ok(parse_quote! { #inner.iter().rev() })
+                }
+            } else {
+                iter.to_rust_expr(ctx)
+            }
+        }
+        _ => iter.to_rust_expr(ctx),
+    }
+}
+
 /// Check if an iterator expression is accessing a field on a parameter
 /// Returns Some((root_var, is_field_access)) if it's a field access pattern
 fn is_field_access_iter(iter: &HirExpr) -> Option<(String, bool)> {
@@ -1287,14 +1317,6 @@ pub(crate) fn codegen_for_stmt(
         _ => bail!("Unsupported for loop target type"),
     };
 
-    // Convert tuple to array for iteration (tuples aren't directly iterable in Rust)
-    let mut iter_expr = if let HirExpr::Tuple(elts) = iter {
-        let elt_exprs: Vec<syn::Expr> = elts.iter().map(|e| e.to_rust_expr(ctx)).collect::<Result<Vec<_>>>()?;
-        parse_quote! { [#(#elt_exprs),*] }
-    } else {
-        iter.to_rust_expr(ctx)?
-    };
-
     // When iterating over field accesses (e.g., state.items), we MUST use borrows
     // because Rust doesn't allow moving out of struct fields.
     // Determine whether to use & or &mut based on loop body mutations.
@@ -1313,6 +1335,18 @@ pub(crate) fn codegen_for_stmt(
         }
     } else {
         (None, false)
+    };
+
+    // Convert tuple to array for iteration (tuples aren't directly iterable in Rust)
+    // For field accesses that will be borrowed, generate without .clone()
+    let mut iter_expr = if let HirExpr::Tuple(elts) = iter {
+        let elt_exprs: Vec<syn::Expr> = elts.iter().map(|e| e.to_rust_expr(ctx)).collect::<Result<Vec<_>>>()?;
+        parse_quote! { [#(#elt_exprs),*] }
+    } else if needs_field_borrow.is_some() {
+        // For field accesses being iterated, generate without .clone() since we'll borrow
+        generate_field_access_without_clone(iter, ctx)?
+    } else {
+        iter.to_rust_expr(ctx)?
     };
 
     // Python: for line in sys.stdin:
@@ -2075,16 +2109,8 @@ pub(crate) fn codegen_assign_stmt(
         if matches!(value, HirExpr::Literal(Literal::String(_))) {
             value_expr = parse_quote! { #value_expr.to_string() };
         }
-        // When assigning from struct field access (e.g., state.val where val: String),
-        // we need to clone since String doesn't implement Copy and we can't move from borrow
-        else if let HirExpr::Attribute { value: obj, .. } = value {
-            if let HirExpr::Var(var_name) = obj.as_ref() {
-                // Check if the variable is a user-defined class type (borrowed struct parameter)
-                if let Some(Type::Custom(_)) = ctx.var_types.get(var_name) {
-                    value_expr = parse_quote! { #value_expr.clone() };
-                }
-            }
-        }
+        // NOTE: Struct field cloning is handled in convert_attribute via field_needs_clone
+        // which properly checks if the field type is Copy or not
         (None, false)
     };
 

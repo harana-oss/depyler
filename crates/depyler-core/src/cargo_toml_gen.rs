@@ -357,6 +357,8 @@ mod tests {
             stdlib_mappings: crate::stdlib_mappings::StdlibMappings::new(),
             current_func_mut_ref_params: std::collections::HashSet::new(),
             function_param_names: std::collections::HashMap::new(),
+            var_usage_counts: std::collections::HashMap::new(),
+            var_usage_current: std::collections::HashMap::new(),
         };
 
         // Property: Calling extract_dependencies multiple times returns same result
@@ -449,6 +451,8 @@ mod tests {
             stdlib_mappings: crate::stdlib_mappings::StdlibMappings::new(),
             current_func_mut_ref_params: HashSet::new(),
             function_param_names: std::collections::HashMap::new(),
+            var_usage_counts: std::collections::HashMap::new(),
+            var_usage_current: std::collections::HashMap::new(),
         };
 
         let deps = extract_dependencies(&ctx);
@@ -538,6 +542,8 @@ mod tests {
             stdlib_mappings: crate::stdlib_mappings::StdlibMappings::new(),
             current_func_mut_ref_params: HashSet::new(),
             function_param_names: std::collections::HashMap::new(),
+            var_usage_counts: std::collections::HashMap::new(),
+            var_usage_current: std::collections::HashMap::new(),
         };
 
         let deps = extract_dependencies(&ctx);
@@ -635,6 +641,8 @@ mod tests {
             stdlib_mappings: crate::stdlib_mappings::StdlibMappings::new(),
             current_func_mut_ref_params: HashSet::new(),
             function_param_names: std::collections::HashMap::new(),
+            var_usage_counts: std::collections::HashMap::new(),
+            var_usage_current: std::collections::HashMap::new(),
         };
 
         let deps = extract_dependencies(&ctx);

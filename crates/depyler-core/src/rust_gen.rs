@@ -1378,6 +1378,8 @@ pub fn generate_rust_file(
         stdlib_mappings: crate::stdlib_mappings::StdlibMappings::new(), // Stdlib API mappings
         current_func_mut_ref_params: HashSet::new(),             // Track &mut ref params in current function
         function_param_names: std::collections::HashMap::new(),  // Track function parameter names
+        var_usage_counts: std::collections::HashMap::new(),      // Variable usage counts for clone analysis
+        var_usage_current: std::collections::HashMap::new(),     // Current usage position during codegen
     };
 
     // Must run BEFORE function conversion so validator parameter types are correct
@@ -1586,6 +1588,8 @@ mod tests {
             stdlib_mappings: crate::stdlib_mappings::StdlibMappings::new(),
             current_func_mut_ref_params: HashSet::new(), // Track &mut ref params in current function
             function_param_names: std::collections::HashMap::new(), // Track function parameter names
+            var_usage_counts: std::collections::HashMap::new(), // Variable usage counts for clone analysis
+            var_usage_current: std::collections::HashMap::new(), // Current usage position during codegen
         }
     }
 

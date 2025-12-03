@@ -330,7 +330,10 @@ def get_value(d: dict[str, int], key: str) -> int:
         rust_code.contains("HashMap<String, i32>") && rust_code.contains("-> i32"),
         "\n{rust_code}"
     );
-    assert!(rust_code.contains("d.get(&key)") || rust_code.contains("d[&key]"), "\n{rust_code}");
+    assert!(
+        rust_code.contains("d.get(&key)") || rust_code.contains("d[&key]"),
+        "\n{rust_code}"
+    );
 }
 
 // === EDGE CASES ===

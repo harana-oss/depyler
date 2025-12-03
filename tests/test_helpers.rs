@@ -1,0 +1,159 @@
+use depyler_core::DepylerPipeline;
+use std::fs;
+use std::process::Command;
+use tempfile::TempDir;
+
+/// Result from transpiling and compiling Python code to Rust.
+#[derive(Debug)]
+pub struct TranspileCompileResult {
+    pub rust_code: String,
+    pub compilation_success: bool,
+    pub compilation_stderr: String,
+}
+
+/// Transpiles Python source code and verifies expected Rust patterns are present,
+/// then compiles the output with rustc.
+///
+/// # Arguments
+/// * `python_source` - The Python source code to transpile
+/// * `expected_patterns` - List of strings that must appear in the generated Rust code
+///
+/// # Returns
+/// The transpile/compile result on success, or panics with detailed error info.
+pub fn transpile_and_compile(python_source: &str, expected_patterns: &[&str]) -> TranspileCompileResult {
+    let pipeline = DepylerPipeline::new();
+    let result = pipeline.transpile(python_source);
+
+    let rust_code = result.unwrap_or_else(|e| {
+        panic!("Transpilation failed:\n{e}\n\nPython source:\n{python_source}");
+    });
+
+    for pattern in expected_patterns {
+        assert!(
+            rust_code.contains(pattern),
+            "Expected pattern not found in generated Rust code.\nPattern: {pattern}\n\nGenerated code:\n{rust_code}"
+        );
+    }
+
+    let compile_result = compile_rust_code(&rust_code);
+
+    assert!(
+        compile_result.compilation_success,
+        "Rust compilation failed:\n{}\n\nGenerated code:\n{rust_code}",
+        compile_result.compilation_stderr
+    );
+
+    compile_result
+}
+
+/// Transpiles Python source and verifies expected patterns without compiling.
+pub fn transpile_and_check(python_source: &str, expected_patterns: &[&str]) -> String {
+    let pipeline = DepylerPipeline::new();
+    let result = pipeline.transpile(python_source);
+
+    let rust_code = result.unwrap_or_else(|e| {
+        panic!("Transpilation failed:\n{e}\n\nPython source:\n{python_source}");
+    });
+
+    for pattern in expected_patterns {
+        assert!(
+            rust_code.contains(pattern),
+            "Expected pattern not found in generated Rust code.\nPattern: {pattern}\n\nGenerated code:\n{rust_code}"
+        );
+    }
+
+    rust_code
+}
+
+/// Transpiles Python source and verifies patterns are absent without compiling.
+pub fn transpile_check_absent(python_source: &str, absent_patterns: &[&str]) -> String {
+    let pipeline = DepylerPipeline::new();
+    let result = pipeline.transpile(python_source);
+
+    let rust_code = result.unwrap_or_else(|e| {
+        panic!("Transpilation failed:\n{e}\n\nPython source:\n{python_source}");
+    });
+
+    for pattern in absent_patterns {
+        assert!(
+            !rust_code.contains(pattern),
+            "Pattern should NOT appear in generated Rust code.\nPattern: {pattern}\n\nGenerated code:\n{rust_code}"
+        );
+    }
+
+    rust_code
+}
+
+/// Transpiles Python source and returns the generated Rust code.
+pub fn transpile(python_source: &str) -> String {
+    let pipeline = DepylerPipeline::new();
+    let result = pipeline.transpile(python_source);
+
+    result.unwrap_or_else(|e| {
+        panic!("Transpilation failed:\n{e}\n\nPython source:\n{python_source}");
+    })
+}
+
+/// Compiles Rust code using rustc and returns the result.
+pub fn compile_rust_code(rust_code: &str) -> TranspileCompileResult {
+    let temp_dir = TempDir::new().expect("Failed to create temp directory");
+    let rust_file = temp_dir.path().join("test_output.rs");
+
+    let full_code = format!(
+        r#"#![allow(dead_code, unused_variables, unused_mut)]
+use std::collections::HashMap;
+
+{rust_code}
+
+fn main() {{}}
+"#
+    );
+
+    fs::write(&rust_file, &full_code).expect("Failed to write test file");
+
+    let output = Command::new("rustc")
+        .arg("--edition")
+        .arg("2021")
+        .arg("--crate-type")
+        .arg("bin")
+        .arg("--emit")
+        .arg("metadata")
+        .arg("-o")
+        .arg(temp_dir.path().join("output"))
+        .arg(&rust_file)
+        .output()
+        .expect("Failed to run rustc");
+
+    let stderr = String::from_utf8_lossy(&output.stderr).to_string();
+
+    TranspileCompileResult {
+        rust_code: rust_code.to_string(),
+        compilation_success: output.status.success(),
+        compilation_stderr: stderr,
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_transpile_and_compile_basic() {
+        let python = r#"
+def add(x: int, y: int) -> int:
+    return x + y
+"#;
+        let result = transpile_and_compile(python, &["fn add", "-> i32"]);
+        assert!(result.compilation_success);
+    }
+
+    #[test]
+    fn test_transpile_and_check_patterns() {
+        let python = r#"
+def greet(name: str) -> str:
+    return "Hello, " + name
+"#;
+        let rust_code = transpile_and_check(python, &["fn greet", "String"]);
+        assert!(rust_code.contains("fn greet"));
+    }
+}
