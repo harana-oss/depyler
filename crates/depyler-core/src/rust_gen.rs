@@ -1077,6 +1077,7 @@ fn generate_conditional_imports(ctx: &CodeGenContext) -> Vec<proc_macro2::TokenS
         (ctx.needs_rc, quote! { use std::rc::Rc; }),
         (ctx.needs_cow, quote! { use std::borrow::Cow; }),
         (ctx.needs_serde_json, quote! { use serde_json; }),
+        (ctx.needs_lazy_static, quote! { use lazy_static::lazy_static; }),
     ];
 
     // Add imports where needed
@@ -1203,18 +1204,28 @@ fn infer_constant_type(expr: &HirExpr) -> Type {
     }
 }
 
+/// Check if a type requires heap allocation and thus needs lazy_static
+fn requires_lazy_static(ty: &Type) -> bool {
+    match ty {
+        Type::List(_) | Type::Dict(_, _) | Type::Set(_) | Type::String => true,
+        Type::Tuple(elems) => elems.iter().any(requires_lazy_static),
+        Type::Optional(inner) => requires_lazy_static(inner),
+        _ => false,
+    }
+}
+
 /// Generate module-level constant tokens
 ///
-/// Generates `pub const` declarations for module-level constants.
-/// For simple literal values (int, float, string, bool), generates const.
-/// For complex expressions, may need to use static or lazy_static.
+/// Generates `pub const` declarations for simple constants.
+/// For heap-allocated types (Vec, HashMap, etc.), uses lazy_static!.
 fn generate_constant_tokens(
     constants: &[HirConstant],
     ctx: &mut CodeGenContext,
 ) -> Result<Vec<proc_macro2::TokenStream>> {
     use crate::rust_gen::context::ToRustExpr;
 
-    let mut items = Vec::new();
+    let mut const_items = Vec::new();
+    let mut lazy_static_items = Vec::new();
 
     for constant in constants {
         let name_ident = syn::Ident::new(&constant.name, proc_macro2::Span::call_site());
@@ -1222,28 +1233,42 @@ fn generate_constant_tokens(
         // Generate the value expression
         let value_expr = constant.value.to_rust_expr(ctx)?;
 
-        // Generate type annotation - required for Rust const
-        let type_annotation = if let Some(ref ty) = constant.type_annotation {
-            let rust_type = ctx.type_mapper.map_type(ty);
-            let syn_type = type_gen::rust_type_to_syn(&rust_type)?;
-            quote! { : #syn_type }
+        // Determine the type
+        let inferred_type = if let Some(ref ty) = constant.type_annotation {
+            ty.clone()
         } else {
-            // Infer type from expression
-            let inferred_type = infer_constant_type(&constant.value);
-            if matches!(inferred_type, Type::Unknown) {
-                ctx.needs_serde_json = true;
-                quote! { : serde_json::Value }
-            } else {
-                let rust_type = ctx.type_mapper.map_type(&inferred_type);
-                let syn_type = type_gen::rust_type_to_syn(&rust_type)?;
-                quote! { : #syn_type }
-            }
+            infer_constant_type(&constant.value)
         };
 
-        // Generate the constant declaration
-        // Use pub const for module-level visibility
+        // Generate type annotation
+        let type_annotation: syn::Type = if matches!(inferred_type, Type::Unknown) {
+            ctx.needs_serde_json = true;
+            syn::parse_quote! { serde_json::Value }
+        } else {
+            let rust_type = ctx.type_mapper.map_type(&inferred_type);
+            type_gen::rust_type_to_syn(&rust_type)?
+        };
+
+        // Check if type requires heap allocation
+        if requires_lazy_static(&inferred_type) {
+            ctx.needs_lazy_static = true;
+            lazy_static_items.push(quote! {
+                pub static ref #name_ident: #type_annotation = #value_expr;
+            });
+        } else {
+            const_items.push(quote! {
+                pub const #name_ident: #type_annotation = #value_expr;
+            });
+        }
+    }
+
+    // Combine results: const items first, then lazy_static block if needed
+    let mut items = const_items;
+    if !lazy_static_items.is_empty() {
         items.push(quote! {
-            pub const #name_ident #type_annotation = #value_expr;
+            lazy_static! {
+                #(#lazy_static_items)*
+            }
         });
     }
 
@@ -1306,6 +1331,7 @@ pub fn generate_rust_file(
         needs_hmac: false,
         needs_crc32: false,
         needs_url_encoding: false,
+        needs_lazy_static: false,
         declared_vars: vec![HashSet::new()],
         current_function_can_fail: false,
         current_return_type: None,
@@ -1512,6 +1538,7 @@ mod tests {
             needs_hmac: false,
             needs_crc32: false,
             needs_url_encoding: false,
+            needs_lazy_static: false,
             declared_vars: vec![HashSet::new()],
             current_function_can_fail: false,
             current_return_type: None,

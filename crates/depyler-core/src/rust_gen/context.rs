@@ -69,6 +69,7 @@ pub struct CodeGenContext<'a> {
     pub needs_hmac: bool,
     pub needs_crc32: bool,
     pub needs_url_encoding: bool,
+    pub needs_lazy_static: bool,
     pub declared_vars: Vec<HashSet<String>>,
     pub current_function_can_fail: bool,
     pub current_return_type: Option<Type>,

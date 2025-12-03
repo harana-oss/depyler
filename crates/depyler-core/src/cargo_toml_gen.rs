@@ -127,6 +127,10 @@ pub fn extract_dependencies(ctx: &CodeGenContext) -> Vec<Dependency> {
         deps.push(Dependency::new("clap", "4.5").with_features(vec!["derive".to_string()]));
     }
 
+    if ctx.needs_lazy_static {
+        deps.push(Dependency::new("lazy_static", "1.4"));
+    }
+
     deps
 }
 
@@ -316,6 +320,7 @@ mod tests {
             needs_hmac: false,
             needs_crc32: false,
             needs_url_encoding: false,
+            needs_lazy_static: false,
             needs_clap: true,
             declared_vars: vec![std::collections::HashSet::new()],
             current_function_can_fail: false,
@@ -406,6 +411,7 @@ mod tests {
             needs_hmac: true,
             needs_crc32: true,
             needs_url_encoding: true,
+            needs_lazy_static: false,
             needs_clap: true,
             declared_vars: vec![HashSet::new()],
             current_function_can_fail: false,
@@ -493,6 +499,7 @@ mod tests {
             needs_hmac: false,
             needs_crc32: false,
             needs_url_encoding: false,
+            needs_lazy_static: false,
             needs_clap: false,
             declared_vars: vec![HashSet::new()],
             current_function_can_fail: false,
@@ -588,6 +595,7 @@ mod tests {
             needs_hmac: false,
             needs_crc32: false,
             needs_url_encoding: false,
+            needs_lazy_static: false,
             needs_clap: true, // Enable clap
             declared_vars: vec![HashSet::new()],
             current_function_can_fail: false,

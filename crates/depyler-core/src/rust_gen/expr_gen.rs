@@ -535,8 +535,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     // Integer literal base with variable exponent - need type suffix
                     (HirExpr::Literal(Literal::Int(base_val)), _) => {
                         let base_str = base_val.to_string();
-                        let typed_base =
-                            syn::LitInt::new(&format!("{}_i32", base_str), proc_macro2::Span::call_site());
+                        let typed_base = syn::LitInt::new(&format!("{}_i32", base_str), proc_macro2::Span::call_site());
                         Ok(parse_quote! {
                             #typed_base.checked_pow(#right_expr as u32).expect("Power operation overflowed")
                         })

@@ -294,3 +294,57 @@ VEC = [True, False, True, False]
         rust_code
     );
 }
+
+#[test]
+fn test_nested_integer_list_constant() {
+    let python_code = r#"
+X_VALUES = [[0, 100], [100, 200]]
+"#;
+
+    let pipeline = DepylerPipeline::new();
+    let result = pipeline.transpile(python_code);
+
+    assert!(result.is_ok(), "Transpilation should succeed");
+
+    let rust_code = result.unwrap();
+    println!("Nested integer list constant Rust output:\n{}", rust_code);
+
+    assert!(
+        rust_code.contains("lazy_static!"),
+        "List constants must use lazy_static! for heap allocation. Got:\n{}",
+        rust_code
+    );
+
+    assert!(
+        rust_code.contains("pub static ref X_VALUES: Vec<Vec<i32>> = vec![vec![0, 100], vec![100, 200]]"),
+        "Nested list must be declared as static ref with correct type and value. Got:\n{}",
+        rust_code
+    );
+}
+
+#[test]
+fn test_string_list_constant_multiple() {
+    let python_code = r#"
+STRINGS = ["one", "two", "three"]
+"#;
+
+    let pipeline = DepylerPipeline::new();
+    let result = pipeline.transpile(python_code);
+
+    assert!(result.is_ok(), "Transpilation should succeed");
+
+    let rust_code = result.unwrap();
+    println!("String list constant Rust output:\n{}", rust_code);
+
+    assert!(
+        rust_code.contains("lazy_static!"),
+        "List constants must use lazy_static! for heap allocation. Got:\n{}",
+        rust_code
+    );
+
+    assert!(
+        rust_code.contains("pub static ref STRINGS: Vec<String> = vec![\"one\".to_string(), \"two\".to_string(), \"three\".to_string()]"),
+        "String list must be declared as static ref with correct type and value. Got:\n{}",
+        rust_code
+    );
+}
