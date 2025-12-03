@@ -29,3 +29,20 @@ def check_location() -> bool:
     println!("Generated Rust code:\n{}", rust);
     assert!(rust.contains("[\"Home\".to_string(), \"Away\".to_string()].contains(\"Home\".to_string())"));
 }
+
+#[test]
+fn test_string_struct_in_tuple() {
+    let python = r#"
+
+@dataclass
+class State:
+  item: str
+
+def check_location(state: State) -> bool:
+    return state.item in ("Home", "Away")
+"#;
+
+    let rust = transpile_only(python).unwrap();
+    println!("Generated Rust code:\n{}", rust);
+    assert!(rust.contains("[\"Home\".to_string(), \"Away\".to_string()].contains(state.item)"));
+}

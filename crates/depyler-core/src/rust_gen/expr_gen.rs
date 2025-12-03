@@ -162,10 +162,8 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     let has_string_literals = elements
                         .iter()
                         .any(|e| matches!(e, HirExpr::Literal(Literal::String(_))));
-                    let left_is_string = self.is_string_type(left);
-                    let left_is_string_literal = matches!(left, HirExpr::Literal(Literal::String(_)));
 
-                    if has_string_literals && (left_is_string || left_is_string_literal) {
+                    if has_string_literals {
                         // Convert string literals to String for comparison
                         let elem_exprs: Vec<syn::Expr> = elements
                             .iter()
@@ -178,10 +176,16 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                                 }
                             })
                             .collect::<Result<Vec<_>>>()?;
-                        // Also convert left side if it's a string literal
+                        // Convert left side if it's a string literal
+                        let left_is_string_literal = matches!(left, HirExpr::Literal(Literal::String(_)));
                         if left_is_string_literal {
                             let left_as_string: syn::Expr = parse_quote! { #left_expr.to_string() };
                             return Ok(parse_quote! { [#(#elem_exprs),*].contains(#left_as_string) });
+                        }
+                        // Attribute access (struct field) doesn't need &, but variables do
+                        let left_is_attribute = matches!(left, HirExpr::Attribute { .. });
+                        if left_is_attribute {
+                            return Ok(parse_quote! { [#(#elem_exprs),*].contains(#left_expr) });
                         }
                         return Ok(parse_quote! { [#(#elem_exprs),*].contains(&#left_expr) });
                     }

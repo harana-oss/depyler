@@ -249,4 +249,4 @@ path = "../../tests/assignment_test.rs"
 
 [[test]]
 name = "tuple_test"
-path = "../../tests/tuple.rs"
+path = "../../tests/tuple_test.rs"

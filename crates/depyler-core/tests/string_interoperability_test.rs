@@ -333,8 +333,5 @@ def get_item(state: State, name: str) -> list[Item]:
 "#;
 
     let rust_code = pipeline.transpile(python_code).unwrap();
-    assert!(
-        rust_code.contains("name == \"One\".to_string()"),
-        "\n{rust_code}"
-    );
+    assert!(rust_code.contains("name == \"One\".to_string()"), "\n{rust_code}");
 }
