@@ -785,3 +785,24 @@ def test_single():
     assert!(rust_code.contains("let single_bool = vec![true]"));
     assert!(rust_code.contains("let single_str = vec![\"hello\".to_string()]"));
 }
+
+#[test]
+fn test_extend_with_string_literal() {
+    let py_code = r#"
+
+@dataclass 
+class State:
+    combined: list[str]
+
+def func(state: State) -> list[str]:
+    combined = []
+    for value in ("One", "Two"):
+        combined.extend("Three")
+
+    state.combined[:] = combined
+    return combined
+"#;
+
+    let rust_code = transpile_snippet(py_code).expect("Failed to transpile");
+    print!("Generated Rust code:\n{}", rust_code)
+}

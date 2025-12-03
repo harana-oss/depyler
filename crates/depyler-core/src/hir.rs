@@ -395,6 +395,13 @@ pub enum AssignTarget {
     Symbol(Symbol),
     /// Subscript assignment: x[key] = value
     Index { base: Box<HirExpr>, index: Box<HirExpr> },
+    /// Slice assignment: x[:] = value or x[start:stop] = value
+    Slice {
+        base: Box<HirExpr>,
+        start: Option<Box<HirExpr>>,
+        stop: Option<Box<HirExpr>>,
+        step: Option<Box<HirExpr>>,
+    },
     /// Attribute assignment: x.attr = value (for future use)
     Attribute { value: Box<HirExpr>, attr: Symbol },
     /// Tuple unpacking: (a, b) = value or a, b = value

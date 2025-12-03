@@ -834,6 +834,12 @@ fn analyze_mutable_vars(stmts: &[HirStmt], ctx: &mut CodeGenContext, params: &[H
                             mutable.insert(var_name.clone());
                         }
                     }
+                    AssignTarget::Slice { base, .. } => {
+                        // e.g., `arr[:] = value` requires `let mut arr = ...`
+                        if let HirExpr::Var(var_name) = base.as_ref() {
+                            mutable.insert(var_name.clone());
+                        }
+                    }
                 }
             }
             HirStmt::Expr(expr) => {

@@ -302,6 +302,14 @@ fn handle_assign_target(
                 }
             }
         }
+        AssignTarget::Slice { base, .. } => {
+            // Slice assignment: x[:] = value -> clear and extend
+            let base_tokens = expr_to_rust_tokens(base)?;
+            Ok(quote! {
+                #base_tokens.clear();
+                #base_tokens.extend(#value_tokens);
+            })
+        }
     }
 }
 

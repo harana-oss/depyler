@@ -217,6 +217,16 @@ impl<'a> MutationPropagator<'a> {
                             }
                         }
                     }
+                    AssignTarget::Slice { base, .. } => {
+                        // Slice assignment mutates the base
+                        if let Some(root_var) = extract_root_var(base) {
+                            if param_names.contains(&root_var) {
+                                mutation_info.mutated_params.insert(root_var);
+                            } else {
+                                mutation_info.mutated_locals.insert(root_var);
+                            }
+                        }
+                    }
                     AssignTarget::Attribute { value, .. } => {
                         // Attribute assignment mutates the object
                         if let Some(root_var) = extract_root_var(value) {

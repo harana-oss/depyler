@@ -1353,6 +1353,43 @@ fn convert_index_assignment(
     }
 }
 
+/// Convert slice assignment: `x[:] = value` or `x[start:stop] = value`
+fn convert_slice_assignment(
+    base: &HirExpr,
+    start: &Option<Box<HirExpr>>,
+    stop: &Option<Box<HirExpr>>,
+    _step: &Option<Box<HirExpr>>,
+    value_expr: syn::Expr,
+    type_mapper: &TypeMapper,
+) -> Result<syn::Stmt> {
+    let base_expr = convert_expr(base, type_mapper)?;
+
+    // For x[:] = value (full slice), clear and extend
+    if start.is_none() && stop.is_none() {
+        let assign_expr = parse_quote! {
+            {
+                #base_expr.clear();
+                #base_expr.extend(#value_expr);
+            }
+        };
+        Ok(syn::Stmt::Expr(assign_expr, Some(Default::default())))
+    } else {
+        // For partial slices, use splice
+        let start_expr = match start {
+            Some(s) => convert_expr(s, type_mapper)?,
+            None => parse_quote! { 0 },
+        };
+        let stop_expr = match stop {
+            Some(s) => convert_expr(s, type_mapper)?,
+            None => parse_quote! { #base_expr.len() },
+        };
+        let assign_expr = parse_quote! {
+            #base_expr.splice(#start_expr..#stop_expr, #value_expr)
+        };
+        Ok(syn::Stmt::Expr(assign_expr, Some(Default::default())))
+    }
+}
+
 /// Convert attribute assignment: `obj.attr = value`
 ///
 fn convert_attribute_assignment(
@@ -1393,6 +1430,9 @@ fn convert_assign_stmt_with_expr(
     match target {
         AssignTarget::Symbol(symbol) => convert_symbol_assignment(symbol, value_expr),
         AssignTarget::Index { base, index } => convert_index_assignment(base, index, value_expr, type_mapper),
+        AssignTarget::Slice { base, start, stop, step } => {
+            convert_slice_assignment(base, start, stop, step, value_expr, type_mapper)
+        }
         AssignTarget::Attribute { value: base, attr } => {
             convert_attribute_assignment(base, attr, value_expr, type_mapper)
         }

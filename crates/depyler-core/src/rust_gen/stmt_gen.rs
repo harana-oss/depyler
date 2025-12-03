@@ -1096,6 +1096,12 @@ fn is_var_used_in_assign_target(var_name: &str, target: &AssignTarget) -> bool {
         AssignTarget::Index { base, index } => {
             is_var_used_in_expr(var_name, base) || is_var_used_in_expr(var_name, index)
         }
+        AssignTarget::Slice { base, start, stop, step } => {
+            is_var_used_in_expr(var_name, base)
+                || start.as_ref().is_some_and(|s| is_var_used_in_expr(var_name, s))
+                || stop.as_ref().is_some_and(|s| is_var_used_in_expr(var_name, s))
+                || step.as_ref().is_some_and(|s| is_var_used_in_expr(var_name, s))
+        }
         AssignTarget::Attribute { value, .. } => is_var_used_in_expr(var_name, value),
         AssignTarget::Tuple(targets) => targets.iter().any(|t| is_var_used_in_assign_target(var_name, t)),
     }
@@ -2116,6 +2122,7 @@ pub(crate) fn codegen_assign_stmt(
             codegen_assign_symbol(symbol, value_expr, type_annotation_tokens, is_final, ctx)
         }
         AssignTarget::Index { base, index } => codegen_assign_index(base, index, value_expr, ctx),
+        AssignTarget::Slice { base, .. } => codegen_assign_slice(base, value_expr, ctx),
         AssignTarget::Attribute { value, attr } => codegen_assign_attribute(value, attr, value_expr, ctx),
         AssignTarget::Tuple(targets) => codegen_assign_tuple(targets, value_expr, type_annotation_tokens, ctx),
     }
@@ -2396,6 +2403,21 @@ pub(crate) fn codegen_assign_index(
             Ok(quote! { #chain.insert(#final_index, #value_expr); })
         }
     }
+}
+
+/// Generate code for slice assignment: x[:] = value
+#[inline]
+pub(crate) fn codegen_assign_slice(
+    base: &HirExpr,
+    value_expr: syn::Expr,
+    ctx: &mut CodeGenContext,
+) -> Result<proc_macro2::TokenStream> {
+    let base_expr = base.to_rust_expr(ctx)?;
+    // For full slice assignment x[:] = value, clear and extend
+    Ok(quote! {
+        #base_expr.clear();
+        #base_expr.extend(#value_expr);
+    })
 }
 
 /// Generate code for attribute (struct field) assignment

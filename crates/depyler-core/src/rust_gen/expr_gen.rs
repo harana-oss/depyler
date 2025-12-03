@@ -11241,7 +11241,8 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         match expr {
             // Comparison operations always return bool
             HirExpr::Binary {
-                op: BinOp::Eq
+                op:
+                    BinOp::Eq
                     | BinOp::NotEq
                     | BinOp::Lt
                     | BinOp::LtEq

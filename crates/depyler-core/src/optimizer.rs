@@ -565,6 +565,19 @@ impl Optimizer {
                 self.collect_used_vars_expr(base, used);
                 self.collect_used_vars_expr(index, used);
             }
+            AssignTarget::Slice { base, start, stop, step } => {
+                // Collect from base and slice bounds
+                self.collect_used_vars_expr(base, used);
+                if let Some(s) = start {
+                    self.collect_used_vars_expr(s, used);
+                }
+                if let Some(s) = stop {
+                    self.collect_used_vars_expr(s, used);
+                }
+                if let Some(s) = step {
+                    self.collect_used_vars_expr(s, used);
+                }
+            }
             AssignTarget::Attribute { value, .. } => {
                 // Collect from the base object
                 // e.g., `obj.attr = value` uses `obj`

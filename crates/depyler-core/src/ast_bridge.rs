@@ -1318,8 +1318,39 @@ pub(crate) fn extract_assign_target(expr: &ast::Expr) -> Result<AssignTarget> {
         ast::Expr::Name(n) => Ok(AssignTarget::Symbol(n.id.to_string())),
         ast::Expr::Subscript(s) => {
             let base = Box::new(ExprConverter::convert(s.value.as_ref().clone())?);
-            let index = Box::new(ExprConverter::convert(s.slice.as_ref().clone())?);
-            Ok(AssignTarget::Index { base, index })
+            // Check if slice is a slice expression or a simple index
+            match s.slice.as_ref() {
+                ast::Expr::Slice(slice_expr) => {
+                    let start = slice_expr
+                        .lower
+                        .as_ref()
+                        .map(|e| ExprConverter::convert(e.as_ref().clone()))
+                        .transpose()?
+                        .map(Box::new);
+                    let stop = slice_expr
+                        .upper
+                        .as_ref()
+                        .map(|e| ExprConverter::convert(e.as_ref().clone()))
+                        .transpose()?
+                        .map(Box::new);
+                    let step = slice_expr
+                        .step
+                        .as_ref()
+                        .map(|e| ExprConverter::convert(e.as_ref().clone()))
+                        .transpose()?
+                        .map(Box::new);
+                    Ok(AssignTarget::Slice {
+                        base,
+                        start,
+                        stop,
+                        step,
+                    })
+                }
+                _ => {
+                    let index = Box::new(ExprConverter::convert(s.slice.as_ref().clone())?);
+                    Ok(AssignTarget::Index { base, index })
+                }
+            }
         }
         ast::Expr::Attribute(a) => {
             let value = Box::new(ExprConverter::convert(a.value.as_ref().clone())?);

@@ -392,6 +392,19 @@ impl CfgBuilder {
             AssignTarget::Attribute { value: _, attr: _ } => {
                 // Attribute assignment - simplified handling
             }
+            AssignTarget::Slice { base, .. } => {
+                // Slice assignment - treat base as being mutated
+                if let HirExpr::Var(name) = base.as_ref() {
+                    self.cfg.add_stmt(
+                        self.current_block,
+                        CfgStmt::Assign {
+                            target: name.clone(),
+                            value: value.clone(),
+                            type_annotation: None,
+                        },
+                    );
+                }
+            }
         }
     }
 
