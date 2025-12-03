@@ -806,3 +806,29 @@ def func(state: State) -> list[str]:
     let rust_code = transpile_snippet(py_code).expect("Failed to transpile");
     print!("Generated Rust code:\n{}", rust_code)
 }
+
+#[test]
+fn test_return_type() {
+    let py_code = r#"
+from dataclasses import dataclass
+
+@dataclass
+class Item:
+    index: int
+
+def items(items: list[Item], index: int) -> Item:
+    for item in items:
+        if item.index == index:
+            return item
+
+    for item2 in items:
+        if item2.index == index:
+            return item2
+"#;
+
+    let rust_code = transpile_snippet(py_code).expect("Failed to transpile");
+    println!("{}", rust_code);
+
+    assert!(rust_code.contains("return item"));
+    assert!(rust_code.contains("return item2"));
+}

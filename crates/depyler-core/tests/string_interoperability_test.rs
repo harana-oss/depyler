@@ -297,3 +297,20 @@ def main() -> None:
         "\n{rust_code}"
     );
 }
+
+#[test]
+fn test_for_loop_over_string_tuple() {
+    let pipeline = DepylerPipeline::new();
+    let python_code = r#"
+def main() -> None:
+    for item in ("One", "Two"):
+        pass
+"#;
+
+    let rust_code = pipeline.transpile(python_code).unwrap();
+    // Python tuples in for loops should convert to Rust arrays
+    assert!(
+        rust_code.contains("[\"One\", \"Two\"]"),
+        "Tuple should be converted to array for iteration\n{rust_code}"
+    );
+}

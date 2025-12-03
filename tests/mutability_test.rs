@@ -1633,5 +1633,8 @@ def swap_elements():
     println!("Generated code:\n{rust_code}");
 
     // The array 'a' must be mutable since we're modifying its elements
-    assert!(rust_code.contains("let mut a"), "Array 'a' should be declared mutable:\n{rust_code}");
+    assert!(
+        rust_code.contains("let mut a"),
+        "Array 'a' should be declared mutable:\n{rust_code}"
+    );
 }

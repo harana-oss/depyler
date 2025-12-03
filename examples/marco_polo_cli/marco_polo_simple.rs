@@ -17,8 +17,8 @@ impl ZeroDivisionError {
 }
 #[doc = "Generate a number in range(simplified without random)."]
 #[doc = " Depyler: proven to terminate"]
-pub fn generate_number(min_val: i32, max_val: i32) -> Result<i32, ZeroDivisionError> {
-    Ok({
+pub fn generate_number(min_val: i32, max_val: i32) -> i32 {
+    {
         let a = min_val + max_val;
         let b = 2;
         let q = a / b;
@@ -29,7 +29,7 @@ pub fn generate_number(min_val: i32, max_val: i32) -> Result<i32, ZeroDivisionEr
         let signs_differ = r_negative != b_negative;
         let needs_adjustment = r_nonzero && signs_differ;
         if needs_adjustment { q - 1 } else { q }
-    })
+    }
 }
 #[doc = "Provide a hint based on the guess."]
 #[doc = " Depyler: verified panic-free"]
@@ -89,18 +89,18 @@ pub fn get_difficulty_name(level: i32) -> &'a str {
 }
 #[doc = "Calculate average with safety check."]
 #[doc = " Depyler: proven to terminate"]
-pub fn calculate_average(total: i32, count: i32) -> Result<f64, ZeroDivisionError> {
+pub fn calculate_average(total: i32, count: i32) -> f64 {
     let _cse_temp_0 = count == 0;
     if _cse_temp_0 {
-        return Ok(0.0);
+        return 0.0;
     }
-    Ok((total as f64) / (count as f64))
+    (total as f64) / (count as f64)
 }
 #[doc = "Format game statistics as string."]
 #[doc = " Depyler: verified panic-free"]
 #[doc = " Depyler: proven to terminate"]
-pub fn format_statistics(score: i32, attempts: i32, rounds: i32) -> Result<String, Box<dyn std::error::Error>> {
-    let avg = calculate_average(attempts, rounds)?;
+pub fn format_statistics(score: i32, attempts: i32, rounds: i32) -> String {
+    let avg = calculate_average(attempts, rounds);
     let mut result = "Game Statistics:\n".to_string();
     let _cse_temp_0 = score.to_string();
     let _cse_temp_1 = format!("{}{}", format!("{}{}", result, "Score: "), _cse_temp_0);
@@ -111,7 +111,7 @@ pub fn format_statistics(score: i32, attempts: i32, rounds: i32) -> Result<Strin
     let _cse_temp_4 = avg.to_string();
     let _cse_temp_5 = format!("{}{}", format!("{}{}", result, "Average: "), _cse_temp_4);
     result = format!("{}{}", _cse_temp_5, "\n");
-    Ok(result)
+    result
 }
 #[doc = "Check if guess is in valid range."]
 #[doc = " Depyler: verified panic-free"]

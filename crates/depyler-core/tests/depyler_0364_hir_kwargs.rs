@@ -67,7 +67,7 @@ def foo():
                 func,
                 args,
                 kwargs,
-                type_params,
+                 type_params,
             } => {
                 assert_eq!(func, "bar");
                 assert_eq!(args.len(), 2);

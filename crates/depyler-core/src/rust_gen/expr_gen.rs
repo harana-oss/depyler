@@ -144,6 +144,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 // - String: string.contains(substring)
                 // - HashSet: container.contains(&x)
                 // - HashMap/dict: container.contains_key(&x)
+                // - Tuple: convert to array and use .contains()
 
                 // os.environ in Python is like a dict, but in Rust we check with std::env::var().is_ok()
                 if let HirExpr::Attribute { value, attr } = right {
@@ -153,6 +154,43 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                             return Ok(parse_quote! { std::env::var(#left_expr).is_ok() });
                         }
                     }
+                }
+
+                // Check if right side is a tuple - convert to array for .contains()
+                if let HirExpr::Tuple(elements) = right {
+                    // Check if tuple contains string literals
+                    let has_string_literals = elements
+                        .iter()
+                        .any(|e| matches!(e, HirExpr::Literal(Literal::String(_))));
+                    let left_is_string = self.is_string_type(left);
+                    let left_is_string_literal = matches!(left, HirExpr::Literal(Literal::String(_)));
+
+                    if has_string_literals && (left_is_string || left_is_string_literal) {
+                        // Convert string literals to String for comparison
+                        let elem_exprs: Vec<syn::Expr> = elements
+                            .iter()
+                            .map(|e| {
+                                let expr = e.to_rust_expr(self.ctx)?;
+                                if matches!(e, HirExpr::Literal(Literal::String(_))) {
+                                    Ok(parse_quote! { #expr.to_string() })
+                                } else {
+                                    Ok(expr)
+                                }
+                            })
+                            .collect::<Result<Vec<_>>>()?;
+                        // Also convert left side if it's a string literal
+                        if left_is_string_literal {
+                            let left_as_string: syn::Expr = parse_quote! { #left_expr.to_string() };
+                            return Ok(parse_quote! { [#(#elem_exprs),*].contains(#left_as_string) });
+                        }
+                        return Ok(parse_quote! { [#(#elem_exprs),*].contains(&#left_expr) });
+                    }
+
+                    let elem_exprs: Vec<syn::Expr> = elements
+                        .iter()
+                        .map(|e| e.to_rust_expr(self.ctx))
+                        .collect::<Result<Vec<_>>>()?;
+                    return Ok(parse_quote! { [#(#elem_exprs),*].contains(&#left_expr) });
                 }
 
                 let is_string = self.is_string_type(right);
@@ -215,6 +253,15 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                             return Ok(parse_quote! { !std::env::var(#left_expr).is_ok() });
                         }
                     }
+                }
+
+                // Check if right side is a tuple - convert to array for .contains()
+                if let HirExpr::Tuple(elements) = right {
+                    let elem_exprs: Vec<syn::Expr> = elements
+                        .iter()
+                        .map(|e| e.to_rust_expr(self.ctx))
+                        .collect::<Result<Vec<_>>>()?;
+                    return Ok(parse_quote! { ![#(#elem_exprs),*].contains(&#left_expr) });
                 }
 
                 let is_string = self.is_string_type(right);
@@ -390,10 +437,24 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                         let size_lit = syn::LitInt::new(&size.to_string(), proc_macro2::Span::call_site());
                         Ok(parse_quote! { vec![#elem; #size_lit] })
                     }
-                    // Default multiplication
+                    // Default multiplication - handle mixed int/float types
                     _ => {
-                        let rust_op = convert_binop(op)?;
-                        Ok(parse_quote! { #left_expr #rust_op #right_expr })
+                        let left_is_float = self.ctx.is_expr_float_type(left);
+                        let right_is_float = self.ctx.is_expr_float_type(right);
+                        let left_is_int_type = self.ctx.is_expr_int_type(left);
+                        let right_is_int_type = self.ctx.is_expr_int_type(right);
+
+                        // Mixed float/int multiplication needs cast
+                        if left_is_float && right_is_int_type {
+                            // float * int: cast int to f64
+                            Ok(parse_quote! { #left_expr * (#right_expr as f64) })
+                        } else if left_is_int_type && right_is_float {
+                            // int * float: cast int to f64
+                            Ok(parse_quote! { (#left_expr as f64) * #right_expr })
+                        } else {
+                            let rust_op = convert_binop(op)?;
+                            Ok(parse_quote! { #left_expr #rust_op #right_expr })
+                        }
                     }
                 }
             }
@@ -11165,6 +11226,10 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             }
             _ => false,
         }
+    }
+
+    fn is_tuple_expr(&self, expr: &HirExpr) -> bool {
+        matches!(expr, HirExpr::Tuple(_))
     }
 
     /// Used to determine if zip() should use .into_iter() (owned) vs .iter() (borrowed)

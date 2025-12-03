@@ -1162,6 +1162,47 @@ fn generate_import_tokens(
     items
 }
 
+/// Infer type from a constant expression for type annotation generation
+fn infer_constant_type(expr: &HirExpr) -> Type {
+    match expr {
+        HirExpr::Literal(lit) => match lit {
+            Literal::Int(_) => Type::Int,
+            Literal::Float(_) => Type::Float,
+            Literal::String(_) => Type::String,
+            Literal::Bool(_) => Type::Bool,
+            Literal::None => Type::None,
+            Literal::Bytes(_) => Type::Unknown,
+        },
+        HirExpr::List(elems) => {
+            if elems.is_empty() {
+                Type::List(Box::new(Type::Unknown))
+            } else {
+                Type::List(Box::new(infer_constant_type(&elems[0])))
+            }
+        }
+        HirExpr::Tuple(elems) => {
+            let elem_types: Vec<Type> = elems.iter().map(infer_constant_type).collect();
+            Type::Tuple(elem_types)
+        }
+        HirExpr::Set(elems) => {
+            if elems.is_empty() {
+                Type::Set(Box::new(Type::Unknown))
+            } else {
+                Type::Set(Box::new(infer_constant_type(&elems[0])))
+            }
+        }
+        HirExpr::Dict(pairs) => {
+            if pairs.is_empty() {
+                Type::Dict(Box::new(Type::Unknown), Box::new(Type::Unknown))
+            } else {
+                let (key, val) = &pairs[0];
+                Type::Dict(Box::new(infer_constant_type(key)), Box::new(infer_constant_type(val)))
+            }
+        }
+        _ => Type::Unknown,
+    }
+}
+
 /// Generate module-level constant tokens
 ///
 /// Generates `pub const` declarations for module-level constants.
@@ -1187,27 +1228,15 @@ fn generate_constant_tokens(
             let syn_type = type_gen::rust_type_to_syn(&rust_type)?;
             quote! { : #syn_type }
         } else {
-            match &constant.value {
-                // Literal types
-                HirExpr::Literal(Literal::Int(_)) => quote! { : i32 },
-                HirExpr::Literal(Literal::Float(_)) => quote! { : f64 },
-                HirExpr::Literal(Literal::String(_)) => quote! { : &str },
-                HirExpr::Literal(Literal::Bool(_)) => quote! { : bool },
-
-                HirExpr::Dict { .. } => {
-                    ctx.needs_serde_json = true;
-                    quote! { : serde_json::Value }
-                }
-
-                HirExpr::List { .. } => {
-                    ctx.needs_serde_json = true;
-                    quote! { : serde_json::Value }
-                }
-
-                _ => {
-                    ctx.needs_serde_json = true;
-                    quote! { : serde_json::Value }
-                }
+            // Infer type from expression
+            let inferred_type = infer_constant_type(&constant.value);
+            if matches!(inferred_type, Type::Unknown) {
+                ctx.needs_serde_json = true;
+                quote! { : serde_json::Value }
+            } else {
+                let rust_type = ctx.type_mapper.map_type(&inferred_type);
+                let syn_type = type_gen::rust_type_to_syn(&rust_type)?;
+                quote! { : #syn_type }
             }
         };
 

@@ -1644,7 +1644,16 @@ fn convert_stmt_with_context(stmt: &HirStmt, type_mapper: &TypeMapper, is_classm
                 _ => panic!("Unsupported for loop target type"),
             };
 
-            let iter_expr = convert_expr_with_context(iter, type_mapper, is_classmethod)?;
+            // Convert tuple to array for iteration (tuples aren't directly iterable in Rust)
+            let iter_expr = if let HirExpr::Tuple(elts) = iter {
+                let elt_exprs: Vec<syn::Expr> = elts
+                    .iter()
+                    .map(|e| convert_expr_with_context(e, type_mapper, is_classmethod))
+                    .collect::<Result<Vec<_>>>()?;
+                parse_quote! { [#(#elt_exprs),*] }
+            } else {
+                convert_expr_with_context(iter, type_mapper, is_classmethod)?
+            };
             let body_block = convert_block_with_context(body, type_mapper, is_classmethod)?;
 
             let for_expr = parse_quote! {

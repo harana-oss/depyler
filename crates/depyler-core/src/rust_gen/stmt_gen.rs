@@ -505,9 +505,16 @@ pub(crate) fn codegen_while_stmt(
     // Convert non-boolean expressions to boolean (e.g., `while queue` where queue: VecDeque)
     cond = apply_truthiness_conversion(condition, cond, ctx);
 
+    // Return statements inside loops must use explicit `return` keyword
+    let saved_is_final = ctx.is_final_statement;
+    ctx.is_final_statement = false;
+
     ctx.enter_scope();
     let body_stmts: Vec<_> = body.iter().map(|s| s.to_rust_tokens(ctx)).collect::<Result<Vec<_>>>()?;
     ctx.exit_scope();
+
+    ctx.is_final_statement = saved_is_final;
+
     Ok(quote! {
         while #cond {
             #(#body_stmts)*
@@ -1278,7 +1285,13 @@ pub(crate) fn codegen_for_stmt(
         _ => bail!("Unsupported for loop target type"),
     };
 
-    let mut iter_expr = iter.to_rust_expr(ctx)?;
+    // Convert tuple to array for iteration (tuples aren't directly iterable in Rust)
+    let mut iter_expr = if let HirExpr::Tuple(elts) = iter {
+        let elt_exprs: Vec<syn::Expr> = elts.iter().map(|e| e.to_rust_expr(ctx)).collect::<Result<Vec<_>>>()?;
+        parse_quote! { [#(#elt_exprs),*] }
+    } else {
+        iter.to_rust_expr(ctx)?
+    };
 
     // When iterating over field accesses (e.g., state.items), we MUST use borrows
     // because Rust doesn't allow moving out of struct fields.
@@ -1446,6 +1459,10 @@ pub(crate) fn codegen_for_stmt(
         }
     }
 
+    // Return statements inside loops must use explicit `return` keyword
+    let saved_is_final = ctx.is_final_statement;
+    ctx.is_final_statement = false;
+
     ctx.enter_scope();
 
     // Extract element type from iterator and add to var_types
@@ -1505,6 +1522,8 @@ pub(crate) fn codegen_for_stmt(
     }
     let body_stmts: Vec<_> = body.iter().map(|s| s.to_rust_tokens(ctx)).collect::<Result<Vec<_>>>()?;
     ctx.exit_scope();
+
+    ctx.is_final_statement = saved_is_final;
 
     // When iterating with enumerate(), the first element of the tuple is usize
     // If we're destructuring a tuple and the iterator is enumerate(), cast the first variable to i32

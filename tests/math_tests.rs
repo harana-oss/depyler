@@ -212,7 +212,7 @@ def max_two_f(a: float, b: float) -> float:
 "#;
 
     let rust = transpile_and_verify(python, "max_two_floats").unwrap();
-    assert!(rust.contains("a.max(b)"));
+    assert!(rust.contains("f64::max(a, b)"));
 }
 
 #[test]
@@ -223,7 +223,7 @@ def min_two_f(a: float, b: float) -> float:
 "#;
 
     let rust = transpile_and_verify(python, "min_two_floats").unwrap();
-    assert!(rust.contains("a.min(b)"));
+    assert!(rust.contains("f64::min(a, b)"));
 }
 
 // ============================================================================
@@ -249,7 +249,7 @@ def min_three() -> float:
 "#;
 
     let rust = transpile_and_verify(python, "min_three_floats").unwrap();
-    assert!(rust.contains(".min(2.7).min(0.8)")); // Check the chain, allow cast on first literal
+    assert!(rust.contains("f64::min(f64::min(1.5, 2.7), 0.8)"));
 }
 
 #[test]
@@ -537,4 +537,145 @@ def precedence(a: int, b: int, c: int) -> int:
 
     let rust = transpile_and_verify(python, "precedence").unwrap();
     assert!(rust.contains("a + b * c"));
+}
+
+// ============================================================================
+// Points Calculation Tests
+// ============================================================================
+
+#[test]
+fn test_calculate_simple_multiplication_division() {
+    let python = r#"
+def calculate(points: int) -> float:
+    return 0.18 * points / 10.0
+"#;
+
+    let rust = transpile_and_verify(python, "calc_simple_mult_div").unwrap();
+    println!("Rust code for simple multiplication/division:\n{}", rust);
+    assert!(rust.contains("0.18 * (points as f64) / 10.0"));
+}
+
+#[test]
+fn test_calculate_exp_expression() {
+    let python = r#"
+import math
+def calculate(points: int) -> float:
+    return math.exp(0.18 * points / 10.0)
+"#;
+
+    let rust = transpile_and_verify(python, "calc_exp_expr").unwrap();
+    println!("Rust code for math.exp expression:\n{}", rust);
+    assert!(rust.contains(".exp()"));
+}
+
+#[test]
+fn test_calculate_max_with_subtraction() {
+    let python = r#"
+def calculate(points: float) -> float:
+    return max(2.5 - points / 10.0, 0.5)
+"#;
+
+    let rust = transpile_and_verify(python, "calc_max_sub").unwrap();
+    println!("Rust code for max with subtraction:\n{}", rust);
+    assert!(rust.contains("f64::max(2.5 - points / 10.0, 0.5)"));
+}
+
+#[test]
+fn test_calculate_min_with_division() {
+    let python = r#"
+def calculate(points: float) -> float:
+    return min(points / 2.0, 10.0)
+"#;
+
+    let rust = transpile_and_verify(python, "calc_min_div").unwrap();
+    println!("Rust code for min with division:\n{}", rust);
+    assert!(rust.contains("f64::min(points / 2.0, 10.0)"));
+}
+
+// ============================================================================
+// Mixed Float/Int Arithmetic Tests
+// ============================================================================
+
+#[test]
+fn test_float_times_int_literal() {
+    let python = r#"
+def multiply(x: float) -> float:
+    return x * 3
+"#;
+
+    let rust = transpile_and_verify(python, "float_times_int_lit").unwrap();
+    println!("Rust code for float * int literal:\n{}", rust);
+    assert!(rust.contains("x * (3 as f64)"));
+}
+
+#[test]
+fn test_int_literal_times_float() {
+    let python = r#"
+def multiply(x: float) -> float:
+    return 3 * x
+"#;
+
+    let rust = transpile_and_verify(python, "int_lit_times_float").unwrap();
+    println!("Rust code for int literal * float:\n{}", rust);
+    assert!(rust.contains("(3 as f64) * x"));
+}
+
+#[test]
+fn test_float_literal_times_int_var() {
+    let python = r#"
+def multiply(n: int) -> float:
+    return 6.0 * n
+"#;
+
+    let rust = transpile_and_verify(python, "float_lit_times_int_var").unwrap();
+    println!("Rust code for float literal * int var:\n{}", rust);
+    assert!(rust.contains("6.0 * (n as f64)"));
+}
+
+#[test]
+fn test_int_var_times_float_literal() {
+    let python = r#"
+def multiply(n: int) -> float:
+    return n * 2.5
+"#;
+
+    let rust = transpile_and_verify(python, "int_var_times_float_lit").unwrap();
+    println!("Rust code for int var * float literal:\n{}", rust);
+    assert!(rust.contains("(n as f64) * 2.5"));
+}
+
+#[test]
+fn test_mixed_int_float_chain() {
+    let python = r#"
+def calculate(a: int, b: float) -> float:
+    return a * b * 2.0
+"#;
+
+    let rust = transpile_and_verify(python, "mixed_chain").unwrap();
+    println!("Rust code for mixed chain:\n{}", rust);
+    assert!(rust.contains("(a as f64) * b"));
+}
+
+#[test]
+fn test_float_var_times_int_var() {
+    let python = r#"
+def multiply(x: float, n: int) -> float:
+    return x * n
+"#;
+
+    let rust = transpile_and_verify(python, "float_var_times_int_var").unwrap();
+    println!("Rust code for float var * int var:\n{}", rust);
+    assert!(rust.contains("x * (n as f64)"));
+}
+
+#[test]
+fn test_int_var_times_float_var() {
+    let python = r#"
+def multiply(n: int, x: float) -> float:
+    return n * x
+"#;
+
+    let rust = transpile_and_verify(python, "int_var_times_float_var").unwrap();
+    println!("Rust code for int var * float var:\n{}", rust);
+    assert!(rust.contains("(n as f64) * x"));
 }

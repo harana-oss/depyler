@@ -1,11 +1,11 @@
 //! Handle Python's min() and max() builtin functions
 //!
-//! Python: max(a, b) → Rust: std::cmp::max(a, b) or a.max(b) for floats
-//! Python: max(a, b, c) → Rust: std::cmp::max(std::cmp::max(a, b), c)
+//! Python: max(a, b) → Rust: f64::max(a, b) for floats, std::cmp::max(a, b) for integers
+//! Python: max(a, b, c) → Rust: f64::max(f64::max(a, b), c) for floats
 //! Python: max([1, 2, 3]) → Rust: *list.iter().max().unwrap()
 //! Python: min() follows the same patterns
 
-use crate::hir::{HirExpr, Literal, Type};
+use crate::hir::{HirExpr, Type};
 use crate::rust_gen::context::{CodeGenContext, ToRustExpr};
 use anyhow::Result;
 use syn::parse_quote;
@@ -49,23 +49,16 @@ pub fn handle_min(args: &[HirExpr], ctx: &mut CodeGenContext) -> Result<syn::Exp
 }
 
 fn handle_max_two(args: &[HirExpr], ctx: &mut CodeGenContext) -> Result<syn::Expr> {
-    let mut arg1 = args[0].to_rust_expr(ctx)?;
-    let mut arg2 = args[1].to_rust_expr(ctx)?;
+    let arg1 = args[0].to_rust_expr(ctx)?;
+    let arg2 = args[1].to_rust_expr(ctx)?;
 
     // Check if arguments are floats (which don't implement Ord)
     let is_float = ctx.is_expr_float_type(&args[0]) || ctx.is_expr_float_type(&args[1]);
 
     if is_float {
-        // Cast float literals to f64 to avoid ambiguous type errors
-        // Wrap in parens to allow method call after cast
-        if matches!(args[0], HirExpr::Literal(Literal::Float(_))) {
-            arg1 = parse_quote! { (#arg1 as f64) };
-        }
-        if matches!(args[1], HirExpr::Literal(Literal::Float(_))) {
-            arg2 = parse_quote! { (#arg2 as f64) };
-        }
-        // Use f64::max method for floats
-        Ok(parse_quote! { #arg1.max(#arg2) })
+        // Use f64::max function syntax to avoid operator precedence issues
+        // e.g., max(2.5 - x, 0.5) should become f64::max(2.5 - x, 0.5), not 2.5 - x.max(0.5)
+        Ok(parse_quote! { f64::max(#arg1, #arg2) })
     } else {
         // Use std::cmp::max for types implementing Ord
         Ok(parse_quote! { std::cmp::max(#arg1, #arg2) })
@@ -73,23 +66,16 @@ fn handle_max_two(args: &[HirExpr], ctx: &mut CodeGenContext) -> Result<syn::Exp
 }
 
 fn handle_min_two(args: &[HirExpr], ctx: &mut CodeGenContext) -> Result<syn::Expr> {
-    let mut arg1 = args[0].to_rust_expr(ctx)?;
-    let mut arg2 = args[1].to_rust_expr(ctx)?;
+    let arg1 = args[0].to_rust_expr(ctx)?;
+    let arg2 = args[1].to_rust_expr(ctx)?;
 
     // Check if arguments are floats (which don't implement Ord)
     let is_float = ctx.is_expr_float_type(&args[0]) || ctx.is_expr_float_type(&args[1]);
 
     if is_float {
-        // Cast float literals to f64 to avoid ambiguous type errors
-        // Wrap in parens to allow method call after cast
-        if matches!(args[0], HirExpr::Literal(Literal::Float(_))) {
-            arg1 = parse_quote! { (#arg1 as f64) };
-        }
-        if matches!(args[1], HirExpr::Literal(Literal::Float(_))) {
-            arg2 = parse_quote! { (#arg2 as f64) };
-        }
-        // Use f64::min method for floats
-        Ok(parse_quote! { #arg1.min(#arg2) })
+        // Use f64::min function syntax to avoid operator precedence issues
+        // e.g., min(x / 2.0, 10.0) should become f64::min(x / 2.0, 10.0), not x / 2.0.min(10.0)
+        Ok(parse_quote! { f64::min(#arg1, #arg2) })
     } else {
         // Use std::cmp::min for types implementing Ord
         Ok(parse_quote! { std::cmp::min(#arg1, #arg2) })
@@ -101,17 +87,12 @@ fn handle_max_multiple(args: &[HirExpr], ctx: &mut CodeGenContext) -> Result<syn
     let is_float = args.iter().any(|arg| ctx.is_expr_float_type(arg));
 
     if is_float {
-        // Chain .max() calls: a.max(b).max(c)
-        // Cast the first literal to f64 to avoid ambiguous type, wrap in parens for method call
+        // Chain f64::max calls: f64::max(f64::max(a, b), c)
         let mut result = args[0].to_rust_expr(ctx)?;
-        if matches!(args[0], HirExpr::Literal(Literal::Float(_))) {
-            result = parse_quote! { (#result as f64) };
-        }
 
         for arg in &args[1..] {
-            // Don't wrap method arguments in extra parens - they're already in the right context
             let arg_expr = arg.to_rust_expr(ctx)?;
-            result = parse_quote! { #result.max(#arg_expr) };
+            result = parse_quote! { f64::max(#result, #arg_expr) };
         }
         Ok(result)
     } else {
@@ -130,17 +111,12 @@ fn handle_min_multiple(args: &[HirExpr], ctx: &mut CodeGenContext) -> Result<syn
     let is_float = args.iter().any(|arg| ctx.is_expr_float_type(arg));
 
     if is_float {
-        // Chain .min() calls: a.min(b).min(c)
-        // Cast the first literal to f64 to avoid ambiguous type, wrap in parens for method call
+        // Chain f64::min calls: f64::min(f64::min(a, b), c)
         let mut result = args[0].to_rust_expr(ctx)?;
-        if matches!(args[0], HirExpr::Literal(Literal::Float(_))) {
-            result = parse_quote! { (#result as f64) };
-        }
 
         for arg in &args[1..] {
-            // Don't wrap method arguments in extra parens - they're already in the right context
             let arg_expr = arg.to_rust_expr(ctx)?;
-            result = parse_quote! { #result.min(#arg_expr) };
+            result = parse_quote! { f64::min(#result, #arg_expr) };
         }
         Ok(result)
     } else {

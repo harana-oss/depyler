@@ -237,6 +237,19 @@ impl<'a> CodeGenContext<'a> {
             _ => false,
         }
     }
+
+    /// Check if an expression evaluates to an integer type
+    ///
+    /// Used by arithmetic operations to handle mixed int/float types.
+    pub fn is_expr_int_type(&self, expr: &crate::hir::HirExpr) -> bool {
+        match expr {
+            crate::hir::HirExpr::Var(var_name) => {
+                matches!(self.var_types.get(var_name), Some(Type::Int))
+            }
+            crate::hir::HirExpr::Literal(crate::hir::Literal::Int(_)) => true,
+            _ => false,
+        }
+    }
 }
 
 /// Trait for converting HIR elements to Rust tokens

@@ -246,3 +246,7 @@ path = "../../tests/default_arguments_test.rs"
 [[test]]
 name = "assignment_test"
 path = "../../tests/assignment_test.rs"
+
+[[test]]
+name = "tuple_test"
+path = "../../tests/tuple.rs"

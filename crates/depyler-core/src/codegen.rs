@@ -424,7 +424,13 @@ fn handle_for_stmt(
     body: &[HirStmt],
     scope_tracker: &mut ScopeTracker,
 ) -> Result<proc_macro2::TokenStream> {
-    let iter_tokens = expr_to_rust_tokens(iter)?;
+    // Convert tuple to array for iteration (tuples in Rust aren't directly iterable)
+    let iter_tokens = if let HirExpr::Tuple(items) = iter {
+        let item_tokens: Vec<_> = items.iter().map(expr_to_rust_tokens).collect::<Result<Vec<_>>>()?;
+        quote! { [#(#item_tokens),*] }
+    } else {
+        expr_to_rust_tokens(iter)?
+    };
     scope_tracker.enter_scope();
 
     // Generate target pattern and declare variables
