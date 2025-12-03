@@ -82,6 +82,39 @@ def abs_expr(a: int, b: int) -> int:
     assert!(rust.contains("(a - b).abs()"));
 }
 
+#[test]
+fn test_abs_positive_literal() {
+    let python = r#"
+def abs_positive() -> int:
+    return abs(42)
+"#;
+
+    let rust = transpile_and_verify(python, "abs_positive").unwrap();
+    assert!(rust.contains("(42 as i32).abs()"));
+}
+
+#[test]
+fn test_abs_float_literal() {
+    let python = r#"
+def abs_float_lit() -> float:
+    return abs(-3.14)
+"#;
+
+    let rust = transpile_and_verify(python, "abs_float_lit").unwrap();
+    assert!(rust.contains("(-3.14 as f64).abs()"));
+}
+
+#[test]
+fn test_abs_float_positive_literal() {
+    let python = r#"
+def abs_float_pos() -> float:
+    return abs(2.718)
+"#;
+
+    let rust = transpile_and_verify(python, "abs_float_pos").unwrap();
+    assert!(rust.contains("(2.718 as f64).abs()"));
+}
+
 // ============================================================================
 // Rounding Tests
 // ============================================================================
@@ -165,6 +198,51 @@ def power_op(a: int, b: int) -> int:
 
     let rust = transpile_and_verify(python, "power_op_var").unwrap();
     assert!(rust.contains("a.checked_pow(b as u32)"));
+}
+
+#[test]
+fn test_pow_variable_base_constant_exp() {
+    let python = r#"
+def pow_var_base(base: int) -> int:
+    return pow(base, 3)
+"#;
+
+    let rust = transpile_and_verify(python, "pow_var_base_const_exp").unwrap();
+    assert!(rust.contains("base.pow(3 as u32)"));
+}
+
+#[test]
+fn test_pow_constant_base_variable_exp() {
+    let python = r#"
+def pow_const_base(exp: int) -> int:
+    return pow(2, exp)
+"#;
+
+    let rust = transpile_and_verify(python, "pow_const_base_var_exp").unwrap();
+    // When base is constant but exp is variable, need checked_pow with type suffix
+    assert!(rust.contains("2_i32.checked_pow(exp as u32)"));
+}
+
+#[test]
+fn test_power_operator_variable_base_constant_exp() {
+    let python = r#"
+def power_op_var_base(x: int) -> int:
+    return x ** 4
+"#;
+
+    let rust = transpile_and_verify(python, "power_op_var_base_const_exp").unwrap();
+    assert!(rust.contains("x.pow(4 as u32)"));
+}
+
+#[test]
+fn test_power_operator_constant_base_variable_exp() {
+    let python = r#"
+def power_op_const_base(n: int) -> int:
+    return 3 ** n
+"#;
+
+    let rust = transpile_and_verify(python, "power_op_const_base_var_exp").unwrap();
+    assert!(rust.contains("3_i32.checked_pow(n as u32)"));
 }
 
 #[test]

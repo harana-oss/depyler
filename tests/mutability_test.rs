@@ -1562,6 +1562,73 @@ def third(state: State) -> None:
 }
 
 #[test]
+fn test_pass_by_value_chain_out_of_sequence() {
+    let python = r#"
+from dataclasses import dataclass
+
+@dataclass
+class State:
+    x: int
+
+def first(state: State) -> None:
+    second(state)
+
+def second(state: State) -> None:
+    pass
+
+def third(state: State) -> None:
+    state.x = 6
+    pass
+
+def first_mut(state: State) -> None:
+    second(state)
+    third(state)
+"#;
+
+    let pipeline = DepylerPipeline::new();
+    let result = pipeline.transpile(python);
+    assert!(result.is_ok());
+    let rust_code = result.unwrap();
+    println!("Generated code:\n{rust_code}");
+
+    assert!(rust_code.contains("first(state: &State)"), "\n{rust_code}");
+    assert!(rust_code.contains("first_mut(state: &mut State)"), "\n{rust_code}");
+    assert!(rust_code.contains("second(state: &mut State)"), "\n{rust_code}");
+    assert!(rust_code.contains("third(state: &mut State)"), "\n{rust_code}");
+}
+
+#[test]
+fn test_pass_by_value_chain_no_changes() {
+    let python = r#"
+from dataclasses import dataclass
+
+@dataclass
+class State:
+    x: int
+
+def second(state: State) -> None:
+    third(state)
+
+def third(state: State) -> None:
+    pass
+
+def first(state: State) -> None:
+    second(state)
+    third(state)
+"#;
+
+    let pipeline = DepylerPipeline::new();
+    let result = pipeline.transpile(python);
+    assert!(result.is_ok());
+    let rust_code = result.unwrap();
+    println!("Generated code:\n{rust_code}");
+
+    assert!(rust_code.contains("first(state: &State)"), "\n{rust_code}");
+    assert!(rust_code.contains("second(state: &State)"), "\n{rust_code}");
+    assert!(rust_code.contains("third(state: &State)"), "\n{rust_code}");
+}
+
+#[test]
 fn test_indirect_mutation_through_callee() {
     let python = r#"
 from dataclasses import dataclass

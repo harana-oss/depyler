@@ -70,6 +70,29 @@ pub fn handle_pow(args: &[HirExpr], ctx: &mut CodeGenContext) -> Result<syn::Exp
         // If base is integer type, use .pow(), otherwise use checked_pow
         // We already handled float case above, so this is integer
         Ok(parse_quote! { #base_expr.pow(#exp_expr as u32) })
+    } else if base_is_literal {
+        // Base is literal, exp is variable - need type suffix and checked_pow
+        let base_with_type: syn::Expr = match &args[0] {
+            HirExpr::Literal(Literal::Int(val)) => {
+                let val_str = val.to_string();
+                let ident = syn::LitInt::new(&format!("{}_i32", val_str), proc_macro2::Span::call_site());
+                parse_quote! { #ident }
+            }
+            HirExpr::Unary {
+                op: UnaryOp::Neg,
+                operand,
+            } => {
+                if let HirExpr::Literal(Literal::Int(val)) = &**operand {
+                    let val_str = val.to_string();
+                    let ident = syn::LitInt::new(&format!("{}_i32", val_str), proc_macro2::Span::call_site());
+                    parse_quote! { -#ident }
+                } else {
+                    parse_quote! { (#base_expr as i32) }
+                }
+            }
+            _ => parse_quote! { (#base_expr as i32) },
+        };
+        Ok(parse_quote! { #base_with_type.checked_pow(#exp_expr as u32).expect("Power operation overflowed") })
     } else {
         // Both are variables - use checked_pow for safety
         Ok(parse_quote! { #base_expr.checked_pow(#exp_expr as u32).expect("Power operation overflowed") })

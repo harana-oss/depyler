@@ -882,15 +882,17 @@ impl BorrowingContext {
         // This handles multi-use patterns like:
         //   func1(state)
         //   func2(state)  # state used again after func1
-        // If we moved to func1, func2 would fail
+        // If we moved to func1, func2 would fail - need to borrow or clone
         if usage.used_after_function_call {
             if usage.is_mutated {
-                return BorrowingStrategy::BorrowMutable { lifetime: None };
-            } else {
-                // Even if not mutated locally, we might need &mut for the callee
-                // Let's be conservative and use &mut if any function call is involved
+                // Parameter is mutated locally, must borrow mutably
                 return BorrowingStrategy::BorrowMutable { lifetime: None };
             }
+            // Parameter is NOT mutated locally - use immutable borrow
+            // The caller can pass by value and let callees clone if needed,
+            // OR if interprocedural analysis shows callees need mut, that will
+            // be handled by force_borrow_from_call_chain in codegen_single_param
+            return BorrowingStrategy::BorrowImmutable { lifetime: None };
         }
 
         // This handles cases like:
@@ -901,8 +903,15 @@ impl BorrowingContext {
             return BorrowingStrategy::BorrowMutable { lifetime: None };
         }
 
-        // If parameter is moved (but not mutated), take ownership
+        // If parameter is moved (but not mutated), check if it's a struct/dataclass type
+        // For struct types that are only passed to other functions, prefer borrowing
+        // This enables cleaner call chains like first(s) -> second(s) -> third(s)
         if usage.is_moved {
+            // For custom/struct types, prefer borrowing over ownership
+            // This matches the common pattern where structs are passed through function chains
+            if self.is_struct_type(rust_type) && !usage.escapes_through_return && !usage.is_stored {
+                return BorrowingStrategy::BorrowImmutable { lifetime: None };
+            }
             // Check if move is necessary
             if !usage.escapes_through_return && !usage.is_stored {
                 insights.push(BorrowingInsight::UnnecessaryMove(param_name.to_string()));
@@ -942,8 +951,13 @@ impl BorrowingContext {
         } else if usage.is_read {
             BorrowingStrategy::BorrowImmutable { lifetime: None }
         } else {
-            // Parameter unused - take ownership (simplest)
-            BorrowingStrategy::TakeOwnership
+            // Parameter unused - for struct types, prefer borrowing for consistency
+            // This allows passing the same reference through multiple functions
+            if self.is_struct_type(rust_type) {
+                BorrowingStrategy::BorrowImmutable { lifetime: None }
+            } else {
+                BorrowingStrategy::TakeOwnership
+            }
         }
     }
 
@@ -969,6 +983,12 @@ impl BorrowingContext {
             RustType::Tuple(types) => types.iter().all(|t| self.is_copy_type(t)),
             _ => false,
         }
+    }
+
+    /// Check if a type is a struct/dataclass type that should prefer borrowing
+    fn is_struct_type(&self, rust_type: &RustType) -> bool {
+        // Custom types (dataclasses, user-defined structs) should prefer borrowing
+        matches!(rust_type, RustType::Custom(_))
     }
 }
 
