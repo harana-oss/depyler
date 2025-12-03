@@ -345,6 +345,9 @@ fn codegen_single_param(
             inferred_with_mut.needs_mut = true;
             // Track this parameter as already being &mut
             ctx.current_func_mut_ref_params.insert(param.name.clone());
+        } else if inferred.should_borrow && !inferred.needs_mut {
+            // Track this parameter as an immutable reference
+            ctx.current_func_ref_params.insert(param.name.clone());
         }
 
         let ty =
@@ -1299,6 +1302,8 @@ impl RustCodeGen for HirFunction {
         ctx.mutable_vars.clear();
         // Clear mut ref params tracking - each function tracks its own &mut ref params
         ctx.current_func_mut_ref_params.clear();
+        // Clear immutable ref params tracking - each function tracks its own & ref params
+        ctx.current_func_ref_params.clear();
         analyze_mutable_vars(&self.body, ctx, &self.params);
 
         // NOTE: We intentionally do NOT add function_param_muts to mutable_vars here.

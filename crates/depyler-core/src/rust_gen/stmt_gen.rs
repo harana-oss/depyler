@@ -8,7 +8,7 @@ use crate::rust_gen::context::{CodeGenContext, RustCodeGen, ToRustExpr};
 use crate::rust_gen::keywords::safe_ident; // Keyword escaping
 use crate::rust_gen::type_gen::rust_type_to_syn;
 use anyhow::{Result, bail};
-use quote::{ToTokens, quote};
+use quote::{ToTokens, format_ident, quote};
 use syn::{self, parse_quote};
 
 /// Helper to build nested dictionary access for assignment
@@ -31,6 +31,60 @@ fn extract_nested_indices_tokens(expr: &HirExpr, ctx: &mut CodeGenContext) -> Re
                 indices.reverse(); // We collected from inner to outer, need outer to inner
                 return Ok((base_expr, indices));
             }
+        }
+    }
+}
+
+/// Helper to build nested dictionary access for assignment WITHOUT clone
+/// Used for dict insert operations on field accesses where we need mutable access
+fn extract_nested_indices_tokens_no_clone(
+    expr: &HirExpr,
+    ctx: &mut CodeGenContext,
+) -> Result<(syn::Expr, Vec<syn::Expr>)> {
+    let mut indices = Vec::new();
+    let mut current = expr;
+
+    // Walk up the chain collecting indices
+    loop {
+        match current {
+            HirExpr::Index { base, index } => {
+                let index_expr = index.to_rust_expr(ctx)?;
+                indices.push(index_expr);
+                current = base;
+            }
+            _ => {
+                // We've reached the base - build it without clone
+                let base_expr = build_expr_no_clone(current);
+                indices.reverse(); // We collected from inner to outer, need outer to inner
+                return Ok((base_expr, indices));
+            }
+        }
+    }
+}
+
+/// Build an expression without adding .clone()
+/// Used for mutation operations where we need mutable access
+fn build_expr_no_clone(expr: &HirExpr) -> syn::Expr {
+    match expr {
+        HirExpr::Var(name) => {
+            let ident = format_ident!("{}", name);
+            parse_quote! { #ident }
+        }
+        HirExpr::Attribute { value, attr } => {
+            let base = build_expr_no_clone(value);
+            let attr_ident = format_ident!("{}", attr);
+            parse_quote! { #base.#attr_ident }
+        }
+        HirExpr::Index { base, index } => {
+            // For nested index expressions in the base, build without clone
+            let base_expr = build_expr_no_clone(base);
+            // Note: index is converted separately, just use a placeholder pattern
+            // This shouldn't be reached in normal flow since indices are collected above
+            parse_quote! { #base_expr }
+        }
+        _ => {
+            // Fallback - shouldn't happen often
+            parse_quote! { () }
         }
     }
 }
@@ -1478,8 +1532,8 @@ pub(crate) fn codegen_for_stmt(
             // Extract the field access expression
             match iter {
                 HirExpr::Call { func, args, .. } if func == "enumerate" && !args.is_empty() => {
-                    // Get the field access from inside enumerate
-                    let field_expr = args[0].to_rust_expr(ctx)?;
+                    // Get the field access from inside enumerate - without clone
+                    let field_expr = generate_field_access_without_clone(&args[0], ctx)?;
                     if needs_mut {
                         iter_expr = parse_quote! { #field_expr.iter_mut().enumerate() };
                     } else {
@@ -1487,8 +1541,8 @@ pub(crate) fn codegen_for_stmt(
                     }
                 }
                 HirExpr::Call { func, args, .. } if func == "reversed" && !args.is_empty() => {
-                    // Get the field access from inside reversed
-                    let field_expr = args[0].to_rust_expr(ctx)?;
+                    // Get the field access from inside reversed - without clone
+                    let field_expr = generate_field_access_without_clone(&args[0], ctx)?;
                     if needs_mut {
                         iter_expr = parse_quote! { #field_expr.iter_mut().rev() };
                     } else {
@@ -1633,6 +1687,12 @@ pub(crate) fn codegen_for_stmt(
             || (n.ends_with("_text") && !n.ends_with("_texts"))
     }) && matches!(target, AssignTarget::Symbol(_));
 
+    // When iterating over field accesses with .iter(), loop variables are references
+    // We need to dereference them for use in value comparisons/assignments
+    // This applies when: needs_field_borrow is Some(false) (immutable borrow)
+    // For mutable iteration (Some(true)), we DON'T add clone - we modify in place
+    let needs_deref = matches!(needs_field_borrow, Some(false));
+
     if needs_enumerate_cast {
         // Get the first variable name from the tuple pattern (the index from enumerate)
         if let AssignTarget::Tuple(targets) = target {
@@ -1640,22 +1700,59 @@ pub(crate) fn codegen_for_stmt(
                 // If unused, it will be prefixed with _ in target_pattern, so no cast needed
                 let is_index_used = body.iter().any(|stmt| is_var_used_in_stmt(index_var, stmt));
 
+                // Also check if there's a value variable (second element) that needs dereferencing
+                // Use .clone() instead of * because it works for both Copy and non-Copy types
+                let value_deref_stmt = if needs_deref && targets.len() >= 2 {
+                    if let Some(AssignTarget::Symbol(value_var)) = targets.get(1) {
+                        let is_value_used = body.iter().any(|stmt| is_var_used_in_stmt(value_var, stmt));
+                        if is_value_used {
+                            let value_ident = safe_ident(value_var);
+                            Some(quote! { let #value_ident = #value_ident.clone(); })
+                        } else {
+                            None
+                        }
+                    } else {
+                        None
+                    }
+                } else {
+                    None
+                };
+
                 if is_index_used {
                     // Add a cast statement at the beginning of the loop body
                     let index_ident = safe_ident(index_var);
-                    Ok(quote! {
-                        for #target_pattern in #iter_expr {
-                            let #index_ident = #index_ident as i32;
-                            #(#body_stmts)*
-                        }
-                    })
+                    if let Some(deref_stmt) = value_deref_stmt {
+                        Ok(quote! {
+                            for #target_pattern in #iter_expr {
+                                let #index_ident = #index_ident as i32;
+                                #deref_stmt
+                                #(#body_stmts)*
+                            }
+                        })
+                    } else {
+                        Ok(quote! {
+                            for #target_pattern in #iter_expr {
+                                let #index_ident = #index_ident as i32;
+                                #(#body_stmts)*
+                            }
+                        })
+                    }
                 } else {
                     // Index is unused - don't generate cast statement
-                    Ok(quote! {
-                        for #target_pattern in #iter_expr {
-                            #(#body_stmts)*
-                        }
-                    })
+                    if let Some(deref_stmt) = value_deref_stmt {
+                        Ok(quote! {
+                            for #target_pattern in #iter_expr {
+                                #deref_stmt
+                                #(#body_stmts)*
+                            }
+                        })
+                    } else {
+                        Ok(quote! {
+                            for #target_pattern in #iter_expr {
+                                #(#body_stmts)*
+                            }
+                        })
+                    }
                 }
             } else {
                 Ok(quote! {
@@ -1704,6 +1801,32 @@ pub(crate) fn codegen_for_stmt(
             })
         } else {
             // Fallback if target is not a simple symbol
+            Ok(quote! {
+                for #target_pattern in #iter_expr {
+                    #(#body_stmts)*
+                }
+            })
+        }
+    } else if needs_deref {
+        // Iterating over field access with references - need to dereference
+        if let AssignTarget::Symbol(var_name) = target {
+            let is_used = body.iter().any(|stmt| is_var_used_in_stmt(var_name, stmt));
+            if is_used {
+                let var_ident = safe_ident(var_name);
+                Ok(quote! {
+                    for #target_pattern in #iter_expr {
+                        let #var_ident = #var_ident.clone();
+                        #(#body_stmts)*
+                    }
+                })
+            } else {
+                Ok(quote! {
+                    for #target_pattern in #iter_expr {
+                        #(#body_stmts)*
+                    }
+                })
+            }
+        } else {
             Ok(quote! {
                 for #target_pattern in #iter_expr {
                     #(#body_stmts)*
@@ -2388,7 +2511,30 @@ pub(crate) fn codegen_assign_index(
     }
 
     // Extract the base and all intermediate indices
-    let (base_expr, indices) = extract_nested_indices_tokens(base, ctx)?;
+    // For mutation operations on field accesses (both dict and list), we need to avoid cloning
+    // Check if the base (or its root for nested Index) is a field access
+    let base_is_field_access = match base {
+        HirExpr::Attribute { .. } => true,
+        HirExpr::Index { base: inner_base, .. } => {
+            // For nested subscripts like matrix[0][1], check if the root is an attribute
+            fn has_attribute_root(expr: &HirExpr) -> bool {
+                match expr {
+                    HirExpr::Attribute { .. } => true,
+                    HirExpr::Index { base, .. } => has_attribute_root(base),
+                    _ => false,
+                }
+            }
+            has_attribute_root(inner_base)
+        }
+        _ => false,
+    };
+
+    let (base_expr, indices) = if base_is_field_access {
+        // Generate field access without clone for mutation operations
+        extract_nested_indices_tokens_no_clone(base, ctx)?
+    } else {
+        extract_nested_indices_tokens(base, ctx)?
+    };
 
     // Check if value_expr is a string literal and the dict value type is String
     let value_expr = if !is_numeric_index {
@@ -2493,9 +2639,19 @@ pub(crate) fn codegen_assign_index(
         // Nested assignment: build chain of get_mut calls
         let mut chain = quote! { #base_expr };
         for idx in &indices {
-            chain = quote! {
-                #chain.get_mut(&#idx).unwrap()
-            };
+            // Check if the intermediate index is numeric or dict key
+            // For list types (Vec), indices should be cast to usize without & reference
+            // For now, use the outer is_numeric_index as a heuristic - if the final
+            // index is numeric, intermediate indices are likely also numeric (nested lists)
+            if is_numeric_index {
+                chain = quote! {
+                    #chain.get_mut(#idx as usize).unwrap()
+                };
+            } else {
+                chain = quote! {
+                    #chain.get_mut(&#idx).unwrap()
+                };
+            }
         }
 
         if is_numeric_index {

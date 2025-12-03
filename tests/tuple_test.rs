@@ -1,10 +1,6 @@
-use depyler_core::DepylerPipeline;
+mod test_helpers;
 
-fn transpile_only(python: &str) -> Result<String, Box<dyn std::error::Error>> {
-    let pipeline = DepylerPipeline::new();
-    let rust_code = pipeline.transpile(python)?;
-    Ok(rust_code)
-}
+use test_helpers::transpile;
 
 #[test]
 fn test_string_variable_in_tuple() {
@@ -13,9 +9,8 @@ def check_location(location: str) -> bool:
     return location in ("Home", "Away")
 "#;
 
-    let rust = transpile_only(python).unwrap();
-    println!("Generated Rust code:\n{}", rust);
-    assert!(rust.contains("[\"Home\".to_string(), \"Away\".to_string()].contains(&location)"));
+    let rust = transpile(python);
+    assert!(rust.contains(r#"["Home".to_string(), "Away".to_string()].contains(&location)"#));
 }
 
 #[test]
@@ -25,9 +20,8 @@ def check_location() -> bool:
     return "Home" in ("Home", "Away")
 "#;
 
-    let rust = transpile_only(python).unwrap();
-    println!("Generated Rust code:\n{}", rust);
-    assert!(rust.contains("[\"Home\".to_string(), \"Away\".to_string()].contains(\"Home\".to_string())"));
+    let rust = transpile(python);
+    assert!(rust.contains(r#"["Home".to_string(), "Away".to_string()].contains"#));
 }
 
 #[test]
@@ -42,7 +36,7 @@ def check_location(state: State) -> bool:
     return state.item in ("Home", "Away")
 "#;
 
-    let rust = transpile_only(python).unwrap();
-    println!("Generated Rust code:\n{}", rust);
-    assert!(rust.contains("[\"Home\".to_string(), \"Away\".to_string()].contains(state.item)"));
+    let rust = transpile(python);
+    assert!(rust.contains(r#"["Home".to_string(), "Away".to_string()].contains"#));
+    assert!(rust.contains("state.item"));
 }

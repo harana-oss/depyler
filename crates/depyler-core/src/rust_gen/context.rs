@@ -111,6 +111,9 @@ pub struct CodeGenContext<'a> {
     /// Track parameters in the current function that are &mut references
     pub current_func_mut_ref_params: HashSet<String>,
 
+    /// Track parameters in the current function that are & references (immutable)
+    pub current_func_ref_params: HashSet<String>,
+
     pub function_param_names: HashMap<String, Vec<String>>,
 
     /// Track how many times each variable is used in the current function (for clone analysis)

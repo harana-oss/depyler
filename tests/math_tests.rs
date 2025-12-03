@@ -1,38 +1,6 @@
-use depyler_core::DepylerPipeline;
+mod test_helpers;
 
-/// Helper function to transpile Python code and verify it compiles
-fn transpile_and_verify(python: &str, test_name: &str) -> Result<String, Box<dyn std::error::Error>> {
-    let pipeline = DepylerPipeline::new();
-    let rust_code = pipeline.transpile(python)?;
-
-    // Write to temp file and verify with rustc
-    let temp_file = format!("/tmp/depyler_test_{}.rs", test_name);
-    std::fs::write(&temp_file, &rust_code)?;
-
-    // Check compilation (using --crate-type lib for quick validation)
-    let output = std::process::Command::new("rustc")
-        .args(["--crate-type", "lib", "--edition", "2021", &temp_file])
-        .output()?;
-
-    if !output.status.success() {
-        return Err(format!(
-            "Compilation failed for {}: {}",
-            test_name,
-            String::from_utf8_lossy(&output.stderr)
-        )
-        .into());
-    }
-
-    Ok(rust_code)
-}
-
-/// Helper function to transpile Python code without verifying compilation
-/// Used for code that requires external crates (like rand)
-fn transpile_only(python: &str) -> Result<String, Box<dyn std::error::Error>> {
-    let pipeline = DepylerPipeline::new();
-    let rust_code = pipeline.transpile(python)?;
-    Ok(rust_code)
-}
+use test_helpers::{transpile, transpile_and_check};
 
 // ============================================================================
 // Absolute Value Tests
@@ -45,7 +13,7 @@ def test_abs(value: int) -> int:
     return abs(value)
 "#;
 
-    let rust = transpile_and_verify(python, "abs_variable").unwrap();
+    let rust = transpile_and_check(python, &[]);
     assert!(rust.contains("value.abs()"));
 }
 
@@ -56,7 +24,7 @@ def abs_negative() -> int:
     return abs(-42)
 "#;
 
-    let rust = transpile_and_verify(python, "abs_negative").unwrap();
+    let rust = transpile_and_check(python, &[]);
     assert!(rust.contains("(-42 as i32).abs()"));
 }
 
@@ -67,7 +35,7 @@ def abs_float(x: float) -> float:
     return abs(x)
 "#;
 
-    let rust = transpile_and_verify(python, "abs_float").unwrap();
+    let rust = transpile_and_check(python, &[]);
     assert!(rust.contains("x.abs()"));
 }
 
@@ -78,7 +46,7 @@ def abs_expr(a: int, b: int) -> int:
     return abs(a - b)
 "#;
 
-    let rust = transpile_and_verify(python, "abs_expr").unwrap();
+    let rust = transpile_and_check(python, &[]);
     assert!(rust.contains("(a - b).abs()"));
 }
 
@@ -89,7 +57,7 @@ def abs_positive() -> int:
     return abs(42)
 "#;
 
-    let rust = transpile_and_verify(python, "abs_positive").unwrap();
+    let rust = transpile_and_check(python, &[]);
     assert!(rust.contains("(42 as i32).abs()"));
 }
 
@@ -100,7 +68,7 @@ def abs_float_lit() -> float:
     return abs(-3.14)
 "#;
 
-    let rust = transpile_and_verify(python, "abs_float_lit").unwrap();
+    let rust = transpile_and_check(python, &[]);
     assert!(rust.contains("(-3.14 as f64).abs()"));
 }
 
@@ -111,7 +79,7 @@ def abs_float_pos() -> float:
     return abs(2.718)
 "#;
 
-    let rust = transpile_and_verify(python, "abs_float_pos").unwrap();
+    let rust = transpile_and_check(python, &[]);
     assert!(rust.contains("(2.718 as f64).abs()"));
 }
 
@@ -126,7 +94,7 @@ def round_to_int(x: float) -> int:
     return round(x)
 "#;
 
-    let rust = transpile_and_verify(python, "round_to_int").unwrap();
+    let rust = transpile_and_check(python, &[]);
     assert!(rust.contains("x.round() as i32"));
 }
 
@@ -137,7 +105,7 @@ def round_to_float(x: float) -> float:
     return round(x)
 "#;
 
-    let rust = transpile_and_verify(python, "round_to_float").unwrap();
+    let rust = transpile_and_check(python, &[]);
     assert!(rust.contains("x.round()"));
 }
 
@@ -148,7 +116,7 @@ def round_literal() -> int:
     return round(3.7)
 "#;
 
-    let rust = transpile_and_verify(python, "round_literal").unwrap();
+    let rust = transpile_and_check(python, &[]);
     assert!(rust.contains("(3.7 as f64).round() as i32"));
 }
 
@@ -163,7 +131,7 @@ def pow_literal() -> int:
     return pow(2, 10)
 "#;
 
-    let rust = transpile_and_verify(python, "pow_literal").unwrap();
+    let rust = transpile_and_check(python, &[]);
     assert!(rust.contains("2_i32.pow(10 as u32)"));
 }
 
@@ -174,7 +142,7 @@ def pow_var(base: int, exp: int) -> int:
     return pow(base, exp)
 "#;
 
-    let rust = transpile_and_verify(python, "pow_var").unwrap();
+    let rust = transpile_and_check(python, &[]);
     assert!(rust.contains("base.checked_pow(exp as u32)"));
 }
 
@@ -185,7 +153,7 @@ def power_op() -> int:
     return 2 ** 8
 "#;
 
-    let rust = transpile_and_verify(python, "power_op_lit").unwrap();
+    let rust = transpile_and_check(python, &[]);
     assert!(rust.contains("2_i32.pow(8 as u32)"));
 }
 
@@ -196,7 +164,7 @@ def power_op(a: int, b: int) -> int:
     return a ** b
 "#;
 
-    let rust = transpile_and_verify(python, "power_op_var").unwrap();
+    let rust = transpile_and_check(python, &[]);
     assert!(rust.contains("a.checked_pow(b as u32)"));
 }
 
@@ -207,7 +175,7 @@ def pow_var_base(base: int) -> int:
     return pow(base, 3)
 "#;
 
-    let rust = transpile_and_verify(python, "pow_var_base_const_exp").unwrap();
+    let rust = transpile_and_check(python, &[]);
     assert!(rust.contains("base.pow(3 as u32)"));
 }
 
@@ -218,7 +186,7 @@ def pow_const_base(exp: int) -> int:
     return pow(2, exp)
 "#;
 
-    let rust = transpile_and_verify(python, "pow_const_base_var_exp").unwrap();
+    let rust = transpile_and_check(python, &[]);
     // When base is constant but exp is variable, need checked_pow with type suffix
     assert!(rust.contains("2_i32.checked_pow(exp as u32)"));
 }
@@ -230,7 +198,7 @@ def power_op_var_base(x: int) -> int:
     return x ** 4
 "#;
 
-    let rust = transpile_and_verify(python, "power_op_var_base_const_exp").unwrap();
+    let rust = transpile_and_check(python, &[]);
     assert!(rust.contains("x.pow(4 as u32)"));
 }
 
@@ -241,7 +209,7 @@ def power_op_const_base(n: int) -> int:
     return 3 ** n
 "#;
 
-    let rust = transpile_and_verify(python, "power_op_const_base_var_exp").unwrap();
+    let rust = transpile_and_check(python, &[]);
     assert!(rust.contains("3_i32.checked_pow(n as u32)"));
 }
 
@@ -252,7 +220,7 @@ def pow_float(base: float, exp: float) -> float:
     return pow(base, exp)
 "#;
 
-    let rust = transpile_and_verify(python, "pow_float").unwrap();
+    let rust = transpile_and_check(python, &[]);
     assert!(rust.contains("base.powf(exp)"));
 }
 
@@ -267,7 +235,7 @@ def max_two(a: int, b: int) -> int:
     return max(a, b)
 "#;
 
-    let rust = transpile_and_verify(python, "max_two_ints").unwrap();
+    let rust = transpile_and_check(python, &[]);
     assert!(rust.contains("std::cmp::max(a, b)"));
 }
 
@@ -278,7 +246,7 @@ def min_two(a: int, b: int) -> int:
     return min(a, b)
 "#;
 
-    let rust = transpile_and_verify(python, "min_two_ints").unwrap();
+    let rust = transpile_and_check(python, &[]);
     assert!(rust.contains("std::cmp::min(a, b)"));
 }
 
@@ -289,7 +257,7 @@ def max_two_f(a: float, b: float) -> float:
     return max(a, b)
 "#;
 
-    let rust = transpile_and_verify(python, "max_two_floats").unwrap();
+    let rust = transpile_and_check(python, &[]);
     assert!(rust.contains("f64::max(a, b)"));
 }
 
@@ -300,7 +268,7 @@ def min_two_f(a: float, b: float) -> float:
     return min(a, b)
 "#;
 
-    let rust = transpile_and_verify(python, "min_two_floats").unwrap();
+    let rust = transpile_and_check(python, &[]);
     assert!(rust.contains("f64::min(a, b)"));
 }
 
@@ -315,7 +283,7 @@ def max_three() -> int:
     return max(10, 20, 5)
 "#;
 
-    let rust = transpile_and_verify(python, "max_three_ints").unwrap();
+    let rust = transpile_and_check(python, &[]);
     assert!(rust.contains("std::cmp::max(std::cmp::max(10, 20), 5)"));
 }
 
@@ -326,7 +294,7 @@ def min_three() -> float:
     return min(1.5, 2.7, 0.8)
 "#;
 
-    let rust = transpile_and_verify(python, "min_three_floats").unwrap();
+    let rust = transpile_and_check(python, &[]);
     assert!(rust.contains("f64::min(f64::min(1.5, 2.7), 0.8)"));
 }
 
@@ -337,7 +305,7 @@ def max_four(a: int, b: int, c: int, d: int) -> int:
     return max(a, b, c, d)
 "#;
 
-    let rust = transpile_and_verify(python, "max_four").unwrap();
+    let rust = transpile_and_check(python, &[]);
     assert!(rust.contains("std::cmp::max(std::cmp::max(std::cmp::max(a, b), c), d)"));
 }
 
@@ -352,7 +320,7 @@ def max_list(items: list[int]) -> int:
     return max(items)
 "#;
 
-    let rust = transpile_and_verify(python, "max_list").unwrap();
+    let rust = transpile_and_check(python, &[]);
     assert!(rust.contains("items.iter().max().unwrap()"));
 }
 
@@ -363,7 +331,7 @@ def min_list(items: list[int]) -> int:
     return min(items)
 "#;
 
-    let rust = transpile_and_verify(python, "min_list").unwrap();
+    let rust = transpile_and_check(python, &[]);
     assert!(rust.contains("items.iter().min().unwrap()"));
 }
 
@@ -374,7 +342,7 @@ def max_floats(items: list[float]) -> float:
     return max(items)
 "#;
 
-    let rust = transpile_and_verify(python, "max_floats").unwrap();
+    let rust = transpile_and_check(python, &[]);
     assert!(rust.contains("items.iter().fold(f64::NEG_INFINITY, |a, &b| a.max(b))"));
 }
 
@@ -385,7 +353,7 @@ def min_floats(items: list[float]) -> float:
     return min(items)
 "#;
 
-    let rust = transpile_and_verify(python, "min_floats").unwrap();
+    let rust = transpile_and_check(python, &[]);
     assert!(rust.contains("items.iter().fold(f64::INFINITY, |a, &b| a.min(b))"));
 }
 
@@ -400,7 +368,7 @@ def first(items: list[int]) -> int:
     return items[0]
 "#;
 
-    let rust = transpile_and_verify(python, "first").unwrap();
+    let rust = transpile_and_check(python, &[]);
     // Should use .get(0) or .get(0usize) with .cloned() for both Copy and non-Copy types
     assert!((rust.contains(".get(0)") || rust.contains(".get(0usize)")) && rust.contains(".cloned()"));
 }
@@ -412,7 +380,7 @@ def last(items: list[int]) -> int:
     return items[-1]
 "#;
 
-    let rust = transpile_and_verify(python, "last").unwrap();
+    let rust = transpile_and_check(python, &[]);
     // Should use .last().cloned() for both Copy and non-Copy types
     assert!(rust.contains(".last()") && rust.contains(".cloned()"));
 }
@@ -424,7 +392,7 @@ def second_last(items: list[int]) -> int:
     return items[-2]
 "#;
 
-    let rust = transpile_and_verify(python, "second_last").unwrap();
+    let rust = transpile_and_check(python, &[]);
     // Should use .get() with saturating_sub for safety
     assert!(
         rust.contains(".get(") && (rust.contains("saturating_sub(2)") || rust.contains(".len()") && rust.contains("2"))
@@ -438,7 +406,7 @@ def third_last(items: list[float]) -> float:
     return items[-3]
 "#;
 
-    let rust = transpile_and_verify(python, "third_last").unwrap();
+    let rust = transpile_and_check(python, &[]);
     // Should use .get() with saturating_sub for safety
     assert!(
         rust.contains(".get(") && (rust.contains("saturating_sub(3)") || rust.contains(".len()") && rust.contains("3"))
@@ -458,7 +426,7 @@ def rand_int(start: int, end: int) -> int:
     return random.randint(start, end)
 "#;
 
-    let rust = transpile_only(python).unwrap();
+    let rust = transpile(python);
     assert!(rust.contains("rand::thread_rng().gen_range(start..=end)"));
 }
 
@@ -471,7 +439,7 @@ def rand_int() -> int:
     return random.randint(1, 100)
 "#;
 
-    let rust = transpile_only(python).unwrap();
+    let rust = transpile(python);
     assert!(rust.contains("rand::thread_rng().gen_range(1..=100)"));
 }
 
@@ -484,7 +452,7 @@ def rand_float(a: float, b: float) -> float:
     return random.uniform(a, b)
 "#;
 
-    let rust = transpile_only(python).unwrap();
+    let rust = transpile(python);
     assert!(rust.contains("rand::thread_rng().gen_range((a as f64)..=(b as f64))"));
 }
 
@@ -497,7 +465,7 @@ def rand_choice(items: list[int]) -> int:
     return random.choice(items)
 "#;
 
-    let rust = transpile_only(python).unwrap();
+    let rust = transpile(python);
     assert!(rust.contains("*items.choose(&mut rand::thread_rng()).unwrap()"));
 }
 
@@ -510,7 +478,7 @@ def rand() -> float:
     return random.random()
 "#;
 
-    let rust = transpile_only(python).unwrap();
+    let rust = transpile(python);
     assert!(rust.contains("rand::random::<f64>()"));
 }
 
@@ -525,7 +493,7 @@ def abs_max(x: int, y: int) -> int:
     return max(abs(x), abs(y))
 "#;
 
-    let rust = transpile_and_verify(python, "abs_max").unwrap();
+    let rust = transpile_and_check(python, &[]);
     assert!(rust.contains("std::cmp::max(x.abs(), y.abs())"));
 }
 
@@ -536,7 +504,7 @@ def nested(x: float) -> int:
     return abs(round(x))
 "#;
 
-    let rust = transpile_and_verify(python, "nested").unwrap();
+    let rust = transpile_and_check(python, &[]);
     assert!(rust.contains("(x.round() as i32).abs()"));
 }
 
@@ -547,7 +515,7 @@ def pythagorean(a: int, b: int) -> int:
     return a ** 2 + b ** 2
 "#;
 
-    let rust = transpile_and_verify(python, "power_sum").unwrap();
+    let rust = transpile_and_check(python, &[]);
     assert!(rust.contains("a.pow(2 as u32) + b.pow(2 as u32)"));
 }
 
@@ -558,7 +526,7 @@ def clamp(x: int, lo: int, hi: int) -> int:
     return max(lo, min(x, hi))
 "#;
 
-    let rust = transpile_and_verify(python, "clamp").unwrap();
+    let rust = transpile_and_check(python, &[]);
     assert!(rust.contains("std::cmp::max(lo, std::cmp::min(x, hi))"));
 }
 
@@ -569,7 +537,7 @@ def floor_div(a: int, b: int) -> int:
     return a // b
 "#;
 
-    let rust = transpile_and_verify(python, "floor_div").unwrap();
+    let rust = transpile_and_check(python, &[]);
     assert!(rust.contains("a / b"));
 }
 
@@ -580,7 +548,7 @@ def float_div(a: float, b: float) -> float:
     return a / b
 "#;
 
-    let rust = transpile_and_verify(python, "float_div").unwrap();
+    let rust = transpile_and_check(python, &[]);
     assert!(rust.contains("a / b"));
 }
 
@@ -591,7 +559,7 @@ def mod_op(a: int, b: int) -> int:
     return a % b
 "#;
 
-    let rust = transpile_and_verify(python, "modulo").unwrap();
+    let rust = transpile_and_check(python, &[]);
     assert!(rust.contains("a % b"));
 }
 
@@ -602,7 +570,7 @@ def complex_expr(a: int, b: int) -> int:
     return abs(a - b) ** 2 + max(a, b)
 "#;
 
-    let rust = transpile_and_verify(python, "complex_expr").unwrap();
+    let rust = transpile_and_check(python, &[]);
     assert!(rust.contains("(a - b).abs().pow(2 as u32) + std::cmp::max(a, b)"));
 }
 
@@ -613,7 +581,7 @@ def precedence(a: int, b: int, c: int) -> int:
     return a + b * c
 "#;
 
-    let rust = transpile_and_verify(python, "precedence").unwrap();
+    let rust = transpile_and_check(python, &[]);
     assert!(rust.contains("a + b * c"));
 }
 
@@ -628,7 +596,7 @@ def calculate(points: int) -> float:
     return 0.18 * points / 10.0
 "#;
 
-    let rust = transpile_and_verify(python, "calc_simple_mult_div").unwrap();
+    let rust = transpile_and_check(python, &[]);
     println!("Rust code for simple multiplication/division:\n{}", rust);
     assert!(rust.contains("0.18 * (points as f64) / 10.0"));
 }
@@ -641,7 +609,7 @@ def calculate(points: int) -> float:
     return math.exp(0.18 * points / 10.0)
 "#;
 
-    let rust = transpile_and_verify(python, "calc_exp_expr").unwrap();
+    let rust = transpile_and_check(python, &[]);
     println!("Rust code for math.exp expression:\n{}", rust);
     assert!(rust.contains(".exp()"));
 }
@@ -653,7 +621,7 @@ def calculate(points: float) -> float:
     return max(2.5 - points / 10.0, 0.5)
 "#;
 
-    let rust = transpile_and_verify(python, "calc_max_sub").unwrap();
+    let rust = transpile_and_check(python, &[]);
     println!("Rust code for max with subtraction:\n{}", rust);
     assert!(rust.contains("f64::max(2.5 - points / 10.0, 0.5)"));
 }
@@ -665,7 +633,7 @@ def calculate(points: float) -> float:
     return min(points / 2.0, 10.0)
 "#;
 
-    let rust = transpile_and_verify(python, "calc_min_div").unwrap();
+    let rust = transpile_and_check(python, &[]);
     println!("Rust code for min with division:\n{}", rust);
     assert!(rust.contains("f64::min(points / 2.0, 10.0)"));
 }
@@ -681,7 +649,7 @@ def multiply(x: float) -> float:
     return x * 3
 "#;
 
-    let rust = transpile_and_verify(python, "float_times_int_lit").unwrap();
+    let rust = transpile_and_check(python, &[]);
     println!("Rust code for float * int literal:\n{}", rust);
     assert!(rust.contains("x * (3 as f64)"));
 }
@@ -693,7 +661,7 @@ def multiply(x: float) -> float:
     return 3 * x
 "#;
 
-    let rust = transpile_and_verify(python, "int_lit_times_float").unwrap();
+    let rust = transpile_and_check(python, &[]);
     println!("Rust code for int literal * float:\n{}", rust);
     assert!(rust.contains("(3 as f64) * x"));
 }
@@ -705,7 +673,7 @@ def multiply(n: int) -> float:
     return 6.0 * n
 "#;
 
-    let rust = transpile_and_verify(python, "float_lit_times_int_var").unwrap();
+    let rust = transpile_and_check(python, &[]);
     println!("Rust code for float literal * int var:\n{}", rust);
     assert!(rust.contains("6.0 * (n as f64)"));
 }
@@ -717,7 +685,7 @@ def multiply(n: int) -> float:
     return n * 2.5
 "#;
 
-    let rust = transpile_and_verify(python, "int_var_times_float_lit").unwrap();
+    let rust = transpile_and_check(python, &[]);
     println!("Rust code for int var * float literal:\n{}", rust);
     assert!(rust.contains("(n as f64) * 2.5"));
 }
@@ -729,7 +697,7 @@ def calculate(a: int, b: float) -> float:
     return a * b * 2.0
 "#;
 
-    let rust = transpile_and_verify(python, "mixed_chain").unwrap();
+    let rust = transpile_and_check(python, &[]);
     println!("Rust code for mixed chain:\n{}", rust);
     assert!(rust.contains("(a as f64) * b"));
 }
@@ -741,7 +709,7 @@ def multiply(x: float, n: int) -> float:
     return x * n
 "#;
 
-    let rust = transpile_and_verify(python, "float_var_times_int_var").unwrap();
+    let rust = transpile_and_check(python, &[]);
     println!("Rust code for float var * int var:\n{}", rust);
     assert!(rust.contains("x * (n as f64)"));
 }
@@ -753,7 +721,7 @@ def multiply(n: int, x: float) -> float:
     return n * x
 "#;
 
-    let rust = transpile_and_verify(python, "int_var_times_float_var").unwrap();
+    let rust = transpile_and_check(python, &[]);
     println!("Rust code for int var * float var:\n{}", rust);
     assert!(rust.contains("(n as f64) * x"));
 }

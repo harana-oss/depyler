@@ -10,7 +10,7 @@ use crate::rust_gen::return_type_expects_float;
 use crate::rust_gen::type_gen::convert_binop;
 use crate::string_optimization::{StringContext, StringOptimizer};
 use anyhow::{Result, bail};
-use quote::{ToTokens, quote};
+use quote::{ToTokens, format_ident, quote};
 use syn::{self, parse_quote};
 
 struct ExpressionConverter<'a, 'b> {
@@ -2532,13 +2532,27 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                                         .copied()
                                         .unwrap_or(true) // Default to borrow (&str) if unknown
                                 } else {
-                                    // For user-defined types passed to functions that mutate them,
-                                    // check if the parameter needs &mut
+                                    // For user-defined types passed to functions,
+                                    // check if the parameter needs &mut or just &
                                     needs_mut
+                                        || self
+                                            .ctx
+                                            .function_param_borrows
+                                            .get(func)
+                                            .and_then(|borrows| borrows.get(param_idx))
+                                            .copied()
+                                            .unwrap_or(false)
                                 }
                             } else {
-                                // Unknown type - check if it needs mutation
+                                // Unknown type - check if it needs mutation or borrow
                                 needs_mut
+                                    || self
+                                        .ctx
+                                        .function_param_borrows
+                                        .get(func)
+                                        .and_then(|borrows| borrows.get(param_idx))
+                                        .copied()
+                                        .unwrap_or(false)
                             }
                         }
                         // List literal [1, 2, 3] should be passed as vec![1, 2, 3] (owned)
@@ -2623,6 +2637,14 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                         false
                     };
 
+                    // Check if the variable is already an immutable & reference in current function
+                    // If so, we don't need to add & again
+                    let is_already_ref = if let HirExpr::Var(var_name) = hir_arg {
+                        self.ctx.current_func_ref_params.contains(var_name)
+                    } else {
+                        false
+                    };
+
                     // Check if this is a field access on a &mut ref parameter
                     // In that case, we can't move the field out - we must clone
                     let needs_clone_for_move = if let HirExpr::Attribute { value, .. } = hir_arg {
@@ -2639,9 +2661,49 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                         if needs_mut {
                             if is_already_mut_ref {
                                 // Variable is already &mut T, just pass it directly
-                                arg_expr.clone()
+                                // Need to generate expression without .clone() since arg_expr
+                                // may have .clone() added by to_rust_expr for non-Copy types
+                                if let HirExpr::Var(var_name) = hir_arg {
+                                    let ident = format_ident!("{}", var_name);
+                                    parse_quote! { #ident }
+                                } else {
+                                    arg_expr.clone()
+                                }
+                            } else if let HirExpr::Attribute { value, attr } = hir_arg {
+                                // For field access that needs &mut, generate without clone
+                                // Build the field access expression manually
+                                fn build_attribute_expr(expr: &HirExpr) -> syn::Expr {
+                                    match expr {
+                                        HirExpr::Var(name) => {
+                                            let ident = format_ident!("{}", name);
+                                            parse_quote! { #ident }
+                                        }
+                                        HirExpr::Attribute { value, attr } => {
+                                            let base = build_attribute_expr(value);
+                                            let attr_ident = format_ident!("{}", attr);
+                                            parse_quote! { #base.#attr_ident }
+                                        }
+                                        _ => {
+                                            // Fallback - shouldn't happen often
+                                            parse_quote! { () }
+                                        }
+                                    }
+                                }
+                                let base_expr = build_attribute_expr(value);
+                                let attr_ident = format_ident!("{}", attr);
+                                parse_quote! { &mut #base_expr.#attr_ident }
                             } else {
                                 parse_quote! { &mut #arg_expr }
+                            }
+                        } else if is_already_ref {
+                            // Variable is already &T, just pass it directly without adding &
+                            // Need to generate expression without .clone() since arg_expr
+                            // may have .clone() added by to_rust_expr for non-Copy types
+                            if let HirExpr::Var(var_name) = hir_arg {
+                                let ident = format_ident!("{}", var_name);
+                                parse_quote! { #ident }
+                            } else {
+                                arg_expr.clone()
                             }
                         } else {
                             parse_quote! { &#arg_expr }
@@ -8015,14 +8077,19 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     // Check if argument is a string literal
                     let is_str_literal = matches!(&hir_args[0], HirExpr::Literal(Literal::String(_)));
 
-                    // Check if object is a Vec<String> by examining variable type
-                    let is_vec_string = if let HirExpr::Var(var_name) = object {
-                        matches!(
-                            self.ctx.var_types.get(var_name),
-                            Some(Type::List(element_type)) if matches!(**element_type, Type::String)
-                        )
-                    } else {
-                        false
+                    // Check if object is a Vec<String> by examining variable or field type
+                    let is_vec_string = match object {
+                        HirExpr::Var(var_name) => {
+                            matches!(
+                                self.ctx.var_types.get(var_name),
+                                Some(Type::List(element_type)) if matches!(**element_type, Type::String)
+                            )
+                        }
+                        HirExpr::Attribute { value, attr } => {
+                            // Check if field is Vec<String> via class_field_types
+                            self.get_field_element_type_is_string(value, attr)
+                        }
+                        _ => false,
                     };
 
                     is_str_literal && is_vec_string
@@ -9612,7 +9679,32 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             return Ok(result);
         }
 
-        let object_expr = object.to_rust_expr(self.ctx)?;
+        // Check if this is a mutating method that should not clone the object
+        // List/Vec mutating methods: push, extend, clear, insert, remove, reverse, sort, pop
+        // Dict/HashMap mutating methods: insert, remove, clear
+        // Set/HashSet mutating methods: insert, remove, clear, add, discard
+        let is_mutating_method = matches!(
+            method,
+            "append"
+                | "extend"
+                | "clear"
+                | "insert"
+                | "remove"
+                | "reverse"
+                | "sort"
+                | "pop"
+                | "add"
+                | "discard"
+                | "update"
+        );
+
+        // For mutating methods on field accesses, don't add .clone()
+        let object_expr = if is_mutating_method && matches!(object, HirExpr::Attribute { .. }) {
+            self.convert_attribute_without_clone(object)?
+        } else {
+            object.to_rust_expr(self.ctx)?
+        };
+
         let arg_exprs: Vec<syn::Expr> = args
             .iter()
             .map(|arg| arg.to_rust_expr(self.ctx))
@@ -10036,7 +10128,10 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         match expr {
             HirExpr::Var(name) => {
                 // Check var_types for String type
-                self.ctx.var_types.get(name).map_or(false, |t| matches!(t, Type::String))
+                self.ctx
+                    .var_types
+                    .get(name)
+                    .map_or(false, |t| matches!(t, Type::String))
             }
             HirExpr::Attribute { value, attr } => {
                 // Check class field types for attribute access like `state.separator`
@@ -11052,6 +11147,30 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         }
     }
 
+    /// Convert attribute access without adding .clone()
+    /// Used for mutating method calls where we need a mutable reference to the field
+    fn convert_attribute_without_clone(&mut self, expr: &HirExpr) -> Result<syn::Expr> {
+        if let HirExpr::Attribute { value, attr } = expr {
+            // Recursively convert the base value (also without clone if it's an attribute)
+            let value_expr = if matches!(value.as_ref(), HirExpr::Attribute { .. }) {
+                self.convert_attribute_without_clone(value)?
+            } else {
+                value.to_rust_expr(self.ctx)?
+            };
+
+            let attr_ident = if Self::is_rust_keyword(attr) {
+                syn::Ident::new_raw(attr, proc_macro2::Span::call_site())
+            } else {
+                syn::Ident::new(attr, proc_macro2::Span::call_site())
+            };
+
+            Ok(parse_quote! { #value_expr.#attr_ident })
+        } else {
+            // Not an attribute access, use regular conversion
+            expr.to_rust_expr(self.ctx)
+        }
+    }
+
     /// Check if a field access needs .clone() based on the field type
     fn field_needs_clone(&self, value: &HirExpr, attr: &str) -> bool {
         // Get the class name from the value expression
@@ -11128,6 +11247,22 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             }
             _ => None,
         }
+    }
+
+    /// Check if a field access is a List<String> (returns true if element type is String)
+    fn get_field_element_type_is_string(&self, value: &HirExpr, attr: &str) -> bool {
+        if let HirExpr::Var(var_name) = value {
+            // Get the class name from the variable type
+            if let Some(Type::Custom(class_name)) = self.ctx.var_types.get(var_name) {
+                // Look up the field type
+                if let Some(field_types) = self.ctx.class_field_types.get(class_name) {
+                    if let Some(Type::List(element_type)) = field_types.get(attr) {
+                        return matches!(**element_type, Type::String);
+                    }
+                }
+            }
+        }
+        false
     }
 
     fn convert_borrow(&mut self, expr: &HirExpr, mutable: bool) -> Result<syn::Expr> {

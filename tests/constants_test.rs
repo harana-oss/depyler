@@ -1,7 +1,6 @@
-/// Constants Transpilation Test
-///
-/// Tests that module-level constants are correctly transpiled from Python to Rust.
-use depyler_core::DepylerPipeline;
+mod test_helpers;
+
+use test_helpers::{transpile, transpile_and_check};
 
 #[test]
 fn test_simple_constants() {
@@ -11,21 +10,8 @@ B = 2
 C = 3
 "#;
 
-    let pipeline = DepylerPipeline::new();
-    let result = pipeline.transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &["A", "B", "C", "1", "2", "3"]);
 
-    assert!(result.is_ok(), "Transpilation should succeed");
-
-    let rust_code = result.unwrap();
-
-    // Check that constants are present in the generated code
-    assert!(
-        rust_code.contains("A") && rust_code.contains("B") && rust_code.contains("C"),
-        "Generated code must contain all constant names. Got:\n{}",
-        rust_code
-    );
-
-    // Constants should be declared with appropriate Rust syntax (const or pub const)
     let has_const_declarations = rust_code.contains("const A")
         || rust_code.contains("pub const A")
         || rust_code.contains("static A")
@@ -34,13 +20,6 @@ C = 3
     assert!(
         has_const_declarations,
         "Constants should be declared with const or static keyword. Got:\n{}",
-        rust_code
-    );
-
-    // Verify the values are present
-    assert!(
-        rust_code.contains("1") && rust_code.contains("2") && rust_code.contains("3"),
-        "Generated code must contain constant values. Got:\n{}",
         rust_code
     );
 }
@@ -53,21 +32,8 @@ B: int = 2
 C: int = 3
 "#;
 
-    let pipeline = DepylerPipeline::new();
-    let result = pipeline.transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &["A", "B", "C"]);
 
-    assert!(result.is_ok(), "Transpilation should succeed");
-
-    let rust_code = result.unwrap();
-
-    // Check that constants are present
-    assert!(
-        rust_code.contains("A") && rust_code.contains("B") && rust_code.contains("C"),
-        "Generated code must contain all constant names. Got:\n{}",
-        rust_code
-    );
-
-    // Should have integer type annotations
     let has_type_annotations = rust_code.contains("i32") || rust_code.contains("i64");
 
     assert!(
@@ -85,26 +51,14 @@ GREETING = "Hello"
 MESSAGE = "World"
 "#;
 
-    let pipeline = DepylerPipeline::new();
-    let result = pipeline.transpile(python_code);
+    let rust_code = transpile(python_code);
 
-    assert!(result.is_ok(), "Transpilation should succeed");
-
-    let rust_code = result.unwrap();
-
-    // Check that constant names are present
-    assert!(
-        rust_code.contains("NAME") && rust_code.contains("GREETING") && rust_code.contains("MESSAGE"),
-        "Generated code must contain all constant names. Got:\n{}",
-        rust_code
-    );
-
-    // String values should be present (in some form)
-    assert!(
-        rust_code.contains("Alice") && rust_code.contains("Hello") && rust_code.contains("World"),
-        "Generated code must contain string values. Got:\n{}",
-        rust_code
-    );
+    assert!(rust_code.contains("NAME"), "Should contain NAME");
+    assert!(rust_code.contains("GREETING"), "Should contain GREETING");
+    assert!(rust_code.contains("MESSAGE"), "Should contain MESSAGE");
+    assert!(rust_code.contains("Alice"), "Should contain Alice");
+    assert!(rust_code.contains("Hello"), "Should contain Hello");
+    assert!(rust_code.contains("World"), "Should contain World");
 }
 
 #[test]
@@ -116,59 +70,31 @@ STRING_VALUE = "test"
 BOOL_VALUE = True
 "#;
 
-    let pipeline = DepylerPipeline::new();
-    let result = pipeline.transpile(python_code);
+    let rust_code = transpile(python_code);
 
-    assert!(result.is_ok(), "Transpilation should succeed");
-
-    let rust_code = result.unwrap();
-
-    // Check that all constant names are present
+    assert!(rust_code.contains("INT_VALUE"), "Should contain INT_VALUE");
+    assert!(rust_code.contains("FLOAT_VALUE"), "Should contain FLOAT_VALUE");
+    assert!(rust_code.contains("STRING_VALUE"), "Should contain STRING_VALUE");
+    assert!(rust_code.contains("BOOL_VALUE"), "Should contain BOOL_VALUE");
+    assert!(rust_code.contains("42"), "Should contain 42");
+    assert!(rust_code.contains("3.14"), "Should contain 3.14");
+    assert!(rust_code.contains("test"), "Should contain test");
     assert!(
-        rust_code.contains("INT_VALUE")
-            && rust_code.contains("FLOAT_VALUE")
-            && rust_code.contains("STRING_VALUE")
-            && rust_code.contains("BOOL_VALUE"),
-        "Generated code must contain all constant names. Got:\n{}",
-        rust_code
-    );
-
-    // Check that values are present
-    assert!(
-        rust_code.contains("42")
-            && rust_code.contains("3.14")
-            && rust_code.contains("test")
-            && (rust_code.contains("true") || rust_code.contains("True")),
-        "Generated code must contain all constant values. Got:\n{}",
+        rust_code.contains("true") || rust_code.contains("True"),
+        "Generated code must contain boolean value. Got:\n{}",
         rust_code
     );
 }
 
 #[test]
 fn test_generated_constants_code_compiles() {
-    // Test that the generated code for simple constants is syntactically valid
     let python_code = r#"
 A = 1
 B = 2
 C = 3
 "#;
 
-    let pipeline = DepylerPipeline::new();
-    let result = pipeline.transpile(python_code);
-
-    assert!(result.is_ok(), "Transpilation should succeed");
-
-    let rust_code = result.unwrap();
-
-    // Basic check that code contains expected patterns
-    assert!(!rust_code.is_empty(), "Generated Rust code must not be empty");
-
-    // Check for basic Rust syntax patterns
-    assert!(
-        rust_code.contains("A") || rust_code.contains("B") || rust_code.contains("C"),
-        "Generated code should contain constant declarations. Got:\n{}",
-        rust_code
-    );
+    transpile_and_check(python_code, &["A"]);
 }
 
 #[test]
@@ -182,33 +108,7 @@ def sum_constants() -> int:
     return A + B + C
 "#;
 
-    let pipeline = DepylerPipeline::new();
-    let result = pipeline.transpile(python_code);
-
-    assert!(result.is_ok(), "Transpilation should succeed");
-
-    let rust_code = result.unwrap();
-
-    // Constants should be defined
-    assert!(
-        rust_code.contains("A") && rust_code.contains("B") && rust_code.contains("C"),
-        "Generated code must contain all constant names. Got:\n{}",
-        rust_code
-    );
-
-    // Function should reference the constants
-    assert!(
-        rust_code.contains("sum_constants"),
-        "Generated code must contain the function. Got:\n{}",
-        rust_code
-    );
-
-    // Basic validation - check that code isn't empty and has expected patterns
-    assert!(
-        !rust_code.is_empty() && rust_code.contains("A"),
-        "Generated Rust code should be valid and contain constant references. Got:\n{}",
-        rust_code
-    );
+    transpile_and_check(python_code, &["A", "B", "C", "sum_constants"]);
 }
 
 #[test]
@@ -217,19 +117,8 @@ fn test_integer_list_constant() {
 VEC = [1, 2, 3, 4]
 "#;
 
-    let pipeline = DepylerPipeline::new();
-    let result = pipeline.transpile(python_code);
-
-    assert!(result.is_ok(), "Transpilation should succeed");
-
-    let rust_code = result.unwrap();
-    println!("Integer list constant Rust output:\n{}", rust_code);
-
-    assert!(
-        rust_code.contains("VEC"),
-        "Generated code must contain constant name VEC. Got:\n{}",
-        rust_code
-    );
+    let rust_code = transpile(python_code);
+    assert!(rust_code.contains("VEC"), "Should contain VEC");
 }
 
 #[test]
@@ -238,19 +127,8 @@ fn test_string_list_constant() {
 VEC = ["1", "2", "3", "4"]
 "#;
 
-    let pipeline = DepylerPipeline::new();
-    let result = pipeline.transpile(python_code);
-
-    assert!(result.is_ok(), "Transpilation should succeed");
-
-    let rust_code = result.unwrap();
-    println!("String list constant Rust output:\n{}", rust_code);
-
-    assert!(
-        rust_code.contains("VEC"),
-        "Generated code must contain constant name VEC. Got:\n{}",
-        rust_code
-    );
+    let rust_code = transpile(python_code);
+    assert!(rust_code.contains("VEC"), "Should contain VEC");
 }
 
 #[test]
@@ -259,19 +137,8 @@ fn test_float_list_constant() {
 VEC = [1.1, 2.2, 3.3, 4.4]
 "#;
 
-    let pipeline = DepylerPipeline::new();
-    let result = pipeline.transpile(python_code);
-
-    assert!(result.is_ok(), "Transpilation should succeed");
-
-    let rust_code = result.unwrap();
-    println!("Float list constant Rust output:\n{}", rust_code);
-
-    assert!(
-        rust_code.contains("VEC"),
-        "Generated code must contain constant name VEC. Got:\n{}",
-        rust_code
-    );
+    let rust_code = transpile(python_code);
+    assert!(rust_code.contains("VEC"), "Should contain VEC");
 }
 
 #[test]
@@ -280,19 +147,8 @@ fn test_bool_list_constant() {
 VEC = [True, False, True, False]
 "#;
 
-    let pipeline = DepylerPipeline::new();
-    let result = pipeline.transpile(python_code);
-
-    assert!(result.is_ok(), "Transpilation should succeed");
-
-    let rust_code = result.unwrap();
-    println!("Bool list constant Rust output:\n{}", rust_code);
-
-    assert!(
-        rust_code.contains("VEC"),
-        "Generated code must contain constant name VEC. Got:\n{}",
-        rust_code
-    );
+    let rust_code = transpile(python_code);
+    assert!(rust_code.contains("VEC"), "Should contain VEC");
 }
 
 #[test]
@@ -301,20 +157,9 @@ fn test_nested_integer_list_constant() {
 X_VALUES = [[0, 100], [100, 200]]
 "#;
 
-    let pipeline = DepylerPipeline::new();
-    let result = pipeline.transpile(python_code);
+    let rust_code = transpile(python_code);
 
-    assert!(result.is_ok(), "Transpilation should succeed");
-
-    let rust_code = result.unwrap();
-    println!("Nested integer list constant Rust output:\n{}", rust_code);
-
-    assert!(
-        rust_code.contains("lazy_static!"),
-        "List constants must use lazy_static! for heap allocation. Got:\n{}",
-        rust_code
-    );
-
+    assert!(rust_code.contains("lazy_static!"), "Should use lazy_static!");
     assert!(
         rust_code.contains("pub static ref X_VALUES: Vec<Vec<i32>> = vec![vec![0, 100], vec![100, 200]]"),
         "Nested list must be declared as static ref with correct type and value. Got:\n{}",
@@ -328,20 +173,9 @@ fn test_string_list_constant_multiple() {
 STRINGS = ["one", "two", "three"]
 "#;
 
-    let pipeline = DepylerPipeline::new();
-    let result = pipeline.transpile(python_code);
+    let rust_code = transpile(python_code);
 
-    assert!(result.is_ok(), "Transpilation should succeed");
-
-    let rust_code = result.unwrap();
-    println!("String list constant Rust output:\n{}", rust_code);
-
-    assert!(
-        rust_code.contains("lazy_static!"),
-        "List constants must use lazy_static! for heap allocation. Got:\n{}",
-        rust_code
-    );
-
+    assert!(rust_code.contains("lazy_static!"), "Should use lazy_static!");
     assert!(
         rust_code.contains("pub static ref STRINGS: Vec<String> = vec![\"one\".to_string(), \"two\".to_string(), \"three\".to_string()]"),
         "String list must be declared as static ref with correct type and value. Got:\n{}",

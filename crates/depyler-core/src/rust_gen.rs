@@ -174,29 +174,9 @@ fn pre_analyze_parameter_mutability(ctx: &mut CodeGenContext, functions: &[HirFu
         }
     }
 
-    // Pass 3: Propagate &mut requirement DOWN the call chain
-    // If a function has &mut param and passes it to another function,
-    // that called function must also accept &mut (for type compatibility)
-    let mut changed = true;
-    while changed {
-        changed = false;
-        for func in functions {
-            for (param_idx, param) in func.params.iter().enumerate() {
-                // Only propagate from params that are already marked as needing mut
-                let needs_mut = ctx
-                    .function_param_muts
-                    .get(&func.name)
-                    .and_then(|v| v.get(param_idx))
-                    .copied()
-                    .unwrap_or(false);
-
-                if needs_mut {
-                    // Find all functions called with this param
-                    propagate_mut_to_callees(&param.name, &func.body, &mut ctx.function_param_muts, &mut changed);
-                }
-            }
-        }
-    }
+    // Note: We intentionally do NOT propagate &mut DOWN call chains.
+    // If `first(&mut state)` calls `second(state)` where `second` doesn't mutate,
+    // `second` should be `second(&State)`. Rust auto-reborrows &mut to & at call sites.
 
     // Debug: print final function_param_muts
     #[cfg(debug_assertions)]
@@ -1377,6 +1357,7 @@ pub fn generate_rust_file(
         validator_functions: HashSet::new(),                     // Track argparse validator functions
         stdlib_mappings: crate::stdlib_mappings::StdlibMappings::new(), // Stdlib API mappings
         current_func_mut_ref_params: HashSet::new(),             // Track &mut ref params in current function
+        current_func_ref_params: HashSet::new(),                 // Track & ref params in current function
         function_param_names: std::collections::HashMap::new(),  // Track function parameter names
         var_usage_counts: std::collections::HashMap::new(),      // Variable usage counts for clone analysis
         var_usage_current: std::collections::HashMap::new(),     // Current usage position during codegen
@@ -1587,6 +1568,7 @@ mod tests {
             validator_functions: HashSet::new(), // Track argparse validator functions
             stdlib_mappings: crate::stdlib_mappings::StdlibMappings::new(),
             current_func_mut_ref_params: HashSet::new(), // Track &mut ref params in current function
+            current_func_ref_params: HashSet::new(),     // Track & ref params in current function
             function_param_names: std::collections::HashMap::new(), // Track function parameter names
             var_usage_counts: std::collections::HashMap::new(), // Variable usage counts for clone analysis
             var_usage_current: std::collections::HashMap::new(), // Current usage position during codegen

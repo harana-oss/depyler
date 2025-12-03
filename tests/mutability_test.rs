@@ -1,6 +1,8 @@
 #![allow(non_snake_case)]
 
-use depyler_core::DepylerPipeline;
+mod test_helpers;
+
+use test_helpers::transpile_and_check;
 
 // ============================================================================
 // String Assignment
@@ -21,10 +23,7 @@ def assign_string_constant(state: State) -> None:
     state.status = "Active"
 "#;
 
-    let pipeline = DepylerPipeline::new();
-    let result = pipeline.transpile(python);
-    assert!(result.is_ok());
-    let rust_code = result.unwrap();
+    let rust_code = transpile_and_check(python, &[]);
     assert!(rust_code.contains("state: &mut State"), "\n{rust_code}");
 }
 
@@ -43,10 +42,7 @@ def assign_string_variable(state: State) -> None:
     state.name = new_name
 "#;
 
-    let pipeline = DepylerPipeline::new();
-    let result = pipeline.transpile(python);
-    assert!(result.is_ok());
-    let rust_code = result.unwrap();
+    let rust_code = transpile_and_check(python, &[]);
     assert!(rust_code.contains("state: &mut State"), "\n{rust_code}");
 }
 
@@ -66,10 +62,7 @@ def compare_strings(state: State) -> bool:
     return state.status == "Active"
 "#;
 
-    let pipeline = DepylerPipeline::new();
-    let result = pipeline.transpile(python);
-    assert!(result.is_ok());
-    let rust_code = result.unwrap();
+    let rust_code = transpile_and_check(python, &[]);
     assert!(rust_code.contains("state: &State"), "\n{rust_code}");
 }
 
@@ -87,10 +80,7 @@ def mutate_strings(state: State) -> None:
     state.name = prefix + state.name
 "#;
 
-    let pipeline = DepylerPipeline::new();
-    let result = pipeline.transpile(python);
-    assert!(result.is_ok());
-    let rust_code = result.unwrap();
+    let rust_code = transpile_and_check(python, &[]);
     assert!(rust_code.contains("state: &mut State"), "\n{rust_code}");
 }
 
@@ -114,10 +104,7 @@ def multiple_string_ops(state: State) -> None:
         state.result = result_str
 "#;
 
-    let pipeline = DepylerPipeline::new();
-    let result = pipeline.transpile(python);
-    assert!(result.is_ok());
-    let rust_code = result.unwrap();
+    let rust_code = transpile_and_check(python, &[]);
     assert!(rust_code.contains("state: &mut State"), "\n{rust_code}");
     assert!(rust_code.contains("let mut result_str"), "\n{rust_code}");
 }
@@ -143,10 +130,7 @@ def string_comparison_assignment(state: State) -> None:
     state.result = attempt_result
 "#;
 
-    let pipeline = DepylerPipeline::new();
-    let result = pipeline.transpile(python);
-    assert!(result.is_ok());
-    let rust_code = result.unwrap();
+    let rust_code = transpile_and_check(python, &[]);
     assert!(rust_code.contains("state: &mut State"), "\n{rust_code}");
     assert!(rust_code.contains("let mut attempt_result"), "\n{rust_code}");
 }
@@ -171,10 +155,7 @@ def caller_function_simple(state: State) -> None:
     helper_function_a(state)
 "#;
 
-    let pipeline = DepylerPipeline::new();
-    let result = pipeline.transpile(python);
-    assert!(result.is_ok());
-    let rust_code = result.unwrap();
+    let rust_code = transpile_and_check(python, &[]);
     assert!(rust_code.contains("state: &mut State"), "\n{rust_code}");
 }
 
@@ -199,10 +180,7 @@ def caller_function_simple(state: State) -> None:
     helper_function_b(state)
 "#;
 
-    let pipeline = DepylerPipeline::new();
-    let result = pipeline.transpile(python);
-    assert!(result.is_ok());
-    let rust_code = result.unwrap();
+    let rust_code = transpile_and_check(python, &[]);
     assert!(rust_code.contains("state: &mut State"), "\n{rust_code}");
 }
 
@@ -226,10 +204,7 @@ def caller_function_with_return(state: State) -> None:
         state.counter = 100
 "#;
 
-    let pipeline = DepylerPipeline::new();
-    let result = pipeline.transpile(python);
-    assert!(result.is_ok());
-    let rust_code = result.unwrap();
+    let rust_code = transpile_and_check(python, &[]);
     assert!(rust_code.contains("state: &mut State"), "\n{rust_code}");
 }
 
@@ -253,10 +228,7 @@ def caller_function_with_params(state: State) -> None:
         helper_function_with_params(state, 10, "Beta")
 "#;
 
-    let pipeline = DepylerPipeline::new();
-    let result = pipeline.transpile(python);
-    assert!(result.is_ok());
-    let rust_code = result.unwrap();
+    let rust_code = transpile_and_check(python, &[]);
     assert!(rust_code.contains("state: &mut State"), "\n{rust_code}");
     assert!(rust_code.contains("add_value:"), "\n{rust_code}");
     assert!(rust_code.contains("set_name:"), "\n{rust_code}");
@@ -285,10 +257,7 @@ def caller_function_conditional(state: State) -> None:
         helper_function_b(state)
 "#;
 
-    let pipeline = DepylerPipeline::new();
-    let result = pipeline.transpile(python);
-    assert!(result.is_ok());
-    let rust_code = result.unwrap();
+    let rust_code = transpile_and_check(python, &[]);
     assert!(rust_code.contains("state: &mut State"), "\n{rust_code}");
 }
 
@@ -322,10 +291,7 @@ def top_level_function(state: State) -> None:
     caller_function_with_return(state)
 "#;
 
-    let pipeline = DepylerPipeline::new();
-    let result = pipeline.transpile(python);
-    assert!(result.is_ok());
-    let rust_code = result.unwrap();
+    let rust_code = transpile_and_check(python, &[]);
     assert!(rust_code.contains("state: &mut State"), "\n{rust_code}");
 }
 
@@ -347,10 +313,7 @@ def append_to_list(state: State) -> None:
     state.items.append(100)
 "#;
 
-    let pipeline = DepylerPipeline::new();
-    let result = pipeline.transpile(python);
-    assert!(result.is_ok());
-    let rust_code = result.unwrap();
+    let rust_code = transpile_and_check(python, &[]);
     assert!(rust_code.contains("state: &mut State"), "\n{rust_code}");
     assert!(rust_code.contains("state.items.push"), "\n{rust_code}");
 }
@@ -369,10 +332,7 @@ def modify_list_element(state: State) -> None:
     state.values[2] = state.values[1] + 10
 "#;
 
-    let pipeline = DepylerPipeline::new();
-    let result = pipeline.transpile(python);
-    assert!(result.is_ok());
-    let rust_code = result.unwrap();
+    let rust_code = transpile_and_check(python, &[]);
     assert!(rust_code.contains("state: &mut State"), "\n{rust_code}");
 }
 
@@ -392,10 +352,7 @@ def read_list(state: State) -> int:
     return total
 "#;
 
-    let pipeline = DepylerPipeline::new();
-    let result = pipeline.transpile(python);
-    assert!(result.is_ok());
-    let rust_code = result.unwrap();
+    let rust_code = transpile_and_check(python, &[]);
     assert!(rust_code.contains("state: &State"), "\n{rust_code}");
 }
 
@@ -413,10 +370,7 @@ def extend_list(state: State) -> None:
     state.items.extend(new_items)
 "#;
 
-    let pipeline = DepylerPipeline::new();
-    let result = pipeline.transpile(python);
-    assert!(result.is_ok());
-    let rust_code = result.unwrap();
+    let rust_code = transpile_and_check(python, &[]);
     assert!(rust_code.contains("state: &mut State"), "\n{rust_code}");
     assert!(rust_code.contains("state.items.extend"), "\n{rust_code}");
 }
@@ -434,10 +388,7 @@ def clear_list(state: State) -> None:
     state.items.clear()
 "#;
 
-    let pipeline = DepylerPipeline::new();
-    let result = pipeline.transpile(python);
-    assert!(result.is_ok());
-    let rust_code = result.unwrap();
+    let rust_code = transpile_and_check(python, &[]);
     assert!(rust_code.contains("state: &mut State"), "\n{rust_code}");
     assert!(rust_code.contains("state.items.clear"), "\n{rust_code}");
 }
@@ -462,10 +413,7 @@ def loop_with_mutation(state: State) -> None:
         state.sum = state.sum + i
 "#;
 
-    let pipeline = DepylerPipeline::new();
-    let result = pipeline.transpile(python);
-    assert!(result.is_ok());
-    let rust_code = result.unwrap();
+    let rust_code = transpile_and_check(python, &[]);
     assert!(rust_code.contains("state: &mut State"), "\n{rust_code}");
 }
 
@@ -485,10 +433,7 @@ def loop_read_only(state: State) -> int:
     return total
 "#;
 
-    let pipeline = DepylerPipeline::new();
-    let result = pipeline.transpile(python);
-    assert!(result.is_ok());
-    let rust_code = result.unwrap();
+    let rust_code = transpile_and_check(python, &[]);
     assert!(rust_code.contains("state: &State"), "\n{rust_code}");
 }
 
@@ -506,10 +451,7 @@ def double_values(state: State) -> None:
         state.values[i] = state.values[i] * 2
 "#;
 
-    let pipeline = DepylerPipeline::new();
-    let result = pipeline.transpile(python);
-    assert!(result.is_ok());
-    let rust_code = result.unwrap();
+    let rust_code = transpile_and_check(python, &[]);
     assert!(rust_code.contains("state: &mut State"), "\n{rust_code}");
 }
 
@@ -529,10 +471,7 @@ def conditional_loop_mutation(state: State) -> None:
             state.counter = state.counter + 1
 "#;
 
-    let pipeline = DepylerPipeline::new();
-    let result = pipeline.transpile(python);
-    assert!(result.is_ok());
-    let rust_code = result.unwrap();
+    let rust_code = transpile_and_check(python, &[]);
     assert!(rust_code.contains("state: &mut State"), "\n{rust_code}");
 }
 
@@ -556,10 +495,7 @@ def iterate_immutable(state: State) -> int:
     return total
 "#;
 
-    let pipeline = DepylerPipeline::new();
-    let result = pipeline.transpile(python);
-    assert!(result.is_ok());
-    let rust_code = result.unwrap();
+    let rust_code = transpile_and_check(python, &[]);
     assert!(rust_code.contains("state: &State"), "\n{rust_code}");
     assert!(rust_code.contains("&state.items"), "\n{rust_code}");
 }
@@ -579,10 +515,7 @@ def iterate_and_modify_elements(state: State) -> None:
         state.values[i] = state.values[i] * 2
 "#;
 
-    let pipeline = DepylerPipeline::new();
-    let result = pipeline.transpile(python);
-    assert!(result.is_ok());
-    let rust_code = result.unwrap();
+    let rust_code = transpile_and_check(python, &[]);
     assert!(rust_code.contains("state: &mut State"), "\n{rust_code}");
 }
 
@@ -600,10 +533,7 @@ def print_names(state: State) -> None:
         pass  # In real code: print(name)
 "#;
 
-    let pipeline = DepylerPipeline::new();
-    let result = pipeline.transpile(python);
-    assert!(result.is_ok());
-    let rust_code = result.unwrap();
+    let rust_code = transpile_and_check(python, &[]);
     assert!(rust_code.contains("state: &State"), "\n{rust_code}");
 }
 
@@ -624,10 +554,7 @@ def find_large_values(state: State) -> list[int]:
     return result
 "#;
 
-    let pipeline = DepylerPipeline::new();
-    let result = pipeline.transpile(python);
-    assert!(result.is_ok());
-    let rust_code = result.unwrap();
+    let rust_code = transpile_and_check(python, &[]);
     assert!(rust_code.contains("state: &State"), "\n{rust_code}");
 }
 
@@ -647,10 +574,7 @@ def find_index(state: State, target: str) -> int:
     return -1
 "#;
 
-    let pipeline = DepylerPipeline::new();
-    let result = pipeline.transpile(python);
-    assert!(result.is_ok());
-    let rust_code = result.unwrap();
+    let rust_code = transpile_and_check(python, &[]);
     assert!(rust_code.contains("state: &State"), "\n{rust_code}");
     assert!(rust_code.contains(".iter().enumerate()"), "\n{rust_code}");
 }
@@ -671,10 +595,7 @@ def collect_large_indices(state: State) -> None:
             state.indices.append(i)
 "#;
 
-    let pipeline = DepylerPipeline::new();
-    let result = pipeline.transpile(python);
-    assert!(result.is_ok());
-    let rust_code = result.unwrap();
+    let rust_code = transpile_and_check(python, &[]);
     assert!(rust_code.contains("state: &mut State"), "\n{rust_code}");
 }
 
@@ -695,10 +616,7 @@ def sum_pairs(state: State) -> int:
     return total
 "#;
 
-    let pipeline = DepylerPipeline::new();
-    let result = pipeline.transpile(python);
-    assert!(result.is_ok());
-    let rust_code = result.unwrap();
+    let rust_code = transpile_and_check(python, &[]);
     assert!(rust_code.contains("state: &State"), "\n{rust_code}");
 }
 
@@ -718,10 +636,7 @@ def sum_reversed(state: State) -> int:
     return total
 "#;
 
-    let pipeline = DepylerPipeline::new();
-    let result = pipeline.transpile(python);
-    assert!(result.is_ok());
-    let rust_code = result.unwrap();
+    let rust_code = transpile_and_check(python, &[]);
     assert!(rust_code.contains("state: &State"), "\n{rust_code}");
     assert!(rust_code.contains(".iter().rev()"), "\n{rust_code}");
 }
@@ -740,10 +655,7 @@ def filter_values(state: State, threshold: int) -> None:
     state.filtered = [v for v in state.values if v > threshold]
 "#;
 
-    let pipeline = DepylerPipeline::new();
-    let result = pipeline.transpile(python);
-    assert!(result.is_ok());
-    let rust_code = result.unwrap();
+    let rust_code = transpile_and_check(python, &[]);
     assert!(rust_code.contains("state: &mut State"), "\n{rust_code}");
 }
 
@@ -764,10 +676,7 @@ def sum_matrix(state: State) -> int:
     return total
 "#;
 
-    let pipeline = DepylerPipeline::new();
-    let result = pipeline.transpile(python);
-    assert!(result.is_ok());
-    let rust_code = result.unwrap();
+    let rust_code = transpile_and_check(python, &[]);
     assert!(rust_code.contains("state: &State"), "\n{rust_code}");
 }
 
@@ -789,10 +698,7 @@ def increment_all_items(state: State) -> None:
         item.value = item.value + 1  # Modifying items in-place
 "#;
 
-    let pipeline = DepylerPipeline::new();
-    let result = pipeline.transpile(python);
-    assert!(result.is_ok());
-    let rust_code = result.unwrap();
+    let rust_code = transpile_and_check(python, &[]);
     assert!(rust_code.contains("state: &mut State"), "\n{rust_code}");
     assert!(rust_code.contains("for item in &mut state.items"), "\n{rust_code}");
 }
@@ -813,10 +719,7 @@ def iterate_with_reassignment(state: State) -> int:
     return x
 "#;
 
-    let pipeline = DepylerPipeline::new();
-    let result = pipeline.transpile(python);
-    assert!(result.is_ok());
-    let rust_code = result.unwrap();
+    let rust_code = transpile_and_check(python, &[]);
     assert!(rust_code.contains("state: &State"), "\n{rust_code}");
     assert!(rust_code.contains("let mut x"), "\n{rust_code}");
     assert!(rust_code.contains("&state.items"), "\n{rust_code}");
@@ -846,10 +749,7 @@ def process(state: State) -> int:
     return total
 "#;
 
-    let pipeline = DepylerPipeline::new();
-    let result = pipeline.transpile(python);
-    assert!(result.is_ok());
-    let rust_code = result.unwrap();
+    let rust_code = transpile_and_check(python, &[]);
     assert!(rust_code.contains("state: &State"), "\n{rust_code}");
     assert!(rust_code.contains("&state.middle.inner.items"), "\n{rust_code}");
 }
@@ -878,10 +778,7 @@ def find_in_nested(state: State, target: str) -> int:
     return -1
 "#;
 
-    let pipeline = DepylerPipeline::new();
-    let result = pipeline.transpile(python);
-    assert!(result.is_ok());
-    let rust_code = result.unwrap();
+    let rust_code = transpile_and_check(python, &[]);
     assert!(rust_code.contains("state: &State"), "\n{rust_code}");
     assert!(rust_code.contains(".iter().enumerate()"), "\n{rust_code}");
 }
@@ -913,10 +810,7 @@ def increment_nested(state: State) -> None:
         item.value = item.value + 1
 "#;
 
-    let pipeline = DepylerPipeline::new();
-    let result = pipeline.transpile(python);
-    assert!(result.is_ok());
-    let rust_code = result.unwrap();
+    let rust_code = transpile_and_check(python, &[]);
     assert!(
         rust_code.contains("increment_nested(state: &mut State)"),
         "\n{rust_code}"
@@ -944,10 +838,7 @@ def use_mutable_local(state: State) -> None:
     state.value = temp
 "#;
 
-    let pipeline = DepylerPipeline::new();
-    let result = pipeline.transpile(python);
-    assert!(result.is_ok());
-    let rust_code = result.unwrap();
+    let rust_code = transpile_and_check(python, &[]);
     assert!(rust_code.contains("state: &mut State"), "\n{rust_code}");
     assert!(rust_code.contains("let mut temp"), "\n{rust_code}");
 }
@@ -969,10 +860,7 @@ def build_local_list(state: State) -> None:
     state.values = temp_list
 "#;
 
-    let pipeline = DepylerPipeline::new();
-    let result = pipeline.transpile(python);
-    assert!(result.is_ok());
-    let rust_code = result.unwrap();
+    let rust_code = transpile_and_check(python, &[]);
     assert!(rust_code.contains("state: &mut State"), "\n{rust_code}");
     assert!(rust_code.contains("let mut temp_list"), "\n{rust_code}");
 }
@@ -991,10 +879,7 @@ def use_immutable_local(state: State) -> int:
     return temp * 2
 "#;
 
-    let pipeline = DepylerPipeline::new();
-    let result = pipeline.transpile(python);
-    assert!(result.is_ok());
-    let rust_code = result.unwrap();
+    let rust_code = transpile_and_check(python, &[]);
     assert!(rust_code.contains("state: &State"), "\n{rust_code}");
     assert!(!rust_code.contains("let mut temp"), "\n{rust_code}");
 }
@@ -1018,10 +903,7 @@ def while_loop_mutation(state: State) -> None:
         state.counter = state.counter + 1
 "#;
 
-    let pipeline = DepylerPipeline::new();
-    let result = pipeline.transpile(python);
-    assert!(result.is_ok());
-    let rust_code = result.unwrap();
+    let rust_code = transpile_and_check(python, &[]);
     assert!(rust_code.contains("state: &mut State"), "\n{rust_code}");
 }
 
@@ -1042,10 +924,7 @@ def while_loop_read(state: State) -> int:
     return temp
 "#;
 
-    let pipeline = DepylerPipeline::new();
-    let result = pipeline.transpile(python);
-    assert!(result.is_ok());
-    let rust_code = result.unwrap();
+    let rust_code = transpile_and_check(python, &[]);
     assert!(rust_code.contains("state: &State"), "\n{rust_code}");
 }
 
@@ -1067,10 +946,7 @@ def insert_into_dict(state: State) -> None:
     state.data["key2"] = 200
 "#;
 
-    let pipeline = DepylerPipeline::new();
-    let result = pipeline.transpile(python);
-    assert!(result.is_ok());
-    let rust_code = result.unwrap();
+    let rust_code = transpile_and_check(python, &[]);
     assert!(rust_code.contains("state: &mut State"), "\n{rust_code}");
 }
 
@@ -1088,10 +964,7 @@ def read_from_dict(state: State) -> int:
     return value
 "#;
 
-    let pipeline = DepylerPipeline::new();
-    let result = pipeline.transpile(python);
-    assert!(result.is_ok());
-    let rust_code = result.unwrap();
+    let rust_code = transpile_and_check(python, &[]);
     assert!(rust_code.contains("state: &State"), "\n{rust_code}");
 }
 
@@ -1112,10 +985,7 @@ def modify_nested_list(state: State) -> None:
     state.matrix[0][1] = 999
 "#;
 
-    let pipeline = DepylerPipeline::new();
-    let result = pipeline.transpile(python);
-    assert!(result.is_ok());
-    let rust_code = result.unwrap();
+    let rust_code = transpile_and_check(python, &[]);
     assert!(rust_code.contains("state: &mut State"), "\n{rust_code}");
 }
 
@@ -1136,10 +1006,7 @@ def mutate_multiple_fields(state: State) -> None:
     state.data["key"] = 42
 "#;
 
-    let pipeline = DepylerPipeline::new();
-    let result = pipeline.transpile(python);
-    assert!(result.is_ok());
-    let rust_code = result.unwrap();
+    let rust_code = transpile_and_check(python, &[]);
     assert!(rust_code.contains("state: &mut State"), "\n{rust_code}");
     assert!(rust_code.contains("state.items.push"), "\n{rust_code}");
 }
@@ -1162,10 +1029,7 @@ def conditional_mutations(state: State) -> None:
         state.items.append(50)
 "#;
 
-    let pipeline = DepylerPipeline::new();
-    let result = pipeline.transpile(python);
-    assert!(result.is_ok());
-    let rust_code = result.unwrap();
+    let rust_code = transpile_and_check(python, &[]);
     assert!(rust_code.contains("state: &mut State"), "\n{rust_code}");
     assert!(rust_code.contains("state.items.push"), "\n{rust_code}");
 }
@@ -1194,10 +1058,7 @@ def update_both(record_a: RecordA, record_b: RecordB) -> None:
     record_b.count = record_b.count + 1
 "#;
 
-    let pipeline = DepylerPipeline::new();
-    let result = pipeline.transpile(python);
-    assert!(result.is_ok());
-    let rust_code = result.unwrap();
+    let rust_code = transpile_and_check(python, &[]);
     assert!(rust_code.contains("record_a: &mut RecordA"), "\n{rust_code}");
     assert!(rust_code.contains("record_b: &mut RecordB"), "\n{rust_code}");
 }
@@ -1223,10 +1084,7 @@ def update_state_from_config(state: State, config: Config) -> None:
     state.counter = config.max_value
 "#;
 
-    let pipeline = DepylerPipeline::new();
-    let result = pipeline.transpile(python);
-    assert!(result.is_ok());
-    let rust_code = result.unwrap();
+    let rust_code = transpile_and_check(python, &[]);
     assert!(rust_code.contains("state: &mut State"), "\n{rust_code}");
     assert!(rust_code.contains("config: &Config"), "\n{rust_code}");
 }
@@ -1246,10 +1104,7 @@ def add_value(state: State, value: int, label: str) -> None:
     state.name = label
 "#;
 
-    let pipeline = DepylerPipeline::new();
-    let result = pipeline.transpile(python);
-    assert!(result.is_ok());
-    let rust_code = result.unwrap();
+    let rust_code = transpile_and_check(python, &[]);
     assert!(rust_code.contains("state: &mut State"), "\n{rust_code}");
     assert!(rust_code.contains("value: i32"), "\n{rust_code}");
     assert!(rust_code.contains("label: String"), "\n{rust_code}");
@@ -1277,10 +1132,7 @@ def process_data(source: Source, dest: Destination, config: Config) -> None:
         dest.results.append(value * config.multiplier)
 "#;
 
-    let pipeline = DepylerPipeline::new();
-    let result = pipeline.transpile(python);
-    assert!(result.is_ok());
-    let rust_code = result.unwrap();
+    let rust_code = transpile_and_check(python, &[]);
     assert!(rust_code.contains("source: &Source"), "\n{rust_code}");
     assert!(rust_code.contains("dest: &mut Destination"), "\n{rust_code}");
     assert!(rust_code.contains("config: &Config"), "\n{rust_code}");
@@ -1305,10 +1157,7 @@ def process(counter: Counter) -> None:
     increment(counter, 10)
 "#;
 
-    let pipeline = DepylerPipeline::new();
-    let result = pipeline.transpile(python);
-    assert!(result.is_ok());
-    let rust_code = result.unwrap();
+    let rust_code = transpile_and_check(python, &[]);
     assert!(rust_code.contains("counter: &mut Counter"), "\n{rust_code}");
     assert!(rust_code.contains("amount: i32"), "\n{rust_code}");
 }
@@ -1331,10 +1180,7 @@ def use_helper(state: State) -> None:
     modify_list(state.numbers)
 "#;
 
-    let pipeline = DepylerPipeline::new();
-    let result = pipeline.transpile(python);
-    assert!(result.is_ok());
-    let rust_code = result.unwrap();
+    let rust_code = transpile_and_check(python, &[]);
     assert!(rust_code.contains("modify_list(items: &mut Vec<i32>)"), "\n{rust_code}");
     assert!(rust_code.contains("use_helper(state: &mut State)"), "\n{rust_code}");
     assert!(rust_code.contains("modify_list(&mut state.numbers)"), "\n{rust_code}");
@@ -1359,10 +1205,7 @@ def mutate_nested(outer: Outer) -> None:
     outer.count = outer.count + 1
 "#;
 
-    let pipeline = DepylerPipeline::new();
-    let result = pipeline.transpile(python);
-    assert!(result.is_ok());
-    let rust_code = result.unwrap();
+    let rust_code = transpile_and_check(python, &[]);
     assert!(rust_code.contains("outer: &mut Outer"), "\n{rust_code}");
 }
 
@@ -1383,10 +1226,7 @@ def calculate_sum(data: Data) -> int:
     return total
 "#;
 
-    let pipeline = DepylerPipeline::new();
-    let result = pipeline.transpile(python);
-    assert!(result.is_ok());
-    let rust_code = result.unwrap();
+    let rust_code = transpile_and_check(python, &[]);
     assert!(rust_code.contains("data: &Data"), "\n{rust_code}");
 }
 
@@ -1411,10 +1251,7 @@ def caller(input: Input, output: Output) -> None:
     output.result = output.result + 10
 "#;
 
-    let pipeline = DepylerPipeline::new();
-    let result = pipeline.transpile(python);
-    assert!(result.is_ok());
-    let rust_code = result.unwrap();
+    let rust_code = transpile_and_check(python, &[]);
     assert!(rust_code.contains("input: &Input"), "\n{rust_code}");
     assert!(rust_code.contains("output: &mut Output"), "\n{rust_code}");
 }
@@ -1440,10 +1277,7 @@ def conditional_update(state_a: StateA, state_b: StateB) -> None:
         state_b.counter = 200
 "#;
 
-    let pipeline = DepylerPipeline::new();
-    let result = pipeline.transpile(python);
-    assert!(result.is_ok());
-    let rust_code = result.unwrap();
+    let rust_code = transpile_and_check(python, &[]);
     assert!(rust_code.contains("state_a: &mut StateA"), "\n{rust_code}");
     assert!(rust_code.contains("state_b: &mut StateB"), "\n{rust_code}");
 }
@@ -1463,10 +1297,7 @@ def swap_values(a: Container, b: Container) -> None:
     b.value = temp
 "#;
 
-    let pipeline = DepylerPipeline::new();
-    let result = pipeline.transpile(python);
-    assert!(result.is_ok());
-    let rust_code = result.unwrap();
+    let rust_code = transpile_and_check(python, &[]);
     assert!(rust_code.contains("a: &mut Container"), "\n{rust_code}");
     assert!(rust_code.contains("b: &mut Container"), "\n{rust_code}");
 }
@@ -1488,10 +1319,7 @@ def use_helper(state: State) -> None:
     update_dict(state.data, "key1", 100)
 "#;
 
-    let pipeline = DepylerPipeline::new();
-    let result = pipeline.transpile(python);
-    assert!(result.is_ok());
-    let rust_code = result.unwrap();
+    let rust_code = transpile_and_check(python, &[]);
     assert!(
         rust_code.contains("pub fn update_dict(data: &mut HashMap<String, i32>, key: String, value: i32)"),
         "\n{rust_code}"
@@ -1516,10 +1344,7 @@ def indirect_mutate(state: State) -> None:
     mutate(state)
 "#;
 
-    let pipeline = DepylerPipeline::new();
-    let result = pipeline.transpile(python);
-    assert!(result.is_ok());
-    let rust_code = result.unwrap();
+    let rust_code = transpile_and_check(python, &[]);
 
     assert!(rust_code.contains("fn mutate(state: &mut State)"), "\n{rust_code}");
     assert!(
@@ -1551,14 +1376,14 @@ def third(state: State) -> None:
     pass
 "#;
 
-    let pipeline = DepylerPipeline::new();
-    let result = pipeline.transpile(python);
-    assert!(result.is_ok());
-    let rust_code = result.unwrap();
+    let rust_code = transpile_and_check(python, &[]);
 
+    // first mutates state.x, so it needs &mut
     assert!(rust_code.contains("first(state: &mut State)"), "\n{rust_code}");
-    assert!(rust_code.contains("second(state: &mut State)"), "\n{rust_code}");
-    assert!(rust_code.contains("third(state: &mut State)"), "\n{rust_code}");
+    // second and third don't mutate anything - they should be &State
+    // Rust auto-reborrows &mut to & at call sites, so first can still call them
+    assert!(rust_code.contains("second(state: &State)"), "\n{rust_code}");
+    assert!(rust_code.contains("third(state: &State)"), "\n{rust_code}");
 }
 
 #[test]
@@ -1585,15 +1410,16 @@ def first_mut(state: State) -> None:
     third(state)
 "#;
 
-    let pipeline = DepylerPipeline::new();
-    let result = pipeline.transpile(python);
-    assert!(result.is_ok());
-    let rust_code = result.unwrap();
+    let rust_code = transpile_and_check(python, &[]);
     println!("Generated code:\n{rust_code}");
 
+    // first only calls second which doesn't mutate - should be &State
     assert!(rust_code.contains("first(state: &State)"), "\n{rust_code}");
+    // first_mut calls third which mutates - should be &mut State
     assert!(rust_code.contains("first_mut(state: &mut State)"), "\n{rust_code}");
-    assert!(rust_code.contains("second(state: &mut State)"), "\n{rust_code}");
+    // second doesn't mutate anything - should be &State (can be called from both contexts)
+    assert!(rust_code.contains("second(state: &State)"), "\n{rust_code}");
+    // third mutates state.x - should be &mut State
     assert!(rust_code.contains("third(state: &mut State)"), "\n{rust_code}");
 }
 
@@ -1617,10 +1443,7 @@ def first(state: State) -> None:
     third(state)
 "#;
 
-    let pipeline = DepylerPipeline::new();
-    let result = pipeline.transpile(python);
-    assert!(result.is_ok());
-    let rust_code = result.unwrap();
+    let rust_code = transpile_and_check(python, &[]);
     println!("Generated code:\n{rust_code}");
 
     assert!(rust_code.contains("first(state: &State)"), "\n{rust_code}");
@@ -1644,10 +1467,7 @@ def second(state: State) -> None:
     state.item = "update"
 "#;
 
-    let pipeline = DepylerPipeline::new();
-    let result = pipeline.transpile(python);
-    assert!(result.is_ok());
-    let rust_code = result.unwrap();
+    let rust_code = transpile_and_check(python, &[]);
     assert!(rust_code.contains("fn first(state: &mut State)"), "\n{rust_code}");
     assert!(rust_code.contains("second(state)"), "\n{rust_code}");
     assert!(rust_code.contains("fn second(state: &mut State)"), "\n{rust_code}");
@@ -1670,10 +1490,7 @@ def second(state: State) -> None:
     state.x = 20
 "#;
 
-    let pipeline = DepylerPipeline::new();
-    let result = pipeline.transpile(python);
-    assert!(result.is_ok());
-    let rust_code = result.unwrap();
+    let rust_code = transpile_and_check(python, &[]);
 
     assert!(rust_code.contains("pub fn first(state: &mut State)"), "\n{rust_code}");
     assert!(rust_code.contains("pub fn second(state: &mut State)"), "\n{rust_code}");
@@ -1693,10 +1510,7 @@ def swap_elements():
     return a
 "#;
 
-    let pipeline = DepylerPipeline::new();
-    let result = pipeline.transpile(python);
-    assert!(result.is_ok());
-    let rust_code = result.unwrap();
+    let rust_code = transpile_and_check(python, &[]);
     println!("Generated code:\n{rust_code}");
 
     // The array 'a' must be mutable since we're modifying its elements

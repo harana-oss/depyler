@@ -1,11 +1,8 @@
-use depyler_core::DepylerPipeline;
+mod test_helpers;
+
+use test_helpers::transpile;
 
 /// Helper function to transpile Python code without verifying compilation
-fn transpile_only(python: &str) -> Result<String, Box<dyn std::error::Error>> {
-    let pipeline = DepylerPipeline::new();
-    let rust_code = pipeline.transpile(python)?;
-    Ok(rust_code)
-}
 
 // ============================================================================
 // setattr Tests
@@ -21,7 +18,7 @@ def set_config_value(c: Config) -> None:
     setattr(c, "value", 42)
 "#;
 
-    let rust = transpile_only(python).unwrap();
+    let rust = transpile(python);
     println!("Generated Rust code:\n{}", rust);
     // When field name is a literal, it should generate direct field assignment
     assert!(rust.contains("c.value = 42"));
@@ -37,7 +34,7 @@ def set_name(p: Person) -> None:
     setattr(p, "name", "Alice")
 "#;
 
-    let rust = transpile_only(python).unwrap();
+    let rust = transpile(python);
     println!("Generated Rust code:\n{}", rust);
     // String values should be converted to String (not &str)
     assert!(rust.contains(r#"p.name = "Alice".to_string()"#) || rust.contains(r#"p.name = String::from("Alice")"#));
@@ -53,7 +50,7 @@ def set_count(c: Counter, new_count: int) -> None:
     setattr(c, "count", new_count)
 "#;
 
-    let rust = transpile_only(python).unwrap();
+    let rust = transpile(python);
     // Static attribute name generates direct field assignment without clone
     assert!(rust.contains("c.count = new_count"));
 }
@@ -68,7 +65,7 @@ def set_name(p: Person, new_name: str) -> None:
     setattr(p, "name", new_name)
 "#;
 
-    let rust = transpile_only(python).unwrap();
+    let rust = transpile(python);
     println!("Generated Rust code:\n{}", rust);
     // String variables should be cloned
     assert!(rust.contains("new_name.clone()"));
@@ -87,7 +84,7 @@ def set_inner(o: Outer, new_inner: Inner) -> None:
     setattr(o, "inner", new_inner)
 "#;
 
-    let rust = transpile_only(python).unwrap();
+    let rust = transpile(python);
     println!("Generated Rust code:\n{}", rust);
     // Object variables should be cloned
     assert!(rust.contains("new_inner.clone()"));
@@ -105,7 +102,7 @@ def set_point_attr(p: Point, name: str, value: int) -> None:
     setattr(p, name, value)
 "#;
 
-    let rust = transpile_only(python).unwrap();
+    let rust = transpile(python);
     println!("Generated Rust code:\n{}", rust);
     // Should generate set_field() for dynamic attribute name
     assert!(rust.contains("._set_field("));
@@ -125,7 +122,7 @@ def get_config_value(c: Config) -> int:
     return getattr(c, "value")
 "#;
 
-    let rust = transpile_only(python).unwrap();
+    let rust = transpile(python);
     println!("Generated Rust code:\n{}", rust);
     // When field name is a literal, it should generate direct field access
     assert!(rust.contains("c.value"));
@@ -141,7 +138,7 @@ def get_name(p: Person) -> str:
     return getattr(p, "name", "Unknown")
 "#;
 
-    let rust = transpile_only(python).unwrap();
+    let rust = transpile(python);
     println!("Generated Rust code:\n{}", rust);
     // Default is ignored in static Rust - just generate field access
     assert!(rust.contains("p.name"));
@@ -159,7 +156,7 @@ def get_point_attr(p: Point, name: str) -> int:
     return getattr(p, name)
 "#;
 
-    let rust = transpile_only(python).unwrap();
+    let rust = transpile(python);
     println!("Generated Rust code:\n{}", rust);
     // Should generate get_field() for dynamic attribute name
     assert!(rust.contains("._get_field("));
@@ -180,7 +177,7 @@ def update_state(s: State) -> None:
     setattr(s, "temp", getattr(s, "result"))
 "#;
 
-    let rust = transpile_only(python).unwrap();
+    let rust = transpile(python);
     println!("Generated Rust code:\n{}", rust);
     // Should generate: s.temp = s.result
     assert!(rust.contains("s.temp = s.result"));
@@ -197,7 +194,7 @@ def copy_field(d: Data) -> None:
     setattr(d, "target", getattr(d, "source"))
 "#;
 
-    let rust = transpile_only(python).unwrap();
+    let rust = transpile(python);
     println!("Generated Rust code:\n{}", rust);
     // Should generate: d.target = d.source (with appropriate cloning)
     assert!(rust.contains("d.target = d.source"));
@@ -214,7 +211,7 @@ def get_coords(points: list) -> list:
     return list(map(lambda p: getattr(p, "x"), points))
 "#;
 
-    let rust = transpile_only(python).unwrap();
+    let rust = transpile(python);
     println!("Generated Rust code:\n{}", rust);
     // Lambda should access p.x
     assert!(rust.contains("p.x"));
@@ -230,7 +227,7 @@ def get_active(items: list) -> list:
     return list(filter(lambda i: getattr(i, "active"), items))
 "#;
 
-    let rust = transpile_only(python).unwrap();
+    let rust = transpile(python);
     println!("Generated Rust code:\n{}", rust);
     // Lambda should access i.active
     assert!(rust.contains("i.active"));
@@ -247,7 +244,7 @@ def set_names(people: list, new_name: str) -> None:
         setattr(p, "name", new_name)
 "#;
 
-    let rust = transpile_only(python).unwrap();
+    let rust = transpile(python);
     println!("Generated Rust code:\n{}", rust);
     // String parameter should be cloned when used in setattr
     assert!(rust.contains("new_name.clone()") || rust.contains("p.name ="));
@@ -267,7 +264,7 @@ def update_configs(containers: list, new_config: Config) -> None:
         setattr(c, "config", new_config)
 "#;
 
-    let rust = transpile_only(python).unwrap();
+    let rust = transpile(python);
     println!("Generated Rust code:\n{}", rust);
     // Struct parameter should be cloned when used in setattr within a loop
     assert!(rust.contains("new_config.clone()"));
@@ -290,7 +287,7 @@ def copy_inner(sources: list, targets: list) -> None:
         setattr(targets[i], "inner", getattr(sources[i], "inner"))
 "#;
 
-    let rust = transpile_only(python).unwrap();
+    let rust = transpile(python);
     println!("Generated Rust code:\n{}", rust);
     // Should generate field access for both getattr and setattr
     assert!(rust.contains(".inner"));
@@ -310,7 +307,7 @@ def apply_config(states: list, new_config: Config) -> list:
     return list(map(lambda s: setattr(s, "value", new_config.value), states))
 "#;
 
-    let rust = transpile_only(python).unwrap();
+    let rust = transpile(python);
     println!("Generated Rust code:\n{}", rust);
     // Lambda should set s.config with the struct value cloned
     assert!(rust.contains("s.value = new_config.value.clone()"))
@@ -330,7 +327,7 @@ def update_with_config(state: State, config: Config) -> None:
     setattr(state, "config", config)
 "#;
 
-    let rust = transpile_only(python).unwrap();
+    let rust = transpile(python);
     println!("Generated Rust code:\n{}", rust);
     // state should be &mut State since setattr mutates it
     assert!(rust.contains("state: &mut State"));
@@ -350,7 +347,7 @@ def get_team_stat(stats: dict, team: str) -> int:
     return getattr(stats, f'{team}_score')
 "#;
 
-    let rust = transpile_only(python).unwrap();
+    let rust = transpile(python);
     println!("Generated Rust code:\n{}", rust);
     // Should generate format! for the key and get_field() access
     assert!(rust.contains("format!"));
@@ -365,7 +362,7 @@ def get_team_stat_or_default(stats: dict, team: str) -> int:
     return getattr(stats, f'{team}_score', 0)
 "#;
 
-    let rust = transpile_only(python).unwrap();
+    let rust = transpile(python);
     println!("Generated Rust code:\n{}", rust);
     // Should generate format! for the key and get_field() with unwrap_or
     assert!(rust.contains("format!"));
@@ -383,7 +380,7 @@ def process_stats(state: State, one: str) -> int:
     return total
 "#;
 
-    let rust = transpile_only(python).unwrap();
+    let rust = transpile(python);
     println!("Generated Rust code:\n{}", rust);
     // Dynamic f-string attribute name uses get_field() for runtime resolution
     // Cannot resolve runtime variable `one` to static field name
@@ -398,7 +395,7 @@ def set_team_stat(stats: dict, team: str, value: int) -> None:
     setattr(stats, f'{team}_score', value)
 "#;
 
-    let rust = transpile_only(python).unwrap();
+    let rust = transpile(python);
     println!("Generated Rust code:\n{}", rust);
     // Should generate format! for the key and set_field()
     assert!(rust.contains("format!"));

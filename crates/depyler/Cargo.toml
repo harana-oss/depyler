@@ -204,12 +204,8 @@ name = "depyler_0266_boolean_conversion_test"
 path = "../../tests/depyler_0266_boolean_conversion_test.rs"
 
 [[test]]
-name = "depyler_0267_index_access_test"
-path = "../../tests/depyler_0267_index_access_test.rs"
-
-[[test]]
-name = "depyler_0268_index_negation_test"
-path = "../../tests/depyler_0268_index_negation_test.rs"
+name = "indexing_tests"
+path = "../../tests/indexing_tests.rs"
 
 [[test]]
 name = "depyler_0269_function_borrowing_test"
@@ -259,3 +255,18 @@ path = "../../tests/clone_test.rs"
 name = "test_helpers"
 path = "../../tests/test_helpers.rs"
 
+[[test]]
+name = "lifetime_tests"
+path = "../../tests/lifetime_tests.rs"
+
+[[test]]
+name = "string_tests"
+path = "../../tests/string_tests.rs"
+
+[[test]]
+name = "sorted_tests"
+path = "../../tests/sorted_tests.rs"
+
+[[test]]
+name = "exception_handling_tests"
+path = "../../tests/exception_handling_tests.rs"

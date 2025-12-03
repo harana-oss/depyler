@@ -327,16 +327,10 @@ def triple_use(s: str) -> str:
 
     let rust_code = transpile(python);
 
-
     let clone_count = rust_code.matches("s.clone()").count();
 
-
     assert_eq!(
-
-
         clone_count, 2,
-
-
         "3 uses of 's' should have exactly 2 clones (last can move)\n{rust_code}"
     );
 }
