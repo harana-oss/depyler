@@ -1001,6 +1001,8 @@ fn binop_to_rust_tokens(op: &BinOp) -> proc_macro2::TokenStream {
         BinOp::RShift => quote! { >> },
         BinOp::In => quote! { .contains },        // Special handling needed
         BinOp::NotIn => quote! { .not_contains }, // Special handling needed
+        BinOp::Is => quote! { == },
+        BinOp::IsNot => quote! { != },
     }
 }
 

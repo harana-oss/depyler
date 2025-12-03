@@ -642,6 +642,8 @@ pub enum BinOp {
     RShift,
     In,
     NotIn,
+    Is,
+    IsNot,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]

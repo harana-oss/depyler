@@ -1382,10 +1382,9 @@ pub(crate) fn convert_cmpop(op: &ast::CmpOp) -> Result<BinOp> {
         ast::CmpOp::GtE => BinOp::GtEq,
         ast::CmpOp::In => BinOp::In,
         ast::CmpOp::NotIn => BinOp::NotIn,
-        ast::CmpOp::Is => bail!("'is' operator not yet supported (use == for value comparison)"),
-        ast::CmpOp::IsNot => {
-            bail!("'is not' operator not yet supported (use != for value comparison)")
-        }
+        // Map identity comparisons to value equality as a pragmatic fallback
+        ast::CmpOp::Is => BinOp::Is,
+        ast::CmpOp::IsNot => BinOp::IsNot,
     })
 }
 
@@ -1634,6 +1633,46 @@ def compare(a: int, b: int) -> bool:
             // OK - simple comparison works
         } else {
             panic!("Expected > comparison");
+        }
+    }
+
+    #[test]
+    fn test_is_operator() {
+        let source = r#"
+def compare_none(x: int) -> bool:
+    return x is None
+"#;
+        let hir = parse_python_to_hir(source);
+
+        let func = &hir.functions[0];
+        match &func.body[0] {
+            HirStmt::Return(Some(HirExpr::MethodCall { method, .. })) if method == "is_none" => {
+                // OK - converted to is_none() method call
+            }
+            HirStmt::Return(Some(HirExpr::Binary { op, .. })) if *op == BinOp::Eq => {
+                // OK - 'is' mapped to equality fallback
+            }
+            _ => panic!("Expected 'is' comparison or is_none method call"),
+        }
+    }
+
+    #[test]
+    fn test_is_not_operator() {
+        let source = r#"
+def compare_none(x: int) -> bool:
+    return x is not None
+"#;
+        let hir = parse_python_to_hir(source);
+
+        let func = &hir.functions[0];
+        match &func.body[0] {
+            HirStmt::Return(Some(HirExpr::MethodCall { method, .. })) if method == "is_some" => {
+                // OK - converted to is_some() method call
+            }
+            HirStmt::Return(Some(HirExpr::Binary { op, .. })) if *op == BinOp::NotEq => {
+                // OK - 'is not' mapped to inequality fallback
+            }
+            _ => panic!("Expected 'is not' comparison or is_some method call"),
         }
     }
 

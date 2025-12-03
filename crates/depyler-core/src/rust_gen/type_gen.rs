@@ -72,16 +72,18 @@ pub fn convert_binop(op: BinOp) -> Result<syn::BinOp> {
         }
         Pow => bail!("Power operator handled by convert_binary with type-specific logic"),
 
-        // Comparison operators
-        Eq => Ok(parse_quote! { == }),
-        NotEq => Ok(parse_quote! { != }),
+    // Comparison operators (include identity checks)
+    Eq => Ok(parse_quote! { == }),
+    NotEq => Ok(parse_quote! { != }),
+    Is => Ok(parse_quote! { == }),
+    IsNot => Ok(parse_quote! { != }),
         Lt => Ok(parse_quote! { < }),
         LtEq => Ok(parse_quote! { <= }),
         Gt => Ok(parse_quote! { > }),
         GtEq => Ok(parse_quote! { >= }),
 
-        // Special membership operators handled in convert_binary
-        In | NotIn => bail!("in/not in operators should be handled by convert_binary"),
+    // Special membership operators handled in convert_binary
+    In | NotIn => bail!("in/not in operators should be handled by convert_binary"),
 
         // Logical/bitwise handled above
         And | Or | BitAnd | BitOr | BitXor | LShift | RShift => {

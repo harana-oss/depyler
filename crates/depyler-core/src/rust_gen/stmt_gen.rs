@@ -671,15 +671,16 @@ pub(crate) fn codegen_with_stmt(
         ctx.declare_var(var_name);
 
         if is_file_open {
+            // Files are often mutated; bind as mutable to match previous codegen expectations
             Ok(quote! {
-                let #var_ident = #context_expr;
+                let mut #var_ident = #context_expr;
                 #(#body_stmts)*
             })
         } else {
             // For custom context managers, call __enter__()
             Ok(quote! {
                 let _context = #context_expr;
-                let #var_ident = _context.__enter__();
+                let mut #var_ident = _context.__enter__();
                 #(#body_stmts)*
             })
         }

@@ -362,8 +362,11 @@ fn codegen_single_param(
             .map_type_with_annotations(&param.ty, &func.annotations);
         update_import_needs(ctx, &rust_type);
         let ty = rust_type_to_syn(&rust_type)?;
-
-        if force_borrow_from_call_chain {
+        // If annotation maps to String and parameter isn't mutated, prefer &str for ergonomics
+        if matches!(rust_type, crate::type_mapper::RustType::String) && !is_param_mutated && !force_borrow_from_call_chain {
+            let borrowed: syn::Type = parse_quote! { &str };
+            Ok(quote! { #param_ident: #borrowed })
+        } else if force_borrow_from_call_chain {
             // Track this parameter as already being &mut so we don't add &mut again at call sites
             ctx.current_func_mut_ref_params.insert(param.name.clone());
             Ok(quote! { #param_ident: &mut #ty })
@@ -777,7 +780,16 @@ fn infer_expr_type_with_env(expr: &HirExpr, var_types: &std::collections::HashMa
         HirExpr::Binary { op, left, right } => {
             if matches!(
                 op,
-                BinOp::Eq | BinOp::NotEq | BinOp::Lt | BinOp::LtEq | BinOp::Gt | BinOp::GtEq | BinOp::In | BinOp::NotIn
+                BinOp::Eq
+                    | BinOp::NotEq
+                    | BinOp::Lt
+                    | BinOp::LtEq
+                    | BinOp::Gt
+                    | BinOp::GtEq
+                    | BinOp::In
+                    | BinOp::NotIn
+                    | BinOp::Is
+                    | BinOp::IsNot
             ) {
                 return Type::Bool;
             }

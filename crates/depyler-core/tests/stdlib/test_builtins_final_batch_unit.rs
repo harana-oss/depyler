@@ -21,6 +21,22 @@ def round_number(x: float) -> int:
     assert!(result.contains("round"));
 }
 
+// DEPYLER-STDLIB-BUILTINS-FINAL-001b: Round with decimal places
+#[test]
+fn test_round_with_decimals() {
+    let python = r#"
+def round_to_decimals(x: float, n: int) -> float:
+    return round(x, n)
+"#;
+
+    let result = transpile_python_to_rust(python).expect("Transpilation failed");
+
+    // Should round to n decimal places using multiplier approach
+    assert!(result.contains("round"));
+    assert!(result.contains("powi"));
+    assert!(result.contains("multiplier"));
+}
+
 // DEPYLER-STDLIB-BUILTINS-FINAL-002: Abs
 #[test]
 fn test_abs() {

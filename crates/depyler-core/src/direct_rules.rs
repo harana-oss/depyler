@@ -719,7 +719,16 @@ fn infer_expr_type(expr: &HirExpr) -> Type {
             // Comparison operators return bool
             if matches!(
                 op,
-                BinOp::Eq | BinOp::NotEq | BinOp::Lt | BinOp::LtEq | BinOp::Gt | BinOp::GtEq | BinOp::In | BinOp::NotIn
+                BinOp::Eq
+                    | BinOp::NotEq
+                    | BinOp::Lt
+                    | BinOp::LtEq
+                    | BinOp::Gt
+                    | BinOp::GtEq
+                    | BinOp::In
+                    | BinOp::NotIn
+                    | BinOp::Is
+                    | BinOp::IsNot
             ) {
                 return Type::Bool;
             }
@@ -2617,8 +2626,10 @@ fn convert_binop(op: BinOp) -> Result<syn::BinOp> {
             convert_arithmetic_op(op)
         }
 
-        // Comparison operators
-        BinOp::Eq | BinOp::NotEq | BinOp::Lt | BinOp::LtEq | BinOp::Gt | BinOp::GtEq => convert_comparison_op(op),
+        // Comparison operators (include identity)
+        BinOp::Eq | BinOp::NotEq | BinOp::Lt | BinOp::LtEq | BinOp::Gt | BinOp::GtEq | BinOp::Is | BinOp::IsNot => {
+            convert_comparison_op(op)
+        }
 
         // Logical operators
         BinOp::And | BinOp::Or => convert_logical_op(op),

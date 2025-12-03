@@ -498,7 +498,7 @@ impl TypeInference {
                 BinOp::Add | BinOp::Sub | BinOp::Mul | BinOp::Div => {
                     TypeConstraint::MustImplement("std::ops::Add".to_string())
                 }
-                BinOp::Eq | BinOp::NotEq => TypeConstraint::MustImplement("PartialEq".to_string()),
+                BinOp::Eq | BinOp::NotEq | BinOp::Is | BinOp::IsNot => TypeConstraint::MustImplement("PartialEq".to_string()),
                 BinOp::Lt | BinOp::LtEq | BinOp::Gt | BinOp::GtEq => {
                     TypeConstraint::MustImplement("PartialOrd".to_string())
                 }

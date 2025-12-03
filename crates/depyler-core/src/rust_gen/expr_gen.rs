@@ -9998,7 +9998,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             (None, None, Some(step)) => {
                 Ok(parse_quote! {
                     {
-                        let base = #base_expr;
+                        let base = &#base_expr;
                         let step = #step;
                         if step == 1 {
                             base.clone()
@@ -10018,7 +10018,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             // Start and stop: base[start:stop]
             (Some(start), Some(stop), None) => Ok(parse_quote! {
                 {
-                    let base = #base_expr;
+                    let base = &#base_expr;
                     let start = (#start).max(0) as usize;
                     let stop = (#stop).max(0) as usize;
                     if start < base.len() {
@@ -10032,7 +10032,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             // Start only: base[start:]
             (Some(start), None, None) => Ok(parse_quote! {
                 {
-                    let base = #base_expr;
+                    let base = &#base_expr;
                     let start = (#start).max(0) as usize;
                     if start < base.len() {
                         base[start..].to_vec()
@@ -10045,7 +10045,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             // Stop only: base[:stop]
             (None, Some(stop), None) => Ok(parse_quote! {
                 {
-                    let base = #base_expr;
+                    let base = &#base_expr;
                     let stop = (#stop).max(0) as usize;
                     base[..stop.min(base.len())].to_vec()
                 }
@@ -10058,7 +10058,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             (Some(start), Some(stop), Some(step)) => {
                 Ok(parse_quote! {
                     {
-                        let base = #base_expr;
+                        let base = &#base_expr;
                         let start = (#start).max(0) as usize;
                         let stop = (#stop).max(0) as usize;
                         let step = #step;
@@ -10096,7 +10096,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             // Start and step: base[start::step]
             (Some(start), None, Some(step)) => Ok(parse_quote! {
                 {
-                    let base = #base_expr;
+                    let base = &#base_expr;
                     let start = (#start).max(0) as usize;
                     let step = #step;
 
@@ -10133,7 +10133,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             // Stop and step: base[:stop:step]
             (None, Some(stop), Some(step)) => Ok(parse_quote! {
                 {
-                    let base = #base_expr;
+                    let base = &#base_expr;
                     let stop = (#stop).max(0) as usize;
                     let step = #step;
 
@@ -10178,7 +10178,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             (None, None, Some(step)) => {
                 Ok(parse_quote! {
                     {
-                        let base = #base_expr;
+                        let base = &#base_expr;
                         let step: i32 = #step;
                         if step == 1 {
                             base.to_string()
@@ -10198,7 +10198,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             // Start and stop: s[start:stop]
             (Some(start), Some(stop), None) => Ok(parse_quote! {
                 {
-                    let base = #base_expr;
+                    let base = &#base_expr;
                     let start_idx: i32 = #start;
                     let stop_idx: i32 = #stop;
                     let len = base.chars().count() as i32;
@@ -10227,7 +10227,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             // Start only: s[start:]
             (Some(start), None, None) => Ok(parse_quote! {
                 {
-                    let base = #base_expr;
+                    let base = &#base_expr;
                     let start_idx: i32 = #start;
                     let len = base.chars().count() as i32;
 
@@ -10245,7 +10245,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             // Stop only: s[:stop]
             (None, Some(stop), None) => Ok(parse_quote! {
                 {
-                    let base = #base_expr;
+                    let base = &#base_expr;
                     let stop_idx: i32 = #stop;
                     let len = base.chars().count() as i32;
 
@@ -10267,7 +10267,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             (Some(start), Some(stop), Some(step)) => {
                 Ok(parse_quote! {
                     {
-                        let base = #base_expr;
+                        let base = &#base_expr;
                         let start_idx: i32 = #start;
                         let stop_idx: i32 = #stop;
                         let step: i32 = #step;
@@ -10319,7 +10319,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             // Start and step: s[start::step]
             (Some(start), None, Some(step)) => Ok(parse_quote! {
                 {
-                    let base = #base_expr;
+                    let base = &#base_expr;
                     let start_idx: i32 = #start;
                     let step: i32 = #step;
                     let len = base.chars().count() as i32;
@@ -10962,6 +10962,8 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     BinOp::RShift => parse_quote! { #left_expr >> #right_expr },
                     BinOp::In => parse_quote! { #right_expr.contains(&#left_expr) },
                     BinOp::NotIn => parse_quote! { !#right_expr.contains(&#left_expr) },
+                    BinOp::Is => parse_quote! { #left_expr == #right_expr },
+                    BinOp::IsNot => parse_quote! { #left_expr != #right_expr },
                 };
                 Ok(result)
             }
@@ -11188,8 +11190,16 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         match expr {
             // Comparison operations always return bool
             HirExpr::Binary {
-                op:
-                    BinOp::Eq | BinOp::NotEq | BinOp::Lt | BinOp::LtEq | BinOp::Gt | BinOp::GtEq | BinOp::In | BinOp::NotIn,
+                op: BinOp::Eq
+                    | BinOp::NotEq
+                    | BinOp::Lt
+                    | BinOp::LtEq
+                    | BinOp::Gt
+                    | BinOp::GtEq
+                    | BinOp::In
+                    | BinOp::NotIn
+                    | BinOp::Is
+                    | BinOp::IsNot,
                 ..
             } => Some(true),
             // Method calls that return bool

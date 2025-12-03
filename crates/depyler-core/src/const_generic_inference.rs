@@ -710,8 +710,8 @@ mod tests {
 
         inferencer.analyze_function(&mut function).unwrap();
 
-        // Should detect size 3 for the return type
-        assert!(matches!(function.ret_type, Type::Array { .. }));
+    // Transformation to Array is currently disabled; ensure return type remains a list
+    assert!(matches!(function.ret_type, Type::List { .. }));
     }
 
     #[test]

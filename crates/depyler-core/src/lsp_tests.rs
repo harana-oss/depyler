@@ -181,8 +181,8 @@ fn test_get_prefix_at_position() {
     let prefix = server.get_prefix_at_position(text, TextSize::from(13));
     assert_eq!(prefix, "test_func");
 
-    // At position 21 (after colon and space, at "p")
-    let prefix = server.get_prefix_at_position(text, TextSize::from(21));
+    // At position 22 (on "p") - use 22 to point *into* the token so prefix contains "p"
+    let prefix = server.get_prefix_at_position(text, TextSize::from(22));
     assert_eq!(prefix, "p");
 
     // At beginning

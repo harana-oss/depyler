@@ -735,11 +735,17 @@ fn test_is_not_none_converts_to_is_some() {
 
 #[test]
 fn test_is_with_non_none_fails() {
-    // 'is' operator with non-None values should fail (not supported)
+    // With support for 'is', non-None identity comparisons fallback to equality
     let expr = parse_expr("x is y");
-    let result = ExprConverter::convert(expr);
-    assert!(result.is_err());
-    assert!(result.unwrap_err().to_string().contains("is"));
+    let result = ExprConverter::convert(expr).unwrap();
+
+    match result {
+        HirExpr::Binary { op, .. } => {
+            // Now represented as identity comparison in HIR
+            assert_eq!(op, BinOp::Is);
+        }
+        _ => panic!("Expected Binary identity comparison for 'is'"),
+    }
 }
 
 #[test]

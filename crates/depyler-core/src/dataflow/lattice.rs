@@ -288,8 +288,10 @@ impl TypeLattice {
                 (Type::Int, Type::Int) => Type::Int,
                 _ => Type::Unknown,
             },
-            // Comparison - always bool
-            BinOp::Eq | BinOp::NotEq | BinOp::Lt | BinOp::LtEq | BinOp::Gt | BinOp::GtEq => Type::Bool,
+            // Comparison - always bool (include identity checks)
+            BinOp::Eq | BinOp::NotEq | BinOp::Lt | BinOp::LtEq | BinOp::Gt | BinOp::GtEq | BinOp::Is | BinOp::IsNot => {
+                Type::Bool
+            }
             // Logical - always bool
             BinOp::And | BinOp::Or => Type::Bool,
             // Bitwise - int only
