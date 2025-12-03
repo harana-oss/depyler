@@ -2120,31 +2120,31 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 let attr_ident = syn::Ident::new(attr_name, proc_macro2::Span::call_site());
                 Ok(parse_quote! { #obj_expr.#attr_ident })
             }
-            // Dynamic attribute name (f-string) - generate HashMap-style access
+            // Dynamic attribute name (f-string) - generate _get_field() call
             HirExpr::FString { parts } => {
                 let key_expr = self.convert_fstring(parts)?;
                 if hir_args.len() == 3 {
                     let default_expr = hir_args[2].to_rust_expr(self.ctx)?;
                     Ok(parse_quote! {
-                        #obj_expr.get(&#key_expr).cloned().unwrap_or(#default_expr)
+                        #obj_expr._get_field(&#key_expr).map(|v| *v.downcast().unwrap()).unwrap_or(#default_expr)
                     })
                 } else {
                     Ok(parse_quote! {
-                        #obj_expr.get(&#key_expr).cloned().expect("attribute not found")
+                        *#obj_expr._get_field(&#key_expr).expect("attribute not found").downcast().unwrap()
                     })
                 }
             }
-            // Variable containing the attribute name - generate HashMap-style access
+            // Variable containing the attribute name - generate _get_field() call
             HirExpr::Var(_) => {
                 let key_expr = hir_args[1].to_rust_expr(self.ctx)?;
                 if hir_args.len() == 3 {
                     let default_expr = hir_args[2].to_rust_expr(self.ctx)?;
                     Ok(parse_quote! {
-                        #obj_expr.get(&#key_expr).cloned().unwrap_or(#default_expr)
+                        #obj_expr._get_field(&#key_expr).map(|v| *v.downcast().unwrap()).unwrap_or(#default_expr)
                     })
                 } else {
                     Ok(parse_quote! {
-                        #obj_expr.get(&#key_expr).cloned().expect("attribute not found")
+                        *#obj_expr._get_field(&#key_expr).expect("attribute not found").downcast().unwrap()
                     })
                 }
             }
@@ -2220,21 +2220,21 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     }
                 })
             }
-            // Dynamic attribute name (f-string) - generate HashMap-style insert
+            // Dynamic attribute name (f-string) - generate _set_field() call
             HirExpr::FString { parts } => {
                 let key_expr = self.convert_fstring(parts)?;
                 Ok(parse_quote! {
                     {
-                        #obj_expr.insert(#key_expr, #value_expr);
+                        #obj_expr._set_field(&#key_expr, &#value_expr);
                     }
                 })
             }
-            // Variable containing the attribute name - generate HashMap-style insert
+            // Variable containing the attribute name - generate _set_field() call
             HirExpr::Var(_) => {
                 let key_expr = hir_args[1].to_rust_expr(self.ctx)?;
                 Ok(parse_quote! {
                     {
-                        #obj_expr.insert(#key_expr.to_string(), #value_expr);
+                        #obj_expr._set_field(&#key_expr, &#value_expr);
                     }
                 })
             }

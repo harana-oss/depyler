@@ -429,6 +429,16 @@ pub fn convert_class_to_struct(class: &HirClass, type_mapper: &TypeMapper) -> Re
         }
     }
 
+    // Generate _get_field method for dynamic attribute access
+    if let Some(get_field_method) = generate_get_field_method(class, type_mapper)? {
+        impl_items.push(syn::ImplItem::Fn(get_field_method));
+    }
+
+    // Generate _set_field method for dynamic attribute mutation
+    if let Some(set_field_method) = generate_set_field_method(class, type_mapper)? {
+        impl_items.push(syn::ImplItem::Fn(set_field_method));
+    }
+
     // Only generate impl block if there are methods
     if !impl_items.is_empty() {
         let impl_block = syn::Item::Impl(syn::ItemImpl {
@@ -531,6 +541,88 @@ fn generate_dataclass_new(
         },
         block: body,
     })
+}
+
+/// Generate _get_field method for dynamic attribute access via getattr()
+fn generate_get_field_method(class: &HirClass, type_mapper: &TypeMapper) -> Result<Option<syn::ImplItemFn>> {
+    let instance_fields: Vec<_> = class.fields.iter().filter(|f| !f.is_class_var).collect();
+    if instance_fields.is_empty() {
+        return Ok(None);
+    }
+
+    // Build match arms for each field
+    let mut match_arms = Vec::new();
+    for field in &instance_fields {
+        let field_name = &field.name;
+        let field_ident = syn::Ident::new(field_name, proc_macro2::Span::call_site());
+        let rust_type = type_mapper.map_type(&field.field_type);
+
+        // Always clone - works for both Copy and non-Copy types
+        let _ = rust_type; // Suppress unused warning
+        let clone_expr = quote! { self.#field_ident.clone() };
+
+        match_arms.push(quote! {
+            #field_name => Some(Box::new(#clone_expr) as Box<dyn std::any::Any>)
+        });
+    }
+
+    // Add fallback arm
+    match_arms.push(quote! {
+        _ => None
+    });
+
+    let method: syn::ImplItemFn = parse_quote! {
+        pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+            match name {
+                #(#match_arms),*
+            }
+        }
+    };
+
+    Ok(Some(method))
+}
+
+/// Generate _set_field method for dynamic attribute mutation via setattr()
+fn generate_set_field_method(class: &HirClass, type_mapper: &TypeMapper) -> Result<Option<syn::ImplItemFn>> {
+    let instance_fields: Vec<_> = class.fields.iter().filter(|f| !f.is_class_var).collect();
+    if instance_fields.is_empty() {
+        return Ok(None);
+    }
+
+    // Build match arms for each field
+    let mut match_arms = Vec::new();
+    for field in &instance_fields {
+        let field_name = &field.name;
+        let field_ident = syn::Ident::new(field_name, proc_macro2::Span::call_site());
+        let rust_type = type_mapper.map_type(&field.field_type);
+        let syn_type = rust_type_to_syn_type(&rust_type)?;
+
+        match_arms.push(quote! {
+            #field_name => {
+                if let Some(v) = value.downcast_ref::<#syn_type>() {
+                    self.#field_ident = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+        });
+    }
+
+    // Add fallback arm
+    match_arms.push(quote! {
+        _ => false
+    });
+
+    let method: syn::ImplItemFn = parse_quote! {
+        pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+            match name {
+                #(#match_arms),*
+            }
+        }
+    };
+
+    Ok(Some(method))
 }
 
 fn convert_init_to_new(

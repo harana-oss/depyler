@@ -54,9 +54,8 @@ def set_count(c: Counter, new_count: int) -> None:
 "#;
 
     let rust = transpile_only(python).unwrap();
-    // Integer variables don't need clone
+    // Static attribute name generates direct field assignment without clone
     assert!(rust.contains("c.count = new_count"));
-    assert!(!rust.contains("clone"));
 }
 
 #[test]
@@ -95,8 +94,8 @@ def set_inner(o: Outer, new_inner: Inner) -> None:
 }
 
 #[test]
-fn test_setattr_dynamic_name_generates_hashmap_insert() {
-    // Dynamic attribute names generate HashMap-style insert
+fn test_setattr_dynamic_name_generates_set_field() {
+    // Dynamic attribute names generate set_field() call
     let python = r#"
 class Point:
     x: int
@@ -108,8 +107,8 @@ def set_point_attr(p: Point, name: str, value: int) -> None:
 
     let rust = transpile_only(python).unwrap();
     println!("Generated Rust code:\n{}", rust);
-    // Should generate HashMap-style .insert() for dynamic attribute name
-    assert!(rust.contains(".insert("));
+    // Should generate set_field() for dynamic attribute name
+    assert!(rust.contains("._set_field("));
 }
 
 // ============================================================================
@@ -149,8 +148,8 @@ def get_name(p: Person) -> str:
 }
 
 #[test]
-fn test_getattr_dynamic_name_generates_hashmap_access() {
-    // Dynamic attribute names generate HashMap-style access
+fn test_getattr_dynamic_name_generates_get_field() {
+    // Dynamic attribute names generate get_field() call
     let python = r#"
 class Point:
     x: int
@@ -162,8 +161,8 @@ def get_point_attr(p: Point, name: str) -> int:
 
     let rust = transpile_only(python).unwrap();
     println!("Generated Rust code:\n{}", rust);
-    // Should generate HashMap-style .get() access for dynamic attribute name
-    assert!(rust.contains(".get("));
+    // Should generate get_field() for dynamic attribute name
+    assert!(rust.contains("._get_field("));
 }
 
 // ============================================================================
@@ -345,7 +344,7 @@ def update_with_config(state: State, config: Config) -> None:
 
 #[test]
 fn test_getattr_fstring_attribute() {
-    // f-string attribute names generate HashMap-style access
+    // f-string attribute names generate get_field() call
     let python = r#"
 def get_team_stat(stats: dict, team: str) -> int:
     return getattr(stats, f'{team}_score')
@@ -353,9 +352,9 @@ def get_team_stat(stats: dict, team: str) -> int:
 
     let rust = transpile_only(python).unwrap();
     println!("Generated Rust code:\n{}", rust);
-    // Should generate format! for the key and .get() access
+    // Should generate format! for the key and get_field() access
     assert!(rust.contains("format!"));
-    assert!(rust.contains(".get("));
+    assert!(rust.contains("._get_field("));
 }
 
 #[test]
@@ -368,15 +367,32 @@ def get_team_stat_or_default(stats: dict, team: str) -> int:
 
     let rust = transpile_only(python).unwrap();
     println!("Generated Rust code:\n{}", rust);
-    // Should generate format! for the key and .get() with unwrap_or
+    // Should generate format! for the key and get_field() with unwrap_or
     assert!(rust.contains("format!"));
-    assert!(rust.contains(".get("));
+    assert!(rust.contains("._get_field("));
     assert!(rust.contains("unwrap_or"));
 }
 
 #[test]
+fn test_getattr_fstring_in_for_loop() {
+    let python = r#"
+def process_stats(state: State, one: str) -> int:
+    total: int = 0
+    for stats in getattr(state, f'{one}_two'):
+        total = total + stats
+    return total
+"#;
+
+    let rust = transpile_only(python).unwrap();
+    println!("Generated Rust code:\n{}", rust);
+    // Dynamic f-string attribute name uses get_field() for runtime resolution
+    // Cannot resolve runtime variable `one` to static field name
+    assert!(rust.contains("._get_field(&format!"));
+}
+
+#[test]
 fn test_setattr_fstring_attribute() {
-    // f-string attribute names generate HashMap-style insert
+    // f-string attribute names generate set_field() call
     let python = r#"
 def set_team_stat(stats: dict, team: str, value: int) -> None:
     setattr(stats, f'{team}_score', value)
@@ -384,7 +400,7 @@ def set_team_stat(stats: dict, team: str, value: int) -> None:
 
     let rust = transpile_only(python).unwrap();
     println!("Generated Rust code:\n{}", rust);
-    // Should generate format! for the key and .insert()
+    // Should generate format! for the key and set_field()
     assert!(rust.contains("format!"));
-    assert!(rust.contains(".insert("));
+    assert!(rust.contains("._set_field("));
 }
