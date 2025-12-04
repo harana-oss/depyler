@@ -63,7 +63,13 @@ fn run_rustfmt(code: &str) -> Result<String, std::io::Error> {
 
 /// Apply string replacements to fix common formatting issues
 fn apply_string_replacements(code: String) -> String {
-    code.replace(" ; ", ";\n    ")
+    code
+        // Fix comparison/equality operators first (before other spacing fixes)
+        .replace("= =", "==")
+        .replace("! =", "!=")
+        // Fix negative number spacing in parentheses
+        .replace("(- ", "(-")
+        .replace(" ; ", ";\n    ")
         .replace(" { ", " {\n    ")
         .replace(" } ", "\n}\n")
         .replace("} ;", "};")
@@ -91,9 +97,9 @@ fn apply_string_replacements(code: String) -> String {
         .replace(" : ", ": ")
         // Fix parameter spacing
         .replace(" , ", ", ")
-        // Fix assignment operator spacing issues
-        .replace("=(", " = (")
-        .replace("= (", " = (")
+        // Fix assignment operator spacing issues (but not == or !=)
+        // Only fix cases where a single = appears before (
+        // We check that it's not part of == or != by looking for patterns
         .replace("  =", " =") // Fix multiple spaces before =
         .replace("   =", " =") // Fix even more spaces
         // Fix generic type spacing
@@ -113,6 +119,9 @@ fn apply_string_replacements(code: String) -> String {
         .replace("& mut", "&mut")
         // Fix macro spacing (space before !)
         .replace(" !", "!")
+        // Re-fix comparison operators that may have been broken by other replacements
+        .replace("= =", "==")
+        .replace("! =", "!=")
         // Fix comparison operator spacing
         .replace("value<", "value < ")
         .replace("<self", "< self")

@@ -618,7 +618,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             }
             _ => {
                 let rust_op = convert_binop(op)?;
-                // parse_quote! doesn't properly handle interpolated syn::BinOp values
                 Ok(syn::Expr::Binary(syn::ExprBinary {
                     attrs: vec![],
                     left: Box::new(left_expr),
@@ -12480,8 +12479,24 @@ fn literal_to_rust_expr(
 ) -> syn::Expr {
     match lit {
         Literal::Int(n) => {
-            let lit = syn::LitInt::new(&n.to_string(), proc_macro2::Span::call_site());
-            parse_quote! { #lit }
+            // Negative integer literals need parentheses to avoid `<-` parsing as arrow token
+            // Example: `x < -1` should become `x < (-1)` to prevent `x<-1` parsing as `x <- 1`
+            if *n < 0 {
+                // Create the absolute value literal
+                let abs_val = n.abs();
+                let abs_lit = syn::LitInt::new(&abs_val.to_string(), proc_macro2::Span::call_site());
+                // Create the unary negation expression
+                let neg_expr: syn::Expr = parse_quote! { -#abs_lit };
+                // Wrap in parentheses
+                syn::Expr::Paren(syn::ExprParen {
+                    attrs: vec![],
+                    paren_token: syn::token::Paren::default(),
+                    expr: Box::new(neg_expr),
+                })
+            } else {
+                let lit = syn::LitInt::new(&n.to_string(), proc_macro2::Span::call_site());
+                parse_quote! { #lit }
+            }
         }
         Literal::Float(f) => {
             // Ensure float literals always have a decimal point
@@ -12492,8 +12507,27 @@ fn literal_to_rust_expr(
             } else {
                 format!("{}.0", s)
             };
-            let lit = syn::LitFloat::new(&float_str, proc_macro2::Span::call_site());
-            parse_quote! { #lit }
+            // Negative float literals need parentheses for the same reason as integers
+            if *f < 0.0 {
+                // Remove the leading '-' and wrap in parentheses with negation
+                let abs_str = if float_str.starts_with('-') {
+                    &float_str[1..]
+                } else {
+                    &float_str
+                };
+                let abs_lit = syn::LitFloat::new(abs_str, proc_macro2::Span::call_site());
+                // Create the unary negation expression
+                let neg_expr: syn::Expr = parse_quote! { -#abs_lit };
+                // Wrap in parentheses
+                syn::Expr::Paren(syn::ExprParen {
+                    attrs: vec![],
+                    paren_token: syn::token::Paren::default(),
+                    expr: Box::new(neg_expr),
+                })
+            } else {
+                let lit = syn::LitFloat::new(&float_str, proc_macro2::Span::call_site());
+                parse_quote! { #lit }
+            }
         }
         Literal::String(s) => {
             // String literals are emitted directly as &str

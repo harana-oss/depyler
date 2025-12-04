@@ -25,7 +25,7 @@ def abs_negative() -> int:
 "#;
 
     let rust = transpile_and_check(python, &[]);
-    assert!(rust.contains("(-42 as i32).abs()"));
+    assert!(rust.contains("((-42) as i32).abs()"));
 }
 
 #[test]
@@ -69,7 +69,7 @@ def abs_float_lit() -> float:
 "#;
 
     let rust = transpile_and_check(python, &[]);
-    assert!(rust.contains("(-3.14 as f64).abs()"));
+    assert!(rust.contains("((-3.14) as f64).abs()"));
 }
 
 #[test]
@@ -724,4 +724,316 @@ def multiply(n: int, x: float) -> float:
     let rust = transpile_and_check(python, &[]);
     println!("Rust code for int var * float var:\n{}", rust);
     assert!(rust.contains("(n as f64) * x"));
+}
+
+// ============================================================================
+// Comparison Operators Tests
+// ============================================================================
+
+#[test]
+fn test_less_than_int_literal() {
+    let python = r#"
+def is_small(x: int) -> bool:
+    return x < 1
+"#;
+
+    let rust = transpile_and_check(python, &[]);
+    assert!(rust.contains("x < 1"));
+}
+
+#[test]
+fn test_less_than_negative_literal() {
+    let python = r#"
+def is_very_negative(x: int) -> bool:
+    return x < -1
+"#;
+
+    let rust = transpile_and_check(python, &[]);
+    assert!(rust.contains("x < (-1)"));
+}
+
+#[test]
+fn test_less_than_float_literal() {
+    let python = r#"
+def below_threshold(x: float) -> bool:
+    return x < 0.5
+"#;
+
+    let rust = transpile_and_check(python, &[]);
+    assert!(rust.contains("x < 0.5"));
+}
+
+#[test]
+fn test_less_than_variable() {
+    let python = r#"
+def compare_vars(a: int, b: int) -> bool:
+    return a < b
+"#;
+
+    let rust = transpile_and_check(python, &[]);
+    assert!(rust.contains("a < b"));
+}
+
+#[test]
+fn test_less_equal_int_literal() {
+    let python = r#"
+def at_most_one(x: int) -> bool:
+    return x <= 1
+"#;
+
+    let rust = transpile_and_check(python, &[]);
+    assert!(rust.contains("x <= 1"));
+}
+
+#[test]
+fn test_less_equal_negative_literal() {
+    let python = r#"
+def at_most_negative(x: int) -> bool:
+    return x <= -1
+"#;
+
+    let rust = transpile_and_check(python, &[]);
+    assert!(rust.contains("x <= (-1)"));
+}
+
+#[test]
+fn test_less_equal_float_literal() {
+    let python = r#"
+def at_most_half(x: float) -> bool:
+    return x <= 0.5
+"#;
+
+    let rust = transpile_and_check(python, &[]);
+    assert!(rust.contains("x <= 0.5"));
+}
+
+#[test]
+fn test_less_equal_variable() {
+    let python = r#"
+def compare_le(a: int, b: int) -> bool:
+    return a <= b
+"#;
+
+    let rust = transpile_and_check(python, &[]);
+    assert!(rust.contains("a <= b"));
+}
+
+#[test]
+fn test_greater_than_int_literal() {
+    let python = r#"
+def is_large(x: int) -> bool:
+    return x > 1
+"#;
+
+    let rust = transpile_and_check(python, &[]);
+    assert!(rust.contains("x > 1"));
+}
+
+#[test]
+fn test_greater_than_negative_literal() {
+    let python = r#"
+def above_negative(x: int) -> bool:
+    return x > -1
+"#;
+
+    let rust = transpile_and_check(python, &[]);
+    assert!(rust.contains("x > (-1)"));
+}
+
+#[test]
+fn test_greater_than_float_literal() {
+    let python = r#"
+def above_threshold(x: float) -> bool:
+    return x > 0.5
+"#;
+
+    let rust = transpile_and_check(python, &[]);
+    assert!(rust.contains("x > 0.5"));
+}
+
+#[test]
+fn test_greater_than_variable() {
+    let python = r#"
+def compare_gt(a: int, b: int) -> bool:
+    return a > b
+"#;
+
+    let rust = transpile_and_check(python, &[]);
+    assert!(rust.contains("a > b"));
+}
+
+#[test]
+fn test_greater_equal_int_literal() {
+    let python = r#"
+def at_least_one(x: int) -> bool:
+    return x >= 1
+"#;
+
+    let rust = transpile_and_check(python, &[]);
+    assert!(rust.contains("x >= 1"));
+}
+
+#[test]
+fn test_greater_equal_negative_literal() {
+    let python = r#"
+def at_least_negative(x: int) -> bool:
+    return x >= -1
+"#;
+
+    let rust = transpile_and_check(python, &[]);
+    assert!(rust.contains("x >= (-1)"));
+}
+
+#[test]
+fn test_greater_equal_float_literal() {
+    let python = r#"
+def at_least_half(x: float) -> bool:
+    return x >= 0.5
+"#;
+
+    let rust = transpile_and_check(python, &[]);
+    assert!(rust.contains("x >= 0.5"));
+}
+
+#[test]
+fn test_greater_equal_variable() {
+    let python = r#"
+def compare_ge(a: int, b: int) -> bool:
+    return a >= b
+"#;
+
+    let rust = transpile_and_check(python, &[]);
+    assert!(rust.contains("a >= b"));
+}
+
+#[test]
+fn test_equal_int_literal() {
+    let python = r#"
+def is_one(x: int) -> bool:
+    return x == 1
+"#;
+
+    let rust = transpile_and_check(python, &[]);
+    assert!(rust.contains("x == 1"));
+}
+
+#[test]
+fn test_equal_negative_literal() {
+    let python = r#"
+def is_negative_one(x: int) -> bool:
+    return x == -1
+"#;
+
+    let rust = transpile_and_check(python, &[]);
+    assert!(rust.contains("x == (-1)"));
+}
+
+#[test]
+fn test_equal_float_literal() {
+    let python = r#"
+def is_half(x: float) -> bool:
+    return x == 0.5
+"#;
+
+    let rust = transpile_and_check(python, &[]);
+    assert!(rust.contains("x == 0.5"));
+}
+
+#[test]
+fn test_equal_variable() {
+    let python = r#"
+def are_equal(a: int, b: int) -> bool:
+    return a == b
+"#;
+
+    let rust = transpile_and_check(python, &[]);
+    assert!(rust.contains("a == b"));
+}
+
+#[test]
+fn test_not_equal_int_literal() {
+    let python = r#"
+def is_not_one(x: int) -> bool:
+    return x != 1
+"#;
+
+    let rust = transpile_and_check(python, &[]);
+    assert!(rust.contains("x != 1"));
+}
+
+#[test]
+fn test_not_equal_negative_literal() {
+    let python = r#"
+def is_not_negative_one(x: int) -> bool:
+    return x != -1
+"#;
+
+    let rust = transpile_and_check(python, &[]);
+    assert!(rust.contains("x != (-1)"));
+}
+
+#[test]
+fn test_not_equal_variable() {
+    let python = r#"
+def are_not_equal(a: int, b: int) -> bool:
+    return a != b
+"#;
+
+    let rust = transpile_and_check(python, &[]);
+    assert!(rust.contains("a != b"));
+}
+
+#[test]
+fn test_compare_float_variables() {
+    let python = r#"
+def compare_floats(a: float, b: float) -> bool:
+    return a < b
+"#;
+
+    let rust = transpile_and_check(python, &[]);
+    assert!(rust.contains("a < b"));
+}
+
+#[test]
+fn test_compare_expression_to_literal() {
+    let python = r#"
+def check_sum(a: int, b: int) -> bool:
+    return a + b > 10
+"#;
+
+    let rust = transpile_and_check(python, &[]);
+    assert!(rust.contains("a + b > 10"));
+}
+
+#[test]
+fn test_compare_literal_to_variable() {
+    let python = r#"
+def literal_first(x: int) -> bool:
+    return 5 < x
+"#;
+
+    let rust = transpile_and_check(python, &[]);
+    assert!(rust.contains("5 < x"));
+}
+
+#[test]
+fn test_compare_zero() {
+    let python = r#"
+def is_positive(x: int) -> bool:
+    return x > 0
+"#;
+
+    let rust = transpile_and_check(python, &[]);
+    assert!(rust.contains("x > 0"));
+}
+
+#[test]
+fn test_compare_negative_zero_float() {
+    let python = r#"
+def is_non_negative(x: float) -> bool:
+    return x >= 0.0
+"#;
+
+    let rust = transpile_and_check(python, &[]);
+    assert!(rust.contains("x >= 0.0"));
 }
