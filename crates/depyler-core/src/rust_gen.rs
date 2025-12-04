@@ -1366,6 +1366,16 @@ pub fn generate_rust_file(
     // Must run BEFORE function conversion so validator parameter types are correct
     analyze_validators(&mut ctx, &module.functions, &module.constants);
 
+    // Add module-level constant types to var_types for type inference in expressions
+    for constant in &module.constants {
+        let const_type = if let Some(ref ty) = constant.type_annotation {
+            ty.clone()
+        } else {
+            infer_constant_type(&constant.value)
+        };
+        ctx.var_types.insert(constant.name.clone(), const_type);
+    }
+
     // All functions that can_fail return Result<T, E> and need unwrapping at call sites
     // When error_strategy is Panic, functions panic on error instead of returning Result
     for func in &module.functions {

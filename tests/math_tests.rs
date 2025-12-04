@@ -1037,3 +1037,25 @@ def is_non_negative(x: float) -> bool:
     let rust = transpile_and_check(python, &[]);
     assert!(rust.contains("x >= 0.0"));
 }
+
+// ============================================================================
+// Top-Level Constant Tests
+// ============================================================================
+
+#[test]
+fn test_top_level_constant_with_arithmetic() {
+    let python = r#"
+TWO = 52.0
+
+def compute() -> float:
+    one = 6 * 42
+    three = one + TWO
+    return three
+"#;
+
+    let rust = transpile_and_check(python, &[]);
+    assert!(rust.contains("const TWO: f64 = 52.0"));
+    // one = 6 * 42 may be constant-folded to 252
+    assert!(rust.contains("6 * 42") || rust.contains("252"));
+    assert!(rust.contains("(one as f64) + TWO"));
+}

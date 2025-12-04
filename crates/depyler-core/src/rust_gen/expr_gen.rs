@@ -339,10 +339,23 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     let right_fmt = self.generate_format_arg(right)?;
                     Ok(parse_quote! { format!("{}{}", #left_fmt, #right_fmt) })
                 } else {
-                    // Regular arithmetic addition or unknown types
-                    // Default to arithmetic - safer assumption for scalar types
-                    let rust_op = convert_binop(op)?;
-                    Ok(parse_quote! { #left_expr #rust_op #right_expr })
+                    // Regular arithmetic addition - handle mixed int/float types
+                    let left_is_float = self.ctx.is_expr_float_type(left);
+                    let right_is_float = self.ctx.is_expr_float_type(right);
+                    let left_is_int_type = self.ctx.is_expr_int_type(left);
+                    let right_is_int_type = self.ctx.is_expr_int_type(right);
+
+                    // Mixed float/int addition needs cast
+                    if left_is_float && right_is_int_type {
+                        // float + int: cast int to f64
+                        Ok(parse_quote! { #left_expr + (#right_expr as f64) })
+                    } else if left_is_int_type && right_is_float {
+                        // int + float: cast int to f64
+                        Ok(parse_quote! { (#left_expr as f64) + #right_expr })
+                    } else {
+                        let rust_op = convert_binop(op)?;
+                        Ok(parse_quote! { #left_expr #rust_op #right_expr })
+                    }
                 }
             }
             BinOp::FloorDiv => {
