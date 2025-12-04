@@ -434,12 +434,25 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     {
                         let elem = elts[0].to_rust_expr(self.ctx)?;
                         let size_lit = syn::LitInt::new(&size.to_string(), proc_macro2::Span::call_site());
-                        Ok(parse_quote! { [#elem; #size_lit] })
+                        // Check if element is a variable referring to a non-Copy type (Vec, String, etc.)
+                        let needs_clone = self.element_needs_clone(&elts[0]);
+                        if needs_clone {
+                            // Non-Copy types: use vec![elem.clone(); n]
+                            Ok(parse_quote! { vec![#elem.clone(); #size_lit] })
+                        } else {
+                            Ok(parse_quote! { [#elem; #size_lit] })
+                        }
                     }
                     (HirExpr::List(elts), HirExpr::Literal(Literal::Int(size))) if elts.len() == 1 && *size > 32 => {
                         let elem = elts[0].to_rust_expr(self.ctx)?;
                         let size_lit = syn::LitInt::new(&size.to_string(), proc_macro2::Span::call_site());
-                        Ok(parse_quote! { vec![#elem; #size_lit] })
+                        // Non-Copy types need clone
+                        let needs_clone = self.element_needs_clone(&elts[0]);
+                        if needs_clone {
+                            Ok(parse_quote! { vec![#elem.clone(); #size_lit] })
+                        } else {
+                            Ok(parse_quote! { vec![#elem; #size_lit] })
+                        }
                     }
                     // Pattern: n * [x] (small arrays)
                     (HirExpr::Literal(Literal::Int(size)), HirExpr::List(elts))
@@ -447,12 +460,22 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     {
                         let elem = elts[0].to_rust_expr(self.ctx)?;
                         let size_lit = syn::LitInt::new(&size.to_string(), proc_macro2::Span::call_site());
-                        Ok(parse_quote! { [#elem; #size_lit] })
+                        let needs_clone = self.element_needs_clone(&elts[0]);
+                        if needs_clone {
+                            Ok(parse_quote! { vec![#elem.clone(); #size_lit] })
+                        } else {
+                            Ok(parse_quote! { [#elem; #size_lit] })
+                        }
                     }
                     (HirExpr::Literal(Literal::Int(size)), HirExpr::List(elts)) if elts.len() == 1 && *size > 32 => {
                         let elem = elts[0].to_rust_expr(self.ctx)?;
                         let size_lit = syn::LitInt::new(&size.to_string(), proc_macro2::Span::call_site());
-                        Ok(parse_quote! { vec![#elem; #size_lit] })
+                        let needs_clone = self.element_needs_clone(&elts[0]);
+                        if needs_clone {
+                            Ok(parse_quote! { vec![#elem.clone(); #size_lit] })
+                        } else {
+                            Ok(parse_quote! { vec![#elem; #size_lit] })
+                        }
                     }
                     // Default multiplication - handle mixed int/float types
                     _ => {
@@ -987,7 +1010,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             return Ok(parse_quote! { #value_expr != 0 });
         }
 
-        // DEPYLER-STDLIB-DECIMAL: Handle Decimal() constructor
+        // 
         // Decimal("123.45") → Decimal::from_str("123.45").unwrap()
         // Decimal(123) → Decimal::from(123)
         // Decimal(3.14) → Decimal::from_f64_retain(3.14).unwrap()
@@ -1019,7 +1042,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             return Ok(result);
         }
 
-        // DEPYLER-STDLIB-FRACTIONS: Handle Fraction() constructor
+        // 
         // Fraction(numerator, denominator) → Ratio::new(num, denom)
         // Fraction("1/2") → Ratio::from_str("1/2") (simplified - needs parsing)
         // Fraction(3.14) → Ratio::approximate_float(3.14)
@@ -1071,7 +1094,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             bail!("Fraction() requires 1 or 2 arguments");
         }
 
-        // DEPYLER-STDLIB-PATHLIB: Handle Path() constructor
+        // 
         // Path("/foo/bar") → PathBuf::from("/foo/bar")
         // Path(p) / "subdir" → p.join("subdir")
         if func == "Path" && args.len() == 1 {
@@ -1079,7 +1102,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             return Ok(parse_quote! { std::path::PathBuf::from(#path_expr) });
         }
 
-        // DEPYLER-STDLIB-DATETIME: Handle datetime constructors
+        // 
         // datetime(year, month, day) → NaiveDate::from_ymd_opt(y, m, d).unwrap().and_hms_opt(0, 0, 0).unwrap()
         // datetime(year, month, day, hour, minute, second) → NaiveDate::from_ymd_opt(...).and_hms_opt(...)
         if func == "datetime" {
@@ -1322,7 +1345,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             "dict" if !is_user_class => self.convert_dict_builtin(&arg_exprs),
             "deque" if !is_user_class => self.convert_deque_builtin(&arg_exprs),
             "list" if !is_user_class => self.convert_list_builtin(&arg_exprs),
-            // DEPYLER-STDLIB-BUILTINS: Additional builtin functions
+            // 
             "all" => self.convert_all_builtin(&arg_exprs),
             "any" => self.convert_any_builtin(&arg_exprs),
             "divmod" => self.convert_divmod_builtin(&arg_exprs),
@@ -1332,7 +1355,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             "sorted" => self.convert_sorted_builtin(&arg_exprs),
             "filter" => self.convert_filter_builtin(&all_hir_args, &arg_exprs),
             "sum" => self.convert_sum_builtin(&arg_exprs),
-            // DEPYLER-STDLIB-BUILTINS: Final batch for 50% milestone
+            // 
             "round" => self.convert_round_builtin(&arg_exprs),
             "abs" => self.convert_abs_builtin(&arg_exprs),
             "min" => self.convert_min_builtin(&arg_exprs),
@@ -1346,7 +1369,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             "hash" => self.convert_hash_builtin(&arg_exprs),
             "repr" => self.convert_repr_builtin(&arg_exprs),
             "open" => self.convert_open_builtin(&all_hir_args, &arg_exprs),
-            // DEPYLER-STDLIB-50: next(), getattr(), setattr(), iter(), type()
+            // 
             "next" => self.convert_next_builtin(&all_hir_args, &arg_exprs),
             "getattr" => self.convert_getattr_builtin(&all_hir_args),
             "setattr" => self.convert_setattr_builtin(&all_hir_args),
@@ -1824,7 +1847,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         }
     }
 
-    // DEPYLER-STDLIB-BUILTINS: Additional builtin function converters
+    // 
 
     fn convert_all_builtin(&self, args: &[syn::Expr]) -> Result<syn::Expr> {
         if args.len() != 1 {
@@ -1942,7 +1965,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         }
     }
 
-    // DEPYLER-STDLIB-BUILTINS: Final batch converters for 50% milestone
+    // 
 
     fn convert_round_builtin(&self, args: &[syn::Expr]) -> Result<syn::Expr> {
         if args.is_empty() || args.len() > 2 {
@@ -2131,7 +2154,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         Ok(parse_quote! { format!("{:?}", #value) })
     }
 
-    // DEPYLER-STDLIB-50: next() - get next item from iterator
+    // 
     fn convert_next_builtin(&self, hir_args: &[HirExpr], args: &[syn::Expr]) -> Result<syn::Expr> {
         if args.is_empty() || args.len() > 2 {
             bail!("next() requires 1 or 2 arguments (iterator, optional default)");
@@ -2156,7 +2179,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         }
     }
 
-    // DEPYLER-STDLIB-50: getattr() - get attribute by name
+    // 
     /// getattr(obj, name) → obj.name
     /// getattr(obj, name, default) → obj.name (default is ignored in static Rust)
     ///
@@ -2303,7 +2326,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         }
     }
 
-    // DEPYLER-STDLIB-50: iter() - create iterator
+    // 
     fn convert_iter_builtin(&self, args: &[syn::Expr]) -> Result<syn::Expr> {
         if args.len() != 1 {
             bail!("iter() requires exactly 1 argument");
@@ -2312,7 +2335,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         Ok(parse_quote! { #iterable.into_iter() })
     }
 
-    // DEPYLER-STDLIB-50: type() - get type name
+    // 
     fn convert_type_builtin(&self, args: &[syn::Expr]) -> Result<syn::Expr> {
         if args.len() != 1 {
             bail!("type() requires exactly 1 argument");
@@ -2905,7 +2928,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     }
 
     /// Try to convert json module method calls
-    /// DEPYLER-STDLIB-JSON: JSON serialization/deserialization support
+    /// 
     #[inline]
     fn try_convert_json_method(&mut self, method: &str, args: &[HirExpr]) -> Result<Option<syn::Expr>> {
         // Convert arguments first
@@ -2975,7 +2998,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     }
 
     /// Try to convert re (regular expressions) module method calls
-    /// DEPYLER-STDLIB-RE: Comprehensive regex module support
+    /// 
     ///
     /// Maps Python re module functions to Rust regex crate:
     /// - re.search() → Regex::new().find()
@@ -3184,7 +3207,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     }
 
     /// Try to convert string module method calls
-    /// DEPYLER-STDLIB-STRING: String module utilities
+    /// 
     ///
     /// Maps Python string module functions to Rust equivalents:
     /// - string.capwords() → split/capitalize/join
@@ -3242,7 +3265,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     }
 
     /// Try to convert time module method calls
-    /// DEPYLER-STDLIB-TIME: Time measurement and manipulation
+    /// 
     ///
     /// Maps Python time module functions to Rust equivalents:
     /// - time.time() → SystemTime::now()
@@ -3422,7 +3445,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     }
 
     /// Try to convert csv module method calls
-    /// DEPYLER-STDLIB-CSV: CSV file reading and writing
+    /// 
     ///
     /// Maps Python csv module to Rust csv crate:
     /// - csv.reader() → csv::Reader::from_reader()
@@ -3776,7 +3799,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     }
 
     /// Try to convert os.path module method calls
-    /// DEPYLER-STDLIB-OSPATH: Path manipulation and file system operations
+    /// 
     ///
     /// Maps Python os.path module to Rust std::path + std::fs:
     /// - os.path.join() → PathBuf::new().join()
@@ -4067,7 +4090,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 parse_quote! { #path.to_string() }
             }
 
-            // DEPYLER-STDLIB-OSPATH: relpath() - compute relative path
+            // 
             "relpath" => {
                 if arg_exprs.len() != 2 {
                     bail!("os.path.relpath() requires exactly 2 arguments");
@@ -4098,7 +4121,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     }
 
     /// Try to convert base64 module method calls
-    /// DEPYLER-STDLIB-BASE64: Base64 and variants encoding/decoding
+    /// 
     ///
     /// Maps Python base64 module to Rust base64 crate:
     /// - base64.b64encode() → base64::encode()
@@ -4215,7 +4238,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     }
 
     /// Try to convert secrets module method calls
-    /// DEPYLER-STDLIB-SECRETS: Cryptographically strong random operations
+    /// 
     ///
     /// Maps Python secrets module to Rust rand crate (cryptographic RNG):
     /// - secrets.randbelow() → rand::thread_rng().gen_range()
@@ -4318,7 +4341,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     }
 
     /// Try to convert hashlib module method calls
-    /// DEPYLER-STDLIB-HASHLIB: Cryptographic hash functions
+    /// 
     ///
     /// Supports: md5, sha1, sha224, sha256, sha384, sha512, blake2b, blake2s
     /// Returns hex digest directly (one-shot hashing pattern)
@@ -4516,7 +4539,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     }
 
     /// Try to convert uuid module method calls
-    /// DEPYLER-STDLIB-UUID: UUID generation (RFC 4122)
+    /// 
     ///
     /// Supports: uuid1 (time-based), uuid4 (random)
     /// Returns string representation of UUID
@@ -4577,7 +4600,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     }
 
     /// Try to convert hmac module method calls
-    /// DEPYLER-STDLIB-HMAC: HMAC authentication
+    /// 
     ///
     /// Supports: new() with SHA256, compare_digest()
     /// Returns hex digest for one-shot HMAC
@@ -4696,7 +4719,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     }
 
     /// Try to convert binascii module method calls
-    /// DEPYLER-STDLIB-BINASCII: Binary/ASCII conversions
+    /// 
     ///
     /// Supports: hexlify, unhexlify, b2a_hex, a2b_hex, b2a_base64, a2b_base64, crc32
     /// Common encoding/decoding operations
@@ -4934,7 +4957,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     }
 
     /// Try to convert urllib.parse module method calls
-    /// DEPYLER-STDLIB-URLLIB-PARSE: URL parsing and encoding
+    /// 
     ///
     /// Supports: quote, unquote, quote_plus, unquote_plus, urlencode, parse_qs
     /// Common URL encoding/decoding operations
@@ -5079,7 +5102,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     }
 
     /// Try to convert fnmatch module method calls
-    /// DEPYLER-STDLIB-FNMATCH: Unix shell-style pattern matching
+    /// 
     ///
     /// Supports: fnmatch, fnmatchcase, filter, translate
     /// Shell wildcard patterns: *, ?, [seq], [!seq]
@@ -5188,7 +5211,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     }
 
     /// Try to convert shlex module method calls
-    /// DEPYLER-STDLIB-SHLEX: Shell command line lexing
+    /// 
     ///
     /// Supports: split, quote, join
     /// Security-critical: prevents shell injection
@@ -5320,7 +5343,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     }
 
     /// Try to convert textwrap module method calls
-    /// DEPYLER-STDLIB-TEXTWRAP: Text wrapping and formatting
+    /// 
     ///
     /// Supports: wrap, fill, dedent, indent, shorten
     /// Text formatting for display and documentation
@@ -5513,7 +5536,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     }
 
     /// Try to convert bisect module method calls
-    /// DEPYLER-STDLIB-BISECT: Binary search for sorted sequences
+    /// 
     ///
     /// Supports: bisect_left, bisect_right, insort_left, insort_right
     /// Efficient O(log n) search and insertion
@@ -5645,7 +5668,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     }
 
     /// Try to convert heapq module method calls
-    /// DEPYLER-STDLIB-HEAPQ: Heap queue algorithm (priority queue)
+    /// 
     ///
     /// Supports: heapify, heappush, heappop, nlargest, nsmallest
     /// Python heapq is a MIN heap (smallest item first)
@@ -5825,7 +5848,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     }
 
     /// Try to convert copy module method calls
-    /// DEPYLER-STDLIB-COPY: Shallow and deep copy operations
+    /// 
     ///
     /// Supports: copy, deepcopy
     /// Maps to Rust's .clone() for both (Rust clone is deep by default)
@@ -5874,7 +5897,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     }
 
     /// Try to convert itertools module method calls
-    /// DEPYLER-STDLIB-ITERTOOLS: Iterator combinatorics and lazy evaluation
+    /// 
     ///
     /// Supports: count, cycle, repeat, chain, islice, takewhile
     /// Maps to Rust's iterator adapters and std::iter methods
@@ -6108,7 +6131,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     }
 
     /// Try to convert functools module method calls
-    /// DEPYLER-STDLIB-FUNCTOOLS: Higher-order functions
+    /// 
     ///
     /// Supports: reduce
     /// Maps to Rust's Iterator::fold() method
@@ -6165,7 +6188,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     }
 
     /// Try to convert warnings module method calls
-    /// DEPYLER-STDLIB-WARNINGS: Warning control
+    /// 
     ///
     /// Supports: warn
     /// Maps to Rust's eprintln! macro for stderr output
@@ -6201,7 +6224,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     }
 
     /// Try to convert sys module method calls
-    /// DEPYLER-STDLIB-SYS: System-specific parameters and functions
+    /// 
     ///
     /// Supports: exit
     /// Maps to Rust's std::process::exit
@@ -6238,7 +6261,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     }
 
     /// Try to convert pickle module method calls
-    /// DEPYLER-STDLIB-PICKLE: Object serialization
+    /// 
     ///
     /// Supports: dumps, loads
     /// Maps to serde/bincode for serialization (placeholder)
@@ -6293,7 +6316,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     }
 
     /// Try to convert pprint module method calls
-    /// DEPYLER-STDLIB-PPRINT: Pretty printing
+    /// 
     ///
     /// Supports: pprint
     /// Maps to Rust's Debug formatting
@@ -6329,7 +6352,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     }
 
     /// Try to convert fractions module method calls
-    /// DEPYLER-STDLIB-FRACTIONS: Comprehensive fractions module support
+    /// 
     #[inline]
     fn try_convert_fractions_method(&mut self, method: &str, args: &[HirExpr]) -> Result<Option<syn::Expr>> {
         // Mark that we need the num-rational crate
@@ -6379,7 +6402,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     }
 
     /// Try to convert pathlib module method calls
-    /// DEPYLER-STDLIB-PATHLIB: Comprehensive pathlib module support
+    /// 
     #[inline]
     fn try_convert_pathlib_method(&mut self, method: &str, args: &[HirExpr]) -> Result<Option<syn::Expr>> {
         // Convert arguments first
@@ -6556,7 +6579,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     }
 
     /// Try to convert datetime module method calls
-    /// DEPYLER-STDLIB-DATETIME: Comprehensive datetime module support
+    /// 
     #[inline]
     fn try_convert_datetime_method(&mut self, method: &str, args: &[HirExpr]) -> Result<Option<syn::Expr>> {
         // Mark that we need the chrono crate
@@ -6713,7 +6736,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     }
 
     /// Try to convert statistics module method calls
-    /// DEPYLER-STDLIB-STATISTICS: Comprehensive statistics module support
+    /// 
     #[inline]
     fn try_convert_decimal_method(&mut self, method: &str, args: &[HirExpr]) -> Result<Option<syn::Expr>> {
         // Mark that we need the rust_decimal crate
@@ -7088,7 +7111,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     }
 
     /// Try to convert random module method calls
-    /// DEPYLER-STDLIB-RANDOM: Comprehensive random module support
+    /// 
     #[inline]
     fn try_convert_random_method(&mut self, method: &str, args: &[HirExpr]) -> Result<Option<syn::Expr>> {
         // Convert arguments first
@@ -7314,7 +7337,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 bail!("random.setstate() not supported - Rust RNG state management differs from Python");
             }
 
-            // DEPYLER-STDLIB-RANDOM: Triangular distribution
+            // 
             "triangular" => {
                 if arg_exprs.len() < 2 || arg_exprs.len() > 3 {
                     bail!("random.triangular() requires 2 or 3 arguments");
@@ -7341,7 +7364,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 }
             }
 
-            // DEPYLER-STDLIB-RANDOM: randbytes() - generate random bytes
+            // 
             "randbytes" => {
                 if arg_exprs.len() != 1 {
                     bail!("random.randbytes() requires exactly 1 argument");
@@ -7367,7 +7390,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     }
 
     /// Try to convert math module method calls
-    /// DEPYLER-STDLIB-MATH: Comprehensive math module support
+    /// 
     #[inline]
     fn try_convert_math_method(&mut self, method: &str, args: &[HirExpr]) -> Result<Option<syn::Expr>> {
         // Convert arguments first
@@ -7697,7 +7720,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 }
             }
 
-            // DEPYLER-STDLIB-MATH: remainder() - IEEE remainder (different from fmod)
+            // 
             "remainder" => {
                 if arg_exprs.len() != 2 {
                     bail!("math.remainder() requires exactly 2 arguments");
@@ -7715,7 +7738,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 }
             }
 
-            // DEPYLER-STDLIB-MATH: comb() - combinations (nCr)
+            // 
             "comb" => {
                 if arg_exprs.len() != 2 {
                     bail!("math.comb() requires exactly 2 arguments");
@@ -7738,7 +7761,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 }
             }
 
-            // DEPYLER-STDLIB-MATH: perm() - permutations (nPr)
+            // 
             "perm" => {
                 if arg_exprs.is_empty() || arg_exprs.len() > 2 {
                     bail!("math.perm() requires 1 or 2 arguments");
@@ -7760,7 +7783,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 }
             }
 
-            // DEPYLER-STDLIB-MATH: expm1() - exp(x) - 1 (accurate for small x)
+            // 
             "expm1" => {
                 if arg_exprs.len() != 1 {
                     bail!("math.expm1() requires exactly 1 argument");
@@ -7806,7 +7829,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 return self.try_convert_struct_method(method, args);
             }
 
-            // DEPYLER-STDLIB-MATH: Handle math module functions
+            // 
             // math.sqrt(x) → x.sqrt()
             // math.sin(x) → x.sin()
             // math.pow(x, y) → x.powf(y)
@@ -7814,35 +7837,35 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 return self.try_convert_math_method(method, args);
             }
 
-            // DEPYLER-STDLIB-RANDOM: Handle random module functions
+            // 
             // random.random() → thread_rng().gen()
             // random.randint(a, b) → thread_rng().gen_range(a..=b)
             if module_name == "random" {
                 return self.try_convert_random_method(method, args);
             }
 
-            // DEPYLER-STDLIB-STATISTICS: Handle statistics module functions
+            // 
             // statistics.mean(data) → inline calculation
             // statistics.median(data) → sorted median calculation
             if module_name == "statistics" {
                 return self.try_convert_statistics_method(method, args);
             }
 
-            // DEPYLER-STDLIB-FRACTIONS: Handle fractions module functions
+            // 
             // Fraction(1, 2) → Ratio::new(1, 2)
             // f.limit_denominator(100) → approximate with max denominator
             if module_name == "fractions" {
                 return self.try_convert_fractions_method(method, args);
             }
 
-            // DEPYLER-STDLIB-PATHLIB: Handle pathlib module functions
+            // 
             // Path("/foo/bar").exists() → PathBuf::from("/foo/bar").exists()
             // Path("/foo").join("bar") → PathBuf::from("/foo").join("bar")
             if module_name == "pathlib" {
                 return self.try_convert_pathlib_method(method, args);
             }
 
-            // DEPYLER-STDLIB-DATETIME: Handle datetime module functions
+            // 
             // datetime.datetime.now() → Local::now().naive_local()
             // datetime.datetime.utcnow() → Utc::now().naive_utc()
             // datetime.date.today() → Local::now().date_naive()
@@ -7850,36 +7873,36 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 return self.try_convert_datetime_method(method, args);
             }
 
-            // DEPYLER-STDLIB-DECIMAL: Handle decimal module functions
+            // 
             // decimal.Decimal("123.45") → Decimal::from_str("123.45")
             // Note: Decimal() constructor is handled separately in convert_call
             if module_name == "decimal" {
                 return self.try_convert_decimal_method(method, args);
             }
 
-            // DEPYLER-STDLIB-JSON: Handle json module functions
+            // 
             // json.dumps(obj) → serde_json::to_string(&obj)
             // json.loads(s) → serde_json::from_str(&s)
             if module_name == "json" {
                 return self.try_convert_json_method(method, args);
             }
 
-            // DEPYLER-STDLIB-RE: Regular expressions module
+            // 
             if module_name == "re" {
                 return self.try_convert_re_method(method, args);
             }
 
-            // DEPYLER-STDLIB-STRING: String module utilities
+            // 
             if module_name == "string" {
                 return self.try_convert_string_method(method, args);
             }
 
-            // DEPYLER-STDLIB-TIME: Time module
+            // 
             if module_name == "time" {
                 return self.try_convert_time_method(method, args);
             }
 
-            // DEPYLER-STDLIB-CSV: CSV file operations
+            // 
             if module_name == "csv" {
                 return self.try_convert_csv_method(method, args, kwargs);
             }
@@ -7892,34 +7915,34 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 // Fall through to os.path handler if method not recognized
             }
 
-            // DEPYLER-STDLIB-OSPATH: os.path file system operations
+            // 
             // Only match the actual module "os.path", not variables named "path"
             // Variables named "path" are typically PathBuf instances from Path() constructor
             if module_name == "os.path" {
                 return self.try_convert_os_path_method(method, args);
             }
 
-            // DEPYLER-STDLIB-BASE64: Base64 encoding/decoding operations
+            // 
             if module_name == "base64" {
                 return self.try_convert_base64_method(method, args);
             }
 
-            // DEPYLER-STDLIB-SECRETS: Cryptographically strong random operations
+            // 
             if module_name == "secrets" {
                 return self.try_convert_secrets_method(method, args);
             }
 
-            // DEPYLER-STDLIB-HASHLIB: Cryptographic hash functions
+            // 
             if module_name == "hashlib" {
                 return self.try_convert_hashlib_method(method, args);
             }
 
-            // DEPYLER-STDLIB-UUID: UUID generation (RFC 4122)
+            // 
             if module_name == "uuid" {
                 return self.try_convert_uuid_method(method, args);
             }
 
-            // DEPYLER-STDLIB-HMAC: HMAC authentication
+            // 
             if module_name == "hmac" {
                 return self.try_convert_hmac_method(method, args);
             }
@@ -7928,72 +7951,72 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 return self.try_convert_platform_method(method, args);
             }
 
-            // DEPYLER-STDLIB-BINASCII: Binary/ASCII conversions
+            // 
             if module_name == "binascii" {
                 return self.try_convert_binascii_method(method, args);
             }
 
-            // DEPYLER-STDLIB-URLLIB-PARSE: URL parsing and encoding
+            // 
             if module_name == "urllib.parse" || module_name == "parse" {
                 return self.try_convert_urllib_parse_method(method, args);
             }
 
-            // DEPYLER-STDLIB-FNMATCH: Unix shell-style pattern matching
+            // 
             if module_name == "fnmatch" {
                 return self.try_convert_fnmatch_method(method, args);
             }
 
-            // DEPYLER-STDLIB-SHLEX: Shell command line lexing
+            // 
             if module_name == "shlex" {
                 return self.try_convert_shlex_method(method, args);
             }
 
-            // DEPYLER-STDLIB-TEXTWRAP: Text wrapping and formatting
+            // 
             if module_name == "textwrap" {
                 return self.try_convert_textwrap_method(method, args);
             }
 
-            // DEPYLER-STDLIB-BISECT: Binary search for sorted sequences
+            // 
             if module_name == "bisect" {
                 return self.try_convert_bisect_method(method, args);
             }
 
-            // DEPYLER-STDLIB-HEAPQ: Heap queue algorithm (priority queue)
+            // 
             if module_name == "heapq" {
                 return self.try_convert_heapq_method(method, args);
             }
 
-            // DEPYLER-STDLIB-COPY: Shallow and deep copy operations
+            // 
             if module_name == "copy" {
                 return self.try_convert_copy_method(method, args);
             }
 
-            // DEPYLER-STDLIB-ITERTOOLS: Iterator combinatorics and lazy evaluation
+            // 
             if module_name == "itertools" {
                 return self.try_convert_itertools_method(method, args);
             }
 
-            // DEPYLER-STDLIB-FUNCTOOLS: Higher-order functions
+            // 
             if module_name == "functools" {
                 return self.try_convert_functools_method(method, args);
             }
 
-            // DEPYLER-STDLIB-WARNINGS: Warning control
+            // 
             if module_name == "warnings" {
                 return self.try_convert_warnings_method(method, args);
             }
 
-            // DEPYLER-STDLIB-SYS: System-specific parameters and functions
+            // 
             if module_name == "sys" {
                 return self.try_convert_sys_method(method, args);
             }
 
-            // DEPYLER-STDLIB-PICKLE: Object serialization
+            // 
             if module_name == "pickle" {
                 return self.try_convert_pickle_method(method, args);
             }
 
-            // DEPYLER-STDLIB-PPRINT: Pretty printing
+            // 
             if module_name == "pprint" {
                 return self.try_convert_pprint_method(method, args);
             }
@@ -8473,14 +8496,14 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     })
                 }
             }
-            // DEPYLER-STDLIB-50: clear() - remove all items
+            // 
             "clear" => {
                 if !arg_exprs.is_empty() {
                     bail!("clear() takes no arguments");
                 }
                 Ok(parse_quote! { #object_expr.clear() })
             }
-            // DEPYLER-STDLIB-50: copy() - shallow copy
+            // 
             "copy" => {
                 if !arg_exprs.is_empty() {
                     bail!("copy() takes no arguments");
@@ -8712,7 +8735,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 })
             }
 
-            // DEPYLER-STDLIB-STR: index() - find with panic if not found
+            // 
             "index" => {
                 if hir_args.len() != 1 {
                     bail!("index() requires exactly one argument");
@@ -8728,7 +8751,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 })
             }
 
-            // DEPYLER-STDLIB-STR: rfind() - find from right (last occurrence)
+            // 
             "rfind" => {
                 if hir_args.len() != 1 {
                     bail!("rfind() requires exactly one argument");
@@ -8744,7 +8767,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 })
             }
 
-            // DEPYLER-STDLIB-STR: rindex() - rfind with panic if not found
+            // 
             "rindex" => {
                 if hir_args.len() != 1 {
                     bail!("rindex() requires exactly one argument");
@@ -8760,7 +8783,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 })
             }
 
-            // DEPYLER-STDLIB-STR: center() - center string in field
+            // 
             "center" => {
                 if arg_exprs.is_empty() || arg_exprs.len() > 2 {
                     bail!("center() requires 1 or 2 arguments");
@@ -8789,7 +8812,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 })
             }
 
-            // DEPYLER-STDLIB-STR: ljust() - left justify string
+            // 
             "ljust" => {
                 if arg_exprs.is_empty() || arg_exprs.len() > 2 {
                     bail!("ljust() requires 1 or 2 arguments");
@@ -8815,7 +8838,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 })
             }
 
-            // DEPYLER-STDLIB-STR: rjust() - right justify string
+            // 
             "rjust" => {
                 if arg_exprs.is_empty() || arg_exprs.len() > 2 {
                     bail!("rjust() requires 1 or 2 arguments");
@@ -8841,7 +8864,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 })
             }
 
-            // DEPYLER-STDLIB-STR: zfill() - zero-fill numeric string
+            // 
             "zfill" => {
                 if arg_exprs.len() != 1 {
                     bail!("zfill() requires exactly 1 argument");
@@ -8863,7 +8886,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 })
             }
 
-            // DEPYLER-STDLIB-50: capitalize() - capitalize first character
+            // 
             "capitalize" => {
                 if !arg_exprs.is_empty() {
                     bail!("capitalize() takes no arguments");
@@ -8880,7 +8903,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 })
             }
 
-            // DEPYLER-STDLIB-50: swapcase() - swap upper/lower case
+            // 
             "swapcase" => {
                 if !arg_exprs.is_empty() {
                     bail!("swapcase() takes no arguments");
@@ -8896,7 +8919,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 })
             }
 
-            // DEPYLER-STDLIB-50: expandtabs() - expand tab characters
+            // 
             "expandtabs" => {
                 if arg_exprs.is_empty() {
                     Ok(parse_quote! {
@@ -8913,7 +8936,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 }
             }
 
-            // DEPYLER-STDLIB-50: splitlines() - split by line breaks
+            // 
             "splitlines" => {
                 if !arg_exprs.is_empty() {
                     bail!("splitlines() takes no arguments");
@@ -8923,7 +8946,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 })
             }
 
-            // DEPYLER-STDLIB-50: partition() - partition by separator
+            // 
             "partition" => {
                 if arg_exprs.len() != 1 {
                     bail!("partition() requires exactly 1 argument (separator)");
@@ -8944,7 +8967,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 })
             }
 
-            // DEPYLER-STDLIB-50: casefold() - aggressive lowercase for caseless matching
+            // 
             "casefold" => {
                 if !arg_exprs.is_empty() {
                     bail!("casefold() takes no arguments");
@@ -8953,7 +8976,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 Ok(parse_quote! { #object_expr.to_lowercase() })
             }
 
-            // DEPYLER-STDLIB-50: isprintable() - check if all characters are printable
+            // 
             "isprintable" => {
                 if !arg_exprs.is_empty() {
                     bail!("isprintable() takes no arguments");
@@ -10208,6 +10231,66 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         }
     }
 
+    /// Check if an element in array repeat syntax needs .clone() because it's not Copy
+    /// Used for patterns like [x] * n where x is a variable
+    fn element_needs_clone(&self, elem: &HirExpr) -> bool {
+        match elem {
+            // Literals are Copy
+            HirExpr::Literal(_) => false,
+            // Check if variable refers to a non-Copy type
+            HirExpr::Var(name) => {
+                if let Some(ty) = self.ctx.var_types.get(name) {
+                    // Vec, String, HashMap, HashSet are not Copy
+                    matches!(
+                        ty,
+                        Type::List(_) | Type::String | Type::Dict(_, _) | Type::Set(_) | Type::Custom(_)
+                    )
+                } else {
+                    // If we don't know the type, assume it needs clone to be safe
+                    // (better to have an unnecessary .clone() than a compile error)
+                    true
+                }
+            }
+            // Binary multiplication [elem] * n might produce Copy array if elem is Copy
+            HirExpr::Binary {
+                op: BinOp::Mul,
+                left,
+                right,
+            } => {
+                match (left.as_ref(), right.as_ref()) {
+                    // [elem] * n - check if the element is Copy and size is small
+                    (HirExpr::List(elems), HirExpr::Literal(Literal::Int(size)))
+                        if elems.len() == 1 && *size > 0 && *size <= 32 =>
+                    {
+                        self.element_needs_clone(&elems[0])
+                    }
+                    (HirExpr::Literal(Literal::Int(size)), HirExpr::List(elems))
+                        if elems.len() == 1 && *size > 0 && *size <= 32 =>
+                    {
+                        self.element_needs_clone(&elems[0])
+                    }
+                    // Large arrays or other patterns need clone
+                    _ => true,
+                }
+            }
+            // Lists that aren't part of multiplication pattern need clone
+            HirExpr::List(_) | HirExpr::Dict(_) | HirExpr::Set(_) => true,
+            // Tuples are Copy only if all elements are Copy
+            HirExpr::Tuple(elems) => elems.iter().any(|e| self.element_needs_clone(e)),
+            // Calls might return non-Copy types
+            HirExpr::Call { func, .. } => {
+                // Common functions that return Copy types
+                !matches!(func.as_str(), "len" | "int" | "float" | "bool" | "ord" | "abs" | "hash")
+            }
+            // Method calls often return non-Copy
+            HirExpr::MethodCall { .. } => true,
+            // Attribute access - conservative, assume non-Copy
+            HirExpr::Attribute { .. } => true,
+            // Other expressions - be conservative
+            _ => true,
+        }
+    }
+
     /// Returns true if base is likely a String/str type (not Vec/List)
     fn is_string_base(&self, expr: &HirExpr) -> bool {
         match expr {
@@ -10942,7 +11025,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
 
         // Check if this is a module attribute access
         if let HirExpr::Var(module_name) = value {
-            // DEPYLER-STDLIB-MATH: Handle math module constants
+            // 
             // math.pi → std::f64::consts::PI
             // math.e → std::f64::consts::E
             // math.inf → f64::INFINITY
@@ -10962,7 +11045,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 return Ok(result);
             }
 
-            // DEPYLER-STDLIB-STRING: Handle string module constants
+            // 
             // string.ascii_letters → "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
             // string.digits → "0123456789"
             // string.punctuation → "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~"
@@ -10989,7 +11072,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 return Ok(result);
             }
 
-            // DEPYLER-STDLIB-SYS: Handle sys module attributes
+            // 
             // sys.argv → std::env::args().collect()
             // sys.platform → compile-time platform string
             if module_name == "sys" {
@@ -11050,12 +11133,12 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             }
         }
 
-        // DEPYLER-STDLIB-DATETIME: Handle datetime/date/time/timedelta properties
+        // 
         // In chrono, properties are accessed as methods: dt.year → dt.year()
         // This handles properties for fractions, pathlib, datetime, date, time, and timedelta instances
         let value_expr = value.to_rust_expr(self.ctx)?;
         match attr {
-            // DEPYLER-STDLIB-FRACTIONS: Fraction properties
+            // 
             "numerator" => {
                 // f.numerator → *f.numer()
                 return Ok(parse_quote! { *#value_expr.numer() });
@@ -11066,7 +11149,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 return Ok(parse_quote! { *#value_expr.denom() });
             }
 
-            // DEPYLER-STDLIB-PATHLIB: Path properties
+            // 
             // Only apply these transformations when the value is actually a Path type
             "stem" if self.is_path_expr(value) => {
                 // p.stem → p.file_stem().unwrap().to_str().unwrap().to_string()

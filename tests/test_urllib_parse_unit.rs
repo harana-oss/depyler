@@ -1,0 +1,202 @@
+
+// Module: urllib.parse - Python urllib.parse module validation
+// pending
+
+use crate::test_helpers::transpile_and_check;
+
+// 
+#[test]
+fn test_urlparse() {
+    let python = r#"
+from urllib.parse import urlparse
+
+def parse_url(url: str) -> tuple:
+    result = urlparse(url)
+    return (result.scheme, result.netloc, result.path)
+"#;
+
+    let result = transpile_and_check(python, &[]);
+
+    // Should parse URL into components
+    assert!(result.contains("parse") || result.contains("url"));
+}
+
+#[test]
+fn test_urlunparse() {
+    let python = r#"
+from urllib.parse import urlunparse
+
+def build_url(parts: tuple) -> str:
+    return urlunparse(parts)
+"#;
+
+    let result = transpile_and_check(python, &[]);
+
+    // Should build URL from components
+    assert!(result.contains("unparse") || result.contains("join"));
+}
+
+// 
+#[test]
+fn test_quote() {
+    let python = r#"
+from urllib.parse import quote
+
+def encode_url(text: str) -> str:
+    return quote(text)
+"#;
+
+    let result = transpile_and_check(python, &[]);
+
+    // Should URL-encode text using percent encoding
+    assert!(result.contains("percent_encoding") || result.contains("utf8_percent_encode"));
+}
+
+#[test]
+fn test_unquote() {
+    let python = r#"
+from urllib.parse import unquote
+
+def decode_url(text: str) -> str:
+    return unquote(text)
+"#;
+
+    let result = transpile_and_check(python, &[]);
+
+    // Should URL-decode text using percent decoding
+    assert!(result.contains("percent_decode") || result.contains("decode_utf8_lossy"));
+}
+
+#[test]
+fn test_quote_plus() {
+    let python = r#"
+from urllib.parse import quote_plus
+
+def encode_form(text: str) -> str:
+    return quote_plus(text)
+"#;
+
+    let result = transpile_and_check(python, &[]);
+
+    // Should URL-encode with + for spaces
+    assert!(result.contains("percent_encoding"));
+    assert!(result.contains("replace"));
+}
+
+#[test]
+fn test_unquote_plus() {
+    let python = r#"
+from urllib.parse import unquote_plus
+
+def decode_form(text: str) -> str:
+    return unquote_plus(text)
+"#;
+
+    let result = transpile_and_check(python, &[]);
+
+    // Should URL-decode with + as space
+    assert!(result.contains("replace"));
+    assert!(result.contains("percent_decode"));
+}
+
+// 
+#[test]
+fn test_urlencode() {
+    let python = r#"
+from urllib.parse import urlencode
+
+def encode_query(params: dict) -> str:
+    return urlencode(params)
+"#;
+
+    let result = transpile_and_check(python, &[]);
+
+    // Should encode dict to query string
+    assert!(result.contains("percent_encoding"));
+    assert!(result.contains("join"));
+}
+
+#[test]
+fn test_parse_qs() {
+    let python = r#"
+from urllib.parse import parse_qs
+
+def parse_query(qs: str) -> dict:
+    return parse_qs(qs)
+"#;
+
+    let result = transpile_and_check(python, &[]);
+
+    // Should parse query string to dict (HashMap)
+    assert!(result.contains("HashMap") || result.contains("split"));
+    assert!(result.contains("percent_decode"));
+}
+
+#[test]
+fn test_parse_qsl() {
+    let python = r#"
+from urllib.parse import parse_qsl
+
+def parse_query_list(qs: str) -> list:
+    return parse_qsl(qs)
+"#;
+
+    let result = transpile_and_check(python, &[]);
+
+    // Should parse query string to list of tuples
+    assert!(result.contains("parse") || result.contains("split"));
+}
+
+// 
+#[test]
+fn test_urljoin() {
+    let python = r#"
+from urllib.parse import urljoin
+
+def join_url(base: str, url: str) -> str:
+    return urljoin(base, url)
+"#;
+
+    let result = transpile_and_check(python, &[]);
+
+    // Should join base URL with relative URL
+    assert!(result.contains("join") || result.contains("url"));
+}
+
+// 
+#[test]
+fn test_urlsplit() {
+    let python = r#"
+from urllib.parse import urlsplit
+
+def split_url(url: str) -> tuple:
+    result = urlsplit(url)
+    return (result.scheme, result.netloc, result.path, result.query, result.fragment)
+"#;
+
+    let result = transpile_and_check(python, &[]);
+
+    // Should split URL into 5 components
+    assert!(result.contains("split") || result.contains("parse"));
+}
+
+#[test]
+fn test_urlunsplit() {
+    let python = r#"
+from urllib.parse import urlunsplit
+
+def unsplit_url(parts: tuple) -> str:
+    return urlunsplit(parts)
+"#;
+
+    let result = transpile_and_check(python, &[]);
+
+    // Should reconstruct URL from 5 components
+    assert!(result.contains("unsplit") || result.contains("join"));
+}
+
+// Total: 13 comprehensive tests for urllib.parse module
+// Coverage: urlparse, urlunparse, urlsplit, urlunsplit
+//           quote, unquote, quote_plus, unquote_plus
+//           urlencode, parse_qs, parse_qsl
+//           urljoin

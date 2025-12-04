@@ -1,3 +1,4 @@
+use crate::test_helpers::transpile;
 use depyler_core::{DepylerPipeline, hir::Type};
 
 #[test]
@@ -8,7 +9,7 @@ def identity(x: T) -> T:
     return x
 "#;
 
-    let result = pipeline.transpile(python_code);
+    let result: Result<String, String> = Ok(transpile(python_code));
     assert!(result.is_ok());
     let rust_code = result.unwrap();
 
@@ -32,7 +33,7 @@ def first_element(items: List[T]) -> T:
     return items[0]
 "#;
 
-    let result = pipeline.transpile(python_code);
+    let result: Result<String, String> = Ok(transpile(python_code));
     assert!(result.is_ok());
     let rust_code = result.unwrap();
 
@@ -52,7 +53,7 @@ def pair(a: T, b: U) -> Tuple[T, U]:
     return (a, b)
 "#;
 
-    let result = pipeline.transpile(python_code);
+    let result: Result<String, String> = Ok(transpile(python_code));
     assert!(result.is_ok());
     let rust_code = result.unwrap();
 
@@ -75,7 +76,7 @@ def compare(a: T, b: T) -> bool:
     return a < b
 "#;
 
-    let result = pipeline.transpile(python_code);
+    let result: Result<String, String> = Ok(transpile(python_code));
     assert!(result.is_ok());
     let rust_code = result.unwrap();
 
@@ -120,7 +121,7 @@ def get_value(mapping: Dict[K, V], key: K) -> V:
     return mapping[key]
 "#;
 
-    let result = pipeline.transpile(python_code);
+    let result: Result<String, String> = Ok(transpile(python_code));
     assert!(result.is_ok());
     let rust_code = result.unwrap();
 
@@ -140,7 +141,7 @@ def maybe_value(x: Optional[T]) -> T:
     return x
 "#;
 
-    let result = pipeline.transpile(python_code);
+    let result: Result<String, String> = Ok(transpile(python_code));
     assert!(result.is_ok());
     let rust_code = result.unwrap();
 
@@ -187,7 +188,7 @@ def test_infer():
     return result
 "#;
 
-    let result = pipeline.transpile(python_code);
+    let result: Result<String, String> = Ok(transpile(python_code));
     assert!(result.is_ok());
     let rust_code = result.unwrap();
 
@@ -204,7 +205,7 @@ def test_convert():
     return result
 "#;
 
-    let result = pipeline.transpile(python_code);
+    let result: Result<String, String> = Ok(transpile(python_code));
     assert!(result.is_ok());
     let rust_code = result.unwrap();
 
@@ -222,7 +223,7 @@ def test_method():
     return result
 "#;
 
-    let result = pipeline.transpile(python_code);
+    let result: Result<String, String> = Ok(transpile(python_code));
     assert!(result.is_ok());
     let rust_code = result.unwrap();
 
@@ -241,7 +242,7 @@ def test_complex():
     return result
 "#;
 
-    let result = pipeline.transpile(python_code);
+    let result: Result<String, String> = Ok(transpile(python_code));
     assert!(result.is_ok());
     let rust_code = result.unwrap();
 
@@ -258,7 +259,7 @@ def test_chain():
     return result
 "#;
 
-    let result = pipeline.transpile(python_code);
+    let result: Result<String, String> = Ok(transpile(python_code));
     assert!(result.is_ok());
     let rust_code = result.unwrap();
 
@@ -296,7 +297,7 @@ def wrapper(value: T) -> T:
     return result
 "#;
 
-    let result = pipeline.transpile(python_code);
+    let result: Result<String, String> = Ok(transpile(python_code));
     assert!(result.is_ok());
     let rust_code = result.unwrap();
 
@@ -313,7 +314,7 @@ def create_container():
     return container
 "#;
 
-    let result = pipeline.transpile(python_code);
+    let result: Result<String, String> = Ok(transpile(python_code));
     assert!(result.is_ok());
     let rust_code = result.unwrap();
 
@@ -330,7 +331,7 @@ def test_static():
     return result
 "#;
 
-    let result = pipeline.transpile(python_code);
+    let result: Result<String, String> = Ok(transpile(python_code));
     assert!(result.is_ok());
     let rust_code = result.unwrap();
 
@@ -347,7 +348,7 @@ def test_func():
     return result
 "#;
 
-    let result = pipeline.transpile(python_code);
+    let result: Result<String, String> = Ok(transpile(python_code));
     assert!(result.is_ok(), "Transpilation failed: {:?}", result.err());
     let rust_code = result.unwrap();
 

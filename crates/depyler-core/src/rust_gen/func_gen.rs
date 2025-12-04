@@ -15,13 +15,25 @@ use syn::{self, parse_quote};
 // Import analyze_mutable_vars from parent module
 use super::analyze_mutable_vars;
 
-/// Check if a HIR Type is a Copy type (primitives that can be passed by value)
+/// Check if a HIR Type is a Copy type (primitives that can be used in array repeat syntax [x; n])
 fn is_copy_type(ty: &Type) -> bool {
     match ty {
+        // Primitive types are Copy
         Type::Int | Type::Float | Type::Bool | Type::None => true,
-        Type::Optional(inner) => is_copy_type(inner),
+        // Unknown might be primitive, be conservative and assume not Copy
+        Type::Unknown => false,
+        // Compound types are not Copy
+        Type::String | Type::List(_) | Type::Dict(_, _) | Type::Set(_) | Type::Custom(_) => false,
+        // Tuples are Copy only if all elements are Copy
         Type::Tuple(types) => types.iter().all(is_copy_type),
-        _ => false,
+        // Arrays are Copy only if element is Copy
+        Type::Array { element_type, .. } => is_copy_type(element_type),
+        // Optional/Final are Copy only if inner is Copy
+        Type::Optional(inner) | Type::Final(inner) => is_copy_type(inner),
+        // Union types are not Copy in general
+        Type::Union(_) => false,
+        // Functions, type vars, generics are not Copy
+        Type::Function { .. } | Type::TypeVar(_) | Type::Generic { .. } => false,
     }
 }
 
@@ -201,6 +213,11 @@ pub(crate) fn codegen_function_body(
     ctx.current_function_can_fail = can_fail;
     ctx.current_return_type = Some(func.ret_type.clone());
     ctx.current_error_type = error_type;
+
+    // Clear CSE temporary variable types from previous functions to avoid type conflicts
+    // (e.g., _cse_temp_0 might be Int in one function, Bool in another)
+    // Preserve module-level constant types and other non-temp variables
+    ctx.var_types.retain(|name, _| !name.starts_with("_cse_temp"));
 
     for param in &func.params {
         ctx.declare_var(&param.name);
@@ -819,7 +836,8 @@ fn infer_expr_type_with_env(expr: &HirExpr, var_types: &std::collections::HashMa
                     // Pattern: [elem] * n
                     (HirExpr::List(elems), &HirExpr::Literal(Literal::Int(size))) if elems.len() == 1 && size > 0 => {
                         let elem_type = infer_expr_type_with_env(&elems[0], var_types);
-                        return if size <= 32 {
+                        // Non-Copy types always produce Vec (can't use array repeat syntax)
+                        return if size <= 32 && is_copy_type(&elem_type) {
                             Type::Array {
                                 element_type: Box::new(elem_type),
                                 size: ConstGeneric::Literal(size as usize),
@@ -831,7 +849,8 @@ fn infer_expr_type_with_env(expr: &HirExpr, var_types: &std::collections::HashMa
                     // Pattern: n * [elem]
                     (&HirExpr::Literal(Literal::Int(size)), HirExpr::List(elems)) if elems.len() == 1 && size > 0 => {
                         let elem_type = infer_expr_type_with_env(&elems[0], var_types);
-                        return if size <= 32 {
+                        // Non-Copy types always produce Vec (can't use array repeat syntax)
+                        return if size <= 32 && is_copy_type(&elem_type) {
                             Type::Array {
                                 element_type: Box::new(elem_type),
                                 size: ConstGeneric::Literal(size as usize),
@@ -866,6 +885,50 @@ fn infer_expr_type_with_env(expr: &HirExpr, var_types: &std::collections::HashMa
             let elem_types: Vec<Type> = elems.iter().map(|e| infer_expr_type_with_env(e, var_types)).collect();
             Type::Tuple(elem_types)
         }
+        HirExpr::List(elems) => {
+            if elems.is_empty() {
+                Type::List(Box::new(Type::Unknown))
+            } else {
+                // Try to find a non-Unknown element type by scanning all elements
+                let elem_type = elems
+                    .iter()
+                    .map(|e| infer_expr_type_with_env(e, var_types))
+                    .find(|t| {
+                        !matches!(t, Type::Unknown)
+                            && !matches!(t, Type::List(inner) if matches!(inner.as_ref(), Type::Unknown))
+                    })
+                    .unwrap_or_else(|| infer_expr_type_with_env(&elems[0], var_types));
+                Type::List(Box::new(elem_type))
+            }
+        }
+        HirExpr::Set(elems) => {
+            if elems.is_empty() {
+                Type::Set(Box::new(Type::Unknown))
+            } else {
+                // Try to find a non-Unknown element type
+                let elem_type = elems
+                    .iter()
+                    .map(|e| infer_expr_type_with_env(e, var_types))
+                    .find(|t| !matches!(t, Type::Unknown))
+                    .unwrap_or_else(|| infer_expr_type_with_env(&elems[0], var_types));
+                Type::Set(Box::new(elem_type))
+            }
+        }
+        HirExpr::Dict(pairs) => {
+            if pairs.is_empty() {
+                Type::Dict(Box::new(Type::Unknown), Box::new(Type::Unknown))
+            } else {
+                let key_type = infer_expr_type_with_env(&pairs[0].0, var_types);
+                let val_type = infer_expr_type_with_env(&pairs[0].1, var_types);
+                Type::Dict(Box::new(key_type), Box::new(val_type))
+            }
+        }
+        HirExpr::ListComp { element, .. } => Type::List(Box::new(infer_expr_type_with_env(element, var_types))),
+        HirExpr::SetComp { element, .. } => Type::Set(Box::new(infer_expr_type_with_env(element, var_types))),
+        HirExpr::DictComp { key, value, .. } => Type::Dict(
+            Box::new(infer_expr_type_with_env(key, var_types)),
+            Box::new(infer_expr_type_with_env(value, var_types)),
+        ),
         // For other cases, use the simple version
         _ => infer_expr_type_simple(expr),
     }
@@ -893,7 +956,8 @@ fn infer_expr_type_simple(expr: &HirExpr) -> Type {
                     // Pattern: [elem] * n
                     (HirExpr::List(elems), &HirExpr::Literal(Literal::Int(size))) if elems.len() == 1 && size > 0 => {
                         let elem_type = infer_expr_type_simple(&elems[0]);
-                        return if size <= 32 {
+                        // Non-Copy types always produce Vec (can't use array repeat syntax)
+                        return if size <= 32 && is_copy_type(&elem_type) {
                             Type::Array {
                                 element_type: Box::new(elem_type),
                                 size: ConstGeneric::Literal(size as usize),
@@ -905,7 +969,8 @@ fn infer_expr_type_simple(expr: &HirExpr) -> Type {
                     // Pattern: n * [elem]
                     (&HirExpr::Literal(Literal::Int(size)), HirExpr::List(elems)) if elems.len() == 1 && size > 0 => {
                         let elem_type = infer_expr_type_simple(&elems[0]);
-                        return if size <= 32 {
+                        // Non-Copy types always produce Vec (can't use array repeat syntax)
+                        return if size <= 32 && is_copy_type(&elem_type) {
                             Type::Array {
                                 element_type: Box::new(elem_type),
                                 size: ConstGeneric::Literal(size as usize),
@@ -941,7 +1006,16 @@ fn infer_expr_type_simple(expr: &HirExpr) -> Type {
             if elems.is_empty() {
                 Type::List(Box::new(Type::Unknown))
             } else {
-                Type::List(Box::new(infer_expr_type_simple(&elems[0])))
+                // Try to find a non-Unknown element type by scanning all elements
+                let elem_type = elems
+                    .iter()
+                    .map(infer_expr_type_simple)
+                    .find(|t| {
+                        !matches!(t, Type::Unknown)
+                            && !matches!(t, Type::List(inner) if matches!(inner.as_ref(), Type::Unknown))
+                    })
+                    .unwrap_or_else(|| infer_expr_type_simple(&elems[0]));
+                Type::List(Box::new(elem_type))
             }
         }
         HirExpr::Tuple(elems) => {
@@ -952,7 +1026,13 @@ fn infer_expr_type_simple(expr: &HirExpr) -> Type {
             if elems.is_empty() {
                 Type::Set(Box::new(Type::Unknown))
             } else {
-                Type::Set(Box::new(infer_expr_type_simple(&elems[0])))
+                // Try to find a non-Unknown element type
+                let elem_type = elems
+                    .iter()
+                    .map(infer_expr_type_simple)
+                    .find(|t| !matches!(t, Type::Unknown))
+                    .unwrap_or_else(|| infer_expr_type_simple(&elems[0]));
+                Type::Set(Box::new(elem_type))
             }
         }
         HirExpr::Dict(pairs) => {
@@ -1065,6 +1145,21 @@ fn literal_to_type(lit: &Literal) -> Type {
     }
 }
 
+/// Recursively checks if a type contains Unknown anywhere in its structure
+fn type_contains_unknown(ty: &Type) -> bool {
+    match ty {
+        Type::Unknown => true,
+        Type::List(elem) => type_contains_unknown(elem),
+        Type::Set(elem) => type_contains_unknown(elem),
+        Type::Dict(k, v) => type_contains_unknown(k) || type_contains_unknown(v),
+        Type::Optional(inner) => type_contains_unknown(inner),
+        Type::Tuple(elems) => elems.iter().any(type_contains_unknown),
+        Type::Array { element_type, .. } => type_contains_unknown(element_type),
+        Type::Union(types) => types.iter().any(type_contains_unknown),
+        _ => false,
+    }
+}
+
 // ========== Phase 3b: Return Type Generation ==========
 
 /// Generate return type with Result wrapper and lifetime handling
@@ -1080,9 +1175,7 @@ pub(crate) fn codegen_return_type(
     bool,
     Option<crate::rust_gen::context::ErrorType>,
 )> {
-    let should_infer = matches!(func.ret_type, Type::Unknown)
-        || matches!(&func.ret_type, Type::Tuple(elems) if elems.iter().any(|t| matches!(t, Type::Unknown)))
-        || matches!(&func.ret_type, Type::List(elem) if matches!(**elem, Type::Unknown));
+    let should_infer = type_contains_unknown(&func.ret_type);
 
     let effective_ret_type = if should_infer {
         // Try to infer from return statements in body

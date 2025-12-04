@@ -2,6 +2,30 @@
 mod tests {
     use std::collections::HashMap;
 
+    // Helper function implementations for testing
+    fn binary_search(arr: &[i32], target: i32) -> i32 {
+        match arr.binary_search(&target) {
+            Ok(index) => index as i32,
+            Err(_) => -1,
+        }
+    }
+
+    fn calculate_sum(arr: &[i32]) -> i32 {
+        arr.iter().sum()
+    }
+
+    fn process_config(config: &HashMap<String, String>) -> Option<String> {
+        config.get("debug").cloned()
+    }
+
+    fn classify_number(n: i32) -> &'static str {
+        match n.cmp(&0) {
+            std::cmp::Ordering::Equal => "zero",
+            std::cmp::Ordering::Greater => "positive",
+            std::cmp::Ordering::Less => "negative",
+        }
+    }
+
     #[test]
     fn test_binary_search() {
         let arr = vec![1, 3, 5, 7, 9];

@@ -2271,7 +2271,7 @@ mod tests {
 
     #[test]
     fn test_float_literal_decimal_point() {
-        // Regression test for DEPYLER-TBD: Ensure float literals always have decimal point
+        // Regression test for 
         // Bug: f64::to_string() for 0.0 produces "0" (no decimal), parsed as integer
         // Fix: Always ensure ".0" suffix for floats without decimal/exponent
         let mut ctx = create_test_context();

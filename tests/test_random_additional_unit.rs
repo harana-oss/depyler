@@ -1,0 +1,26 @@
+
+// Module: random - Additional random functions
+// Status: GREEN phase - Tests enabled
+
+use crate::test_helpers::transpile_and_check;
+
+// Note: sample, shuffle, gauss, uniform were ALREADY implemented
+// This commit adds 1 NEW function: triangular
+
+#[test]
+fn test_triangular() {
+    let python = r#"
+import random
+
+def triangular_random(low: float, high: float, mode: float) -> float:
+    return random.triangular(low, high, mode)
+"#;
+
+    let result = transpile_and_check(python, &[]);
+
+    // Should generate triangular random
+    assert!(result.contains("Triangular") || result.contains("triangular"));
+}
+
+// Total: 1 NEW random function (sample, shuffle, gauss, uniform already existed)
+// Coverage: triangular()

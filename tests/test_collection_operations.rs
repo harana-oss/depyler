@@ -4,6 +4,7 @@
 /// 2. Iterator conversion for extend()
 ///
 /// Expected behavior: All tests should PASS after transpiler fixes
+use crate::test_helpers::transpile;
 use depyler_core::DepylerPipeline;
 
 #[test]
@@ -15,9 +16,7 @@ def concat_lists(list1: list[int], list2: list[int]) -> list[int]:
 "#;
 
     let pipeline = DepylerPipeline::new();
-    let generated_code = pipeline
-        .transpile(python_code)
-        .expect("Transpilation should succeed");
+    let generated_code = pipeline.transpile(python_code).expect("Transpilation should succeed");
 
     // Should NOT generate: list1 + list2 (invalid for &Vec)
     // Should generate: iterator chain or extend pattern
@@ -42,9 +41,7 @@ def concat_lists(list1: list[int], list2: list[int]) -> list[int]:
 "#;
 
     let pipeline = DepylerPipeline::new();
-    let generated_code = pipeline
-        .transpile(python_code)
-        .expect("Transpilation should succeed");
+    let generated_code = pipeline.transpile(python_code).expect("Transpilation should succeed");
 
     // Write to temp file and compile with rustc
     let temp_dir = std::env::temp_dir();
@@ -86,9 +83,7 @@ def extend_list(list1: list[int], list2: list[int]) -> list[int]:
 "#;
 
     let pipeline = DepylerPipeline::new();
-    let generated_code = pipeline
-        .transpile(python_code)
-        .expect("Transpilation should succeed");
+    let generated_code = pipeline.transpile(python_code).expect("Transpilation should succeed");
 
     // Should NOT generate: result.extend(list2) where list2 is &Vec
     // Should generate: result.extend(list2.iter().cloned())
@@ -115,9 +110,7 @@ def extend_list(list1: list[int], list2: list[int]) -> list[int]:
 "#;
 
     let pipeline = DepylerPipeline::new();
-    let generated_code = pipeline
-        .transpile(python_code)
-        .expect("Transpilation should succeed");
+    let generated_code = pipeline.transpile(python_code).expect("Transpilation should succeed");
 
     // Write to temp file and compile with rustc
     let temp_dir = std::env::temp_dir();
@@ -162,9 +155,7 @@ def combine_and_extend(list1: list[int], list2: list[int], list3: list[int]) -> 
 "#;
 
     let pipeline = DepylerPipeline::new();
-    let generated_code = pipeline
-        .transpile(python_code)
-        .expect("Transpilation should succeed");
+    let generated_code = pipeline.transpile(python_code).expect("Transpilation should succeed");
 
     println!("Generated code:\n{}", generated_code);
 

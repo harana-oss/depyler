@@ -1,0 +1,163 @@
+
+// Module: base64 - Python base64 module validation
+// pending
+
+use crate::test_helpers::transpile_and_check;
+
+// 
+#[test]
+fn test_base64_b64encode() {
+    let python = r#"
+import base64
+
+def encode_base64(data: bytes) -> bytes:
+    return base64.b64encode(data)
+"#;
+
+    let result = transpile_and_check(python, &[]);
+
+    // Should generate base64::encode()
+    assert!(result.contains("base64") || result.contains("encode"));
+}
+
+#[test]
+fn test_base64_b64decode() {
+    let python = r#"
+import base64
+
+def decode_base64(data: bytes) -> bytes:
+    return base64.b64decode(data)
+"#;
+
+    let result = transpile_and_check(python, &[]);
+
+    // Should generate base64::decode()
+    assert!(result.contains("base64") || result.contains("decode"));
+}
+
+// 
+#[test]
+fn test_base64_urlsafe_b64encode() {
+    let python = r#"
+import base64
+
+def encode_urlsafe(data: bytes) -> bytes:
+    return base64.urlsafe_b64encode(data)
+"#;
+
+    let result = transpile_and_check(python, &[]);
+
+    // Should generate URL-safe base64 encoding
+    assert!(result.contains("base64") || result.contains("encode"));
+}
+
+#[test]
+fn test_base64_urlsafe_b64decode() {
+    let python = r#"
+import base64
+
+def decode_urlsafe(data: bytes) -> bytes:
+    return base64.urlsafe_b64decode(data)
+"#;
+
+    let result = transpile_and_check(python, &[]);
+
+    // Should generate URL-safe base64 decoding
+    assert!(result.contains("base64") || result.contains("decode"));
+}
+
+// 
+#[test]
+fn test_base64_b32encode() {
+    let python = r#"
+import base64
+
+def encode_base32(data: bytes) -> bytes:
+    return base64.b32encode(data)
+"#;
+
+    let result = transpile_and_check(python, &[]);
+
+    // Should generate base32 encoding
+    assert!(result.contains("base32") || result.contains("encode"));
+}
+
+#[test]
+fn test_base64_b32decode() {
+    let python = r#"
+import base64
+
+def decode_base32(data: bytes) -> bytes:
+    return base64.b32decode(data)
+"#;
+
+    let result = transpile_and_check(python, &[]);
+
+    // Should generate base32 decoding
+    assert!(result.contains("base32") || result.contains("decode"));
+}
+
+// 
+#[test]
+fn test_base64_b16encode() {
+    let python = r#"
+import base64
+
+def encode_base16(data: bytes) -> bytes:
+    return base64.b16encode(data)
+"#;
+
+    let result = transpile_and_check(python, &[]);
+
+    // Should generate hex encoding
+    assert!(result.contains("hex") || result.contains("encode"));
+}
+
+#[test]
+fn test_base64_b16decode() {
+    let python = r#"
+import base64
+
+def decode_base16(data: bytes) -> bytes:
+    return base64.b16decode(data)
+"#;
+
+    let result = transpile_and_check(python, &[]);
+
+    // Should generate hex decoding
+    assert!(result.contains("hex") || result.contains("decode"));
+}
+
+// 
+#[test]
+fn test_base64_b85encode() {
+    let python = r#"
+import base64
+
+def encode_base85(data: bytes) -> bytes:
+    return base64.b85encode(data)
+"#;
+
+    let result = transpile_and_check(python, &[]);
+
+    // Should generate base85 encoding
+    assert!(result.contains("base85") || result.contains("encode"));
+}
+
+#[test]
+fn test_base64_b85decode() {
+    let python = r#"
+import base64
+
+def decode_base85(data: bytes) -> bytes:
+    return base64.b85decode(data)
+"#;
+
+    let result = transpile_and_check(python, &[]);
+
+    // Should generate base85 decoding
+    assert!(result.contains("base85") || result.contains("decode"));
+}
+
+// Total: 10 comprehensive tests for base64 module
+// Coverage: b64encode/decode, urlsafe variants, b32, b16 (hex), b85

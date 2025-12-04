@@ -1,4 +1,4 @@
-use depyler_core::DepylerPipeline;
+use depyler_core::{DepylerPipeline, hir::HirModule};
 use std::fs;
 use std::process::Command;
 use tempfile::TempDir;
@@ -9,6 +9,22 @@ pub struct TranspileCompileResult {
     pub rust_code: String,
     pub compilation_success: bool,
     pub compilation_stderr: String,
+}
+
+/// Transpiles Python source code to Rust. Panics on failure.
+pub fn transpile(python_source: &str) -> String {
+    let pipeline = DepylerPipeline::new();
+    pipeline.transpile(python_source).unwrap_or_else(|e| {
+        panic!("Transpilation failed:\n{e}\n\nPython source:\n{python_source}");
+    })
+}
+
+/// Parses Python source to HIR. Panics on failure.
+pub fn parse_to_hir(python_source: &str) -> HirModule {
+    let pipeline = DepylerPipeline::new();
+    pipeline.parse_to_hir(python_source).unwrap_or_else(|e| {
+        panic!("Failed to parse to HIR:\n{e}\n\nPython source:\n{python_source}");
+    })
 }
 
 /// Transpiles Python source code and verifies expected Rust patterns are present,
