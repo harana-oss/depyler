@@ -691,7 +691,10 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     Ok(parse_quote! { !#operand_expr })
                 }
             }
-            UnaryOp::Neg => Ok(parse_quote! { -#operand_expr }),
+            UnaryOp::Neg => {
+                // Wrap in parentheses to avoid `x < -1` becoming `x<-1` (parsed as assignment)
+                Ok(parse_quote! { (-#operand_expr) })
+            }
             UnaryOp::Pos => Ok(operand_expr), // No +x in Rust
             UnaryOp::BitNot => Ok(parse_quote! { !#operand_expr }),
         }
@@ -1353,7 +1356,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             "repr" => self.convert_repr_builtin(&arg_exprs),
             "open" => self.convert_open_builtin(&all_hir_args, &arg_exprs),
             // DEPYLER-STDLIB-50: next(), getattr(), setattr(), iter(), type()
-            "next" => self.convert_next_builtin(&arg_exprs),
+            "next" => self.convert_next_builtin(&all_hir_args, &arg_exprs),
             "getattr" => self.convert_getattr_builtin(&all_hir_args),
             "setattr" => self.convert_setattr_builtin(&all_hir_args),
             "iter" => self.convert_iter_builtin(&arg_exprs),
@@ -2138,16 +2141,23 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     }
 
     // DEPYLER-STDLIB-50: next() - get next item from iterator
-    fn convert_next_builtin(&self, args: &[syn::Expr]) -> Result<syn::Expr> {
+    fn convert_next_builtin(&self, hir_args: &[HirExpr], args: &[syn::Expr]) -> Result<syn::Expr> {
         if args.is_empty() || args.len() > 2 {
             bail!("next() requires 1 or 2 arguments (iterator, optional default)");
         }
         let iterator = &args[0];
         if args.len() == 2 {
-            let default = &args[1];
-            Ok(parse_quote! {
-                #iterator.next().unwrap_or(#default)
-            })
+            // Check if default is None - in that case, just return the Option directly
+            if matches!(&hir_args[1], HirExpr::Literal(crate::hir::Literal::None)) {
+                Ok(parse_quote! {
+                    #iterator.next()
+                })
+            } else {
+                let default = &args[1];
+                Ok(parse_quote! {
+                    #iterator.next().unwrap_or(#default)
+                })
+            }
         } else {
             Ok(parse_quote! {
                 #iterator.next().expect("StopIteration: iterator is empty")
@@ -12256,15 +12266,33 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             // Check if it's a range expression
             let is_range = matches!(&*gen.iter, HirExpr::Call { func, .. } if func == "range");
 
+            // Determine if the element type needs clone (non-Copy) or can use copy
+            let element_needs_clone = if let HirExpr::Var(var_name) = &*gen.iter {
+                if let Some(var_type) = self.ctx.var_types.get(var_name) {
+                    match var_type {
+                        Type::List(elem_type) => Self::type_needs_clone(elem_type),
+                        Type::Set(elem_type) => Self::type_needs_clone(elem_type),
+                        _ => true, // Default to clone for unknown types
+                    }
+                } else {
+                    false // Default to copied for unknown variables (likely primitives)
+                }
+            } else {
+                false
+            };
+
             // When the iterator is a variable (likely a borrowed parameter like &Vec<i32>),
-            // use .iter().copied() to get owned values instead of references
+            // use .iter().copied() for Copy types or .iter().cloned() for non-Copy types
             // This prevents type mismatches like `&i32` vs `i32` in generator expressions
             let mut chain: syn::Expr = if is_csv_reader {
                 self.ctx.needs_csv = true;
                 parse_quote! { #iter_expr.deserialize::<std::collections::HashMap<String, String>>().filter_map(|result| result.ok()) }
             } else if matches!(&*gen.iter, HirExpr::Var(_)) {
-                // Variable iteration - likely borrowed, use .iter().copied()
-                parse_quote! { #iter_expr.iter().copied() }
+                if element_needs_clone {
+                    parse_quote! { #iter_expr.iter().cloned() }
+                } else {
+                    parse_quote! { #iter_expr.iter().copied() }
+                }
             } else if is_range {
                 // Ranges are already iterators, don't need clone
                 parse_quote! { #iter_expr.into_iter() }
@@ -12492,24 +12520,8 @@ fn literal_to_rust_expr(
 ) -> syn::Expr {
     match lit {
         Literal::Int(n) => {
-            // Negative integer literals need parentheses to avoid `<-` parsing as arrow token
-            // Example: `x < -1` should become `x < (-1)` to prevent `x<-1` parsing as `x <- 1`
-            if *n < 0 {
-                // Create the absolute value literal
-                let abs_val = n.abs();
-                let abs_lit = syn::LitInt::new(&abs_val.to_string(), proc_macro2::Span::call_site());
-                // Create the unary negation expression
-                let neg_expr: syn::Expr = parse_quote! { -#abs_lit };
-                // Wrap in parentheses
-                syn::Expr::Paren(syn::ExprParen {
-                    attrs: vec![],
-                    paren_token: syn::token::Paren::default(),
-                    expr: Box::new(neg_expr),
-                })
-            } else {
-                let lit = syn::LitInt::new(&n.to_string(), proc_macro2::Span::call_site());
-                parse_quote! { #lit }
-            }
+            let lit = syn::LitInt::new(&n.to_string(), proc_macro2::Span::call_site());
+            parse_quote! { #lit }
         }
         Literal::Float(f) => {
             // Ensure float literals always have a decimal point
@@ -12520,27 +12532,8 @@ fn literal_to_rust_expr(
             } else {
                 format!("{}.0", s)
             };
-            // Negative float literals need parentheses for the same reason as integers
-            if *f < 0.0 {
-                // Remove the leading '-' and wrap in parentheses with negation
-                let abs_str = if float_str.starts_with('-') {
-                    &float_str[1..]
-                } else {
-                    &float_str
-                };
-                let abs_lit = syn::LitFloat::new(abs_str, proc_macro2::Span::call_site());
-                // Create the unary negation expression
-                let neg_expr: syn::Expr = parse_quote! { -#abs_lit };
-                // Wrap in parentheses
-                syn::Expr::Paren(syn::ExprParen {
-                    attrs: vec![],
-                    paren_token: syn::token::Paren::default(),
-                    expr: Box::new(neg_expr),
-                })
-            } else {
-                let lit = syn::LitFloat::new(&float_str, proc_macro2::Span::call_site());
-                parse_quote! { #lit }
-            }
+            let lit = syn::LitFloat::new(&float_str, proc_macro2::Span::call_site());
+            parse_quote! { #lit }
         }
         Literal::String(s) => {
             // String literals are emitted directly as &str

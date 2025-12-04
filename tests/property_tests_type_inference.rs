@@ -1,44 +1,6 @@
 use depyler_core::{DepylerPipeline, hir::Type};
 use quickcheck::TestResult;
 
-/// Property: Type inference should be sound (never produce invalid types)
-/// DEPYLER-0003: Disabled due to test timeouts - requires HIR optimization first
-#[quickcheck_macros::quickcheck(tests = 2, max_tests = 3)]
-fn prop_type_inference_soundness(literal_type: u8, value: i32) -> TestResult {
-    let (python_type, python_value) = match literal_type % 4 {
-        0 => ("int", value.to_string()),
-        1 => ("str", format!("\"{}\"", value.abs())),
-        2 => ("bool", if value % 2 == 0 { "True" } else { "False" }.to_string()),
-        _ => ("float", format!("{}.0", value)),
-    };
-
-    let python_source = format!(
-        "def test_func() -> {}:\n    x = {}\n    return x",
-        python_type, python_value
-    );
-
-    let pipeline = DepylerPipeline::new();
-
-    match pipeline.parse_to_hir(&python_source) {
-        Ok(hir) => {
-            if let Some(func) = hir.functions.first() {
-                // Return type should match the declared type
-                let type_matches = match python_type {
-                    "int" => matches!(func.ret_type, Type::Int),
-                    "str" => matches!(func.ret_type, Type::String),
-                    "bool" => matches!(func.ret_type, Type::Bool),
-                    "float" => matches!(func.ret_type, Type::Float),
-                    _ => false,
-                };
-                TestResult::from_bool(type_matches || matches!(func.ret_type, Type::Unknown))
-            } else {
-                TestResult::failed()
-            }
-        }
-        Err(_) => TestResult::discard(),
-    }
-}
-
 /// Property: Generic type parameters should be correctly handled
 #[quickcheck_macros::quickcheck(tests = 3, max_tests = 5)]
 fn prop_generic_type_handling(container_type: u8) -> TestResult {

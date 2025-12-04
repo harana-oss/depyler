@@ -1,5 +1,7 @@
 //! Tests for ownership transfer validation in method calls
 
+mod test_helpers;
+
 use depyler_core::DepylerPipeline;
 
 #[test]
@@ -106,5 +108,37 @@ class Counter:
     assert!(
         rust_code.contains("&mut self") || rust_code.contains("mut self"),
         "Should handle self mutation correctly"
+    );
+}
+
+#[test]
+fn test_next_with_generator_filtering_dataclass() {
+    let python_code = r#"
+@dataclass
+class Incident:
+    points_scored_team: str
+    score: int
+
+def find_away_incident(try_incidents: List[Incident]) -> Optional[Incident]:
+    return next((incident for incident in try_incidents if incident.points_scored_team == "Away"), None)
+"#;
+
+    let rust_code = test_helpers::transpile(python_code);
+    println!("Generated code:\n{}", rust_code);
+
+    assert!(rust_code.contains("struct Incident"));
+    assert!(rust_code.contains("points_scored_team: String"));
+    assert!(rust_code.contains("score: i32"));
+    assert!(rust_code.contains("fn find_away_incident"));
+    assert!(rust_code.contains("-> Option<Incident>"));
+    assert!(rust_code.contains(r#"== "Away""#));
+    assert!(rust_code.contains(".filter("));
+    assert!(rust_code.contains(".next()"));
+
+    let compile_result = test_helpers::compile_rust_code(&rust_code);
+    assert!(
+        compile_result.compilation_success,
+        "Generated code should compile:\n{}",
+        compile_result.compilation_stderr
     );
 }

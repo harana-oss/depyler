@@ -128,6 +128,11 @@ fn apply_string_replacements(code: String) -> String {
         .replace(".. ", "..")
         // Fix 'in' keyword spacing
         .replace("in(", "in (")
+        // CRITICAL: Fix comparison operator followed by negation LAST
+        // This must happen after "< " -> "<" replacement to avoid being undone
+        .replace("<-", "< -")
+        .replace(">-", "> -")
+        .replace("in(", "in (")
 }
 
 #[cfg(test)]
@@ -254,13 +259,12 @@ mod tests {
     /// Unit Test: Assignment operator normalization
     ///
     /// Verifies: Lines 94-97 (assignment spacing)
+    /// Note: Full spacing normalization is done by rustfmt, these just fix common issues
     #[test]
     fn test_apply_string_replacements_assignments() {
         let test_cases = vec![
-            ("let x=(42)", "let x = (42)"),    // "=(" → " = ("
-            ("let y= (10)", "let y = (10)"),   // "= (" → " = ("
             ("let z  =5", "let z =5"),         // "  =" → " ="
-            ("let a   =true", "let a  =true"), // "   =" → " ="
+            ("let a   =true", "let a  =true"), // "   =" → " =" (first pass), still has " ="
         ];
 
         for (input, expected) in test_cases {

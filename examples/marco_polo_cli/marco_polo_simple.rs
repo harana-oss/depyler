@@ -18,7 +18,7 @@ impl ZeroDivisionError {
 #[doc = "Generate a number in range(simplified without random)."]
 #[doc = " Depyler: proven to terminate"]
 pub fn generate_number(min_val: i32, max_val: i32) -> i32 {
-    {
+    return {
         let a = min_val + max_val;
         let b = 2;
         let q = a / b;
@@ -29,7 +29,7 @@ pub fn generate_number(min_val: i32, max_val: i32) -> i32 {
         let signs_differ = r_negative != b_negative;
         let needs_adjustment = r_nonzero && signs_differ;
         if needs_adjustment { q - 1 } else { q }
-    }
+    };
 }
 #[doc = "Provide a hint based on the guess."]
 #[doc = " Depyler: verified panic-free"]
@@ -37,13 +37,13 @@ pub fn generate_number(min_val: i32, max_val: i32) -> i32 {
 pub fn get_hint(guess: i32, target: i32) -> String {
     let _cse_temp_0 = guess < target;
     if _cse_temp_0 {
-        "Marco!(Too low)".to_string()
+        return "Marco!(Too low)".to_string();
     } else {
         let _cse_temp_1 = guess > target;
         if _cse_temp_1 {
-            "Marco!(Too high)".to_string()
+            return "Marco!(Too high)".to_string();
         } else {
-            "Polo!".to_string()
+            return "Polo!".to_string();
         }
     }
 }
@@ -64,7 +64,7 @@ pub fn calculate_score(attempts: i32, rounds: i32) -> i32 {
     if _cse_temp_3 {
         return 0;
     }
-    score
+    return score;
 }
 #[doc = "Get difficulty name from level."]
 #[doc = " Depyler: verified panic-free"]
@@ -72,17 +72,17 @@ pub fn calculate_score(attempts: i32, rounds: i32) -> i32 {
 pub fn get_difficulty_name(level: i32) -> &'a str {
     let _cse_temp_0 = level == 1;
     if _cse_temp_0 {
-        "Easy".to_string()
+        return "Easy".to_string();
     } else {
         let _cse_temp_1 = level == 2;
         if _cse_temp_1 {
-            "Medium".to_string()
+            return "Medium".to_string();
         } else {
             let _cse_temp_2 = level == 3;
             if _cse_temp_2 {
-                "Hard".to_string()
+                return "Hard".to_string();
             } else {
-                "Unknown".to_string()
+                return "Unknown".to_string();
             }
         }
     }
@@ -94,7 +94,7 @@ pub fn calculate_average(total: i32, count: i32) -> f64 {
     if _cse_temp_0 {
         return 0.0;
     }
-    (total as f64) / (count as f64)
+    return (total as f64) / (count as f64);
 }
 #[doc = "Format game statistics as string."]
 #[doc = " Depyler: verified panic-free"]
@@ -111,7 +111,7 @@ pub fn format_statistics(score: i32, attempts: i32, rounds: i32) -> String {
     let _cse_temp_4 = avg.to_string();
     let _cse_temp_5 = format!("{}{}", format!("{}{}", result, "Average: "), _cse_temp_4);
     result = format!("{}{}", _cse_temp_5, "\n");
-    result
+    return result;
 }
 #[doc = "Check if guess is in valid range."]
 #[doc = " Depyler: verified panic-free"]
@@ -125,7 +125,7 @@ pub fn validate_guess(guess: i32, min_val: i32, max_val: i32) -> bool {
     if _cse_temp_1 {
         return false;
     }
-    true
+    return true;
 }
 #[doc = "Simulate a round with fixed guesses."]
 #[doc = " Depyler: verified panic-free"]
@@ -144,7 +144,7 @@ pub fn play_simple_round(target: i32, max_attempts: i32) -> i32 {
             }
         }
     }
-    attempts
+    return attempts;
 }
 #[cfg(test)]
 mod tests {

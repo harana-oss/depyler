@@ -438,14 +438,99 @@ fn is_param_attribute_access(param_name: &str, expr: &HirExpr) -> bool {
     }
 }
 
-/// Check if a parameter is mutated in the function body
+/// Check if a parameter is mutated in the function body.
+/// This includes mutations through aliases created by conditional expressions.
 fn is_parameter_mutated(param_name: &str, body: &[HirStmt]) -> bool {
+    // First collect aliases: local variables that reference the parameter
+    let aliases = collect_param_aliases(param_name, body);
+
     for stmt in body {
         if stmt_mutates_param(param_name, stmt) {
             return true;
         }
+        // Check if any alias is mutated (but not the assignment that creates the alias)
+        for alias in &aliases {
+            if stmt_mutates_alias(alias, param_name, stmt) {
+                return true;
+            }
+        }
     }
     false
+}
+
+/// Check if a statement mutates an alias, excluding alias creation
+fn stmt_mutates_alias(alias: &str, original_param: &str, stmt: &HirStmt) -> bool {
+    match stmt {
+        HirStmt::Assign {
+            target: AssignTarget::Symbol(target_name),
+            value,
+            ..
+        } if target_name == alias => {
+            // Skip if this is the assignment that creates the alias (e.g., `a = param`)
+            // An alias-creating assignment has the form `alias = <expr involving param>`
+            if expr_references_param(original_param, value) {
+                return false;
+            }
+            // Otherwise this is a re-assignment of the alias to something else
+            true
+        }
+        _ => stmt_mutates_param(alias, stmt),
+    }
+}
+
+/// Collect local variables that are aliases for a parameter.
+/// e.g., `state = state1 if cond else state2` creates alias "state" for "state1" or "state2"
+fn collect_param_aliases(param_name: &str, body: &[HirStmt]) -> Vec<String> {
+    let mut aliases = Vec::new();
+    for stmt in body {
+        collect_aliases_from_stmt(param_name, stmt, &mut aliases);
+    }
+    aliases
+}
+
+fn collect_aliases_from_stmt(param_name: &str, stmt: &HirStmt, aliases: &mut Vec<String>) {
+    match stmt {
+        HirStmt::Assign {
+            target: AssignTarget::Symbol(target_name),
+            value,
+            ..
+        } => {
+            // Check if the value references the parameter directly or through a conditional
+            if expr_references_param(param_name, value) {
+                aliases.push(target_name.clone());
+            }
+        }
+        HirStmt::If {
+            then_body, else_body, ..
+        } => {
+            for s in then_body {
+                collect_aliases_from_stmt(param_name, s, aliases);
+            }
+            if let Some(eb) = else_body {
+                for s in eb {
+                    collect_aliases_from_stmt(param_name, s, aliases);
+                }
+            }
+        }
+        HirStmt::While { body, .. } | HirStmt::For { body, .. } => {
+            for s in body {
+                collect_aliases_from_stmt(param_name, s, aliases);
+            }
+        }
+        _ => {}
+    }
+}
+
+/// Check if an expression references a parameter (directly or in conditional branches)
+fn expr_references_param(param_name: &str, expr: &HirExpr) -> bool {
+    match expr {
+        HirExpr::Var(name) => name == param_name,
+        HirExpr::IfExpr { body, orelse, .. } => {
+            expr_references_param(param_name, body) || expr_references_param(param_name, orelse)
+        }
+        HirExpr::Attribute { value, .. } => expr_references_param(param_name, value),
+        _ => false,
+    }
 }
 
 /// Check if a statement mutates a specific parameter
@@ -466,7 +551,8 @@ fn stmt_mutates_param(param_name: &str, stmt: &HirStmt) -> bool {
                     if let HirExpr::Var(var_name) = base.as_ref() {
                         var_name == param_name
                     } else {
-                        false
+                        // Check nested attribute access like state.items[0]
+                        expr_contains_param_mutation(param_name, base)
                     }
                 }
                 _ => false,

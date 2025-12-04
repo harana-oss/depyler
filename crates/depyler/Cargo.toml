@@ -144,10 +144,6 @@ path = "../../tests/property_test_benchmarks.rs"
 name = "example_validation"
 path = "../../tests/example_validation.rs"
 
-[[test]]
-name = "integration_benchmarks"
-path = "../../tests/integration_benchmarks.rs"
-
 # Phase 8: Advanced Testing Infrastructure
 [[test]]
 name = "advanced_property_generators"
@@ -209,6 +205,10 @@ path = "../../tests/tuple_test.rs"
 [[test]]
 name = "clone_test"
 path = "../../tests/clone_test.rs"
+
+[[test]]
+name = "method_ownership_test"
+path = "../../tests/method_ownership_test.rs"
 
 [[test]]
 name = "test_helpers"

@@ -15,6 +15,16 @@ use syn::{self, parse_quote};
 // Import analyze_mutable_vars from parent module
 use super::analyze_mutable_vars;
 
+/// Check if a HIR Type is a Copy type (primitives that can be passed by value)
+fn is_copy_type(ty: &Type) -> bool {
+    match ty {
+        Type::Int | Type::Float | Type::Bool | Type::None => true,
+        Type::Optional(inner) => is_copy_type(inner),
+        Type::Tuple(types) => types.iter().all(is_copy_type),
+        _ => false,
+    }
+}
+
 /// Check if a name is a Rust keyword that requires raw identifier syntax
 fn is_rust_keyword(name: &str) -> bool {
     matches!(
@@ -277,8 +287,12 @@ fn codegen_single_param(
     // The analyze_mutable_vars function already checked all mutation patterns in codegen_function_body
     let is_mutated_in_body = ctx.mutable_vars.contains(&param.name);
 
+    // Copy types (int, float, bool) should never be borrowed - they're passed by value
+    let param_is_copy = is_copy_type(&param.ty);
+
     // this means the param is passed from a caller that borrows - must also borrow
-    let force_borrow_from_call_chain = interprocedural_needs_mut && !is_mutated_in_body;
+    // But skip for Copy types which are always passed by value
+    let force_borrow_from_call_chain = interprocedural_needs_mut && !is_mutated_in_body && !param_is_copy;
 
     // Only apply `mut` if ownership is taken (not borrowed)
     // Borrowed parameters (&T, &mut T) handle mutability in the type itself

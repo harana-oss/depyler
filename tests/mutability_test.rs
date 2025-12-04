@@ -1519,3 +1519,26 @@ def swap_elements():
         "Array 'a' should be declared mutable:\n{rust_code}"
     );
 }
+
+#[test]
+fn test_conditional_state_selection_with_list_mutation() {
+    let python = r#"
+from dataclasses import dataclass
+
+@dataclass
+class Item:
+    val: str
+
+@dataclass
+class State:
+    items: list[Item]
+
+def select_and_mutate(state1: State, state2: State, key: str) -> None:
+    state = state1 if key == "One" else state2
+    state.items[0] = Item(val="updated")
+"#;
+
+    let rust_code = transpile_and_check(python, &[]);
+    assert!(rust_code.contains("state1: &mut State"), "\n{rust_code}");
+    assert!(rust_code.contains("state2: &mut State"), "\n{rust_code}");
+}

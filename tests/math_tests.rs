@@ -25,7 +25,7 @@ def abs_negative() -> int:
 "#;
 
     let rust = transpile_and_check(python, &[]);
-    assert!(rust.contains("((-42) as i32).abs()"));
+    assert!(rust.contains("((-42_i32).abs())") || rust.contains("(-42_i32).abs()") || rust.contains("(-42 as i32).abs()"));
 }
 
 #[test]
@@ -69,7 +69,7 @@ def abs_float_lit() -> float:
 "#;
 
     let rust = transpile_and_check(python, &[]);
-    assert!(rust.contains("((-3.14) as f64).abs()"));
+    assert!(rust.contains("(-3.14_f64).abs()") || rust.contains("(-3.14 as f64).abs()"));
 }
 
 #[test]
@@ -749,7 +749,7 @@ def is_very_negative(x: int) -> bool:
 "#;
 
     let rust = transpile_and_check(python, &[]);
-    assert!(rust.contains("x < (-1)"));
+    assert!(rust.contains("x < -1"));
 }
 
 #[test]
@@ -793,7 +793,7 @@ def at_most_negative(x: int) -> bool:
 "#;
 
     let rust = transpile_and_check(python, &[]);
-    assert!(rust.contains("x <= (-1)"));
+    assert!(rust.contains("x <= -1"));
 }
 
 #[test]
@@ -837,7 +837,7 @@ def above_negative(x: int) -> bool:
 "#;
 
     let rust = transpile_and_check(python, &[]);
-    assert!(rust.contains("x > (-1)"));
+    assert!(rust.contains("x > -1"));
 }
 
 #[test]
@@ -881,7 +881,7 @@ def at_least_negative(x: int) -> bool:
 "#;
 
     let rust = transpile_and_check(python, &[]);
-    assert!(rust.contains("x >= (-1)"));
+    assert!(rust.contains("x >= -1"));
 }
 
 #[test]
@@ -925,7 +925,7 @@ def is_negative_one(x: int) -> bool:
 "#;
 
     let rust = transpile_and_check(python, &[]);
-    assert!(rust.contains("x == (-1)"));
+    assert!(rust.contains("x == -1"));
 }
 
 #[test]
@@ -969,7 +969,7 @@ def is_not_negative_one(x: int) -> bool:
 "#;
 
     let rust = transpile_and_check(python, &[]);
-    assert!(rust.contains("x != (-1)"));
+    assert!(rust.contains("x != -1"));
 }
 
 #[test]

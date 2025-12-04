@@ -172,6 +172,14 @@ fn expr_is_optional(expr: &HirExpr, ctx: &CodeGenContext) -> bool {
         HirExpr::MethodCall { method, .. } => {
             matches!(method.as_str(), "get")
         }
+        // next(iterator, None) returns Option<T>
+        HirExpr::Call { func, args, .. } => {
+            if func == "next" && args.len() == 2 {
+                matches!(&args[1], HirExpr::Literal(crate::hir::Literal::None))
+            } else {
+                false
+            }
+        }
         _ => false,
     }
 }
