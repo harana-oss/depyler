@@ -145,6 +145,66 @@ fn apply_type_conversion(value_expr: syn::Expr, target_type: &Type) -> syn::Expr
     }
 }
 
+/// Infer the result type of a binary expression.
+///
+/// Used to track variable types for expressions like `c = a - b * 4`.
+fn infer_binary_expr_type(ctx: &CodeGenContext, op: &BinOp, left: &HirExpr, right: &HirExpr) -> Type {
+    // For arithmetic ops, if either operand is float, result is float
+    match op {
+        BinOp::Add | BinOp::Sub | BinOp::Mul | BinOp::Mod => {
+            let left_is_float = is_expr_float(ctx, left);
+            let right_is_float = is_expr_float(ctx, right);
+            if left_is_float || right_is_float {
+                Type::Float
+            } else {
+                Type::Int
+            }
+        }
+        // Division always returns float in Python
+        BinOp::Div => Type::Float,
+        // Floor division returns int
+        BinOp::FloorDiv => Type::Int,
+        // Power can return either, but default to float for safety
+        BinOp::Pow => Type::Float,
+        // Comparison operators return bool
+        BinOp::Eq
+        | BinOp::NotEq
+        | BinOp::Lt
+        | BinOp::LtEq
+        | BinOp::Gt
+        | BinOp::GtEq
+        | BinOp::And
+        | BinOp::Or
+        | BinOp::In
+        | BinOp::NotIn
+        | BinOp::Is
+        | BinOp::IsNot => Type::Bool,
+        // Bitwise operators return int
+        BinOp::BitAnd | BinOp::BitOr | BinOp::BitXor | BinOp::LShift | BinOp::RShift => Type::Int,
+    }
+}
+
+/// Check if an expression evaluates to float type (recursive helper).
+fn is_expr_float(ctx: &CodeGenContext, expr: &HirExpr) -> bool {
+    match expr {
+        HirExpr::Literal(Literal::Float(_)) => true,
+        HirExpr::Var(name) => matches!(ctx.var_types.get(name), Some(Type::Float)),
+        HirExpr::Binary { op, left, right } => {
+            // Division always returns float
+            if matches!(op, BinOp::Div | BinOp::Pow) {
+                return true;
+            }
+            // For other ops, check if either operand is float
+            is_expr_float(ctx, left) || is_expr_float(ctx, right)
+        }
+        HirExpr::Call { func, .. } => {
+            // Common float-returning functions
+            matches!(func.as_str(), "float" | "sqrt" | "sin" | "cos" | "tan" | "log" | "exp")
+        }
+        _ => false,
+    }
+}
+
 /// Check if an expression already returns an Optional type.
 /// Used to avoid double-wrapping in Some() when returning Optional values.
 fn expr_is_optional(expr: &HirExpr, ctx: &CodeGenContext) -> bool {
@@ -2227,6 +2287,13 @@ pub(crate) fn codegen_assign_stmt(
             HirExpr::Literal(Literal::Bool(_)) => {
                 if !ctx.var_types.contains_key(var_name) {
                     ctx.var_types.insert(var_name.clone(), Type::Bool);
+                }
+            }
+            // Track binary arithmetic expressions (e.g., c = a - b * 4)
+            HirExpr::Binary { op, left, right } => {
+                if !ctx.var_types.contains_key(var_name) {
+                    let inferred_type = infer_binary_expr_type(ctx, op, left, right);
+                    ctx.var_types.insert(var_name.clone(), inferred_type);
                 }
             }
             _ => {}

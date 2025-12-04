@@ -7,6 +7,8 @@
 //
 // Parent: issue (ArgumentTypeError support)
 
+mod test_helpers;
+
 use depyler_core::DepylerPipeline;
 
 /// Helper to transpile Python code
@@ -28,11 +30,7 @@ def port_validator(value):
 "#;
 
     let result = transpile_python(python);
-    assert!(
-        result.is_ok(),
-        "Transpilation should succeed: {:?}",
-        result.err()
-    );
+    assert!(result.is_ok(), "Transpilation should succeed: {:?}", result.err());
 
     let rust = result.unwrap();
 
@@ -61,11 +59,7 @@ def validator(value):
 "#;
 
     let result = transpile_python(python);
-    assert!(
-        result.is_ok(),
-        "Transpilation should succeed: {:?}",
-        result.err()
-    );
+    assert!(result.is_ok(), "Transpilation should succeed: {:?}", result.err());
 
     let rust = result.unwrap();
 
@@ -96,11 +90,7 @@ def validator(value):
 "#;
 
     let result = transpile_python(python);
-    assert!(
-        result.is_ok(),
-        "Transpilation should succeed: {:?}",
-        result.err()
-    );
+    assert!(result.is_ok(), "Transpilation should succeed: {:?}", result.err());
 
     let rust = result.unwrap();
 
@@ -136,11 +126,7 @@ def port_number(value):
 "#;
 
     let result = transpile_python(python);
-    assert!(
-        result.is_ok(),
-        "Transpilation should succeed: {:?}",
-        result.err()
-    );
+    assert!(result.is_ok(), "Transpilation should succeed: {:?}", result.err());
 
     let rust = result.unwrap();
 

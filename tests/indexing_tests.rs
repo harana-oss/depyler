@@ -5,6 +5,8 @@
 //! - Negative index handling (DEPYLER-0268)
 //! - Nested/multi-dimensional indexing
 
+mod test_helpers;
+
 use depyler_core::DepylerPipeline;
 use std::process::Command;
 

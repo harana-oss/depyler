@@ -1,12 +1,5 @@
-use depyler_core::DepylerPipeline;
-
-/// Helper function to transpile Python code snippets to Rust
-fn transpile_snippet(python_code: &str) -> Result<String, String> {
-    let pipeline = DepylerPipeline::new();
-    pipeline
-        .transpile(python_code)
-        .map_err(|e| format!("Transpilation error: {e}"))
-}
+mod test_helpers;
+use test_helpers::transpile_and_check;
 
 #[test]
 fn test_literal_array_generation() {
@@ -17,7 +10,7 @@ def test_arrays():
     return arr1, arr2
 "#;
 
-    let rust_code = transpile_snippet(py_code).expect("Failed to transpile");
+    let rust_code = transpile_and_check(py_code, &[]);
 
     // Check that literal arrays are generated as arrays
     assert!(rust_code.contains("[1, 2, 3, 4, 5]"));
@@ -36,7 +29,7 @@ def test_multiplication():
     return zeros, ones, pattern, reverse
 "#;
 
-    let rust_code = transpile_snippet(py_code).expect("Failed to transpile");
+    let rust_code = transpile_and_check(py_code, &[]);
 
     // Check array syntax with size
     assert!(rust_code.contains("[0; 10]"));
@@ -54,7 +47,7 @@ def test_init():
     return z, o, f
 "#;
 
-    let rust_code = transpile_snippet(py_code).expect("Failed to transpile");
+    let rust_code = transpile_and_check(py_code, &[]);
 
     // Check array initialization functions
     assert!(rust_code.contains("[0; 10 as usize]"));
@@ -71,7 +64,7 @@ def test_large():
     return large
 "#;
 
-    let rust_code = transpile_snippet(py_code).expect("Failed to transpile");
+    let rust_code = transpile_and_check(py_code, &[]);
 
     // Large arrays will continue to use normal syntax
     assert!(rust_code.contains("[0; 50]"));
@@ -89,7 +82,7 @@ def test_dynamic():
     return dynamic, mixed
 "#;
 
-    let rust_code = transpile_snippet(py_code).expect("Failed to transpile");
+    let rust_code = transpile_and_check(py_code, &[]);
 
     // Non-literal elements should still use array syntax for multiplication
     assert!(rust_code.contains("[x; 10]"));
@@ -105,7 +98,7 @@ def test_nested():
     return matrix
 "#;
 
-    let rust_code = transpile_snippet(py_code).expect("Failed to transpile");
+    let rust_code = transpile_and_check(py_code, &[]);
 
     // Nested arrays should use vec! for the outer array
     assert!(rust_code.contains("vec!"));
@@ -121,7 +114,7 @@ def test_membership(variable: str) -> bool:
     return variable not in ['A', 'B']
 "#;
 
-    let rust_code = transpile_snippet(py_code).expect("Failed to transpile");
+    let rust_code = transpile_and_check(py_code, &[]);
 
     assert!(rust_code.contains("fn test_membership"));
     assert!(!rust_code.contains("contains_key"));
@@ -137,7 +130,7 @@ def test_ok() -> None:
     return None
 "#;
 
-    let rust_code = transpile_snippet(py_code).expect("Failed to transpile");
+    let rust_code = transpile_and_check(py_code, &[]);
     assert!(!rust_code.contains("() Ok(())"));
 }
 
@@ -153,7 +146,7 @@ def test_array_iteration_with_fstring():
     return temp
 "#;
 
-    let rust_code = transpile_snippet(py_code).expect("Failed to transpile");
+    let rust_code = transpile_and_check(py_code, &[]);
 
     assert!(rust_code.contains("fn test_array_iteration_with_fstring"));
     assert!(rust_code.contains("[10, 20, 30, 40, 50]"));
@@ -173,7 +166,7 @@ def test_2d_int():
     return matrix
 "#;
 
-    let rust_code = transpile_snippet(py_code).expect("Failed to transpile");
+    let rust_code = transpile_and_check(py_code, &[]);
 
     assert!(rust_code.contains("let matrix = vec![vec![1, 2, 3], vec![4, 5, 6], vec![7, 8, 9]]"));
 }
@@ -186,7 +179,7 @@ def test_2d_float():
     return matrix
 "#;
 
-    let rust_code = transpile_snippet(py_code).expect("Failed to transpile");
+    let rust_code = transpile_and_check(py_code, &[]);
 
     assert!(rust_code.contains("let matrix = vec![vec![1.0, 2.5, 3.7], vec![4.2, 5.1, 6.9]]"));
 }
@@ -199,7 +192,7 @@ def test_2d_bool():
     return flags
 "#;
 
-    let rust_code = transpile_snippet(py_code).expect("Failed to transpile");
+    let rust_code = transpile_and_check(py_code, &[]);
 
     assert!(rust_code.contains("let flags = vec![vec![true, false, true], vec![false, true, false]]"));
 }
@@ -212,7 +205,7 @@ def test_2d_str():
     return words
 "#;
 
-    let rust_code = transpile_snippet(py_code).expect("Failed to transpile");
+    let rust_code = transpile_and_check(py_code, &[]);
 
     assert!(rust_code.contains("let words = vec!"));
     assert!(rust_code.contains("\"hello\".to_string()"));
@@ -227,7 +220,7 @@ def test_3d_int():
     return cube
 "#;
 
-    let rust_code = transpile_snippet(py_code).expect("Failed to transpile");
+    let rust_code = transpile_and_check(py_code, &[]);
 
     assert!(rust_code.contains("let cube = vec![vec![vec![1, 2], vec![3, 4]], vec![vec![5, 6], vec![7, 8]]]"));
 }
@@ -240,7 +233,7 @@ def test_3d_mixed():
     return data
 "#;
 
-    let rust_code = transpile_snippet(py_code).expect("Failed to transpile");
+    let rust_code = transpile_and_check(py_code, &[]);
 
     assert!(rust_code.contains("vec!"));
     assert!(rust_code.contains("[1, 2, 3]"));
@@ -255,7 +248,7 @@ def test_4d():
     return tensor
 "#;
 
-    let rust_code = transpile_snippet(py_code).expect("Failed to transpile");
+    let rust_code = transpile_and_check(py_code, &[]);
 
     assert!(rust_code.contains("vec!"));
     assert!(rust_code.contains("[1, 2]"));
@@ -270,7 +263,7 @@ def test_jagged():
     return jagged
 "#;
 
-    let rust_code = transpile_snippet(py_code).expect("Failed to transpile");
+    let rust_code = transpile_and_check(py_code, &[]);
 
     assert!(rust_code.contains("let jagged = vec![vec![1], vec![2, 3], vec![4, 5, 6], vec![7, 8, 9, 10]]"));
 }
@@ -283,7 +276,7 @@ def test_empty_nested():
     return data
 "#;
 
-    let rust_code = transpile_snippet(py_code).expect("Failed to transpile");
+    let rust_code = transpile_and_check(py_code, &[]);
 
     assert!(rust_code.contains("let data = vec![vec![], vec![1, 2], vec![], vec![3]]"));
 }
@@ -296,7 +289,7 @@ def test_nested_mult():
     return matrix
 "#;
 
-    let rust_code = transpile_snippet(py_code).expect("Failed to transpile");
+    let rust_code = transpile_and_check(py_code, &[]);
 
     assert!(rust_code.contains("let _cse_temp_0 = [[0; 3]; 2]"));
     assert!(rust_code.contains("let matrix = _cse_temp_0"));
@@ -311,7 +304,7 @@ def test_mixed_mult():
     return matrix
 "#;
 
-    let rust_code = transpile_snippet(py_code).expect("Failed to transpile");
+    let rust_code = transpile_and_check(py_code, &[]);
 
     assert!(rust_code.contains("let row = vec![1, 2, 3]"));
     assert!(rust_code.contains("let _cse_temp_0 = [row; 4]"));
@@ -326,7 +319,7 @@ def test_single():
     return single
 "#;
 
-    let rust_code = transpile_snippet(py_code).expect("Failed to transpile");
+    let rust_code = transpile_and_check(py_code, &[]);
 
     assert!(rust_code.contains("let single = vec![vec![42]]"));
 }
@@ -340,7 +333,7 @@ def test_hetero():
     return data
 "#;
 
-    let rust_code = transpile_snippet(py_code).expect("Failed to transpile");
+    let rust_code = transpile_and_check(py_code, &[]);
 
     assert!(rust_code.contains("let data = vec![vec![1, 2], vec![vec![3, 4], vec![5, 6]]]"));
 }
@@ -353,7 +346,7 @@ def test_negative():
     return matrix
 "#;
 
-    let rust_code = transpile_snippet(py_code).expect("Failed to transpile");
+    let rust_code = transpile_and_check(py_code, &[]);
 
     assert!(rust_code.contains("let matrix = vec![vec![-1, -2, -3], vec![4, -5, 6], vec![-7, 8, -9]]"));
 }
@@ -366,7 +359,7 @@ def test_large():
     return matrix
 "#;
 
-    let rust_code = transpile_snippet(py_code).expect("Failed to transpile");
+    let rust_code = transpile_and_check(py_code, &[]);
 
     // Should handle list comprehensions with nested structures
     assert!(rust_code.contains("collect"));
@@ -382,7 +375,7 @@ def test_mixed_rows():
     return data1, data2
 "#;
 
-    let rust_code = transpile_snippet(py_code).expect("Failed to transpile");
+    let rust_code = transpile_and_check(py_code, &[]);
 
     assert!(rust_code.contains("let data1 = vec![vec![1, 2, 3], vec![4, 5, 6]]"));
     assert!(rust_code.contains("let data2 = vec![vec![true, false], vec![false, true]]"));
@@ -398,7 +391,7 @@ def test_var_nested():
     return matrix
 "#;
 
-    let rust_code = transpile_snippet(py_code).expect("Failed to transpile");
+    let rust_code = transpile_and_check(py_code, &[]);
 
     assert!(rust_code.contains("let x = 10"));
     assert!(rust_code.contains("let y = 20"));
@@ -414,7 +407,7 @@ def test_complex():
     return matrix
 "#;
 
-    let rust_code = transpile_snippet(py_code).expect("Failed to transpile");
+    let rust_code = transpile_and_check(py_code, &[]);
 
     assert!(rust_code.contains("let a = 5"));
     assert!(rust_code.contains("let matrix = vec![vec![a * 2, a + 3], vec![a - 1, a / 2]]"));
@@ -428,7 +421,7 @@ def test_zeros():
     return matrix
 "#;
 
-    let rust_code = transpile_snippet(py_code).expect("Failed to transpile");
+    let rust_code = transpile_and_check(py_code, &[]);
 
     assert!(rust_code.contains("let matrix = vec![vec![0, 0, 0], vec![0, 0, 0], vec![0, 0, 0]]"));
 }
@@ -441,7 +434,7 @@ def test_identity():
     return identity
 "#;
 
-    let rust_code = transpile_snippet(py_code).expect("Failed to transpile");
+    let rust_code = transpile_and_check(py_code, &[]);
 
     assert!(rust_code.contains("let identity = vec![vec![1, 0, 0], vec![0, 1, 0], vec![0, 0, 1]]"));
 }
@@ -454,7 +447,7 @@ def test_string_matrix():
     return grid
 "#;
 
-    let rust_code = transpile_snippet(py_code).expect("Failed to transpile");
+    let rust_code = transpile_and_check(py_code, &[]);
 
     assert!(rust_code.contains("vec!"));
     assert!(rust_code.contains("\"a\""));
@@ -470,7 +463,7 @@ def test_tuplelike():
     return points
 "#;
 
-    let rust_code = transpile_snippet(py_code).expect("Failed to transpile");
+    let rust_code = transpile_and_check(py_code, &[]);
 
     assert!(rust_code.contains("let points = vec![vec![0, 0], vec![1, 1], vec![2, 4], vec![3, 9]]"));
 }
@@ -484,7 +477,7 @@ def test_shapes():
     return rectangular, jagged
 "#;
 
-    let rust_code = transpile_snippet(py_code).expect("Failed to transpile");
+    let rust_code = transpile_and_check(py_code, &[]);
 
     assert!(rust_code.contains("let rectangular = vec![vec![1, 2, 3], vec![4, 5, 6]]"));
     assert!(rust_code.contains("let jagged = vec![vec![1], vec![2, 3, 4], vec![5, 6]]"));
@@ -502,7 +495,7 @@ def test_assign_int():
     return numbers
 "#;
 
-    let rust_code = transpile_snippet(py_code).expect("Failed to transpile");
+    let rust_code = transpile_and_check(py_code, &[]);
 
     assert!(rust_code.contains("let numbers = vec![1, 2, 3, 4, 5]"));
 }
@@ -515,7 +508,7 @@ def test_assign_float():
     return values
 "#;
 
-    let rust_code = transpile_snippet(py_code).expect("Failed to transpile");
+    let rust_code = transpile_and_check(py_code, &[]);
 
     assert!(rust_code.contains("let values = vec![1.5, 2.7, 3.14, 4.0]"));
 }
@@ -528,7 +521,7 @@ def test_assign_bool():
     return flags
 "#;
 
-    let rust_code = transpile_snippet(py_code).expect("Failed to transpile");
+    let rust_code = transpile_and_check(py_code, &[]);
 
     assert!(rust_code.contains("let flags = vec![true, false, true, false]"));
 }
@@ -541,7 +534,7 @@ def test_assign_str():
     return words
 "#;
 
-    let rust_code = transpile_snippet(py_code).expect("Failed to transpile");
+    let rust_code = transpile_and_check(py_code, &[]);
 
     assert!(rust_code.contains("let words = vec!["));
     assert!(rust_code.contains("\"hello\".to_string()"));
@@ -557,7 +550,7 @@ def test_assign_2d_int():
     return matrix
 "#;
 
-    let rust_code = transpile_snippet(py_code).expect("Failed to transpile");
+    let rust_code = transpile_and_check(py_code, &[]);
 
     assert!(rust_code.contains("let matrix = vec![vec![1, 2, 3], vec![4, 5, 6], vec![7, 8, 9]]"));
 }
@@ -570,7 +563,7 @@ def test_assign_2d_float():
     return data
 "#;
 
-    let rust_code = transpile_snippet(py_code).expect("Failed to transpile");
+    let rust_code = transpile_and_check(py_code, &[]);
 
     assert!(rust_code.contains("let data = vec![vec![1.0, 2.0], vec![3.0, 4.0]]"));
 }
@@ -583,7 +576,7 @@ def test_assign_3d():
     return cube
 "#;
 
-    let rust_code = transpile_snippet(py_code).expect("Failed to transpile");
+    let rust_code = transpile_and_check(py_code, &[]);
 
     assert!(rust_code.contains("let cube = vec![vec![vec![1, 2], vec![3, 4]], vec![vec![5, 6], vec![7, 8]]]"));
 }
@@ -596,7 +589,7 @@ def test_assign_jagged():
     return jagged
 "#;
 
-    let rust_code = transpile_snippet(py_code).expect("Failed to transpile");
+    let rust_code = transpile_and_check(py_code, &[]);
 
     assert!(rust_code.contains("let jagged = vec![vec![1], vec![2, 3], vec![4, 5, 6]]"));
 }
@@ -611,7 +604,7 @@ def test_multiple_same():
     return arr1, arr2, arr3
 "#;
 
-    let rust_code = transpile_snippet(py_code).expect("Failed to transpile");
+    let rust_code = transpile_and_check(py_code, &[]);
 
     assert!(rust_code.contains("let arr1 = vec![1, 2, 3]"));
     assert!(rust_code.contains("let arr2 = vec![4, 5, 6]"));
@@ -629,7 +622,7 @@ def test_multiple_diff():
     return ints, floats, bools, strings
 "#;
 
-    let rust_code = transpile_snippet(py_code).expect("Failed to transpile");
+    let rust_code = transpile_and_check(py_code, &[]);
 
     assert!(rust_code.contains("ints"));
     assert!(rust_code.contains("floats"));
@@ -650,7 +643,7 @@ def test_empty():
     return empty
 "#;
 
-    let rust_code = transpile_snippet(py_code).expect("Failed to transpile");
+    let rust_code = transpile_and_check(py_code, &[]);
 
     assert!(rust_code.contains("let empty = vec![]"));
 }
@@ -664,7 +657,7 @@ def test_ops():
     return arr
 "#;
 
-    let rust_code = transpile_snippet(py_code).expect("Failed to transpile");
+    let rust_code = transpile_and_check(py_code, &[]);
 
     assert!(rust_code.contains("let x = 10"));
     assert!(rust_code.contains("let arr = vec![x, x + 1, x * 2, x - 5]"));
@@ -679,7 +672,7 @@ def test_reassign():
     return arr
 "#;
 
-    let rust_code = transpile_snippet(py_code).expect("Failed to transpile");
+    let rust_code = transpile_and_check(py_code, &[]);
 
     assert!(rust_code.contains("let mut arr = vec![1, 2, 3]"));
     assert!(rust_code.contains("arr = vec![4, 5, 6]"));
@@ -693,7 +686,7 @@ def test_annotated() -> list:
     return matrix
 "#;
 
-    let rust_code = transpile_snippet(py_code).expect("Failed to transpile");
+    let rust_code = transpile_and_check(py_code, &[]);
 
     assert!(rust_code.contains("let matrix: Vec<"));
     assert!(rust_code.contains("vec![vec![1, 2], vec![3, 4]]"));
@@ -708,7 +701,7 @@ def test_mult_assign():
     return zeros, ones
 "#;
 
-    let rust_code = transpile_snippet(py_code).expect("Failed to transpile");
+    let rust_code = transpile_and_check(py_code, &[]);
 
     assert!(rust_code.contains("let _cse_temp_0 = [0; 10]"));
     assert!(rust_code.contains("let zeros = _cse_temp_0"));
@@ -725,7 +718,7 @@ def test_mixed():
     return matrix
 "#;
 
-    let rust_code = transpile_snippet(py_code).expect("Failed to transpile");
+    let rust_code = transpile_and_check(py_code, &[]);
 
     assert!(rust_code.contains("let row1 = vec![1, 2, 3]"));
     assert!(rust_code.contains("let matrix = vec![row1, vec![4, 5, 6], vec![7, 8, 9]]"));
@@ -742,7 +735,7 @@ def test_order():
     return result
 "#;
 
-    let rust_code = transpile_snippet(py_code).expect("Failed to transpile");
+    let rust_code = transpile_and_check(py_code, &[]);
 
     assert!(rust_code.contains("let first = vec![1, 2, 3]"));
     assert!(rust_code.contains("let second = vec![4, 5, 6]"));
@@ -761,7 +754,7 @@ def test_func():
     return arr
 "#;
 
-    let rust_code = transpile_snippet(py_code).expect("Failed to transpile");
+    let rust_code = transpile_and_check(py_code, &[]);
 
     assert!(rust_code.contains("pub fn helper(x: i32) -> i32"));
     assert!(rust_code.contains("let arr = vec![helper(1), helper(2), helper(3)]"));
@@ -778,7 +771,7 @@ def test_single():
     return single_int, single_float, single_bool, single_str
 "#;
 
-    let rust_code = transpile_snippet(py_code).expect("Failed to transpile");
+    let rust_code = transpile_and_check(py_code, &[]);
 
     assert!(rust_code.contains("let single_int = vec![42]"));
     assert!(rust_code.contains("let single_float = vec![3.14]"));
@@ -803,7 +796,7 @@ def func(state: State) -> list[str]:
     return combined
 "#;
 
-    let rust_code = transpile_snippet(py_code).expect("Failed to transpile");
+    let rust_code = transpile_and_check(py_code, &[]);
     print!("Generated Rust code:\n{}", rust_code)
 }
 
@@ -826,7 +819,7 @@ def items(items: list[Item], index: int) -> Item:
             return item2
 "#;
 
-    let rust_code = transpile_snippet(py_code).expect("Failed to transpile");
+    let rust_code = transpile_and_check(py_code, &[]);
     println!("{}", rust_code);
 
     assert!(rust_code.contains("return item"));

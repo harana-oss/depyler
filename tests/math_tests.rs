@@ -1,6 +1,6 @@
 mod test_helpers;
 
-use test_helpers::{transpile, transpile_and_check};
+use test_helpers::transpile_and_check;
 
 // ============================================================================
 // Absolute Value Tests
@@ -25,7 +25,9 @@ def abs_negative() -> int:
 "#;
 
     let rust = transpile_and_check(python, &[]);
-    assert!(rust.contains("((-42_i32).abs())") || rust.contains("(-42_i32).abs()") || rust.contains("(-42 as i32).abs()"));
+    assert!(
+        rust.contains("((-42_i32).abs())") || rust.contains("(-42_i32).abs()") || rust.contains("(-42 as i32).abs()")
+    );
 }
 
 #[test]
@@ -357,6 +359,20 @@ def min_floats(items: list[float]) -> float:
     assert!(rust.contains("items.iter().fold(f64::INFINITY, |a, &b| a.min(b))"));
 }
 
+#[test]
+fn test_max_with_computed_expression() {
+    let python = r#"
+def compute() -> float:
+    a = 1
+    b = 2
+    c = a - b * 4
+    return max(1.0, 0.3557 * c - 1.75)
+"#;
+
+    let rust = transpile_and_check(python, &[]);
+    assert!(rust.contains("f64::max(1.0, 0.3557 * (c as f64) - 1.75)"));
+}
+
 // ============================================================================
 // First/Last Element Tests
 // ============================================================================
@@ -426,7 +442,7 @@ def rand_int(start: int, end: int) -> int:
     return random.randint(start, end)
 "#;
 
-    let rust = transpile(python);
+    let rust = transpile_and_check(python, &[]);
     assert!(rust.contains("rand::thread_rng().gen_range(start..=end)"));
 }
 
@@ -439,7 +455,7 @@ def rand_int() -> int:
     return random.randint(1, 100)
 "#;
 
-    let rust = transpile(python);
+    let rust = transpile_and_check(python, &[]);
     assert!(rust.contains("rand::thread_rng().gen_range(1..=100)"));
 }
 
@@ -452,7 +468,7 @@ def rand_float(a: float, b: float) -> float:
     return random.uniform(a, b)
 "#;
 
-    let rust = transpile(python);
+    let rust = transpile_and_check(python, &[]);
     assert!(rust.contains("rand::thread_rng().gen_range((a as f64)..=(b as f64))"));
 }
 
@@ -465,7 +481,7 @@ def rand_choice(items: list[int]) -> int:
     return random.choice(items)
 "#;
 
-    let rust = transpile(python);
+    let rust = transpile_and_check(python, &[]);
     assert!(rust.contains("*items.choose(&mut rand::thread_rng()).unwrap()"));
 }
 
@@ -478,7 +494,7 @@ def rand() -> float:
     return random.random()
 "#;
 
-    let rust = transpile(python);
+    let rust = transpile_and_check(python, &[]);
     assert!(rust.contains("rand::random::<f64>()"));
 }
 
@@ -1058,4 +1074,17 @@ def compute() -> float:
     // one = 6 * 42 may be constant-folded to 252
     assert!(rust.contains("6 * 42") || rust.contains("252"));
     assert!(rust.contains("(one as f64) + TWO"));
+}
+
+#[test]
+fn test_float_sum_of_function_result() {
+    let python = r#"
+def get_floats() -> list[float]:
+    return [1.0, 2.0, 3.0]
+
+def compute() -> None:
+    val = float(sum(get_floats()))
+"#;
+
+    transpile_and_check(python, &[]);
 }

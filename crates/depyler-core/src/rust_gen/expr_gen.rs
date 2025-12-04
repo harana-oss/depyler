@@ -918,17 +918,8 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             // Default: assume iterable that needs .iter()
             let iter_expr = args[0].to_rust_expr(self.ctx)?;
 
-            // Infer the target type from return type context
-            let target_type = self
-                .ctx
-                .current_return_type
-                .as_ref()
-                .and_then(|t| match t {
-                    Type::Int => Some(quote! { i32 }),
-                    Type::Float => Some(quote! { f64 }),
-                    _ => None,
-                })
-                .unwrap_or_else(|| quote! { i32 });
+            // Infer the target type from the argument's type (element type of list)
+            let target_type = self.infer_sum_element_type(&args[0]).unwrap_or_else(|| quote! { i32 });
 
             return Ok(parse_quote! { #iter_expr.iter().sum::<#target_type>() });
         }
@@ -2492,8 +2483,12 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 Ok(parse_quote! { #class_ident::new(#(#args),*) })
             }
         } else {
-            // Regular function call
-            let func_ident = syn::Ident::new(func, proc_macro2::Span::call_site());
+            // Regular function call - use raw identifier if function name is a Rust keyword
+            let func_ident = if Self::is_rust_keyword(func) {
+                syn::Ident::new_raw(func, proc_macro2::Span::call_site())
+            } else {
+                syn::Ident::new(func, proc_macro2::Span::call_site())
+            };
 
             // When passing a Vec/HashMap/HashSet variable to a function expecting &Vec/&HashMap/&HashSet, automatically borrow it
             // This handles cases like: sum_list_recursive(rest) where rest is Vec but param is &Vec
@@ -11594,6 +11589,42 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             }
             _ => false,
         }
+    }
+
+    /// Infer the element type for sum() from the argument expression
+    fn infer_sum_element_type(&self, expr: &HirExpr) -> Option<proc_macro2::TokenStream> {
+        // Check if it's a function call - look up return type
+        if let HirExpr::Call { func, .. } = expr {
+            if let Some(ret_type) = self.ctx.function_return_types.get(func) {
+                if let Type::List(elem_type) = ret_type {
+                    return match elem_type.as_ref() {
+                        Type::Int => Some(quote! { i32 }),
+                        Type::Float => Some(quote! { f64 }),
+                        _ => None,
+                    };
+                }
+            }
+        }
+
+        // Check if it's a variable - look up its type
+        if let HirExpr::Var(var_name) = expr {
+            if let Some(var_type) = self.ctx.var_types.get(var_name) {
+                if let Type::List(elem_type) = var_type {
+                    return match elem_type.as_ref() {
+                        Type::Int => Some(quote! { i32 }),
+                        Type::Float => Some(quote! { f64 }),
+                        _ => None,
+                    };
+                }
+            }
+        }
+
+        // Fall back to current return type context
+        self.ctx.current_return_type.as_ref().and_then(|t| match t {
+            Type::Int => Some(quote! { i32 }),
+            Type::Float => Some(quote! { f64 }),
+            _ => None,
+        })
     }
 
     fn is_tuple_expr(&self, expr: &HirExpr) -> bool {

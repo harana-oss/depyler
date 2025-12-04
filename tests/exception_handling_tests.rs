@@ -5,6 +5,9 @@
 //! - try_except_multiple_test.rs (Phase 2: Multiple exception handlers)
 //! - try_except_finally_test.rs (Phase 3: Finally clause)
 
+mod test_helpers;
+use test_helpers::transpile_and_check;
+
 use depyler_core::DepylerPipeline;
 
 // ============================================================================

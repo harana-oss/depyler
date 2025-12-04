@@ -1,3 +1,5 @@
+mod test_helpers;
+
 // use serde_json::json;  // Not needed since test is commented out
 
 #[tokio::test]

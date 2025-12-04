@@ -1542,3 +1542,32 @@ def select_and_mutate(state1: State, state2: State, key: str) -> None:
     assert!(rust_code.contains("state1: &mut State"), "\n{rust_code}");
     assert!(rust_code.contains("state2: &mut State"), "\n{rust_code}");
 }
+
+// ============================================================================
+// Boolean Function Calls
+// ============================================================================
+
+#[test]
+fn test_boolean_function_call_with_local_variable() {
+    let python = r#"
+def one(val: bool) -> None:
+    val = True
+
+def two() -> None:
+    b = False
+    val = one(b)
+"#;
+
+    let rust_code = transpile_and_check(python, &[]);
+    // Key assertion: bool param should NOT be &mut bool, it should be passed by value
+    assert!(
+        rust_code.contains("fn one(mut val: bool)"),
+        "bool param should be passed by value with mut binding:\n{rust_code}"
+    );
+    assert!(rust_code.contains("fn two()"), "\n{rust_code}");
+    // Also verify the call site passes value, not &mut
+    assert!(
+        rust_code.contains("one(b)"),
+        "call site should pass bool by value:\n{rust_code}"
+    );
+}

@@ -98,16 +98,6 @@ pub fn transpile_check_absent(python_source: &str, absent_patterns: &[&str]) -> 
     rust_code
 }
 
-/// Transpiles Python source and returns the generated Rust code.
-pub fn transpile(python_source: &str) -> String {
-    let pipeline = DepylerPipeline::new();
-    let result = pipeline.transpile(python_source);
-
-    result.unwrap_or_else(|e| {
-        panic!("Transpilation failed:\n{e}\n\nPython source:\n{python_source}");
-    })
-}
-
 /// Compiles Rust code using rustc and returns the result.
 pub fn compile_rust_code(rust_code: &str) -> TranspileCompileResult {
     let temp_dir = TempDir::new().expect("Failed to create temp directory");

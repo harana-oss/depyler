@@ -6,6 +6,8 @@
 //! - Lifetime violation detection
 //! - V1 lifetime features
 
+mod test_helpers;
+
 use depyler_core::DepylerPipeline;
 use std::process::Command;
 

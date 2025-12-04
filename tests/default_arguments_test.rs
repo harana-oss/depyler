@@ -1,6 +1,6 @@
 mod test_helpers;
 
-use test_helpers::transpile;
+use test_helpers::transpile_and_check;
 
 #[test]
 fn test_mixed_positional_and_named() {
@@ -12,7 +12,7 @@ def test() -> str:
     return greet("Alice", greeting="Hi")
 "#;
 
-    let rust_code = transpile(python);
+    let rust_code = transpile_and_check(python, &[]);
     assert!(rust_code.contains(r#"greet("Alice".to_string(), "Hi".to_string())"#));
 }
 
@@ -26,7 +26,7 @@ def test() -> dict:
     return configure(width=800, height=600, title="My App")
 "#;
 
-    let rust_code = transpile(python);
+    let rust_code = transpile_and_check(python, &[]);
     assert!(rust_code.contains(r#"configure(800, 600, "My App".to_string())"#));
 }
 
@@ -46,7 +46,7 @@ def test() -> int:
     return calculate(10, 20, verbose=True, operation="add")
 "#;
 
-    let rust_code = transpile(python);
+    let rust_code = transpile_and_check(python, &[]);
     assert!(rust_code.contains(r#"calculate(10, 20, "add".to_string(), true)"#));
 }
 
@@ -64,7 +64,7 @@ def test():
     obj.setup(mode="advanced", timeout=30, retry=True)
 "#;
 
-    let rust_code = transpile(python);
+    let rust_code = transpile_and_check(python, &[]);
     assert!(rust_code.contains(r#".setup("advanced".to_string(), 30, true)"#));
 }
 
@@ -81,7 +81,7 @@ def test() -> int:
     return outer(inner(x=10, y=20), scale=2.0, offset=inner(x=5, y=5))
 "#;
 
-    let rust_code = transpile(python);
+    let rust_code = transpile_and_check(python, &[]);
     assert!(rust_code.contains("outer(inner(10, 20), 2.0, inner(5, 5))"));
 }
 
@@ -95,7 +95,7 @@ def test() -> int:
     return add(5, 3)
 "#;
 
-    let rust_code = transpile(python);
+    let rust_code = transpile_and_check(python, &[]);
     assert!(rust_code.contains("add(5, 3)"));
 }
 
@@ -117,7 +117,7 @@ def test() -> dict:
     )
 "#;
 
-    let rust_code = transpile(python);
+    let rust_code = transpile_and_check(python, &[]);
     assert!(
         rust_code.contains("configure(")
             && rust_code.contains("100")
@@ -136,7 +136,7 @@ def test() -> str:
         return f.read()
 "#;
 
-    let rust_code = transpile(python);
+    let rust_code = transpile_and_check(python, &[]);
     assert!(
         rust_code.contains(r#"File::open("data.txt""#),
         "Generated code should contain File::open with the path:\n{}",
@@ -154,7 +154,7 @@ def test() -> int:
     return no_params()
 "#;
 
-    let rust_code = transpile(python);
+    let rust_code = transpile_and_check(python, &[]);
     assert!(rust_code.contains("no_params()"));
 }
 
@@ -168,7 +168,7 @@ def test() -> str:
     return format_message(country="USA", name="Alice", city="New York", age=30)
 "#;
 
-    let rust_code = transpile(python);
+    let rust_code = transpile_and_check(python, &[]);
 
     let call_start = rust_code
         .find("format_message(")
@@ -195,7 +195,7 @@ def test() -> str:
     return build_url("https", "example.com", path="api", port=443)
 "#;
 
-    let rust_code = transpile(python);
+    let rust_code = transpile_and_check(python, &[]);
 
     let call_start = rust_code.find("build_url(").expect("build_url call not found");
     let call_section = &rust_code[call_start..];
@@ -227,7 +227,7 @@ def test() -> Optional[int]:
     return first(numbers, default=0)
 "#;
 
-    let rust_code = transpile(python);
+    let rust_code = transpile_and_check(python, &[]);
     assert!(
         rust_code.contains("first<T: Clone>(iterable: &Iterable<T>, default: Option<T>)"),
         "Expected generic function signature with Option<T> parameter\n{rust_code}"

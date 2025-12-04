@@ -10,6 +10,7 @@ members = [
     "crates/depyler-wasm",
     "crates/depyler-ruchy",
     "crates/depyler-analysis",
+    "tests"
 ]
 resolver = "2"
 

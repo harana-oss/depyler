@@ -3,6 +3,8 @@
 //! Mutation testing to validate the quality of our test suite by introducing
 //! small modifications to the code and ensuring tests catch the defects.
 
+mod test_helpers;
+
 use depyler_core::DepylerPipeline;
 use std::collections::HashMap;
 use std::time::Instant;
@@ -89,8 +91,7 @@ impl MutationTester {
         // Statement mutations
         mutations.extend(self.generate_statement_mutations(code));
 
-        self.mutations_cache
-            .insert(code.to_string(), mutations.clone());
+        self.mutations_cache.insert(code.to_string(), mutations.clone());
         mutations
     }
 
@@ -304,9 +305,7 @@ impl MutationTester {
 
         let line = lines[mutation.line];
         let mutated_line = match mutation.operator {
-            MutationOperator::StatementRemoval => {
-                line.replace(&mutation.original, &mutation.mutated)
-            }
+            MutationOperator::StatementRemoval => line.replace(&mutation.original, &mutation.mutated),
             _ => {
                 // Simple string replacement
                 line.replacen(&mutation.original, &mutation.mutated, 1)
@@ -326,18 +325,14 @@ pub enum MutationResult {
     Equivalent, // Mutation is functionally equivalent
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
+/// Test basic mutation generation
+#[test]
+fn test_mutation_generation() {
+    println!("=== Mutation Generation Test ===");
 
-    /// Test basic mutation generation
-    #[test]
-    fn test_mutation_generation() {
-        println!("=== Mutation Generation Test ===");
+    let mut tester = MutationTester::new();
 
-        let mut tester = MutationTester::new();
-
-        let test_code = r#"
+    let test_code = r#"
 def arithmetic_test(a: int, b: int) -> int:
     if a > b:
         return a + b
@@ -345,185 +340,166 @@ def arithmetic_test(a: int, b: int) -> int:
         return a - b
 "#;
 
-        let mutations = tester.generate_mutations(test_code);
+    let mutations = tester.generate_mutations(test_code);
 
-        println!("Generated {} mutations", mutations.len());
+    println!("Generated {} mutations", mutations.len());
 
-        // Should generate various types of mutations
-        assert!(mutations.len() > 5, "Should generate multiple mutations");
+    // Should generate various types of mutations
+    assert!(mutations.len() > 5, "Should generate multiple mutations");
 
-        // Test each mutation type is present
-        let arithmetic_mutations = mutations
-            .iter()
-            .filter(|m| matches!(m.operator, MutationOperator::ArithmeticOperatorReplacement))
-            .count();
-        let relational_mutations = mutations
-            .iter()
-            .filter(|m| matches!(m.operator, MutationOperator::RelationalOperatorReplacement))
-            .count();
+    // Test each mutation type is present
+    let arithmetic_mutations = mutations
+        .iter()
+        .filter(|m| matches!(m.operator, MutationOperator::ArithmeticOperatorReplacement))
+        .count();
+    let relational_mutations = mutations
+        .iter()
+        .filter(|m| matches!(m.operator, MutationOperator::RelationalOperatorReplacement))
+        .count();
 
-        println!("Arithmetic mutations: {}", arithmetic_mutations);
-        println!("Relational mutations: {}", relational_mutations);
+    println!("Arithmetic mutations: {}", arithmetic_mutations);
+    println!("Relational mutations: {}", relational_mutations);
 
-        assert!(
-            arithmetic_mutations > 0,
-            "Should generate arithmetic mutations"
-        );
-        assert!(
-            relational_mutations > 0,
-            "Should generate relational mutations"
-        );
+    assert!(arithmetic_mutations > 0, "Should generate arithmetic mutations");
+    assert!(relational_mutations > 0, "Should generate relational mutations");
 
-        // Test some specific mutations
-        for mutation in &mutations {
-            println!(
-                "  {:?}: {} -> {} at {}:{}",
-                mutation.operator,
-                mutation.original,
-                mutation.mutated,
-                mutation.line,
-                mutation.column
-            );
-        }
-    }
-
-    /// Test mutation application
-    #[test]
-    fn test_mutation_application() {
-        println!("=== Mutation Application Test ===");
-
-        let tester = MutationTester::new();
-        let original_code = "def test(x: int) -> int: return x + 1";
-
-        let mutation = Mutation {
-            operator: MutationOperator::ArithmeticOperatorReplacement,
-            original: "+".to_string(),
-            mutated: "-".to_string(),
-            line: 0,
-            column: 35,
-        };
-
-        let mutated_code = tester.apply_mutation(original_code, &mutation);
-
-        println!("Original: {}", original_code);
-        println!("Mutated:  {}", mutated_code);
-
-        assert!(mutated_code.contains("x - 1"), "Should replace + with -");
-        assert!(
-            !mutated_code.contains("x + 1"),
-            "Should not contain original operator"
+    // Test some specific mutations
+    for mutation in &mutations {
+        println!(
+            "  {:?}: {} -> {} at {}:{}",
+            mutation.operator, mutation.original, mutation.mutated, mutation.line, mutation.column
         );
     }
+}
 
-    /// Test individual mutation results
-    #[test]
-    fn test_mutation_testing() {
-        println!("=== Individual Mutation Testing ===");
+/// Test mutation application
+#[test]
+fn test_mutation_application() {
+    println!("=== Mutation Application Test ===");
 
-        let tester = MutationTester::new();
+    let tester = MutationTester::new();
+    let original_code = "def test(x: int) -> int: return x + 1";
 
-        // Test cases with known mutation behavior
-        let test_cases = vec![
-            (
-                "def simple(x: int) -> int: return x + 1",
-                "Should work with simple arithmetic",
-            ),
-            (
-                "def compare(a: int, b: int) -> bool: return a > b",
-                "Should work with comparisons",
-            ),
-            (
-                "def logical(p: bool, q: bool) -> bool: return p and q",
-                "Should work with logical ops",
-            ),
+    let mutation = Mutation {
+        operator: MutationOperator::ArithmeticOperatorReplacement,
+        original: "+".to_string(),
+        mutated: "-".to_string(),
+        line: 0,
+        column: 35,
+    };
+
+    let mutated_code = tester.apply_mutation(original_code, &mutation);
+
+    println!("Original: {}", original_code);
+    println!("Mutated:  {}", mutated_code);
+
+    assert!(mutated_code.contains("x - 1"), "Should replace + with -");
+    assert!(!mutated_code.contains("x + 1"), "Should not contain original operator");
+}
+
+/// Test individual mutation results
+#[test]
+fn test_mutation_testing() {
+    println!("=== Individual Mutation Testing ===");
+
+    let tester = MutationTester::new();
+
+    // Test cases with known mutation behavior
+    let test_cases = vec![
+        (
+            "def simple(x: int) -> int: return x + 1",
+            "Should work with simple arithmetic",
+        ),
+        (
+            "def compare(a: int, b: int) -> bool: return a > b",
+            "Should work with comparisons",
+        ),
+        (
+            "def logical(p: bool, q: bool) -> bool: return p and q",
+            "Should work with logical ops",
+        ),
+    ];
+
+    for (code, description) in test_cases {
+        println!("\nTesting: {}", description);
+
+        let mutations = vec![
+            Mutation {
+                operator: MutationOperator::ArithmeticOperatorReplacement,
+                original: "+".to_string(),
+                mutated: "-".to_string(),
+                line: 0,
+                column: 0,
+            },
+            Mutation {
+                operator: MutationOperator::RelationalOperatorReplacement,
+                original: ">".to_string(),
+                mutated: "<".to_string(),
+                line: 0,
+                column: 0,
+            },
         ];
 
-        for (code, description) in test_cases {
-            println!("\nTesting: {}", description);
-
-            let mutations = vec![
-                Mutation {
-                    operator: MutationOperator::ArithmeticOperatorReplacement,
-                    original: "+".to_string(),
-                    mutated: "-".to_string(),
-                    line: 0,
-                    column: 0,
-                },
-                Mutation {
-                    operator: MutationOperator::RelationalOperatorReplacement,
-                    original: ">".to_string(),
-                    mutated: "<".to_string(),
-                    line: 0,
-                    column: 0,
-                },
-            ];
-
-            for mutation in mutations {
-                if code.contains(&mutation.original) {
-                    let result = tester.test_mutation(code, &mutation);
-                    println!(
-                        "  Mutation {} -> {}: {:?}",
-                        mutation.original, mutation.mutated, result
-                    );
-                }
+        for mutation in mutations {
+            if code.contains(&mutation.original) {
+                let result = tester.test_mutation(code, &mutation);
+                println!("  Mutation {} -> {}: {:?}", mutation.original, mutation.mutated, result);
             }
         }
     }
+}
 
-    /// Test comprehensive mutation testing
-    #[test]
-    fn test_comprehensive_mutation_testing() {
-        println!("=== Comprehensive Mutation Testing ===");
+/// Test comprehensive mutation testing
+#[test]
+fn test_comprehensive_mutation_testing() {
+    println!("=== Comprehensive Mutation Testing ===");
 
-        let mut tester = MutationTester::new();
+    let mut tester = MutationTester::new();
 
-        let test_suite = vec![
-            "def add(a: int, b: int) -> int: return a + b",
-            "def subtract(a: int, b: int) -> int: return a - b",
-            "def compare(x: int) -> bool: return x > 0",
-            "def logical_and(p: bool, q: bool) -> bool: return p and q",
-            "def conditional(x: int) -> str: return 'positive' if x > 0 else 'non-positive'",
-        ];
+    let test_suite = vec![
+        "def add(a: int, b: int) -> int: return a + b",
+        "def subtract(a: int, b: int) -> int: return a - b",
+        "def compare(x: int) -> bool: return x > 0",
+        "def logical_and(p: bool, q: bool) -> bool: return p and q",
+        "def conditional(x: int) -> str: return 'positive' if x > 0 else 'non-positive'",
+    ];
 
-        let start = Instant::now();
-        let results = tester.run_mutation_testing(&test_suite);
-        let duration = start.elapsed();
+    let start = Instant::now();
+    let results = tester.run_mutation_testing(&test_suite);
+    let duration = start.elapsed();
 
-        println!("Mutation Testing Results:");
-        println!("  Total mutations: {}", results.total_mutations);
-        println!("  Killed mutations: {}", results.killed_mutations);
-        println!("  Survived mutations: {}", results.survived_mutations);
-        println!("  Equivalent mutations: {}", results.equivalent_mutations);
-        println!("  Mutation score: {:.2}%", results.mutation_score * 100.0);
-        println!("  Testing duration: {:?}", duration);
+    println!("Mutation Testing Results:");
+    println!("  Total mutations: {}", results.total_mutations);
+    println!("  Killed mutations: {}", results.killed_mutations);
+    println!("  Survived mutations: {}", results.survived_mutations);
+    println!("  Equivalent mutations: {}", results.equivalent_mutations);
+    println!("  Mutation score: {:.2}%", results.mutation_score * 100.0);
+    println!("  Testing duration: {:?}", duration);
 
-        // Validate results
-        assert!(results.total_mutations > 0, "Should generate mutations");
-        assert!(
-            results.mutation_score >= 0.0 && results.mutation_score <= 1.0,
-            "Score should be between 0 and 1"
-        );
-        assert_eq!(
-            results.total_mutations,
-            results.killed_mutations + results.survived_mutations + results.equivalent_mutations
-        );
+    // Validate results
+    assert!(results.total_mutations > 0, "Should generate mutations");
+    assert!(
+        results.mutation_score >= 0.0 && results.mutation_score <= 1.0,
+        "Score should be between 0 and 1"
+    );
+    assert_eq!(
+        results.total_mutations,
+        results.killed_mutations + results.survived_mutations + results.equivalent_mutations
+    );
 
-        // Performance check
-        assert!(
-            duration.as_secs() < 30,
-            "Mutation testing should complete quickly"
-        );
-    }
+    // Performance check
+    assert!(duration.as_secs() < 30, "Mutation testing should complete quickly");
+}
 
-    /// Test mutation operator coverage
-    #[test]
-    fn test_mutation_operator_coverage() {
-        println!("=== Mutation Operator Coverage Test ===");
+/// Test mutation operator coverage
+#[test]
+fn test_mutation_operator_coverage() {
+    println!("=== Mutation Operator Coverage Test ===");
 
-        let mut tester = MutationTester::new();
+    let mut tester = MutationTester::new();
 
-        // Code that exercises all mutation operators
-        let comprehensive_code = r#"
+    // Code that exercises all mutation operators
+    let comprehensive_code = r#"
 def comprehensive_test(x: int, y: int, flag: bool) -> int:
     if x > y and flag:
         result = x + y * 2
@@ -534,15 +510,13 @@ def comprehensive_test(x: int, y: int, flag: bool) -> int:
         return 0
 "#;
 
-        let mutations = tester.generate_mutations(comprehensive_code);
+    let mutations = tester.generate_mutations(comprehensive_code);
 
-        println!(
-            "Generated {} mutations for comprehensive code",
-            mutations.len()
-        );
+    println!("Generated {} mutations for comprehensive code", mutations.len());
 
-        // Check that all operator types are represented
-        let operator_counts: HashMap<_, _> = mutations
+    // Check that all operator types are represented
+    let operator_counts: HashMap<_, _> =
+        mutations
             .iter()
             .map(|m| format!("{:?}", m.operator))
             .fold(HashMap::new(), |mut acc, op| {
@@ -550,137 +524,114 @@ def comprehensive_test(x: int, y: int, flag: bool) -> int:
                 acc
             });
 
-        println!("Operator coverage:");
-        for (operator, count) in &operator_counts {
-            println!("  {}: {} mutations", operator, count);
-        }
+    println!("Operator coverage:");
+    for (operator, count) in &operator_counts {
+        println!("  {}: {} mutations", operator, count);
+    }
 
-        // Should have multiple operator types
-        assert!(
-            operator_counts.len() >= 3,
-            "Should have at least 3 operator types"
-        );
+    // Should have multiple operator types
+    assert!(operator_counts.len() >= 3, "Should have at least 3 operator types");
 
-        // Test a subset of mutations
-        let sample_size = std::cmp::min(mutations.len(), 10);
-        let mut killed_count = 0;
+    // Test a subset of mutations
+    let sample_size = std::cmp::min(mutations.len(), 10);
+    let mut killed_count = 0;
 
-        for mutation in mutations.iter().take(sample_size) {
-            let result = tester.test_mutation(comprehensive_code, mutation);
-            if result == MutationResult::Killed {
-                killed_count += 1;
-            }
-
-            println!(
-                "  {:?} at {}:{} -> {:?}",
-                mutation.operator, mutation.line, mutation.column, result
-            );
+    for mutation in mutations.iter().take(sample_size) {
+        let result = tester.test_mutation(comprehensive_code, mutation);
+        if result == MutationResult::Killed {
+            killed_count += 1;
         }
 
         println!(
-            "Sample mutation kill rate: {}/{} ({:.1}%)",
-            killed_count,
-            sample_size,
-            killed_count as f64 / sample_size as f64 * 100.0
+            "  {:?} at {}:{} -> {:?}",
+            mutation.operator, mutation.line, mutation.column, result
         );
     }
 
-    /// Test mutation testing performance with caching
-    #[test]
-    fn test_mutation_performance_with_caching() {
-        println!("=== Mutation Performance Test ===");
+    println!(
+        "Sample mutation kill rate: {}/{} ({:.1}%)",
+        killed_count,
+        sample_size,
+        killed_count as f64 / sample_size as f64 * 100.0
+    );
+}
 
-        let mut tester = MutationTester::new();
+/// Test mutation testing performance with caching
+#[test]
+fn test_mutation_performance_with_caching() {
+    println!("=== Mutation Performance Test ===");
 
-        let test_code = "def cached_test(x: int) -> int: return x + 1 if x > 0 else x - 1";
+    let mut tester = MutationTester::new();
 
-        // First run - should populate cache
-        let start1 = Instant::now();
-        let mutations1 = tester.generate_mutations(test_code);
-        let duration1 = start1.elapsed();
+    let test_code = "def cached_test(x: int) -> int: return x + 1 if x > 0 else x - 1";
 
-        // Second run - should use cache
-        let start2 = Instant::now();
-        let mutations2 = tester.generate_mutations(test_code);
-        let duration2 = start2.elapsed();
+    // First run - should populate cache
+    let start1 = Instant::now();
+    let mutations1 = tester.generate_mutations(test_code);
+    let duration1 = start1.elapsed();
 
-        println!(
-            "First run: {} mutations in {:?}",
-            mutations1.len(),
-            duration1
-        );
-        println!(
-            "Second run: {} mutations in {:?}",
-            mutations2.len(),
-            duration2
-        );
+    // Second run - should use cache
+    let start2 = Instant::now();
+    let mutations2 = tester.generate_mutations(test_code);
+    let duration2 = start2.elapsed();
 
-        // Results should be identical
-        assert_eq!(
-            mutations1.len(),
-            mutations2.len(),
-            "Cache should return same results"
-        );
+    println!("First run: {} mutations in {:?}", mutations1.len(), duration1);
+    println!("Second run: {} mutations in {:?}", mutations2.len(), duration2);
 
-        // Second run should be faster (or at least not significantly slower)
-        let speedup_ratio = duration1.as_nanos() as f64 / duration2.as_nanos() as f64;
-        println!("Speedup ratio: {:.2}x", speedup_ratio);
+    // Results should be identical
+    assert_eq!(mutations1.len(), mutations2.len(), "Cache should return same results");
 
-        // Cache should provide some benefit
-        assert!(
-            speedup_ratio >= 0.8,
-            "Caching should not significantly slow down generation"
-        );
+    // Second run should be faster (or at least not significantly slower)
+    let speedup_ratio = duration1.as_nanos() as f64 / duration2.as_nanos() as f64;
+    println!("Speedup ratio: {:.2}x", speedup_ratio);
 
-        // Test cache size
-        println!("Cache entries: {}", tester.mutations_cache.len());
-        assert_eq!(
-            tester.mutations_cache.len(),
-            1,
-            "Should have one cached entry"
-        );
-    }
+    // Cache should provide some benefit
+    assert!(
+        speedup_ratio >= 0.8,
+        "Caching should not significantly slow down generation"
+    );
 
-    /// Test edge cases in mutation testing
-    #[test]
-    fn test_mutation_edge_cases() {
-        println!("=== Mutation Edge Cases Test ===");
+    // Test cache size
+    println!("Cache entries: {}", tester.mutations_cache.len());
+    assert_eq!(tester.mutations_cache.len(), 1, "Should have one cached entry");
+}
 
-        let mut tester = MutationTester::new();
+/// Test edge cases in mutation testing
+#[test]
+fn test_mutation_edge_cases() {
+    println!("=== Mutation Edge Cases Test ===");
 
-        let edge_cases = vec![
-            ("", "Empty code"),
-            ("# Just a comment", "Comment only"),
-            ("def empty(): pass", "Empty function"),
-            (
-                "def single_line(x: int) -> int: return x",
-                "Single expression",
-            ),
-            (
-                "def unicode_函数(参数: int) -> int: return 参数 + 1",
-                "Unicode identifiers",
-            ),
-        ];
+    let mut tester = MutationTester::new();
 
-        for (code, description) in edge_cases {
-            println!("\nTesting edge case: {}", description);
-            println!("Code: {}", code);
+    let edge_cases = vec![
+        ("", "Empty code"),
+        ("# Just a comment", "Comment only"),
+        ("def empty(): pass", "Empty function"),
+        ("def single_line(x: int) -> int: return x", "Single expression"),
+        (
+            "def unicode_函数(参数: int) -> int: return 参数 + 1",
+            "Unicode identifiers",
+        ),
+    ];
 
-            let mutations = tester.generate_mutations(code);
-            println!("Generated {} mutations", mutations.len());
+    for (code, description) in edge_cases {
+        println!("\nTesting edge case: {}", description);
+        println!("Code: {}", code);
 
-            // Should handle edge cases gracefully
-            if !code.trim().is_empty() && code.contains("def ") {
-                // Non-empty functions should generate some mutations
-                // mutations.len() is always >= 0, this is just documentation
-                let _ = mutations.len(); // Should handle mutations gracefully
-            }
+        let mutations = tester.generate_mutations(code);
+        println!("Generated {} mutations", mutations.len());
 
-            // Test a few mutations if any exist
-            for mutation in mutations.iter().take(3) {
-                let result = tester.test_mutation(code, mutation);
-                println!("  {:?}: {:?}", mutation.operator, result);
-            }
+        // Should handle edge cases gracefully
+        if !code.trim().is_empty() && code.contains("def ") {
+            // Non-empty functions should generate some mutations
+            // mutations.len() is always >= 0, this is just documentation
+            let _ = mutations.len(); // Should handle mutations gracefully
+        }
+
+        // Test a few mutations if any exist
+        for mutation in mutations.iter().take(3) {
+            let result = tester.test_mutation(code, mutation);
+            println!("  {:?}: {:?}", mutation.operator, result);
         }
     }
 }

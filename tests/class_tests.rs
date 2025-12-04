@@ -9,6 +9,8 @@
 //! - classmethod_test.rs (Phase 6: @classmethod decorator)
 //! - simple_method_test.rs (Basic method tests)
 
+mod test_helpers;
+
 use depyler_core::DepylerPipeline;
 
 // ============================================================================

@@ -123,7 +123,7 @@ def find_away_incident(try_incidents: List[Incident]) -> Optional[Incident]:
     return next((incident for incident in try_incidents if incident.points_scored_team == "Away"), None)
 "#;
 
-    let rust_code = test_helpers::transpile(python_code);
+    let rust_code = test_helpers::transpile_and_check(python_code, &[]);
     println!("Generated code:\n{}", rust_code);
 
     assert!(rust_code.contains("struct Incident"));
@@ -134,11 +134,4 @@ def find_away_incident(try_incidents: List[Incident]) -> Optional[Incident]:
     assert!(rust_code.contains(r#"== "Away""#));
     assert!(rust_code.contains(".filter("));
     assert!(rust_code.contains(".next()"));
-
-    let compile_result = test_helpers::compile_rust_code(&rust_code);
-    assert!(
-        compile_result.compilation_success,
-        "Generated code should compile:\n{}",
-        compile_result.compilation_stderr
-    );
 }

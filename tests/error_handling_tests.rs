@@ -1,3 +1,5 @@
+mod test_helpers;
+
 use depyler_analysis::{QualityAnalyzer, QualityError};
 use depyler_annotations::TranspilationAnnotations;
 use depyler_annotations::{AnnotationError, AnnotationParser};

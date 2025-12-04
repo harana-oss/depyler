@@ -5,6 +5,9 @@
 //! - String slicing
 //! - F-strings
 
+mod test_helpers;
+use test_helpers::transpile_and_check;
+
 use depyler_core::DepylerPipeline;
 
 // ============================================================================
@@ -22,18 +25,10 @@ def strip_leading(s: str) -> str:
 "#;
 
         let pipeline = DepylerPipeline::new();
-        let rust_code = pipeline
-            .transpile(python_code)
-            .expect("Transpilation failed");
+        let rust_code = pipeline.transpile(python_code).expect("Transpilation failed");
 
-        assert!(
-            rust_code.contains("trim_start()"),
-            "Should contain trim_start()"
-        );
-        assert!(
-            !rust_code.contains("lstrip()"),
-            "Should not contain lstrip()"
-        );
+        assert!(rust_code.contains("trim_start()"), "Should contain trim_start()");
+        assert!(!rust_code.contains("lstrip()"), "Should not contain lstrip()");
     }
 
     #[test]
@@ -44,18 +39,10 @@ def strip_trailing(s: str) -> str:
 "#;
 
         let pipeline = DepylerPipeline::new();
-        let rust_code = pipeline
-            .transpile(python_code)
-            .expect("Transpilation failed");
+        let rust_code = pipeline.transpile(python_code).expect("Transpilation failed");
 
-        assert!(
-            rust_code.contains("trim_end()"),
-            "Should contain trim_end()"
-        );
-        assert!(
-            !rust_code.contains("rstrip()"),
-            "Should not contain rstrip()"
-        );
+        assert!(rust_code.contains("trim_end()"), "Should contain trim_end()");
+        assert!(!rust_code.contains("rstrip()"), "Should not contain rstrip()");
     }
 
     #[test]
@@ -66,19 +53,14 @@ def is_alphanumeric(s: str) -> bool:
 "#;
 
         let pipeline = DepylerPipeline::new();
-        let rust_code = pipeline
-            .transpile(python_code)
-            .expect("Transpilation failed");
+        let rust_code = pipeline.transpile(python_code).expect("Transpilation failed");
 
         assert!(rust_code.contains("chars()"), "Should contain chars()");
         assert!(
             rust_code.contains("is_alphanumeric()"),
             "Should contain is_alphanumeric()"
         );
-        assert!(
-            !rust_code.contains("isalnum()"),
-            "Should not contain isalnum()"
-        );
+        assert!(!rust_code.contains("isalnum()"), "Should not contain isalnum()");
     }
 
     #[test]
@@ -89,9 +71,7 @@ def count_occurrences(s: str, substring: str) -> int:
 "#;
 
         let pipeline = DepylerPipeline::new();
-        let rust_code = pipeline
-            .transpile(python_code)
-            .expect("Transpilation failed");
+        let rust_code = pipeline.transpile(python_code).expect("Transpilation failed");
 
         assert!(rust_code.contains("matches"), "Should contain matches");
         assert!(rust_code.contains(".count()"), "Should contain .count()");
@@ -109,18 +89,10 @@ def process_string(text: str) -> tuple[str, str, bool, int]:
 "#;
 
         let pipeline = DepylerPipeline::new();
-        let rust_code = pipeline
-            .transpile(python_code)
-            .expect("Transpilation failed");
+        let rust_code = pipeline.transpile(python_code).expect("Transpilation failed");
 
-        assert!(
-            rust_code.contains("trim_start()"),
-            "Should contain trim_start()"
-        );
-        assert!(
-            rust_code.contains("trim_end()"),
-            "Should contain trim_end()"
-        );
+        assert!(rust_code.contains("trim_start()"), "Should contain trim_start()");
+        assert!(rust_code.contains("trim_end()"), "Should contain trim_end()");
         assert!(
             rust_code.contains("is_alphanumeric()"),
             "Should contain is_alphanumeric()"
@@ -144,14 +116,9 @@ def get_last_char(s: str) -> str:
 "#;
 
         let pipeline = DepylerPipeline::new();
-        let rust_code = pipeline
-            .transpile(python_code)
-            .expect("Transpilation failed");
+        let rust_code = pipeline.transpile(python_code).expect("Transpilation failed");
 
-        assert!(
-            !rust_code.contains(".to_vec()"),
-            "Should NOT use .to_vec() for strings"
-        );
+        assert!(!rust_code.contains(".to_vec()"), "Should NOT use .to_vec() for strings");
         assert!(
             !rust_code.contains("base.iter()"),
             "Should NOT use .iter() for strings - use .chars() instead"
@@ -166,26 +133,15 @@ def get_last_n_chars(s: str, n: int) -> str:
 "#;
 
         let pipeline = DepylerPipeline::new();
-        let rust_code = pipeline
-            .transpile(python_code)
-            .expect("Transpilation failed");
+        let rust_code = pipeline.transpile(python_code).expect("Transpilation failed");
 
-        assert!(
-            rust_code.contains(".chars()"),
-            "Should use .chars() for string slicing"
-        );
-        assert!(
-            !rust_code.contains(".to_vec()"),
-            "Should NOT use .to_vec() for strings"
-        );
+        assert!(rust_code.contains(".chars()"), "Should use .chars() for string slicing");
+        assert!(!rust_code.contains(".to_vec()"), "Should NOT use .to_vec() for strings");
         assert!(
             !rust_code.contains("Vec::new()"),
             "Should use String::new() not Vec::new()"
         );
-        assert!(
-            rust_code.contains("collect::<String>()"),
-            "Should collect into String"
-        );
+        assert!(rust_code.contains("collect::<String>()"), "Should collect into String");
     }
 
     #[test]
@@ -196,22 +152,11 @@ def get_all_but_last_n(s: str, n: int) -> str:
 "#;
 
         let pipeline = DepylerPipeline::new();
-        let rust_code = pipeline
-            .transpile(python_code)
-            .expect("Transpilation failed");
+        let rust_code = pipeline.transpile(python_code).expect("Transpilation failed");
 
-        assert!(
-            rust_code.contains(".chars()"),
-            "Should use .chars() for string slicing"
-        );
-        assert!(
-            rust_code.contains(".take("),
-            "Should use .take() for prefix slicing"
-        );
-        assert!(
-            !rust_code.contains(".to_vec()"),
-            "Should NOT use .to_vec() for strings"
-        );
+        assert!(rust_code.contains(".chars()"), "Should use .chars() for string slicing");
+        assert!(rust_code.contains(".take("), "Should use .take() for prefix slicing");
+        assert!(!rust_code.contains(".to_vec()"), "Should NOT use .to_vec() for strings");
     }
 
     #[test]
@@ -222,22 +167,14 @@ def reverse_string(s: str) -> str:
 "#;
 
         let pipeline = DepylerPipeline::new();
-        let rust_code = pipeline
-            .transpile(python_code)
-            .expect("Transpilation failed");
+        let rust_code = pipeline.transpile(python_code).expect("Transpilation failed");
 
         assert!(
             rust_code.contains(".chars()"),
             "Should use .chars() for string operations"
         );
-        assert!(
-            rust_code.contains(".rev()"),
-            "Should use .rev() for reversal"
-        );
-        assert!(
-            rust_code.contains("collect::<String>()"),
-            "Should collect into String"
-        );
+        assert!(rust_code.contains(".rev()"), "Should use .rev() for reversal");
+        assert!(rust_code.contains("collect::<String>()"), "Should collect into String");
     }
 
     #[test]
@@ -248,14 +185,9 @@ def substring(s: str, start: int, stop: int) -> str:
 "#;
 
         let pipeline = DepylerPipeline::new();
-        let rust_code = pipeline
-            .transpile(python_code)
-            .expect("Transpilation failed");
+        let rust_code = pipeline.transpile(python_code).expect("Transpilation failed");
 
-        assert!(
-            rust_code.contains(".chars()"),
-            "Should use .chars() for string slicing"
-        );
+        assert!(rust_code.contains(".chars()"), "Should use .chars() for string slicing");
         assert!(
             rust_code.contains(".skip(") || rust_code.contains(".take("),
             "Should use .skip()/.take() for range slicing"
@@ -270,14 +202,9 @@ def every_nth_char(s: str, n: int) -> str:
 "#;
 
         let pipeline = DepylerPipeline::new();
-        let rust_code = pipeline
-            .transpile(python_code)
-            .expect("Transpilation failed");
+        let rust_code = pipeline.transpile(python_code).expect("Transpilation failed");
 
-        assert!(
-            rust_code.contains(".chars()"),
-            "Should use .chars() for string slicing"
-        );
+        assert!(rust_code.contains(".chars()"), "Should use .chars() for string slicing");
         assert!(
             rust_code.contains(".step_by(") || rust_code.contains("step"),
             "Should handle step parameter"
@@ -297,9 +224,7 @@ def test_all_patterns(s: str) -> str:
 "#;
 
         let pipeline = DepylerPipeline::new();
-        let rust_code = pipeline
-            .transpile(python_code)
-            .expect("Transpilation failed");
+        let rust_code = pipeline.transpile(python_code).expect("Transpilation failed");
 
         std::fs::write("/tmp/test_string_patterns.rs", &rust_code).expect("Failed to write test file");
 
@@ -325,9 +250,7 @@ def last_elements(arr: list[int]) -> list[int]:
 "#;
 
         let pipeline = DepylerPipeline::new();
-        let rust_code = pipeline
-            .transpile(python_code)
-            .expect("Transpilation failed");
+        let rust_code = pipeline.transpile(python_code).expect("Transpilation failed");
 
         assert!(
             rust_code.contains("Vec") || rust_code.contains("vec"),
@@ -344,14 +267,9 @@ def process_string(s: str) -> str:
 "#;
 
         let pipeline = DepylerPipeline::new();
-        let rust_code = pipeline
-            .transpile(python_code)
-            .expect("Transpilation failed");
+        let rust_code = pipeline.transpile(python_code).expect("Transpilation failed");
 
-        assert!(
-            rust_code.contains(".repeat("),
-            "String repetition should still work"
-        );
+        assert!(rust_code.contains(".repeat("), "String repetition should still work");
     }
 
     #[test]
@@ -364,9 +282,7 @@ def mixed_types(s: str, arr: list[int]) -> str:
 "#;
 
         let pipeline = DepylerPipeline::new();
-        let rust_code = pipeline
-            .transpile(python_code)
-            .expect("Transpilation failed");
+        let rust_code = pipeline.transpile(python_code).expect("Transpilation failed");
 
         assert!(
             rust_code.contains("s") || rust_code.contains("string"),
@@ -386,9 +302,7 @@ def full_copy(s: str) -> str:
 "#;
 
         let pipeline = DepylerPipeline::new();
-        let rust_code = pipeline
-            .transpile(python_code)
-            .expect("Transpilation failed");
+        let rust_code = pipeline.transpile(python_code).expect("Transpilation failed");
 
         assert!(
             rust_code.contains(".to_string()") || rust_code.contains(".clone()"),
@@ -404,14 +318,9 @@ def reverse_every_second(s: str) -> str:
 "#;
 
         let pipeline = DepylerPipeline::new();
-        let rust_code = pipeline
-            .transpile(python_code)
-            .expect("Transpilation failed");
+        let rust_code = pipeline.transpile(python_code).expect("Transpilation failed");
 
-        assert!(
-            rust_code.contains(".rev()"),
-            "Negative step should use .rev()"
-        );
+        assert!(rust_code.contains(".rev()"), "Negative step should use .rev()");
         assert!(
             rust_code.contains(".step_by(") || rust_code.contains("abs_step"),
             "Should handle step magnitude"
@@ -435,11 +344,7 @@ def greet(name: str) -> str:
 
         let pipeline = DepylerPipeline::new();
         let result = pipeline.transpile(python);
-        assert!(
-            result.is_ok(),
-            "Transpilation failed: {:?}",
-            result.as_ref().err()
-        );
+        assert!(result.is_ok(), "Transpilation failed: {:?}", result.as_ref().err());
 
         let rust_code = result.unwrap();
 
@@ -472,20 +377,12 @@ def describe(name: str, age: int) -> str:
 
         let pipeline = DepylerPipeline::new();
         let result = pipeline.transpile(python);
-        assert!(
-            result.is_ok(),
-            "Transpilation failed: {:?}",
-            result.as_ref().err()
-        );
+        assert!(result.is_ok(), "Transpilation failed: {:?}", result.as_ref().err());
 
         let rust_code = result.unwrap();
 
         let has_format = rust_code.contains("format!") || rust_code.contains("format !");
-        assert!(
-            has_format,
-            "Should generate format!().\nGot:\n{}",
-            rust_code
-        );
+        assert!(has_format, "Should generate format!().\nGot:\n{}", rust_code);
 
         assert!(
             rust_code.contains("{} is {} years old"),
@@ -505,20 +402,12 @@ def test() -> str:
 
         let pipeline = DepylerPipeline::new();
         let result = pipeline.transpile(python);
-        assert!(
-            result.is_ok(),
-            "Transpilation failed: {:?}",
-            result.as_ref().err()
-        );
+        assert!(result.is_ok(), "Transpilation failed: {:?}", result.as_ref().err());
 
         let rust_code = result.unwrap();
 
         let has_format = rust_code.contains("format!") || rust_code.contains("format !");
-        assert!(
-            has_format,
-            "F-string in assignment should work.\nGot:\n{}",
-            rust_code
-        );
+        assert!(has_format, "F-string in assignment should work.\nGot:\n{}", rust_code);
     }
 
     #[test]
@@ -530,11 +419,7 @@ def test() -> str:
 
         let pipeline = DepylerPipeline::new();
         let result = pipeline.transpile(python);
-        assert!(
-            result.is_ok(),
-            "Transpilation failed: {:?}",
-            result.as_ref().err()
-        );
+        assert!(result.is_ok(), "Transpilation failed: {:?}", result.as_ref().err());
 
         let rust_code = result.unwrap();
 
@@ -554,11 +439,7 @@ def test() -> str:
 
         let pipeline = DepylerPipeline::new();
         let result = pipeline.transpile(python);
-        assert!(
-            result.is_ok(),
-            "Transpilation failed: {:?}",
-            result.as_ref().err()
-        );
+        assert!(result.is_ok(), "Transpilation failed: {:?}", result.as_ref().err());
 
         let rust_code = result.unwrap();
 
@@ -578,20 +459,12 @@ def test(x: int, y: float) -> str:
 
         let pipeline = DepylerPipeline::new();
         let result = pipeline.transpile(python);
-        assert!(
-            result.is_ok(),
-            "Transpilation failed: {:?}",
-            result.as_ref().err()
-        );
+        assert!(result.is_ok(), "Transpilation failed: {:?}", result.as_ref().err());
 
         let rust_code = result.unwrap();
 
         let has_format = rust_code.contains("format!") || rust_code.contains("format !");
-        assert!(
-            has_format,
-            "F-string with numbers should work.\nGot:\n{}",
-            rust_code
-        );
+        assert!(has_format, "F-string with numbers should work.\nGot:\n{}", rust_code);
 
         assert!(
             rust_code.contains("x={}, y={}"),
@@ -609,11 +482,7 @@ def test() -> str:
 
         let pipeline = DepylerPipeline::new();
         let result = pipeline.transpile(python);
-        assert!(
-            result.is_ok(),
-            "Transpilation failed: {:?}",
-            result.as_ref().err()
-        );
+        assert!(result.is_ok(), "Transpilation failed: {:?}", result.as_ref().err());
 
         let rust_code = result.unwrap();
 
@@ -634,20 +503,12 @@ def test(first: str, last: str) -> str:
 
         let pipeline = DepylerPipeline::new();
         let result = pipeline.transpile(python);
-        assert!(
-            result.is_ok(),
-            "Transpilation failed: {:?}",
-            result.as_ref().err()
-        );
+        assert!(result.is_ok(), "Transpilation failed: {:?}", result.as_ref().err());
 
         let rust_code = result.unwrap();
 
         let has_format = rust_code.contains("format!") || rust_code.contains("format !");
-        assert!(
-            has_format,
-            "Concatenated f-strings should work.\nGot:\n{}",
-            rust_code
-        );
+        assert!(has_format, "Concatenated f-strings should work.\nGot:\n{}", rust_code);
     }
 
     #[test]
@@ -662,11 +523,7 @@ def test(name: str) -> str:
 
         let pipeline = DepylerPipeline::new();
         let result = pipeline.transpile(python);
-        assert!(
-            result.is_ok(),
-            "Transpilation failed: {:?}",
-            result.as_ref().err()
-        );
+        assert!(result.is_ok(), "Transpilation failed: {:?}", result.as_ref().err());
 
         let rust_code = result.unwrap();
 
@@ -689,19 +546,11 @@ You are {age} years old"""
 
         let pipeline = DepylerPipeline::new();
         let result = pipeline.transpile(python);
-        assert!(
-            result.is_ok(),
-            "Transpilation failed: {:?}",
-            result.as_ref().err()
-        );
+        assert!(result.is_ok(), "Transpilation failed: {:?}", result.as_ref().err());
 
         let rust_code = result.unwrap();
 
         let has_format = rust_code.contains("format!") || rust_code.contains("format !");
-        assert!(
-            has_format,
-            "Multiline f-string should work.\nGot:\n{}",
-            rust_code
-        );
+        assert!(has_format, "Multiline f-string should work.\nGot:\n{}", rust_code);
     }
 }

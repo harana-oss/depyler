@@ -1,6 +1,6 @@
 mod test_helpers;
 
-use test_helpers::{transpile, transpile_and_check};
+use test_helpers::transpile_and_check;
 
 #[test]
 fn test_simple_constants() {
@@ -51,7 +51,7 @@ GREETING = "Hello"
 MESSAGE = "World"
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("NAME"), "Should contain NAME");
     assert!(rust_code.contains("GREETING"), "Should contain GREETING");
@@ -70,7 +70,7 @@ STRING_VALUE = "test"
 BOOL_VALUE = True
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("INT_VALUE"), "Should contain INT_VALUE");
     assert!(rust_code.contains("FLOAT_VALUE"), "Should contain FLOAT_VALUE");
@@ -117,7 +117,7 @@ fn test_integer_list_constant() {
 VEC = [1, 2, 3, 4]
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     assert!(rust_code.contains("VEC"), "Should contain VEC");
 }
 
@@ -127,7 +127,7 @@ fn test_string_list_constant() {
 VEC = ["1", "2", "3", "4"]
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     assert!(rust_code.contains("VEC"), "Should contain VEC");
 }
 
@@ -137,7 +137,7 @@ fn test_float_list_constant() {
 VEC = [1.1, 2.2, 3.3, 4.4]
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     assert!(rust_code.contains("VEC"), "Should contain VEC");
 }
 
@@ -147,7 +147,7 @@ fn test_bool_list_constant() {
 VEC = [True, False, True, False]
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     assert!(rust_code.contains("VEC"), "Should contain VEC");
 }
 
@@ -157,7 +157,7 @@ fn test_nested_integer_list_constant() {
 X_VALUES = [[0, 100], [100, 200]]
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("lazy_static!"), "Should use lazy_static!");
     assert!(
@@ -173,7 +173,7 @@ fn test_string_list_constant_multiple() {
 STRINGS = ["one", "two", "three"]
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("lazy_static!"), "Should use lazy_static!");
     assert!(

@@ -1,13 +1,9 @@
-use depyler_core::DepylerPipeline;
+mod test_helpers;
+use test_helpers::transpile_and_check;
 
-#[cfg(test)]
-mod boundary_value_tests {
-    use super::*;
-
-    #[test]
-    fn test_zero_values() {
-        let pipeline = DepylerPipeline::new();
-        let zero_values_source = r#"
+#[test]
+fn test_zero_values() {
+    let zero_values_source = r#"
 def zero_test() -> int:
     zero_int = 0
     zero_float = 0.0
@@ -16,14 +12,12 @@ def zero_test() -> int:
     return len(zero_list) + len(zero_dict) + zero_int
 "#;
 
-        let result = pipeline.transpile(zero_values_source);
-        assert!(result.is_ok());
-    }
+    transpile_and_check(zero_values_source, &[]);
+}
 
-    #[test]
-    fn test_negative_one_values() {
-        let pipeline = DepylerPipeline::new();
-        let negative_one_source = r#"
+#[test]
+fn test_negative_one_values() {
+    let negative_one_source = r#"
 def negative_one_test(arr: list) -> int:
     last_index = -1
     if arr:
@@ -31,14 +25,12 @@ def negative_one_test(arr: list) -> int:
     return -1
 "#;
 
-        let result = pipeline.transpile(negative_one_source);
-        assert!(result.is_ok() || result.is_err());
-    }
+    transpile_and_check(negative_one_source, &[]);
+}
 
-    #[test]
-    fn test_maximum_list_size() {
-        let pipeline = DepylerPipeline::new();
-        let max_list_source = r#"
+#[test]
+fn test_maximum_list_size() {
+    let max_list_source = r#"
 def create_large_list(size: int) -> list:
     result = []
     for i in range(size):
@@ -46,28 +38,24 @@ def create_large_list(size: int) -> list:
     return result
 "#;
 
-        let result = pipeline.transpile(max_list_source);
-        assert!(result.is_ok());
-    }
+    transpile_and_check(max_list_source, &[]);
+}
 
-    #[test]
-    fn test_single_element_collections() {
-        let pipeline = DepylerPipeline::new();
-        let single_element_source = r#"
+#[test]
+fn test_single_element_collections() {
+    let single_element_source = r#"
 def single_element_test() -> int:
     single_list = [42]
     single_dict = {"key": "value"}
     return len(single_list) + len(single_dict)
 "#;
 
-        let result = pipeline.transpile(single_element_source);
-        assert!(result.is_ok() || result.is_err());
-    }
+    transpile_and_check(single_element_source, &[]);
+}
 
-    #[test]
-    fn test_power_of_two_boundaries() {
-        let pipeline = DepylerPipeline::new();
-        let power_of_two_source = r#"
+#[test]
+fn test_power_of_two_boundaries() {
+    let power_of_two_source = r#"
 def power_of_two_test() -> int:
     powers = [1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024]
     total = 0
@@ -76,14 +64,12 @@ def power_of_two_test() -> int:
     return total
 "#;
 
-        let result = pipeline.transpile(power_of_two_source);
-        assert!(result.is_ok());
-    }
+    transpile_and_check(power_of_two_source, &[]);
+}
 
-    #[test]
-    fn test_off_by_one_loop_conditions() {
-        let pipeline = DepylerPipeline::new();
-        let off_by_one_source = r#"
+#[test]
+fn test_off_by_one_loop_conditions() {
+    let off_by_one_source = r#"
 def off_by_one_test(n: int) -> int:
     # Test various loop boundaries
     count1 = 0
@@ -101,14 +87,12 @@ def off_by_one_test(n: int) -> int:
     return count1 + count2 + count3
 "#;
 
-        let result = pipeline.transpile(off_by_one_source);
-        assert!(result.is_ok());
-    }
+    transpile_and_check(off_by_one_source, &[]);
+}
 
-    #[test]
-    fn test_string_length_boundaries() {
-        let pipeline = DepylerPipeline::new();
-        let string_boundaries_source = r#"
+#[test]
+fn test_string_length_boundaries() {
+    let string_boundaries_source = r#"
 def string_boundary_test() -> int:
     empty_string = ""
     single_char = "a"
@@ -117,14 +101,12 @@ def string_boundary_test() -> int:
     return len(empty_string) + len(single_char) + len(long_string)
 "#;
 
-        let result = pipeline.transpile(string_boundaries_source);
-        assert!(result.is_ok() || result.is_err());
-    }
+    transpile_and_check(string_boundaries_source, &[]);
+}
 
-    #[test]
-    fn test_floating_point_boundaries() {
-        let pipeline = DepylerPipeline::new();
-        let float_boundaries_source = r#"
+#[test]
+fn test_floating_point_boundaries() {
+    let float_boundaries_source = r#"
 def float_boundary_test() -> float:
     tiny = 0.0001
     zero = 0.0
@@ -134,14 +116,12 @@ def float_boundary_test() -> float:
     return tiny + zero + negative_tiny + one
 "#;
 
-        let result = pipeline.transpile(float_boundaries_source);
-        assert!(result.is_ok() || result.is_err());
-    }
+    transpile_and_check(float_boundaries_source, &[]);
+}
 
-    #[test]
-    fn test_recursive_depth_boundaries() {
-        let pipeline = DepylerPipeline::new();
-        let recursion_source = r#"
+#[test]
+fn test_recursive_depth_boundaries() {
+    let recursion_source = r#"
 def factorial_recursive(n: int) -> int:
     if n <= 1:
         return 1
@@ -154,14 +134,12 @@ def test_recursion_depths() -> int:
     return small + medium
 "#;
 
-        let result = pipeline.transpile(recursion_source);
-        assert!(result.is_ok());
-    }
+    transpile_and_check(recursion_source, &[]);
+}
 
-    #[test]
-    fn test_boolean_boundaries() {
-        let pipeline = DepylerPipeline::new();
-        let boolean_boundaries_source = r#"
+#[test]
+fn test_boolean_boundaries() {
+    let boolean_boundaries_source = r#"
 def boolean_boundary_test() -> bool:
     true_val = True
     false_val = False
@@ -175,14 +153,12 @@ def boolean_boundary_test() -> bool:
     return true_val and not false_val
 "#;
 
-        let result = pipeline.transpile(boolean_boundaries_source);
-        assert!(result.is_ok() || result.is_err());
-    }
+    transpile_and_check(boolean_boundaries_source, &[]);
+}
 
-    #[test]
-    fn test_modulo_operation_boundaries() {
-        let pipeline = DepylerPipeline::new();
-        let modulo_boundaries_source = r#"
+#[test]
+fn test_modulo_operation_boundaries() {
+    let modulo_boundaries_source = r#"
 def modulo_boundary_test(n: int) -> int:
     # Test modulo with various divisors
     mod_one = n % 1 if n != 0 else 0
@@ -193,14 +169,12 @@ def modulo_boundary_test(n: int) -> int:
     return mod_two + mod_ten + mod_hundred
 "#;
 
-        let result = pipeline.transpile(modulo_boundaries_source);
-        assert!(result.is_ok() || result.is_err());
-    }
+    transpile_and_check(modulo_boundaries_source, &[]);
+}
 
-    #[test]
-    fn test_range_boundaries() {
-        let pipeline = DepylerPipeline::new();
-        let range_boundaries_source = r#"
+#[test]
+fn test_range_boundaries() {
+    let range_boundaries_source = r#"
 def range_boundary_test() -> int:
     # Test edge cases for range function
     empty_range = list(range(0))
@@ -210,14 +184,12 @@ def range_boundary_test() -> int:
     return len(empty_range) + len(single_range) + len(reverse_range)
 "#;
 
-        let result = pipeline.transpile(range_boundaries_source);
-        assert!(result.is_ok() || result.is_err());
-    }
+    transpile_and_check(range_boundaries_source, &[]);
+}
 
-    #[test]
-    fn test_conditional_boundaries() {
-        let pipeline = DepylerPipeline::new();
-        let conditional_boundaries_source = r#"
+#[test]
+fn test_conditional_boundaries() {
+    let conditional_boundaries_source = r#"
 def conditional_boundary_test(x: int) -> int:
     # Test boundary conditions in if statements
     if x < 0:
@@ -230,14 +202,12 @@ def conditional_boundary_test(x: int) -> int:
         return x
 "#;
 
-        let result = pipeline.transpile(conditional_boundaries_source);
-        assert!(result.is_ok());
-    }
+    transpile_and_check(conditional_boundaries_source, &[]);
+}
 
-    #[test]
-    fn test_comparison_operator_boundaries() {
-        let pipeline = DepylerPipeline::new();
-        let comparison_boundaries_source = r#"
+#[test]
+fn test_comparison_operator_boundaries() {
+    let comparison_boundaries_source = r#"
 def comparison_boundary_test(a: int, b: int) -> bool:
     # Test all comparison operators at boundaries
     equal = a == b
@@ -250,14 +220,12 @@ def comparison_boundary_test(a: int, b: int) -> bool:
     return equal or not_equal or less_than or less_equal or greater_than or greater_equal
 "#;
 
-        let result = pipeline.transpile(comparison_boundaries_source);
-        assert!(result.is_ok() || result.is_err()); // May fail on complex expressions
-    }
+    transpile_and_check(comparison_boundaries_source, &[]);
+}
 
-    #[test]
-    fn test_container_access_boundaries() {
-        let pipeline = DepylerPipeline::new();
-        let container_access_source = r#"
+#[test]
+fn test_container_access_boundaries() {
+    let container_access_source = r#"
 def container_access_test() -> int:
     items = [1, 2, 3, 4, 5]
     
@@ -274,14 +242,12 @@ def container_access_test() -> int:
     return first + last + len(all_items) + len(first_two) + len(last_two) + len(middle)
 "#;
 
-        let result = pipeline.transpile(container_access_source);
-        assert!(result.is_ok() || result.is_err());
-    }
+    transpile_and_check(container_access_source, &[]);
+}
 
-    #[test]
-    fn test_arithmetic_overflow_boundaries() {
-        let pipeline = DepylerPipeline::new();
-        let arithmetic_overflow_source = r#"
+#[test]
+fn test_arithmetic_overflow_boundaries() {
+    let arithmetic_overflow_source = r#"
 def arithmetic_boundary_test() -> int:
     # Test potential overflow conditions
     large_positive = 1000000
@@ -294,7 +260,5 @@ def arithmetic_boundary_test() -> int:
     return addition + subtraction + multiplication
 "#;
 
-        let result = pipeline.transpile(arithmetic_overflow_source);
-        assert!(result.is_ok());
-    }
+    transpile_and_check(arithmetic_overflow_source, &[]);
 }

@@ -1,3 +1,5 @@
+mod test_helpers;
+
 use depyler_core::DepylerPipeline;
 use std::fs;
 use std::process::Command;
@@ -8,11 +10,7 @@ fn test_basic_transpile_command() {
     let temp_dir = TempDir::new().unwrap();
     let input_file = temp_dir.path().join("test.py");
 
-    fs::write(
-        &input_file,
-        "def add(a: int, b: int) -> int:\n    return a + b",
-    )
-    .unwrap();
+    fs::write(&input_file, "def add(a: int, b: int) -> int:\n    return a + b").unwrap();
 
     let output = Command::new("cargo")
         .args(["run", "--", "transpile", input_file.to_str().unwrap()])
@@ -27,11 +25,7 @@ fn test_analyze_command() {
     let temp_dir = TempDir::new().unwrap();
     let input_file = temp_dir.path().join("test.py");
 
-    fs::write(
-        &input_file,
-        "def simple_func(x: int) -> int:\n    return x * 2",
-    )
-    .unwrap();
+    fs::write(&input_file, "def simple_func(x: int) -> int:\n    return x * 2").unwrap();
 
     let output = Command::new("cargo")
         .args(["run", "--", "analyze", input_file.to_str().unwrap()])
@@ -46,11 +40,7 @@ fn test_check_command() {
     let temp_dir = TempDir::new().unwrap();
     let input_file = temp_dir.path().join("test.py");
 
-    fs::write(
-        &input_file,
-        "def check_func(n: int) -> bool:\n    return n > 0",
-    )
-    .unwrap();
+    fs::write(&input_file, "def check_func(n: int) -> bool:\n    return n > 0").unwrap();
 
     let output = Command::new("cargo")
         .args(["run", "--", "check", input_file.to_str().unwrap()])
@@ -66,11 +56,7 @@ fn test_quality_check_command() {
     let temp_dir = TempDir::new().unwrap();
     let input_file = temp_dir.path().join("test.py");
 
-    fs::write(
-        &input_file,
-        "def quality_func(x: int) -> int:\n    return x + 1",
-    )
-    .unwrap();
+    fs::write(&input_file, "def quality_func(x: int) -> int:\n    return x + 1").unwrap();
 
     let output = Command::new("cargo")
         .args(["run", "--", "quality-check", input_file.to_str().unwrap()])
@@ -119,21 +105,10 @@ fn test_json_output_format() {
     let temp_dir = TempDir::new().unwrap();
     let input_file = temp_dir.path().join("test.py");
 
-    fs::write(
-        &input_file,
-        "def json_test(x: int) -> str:\n    return str(x)",
-    )
-    .unwrap();
+    fs::write(&input_file, "def json_test(x: int) -> str:\n    return str(x)").unwrap();
 
     let output = Command::new("cargo")
-        .args([
-            "run",
-            "--",
-            "analyze",
-            input_file.to_str().unwrap(),
-            "--format",
-            "json",
-        ])
+        .args(["run", "--", "analyze", input_file.to_str().unwrap(), "--format", "json"])
         .output()
         .expect("Failed to execute command");
 
@@ -187,11 +162,7 @@ def complex_function(a: int, b: int, c: int, d: int) -> int:
 
     // Should produce quality report regardless of pass/fail
     let stdout_str = String::from_utf8_lossy(&output.stdout);
-    assert!(
-        stdout_str.contains("Quality Report")
-            || stdout_str.contains("Quality Gates")
-            || !output.stderr.is_empty()
-    );
+    assert!(stdout_str.contains("Quality Report") || stdout_str.contains("Quality Gates") || !output.stderr.is_empty());
 }
 
 #[test]
@@ -212,23 +183,13 @@ def annotated_func(items: list[int]) -> list[int]:
     .unwrap();
 
     let output = Command::new("cargo")
-        .args([
-            "run",
-            "--",
-            "interactive",
-            input_file.to_str().unwrap(),
-            "--annotate",
-        ])
+        .args(["run", "--", "interactive", input_file.to_str().unwrap(), "--annotate"])
         .output()
         .expect("Failed to execute command");
 
     let stdout_str = String::from_utf8_lossy(&output.stdout);
     // Should parse and display annotations
-    assert!(
-        stdout_str.contains("annotations")
-            || stdout_str.contains("Strategy")
-            || !output.stderr.is_empty()
-    );
+    assert!(stdout_str.contains("annotations") || stdout_str.contains("Strategy") || !output.stderr.is_empty());
 }
 
 #[test]
@@ -301,13 +262,7 @@ fn test_transpile_verify_flag() {
     let input = create_test_py(&dir, "test.py");
 
     let result = Command::new("cargo")
-        .args([
-            "run",
-            "--",
-            "transpile",
-            input.to_str().unwrap(),
-            "--verify",
-        ])
+        .args(["run", "--", "transpile", input.to_str().unwrap(), "--verify"])
         .output()
         .expect("Failed to execute");
 
@@ -320,13 +275,7 @@ fn test_transpile_gen_tests_flag() {
     let input = create_test_py(&dir, "test.py");
 
     let result = Command::new("cargo")
-        .args([
-            "run",
-            "--",
-            "transpile",
-            input.to_str().unwrap(),
-            "--gen-tests",
-        ])
+        .args(["run", "--", "transpile", input.to_str().unwrap(), "--gen-tests"])
         .output()
         .expect("Failed to execute");
 
@@ -352,13 +301,7 @@ fn test_transpile_source_map_flag() {
     let input = create_test_py(&dir, "test.py");
 
     let result = Command::new("cargo")
-        .args([
-            "run",
-            "--",
-            "transpile",
-            input.to_str().unwrap(),
-            "--source-map",
-        ])
+        .args(["run", "--", "transpile", input.to_str().unwrap(), "--source-map"])
         .output()
         .expect("Failed to execute");
 
@@ -400,13 +343,7 @@ fn test_quality_check_enforce_flag() {
     let input = create_test_py(&dir, "test.py");
 
     let result = Command::new("cargo")
-        .args([
-            "run",
-            "--",
-            "quality-check",
-            input.to_str().unwrap(),
-            "--enforce",
-        ])
+        .args(["run", "--", "quality-check", input.to_str().unwrap(), "--enforce"])
         .output()
         .expect("Failed to execute");
 
@@ -477,14 +414,7 @@ fn test_inspect_repr_python_ast() {
     let input = create_test_py(&dir, "test.py");
 
     let result = Command::new("cargo")
-        .args([
-            "run",
-            "--",
-            "inspect",
-            input.to_str().unwrap(),
-            "--repr",
-            "python-ast",
-        ])
+        .args(["run", "--", "inspect", input.to_str().unwrap(), "--repr", "python-ast"])
         .output()
         .expect("Failed to execute");
 
@@ -497,14 +427,7 @@ fn test_inspect_repr_typed_hir() {
     let input = create_test_py(&dir, "test.py");
 
     let result = Command::new("cargo")
-        .args([
-            "run",
-            "--",
-            "inspect",
-            input.to_str().unwrap(),
-            "--repr",
-            "typed-hir",
-        ])
+        .args(["run", "--", "inspect", input.to_str().unwrap(), "--repr", "typed-hir"])
         .output()
         .expect("Failed to execute");
 
@@ -517,14 +440,7 @@ fn test_inspect_format_json() {
     let input = create_test_py(&dir, "test.py");
 
     let result = Command::new("cargo")
-        .args([
-            "run",
-            "--",
-            "inspect",
-            input.to_str().unwrap(),
-            "--format",
-            "json",
-        ])
+        .args(["run", "--", "inspect", input.to_str().unwrap(), "--format", "json"])
         .output()
         .expect("Failed to execute");
 
@@ -537,14 +453,7 @@ fn test_inspect_format_debug() {
     let input = create_test_py(&dir, "test.py");
 
     let result = Command::new("cargo")
-        .args([
-            "run",
-            "--",
-            "inspect",
-            input.to_str().unwrap(),
-            "--format",
-            "debug",
-        ])
+        .args(["run", "--", "inspect", input.to_str().unwrap(), "--format", "debug"])
         .output()
         .expect("Failed to execute");
 
@@ -711,13 +620,7 @@ fn test_profile_flamegraph_flag() {
     let input = create_test_py(&dir, "test.py");
 
     let result = Command::new("cargo")
-        .args([
-            "run",
-            "--",
-            "profile",
-            input.to_str().unwrap(),
-            "--flamegraph",
-        ])
+        .args(["run", "--", "profile", input.to_str().unwrap(), "--flamegraph"])
         .output()
         .expect("Failed to execute");
 
@@ -778,13 +681,7 @@ fn test_global_verbose_flag() {
     let input = create_test_py(&dir, "test.py");
 
     let result = Command::new("cargo")
-        .args([
-            "run",
-            "--",
-            "--verbose",
-            "transpile",
-            input.to_str().unwrap(),
-        ])
+        .args(["run", "--", "--verbose", "transpile", input.to_str().unwrap()])
         .output()
         .expect("Failed to execute");
 

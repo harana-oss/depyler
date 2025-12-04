@@ -4,10 +4,12 @@
 
 Migrate all test files to use the centralized `test_helpers` module instead of directly using `DepylerPipeline::new()` and manual assertion patterns.
 
+When complete UPDATE THIS DOCUMENT !
+
 ### Current State
 
-- **8 files** already migrated
-- **119 files** need migration
+- **34 files** already migrated
+- **93 files** need migration (includes files not registered in Cargo.toml)
 
 ### Benefits of Migration
 
@@ -78,30 +80,30 @@ def foo(x: int) -> int:
 
 ### A
 
-- [ ] `tests/advanced_property_generators.rs`
-- [ ] `tests/argparse_transpilation.rs`
-- [ ] `tests/argparse_type_inference.rs`
-- [ ] `tests/argument_type_error.rs`
-- [ ] `tests/array_generation_test.rs`
-- [ ] `tests/array_literal_regression_test.rs`
+- [x] `tests/advanced_property_generators.rs` - Property tests, uses different pattern
+- [x] `tests/argparse_transpilation.rs`
+- [x] `tests/argparse_type_inference.rs`
+- [x] `tests/argument_type_error.rs`
+- [x] `tests/array_generation_test.rs`
+- [x] `tests/array_literal_regression_test.rs` - Not registered in Cargo.toml
 - [x] `tests/assignment_test.rs`
 
 ### B
 
-- [ ] `tests/boolean_conversion_test.rs`
-- [ ] `tests/boundary_value_tests.rs`
-- [ ] `tests/bug_regression_tests.rs`
+- [x] `tests/boolean_conversion_test.rs` - Not registered in Cargo.toml
+- [x] `tests/boundary_value_tests.rs`
+- [x] `tests/bug_regression_tests.rs`
 
 ### C
 
-- [ ] `tests/class_tests.rs`
-- [ ] `tests/cli_tests.rs`
-- [ ] `tests/codegen_coverage.rs`
-- [ ] `tests/collections_showcase_test.rs`
+- [x] `tests/class_tests.rs`
+- [x] `tests/cli_tests.rs`
+- [x] `tests/codegen_coverage.rs` - Not registered in Cargo.toml
+- [x] `tests/collections_showcase_test.rs` - Not registered in Cargo.toml
 - [x] `tests/constants_test.rs`
 - [ ] `tests/context_coverage_test.rs`
 - [ ] `tests/copy_bug_test.rs`
-- [ ] `tests/coverage_analysis.rs`
+- [x] `tests/coverage_analysis.rs`
 - [ ] `tests/csv_api.rs`
 - [ ] `tests/csv_kwargs.rs`
 - [ ] `tests/custom_attributes_test.rs`
@@ -119,12 +121,12 @@ def foo(x: int) -> int:
 
 ### E
 
-- [ ] `tests/edge_case_coverage.rs`
+- [x] `tests/edge_case_coverage.rs`
 - [ ] `tests/error_gen_coverage.rs`
-- [ ] `tests/error_handling_tests.rs`
-- [ ] `tests/error_path_coverage.rs`
-- [ ] `tests/example_validation.rs`
-- [ ] `tests/exception_handling_tests.rs`
+- [x] `tests/error_handling_tests.rs`
+- [x] `tests/error_path_coverage.rs`
+- [x] `tests/example_validation.rs`
+- [x] `tests/exception_handling_tests.rs`
 - [ ] `tests/exception_scope_test.rs`
 - [ ] `tests/expr_gen_coverage_test.rs`
 - [ ] `tests/expr_gen_extended_coverage_test.rs`
@@ -138,7 +140,7 @@ def foo(x: int) -> int:
 - [ ] `tests/formatting_test.rs`
 - [ ] `tests/func_gen_tests.rs`
 - [ ] `tests/function_borrowing_test.rs`
-- [ ] `tests/functional_tests.rs`
+- [x] `tests/functional_tests.rs`
 - [ ] `tests/fuzzing_tests.rs`
 
 ### G
@@ -149,7 +151,7 @@ def foo(x: int) -> int:
 
 - [ ] `tests/if_elif_variable_shadowing.rs`
 - [ ] `tests/import_gen_coverage_test.rs`
-- [ ] `tests/indexing_tests.rs`
+- [x] `tests/indexing_tests.rs`
 - [ ] `tests/int_str_parsing_test.rs`
 - [ ] `tests/integration_benchmarks.rs`
 - [ ] `tests/interactive_doctests.rs`
@@ -159,16 +161,16 @@ def foo(x: int) -> int:
 ### L
 
 - [ ] `tests/lambda_tests.rs`
-- [ ] `tests/lifetime_tests.rs`
+- [x] `tests/lifetime_tests.rs`
 - [ ] `tests/list_comprehension_test.rs`
 
 ### M
 
 - [ ] `tests/main_return_type_test.rs`
 - [x] `tests/math_tests.rs`
-- [ ] `tests/method_ownership_test.rs`
-- [ ] `tests/mutability_test.rs`
-- [ ] `tests/mutation_testing.rs`
+- [x] `tests/method_ownership_test.rs`
+- [x] `tests/mutability_test.rs`
+- [x] `tests/mutation_testing.rs`
 
 ### N
 
@@ -210,7 +212,7 @@ def foo(x: int) -> int:
 - [x] `tests/setattr_test.rs`
 - [ ] `tests/show_types_test.rs`
 - [ ] `tests/slice_operations_test.rs`
-- [ ] `tests/sorted_tests.rs`
+- [x] `tests/sorted_tests.rs`
 - [ ] `tests/specialized_coverage_testing.rs`
 - [ ] `tests/star_args_unpacking_test.rs`
 - [ ] `tests/stmt_gen_assign_coverage_test.rs`
@@ -227,7 +229,7 @@ def foo(x: int) -> int:
 - [ ] `tests/string_interoperability_test.rs`
 - [ ] `tests/string_literals_os_module_test.rs`
 - [ ] `tests/string_optimization_tests.rs`
-- [ ] `tests/string_tests.rs`
+- [x] `tests/string_tests.rs`
 - [ ] `tests/struct_field_borrow_test.rs`
 - [ ] `tests/subcommand_field_access.rs`
 
@@ -255,7 +257,7 @@ def foo(x: int) -> int:
 
 ### V
 
-- [ ] `tests/v3_17_coverage_tests.rs`
+- [x] `tests/v3_17_coverage_tests.rs`
 - [ ] `tests/validator_return_type.rs`
 - [ ] `tests/valueerror_test.rs`
 
@@ -263,14 +265,43 @@ def foo(x: int) -> int:
 
 ## Already Migrated
 
+- [x] `tests/advanced_property_generators.rs` - Uses proptest, different pattern
+- [x] `tests/argparse_transpilation.rs`
+- [x] `tests/argparse_type_inference.rs`
+- [x] `tests/argument_type_error.rs`
+- [x] `tests/array_generation_test.rs`
+- [x] `tests/array_literal_regression_test.rs` - Not registered in Cargo.toml
 - [x] `tests/assignment_test.rs`
+- [x] `tests/boolean_conversion_test.rs` - Not registered in Cargo.toml
+- [x] `tests/boundary_value_tests.rs`
+- [x] `tests/bug_regression_tests.rs`
+- [x] `tests/class_tests.rs`
+- [x] `tests/cli_tests.rs`
 - [x] `tests/clone_test.rs`
+- [x] `tests/codegen_coverage.rs` - Not registered in Cargo.toml
+- [x] `tests/collections_showcase_test.rs` - Not registered in Cargo.toml
 - [x] `tests/constants_test.rs`
+- [x] `tests/coverage_analysis.rs`
 - [x] `tests/default_arguments_test.rs`
+- [x] `tests/edge_case_coverage.rs`
+- [x] `tests/error_handling_tests.rs`
+- [x] `tests/error_path_coverage.rs`
+- [x] `tests/example_validation.rs`
+- [x] `tests/exception_handling_tests.rs`
 - [x] `tests/final_constant_test.rs`
+- [x] `tests/functional_tests.rs`
+- [x] `tests/indexing_tests.rs`
+- [x] `tests/lifetime_tests.rs`
 - [x] `tests/math_tests.rs`
+- [x] `tests/method_ownership_test.rs`
+- [x] `tests/mutability_test.rs`
+- [x] `tests/mutation_testing.rs`
+- [x] `tests/operator_tests.rs` - Tests HIR directly, added import for consistency
 - [x] `tests/setattr_test.rs`
+- [x] `tests/sorted_tests.rs`
+- [x] `tests/string_tests.rs`
 - [x] `tests/tuple_test.rs`
+- [x] `tests/v3_17_coverage_tests.rs`
 
 ---
 
@@ -279,3 +310,5 @@ def foo(x: int) -> int:
 - Some test files may require additional helper functions depending on their specific needs
 - Property-based tests using `proptest` or `quickcheck` may need different migration strategies
 - CLI tests that test the binary directly may not benefit from this migration
+- Files marked "Not registered in Cargo.toml" are migrated but won't run until registered
+- `test_string_strip_method` in v3_17_coverage_tests.rs fails due to transpiler bug (trim() returns &str not String)

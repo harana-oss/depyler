@@ -6,6 +6,8 @@
 //! - sorted() with reverse parameter
 //! - sorted() with both key and reverse
 
+mod test_helpers;
+
 use depyler_core::DepylerPipeline;
 use std::process::Command;
 

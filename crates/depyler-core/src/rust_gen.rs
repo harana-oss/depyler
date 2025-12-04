@@ -133,11 +133,21 @@ fn scan_expr_for_validators(expr: &HirExpr, ctx: &mut CodeGenContext) {
 /// where each bool indicates if the corresponding parameter needs &mut.
 fn pre_analyze_parameter_mutability(ctx: &mut CodeGenContext, functions: &[HirFunction]) {
     // Pass 1: Direct mutation analysis
+    // For Copy types (int, float, bool), only mark as needing &mut if there's
+    // attribute/index/method mutation, not simple reassignment
     for func in functions {
         let param_muts: Vec<bool> = func
             .params
             .iter()
-            .map(|param| is_parameter_mutated(&param.name, &func.body))
+            .map(|param| {
+                if is_copy_type(&param.ty) {
+                    // Copy types only need &mut for attribute/index/method mutations
+                    is_parameter_ref_mutated(&param.name, &func.body)
+                } else {
+                    // Non-Copy types need &mut for any mutation
+                    is_parameter_mutated(&param.name, &func.body)
+                }
+            })
             .collect();
         ctx.function_param_muts.insert(func.name.clone(), param_muts);
     }
@@ -436,6 +446,111 @@ fn is_param_attribute_access(param_name: &str, expr: &HirExpr) -> bool {
         }
         _ => false,
     }
+}
+
+/// Check if a HIR Type is a Copy type (primitives that can be passed by value)
+fn is_copy_type(ty: &Type) -> bool {
+    match ty {
+        Type::Int | Type::Float | Type::Bool | Type::None => true,
+        Type::Optional(inner) => is_copy_type(inner),
+        Type::Tuple(types) => types.iter().all(is_copy_type),
+        _ => false,
+    }
+}
+
+/// Check if a parameter needs &mut reference (not just `mut` binding).
+/// For Copy types, simple reassignment (`val = x`) only needs `mut val: T`,
+/// but attribute/index/method mutations need `&mut T`.
+fn is_parameter_ref_mutated(param_name: &str, body: &[HirStmt]) -> bool {
+    let aliases = collect_param_aliases(param_name, body);
+
+    for stmt in body {
+        if stmt_ref_mutates_param(param_name, stmt) {
+            return true;
+        }
+        for alias in &aliases {
+            if stmt_ref_mutates_param(alias, stmt) {
+                return true;
+            }
+        }
+    }
+    false
+}
+
+/// Check if a statement performs a reference mutation on a parameter
+/// (attribute assignment, index assignment, or mutating method call).
+/// Simple reassignment (`param = value`) is NOT considered a ref mutation.
+fn stmt_ref_mutates_param(param_name: &str, stmt: &HirStmt) -> bool {
+    match stmt {
+        HirStmt::Assign { target, value, .. } => {
+            let target_ref_mutates = match target {
+                // Simple symbol assignment is NOT a ref mutation
+                AssignTarget::Symbol(_) => false,
+                // Attribute assignment IS a ref mutation
+                AssignTarget::Attribute { value: base, .. } => {
+                    if let HirExpr::Var(var_name) = base.as_ref() {
+                        var_name == param_name
+                    } else {
+                        expr_contains_param_mutation(param_name, base)
+                    }
+                }
+                // Index assignment IS a ref mutation
+                AssignTarget::Index { base, .. } => {
+                    if let HirExpr::Var(var_name) = base.as_ref() {
+                        var_name == param_name
+                    } else {
+                        expr_contains_param_mutation(param_name, base)
+                    }
+                }
+                _ => false,
+            };
+            target_ref_mutates || expr_mutates_param(param_name, value)
+        }
+        HirStmt::Expr(expr) => expr_mutates_param(param_name, expr),
+        HirStmt::If {
+            then_body,
+            else_body,
+            condition,
+            ..
+        } => {
+            expr_mutates_param(param_name, condition)
+                || body_ref_mutates_param(param_name, then_body)
+                || else_body
+                    .as_ref()
+                    .is_some_and(|eb| body_ref_mutates_param(param_name, eb))
+        }
+        HirStmt::While { body, condition, .. } => {
+            expr_mutates_param(param_name, condition) || body_ref_mutates_param(param_name, body)
+        }
+        HirStmt::For { target, iter, body, .. } => {
+            let loop_var = match target {
+                AssignTarget::Symbol(name) => Some(name.as_str()),
+                _ => None,
+            };
+            let iter_on_param = matches_param_attribute(param_name, iter);
+            let body_mutates_loop_var = loop_var.is_some_and(|lv| body_ref_mutates_param(lv, body));
+            (iter_on_param && body_mutates_loop_var) || body_ref_mutates_param(param_name, body)
+        }
+        HirStmt::Return(Some(expr)) => expr_mutates_param(param_name, expr),
+        HirStmt::Try {
+            body,
+            handlers,
+            orelse,
+            finalbody,
+        } => {
+            body_ref_mutates_param(param_name, body)
+                || handlers.iter().any(|h| body_ref_mutates_param(param_name, &h.body))
+                || orelse.as_ref().is_some_and(|o| body_ref_mutates_param(param_name, o))
+                || finalbody
+                    .as_ref()
+                    .is_some_and(|f| body_ref_mutates_param(param_name, f))
+        }
+        _ => false,
+    }
+}
+
+fn body_ref_mutates_param(param_name: &str, body: &[HirStmt]) -> bool {
+    body.iter().any(|stmt| stmt_ref_mutates_param(param_name, stmt))
 }
 
 /// Check if a parameter is mutated in the function body.

@@ -2,7 +2,7 @@
 
 mod test_helpers;
 
-use test_helpers::{transpile, transpile_and_check, transpile_check_absent};
+use test_helpers::{transpile_and_check, transpile_check_absent};
 
 // ============================================================================
 // Copy Types - No Clone Needed
@@ -286,7 +286,7 @@ def double_use(p: Point) -> int:
     return a + b
 "#;
 
-    transpile(python);
+    transpile_and_check(python, &[]);
 }
 
 // ============================================================================
@@ -325,7 +325,7 @@ def triple_use(s: str) -> str:
     return a + b + c
 "#;
 
-    let rust_code = transpile(python);
+    let rust_code = transpile_and_check(python, &[]);
 
     let clone_count = rust_code.matches("s.clone()").count();
 
@@ -524,7 +524,7 @@ def process(a: str, b: str) -> str:
 
     // format! borrows arguments, so no clones needed for string concat
     // But assignment like `x = a` needs clone if a is used again
-    let rust_code = transpile(python);
+    let rust_code = transpile_and_check(python, &[]);
     assert!(
         rust_code.contains("a.clone()") || rust_code.contains("a"),
         "'a' should be used\n{rust_code}"
@@ -540,7 +540,7 @@ def interleave(a: str, b: str) -> str:
 
     // format! macro borrows arguments, so no clones are needed for
     // string concatenation using format!
-    let rust_code = transpile(python);
+    let rust_code = transpile_and_check(python, &[]);
     assert!(
         rust_code.contains("a") && rust_code.contains("b"),
         "Both params should be used\n{rust_code}"
@@ -571,7 +571,7 @@ def process_pair(pair: tuple[str, str]) -> str:
 "#;
 
     // format! borrows arguments, no clones needed for string concat
-    let rust_code = transpile(python);
+    let rust_code = transpile_and_check(python, &[]);
     assert!(
         rust_code.contains("a") && rust_code.contains("b"),
         "Both destructured vars should be used\n{rust_code}"
@@ -862,7 +862,7 @@ def multi_assign(s: str) -> str:
 
     // With format!, we don't need clones for the string concat, but
     // assignments like `let a = s` need clone for 2nd and 3rd use
-    let rust_code = transpile(python);
+    let rust_code = transpile_and_check(python, &[]);
     let clone_count = rust_code.matches("s.clone()").count();
     assert!(clone_count >= 2, "Multiple assignment of 's' needs clones\n{rust_code}");
 }
@@ -1033,7 +1033,7 @@ def select(state: State, flag: bool) -> str:
 "#;
 
     // Both branches assign to result, both fields need clone when assigned
-    let rust_code = transpile(python);
+    let rust_code = transpile_and_check(python, &[]);
     assert!(
         rust_code.contains("state.a.clone()") || rust_code.contains("state.b.clone()"),
         "Conditional assignment of borrowed strings needs clone\n{rust_code}"
@@ -1063,7 +1063,7 @@ def find_match(state: State) -> int:
     return -1
 "#;
 
-    let rust_code = transpile(python);
+    let rust_code = transpile_and_check(python, &[]);
     assert!(
         rust_code.contains("state.target.clone()") || rust_code.contains("&state.target"),
         "'target' used in loop comparison needs proper handling\n{rust_code}"
@@ -1092,7 +1092,7 @@ def build_string(state: State, middle: str) -> str:
     // string concatenation. However, field access may still need clone depending
     // on ownership. The transpiler generates clones for field accesses that return
     // non-Copy types.
-    let rust_code = transpile(python);
+    let rust_code = transpile_and_check(python, &[]);
     assert!(
         rust_code.contains("state.prefix") && rust_code.contains("state.suffix"),
         "Both fields should be accessed\n{rust_code}"

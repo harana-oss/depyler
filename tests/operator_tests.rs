@@ -1,3 +1,5 @@
+mod test_helpers;
+
 use depyler_annotations::TranspilationAnnotations;
 use depyler_core::direct_rules::apply_rules;
 use depyler_core::hir::{AssignTarget, BinOp, HirExpr, HirFunction, HirModule, HirParam, HirStmt, Literal, Type};

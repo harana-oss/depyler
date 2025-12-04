@@ -2,17 +2,15 @@
 //
 // Tests verify that Python argparse code transpiles to compiling Rust clap code.
 
+mod test_helpers;
+
 use depyler_core::DepylerPipeline;
 use std::io::Write;
 use std::process::Command;
 use tempfile::NamedTempFile;
 
 fn transpile(python_code: &str) -> String {
-    let pipeline = DepylerPipeline::new();
-    match pipeline.transpile(python_code) {
-        Ok(rust_code) => rust_code,
-        Err(e) => panic!("Transpilation failed: {:?}", e),
-    }
+    test_helpers::transpile(python_code)
 }
 
 fn compile_rust_as_bin(rust_code: &str) -> Result<(), String> {

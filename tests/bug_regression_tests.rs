@@ -59,7 +59,6 @@ def get_field_goal() -> int:
 // ORIGINAL BUG REGRESSION TESTS
 // ============================================================================
 
-use depyler_core::DepylerPipeline;
 use std::process::Command;
 
 #[test]
@@ -77,10 +76,7 @@ def factorial(n: int) -> int:
     let rust_code = pipeline.transpile(python_code).unwrap();
 
     // Should NOT contain "let mut result =" inside the loop
-    assert!(
-        !rust_code.contains("for i in 1"),
-        "Loop should use proper range syntax"
-    );
+    assert!(!rust_code.contains("for i in 1"), "Loop should use proper range syntax");
 
     // Should contain proper assignment without let keyword
     let lines: Vec<&str> = rust_code.lines().collect();
@@ -96,14 +92,8 @@ def factorial(n: int) -> int:
         }
     }
 
-    assert!(
-        found_assignment,
-        "Should have proper assignment: result = result * i"
-    );
-    assert!(
-        !found_shadowing,
-        "Should not shadow variable with let mut inside loop"
-    );
+    assert!(found_assignment, "Should have proper assignment: result = result * i");
+    assert!(!found_shadowing, "Should not shadow variable with let mut inside loop");
 }
 
 #[test]
@@ -136,9 +126,7 @@ def binary_search(arr: list, target: int) -> int:
         if trimmed.contains("if") || trimmed.contains("else") {
             inside_conditional = true;
         }
-        if inside_conditional
-            && (trimmed.starts_with("let mut left =") || trimmed.starts_with("let mut right ="))
-        {
+        if inside_conditional && (trimmed.starts_with("let mut left =") || trimmed.starts_with("let mut right =")) {
             panic!("Found variable shadowing inside conditional: {}", trimmed);
         }
         if trimmed == "}" {
@@ -248,9 +236,7 @@ def concat_strings(a: str, b: str) -> str:
 
     // Should use efficient string operations
     assert!(
-        rust_code.contains("format!")
-            || rust_code.contains("String::from")
-            || rust_code.contains("&str"),
+        rust_code.contains("format!") || rust_code.contains("String::from") || rust_code.contains("&str"),
         "Should generate efficient string operations"
     );
 }
@@ -302,8 +288,7 @@ def example_function(x: int) -> int:
 
     // Should contain proper Rust documentation comment
     assert!(
-        rust_code.contains("/// This is a docstring")
-            || rust_code.contains("#[doc = \"This is a docstring"),
+        rust_code.contains("/// This is a docstring") || rust_code.contains("#[doc = \"This is a docstring"),
         "Should generate proper Rust documentation"
     );
 }
@@ -322,10 +307,7 @@ def floor_divide(a: int, b: int) -> int:
     // Should use integer division, not float division
     // In Rust, integer division with / already truncates toward zero for integers
     // So (a / b) is correct for positive integers, but we should be explicit
-    assert!(
-        rust_code.contains("/ b"),
-        "Should contain division operation"
-    );
+    assert!(rust_code.contains("/ b"), "Should contain division operation");
 
     // Should not generate float division
     assert!(
@@ -413,17 +395,21 @@ fn test_method_call_spacing_bug() {
 def get_length(arr: list) -> int:
     return len(arr)
 "#;
-    
+
     let pipeline = DepylerPipeline::new();
     let rust_code = pipeline.transpile(python_code).unwrap();
-    
+
     // Should NOT have spaces in method calls
-    assert!(!rust_code.contains("arr . len ()"), 
-           "Method calls should not have spaces");
-    
+    assert!(
+        !rust_code.contains("arr . len ()"),
+        "Method calls should not have spaces"
+    );
+
     // Should have proper method call syntax
-    assert!(rust_code.contains("arr.len()") || rust_code.contains("len(arr)"), 
-           "Should generate proper method call syntax");
+    assert!(
+        rust_code.contains("arr.len()") || rust_code.contains("len(arr)"),
+        "Should generate proper method call syntax"
+    );
 }
 
 #[test]
@@ -433,15 +419,15 @@ fn test_bounds_checking_array_indexing_bug() {
 def get_item(arr: list, i: int) -> int:
     return arr[i]
 "#;
-    
+
     let pipeline = DepylerPipeline::new();
     let rust_code = pipeline.transpile(python_code).unwrap();
-    
+
     // Should use safe indexing methods
-    assert!(rust_code.contains(".get(") || 
-           rust_code.contains("bounds_check") ||
-           rust_code.contains("unwrap_or"), 
-           "Should use safe array indexing");
+    assert!(
+        rust_code.contains(".get(") || rust_code.contains("bounds_check") || rust_code.contains("unwrap_or"),
+        "Should use safe array indexing"
+    );
 }
 
 #[test]
@@ -452,17 +438,19 @@ def create_list() -> list:
     items = []
     return items
 "#;
-    
+
     let pipeline = DepylerPipeline::new();
     let rust_code = pipeline.transpile(python_code).unwrap();
-    
+
     // Return type and variable type should be consistent
     let vec_count = rust_code.matches("Vec<").count();
     let list_count = rust_code.matches(" list").count();
-    
+
     // Should prefer Vec over literal 'list'
-    assert!(vec_count >= list_count, 
-           "Should consistently use Vec<T> over literal 'list' type");
+    assert!(
+        vec_count >= list_count,
+        "Should consistently use Vec<T> over literal 'list' type"
+    );
 }
 
 #[test]
@@ -478,25 +466,37 @@ def calculate_sum(numbers: List[int]) -> int:
         total += n
     return total
 "#;
-    
+
     let pipeline = DepylerPipeline::new();
     let rust_code = pipeline.transpile(python_code).unwrap();
-    
+
     // Check proper generic spacing
-    assert!(rust_code.contains("Vec<i32>"), 
-            "Expected proper generic spacing 'Vec<i32>', got: {}", rust_code);
-    
-    // Check proper assignment spacing - should NOT have "=(" 
-    assert!(!rust_code.contains("=("), 
-            "Found improper assignment spacing '=(', should be ' = (': {}", rust_code);
-    
+    assert!(
+        rust_code.contains("Vec<i32>"),
+        "Expected proper generic spacing 'Vec<i32>', got: {}",
+        rust_code
+    );
+
+    // Check proper assignment spacing - should NOT have "=("
+    assert!(
+        !rust_code.contains("=("),
+        "Found improper assignment spacing '=(', should be ' = (': {}",
+        rust_code
+    );
+
     // Check proper operator spacing
-    assert!(rust_code.contains(" = "), 
-            "Expected proper assignment operator spacing ' = ': {}", rust_code);
-    
+    assert!(
+        rust_code.contains(" = "),
+        "Expected proper assignment operator spacing ' = ': {}",
+        rust_code
+    );
+
     // Check method call spacing - should NOT have spaces in method calls
-    assert!(!rust_code.contains(". "),
-            "Found spaces in method calls, should be '.method()': {}", rust_code);
+    assert!(
+        !rust_code.contains(". "),
+        "Found spaces in method calls, should be '.method()': {}",
+        rust_code
+    );
 }
 
 // ============================================================================
@@ -715,7 +715,7 @@ def test_deep_copy() -> int:
 fn test_untyped_list_parameter_compiles() {
     // DEPYLER-0264: Untyped list parameters generate Vec<DynamicType> which doesn't compile
     // RED Phase: This test MUST FAIL initially because DynamicType is undefined
-    
+
     let python_code = r#"
 def sum_list(numbers: list) -> int:
     """Sum all numbers in a list."""
@@ -727,18 +727,17 @@ def sum_list(numbers: list) -> int:
 
     let pipeline = DepylerPipeline::new();
     let result = pipeline.transpile(python_code);
-    
+
     assert!(result.is_ok(), "Transpilation should succeed");
     let rust_code = result.unwrap();
 
     // Debugging: Print generated code before compilation
     eprintln!("=== DEPYLER-0264: Generated Rust Code ===");
-    e
+    eprintln!("{}", rust_code);
 
     // Write to temp file
     let temp_file = "/tmp/test_untyped_list.rs";
-    std::fs::write(temp_file, &rust_code)
-        .expect("DEPYLER-0264: Failed to write temp file");
+    std::fs::write(temp_file, &rust_code).expect("DEPYLER-0264: Failed to write temp file");
 
     // Attempt to compile with rustc
     let output = Command::new("rustc")
@@ -757,7 +756,7 @@ def sum_list(numbers: list) -> int:
         let stderr = String::from_utf8_lossy(&output.stderr);
         eprintln!("\n=== DEPYLER-0264: rustc stderr ===");
         eprintln!("{}", stderr);
-        
+
         // Check if error is about DynamicType
         assert!(
             !stderr.contains("cannot find type `DynamicType`"),
@@ -801,7 +800,7 @@ def sum_list(numbers: list) -> int:
 fn test_untyped_dict_parameter_compiles() {
     // DEPYLER-0264: Untyped dict parameters also generate HashMap<DynamicType, DynamicType>
     // This is a related bug - same root cause
-    
+
     let python_code = r#"
 def get_value(data: dict, key: str) -> int:
     """Get a value from dictionary."""
@@ -810,14 +809,13 @@ def get_value(data: dict, key: str) -> int:
 
     let pipeline = DepylerPipeline::new();
     let result = pipeline.transpile(python_code);
-    
+
     assert!(result.is_ok(), "Transpilation should succeed");
     let rust_code = result.unwrap();
 
     // Write to temp file
     let temp_file = "/tmp/test_untyped_dict.rs";
-    std::fs::write(temp_file, &rust_code)
-        .expect("DEPYLER-0264: Failed to write temp file");
+    std::fs::write(temp_file, &rust_code).expect("DEPYLER-0264: Failed to write temp file");
 
     // Attempt to compile
     let output = Command::new("rustc")
@@ -840,8 +838,5 @@ def get_value(data: dict, key: str) -> int:
         );
     }
 
-    assert!(
-        output.status.success(),
-        "DEPYLER-0264: Generated code must compile"
-    );
+    assert!(output.status.success(), "DEPYLER-0264: Generated code must compile");
 }
