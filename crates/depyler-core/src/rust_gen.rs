@@ -213,6 +213,10 @@ fn pre_analyze_parameter_borrowing(ctx: &mut CodeGenContext, functions: &[HirFun
             .params
             .iter()
             .map(|param| {
+                // String parameters should NEVER be borrowed - they are always owned String
+                if matches!(param.ty, Type::String) {
+                    return false;
+                }
                 lifetime_result
                     .param_lifetimes
                     .get(&param.name)
@@ -1269,6 +1273,8 @@ fn generate_conditional_imports(ctx: &CodeGenContext) -> Vec<proc_macro2::TokenS
         (ctx.needs_cow, quote! { use std::borrow::Cow; }),
         (ctx.needs_serde_json, quote! { use serde_json; }),
         (ctx.needs_lazy_static, quote! { use lazy_static::lazy_static; }),
+        (ctx.needs_rand, quote! { use rand::Rng; }),
+        (ctx.needs_slice_random, quote! { use rand::seq::SliceRandom; }),
     ];
 
     // Add imports where needed
@@ -1528,6 +1534,7 @@ pub fn generate_rust_file(
         needs_rc: false,
         needs_cow: false,
         needs_rand: false,
+        needs_slice_random: false,
         needs_serde_json: false,
         needs_regex: false,
         needs_chrono: false,
@@ -1749,6 +1756,7 @@ mod tests {
             needs_rc: false,
             needs_cow: false,
             needs_rand: false,
+            needs_slice_random: false,
             needs_serde_json: false,
             needs_regex: false,
             needs_chrono: false,

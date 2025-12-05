@@ -1040,3 +1040,28 @@ def pipeline(input: str) -> str:
         ],
     );
 }
+
+#[test]
+fn test_str_field_passed_to_function_expecting_owned_string() {
+    // Test: struct field of type str passed to function expecting str should NOT add & prefix
+    // This was bug: assign_try(&state, index, &selection.team) instead of selection.team
+    transpile_and_check(
+        r#"
+@dataclass
+class Selection:
+    player_index: int
+    team: str
+
+def process_team(team: str) -> None:
+    print(team)
+
+def use_selection(selection: Selection) -> None:
+    process_team(selection.team)
+"#,
+        &[
+            "fn process_team(team: String)",
+            // Should pass selection.team directly (with clone), not &selection.team
+            "process_team(selection.team.clone())",
+        ],
+    );
+}

@@ -785,7 +785,7 @@ fn collect_return_types_with_env(
 }
 
 /// Infer expression type with access to variable type environment
-fn infer_expr_type_with_env(expr: &HirExpr, var_types: &std::collections::HashMap<String, Type>) -> Type {
+pub(crate) fn infer_expr_type_with_env(expr: &HirExpr, var_types: &std::collections::HashMap<String, Type>) -> Type {
     match expr {
         HirExpr::Var(name) => var_types.get(name).cloned().unwrap_or(Type::Unknown),
         // For other expressions, delegate to the simple version
@@ -1062,6 +1062,27 @@ fn infer_expr_type_simple(expr: &HirExpr) -> Type {
             }
         }
         HirExpr::MethodCall { object, method, .. } => {
+            // Check if this is a math module method call (math.exp, math.sin, etc.)
+            // These all return f64
+            if let HirExpr::Var(module_name) = object.as_ref() {
+                if module_name == "math" {
+                    match method.as_str() {
+                        // All math module functions return float
+                        "sin" | "cos" | "tan" | "asin" | "acos" | "atan" | "atan2" | "sinh" | "cosh" | "tanh"
+                        | "asinh" | "acosh" | "atanh" | "sqrt" | "exp" | "expm1" | "log" | "log2" | "log10"
+                        | "log1p" | "pow" | "hypot" | "fabs" | "floor" | "ceil" | "trunc" | "copysign" | "fmod"
+                        | "modf" | "frexp" | "ldexp" | "degrees" | "radians" | "erf" | "erfc" | "gamma" | "lgamma" => {
+                            return Type::Float;
+                        }
+                        // factorial returns int
+                        "factorial" | "gcd" | "lcm" | "comb" | "perm" => return Type::Int,
+                        // isnan, isinf, isfinite return bool
+                        "isnan" | "isinf" | "isfinite" | "isclose" => return Type::Bool,
+                        _ => {}
+                    }
+                }
+            }
+
             match method.as_str() {
                 // String methods that return String
                 "upper" | "lower" | "strip" | "lstrip" | "rstrip" | "replace" | "title" | "capitalize" | "join"

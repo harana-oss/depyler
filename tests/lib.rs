@@ -337,6 +337,8 @@ mod test_show_types;
 #[cfg(test)]
 mod test_simplified_hir_coverage;
 #[cfg(test)]
+mod test_slice_assignment_mutability;
+#[cfg(test)]
 mod test_slice_operations;
 #[cfg(test)]
 mod test_sorteds;

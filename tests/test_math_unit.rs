@@ -68,6 +68,53 @@ def calculate_exp(x: float) -> float:
     assert!(result.contains("x.exp()") || result.contains("f64::exp"));
 }
 
+/// Test that sum() on list comprehensions with math.exp() uses f64 type inference
+#[test]
+fn test_sum_of_math_exp_list_comprehension() {
+    let python = r#"
+import math
+
+def softmax(logits: list[float]) -> list[float]:
+    max_logit = max(logits)
+    exps = [math.exp(x - max_logit) for x in logits]
+    total = sum(exps)
+    return [e / total for e in exps]
+"#;
+
+    let result = transpile_and_check(python, &[]);
+    // sum(exps) should use f64 since exps contains math.exp() results
+    assert!(
+        result.contains("sum::<f64>()"),
+        "sum() on list of math.exp() results should use f64, got:\n{}",
+        result
+    );
+    // Should NOT use i32 for the sum
+    assert!(
+        !result.contains("exps") || !result.contains("sum::<i32>()") || result.contains("sum::<f64>()"),
+        "sum() on float list should not use i32, got:\n{}",
+        result
+    );
+}
+
+/// Test that sum() on list comprehensions with other math functions also uses f64
+#[test]
+fn test_sum_of_math_sqrt_list_comprehension() {
+    let python = r#"
+import math
+
+def sum_of_roots(values: list[float]) -> float:
+    roots = [math.sqrt(x) for x in values]
+    return sum(roots)
+"#;
+
+    let result = transpile_and_check(python, &[]);
+    assert!(
+        result.contains("sum::<f64>()"),
+        "sum() on list of math.sqrt() results should use f64, got:\n{}",
+        result
+    );
+}
+
 #[test]
 fn test_math_log() {
     let python = r#"

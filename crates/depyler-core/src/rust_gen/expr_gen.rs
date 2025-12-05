@@ -4357,6 +4357,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     bail!("secrets.choice() requires exactly 1 argument");
                 }
                 let seq = &arg_exprs[0];
+                self.ctx.needs_slice_random = true;
 
                 // secrets.choice(seq) → seq.choose(&mut rand::thread_rng()).unwrap()
                 parse_quote! { *#seq.choose(&mut rand::thread_rng()).unwrap() }
@@ -7277,6 +7278,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     bail!("random.choice() requires exactly 1 argument");
                 }
                 let seq = &arg_exprs[0];
+                self.ctx.needs_slice_random = true;
                 // random.choice(seq) → *seq.choose(&mut rand::thread_rng()).unwrap()
                 parse_quote! { *#seq.choose(&mut rand::thread_rng()).unwrap() }
             }
@@ -7286,6 +7288,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     bail!("random.shuffle() requires exactly 1 argument");
                 }
                 let seq = &arg_exprs[0];
+                self.ctx.needs_slice_random = true;
                 // random.shuffle(seq) → seq.shuffle(&mut rand::thread_rng())
                 // Note: This mutates in place like Python
                 parse_quote! { #seq.shuffle(&mut rand::thread_rng()) }
@@ -7297,6 +7300,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 }
                 let seq = &arg_exprs[0];
                 let k = &arg_exprs[1];
+                self.ctx.needs_slice_random = true;
                 // random.sample(seq, k) → seq.choose_multiple(&mut rand::thread_rng(), k).cloned().collect()
                 parse_quote! {
                     #seq.choose_multiple(&mut rand::thread_rng(), #k as usize)
@@ -7316,6 +7320,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     // Default k=1 if not provided
                     &parse_quote! { 1 }
                 };
+                self.ctx.needs_slice_random = true;
                 // random.choices(seq, k=k) → (0..k).map(|_| seq.choose(&mut rng).cloned()).collect()
                 parse_quote! {
                     {

@@ -52,6 +52,7 @@ pub struct CodeGenContext<'a> {
     pub needs_rc: bool,
     pub needs_cow: bool,
     pub needs_rand: bool,
+    pub needs_slice_random: bool,
     pub needs_serde_json: bool,
     pub needs_regex: bool,
     pub needs_chrono: bool,
@@ -255,15 +256,16 @@ impl<'a> CodeGenContext<'a> {
                 if matches!(self.function_return_types.get(func), Some(Type::Float)) {
                     return true;
                 }
-                // Math functions that return float when given float args
-                let float_returning_funcs = ["min", "max", "abs", "sum", "float"];
-                if float_returning_funcs.contains(&func.as_str()) {
-                    args.iter().any(|arg| self.is_expr_float_type(arg))
-                } else if func == "float" {
-                    true
-                } else {
-                    false
+                // float() always returns float
+                if func == "float" {
+                    return true;
                 }
+                // Functions that return float when given float args (type-preserving)
+                // abs(), min(), max(), sum() return the same type as their arguments
+                if matches!(func.as_str(), "abs" | "min" | "max" | "sum") {
+                    return args.iter().any(|arg| self.is_expr_float_type(arg));
+                }
+                false
             }
             HirExpr::IfExpr { body, orelse, .. } => self.is_expr_float_type(body) || self.is_expr_float_type(orelse),
             _ => false,
@@ -294,12 +296,19 @@ impl<'a> CodeGenContext<'a> {
                 self.is_expr_int_type(left) && self.is_expr_int_type(right)
             }
             // Function calls - check if the function returns int
-            HirExpr::Call { func, .. } => {
+            HirExpr::Call { func, args, .. } => {
                 if matches!(self.function_return_types.get(func), Some(Type::Int)) {
                     return true;
                 }
-                // Built-in functions that return int
-                matches!(func.as_str(), "len" | "int" | "ord" | "round" | "abs")
+                // Built-in functions that always return int
+                if matches!(func.as_str(), "len" | "int" | "ord" | "round") {
+                    return true;
+                }
+                // abs() returns the same type as its argument
+                if func == "abs" && !args.is_empty() {
+                    return self.is_expr_int_type(&args[0]);
+                }
+                false
             }
             HirExpr::IfExpr { body, orelse, .. } => self.is_expr_int_type(body) && self.is_expr_int_type(orelse),
             _ => false,

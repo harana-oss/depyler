@@ -261,6 +261,57 @@ fn test_random_functions() {
 }
 
 #[test]
+fn test_random_rng_import() {
+    // Verify that use rand::Rng is included when gen_range is used
+    let python = "import random\n\ndef rand_int(a: int, b: int) -> int:\n    return random.randint(a, b)";
+    let rust = transpile(python);
+    assert!(
+        rust.contains("use rand::Rng;"),
+        "Expected 'use rand::Rng;' import for gen_range method. Generated:\n{rust}"
+    );
+}
+
+#[test]
+fn test_random_randrange() {
+    // randrange with 1 argument
+    let python = "import random\n\ndef rand_below(n: int) -> int:\n    return random.randrange(n)";
+    let rust = transpile(python);
+    assert!(
+        rust.contains("gen_range(0..n)"),
+        "Expected 'gen_range(0..n)' for randrange(n). Generated:\n{rust}"
+    );
+
+    // randrange with 2 arguments
+    let python = "import random\n\ndef rand_range(a: int, b: int) -> int:\n    return random.randrange(a, b)";
+    let rust = transpile(python);
+    assert!(
+        rust.contains("gen_range(a..b)"),
+        "Expected 'gen_range(a..b)' for randrange(a, b). Generated:\n{rust}"
+    );
+}
+
+#[test]
+fn test_random_shuffle() {
+    let python = "import random\n\ndef shuffle_list(items: list[int]) -> None:\n    random.shuffle(items)";
+    let rust = transpile(python);
+    assert!(
+        rust.contains("shuffle(&mut rand::thread_rng())"),
+        "Expected shuffle method call. Generated:\n{rust}"
+    );
+}
+
+#[test]
+fn test_random_sample() {
+    let python =
+        "import random\n\ndef sample_items(items: list[int], k: int) -> list[int]:\n    return random.sample(items, k)";
+    let rust = transpile(python);
+    assert!(
+        rust.contains("choose_multiple(&mut rand::thread_rng()"),
+        "Expected choose_multiple method call. Generated:\n{rust}"
+    );
+}
+
+#[test]
 fn test_combined_math_operations() {
     let cases = [
         (
@@ -501,7 +552,10 @@ def compute(a: int, b: int) -> int:
 "#;
     let rust = transpile_and_check(python, &[]);
     // The key assertion: should NOT use format! for numeric addition
-    assert!(!rust.contains("format!"), "should not use format! for arithmetic:\n{rust}");
+    assert!(
+        !rust.contains("format!"),
+        "should not use format! for arithmetic:\n{rust}"
+    );
     // Should contain the arithmetic operators
     assert!(rust.contains("* 10"), "expected multiplication by 10 in:\n{rust}");
     assert!(rust.contains("+ b"), "expected addition of b in:\n{rust}");
@@ -518,7 +572,10 @@ def complex_math(x: int, y: int, z: int) -> int:
     return c
 "#;
     let rust = transpile_and_check(python, &[]);
-    assert!(!rust.contains("format!"), "should not use format! for arithmetic:\n{rust}");
+    assert!(
+        !rust.contains("format!"),
+        "should not use format! for arithmetic:\n{rust}"
+    );
 }
 
 #[test]
@@ -533,7 +590,45 @@ def scale(value: float) -> float:
     return value * factor + 1.0
 "#;
     let rust = transpile_and_check(python, &[]);
-    assert!(!rust.contains("format!"), "should not use format! for float arithmetic:\n{rust}");
+    assert!(
+        !rust.contains("format!"),
+        "should not use format! for float arithmetic:\n{rust}"
+    );
+}
+
+#[test]
+fn test_float_multiply_abs_int_with_type_propagation() {
+    // Tests that float * abs(int) properly casts the int result to f64
+    // This verifies type propagation through built-in functions and CSE temps
+    let python = r#"
+def calculate_factor(margin: int) -> float:
+    abs_margin = abs(margin)
+    return 0.5 * abs_margin
+"#;
+    let rust = transpile_and_check(python, &[]);
+    // Should cast abs_margin (which is i32 from abs()) to f64 for multiplication with 0.5
+    assert!(
+        rust.contains("as f64") || rust.contains("0.5 * abs_margin"),
+        "should cast int from abs() to f64 for float multiplication:\n{rust}"
+    );
+}
+
+#[test]
+fn test_float_multiply_ternary_int_with_type_propagation() {
+    // Tests that float * ternary_int properly casts the int result to f64
+    // This verifies type propagation through ternary expressions
+    let python = r#"
+def calculate_factor(team_won: bool) -> float:
+    win_factor = 500 if team_won else 0
+    pom_percentage = 0.03
+    return pom_percentage * win_factor
+"#;
+    let rust = transpile_and_check(python, &[]);
+    // Should cast win_factor (which is i32 from ternary) to f64 for multiplication
+    assert!(
+        rust.contains("as f64") || rust.contains("pom_percentage * win_factor"),
+        "should cast int from ternary to f64 for float multiplication:\n{rust}"
+    );
 }
 
 #[test]
@@ -545,7 +640,10 @@ def compute_average(total: int, count: int, offset: int) -> int:
     return avg + offset
 "#;
     let rust = transpile_and_check(python, &[]);
-    assert!(!rust.contains("format!"), "should not use format! after division:\n{rust}");
+    assert!(
+        !rust.contains("format!"),
+        "should not use format! after division:\n{rust}"
+    );
 }
 
 #[test]
@@ -557,5 +655,59 @@ def adjust(base: int, delta: int, bonus: int) -> int:
     return adjusted + bonus
 "#;
     let rust = transpile_and_check(python, &[]);
-    assert!(!rust.contains("format!"), "should not use format! after subtraction:\n{rust}");
+    assert!(
+        !rust.contains("format!"),
+        "should not use format! after subtraction:\n{rust}"
+    );
+}
+
+#[test]
+fn test_random_choice_slice_random_import() {
+    let python = "import random\n\ndef rand_choice(items: list[int]) -> int:\n    return random.choice(items)";
+    let rust = transpile(python);
+    assert!(
+        rust.contains("use rand::seq::SliceRandom;"),
+        "Expected 'use rand::seq::SliceRandom;' import for choose method. Generated:\n{rust}"
+    );
+}
+
+#[test]
+fn test_random_shuffle_slice_random_import() {
+    let python = "import random\n\ndef shuffle_list(items: list[int]) -> None:\n    random.shuffle(items)";
+    let rust = transpile(python);
+    assert!(
+        rust.contains("use rand::seq::SliceRandom;"),
+        "Expected 'use rand::seq::SliceRandom;' import for shuffle method. Generated:\n{rust}"
+    );
+}
+
+#[test]
+fn test_random_sample_slice_random_import() {
+    let python =
+        "import random\n\ndef sample_items(items: list[int], k: int) -> list[int]:\n    return random.sample(items, k)";
+    let rust = transpile(python);
+    assert!(
+        rust.contains("use rand::seq::SliceRandom;"),
+        "Expected 'use rand::seq::SliceRandom;' import for choose_multiple method. Generated:\n{rust}"
+    );
+}
+
+#[test]
+fn test_random_choices_slice_random_import() {
+    let python = "import random\n\ndef random_choices(items: list[int], k: int) -> list[int]:\n    return random.choices(items, k=k)";
+    let rust = transpile(python);
+    assert!(
+        rust.contains("use rand::seq::SliceRandom;"),
+        "Expected 'use rand::seq::SliceRandom;' import for choices method. Generated:\n{rust}"
+    );
+}
+
+#[test]
+fn test_secrets_choice_slice_random_import() {
+    let python = "import secrets\n\ndef secret_choice(items: list[int]) -> int:\n    return secrets.choice(items)";
+    let rust = transpile(python);
+    assert!(
+        rust.contains("use rand::seq::SliceRandom;"),
+        "Expected 'use rand::seq::SliceRandom;' import for secrets.choice method. Generated:\n{rust}"
+    );
 }

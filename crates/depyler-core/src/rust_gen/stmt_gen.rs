@@ -5,6 +5,7 @@
 
 use crate::hir::*;
 use crate::rust_gen::context::{CodeGenContext, RustCodeGen, ToRustExpr};
+use crate::rust_gen::func_gen::infer_expr_type_with_env;
 use crate::rust_gen::keywords::safe_ident; // Keyword escaping
 use crate::rust_gen::type_gen::rust_type_to_syn;
 use anyhow::{Result, bail};
@@ -2188,7 +2189,7 @@ pub(crate) fn codegen_assign_stmt(
         }
 
         match value {
-            HirExpr::Call { func, .. } => {
+            HirExpr::Call { func, args, .. } => {
                 // Check if this is a user-defined class constructor
                 if ctx.class_names.contains(func) {
                     ctx.var_types.insert(var_name.clone(), Type::Custom(func.clone()));
@@ -2227,6 +2228,26 @@ pub(crate) fn codegen_assign_stmt(
                     // This is a heuristic - could be improved with module tracking
                     ctx.var_types
                         .insert(var_name.clone(), Type::Optional(Box::new(Type::Unknown)));
+                }
+                // Track built-in functions that return int
+                else if matches!(func.as_str(), "len" | "int" | "ord" | "round") {
+                    ctx.var_types.insert(var_name.clone(), Type::Int);
+                }
+                // Track built-in functions that return float
+                else if func == "float" {
+                    ctx.var_types.insert(var_name.clone(), Type::Float);
+                }
+                // Track abs() - returns the same type as its argument
+                else if func == "abs" {
+                    if !args.is_empty() {
+                        let arg_type = infer_expr_type_with_env(&args[0], &ctx.var_types);
+                        if matches!(arg_type, Type::Int | Type::Float) {
+                            ctx.var_types.insert(var_name.clone(), arg_type);
+                        } else {
+                            // Default to Int for abs() if we can't infer
+                            ctx.var_types.insert(var_name.clone(), Type::Int);
+                        }
+                    }
                 }
             }
             HirExpr::List(elements) => {
@@ -2346,6 +2367,54 @@ pub(crate) fn codegen_assign_stmt(
                 if !ctx.var_types.contains_key(var_name) {
                     let inferred_type = infer_binary_expr_type(ctx, op, left, right);
                     ctx.var_types.insert(var_name.clone(), inferred_type);
+                }
+            }
+            // Track list comprehensions: exps = [math.exp(x) for x in logits]
+            HirExpr::ListComp { element, .. } => {
+                let elem_type = infer_expr_type_with_env(element, &ctx.var_types);
+                ctx.var_types.insert(var_name.clone(), Type::List(Box::new(elem_type)));
+            }
+            // Track set comprehensions: unique = {x.lower() for x in words}
+            HirExpr::SetComp { element, .. } => {
+                let elem_type = infer_expr_type_with_env(element, &ctx.var_types);
+                ctx.var_types.insert(var_name.clone(), Type::Set(Box::new(elem_type)));
+            }
+            // Track dict comprehensions: counts = {k: v * 2 for k, v in items}
+            HirExpr::DictComp {
+                key, value: val_expr, ..
+            } => {
+                let key_type = infer_expr_type_with_env(key, &ctx.var_types);
+                let val_type = infer_expr_type_with_env(val_expr, &ctx.var_types);
+                ctx.var_types
+                    .insert(var_name.clone(), Type::Dict(Box::new(key_type), Box::new(val_type)));
+            }
+            // Track ternary expressions: win_factor = 500 if team_won else 0
+            HirExpr::IfExpr { body, orelse, .. } => {
+                if !ctx.var_types.contains_key(var_name) {
+                    let body_type = infer_expr_type_with_env(body, &ctx.var_types);
+                    let orelse_type = infer_expr_type_with_env(orelse, &ctx.var_types);
+                    // If both branches have the same type, use that type
+                    // Otherwise, if one is Float and one is Int, prefer Float (promotion)
+                    let inferred_type = if body_type == orelse_type {
+                        body_type
+                    } else if matches!(
+                        (&body_type, &orelse_type),
+                        (Type::Float, Type::Int) | (Type::Int, Type::Float)
+                    ) {
+                        Type::Float
+                    } else {
+                        // Default to the body type if we can't unify
+                        body_type
+                    };
+                    ctx.var_types.insert(var_name.clone(), inferred_type);
+                }
+            }
+            // Propagate types from one variable to another: abs_margin = _cse_temp_0
+            HirExpr::Var(source_var) => {
+                if !ctx.var_types.contains_key(var_name) {
+                    if let Some(source_type) = ctx.var_types.get(source_var) {
+                        ctx.var_types.insert(var_name.clone(), source_type.clone());
+                    }
                 }
             }
             _ => {}
