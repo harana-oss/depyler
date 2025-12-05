@@ -1,6 +1,5 @@
 
 // Module: sys - Python sys module validation
-// pending
 
 use crate::test_helpers::transpile_and_check;
 

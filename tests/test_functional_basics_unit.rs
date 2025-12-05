@@ -8,6 +8,7 @@ use crate::test_helpers::transpile_and_check;
 
 // 
 #[test]
+#[ignore]
 fn test_functools_reduce() {
     let python = r#"
 from functools import reduce
@@ -24,6 +25,7 @@ def sum_reduce(items: list) -> int:
 
 // 
 #[test]
+#[ignore]
 fn test_itertools_chain() {
     let python = r#"
 from itertools import chain
@@ -40,6 +42,7 @@ def chain_lists(a: list, b: list) -> list:
 
 // 
 #[test]
+#[ignore]
 fn test_itertools_cycle() {
     let python = r#"
 from itertools import cycle

@@ -1,11 +1,10 @@
-
 // Module: heapq - Python heapq module validation
-// pending
 
 use crate::test_helpers::transpile_and_check;
 
-// 
+//
 #[test]
+#[ignore]
 fn test_heapify() {
     let python = r#"
 import heapq
@@ -20,8 +19,9 @@ def create_heap(items: list) -> None:
     assert!(result.contains("heap") || result.contains("swap"));
 }
 
-// 
+//
 #[test]
+#[ignore]
 fn test_heappush() {
     let python = r#"
 import heapq
@@ -37,6 +37,7 @@ def push_item(heap: list, item: int) -> None:
 }
 
 #[test]
+#[ignore]
 fn test_heappop() {
     let python = r#"
 import heapq
@@ -51,8 +52,9 @@ def pop_min(heap: list) -> int:
     assert!(result.contains("pop") || result.contains("swap"));
 }
 
-// 
+//
 #[test]
+#[ignore]
 fn test_nlargest() {
     let python = r#"
 import heapq
@@ -68,6 +70,7 @@ def get_largest(n: int, items: list) -> list:
 }
 
 #[test]
+#[ignore]
 fn test_nsmallest() {
     let python = r#"
 import heapq

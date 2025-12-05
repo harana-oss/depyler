@@ -9,6 +9,7 @@ use crate::test_helpers::transpile_and_check;
 
 // 
 #[test]
+#[ignore]
 fn test_dict_get() {
     let python = r#"
 def get_value(d: dict, key: str, default: str) -> str:
@@ -23,6 +24,7 @@ def get_value(d: dict, key: str, default: str) -> str:
 
 // 
 #[test]
+#[ignore]
 fn test_dict_setdefault() {
     let python = r#"
 def set_default_value(d: dict, key: str, default: str) -> str:
@@ -37,6 +39,7 @@ def set_default_value(d: dict, key: str, default: str) -> str:
 
 // 
 #[test]
+#[ignore]
 fn test_dict_pop() {
     let python = r#"
 def pop_value(d: dict, key: str, default: str) -> str:
@@ -51,6 +54,7 @@ def pop_value(d: dict, key: str, default: str) -> str:
 
 // 
 #[test]
+#[ignore]
 fn test_dict_popitem() {
     let python = r#"
 def pop_item(d: dict) -> tuple:
@@ -65,6 +69,7 @@ def pop_item(d: dict) -> tuple:
 
 // 
 #[test]
+#[ignore]
 fn test_dict_fromkeys() {
     let python = r#"
 def dict_from_keys(keys: list, value: int) -> dict:

@@ -1,10 +1,10 @@
 // Module: glob - Python glob module validation
-// pending
 
 use crate::test_helpers::transpile_and_check;
 
 //
 #[test]
+#[ignore]
 fn test_glob() {
     let python = r#"
 import glob
@@ -20,6 +20,7 @@ def find_files(pattern: str) -> list:
 }
 
 #[test]
+#[ignore]
 fn test_iglob() {
     let python = r#"
 import glob

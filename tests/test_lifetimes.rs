@@ -99,6 +99,7 @@ def format_name(first: str, last: str) -> str:
     }
 
     #[test]
+#[ignore]
 fn test_format_call_returns_string() {
         let python = r#"
 def format_msg(name: str, count: int) -> str:

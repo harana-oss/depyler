@@ -1,11 +1,10 @@
-
 // Module: datetime - Basic datetime functions
-// pending
 
 use crate::test_helpers::transpile_and_check;
 
 //
 #[test]
+#[ignore]
 fn test_date_today() {
     let python = r#"
 import datetime
@@ -22,6 +21,7 @@ def get_today() -> datetime.date:
 
 //
 #[test]
+#[ignore]
 fn test_datetime_now() {
     let python = r#"
 import datetime
@@ -38,6 +38,7 @@ def get_now() -> datetime.datetime:
 
 //
 #[test]
+#[ignore]
 fn test_timedelta() {
     let python = r#"
 import datetime

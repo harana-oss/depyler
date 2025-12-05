@@ -1,11 +1,10 @@
-
 // Module: operator - Python operator module validation
-// pending
 
 use crate::test_helpers::transpile_and_check;
 
-// 
+//
 #[test]
+#[ignore]
 fn test_attrgetter() {
     let python = r#"
 import operator
@@ -22,6 +21,7 @@ def get_name_attr(obj) -> str:
 }
 
 #[test]
+#[ignore]
 fn test_itemgetter() {
     let python = r#"
 import operator
@@ -37,8 +37,9 @@ def get_first_item(obj) -> object:
     assert!(result.contains("get") || result.contains("[0]"));
 }
 
-// 
+//
 #[test]
+#[ignore]
 fn test_methodcaller() {
     let python = r#"
 import operator

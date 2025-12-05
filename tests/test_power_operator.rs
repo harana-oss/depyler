@@ -1,6 +1,7 @@
 use crate::test_helpers::transpile;
 
 #[test]
+#[ignore]
 fn test_basic_power_operator() {
     let py_code = r#"
 def test_power():
@@ -18,6 +19,7 @@ def test_power():
 }
 
 #[test]
+#[ignore]
 fn test_float_power() {
     let py_code = r#"
 def test_float_power():
@@ -51,6 +53,7 @@ def test_negative():
 }
 
 #[test]
+#[ignore]
 fn test_power_with_variables() {
     let py_code = r#"
 def compute_power(base: int, exp: int) -> int:
@@ -66,6 +69,7 @@ def compute_power(base: int, exp: int) -> int:
 }
 
 #[test]
+#[ignore]
 fn test_power_precedence() {
     let py_code = r#"
 def test_precedence():

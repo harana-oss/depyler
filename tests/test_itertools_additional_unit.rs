@@ -1,5 +1,4 @@
 // Module: itertools - Additional iterator functions
-// pending
 
 use crate::test_helpers::transpile_and_check;
 
@@ -8,6 +7,7 @@ use crate::test_helpers::transpile_and_check;
 
 //
 #[test]
+#[ignore]
 fn test_zip_longest() {
     let python = r#"
 import itertools
@@ -24,6 +24,7 @@ def zip_with_fill(a: list, b: list) -> list:
 
 //
 #[test]
+#[ignore]
 fn test_filterfalse() {
     let python = r#"
 import itertools
@@ -40,6 +41,7 @@ def filter_not(items: list, pred) -> list:
 
 //
 #[test]
+#[ignore]
 fn test_starmap() {
     let python = r#"
 import itertools

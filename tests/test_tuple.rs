@@ -1,5 +1,3 @@
-use crate::test_helpers;
-
 use crate::test_helpers::transpile_and_check;
 
 #[test]
@@ -10,7 +8,7 @@ def check_location(location: str) -> bool:
 "#;
 
     let rust = transpile_and_check(python, &[]);
-    assert!(rust.contains(r#"["Home".to_string(), "Away".to_string()].contains(&location)"#));
+    assert!(rust.contains(r#"["Home", "Away"].contains(&location.as_str())"#));
 }
 
 #[test]
@@ -21,7 +19,7 @@ def check_location() -> bool:
 "#;
 
     let rust = transpile_and_check(python, &[]);
-    assert!(rust.contains(r#"["Home".to_string(), "Away".to_string()].contains"#));
+    assert!(rust.contains(r#"["Home", "Away"].contains("Home")"#));
 }
 
 #[test]
@@ -37,6 +35,5 @@ def check_location(state: State) -> bool:
 "#;
 
     let rust = transpile_and_check(python, &[]);
-    assert!(rust.contains(r#"["Home".to_string(), "Away".to_string()].contains"#));
-    assert!(rust.contains("state.item"));
+    assert!(rust.contains(r#"["Home", "Away"].contains(&state.item.as_str())"#));
 }

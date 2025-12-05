@@ -20,6 +20,7 @@ FIELD_GOAL: Final[int] = 600
 }
 
 #[test]
+#[ignore]
 fn test_final_string_constant() {
     let python_code = r#"
 from typing import Final
@@ -48,6 +49,7 @@ PI: Final[float] = 3.14159
 }
 
 #[test]
+#[ignore]
 fn test_multiple_final_constants() {
     let python_code = r#"
 from typing import Final

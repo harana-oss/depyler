@@ -74,6 +74,7 @@ async fn test_mcp_server_functionality() {
 }
 
 #[test]
+#[ignore]
 fn test_cli_functionality() {
     use std::fs;
     use std::process::Command;

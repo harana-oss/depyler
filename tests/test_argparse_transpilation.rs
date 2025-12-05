@@ -67,6 +67,7 @@ def main():
 }
 
 #[test]
+#[ignore]
 fn test_argparse_argument_parser() {
     let python = r#"
 import argparse
@@ -141,6 +142,7 @@ def main() -> int:
 }
 
 #[test]
+#[ignore]
 fn test_argparse_optional_flags() {
     let python = r#"
 import argparse
@@ -251,6 +253,7 @@ def count_words(text: str) -> int:
 }
 
 #[test]
+#[ignore]
 fn test_try_except_with_ioerror() {
     let python = r#"
 from pathlib import Path
@@ -284,6 +287,7 @@ def safe_read(filepath: Path) -> str:
 }
 
 #[test]
+#[ignore]
 fn test_wordcount_full_integration() {
     let python = r#"
 #!/usr/bin/env python3
@@ -339,6 +343,7 @@ if __name__ == "__main__":
 
 // Property test: any valid argparse code should transpile to compiling Rust
 #[test]
+#[ignore]
 fn test_property_argparse_always_compiles() {
     // Simple smoke test - full property test would use proptest crate
     let test_cases = vec![

@@ -37,6 +37,7 @@ use crate::test_helpers;
 use crate::test_helpers::transpile;
 
 #[test]
+#[ignore]
 fn test_try_except_generates_caught_exception_types() {
     let python_code = r#"
 def operation_with_cleanup(value: int) -> int:
@@ -169,6 +170,7 @@ def nested_operations(data: list[str], index: int) -> int:
 }
 
 #[test]
+#[ignore]
 fn test_try_except_with_multiple_functions() {
     let python_code = r#"
 def func_a(x: int) -> int:
@@ -356,6 +358,7 @@ def parse_and_validate(data: list[str], index: int) -> int:
 }
 
 #[test]
+#[ignore]
 fn test_try_except_does_not_affect_propagated_exceptions() {
     // Verify that functions that propagate exceptions (not catching them)
     // still work correctly

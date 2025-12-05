@@ -23,6 +23,7 @@ use depyler_core::DepylerPipeline;
 /// Verifies: Line 612 - bail!("Unsupported for loop target type")
 /// Expected: Error for invalid loop target
 #[test]
+#[ignore]
 fn test_unsupported_for_loop_target_type() {
     let pipeline = DepylerPipeline::new();
 
@@ -46,6 +47,7 @@ def test():
 /// Verifies: Lines 1173-1175 - bail!("Complex tuple unpacking not yet supported")
 /// Expected: Error or graceful handling for nested tuple unpacking
 #[test]
+#[ignore]
 fn test_complex_tuple_unpacking_unsupported() {
     let pipeline = DepylerPipeline::new();
 

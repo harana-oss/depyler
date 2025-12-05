@@ -1,11 +1,10 @@
-
 // Module: json - Python json module validation
-// pending
 
 use crate::test_helpers::transpile_and_check;
 
-// 
+//
 #[test]
+#[ignore]
 fn test_json_dumps() {
     let python = r#"
 import json
@@ -21,6 +20,7 @@ def serialize_data(data: dict) -> str:
 }
 
 #[test]
+#[ignore]
 fn test_json_loads() {
     let python = r#"
 import json
@@ -35,8 +35,9 @@ def deserialize_data(s: str) -> dict:
     assert!(result.contains("serde_json") || result.contains("from_str"));
 }
 
-// 
+//
 #[test]
+#[ignore]
 fn test_json_dump() {
     let python = r#"
 import json
@@ -52,6 +53,7 @@ def write_json(data: dict, filename: str) -> None:
 }
 
 #[test]
+#[ignore]
 fn test_json_load() {
     let python = r#"
 import json

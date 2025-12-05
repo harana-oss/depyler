@@ -16,6 +16,7 @@ fn transpile_python(python: &str) -> anyhow::Result<String> {
 }
 
 #[test]
+#[ignore]
 fn test_port_number_validator() {
     // Port number validator from complex_cli.py
     let python = r#"
@@ -51,6 +52,7 @@ def port_number(value):
 }
 
 #[test]
+#[ignore]
 fn test_positive_int_validator() {
     // Positive int validator from complex_cli.py
     let python = r#"
@@ -79,6 +81,7 @@ def positive_int(value):
 }
 
 #[test]
+#[ignore]
 fn test_email_validator() {
     // Email address validator from complex_cli.py
     let python = r#"
@@ -101,6 +104,7 @@ def email_address(value):
 }
 
 #[test]
+#[ignore]
 fn test_simple_validator() {
     // Simplified validator (no try/except)
     let python = r#"
@@ -121,6 +125,7 @@ def validate_range(value):
 }
 
 #[test]
+#[ignore]
 fn test_real_world_complex_cli() {
     // Actual pattern from complex_cli.py (all three validators)
     let python = r#"

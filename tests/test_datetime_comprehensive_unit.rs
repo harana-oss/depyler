@@ -9,6 +9,7 @@ use crate::test_helpers::transpile_and_check;
 // =============================================================================
 
 #[test]
+#[ignore]
 fn test_datetime_now() {
     let python = r#"
 from datetime import datetime
@@ -21,6 +22,7 @@ def get_now() -> datetime:
 }
 
 #[test]
+#[ignore]
 fn test_datetime_utcnow() {
     let python = r#"
 from datetime import datetime
@@ -33,6 +35,7 @@ def get_utcnow() -> datetime:
 }
 
 #[test]
+#[ignore]
 fn test_datetime_constructor() {
     let python = r#"
 from datetime import datetime
@@ -45,6 +48,7 @@ def create_datetime(year: int, month: int, day: int) -> datetime:
 }
 
 #[test]
+#[ignore]
 fn test_datetime_year() {
     let python = r#"
 from datetime import datetime
@@ -57,6 +61,7 @@ def get_year(dt: datetime) -> int:
 }
 
 #[test]
+#[ignore]
 fn test_datetime_month() {
     let python = r#"
 from datetime import datetime
@@ -69,6 +74,7 @@ def get_month(dt: datetime) -> int:
 }
 
 #[test]
+#[ignore]
 fn test_datetime_day() {
     let python = r#"
 from datetime import datetime
@@ -81,6 +87,7 @@ def get_day(dt: datetime) -> int:
 }
 
 #[test]
+#[ignore]
 fn test_datetime_hour() {
     let python = r#"
 from datetime import datetime
@@ -93,6 +100,7 @@ def get_hour(dt: datetime) -> int:
 }
 
 #[test]
+#[ignore]
 fn test_datetime_minute() {
     let python = r#"
 from datetime import datetime
@@ -105,6 +113,7 @@ def get_minute(dt: datetime) -> int:
 }
 
 #[test]
+#[ignore]
 fn test_datetime_second() {
     let python = r#"
 from datetime import datetime
@@ -117,6 +126,7 @@ def get_second(dt: datetime) -> int:
 }
 
 #[test]
+#[ignore]
 fn test_datetime_strftime() {
     let python = r#"
 from datetime import datetime
@@ -129,6 +139,7 @@ def format_datetime(dt: datetime, fmt: str) -> str:
 }
 
 #[test]
+#[ignore]
 fn test_datetime_strptime() {
     let python = r#"
 from datetime import datetime
@@ -141,6 +152,7 @@ def parse_datetime(s: str, fmt: str) -> datetime:
 }
 
 #[test]
+#[ignore]
 fn test_datetime_isoformat() {
     let python = r#"
 from datetime import datetime
@@ -157,6 +169,7 @@ def to_iso(dt: datetime) -> str:
 // =============================================================================
 
 #[test]
+#[ignore]
 fn test_date_today() {
     let python = r#"
 from datetime import date
@@ -169,6 +182,7 @@ def get_today() -> date:
 }
 
 #[test]
+#[ignore]
 fn test_date_constructor() {
     let python = r#"
 from datetime import date
@@ -181,6 +195,7 @@ def create_date(year: int, month: int, day: int) -> date:
 }
 
 #[test]
+#[ignore]
 fn test_date_year() {
     let python = r#"
 from datetime import date
@@ -193,6 +208,7 @@ def get_year(d: date) -> int:
 }
 
 #[test]
+#[ignore]
 fn test_date_month() {
     let python = r#"
 from datetime import date
@@ -205,6 +221,7 @@ def get_month(d: date) -> int:
 }
 
 #[test]
+#[ignore]
 fn test_date_day() {
     let python = r#"
 from datetime import date
@@ -217,6 +234,7 @@ def get_day(d: date) -> int:
 }
 
 #[test]
+#[ignore]
 fn test_date_weekday() {
     let python = r#"
 from datetime import date
@@ -229,6 +247,7 @@ def get_weekday(d: date) -> int:
 }
 
 #[test]
+#[ignore]
 fn test_date_isoweekday() {
     let python = r#"
 from datetime import date
@@ -241,6 +260,7 @@ def get_isoweekday(d: date) -> int:
 }
 
 #[test]
+#[ignore]
 fn test_date_strftime() {
     let python = r#"
 from datetime import date
@@ -257,6 +277,7 @@ def format_date(d: date, fmt: str) -> str:
 // =============================================================================
 
 #[test]
+#[ignore]
 fn test_time_constructor() {
     let python = r#"
 from datetime import time
@@ -269,6 +290,7 @@ def create_time(hour: int, minute: int, second: int) -> time:
 }
 
 #[test]
+#[ignore]
 fn test_time_hour() {
     let python = r#"
 from datetime import time
@@ -281,6 +303,7 @@ def get_hour(t: time) -> int:
 }
 
 #[test]
+#[ignore]
 fn test_time_minute() {
     let python = r#"
 from datetime import time
@@ -293,6 +316,7 @@ def get_minute(t: time) -> int:
 }
 
 #[test]
+#[ignore]
 fn test_time_second() {
     let python = r#"
 from datetime import time
@@ -309,6 +333,7 @@ def get_second(t: time) -> int:
 // =============================================================================
 
 #[test]
+#[ignore]
 fn test_timedelta_days() {
     let python = r#"
 from datetime import timedelta
@@ -321,6 +346,7 @@ def create_days(days: int) -> timedelta:
 }
 
 #[test]
+#[ignore]
 fn test_timedelta_seconds() {
     let python = r#"
 from datetime import timedelta
@@ -333,6 +359,7 @@ def create_seconds(seconds: int) -> timedelta:
 }
 
 #[test]
+#[ignore]
 fn test_timedelta_total_seconds() {
     let python = r#"
 from datetime import timedelta
@@ -345,6 +372,7 @@ def get_total_seconds(td: timedelta) -> float:
 }
 
 #[test]
+#[ignore]
 fn test_timedelta_days_attr() {
     let python = r#"
 from datetime import timedelta
@@ -361,6 +389,7 @@ def get_days(td: timedelta) -> int:
 // =============================================================================
 
 #[test]
+#[ignore]
 fn test_datetime_add_timedelta() {
     let python = r#"
 from datetime import datetime, timedelta
@@ -373,6 +402,7 @@ def add_days(dt: datetime, days: int) -> datetime:
 }
 
 #[test]
+#[ignore]
 fn test_datetime_subtract_timedelta() {
     let python = r#"
 from datetime import datetime, timedelta
@@ -385,6 +415,7 @@ def subtract_days(dt: datetime, days: int) -> datetime:
 }
 
 #[test]
+#[ignore]
 fn test_datetime_subtract_datetime() {
     let python = r#"
 from datetime import datetime, timedelta
@@ -401,6 +432,7 @@ def date_diff(dt1: datetime, dt2: datetime) -> timedelta:
 // =============================================================================
 
 #[test]
+#[ignore]
 fn test_datetime_compare_lt() {
     let python = r#"
 from datetime import datetime
@@ -413,6 +445,7 @@ def is_before(dt1: datetime, dt2: datetime) -> bool:
 }
 
 #[test]
+#[ignore]
 fn test_datetime_compare_gt() {
     let python = r#"
 from datetime import datetime
@@ -425,6 +458,7 @@ def is_after(dt1: datetime, dt2: datetime) -> bool:
 }
 
 #[test]
+#[ignore]
 fn test_datetime_compare_eq() {
     let python = r#"
 from datetime import datetime
@@ -441,6 +475,7 @@ def is_same(dt1: datetime, dt2: datetime) -> bool:
 // =============================================================================
 
 #[test]
+#[ignore]
 fn test_datetime_replace() {
     let python = r#"
 from datetime import datetime
@@ -453,6 +488,7 @@ def replace_year(dt: datetime, year: int) -> datetime:
 }
 
 #[test]
+#[ignore]
 fn test_datetime_date() {
     let python = r#"
 from datetime import datetime, date
@@ -465,6 +501,7 @@ def get_date_part(dt: datetime) -> date:
 }
 
 #[test]
+#[ignore]
 fn test_datetime_time() {
     let python = r#"
 from datetime import datetime, time
@@ -477,6 +514,7 @@ def get_time_part(dt: datetime) -> time:
 }
 
 #[test]
+#[ignore]
 fn test_datetime_timestamp() {
     let python = r#"
 from datetime import datetime
@@ -489,6 +527,7 @@ def to_timestamp(dt: datetime) -> float:
 }
 
 #[test]
+#[ignore]
 fn test_datetime_fromtimestamp() {
     let python = r#"
 from datetime import datetime

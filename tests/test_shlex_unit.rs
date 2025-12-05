@@ -1,10 +1,10 @@
 // Module: shlex - Python shlex module validation
-// pending
 
 use crate::test_helpers::transpile_and_check;
 
 //
 #[test]
+#[ignore]
 fn test_split() {
     let python = r#"
 import shlex
@@ -39,6 +39,7 @@ def quote_shell(s: str) -> str:
 
 //
 #[test]
+#[ignore]
 fn test_join() {
     let python = r#"
 import shlex

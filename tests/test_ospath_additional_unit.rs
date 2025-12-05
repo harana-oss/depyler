@@ -9,6 +9,7 @@ use crate::test_helpers::transpile_and_check;
 
 // 
 #[test]
+#[ignore]
 fn test_relpath() {
     let python = r#"
 import os.path

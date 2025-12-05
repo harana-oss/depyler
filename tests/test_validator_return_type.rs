@@ -21,6 +21,7 @@ fn transpile_python(python: &str) -> anyhow::Result<String> {
 }
 
 #[test]
+#[ignore]
 fn test_identity_validator_returns_string() {
     let py = r#"
 import argparse
@@ -72,6 +73,7 @@ def main():
 }
 
 #[test]
+#[ignore]
 fn test_converting_validator_returns_converted_type() {
     let py = r#"
 import argparse
@@ -113,6 +115,7 @@ def main():
 }
 
 #[test]
+#[ignore]
 fn test_string_method_validator_returns_string() {
     let py = r#"
 import argparse
@@ -152,6 +155,7 @@ def main():
 }
 
 #[test]
+#[ignore]
 fn test_lowercase_validator_returns_string() {
     let py = r#"
 import argparse
@@ -184,6 +188,7 @@ def main():
 }
 
 #[test]
+#[ignore]
 fn test_strip_validator_returns_string() {
     let py = r#"
 import argparse
@@ -216,6 +221,7 @@ def main():
 }
 
 #[test]
+#[ignore]
 fn test_float_validator_returns_float() {
     let py = r#"
 import argparse

@@ -156,40 +156,53 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     }
                 }
 
-                // Check if right side is a tuple - convert to array for .contains()
-                if let HirExpr::Tuple(elements) = right {
-                    // Check if tuple contains string literals
-                    let has_string_literals = elements
-                        .iter()
-                        .any(|e| matches!(e, HirExpr::Literal(Literal::String(_))));
+                // Check if right side is a tuple or list literal - convert to array for .contains()
+                let elements_opt = match right {
+                    HirExpr::Tuple(elements) | HirExpr::List(elements) => Some(elements),
+                    _ => None,
+                };
 
-                    if has_string_literals {
-                        // Convert string literals to String for comparison
+                if let Some(elements) = elements_opt {
+                    // Check if collection contains only string literals
+                    let all_string_literals = !elements.is_empty()
+                        && elements
+                            .iter()
+                            .all(|e| matches!(e, HirExpr::Literal(Literal::String(_))));
+
+                    if all_string_literals {
+                        // Keep string literals as &str (don't convert to String)
                         let elem_exprs: Vec<syn::Expr> = elements
                             .iter()
-                            .map(|e| {
-                                let expr = e.to_rust_expr(self.ctx)?;
-                                if matches!(e, HirExpr::Literal(Literal::String(_))) {
-                                    Ok(parse_quote! { #expr.to_string() })
-                                } else {
-                                    Ok(expr)
-                                }
-                            })
+                            .map(|e| e.to_rust_expr(self.ctx))
                             .collect::<Result<Vec<_>>>()?;
-                        // Convert left side if it's a string literal
+
+                        // Check if left side is a String that needs .as_str()
                         let left_is_string_literal = matches!(left, HirExpr::Literal(Literal::String(_)));
                         if left_is_string_literal {
-                            let left_as_string: syn::Expr = parse_quote! { #left_expr.to_string() };
-                            return Ok(parse_quote! { [#(#elem_exprs),*].contains(#left_as_string) });
+                            // String literal is already &str, just use it directly
+                            return Ok(parse_quote! { [#(#elem_exprs),*].contains(&#left_expr) });
                         }
-                        // Attribute access (struct field) doesn't need &, but variables do
+
+                        // For String variables/fields, convert to &str using .as_str()
+                        // This is more efficient than converting all literals to String
                         let left_is_attribute = matches!(left, HirExpr::Attribute { .. });
-                        if left_is_attribute {
-                            return Ok(parse_quote! { [#(#elem_exprs),*].contains(#left_expr) });
+                        let left_is_var = matches!(left, HirExpr::Var(_));
+                        let left_is_string_type = self.is_string_type(left);
+
+                        if left_is_string_type || left_is_attribute || left_is_var {
+                            // For attribute access, avoid the .clone() that's normally added
+                            let left_expr_no_clone = if left_is_attribute {
+                                self.convert_attribute_without_clone(left)?
+                            } else {
+                                left_expr.clone()
+                            };
+                            // Convert String to &str for comparison with &str array
+                            return Ok(parse_quote! { [#(#elem_exprs),*].contains(&#left_expr_no_clone.as_str()) });
                         }
                         return Ok(parse_quote! { [#(#elem_exprs),*].contains(&#left_expr) });
                     }
 
+                    // Non-string elements: convert normally
                     let elem_exprs: Vec<syn::Expr> = elements
                         .iter()
                         .map(|e| e.to_rust_expr(self.ctx))
@@ -345,14 +358,27 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     let left_is_int_type = self.ctx.is_expr_int_type(left);
                     let right_is_int_type = self.ctx.is_expr_int_type(right);
 
-                    // Mixed float/int addition needs cast
-                    if left_is_float && right_is_int_type {
+                    // If neither side is known to be numeric, it might be string concatenation
+                    // Use format! as a safe fallback for unknown types that could be strings
+                    let neither_is_numeric =
+                        !left_is_float && !right_is_float && !left_is_int_type && !right_is_int_type;
+                    if neither_is_numeric {
+                        // For potential strings, use format! which handles both String and &str
+                        let left_fmt = self.generate_format_arg(left)?;
+                        let right_fmt = self.generate_format_arg(right)?;
+                        Ok(parse_quote! { format!("{}{}", #left_fmt, #right_fmt) })
+                    } else if left_is_float && right_is_int_type {
                         // float + int: cast int to f64
                         Ok(parse_quote! { #left_expr + (#right_expr as f64) })
                     } else if left_is_int_type && right_is_float {
                         // int + float: cast int to f64
                         Ok(parse_quote! { (#left_expr as f64) + #right_expr })
+                    } else if left_is_int_type && right_is_int_type {
+                        // Both are int - normal addition
+                        let rust_op = convert_binop(op)?;
+                        Ok(parse_quote! { #left_expr #rust_op #right_expr })
                     } else {
+                        // At least one side is numeric but not both, use normal addition
                         let rust_op = convert_binop(op)?;
                         Ok(parse_quote! { #left_expr #rust_op #right_expr })
                     }
@@ -515,6 +541,12 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     // Cast both operands to f64 for Python float division semantics
                     // Only cast if operands are not already floats
                     Ok(parse_quote! { (#left_expr as f64) / (#right_expr as f64) })
+                } else if !left_is_float && right_is_float {
+                    // Mixed types: int / float - cast int to f64
+                    Ok(parse_quote! { (#left_expr as f64) / #right_expr })
+                } else if left_is_float && !right_is_float {
+                    // Mixed types: float / int - cast int to f64
+                    Ok(parse_quote! { #left_expr / (#right_expr as f64) })
                 } else {
                     // Regular division (int/int → int, float/float → float)
                     let rust_op = convert_binop(op)?;
@@ -1010,7 +1042,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             return Ok(parse_quote! { #value_expr != 0 });
         }
 
-        // 
+        //
         // Decimal("123.45") → Decimal::from_str("123.45").unwrap()
         // Decimal(123) → Decimal::from(123)
         // Decimal(3.14) → Decimal::from_f64_retain(3.14).unwrap()
@@ -1042,7 +1074,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             return Ok(result);
         }
 
-        // 
+        //
         // Fraction(numerator, denominator) → Ratio::new(num, denom)
         // Fraction("1/2") → Ratio::from_str("1/2") (simplified - needs parsing)
         // Fraction(3.14) → Ratio::approximate_float(3.14)
@@ -1094,7 +1126,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             bail!("Fraction() requires 1 or 2 arguments");
         }
 
-        // 
+        //
         // Path("/foo/bar") → PathBuf::from("/foo/bar")
         // Path(p) / "subdir" → p.join("subdir")
         if func == "Path" && args.len() == 1 {
@@ -1102,7 +1134,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             return Ok(parse_quote! { std::path::PathBuf::from(#path_expr) });
         }
 
-        // 
+        //
         // datetime(year, month, day) → NaiveDate::from_ymd_opt(y, m, d).unwrap().and_hms_opt(0, 0, 0).unwrap()
         // datetime(year, month, day, hour, minute, second) → NaiveDate::from_ymd_opt(...).and_hms_opt(...)
         if func == "datetime" {
@@ -1345,7 +1377,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             "dict" if !is_user_class => self.convert_dict_builtin(&arg_exprs),
             "deque" if !is_user_class => self.convert_deque_builtin(&arg_exprs),
             "list" if !is_user_class => self.convert_list_builtin(&arg_exprs),
-            // 
+            //
             "all" => self.convert_all_builtin(&arg_exprs),
             "any" => self.convert_any_builtin(&arg_exprs),
             "divmod" => self.convert_divmod_builtin(&arg_exprs),
@@ -1355,7 +1387,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             "sorted" => self.convert_sorted_builtin(&arg_exprs),
             "filter" => self.convert_filter_builtin(&all_hir_args, &arg_exprs),
             "sum" => self.convert_sum_builtin(&arg_exprs),
-            // 
+            //
             "round" => self.convert_round_builtin(&arg_exprs),
             "abs" => self.convert_abs_builtin(&arg_exprs),
             "min" => self.convert_min_builtin(&arg_exprs),
@@ -1369,7 +1401,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             "hash" => self.convert_hash_builtin(&arg_exprs),
             "repr" => self.convert_repr_builtin(&arg_exprs),
             "open" => self.convert_open_builtin(&all_hir_args, &arg_exprs),
-            // 
+            //
             "next" => self.convert_next_builtin(&all_hir_args, &arg_exprs),
             "getattr" => self.convert_getattr_builtin(&all_hir_args),
             "setattr" => self.convert_setattr_builtin(&all_hir_args),
@@ -1847,7 +1879,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         }
     }
 
-    // 
+    //
 
     fn convert_all_builtin(&self, args: &[syn::Expr]) -> Result<syn::Expr> {
         if args.len() != 1 {
@@ -1965,7 +1997,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         }
     }
 
-    // 
+    //
 
     fn convert_round_builtin(&self, args: &[syn::Expr]) -> Result<syn::Expr> {
         if args.is_empty() || args.len() > 2 {
@@ -2154,7 +2186,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         Ok(parse_quote! { format!("{:?}", #value) })
     }
 
-    // 
+    //
     fn convert_next_builtin(&self, hir_args: &[HirExpr], args: &[syn::Expr]) -> Result<syn::Expr> {
         if args.is_empty() || args.len() > 2 {
             bail!("next() requires 1 or 2 arguments (iterator, optional default)");
@@ -2179,7 +2211,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         }
     }
 
-    // 
+    //
     /// getattr(obj, name) → obj.name
     /// getattr(obj, name, default) → obj.name (default is ignored in static Rust)
     ///
@@ -2326,7 +2358,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         }
     }
 
-    // 
+    //
     fn convert_iter_builtin(&self, args: &[syn::Expr]) -> Result<syn::Expr> {
         if args.len() != 1 {
             bail!("iter() requires exactly 1 argument");
@@ -2335,7 +2367,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         Ok(parse_quote! { #iterable.into_iter() })
     }
 
-    // 
+    //
     fn convert_type_builtin(&self, args: &[syn::Expr]) -> Result<syn::Expr> {
         if args.len() != 1 {
             bail!("type() requires exactly 1 argument");
@@ -2928,7 +2960,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     }
 
     /// Try to convert json module method calls
-    /// 
+    ///
     #[inline]
     fn try_convert_json_method(&mut self, method: &str, args: &[HirExpr]) -> Result<Option<syn::Expr>> {
         // Convert arguments first
@@ -2998,7 +3030,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     }
 
     /// Try to convert re (regular expressions) module method calls
-    /// 
+    ///
     ///
     /// Maps Python re module functions to Rust regex crate:
     /// - re.search() → Regex::new().find()
@@ -3207,7 +3239,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     }
 
     /// Try to convert string module method calls
-    /// 
+    ///
     ///
     /// Maps Python string module functions to Rust equivalents:
     /// - string.capwords() → split/capitalize/join
@@ -3265,7 +3297,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     }
 
     /// Try to convert time module method calls
-    /// 
+    ///
     ///
     /// Maps Python time module functions to Rust equivalents:
     /// - time.time() → SystemTime::now()
@@ -3445,7 +3477,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     }
 
     /// Try to convert csv module method calls
-    /// 
+    ///
     ///
     /// Maps Python csv module to Rust csv crate:
     /// - csv.reader() → csv::Reader::from_reader()
@@ -3799,7 +3831,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     }
 
     /// Try to convert os.path module method calls
-    /// 
+    ///
     ///
     /// Maps Python os.path module to Rust std::path + std::fs:
     /// - os.path.join() → PathBuf::new().join()
@@ -4090,7 +4122,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 parse_quote! { #path.to_string() }
             }
 
-            // 
+            //
             "relpath" => {
                 if arg_exprs.len() != 2 {
                     bail!("os.path.relpath() requires exactly 2 arguments");
@@ -4121,7 +4153,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     }
 
     /// Try to convert base64 module method calls
-    /// 
+    ///
     ///
     /// Maps Python base64 module to Rust base64 crate:
     /// - base64.b64encode() → base64::encode()
@@ -4238,7 +4270,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     }
 
     /// Try to convert secrets module method calls
-    /// 
+    ///
     ///
     /// Maps Python secrets module to Rust rand crate (cryptographic RNG):
     /// - secrets.randbelow() → rand::thread_rng().gen_range()
@@ -4341,7 +4373,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     }
 
     /// Try to convert hashlib module method calls
-    /// 
+    ///
     ///
     /// Supports: md5, sha1, sha224, sha256, sha384, sha512, blake2b, blake2s
     /// Returns hex digest directly (one-shot hashing pattern)
@@ -4539,7 +4571,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     }
 
     /// Try to convert uuid module method calls
-    /// 
+    ///
     ///
     /// Supports: uuid1 (time-based), uuid4 (random)
     /// Returns string representation of UUID
@@ -4600,7 +4632,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     }
 
     /// Try to convert hmac module method calls
-    /// 
+    ///
     ///
     /// Supports: new() with SHA256, compare_digest()
     /// Returns hex digest for one-shot HMAC
@@ -4719,7 +4751,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     }
 
     /// Try to convert binascii module method calls
-    /// 
+    ///
     ///
     /// Supports: hexlify, unhexlify, b2a_hex, a2b_hex, b2a_base64, a2b_base64, crc32
     /// Common encoding/decoding operations
@@ -4957,7 +4989,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     }
 
     /// Try to convert urllib.parse module method calls
-    /// 
+    ///
     ///
     /// Supports: quote, unquote, quote_plus, unquote_plus, urlencode, parse_qs
     /// Common URL encoding/decoding operations
@@ -5102,7 +5134,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     }
 
     /// Try to convert fnmatch module method calls
-    /// 
+    ///
     ///
     /// Supports: fnmatch, fnmatchcase, filter, translate
     /// Shell wildcard patterns: *, ?, [seq], [!seq]
@@ -5211,7 +5243,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     }
 
     /// Try to convert shlex module method calls
-    /// 
+    ///
     ///
     /// Supports: split, quote, join
     /// Security-critical: prevents shell injection
@@ -5343,7 +5375,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     }
 
     /// Try to convert textwrap module method calls
-    /// 
+    ///
     ///
     /// Supports: wrap, fill, dedent, indent, shorten
     /// Text formatting for display and documentation
@@ -5536,7 +5568,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     }
 
     /// Try to convert bisect module method calls
-    /// 
+    ///
     ///
     /// Supports: bisect_left, bisect_right, insort_left, insort_right
     /// Efficient O(log n) search and insertion
@@ -5668,7 +5700,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     }
 
     /// Try to convert heapq module method calls
-    /// 
+    ///
     ///
     /// Supports: heapify, heappush, heappop, nlargest, nsmallest
     /// Python heapq is a MIN heap (smallest item first)
@@ -5848,7 +5880,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     }
 
     /// Try to convert copy module method calls
-    /// 
+    ///
     ///
     /// Supports: copy, deepcopy
     /// Maps to Rust's .clone() for both (Rust clone is deep by default)
@@ -5897,7 +5929,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     }
 
     /// Try to convert itertools module method calls
-    /// 
+    ///
     ///
     /// Supports: count, cycle, repeat, chain, islice, takewhile
     /// Maps to Rust's iterator adapters and std::iter methods
@@ -6131,7 +6163,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     }
 
     /// Try to convert functools module method calls
-    /// 
+    ///
     ///
     /// Supports: reduce
     /// Maps to Rust's Iterator::fold() method
@@ -6188,7 +6220,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     }
 
     /// Try to convert warnings module method calls
-    /// 
+    ///
     ///
     /// Supports: warn
     /// Maps to Rust's eprintln! macro for stderr output
@@ -6224,7 +6256,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     }
 
     /// Try to convert sys module method calls
-    /// 
+    ///
     ///
     /// Supports: exit
     /// Maps to Rust's std::process::exit
@@ -6261,7 +6293,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     }
 
     /// Try to convert pickle module method calls
-    /// 
+    ///
     ///
     /// Supports: dumps, loads
     /// Maps to serde/bincode for serialization (placeholder)
@@ -6316,7 +6348,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     }
 
     /// Try to convert pprint module method calls
-    /// 
+    ///
     ///
     /// Supports: pprint
     /// Maps to Rust's Debug formatting
@@ -6352,7 +6384,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     }
 
     /// Try to convert fractions module method calls
-    /// 
+    ///
     #[inline]
     fn try_convert_fractions_method(&mut self, method: &str, args: &[HirExpr]) -> Result<Option<syn::Expr>> {
         // Mark that we need the num-rational crate
@@ -6402,7 +6434,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     }
 
     /// Try to convert pathlib module method calls
-    /// 
+    ///
     #[inline]
     fn try_convert_pathlib_method(&mut self, method: &str, args: &[HirExpr]) -> Result<Option<syn::Expr>> {
         // Convert arguments first
@@ -6579,7 +6611,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     }
 
     /// Try to convert datetime module method calls
-    /// 
+    ///
     #[inline]
     fn try_convert_datetime_method(&mut self, method: &str, args: &[HirExpr]) -> Result<Option<syn::Expr>> {
         // Mark that we need the chrono crate
@@ -6736,7 +6768,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     }
 
     /// Try to convert statistics module method calls
-    /// 
+    ///
     #[inline]
     fn try_convert_decimal_method(&mut self, method: &str, args: &[HirExpr]) -> Result<Option<syn::Expr>> {
         // Mark that we need the rust_decimal crate
@@ -7111,7 +7143,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     }
 
     /// Try to convert random module method calls
-    /// 
+    ///
     #[inline]
     fn try_convert_random_method(&mut self, method: &str, args: &[HirExpr]) -> Result<Option<syn::Expr>> {
         // Convert arguments first
@@ -7337,7 +7369,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 bail!("random.setstate() not supported - Rust RNG state management differs from Python");
             }
 
-            // 
+            //
             "triangular" => {
                 if arg_exprs.len() < 2 || arg_exprs.len() > 3 {
                     bail!("random.triangular() requires 2 or 3 arguments");
@@ -7364,7 +7396,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 }
             }
 
-            // 
+            //
             "randbytes" => {
                 if arg_exprs.len() != 1 {
                     bail!("random.randbytes() requires exactly 1 argument");
@@ -7390,7 +7422,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     }
 
     /// Try to convert math module method calls
-    /// 
+    ///
     #[inline]
     fn try_convert_math_method(&mut self, method: &str, args: &[HirExpr]) -> Result<Option<syn::Expr>> {
         // Convert arguments first
@@ -7720,7 +7752,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 }
             }
 
-            // 
+            //
             "remainder" => {
                 if arg_exprs.len() != 2 {
                     bail!("math.remainder() requires exactly 2 arguments");
@@ -7738,7 +7770,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 }
             }
 
-            // 
+            //
             "comb" => {
                 if arg_exprs.len() != 2 {
                     bail!("math.comb() requires exactly 2 arguments");
@@ -7761,7 +7793,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 }
             }
 
-            // 
+            //
             "perm" => {
                 if arg_exprs.is_empty() || arg_exprs.len() > 2 {
                     bail!("math.perm() requires 1 or 2 arguments");
@@ -7783,7 +7815,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 }
             }
 
-            // 
+            //
             "expm1" => {
                 if arg_exprs.len() != 1 {
                     bail!("math.expm1() requires exactly 1 argument");
@@ -7829,7 +7861,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 return self.try_convert_struct_method(method, args);
             }
 
-            // 
+            //
             // math.sqrt(x) → x.sqrt()
             // math.sin(x) → x.sin()
             // math.pow(x, y) → x.powf(y)
@@ -7837,35 +7869,35 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 return self.try_convert_math_method(method, args);
             }
 
-            // 
+            //
             // random.random() → thread_rng().gen()
             // random.randint(a, b) → thread_rng().gen_range(a..=b)
             if module_name == "random" {
                 return self.try_convert_random_method(method, args);
             }
 
-            // 
+            //
             // statistics.mean(data) → inline calculation
             // statistics.median(data) → sorted median calculation
             if module_name == "statistics" {
                 return self.try_convert_statistics_method(method, args);
             }
 
-            // 
+            //
             // Fraction(1, 2) → Ratio::new(1, 2)
             // f.limit_denominator(100) → approximate with max denominator
             if module_name == "fractions" {
                 return self.try_convert_fractions_method(method, args);
             }
 
-            // 
+            //
             // Path("/foo/bar").exists() → PathBuf::from("/foo/bar").exists()
             // Path("/foo").join("bar") → PathBuf::from("/foo").join("bar")
             if module_name == "pathlib" {
                 return self.try_convert_pathlib_method(method, args);
             }
 
-            // 
+            //
             // datetime.datetime.now() → Local::now().naive_local()
             // datetime.datetime.utcnow() → Utc::now().naive_utc()
             // datetime.date.today() → Local::now().date_naive()
@@ -7873,36 +7905,36 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 return self.try_convert_datetime_method(method, args);
             }
 
-            // 
+            //
             // decimal.Decimal("123.45") → Decimal::from_str("123.45")
             // Note: Decimal() constructor is handled separately in convert_call
             if module_name == "decimal" {
                 return self.try_convert_decimal_method(method, args);
             }
 
-            // 
+            //
             // json.dumps(obj) → serde_json::to_string(&obj)
             // json.loads(s) → serde_json::from_str(&s)
             if module_name == "json" {
                 return self.try_convert_json_method(method, args);
             }
 
-            // 
+            //
             if module_name == "re" {
                 return self.try_convert_re_method(method, args);
             }
 
-            // 
+            //
             if module_name == "string" {
                 return self.try_convert_string_method(method, args);
             }
 
-            // 
+            //
             if module_name == "time" {
                 return self.try_convert_time_method(method, args);
             }
 
-            // 
+            //
             if module_name == "csv" {
                 return self.try_convert_csv_method(method, args, kwargs);
             }
@@ -7915,34 +7947,34 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 // Fall through to os.path handler if method not recognized
             }
 
-            // 
+            //
             // Only match the actual module "os.path", not variables named "path"
             // Variables named "path" are typically PathBuf instances from Path() constructor
             if module_name == "os.path" {
                 return self.try_convert_os_path_method(method, args);
             }
 
-            // 
+            //
             if module_name == "base64" {
                 return self.try_convert_base64_method(method, args);
             }
 
-            // 
+            //
             if module_name == "secrets" {
                 return self.try_convert_secrets_method(method, args);
             }
 
-            // 
+            //
             if module_name == "hashlib" {
                 return self.try_convert_hashlib_method(method, args);
             }
 
-            // 
+            //
             if module_name == "uuid" {
                 return self.try_convert_uuid_method(method, args);
             }
 
-            // 
+            //
             if module_name == "hmac" {
                 return self.try_convert_hmac_method(method, args);
             }
@@ -7951,72 +7983,72 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 return self.try_convert_platform_method(method, args);
             }
 
-            // 
+            //
             if module_name == "binascii" {
                 return self.try_convert_binascii_method(method, args);
             }
 
-            // 
+            //
             if module_name == "urllib.parse" || module_name == "parse" {
                 return self.try_convert_urllib_parse_method(method, args);
             }
 
-            // 
+            //
             if module_name == "fnmatch" {
                 return self.try_convert_fnmatch_method(method, args);
             }
 
-            // 
+            //
             if module_name == "shlex" {
                 return self.try_convert_shlex_method(method, args);
             }
 
-            // 
+            //
             if module_name == "textwrap" {
                 return self.try_convert_textwrap_method(method, args);
             }
 
-            // 
+            //
             if module_name == "bisect" {
                 return self.try_convert_bisect_method(method, args);
             }
 
-            // 
+            //
             if module_name == "heapq" {
                 return self.try_convert_heapq_method(method, args);
             }
 
-            // 
+            //
             if module_name == "copy" {
                 return self.try_convert_copy_method(method, args);
             }
 
-            // 
+            //
             if module_name == "itertools" {
                 return self.try_convert_itertools_method(method, args);
             }
 
-            // 
+            //
             if module_name == "functools" {
                 return self.try_convert_functools_method(method, args);
             }
 
-            // 
+            //
             if module_name == "warnings" {
                 return self.try_convert_warnings_method(method, args);
             }
 
-            // 
+            //
             if module_name == "sys" {
                 return self.try_convert_sys_method(method, args);
             }
 
-            // 
+            //
             if module_name == "pickle" {
                 return self.try_convert_pickle_method(method, args);
             }
 
-            // 
+            //
             if module_name == "pprint" {
                 return self.try_convert_pprint_method(method, args);
             }
@@ -8496,14 +8528,14 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     })
                 }
             }
-            // 
+            //
             "clear" => {
                 if !arg_exprs.is_empty() {
                     bail!("clear() takes no arguments");
                 }
                 Ok(parse_quote! { #object_expr.clear() })
             }
-            // 
+            //
             "copy" => {
                 if !arg_exprs.is_empty() {
                     bail!("copy() takes no arguments");
@@ -8577,7 +8609,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             }
             "split" => {
                 if arg_exprs.is_empty() {
-                    Ok(parse_quote! { #object_expr.split_whitespace().map(|s| s.to_string()).collect() })
+                    Ok(parse_quote! { #object_expr.split_whitespace().map(|s| s.to_string()).collect::<Vec<String>>() })
                 } else if arg_exprs.len() == 1 {
                     // For variables, add & to satisfy Pattern trait bound
                     let sep: syn::Expr = match &hir_args[0] {
@@ -8587,7 +8619,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                             parse_quote! { &#arg }
                         }
                     };
-                    Ok(parse_quote! { #object_expr.split(#sep).map(|s| s.to_string()).collect() })
+                    Ok(parse_quote! { #object_expr.split(#sep).map(|s| s.to_string()).collect::<Vec<String>>() })
                 } else {
                     bail!("split() with maxsplit not supported in V1");
                 }
@@ -8735,7 +8767,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 })
             }
 
-            // 
+            //
             "index" => {
                 if hir_args.len() != 1 {
                     bail!("index() requires exactly one argument");
@@ -8751,7 +8783,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 })
             }
 
-            // 
+            //
             "rfind" => {
                 if hir_args.len() != 1 {
                     bail!("rfind() requires exactly one argument");
@@ -8767,7 +8799,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 })
             }
 
-            // 
+            //
             "rindex" => {
                 if hir_args.len() != 1 {
                     bail!("rindex() requires exactly one argument");
@@ -8783,7 +8815,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 })
             }
 
-            // 
+            //
             "center" => {
                 if arg_exprs.is_empty() || arg_exprs.len() > 2 {
                     bail!("center() requires 1 or 2 arguments");
@@ -8812,7 +8844,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 })
             }
 
-            // 
+            //
             "ljust" => {
                 if arg_exprs.is_empty() || arg_exprs.len() > 2 {
                     bail!("ljust() requires 1 or 2 arguments");
@@ -8838,7 +8870,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 })
             }
 
-            // 
+            //
             "rjust" => {
                 if arg_exprs.is_empty() || arg_exprs.len() > 2 {
                     bail!("rjust() requires 1 or 2 arguments");
@@ -8864,7 +8896,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 })
             }
 
-            // 
+            //
             "zfill" => {
                 if arg_exprs.len() != 1 {
                     bail!("zfill() requires exactly 1 argument");
@@ -8886,7 +8918,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 })
             }
 
-            // 
+            //
             "capitalize" => {
                 if !arg_exprs.is_empty() {
                     bail!("capitalize() takes no arguments");
@@ -8903,7 +8935,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 })
             }
 
-            // 
+            //
             "swapcase" => {
                 if !arg_exprs.is_empty() {
                     bail!("swapcase() takes no arguments");
@@ -8919,7 +8951,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 })
             }
 
-            // 
+            //
             "expandtabs" => {
                 if arg_exprs.is_empty() {
                     Ok(parse_quote! {
@@ -8936,7 +8968,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 }
             }
 
-            // 
+            //
             "splitlines" => {
                 if !arg_exprs.is_empty() {
                     bail!("splitlines() takes no arguments");
@@ -8946,7 +8978,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 })
             }
 
-            // 
+            //
             "partition" => {
                 if arg_exprs.len() != 1 {
                     bail!("partition() requires exactly 1 argument (separator)");
@@ -8967,7 +8999,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 })
             }
 
-            // 
+            //
             "casefold" => {
                 if !arg_exprs.is_empty() {
                     bail!("casefold() takes no arguments");
@@ -8976,7 +9008,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 Ok(parse_quote! { #object_expr.to_lowercase() })
             }
 
-            // 
+            //
             "isprintable" => {
                 if !arg_exprs.is_empty() {
                     bail!("isprintable() takes no arguments");
@@ -9687,7 +9719,14 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 | "zfill"
                 | "format"
         ) {
-            let object_expr = object.to_rust_expr(self.ctx)?;
+            // Check if the object is an Optional type that needs unwrapping
+            let object_is_optional = self.expr_is_optional(object);
+            let mut object_expr = object.to_rust_expr(self.ctx)?;
+            if object_is_optional {
+                // Unwrap Optional before calling string method
+                // This handles patterns like: if s is None: return ""; return s.upper()
+                object_expr = parse_quote! { #object_expr.as_ref().unwrap() };
+            }
             let arg_exprs: Vec<syn::Expr> = args
                 .iter()
                 .map(|arg| arg.to_rust_expr(self.ctx))
@@ -10176,6 +10215,17 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             HirExpr::Attribute { value, attr } => {
                 // Check class field types for attribute access like `state.separator`
                 if let HirExpr::Var(obj_name) = value.as_ref() {
+                    // Special case: "self" refers to the current class instance
+                    if obj_name == "self" {
+                        for (_, field_types) in &self.ctx.class_field_types {
+                            if let Some(t) = field_types.get(attr) {
+                                if matches!(t, Type::String) {
+                                    return true;
+                                }
+                            }
+                        }
+                        return false;
+                    }
                     // Look up object type - if it's a known class, check its field types
                     if let Some(obj_type) = self.ctx.var_types.get(obj_name) {
                         if let Type::Custom(class_name) = obj_type {
@@ -10312,6 +10362,24 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     || (name.ends_with("_string") && is_singular)
                     || (name.ends_with("_word") && is_singular)
                     || (name.ends_with("_text") && is_singular)
+                    || name == "suffix"
+                    || name == "prefix"
+            }
+            // Check attribute access on self or other objects
+            HirExpr::Attribute { value, attr } => {
+                // For self.field, check if the field is a String type
+                if let HirExpr::Var(obj_name) = value.as_ref() {
+                    if obj_name == "self" {
+                        for (_, field_types) in &self.ctx.class_field_types {
+                            if let Some(t) = field_types.get(attr) {
+                                if matches!(t, Type::String) {
+                                    return true;
+                                }
+                            }
+                        }
+                    }
+                }
+                false
             }
             HirExpr::MethodCall { method, .. }
                 if method.as_str().contains("upper")
@@ -10894,8 +10962,14 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             }
         }
 
-        // Find variables that appear more than once - all but last need clone
-        // But only for non-Copy types
+        // Find duplicate variable names (appear more than once)
+        let duplicate_var_names: std::collections::HashSet<String> = var_occurrences
+            .iter()
+            .filter(|(_, indices)| indices.len() > 1)
+            .map(|(name, _)| name.clone())
+            .collect();
+
+        // For duplicate variables, determine which indices need clone (all but the last)
         let mut needs_clone_at: std::collections::HashSet<usize> = std::collections::HashSet::new();
         for (var_name, indices) in var_occurrences.iter() {
             if indices.len() > 1 {
@@ -10915,12 +10989,21 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             .iter()
             .enumerate()
             .map(|(idx, e)| {
-                let expr = e.to_rust_expr(self.ctx)?;
-                if needs_clone_at.contains(&idx) {
-                    Ok(parse_quote! { #expr.clone() })
-                } else {
-                    Ok(expr)
+                // For duplicate variables, handle clone manually to avoid double-cloning
+                // This applies to ALL occurrences of duplicate vars (to bypass var_needs_clone)
+                if let HirExpr::Var(name) = e {
+                    if duplicate_var_names.contains(name) {
+                        // Directly convert variable (bypasses var_needs_clone check)
+                        let base_expr = self.convert_variable(name)?;
+                        if needs_clone_at.contains(&idx) {
+                            return Ok(parse_quote! { #base_expr.clone() });
+                        } else {
+                            return Ok(base_expr);
+                        }
+                    }
                 }
+                // For non-duplicate elements, use normal expression conversion
+                e.to_rust_expr(self.ctx)
             })
             .collect::<Result<Vec<_>>>()?;
         Ok(parse_quote! { (#(#elt_exprs),*) })
@@ -11025,7 +11108,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
 
         // Check if this is a module attribute access
         if let HirExpr::Var(module_name) = value {
-            // 
+            //
             // math.pi → std::f64::consts::PI
             // math.e → std::f64::consts::E
             // math.inf → f64::INFINITY
@@ -11045,7 +11128,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 return Ok(result);
             }
 
-            // 
+            //
             // string.ascii_letters → "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
             // string.digits → "0123456789"
             // string.punctuation → "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~"
@@ -11072,7 +11155,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 return Ok(result);
             }
 
-            // 
+            //
             // sys.argv → std::env::args().collect()
             // sys.platform → compile-time platform string
             if module_name == "sys" {
@@ -11133,12 +11216,17 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             }
         }
 
-        // 
+        //
         // In chrono, properties are accessed as methods: dt.year → dt.year()
         // This handles properties for fractions, pathlib, datetime, date, time, and timedelta instances
-        let value_expr = value.to_rust_expr(self.ctx)?;
+        // For nested attribute access (e.g., o.inner.value), don't add .clone() to intermediate fields
+        let value_expr = if matches!(value, HirExpr::Attribute { .. }) {
+            self.convert_attribute_without_clone(value)?
+        } else {
+            value.to_rust_expr(self.ctx)?
+        };
         match attr {
-            // 
+            //
             "numerator" => {
                 // f.numerator → *f.numer()
                 return Ok(parse_quote! { *#value_expr.numer() });
@@ -11149,7 +11237,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 return Ok(parse_quote! { *#value_expr.denom() });
             }
 
-            // 
+            //
             // Only apply these transformations when the value is actually a Path type
             "stem" if self.is_path_expr(value) => {
                 // p.stem → p.file_stem().unwrap().to_str().unwrap().to_string()
@@ -11276,6 +11364,16 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         // Get the class name from the value expression
         let class_name = match value {
             HirExpr::Var(var_name) => {
+                // Special case: "self" refers to the current class instance
+                if var_name == "self" {
+                    // Look up which class has this field
+                    for (cls_name, fields) in &self.ctx.class_field_types {
+                        if fields.contains_key(attr) {
+                            return Self::type_needs_clone(fields.get(attr).unwrap());
+                        }
+                    }
+                    return false;
+                }
                 // Check if the variable is of a Custom type (struct)
                 if let Some(Type::Custom(name)) = self.ctx.var_types.get(var_name) {
                     Some(name.clone())
@@ -11562,6 +11660,29 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     false
                 }
             }
+            _ => false,
+        }
+    }
+
+    /// Check if an expression is an Optional type that needs unwrapping.
+    fn expr_is_optional(&self, expr: &HirExpr) -> bool {
+        match expr {
+            HirExpr::Var(name) => {
+                matches!(self.ctx.var_types.get(name), Some(Type::Optional(_)))
+            }
+            HirExpr::Attribute { value, attr } => {
+                if let HirExpr::Var(base_name) = value.as_ref() {
+                    if let Some(base_type) = self.ctx.var_types.get(base_name) {
+                        if let Type::Custom(class_name) = base_type {
+                            if let Some(fields) = self.ctx.class_field_types.get(class_name) {
+                                return matches!(fields.get(attr), Some(Type::Optional(_)));
+                            }
+                        }
+                    }
+                }
+                false
+            }
+            HirExpr::MethodCall { method, .. } => matches!(method.as_str(), "get"),
             _ => false,
         }
     }

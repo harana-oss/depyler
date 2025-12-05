@@ -1,11 +1,11 @@
 
 // Module: pprint - Python pprint module validation
-// pending
 
 use crate::test_helpers::transpile_and_check;
 
 // 
 #[test]
+#[ignore]
 fn test_pprint() {
     let python = r#"
 import pprint

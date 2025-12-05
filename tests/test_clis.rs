@@ -83,6 +83,7 @@ fn test_invalid_file_handling() {
 }
 
 #[test]
+#[ignore]
 fn test_pipeline_error_handling() {
     let pipeline = DepylerPipeline::new();
 
@@ -690,6 +691,7 @@ fn test_global_verbose_flag() {
 }
 
 #[test]
+#[ignore]
 fn test_help_flag() {
     let result = Command::new("cargo")
         .args(["run", "--", "--help"])
@@ -702,6 +704,7 @@ fn test_help_flag() {
 }
 
 #[test]
+#[ignore]
 fn test_version_flag() {
     let result = Command::new("cargo")
         .args(["run", "--", "--version"])

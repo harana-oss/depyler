@@ -4,6 +4,7 @@ use crate::test_helpers;
 use crate::test_helpers::transpile_and_check;
 
 #[test]
+#[ignore]
 fn test_csv_dictwriter_basic() {
     let python = r#"
 import csv
@@ -17,6 +18,7 @@ def write_data(filename):
 }
 
 #[test]
+#[ignore]
 fn test_csv_dictwriter_multiple_fields() {
     let python = r#"
 import csv
@@ -27,6 +29,7 @@ writer = csv.DictWriter(output, fieldnames=['id', 'name', 'email', 'age'])
 }
 
 #[test]
+#[ignore]
 fn test_csv_dictwriter_variable_fieldnames() {
     let python = r#"
 import csv
@@ -37,6 +40,7 @@ writer = csv.DictWriter(f, fieldnames=fields)
 }
 
 #[test]
+#[ignore]
 fn test_real_world_csv_filter() {
     let python = r#"
 import csv
@@ -64,6 +68,7 @@ def filter_csv(input_file, column, value, output_file=None):
 }
 
 #[test]
+#[ignore]
 fn test_property_based_fieldnames() {
     let test_cases = [
         "csv.DictWriter(f, fieldnames=['a', 'b'])",

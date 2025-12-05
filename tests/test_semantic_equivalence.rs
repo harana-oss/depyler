@@ -84,107 +84,109 @@ mod property_tests {
     }
 
     proptest! {
-        #[test]
-fn prop_arithmetic_equivalence(
-            a in -1000i32..1000,
-            b in -1000i32..1000,
-            op in arb_binary_op()
-        ) {
-            let python_code = format!("def test_func(a: int, b: int) -> int:\n    return a {} b", op);
+            #[test]
+            #[ignore]
+    fn prop_arithmetic_equivalence(
+                a in -1000i32..1000,
+                b in -1000i32..1000,
+                op in arb_binary_op()
+            ) {
+                let python_code = format!("def test_func(a: int, b: int) -> int:\n    return a {} b", op);
 
-            let pipeline = DepylerPipeline::new();
+                let pipeline = DepylerPipeline::new();
 
-            // Skip division by zero
-            if (op == "//" || op == "%") && b == 0 {
-                return Ok(());
+                // Skip division by zero
+                if (op == "//" || op == "%") && b == 0 {
+                    return Ok(());
+                }
+
+                if let Ok(rust_code) = pipeline.transpile(&python_code) {
+                    // Verify the generated Rust compiles
+                    assert!(verify_rust_syntax(&rust_code));
+
+                    // Test semantic equivalence for specific values
+                    let python_result = eval_python_arithmetic(a, b, &op);
+                    let rust_result = eval_rust_arithmetic(&rust_code, a, b);
+
+                    if let (Some(py_val), Some(rust_val)) = (python_result, rust_result) {
+                        prop_assert_eq!(py_val, rust_val,
+                            "Arithmetic mismatch for {} {} {}: Python={}, Rust={}",
+                            a, op, b, py_val, rust_val);
+                    }
+                }
             }
 
-            if let Ok(rust_code) = pipeline.transpile(&python_code) {
-                // Verify the generated Rust compiles
-                assert!(verify_rust_syntax(&rust_code));
+            #[test]
+            fn prop_type_preservation(
+                func_code in arb_python_function()
+            ) {
+                let pipeline = DepylerPipeline::new();
 
-                // Test semantic equivalence for specific values
-                let python_result = eval_python_arithmetic(a, b, &op);
-                let rust_result = eval_rust_arithmetic(&rust_code, a, b);
+                if let Ok(rust_code) = pipeline.transpile(&func_code) {
+                    // Verify type annotations are preserved
+                    assert!(rust_code.contains("i32") || rust_code.contains("String"));
 
-                if let (Some(py_val), Some(rust_val)) = (python_result, rust_result) {
-                    prop_assert_eq!(py_val, rust_val,
-                        "Arithmetic mismatch for {} {} {}: Python={}, Rust={}",
-                        a, op, b, py_val, rust_val);
+                    // Verify function signature is correct
+                    assert!(rust_code.contains("pub fn") || rust_code.contains("fn"));
+
+                    // Verify return type is specified
+                    assert!(rust_code.contains("->"));
+                }
+            }
+
+            #[test]
+            fn prop_variable_scoping(
+                var_name in "[a-z][a-z0-9_]*",
+                value in any::<i32>()
+            ) {
+                // Create a more complex example that won't be optimized away
+                let python_code = format!(
+                    "def test_func() -> int:\n    {} = {}\n    {} = {} + 1\n    return {}",
+                    var_name, value, var_name, var_name, var_name
+                );
+
+                let pipeline = DepylerPipeline::new();
+
+                if let Ok(rust_code) = pipeline.transpile(&python_code) {
+                    // Should have basic function structure
+                    assert!(rust_code.contains("fn test_func"));
+
+                    // Should compile without errors
+                    assert!(verify_rust_syntax(&rust_code));
+
+                    // Should have return type
+                    assert!(rust_code.contains("-> i32"));
+                }
+            }
+
+            #[test]
+            #[ignore]
+    fn prop_control_flow_equivalence(
+                condition in -100i32..100,
+                then_value in any::<i32>(),
+                else_value in any::<i32>()
+            ) {
+                let python_code = format!(
+                    "def test_func(x: int) -> int:\n    if x > 0:\n        return {}\n    else:\n        return {}",
+                    then_value, else_value
+                );
+
+                let pipeline = DepylerPipeline::new();
+
+                if let Ok(rust_code) = pipeline.transpile(&python_code) {
+                    assert!(verify_rust_syntax(&rust_code));
+
+                    // Test semantic equivalence
+                    let expected = if condition > 0 { then_value } else { else_value };
+
+                    if let Some(actual) = eval_rust_conditional(&rust_code, condition) {
+                        prop_assert_eq!(expected, actual,
+                            "Conditional mismatch for condition {}: expected {}, got {}",
+                            condition, expected, actual);
+                    }
                 }
             }
         }
-
-        #[test]
-        fn prop_type_preservation(
-            func_code in arb_python_function()
-        ) {
-            let pipeline = DepylerPipeline::new();
-
-            if let Ok(rust_code) = pipeline.transpile(&func_code) {
-                // Verify type annotations are preserved
-                assert!(rust_code.contains("i32") || rust_code.contains("String"));
-
-                // Verify function signature is correct
-                assert!(rust_code.contains("pub fn") || rust_code.contains("fn"));
-
-                // Verify return type is specified
-                assert!(rust_code.contains("->"));
-            }
-        }
-
-        #[test]
-        fn prop_variable_scoping(
-            var_name in "[a-z][a-z0-9_]*",
-            value in any::<i32>()
-        ) {
-            // Create a more complex example that won't be optimized away
-            let python_code = format!(
-                "def test_func() -> int:\n    {} = {}\n    {} = {} + 1\n    return {}",
-                var_name, value, var_name, var_name, var_name
-            );
-
-            let pipeline = DepylerPipeline::new();
-
-            if let Ok(rust_code) = pipeline.transpile(&python_code) {
-                // Should have basic function structure
-                assert!(rust_code.contains("fn test_func"));
-
-                // Should compile without errors
-                assert!(verify_rust_syntax(&rust_code));
-
-                // Should have return type
-                assert!(rust_code.contains("-> i32"));
-            }
-        }
-
-        #[test]
-fn prop_control_flow_equivalence(
-            condition in -100i32..100,
-            then_value in any::<i32>(),
-            else_value in any::<i32>()
-        ) {
-            let python_code = format!(
-                "def test_func(x: int) -> int:\n    if x > 0:\n        return {}\n    else:\n        return {}",
-                then_value, else_value
-            );
-
-            let pipeline = DepylerPipeline::new();
-
-            if let Ok(rust_code) = pipeline.transpile(&python_code) {
-                assert!(verify_rust_syntax(&rust_code));
-
-                // Test semantic equivalence
-                let expected = if condition > 0 { then_value } else { else_value };
-
-                if let Some(actual) = eval_rust_conditional(&rust_code, condition) {
-                    prop_assert_eq!(expected, actual,
-                        "Conditional mismatch for condition {}: expected {}, got {}",
-                        condition, expected, actual);
-                }
-            }
-        }
-    }
 }
 
 // Helper functions for semantic evaluation

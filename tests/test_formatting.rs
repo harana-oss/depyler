@@ -157,6 +157,7 @@ def log_error(message: str) -> None:
 }
 
 #[test]
+#[ignore]
 fn test_codegen_formatting_impl_blocks() {
     // This test is INTENTIONALLY IGNORED because it uses f-strings, which aren't yet supported.
     // The test is valid but requires f-string transpilation to be implemented first.
@@ -203,6 +204,7 @@ class Point:
 }
 
 #[test]
+#[ignore]
 fn test_codegen_formatting_comprehensive() {
     // This test is INTENTIONALLY IGNORED because it uses f-strings, which aren't yet supported.
     // The test is valid but requires f-string transpilation to be implemented first.

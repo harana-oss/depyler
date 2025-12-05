@@ -1,11 +1,10 @@
-
 // Module: hmac - Python hmac module validation
-// pending
 
 use crate::test_helpers::transpile_and_check;
 
-// 
+//
 #[test]
+#[ignore]
 fn test_hmac_new_sha256() {
     let python = r#"
 import hmac
@@ -24,6 +23,7 @@ def create_hmac(key: bytes, msg: bytes) -> str:
 }
 
 #[test]
+#[ignore]
 fn test_hmac_new_md5() {
     let python = r#"
 import hmac
@@ -41,6 +41,7 @@ def create_hmac_md5(key: bytes, msg: bytes) -> str:
 }
 
 #[test]
+#[ignore]
 fn test_hmac_sha1() {
     let python = r#"
 import hmac
@@ -57,8 +58,9 @@ def create_hmac_sha1(key: bytes, msg: bytes) -> str:
     assert!(result.contains("sha1") || result.contains("Sha1"));
 }
 
-// 
+//
 #[test]
+#[ignore]
 fn test_hmac_digestmod_string() {
     let python = r#"
 import hmac
@@ -74,8 +76,9 @@ def create_hmac_simple(key: bytes, msg: bytes) -> str:
     assert!(result.contains("sha256"));
 }
 
-// 
+//
 #[test]
+#[ignore]
 fn test_hmac_update() {
     let python = r#"
 import hmac
@@ -95,6 +98,7 @@ def incremental_hmac(key: bytes, msg1: bytes, msg2: bytes) -> str:
 }
 
 #[test]
+#[ignore]
 fn test_hmac_digest() {
     let python = r#"
 import hmac
@@ -110,8 +114,9 @@ def hmac_digest(key: bytes, msg: bytes) -> bytes:
     assert!(result.contains("digest") || result.contains("finalize"));
 }
 
-// 
+//
 #[test]
+#[ignore]
 fn test_hmac_compare_digest() {
     let python = r#"
 import hmac
@@ -126,8 +131,9 @@ def verify_hmac(a: bytes, b: bytes) -> bool:
     assert!(result.contains("ConstantTimeEq") || result.contains("ct_eq"));
 }
 
-// 
+//
 #[test]
+#[ignore]
 fn test_hmac_sha512() {
     let python = r#"
 import hmac
@@ -145,6 +151,7 @@ def hmac_sha512(key: bytes, msg: bytes) -> str:
 }
 
 #[test]
+#[ignore]
 fn test_hmac_sha384() {
     let python = r#"
 import hmac

@@ -121,7 +121,18 @@ fn needs_type_conversion(target_type: &Type, expr: &HirExpr) -> bool {
         }
         Type::String => {
             // Convert string literals (&str) to String when return type is String
-            matches!(expr, HirExpr::Literal(Literal::String(_)))
+            if matches!(expr, HirExpr::Literal(Literal::String(_))) {
+                return true;
+            }
+            // Methods that return &str need .to_string() when String is expected
+            if let HirExpr::MethodCall { method, .. } = expr {
+                // These methods return &str in Rust
+                let str_ref_methods = ["strip", "trim", "trim_start", "trim_end", "lstrip", "rstrip"];
+                if str_ref_methods.contains(&method.as_str()) {
+                    return true;
+                }
+            }
+            false
         }
         _ => false,
     }
@@ -557,6 +568,27 @@ pub(crate) fn codegen_return_stmt(
 
         // Check if the expression is None literal
         let is_none_literal = matches!(e, HirExpr::Literal(Literal::None));
+
+        // Unwrap Option-typed variables when returning from a non-Optional function
+        // This handles the pattern: if x is None: return default; return x
+        // After the None check, x must be Some, so we unwrap
+        if !is_optional_return && !is_none_literal {
+            let expr_is_opt = expr_is_optional(e, ctx);
+            if expr_is_opt {
+                // Check if this is a reference parameter - need different unwrap pattern
+                let is_ref_param = if let HirExpr::Var(var_name) = e {
+                    ctx.current_func_ref_params.contains(var_name)
+                } else {
+                    false
+                };
+                if is_ref_param {
+                    // For &Option<T> parameters, use as_ref().unwrap().clone()
+                    expr_tokens = parse_quote! { #expr_tokens.as_ref().unwrap().clone() };
+                } else {
+                    expr_tokens = parse_quote! { #expr_tokens.unwrap() };
+                }
+            }
+        }
 
         // Always use explicit return keyword for clarity and Python-like behavior
         let use_return_keyword = true;

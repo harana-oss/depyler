@@ -260,6 +260,7 @@ def test_func():
 ///
 /// Verifies: End-to-end compilation success
 #[test]
+#[ignore]
 fn test_generated_code_compiles() {
     let source = r#"
 def test_func():

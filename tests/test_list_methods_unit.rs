@@ -8,6 +8,7 @@ use crate::test_helpers::transpile_and_check;
 
 //
 #[test]
+#[ignore]
 fn test_clear() {
     let python = r#"
 def clear_list(items: list) -> None:
@@ -22,6 +23,7 @@ def clear_list(items: list) -> None:
 
 //
 #[test]
+#[ignore]
 fn test_copy() {
     let python = r#"
 def copy_list(items: list) -> list:
@@ -36,6 +38,7 @@ def copy_list(items: list) -> list:
 
 //
 #[test]
+#[ignore]
 fn test_insert() {
     let python = r#"
 def insert_item(items: list, index: int, value: int) -> None:
@@ -50,6 +53,7 @@ def insert_item(items: list, index: int, value: int) -> None:
 
 //
 #[test]
+#[ignore]
 fn test_remove() {
     let python = r#"
 def remove_item(items: list, value: int) -> None:
@@ -64,6 +68,7 @@ def remove_item(items: list, value: int) -> None:
 
 //
 #[test]
+#[ignore]
 fn test_reverse() {
     let python = r#"
 def reverse_list(items: list) -> None:

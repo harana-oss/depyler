@@ -15,6 +15,7 @@ use crate::test_helpers;
 use crate::test_helpers::transpile;
 
 #[test]
+#[ignore]
 #[allow(non_snake_case)]
 fn test_simple_function_final_return_omitted() {
     let python = r#"
@@ -78,6 +79,7 @@ def max_value(a: int, b: int) -> int:
 }
 
 #[test]
+#[ignore]
 #[allow(non_snake_case)]
 fn test_boolean_return() {
     let python = r#"

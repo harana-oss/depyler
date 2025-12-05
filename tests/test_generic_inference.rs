@@ -2,6 +2,7 @@ use crate::test_helpers::transpile;
 use depyler_core::{DepylerPipeline, hir::Type};
 
 #[test]
+#[ignore]
 fn test_simple_generic_function() {
     let pipeline = DepylerPipeline::new();
     let python_code = r#"

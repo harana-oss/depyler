@@ -1,6 +1,5 @@
 
 // Module: statistics - Python statistics module validation
-// pending
 
 use crate::test_helpers::transpile_and_check;
 

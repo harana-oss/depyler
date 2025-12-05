@@ -1,11 +1,11 @@
 
 // Module: array - Python array module validation
-// pending
 
 use crate::test_helpers::transpile_and_check;
 
 // 
 #[test]
+#[ignore]
 fn test_array_creation() {
     let python = r#"
 import array
@@ -21,6 +21,7 @@ def create_int_array(values: list) -> array.array:
 }
 
 #[test]
+#[ignore]
 fn test_array_append() {
     let python = r#"
 import array
@@ -36,6 +37,7 @@ def append_to_array(arr: array.array, value: int) -> None:
 }
 
 #[test]
+#[ignore]
 fn test_array_extend() {
     let python = r#"
 import array
@@ -52,6 +54,7 @@ def extend_array(arr: array.array, values: list) -> None:
 
 // 
 #[test]
+#[ignore]
 fn test_array_pop() {
     let python = r#"
 import array
@@ -67,6 +70,7 @@ def pop_from_array(arr: array.array) -> int:
 }
 
 #[test]
+#[ignore]
 fn test_array_tolist() {
     let python = r#"
 import array

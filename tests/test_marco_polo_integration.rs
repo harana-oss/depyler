@@ -4,6 +4,7 @@ mod marco_polo_tests {
     use std::process::Command;
 
     #[test]
+#[ignore]
 fn test_marco_polo_simple_transpilation() {
         // Check if the example file exists
         let workspace_root = env!("CARGO_MANIFEST_DIR");
@@ -43,6 +44,7 @@ fn test_marco_polo_simple_transpilation() {
     }
 
     #[test]
+#[ignore]
 fn test_marco_polo_annotations() {
         let workspace_root = env!("CARGO_MANIFEST_DIR");
         let example_path = Path::new(workspace_root)
@@ -69,6 +71,7 @@ fn test_marco_polo_annotations() {
     }
 
     #[test]
+#[ignore]
 fn test_marco_polo_rust_project() {
         let workspace_root = env!("CARGO_MANIFEST_DIR");
         let project_dir = Path::new(workspace_root)

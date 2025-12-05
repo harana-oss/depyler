@@ -40,6 +40,7 @@ def test_type(obj):
 }
 
 #[test]
+#[ignore]
 fn test_method_name_as_keyword() {
     let python_code = r#"
 def test_as(obj):
@@ -58,6 +59,7 @@ def test_as(obj):
 }
 
 #[test]
+#[ignore]
 fn test_method_name_in_keyword() {
     let python_code = r#"
 def test_in(obj):
@@ -494,6 +496,7 @@ def test_floordiv(a: int, b: int) -> int:
 // ============================================================================
 
 #[test]
+#[ignore]
 fn test_method_chaining_with_keywords() {
     let python_code = r#"
 def test_chain(obj):

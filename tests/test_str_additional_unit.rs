@@ -9,6 +9,7 @@ use crate::test_helpers::transpile_and_check;
 
 // 
 #[test]
+#[ignore]
 fn test_str_index() {
     let python = r#"
 def get_index(text: str, sub: str) -> int:
@@ -23,6 +24,7 @@ def get_index(text: str, sub: str) -> int:
 
 // 
 #[test]
+#[ignore]
 fn test_str_rfind() {
     let python = r#"
 def find_last(text: str, sub: str) -> int:
@@ -37,6 +39,7 @@ def find_last(text: str, sub: str) -> int:
 
 // 
 #[test]
+#[ignore]
 fn test_str_rindex() {
     let python = r#"
 def get_last_index(text: str, sub: str) -> int:

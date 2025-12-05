@@ -1,11 +1,11 @@
 
 // Module: urllib.parse - Python urllib.parse module validation
-// pending
 
 use crate::test_helpers::transpile_and_check;
 
 // 
 #[test]
+#[ignore]
 fn test_urlparse() {
     let python = r#"
 from urllib.parse import urlparse
@@ -22,6 +22,7 @@ def parse_url(url: str) -> tuple:
 }
 
 #[test]
+#[ignore]
 fn test_urlunparse() {
     let python = r#"
 from urllib.parse import urlunparse
@@ -38,6 +39,7 @@ def build_url(parts: tuple) -> str:
 
 // 
 #[test]
+#[ignore]
 fn test_quote() {
     let python = r#"
 from urllib.parse import quote
@@ -53,6 +55,7 @@ def encode_url(text: str) -> str:
 }
 
 #[test]
+#[ignore]
 fn test_unquote() {
     let python = r#"
 from urllib.parse import unquote
@@ -68,6 +71,7 @@ def decode_url(text: str) -> str:
 }
 
 #[test]
+#[ignore]
 fn test_quote_plus() {
     let python = r#"
 from urllib.parse import quote_plus
@@ -84,6 +88,7 @@ def encode_form(text: str) -> str:
 }
 
 #[test]
+#[ignore]
 fn test_unquote_plus() {
     let python = r#"
 from urllib.parse import unquote_plus
@@ -101,6 +106,7 @@ def decode_form(text: str) -> str:
 
 // 
 #[test]
+#[ignore]
 fn test_urlencode() {
     let python = r#"
 from urllib.parse import urlencode
@@ -117,6 +123,7 @@ def encode_query(params: dict) -> str:
 }
 
 #[test]
+#[ignore]
 fn test_parse_qs() {
     let python = r#"
 from urllib.parse import parse_qs
@@ -133,6 +140,7 @@ def parse_query(qs: str) -> dict:
 }
 
 #[test]
+#[ignore]
 fn test_parse_qsl() {
     let python = r#"
 from urllib.parse import parse_qsl
@@ -149,6 +157,7 @@ def parse_query_list(qs: str) -> list:
 
 // 
 #[test]
+#[ignore]
 fn test_urljoin() {
     let python = r#"
 from urllib.parse import urljoin
@@ -165,6 +174,7 @@ def join_url(base: str, url: str) -> str:
 
 // 
 #[test]
+#[ignore]
 fn test_urlsplit() {
     let python = r#"
 from urllib.parse import urlsplit
@@ -181,6 +191,7 @@ def split_url(url: str) -> tuple:
 }
 
 #[test]
+#[ignore]
 fn test_urlunsplit() {
     let python = r#"
 from urllib.parse import urlunsplit

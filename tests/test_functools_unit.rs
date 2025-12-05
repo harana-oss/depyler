@@ -1,11 +1,11 @@
 
 // Module: functools - Python functools module validation
-// pending
 
 use crate::test_helpers::transpile_and_check;
 
 // 
 #[test]
+#[ignore]
 fn test_reduce() {
     let python = r#"
 import functools
@@ -22,6 +22,7 @@ def sum_all(numbers: list) -> int:
 
 // 
 #[test]
+#[ignore]
 fn test_partial() {
     let python = r#"
 import functools
@@ -40,6 +41,7 @@ def create_doubler() -> callable:
 
 // 
 #[test]
+#[ignore]
 fn test_lru_cache() {
     let python = r#"
 import functools

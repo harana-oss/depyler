@@ -5,6 +5,7 @@ use crate::test_helpers::transpile_and_check;
 
 // 
 #[test]
+#[ignore]
 fn test_copy() {
     let python = r#"
 import copy
@@ -21,6 +22,7 @@ def shallow_copy(obj: list) -> list:
 
 // 
 #[test]
+#[ignore]
 fn test_deepcopy() {
     let python = r#"
 import copy

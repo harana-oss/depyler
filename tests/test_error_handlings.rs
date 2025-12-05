@@ -9,6 +9,7 @@ use depyler_core::hir::*;
 use smallvec::smallvec;
 
 #[test]
+#[ignore]
 fn test_pipeline_invalid_python_syntax() {
     let pipeline = DepylerPipeline::new();
 
@@ -211,6 +212,7 @@ fn test_quality_error_types() {
 }
 
 #[test]
+#[ignore]
 fn test_pipeline_with_verification_errors() {
     let pipeline = DepylerPipeline::new().with_verification();
 

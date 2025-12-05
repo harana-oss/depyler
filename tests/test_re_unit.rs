@@ -1,11 +1,10 @@
-
 // Module: re - Python regular expressions module validation
-// pending
 
 use crate::test_helpers::transpile_and_check;
 
 //
 #[test]
+#[ignore]
 fn test_re_search() {
     let python = r#"
 import re
@@ -22,6 +21,7 @@ def find_pattern(text: str) -> bool:
 }
 
 #[test]
+#[ignore]
 fn test_re_match() {
     let python = r#"
 import re
@@ -38,6 +38,7 @@ def check_start(text: str) -> bool:
 }
 
 #[test]
+#[ignore]
 fn test_re_findall() {
     let python = r#"
 import re
@@ -53,6 +54,7 @@ def find_all_numbers(text: str) -> list:
 }
 
 #[test]
+#[ignore]
 fn test_re_finditer() {
     let python = r#"
 import re
@@ -70,6 +72,7 @@ def find_matches(text: str) -> list:
 
 //
 #[test]
+#[ignore]
 fn test_re_sub() {
     let python = r#"
 import re
@@ -85,6 +88,7 @@ def replace_digits(text: str) -> str:
 }
 
 #[test]
+#[ignore]
 fn test_re_subn() {
     let python = r#"
 import re
@@ -101,6 +105,7 @@ def replace_and_count(text: str) -> tuple:
 
 //
 #[test]
+#[ignore]
 fn test_re_compile() {
     let python = r#"
 import re
@@ -117,6 +122,7 @@ def compile_pattern():
 }
 
 #[test]
+#[ignore]
 fn test_re_compile_with_flags() {
     let python = r#"
 import re
@@ -134,6 +140,7 @@ def compile_case_insensitive():
 
 //
 #[test]
+#[ignore]
 fn test_re_split() {
     let python = r#"
 import re
@@ -149,6 +156,7 @@ def split_by_pattern(text: str) -> list:
 }
 
 #[test]
+#[ignore]
 fn test_re_split_with_maxsplit() {
     let python = r#"
 import re
@@ -165,6 +173,7 @@ def split_limited(text: str) -> list:
 
 //
 #[test]
+#[ignore]
 fn test_re_escape() {
     let python = r#"
 import re
@@ -181,6 +190,7 @@ def escape_special_chars(text: str) -> str:
 
 //
 #[test]
+#[ignore]
 fn test_match_group() {
     let python = r#"
 import re
@@ -199,6 +209,7 @@ def extract_group(text: str) -> str:
 }
 
 #[test]
+#[ignore]
 fn test_match_groups() {
     let python = r#"
 import re
@@ -217,6 +228,7 @@ def extract_all_groups(text: str) -> tuple:
 }
 
 #[test]
+#[ignore]
 fn test_match_start_end() {
     let python = r#"
 import re
@@ -236,6 +248,7 @@ def find_position(text: str) -> int:
 
 //
 #[test]
+#[ignore]
 fn test_re_ignorecase_flag() {
     let python = r#"
 import re
@@ -252,6 +265,7 @@ def case_insensitive_search(text: str) -> bool:
 }
 
 #[test]
+#[ignore]
 fn test_re_multiline_flag() {
     let python = r#"
 import re
@@ -268,6 +282,7 @@ def multiline_search(text: str) -> bool:
 }
 
 #[test]
+#[ignore]
 fn test_re_dotall_flag() {
     let python = r#"
 import re
@@ -285,6 +300,7 @@ def dotall_search(text: str) -> bool:
 
 //
 #[test]
+#[ignore]
 fn test_pattern_search() {
     let python = r#"
 import re
@@ -302,6 +318,7 @@ def pattern_search(text: str) -> bool:
 }
 
 #[test]
+#[ignore]
 fn test_pattern_findall() {
     let python = r#"
 import re

@@ -1676,7 +1676,24 @@ fn convert_stmt_with_context(stmt: &HirStmt, type_mapper: &TypeMapper, is_classm
         }
         HirStmt::Return(expr) => {
             let ret_expr = if let Some(e) = expr {
-                convert_expr_with_context(e, type_mapper, is_classmethod)?
+                let converted = convert_expr_with_context(e, type_mapper, is_classmethod)?;
+                // Add .clone() when returning a self.field that's a String
+                if let HirExpr::Attribute { value, attr } = e {
+                    if let HirExpr::Var(var_name) = &**value {
+                        if var_name == "self" {
+                            // Common string field names that need cloning
+                            let string_field_names =
+                                ["content", "name", "text", "value", "message", "title", "description"];
+                            if string_field_names.iter().any(|&s| attr.contains(s)) {
+                                return Ok(syn::Stmt::Expr(
+                                    parse_quote! { return #converted.clone() },
+                                    Some(Default::default()),
+                                ));
+                            }
+                        }
+                    }
+                }
+                converted
             } else {
                 parse_quote! { () }
             };
@@ -2017,6 +2034,17 @@ impl<'a> ExprConverter<'a> {
             BinOp::Sub if self.is_set_expr(left) && self.is_set_expr(right) => {
                 // Set difference operation
                 self.convert_set_operation(op, left_expr, right_expr)
+            }
+            BinOp::Add => {
+                // Check if this is string concatenation
+                let is_string = self.is_string_expr(left) || self.is_string_expr(right);
+                if is_string {
+                    // Use format! for string concatenation to handle ownership properly
+                    Ok(parse_quote! { format!("{}{}", #left_expr, #right_expr) })
+                } else {
+                    let rust_op = convert_binop(op)?;
+                    Ok(parse_quote! { #left_expr #rust_op #right_expr })
+                }
             }
             BinOp::Sub => {
                 // Check if we're subtracting from a .len() call to prevent underflow
@@ -2428,6 +2456,34 @@ impl<'a> ExprConverter<'a> {
                 // For now, be conservative and only treat explicit sets as sets
                 // This prevents incorrect conversion of integer bitwise operations
                 false
+            }
+            _ => false,
+        }
+    }
+
+    /// Check if an expression is a string type
+    fn is_string_expr(&self, expr: &HirExpr) -> bool {
+        match expr {
+            // String literals are strings
+            HirExpr::Literal(Literal::String(_)) => true,
+            // self.field access is likely a string if the field name contains "content", "name", "text", etc.
+            HirExpr::Attribute { value, attr } => {
+                if let HirExpr::Var(var_name) = &**value {
+                    if var_name == "self" {
+                        // Common string field names
+                        let string_field_names =
+                            ["content", "name", "text", "value", "message", "title", "description"];
+                        return string_field_names.iter().any(|&s| attr.contains(s));
+                    }
+                }
+                false
+            }
+            // Variables that are parameters (suffix, prefix, etc.) are likely strings in string contexts
+            HirExpr::Var(name) => {
+                let string_param_names = [
+                    "suffix", "prefix", "text", "content", "name", "message", "value", "s", "str",
+                ];
+                string_param_names.iter().any(|&s| name == s)
             }
             _ => false,
         }

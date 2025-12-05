@@ -1808,3 +1808,56 @@ def two() -> None:
         "call site should pass bool by value:\n{rust_code}"
     );
 }
+
+#[test]
+fn test_local_dataclass_list_literal_index_assignment() {
+    let python = r#"
+from dataclasses import dataclass
+
+@dataclass
+class State:
+    items: list[str]
+
+def one(state: State) -> None:
+    x = State(items=["one", "two"])
+    x.items[0] = "three"
+"#;
+
+    let rust_code = transpile_and_check(python, &[]);
+    assert!(
+        rust_code.contains("let mut x = State"),
+        "Local dataclass with list index mutation should be mut:\n{rust_code}"
+    );
+    assert!(
+        rust_code.contains("state: &State"),
+        "Unused state param should be immutable ref:\n{rust_code}"
+    );
+}
+
+#[test]
+fn test_immutable_ref_passed_to_mutable_ref_function() {
+    let python = r#"
+from dataclasses import dataclass
+
+@dataclass
+class State:
+    x: int
+
+def one(state: State) -> None:
+    two(state)
+
+def two(state: State) -> None:
+    state.x = 1
+"#;
+
+    let rust_code = transpile_and_check(python, &[]);
+    println!("Generated code:\n{rust_code}");
+
+    // `two` mutates state.x, so it requires &mut State
+    assert!(
+        rust_code.contains("fn two(state: &mut State)"),
+        "two() should require &mut State since it mutates state.x:\n{rust_code}"
+    );
+    // `one` calls `two` which requires &mut, so `one` must also require &mut
+    assert!(rust_code.contains("fn one(state: &mut State)"));
+}

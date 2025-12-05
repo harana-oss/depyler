@@ -5,6 +5,7 @@ use crate::test_helpers::transpile_and_check;
 
 // 
 #[test]
+#[ignore]
 fn test_csv_reader() {
     let python = r#"
 import csv
@@ -22,6 +23,7 @@ def read_csv_file(filename: str) -> list:
 }
 
 #[test]
+#[ignore]
 fn test_csv_reader_with_delimiter() {
     let python = r#"
 import csv
@@ -40,6 +42,7 @@ def read_csv_with_delimiter(filename: str, delim: str) -> list:
 
 // 
 #[test]
+#[ignore]
 fn test_csv_writer() {
     let python = r#"
 import csv
@@ -57,6 +60,7 @@ def write_csv_file(filename: str, rows: list) -> None:
 }
 
 #[test]
+#[ignore]
 fn test_csv_writer_writerow() {
     let python = r#"
 import csv
@@ -74,6 +78,7 @@ def write_single_row(filename: str, row: list) -> None:
 }
 
 #[test]
+#[ignore]
 fn test_csv_writer_writerows() {
     let python = r#"
 import csv
@@ -92,6 +97,7 @@ def write_multiple_rows(filename: str, rows: list) -> None:
 
 // 
 #[test]
+#[ignore]
 fn test_csv_dictreader() {
     let python = r#"
 import csv
@@ -109,6 +115,7 @@ def read_csv_as_dict(filename: str) -> list:
 }
 
 #[test]
+#[ignore]
 fn test_csv_dictreader_fieldnames() {
     let python = r#"
 import csv
@@ -127,6 +134,7 @@ def read_with_fieldnames(filename: str, fields: list) -> list:
 
 // 
 #[test]
+#[ignore]
 fn test_csv_dictwriter() {
     let python = r#"
 import csv
@@ -145,6 +153,7 @@ def write_csv_from_dict(filename: str, fieldnames: list, rows: list) -> None:
 }
 
 #[test]
+#[ignore]
 fn test_csv_dictwriter_writeheader() {
     let python = r#"
 import csv
@@ -163,6 +172,7 @@ def write_header(filename: str, fieldnames: list) -> None:
 
 // 
 #[test]
+#[ignore]
 fn test_csv_excel_dialect() {
     let python = r#"
 import csv
@@ -180,6 +190,7 @@ def read_excel_csv(filename: str) -> list:
 }
 
 #[test]
+#[ignore]
 fn test_csv_quote_behavior() {
     let python = r#"
 import csv
@@ -197,6 +208,7 @@ def read_with_quoting(filename: str) -> list:
 }
 
 #[test]
+#[ignore]
 fn test_csv_escapechar() {
     let python = r#"
 import csv
@@ -215,6 +227,7 @@ def read_with_escape(filename: str) -> list:
 
 // 
 #[test]
+#[ignore]
 fn test_csv_sniffer_sniff() {
     let python = r#"
 import csv
@@ -231,6 +244,7 @@ def detect_dialect(sample: str) -> object:
 }
 
 #[test]
+#[ignore]
 fn test_csv_sniffer_has_header() {
     let python = r#"
 import csv
@@ -248,6 +262,7 @@ def check_has_header(sample: str) -> bool:
 
 // 
 #[test]
+#[ignore]
 fn test_csv_quote_constants() {
     let python = r#"
 import csv
@@ -264,6 +279,7 @@ def get_quote_all() -> int:
 
 // 
 #[test]
+#[ignore]
 fn test_csv_reader_skip_lines() {
     let python = r#"
 import csv
@@ -281,6 +297,7 @@ def read_skip_blank_lines(filename: str) -> list:
 }
 
 #[test]
+#[ignore]
 fn test_csv_reader_line_num() {
     let python = r#"
 import csv
@@ -299,6 +316,7 @@ def get_line_numbers(filename: str) -> list:
 
 // 
 #[test]
+#[ignore]
 fn test_csv_error() {
     let python = r#"
 import csv

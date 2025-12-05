@@ -1,6 +1,5 @@
 
 // Module: warnings - Python warnings module validation
-// pending
 
 use crate::test_helpers::transpile_and_check;
 

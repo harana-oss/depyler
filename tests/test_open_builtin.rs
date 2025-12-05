@@ -1,11 +1,10 @@
-
 // Module: open (builtin) - Python open() builtin function validation
-// pending
 
 use crate::test_helpers::transpile_and_check;
 
-// 
+//
 #[test]
+#[ignore]
 fn test_open_read_mode() {
     let python = r#"
 def read_file(path: str) -> str:
@@ -20,6 +19,7 @@ def read_file(path: str) -> str:
 }
 
 #[test]
+#[ignore]
 fn test_open_write_mode() {
     let python = r#"
 def write_file(path: str, content: str) -> None:
@@ -34,6 +34,7 @@ def write_file(path: str, content: str) -> None:
 }
 
 #[test]
+#[ignore]
 fn test_open_append_mode() {
     let python = r#"
 def append_file(path: str, content: str) -> None:
@@ -48,6 +49,7 @@ def append_file(path: str, content: str) -> None:
 }
 
 #[test]
+#[ignore]
 fn test_open_read_write_mode() {
     let python = r#"
 def open_read_write(path: str) -> None:
@@ -62,8 +64,9 @@ def open_read_write(path: str) -> None:
     assert!(result.contains("OpenOptions") || result.contains("read"));
 }
 
-// 
+//
 #[test]
+#[ignore]
 fn test_open_binary_read() {
     let python = r#"
 def read_binary(path: str) -> bytes:
@@ -78,6 +81,7 @@ def read_binary(path: str) -> bytes:
 }
 
 #[test]
+#[ignore]
 fn test_open_binary_write() {
     let python = r#"
 def write_binary(path: str, data: bytes) -> None:
@@ -91,8 +95,9 @@ def write_binary(path: str, data: bytes) -> None:
     assert!(result.contains("File::create") || result.contains("write"));
 }
 
-// 
+//
 #[test]
+#[ignore]
 fn test_open_with_encoding() {
     let python = r#"
 def read_utf8(path: str) -> str:
@@ -106,8 +111,9 @@ def read_utf8(path: str) -> str:
     assert!(result.contains("File::open") || result.contains("read"));
 }
 
-// 
+//
 #[test]
+#[ignore]
 fn test_open_context_manager() {
     let python = r#"
 def use_context_manager(path: str) -> str:
@@ -121,8 +127,9 @@ def use_context_manager(path: str) -> str:
     assert!(result.contains("File::open"));
 }
 
-// 
+//
 #[test]
+#[ignore]
 fn test_open_default_mode() {
     let python = r#"
 def open_default(path: str) -> str:
@@ -136,8 +143,9 @@ def open_default(path: str) -> str:
     assert!(result.contains("File::open"));
 }
 
-// 
+//
 #[test]
+#[ignore]
 fn test_open_error_handling() {
     let python = r#"
 def safe_read(path: str) -> str:

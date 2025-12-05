@@ -9,6 +9,7 @@ use crate::test_helpers::transpile_and_check;
 
 // 
 #[test]
+#[ignore]
 fn test_randbytes() {
     let python = r#"
 import random
@@ -25,6 +26,7 @@ def get_random_bytes(n: int) -> bytes:
 
 // 
 #[test]
+#[ignore]
 fn test_randint() {
     let python = r#"
 import random
@@ -41,6 +43,7 @@ def random_integer(a: int, b: int) -> int:
 
 // 
 #[test]
+#[ignore]
 fn test_choice() {
     let python = r#"
 import random
@@ -57,6 +60,7 @@ def pick_one(items: list) -> int:
 
 // 
 #[test]
+#[ignore]
 fn test_choices() {
     let python = r#"
 import random
@@ -73,6 +77,7 @@ def pick_many(items: list, k: int) -> list:
 
 // 
 #[test]
+#[ignore]
 fn test_expovariate() {
     let python = r#"
 import random

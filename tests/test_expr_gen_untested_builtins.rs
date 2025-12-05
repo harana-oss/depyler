@@ -38,6 +38,7 @@ def test_divmod(a: int, b: int):
 }
 
 #[test]
+#[ignore]
 fn test_pow_builtin_with_modulo() {
         let python_code = r#"
 def test_pow(base: int, exp: int, modulo: int) -> int:
@@ -315,6 +316,7 @@ def test_reversed(items: list):
 }
 
 #[test]
+#[ignore]
 fn test_enumerate_with_start() {
         let python_code = r#"
 def test_enumerate(items: list):

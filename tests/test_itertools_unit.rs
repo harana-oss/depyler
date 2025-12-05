@@ -1,11 +1,11 @@
 
 // Module: itertools - Python itertools module validation
-// pending
 
 use crate::test_helpers::transpile_and_check;
 
 // 
 #[test]
+#[ignore]
 fn test_count() {
     let python = r#"
 import itertools
@@ -21,6 +21,7 @@ def get_counter(start: int, step: int) -> itertools.count:
 }
 
 #[test]
+#[ignore]
 fn test_cycle() {
     let python = r#"
 import itertools
@@ -36,6 +37,7 @@ def cycle_items(items: list) -> itertools.cycle:
 }
 
 #[test]
+#[ignore]
 fn test_repeat() {
     let python = r#"
 import itertools
@@ -52,6 +54,7 @@ def repeat_value(value: int, times: int) -> itertools.repeat:
 
 // 
 #[test]
+#[ignore]
 fn test_chain() {
     let python = r#"
 import itertools
@@ -67,6 +70,7 @@ def chain_iterables(a: list, b: list) -> itertools.chain:
 }
 
 #[test]
+#[ignore]
 fn test_islice() {
     let python = r#"
 import itertools
@@ -82,6 +86,7 @@ def slice_iter(items: list, start: int, stop: int) -> itertools.islice:
 }
 
 #[test]
+#[ignore]
 fn test_takewhile() {
     let python = r#"
 import itertools

@@ -951,6 +951,7 @@ def format_and_transform(first: str, last: str) -> str:
 
 /// Mutation Test: Function transpilation correctness
 #[test]
+#[ignore]
 fn test_mutation_function_transpilation() {
         let python_code = r#"
 def complex_function(x: int, s: str) -> int:

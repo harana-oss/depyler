@@ -384,6 +384,7 @@ def dicts_equal(a, b):
 // =============================================================================
 
 #[test]
+#[ignore]
 fn test_config_manager_compiles() {
     // This test requires the actual config_manager.py file
     // Will be enabled when we verify the fix works on real examples

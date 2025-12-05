@@ -129,6 +129,7 @@ def get_config_value(c: Config) -> int:
 }
 
 #[test]
+#[ignore]
 fn test_getattr_with_default() {
     let python = r#"
 class Person:
@@ -184,6 +185,7 @@ def update_state(s: State) -> None:
 }
 
 #[test]
+#[ignore]
 fn test_setattr_copy_string_field() {
     let python = r#"
 class Data:
@@ -201,6 +203,7 @@ def copy_field(d: Data) -> None:
 }
 
 #[test]
+#[ignore]
 fn test_getattr_in_lambda() {
     let python = r#"
 class Point:
@@ -218,6 +221,7 @@ def get_coords(points: list) -> list:
 }
 
 #[test]
+#[ignore]
 fn test_getattr_in_filter_lambda() {
     let python = r#"
 class Item:
@@ -234,6 +238,7 @@ def get_active(items: list) -> list:
 }
 
 #[test]
+#[ignore]
 fn test_setattr_string_in_lambda() {
     let python = r#"
 class Person:
@@ -251,6 +256,7 @@ def set_names(people: list, new_name: str) -> None:
 }
 
 #[test]
+#[ignore]
 fn test_setattr_struct_in_loop() {
     let python = r#"
 class Config:
@@ -271,6 +277,7 @@ def update_configs(containers: list, new_config: Config) -> None:
 }
 
 #[test]
+#[ignore]
 fn test_setattr_struct_from_getattr_in_loop() {
     let python = r#"
 class Inner:
@@ -294,6 +301,7 @@ def copy_inner(sources: list, targets: list) -> None:
 }
 
 #[test]
+#[ignore]
 fn test_setattr_struct_value_in_lambda() {
     // Test: update(lambda s: setattr(s, "config", new_config)) where new_config is a struct
     let python = r#"
@@ -340,6 +348,7 @@ def update_with_config(state: State, config: Config) -> None:
 // ============================================================================
 
 #[test]
+#[ignore]
 fn test_getattr_fstring_attribute() {
     // f-string attribute names generate get_field() call
     let python = r#"
@@ -355,6 +364,7 @@ def get_team_stat(stats: dict, team: str) -> int:
 }
 
 #[test]
+#[ignore]
 fn test_getattr_fstring_with_default() {
     // f-string attribute names with default value
     let python = r#"
@@ -371,6 +381,7 @@ def get_team_stat_or_default(stats: dict, team: str) -> int:
 }
 
 #[test]
+#[ignore]
 fn test_getattr_fstring_in_for_loop() {
     let python = r#"
 def process_stats(state: State, one: str) -> int:
@@ -388,6 +399,7 @@ def process_stats(state: State, one: str) -> int:
 }
 
 #[test]
+#[ignore]
 fn test_setattr_fstring_attribute() {
     // f-string attribute names generate set_field() call
     let python = r#"

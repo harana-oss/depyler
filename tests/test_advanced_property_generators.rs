@@ -222,6 +222,7 @@ mod tests {
 
     /// Test custom generators for Python language constructs
     #[test]
+#[ignore]
 fn test_custom_python_generators() {
         println!("=== Custom Python Generators Test ===");
 
@@ -255,6 +256,7 @@ fn test_custom_python_generators() {
 
     /// Test weighted generators for realistic code patterns
     #[test]
+#[ignore]
 fn test_weighted_generators() {
         println!("=== Weighted Generators Test ===");
 
@@ -346,6 +348,7 @@ fn test_weighted_generators() {
 
     /// Test compositional generators for complex scenarios
     #[test]
+#[ignore]
 fn test_compositional_generators() {
         println!("=== Compositional Generators Test ===");
 

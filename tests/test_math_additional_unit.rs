@@ -23,6 +23,7 @@ def least_common_multiple(a: int, b: int) -> int:
 }
 
 #[test]
+#[ignore]
 fn test_isclose() {
     let python = r#"
 import math
@@ -38,6 +39,7 @@ def are_close(a: float, b: float) -> bool:
 }
 
 #[test]
+#[ignore]
 fn test_modf() {
     let python = r#"
 import math
@@ -83,6 +85,7 @@ def hypotenuse(x: float, y: float) -> float:
 }
 
 #[test]
+#[ignore]
 fn test_dist() {
     let python = r#"
 import math

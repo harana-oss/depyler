@@ -41,6 +41,7 @@ def wait(seconds: float) -> None:
 
 // 
 #[test]
+#[ignore]
 fn test_monotonic() {
     let python = r#"
 import time

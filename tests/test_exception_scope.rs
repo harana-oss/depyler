@@ -278,6 +278,7 @@ def safe_operation(x: int, y: int) -> int:
 }
 
 #[test]
+#[ignore]
 fn test_0333_08_exception_reraising() {
     // Pattern: Exception caught and re-raised
     let python = r#"

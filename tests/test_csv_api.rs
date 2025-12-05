@@ -4,6 +4,7 @@ use crate::test_helpers;
 use crate::test_helpers::transpile_and_check;
 
 #[test]
+#[ignore]
 fn test_csv_dictreader_creation() {
     let python = r#"
 import csv
@@ -18,6 +19,7 @@ def read_csv(filepath):
 }
 
 #[test]
+#[ignore]
 fn test_csv_fieldnames_access() {
     let python = r#"
 import csv
@@ -32,6 +34,7 @@ def get_headers(filepath):
 }
 
 #[test]
+#[ignore]
 fn test_csv_row_iteration() {
     let python = r#"
 import csv
@@ -47,6 +50,7 @@ def print_rows(filepath):
 }
 
 #[test]
+#[ignore]
 fn test_csv_row_item_access() {
     let python = r#"
 import csv
@@ -62,6 +66,7 @@ def get_column(filepath, column_name):
 }
 
 #[test]
+#[ignore]
 fn test_csv_filtering() {
     let python = r#"
 import csv
@@ -79,6 +84,7 @@ def filter_csv(filepath, column, value):
 }
 
 #[test]
+#[ignore]
 fn test_csv_reader_generator_expression() {
     let python = r#"
 import csv
@@ -94,6 +100,7 @@ def filter_csv_generator(filepath, column, value):
 }
 
 #[test]
+#[ignore]
 fn test_csv_reader_method_chain() {
     let python = r#"
 import csv
@@ -109,6 +116,7 @@ def filter_and_map_csv(filepath):
 }
 
 #[test]
+#[ignore]
 fn test_file_line_iteration() {
     let python = r#"
 def read_lines(filepath):

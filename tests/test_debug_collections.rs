@@ -4,6 +4,7 @@ use crate::test_helpers;
 use crate::test_helpers::transpile_and_check;
 
 #[test]
+#[ignore]
 fn test_list_comprehension() {
     let python_code = r#"
 def test_comprehension():

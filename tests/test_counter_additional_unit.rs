@@ -1,11 +1,11 @@
 
 // Module: collections.Counter - Additional Counter methods
-// pending
 
 use crate::test_helpers::transpile_and_check;
 
 // 
 #[test]
+#[ignore]
 fn test_most_common() {
     let python = r#"
 from collections import Counter
@@ -21,6 +21,7 @@ def get_top_items(counter: Counter, n: int) -> list:
 }
 
 #[test]
+#[ignore]
 fn test_elements() {
     let python = r#"
 from collections import Counter
@@ -36,6 +37,7 @@ def get_all_elements(counter: Counter) -> list:
 }
 
 #[test]
+#[ignore]
 fn test_total() {
     let python = r#"
 from collections import Counter

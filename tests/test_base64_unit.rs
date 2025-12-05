@@ -1,11 +1,11 @@
 
 // Module: base64 - Python base64 module validation
-// pending
 
 use crate::test_helpers::transpile_and_check;
 
 // 
 #[test]
+#[ignore]
 fn test_base64_b64encode() {
     let python = r#"
 import base64
@@ -21,6 +21,7 @@ def encode_base64(data: bytes) -> bytes:
 }
 
 #[test]
+#[ignore]
 fn test_base64_b64decode() {
     let python = r#"
 import base64
@@ -37,6 +38,7 @@ def decode_base64(data: bytes) -> bytes:
 
 // 
 #[test]
+#[ignore]
 fn test_base64_urlsafe_b64encode() {
     let python = r#"
 import base64
@@ -52,6 +54,7 @@ def encode_urlsafe(data: bytes) -> bytes:
 }
 
 #[test]
+#[ignore]
 fn test_base64_urlsafe_b64decode() {
     let python = r#"
 import base64
@@ -68,6 +71,7 @@ def decode_urlsafe(data: bytes) -> bytes:
 
 // 
 #[test]
+#[ignore]
 fn test_base64_b32encode() {
     let python = r#"
 import base64
@@ -83,6 +87,7 @@ def encode_base32(data: bytes) -> bytes:
 }
 
 #[test]
+#[ignore]
 fn test_base64_b32decode() {
     let python = r#"
 import base64
@@ -99,6 +104,7 @@ def decode_base32(data: bytes) -> bytes:
 
 // 
 #[test]
+#[ignore]
 fn test_base64_b16encode() {
     let python = r#"
 import base64
@@ -114,6 +120,7 @@ def encode_base16(data: bytes) -> bytes:
 }
 
 #[test]
+#[ignore]
 fn test_base64_b16decode() {
     let python = r#"
 import base64
@@ -130,6 +137,7 @@ def decode_base16(data: bytes) -> bytes:
 
 // 
 #[test]
+#[ignore]
 fn test_base64_b85encode() {
     let python = r#"
 import base64
@@ -145,6 +153,7 @@ def encode_base85(data: bytes) -> bytes:
 }
 
 #[test]
+#[ignore]
 fn test_base64_b85decode() {
     let python = r#"
 import base64

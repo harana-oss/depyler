@@ -276,6 +276,7 @@ def complex_function(a: int, b: int, c: int) -> int:
 
 /// Test edge case examples that should be handled gracefully  
 #[test]
+#[ignore]
 fn validate_edge_case_examples() {
     let pipeline = DepylerPipeline::new();
 

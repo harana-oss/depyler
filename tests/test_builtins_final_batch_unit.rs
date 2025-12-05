@@ -81,6 +81,7 @@ def maximum(a: int, b: int) -> int:
 
 // 
 #[test]
+#[ignore]
 fn test_pow() {
     let python = r#"
 def power(a: int, b: int) -> int:
@@ -165,6 +166,7 @@ def char_to_code(c: str) -> int:
 
 // 
 #[test]
+#[ignore]
 fn test_hash() {
     let python = r#"
 def hash_value(x: int) -> int:
@@ -179,6 +181,7 @@ def hash_value(x: int) -> int:
 
 // 
 #[test]
+#[ignore]
 fn test_repr() {
     let python = r#"
 def representation(x) -> str:

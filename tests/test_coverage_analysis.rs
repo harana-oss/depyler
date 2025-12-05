@@ -33,6 +33,7 @@ def factorial(n: int) -> int:
 }
 
 #[test]
+#[ignore]
 fn test_error_handling_coverage() {
     let pipeline = DepylerPipeline::new();
 

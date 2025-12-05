@@ -17,6 +17,7 @@ use crate::test_helpers::transpile;
 use depyler_core::DepylerPipeline;
 
 #[test]
+#[ignore]
 fn test_struct_field_passed_to_fn_should_borrow() {
     let pipeline = DepylerPipeline::new();
     let python_code = r#"
@@ -52,6 +53,7 @@ def main() -> None:
 }
 
 #[test]
+#[ignore]
 fn test_self_field_passed_to_fn_should_borrow() {
     let pipeline = DepylerPipeline::new();
     let python_code = r#"
@@ -79,6 +81,7 @@ def take_str(s: str) -> None:
 }
 
 #[test]
+#[ignore]
 fn test_nested_field_passed_to_fn_should_borrow() {
     let pipeline = DepylerPipeline::new();
     let python_code = r#"

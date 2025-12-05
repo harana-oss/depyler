@@ -1,5 +1,6 @@
 use crate::annotation_aware_type_mapper::AnnotationAwareTypeMapper;
 use crate::cargo_toml_gen; // Cargo.toml generation
+use crate::expr_utils::extract_root_var;
 use crate::hir::*;
 use crate::string_optimization::StringOptimizer;
 use anyhow::Result;
@@ -1003,15 +1004,15 @@ fn analyze_mutable_vars(stmts: &[HirStmt], ctx: &mut CodeGenContext, params: &[H
                                     }
                                 }
                                 AssignTarget::Index { base, .. } => {
-                                    // e.g., `a[0], a[2] = ...` requires `let mut a = ...`
-                                    if let HirExpr::Var(var_name) = base.as_ref() {
-                                        mutable.insert(var_name.clone());
+                                    // e.g., `a[0], a[2] = ...` or `x.items[0], ...` requires `let mut a = ...`
+                                    if let Some(var_name) = extract_root_var(base) {
+                                        mutable.insert(var_name);
                                     }
                                 }
                                 AssignTarget::Attribute { value, .. } => {
                                     // e.g., `obj.x, obj.y = ...` requires `let mut obj = ...`
-                                    if let HirExpr::Var(var_name) = value.as_ref() {
-                                        mutable.insert(var_name.clone());
+                                    if let Some(var_name) = extract_root_var(value) {
+                                        mutable.insert(var_name);
                                     }
                                 }
                                 _ => {}
@@ -1019,21 +1020,21 @@ fn analyze_mutable_vars(stmts: &[HirStmt], ctx: &mut CodeGenContext, params: &[H
                         }
                     }
                     AssignTarget::Attribute { value, .. } => {
-                        // e.g., `b.size = 20` requires `let mut b = ...`
-                        if let HirExpr::Var(var_name) = value.as_ref() {
-                            mutable.insert(var_name.clone());
+                        // e.g., `b.size = 20` or `x.data.field = v` requires `let mut b/x = ...`
+                        if let Some(var_name) = extract_root_var(value) {
+                            mutable.insert(var_name);
                         }
                     }
                     AssignTarget::Index { base, .. } => {
-                        // e.g., `arr[i] = value` requires `let mut arr = ...`
-                        if let HirExpr::Var(var_name) = base.as_ref() {
-                            mutable.insert(var_name.clone());
+                        // e.g., `arr[i] = value` or `x.items[0] = value` requires `let mut arr/x = ...`
+                        if let Some(var_name) = extract_root_var(base) {
+                            mutable.insert(var_name);
                         }
                     }
                     AssignTarget::Slice { base, .. } => {
-                        // e.g., `arr[:] = value` requires `let mut arr = ...`
-                        if let HirExpr::Var(var_name) = base.as_ref() {
-                            mutable.insert(var_name.clone());
+                        // e.g., `arr[:] = value` or `x.items[:] = value` requires `let mut arr/x = ...`
+                        if let Some(var_name) = extract_root_var(base) {
+                            mutable.insert(var_name);
                         }
                     }
                 }
@@ -2271,7 +2272,7 @@ mod tests {
 
     #[test]
     fn test_float_literal_decimal_point() {
-        // Regression test for 
+        // Regression test for
         // Bug: f64::to_string() for 0.0 produces "0" (no decimal), parsed as integer
         // Fix: Always ensure ".0" suffix for floats without decimal/exponent
         let mut ctx = create_test_context();

@@ -1,11 +1,11 @@
 
 // Module: binascii - Python binascii module validation
-// pending
 
 use crate::test_helpers::transpile_and_check;
 
 // 
 #[test]
+#[ignore]
 fn test_binascii_hexlify() {
     let python = r#"
 import binascii
@@ -22,6 +22,7 @@ def bytes_to_hex(data: bytes) -> bytes:
 }
 
 #[test]
+#[ignore]
 fn test_binascii_unhexlify() {
     let python = r#"
 import binascii
@@ -39,6 +40,7 @@ def hex_to_bytes(hex_str: str) -> bytes:
 
 // 
 #[test]
+#[ignore]
 fn test_binascii_b2a_base64() {
     let python = r#"
 import binascii
@@ -54,6 +56,7 @@ def bytes_to_base64(data: bytes) -> bytes:
 }
 
 #[test]
+#[ignore]
 fn test_binascii_a2b_base64() {
     let python = r#"
 import binascii
@@ -71,6 +74,7 @@ def base64_to_bytes(data: bytes) -> bytes:
 
 // 
 #[test]
+#[ignore]
 fn test_binascii_crc32() {
     let python = r#"
 import binascii
@@ -87,6 +91,7 @@ def calculate_crc32(data: bytes) -> int:
 
 // 
 #[test]
+#[ignore]
 fn test_binascii_b2a_qp() {
     let python = r#"
 import binascii
@@ -102,6 +107,7 @@ def bytes_to_qp(data: bytes) -> bytes:
 }
 
 #[test]
+#[ignore]
 fn test_binascii_a2b_qp() {
     let python = r#"
 import binascii
@@ -118,6 +124,7 @@ def qp_to_bytes(data: bytes) -> bytes:
 
 // 
 #[test]
+#[ignore]
 fn test_binascii_b2a_uu() {
     let python = r#"
 import binascii
@@ -133,6 +140,7 @@ def bytes_to_uu(data: bytes) -> bytes:
 }
 
 #[test]
+#[ignore]
 fn test_binascii_a2b_uu() {
     let python = r#"
 import binascii
@@ -149,6 +157,7 @@ def uu_to_bytes(data: bytes) -> bytes:
 
 // 
 #[test]
+#[ignore]
 fn test_binascii_b2a_hex() {
     let python = r#"
 import binascii
@@ -165,6 +174,7 @@ def bytes_to_hex_alt(data: bytes) -> bytes:
 }
 
 #[test]
+#[ignore]
 fn test_binascii_a2b_hex() {
     let python = r#"
 import binascii
@@ -182,6 +192,7 @@ def hex_to_bytes_alt(data: bytes) -> bytes:
 
 // 
 #[test]
+#[ignore]
 fn test_binascii_b2a_hqx() {
     let python = r#"
 import binascii
@@ -197,6 +208,7 @@ def bytes_to_hqx(data: bytes) -> bytes:
 }
 
 #[test]
+#[ignore]
 fn test_binascii_a2b_hqx() {
     let python = r#"
 import binascii

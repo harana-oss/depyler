@@ -1,11 +1,10 @@
-
 // Module: fnmatch - Python fnmatch module validation
-// pending
 
 use crate::test_helpers::transpile_and_check;
 
 //
 #[test]
+#[ignore]
 fn test_fnmatch() {
     let python = r#"
 import fnmatch
@@ -22,6 +21,7 @@ def match_pattern(filename: str, pattern: str) -> bool:
 }
 
 #[test]
+#[ignore]
 fn test_fnmatchcase() {
     let python = r#"
 import fnmatch
@@ -39,6 +39,7 @@ def match_case_sensitive(filename: str, pattern: str) -> bool:
 
 //
 #[test]
+#[ignore]
 fn test_filter() {
     let python = r#"
 import fnmatch

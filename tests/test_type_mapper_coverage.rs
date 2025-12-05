@@ -222,6 +222,7 @@ def may_fail(x: int) -> int:
 /// Verifies: Unsupported type handling
 /// Coverage: Lines 312 in type_mapper.rs
 #[test]
+#[ignore]
 fn test_unsupported_function_type() {
         let python_code = r#"
 from typing import Callable

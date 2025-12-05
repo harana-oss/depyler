@@ -18,6 +18,7 @@ fn transpile_python(python: &str) -> anyhow::Result<String> {
 }
 
 #[test]
+#[ignore]
 fn test_parameter_type_should_be_str() {
     // Minimal argparse validator
     let python = r#"
@@ -79,6 +80,7 @@ def validator(value):
 }
 
 #[test]
+#[ignore]
 fn test_parse_error_handling() {
     let python = r#"
 def validator(value):

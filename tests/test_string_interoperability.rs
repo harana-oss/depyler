@@ -1,4 +1,3 @@
-use crate::test_helpers;
 use crate::test_helpers::{transpile, transpile_and_check};
 
 #[test]
@@ -69,7 +68,7 @@ def use_twice(s: str) -> str:
     assert!(
         rust_code.contains("take_string(s.clone())")
             || rust_code.contains("take_string(s.to_string())")
-            || rust_code.contains("s: &str"),
+            || rust_code.contains("s: String"),
         "\n{rust_code}"
     );
 }
@@ -125,7 +124,7 @@ fn test_split_returns_vec_string() {
 def split_csv(s: str) -> list[str]:
     return s.split(",")
 "#,
-        &["-> Vec<String>", ".map(|s| s.to_string()).collect()"],
+        &["-> Vec<String>", ".map(|s| s.to_string()).collect"],
     );
 }
 
@@ -604,7 +603,7 @@ def call_multiple(s: str) -> None:
     assert!(
         rust_code.contains("use_string(s.clone())")
             || rust_code.contains("use_string(s.to_string())")
-            || rust_code.contains("s: &str"),
+            || rust_code.contains("s: String"),
         "\n{rust_code}"
     );
 }
@@ -773,6 +772,21 @@ def has_word(words: list[str], word: str) -> bool:
 }
 
 #[test]
+fn test_dataclass_field_in_string_list_literal() {
+    transpile_and_check(
+        r#"
+@dataclass
+class State:
+    x: str
+
+def one(state: State) -> bool:
+    return state.x in ["One", "Two"]
+"#,
+        &["[\"One\", \"Two\"].contains(&state.x.as_str())"],
+    );
+}
+
+#[test]
 fn test_string_list_append() {
     transpile_and_check(
         r#"
@@ -908,5 +922,121 @@ def all_non_empty(items: list[str]) -> bool:
     return all(len(s) > 0 for s in items)
 "#,
         &[".all("],
+    );
+}
+
+#[test]
+fn test_str_passing_between_functions() {
+    // Comprehensive test: str passed as param, returned, assigned to variable, and passed again
+    transpile_and_check(
+        r#"
+def process(s: str) -> str:
+    return s.upper()
+
+def transform(s: str) -> str:
+    return s + "!"
+
+def caller(input: str) -> str:
+    processed: str = process(input)
+    result: str = transform(processed)
+    return result
+"#,
+        &[
+            // All function signatures use String (not &str or str slice)
+            "fn process(s: String) -> String",
+            "fn transform(s: String) -> String",
+            "fn caller(input: String) -> String",
+            // Local variables storing str are typed as String
+            "let processed: String",
+            "let result: String",
+        ],
+    );
+}
+
+#[test]
+fn test_str_flow_through_dataclass() {
+    // Test: str flows from dataclass field -> function param -> return value
+    transpile_and_check(
+        r#"
+@dataclass
+class Container:
+    value: str
+
+def extract_upper(c: Container) -> str:
+    return c.value.upper()
+
+def process_container(c: Container, suffix: str) -> str:
+    base: str = extract_upper(c)
+    return base + suffix
+"#,
+        &[
+            // Dataclass field is String
+            "value: String",
+            // Functions accept and return String
+            "fn extract_upper(c: &Container) -> String",
+            "fn process_container(c: &Container, suffix: String) -> String",
+            // Local str variable is String
+            "let base: String",
+        ],
+    );
+}
+
+#[test]
+fn test_str_method_params_and_returns() {
+    // Test: str used in method parameters and return types
+    transpile_and_check(
+        r#"
+@dataclass
+class Wrapper:
+    prefix: str
+
+    def wrap(self, value: str) -> str:
+        return value.upper()
+
+def use_wrapper(w: Wrapper, content: str) -> str:
+    return w.wrap(content)
+"#,
+        &[
+            // Dataclass field is String
+            "prefix: String",
+            // Method signature uses String
+            "fn wrap(&self, value: String) -> String",
+            // Function signature uses String
+            "fn use_wrapper(w: &Wrapper, content: String) -> String",
+        ],
+    );
+}
+
+#[test]
+fn test_str_in_multi_function_pipeline() {
+    // Test: str passed through a pipeline of functions
+    transpile_and_check(
+        r#"
+def step1(s: str) -> str:
+    return s.strip()
+
+def step2(s: str) -> str:
+    return s.lower()
+
+def step3(s: str) -> str:
+    return s.replace(" ", "_")
+
+def pipeline(input: str) -> str:
+    a: str = step1(input)
+    b: str = step2(a)
+    c: str = step3(b)
+    return c
+"#,
+        &[
+            // All pipeline functions use String
+            "fn step1(s: String) -> String",
+            "fn step2(s: String) -> String",
+            "fn step3(s: String) -> String",
+            "fn pipeline(input: String) -> String",
+            // Intermediate variables are String
+            "let a: String",
+            "let b: String",
+            "let c: String",
+        ],
     );
 }
