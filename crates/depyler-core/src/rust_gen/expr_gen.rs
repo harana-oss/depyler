@@ -135,8 +135,58 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     }
 
     fn convert_binary(&mut self, op: BinOp, left: &HirExpr, right: &HirExpr) -> Result<syn::Expr> {
-        let left_expr = left.to_rust_expr(self.ctx)?;
-        let right_expr = right.to_rust_expr(self.ctx)?;
+        // Handle `x is None` and `x is not None` patterns
+        // Python: `x is None` → Rust: `x.is_none()`
+        // Python: `x is not None` → Rust: `x.is_some()`
+        if matches!(op, BinOp::Is | BinOp::IsNot) {
+            let is_left_none = matches!(left, HirExpr::Literal(Literal::None));
+            let is_right_none = matches!(right, HirExpr::Literal(Literal::None));
+
+            if is_right_none {
+                // `x is None` or `x is not None`
+                // Use convert_attribute_without_clone for field access to avoid unnecessary .clone()
+                // since is_none()/is_some() only need a reference
+                let expr = if matches!(left, HirExpr::Attribute { .. }) {
+                    self.convert_attribute_without_clone(left)?
+                } else {
+                    left.to_rust_expr(self.ctx)?
+                };
+                return Ok(if op == BinOp::Is {
+                    parse_quote! { #expr.is_none() }
+                } else {
+                    parse_quote! { #expr.is_some() }
+                });
+            } else if is_left_none {
+                // `None is x` or `None is not x` (less common)
+                let expr = if matches!(right, HirExpr::Attribute { .. }) {
+                    self.convert_attribute_without_clone(right)?
+                } else {
+                    right.to_rust_expr(self.ctx)?
+                };
+                return Ok(if op == BinOp::Is {
+                    parse_quote! { #expr.is_none() }
+                } else {
+                    parse_quote! { #expr.is_some() }
+                });
+            }
+        }
+
+        // Convert operands, unwrapping Optional fields automatically
+        // Python allows direct access to Optional fields - operations on None fail at runtime
+        let left_expr = self.convert_with_optional_unwrap(left)?;
+        
+        // For 'in' and 'not in' operators, we need special handling for Optional collections:
+        // Use .as_ref().unwrap() to avoid moving the collection out of the struct
+        let right_is_optional = self.expr_is_optional(right);
+        let right_expr = if right_is_optional && matches!(op, BinOp::In | BinOp::NotIn) {
+            // For Optional collections, use .as_ref().unwrap() to borrow instead of clone
+            // convert_attribute_without_clone handles intermediate fields, but we need to also
+            // unwrap the final field itself
+            let base_expr = self.convert_attribute_without_clone(right)?;
+            parse_quote! { #base_expr.as_ref().unwrap() }
+        } else {
+            self.convert_with_optional_unwrap(right)?
+        };
 
         match op {
             BinOp::In => {
@@ -677,17 +727,79 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             }
             // Python: `if a and b:` where a, b are strings/lists/etc.
             // Rust: `if (!a.is_empty()) && (!b.is_empty())`
-            BinOp::And | BinOp::Or => {
+            BinOp::And => {
                 // Apply truthiness conversion to both operands
                 let left_converted = Self::apply_truthiness_conversion(left, left_expr, self.ctx);
                 let right_converted = Self::apply_truthiness_conversion(right, right_expr, self.ctx);
 
-                // Generate the logical operator
-                match op {
-                    BinOp::And => Ok(parse_quote! { (#left_converted) && (#right_converted) }),
-                    BinOp::Or => Ok(parse_quote! { (#left_converted) || (#right_converted) }),
-                    _ => unreachable!(),
+                Ok(parse_quote! { (#left_converted) && (#right_converted) })
+            }
+            // Python: `optional_val or default` returns the first truthy value
+            // Rust: `optional_val.unwrap_or_else(|| default)`
+            BinOp::Or => {
+                // Check if left operand is Optional - use unwrap_or_else pattern
+                if let Some(inner_type) = self.ctx.get_optional_inner_type(left) {
+                    // Get the left expression without auto-unwrap
+                    let left_no_unwrap = self.convert_expr_no_unwrap(left)?;
+
+                    // Check if we need to handle chained optionals: opt1 or opt2 or default
+                    let right_is_optional = self.ctx.get_optional_inner_type(right).is_some();
+
+                    if right_is_optional {
+                        // Chained optionals: opt1 or opt2 -> opt1.or_else(|| opt2)
+                        let right_no_unwrap = self.convert_expr_no_unwrap(right)?;
+                        return Ok(parse_quote! {
+                            #left_no_unwrap.clone().or_else(|| #right_no_unwrap.clone())
+                        });
+                    }
+
+                    // For string default values, ensure proper conversion
+                    let right_is_string_literal = matches!(right, HirExpr::Literal(Literal::String(_)));
+
+                    // Optional[String] with string literal default - add .to_string()
+                    if matches!(inner_type, Type::String) && right_is_string_literal {
+                        let right_expr = right.to_rust_expr(self.ctx)?;
+                        return Ok(parse_quote! {
+                            #left_no_unwrap.clone().unwrap_or_else(|| #right_expr.to_string())
+                        });
+                    }
+
+                    // Other Optional types - use unwrap_or_else directly
+                    let right_expr = right.to_rust_expr(self.ctx)?;
+                    return Ok(parse_quote! {
+                        #left_no_unwrap.clone().unwrap_or_else(|| #right_expr)
+                    });
                 }
+
+                // Check if left is a chained Optional (result of or_else) - this handles: (opt1 or opt2) or "default"
+                // When the HirExpr is a Binary Or where left was Optional, the result is still Optional
+                if let HirExpr::Binary {
+                    op: BinOp::Or,
+                    left: inner_left,
+                    ..
+                } = left
+                {
+                    if self.ctx.get_optional_inner_type(inner_left).is_some() {
+                        // This is a chained or expression ending with a non-Optional default
+                        let right_is_string_literal = matches!(right, HirExpr::Literal(Literal::String(_)));
+                        let right_expr = right.to_rust_expr(self.ctx)?;
+
+                        if right_is_string_literal {
+                            return Ok(parse_quote! {
+                                #left_expr.unwrap_or_else(|| #right_expr.to_string())
+                            });
+                        }
+                        return Ok(parse_quote! {
+                            #left_expr.unwrap_or_else(|| #right_expr)
+                        });
+                    }
+                }
+
+                // Non-Optional: use boolean or with truthiness conversion
+                let left_converted = Self::apply_truthiness_conversion(left, left_expr, self.ctx);
+                let right_converted = Self::apply_truthiness_conversion(right, right_expr, self.ctx);
+
+                Ok(parse_quote! { (#left_converted) || (#right_converted) })
             }
             BinOp::Eq | BinOp::NotEq => {
                 // When comparing String with a string literal, convert the literal to String
@@ -733,7 +845,16 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     }
 
     fn convert_unary(&mut self, op: &UnaryOp, operand: &HirExpr) -> Result<syn::Expr> {
+        let is_optional = self.expr_is_optional(operand);
         let operand_expr = operand.to_rust_expr(self.ctx)?;
+
+        // Unwrap Optional operands for unary operations (except for special cases handled below)
+        let unwrapped_expr = if is_optional {
+            parse_quote! { #operand_expr.unwrap() }
+        } else {
+            operand_expr.clone()
+        };
+
         match op {
             UnaryOp::Not => {
                 // For collections (list, dict, set, string), use .is_empty() instead of !
@@ -779,7 +900,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     // For Option-returning methods, use .is_none() instead of !
                     Ok(parse_quote! { #operand_expr.is_none() })
                 } else {
-                    Ok(parse_quote! { !#operand_expr })
+                    Ok(parse_quote! { !#unwrapped_expr })
                 }
             }
             UnaryOp::Neg => {
@@ -787,13 +908,13 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 // Simple literals like `-1` don't need parentheses
                 let is_simple_literal = matches!(operand, HirExpr::Literal(Literal::Int(_) | Literal::Float(_)));
                 if is_simple_literal {
-                    Ok(parse_quote! { -#operand_expr })
+                    Ok(parse_quote! { -#unwrapped_expr })
                 } else {
-                    Ok(parse_quote! { (-#operand_expr) })
+                    Ok(parse_quote! { (-#unwrapped_expr) })
                 }
             }
-            UnaryOp::Pos => Ok(operand_expr), // No +x in Rust
-            UnaryOp::BitNot => Ok(parse_quote! { !#operand_expr }),
+            UnaryOp::Pos => Ok(unwrapped_expr), // No +x in Rust
+            UnaryOp::BitNot => Ok(parse_quote! { !#unwrapped_expr }),
         }
     }
 
@@ -1407,10 +1528,10 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             // Python built-in type conversions → Rust casting
             "int" => self.convert_int_cast(&all_hir_args, &arg_exprs),
             "float" => self.convert_float_cast(&arg_exprs),
-            "str" => self.convert_str_conversion(&arg_exprs),
+            "str" => self.convert_str_conversion(&all_hir_args, &arg_exprs),
             "bool" => self.convert_bool_cast(&arg_exprs),
             // Other built-in functions
-            "len" => self.convert_len_call(&arg_exprs),
+            "len" => self.convert_len_call(&all_hir_args, &arg_exprs),
             "range" => self.convert_range_call(&arg_exprs),
             "zeros" | "ones" | "full" => self.convert_array_init_call(func, &all_hir_args, &arg_exprs),
             "set" => self.convert_set_constructor(&arg_exprs),
@@ -1527,17 +1648,22 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         }
     }
 
-    fn convert_len_call(&self, args: &[syn::Expr]) -> Result<syn::Expr> {
+    fn convert_len_call(&self, hir_args: &[HirExpr], args: &[syn::Expr]) -> Result<syn::Expr> {
         if args.len() != 1 {
             bail!("len() requires exactly one argument");
         }
         let arg = &args[0];
 
+        // Check if argument is Optional - if so, unwrap before calling .len()
+        let is_optional = !hir_args.is_empty() && self.expr_is_optional(&hir_args[0]);
+
         // Python's len() returns int (maps to i32)
         // Rust's .len() returns usize, so we cast to i32
-        // CSE optimization runs before return statement processing, so we need the cast here
-        // to avoid type mismatches when CSE extracts len() into a temporary variable
-        Ok(parse_quote! { #arg.len() as i32 })
+        if is_optional {
+            Ok(parse_quote! { #arg.as_ref().unwrap().len() as i32 })
+        } else {
+            Ok(parse_quote! { #arg.len() as i32 })
+        }
     }
 
     fn convert_int_cast(&self, hir_args: &[HirExpr], arg_exprs: &[syn::Expr]) -> Result<syn::Expr> {
@@ -1653,12 +1779,20 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         Ok(parse_quote! { (#arg) as f64 })
     }
 
-    fn convert_str_conversion(&self, args: &[syn::Expr]) -> Result<syn::Expr> {
+    fn convert_str_conversion(&self, hir_args: &[HirExpr], args: &[syn::Expr]) -> Result<syn::Expr> {
         if args.len() != 1 {
             bail!("str() requires exactly one argument");
         }
         let arg = &args[0];
-        Ok(parse_quote! { #arg.to_string() })
+
+        // Check if argument is Optional - if so, unwrap before calling .to_string()
+        let is_optional = !hir_args.is_empty() && self.expr_is_optional(&hir_args[0]);
+
+        if is_optional {
+            Ok(parse_quote! { #arg.as_ref().unwrap().to_string() })
+        } else {
+            Ok(parse_quote! { #arg.to_string() })
+        }
     }
 
     fn convert_bool_cast(&self, args: &[syn::Expr]) -> Result<syn::Expr> {
@@ -2771,6 +2905,25 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                         false
                     };
 
+                    // Check if argument is Optional and needs unwrapping
+                    // This happens when Optional field/variable is passed to non-Optional parameter
+                    let needs_optional_unwrap = {
+                        let arg_optional_inner = self.ctx.get_optional_inner_type(hir_arg);
+                        let param_type = self
+                            .ctx
+                            .function_param_types
+                            .get(func)
+                            .and_then(|types| types.get(param_idx))
+                            .cloned();
+
+                        // Need unwrap if: arg is Optional<T> AND param is T (not Optional)
+                        if let (Some(_inner_ty), Some(param_ty)) = (&arg_optional_inner, &param_type) {
+                            !matches!(param_ty, Type::Optional(_))
+                        } else {
+                            false
+                        }
+                    };
+
                     if should_borrow || needs_mut {
                         if needs_mut {
                             if is_already_mut_ref {
@@ -2805,9 +2958,19 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                                 }
                                 let base_expr = build_attribute_expr(value);
                                 let attr_ident = format_ident!("{}", attr);
-                                parse_quote! { &mut #base_expr.#attr_ident }
+                                let result: syn::Expr = parse_quote! { &mut #base_expr.#attr_ident };
+                                if needs_optional_unwrap {
+                                    parse_quote! { #result.unwrap() }
+                                } else {
+                                    result
+                                }
                             } else {
-                                parse_quote! { &mut #arg_expr }
+                                let result: syn::Expr = parse_quote! { &mut #arg_expr };
+                                if needs_optional_unwrap {
+                                    parse_quote! { #result.unwrap() }
+                                } else {
+                                    result
+                                }
                             }
                         } else if is_already_ref {
                             // Variable is already &T, just pass it directly without adding &
@@ -2815,16 +2978,38 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                             // may have .clone() added by to_rust_expr for non-Copy types
                             if let HirExpr::Var(var_name) = hir_arg {
                                 let ident = format_ident!("{}", var_name);
-                                parse_quote! { #ident }
+                                let result: syn::Expr = parse_quote! { #ident };
+                                if needs_optional_unwrap {
+                                    parse_quote! { #result.unwrap() }
+                                } else {
+                                    result
+                                }
                             } else {
-                                arg_expr.clone()
+                                if needs_optional_unwrap {
+                                    parse_quote! { #arg_expr.unwrap() }
+                                } else {
+                                    arg_expr.clone()
+                                }
                             }
                         } else {
-                            parse_quote! { &#arg_expr }
+                            let result: syn::Expr = parse_quote! { &#arg_expr };
+                            if needs_optional_unwrap {
+                                parse_quote! { #result.unwrap() }
+                            } else {
+                                result
+                            }
                         }
                     } else if needs_clone_for_move {
                         // Field access on &mut ref - must clone to get owned value
-                        parse_quote! { #arg_expr.clone() }
+                        let result: syn::Expr = parse_quote! { #arg_expr.clone() };
+                        if needs_optional_unwrap {
+                            parse_quote! { #result.unwrap() }
+                        } else {
+                            result
+                        }
+                    } else if needs_optional_unwrap {
+                        // Optional field/variable passed to non-Optional parameter - add .unwrap()
+                        parse_quote! { #arg_expr.unwrap() }
                     } else {
                         // STRING_INTEROP: For string literals, always add .to_string()
                         // Since all string parameters are now String type (not &str),
@@ -9437,6 +9622,51 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             return Ok(parse_quote! { () });
         }
 
+        // Option-native methods should NOT have their receiver unwrapped
+        let is_option_method = matches!(
+            method,
+            "is_some"
+                | "is_none"
+                | "unwrap"
+                | "unwrap_or"
+                | "unwrap_or_else"
+                | "map"
+                | "and_then"
+                | "or_else"
+                | "ok_or"
+                | "ok_or_else"
+                | "as_ref"
+                | "as_mut"
+                | "take"
+                | "replace"
+                | "expect"
+        );
+
+        // Auto-unwrap Optional receivers for non-Option methods
+        let object_expr = if !is_option_method && self.expr_is_optional(object) {
+            let is_mutating = matches!(
+                method,
+                "append"
+                    | "extend"
+                    | "clear"
+                    | "insert"
+                    | "remove"
+                    | "reverse"
+                    | "sort"
+                    | "pop"
+                    | "add"
+                    | "discard"
+                    | "update"
+            );
+            if is_mutating {
+                parse_quote! { #object_expr.as_mut().unwrap() }
+            } else {
+                parse_quote! { #object_expr.as_ref().unwrap() }
+            }
+        } else {
+            object_expr.clone()
+        };
+
         // Check if object is a sys I/O stream (sys.stdin(), sys.stdout(), sys.stderr())
         if let HirExpr::Attribute { value, attr } = object {
             if let HirExpr::Var(module) = &**value {
@@ -9522,7 +9752,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 | "zfill"
                 | "format"
         ) {
-            return self.convert_string_method(object, object_expr, method, arg_exprs, hir_args);
+            return self.convert_string_method(object, &object_expr, method, arg_exprs, hir_args);
         }
 
         // User-defined classes can have methods with names like "add" that conflict with
@@ -9611,7 +9841,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 | "issubset"
                 | "issuperset"
                 | "isdisjoint" => {
-                    return self.convert_set_method(object_expr, method, arg_exprs);
+                    return self.convert_set_method(&object_expr, method, arg_exprs);
                 }
                 _ => {}
             }
@@ -9621,7 +9851,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         if self.is_dict_expr(object) {
             match method {
                 "get" | "keys" | "values" | "items" | "update" => {
-                    return self.convert_dict_method(object_expr, method, arg_exprs, hir_args);
+                    return self.convert_dict_method(&object_expr, method, arg_exprs, hir_args);
                 }
                 _ => {}
             }
@@ -9631,7 +9861,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         match method {
             // List methods
             "append" | "extend" | "pop" | "insert" | "remove" | "index" | "copy" | "clear" | "reverse" | "sort" => {
-                self.convert_list_method(object_expr, object, method, arg_exprs, hir_args, kwargs)
+                self.convert_list_method(&object_expr, object, method, arg_exprs, hir_args, kwargs)
             }
 
             "count" => {
@@ -9639,10 +9869,10 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 // This covers string literals, variables with str type annotations, and string method results
                 if self.is_string_base(object) {
                     // String: use str.count() → .matches().count()
-                    self.convert_string_method(object, object_expr, method, arg_exprs, hir_args)
+                    self.convert_string_method(object, &object_expr, method, arg_exprs, hir_args)
                 } else {
                     // List: use list.count() → .iter().filter().count()
-                    self.convert_list_method(object_expr, object, method, arg_exprs, hir_args, kwargs)
+                    self.convert_list_method(&object_expr, object, method, arg_exprs, hir_args, kwargs)
                 }
             }
 
@@ -9650,10 +9880,10 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 // Check if argument is a set or dict literal
                 if !hir_args.is_empty() && self.is_set_expr(&hir_args[0]) {
                     // numbers.update({3, 4}) - set update
-                    self.convert_set_method(object_expr, method, arg_exprs)
+                    self.convert_set_method(&object_expr, method, arg_exprs)
                 } else {
                     // data.update({"b": 2}) - dict update (default for variables)
-                    self.convert_dict_method(object_expr, method, arg_exprs, hir_args)
+                    self.convert_dict_method(&object_expr, method, arg_exprs, hir_args)
                 }
             }
 
@@ -9671,13 +9901,13 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     Ok(parse_quote! { #object_expr.get(#index as usize).cloned() })
                 } else {
                     // Dict .get() - use existing dict handler (supports 1 or 2 args)
-                    self.convert_dict_method(object_expr, method, arg_exprs, hir_args)
+                    self.convert_dict_method(&object_expr, method, arg_exprs, hir_args)
                 }
             }
 
             // Dict methods (for variables without type info)
             "keys" | "values" | "items" | "setdefault" | "popitem" => {
-                self.convert_dict_method(object_expr, method, arg_exprs, hir_args)
+                self.convert_dict_method(&object_expr, method, arg_exprs, hir_args)
             }
 
             // String methods
@@ -9686,7 +9916,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             "upper" | "lower" | "strip" | "lstrip" | "rstrip" | "startswith" | "endswith" | "split" | "splitlines"
             | "join" | "replace" | "find" | "rfind" | "rindex" | "isdigit" | "isalpha" | "isalnum" | "title"
             | "center" | "ljust" | "rjust" | "zfill" => {
-                self.convert_string_method(object, object_expr, method, arg_exprs, hir_args)
+                self.convert_string_method(object, &object_expr, method, arg_exprs, hir_args)
             }
 
             // Set methods (for variables without type info)
@@ -9703,20 +9933,20 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             | "symmetric_difference"
             | "issubset"
             | "issuperset"
-            | "isdisjoint" => self.convert_set_method(object_expr, method, arg_exprs),
+            | "isdisjoint" => self.convert_set_method(&object_expr, method, arg_exprs),
 
             // Compiled Regex: findall, match, search (note: "find" conflicts with string.find())
             // Match object: group, groups, start, end, span, as_str
             // NOTE: Only route to regex handler if object is actually a regex type
             // Otherwise, fall through to default case which will escape keywords
             "findall" | "search" | "groups" | "start" | "end" | "span" | "as_str" if self.is_regex_expr(object) => {
-                self.convert_regex_method(object_expr, method, arg_exprs)
+                self.convert_regex_method(&object_expr, method, arg_exprs)
             }
 
             // "match" is a Rust keyword AND a regex method, so we need to:
             // 1. Check if object is a regex type → route to convert_regex_method
             // 2. Otherwise → escape as keyword in default case
-            "match" if self.is_regex_expr(object) => self.convert_regex_method(object_expr, method, arg_exprs),
+            "match" if self.is_regex_expr(object) => self.convert_regex_method(&object_expr, method, arg_exprs),
 
             // Path instance methods
             "read_text" => {
@@ -9832,8 +10062,12 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 | "update"
         );
 
-        // For mutating methods on field accesses, don't add .clone()
-        let object_expr = if is_mutating_method && matches!(object, HirExpr::Attribute { .. }) {
+        // Methods that check or read state don't need clone either
+        let is_reference_method = matches!(method, "is_none" | "is_some" | "as_ref" | "len" | "is_empty");
+
+        // For mutating/reference methods on field accesses, don't add .clone()
+        let object_expr = if (is_mutating_method || is_reference_method) && matches!(object, HirExpr::Attribute { .. })
+        {
             self.convert_attribute_without_clone(object)?
         } else {
             object.to_rust_expr(self.ctx)?
@@ -10034,7 +10268,15 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             }
         }
 
+        // Check if base is Optional - if so, we need to unwrap it before indexing
+        let base_is_optional = self.ctx.get_optional_inner_type(base).is_some();
+
         let mut base_expr = base.to_rust_expr(self.ctx)?;
+
+        // If base is Optional, add .as_ref().unwrap() to unwrap the Option before indexing
+        if base_is_optional {
+            base_expr = parse_quote! { #base_expr.as_ref().unwrap() };
+        }
 
         // When base is a function call that returns Result<HashMap/Vec, E>,
         // we need to unwrap it with ? before calling .get() or indexing
@@ -11275,11 +11517,17 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         // In chrono, properties are accessed as methods: dt.year → dt.year()
         // This handles properties for fractions, pathlib, datetime, date, time, and timedelta instances
         // For nested attribute access (e.g., o.inner.value), don't add .clone() to intermediate fields
-        let value_expr = if matches!(value, HirExpr::Attribute { .. }) {
+        let mut value_expr = if matches!(value, HirExpr::Attribute { .. }) {
             self.convert_attribute_without_clone(value)?
         } else {
             value.to_rust_expr(self.ctx)?
         };
+
+        // For chained access (o.inner.value), if the intermediate field is Optional, unwrap it
+        if self.field_is_optional_inner(value) {
+            value_expr = parse_quote! { #value_expr.as_ref().unwrap() };
+        }
+
         match attr {
             //
             "numerator" => {
@@ -11390,16 +11638,22 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         }
     }
 
-    /// Convert attribute access without adding .clone()
-    /// Used for mutating method calls where we need a mutable reference to the field
+    /// Convert attribute access without adding .clone().
+    /// Handles Optional intermediate fields by inserting `.as_ref().unwrap()`.
+    /// This is called when the attribute access is part of a chain (e.g., `o.inner` in `o.inner.value`).
     fn convert_attribute_without_clone(&mut self, expr: &HirExpr) -> Result<syn::Expr> {
         if let HirExpr::Attribute { value, attr } = expr {
             // Recursively convert the base value (also without clone if it's an attribute)
-            let value_expr = if matches!(value.as_ref(), HirExpr::Attribute { .. }) {
+            let mut value_expr = if matches!(value.as_ref(), HirExpr::Attribute { .. }) {
                 self.convert_attribute_without_clone(value)?
             } else {
                 value.to_rust_expr(self.ctx)?
             };
+
+            // Check if the base value (when it's an attribute) is Optional - need to unwrap before accessing
+            if self.field_is_optional_inner(value) {
+                value_expr = parse_quote! { #value_expr.as_ref().unwrap() };
+            }
 
             let attr_ident = if Self::is_rust_keyword(attr) {
                 syn::Ident::new_raw(attr, proc_macro2::Span::call_site())
@@ -11407,10 +11661,26 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 syn::Ident::new(attr, proc_macro2::Span::call_site())
             };
 
-            Ok(parse_quote! { #value_expr.#attr_ident })
+            // Generate the attribute access
+            let result = parse_quote! { #value_expr.#attr_ident };
+
+            // Check if THIS attribute (the current attr) is Optional and we're part of a deeper chain.
+            // If so, we need to unwrap it too. This handles cases like o.l2.l3.data where both l2 and l3 are Optional.
+            // However, we don't unwrap here - that's handled by the caller who will check field_is_optional_inner.
+            Ok(result)
         } else {
             // Not an attribute access, use regular conversion
             expr.to_rust_expr(self.ctx)
+        }
+    }
+
+    /// Check if an attribute expression itself refers to an Optional field.
+    /// Used when the attribute is an intermediate in a chain (e.g., `o.inner` in `o.inner.value`).
+    fn field_is_optional_inner(&self, expr: &HirExpr) -> bool {
+        if let HirExpr::Attribute { value, attr } = expr {
+            self.field_is_optional(value, attr)
+        } else {
+            false
         }
     }
 
@@ -11463,6 +11733,69 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         false
     }
 
+    /// Check if a field is Optional<T> - needs .unwrap() when accessed
+    fn field_is_optional(&self, value: &HirExpr, attr: &str) -> bool {
+        let class_name = match value {
+            HirExpr::Var(var_name) => {
+                if var_name == "self" {
+                    for (cls_name, fields) in &self.ctx.class_field_types {
+                        if fields.contains_key(attr) {
+                            return matches!(fields.get(attr), Some(Type::Optional(_)));
+                        }
+                    }
+                    return false;
+                }
+                if let Some(Type::Custom(name)) = self.ctx.var_types.get(var_name) {
+                    Some(name.clone())
+                } else {
+                    None
+                }
+            }
+            HirExpr::Attribute {
+                value: inner_value,
+                attr: inner_attr,
+            } => self.get_attr_type_name(inner_value, inner_attr),
+            _ => None,
+        };
+
+        if let Some(class_name) = class_name {
+            if let Some(field_types) = self.ctx.class_field_types.get(&class_name) {
+                return matches!(field_types.get(attr), Some(Type::Optional(_)));
+            }
+        }
+        false
+    }
+
+    /// Convert an expression, unwrapping if it's an Optional field access or variable.
+    /// Python allows direct access to Optional fields/variables - operations on None fail at runtime.
+    /// This mimics Python behavior by adding .unwrap() when Optional fields/variables are used in operations.
+    fn convert_with_optional_unwrap(&mut self, expr: &HirExpr) -> Result<syn::Expr> {
+        // Check if this is an Optional field access
+        if let HirExpr::Attribute { value, attr } = expr {
+            if self.field_is_optional(value, attr) {
+                // Convert the expression and add .unwrap()
+                let rust_expr = expr.to_rust_expr(self.ctx)?;
+                return Ok(parse_quote! { #rust_expr.unwrap() });
+            }
+        }
+        // Check if this is an Optional variable
+        if let HirExpr::Var(name) = expr {
+            if let Some(Type::Optional(_)) = self.ctx.var_types.get(name) {
+                // Convert the expression and add .unwrap()
+                let rust_expr = expr.to_rust_expr(self.ctx)?;
+                return Ok(parse_quote! { #rust_expr.unwrap() });
+            }
+        }
+        // Not an Optional field or variable, convert normally
+        expr.to_rust_expr(self.ctx)
+    }
+
+    /// Convert an expression without adding .unwrap() for Optional types.
+    /// Used for `or` pattern where we need the Option<T> value itself to call unwrap_or_else.
+    fn convert_expr_no_unwrap(&mut self, expr: &HirExpr) -> Result<syn::Expr> {
+        expr.to_rust_expr(self.ctx)
+    }
+
     /// Check if a type needs .clone() (i.e., is not Copy)
     fn type_needs_clone(ty: &Type) -> bool {
         match ty {
@@ -11483,16 +11816,54 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         }
     }
 
-    /// Get the type name for an attribute access expression
+    /// Get the type name for an attribute access expression.
+    /// Handles both `Type::Custom(name)` and `Type::Optional(Type::Custom(name))`.
     fn get_attr_type_name(&self, value: &HirExpr, attr: &str) -> Option<String> {
+        self.get_field_type(value, attr)
+            .and_then(|t| Self::extract_custom_type_name(&t))
+    }
+
+    /// Extract the inner Custom type name from a Type, handling Optional wrappers.
+    fn extract_custom_type_name(ty: &Type) -> Option<String> {
+        match ty {
+            Type::Custom(name) => Some(name.clone()),
+            Type::Optional(inner) => Self::extract_custom_type_name(inner),
+            _ => None,
+        }
+    }
+
+    /// Get the full type of a field from an attribute access expression.
+    fn get_field_type(&self, value: &HirExpr, attr: &str) -> Option<Type> {
         match value {
             HirExpr::Var(var_name) => {
+                // Special case: "self" refers to the current class
+                if var_name == "self" {
+                    for (_cls_name, fields) in &self.ctx.class_field_types {
+                        if let Some(field_type) = fields.get(attr) {
+                            return Some(field_type.clone());
+                        }
+                    }
+                    return None;
+                }
                 // Get the class name from the variable type
                 if let Some(Type::Custom(class_name)) = self.ctx.var_types.get(var_name) {
-                    // Look up the field type
                     if let Some(field_types) = self.ctx.class_field_types.get(class_name) {
-                        if let Some(Type::Custom(field_class)) = field_types.get(attr) {
-                            return Some(field_class.clone());
+                        return field_types.get(attr).cloned();
+                    }
+                }
+                None
+            }
+            HirExpr::Attribute {
+                value: inner_value,
+                attr: inner_attr,
+            } => {
+                // Get the type of the inner attribute (e.g., for o.inner.value, get type of o.inner)
+                // Then extract the class name and look up the field
+                if let Some(inner_type) = self.get_field_type(inner_value, inner_attr) {
+                    // Extract the class name from the inner type (handles Optional wrappers)
+                    if let Some(class_name) = Self::extract_custom_type_name(&inner_type) {
+                        if let Some(field_types) = self.ctx.class_field_types.get(&class_name) {
+                            return field_types.get(attr).cloned();
                         }
                     }
                 }
@@ -11535,8 +11906,23 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         condition: &Option<Box<HirExpr>>,
     ) -> Result<syn::Expr> {
         let target_ident = syn::Ident::new(target, proc_macro2::Span::call_site());
-        let iter_expr = iter.to_rust_expr(self.ctx)?;
         let element_expr = element.to_rust_expr(self.ctx)?;
+
+        // Check if the iterator is an Optional type (e.g., Optional[List[int]])
+        let iter_is_optional = self.expr_is_optional(iter);
+
+        // For Optional iterables, use convert_attribute_without_clone to avoid
+        // generating c.items.clone().as_ref().unwrap() and instead get c.items.as_ref().unwrap()
+        let iter_expr = if iter_is_optional {
+            let base_expr = if matches!(iter, HirExpr::Attribute { .. }) {
+                self.convert_attribute_without_clone(iter)?
+            } else {
+                iter.to_rust_expr(self.ctx)?
+            };
+            parse_quote! { #base_expr.as_ref().unwrap() }
+        } else {
+            iter.to_rust_expr(self.ctx)?
+        };
 
         // Strategy:
         // - Use .iter() to explicitly borrow elements
@@ -11584,6 +11970,17 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                         .map(|#target_ident| #element_expr)
                         .collect::<Vec<_>>()
                 })
+            } else if iter_is_optional {
+                // For Optional collections, .as_ref().unwrap() returns &Vec<T>
+                // Use .iter().cloned() to iterate and get owned values
+                Ok(parse_quote! {
+                    #iter_expr
+                        .iter()
+                        .cloned()
+                        .filter(|#target_ident| #cond_with_deref)
+                        .map(|#target_ident| #element_expr)
+                        .collect::<Vec<_>>()
+                })
             } else {
                 // Filter closures still receive &T, so we deref in the condition
                 Ok(parse_quote! {
@@ -11612,6 +12009,16 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     #iter_expr
                         .deserialize::<std::collections::HashMap<String, String>>()
                         .filter_map(|result| result.ok())
+                        .map(|#target_ident| #element_expr)
+                        .collect::<Vec<_>>()
+                })
+            } else if iter_is_optional {
+                // For Optional collections, .as_ref().unwrap() returns &Vec<T>
+                // Use .iter().cloned() to iterate and get owned values
+                Ok(parse_quote! {
+                    #iter_expr
+                        .iter()
+                        .cloned()
                         .map(|#target_ident| #element_expr)
                         .collect::<Vec<_>>()
                 })
@@ -11733,8 +12140,32 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 // Check type information in context for variables
                 self.is_set_var(expr)
             }
+            HirExpr::Attribute { .. } => {
+                // Check if this is an attribute access to a Set or Optional<Set> field
+                self.is_set_field(expr)
+            }
             _ => false,
         }
+    }
+
+    /// Check if an attribute access refers to a Set or Optional<Set> field
+    fn is_set_field(&self, expr: &HirExpr) -> bool {
+        if let HirExpr::Attribute { value, attr } = expr {
+            if let HirExpr::Var(base_name) = value.as_ref() {
+                if let Some(base_type) = self.ctx.var_types.get(base_name) {
+                    if let Type::Custom(class_name) = base_type {
+                        if let Some(fields) = self.ctx.class_field_types.get(class_name) {
+                            if let Some(field_type) = fields.get(attr) {
+                                // Check for Set or Optional<Set>
+                                return matches!(field_type, Type::Set(_))
+                                    || matches!(field_type, Type::Optional(inner) if matches!(inner.as_ref(), Type::Set(_)));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        false
     }
 
     /// Check if a variable has a set type based on type information in context
@@ -12308,54 +12739,52 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     // This matches Python semantics where lists/dicts have their own repr
                     let arg_expr = expr.to_rust_expr(self.ctx)?;
 
-                    let is_option = match expr.as_ref() {
-                        HirExpr::Attribute { value, attr } => {
-                            if let HirExpr::Var(obj_name) = value.as_ref() {
-                                let is_args_var = self.ctx.argparser_tracker.parsers.values().any(|parser_info| {
-                                    parser_info
-                                        .args_var
-                                        .as_ref()
-                                        .is_some_and(|args_var| args_var == obj_name)
-                                });
+                    // Use get_optional_inner_type to detect Optional types for both
+                    // variables and class field attributes (dataclass fields)
+                    let optional_inner = self.ctx.get_optional_inner_type(expr.as_ref());
+                    let is_option = optional_inner.is_some()
+                        || match expr.as_ref() {
+                            HirExpr::Attribute { value, attr } => {
+                                if let HirExpr::Var(obj_name) = value.as_ref() {
+                                    let is_args_var = self.ctx.argparser_tracker.parsers.values().any(|parser_info| {
+                                        parser_info
+                                            .args_var
+                                            .as_ref()
+                                            .is_some_and(|args_var| args_var == obj_name)
+                                    });
 
-                                if is_args_var {
-                                    // Check if this argument is optional (Option<T> type, not boolean)
-                                    self.ctx.argparser_tracker.parsers.values().any(|parser_info| {
-                                        parser_info.arguments.iter().any(|arg| {
-                                            let field_name = arg.rust_field_name();
-                                            if field_name != *attr {
-                                                return false;
-                                            }
+                                    if is_args_var {
+                                        // Check if this argument is optional (Option<T> type, not boolean)
+                                        self.ctx.argparser_tracker.parsers.values().any(|parser_info| {
+                                            parser_info.arguments.iter().any(|arg| {
+                                                let field_name = arg.rust_field_name();
+                                                if field_name != *attr {
+                                                    return false;
+                                                }
 
-                                            // Argument is NOT an Option if it has action="store_true" or "store_false"
-                                            if matches!(arg.action.as_deref(), Some("store_true") | Some("store_false"))
-                                            {
-                                                return false;
-                                            }
+                                                // Argument is NOT an Option if it has action="store_true" or "store_false"
+                                                if matches!(
+                                                    arg.action.as_deref(),
+                                                    Some("store_true") | Some("store_false")
+                                                ) {
+                                                    return false;
+                                                }
 
-                                            // Argument is an Option<T> if: not required AND no default value AND not positional
-                                            !arg.is_positional
-                                                && !arg.required.unwrap_or(false)
-                                                && arg.default.is_none()
+                                                // Argument is an Option<T> if: not required AND no default value AND not positional
+                                                !arg.is_positional
+                                                    && !arg.required.unwrap_or(false)
+                                                    && arg.default.is_none()
+                                            })
                                         })
-                                    })
+                                    } else {
+                                        false
+                                    }
                                 } else {
                                     false
                                 }
-                            } else {
-                                false
                             }
-                        }
-                        HirExpr::Var(var_name) => {
-                            // Check if variable type is Option<T>
-                            if let Some(var_type) = self.ctx.var_types.get(var_name) {
-                                matches!(var_type, Type::Optional(_))
-                            } else {
-                                false
-                            }
-                        }
-                        _ => false,
-                    };
+                            _ => false,
+                        };
 
                     // Determine if this expression is a collection type
                     let is_collection = match expr.as_ref() {

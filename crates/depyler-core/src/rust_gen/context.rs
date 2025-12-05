@@ -117,6 +117,9 @@ pub struct CodeGenContext<'a> {
 
     pub function_param_names: HashMap<String, Vec<String>>,
 
+    /// Track function parameter types for Optional unwrap analysis
+    pub function_param_types: HashMap<String, Vec<Type>>,
+
     /// Track how many times each variable is used in the current function (for clone analysis)
     pub var_usage_counts: HashMap<String, usize>,
     /// Track how many times we've seen each variable during code generation
@@ -384,7 +387,7 @@ impl<'a> CodeGenContext<'a> {
     }
 
     /// Get the type of a field access expression (e.g., state.val1)
-    fn get_attribute_field_type(&self, value: &Box<crate::hir::HirExpr>, attr: &str) -> Option<Type> {
+    pub fn get_attribute_field_type(&self, value: &Box<crate::hir::HirExpr>, attr: &str) -> Option<Type> {
         // Get the class name from the value expression
         let class_name = match value.as_ref() {
             crate::hir::HirExpr::Var(var_name) => {
@@ -408,6 +411,34 @@ impl<'a> CodeGenContext<'a> {
         }
 
         None
+    }
+
+    /// Get the inferred type of an expression.
+    /// Returns None if the type cannot be determined.
+    pub fn get_expr_type(&self, expr: &crate::hir::HirExpr) -> Option<Type> {
+        use crate::hir::HirExpr;
+        match expr {
+            HirExpr::Var(name) => self.var_types.get(name).cloned(),
+            HirExpr::Attribute { value, attr } => self.get_attribute_field_type(value, attr),
+            HirExpr::Literal(lit) => Some(match lit {
+                crate::hir::Literal::Int(_) => Type::Int,
+                crate::hir::Literal::Float(_) => Type::Float,
+                crate::hir::Literal::String(_) => Type::String,
+                crate::hir::Literal::Bool(_) => Type::Bool,
+                crate::hir::Literal::None => Type::None,
+                crate::hir::Literal::Bytes(_) => Type::List(Box::new(Type::Int)),
+            }),
+            _ => None,
+        }
+    }
+
+    /// Check if an expression is Optional type and return the inner type if so.
+    pub fn get_optional_inner_type(&self, expr: &crate::hir::HirExpr) -> Option<Type> {
+        if let Some(Type::Optional(inner)) = self.get_expr_type(expr) {
+            Some((*inner).clone())
+        } else {
+            None
+        }
     }
 
     /// Reset variable usage tracking for a new function

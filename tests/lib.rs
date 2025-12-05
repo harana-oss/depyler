@@ -259,6 +259,22 @@ mod test_operators;
 #[cfg(test)]
 mod test_option_type_mismatch;
 #[cfg(test)]
+mod test_optional_assign_type_check;
+#[cfg(test)]
+mod test_optional_augassign;
+#[cfg(test)]
+mod test_optional_conditional;
+#[cfg(test)]
+mod test_optional_default_values;
+#[cfg(test)]
+mod test_optional_index_unwrap;
+#[cfg(test)]
+mod test_optional_method_unwrap;
+#[cfg(test)]
+mod test_optional_unary_unwrap;
+#[cfg(test)]
+mod test_optional_unwrap_args;
+#[cfg(test)]
 mod test_os_path_unit;
 #[cfg(test)]
 mod test_os_sys_platform;

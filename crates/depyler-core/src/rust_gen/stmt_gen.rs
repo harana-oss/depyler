@@ -914,6 +914,37 @@ pub(crate) fn codegen_with_stmt(
 // Complex handlers extracted from HirStmt::to_rust_tokens
 // ============================================================================
 
+/// Apply Python truthiness semantics to an Optional type in a condition.
+///
+/// Python treats `None` as falsy, and for container types inside Optional,
+/// empty containers are also falsy:
+/// - Optional[str]: `opt.as_ref().is_some_and(|s| !s.is_empty())`
+/// - Optional[List]: `opt.as_ref().is_some_and(|v| !v.is_empty())`
+/// - Optional[int]: `opt.is_some_and(|n| n != 0)`
+/// - Optional[float]: `opt.is_some_and(|n| n != 0.0)`
+/// - Optional[T] (other): `opt.is_some()`
+fn apply_optional_truthiness(field_type: &Type, cond_expr: syn::Expr) -> syn::Expr {
+    match field_type {
+        Type::Optional(inner) => match inner.as_ref() {
+            Type::String => parse_quote! { #cond_expr.as_ref().is_some_and(|s| !s.is_empty()) },
+            Type::List(_) | Type::Dict(_, _) | Type::Set(_) => {
+                parse_quote! { #cond_expr.as_ref().is_some_and(|v| !v.is_empty()) }
+            }
+            Type::Int => parse_quote! { #cond_expr.is_some_and(|n| n != 0) },
+            Type::Float => parse_quote! { #cond_expr.is_some_and(|n| n != 0.0) },
+            _ => parse_quote! { #cond_expr.is_some() },
+        },
+        // Non-optional types fall through to simple truthiness
+        Type::String | Type::List(_) | Type::Dict(_, _) | Type::Set(_) => {
+            parse_quote! { !#cond_expr.is_empty() }
+        }
+        Type::Int => parse_quote! { #cond_expr != 0 },
+        Type::Float => parse_quote! { #cond_expr != 0.0 },
+        Type::Bool => cond_expr,
+        _ => cond_expr,
+    }
+}
+
 /// Apply Python truthiness conversion to a condition expression
 ///
 /// In Python, any value can be used in a boolean context. This function
@@ -928,34 +959,22 @@ pub(crate) fn codegen_with_stmt(
 /// #
 /// Fixes: `if val` where `val: String` failing to compile
 fn apply_truthiness_conversion(condition: &HirExpr, cond_expr: syn::Expr, ctx: &CodeGenContext) -> syn::Expr {
+    // `x is None` and `x is not None` are already converted to `.is_none()`/`.is_some()`
+    // in convert_binary, so we don't need to apply truthiness conversion to them
+    if let HirExpr::Binary { op, left, right } = condition {
+        if matches!(op, BinOp::Is | BinOp::IsNot) {
+            let is_left_none = matches!(left.as_ref(), HirExpr::Literal(Literal::None));
+            let is_right_none = matches!(right.as_ref(), HirExpr::Literal(Literal::None));
+            if is_left_none || is_right_none {
+                return cond_expr;
+            }
+        }
+    }
+
     // Check if this is a variable reference that needs truthiness conversion
     if let HirExpr::Var(var_name) = condition {
         if let Some(var_type) = ctx.var_types.get(var_name) {
-            return match var_type {
-                // Already boolean - no conversion needed
-                Type::Bool => cond_expr,
-
-                // String/List/Dict/Set - check if empty
-                Type::String | Type::List(_) | Type::Dict(_, _) | Type::Set(_) => {
-                    parse_quote! { !#cond_expr.is_empty() }
-                }
-
-                // Optional - check if Some
-                Type::Optional(_) => {
-                    parse_quote! { #cond_expr.is_some() }
-                }
-
-                // Numeric types - check if non-zero
-                Type::Int => {
-                    parse_quote! { #cond_expr != 0 }
-                }
-                Type::Float => {
-                    parse_quote! { #cond_expr != 0.0 }
-                }
-
-                // Unknown or other types - use as-is (may fail compilation)
-                _ => cond_expr,
-            };
+            return apply_optional_truthiness(var_type, cond_expr);
         }
     }
 
@@ -963,6 +982,22 @@ fn apply_truthiness_conversion(condition: &HirExpr, cond_expr: syn::Expr, ctx: &
     // Rust: if args.output.is_some()
     if let HirExpr::Attribute { value, attr } = condition {
         if let HirExpr::Var(obj_name) = value.as_ref() {
+            // Check class field types for Optional fields (dataclasses)
+            if let Some(var_type) = ctx.var_types.get(obj_name) {
+                if let Type::Custom(class_name) = var_type {
+                    if let Some(fields) = ctx.class_field_types.get(class_name) {
+                        if let Some(field_type) = fields.get(attr) {
+                            // For Optional fields, generate the expression without .clone()
+                            // since is_some()/is_some_and()/as_ref() only need a reference
+                            let obj_ident = safe_ident(obj_name);
+                            let attr_ident = safe_ident(attr);
+                            let field_expr: syn::Expr = parse_quote! { #obj_ident.#attr_ident };
+                            return apply_optional_truthiness(field_type, field_expr);
+                        }
+                    }
+                }
+            }
+
             // Check if this is accessing an args variable from ArgumentParser
             let is_args_var = ctx.argparser_tracker.parsers.values().any(|parser_info| {
                 parser_info
@@ -1567,6 +1602,13 @@ pub(crate) fn codegen_for_stmt(
         iter.to_rust_expr(ctx)?
     };
 
+    // Check if the iterator is an Optional type (e.g., Optional[List[int]])
+    // If so, unwrap it before iterating
+    let iter_is_optional = expr_is_optional(iter, ctx);
+    if iter_is_optional {
+        iter_expr = parse_quote! { #iter_expr.as_ref().unwrap() };
+    }
+
     // Python: for line in sys.stdin:
     // Rust: for line in std::io::stdin().lock().lines()
     let is_stdin_iter = matches!(iter, HirExpr::Attribute { value, attr }
@@ -1637,37 +1679,40 @@ pub(crate) fn codegen_for_stmt(
 
     // If we determined that a borrow is needed (field access on a parameter),
     // wrap the iterator expression with & or &mut, OR use .iter()/.iter_mut() for special calls
+    // Skip this if we already unwrapped an Optional, since .as_ref().unwrap() already returns a reference
     if let Some(needs_mut) = needs_field_borrow {
-        if is_special_call {
-            // For enumerate/reversed, we need to regenerate using .iter()/.iter_mut()
-            // Extract the field access expression
-            match iter {
-                HirExpr::Call { func, args, .. } if func == "enumerate" && !args.is_empty() => {
-                    // Get the field access from inside enumerate - without clone
-                    let field_expr = generate_field_access_without_clone(&args[0], ctx)?;
-                    if needs_mut {
-                        iter_expr = parse_quote! { #field_expr.iter_mut().enumerate() };
-                    } else {
-                        iter_expr = parse_quote! { #field_expr.iter().enumerate() };
+        if !iter_is_optional {
+            if is_special_call {
+                // For enumerate/reversed, we need to regenerate using .iter()/.iter_mut()
+                // Extract the field access expression
+                match iter {
+                    HirExpr::Call { func, args, .. } if func == "enumerate" && !args.is_empty() => {
+                        // Get the field access from inside enumerate - without clone
+                        let field_expr = generate_field_access_without_clone(&args[0], ctx)?;
+                        if needs_mut {
+                            iter_expr = parse_quote! { #field_expr.iter_mut().enumerate() };
+                        } else {
+                            iter_expr = parse_quote! { #field_expr.iter().enumerate() };
+                        }
                     }
-                }
-                HirExpr::Call { func, args, .. } if func == "reversed" && !args.is_empty() => {
-                    // Get the field access from inside reversed - without clone
-                    let field_expr = generate_field_access_without_clone(&args[0], ctx)?;
-                    if needs_mut {
-                        iter_expr = parse_quote! { #field_expr.iter_mut().rev() };
-                    } else {
-                        iter_expr = parse_quote! { #field_expr.iter().rev() };
+                    HirExpr::Call { func, args, .. } if func == "reversed" && !args.is_empty() => {
+                        // Get the field access from inside reversed - without clone
+                        let field_expr = generate_field_access_without_clone(&args[0], ctx)?;
+                        if needs_mut {
+                            iter_expr = parse_quote! { #field_expr.iter_mut().rev() };
+                        } else {
+                            iter_expr = parse_quote! { #field_expr.iter().rev() };
+                        }
                     }
+                    _ => {}
                 }
-                _ => {}
-            }
-        } else {
-            // For plain field access, just wrap with & or &mut
-            if needs_mut {
-                iter_expr = parse_quote! { &mut #iter_expr };
             } else {
-                iter_expr = parse_quote! { &#iter_expr };
+                // For plain field access, just wrap with & or &mut
+                if needs_mut {
+                    iter_expr = parse_quote! { &mut #iter_expr };
+                } else {
+                    iter_expr = parse_quote! { &#iter_expr };
+                }
             }
         }
     }
@@ -1980,6 +2025,53 @@ fn is_dict_augassign_pattern(target: &AssignTarget, value: &HirExpr) -> bool {
     false
 }
 
+/// Check if this is an augmented assignment on an Optional field (obj.field op= value)
+/// Returns true if target is an Attribute and value is Binary with left being same Attribute
+fn is_optional_attr_augassign_pattern(target: &AssignTarget, value: &HirExpr, ctx: &CodeGenContext) -> bool {
+    if let AssignTarget::Attribute {
+        value: target_base,
+        attr: target_attr,
+    } = target
+    {
+        if let HirExpr::Binary { left, .. } = value {
+            if let HirExpr::Attribute {
+                value: left_base,
+                attr: left_attr,
+            } = left.as_ref()
+            {
+                // Check if target and left refer to the same attribute
+                if target_attr == left_attr {
+                    // Check if the bases refer to the same variable
+                    if let (HirExpr::Var(t_var), HirExpr::Var(l_var)) = (target_base.as_ref(), left_base.as_ref()) {
+                        if t_var == l_var {
+                            // Now check if this attribute is Optional
+                            return expr_is_optional(left.as_ref(), ctx);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    false
+}
+
+/// Check if this is an augmented assignment on an Optional variable (var op= value)
+/// Returns true if target is a Symbol and value is Binary with left being same variable and target is Optional
+fn is_optional_var_augassign_pattern(target: &AssignTarget, value: &HirExpr, ctx: &CodeGenContext) -> bool {
+    if let AssignTarget::Symbol(target_var) = target {
+        if let HirExpr::Binary { left, .. } = value {
+            if let HirExpr::Var(left_var) = left.as_ref() {
+                // Check if target and left refer to the same variable
+                if target_var == left_var {
+                    // Check if this variable is Optional
+                    return matches!(ctx.var_types.get(target_var), Some(Type::Optional(_)));
+                }
+            }
+        }
+    }
+    false
+}
+
 /// Generate code for Assign statement (variable/index/attribute/tuple assignment)
 #[inline]
 pub(crate) fn codegen_assign_stmt(
@@ -2169,6 +2261,80 @@ pub(crate) fn codegen_assign_stmt(
                         let _old_val = #base_expr.get(&_key).cloned().unwrap_or_default();
                         #base_expr.insert(_key, _old_val #op_token #right_expr);
                     }
+                });
+            }
+        }
+    }
+
+    // Handle augmented assignment on Optional field: obj.field += value
+    // Generate: obj.field = Some(obj.field.unwrap() + value)
+    if is_optional_attr_augassign_pattern(target, value, ctx) {
+        if let AssignTarget::Attribute {
+            value: base_value,
+            attr,
+        } = target
+        {
+            if let HirExpr::Binary { op, left: _, right } = value {
+                let base_expr = base_value.to_rust_expr(ctx)?;
+                let attr_ident = format_ident!("{}", attr);
+                let right_expr = right.to_rust_expr(ctx)?;
+                let op_token = match op {
+                    BinOp::Add => quote! { + },
+                    BinOp::Sub => quote! { - },
+                    BinOp::Mul => quote! { * },
+                    BinOp::Div => quote! { / },
+                    BinOp::FloorDiv => quote! { / }, // Integer division in Rust is /
+                    BinOp::Mod => quote! { % },
+                    BinOp::BitAnd => quote! { & },
+                    BinOp::BitOr => quote! { | },
+                    BinOp::BitXor => quote! { ^ },
+                    BinOp::LShift => quote! { << },
+                    BinOp::RShift => quote! { >> },
+                    BinOp::Pow => {
+                        // Power operation needs special handling
+                        return Ok(quote! {
+                            #base_expr.#attr_ident = Some(#base_expr.#attr_ident.unwrap().pow(#right_expr as u32));
+                        });
+                    }
+                    _ => bail!("Unsupported augmented assignment operator for Optional field"),
+                };
+
+                return Ok(quote! {
+                    #base_expr.#attr_ident = Some(#base_expr.#attr_ident.unwrap() #op_token #right_expr);
+                });
+            }
+        }
+    }
+
+    // Handle augmented assignment on Optional variable: x += value where x: Optional[int]
+    // Generate: x = Some(x.unwrap() + value)
+    if is_optional_var_augassign_pattern(target, value, ctx) {
+        if let AssignTarget::Symbol(var_name) = target {
+            if let HirExpr::Binary { op, left: _, right } = value {
+                let var_ident = safe_ident(var_name);
+                let right_expr = right.to_rust_expr(ctx)?;
+                let op_token = match op {
+                    BinOp::Add => quote! { + },
+                    BinOp::Sub => quote! { - },
+                    BinOp::Mul => quote! { * },
+                    BinOp::Div => quote! { / },
+                    BinOp::FloorDiv => quote! { / },
+                    BinOp::Mod => quote! { % },
+                    BinOp::BitAnd => quote! { & },
+                    BinOp::BitOr => quote! { | },
+                    BinOp::BitXor => quote! { ^ },
+                    BinOp::LShift => quote! { << },
+                    BinOp::RShift => quote! { >> },
+                    BinOp::Pow => {
+                        return Ok(quote! {
+                            #var_ident = Some(#var_ident.unwrap().pow(#right_expr as u32));
+                        });
+                    }
+                    _ => bail!("Unsupported augmented assignment operator for Optional variable"),
+                };
+
+                return Ok(quote! {
+                    #var_ident = Some(#var_ident.unwrap() #op_token #right_expr);
                 });
             }
         }
@@ -2467,6 +2633,13 @@ pub(crate) fn codegen_assign_stmt(
         let target_rust_type = ctx.type_mapper.map_type(actual_type);
         let target_syn_type = rust_type_to_syn(&target_rust_type)?;
 
+        // Auto-unwrap Optional values when assigning to non-Optional annotated variables
+        let value_is_optional = expr_is_optional(value, ctx);
+        let target_is_optional = matches!(actual_type, Type::Optional(_));
+        if value_is_optional && !target_is_optional {
+            value_expr = parse_quote! { #value_expr.unwrap() };
+        }
+
         // Pass the value expression to determine if cast is actually needed
         // NOTE: This handles string literals → String conversion via apply_type_conversion
         if needs_type_conversion(actual_type, value) {
@@ -2500,8 +2673,35 @@ pub(crate) fn codegen_assign_stmt(
             false
         };
 
-        // Wrap non-None values in Some() when assigning to Option<T>
-        if is_optional_type && !matches!(value, HirExpr::Literal(Literal::None)) {
+        // Check if the value being assigned is already Optional (to avoid double-wrapping)
+        let value_is_optional = expr_is_optional(value, ctx);
+
+        // Wrap non-None values in Some() when assigning to Option<T>, unless the value is already Optional
+        if is_optional_type && !value_is_optional && !matches!(value, HirExpr::Literal(Literal::None)) {
+            value_expr = parse_quote! { Some(#value_expr) };
+        }
+    }
+
+    // When assigning to an Optional attribute (struct field), wrap non-None values in Some()
+    // This handles augmented assignments like `c.value += 1` where `c.value: Optional[int]`
+    // which get transformed by CSE into `let _cse_temp = c.value.unwrap() + 1; c.value = _cse_temp;`
+    if let AssignTarget::Attribute {
+        value: target_base,
+        attr,
+    } = target
+    {
+        // Build a temporary HirExpr::Attribute to check if the target field is Optional
+        let target_attr_expr = HirExpr::Attribute {
+            value: target_base.clone(),
+            attr: attr.clone(),
+        };
+        let target_is_optional = expr_is_optional(&target_attr_expr, ctx);
+
+        // Check if the value being assigned is already Optional (to avoid double-wrapping)
+        let value_is_optional = expr_is_optional(value, ctx);
+
+        // Wrap non-None values in Some() when assigning to Optional field
+        if target_is_optional && !value_is_optional && !matches!(value, HirExpr::Literal(Literal::None)) {
             value_expr = parse_quote! { Some(#value_expr) };
         }
     }

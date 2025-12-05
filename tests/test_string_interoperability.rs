@@ -1065,3 +1065,95 @@ def use_selection(selection: Selection) -> None:
         ],
     );
 }
+
+#[test]
+fn test_fstring_optional_string_field() {
+    transpile_and_check(
+        r#"
+@dataclass
+class Person:
+    name: Optional[str]
+
+def format_name(p: Person) -> str:
+    return f"Name: {p.name}"
+"#,
+        &[
+            "name: Option<String>",
+            "match &",
+            "Some(v) => format!(\"{}\", v)",
+            "None => \"None\".to_string()",
+        ],
+    );
+}
+
+#[test]
+fn test_fstring_optional_int_field() {
+    transpile_and_check(
+        r#"
+@dataclass
+class Person:
+    age: Optional[int]
+
+def format_age(p: Person) -> str:
+    return f"Age: {p.age}"
+"#,
+        &[
+            "age: Option<i32>",
+            "match &",
+            "Some(v) => format!(\"{}\", v)",
+            "None => \"None\".to_string()",
+        ],
+    );
+}
+
+#[test]
+fn test_fstring_multiple_optional_fields() {
+    transpile_and_check(
+        r#"
+@dataclass
+class Person:
+    name: Optional[str]
+    age: Optional[int]
+
+def format_person(p: Person) -> str:
+    return f"{p.name} is {p.age} years old"
+"#,
+        &["name: Option<String>", "age: Option<i32>", "{} is {} years old"],
+    );
+}
+
+#[test]
+fn test_fstring_mixed_optional_and_required() {
+    transpile_and_check(
+        r#"
+@dataclass
+class Person:
+    first_name: str
+    nickname: Optional[str]
+
+def format_mixed(p: Person) -> str:
+    return f"{p.first_name} aka {p.nickname}"
+"#,
+        &[
+            "first_name: String",
+            "nickname: Option<String>",
+            "format!(\"{} aka {}\",",
+        ],
+    );
+}
+
+#[test]
+fn test_fstring_optional_variable() {
+    transpile_and_check(
+        r#"
+def format_optional(name: Optional[str]) -> str:
+    return f"Value: {name}"
+"#,
+        &[
+            "Option<String>",
+            "match &",
+            "Some(v) => format!(\"{}\", v)",
+            "None => \"None\".to_string()",
+        ],
+    );
+}

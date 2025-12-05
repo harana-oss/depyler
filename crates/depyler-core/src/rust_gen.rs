@@ -1589,6 +1589,7 @@ pub fn generate_rust_file(
         current_func_mut_ref_params: HashSet::new(),             // Track &mut ref params in current function
         current_func_ref_params: HashSet::new(),                 // Track & ref params in current function
         function_param_names: std::collections::HashMap::new(),  // Track function parameter names
+        function_param_types: std::collections::HashMap::new(),  // Track function parameter types
         var_usage_counts: std::collections::HashMap::new(),      // Variable usage counts for clone analysis
         var_usage_current: std::collections::HashMap::new(),     // Current usage position during codegen
     };
@@ -1636,15 +1637,21 @@ pub fn generate_rust_file(
     for func in &module.functions {
         let param_names: Vec<String> = func.params.iter().map(|p| p.name.clone()).collect();
         ctx.function_param_names.insert(func.name.clone(), param_names);
+        let param_types: Vec<Type> = func.params.iter().map(|p| p.ty.clone()).collect();
+        ctx.function_param_types.insert(func.name.clone(), param_types);
     }
-    // Also track class method parameter names
+    // Also track class method parameter names and types
     for class in &module.classes {
         for method in &class.methods {
             let method_key = format!("{}.{}", class.name, method.name);
             let param_names: Vec<String> = method.params.iter().map(|p| p.name.clone()).collect();
-            ctx.function_param_names.insert(method_key, param_names.clone());
+            ctx.function_param_names.insert(method_key.clone(), param_names.clone());
             // Also store just the method name for unqualified calls
             ctx.function_param_names.insert(method.name.clone(), param_names);
+
+            let param_types: Vec<Type> = method.params.iter().map(|p| p.ty.clone()).collect();
+            ctx.function_param_types.insert(method_key, param_types.clone());
+            ctx.function_param_types.insert(method.name.clone(), param_types);
         }
     }
 
@@ -1811,6 +1818,7 @@ mod tests {
             current_func_mut_ref_params: HashSet::new(), // Track &mut ref params in current function
             current_func_ref_params: HashSet::new(),     // Track & ref params in current function
             function_param_names: std::collections::HashMap::new(), // Track function parameter names
+            function_param_types: std::collections::HashMap::new(), // Track function parameter types
             var_usage_counts: std::collections::HashMap::new(), // Variable usage counts for clone analysis
             var_usage_current: std::collections::HashMap::new(), // Current usage position during codegen
         }
