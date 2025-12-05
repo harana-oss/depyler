@@ -321,16 +321,15 @@ fn codegen_single_param(
 
     let is_param_mutated = is_mutated_in_body && takes_ownership;
 
-    // These should ALWAYS have &str parameter type regardless of type inference
-    // Validators are detected when processing add_argument(type=validator_func)
+    // Argparse validators receive String (clap will convert)
     let is_argparse_validator = ctx.validator_functions.contains(&func.name);
 
     if is_argparse_validator {
-        // Argparse validators always receive string arguments from clap
+        // Argparse validators receive String arguments
         let ty = if is_param_mutated {
-            quote! { mut #param_ident: &str }
+            quote! { mut #param_ident: String }
         } else {
-            quote! { #param_ident: &str }
+            quote! { #param_ident: String }
         };
         return Ok(ty);
     }
@@ -396,14 +395,8 @@ fn codegen_single_param(
             .map_type_with_annotations(&param.ty, &func.annotations);
         update_import_needs(ctx, &rust_type);
         let ty = rust_type_to_syn(&rust_type)?;
-        // If annotation maps to String and parameter isn't mutated, prefer &str for ergonomics
-        if matches!(rust_type, crate::type_mapper::RustType::String)
-            && !is_param_mutated
-            && !force_borrow_from_call_chain
-        {
-            let borrowed: syn::Type = parse_quote! { &str };
-            Ok(quote! { #param_ident: #borrowed })
-        } else if force_borrow_from_call_chain {
+        // Always use String for string parameters (not &str) to match Python semantics
+        if force_borrow_from_call_chain {
             // Track this parameter as already being &mut so we don't add &mut again at call sites
             ctx.current_func_mut_ref_params.insert(param.name.clone());
             Ok(quote! { #param_ident: &mut #ty })
@@ -423,7 +416,14 @@ fn apply_param_borrowing_strategy(
     lifetime_result: &crate::lifetime_analysis::LifetimeResult,
     ctx: &mut CodeGenContext,
 ) -> Result<syn::Type> {
-    let mut ty = rust_type_to_syn(rust_type)?;
+    let ty = rust_type_to_syn(rust_type)?;
+
+    // String parameters should always be owned String, never borrowed
+    if matches!(rust_type, crate::type_mapper::RustType::String) {
+        return Ok(ty);
+    }
+
+    let mut ty = ty;
 
     // If lifetime_params is empty, Rust's elision rules apply - don't add explicit lifetimes
     let should_elide_lifetimes = lifetime_result.lifetime_params.is_empty();
@@ -459,14 +459,14 @@ fn apply_param_borrowing_strategy(
             _ => {
                 // Apply normal borrowing if needed
                 if inferred.should_borrow {
-                    ty = apply_borrowing_to_type(ty, rust_type, inferred, should_elide_lifetimes)?;
+                    ty = apply_borrowing_to_type(ty, inferred, should_elide_lifetimes)?;
                 }
             }
         }
     } else {
         // Fallback to normal borrowing
         if inferred.should_borrow {
-            ty = apply_borrowing_to_type(ty, rust_type, inferred, should_elide_lifetimes)?;
+            ty = apply_borrowing_to_type(ty, inferred, should_elide_lifetimes)?;
         }
     }
 
@@ -476,54 +476,30 @@ fn apply_param_borrowing_strategy(
 /// Apply borrowing (&, &mut, with lifetime) to a type
 fn apply_borrowing_to_type(
     mut ty: syn::Type,
-    rust_type: &crate::type_mapper::RustType,
     inferred: &crate::lifetime_analysis::InferredParam,
     should_elide_lifetimes: bool,
 ) -> Result<syn::Type> {
-    // Special case for strings: use &str instead of &String
-    if matches!(rust_type, crate::type_mapper::RustType::String) {
-        if should_elide_lifetimes || inferred.lifetime.is_none() {
-            ty = if inferred.needs_mut {
-                parse_quote! { &mut str }
-            } else {
-                parse_quote! { &str }
-            };
-        } else if let Some(ref lifetime) = inferred.lifetime {
-            let lt = syn::Lifetime::new(lifetime.as_str(), proc_macro2::Span::call_site());
-            ty = if inferred.needs_mut {
-                parse_quote! { &#lt mut str }
-            } else {
-                parse_quote! { &#lt str }
-            };
+    // Use &String for borrowed strings (not &str) to match Python semantics
+    // Non-string types also get normal borrowing
+    if should_elide_lifetimes || inferred.lifetime.is_none() {
+        ty = if inferred.needs_mut {
+            parse_quote! { &mut #ty }
         } else {
-            ty = if inferred.needs_mut {
-                parse_quote! { &mut str }
-            } else {
-                parse_quote! { &str }
-            };
-        }
+            parse_quote! { &#ty }
+        };
+    } else if let Some(ref lifetime) = inferred.lifetime {
+        let lt = syn::Lifetime::new(lifetime.as_str(), proc_macro2::Span::call_site());
+        ty = if inferred.needs_mut {
+            parse_quote! { &#lt mut #ty }
+        } else {
+            parse_quote! { &#lt #ty }
+        };
     } else {
-        // Non-string types
-        if should_elide_lifetimes || inferred.lifetime.is_none() {
-            ty = if inferred.needs_mut {
-                parse_quote! { &mut #ty }
-            } else {
-                parse_quote! { &#ty }
-            };
-        } else if let Some(ref lifetime) = inferred.lifetime {
-            let lt = syn::Lifetime::new(lifetime.as_str(), proc_macro2::Span::call_site());
-            ty = if inferred.needs_mut {
-                parse_quote! { &#lt mut #ty }
-            } else {
-                parse_quote! { &#lt #ty }
-            };
+        ty = if inferred.needs_mut {
+            parse_quote! { &mut #ty }
         } else {
-            ty = if inferred.needs_mut {
-                parse_quote! { &mut #ty }
-            } else {
-                parse_quote! { &#ty }
-            };
-        }
+            parse_quote! { &#ty }
+        };
     }
 
     Ok(ty)

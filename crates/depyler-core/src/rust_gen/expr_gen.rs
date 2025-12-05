@@ -273,11 +273,39 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 }
 
                 // Check if right side is a tuple - convert to array for .contains()
-                if let HirExpr::Tuple(elements) = right {
+                if let HirExpr::Tuple(elements) | HirExpr::List(elements) = right {
+                    // Check if collection contains only string literals
+                    let all_string_literals = !elements.is_empty()
+                        && elements
+                            .iter()
+                            .all(|e| matches!(e, HirExpr::Literal(Literal::String(_))));
+
                     let elem_exprs: Vec<syn::Expr> = elements
                         .iter()
                         .map(|e| e.to_rust_expr(self.ctx))
                         .collect::<Result<Vec<_>>>()?;
+
+                    if all_string_literals {
+                        // Check if left side is a String that needs .as_str()
+                        let left_is_string_literal = matches!(left, HirExpr::Literal(Literal::String(_)));
+                        if left_is_string_literal {
+                            return Ok(parse_quote! { ![#(#elem_exprs),*].contains(&#left_expr) });
+                        }
+
+                        // For String variables/fields, convert to &str using .as_str()
+                        let left_is_attribute = matches!(left, HirExpr::Attribute { .. });
+                        let left_is_var = matches!(left, HirExpr::Var(_));
+                        let left_is_string_type = self.is_string_type(left);
+
+                        if left_is_string_type || left_is_attribute || left_is_var {
+                            let left_expr_no_clone = if left_is_attribute {
+                                self.convert_attribute_without_clone(left)?
+                            } else {
+                                left_expr.clone()
+                            };
+                            return Ok(parse_quote! { ![#(#elem_exprs),*].contains(&#left_expr_no_clone.as_str()) });
+                        }
+                    }
                     return Ok(parse_quote! { ![#(#elem_exprs),*].contains(&#left_expr) });
                 }
 
@@ -371,10 +399,10 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                         || right_involves_arithmetic;
 
                     if !any_is_numeric {
-                        // For potential strings, use format! which handles both String and &str
-                        let left_fmt = self.generate_format_arg(left)?;
-                        let right_fmt = self.generate_format_arg(right)?;
-                        Ok(parse_quote! { format!("{}{}", #left_fmt, #right_fmt) })
+                        // Unknown type - default to + operator (numeric addition)
+                        // Numbers are more common than string concatenation
+                        let rust_op = convert_binop(op)?;
+                        Ok(parse_quote! { #left_expr #rust_op #right_expr })
                     } else if left_is_float && right_is_int_type {
                         // float + int: cast int to f64
                         Ok(parse_quote! { #left_expr + (#right_expr as f64) })
@@ -2803,6 +2831,14 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                         // string literals must be converted to owned String
                         if matches!(hir_arg, HirExpr::Literal(crate::hir::Literal::String(_))) {
                             parse_quote! { #arg_expr.to_string() }
+                        } else if let HirExpr::Var(var_name) = hir_arg {
+                            // Variables from tuple iteration over string literals are &str
+                            // and need .to_string() when passed to functions expecting String
+                            if self.ctx.tuple_iter_vars.contains(var_name) {
+                                parse_quote! { #arg_expr.to_string() }
+                            } else {
+                                arg_expr.clone()
+                            }
                         } else {
                             arg_expr.clone()
                         }
@@ -11603,6 +11639,39 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             HirExpr::Binary { op, left, right } => {
                 // Recursively add derefs to both sides
                 let left_expr = self.add_deref_to_var_uses(left, target)?;
+
+                // For `in` and `not in` with tuples, convert tuple to array since
+                // Rust tuples don't have .contains() method
+                if matches!(op, BinOp::In | BinOp::NotIn) {
+                    if let HirExpr::Tuple(elements) | HirExpr::List(elements) = right.as_ref() {
+                        let elem_exprs: Vec<syn::Expr> = elements
+                            .iter()
+                            .map(|e| e.to_rust_expr(self.ctx))
+                            .collect::<Result<Vec<_>>>()?;
+
+                        // Check if all elements are string literals
+                        let all_string_literals = elements
+                            .iter()
+                            .all(|e| matches!(e, HirExpr::Literal(Literal::String(_))));
+
+                        // If elements are string literals and left is an attribute (likely String type),
+                        // we need to convert String to &str using .as_str()
+                        let left_is_attribute = matches!(left.as_ref(), HirExpr::Attribute { .. });
+
+                        return match op {
+                            BinOp::In if all_string_literals && left_is_attribute => {
+                                Ok(parse_quote! { [#(#elem_exprs),*].contains(&#left_expr.as_str()) })
+                            }
+                            BinOp::In => Ok(parse_quote! { [#(#elem_exprs),*].contains(&#left_expr) }),
+                            BinOp::NotIn if all_string_literals && left_is_attribute => {
+                                Ok(parse_quote! { ![#(#elem_exprs),*].contains(&#left_expr.as_str()) })
+                            }
+                            BinOp::NotIn => Ok(parse_quote! { ![#(#elem_exprs),*].contains(&#left_expr) }),
+                            _ => unreachable!(),
+                        };
+                    }
+                }
+
                 let right_expr = self.add_deref_to_var_uses(right, target)?;
 
                 // Generate the operator token

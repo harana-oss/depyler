@@ -671,6 +671,15 @@ fn stmt_mutates_param(param_name: &str, stmt: &HirStmt) -> bool {
                         expr_contains_param_mutation(param_name, base)
                     }
                 }
+                AssignTarget::Slice { base, .. } => {
+                    // Slice assignment (e.g., state.items[:] = value) mutates the base
+                    if let HirExpr::Var(var_name) = base.as_ref() {
+                        var_name == param_name
+                    } else {
+                        // Check nested attribute access like state.all_players[:] = combined
+                        expr_contains_param_mutation(param_name, base)
+                    }
+                }
                 _ => false,
             };
             target_mutates || expr_mutates_param(param_name, value)

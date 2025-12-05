@@ -1547,6 +1547,16 @@ pub(crate) fn codegen_for_stmt(
     // Convert tuple to array for iteration (tuples aren't directly iterable in Rust)
     // For field accesses that will be borrowed, generate without .clone()
     let mut iter_expr = if let HirExpr::Tuple(elts) = iter {
+        // Track loop variable as &str if iterating over string literals
+        // This is needed to add .to_string() when passing to functions expecting String
+        let is_string_tuple = elts
+            .iter()
+            .all(|e| matches!(e, HirExpr::Literal(crate::hir::Literal::String(_))));
+        if is_string_tuple {
+            if let AssignTarget::Symbol(var_name) = target {
+                ctx.tuple_iter_vars.insert(var_name.clone());
+            }
+        }
         let elt_exprs: Vec<syn::Expr> = elts.iter().map(|e| e.to_rust_expr(ctx)).collect::<Result<Vec<_>>>()?;
         parse_quote! { [#(#elt_exprs),*] }
     } else if needs_field_borrow.is_some() {
@@ -2788,9 +2798,11 @@ pub(crate) fn codegen_assign_index(
 pub(crate) fn codegen_assign_slice(
     base: &HirExpr,
     value_expr: syn::Expr,
-    ctx: &mut CodeGenContext,
+    _ctx: &mut CodeGenContext,
 ) -> Result<proc_macro2::TokenStream> {
-    let base_expr = base.to_rust_expr(ctx)?;
+    // Use build_expr_no_clone to avoid adding .clone() to the base
+    // This is a mutation operation, so we need direct access to the field
+    let base_expr = build_expr_no_clone(base);
     // For full slice assignment x[:] = value, clear and extend
     Ok(quote! {
         #base_expr.clear();
