@@ -252,6 +252,11 @@ fn expr_is_optional(expr: &HirExpr, ctx: &CodeGenContext) -> bool {
                 false
             }
         }
+        // Ternary expression with None in else branch is Optional
+        // e.g., `x.field if x else None` produces Option<T>
+        HirExpr::IfExpr { orelse, .. } => {
+            matches!(orelse.as_ref(), HirExpr::Literal(crate::hir::Literal::None))
+        }
         _ => false,
     }
 }
@@ -2583,12 +2588,30 @@ pub(crate) fn codegen_assign_stmt(
                     }
                 }
             }
+            // Track attribute access types: x = obj.field where field might be Optional
+            HirExpr::Attribute { value, attr } => {
+                if !ctx.var_types.contains_key(var_name) {
+                    if let Some(field_type) = ctx.get_attribute_field_type(value, attr) {
+                        ctx.var_types.insert(var_name.clone(), field_type);
+                    }
+                }
+            }
             _ => {}
         }
     }
 
     // Handle uninitialized annotated declarations (Python: `x: T`)
     let is_uninitialized = matches!(value, HirExpr::Uninitialized);
+
+    // Track type for uninitialized annotated declarations
+    // This ensures Optional types are tracked for truthiness conversion in conditionals
+    if is_uninitialized {
+        if let AssignTarget::Symbol(var_name) = target {
+            if let Some(annot_type) = type_annotation {
+                ctx.var_types.insert(var_name.clone(), annot_type.clone());
+            }
+        }
+    }
 
     // Convert the value expression unless it's an Uninitialized marker
     let mut value_expr = if is_uninitialized {

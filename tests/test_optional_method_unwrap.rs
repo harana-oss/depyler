@@ -765,8 +765,8 @@ def has_setting(c: Config, key: str) -> bool:
     // Note: The transpiler uses .get().is_some() for dict containment checks
     // (works for both HashMap and serde_json::Value)
     assert!(
-        rust_code.contains(".as_ref().unwrap()") && 
-        (rust_code.contains("contains_key") || rust_code.contains(".get(") && rust_code.contains(").is_some()")),
+        rust_code.contains(".as_ref().unwrap()")
+            && (rust_code.contains("contains_key") || rust_code.contains(".get(") && rust_code.contains(").is_some()")),
         "Should unwrap Optional dict when using 'in' operator.\nGenerated:\n{}",
         rust_code
     );
@@ -935,6 +935,118 @@ def reverse_items(c: Container) -> None:
     assert!(
         rust_code.contains(".as_mut().unwrap()"),
         "Should use as_mut().unwrap() for list.reverse() on Optional.\nGenerated:\n{}",
+        rust_code
+    );
+}
+
+#[test]
+fn test_optional_variable_in_if_condition() {
+    let source = r#"
+from typing import Optional
+
+def get_value_or_default(opt: Optional[int]) -> int:
+    if opt:
+        return opt
+    return 0
+"#;
+
+    // Should convert Optional to boolean with is_some_and() or is_some() in if condition
+    let rust_code = transpile_and_check(source, &["is_some"]);
+    assert!(
+        rust_code.contains("is_some()") || rust_code.contains("is_some_and("),
+        "Should convert Optional to boolean with .is_some() or .is_some_and() in if condition.\nGenerated:\n{}",
+        rust_code
+    );
+}
+
+#[test]
+fn test_optional_field_in_if_condition() {
+    let source = r#"
+from dataclasses import dataclass
+from typing import Optional
+
+@dataclass
+class Incident:
+    time: int
+
+@dataclass
+class Game:
+    home_first_try_incident: Optional[Incident]
+
+def get_try_time(game: Game) -> int:
+    home_first_try_time = 0
+    if game.home_first_try_incident:
+        home_first_try_time = game.home_first_try_incident.time
+    return home_first_try_time
+"#;
+
+    // Should convert Optional field to boolean with is_some() or is_some_and()
+    let rust_code = transpile_and_check(source, &["is_some"]);
+    assert!(
+        rust_code.contains("is_some()") || rust_code.contains("is_some_and("),
+        "Should convert Optional field to boolean with .is_some() or .is_some_and() in if condition.\nGenerated:\n{}",
+        rust_code
+    );
+}
+
+#[test]
+fn test_optional_assigned_variable_in_if_condition() {
+    // Tests the pattern where an Optional value is assigned to a variable,
+    // then that variable is used in an if condition
+    let source = r#"
+from dataclasses import dataclass
+from typing import Optional
+
+@dataclass
+class Incident:
+    time: int
+
+@dataclass
+class Game:
+    home_first_try_incident: Optional[Incident]
+
+def get_try_time(game: Game) -> int:
+    home_first_try_incident = game.home_first_try_incident
+    home_first_try_time = 0
+    if home_first_try_incident:
+        home_first_try_time = 42
+    return home_first_try_time
+"#;
+
+    // Should convert Optional variable to boolean with is_some()
+    let rust_code = transpile_and_check(source, &["is_some"]);
+    assert!(
+        rust_code.contains("is_some()") || rust_code.contains("is_some_and("),
+        "Should convert assigned Optional variable to boolean with .is_some() in if condition.\nGenerated:\n{}",
+        rust_code
+    );
+}
+
+#[test]
+fn test_field_access_on_optional_variable() {
+    // Tests accessing a field on a variable that is itself Optional<SomeClass>
+    // This is different from accessing an Optional field on a class - here the variable itself is Optional
+    let source = r#"
+from dataclasses import dataclass
+from typing import Optional
+
+@dataclass
+class Incident:
+    time_elapsed: int
+
+@dataclass
+class Game:
+    home_first_try_incident: Optional[Incident]
+
+def get_try_minute(game: Game) -> int:
+    home_first_try_incident = game.home_first_try_incident
+    return home_first_try_incident.time_elapsed
+"#;
+
+    let rust_code = transpile_and_check(source, &[".as_ref().unwrap()"]);
+    assert!(
+        rust_code.contains("home_first_try_incident.as_ref().unwrap().time_elapsed"),
+        "Should unwrap Optional variable before accessing field.\nGenerated:\n{}",
         rust_code
     );
 }

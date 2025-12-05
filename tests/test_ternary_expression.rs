@@ -1,4 +1,4 @@
-//! TDD Tests for Ternary/Conditional Expressions 
+//! TDD Tests for Ternary/Conditional Expressions
 //!
 //! Python ternary expressions: `value_if_true if condition else value_if_false`
 //! Rust if expressions: `if condition { value_if_true } else { value_if_false }`
@@ -30,12 +30,8 @@ def check_sign(x: int) -> str:
     return "positive" if x > 0 else "non-positive"
 "#;
 
-        let result: Result<String, String> = Ok(transpile(python));
-    assert!(
-        result.is_ok(),
-        "Transpilation failed: {:?}",
-        result.as_ref().err()
-    );
+    let result: Result<String, String> = Ok(transpile(python));
+    assert!(result.is_ok(), "Transpilation failed: {:?}", result.as_ref().err());
 
     let rust_code = result.unwrap();
 
@@ -67,12 +63,8 @@ def max_value(a: int, b: int) -> int:
     return a if a > b else b
 "#;
 
-        let result: Result<String, String> = Ok(transpile(python));
-    assert!(
-        result.is_ok(),
-        "Transpilation failed: {:?}",
-        result.as_ref().err()
-    );
+    let result: Result<String, String> = Ok(transpile(python));
+    assert!(result.is_ok(), "Transpilation failed: {:?}", result.as_ref().err());
 
     let rust_code = result.unwrap();
 
@@ -97,12 +89,8 @@ def classify(score: int) -> str:
     return grade
 "#;
 
-        let result: Result<String, String> = Ok(transpile(python));
-    assert!(
-        result.is_ok(),
-        "Transpilation failed: {:?}",
-        result.as_ref().err()
-    );
+    let result: Result<String, String> = Ok(transpile(python));
+    assert!(result.is_ok(), "Transpilation failed: {:?}", result.as_ref().err());
 
     let rust_code = result.unwrap();
 
@@ -126,12 +114,8 @@ def process(x: int) -> int:
     return abs("positive" if x > 0 else "negative")
 "#;
 
-        let result: Result<String, String> = Ok(transpile(python));
-    assert!(
-        result.is_ok(),
-        "Transpilation failed: {:?}",
-        result.as_ref().err()
-    );
+    let result: Result<String, String> = Ok(transpile(python));
+    assert!(result.is_ok(), "Transpilation failed: {:?}", result.as_ref().err());
 
     let rust_code = result.unwrap();
 
@@ -155,12 +139,8 @@ def classify_number(x: int) -> str:
     return "positive" if x > 0 else ("zero" if x == 0 else "negative")
 "#;
 
-        let result: Result<String, String> = Ok(transpile(python));
-    assert!(
-        result.is_ok(),
-        "Transpilation failed: {:?}",
-        result.as_ref().err()
-    );
+    let result: Result<String, String> = Ok(transpile(python));
+    assert!(result.is_ok(), "Transpilation failed: {:?}", result.as_ref().err());
 
     let rust_code = result.unwrap();
 
@@ -180,9 +160,7 @@ def classify_number(x: int) -> str:
 
     // Should have all three literals
     assert!(
-        rust_code.contains("positive")
-            && rust_code.contains("zero")
-            && rust_code.contains("negative"),
+        rust_code.contains("positive") && rust_code.contains("zero") && rust_code.contains("negative"),
         "Should have all three string literals.\nGot:\n{}",
         rust_code
     );
@@ -195,12 +173,8 @@ def check_range(x: int) -> bool:
     return True if x >= 0 and x <= 100 else False
 "#;
 
-        let result: Result<String, String> = Ok(transpile(python));
-    assert!(
-        result.is_ok(),
-        "Transpilation failed: {:?}",
-        result.as_ref().err()
-    );
+    let result: Result<String, String> = Ok(transpile(python));
+    assert!(result.is_ok(), "Transpilation failed: {:?}", result.as_ref().err());
 
     let rust_code = result.unwrap();
 
@@ -225,12 +199,8 @@ def compute(x: int, y: int) -> int:
     return x + y if x > 0 else x - y
 "#;
 
-        let result: Result<String, String> = Ok(transpile(python));
-    assert!(
-        result.is_ok(),
-        "Transpilation failed: {:?}",
-        result.as_ref().err()
-    );
+    let result: Result<String, String> = Ok(transpile(python));
+    assert!(result.is_ok(), "Transpilation failed: {:?}", result.as_ref().err());
 
     let rust_code = result.unwrap();
 
@@ -255,12 +225,8 @@ def get_value(x: int) -> int:
     return x if x > 0 else None
 "#;
 
-        let result: Result<String, String> = Ok(transpile(python));
-    assert!(
-        result.is_ok(),
-        "Transpilation failed: {:?}",
-        result.as_ref().err()
-    );
+    let result: Result<String, String> = Ok(transpile(python));
+    assert!(result.is_ok(), "Transpilation failed: {:?}", result.as_ref().err());
 
     let rust_code = result.unwrap();
 
@@ -287,12 +253,8 @@ def compare(a: int, b: int) -> str:
     return x + y
 "#;
 
-        let result: Result<String, String> = Ok(transpile(python));
-    assert!(
-        result.is_ok(),
-        "Transpilation failed: {:?}",
-        result.as_ref().err()
-    );
+    let result: Result<String, String> = Ok(transpile(python));
+    assert!(result.is_ok(), "Transpilation failed: {:?}", result.as_ref().err());
 
     let rust_code = result.unwrap();
 
@@ -313,12 +275,8 @@ def is_valid(x: int) -> bool:
     return valid
 "#;
 
-        let result: Result<String, String> = Ok(transpile(python));
-    assert!(
-        result.is_ok(),
-        "Transpilation failed: {:?}",
-        result.as_ref().err()
-    );
+    let result: Result<String, String> = Ok(transpile(python));
+    assert!(result.is_ok(), "Transpilation failed: {:?}", result.as_ref().err());
 
     let rust_code = result.unwrap();
 
@@ -349,12 +307,8 @@ def classify_numbers(numbers: list) -> list:
     return ["positive" if x > 0 else "negative" for x in numbers]
 "#;
 
-        let result: Result<String, String> = Ok(transpile(python));
-    assert!(
-        result.is_ok(),
-        "Transpilation failed: {:?}",
-        result.as_ref().err()
-    );
+    let result: Result<String, String> = Ok(transpile(python));
+    assert!(result.is_ok(), "Transpilation failed: {:?}", result.as_ref().err());
 
     let rust_code = result.unwrap();
 
@@ -386,12 +340,8 @@ def check_bounds(x: int) -> str:
     return "in range" if 0 <= x <= 100 else "out of range"
 "#;
 
-        let result: Result<String, String> = Ok(transpile(python));
-    assert!(
-        result.is_ok(),
-        "Transpilation failed: {:?}",
-        result.as_ref().err()
-    );
+    let result: Result<String, String> = Ok(transpile(python));
+    assert!(result.is_ok(), "Transpilation failed: {:?}", result.as_ref().err());
 
     let rust_code = result.unwrap();
 
@@ -409,12 +359,8 @@ def classify_list(numbers: list) -> list:
     return list(map(lambda x: "positive" if x > 0 else "negative", numbers))
 "#;
 
-        let result: Result<String, String> = Ok(transpile(python));
-    assert!(
-        result.is_ok(),
-        "Transpilation failed: {:?}",
-        result.as_ref().err()
-    );
+    let result: Result<String, String> = Ok(transpile(python));
+    assert!(result.is_ok(), "Transpilation failed: {:?}", result.as_ref().err());
 
     let rust_code = result.unwrap();
 
@@ -426,11 +372,7 @@ def classify_list(numbers: list) -> list:
 
     // Should have lambda/closure
     let has_closure = rust_code.contains("|x|") || rust_code.contains("| x |");
-    assert!(
-        has_closure,
-        "Should have closure syntax.\nGot:\n{}",
-        rust_code
-    );
+    assert!(has_closure, "Should have closure syntax.\nGot:\n{}", rust_code);
 
     // Should have if/else in lambda body
     assert!(
@@ -447,12 +389,8 @@ def format_string(s: str, upper: bool) -> str:
     return s.upper() if upper else s.lower()
 "#;
 
-        let result: Result<String, String> = Ok(transpile(python));
-    assert!(
-        result.is_ok(),
-        "Transpilation failed: {:?}",
-        result.as_ref().err()
-    );
+    let result: Result<String, String> = Ok(transpile(python));
+    assert!(result.is_ok(), "Transpilation failed: {:?}", result.as_ref().err());
 
     let rust_code = result.unwrap();
 
@@ -466,6 +404,50 @@ def format_string(s: str, upper: bool) -> str:
     assert!(
         rust_code.contains("upper") || rust_code.contains("to_uppercase"),
         "Should have upper method.\nGot:\n{}",
+        rust_code
+    );
+}
+
+#[test]
+fn test_ternary_list_index_with_none_wraps_in_some() {
+    let python = r#"
+from typing import Optional
+
+def get_first(items: list[int]) -> Optional[int]:
+    return items[0] if items else None
+"#;
+
+    let result: Result<String, String> = Ok(transpile(python));
+    assert!(result.is_ok(), "Transpilation failed: {:?}", result.as_ref().err());
+
+    let rust_code = result.unwrap();
+
+    // Should wrap body in Some() when else is None
+    assert!(
+        rust_code.contains("Some(") && rust_code.contains("None"),
+        "Should wrap list access in Some() when else is None.\nGot:\n{}",
+        rust_code
+    );
+}
+
+#[test]
+fn test_ternary_last_index_with_none_wraps_in_some() {
+    let python = r#"
+from typing import Optional
+
+def get_last(items: list[int]) -> Optional[int]:
+    return items[-1] if items else None
+"#;
+
+    let result: Result<String, String> = Ok(transpile(python));
+    assert!(result.is_ok(), "Transpilation failed: {:?}", result.as_ref().err());
+
+    let rust_code = result.unwrap();
+
+    // Should wrap body in Some() when else is None
+    assert!(
+        rust_code.contains("Some(") && rust_code.contains("None"),
+        "Should wrap last() access in Some() when else is None.\nGot:\n{}",
         rust_code
     );
 }

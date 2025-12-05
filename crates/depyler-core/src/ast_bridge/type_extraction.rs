@@ -1,5 +1,5 @@
 use crate::hir::Type;
-use anyhow::{bail, Result};
+use anyhow::{Result, bail};
 use rustpython_ast::{self as ast};
 
 #[cfg(test)]
@@ -43,9 +43,7 @@ impl TypeExtractor {
             ast::Expr::Subscript(s) => Self::extract_generic_type(s),
             // Handle None constant (used in -> None return annotations)
             ast::Expr::Constant(c) if matches!(c.value, ast::Constant::None) => Ok(Type::None),
-            ast::Expr::BinOp(b) if matches!(b.op, ast::Operator::BitOr) => {
-                Self::extract_union_from_binop(b)
-            }
+            ast::Expr::BinOp(b) if matches!(b.op, ast::Operator::BitOr) => Self::extract_union_from_binop(b),
             _ => bail!("Unsupported type annotation: {:?}", expr),
         }
     }
@@ -110,7 +108,7 @@ impl TypeExtractor {
             "Dict" => Self::extract_dict_type(s),
             "Set" => Self::extract_set_type(s),
             "Tuple" => Self::extract_tuple_type(s),
-            "Optional" => Self::extract_optional_type(s),
+            "Optional" | "Option" => Self::extract_optional_type(s),
             "Union" => Self::extract_union_type(s),
             "Generic" => Self::extract_parameterized_generic(s),
             "Final" => Self::extract_final_type(s),
@@ -162,11 +160,7 @@ impl TypeExtractor {
     fn extract_tuple_type(s: &ast::ExprSubscript) -> Result<Type> {
         match s.slice.as_ref() {
             ast::Expr::Tuple(t) => {
-                let types = t
-                    .elts
-                    .iter()
-                    .map(Self::extract_type)
-                    .collect::<Result<Vec<_>>>()?;
+                let types = t.elts.iter().map(Self::extract_type).collect::<Result<Vec<_>>>()?;
                 Ok(Type::Tuple(types))
             }
             // Single type in tuple[T] case - make it a 1-tuple
@@ -190,11 +184,7 @@ impl TypeExtractor {
     fn extract_union_type(s: &ast::ExprSubscript) -> Result<Type> {
         match s.slice.as_ref() {
             ast::Expr::Tuple(t) => {
-                let types = t
-                    .elts
-                    .iter()
-                    .map(Self::extract_type)
-                    .collect::<Result<Vec<_>>>()?;
+                let types = t.elts.iter().map(Self::extract_type).collect::<Result<Vec<_>>>()?;
                 Ok(Type::Union(types))
             }
             // Single type in Union[T] case

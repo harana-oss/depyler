@@ -174,7 +174,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         // Convert operands, unwrapping Optional fields automatically
         // Python allows direct access to Optional fields - operations on None fail at runtime
         let left_expr = self.convert_with_optional_unwrap(left)?;
-        
+
         // For 'in' and 'not in' operators, we need special handling for Optional collections:
         // Use .as_ref().unwrap() to avoid moving the collection out of the struct
         let right_is_optional = self.expr_is_optional(right);
@@ -11528,6 +11528,13 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             value_expr = parse_quote! { #value_expr.as_ref().unwrap() };
         }
 
+        // If the base variable itself is Optional<T>, unwrap it before accessing the field
+        if let HirExpr::Var(var_name) = value {
+            if let Some(Type::Optional(_)) = self.ctx.var_types.get(var_name) {
+                value_expr = parse_quote! { #value_expr.as_ref().unwrap() };
+            }
+        }
+
         match attr {
             //
             "numerator" => {
@@ -11653,6 +11660,13 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             // Check if the base value (when it's an attribute) is Optional - need to unwrap before accessing
             if self.field_is_optional_inner(value) {
                 value_expr = parse_quote! { #value_expr.as_ref().unwrap() };
+            }
+
+            // If the base variable itself is Optional<T>, unwrap it before accessing the field
+            if let HirExpr::Var(var_name) = value.as_ref() {
+                if let Some(Type::Optional(_)) = self.ctx.var_types.get(var_name) {
+                    value_expr = parse_quote! { #value_expr.as_ref().unwrap() };
+                }
             }
 
             let attr_ident = if Self::is_rust_keyword(attr) {
@@ -12890,7 +12904,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
 
         let mut test_expr = test.to_rust_expr(self.ctx)?;
         let mut body_expr = body.to_rust_expr(self.ctx)?;
-        let mut orelse_expr = orelse.to_rust_expr(self.ctx)?;
+        let orelse_expr = orelse.to_rust_expr(self.ctx)?;
 
         // Ensure type consistency: if either branch is a string literal, wrap with .to_string()
         let body_is_string_lit = matches!(body, HirExpr::Literal(Literal::String(_)));
@@ -12900,7 +12914,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 body_expr = parse_quote! { #body_expr.to_string() };
             }
             if orelse_is_string_lit {
-                orelse_expr = parse_quote! { #orelse_expr.to_string() };
+                // orelse_expr was made immutable, so this case is handled below
             }
         }
 
@@ -12909,15 +12923,34 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         // With conversion: `if !val.is_empty()` / `if val.is_some()` / `if val != 0`
         test_expr = Self::apply_truthiness_conversion(test, test_expr, self.ctx);
 
-        Ok(parse_quote! {
-            if #test_expr { #body_expr } else { #orelse_expr }
-        })
+        // Python: `x[0] if x else None` → Rust: `if !x.is_empty() { Some(x.get(0).cloned().unwrap()) } else { None }`
+        // When else branch is None, wrap body in Some() for correct Option<T> type
+        let orelse_is_none = matches!(orelse, HirExpr::Literal(Literal::None));
+        if orelse_is_none {
+            Ok(parse_quote! {
+                if #test_expr { Some(#body_expr) } else { None }
+            })
+        } else if orelse_is_string_lit {
+            let orelse_str_expr: syn::Expr = parse_quote! { #orelse_expr.to_string() };
+            Ok(parse_quote! {
+                if #test_expr { #body_expr } else { #orelse_str_expr }
+            })
+        } else {
+            Ok(parse_quote! {
+                if #test_expr { #body_expr } else { #orelse_expr }
+            })
+        }
     }
 
     /// Apply Python truthiness conversion to non-boolean conditions
     /// Python: `if val:` where val is String/List/Dict/Set/Optional/Int/Float
     /// Rust: `if !val.is_empty()` / `if val.is_some()` / `if val != 0`
     fn apply_truthiness_conversion(condition: &HirExpr, cond_expr: syn::Expr, ctx: &CodeGenContext) -> syn::Expr {
+        // First, try using get_optional_inner_type which handles more cases
+        if ctx.get_optional_inner_type(condition).is_some() {
+            return parse_quote! { #cond_expr.is_some() };
+        }
+
         // Check if this is a variable reference that needs truthiness conversion
         if let HirExpr::Var(var_name) = condition {
             if let Some(var_type) = ctx.var_types.get(var_name) {
@@ -12930,7 +12963,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                         parse_quote! { !#cond_expr.is_empty() }
                     }
 
-                    // Optional - check if Some
+                    // Optional - check if Some (should be caught above, but keep for safety)
                     Type::Optional(_) => {
                         parse_quote! { #cond_expr.is_some() }
                     }
