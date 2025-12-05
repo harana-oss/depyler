@@ -443,3 +443,119 @@ def compute() -> None:
 "#;
     transpile_and_check(python, &[]);
 }
+
+#[test]
+fn test_float_nested_min_max_clamp() {
+    let python = r#"
+
+def one(f: float) -> float:
+    return f 
+
+def two() -> float:
+    a = 6.0
+    b = float(max(min(a / 2.0, 10.0), -10.0))
+    c = float(max(min(a / 2.0, 10.0), -10.0))
+    d = one(float(max(min(a / 2.0, 10.0), -10.0)))
+    return d
+"#;
+    let result = transpile_and_check(python, &[]);
+    // The key assertions: should contain f64::min, f64::max, and as f64 cast
+    assert!(result.contains("f64::min"), "expected f64::min in:\n{result}");
+    assert!(result.contains("f64::max"), "expected f64::max in:\n{result}");
+    assert!(result.contains("as f64"), "expected 'as f64' cast in:\n{result}");
+}
+
+#[test]
+fn test_arithmetic_with_function_call_result() {
+    // Tests that variables assigned from function calls that return int
+    // are correctly inferred for arithmetic operations
+    let python = r#"
+def get_index(x: int) -> int:
+    return x % 6
+
+def derive_coordinate(x: int, y: int) -> int:
+    x_index = get_index(x)
+    y_index = get_index(y)
+    return x_index * 6 + y_index
+"#;
+    let rust = transpile_and_check(python, &[]);
+    // Should NOT contain format! for numeric addition
+    assert!(
+        !rust.contains("format!"),
+        "arithmetic should not use format! for concatenation:\n{rust}"
+    );
+    // Should contain proper arithmetic
+    assert!(
+        rust.contains("x_index * 6 + y_index"),
+        "expected 'x_index * 6 + y_index' in:\n{rust}"
+    );
+}
+
+#[test]
+fn test_arithmetic_multiplication_then_addition() {
+    // Tests that multiplication context correctly propagates type info for addition
+    let python = r#"
+def compute(a: int, b: int) -> int:
+    result = a * 10 + b
+    return result
+"#;
+    let rust = transpile_and_check(python, &[]);
+    // The key assertion: should NOT use format! for numeric addition
+    assert!(!rust.contains("format!"), "should not use format! for arithmetic:\n{rust}");
+    // Should contain the arithmetic operators
+    assert!(rust.contains("* 10"), "expected multiplication by 10 in:\n{rust}");
+    assert!(rust.contains("+ b"), "expected addition of b in:\n{rust}");
+}
+
+#[test]
+fn test_arithmetic_with_multiple_operators() {
+    // Tests mixed arithmetic operations preserve numeric type
+    let python = r#"
+def complex_math(x: int, y: int, z: int) -> int:
+    a = x * 2
+    b = y - 3
+    c = a + b + z
+    return c
+"#;
+    let rust = transpile_and_check(python, &[]);
+    assert!(!rust.contains("format!"), "should not use format! for arithmetic:\n{rust}");
+}
+
+#[test]
+fn test_float_arithmetic_with_function_call() {
+    // Tests float type inference from function return types
+    let python = r#"
+def get_factor() -> float:
+    return 2.5
+
+def scale(value: float) -> float:
+    factor = get_factor()
+    return value * factor + 1.0
+"#;
+    let rust = transpile_and_check(python, &[]);
+    assert!(!rust.contains("format!"), "should not use format! for float arithmetic:\n{rust}");
+}
+
+#[test]
+fn test_int_division_in_arithmetic_chain() {
+    // Tests that division operator implies numeric context
+    let python = r#"
+def compute_average(total: int, count: int, offset: int) -> int:
+    avg = total // count
+    return avg + offset
+"#;
+    let rust = transpile_and_check(python, &[]);
+    assert!(!rust.contains("format!"), "should not use format! after division:\n{rust}");
+}
+
+#[test]
+fn test_subtraction_implies_numeric_context() {
+    // Tests that subtraction operator implies numeric context for addition
+    let python = r#"
+def adjust(base: int, delta: int, bonus: int) -> int:
+    adjusted = base - delta
+    return adjusted + bonus
+"#;
+    let rust = transpile_and_check(python, &[]);
+    assert!(!rust.contains("format!"), "should not use format! after subtraction:\n{rust}");
+}

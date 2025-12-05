@@ -2193,10 +2193,20 @@ pub(crate) fn codegen_assign_stmt(
                     };
                     ctx.var_types.insert(var_name.clone(), Type::Set(Box::new(elem_type)));
                 }
-                // Lookup function return type and track it for Display trait selection
+                // Lookup function return type and track it for type inference
                 // Enables: result = merge(&a, &b) where merge returns list[int]
+                // Also tracks primitive types (Int, Float, Bool, String) for arithmetic/concat detection
                 else if let Some(ret_type) = ctx.function_return_types.get(func) {
-                    if matches!(ret_type, Type::List(_) | Type::Dict(_, _) | Type::Set(_)) {
+                    if matches!(
+                        ret_type,
+                        Type::List(_)
+                            | Type::Dict(_, _)
+                            | Type::Set(_)
+                            | Type::Int
+                            | Type::Float
+                            | Type::Bool
+                            | Type::String
+                    ) {
                         ctx.var_types.insert(var_name.clone(), ret_type.clone());
                     }
                 }

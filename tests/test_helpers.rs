@@ -114,10 +114,24 @@ pub fn transpile_check_absent(python_source: &str, absent_patterns: &[&str]) -> 
     rust_code
 }
 
-/// Compiles Rust code using rustc and returns the result.
+/// Compiles Rust code using cargo and returns the result.
 pub fn compile_rust_code(rust_code: &str) -> TranspileCompileResult {
     let temp_dir = TempDir::new().expect("Failed to create temp directory");
-    let rust_file = temp_dir.path().join("test_output.rs");
+    let src_dir = temp_dir.path().join("src");
+    fs::create_dir(&src_dir).expect("Failed to create src directory");
+
+    let cargo_toml = r#"[package]
+name = "depyler_test"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+lazy_static = "1"
+serde_json = "1"
+rand = "0.8"
+bevy_reflect = "0.15"
+"#;
+    fs::write(temp_dir.path().join("Cargo.toml"), cargo_toml).expect("Failed to write Cargo.toml");
 
     // Only add HashMap import if not already present
     let hashmap_import = if rust_code.contains("use std::collections::HashMap") {
@@ -135,20 +149,14 @@ fn main() {{}}
 "#
     );
 
-    fs::write(&rust_file, &full_code).expect("Failed to write test file");
+    fs::write(src_dir.join("main.rs"), &full_code).expect("Failed to write main.rs");
 
-    let output = Command::new("rustc")
-        .arg("--edition")
-        .arg("2021")
-        .arg("--crate-type")
-        .arg("bin")
-        .arg("--emit")
-        .arg("metadata")
-        .arg("-o")
-        .arg(temp_dir.path().join("output"))
-        .arg(&rust_file)
+    let output = Command::new("cargo")
+        .arg("build")
+        .arg("--quiet")
+        .current_dir(temp_dir.path())
         .output()
-        .expect("Failed to run rustc");
+        .expect("Failed to run cargo build");
 
     let stderr = String::from_utf8_lossy(&output.stderr).to_string();
 

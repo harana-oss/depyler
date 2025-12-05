@@ -237,17 +237,35 @@ impl<'a> CodeGenContext<'a> {
     /// Check if an expression evaluates to a float type
     ///
     /// Used by math builtins to determine whether to use float or integer methods.
-    /// # Complexity
-    /// 1 (simple pattern match + HashMap lookup)
     pub fn is_expr_float_type(&self, expr: &crate::hir::HirExpr) -> bool {
+        use crate::hir::{BinOp, HirExpr, Literal};
         match expr {
-            crate::hir::HirExpr::Var(var_name) => {
+            HirExpr::Var(var_name) => {
                 matches!(self.var_types.get(var_name), Some(Type::Float))
             }
-            crate::hir::HirExpr::Literal(crate::hir::Literal::Float(_)) => true,
-            crate::hir::HirExpr::Attribute { value, attr } => {
-                self.get_attribute_field_type(value, attr) == Some(Type::Float)
+            HirExpr::Literal(Literal::Float(_)) => true,
+            HirExpr::Attribute { value, attr } => self.get_attribute_field_type(value, attr) == Some(Type::Float),
+            HirExpr::Unary { operand, .. } => self.is_expr_float_type(operand),
+            HirExpr::Binary { op, left, right } => {
+                // Division always produces float, or if either operand is float
+                matches!(op, BinOp::Div) || self.is_expr_float_type(left) || self.is_expr_float_type(right)
             }
+            HirExpr::Call { func, args, .. } => {
+                // Check if function has a known float return type
+                if matches!(self.function_return_types.get(func), Some(Type::Float)) {
+                    return true;
+                }
+                // Math functions that return float when given float args
+                let float_returning_funcs = ["min", "max", "abs", "sum", "float"];
+                if float_returning_funcs.contains(&func.as_str()) {
+                    args.iter().any(|arg| self.is_expr_float_type(arg))
+                } else if func == "float" {
+                    true
+                } else {
+                    false
+                }
+            }
+            HirExpr::IfExpr { body, orelse, .. } => self.is_expr_float_type(body) || self.is_expr_float_type(orelse),
             _ => false,
         }
     }
@@ -256,13 +274,113 @@ impl<'a> CodeGenContext<'a> {
     ///
     /// Used by arithmetic operations to handle mixed int/float types.
     pub fn is_expr_int_type(&self, expr: &crate::hir::HirExpr) -> bool {
+        use crate::hir::{BinOp, HirExpr, Literal};
         match expr {
-            crate::hir::HirExpr::Var(var_name) => {
+            HirExpr::Var(var_name) => {
                 matches!(self.var_types.get(var_name), Some(Type::Int))
             }
-            crate::hir::HirExpr::Literal(crate::hir::Literal::Int(_)) => true,
-            crate::hir::HirExpr::Attribute { value, attr } => {
+            HirExpr::Literal(Literal::Int(_)) => true,
+            HirExpr::Attribute { value, attr } => {
                 self.get_attribute_field_type(value, attr) == Some(Type::Int)
+            }
+            HirExpr::Unary { operand, .. } => self.is_expr_int_type(operand),
+            // Binary operations are int type if:
+            // - Division (/) always produces float, so exclude
+            // - Both operands are int types for other operations
+            HirExpr::Binary { op, left, right } => {
+                // Division always produces float in Python
+                if matches!(op, BinOp::Div) {
+                    return false;
+                }
+                // For other arithmetic operations, result is int if both operands are int
+                self.is_expr_int_type(left) && self.is_expr_int_type(right)
+            }
+            // Function calls - check if the function returns int
+            HirExpr::Call { func, .. } => {
+                if matches!(self.function_return_types.get(func), Some(Type::Int)) {
+                    return true;
+                }
+                // Built-in functions that return int
+                matches!(func.as_str(), "len" | "int" | "ord" | "round" | "abs")
+            }
+            HirExpr::IfExpr { body, orelse, .. } => {
+                self.is_expr_int_type(body) && self.is_expr_int_type(orelse)
+            }
+            _ => false,
+        }
+    }
+
+    /// Check if an expression evaluates to a string type
+    ///
+    /// Used by string concatenation vs arithmetic addition detection.
+    pub fn is_expr_string_type(&self, expr: &crate::hir::HirExpr) -> bool {
+        use crate::hir::{HirExpr, Literal};
+        match expr {
+            HirExpr::Var(var_name) => {
+                matches!(self.var_types.get(var_name), Some(Type::String))
+            }
+            HirExpr::Literal(Literal::String(_)) => true,
+            HirExpr::Attribute { value, attr } => {
+                self.get_attribute_field_type(value, attr) == Some(Type::String)
+            }
+            HirExpr::Call { func, .. } => {
+                if matches!(self.function_return_types.get(func), Some(Type::String)) {
+                    return true;
+                }
+                // Built-in functions that return string
+                matches!(func.as_str(), "str" | "repr" | "chr" | "format")
+            }
+            HirExpr::IfExpr { body, orelse, .. } => {
+                self.is_expr_string_type(body) && self.is_expr_string_type(orelse)
+            }
+            HirExpr::FString { .. } => true,
+            _ => false,
+        }
+    }
+
+    /// Check if an expression evaluates to a boolean type
+    ///
+    /// Used by logical operations type inference.
+    pub fn is_expr_bool_type(&self, expr: &crate::hir::HirExpr) -> bool {
+        use crate::hir::{BinOp, HirExpr, Literal};
+        match expr {
+            HirExpr::Var(var_name) => {
+                matches!(self.var_types.get(var_name), Some(Type::Bool))
+            }
+            HirExpr::Literal(Literal::Bool(_)) => true,
+            HirExpr::Attribute { value, attr } => {
+                self.get_attribute_field_type(value, attr) == Some(Type::Bool)
+            }
+            // Comparison operations always return bool
+            HirExpr::Binary { op, .. } => {
+                matches!(
+                    op,
+                    BinOp::Eq
+                        | BinOp::NotEq
+                        | BinOp::Lt
+                        | BinOp::LtEq
+                        | BinOp::Gt
+                        | BinOp::GtEq
+                        | BinOp::In
+                        | BinOp::NotIn
+                        | BinOp::Is
+                        | BinOp::IsNot
+                        | BinOp::And
+                        | BinOp::Or
+                )
+            }
+            HirExpr::Call { func, .. } => {
+                if matches!(self.function_return_types.get(func), Some(Type::Bool)) {
+                    return true;
+                }
+                // Built-in functions that return bool
+                matches!(
+                    func.as_str(),
+                    "bool" | "isinstance" | "issubclass" | "callable" | "hasattr"
+                )
+            }
+            HirExpr::IfExpr { body, orelse, .. } => {
+                self.is_expr_bool_type(body) && self.is_expr_bool_type(orelse)
             }
             _ => false,
         }

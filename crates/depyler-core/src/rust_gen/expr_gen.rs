@@ -360,9 +360,17 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
 
                     // If neither side is known to be numeric, it might be string concatenation
                     // Use format! as a safe fallback for unknown types that could be strings
-                    let neither_is_numeric =
-                        !left_is_float && !right_is_float && !left_is_int_type && !right_is_int_type;
-                    if neither_is_numeric {
+                    // BUT: if either side involves arithmetic operators (*, /, -, etc.), it's numeric
+                    let left_involves_arithmetic = self.involves_arithmetic_op(left);
+                    let right_involves_arithmetic = self.involves_arithmetic_op(right);
+                    let any_is_numeric = left_is_float
+                        || right_is_float
+                        || left_is_int_type
+                        || right_is_int_type
+                        || left_involves_arithmetic
+                        || right_involves_arithmetic;
+
+                    if !any_is_numeric {
                         // For potential strings, use format! which handles both String and &str
                         let left_fmt = self.generate_format_arg(left)?;
                         let right_fmt = self.generate_format_arg(right)?;
@@ -11797,6 +11805,39 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     false
                 }
             }
+            _ => false,
+        }
+    }
+
+    /// Check if an expression involves arithmetic operators (*, /, -, %, //, **)
+    /// This helps distinguish numeric operations from string concatenation
+    /// when type information is not available.
+    fn involves_arithmetic_op(&self, expr: &HirExpr) -> bool {
+        match expr {
+            // Arithmetic binary operators indicate numeric context
+            HirExpr::Binary { op, left, right } => {
+                matches!(
+                    op,
+                    BinOp::Mul
+                        | BinOp::Sub
+                        | BinOp::Div
+                        | BinOp::FloorDiv
+                        | BinOp::Mod
+                        | BinOp::Pow
+                        | BinOp::LShift
+                        | BinOp::RShift
+                        | BinOp::BitAnd
+                        | BinOp::BitOr
+                        | BinOp::BitXor
+                ) || self.involves_arithmetic_op(left)
+                    || self.involves_arithmetic_op(right)
+            }
+            // Unary negation indicates numeric
+            HirExpr::Unary {
+                op: UnaryOp::Neg, ..
+            } => true,
+            // Parenthesized expression - check inside
+            HirExpr::Borrow { expr, .. } => self.involves_arithmetic_op(expr),
             _ => false,
         }
     }

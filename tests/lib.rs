@@ -235,6 +235,8 @@ mod test_math_unit;
 #[cfg(test)]
 mod test_maths;
 #[cfg(test)]
+mod test_mega;
+#[cfg(test)]
 mod test_method_ownership;
 #[cfg(test)]
 mod test_migration_suggestions_propertys;
