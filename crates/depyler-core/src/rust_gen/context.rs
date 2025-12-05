@@ -280,9 +280,7 @@ impl<'a> CodeGenContext<'a> {
                 matches!(self.var_types.get(var_name), Some(Type::Int))
             }
             HirExpr::Literal(Literal::Int(_)) => true,
-            HirExpr::Attribute { value, attr } => {
-                self.get_attribute_field_type(value, attr) == Some(Type::Int)
-            }
+            HirExpr::Attribute { value, attr } => self.get_attribute_field_type(value, attr) == Some(Type::Int),
             HirExpr::Unary { operand, .. } => self.is_expr_int_type(operand),
             // Binary operations are int type if:
             // - Division (/) always produces float, so exclude
@@ -303,9 +301,7 @@ impl<'a> CodeGenContext<'a> {
                 // Built-in functions that return int
                 matches!(func.as_str(), "len" | "int" | "ord" | "round" | "abs")
             }
-            HirExpr::IfExpr { body, orelse, .. } => {
-                self.is_expr_int_type(body) && self.is_expr_int_type(orelse)
-            }
+            HirExpr::IfExpr { body, orelse, .. } => self.is_expr_int_type(body) && self.is_expr_int_type(orelse),
             _ => false,
         }
     }
@@ -320,9 +316,7 @@ impl<'a> CodeGenContext<'a> {
                 matches!(self.var_types.get(var_name), Some(Type::String))
             }
             HirExpr::Literal(Literal::String(_)) => true,
-            HirExpr::Attribute { value, attr } => {
-                self.get_attribute_field_type(value, attr) == Some(Type::String)
-            }
+            HirExpr::Attribute { value, attr } => self.get_attribute_field_type(value, attr) == Some(Type::String),
             HirExpr::Call { func, .. } => {
                 if matches!(self.function_return_types.get(func), Some(Type::String)) {
                     return true;
@@ -330,9 +324,7 @@ impl<'a> CodeGenContext<'a> {
                 // Built-in functions that return string
                 matches!(func.as_str(), "str" | "repr" | "chr" | "format")
             }
-            HirExpr::IfExpr { body, orelse, .. } => {
-                self.is_expr_string_type(body) && self.is_expr_string_type(orelse)
-            }
+            HirExpr::IfExpr { body, orelse, .. } => self.is_expr_string_type(body) && self.is_expr_string_type(orelse),
             HirExpr::FString { .. } => true,
             _ => false,
         }
@@ -348,9 +340,7 @@ impl<'a> CodeGenContext<'a> {
                 matches!(self.var_types.get(var_name), Some(Type::Bool))
             }
             HirExpr::Literal(Literal::Bool(_)) => true,
-            HirExpr::Attribute { value, attr } => {
-                self.get_attribute_field_type(value, attr) == Some(Type::Bool)
-            }
+            HirExpr::Attribute { value, attr } => self.get_attribute_field_type(value, attr) == Some(Type::Bool),
             // Comparison operations always return bool
             HirExpr::Binary { op, .. } => {
                 matches!(
@@ -379,9 +369,7 @@ impl<'a> CodeGenContext<'a> {
                     "bool" | "isinstance" | "issubclass" | "callable" | "hasattr"
                 )
             }
-            HirExpr::IfExpr { body, orelse, .. } => {
-                self.is_expr_bool_type(body) && self.is_expr_bool_type(orelse)
-            }
+            HirExpr::IfExpr { body, orelse, .. } => self.is_expr_bool_type(body) && self.is_expr_bool_type(orelse),
             _ => false,
         }
     }

@@ -11833,9 +11833,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     || self.involves_arithmetic_op(right)
             }
             // Unary negation indicates numeric
-            HirExpr::Unary {
-                op: UnaryOp::Neg, ..
-            } => true,
+            HirExpr::Unary { op: UnaryOp::Neg, .. } => true,
             // Parenthesized expression - check inside
             HirExpr::Borrow { expr, .. } => self.involves_arithmetic_op(expr),
             _ => false,
@@ -12549,6 +12547,8 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             let is_range = matches!(&*gen.iter, HirExpr::Call { func, .. } if func == "range");
 
             // Determine if the element type needs clone (non-Copy) or can use copy
+            // Default to true (use .cloned()) because .cloned() works for both Copy and Clone types,
+            // while .copied() only works for Copy types. This is safe for custom structs like Player.
             let element_needs_clone = if let HirExpr::Var(var_name) = &*gen.iter {
                 if let Some(var_type) = self.ctx.var_types.get(var_name) {
                     match var_type {
@@ -12557,10 +12557,10 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                         _ => true, // Default to clone for unknown types
                     }
                 } else {
-                    false // Default to copied for unknown variables (likely primitives)
+                    true // Default to cloned for unknown variables (safe for non-Copy types)
                 }
             } else {
-                false
+                true // Default to cloned for non-variable iterators
             };
 
             // When the iterator is a variable (likely a borrowed parameter like &Vec<i32>),
