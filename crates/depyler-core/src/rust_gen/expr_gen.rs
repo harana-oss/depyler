@@ -747,8 +747,14 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 }
             }
             UnaryOp::Neg => {
-                // Wrap in parentheses to avoid `x < -1` becoming `x<-1` (parsed as assignment)
-                Ok(parse_quote! { (-#operand_expr) })
+                // Only wrap in parentheses for complex operands to avoid `x < -1` becoming `x<-1`
+                // Simple literals like `-1` don't need parentheses
+                let is_simple_literal = matches!(operand, HirExpr::Literal(Literal::Int(_) | Literal::Float(_)));
+                if is_simple_literal {
+                    Ok(parse_quote! { -#operand_expr })
+                } else {
+                    Ok(parse_quote! { (-#operand_expr) })
+                }
             }
             UnaryOp::Pos => Ok(operand_expr), // No +x in Rust
             UnaryOp::BitNot => Ok(parse_quote! { !#operand_expr }),

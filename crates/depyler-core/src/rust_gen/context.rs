@@ -245,6 +245,9 @@ impl<'a> CodeGenContext<'a> {
                 matches!(self.var_types.get(var_name), Some(Type::Float))
             }
             crate::hir::HirExpr::Literal(crate::hir::Literal::Float(_)) => true,
+            crate::hir::HirExpr::Attribute { value, attr } => {
+                self.get_attribute_field_type(value, attr) == Some(Type::Float)
+            }
             _ => false,
         }
     }
@@ -258,8 +261,38 @@ impl<'a> CodeGenContext<'a> {
                 matches!(self.var_types.get(var_name), Some(Type::Int))
             }
             crate::hir::HirExpr::Literal(crate::hir::Literal::Int(_)) => true,
+            crate::hir::HirExpr::Attribute { value, attr } => {
+                self.get_attribute_field_type(value, attr) == Some(Type::Int)
+            }
             _ => false,
         }
+    }
+
+    /// Get the type of a field access expression (e.g., state.val1)
+    fn get_attribute_field_type(&self, value: &Box<crate::hir::HirExpr>, attr: &str) -> Option<Type> {
+        // Get the class name from the value expression
+        let class_name = match value.as_ref() {
+            crate::hir::HirExpr::Var(var_name) => {
+                // Look up the variable's type to find the class name
+                self.var_types.get(var_name).and_then(|ty| {
+                    if let Type::Custom(name) = ty {
+                        Some(name.clone())
+                    } else {
+                        None
+                    }
+                })
+            }
+            _ => None,
+        };
+
+        // Look up the field type in class_field_types
+        if let Some(class_name) = class_name {
+            if let Some(field_types) = self.class_field_types.get(&class_name) {
+                return field_types.get(attr).cloned();
+            }
+        }
+
+        None
     }
 
     /// Reset variable usage tracking for a new function

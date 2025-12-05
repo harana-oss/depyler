@@ -482,3 +482,29 @@ def clamp_half(x: int) -> float:
     println!("{}", result);
     assert!(result.contains("(f64::max(f64::min((x as f64) / 2.0, 10.0), -10.0)) as f64"));
 }
+
+#[test]
+fn test_float_conversion_of_dataclass_field_sum() {
+    let python = r#"
+from dataclasses import dataclass
+
+@dataclass
+class State:
+    val1: int
+    val2: int
+
+def compute(state: State):
+    x = float(state.val1 + state.val2)
+"#;
+
+    let result = transpile_and_check(python, &[]);
+    // The transpiler may optimize with CSE, so check for either form
+    assert!(
+        result.contains("(state.val1 + state.val2) as f64")
+            || (result.contains("state.val1 + state.val2") && result.contains("as f64")),
+        "Expected integer addition followed by float conversion, got:\n{}",
+        result
+    );
+    // Ensure no string concatenation (format!) is used
+    assert!(!result.contains("format!"), "Should not generate string concatenation");
+}

@@ -5,21 +5,26 @@ use crate::test_helpers::transpile_and_check;
 #[test]
 fn test_simple_constants() {
     let python_code = r#"
-A = 1
-B = 2
+A = -1
+B = 2.0
 C = 3
 "#;
 
     let rust_code = transpile_and_check(python_code, &["A", "B", "C", "1", "2", "3"]);
 
-    let has_const_declarations = rust_code.contains("const A")
-        || rust_code.contains("pub const A")
-        || rust_code.contains("static A")
-        || rust_code.contains("pub static A");
-
     assert!(
-        has_const_declarations,
-        "Constants should be declared with const or static keyword. Got:\n{}",
+        rust_code.contains("pub const A: i64 = -1") || rust_code.contains("pub const A: i32 = -1"),
+        "Should contain 'pub const A: i64 = -1' or 'pub const A: i32 = -1'. Got:\n{}",
+        rust_code
+    );
+    assert!(
+        rust_code.contains("pub const B: f64 = 2.0"),
+        "Should contain 'pub const B: f64 = 2.0'. Got:\n{}",
+        rust_code
+    );
+    assert!(
+        rust_code.contains("pub const C: i64 = 3") || rust_code.contains("pub const C: i32 = 3"),
+        "Should contain 'pub const C: i64 = 3' or 'pub const C: i32 = 3'. Got:\n{}",
         rust_code
     );
 }
@@ -27,18 +32,26 @@ C = 3
 #[test]
 fn test_constants_with_types() {
     let python_code = r#"
-A: int = 1
+A: int = -1
 B: int = 2
 C: int = 3
 "#;
 
     let rust_code = transpile_and_check(python_code, &["A", "B", "C"]);
 
-    let has_type_annotations = rust_code.contains("i32") || rust_code.contains("i64");
-
     assert!(
-        has_type_annotations,
-        "Constants should have integer type annotations. Got:\n{}",
+        rust_code.contains("pub const A: i64 = -1") || rust_code.contains("pub const A: i32 = -1"),
+        "Should contain 'pub const A: i64 = -1' or 'pub const A: i32 = -1'. Got:\n{}",
+        rust_code
+    );
+    assert!(
+        rust_code.contains("pub const B: i64 = 2") || rust_code.contains("pub const B: i32 = 2"),
+        "Should contain 'pub const B: i64 = 2' or 'pub const B: i32 = 2'. Got:\n{}",
+        rust_code
+    );
+    assert!(
+        rust_code.contains("pub const C: i64 = 3") || rust_code.contains("pub const C: i32 = 3"),
+        "Should contain 'pub const C: i64 = 3' or 'pub const C: i32 = 3'. Got:\n{}",
         rust_code
     );
 }
@@ -120,7 +133,7 @@ def sum_constants() -> int:
 #[ignore]
 fn test_integer_list_constant() {
     let python_code = r#"
-VEC = [1, 2, 3, 4]
+VEC = [1, -2, 3, -4]
 "#;
 
     let rust_code = transpile_and_check(python_code, &[]);

@@ -1356,6 +1356,18 @@ fn infer_constant_type(expr: &HirExpr) -> Type {
             Literal::None => Type::None,
             Literal::Bytes(_) => Type::Unknown,
         },
+        // Handle unary operations like -1 or +2
+        HirExpr::Unary { op, operand } => {
+            use crate::hir::UnaryOp;
+            match op {
+                UnaryOp::Neg | UnaryOp::Pos => {
+                    // Negation/positive preserves the numeric type
+                    infer_constant_type(operand)
+                }
+                UnaryOp::Not => Type::Bool,
+                UnaryOp::BitNot => infer_constant_type(operand),
+            }
+        }
         HirExpr::List(elems) => {
             if elems.is_empty() {
                 Type::List(Box::new(Type::Unknown))
