@@ -1100,3 +1100,765 @@ def test_func():
 [test.assertions]
 contains = ["call::<Type>", "\"name\"", "2400", "1200"]
 contains_any = [["vec!", "rand::random"]]
+
+# =============================================================================
+# Migrated from tests/test_type_mapper_coverage.rs
+# =============================================================================
+
+[[test]]
+name = "type_mapper_union_with_none_optional"
+description = "Union[T, None] -> Option<T> mapping"
+tags = ["type-mapper", "union", "optional"]
+
+[test.python]
+code = '''
+from typing import Union
+
+def maybe_value(flag: bool) -> Union[int, None]:
+    if flag:
+        return 42
+    return None
+'''
+
+[test.assertions]
+contains = ["fn maybe_value"]
+contains_any = [["Option<", "Option"]]
+
+[[test]]
+name = "type_mapper_union_without_none_enum"
+description = "Union[T, U] enum generation"
+tags = ["type-mapper", "union"]
+
+[test.python]
+code = '''
+from typing import Union
+
+def union_func(value: Union[int, str]) -> Union[int, str]:
+    return value
+'''
+
+[test.assertions]
+contains = ["fn union_func"]
+
+[[test]]
+name = "type_mapper_generic_list_type"
+description = "List[T] -> Vec<T> mapping"
+tags = ["type-mapper", "generic", "list"]
+
+[test.python]
+code = '''
+from typing import List
+
+def process_list(items: List[str]) -> int:
+    return len(items)
+'''
+
+[test.assertions]
+contains = ["fn process_list"]
+contains_any = [["Vec<", "Vec"]]
+
+[[test]]
+name = "type_mapper_generic_dict_type"
+description = "Dict[K, V] -> HashMap<K, V> mapping"
+tags = ["type-mapper", "generic", "dict"]
+
+[test.python]
+code = '''
+from typing import Dict
+
+def get_value(data: Dict[str, int], key: str) -> int:
+    return data.get(key, 0)
+'''
+
+[test.assertions]
+contains = ["fn get_value"]
+contains_any = [["HashMap<", "HashMap"]]
+
+[[test]]
+name = "type_mapper_custom_type_parameter"
+description = "TypeVar single-letter parameter detection"
+tags = ["type-mapper", "typevar"]
+
+[test.python]
+code = '''
+from typing import TypeVar
+
+T = TypeVar('T')
+
+def identity(value: T) -> T:
+    return value
+'''
+
+[test.assertions]
+contains = ["fn identity"]
+
+[[test]]
+name = "type_mapper_custom_type_name"
+description = "Custom class type mapping (best-effort)"
+tags = ["type-mapper", "custom-type"]
+
+[test.python]
+code = '''
+class MyClass:
+    pass
+
+def use_custom(obj: MyClass) -> MyClass:
+    return obj
+'''
+
+[test.assertions]
+contains = ["fn use_custom"]
+
+[[test]]
+name = "type_mapper_array_with_literal_size"
+description = "Fixed-size array/list mapping"
+tags = ["type-mapper", "array"]
+
+[test.python]
+code = '''
+def fixed_array() -> list[int]:
+    return [1, 2, 3, 4, 5]
+'''
+
+[test.assertions]
+contains = ["fn fixed_array"]
+
+[[test]]
+name = "type_mapper_reference_with_lifetime"
+description = "Reference/lifetime mapping for str"
+tags = ["type-mapper", "lifetime"]
+
+[test.python]
+code = '''
+def borrow_str(s: str) -> str:
+    return s
+'''
+
+[test.assertions]
+contains = ["fn borrow_str"]
+
+[[test]]
+name = "type_mapper_mutable_reference"
+description = "Mutable list reference mapping"
+tags = ["type-mapper", "mutable"]
+
+[test.python]
+code = '''
+def mutate_list(items: list[int]) -> list[int]:
+    items.append(42)
+    return items
+'''
+
+[test.assertions]
+contains = ["fn mutate_list"]
+
+[[test]]
+name = "type_mapper_cow_type"
+description = "Cow-like optimization detection"
+tags = ["type-mapper", "cow"]
+
+[test.python]
+code = '''
+def maybe_modify(s: str, modify: bool) -> str:
+    if modify:
+        return s.upper()
+    return s
+'''
+
+[test.assertions]
+contains = ["fn maybe_modify"]
+
+[[test]]
+name = "type_mapper_result_type"
+description = "Result type generation for raising functions"
+tags = ["type-mapper", "result"]
+
+[test.python]
+code = '''
+def may_fail(x: int) -> int:
+    if x < 0:
+        raise ValueError("negative value")
+    return x * 2
+'''
+
+[test.assertions]
+contains = ["fn may_fail"]
+contains_any = [["Result<", "Result"]]
+
+[[test]]
+name = "type_mapper_unsupported_function_type"
+description = "Unsupported Callable types should fail gracefully"
+tags = ["type-mapper", "callable"]
+
+[test.python]
+code = '''
+from typing import Callable
+
+def higher_order(func: Callable[[int], str]) -> str:
+    return func(42)
+'''
+
+[test.assertions]
+not_contains = ["parse::<"]
+
+[[test]]
+name = "type_mapper_generic_with_multiple_params"
+description = "Nested generic type handling"
+tags = ["type-mapper", "generic"]
+
+[test.python]
+code = '''
+from typing import Dict
+
+def multi_param(data: Dict[str, list[int]]) -> int:
+    return 42
+'''
+
+[test.assertions]
+contains = ["fn multi_param"]
+
+[[test]]
+name = "type_mapper_typevar_mapping"
+description = "Multiple TypeVars mapping"
+tags = ["type-mapper", "typevar"]
+
+[test.python]
+code = '''
+from typing import TypeVar
+
+T = TypeVar('T')
+U = TypeVar('U')
+
+def swap(a: T, b: U) -> tuple[U, T]:
+    return (b, a)
+'''
+
+[test.assertions]
+contains = ["fn swap"]
+
+[[test]]
+name = "type_mapper_set_type_mapping"
+description = "Set[T] -> HashSet<T> mapping"
+tags = ["type-mapper", "set"]
+
+[test.python]
+code = '''
+def unique_items(items: list[int]) -> set[int]:
+    return set(items)
+'''
+
+[test.assertions]
+contains = ["fn unique_items"]
+
+[[test]]
+name = "type_mapper_mutation_complex_nested_types"
+description = "Complex nested types transpile without crashing"
+tags = ["type-mapper", "nested", "integration"]
+
+[test.python]
+code = '''
+from typing import Dict, Optional, List
+
+def complex_types(
+    data: Dict[str, List[Optional[int]]]
+) -> Optional[str]:
+    return None
+'''
+
+[test.assertions]
+contains = ["fn complex_types"]
+contains_any = [["HashMap", "Option", "Vec<"]]
+
+[[test]]
+name = "type_mapper_all_type_features"
+description = "Integration: many type features together"
+tags = ["type-mapper", "integration"]
+
+[test.python]
+code = '''
+from typing import List, Dict, Optional, Union, Set
+
+def complex_function(
+    items: List[int],
+    mapping: Dict[str, Optional[float]],
+    flags: Set[bool],
+    value: Union[int, str]
+) -> Optional[Dict[str, int]]:
+    if len(items) == 0:
+        return None
+
+    result = {}
+    for item in items:
+        result[str(item)] = item * 2
+
+    return result
+'''
+
+[test.assertions]
+contains = ["fn complex_function"]
+
+# =============================================================================
+# Extended Type Mapper Coverage (migrated from test_type_mapper_extended_coverage.rs)
+# =============================================================================
+
+[[test]]
+name = "unknown_type_mapping"
+description = "Unknown type maps to generic fallback"
+tags = ["type-mapper", "unknown"]
+
+[test.python]
+code = '''
+def process_any(data) -> int:
+    return 42
+'''
+
+[test.assertions]
+contains = ["fn process_any"]
+
+[[test]]
+name = "int_type_default_i32"
+description = "Int type defaults to i32"
+tags = ["type-mapper", "int"]
+
+[test.python]
+code = '''
+def add_numbers(a: int, b: int) -> int:
+    return a + b
+'''
+
+[test.assertions]
+contains = ["fn add_numbers"]
+
+[[test]]
+name = "float_type_mapping"
+description = "Float type maps to f64"
+tags = ["type-mapper", "float"]
+
+[test.python]
+code = '''
+def calculate(x: float, y: float) -> float:
+    return x * y
+'''
+
+[test.assertions]
+contains = ["fn calculate"]
+contains_any = [["f64", "float"]]
+
+[[test]]
+name = "bool_type_mapping"
+description = "Bool type maps to bool"
+tags = ["type-mapper", "bool"]
+
+[test.python]
+code = '''
+def check_flag(enabled: bool) -> bool:
+    return not enabled
+'''
+
+[test.assertions]
+contains = ["fn check_flag", "bool"]
+
+[[test]]
+name = "none_type_unit_mapping"
+description = "None type maps to unit"
+tags = ["type-mapper", "none"]
+
+[test.python]
+code = '''
+def do_nothing():
+    pass
+'''
+
+[test.assertions]
+contains = ["fn do_nothing"]
+
+[[test]]
+name = "string_type_always_owned"
+description = "String type with owned strings"
+tags = ["type-mapper", "string"]
+
+[test.python]
+code = '''
+def greet(name: str) -> str:
+    return "Hello, " + name
+'''
+
+[test.assertions]
+contains = ["fn greet"]
+contains_any = [["String", "str"]]
+
+[[test]]
+name = "list_with_inner_type"
+description = "List[T] maps to Vec<T>"
+tags = ["type-mapper", "list"]
+
+[test.python]
+code = '''
+def sum_list(numbers: list[int]) -> int:
+    total = 0
+    for n in numbers:
+        total = total + n
+    return total
+'''
+
+[test.assertions]
+contains = ["fn sum_list"]
+contains_any = [["Vec", "vec"]]
+
+[[test]]
+name = "dict_with_key_value_types"
+description = "Dict[K,V] maps to HashMap<K,V>"
+tags = ["type-mapper", "dict"]
+
+[test.python]
+code = '''
+def lookup(mapping: dict[str, int], key: str) -> int:
+    return mapping.get(key, 0)
+'''
+
+[test.assertions]
+contains = ["fn lookup"]
+
+[[test]]
+name = "tuple_type_mapping"
+description = "Tuple types map correctly"
+tags = ["type-mapper", "tuple"]
+
+[test.python]
+code = '''
+def get_pair() -> tuple[int, str]:
+    return (42, "hello")
+'''
+
+[test.assertions]
+contains = ["fn get_pair"]
+
+[[test]]
+name = "optional_type_mapping"
+description = "Optional[T] maps to Option<T>"
+tags = ["type-mapper", "optional"]
+
+[test.python]
+code = '''
+from typing import Optional
+
+def maybe_int(flag: bool) -> Optional[int]:
+    if flag:
+        return 42
+    return None
+'''
+
+[test.assertions]
+contains = ["fn maybe_int"]
+contains_any = [["Option", "option"]]
+
+[[test]]
+name = "custom_type_single_letter_type_param"
+description = "Single uppercase letter becomes type parameter"
+tags = ["type-mapper", "typevar"]
+
+[test.python]
+code = '''
+from typing import TypeVar
+
+T = TypeVar('T')
+
+def identity(value: T) -> T:
+    return value
+'''
+
+[test.assertions]
+contains = ["fn identity"]
+
+[[test]]
+name = "custom_type_dict_no_params"
+description = "Dict without params gets default typing"
+tags = ["type-mapper", "dict"]
+
+[test.python]
+code = '''
+from typing import Dict
+
+def process_dict() -> Dict:
+    return {}
+'''
+
+[test.assertions]
+contains = ["fn process_dict"]
+
+[[test]]
+name = "custom_type_list_no_params"
+description = "List without params gets default typing"
+tags = ["type-mapper", "list"]
+
+[test.python]
+code = '''
+from typing import List
+
+def process_list() -> List:
+    return []
+'''
+
+[test.assertions]
+contains = ["fn process_list"]
+
+[[test]]
+name = "custom_type_set_no_params"
+description = "Set without params gets default typing"
+tags = ["type-mapper", "set"]
+
+[test.python]
+code = '''
+from typing import Set
+
+def get_unique() -> Set:
+    return set()
+'''
+
+[test.assertions]
+contains = ["fn get_unique"]
+
+[[test]]
+name = "typevar_mapping"
+description = "TypeVar maps to type parameter"
+tags = ["type-mapper", "typevar"]
+
+[test.python]
+code = '''
+from typing import TypeVar
+
+T = TypeVar('T')
+
+def wrap(value: T) -> T:
+    return value
+'''
+
+[test.assertions]
+contains = ["fn wrap"]
+
+[[test]]
+name = "nested_list_types"
+description = "Nested list types map correctly"
+tags = ["type-mapper", "nested", "list"]
+
+[test.python]
+code = '''
+def process_matrix(matrix: list[list[int]]) -> int:
+    return len(matrix)
+'''
+
+[test.assertions]
+contains = ["fn process_matrix"]
+
+[[test]]
+name = "nested_dict_types"
+description = "Nested dict types map correctly"
+tags = ["type-mapper", "nested", "dict"]
+
+[test.python]
+code = '''
+def nested_lookup(data: dict[str, dict[str, int]]) -> int:
+    return 0
+'''
+
+[test.assertions]
+contains = ["fn nested_lookup"]
+
+[[test]]
+name = "complex_tuple_types"
+description = "Heterogeneous tuple mapping"
+tags = ["type-mapper", "tuple"]
+
+[test.python]
+code = '''
+def get_record() -> tuple[str, int, float, bool]:
+    return ("test", 42, 3.14, True)
+'''
+
+[test.assertions]
+contains = ["fn get_record"]
+
+[[test]]
+name = "union_multiple_types"
+description = "Union with multiple types"
+tags = ["type-mapper", "union"]
+
+[test.python]
+code = '''
+from typing import Union
+
+def multi_type(value: Union[int, str, float]) -> str:
+    return str(value)
+'''
+
+[test.assertions]
+contains = ["fn multi_type"]
+
+[[test]]
+name = "optional_complex_type"
+description = "Optional with complex inner type"
+tags = ["type-mapper", "optional", "complex"]
+
+[test.python]
+code = '''
+from typing import Optional
+
+def maybe_dict(flag: bool) -> Optional[dict[str, int]]:
+    if flag:
+        return {}
+    return None
+'''
+
+[test.assertions]
+contains = ["fn maybe_dict"]
+
+[[test]]
+name = "list_of_optionals"
+description = "List containing Optional values"
+tags = ["type-mapper", "list", "optional"]
+
+[test.python]
+code = '''
+from typing import Optional
+
+def nullable_items(items: list[Optional[int]]) -> int:
+    return len(items)
+'''
+
+[test.assertions]
+contains = ["fn nullable_items"]
+
+[[test]]
+name = "dict_tuple_values"
+description = "Dict with tuple values"
+tags = ["type-mapper", "dict", "tuple"]
+
+[test.python]
+code = '''
+def tuple_dict(data: dict[str, tuple[int, int]]) -> int:
+    return 0
+'''
+
+[test.assertions]
+contains = ["fn tuple_dict"]
+
+[[test]]
+name = "complex_type_combinations"
+description = "All type features working together"
+tags = ["type-mapper", "integration"]
+
+[test.python]
+code = '''
+from typing import Optional, Union
+
+def complex_types(
+    numbers: list[int],
+    mapping: dict[str, Optional[float]],
+    flag: bool,
+    result: Union[str, int, None]
+) -> tuple[int, str]:
+    count = len(numbers)
+    status = "ok" if flag else "error"
+    return (count, status)
+'''
+
+[test.assertions]
+contains = ["fn complex_types"]
+
+# =============================================================================
+# Context Coverage Tests - Union Types
+# Migrated from test_context_coverage.rs
+# =============================================================================
+
+[[test]]
+name = "union_type_processing"
+description = "Union type parameter and return type"
+tags = ["union", "context-coverage"]
+
+[test.python]
+code = '''
+from typing import Union
+
+def union_func(value: Union[int, str]) -> Union[int, str]:
+    return value
+'''
+
+[test.assertions]
+contains = ["fn union_func"]
+
+[[test]]
+name = "union_multiple_types"
+description = "Union with three types"
+tags = ["union", "context-coverage"]
+
+[test.python]
+code = '''
+from typing import Union
+
+def multi_union(value: Union[int, str, bool]) -> int:
+    return 42
+'''
+
+[test.assertions]
+contains = ["fn multi_union"]
+
+[[test]]
+name = "nested_union_types"
+description = "Multiple parameters with different union types"
+tags = ["union", "context-coverage"]
+
+[test.python]
+code = '''
+from typing import Union
+
+def nested_unions(
+    a: Union[int, str],
+    b: Union[float, bool]
+) -> Union[int, str]:
+    return a
+'''
+
+[test.assertions]
+contains = ["fn nested_unions"]
+
+[[test]]
+name = "union_enum_reuse"
+description = "Same union type used in multiple functions"
+tags = ["union", "context-coverage"]
+
+[test.python]
+code = '''
+from typing import Union
+
+def func1(value: Union[int, str]) -> Union[int, str]:
+    return value
+
+def func2(value: Union[int, str]) -> Union[int, str]:
+    return value
+'''
+
+[test.assertions]
+contains = ["fn func1", "fn func2"]
+
+[[test]]
+name = "complex_context_union"
+description = "Union type with isinstance narrowing"
+tags = ["union", "isinstance", "context-coverage"]
+
+[test.python]
+code = '''
+from typing import Union
+
+def complex_context(value: Union[int, str]) -> int:
+    result = 0
+    if isinstance(value, int):
+        temp = value * 2
+        result = temp + 1
+    else:
+        temp = 42
+        result = temp
+    return result
+'''
+
+[test.assertions]
+contains = ["fn complex_context"]

@@ -398,6 +398,90 @@ contains = ["!x"]
 
 # =============================================================================
 # Power Operator Extended (from test_power_operator.rs)
+
+[[test]]
+name = "operator_power_int_int"
+description = "int ** int should generate integer power operations"
+tags = ["operator", "power"]
+
+[test.python]
+code = '''
+def test_pow(a: int, b: int) -> int:
+    return a ** b
+'''
+
+[test.assertions]
+contains_any = [[".pow(", ".checked_pow(", "pow("]]
+
+[[test]]
+name = "operator_power_int_float"
+description = "int ** float should use powf or casts"
+tags = ["operator", "power"]
+
+[test.python]
+code = '''
+def test_pow(a: int, b: float) -> float:
+    return a ** b
+'''
+
+[test.assertions]
+contains_any = [[".powf(", "as f64", "powf("]]
+
+[[test]]
+name = "operator_power_float_float"
+description = "float ** float should generate powf"
+tags = ["operator", "power"]
+
+[test.python]
+code = '''
+def test_pow(a: float, b: float) -> float:
+    return a ** b
+'''
+
+[test.assertions]
+contains = [".powf("]
+
+[[test]]
+name = "operator_power_negative_exponent"
+description = "Negative exponent handling for power operation"
+tags = ["operator", "power"]
+
+[test.python]
+code = '''
+def test_pow(a: float) -> float:
+    return a ** -2
+'''
+
+[test.assertions]
+contains_any = [["-2", "powi", "powf("]]
+
+[[test]]
+name = "operator_power_zero_exponent"
+description = "Zero exponent optimization or pow(0)"
+tags = ["operator", "power"]
+
+[test.python]
+code = '''
+def test_pow(a: int) -> int:
+    return a ** 0
+'''
+
+[test.assertions]
+contains_any = [[".pow(", "1", "pow("]]
+
+[[test]]
+name = "operator_power_fractional_exponent"
+description = "Fractional exponent should produce powf or sqrt"
+tags = ["operator", "power"]
+
+[test.python]
+code = '''
+def test_pow(a: float) -> float:
+    return a ** 0.5
+'''
+
+[test.assertions]
+contains_any = [[".powf(", ".sqrt("]]
 # =============================================================================
 
 [[test]]
@@ -478,3 +562,152 @@ def test_precedence() -> tuple[int, int, int]:
 
 [test.assertions]
 contains = ["pow"]
+
+# =============================================================================
+# Floor Division Extended (from test_direct_rules_coverage.rs)
+# =============================================================================
+
+[[test]]
+name = "floor_division_positive"
+description = "Floor division with positive operands"
+tags = ["operator", "floor-division"]
+
+[test.python]
+code = '''
+def test_floordiv(a: int, b: int) -> int:
+    return a // b
+'''
+
+[test.assertions]
+contains_any = [["/", "div_euclid"]]
+not_contains = ["//"]
+
+[[test]]
+name = "floor_division_negative_dividend"
+description = "Floor division with negative dividend"
+tags = ["operator", "floor-division"]
+
+[test.python]
+code = '''
+def test_floordiv() -> int:
+    return -7 // 3
+'''
+
+[test.assertions]
+contains = ["/"]
+
+[[test]]
+name = "floor_division_negative_divisor"
+description = "Floor division with negative divisor"
+tags = ["operator", "floor-division"]
+
+[test.python]
+code = '''
+def test_floordiv() -> int:
+    return 7 // -3
+'''
+
+[test.assertions]
+contains = ["/"]
+
+[[test]]
+name = "floor_division_both_negative"
+description = "Floor division with both operands negative"
+tags = ["operator", "floor-division"]
+
+[test.python]
+code = '''
+def test_floordiv() -> int:
+    return -7 // -3
+'''
+
+[test.assertions]
+contains = ["/"]
+
+[[test]]
+name = "floor_division_generic"
+description = "Generic floor division with variables"
+tags = ["operator", "floor-division"]
+
+[test.python]
+code = '''
+def test_floordiv(a: int, b: int) -> int:
+    return a // b
+'''
+
+[test.assertions]
+contains_any = [["//", "/", "div_euclid"]]
+
+# =============================================================================
+# Set Operations (from test_direct_rules_coverage.rs)
+# =============================================================================
+
+[[test]]
+name = "set_union_operator"
+description = "Set union using | operator"
+tags = ["operator", "set"]
+
+[test.python]
+code = '''
+def test_union(a: set, b: set) -> set:
+    return a | b
+'''
+
+[test.assertions]
+contains_any = [[".union(", "BitOr", "|"]]
+
+[[test]]
+name = "set_intersection_operator"
+description = "Set intersection using & operator"
+tags = ["operator", "set"]
+
+[test.python]
+code = '''
+def test_intersection(a: set, b: set) -> set:
+    return a & b
+'''
+
+[test.assertions]
+contains_any = [[".intersection(", "BitAnd", "&"]]
+
+[[test]]
+name = "set_difference_operator"
+description = "Set difference using - operator"
+tags = ["operator", "set"]
+
+[test.python]
+code = '''
+def test_difference(a: set, b: set) -> set:
+    return a - b
+'''
+
+[test.assertions]
+contains_any = [[".difference(", "Sub", "-"]]
+
+[[test]]
+name = "set_symmetric_difference_operator"
+description = "Set symmetric difference using ^ operator"
+tags = ["operator", "set"]
+
+[test.python]
+code = '''
+def test_symmetric_diff(a: set, b: set) -> set:
+    return a ^ b
+'''
+
+[test.assertions]
+contains_any = [[".symmetric_difference(", "BitXor", "^"]]
+
+[[test]]
+name = "set_operations_chained"
+description = "Chained set operations"
+tags = ["operator", "set"]
+
+[test.python]
+code = '''
+def test_ops(a: set, b: set, c: set) -> set:
+    return (a | b) & c
+'''
+
+[test.assertions]
+contains_any = [["&", "|", ".union(", ".intersection("]]

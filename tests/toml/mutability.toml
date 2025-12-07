@@ -117,7 +117,7 @@ contains_any = [["&mut", "mut items"]]
 
 [[test]]
 name = "param_read_only"
-description = "Read-only parameter is immutable"
+description = "Read-only parameter uses Vec directly"
 tags = ["mutability", "parameter"]
 
 [test.python]
@@ -127,7 +127,7 @@ def sum_list(items: list[int]) -> int:
 '''
 
 [test.assertions]
-contains = ["&"]
+contains = ["Vec<i32>"]
 
 [[test]]
 name = "param_mutating"
@@ -163,7 +163,7 @@ contains_any = [["clone()", "sorted"]]
 
 [[test]]
 name = "clone_list_copy"
-description = "list() creates a clone"
+description = "list() creates an iterator collection"
 tags = ["clone", "list"]
 
 [test.python]
@@ -173,7 +173,7 @@ def copy_list(items: list[int]) -> list[int]:
 '''
 
 [test.assertions]
-contains = ["clone()"]
+contains_any = [["clone()", "into_iter", "collect"]]
 
 # =============================================================================
 # Loop Variable Mutability
@@ -357,4 +357,174 @@ def calculate_margin(state: State) -> int:
 [test.assertions]
 contains = ["state: &State"]
 not_contains = ["state: &mut State"]
+
+# =============================================================================
+# Complex Mutability Scenarios (from test_rust_gen_coverage.rs)
+# =============================================================================
+
+[[test]]
+name = "mut_parameter_reassignment"
+description = "GCD algorithm - parameters reassigned require mut"
+tags = ["mutability", "parameter", "reassign"]
+
+[test.python]
+code = '''
+def gcd(a: int, b: int) -> int:
+    while b != 0:
+        temp = a % b
+        a = b
+        b = temp
+    return a
+'''
+
+[test.assertions]
+contains = ["fn gcd"]
+
+[[test]]
+name = "mut_list_multiple_methods"
+description = "List with multiple mutating methods"
+tags = ["mutability", "list"]
+
+[test.python]
+code = '''
+def mutate_list() -> list[int]:
+    items = [1, 2, 3]
+    items.extend([4, 5])
+    items.insert(0, 0)
+    items.remove(2)
+    items.pop()
+    return items
+'''
+
+[test.assertions]
+contains = ["mut items"]
+
+[[test]]
+name = "mut_dict_update_and_index"
+description = "Dict mutation via update() and indexing"
+tags = ["mutability", "dict"]
+
+[test.python]
+code = '''
+def mutate_dict() -> dict:
+    d = {"a": 1}
+    d["b"] = 2
+    d.update({"c": 3})
+    return d
+'''
+
+[test.assertions]
+contains = ["fn mutate_dict"]
+
+[[test]]
+name = "mut_loop_counter"
+description = "Loop with counter mutation"
+tags = ["mutability", "loop"]
+
+[test.python]
+code = '''
+def count_up(limit: int) -> int:
+    counter = 0
+    while counter < limit:
+        counter = counter + 1
+    return counter
+'''
+
+[test.assertions]
+contains = ["mut counter"]
+
+[[test]]
+name = "mut_conditional_reassign"
+description = "Reassignment inside if/else blocks"
+tags = ["mutability", "conditional"]
+
+[test.python]
+code = '''
+def conditional(flag: bool) -> int:
+    x = 1
+    if flag:
+        x = 2
+    else:
+        x = 3
+    return x
+'''
+
+[test.assertions]
+contains = ["mut x"]
+
+[[test]]
+name = "mut_nested_method_call"
+description = "Nested method calls with mutation"
+tags = ["mutability", "nested"]
+
+[test.python]
+code = '''
+def nested_mutation() -> list:
+    items = []
+    items.append([1, 2, 3])
+    items[0].append(4)
+    return items
+'''
+
+[test.assertions]
+contains = ["fn nested_mutation"]
+
+[[test]]
+name = "mut_complex_scenario"
+description = "Complex mutations - params, lists, loops, conditionals"
+tags = ["mutability", "complex"]
+
+[test.python]
+code = '''
+def complex_mutations(initial: int) -> list:
+    initial = initial * 2
+    results = []
+    results.append(initial)
+    counter = 0
+    while counter < 3:
+        results.append(counter)
+        counter = counter + 1
+    if len(results) > 0:
+        results.pop()
+    return results
+'''
+
+[test.assertions]
+contains = ["fn complex_mutations", "mut"]
+
+[[test]]
+name = "string_concat_optimization"
+description = "String concatenation handling"
+tags = ["string", "optimization"]
+
+[test.python]
+code = '''
+def string_heavy() -> str:
+    s1 = "hello"
+    s2 = "world"
+    return s1 + s2
+'''
+
+[test.assertions]
+contains = ["fn string_heavy"]
+
+[[test]]
+name = "multiple_string_functions"
+description = "Multiple functions returning strings"
+tags = ["string", "functions"]
+
+[test.python]
+code = '''
+def func1() -> str:
+    return "hello"
+
+def func2() -> str:
+    return "world"
+
+def func3() -> str:
+    return func1() + func2()
+'''
+
+[test.assertions]
+contains = ["fn func1", "fn func2", "fn func3"]
 

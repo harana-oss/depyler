@@ -1,0 +1,392 @@
+# Return Statement Coverage Tests
+# Migrated from test_stmt_gen_return_coverage.rs
+# Focus: Optional wrapping, Result wrapping, type conversion, final vs early returns
+
+[metadata]
+name = "return-statements"
+description = "Tests for return statement code generation semantics"
+
+# =============================================================================
+# Simple Returns
+# =============================================================================
+
+[[test]]
+name = "simple_return_value"
+description = "Basic return with value (non-Optional, non-Result)"
+tags = ["return", "simple"]
+
+[test.python]
+code = '''
+def get_value() -> int:
+    return 42
+'''
+
+[test.assertions]
+contains = ["fn get_value"]
+
+[[test]]
+name = "early_return"
+description = "Early return with return keyword preserved"
+tags = ["return", "early"]
+
+[test.python]
+code = '''
+def check_value(x: int) -> int:
+    if x < 0:
+        return 0
+    return x
+'''
+
+[test.assertions]
+contains = ["fn check_value"]
+
+[[test]]
+name = "final_vs_early_return"
+description = "Final return (no keyword) vs early return (with keyword)"
+tags = ["return", "idiomatic"]
+
+[test.python]
+code = '''
+def max_value(a: int, b: int) -> int:
+    if a > b:
+        return a
+    return b
+'''
+
+[test.assertions]
+contains = ["fn max_value"]
+
+# =============================================================================
+# Optional Returns with Some() Wrapping
+# =============================================================================
+
+[[test]]
+name = "optional_return_some"
+description = "Optional return with Some() wrapping for non-None value"
+tags = ["return", "optional", "some"]
+
+[test.python]
+code = '''
+def find_value(items: list[int], target: int) -> int | None:
+    for item in items:
+        if item == target:
+            return item
+    return None
+'''
+
+[test.assertions]
+contains = ["fn find_value"]
+
+[[test]]
+name = "optional_return_none"
+description = "Optional return with None literal (not Some(None))"
+tags = ["return", "optional", "none"]
+
+[test.python]
+code = '''
+def maybe_value(condition: bool) -> int | None:
+    if condition:
+        return 42
+    return None
+'''
+
+[test.assertions]
+contains = ["fn maybe_value"]
+
+[[test]]
+name = "optional_early_return_some"
+description = "Optional with early return - return Some()"
+tags = ["return", "optional", "early"]
+
+[test.python]
+code = '''
+def first_positive(items: list[int]) -> int | None:
+    for item in items:
+        if item > 0:
+            return item
+    return None
+'''
+
+[test.assertions]
+contains = ["fn first_positive"]
+
+[[test]]
+name = "optional_early_return_none"
+description = "Optional with early None - return None"
+tags = ["return", "optional", "early", "none"]
+
+[test.python]
+code = '''
+def find_or_none(items: list[int], target: int) -> int | None:
+    if len(items) == 0:
+        return None
+    return items[0]
+'''
+
+[test.assertions]
+contains = ["fn find_or_none"]
+
+[[test]]
+name = "empty_optional_function"
+description = "Empty Optional function returns None"
+tags = ["return", "optional", "empty"]
+
+[test.python]
+code = '''
+def empty_optional() -> int | None:
+    return
+'''
+
+[test.assertions]
+contains = ["fn empty_optional"]
+
+# =============================================================================
+# Result Returns with Ok() Wrapping
+# =============================================================================
+
+[[test]]
+name = "result_return_ok"
+description = "Result return with Ok() wrapping for can-fail function"
+tags = ["return", "result", "ok"]
+
+[test.python]
+code = '''
+def divide(a: int, b: int) -> int:
+    if b == 0:
+        raise ValueError("Division by zero")
+    return a / b
+'''
+
+[test.assertions]
+contains = ["fn divide"]
+
+[[test]]
+name = "result_early_return"
+description = "Can-fail with early return = return Ok()"
+tags = ["return", "result", "early"]
+
+[test.python]
+code = '''
+def safe_divide(a: int, b: int) -> int:
+    if b == 0:
+        raise ValueError("Division by zero")
+    if a == 0:
+        return 0
+    return a / b
+'''
+
+[test.assertions]
+contains = ["fn safe_divide"]
+
+# =============================================================================
+# Combined Result + Optional Returns
+# =============================================================================
+
+[[test]]
+name = "result_optional_return_some"
+description = "Result + Optional return with Ok(Some()) wrapping"
+tags = ["return", "result", "optional", "some"]
+
+[test.python]
+code = '''
+def safe_find(items: list[int], target: int) -> int | None:
+    if len(items) == 0:
+        raise ValueError("Empty list")
+    for item in items:
+        if item == target:
+            return item
+    return None
+'''
+
+[test.assertions]
+contains = ["fn safe_find"]
+
+[[test]]
+name = "result_optional_return_none"
+description = "Result + Optional return with Ok(None) for None literal"
+tags = ["return", "result", "optional", "none"]
+
+[test.python]
+code = '''
+def validate_and_find(items: list[int]) -> int | None:
+    if len(items) == 0:
+        raise ValueError("Empty list")
+    return None
+'''
+
+[test.assertions]
+contains = ["fn validate_and_find"]
+
+[[test]]
+name = "result_optional_early_return_some"
+description = "Can-fail + Optional + early = return Ok(Some())"
+tags = ["return", "result", "optional", "early"]
+
+[test.python]
+code = '''
+def find_positive(items: list[int]) -> int | None:
+    if len(items) == 0:
+        raise ValueError("Empty list")
+    for item in items:
+        if item > 0:
+            return item
+    return None
+'''
+
+[test.assertions]
+contains = ["fn find_positive"]
+
+[[test]]
+name = "result_optional_early_return_none"
+description = "Can-fail + Optional + early None = return Ok(None)"
+tags = ["return", "result", "optional", "early", "none"]
+
+[test.python]
+code = '''
+def validate_and_search(items: list[int], target: int) -> int | None:
+    if len(items) == 0:
+        raise ValueError("Empty list")
+    if target < 0:
+        return None
+    return items[0]
+'''
+
+[test.assertions]
+contains = ["fn validate_and_search"]
+
+# =============================================================================
+# Empty Returns
+# =============================================================================
+
+[[test]]
+name = "empty_return_non_failing"
+description = "Bare return or empty in non-failing function"
+tags = ["return", "empty", "unit"]
+
+[test.python]
+code = '''
+def do_something():
+    print("Hello")
+    return
+'''
+
+[test.assertions]
+contains = ["fn do_something"]
+
+[[test]]
+name = "empty_return_can_fail"
+description = "Ok(()) for empty return in can-fail function"
+tags = ["return", "empty", "result"]
+
+[test.python]
+code = '''
+def validate(x: int):
+    if x < 0:
+        raise ValueError("Negative value")
+    return
+'''
+
+[test.assertions]
+contains = ["fn validate"]
+
+[[test]]
+name = "empty_return_can_fail_optional"
+description = "Ok(None) for empty return with Optional in can-fail"
+tags = ["return", "empty", "result", "optional"]
+
+[test.python]
+code = '''
+def find_if_valid(items: list[int]) -> int | None:
+    if len(items) == 0:
+        raise ValueError("Empty list")
+    return
+'''
+
+[test.assertions]
+contains = ["fn find_if_valid"]
+
+# =============================================================================
+# Type Conversion on Return
+# =============================================================================
+
+[[test]]
+name = "type_conversion_len_to_int"
+description = "Type conversion on return (usize → i32)"
+tags = ["return", "type", "conversion"]
+
+[test.python]
+code = '''
+def count_items(items: list[int]) -> int:
+    return len(items)
+'''
+
+[test.assertions]
+contains = ["fn count_items"]
+
+# =============================================================================
+# Multiple Returns
+# =============================================================================
+
+[[test]]
+name = "multiple_early_returns"
+description = "Multiple early returns with different wrapping"
+tags = ["return", "multiple", "optional"]
+
+[test.python]
+code = '''
+def categorize(x: int) -> str | None:
+    if x < 0:
+        return None
+    if x == 0:
+        return "zero"
+    if x == 1:
+        return "one"
+    return "many"
+'''
+
+[test.assertions]
+contains = ["fn categorize"]
+
+[[test]]
+name = "nested_optional_returns"
+description = "Deep nesting doesn't break wrapping"
+tags = ["return", "nested", "optional"]
+
+[test.python]
+code = '''
+def nested_search(matrix: list[list[int]], target: int) -> int | None:
+    for row in matrix:
+        for val in row:
+            if val == target:
+                return val
+    return None
+'''
+
+[test.assertions]
+contains = ["fn nested_search"]
+
+# =============================================================================
+# Complex Return Patterns
+# =============================================================================
+
+[[test]]
+name = "complex_return_patterns"
+description = "Complex function with all return patterns"
+tags = ["return", "complex", "integration"]
+
+[test.python]
+code = '''
+def complex_logic(items: list[int], threshold: int) -> int | None:
+    """Complex function with multiple return patterns."""
+    if len(items) == 0:
+        raise ValueError("Empty list")
+    if threshold < 0:
+        return None
+    for item in items:
+        if item > threshold:
+            return item
+    return None
+'''
+
+[test.assertions]
+contains = ["fn complex_logic"]

@@ -472,3 +472,425 @@ def process_data(value: int, divisor: int) -> int:
 
 [test.assertions]
 contains = ["struct ValueError", "struct ZeroDivisionError"]
+
+# =============================================================================
+# Error Generation Coverage (migrated from test_error_gen_coverage.rs)
+# =============================================================================
+
+[[test]]
+name = "zero_division_error_generation"
+description = "ZeroDivisionError generates error type struct"
+tags = ["error", "zero-division"]
+
+[test.python]
+code = '''
+def divide(a: int, b: int) -> int:
+    if b == 0:
+        raise ZeroDivisionError("division by zero")
+    return a // b
+'''
+
+[test.assertions]
+contains_any = [["ZeroDivisionError", "division"]]
+
+[[test]]
+name = "implicit_zero_division"
+description = "Implicit division operation transpiles correctly"
+tags = ["error", "division"]
+
+[test.python]
+code = '''
+def compute(x: int) -> int:
+    return 100 // x
+'''
+
+[test.assertions]
+contains = ["compute", "100"]
+
+[[test]]
+name = "index_error_generation"
+description = "IndexError generates error type struct"
+tags = ["error", "index"]
+
+[test.python]
+code = '''
+def get_item(items: list, index: int) -> int:
+    if index >= len(items):
+        raise IndexError("index out of range")
+    return items[index]
+'''
+
+[test.assertions]
+contains_any = [["IndexError", "index"]]
+
+[[test]]
+name = "list_indexing_error"
+description = "Explicit IndexError raise generates error type"
+tags = ["error", "index"]
+
+[test.python]
+code = '''
+def access_list(data: list) -> int:
+    raise IndexError("invalid index")
+'''
+
+[test.assertions]
+contains_any = [["IndexError", "invalid"]]
+
+[[test]]
+name = "value_error_generation"
+description = "ValueError generates error type struct"
+tags = ["error", "value"]
+
+[test.python]
+code = '''
+def validate(x: int) -> int:
+    if x < 0:
+        raise ValueError("value must be non-negative")
+    return x
+'''
+
+[test.assertions]
+contains_any = [["ValueError", "negative"]]
+
+[[test]]
+name = "explicit_value_error"
+description = "Explicit ValueError for range validation"
+tags = ["error", "value"]
+
+[test.python]
+code = '''
+def check_range(n: int) -> int:
+    if n > 100:
+        raise ValueError("value exceeds maximum")
+    return n
+'''
+
+[test.assertions]
+contains_any = [["ValueError", "exceeds"]]
+
+[[test]]
+name = "multiple_error_types"
+description = "Multiple error types in same function"
+tags = ["error", "multiple"]
+
+[test.python]
+code = '''
+def complex_operation(a: int, b: int, items: list) -> int:
+    if b == 0:
+        raise ZeroDivisionError("cannot divide by zero")
+    if a < 0:
+        raise ValueError("a must be non-negative")
+    if b >= len(items):
+        raise IndexError("index out of range")
+    return (a // b) + items[b]
+'''
+
+[test.assertions]
+contains_any = [["Error", "Result", "divide", "negative", "range"]]
+
+[[test]]
+name = "no_error_types_needed"
+description = "Simple function without error types"
+tags = ["error", "simple"]
+
+[test.python]
+code = '''
+def simple_add(a: int, b: int) -> int:
+    return a + b
+'''
+
+[test.assertions]
+contains = ["simple_add", "+ b"]
+
+[[test]]
+name = "error_type_with_message"
+description = "Error message preserved in generated code"
+tags = ["error", "message"]
+
+[test.python]
+code = '''
+def validate_positive(n: int) -> int:
+    if n <= 0:
+        raise ValueError("number must be positive")
+    return n
+'''
+
+[test.assertions]
+contains_any = [["positive", "ValueError"]]
+
+[[test]]
+name = "nested_error_handling"
+description = "Nested error conditions"
+tags = ["error", "nested"]
+
+[test.python]
+code = '''
+def nested(x: int, y: int) -> int:
+    if x == 0:
+        if y == 0:
+            raise ValueError("both zero")
+        raise ZeroDivisionError("x is zero")
+    return 100 // x
+'''
+
+[test.assertions]
+contains_any = [["nested", "zero", "Error"]]
+
+[[test]]
+name = "error_in_loop"
+description = "Error raising inside loop"
+tags = ["error", "loop"]
+
+[test.python]
+code = '''
+def process_items(items: list) -> int:
+    total = 0
+    for i in range(len(items)):
+        if items[i] < 0:
+            raise ValueError("negative value found")
+        total = total + items[i]
+    return total
+'''
+
+[test.assertions]
+contains = ["process_items", "total"]
+
+[[test]]
+name = "conditional_error_raising"
+description = "Conditional error raising with elif"
+tags = ["error", "conditional"]
+
+[test.python]
+code = '''
+def conditional_error(x: int, strict: bool) -> int:
+    if strict and x < 0:
+        raise ValueError("strict mode: negative not allowed")
+    elif x < -100:
+        raise ValueError("value too small")
+    return x
+'''
+
+[test.assertions]
+contains = ["conditional_error"]
+
+# =============================================================================
+# Try Block Edge Cases (from test_stmt_gen_try_coverage.rs)
+# =============================================================================
+
+[[test]]
+name = "try_block_empty"
+description = "Empty try block with pass"
+tags = ["try", "except", "edge-case"]
+
+[test.python]
+code = '''
+def empty_try():
+    try:
+        pass
+    except:
+        pass
+'''
+
+[test.assertions]
+contains = ["fn empty_try"]
+
+[[test]]
+name = "except_block_empty"
+description = "Empty except block with pass"
+tags = ["try", "except", "edge-case"]
+
+[test.python]
+code = '''
+def empty_except():
+    try:
+        x = 42
+    except:
+        pass
+'''
+
+[test.assertions]
+contains = ["fn empty_except"]
+
+[[test]]
+name = "finally_block_empty"
+description = "Empty finally block with pass"
+tags = ["try", "finally", "edge-case"]
+
+[test.python]
+code = '''
+def empty_finally():
+    try:
+        x = 42
+    finally:
+        pass
+'''
+
+[test.assertions]
+contains = ["fn empty_finally"]
+
+[[test]]
+name = "try_finally_without_except"
+description = "Try/finally without except block"
+tags = ["try", "finally"]
+
+[test.python]
+code = '''
+def cleanup_example() -> int:
+    x = 0
+    try:
+        x = 42
+    finally:
+        print("cleanup")
+    return x
+'''
+
+[test.assertions]
+contains = ["fn cleanup_example"]
+
+[[test]]
+name = "try_multiple_statements_in_body"
+description = "Multiple statements in try body"
+tags = ["try", "multiple-statements"]
+
+[test.python]
+code = '''
+def multi_stmt_try(x: int, y: int) -> int:
+    try:
+        a = x * 2
+        b = y * 2
+        result = a + b
+        return result
+    except:
+        return 0
+'''
+
+[test.assertions]
+contains = ["fn multi_stmt_try"]
+
+[[test]]
+name = "except_multiple_statements"
+description = "Multiple statements in except handler"
+tags = ["try", "except", "multiple-statements"]
+
+[test.python]
+code = '''
+def multi_stmt_except(x: int) -> int:
+    try:
+        if x < 0:
+            raise ValueError("neg")
+        return x
+    except ValueError:
+        result = 0
+        print("error")
+        return result
+'''
+
+[test.assertions]
+contains = ["fn multi_stmt_except"]
+
+[[test]]
+name = "finally_multiple_statements"
+description = "Multiple statements in finally block"
+tags = ["try", "finally", "multiple-statements"]
+
+[test.python]
+code = '''
+def multi_stmt_finally() -> int:
+    x = 0
+    try:
+        x = 42
+    finally:
+        print("cleanup 1")
+        print("cleanup 2")
+        print("done")
+    return x
+'''
+
+[test.assertions]
+contains = ["fn multi_stmt_finally"]
+
+[[test]]
+name = "return_in_except_handler"
+description = "Return statement in except handler"
+tags = ["try", "except", "return"]
+
+[test.python]
+code = '''
+def return_in_handler(x: int) -> int:
+    try:
+        if x == 0:
+            raise ValueError("zero")
+        return x * 2
+    except ValueError:
+        return -1
+'''
+
+[test.assertions]
+contains = ["fn return_in_handler"]
+
+[[test]]
+name = "return_in_finally_block"
+description = "Return with finally clause"
+tags = ["try", "finally", "return"]
+
+[test.python]
+code = '''
+def return_in_finally() -> int:
+    try:
+        return 42
+    finally:
+        print("cleanup")
+'''
+
+[test.assertions]
+contains = ["fn return_in_finally"]
+
+[[test]]
+name = "nested_try_blocks_deep"
+description = "Deeply nested try blocks"
+tags = ["try", "except", "nested"]
+
+[test.python]
+code = '''
+def nested_try() -> int:
+    try:
+        try:
+            return 42 / 0
+        except:
+            return -1
+    except:
+        return -2
+'''
+
+[test.assertions]
+contains = ["fn nested_try"]
+
+[[test]]
+name = "complex_exception_handling_pattern"
+description = "Complex try/except with loop and continue"
+tags = ["try", "except", "loop", "integration"]
+
+[test.python]
+code = '''
+def complex_exception_handling(items: list[int]) -> int:
+    total = 0
+    try:
+        for item in items:
+            try:
+                if item < 0:
+                    raise ValueError("negative")
+                total = total + item
+            except ValueError as e:
+                print("skipping negative")
+                continue
+    except Exception:
+        return -1
+    finally:
+        print("done processing")
+    
+    return total
+'''
+
+[test.assertions]
+contains = ["fn complex_exception_handling"]

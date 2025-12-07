@@ -439,3 +439,9 @@ fn test_stdlib_misc_toml() {
     let toml_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("toml/stdlib-misc.toml");
     load_and_run_toml_tests(&toml_path);
 }
+
+#[test]
+fn test_return_statements_toml() {
+    let toml_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("toml/return-statements.toml");
+    load_and_run_toml_tests(&toml_path);
+}

@@ -225,3 +225,63 @@ def all_positive(items: list[int]) -> bool:
 
 [test.assertions]
 contains = [".all("]
+
+# =============================================================================
+# Extended Comprehension Tests (from test_expr_gen_coverage.rs)
+# =============================================================================
+
+[[test]]
+name = "list_comprehension_with_filter"
+description = "List comprehension with filter and map"
+tags = ["comprehension", "filter", "map"]
+
+[test.python]
+code = '''
+def list_comp():
+    return [x * 2 for x in range(10) if x > 5]
+'''
+
+[test.assertions]
+contains = [".filter(", ".map("]
+
+[[test]]
+name = "set_comprehension"
+description = "Set comprehension creates HashSet"
+tags = ["comprehension", "set"]
+
+[test.python]
+code = '''
+def make_set_comp():
+    return {x * 2 for x in range(5)}
+'''
+
+[test.assertions]
+contains = ["HashSet", ".collect"]
+
+[[test]]
+name = "dict_comprehension"
+description = "Dict comprehension creates HashMap"
+tags = ["comprehension", "dict"]
+
+[test.python]
+code = '''
+def make_dict_comp():
+    return {x: x * 2 for x in range(5)}
+'''
+
+[test.assertions]
+contains = ["HashMap", ".collect"]
+
+[[test]]
+name = "nested_list_comprehension"
+description = "Nested list comprehension with multiple maps"
+tags = ["comprehension", "nested"]
+
+[test.python]
+code = '''
+def nested_comp():
+    return [[y for y in range(3)] for x in range(2)]
+'''
+
+[test.assertions]
+contains = [".map(", ".collect"]

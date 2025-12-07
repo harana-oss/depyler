@@ -460,3 +460,442 @@ def port_number(value):
 
 [test.assertions]
 contains = ["fn port_number"]
+
+# =============================================================================
+# ARGUMENT TYPE ERROR VALIDATORS (from test_argument_type_error.rs)
+# =============================================================================
+
+[[test]]
+name = "argument_type_error_port_validator"
+description = "Port validator with ArgumentTypeError returns Result type"
+tags = ["argparse", "argument-type-error", "validator"]
+
+[test.python]
+code = '''
+import argparse
+
+def port_number(value):
+    try:
+        port = int(value)
+        if port < 1 or port > 65535:
+            raise argparse.ArgumentTypeError(f"Port must be between 1 and 65535, got {port}")
+        return port
+    except ValueError:
+        raise argparse.ArgumentTypeError(f"Port must be an integer, got '{value}'") from None
+'''
+
+[test.assertions]
+contains = ["Result<", "Err("]
+not_contains = ["Exception"]
+
+[[test]]
+name = "argument_type_error_positive_int"
+description = "Positive int validator with ArgumentTypeError"
+tags = ["argparse", "argument-type-error", "validator"]
+
+[test.python]
+code = '''
+import argparse
+
+def positive_int(value):
+    try:
+        num = int(value)
+        if num < 1:
+            raise argparse.ArgumentTypeError(f"Value must be positive (>= 1), got {num}")
+        return num
+    except ValueError:
+        raise argparse.ArgumentTypeError(f"Value must be an integer, got '{value}'") from None
+'''
+
+[test.assertions]
+contains = ["Result<", "Err("]
+
+[[test]]
+name = "argument_type_error_email_validator"
+description = "Email validator with ArgumentTypeError and regex"
+tags = ["argparse", "argument-type-error", "validator", "regex"]
+
+[test.python]
+code = '''
+import argparse
+import re
+
+def email_address(value):
+    pattern = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+    if not re.match(pattern, value):
+        raise argparse.ArgumentTypeError(f"Invalid email address: '{value}'")
+    return value
+'''
+
+[test.assertions]
+contains = ["Result<", "Err("]
+
+[[test]]
+name = "argument_type_error_simple_range"
+description = "Simple range validator without try/except"
+tags = ["argparse", "argument-type-error", "validator"]
+
+[test.python]
+code = '''
+import argparse
+
+def validate_range(value):
+    num = int(value)
+    if num < 0 or num > 100:
+        raise argparse.ArgumentTypeError("Value must be 0-100")
+    return num
+'''
+
+[test.assertions]
+contains = ["Result<"]
+
+[[test]]
+name = "argument_type_error_literal_message"
+description = "ArgumentTypeError with literal string message"
+tags = ["argparse", "argument-type-error", "message"]
+
+[test.python]
+code = '''
+import argparse
+
+def validate(value):
+    raise argparse.ArgumentTypeError("literal string")
+    return value
+'''
+
+[test.assertions]
+contains = ["Err("]
+
+[[test]]
+name = "argument_type_error_formatted_message"
+description = "ArgumentTypeError with f-string message"
+tags = ["argparse", "argument-type-error", "message"]
+
+[test.python]
+code = '''
+import argparse
+
+def validate(value):
+    raise argparse.ArgumentTypeError(f"formatted {value}")
+    return value
+'''
+
+[test.assertions]
+contains = ["Err("]
+
+[[test]]
+name = "argument_type_error_variable_message"
+description = "ArgumentTypeError with variable message"
+tags = ["argparse", "argument-type-error", "message"]
+
+[test.python]
+code = '''
+import argparse
+
+def validate(value):
+    msg = "error message"
+    raise argparse.ArgumentTypeError(msg)
+    return value
+'''
+
+[test.assertions]
+contains = ["Err("]
+
+# =============================================================================
+# VALIDATOR RETURN TYPE INFERENCE - Migrated from test_validator_return_type.rs
+# =============================================================================
+
+[[test]]
+name = "validator_identity_returns_string"
+description = "Identity validator should return Result<String, ...>"
+tags = ["argparse", "validator", "return-type"]
+
+[test.python]
+code = '''
+import argparse
+import re
+
+def email_address(value):
+    """Validator that returns the original string parameter."""
+    if not re.match(r"^[a-z]+@[a-z]+\.com$", value):
+        raise argparse.ArgumentTypeError("Invalid email")
+    return value
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--email", type=email_address)
+    args = parser.parse_args()
+'''
+
+[test.assertions]
+contains = ["pub fn email_address(value: &str)"]
+contains_any = [["-> Result<String,", "-> Result<std::string::String,"]]
+not_contains = ["serde_json::Value", "Result<i32,"]
+
+[[test]]
+name = "validator_converting_int_returns_i32"
+description = "Converting validator should return Result<i32, ...>"
+tags = ["argparse", "validator", "return-type"]
+
+[test.python]
+code = '''
+import argparse
+
+def port_number(value):
+    """Validator that converts string to int."""
+    port = int(value)
+    if port < 1:
+        raise argparse.ArgumentTypeError("Port must be >= 1")
+    return port
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--port", type=port_number)
+'''
+
+[test.assertions]
+contains = ["pub fn port_number(value: &str)"]
+contains_any = [["-> Result<i32,", ".parse::<i32>()"]]
+
+[[test]]
+name = "validator_uppercase_returns_string"
+description = "Uppercase validator should return Result<String, ...>"
+tags = ["argparse", "validator", "return-type", "string-method"]
+
+[test.python]
+code = '''
+import argparse
+
+def uppercase_string(value):
+    """Validator that transforms string using string method."""
+    return value.upper()
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--name", type=uppercase_string)
+'''
+
+[test.assertions]
+contains = ["pub fn uppercase_string(value: &str)"]
+contains_any = [["-> Result<String,", "to_uppercase()"]]
+
+[[test]]
+name = "validator_lowercase_returns_string"
+description = "Lowercase validator should return Result<String, ...>"
+tags = ["argparse", "validator", "return-type", "string-method"]
+
+[test.python]
+code = '''
+import argparse
+
+def lowercase_validator(value):
+    """Validator that returns lowercase string."""
+    return value.lower()
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--text", type=lowercase_validator)
+'''
+
+[test.assertions]
+contains = ["pub fn lowercase_validator(value: &str)"]
+contains_any = [["-> Result<String,", "to_lowercase()"]]
+
+[[test]]
+name = "validator_float_returns_f64"
+description = "Float validator should return Result<f64, ...>"
+tags = ["argparse", "validator", "return-type"]
+
+[test.python]
+code = '''
+import argparse
+
+def percentage_validator(value):
+    """Validator that converts to float and validates range."""
+    pct = float(value)
+    if pct < 0.0 or pct > 100.0:
+        raise argparse.ArgumentTypeError("Percentage must be 0-100")
+    return pct
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--percent", type=percentage_validator)
+'''
+
+[test.assertions]
+contains = ["pub fn percentage_validator(value: &str)"]
+contains_any = [["-> Result<f64,", ".parse::<f64>()"]]
+
+# =============================================================================
+# SUBCOMMAND FIELD ACCESS - Migrated from test_subcommand_field_access.rs
+# =============================================================================
+
+[[test]]
+name = "subcommand_basic_field_extraction"
+description = "Handler functions must pattern match subcommand fields"
+tags = ["argparse", "subcommand", "field-access"]
+
+[test.python]
+code = '''
+import argparse
+
+def main():
+    parser = argparse.ArgumentParser()
+    subparsers = parser.add_subparsers(dest="command", required=True)
+    clone_parser = subparsers.add_parser("clone")
+    clone_parser.add_argument("url")
+    args = parser.parse_args()
+    if args.command == "clone":
+        handle_clone(args)
+
+def handle_clone(args):
+    print(f"Clone: {args.url}")
+
+if __name__ == "__main__":
+    main()
+'''
+
+[test.assertions]
+contains_any = [["if let Commands::Clone", "Commands::Clone { url }"]]
+not_contains = ["args.url"]
+
+[[test]]
+name = "subcommand_multiple_fields"
+description = "Extract multiple fields from subcommand variant"
+tags = ["argparse", "subcommand", "field-access"]
+
+[test.python]
+code = '''
+import argparse
+
+def main():
+    parser = argparse.ArgumentParser()
+    subparsers = parser.add_subparsers(dest="command", required=True)
+    clone_parser = subparsers.add_parser("clone")
+    clone_parser.add_argument("url")
+    clone_parser.add_argument("--branch", default="main")
+    args = parser.parse_args()
+    if args.command == "clone":
+        handle_clone(args)
+
+def handle_clone(args):
+    print(f"Clone {args.url} (branch: {args.branch})")
+
+if __name__ == "__main__":
+    main()
+'''
+
+[test.assertions]
+contains = ["Commands::Clone", "url", "branch"]
+
+[[test]]
+name = "subcommand_global_and_local_fields"
+description = "Global fields use args, subcommand fields use pattern match"
+tags = ["argparse", "subcommand", "field-access"]
+
+[test.python]
+code = '''
+import argparse
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-v", "--verbose", action="store_true")
+    subparsers = parser.add_subparsers(dest="command", required=True)
+    clone_parser = subparsers.add_parser("clone")
+    clone_parser.add_argument("url")
+    args = parser.parse_args()
+    if args.command == "clone":
+        handle_clone(args)
+
+def handle_clone(args):
+    if args.verbose:
+        print(f"Verbose: Clone {args.url}")
+
+if __name__ == "__main__":
+    main()
+'''
+
+[test.assertions]
+contains = ["args.verbose", "Commands::Clone", "url"]
+not_contains = ["args.url"]
+
+[[test]]
+name = "subcommand_multiple_handlers"
+description = "Each handler pattern matches its specific variant"
+tags = ["argparse", "subcommand", "multiple-handlers"]
+
+[test.python]
+code = '''
+import argparse
+
+def main():
+    parser = argparse.ArgumentParser()
+    subparsers = parser.add_subparsers(dest="command", required=True)
+    clone_parser = subparsers.add_parser("clone")
+    clone_parser.add_argument("url")
+    push_parser = subparsers.add_parser("push")
+    push_parser.add_argument("remote")
+    args = parser.parse_args()
+    if args.command == "clone":
+        handle_clone(args)
+    elif args.command == "push":
+        handle_push(args)
+
+def handle_clone(args):
+    print(f"Clone: {args.url}")
+
+def handle_push(args):
+    print(f"Push to: {args.remote}")
+
+if __name__ == "__main__":
+    main()
+'''
+
+[test.assertions]
+contains = ["Commands::Clone", "url", "Commands::Push", "remote"]
+not_contains = ["args.url", "args.remote"]
+
+# =============================================================================
+# ArgumentTypeError Exception
+# =============================================================================
+
+[[test]]
+name = "argument_type_error_exception"
+description = "ArgumentTypeError should construct proper error type"
+tags = ["argparse", "error", "exception"]
+
+[test.python]
+code = '''
+import argparse
+
+def validate_int(value: str) -> int:
+    try:
+        num = int(value)
+        return num
+    except ValueError:
+        raise argparse.ArgumentTypeError(f"Must be integer, got {value}")
+'''
+
+[test.assertions]
+contains = ["ArgumentTypeError"]
+not_contains = ["return Err(format!("]
+
+[[test]]
+name = "email_validation_with_error"
+description = "Email validation with ArgumentTypeError"
+tags = ["argparse", "validation", "error"]
+
+[test.python]
+code = '''
+import argparse
+import re
+
+def email_address(value: str) -> str:
+    pattern = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+    if not re.match(pattern, value):
+        raise argparse.ArgumentTypeError(f"Invalid email: {value}")
+    return value
+'''
+
+[test.assertions]
+contains = ["ArgumentTypeError"]

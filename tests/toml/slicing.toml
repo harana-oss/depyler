@@ -209,3 +209,37 @@ def replace_middle(items: list[int], start: int, end: int, new: list[int]):
 
 [test.assertions]
 contains_any = [["splice", "drain", "&mut"]]
+
+# =============================================================================
+# Extended Slice Tests (from test_expr_gen_coverage.rs)
+# =============================================================================
+
+[[test]]
+name = "slice_with_step"
+description = "Slice with step using step_by"
+tags = ["slice", "step"]
+
+[test.python]
+code = '''
+def slice_test():
+    arr = [1, 2, 3, 4, 5, 6]
+    return arr[::2]
+'''
+
+[test.assertions]
+contains_any = [[".step_by(", "step"]]
+
+[[test]]
+name = "slice_negative_step"
+description = "Reverse slice with negative step"
+tags = ["slice", "reverse"]
+
+[test.python]
+code = '''
+def reverse_slice():
+    arr = [1, 2, 3, 4, 5]
+    return arr[::-1]
+'''
+
+[test.assertions]
+contains = [".rev()"]

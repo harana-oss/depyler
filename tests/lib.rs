@@ -4,8 +4,8 @@ pub mod test_helpers;
 mod test_annotation_aware_type_mapper_coverage;
 // #[cfg(test)]
 // mod test_argparse_type_inference;
-#[cfg(test)]
-mod test_argument_type_error;
+// #[cfg(test)]
+// mod test_argument_type_error;  // file does not exist
 #[cfg(test)]
 mod test_ast_bridge_boolean_logics;
 #[cfg(test)]
@@ -22,8 +22,9 @@ mod test_cli_flags_coverage;
 mod test_clis;
 // #[cfg(test)]
 // mod test_codegen_coverage;
-#[cfg(test)]
-mod test_context_coverage;
+// Migrated to TOML: tests/toml/control-flow.toml, type-inference.toml (context coverage tests)
+// #[cfg(test)]
+// mod test_context_coverage;
 #[cfg(test)]
 mod test_convert_stmts;
 #[cfg(test)]
@@ -41,8 +42,6 @@ mod test_direct_rules_coverage;
 #[cfg(test)]
 mod test_direct_rules_simples;
 #[cfg(test)]
-mod test_edge_case_coverage;
-#[cfg(test)]
 mod test_error_coverage;
 #[cfg(test)]
 mod test_error_gen_coverage;
@@ -56,8 +55,8 @@ mod test_example_validation;
 mod test_expr_gen_coverage;
 #[cfg(test)]
 mod test_expr_gen_extended_coverage;
-#[cfg(test)]
-mod test_expr_gen_methods_coverage;
+// #[cfg(test)]
+// mod test_expr_gen_methods_coverage;  // file does not exist
 #[cfg(test)]
 mod test_expr_gen_untested_builtins;
 #[cfg(test)]
@@ -106,18 +105,21 @@ mod test_module_mapper_propertys;
 mod test_mutationing;
 #[cfg(test)]
 mod test_operators;
-#[cfg(test)]
-mod test_option_type_mismatch;
+// Migrated to TOML: tests/toml/optional-types.toml (none placeholder tests)
+// #[cfg(test)]
+// mod test_option_type_mismatch;
 #[cfg(test)]
 mod test_ownership_patterns;
-#[cfg(test)]
-mod test_phase2;
-#[cfg(test)]
-mod test_phase3;
+// #[cfg(test)]
+// mod test_phase2;  // migrated to TOML tests (dictionaries.toml)
+// Migrated to TOML: tests/toml/iterators.toml, dictionaries.toml (phase3 tests)
+// #[cfg(test)]
+// mod test_phase3;
 #[cfg(test)]
 mod test_process_module_imports;
-#[cfg(test)]
-mod test_property;
+// Migrated to TOML: tests/toml/classes.toml (property tests)
+// #[cfg(test)]
+// mod test_property;
 #[cfg(test)]
 mod test_property_based_generation;
 #[cfg(test)]
@@ -132,8 +134,6 @@ mod test_propertys_type_inference;
 mod test_quality_assurance_automation;
 #[cfg(test)]
 mod test_quality_gatess;
-#[cfg(test)]
-mod test_rust_gen_coverage;
 #[cfg(test)]
 mod test_rust_type_to_syns;
 #[cfg(test)]
@@ -151,44 +151,50 @@ mod test_stmt_gen_assign_index_coverage;
 #[cfg(test)]
 mod test_stmt_gen_assign_symbol_coverage;
 #[cfg(test)]
-mod test_stmt_gen_coverage;
-#[cfg(test)]
 mod test_stmt_gen_extended_coverage;
-#[cfg(test)]
-mod test_stmt_gen_if_coverage;
+// Migrated to TOML: tests/toml/control-flow.toml (if statement coverage)
+// #[cfg(test)]
+// mod test_stmt_gen_if_coverage;
 #[cfg(test)]
 mod test_stmt_gen_raise_coverage;
-#[cfg(test)]
-mod test_stmt_gen_return_coverage;
-#[cfg(test)]
-mod test_stmt_gen_try_coverage;
-#[cfg(test)]
-mod test_subcommand_field_access;
+// Migrated to TOML: tests/toml/return-statements.toml
+// #[cfg(test)]
+// mod test_stmt_gen_return_coverage;
+// #[cfg(test)]
+// mod test_stmt_gen_try_coverage;  // file does not exist
+// Migrated to TOML: tests/toml/argparse.toml (subcommand field access tests)
+// #[cfg(test)]
+// mod test_subcommand_field_access;
 #[cfg(test)]
 mod test_toml_runner;
 #[cfg(test)]
 mod test_transpilations;
-#[cfg(test)]
-mod test_type_gen_coverage;
-#[cfg(test)]
-mod test_type_mapper_coverage;
-#[cfg(test)]
-mod test_type_mapper_extended_coverage;
+// #[cfg(test)]
+// mod test_type_gen_coverage;  // file does not exist
+// #[cfg(test)]
+// mod test_type_mapper_coverage;  // migrated to TOML tests (type-inference.toml)
+// #[cfg(test)]
+// mod test_type_mapper_extended_coverage;  // migrated to TOML tests (type-inference.toml)
 #[cfg(test)]
 mod test_type_mapper_propertys;
-#[cfg(test)]
-mod test_type_system;
-#[cfg(test)]
-mod test_uninitialized_declarations;
+// Migrated to TOML: tests/toml/optional-types.toml, argparse.toml (type system edge cases)
+// #[cfg(test)]
+// mod test_type_system;
+// Migrated to TOML: tests/toml/assignment.toml (uninitialized declarations tests)
+// #[cfg(test)]
+// mod test_uninitialized_declarations;
 #[cfg(test)]
 mod test_union_enum_gen_coverage;
 #[cfg(test)]
 mod test_union_types;
 #[cfg(test)]
 mod test_unnecessary_casts;
-#[cfg(test)]
-mod test_unused_loop_vars;
-#[cfg(test)]
-mod test_v3_17_coverages;
-#[cfg(test)]
-mod test_validator_return_type;
+// Migrated to TOML: tests/toml/loop-for.toml (unused loop vars tests)
+// #[cfg(test)]
+// mod test_unused_loop_vars;
+// Migrated to TOML: tests/toml/string-operations.toml, operators.toml, control-flow.toml (duplicates)
+// #[cfg(test)]
+// mod test_v3_17_coverages;
+// Migrated to TOML: tests/toml/argparse.toml (validator return type tests)
+// #[cfg(test)]
+// mod test_validator_return_type;

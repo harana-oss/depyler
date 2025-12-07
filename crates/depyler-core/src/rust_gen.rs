@@ -1291,6 +1291,7 @@ fn generate_conditional_imports(ctx: &CodeGenContext) -> Vec<proc_macro2::TokenS
         (ctx.needs_serde_json, quote! { use serde_json; }),
         (ctx.needs_lazy_static, quote! { use lazy_static::lazy_static; }),
         (ctx.needs_rand, quote! { use rand::Rng; }),
+        (ctx.needs_rand, quote! { use rand::prelude::*; }),
         (ctx.needs_slice_random, quote! { use rand::seq::SliceRandom; }),
     ];
 

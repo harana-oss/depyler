@@ -808,3 +808,22 @@ def dict_ops(d: dict[str, int]) -> None:
 [test.assertions]
 contains = [".insert(", ".get(", ".is_some()"]
 contains_any = [[".remove(", ".pop("]]
+
+# =============================================================================
+# Dict Merge Operator - Migrated from test_phase3.rs
+# =============================================================================
+
+[[test]]
+name = "dict_merge_operator"
+description = "Dict merge operator | should translate to extend or clone+extend"
+tags = ["dict", "merge", "operator"]
+
+[test.python]
+code = '''
+def merge_with_pipe(d1: dict[str, int], d2: dict[str, int]) -> dict[str, int]:
+    return d1 | d2
+'''
+
+[test.assertions]
+not_contains = ["d1 | d2"]
+contains_any = [[".extend(", ".clone("]]

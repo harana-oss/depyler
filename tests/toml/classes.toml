@@ -411,3 +411,194 @@ def update_state(s: State) -> None:
 
 [test.assertions]
 contains = ["s.temp = s.result"]
+
+# =============================================================================
+# Extended Property Tests
+# =============================================================================
+
+[[test]]
+name = "property_with_computation"
+description = "Property that computes a value from fields"
+tags = ["class", "property", "computation"]
+
+[test.python]
+code = '''
+class Rectangle:
+    def __init__(self, width: int, height: int):
+        self.width = width
+        self.height = height
+
+    @property
+    def area(self) -> int:
+        return self.width * self.height
+'''
+
+[test.assertions]
+contains = ["fn area", "&self", "width", "height"]
+
+[[test]]
+name = "property_string_concat"
+description = "Property concatenating string fields"
+tags = ["class", "property", "string"]
+
+[test.python]
+code = '''
+class Person:
+    def __init__(self, first: str, last: str):
+        self.first = first
+        self.last = last
+
+    @property
+    def full_name(self) -> str:
+        return self.first + " " + self.last
+'''
+
+[test.assertions]
+contains = ["fn full_name", "&self", "first", "last"]
+
+[[test]]
+name = "property_with_class_constant"
+description = "Property using class-level constant"
+tags = ["class", "property", "constant"]
+
+[test.python]
+code = '''
+class Circle:
+    PI: float = 3.14159
+
+    def __init__(self, radius: float):
+        self.radius = radius
+
+    @property
+    def circumference(self) -> float:
+        return 2 * Circle.PI * self.radius
+'''
+
+[test.assertions]
+contains = ["fn circumference", "&self", "radius"]
+
+[[test]]
+name = "multiple_properties"
+description = "Class with multiple property decorators"
+tags = ["class", "property", "multiple"]
+
+[test.python]
+code = '''
+class Person:
+    def __init__(self, first: str, last: str, age: int):
+        self.first = first
+        self.last = last
+        self.age = age
+
+    @property
+    def full_name(self) -> str:
+        return self.first + " " + self.last
+
+    @property
+    def is_adult(self) -> bool:
+        return self.age >= 18
+'''
+
+[test.assertions]
+contains = ["fn full_name", "fn is_adult", "&self"]
+
+[[test]]
+name = "property_calling_method"
+description = "Property that calls another method"
+tags = ["class", "property", "method"]
+
+[test.python]
+code = '''
+class Calculator:
+    def __init__(self, value: int):
+        self.value = value
+
+    def double(self) -> int:
+        return self.value * 2
+
+    @property
+    def doubled_value(self) -> int:
+        return self.double()
+'''
+
+[test.assertions]
+contains = ["fn double", "fn doubled_value", "&self"]
+
+[[test]]
+name = "property_with_conditional"
+description = "Property with conditional logic"
+tags = ["class", "property", "conditional"]
+
+[test.python]
+code = '''
+class User:
+    def __init__(self, age: int, premium: bool):
+        self.age = age
+        self.premium = premium
+
+    @property
+    def access_level(self) -> str:
+        if self.premium:
+            return "premium"
+        elif self.age >= 18:
+            return "adult"
+        else:
+            return "basic"
+'''
+
+[test.assertions]
+contains = ["fn access_level", "&self"]
+contains_any = [["if", "match"]]
+
+[[test]]
+name = "mix_properties_and_methods"
+description = "Class mixing properties and regular methods"
+tags = ["class", "property", "method", "mix"]
+
+[test.python]
+code = '''
+class Account:
+    def __init__(self, balance: float):
+        self.balance = balance
+
+    @property
+    def formatted_balance(self) -> str:
+        return "$" + str(self.balance)
+
+    def deposit(self, amount: float) -> None:
+        self.balance = self.balance + amount
+
+    @property
+    def is_positive(self) -> bool:
+        return self.balance > 0.0
+'''
+
+[test.assertions]
+contains = ["fn formatted_balance", "fn deposit", "fn is_positive", "&self"]
+
+[[test]]
+name = "property_different_return_types"
+description = "Properties returning different types"
+tags = ["class", "property", "types"]
+
+[test.python]
+code = '''
+class DataHolder:
+    def __init__(self, value: int):
+        self.value = value
+
+    @property
+    def as_int(self) -> int:
+        return self.value
+
+    @property
+    def as_str(self) -> str:
+        return str(self.value)
+
+    @property
+    def as_float(self) -> float:
+        return float(self.value)
+'''
+
+[test.assertions]
+contains = ["fn as_int", "fn as_str", "fn as_float", "&self"]

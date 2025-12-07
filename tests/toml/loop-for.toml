@@ -488,3 +488,92 @@ def find_longest(words: list[str]) -> str:
 
 [test.assertions]
 contains = ["fn find_longest"]
+
+# ============================================================================
+# Unused Variable Compilation Tests - Migrated from test_unused_loop_vars.rs
+# ============================================================================
+
+[[test]]
+name = "fibonacci_unused_index_compiles"
+description = "Fibonacci with unused loop index should compile without warnings"
+tags = ["for", "loop", "compile", "unused", "fibonacci"]
+compile_check = true
+
+[test.python]
+code = '''
+def fibonacci(n: int) -> int:
+    """Calculate Fibonacci number."""
+    if n <= 1:
+        return n
+    a = 0
+    b = 1
+    for i in range(2, n + 1):
+        c = a + b
+        a = b
+        b = c
+    return b
+'''
+
+[test.assertions]
+contains = ["fn fibonacci"]
+
+[[test]]
+name = "multiple_unused_loops_compile"
+description = "Multiple loops with unused variables should compile"
+tags = ["for", "loop", "compile", "unused", "multiple"]
+compile_check = true
+
+[test.python]
+code = '''
+def repeat_operations(n: int) -> int:
+    """Perform operations n times."""
+    result = 0
+    for i in range(n):
+        result = result + 1
+    for j in range(n):
+        result = result * 2
+    return result
+'''
+
+[test.assertions]
+contains = ["fn repeat_operations"]
+
+[[test]]
+name = "nested_loops_mixed_usage_compiles"
+description = "Nested loops where outer is unused and inner is used should compile"
+tags = ["for", "loop", "compile", "unused", "nested"]
+compile_check = true
+
+[test.python]
+code = '''
+def nested_count(outer: list[int], inner: list[int]) -> int:
+    """Nested loops with unused outer variable."""
+    count = 0
+    for x in outer:
+        for y in inner:
+            count = count + y
+    return count
+'''
+
+[test.assertions]
+contains = ["fn nested_count"]
+
+[[test]]
+name = "enumerate_unused_index_compiles"
+description = "Enumerate with unused index should compile"
+tags = ["for", "loop", "compile", "unused", "enumerate"]
+compile_check = true
+
+[test.python]
+code = '''
+def process_values(items: list[str]) -> int:
+    """Process list values, ignore indices."""
+    count = 0
+    for i, val in enumerate(items):
+        if val:
+            count = count + 1
+    return count
+'''
+
+[test.assertions]
+contains = ["fn process_values"]

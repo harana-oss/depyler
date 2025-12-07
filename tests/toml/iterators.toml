@@ -385,3 +385,86 @@ def dynamic_range(start: int, end: int, step: int):
 
 [test.assertions]
 contains = ["step_by"]
+
+# =============================================================================
+# Zip Iterator Ownership - Migrated from test_phase3.rs
+# =============================================================================
+
+[[test]]
+name = "zip_uses_into_iter"
+description = "zip() should use .into_iter() for owned collections"
+tags = ["iterator", "zip", "ownership"]
+
+[test.python]
+code = '''
+def create_from_lists(keys: list[str], values: list[int]) -> dict[str, int]:
+    return dict(zip(keys, values))
+'''
+
+[test.assertions]
+contains = [".into_iter()"]
+not_contains = ["keys.iter().zip"]
+
+[[test]]
+name = "zip_with_both_owned_params"
+description = "zip() should use .into_iter() for both owned parameters"
+tags = ["iterator", "zip", "ownership"]
+
+[test.python]
+code = '''
+def pair_lists(a: list[str], b: list[int]) -> list[tuple[str, int]]:
+    return list(zip(a, b))
+'''
+
+[test.assertions]
+contains = [".into_iter()"]
+
+[[test]]
+name = "zip_with_literals"
+description = "zip() with list literals should use .into_iter()"
+tags = ["iterator", "zip", "literals"]
+
+[test.python]
+code = '''
+def zip_literals() -> dict[str, int]:
+    return dict(zip(["a", "b", "c"], [1, 2, 3]))
+'''
+
+[test.assertions]
+contains = [".into_iter()"]
+
+# =============================================================================
+# Sum Type Inference - Migrated from test_phase3.rs
+# =============================================================================
+
+[[test]]
+name = "sum_dict_values_direct"
+description = "sum() on dict values should not have redundant collect().iter()"
+tags = ["iterator", "sum", "dict"]
+
+[test.python]
+code = '''
+def average_values(d: dict[str, int]) -> float:
+    if len(d) == 0:
+        return 0.0
+    return sum(d.values()) / len(d)
+'''
+
+[test.assertions]
+contains = [".values()", ".sum"]
+not_contains = [".collect::<Vec<_>>().iter()"]
+
+[[test]]
+name = "sum_list_direct"
+description = "sum() on list should use .iter().sum directly"
+tags = ["iterator", "sum", "list"]
+
+[test.python]
+code = '''
+def sum_list(nums: list[int]) -> int:
+    return sum(nums)
+'''
+
+[test.assertions]
+contains = [".sum"]
+not_contains = [".collect::<Vec<_>>().iter()"]

@@ -738,3 +738,236 @@ def round_to_decimals(x: float, n: int) -> float:
 
 [test.assertions]
 contains_any = [["round", "powi", "multiplier"]]
+
+# =============================================================================
+# Collection Conversions (from test_expr_gen_coverage.rs)
+# =============================================================================
+
+[[test]]
+name = "counter_builtin_conversion"
+description = "Counter(items) uses iterator collection"
+tags = ["builtin", "counter", "collections"]
+
+[test.python]
+code = '''
+from collections import Counter
+def count_items(items):
+    return Counter(items)
+'''
+
+[test.assertions]
+contains_any = [[".collect::<HashMap<", ".fold("]]
+not_contains = ["HashMap::new(items)", "HashMap(items)"]
+
+[[test]]
+name = "dict_builtin_conversion"
+description = "dict(mapping) uses proper conversion"
+tags = ["builtin", "dict"]
+
+[test.python]
+code = '''
+def convert_to_dict(mapping):
+    return dict(mapping)
+'''
+
+[test.assertions]
+contains_any = [[".collect::<HashMap<", "HashMap::from"]]
+
+[[test]]
+name = "dict_empty_constructor"
+description = "dict() with no args generates HashMap::new()"
+tags = ["builtin", "dict"]
+
+[test.python]
+code = '''
+def make_empty_dict():
+    return dict()
+'''
+
+[test.assertions]
+contains = ["HashMap::new()"]
+
+[[test]]
+name = "deque_builtin_conversion"
+description = "deque(items) uses VecDeque::from or collect"
+tags = ["builtin", "deque", "collections"]
+
+[test.python]
+code = '''
+from collections import deque
+def make_deque(items):
+    return deque(items)
+'''
+
+[test.assertions]
+contains_any = [["VecDeque::from(", ".collect::<VecDeque<"]]
+not_contains = ["VecDeque(items)"]
+
+[[test]]
+name = "list_builtin_conversion"
+description = "list(iterable) uses proper conversion"
+tags = ["builtin", "list"]
+
+[test.python]
+code = '''
+def convert_to_list(iterable):
+    return list(iterable)
+'''
+
+[test.assertions]
+contains_any = [[".collect::<Vec<", "Vec::from", ".to_vec()"]]
+
+[[test]]
+name = "list_empty_constructor"
+description = "list() with no args generates Vec::new() or vec![]"
+tags = ["builtin", "list"]
+
+[test.python]
+code = '''
+def make_empty_list():
+    return list()
+'''
+
+[test.assertions]
+contains_any = [["Vec::new()", "vec![]", "vec ! []"]]
+
+[[test]]
+name = "set_method_add"
+description = "set.add() transpiles to .insert()"
+tags = ["set", "method"]
+
+[test.python]
+code = '''
+def test_set():
+    s = {1, 2, 3}
+    s.add(4)
+    return s
+'''
+
+[test.assertions]
+contains = [".insert("]
+
+[[test]]
+name = "set_method_remove"
+description = "set.remove() transpiles to .remove()"
+tags = ["set", "method"]
+
+[test.python]
+code = '''
+def test_set():
+    s = {1, 2, 3}
+    s.remove(2)
+    return s
+'''
+
+[test.assertions]
+contains = [".remove("]
+
+[[test]]
+name = "frozenset_literal"
+description = "frozenset uses HashSet"
+tags = ["set", "frozenset"]
+
+[test.python]
+code = '''
+def make_frozenset():
+    fs = frozenset([1, 2, 3])
+    return fs
+'''
+
+[test.assertions]
+contains = ["HashSet"]
+
+[[test]]
+name = "dict_method_keys"
+description = "dict.keys() transpiles to .keys()"
+tags = ["dict", "method"]
+
+[test.python]
+code = '''
+def test_dict():
+    d = {"a": 1, "b": 2}
+    return list(d.keys())
+'''
+
+[test.assertions]
+contains = [".keys()"]
+
+[[test]]
+name = "dict_method_values"
+description = "dict.values() transpiles to .values()"
+tags = ["dict", "method"]
+
+[test.python]
+code = '''
+def test_dict():
+    d = {"a": 1, "b": 2}
+    return list(d.values())
+'''
+
+[test.assertions]
+contains = [".values()"]
+
+[[test]]
+name = "dict_method_items"
+description = "dict.items() transpiles to .iter()"
+tags = ["dict", "method"]
+
+[test.python]
+code = '''
+def test_dict():
+    d = {"a": 1, "b": 2}
+    for k, v in d.items():
+        print(k, v)
+'''
+
+[test.assertions]
+contains_any = [[".iter()", ".items()"]]
+
+[[test]]
+name = "list_method_clear"
+description = "list.clear() transpiles to .clear()"
+tags = ["list", "method"]
+
+[test.python]
+code = '''
+def test_list():
+    items = [1, 2, 3]
+    items.clear()
+    return items
+'''
+
+[test.assertions]
+contains = [".clear()"]
+
+# =============================================================================
+# Conditional Imports (from test_rust_gen_coverage.rs)
+# =============================================================================
+
+[[test]]
+name = "conditional_import_hashmap"
+description = "Using dict imports HashMap"
+tags = ["dict", "import"]
+
+[test.python]
+code = '''
+def use_dict() -> dict:
+    return {"key": "value"}
+'''
+
+[test.assertions]
+contains_any = [["HashMap", "dict"]]
+
+[[test]]
+name = "conditional_import_hashset"
+description = "Using set imports HashSet"
+tags = ["set", "import"]
+
+[test.python]
+code = '''
+def use_set() -> set:
+    return {1, 2, 3}
+'''
+
+[test.assertions]
+contains_any = [["HashSet", "set"]]

@@ -439,3 +439,164 @@ def create_list() -> list:
 
 [test.assertions]
 contains_any = [["Vec<"]]
+
+# =============================================================================
+# Rust Keyword Method Name Handling (from test_direct_rules_coverage.rs)
+# Note: Some Python keywords like 'as', 'in' can't be method names in Python either.
+# Tests here cover cases that ARE valid Python but use Rust keywords.
+# =============================================================================
+
+[[test]]
+name = "method_name_type_keyword"
+description = "Method name 'type' (Rust keyword) should be handled"
+tags = ["keyword", "method"]
+
+[test.python]
+code = '''
+def test_type(obj):
+    return obj.type()
+'''
+
+[test.assertions]
+contains_any = [["type_", "r#type", ".type("]]
+
+[[test]]
+name = "method_name_mut_keyword"
+description = "Method name 'mut' (Rust keyword) should be escaped"
+tags = ["keyword", "method"]
+
+[test.python]
+code = '''
+def test_mut(obj):
+    return obj.mut()
+'''
+
+[test.assertions]
+contains_any = [["mut_", "r#mut", ".mut("]]
+
+[[test]]
+name = "method_name_ref_keyword"
+description = "Method name 'ref' (Rust keyword) should be escaped"
+tags = ["keyword", "method"]
+
+[test.python]
+code = '''
+def test_ref(obj):
+    return obj.ref()
+'''
+
+[test.assertions]
+contains_any = [["ref_", "r#ref", ".ref("]]
+
+[[test]]
+name = "method_name_match_keyword"
+description = "Method name 'match' (Python 3.10+ keyword, Rust keyword) should be handled"
+tags = ["keyword", "method"]
+
+[test.python]
+code = '''
+def test_match_method(obj):
+    return obj.match_pattern()
+'''
+
+[test.assertions]
+contains = [".match_pattern("]
+
+[[test]]
+name = "method_name_loop_keyword"
+description = "Method name 'loop' (Rust keyword) should be escaped"
+tags = ["keyword", "method"]
+
+[test.python]
+code = '''
+def test_loop(obj):
+    return obj.loop()
+'''
+
+[test.assertions]
+contains_any = [["loop_", "r#loop", ".loop("]]
+
+[[test]]
+name = "method_name_impl_keyword"
+description = "Method name 'impl' (Rust keyword) should be escaped"
+tags = ["keyword", "method"]
+
+[test.python]
+code = '''
+def test_impl(obj):
+    return obj.impl()
+'''
+
+[test.assertions]
+contains_any = [["impl_", "r#impl", ".impl("]]
+
+# =============================================================================
+# Edge Cases and Robustness (from test_error_handlings.rs)
+# =============================================================================
+
+[[test]]
+name = "unicode_string_handling"
+description = "Unicode strings should be handled correctly"
+tags = ["unicode", "string"]
+
+[test.python]
+code = '''
+def test_unicode() -> str:
+    return "Hello 世界"
+'''
+
+[test.assertions]
+contains = ["Hello 世界"]
+
+[[test]]
+name = "emoji_string_handling"
+description = "Emoji in strings should be preserved"
+tags = ["unicode", "emoji"]
+
+[test.python]
+code = '''
+def test_emoji() -> str:
+    return "🚀 Rust"
+'''
+
+[test.assertions]
+contains = ["🚀"]
+
+[[test]]
+name = "accented_characters"
+description = "Accented characters should be preserved"
+tags = ["unicode", "accents"]
+
+[test.python]
+code = '''
+def test_accents() -> str:
+    return "café"
+'''
+
+[test.assertions]
+contains = ["café"]
+
+[[test]]
+name = "large_conditional_function"
+description = "Large functions with many conditionals should transpile"
+tags = ["large", "conditional"]
+
+[test.python]
+code = '''
+def large_func(x: int) -> int:
+    result = 0
+    if x > 0:
+        result += 1
+    if x > 1:
+        result += 2
+    if x > 2:
+        result += 3
+    if x > 3:
+        result += 4
+    if x > 4:
+        result += 5
+    return result
+'''
+
+[test.assertions]
+contains = ["fn large_func"]

@@ -473,3 +473,949 @@ def test_func():
 
 [test.assertions]
 contains = ["fn test_func"]
+
+# =============================================================================
+# Statement Generation Coverage (migrated from test_stmt_gen_coverage.rs)
+# =============================================================================
+
+[[test]]
+name = "try_except_statement"
+description = "Try-except statement generation"
+tags = ["try", "except", "stmt-gen"]
+
+[test.python]
+code = '''
+def safe_operation():
+    try:
+        x = 10 / 0
+    except:
+        return -1
+'''
+
+[test.assertions]
+contains = ["fn safe_operation"]
+
+[[test]]
+name = "try_finally_statement"
+description = "Try-finally statement generation"
+tags = ["try", "finally", "stmt-gen"]
+
+[test.python]
+code = '''
+def with_finally():
+    try:
+        x = 42
+    finally:
+        return x
+'''
+
+[test.assertions]
+contains = ["fn with_finally"]
+
+[[test]]
+name = "try_except_finally_statement"
+description = "Complete try-except-finally"
+tags = ["try", "except", "finally", "stmt-gen"]
+
+[test.python]
+code = '''
+def complex_exception():
+    try:
+        x = 10 / 2
+    except:
+        x = 0
+    finally:
+        return x
+'''
+
+[test.assertions]
+contains = ["fn complex_exception"]
+
+[[test]]
+name = "with_statement"
+description = "Context manager with statement"
+tags = ["with", "context-manager", "stmt-gen"]
+
+[test.python]
+code = '''
+def use_context():
+    with open("file.txt") as f:
+        data = f.read()
+    return data
+'''
+
+[test.assertions]
+contains = ["fn use_context"]
+
+[[test]]
+name = "break_statement"
+description = "Break statement in loop"
+tags = ["break", "loop", "stmt-gen"]
+
+[test.python]
+code = '''
+def loop_with_break():
+    for i in [1, 2, 3]:
+        if i == 2:
+            break
+    return i
+'''
+
+[test.assertions]
+contains = ["fn loop_with_break"]
+contains_any = [["break", "for"]]
+
+[[test]]
+name = "continue_statement"
+description = "Continue statement in loop"
+tags = ["continue", "loop", "stmt-gen"]
+
+[test.python]
+code = '''
+def loop_with_continue():
+    for i in [1, 2, 3]:
+        if i == 2:
+            continue
+        print(i)
+'''
+
+[test.assertions]
+contains = ["fn loop_with_continue"]
+
+[[test]]
+name = "assert_without_message"
+description = "Assert statement without message"
+tags = ["assert", "stmt-gen"]
+
+[test.python]
+code = '''
+def check_value(x: int):
+    assert x > 0
+    return x
+'''
+
+[test.assertions]
+contains = ["fn check_value"]
+contains_any = [["assert!", "assert"]]
+
+[[test]]
+name = "assert_with_message"
+description = "Assert statement with message"
+tags = ["assert", "stmt-gen"]
+
+[test.python]
+code = '''
+def check_positive(x: int):
+    assert x > 0, "value must be positive"
+    return x
+'''
+
+[test.assertions]
+contains = ["fn check_positive"]
+
+[[test]]
+name = "tuple_unpacking"
+description = "Tuple unpacking assignment"
+tags = ["tuple", "unpacking", "stmt-gen"]
+
+[test.python]
+code = '''
+def unpack_values():
+    a, b = (1, 2)
+    return a + b
+'''
+
+[test.assertions]
+contains = ["fn unpack_values"]
+
+[[test]]
+name = "index_assignment"
+description = "Dictionary index assignment"
+tags = ["index", "assignment", "stmt-gen"]
+
+[test.python]
+code = '''
+def update_dict():
+    d = {"a": 1}
+    d["b"] = 2
+    return d
+'''
+
+[test.assertions]
+contains = ["fn update_dict"]
+
+[[test]]
+name = "type_conversion_assignment"
+description = "Type conversion in assignment"
+tags = ["type", "conversion", "stmt-gen"]
+
+[test.python]
+code = '''
+def convert_type():
+    items = [1, 2, 3]
+    count: int = len(items)
+    return count
+'''
+
+[test.assertions]
+contains = ["fn convert_type"]
+
+[[test]]
+name = "optional_return_type"
+description = "Optional return type wrapping"
+tags = ["optional", "return", "stmt-gen"]
+
+[test.python]
+code = '''
+from typing import Optional
+
+def maybe_value(flag: bool) -> Optional[int]:
+    if flag:
+        return 42
+    return None
+'''
+
+[test.assertions]
+contains = ["fn maybe_value"]
+
+[[test]]
+name = "raise_with_exception"
+description = "Raise statement with exception"
+tags = ["raise", "exception", "stmt-gen"]
+
+[test.python]
+code = '''
+def raise_error():
+    raise ValueError("invalid value")
+'''
+
+[test.assertions]
+contains = ["fn raise_error"]
+
+[[test]]
+name = "bare_raise"
+description = "Bare raise statement for re-raise"
+tags = ["raise", "bare", "stmt-gen"]
+
+[test.python]
+code = '''
+def reraise_error():
+    try:
+        x = 1 / 0
+    except:
+        raise
+'''
+
+[test.assertions]
+contains = ["fn reraise_error"]
+
+[[test]]
+name = "for_loop_scope"
+description = "For loop scope management"
+tags = ["for", "scope", "stmt-gen"]
+
+[test.python]
+code = '''
+def iterate_items():
+    total = 0
+    for i in [1, 2, 3]:
+        total = total + i
+    return total
+'''
+
+[test.assertions]
+contains = ["fn iterate_items"]
+contains_any = [["for", "iter"]]
+
+[[test]]
+name = "while_loop"
+description = "While loop generation"
+tags = ["while", "loop", "stmt-gen"]
+
+[test.python]
+code = '''
+def count_down(n: int) -> int:
+    while n > 0:
+        n = n - 1
+    return n
+'''
+
+[test.assertions]
+contains = ["fn count_down", "while"]
+
+[[test]]
+name = "if_else_statement"
+description = "If-else statement generation"
+tags = ["if", "else", "stmt-gen"]
+
+[test.python]
+code = '''
+def abs_value(x: int) -> int:
+    if x < 0:
+        return -x
+    else:
+        return x
+'''
+
+[test.assertions]
+contains = ["fn abs_value", "if", "else"]
+
+[[test]]
+name = "multiple_except_handlers"
+description = "Multiple except clauses"
+tags = ["try", "except", "multiple", "stmt-gen"]
+
+[test.python]
+code = '''
+def handle_errors():
+    try:
+        x = int("not a number")
+    except ValueError:
+        return -1
+    except TypeError:
+        return -2
+'''
+
+[test.assertions]
+contains = ["fn handle_errors"]
+
+[[test]]
+name = "complex_statements"
+description = "Complex statement combinations"
+tags = ["complex", "stmt-gen"]
+
+[test.python]
+code = '''
+def complex_statements(x: int) -> int:
+    if x > 0:
+        total = 0
+        for i in [1, 2, 3]:
+            total = total + i
+        return total
+    return 0
+'''
+
+[test.assertions]
+contains = ["fn complex_statements"]
+contains_any = [["for", "if"]]
+
+[[test]]
+name = "nested_index_assignment"
+description = "Nested dictionary access"
+tags = ["nested", "index", "stmt-gen"]
+
+[test.python]
+code = '''
+def nested_dict():
+    d = {"a": {"b": 1}}
+    d["a"]["b"] = 2
+    return d
+'''
+
+[test.assertions]
+contains = ["fn nested_dict"]
+
+[[test]]
+name = "pass_statement"
+description = "Pass statement generation"
+tags = ["pass", "stmt-gen"]
+
+[test.python]
+code = '''
+def empty_function():
+    pass
+'''
+
+[test.assertions]
+contains = ["fn empty_function"]
+
+[[test]]
+name = "with_without_target"
+description = "Context manager without variable binding"
+tags = ["with", "context-manager", "stmt-gen"]
+
+[test.python]
+code = '''
+def use_context_no_var():
+    with open("file.txt"):
+        pass
+'''
+
+[test.assertions]
+contains = ["fn use_context_no_var"]
+
+[[test]]
+name = "complex_logic_combination"
+description = "All statement types working together"
+tags = ["complex", "integration", "stmt-gen"]
+
+[test.python]
+code = '''
+def complex_logic(items: list) -> int:
+    total = 0
+
+    try:
+        for item in items:
+            if item > 0:
+                total = total + item
+            elif item < 0:
+                continue
+            else:
+                break
+
+        if total > 100:
+            raise ValueError("too large")
+
+        return total
+    except:
+        return -1
+'''
+
+[test.assertions]
+contains = ["fn complex_logic"]
+
+# =============================================================================
+# Context Coverage Tests - Scope Management
+# Migrated from test_context_coverage.rs
+# =============================================================================
+
+[[test]]
+name = "nested_scope_management"
+description = "Variable scoping in nested if blocks"
+tags = ["scope", "variable", "context-coverage"]
+
+[test.python]
+code = '''
+def outer():
+    x = 1
+    if True:
+        y = 2
+        z = x + y
+    return x
+'''
+
+[test.assertions]
+contains = ["fn outer"]
+
+[[test]]
+name = "variable_shadowing_context"
+description = "Variable shadowing in nested scopes"
+tags = ["scope", "shadowing", "context-coverage"]
+
+[test.python]
+code = '''
+def shadow_test():
+    x = 1
+    if True:
+        x = 2
+        y = x + 1
+    return x
+'''
+
+[test.assertions]
+contains = ["fn shadow_test"]
+
+[[test]]
+name = "multiple_scope_levels"
+description = "Deeply nested scopes"
+tags = ["scope", "nested", "context-coverage"]
+
+[test.python]
+code = '''
+def deep_scopes():
+    a = 1
+    if True:
+        b = 2
+        if True:
+            c = 3
+            if True:
+                d = 4
+                result = a + b + c + d
+    return result
+'''
+
+[test.assertions]
+contains = ["fn deep_scopes"]
+
+[[test]]
+name = "loop_scoping"
+description = "Variable scoping in loops"
+tags = ["scope", "loop", "context-coverage"]
+
+[test.python]
+code = '''
+def loop_scope():
+    total = 0
+    for i in [1, 2, 3]:
+        temp = i * 2
+        total = total + temp
+    return total
+'''
+
+[test.assertions]
+contains = ["fn loop_scope"]
+
+[[test]]
+name = "parameter_scoping"
+description = "Parameter handling in function scope"
+tags = ["scope", "parameter", "context-coverage"]
+
+[test.python]
+code = '''
+def with_params(x: int, y: int) -> int:
+    result = x + y
+    return result
+'''
+
+[test.assertions]
+contains = ["fn with_params"]
+
+[[test]]
+name = "mutation_scope_invariants"
+description = "Variable mutation across scopes"
+tags = ["scope", "mutation", "context-coverage"]
+
+[test.python]
+code = '''
+def scope_invariant():
+    x = 1
+    y = x + 1
+    if True:
+        z = y + 1
+        w = z + 1
+    return x + y
+'''
+
+[test.assertions]
+contains = ["fn scope_invariant"]
+
+[[test]]
+name = "empty_scope_stack"
+description = "Simple function with no nested scopes"
+tags = ["scope", "simple", "context-coverage"]
+
+[test.python]
+code = '''
+def simple():
+    return 42
+'''
+
+[test.assertions]
+contains = ["fn simple", "42"]
+
+[[test]]
+name = "mutable_variable_tracking"
+description = "Tracking mutable variable updates"
+tags = ["scope", "mutation", "context-coverage"]
+
+[test.python]
+code = '''
+def mutable_tracking():
+    x = 0
+    x = x + 1
+    x = x + 2
+    return x
+'''
+
+[test.assertions]
+contains = ["fn mutable_tracking"]
+
+# =============================================================================
+# Context Coverage Tests - Exception Handling
+# Migrated from test_context_coverage.rs
+# =============================================================================
+
+[[test]]
+name = "exception_scope_bare_except"
+description = "Bare except clause handling"
+tags = ["exception", "try", "context-coverage"]
+
+[test.python]
+code = '''
+def try_bare_except():
+    try:
+        x = 1 / 0
+    except:
+        x = 0
+    return x
+'''
+
+[test.assertions]
+contains = ["fn try_bare_except"]
+
+[[test]]
+name = "exception_scope_specific_type"
+description = "Specific exception type handling"
+tags = ["exception", "try", "context-coverage"]
+
+[test.python]
+code = '''
+def try_specific():
+    try:
+        x = int("not a number")
+    except ValueError:
+        x = 0
+    return x
+'''
+
+[test.assertions]
+contains = ["fn try_specific"]
+
+[[test]]
+name = "exception_scope_multiple_types"
+description = "Multiple exception types in tuple"
+tags = ["exception", "try", "context-coverage"]
+
+[test.python]
+code = '''
+def try_multiple():
+    try:
+        x = 1 / 0
+        y = int("bad")
+    except (ZeroDivisionError, ValueError):
+        x = 0
+    return x
+'''
+
+[test.assertions]
+contains = ["fn try_multiple"]
+
+[[test]]
+name = "exception_scope_nested_try"
+description = "Nested try-except blocks"
+tags = ["exception", "try", "nested", "context-coverage"]
+
+[test.python]
+code = '''
+def nested_try():
+    try:
+        x = 1
+        try:
+            y = 1 / 0
+        except ZeroDivisionError:
+            y = 0
+    except ValueError:
+        x = 0
+    return x + y
+'''
+
+[test.assertions]
+contains = ["fn nested_try"]
+
+[[test]]
+name = "exception_scope_with_finally"
+description = "Try-except-finally block"
+tags = ["exception", "try", "finally", "context-coverage"]
+
+[test.python]
+code = '''
+def try_finally():
+    x = 0
+    try:
+        x = 1 / 0
+    except:
+        x = 1
+    finally:
+        x = x + 1
+    return x
+'''
+
+[test.assertions]
+contains = ["fn try_finally"]
+
+[[test]]
+name = "exception_scope_with_else"
+description = "Try-except-else block"
+tags = ["exception", "try", "else", "context-coverage"]
+
+[test.python]
+code = '''
+def try_else():
+    try:
+        x = 1
+    except ValueError:
+        x = 0
+    else:
+        x = x + 1
+    return x
+'''
+
+[test.assertions]
+contains = ["fn try_else"]
+
+[[test]]
+name = "exception_scope_raise_in_try"
+description = "Raise statement inside try block"
+tags = ["exception", "try", "raise", "context-coverage"]
+
+[test.python]
+code = '''
+def raise_in_try(x: int):
+    try:
+        if x < 0:
+            raise ValueError("negative")
+        return x
+    except ValueError:
+        return 0
+'''
+
+[test.assertions]
+contains = ["fn raise_in_try"]
+
+[[test]]
+name = "exception_scope_sequential_try"
+description = "Sequential try-except blocks"
+tags = ["exception", "try", "context-coverage"]
+
+[test.python]
+code = '''
+def sequential_try():
+    try:
+        x = 1 / 0
+    except:
+        x = 1
+
+    try:
+        y = int("bad")
+    except:
+        y = 2
+
+    return x + y
+'''
+
+[test.assertions]
+contains = ["fn sequential_try"]
+
+[[test]]
+name = "exception_scope_return_in_except"
+description = "Return statement inside except block"
+tags = ["exception", "try", "return", "context-coverage"]
+
+[test.python]
+code = '''
+def return_in_except(x: int):
+    try:
+        result = 10 / x
+    except ZeroDivisionError:
+        return 0
+    return result
+'''
+
+[test.assertions]
+contains = ["fn return_in_except"]
+
+[[test]]
+name = "exception_scope_in_loop"
+description = "Try-except inside a loop"
+tags = ["exception", "try", "loop", "context-coverage"]
+
+[test.python]
+code = '''
+def try_in_loop():
+    result = 0
+    for i in [1, 2, 0, 3]:
+        try:
+            result = result + 10 / i
+        except ZeroDivisionError:
+            result = result + 0
+    return result
+'''
+
+[test.assertions]
+contains = ["fn try_in_loop"]
+
+[[test]]
+name = "exception_scope_empty_except"
+description = "Empty except with pass"
+tags = ["exception", "try", "pass", "context-coverage"]
+
+[test.python]
+code = '''
+def empty_except():
+    try:
+        x = 1 / 0
+    except:
+        pass
+    return 0
+'''
+
+[test.assertions]
+contains = ["fn empty_except"]
+
+[[test]]
+name = "exception_scope_multiple_except"
+description = "Multiple except clauses for different types"
+tags = ["exception", "try", "multiple", "context-coverage"]
+
+[test.python]
+code = '''
+def multiple_except():
+    try:
+        x = 1 / 0
+    except ZeroDivisionError:
+        x = 1
+    except ValueError:
+        x = 2
+    except:
+        x = 3
+    return x
+'''
+
+[test.assertions]
+contains = ["fn multiple_except"]
+
+[[test]]
+name = "mutation_exception_scope_stack"
+description = "Deeply nested try-except blocks"
+tags = ["exception", "try", "nested", "context-coverage"]
+
+[test.python]
+code = '''
+def nested_scopes():
+    try:
+        try:
+            try:
+                x = 1 / 0
+            except ZeroDivisionError:
+                x = 1
+        except ValueError:
+            x = 2
+    except:
+        x = 3
+    return x
+'''
+
+[test.assertions]
+contains = ["fn nested_scopes"]
+
+[[test]]
+name = "property_bare_except_catches_all"
+description = "Bare except catches all exception types"
+tags = ["exception", "try", "bare", "context-coverage"]
+
+[test.python]
+code = '''
+def bare_catches_all():
+    try:
+        x = 1 / 0
+        y = int("bad")
+        z = [].pop()
+    except:
+        return 0
+    return 1
+'''
+
+[test.assertions]
+contains = ["fn bare_catches_all"]
+
+[[test]]
+name = "integration_complex_exception_handling"
+description = "Complex nested exception handling with loops"
+tags = ["exception", "try", "complex", "context-coverage"]
+
+[test.python]
+code = '''
+def complex_exceptions(values: list[int]):
+    total = 0
+    for val in values:
+        try:
+            result = 100 / val
+            try:
+                formatted = str(result)
+            except ValueError:
+                formatted = "error"
+        except ZeroDivisionError:
+            result = 0
+        finally:
+            total = total + result
+    return total
+'''
+
+[test.assertions]
+contains = ["fn complex_exceptions"]
+
+# =============================================================================
+# If Statement Edge Cases (migrated from test_stmt_gen_if_coverage.rs)
+# =============================================================================
+
+[[test]]
+name = "if_empty_then_block"
+description = "Empty then block with pass statement"
+tags = ["if", "pass", "empty"]
+
+[test.python]
+code = '''
+def noop_if(x: int) -> int:
+    if x > 0:
+        pass
+    return x
+'''
+
+[test.assertions]
+contains = ["fn noop_if"]
+
+[[test]]
+name = "if_empty_else_block"
+description = "Empty else block with pass statement"
+tags = ["if", "else", "pass", "empty"]
+
+[test.python]
+code = '''
+def noop_else(x: int) -> int:
+    result = x
+    if x > 0:
+        result = x * 2
+    else:
+        pass
+    return result
+'''
+
+[test.assertions]
+contains = ["fn noop_else"]
+
+[[test]]
+name = "if_function_call_condition"
+description = "Function call in if condition"
+tags = ["if", "function-call", "condition"]
+
+[test.python]
+code = '''
+def is_even(x: int) -> bool:
+    return x % 2 == 0
+
+def check_even(x: int) -> str:
+    if is_even(x):
+        return "even"
+    else:
+        return "odd"
+'''
+
+[test.assertions]
+contains = ["fn check_even", "fn is_even"]
+
+[[test]]
+name = "if_complex_nested_elif"
+description = "Complex nested if-elif-else structure"
+tags = ["if", "elif", "else", "nested", "complex"]
+
+[test.python]
+code = '''
+def complex_check(x: int, y: int) -> str:
+    if x > 0:
+        if y > 0:
+            return "both positive"
+        elif y < 0:
+            return "x positive, y negative"
+        else:
+            return "x positive, y zero"
+    elif x < 0:
+        if y > 0:
+            return "x negative, y positive"
+        else:
+            return "x negative, y non-positive"
+    else:
+        return "x is zero"
+'''
+
+[test.assertions]
+contains = ["fn complex_check"]

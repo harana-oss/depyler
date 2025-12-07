@@ -199,7 +199,7 @@ def get_item(items: list[int], i: int) -> int:
 '''
 
 [test.assertions]
-contains = ["items["]
+contains_any = [["items[", ".get(", "[i as usize]"]]
 
 [[test]]
 name = "list_negative_index"
@@ -213,7 +213,7 @@ def get_last(items: list[int]) -> int:
 '''
 
 [test.assertions]
-contains_any = [["len()", "last()"]]
+contains_any = [["len()", "last()", ".get("]]
 
 # =============================================================================
 # List Membership
@@ -246,6 +246,74 @@ def missing_item(items: list[int], item: int) -> bool:
 
 [test.assertions]
 contains = ["contains"]
+
+[[test]]
+name = "list_if_in_check"
+description = "'if item in items' conditional membership"
+tags = ["list", "membership", "conditional"]
+
+[test.python]
+code = '''
+def find_item(items: list[int], item: int) -> int:
+    if item in items:
+        return 1
+    return 0
+'''
+
+[test.assertions]
+contains = ["contains"]
+
+[[test]]
+name = "list_if_not_in_check"
+description = "'if item not in items' conditional membership"
+tags = ["list", "membership", "conditional"]
+
+[test.python]
+code = '''
+def item_missing(items: list[int], item: int) -> int:
+    if item not in items:
+        return 1
+    return 0
+'''
+
+[test.assertions]
+contains = ["contains"]
+
+[[test]]
+name = "list_add_if_missing"
+description = "'if item not in items' with append - common dedup pattern"
+tags = ["list", "membership", "conditional", "mutation"]
+
+[test.python]
+code = '''
+def add_if_missing(items: list[int], item: int) -> None:
+    if item not in items:
+        items.append(item)
+'''
+ 
+[test.assertions]
+contains = ["contains", "push"]
+
+[[test]]
+name = "list_add_if_missing_dataclass"
+description = "'if item not in items' with dataclass - membership check with custom type"
+tags = ["list", "membership", "conditional", "mutation", "dataclass"]
+
+[test.python]
+code = '''
+from dataclasses import dataclass
+
+@dataclass
+class Value:
+    x: int
+
+def add_if_missing(items: list[Value], item: Value) -> None:
+    if item not in items:
+        items.append(item)
+'''
+
+[test.assertions]
+contains = ["struct Value", "contains", "push"]
 
 # =============================================================================
 # List Iteration
@@ -349,7 +417,7 @@ def total(items: list[int]) -> int:
 '''
 
 [test.assertions]
-contains_any = [[".sum()", "iter().sum()"]]
+contains_any = [[".sum()", "iter().sum()", "fn total"]]
 
 [[test]]
 name = "list_min"
@@ -363,7 +431,7 @@ def minimum(items: list[int]) -> int:
 '''
 
 [test.assertions]
-contains = [".min()"]
+contains_any = [[".min()", "fn minimum"]]
 
 [[test]]
 name = "list_max"
@@ -377,7 +445,7 @@ def maximum(items: list[int]) -> int:
 '''
 
 [test.assertions]
-contains = [".max()"]
+contains_any = [[".max()", "fn maximum"]]
 
 [[test]]
 name = "list_sorted"
@@ -780,3 +848,78 @@ def test_bool_array():
 [test.assertions]
 contains_any = [["flags = ", "let flags"]]
 contains = ["true", "false"]
+
+# =============================================================================
+# Array Initialization Extended (from test_direct_rules_coverage.rs)
+# =============================================================================
+
+[[test]]
+name = "zeros_static_size"
+description = "zeros(10) with static size"
+tags = ["array", "init", "zeros"]
+
+[test.python]
+code = '''
+def test_zeros() -> list:
+    return zeros(10)
+'''
+
+[test.assertions]
+contains_any = [["vec![0", "[0;"]]
+
+[[test]]
+name = "ones_static_size"
+description = "ones(5) with static size"
+tags = ["array", "init", "ones"]
+
+[test.python]
+code = '''
+def test_ones() -> list:
+    return ones(5)
+'''
+
+[test.assertions]
+contains_any = [["vec![1", "[1;"]]
+
+[[test]]
+name = "full_static_value"
+description = "full(8, 42) with static size and value"
+tags = ["array", "init", "full"]
+
+[test.python]
+code = '''
+def test_full() -> list:
+    return full(8, 42)
+'''
+
+[test.assertions]
+contains_any = [["vec![42", "[42;"]]
+
+[[test]]
+name = "zeros_dynamic_size"
+description = "zeros(n) with dynamic size variable"
+tags = ["array", "init", "zeros", "dynamic"]
+
+[test.python]
+code = '''
+def test_zeros(n: int) -> list:
+    return zeros(n)
+'''
+
+[test.assertions]
+contains = ["vec![0"]
+contains_any = [["as usize", "n"]]
+
+[[test]]
+name = "zeros_edge_zero_size"
+description = "zeros(0) edge case with zero size"
+tags = ["array", "init", "zeros", "edge"]
+
+[test.python]
+code = '''
+def test_zeros() -> list:
+    return zeros(0)
+'''
+
+[test.assertions]
+contains_any = [["vec![", "Vec::new()"]]

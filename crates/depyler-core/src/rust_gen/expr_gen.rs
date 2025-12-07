@@ -474,22 +474,78 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 // Python floor division semantics differ from Rust integer division
                 // Python: rounds towards negative infinity (floor)
                 // Rust: truncates towards zero
-                // For now, we generate code that works for integers with proper floor semantics
-                Ok(parse_quote! {
-                    {
-                        let a = #left_expr;
-                        let b = #right_expr;
-                        let q = a / b;
-                        let r = a % b;
-                        // Avoid != in boolean expression due to formatting issues
-                        let r_negative = r < 0;
-                        let b_negative = b < 0;
-                        let r_nonzero = r != 0;
-                        let signs_differ = r_negative != b_negative;
-                        let needs_adjustment = r_nonzero && signs_differ;
-                        if needs_adjustment { q - 1 } else { q }
-                    }
-                })
+                // Check types to handle mixed float/int cases
+                let left_is_float = self.ctx.is_expr_float_type(left);
+                let right_is_float = self.ctx.is_expr_float_type(right);
+                let left_is_int_type = self.ctx.is_expr_int_type(left);
+                let right_is_int_type = self.ctx.is_expr_int_type(right);
+
+                // If one operand is float and the other is int, cast the int to f64
+                if left_is_float && right_is_int_type {
+                    // Left is float, right is int - cast right to f64
+                    Ok(parse_quote! {
+                        {
+                            let a = #left_expr;
+                            let b = #right_expr as f64;
+                            let q = a / b;
+                            let r = a % b;
+                            let r_negative = r < 0.0;
+                            let b_negative = b < 0.0;
+                            let r_nonzero = r != 0.0;
+                            let signs_differ = r_negative != b_negative;
+                            let needs_adjustment = r_nonzero && signs_differ;
+                            if needs_adjustment { q - 1.0 } else { q }
+                        }
+                    })
+                } else if left_is_int_type && right_is_float {
+                    // Left is int, right is float - cast left to f64
+                    Ok(parse_quote! {
+                        {
+                            let a = #left_expr as f64;
+                            let b = #right_expr;
+                            let q = a / b;
+                            let r = a % b;
+                            let r_negative = r < 0.0;
+                            let b_negative = b < 0.0;
+                            let r_nonzero = r != 0.0;
+                            let signs_differ = r_negative != b_negative;
+                            let needs_adjustment = r_nonzero && signs_differ;
+                            if needs_adjustment { q - 1.0 } else { q }
+                        }
+                    })
+                } else if left_is_float && right_is_float {
+                    // Both are floats
+                    Ok(parse_quote! {
+                        {
+                            let a = #left_expr;
+                            let b = #right_expr;
+                            let q = a / b;
+                            let r = a % b;
+                            let r_negative = r < 0.0;
+                            let b_negative = b < 0.0;
+                            let r_nonzero = r != 0.0;
+                            let signs_differ = r_negative != b_negative;
+                            let needs_adjustment = r_nonzero && signs_differ;
+                            if needs_adjustment { q - 1.0 } else { q }
+                        }
+                    })
+                } else {
+                    // Both are integers (or default case)
+                    Ok(parse_quote! {
+                        {
+                            let a = #left_expr;
+                            let b = #right_expr;
+                            let q = a / b;
+                            let r = a % b;
+                            let r_negative = r < 0;
+                            let b_negative = b < 0;
+                            let r_nonzero = r != 0;
+                            let signs_differ = r_negative != b_negative;
+                            let needs_adjustment = r_nonzero && signs_differ;
+                            if needs_adjustment { q - 1 } else { q }
+                        }
+                    })
+                }
             }
             // Python 3.9+ supports d1 | d2 for dictionary merge
             // Translate to: { let mut result = d1; result.extend(d2); result }

@@ -287,3 +287,159 @@ def replace_slice(items: list[int], start: int, end: int, values: list[int]):
 
 [test.assertions]
 contains_any = [["splice", "drain", "&mut"]]
+
+# =============================================================================
+# Uninitialized Declarations - Migrated from test_uninitialized_declarations.rs
+# =============================================================================
+
+[[test]]
+name = "uninitialized_int_declaration"
+description = "Type annotation without initial value for int"
+tags = ["assignment", "declaration", "int"]
+
+[test.python]
+code = '''
+def process():
+    count: int
+    count = 5
+    return count
+'''
+
+[test.assertions]
+contains = ["let mut count: i32;", "count = 5"]
+
+[[test]]
+name = "uninitialized_string_declaration"
+description = "Type annotation without initial value for str"
+tags = ["assignment", "declaration", "string"]
+
+[test.python]
+code = '''
+def process():
+    name: str
+    name = "Alice"
+    return name
+'''
+
+[test.assertions]
+contains_any = [["let mut name: String;", "let mut name : String ;"]]
+
+[[test]]
+name = "uninitialized_bool_declaration"
+description = "Type annotation without initial value for bool"
+tags = ["assignment", "declaration", "bool"]
+
+[test.python]
+code = '''
+def check():
+    valid: bool
+    valid = True
+    return valid
+'''
+
+[test.assertions]
+contains_any = [["let mut valid: bool;", "let mut valid : bool ;"], ["valid = true"]]
+
+[[test]]
+name = "uninitialized_float_declaration"
+description = "Type annotation without initial value for float"
+tags = ["assignment", "declaration", "float"]
+
+[test.python]
+code = '''
+def calculate():
+    result: float
+    result = 3.14
+    return result
+'''
+
+[test.assertions]
+contains_any = [["result: f64;", "result : f64 ;"]]
+
+[[test]]
+name = "uninitialized_list_declaration"
+description = "Type annotation without initial value for list"
+tags = ["assignment", "declaration", "list"]
+
+[test.python]
+code = '''
+def process():
+    items: list[int]
+    items = [1, 2, 3]
+    return items
+'''
+
+[test.assertions]
+contains = ["items", "Vec"]
+
+[[test]]
+name = "uninitialized_optional_declaration"
+description = "Type annotation without initial value for Optional"
+tags = ["assignment", "declaration", "optional"]
+
+[test.python]
+code = '''
+def process():
+    value: Optional[int]
+    value = None
+    return value
+'''
+
+[test.assertions]
+contains_any = [["value: Option", "value : Option"]]
+
+[[test]]
+name = "multiple_uninitialized_declarations"
+description = "Multiple uninitialized declarations in same function"
+tags = ["assignment", "declaration", "multiple"]
+
+[test.python]
+code = '''
+def process():
+    field_position: FieldPosition
+    new_team: str
+    valid: bool
+    
+    field_position = FieldPosition()
+    new_team = "Team A"
+    valid = True
+    
+    return valid
+'''
+
+[test.assertions]
+contains = ["field_position", "FieldPosition", "new_team", "String", "valid", "bool"]
+
+[[test]]
+name = "uninitialized_with_conditional_assignment"
+description = "Uninitialized declaration with if/else assignment"
+tags = ["assignment", "declaration", "conditional"]
+
+[test.python]
+code = '''
+def process(flag: bool):
+    result: int
+    if flag:
+        result = 10
+    else:
+        result = 20
+    return result
+'''
+
+[test.assertions]
+contains_any = [["let mut result: i32;", "let mut result : i32 ;"], ["result = 10", "result = 20"]]
+
+[[test]]
+name = "annotated_with_value_unchanged"
+description = "Annotated assignment WITH value should still work"
+tags = ["assignment", "declaration", "value"]
+
+[test.python]
+code = '''
+def process():
+    count: int = 42
+    return count
+'''
+
+[test.assertions]
+contains = ["count", "42"]

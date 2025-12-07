@@ -45,4 +45,3 @@ def test_hir():
     let func = &hir.functions[0];
     assert!(!func.body.is_empty());
 }
-

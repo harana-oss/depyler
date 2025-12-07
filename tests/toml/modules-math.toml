@@ -685,3 +685,19 @@ def div_and_mod(a: int, b: int) -> tuple:
 
 [test.assertions]
 contains_any = [["/", "%", "div_rem"]]
+
+[[test]]
+name = "floor_division_with_constant"
+description = "Floor division operation with module-level constant"
+tags = ["math", "operators", "floor-division"]
+
+[test.python]
+code = '''
+VALUE = 23.34
+
+def test() -> None:
+    a = VALUE // 2
+'''
+
+[test.assertions]
+contains_any = [["as f64", "needs_adjustment", "signs_differ"]]

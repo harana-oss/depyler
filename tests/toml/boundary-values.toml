@@ -336,3 +336,224 @@ def container_access_test() -> int:
 
 [test.assertions]
 contains_any = [["[", "]", "len"]]
+
+# =============================================================================
+# Edge Cases (migrated from test_edge_case_coverage.rs)
+# =============================================================================
+
+[[test]]
+name = "empty_python_file"
+description = "Empty Python source should transpile to empty output"
+tags = ["edge-case", "empty"]
+
+[test.python]
+code = ''
+
+[test.assertions]
+contains = []
+
+[[test]]
+name = "whitespace_only_file"
+description = "Whitespace-only source should transpile"
+tags = ["edge-case", "whitespace"]
+
+[test.python]
+code = '''
+   
+	  
+   
+'''
+
+[test.assertions]
+contains = []
+
+[[test]]
+name = "comments_only_file"
+description = "Comments-only source should transpile"
+tags = ["edge-case", "comments"]
+
+[test.python]
+code = '''
+# This is a comment
+# Another comment
+    # Indented comment
+        # More comments
+'''
+
+[test.assertions]
+contains = []
+
+[[test]]
+name = "deeply_nested_functions"
+description = "Deeply nested function definitions"
+tags = ["edge-case", "nested", "functions"]
+
+[test.python]
+code = '''
+def level1(x: int) -> int:
+    def level2(y: int) -> int:
+        def level3(z: int) -> int:
+            def level4(w: int) -> int:
+                return w + 1
+            return level4(z) + 1
+        return level3(y) + 1
+    return level2(x) + 1
+'''
+
+[test.assertions]
+contains = ["fn level1"]
+
+[[test]]
+name = "extremely_simple_function"
+description = "Function with only pass statement"
+tags = ["edge-case", "simple"]
+
+[test.python]
+code = '''
+def f(): pass
+'''
+
+[test.assertions]
+contains = ["fn f"]
+
+[[test]]
+name = "function_with_only_return"
+description = "Function that only returns a literal"
+tags = ["edge-case", "simple", "return"]
+
+[test.python]
+code = '''
+def get_five() -> int:
+    return 5
+'''
+
+[test.assertions]
+contains = ["fn get_five", "5"]
+
+[[test]]
+name = "unicode_function_names"
+description = "Function names with unicode characters"
+tags = ["edge-case", "unicode"]
+
+[test.python]
+code = '''
+def функция(x: int) -> int:
+    return x * 2
+'''
+
+[test.assertions]
+contains = ["fn"]
+
+[[test]]
+name = "unicode_strings"
+description = "String literals with unicode and emoji"
+tags = ["edge-case", "unicode", "strings"]
+
+[test.python]
+code = '''
+def greet() -> str:
+    return "Hello, 世界! 🌍"
+'''
+
+[test.assertions]
+contains = ["fn greet", "Hello"]
+
+[[test]]
+name = "max_integer_values"
+description = "Maximum i64 integer values"
+tags = ["edge-case", "integer", "max"]
+
+[test.python]
+code = '''
+def big_numbers() -> int:
+    x = 9223372036854775807
+    y = -9223372036854775808
+    return x + y
+'''
+
+[test.assertions]
+contains = ["fn big_numbers"]
+
+[[test]]
+name = "empty_lists_and_dicts"
+description = "Empty collection initializers"
+tags = ["edge-case", "collections", "empty"]
+
+[test.python]
+code = '''
+def empty_collections() -> int:
+    empty_list = []
+    empty_dict = {}
+    return len(empty_list) + len(empty_dict)
+'''
+
+[test.assertions]
+contains = ["fn empty_collections", "len"]
+
+[[test]]
+name = "single_character_variables"
+description = "Single character variable names"
+tags = ["edge-case", "variables"]
+
+[test.python]
+code = '''
+def single_chars(a: int, b: int, c: int) -> int:
+    x = a
+    y = b
+    z = c
+    return x + y + z
+'''
+
+[test.assertions]
+contains = ["fn single_chars", "+ y +"]
+
+[[test]]
+name = "nested_control_structures"
+description = "Deeply nested control flow structures"
+tags = ["edge-case", "control-flow", "nested"]
+
+[test.python]
+code = '''
+def nested_control(n: int) -> int:
+    result = 0
+    for i in range(n):
+        if i % 2 == 0:
+            for j in range(i):
+                if j % 3 == 0:
+                    result += j
+    return result
+'''
+
+[test.assertions]
+contains = ["fn nested_control", "for", "if"]
+
+[[test]]
+name = "all_python_operators"
+description = "All Python operators in a single function"
+tags = ["edge-case", "operators"]
+
+[test.python]
+code = '''
+def all_operators(a: int, b: int) -> bool:
+    add = a + b
+    sub = a - b
+    mul = a * b
+    div = a // b
+    mod = a % b
+    
+    eq = a == b
+    ne = a != b
+    lt = a < b
+    le = a <= b
+    gt = a > b
+    ge = a >= b
+    
+    and_op = a and b
+    or_op = a or b
+    not_op = not a
+    
+    return eq or ne or lt or le or gt or ge
+'''
+
+[test.assertions]
+contains = ["fn all_operators"]

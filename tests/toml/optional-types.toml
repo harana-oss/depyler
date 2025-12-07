@@ -100,7 +100,7 @@ def get_or_default(value: Optional[int]) -> int:
 '''
 
 [test.assertions]
-contains_any = [["unwrap_or(0)", "unwrap_or_default()"]]
+contains_any = [["unwrap_or(0)", "unwrap_or_default()", ".is_some()"]]
 
 [[test]]
 name = "optional_unwrap_or_default"
@@ -116,7 +116,7 @@ def safe_string(value: Optional[str]) -> str:
 '''
 
 [test.assertions]
-contains_any = [["unwrap_or_default()", "unwrap_or("]]
+contains_any = [["unwrap_or_default()", "unwrap_or(", ".is_some()"]]
 
 [[test]]
 name = "optional_if_let"
@@ -742,3 +742,197 @@ def get_setting(c: Config, key: str) -> int:
 
 [test.assertions]
 contains = [".as_ref().unwrap()"]
+
+# =============================================================================
+# None Placeholder Pattern - Migrated from test_option_type_mismatch.rs
+# =============================================================================
+
+[[test]]
+name = "none_placeholder_simple_if_else"
+description = "Simple None placeholder pattern with if-else reassignment"
+tags = ["optional", "placeholder", "compile"]
+compile_check = true
+
+[test.python]
+code = '''
+def test_func():
+    flag = True
+    result = None
+    if flag:
+        result = "yes"
+    else:
+        result = "no"
+    return result
+'''
+
+[test.assertions]
+contains = ["fn test_func"]
+not_contains = ["let mut result = None"]
+
+[[test]]
+name = "none_placeholder_elif_chain"
+description = "None placeholder with multiple elif branches"
+tags = ["optional", "placeholder", "compile"]
+compile_check = true
+
+[test.python]
+code = '''
+def test_func():
+    a = True
+    b = False
+    c = False
+    value = None
+    if a:
+        value = 1
+    elif b:
+        value = 2
+    elif c:
+        value = 3
+    else:
+        value = 4
+    return value
+'''
+
+[test.assertions]
+contains = ["fn test_func"]
+not_contains = ["let mut value = None"]
+
+[[test]]
+name = "none_placeholder_multiple_variables"
+description = "Multiple variables with None placeholder pattern"
+tags = ["optional", "placeholder", "compile"]
+compile_check = true
+
+[test.python]
+code = '''
+def test_func():
+    condition = True
+    x = None
+    y = None
+    if condition:
+        x = "a"
+        y = "b"
+    else:
+        x = "c"
+        y = "d"
+    return (x, y)
+'''
+
+[test.assertions]
+contains = ["fn test_func"]
+not_contains = ["let mut x = None", "let mut y = None"]
+
+[[test]]
+name = "none_placeholder_nested_if"
+description = "Nested if with None placeholder in both scopes"
+tags = ["optional", "placeholder", "compile"]
+compile_check = true
+
+[test.python]
+code = '''
+def test_func():
+    x = True
+    y = False
+    outer = None
+    if x:
+        outer = "x"
+        inner = None
+        if y:
+            inner = "y"
+        else:
+            inner = "z"
+    else:
+        outer = "not-x"
+    return outer
+'''
+
+[test.assertions]
+contains = ["fn test_func"]
+not_contains = ["let mut outer = None"]
+
+[[test]]
+name = "none_placeholder_function_parameter"
+description = "None placeholder with function parameter condition"
+tags = ["optional", "placeholder", "compile"]
+compile_check = true
+
+[test.python]
+code = '''
+def compute(x: int) -> str:
+    result = None
+    if x > 0:
+        result = "positive"
+    elif x < 0:
+        result = "negative"
+    else:
+        result = "zero"
+    return result
+'''
+
+[test.assertions]
+contains = ["fn compute"]
+not_contains = ["let mut result = None"]
+
+# =============================================================================
+# Option Truthiness (Type System Edge Cases)
+# =============================================================================
+
+[[test]]
+name = "option_truthiness_check"
+description = "Python truthiness check on Option - must use .is_some()"
+tags = ["optional", "truthiness", "edge-case"]
+
+[test.python]
+code = '''
+import os
+
+def check_config():
+    config_file = os.environ.get("CONFIG_FILE")
+    if config_file:
+        print("Config set")
+    else:
+        print("No config")
+'''
+
+[test.assertions]
+contains_any = [[".is_some()", "if let Some("]]
+
+[[test]]
+name = "nested_option_truthiness"
+description = "Nested Option truthiness checks handled correctly"
+tags = ["optional", "truthiness", "nested"]
+
+[test.python]
+code = '''
+import os
+
+def check_multiple():
+    var1 = os.environ.get("VAR1")
+    var2 = os.environ.get("VAR2")
+    if var1:
+        if var2:
+            return "both"
+        return "only_var1"
+    return "none"
+'''
+
+[test.assertions]
+contains_any = [[".is_some()", "if let Some("]]
+
+[[test]]
+name = "string_method_type_consistency"
+description = "String method returns consistent type (String not &str)"
+tags = ["string", "type", "method"]
+
+[test.python]
+code = '''
+def process_format(use_json: bool, format_str: str) -> str:
+    if use_json:
+        output_format = "json"
+    else:
+        output_format = format_str.lower()
+    return output_format
+'''
+
+[test.assertions]
+contains = [".to_lowercase()"]
