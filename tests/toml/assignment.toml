@@ -219,6 +219,27 @@ def access_bounds():
 [test.assertions]
 contains = ["bounds.0", "bounds.1"]
 
+[[test]]
+name = "tuple_index_after_list_index"
+description = "Tuple index access after extracting from list"
+tags = ["assignment", "tuple", "index", "list"]
+
+[test.python]
+code = '''
+import random
+
+def one(x: int, y: int):
+    pass
+
+def two():
+    values = [(1, 1), (2, 2), (3, 3)]
+    value1 = values[0]
+    return one(x=random.randint(value1[0], value1[1] - 1))
+'''
+
+[test.assertions]
+contains = ["value1.0", "value1.1"]
+
 # =============================================================================
 # Index Assignment
 # =============================================================================

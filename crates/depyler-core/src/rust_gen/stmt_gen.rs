@@ -2701,6 +2701,21 @@ pub(crate) fn codegen_assign_stmt(
                     }
                 }
             }
+            // Track index access types: x = arr[i] where arr is List<T> means x is T
+            HirExpr::Index { base, .. } => {
+                if !ctx.var_types.contains_key(var_name) {
+                    let base_type = infer_expr_type_with_env(base, &ctx.var_types);
+                    let elem_type = match base_type {
+                        Type::List(elem) => Some(*elem),
+                        Type::Tuple(elems) => elems.first().cloned(),
+                        Type::Dict(_, val) => Some(*val),
+                        _ => None,
+                    };
+                    if let Some(t) = elem_type {
+                        ctx.var_types.insert(var_name.clone(), t);
+                    }
+                }
+            }
             _ => {}
         }
     }

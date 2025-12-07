@@ -905,6 +905,17 @@ pub(crate) fn infer_expr_type_with_env(expr: &HirExpr, var_types: &std::collecti
             Box::new(infer_expr_type_with_env(key, var_types)),
             Box::new(infer_expr_type_with_env(value, var_types)),
         ),
+        // Index expression: arr[i] returns element type of container
+        HirExpr::Index { base, .. } => {
+            let base_type = infer_expr_type_with_env(base, var_types);
+            match base_type {
+                Type::List(elem) => *elem,
+                Type::Tuple(elems) => elems.first().cloned().unwrap_or(Type::Unknown),
+                Type::Dict(_, val) => *val,
+                Type::String => Type::String,
+                _ => Type::Unknown,
+            }
+        }
         // For other cases, use the simple version
         _ => infer_expr_type_simple(expr),
     }
