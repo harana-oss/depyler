@@ -1,0 +1,159 @@
+# Enum Basic Tests - Basic enumeration types
+# Rust Mapping: enum
+
+[metadata]
+name = "Enum Basic Tests"
+category = "data-structures"
+
+# =============================================================================
+# Basic Enum
+# =============================================================================
+
+# TODO: Test simple enum
+# [[test]]
+# name = "enum_basic"
+# description = "class Color(Enum): RED = 1; GREEN = 2"
+
+# TODO: Test enum member
+# [[test]]
+# name = "enum_member"
+# description = "Color.RED"
+
+# TODO: Test enum value
+# [[test]]
+# name = "enum_value"
+# description = "Color.RED.value == 1"
+
+# TODO: Test enum name
+# [[test]]
+# name = "enum_name"
+# description = "Color.RED.name == 'RED'"
+
+# =============================================================================
+# Enum Access
+# =============================================================================
+
+# TODO: Test access by name
+# [[test]]
+# name = "enum_by_name"
+# description = "Color['RED']"
+
+# TODO: Test access by value
+# [[test]]
+# name = "enum_by_value"
+# description = "Color(1)"
+
+# TODO: Test iteration
+# [[test]]
+# name = "enum_iteration"
+# description = "list(Color)"
+
+# =============================================================================
+# Enum Comparison
+# =============================================================================
+
+# TODO: Test identity comparison
+# [[test]]
+# name = "enum_is"
+# description = "Color.RED is Color.RED"
+
+# TODO: Test equality
+# [[test]]
+# name = "enum_equality"
+# description = "Color.RED == Color.RED"
+
+# TODO: Test inequality
+# [[test]]
+# name = "enum_inequality"
+# description = "Color.RED != Color.GREEN"
+
+# TODO: Test not equal to value
+# [[test]]
+# name = "enum_not_value"
+# description = "Color.RED != 1"
+
+# =============================================================================
+# String Values
+# =============================================================================
+
+# TODO: Test string enum
+# [[test]]
+# name = "enum_string"
+# description = "class Status(Enum): OK = 'ok'"
+
+# TODO: Test auto() with string
+# [[test]]
+# name = "enum_auto_string"
+# description = "auto() generates names as values"
+
+# =============================================================================
+# auto()
+# =============================================================================
+
+# TODO: Test auto
+# [[test]]
+# name = "enum_auto"
+# description = "class Color(Enum): RED = auto()"
+
+# TODO: Test auto increments
+# [[test]]
+# name = "enum_auto_increment"
+# description = "auto() starts at 1, increments"
+
+# TODO: Test mixed auto and explicit
+# [[test]]
+# name = "enum_mixed_auto"
+# description = "A = 1; B = auto(); C = auto()"
+
+# =============================================================================
+# Enum Methods
+# =============================================================================
+
+# TODO: Test custom method
+# [[test]]
+# name = "enum_method"
+# description = "class Color(Enum): def describe(self): ..."
+
+# TODO: Test __str__
+# [[test]]
+# name = "enum_str"
+# description = "str(Color.RED)"
+
+# TODO: Test __repr__
+# [[test]]
+# name = "enum_repr"
+# description = "repr(Color.RED)"
+
+# =============================================================================
+# Enum Properties
+# =============================================================================
+
+# TODO: Test __members__
+# [[test]]
+# name = "enum_members"
+# description = "Color.__members__"
+
+# TODO: Test immutability
+# [[test]]
+# name = "enum_immutable"
+# description = "Cannot add or modify members"
+# skip = true
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+# TODO: Test duplicate values
+# [[test]]
+# name = "enum_alias"
+# description = "RED = 1; CRIMSON = 1 creates alias"
+
+# TODO: Test @unique
+# [[test]]
+# name = "enum_unique"
+# description = "@unique prevents aliases"
+
+# TODO: Test enum in match
+# [[test]]
+# name = "enum_match"
+# description = "match color: case Color.RED: ..."

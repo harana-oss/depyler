@@ -49,8 +49,9 @@ mod test_error_gen_coverage;
 mod test_error_handlings;
 #[cfg(test)]
 mod test_error_path_coverage;
-#[cfg(test)]
-mod test_example_validation;
+// Migrated to TOML: tests/toml/basic-types.toml (example validation tests)
+// #[cfg(test)]
+// mod test_example_validation;
 #[cfg(test)]
 mod test_expr_gen_coverage;
 #[cfg(test)]
@@ -61,8 +62,9 @@ mod test_expr_gen_extended_coverage;
 mod test_expr_gen_untested_builtins;
 #[cfg(test)]
 mod test_expr_to_rusts;
-#[cfg(test)]
-mod test_formatting;
+// Migrated to TOML: tests/toml/classes.toml (formatting tests)
+// #[cfg(test)]
+// mod test_formatting;
 #[cfg(test)]
 mod test_functionals;
 #[cfg(test)]
@@ -79,8 +81,9 @@ mod test_generic_inference;
 mod test_hir_kwargs;
 #[cfg(test)]
 mod test_ide_coverage;
-#[cfg(test)]
-mod test_import_gen_coverage;
+// Migrated to TOML: tests/toml/type-inference.toml (import gen coverage tests)
+// #[cfg(test)]
+// mod test_import_gen_coverage;
 #[cfg(test)]
 mod test_inlining_coverage;
 #[cfg(test)]
@@ -93,8 +96,9 @@ mod test_lifetime_analysis_integration;
 mod test_lsp_propertys;
 #[cfg(test)]
 mod test_marco_polo_integration;
-#[cfg(test)]
-mod test_mega;
+// Migrated to TOML: tests/toml/regressions.toml (mega integration tests)
+// #[cfg(test)]
+// mod test_mega;
 // #[cfg(test)]
 // mod test_method_ownership;
 #[cfg(test)]
@@ -120,8 +124,9 @@ mod test_process_module_imports;
 // Migrated to TOML: tests/toml/classes.toml (property tests)
 // #[cfg(test)]
 // mod test_property;
-#[cfg(test)]
-mod test_property_based_generation;
+// Migrated to TOML: tests/toml/functions.toml (property-based generation tests)
+// #[cfg(test)]
+// mod test_property_based_generation;
 #[cfg(test)]
 mod test_propertys;
 #[cfg(test)]
@@ -144,12 +149,14 @@ mod test_show_types;
 mod test_simplified_hir_coverage;
 #[cfg(test)]
 mod test_specialized_coverageing;
-#[cfg(test)]
-mod test_stmt_gen_assign_coverage;
-#[cfg(test)]
-mod test_stmt_gen_assign_index_coverage;
-#[cfg(test)]
-mod test_stmt_gen_assign_symbol_coverage;
+// Migrated to TOML: tests/toml/assignment.toml (dict augmented assignment, type tracking)
+// #[cfg(test)]
+// mod test_stmt_gen_assign_coverage;
+// Migrated to TOML: tests/toml/assignment.toml (index assignment)
+// #[cfg(test)]
+// mod test_stmt_gen_assign_index_coverage;
+// #[cfg(test)]
+// mod test_stmt_gen_assign_symbol_coverage;  // file does not exist
 #[cfg(test)]
 mod test_stmt_gen_extended_coverage;
 // Migrated to TOML: tests/toml/control-flow.toml (if statement coverage)
@@ -167,8 +174,9 @@ mod test_stmt_gen_raise_coverage;
 // mod test_subcommand_field_access;
 #[cfg(test)]
 mod test_toml_runner;
-#[cfg(test)]
-mod test_transpilations;
+// Migrated to TOML: tests/toml/functions.toml (transpilation tests)
+// #[cfg(test)]
+// mod test_transpilations;
 // #[cfg(test)]
 // mod test_type_gen_coverage;  // file does not exist
 // #[cfg(test)]

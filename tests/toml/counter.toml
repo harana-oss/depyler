@@ -1,0 +1,182 @@
+# Counter Tests - Counting hashable objects
+# Rust Mapping: HashMap<T, usize>
+
+[metadata]
+name = "Counter Tests"
+category = "data-structures"
+
+# =============================================================================
+# Creating Counters
+# =============================================================================
+
+# TODO: Test empty counter
+# [[test]]
+# name = "counter_empty"
+# description = "Counter()"
+
+# TODO: Test from iterable
+# [[test]]
+# name = "counter_iterable"
+# description = "Counter('abracadabra')"
+
+# TODO: Test from mapping
+# [[test]]
+# name = "counter_mapping"
+# description = "Counter({'a': 4, 'b': 2})"
+
+# TODO: Test from kwargs
+# [[test]]
+# name = "counter_kwargs"
+# description = "Counter(a=4, b=2)"
+
+# =============================================================================
+# Counting
+# =============================================================================
+
+# TODO: Test count access
+# [[test]]
+# name = "counter_access"
+# description = "c['a']"
+
+# TODO: Test missing key
+# [[test]]
+# name = "counter_missing"
+# description = "c['missing'] returns 0"
+
+# TODO: Test update
+# [[test]]
+# name = "counter_update"
+# description = "c.update('more')"
+
+# TODO: Test update from counter
+# [[test]]
+# name = "counter_update_counter"
+# description = "c.update(other_counter)"
+
+# =============================================================================
+# Most Common
+# =============================================================================
+
+# TODO: Test most_common
+# [[test]]
+# name = "counter_most_common"
+# description = "c.most_common()"
+
+# TODO: Test most_common n
+# [[test]]
+# name = "counter_most_common_n"
+# description = "c.most_common(3)"
+
+# TODO: Test least common
+# [[test]]
+# name = "counter_least_common"
+# description = "c.most_common()[:-n-1:-1]"
+
+# =============================================================================
+# Arithmetic Operations
+# =============================================================================
+
+# TODO: Test addition
+# [[test]]
+# name = "counter_add"
+# description = "c1 + c2"
+
+# TODO: Test subtraction
+# [[test]]
+# name = "counter_sub"
+# description = "c1 - c2"
+
+# TODO: Test intersection (min)
+# [[test]]
+# name = "counter_and"
+# description = "c1 & c2"
+
+# TODO: Test union (max)
+# [[test]]
+# name = "counter_or"
+# description = "c1 | c2"
+
+# =============================================================================
+# Unary Operations
+# =============================================================================
+
+# TODO: Test positive
+# [[test]]
+# name = "counter_positive"
+# description = "+c removes zero/negative"
+
+# TODO: Test negative
+# [[test]]
+# name = "counter_negative"
+# description = "-c negates counts"
+
+# =============================================================================
+# Methods
+# =============================================================================
+
+# TODO: Test elements
+# [[test]]
+# name = "counter_elements"
+# description = "list(c.elements())"
+
+# TODO: Test subtract
+# [[test]]
+# name = "counter_subtract"
+# description = "c.subtract(other)"
+
+# TODO: Test total (3.10+)
+# [[test]]
+# name = "counter_total"
+# description = "c.total()"
+
+# =============================================================================
+# Dict Operations
+# =============================================================================
+
+# TODO: Test keys/values/items
+# [[test]]
+# name = "counter_views"
+# description = "c.keys(), c.values(), c.items()"
+
+# TODO: Test del
+# [[test]]
+# name = "counter_del"
+# description = "del c['a']"
+
+# TODO: Test clear
+# [[test]]
+# name = "counter_clear"
+# description = "c.clear()"
+
+# =============================================================================
+# Use Cases
+# =============================================================================
+
+# TODO: Test word frequency
+# [[test]]
+# name = "counter_words"
+# description = "Counter(text.split())"
+
+# TODO: Test histogram
+# [[test]]
+# name = "counter_histogram"
+# description = "Count occurrences in data"
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+# TODO: Test negative counts
+# [[test]]
+# name = "counter_negative_counts"
+# description = "Counter({'a': -1})"
+
+# TODO: Test zero counts
+# [[test]]
+# name = "counter_zero"
+# description = "Zero counts kept in counter"
+
+# TODO: Test equality
+# [[test]]
+# name = "counter_equality"
+# description = "Counter comparison"

@@ -1,0 +1,130 @@
+# Package __init__.py Tests - Package initialization
+# Rust Mapping: mod.rs, lib.rs
+
+[metadata]
+name = "Package __init__.py Tests"
+category = "imports"
+
+# =============================================================================
+# Basic __init__.py
+# =============================================================================
+
+# TODO: Test empty __init__.py
+# [[test]]
+# name = "init_empty"
+# description = "Empty __init__.py makes directory a package"
+
+# TODO: Test __init__.py with code
+# [[test]]
+# name = "init_with_code"
+# description = "Code runs on package import"
+
+# TODO: Test package import
+# [[test]]
+# name = "init_import_package"
+# description = "import pkg runs __init__.py"
+
+# =============================================================================
+# Re-exporting
+# =============================================================================
+
+# TODO: Test re-export submodule
+# [[test]]
+# name = "init_reexport"
+# description = "from .sub import func in __init__.py"
+
+# TODO: Test public API
+# [[test]]
+# name = "init_public_api"
+# description = "__init__.py defines public API"
+
+# TODO: Test lazy submodule loading
+# [[test]]
+# name = "init_lazy"
+# description = "Submodules loaded on demand"
+
+# =============================================================================
+# Package Variables
+# =============================================================================
+
+# TODO: Test __version__
+# [[test]]
+# name = "init_version"
+# description = "__version__ = '1.0.0'"
+
+# TODO: Test __author__
+# [[test]]
+# name = "init_author"
+# description = "__author__ = 'Name'"
+
+# TODO: Test package-level constants
+# [[test]]
+# name = "init_constants"
+# description = "Define constants in __init__.py"
+
+# =============================================================================
+# Subpackages
+# =============================================================================
+
+# TODO: Test nested packages
+# [[test]]
+# name = "init_nested"
+# description = "pkg/sub/__init__.py"
+
+# TODO: Test import subpackage
+# [[test]]
+# name = "init_import_sub"
+# description = "import pkg.sub"
+
+# TODO: Test from subpackage
+# [[test]]
+# name = "init_from_sub"
+# description = "from pkg.sub import item"
+
+# =============================================================================
+# __path__
+# =============================================================================
+
+# TODO: Test __path__ attribute
+# [[test]]
+# name = "init_path"
+# description = "pkg.__path__"
+
+# TODO: Test extending __path__
+# [[test]]
+# name = "init_path_extend"
+# description = "__path__.append() for plugins"
+
+# =============================================================================
+# __package__
+# =============================================================================
+
+# TODO: Test __package__ in __init__
+# [[test]]
+# name = "init_package"
+# description = "__package__ == 'pkg'"
+
+# TODO: Test __package__ in submodule
+# [[test]]
+# name = "init_package_sub"
+# description = "__package__ == 'pkg.sub'"
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+# TODO: Test circular in __init__
+# [[test]]
+# name = "init_circular"
+# description = "Circular imports through __init__"
+# skip = true
+
+# TODO: Test __init__ import order
+# [[test]]
+# name = "init_order"
+# description = "Parent __init__ runs before child"
+
+# TODO: Test implicit namespace package
+# [[test]]
+# name = "init_implicit"
+# description = "No __init__.py (namespace package)"

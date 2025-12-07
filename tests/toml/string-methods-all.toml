@@ -1,0 +1,305 @@
+# String Methods All Tests - Comprehensive string methods
+# Rust Mapping: String methods, str methods
+
+[metadata]
+name = "String Methods All Tests"
+category = "strings"
+
+# =============================================================================
+# Case Methods
+# =============================================================================
+
+# TODO: Test upper
+# [[test]]
+# name = "str_upper"
+# description = "'hello'.upper()"
+
+# TODO: Test lower
+# [[test]]
+# name = "str_lower"
+# description = "'HELLO'.lower()"
+
+# TODO: Test capitalize
+# [[test]]
+# name = "str_capitalize"
+# description = "'hello world'.capitalize()"
+
+# TODO: Test title
+# [[test]]
+# name = "str_title"
+# description = "'hello world'.title()"
+
+# TODO: Test swapcase
+# [[test]]
+# name = "str_swapcase"
+# description = "'Hello'.swapcase()"
+
+# TODO: Test casefold
+# [[test]]
+# name = "str_casefold"
+# description = "'ß'.casefold()"
+
+# =============================================================================
+# Search Methods
+# =============================================================================
+
+# TODO: Test find
+# [[test]]
+# name = "str_find"
+# description = "'hello'.find('l')"
+
+# TODO: Test rfind
+# [[test]]
+# name = "str_rfind"
+# description = "'hello'.rfind('l')"
+
+# TODO: Test index
+# [[test]]
+# name = "str_index"
+# description = "'hello'.index('l')"
+
+# TODO: Test rindex
+# [[test]]
+# name = "str_rindex"
+# description = "'hello'.rindex('l')"
+
+# TODO: Test count
+# [[test]]
+# name = "str_count"
+# description = "'hello'.count('l')"
+
+# =============================================================================
+# Prefix/Suffix Methods
+# =============================================================================
+
+# TODO: Test startswith
+# [[test]]
+# name = "str_startswith"
+# description = "'hello'.startswith('he')"
+
+# TODO: Test endswith
+# [[test]]
+# name = "str_endswith"
+# description = "'hello'.endswith('lo')"
+
+# TODO: Test startswith tuple
+# [[test]]
+# name = "str_startswith_tuple"
+# description = "'hello'.startswith(('he', 'hi'))"
+
+# TODO: Test removeprefix (3.9+)
+# [[test]]
+# name = "str_removeprefix"
+# description = "'hello'.removeprefix('he')"
+
+# TODO: Test removesuffix (3.9+)
+# [[test]]
+# name = "str_removesuffix"
+# description = "'hello'.removesuffix('lo')"
+
+# =============================================================================
+# Strip Methods
+# =============================================================================
+
+# TODO: Test strip
+# [[test]]
+# name = "str_strip"
+# description = "'  hello  '.strip()"
+
+# TODO: Test lstrip
+# [[test]]
+# name = "str_lstrip"
+# description = "'  hello'.lstrip()"
+
+# TODO: Test rstrip
+# [[test]]
+# name = "str_rstrip"
+# description = "'hello  '.rstrip()"
+
+# TODO: Test strip chars
+# [[test]]
+# name = "str_strip_chars"
+# description = "'xxhelloxx'.strip('x')"
+
+# =============================================================================
+# Split Methods
+# =============================================================================
+
+# TODO: Test split
+# [[test]]
+# name = "str_split"
+# description = "'a,b,c'.split(',')"
+
+# TODO: Test split maxsplit
+# [[test]]
+# name = "str_split_max"
+# description = "'a,b,c'.split(',', 1)"
+
+# TODO: Test rsplit
+# [[test]]
+# name = "str_rsplit"
+# description = "'a,b,c'.rsplit(',', 1)"
+
+# TODO: Test splitlines
+# [[test]]
+# name = "str_splitlines"
+# description = "'a\\nb\\nc'.splitlines()"
+
+# TODO: Test partition
+# [[test]]
+# name = "str_partition"
+# description = "'hello'.partition('l')"
+
+# TODO: Test rpartition
+# [[test]]
+# name = "str_rpartition"
+# description = "'hello'.rpartition('l')"
+
+# =============================================================================
+# Join and Replace
+# =============================================================================
+
+# TODO: Test join
+# [[test]]
+# name = "str_join"
+# description = "','.join(['a', 'b', 'c'])"
+
+# TODO: Test replace
+# [[test]]
+# name = "str_replace"
+# description = "'hello'.replace('l', 'L')"
+
+# TODO: Test replace count
+# [[test]]
+# name = "str_replace_count"
+# description = "'hello'.replace('l', 'L', 1)"
+
+# =============================================================================
+# Padding Methods
+# =============================================================================
+
+# TODO: Test center
+# [[test]]
+# name = "str_center"
+# description = "'hi'.center(10)"
+
+# TODO: Test ljust
+# [[test]]
+# name = "str_ljust"
+# description = "'hi'.ljust(10)"
+
+# TODO: Test rjust
+# [[test]]
+# name = "str_rjust"
+# description = "'hi'.rjust(10)"
+
+# TODO: Test zfill
+# [[test]]
+# name = "str_zfill"
+# description = "'42'.zfill(5)"
+
+# =============================================================================
+# Test Methods
+# =============================================================================
+
+# TODO: Test isalpha
+# [[test]]
+# name = "str_isalpha"
+# description = "'abc'.isalpha()"
+
+# TODO: Test isdigit
+# [[test]]
+# name = "str_isdigit"
+# description = "'123'.isdigit()"
+
+# TODO: Test isalnum
+# [[test]]
+# name = "str_isalnum"
+# description = "'abc123'.isalnum()"
+
+# TODO: Test isspace
+# [[test]]
+# name = "str_isspace"
+# description = "'   '.isspace()"
+
+# TODO: Test isupper
+# [[test]]
+# name = "str_isupper"
+# description = "'ABC'.isupper()"
+
+# TODO: Test islower
+# [[test]]
+# name = "str_islower"
+# description = "'abc'.islower()"
+
+# TODO: Test istitle
+# [[test]]
+# name = "str_istitle"
+# description = "'Hello World'.istitle()"
+
+# TODO: Test isnumeric
+# [[test]]
+# name = "str_isnumeric"
+# description = "'123'.isnumeric()"
+
+# TODO: Test isdecimal
+# [[test]]
+# name = "str_isdecimal"
+# description = "'123'.isdecimal()"
+
+# TODO: Test isidentifier
+# [[test]]
+# name = "str_isidentifier"
+# description = "'var_name'.isidentifier()"
+
+# TODO: Test isprintable
+# [[test]]
+# name = "str_isprintable"
+# description = "'hello'.isprintable()"
+
+# TODO: Test isascii (3.7+)
+# [[test]]
+# name = "str_isascii"
+# description = "'hello'.isascii()"
+
+# =============================================================================
+# Encoding/Formatting
+# =============================================================================
+
+# TODO: Test encode
+# [[test]]
+# name = "str_encode"
+# description = "'hello'.encode('utf-8')"
+
+# TODO: Test format
+# [[test]]
+# name = "str_format"
+# description = "'{} {}'.format('hello', 'world')"
+
+# TODO: Test format_map
+# [[test]]
+# name = "str_format_map"
+# description = "'{x}'.format_map({'x': 1})"
+
+# =============================================================================
+# Translation
+# =============================================================================
+
+# TODO: Test maketrans
+# [[test]]
+# name = "str_maketrans"
+# description = "str.maketrans('abc', 'xyz')"
+
+# TODO: Test translate
+# [[test]]
+# name = "str_translate"
+# description = "'abc'.translate(table)"
+
+# =============================================================================
+# Other Methods
+# =============================================================================
+
+# TODO: Test expandtabs
+# [[test]]
+# name = "str_expandtabs"
+# description = "'a\\tb'.expandtabs(4)"

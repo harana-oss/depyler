@@ -1,0 +1,97 @@
+# Positional-Only Arguments Tests - Python 3.8+ / syntax
+# Rust Mapping: N/A (Rust args are positional by default)
+
+[metadata]
+name = "Positional-Only Arguments Tests"
+category = "modern-python"
+
+# =============================================================================
+# Basic Positional-Only
+# =============================================================================
+
+# TODO: Test simple positional-only
+# [[test]]
+# name = "posonly_basic"
+# description = "def f(x, /): ..."
+
+# TODO: Test multiple positional-only
+# [[test]]
+# name = "posonly_multiple"
+# description = "def f(a, b, c, /): ..."
+
+# TODO: Test mixed positional-only and regular
+# [[test]]
+# name = "posonly_mixed"
+# description = "def f(a, /, b): ..."
+
+# TODO: Test positional-only with defaults
+# [[test]]
+# name = "posonly_defaults"
+# description = "def f(a, b=1, /): ..."
+
+# =============================================================================
+# Combined with Keyword-Only
+# =============================================================================
+
+# TODO: Test positional-only and keyword-only
+# [[test]]
+# name = "posonly_kwonly"
+# description = "def f(a, /, b, *, c): ..."
+
+# TODO: Test all three kinds
+# [[test]]
+# name = "all_arg_kinds"
+# description = "def f(a, /, b, *args, c, **kwargs): ..."
+
+# =============================================================================
+# Use Cases
+# =============================================================================
+
+# TODO: Test preventing keyword usage
+# [[test]]
+# name = "posonly_prevent_kw"
+# description = "f(x=1) raises TypeError for positional-only x"
+
+# TODO: Test allowing same name as local
+# [[test]]
+# name = "posonly_name_reuse"
+# description = "def f(x, /): x = 1 (no conflict)"
+
+# TODO: Test API flexibility
+# [[test]]
+# name = "posonly_api_flex"
+# description = "Can rename positional-only params without breaking callers"
+
+# =============================================================================
+# Built-in Examples
+# =============================================================================
+
+# TODO: Test len(obj, /) pattern
+# [[test]]
+# name = "posonly_len"
+# description = "len() style: single positional-only arg"
+
+# TODO: Test pow(base, exp, mod=None, /)
+# [[test]]
+# name = "posonly_pow"
+# description = "pow() style: multiple with optional"
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+# TODO: Test empty after /
+# [[test]]
+# name = "posonly_empty_after"
+# description = "def f(a, /): all params are positional-only"
+
+# TODO: Test / at start (invalid)
+# [[test]]
+# name = "posonly_invalid"
+# description = "def f(/, a): is syntax error"
+# skip = true
+
+# TODO: Test positional-only with *args
+# [[test]]
+# name = "posonly_varargs"
+# description = "def f(a, /, *args): ..."

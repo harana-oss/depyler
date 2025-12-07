@@ -1,0 +1,154 @@
+# Template Strings Tests - string.Template
+# Rust Mapping: Custom templating
+
+[metadata]
+name = "Template Strings Tests"
+category = "strings"
+
+# =============================================================================
+# Basic Template
+# =============================================================================
+
+# TODO: Test simple substitution
+# [[test]]
+# name = "template_simple"
+# description = "Template('$name').substitute(name='World')"
+
+# TODO: Test braced substitution
+# [[test]]
+# name = "template_braced"
+# description = "Template('${name}').substitute(name='World')"
+
+# TODO: Test multiple placeholders
+# [[test]]
+# name = "template_multiple"
+# description = "Template('$a and $b').substitute(a=1, b=2)"
+
+# =============================================================================
+# substitute vs safe_substitute
+# =============================================================================
+
+# TODO: Test substitute missing key
+# [[test]]
+# name = "template_missing"
+# description = "substitute raises KeyError"
+# skip = true
+
+# TODO: Test safe_substitute
+# [[test]]
+# name = "template_safe"
+# description = "safe_substitute leaves missing placeholders"
+
+# TODO: Test safe_substitute partial
+# [[test]]
+# name = "template_safe_partial"
+# description = "safe_substitute with some keys"
+
+# =============================================================================
+# Escaping
+# =============================================================================
+
+# TODO: Test escape dollar
+# [[test]]
+# name = "template_escape"
+# description = "Template('$$10') -> '$10'"
+
+# TODO: Test escape in text
+# [[test]]
+# name = "template_escape_text"
+# description = "Template('Cost: $$${price}')"
+
+# =============================================================================
+# Mapping vs Keyword Args
+# =============================================================================
+
+# TODO: Test with dict
+# [[test]]
+# name = "template_dict"
+# description = "substitute({'name': 'World'})"
+
+# TODO: Test with kwargs
+# [[test]]
+# name = "template_kwargs"
+# description = "substitute(name='World')"
+
+# TODO: Test both
+# [[test]]
+# name = "template_both"
+# description = "substitute({'a': 1}, b=2)"
+
+# =============================================================================
+# Identifier Rules
+# =============================================================================
+
+# TODO: Test valid identifier
+# [[test]]
+# name = "template_identifier"
+# description = "$_name, $name1 valid"
+
+# TODO: Test braced with complex
+# [[test]]
+# name = "template_braced_complex"
+# description = "${name} for adjacent text"
+
+# =============================================================================
+# Custom Template
+# =============================================================================
+
+# TODO: Test custom delimiter
+# [[test]]
+# name = "template_custom_delim"
+# description = "class MyTemplate(Template): delimiter = '%'"
+
+# TODO: Test custom pattern
+# [[test]]
+# name = "template_custom_pattern"
+# description = "Override idpattern"
+
+# =============================================================================
+# Use Cases
+# =============================================================================
+
+# TODO: Test configuration
+# [[test]]
+# name = "template_config"
+# description = "Template for config files"
+
+# TODO: Test user input
+# [[test]]
+# name = "template_user_safe"
+# description = "safe_substitute for user templates"
+
+# =============================================================================
+# Comparison with f-strings
+# =============================================================================
+
+# TODO: Test runtime template
+# [[test]]
+# name = "template_runtime"
+# description = "Template read from file"
+
+# TODO: Test no code execution
+# [[test]]
+# name = "template_no_exec"
+# description = "Template('$x.foo') doesn't call .foo"
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+# TODO: Test empty template
+# [[test]]
+# name = "template_empty"
+# description = "Template('')"
+
+# TODO: Test no placeholders
+# [[test]]
+# name = "template_no_placeholders"
+# description = "Template('plain text')"
+
+# TODO: Test whitespace in braces
+# [[test]]
+# name = "template_brace_space"
+# description = "${ name } invalid"
+# skip = true

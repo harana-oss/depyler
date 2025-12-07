@@ -1,0 +1,141 @@
+# Await Expressions Tests - Awaiting coroutines
+# Rust Mapping: .await
+
+[metadata]
+name = "Await Expressions Tests"
+category = "async"
+
+# =============================================================================
+# Basic Await
+# =============================================================================
+
+# TODO: Test simple await
+# [[test]]
+# name = "await_basic"
+# description = "result = await coroutine()"
+
+# TODO: Test await in expression
+# [[test]]
+# name = "await_expression"
+# description = "x = await a() + await b()"
+
+# TODO: Test await in return
+# [[test]]
+# name = "await_return"
+# description = "return await f()"
+
+# =============================================================================
+# Awaitable Protocol
+# =============================================================================
+
+# TODO: Test __await__ method
+# [[test]]
+# name = "awaitable_protocol"
+# description = "def __await__(self): yield from ..."
+
+# TODO: Test custom awaitable
+# [[test]]
+# name = "custom_awaitable"
+# description = "Class implementing __await__"
+
+# TODO: Test awaiting future
+# [[test]]
+# name = "await_future"
+# description = "await asyncio.Future()"
+
+# =============================================================================
+# Await in Control Flow
+# =============================================================================
+
+# TODO: Test await in if
+# [[test]]
+# name = "await_in_if"
+# description = "if await condition(): ..."
+
+# TODO: Test await in while
+# [[test]]
+# name = "await_in_while"
+# description = "while await has_more(): ..."
+
+# TODO: Test await in try
+# [[test]]
+# name = "await_in_try"
+# description = "try: await f() except: ..."
+
+# =============================================================================
+# Chained Await
+# =============================================================================
+
+# TODO: Test chained await
+# [[test]]
+# name = "await_chained"
+# description = "await (await get_coro())()"
+
+# TODO: Test await on method call
+# [[test]]
+# name = "await_method"
+# description = "await obj.async_method()"
+
+# TODO: Test await on subscript
+# [[test]]
+# name = "await_subscript"
+# description = "await coros[0]"
+
+# =============================================================================
+# Await Context
+# =============================================================================
+
+# TODO: Test await only in async function
+# [[test]]
+# name = "await_context"
+# description = "await outside async is SyntaxError"
+# skip = true
+
+# TODO: Test await in nested function
+# [[test]]
+# name = "await_nested"
+# description = "await in inner async function"
+
+# TODO: Test await in comprehension
+# [[test]]
+# name = "await_in_comprehension"
+# description = "[await x for x in coros] in async def"
+
+# =============================================================================
+# Error Handling
+# =============================================================================
+
+# TODO: Test await propagates exception
+# [[test]]
+# name = "await_exception"
+# description = "Exception in awaited coro propagates"
+
+# TODO: Test await cancellation
+# [[test]]
+# name = "await_cancel"
+# description = "CancelledError on cancellation"
+
+# TODO: Test await timeout
+# [[test]]
+# name = "await_timeout"
+# description = "asyncio.wait_for with timeout"
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+# TODO: Test await None-returning coro
+# [[test]]
+# name = "await_none"
+# description = "await async_func_returning_none()"
+
+# TODO: Test multiple awaits sequential
+# [[test]]
+# name = "await_sequential"
+# description = "Sequential awaits run one at a time"
+
+# TODO: Test await on non-awaitable
+# [[test]]
+# name = "await_non_awaitable"
+# description = "TypeError: object cannot be awaited"
+# skip = true

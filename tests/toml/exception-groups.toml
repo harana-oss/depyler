@@ -1,0 +1,131 @@
+# Exception Groups Tests - Python 3.11+ exception handling
+# Rust Mapping: Result composition, error aggregation
+
+[metadata]
+name = "Exception Groups Tests"
+category = "modern-python"
+
+# =============================================================================
+# ExceptionGroup
+# =============================================================================
+
+# TODO: Test creating ExceptionGroup
+# [[test]]
+# name = "exception_group_create"
+# description = "ExceptionGroup('msg', [exc1, exc2])"
+
+# TODO: Test raising ExceptionGroup
+# [[test]]
+# name = "exception_group_raise"
+# description = "raise ExceptionGroup('errors', errors)"
+
+# TODO: Test nested ExceptionGroup
+# [[test]]
+# name = "exception_group_nested"
+# description = "ExceptionGroup containing ExceptionGroup"
+
+# =============================================================================
+# except* Syntax
+# =============================================================================
+
+# TODO: Test except* basic
+# [[test]]
+# name = "except_star_basic"
+# description = "except* ValueError as eg: ..."
+
+# TODO: Test multiple except* clauses
+# [[test]]
+# name = "except_star_multiple"
+# description = "except* ValueError: ... except* TypeError: ..."
+
+# TODO: Test except* with tuple
+# [[test]]
+# name = "except_star_tuple"
+# description = "except* (ValueError, TypeError) as eg: ..."
+
+# =============================================================================
+# Partial Handling
+# =============================================================================
+
+# TODO: Test partial exception handling
+# [[test]]
+# name = "exception_group_partial"
+# description = "except* handles some, rest propagates"
+
+# TODO: Test subgroup method
+# [[test]]
+# name = "exception_group_subgroup"
+# description = "eg.subgroup(ValueError) extracts matching"
+
+# TODO: Test split method
+# [[test]]
+# name = "exception_group_split"
+# description = "eg.split(ValueError) returns (match, rest)"
+
+# =============================================================================
+# BaseExceptionGroup
+# =============================================================================
+
+# TODO: Test BaseExceptionGroup
+# [[test]]
+# name = "base_exception_group"
+# description = "For BaseException subclasses like KeyboardInterrupt"
+
+# TODO: Test derive method
+# [[test]]
+# name = "exception_group_derive"
+# description = "Create new group with same message"
+
+# =============================================================================
+# Use Cases
+# =============================================================================
+
+# TODO: Test concurrent task errors
+# [[test]]
+# name = "exception_group_concurrent"
+# description = "Collecting errors from multiple tasks"
+
+# TODO: Test validation errors
+# [[test]]
+# name = "exception_group_validation"
+# description = "Multiple validation failures at once"
+
+# TODO: Test cleanup errors
+# [[test]]
+# name = "exception_group_cleanup"
+# description = "Multiple cleanup failures"
+
+# =============================================================================
+# Interaction with Regular Exceptions
+# =============================================================================
+
+# TODO: Test except* with non-group
+# [[test]]
+# name = "except_star_non_group"
+# description = "except* with regular exception (wrapped)"
+
+# TODO: Test mixing except and except*
+# [[test]]
+# name = "except_mixed"
+# description = "Cannot mix except and except* in same try"
+# skip = true
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+# TODO: Test empty ExceptionGroup
+# [[test]]
+# name = "exception_group_empty"
+# description = "ExceptionGroup with empty list"
+# skip = true
+
+# TODO: Test exception group message
+# [[test]]
+# name = "exception_group_message"
+# description = "Accessing group message and exceptions"
+
+# TODO: Test traceback with groups
+# [[test]]
+# name = "exception_group_traceback"
+# description = "Traceback formatting for groups"

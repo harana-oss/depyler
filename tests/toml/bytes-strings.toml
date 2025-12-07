@@ -1,0 +1,174 @@
+# Bytes Strings Tests - Bytes literals and operations
+# Rust Mapping: Vec<u8>, &[u8]
+
+[metadata]
+name = "Bytes Strings Tests"
+category = "strings"
+
+# =============================================================================
+# Bytes Literals
+# =============================================================================
+
+# TODO: Test bytes literal
+# [[test]]
+# name = "bytes_literal"
+# description = "b'hello'"
+
+# TODO: Test bytes double quotes
+# [[test]]
+# name = "bytes_double"
+# description = "b\"hello\""
+
+# TODO: Test bytes triple
+# [[test]]
+# name = "bytes_triple"
+# description = "b'''multi'''"
+
+# =============================================================================
+# Bytes Escape Sequences
+# =============================================================================
+
+# TODO: Test hex escape
+# [[test]]
+# name = "bytes_hex_escape"
+# description = "b'\\x41' == b'A'"
+
+# TODO: Test octal escape
+# [[test]]
+# name = "bytes_octal"
+# description = "b'\\101' == b'A'"
+
+# TODO: Test standard escapes
+# [[test]]
+# name = "bytes_escapes"
+# description = "b'\\n\\t\\r'"
+
+# =============================================================================
+# Bytes from String
+# =============================================================================
+
+# TODO: Test encode
+# [[test]]
+# name = "bytes_encode"
+# description = "'hello'.encode('utf-8')"
+
+# TODO: Test encode errors
+# [[test]]
+# name = "bytes_encode_errors"
+# description = "encode(errors='ignore')"
+
+# TODO: Test bytes constructor
+# [[test]]
+# name = "bytes_constructor"
+# description = "bytes('hello', 'utf-8')"
+
+# =============================================================================
+# String from Bytes
+# =============================================================================
+
+# TODO: Test decode
+# [[test]]
+# name = "bytes_decode"
+# description = "b'hello'.decode('utf-8')"
+
+# TODO: Test decode errors
+# [[test]]
+# name = "bytes_decode_errors"
+# description = "decode(errors='replace')"
+
+# =============================================================================
+# Bytes Operations
+# =============================================================================
+
+# TODO: Test concatenation
+# [[test]]
+# name = "bytes_concat"
+# description = "b'a' + b'b'"
+
+# TODO: Test repetition
+# [[test]]
+# name = "bytes_repeat"
+# description = "b'ab' * 3"
+
+# TODO: Test indexing
+# [[test]]
+# name = "bytes_index_int"
+# description = "b'abc'[0] == 97"
+
+# TODO: Test slicing
+# [[test]]
+# name = "bytes_slice"
+# description = "b'hello'[1:4]"
+
+# =============================================================================
+# Bytes vs Bytearray
+# =============================================================================
+
+# TODO: Test bytes immutable
+# [[test]]
+# name = "bytes_immutable"
+# description = "b'x'[0] = 1 raises"
+# skip = true
+
+# TODO: Test bytearray mutable
+# [[test]]
+# name = "bytearray_mutable"
+# description = "ba[0] = 65"
+
+# TODO: Test conversion
+# [[test]]
+# name = "bytes_to_bytearray"
+# description = "bytearray(b'hello')"
+
+# =============================================================================
+# Raw Bytes
+# =============================================================================
+
+# TODO: Test raw bytes
+# [[test]]
+# name = "raw_bytes_rb"
+# description = "rb'\\n' literal backslash"
+
+# TODO: Test br prefix
+# [[test]]
+# name = "raw_bytes_br"
+# description = "br'\\n' same as rb"
+
+# =============================================================================
+# Bytes Methods
+# =============================================================================
+
+# TODO: Test find
+# [[test]]
+# name = "bytes_find"
+# description = "b'hello'.find(b'l')"
+
+# TODO: Test split
+# [[test]]
+# name = "bytes_split"
+# description = "b'a,b,c'.split(b',')"
+
+# TODO: Test join
+# [[test]]
+# name = "bytes_join"
+# description = "b','.join([b'a', b'b'])"
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+# TODO: Test non-ASCII error
+# [[test]]
+# name = "bytes_non_ascii"
+# description = "b'é' syntax error"
+# skip = true
+
+# TODO: Test empty bytes
+# [[test]]
+# name = "bytes_empty"
+# description = "b'' and bytes()"
+
+# TODO: Test bytes vs str comparison
+# [[test]]
+# name = "bytes_str_compare"
+# description = "b'a' != 'a'"

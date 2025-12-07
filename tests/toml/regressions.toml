@@ -600,3 +600,231 @@ def large_func(x: int) -> int:
 
 [test.assertions]
 contains = ["fn large_func"]
+
+# =============================================================================
+# Large Integration Tests (migrated from test_mega.rs)
+# =============================================================================
+
+[[test]]
+name = "sports_simulation_dataclasses"
+description = "Complex dataclass hierarchy for sports simulation"
+tags = ["integration", "dataclass", "complex"]
+compile_check = true
+
+[test.python]
+code = '''
+from dataclasses import dataclass
+from typing import List, Optional
+
+@dataclass
+class Scores:
+    conversions: int
+    field_goals: int
+    penalties: int
+    total: int
+    tries: int
+
+@dataclass
+class Period:
+    number: int
+    name: str
+
+@dataclass
+class PeriodStatistic:
+    conversions_missed: int
+    penalties_awarded: int
+    period: Period
+    scores: Scores
+    tackles: int
+    turnovers: int
+
+@dataclass
+class FieldPosition:
+    x: int
+    y: int
+
+@dataclass
+class PlayerPosition:
+    position_type: str
+
+@dataclass
+class PlayerPeriodStatistics:
+    metres_gained: int
+    scores: Scores
+    tackles: int
+
+@dataclass
+class PlayerStatistics:
+    jersey_number: int
+    player_index: int
+    tackles: int
+    metres_gained: int
+    scores: Scores
+    time_on_field_in_seconds: float
+
+@dataclass
+class Player:
+    is_home_team: bool
+    is_injured: bool
+    is_voided: bool
+    jersey_number: int
+    on_field: bool
+    player_index: int
+    position: PlayerPosition
+    tries: int
+
+@dataclass
+class TeamStatistic:
+    match_scores: Scores
+    match_tackles: int
+    match_turnovers: int
+    period_statistics: List[PeriodStatistic]
+    sin_bin_players: List[Player]
+
+@dataclass
+class TryScorers:
+    player_indices: List[int]
+
+@dataclass
+class SimulationInvariants:
+    away_handicap: float
+    home_handicap: float
+    total_points: float
+
+@dataclass
+class State:
+    away_match_score: int
+    away_players: List[Player]
+    away_statistics: TeamStatistic
+    ball_location: FieldPosition
+    current_play_type: str
+    home_match_score: int
+    home_players: List[Player]
+    home_statistics: TeamStatistic
+    is_over: bool
+    period: Period
+    seconds_elapsed: int
+    set: int
+    simulation_invariants: SimulationInvariants
+    tackles: int
+    team_in_possession: str
+'''
+
+[test.assertions]
+contains = ["struct Scores", "struct State", "struct Player", "struct TeamStatistic"]
+
+[[test]]
+name = "sports_simulation_constants"
+description = "Multiple constant definitions with various types"
+tags = ["integration", "constants"]
+
+[test.python]
+code = '''
+from typing import Final
+
+CENTRE_OF_THE_FIELD_X: Final[int] = 500
+CENTRE_OF_THE_FIELD_Y: Final[int] = 350
+TRY_POINTS: Final[int] = 4
+PENALTY_POINTS: Final[int] = 2
+FIELD_GOAL_POINTS: Final[int] = 1
+TACKLES_PER_SET: Final[int] = 6
+MAX_INTERCHANGES: Final[int] = 8
+GAME_LENGTH_IN_SECONDS: Final[int] = 4800
+HALF_LENGTH_IN_SECONDS: Final[int] = 2400
+PLAYER_POSITIONS: Final[list[str]] = ["FullBack", "WingerOne", "CentreOne", "CentreTwo", "WingerTwo"]
+PLAYING_FIELD_WIDTH: Final[int] = 1000
+PLAYING_FIELD_HEIGHT: Final[int] = 700
+'''
+
+[test.assertions]
+contains = ["const CENTRE_OF_THE_FIELD_X", "const TRY_POINTS"]
+
+[[test]]
+name = "sports_simulation_game_logic"
+description = "Complex game logic with conditional branching"
+tags = ["integration", "logic", "conditional"]
+
+[test.python]
+code = '''
+from typing import Final
+
+TACKLES_PER_SET: Final[int] = 6
+STARTING_TACKLE: Final[int] = 1
+
+def swap_possession(team_in_possession: str) -> str:
+    return "Away" if team_in_possession == "Home" else "Home"
+
+def process_tackle(tackles: int, team_in_possession: str) -> tuple[int, str]:
+    tackles = tackles + 1
+    if tackles > TACKLES_PER_SET:
+        team_in_possession = swap_possession(team_in_possession)
+        tackles = STARTING_TACKLE
+    return (tackles, team_in_possession)
+
+def calculate_margin(home_score: int, away_score: int, team: str) -> int:
+    if team == "Home":
+        return home_score - away_score
+    return away_score - home_score
+
+def is_in_scoring_position(ball_x: int, team: str, field_width: int) -> bool:
+    if team == "Home":
+        return ball_x > field_width - 100
+    return ball_x < 100
+'''
+
+[test.assertions]
+contains = ["fn swap_possession", "fn process_tackle", "fn calculate_margin", "fn is_in_scoring_position"]
+
+[[test]]
+name = "sports_simulation_event_handler"
+description = "Event handler pattern with optional types"
+tags = ["integration", "events", "optional"]
+
+[test.python]
+code = '''
+from dataclasses import dataclass
+from typing import Optional
+
+@dataclass
+class Scores:
+    total: int
+    tries: int
+
+@dataclass
+class PeriodStatistic:
+    scores: Scores
+
+@dataclass
+class TeamStatistics:
+    period_statistics: list[PeriodStatistic]
+    match_scores: Scores
+
+@dataclass
+class State:
+    game_status: str
+    is_over: bool
+    home_statistics: TeamStatistics
+    away_statistics: TeamStatistics
+    home_match_score: int
+    away_match_score: int
+
+FIRST_HALF_INDEX: int = 0
+SECOND_HALF_INDEX: int = 1
+
+def end_of_game_output_event(state: State) -> None:
+    away_second_half_stats: PeriodStatistic | None = None
+    home_second_half_stats: PeriodStatistic | None = None
+    team_a_won_match: bool = False
+    draw_match: bool = False
+
+    if state.game_status == "ENDED":
+        home_second_half_stats = state.home_statistics.period_statistics[SECOND_HALF_INDEX]
+        away_second_half_stats = state.away_statistics.period_statistics[SECOND_HALF_INDEX]
+        
+        team_a_won_match = state.home_match_score > state.away_match_score
+        draw_match = state.home_match_score == state.away_match_score
+'''
+
+[test.assertions]
+contains = ["fn end_of_game_output_event", "struct State", "struct TeamStatistics"]
+

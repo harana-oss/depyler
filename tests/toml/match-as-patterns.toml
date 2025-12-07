@@ -1,0 +1,131 @@
+# Match AS Patterns Tests - Binding matched values with as
+# Rust Mapping: @ pattern binding
+
+[metadata]
+name = "Match AS Patterns Tests"
+category = "modern-python"
+
+# =============================================================================
+# Basic AS Patterns
+# =============================================================================
+
+# TODO: Test simple as binding
+# [[test]]
+# name = "as_basic"
+# description = "case [x, y] as point: use point"
+
+# TODO: Test as with literal
+# [[test]]
+# name = "as_literal"
+# description = "case 'hello' as greeting: ..."
+
+# TODO: Test as with class
+# [[test]]
+# name = "as_class"
+# description = "case Point(x, y) as p: use p, x, y"
+
+# =============================================================================
+# AS with Complex Patterns
+# =============================================================================
+
+# TODO: Test as with sequence
+# [[test]]
+# name = "as_sequence"
+# description = "case [first, *rest] as all: ..."
+
+# TODO: Test as with mapping
+# [[test]]
+# name = "as_mapping"
+# description = "case {'key': value} as d: ..."
+
+# TODO: Test as with nested pattern
+# [[test]]
+# name = "as_nested"
+# description = "case {'data': [x, y] as coords}: ..."
+
+# =============================================================================
+# AS with OR Patterns
+# =============================================================================
+
+# TODO: Test as with OR
+# [[test]]
+# name = "as_with_or"
+# description = "case (1 | 2 | 3) as num: capture which matched"
+
+# TODO: Test as capturing OR result
+# [[test]]
+# name = "as_or_result"
+# description = "case ('yes' | 'y') as answer: ..."
+
+# =============================================================================
+# Nested AS Patterns
+# =============================================================================
+
+# TODO: Test nested as
+# [[test]]
+# name = "as_nested_binding"
+# description = "case (Point(x, y) as p1, Point(a, b) as p2): ..."
+
+# TODO: Test as on subpattern
+# [[test]]
+# name = "as_subpattern"
+# description = "case [first as f, *rest]: ..."
+
+# =============================================================================
+# Use Cases
+# =============================================================================
+
+# TODO: Test preserve whole while destructuring
+# [[test]]
+# name = "as_preserve_whole"
+# description = "Access both parts and whole"
+
+# TODO: Test conditional with whole
+# [[test]]
+# name = "as_conditional"
+# description = "case x as whole if validate(whole): ..."
+
+# TODO: Test nested data extraction
+# [[test]]
+# name = "as_nested_data"
+# description = "Extract nested while keeping container"
+
+# =============================================================================
+# AS with Guards
+# =============================================================================
+
+# TODO: Test as with guard using alias
+# [[test]]
+# name = "as_guard_alias"
+# description = "case [x, y] as point if is_valid(point): ..."
+
+# TODO: Test as providing context to guard
+# [[test]]
+# name = "as_guard_context"
+# description = "Guard uses both destructured and whole"
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+# TODO: Test as with wildcard
+# [[test]]
+# name = "as_wildcard"
+# description = "case _ as x: capture anything"
+
+# TODO: Test multiple as same level
+# [[test]]
+# name = "as_multiple_same"
+# description = "case (a as x) as y: nested as"
+# skip = true
+
+# TODO: Test as binding scope
+# [[test]]
+# name = "as_scope"
+# description = "as bindings available in guard and body"
+
+# TODO: Test as with capture conflict
+# [[test]]
+# name = "as_capture_conflict"
+# description = "case x as x: same name"
+# skip = true

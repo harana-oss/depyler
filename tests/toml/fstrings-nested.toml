@@ -1,0 +1,106 @@
+# F-Strings Nested Tests - Nested f-strings (Python 3.12+)
+# Rust Mapping: Nested format! macros
+
+[metadata]
+name = "F-Strings Nested Tests"
+category = "strings"
+
+# =============================================================================
+# Basic Nested F-Strings (3.12+)
+# =============================================================================
+
+# TODO: Test nested f-string
+# [[test]]
+# name = "fstring_nested_basic"
+# description = "f'{f\"{inner}\"}'"
+
+# TODO: Test nested with expression
+# [[test]]
+# name = "fstring_nested_expr"
+# description = "f'{f\"{x + y}\"}'"
+
+# =============================================================================
+# Before 3.12 Workarounds
+# =============================================================================
+
+# TODO: Test format method
+# [[test]]
+# name = "fstring_nested_format"
+# description = "f'{\"{}\".format(x)}'"
+
+# TODO: Test variable assignment
+# [[test]]
+# name = "fstring_nested_var"
+# description = "inner = f'{x}'; f'{inner}'"
+
+# TODO: Test str.format
+# [[test]]
+# name = "fstring_nested_strformat"
+# description = "'{}'.format(f'{x}')"
+
+# =============================================================================
+# Nested Format Specs
+# =============================================================================
+
+# TODO: Test nested format spec
+# [[test]]
+# name = "fstring_nested_spec"
+# description = "f'{value:{width}.{precision}}'"
+
+# TODO: Test dynamic alignment
+# [[test]]
+# name = "fstring_nested_align"
+# description = "f'{text:{align}{width}}'"
+
+# =============================================================================
+# Deeply Nested
+# =============================================================================
+
+# TODO: Test multiple levels (3.12+)
+# [[test]]
+# name = "fstring_deep_nested"
+# description = "f'{f\"{f'{x}'}\"}'"
+
+# =============================================================================
+# Quote Reuse (3.12+)
+# =============================================================================
+
+# TODO: Test same quotes
+# [[test]]
+# name = "fstring_same_quotes"
+# description = "f'text {\"quoted\"}'"
+
+# TODO: Test triple quotes nested
+# [[test]]
+# name = "fstring_triple_nested"
+# description = "f'''{f'''inner'''}'''"
+
+# =============================================================================
+# Use Cases
+# =============================================================================
+
+# TODO: Test dynamic table
+# [[test]]
+# name = "fstring_nested_table"
+# description = "f'{name:{max_len}}'"
+
+# TODO: Test JSON-like
+# [[test]]
+# name = "fstring_nested_json"
+# description = "f'{{\"key\": \"{value}\"}}'"
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+# TODO: Test backslash in nested
+# [[test]]
+# name = "fstring_nested_backslash"
+# description = "Backslash restrictions"
+# skip = true
+
+# TODO: Test comments in nested
+# [[test]]
+# name = "fstring_nested_comments"
+# description = "Comments not allowed"
+# skip = true

@@ -1,0 +1,107 @@
+# Keyword-Only Arguments Tests - Python 3.0+ * syntax
+# Rust Mapping: Builder pattern, named parameters via struct
+
+[metadata]
+name = "Keyword-Only Arguments Tests"
+category = "modern-python"
+
+# =============================================================================
+# Basic Keyword-Only
+# =============================================================================
+
+# TODO: Test bare * for keyword-only
+# [[test]]
+# name = "kwonly_basic"
+# description = "def f(*, x): ... (x must be keyword)"
+
+# TODO: Test multiple keyword-only
+# [[test]]
+# name = "kwonly_multiple"
+# description = "def f(*, a, b, c): ..."
+
+# TODO: Test keyword-only with defaults
+# [[test]]
+# name = "kwonly_defaults"
+# description = "def f(*, x=0, y=0): ..."
+
+# =============================================================================
+# Combined with Regular Args
+# =============================================================================
+
+# TODO: Test regular and keyword-only
+# [[test]]
+# name = "kwonly_with_regular"
+# description = "def f(a, b, *, c, d): ..."
+
+# TODO: Test *args before keyword-only
+# [[test]]
+# name = "kwonly_with_varargs"
+# description = "def f(*args, x, y): ..."
+
+# TODO: Test **kwargs after keyword-only
+# [[test]]
+# name = "kwonly_with_kwargs"
+# description = "def f(*, x, **kwargs): ..."
+
+# =============================================================================
+# Use Cases
+# =============================================================================
+
+# TODO: Test forcing keyword usage
+# [[test]]
+# name = "kwonly_force_named"
+# description = "f(x=1) required, f(1) raises TypeError"
+
+# TODO: Test self-documenting calls
+# [[test]]
+# name = "kwonly_self_doc"
+# description = "f(verbose=True, recursive=False)"
+
+# TODO: Test preventing argument confusion
+# [[test]]
+# name = "kwonly_clarity"
+# description = "Avoid confusion with multiple similar args"
+
+# =============================================================================
+# Required vs Optional Keyword-Only
+# =============================================================================
+
+# TODO: Test required keyword-only
+# [[test]]
+# name = "kwonly_required"
+# description = "def f(*, x): x has no default, must be passed"
+
+# TODO: Test optional keyword-only
+# [[test]]
+# name = "kwonly_optional"
+# description = "def f(*, x=None): x has default"
+
+# TODO: Test mixed required and optional
+# [[test]]
+# name = "kwonly_mixed_req"
+# description = "def f(*, a, b=0): a required, b optional"
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+# TODO: Test keyword-only with type hints
+# [[test]]
+# name = "kwonly_type_hints"
+# description = "def f(*, x: int, y: str = ''): ..."
+
+# TODO: Test keyword-only in method
+# [[test]]
+# name = "kwonly_method"
+# description = "def method(self, *, x): ..."
+
+# TODO: Test keyword-only with classmethod
+# [[test]]
+# name = "kwonly_classmethod"
+# description = "@classmethod def f(cls, *, x): ..."
+
+# TODO: Test * without following args (valid but useless)
+# [[test]]
+# name = "kwonly_bare_star_end"
+# description = "def f(a, *): is syntax error"
+# skip = true

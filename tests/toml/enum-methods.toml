@@ -1,0 +1,152 @@
+# Enum Methods Tests - Custom enum methods
+# Rust Mapping: impl block for enum
+
+[metadata]
+name = "Enum Methods Tests"
+category = "data-structures"
+
+# =============================================================================
+# Instance Methods
+# =============================================================================
+
+# TODO: Test custom method
+# [[test]]
+# name = "enum_custom_method"
+# description = "def describe(self): return f'{self.name}: {self.value}'"
+
+# TODO: Test method accessing value
+# [[test]]
+# name = "enum_method_value"
+# description = "Method using self.value"
+
+# TODO: Test method accessing name
+# [[test]]
+# name = "enum_method_name"
+# description = "Method using self.name"
+
+# =============================================================================
+# Static and Class Methods
+# =============================================================================
+
+# TODO: Test staticmethod
+# [[test]]
+# name = "enum_staticmethod"
+# description = "@staticmethod def helper(): ..."
+
+# TODO: Test classmethod
+# [[test]]
+# name = "enum_classmethod"
+# description = "@classmethod def from_string(cls, s): ..."
+
+# TODO: Test classmethod access members
+# [[test]]
+# name = "enum_classmethod_members"
+# description = "cls.__members__ in classmethod"
+
+# =============================================================================
+# Dunder Methods
+# =============================================================================
+
+# TODO: Test __str__
+# [[test]]
+# name = "enum_custom_str"
+# description = "def __str__(self): return self.value"
+
+# TODO: Test __repr__
+# [[test]]
+# name = "enum_custom_repr"
+# description = "def __repr__(self): ..."
+
+# TODO: Test __format__
+# [[test]]
+# name = "enum_custom_format"
+# description = "def __format__(self, spec): ..."
+
+# TODO: Test __bool__
+# [[test]]
+# name = "enum_custom_bool"
+# description = "def __bool__(self): return self.value != 0"
+
+# =============================================================================
+# Properties
+# =============================================================================
+
+# TODO: Test property
+# [[test]]
+# name = "enum_property"
+# description = "@property def label(self): ..."
+
+# TODO: Test computed property
+# [[test]]
+# name = "enum_computed"
+# description = "Property computing from value"
+
+# =============================================================================
+# _generate_next_value_
+# =============================================================================
+
+# TODO: Test _generate_next_value_
+# [[test]]
+# name = "enum_generate_next"
+# description = "Customize auto() behavior"
+
+# TODO: Test custom auto values
+# [[test]]
+# name = "enum_custom_auto"
+# description = "auto() returns custom values"
+
+# =============================================================================
+# _missing_
+# =============================================================================
+
+# TODO: Test _missing_
+# [[test]]
+# name = "enum_missing"
+# description = "Handle unknown values"
+
+# TODO: Test fallback value
+# [[test]]
+# name = "enum_fallback"
+# description = "_missing_ returns default member"
+
+# =============================================================================
+# _ignore_
+# =============================================================================
+
+# TODO: Test _ignore_
+# [[test]]
+# name = "enum_ignore"
+# description = "_ignore_ = ['helper'] excludes names"
+
+# =============================================================================
+# Mixin Classes
+# =============================================================================
+
+# TODO: Test enum with mixin
+# [[test]]
+# name = "enum_mixin"
+# description = "class Color(Mixin, Enum): ..."
+
+# TODO: Test OrderedEnum
+# [[test]]
+# name = "enum_ordered"
+# description = "Mixin providing ordering"
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+# TODO: Test new with extra data
+# [[test]]
+# name = "enum_new"
+# description = "__new__ for complex members"
+
+# TODO: Test member with multiple values
+# [[test]]
+# name = "enum_multi_value"
+# description = "MEMBER = (value, extra)"
+
+# TODO: Test __init__ with args
+# [[test]]
+# name = "enum_init_args"
+# description = "__init__(self, val, desc): ..."

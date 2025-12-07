@@ -1,0 +1,49 @@
+# Walrus Operator Tests - Assignment expressions (:=) in Python
+# Rust Mapping: `let` bindings in expressions
+
+[metadata]
+name = "Walrus Operator Tests"
+category = "core-language"
+
+# =============================================================================
+# Basic Assignment Expressions
+# =============================================================================
+
+# TODO: Test := in if conditions
+# [[test]]
+# name = "walrus_in_if_condition"
+# description = "Assignment expression in if condition"
+# Example: if (n := len(items)) > 10:
+
+# TODO: Test := in while conditions
+# [[test]]
+# name = "walrus_in_while_condition"
+# description = "Assignment expression in while loop"
+# Example: while (line := file.readline()):
+
+# TODO: Test := in list comprehensions
+# [[test]]
+# name = "walrus_in_list_comprehension"
+# description = "Assignment expression in list comprehension filter"
+# Example: [y for x in data if (y := f(x)) is not None]
+
+# TODO: Test := with function calls
+# [[test]]
+# name = "walrus_with_function_call"
+# description = "Assignment expression capturing function result"
+# Example: if (match := pattern.search(text)) is not None:
+
+# TODO: Test nested walrus operators
+# [[test]]
+# name = "walrus_nested"
+# description = "Multiple assignment expressions in one statement"
+
+# TODO: Test walrus in generator expressions
+# [[test]]
+# name = "walrus_in_generator"
+# description = "Assignment expression in generator expression"
+
+# TODO: Test walrus operator scope
+# [[test]]
+# name = "walrus_scope"
+# description = "Variable scope with walrus operator"

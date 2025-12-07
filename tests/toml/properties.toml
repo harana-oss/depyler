@@ -1,0 +1,116 @@
+# Property Tests - The @property decorator
+# Rust Mapping: Methods, builder pattern, getter/setter methods
+
+[metadata]
+name = "Property Tests"
+category = "advanced-oop"
+
+# =============================================================================
+# Basic Property
+# =============================================================================
+
+# TODO: Test @property getter
+# [[test]]
+# name = "property_getter"
+# description = "@property def x(self): return self._x"
+
+# TODO: Test property setter
+# [[test]]
+# name = "property_setter"
+# description = "@x.setter def x(self, value): self._x = value"
+
+# TODO: Test property deleter
+# [[test]]
+# name = "property_deleter"
+# description = "@x.deleter def x(self): del self._x"
+
+# =============================================================================
+# Property Patterns
+# =============================================================================
+
+# TODO: Test read-only property
+# [[test]]
+# name = "property_readonly"
+# description = "Property with only getter"
+
+# TODO: Test computed property
+# [[test]]
+# name = "property_computed"
+# description = "Property that computes value from other attributes"
+
+# TODO: Test validated property
+# [[test]]
+# name = "property_validated"
+# description = "Setter that validates before assignment"
+
+# TODO: Test property with type conversion
+# [[test]]
+# name = "property_type_conversion"
+# description = "Setter converts type (e.g., str to int)"
+
+# =============================================================================
+# Property Factory
+# =============================================================================
+
+# TODO: Test property() function
+# [[test]]
+# name = "property_function"
+# description = "x = property(get_x, set_x, del_x, 'docstring')"
+
+# TODO: Test property with lambda
+# [[test]]
+# name = "property_lambda"
+# description = "x = property(lambda self: self._x)"
+
+# =============================================================================
+# Property Inheritance
+# =============================================================================
+
+# TODO: Test property override in subclass
+# [[test]]
+# name = "property_override"
+# description = "Subclass overrides parent property"
+
+# TODO: Test extending parent property
+# [[test]]
+# name = "property_extend"
+# description = "Override only setter, keep parent getter"
+
+# =============================================================================
+# Property with Descriptors
+# =============================================================================
+
+# TODO: Test property is a descriptor
+# [[test]]
+# name = "property_is_descriptor"
+# description = "Property implements descriptor protocol"
+
+# TODO: Test class-level property access
+# [[test]]
+# name = "property_class_access"
+# description = "MyClass.prop returns property object"
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+# TODO: Test property docstring
+# [[test]]
+# name = "property_docstring"
+# description = "@property preserves docstring"
+
+# TODO: Test property with classmethod (invalid)
+# [[test]]
+# name = "property_classmethod"
+# description = "Cannot combine @property and @classmethod"
+# skip = true
+
+# TODO: Test property name shadowing
+# [[test]]
+# name = "property_shadowing"
+# description = "Property name same as backing attribute"
+
+# TODO: Test cached_property (3.8+)
+# [[test]]
+# name = "cached_property"
+# description = "@functools.cached_property"

@@ -1,0 +1,136 @@
+# Mutable Closures Tests - Closures with nonlocal mutation
+# Rust Mapping: FnMut, RefCell patterns
+
+[metadata]
+name = "Mutable Closures Tests"
+category = "decorators-closures"
+
+# =============================================================================
+# Read-Only vs Mutable
+# =============================================================================
+
+# TODO: Test read-only closure
+# [[test]]
+# name = "closure_readonly"
+# description = "Inner reads but doesn't modify outer variable"
+
+# TODO: Test assignment creates local
+# [[test]]
+# name = "closure_local_shadow"
+# description = "x = 1 in inner creates local, not modify outer"
+
+# TODO: Test UnboundLocalError
+# [[test]]
+# name = "closure_unbound_error"
+# description = "Read before assign in same function"
+# skip = true
+
+# =============================================================================
+# nonlocal Statement
+# =============================================================================
+
+# TODO: Test nonlocal basic
+# [[test]]
+# name = "nonlocal_basic"
+# description = "nonlocal x; x = new_value"
+
+# TODO: Test nonlocal modify
+# [[test]]
+# name = "nonlocal_modify"
+# description = "Modify enclosing scope variable"
+
+# TODO: Test nonlocal increment
+# [[test]]
+# name = "nonlocal_increment"
+# description = "nonlocal count; count += 1"
+
+# =============================================================================
+# Mutable Closure Patterns
+# =============================================================================
+
+# TODO: Test counter with nonlocal
+# [[test]]
+# name = "mutable_counter"
+# description = "def counter(): count = 0; def inc(): nonlocal count; count += 1; return count"
+
+# TODO: Test stateful closure
+# [[test]]
+# name = "mutable_state"
+# description = "Closure maintaining mutable state"
+
+# TODO: Test getter/setter closure
+# [[test]]
+# name = "mutable_getter_setter"
+# description = "Return get and set functions"
+
+# =============================================================================
+# Multiple Functions Sharing State
+# =============================================================================
+
+# TODO: Test shared state
+# [[test]]
+# name = "mutable_shared"
+# description = "Multiple inner functions share outer variable"
+
+# TODO: Test increment and decrement
+# [[test]]
+# name = "mutable_inc_dec"
+# description = "def make(): x=0; def inc(): nonlocal x; x+=1; def dec(): nonlocal x; x-=1"
+
+# TODO: Test factory with shared state
+# [[test]]
+# name = "mutable_factory_shared"
+# description = "Closures from same call share state"
+
+# =============================================================================
+# nonlocal Chain
+# =============================================================================
+
+# TODO: Test nonlocal chain
+# [[test]]
+# name = "nonlocal_chain"
+# description = "nonlocal in deeply nested function"
+
+# TODO: Test nonlocal skipping level
+# [[test]]
+# name = "nonlocal_skip"
+# description = "nonlocal finds variable in outer scope"
+
+# =============================================================================
+# Alternatives to nonlocal
+# =============================================================================
+
+# TODO: Test mutable container instead
+# [[test]]
+# name = "mutable_container"
+# description = "state = [0] instead of nonlocal"
+
+# TODO: Test class instead of closure
+# [[test]]
+# name = "mutable_class_alternative"
+# description = "Class with __call__ vs mutable closure"
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+# TODO: Test nonlocal not in global
+# [[test]]
+# name = "nonlocal_not_global"
+# description = "nonlocal doesn't work for globals"
+# skip = true
+
+# TODO: Test nonlocal in method
+# [[test]]
+# name = "nonlocal_method"
+# description = "nonlocal in nested function in method"
+
+# TODO: Test del with nonlocal
+# [[test]]
+# name = "nonlocal_del"
+# description = "del on nonlocal variable"
+
+# TODO: Test nonlocal multiple variables
+# [[test]]
+# name = "nonlocal_multiple"
+# description = "nonlocal a, b, c"

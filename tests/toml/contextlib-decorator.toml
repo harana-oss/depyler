@@ -1,0 +1,133 @@
+# @contextmanager Decorator Tests - Generator-based context managers
+# Rust Mapping: Custom wrapper implementation
+
+[metadata]
+name = "@contextmanager Decorator Tests"
+category = "context-managers"
+
+# =============================================================================
+# Basic @contextmanager
+# =============================================================================
+
+# TODO: Test simple contextmanager
+# [[test]]
+# name = "contextmanager_basic"
+# description = "@contextmanager def cm(): yield"
+
+# TODO: Test contextmanager with setup
+# [[test]]
+# name = "contextmanager_setup"
+# description = "Setup before yield"
+
+# TODO: Test contextmanager with teardown
+# [[test]]
+# name = "contextmanager_teardown"
+# description = "Teardown after yield"
+
+# TODO: Test contextmanager yield value
+# [[test]]
+# name = "contextmanager_yield"
+# description = "yield value bound with as"
+
+# =============================================================================
+# Try/Finally Pattern
+# =============================================================================
+
+# TODO: Test contextmanager try/finally
+# [[test]]
+# name = "contextmanager_try_finally"
+# description = "try: yield finally: cleanup"
+
+# TODO: Test exception handling
+# [[test]]
+# name = "contextmanager_exception"
+# description = "Exception propagates through yield"
+
+# TODO: Test suppress with try/except
+# [[test]]
+# name = "contextmanager_suppress"
+# description = "try: yield except: pass to suppress"
+
+# =============================================================================
+# @contextmanager Use Cases
+# =============================================================================
+
+# TODO: Test temporary value change
+# [[test]]
+# name = "contextmanager_temp_value"
+# description = "Change and restore a value"
+
+# TODO: Test timing context
+# [[test]]
+# name = "contextmanager_timing"
+# description = "Measure time in context"
+
+# TODO: Test working directory change
+# [[test]]
+# name = "contextmanager_chdir"
+# description = "Change and restore cwd"
+
+# TODO: Test environment variable
+# [[test]]
+# name = "contextmanager_environ"
+# description = "Set and restore env var"
+
+# =============================================================================
+# Multiple Yields
+# =============================================================================
+
+# TODO: Test single yield required
+# [[test]]
+# name = "contextmanager_single_yield"
+# description = "Must yield exactly once"
+# skip = true
+
+# TODO: Test no yield error
+# [[test]]
+# name = "contextmanager_no_yield"
+# description = "RuntimeError if no yield"
+# skip = true
+
+# TODO: Test multiple yields error
+# [[test]]
+# name = "contextmanager_multi_yield"
+# description = "RuntimeError if multiple yields"
+# skip = true
+
+# =============================================================================
+# Comparison with Class-Based
+# =============================================================================
+
+# TODO: Test equivalent to class
+# [[test]]
+# name = "contextmanager_vs_class"
+# description = "@contextmanager vs __enter__/__exit__"
+
+# TODO: Test when to use each
+# [[test]]
+# name = "contextmanager_when"
+# description = "Generator simpler for simple cases"
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+# TODO: Test contextmanager with parameters
+# [[test]]
+# name = "contextmanager_params"
+# description = "@contextmanager def cm(x, y): ..."
+
+# TODO: Test exception in setup
+# [[test]]
+# name = "contextmanager_setup_fail"
+# description = "Exception before yield"
+
+# TODO: Test exception in teardown
+# [[test]]
+# name = "contextmanager_teardown_fail"
+# description = "Exception after yield"
+
+# TODO: Test reusing contextmanager
+# [[test]]
+# name = "contextmanager_reuse"
+# description = "Each call creates new generator"

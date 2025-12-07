@@ -1,0 +1,151 @@
+# Complex Number Tests - Python complex literals and arithmetic
+# Rust Mapping: num::Complex crate
+
+[metadata]
+name = "Complex Number Tests"
+category = "core-language"
+
+# =============================================================================
+# Complex Literals
+# =============================================================================
+
+# TODO: Test imaginary literal
+# [[test]]
+# name = "imaginary_literal"
+# description = "x = 3j"
+
+# TODO: Test complex literal
+# [[test]]
+# name = "complex_literal"
+# description = "x = 3 + 4j"
+
+# TODO: Test complex with float
+# [[test]]
+# name = "complex_float"
+# description = "x = 3.14 + 2.71j"
+
+# TODO: Test pure imaginary
+# [[test]]
+# name = "pure_imaginary"
+# description = "x = 1j"
+
+# TODO: Test complex() constructor
+# [[test]]
+# name = "complex_constructor"
+# description = "complex(3, 4)"
+
+# TODO: Test complex from string
+# [[test]]
+# name = "complex_from_string"
+# description = "complex('3+4j')"
+
+# =============================================================================
+# Complex Arithmetic
+# =============================================================================
+
+# TODO: Test complex addition
+# [[test]]
+# name = "complex_add"
+# description = "(1+2j) + (3+4j)"
+
+# TODO: Test complex subtraction
+# [[test]]
+# name = "complex_sub"
+# description = "(5+6j) - (1+2j)"
+
+# TODO: Test complex multiplication
+# [[test]]
+# name = "complex_mul"
+# description = "(1+2j) * (3+4j)"
+
+# TODO: Test complex division
+# [[test]]
+# name = "complex_div"
+# description = "(1+2j) / (3+4j)"
+
+# TODO: Test complex power
+# [[test]]
+# name = "complex_pow"
+# description = "(1+1j) ** 2"
+
+# TODO: Test complex negation
+# [[test]]
+# name = "complex_neg"
+# description = "-(3+4j)"
+
+# =============================================================================
+# Complex Properties
+# =============================================================================
+
+# TODO: Test real part
+# [[test]]
+# name = "complex_real"
+# description = "(3+4j).real == 3.0"
+
+# TODO: Test imaginary part
+# [[test]]
+# name = "complex_imag"
+# description = "(3+4j).imag == 4.0"
+
+# TODO: Test conjugate
+# [[test]]
+# name = "complex_conjugate"
+# description = "(3+4j).conjugate() == (3-4j)"
+
+# =============================================================================
+# Complex Functions
+# =============================================================================
+
+# TODO: Test abs of complex (magnitude)
+# [[test]]
+# name = "complex_abs"
+# description = "abs(3+4j) == 5.0"
+
+# TODO: Test complex with cmath
+# [[test]]
+# name = "complex_cmath"
+# description = "cmath functions: sqrt, exp, log, etc."
+
+# =============================================================================
+# Mixed Operations
+# =============================================================================
+
+# TODO: Test complex + int
+# [[test]]
+# name = "complex_plus_int"
+# description = "(3+4j) + 1"
+
+# TODO: Test complex + float
+# [[test]]
+# name = "complex_plus_float"
+# description = "(3+4j) + 1.0"
+
+# TODO: Test int + complex
+# [[test]]
+# name = "int_plus_complex"
+# description = "1 + (3+4j)"
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+# TODO: Test complex comparison (not supported)
+# [[test]]
+# name = "complex_comparison"
+# description = "Complex numbers cannot be compared with < > <= >="
+# skip = true
+
+# TODO: Test complex equality
+# [[test]]
+# name = "complex_equality"
+# description = "(3+4j) == complex(3, 4)"
+
+# TODO: Test zero imaginary
+# [[test]]
+# name = "zero_imaginary"
+# description = "(5+0j).imag == 0"
+
+# TODO: Test complex in list
+# [[test]]
+# name = "complex_in_list"
+# description = "[1+2j, 3+4j, 5+6j]"

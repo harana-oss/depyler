@@ -1,0 +1,168 @@
+# Unicode Strings Tests - Unicode handling
+# Rust Mapping: String (UTF-8)
+
+[metadata]
+name = "Unicode Strings Tests"
+category = "strings"
+
+# =============================================================================
+# Unicode Literals
+# =============================================================================
+
+# TODO: Test unicode escape
+# [[test]]
+# name = "unicode_escape"
+# description = "'\\u0041' == 'A'"
+
+# TODO: Test unicode name
+# [[test]]
+# name = "unicode_name"
+# description = "'\\N{GREEK SMALL LETTER ALPHA}'"
+
+# TODO: Test unicode hex
+# [[test]]
+# name = "unicode_hex"
+# description = "'\\U0001F600' emoji"
+
+# TODO: Test direct unicode
+# [[test]]
+# name = "unicode_direct"
+# description = "'α β γ' direct input"
+
+# =============================================================================
+# Unicode Normalization
+# =============================================================================
+
+# TODO: Test NFC
+# [[test]]
+# name = "unicode_nfc"
+# description = "unicodedata.normalize('NFC', s)"
+
+# TODO: Test NFD
+# [[test]]
+# name = "unicode_nfd"
+# description = "unicodedata.normalize('NFD', s)"
+
+# TODO: Test NFKC
+# [[test]]
+# name = "unicode_nfkc"
+# description = "unicodedata.normalize('NFKC', s)"
+
+# TODO: Test NFKD
+# [[test]]
+# name = "unicode_nfkd"
+# description = "unicodedata.normalize('NFKD', s)"
+
+# =============================================================================
+# Unicode Properties
+# =============================================================================
+
+# TODO: Test category
+# [[test]]
+# name = "unicode_category"
+# description = "unicodedata.category('A') == 'Lu'"
+
+# TODO: Test name
+# [[test]]
+# name = "unicode_charname"
+# description = "unicodedata.name('A')"
+
+# TODO: Test lookup
+# [[test]]
+# name = "unicode_lookup"
+# description = "unicodedata.lookup('LATIN CAPITAL LETTER A')"
+
+# =============================================================================
+# String Encoding
+# =============================================================================
+
+# TODO: Test UTF-8 encode
+# [[test]]
+# name = "unicode_utf8"
+# description = "'α'.encode('utf-8')"
+
+# TODO: Test UTF-16 encode
+# [[test]]
+# name = "unicode_utf16"
+# description = "'α'.encode('utf-16')"
+
+# TODO: Test ASCII with errors
+# [[test]]
+# name = "unicode_ascii_errors"
+# description = "'α'.encode('ascii', errors='replace')"
+
+# =============================================================================
+# Unicode Methods
+# =============================================================================
+
+# TODO: Test isalpha unicode
+# [[test]]
+# name = "unicode_isalpha"
+# description = "'α'.isalpha()"
+
+# TODO: Test isnumeric unicode
+# [[test]]
+# name = "unicode_isnumeric"
+# description = "'①'.isnumeric()"
+
+# TODO: Test casefold
+# [[test]]
+# name = "unicode_casefold"
+# description = "'ß'.casefold() == 'ss'"
+
+# =============================================================================
+# Unicode Length
+# =============================================================================
+
+# TODO: Test len with unicode
+# [[test]]
+# name = "unicode_len"
+# description = "len('αβγ') == 3"
+
+# TODO: Test surrogate pairs
+# [[test]]
+# name = "unicode_surrogate"
+# description = "len('😀') == 1"
+
+# TODO: Test combining chars
+# [[test]]
+# name = "unicode_combining"
+# description = "len('é') vs len('e\\u0301')"
+
+# =============================================================================
+# Unicode Comparison
+# =============================================================================
+
+# TODO: Test equality with normalization
+# [[test]]
+# name = "unicode_eq_normal"
+# description = "'é' vs 'e\\u0301'"
+
+# TODO: Test locale-aware comparison
+# [[test]]
+# name = "unicode_locale"
+# description = "locale.strcoll for sorting"
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+# TODO: Test emoji
+# [[test]]
+# name = "unicode_emoji"
+# description = "'👨‍👩‍👧‍👦' grapheme cluster"
+
+# TODO: Test BOM
+# [[test]]
+# name = "unicode_bom"
+# description = "'\\ufeff' byte order mark"
+
+# TODO: Test replacement char
+# [[test]]
+# name = "unicode_replacement"
+# description = "'\\ufffd' replacement character"
+
+# TODO: Test zero-width
+# [[test]]
+# name = "unicode_zero_width"
+# description = "'\\u200b' zero-width space"

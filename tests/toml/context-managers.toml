@@ -1,0 +1,135 @@
+# Context Managers Tests - The with statement and protocols
+# Rust Mapping: RAII pattern, Drop trait
+
+[metadata]
+name = "Context Managers Tests"
+category = "context-managers"
+
+# =============================================================================
+# Basic With Statement
+# =============================================================================
+
+# TODO: Test simple with
+# [[test]]
+# name = "with_basic"
+# description = "with open('file') as f: ..."
+
+# TODO: Test with no as
+# [[test]]
+# name = "with_no_as"
+# description = "with lock: ..."
+
+# TODO: Test with body
+# [[test]]
+# name = "with_body"
+# description = "Execute code in managed context"
+
+# =============================================================================
+# Context Manager Protocol
+# =============================================================================
+
+# TODO: Test __enter__
+# [[test]]
+# name = "cm_enter"
+# description = "def __enter__(self): setup; return self"
+
+# TODO: Test __exit__
+# [[test]]
+# name = "cm_exit"
+# description = "def __exit__(self, exc_type, exc_val, exc_tb): cleanup"
+
+# TODO: Test __enter__ return value
+# [[test]]
+# name = "cm_enter_return"
+# description = "Return value bound with as"
+
+# =============================================================================
+# Exception Handling
+# =============================================================================
+
+# TODO: Test __exit__ on success
+# [[test]]
+# name = "cm_exit_success"
+# description = "__exit__(None, None, None)"
+
+# TODO: Test __exit__ on exception
+# [[test]]
+# name = "cm_exit_exception"
+# description = "__exit__ receives exception info"
+
+# TODO: Test suppress exception
+# [[test]]
+# name = "cm_suppress"
+# description = "Return True from __exit__ to suppress"
+
+# TODO: Test propagate exception
+# [[test]]
+# name = "cm_propagate"
+# description = "Return False/None to propagate"
+
+# =============================================================================
+# Class-Based Context Manager
+# =============================================================================
+
+# TODO: Test custom context manager class
+# [[test]]
+# name = "cm_custom_class"
+# description = "Class implementing __enter__ and __exit__"
+
+# TODO: Test reusable context manager
+# [[test]]
+# name = "cm_reusable"
+# description = "Context manager used multiple times"
+
+# TODO: Test context manager with state
+# [[test]]
+# name = "cm_stateful"
+# description = "Context manager maintaining state"
+
+# =============================================================================
+# Use Cases
+# =============================================================================
+
+# TODO: Test file handling
+# [[test]]
+# name = "cm_file"
+# description = "with open() for file handling"
+
+# TODO: Test lock handling
+# [[test]]
+# name = "cm_lock"
+# description = "with lock: for thread safety"
+
+# TODO: Test database transaction
+# [[test]]
+# name = "cm_transaction"
+# description = "Commit/rollback on exit"
+
+# TODO: Test temporary state
+# [[test]]
+# name = "cm_temp_state"
+# description = "Save and restore state"
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+# TODO: Test exception in __enter__
+# [[test]]
+# name = "cm_enter_exception"
+# description = "__exit__ not called if __enter__ fails"
+
+# TODO: Test exception in __exit__
+# [[test]]
+# name = "cm_exit_exception"
+# description = "Exception in __exit__ masks original"
+
+# TODO: Test return in with block
+# [[test]]
+# name = "cm_return"
+# description = "return in with block still calls __exit__"
+
+# TODO: Test break in with block
+# [[test]]
+# name = "cm_break"
+# description = "break in with block still calls __exit__"

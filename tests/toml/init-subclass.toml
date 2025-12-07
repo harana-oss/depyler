@@ -1,0 +1,106 @@
+# __init_subclass__ Tests - Hook for subclass creation
+# Rust Mapping: Trait implementations, derive macros
+
+[metadata]
+name = "__init_subclass__ Tests"
+category = "advanced-oop"
+
+# =============================================================================
+# Basic __init_subclass__
+# =============================================================================
+
+# TODO: Test simple __init_subclass__
+# [[test]]
+# name = "init_subclass_basic"
+# description = "def __init_subclass__(cls, **kwargs): ..."
+
+# TODO: Test __init_subclass__ called on subclass
+# [[test]]
+# name = "init_subclass_called"
+# description = "Hook is called when subclass is defined"
+
+# TODO: Test __init_subclass__ with parameters
+# [[test]]
+# name = "init_subclass_params"
+# description = "class Sub(Base, param='value'): ..."
+
+# =============================================================================
+# Use Cases
+# =============================================================================
+
+# TODO: Test registration pattern
+# [[test]]
+# name = "init_subclass_register"
+# description = "Auto-register subclasses in a registry"
+
+# TODO: Test validation pattern
+# [[test]]
+# name = "init_subclass_validate"
+# description = "Validate subclass definition"
+
+# TODO: Test attribute injection
+# [[test]]
+# name = "init_subclass_inject"
+# description = "Add attributes to subclass"
+
+# TODO: Test requiring class attributes
+# [[test]]
+# name = "init_subclass_require"
+# description = "Ensure subclass defines certain attributes"
+
+# =============================================================================
+# __init_subclass__ with super()
+# =============================================================================
+
+# TODO: Test super().__init_subclass__
+# [[test]]
+# name = "init_subclass_super"
+# description = "Calling super() in __init_subclass__"
+
+# TODO: Test chain of __init_subclass__
+# [[test]]
+# name = "init_subclass_chain"
+# description = "Multiple inheritance with __init_subclass__"
+
+# =============================================================================
+# __init_subclass__ Parameters
+# =============================================================================
+
+# TODO: Test keyword parameters
+# [[test]]
+# name = "init_subclass_kwargs"
+# description = "Accept **kwargs and pass to super()"
+
+# TODO: Test required parameter
+# [[test]]
+# name = "init_subclass_required"
+# description = "Parameter without default"
+
+# TODO: Test parameter with default
+# [[test]]
+# name = "init_subclass_default"
+# description = "Parameter with default value"
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+# TODO: Test __init_subclass__ on ABC
+# [[test]]
+# name = "init_subclass_abc"
+# description = "__init_subclass__ combined with ABC"
+
+# TODO: Test multiple __init_subclass__ in hierarchy
+# [[test]]
+# name = "init_subclass_multiple"
+# description = "Multiple classes define __init_subclass__"
+
+# TODO: Test __init_subclass__ with metaclass
+# [[test]]
+# name = "init_subclass_metaclass"
+# description = "Interaction with custom metaclass"
+
+# TODO: Test __init_subclass__ exception
+# [[test]]
+# name = "init_subclass_error"
+# description = "Raising exception in __init_subclass__"

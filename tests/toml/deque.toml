@@ -1,0 +1,197 @@
+# Deque Tests - Double-ended queue
+# Rust Mapping: VecDeque
+
+[metadata]
+name = "Deque Tests"
+category = "data-structures"
+
+# =============================================================================
+# Creating Deques
+# =============================================================================
+
+# TODO: Test empty deque
+# [[test]]
+# name = "deque_empty"
+# description = "deque()"
+
+# TODO: Test deque from iterable
+# [[test]]
+# name = "deque_from_iter"
+# description = "deque([1, 2, 3])"
+
+# TODO: Test deque with maxlen
+# [[test]]
+# name = "deque_maxlen"
+# description = "deque(maxlen=3)"
+
+# =============================================================================
+# Adding Elements
+# =============================================================================
+
+# TODO: Test append
+# [[test]]
+# name = "deque_append"
+# description = "d.append(x)"
+
+# TODO: Test appendleft
+# [[test]]
+# name = "deque_appendleft"
+# description = "d.appendleft(x)"
+
+# TODO: Test extend
+# [[test]]
+# name = "deque_extend"
+# description = "d.extend([1, 2, 3])"
+
+# TODO: Test extendleft
+# [[test]]
+# name = "deque_extendleft"
+# description = "d.extendleft([1, 2, 3]) # reversed"
+
+# TODO: Test insert
+# [[test]]
+# name = "deque_insert"
+# description = "d.insert(i, x)"
+
+# =============================================================================
+# Removing Elements
+# =============================================================================
+
+# TODO: Test pop
+# [[test]]
+# name = "deque_pop"
+# description = "d.pop()"
+
+# TODO: Test popleft
+# [[test]]
+# name = "deque_popleft"
+# description = "d.popleft()"
+
+# TODO: Test remove
+# [[test]]
+# name = "deque_remove"
+# description = "d.remove(x)"
+
+# TODO: Test clear
+# [[test]]
+# name = "deque_clear"
+# description = "d.clear()"
+
+# =============================================================================
+# Rotating
+# =============================================================================
+
+# TODO: Test rotate right
+# [[test]]
+# name = "deque_rotate_right"
+# description = "d.rotate(1)"
+
+# TODO: Test rotate left
+# [[test]]
+# name = "deque_rotate_left"
+# description = "d.rotate(-1)"
+
+# TODO: Test rotate multiple
+# [[test]]
+# name = "deque_rotate_multi"
+# description = "d.rotate(3)"
+
+# =============================================================================
+# Accessing Elements
+# =============================================================================
+
+# TODO: Test indexing
+# [[test]]
+# name = "deque_index"
+# description = "d[0], d[-1]"
+
+# TODO: Test index method
+# [[test]]
+# name = "deque_index_method"
+# description = "d.index(x)"
+
+# TODO: Test count
+# [[test]]
+# name = "deque_count"
+# description = "d.count(x)"
+
+# =============================================================================
+# Maxlen Behavior
+# =============================================================================
+
+# TODO: Test maxlen overflow right
+# [[test]]
+# name = "deque_maxlen_right"
+# description = "append to full deque drops left"
+
+# TODO: Test maxlen overflow left
+# [[test]]
+# name = "deque_maxlen_left"
+# description = "appendleft to full drops right"
+
+# TODO: Test maxlen property
+# [[test]]
+# name = "deque_maxlen_prop"
+# description = "d.maxlen"
+
+# =============================================================================
+# Operations
+# =============================================================================
+
+# TODO: Test reverse
+# [[test]]
+# name = "deque_reverse"
+# description = "d.reverse()"
+
+# TODO: Test copy
+# [[test]]
+# name = "deque_copy"
+# description = "d.copy()"
+
+# TODO: Test in operator
+# [[test]]
+# name = "deque_contains"
+# description = "x in d"
+
+# TODO: Test len
+# [[test]]
+# name = "deque_len"
+# description = "len(d)"
+
+# =============================================================================
+# Use Cases
+# =============================================================================
+
+# TODO: Test as queue (FIFO)
+# [[test]]
+# name = "deque_queue"
+# description = "append right, popleft"
+
+# TODO: Test as stack (LIFO)
+# [[test]]
+# name = "deque_stack"
+# description = "append right, pop right"
+
+# TODO: Test sliding window
+# [[test]]
+# name = "deque_sliding"
+# description = "maxlen for fixed-size window"
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+# TODO: Test iteration
+# [[test]]
+# name = "deque_iter"
+# description = "for x in d: ..."
+
+# TODO: Test reversed
+# [[test]]
+# name = "deque_reversed"
+# description = "reversed(d)"
+
+# TODO: Test comparison
+# [[test]]
+# name = "deque_compare"
+# description = "deque([1,2]) == deque([1,2])"

@@ -1,0 +1,160 @@
+# Bytes Tests - Binary data type
+# Rust Mapping: Vec<u8>, &[u8]
+
+[metadata]
+name = "Bytes Tests"
+category = "data-structures"
+
+# =============================================================================
+# Bytes Literals
+# =============================================================================
+
+# TODO: Test bytes literal
+# [[test]]
+# name = "bytes_literal"
+# description = "b'hello'"
+
+# TODO: Test bytes with escapes
+# [[test]]
+# name = "bytes_escapes"
+# description = "b'\\x00\\xff\\n'"
+
+# TODO: Test bytes raw
+# [[test]]
+# name = "bytes_raw"
+# description = "rb'\\n' vs b'\\n'"
+
+# =============================================================================
+# Bytes Constructor
+# =============================================================================
+
+# TODO: Test bytes from int
+# [[test]]
+# name = "bytes_from_int"
+# description = "bytes(10) - zero bytes"
+
+# TODO: Test bytes from iterable
+# [[test]]
+# name = "bytes_from_iterable"
+# description = "bytes([65, 66, 67])"
+
+# TODO: Test bytes from string
+# [[test]]
+# name = "bytes_from_string"
+# description = "'hello'.encode('utf-8')"
+
+# =============================================================================
+# Bytearray
+# =============================================================================
+
+# TODO: Test bytearray mutable
+# [[test]]
+# name = "bytearray_mutable"
+# description = "ba = bytearray(b'hi'); ba[0] = 72"
+
+# TODO: Test bytearray methods
+# [[test]]
+# name = "bytearray_methods"
+# description = "append, extend, pop"
+
+# TODO: Test bytearray to bytes
+# [[test]]
+# name = "bytearray_to_bytes"
+# description = "bytes(ba)"
+
+# =============================================================================
+# Bytes Methods
+# =============================================================================
+
+# TODO: Test find/index
+# [[test]]
+# name = "bytes_find"
+# description = "b'hello'.find(b'l')"
+
+# TODO: Test split/join
+# [[test]]
+# name = "bytes_split"
+# description = "b'a,b,c'.split(b',')"
+
+# TODO: Test startswith/endswith
+# [[test]]
+# name = "bytes_startswith"
+# description = "b'hello'.startswith(b'he')"
+
+# TODO: Test replace
+# [[test]]
+# name = "bytes_replace"
+# description = "b'hello'.replace(b'l', b'L')"
+
+# TODO: Test upper/lower
+# [[test]]
+# name = "bytes_case"
+# description = "b'Hello'.lower()"
+
+# =============================================================================
+# Encoding/Decoding
+# =============================================================================
+
+# TODO: Test decode
+# [[test]]
+# name = "bytes_decode"
+# description = "b'hello'.decode('utf-8')"
+
+# TODO: Test encode
+# [[test]]
+# name = "bytes_encode"
+# description = "'hello'.encode('utf-8')"
+
+# TODO: Test encoding errors
+# [[test]]
+# name = "bytes_encoding_errors"
+# description = "errors='ignore', 'replace', 'strict'"
+# skip = true
+
+# =============================================================================
+# Bytes Operations
+# =============================================================================
+
+# TODO: Test concatenation
+# [[test]]
+# name = "bytes_concat"
+# description = "b'a' + b'b'"
+
+# TODO: Test repeat
+# [[test]]
+# name = "bytes_repeat"
+# description = "b'ab' * 3"
+
+# TODO: Test in operator
+# [[test]]
+# name = "bytes_contains"
+# description = "b'l' in b'hello'"
+
+# TODO: Test indexing
+# [[test]]
+# name = "bytes_index"
+# description = "b'hello'[0] returns int"
+
+# TODO: Test slicing
+# [[test]]
+# name = "bytes_slice"
+# description = "b'hello'[1:3]"
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+# TODO: Test empty bytes
+# [[test]]
+# name = "bytes_empty"
+# description = "b'' and bytes()"
+
+# TODO: Test bytes vs str
+# [[test]]
+# name = "bytes_vs_str"
+# description = "Different types, comparison"
+
+# TODO: Test hex/fromhex
+# [[test]]
+# name = "bytes_hex"
+# description = "b'\\xde\\xad'.hex() and bytes.fromhex('dead')"

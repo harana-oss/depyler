@@ -1,0 +1,139 @@
+# Memoryview Tests - Memory views for buffer protocol
+# Rust Mapping: Slices (&[u8])
+
+[metadata]
+name = "Memoryview Tests"
+category = "data-structures"
+
+# =============================================================================
+# Basic Memoryview
+# =============================================================================
+
+# TODO: Test create memoryview
+# [[test]]
+# name = "memoryview_create"
+# description = "mv = memoryview(b'hello')"
+
+# TODO: Test memoryview from bytearray
+# [[test]]
+# name = "memoryview_bytearray"
+# description = "mv = memoryview(bytearray(10))"
+
+# TODO: Test memoryview indexing
+# [[test]]
+# name = "memoryview_index"
+# description = "mv[0] returns int"
+
+# TODO: Test memoryview slicing
+# [[test]]
+# name = "memoryview_slice"
+# description = "mv[1:3] returns memoryview"
+
+# =============================================================================
+# Zero-Copy Operations
+# =============================================================================
+
+# TODO: Test no copy on slice
+# [[test]]
+# name = "memoryview_zero_copy"
+# description = "Slicing doesn't copy data"
+
+# TODO: Test modify through view
+# [[test]]
+# name = "memoryview_modify"
+# description = "ba = bytearray(b'hi'); mv = memoryview(ba); mv[0] = 72"
+
+# =============================================================================
+# Memoryview Properties
+# =============================================================================
+
+# TODO: Test nbytes
+# [[test]]
+# name = "memoryview_nbytes"
+# description = "mv.nbytes"
+
+# TODO: Test format
+# [[test]]
+# name = "memoryview_format"
+# description = "mv.format (e.g., 'B' for bytes)"
+
+# TODO: Test itemsize
+# [[test]]
+# name = "memoryview_itemsize"
+# description = "mv.itemsize"
+
+# TODO: Test shape
+# [[test]]
+# name = "memoryview_shape"
+# description = "mv.shape"
+
+# TODO: Test readonly
+# [[test]]
+# name = "memoryview_readonly"
+# description = "mv.readonly"
+
+# =============================================================================
+# Memoryview Methods
+# =============================================================================
+
+# TODO: Test tobytes
+# [[test]]
+# name = "memoryview_tobytes"
+# description = "mv.tobytes()"
+
+# TODO: Test tolist
+# [[test]]
+# name = "memoryview_tolist"
+# description = "mv.tolist()"
+
+# TODO: Test release
+# [[test]]
+# name = "memoryview_release"
+# description = "mv.release() frees underlying buffer"
+
+# TODO: Test cast
+# [[test]]
+# name = "memoryview_cast"
+# description = "mv.cast('I') reinterpret"
+
+# =============================================================================
+# Context Manager
+# =============================================================================
+
+# TODO: Test with statement
+# [[test]]
+# name = "memoryview_context"
+# description = "with memoryview(data) as mv: ..."
+
+# =============================================================================
+# Use Cases
+# =============================================================================
+
+# TODO: Test efficient file reading
+# [[test]]
+# name = "memoryview_file"
+# description = "Read chunks without copying"
+
+# TODO: Test network buffer
+# [[test]]
+# name = "memoryview_network"
+# description = "Slice buffer for partial send"
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+# TODO: Test empty memoryview
+# [[test]]
+# name = "memoryview_empty"
+# description = "memoryview(b'')"
+
+# TODO: Test memoryview comparison
+# [[test]]
+# name = "memoryview_compare"
+# description = "mv1 == mv2"
+
+# TODO: Test hash
+# [[test]]
+# name = "memoryview_hash"
+# description = "hash(mv) if readonly"

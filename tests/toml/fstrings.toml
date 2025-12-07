@@ -1,0 +1,175 @@
+# F-Strings Tests - Formatted string literals
+# Rust Mapping: format! macro
+
+[metadata]
+name = "F-Strings Tests"
+category = "strings"
+
+# =============================================================================
+# Basic F-Strings
+# =============================================================================
+
+# TODO: Test simple variable
+# [[test]]
+# name = "fstring_var"
+# description = "f'{name}'"
+
+# TODO: Test expression
+# [[test]]
+# name = "fstring_expr"
+# description = "f'{1 + 2}'"
+
+# TODO: Test multiple placeholders
+# [[test]]
+# name = "fstring_multiple"
+# description = "f'{a} and {b}'"
+
+# TODO: Test mixed text
+# [[test]]
+# name = "fstring_mixed"
+# description = "f'Hello, {name}!'"
+
+# =============================================================================
+# Format Specifiers
+# =============================================================================
+
+# TODO: Test width
+# [[test]]
+# name = "fstring_width"
+# description = "f'{x:10}'"
+
+# TODO: Test alignment
+# [[test]]
+# name = "fstring_align"
+# description = "f'{x:<10}', f'{x:>10}', f'{x:^10}'"
+
+# TODO: Test fill
+# [[test]]
+# name = "fstring_fill"
+# description = "f'{x:*^10}'"
+
+# TODO: Test precision
+# [[test]]
+# name = "fstring_precision"
+# description = "f'{pi:.2f}'"
+
+# TODO: Test type codes
+# [[test]]
+# name = "fstring_type"
+# description = "f'{n:d}', f'{n:x}', f'{n:b}'"
+
+# =============================================================================
+# Number Formatting
+# =============================================================================
+
+# TODO: Test thousands separator
+# [[test]]
+# name = "fstring_thousands"
+# description = "f'{n:,}'"
+
+# TODO: Test sign
+# [[test]]
+# name = "fstring_sign"
+# description = "f'{n:+}', f'{n: }'"
+
+# TODO: Test percentage
+# [[test]]
+# name = "fstring_percent"
+# description = "f'{ratio:.1%}'"
+
+# TODO: Test scientific
+# [[test]]
+# name = "fstring_scientific"
+# description = "f'{n:.2e}'"
+
+# =============================================================================
+# Expressions in F-Strings
+# =============================================================================
+
+# TODO: Test method call
+# [[test]]
+# name = "fstring_method"
+# description = "f'{name.upper()}'"
+
+# TODO: Test function call
+# [[test]]
+# name = "fstring_function"
+# description = "f'{len(items)}'"
+
+# TODO: Test ternary
+# [[test]]
+# name = "fstring_ternary"
+# description = "f'{'yes' if cond else 'no'}'"
+
+# TODO: Test indexing
+# [[test]]
+# name = "fstring_index"
+# description = "f'{items[0]}'"
+
+# TODO: Test attribute
+# [[test]]
+# name = "fstring_attr"
+# description = "f'{obj.attr}'"
+
+# =============================================================================
+# Nested Braces
+# =============================================================================
+
+# TODO: Test escaped braces
+# [[test]]
+# name = "fstring_brace_escape"
+# description = "f'{{literal}}'"
+
+# TODO: Test nested format
+# [[test]]
+# name = "fstring_nested_format"
+# description = "f'{x:{width}}'"
+
+# TODO: Test dynamic precision
+# [[test]]
+# name = "fstring_dynamic_precision"
+# description = "f'{x:.{prec}f}'"
+
+# =============================================================================
+# Conversions
+# =============================================================================
+
+# TODO: Test !r repr
+# [[test]]
+# name = "fstring_repr"
+# description = "f'{obj!r}'"
+
+# TODO: Test !s str
+# [[test]]
+# name = "fstring_str"
+# description = "f'{obj!s}'"
+
+# TODO: Test !a ascii
+# [[test]]
+# name = "fstring_ascii"
+# description = "f'{obj!a}'"
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+# TODO: Test empty f-string
+# [[test]]
+# name = "fstring_empty"
+# description = "f''"
+
+# TODO: Test backslash
+# [[test]]
+# name = "fstring_backslash"
+# description = "Backslash not allowed in expression"
+# skip = true
+
+# TODO: Test multiline
+# [[test]]
+# name = "fstring_multiline"
+# description = "f'''...'''"
+
+# TODO: Test raw f-string
+# [[test]]
+# name = "fstring_raw"
+# description = "rf'{path}\\n'"

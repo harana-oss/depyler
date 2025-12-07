@@ -1,0 +1,144 @@
+# Package __all__ Tests - Controlling star imports
+# Rust Mapping: pub use re-exports
+
+[metadata]
+name = "Package __all__ Tests"
+category = "imports"
+
+# =============================================================================
+# Basic __all__
+# =============================================================================
+
+# TODO: Test __all__ list
+# [[test]]
+# name = "all_list"
+# description = "__all__ = ['func1', 'Class1']"
+
+# TODO: Test star import uses __all__
+# [[test]]
+# name = "all_star_import"
+# description = "from mod import * gets __all__ items"
+
+# TODO: Test excluded from star
+# [[test]]
+# name = "all_excluded"
+# description = "Items not in __all__ not star imported"
+
+# =============================================================================
+# __all__ Format
+# =============================================================================
+
+# TODO: Test __all__ as list
+# [[test]]
+# name = "all_as_list"
+# description = "__all__ = ['a', 'b', 'c']"
+
+# TODO: Test __all__ as tuple
+# [[test]]
+# name = "all_as_tuple"
+# description = "__all__ = ('a', 'b', 'c')"
+
+# TODO: Test dynamic __all__
+# [[test]]
+# name = "all_dynamic"
+# description = "__all__ = [x for x in dir() if not x.startswith('_')]"
+
+# =============================================================================
+# Without __all__
+# =============================================================================
+
+# TODO: Test no __all__ behavior
+# [[test]]
+# name = "all_missing"
+# description = "Star imports non-underscore names"
+
+# TODO: Test underscore excluded
+# [[test]]
+# name = "all_underscore"
+# description = "_private not star imported"
+
+# TODO: Test dunder excluded
+# [[test]]
+# name = "all_dunder"
+# description = "__dunder__ not star imported"
+
+# =============================================================================
+# __all__ in __init__.py
+# =============================================================================
+
+# TODO: Test package __all__
+# [[test]]
+# name = "all_package"
+# description = "__all__ in __init__.py"
+
+# TODO: Test submodule in __all__
+# [[test]]
+# name = "all_submodule"
+# description = "__all__ = ['submod'] imports submodule"
+
+# TODO: Test re-export control
+# [[test]]
+# name = "all_reexport"
+# description = "Control what package exposes"
+
+# =============================================================================
+# Explicit Import vs __all__
+# =============================================================================
+
+# TODO: Test explicit import ignores __all__
+# [[test]]
+# name = "all_explicit"
+# description = "from mod import x works even if x not in __all__"
+
+# TODO: Test import module ignores __all__
+# [[test]]
+# name = "all_import_module"
+# description = "import mod.x ignores __all__"
+
+# =============================================================================
+# Documentation
+# =============================================================================
+
+# TODO: Test __all__ as documentation
+# [[test]]
+# name = "all_documentation"
+# description = "__all__ documents public API"
+
+# TODO: Test IDE support
+# [[test]]
+# name = "all_ide"
+# description = "IDEs use __all__ for completion"
+
+# =============================================================================
+# Best Practices
+# =============================================================================
+
+# TODO: Test explicit is better
+# [[test]]
+# name = "all_explicit_better"
+# description = "Avoid * imports, use explicit"
+
+# TODO: Test __all__ for library
+# [[test]]
+# name = "all_library"
+# description = "Libraries should define __all__"
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+# TODO: Test empty __all__
+# [[test]]
+# name = "all_empty"
+# description = "__all__ = [] imports nothing"
+
+# TODO: Test __all__ with nonexistent
+# [[test]]
+# name = "all_nonexistent"
+# description = "__all__ = ['nonexistent'] raises"
+# skip = true
+
+# TODO: Test __all__ modification
+# [[test]]
+# name = "all_modify"
+# description = "Modifying __all__ at runtime"

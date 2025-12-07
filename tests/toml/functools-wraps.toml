@@ -1,0 +1,144 @@
+# functools.wraps Tests - Preserving function metadata
+# Rust Mapping: Proc macro attributes
+
+[metadata]
+name = "functools.wraps Tests"
+category = "decorators-closures"
+
+# =============================================================================
+# Basic @wraps Usage
+# =============================================================================
+
+# TODO: Test basic wraps
+# [[test]]
+# name = "wraps_basic"
+# description = "@wraps(f) def wrapper(): ..."
+
+# TODO: Test without wraps
+# [[test]]
+# name = "without_wraps"
+# description = "wrapper.__name__ would be 'wrapper'"
+
+# TODO: Test with wraps
+# [[test]]
+# name = "with_wraps"
+# description = "wrapper.__name__ becomes f.__name__"
+
+# =============================================================================
+# Preserved Attributes
+# =============================================================================
+
+# TODO: Test __name__ preserved
+# [[test]]
+# name = "wraps_name"
+# description = "Function name preserved"
+
+# TODO: Test __doc__ preserved
+# [[test]]
+# name = "wraps_doc"
+# description = "Docstring preserved"
+
+# TODO: Test __module__ preserved
+# [[test]]
+# name = "wraps_module"
+# description = "Module name preserved"
+
+# TODO: Test __qualname__ preserved
+# [[test]]
+# name = "wraps_qualname"
+# description = "Qualified name preserved"
+
+# TODO: Test __annotations__ preserved
+# [[test]]
+# name = "wraps_annotations"
+# description = "Type annotations preserved"
+
+# TODO: Test __dict__ updated
+# [[test]]
+# name = "wraps_dict"
+# description = "Custom attributes copied"
+
+# =============================================================================
+# @wraps with Decorator Factory
+# =============================================================================
+
+# TODO: Test wraps in decorator with args
+# [[test]]
+# name = "wraps_factory"
+# description = "@wraps in parameterized decorator"
+
+# TODO: Test nested wraps
+# [[test]]
+# name = "wraps_nested"
+# description = "Multiple decorators all using @wraps"
+
+# =============================================================================
+# __wrapped__ Attribute
+# =============================================================================
+
+# TODO: Test __wrapped__
+# [[test]]
+# name = "wraps_wrapped"
+# description = "wrapper.__wrapped__ is original function"
+
+# TODO: Test unwrap chain
+# [[test]]
+# name = "wraps_unwrap"
+# description = "inspect.unwrap() follows __wrapped__"
+
+# =============================================================================
+# update_wrapper Function
+# =============================================================================
+
+# TODO: Test update_wrapper
+# [[test]]
+# name = "update_wrapper"
+# description = "update_wrapper(wrapper, wrapped)"
+
+# TODO: Test update_wrapper assigned
+# [[test]]
+# name = "update_wrapper_assigned"
+# description = "Customize which attributes to copy"
+
+# TODO: Test update_wrapper updated
+# [[test]]
+# name = "update_wrapper_updated"
+# description = "Customize which dict attrs to update"
+
+# =============================================================================
+# Use Cases
+# =============================================================================
+
+# TODO: Test decorator preserving signature
+# [[test]]
+# name = "wraps_signature"
+# description = "inspect.signature works correctly"
+
+# TODO: Test help() on decorated function
+# [[test]]
+# name = "wraps_help"
+# description = "help() shows original docs"
+
+# TODO: Test debugging decorated function
+# [[test]]
+# name = "wraps_debug"
+# description = "Name shows original in tracebacks"
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+# TODO: Test wraps on class method
+# [[test]]
+# name = "wraps_method"
+# description = "@wraps on decorated method"
+
+# TODO: Test wraps with partial
+# [[test]]
+# name = "wraps_partial"
+# description = "@wraps with functools.partial"
+
+# TODO: Test custom attributes
+# [[test]]
+# name = "wraps_custom_attrs"
+# description = "Custom attributes on original function"

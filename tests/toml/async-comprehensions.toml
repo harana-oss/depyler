@@ -1,0 +1,122 @@
+# Async Comprehensions Tests - Async syntax in comprehensions
+# Rust Mapping: stream.map().collect()
+
+[metadata]
+name = "Async Comprehensions Tests"
+category = "async"
+
+# =============================================================================
+# Async For in Comprehension
+# =============================================================================
+
+# TODO: Test async list comprehension
+# [[test]]
+# name = "async_list_comp"
+# description = "[x async for x in async_iter]"
+
+# TODO: Test async set comprehension
+# [[test]]
+# name = "async_set_comp"
+# description = "{x async for x in async_iter}"
+
+# TODO: Test async dict comprehension
+# [[test]]
+# name = "async_dict_comp"
+# description = "{k: v async for k, v in async_iter}"
+
+# TODO: Test async generator expression
+# [[test]]
+# name = "async_gen_expr"
+# description = "(x async for x in async_iter)"
+
+# =============================================================================
+# Await in Comprehension
+# =============================================================================
+
+# TODO: Test await in list comprehension
+# [[test]]
+# name = "await_in_comp"
+# description = "[await f(x) for x in items]"
+
+# TODO: Test await in async for comprehension
+# [[test]]
+# name = "await_async_for_comp"
+# description = "[await f(x) async for x in async_iter]"
+
+# TODO: Test await in filter
+# [[test]]
+# name = "await_in_filter"
+# description = "[x for x in items if await is_valid(x)]"
+
+# =============================================================================
+# Combined Patterns
+# =============================================================================
+
+# TODO: Test async for with condition
+# [[test]]
+# name = "async_comp_condition"
+# description = "[x async for x in iter if x > 0]"
+
+# TODO: Test async for with await condition
+# [[test]]
+# name = "async_comp_await_cond"
+# description = "[x async for x in iter if await check(x)]"
+
+# TODO: Test nested async comprehension
+# [[test]]
+# name = "async_comp_nested"
+# description = "[y async for x in iter1 for y in x]"
+
+# =============================================================================
+# Use Cases
+# =============================================================================
+
+# TODO: Test collecting async results
+# [[test]]
+# name = "async_comp_collect"
+# description = "Collect all results from async iterator"
+
+# TODO: Test transforming async stream
+# [[test]]
+# name = "async_comp_transform"
+# description = "Transform items from async stream"
+
+# TODO: Test filtering async stream
+# [[test]]
+# name = "async_comp_filter"
+# description = "Filter items from async stream"
+
+# =============================================================================
+# Context Requirements
+# =============================================================================
+
+# TODO: Test async comprehension context
+# [[test]]
+# name = "async_comp_context"
+# description = "async comprehension only in async function"
+# skip = true
+
+# TODO: Test await comp in sync function
+# [[test]]
+# name = "await_comp_sync"
+# description = "[await x for ...] in sync function is error"
+# skip = true
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+# TODO: Test empty async iterator
+# [[test]]
+# name = "async_comp_empty"
+# description = "[x async for x in empty_async]"
+
+# TODO: Test exception in async comprehension
+# [[test]]
+# name = "async_comp_exception"
+# description = "Exception during async comprehension"
+
+# TODO: Test memory efficiency
+# [[test]]
+# name = "async_comp_memory"
+# description = "Generator expression vs list comprehension"

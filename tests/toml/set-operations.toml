@@ -1,0 +1,194 @@
+# Set Operations Tests - Set mathematical operations
+# Rust Mapping: HashSet operations
+
+[metadata]
+name = "Set Operations Tests"
+category = "data-structures"
+
+# =============================================================================
+# Set Creation
+# =============================================================================
+
+# TODO: Test set literal
+# [[test]]
+# name = "set_literal"
+# description = "{1, 2, 3}"
+
+# TODO: Test set constructor
+# [[test]]
+# name = "set_constructor"
+# description = "set([1, 2, 3])"
+
+# TODO: Test empty set
+# [[test]]
+# name = "set_empty"
+# description = "set() not {}"
+
+# TODO: Test set from string
+# [[test]]
+# name = "set_from_string"
+# description = "set('hello')"
+
+# =============================================================================
+# Set Operations (Methods)
+# =============================================================================
+
+# TODO: Test union
+# [[test]]
+# name = "set_union"
+# description = "a.union(b)"
+
+# TODO: Test intersection
+# [[test]]
+# name = "set_intersection"
+# description = "a.intersection(b)"
+
+# TODO: Test difference
+# [[test]]
+# name = "set_difference"
+# description = "a.difference(b)"
+
+# TODO: Test symmetric_difference
+# [[test]]
+# name = "set_symmetric_difference"
+# description = "a.symmetric_difference(b)"
+
+# =============================================================================
+# Set Operations (Operators)
+# =============================================================================
+
+# TODO: Test union operator
+# [[test]]
+# name = "set_union_op"
+# description = "a | b"
+
+# TODO: Test intersection operator
+# [[test]]
+# name = "set_intersection_op"
+# description = "a & b"
+
+# TODO: Test difference operator
+# [[test]]
+# name = "set_difference_op"
+# description = "a - b"
+
+# TODO: Test symmetric_difference operator
+# [[test]]
+# name = "set_symmetric_difference_op"
+# description = "a ^ b"
+
+# =============================================================================
+# Set Comparisons
+# =============================================================================
+
+# TODO: Test subset
+# [[test]]
+# name = "set_subset"
+# description = "a.issubset(b) or a <= b"
+
+# TODO: Test proper subset
+# [[test]]
+# name = "set_proper_subset"
+# description = "a < b"
+
+# TODO: Test superset
+# [[test]]
+# name = "set_superset"
+# description = "a.issuperset(b) or a >= b"
+
+# TODO: Test disjoint
+# [[test]]
+# name = "set_disjoint"
+# description = "a.isdisjoint(b)"
+
+# =============================================================================
+# Set Modification
+# =============================================================================
+
+# TODO: Test add
+# [[test]]
+# name = "set_add"
+# description = "s.add(elem)"
+
+# TODO: Test remove
+# [[test]]
+# name = "set_remove"
+# description = "s.remove(elem) raises if missing"
+
+# TODO: Test discard
+# [[test]]
+# name = "set_discard"
+# description = "s.discard(elem) no error if missing"
+
+# TODO: Test pop
+# [[test]]
+# name = "set_pop"
+# description = "s.pop() arbitrary element"
+
+# TODO: Test clear
+# [[test]]
+# name = "set_clear"
+# description = "s.clear()"
+
+# =============================================================================
+# In-Place Operations
+# =============================================================================
+
+# TODO: Test update
+# [[test]]
+# name = "set_update"
+# description = "a.update(b) or a |= b"
+
+# TODO: Test intersection_update
+# [[test]]
+# name = "set_intersection_update"
+# description = "a.intersection_update(b) or a &= b"
+
+# TODO: Test difference_update
+# [[test]]
+# name = "set_difference_update"
+# description = "a.difference_update(b) or a -= b"
+
+# TODO: Test symmetric_difference_update
+# [[test]]
+# name = "set_symmetric_diff_update"
+# description = "a.symmetric_difference_update(b) or a ^= b"
+
+# =============================================================================
+# Frozenset
+# =============================================================================
+
+# TODO: Test frozenset
+# [[test]]
+# name = "frozenset_create"
+# description = "frozenset([1, 2, 3])"
+
+# TODO: Test frozenset immutable
+# [[test]]
+# name = "frozenset_immutable"
+# description = "Cannot add/remove"
+
+# TODO: Test frozenset hashable
+# [[test]]
+# name = "frozenset_hashable"
+# description = "Can be dict key or set element"
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+# TODO: Test set of mixed types
+# [[test]]
+# name = "set_mixed"
+# description = "{1, 'a', (1, 2)}"
+
+# TODO: Test unhashable error
+# [[test]]
+# name = "set_unhashable"
+# description = "{[1, 2]} raises TypeError"
+# skip = true
+
+# TODO: Test set comprehension
+# [[test]]
+# name = "set_comprehension"
+# description = "{x*2 for x in range(5)}"

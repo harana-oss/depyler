@@ -1,0 +1,135 @@
+# Dunder Lifecycle Tests - Object lifecycle magic methods
+# Rust Mapping: new(), Drop trait, Debug trait, Display trait
+
+[metadata]
+name = "Dunder Lifecycle Tests"
+category = "dunder-methods"
+
+# =============================================================================
+# __new__
+# =============================================================================
+
+# TODO: Test __new__ basic
+# [[test]]
+# name = "dunder_new"
+# description = "def __new__(cls): return super().__new__(cls)"
+
+# TODO: Test __new__ with args
+# [[test]]
+# name = "dunder_new_args"
+# description = "__new__ receiving and passing arguments"
+
+# =============================================================================
+# __init__
+# =============================================================================
+
+# TODO: Test __init__ basic
+# [[test]]
+# name = "dunder_init"
+# description = "def __init__(self): self.x = 0"
+
+# TODO: Test __init__ with parameters
+# [[test]]
+# name = "dunder_init_params"
+# description = "def __init__(self, x, y): ..."
+
+# TODO: Test __init__ with defaults
+# [[test]]
+# name = "dunder_init_defaults"
+# description = "def __init__(self, x=0): ..."
+
+# =============================================================================
+# __del__
+# =============================================================================
+
+# TODO: Test __del__ basic
+# [[test]]
+# name = "dunder_del"
+# description = "def __del__(self): cleanup()"
+
+# TODO: Test __del__ timing
+# [[test]]
+# name = "dunder_del_timing"
+# description = "__del__ called when object is garbage collected"
+
+# TODO: Test __del__ with references
+# [[test]]
+# name = "dunder_del_references"
+# description = "__del__ not called with circular references (without gc)"
+
+# =============================================================================
+# __repr__
+# =============================================================================
+
+# TODO: Test __repr__ basic
+# [[test]]
+# name = "dunder_repr"
+# description = "def __repr__(self): return f'MyClass({self.x})'"
+
+# TODO: Test __repr__ unambiguous
+# [[test]]
+# name = "dunder_repr_eval"
+# description = "__repr__ should be eval()-able when possible"
+
+# TODO: Test repr() builtin
+# [[test]]
+# name = "repr_builtin"
+# description = "repr(obj) calls obj.__repr__()"
+
+# =============================================================================
+# __str__
+# =============================================================================
+
+# TODO: Test __str__ basic
+# [[test]]
+# name = "dunder_str"
+# description = "def __str__(self): return 'human readable'"
+
+# TODO: Test __str__ fallback to __repr__
+# [[test]]
+# name = "dunder_str_fallback"
+# description = "str() uses __repr__ if __str__ not defined"
+
+# TODO: Test str() builtin
+# [[test]]
+# name = "str_builtin"
+# description = "str(obj) calls obj.__str__()"
+
+# TODO: Test print uses __str__
+# [[test]]
+# name = "print_uses_str"
+# description = "print(obj) uses str(obj)"
+
+# =============================================================================
+# Combined Lifecycle
+# =============================================================================
+
+# TODO: Test __new__ -> __init__ flow
+# [[test]]
+# name = "lifecycle_flow"
+# description = "Complete object creation sequence"
+
+# TODO: Test __repr__ vs __str__
+# [[test]]
+# name = "repr_vs_str"
+# description = "Different purposes: debugging vs display"
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+# TODO: Test __del__ exceptions
+# [[test]]
+# name = "dunder_del_exception"
+# description = "Exception in __del__ is ignored (warning only)"
+
+# TODO: Test __repr__ returning non-string
+# [[test]]
+# name = "repr_non_string"
+# description = "__repr__ must return str"
+# skip = true
+
+# TODO: Test recursive __repr__
+# [[test]]
+# name = "repr_recursive"
+# description = "Handling self-referential structures"

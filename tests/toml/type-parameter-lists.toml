@@ -1,0 +1,101 @@
+# Type Parameter Lists Tests - Python 3.12+ generic syntax
+# Rust Mapping: Generic functions and types
+
+[metadata]
+name = "Type Parameter Lists Tests"
+category = "modern-python"
+
+# =============================================================================
+# Function Type Parameters
+# =============================================================================
+
+# TODO: Test generic function
+# [[test]]
+# name = "typeparam_function"
+# description = "def f[T](x: T) -> T: return x"
+
+# TODO: Test multiple type parameters
+# [[test]]
+# name = "typeparam_multiple"
+# description = "def f[K, V](key: K, value: V) -> tuple[K, V]: ..."
+
+# TODO: Test bounded type parameter
+# [[test]]
+# name = "typeparam_bounded"
+# description = "def f[T: int](x: T) -> T: ..."
+
+# TODO: Test constrained type parameter
+# [[test]]
+# name = "typeparam_constrained"
+# description = "def f[T: (int, str)](x: T) -> T: ..."
+
+# =============================================================================
+# Class Type Parameters
+# =============================================================================
+
+# TODO: Test generic class
+# [[test]]
+# name = "typeparam_class"
+# description = "class Box[T]: ..."
+
+# TODO: Test generic dataclass
+# [[test]]
+# name = "typeparam_dataclass"
+# description = "@dataclass class Pair[T, U]: ..."
+
+# TODO: Test generic inheritance
+# [[test]]
+# name = "typeparam_inherit"
+# description = "class Child[T](Parent[T]): ..."
+
+# =============================================================================
+# TypeVar vs Type Parameters
+# =============================================================================
+
+# TODO: Test comparison with TypeVar
+# [[test]]
+# name = "typeparam_vs_typevar"
+# description = "New syntax vs TypeVar('T')"
+
+# TODO: Test scoped type parameters
+# [[test]]
+# name = "typeparam_scoped"
+# description = "Type parameter scope limited to definition"
+
+# =============================================================================
+# ParamSpec (Python 3.10+)
+# =============================================================================
+
+# TODO: Test ParamSpec in type parameter
+# [[test]]
+# name = "typeparam_paramspec"
+# description = "def decorator[**P, R](f: Callable[P, R]): ..."
+
+# =============================================================================
+# TypeVarTuple (Python 3.11+)
+# =============================================================================
+
+# TODO: Test TypeVarTuple
+# [[test]]
+# name = "typeparam_vartuple"
+# description = "def f[*Ts](*args: *Ts) -> tuple[*Ts]: ..."
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+# TODO: Test nested generic functions
+# [[test]]
+# name = "typeparam_nested"
+# description = "Generic function inside generic function"
+
+# TODO: Test type parameter defaults (3.13+)
+# [[test]]
+# name = "typeparam_default"
+# description = "def f[T = int](x: T) -> T: ..."
+# skip = true
+
+# TODO: Test variance annotations
+# [[test]]
+# name = "typeparam_variance"
+# description = "class C[T: covariant]: ..."

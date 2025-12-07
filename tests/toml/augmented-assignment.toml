@@ -1,0 +1,130 @@
+# Augmented Assignment Tests - Compound assignment operators
+# Rust Mapping: Direct operator equivalents (+=, -=, etc.)
+
+[metadata]
+name = "Augmented Assignment Tests"
+category = "core-language"
+
+# =============================================================================
+# Arithmetic Augmented Assignment
+# =============================================================================
+
+# TODO: Test +=
+# [[test]]
+# name = "augmented_add"
+# description = "x += y"
+
+# TODO: Test -=
+# [[test]]
+# name = "augmented_sub"
+# description = "x -= y"
+
+# TODO: Test *=
+# [[test]]
+# name = "augmented_mul"
+# description = "x *= y"
+
+# TODO: Test /=
+# [[test]]
+# name = "augmented_div"
+# description = "x /= y (true division)"
+
+# TODO: Test //=
+# [[test]]
+# name = "augmented_floor_div"
+# description = "x //= y (floor division)"
+
+# TODO: Test %=
+# [[test]]
+# name = "augmented_mod"
+# description = "x %= y"
+
+# TODO: Test **=
+# [[test]]
+# name = "augmented_pow"
+# description = "x **= y"
+
+# =============================================================================
+# Bitwise Augmented Assignment
+# =============================================================================
+
+# TODO: Test &=
+# [[test]]
+# name = "augmented_and"
+# description = "x &= y (bitwise AND)"
+
+# TODO: Test |=
+# [[test]]
+# name = "augmented_or"
+# description = "x |= y (bitwise OR)"
+
+# TODO: Test ^=
+# [[test]]
+# name = "augmented_xor"
+# description = "x ^= y (bitwise XOR)"
+
+# TODO: Test >>=
+# [[test]]
+# name = "augmented_rshift"
+# description = "x >>= y (right shift)"
+
+# TODO: Test <<=
+# [[test]]
+# name = "augmented_lshift"
+# description = "x <<= y (left shift)"
+
+# =============================================================================
+# Augmented Assignment with Collections
+# =============================================================================
+
+# TODO: Test += with lists
+# [[test]]
+# name = "augmented_add_list"
+# description = "lst += [item] extends list"
+
+# TODO: Test += with strings
+# [[test]]
+# name = "augmented_add_string"
+# description = "s += 'more' concatenates strings"
+
+# TODO: Test *= with lists
+# [[test]]
+# name = "augmented_mul_list"
+# description = "lst *= n repeats list"
+
+# =============================================================================
+# Augmented Assignment with Subscripts
+# =============================================================================
+
+# TODO: Test augmented assignment to list element
+# [[test]]
+# name = "augmented_subscript"
+# description = "lst[0] += 1"
+
+# TODO: Test augmented assignment to dict value
+# [[test]]
+# name = "augmented_dict_value"
+# description = "d['key'] += 1"
+
+# =============================================================================
+# Augmented Assignment with Attributes
+# =============================================================================
+
+# TODO: Test augmented assignment to attribute
+# [[test]]
+# name = "augmented_attribute"
+# description = "obj.attr += 1"
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+# TODO: Test augmented assignment in-place vs new object
+# [[test]]
+# name = "augmented_inplace_semantics"
+# description = "Test that mutable types modify in-place"
+
+# TODO: Test augmented assignment with custom __iadd__
+# [[test]]
+# name = "augmented_custom_iadd"
+# description = "Custom class with __iadd__ implementation"

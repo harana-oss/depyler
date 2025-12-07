@@ -1,0 +1,187 @@
+# Format Spec Tests - Format specification mini-language
+# Rust Mapping: format! spec
+
+[metadata]
+name = "Format Spec Tests"
+category = "strings"
+
+# =============================================================================
+# Basic Format Spec
+# =============================================================================
+
+# TODO: Test simple format
+# [[test]]
+# name = "format_simple"
+# description = "format(42, 'd')"
+
+# TODO: Test str.format
+# [[test]]
+# name = "format_str"
+# description = "'{:d}'.format(42)"
+
+# TODO: Test f-string format
+# [[test]]
+# name = "format_fstring"
+# description = "f'{x:d}'"
+
+# =============================================================================
+# Fill and Alignment
+# =============================================================================
+
+# TODO: Test left align
+# [[test]]
+# name = "format_left"
+# description = "'{:<10}'.format('hi')"
+
+# TODO: Test right align
+# [[test]]
+# name = "format_right"
+# description = "'{:>10}'.format('hi')"
+
+# TODO: Test center align
+# [[test]]
+# name = "format_center"
+# description = "'{:^10}'.format('hi')"
+
+# TODO: Test fill character
+# [[test]]
+# name = "format_fill"
+# description = "'{:*^10}'.format('hi')"
+
+# TODO: Test numeric align
+# [[test]]
+# name = "format_numeric_align"
+# description = "'{:=+10}'.format(-42)"
+
+# =============================================================================
+# Sign Options
+# =============================================================================
+
+# TODO: Test plus sign
+# [[test]]
+# name = "format_plus"
+# description = "'{:+}'.format(42)"
+
+# TODO: Test minus sign
+# [[test]]
+# name = "format_minus"
+# description = "'{:-}'.format(-42)"
+
+# TODO: Test space sign
+# [[test]]
+# name = "format_space"
+# description = "'{: }'.format(42)"
+
+# =============================================================================
+# Alternate Form
+# =============================================================================
+
+# TODO: Test hex alternate
+# [[test]]
+# name = "format_hex_alt"
+# description = "'{:#x}'.format(255)"
+
+# TODO: Test binary alternate
+# [[test]]
+# name = "format_bin_alt"
+# description = "'{:#b}'.format(10)"
+
+# TODO: Test octal alternate
+# [[test]]
+# name = "format_oct_alt"
+# description = "'{:#o}'.format(8)"
+
+# =============================================================================
+# Width and Precision
+# =============================================================================
+
+# TODO: Test width
+# [[test]]
+# name = "format_width"
+# description = "'{:10}'.format('hi')"
+
+# TODO: Test precision
+# [[test]]
+# name = "format_precision"
+# description = "'{:.2f}'.format(3.14159)"
+
+# TODO: Test width and precision
+# [[test]]
+# name = "format_width_prec"
+# description = "'{:10.2f}'.format(3.14159)"
+
+# TODO: Test string precision
+# [[test]]
+# name = "format_str_prec"
+# description = "'{:.5}'.format('hello world')"
+
+# =============================================================================
+# Grouping Options
+# =============================================================================
+
+# TODO: Test thousands comma
+# [[test]]
+# name = "format_comma"
+# description = "'{:,}'.format(1000000)"
+
+# TODO: Test underscore grouping
+# [[test]]
+# name = "format_underscore"
+# description = "'{:_}'.format(1000000)"
+
+# =============================================================================
+# Type Codes
+# =============================================================================
+
+# TODO: Test integer types
+# [[test]]
+# name = "format_int_types"
+# description = "d, b, o, x, X, n"
+
+# TODO: Test float types
+# [[test]]
+# name = "format_float_types"
+# description = "f, F, e, E, g, G"
+
+# TODO: Test percentage
+# [[test]]
+# name = "format_percent"
+# description = "'{:.1%}'.format(0.25)"
+
+# TODO: Test character
+# [[test]]
+# name = "format_char"
+# description = "'{:c}'.format(65)"
+
+# =============================================================================
+# __format__ Method
+# =============================================================================
+
+# TODO: Test custom __format__
+# [[test]]
+# name = "format_custom"
+# description = "class with __format__"
+
+# TODO: Test datetime format
+# [[test]]
+# name = "format_datetime"
+# description = "'{:%Y-%m-%d}'.format(date)"
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+# TODO: Test zero padding
+# [[test]]
+# name = "format_zero_pad"
+# description = "'{:05}'.format(42)"
+
+# TODO: Test empty spec
+# [[test]]
+# name = "format_empty"
+# description = "'{}'.format(x) same as str(x)"
+
+# TODO: Test nested replacement
+# [[test]]
+# name = "format_nested"
+# description = "'{:{width}.{prec}}'.format(x, width=10, prec=2)"

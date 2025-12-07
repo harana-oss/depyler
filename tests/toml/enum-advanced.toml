@@ -1,0 +1,160 @@
+# Enum Advanced Tests - Advanced enum patterns
+# Rust Mapping: Complex enum patterns
+
+[metadata]
+name = "Enum Advanced Tests"
+category = "data-structures"
+
+# =============================================================================
+# Functional API
+# =============================================================================
+
+# TODO: Test functional creation
+# [[test]]
+# name = "enum_functional"
+# description = "Color = Enum('Color', ['RED', 'GREEN'])"
+
+# TODO: Test functional with values
+# [[test]]
+# name = "enum_functional_values"
+# description = "Color = Enum('Color', [('RED', 1), ('GREEN', 2)])"
+
+# TODO: Test functional from dict
+# [[test]]
+# name = "enum_functional_dict"
+# description = "Color = Enum('Color', {'RED': 1})"
+
+# TODO: Test functional from string
+# [[test]]
+# name = "enum_functional_string"
+# description = "Color = Enum('Color', 'RED GREEN BLUE')"
+
+# =============================================================================
+# @unique Decorator
+# =============================================================================
+
+# TODO: Test @unique
+# [[test]]
+# name = "enum_unique"
+# description = "@unique prevents duplicate values"
+
+# TODO: Test unique error
+# [[test]]
+# name = "enum_unique_error"
+# description = "@unique raises ValueError on duplicates"
+# skip = true
+
+# =============================================================================
+# Aliases
+# =============================================================================
+
+# TODO: Test alias creation
+# [[test]]
+# name = "enum_alias"
+# description = "CRIMSON = RED = 1 creates alias"
+
+# TODO: Test alias identity
+# [[test]]
+# name = "enum_alias_is"
+# description = "Color.CRIMSON is Color.RED"
+
+# TODO: Test __members__ with aliases
+# [[test]]
+# name = "enum_members_alias"
+# description = "__members__ includes aliases"
+
+# TODO: Test iteration excludes aliases
+# [[test]]
+# name = "enum_iter_no_alias"
+# description = "list(Color) excludes aliases"
+
+# =============================================================================
+# Extending Enums
+# =============================================================================
+
+# TODO: Test enum inheritance restrictions
+# [[test]]
+# name = "enum_no_extend"
+# description = "Cannot extend enum with members"
+# skip = true
+
+# TODO: Test extending base enum
+# [[test]]
+# name = "enum_extend_base"
+# description = "Can extend enum without members"
+
+# TODO: Test mixin for shared behavior
+# [[test]]
+# name = "enum_shared_mixin"
+# description = "Share methods via mixin class"
+
+# =============================================================================
+# Complex Member Values
+# =============================================================================
+
+# TODO: Test tuple value
+# [[test]]
+# name = "enum_tuple_value"
+# description = "RED = (255, 0, 0)"
+
+# TODO: Test dict value
+# [[test]]
+# name = "enum_dict_value"
+# description = "CONFIG = {'key': 'value'}"
+
+# TODO: Test accessing tuple parts
+# [[test]]
+# name = "enum_value_parts"
+# description = "Color.RED.value[0]"
+
+# =============================================================================
+# Boundary and CONFORM
+# =============================================================================
+
+# TODO: Test STRICT boundary
+# [[test]]
+# name = "flag_strict"
+# description = "Flag with boundary=STRICT"
+
+# TODO: Test CONFORM boundary
+# [[test]]
+# name = "flag_conform"
+# description = "Flag with boundary=CONFORM"
+
+# TODO: Test KEEP boundary
+# [[test]]
+# name = "flag_keep"
+# description = "Flag with boundary=KEEP"
+
+# =============================================================================
+# ReprEnum
+# =============================================================================
+
+# TODO: Test ReprEnum
+# [[test]]
+# name = "enum_reprmixin"
+# description = "Repr shows value not name"
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+# TODO: Test empty enum
+# [[test]]
+# name = "enum_empty"
+# description = "class Empty(Enum): pass"
+
+# TODO: Test enum pickling
+# [[test]]
+# name = "enum_pickle"
+# description = "pickle.dumps/loads enum"
+
+# TODO: Test enum in type hints
+# [[test]]
+# name = "enum_type_hint"
+# description = "def f(color: Color) -> str"
+
+# TODO: Test enum __hash__
+# [[test]]
+# name = "enum_hash"
+# description = "Enums are hashable"

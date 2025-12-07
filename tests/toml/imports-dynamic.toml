@@ -1,0 +1,124 @@
+# Dynamic Imports Tests - Runtime import mechanisms
+# Rust Mapping: Dynamic loading, dlopen
+
+[metadata]
+name = "Dynamic Imports Tests"
+category = "imports"
+skip = true  # Dynamic imports not transpilable
+
+# =============================================================================
+# __import__ Function
+# =============================================================================
+
+# TODO: Test __import__
+# [[test]]
+# name = "dynamic_import_builtin"
+# description = "mod = __import__('os')"
+
+# TODO: Test __import__ with fromlist
+# [[test]]
+# name = "dynamic_import_fromlist"
+# description = "__import__('os.path', fromlist=['join'])"
+
+# =============================================================================
+# importlib
+# =============================================================================
+
+# TODO: Test import_module
+# [[test]]
+# name = "dynamic_import_module"
+# description = "importlib.import_module('os')"
+
+# TODO: Test import_module relative
+# [[test]]
+# name = "dynamic_import_relative"
+# description = "import_module('.sub', 'pkg')"
+
+# TODO: Test reload
+# [[test]]
+# name = "dynamic_reload"
+# description = "importlib.reload(mod)"
+
+# =============================================================================
+# Import from String
+# =============================================================================
+
+# TODO: Test getattr after import
+# [[test]]
+# name = "dynamic_getattr"
+# description = "getattr(mod, 'func')"
+
+# TODO: Test import and call
+# [[test]]
+# name = "dynamic_call"
+# description = "importlib.import_module(name).func()"
+
+# =============================================================================
+# Lazy Imports
+# =============================================================================
+
+# TODO: Test LazyLoader
+# [[test]]
+# name = "dynamic_lazy"
+# description = "importlib.util.LazyLoader"
+
+# TODO: Test lazy module
+# [[test]]
+# name = "dynamic_lazy_module"
+# description = "Module loaded on first access"
+
+# =============================================================================
+# Import from Path
+# =============================================================================
+
+# TODO: Test spec_from_file
+# [[test]]
+# name = "dynamic_from_file"
+# description = "spec_from_file_location"
+
+# TODO: Test module_from_spec
+# [[test]]
+# name = "dynamic_from_spec"
+# description = "module_from_spec and loader.exec_module"
+
+# =============================================================================
+# Find and Load
+# =============================================================================
+
+# TODO: Test find_spec
+# [[test]]
+# name = "dynamic_find_spec"
+# description = "importlib.util.find_spec('os')"
+
+# TODO: Test spec properties
+# [[test]]
+# name = "dynamic_spec_props"
+# description = "spec.name, spec.origin"
+
+# =============================================================================
+# Use Cases
+# =============================================================================
+
+# TODO: Test plugin system
+# [[test]]
+# name = "dynamic_plugin"
+# description = "Load plugins dynamically"
+
+# TODO: Test optional dependency
+# [[test]]
+# name = "dynamic_optional"
+# description = "try: import x except: fallback"
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+# TODO: Test import not found
+# [[test]]
+# name = "dynamic_not_found"
+# description = "ModuleNotFoundError"
+
+# TODO: Test import error handling
+# [[test]]
+# name = "dynamic_error"
+# description = "try/except for imports"

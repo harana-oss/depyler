@@ -1862,3 +1862,221 @@ def complex_context(value: Union[int, str]) -> int:
 
 [test.assertions]
 contains = ["fn complex_context"]
+
+# =============================================================================
+# Import Handling (migrated from test_import_gen_coverage.rs)
+# =============================================================================
+
+[[test]]
+name = "whole_module_import"
+description = "Whole module import (e.g., import math)"
+tags = ["import", "module"]
+
+[test.python]
+code = '''
+import math
+
+def use_math():
+    return math.sqrt(16)
+'''
+
+[test.assertions]
+contains = ["fn use_math"]
+
+[[test]]
+name = "specific_items_import_typing"
+description = "Specific items import from typing module"
+tags = ["import", "typing"]
+
+[test.python]
+code = '''
+from typing import List, Dict
+
+def typed_func(items: List[int]) -> Dict[str, int]:
+    result = {}
+    return result
+'''
+
+[test.assertions]
+contains_any = [["Vec<i32>", "vec"], ["HashMap", "dict"]]
+
+[[test]]
+name = "aliased_import"
+description = "Aliased import handling"
+tags = ["import", "alias"]
+
+[test.python]
+code = '''
+from typing import List as L, Dict as D
+
+def aliased_func(items: L[str]) -> D[str, int]:
+    result = {}
+    return result
+'''
+
+[test.assertions]
+contains_any = [["Vec", "HashMap"]]
+
+[[test]]
+name = "typing_module_optional"
+description = "Optional type from typing module"
+tags = ["import", "typing", "optional"]
+
+[test.python]
+code = '''
+from typing import Optional
+
+def maybe_value(x: Optional[int]) -> int:
+    if x is None:
+        return 0
+    return x
+'''
+
+[test.assertions]
+contains = ["Option<i32>"]
+
+[[test]]
+name = "multiple_items_same_module"
+description = "Multiple imports from same module"
+tags = ["import", "typing"]
+
+[test.python]
+code = '''
+from typing import List, Dict, Set, Tuple
+
+def multi_import() -> Tuple[List[int], Set[str]]:
+    items = [1, 2, 3]
+    names = {"a", "b"}
+    return (items, names)
+'''
+
+[test.assertions]
+contains = ["fn multi_import"]
+
+[[test]]
+name = "empty_items_whole_module"
+description = "Whole module import with usage"
+tags = ["import", "module"]
+
+[test.python]
+code = '''
+import collections
+
+def use_collections():
+    data = {"a": 1}
+    return data
+'''
+
+[test.assertions]
+contains = ["fn use_collections"]
+
+[[test]]
+name = "named_import_item_any"
+description = "Named import of Any type"
+tags = ["import", "typing", "any"]
+
+[test.python]
+code = '''
+from typing import Any
+
+def accepts_any(value: Any) -> Any:
+    return value
+'''
+
+[test.assertions]
+contains = ["fn accepts_any"]
+
+[[test]]
+name = "typevar_import"
+description = "TypeVar import and generic function"
+tags = ["import", "typing", "typevar"]
+
+[test.python]
+code = '''
+from typing import TypeVar
+
+T = TypeVar('T')
+
+def generic_func(value: T) -> T:
+    return value
+'''
+
+[test.assertions]
+contains = ["fn generic_func"]
+
+[[test]]
+name = "mutation_import_mapping_correctness"
+description = "Typing imports should map to Rust equivalents without full paths"
+tags = ["import", "typing", "mutation"]
+
+[test.python]
+code = '''
+from typing import List, Optional
+
+def list_func(items: List[int]) -> Optional[str]:
+    if not items:
+        return None
+    return "ok"
+'''
+
+[test.assertions]
+not_contains = ["typing::List"]
+contains_any = [["Vec", "Option"]]
+
+[[test]]
+name = "unmapped_import"
+description = "Handling of unmapped/unknown imports"
+tags = ["import", "unknown"]
+
+[test.python]
+code = '''
+import unknown_module
+
+def use_unknown():
+    return 42
+'''
+
+[test.assertions]
+contains = ["fn use_unknown"]
+
+[[test]]
+name = "mixed_import_styles"
+description = "Mixed whole module and specific imports"
+tags = ["import", "mixed"]
+
+[test.python]
+code = '''
+import math
+from typing import List
+
+def mixed():
+    items: List[int] = [1, 2, 3]
+    return len(items)
+'''
+
+[test.assertions]
+contains = ["fn mixed"]
+
+[[test]]
+name = "complex_import_scenario"
+description = "Complex import scenario with multiple typing imports"
+tags = ["import", "typing", "complex"]
+
+[test.python]
+code = '''
+from typing import List, Dict, Optional, Set
+from typing import Tuple as T
+
+def complex_types(
+    items: List[int],
+    mapping: Dict[str, Optional[int]],
+    unique: Set[str],
+    pair: T[int, str]
+) -> bool:
+    return True
+'''
+
+[test.assertions]
+contains = ["fn complex_types"]
+not_contains = ["typing::"]
+

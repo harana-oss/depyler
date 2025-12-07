@@ -1,0 +1,144 @@
+# Binary Literals Tests - Number literals in various bases
+# Rust Mapping: Direct literal translation (0b, 0o, 0x)
+
+[metadata]
+name = "Binary Literals Tests"
+category = "core-language"
+
+# =============================================================================
+# Binary Literals
+# =============================================================================
+
+# TODO: Test binary literal
+# [[test]]
+# name = "binary_literal"
+# description = "x = 0b1010"
+
+# TODO: Test binary literal uppercase
+# [[test]]
+# name = "binary_literal_upper"
+# description = "x = 0B1010"
+
+# TODO: Test binary with underscores
+# [[test]]
+# name = "binary_underscore"
+# description = "x = 0b1010_1010"
+
+# =============================================================================
+# Octal Literals
+# =============================================================================
+
+# TODO: Test octal literal
+# [[test]]
+# name = "octal_literal"
+# description = "x = 0o777"
+
+# TODO: Test octal literal uppercase
+# [[test]]
+# name = "octal_literal_upper"
+# description = "x = 0O777"
+
+# TODO: Test octal with underscores
+# [[test]]
+# name = "octal_underscore"
+# description = "x = 0o7_7_7"
+
+# =============================================================================
+# Hexadecimal Literals
+# =============================================================================
+
+# TODO: Test hex literal lowercase
+# [[test]]
+# name = "hex_literal_lower"
+# description = "x = 0xff"
+
+# TODO: Test hex literal uppercase
+# [[test]]
+# name = "hex_literal_upper"
+# description = "x = 0xFF"
+
+# TODO: Test hex with underscores
+# [[test]]
+# name = "hex_underscore"
+# description = "x = 0xFF_FF"
+
+# TODO: Test hex with mixed case digits
+# [[test]]
+# name = "hex_mixed_case"
+# description = "x = 0xDeAdBeEf"
+
+# =============================================================================
+# Decimal with Underscores
+# =============================================================================
+
+# TODO: Test decimal with underscores
+# [[test]]
+# name = "decimal_underscore"
+# description = "x = 1_000_000"
+
+# TODO: Test float with underscores
+# [[test]]
+# name = "float_underscore"
+# description = "x = 1_000.000_001"
+
+# =============================================================================
+# Operations with Literals
+# =============================================================================
+
+# TODO: Test binary in arithmetic
+# [[test]]
+# name = "binary_arithmetic"
+# description = "0b1010 + 0b0101"
+
+# TODO: Test mixed base arithmetic
+# [[test]]
+# name = "mixed_base_arithmetic"
+# description = "0xFF + 0o77 + 0b11"
+
+# TODO: Test bitwise on binary literals
+# [[test]]
+# name = "binary_bitwise"
+# description = "0b1010 & 0b1100"
+
+# =============================================================================
+# Type Conversion
+# =============================================================================
+
+# TODO: Test bin() function
+# [[test]]
+# name = "bin_function"
+# description = "bin(10) == '0b1010'"
+
+# TODO: Test oct() function
+# [[test]]
+# name = "oct_function"
+# description = "oct(64) == '0o100'"
+
+# TODO: Test hex() function
+# [[test]]
+# name = "hex_function"
+# description = "hex(255) == '0xff'"
+
+# TODO: Test int() with base
+# [[test]]
+# name = "int_with_base"
+# description = "int('ff', 16) == 255"
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+# TODO: Test zero in different bases
+# [[test]]
+# name = "zero_all_bases"
+# description = "0b0, 0o0, 0x0"
+
+# TODO: Test negative literals (actually unary minus)
+# [[test]]
+# name = "negative_literals"
+# description = "-0xFF is unary minus applied to 0xFF"
+
+# TODO: Test very large literals
+# [[test]]
+# name = "large_literals"
+# description = "0xFFFF_FFFF_FFFF_FFFF"

@@ -1,0 +1,134 @@
+# Late Binding Closures Tests - Understanding Python's late binding
+# Rust Mapping: Explicit capture (Rust avoids this issue)
+
+[metadata]
+name = "Late Binding Closures Tests"
+category = "decorators-closures"
+
+# =============================================================================
+# The Late Binding Problem
+# =============================================================================
+
+# TODO: Test loop closure gotcha
+# [[test]]
+# name = "late_binding_loop"
+# description = "funcs = [lambda: i for i in range(3)] all return 2"
+
+# TODO: Test variable changes
+# [[test]]
+# name = "late_binding_change"
+# description = "Closure sees current value, not value at definition"
+
+# TODO: Test comprehension closure
+# [[test]]
+# name = "late_binding_comprehension"
+# description = "List comprehension with lambda"
+
+# =============================================================================
+# Why It Happens
+# =============================================================================
+
+# TODO: Test closure captures name not value
+# [[test]]
+# name = "late_binding_name"
+# description = "Closure captures variable name, looks up at call time"
+
+# TODO: Test demonstration
+# [[test]]
+# name = "late_binding_demo"
+# description = "x = 1; f = lambda: x; x = 2; f() returns 2"
+
+# =============================================================================
+# Solutions
+# =============================================================================
+
+# TODO: Test default argument fix
+# [[test]]
+# name = "late_binding_fix_default"
+# description = "[lambda i=i: i for i in range(3)]"
+
+# TODO: Test partial fix
+# [[test]]
+# name = "late_binding_fix_partial"
+# description = "[partial(lambda x: x, i) for i in range(3)]"
+
+# TODO: Test nested function fix
+# [[test]]
+# name = "late_binding_fix_nested"
+# description = "def make(i): return lambda: i"
+
+# TODO: Test factory function fix
+# [[test]]
+# name = "late_binding_fix_factory"
+# description = "[make_func(i) for i in range(3)]"
+
+# =============================================================================
+# Common Scenarios
+# =============================================================================
+
+# TODO: Test callback in loop
+# [[test]]
+# name = "late_binding_callback"
+# description = "for btn in buttons: btn.onclick = lambda: print(btn)"
+
+# TODO: Test event handlers
+# [[test]]
+# name = "late_binding_events"
+# description = "Event handlers capturing loop variable"
+
+# TODO: Test async tasks
+# [[test]]
+# name = "late_binding_async"
+# description = "[asyncio.create_task(f(i)) for i in items]"
+
+# =============================================================================
+# When Late Binding is Desired
+# =============================================================================
+
+# TODO: Test intentional late binding
+# [[test]]
+# name = "late_binding_intentional"
+# description = "Sometimes you want current value"
+
+# TODO: Test configuration closure
+# [[test]]
+# name = "late_binding_config"
+# description = "Closure that reads config at call time"
+
+# =============================================================================
+# Debugging Late Binding
+# =============================================================================
+
+# TODO: Test identifying the issue
+# [[test]]
+# name = "late_binding_debug"
+# description = "Check __closure__ and cell_contents"
+
+# TODO: Test print value at definition
+# [[test]]
+# name = "late_binding_verify"
+# description = "Print i to see it's always last value"
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+# TODO: Test class attribute late binding
+# [[test]]
+# name = "late_binding_class"
+# description = "Late binding in class definition"
+
+# TODO: Test nested loop late binding
+# [[test]]
+# name = "late_binding_nested_loop"
+# description = "Closures in nested loops"
+
+# TODO: Test comprehension scope (Python 3)
+# [[test]]
+# name = "late_binding_scope"
+# description = "Comprehension has own scope in Python 3"
+
+# TODO: Test with walrus operator
+# [[test]]
+# name = "late_binding_walrus"
+# description = "Late binding with := operator"

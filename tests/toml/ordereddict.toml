@@ -1,0 +1,156 @@
+# OrderedDict Tests - Dictionary that remembers insertion order
+# Rust Mapping: IndexMap
+
+[metadata]
+name = "OrderedDict Tests"
+category = "data-structures"
+
+# =============================================================================
+# Creating OrderedDict
+# =============================================================================
+
+# TODO: Test empty OrderedDict
+# [[test]]
+# name = "ordereddict_empty"
+# description = "OrderedDict()"
+
+# TODO: Test from pairs
+# [[test]]
+# name = "ordereddict_pairs"
+# description = "OrderedDict([('a', 1), ('b', 2)])"
+
+# TODO: Test from kwargs
+# [[test]]
+# name = "ordereddict_kwargs"
+# description = "OrderedDict(a=1, b=2)"
+
+# =============================================================================
+# Order Preservation
+# =============================================================================
+
+# TODO: Test insertion order
+# [[test]]
+# name = "ordereddict_order"
+# description = "Keys in insertion order"
+
+# TODO: Test iteration order
+# [[test]]
+# name = "ordereddict_iter"
+# description = "list(d) preserves order"
+
+# TODO: Test update preserves order
+# [[test]]
+# name = "ordereddict_update"
+# description = "Existing keys stay in place"
+
+# =============================================================================
+# move_to_end
+# =============================================================================
+
+# TODO: Test move_to_end
+# [[test]]
+# name = "ordereddict_move_end"
+# description = "d.move_to_end('a')"
+
+# TODO: Test move_to_end last=False
+# [[test]]
+# name = "ordereddict_move_start"
+# description = "d.move_to_end('a', last=False)"
+
+# =============================================================================
+# popitem
+# =============================================================================
+
+# TODO: Test popitem LIFO
+# [[test]]
+# name = "ordereddict_popitem"
+# description = "d.popitem() returns last"
+
+# TODO: Test popitem FIFO
+# [[test]]
+# name = "ordereddict_popitem_first"
+# description = "d.popitem(last=False)"
+
+# =============================================================================
+# Equality
+# =============================================================================
+
+# TODO: Test order matters in equality
+# [[test]]
+# name = "ordereddict_eq_order"
+# description = "OrderedDict([a,b]) != OrderedDict([b,a])"
+
+# TODO: Test equality with dict
+# [[test]]
+# name = "ordereddict_eq_dict"
+# description = "OrderedDict equals dict (ignores order)"
+
+# =============================================================================
+# Reordering
+# =============================================================================
+
+# TODO: Test delete and reinsert
+# [[test]]
+# name = "ordereddict_reinsert"
+# description = "del d[k]; d[k] = v moves to end"
+
+# TODO: Test reverse
+# [[test]]
+# name = "ordereddict_reverse"
+# description = "reversed(d)"
+
+# =============================================================================
+# Methods
+# =============================================================================
+
+# TODO: Test fromkeys
+# [[test]]
+# name = "ordereddict_fromkeys"
+# description = "OrderedDict.fromkeys(['a', 'b'])"
+
+# TODO: Test copy
+# [[test]]
+# name = "ordereddict_copy"
+# description = "d.copy()"
+
+# =============================================================================
+# Python 3.7+ Regular Dict
+# =============================================================================
+
+# TODO: Test dict also ordered (3.7+)
+# [[test]]
+# name = "ordereddict_vs_dict"
+# description = "Regular dict maintains order too"
+
+# TODO: Test when to use OrderedDict
+# [[test]]
+# name = "ordereddict_use_case"
+# description = "Use for order-aware equality"
+
+# =============================================================================
+# LRU Cache Pattern
+# =============================================================================
+
+# TODO: Test LRU pattern
+# [[test]]
+# name = "ordereddict_lru"
+# description = "move_to_end on access, popitem oldest"
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+# TODO: Test repr
+# [[test]]
+# name = "ordereddict_repr"
+# description = "repr shows order"
+
+# TODO: Test merge (|)
+# [[test]]
+# name = "ordereddict_merge"
+# description = "d1 | d2"
+
+# TODO: Test json serialization
+# [[test]]
+# name = "ordereddict_json"
+# description = "json.dumps(OrderedDict)"

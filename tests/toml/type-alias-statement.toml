@@ -1,0 +1,110 @@
+# Type Alias Statement Tests - Python 3.12+ type keyword
+# Rust Mapping: type aliases
+
+[metadata]
+name = "Type Alias Statement Tests"
+category = "modern-python"
+
+# =============================================================================
+# Basic Type Alias
+# =============================================================================
+
+# TODO: Test simple type alias
+# [[test]]
+# name = "type_alias_basic"
+# description = "type Point = tuple[int, int]"
+
+# TODO: Test alias for generic
+# [[test]]
+# name = "type_alias_generic"
+# description = "type IntList = list[int]"
+
+# TODO: Test alias for union
+# [[test]]
+# name = "type_alias_union"
+# description = "type MaybeInt = int | None"
+
+# =============================================================================
+# Generic Type Aliases
+# =============================================================================
+
+# TODO: Test generic type alias
+# [[test]]
+# name = "type_alias_param"
+# description = "type ListOf[T] = list[T]"
+
+# TODO: Test multiple type parameters
+# [[test]]
+# name = "type_alias_multi_param"
+# description = "type Mapping[K, V] = dict[K, V]"
+
+# TODO: Test bounded generic alias
+# [[test]]
+# name = "type_alias_bounded"
+# description = "type NumList[T: (int, float)] = list[T]"
+
+# =============================================================================
+# vs TypeAlias (Pre-3.12)
+# =============================================================================
+
+# TODO: Test comparison with TypeAlias
+# [[test]]
+# name = "type_alias_vs_old"
+# description = "type X = ... vs X: TypeAlias = ..."
+
+# TODO: Test lazy evaluation
+# [[test]]
+# name = "type_alias_lazy"
+# description = "type statement supports forward references"
+
+# =============================================================================
+# Complex Type Aliases
+# =============================================================================
+
+# TODO: Test alias for callable
+# [[test]]
+# name = "type_alias_callable"
+# description = "type Handler = Callable[[Request], Response]"
+
+# TODO: Test nested generic alias
+# [[test]]
+# name = "type_alias_nested"
+# description = "type Matrix[T] = list[list[T]]"
+
+# TODO: Test alias for protocol
+# [[test]]
+# name = "type_alias_protocol"
+# description = "type Comparable = Protocol with __lt__"
+
+# =============================================================================
+# Use Cases
+# =============================================================================
+
+# TODO: Test simplifying complex types
+# [[test]]
+# name = "type_alias_simplify"
+# description = "Make complex annotations readable"
+
+# TODO: Test domain-specific types
+# [[test]]
+# name = "type_alias_domain"
+# description = "type UserId = int for domain modeling"
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+# TODO: Test recursive type alias
+# [[test]]
+# name = "type_alias_recursive"
+# description = "type Tree[T] = T | list[Tree[T]]"
+
+# TODO: Test type alias scope
+# [[test]]
+# name = "type_alias_scope"
+# description = "Module-level vs class-level type"
+
+# TODO: Test type alias at runtime
+# [[test]]
+# name = "type_alias_runtime"
+# description = "Accessing type alias as value"

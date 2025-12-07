@@ -1,0 +1,101 @@
+# __class_getitem__ Tests - Making classes subscriptable
+# Rust Mapping: Generics
+
+[metadata]
+name = "__class_getitem__ Tests"
+category = "advanced-oop"
+
+# =============================================================================
+# Basic __class_getitem__
+# =============================================================================
+
+# TODO: Test simple __class_getitem__
+# [[test]]
+# name = "class_getitem_basic"
+# description = "@classmethod def __class_getitem__(cls, item): ..."
+
+# TODO: Test subscripting class
+# [[test]]
+# name = "class_subscript"
+# description = "MyClass[int] or MyClass['str']"
+
+# TODO: Test __class_getitem__ return value
+# [[test]]
+# name = "class_getitem_return"
+# description = "Returns parameterized type or alias"
+
+# =============================================================================
+# Generic Classes
+# =============================================================================
+
+# TODO: Test Generic[T] pattern
+# [[test]]
+# name = "generic_class"
+# description = "class MyClass(Generic[T]): ..."
+
+# TODO: Test multiple type parameters
+# [[test]]
+# name = "generic_multiple"
+# description = "class MyClass(Generic[K, V]): ..."
+
+# TODO: Test constrained type variable
+# [[test]]
+# name = "generic_constrained"
+# description = "TypeVar with constraints"
+
+# =============================================================================
+# Use Cases
+# =============================================================================
+
+# TODO: Test custom container type
+# [[test]]
+# name = "class_getitem_container"
+# description = "Stack[int], Queue[str]"
+
+# TODO: Test type alias creation
+# [[test]]
+# name = "class_getitem_alias"
+# description = "Creating parameterized type aliases"
+
+# TODO: Test runtime vs static typing
+# [[test]]
+# name = "class_getitem_runtime"
+# description = "Runtime behavior vs type checking"
+
+# =============================================================================
+# __class_getitem__ Inheritance
+# =============================================================================
+
+# TODO: Test inherited __class_getitem__
+# [[test]]
+# name = "class_getitem_inherit"
+# description = "Subclass inherits __class_getitem__"
+
+# TODO: Test overriding __class_getitem__
+# [[test]]
+# name = "class_getitem_override"
+# description = "Subclass overrides __class_getitem__"
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+# TODO: Test __class_getitem__ with slice
+# [[test]]
+# name = "class_getitem_slice"
+# description = "MyClass[1:10] passes slice object"
+
+# TODO: Test __class_getitem__ with tuple
+# [[test]]
+# name = "class_getitem_tuple"
+# description = "MyClass[int, str] passes tuple"
+
+# TODO: Test __class_getitem__ caching
+# [[test]]
+# name = "class_getitem_cache"
+# description = "MyClass[int] is MyClass[int]?"
+
+# TODO: Test __class_getitem__ on non-generic
+# [[test]]
+# name = "class_getitem_nongeneric"
+# description = "Using without Generic base"

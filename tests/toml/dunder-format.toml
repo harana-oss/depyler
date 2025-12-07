@@ -1,0 +1,151 @@
+# Dunder Format Tests - String formatting magic methods
+# Rust Mapping: Display trait, Into<Vec<u8>>, bool conversion
+
+[metadata]
+name = "Dunder Format Tests"
+category = "dunder-methods"
+
+# =============================================================================
+# __format__
+# =============================================================================
+
+# TODO: Test __format__ basic
+# [[test]]
+# name = "dunder_format"
+# description = "def __format__(self, spec): return formatted_string"
+
+# TODO: Test format() builtin
+# [[test]]
+# name = "format_builtin"
+# description = "format(obj, spec) calls obj.__format__(spec)"
+
+# TODO: Test f-string uses __format__
+# [[test]]
+# name = "fstring_format"
+# description = "f'{obj:spec}' calls __format__"
+
+# TODO: Test __format__ with empty spec
+# [[test]]
+# name = "format_empty_spec"
+# description = "__format__('') default formatting"
+
+# =============================================================================
+# __format__ Specifications
+# =============================================================================
+
+# TODO: Test custom format spec
+# [[test]]
+# name = "format_custom_spec"
+# description = "Custom format specification language"
+
+# TODO: Test width and alignment
+# [[test]]
+# name = "format_width"
+# description = "f'{obj:>10}' right align with width"
+
+# TODO: Test fill character
+# [[test]]
+# name = "format_fill"
+# description = "f'{obj:*^10}' fill with *"
+
+# =============================================================================
+# __bytes__
+# =============================================================================
+
+# TODO: Test __bytes__
+# [[test]]
+# name = "dunder_bytes"
+# description = "def __bytes__(self): return bytes(...)"
+
+# TODO: Test bytes() builtin
+# [[test]]
+# name = "bytes_builtin"
+# description = "bytes(obj) calls obj.__bytes__()"
+
+# TODO: Test __bytes__ for serialization
+# [[test]]
+# name = "bytes_serialization"
+# description = "Convert object to bytes representation"
+
+# =============================================================================
+# __bool__
+# =============================================================================
+
+# TODO: Test __bool__
+# [[test]]
+# name = "dunder_bool"
+# description = "def __bool__(self): return bool_value"
+
+# TODO: Test bool() builtin
+# [[test]]
+# name = "bool_builtin"
+# description = "bool(obj) calls obj.__bool__()"
+
+# TODO: Test if condition
+# [[test]]
+# name = "bool_if"
+# description = "if obj: uses __bool__"
+
+# TODO: Test __bool__ fallback to __len__
+# [[test]]
+# name = "bool_len_fallback"
+# description = "Without __bool__, uses __len__() != 0"
+
+# TODO: Test __bool__ default
+# [[test]]
+# name = "bool_default"
+# description = "Without __bool__ or __len__, always True"
+
+# =============================================================================
+# __sizeof__
+# =============================================================================
+
+# TODO: Test __sizeof__
+# [[test]]
+# name = "dunder_sizeof"
+# description = "def __sizeof__(self): return size_in_bytes"
+
+# TODO: Test sys.getsizeof
+# [[test]]
+# name = "getsizeof"
+# description = "sys.getsizeof(obj) uses __sizeof__"
+
+# =============================================================================
+# Use Cases
+# =============================================================================
+
+# TODO: Test custom number formatting
+# [[test]]
+# name = "format_number"
+# description = "Custom numeric type with format spec"
+
+# TODO: Test date/time formatting
+# [[test]]
+# name = "format_datetime"
+# description = "f'{dt:%Y-%m-%d}' style formatting"
+
+# TODO: Test falsy custom object
+# [[test]]
+# name = "falsy_object"
+# description = "Object that evaluates to False"
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+# TODO: Test __format__ returning non-string
+# [[test]]
+# name = "format_non_string"
+# description = "__format__ must return str"
+# skip = true
+
+# TODO: Test __bool__ returning non-bool
+# [[test]]
+# name = "bool_non_bool"
+# description = "__bool__ must return True or False"
+# skip = true
+
+# TODO: Test format spec parsing
+# [[test]]
+# name = "format_spec_parse"
+# description = "Parsing complex format specifications"

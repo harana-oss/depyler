@@ -1,0 +1,141 @@
+# Dataclasses Frozen Tests - Immutable dataclasses
+# Rust Mapping: Structs (immutable by default)
+
+[metadata]
+name = "Dataclasses Frozen Tests"
+category = "data-structures"
+
+# =============================================================================
+# Basic Frozen
+# =============================================================================
+
+# TODO: Test frozen dataclass
+# [[test]]
+# name = "frozen_basic"
+# description = "@dataclass(frozen=True)"
+
+# TODO: Test frozen prevents mutation
+# [[test]]
+# name = "frozen_no_mutate"
+# description = "obj.x = 5 raises FrozenInstanceError"
+# skip = true
+
+# TODO: Test frozen delete
+# [[test]]
+# name = "frozen_no_delete"
+# description = "del obj.x raises FrozenInstanceError"
+# skip = true
+
+# =============================================================================
+# Hashability
+# =============================================================================
+
+# TODO: Test frozen is hashable
+# [[test]]
+# name = "frozen_hashable"
+# description = "hash(frozen_instance)"
+
+# TODO: Test frozen as dict key
+# [[test]]
+# name = "frozen_dict_key"
+# description = "{frozen_obj: 'value'}"
+
+# TODO: Test frozen in set
+# [[test]]
+# name = "frozen_set_element"
+# description = "{frozen_obj1, frozen_obj2}"
+
+# TODO: Test hash stability
+# [[test]]
+# name = "frozen_hash_stable"
+# description = "Same values = same hash"
+
+# =============================================================================
+# Creating Modified Copies
+# =============================================================================
+
+# TODO: Test replace for modification
+# [[test]]
+# name = "frozen_replace"
+# description = "new = replace(frozen, x=10)"
+
+# TODO: Test original unchanged
+# [[test]]
+# name = "frozen_original_unchanged"
+# description = "replace returns new, old unchanged"
+
+# TODO: Test chain of replaces
+# [[test]]
+# name = "frozen_replace_chain"
+# description = "replace(replace(obj, x=1), y=2)"
+
+# =============================================================================
+# Frozen with Nested Mutable
+# =============================================================================
+
+# TODO: Test frozen with list field
+# [[test]]
+# name = "frozen_mutable_field"
+# description = "items: list can still be mutated"
+
+# TODO: Test deep freeze pattern
+# [[test]]
+# name = "frozen_deep"
+# description = "Freeze nested structures manually"
+
+# TODO: Test frozen with tuple
+# [[test]]
+# name = "frozen_tuple_field"
+# description = "Use tuple for truly immutable collections"
+
+# =============================================================================
+# Inheritance with Frozen
+# =============================================================================
+
+# TODO: Test frozen inheriting frozen
+# [[test]]
+# name = "frozen_inherit_frozen"
+# description = "Frozen subclass of frozen"
+
+# TODO: Test frozen inheriting non-frozen
+# [[test]]
+# name = "frozen_inherit_mutable"
+# description = "Frozen cannot inherit non-frozen dataclass"
+
+# TODO: Test mutable inheriting frozen
+# [[test]]
+# name = "mutable_inherit_frozen"
+# description = "Mutable subclass of frozen"
+
+# =============================================================================
+# __post_init__ with Frozen
+# =============================================================================
+
+# TODO: Test post_init with frozen
+# [[test]]
+# name = "frozen_post_init"
+# description = "Can use object.__setattr__ in __post_init__"
+
+# TODO: Test computed field in frozen
+# [[test]]
+# name = "frozen_computed"
+# description = "Set computed field in __post_init__"
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+# TODO: Test frozen with ClassVar
+# [[test]]
+# name = "frozen_classvar"
+# description = "ClassVar can be modified"
+
+# TODO: Test frozen equality
+# [[test]]
+# name = "frozen_equality"
+# description = "Frozen objects compare by value"
+
+# TODO: Test frozen repr
+# [[test]]
+# name = "frozen_repr"
+# description = "repr shows field values"

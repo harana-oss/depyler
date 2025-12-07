@@ -1,0 +1,125 @@
+# Dunder Bitwise Tests - Bitwise operation magic methods
+# Rust Mapping: BitAnd, BitOr, BitXor, Shl, Shr traits
+
+[metadata]
+name = "Dunder Bitwise Tests"
+category = "dunder-methods"
+
+# =============================================================================
+# Bitwise Operations
+# =============================================================================
+
+# TODO: Test __and__
+# [[test]]
+# name = "dunder_and"
+# description = "def __and__(self, other): return MyClass(self.x & other.x)"
+
+# TODO: Test __or__
+# [[test]]
+# name = "dunder_or"
+# description = "def __or__(self, other): return MyClass(self.x | other.x)"
+
+# TODO: Test __xor__
+# [[test]]
+# name = "dunder_xor"
+# description = "def __xor__(self, other): return MyClass(self.x ^ other.x)"
+
+# =============================================================================
+# Shift Operations
+# =============================================================================
+
+# TODO: Test __lshift__
+# [[test]]
+# name = "dunder_lshift"
+# description = "def __lshift__(self, other): return MyClass(self.x << other)"
+
+# TODO: Test __rshift__
+# [[test]]
+# name = "dunder_rshift"
+# description = "def __rshift__(self, other): return MyClass(self.x >> other)"
+
+# =============================================================================
+# Bitwise with Integers
+# =============================================================================
+
+# TODO: Test custom & int
+# [[test]]
+# name = "bitwise_custom_int"
+# description = "CustomFlags() & 0xFF"
+
+# TODO: Test int & custom
+# [[test]]
+# name = "bitwise_int_custom"
+# description = "0xFF & CustomFlags() via __rand__"
+
+# =============================================================================
+# Use Cases: Flags
+# =============================================================================
+
+# TODO: Test flag combination with |
+# [[test]]
+# name = "flags_or"
+# description = "READ | WRITE combining flags"
+
+# TODO: Test flag check with &
+# [[test]]
+# name = "flags_and"
+# description = "permissions & READ checking flags"
+
+# TODO: Test flag toggle with ^
+# [[test]]
+# name = "flags_xor"
+# description = "flags ^ TOGGLE toggling flags"
+
+# =============================================================================
+# Use Cases: Bitmasks
+# =============================================================================
+
+# TODO: Test bitmask creation
+# [[test]]
+# name = "bitmask_create"
+# description = "1 << n creating bitmask"
+
+# TODO: Test bitmask extraction
+# [[test]]
+# name = "bitmask_extract"
+# description = "(value >> n) & 0xFF extracting bits"
+
+# =============================================================================
+# Use Cases: Sets (using bitwise for sets)
+# =============================================================================
+
+# TODO: Test set intersection (&)
+# [[test]]
+# name = "set_and"
+# description = "set1 & set2 intersection"
+
+# TODO: Test set union (|)
+# [[test]]
+# name = "set_or"
+# description = "set1 | set2 union"
+
+# TODO: Test set symmetric difference (^)
+# [[test]]
+# name = "set_xor"
+# description = "set1 ^ set2 symmetric difference"
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+# TODO: Test negative shift
+# [[test]]
+# name = "negative_shift"
+# description = "x << -1 raises ValueError"
+# skip = true
+
+# TODO: Test large shift
+# [[test]]
+# name = "large_shift"
+# description = "x << 1000 with big integers"
+
+# TODO: Test bitwise on bool
+# [[test]]
+# name = "bitwise_bool"
+# description = "True & False == False"

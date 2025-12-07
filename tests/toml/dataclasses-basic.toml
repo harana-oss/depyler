@@ -1,0 +1,160 @@
+# Dataclasses Basic Tests - @dataclass decorator basics
+# Rust Mapping: #[derive] structs
+
+[metadata]
+name = "Dataclasses Basic Tests"
+category = "data-structures"
+
+# =============================================================================
+# Basic Dataclass
+# =============================================================================
+
+# TODO: Test simple dataclass
+# [[test]]
+# name = "dataclass_simple"
+# description = "@dataclass class Point: x: int; y: int"
+
+# TODO: Test auto __init__
+# [[test]]
+# name = "dataclass_init"
+# description = "Point(1, 2) auto-generated"
+
+# TODO: Test auto __repr__
+# [[test]]
+# name = "dataclass_repr"
+# description = "Point(x=1, y=2) repr"
+
+# TODO: Test auto __eq__
+# [[test]]
+# name = "dataclass_eq"
+# description = "Point(1, 2) == Point(1, 2)"
+
+# =============================================================================
+# Field Types
+# =============================================================================
+
+# TODO: Test type annotations
+# [[test]]
+# name = "dataclass_types"
+# description = "x: int, name: str, etc."
+
+# TODO: Test optional type
+# [[test]]
+# name = "dataclass_optional"
+# description = "x: Optional[int] = None"
+
+# TODO: Test list field
+# [[test]]
+# name = "dataclass_list"
+# description = "items: list[int]"
+
+# =============================================================================
+# Default Values
+# =============================================================================
+
+# TODO: Test simple defaults
+# [[test]]
+# name = "dataclass_defaults"
+# description = "x: int = 0"
+
+# TODO: Test default with field()
+# [[test]]
+# name = "dataclass_field_default"
+# description = "x: int = field(default=0)"
+
+# TODO: Test default_factory
+# [[test]]
+# name = "dataclass_factory"
+# description = "items: list = field(default_factory=list)"
+
+# TODO: Test mutable default error
+# [[test]]
+# name = "dataclass_mutable_error"
+# description = "items: list = [] raises ValueError"
+# skip = true
+
+# =============================================================================
+# Decorator Options
+# =============================================================================
+
+# TODO: Test frozen=True
+# [[test]]
+# name = "dataclass_frozen"
+# description = "@dataclass(frozen=True)"
+
+# TODO: Test order=True
+# [[test]]
+# name = "dataclass_order"
+# description = "@dataclass(order=True) generates <, >, etc."
+
+# TODO: Test eq=False
+# [[test]]
+# name = "dataclass_no_eq"
+# description = "@dataclass(eq=False)"
+
+# TODO: Test repr=False
+# [[test]]
+# name = "dataclass_no_repr"
+# description = "@dataclass(repr=False)"
+
+# TODO: Test init=False
+# [[test]]
+# name = "dataclass_no_init"
+# description = "@dataclass(init=False)"
+
+# =============================================================================
+# Field Options
+# =============================================================================
+
+# TODO: Test field repr
+# [[test]]
+# name = "dataclass_field_repr"
+# description = "field(repr=False)"
+
+# TODO: Test field compare
+# [[test]]
+# name = "dataclass_field_compare"
+# description = "field(compare=False)"
+
+# TODO: Test field hash
+# [[test]]
+# name = "dataclass_field_hash"
+# description = "field(hash=True)"
+
+# TODO: Test field init
+# [[test]]
+# name = "dataclass_field_init"
+# description = "field(init=False)"
+
+# =============================================================================
+# Post-Init
+# =============================================================================
+
+# TODO: Test __post_init__
+# [[test]]
+# name = "dataclass_post_init"
+# description = "def __post_init__(self): ..."
+
+# TODO: Test InitVar
+# [[test]]
+# name = "dataclass_initvar"
+# description = "init_only: InitVar[int]"
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+# TODO: Test inheritance
+# [[test]]
+# name = "dataclass_inherit"
+# description = "@dataclass class B(A): ..."
+
+# TODO: Test ClassVar
+# [[test]]
+# name = "dataclass_classvar"
+# description = "count: ClassVar[int] = 0"
+
+# TODO: Test slots=True (3.10+)
+# [[test]]
+# name = "dataclass_slots"
+# description = "@dataclass(slots=True)"

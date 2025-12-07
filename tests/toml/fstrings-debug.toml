@@ -1,0 +1,105 @@
+# F-Strings Debug Tests - Debug specifier (Python 3.8+)
+# Rust Mapping: dbg! macro
+
+[metadata]
+name = "F-Strings Debug Tests"
+category = "strings"
+
+# =============================================================================
+# Basic Debug (=)
+# =============================================================================
+
+# TODO: Test debug specifier
+# [[test]]
+# name = "fstring_debug_basic"
+# description = "f'{x=}' outputs 'x=value'"
+
+# TODO: Test debug expression
+# [[test]]
+# name = "fstring_debug_expr"
+# description = "f'{1+2=}' outputs '1+2=3'"
+
+# TODO: Test debug method call
+# [[test]]
+# name = "fstring_debug_method"
+# description = "f'{s.upper()=}'"
+
+# =============================================================================
+# Debug with Format Spec
+# =============================================================================
+
+# TODO: Test debug with format
+# [[test]]
+# name = "fstring_debug_format"
+# description = "f'{x=:.2f}'"
+
+# TODO: Test debug with width
+# [[test]]
+# name = "fstring_debug_width"
+# description = "f'{x=:10}'"
+
+# TODO: Test debug with conversion
+# [[test]]
+# name = "fstring_debug_conv"
+# description = "f'{obj=!r}'"
+
+# =============================================================================
+# Whitespace Handling
+# =============================================================================
+
+# TODO: Test spaces preserved
+# [[test]]
+# name = "fstring_debug_space"
+# description = "f'{x = }' keeps spaces"
+
+# TODO: Test minimal spacing
+# [[test]]
+# name = "fstring_debug_nospace"
+# description = "f'{x=}' no extra space"
+
+# =============================================================================
+# Complex Expressions
+# =============================================================================
+
+# TODO: Test arithmetic
+# [[test]]
+# name = "fstring_debug_arith"
+# description = "f'{a + b * c=}'"
+
+# TODO: Test list comprehension
+# [[test]]
+# name = "fstring_debug_listcomp"
+# description = "f'{[x*2 for x in items]=}'"
+
+# TODO: Test dict access
+# [[test]]
+# name = "fstring_debug_dict"
+# description = "f'{d[\"key\"]=}'"
+
+# =============================================================================
+# Use Cases
+# =============================================================================
+
+# TODO: Test debugging values
+# [[test]]
+# name = "fstring_debug_use"
+# description = "Quick print debugging"
+
+# TODO: Test logging
+# [[test]]
+# name = "fstring_debug_log"
+# description = "Log with variable names"
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+# TODO: Test nested debug
+# [[test]]
+# name = "fstring_debug_nested"
+# description = "Multiple = in one f-string"
+
+# TODO: Test debug with special chars
+# [[test]]
+# name = "fstring_debug_special"
+# description = "Expression with quotes"

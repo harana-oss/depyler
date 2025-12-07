@@ -1,0 +1,144 @@
+# functools.partial Tests - Partial function application
+# Rust Mapping: Closures capturing arguments
+
+[metadata]
+name = "functools.partial Tests"
+category = "decorators-closures"
+
+# =============================================================================
+# Basic partial
+# =============================================================================
+
+# TODO: Test simple partial
+# [[test]]
+# name = "partial_basic"
+# description = "add5 = partial(add, 5)"
+
+# TODO: Test partial call
+# [[test]]
+# name = "partial_call"
+# description = "add5(3) == add(5, 3)"
+
+# TODO: Test partial with keyword
+# [[test]]
+# name = "partial_keyword"
+# description = "partial(func, x=10)"
+
+# =============================================================================
+# Multiple Arguments
+# =============================================================================
+
+# TODO: Test partial multiple args
+# [[test]]
+# name = "partial_multi_args"
+# description = "partial(func, a, b)"
+
+# TODO: Test partial mixed args
+# [[test]]
+# name = "partial_mixed"
+# description = "partial(func, a, b=1)"
+
+# TODO: Test adding more args
+# [[test]]
+# name = "partial_add_args"
+# description = "p = partial(f, a); p(b, c)"
+
+# =============================================================================
+# Partial Attributes
+# =============================================================================
+
+# TODO: Test partial.func
+# [[test]]
+# name = "partial_func"
+# description = "p.func is original function"
+
+# TODO: Test partial.args
+# [[test]]
+# name = "partial_args"
+# description = "p.args are frozen positional args"
+
+# TODO: Test partial.keywords
+# [[test]]
+# name = "partial_keywords"
+# description = "p.keywords are frozen keyword args"
+
+# =============================================================================
+# partialmethod
+# =============================================================================
+
+# TODO: Test partialmethod
+# [[test]]
+# name = "partialmethod_basic"
+# description = "method = partialmethod(full_method, arg)"
+
+# TODO: Test partialmethod in class
+# [[test]]
+# name = "partialmethod_class"
+# description = "class C: m = partialmethod(f, x)"
+
+# TODO: Test partialmethod with self
+# [[test]]
+# name = "partialmethod_self"
+# description = "self passed correctly"
+
+# =============================================================================
+# Use Cases
+# =============================================================================
+
+# TODO: Test callback with fixed args
+# [[test]]
+# name = "partial_callback"
+# description = "button.onclick = partial(handler, button_id)"
+
+# TODO: Test default argument override
+# [[test]]
+# name = "partial_defaults"
+# description = "Create function with different defaults"
+
+# TODO: Test adapter pattern
+# [[test]]
+# name = "partial_adapter"
+# description = "Adapt function signature"
+
+# TODO: Test with map/filter
+# [[test]]
+# name = "partial_map"
+# description = "map(partial(pow, 2), items)"
+
+# =============================================================================
+# Comparison with Lambda
+# =============================================================================
+
+# TODO: Test partial vs lambda
+# [[test]]
+# name = "partial_vs_lambda"
+# description = "partial(f, x) vs lambda y: f(x, y)"
+
+# TODO: Test partial advantages
+# [[test]]
+# name = "partial_advantages"
+# description = "Clearer, func/args accessible"
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+# TODO: Test nested partial
+# [[test]]
+# name = "partial_nested"
+# description = "partial(partial(f, a), b)"
+
+# TODO: Test partial with *args function
+# [[test]]
+# name = "partial_varargs"
+# description = "partial on *args function"
+
+# TODO: Test partial with **kwargs function
+# [[test]]
+# name = "partial_kwargs_func"
+# description = "partial on **kwargs function"
+
+# TODO: Test partial overriding frozen kwarg
+# [[test]]
+# name = "partial_override"
+# description = "Call can override partial's kwargs"

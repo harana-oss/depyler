@@ -1,0 +1,139 @@
+# Closures Tests - Functions capturing free variables
+# Rust Mapping: Move/borrow closures
+
+[metadata]
+name = "Closures Tests"
+category = "decorators-closures"
+
+# =============================================================================
+# Basic Closures
+# =============================================================================
+
+# TODO: Test simple closure
+# [[test]]
+# name = "closure_basic"
+# description = "def outer(): x = 1; def inner(): return x; return inner"
+
+# TODO: Test closure captures variable
+# [[test]]
+# name = "closure_capture"
+# description = "Inner function accesses outer's variable"
+
+# TODO: Test closure returned
+# [[test]]
+# name = "closure_return"
+# description = "Outer returns inner, inner still accesses x"
+
+# TODO: Test closure call
+# [[test]]
+# name = "closure_call"
+# description = "f = outer(); f() returns captured value"
+
+# =============================================================================
+# Closure Scope
+# =============================================================================
+
+# TODO: Test multiple captures
+# [[test]]
+# name = "closure_multi_capture"
+# description = "Capture multiple variables from outer"
+
+# TODO: Test nested closure
+# [[test]]
+# name = "closure_nested"
+# description = "Closure inside closure"
+
+# TODO: Test capture from multiple levels
+# [[test]]
+# name = "closure_multi_level"
+# description = "Inner captures from outer and outer's outer"
+
+# =============================================================================
+# Closure vs Parameter
+# =============================================================================
+
+# TODO: Test closure vs parameter
+# [[test]]
+# name = "closure_vs_param"
+# description = "Closure captures, parameter receives at call"
+
+# TODO: Test both closure and parameter
+# [[test]]
+# name = "closure_and_param"
+# description = "def inner(y): return x + y"
+
+# =============================================================================
+# Closures in Loops
+# =============================================================================
+
+# TODO: Test closure in loop (gotcha)
+# [[test]]
+# name = "closure_loop_gotcha"
+# description = "[lambda: i for i in range(3)] all return 2"
+
+# TODO: Test closure loop fix with default arg
+# [[test]]
+# name = "closure_loop_fix_default"
+# description = "[lambda i=i: i for i in range(3)]"
+
+# TODO: Test closure loop fix with functools.partial
+# [[test]]
+# name = "closure_loop_fix_partial"
+# description = "[partial(f, i) for i in range(3)]"
+
+# =============================================================================
+# Closure Use Cases
+# =============================================================================
+
+# TODO: Test factory function
+# [[test]]
+# name = "closure_factory"
+# description = "def make_adder(n): return lambda x: x + n"
+
+# TODO: Test counter closure
+# [[test]]
+# name = "closure_counter"
+# description = "Closure maintaining count"
+
+# TODO: Test accumulator
+# [[test]]
+# name = "closure_accumulator"
+# description = "Closure accumulating values"
+
+# TODO: Test callback with context
+# [[test]]
+# name = "closure_callback"
+# description = "Callback capturing context"
+
+# =============================================================================
+# __closure__ Attribute
+# =============================================================================
+
+# TODO: Test __closure__
+# [[test]]
+# name = "closure_attribute"
+# description = "f.__closure__ contains cell objects"
+
+# TODO: Test cell_contents
+# [[test]]
+# name = "closure_cell_contents"
+# description = "cell.cell_contents accesses value"
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+# TODO: Test closure without free variables
+# [[test]]
+# name = "closure_no_free"
+# description = "def inner(): return 1 (no capture)"
+
+# TODO: Test closure over class variable
+# [[test]]
+# name = "closure_class_var"
+# description = "Closure in method capturing class variable"
+
+# TODO: Test closure over global
+# [[test]]
+# name = "closure_global"
+# description = "Globals not in __closure__"

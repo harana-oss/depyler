@@ -1,0 +1,105 @@
+# Metaclass Tests - Custom type creation
+# Rust Mapping: Traits, proc macros (limited support)
+
+[metadata]
+name = "Metaclass Tests"
+category = "advanced-oop"
+
+# =============================================================================
+# Basic Metaclass
+# =============================================================================
+
+# TODO: Test type() as metaclass
+# [[test]]
+# name = "type_as_metaclass"
+# description = "type('MyClass', (Base,), {'attr': value})"
+
+# TODO: Test custom metaclass
+# [[test]]
+# name = "custom_metaclass"
+# description = "class Meta(type): ..."
+
+# TODO: Test metaclass keyword
+# [[test]]
+# name = "metaclass_keyword"
+# description = "class MyClass(metaclass=Meta): ..."
+
+# =============================================================================
+# Metaclass Methods
+# =============================================================================
+
+# TODO: Test __new__ in metaclass
+# [[test]]
+# name = "metaclass_new"
+# description = "def __new__(mcs, name, bases, namespace): ..."
+
+# TODO: Test __init__ in metaclass
+# [[test]]
+# name = "metaclass_init"
+# description = "def __init__(cls, name, bases, namespace): ..."
+
+# TODO: Test __call__ in metaclass
+# [[test]]
+# name = "metaclass_call"
+# description = "Control instance creation"
+
+# TODO: Test __prepare__ in metaclass
+# [[test]]
+# name = "metaclass_prepare"
+# description = "@classmethod def __prepare__(mcs, name, bases): ..."
+
+# =============================================================================
+# Metaclass Use Cases
+# =============================================================================
+
+# TODO: Test singleton metaclass
+# [[test]]
+# name = "singleton_metaclass"
+# description = "Metaclass ensuring single instance"
+
+# TODO: Test registration metaclass
+# [[test]]
+# name = "registration_metaclass"
+# description = "Auto-register classes on creation"
+
+# TODO: Test validation metaclass
+# [[test]]
+# name = "validation_metaclass"
+# description = "Validate class definition at creation"
+
+# TODO: Test attribute injection
+# [[test]]
+# name = "attribute_injection"
+# description = "Add attributes/methods via metaclass"
+
+# =============================================================================
+# Metaclass Inheritance
+# =============================================================================
+
+# TODO: Test metaclass inheritance
+# [[test]]
+# name = "metaclass_inheritance"
+# description = "Subclass inherits parent's metaclass"
+
+# TODO: Test metaclass conflict
+# [[test]]
+# name = "metaclass_conflict"
+# description = "Multiple inheritance with different metaclasses"
+# skip = true
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+# TODO: Test __instancecheck__
+# [[test]]
+# name = "metaclass_instancecheck"
+# description = "Custom isinstance() behavior"
+
+# TODO: Test __subclasscheck__
+# [[test]]
+# name = "metaclass_subclasscheck"
+# description = "Custom issubclass() behavior"
+
+# Note: Full metaclass support is limited in transpilation
+# Most use cases should be converted to trait-based patterns

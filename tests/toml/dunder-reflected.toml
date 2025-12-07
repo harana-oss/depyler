@@ -1,0 +1,136 @@
+# Dunder Reflected Tests - Right-hand operation magic methods
+# Rust Mapping: Trait impls with type parameters (for reverse ops)
+
+[metadata]
+name = "Dunder Reflected Tests"
+category = "dunder-methods"
+
+# =============================================================================
+# Reflected Arithmetic
+# =============================================================================
+
+# TODO: Test __radd__
+# [[test]]
+# name = "dunder_radd"
+# description = "def __radd__(self, other): return ... (other + self)"
+
+# TODO: Test __rsub__
+# [[test]]
+# name = "dunder_rsub"
+# description = "def __rsub__(self, other): return ... (other - self)"
+
+# TODO: Test __rmul__
+# [[test]]
+# name = "dunder_rmul"
+# description = "def __rmul__(self, other): return ... (other * self)"
+
+# TODO: Test __rtruediv__
+# [[test]]
+# name = "dunder_rtruediv"
+# description = "def __rtruediv__(self, other): return ... (other / self)"
+
+# TODO: Test __rfloordiv__
+# [[test]]
+# name = "dunder_rfloordiv"
+# description = "def __rfloordiv__(self, other): return ... (other // self)"
+
+# TODO: Test __rmod__
+# [[test]]
+# name = "dunder_rmod"
+# description = "def __rmod__(self, other): return ... (other % self)"
+
+# TODO: Test __rpow__
+# [[test]]
+# name = "dunder_rpow"
+# description = "def __rpow__(self, other): return ... (other ** self)"
+
+# =============================================================================
+# Reflected Bitwise
+# =============================================================================
+
+# TODO: Test __rand__
+# [[test]]
+# name = "dunder_rand"
+# description = "def __rand__(self, other): return ... (other & self)"
+
+# TODO: Test __ror__
+# [[test]]
+# name = "dunder_ror"
+# description = "def __ror__(self, other): return ... (other | self)"
+
+# TODO: Test __rxor__
+# [[test]]
+# name = "dunder_rxor"
+# description = "def __rxor__(self, other): return ... (other ^ self)"
+
+# TODO: Test __rlshift__
+# [[test]]
+# name = "dunder_rlshift"
+# description = "def __rlshift__(self, other): return ... (other << self)"
+
+# TODO: Test __rrshift__
+# [[test]]
+# name = "dunder_rrshift"
+# description = "def __rrshift__(self, other): return ... (other >> self)"
+
+# =============================================================================
+# Other Reflected
+# =============================================================================
+
+# TODO: Test __rmatmul__
+# [[test]]
+# name = "dunder_rmatmul"
+# description = "def __rmatmul__(self, other): return ... (other @ self)"
+
+# TODO: Test __rdivmod__
+# [[test]]
+# name = "dunder_rdivmod"
+# description = "def __rdivmod__(self, other): return divmod(other, self)"
+
+# =============================================================================
+# When Reflected is Called
+# =============================================================================
+
+# TODO: Test reflected called when left fails
+# [[test]]
+# name = "reflected_fallback"
+# description = "1 + custom_obj calls custom_obj.__radd__(1)"
+
+# TODO: Test reflected with subclass
+# [[test]]
+# name = "reflected_subclass"
+# description = "Subclass reflected method called first"
+
+# TODO: Test both sides NotImplemented
+# [[test]]
+# name = "reflected_both_fail"
+# description = "TypeError when both __add__ and __radd__ return NotImplemented"
+
+# =============================================================================
+# Use Cases
+# =============================================================================
+
+# TODO: Test scalar * custom_object
+# [[test]]
+# name = "scalar_times_object"
+# description = "2 * Vector(1, 2) via __rmul__"
+
+# TODO: Test string formatting
+# [[test]]
+# name = "reflected_format"
+# description = "'%s' % custom_obj uses __str__"
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+# TODO: Test reflected same type
+# [[test]]
+# name = "reflected_same_type"
+# description = "When both operands are same custom type"
+
+# TODO: Test reflected with None
+# [[test]]
+# name = "reflected_none"
+# description = "Reflected operation with None"
+# skip = true

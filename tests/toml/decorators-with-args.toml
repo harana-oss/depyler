@@ -1,0 +1,125 @@
+# Decorators with Arguments Tests - Parameterized decorators
+# Rust Mapping: Macro with parameters
+
+[metadata]
+name = "Decorators with Arguments Tests"
+category = "decorators-closures"
+
+# =============================================================================
+# Basic Parameterized Decorator
+# =============================================================================
+
+# TODO: Test decorator with args
+# [[test]]
+# name = "decorator_args_basic"
+# description = "@decorator(arg) def f(): ..."
+
+# TODO: Test decorator factory pattern
+# [[test]]
+# name = "decorator_factory"
+# description = "def decorator(arg): def actual_decorator(f): ... return actual_decorator"
+
+# TODO: Test multiple arguments
+# [[test]]
+# name = "decorator_multi_args"
+# description = "@decorator(a, b, c) def f(): ..."
+
+# TODO: Test keyword arguments
+# [[test]]
+# name = "decorator_kwargs"
+# description = "@decorator(x=1, y=2) def f(): ..."
+
+# =============================================================================
+# Common Parameterized Patterns
+# =============================================================================
+
+# TODO: Test repeat decorator
+# [[test]]
+# name = "decorator_repeat"
+# description = "@repeat(n) to call n times"
+
+# TODO: Test timeout decorator
+# [[test]]
+# name = "decorator_timeout"
+# description = "@timeout(seconds=5)"
+
+# TODO: Test rate limit decorator
+# [[test]]
+# name = "decorator_rate_limit"
+# description = "@rate_limit(calls=10, period=60)"
+
+# TODO: Test permission decorator
+# [[test]]
+# name = "decorator_permission"
+# description = "@requires_permission('admin')"
+
+# =============================================================================
+# Optional Arguments
+# =============================================================================
+
+# TODO: Test decorator with defaults
+# [[test]]
+# name = "decorator_defaults"
+# description = "@decorator() vs @decorator (both work)"
+
+# TODO: Test decorator callable both ways
+# [[test]]
+# name = "decorator_dual"
+# description = "@decorator or @decorator() pattern"
+
+# TODO: Test optional vs required args
+# [[test]]
+# name = "decorator_optional_args"
+# description = "Some args required, others optional"
+
+# =============================================================================
+# Decorator Closures
+# =============================================================================
+
+# TODO: Test capturing decorator argument
+# [[test]]
+# name = "decorator_capture"
+# description = "Inner wrapper accesses outer arg"
+
+# TODO: Test decorator with mutable state
+# [[test]]
+# name = "decorator_state"
+# description = "Counter in decorator"
+
+# TODO: Test decorator with cache
+# [[test]]
+# name = "decorator_cache"
+# description = "Decorator maintaining cache via closure"
+
+# =============================================================================
+# Type-Safe Decorators
+# =============================================================================
+
+# TODO: Test decorator preserving types
+# [[test]]
+# name = "decorator_type_hints"
+# description = "Type hints on decorator factory"
+
+# TODO: Test ParamSpec (Python 3.10+)
+# [[test]]
+# name = "decorator_paramspec"
+# description = "Preserve parameter types"
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+# TODO: Test decorator argument is function
+# [[test]]
+# name = "decorator_func_arg"
+# description = "@decorator(some_function)"
+
+# TODO: Test decorator with no parens vs empty parens
+# [[test]]
+# name = "decorator_parens"
+# description = "@dec vs @dec() difference"
+
+# TODO: Test nested decorator factories
+# [[test]]
+# name = "decorator_nested_factory"
+# description = "Decorator factory returning decorator factory"

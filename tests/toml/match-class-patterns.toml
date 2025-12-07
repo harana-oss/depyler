@@ -1,0 +1,135 @@
+# Match Class Patterns Tests - Structural pattern matching for classes
+# Rust Mapping: Struct patterns in match
+
+[metadata]
+name = "Match Class Patterns Tests"
+category = "modern-python"
+
+# =============================================================================
+# Basic Class Patterns
+# =============================================================================
+
+# TODO: Test class pattern no args
+# [[test]]
+# name = "class_pattern_no_args"
+# description = "case Point(): ..."
+
+# TODO: Test class pattern positional
+# [[test]]
+# name = "class_pattern_positional"
+# description = "case Point(0, 0): ..."
+
+# TODO: Test class pattern keyword
+# [[test]]
+# name = "class_pattern_keyword"
+# description = "case Point(x=0, y=0): ..."
+
+# TODO: Test class pattern capture
+# [[test]]
+# name = "class_pattern_capture"
+# description = "case Point(x, y): use x, y"
+
+# =============================================================================
+# __match_args__
+# =============================================================================
+
+# TODO: Test __match_args__ attribute
+# [[test]]
+# name = "match_args"
+# description = "class Point: __match_args__ = ('x', 'y')"
+
+# TODO: Test positional via __match_args__
+# [[test]]
+# name = "match_args_positional"
+# description = "case Point(a, b): maps to x, y via __match_args__"
+
+# TODO: Test dataclass __match_args__
+# [[test]]
+# name = "dataclass_match_args"
+# description = "@dataclass auto-generates __match_args__"
+
+# =============================================================================
+# Mixed Patterns
+# =============================================================================
+
+# TODO: Test positional and keyword
+# [[test]]
+# name = "class_pattern_mixed"
+# description = "case Point(0, y=y): ..."
+
+# TODO: Test nested class patterns
+# [[test]]
+# name = "class_pattern_nested"
+# description = "case Line(Point(x1, y1), Point(x2, y2)): ..."
+
+# TODO: Test class pattern with guard
+# [[test]]
+# name = "class_pattern_guard"
+# description = "case Point(x, y) if x > 0: ..."
+
+# =============================================================================
+# Built-in Type Patterns
+# =============================================================================
+
+# TODO: Test int pattern
+# [[test]]
+# name = "builtin_int_pattern"
+# description = "case int(): matches any int"
+
+# TODO: Test str pattern
+# [[test]]
+# name = "builtin_str_pattern"
+# description = "case str(): matches any str"
+
+# TODO: Test bool pattern
+# [[test]]
+# name = "builtin_bool_pattern"
+# description = "case bool(): matches True or False"
+
+# =============================================================================
+# Pattern with Wildcards
+# =============================================================================
+
+# TODO: Test class pattern wildcard
+# [[test]]
+# name = "class_pattern_wildcard"
+# description = "case Point(_, y): ignore x"
+
+# TODO: Test class pattern partial capture
+# [[test]]
+# name = "class_pattern_partial"
+# description = "case Point(x=x): capture only x"
+
+# =============================================================================
+# Inheritance
+# =============================================================================
+
+# TODO: Test subclass matching
+# [[test]]
+# name = "class_pattern_subclass"
+# description = "case Shape(): matches Circle, Rectangle, etc."
+
+# TODO: Test specific subclass
+# [[test]]
+# name = "class_pattern_specific"
+# description = "case Circle(radius=r): ..."
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+# TODO: Test class pattern without __match_args__
+# [[test]]
+# name = "class_no_match_args"
+# description = "Positional patterns require __match_args__"
+# skip = true
+
+# TODO: Test class pattern with extra attrs
+# [[test]]
+# name = "class_pattern_extra"
+# description = "Pattern doesn't need all attributes"
+
+# TODO: Test NamedTuple pattern
+# [[test]]
+# name = "namedtuple_pattern"
+# description = "case Point(x=0, y=0): with NamedTuple"

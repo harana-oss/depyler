@@ -1,0 +1,121 @@
+# __new__ vs __init__ Tests - Object creation and initialization
+# Rust Mapping: new() constructors, Default trait
+
+[metadata]
+name = "__new__ vs __init__ Tests"
+category = "advanced-oop"
+
+# =============================================================================
+# Basic __init__
+# =============================================================================
+
+# TODO: Test simple __init__
+# [[test]]
+# name = "init_basic"
+# description = "def __init__(self, x): self.x = x"
+
+# TODO: Test __init__ with defaults
+# [[test]]
+# name = "init_defaults"
+# description = "def __init__(self, x=0): ..."
+
+# TODO: Test __init__ return value
+# [[test]]
+# name = "init_return"
+# description = "__init__ must return None"
+
+# =============================================================================
+# Basic __new__
+# =============================================================================
+
+# TODO: Test simple __new__
+# [[test]]
+# name = "new_basic"
+# description = "def __new__(cls): return super().__new__(cls)"
+
+# TODO: Test __new__ with arguments
+# [[test]]
+# name = "new_args"
+# description = "def __new__(cls, *args, **kwargs): ..."
+
+# TODO: Test __new__ returning different type
+# [[test]]
+# name = "new_different_type"
+# description = "__new__ can return instance of different class"
+
+# =============================================================================
+# __new__ Use Cases
+# =============================================================================
+
+# TODO: Test singleton with __new__
+# [[test]]
+# name = "new_singleton"
+# description = "__new__ returns existing instance"
+
+# TODO: Test subclassing immutable types
+# [[test]]
+# name = "new_immutable"
+# description = "__new__ for subclassing int, str, tuple"
+
+# TODO: Test caching with __new__
+# [[test]]
+# name = "new_caching"
+# description = "Return cached instance for same args"
+
+# =============================================================================
+# __new__ and __init__ Interaction
+# =============================================================================
+
+# TODO: Test __new__ then __init__ order
+# [[test]]
+# name = "new_init_order"
+# description = "__new__ called before __init__"
+
+# TODO: Test __init__ skipped if __new__ returns wrong type
+# [[test]]
+# name = "new_wrong_type"
+# description = "__init__ not called if __new__ returns non-instance"
+
+# TODO: Test passing args through __new__ to __init__
+# [[test]]
+# name = "new_init_args"
+# description = "Same args passed to both methods"
+
+# =============================================================================
+# __new__ with Inheritance
+# =============================================================================
+
+# TODO: Test __new__ inheritance
+# [[test]]
+# name = "new_inheritance"
+# description = "Subclass __new__ calling super().__new__()"
+
+# TODO: Test overriding __new__
+# [[test]]
+# name = "new_override"
+# description = "Subclass overrides parent __new__"
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+# TODO: Test __new__ for metaclass
+# [[test]]
+# name = "new_metaclass"
+# description = "__new__ in metaclass creates class objects"
+
+# TODO: Test __new__ returning None
+# [[test]]
+# name = "new_return_none"
+# description = "__new__ returning None"
+# skip = true
+
+# TODO: Test __new__ without __init__
+# [[test]]
+# name = "new_no_init"
+# description = "Class with only __new__"
+
+# TODO: Test factory classmethod vs __new__
+# [[test]]
+# name = "factory_vs_new"
+# description = "When to use factory method vs __new__"

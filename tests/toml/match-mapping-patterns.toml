@@ -1,0 +1,140 @@
+# Match Mapping Patterns Tests - Dictionary pattern matching
+# Rust Mapping: HashMap destructuring (not directly supported)
+
+[metadata]
+name = "Match Mapping Patterns Tests"
+category = "modern-python"
+
+# =============================================================================
+# Basic Mapping Patterns
+# =============================================================================
+
+# TODO: Test simple key match
+# [[test]]
+# name = "mapping_simple_key"
+# description = "case {'key': value}: ..."
+
+# TODO: Test multiple keys
+# [[test]]
+# name = "mapping_multiple_keys"
+# description = "case {'a': x, 'b': y}: ..."
+
+# TODO: Test literal value match
+# [[test]]
+# name = "mapping_literal_value"
+# description = "case {'type': 'error'}: ..."
+
+# =============================================================================
+# Capturing Values
+# =============================================================================
+
+# TODO: Test capture value
+# [[test]]
+# name = "mapping_capture"
+# description = "case {'name': name}: capture name"
+
+# TODO: Test capture with literal
+# [[test]]
+# name = "mapping_capture_literal"
+# description = "case {'type': 'user', 'id': id}: ..."
+
+# TODO: Test nested capture
+# [[test]]
+# name = "mapping_nested_capture"
+# description = "case {'data': {'id': id}}: ..."
+
+# =============================================================================
+# **rest Pattern
+# =============================================================================
+
+# TODO: Test **rest capture
+# [[test]]
+# name = "mapping_rest"
+# description = "case {'key': v, **rest}: capture remaining"
+
+# TODO: Test **rest empty
+# [[test]]
+# name = "mapping_rest_empty"
+# description = "**rest is empty dict when all keys matched"
+
+# TODO: Test **_ discard rest
+# [[test]]
+# name = "mapping_rest_discard"
+# description = "case {'key': v, **_}: ignore rest"
+
+# =============================================================================
+# Key Types
+# =============================================================================
+
+# TODO: Test string keys
+# [[test]]
+# name = "mapping_string_keys"
+# description = "case {'a': x}: string key"
+
+# TODO: Test integer keys
+# [[test]]
+# name = "mapping_int_keys"
+# description = "case {0: first, 1: second}: ..."
+
+# TODO: Test enum keys
+# [[test]]
+# name = "mapping_enum_keys"
+# description = "case {Status.OK: data}: ..."
+
+# =============================================================================
+# Partial Matching
+# =============================================================================
+
+# TODO: Test partial match
+# [[test]]
+# name = "mapping_partial"
+# description = "case {'required': v}: matches with extra keys"
+
+# TODO: Test missing key fails
+# [[test]]
+# name = "mapping_missing_key"
+# description = "Pattern fails if required key missing"
+
+# =============================================================================
+# Nested Patterns
+# =============================================================================
+
+# TODO: Test nested mapping
+# [[test]]
+# name = "mapping_nested"
+# description = "case {'outer': {'inner': v}}: ..."
+
+# TODO: Test mapping with sequence
+# [[test]]
+# name = "mapping_with_sequence"
+# description = "case {'items': [first, *rest]}: ..."
+
+# TODO: Test mapping with class
+# [[test]]
+# name = "mapping_with_class"
+# description = "case {'point': Point(x, y)}: ..."
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+# TODO: Test empty mapping pattern
+# [[test]]
+# name = "mapping_empty"
+# description = "case {}: matches any mapping"
+
+# TODO: Test duplicate keys
+# [[test]]
+# name = "mapping_duplicate_keys"
+# description = "case {'a': x, 'a': y}: syntax error"
+# skip = true
+
+# TODO: Test dict subclass
+# [[test]]
+# name = "mapping_subclass"
+# description = "Pattern matches dict subclasses"
+
+# TODO: Test non-dict mapping
+# [[test]]
+# name = "mapping_non_dict"
+# description = "Works with any Mapping type"

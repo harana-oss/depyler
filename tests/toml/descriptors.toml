@@ -1,0 +1,115 @@
+# Descriptor Tests - The descriptor protocol
+# Rust Mapping: Custom Deref/DerefMut implementations
+
+[metadata]
+name = "Descriptor Tests"
+category = "advanced-oop"
+
+# =============================================================================
+# Non-Data Descriptors
+# =============================================================================
+
+# TODO: Test __get__ only
+# [[test]]
+# name = "descriptor_get"
+# description = "def __get__(self, obj, objtype=None): ..."
+
+# TODO: Test descriptor on class access
+# [[test]]
+# name = "descriptor_class_access"
+# description = "MyClass.descriptor vs instance.descriptor"
+
+# TODO: Test method as descriptor
+# [[test]]
+# name = "method_descriptor"
+# description = "Functions are non-data descriptors"
+
+# =============================================================================
+# Data Descriptors
+# =============================================================================
+
+# TODO: Test __set__
+# [[test]]
+# name = "descriptor_set"
+# description = "def __set__(self, obj, value): ..."
+
+# TODO: Test __delete__
+# [[test]]
+# name = "descriptor_delete"
+# description = "def __delete__(self, obj): ..."
+
+# TODO: Test data descriptor priority
+# [[test]]
+# name = "descriptor_priority"
+# description = "Data descriptor overrides instance __dict__"
+
+# =============================================================================
+# __set_name__
+# =============================================================================
+
+# TODO: Test __set_name__
+# [[test]]
+# name = "descriptor_set_name"
+# description = "def __set_name__(self, owner, name): ..."
+
+# TODO: Test descriptor knowing its name
+# [[test]]
+# name = "descriptor_self_aware"
+# description = "Descriptor stores its attribute name"
+
+# =============================================================================
+# Descriptor Use Cases
+# =============================================================================
+
+# TODO: Test typed attribute descriptor
+# [[test]]
+# name = "typed_descriptor"
+# description = "Type-checking descriptor"
+
+# TODO: Test lazy evaluation descriptor
+# [[test]]
+# name = "lazy_descriptor"
+# description = "Compute value on first access"
+
+# TODO: Test validation descriptor
+# [[test]]
+# name = "validation_descriptor"
+# description = "Validate values on set"
+
+# TODO: Test cached property descriptor
+# [[test]]
+# name = "cached_property_descriptor"
+# description = "Cache computed value"
+
+# =============================================================================
+# Descriptor Lookup Chain
+# =============================================================================
+
+# TODO: Test descriptor resolution order
+# [[test]]
+# name = "descriptor_resolution"
+# description = "Data descriptor > instance > non-data descriptor"
+
+# TODO: Test __getattribute__ and descriptors
+# [[test]]
+# name = "getattribute_descriptor"
+# description = "How __getattribute__ invokes descriptors"
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+# TODO: Test descriptor on slots class
+# [[test]]
+# name = "descriptor_slots"
+# description = "Descriptor with __slots__ class"
+
+# TODO: Test class-level descriptor access
+# [[test]]
+# name = "descriptor_class_level"
+# description = "Accessing descriptor from class, not instance"
+
+# TODO: Test descriptor inheritance
+# [[test]]
+# name = "descriptor_inheritance"
+# description = "Descriptors in class hierarchy"

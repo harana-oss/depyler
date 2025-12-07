@@ -1,0 +1,101 @@
+# Ellipsis Tests - The ... literal and its uses
+# Rust Mapping: Unit type, slice markers, placeholder
+
+[metadata]
+name = "Ellipsis Tests"
+category = "core-language"
+
+# =============================================================================
+# Ellipsis as Placeholder
+# =============================================================================
+
+# TODO: Test ellipsis in function body
+# [[test]]
+# name = "ellipsis_function_placeholder"
+# description = "def func(): ..."
+
+# TODO: Test ellipsis in class body
+# [[test]]
+# name = "ellipsis_class_placeholder"
+# description = "class Empty: ..."
+
+# TODO: Test ellipsis in abstract method
+# [[test]]
+# name = "ellipsis_abstract"
+# description = "@abstractmethod def method(self): ..."
+
+# TODO: Test ellipsis vs pass
+# [[test]]
+# name = "ellipsis_vs_pass"
+# description = "Both valid as no-op body"
+
+# =============================================================================
+# Ellipsis in Type Hints
+# =============================================================================
+
+# TODO: Test Callable with ellipsis
+# [[test]]
+# name = "ellipsis_callable"
+# description = "Callable[..., ReturnType]"
+
+# TODO: Test Tuple with ellipsis
+# [[test]]
+# name = "ellipsis_tuple"
+# description = "Tuple[int, ...] for variable-length tuple"
+
+# =============================================================================
+# Ellipsis in NumPy-style Slicing
+# =============================================================================
+
+# TODO: Test ellipsis in slice
+# [[test]]
+# name = "ellipsis_slice"
+# description = "arr[..., 0] for multi-dimensional indexing"
+
+# TODO: Test ellipsis expanding dimensions
+# [[test]]
+# name = "ellipsis_expand"
+# description = "arr[0, ...] equivalent to arr[0, :, :, :]"
+
+# =============================================================================
+# Ellipsis as Value
+# =============================================================================
+
+# TODO: Test ellipsis assignment
+# [[test]]
+# name = "ellipsis_assignment"
+# description = "x = ..."
+
+# TODO: Test ellipsis type
+# [[test]]
+# name = "ellipsis_type"
+# description = "type(...) == ellipsis"
+
+# TODO: Test ellipsis singleton
+# [[test]]
+# name = "ellipsis_singleton"
+# description = "... is ... (same object)"
+
+# TODO: Test ellipsis in dict
+# [[test]]
+# name = "ellipsis_in_dict"
+# description = "{...: 'ellipsis'} or {'key': ...}"
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+# TODO: Test ellipsis in if condition
+# [[test]]
+# name = "ellipsis_truthiness"
+# description = "if ...: (ellipsis is truthy)"
+
+# TODO: Test ellipsis comparison
+# [[test]]
+# name = "ellipsis_comparison"
+# description = "... == ... is True"
+
+# TODO: Test ellipsis as default argument
+# [[test]]
+# name = "ellipsis_default_arg"
+# description = "def f(x=...): to distinguish from None"

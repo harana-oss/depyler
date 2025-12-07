@@ -1,0 +1,122 @@
+# Global and Nonlocal Tests - Variable scope modifiers
+# Rust Mapping: Rc<RefCell<T>>, closures with captured references
+
+[metadata]
+name = "Global and Nonlocal Tests"
+category = "core-language"
+
+# =============================================================================
+# Global Statement
+# =============================================================================
+
+# TODO: Test basic global declaration
+# [[test]]
+# name = "global_basic"
+# description = "global x; x = value"
+
+# TODO: Test global read
+# [[test]]
+# name = "global_read"
+# description = "Read global variable inside function"
+
+# TODO: Test global write
+# [[test]]
+# name = "global_write"
+# description = "Modify global variable inside function"
+
+# TODO: Test multiple global declarations
+# [[test]]
+# name = "global_multiple"
+# description = "global a, b, c"
+
+# TODO: Test global in nested function
+# [[test]]
+# name = "global_nested"
+# description = "Global in nested function skips enclosing scope"
+
+# =============================================================================
+# Nonlocal Statement
+# =============================================================================
+
+# TODO: Test basic nonlocal declaration
+# [[test]]
+# name = "nonlocal_basic"
+# description = "nonlocal x in nested function"
+
+# TODO: Test nonlocal read
+# [[test]]
+# name = "nonlocal_read"
+# description = "Read enclosing scope variable"
+
+# TODO: Test nonlocal write
+# [[test]]
+# name = "nonlocal_write"
+# description = "Modify enclosing scope variable"
+
+# TODO: Test multiple nonlocal declarations
+# [[test]]
+# name = "nonlocal_multiple"
+# description = "nonlocal a, b, c"
+
+# TODO: Test nonlocal chain
+# [[test]]
+# name = "nonlocal_chain"
+# description = "Nonlocal across multiple nesting levels"
+
+# =============================================================================
+# Closures with Global/Nonlocal
+# =============================================================================
+
+# TODO: Test closure with nonlocal counter
+# [[test]]
+# name = "closure_counter"
+# description = "Counter closure using nonlocal"
+
+# TODO: Test closure factory
+# [[test]]
+# name = "closure_factory"
+# description = "Function returning closure with nonlocal state"
+
+# TODO: Test multiple closures sharing state
+# [[test]]
+# name = "closures_shared_state"
+# description = "Multiple closures from same factory"
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+# TODO: Test global without assignment
+# [[test]]
+# name = "global_no_assignment"
+# description = "Declare global but don't assign"
+
+# TODO: Test shadowing vs global
+# [[test]]
+# name = "shadowing_vs_global"
+# description = "Local variable shadows global without declaration"
+
+# TODO: Test global in class method
+# [[test]]
+# name = "global_in_method"
+# description = "Using global inside class method"
+
+# TODO: Test nonlocal error case
+# [[test]]
+# name = "nonlocal_error"
+# description = "Nonlocal without enclosing scope variable"
+# skip = true
+
+# =============================================================================
+# Combination Cases
+# =============================================================================
+
+# TODO: Test global and nonlocal together
+# [[test]]
+# name = "global_and_nonlocal"
+# description = "Both global and nonlocal in same function"
+
+# TODO: Test nested functions with mixed scopes
+# [[test]]
+# name = "mixed_scopes"
+# description = "Complex nesting with global and nonlocal"

@@ -1,0 +1,131 @@
+# Dunder Arithmetic Tests - Arithmetic magic methods
+# Rust Mapping: Add, Sub, Mul, Div, Rem traits
+
+[metadata]
+name = "Dunder Arithmetic Tests"
+category = "dunder-methods"
+
+# =============================================================================
+# Basic Arithmetic
+# =============================================================================
+
+# TODO: Test __add__
+# [[test]]
+# name = "dunder_add"
+# description = "def __add__(self, other): return MyClass(self.x + other.x)"
+
+# TODO: Test __sub__
+# [[test]]
+# name = "dunder_sub"
+# description = "def __sub__(self, other): return MyClass(self.x - other.x)"
+
+# TODO: Test __mul__
+# [[test]]
+# name = "dunder_mul"
+# description = "def __mul__(self, other): return MyClass(self.x * other.x)"
+
+# TODO: Test __truediv__
+# [[test]]
+# name = "dunder_truediv"
+# description = "def __truediv__(self, other): return MyClass(self.x / other.x)"
+
+# TODO: Test __floordiv__
+# [[test]]
+# name = "dunder_floordiv"
+# description = "def __floordiv__(self, other): return MyClass(self.x // other.x)"
+
+# TODO: Test __mod__
+# [[test]]
+# name = "dunder_mod"
+# description = "def __mod__(self, other): return MyClass(self.x % other.x)"
+
+# TODO: Test __pow__
+# [[test]]
+# name = "dunder_pow"
+# description = "def __pow__(self, other): return MyClass(self.x ** other.x)"
+
+# TODO: Test __pow__ with modulo
+# [[test]]
+# name = "dunder_pow_mod"
+# description = "def __pow__(self, other, mod=None): ..."
+
+# =============================================================================
+# Divmod and Matrix
+# =============================================================================
+
+# TODO: Test __divmod__
+# [[test]]
+# name = "dunder_divmod"
+# description = "def __divmod__(self, other): return (self // other, self % other)"
+
+# TODO: Test __matmul__
+# [[test]]
+# name = "dunder_matmul"
+# description = "def __matmul__(self, other): ... (@ operator)"
+
+# =============================================================================
+# Arithmetic with Scalars
+# =============================================================================
+
+# TODO: Test __add__ with int
+# [[test]]
+# name = "dunder_add_int"
+# description = "Custom class + int"
+
+# TODO: Test __mul__ with int
+# [[test]]
+# name = "dunder_mul_int"
+# description = "Custom class * int (e.g., list * n)"
+
+# TODO: Test type coercion
+# [[test]]
+# name = "arithmetic_coercion"
+# description = "Handling different numeric types"
+
+# =============================================================================
+# Return NotImplemented
+# =============================================================================
+
+# TODO: Test NotImplemented return
+# [[test]]
+# name = "arithmetic_notimplemented"
+# description = "Return NotImplemented for unsupported types"
+
+# TODO: Test fallback to reflected
+# [[test]]
+# name = "arithmetic_fallback"
+# description = "Python tries __radd__ if __add__ returns NotImplemented"
+
+# =============================================================================
+# Chained Arithmetic
+# =============================================================================
+
+# TODO: Test chained operations
+# [[test]]
+# name = "arithmetic_chained"
+# description = "a + b + c evaluates left to right"
+
+# TODO: Test mixed operations
+# [[test]]
+# name = "arithmetic_mixed"
+# description = "a + b * c follows precedence"
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+# TODO: Test __add__ returning different type
+# [[test]]
+# name = "add_different_type"
+# description = "__add__ can return any type"
+
+# TODO: Test arithmetic with None
+# [[test]]
+# name = "arithmetic_none"
+# description = "Handling None in arithmetic"
+# skip = true
+
+# TODO: Test custom numeric type
+# [[test]]
+# name = "custom_numeric"
+# description = "Full numeric type implementation"

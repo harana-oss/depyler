@@ -1,0 +1,125 @@
+# Dunder Comparison Tests - Comparison magic methods
+# Rust Mapping: PartialEq, Eq, PartialOrd, Ord, Hash traits
+
+[metadata]
+name = "Dunder Comparison Tests"
+category = "dunder-methods"
+
+# =============================================================================
+# Equality
+# =============================================================================
+
+# TODO: Test __eq__
+# [[test]]
+# name = "dunder_eq"
+# description = "def __eq__(self, other): return self.x == other.x"
+
+# TODO: Test __ne__
+# [[test]]
+# name = "dunder_ne"
+# description = "def __ne__(self, other): return self.x != other.x"
+
+# TODO: Test __ne__ default
+# [[test]]
+# name = "dunder_ne_default"
+# description = "__ne__ defaults to not __eq__"
+
+# =============================================================================
+# Ordering
+# =============================================================================
+
+# TODO: Test __lt__
+# [[test]]
+# name = "dunder_lt"
+# description = "def __lt__(self, other): return self.x < other.x"
+
+# TODO: Test __le__
+# [[test]]
+# name = "dunder_le"
+# description = "def __le__(self, other): return self.x <= other.x"
+
+# TODO: Test __gt__
+# [[test]]
+# name = "dunder_gt"
+# description = "def __gt__(self, other): return self.x > other.x"
+
+# TODO: Test __ge__
+# [[test]]
+# name = "dunder_ge"
+# description = "def __ge__(self, other): return self.x >= other.x"
+
+# =============================================================================
+# @total_ordering
+# =============================================================================
+
+# TODO: Test functools.total_ordering
+# [[test]]
+# name = "total_ordering"
+# description = "@total_ordering with __eq__ and one of __lt__, __le__, __gt__, __ge__"
+
+# =============================================================================
+# __hash__
+# =============================================================================
+
+# TODO: Test __hash__
+# [[test]]
+# name = "dunder_hash"
+# description = "def __hash__(self): return hash(self.x)"
+
+# TODO: Test __hash__ consistency with __eq__
+# [[test]]
+# name = "hash_eq_consistency"
+# description = "Equal objects must have same hash"
+
+# TODO: Test unhashable
+# [[test]]
+# name = "unhashable"
+# description = "__hash__ = None makes class unhashable"
+
+# TODO: Test hash in dict
+# [[test]]
+# name = "hash_in_dict"
+# description = "Object as dict key requires __hash__"
+
+# TODO: Test hash in set
+# [[test]]
+# name = "hash_in_set"
+# description = "Object in set requires __hash__"
+
+# =============================================================================
+# Comparison with Different Types
+# =============================================================================
+
+# TODO: Test __eq__ with different type
+# [[test]]
+# name = "eq_different_type"
+# description = "Return NotImplemented for incompatible types"
+
+# TODO: Test __lt__ with different type
+# [[test]]
+# name = "lt_different_type"
+# description = "Comparison with incompatible type"
+
+# TODO: Test reflected comparison
+# [[test]]
+# name = "comparison_reflected"
+# description = "Python tries reflected method if NotImplemented"
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+# TODO: Test comparison chaining with dunders
+# [[test]]
+# name = "dunder_chaining"
+# description = "a < b < c with custom comparisons"
+
+# TODO: Test __eq__ returning non-bool
+# [[test]]
+# name = "eq_non_bool"
+# description = "__eq__ can return non-bool (like numpy)"
+
+# TODO: Test mutable object hash
+# [[test]]
+# name = "mutable_hash"
+# description = "Mutable objects should not be hashable"

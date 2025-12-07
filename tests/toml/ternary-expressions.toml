@@ -1,0 +1,115 @@
+# Ternary Expression Tests - Conditional expressions (x if cond else y)
+# Rust Mapping: if/else expressions
+
+[metadata]
+name = "Ternary Expression Tests"
+category = "core-language"
+
+# =============================================================================
+# Basic Ternary
+# =============================================================================
+
+# TODO: Test simple ternary
+# [[test]]
+# name = "ternary_basic"
+# description = "x if condition else y"
+
+# TODO: Test ternary with integers
+# [[test]]
+# name = "ternary_integers"
+# description = "max_val = a if a > b else b"
+
+# TODO: Test ternary with strings
+# [[test]]
+# name = "ternary_strings"
+# description = "result = 'yes' if flag else 'no'"
+
+# =============================================================================
+# Nested Ternary
+# =============================================================================
+
+# TODO: Test nested ternary (if-elif-else equivalent)
+# [[test]]
+# name = "ternary_nested"
+# description = "a if x else b if y else c"
+
+# TODO: Test deeply nested ternary
+# [[test]]
+# name = "ternary_deeply_nested"
+# description = "Multiple levels of nesting"
+
+# =============================================================================
+# Ternary with Expressions
+# =============================================================================
+
+# TODO: Test ternary with function calls
+# [[test]]
+# name = "ternary_function_calls"
+# description = "f() if cond else g()"
+
+# TODO: Test ternary with method calls
+# [[test]]
+# name = "ternary_method_calls"
+# description = "obj.method1() if cond else obj.method2()"
+
+# TODO: Test ternary with list comprehension
+# [[test]]
+# name = "ternary_with_comprehension"
+# description = "[x if x > 0 else 0 for x in items]"
+
+# =============================================================================
+# Ternary in Assignments
+# =============================================================================
+
+# TODO: Test ternary in variable assignment
+# [[test]]
+# name = "ternary_assignment"
+# description = "result = value if valid else default"
+
+# TODO: Test ternary in augmented assignment
+# [[test]]
+# name = "ternary_augmented_assignment"
+# description = "x += 1 if cond else 0"
+
+# =============================================================================
+# Ternary as Arguments
+# =============================================================================
+
+# TODO: Test ternary as function argument
+# [[test]]
+# name = "ternary_as_argument"
+# description = "func(x if cond else y)"
+
+# TODO: Test multiple ternaries in call
+# [[test]]
+# name = "ternary_multiple_args"
+# description = "func(a if x else b, c if y else d)"
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+# TODO: Test ternary with None
+# [[test]]
+# name = "ternary_with_none"
+# description = "value if value is not None else default"
+
+# TODO: Test ternary with boolean result
+# [[test]]
+# name = "ternary_boolean_result"
+# description = "True if condition else False"
+
+# TODO: Test ternary with same type branches
+# [[test]]
+# name = "ternary_same_type"
+# description = "Both branches return same type"
+
+# TODO: Test ternary with different numeric types
+# [[test]]
+# name = "ternary_numeric_promotion"
+# description = "1 if cond else 1.0"
+
+# TODO: Test ternary short-circuit
+# [[test]]
+# name = "ternary_short_circuit"
+# description = "Only true or false branch is evaluated"

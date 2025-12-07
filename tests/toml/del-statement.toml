@@ -1,0 +1,105 @@
+# Del Statement Tests - Deleting variables, items, and attributes
+# Rust Mapping: drop(), remove(), Option::take()
+
+[metadata]
+name = "Del Statement Tests"
+category = "core-language"
+
+# =============================================================================
+# Del Variables
+# =============================================================================
+
+# TODO: Test del single variable
+# [[test]]
+# name = "del_variable"
+# description = "del x"
+
+# TODO: Test del multiple variables
+# [[test]]
+# name = "del_multiple_variables"
+# description = "del a, b, c"
+
+# =============================================================================
+# Del List Items
+# =============================================================================
+
+# TODO: Test del list element by index
+# [[test]]
+# name = "del_list_index"
+# description = "del lst[0]"
+
+# TODO: Test del list element negative index
+# [[test]]
+# name = "del_list_negative_index"
+# description = "del lst[-1]"
+
+# TODO: Test del list slice
+# [[test]]
+# name = "del_list_slice"
+# description = "del lst[1:3]"
+
+# TODO: Test del list slice with step
+# [[test]]
+# name = "del_list_slice_step"
+# description = "del lst[::2]"
+
+# =============================================================================
+# Del Dict Keys
+# =============================================================================
+
+# TODO: Test del dict key
+# [[test]]
+# name = "del_dict_key"
+# description = "del d['key']"
+
+# TODO: Test del dict with variable key
+# [[test]]
+# name = "del_dict_variable_key"
+# description = "del d[key_var]"
+
+# =============================================================================
+# Del Attributes
+# =============================================================================
+
+# TODO: Test del object attribute
+# [[test]]
+# name = "del_attribute"
+# description = "del obj.attr"
+
+# TODO: Test del with __delattr__
+# [[test]]
+# name = "del_custom_delattr"
+# description = "Class with custom __delattr__"
+
+# =============================================================================
+# Del in Loops
+# =============================================================================
+
+# TODO: Test del inside loop
+# [[test]]
+# name = "del_in_loop"
+# description = "Deleting elements while iterating (careful pattern)"
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+# TODO: Test del and rebind
+# [[test]]
+# name = "del_and_rebind"
+# description = "Delete then reassign same name"
+
+# TODO: Test del local vs global
+# [[test]]
+# name = "del_local_global"
+# description = "Del behavior in different scopes"
+
+# TODO: Test del nested subscript
+# [[test]]
+# name = "del_nested_subscript"
+# description = "del matrix[i][j]"
+
+# TODO: Test del chained attribute
+# [[test]]
+# name = "del_chained_attribute"
+# description = "del obj.inner.attr"

@@ -1,0 +1,159 @@
+# Dunder Attribute Tests - Attribute access magic methods
+# Rust Mapping: Custom accessor methods, Deref
+
+[metadata]
+name = "Dunder Attribute Tests"
+category = "dunder-methods"
+
+# =============================================================================
+# __getattr__
+# =============================================================================
+
+# TODO: Test __getattr__
+# [[test]]
+# name = "dunder_getattr"
+# description = "def __getattr__(self, name): ... (fallback)"
+
+# TODO: Test __getattr__ only for missing
+# [[test]]
+# name = "getattr_only_missing"
+# description = "__getattr__ only called for missing attributes"
+
+# TODO: Test __getattr__ returning value
+# [[test]]
+# name = "getattr_return_value"
+# description = "Return computed value for missing attribute"
+
+# TODO: Test __getattr__ raising AttributeError
+# [[test]]
+# name = "getattr_raise"
+# description = "Raise AttributeError for truly missing"
+
+# =============================================================================
+# __getattribute__
+# =============================================================================
+
+# TODO: Test __getattribute__
+# [[test]]
+# name = "dunder_getattribute"
+# description = "def __getattribute__(self, name): ... (all access)"
+
+# TODO: Test __getattribute__ always called
+# [[test]]
+# name = "getattribute_always"
+# description = "__getattribute__ called for ALL attribute access"
+
+# TODO: Test __getattribute__ infinite recursion
+# [[test]]
+# name = "getattribute_recursion"
+# description = "Must use super().__getattribute__ to avoid recursion"
+
+# TODO: Test __getattribute__ vs __getattr__
+# [[test]]
+# name = "getattribute_vs_getattr"
+# description = "__getattribute__ first, __getattr__ as fallback"
+
+# =============================================================================
+# __setattr__
+# =============================================================================
+
+# TODO: Test __setattr__
+# [[test]]
+# name = "dunder_setattr"
+# description = "def __setattr__(self, name, value): ..."
+
+# TODO: Test __setattr__ always called
+# [[test]]
+# name = "setattr_always"
+# description = "__setattr__ called for ALL assignments"
+
+# TODO: Test __setattr__ avoiding recursion
+# [[test]]
+# name = "setattr_recursion"
+# description = "Use object.__setattr__ or self.__dict__"
+
+# TODO: Test __setattr__ validation
+# [[test]]
+# name = "setattr_validation"
+# description = "Validate values before setting"
+
+# =============================================================================
+# __delattr__
+# =============================================================================
+
+# TODO: Test __delattr__
+# [[test]]
+# name = "dunder_delattr"
+# description = "def __delattr__(self, name): ..."
+
+# TODO: Test del obj.attr
+# [[test]]
+# name = "del_attr"
+# description = "del obj.attr calls __delattr__"
+
+# TODO: Test __delattr__ cleanup
+# [[test]]
+# name = "delattr_cleanup"
+# description = "Perform cleanup when attribute deleted"
+
+# =============================================================================
+# __dir__
+# =============================================================================
+
+# TODO: Test __dir__
+# [[test]]
+# name = "dunder_dir"
+# description = "def __dir__(self): return ['attr1', 'attr2', ...]"
+
+# TODO: Test dir() builtin
+# [[test]]
+# name = "dir_builtin"
+# description = "dir(obj) calls obj.__dir__()"
+
+# TODO: Test __dir__ for autocomplete
+# [[test]]
+# name = "dir_autocomplete"
+# description = "dir() used by IDEs for autocomplete"
+
+# =============================================================================
+# Use Cases
+# =============================================================================
+
+# TODO: Test proxy pattern
+# [[test]]
+# name = "attr_proxy"
+# description = "Forward attribute access to wrapped object"
+
+# TODO: Test dynamic attributes
+# [[test]]
+# name = "dynamic_attrs"
+# description = "Attributes computed on access"
+
+# TODO: Test attribute logging
+# [[test]]
+# name = "attr_logging"
+# description = "Log all attribute access/modification"
+
+# TODO: Test attribute validation
+# [[test]]
+# name = "attr_validation"
+# description = "Validate all attribute assignments"
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+# TODO: Test __getattr__ with __slots__
+# [[test]]
+# name = "getattr_slots"
+# description = "__getattr__ behavior with __slots__"
+
+# TODO: Test special method lookup
+# [[test]]
+# name = "special_method_lookup"
+# description = "Special methods bypass __getattribute__"
+
+# TODO: Test __getattr__ returning descriptor
+# [[test]]
+# name = "getattr_descriptor"
+# description = "__getattr__ returning a descriptor"

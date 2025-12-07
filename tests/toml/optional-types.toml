@@ -1240,3 +1240,59 @@ def add_unique_name(names: list[str]) -> None:
 [test.assertions]
 contains = [".contains(", ".push("]
 not_contains = [".get("]
+
+# =============================================================================
+# Optional Nested Attribute Access (migrated from test_optional_unwrap_nested.rs)
+# =============================================================================
+
+[[test]]
+name = "optional_nested_attribute_access"
+description = "Optional variable unwrapped when accessing nested properties"
+tags = ["optional", "nested", "attribute"]
+
+[test.python]
+code = '''
+class Inner:
+    value: int
+
+class Outer:
+    inner: Inner
+
+def test_optional_access(opt: Outer | None) -> int:
+    if opt is not None:
+        return opt.inner.value
+    return 0
+'''
+
+[test.assertions]
+contains = ["fn test_optional_access"]
+contains_any = [[".unwrap()", "if let Some"]]
+
+[[test]]
+name = "optional_assignment_then_access"
+description = "Optional variable assigned then accessed for nested fields"
+tags = ["optional", "nested", "assignment"]
+
+[test.python]
+code = '''
+class Scores:
+    total: int
+    tries: int
+
+class PeriodStatistic:
+    scores: Scores
+
+class State:
+    period_statistics: list[PeriodStatistic]
+
+def test_function(state: State) -> None:
+    extra_time_stats: PeriodStatistic | None = None
+    
+    if state is not None:
+        extra_time_stats = state.period_statistics[2]
+        print(extra_time_stats.scores.tries)
+'''
+
+[test.assertions]
+contains = ["fn test_function"]
+

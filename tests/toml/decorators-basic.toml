@@ -1,0 +1,127 @@
+# Basic Decorators Tests - Function decorators
+# Rust Mapping: Wrapper functions, macros
+
+[metadata]
+name = "Basic Decorators Tests"
+category = "decorators-closures"
+
+# =============================================================================
+# Simple Decorators
+# =============================================================================
+
+# TODO: Test basic decorator
+# [[test]]
+# name = "decorator_basic"
+# description = "@decorator def f(): ..."
+
+# TODO: Test decorator as wrapper
+# [[test]]
+# name = "decorator_wrapper"
+# description = "def decorator(f): def wrapper(): return f() return wrapper"
+
+# TODO: Test decorated function call
+# [[test]]
+# name = "decorator_call"
+# description = "Calling decorated function"
+
+# =============================================================================
+# Decorator Application Order
+# =============================================================================
+
+# TODO: Test stacked decorators
+# [[test]]
+# name = "decorator_stacked"
+# description = "@a @b @c def f(): ... equivalent to a(b(c(f)))"
+
+# TODO: Test stacking order
+# [[test]]
+# name = "decorator_order"
+# description = "Bottom decorator applied first"
+
+# TODO: Test three decorators
+# [[test]]
+# name = "decorator_three"
+# description = "Multiple decorator application"
+
+# =============================================================================
+# Common Decorator Patterns
+# =============================================================================
+
+# TODO: Test logging decorator
+# [[test]]
+# name = "decorator_logging"
+# description = "Log function calls"
+
+# TODO: Test timing decorator
+# [[test]]
+# name = "decorator_timing"
+# description = "Measure execution time"
+
+# TODO: Test validation decorator
+# [[test]]
+# name = "decorator_validation"
+# description = "Validate arguments"
+
+# TODO: Test retry decorator
+# [[test]]
+# name = "decorator_retry"
+# description = "Retry on failure"
+
+# =============================================================================
+# Decorators Preserving Signature
+# =============================================================================
+
+# TODO: Test *args, **kwargs passing
+# [[test]]
+# name = "decorator_args_kwargs"
+# description = "def wrapper(*args, **kwargs): return f(*args, **kwargs)"
+
+# TODO: Test return value preservation
+# [[test]]
+# name = "decorator_return"
+# description = "Return decorated function's result"
+
+# TODO: Test exception propagation
+# [[test]]
+# name = "decorator_exception"
+# description = "Exceptions propagate through wrapper"
+
+# =============================================================================
+# Method Decorators
+# =============================================================================
+
+# TODO: Test decorating method
+# [[test]]
+# name = "decorator_method"
+# description = "@decorator def method(self): ..."
+
+# TODO: Test self handling
+# [[test]]
+# name = "decorator_self"
+# description = "Wrapper receives self correctly"
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+# TODO: Test decorator returning None
+# [[test]]
+# name = "decorator_return_none"
+# description = "Decorator not returning function"
+# skip = true
+
+# TODO: Test decorator not wrapping
+# [[test]]
+# name = "decorator_no_wrap"
+# description = "def decorator(f): return f"
+
+# TODO: Test decorator with lambda
+# [[test]]
+# name = "decorator_lambda"
+# description = "@decorator applied to lambda"
+# skip = true
+
+# TODO: Test recursive decorated function
+# [[test]]
+# name = "decorator_recursive"
+# description = "Recursive function with decorator"

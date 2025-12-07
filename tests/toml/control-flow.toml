@@ -1419,3 +1419,639 @@ def complex_check(x: int, y: int) -> str:
 
 [test.assertions]
 contains = ["fn complex_check"]
+
+# =============================================================================
+# Extended Statement Coverage - Migrated from test_stmt_gen_extended_coverage.rs
+# =============================================================================
+
+[[test]]
+name = "for_loop_dict_subscript_target"
+description = "For loop with dict subscript as target (edge case)"
+tags = ["for", "dict", "edge-case"]
+skip = true
+
+[test.python]
+code = '''
+def test():
+    items = [1, 2, 3]
+    d = {}
+    for d["key"] in items:
+        pass
+'''
+
+[test.assertions]
+contains_any = [["fn test", "error"]]
+
+[[test]]
+name = "nested_tuple_unpacking"
+description = "Complex nested tuple unpacking (limited support)"
+tags = ["tuple", "unpacking", "edge-case"]
+skip = true
+
+[test.python]
+code = '''
+def test():
+    nested = ((1, 2), (3, 4))
+    (a, (b, c)) = nested
+    return a + b + c
+'''
+
+[test.assertions]
+contains_any = [["fn test", "error"]]
+
+[[test]]
+name = "try_with_finally_only"
+description = "Try block with only finally (no except)"
+tags = ["try", "finally"]
+
+[test.python]
+code = '''
+def test():
+    try:
+        x = 1
+    finally:
+        print("cleanup")
+    return x
+'''
+
+[test.assertions]
+contains = ["fn test"]
+
+[[test]]
+name = "raise_caught_exception_scope"
+description = "Raise caught by try block"
+tags = ["raise", "try", "except"]
+
+[test.python]
+code = '''
+def test():
+    try:
+        raise ValueError("error")
+    except ValueError:
+        return "caught"
+    return "not reached"
+'''
+
+[test.assertions]
+contains = ["fn test"]
+
+[[test]]
+name = "augmented_floor_division"
+description = "Augmented assignment with floor division"
+tags = ["augmented", "floor-division"]
+
+[test.python]
+code = '''
+def test():
+    x = 10
+    x //= 3
+    return x
+'''
+
+[test.assertions]
+contains = ["fn test"]
+
+[[test]]
+name = "break_in_nested_loop"
+description = "Break in nested loops"
+tags = ["break", "nested", "loop"]
+
+[test.python]
+code = '''
+def test():
+    for i in range(10):
+        for j in range(10):
+            if i * j > 20:
+                break
+        if i > 5:
+            break
+    return i
+'''
+
+[test.assertions]
+contains = ["fn test", "break"]
+
+[[test]]
+name = "continue_in_nested_loop"
+description = "Continue in nested loops"
+tags = ["continue", "nested", "loop"]
+
+[test.python]
+code = '''
+def test():
+    count = 0
+    for i in range(10):
+        for j in range(10):
+            if j % 2 == 0:
+                continue
+            count = count + 1
+        if i % 2 == 0:
+            continue
+        count = count + 100
+    return count
+'''
+
+[test.assertions]
+contains = ["fn test", "continue"]
+
+[[test]]
+name = "with_statement_target"
+description = "With statement binding to target variable"
+tags = ["with", "context-manager"]
+
+[test.python]
+code = '''
+class ContextManager:
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        pass
+
+def test():
+    with ContextManager() as ctx:
+        return ctx
+'''
+
+[test.assertions]
+contains = ["fn test"]
+
+[[test]]
+name = "if_condition_result_bool"
+description = "If condition with function returning bool"
+tags = ["if", "bool", "function-call"]
+
+[test.python]
+code = '''
+def is_even(n: int) -> bool:
+    return n % 2 == 0
+
+def test(x: int) -> int:
+    if is_even(x):
+        return 1
+    return 0
+'''
+
+[test.assertions]
+contains = ["fn is_even", "fn test"]
+
+[[test]]
+name = "return_len_type_conversion"
+description = "Return len() with type conversion"
+tags = ["return", "len", "type-conversion"]
+
+[test.python]
+code = '''
+def get_length(items: list[int]) -> int:
+    return len(items)
+'''
+
+[test.assertions]
+contains = ["fn get_length"]
+
+[[test]]
+name = "return_early_optional"
+description = "Early return with Optional type"
+tags = ["return", "optional", "early-return"]
+
+[test.python]
+code = '''
+from typing import Optional
+
+def maybe_find(items: list[int], target: int) -> Optional[int]:
+    for item in items:
+        if item == target:
+            return item
+    return None
+'''
+
+[test.assertions]
+contains = ["fn maybe_find"]
+contains_any = [["Option", "option"]]
+
+[[test]]
+name = "return_none_optional"
+description = "Return None for Optional type"
+tags = ["return", "none", "optional"]
+
+[test.python]
+code = '''
+from typing import Optional
+
+def optional_result() -> Optional[int]:
+    return None
+'''
+
+[test.assertions]
+contains = ["fn optional_result"]
+contains_any = [["Option", "None"]]
+
+[[test]]
+name = "return_empty_optional_early"
+description = "Empty return in Optional function (early)"
+tags = ["return", "empty", "optional", "early"]
+
+[test.python]
+code = '''
+from typing import Optional
+
+def early_exit(flag: bool) -> Optional[int]:
+    if flag:
+        return
+    return 42
+'''
+
+[test.assertions]
+contains = ["fn early_exit"]
+
+[[test]]
+name = "return_empty_result_early"
+description = "Empty return in Result function (early)"
+tags = ["return", "empty", "early"]
+
+[test.python]
+code = '''
+def validate(x: int):
+    if x < 0:
+        return
+    print(x)
+'''
+
+[test.assertions]
+contains = ["fn validate"]
+
+[[test]]
+name = "expr_usize_count_method"
+description = "Count method returns usize"
+tags = ["usize", "method", "count"]
+
+[test.python]
+code = '''
+def count_occurrences(text: str, char: str) -> int:
+    return text.count(char)
+'''
+
+[test.assertions]
+contains = ["fn count_occurrences"]
+
+[[test]]
+name = "expr_usize_len_builtin"
+description = "Len builtin returns usize"
+tags = ["usize", "builtin", "len"]
+
+[test.python]
+code = '''
+def get_size(items: list[int]) -> int:
+    return len(items)
+'''
+
+[test.assertions]
+contains = ["fn get_size"]
+
+[[test]]
+name = "expr_usize_binary"
+description = "Binary expression with usize operands"
+tags = ["usize", "binary", "expression"]
+
+[test.python]
+code = '''
+def total_size(a: list[int], b: list[int]) -> int:
+    return len(a) + len(b)
+'''
+
+[test.assertions]
+contains = ["fn total_size"]
+
+[[test]]
+name = "lambda_capture_variable"
+description = "Lambda capturing variable from outer scope"
+tags = ["lambda", "capture"]
+
+[test.python]
+code = '''
+def create_adder(x: int):
+    return lambda y: x + y
+'''
+
+[test.assertions]
+contains = ["fn create_adder"]
+
+[[test]]
+name = "ternary_variable_usage"
+description = "Variable used in ternary expression"
+tags = ["ternary", "variable"]
+
+[test.python]
+code = '''
+def abs_value(x: int) -> int:
+    return x if x > 0 else -x
+'''
+
+[test.assertions]
+contains = ["fn abs_value"]
+
+[[test]]
+name = "slice_variable_bounds"
+description = "Variable in slice bounds"
+tags = ["slice", "variable"]
+
+[test.python]
+code = '''
+def get_window(data: list[int], start: int, size: int) -> list[int]:
+    return data[start:start+size]
+'''
+
+[test.assertions]
+contains = ["fn get_window"]
+
+[[test]]
+name = "set_literal_with_variable"
+description = "Variable in set literal"
+tags = ["set", "literal", "variable"]
+
+[test.python]
+code = '''
+def create_set(x: int) -> set[int]:
+    return {x, x+1, x+2}
+'''
+
+[test.assertions]
+contains = ["fn create_set"]
+
+[[test]]
+name = "class_instance_type_tracking"
+description = "Class instance assignment tracks type"
+tags = ["class", "instance", "type-tracking"]
+
+[test.python]
+code = '''
+class Point:
+    def __init__(self, x: int, y: int):
+        self.x = x
+        self.y = y
+
+def test():
+    p = Point(1, 2)
+    return p.x + p.y
+'''
+
+[test.assertions]
+contains_any = [["struct Point", "class Point", "Point"]]
+
+[[test]]
+name = "set_builtin_constructor"
+description = "set() builtin constructor type tracking"
+tags = ["set", "constructor", "builtin"]
+
+[test.python]
+code = '''
+def test():
+    s = set([1, 2, 3])
+    return 1 in s
+'''
+
+[test.assertions]
+contains = ["fn test"]
+
+[[test]]
+name = "nested_dict_get_mut_chain"
+description = "Nested dict assignment with get_mut chain"
+tags = ["dict", "nested", "get_mut"]
+
+[test.python]
+code = '''
+def test():
+    d = {"a": {"b": {"c": 1}}}
+    d["a"]["b"]["c"] = 2
+    return d["a"]["b"]["c"]
+'''
+
+[test.assertions]
+contains = ["fn test"]
+
+[[test]]
+name = "vec_index_type_aware"
+description = "Vec index assignment with type info"
+tags = ["vec", "index", "type-aware"]
+
+[test.python]
+code = '''
+def test():
+    items: list[int] = [1, 2, 3]
+    items[0] = 99
+    return items[0]
+'''
+
+[test.assertions]
+contains = ["fn test"]
+
+[[test]]
+name = "char_variable_dict_heuristic"
+description = "Char variable triggers dict heuristic"
+tags = ["char", "dict", "heuristic"]
+
+[test.python]
+code = '''
+def test():
+    freq: dict[str, int] = {}
+    char = "a"
+    freq[char] = 1
+    return freq[char]
+'''
+
+[test.assertions]
+contains = ["fn test"]
+
+[[test]]
+name = "tuple_unpack_mutable"
+description = "Tuple unpacking with mutable variables"
+tags = ["tuple", "unpack", "mutable"]
+
+[test.python]
+code = '''
+def test():
+    a, b = 1, 2
+    a = 3
+    b = 4
+    return a + b
+'''
+
+[test.assertions]
+contains = ["fn test"]
+
+[[test]]
+name = "try_handler_named_exception"
+description = "Try handler with named exception variable"
+tags = ["try", "except", "named"]
+
+[test.python]
+code = '''
+def test():
+    try:
+        x = 1 / 0
+    except ZeroDivisionError as e:
+        print(e)
+        return "caught"
+    return "ok"
+'''
+
+[test.assertions]
+contains = ["fn test"]
+
+[[test]]
+name = "function_return_type_tracking"
+description = "Function return type tracking in assignment"
+tags = ["function", "return-type", "tracking"]
+
+[test.python]
+code = '''
+def merge(a: list[int], b: list[int]) -> list[int]:
+    return a + b
+
+def test():
+    result = merge([1], [2])
+    return len(result)
+'''
+
+[test.assertions]
+contains = ["fn merge", "fn test"]
+
+[[test]]
+name = "string_method_type_tracking"
+description = "String method return type tracking"
+tags = ["string", "method", "type-tracking"]
+
+[test.python]
+code = '''
+def test(text: str) -> str:
+    upper_text = text.upper()
+    return upper_text
+'''
+
+[test.assertions]
+contains = ["fn test"]
+
+[[test]]
+name = "property_if_statement"
+description = "Property test: if statement transpiles"
+tags = ["property", "if"]
+
+[test.python]
+code = '''
+def test_if():
+    x = 10
+    if x > 0:
+        return 1
+    else:
+        return 0
+'''
+
+[test.assertions]
+contains = ["fn test_if"]
+
+[[test]]
+name = "property_while_statement"
+description = "Property test: while statement transpiles"
+tags = ["property", "while"]
+
+[test.python]
+code = '''
+def test_while():
+    x = 10
+    while x > 0:
+        x = x - 1
+    return x
+'''
+
+[test.assertions]
+contains = ["fn test_while"]
+
+[[test]]
+name = "property_for_statement"
+description = "Property test: for statement transpiles"
+tags = ["property", "for"]
+
+[test.python]
+code = '''
+def test_for():
+    for i in range(10):
+        print(i)
+'''
+
+[test.assertions]
+contains = ["fn test_for"]
+
+[[test]]
+name = "property_break_statement"
+description = "Property test: break statement transpiles"
+tags = ["property", "break"]
+
+[test.python]
+code = '''
+def test_break():
+    for i in range(10):
+        break
+'''
+
+[test.assertions]
+contains = ["fn test_break"]
+
+[[test]]
+name = "property_continue_statement"
+description = "Property test: continue statement transpiles"
+tags = ["property", "continue"]
+
+[test.python]
+code = '''
+def test_continue():
+    for i in range(10):
+        continue
+'''
+
+[test.assertions]
+contains = ["fn test_continue"]
+
+[[test]]
+name = "property_return_statement"
+description = "Property test: return statement transpiles"
+tags = ["property", "return"]
+
+[test.python]
+code = '''
+def test_return():
+    return 42
+'''
+
+[test.assertions]
+contains = ["fn test_return"]
+
+[[test]]
+name = "complex_statement_combinations"
+description = "Complex statement combinations integration test"
+tags = ["integration", "complex"]
+
+[test.python]
+code = '''
+from typing import Optional
+
+def complex_logic(items: list[int], target: int) -> Optional[int]:
+    if not items:
+        return None
+
+    for i, item in enumerate(items):
+        if item == target:
+            return i
+
+        count = 0
+        while count < 3:
+            if count == 2:
+                break
+            count = count + 1
+            continue
+
+    return None
+'''
+
+[test.assertions]
+contains = ["fn complex_logic"]
+

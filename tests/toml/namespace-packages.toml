@@ -1,0 +1,143 @@
+# Namespace Packages Tests - PEP 420 namespace packages
+# Rust Mapping: Workspaces, path dependencies
+
+[metadata]
+name = "Namespace Packages Tests"
+category = "imports"
+
+# =============================================================================
+# Implicit Namespace Packages
+# =============================================================================
+
+# TODO: Test no __init__.py
+# [[test]]
+# name = "namespace_no_init"
+# description = "Directory without __init__.py"
+
+# TODO: Test import namespace
+# [[test]]
+# name = "namespace_import"
+# description = "import namespace_pkg"
+
+# TODO: Test namespace __path__
+# [[test]]
+# name = "namespace_path"
+# description = "Multiple paths in __path__"
+
+# =============================================================================
+# Split Across Locations
+# =============================================================================
+
+# TODO: Test split namespace
+# [[test]]
+# name = "namespace_split"
+# description = "Package split across directories"
+
+# TODO: Test sys.path order
+# [[test]]
+# name = "namespace_path_order"
+# description = "First in sys.path found first"
+
+# TODO: Test merge namespaces
+# [[test]]
+# name = "namespace_merge"
+# description = "Submodules from different locations"
+
+# =============================================================================
+# Regular vs Namespace
+# =============================================================================
+
+# TODO: Test regular package
+# [[test]]
+# name = "namespace_vs_regular"
+# description = "Regular package has __init__.py"
+
+# TODO: Test namespace characteristics
+# [[test]]
+# name = "namespace_characteristics"
+# description = "__file__ is None, __path__ is list"
+
+# TODO: Test hybrid
+# [[test]]
+# name = "namespace_hybrid"
+# description = "Namespace with some __init__.py"
+
+# =============================================================================
+# Plugin Pattern
+# =============================================================================
+
+# TODO: Test plugin namespace
+# [[test]]
+# name = "namespace_plugin"
+# description = "Namespace for plugins"
+
+# TODO: Test discover plugins
+# [[test]]
+# name = "namespace_discover"
+# description = "Find all submodules in namespace"
+
+# TODO: Test install plugin
+# [[test]]
+# name = "namespace_install"
+# description = "Install adds to namespace"
+
+# =============================================================================
+# Nested Namespaces
+# =============================================================================
+
+# TODO: Test nested namespace
+# [[test]]
+# name = "namespace_nested"
+# description = "Nested namespace packages"
+
+# TODO: Test partial namespace
+# [[test]]
+# name = "namespace_partial"
+# description = "Some levels namespace, some regular"
+
+# =============================================================================
+# pkgutil Namespace
+# =============================================================================
+
+# TODO: Test pkgutil.extend_path
+# [[test]]
+# name = "namespace_extend_path"
+# description = "__path__ = extend_path(__path__, __name__)"
+
+# TODO: Test legacy namespace
+# [[test]]
+# name = "namespace_legacy"
+# description = "pkg_resources.declare_namespace"
+
+# =============================================================================
+# Introspection
+# =============================================================================
+
+# TODO: Test __loader__
+# [[test]]
+# name = "namespace_loader"
+# description = "NamespaceLoader"
+
+# TODO: Test __spec__
+# [[test]]
+# name = "namespace_spec"
+# description = "ModuleSpec for namespace"
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+# TODO: Test empty namespace
+# [[test]]
+# name = "namespace_empty"
+# description = "Namespace with no submodules"
+
+# TODO: Test namespace vs file
+# [[test]]
+# name = "namespace_vs_file"
+# description = "Directory namespace vs .py file"
+
+# TODO: Test zipimport namespace
+# [[test]]
+# name = "namespace_zip"
+# description = "Namespace in zip file"

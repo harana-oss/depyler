@@ -1,0 +1,130 @@
+# Dunder Callable Tests - Making objects callable
+# Rust Mapping: Fn, FnMut, FnOnce traits
+
+[metadata]
+name = "Dunder Callable Tests"
+category = "dunder-methods"
+
+# =============================================================================
+# Basic __call__
+# =============================================================================
+
+# TODO: Test __call__ no args
+# [[test]]
+# name = "dunder_call_no_args"
+# description = "def __call__(self): return self.value"
+
+# TODO: Test __call__ with args
+# [[test]]
+# name = "dunder_call_args"
+# description = "def __call__(self, x, y): return x + y"
+
+# TODO: Test __call__ with kwargs
+# [[test]]
+# name = "dunder_call_kwargs"
+# description = "def __call__(self, **kwargs): ..."
+
+# TODO: Test __call__ with *args, **kwargs
+# [[test]]
+# name = "dunder_call_varargs"
+# description = "def __call__(self, *args, **kwargs): ..."
+
+# =============================================================================
+# callable() Check
+# =============================================================================
+
+# TODO: Test callable() on callable object
+# [[test]]
+# name = "callable_true"
+# description = "callable(obj_with_call) == True"
+
+# TODO: Test callable() on non-callable
+# [[test]]
+# name = "callable_false"
+# description = "callable(regular_obj) == False"
+
+# TODO: Test callable() on function
+# [[test]]
+# name = "callable_function"
+# description = "callable(func) == True"
+
+# =============================================================================
+# Use Cases
+# =============================================================================
+
+# TODO: Test function-like object
+# [[test]]
+# name = "functor"
+# description = "Class that acts like a function"
+
+# TODO: Test stateful callable
+# [[test]]
+# name = "stateful_callable"
+# description = "Callable that remembers state between calls"
+
+# TODO: Test callable as decorator
+# [[test]]
+# name = "callable_decorator"
+# description = "Class decorator using __call__"
+
+# TODO: Test callable factory
+# [[test]]
+# name = "callable_factory"
+# description = "Callable that returns other callables"
+
+# TODO: Test memoization
+# [[test]]
+# name = "callable_memoize"
+# description = "Callable that caches results"
+
+# =============================================================================
+# __call__ with Methods
+# =============================================================================
+
+# TODO: Test __call__ calling other methods
+# [[test]]
+# name = "call_uses_methods"
+# description = "__call__ delegating to other methods"
+
+# TODO: Test __call__ with self modification
+# [[test]]
+# name = "call_modifies_self"
+# description = "__call__ that modifies instance state"
+
+# =============================================================================
+# Callable as Callback
+# =============================================================================
+
+# TODO: Test callable as callback
+# [[test]]
+# name = "callable_callback"
+# description = "Pass callable instance where function expected"
+
+# TODO: Test callable with higher-order functions
+# [[test]]
+# name = "callable_higher_order"
+# description = "map(callable_obj, items)"
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+# TODO: Test __call__ returning None
+# [[test]]
+# name = "call_returns_none"
+# description = "__call__ with no return statement"
+
+# TODO: Test nested __call__
+# [[test]]
+# name = "call_nested"
+# description = "obj()(x) chained calls"
+
+# TODO: Test __call__ with type hints
+# [[test]]
+# name = "call_type_hints"
+# description = "__call__ with parameter and return type hints"
+
+# TODO: Test callable subclassing
+# [[test]]
+# name = "callable_subclass"
+# description = "Subclass overriding __call__"

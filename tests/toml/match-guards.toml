@@ -1,0 +1,125 @@
+# Match Guards Tests - Conditional pattern matching
+# Rust Mapping: Match guards (if conditions in match arms)
+
+[metadata]
+name = "Match Guards Tests"
+category = "modern-python"
+
+# =============================================================================
+# Basic Guards
+# =============================================================================
+
+# TODO: Test simple guard
+# [[test]]
+# name = "guard_basic"
+# description = "case x if x > 0: ..."
+
+# TODO: Test guard with comparison
+# [[test]]
+# name = "guard_comparison"
+# description = "case x if x >= 10 and x <= 20: ..."
+
+# TODO: Test guard with function call
+# [[test]]
+# name = "guard_function"
+# description = "case x if is_valid(x): ..."
+
+# =============================================================================
+# Guards with Pattern Variables
+# =============================================================================
+
+# TODO: Test guard using captured variable
+# [[test]]
+# name = "guard_captured"
+# description = "case (x, y) if x < y: ..."
+
+# TODO: Test guard with multiple captures
+# [[test]]
+# name = "guard_multi_capture"
+# description = "case [first, *rest] if len(rest) > 0: ..."
+
+# TODO: Test guard on class pattern
+# [[test]]
+# name = "guard_class_pattern"
+# description = "case Point(x, y) if x == y: ..."
+
+# =============================================================================
+# Complex Guards
+# =============================================================================
+
+# TODO: Test guard with and
+# [[test]]
+# name = "guard_and"
+# description = "case x if x > 0 and x < 100: ..."
+
+# TODO: Test guard with or
+# [[test]]
+# name = "guard_or"
+# description = "case x if x == 0 or x == 1: ..."
+
+# TODO: Test guard with not
+# [[test]]
+# name = "guard_not"
+# description = "case x if not is_blocked(x): ..."
+
+# TODO: Test guard with in
+# [[test]]
+# name = "guard_in"
+# description = "case x if x in valid_values: ..."
+
+# =============================================================================
+# Guards with Different Patterns
+# =============================================================================
+
+# TODO: Test guard on literal pattern
+# [[test]]
+# name = "guard_literal"
+# description = "case 0 if condition: ... (guard on literal)"
+
+# TODO: Test guard on sequence pattern
+# [[test]]
+# name = "guard_sequence"
+# description = "case [x, y, z] if sum([x,y,z]) > 10: ..."
+
+# TODO: Test guard on mapping pattern
+# [[test]]
+# name = "guard_mapping"
+# description = "case {'key': v} if v is not None: ..."
+
+# =============================================================================
+# Guards vs Multiple Patterns
+# =============================================================================
+
+# TODO: Test guard as alternative to OR pattern
+# [[test]]
+# name = "guard_vs_or"
+# description = "case x if x in (1, 2, 3): vs case 1 | 2 | 3:"
+
+# TODO: Test same pattern different guards
+# [[test]]
+# name = "same_pattern_diff_guards"
+# description = "case x if x > 0: ... case x if x < 0: ..."
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+# TODO: Test guard always False
+# [[test]]
+# name = "guard_always_false"
+# description = "case x if False: never matches"
+
+# TODO: Test guard with side effects
+# [[test]]
+# name = "guard_side_effects"
+# description = "Side effects in guard (evaluated conditionally)"
+
+# TODO: Test guard exception
+# [[test]]
+# name = "guard_exception"
+# description = "Exception raised in guard evaluation"
+
+# TODO: Test guard with walrus operator
+# [[test]]
+# name = "guard_walrus"
+# description = "case x if (y := compute(x)) > 0: use y"

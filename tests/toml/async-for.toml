@@ -1,0 +1,135 @@
+# Async For Tests - Asynchronous iteration
+# Rust Mapping: Stream trait
+
+[metadata]
+name = "Async For Tests"
+category = "async"
+
+# =============================================================================
+# Basic Async For
+# =============================================================================
+
+# TODO: Test simple async for
+# [[test]]
+# name = "async_for_basic"
+# description = "async for item in async_iter: ..."
+
+# TODO: Test async for with body
+# [[test]]
+# name = "async_for_body"
+# description = "Process items asynchronously"
+
+# TODO: Test async for with break
+# [[test]]
+# name = "async_for_break"
+# description = "async for with early exit"
+
+# TODO: Test async for with continue
+# [[test]]
+# name = "async_for_continue"
+# description = "Skip items with continue"
+
+# =============================================================================
+# Async Iterator Protocol
+# =============================================================================
+
+# TODO: Test __aiter__
+# [[test]]
+# name = "aiter"
+# description = "def __aiter__(self): return self"
+
+# TODO: Test __anext__
+# [[test]]
+# name = "anext"
+# description = "async def __anext__(self): ..."
+
+# TODO: Test StopAsyncIteration
+# [[test]]
+# name = "stop_async_iteration"
+# description = "raise StopAsyncIteration to end"
+
+# =============================================================================
+# Custom Async Iterator
+# =============================================================================
+
+# TODO: Test custom async iterator class
+# [[test]]
+# name = "custom_async_iterator"
+# description = "Class with __aiter__ and __anext__"
+
+# TODO: Test async iterator state
+# [[test]]
+# name = "async_iterator_state"
+# description = "Iterator maintains state between awaits"
+
+# TODO: Test async iterator cleanup
+# [[test]]
+# name = "async_iterator_cleanup"
+# description = "Cleanup on iteration end"
+
+# =============================================================================
+# Async For Else
+# =============================================================================
+
+# TODO: Test async for else
+# [[test]]
+# name = "async_for_else"
+# description = "async for ... else: (no break)"
+
+# TODO: Test async for else with break
+# [[test]]
+# name = "async_for_else_break"
+# description = "else not executed on break"
+
+# =============================================================================
+# Use Cases
+# =============================================================================
+
+# TODO: Test streaming data
+# [[test]]
+# name = "async_for_streaming"
+# description = "Process streaming data chunks"
+
+# TODO: Test paginated API
+# [[test]]
+# name = "async_for_pagination"
+# description = "Iterate over paginated results"
+
+# TODO: Test file lines async
+# [[test]]
+# name = "async_for_file"
+# description = "Read file lines asynchronously"
+
+# =============================================================================
+# Async For Context
+# =============================================================================
+
+# TODO: Test async for only in async
+# [[test]]
+# name = "async_for_context"
+# description = "async for outside async is error"
+# skip = true
+
+# TODO: Test nested async for
+# [[test]]
+# name = "async_for_nested"
+# description = "async for inside async for"
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+# TODO: Test async for empty iterator
+# [[test]]
+# name = "async_for_empty"
+# description = "async for over empty iterator"
+
+# TODO: Test async for exception handling
+# [[test]]
+# name = "async_for_exception"
+# description = "Exception during async iteration"
+
+# TODO: Test aiter() and anext() builtins
+# [[test]]
+# name = "aiter_anext_builtins"
+# description = "aiter() and anext() helper functions"

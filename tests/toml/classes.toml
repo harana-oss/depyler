@@ -602,3 +602,100 @@ class DataHolder:
 
 [test.assertions]
 contains = ["fn as_int", "fn as_str", "fn as_float", "&self"]
+
+# =============================================================================
+# Formatting Tests (migrated from test_formatting.rs)
+# =============================================================================
+
+[[test]]
+name = "formatting_class_with_error"
+description = "Class transpilation with error handling (rustfmt compliant)"
+tags = ["class", "formatting", "error"]
+compile_check = true
+
+[test.python]
+code = '''
+class CustomError(Exception):
+    def __init__(self, message: str):
+        self.message = message
+
+class DataProcessor:
+    def __init__(self, name: str, threshold: int):
+        self.name = name
+        self.threshold = threshold
+
+    def process(self, value: int) -> int:
+        if value < self.threshold:
+            raise CustomError("Value below threshold")
+        return value * 2
+'''
+
+[test.assertions]
+contains = ["struct CustomError", "struct DataProcessor", "impl DataProcessor"]
+
+[[test]]
+name = "formatting_generic_container"
+description = "Generic container class formatting"
+tags = ["class", "formatting", "generics"]
+compile_check = true
+
+[test.python]
+code = '''
+from typing import Generic, TypeVar
+
+T = TypeVar('T')
+
+class Container(Generic[T]):
+    def __init__(self, value: T):
+        self.value = value
+
+    def get(self) -> T:
+        return self.value
+'''
+
+[test.assertions]
+contains = ["struct Container"]
+not_contains = ["< T >", "<T >", "< T>", " ,", "& self"]
+
+[[test]]
+name = "formatting_macros"
+description = "Generated code with macros has proper formatting"
+tags = ["formatting", "macros"]
+compile_check = true
+
+[test.python]
+code = '''
+def format_message(name: str, value: int) -> str:
+    return f"Hello {name}, value is {value}"
+
+def log_error(message: str) -> None:
+    print(f"ERROR: {message}")
+'''
+
+[test.assertions]
+contains = ["fn format_message", "fn log_error"]
+not_contains = ["format !", "println !", "write !", "vec !"]
+
+[[test]]
+name = "formatting_impl_blocks"
+description = "Class with multiple methods generates proper impl blocks"
+tags = ["class", "formatting", "impl"]
+compile_check = true
+
+[test.python]
+code = '''
+class Point:
+    def __init__(self, x: int, y: int):
+        self.x = x
+        self.y = y
+
+    def distance(self) -> float:
+        return (self.x ** 2 + self.y ** 2) ** 0.5
+
+    def __str__(self) -> str:
+        return f"Point({self.x}, {self.y})"
+'''
+
+[test.assertions]
+contains = ["struct Point", "impl Point"]
+

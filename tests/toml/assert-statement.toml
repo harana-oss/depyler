@@ -1,0 +1,126 @@
+# Assert Statement Tests - Runtime assertions
+# Rust Mapping: assert!, debug_assert!
+
+[metadata]
+name = "Assert Statement Tests"
+category = "core-language"
+
+# =============================================================================
+# Basic Assert
+# =============================================================================
+
+# TODO: Test simple assert
+# [[test]]
+# name = "assert_basic"
+# description = "assert condition"
+
+# TODO: Test assert with message
+# [[test]]
+# name = "assert_with_message"
+# description = "assert condition, 'error message'"
+
+# TODO: Test assert True
+# [[test]]
+# name = "assert_true"
+# description = "assert True (always passes)"
+
+# =============================================================================
+# Assert with Expressions
+# =============================================================================
+
+# TODO: Test assert with comparison
+# [[test]]
+# name = "assert_comparison"
+# description = "assert x > 0"
+
+# TODO: Test assert with equality
+# [[test]]
+# name = "assert_equality"
+# description = "assert result == expected"
+
+# TODO: Test assert with isinstance
+# [[test]]
+# name = "assert_isinstance"
+# description = "assert isinstance(x, int)"
+
+# TODO: Test assert with in operator
+# [[test]]
+# name = "assert_in"
+# description = "assert item in collection"
+
+# =============================================================================
+# Assert with Complex Conditions
+# =============================================================================
+
+# TODO: Test assert with and
+# [[test]]
+# name = "assert_and"
+# description = "assert cond1 and cond2"
+
+# TODO: Test assert with or
+# [[test]]
+# name = "assert_or"
+# description = "assert cond1 or cond2"
+
+# TODO: Test assert with not
+# [[test]]
+# name = "assert_not"
+# description = "assert not invalid"
+
+# TODO: Test assert with function call
+# [[test]]
+# name = "assert_function_call"
+# description = "assert is_valid(x)"
+
+# =============================================================================
+# Assert Message Formatting
+# =============================================================================
+
+# TODO: Test assert with f-string message
+# [[test]]
+# name = "assert_fstring_message"
+# description = "assert x > 0, f'x must be positive, got {x}'"
+
+# TODO: Test assert with expression in message
+# [[test]]
+# name = "assert_expression_message"
+# description = "assert valid, str(error_details)"
+
+# =============================================================================
+# Assert in Functions
+# =============================================================================
+
+# TODO: Test assert as precondition
+# [[test]]
+# name = "assert_precondition"
+# description = "Assert at start of function for input validation"
+
+# TODO: Test assert as postcondition
+# [[test]]
+# name = "assert_postcondition"
+# description = "Assert before return for output validation"
+
+# TODO: Test assert as invariant
+# [[test]]
+# name = "assert_invariant"
+# description = "Assert inside loop for invariant checking"
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+# TODO: Test assert with tuple (gotcha)
+# [[test]]
+# name = "assert_tuple_gotcha"
+# description = "assert (False, 'msg') is always True!"
+# skip = true
+
+# TODO: Test assert with None
+# [[test]]
+# name = "assert_none"
+# description = "assert x is not None"
+
+# TODO: Test assert vs debug mode
+# [[test]]
+# name = "assert_optimization"
+# description = "Assert behavior with __debug__"

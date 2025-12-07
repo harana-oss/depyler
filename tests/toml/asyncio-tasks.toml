@@ -1,0 +1,169 @@
+# Asyncio Tasks Tests - Task management with asyncio
+# Rust Mapping: tokio::spawn, join!, select!
+
+[metadata]
+name = "Asyncio Tasks Tests"
+category = "async"
+
+# =============================================================================
+# Creating Tasks
+# =============================================================================
+
+# TODO: Test asyncio.create_task
+# [[test]]
+# name = "create_task"
+# description = "task = asyncio.create_task(coro())"
+
+# TODO: Test task name
+# [[test]]
+# name = "task_name"
+# description = "asyncio.create_task(coro(), name='my_task')"
+
+# TODO: Test ensure_future
+# [[test]]
+# name = "ensure_future"
+# description = "asyncio.ensure_future(awaitable)"
+
+# =============================================================================
+# Task Management
+# =============================================================================
+
+# TODO: Test task.cancel()
+# [[test]]
+# name = "task_cancel"
+# description = "Cancel a running task"
+
+# TODO: Test task.done()
+# [[test]]
+# name = "task_done"
+# description = "Check if task completed"
+
+# TODO: Test task.result()
+# [[test]]
+# name = "task_result"
+# description = "Get task result after completion"
+
+# TODO: Test task.exception()
+# [[test]]
+# name = "task_exception"
+# description = "Get exception from failed task"
+
+# =============================================================================
+# Gathering Tasks
+# =============================================================================
+
+# TODO: Test asyncio.gather
+# [[test]]
+# name = "gather_basic"
+# description = "results = await asyncio.gather(*coros)"
+
+# TODO: Test gather with return_exceptions
+# [[test]]
+# name = "gather_exceptions"
+# description = "gather(return_exceptions=True)"
+
+# TODO: Test gather cancellation
+# [[test]]
+# name = "gather_cancel"
+# description = "Cancelling gathered tasks"
+
+# =============================================================================
+# Waiting for Tasks
+# =============================================================================
+
+# TODO: Test asyncio.wait
+# [[test]]
+# name = "wait_basic"
+# description = "done, pending = await asyncio.wait(tasks)"
+
+# TODO: Test wait with timeout
+# [[test]]
+# name = "wait_timeout"
+# description = "asyncio.wait(tasks, timeout=1.0)"
+
+# TODO: Test wait with return_when
+# [[test]]
+# name = "wait_return_when"
+# description = "FIRST_COMPLETED, FIRST_EXCEPTION, ALL_COMPLETED"
+
+# TODO: Test asyncio.wait_for
+# [[test]]
+# name = "wait_for"
+# description = "await asyncio.wait_for(coro, timeout=1.0)"
+
+# =============================================================================
+# Task Groups (Python 3.11+)
+# =============================================================================
+
+# TODO: Test TaskGroup
+# [[test]]
+# name = "task_group"
+# description = "async with asyncio.TaskGroup() as tg: tg.create_task()"
+
+# TODO: Test TaskGroup exception handling
+# [[test]]
+# name = "task_group_exception"
+# description = "TaskGroup cancels all on first exception"
+
+# =============================================================================
+# Running Tasks
+# =============================================================================
+
+# TODO: Test asyncio.run
+# [[test]]
+# name = "asyncio_run"
+# description = "asyncio.run(main())"
+
+# TODO: Test event loop
+# [[test]]
+# name = "event_loop"
+# description = "asyncio.get_event_loop()"
+
+# TODO: Test asyncio.sleep
+# [[test]]
+# name = "asyncio_sleep"
+# description = "await asyncio.sleep(1.0)"
+
+# =============================================================================
+# Synchronization
+# =============================================================================
+
+# TODO: Test asyncio.Lock
+# [[test]]
+# name = "asyncio_lock"
+# description = "async with asyncio.Lock(): ..."
+
+# TODO: Test asyncio.Event
+# [[test]]
+# name = "asyncio_event"
+# description = "event.set(), await event.wait()"
+
+# TODO: Test asyncio.Semaphore
+# [[test]]
+# name = "asyncio_semaphore"
+# description = "Limit concurrent operations"
+
+# TODO: Test asyncio.Queue
+# [[test]]
+# name = "asyncio_queue"
+# description = "Async producer-consumer queue"
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+# TODO: Test orphaned task
+# [[test]]
+# name = "orphaned_task"
+# description = "Task created but not awaited"
+
+# TODO: Test task in different loop
+# [[test]]
+# name = "task_different_loop"
+# description = "Task running in different event loop"
+# skip = true
+
+# TODO: Test shielding from cancellation
+# [[test]]
+# name = "shield"
+# description = "asyncio.shield(coro)"

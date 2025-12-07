@@ -1,0 +1,137 @@
+# Async Functions Tests - Coroutines with async def
+# Rust Mapping: async fn
+
+[metadata]
+name = "Async Functions Tests"
+category = "async"
+
+# =============================================================================
+# Basic Async Functions
+# =============================================================================
+
+# TODO: Test simple async def
+# [[test]]
+# name = "async_def_basic"
+# description = "async def f(): return 42"
+
+# TODO: Test async def with parameters
+# [[test]]
+# name = "async_def_params"
+# description = "async def f(x, y): return x + y"
+
+# TODO: Test async def with type hints
+# [[test]]
+# name = "async_def_typed"
+# description = "async def f(x: int) -> int: ..."
+
+# =============================================================================
+# Coroutine Objects
+# =============================================================================
+
+# TODO: Test calling async function
+# [[test]]
+# name = "async_call"
+# description = "f() returns coroutine object"
+
+# TODO: Test coroutine type
+# [[test]]
+# name = "coroutine_type"
+# description = "isinstance(f(), Coroutine)"
+
+# TODO: Test inspect.iscoroutinefunction
+# [[test]]
+# name = "iscoroutinefunction"
+# description = "inspect.iscoroutinefunction(f) is True"
+
+# =============================================================================
+# Async Methods
+# =============================================================================
+
+# TODO: Test async method
+# [[test]]
+# name = "async_method"
+# description = "async def method(self): ..."
+
+# TODO: Test async classmethod
+# [[test]]
+# name = "async_classmethod"
+# description = "@classmethod async def f(cls): ..."
+# skip = true
+
+# TODO: Test async staticmethod
+# [[test]]
+# name = "async_staticmethod"
+# description = "@staticmethod async def f(): ..."
+
+# =============================================================================
+# Async with Decorators
+# =============================================================================
+
+# TODO: Test decorated async function
+# [[test]]
+# name = "async_decorated"
+# description = "@decorator async def f(): ..."
+
+# TODO: Test async with multiple decorators
+# [[test]]
+# name = "async_multi_decorated"
+# description = "@d1 @d2 async def f(): ..."
+
+# =============================================================================
+# Return and Exceptions
+# =============================================================================
+
+# TODO: Test async return value
+# [[test]]
+# name = "async_return"
+# description = "Return value obtained via await"
+
+# TODO: Test async return None
+# [[test]]
+# name = "async_return_none"
+# description = "async def without explicit return"
+
+# TODO: Test async raising exception
+# [[test]]
+# name = "async_raise"
+# description = "raise Exception() in async def"
+
+# =============================================================================
+# Nested Async
+# =============================================================================
+
+# TODO: Test async calling async
+# [[test]]
+# name = "async_calls_async"
+# description = "async def a(): await b()"
+
+# TODO: Test async closure
+# [[test]]
+# name = "async_closure"
+# description = "async function with closure over variables"
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+# TODO: Test async def with *args
+# [[test]]
+# name = "async_varargs"
+# description = "async def f(*args, **kwargs): ..."
+
+# TODO: Test async def with yield
+# [[test]]
+# name = "async_with_yield"
+# description = "async def with yield is async generator"
+
+# TODO: Test async __init__ (invalid)
+# [[test]]
+# name = "async_init"
+# description = "__init__ cannot be async"
+# skip = true
+
+# TODO: Test async lambda (not supported)
+# [[test]]
+# name = "async_lambda"
+# description = "No async lambda in Python"
+# skip = true

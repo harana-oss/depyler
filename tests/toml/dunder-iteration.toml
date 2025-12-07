@@ -1,0 +1,154 @@
+# Dunder Iteration Tests - Iteration magic methods
+# Rust Mapping: Iterator, IntoIterator traits
+
+[metadata]
+name = "Dunder Iteration Tests"
+category = "dunder-methods"
+
+# =============================================================================
+# __iter__
+# =============================================================================
+
+# TODO: Test __iter__ returning self
+# [[test]]
+# name = "dunder_iter_self"
+# description = "def __iter__(self): return self (iterator)"
+
+# TODO: Test __iter__ returning iterator
+# [[test]]
+# name = "dunder_iter_new"
+# description = "def __iter__(self): return iter(self.items)"
+
+# TODO: Test __iter__ with generator
+# [[test]]
+# name = "dunder_iter_generator"
+# description = "def __iter__(self): yield from self.items"
+
+# TODO: Test iter() builtin
+# [[test]]
+# name = "iter_builtin"
+# description = "iter(obj) calls obj.__iter__()"
+
+# =============================================================================
+# __next__
+# =============================================================================
+
+# TODO: Test __next__
+# [[test]]
+# name = "dunder_next"
+# description = "def __next__(self): return next_item or raise StopIteration"
+
+# TODO: Test StopIteration
+# [[test]]
+# name = "stop_iteration"
+# description = "raise StopIteration to end iteration"
+
+# TODO: Test next() builtin
+# [[test]]
+# name = "next_builtin"
+# description = "next(iterator) calls iterator.__next__()"
+
+# TODO: Test next() with default
+# [[test]]
+# name = "next_default"
+# description = "next(iterator, default) returns default on StopIteration"
+
+# =============================================================================
+# __reversed__
+# =============================================================================
+
+# TODO: Test __reversed__
+# [[test]]
+# name = "dunder_reversed"
+# description = "def __reversed__(self): return reversed(self.items)"
+
+# TODO: Test reversed() builtin
+# [[test]]
+# name = "reversed_builtin"
+# description = "reversed(obj) calls obj.__reversed__()"
+
+# TODO: Test reversed fallback
+# [[test]]
+# name = "reversed_fallback"
+# description = "Without __reversed__, uses __len__ + __getitem__"
+
+# =============================================================================
+# Iterator Protocol
+# =============================================================================
+
+# TODO: Test custom iterator class
+# [[test]]
+# name = "custom_iterator"
+# description = "Class with __iter__ and __next__"
+
+# TODO: Test iterator state
+# [[test]]
+# name = "iterator_state"
+# description = "Iterator maintains position state"
+
+# TODO: Test iterator exhaustion
+# [[test]]
+# name = "iterator_exhausted"
+# description = "Iterator raises StopIteration when exhausted"
+
+# TODO: Test multiple iterations
+# [[test]]
+# name = "multiple_iterations"
+# description = "Iterable can be iterated multiple times"
+
+# =============================================================================
+# For Loop Integration
+# =============================================================================
+
+# TODO: Test for loop
+# [[test]]
+# name = "for_loop"
+# description = "for x in obj: uses __iter__ and __next__"
+
+# TODO: Test for loop with break
+# [[test]]
+# name = "for_break"
+# description = "Breaking from loop doesn't exhaust iterator"
+
+# TODO: Test unpacking
+# [[test]]
+# name = "unpack_iterable"
+# description = "a, b, c = iterable uses __iter__"
+
+# =============================================================================
+# Use Cases
+# =============================================================================
+
+# TODO: Test range-like iterator
+# [[test]]
+# name = "range_iterator"
+# description = "Custom range implementation"
+
+# TODO: Test file-like iterator
+# [[test]]
+# name = "file_iterator"
+# description = "Iterate over lines"
+
+# TODO: Test infinite iterator
+# [[test]]
+# name = "infinite_iterator"
+# description = "Iterator that never raises StopIteration"
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+# TODO: Test iterator not reusable
+# [[test]]
+# name = "iterator_not_reusable"
+# description = "Iterator exhausted after one pass"
+
+# TODO: Test iter with sentinel
+# [[test]]
+# name = "iter_sentinel"
+# description = "iter(callable, sentinel) two-arg form"
+
+# TODO: Test __length_hint__
+# [[test]]
+# name = "length_hint"
+# description = "Optional hint for container allocation"

@@ -1,0 +1,111 @@
+# Class Methods Tests - @classmethod and @staticmethod
+# Rust Mapping: Associated functions (impl blocks)
+
+[metadata]
+name = "Class Methods Tests"
+category = "advanced-oop"
+
+# =============================================================================
+# @classmethod
+# =============================================================================
+
+# TODO: Test basic classmethod
+# [[test]]
+# name = "classmethod_basic"
+# description = "@classmethod def method(cls): ..."
+
+# TODO: Test classmethod with arguments
+# [[test]]
+# name = "classmethod_args"
+# description = "@classmethod def method(cls, arg1, arg2): ..."
+
+# TODO: Test classmethod as factory
+# [[test]]
+# name = "classmethod_factory"
+# description = "@classmethod def from_string(cls, s): return cls(...)"
+
+# TODO: Test classmethod on instance
+# [[test]]
+# name = "classmethod_instance_call"
+# description = "instance.classmethod() works (cls is class)"
+
+# TODO: Test classmethod inheritance
+# [[test]]
+# name = "classmethod_inheritance"
+# description = "Subclass.parent_classmethod() gets subclass as cls"
+
+# =============================================================================
+# @staticmethod
+# =============================================================================
+
+# TODO: Test basic staticmethod
+# [[test]]
+# name = "staticmethod_basic"
+# description = "@staticmethod def method(): ..."
+
+# TODO: Test staticmethod with arguments
+# [[test]]
+# name = "staticmethod_args"
+# description = "@staticmethod def method(arg1, arg2): ..."
+
+# TODO: Test staticmethod as utility
+# [[test]]
+# name = "staticmethod_utility"
+# description = "Helper function namespaced to class"
+
+# TODO: Test staticmethod on instance
+# [[test]]
+# name = "staticmethod_instance_call"
+# description = "instance.staticmethod() works"
+
+# =============================================================================
+# classmethod vs staticmethod
+# =============================================================================
+
+# TODO: Test when to use classmethod
+# [[test]]
+# name = "classmethod_use_case"
+# description = "Alternative constructors, accessing class state"
+
+# TODO: Test when to use staticmethod
+# [[test]]
+# name = "staticmethod_use_case"
+# description = "Pure utility functions related to class"
+
+# =============================================================================
+# Combining with Other Decorators
+# =============================================================================
+
+# TODO: Test classmethod with other decorators
+# [[test]]
+# name = "classmethod_stacked"
+# description = "Order matters: @decorator @classmethod"
+
+# TODO: Test staticmethod with other decorators
+# [[test]]
+# name = "staticmethod_stacked"
+# description = "Order matters: @decorator @staticmethod"
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+# TODO: Test classmethod calling other classmethods
+# [[test]]
+# name = "classmethod_chain"
+# description = "cls.other_classmethod() from classmethod"
+
+# TODO: Test classmethod calling instance methods
+# [[test]]
+# name = "classmethod_calls_instance"
+# description = "Cannot call instance methods from classmethod directly"
+
+# TODO: Test staticmethod without class context
+# [[test]]
+# name = "staticmethod_bare"
+# description = "Staticmethod doesn't need class/instance"
+
+# TODO: Test classmethod descriptor behavior
+# [[test]]
+# name = "classmethod_descriptor"
+# description = "How classmethod works as descriptor"

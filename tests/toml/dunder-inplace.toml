@@ -1,0 +1,131 @@
+# Dunder In-Place Tests - In-place operation magic methods
+# Rust Mapping: AddAssign, SubAssign, MulAssign, etc.
+
+[metadata]
+name = "Dunder In-Place Tests"
+category = "dunder-methods"
+
+# =============================================================================
+# In-Place Arithmetic
+# =============================================================================
+
+# TODO: Test __iadd__
+# [[test]]
+# name = "dunder_iadd"
+# description = "def __iadd__(self, other): self.x += other.x; return self"
+
+# TODO: Test __isub__
+# [[test]]
+# name = "dunder_isub"
+# description = "def __isub__(self, other): self.x -= other.x; return self"
+
+# TODO: Test __imul__
+# [[test]]
+# name = "dunder_imul"
+# description = "def __imul__(self, other): self.x *= other.x; return self"
+
+# TODO: Test __itruediv__
+# [[test]]
+# name = "dunder_itruediv"
+# description = "def __itruediv__(self, other): self.x /= other.x; return self"
+
+# TODO: Test __ifloordiv__
+# [[test]]
+# name = "dunder_ifloordiv"
+# description = "def __ifloordiv__(self, other): self.x //= other.x; return self"
+
+# TODO: Test __imod__
+# [[test]]
+# name = "dunder_imod"
+# description = "def __imod__(self, other): self.x %= other.x; return self"
+
+# TODO: Test __ipow__
+# [[test]]
+# name = "dunder_ipow"
+# description = "def __ipow__(self, other): self.x **= other.x; return self"
+
+# =============================================================================
+# In-Place Bitwise
+# =============================================================================
+
+# TODO: Test __iand__
+# [[test]]
+# name = "dunder_iand"
+# description = "def __iand__(self, other): self.x &= other.x; return self"
+
+# TODO: Test __ior__
+# [[test]]
+# name = "dunder_ior"
+# description = "def __ior__(self, other): self.x |= other.x; return self"
+
+# TODO: Test __ixor__
+# [[test]]
+# name = "dunder_ixor"
+# description = "def __ixor__(self, other): self.x ^= other.x; return self"
+
+# TODO: Test __ilshift__
+# [[test]]
+# name = "dunder_ilshift"
+# description = "def __ilshift__(self, other): self.x <<= other.x; return self"
+
+# TODO: Test __irshift__
+# [[test]]
+# name = "dunder_irshift"
+# description = "def __irshift__(self, other): self.x >>= other.x; return self"
+
+# =============================================================================
+# Other In-Place
+# =============================================================================
+
+# TODO: Test __imatmul__
+# [[test]]
+# name = "dunder_imatmul"
+# description = "def __imatmul__(self, other): ... (@= operator)"
+
+# =============================================================================
+# Fallback Behavior
+# =============================================================================
+
+# TODO: Test fallback to __add__
+# [[test]]
+# name = "inplace_fallback"
+# description = "a += b falls back to a = a + b if no __iadd__"
+
+# TODO: Test __iadd__ must return self
+# [[test]]
+# name = "iadd_return_self"
+# description = "In-place methods should return self"
+
+# =============================================================================
+# Mutable vs Immutable
+# =============================================================================
+
+# TODO: Test mutable in-place
+# [[test]]
+# name = "inplace_mutable"
+# description = "list += [x] modifies in-place"
+
+# TODO: Test immutable in-place
+# [[test]]
+# name = "inplace_immutable"
+# description = "int += 1 creates new object (rebinds)"
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+# TODO: Test in-place with different type
+# [[test]]
+# name = "inplace_different_type"
+# description = "list += tuple extends list"
+
+# TODO: Test in-place returning different object
+# [[test]]
+# name = "inplace_different_object"
+# description = "In-place can return different object"
+
+# TODO: Test chained in-place
+# [[test]]
+# name = "inplace_chained"
+# description = "a += b += c not valid (different from a = b = c)"
+# skip = true

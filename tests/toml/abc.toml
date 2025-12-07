@@ -1,0 +1,135 @@
+# Abstract Base Class Tests - abc module
+# Rust Mapping: Traits with required methods
+
+[metadata]
+name = "Abstract Base Class Tests"
+category = "advanced-oop"
+
+# =============================================================================
+# Basic ABC
+# =============================================================================
+
+# TODO: Test ABC inheritance
+# [[test]]
+# name = "abc_basic"
+# description = "from abc import ABC; class MyABC(ABC): ..."
+
+# TODO: Test ABCMeta metaclass
+# [[test]]
+# name = "abc_meta"
+# description = "class MyABC(metaclass=ABCMeta): ..."
+
+# TODO: Test cannot instantiate ABC
+# [[test]]
+# name = "abc_no_instantiate"
+# description = "TypeError when instantiating ABC with abstract methods"
+
+# =============================================================================
+# @abstractmethod
+# =============================================================================
+
+# TODO: Test @abstractmethod
+# [[test]]
+# name = "abstractmethod_basic"
+# description = "@abstractmethod def method(self): ..."
+
+# TODO: Test abstractmethod must be overridden
+# [[test]]
+# name = "abstractmethod_override"
+# description = "Concrete subclass must implement"
+
+# TODO: Test abstractmethod with implementation
+# [[test]]
+# name = "abstractmethod_with_impl"
+# description = "Abstract method can have default implementation"
+
+# TODO: Test calling super() on abstractmethod
+# [[test]]
+# name = "abstractmethod_super"
+# description = "Subclass can call super().method()"
+
+# =============================================================================
+# Other Abstract Decorators
+# =============================================================================
+
+# TODO: Test @abstractclassmethod
+# [[test]]
+# name = "abstractclassmethod"
+# description = "@abstractmethod @classmethod combination"
+
+# TODO: Test @abstractstaticmethod
+# [[test]]
+# name = "abstractstaticmethod"
+# description = "@abstractmethod @staticmethod combination"
+
+# TODO: Test @abstractproperty
+# [[test]]
+# name = "abstractproperty"
+# description = "@property @abstractmethod combination"
+
+# =============================================================================
+# ABC Registration
+# =============================================================================
+
+# TODO: Test register() method
+# [[test]]
+# name = "abc_register"
+# description = "MyABC.register(SomeClass)"
+
+# TODO: Test virtual subclass
+# [[test]]
+# name = "abc_virtual_subclass"
+# description = "Registered class passes isinstance check"
+
+# TODO: Test __subclasshook__
+# [[test]]
+# name = "abc_subclasshook"
+# description = "Custom isinstance/issubclass logic"
+
+# =============================================================================
+# ABC with Multiple Inheritance
+# =============================================================================
+
+# TODO: Test multiple ABCs
+# [[test]]
+# name = "abc_multiple"
+# description = "class Concrete(ABC1, ABC2): ..."
+
+# TODO: Test ABC mixin
+# [[test]]
+# name = "abc_mixin"
+# description = "ABC as mixin with partial implementation"
+
+# =============================================================================
+# Standard Library ABCs
+# =============================================================================
+
+# TODO: Test collections.abc
+# [[test]]
+# name = "collections_abc"
+# description = "Iterable, Iterator, Sequence, Mapping, etc."
+
+# TODO: Test numbers ABC
+# [[test]]
+# name = "numbers_abc"
+# description = "Number, Complex, Real, Rational, Integral"
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+# TODO: Test partial implementation
+# [[test]]
+# name = "abc_partial"
+# description = "Subclass implements some but not all abstract methods"
+# skip = true
+
+# TODO: Test abstractmethod with *args, **kwargs
+# [[test]]
+# name = "abstractmethod_varargs"
+# description = "Abstract method with flexible signature"
+
+# TODO: Test abstract __init__
+# [[test]]
+# name = "abstract_init"
+# description = "@abstractmethod on __init__"

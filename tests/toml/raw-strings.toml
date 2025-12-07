@@ -1,0 +1,141 @@
+# Raw Strings Tests - Raw string literals
+# Rust Mapping: r"..." raw strings
+
+[metadata]
+name = "Raw Strings Tests"
+category = "strings"
+
+# =============================================================================
+# Basic Raw Strings
+# =============================================================================
+
+# TODO: Test basic raw
+# [[test]]
+# name = "raw_basic"
+# description = "r'\\n' contains backslash n"
+
+# TODO: Test path
+# [[test]]
+# name = "raw_path"
+# description = "r'C:\\Users\\name'"
+
+# TODO: Test regex
+# [[test]]
+# name = "raw_regex"
+# description = "r'\\d+\\.\\d+'"
+
+# =============================================================================
+# Escape Sequences
+# =============================================================================
+
+# TODO: Test backslash n
+# [[test]]
+# name = "raw_backslash_n"
+# description = "r'\\n' vs '\\n'"
+
+# TODO: Test backslash t
+# [[test]]
+# name = "raw_backslash_t"
+# description = "r'\\t' vs '\\t'"
+
+# TODO: Test unicode escape
+# [[test]]
+# name = "raw_unicode"
+# description = "r'\\u0041' literal backslash"
+
+# TODO: Test hex escape
+# [[test]]
+# name = "raw_hex"
+# description = "r'\\x41' literal backslash"
+
+# =============================================================================
+# Quotes in Raw Strings
+# =============================================================================
+
+# TODO: Test single quotes
+# [[test]]
+# name = "raw_single"
+# description = "r'text'"
+
+# TODO: Test double quotes
+# [[test]]
+# name = "raw_double"
+# description = "r\"text\""
+
+# TODO: Test triple single
+# [[test]]
+# name = "raw_triple_single"
+# description = "r'''text'''"
+
+# TODO: Test triple double
+# [[test]]
+# name = "raw_triple_double"
+# description = "r\"\"\"text\"\"\""
+
+# =============================================================================
+# Raw F-Strings
+# =============================================================================
+
+# TODO: Test rf-string
+# [[test]]
+# name = "raw_fstring"
+# description = "rf'{var}\\n'"
+
+# TODO: Test fr-string
+# [[test]]
+# name = "fr_string"
+# description = "fr'{var}\\n' same as rf"
+
+# =============================================================================
+# Limitations
+# =============================================================================
+
+# TODO: Test trailing backslash
+# [[test]]
+# name = "raw_trailing_backslash"
+# description = "r'text\\' - odd backslashes at end"
+# skip = true
+
+# TODO: Test ending quote escape
+# [[test]]
+# name = "raw_quote_escape"
+# description = "r'\\'' invalid"
+# skip = true
+
+# =============================================================================
+# Use Cases
+# =============================================================================
+
+# TODO: Test regex pattern
+# [[test]]
+# name = "raw_regex_use"
+# description = "re.match(r'\\d+', text)"
+
+# TODO: Test Windows path
+# [[test]]
+# name = "raw_windows"
+# description = "r'C:\\Program Files\\App'"
+
+# TODO: Test LaTeX
+# [[test]]
+# name = "raw_latex"
+# description = "r'\\frac{1}{2}'"
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+# TODO: Test empty raw
+# [[test]]
+# name = "raw_empty"
+# description = "r''"
+
+# TODO: Test multiline raw
+# [[test]]
+# name = "raw_multiline"
+# description = "r'''multi\\nline'''"
+
+# TODO: Test raw bytes
+# [[test]]
+# name = "raw_bytes"
+# description = "rb'\\x00' or br'\\x00'"

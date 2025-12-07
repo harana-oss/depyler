@@ -1,0 +1,144 @@
+# IntEnum Tests - Integer-compatible enumerations
+# Rust Mapping: enum with #[repr(i32)]
+
+[metadata]
+name = "IntEnum Tests"
+category = "data-structures"
+
+# =============================================================================
+# Basic IntEnum
+# =============================================================================
+
+# TODO: Test IntEnum
+# [[test]]
+# name = "intenum_basic"
+# description = "class Priority(IntEnum): LOW = 1; HIGH = 2"
+
+# TODO: Test int operations
+# [[test]]
+# name = "intenum_int_ops"
+# description = "Priority.HIGH + 1"
+
+# TODO: Test comparison with int
+# [[test]]
+# name = "intenum_compare_int"
+# description = "Priority.HIGH == 2"
+
+# TODO: Test ordering
+# [[test]]
+# name = "intenum_ordering"
+# description = "Priority.LOW < Priority.HIGH"
+
+# =============================================================================
+# IntEnum Arithmetic
+# =============================================================================
+
+# TODO: Test addition
+# [[test]]
+# name = "intenum_add"
+# description = "Priority.LOW + 1"
+
+# TODO: Test subtraction
+# [[test]]
+# name = "intenum_sub"
+# description = "Priority.HIGH - 1"
+
+# TODO: Test multiplication
+# [[test]]
+# name = "intenum_mul"
+# description = "Priority.LOW * 2"
+
+# =============================================================================
+# IntFlag
+# =============================================================================
+
+# TODO: Test IntFlag
+# [[test]]
+# name = "intflag_basic"
+# description = "class Perm(IntFlag): R = 4; W = 2; X = 1"
+
+# TODO: Test bitwise OR
+# [[test]]
+# name = "intflag_or"
+# description = "Perm.R | Perm.W"
+
+# TODO: Test bitwise AND
+# [[test]]
+# name = "intflag_and"
+# description = "(Perm.R | Perm.W) & Perm.R"
+
+# TODO: Test membership check
+# [[test]]
+# name = "intflag_in"
+# description = "Perm.R in (Perm.R | Perm.W)"
+
+# =============================================================================
+# Flag
+# =============================================================================
+
+# TODO: Test Flag
+# [[test]]
+# name = "flag_basic"
+# description = "class Color(Flag): RED = auto(); GREEN = auto()"
+
+# TODO: Test Flag combination
+# [[test]]
+# name = "flag_combine"
+# description = "Color.RED | Color.GREEN"
+
+# TODO: Test Flag iteration
+# [[test]]
+# name = "flag_iter"
+# description = "list(Color.RED | Color.GREEN)"
+
+# =============================================================================
+# StrEnum (Python 3.11+)
+# =============================================================================
+
+# TODO: Test StrEnum
+# [[test]]
+# name = "strenum_basic"
+# description = "class Status(StrEnum): OK = 'ok'"
+
+# TODO: Test string operations
+# [[test]]
+# name = "strenum_str_ops"
+# description = "Status.OK.upper()"
+
+# TODO: Test auto StrEnum
+# [[test]]
+# name = "strenum_auto"
+# description = "class S(StrEnum): A = auto() # 'a'"
+
+# =============================================================================
+# Type Mixing
+# =============================================================================
+
+# TODO: Test used as int
+# [[test]]
+# name = "intenum_as_int"
+# description = "range(Priority.LOW, Priority.HIGH)"
+
+# TODO: Test in calculations
+# [[test]]
+# name = "intenum_calc"
+# description = "sum([Priority.LOW, Priority.HIGH])"
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+# TODO: Test IntEnum comparison order
+# [[test]]
+# name = "intenum_sort"
+# description = "sorted([Priority.HIGH, Priority.LOW])"
+
+# TODO: Test IntEnum in dict
+# [[test]]
+# name = "intenum_dict"
+# description = "{Priority.HIGH: 'important'}"
+
+# TODO: Test zero flag
+# [[test]]
+# name = "intflag_zero"
+# description = "Perm(0) or Perm.NONE"

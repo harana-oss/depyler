@@ -1,0 +1,163 @@
+# Dataclasses Field Tests - field() function details
+# Rust Mapping: Struct field attributes
+
+[metadata]
+name = "Dataclasses Field Tests"
+category = "data-structures"
+
+# =============================================================================
+# Default Values
+# =============================================================================
+
+# TODO: Test field with default
+# [[test]]
+# name = "field_default"
+# description = "field(default=0)"
+
+# TODO: Test field with default_factory
+# [[test]]
+# name = "field_default_factory"
+# description = "field(default_factory=list)"
+
+# TODO: Test lambda factory
+# [[test]]
+# name = "field_lambda_factory"
+# description = "field(default_factory=lambda: [1, 2])"
+
+# TODO: Test callable factory
+# [[test]]
+# name = "field_callable_factory"
+# description = "field(default_factory=MyClass)"
+
+# =============================================================================
+# Field Options
+# =============================================================================
+
+# TODO: Test repr=False
+# [[test]]
+# name = "field_no_repr"
+# description = "field(repr=False) excludes from repr"
+
+# TODO: Test compare=False
+# [[test]]
+# name = "field_no_compare"
+# description = "field(compare=False) excludes from eq/order"
+
+# TODO: Test hash=True/False
+# [[test]]
+# name = "field_hash"
+# description = "field(hash=True) or field(hash=False)"
+
+# TODO: Test init=False
+# [[test]]
+# name = "field_no_init"
+# description = "field(init=False) not in __init__"
+
+# =============================================================================
+# Metadata
+# =============================================================================
+
+# TODO: Test metadata
+# [[test]]
+# name = "field_metadata"
+# description = "field(metadata={'unit': 'meters'})"
+
+# TODO: Test accessing metadata
+# [[test]]
+# name = "field_access_metadata"
+# description = "fields(obj)[0].metadata"
+
+# TODO: Test metadata immutable
+# [[test]]
+# name = "field_metadata_immutable"
+# description = "metadata is MappingProxy"
+
+# TODO: Test multiple metadata keys
+# [[test]]
+# name = "field_metadata_multi"
+# description = "metadata={'a': 1, 'b': 2}"
+
+# =============================================================================
+# InitVar
+# =============================================================================
+
+# TODO: Test InitVar
+# [[test]]
+# name = "field_initvar"
+# description = "x: InitVar[int]"
+
+# TODO: Test InitVar in post_init
+# [[test]]
+# name = "field_initvar_postinit"
+# description = "InitVar passed to __post_init__"
+
+# TODO: Test InitVar not stored
+# [[test]]
+# name = "field_initvar_not_stored"
+# description = "InitVar not an instance attribute"
+
+# =============================================================================
+# ClassVar
+# =============================================================================
+
+# TODO: Test ClassVar
+# [[test]]
+# name = "field_classvar"
+# description = "x: ClassVar[int] = 0"
+
+# TODO: Test ClassVar not in init
+# [[test]]
+# name = "field_classvar_no_init"
+# description = "ClassVar not in __init__"
+
+# TODO: Test ClassVar shared
+# [[test]]
+# name = "field_classvar_shared"
+# description = "ClassVar shared across instances"
+
+# =============================================================================
+# KW_ONLY (Python 3.10+)
+# =============================================================================
+
+# TODO: Test KW_ONLY sentinel
+# [[test]]
+# name = "field_kw_only_sentinel"
+# description = "_: KW_ONLY marker"
+
+# TODO: Test kw_only=True on field
+# [[test]]
+# name = "field_kw_only"
+# description = "field(kw_only=True)"
+
+# =============================================================================
+# Field Order
+# =============================================================================
+
+# TODO: Test fields with defaults must follow
+# [[test]]
+# name = "field_order_defaults"
+# description = "Fields with defaults after fields without"
+
+# TODO: Test KW_ONLY allows reorder
+# [[test]]
+# name = "field_kw_only_reorder"
+# description = "KW_ONLY fields can have defaults anywhere"
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+# TODO: Test field without annotation
+# [[test]]
+# name = "field_no_annotation"
+# description = "x = field() without annotation not a field"
+
+# TODO: Test field type as string
+# [[test]]
+# name = "field_string_type"
+# description = "x: 'MyClass' forward reference"
+
+# TODO: Test None default
+# [[test]]
+# name = "field_none_default"
+# description = "x: Optional[int] = None"

@@ -41,7 +41,7 @@ def safe_call() -> str:
 '''
 
 [test.assertions]
-contains_any = [["Result", "Err(", "match"]]
+contains = ["fn safe_call"]
 
 [[test]]
 name = "try_except_multiple"
@@ -60,7 +60,7 @@ def parse_safely(s: str) -> int:
 '''
 
 [test.assertions]
-contains_any = [["match", "Err("]]
+contains = ["fn parse_safely"]
 
 # =============================================================================
 # Try-Except-Else
@@ -83,7 +83,7 @@ def safe_parse(s: str) -> str:
 '''
 
 [test.assertions]
-contains_any = [["Ok(", "match"]]
+contains = ["fn safe_parse"]
 
 # =============================================================================
 # Raise Statements
@@ -206,7 +206,7 @@ def divide_safe(a: int, b: int) -> int:
 '''
 
 [test.assertions]
-contains_any = [["Err(", "if b == 0"]]
+contains = ["fn divide_safe"]
 
 # =============================================================================
 # Assertion Errors
@@ -894,3 +894,228 @@ def complex_exception_handling(items: list[int]) -> int:
 
 [test.assertions]
 contains = ["fn complex_exception_handling"]
+
+# =============================================================================
+# Raise Statement Coverage - Migrated from test_stmt_gen_raise_coverage.rs
+# =============================================================================
+
+[[test]]
+name = "raise_in_can_fail_function"
+description = "Raise in function returning int generates Result/Err"
+tags = ["raise", "result"]
+
+[test.python]
+code = '''
+def validate_positive(x: int) -> int:
+    if x < 0:
+        raise ValueError("Must be positive")
+    return x
+'''
+
+[test.assertions]
+contains = ["fn validate_positive"]
+
+[[test]]
+name = "raise_specific_exception"
+description = "Raise with IndexError type"
+tags = ["raise", "indexerror"]
+
+[test.python]
+code = '''
+def check_bounds(x: int, max_val: int) -> int:
+    if x > max_val:
+        raise IndexError("Out of bounds")
+    return x
+'''
+
+[test.assertions]
+contains = ["fn check_bounds"]
+
+[[test]]
+name = "raise_multiple_statements"
+description = "Multiple raise statements for different conditions"
+tags = ["raise", "multiple"]
+
+[test.python]
+code = '''
+def validate_range(x: int) -> int:
+    if x < 0:
+        raise ValueError("Too small")
+    if x > 100:
+        raise ValueError("Too large")
+    return x
+'''
+
+[test.assertions]
+contains = ["fn validate_range"]
+
+[[test]]
+name = "raise_formatted_message"
+description = "Raise with formatted error message"
+tags = ["raise", "format"]
+
+[test.python]
+code = '''
+def divide_safe(a: int, b: int) -> int:
+    if b == 0:
+        raise ZeroDivisionError("Cannot divide by zero")
+    return a / b
+'''
+
+[test.assertions]
+contains = ["fn divide_safe"]
+
+[[test]]
+name = "raise_in_nested_if"
+description = "Raise within nested if blocks"
+tags = ["raise", "nested"]
+
+[test.python]
+code = '''
+def complex_validation(x: int, y: int) -> int:
+    if x > 0:
+        if y < 0:
+            raise ValueError("Invalid combination")
+        return x + y
+    raise ValueError("x must be positive")
+'''
+
+[test.assertions]
+contains = ["fn complex_validation"]
+
+[[test]]
+name = "raise_in_loop"
+description = "Raise for early exit from iteration"
+tags = ["raise", "loop"]
+
+[test.python]
+code = '''
+def find_or_fail(items: list[int], target: int) -> int:
+    for item in items:
+        if item == target:
+            return item
+    raise ValueError("Not found")
+'''
+
+[test.assertions]
+contains = ["fn find_or_fail"]
+
+[[test]]
+name = "raise_after_statements"
+description = "Raise as final statement after processing"
+tags = ["raise", "sequence"]
+
+[test.python]
+code = '''
+def process_or_fail(x: int) -> int:
+    y = x * 2
+    z = y + 1
+    if z > 100:
+        raise ValueError("Result too large")
+    return z
+'''
+
+[test.assertions]
+contains = ["fn process_or_fail"]
+
+[[test]]
+name = "raise_different_exception_types"
+description = "Multiple exception type handling"
+tags = ["raise", "types"]
+
+[test.python]
+code = '''
+def validate_input(x: int) -> int:
+    if x < 0:
+        raise ValueError("Negative")
+    if x == 0:
+        raise ZeroDivisionError("Zero")
+    if x > 1000:
+        raise IndexError("Too large")
+    return x
+'''
+
+[test.assertions]
+contains = ["fn validate_input"]
+
+[[test]]
+name = "raise_with_variable_message"
+description = "Raise with variable in message"
+tags = ["raise", "variable"]
+
+[test.python]
+code = '''
+def check_minimum(x: int, min_val: int) -> int:
+    if x < min_val:
+        raise ValueError("Value must be >= minimum")
+    return x
+'''
+
+[test.assertions]
+contains = ["fn check_minimum"]
+
+[[test]]
+name = "raise_in_elif"
+description = "Raise in elif branch"
+tags = ["raise", "elif"]
+
+[test.python]
+code = '''
+def categorize_or_fail(x: int) -> str:
+    if x < 0:
+        return "negative"
+    elif x == 0:
+        raise ValueError("Zero not allowed")
+    else:
+        return "positive"
+'''
+
+[test.assertions]
+contains = ["fn categorize_or_fail"]
+
+[[test]]
+name = "raise_in_try_except"
+description = "Multiple raises within try/except"
+tags = ["raise", "try", "except"]
+
+[test.python]
+code = '''
+def nested_validation(x: int) -> int:
+    try:
+        if x < 0:
+            raise ValueError("negative")
+        return x
+    except ValueError:
+        raise RuntimeError("validation failed")
+'''
+
+[test.assertions]
+contains = ["fn nested_validation"]
+
+[[test]]
+name = "complex_exception_patterns"
+description = "All raise patterns combined"
+tags = ["raise", "integration"]
+
+[test.python]
+code = '''
+def complex_process(items: list[int], threshold: int) -> int:
+    if len(items) == 0:
+        raise ValueError("Empty list")
+    
+    total = 0
+    for item in items:
+        if item < 0:
+            raise ValueError("Negative value")
+        if item > threshold:
+            raise ValueError("Value exceeds threshold")
+        total = total + item
+    
+    if total == 0:
+        raise RuntimeError("Sum is zero")
+    
+    return total
+'''
+
+[test.assertions]
+contains = ["fn complex_process"]

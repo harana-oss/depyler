@@ -1,0 +1,164 @@
+# Namedtuple Tests - Named tuples
+# Rust Mapping: Structs
+
+[metadata]
+name = "Namedtuple Tests"
+category = "data-structures"
+
+# =============================================================================
+# Creating Namedtuples
+# =============================================================================
+
+# TODO: Test namedtuple creation
+# [[test]]
+# name = "namedtuple_create"
+# description = "Point = namedtuple('Point', ['x', 'y'])"
+
+# TODO: Test namedtuple string fields
+# [[test]]
+# name = "namedtuple_string_fields"
+# description = "Point = namedtuple('Point', 'x y')"
+
+# TODO: Test namedtuple comma separated
+# [[test]]
+# name = "namedtuple_comma_fields"
+# description = "Point = namedtuple('Point', 'x, y')"
+
+# TODO: Test instantiation
+# [[test]]
+# name = "namedtuple_instance"
+# description = "p = Point(1, 2)"
+
+# TODO: Test keyword instantiation
+# [[test]]
+# name = "namedtuple_kwargs"
+# description = "p = Point(x=1, y=2)"
+
+# =============================================================================
+# Accessing Fields
+# =============================================================================
+
+# TODO: Test attribute access
+# [[test]]
+# name = "namedtuple_attribute"
+# description = "p.x, p.y"
+
+# TODO: Test index access
+# [[test]]
+# name = "namedtuple_index"
+# description = "p[0], p[1]"
+
+# TODO: Test unpacking
+# [[test]]
+# name = "namedtuple_unpack"
+# description = "x, y = p"
+
+# =============================================================================
+# Namedtuple Methods
+# =============================================================================
+
+# TODO: Test _make
+# [[test]]
+# name = "namedtuple_make"
+# description = "Point._make([1, 2])"
+
+# TODO: Test _asdict
+# [[test]]
+# name = "namedtuple_asdict"
+# description = "p._asdict()"
+
+# TODO: Test _replace
+# [[test]]
+# name = "namedtuple_replace"
+# description = "p._replace(x=10)"
+
+# TODO: Test _fields
+# [[test]]
+# name = "namedtuple_fields"
+# description = "Point._fields"
+
+# TODO: Test _field_defaults
+# [[test]]
+# name = "namedtuple_defaults"
+# description = "Point._field_defaults"
+
+# =============================================================================
+# Defaults
+# =============================================================================
+
+# TODO: Test defaults parameter
+# [[test]]
+# name = "namedtuple_defaults_param"
+# description = "namedtuple('Point', 'x y', defaults=[0])"
+
+# TODO: Test partial defaults
+# [[test]]
+# name = "namedtuple_partial_defaults"
+# description = "Defaults apply to rightmost fields"
+
+# =============================================================================
+# Immutability
+# =============================================================================
+
+# TODO: Test immutable
+# [[test]]
+# name = "namedtuple_immutable"
+# description = "p.x = 5 raises AttributeError"
+# skip = true
+
+# TODO: Test hashable
+# [[test]]
+# name = "namedtuple_hashable"
+# description = "hash(p) works"
+
+# TODO: Test as dict key
+# [[test]]
+# name = "namedtuple_dict_key"
+# description = "{p: 'value'}"
+
+# =============================================================================
+# Inheritance
+# =============================================================================
+
+# TODO: Test subclassing
+# [[test]]
+# name = "namedtuple_subclass"
+# description = "class Point3D(Point): ..."
+
+# TODO: Test adding methods
+# [[test]]
+# name = "namedtuple_methods"
+# description = "Subclass with additional methods"
+
+# =============================================================================
+# Comparison with typing.NamedTuple
+# =============================================================================
+
+# TODO: Test typing.NamedTuple
+# [[test]]
+# name = "typing_namedtuple"
+# description = "class Point(NamedTuple): x: int; y: int"
+
+# TODO: Test typed fields
+# [[test]]
+# name = "namedtuple_typed"
+# description = "Type hints on fields"
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+# TODO: Test rename parameter
+# [[test]]
+# name = "namedtuple_rename"
+# description = "namedtuple('T', 'a class', rename=True)"
+
+# TODO: Test module parameter
+# [[test]]
+# name = "namedtuple_module"
+# description = "namedtuple('T', 'x', module='mymod')"
+
+# TODO: Test repr
+# [[test]]
+# name = "namedtuple_repr"
+# description = "repr(Point(1, 2))"

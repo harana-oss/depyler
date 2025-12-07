@@ -1,0 +1,168 @@
+# DefaultDict Tests - Dict with default factory
+# Rust Mapping: HashMap with entry API
+
+[metadata]
+name = "DefaultDict Tests"
+category = "data-structures"
+
+# =============================================================================
+# Creating DefaultDict
+# =============================================================================
+
+# TODO: Test with list factory
+# [[test]]
+# name = "defaultdict_list"
+# description = "defaultdict(list)"
+
+# TODO: Test with int factory
+# [[test]]
+# name = "defaultdict_int"
+# description = "defaultdict(int)"
+
+# TODO: Test with set factory
+# [[test]]
+# name = "defaultdict_set"
+# description = "defaultdict(set)"
+
+# TODO: Test with lambda
+# [[test]]
+# name = "defaultdict_lambda"
+# description = "defaultdict(lambda: 'default')"
+
+# TODO: Test with initial data
+# [[test]]
+# name = "defaultdict_init"
+# description = "defaultdict(int, {'a': 1})"
+
+# =============================================================================
+# Automatic Key Creation
+# =============================================================================
+
+# TODO: Test missing key
+# [[test]]
+# name = "defaultdict_missing"
+# description = "d[missing_key] creates default"
+
+# TODO: Test auto list append
+# [[test]]
+# name = "defaultdict_list_append"
+# description = "d[key].append(value)"
+
+# TODO: Test auto int increment
+# [[test]]
+# name = "defaultdict_int_inc"
+# description = "d[key] += 1"
+
+# TODO: Test auto set add
+# [[test]]
+# name = "defaultdict_set_add"
+# description = "d[key].add(value)"
+
+# =============================================================================
+# __missing__ Method
+# =============================================================================
+
+# TODO: Test __missing__ called
+# [[test]]
+# name = "defaultdict_missing_method"
+# description = "__missing__ called on missing key"
+
+# TODO: Test custom subclass
+# [[test]]
+# name = "defaultdict_subclass"
+# description = "Override __missing__ in subclass"
+
+# =============================================================================
+# default_factory Attribute
+# =============================================================================
+
+# TODO: Test default_factory access
+# [[test]]
+# name = "defaultdict_factory"
+# description = "d.default_factory"
+
+# TODO: Test change factory
+# [[test]]
+# name = "defaultdict_change_factory"
+# description = "d.default_factory = str"
+
+# TODO: Test None factory
+# [[test]]
+# name = "defaultdict_none_factory"
+# description = "d.default_factory = None"
+
+# =============================================================================
+# Use Cases
+# =============================================================================
+
+# TODO: Test grouping
+# [[test]]
+# name = "defaultdict_grouping"
+# description = "Group items by key"
+
+# TODO: Test counting
+# [[test]]
+# name = "defaultdict_counting"
+# description = "Count occurrences"
+
+# TODO: Test nested defaultdict
+# [[test]]
+# name = "defaultdict_nested"
+# description = "defaultdict(lambda: defaultdict(int))"
+
+# TODO: Test accumulating
+# [[test]]
+# name = "defaultdict_accumulate"
+# description = "Accumulate lists of values"
+
+# =============================================================================
+# Dict Operations
+# =============================================================================
+
+# TODO: Test get method
+# [[test]]
+# name = "defaultdict_get"
+# description = "d.get(key) doesn't create"
+
+# TODO: Test in operator
+# [[test]]
+# name = "defaultdict_in"
+# description = "key in d doesn't create"
+
+# TODO: Test iteration
+# [[test]]
+# name = "defaultdict_iter"
+# description = "for k in d: ..."
+
+# =============================================================================
+# Comparison with Regular Dict
+# =============================================================================
+
+# TODO: Test vs setdefault
+# [[test]]
+# name = "defaultdict_vs_setdefault"
+# description = "Compare to dict.setdefault"
+
+# TODO: Test vs get with default
+# [[test]]
+# name = "defaultdict_vs_get"
+# description = "Compare to dict.get(k, default)"
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+# TODO: Test copy
+# [[test]]
+# name = "defaultdict_copy"
+# description = "d.copy()"
+
+# TODO: Test repr
+# [[test]]
+# name = "defaultdict_repr"
+# description = "repr(defaultdict(list))"
+
+# TODO: Test equality with dict
+# [[test]]
+# name = "defaultdict_eq_dict"
+# description = "defaultdict equals dict with same items"

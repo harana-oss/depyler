@@ -1,0 +1,126 @@
+# Relative Imports Tests - Relative import syntax
+# Rust Mapping: use super::, use crate::
+
+[metadata]
+name = "Relative Imports Tests"
+category = "imports"
+
+# =============================================================================
+# Single Dot (Current Package)
+# =============================================================================
+
+# TODO: Test single dot
+# [[test]]
+# name = "relative_single_dot"
+# description = "from . import sibling"
+
+# TODO: Test from current
+# [[test]]
+# name = "relative_from_current"
+# description = "from .sibling import func"
+
+# =============================================================================
+# Double Dot (Parent Package)
+# =============================================================================
+
+# TODO: Test double dot
+# [[test]]
+# name = "relative_double_dot"
+# description = "from .. import parent_sibling"
+
+# TODO: Test from parent
+# [[test]]
+# name = "relative_from_parent"
+# description = "from ..sibling import func"
+
+# =============================================================================
+# Multiple Dots
+# =============================================================================
+
+# TODO: Test triple dot
+# [[test]]
+# name = "relative_triple_dot"
+# description = "from ... import grandparent"
+
+# TODO: Test many dots
+# [[test]]
+# name = "relative_many_dots"
+# description = "from ....pkg import mod"
+
+# =============================================================================
+# Relative with Submodule
+# =============================================================================
+
+# TODO: Test relative to submodule
+# [[test]]
+# name = "relative_submodule"
+# description = "from .sub.mod import item"
+
+# TODO: Test parent then down
+# [[test]]
+# name = "relative_parent_down"
+# description = "from ..other.sub import item"
+
+# =============================================================================
+# In __init__.py
+# =============================================================================
+
+# TODO: Test relative in init
+# [[test]]
+# name = "relative_in_init"
+# description = "Relative imports in __init__.py"
+
+# TODO: Test re-export
+# [[test]]
+# name = "relative_reexport"
+# description = "from .mod import func to re-export"
+
+# =============================================================================
+# Absolute vs Relative
+# =============================================================================
+
+# TODO: Test explicit relative
+# [[test]]
+# name = "relative_explicit"
+# description = "from . import x vs import x"
+
+# TODO: Test implicit absolute
+# [[test]]
+# name = "relative_absolute"
+# description = "import pkg (absolute)"
+
+# =============================================================================
+# Error Cases
+# =============================================================================
+
+# TODO: Test beyond top-level
+# [[test]]
+# name = "relative_beyond_top"
+# description = "from ... in top-level raises"
+# skip = true
+
+# TODO: Test in script
+# [[test]]
+# name = "relative_in_script"
+# description = "Relative import in __main__"
+# skip = true
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+# TODO: Test from . import *
+# [[test]]
+# name = "relative_star"
+# description = "from . import *"
+
+# TODO: Test relative as
+# [[test]]
+# name = "relative_as"
+# description = "from . import mod as m"
+
+# TODO: Test circular relative
+# [[test]]
+# name = "relative_circular"
+# description = "Circular relative imports"
+# skip = true

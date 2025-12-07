@@ -1,0 +1,134 @@
+# Class Decorators Tests - Decorating classes
+# Rust Mapping: Derive macros, attribute macros
+
+[metadata]
+name = "Class Decorators Tests"
+category = "decorators-closures"
+
+# =============================================================================
+# Basic Class Decorator
+# =============================================================================
+
+# TODO: Test simple class decorator
+# [[test]]
+# name = "class_decorator_basic"
+# description = "@decorator class MyClass: ..."
+
+# TODO: Test class decorator returning class
+# [[test]]
+# name = "class_decorator_return"
+# description = "def decorator(cls): return cls"
+
+# TODO: Test class decorator modifying class
+# [[test]]
+# name = "class_decorator_modify"
+# description = "Add attributes or methods to class"
+
+# =============================================================================
+# @dataclass
+# =============================================================================
+
+# TODO: Test @dataclass
+# [[test]]
+# name = "dataclass_decorator"
+# description = "@dataclass class Point: x: int; y: int"
+
+# TODO: Test @dataclass options
+# [[test]]
+# name = "dataclass_options"
+# description = "@dataclass(frozen=True, order=True)"
+
+# =============================================================================
+# Common Class Decorator Patterns
+# =============================================================================
+
+# TODO: Test singleton decorator
+# [[test]]
+# name = "class_decorator_singleton"
+# description = "Ensure single instance"
+
+# TODO: Test registry decorator
+# [[test]]
+# name = "class_decorator_registry"
+# description = "Auto-register class on definition"
+
+# TODO: Test add method decorator
+# [[test]]
+# name = "class_decorator_add_method"
+# description = "Add new method to class"
+
+# TODO: Test add mixin decorator
+# [[test]]
+# name = "class_decorator_mixin"
+# description = "Add mixin functionality"
+
+# =============================================================================
+# Class Decorator with Arguments
+# =============================================================================
+
+# TODO: Test parameterized class decorator
+# [[test]]
+# name = "class_decorator_args"
+# description = "@decorator(arg) class MyClass: ..."
+
+# TODO: Test @dataclass fields
+# [[test]]
+# name = "dataclass_field"
+# description = "@dataclass with field() for defaults"
+
+# =============================================================================
+# Wrapping vs Modifying
+# =============================================================================
+
+# TODO: Test wrapping class
+# [[test]]
+# name = "class_decorator_wrap"
+# description = "Return wrapper class"
+
+# TODO: Test modifying in-place
+# [[test]]
+# name = "class_decorator_inplace"
+# description = "Modify and return same class"
+
+# TODO: Test preserving class name
+# [[test]]
+# name = "class_decorator_name"
+# description = "Keep __name__ and __qualname__"
+
+# =============================================================================
+# Stacked Class Decorators
+# =============================================================================
+
+# TODO: Test multiple class decorators
+# [[test]]
+# name = "class_decorator_stacked"
+# description = "@a @b class C: ..."
+
+# TODO: Test order of class decorators
+# [[test]]
+# name = "class_decorator_order"
+# description = "Bottom applied first"
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+# TODO: Test decorator returning non-class
+# [[test]]
+# name = "class_decorator_non_class"
+# description = "Return function instead of class"
+
+# TODO: Test decorator with inheritance
+# [[test]]
+# name = "class_decorator_inheritance"
+# description = "Decorated class as base class"
+
+# TODO: Test decorator with metaclass
+# [[test]]
+# name = "class_decorator_metaclass"
+# description = "Class decorator + metaclass interaction"
+
+# TODO: Test abstract class decorator
+# [[test]]
+# name = "class_decorator_abstract"
+# description = "@decorator on ABC"

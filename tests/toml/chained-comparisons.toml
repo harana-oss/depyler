@@ -1,0 +1,111 @@
+# Chained Comparison Tests - Python's unique comparison chaining
+# Rust Mapping: Expanded boolean chains (a < b && b < c)
+
+[metadata]
+name = "Chained Comparison Tests"
+category = "core-language"
+
+# =============================================================================
+# Basic Chained Comparisons
+# =============================================================================
+
+# TODO: Test simple range check
+# [[test]]
+# name = "chained_less_than"
+# description = "a < b < c"
+
+# TODO: Test inclusive range check
+# [[test]]
+# name = "chained_less_equal"
+# description = "a <= b <= c"
+
+# TODO: Test descending chain
+# [[test]]
+# name = "chained_greater_than"
+# description = "a > b > c"
+
+# TODO: Test equality chain
+# [[test]]
+# name = "chained_equality"
+# description = "a == b == c"
+
+# TODO: Test inequality chain
+# [[test]]
+# name = "chained_inequality"
+# description = "a != b != c"
+
+# =============================================================================
+# Mixed Comparisons
+# =============================================================================
+
+# TODO: Test mixed operators
+# [[test]]
+# name = "chained_mixed_operators"
+# description = "a < b <= c < d"
+
+# TODO: Test equality with inequality
+# [[test]]
+# name = "chained_eq_neq"
+# description = "a == b != c"
+
+# TODO: Test range with equality
+# [[test]]
+# name = "chained_range_eq"
+# description = "a <= b == c <= d"
+
+# =============================================================================
+# With Function Calls
+# =============================================================================
+
+# TODO: Test chained comparison with function calls
+# [[test]]
+# name = "chained_with_calls"
+# description = "0 < len(s) < 100 (middle expression evaluated once)"
+
+# TODO: Test short-circuit evaluation
+# [[test]]
+# name = "chained_short_circuit"
+# description = "Verify middle expressions only evaluated once"
+
+# =============================================================================
+# Identity Comparisons
+# =============================================================================
+
+# TODO: Test is in chain
+# [[test]]
+# name = "chained_is"
+# description = "a is b is c"
+
+# TODO: Test is not in chain
+# [[test]]
+# name = "chained_is_not"
+# description = "a is not b is not c"
+
+# TODO: Test in operator chain
+# [[test]]
+# name = "chained_in"
+# description = "a in b in c"
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+# TODO: Test long chains
+# [[test]]
+# name = "chained_long"
+# description = "a < b < c < d < e"
+
+# TODO: Test chained comparison in conditions
+# [[test]]
+# name = "chained_in_if"
+# description = "if 0 <= x < 10:"
+
+# TODO: Test chained comparison as expression
+# [[test]]
+# name = "chained_as_expression"
+# description = "result = 0 < x < 10"
+
+# TODO: Test chained comparison with floats
+# [[test]]
+# name = "chained_floats"
+# description = "0.0 < x < 1.0"

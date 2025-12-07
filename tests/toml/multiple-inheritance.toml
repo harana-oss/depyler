@@ -1,0 +1,131 @@
+# Multiple Inheritance Tests - MRO and diamond problem
+# Rust Mapping: Trait composition
+
+[metadata]
+name = "Multiple Inheritance Tests"
+category = "advanced-oop"
+
+# =============================================================================
+# Basic Multiple Inheritance
+# =============================================================================
+
+# TODO: Test simple multiple inheritance
+# [[test]]
+# name = "multiple_inheritance_basic"
+# description = "class C(A, B): ..."
+
+# TODO: Test method from first parent
+# [[test]]
+# name = "mi_method_first"
+# description = "Method resolution picks first parent"
+
+# TODO: Test method from second parent
+# [[test]]
+# name = "mi_method_second"
+# description = "Method from second parent when first doesn't have it"
+
+# =============================================================================
+# Method Resolution Order (MRO)
+# =============================================================================
+
+# TODO: Test __mro__ attribute
+# [[test]]
+# name = "mro_attribute"
+# description = "Class.__mro__ shows resolution order"
+
+# TODO: Test mro() method
+# [[test]]
+# name = "mro_method"
+# description = "Class.mro() returns list"
+
+# TODO: Test C3 linearization
+# [[test]]
+# name = "c3_linearization"
+# description = "MRO follows C3 algorithm"
+
+# =============================================================================
+# Diamond Problem
+# =============================================================================
+
+# TODO: Test diamond inheritance
+# [[test]]
+# name = "diamond_basic"
+# description = "D inherits from B, C which both inherit from A"
+
+# TODO: Test diamond method resolution
+# [[test]]
+# name = "diamond_method"
+# description = "Which implementation is used in diamond"
+
+# TODO: Test diamond with super()
+# [[test]]
+# name = "diamond_super"
+# description = "super() in diamond follows MRO"
+
+# =============================================================================
+# super() with Multiple Inheritance
+# =============================================================================
+
+# TODO: Test super() basic
+# [[test]]
+# name = "super_basic"
+# description = "super().method() calls parent"
+
+# TODO: Test super() with arguments
+# [[test]]
+# name = "super_with_args"
+# description = "super(Class, self).method()"
+
+# TODO: Test cooperative super()
+# [[test]]
+# name = "super_cooperative"
+# description = "All classes in hierarchy use super()"
+
+# TODO: Test super() in __init__
+# [[test]]
+# name = "super_init"
+# description = "Proper initialization with super()"
+
+# =============================================================================
+# Mixin Classes
+# =============================================================================
+
+# TODO: Test mixin pattern
+# [[test]]
+# name = "mixin_basic"
+# description = "class MyClass(Mixin1, Mixin2, Base): ..."
+
+# TODO: Test mixin providing methods
+# [[test]]
+# name = "mixin_methods"
+# description = "Mixin adds functionality to class"
+
+# TODO: Test mixin ordering
+# [[test]]
+# name = "mixin_order"
+# description = "Mixin before base class in inheritance"
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+# TODO: Test inconsistent MRO
+# [[test]]
+# name = "mro_inconsistent"
+# description = "Invalid inheritance that breaks C3"
+# skip = true
+
+# TODO: Test multiple inheritance with __slots__
+# [[test]]
+# name = "mi_slots"
+# description = "Combining classes with __slots__"
+
+# TODO: Test attribute from multiple parents
+# [[test]]
+# name = "mi_attribute_conflict"
+# description = "Same attribute name in multiple parents"
+
+# TODO: Test isinstance with multiple inheritance
+# [[test]]
+# name = "mi_isinstance"
+# description = "isinstance() checks all bases"

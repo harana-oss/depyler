@@ -1,0 +1,144 @@
+# Match OR Patterns Tests - Alternative patterns with |
+# Rust Mapping: | in match patterns
+
+[metadata]
+name = "Match OR Patterns Tests"
+category = "modern-python"
+
+# =============================================================================
+# Basic OR Patterns
+# =============================================================================
+
+# TODO: Test literal OR
+# [[test]]
+# name = "or_literal"
+# description = "case 1 | 2 | 3: ..."
+
+# TODO: Test string OR
+# [[test]]
+# name = "or_string"
+# description = "case 'yes' | 'y' | 'true': ..."
+
+# TODO: Test None in OR
+# [[test]]
+# name = "or_none"
+# description = "case None | 0 | '': ..."
+
+# =============================================================================
+# OR with Capture
+# =============================================================================
+
+# TODO: Test OR with same capture
+# [[test]]
+# name = "or_same_capture"
+# description = "case (x, 0) | (0, x): must bind same names"
+
+# TODO: Test OR binding rule
+# [[test]]
+# name = "or_binding_rule"
+# description = "All alternatives must bind same variables"
+
+# TODO: Test OR with wildcard
+# [[test]]
+# name = "or_wildcard"
+# description = "case _ | _: always matches"
+
+# =============================================================================
+# OR with Sequences
+# =============================================================================
+
+# TODO: Test sequence OR
+# [[test]]
+# name = "or_sequence"
+# description = "case [] | [_]: empty or single"
+
+# TODO: Test tuple OR
+# [[test]]
+# name = "or_tuple"
+# description = "case () | (x,) | (x, y): ..."
+
+# =============================================================================
+# OR with Class Patterns
+# =============================================================================
+
+# TODO: Test class OR
+# [[test]]
+# name = "or_class"
+# description = "case int() | float(): any number"
+
+# TODO: Test different classes
+# [[test]]
+# name = "or_different_classes"
+# description = "case Success() | Failure(): ..."
+
+# =============================================================================
+# Nested OR Patterns
+# =============================================================================
+
+# TODO: Test nested OR
+# [[test]]
+# name = "or_nested"
+# description = "case ('a' | 'b', x): first is 'a' or 'b'"
+
+# TODO: Test OR in sequence
+# [[test]]
+# name = "or_in_sequence"
+# description = "case [1 | 2, x]: ..."
+
+# TODO: Test OR in mapping
+# [[test]]
+# name = "or_in_mapping"
+# description = "case {'type': 'a' | 'b'}: ..."
+
+# =============================================================================
+# OR with Guards
+# =============================================================================
+
+# TODO: Test OR with guard
+# [[test]]
+# name = "or_with_guard"
+# description = "case 1 | 2 | 3 if condition: ..."
+
+# TODO: Test guard after OR
+# [[test]]
+# name = "or_guard_capture"
+# description = "case x | y if x > 0: ..."
+# skip = true
+
+# =============================================================================
+# Use Cases
+# =============================================================================
+
+# TODO: Test HTTP status codes
+# [[test]]
+# name = "or_http_status"
+# description = "case 200 | 201 | 204: success"
+
+# TODO: Test command aliases
+# [[test]]
+# name = "or_command"
+# description = "case 'quit' | 'exit' | 'q': ..."
+
+# TODO: Test falsy values
+# [[test]]
+# name = "or_falsy"
+# description = "case None | False | 0 | '' | [] | {}: ..."
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+# TODO: Test OR precedence
+# [[test]]
+# name = "or_precedence"
+# description = "OR has lowest precedence in patterns"
+
+# TODO: Test overlapping OR
+# [[test]]
+# name = "or_overlapping"
+# description = "case 1 | _ : _ always matches"
+
+# TODO: Test OR with as
+# [[test]]
+# name = "or_with_as"
+# description = "case (1 | 2 | 3) as x: capture matched value"

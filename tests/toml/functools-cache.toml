@@ -1,0 +1,145 @@
+# functools Cache Tests - Memoization decorators
+# Rust Mapping: cached crate
+
+[metadata]
+name = "functools Cache Tests"
+category = "decorators-closures"
+
+# =============================================================================
+# @cache (Python 3.9+)
+# =============================================================================
+
+# TODO: Test basic @cache
+# [[test]]
+# name = "cache_basic"
+# description = "@cache def f(x): return expensive(x)"
+
+# TODO: Test cache hits
+# [[test]]
+# name = "cache_hits"
+# description = "Same args return cached result"
+
+# TODO: Test cache with different args
+# [[test]]
+# name = "cache_different_args"
+# description = "Different args compute fresh result"
+
+# =============================================================================
+# @lru_cache
+# =============================================================================
+
+# TODO: Test basic lru_cache
+# [[test]]
+# name = "lru_cache_basic"
+# description = "@lru_cache def f(x): ..."
+
+# TODO: Test lru_cache maxsize
+# [[test]]
+# name = "lru_cache_maxsize"
+# description = "@lru_cache(maxsize=128)"
+
+# TODO: Test lru_cache unlimited
+# [[test]]
+# name = "lru_cache_unlimited"
+# description = "@lru_cache(maxsize=None)"
+
+# TODO: Test lru_cache typed
+# [[test]]
+# name = "lru_cache_typed"
+# description = "@lru_cache(typed=True) distinguishes int/float"
+
+# =============================================================================
+# Cache Info and Control
+# =============================================================================
+
+# TODO: Test cache_info
+# [[test]]
+# name = "cache_info"
+# description = "f.cache_info() returns CacheInfo"
+
+# TODO: Test cache_clear
+# [[test]]
+# name = "cache_clear"
+# description = "f.cache_clear() empties cache"
+
+# TODO: Test cache hits/misses
+# [[test]]
+# name = "cache_stats"
+# description = "Track hits, misses, size, maxsize"
+
+# =============================================================================
+# @cached_property (Python 3.8+)
+# =============================================================================
+
+# TODO: Test cached_property
+# [[test]]
+# name = "cached_property"
+# description = "@cached_property def prop(self): ..."
+
+# TODO: Test cached_property computed once
+# [[test]]
+# name = "cached_property_once"
+# description = "Property computed only on first access"
+
+# TODO: Test cached_property per instance
+# [[test]]
+# name = "cached_property_instance"
+# description = "Each instance has own cached value"
+
+# =============================================================================
+# Cache Key Requirements
+# =============================================================================
+
+# TODO: Test hashable args required
+# [[test]]
+# name = "cache_hashable"
+# description = "Args must be hashable for cache"
+
+# TODO: Test unhashable args error
+# [[test]]
+# name = "cache_unhashable"
+# description = "TypeError with unhashable args"
+# skip = true
+
+# TODO: Test custom hash key
+# [[test]]
+# name = "cache_custom_key"
+# description = "Using wrapper to create hashable key"
+
+# =============================================================================
+# Use Cases
+# =============================================================================
+
+# TODO: Test recursive with cache
+# [[test]]
+# name = "cache_recursive"
+# description = "Memoized Fibonacci"
+
+# TODO: Test expensive computation
+# [[test]]
+# name = "cache_expensive"
+# description = "Cache expensive API calls"
+
+# TODO: Test property caching
+# [[test]]
+# name = "cache_computed_property"
+# description = "Cache computed class attribute"
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+# TODO: Test cache with kwargs
+# [[test]]
+# name = "cache_kwargs"
+# description = "Keyword args in cache key"
+
+# TODO: Test cache eviction
+# [[test]]
+# name = "cache_eviction"
+# description = "LRU eviction when maxsize reached"
+
+# TODO: Test cache with method
+# [[test]]
+# name = "cache_method"
+# description = "@lru_cache on instance method (use @cached_property or wrapper)"

@@ -1,0 +1,140 @@
+# From Imports Tests - from ... import ...
+# Rust Mapping: use path::item
+
+[metadata]
+name = "From Imports Tests"
+category = "imports"
+
+# =============================================================================
+# Basic From Import
+# =============================================================================
+
+# TODO: Test simple from import
+# [[test]]
+# name = "from_import_simple"
+# description = "from os import getcwd"
+
+# TODO: Test direct usage
+# [[test]]
+# name = "from_import_direct"
+# description = "getcwd() without os. prefix"
+
+# TODO: Test multiple items
+# [[test]]
+# name = "from_import_multiple"
+# description = "from os import getcwd, listdir"
+
+# =============================================================================
+# From Import As
+# =============================================================================
+
+# TODO: Test from import as
+# [[test]]
+# name = "from_import_as"
+# description = "from os import getcwd as cwd"
+
+# TODO: Test multiple with aliases
+# [[test]]
+# name = "from_import_multi_as"
+# description = "from os import getcwd as cwd, listdir as ls"
+
+# =============================================================================
+# Star Import
+# =============================================================================
+
+# TODO: Test star import
+# [[test]]
+# name = "from_import_star"
+# description = "from os.path import *"
+
+# TODO: Test __all__ controls star
+# [[test]]
+# name = "from_import_all"
+# description = "* imports only __all__ items"
+
+# TODO: Test star without __all__
+# [[test]]
+# name = "from_import_star_no_all"
+# description = "* imports non-underscore names"
+
+# =============================================================================
+# Parenthesized Imports
+# =============================================================================
+
+# TODO: Test parentheses
+# [[test]]
+# name = "from_import_parens"
+# description = "from os import (getcwd, listdir)"
+
+# TODO: Test multiline
+# [[test]]
+# name = "from_import_multiline"
+# description = "from os import (\\n    getcwd,\\n    listdir,\\n)"
+
+# =============================================================================
+# From Submodule
+# =============================================================================
+
+# TODO: Test from dotted
+# [[test]]
+# name = "from_import_dotted"
+# description = "from os.path import join"
+
+# TODO: Test from deep
+# [[test]]
+# name = "from_import_deep"
+# description = "from a.b.c import d"
+
+# =============================================================================
+# Classes and Functions
+# =============================================================================
+
+# TODO: Test import class
+# [[test]]
+# name = "from_import_class"
+# description = "from collections import OrderedDict"
+
+# TODO: Test import function
+# [[test]]
+# name = "from_import_func"
+# description = "from functools import reduce"
+
+# TODO: Test import constant
+# [[test]]
+# name = "from_import_const"
+# description = "from math import pi"
+
+# =============================================================================
+# Type Hints
+# =============================================================================
+
+# TODO: Test import type
+# [[test]]
+# name = "from_import_type"
+# description = "from typing import List, Dict"
+
+# TODO: Test TYPE_CHECKING
+# [[test]]
+# name = "from_import_type_checking"
+# description = "if TYPE_CHECKING: from x import Y"
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+# TODO: Test import nonexistent
+# [[test]]
+# name = "from_import_not_found"
+# description = "from os import nonexistent"
+# skip = true
+
+# TODO: Test circular import
+# [[test]]
+# name = "from_import_circular"
+# description = "Circular from imports"
+# skip = true
+
+# TODO: Test shadowing builtin
+# [[test]]
+# name = "from_import_shadow"
+# description = "from mymod import open"

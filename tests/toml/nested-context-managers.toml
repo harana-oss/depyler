@@ -1,0 +1,129 @@
+# Nested Context Managers Tests - Multiple with targets
+# Rust Mapping: Nested scopes with Drop
+
+[metadata]
+name = "Nested Context Managers Tests"
+category = "context-managers"
+
+# =============================================================================
+# Multiple Targets Syntax
+# =============================================================================
+
+# TODO: Test comma-separated with
+# [[test]]
+# name = "multi_with_comma"
+# description = "with a, b, c: ..."
+
+# TODO: Test comma with as
+# [[test]]
+# name = "multi_with_as"
+# description = "with a as x, b as y: ..."
+
+# TODO: Test mixed as
+# [[test]]
+# name = "multi_mixed_as"
+# description = "with a as x, b, c as z: ..."
+
+# =============================================================================
+# Nested With Statements
+# =============================================================================
+
+# TODO: Test nested with blocks
+# [[test]]
+# name = "nested_with"
+# description = "with a: with b: with c: ..."
+
+# TODO: Test deep nesting
+# [[test]]
+# name = "deeply_nested"
+# description = "Multiple levels of with nesting"
+
+# =============================================================================
+# Enter/Exit Order
+# =============================================================================
+
+# TODO: Test enter order
+# [[test]]
+# name = "multi_enter_order"
+# description = "a.__enter__, b.__enter__, c.__enter__"
+
+# TODO: Test exit order
+# [[test]]
+# name = "multi_exit_order"
+# description = "c.__exit__, b.__exit__, a.__exit__ (reverse)"
+
+# TODO: Test exception during enter
+# [[test]]
+# name = "multi_enter_fail"
+# description = "Later __enter__ fails, earlier __exit__ called"
+
+# =============================================================================
+# Exception Propagation
+# =============================================================================
+
+# TODO: Test exception in body
+# [[test]]
+# name = "multi_body_exception"
+# description = "All __exit__ called on body exception"
+
+# TODO: Test one suppresses
+# [[test]]
+# name = "multi_one_suppresses"
+# description = "One __exit__ suppresses, others see no exception"
+
+# TODO: Test exit exception
+# [[test]]
+# name = "multi_exit_exception"
+# description = "Exception in __exit__ affects later exits"
+
+# =============================================================================
+# Dynamic Number of Context Managers
+# =============================================================================
+
+# TODO: Test ExitStack for dynamic
+# [[test]]
+# name = "multi_dynamic"
+# description = "ExitStack for variable number of contexts"
+
+# TODO: Test list of context managers
+# [[test]]
+# name = "multi_from_list"
+# description = "for cm in cms: stack.enter_context(cm)"
+
+# =============================================================================
+# Use Cases
+# =============================================================================
+
+# TODO: Test multiple files
+# [[test]]
+# name = "multi_files"
+# description = "with open(a), open(b), open(c): ..."
+
+# TODO: Test multiple locks
+# [[test]]
+# name = "multi_locks"
+# description = "Acquire multiple locks atomically"
+
+# TODO: Test database + file
+# [[test]]
+# name = "multi_db_file"
+# description = "with db.transaction(), open(log): ..."
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+# TODO: Test same context manager twice
+# [[test]]
+# name = "multi_same_cm"
+# description = "with cm, cm: (if reentrant)"
+
+# TODO: Test mixed sync and no-op
+# [[test]]
+# name = "multi_with_null"
+# description = "with real_cm, nullcontext(): ..."
+
+# TODO: Test very many context managers
+# [[test]]
+# name = "multi_many"
+# description = "Practical limit on number of contexts"

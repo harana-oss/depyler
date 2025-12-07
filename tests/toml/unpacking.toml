@@ -1,0 +1,110 @@
+# Unpacking Tests - Extended iterable unpacking in Python
+# Rust Mapping: Pattern matching, Vec splitting
+
+[metadata]
+name = "Unpacking Tests"
+category = "core-language"
+
+# =============================================================================
+# Basic Unpacking
+# =============================================================================
+
+# TODO: Test basic tuple unpacking
+# [[test]]
+# name = "basic_tuple_unpacking"
+# description = "a, b = (1, 2)"
+
+# TODO: Test list unpacking
+# [[test]]
+# name = "basic_list_unpacking"
+# description = "a, b, c = [1, 2, 3]"
+
+# =============================================================================
+# Starred Expressions
+# =============================================================================
+
+# TODO: Test starred expression at end
+# [[test]]
+# name = "starred_at_end"
+# description = "a, *rest = [1, 2, 3, 4]"
+
+# TODO: Test starred expression at beginning
+# [[test]]
+# name = "starred_at_beginning"
+# description = "*rest, last = [1, 2, 3, 4]"
+
+# TODO: Test starred expression in middle
+# [[test]]
+# name = "starred_in_middle"
+# description = "first, *middle, last = [1, 2, 3, 4, 5]"
+
+# TODO: Test starred with single element
+# [[test]]
+# name = "starred_single_element"
+# description = "a, *rest = [1] results in rest = []"
+
+# =============================================================================
+# Nested Unpacking
+# =============================================================================
+
+# TODO: Test nested tuple unpacking
+# [[test]]
+# name = "nested_tuple_unpacking"
+# description = "(a, b), c = ((1, 2), 3)"
+
+# TODO: Test deeply nested unpacking
+# [[test]]
+# name = "deeply_nested_unpacking"
+# description = "a, (b, (c, d)) = (1, (2, (3, 4)))"
+
+# =============================================================================
+# Unpacking in Function Calls
+# =============================================================================
+
+# TODO: Test starred unpacking in function call
+# [[test]]
+# name = "starred_in_call"
+# description = "func(*args)"
+
+# TODO: Test double starred unpacking in function call
+# [[test]]
+# name = "double_starred_in_call"
+# description = "func(**kwargs)"
+
+# TODO: Test combined unpacking in function call
+# [[test]]
+# name = "combined_unpacking_in_call"
+# description = "func(*args, **kwargs)"
+
+# =============================================================================
+# Unpacking in Loops
+# =============================================================================
+
+# TODO: Test unpacking in for loop
+# [[test]]
+# name = "unpacking_in_for"
+# description = "for a, b in pairs:"
+
+# TODO: Test nested unpacking in for loop
+# [[test]]
+# name = "nested_unpacking_in_for"
+# description = "for (a, b), c in data:"
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+# TODO: Test unpacking with type annotations
+# [[test]]
+# name = "unpacking_with_annotations"
+# description = "Unpacking where variables have type hints"
+
+# TODO: Test unpacking string
+# [[test]]
+# name = "unpacking_string"
+# description = "a, b, c = 'abc'"
+
+# TODO: Test unpacking range
+# [[test]]
+# name = "unpacking_range"
+# description = "a, b, c = range(3)"

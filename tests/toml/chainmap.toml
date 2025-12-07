@@ -1,0 +1,178 @@
+# ChainMap Tests - Multiple mapping views
+# Rust Mapping: Custom chain type
+
+[metadata]
+name = "ChainMap Tests"
+category = "data-structures"
+
+# =============================================================================
+# Creating ChainMap
+# =============================================================================
+
+# TODO: Test from dicts
+# [[test]]
+# name = "chainmap_create"
+# description = "ChainMap(dict1, dict2)"
+
+# TODO: Test empty ChainMap
+# [[test]]
+# name = "chainmap_empty"
+# description = "ChainMap()"
+
+# TODO: Test single dict
+# [[test]]
+# name = "chainmap_single"
+# description = "ChainMap(one_dict)"
+
+# =============================================================================
+# Lookup Behavior
+# =============================================================================
+
+# TODO: Test first match wins
+# [[test]]
+# name = "chainmap_first"
+# description = "Lookup finds first occurrence"
+
+# TODO: Test fallback
+# [[test]]
+# name = "chainmap_fallback"
+# description = "Key in second dict if not in first"
+
+# TODO: Test missing key
+# [[test]]
+# name = "chainmap_missing"
+# description = "KeyError if not in any"
+# skip = true
+
+# =============================================================================
+# Writing Behavior
+# =============================================================================
+
+# TODO: Test writes go to first
+# [[test]]
+# name = "chainmap_write"
+# description = "c[key] = val writes to first map"
+
+# TODO: Test del from first
+# [[test]]
+# name = "chainmap_del"
+# description = "del c[key] deletes from first"
+
+# TODO: Test doesn't modify underlying
+# [[test]]
+# name = "chainmap_shadow"
+# description = "Write shadows but doesn't modify child maps"
+
+# =============================================================================
+# Maps Attribute
+# =============================================================================
+
+# TODO: Test maps property
+# [[test]]
+# name = "chainmap_maps"
+# description = "c.maps returns list of mappings"
+
+# TODO: Test modify maps
+# [[test]]
+# name = "chainmap_modify_maps"
+# description = "c.maps[0]['key'] = val"
+
+# =============================================================================
+# Methods
+# =============================================================================
+
+# TODO: Test new_child
+# [[test]]
+# name = "chainmap_new_child"
+# description = "c.new_child()"
+
+# TODO: Test new_child with map
+# [[test]]
+# name = "chainmap_new_child_map"
+# description = "c.new_child({'key': 'val'})"
+
+# TODO: Test parents
+# [[test]]
+# name = "chainmap_parents"
+# description = "c.parents (all but first)"
+
+# =============================================================================
+# Scope Simulation
+# =============================================================================
+
+# TODO: Test nested scopes
+# [[test]]
+# name = "chainmap_scopes"
+# description = "Local -> enclosing -> global"
+
+# TODO: Test push scope
+# [[test]]
+# name = "chainmap_push"
+# description = "new_child() for new scope"
+
+# TODO: Test pop scope
+# [[test]]
+# name = "chainmap_pop"
+# description = "parents to exit scope"
+
+# =============================================================================
+# Dict Operations
+# =============================================================================
+
+# TODO: Test keys
+# [[test]]
+# name = "chainmap_keys"
+# description = "c.keys() union of all keys"
+
+# TODO: Test values
+# [[test]]
+# name = "chainmap_values"
+# description = "c.values()"
+
+# TODO: Test items
+# [[test]]
+# name = "chainmap_items"
+# description = "c.items()"
+
+# TODO: Test len
+# [[test]]
+# name = "chainmap_len"
+# description = "len(c) unique keys"
+
+# TODO: Test in
+# [[test]]
+# name = "chainmap_contains"
+# description = "key in c"
+
+# =============================================================================
+# Use Cases
+# =============================================================================
+
+# TODO: Test config with defaults
+# [[test]]
+# name = "chainmap_config"
+# description = "ChainMap(user_config, default_config)"
+
+# TODO: Test template context
+# [[test]]
+# name = "chainmap_template"
+# description = "Template variable resolution"
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+# TODO: Test copy
+# [[test]]
+# name = "chainmap_copy"
+# description = "c.copy() shallow copy"
+
+# TODO: Test get
+# [[test]]
+# name = "chainmap_get"
+# description = "c.get(key, default)"
+
+# TODO: Test iteration
+# [[test]]
+# name = "chainmap_iter"
+# description = "for k in c: ..."

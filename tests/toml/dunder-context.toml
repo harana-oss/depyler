@@ -1,0 +1,154 @@
+# Dunder Context Manager Tests - Context manager magic methods
+# Rust Mapping: Drop trait, RAII pattern
+
+[metadata]
+name = "Dunder Context Manager Tests"
+category = "dunder-methods"
+
+# =============================================================================
+# Basic Context Manager
+# =============================================================================
+
+# TODO: Test __enter__
+# [[test]]
+# name = "dunder_enter"
+# description = "def __enter__(self): return self"
+
+# TODO: Test __exit__
+# [[test]]
+# name = "dunder_exit"
+# description = "def __exit__(self, exc_type, exc_val, exc_tb): ..."
+
+# TODO: Test with statement
+# [[test]]
+# name = "with_statement"
+# description = "with obj as ctx: ..."
+
+# =============================================================================
+# __enter__ Return Value
+# =============================================================================
+
+# TODO: Test __enter__ returning self
+# [[test]]
+# name = "enter_returns_self"
+# description = "Return self for chaining"
+
+# TODO: Test __enter__ returning different object
+# [[test]]
+# name = "enter_returns_other"
+# description = "Return managed resource"
+
+# TODO: Test __enter__ returning None
+# [[test]]
+# name = "enter_returns_none"
+# description = "with obj: (no as clause needed)"
+
+# =============================================================================
+# __exit__ Parameters
+# =============================================================================
+
+# TODO: Test __exit__ no exception
+# [[test]]
+# name = "exit_no_exception"
+# description = "__exit__(None, None, None) on success"
+
+# TODO: Test __exit__ with exception
+# [[test]]
+# name = "exit_with_exception"
+# description = "__exit__(type, value, traceback) on error"
+
+# TODO: Test __exit__ exception info
+# [[test]]
+# name = "exit_exception_info"
+# description = "Access exception details in __exit__"
+
+# =============================================================================
+# Exception Handling
+# =============================================================================
+
+# TODO: Test __exit__ suppress exception
+# [[test]]
+# name = "exit_suppress"
+# description = "Return True from __exit__ to suppress exception"
+
+# TODO: Test __exit__ propagate exception
+# [[test]]
+# name = "exit_propagate"
+# description = "Return False/None to propagate exception"
+
+# TODO: Test __exit__ raise different exception
+# [[test]]
+# name = "exit_reraise"
+# description = "Raise different exception in __exit__"
+
+# =============================================================================
+# Use Cases
+# =============================================================================
+
+# TODO: Test file-like context manager
+# [[test]]
+# name = "cm_file_like"
+# description = "Open/close resource pattern"
+
+# TODO: Test lock context manager
+# [[test]]
+# name = "cm_lock"
+# description = "Acquire/release lock pattern"
+
+# TODO: Test transaction context manager
+# [[test]]
+# name = "cm_transaction"
+# description = "Begin/commit/rollback pattern"
+
+# TODO: Test timing context manager
+# [[test]]
+# name = "cm_timing"
+# description = "Measure elapsed time"
+
+# TODO: Test temporary state
+# [[test]]
+# name = "cm_temp_state"
+# description = "Save/restore state pattern"
+
+# =============================================================================
+# Nested Context Managers
+# =============================================================================
+
+# TODO: Test nested with
+# [[test]]
+# name = "nested_with"
+# description = "with a: with b: ..."
+
+# TODO: Test multiple context managers
+# [[test]]
+# name = "multiple_cm"
+# description = "with a, b, c: ..."
+
+# TODO: Test context manager order
+# [[test]]
+# name = "cm_order"
+# description = "__enter__ order and __exit__ reverse order"
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+# TODO: Test exception in __enter__
+# [[test]]
+# name = "enter_exception"
+# description = "__exit__ not called if __enter__ raises"
+
+# TODO: Test exception in __exit__
+# [[test]]
+# name = "exit_exception"
+# description = "Exception in __exit__ replaces original"
+
+# TODO: Test reusable context manager
+# [[test]]
+# name = "cm_reusable"
+# description = "Context manager used multiple times"
+
+# TODO: Test reentrant context manager
+# [[test]]
+# name = "cm_reentrant"
+# description = "Nested use of same context manager"

@@ -1,0 +1,145 @@
+# Async Generators Tests - Combining async and yield
+# Rust Mapping: async_stream crate
+
+[metadata]
+name = "Async Generators Tests"
+category = "async"
+
+# =============================================================================
+# Basic Async Generator
+# =============================================================================
+
+# TODO: Test async def with yield
+# [[test]]
+# name = "async_generator_basic"
+# description = "async def gen(): yield 1; yield 2"
+
+# TODO: Test async generator iteration
+# [[test]]
+# name = "async_generator_iterate"
+# description = "async for x in gen(): ..."
+
+# TODO: Test async generator with await
+# [[test]]
+# name = "async_generator_await"
+# description = "async def gen(): yield await async_func()"
+
+# =============================================================================
+# Async Generator Protocol
+# =============================================================================
+
+# TODO: Test __aiter__
+# [[test]]
+# name = "async_gen_aiter"
+# description = "Async generator implements __aiter__"
+
+# TODO: Test __anext__
+# [[test]]
+# name = "async_gen_anext"
+# description = "anext() on async generator"
+
+# TODO: Test asend()
+# [[test]]
+# name = "async_gen_asend"
+# description = "Send values into async generator"
+
+# TODO: Test athrow()
+# [[test]]
+# name = "async_gen_athrow"
+# description = "Throw exception into async generator"
+
+# TODO: Test aclose()
+# [[test]]
+# name = "async_gen_aclose"
+# description = "Close async generator"
+
+# =============================================================================
+# Yield Expressions
+# =============================================================================
+
+# TODO: Test yield value
+# [[test]]
+# name = "async_gen_yield_value"
+# description = "yield some_value"
+
+# TODO: Test yield expression result
+# [[test]]
+# name = "async_gen_yield_expr"
+# description = "received = yield value"
+
+# TODO: Test multiple yields
+# [[test]]
+# name = "async_gen_multi_yield"
+# description = "Multiple yield statements"
+
+# =============================================================================
+# Async Generator with Control Flow
+# =============================================================================
+
+# TODO: Test yield in loop
+# [[test]]
+# name = "async_gen_loop"
+# description = "for i in range(n): yield i"
+
+# TODO: Test yield in try/finally
+# [[test]]
+# name = "async_gen_try_finally"
+# description = "Cleanup with finally in async gen"
+
+# TODO: Test early return
+# [[test]]
+# name = "async_gen_early_return"
+# description = "return in async generator"
+
+# =============================================================================
+# Use Cases
+# =============================================================================
+
+# TODO: Test streaming HTTP response
+# [[test]]
+# name = "async_gen_streaming"
+# description = "Yield chunks of HTTP response"
+
+# TODO: Test database cursor
+# [[test]]
+# name = "async_gen_cursor"
+# description = "Yield rows from database cursor"
+
+# TODO: Test event stream
+# [[test]]
+# name = "async_gen_events"
+# description = "Yield events as they occur"
+
+# =============================================================================
+# Async Generator Cleanup
+# =============================================================================
+
+# TODO: Test GeneratorExit
+# [[test]]
+# name = "async_gen_exit"
+# description = "GeneratorExit on aclose()"
+
+# TODO: Test cleanup on break
+# [[test]]
+# name = "async_gen_break_cleanup"
+# description = "Cleanup when iteration breaks"
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+# TODO: Test yield from in async generator
+# [[test]]
+# name = "async_gen_yield_from"
+# description = "yield from not allowed in async generator"
+# skip = true
+
+# TODO: Test async generator expression
+# [[test]]
+# name = "async_gen_expression"
+# description = "(x async for x in aiter) is async gen expr"
+
+# TODO: Test nested async generators
+# [[test]]
+# name = "async_gen_nested"
+# description = "Async generator yielding from another"

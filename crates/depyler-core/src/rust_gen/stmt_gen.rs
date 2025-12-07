@@ -2527,12 +2527,12 @@ pub(crate) fn codegen_assign_stmt(
             }
             HirExpr::List(elements) => {
                 // When v = [1, 2], mark v as List(Int) so it gets borrowed when calling f(&v)
+                // When v = [(1, 2), (3, 4)], mark v as List(Tuple(Int, Int)) for proper tuple indexing
                 let elem_type = if let Some(Type::List(elem)) = type_annotation {
                     elem.as_ref().clone()
                 } else if !elements.is_empty() {
-                    // Infer from first element (assume homogeneous list)
-                    // For int literals, use Int type
-                    Type::Int
+                    // Infer from first element (handles tuples, nested lists, etc.)
+                    infer_expr_type_with_env(&elements[0], &ctx.var_types)
                 } else {
                     Type::Unknown
                 };

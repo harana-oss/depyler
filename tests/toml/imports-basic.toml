@@ -1,0 +1,131 @@
+# Basic Imports Tests - import statement
+# Rust Mapping: use statements, mod
+
+[metadata]
+name = "Basic Imports Tests"
+category = "imports"
+
+# =============================================================================
+# Simple Import
+# =============================================================================
+
+# TODO: Test simple import
+# [[test]]
+# name = "import_simple"
+# description = "import os"
+
+# TODO: Test dotted import
+# [[test]]
+# name = "import_dotted"
+# description = "import os.path"
+
+# TODO: Test access module attribute
+# [[test]]
+# name = "import_access"
+# description = "os.getcwd()"
+
+# =============================================================================
+# Import As
+# =============================================================================
+
+# TODO: Test import as
+# [[test]]
+# name = "import_as"
+# description = "import numpy as np"
+
+# TODO: Test alias usage
+# [[test]]
+# name = "import_alias"
+# description = "np.array([1, 2, 3])"
+
+# TODO: Test multiple aliases
+# [[test]]
+# name = "import_multi_alias"
+# description = "import os as o, sys as s"
+
+# =============================================================================
+# Multiple Imports
+# =============================================================================
+
+# TODO: Test comma separated
+# [[test]]
+# name = "import_multiple"
+# description = "import os, sys, json"
+
+# TODO: Test separate statements
+# [[test]]
+# name = "import_separate"
+# description = "import os\\nimport sys"
+
+# =============================================================================
+# Import Effects
+# =============================================================================
+
+# TODO: Test module in sys.modules
+# [[test]]
+# name = "import_sys_modules"
+# description = "import x; 'x' in sys.modules"
+
+# TODO: Test import once
+# [[test]]
+# name = "import_once"
+# description = "Module code runs once"
+
+# TODO: Test binding
+# [[test]]
+# name = "import_binding"
+# description = "import creates name binding"
+
+# =============================================================================
+# Standard Library
+# =============================================================================
+
+# TODO: Test math import
+# [[test]]
+# name = "import_math"
+# description = "import math; math.pi"
+
+# TODO: Test json import
+# [[test]]
+# name = "import_json"
+# description = "import json; json.dumps"
+
+# TODO: Test collections import
+# [[test]]
+# name = "import_collections"
+# description = "import collections"
+
+# =============================================================================
+# Error Handling
+# =============================================================================
+
+# TODO: Test ModuleNotFoundError
+# [[test]]
+# name = "import_not_found"
+# description = "import nonexistent"
+# skip = true
+
+# TODO: Test ImportError
+# [[test]]
+# name = "import_error"
+# description = "Import failure"
+# skip = true
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+# TODO: Test conditional import
+# [[test]]
+# name = "import_conditional"
+# description = "if cond: import x"
+
+# TODO: Test import in function
+# [[test]]
+# name = "import_in_function"
+# description = "def f(): import x"
+
+# TODO: Test reimport
+# [[test]]
+# name = "import_reimport"
+# description = "import x; import x again"

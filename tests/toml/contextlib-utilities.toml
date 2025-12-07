@@ -1,0 +1,157 @@
+# contextlib Utilities Tests - Helper context managers
+# Rust Mapping: Various stdlib equivalents
+
+[metadata]
+name = "contextlib Utilities Tests"
+category = "context-managers"
+
+# =============================================================================
+# contextlib.closing
+# =============================================================================
+
+# TODO: Test closing
+# [[test]]
+# name = "closing_basic"
+# description = "with closing(obj) as x: (calls x.close())"
+
+# TODO: Test closing with file-like
+# [[test]]
+# name = "closing_file_like"
+# description = "Close objects with .close() method"
+
+# TODO: Test closing on exception
+# [[test]]
+# name = "closing_exception"
+# description = "close() called even on exception"
+
+# =============================================================================
+# contextlib.suppress
+# =============================================================================
+
+# TODO: Test suppress single exception
+# [[test]]
+# name = "suppress_single"
+# description = "with suppress(ValueError): ..."
+
+# TODO: Test suppress multiple exceptions
+# [[test]]
+# name = "suppress_multiple"
+# description = "with suppress(ValueError, TypeError): ..."
+
+# TODO: Test suppress non-matching
+# [[test]]
+# name = "suppress_non_matching"
+# description = "Non-matching exception still propagates"
+
+# =============================================================================
+# contextlib.redirect_stdout
+# =============================================================================
+
+# TODO: Test redirect_stdout
+# [[test]]
+# name = "redirect_stdout"
+# description = "with redirect_stdout(f): print(...)"
+
+# TODO: Test capture stdout
+# [[test]]
+# name = "capture_stdout"
+# description = "Capture print output to StringIO"
+
+# TODO: Test redirect_stderr
+# [[test]]
+# name = "redirect_stderr"
+# description = "with redirect_stderr(f): ..."
+
+# =============================================================================
+# contextlib.nullcontext
+# =============================================================================
+
+# TODO: Test nullcontext
+# [[test]]
+# name = "nullcontext_basic"
+# description = "with nullcontext(): (no-op)"
+
+# TODO: Test nullcontext with value
+# [[test]]
+# name = "nullcontext_value"
+# description = "with nullcontext(value) as x: (x = value)"
+
+# TODO: Test conditional context manager
+# [[test]]
+# name = "nullcontext_conditional"
+# description = "cm = lock if threaded else nullcontext()"
+
+# =============================================================================
+# contextlib.ExitStack
+# =============================================================================
+
+# TODO: Test ExitStack basic
+# [[test]]
+# name = "exitstack_basic"
+# description = "with ExitStack() as stack: ..."
+
+# TODO: Test enter_context
+# [[test]]
+# name = "exitstack_enter"
+# description = "stack.enter_context(cm)"
+
+# TODO: Test callback
+# [[test]]
+# name = "exitstack_callback"
+# description = "stack.callback(func, *args)"
+
+# TODO: Test push
+# [[test]]
+# name = "exitstack_push"
+# description = "stack.push(exit_func)"
+
+# TODO: Test pop_all
+# [[test]]
+# name = "exitstack_pop_all"
+# description = "Transfer cleanup to new stack"
+
+# =============================================================================
+# contextlib.AsyncExitStack
+# =============================================================================
+
+# TODO: Test AsyncExitStack
+# [[test]]
+# name = "async_exitstack"
+# description = "async with AsyncExitStack() as stack: ..."
+
+# TODO: Test enter_async_context
+# [[test]]
+# name = "async_exitstack_enter"
+# description = "await stack.enter_async_context(acm)"
+
+# =============================================================================
+# contextlib.aclosing (Python 3.10+)
+# =============================================================================
+
+# TODO: Test aclosing
+# [[test]]
+# name = "aclosing"
+# description = "async with aclosing(async_gen): ..."
+
+# =============================================================================
+# contextlib.chdir (Python 3.11+)
+# =============================================================================
+
+# TODO: Test chdir
+# [[test]]
+# name = "chdir"
+# description = "with chdir('/path'): ..."
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+# TODO: Test nested utilities
+# [[test]]
+# name = "utilities_nested"
+# description = "Combining multiple contextlib utilities"
+
+# TODO: Test ExitStack cleanup order
+# [[test]]
+# name = "exitstack_order"
+# description = "LIFO cleanup order"

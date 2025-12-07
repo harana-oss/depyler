@@ -1,0 +1,130 @@
+# Parenthesized Context Managers Tests - Python 3.10+ multi-line syntax
+# Rust Mapping: Multiple let bindings
+
+[metadata]
+name = "Parenthesized Context Managers Tests"
+category = "context-managers"
+
+# =============================================================================
+# Basic Parenthesized Syntax
+# =============================================================================
+
+# TODO: Test simple parenthesized
+# [[test]]
+# name = "paren_basic"
+# description = "with (cm): ..."
+
+# TODO: Test multi-line with parentheses
+# [[test]]
+# name = "paren_multiline"
+# description = "with (\n    a,\n    b,\n): ..."
+
+# TODO: Test trailing comma
+# [[test]]
+# name = "paren_trailing_comma"
+# description = "with (a, b,): ..."
+
+# =============================================================================
+# Multiple Context Managers
+# =============================================================================
+
+# TODO: Test two contexts
+# [[test]]
+# name = "paren_two"
+# description = "with (\n    open(a) as f1,\n    open(b) as f2,\n): ..."
+
+# TODO: Test many contexts
+# [[test]]
+# name = "paren_many"
+# description = "Readable syntax for many contexts"
+
+# TODO: Test mixed as clause
+# [[test]]
+# name = "paren_mixed_as"
+# description = "with (\n    a as x,\n    b,\n    c as z,\n): ..."
+
+# =============================================================================
+# Formatting Benefits
+# =============================================================================
+
+# TODO: Test line length management
+# [[test]]
+# name = "paren_line_length"
+# description = "Keep lines under limit with parentheses"
+
+# TODO: Test alignment
+# [[test]]
+# name = "paren_alignment"
+# description = "Align context managers for readability"
+
+# TODO: Test comments in parentheses
+# [[test]]
+# name = "paren_comments"
+# description = "with (\n    a,  # first\n    b,  # second\n): ..."
+
+# =============================================================================
+# Comparison with Pre-3.10
+# =============================================================================
+
+# TODO: Test backslash continuation
+# [[test]]
+# name = "backslash_continuation"
+# description = "with a, \\\n     b: ... (old way)"
+
+# TODO: Test nested with (old way)
+# [[test]]
+# name = "nested_with_old"
+# description = "with a:\n    with b: ... (old way)"
+
+# TODO: Test contextlib.ExitStack (alternative)
+# [[test]]
+# name = "exitstack_alternative"
+# description = "ExitStack for dynamic cases"
+
+# =============================================================================
+# Complex Expressions
+# =============================================================================
+
+# TODO: Test expressions in parentheses
+# [[test]]
+# name = "paren_expressions"
+# description = "with (\n    get_cm() as x,\n    obj.method(),\n): ..."
+
+# TODO: Test long names
+# [[test]]
+# name = "paren_long_names"
+# description = "Handle long context manager names"
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+# TODO: Test empty parentheses
+# [[test]]
+# name = "paren_empty"
+# description = "with (): is syntax error"
+# skip = true
+
+# TODO: Test single item with trailing comma
+# [[test]]
+# name = "paren_single_trailing"
+# description = "with (cm,): same as with cm:"
+
+# TODO: Test nested parentheses
+# [[test]]
+# name = "paren_nested"
+# description = "with ((cm)): ..."
+
+# =============================================================================
+# Python Version Compatibility
+# =============================================================================
+
+# TODO: Test 3.10+ only
+# [[test]]
+# name = "paren_version"
+# description = "Parenthesized with requires Python 3.10+"
+
+# TODO: Test backwards compatible alternatives
+# [[test]]
+# name = "paren_alternatives"
+# description = "Ways to achieve same in older Python"

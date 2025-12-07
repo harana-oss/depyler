@@ -1,0 +1,117 @@
+# __slots__ Tests - Memory optimization for classes
+# Rust Mapping: Struct fields (Rust is always like __slots__)
+
+[metadata]
+name = "__slots__ Tests"
+category = "advanced-oop"
+
+# =============================================================================
+# Basic __slots__
+# =============================================================================
+
+# TODO: Test simple __slots__
+# [[test]]
+# name = "slots_basic"
+# description = "__slots__ = ['x', 'y']"
+
+# TODO: Test slots tuple
+# [[test]]
+# name = "slots_tuple"
+# description = "__slots__ = ('x', 'y')"
+
+# TODO: Test empty slots
+# [[test]]
+# name = "slots_empty"
+# description = "__slots__ = ()"
+
+# TODO: Test single slot
+# [[test]]
+# name = "slots_single"
+# description = "__slots__ = ['x'] or __slots__ = 'x'"
+
+# =============================================================================
+# __slots__ Behavior
+# =============================================================================
+
+# TODO: Test no __dict__ with __slots__
+# [[test]]
+# name = "slots_no_dict"
+# description = "Instance has no __dict__ attribute"
+
+# TODO: Test attribute access with slots
+# [[test]]
+# name = "slots_attribute_access"
+# description = "Get and set slotted attributes"
+
+# TODO: Test undefined slot access
+# [[test]]
+# name = "slots_undefined"
+# description = "AttributeError for attributes not in slots"
+
+# TODO: Test __slots__ memory savings
+# [[test]]
+# name = "slots_memory"
+# description = "Slotted class uses less memory"
+
+# =============================================================================
+# __slots__ with Inheritance
+# =============================================================================
+
+# TODO: Test inheriting from slotted class
+# [[test]]
+# name = "slots_inheritance"
+# description = "Subclass inherits parent slots"
+
+# TODO: Test adding slots in subclass
+# [[test]]
+# name = "slots_subclass_extend"
+# description = "Subclass adds new slots"
+
+# TODO: Test empty slots in subclass
+# [[test]]
+# name = "slots_subclass_empty"
+# description = "__slots__ = () to not add more slots"
+
+# TODO: Test inheritance from non-slotted class
+# [[test]]
+# name = "slots_mixed_inheritance"
+# description = "Slotted class inheriting from regular class"
+
+# =============================================================================
+# __slots__ with __dict__
+# =============================================================================
+
+# TODO: Test __dict__ in slots
+# [[test]]
+# name = "slots_with_dict"
+# description = "__slots__ = ['x', '__dict__']"
+
+# TODO: Test __weakref__ in slots
+# [[test]]
+# name = "slots_with_weakref"
+# description = "__slots__ = ['x', '__weakref__']"
+
+# =============================================================================
+# __slots__ Edge Cases
+# =============================================================================
+
+# TODO: Test duplicate slots
+# [[test]]
+# name = "slots_duplicate"
+# description = "Duplicate names in __slots__"
+# skip = true
+
+# TODO: Test class attribute with same name as slot
+# [[test]]
+# name = "slots_class_attr_conflict"
+# description = "Class attribute vs slot conflict"
+
+# TODO: Test property with slot
+# [[test]]
+# name = "slots_property"
+# description = "Property wrapping a slotted attribute"
+
+# TODO: Test default values with slots
+# [[test]]
+# name = "slots_defaults"
+# description = "__slots__ doesn't support default values directly"

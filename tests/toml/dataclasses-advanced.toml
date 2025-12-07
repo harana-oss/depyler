@@ -1,0 +1,163 @@
+# Dataclasses Advanced Tests - Advanced dataclass features
+# Rust Mapping: Complex struct patterns
+
+[metadata]
+name = "Dataclasses Advanced Tests"
+category = "data-structures"
+
+# =============================================================================
+# Inheritance
+# =============================================================================
+
+# TODO: Test dataclass inheritance
+# [[test]]
+# name = "dataclass_inheritance"
+# description = "@dataclass class Child(Parent): ..."
+
+# TODO: Test field order in inheritance
+# [[test]]
+# name = "dataclass_inherit_order"
+# description = "Parent fields before child fields"
+
+# TODO: Test overriding fields
+# [[test]]
+# name = "dataclass_override_field"
+# description = "Override parent field with new default"
+
+# TODO: Test mixing dataclass and non-dataclass
+# [[test]]
+# name = "dataclass_mixed_inherit"
+# description = "Dataclass inheriting from regular class"
+
+# =============================================================================
+# Comparison and Ordering
+# =============================================================================
+
+# TODO: Test custom ordering
+# [[test]]
+# name = "dataclass_custom_order"
+# description = "@dataclass(order=True) comparison by fields"
+
+# TODO: Test ordering field selection
+# [[test]]
+# name = "dataclass_order_fields"
+# description = "field(compare=False) excludes from ordering"
+
+# TODO: Test frozen for hashing
+# [[test]]
+# name = "dataclass_hash_frozen"
+# description = "frozen=True makes hashable"
+
+# TODO: Test unsafe_hash
+# [[test]]
+# name = "dataclass_unsafe_hash"
+# description = "@dataclass(unsafe_hash=True)"
+
+# =============================================================================
+# asdict and astuple
+# =============================================================================
+
+# TODO: Test asdict
+# [[test]]
+# name = "dataclass_asdict"
+# description = "dataclasses.asdict(instance)"
+
+# TODO: Test astuple
+# [[test]]
+# name = "dataclass_astuple"
+# description = "dataclasses.astuple(instance)"
+
+# TODO: Test nested conversion
+# [[test]]
+# name = "dataclass_nested_convert"
+# description = "asdict with nested dataclasses"
+
+# TODO: Test dict_factory
+# [[test]]
+# name = "dataclass_dict_factory"
+# description = "asdict(obj, dict_factory=OrderedDict)"
+
+# =============================================================================
+# fields() Function
+# =============================================================================
+
+# TODO: Test fields
+# [[test]]
+# name = "dataclass_fields"
+# description = "dataclasses.fields(cls)"
+
+# TODO: Test field metadata
+# [[test]]
+# name = "dataclass_metadata"
+# description = "field(metadata={'key': 'value'})"
+
+# TODO: Test accessing field info
+# [[test]]
+# name = "dataclass_field_info"
+# description = "f.name, f.type, f.default"
+
+# =============================================================================
+# replace() Function
+# =============================================================================
+
+# TODO: Test replace
+# [[test]]
+# name = "dataclass_replace"
+# description = "dataclasses.replace(obj, x=10)"
+
+# TODO: Test replace multiple
+# [[test]]
+# name = "dataclass_replace_multi"
+# description = "replace(obj, x=1, y=2)"
+
+# =============================================================================
+# make_dataclass
+# =============================================================================
+
+# TODO: Test make_dataclass
+# [[test]]
+# name = "dataclass_make"
+# description = "make_dataclass('Point', ['x', 'y'])"
+
+# TODO: Test make_dataclass with types
+# [[test]]
+# name = "dataclass_make_typed"
+# description = "make_dataclass('Point', [('x', int), ('y', int)])"
+
+# TODO: Test make_dataclass with bases
+# [[test]]
+# name = "dataclass_make_bases"
+# description = "make_dataclass('C', fields, bases=(Base,))"
+
+# =============================================================================
+# is_dataclass
+# =============================================================================
+
+# TODO: Test is_dataclass
+# [[test]]
+# name = "dataclass_is"
+# description = "dataclasses.is_dataclass(obj)"
+
+# TODO: Test is_dataclass class vs instance
+# [[test]]
+# name = "dataclass_is_instance"
+# description = "is_dataclass on class and instance"
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+# TODO: Test kw_only (3.10+)
+# [[test]]
+# name = "dataclass_kw_only"
+# description = "@dataclass(kw_only=True)"
+
+# TODO: Test match_args (3.10+)
+# [[test]]
+# name = "dataclass_match_args"
+# description = "__match_args__ for pattern matching"
+
+# TODO: Test weakref_slot (3.11+)
+# [[test]]
+# name = "dataclass_weakref"
+# description = "@dataclass(weakref_slot=True)"
