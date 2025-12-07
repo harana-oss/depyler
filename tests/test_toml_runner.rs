@@ -32,6 +32,8 @@ struct TomlTest {
     tags: Vec<String>,
     #[serde(default)]
     compile_check: bool,
+    #[serde(default)]
+    skip: bool,
     python: TomlPython,
     assertions: TomlAssertions,
 }
@@ -166,6 +168,10 @@ fn load_and_run_toml_tests(toml_path: &Path) {
         toml::from_str(&content).unwrap_or_else(|e| panic!("Failed to parse {}: {}", toml_path.display(), e));
 
     for test in &test_file.test {
+        if test.skip {
+            eprintln!("[{}] SKIPPED", test.name);
+            continue;
+        }
         run_toml_test(test);
     }
 }

@@ -1629,7 +1629,7 @@ pub fn generate_rust_file(
             infer_constant_type(&constant.value)
         };
         ctx.var_types.insert(constant.name.clone(), const_type.clone());
-        
+
         // Track lazy_static constants so expressions can dereference them
         if requires_lazy_static(&const_type) {
             ctx.lazy_static_constants.insert(constant.name.clone());
@@ -1660,6 +1660,12 @@ pub fn generate_rust_file(
         if uses_result && matches!(func.ret_type, Type::Bool) {
             ctx.result_bool_functions.insert(func.name.clone());
         }
+    }
+
+    // Pre-populate function return types so they're available when processing assignments
+    // This enables tracking `player = _resolve_player(...)` even if _resolve_player is defined later
+    for func in &module.functions {
+        ctx.function_return_types.insert(func.name.clone(), func.ret_type.clone());
     }
 
     // This allows convert_call to reorder keyword arguments to match function signatures

@@ -919,6 +919,81 @@ pub(crate) fn codegen_with_stmt(
 // Complex handlers extracted from HirStmt::to_rust_tokens
 // ============================================================================
 
+/// Extract variable name from `var is None` or `var is not None` patterns.
+/// Returns (var_name, is_not_none) where is_not_none is true for `is not None`.
+fn extract_none_check(condition: &HirExpr) -> Option<(String, bool)> {
+    if let HirExpr::Binary { op, left, right } = condition {
+        // Check for: var is not None  OR  None is not var
+        if *op == BinOp::IsNot {
+            if let (HirExpr::Var(var_name), HirExpr::Literal(Literal::None)) = (left.as_ref(), right.as_ref()) {
+                return Some((var_name.clone(), true));
+            }
+            if let (HirExpr::Literal(Literal::None), HirExpr::Var(var_name)) = (left.as_ref(), right.as_ref()) {
+                return Some((var_name.clone(), true));
+            }
+        }
+        // Check for: var is None  OR  None is var
+        if *op == BinOp::Is {
+            if let (HirExpr::Var(var_name), HirExpr::Literal(Literal::None)) = (left.as_ref(), right.as_ref()) {
+                return Some((var_name.clone(), false));
+            }
+            if let (HirExpr::Literal(Literal::None), HirExpr::Var(var_name)) = (left.as_ref(), right.as_ref()) {
+                return Some((var_name.clone(), false));
+            }
+        }
+    }
+    None
+}
+
+/// Generate `if let Some(var) = var { ... }` for type narrowing of Optional variables.
+/// This is used for `if var is not None:` patterns.
+fn codegen_if_let_some(
+    var_name: String,
+    then_body: &[HirStmt],
+    else_body: &Option<Vec<HirStmt>>,
+    ctx: &mut CodeGenContext,
+) -> Result<proc_macro2::TokenStream> {
+    let var_ident = safe_ident(&var_name);
+
+    // Temporarily remove from optional_vars so inner code doesn't double-unwrap
+    ctx.optional_vars.remove(&var_name);
+
+    ctx.enter_scope();
+    // Declare the narrowed (unwrapped) variable in the inner scope
+    ctx.declare_var(&var_name);
+
+    let then_stmts: Vec<_> = then_body
+        .iter()
+        .map(|s| s.to_rust_tokens(ctx))
+        .collect::<Result<Vec<_>>>()?;
+    ctx.exit_scope();
+
+    // Restore optional_vars status
+    ctx.optional_vars.insert(var_name.clone());
+
+    if let Some(else_stmts) = else_body {
+        ctx.enter_scope();
+        let else_tokens: Vec<_> = else_stmts
+            .iter()
+            .map(|s| s.to_rust_tokens(ctx))
+            .collect::<Result<Vec<_>>>()?;
+        ctx.exit_scope();
+        Ok(quote! {
+            if let Some(mut #var_ident) = #var_ident {
+                #(#then_stmts)*
+            } else {
+                #(#else_tokens)*
+            }
+        })
+    } else {
+        Ok(quote! {
+            if let Some(mut #var_ident) = #var_ident {
+                #(#then_stmts)*
+            }
+        })
+    }
+}
+
 /// Apply Python truthiness semantics to an Optional type in a condition.
 ///
 /// Python treats `None` as falsy, and for container types inside Optional,
@@ -1137,6 +1212,13 @@ pub(crate) fn codegen_if_stmt(
     if ctx.argparser_tracker.has_subcommands() {
         if let Some(match_stmt) = try_generate_subcommand_match(condition, then_body, else_body, ctx)? {
             return Ok(match_stmt);
+        }
+    }
+
+    // Check for `if var is not None:` pattern - use `if let Some(var) = var` for type narrowing
+    if let Some((var_name, is_not_none)) = extract_none_check(condition) {
+        if is_not_none && ctx.optional_vars.contains(&var_name) {
+            return codegen_if_let_some(var_name, then_body, else_body, ctx);
         }
     }
 
