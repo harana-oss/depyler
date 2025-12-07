@@ -268,6 +268,9 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 // Check if right side is a list/array
                 let is_list = self.is_list_expr(right);
 
+                // Check if right side is a dict/HashMap
+                let is_dict = self.is_dict_expr(right);
+
                 // - String: .contains() method
                 // - Set: .contains() method
                 // - List/Array: .contains() method
@@ -286,19 +289,8 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 // owned variables) need the borrow, we default to always borrowing.
                 let needs_borrow = true;
 
-                if is_string || is_set || is_list {
-                    // Strings, Sets, and Lists all use .contains(&value)
-                    if needs_borrow {
-                        Ok(parse_quote! { #right_expr.contains(&#left_expr) })
-                    } else {
-                        Ok(parse_quote! { #right_expr.contains(#left_expr) })
-                    }
-                } else {
-                    // This works for BOTH HashMap AND serde_json::Value:
-                    // - HashMap<K, V>: .get(&K) -> Option<&V>
-                    // - serde_json::Value: .get(&str) -> Option<&Value>
-
-                    // Using .get().is_some() instead of .contains_key() because:
+                if is_dict {
+                    // HashMap: use .get().is_some() because:
                     // 1. serde_json::Value doesn't have .contains_key() method
                     // 2. .get().is_some() is equivalent to .contains_key() for HashMap
                     // 3. Works universally for both HashMap and Value types
@@ -306,6 +298,14 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                         Ok(parse_quote! { #right_expr.get(&#left_expr).is_some() })
                     } else {
                         Ok(parse_quote! { #right_expr.get(#left_expr).is_some() })
+                    }
+                } else {
+                    // Strings, Sets, Lists, and unknown types all use .contains(&value)
+                    // Default to .contains() because it works for Vec, HashSet, String, and slices
+                    if needs_borrow {
+                        Ok(parse_quote! { #right_expr.contains(&#left_expr) })
+                    } else {
+                        Ok(parse_quote! { #right_expr.contains(#left_expr) })
                     }
                 }
             }
@@ -367,25 +367,30 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 // Check if right side is a list/array
                 let is_list = self.is_list_expr(right);
 
+                // Check if right side is a dict/HashMap
+                let is_dict = self.is_dict_expr(right);
+
                 // Same logic as BinOp::In, but negated
                 // For string contains, always need &sub because str::contains takes &str/Pattern
                 let needs_borrow = true;
 
-                if is_string || is_set || is_list {
-                    // Strings, Sets, and Lists all use .contains(&value)
-                    if needs_borrow {
-                        Ok(parse_quote! { !#right_expr.contains(&#left_expr) })
-                    } else {
-                        Ok(parse_quote! { !#right_expr.contains(#left_expr) })
-                    }
-                } else {
-                    // Same as BinOp::In, but negated - works for both HashMap and Value
-                    //
-                    //
+                if is_dict {
+                    // HashMap: use !.get().is_some() because:
+                    // 1. serde_json::Value doesn't have .contains_key() method
+                    // 2. .get().is_some() is equivalent to .contains_key() for HashMap
+                    // 3. Works universally for both HashMap and Value types
                     if needs_borrow {
                         Ok(parse_quote! { !#right_expr.get(&#left_expr).is_some() })
                     } else {
                         Ok(parse_quote! { !#right_expr.get(#left_expr).is_some() })
+                    }
+                } else {
+                    // Strings, Sets, Lists, and unknown types all use !.contains(&value)
+                    // Default to .contains() because it works for Vec, HashSet, String, and slices
+                    if needs_borrow {
+                        Ok(parse_quote! { !#right_expr.contains(&#left_expr) })
+                    } else {
+                        Ok(parse_quote! { !#right_expr.contains(#left_expr) })
                     }
                 }
             }
@@ -8461,6 +8466,17 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 }
                 let arg = &arg_exprs[0];
 
+                // Check if the argument is an Optional variable that needs unwrapping
+                let needs_unwrap = if !hir_args.is_empty() {
+                    if let HirExpr::Var(var_name) = &hir_args[0] {
+                        self.ctx.optional_vars.contains(var_name)
+                    } else {
+                        false
+                    }
+                } else {
+                    false
+                };
+
                 // Five-Whys Root Cause:
                 // 1. Why: expected String, found &str
                 // 2. Why: String literal "X" is &str, but Vec<String>.push() needs String
@@ -8491,7 +8507,9 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     false
                 };
 
-                if needs_to_string {
+                if needs_unwrap {
+                    Ok(parse_quote! { #object_expr.push(#arg.clone().unwrap()) })
+                } else if needs_to_string {
                     Ok(parse_quote! { #object_expr.push(#arg.to_string()) })
                 } else {
                     Ok(parse_quote! { #object_expr.push(#arg) })
@@ -11865,6 +11883,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     /// Convert an expression, unwrapping if it's an Optional field access or variable.
     /// Python allows direct access to Optional fields/variables - operations on None fail at runtime.
     /// This mimics Python behavior by adding .unwrap() when Optional fields/variables are used in operations.
+    /// We use .clone().unwrap() for variables to avoid move errors when the variable is used multiple times.
     fn convert_with_optional_unwrap(&mut self, expr: &HirExpr) -> Result<syn::Expr> {
         // Check if this is an Optional field access
         if let HirExpr::Attribute { value, attr } = expr {
@@ -11877,9 +11896,10 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         // Check if this is an Optional variable
         if let HirExpr::Var(name) = expr {
             if let Some(Type::Optional(_)) = self.ctx.var_types.get(name) {
-                // Convert the expression and add .unwrap()
+                // Convert the expression and add .clone().unwrap() to avoid move errors
+                // Python doesn't have ownership semantics, so cloning is the safe default
                 let rust_expr = expr.to_rust_expr(self.ctx)?;
-                return Ok(parse_quote! { #rust_expr.unwrap() });
+                return Ok(parse_quote! { #rust_expr.clone().unwrap() });
             }
         }
         // Not an Optional field or variable, convert normally
@@ -12402,6 +12422,16 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 // Check type info for variables
                 if let Some(var_type) = self.ctx.var_types.get(name) {
                     matches!(var_type, Type::List(_))
+                } else {
+                    false
+                }
+            }
+            HirExpr::Attribute { value, attr } => {
+                // Check if this is a field access to a list field
+                if let Some(field_type) = self.get_field_type(value, attr) {
+                    // Handle both List and Optional<List>
+                    matches!(field_type, Type::List(_))
+                        || matches!(field_type, Type::Optional(inner) if matches!(*inner, Type::List(_)))
                 } else {
                     false
                 }

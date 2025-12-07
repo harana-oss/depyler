@@ -1106,3 +1106,137 @@ def add_item(containers: list[Container], idx: int, item: int) -> None:
 [test.assertions]
 contains_any = [["if let Some(", ".is_some()"]]
 
+# =============================================================================
+# Optional Variable in Collection Operations
+# =============================================================================
+
+[[test]]
+name = "optional_var_not_in_list"
+description = "Optional variable checked with 'not in' uses .contains() not .get()"
+tags = ["optional", "collection", "contains"]
+compile_check = true
+
+[test.python]
+code = '''
+from typing import Optional
+
+def find_number(target: int) -> Optional[int]:
+    if target > 0:
+        return target
+    return None
+
+def add_if_missing(numbers: list[int], target: int) -> None:
+    value = find_number(target)
+    if value is not None:
+        if value not in numbers:
+            numbers.append(value)
+'''
+
+[test.assertions]
+contains = [".contains("]
+not_contains = [".get("]
+
+[[test]]
+name = "optional_var_in_list"
+description = "Optional variable checked with 'in' uses .contains()"
+tags = ["optional", "collection", "contains"]
+compile_check = true
+
+[test.python]
+code = '''
+from typing import Optional
+
+def get_id() -> Optional[int]:
+    return 42
+
+def check_membership(ids: list[int]) -> bool:
+    id = get_id()
+    if id is not None:
+        return id in ids
+    return False
+'''
+
+[test.assertions]
+contains = [".contains("]
+
+[[test]]
+name = "optional_var_multiple_uses"
+description = "Optional variable used multiple times avoids move errors"
+tags = ["optional", "borrow", "unwrap"]
+compile_check = true
+
+[test.python]
+code = '''
+from typing import Optional
+
+def get_value() -> Optional[str]:
+    return "test"
+
+def process_twice() -> str:
+    value = get_value()
+    if value is not None:
+        first = value.upper()
+        second = value.lower()
+        return first + second
+    return ""
+'''
+
+[test.assertions]
+# Uses as_ref().unwrap() or clone().unwrap() to allow multiple uses
+contains_any = [[".as_ref().unwrap()", ".clone().unwrap()", ".clone()"]]
+
+[[test]]
+name = "optional_var_push_to_list"
+description = "Optional variable pushed to list uses clone().unwrap()"
+tags = ["optional", "list", "push"]
+compile_check = true
+
+[test.python]
+code = '''
+from typing import Optional
+
+class Item:
+    def __init__(self, name: str):
+        self.name = name
+
+def find_item(name: str) -> Optional[Item]:
+    if name:
+        return Item(name)
+    return None
+
+def collect_items(names: list[str]) -> list[Item]:
+    items: list[Item] = []
+    for name in names:
+        item = find_item(name)
+        if item is not None:
+            items.append(item)
+    return items
+'''
+
+[test.assertions]
+contains = [".push("]
+contains_any = [[".clone().unwrap()", ".unwrap()"]]
+
+[[test]]
+name = "optional_var_contains_and_append"
+description = "Optional variable used in both contains check and append"
+tags = ["optional", "collection", "contains", "append"]
+compile_check = true
+
+[test.python]
+code = '''
+from typing import Optional
+
+def get_name() -> Optional[str]:
+    return "Alice"
+
+def add_unique_name(names: list[str]) -> None:
+    name = get_name()
+    if name is not None:
+        if name not in names:
+            names.append(name)
+'''
+
+[test.assertions]
+contains = [".contains(", ".push("]
+not_contains = [".get("]
