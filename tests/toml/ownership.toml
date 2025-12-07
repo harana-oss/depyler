@@ -460,3 +460,55 @@ def main() -> None:
 
 [test.assertions]
 contains = ["&outer.inner.value"]
+
+# =============================================================================
+# Iterator/Generator Filtering (from test_method_ownership.rs)
+# =============================================================================
+
+[[test]]
+name = "next_with_generator_filtering_dataclass"
+description = "next() with generator filtering on dataclass"
+tags = ["ownership", "iterator", "dataclass", "filtering"]
+
+[test.python]
+code = '''
+@dataclass
+class Incident:
+    points_scored_team: str
+    score: int
+
+def find_away_incident(try_incidents: List[Incident]) -> Optional[Incident]:
+    return next((incident for incident in try_incidents if incident.points_scored_team == "Away"), None)
+'''
+
+[test.assertions]
+contains = ["struct Incident", "points_scored_team: String", "score: i32", "fn find_away_incident", "-> Option<Incident>", ".filter(", ".next()"]
+
+[[test]]
+name = "vector_push_takes_ownership"
+description = "Vec::push takes ownership of the value"
+tags = ["ownership", "vector", "push"]
+
+[test.python]
+code = '''
+def add_to_list(items: List[str], new_item: str):
+    items.append(new_item)
+'''
+
+[test.assertions]
+contains = ["push"]
+not_contains = ["&new_item"]
+
+[[test]]
+name = "string_method_chain_ownership"
+description = "Method chains handle ownership correctly"
+tags = ["ownership", "string", "method-chain"]
+
+[test.python]
+code = '''
+def process_string(s: str) -> str:
+    return s.strip().upper()
+'''
+
+[test.assertions]
+contains = ["trim", "to_uppercase"]

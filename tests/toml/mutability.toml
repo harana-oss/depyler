@@ -320,3 +320,41 @@ def update_list() -> list[int]:
 
 [test.assertions]
 contains = [".clear()", ".extend("]
+
+# =============================================================================
+# Field Access vs Alias Detection
+# =============================================================================
+
+[[test]]
+name = "field_access_not_alias"
+description = "Assigning from param.field should not create an alias to param"
+tags = ["mutability", "alias", "field-access"]
+
+[test.python]
+code = '''
+from dataclasses import dataclass
+
+@dataclass
+class State:
+    current_play_type: str
+    team_in_possession: str
+    home_score: int
+    away_score: int
+
+def calculate_margin(state: State) -> int:
+    """Read-only function - should take &State not &mut State"""
+    if state.current_play_type == "WonPenalty":
+        penalty_team = state.team_in_possession
+    else:
+        penalty_team = "Away" if state.team_in_possession == "Home" else "Home"
+
+    if penalty_team == "Home":
+        return state.home_score - state.away_score
+    else:
+        return state.away_score - state.home_score
+'''
+
+[test.assertions]
+contains = ["state: &State"]
+not_contains = ["state: &mut State"]
+

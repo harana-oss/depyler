@@ -615,8 +615,10 @@ fn collect_aliases_from_stmt(param_name: &str, stmt: &HirStmt, aliases: &mut Vec
             value,
             ..
         } => {
-            // Check if the value references the parameter directly or through a conditional
-            if expr_references_param(param_name, value) {
+            // Only create aliases for direct parameter references, NOT attribute accesses
+            // e.g., `a = state` creates an alias, but `a = state.field` does not
+            // (because state.field copies the field value, not the state reference)
+            if expr_is_direct_param_reference(param_name, value) {
                 aliases.push(target_name.clone());
             }
         }
@@ -638,6 +640,21 @@ fn collect_aliases_from_stmt(param_name: &str, stmt: &HirStmt, aliases: &mut Vec
             }
         }
         _ => {}
+    }
+}
+
+/// Check if an expression IS the parameter directly (for alias creation).
+/// Only direct references (`param`) or conditional expressions (`param if cond else param2`)
+/// create aliases. Attribute accesses (`param.field`) do NOT create aliases because
+/// they copy the field value rather than aliasing the parameter.
+fn expr_is_direct_param_reference(param_name: &str, expr: &HirExpr) -> bool {
+    match expr {
+        HirExpr::Var(name) => name == param_name,
+        HirExpr::IfExpr { body, orelse, .. } => {
+            expr_is_direct_param_reference(param_name, body) || expr_is_direct_param_reference(param_name, orelse)
+        }
+        // Attribute access does NOT create an alias - it copies the field value
+        _ => false,
     }
 }
 

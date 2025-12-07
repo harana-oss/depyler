@@ -9,6 +9,18 @@ fn test_mega() {
 from state import State
 from functions import *
 
+def infer[T](name: str, input: list[float]) -> T:
+  return value
+
+def register_event[T](name: str, event: T):
+  pass
+
+def record_int(name: str, event: int):
+  pass
+
+def record_bool(name: str, event: bool):
+  pass
+
 # From: constants.py
 CENTRE_OF_THE_FIELD_X = 500
 CENTRE_OF_THE_FIELD_Y = 350

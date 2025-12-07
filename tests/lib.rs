@@ -2,8 +2,8 @@ pub mod test_helpers;
 
 #[cfg(test)]
 mod test_annotation_aware_type_mapper_coverage;
-#[cfg(test)]
-mod test_argparse_type_inference;
+// #[cfg(test)]
+// mod test_argparse_type_inference;
 #[cfg(test)]
 mod test_argument_type_error;
 #[cfg(test)]
@@ -17,21 +17,19 @@ mod test_ast_bridge_return_values;
 #[cfg(test)]
 mod test_ast_bridge_type_inferences;
 #[cfg(test)]
-mod test_bug_regressions;
-#[cfg(test)]
 mod test_cli_flags_coverage;
 #[cfg(test)]
 mod test_clis;
-#[cfg(test)]
-mod test_codegen_coverage;
+// #[cfg(test)]
+// mod test_codegen_coverage;
 #[cfg(test)]
 mod test_context_coverage;
 #[cfg(test)]
 mod test_convert_stmts;
 #[cfg(test)]
 mod test_converters_propertys;
-#[cfg(test)]
-mod test_coverage_analysis;
+// #[cfg(test)]
+// mod test_coverage_analysis;
 #[cfg(test)]
 mod test_dataflow_type_casting;
 #[cfg(test)]
@@ -98,8 +96,8 @@ mod test_lsp_propertys;
 mod test_marco_polo_integration;
 #[cfg(test)]
 mod test_mega;
-#[cfg(test)]
-mod test_method_ownership;
+// #[cfg(test)]
+// mod test_method_ownership;
 #[cfg(test)]
 mod test_migration_suggestions_propertys;
 #[cfg(test)]

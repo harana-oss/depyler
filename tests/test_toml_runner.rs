@@ -171,193 +171,271 @@ fn load_and_run_toml_tests(toml_path: &Path) {
 }
 
 #[test]
-fn test_01_basic_types_toml() {
-    let toml_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("toml/01-basic-types.toml");
+fn test_basic_types_toml() {
+    let toml_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("toml/basic-types.toml");
     load_and_run_toml_tests(&toml_path);
 }
 
 #[test]
-fn test_02_functions_toml() {
-    let toml_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("toml/02-functions.toml");
+fn test_functions_toml() {
+    let toml_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("toml/functions.toml");
     load_and_run_toml_tests(&toml_path);
 }
 
 #[test]
-fn test_03_classes_toml() {
-    let toml_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("toml/03-classes.toml");
+fn test_classes_toml() {
+    let toml_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("toml/classes.toml");
     load_and_run_toml_tests(&toml_path);
 }
 
 #[test]
-fn test_04_control_flow_toml() {
-    let toml_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("toml/04-control-flow.toml");
+fn test_control_flow_toml() {
+    let toml_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("toml/control-flow.toml");
     load_and_run_toml_tests(&toml_path);
 }
 
 #[test]
-fn test_05_string_operations_toml() {
-    let toml_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("toml/05-string-operations.toml");
+fn test_string_operations_toml() {
+    let toml_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("toml/string-operations.toml");
     load_and_run_toml_tests(&toml_path);
 }
 
 #[test]
-fn test_06_assignment_toml() {
-    let toml_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("toml/06-assignment.toml");
+fn test_assignment_toml() {
+    let toml_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("toml/assignment.toml");
     load_and_run_toml_tests(&toml_path);
 }
 
 #[test]
-fn test_07_dictionaries_toml() {
-    let toml_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("toml/07-dictionaries.toml");
+fn test_dictionaries_toml() {
+    let toml_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("toml/dictionaries.toml");
     load_and_run_toml_tests(&toml_path);
 }
 
 #[test]
-fn test_08_lists_arrays_toml() {
-    let toml_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("toml/08-lists-arrays.toml");
+fn test_lists_arrays_toml() {
+    let toml_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("toml/lists-arrays.toml");
     load_and_run_toml_tests(&toml_path);
 }
 
 #[test]
-fn test_09_slicing_toml() {
-    let toml_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("toml/09-slicing.toml");
+fn test_slicing_toml() {
+    let toml_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("toml/slicing.toml");
     load_and_run_toml_tests(&toml_path);
 }
 
 #[test]
-fn test_10_comprehensions_toml() {
-    let toml_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("toml/10-comprehensions.toml");
+fn test_comprehensions_toml() {
+    let toml_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("toml/comprehensions.toml");
     load_and_run_toml_tests(&toml_path);
 }
 
 #[test]
-fn test_11_generators_toml() {
-    let toml_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("toml/11-generators.toml");
+fn test_generators_toml() {
+    let toml_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("toml/generators.toml");
     load_and_run_toml_tests(&toml_path);
 }
 
 #[test]
-fn test_12_lambdas_toml() {
-    let toml_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("toml/12-lambdas.toml");
+fn test_lambdas_toml() {
+    let toml_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("toml/lambdas.toml");
     load_and_run_toml_tests(&toml_path);
 }
 
 #[test]
-fn test_13_iterators_toml() {
-    let toml_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("toml/13-iterators.toml");
+fn test_iterators_toml() {
+    let toml_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("toml/iterators.toml");
     load_and_run_toml_tests(&toml_path);
 }
 
 #[test]
-fn test_14_operators_toml() {
-    let toml_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("toml/14-operators.toml");
+fn test_operators_toml() {
+    let toml_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("toml/operators.toml");
     load_and_run_toml_tests(&toml_path);
 }
 
 #[test]
-fn test_15_error_handling_toml() {
-    let toml_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("toml/15-error-handling.toml");
+fn test_error_handling_toml() {
+    let toml_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("toml/error-handling.toml");
     load_and_run_toml_tests(&toml_path);
 }
 
 #[test]
-fn test_16_type_inference_toml() {
-    let toml_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("toml/16-type-inference.toml");
+fn test_type_inference_toml() {
+    let toml_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("toml/type-inference.toml");
     load_and_run_toml_tests(&toml_path);
 }
 
 #[test]
-fn test_17_ownership_toml() {
-    let toml_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("toml/17-ownership.toml");
+fn test_ownership_toml() {
+    let toml_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("toml/ownership.toml");
     load_and_run_toml_tests(&toml_path);
 }
 
 #[test]
-fn test_18_mutability_toml() {
-    let toml_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("toml/18-mutability.toml");
+fn test_mutability_toml() {
+    let toml_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("toml/mutability.toml");
     load_and_run_toml_tests(&toml_path);
 }
 
 #[test]
-fn test_19_optional_types_toml() {
-    let toml_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("toml/19-optional-types.toml");
+fn test_optional_types_toml() {
+    let toml_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("toml/optional-types.toml");
     load_and_run_toml_tests(&toml_path);
 }
 
 #[test]
-fn test_20_result_types_toml() {
-    let toml_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("toml/20-result-types.toml");
+fn test_result_types_toml() {
+    let toml_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("toml/result-types.toml");
     load_and_run_toml_tests(&toml_path);
 }
 
 #[test]
-fn test_21_math_module_toml() {
-    let toml_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("toml/21-math-module.toml");
+fn test_modules_math_toml() {
+    let toml_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("toml/modules-math.toml");
     load_and_run_toml_tests(&toml_path);
 }
 
 #[test]
-fn test_22_json_module_toml() {
-    let toml_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("toml/22-json-module.toml");
+fn test_modules_json_toml() {
+    let toml_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("toml/modules-json.toml");
     load_and_run_toml_tests(&toml_path);
 }
 
 #[test]
-fn test_23_os_sys_modules_toml() {
-    let toml_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("toml/23-os-sys-modules.toml");
+fn test_modules_os_sys_toml() {
+    let toml_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("toml/modules-os-sys.toml");
     load_and_run_toml_tests(&toml_path);
 }
 
 #[test]
-fn test_24_datetime_time_modules_toml() {
-    let toml_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("toml/24-datetime-time-modules.toml");
+fn test_modules_datetime_time_toml() {
+    let toml_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("toml/modules-datetime-time.toml");
     load_and_run_toml_tests(&toml_path);
 }
 
 #[test]
-fn test_25_collections_module_toml() {
-    let toml_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("toml/25-collections-module.toml");
+fn test_modules_collections_toml() {
+    let toml_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("toml/modules-collections.toml");
     load_and_run_toml_tests(&toml_path);
 }
 
 #[test]
-fn test_26_itertools_functools_modules_toml() {
-    let toml_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("toml/26-itertools-functools-modules.toml");
+fn test_modules_itertools_functools_toml() {
+    let toml_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("toml/modules-itertools-functools.toml");
     load_and_run_toml_tests(&toml_path);
 }
 
 #[test]
-fn test_27_random_module_toml() {
-    let toml_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("toml/27-random-module.toml");
+fn test_modules_random_toml() {
+    let toml_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("toml/modules-random.toml");
     load_and_run_toml_tests(&toml_path);
 }
 
 #[test]
-fn test_28_regex_module_toml() {
-    let toml_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("toml/28-regex-module.toml");
+fn test_modules_regex_toml() {
+    let toml_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("toml/modules-regex.toml");
     load_and_run_toml_tests(&toml_path);
 }
 
 #[test]
-fn test_29_ast_hir_codegen_toml() {
-    let toml_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("toml/29-ast-hir-codegen.toml");
+fn test_ast_hir_codegen_toml() {
+    let toml_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("toml/ast-hir-codegen.toml");
     load_and_run_toml_tests(&toml_path);
 }
 
 #[test]
-fn test_30_cli_integration_toml() {
-    let toml_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("toml/30-cli-integration.toml");
+fn test_cli_integration_toml() {
+    let toml_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("toml/cli-integration.toml");
     load_and_run_toml_tests(&toml_path);
 }
 
 #[test]
-fn test_32_io_streams_toml() {
-    let toml_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("toml/32-io-streams.toml");
+fn test_io_streams_toml() {
+    let toml_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("toml/io-streams.toml");
     load_and_run_toml_tests(&toml_path);
 }
 
 #[test]
-fn test_33_csv_module_toml() {
-    let toml_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("toml/33-csv-module.toml");
+fn test_modules_csv_toml() {
+    let toml_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("toml/modules-csv.toml");
+    load_and_run_toml_tests(&toml_path);
+}
+
+#[test]
+fn test_regressions_toml() {
+    let toml_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("toml/regressions.toml");
+    load_and_run_toml_tests(&toml_path);
+}
+
+#[test]
+fn test_argparse_toml() {
+    let toml_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("toml/argparse.toml");
+    load_and_run_toml_tests(&toml_path);
+}
+
+#[test]
+fn test_boundary_values_toml() {
+    let toml_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("toml/boundary-values.toml");
+    load_and_run_toml_tests(&toml_path);
+}
+
+#[test]
+fn test_collections_toml() {
+    let toml_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("toml/collections.toml");
+    load_and_run_toml_tests(&toml_path);
+}
+
+#[test]
+fn test_crypto_toml() {
+    let toml_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("toml/crypto.toml");
+    load_and_run_toml_tests(&toml_path);
+}
+
+#[test]
+fn test_custom_attributes_toml() {
+    let toml_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("toml/custom-attributes.toml");
+    load_and_run_toml_tests(&toml_path);
+}
+
+#[test]
+fn test_exceptions_toml() {
+    let toml_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("toml/exceptions.toml");
+    load_and_run_toml_tests(&toml_path);
+}
+
+#[test]
+fn test_file_toml() {
+    let toml_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("toml/file.toml");
+    load_and_run_toml_tests(&toml_path);
+}
+
+#[test]
+fn test_lifetimes_toml() {
+    let toml_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("toml/lifetimes.toml");
+    load_and_run_toml_tests(&toml_path);
+}
+
+#[test]
+fn test_loop_for_toml() {
+    let toml_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("toml/loop-for.toml");
+    load_and_run_toml_tests(&toml_path);
+}
+
+#[test]
+fn test_numeric_csv_toml() {
+    let toml_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("toml/numeric-csv.toml");
+    load_and_run_toml_tests(&toml_path);
+}
+
+#[test]
+fn test_pattern_matching_toml() {
+    let toml_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("toml/pattern-matching.toml");
+    load_and_run_toml_tests(&toml_path);
+}
+
+#[test]
+fn test_stdlib_misc_toml() {
+    let toml_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("toml/stdlib-misc.toml");
     load_and_run_toml_tests(&toml_path);
 }

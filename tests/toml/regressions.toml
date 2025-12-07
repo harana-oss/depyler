@@ -1,0 +1,441 @@
+# Bug Regression Tests
+# Migrated from: test_bug_regressions.rs
+# These tests verify that previously fixed bugs remain fixed
+
+[metadata]
+name = "Bug Regression Tests"
+category = "regressions"
+
+# =============================================================================
+# Final Type Annotation Tests - Python typing.Final to Rust const
+# =============================================================================
+
+[[test]]
+name = "final_int_constant"
+description = "Final[int] should generate const with i32 type"
+tags = ["final", "const", "typing"]
+
+[test.python]
+code = '''
+from typing import Final
+
+def get_field_goal() -> int:
+    FIELD_GOAL: Final[int] = 600
+    return FIELD_GOAL
+'''
+
+[test.assertions]
+contains = ["const FIELD_GOAL", ": i32", "= 600"]
+not_contains = ["let FIELD_GOAL"]
+
+# =============================================================================
+# Variable Shadowing Tests
+# =============================================================================
+
+[[test]]
+name = "variable_shadowing_in_loops"
+description = "Variable assignments inside loops should update existing variables, not shadow them"
+tags = ["loops", "shadowing", "assignment"]
+
+[test.python]
+code = '''
+def factorial(n: int) -> int:
+    result = 1
+    for i in range(1, n + 1):
+        result = result * i
+    return result
+'''
+
+[test.assertions]
+contains = ["for i in 1.."]
+not_contains = ["let mut result = result * i", "let mut result = (result * i)"]
+
+[[test]]
+name = "binary_search_variable_shadowing"
+description = "Variable assignments in conditionals should not create new variables"
+tags = ["conditional", "shadowing", "assignment"]
+
+[test.python]
+code = '''
+def binary_search(arr: list, target: int) -> int:
+    left = 0
+    right = len(arr) - 1
+    while left <= right:
+        mid = (left + right) // 2
+        if arr[mid] == target:
+            return mid
+        elif arr[mid] < target:
+            left = mid + 1
+        else:
+            right = mid - 1
+    return -1
+'''
+
+[test.assertions]
+contains = ["fn binary_search"]
+
+# =============================================================================
+# Docstring Tests
+# =============================================================================
+
+[[test]]
+name = "docstring_as_comment"
+description = "Docstrings should become Rust doc comments, not executable expressions"
+tags = ["docstring", "documentation"]
+
+[test.python]
+code = '''
+def add(a: int, b: int) -> int:
+    "Add two numbers"
+    return a + b
+'''
+
+[test.assertions]
+contains_any = [["/// Add two numbers", "#[doc"]]
+not_contains = ["\"Add two numbers\" . to_string ()"]
+
+[[test]]
+name = "docstring_generation"
+description = "Docstrings should generate proper Rust documentation"
+tags = ["docstring", "documentation"]
+
+[test.python]
+code = '''
+def example_function(x: int) -> int:
+    """This is a docstring that should become a comment"""
+    return x * 2
+'''
+
+[test.assertions]
+contains_any = [["/// This is a docstring", "#[doc = \"This is a docstring"]]
+not_contains = ["\"This is a docstring that should become a comment\" . to_string ()"]
+
+# =============================================================================
+# Integer Division Tests
+# =============================================================================
+
+[[test]]
+name = "integer_division_operator"
+description = "Python // operator should map to integer division"
+tags = ["operators", "division"]
+
+[test.python]
+code = '''
+def divide(a: int, b: int) -> int:
+    return a // b
+'''
+
+[test.assertions]
+contains = ["/ b"]
+not_contains = ["/ b as f"]
+
+[[test]]
+name = "floor_divide_operator"
+description = "Python // operator should use integer division, not float division"
+tags = ["operators", "division"]
+
+[test.python]
+code = '''
+def floor_divide(a: int, b: int) -> int:
+    return a // b
+'''
+
+[test.assertions]
+contains = ["/ b"]
+not_contains = ["/ b as f"]
+
+# =============================================================================
+# String Operations Tests
+# =============================================================================
+
+[[test]]
+name = "string_concatenation_efficiency"
+description = "String operations should be efficient"
+tags = ["string", "efficiency"]
+
+[test.python]
+code = '''
+def concat_strings(a: str, b: str) -> str:
+    return a + b
+'''
+
+[test.assertions]
+contains_any = [["format!", "String::from", "&str"]]
+
+# =============================================================================
+# List/Array Operations Tests
+# =============================================================================
+
+[[test]]
+name = "type_inference_ownership"
+description = "Type inference should generate correct ownership patterns"
+tags = ["list", "ownership", "inference"]
+
+[test.python]
+code = '''
+def process_data(data: list) -> list:
+    result = []
+    for item in data:
+        result.append(item * 2)
+    return result
+'''
+
+[test.assertions]
+contains = ["Vec<", "push"]
+not_contains = [".clone().clone()"]
+
+[[test]]
+name = "plain_list_type_mapping"
+description = "Plain 'list' type should map to Vec<T> not literal 'list'"
+tags = ["list", "type-mapping"]
+
+[test.python]
+code = '''
+def process_items(items: list) -> list:
+    return items
+'''
+
+[test.assertions]
+contains_any = [["Vec<", "&["]]
+not_contains = ["items : list"]
+
+[[test]]
+name = "simple_array_literal_assignment"
+description = "Array literal assignments should not be dropped during code generation"
+tags = ["array", "assignment"]
+
+[test.python]
+code = '''
+def test_array():
+    arr = [1, 2, 3]
+    return arr
+'''
+
+[test.assertions]
+contains_any = [["arr =", "let arr", "[1", "vec!"]]
+
+[[test]]
+name = "multiple_array_assignments"
+description = "Multiple array assignments should all be generated"
+tags = ["array", "assignment"]
+
+[test.python]
+code = '''
+def test_arrays():
+    arr1 = [1, 2, 3]
+    arr2 = [4, 5, 6]
+    arr3 = [7, 8, 9]
+    return arr1, arr2, arr3
+'''
+
+[test.assertions]
+contains_any = [["arr1 =", "let arr1"], ["arr2 =", "let arr2"], ["arr3 =", "let arr3"]]
+
+[[test]]
+name = "boolean_array_assignment"
+description = "Boolean array assignments should not be dropped"
+tags = ["array", "boolean", "assignment"]
+
+[test.python]
+code = '''
+def test_bool_array():
+    flags = [True, False, True]
+    return flags
+'''
+
+[test.assertions]
+contains_any = [["flags =", "let flags"], ["true", "false"]]
+
+# =============================================================================
+# Safe Indexing Tests
+# =============================================================================
+
+[[test]]
+name = "list_indexing_bounds_checking"
+description = "Array indexing should have proper bounds checking"
+tags = ["indexing", "safety"]
+
+[test.python]
+code = '''
+def get_item(arr: list, index: int) -> int:
+    return arr[index]
+'''
+
+[test.assertions]
+contains_any = [[".get(", "bounds_check", "unwrap_or"]]
+
+[[test]]
+name = "bounds_checking_array_indexing"
+description = "Array indexing should use safe indexing methods"
+tags = ["indexing", "safety"]
+
+[test.python]
+code = '''
+def get_item(arr: list, i: int) -> int:
+    return arr[i]
+'''
+
+[test.assertions]
+contains_any = [[".get(", "bounds_check", "unwrap_or"]]
+
+# =============================================================================
+# Method Call Formatting Tests
+# =============================================================================
+
+[[test]]
+name = "method_call_spacing"
+description = "Method calls should not have unnecessary spaces"
+tags = ["formatting", "method-call"]
+
+[test.python]
+code = '''
+def get_length(arr: list) -> int:
+    return len(arr)
+'''
+
+[test.assertions]
+contains_any = [["arr.len()", "len(arr)"]]
+not_contains = ["arr . len ()"]
+
+# =============================================================================
+# Copy Module Tests
+# =============================================================================
+
+[[test]]
+name = "copy_copy_list"
+description = "copy.copy() for lists should generate .clone() not .copy()"
+tags = ["copy", "stdlib"]
+
+[test.python]
+code = '''
+import copy
+
+def test_shallow_copy() -> int:
+    original = [1, 2, 3]
+    copied = copy.copy(original)
+    copied.append(4)
+    return len(original)
+'''
+
+[test.assertions]
+contains_any = [[".clone()", "copy::copy"]]
+not_contains = [".copy()"]
+
+[[test]]
+name = "copy_copy_dict"
+description = "copy.copy() for dicts should generate valid Rust code"
+tags = ["copy", "dict", "stdlib"]
+
+[test.python]
+code = '''
+import copy
+
+def test_dict_copy() -> int:
+    original = {"a": 1, "b": 2}
+    copied = copy.copy(original)
+    copied["c"] = 3
+    return len(original)
+'''
+
+[test.assertions]
+contains_any = [[".clone()", "copy"]]
+
+[[test]]
+name = "copy_deepcopy_list"
+description = "copy.deepcopy() should generate valid deep copy operation"
+tags = ["copy", "deepcopy", "stdlib"]
+
+[test.python]
+code = '''
+import copy
+
+def test_deep_copy() -> int:
+    original = [[1, 2], [3, 4]]
+    copied = copy.deepcopy(original)
+    copied[0].append(5)
+    return len(original[0])
+'''
+
+[test.assertions]
+contains_any = [["clone", "deep"]]
+
+# =============================================================================
+# Untyped Parameter Tests
+# =============================================================================
+
+[[test]]
+name = "untyped_list_parameter"
+description = "Untyped list parameter should compile without DynamicType"
+tags = ["list", "untyped", "inference"]
+
+[test.python]
+code = '''
+def sum_list(numbers: list) -> int:
+    total = 0
+    for num in numbers:
+        total = total + num
+    return total
+'''
+
+[test.assertions]
+contains = ["fn sum_list"]
+not_contains = ["DynamicType"]
+
+[[test]]
+name = "untyped_dict_parameter"
+description = "Untyped dict parameter should compile without DynamicType"
+tags = ["dict", "untyped", "inference"]
+
+[test.python]
+code = '''
+def get_value(data: dict, key: str) -> int:
+    return data.get(key, 0)
+'''
+
+[test.assertions]
+contains = ["fn get_value"]
+not_contains = ["DynamicType"]
+
+# =============================================================================
+# Rust Code Formatting Tests
+# =============================================================================
+
+[[test]]
+name = "rust_code_formatting_consistency"
+description = "Generated Rust code should have consistent formatting"
+tags = ["formatting", "generics"]
+
+[test.python]
+code = '''
+from typing import List
+
+def calculate_sum(numbers: List[int]) -> int:
+    """Calculate the sum of a list of integers."""
+    total: int = 0
+    for n in numbers:
+        total += n
+    return total
+'''
+
+[test.assertions]
+contains = ["Vec<i32>", " = "]
+not_contains = ["=(", ". "]
+
+# =============================================================================
+# Consistent Type Mapping Tests
+# =============================================================================
+
+[[test]]
+name = "consistent_type_mapping"
+description = "Type mapping should be consistent across contexts"
+tags = ["type-mapping", "list"]
+
+[test.python]
+code = '''
+def create_list() -> list:
+    items = []
+    return items
+'''
+
+[test.assertions]
+contains_any = [["Vec<"]]

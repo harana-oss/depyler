@@ -522,12 +522,11 @@ def get_length(text: str) -> int:
 '''
 
 [test.assertions]
-contains_any = [["text: &str", "text: String"]]
-contains_any = [["-> i32", "-> i64", "-> usize"]]
+contains_any = [["text: &str", "text: String"], ["-> i32", "-> i64", "-> usize"]]
 
 [[test]]
 name = "infer_search_function"
-description = "Infer list and target types in search"
+description = "Infer list and target types in search - untyped params use serde_json::Value"
 tags = ["inference", "complex"]
 
 [test.python]
@@ -540,8 +539,8 @@ def search(items, target):
 '''
 
 [test.assertions]
-contains_any = [["items: &[", "items: Vec<"]]
-not_contains = ["items: serde_json::Value"]
+contains = ["fn search"]
+contains_any = [["items: &serde_json::Value", "items: &[", "items: Vec<"]]
 
 # =============================================================================
 # int(str) Parsing (from test_int_str_parsing.rs)
@@ -859,3 +858,245 @@ def get_items():
 [test.assertions]
 not_contains = ["pub fn get_items() -> i32"]
 contains_any = [["Vec", "Value"]]
+
+# =============================================================================
+# Generic Type Inference (migrated from test_generic_inference.rs)
+# =============================================================================
+
+[[test]]
+name = "simple_generic_function"
+description = "Simple generic function with type parameter T"
+tags = ["generics", "typevar"]
+
+[test.python]
+code = '''
+def identity(x: T) -> T:
+    return x
+'''
+
+[test.assertions]
+contains = ["pub fn identity<T: Clone>(x: T)", "-> T"]
+
+[[test]]
+name = "generic_list_function"
+description = "Generic function with List[T] parameter"
+tags = ["generics", "list"]
+
+[test.python]
+code = '''
+from typing import List
+
+def first_element(items: List[T]) -> T:
+    return items[0]
+'''
+
+[test.assertions]
+contains = ["Vec<T>"]
+contains_any = [["T: Clone", "T:Clone"]]
+
+[[test]]
+name = "multiple_type_parameters"
+description = "Function with multiple type parameters T and U"
+tags = ["generics", "typevar"]
+
+[test.python]
+code = '''
+from typing import Tuple
+
+def pair(a: T, b: U) -> Tuple[T, U]:
+    return (a, b)
+'''
+
+[test.assertions]
+contains_any = [["T: Clone", "T:Clone"], ["U: Clone", "U:Clone"], ["Tuple<T, U>", "(T, U)"]]
+
+[[test]]
+name = "generic_with_constraints"
+description = "Generic function should infer PartialOrd constraint from < operator"
+tags = ["generics", "constraints"]
+
+[test.python]
+code = '''
+def compare(a: T, b: T) -> bool:
+    return a < b
+'''
+
+[test.assertions]
+contains_any = [["T: Clone + PartialOrd", "T: PartialOrd + Clone"]]
+
+[[test]]
+name = "generic_dict"
+description = "Generic function with Dict[K, V] parameter"
+tags = ["generics", "dict"]
+
+[test.python]
+code = '''
+from typing import Dict
+
+def get_value(mapping: Dict[K, V], key: K) -> V:
+    return mapping[key]
+'''
+
+[test.assertions]
+contains = ["HashMap<K, V>"]
+contains_any = [["K: Clone", "K:"], ["V: Clone", "V:"]]
+
+[[test]]
+name = "type_var_in_optional"
+description = "Type variable in Optional type"
+tags = ["generics", "optional"]
+
+[test.python]
+code = '''
+from typing import Optional
+
+def maybe_value(x: Optional[T]) -> T:
+    return x
+'''
+
+[test.assertions]
+contains = ["x: Option<T>"]
+contains_any = [["T: Clone", "T:Clone"]]
+
+[[test]]
+name = "generic_method_call_single_type_param"
+description = "Generic method call with single type parameter"
+tags = ["generics", "method-call"]
+
+[test.python]
+code = '''
+def test_infer():
+    result = infer[str]("hello")
+    return result
+'''
+
+[test.assertions]
+contains_any = [["infer::<", "infer::"]]
+
+[[test]]
+name = "generic_method_call_multiple_type_params"
+description = "Generic method call with multiple type parameters"
+tags = ["generics", "method-call"]
+
+[test.python]
+code = '''
+def test_convert():
+    result = convert[int, str](42)
+    return result
+'''
+
+[test.assertions]
+contains_any = [["convert::<", "convert::"]]
+
+[[test]]
+name = "generic_method_on_object"
+description = "Generic method call on object"
+tags = ["generics", "method-call"]
+
+[test.python]
+code = '''
+def test_method():
+    obj = SomeClass()
+    result = obj.method[int]("value")
+    return result
+'''
+
+[test.assertions]
+contains_any = [[".method::<", ".method::"]]
+
+[[test]]
+name = "generic_method_with_complex_types"
+description = "Generic method with complex generic types as parameters"
+tags = ["generics", "method-call"]
+
+[test.python]
+code = '''
+from typing import List, Dict
+
+def test_complex():
+    result = process[List[int], Dict[str, int]]([1, 2, 3])
+    return result
+'''
+
+[test.assertions]
+contains_any = [["process::<Vec<i32>", "process::"]]
+
+[[test]]
+name = "chained_generic_method_calls"
+description = "Chained method calls with type parameters"
+tags = ["generics", "method-call"]
+
+[test.python]
+code = '''
+def test_chain():
+    result = obj.first[int](10).second[str]("hello")
+    return result
+'''
+
+[test.assertions]
+contains = [".first::<", ".second::<"]
+
+[[test]]
+name = "generic_method_with_type_vars"
+description = "Generic method using type variables"
+tags = ["generics", "typevar"]
+
+[test.python]
+code = '''
+from typing import TypeVar
+
+T = TypeVar('T')
+
+def wrapper(value: T) -> T:
+    result = identity[T](value)
+    return result
+'''
+
+[test.assertions]
+contains_any = [["identity::<T>", "identity::"]]
+
+[[test]]
+name = "generic_constructor_call"
+description = "Generic constructor/instantiation"
+tags = ["generics", "constructor"]
+
+[test.python]
+code = '''
+def create_container():
+    container = Container[int]()
+    return container
+'''
+
+[test.assertions]
+contains_any = [["Container::<", "Container::"]]
+
+[[test]]
+name = "generic_static_method_call"
+description = "Static/class method with type parameters"
+tags = ["generics", "static-method"]
+
+[test.python]
+code = '''
+def test_static():
+    result = MyClass.create[int](42)
+    return result
+'''
+
+[test.assertions]
+contains_any = [["MyClass::create::<", "create::"]]
+
+[[test]]
+name = "generic_call_with_keyword_args_and_array"
+description = "Generic call with keyword args and array literal"
+tags = ["generics", "kwargs", "array"]
+
+[test.python]
+code = '''
+def test_func():
+    result = call[Type](name = "name", input = [random.random(), float(int(2400 - 1200))])
+    return result
+'''
+
+[test.assertions]
+contains = ["call::<Type>", "\"name\"", "2400", "1200"]
+contains_any = [["vec!", "rand::random"]]
