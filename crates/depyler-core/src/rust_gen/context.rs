@@ -124,6 +124,12 @@ pub struct CodeGenContext<'a> {
     pub var_usage_counts: HashMap<String, usize>,
     /// Track how many times we've seen each variable during code generation
     pub var_usage_current: HashMap<String, usize>,
+
+    /// Track variables that were declared with Option<T> type in Rust (even if HIR narrows them)
+    pub optional_vars: HashSet<String>,
+
+    /// Track module-level constants that use lazy_static (need dereferencing to get actual type)
+    pub lazy_static_constants: HashSet<String>,
 }
 
 impl<'a> CodeGenContext<'a> {

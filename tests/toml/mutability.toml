@@ -528,3 +528,180 @@ def func3() -> str:
 [test.assertions]
 contains = ["fn func1", "fn func2", "fn func3"]
 
+# =============================================================================
+# Nested Field Mutation
+# =============================================================================
+
+[[test]]
+name = "mut_nested_field_mutation"
+description = "Variable with nested field mutation requires mut"
+tags = ["mutability", "nested-fields", "regression"]
+
+[test.python]
+code = '''
+class Inner:
+    def __init__(self):
+        self.values: list[int] = []
+
+class Outer:
+    def __init__(self):
+        self.inner: Inner = Inner()
+
+class State:
+    def __init__(self):
+        self.data: Outer = Outer()
+
+def mutate_nested_field(state: State, value: int) -> None:
+    """Test that nested field mutation properly marks the variable as mutable."""
+    obj = state.data
+    obj.inner.values.append(value)
+'''
+
+[test.assertions]
+contains = ["let mut obj"]
+not_contains = ["let obj = state.data;"]
+
+[[test]]
+name = "mut_deeply_nested_field_mutation"
+description = "Deeply nested field mutation requires mut on root variable"
+tags = ["mutability", "nested-fields", "regression"]
+
+[test.python]
+code = '''
+class Level3:
+    def __init__(self):
+        self.items: list[str] = []
+
+class Level2:
+    def __init__(self):
+        self.level3: Level3 = Level3()
+
+class Level1:
+    def __init__(self):
+        self.level2: Level2 = Level2()
+
+def mutate_deeply_nested(root: Level1, item: str) -> None:
+    """Test that deeply nested field mutation marks the root variable as mutable."""
+    obj = root.level2
+    obj.level3.items.append(item)
+'''
+
+[test.assertions]
+contains = ["let mut obj"]
+
+[[test]]
+name = "mut_cloned_nested_field_mutation"
+description = "Cloned variable with nested field mutation requires mut"
+tags = ["mutability", "nested-fields", "clone", "regression"]
+
+[test.python]
+code = '''
+class TryTracker:
+    def __init__(self):
+        self.player_indices: list[int] = []
+
+class State:
+    def __init__(self):
+        self.try_tracker: TryTracker = TryTracker()
+
+def record_try(state: State, player_index: int) -> None:
+    """Test the pattern from test_mega where cloned object has nested field mutation."""
+    t = state.try_tracker
+    t.player_indices.append(player_index)
+'''
+
+[test.assertions]
+contains = ["let mut t"]
+not_contains = ["let t = state.try_tracker"]
+
+# =============================================================================
+# For-Loop Variable Mutability (field assignment on loop variable)
+# =============================================================================
+
+[[test]]
+name = "for_loop_mut_field_assignment"
+description = "For loop variable needs mut when field is assigned"
+tags = ["mutability", "for-loop", "field-assignment"]
+
+[test.python]
+code = '''
+class PlayerStats:
+    def __init__(self):
+        self.time_on_field_in_seconds: int = 0
+
+def add_time_to_players(players: list[PlayerStats], seconds: int) -> None:
+    for s in players:
+        s.time_on_field_in_seconds = s.time_on_field_in_seconds + seconds
+'''
+
+[test.assertions]
+contains = ["for mut s in"]
+
+[[test]]
+name = "for_loop_mut_nested_field_assignment"
+description = "For loop variable needs mut when deeply nested field is assigned"
+tags = ["mutability", "for-loop", "nested-fields"]
+
+[test.python]
+code = '''
+class Scores:
+    def __init__(self):
+        self.tries: int = 0
+        self.total: int = 0
+
+class MatchStats:
+    def __init__(self):
+        self.scores: Scores = Scores()
+
+class PlayerStatistics:
+    def __init__(self):
+        self.match_statistics: MatchStats = MatchStats()
+
+def add_try_to_all(player_stats: list[PlayerStatistics]) -> None:
+    TRY_POINTS = 4
+    for stats in player_stats:
+        stats.match_statistics.scores.tries = stats.match_statistics.scores.tries + 1
+        stats.match_statistics.scores.total = stats.match_statistics.scores.total + TRY_POINTS
+'''
+
+[test.assertions]
+contains = ["for mut stats in"]
+
+[[test]]
+name = "for_loop_immut_no_field_assignment"
+description = "For loop variable stays immutable when no field assignment"
+tags = ["mutability", "for-loop", "immutable"]
+
+[test.python]
+code = '''
+class Player:
+    def __init__(self):
+        self.name: str = ""
+
+def print_player_names(players: list[Player]) -> None:
+    for p in players:
+        print(p.name)
+'''
+
+[test.assertions]
+contains = ["for p in"]
+not_contains = ["for mut p in"]
+
+[[test]]
+name = "for_loop_mut_index_assignment"
+description = "For loop variable needs mut when index is assigned"
+tags = ["mutability", "for-loop", "index-assignment"]
+
+[test.python]
+code = '''
+class Container:
+    def __init__(self):
+        self.items: list[int] = []
+
+def update_first_items(containers: list[Container], value: int) -> None:
+    for c in containers:
+        c.items[0] = value
+'''
+
+[test.assertions]
+contains = ["for mut c in"]

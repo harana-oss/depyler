@@ -171,6 +171,28 @@ STRINGS = ["one", "two", "three"]
 [test.assertions]
 contains = ["lazy_static!", "pub static ref STRINGS: Vec<String> = vec![\"one\".to_string(), \"two\".to_string(), \"three\".to_string()]"]
 
+[[test]]
+name = "lazy_static_in_if_else"
+description = "Using different lazy_static constants in if/else branches should work with clone()"
+
+[test.python]
+code = '''
+X_VALUES = [[0, 100], [100, 200]]
+X_VALUES_AWAY = [[50, 150], [150, 250]]
+
+def get_values(is_home: bool) -> list[list[int]]:
+    x_ranges: list[list[int]]
+    if is_home:
+        x_ranges = X_VALUES
+    else:
+        x_ranges = X_VALUES_AWAY
+    return x_ranges
+'''
+
+[test.assertions]
+contains = ["X_VALUES.clone()", "X_VALUES_AWAY.clone()"]
+compiles = true
+
 # Boolean Conversion Tests (from test_boolean_conversion.rs)
 
 [[test]]

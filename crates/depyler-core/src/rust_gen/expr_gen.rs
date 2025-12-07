@@ -13328,8 +13328,11 @@ impl ToRustExpr for HirExpr {
             }
             HirExpr::Var(name) => {
                 let base_expr = converter.convert_variable(name)?;
-                // Check if we need to clone this variable (non-Copy type with multiple uses)
-                if ctx.var_needs_clone(name) {
+                // lazy_static constants have unique wrapper types - clone to get actual type
+                if ctx.lazy_static_constants.contains(name) {
+                    Ok(parse_quote! { #base_expr.clone() })
+                } else if ctx.var_needs_clone(name) {
+                    // Check if we need to clone this variable (non-Copy type with multiple uses)
                     Ok(parse_quote! { #base_expr.clone() })
                 } else {
                     Ok(base_expr)

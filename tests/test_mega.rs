@@ -9,22 +9,11 @@ fn test_mega() {
 from state import State
 from functions import *
 
-def infer[T](name: str, input: list[float]) -> T:
-  return value
-
-def register_event[T](name: str, event: T):
-  pass
-
-def record_int(name: str, event: int):
-  pass
-
-def record_bool(name: str, event: bool):
-  pass
-
 # From: constants.py
 CENTRE_OF_THE_FIELD_X = 500
 CENTRE_OF_THE_FIELD_Y = 350
 CONVERSION_POINTS = 2
+CONVERSION_X_VALUES = [769, 773, 779, 788, 801, 823, 845, 866, 878, 890, 890, 882, 868, 847, 825, 801, 786, 779, 771, 769]
 DROPOUT_X = 0
 DROPOUT_Y = 350
 EXTRA_TIME_INDEX = 2
@@ -45,9 +34,9 @@ FULL_TIME_SECONDS = 4800
 GAME_LENGTH_IN_SECONDS = 4800
 GOAL_LINE_GRID_START_INDEX = 60
 GOAL_LINE_X_WIDTH = 20
-GOAL_LINE_Y_HALF_WIDTH = 11.67
 GOAL_LINE_Y_HEIGHT_INCREMENT = 113
 GOAL_LINE_Y_VALUES = [[0, 113], [113, 226], [226, 339], [339, 452], [452, 565], [565, 678], [678, 700]]
+GOAL_LINE_Y_WIDTH = 23.34
 GOAL_LINE_ZONE_WEIGHTS = [[0.338255506, 0.161521868, 0.028635414, 0.011633486, 0.008945708, 0.063982141, 0.059955556, 0.028635414, 0.008948757, 0.003132014, 0.040716185, 0.043848199, 0.022818671, 0.016107357, 0.0035793, 0.038031456, 0.038478742, 0.024161543, 0.013869913, 0.005369458, 0.015660071, 0.012324, 0.005722, 0.003967, 0.0017], [0.006393969, 0.065970006, 0.021313621, 0.033491996, 0.005074616, 0.07510408, 0.08931277, 0.02841738, 0.039581769, 0.008118916, 0.082209011, 0.099462002, 0.042627242, 0.038566612, 0.008118916, 0.061910548, 0.079163538, 0.031462853, 0.024357922, 0.004059458, 0.050746158, 0.049731001, 0.035522311, 0.016239005, 0.003044301], [0.04926153, 0.045038504, 0.028853258, 0.021815592, 0.00492562, 0.065446776, 0.068261416, 0.027445938, 0.020408272, 0.00281464, 0.071077122, 0.064743116, 0.023222912, 0.016186312, 0.00281464, 0.038705564, 0.033075218, 0.031667898, 0.021111932, 0.00211098, 0.10696698, 0.098521994, 0.084447728, 0.067557756, 0.0035183], [0.10696698, 0.098521994, 0.084447728, 0.067557756, 0.0035183, 0.038705564, 0.033075218, 0.031667898, 0.021111932, 0.00211098, 0.071077122, 0.064743116, 0.023222912, 0.016186312, 0.00281464, 0.065446776, 0.068261416, 0.027445938, 0.020408272, 0.00281464, 0.04926153, 0.045038504, 0.028853258, 0.021815592, 0.00492562], [0.050746158, 0.049731001, 0.035522311, 0.016239005, 0.003044301, 0.061910548, 0.079163538, 0.031462853, 0.024357922, 0.004059458, 0.082209011, 0.099462002, 0.042627242, 0.038566612, 0.008118916, 0.07510408, 0.08931277, 0.02841738, 0.039581769, 0.008118916, 0.006393969, 0.065970006, 0.021313621, 0.033491996, 0.005074616], [0.015660071, 0.012324, 0.005722, 0.003961, 0.0017, 0.038031456, 0.038478742, 0.024161543, 0.013869913, 0.005369458, 0.040716185, 0.043848199, 0.022818671, 0.016107357, 0.0035793, 0.063982141, 0.059955556, 0.028635414, 0.008948757, 0.003132014, 0.338255506, 0.161521868, 0.028635414, 0.011633486, 0.008949708]]
 HALF_LENGTH_IN_SECONDS = 2400
 HOOKER_METRES_PER_MINUTE = 0.75057377
@@ -99,29 +88,29 @@ Y_VALUES_AWAY = [[584, 700], [468, 584], [351, 468], [234, 351], [118, 234], [0,
 # From: event_output-anytime.py
 # @depyler: custom_attribute_ignore = "event"
 def anytime_output_event(state: State) -> None:
-    away_extra_time_stats: PeriodStatistic
-    away_second_half_stats: PeriodStatistic
-    ended_half_1: bool
-    ended_match: bool
-    home_extra_time_stats: PeriodStatistic
-    home_second_half_stats: PeriodStatistic
-    team_a_second_half_points: int
-    team_b_second_half_points: int
+    away_extra_time_stats: PeriodStatistic | None = None
+    away_second_half_stats: PeriodStatistic | None = None
+    ended_half_1: bool = False
+    ended_match: bool = False
+    home_extra_time_stats: PeriodStatistic | None = None
+    home_second_half_stats: PeriodStatistic | None = None
+    team_a_second_half_points: int = 0
+    team_b_second_half_points: int = 0
 
-    if state.simulation_invariants.game_state.game_status not in ('UnknownStatus', 'NotStarted'):
+    if state.game_status not in ('UnknownStatus', 'NotStarted'):
         print("[Anytime Output Event] Get period and match statistics")
         # Get period and match statistics
-        away_extra_time_stats = state.away_statistic.period_statistics[EXTRA_TIME_INDEX]
-        away_second_half_stats = state.away_statistic.period_statistics[SECOND_HALF_INDEX]
-        home_second_half_stats = state.home_statistic.period_statistics[SECOND_HALF_INDEX]
-        home_extra_time_stats = state.home_statistic.period_statistics[EXTRA_TIME_INDEX]
+        away_second_half_stats = state.away_statistics.period_statistics[SECOND_HALF_INDEX]
+        home_second_half_stats = state.home_statistics.period_statistics[SECOND_HALF_INDEX]
+        away_extra_time_stats = state.away_statistics.period_statistics[EXTRA_TIME_INDEX]
+        home_extra_time_stats = state.home_statistics.period_statistics[EXTRA_TIME_INDEX]
 
         print("[Anytime Output Event] Calculate status flags")
         # Calculate status flags
         team_a_second_half_points = home_second_half_stats.scores.total
         team_b_second_half_points = away_second_half_stats.scores.total
-        ended_half_1 = (state.period.number > 1)
         ended_match = state.is_over
+        ended_half_1 = (state.period.number > 1)
 
         print("[Anytime Output Event] Output match status")
         # Output match status
@@ -135,8 +124,8 @@ def anytime_output_event(state: State) -> None:
 
         print("[Anytime Output Event] Output match tries")
         # Output match tries
-        record_int("TriesMatchA", state.home_statistic.match_scores.tries)
-        record_int("TriesMatchB", state.away_statistic.match_scores.tries)
+        record_int("TriesMatchA", state.home_statistics.match_scores.tries)
+        record_int("TriesMatchB", state.away_statistics.match_scores.tries)
 
         print("[Anytime Output Event] Output extra time tries")
         # Output extra time tries
@@ -148,42 +137,42 @@ def anytime_output_event(state: State) -> None:
 # From: event_output-end-of-game.py
 # @depyler: custom_attribute_ignore = "event"
 def end_of_game_output_event(state: State) -> None:
-    away_extra_time_points: int
-    away_extra_time_stats: PeriodStatistic
-    away_first_half_stats: PeriodStatistic
-    away_second_half_stats: PeriodStatistic
-    away_second_half_with_et: int
-    draw_match: bool
-    home_extra_time_points: int
-    home_extra_time_stats: PeriodStatistic
-    home_first_half_stats: PeriodStatistic
-    home_second_half_stats: PeriodStatistic
-    home_second_half_with_et: int
-    team_a_won_match: bool
-    team_a_won_second_half_and_et: bool
-    team_b_won_second_half_and_et: bool
+    away_extra_time_points: int = 0
+    away_extra_time_stats: PeriodStatistic | None = None
+    away_first_half_stats: PeriodStatistic | None = None
+    away_second_half_stats: PeriodStatistic | None = None
+    away_second_half_with_et: int = 0
+    draw_match: bool = False
+    home_extra_time_points: int = 0
+    home_extra_time_stats: PeriodStatistic | None = None
+    home_first_half_stats: PeriodStatistic | None = None
+    home_second_half_stats: PeriodStatistic | None = None
+    home_second_half_with_et: int = 0
+    team_a_won_match: bool = False
+    team_a_won_second_half_and_et: bool = False
+    team_b_won_second_half_and_et: bool = False
 
-    if state.simulation_invariants.game_state.game_status == 'ENDED':
+    if state.game_status == 'ENDED':
         print("[End Of Game Output Event] Get period statistics")
         # Get period statistics
-        home_second_half_stats = state.home_statistic.period_statistics[SECOND_HALF_INDEX]
-        away_second_half_stats = state.away_statistic.period_statistics[SECOND_HALF_INDEX]
-        home_first_half_stats = state.home_statistic.period_statistics[FIRST_HALF_INDEX]
-        away_extra_time_stats = state.away_statistic.period_statistics[EXTRA_TIME_INDEX]
-        away_first_half_stats = state.away_statistic.period_statistics[FIRST_HALF_INDEX]
-        home_extra_time_stats = state.home_statistic.period_statistics[EXTRA_TIME_INDEX]
+        away_extra_time_stats = state.away_statistics.period_statistics[EXTRA_TIME_INDEX]
+        home_first_half_stats = state.home_statistics.period_statistics[FIRST_HALF_INDEX]
+        away_first_half_stats = state.away_statistics.period_statistics[FIRST_HALF_INDEX]
+        home_extra_time_stats = state.home_statistics.period_statistics[EXTRA_TIME_INDEX]
+        home_second_half_stats = state.home_statistics.period_statistics[SECOND_HALF_INDEX]
+        away_second_half_stats = state.away_statistics.period_statistics[SECOND_HALF_INDEX]
 
         print("[End Of Game Output Event] Calculate extra time and combined scores")
         # Calculate extra time and combined scores
-        home_extra_time_points = home_extra_time_stats.scores.total
         away_extra_time_points = away_extra_time_stats.scores.total
-        home_second_half_with_et = home_second_half_stats.scores.total + home_extra_time_stats.scores.total
+        home_extra_time_points = home_extra_time_stats.scores.total
         away_second_half_with_et = away_second_half_stats.scores.total + away_extra_time_stats.scores.total
+        home_second_half_with_et = home_second_half_stats.scores.total + home_extra_time_stats.scores.total
 
         print("[End Of Game Output Event] Determine second half and extra time winner")
         # Determine second half and extra time winner
-        team_a_won_second_half_and_et = (home_second_half_with_et > away_second_half_with_et)
         team_b_won_second_half_and_et = (home_second_half_with_et < away_second_half_with_et)
+        team_a_won_second_half_and_et = (home_second_half_with_et > away_second_half_with_et)
 
         print("[End Of Game Output Event] Determine match results")
         # Determine match results
@@ -217,34 +206,34 @@ def end_of_game_output_event(state: State) -> None:
 # From: event_output-first-half.py
 # @depyler: custom_attribute_ignore = "event"
 def first_half_output_event(state: State) -> None:
-    away_first_half_stats: PeriodStatistic
-    away_first_half_total: int
-    away_first_half_tries: int
-    draw_first_half: bool
-    home_first_half_stats: PeriodStatistic
-    home_first_half_total: int
-    home_first_half_tries: int
-    team_a_won_first_half: bool
-    team_b_won_first_half: bool
+    away_first_half_stats: PeriodStatistic | None = None
+    away_first_half_total: int = 0
+    away_first_half_tries: int = 0
+    draw_first_half: bool = False
+    home_first_half_stats: PeriodStatistic | None = None
+    home_first_half_total: int = 0
+    home_first_half_tries: int = 0
+    team_a_won_first_half: bool = False
+    team_b_won_first_half: bool = False
 
-    if state.simulation_invariants.game_state.game_status in ('HalfTime', 'Period2', 'AwaitingExtraTime', 'ExtraTime', 'Ended') or state.is_over:
+    if state.game_status in ('HalfTime', 'Period2', 'AwaitingExtraTime', 'ExtraTime', 'Ended') or state.is_over:
         print("[First Half Output Event] Get first half period statistics")
         # Get first half period statistics
-        away_first_half_stats = state.away_statistic.period_statistics[FIRST_HALF_INDEX]
-        home_first_half_stats = state.home_statistic.period_statistics[FIRST_HALF_INDEX]
+        home_first_half_stats = state.home_statistics.period_statistics[FIRST_HALF_INDEX]
+        away_first_half_stats = state.away_statistics.period_statistics[FIRST_HALF_INDEX]
 
         print("[First Half Output Event] Calculate first half scores")
         # Calculate first half scores
-        away_first_half_total = away_first_half_stats.scores.total
-        away_first_half_tries = away_first_half_stats.scores.tries
         home_first_half_tries = home_first_half_stats.scores.tries
         home_first_half_total = home_first_half_stats.scores.total
+        away_first_half_total = away_first_half_stats.scores.total
+        away_first_half_tries = away_first_half_stats.scores.tries
 
         print("[First Half Output Event] Determine first half results")
         # Determine first half results
+        team_b_won_first_half = (away_first_half_total > home_first_half_total)
         draw_first_half = (home_first_half_total == away_first_half_total)
         team_a_won_first_half = (home_first_half_total > away_first_half_total)
-        team_b_won_first_half = (away_first_half_total > home_first_half_total)
 
         print("[First Half Output Event] Output first half points")
         # Output first half points
@@ -267,23 +256,23 @@ def first_half_output_event(state: State) -> None:
 # From: event_output-normal-time.py
 # @depyler: custom_attribute_ignore = "event"
 def normal_time_output_event(state: State) -> None:
-    away_first_half_stats: PeriodStatistic
-    away_normal_time_score: int
-    away_second_half_stats: PeriodStatistic
-    extra_time_occurred: bool
-    home_first_half_stats: PeriodStatistic
-    home_normal_time_score: int
-    home_second_half_stats: PeriodStatistic
+    away_first_half_stats: PeriodStatistic | None = None
+    away_normal_time_score: int = 0
+    away_second_half_stats: PeriodStatistic | None = None
+    extra_time_occurred: bool = False
+    home_first_half_stats: PeriodStatistic | None = None
+    home_normal_time_score: int = 0
+    home_second_half_stats: PeriodStatistic | None = None
 
-    if state.simulation_invariants.game_state.game_status in ( 'AwaitingExtraTime', 'ExtraTime', 'Ended' ):
+    if state.game_status in ('AwaitingExtraTime', 'ExtraTime', 'Ended'):
         print("[Normal Time Output Event] Get period statistics")
         # Get period statistics
-        away_normal_time_score = 0
-        home_second_half_stats = state.home_statistic.period_statistics[SECOND_HALF_INDEX]
         home_normal_time_score = 0
-        away_first_half_stats = state.away_statistic.period_statistics[FIRST_HALF_INDEX]
-        away_second_half_stats = state.away_statistic.period_statistics[SECOND_HALF_INDEX]
-        home_first_half_stats = state.home_statistic.period_statistics[FIRST_HALF_INDEX]
+        home_first_half_stats = state.home_statistics.period_statistics[FIRST_HALF_INDEX]
+        away_second_half_stats = state.away_statistics.period_statistics[SECOND_HALF_INDEX]
+        away_first_half_stats = state.away_statistics.period_statistics[FIRST_HALF_INDEX]
+        home_second_half_stats = state.home_statistics.period_statistics[SECOND_HALF_INDEX]
+        away_normal_time_score = 0
 
         print("[Normal Time Output Event] Calculate normal time scores")
         # Calculate normal time scores
@@ -312,8 +301,8 @@ def normal_time_output_event(state: State) -> None:
 # From: event_output-player-void.py
 # @depyler: custom_attribute_ignore = "event"
 def player_void_output_event(state: State) -> None:
-    away_trader_players: list[Player]
-    home_trader_players: list[Player]
+    away_trader_players: list[Player] = list()
+    home_trader_players: list[Player] = list()
 
     print("[Player Void Output Event] Bind trader state players")
     # Bind trader state players
@@ -339,11 +328,11 @@ def player_void_output_event(state: State) -> None:
 # From: event_period-first-last-score.py
 # @depyler: custom_attribute_ignore = "event"
 def period_first_last_score_helper(state: State, finalized_status: str, period_filter: bool, period_name: str) -> None:
-    away_first_try_time: int
-    first_score_team: str
-    first_try_team: str
-    first_try_time: int
-    home_first_try_time: int
+    away_first_try_time: int = 0
+    first_score_team: str = ""
+    first_try_team: str = ""
+    first_try_time: int = 0
+    home_first_try_time: int = 0
 
     if len(state.incidents) > 0:
         print("[Period First Last Score Helper] Find first try in period")
@@ -356,9 +345,9 @@ def period_first_last_score_helper(state: State, finalized_status: str, period_f
 
         print("[Period First Last Score Helper] Calculate first try times")
         # Calculate first try times
-        home_first_try_time = (([incident for incident in state.incidents if period_filter and incident.has_points_confirmed and incident.points_confirmed_score_type == 'Try' and incident.points_scored_team == "Home"][0].time_elapsed // 60 + 1))
-        first_try_time = (([incident for incident in state.incidents if period_filter and incident.has_points_confirmed and incident.points_confirmed_score_type == 'Try'][0].time_elapsed // 60 + 1))
         away_first_try_time = (([incident for incident in state.incidents if period_filter and incident.has_points_confirmed and incident.points_confirmed_score_type == 'Try' and incident.points_scored_team == "Away"][0].time_elapsed // 60 + 1))
+        first_try_time = (([incident for incident in state.incidents if period_filter and incident.has_points_confirmed and incident.points_confirmed_score_type == 'Try'][0].time_elapsed // 60 + 1))
+        home_first_try_time = (([incident for incident in state.incidents if period_filter and incident.has_points_confirmed and incident.points_confirmed_score_type == 'Try' and incident.points_scored_team == "Home"][0].time_elapsed // 60 + 1))
 
         print("[Period First Last Score Helper] Output first try results")
         # Output first try results
@@ -381,22 +370,22 @@ def period_first_last_score_helper(state: State, finalized_status: str, period_f
 # From: event_track-first-to-score.py
 # @depyler: custom_attribute_ignore = "event"
 def first_to_score_tracking_event(state: State) -> None:
-    away_first_try_incident: Option[Incident]
-    away_first_try_time: int
-    extra_time_first_score_incident: Option[Incident]
-    extra_time_first_try_incident: Option[Incident]
-    half2_et_first_score_incident: Option[Incident]
-    half2_et_first_try_incident: Option[Incident]
-    home_first_try_incident: Option[Incident]
-    home_first_try_time: int
-    last_score_incident: Option[Incident]
-    last_try_incident: Option[Incident]
-    last_try_time: int
-    match_first_score_incident: Option[Incident]
-    match_first_try_incident: Option[Incident]
-    match_first_try_time: int
-    points_confirmed_incidents: list[Incident]
-    try_incidents: list[Incident]
+    away_first_try_incident: Optional[Incident] = None
+    away_first_try_time: Optional[int] = None
+    extra_time_first_score_incident: Optional[Incident] = None
+    extra_time_first_try_incident: Optional[Incident] = None
+    half2_et_first_score_incident: Optional[Incident] = None
+    half2_et_first_try_incident: Optional[Incident] = None
+    home_first_try_incident: Optional[Incident] = None
+    home_first_try_time: Optional[int] = None
+    last_score_incident: Optional[Incident] = None
+    last_try_incident: Optional[Incident] = None
+    last_try_time: Optional[int] = None
+    match_first_score_incident: Optional[Incident] = None
+    match_first_try_incident: Optional[Incident] = None
+    match_first_try_time: Optional[int] = None
+    points_confirmed_incidents: list[Incident] = list()
+    try_incidents: list[Incident] = list()
 
     if len(state.incidents) > 0 or state.is_over:
         print("[First To Score Tracking Event] Collect confirmed scoring incidents")
@@ -409,31 +398,31 @@ def first_to_score_tracking_event(state: State) -> None:
 
         print("[First To Score Tracking Event] Resolve key incidents across periods")
         # Resolve key incidents across periods
-        half2_et_first_score_incident = ((next((incident for incident in points_confirmed_incidents if (int(incident.period.number) - 1) >= SECOND_HALF_INDEX), None)))
-        extra_time_first_try_incident = ((next((incident for incident in try_incidents if (int(incident.period.number) - 1) == EXTRA_TIME_INDEX), None)))
-        match_first_score_incident = (points_confirmed_incidents[0] if points_confirmed_incidents else None)
-        extra_time_first_score_incident = ((next((incident for incident in points_confirmed_incidents if (int(incident.period.number) - 1) == EXTRA_TIME_INDEX), None)))
-        home_first_try_incident = ((next((incident for incident in try_incidents if incident.points_scored_team == "Home"), None)))
-        half2_et_first_try_incident = ((next((incident for incident in try_incidents if (int(incident.period.number) - 1) >= SECOND_HALF_INDEX), None)))
-        last_score_incident = (points_confirmed_incidents[-1] if points_confirmed_incidents else None)
-        match_first_try_incident = (try_incidents[0] if try_incidents else None)
         last_try_incident = (try_incidents[-1] if try_incidents else None)
         away_first_try_incident = ((next((incident for incident in try_incidents if incident.points_scored_team == "Away"), None)))
+        home_first_try_incident = ((next((incident for incident in try_incidents if incident.points_scored_team == "Home"), None)))
+        half2_et_first_score_incident = ((next((incident for incident in points_confirmed_incidents if (int(incident.period.number) - 1) >= SECOND_HALF_INDEX), None)))
+        half2_et_first_try_incident = ((next((incident for incident in try_incidents if (int(incident.period.number) - 1) >= SECOND_HALF_INDEX), None)))
+        extra_time_first_score_incident = ((next((incident for incident in points_confirmed_incidents if (int(incident.period.number) - 1) == EXTRA_TIME_INDEX), None)))
+        last_score_incident = (points_confirmed_incidents[-1] if points_confirmed_incidents else None)
+        match_first_score_incident = (points_confirmed_incidents[0] if points_confirmed_incidents else None)
+        match_first_try_incident = (try_incidents[0] if try_incidents else None)
+        extra_time_first_try_incident = ((next((incident for incident in try_incidents if (int(incident.period.number) - 1) == EXTRA_TIME_INDEX), None)))
 
         print("[First To Score Tracking Event] Compute try timings")
         # Compute try timings
-        home_first_try_time = ((int(home_first_try_incident.time_elapsed / 60) + 1) if home_first_try_incident else None)
+        match_first_try_time = ((int(match_first_try_incident.time_elapsed / 60) + 1) if match_first_try_incident is not None else None)
+        away_first_try_time = ((int(away_first_try_incident.time_elapsed / 60) + 1) if away_first_try_incident is not None else None)
         last_try_time = ((int(last_try_incident.time_elapsed / 60) + 1) if last_try_incident else None)
-        match_first_try_time = ((int(match_first_try_incident.time_elapsed / 60) + 1) if match_first_try_incident else None)
-        away_first_try_time = ((int(away_first_try_incident.time_elapsed / 60) + 1) if away_first_try_incident else None)
+        home_first_try_time = ((int(home_first_try_incident.time_elapsed / 60) + 1) if home_first_try_incident is not None else None)
 
     return None
 
 # From: event_track-minute-winner.py
 # @depyler: custom_attribute_ignore = "event"
 def minute_winner_tracking_event(state: State) -> None:
-    final_minute: int
-    minute_intervals: list[int]
+    final_minute: int = 0
+    minute_intervals: list[int] = list()
 
     if len(state.incidents) > 0 or state.is_over:
         print("[Minute Winner Tracking Event] Initialize interval context")
@@ -449,8 +438,8 @@ def minute_winner_tracking_event(state: State) -> None:
             if final_minute > minute:
                 print("[Minute Winner Tracking Event] Calculate scores through interval")
                 # Calculate scores through interval
-                away_points_at_minute = (sum(incident.points_scored_points for incident in state.incidents if incident.has_points_confirmed and incident.points_scored_team == "Away" and incident.time_elapsed <= minute * 60))
                 home_points_at_minute = (sum(incident.points_scored_points for incident in state.incidents if incident.has_points_confirmed and incident.points_scored_team == "Home" and incident.time_elapsed <= minute * 60))
+                away_points_at_minute = (sum(incident.points_scored_points for incident in state.incidents if incident.has_points_confirmed and incident.points_scored_team == "Away" and incident.time_elapsed <= minute * 60))
 
                 print("[Minute Winner Tracking Event] Output minute winner results")
                 # Output minute winner results
@@ -462,30 +451,30 @@ def minute_winner_tracking_event(state: State) -> None:
 # From: event_track-player-scores.py
 # @depyler: custom_attribute_ignore = "event"
 def player_score_tracking_event(state: State) -> None:
-    away_first_try_jersey: int
-    away_try_scorer_indices: list[int]
-    first_try_jersey: int
-    home_first_try_jersey: int
-    home_try_scorer_indices: list[int]
-    last_try_jersey: int
-    three_unanswered_tries_team: str
-    try_scorer_indices: list[int]
-    try_teams: list[str]
+    away_first_try_jersey: int = 0
+    away_try_scorer_indices: list[int] = list()
+    first_try_jersey: int = 0
+    home_first_try_jersey: int = 0
+    home_try_scorer_indices: list[int] = list()
+    last_try_jersey: int = 0
+    three_unanswered_tries_team: str = ""
+    try_scorer_indices: list[int] = list()
+    try_teams: list[str] = list()
 
     if len(state.incidents) > 0:
         print("[Player Score Tracking Event] Collect try scorer information")
         # Collect try scorer information
-        away_try_scorer_indices = ([incident.points_confirmed_player_index for incident in state.incidents if incident.has_points_confirmed and incident.points_confirmed_score_type == 'Try' and incident.points_scored_team == "Away"])
         try_teams = ([incident.points_scored_team for incident in state.incidents if incident.has_points_confirmed and incident.points_confirmed_score_type == 'Try'])
-        home_try_scorer_indices = ([incident.points_confirmed_player_index for incident in state.incidents if incident.has_points_confirmed and incident.points_confirmed_score_type == 'Try' and incident.points_scored_team == "Home"])
         try_scorer_indices = ([incident.points_confirmed_player_index for incident in state.incidents if incident.has_points_confirmed and incident.points_confirmed_score_type == 'Try'])
+        away_try_scorer_indices = ([incident.points_confirmed_player_index for incident in state.incidents if incident.has_points_confirmed and incident.points_confirmed_score_type == 'Try' and incident.points_scored_team == "Away"])
+        home_try_scorer_indices = ([incident.points_confirmed_player_index for incident in state.incidents if incident.has_points_confirmed and incident.points_confirmed_score_type == 'Try' and incident.points_scored_team == "Home"])
 
         print("[Player Score Tracking Event] Find jersey numbers for first and last try scorers")
         # Find jersey numbers for first and last try scorers
+        away_first_try_jersey = state.away_players[away_try_scorer_indices[0]].jersey_number
         first_try_jersey = state.all_players[try_scorer_indices[0]].jersey_number
         home_first_try_jersey = state.home_players[home_try_scorer_indices[0]].jersey_number
         last_try_jersey = state.all_players[try_scorer_indices[len(try_scorer_indices) - 1]].jersey_number
-        away_first_try_jersey = state.away_players[away_try_scorer_indices[0]].jersey_number
 
         print("[Player Score Tracking Event] Output try scorer sequence (up to 15 tries)")
         # Output try scorer sequence (up to 15 tries)
@@ -550,19 +539,19 @@ def player_score_tracking_event(state: State) -> None:
 # From: event_track-race-to-points.py
 # @depyler: custom_attribute_ignore = "event"
 def race_to_points_tracking_event(state: State) -> None:
-    away_running_score: int
-    home_running_score: int
-    race_to_targets: list[int]
-    remaining_targets: list[int]
-    target_index: int
+    away_running_score: int = 0
+    home_running_score: int = 0
+    race_to_targets: list[int] = list()
+    remaining_targets: list[int] = list()
+    target_index: int = 0
 
     if len(state.incidents) > 0 or state.is_over:
         print("[Race To Points Tracking Event] Initialize race to context")
         # Initialize race to context
-        target_index = 0
+        home_running_score = 0
         away_running_score = 0
         race_to_targets = [10, 15, 20, 25, 30, 35, 40]
-        home_running_score = 0
+        target_index = 0
 
         print("[Race To Points Tracking Event] Process scoring incidents for race targets")
         # Process scoring incidents for race targets
@@ -587,8 +576,8 @@ def race_to_points_tracking_event(state: State) -> None:
 
                 print("[Race To Points Tracking Event] Check target completion")
                 # Check target completion
-                home_reached_target = (home_running_score >= current_target)
                 away_reached_target = (away_running_score >= current_target)
+                home_reached_target = (home_running_score >= current_target)
 
                 print("[Race To Points Tracking Event] Record race winner when exactly one team reaches target")
                 # Record race winner when exactly one team reaches target
@@ -622,7 +611,7 @@ def add_conversion(state: State) -> None:
     team = state.team_in_possession
     period_idx = state.period.number - 1
 
-    team_stats = state.home_statistic if team == "Home" else state.away_statistic
+    team_stats = state.home_statistics if team == "Home" else state.away_statistics
 
     team_stats.match_scores.conversions += 1
     team_stats.match_scores.total += CONVERSION_POINTS
@@ -630,10 +619,10 @@ def add_conversion(state: State) -> None:
     team_stats.period_statistics[period_idx].scores.total += CONVERSION_POINTS
 
     player = state.home_player_selected_for_points_market if team == "Home" else state.away_player_selected_for_points_market
-    player.match_statistics.conversions += 1
-    player.match_statistics.score += CONVERSION_POINTS
-    player.period_statistics[period_idx].conversions += 1
-    player.period_statistics[period_idx].score += CONVERSION_POINTS
+    player.match_statistics.scores.conversions += 1
+    player.match_statistics.scores.total += CONVERSION_POINTS
+    player.period_statistics[period_idx].scores.conversions += 1
+    player.period_statistics[period_idx].scores.total += CONVERSION_POINTS
 
 # From: fn_distance.py
 # @depyler: custom_attribute = "function"
@@ -659,7 +648,7 @@ def add_field_goal(state: State, is_two_pointer: bool) -> None:
     period_idx = state.period.number - 1
     points = TWO_POINT_FIELD_GOAL_POINTS if is_two_pointer else FIELD_GOAL_POINTS
 
-    team_stats = state.home_statistic if team == "Home" else state.away_statistic
+    team_stats = state.home_statistics if team == "Home" else state.away_statistics
 
     team_stats.match_scores.field_goals += 1
     team_stats.match_scores.total += points
@@ -667,8 +656,8 @@ def add_field_goal(state: State, is_two_pointer: bool) -> None:
     team_stats.period_statistics[period_idx].scores.total += points
 
     player = state.home_player_selected_for_points_market if team == "Home" else state.away_player_selected_for_points_market
-    player.match_statistics.score += points
-    player.period_statistics[period_idx].score += points
+    player.match_statistics.scores.total += points
+    player.period_statistics[period_idx].scores.total += points
 
 # From: fn_interchange.py
 import random
@@ -698,44 +687,6 @@ def decrement_remaining_interchanges(state: State, team: str) -> None:
     _set_remaining_interchanges(state, team, remaining)
 
 
-def execute_player_interchange(state: State, team: str, position_index: int) -> dict:
-    players = _team_players(state, team)
-
-    off_slot = position_index
-    desired_position = PLAYER_POSITION_SEQUENCE[position_index]
-
-    bench_index = _select_bench_player_index(players, NUM_STARTING_PLAYERS_PER_TEAM)
-
-    player_off = players[off_slot]
-    player_on = players[bench_index]
-
-    off_position = player_off.position.position_type
-    on_position = player_on.position.position_type
-
-    player_off.on_field = False
-    player_on.on_field = True
-
-    player_off.position.position_type = on_position
-    player_on.position.position_type = off_position
-
-    player_off.is_starter, player_on.is_starter = player_on.is_starter, player_off.is_starter
-    player_off.is_interchange, player_on.is_interchange = player_on.is_interchange, player_off.is_interchange
-
-    players[off_slot], players[bench_index] = player_on, player_off
-
-    _swap_team_statistics(state, team, off_slot, bench_index)
-    _swap_game_statistics(state, team, off_slot, bench_index)
-    _refresh_all_players(state)
-
-    return {
-        "executed": True,
-        "off_player_index": player_off.player_index,
-        "on_player_index": player_on.player_index,
-        "off_slot": off_slot,
-        "bench_slot": bench_index,
-    }
-
-
 def _select_bench_player_index(players: list[Player], starters: int) -> int:
     available = [idx for idx in range(starters, len(players)) if not players[idx].is_injured]
     return random.choice(available)
@@ -748,8 +699,7 @@ def _swap_team_statistics(state: State, team: str, off_slot: int, bench_slot: in
 
 
 def _swap_game_statistics(state: State, team: str, off_slot: int, bench_slot: int) -> None:
-    game_stats = state.game_statistics
-    mirrored = game_stats.home if team == "Home" else game_stats.away
+    mirrored = state.home_statistics if team == "Home" else state.away_statistics
     team_stats = _team_statistic(state, team)
     
     if mirrored is team_stats:
@@ -772,7 +722,7 @@ def _team_players(state: State, team: str) -> list[Player]:
 
 
 def _team_statistic(state: State, team: str) -> TeamStatistic:
-    return state.home_statistic if team == "Home" else state.away_statistic
+    return state.home_statistics if team == "Home" else state.away_statistics
 
 
 def _get_remaining_interchanges(state: State, team: str) -> int:
@@ -855,7 +805,7 @@ def add_penalty(state: State) -> None:
     team = state.team_in_possession
     period_idx = state.period.number - 1
 
-    team_stats = state.home_statistic if team == "Home" else state.away_statistic
+    team_stats = state.home_statistics if team == "Home" else state.away_statistics
 
     team_stats.match_scores.penalties += 1
     team_stats.match_scores.total += PENALTY_POINTS
@@ -863,10 +813,10 @@ def add_penalty(state: State) -> None:
     team_stats.period_statistics[period_idx].scores.total += PENALTY_POINTS
 
     player = state.home_player_selected_for_points_market if team == "Home" else state.away_player_selected_for_points_market
-    player.match_statistics.conversions += 1
-    player.match_statistics.score += PENALTY_POINTS
-    player.period_statistics[period_idx].conversions += 1
-    player.period_statistics[period_idx].score += PENALTY_POINTS
+    player.match_statistics.scores.conversions += 1
+    player.match_statistics.scores.total += PENALTY_POINTS
+    player.period_statistics[period_idx].scores.conversions += 1
+    player.period_statistics[period_idx].scores.total += PENALTY_POINTS
 
 # From: fn_player_of_match.py
 import math
@@ -886,8 +836,8 @@ def _calculate_percentage_chance(player: Player, margin: int, total_points: int)
     margin_factor = _calculate_margin_factor(player.delta_strength, margin)
 
     match_stats = player.match_statistics
-    match_tries = match_stats.tries
-    match_score = match_stats.score
+    match_tries = match_stats.scores.tries
+    match_score = match_stats.scores.total
 
     pom_percentage = player.player_of_the_match_percentage
     team_won = _team_won(player, margin)
@@ -961,7 +911,6 @@ def _team_won(player: Player, margin: int) -> bool:
 from __future__ import annotations
 
 import random
-from types import SimpleNamespace
 
 # @depyler: custom_attribute = "function"
 def _goal_line_bucket(grid_coordinate: int, k: float) -> int:
@@ -973,37 +922,22 @@ def _goal_line_bucket(grid_coordinate: int, k: float) -> int:
     return sample(weights, k)
 
 
-def compute_conversion_location_from_grid(grid_coordinate: int, k: float) -> SimpleNamespace:
+def compute_conversion_location_from_grid(grid_coordinate: int, k: float) -> int:
     bucket = _goal_line_bucket(grid_coordinate, k)
 
     if bucket < 0:
-        default_band = len(X_VALUES) // 2
-        return SimpleNamespace(
-            goal_line_bucket=bucket,
-            goal_line_field_x=PLAYING_FIELD_WIDTH,
-            goal_line_field_y=0,
-            conversion_location=X_VALUES[default_band],
-        )
+        default_band = len(CONVERSION_X_VALUES) // 2
+        return CONVERSION_X_VALUES[default_band]
 
-    goal_line_field_x = (
-        PLAYING_FIELD_WIDTH
-        + (bucket % 5) * GOAL_LINE_X_WIDTH
-        + GOAL_LINE_X_HALF_WIDTH
-    )
     bucket_row = bucket // 5
-    base_y = int(bucket_row * GOAL_LINE_Y_WIDTH + GOAL_LINE_Y_HALF_WIDTH)
+    base_y = int(bucket_row * GOAL_LINE_Y_WIDTH + (GOAL_LINE_Y_WIDTH // 2))
     goal_line_field_y = base_y + (grid_coordinate % 6) * GOAL_LINE_Y_HEIGHT_INCREMENT
 
     conversion_band = goal_line_field_y // 35
-    conversion_band = max(0, min(conversion_band, len(X_VALUES) - 1))
-    conversion_location = X_VALUES[conversion_band]
+    conversion_band = max(0, min(conversion_band, len(CONVERSION_X_VALUES) - 1))
+    conversion_location = CONVERSION_X_VALUES[conversion_band]
 
-    return SimpleNamespace(
-        goal_line_bucket=bucket,
-        goal_line_field_x=goal_line_field_x,
-        goal_line_field_y=goal_line_field_y,
-        conversion_location=conversion_location,
-    )
+    return conversion_location
 
 
 def convert_field_position(state: State, coordinate: int, team: str) -> FieldPosition:
@@ -1059,29 +993,28 @@ def _resolve_index(coordinate: int, ranges) -> int:
     return -1
 
 # From: fn_sin_bin.py
-from types import SimpleNamespace
-
 # @depyler: custom_attribute = "function"
 def record_player_sin_bin(state: State, player_index: int, team: str, sin_bin_type: str = "YellowCard") -> None:
     players = state.home_players if team == "Home" else state.away_players
     player = _resolve_player(players, player_index)
 
-    sin_bin_collection = state.home_sin_bin if team == "Home" else state.away_sin_bin
-    if player not in sin_bin_collection:
-        sin_bin_collection.append(player)
+    if player is not None:
+      sin_bin_collection = state.home_sin_bin if team == "Home" else state.away_sin_bin
+      if player not in sin_bin_collection:
+          sin_bin_collection.append(player)
 
-    seconds_elapsed = state.seconds_elapsed
-    duration = YELLOW_CARD_SECONDS if sin_bin_type == "YellowCard" else 0
+      seconds_elapsed = state.seconds_elapsed
+      duration = YELLOW_CARD_SECONDS if sin_bin_type == "YellowCard" else 0
 
-    player.sin_bin_status = sin_bin_type
-    player.return_from_sin_bin_time = seconds_elapsed + duration
-    player.on_field = False
-    player.sin_bin_sent_off = seconds_elapsed
+      player.sin_bin_status = sin_bin_type
+      player.return_from_sin_bin_time = seconds_elapsed + duration
+      player.on_field = False
+      player.sin_bin_sent_off = seconds_elapsed
 
-    rebuild_sin_bin_players(state, team)
+      rebuild_sin_bin_players(state, team)
 
 
-def _resolve_player(players: list[Player], candidate_index: int) -> Player:
+def _resolve_player(players: list[Player], candidate_index: int) -> Optional[Player]:
     for player in players:
         if player.player_index == candidate_index:
             return player
@@ -1096,32 +1029,17 @@ def _resolve_player(players: list[Player], candidate_index: int) -> Player:
         if player.position.position_type == target_position:
             return player
 
+    return None
+
 
 def rebuild_sin_bin_players(state: State, team: str) -> None:
     team_names = [team] if team else ["Home", "Away"]
     for team_name in team_names:
-        entries = _build_sin_bin_entries(state, team_name)
+        sin_bin_collection = state.home_sin_bin if team_name == "Home" else state.away_sin_bin
+        sin_bin_players = [player for player in sin_bin_collection if player.sin_bin_status != "NotSet"]
 
-        team_stats = state.home_statistic if team_name == "Home" else state.away_statistic
-        team_stats.sin_bin_players = entries
-
-        game_stats_container = state.game_statistics
-        mirror = game_stats_container.home if team_name == "Home" else game_stats_container.away
-        if mirror is not team_stats:
-            mirror.sin_bin_players = entries
-
-
-def _build_sin_bin_entries(state: State, team: str) -> list[SimpleNamespace]:
-    sin_bin_collection = state.home_sin_bin if team == "Home" else state.away_sin_bin
-    return [_build_entry_from_player(player) for player in sin_bin_collection if player.sin_bin_status != "NotSet"]
-
-
-def _build_entry_from_player(player: Player) -> SimpleNamespace:
-    return SimpleNamespace(
-        player_index=player.player_index,
-        seconds_elapsed_when_sent_off=player.sin_bin_sent_off,
-        sin_bin_type=player.sin_bin_status,
-    )
+        team_stats = state.home_statistics if team_name == "Home" else state.away_statistics
+        team_stats.sin_bin_players = sin_bin_players
 
 # From: fn_tackle.py
 # @depyler: custom_attribute = "function"
@@ -1129,7 +1047,7 @@ def record_tackle(state: State) -> None:
     team = state.team_in_possession
     period_idx = state.period.number - 1
 
-    team_stats = state.home_statistic if team == "Home" else state.away_statistic
+    team_stats = state.home_statistics if team == "Home" else state.away_statistics
 
     team_stats.match_tackles += 1
     team_stats.period_statistics[period_idx].tackles += 1
@@ -1152,23 +1070,10 @@ def swap_possession(state: State) -> None:
 
 
 def bind_team_statistics_aliases(state: State) -> None:
-    gs = state.game_statistics
-    
-    # Bind home statistics
-    home_stat = state.home_statistic or gs.home
-    state.home_statistic = home_stat
-    gs.home = home_stat
-    
-    # Bind away statistics
-    away_stat = state.away_statistic or gs.away
-    state.away_statistic = away_stat
-    gs.away = away_stat
-
     for team in ("Home", "Away"):
         players = _get_players(state, team)
         stats = [p.match_statistics for p in players]
-        getattr(state, f'{team}_statistic').player_statistics = stats
-        getattr(gs, team).player_statistics = stats
+        _get_team_stats(state, team).player_statistics = stats
         rebuild_sin_bin_players(state, team)
 
 
@@ -1185,23 +1090,28 @@ def apply_time_on_ground(state: State, team: str, seconds: float) -> None:
         player.match_statistics.time_on_field_in_seconds += seconds
         player.period_statistics[period_idx].time_on_field_in_seconds += seconds
 
-    for stats in (getattr(state, f'{team}_statistic'), getattr(state.game_statistics, team)):
-        for s in stats.player_statistics[:NUM_STARTING_PLAYERS_PER_TEAM]:
-            s.time_on_field_in_seconds += seconds
+    for s in _get_team_stats(state, team).player_statistics[:NUM_STARTING_PLAYERS_PER_TEAM]:
+        s.time_on_field_in_seconds += seconds
 
+
+def _get_team_stats(state: State, team: str) -> TeamStatistic:
+    return state.home_statistics if team == "Home" else state.away_statistics
 
 def _get_players(state: State, team: str) -> list[Player]:
     return state.home_players if team == "Home" else state.away_players
 
 # From: fn_try.py
+from .team import _get_team_stats
+
+
 # @depyler: custom_attribute = "function"
 def add_try(state: State) -> None:
     team = state.team_in_possession
     period_idx = state.period.number - 1
 
-    for stats in _get_all_team_stats(state, team):
-        stats.match_scores.tries += 1
-        stats.match_scores.total += TRY_POINTS
+    for stats in _get_team_stats(state, team).player_statistics:
+        stats.match_statistics.scores.tries += 1
+        stats.match_statistics.scores.total += TRY_POINTS
         stats.period_statistics[period_idx].scores.tries += 1
         stats.period_statistics[period_idx].scores.total += TRY_POINTS
 
@@ -1212,54 +1122,40 @@ def assign_try(state: State, player_index: int, team: str) -> None:
     _increment_player_try_stats(state, team, player_index, period_idx)
 
 
-def _get_all_team_stats(state: State, team: str):
-    team_stat = state.home_statistic if team == "Home" else state.away_statistic
-    return (team_stat,)
-
-
 def _record_try_tracker(state: State, team: str, player_index: int, period_idx: int) -> None:
     t = state.try_tracker
 
-    _append_scorer(t.match_tries, player_index)
-    _append_scorer(t.period_tries[period_idx], player_index)
+    t.match_tries.player_indices.append(player_index)
+    t.period_tries[period_idx].player_indices.append(player_index)
 
     if team == "Home":
-        _append_scorer(t.home_match_tries, player_index)
-        _append_scorer(t.home_period_tries[period_idx], player_index)
+        t.home_match_tries.player_indices.append(player_index)
+        t.home_period_tries[period_idx].player_indices.append(player_index)
     else:
-        _append_scorer(t.away_match_tries, player_index)
-        _append_scorer(t.away_period_tries[period_idx], player_index)
-
-
-def _append_scorer(container: TryScorers, player_index: int) -> None:
-    indices = container.player_indices
-    for i, v in enumerate(indices):
-        if v in (None, -1):
-            indices[i] = player_index
-            return
-    indices.append(player_index)
+        t.away_match_tries.player_indices.append(player_index)
+        t.away_period_tries[period_idx].player_indices.append(player_index)
 
 
 def _increment_player_try_stats(state: State, team: str, player_index: int, period_idx: int) -> None:
     players = state.home_players if team == "Home" else state.away_players
     player_list_idx, player = next((i, p) for i, p in enumerate(players) if p.player_index == player_index)
 
-    player.match_statistics.tries += 1
-    player.match_statistics.score += TRY_POINTS
-    player.period_statistics[period_idx].tries += 1
-    player.period_statistics[period_idx].score += TRY_POINTS
+    player.match_statistics.scores.tries += 1
+    player.match_statistics.scores.total += TRY_POINTS
+    player.period_statistics[period_idx].scores.tries += 1
+    player.period_statistics[period_idx].scores.total += TRY_POINTS
 
-    team_stats = state.home_statistic if team == "Home" else state.away_statistic
-    team_stats.player_statistics[player_list_idx].tries += 1
-    team_stats.player_statistics[player_list_idx].score += TRY_POINTS
+    team_stats = state.home_statistics if team == "Home" else state.away_statistics
+    team_stats.player_statistics[player_list_idx].scores.tries += 1
+    team_stats.player_statistics[player_list_idx].scores.total += TRY_POINTS
 
 # From: game.py
 # @depyler: custom_attribute_ignore = "game"
 def nrl(state: State) -> None:
-    current_minute: int
-    field_goal_attempt_result: int
-    minute_delta: int
-    previous_minute: int
+    current_minute: int = 0
+    field_goal_attempt_result: int = 0
+    minute_delta: int = 0
+    previous_minute: int = 0
 
     print("[NRL] Bind team statistics aliases")
     # Bind team statistics aliases
@@ -1316,7 +1212,7 @@ def nrl(state: State) -> None:
 
                 print("[NRL] Run kickoff")
                 # Run kickoff
-                kickoff(state, force_possession_change=True, is_line_dropout=True)
+                kickoff(state, is_line_dropout=True, force_possession_change=True)
             else:
                 print("[NRL] Get XY model result")
                 # Get XY model result
@@ -1328,35 +1224,7 @@ def nrl(state: State) -> None:
 
                 print("[NRL] Process play type")
                 # Process play type
-                if state.current_play_type == "WonPenalty":
-                    print("[NRL] Run process_penalty")
-                    # Run process_penalty
-                    process_penalty(state)
-                elif state.current_play_type == "KickRetainTackle":
-                    print("[NRL] Run process_tackle")
-                    # Run process_tackle
-                    process_tackle(state)
-                elif state.current_play_type == "Pass":
-                    pass
-                elif state.current_play_type == "KickRetain":
-                    pass
-                elif state.current_play_type == "KickRetainTry":
-                    print("[NRL] Run process_try")
-                    # Run process_try
-                    process_try(state)
-                elif state.current_play_type == "KickTurnover":
-                    print("[NRL] Run swap_possession")
-                    # Run swap_possession
-                    swap_possession(state)
-                elif state.current_play_type == "ErrorAttack":
-                    print("[NRL] Run swap_possession")
-                    # Run swap_possession
-                    swap_possession(state)
-                elif state.current_play_type == "RunTry":
-                    print("[NRL] Run process_try")
-                    # Run process_try
-                    process_try(state)
-                elif state.current_play_type == "ErrorDefence":
+                if state.current_play_type == "ErrorDefence":
                     print("[NRL] Set variables")
                     # Set variables
                     update_state[State](lambda s: setattr(s, 'tackles', STARTING_TACKLE))
@@ -1364,12 +1232,40 @@ def nrl(state: State) -> None:
                     print("[NRL] Run process_tackle")
                     # Run process_tackle
                     process_tackle(state)
+                elif state.current_play_type == "KickTurnover":
+                    print("[NRL] Run swap_possession")
+                    # Run swap_possession
+                    swap_possession(state)
                 elif state.current_play_type == "Run":
                     pass
+                elif state.current_play_type == "Pass":
+                    pass
+                elif state.current_play_type == "KickRetainTackle":
+                    print("[NRL] Run process_tackle")
+                    # Run process_tackle
+                    process_tackle(state)
+                elif state.current_play_type == "KickRetainTry":
+                    print("[NRL] Run process_try")
+                    # Run process_try
+                    process_try(state)
+                elif state.current_play_type == "WonPenalty":
+                    print("[NRL] Run process_penalty")
+                    # Run process_penalty
+                    process_penalty(state)
+                elif state.current_play_type == "KickRetain":
+                    pass
+                elif state.current_play_type == "RunTry":
+                    print("[NRL] Run process_try")
+                    # Run process_try
+                    process_try(state)
                 elif state.current_play_type == "ConcededPenalty":
                     print("[NRL] Run process_penalty")
                     # Run process_penalty
                     process_penalty(state)
+                elif state.current_play_type == "ErrorAttack":
+                    print("[NRL] Run swap_possession")
+                    # Run swap_possession
+                    swap_possession(state)
 
         print("[NRL] Snapshot elapsed minute before clock")
         # Snapshot elapsed minute before clock
@@ -1396,11 +1292,11 @@ def nrl(state: State) -> None:
 
             print("[NRL] Run apply_time_on_ground")
             # Run apply_time_on_ground
-            apply_time_on_ground(state, seconds=float(minute_delta * 60), team="Away")
+            apply_time_on_ground(state, team="Away", seconds=float(minute_delta * 60))
 
-            print("[NRL] Run Interchange")
-            # Run Interchange
-            Interchange(state)
+            print("[NRL] Run interchange")
+            # Run interchange
+            interchange(state)
 
         print("[NRL] Stop if complete")
         # Stop if complete
@@ -1426,14 +1322,13 @@ class State:
     all_players: List[Player]
     away_match_score: int
     away_match_tries: TryScorers
-    away_period_tries: TryScorersPeriodSlots
+    away_period_tries: List[TryScorers]
     away_player_selected_for_points_market: Player
-    away_player_stats: List[PlayerStatistics]
     away_players_trader_state: List[Player]
     away_players: List[Player]
     away_remaining_interchanges: int
     away_sin_bin: List[Player]
-    away_statistic: TeamStatistic
+    away_statistics: TeamStatistic
     ball_location: FieldPosition
     ball_position_x: int
     ball_position_y: int
@@ -1442,18 +1337,16 @@ class State:
     end_zone_type: str
     game_has_started: bool
     game_is_extratime: bool
-    game_statistics: GameStatistics
     game_status: str
     home_match_score: int
     home_match_tries: TryScorers
-    home_period_tries: TryScorersPeriodSlots
+    home_period_tries: List[TryScorers]
     home_player_selected_for_points_market: Player
-    home_player_stats: List[PlayerStatistics]
     home_players_trader_state: List[Player]
     home_players: List[Player]
     home_remaining_interchanges: int
     home_sin_bin: List[Player]
-    home_statistic: TeamStatistic
+    home_statistics: TeamStatistic
     incidents: List[Incident]
     include_players: bool
     is_in_end_zone: bool
@@ -1461,7 +1354,7 @@ class State:
     last_play_type: str
     match_period: str
     match_tries: TryScorers
-    period_tries: TryScorersPeriodSlots
+    period_tries: List[TryScorers]
     period: Period
     player_of_the_match: int
     previous_ball_location: FieldPosition
@@ -1481,17 +1374,10 @@ class FieldPosition:
     y: int
 
 @dataclass
-class GameStatistics:
-    away: TeamStatistic
-    home: TeamStatistic
-
-@dataclass
 class PlayerPeriodStatistics:
-    conversions: int
     metres_gained: int
-    score: int
+    scores: Scores
     tackles: int
-    tries: int
 
 @dataclass
 class Incident:
@@ -1560,11 +1446,9 @@ class PlayerStatistics:
     match_statistics: PlayerPeriodStatistics
     period_statistics: List[PlayerPeriodStatistics]
     player_index: int
-    tries: int
-    conversions: int
     tackles: int
     metres_gained: int
-    score: int
+    scores: Scores
     time_on_field_in_seconds: float
 
 @dataclass
@@ -1591,21 +1475,13 @@ class TryScorers:
     player_indices: List[int]
 
 @dataclass
-class TryScorersSingleSlot:
-    player_indices: list[int]
-
-@dataclass
-class TryScorersPeriodSlots:
-    pass
-
-@dataclass
 class TryTracker:
     away_match_tries: TryScorers
-    away_period_tries: TryScorersPeriodSlots
+    away_period_tries: List[TryScorers]
     home_match_tries: TryScorers
-    home_period_tries: TryScorersPeriodSlots
+    home_period_tries: List[TryScorers]
     match_tries: TryScorers
-    period_tries: TryScorersPeriodSlots
+    period_tries: List[TryScorers]
 
 @dataclass
 class PlayerInvariants:
@@ -1620,7 +1496,6 @@ class PlayerSolution:
 @dataclass
 class SimulationInvariants:
     all_players_invariants: List[PlayerInvariants]
-    game_state: State
     away_handicap: float
     away_price: float
     away_team_players_invariants: List[PlayerInvariants]
@@ -1663,9 +1538,9 @@ class ClockOutputs:
 
 # @depyler: custom_attribute_ignore = "step"
 def clock(state: State) -> ClockOutputs:
-    seconds_to_add: float
-    seconds_to_add_initial: float
-    time_adjustment: float
+    seconds_to_add: float = 0.0
+    seconds_to_add_initial: float = 0.0
+    time_adjustment: float = 0.0
 
     print("[Clock] Run clock model")
     # Run clock model
@@ -1737,12 +1612,12 @@ def conversion(state: State) -> None:
 # From: step_end_zone.py
 # @depyler: custom_attribute_ignore = "step"
 def end_zone(state: State) -> None:
-    grid_coordinate: int
-    is_end_zone: bool
-    is_za_zone: bool
-    is_zj_zone: bool
-    zone_division: int
-    zone_type: str
+    grid_coordinate: int = 0
+    is_end_zone: bool = False
+    is_za_zone: bool = False
+    is_zj_zone: bool = False
+    zone_division: int = 0
+    zone_type: str = ""
 
     print("[EndZone] Derive grid coordinate from ball location")
     # Derive grid coordinate from ball location
@@ -1754,22 +1629,22 @@ def end_zone(state: State) -> None:
 
     print("[EndZone] Calculate zone type booleans")
     # Calculate zone type booleans
+    is_zj_zone = (zone_division == 11)
     is_end_zone = (zone_division == 10 or zone_division == 11)
     is_za_zone = (zone_division == 10)
-    is_zj_zone = (zone_division == 11)
 
     print("[EndZone] Update game state")
     # Update game state
-    update_state[State](lambda s: setattr(s, 'is_in_end_zone', is_end_zone))
     update_state[State](lambda s: setattr(s, 'end_zone_type', "za" if is_za_zone else "zj" if is_zj_zone else "none"))
+    update_state[State](lambda s: setattr(s, 'is_in_end_zone', is_end_zone))
 
     return None
 
 # From: step_field_goal.py
 # @depyler: custom_attribute_ignore = "step"
 def field_goal(state: State) -> None:
-    adjusted_x: int
-    is_two_pointer: bool
+    adjusted_x: int = 0
+    is_two_pointer: bool = False
 
     print("[FieldGoal] Run field goal model")
     # Run field goal model
@@ -1817,13 +1692,13 @@ def field_goal(state: State) -> None:
         if state.team_in_possession == "Home":
             print("[FieldGoal] Set variables")
             # Set variables
-            update_state[State](lambda s: setattr(s.ball_location, 'x', MISSED_FIELD_GOAL_RESTART_X))
             update_state[State](lambda s: setattr(s.ball_location, 'y', CENTRE_OF_THE_FIELD_Y))
+            update_state[State](lambda s: setattr(s.ball_location, 'x', MISSED_FIELD_GOAL_RESTART_X))
         else:
             print("[FieldGoal] Set variables")
             # Set variables
-            update_state[State](lambda s: setattr(s.ball_location, 'y', CENTRE_OF_THE_FIELD_Y))
             update_state[State](lambda s: setattr(s.ball_location, 'x', PLAYING_FIELD_WIDTH - MISSED_FIELD_GOAL_RESTART_X))
+            update_state[State](lambda s: setattr(s.ball_location, 'y', CENTRE_OF_THE_FIELD_Y))
 
     return None
 
@@ -1873,15 +1748,15 @@ def field_goal_decision(state: State) -> FieldGoalDecisionOutputs:
     FIELD_GOAL_MIN_TIME_FIRST: Final[int] = 2340
     FIELD_GOAL_MIN_TIME_SECOND: Final[int] = 4200
 
-    in_bounds: bool
-    in_direction: bool
-    in_time: bool
+    in_bounds: bool = False
+    in_direction: bool = False
+    in_time: bool = False
 
     print("[FieldGoalDecision] Evaluate spatial bounds")
     # Evaluate spatial bounds
     in_bounds = (state.ball_location.x > FIELD_GOAL_MIN_ABSOLUTE and state.ball_location.x < FIELD_GOAL_MAX_ABSOLUTE)
-    in_time = ((state.seconds_elapsed >= FIELD_GOAL_MIN_TIME_FIRST and state.seconds_elapsed <= FIELD_GOAL_MAX_TIME_FIRST) or (state.seconds_elapsed >= FIELD_GOAL_MIN_TIME_SECOND))
     in_direction = ((state.team_in_possession == "Away" and state.ball_location.x < FIELD_GOAL_MIN_AWAY) or (state.team_in_possession == "Home" and state.ball_location.x > FIELD_GOAL_MIN_HOME))
+    in_time = ((state.seconds_elapsed >= FIELD_GOAL_MIN_TIME_FIRST and state.seconds_elapsed <= FIELD_GOAL_MAX_TIME_FIRST) or (state.seconds_elapsed >= FIELD_GOAL_MIN_TIME_SECOND))
 
     print("[FieldGoalDecision] Return decision")
     # Return decision
@@ -1908,43 +1783,31 @@ class GetConversionModelResultInferOutputs1:
 
 @dataclass
 class GetConversionModelResultOutputs:
-    conversion_location: Any
-    goal_line_bucket: Any
-    goal_line_field_x: Any
-    goal_line_field_y: Any
     scored: bool
 
 # @depyler: custom_attribute_ignore = "step"
 def get_conversion_model_result(state: State) -> GetConversionModelResultOutputs:
-    conversion_k: float
-    is_extra_time: bool
-    player_advantage: int
+    conversion_k: float = 0.0
+    is_extra_time: bool = False
+    player_advantage: int = 0
 
     print("[GetConversionModelResult] Set variables")
     # Set variables
-    is_extra_time = (state.period.name == 'ExtraTime')
     conversion_k = random.random()
+    is_extra_time = (state.period.name == 'ExtraTime')
     player_advantage = (int((len(state.away_sin_bin) - len(state.home_sin_bin)) if state.team_in_possession == "Home" else (len(state.home_sin_bin) - len(state.away_sin_bin))))
 
     print("[GetConversionModelResult] Run xy model to determine goal line grid")
     # Run xy model to determine goal line grid
     xy_model: GetConversionModelResultInferOutputs0 = infer[GetConversionModelResultInferOutputs0](name="xy", input=[conversion_k, float(state.tackles), float(state.ball_location.x if state.team_in_possession == "Home" else abs(PLAYING_FIELD_WIDTH - state.ball_location.x)), float(state.ball_location.y if state.team_in_possession == "Home" else abs(700 - state.ball_location.y)), float(state.simulation_invariants.total_points), float(get_team_handicap(state)), btf(player_advantage == 1), btf(player_advantage > 1), btf(player_advantage == -1), btf(player_advantage < -1), float(calculate_margin(state)), btf(state.current_play_type == 'Pass' or is_extra_time), btf(state.current_play_type in ['Run', 'RunTackle'] or (state.current_play_type == 'RunTry' and not is_extra_time)), btf(state.current_play_type in ['KickRetain', 'KickRetainTackle', 'KickTurnover'] or (state.current_play_type == 'KickRetainTry' and not is_extra_time)), btf(state.current_play_type == 'RunTry' or (state.current_play_type == 'KickRetainTry' and not is_extra_time))])
 
-    print("[GetConversionModelResult] Compute conversion location from goal line distribution")
-    # Compute conversion location from goal line distribution
-    conversion_context = compute_conversion_location_from_grid(int(xy_model.probabilities[0]), conversion_k)
-
     print("[GetConversionModelResult] Run conversion model")
     # Run conversion model
-    conversion_model: GetConversionModelResultInferOutputs1 = infer[GetConversionModelResultInferOutputs1](name="conversion", input=[conversion_k, float(conversion_context.conversion_location), float(abs(CENTRE_OF_THE_FIELD_Y - state.ball_location.y))])
+    conversion_model: GetConversionModelResultInferOutputs1 = infer[GetConversionModelResultInferOutputs1](name="conversion", input=[conversion_k, float(compute_conversion_location_from_grid(int(xy_model.probabilities[0]), conversion_k)), float(abs(CENTRE_OF_THE_FIELD_Y - state.ball_location.y))])
 
     print("[GetConversionModelResult] Return result")
     # Return result
     return GetConversionModelResultOutputs(
-        conversion_location=conversion_context.conversion_location,
-        goal_line_bucket=conversion_context.goal_line_bucket,
-        goal_line_field_x=conversion_context.goal_line_field_x,
-        goal_line_field_y=conversion_context.goal_line_field_y,
         scored=(conversion_model.probabilities[0] == 1.0)
     )
 
@@ -2023,52 +1886,52 @@ class InterchangeInferOutputs1:
 
 # @depyler: custom_attribute_ignore = "step"
 def interchange(state: State) -> None:
-    away_interchange_executed: bool
-    away_off_player_index: int
-    away_on_player_index: int
-    away_should_interchange: bool
-    home_interchange_executed: bool
-    home_off_player_index: int
-    home_on_player_index: int
-    home_should_interchange: bool
+    away_interchange_executed: bool = False
+    away_off_player_index: Optional[int] = None
+    away_on_player_index: Optional[int] = None
+    away_should_interchange: bool = False
+    home_interchange_executed: bool = False
+    home_off_player_index: Optional[int] = None
+    home_on_player_index: Optional[int] = None
+    home_should_interchange: bool = False
 
     print("[Interchange] Reset interchange context")
     # Reset interchange context
-    home_off_player_index = -1
-    home_interchange_executed = False
-    away_interchange_executed = False
-    away_off_player_index = -1
-    pending_interchange = None
-    away_on_player_index = -1
-    home_should_interchange = False
     away_should_interchange = False
-    home_on_player_index = -1
+    home_off_player_index = None
+    home_should_interchange = False
+    away_off_player_index = None
+    away_interchange_executed = False
+    home_on_player_index = None
+    home_interchange_executed = False
+    pending_interchange = None
+    away_on_player_index = None
 
     print("[Interchange] Sample home interchange decision")
     # Sample home interchange decision
     if state.home_remaining_interchanges > 0:
-        # Sample home interchange decision
+        print("[Interchange] Infer home interchange model")
+        # Infer home interchange model
         home_interchange_model: InterchangeInferOutputs0 = infer[InterchangeInferOutputs0](name="interchange", input=[random.random(), float(int(state.seconds_elapsed / 60)), float(get_time_on_field_for_position(state, "Home", 'FullBack')), float(get_time_on_field_for_position(state, "Home", 'WingerOne')), float(get_time_on_field_for_position(state, "Home", 'CentreOne')), float(get_time_on_field_for_position(state, "Home", 'CentreTwo')), float(get_time_on_field_for_position(state, "Home", 'WingerTwo')), float(get_time_on_field_for_position(state, "Home", 'FiveEighth')), float(get_time_on_field_for_position(state, "Home", 'HalfBack')), float(get_time_on_field_for_position(state, "Home", 'PropOne')), float(get_time_on_field_for_position(state, "Home", 'Hooker')), float(get_time_on_field_for_position(state, "Home", 'PropTwo')), float(get_time_on_field_for_position(state, "Home", 'SecondRowOne')), float(get_time_on_field_for_position(state, "Home", 'SecondRowTwo')), float(get_time_on_field_for_position(state, "Home", 'Lock')), float(get_interchanges_used(state, "Home"))])
 
-    print("[Interchange] Decide home interchange outcome")
-    # Decide home interchange outcome
-    if state.home_remaining_interchanges > 0:
+        print("[Interchange] Decide home interchange outcome")
         # Decide home interchange outcome
         home_should_interchange = (int(home_interchange_model.probabilities[0]) == 1)
 
     print("[Interchange] Sample home player selection")
     # Sample home player selection
     if home_should_interchange:
-        # Sample home player selection
-        home_selection: PlayerInterchangeOutputs = player_interchange(state, position_index=home_selection.position_index, team="Home")
+        print("[Interchange] Infer home player selection")
+        # Infer home player selection
+        home_execution: PlayerInterchangeOutputs = player_interchange(state, position_index=home_selection.position_index, team="Home")
 
-    print("[Interchange] Finalise home interchange")
-    # Finalise home interchange
-    if home_should_interchange and home_execution.executed:
+        print("[Interchange] Finalise home interchange")
         # Finalise home interchange
-        home_off_player_index = home_execution.off_player_index if home_execution.off_player_index is not None else -1
-        home_on_player_index = home_execution.on_player_index if home_execution.on_player_index is not None else -1
-        home_interchange_executed = True
+        if home_execution.executed:
+            # Finalise home interchange
+            home_interchange_executed = True
+            home_off_player_index = home_execution.off_player_index
+            home_on_player_index = home_execution.on_player_index
 
     print("[Interchange] Reduce home interchange counter")
     # Reduce home interchange counter
@@ -2079,28 +1942,28 @@ def interchange(state: State) -> None:
     print("[Interchange] Sample away interchange decision")
     # Sample away interchange decision
     if state.away_remaining_interchanges > 0:
-        # Sample away interchange decision
+        print("[Interchange] Infer away interchange model")
+        # Infer away interchange model
         away_interchange_model: InterchangeInferOutputs1 = infer[InterchangeInferOutputs1](name="Interchange", input=[random.random(), float(int(state.seconds_elapsed / 60)), float(get_time_on_field_for_position(state, "Away", 'FullBack')), float(get_time_on_field_for_position(state, "Away", 'WingerOne')), float(get_time_on_field_for_position(state, "Away", 'CentreOne')), float(get_time_on_field_for_position(state, "Away", 'CentreTwo')), float(get_time_on_field_for_position(state, "Away", 'WingerTwo')), float(get_time_on_field_for_position(state, "Away", 'FiveEighth')), float(get_time_on_field_for_position(state, "Away", 'HalfBack')), float(get_time_on_field_for_position(state, "Away", 'PropOne')), float(get_time_on_field_for_position(state, "Away", 'Hooker')), float(get_time_on_field_for_position(state, "Away", 'PropTwo')), float(get_time_on_field_for_position(state, "Away", 'SecondRowOne')), float(get_time_on_field_for_position(state, "Away", 'SecondRowTwo')), float(get_time_on_field_for_position(state, "Away", 'Lock')), float(get_interchanges_used(state, "Away"))])
 
-    print("[Interchange] Decide away interchange outcome")
-    # Decide away interchange outcome
-    if state.away_remaining_interchanges > 0:
+        print("[Interchange] Decide away interchange outcome")
         # Decide away interchange outcome
         away_should_interchange = (int(away_interchange_model.probabilities[0]) == 1)
 
     print("[Interchange] Sample away player selection")
     # Sample away player selection
     if away_should_interchange:
-        # Sample away player selection
-        away_execution: PlayerInterchangeOutputs = player_interchange(state, position_index=away_selection.position_index, team="Away")
+        print("[Interchange] Infer away player selection")
+        # Infer away player selection
+        away_execution: PlayerInterchangeOutputs = player_interchange(state, team="Away", position_index=away_selection.position_index)
 
-    print("[Interchange] Finalise away interchange")
-    # Finalise away interchange
-    if away_should_interchange and away_execution.executed:
+        print("[Interchange] Finalise away interchange")
         # Finalise away interchange
-        away_interchange_executed = True
-        away_off_player_index = away_execution.off_player_index if away_execution.off_player_index is not None else -1
-        away_on_player_index = away_execution.on_player_index if away_execution.on_player_index is not None else -1
+        if away_execution.executed:
+            # Finalise away interchange
+            away_interchange_executed = True
+            away_off_player_index = away_execution.off_player_index
+            away_on_player_index = away_execution.on_player_index
 
     print("[Interchange] Reduce away interchange counter")
     # Reduce away interchange counter
@@ -2119,9 +1982,9 @@ def interchange(state: State) -> None:
 # From: step_kickoff.py
 # @depyler: custom_attribute_ignore = "step"
 def kickoff(state: State, force_possession_change: bool, is_line_dropout: bool) -> None:
-    field_position: FieldPosition
-    new_team_in_possession: str
-    valid: bool
+    field_position: FieldPosition = FieldPosition(0, 0)
+    new_team_in_possession: str = ""
+    valid: bool = False
 
     print("[Kickoff] Ensure team in possession is initialised")
     # Ensure team in possession is initialised
@@ -2201,8 +2064,8 @@ def kickoff(state: State, force_possession_change: bool, is_line_dropout: bool) 
 
     print("[Kickoff] Update game state")
     # Update game state
-    update_state[State](lambda s: setattr(s, 'team_in_possession', new_team_in_possession))
     update_state[State](lambda s: setattr(s, 'ball_location', field_position))
+    update_state[State](lambda s: setattr(s, 'team_in_possession', new_team_in_possession))
 
     return None
 
@@ -2223,9 +2086,9 @@ class NextPlayOutputs:
 
 # @depyler: custom_attribute_ignore = "step"
 def next_play(state: State) -> NextPlayOutputs:
-    distance_to_try_line: int
-    player_advantage: int
-    possessing_team_margin: float
+    distance_to_try_line: int = 0
+    player_advantage: int = 0
+    possessing_team_margin: float = 0.0
 
     print("[NextPlay] Set variables")
     # Set variables
@@ -2294,7 +2157,9 @@ class PlayerInterchangeInferOutputs0:
 
 @dataclass
 class PlayerInterchangeOutputs:
-    position_index: int
+    executed: bool
+    off_player_index: int
+    on_player_index: int
     team: str
 
 # @depyler: custom_attribute_ignore = "step"
@@ -2306,7 +2171,9 @@ def player_interchange(state: State, team: str) -> PlayerInterchangeOutputs:
     print("[PlayerInterchange] Return interchange position")
     # Return interchange position
     return PlayerInterchangeOutputs(
-        position_index=int(model.probabilities[0]),
+        executed=True,
+        off_player_index=-1,
+        on_player_index=-1,
         team=team
     )
 
@@ -2348,10 +2215,10 @@ class PlayerOfTheMatchOutputs:
 
 # @depyler: custom_attribute_ignore = "step"
 def player_of_the_match(state: State, enabled: bool) -> PlayerOfTheMatchOutputs:
-    distribution_sum: float
-    player_distributions: list[float]
-    pom_player_index: int
-    sample_index: int
+    distribution_sum: float = 0.0
+    player_distributions: list[float] = list()
+    pom_player_index: int = 0
+    sample_index: int = 0
 
     print("[PlayerOfTheMatch] Skip processing when feature disabled")
     # Skip processing when feature disabled
@@ -2365,15 +2232,6 @@ def player_of_the_match(state: State, enabled: bool) -> PlayerOfTheMatchOutputs:
     print("[PlayerOfTheMatch] Calculate player of the match distributions")
     # Calculate player of the match distributions
     player_distributions = calculate_player_of_match_distributions(state)
-
-    print("[PlayerOfTheMatch] Handle empty distributions")
-    # Handle empty distributions
-    if len(player_distributions) == 0:
-        print("[PlayerOfTheMatch] Return")
-        # Return
-        return PlayerOfTheMatchOutputs(
-            player_of_the_match=None
-        )
 
     print("[PlayerOfTheMatch] Aggregate distribution sum")
     # Aggregate distribution sum
@@ -2396,7 +2254,7 @@ def player_of_the_match(state: State, enabled: bool) -> PlayerOfTheMatchOutputs:
 
     print("[PlayerOfTheMatch] Resolve player index from state")
     # Resolve player index from state
-    pom_player_index = (state.all_players[sample_index].player_index if sample_index < len(state.all_players) else None)
+    pom_player_index = state.all_players[sample_index].player_index
 
     print("[PlayerOfTheMatch] Persist player of the match on state")
     # Persist player of the match on state
@@ -2421,10 +2279,10 @@ class PlayerSinBinInferOutputs0:
 
 # @depyler: custom_attribute_ignore = "step"
 def player_sin_bin(state: State, sin_bin_team_is_home: bool) -> None:
-    is_home: float
-    penalty_team_is_home: bool
-    sin_bin_player_index: int
-    sin_bin_team: str
+    is_home: float = 0.0
+    penalty_team_is_home: bool = False
+    sin_bin_player_index: int = 0
+    sin_bin_team: str = ""
 
     print("[PlayerSinBin] Determine penalty team side")
     # Determine penalty team side
@@ -2440,22 +2298,22 @@ def player_sin_bin(state: State, sin_bin_team_is_home: bool) -> None:
 
     print("[PlayerSinBin] Persist sin bin selection")
     # Persist sin bin selection
-    sin_bin_player_index = int(model.probabilities[0])
     sin_bin_team = ("Home" if penalty_team_is_home else "Away")
+    sin_bin_player_index = int(model.probabilities[0])
 
     print("[PlayerSinBin] Record player sin bin event")
     # Record player sin bin event
     if sin_bin_player_index >= 0:
         # Record player sin bin event
-        record_player_sin_bin(state, sin_bin_type="YellowCard", player_index=sin_bin_player_index, team=sin_bin_team)
+        record_player_sin_bin(state, team=sin_bin_team, player_index=sin_bin_player_index, sin_bin_type="YellowCard")
 
     print("[PlayerSinBin] Update state markers for sin bin event")
     # Update state markers for sin bin event
     if sin_bin_player_index >= 0:
         # Update state markers for sin bin event
         last_sin_bin_player_index = sin_bin_player_index
-        last_event = "PLAYER_SIN_BIN"
         last_sin_bin_team = sin_bin_team
+        last_event = "PLAYER_SIN_BIN"
 
     return None
 
@@ -2477,11 +2335,11 @@ class PlayerTriesOutputs:
 
 # @depyler: custom_attribute_ignore = "step"
 def player_tries(state: State, team: str) -> PlayerTriesOutputs:
-    player_index: int
+    player_index: int = 0
 
     print("[PlayerTries] Calculate player try distributions")
     # Calculate player try distributions
-    percentage: GetTeamTryDistributionsOutputs = get_team_try_distributions(state)
+    percentage: list[float] = get_team_try_distributions(state)
 
     print("[PlayerTries] Run player tries model")
     # Run player tries model
@@ -2523,7 +2381,7 @@ def process_penalty(state: State) -> None:
 
         print("[ProcessPenalty] Process kickoff after penalty shot")
         # Process kickoff after penalty shot
-        kickoff(state, force_possession_change=False, is_line_dropout=False)
+        kickoff(state, is_line_dropout=False, force_possession_change=False)
 
     print("[ProcessPenalty] Handle scrum lost")
     # Handle scrum lost
@@ -2595,7 +2453,7 @@ def process_try(state: State) -> None:
 
         print("[ProcessTry] Assign try to selected player")
         # Assign try to selected player
-        assign_try(state, player_index=try_selection.player_index, team=try_selection.team)
+        assign_try(state, team=try_selection.team, player_index=try_selection.player_index)
 
     print("[ProcessTry] Process conversion")
     # Process conversion
@@ -2634,16 +2492,35 @@ def sin_bin(state: State) -> SinBinOutputs:
         sent_off=(model.probabilities[0] == 1.0)
     )
 
+# From: step_test_initial_values.py
+# @depyler: custom_attribute_ignore = "step"
+def test_initial_values(state: State) -> None:
+    counter: int = 0
+    is_enabled: bool = True
+    is_valid: bool = False
+    max_attempts: int = 5
+    position: FieldPosition | None = None
+    probability: float = 0.5
+    result: str = ""
+    status: str = ""
+    team_name: str = "Home"
+
+    print("[TestInitialValues] Test step")
+    # Test step
+    counter = counter + 1
+
+    return None
+
 # From: step_update_match_scores.py
 # @depyler: custom_attribute_ignore = "step"
 def update_match_scores(state: State) -> None:
     print("[UpdateMatchScores] Sync home match score")
     # Sync home match score
-    update_state[State](lambda s: setattr(s, 'home_match_score', state.home_statistic.match_scores.total))
+    update_state[State](lambda s: setattr(s, 'home_match_score', state.home_statistics.match_scores.total))
 
     print("[UpdateMatchScores] Sync away match score")
     # Sync away match score
-    update_state[State](lambda s: setattr(s, 'away_match_score', state.away_statistic.match_scores.total))
+    update_state[State](lambda s: setattr(s, 'away_match_score', state.away_statistics.match_scores.total))
 
     return None
 
@@ -2664,13 +2541,13 @@ class XyOutputs:
 
 # @depyler: custom_attribute_ignore = "step"
 def xy(state: State) -> XyOutputs:
-    is_extra_time: bool
-    player_advantage: int
+    is_extra_time: bool = False
+    player_advantage: int = 0
 
     print("[Xy] Set variables")
     # Set variables
-    is_extra_time = (state.period.name == 'ExtraTime')
     player_advantage = (int((len(state.away_sin_bin) - len(state.home_sin_bin)) if state.team_in_possession == "Home" else (len(state.home_sin_bin) - len(state.away_sin_bin))))
+    is_extra_time = (state.period.name == 'ExtraTime')
 
     print("[Xy] Run xy model")
     # Run xy model
@@ -2695,6 +2572,7 @@ def register_events() -> None:
     register_event("minute_winner_tracking_event", minute_winner_tracking_event)
     register_event("player_score_tracking_event", player_score_tracking_event)
     register_event("race_to_points_tracking_event", race_to_points_tracking_event)
+
 "#;
 
     let rust = transpile_and_check(python, &[]);

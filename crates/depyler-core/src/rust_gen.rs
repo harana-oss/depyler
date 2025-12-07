@@ -895,8 +895,10 @@ fn analyze_mutable_vars(stmts: &[HirStmt], ctx: &mut CodeGenContext, params: &[H
                 };
 
                 if is_mut {
-                    if let HirExpr::Var(var_name) = &**object {
-                        mutable.insert(var_name.clone());
+                    // For mutating method calls, mark the root variable as mutable
+                    // This handles both direct calls (x.push(v)) and nested field access (x.field.push(v))
+                    if let Some(var_name) = crate::expr_utils::extract_root_var(object) {
+                        mutable.insert(var_name);
                     }
                 }
                 // Recursively check nested expressions
@@ -1479,6 +1481,7 @@ fn generate_constant_tokens(
         // Check if type requires heap allocation
         if requires_lazy_static(&inferred_type) {
             ctx.needs_lazy_static = true;
+            ctx.lazy_static_constants.insert(constant.name.clone());
             lazy_static_items.push(quote! {
                 pub static ref #name_ident: #type_annotation = #value_expr;
             });
@@ -1610,19 +1613,27 @@ pub fn generate_rust_file(
         function_param_types: std::collections::HashMap::new(),  // Track function parameter types
         var_usage_counts: std::collections::HashMap::new(),      // Variable usage counts for clone analysis
         var_usage_current: std::collections::HashMap::new(),     // Current usage position during codegen
+        optional_vars: HashSet::new(),                           // Track vars declared as Option<T>
+        lazy_static_constants: HashSet::new(),                   // Track lazy_static constants (need deref)
     };
 
     // Must run BEFORE function conversion so validator parameter types are correct
     analyze_validators(&mut ctx, &module.functions, &module.constants);
 
     // Add module-level constant types to var_types for type inference in expressions
+    // Also track which constants will use lazy_static (need dereferencing in expressions)
     for constant in &module.constants {
         let const_type = if let Some(ref ty) = constant.type_annotation {
             ty.clone()
         } else {
             infer_constant_type(&constant.value)
         };
-        ctx.var_types.insert(constant.name.clone(), const_type);
+        ctx.var_types.insert(constant.name.clone(), const_type.clone());
+        
+        // Track lazy_static constants so expressions can dereference them
+        if requires_lazy_static(&const_type) {
+            ctx.lazy_static_constants.insert(constant.name.clone());
+        }
     }
 
     // All functions that can_fail return Result<T, E> and need unwrapping at call sites
@@ -1839,6 +1850,8 @@ mod tests {
             function_param_types: std::collections::HashMap::new(), // Track function parameter types
             var_usage_counts: std::collections::HashMap::new(), // Variable usage counts for clone analysis
             var_usage_current: std::collections::HashMap::new(), // Current usage position during codegen
+            optional_vars: HashSet::new(),               // Track vars declared as Option<T>
+            lazy_static_constants: HashSet::new(),       // Track lazy_static constants (need deref)
         }
     }
 

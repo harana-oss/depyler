@@ -1498,12 +1498,12 @@ fn is_loop_var_mutated(var_name: &str, stmt: &HirStmt) -> bool {
             match target {
                 AssignTarget::Symbol(name) if name == var_name => true,
                 AssignTarget::Attribute { value, .. } => {
-                    // Check if assigning to var_name.field
-                    matches!(value.as_ref(), HirExpr::Var(name) if name == var_name)
+                    // Check if assigning to var_name.field (including nested like var_name.a.b.c)
+                    crate::expr_utils::extract_root_var(value).is_some_and(|root| root == var_name)
                 }
                 AssignTarget::Index { base, .. } => {
-                    // Check if assigning to var_name[index]
-                    matches!(base.as_ref(), HirExpr::Var(name) if name == var_name)
+                    // Check if assigning to var_name[index] (including nested like var_name.a[i])
+                    crate::expr_utils::extract_root_var(base).is_some_and(|root| root == var_name)
                 }
                 _ => false,
             }
@@ -1534,6 +1534,9 @@ pub(crate) fn codegen_for_stmt(
 ) -> Result<proc_macro2::TokenStream> {
     // If unused, prefix with _ to avoid unused variable warnings with -D warnings
 
+    // Check if loop variable is mutated to determine if we need `mut` keyword
+    let needs_mut_pattern = does_loop_body_mutate_items(target, body);
+
     // Generate target pattern based on AssignTarget type
     let target_pattern: syn::Pat = match target {
         AssignTarget::Symbol(name) => {
@@ -1544,7 +1547,11 @@ pub(crate) fn codegen_for_stmt(
             let var_name = if is_used { name.clone() } else { format!("_{}", name) };
 
             let ident = safe_ident(&var_name);
-            parse_quote! { #ident }
+            if needs_mut_pattern {
+                parse_quote! { mut #ident }
+            } else {
+                parse_quote! { #ident }
+            }
         }
         AssignTarget::Tuple(targets) => {
             // For tuple unpacking, check each variable individually
@@ -1560,7 +1567,12 @@ pub(crate) fn codegen_for_stmt(
                     _ => panic!("Nested tuple unpacking not supported in for loops"),
                 })
                 .collect();
-            parse_quote! { (#(#idents),*) }
+            if needs_mut_pattern {
+                // Add mut to each element of the tuple
+                parse_quote! { (mut #(#idents),*) }
+            } else {
+                parse_quote! { (#(#idents),*) }
+            }
         }
         _ => bail!("Unsupported for loop target type"),
     };
@@ -2354,6 +2366,10 @@ pub(crate) fn codegen_assign_stmt(
             match annot_type {
                 Type::List(_) | Type::Dict(_, _) | Type::Set(_) | Type::Optional(_) => {
                     ctx.var_types.insert(var_name.clone(), annot_type.clone());
+                    // Track variables declared as Option<T> for proper unwrapping in field access
+                    if matches!(annot_type, Type::Optional(_)) {
+                        ctx.optional_vars.insert(var_name.clone());
+                    }
                 }
                 _ => {}
             }
@@ -2391,6 +2407,11 @@ pub(crate) fn codegen_assign_stmt(
                     ) {
                         ctx.var_types.insert(var_name.clone(), ret_type.clone());
                     }
+                    // Track if function returns Optional type
+                    if matches!(ret_type, Type::Optional(_)) {
+                        ctx.var_types.insert(var_name.clone(), ret_type.clone());
+                        ctx.optional_vars.insert(var_name.clone());
+                    }
                 }
                 // These all return Option<Match> in Rust
                 else if matches!(func.as_str(), "search" | "match" | "find") {
@@ -2399,6 +2420,7 @@ pub(crate) fn codegen_assign_stmt(
                     // This is a heuristic - could be improved with module tracking
                     ctx.var_types
                         .insert(var_name.clone(), Type::Optional(Box::new(Type::Unknown)));
+                    ctx.optional_vars.insert(var_name.clone());
                 }
                 // Track built-in functions that return int
                 else if matches!(func.as_str(), "len" | "int" | "ord" | "round") {
@@ -2506,6 +2528,7 @@ pub(crate) fn codegen_assign_stmt(
                     // We don't have a specific regex type, so use Optional as a marker
                     ctx.var_types
                         .insert(var_name.clone(), Type::Optional(Box::new(Type::Unknown)));
+                    ctx.optional_vars.insert(var_name.clone());
                 }
             }
             // When message = "hello", track message as String so it gets borrowed when calling f(&str)
@@ -3110,7 +3133,19 @@ pub(crate) fn codegen_assign_attribute(
     value_expr: syn::Expr,
     ctx: &mut CodeGenContext,
 ) -> Result<proc_macro2::TokenStream> {
-    let base_expr = base.to_rust_expr(ctx)?;
+    let mut base_expr = base.to_rust_expr(ctx)?;
+
+    // If the base is a variable that was declared as Option<T>, unwrap it before accessing the field
+    // This handles type narrowing scenarios like:
+    //   player: Optional[Player] = _resolve_player(...)
+    //   if player is not None:
+    //       player.field = value  # Need to unwrap here
+    if let HirExpr::Var(var_name) = base {
+        if ctx.optional_vars.contains(var_name) {
+            base_expr = parse_quote! { #base_expr.as_mut().unwrap() };
+        }
+    }
+
     let attr_ident = syn::Ident::new(attr, proc_macro2::Span::call_site());
     Ok(quote! { #base_expr.#attr_ident = #value_expr; })
 }

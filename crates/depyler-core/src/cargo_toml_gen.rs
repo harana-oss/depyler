@@ -362,6 +362,8 @@ mod tests {
             function_param_names: std::collections::HashMap::new(),
             var_usage_counts: std::collections::HashMap::new(),
             var_usage_current: std::collections::HashMap::new(),
+            optional_vars: std::collections::HashSet::new(),
+            lazy_static_constants: std::collections::HashSet::new(),
         };
 
         // Property: Calling extract_dependencies multiple times returns same result
@@ -459,6 +461,8 @@ mod tests {
             function_param_names: std::collections::HashMap::new(),
             var_usage_counts: std::collections::HashMap::new(),
             var_usage_current: std::collections::HashMap::new(),
+            optional_vars: HashSet::new(),
+            lazy_static_constants: HashSet::new(),
         };
 
         let deps = extract_dependencies(&ctx);
@@ -553,6 +557,8 @@ mod tests {
             function_param_names: std::collections::HashMap::new(),
             var_usage_counts: std::collections::HashMap::new(),
             var_usage_current: std::collections::HashMap::new(),
+            optional_vars: HashSet::new(),
+            lazy_static_constants: HashSet::new(),
         };
 
         let deps = extract_dependencies(&ctx);
@@ -655,6 +661,8 @@ mod tests {
             function_param_names: std::collections::HashMap::new(),
             var_usage_counts: std::collections::HashMap::new(),
             var_usage_current: std::collections::HashMap::new(),
+            optional_vars: HashSet::new(),
+            lazy_static_constants: HashSet::new(),
         };
 
         let deps = extract_dependencies(&ctx);
