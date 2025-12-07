@@ -1,0 +1,617 @@
+# Dictionary Tests - Migrated from test_dicts.rs, test_dict_advanced_unit.rs, test_dict_value_operations.rs
+
+[metadata]
+name = "Dictionary Tests"
+category = "dictionaries"
+
+# =============================================================================
+# Basic Dict Operations
+# =============================================================================
+
+[[test]]
+name = "dict_empty_creation"
+description = "Create empty dictionary"
+tags = ["dict", "creation"]
+
+[test.python]
+code = '''
+def create_empty() -> dict:
+    d = {}
+    return d
+'''
+
+[test.assertions]
+contains = ["HashMap::new()"]
+
+[[test]]
+name = "dict_literal_creation"
+description = "Create dictionary with literal"
+tags = ["dict", "creation"]
+
+[test.python]
+code = '''
+def create_dict() -> dict:
+    d = {"a": 1, "b": 2}
+    return d
+'''
+
+[test.assertions]
+contains = ["HashMap"]
+
+[[test]]
+name = "dict_basic_assignment"
+description = "Basic dictionary assignment"
+tags = ["dict", "assignment"]
+
+[test.python]
+code = '''
+def test_basic():
+    d = {}
+    d["key"] = "value"
+    return d
+'''
+
+[test.assertions]
+contains = ["insert"]
+
+# =============================================================================
+# Nested Dict Operations
+# =============================================================================
+
+[[test]]
+name = "dict_nested_assignment"
+description = "Nested dictionary assignment"
+tags = ["dict", "nested"]
+
+[test.python]
+code = '''
+def test_nested():
+    d = {}
+    d["outer"] = {}
+    d["outer"]["inner"] = "value"
+    return d
+'''
+
+[test.assertions]
+contains_any = [["get_mut", "entry"]]
+
+# =============================================================================
+# Dict Access
+# =============================================================================
+
+[[test]]
+name = "dict_access_bracket"
+description = "Access dict with bracket notation"
+tags = ["dict", "access"]
+
+[test.python]
+code = '''
+def get_value(d: dict, key: str) -> int:
+    return d[key]
+'''
+
+[test.assertions]
+contains_any = [["get(", "[&key]"]]
+
+[[test]]
+name = "dict_get_method"
+description = "Dictionary get() method"
+tags = ["dict", "method"]
+
+[test.python]
+code = '''
+def safe_get(d: dict, key: str) -> int:
+    return d.get(key, 0)
+'''
+
+[test.assertions]
+contains_any = [["get(", "unwrap_or"]]
+
+[[test]]
+name = "dict_get_default"
+description = "Dictionary get() with default value"
+tags = ["dict", "method"]
+
+[test.python]
+code = '''
+def get_or_default(d: dict, key: str, default: str) -> str:
+    return d.get(key, default)
+'''
+
+[test.assertions]
+contains_any = [["get(", "unwrap_or"]]
+
+# =============================================================================
+# Dict Methods
+# =============================================================================
+
+[[test]]
+name = "dict_keys"
+description = "Dictionary keys() method"
+tags = ["dict", "method"]
+
+[test.python]
+code = '''
+def get_keys(d: dict) -> list:
+    return list(d.keys())
+'''
+
+[test.assertions]
+contains = ["keys()"]
+
+[[test]]
+name = "dict_values"
+description = "Dictionary values() method"
+tags = ["dict", "method"]
+
+[test.python]
+code = '''
+def get_values(d: dict) -> list:
+    return list(d.values())
+'''
+
+[test.assertions]
+contains = ["values()"]
+
+[[test]]
+name = "dict_items"
+description = "Dictionary items() method"
+tags = ["dict", "method"]
+
+[test.python]
+code = '''
+def get_items(d: dict) -> list:
+    return list(d.items())
+'''
+
+[test.assertions]
+contains_any = [["iter()", "into_iter()"]]
+
+[[test]]
+name = "dict_pop"
+description = "Dictionary pop() method"
+tags = ["dict", "method"]
+
+[test.python]
+code = '''
+def pop_key(d: dict, key: str) -> int:
+    return d.pop(key)
+'''
+
+[test.assertions]
+contains = ["remove"]
+
+[[test]]
+name = "dict_update"
+description = "Dictionary update() method"
+tags = ["dict", "method"]
+
+[test.python]
+code = '''
+def update_dict(d: dict, other: dict):
+    d.update(other)
+'''
+
+[test.assertions]
+contains = ["extend"]
+
+[[test]]
+name = "dict_clear"
+description = "Dictionary clear() method"
+tags = ["dict", "method"]
+
+[test.python]
+code = '''
+def clear_dict(d: dict):
+    d.clear()
+'''
+
+[test.assertions]
+contains = ["clear()"]
+
+# =============================================================================
+# Dict Membership
+# =============================================================================
+
+[[test]]
+name = "dict_in_check"
+description = "'in' operator for key check"
+tags = ["dict", "membership"]
+
+[test.python]
+code = '''
+def has_key(d: dict, key: str) -> bool:
+    return key in d
+'''
+
+[test.assertions]
+contains = ["contains_key"]
+
+[[test]]
+name = "dict_not_in_check"
+description = "'not in' operator for key check"
+tags = ["dict", "membership"]
+
+[test.python]
+code = '''
+def missing_key(d: dict, key: str) -> bool:
+    return key not in d
+'''
+
+[test.assertions]
+contains = ["contains_key"]
+
+# =============================================================================
+# Dict Iteration
+# =============================================================================
+
+[[test]]
+name = "dict_iterate_keys"
+description = "Iterate over dict keys"
+tags = ["dict", "iteration"]
+
+[test.python]
+code = '''
+def print_keys(d: dict):
+    for key in d:
+        print(key)
+'''
+
+[test.assertions]
+contains = ["for"]
+contains_any = [["keys()", "iter()"]]
+
+[[test]]
+name = "dict_iterate_items"
+description = "Iterate over dict items"
+tags = ["dict", "iteration"]
+
+[test.python]
+code = '''
+def print_items(d: dict):
+    for key, value in d.items():
+        print(f"{key}: {value}")
+'''
+
+[test.assertions]
+contains = ["for"]
+
+# =============================================================================
+# Dict Length
+# =============================================================================
+
+[[test]]
+name = "dict_len"
+description = "Dictionary length with len()"
+tags = ["dict", "builtin"]
+
+[test.python]
+code = '''
+def dict_size(d: dict) -> int:
+    return len(d)
+'''
+
+[test.assertions]
+contains = ["len()"]
+
+# =============================================================================
+# Dict Comprehension
+# =============================================================================
+
+[[test]]
+name = "dict_comprehension"
+description = "Dictionary comprehension"
+tags = ["dict", "comprehension"]
+
+[test.python]
+code = '''
+def squares_dict(n: int) -> dict:
+    return {i: i * i for i in range(n)}
+'''
+
+[test.assertions]
+contains = ["HashMap"]
+contains_any = [["collect", "map"]]
+
+# =============================================================================
+# Dict Variable Key Access
+# =============================================================================
+
+[[test]]
+name = "dict_access_string_variable"
+description = "Dict access with string variable keys"
+tags = ["dict", "access", "variable-key"]
+
+[test.python]
+code = '''
+from typing import Dict, List
+
+def lookup_values(data: Dict[str, int], keys: List[str]) -> List[int]:
+    results = []
+    for key in keys:
+        if key in data:
+            results.append(data[key])
+        else:
+            results.append(0)
+    return results
+'''
+
+[test.assertions]
+contains = ["fn lookup_values"]
+not_contains = ["key as usize"]
+
+[[test]]
+name = "dict_literal_key_access"
+description = "Dict access with string literal"
+tags = ["dict", "access", "literal-key"]
+
+[test.python]
+code = '''
+from typing import Dict
+
+def get_value(data: Dict[str, int]) -> int:
+    return data["mykey"]
+'''
+
+[test.assertions]
+contains = ["fn get_value"]
+not_contains = ["as usize"]
+
+# =============================================================================
+# Dict Mutability Detection
+# =============================================================================
+
+[[test]]
+name = "dict_insert_adds_mut"
+description = "Dict insert should add mut"
+tags = ["dict", "mutability"]
+
+[test.python]
+code = '''
+def add_entry(d: dict[str, int], key: str, value: int) -> dict[str, int]:
+    d[key] = value
+    return d
+'''
+
+[test.assertions]
+contains = ["fn add_entry", "insert(", "mut d: HashMap<String, i"]
+
+[[test]]
+name = "dict_clear_adds_mut"
+description = "Dict clear should add mut"
+tags = ["dict", "mutability"]
+
+[test.python]
+code = '''
+def clear_dict(d: dict[str, int]) -> dict[str, int]:
+    d.clear()
+    return d
+'''
+
+[test.assertions]
+contains = ["fn clear_dict", "clear()", "mut d: HashMap<String, i"]
+
+[[test]]
+name = "dict_no_mut_when_readonly"
+description = "Dict read-only access should not add mut"
+tags = ["dict", "mutability"]
+
+[test.python]
+code = '''
+def get_value(d: dict[str, int], key: str) -> int:
+    return d.get(key, 0)
+'''
+
+[test.assertions]
+contains = ["fn get_value", "HashMap"]
+not_contains = ["mut d:"]
+
+# =============================================================================
+# Dict Double Reference Prevention
+# =============================================================================
+
+[[test]]
+name = "dict_pop_no_double_ref"
+description = "Dict pop should not create double reference"
+tags = ["dict", "reference"]
+
+[test.python]
+code = '''
+def pop_entry(d: dict[str, int], key: str) -> int:
+    return d.pop(key, -1)
+'''
+
+[test.assertions]
+contains = ["fn pop_entry"]
+not_contains = ["&&key", "& & key"]
+
+[[test]]
+name = "dict_contains_key_no_double_ref"
+description = "Dict contains_key should not create double reference"
+tags = ["dict", "reference"]
+
+[test.python]
+code = '''
+def has_key(d: dict[str, int], key: str) -> bool:
+    return key in d
+'''
+
+[test.assertions]
+contains = ["fn has_key"]
+not_contains = ["&&key", "& & key"]
+
+[[test]]
+name = "dict_combined_mutations"
+description = "Dict combined mutations without double references"
+tags = ["dict", "mutability", "reference"]
+
+[test.python]
+code = '''
+def modify_dict(d: dict[str, int], k1: str, k2: str) -> dict[str, int]:
+    d[k1] = 10
+    if k2 in d:
+        d.pop(k2)
+    return d
+'''
+
+[test.assertions]
+contains = ["fn modify_dict", "mut d: HashMap<String, i"]
+not_contains = ["&&k2", "& & k2"]
+
+[[test]]
+name = "dict_remove_in_conditional"
+description = "Dict remove in conditional without double references"
+tags = ["dict", "mutability", "reference"]
+
+[test.python]
+code = '''
+def remove_if_exists(d: dict[str, int], key: str) -> dict[str, int]:
+    if key in d:
+        d.pop(key)
+    return d
+'''
+
+[test.assertions]
+contains = ["fn remove_if_exists", "mut d: HashMap<String, i"]
+not_contains = ["&&key", "& & key"]
+
+# =============================================================================
+# Advanced Dict Methods
+# =============================================================================
+
+[[test]]
+name = "dict_setdefault"
+description = "dict.setdefault() set and return value"
+tags = ["dict", "method"]
+
+[test.python]
+code = '''
+def set_default_value(d: dict, key: str, default: str) -> str:
+    return d.setdefault(key, default)
+'''
+
+[test.assertions]
+contains_any = [["entry", "or_insert"]]
+
+[[test]]
+name = "dict_pop_with_default"
+description = "dict.pop() remove and return value with default"
+tags = ["dict", "method"]
+
+[test.python]
+code = '''
+def pop_value(d: dict, key: str, default: str) -> str:
+    return d.pop(key, default)
+'''
+
+[test.assertions]
+contains_any = [["remove", "unwrap_or"]]
+
+[[test]]
+name = "dict_popitem"
+description = "dict.popitem() remove arbitrary item"
+tags = ["dict", "method"]
+
+[test.python]
+code = '''
+def pop_item(d: dict) -> tuple:
+    return d.popitem()
+'''
+
+[test.assertions]
+contains_any = [["pop", "next"]]
+
+[[test]]
+name = "dict_fromkeys"
+description = "dict.fromkeys() create dict from keys"
+tags = ["dict", "method"]
+
+[test.python]
+code = '''
+def dict_from_keys(keys: list, value: int) -> dict:
+    return dict.fromkeys(keys, value)
+'''
+
+[test.assertions]
+contains_any = [["map", "collect"]]
+
+[[test]]
+name = "dict_copy"
+description = "dict.copy() shallow copy"
+tags = ["dict", "method"]
+
+[test.python]
+code = '''
+def copy_dict(d: dict) -> dict:
+    return d.copy()
+'''
+
+[test.assertions]
+contains = ["clone"]
+
+# =============================================================================
+# Dict Value Operations (serde_json::Value compatibility)
+# =============================================================================
+
+[[test]]
+name = "dict_in_operator_uses_get"
+description = "'in' operator should use Value methods, not contains_key"
+tags = ["dict", "value", "in"]
+
+[test.python]
+code = '''
+config = {"host": "localhost", "port": 5432}
+
+def has_host(config):
+    return "host" in config
+'''
+
+[test.assertions]
+not_contains = ["config.contains_key("]
+contains_any = [[".get(", ".as_object()"]]
+
+[[test]]
+name = "dict_not_in_operator"
+description = "'not in' operator should use Value methods"
+tags = ["dict", "value", "not-in"]
+
+[test.python]
+code = '''
+def is_missing(data, key):
+    return key not in data
+'''
+
+[test.assertions]
+not_contains = ["data.contains_key("]
+
+[[test]]
+name = "dict_indexing_on_value"
+description = "Dict indexing should use Value indexing syntax"
+tags = ["dict", "value", "index"]
+
+[test.python]
+code = '''
+config = {"host": "localhost"}
+
+def get_host(config):
+    return config["host"]
+'''
+
+[test.assertions]
+contains = ["config"]
+
+[[test]]
+name = "dict_isinstance_and_in"
+description = "isinstance(x, dict) with 'in' should work"
+tags = ["dict", "value", "isinstance"]
+
+[test.python]
+code = '''
+def get_value(data, key):
+    if isinstance(data, dict) and key in data:
+        return data[key]
+    return None
+'''
+
+[test.assertions]
+not_contains = ["data.contains_key("]

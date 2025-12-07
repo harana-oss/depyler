@@ -9,7 +9,7 @@
 //! - Mutation Tests: Documented mutation kill strategies
 
 use crate::test_helpers;
-use crate::test_helpers::transpile;
+use crate::test_helpers::transpile_and_check;
 
 // ============================================================================
 // UNIT TESTS - Method Call Conversions
@@ -24,7 +24,7 @@ def test_list():
     return items
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated list append code:\n{}", rust_code);
 
     // Should generate .push() for list.append()
@@ -43,7 +43,7 @@ def test_dict():
     return result
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated dict.get() code:\n{}", rust_code);
 
     // Should generate .get() with unwrap_or
@@ -61,7 +61,7 @@ def test_str():
     return text.upper()
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated string.upper() code:\n{}", rust_code);
 
     // Should generate .to_uppercase()
@@ -82,7 +82,7 @@ def floor_div(a: int, b: int) -> int:
     return a // b
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated floor division code:\n{}", rust_code);
 
     // Should include Python floor division semantics (towards negative infinity)
@@ -99,7 +99,7 @@ def power_calc():
     return 2 ** -1
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated power with negative exp code:\n{}", rust_code);
 
     // Should use .powf() for negative exponents
@@ -117,7 +117,7 @@ def set_create():
     return a
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated set creation code:\n{}", rust_code);
 
     // Should use HashSet
@@ -139,7 +139,7 @@ def slice_test():
     return arr[::2]
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated slice with step code:\n{}", rust_code);
 
     // Should use .step_by() for slice with step
@@ -157,7 +157,7 @@ def reverse_slice():
     return arr[::-1]
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated reverse slice code:\n{}", rust_code);
 
     // Should use .rev() for negative step
@@ -178,7 +178,7 @@ def list_comp():
     return [x * 2 for x in range(10) if x > 5]
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated list comprehension code:\n{}", rust_code);
 
     // Should use .filter() and .map()
@@ -208,7 +208,7 @@ def binary_ops():
     return {} + {}
 "#, a, b);
 
-            let result: Result<String, String> = Ok(transpile(&python_code));
+            let result: Result<String, String> = Ok(transpile_and_check(&python_code, &[]));
             prop_assert!(result.is_ok(), "Binary operation transpilation failed: {:?}", result.err());
         }
 
@@ -222,7 +222,7 @@ def make_list():
     return [{}]
 "#, elements);
 
-            let result: Result<String, String> = Ok(transpile(&python_code));
+            let result: Result<String, String> = Ok(transpile_and_check(&python_code, &[]));
             prop_assert!(result.is_ok(), "List transpilation failed");
 
             let rust_code = result.unwrap();
@@ -244,7 +244,7 @@ def make_dict():
     return {{{}}}
 "#, items);
 
-            let result: Result<String, String> = Ok(transpile(&python_code));
+            let result: Result<String, String> = Ok(transpile_and_check(&python_code, &[]));
             prop_assert!(result.is_ok(), "Dict transpilation failed");
 
             let rust_code = result.unwrap();
@@ -265,7 +265,7 @@ def use_range():
     return total
 "#, n);
 
-            let result: Result<String, String> = Ok(transpile(&python_code));
+            let result: Result<String, String> = Ok(transpile_and_check(&python_code, &[]));
             prop_assert!(result.is_ok(), "range() transpilation failed");
 
             let rust_code = result.unwrap();
@@ -305,7 +305,7 @@ def test_list_methods():
     return items
 "#;
 
-        let rust_code = transpile(python_code);
+        let rust_code = transpile_and_check(python_code, &[]);
 
         // Mutation Kill: Changing .push() to .pop() would fail
         assert!(
@@ -338,7 +338,7 @@ def floor_div_test(a: int, b: int) -> int:
     return a // b
 "#;
 
-        let rust_code = transpile(python_code);
+        let rust_code = transpile_and_check(python_code, &[]);
 
         // Mutation Kill: Using simple / would fail for negative numbers
         assert!(
@@ -376,7 +376,7 @@ def filtered_comp():
     return [x * 2 for x in range(10) if x > 5]
 "#;
 
-        let rust_code = transpile(python_code);
+        let rust_code = transpile_and_check(python_code, &[]);
 
         // Mutation Kill: Removing .filter() would include all elements
         assert!(
@@ -426,7 +426,7 @@ def make_set():
     return s
 "#;
 
-        let rust_code = transpile(python_code);
+        let rust_code = transpile_and_check(python_code, &[]);
 
         // Mutation Kill: Using Vec instead of HashSet would fail
         assert!(
@@ -460,7 +460,7 @@ def count_items(items):
     return Counter(items)
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated Counter() code:\n{}", rust_code);
 
     // Should NOT generate HashMap::new(items) or HashMap(items)
@@ -483,7 +483,7 @@ def convert_to_dict(mapping):
     return dict(mapping)
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated dict() code:\n{}", rust_code);
 
     // Should NOT generate: dict(mapping) - function not found error
@@ -501,7 +501,7 @@ def make_empty_dict():
     return dict()
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated dict() empty code:\n{}", rust_code);
 
     // Should generate HashMap::new()
@@ -519,7 +519,7 @@ def make_deque(items):
     return deque(items)
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated deque() code:\n{}", rust_code);
 
     // Should NOT generate: VecDeque(items) - tuple struct error
@@ -542,7 +542,7 @@ def convert_to_list(iterable):
     return list(iterable)
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated list() code:\n{}", rust_code);
 
     // Should NOT generate: list(iterable) - function not found error
@@ -562,7 +562,7 @@ def make_empty_list():
     return list()
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated list() empty code:\n{}", rust_code);
 
     // Should generate Vec::new() or vec![]
@@ -588,7 +588,7 @@ def test_set():
     return s
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated set.add() code:\n{}", rust_code);
 
     // Should generate .insert() for set.add()
@@ -608,7 +608,7 @@ def test_set():
     return s
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated set.remove() code:\n{}", rust_code);
 
     // Should generate .remove() for set.remove()
@@ -627,7 +627,7 @@ def make_frozenset():
     return fs
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated frozenset code:\n{}", rust_code);
 
     // Should use HashSet for frozenset
@@ -646,7 +646,7 @@ def test_str():
     return text.lower()
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated string.lower() code:\n{}", rust_code);
 
     // Should generate .to_lowercase()
@@ -665,7 +665,7 @@ def test_str():
     return text.split(",")
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated string.split() code:\n{}", rust_code);
 
     // Should generate .split() method
@@ -684,7 +684,7 @@ def test_str():
     return text.replace("world", "Rust")
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated string.replace() code:\n{}", rust_code);
 
     // Should generate .replace() method
@@ -703,7 +703,7 @@ def test_str():
     return text.strip()
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated string.strip() code:\n{}", rust_code);
 
     // Should generate .trim() method
@@ -722,7 +722,7 @@ def test_str():
     return text.startswith("hel")
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated string.startswith() code:\n{}", rust_code);
 
     // Should generate .starts_with() method
@@ -741,7 +741,7 @@ def test_str():
     return text.endswith("lo")
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated string.endswith() code:\n{}", rust_code);
 
     // Should generate .ends_with() method
@@ -760,7 +760,7 @@ def test_dict():
     return list(d.keys())
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated dict.keys() code:\n{}", rust_code);
 
     // Should generate .keys() method
@@ -779,7 +779,7 @@ def test_dict():
     return list(d.values())
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated dict.values() code:\n{}", rust_code);
 
     // Should generate .values() method
@@ -799,7 +799,7 @@ def test_dict():
         print(k, v)
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated dict.items() code:\n{}", rust_code);
 
     // Should generate .iter() for dict iteration
@@ -820,7 +820,7 @@ def test_list():
     return a
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated list.extend() code:\n{}", rust_code);
 
     // Should generate .extend() for list.extend()
@@ -840,7 +840,7 @@ def test_list():
     return items
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated list.remove() code:\n{}", rust_code);
 
     // Should generate remove logic (find index, then remove)
@@ -860,7 +860,7 @@ def test_list():
     return val
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated list.pop(1) code:\n{}", rust_code);
 
     // Should generate .remove(index) for list.pop(i)
@@ -880,7 +880,7 @@ def test_list():
     return items
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated list.clear() code:\n{}", rust_code);
 
     // Should generate .clear() for list.clear()
@@ -903,7 +903,7 @@ def get_x(p: Point) -> int:
     return p.x
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated attribute access code:\n{}", rust_code);
 
     // Should generate field access syntax
@@ -924,7 +924,7 @@ def swap_values():
     return (a, b)
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated tuple unpacking code:\n{}", rust_code);
 
     // Should generate tuple pattern matching
@@ -943,7 +943,7 @@ def use_lambda():
     return f(5)
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated lambda code:\n{}", rust_code);
 
     // Should generate closure syntax
@@ -961,7 +961,7 @@ def test_ternary(x: int) -> str:
     return "positive" if x > 0 else "non-positive"
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated ternary expression code:\n{}", rust_code);
 
     // Should generate if-else expression
@@ -979,7 +979,7 @@ def make_set_comp():
     return {x * 2 for x in range(5)}
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated set comprehension code:\n{}", rust_code);
 
     // Should use HashSet
@@ -997,7 +997,7 @@ def make_dict_comp():
     return {x: x * 2 for x in range(5)}
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated dict comprehension code:\n{}", rust_code);
 
     // Should use HashMap
@@ -1015,7 +1015,7 @@ def nested_comp():
     return [[y for y in range(3)] for x in range(2)]
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated nested comprehension code:\n{}", rust_code);
 
     // Should have nested .map() and .collect()

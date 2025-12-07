@@ -1,0 +1,211 @@
+# Slicing Tests - Migrated from test_slice_operations.rs, test_slice_assignment_mutability.rs, test_indexings.rs
+
+[metadata]
+name = "Slicing Tests"
+category = "slicing"
+
+# =============================================================================
+# Basic Slicing
+# =============================================================================
+
+[[test]]
+name = "slice_start_only"
+description = "Slice with start index only (items[n:])"
+tags = ["slice", "start"]
+
+[test.python]
+code = '''
+def skip_first_n(items: list[int], n: int) -> list[int]:
+    return items[n:]
+'''
+
+[test.assertions]
+contains_any = [["skip(", "&items[n..]"]]
+
+[[test]]
+name = "slice_end_only"
+description = "Slice with end index only (items[:n])"
+tags = ["slice", "end"]
+
+[test.python]
+code = '''
+def first_n(items: list[int], n: int) -> list[int]:
+    return items[:n]
+'''
+
+[test.assertions]
+contains_any = [["take(", "&items[..n]"]]
+
+[[test]]
+name = "slice_start_end"
+description = "Slice with both start and end (items[a:b])"
+tags = ["slice", "range"]
+
+[test.python]
+code = '''
+def middle(items: list[int], start: int, end: int) -> list[int]:
+    return items[start:end]
+'''
+
+[test.assertions]
+contains_any = [["skip(", "take(", "&items[start..end]"]]
+
+[[test]]
+name = "slice_full_copy"
+description = "Full slice copy (items[:])"
+tags = ["slice", "copy"]
+
+[test.python]
+code = '''
+def copy_list(items: list[int]) -> list[int]:
+    return items[:]
+'''
+
+[test.assertions]
+contains = ["clone()"]
+
+# =============================================================================
+# Negative Indexing
+# =============================================================================
+
+[[test]]
+name = "index_negative_one"
+description = "Access last element with -1"
+tags = ["index", "negative"]
+
+[test.python]
+code = '''
+def get_last(items: list[int]) -> int:
+    return items[-1]
+'''
+
+[test.assertions]
+contains_any = [["len() - 1", "last()"]]
+
+[[test]]
+name = "slice_negative_start"
+description = "Slice with negative start (items[-n:])"
+tags = ["slice", "negative"]
+
+[test.python]
+code = '''
+def last_n(items: list[int], n: int) -> list[int]:
+    return items[-n:]
+'''
+
+[test.assertions]
+contains_any = [["len()", "skip("]]
+
+[[test]]
+name = "slice_negative_end"
+description = "Slice with negative end (items[:-n])"
+tags = ["slice", "negative"]
+
+[test.python]
+code = '''
+def all_but_last_n(items: list[int], n: int) -> list[int]:
+    return items[:-n]
+'''
+
+[test.assertions]
+contains_any = [["len()", "take("]]
+
+# =============================================================================
+# Step Slicing
+# =============================================================================
+
+[[test]]
+name = "slice_step"
+description = "Slice with step (items[::n])"
+tags = ["slice", "step"]
+
+[test.python]
+code = '''
+def every_nth(items: list[int], n: int) -> list[int]:
+    return items[::n]
+'''
+
+[test.assertions]
+contains = ["step_by("]
+
+[[test]]
+name = "slice_step_with_range"
+description = "Slice with start, end, and step"
+tags = ["slice", "step", "range"]
+
+[test.python]
+code = '''
+def range_step(items: list[int], start: int, end: int, step: int) -> list[int]:
+    return items[start:end:step]
+'''
+
+[test.assertions]
+contains = ["step_by("]
+
+# =============================================================================
+# Reverse Slicing
+# =============================================================================
+
+[[test]]
+name = "slice_reverse"
+description = "Reverse with [::-1]"
+tags = ["slice", "reverse"]
+
+[test.python]
+code = '''
+def reverse_list(items: list[int]) -> list[int]:
+    return items[::-1]
+'''
+
+[test.assertions]
+contains_any = [["rev()", "reverse()"]]
+
+# =============================================================================
+# String Slicing
+# =============================================================================
+
+[[test]]
+name = "string_slice_start"
+description = "String slice from start"
+tags = ["slice", "string"]
+
+[test.python]
+code = '''
+def skip_chars(s: str, n: int) -> str:
+    return s[n:]
+'''
+
+[test.assertions]
+contains = ["chars()"]
+
+[[test]]
+name = "string_slice_end"
+description = "String slice to end"
+tags = ["slice", "string"]
+
+[test.python]
+code = '''
+def first_chars(s: str, n: int) -> str:
+    return s[:n]
+'''
+
+[test.assertions]
+contains = ["chars()"]
+
+# =============================================================================
+# Slice Assignment
+# =============================================================================
+
+[[test]]
+name = "slice_assign_basic"
+description = "Basic slice assignment"
+tags = ["slice", "assignment"]
+
+[test.python]
+code = '''
+def replace_middle(items: list[int], start: int, end: int, new: list[int]):
+    items[start:end] = new
+'''
+
+[test.assertions]
+contains_any = [["splice", "drain", "&mut"]]

@@ -26,7 +26,6 @@ def make_quiet(text: str) -> str:
 }
 
 #[test]
-#[ignore]
 fn test_string_strip_method() {
     let python = r#"
 def clean_text(text: str) -> str:

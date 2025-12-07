@@ -1,18 +1,14 @@
 use crate::test_helpers;
-use crate::test_helpers::transpile;
+use crate::test_helpers::transpile_and_check;
 
 use depyler_analysis::{QualityAnalyzer, QualityError};
 use depyler_annotations::TranspilationAnnotations;
 use depyler_annotations::{AnnotationError, AnnotationParser};
-use depyler_core::DepylerPipeline;
 use depyler_core::hir::*;
 use smallvec::smallvec;
 
 #[test]
-#[ignore]
 fn test_pipeline_invalid_python_syntax() {
-    let pipeline = DepylerPipeline::new();
-
     // Test various invalid Python syntax scenarios
     let invalid_cases = vec![
         "def incomplete_function(",
@@ -21,7 +17,7 @@ fn test_pipeline_invalid_python_syntax() {
     ];
 
     for invalid_python in invalid_cases {
-        let result: Result<String, String> = Ok(transpile(invalid_python));
+        let result: Result<String, String> = Ok(transpile_and_check(invalid_python, &[]));
         assert!(result.is_err(), "Should fail for invalid Python: {invalid_python}");
     }
 
@@ -32,7 +28,7 @@ fn test_pipeline_invalid_python_syntax() {
     ];
 
     for potentially_valid in potentially_valid_cases {
-        let result: Result<String, String> = Ok(transpile(potentially_valid));
+        let result: Result<String, String> = Ok(transpile_and_check(potentially_valid, &[]));
         // Just ensure it doesn't panic - result can be either success or failure
         let _ = result; // Both Ok and Err are acceptable
     }
@@ -40,8 +36,6 @@ fn test_pipeline_invalid_python_syntax() {
 
 #[test]
 fn test_pipeline_unsupported_features() {
-    let pipeline = DepylerPipeline::new();
-
     // Test Python features not yet supported
     let unsupported_cases = vec![
         "async def async_func(): await something()",
@@ -52,7 +46,7 @@ fn test_pipeline_unsupported_features() {
     ];
 
     for unsupported_python in unsupported_cases {
-        let result: Result<String, String> = Ok(transpile(unsupported_python));
+        let result: Result<String, String> = Ok(transpile_and_check(unsupported_python, &[]));
         // Most should fail, but some might be partially supported
         if result.is_err() {
             // Expected failure - test passed
@@ -160,8 +154,6 @@ fn test_quality_analyzer_edge_cases() {
 
 #[test]
 fn test_pipeline_empty_and_whitespace() {
-    let pipeline = DepylerPipeline::new();
-
     // Test edge cases with empty/whitespace input
     let edge_cases = vec![
         "",                 // Completely empty
@@ -172,7 +164,7 @@ fn test_pipeline_empty_and_whitespace() {
     ];
 
     for edge_case in edge_cases {
-        let result: Result<String, String> = Ok(transpile(edge_case));
+        let result: Result<String, String> = Ok(transpile_and_check(edge_case, &[]));
         // Should handle gracefully - either succeed with empty output or fail cleanly
         let _ = result; // Both Ok and Err are acceptable
     }
@@ -212,10 +204,7 @@ fn test_quality_error_types() {
 }
 
 #[test]
-#[ignore]
 fn test_pipeline_with_verification_errors() {
-    let pipeline = DepylerPipeline::new().with_verification();
-
     // Test code that might fail verification
     let potentially_problematic = vec![
         "def unchecked_access(arr, idx): return arr[idx]", // No bounds checking
@@ -224,7 +213,7 @@ fn test_pipeline_with_verification_errors() {
     ];
 
     for problematic_code in potentially_problematic {
-        let result: Result<String, String> = Ok(transpile(problematic_code));
+        let result: Result<String, String> = Ok(transpile_and_check(problematic_code, &[]));
         // Should either succeed with warnings or fail with useful error messages
         match result {
             Ok(_) => {} // Success with verification is good
@@ -239,8 +228,6 @@ fn test_pipeline_with_verification_errors() {
 
 #[test]
 fn test_large_input_handling() {
-    let pipeline = DepylerPipeline::new();
-
     // Create a reasonably large Python function
     let mut large_function = String::from("def large_func(x: int) -> int:\n");
     large_function.push_str("    result = 0\n");
@@ -251,7 +238,7 @@ fn test_large_input_handling() {
     }
     large_function.push_str("    return result\n");
 
-    let result: Result<String, String> = Ok(transpile(&large_function));
+    let result: Result<String, String> = Ok(transpile_and_check(&large_function, &[]));
 
     // Should handle reasonably large inputs
     match result {
@@ -269,8 +256,6 @@ fn test_large_input_handling() {
 
 #[test]
 fn test_unicode_and_special_characters() {
-    let pipeline = DepylerPipeline::new();
-
     // Test with Unicode and special characters
     let unicode_cases = vec![
         "def test_unicode(): return \"Hello 世界\"",
@@ -280,7 +265,7 @@ fn test_unicode_and_special_characters() {
     ];
 
     for unicode_case in unicode_cases {
-        let result: Result<String, String> = Ok(transpile(unicode_case));
+        let result: Result<String, String> = Ok(transpile_and_check(unicode_case, &[]));
         // Should handle Unicode gracefully
         let _ = result; // Both Ok and Err are acceptable
     }
@@ -305,6 +290,7 @@ fn test_annotation_parser_unicode() {
 
 #[test]
 fn test_concurrent_pipeline_usage() {
+    use depyler_core::DepylerPipeline;
     use std::sync::Arc;
     use std::thread;
 

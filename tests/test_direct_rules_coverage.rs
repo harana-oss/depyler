@@ -15,7 +15,7 @@
 //! Expected Impact: +15% coverage (~150-200 lines), TDG 1.5-1.8 → 1.2-1.4
 
 use crate::test_helpers;
-use crate::test_helpers::transpile;
+use crate::test_helpers::transpile_and_check;
 
 // ============================================================================
 // SCENARIO 1: METHOD CALL KEYWORD HANDLING (+8-10% coverage)
@@ -28,7 +28,7 @@ def test_type(obj):
     return obj.type()
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated type() method code:\n{}", rust_code);
 
     // Method name 'type' should be escaped or renamed (e.g., type_ or r#type)
@@ -40,14 +40,13 @@ def test_type(obj):
 }
 
 #[test]
-#[ignore]
 fn test_method_name_as_keyword() {
     let python_code = r#"
 def test_as(obj):
     return obj.as()
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated as() method code:\n{}", rust_code);
 
     // Method name 'as' should be escaped
@@ -59,14 +58,13 @@ def test_as(obj):
 }
 
 #[test]
-#[ignore]
 fn test_method_name_in_keyword() {
     let python_code = r#"
 def test_in(obj):
     return obj.in()
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated in() method code:\n{}", rust_code);
 
     // Method name 'in' should be escaped
@@ -84,7 +82,7 @@ def test_mut(obj):
     return obj.mut()
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated mut() method code:\n{}", rust_code);
 
     // Method name 'mut' should be escaped
@@ -101,7 +99,7 @@ def test_ref(obj):
     return obj.ref()
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated ref() method code:\n{}", rust_code);
 
     // Method name 'ref' should be escaped
@@ -118,7 +116,7 @@ def test_match(obj):
     return obj.match()
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated match() method code:\n{}", rust_code);
 
     // Method name 'match' should be escaped
@@ -139,7 +137,7 @@ def test_union(a: set, b: set) -> set:
     return a | b
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated set union code:\n{}", rust_code);
 
     // Set union should generate .union() or BitOr for HashSet
@@ -156,7 +154,7 @@ def test_intersection(a: set, b: set) -> set:
     return a & b
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated set intersection code:\n{}", rust_code);
 
     // Set intersection should generate .intersection() or BitAnd
@@ -173,7 +171,7 @@ def test_difference(a: set, b: set) -> set:
     return a - b
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated set difference code:\n{}", rust_code);
 
     // Set difference should generate .difference() or Sub
@@ -190,7 +188,7 @@ def test_symmetric_diff(a: set, b: set) -> set:
     return a ^ b
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated set symmetric difference code:\n{}", rust_code);
 
     // Set symmetric difference should generate .symmetric_difference() or BitXor
@@ -211,7 +209,7 @@ def test_pow(a: int, b: int) -> int:
     return a ** b
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated int ** int code:\n{}", rust_code);
 
     // int ** int should generate .pow(), .powi(), or .checked_pow()
@@ -230,7 +228,7 @@ def test_pow(a: int, b: float) -> float:
     return a ** b
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated int ** float code:\n{}", rust_code);
 
     // int ** float should generate powf() with cast
@@ -247,7 +245,7 @@ def test_pow(a: float, b: float) -> float:
     return a ** b
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated float ** float code:\n{}", rust_code);
 
     // float ** float should generate .powf()
@@ -264,7 +262,7 @@ def test_pow(a: float) -> float:
     return a ** -2
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated a ** -2 code:\n{}", rust_code);
 
     // Negative exponent should be handled (either literal -2 or negation)
@@ -281,7 +279,7 @@ def test_pow(a: int) -> int:
     return a ** 0
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated a ** 0 code:\n{}", rust_code);
 
     // a ** 0 should generate .pow(0) or potentially optimized to 1
@@ -298,7 +296,7 @@ def test_pow(a: float) -> float:
     return a ** 0.5
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated a ** 0.5 code:\n{}", rust_code);
 
     // a ** 0.5 should generate .powf(0.5) or .sqrt()
@@ -319,7 +317,7 @@ def test_zeros() -> list:
     return zeros(10)
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated zeros(10) code:\n{}", rust_code);
 
     // zeros(n) should generate vec![0; n] or array initialization
@@ -336,7 +334,7 @@ def test_ones() -> list:
     return ones(5)
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated ones(5) code:\n{}", rust_code);
 
     // ones(n) should generate vec![1; n] or array initialization
@@ -353,7 +351,7 @@ def test_full() -> list:
     return full(8, 42)
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated full(8, 42) code:\n{}", rust_code);
 
     // full(n, val) should generate vec![val; n]
@@ -370,7 +368,7 @@ def test_zeros(n: int) -> list:
     return zeros(n)
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated zeros(n) code:\n{}", rust_code);
 
     // zeros(n) with dynamic n should generate vec![0; n as usize]
@@ -387,7 +385,7 @@ def test_zeros() -> list:
     return zeros(0)
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated zeros(0) code:\n{}", rust_code);
 
     // zeros(0) should generate empty vec or array
@@ -408,7 +406,7 @@ def test_floordiv(a: int, b: int) -> int:
     return a // b
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated a // b code:\n{}", rust_code);
 
     // Floor division should generate division logic
@@ -425,7 +423,7 @@ def test_floordiv() -> int:
     return -7 // 3
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated -7 // 3 code:\n{}", rust_code);
 
     // Floor division with negative dividend needs special handling
@@ -444,7 +442,7 @@ def test_floordiv() -> int:
     return 7 // -3
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated 7 // -3 code:\n{}", rust_code);
 
     // Floor division with negative divisor needs special handling
@@ -463,7 +461,7 @@ def test_floordiv() -> int:
     return -7 // -3
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated -7 // -3 code:\n{}", rust_code);
 
     // Both negative: Python -7 // -3 = 2, Rust -7 / -3 = 2 (same result)
@@ -480,7 +478,7 @@ def test_floordiv(a: int, b: int) -> int:
     return a // b
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated generic a // b code:\n{}", rust_code);
 
     // Generic floor division should handle sign adjustment
@@ -496,14 +494,13 @@ def test_floordiv(a: int, b: int) -> int:
 // ============================================================================
 
 #[test]
-#[ignore]
 fn test_method_chaining_with_keywords() {
     let python_code = r#"
 def test_chain(obj):
     return obj.type().as().in()
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated chained keyword methods:\n{}", rust_code);
 
     // Multiple keyword methods chained should all be escaped
@@ -523,7 +520,7 @@ def test_ops(a: set, b: set, c: set) -> set:
     return (a | b) & c
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated chained set operations:\n{}", rust_code);
 
     // Chained set operations should preserve associativity

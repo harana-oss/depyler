@@ -12,7 +12,7 @@
 //! - Integration tests via transpilation
 
 use crate::test_helpers;
-use crate::test_helpers::transpile;
+use crate::test_helpers::transpile_and_check;
 
 /// Unit Test: Union type with None (Optional)
 ///
@@ -28,7 +28,7 @@ def maybe_value(flag: bool) -> Union[int, None]:
         return 42
     return None
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // Should map Union[int, None] to Option<i32>
     assert!(rust_code.contains("fn maybe_value"));
@@ -47,7 +47,7 @@ from typing import Union
 def union_func(value: Union[int, str]) -> Union[int, str]:
     return value
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // Should generate enum for Union
     assert!(rust_code.contains("fn union_func"));
@@ -65,7 +65,7 @@ from typing import List
 def process_list(items: List[str]) -> int:
     return len(items)
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // Should map List[str] to Vec<String>
     assert!(rust_code.contains("fn process_list"));
@@ -84,7 +84,7 @@ from typing import Dict
 def get_value(data: Dict[str, int], key: str) -> int:
     return data.get(key, 0)
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // Should map Dict[str, int] to HashMap<String, i32>
     assert!(rust_code.contains("fn get_value"));
@@ -105,7 +105,7 @@ T = TypeVar('T')
 def identity(value: T) -> T:
     return value
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // Should recognize T as type parameter
     assert!(rust_code.contains("fn identity"));
@@ -125,7 +125,7 @@ def use_custom(obj: MyClass) -> MyClass:
     return obj
 "#;
     // Note: Classes may not be fully supported yet
-    let result: Result<String, String> = Ok(transpile(python_code));
+    let result: Result<String, String> = Ok(transpile_and_check(python_code, &[]));
 
     // Should handle gracefully
     assert!(result.is_ok() || result.is_err());
@@ -141,7 +141,7 @@ fn test_array_with_literal_size() {
 def fixed_array() -> list[int]:
     return [1, 2, 3, 4, 5]
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // Should handle array types
     assert!(rust_code.contains("fn fixed_array"));
@@ -157,7 +157,7 @@ fn test_reference_with_lifetime() {
 def borrow_str(s: str) -> str:
     return s
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // Should handle references with lifetimes
     assert!(rust_code.contains("fn borrow_str"));
@@ -174,7 +174,7 @@ def mutate_list(items: list[int]) -> list[int]:
     items.append(42)
     return items
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // Should handle mutable references
     assert!(rust_code.contains("fn mutate_list"));
@@ -192,7 +192,7 @@ def maybe_modify(s: str, modify: bool) -> str:
         return s.upper()
     return s
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // Should handle Cow optimization
     assert!(rust_code.contains("fn maybe_modify"));
@@ -210,7 +210,7 @@ def may_fail(x: int) -> int:
         raise ValueError("negative value")
     return x * 2
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // Should generate Result type
     assert!(rust_code.contains("fn may_fail"));
@@ -222,7 +222,6 @@ def may_fail(x: int) -> int:
 /// Verifies: Unsupported type handling
 /// Coverage: Lines 312 in type_mapper.rs
 #[test]
-#[ignore]
 fn test_unsupported_function_type() {
         let python_code = r#"
 from typing import Callable
@@ -230,7 +229,7 @@ from typing import Callable
 def higher_order(func: Callable[[int], str]) -> str:
     return func(42)
 "#;
-    let result: Result<String, String> = Ok(transpile(python_code));
+    let result: Result<String, String> = Ok(transpile_and_check(python_code, &[]));
 
     // Callable types are unsupported - should fail gracefully
     assert!(result.is_err(), "Callable type should be unsupported");
@@ -248,7 +247,7 @@ from typing import Dict
 def multi_param(data: Dict[str, list[int]]) -> int:
     return 42
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // Should handle nested generics
     assert!(rust_code.contains("fn multi_param"));
@@ -269,7 +268,7 @@ U = TypeVar('U')
 def swap(a: T, b: U) -> tuple[U, T]:
     return (b, a)
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // Should handle multiple TypeVars
     assert!(rust_code.contains("fn swap"));
@@ -285,7 +284,7 @@ fn test_set_type_mapping() {
 def unique_items(items: list[int]) -> set[int]:
     return set(items)
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // Should map set to HashSet
     assert!(rust_code.contains("fn unique_items"));
@@ -314,7 +313,7 @@ def complex_types(
 ) -> Optional[str]:
     return None
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // MUTATION KILL: Type structure must be preserved
     assert!(rust_code.contains("fn complex_types"));
@@ -344,7 +343,7 @@ def complex_function(
 
     return result
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // All type features should work together
     assert!(rust_code.contains("fn complex_function"));

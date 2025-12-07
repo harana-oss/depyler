@@ -2614,7 +2614,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 // print() with no arguments → println!()
                 Ok(parse_quote! { println!() })
             } else if args.len() == 1 {
-                // Check if arg is a collection type (Vec, HashMap, HashSet)
+                // Check if arg needs {:?} format (collections, tuples, or custom types)
                 let needs_debug = if let Some(hir_arg) = hir_args.first() {
                     match hir_arg {
                         HirExpr::Var(name) => {
@@ -2622,10 +2622,23 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                             self.ctx
                                 .var_types
                                 .get(name)
-                                .map(|t| matches!(t, Type::List(_) | Type::Dict(_, _) | Type::Set(_)))
+                                .map(|t| {
+                                    matches!(
+                                        t,
+                                        Type::List(_)
+                                            | Type::Dict(_, _)
+                                            | Type::Set(_)
+                                            | Type::Tuple(_)
+                                            | Type::Custom(_)
+                                    )
+                                })
                                 .unwrap_or(false)
                         }
-                        HirExpr::List(_) | HirExpr::Dict(_) | HirExpr::Set(_) | HirExpr::FrozenSet(_) => true,
+                        HirExpr::List(_)
+                        | HirExpr::Dict(_)
+                        | HirExpr::Set(_)
+                        | HirExpr::FrozenSet(_)
+                        | HirExpr::Tuple(_) => true,
                         HirExpr::Binary {
                             op: BinOp::Add,
                             left,
@@ -2647,7 +2660,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     Ok(parse_quote! { println!("{}", #arg) })
                 }
             } else {
-                // print(a, b, c) → println!("{} {} {}", a, b, c) or with {:?} for collections
+                // print(a, b, c) → println!("{} {} {}", a, b, c) or with {:?} for non-Display types
                 let format_specs: Vec<&str> = hir_args
                     .iter()
                     .map(|hir_arg| {
@@ -2656,9 +2669,22 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                                 .ctx
                                 .var_types
                                 .get(name)
-                                .map(|t| matches!(t, Type::List(_) | Type::Dict(_, _) | Type::Set(_)))
+                                .map(|t| {
+                                    matches!(
+                                        t,
+                                        Type::List(_)
+                                            | Type::Dict(_, _)
+                                            | Type::Set(_)
+                                            | Type::Tuple(_)
+                                            | Type::Custom(_)
+                                    )
+                                })
                                 .unwrap_or(false),
-                            HirExpr::List(_) | HirExpr::Dict(_) | HirExpr::Set(_) | HirExpr::FrozenSet(_) => true,
+                            HirExpr::List(_)
+                            | HirExpr::Dict(_)
+                            | HirExpr::Set(_)
+                            | HirExpr::FrozenSet(_)
+                            | HirExpr::Tuple(_) => true,
                             HirExpr::Binary {
                                 op: BinOp::Add,
                                 left,

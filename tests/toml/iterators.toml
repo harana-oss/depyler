@@ -1,0 +1,387 @@
+# Iterator Tests - Migrated from test_iterator_deref.rs
+
+[metadata]
+name = "Iterator Tests"
+category = "iterators"
+
+# =============================================================================
+# Iterator Methods
+# =============================================================================
+
+[[test]]
+name = "iterator_map"
+description = "map() function on iterable"
+tags = ["iterator", "map"]
+
+[test.python]
+code = '''
+def double_all(items: list[int]) -> list[int]:
+    return list(map(lambda x: x * 2, items))
+'''
+
+[test.assertions]
+contains = [".map(", "collect"]
+
+[[test]]
+name = "iterator_filter"
+description = "filter() function on iterable"
+tags = ["iterator", "filter"]
+
+[test.python]
+code = '''
+def positives(items: list[int]) -> list[int]:
+    return list(filter(lambda x: x > 0, items))
+'''
+
+[test.assertions]
+contains = [".filter(", "collect"]
+
+[[test]]
+name = "iterator_zip"
+description = "zip() function on iterables"
+tags = ["iterator", "zip"]
+
+[test.python]
+code = '''
+def pair_up(a: list[int], b: list[str]) -> list[tuple]:
+    return list(zip(a, b))
+'''
+
+[test.assertions]
+contains = [".zip(", "collect"]
+
+[[test]]
+name = "iterator_enumerate"
+description = "enumerate() function"
+tags = ["iterator", "enumerate"]
+
+[test.python]
+code = '''
+def with_index(items: list[str]) -> list[tuple]:
+    return list(enumerate(items))
+'''
+
+[test.assertions]
+contains = [".enumerate(", "collect"]
+
+[[test]]
+name = "iterator_reversed"
+description = "reversed() function"
+tags = ["iterator", "reverse"]
+
+[test.python]
+code = '''
+def reverse_list(items: list[int]) -> list[int]:
+    return list(reversed(items))
+'''
+
+[test.assertions]
+contains = [".rev()", "collect"]
+
+# =============================================================================
+# Reduction Operations
+# =============================================================================
+
+[[test]]
+name = "iterator_sum"
+description = "sum() on iterable"
+tags = ["iterator", "sum"]
+
+[test.python]
+code = '''
+def total(items: list[int]) -> int:
+    return sum(items)
+'''
+
+[test.assertions]
+contains_any = [[".sum()", "iter().sum()", "sum::<"]]
+
+[[test]]
+name = "iterator_min"
+description = "min() on iterable"
+tags = ["iterator", "min"]
+
+[test.python]
+code = '''
+def minimum(items: list[int]) -> int:
+    return min(items)
+'''
+
+[test.assertions]
+contains = [".min()"]
+
+[[test]]
+name = "iterator_max"
+description = "max() on iterable"
+tags = ["iterator", "max"]
+
+[test.python]
+code = '''
+def maximum(items: list[int]) -> int:
+    return max(items)
+'''
+
+[test.assertions]
+contains = [".max()"]
+
+[[test]]
+name = "iterator_any"
+description = "any() on iterable"
+tags = ["iterator", "any"]
+
+[test.python]
+code = '''
+def has_positive(items: list[int]) -> bool:
+    return any(x > 0 for x in items)
+'''
+
+[test.assertions]
+contains = [".any("]
+
+[[test]]
+name = "iterator_all"
+description = "all() on iterable"
+tags = ["iterator", "all"]
+
+[test.python]
+code = '''
+def all_positive(items: list[int]) -> bool:
+    return all(x > 0 for x in items)
+'''
+
+[test.assertions]
+contains = [".all("]
+
+# =============================================================================
+# Iterator Chaining
+# =============================================================================
+
+[[test]]
+name = "iterator_chain"
+description = "Chaining multiple iterator operations"
+tags = ["iterator", "chain"]
+
+[test.python]
+code = '''
+def process(items: list[int]) -> list[int]:
+    return list(map(lambda x: x * 2, filter(lambda x: x > 0, items)))
+'''
+
+[test.assertions]
+contains = [".filter(", ".map(", "collect"]
+
+[[test]]
+name = "iterator_take"
+description = "Taking first n elements"
+tags = ["iterator", "take"]
+
+[test.python]
+code = '''
+def first_n(items: list[int], n: int) -> list[int]:
+    result = []
+    for i, item in enumerate(items):
+        if i >= n:
+            break
+        result.append(item)
+    return result
+'''
+
+[test.assertions]
+contains_any = [[".take(", "break"]]
+
+[[test]]
+name = "iterator_skip"
+description = "Skipping first n elements"
+tags = ["iterator", "skip"]
+
+[test.python]
+code = '''
+def after_n(items: list[int], n: int) -> list[int]:
+    return items[n:]
+'''
+
+[test.assertions]
+contains_any = [[".skip(", "&items[n..]"]]
+
+# =============================================================================
+# Iterator Find Operations
+# =============================================================================
+
+[[test]]
+name = "iterator_find"
+description = "Finding first matching element"
+tags = ["iterator", "find"]
+
+[test.python]
+code = '''
+def find_first_positive(items: list[int]) -> int:
+    for item in items:
+        if item > 0:
+            return item
+    return 0
+'''
+
+[test.assertions]
+contains_any = [[".find(", "if item > 0"]]
+
+[[test]]
+name = "iterator_position"
+description = "Finding position of element"
+tags = ["iterator", "position"]
+
+[test.python]
+code = '''
+def find_index(items: list[int], target: int) -> int:
+    for i, item in enumerate(items):
+        if item == target:
+            return i
+    return -1
+'''
+
+[test.assertions]
+contains_any = [[".position(", "enumerate()"]]
+
+# =============================================================================
+# Iterator Counting
+# =============================================================================
+
+[[test]]
+name = "iterator_count"
+description = "Counting elements"
+tags = ["iterator", "count"]
+
+[test.python]
+code = '''
+def count_positive(items: list[int]) -> int:
+    return len([x for x in items if x > 0])
+'''
+
+[test.assertions]
+contains_any = [[".count()", ".filter(", "len()"]]
+
+[[test]]
+name = "iterator_len"
+description = "Getting iterator length"
+tags = ["iterator", "len"]
+
+[test.python]
+code = '''
+def length(items: list[int]) -> int:
+    return len(items)
+'''
+
+[test.assertions]
+contains = ["len()"]
+
+# =============================================================================
+# Range with Step
+# =============================================================================
+
+[[test]]
+name = "range_single_argument"
+description = "range(n) generates 0..n"
+tags = ["range", "basic"]
+
+[test.python]
+code = '''
+def count_to_five():
+    for i in range(5):
+        print(i)
+'''
+
+[test.assertions]
+contains = ["0..5"]
+
+[[test]]
+name = "range_two_arguments"
+description = "range(start, end) generates start..end"
+tags = ["range", "basic"]
+
+[test.python]
+code = '''
+def count_from_two():
+    for i in range(2, 8):
+        print(i)
+'''
+
+[test.assertions]
+contains = ["2..8"]
+
+[[test]]
+name = "range_positive_step"
+description = "range with positive step uses step_by"
+tags = ["range", "step"]
+
+[test.python]
+code = '''
+def count_by_twos():
+    for i in range(0, 10, 2):
+        print(i)
+'''
+
+[test.assertions]
+contains = ["step_by", "2"]
+
+[[test]]
+name = "range_negative_step"
+description = "range with negative step uses rev or step_by"
+tags = ["range", "step", "reverse"]
+
+[test.python]
+code = '''
+def count_down():
+    for i in range(10, 0, -1):
+        print(i)
+'''
+
+[test.assertions]
+contains_any = [["rev", "step_by"]]
+
+[[test]]
+name = "range_large_step"
+description = "range with large step value"
+tags = ["range", "step"]
+
+[test.python]
+code = '''
+def count_by_fives():
+    result = []
+    for i in range(0, 25, 5):
+        result.append(i)
+    return result
+'''
+
+[test.assertions]
+contains = ["step_by", "5"]
+
+[[test]]
+name = "range_negative_bounds"
+description = "range with negative start value"
+tags = ["range", "negative"]
+
+[test.python]
+code = '''
+def negative_range():
+    for i in range(-5, 5):
+        print(i)
+'''
+
+[test.assertions]
+contains_any = [["- 5..5", "-5..5"]]
+
+[[test]]
+name = "range_with_variables"
+description = "range with dynamic variable arguments"
+tags = ["range", "dynamic"]
+
+[test.python]
+code = '''
+def dynamic_range(start: int, end: int, step: int):
+    result = []
+    for i in range(start, end, step):
+        result.append(i)
+    return result
+'''
+
+[test.assertions]
+contains = ["step_by"]

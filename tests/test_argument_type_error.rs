@@ -5,18 +5,9 @@
 // Root cause: raise argparse.ArgumentTypeError(msg) not mapped to Err()
 // Solution: Detect ArgumentTypeError and generate Result return type
 
-use crate::test_helpers;
-
-use depyler_core::DepylerPipeline;
-
-/// Helper to transpile Python code
-fn transpile_python(python: &str) -> anyhow::Result<String> {
-    let pipeline = DepylerPipeline::new();
-    pipeline.transpile(python)
-}
+use crate::test_helpers::transpile_and_check;
 
 #[test]
-#[ignore]
 fn test_port_number_validator() {
     // Port number validator from complex_cli.py
     let python = r#"
@@ -32,27 +23,13 @@ def port_number(value):
         raise argparse.ArgumentTypeError(f"Port must be an integer, got '{value}'") from None
 "#;
 
-    let result = transpile_python(python);
-    assert!(result.is_ok(), "Transpilation should succeed: {:?}", result.err());
-
-    let rust = result.unwrap();
-
-    // Should generate Result<T, String> return type
-    assert!(rust.contains("Result<"), "Should use Result return type: {}", rust);
-
-    // Should map raise ArgumentTypeError to Err()
-    assert!(
-        rust.contains("Err("),
-        "Should generate Err() for ArgumentTypeError: {}",
-        rust
-    );
+    let rust = transpile_and_check(python, &["Result<", "Err("]);
 
     // Should not reference Exception type (which doesn't exist in Rust)
     assert!(!rust.contains("Exception"), "Should not reference Exception: {}", rust);
 }
 
 #[test]
-#[ignore]
 fn test_positive_int_validator() {
     // Positive int validator from complex_cli.py
     let python = r#"
@@ -68,20 +45,10 @@ def positive_int(value):
         raise argparse.ArgumentTypeError(f"Value must be an integer, got '{value}'") from None
 "#;
 
-    let result = transpile_python(python);
-    assert!(
-        result.is_ok(),
-        "Should transpile positive_int validator: {:?}",
-        result.err()
-    );
-
-    let rust = result.unwrap();
-    assert!(rust.contains("Result<"), "Should use Result type");
-    assert!(rust.contains("Err("), "Should generate Err()");
+    transpile_and_check(python, &["Result<", "Err("]);
 }
 
 #[test]
-#[ignore]
 fn test_email_validator() {
     // Email address validator from complex_cli.py
     let python = r#"
@@ -95,16 +62,10 @@ def email_address(value):
     return value
 "#;
 
-    let result = transpile_python(python);
-    assert!(result.is_ok(), "Should transpile email validator: {:?}", result.err());
-
-    let rust = result.unwrap();
-    assert!(rust.contains("Result<"), "Should use Result type");
-    assert!(rust.contains("Err("), "Should generate Err()");
+    transpile_and_check(python, &["Result<", "Err("]);
 }
 
 #[test]
-#[ignore]
 fn test_simple_validator() {
     // Simplified validator (no try/except)
     let python = r#"
@@ -117,15 +78,10 @@ def validate_range(value):
     return num
 "#;
 
-    let result = transpile_python(python);
-    assert!(result.is_ok(), "Should transpile simple validator: {:?}", result.err());
-
-    let rust = result.unwrap();
-    assert!(rust.contains("Result<"), "Should use Result type");
+    transpile_and_check(python, &["Result<"]);
 }
 
 #[test]
-#[ignore]
 fn test_real_world_complex_cli() {
     // Actual pattern from complex_cli.py (all three validators)
     let python = r#"
@@ -157,14 +113,7 @@ def email_address(value):
     return value
 "#;
 
-    let result = transpile_python(python);
-    assert!(
-        result.is_ok(),
-        "Real-world validators should transpile: {:?}",
-        result.err()
-    );
-
-    let rust = result.unwrap();
+    let rust = transpile_and_check(python, &[]);
 
     // All three functions should use Result<T, String>
     assert!(rust.matches("Result<").count() >= 3, "Should have 3+ Result types");
@@ -182,12 +131,11 @@ fn test_property_based_error_messages() {
         (r#"raise argparse.ArgumentTypeError(msg)"#, "variable"),
     ];
 
-    for (raise_stmt, description) in test_cases {
+    for (raise_stmt, _description) in test_cases {
         let python = format!(
             "import argparse\ndef validate(value):\n    {}\n    return value",
             raise_stmt
         );
-        let result = transpile_python(&python);
-        assert!(result.is_ok(), "Should handle {}: {:?}", description, result.err());
+        transpile_and_check(&python, &[]);
     }
 }

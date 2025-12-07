@@ -85,8 +85,7 @@ mod property_tests {
 
     proptest! {
             #[test]
-            #[ignore]
-    fn prop_arithmetic_equivalence(
+                fn prop_arithmetic_equivalence(
                 a in -1000i32..1000,
                 b in -1000i32..1000,
                 op in arb_binary_op()
@@ -160,8 +159,7 @@ mod property_tests {
             }
 
             #[test]
-            #[ignore]
-    fn prop_control_flow_equivalence(
+                fn prop_control_flow_equivalence(
                 condition in -100i32..100,
                 then_value in any::<i32>(),
                 else_value in any::<i32>()

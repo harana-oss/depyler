@@ -1,0 +1,861 @@
+# Type Inference Tests - Migrated from test_type_inference.rs, test_type_system.rs, 
+# test_type_mapper_coverage.rs, test_type_annotation.rs
+
+[metadata]
+name = "Type Inference Tests"
+category = "type-inference"
+
+# =============================================================================
+# Basic Type Inference
+# =============================================================================
+
+[[test]]
+name = "infer_int_from_literal"
+description = "Infer int type from literal assignment"
+tags = ["inference", "int"]
+
+[test.python]
+code = '''
+def get_number():
+    x = 42
+    return x
+'''
+
+[test.assertions]
+contains_any = [["i32", "i64"]]
+not_contains = ["serde_json::Value"]
+
+[[test]]
+name = "infer_float_from_literal"
+description = "Infer float type from literal"
+tags = ["inference", "float"]
+
+[test.python]
+code = '''
+def get_pi():
+    x = 3.14
+    return x
+'''
+
+[test.assertions]
+contains = ["f64"]
+
+[[test]]
+name = "infer_string_from_literal"
+description = "Infer string type from literal"
+tags = ["inference", "string"]
+
+[test.python]
+code = '''
+def get_greeting():
+    s = "hello"
+    return s
+'''
+
+[test.assertions]
+contains_any = [["String", "&str"]]
+
+[[test]]
+name = "infer_bool_from_literal"
+description = "Infer bool type from literal"
+tags = ["inference", "bool"]
+
+[test.python]
+code = '''
+def get_flag():
+    b = True
+    return b
+'''
+
+[test.assertions]
+contains = ["bool"]
+
+# =============================================================================
+# Inference from Operations
+# =============================================================================
+
+[[test]]
+name = "infer_int_from_arithmetic"
+description = "Infer int type from arithmetic"
+tags = ["inference", "arithmetic"]
+
+[test.python]
+code = '''
+def increment(x):
+    return x + 1
+'''
+
+[test.assertions]
+contains_any = [["i32", "i64", "isize"]]
+not_contains = ["serde_json::Value"]
+
+[[test]]
+name = "infer_float_from_division"
+description = "Infer float from true division"
+tags = ["inference", "division"]
+
+[test.python]
+code = '''
+def half(x: float) -> float:
+    return x / 2.0
+'''
+
+[test.assertions]
+contains = ["f64"]
+
+[[test]]
+name = "infer_string_from_concat"
+description = "Infer string from concatenation"
+tags = ["inference", "string"]
+
+[test.python]
+code = '''
+def greet(name: str) -> str:
+    return "Hello, " + name
+'''
+
+[test.assertions]
+contains_any = [["String", "&str"]]
+
+# =============================================================================
+# Inference from Method Calls
+# =============================================================================
+
+[[test]]
+name = "infer_string_from_upper"
+description = "Infer string from .upper() call"
+tags = ["inference", "method"]
+
+[test.python]
+code = '''
+def shout(text: str) -> str:
+    return text.upper()
+'''
+
+[test.assertions]
+contains_any = [["String", "&str"]]
+contains = ["to_uppercase"]
+
+[[test]]
+name = "infer_list_from_append"
+description = "Infer list from .append() call"
+tags = ["inference", "method"]
+
+[test.python]
+code = '''
+def add_item(items: list[int], item: int):
+    items.append(item)
+    return items
+'''
+
+[test.assertions]
+contains = ["Vec"]
+
+# =============================================================================
+# Inference from Builtins
+# =============================================================================
+
+[[test]]
+name = "infer_int_from_len"
+description = "Infer int from len()"
+tags = ["inference", "builtin"]
+
+[test.python]
+code = '''
+def count(items: list[int]) -> int:
+    return len(items)
+'''
+
+[test.assertions]
+contains_any = [["usize", "i32", "i64"]]
+
+[[test]]
+name = "infer_string_from_str_call"
+description = "Infer string from str()"
+tags = ["inference", "builtin"]
+
+[test.python]
+code = '''
+def to_string(x: int) -> str:
+    return str(x)
+'''
+
+[test.assertions]
+contains_any = [["String", "to_string()"]]
+
+# =============================================================================
+# Type Annotations
+# =============================================================================
+
+[[test]]
+name = "annotated_parameter"
+description = "Typed parameter annotation"
+tags = ["annotation", "parameter"]
+
+[test.python]
+code = '''
+def add(a: int, b: int) -> int:
+    return a + b
+'''
+
+[test.assertions]
+contains_any = [["a: i32", "a: i64"]]
+
+[[test]]
+name = "annotated_return"
+description = "Typed return annotation"
+tags = ["annotation", "return"]
+
+[test.python]
+code = '''
+def get_name() -> str:
+    return "Alice"
+'''
+
+[test.assertions]
+contains_any = [["-> String", "-> &str"]]
+
+[[test]]
+name = "annotated_variable"
+description = "Typed variable annotation"
+tags = ["annotation", "variable"]
+
+[test.python]
+code = '''
+def typed_var() -> int:
+    x: int = 42
+    return x
+'''
+
+[test.assertions]
+contains_any = [["i32", "i64"]]
+
+# =============================================================================
+# Generic Type Inference
+# =============================================================================
+
+[[test]]
+name = "infer_list_element_type"
+description = "Infer list element type"
+tags = ["inference", "generic"]
+
+[test.python]
+code = '''
+def first(items: list[int]) -> int:
+    return items[0]
+'''
+
+[test.assertions]
+contains_any = [["Vec<i32>", "Vec<i64>"]]
+
+[[test]]
+name = "infer_dict_types"
+description = "Infer dictionary key/value types"
+tags = ["inference", "generic"]
+
+[test.python]
+code = '''
+def get_value(d: dict[str, int], key: str) -> int:
+    return d[key]
+'''
+
+[test.assertions]
+contains = ["HashMap"]
+
+# =============================================================================
+# Union Type Inference
+# =============================================================================
+
+[[test]]
+name = "union_type_annotation"
+description = "Union type annotation"
+tags = ["annotation", "union"]
+
+[test.python]
+code = '''
+from typing import Union
+
+def maybe_int(flag: bool) -> Union[int, str]:
+    if flag:
+        return 42
+    return "none"
+'''
+
+[test.assertions]
+contains_any = [["enum", "Either", "Result"]]
+
+# =============================================================================
+# Optional Type Inference
+# =============================================================================
+
+[[test]]
+name = "optional_type_annotation"
+description = "Optional type annotation"
+tags = ["annotation", "optional"]
+
+[test.python]
+code = '''
+from typing import Optional
+
+def maybe_value(x: int) -> Optional[int]:
+    if x > 0:
+        return x
+    return None
+'''
+
+[test.assertions]
+contains = ["Option<"]
+
+# =============================================================================
+# Return Type Inference
+# =============================================================================
+
+[[test]]
+name = "infer_return_from_body"
+description = "Infer return type from function body"
+tags = ["inference", "return"]
+
+[test.python]
+code = '''
+def compute():
+    return 42
+'''
+
+[test.assertions]
+contains_any = [["-> i32", "-> i64"]]
+
+[[test]]
+name = "infer_return_list"
+description = "Infer list return type"
+tags = ["inference", "return", "list"]
+
+[test.python]
+code = '''
+def make_list() -> list[int]:
+    return [1, 2, 3]
+'''
+
+[test.assertions]
+contains_any = [["Vec<i32>", "Vec<i64>"]]
+
+# =============================================================================
+# isinstance Optimization
+# =============================================================================
+
+[[test]]
+name = "isinstance_int_removed"
+description = "isinstance(x, int) removed when x is typed as int"
+tags = ["isinstance", "optimization"]
+
+[test.python]
+code = '''
+def check_int(x: int) -> bool:
+    return isinstance(x, int)
+'''
+
+[test.assertions]
+contains = ["true"]
+not_contains = ["isinstance"]
+
+[[test]]
+name = "isinstance_str_removed"
+description = "isinstance(s, str) removed when s is typed as str"
+tags = ["isinstance", "optimization"]
+
+[test.python]
+code = '''
+def check_str(s: str) -> bool:
+    return isinstance(s, str)
+'''
+
+[test.assertions]
+contains = ["true"]
+not_contains = ["isinstance"]
+
+[[test]]
+name = "isinstance_float_removed"
+description = "isinstance(x, float) removed when x is typed as float"
+tags = ["isinstance", "optimization"]
+
+[test.python]
+code = '''
+def check_float(x: float) -> bool:
+    return isinstance(x, float)
+'''
+
+[test.assertions]
+contains = ["true"]
+not_contains = ["isinstance"]
+
+[[test]]
+name = "isinstance_list_removed"
+description = "isinstance(items, list) removed when items is typed as list"
+tags = ["isinstance", "optimization"]
+
+[test.python]
+code = '''
+def check_list(items: list[int]) -> bool:
+    return isinstance(items, list)
+'''
+
+[test.assertions]
+contains = ["true"]
+not_contains = ["isinstance"]
+
+# =============================================================================
+# Inference from Usage Context (from test_type_inference.rs)
+# =============================================================================
+
+[[test]]
+name = "infer_filepath_from_open"
+description = "Infer string type from open() usage"
+tags = ["inference", "usage"]
+
+[test.python]
+code = '''
+def read_file(filepath):
+    with open(filepath) as f:
+        return f.read()
+'''
+
+[test.assertions]
+contains_any = [["filepath: &str", "filepath: String"]]
+not_contains = ["serde_json::Value"]
+
+[[test]]
+name = "infer_string_from_fstring"
+description = "Infer string type from f-string usage"
+tags = ["inference", "fstring"]
+
+[test.python]
+code = '''
+def greet(name):
+    return f"Hello, {name}"
+'''
+
+[test.assertions]
+contains_any = [["name: &str", "name: String"]]
+not_contains = ["serde_json::Value"]
+
+[[test]]
+name = "infer_list_from_iteration"
+description = "Infer list type from iteration"
+tags = ["inference", "iteration"]
+
+[test.python]
+code = '''
+def sum_list(items):
+    total = 0
+    for item in items:
+        total += item
+    return total
+'''
+
+[test.assertions]
+contains_any = [["items: &[", "items: Vec<", "items: &Vec<"]]
+not_contains = ["serde_json::Value"]
+
+[[test]]
+name = "infer_bool_from_conditional"
+description = "Infer bool type from conditional usage"
+tags = ["inference", "conditional"]
+
+[test.python]
+code = '''
+def conditional(flag):
+    if flag:
+        return "yes"
+    return "no"
+'''
+
+[test.assertions]
+contains = ["flag: bool"]
+not_contains = ["serde_json::Value"]
+
+[[test]]
+name = "infer_mixed_types"
+description = "Infer multiple parameter types"
+tags = ["inference", "mixed"]
+
+[test.python]
+code = '''
+def process(data, flag):
+    if flag:
+        return data.upper()
+    return data
+'''
+
+[test.assertions]
+contains_any = [["data: &str", "data: String"]]
+contains = ["flag: bool"]
+not_contains = ["serde_json::Value"]
+
+[[test]]
+name = "infer_csv_path"
+description = "Infer string from CSV reader context"
+tags = ["inference", "csv"]
+
+[test.python]
+code = '''
+import csv
+
+def process_csv(path):
+    with open(path) as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            print(row['name'])
+'''
+
+[test.assertions]
+contains_any = [["path: &str", "path: String"]]
+not_contains = ["serde_json::Value"]
+
+[[test]]
+name = "return_type_propagation"
+description = "Respect explicit return type annotations"
+tags = ["inference", "return"]
+
+[test.python]
+code = '''
+def get_length(text: str) -> int:
+    return len(text)
+'''
+
+[test.assertions]
+contains_any = [["text: &str", "text: String"]]
+contains_any = [["-> i32", "-> i64", "-> usize"]]
+
+[[test]]
+name = "infer_search_function"
+description = "Infer list and target types in search"
+tags = ["inference", "complex"]
+
+[test.python]
+code = '''
+def search(items, target):
+    for item in items:
+        if item == target:
+            return True
+    return False
+'''
+
+[test.assertions]
+contains_any = [["items: &[", "items: Vec<"]]
+not_contains = ["items: serde_json::Value"]
+
+# =============================================================================
+# int(str) Parsing (from test_int_str_parsing.rs)
+# =============================================================================
+
+[[test]]
+name = "int_str_simple"
+description = "int(str) uses .parse::<i32>()"
+tags = ["parse", "int", "str"]
+
+[test.python]
+code = '''
+def parse_number(s: str) -> int:
+    return int(s)
+'''
+
+[test.assertions]
+contains = [".parse::<i32>()"]
+not_contains = [") as i32"]
+
+[[test]]
+name = "int_str_multiple_calls"
+description = "Multiple int(str) conversions"
+tags = ["parse", "int", "str"]
+
+[test.python]
+code = '''
+def parse_and_add(s1: str, s2: str) -> int:
+    a = int(s1)
+    b = int(s2)
+    return a + b
+'''
+
+[test.assertions]
+contains = [".parse::<i32>()"]
+
+[[test]]
+name = "int_number_not_string"
+description = "int(int) should not use .parse()"
+tags = ["parse", "int"]
+
+[test.python]
+code = '''
+def double_int(x: int) -> int:
+    return int(x) * 2
+'''
+
+[test.assertions]
+not_contains = [".parse"]
+
+[[test]]
+name = "int_float_cast"
+description = "int(float) uses 'as i32' cast"
+tags = ["parse", "int", "float"]
+
+[test.python]
+code = '''
+def truncate_float(x: float) -> int:
+    return int(x)
+'''
+
+[test.assertions]
+contains_any = [["as i32", "as i64"]]
+not_contains = [".parse"]
+
+[[test]]
+name = "int_bool_cast"
+description = "int(bool) uses 'as i32' cast"
+tags = ["parse", "int", "bool"]
+
+[test.python]
+code = '''
+def bool_to_int(b: bool) -> int:
+    return int(b)
+'''
+
+[test.assertions]
+contains_any = [["as i32", "as i64"]]
+not_contains = [".parse"]
+
+[[test]]
+name = "int_str_in_expression"
+description = "int(str) nested in expression"
+tags = ["parse", "int", "str"]
+
+[test.python]
+code = '''
+def calculate(s: str) -> int:
+    return int(s) * 2 + 10
+'''
+
+[test.assertions]
+contains = [".parse::<i32>()"]
+
+[[test]]
+name = "int_str_as_function_arg"
+description = "int(str) as function argument"
+tags = ["parse", "int", "str"]
+
+[test.python]
+code = '''
+def helper(x: int) -> int:
+    return x * 2
+
+def parse_and_call(s: str) -> int:
+    return helper(int(s))
+'''
+
+[test.assertions]
+contains = [".parse::<i32>()"]
+
+# =============================================================================
+# DynamicType Bug Tests - untyped collections should not use DynamicType
+# =============================================================================
+
+[[test]]
+name = "untyped_list_parameter_no_dynamic"
+description = "Untyped list parameter should not generate DynamicType"
+tags = ["dynamic", "list", "regression"]
+
+[test.python]
+code = '''
+def sum_list(numbers: list) -> int:
+    total = 0
+    for num in numbers:
+        total = total + num
+    return total
+'''
+
+[test.assertions]
+not_contains = ["DynamicType"]
+
+[[test]]
+name = "untyped_dict_parameter_no_dynamic"
+description = "Untyped dict parameter should not generate DynamicType"
+tags = ["dynamic", "dict", "regression"]
+
+[test.python]
+code = '''
+def get_value(data: dict, key: str) -> int:
+    if key in data:
+        return data[key]
+    return 0
+'''
+
+[test.assertions]
+not_contains = ["DynamicType"]
+
+[[test]]
+name = "untyped_set_parameter_no_dynamic"
+description = "Untyped set parameter should not generate DynamicType"
+tags = ["dynamic", "set", "regression"]
+
+[test.python]
+code = '''
+def count_unique(items: set) -> int:
+    return len(items)
+'''
+
+[test.assertions]
+not_contains = ["DynamicType"]
+
+# =============================================================================
+# Type Annotation Preservation - Migrated from test_type_annotation.rs
+# =============================================================================
+
+[[test]]
+name = "type_annotation_usize_to_i32"
+description = "Type annotation forces conversion from usize (len) to i32"
+tags = ["annotation", "conversion"]
+
+[test.python]
+code = '''
+def test() -> int:
+    arr = [1, 2, 3]
+    right: int = len(arr) - 1
+    return right
+'''
+
+[test.assertions]
+contains = ["right: i32"]
+contains_any = [["as i32", ".try_into()"]]
+
+[[test]]
+name = "type_annotation_simple_int"
+description = "Simple int type annotation is preserved"
+tags = ["annotation", "int"]
+
+[test.python]
+code = '''
+def test(val: int) -> int:
+    x: int = val + 1
+    return x
+'''
+
+[test.assertions]
+contains = ["x: i32"]
+
+[[test]]
+name = "type_annotation_str"
+description = "String type annotation produces String or &str"
+tags = ["annotation", "string"]
+
+[test.python]
+code = '''
+def test() -> str:
+    name: str = "hello"
+    return name
+'''
+
+[test.assertions]
+contains_any = [["String", "&str"]]
+
+[[test]]
+name = "no_annotation_infers_type"
+description = "Type inference works without explicit annotation"
+tags = ["inference", "no-annotation"]
+
+[test.python]
+code = '''
+def test(n: int) -> int:
+    x = n + 1
+    return x
+'''
+
+[test.assertions]
+contains = ["pub fn test"]
+
+# =============================================================================
+# Return Type Inference - Migrated from test_return_type_inference.rs
+# =============================================================================
+
+[[test]]
+name = "dict_return_infers_hashmap"
+description = "Dict return infers HashMap, not i32"
+tags = ["inference", "return", "dict"]
+
+[test.python]
+code = '''
+def create_config():
+    return {"host": "localhost", "port": 5432}
+'''
+
+[test.assertions]
+not_contains = ["pub fn create_config() -> i32"]
+contains_any = [["HashMap", "Value"]]
+
+[[test]]
+name = "int_return_infers_i32"
+description = "Int return infers i32"
+tags = ["inference", "return", "int"]
+
+[test.python]
+code = '''
+def get_count():
+    return 42
+'''
+
+[test.assertions]
+contains_any = [["pub fn get_count() -> i32", "pub fn get_count() -> i64"]]
+
+[[test]]
+name = "string_return_infers_string"
+description = "String return infers String or &str"
+tags = ["inference", "return", "string"]
+
+[test.python]
+code = '''
+def get_name():
+    return "Alice"
+'''
+
+[test.assertions]
+contains_any = [["-> String", "-> &str"]]
+
+[[test]]
+name = "bool_return_infers_bool"
+description = "Bool return infers bool"
+tags = ["inference", "return", "bool"]
+
+[test.python]
+code = '''
+def is_valid():
+    return True
+'''
+
+[test.assertions]
+contains = ["pub fn is_valid() -> bool"]
+
+[[test]]
+name = "float_return_infers_f64"
+description = "Float return infers f64"
+tags = ["inference", "return", "float"]
+
+[test.python]
+code = '''
+def get_pi():
+    return 3.14159
+'''
+
+[test.assertions]
+contains = ["pub fn get_pi() -> f64"]
+
+[[test]]
+name = "list_return_infers_vec"
+description = "List return infers Vec, not i32"
+tags = ["inference", "return", "list"]
+
+[test.python]
+code = '''
+def get_items():
+    return [1, 2, 3]
+'''
+
+[test.assertions]
+not_contains = ["pub fn get_items() -> i32"]
+contains_any = [["Vec", "Value"]]

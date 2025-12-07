@@ -1,0 +1,413 @@
+# Class Tests - Migrated from test_classs.rs, test_property.rs, test_converters_propertys.rs, test_setattr.rs
+
+[metadata]
+name = "Class Tests"
+category = "classes"
+
+# =============================================================================
+# Basic Struct Generation
+# =============================================================================
+
+[[test]]
+name = "class_simple_struct"
+description = "Simple class should generate Rust struct"
+tags = ["class", "struct"]
+
+[test.python]
+code = '''
+class Point:
+    def __init__(self, x: int, y: int):
+        self.x = x
+        self.y = y
+'''
+
+[test.assertions]
+contains = ["struct Point", "impl Point"]
+contains_any = [["fn new", "pub fn new"]]
+
+[[test]]
+name = "class_multiple_fields"
+description = "Class with multiple typed fields"
+tags = ["class", "struct", "types"]
+
+[test.python]
+code = '''
+class Student:
+    def __init__(self, name: str, age: int, grade: float, active: bool):
+        self.name = name
+        self.age = age
+        self.grade = grade
+        self.active = active
+'''
+
+[test.assertions]
+contains = ["struct Student", "name", "age", "grade", "active"]
+
+[[test]]
+name = "class_empty"
+description = "Empty class with pass"
+tags = ["class", "struct"]
+
+[test.python]
+code = '''
+class Empty:
+    pass
+'''
+
+[test.assertions]
+contains = ["struct Empty"]
+
+# =============================================================================
+# Instance Methods
+# =============================================================================
+
+[[test]]
+name = "class_instance_method"
+description = "Class with instance method"
+tags = ["class", "method"]
+
+[test.python]
+code = '''
+class Rectangle:
+    def __init__(self, width: int, height: int):
+        self.width = width
+        self.height = height
+    
+    def area(self) -> int:
+        return self.width * self.height
+'''
+
+[test.assertions]
+contains = ["struct Rectangle", "impl Rectangle", "fn area", "&self"]
+
+[[test]]
+name = "class_method_with_params"
+description = "Instance method with additional parameters"
+tags = ["class", "method", "parameters"]
+
+[test.python]
+code = '''
+class Calculator:
+    def __init__(self, value: int):
+        self.value = value
+    
+    def add(self, n: int) -> int:
+        return self.value + n
+'''
+
+[test.assertions]
+contains = ["fn add", "&self"]
+
+[[test]]
+name = "class_mutating_method"
+description = "Method that mutates self"
+tags = ["class", "method", "mutability"]
+
+[test.python]
+code = '''
+class Counter:
+    def __init__(self):
+        self.count = 0
+    
+    def increment(self):
+        self.count += 1
+'''
+
+[test.assertions]
+contains = ["&mut self", "fn increment"]
+
+# =============================================================================
+# Static and Class Methods
+# =============================================================================
+
+[[test]]
+name = "class_staticmethod"
+description = "@staticmethod decorator"
+tags = ["class", "staticmethod"]
+
+[test.python]
+code = '''
+class MathUtils:
+    @staticmethod
+    def add(a: int, b: int) -> int:
+        return a + b
+'''
+
+[test.assertions]
+contains = ["fn add"]
+not_contains = ["&self", "&mut self"]
+
+[[test]]
+name = "class_classmethod"
+description = "@classmethod decorator"
+tags = ["class", "classmethod"]
+
+[test.python]
+code = '''
+class Factory:
+    @classmethod
+    def create(cls, value: int):
+        return cls(value)
+'''
+
+[test.assertions]
+contains = ["fn create"]
+
+# =============================================================================
+# Properties
+# =============================================================================
+
+[[test]]
+name = "class_property_getter"
+description = "@property decorator for getter"
+tags = ["class", "property", "getter"]
+
+[test.python]
+code = '''
+class Circle:
+    def __init__(self, radius: float):
+        self._radius = radius
+    
+    @property
+    def radius(self) -> float:
+        return self._radius
+'''
+
+[test.assertions]
+contains = ["fn radius", "&self"]
+
+[[test]]
+name = "class_property_setter"
+description = "@property.setter decorator"
+tags = ["class", "property", "setter"]
+
+[test.python]
+code = '''
+class Circle:
+    def __init__(self, radius: float):
+        self._radius = radius
+    
+    @property
+    def radius(self) -> float:
+        return self._radius
+    
+    @radius.setter
+    def radius(self, value: float):
+        self._radius = value
+'''
+
+[test.assertions]
+contains = ["fn radius", "&mut self"]
+contains_any = [["fn set_radius", "set_"]]
+
+# =============================================================================
+# Class Instantiation
+# =============================================================================
+
+[[test]]
+name = "class_instantiation"
+description = "Creating class instance"
+tags = ["class", "instantiation"]
+
+[test.python]
+code = '''
+class Point:
+    def __init__(self, x: int, y: int):
+        self.x = x
+        self.y = y
+
+def create_point() -> Point:
+    p = Point(10, 20)
+    return p
+'''
+
+[test.assertions]
+contains_any = [["Point::new(", "Point {"]]
+
+[[test]]
+name = "class_field_access"
+description = "Accessing instance fields"
+tags = ["class", "field-access"]
+
+[test.python]
+code = '''
+class Point:
+    def __init__(self, x: int, y: int):
+        self.x = x
+        self.y = y
+
+def get_x(p: Point) -> int:
+    return p.x
+'''
+
+[test.assertions]
+contains = ["p.x"]
+
+# =============================================================================
+# Default Constructor Parameters
+# =============================================================================
+
+[[test]]
+name = "class_default_param"
+description = "__init__ with default parameter"
+tags = ["class", "default-param"]
+
+[test.python]
+code = '''
+class Counter:
+    def __init__(self, start: int = 0):
+        self.value = start
+'''
+
+[test.assertions]
+contains = ["struct Counter", "value"]
+
+# =============================================================================
+# Multiple Classes
+# =============================================================================
+
+[[test]]
+name = "multiple_classes"
+description = "Multiple class definitions in one module"
+tags = ["class", "multiple"]
+
+[test.python]
+code = '''
+class Point:
+    def __init__(self, x: int, y: int):
+        self.x = x
+        self.y = y
+
+class Rectangle:
+    def __init__(self, origin: Point, width: int, height: int):
+        self.origin = origin
+        self.width = width
+        self.height = height
+'''
+
+[test.assertions]
+contains = ["struct Point", "struct Rectangle"]
+
+# =============================================================================
+# setattr/getattr Tests
+# =============================================================================
+
+[[test]]
+name = "setattr_literal_field"
+description = "setattr with literal field name generates direct assignment"
+tags = ["setattr", "literal"]
+
+[test.python]
+code = '''
+class Config:
+    value: int
+
+def set_config_value(c: Config) -> None:
+    setattr(c, "value", 42)
+'''
+
+[test.assertions]
+contains = ["c.value = 42"]
+
+[[test]]
+name = "setattr_string_value"
+description = "setattr with string value generates to_string"
+tags = ["setattr", "string"]
+
+[test.python]
+code = '''
+class Person:
+    name: str
+
+def set_name(p: Person) -> None:
+    setattr(p, "name", "Alice")
+'''
+
+[test.assertions]
+contains_any = [[".to_string()", "String::from"]]
+
+[[test]]
+name = "setattr_variable_value"
+description = "setattr with variable value"
+tags = ["setattr", "variable"]
+
+[test.python]
+code = '''
+class Counter:
+    count: int
+
+def set_count(c: Counter, new_count: int) -> None:
+    setattr(c, "count", new_count)
+'''
+
+[test.assertions]
+contains = ["c.count = new_count"]
+
+[[test]]
+name = "setattr_string_variable_clones"
+description = "setattr with string variable should clone"
+tags = ["setattr", "string", "clone"]
+
+[test.python]
+code = '''
+class Person:
+    name: str
+
+def set_name(p: Person, new_name: str) -> None:
+    setattr(p, "name", new_name)
+'''
+
+[test.assertions]
+contains = ["new_name.clone()"]
+
+[[test]]
+name = "getattr_literal_field"
+description = "getattr with literal field name generates direct access"
+tags = ["getattr", "literal"]
+
+[test.python]
+code = '''
+class Config:
+    value: int
+
+def get_config_value(c: Config) -> int:
+    return getattr(c, "value")
+'''
+
+[test.assertions]
+contains = ["c.value"]
+
+[[test]]
+name = "getattr_with_default"
+description = "getattr with default value"
+tags = ["getattr", "default"]
+
+[test.python]
+code = '''
+class Person:
+    name: str
+
+def get_name(p: Person) -> str:
+    return getattr(p, "name", "Unknown")
+'''
+
+[test.assertions]
+contains = ["p.name"]
+
+[[test]]
+name = "setattr_copy_field"
+description = "setattr copying field value from getattr"
+tags = ["setattr", "getattr", "copy"]
+
+[test.python]
+code = '''
+class State:
+    temp: int
+    result: int
+
+def update_state(s: State) -> None:
+    setattr(s, "temp", getattr(s, "result"))
+'''
+
+[test.assertions]
+contains = ["s.temp = s.result"]

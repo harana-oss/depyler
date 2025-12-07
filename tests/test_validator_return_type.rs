@@ -11,7 +11,7 @@
 //! Expected:
 //!   pub fn email_address(value: &str) -> Result<String, Box<dyn std::error::Error>>
 
-use crate::test_helpers::transpile;
+use crate::test_helpers::transpile_and_check;
 use depyler_core::DepylerPipeline;
 
 /// Helper to transpile Python code
@@ -21,7 +21,6 @@ fn transpile_python(python: &str) -> anyhow::Result<String> {
 }
 
 #[test]
-#[ignore]
 fn test_identity_validator_returns_string() {
     let py = r#"
 import argparse
@@ -58,8 +57,7 @@ def main():
 
     // Check 3: Return statement should convert &str to String
     assert!(
-        rust_code.contains("Ok(value.to_string())")
-            || rust_code.contains("Ok(value.into())"),
+        rust_code.contains("Ok(value.to_string())") || rust_code.contains("Ok(value.into())"),
         "email_address should convert &str to String in return, got:\n{}",
         extract_function_body(&rust_code, "email_address")
     );
@@ -73,7 +71,6 @@ def main():
 }
 
 #[test]
-#[ignore]
 fn test_converting_validator_returns_converted_type() {
     let py = r#"
 import argparse
@@ -115,7 +112,6 @@ def main():
 }
 
 #[test]
-#[ignore]
 fn test_string_method_validator_returns_string() {
     let py = r#"
 import argparse
@@ -155,7 +151,6 @@ def main():
 }
 
 #[test]
-#[ignore]
 fn test_lowercase_validator_returns_string() {
     let py = r#"
 import argparse
@@ -188,7 +183,6 @@ def main():
 }
 
 #[test]
-#[ignore]
 fn test_strip_validator_returns_string() {
     let py = r#"
 import argparse
@@ -221,7 +215,6 @@ def main():
 }
 
 #[test]
-#[ignore]
 fn test_float_validator_returns_float() {
     let py = r#"
 import argparse
@@ -274,8 +267,7 @@ fn extract_function_body(rust_code: &str, func_name: &str) -> String {
     let start_idx = lines.iter().position(|line| line.contains(&pattern));
 
     if let Some(start) = start_idx {
-        lines[start..std::cmp::min(start + 20, lines.len())]
-            .join("\n")
+        lines[start..std::cmp::min(start + 20, lines.len())].join("\n")
     } else {
         String::from("Function not found")
     }

@@ -11,21 +11,19 @@
 //! - Nested assignments (get_mut chains)
 //! - Index type conversion (as usize for Vec)
 
-use crate::test_helpers::transpile;
-use depyler_core::DepylerPipeline;
+use crate::test_helpers::transpile_and_check;
 
 /// Unit Test: Simple list assignment with literal index
 ///
 /// Verifies: Vec.insert with numeric index 
 #[test]
 fn test_list_assignment_literal_index() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 def update_list(items: list[int]) -> list[int]:
     items[0] = 42
     return items
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn update_list"));
 }
@@ -35,13 +33,12 @@ def update_list(items: list[int]) -> list[int]:
 /// Verifies: Vec.insert with variable index 
 #[test]
 fn test_list_assignment_variable_index() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 def update_at_index(items: list[int], index: int, value: int) -> list[int]:
     items[index] = value
     return items
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn update_at_index"));
 }
@@ -51,13 +48,12 @@ def update_at_index(items: list[int], index: int, value: int) -> list[int]:
 /// Verifies: Vec.insert with binary expression index (lines 1060, 1077)
 #[test]
 fn test_list_assignment_expression_index() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 def update_next_item(items: list[int], i: int) -> list[int]:
     items[i + 1] = 100
     return items
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn update_next_item"));
 }
@@ -67,13 +63,12 @@ def update_next_item(items: list[int], i: int) -> list[int]:
 /// Verifies: HashMap.insert with key 
 #[test]
 fn test_dict_assignment_string_key() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 def update_dict(d: dict[str, int]) -> dict[str, int]:
     d["key"] = 42
     return d
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn update_dict"));
 }
@@ -83,13 +78,12 @@ def update_dict(d: dict[str, int]) -> dict[str, int]:
 /// Verifies: HashMap.insert with variable key (lines 1092-1093)
 #[test]
 fn test_dict_assignment_variable_key() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 def update_with_key(d: dict[str, int], key: str, value: int) -> dict[str, int]:
     d[key] = value
     return d
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn update_with_key"));
 }
@@ -99,13 +93,12 @@ def update_with_key(d: dict[str, int], key: str, value: int) -> dict[str, int]:
 /// Verifies: Heuristic detection for char/character/c (lines 1059, 1068, 1076)
 #[test]
 fn test_dict_assignment_char_heuristic() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 def update_by_char(d: dict[str, int], c: str) -> dict[str, int]:
     d[c] = 1
     return d
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn update_by_char"));
 }
@@ -115,14 +108,13 @@ def update_by_char(d: dict[str, int], c: str) -> dict[str, int]:
 /// Verifies: Type-based detection (Type::List, lines 1051-1054)
 #[test]
 fn test_type_tracked_list_assignment() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 def modify_list() -> list[int]:
     numbers: list[int] = [1, 2, 3]
     numbers[0] = 10
     return numbers
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn modify_list"));
 }
@@ -132,14 +124,13 @@ def modify_list() -> list[int]:
 /// Verifies: Type-based detection (Type::Dict, lines 1051-1055)
 #[test]
 fn test_type_tracked_dict_assignment() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 def modify_dict() -> dict[str, int]:
     data: dict[str, int] = {}
     data["key"] = 42
     return data
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn modify_dict"));
 }
@@ -149,13 +140,12 @@ def modify_dict() -> dict[str, int]:
 /// Verifies: get_mut chain for nested access (lines 1096-1102)
 #[test]
 fn test_nested_list_assignment() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 def update_matrix(matrix: list[list[int]]) -> list[list[int]]:
     matrix[0][1] = 99
     return matrix
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn update_matrix"));
 }
@@ -165,13 +155,12 @@ def update_matrix(matrix: list[list[int]]) -> list[list[int]]:
 /// Verifies: get_mut chain for nested dict (lines 1096-1102, 1109-1110)
 #[test]
 fn test_nested_dict_assignment() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 def update_nested_dict(d: dict[str, dict[str, int]]) -> dict[str, dict[str, int]]:
     d["outer"]["inner"] = 42
     return d
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn update_nested_dict"));
 }
@@ -181,13 +170,12 @@ def update_nested_dict(d: dict[str, dict[str, int]]) -> dict[str, dict[str, int]
 /// Verifies: Nested assignment with mixed types (lines 1104-1107)
 #[test]
 fn test_mixed_nested_assignment() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 def update_dict_of_lists(data: dict[str, list[int]], key: str) -> dict[str, list[int]]:
     data[key][0] = 100
     return data
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn update_dict_of_lists"));
 }
@@ -197,13 +185,12 @@ def update_dict_of_lists(data: dict[str, list[int]], key: str) -> dict[str, list
 /// Verifies: as usize conversion 
 #[test]
 fn test_index_type_conversion() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 def insert_at_index(numbers: list[int], idx: int) -> list[int]:
     numbers[idx] = 42
     return numbers
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn insert_at_index"));
 }
@@ -213,7 +200,6 @@ def insert_at_index(numbers: list[int], idx: int) -> list[int]:
 /// Verifies: Multiple Vec.insert operations
 #[test]
 fn test_multiple_list_assignments() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 def update_multiple(items: list[int]) -> list[int]:
     items[0] = 1
@@ -221,7 +207,7 @@ def update_multiple(items: list[int]) -> list[int]:
     items[2] = 3
     return items
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn update_multiple"));
 }
@@ -231,7 +217,6 @@ def update_multiple(items: list[int]) -> list[int]:
 /// Verifies: Multiple HashMap.insert operations
 #[test]
 fn test_multiple_dict_assignments() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 def populate_dict(d: dict[str, int]) -> dict[str, int]:
     d["a"] = 1
@@ -239,7 +224,7 @@ def populate_dict(d: dict[str, int]) -> dict[str, int]:
     d["c"] = 3
     return d
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn populate_dict"));
 }
@@ -249,13 +234,12 @@ def populate_dict(d: dict[str, int]) -> dict[str, int]:
 /// Verifies: Value expression handling
 #[test]
 fn test_assignment_complex_value() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 def calculate_and_store(items: list[int], x: int, y: int) -> list[int]:
     items[0] = x * 2 + y
     return items
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn calculate_and_store"));
 }
@@ -265,14 +249,13 @@ def calculate_and_store(items: list[int], x: int, y: int) -> list[int]:
 /// Verifies: Index assignment within iteration
 #[test]
 fn test_assignment_in_loop() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 def double_values(items: list[int]) -> list[int]:
     for i in range(len(items)):
         items[i] = items[i] * 2
     return items
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn double_values"));
 }
@@ -282,13 +265,12 @@ def double_values(items: list[int]) -> list[int]:
 /// Verifies: 'char' and 'character' trigger HashMap (lines 1059, 1068, 1076)
 #[test]
 fn test_character_variable_heuristic() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 def count_chars(counts: dict[str, int], character: str) -> dict[str, int]:
     counts[character] = 1
     return counts
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn count_chars"));
 }
@@ -298,13 +280,12 @@ def count_chars(counts: dict[str, int], character: str) -> dict[str, int]:
 /// Verifies: Multiple get_mut calls in chain (lines 1098-1101)
 #[test]
 fn test_deep_nested_assignment() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 def update_deep(data: dict[str, dict[str, dict[str, int]]]) -> dict[str, dict[str, dict[str, int]]]:
     data["a"]["b"]["c"] = 42
     return data
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn update_deep"));
 }
@@ -314,7 +295,6 @@ def update_deep(data: dict[str, dict[str, dict[str, int]]]) -> dict[str, dict[st
 /// Property: Numeric indices should trigger Vec.insert with as usize
 #[test]
 fn test_property_numeric_indices() {
-    let pipeline = DepylerPipeline::new();
 
     let test_cases = vec![
         ("literal", "items[0] = x"),
@@ -331,7 +311,7 @@ def test_{}(items: list[int], i: int, x: int) -> list[int]:
 "#,
             name, assignment
         );
-        let result: Result<String, String> = Ok(transpile(&python_code));
+        let result: Result<String, String> = Ok(transpile_and_check(&python_code, &[]));
 
         assert!(
             result.is_ok(),
@@ -347,7 +327,6 @@ def test_{}(items: list[int], i: int, x: int) -> list[int]:
 /// Verifies: All features working together
 #[test]
 fn test_complex_assignment_patterns() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 def complex_updates(
     numbers: list[int],
@@ -365,7 +344,7 @@ def complex_updates(
     
     return (numbers, data, nested)
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn complex_updates"));
 }
@@ -378,7 +357,6 @@ def complex_updates(
 /// 3. as usize conversion presence/absence
 #[test]
 fn test_mutation_type_detection() {
-    let pipeline = DepylerPipeline::new();
 
     // Test Case 1: List must use numeric index logic
     let list_code = r#"
@@ -386,7 +364,7 @@ def test1(items: list[int]) -> list[int]:
     items[0] = 42
     return items
 "#;
-    let rust1 = transpile(list_code);
+    let rust1 = transpile_and_check(list_code, &[]);
     assert!(rust1.contains("fn test1"));
 
     // Test Case 2: Dict must use key-based logic
@@ -395,7 +373,7 @@ def test2(d: dict[str, int]) -> dict[str, int]:
     d["key"] = 42
     return d
 "#;
-    let rust2 = transpile(dict_code);
+    let rust2 = transpile_and_check(dict_code, &[]);
     assert!(rust2.contains("fn test2"));
 
     // Test Case 3: Character heuristic must work
@@ -404,6 +382,6 @@ def test3(counts: dict[str, int], c: str) -> dict[str, int]:
     counts[c] = 1
     return counts
 "#;
-    let rust3 = transpile(char_code);
+    let rust3 = transpile_and_check(char_code, &[]);
     assert!(rust3.contains("fn test3"));
 }

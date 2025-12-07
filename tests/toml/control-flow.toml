@@ -1,0 +1,475 @@
+# Control Flow Tests - Migrated from test_if_elif_variable_shadowing.rs, test_ternary_expression.rs, 
+# test_try_block_analysis.rs, test_try_except_control_flow.rs, test_range_step.rs, test_range_v1.rs
+
+[metadata]
+name = "Control Flow Tests"
+category = "control-flow"
+
+# =============================================================================
+# If/Elif/Else Statements
+# =============================================================================
+
+[[test]]
+name = "if_simple"
+description = "Simple if statement"
+tags = ["if", "conditional"]
+
+[test.python]
+code = '''
+def check_positive(x: int) -> bool:
+    if x > 0:
+        return True
+    return False
+'''
+
+[test.assertions]
+contains = ["if x > 0"]
+
+[[test]]
+name = "if_else"
+description = "If-else statement"
+tags = ["if", "else", "conditional"]
+
+[test.python]
+code = '''
+def sign(x: int) -> str:
+    if x >= 0:
+        return "non-negative"
+    else:
+        return "negative"
+'''
+
+[test.assertions]
+contains = ["if", "else"]
+
+[[test]]
+name = "if_elif_else"
+description = "If-elif-else chain"
+tags = ["if", "elif", "else", "conditional"]
+
+[test.python]
+code = '''
+def classify(x: int) -> str:
+    if x > 0:
+        return "positive"
+    elif x < 0:
+        return "negative"
+    else:
+        return "zero"
+'''
+
+[test.assertions]
+contains_any = [["else if x < 0", "else if"]]
+not_contains = ["elif"]
+
+# =============================================================================
+# Ternary Expressions
+# =============================================================================
+
+[[test]]
+name = "ternary_simple"
+description = "Simple ternary expression"
+tags = ["ternary", "conditional"]
+
+[test.python]
+code = '''
+def abs_value(x: int) -> int:
+    return x if x >= 0 else -x
+'''
+
+[test.assertions]
+contains = ["if", "else"]
+
+[[test]]
+name = "ternary_nested"
+description = "Nested ternary expression"
+tags = ["ternary", "nested", "conditional"]
+
+[test.python]
+code = '''
+def classify(x: int) -> str:
+    return "positive" if x > 0 else "zero" if x == 0 else "negative"
+'''
+
+[test.assertions]
+contains = ["if", "else"]
+
+# =============================================================================
+# For Loops
+# =============================================================================
+
+[[test]]
+name = "for_range"
+description = "For loop with range"
+tags = ["for", "loop", "range"]
+
+[test.python]
+code = '''
+def sum_to_n(n: int) -> int:
+    total = 0
+    for i in range(n):
+        total += i
+    return total
+'''
+
+[test.assertions]
+contains = ["for i in"]
+contains_any = [["0..n", "(0..n)"]]
+
+[[test]]
+name = "for_range_with_start"
+description = "For loop with range(start, stop)"
+tags = ["for", "loop", "range"]
+
+[test.python]
+code = '''
+def sum_range(start: int, stop: int) -> int:
+    total = 0
+    for i in range(start, stop):
+        total += i
+    return total
+'''
+
+[test.assertions]
+contains = ["for i in"]
+
+[[test]]
+name = "for_range_with_step"
+description = "For loop with range(start, stop, step)"
+tags = ["for", "loop", "range", "step"]
+
+[test.python]
+code = '''
+def sum_evens(n: int) -> int:
+    total = 0
+    for i in range(0, n, 2):
+        total += i
+    return total
+'''
+
+[test.assertions]
+contains = ["for i in"]
+contains_any = [["step_by", "2)"]]
+
+[[test]]
+name = "for_iterate_list"
+description = "For loop iterating over list"
+tags = ["for", "loop", "list"]
+
+[test.python]
+code = '''
+def sum_list(items: list[int]) -> int:
+    total = 0
+    for item in items:
+        total += item
+    return total
+'''
+
+[test.assertions]
+contains = ["for item in"]
+
+[[test]]
+name = "for_enumerate"
+description = "For loop with enumerate"
+tags = ["for", "loop", "enumerate"]
+
+[test.python]
+code = '''
+def indexed_items(items: list[str]) -> list[str]:
+    result = []
+    for i, item in enumerate(items):
+        result.append(f"{i}: {item}")
+    return result
+'''
+
+[test.assertions]
+contains = ["enumerate()"]
+
+# =============================================================================
+# While Loops
+# =============================================================================
+
+[[test]]
+name = "while_simple"
+description = "Simple while loop"
+tags = ["while", "loop"]
+
+[test.python]
+code = '''
+def count_down(n: int) -> int:
+    count = n
+    while count > 0:
+        count -= 1
+    return count
+'''
+
+[test.assertions]
+contains = ["while count > 0"]
+
+[[test]]
+name = "while_with_break"
+description = "While loop with break"
+tags = ["while", "loop", "break"]
+
+[test.python]
+code = '''
+def find_first(items: list[int], target: int) -> int:
+    i = 0
+    while i < len(items):
+        if items[i] == target:
+            break
+        i += 1
+    return i
+'''
+
+[test.assertions]
+contains = ["while", "break"]
+
+[[test]]
+name = "while_with_continue"
+description = "While loop with continue"
+tags = ["while", "loop", "continue"]
+
+[test.python]
+code = '''
+def sum_positive(items: list[int]) -> int:
+    total = 0
+    i = 0
+    while i < len(items):
+        if items[i] < 0:
+            i += 1
+            continue
+        total += items[i]
+        i += 1
+    return total
+'''
+
+[test.assertions]
+contains = ["while", "continue"]
+
+# =============================================================================
+# Try/Except
+# =============================================================================
+
+[[test]]
+name = "try_except_basic"
+description = "Basic try-except block"
+tags = ["try", "except", "error"]
+
+[test.python]
+code = '''
+def safe_divide(a: int, b: int) -> int:
+    try:
+        return a // b
+    except ZeroDivisionError:
+        return 0
+'''
+
+[test.assertions]
+contains_any = [["Result", "match", "?", "Ok", "Err"]]
+
+# =============================================================================
+# Variable Shadowing in Conditionals
+# =============================================================================
+
+[[test]]
+name = "if_variable_shadowing"
+description = "Variable shadowing in if blocks"
+tags = ["if", "shadowing"]
+
+[test.python]
+code = '''
+def shadow_test(x: int) -> int:
+    result = 0
+    if x > 0:
+        result = 1
+    else:
+        result = -1
+    return result
+'''
+
+[test.assertions]
+contains = ["result"]
+
+# =============================================================================
+# Extended Ternary Expression Tests (from test_ternary_expression.rs)
+# =============================================================================
+
+[[test]]
+name = "ternary_with_literals"
+description = "Ternary expression with string literals"
+tags = ["ternary", "conditional"]
+
+[test.python]
+code = '''
+def check_sign(x: int) -> str:
+    return "positive" if x > 0 else "non-positive"
+'''
+
+[test.assertions]
+contains = ["fn check_sign", "if", "else", "positive", "non-positive"]
+
+[[test]]
+name = "ternary_with_variables"
+description = "Ternary expression with variable values"
+tags = ["ternary", "conditional"]
+
+[test.python]
+code = '''
+def max_value(a: int, b: int) -> int:
+    return a if a > b else b
+'''
+
+[test.assertions]
+contains = ["fn max_value", "if", "else"]
+
+[[test]]
+name = "ternary_in_assignment"
+description = "Ternary expression in variable assignment"
+tags = ["ternary", "assignment"]
+
+[test.python]
+code = '''
+def classify(score: int) -> str:
+    grade = "pass" if score >= 60 else "fail"
+    return grade
+'''
+
+[test.assertions]
+contains = ["let", "grade", "if", "else"]
+
+[[test]]
+name = "ternary_with_complex_condition"
+description = "Ternary with compound boolean condition"
+tags = ["ternary", "boolean"]
+
+[test.python]
+code = '''
+def check_range(x: int) -> bool:
+    return True if x >= 0 and x <= 100 else False
+'''
+
+[test.assertions]
+contains = ["if", "else", "&&"]
+
+[[test]]
+name = "ternary_with_arithmetic"
+description = "Ternary with arithmetic expressions"
+tags = ["ternary", "arithmetic"]
+
+[test.python]
+code = '''
+def compute(x: int, y: int) -> int:
+    return x + y if x > 0 else x - y
+'''
+
+[test.assertions]
+contains = ["if", "else", "+", "-"]
+
+# =============================================================================
+# If-Elif-Else Variable Shadowing - Migrated from test_if_elif_variable_shadowing.rs
+# =============================================================================
+
+[[test]]
+name = "simple_if_elif_else_single_declaration"
+description = "Elif chain should generate single variable declaration, not duplicates"
+tags = ["if", "elif", "shadowing"]
+
+[test.python]
+code = '''
+def test_func():
+    condition1 = True
+    condition2 = False
+    x = None
+    if condition1:
+        x = "a"
+    elif condition2:
+        x = "b"
+    else:
+        x = "c"
+    return x
+'''
+
+[test.assertions]
+contains = ["let mut x"]
+not_contains = ["let mut x;\n    let mut x"]
+
+[[test]]
+name = "triple_elif_chain_no_duplicates"
+description = "Triple elif chain maintains single declaration"
+tags = ["if", "elif", "shadowing"]
+
+[test.python]
+code = '''
+def test_func():
+    a = True
+    b = False
+    c = False
+    d = False
+    value = None
+    if a:
+        value = 1
+    elif b:
+        value = 2
+    elif c:
+        value = 3
+    elif d:
+        value = 4
+    else:
+        value = 5
+    return value
+'''
+
+[test.assertions]
+contains = ["let mut value"]
+not_contains = ["let mut value;\n    let mut value"]
+
+[[test]]
+name = "cli_output_format_pattern"
+description = "Real-world CLI output format selection pattern"
+tags = ["if", "elif", "cli", "pattern"]
+
+[test.python]
+code = '''
+def process_args():
+    json_flag = False
+    xml_flag = True
+    yaml_flag = False
+    output_format = None
+    if json_flag:
+        output_format = "json"
+    elif xml_flag:
+        output_format = "xml"
+    elif yaml_flag:
+        output_format = "yaml"
+    else:
+        output_format = "text"
+    return output_format
+'''
+
+[test.assertions]
+contains = ["let mut output_format"]
+
+[[test]]
+name = "elif_chain_compiles"
+description = "Generated code for elif chains must compile"
+tags = ["if", "elif", "compile"]
+compile_check = true
+
+[test.python]
+code = '''
+def test_func():
+    flag1 = True
+    flag2 = False
+    result = None
+    if flag1:
+        result = "first"
+    elif flag2:
+        result = "second"
+    else:
+        result = "default"
+    return result
+'''
+
+[test.assertions]
+contains = ["fn test_func"]

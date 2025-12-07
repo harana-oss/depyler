@@ -1,0 +1,233 @@
+# Generator Tests - Migrated from test_generators.rs, test_generator_compilations.rs, test_generator_yield_analysis_coverage.rs
+
+[metadata]
+name = "Generator Tests"
+category = "generators"
+
+# =============================================================================
+# Basic Generators
+# =============================================================================
+
+[[test]]
+name = "generator_simple_yield"
+description = "Simple generator with single yield"
+tags = ["generator", "yield"]
+
+[test.python]
+code = '''
+def simple_generator():
+    yield 1
+'''
+
+[test.assertions]
+contains_any = [["fn simple_generator", "struct SimpleGenerator", "Iterator"]]
+
+[[test]]
+name = "generator_multiple_yields"
+description = "Generator with multiple yield statements"
+tags = ["generator", "yield"]
+
+[test.python]
+code = '''
+def count_to_three():
+    yield 1
+    yield 2
+    yield 3
+'''
+
+[test.assertions]
+contains_any = [["count_to_three", "CountToThree"]]
+
+[[test]]
+name = "generator_with_loop"
+description = "Generator using while loop"
+tags = ["generator", "while"]
+
+[test.python]
+code = '''
+def count_up(n: int):
+    i = 0
+    while i < n:
+        yield i
+        i = i + 1
+'''
+
+[test.assertions]
+contains_any = [["count_up", "CountUp"]]
+
+[[test]]
+name = "generator_with_for"
+description = "Generator using for loop with range"
+tags = ["generator", "for"]
+
+[test.python]
+code = '''
+def range_generator(n: int):
+    for i in range(n):
+        yield i
+'''
+
+[test.assertions]
+contains_any = [["range_generator", "RangeGenerator"]]
+
+[[test]]
+name = "generator_with_condition"
+description = "Generator with conditional yield"
+tags = ["generator", "condition"]
+
+[test.python]
+code = '''
+def even_numbers(n: int):
+    for i in range(n):
+        if i % 2 == 0:
+            yield i
+'''
+
+[test.assertions]
+contains_any = [["even_numbers", "EvenNumbers"]]
+
+# =============================================================================
+# Generator Parameters
+# =============================================================================
+
+[[test]]
+name = "generator_with_params"
+description = "Generator with parameters"
+tags = ["generator", "parameters"]
+
+[test.python]
+code = '''
+def repeat_value(value: int, times: int):
+    for _ in range(times):
+        yield value
+'''
+
+[test.assertions]
+contains = ["value", "times"]
+
+[[test]]
+name = "generator_with_start_stop"
+description = "Generator with start and stop parameters"
+tags = ["generator", "parameters"]
+
+[test.python]
+code = '''
+def range_gen(start: int, stop: int):
+    i = start
+    while i < stop:
+        yield i
+        i += 1
+'''
+
+[test.assertions]
+contains = ["start", "stop"]
+
+# =============================================================================
+# Generator Expressions
+# =============================================================================
+
+[[test]]
+name = "generator_expression_basic"
+description = "Generator expression syntax"
+tags = ["generator", "expression"]
+
+[test.python]
+code = '''
+def sum_squares(n: int) -> int:
+    return sum(x * x for x in range(n))
+'''
+
+[test.assertions]
+contains = ["map("]
+contains_any = [["sum()", ".sum()"]]
+
+[[test]]
+name = "generator_expression_filter"
+description = "Generator expression with filter"
+tags = ["generator", "expression", "filter"]
+
+[test.python]
+code = '''
+def sum_even_squares(n: int) -> int:
+    return sum(x * x for x in range(n) if x % 2 == 0)
+'''
+
+[test.assertions]
+contains = ["filter(", "map("]
+contains_any = [["sum()", ".sum()"]]
+
+# =============================================================================
+# Stateful Generators
+# =============================================================================
+
+[[test]]
+name = "generator_stateful"
+description = "Stateful generator tracking count"
+tags = ["generator", "stateful"]
+
+[test.python]
+code = '''
+def counter(start: int):
+    count = start
+    while count < 100:
+        yield count
+        count += 1
+'''
+
+[test.assertions]
+contains = ["count"]
+
+[[test]]
+name = "generator_fibonacci"
+description = "Fibonacci generator"
+tags = ["generator", "fibonacci"]
+
+[test.python]
+code = '''
+def fibonacci(n: int):
+    a, b = 0, 1
+    for _ in range(n):
+        yield a
+        a, b = b, a + b
+'''
+
+[test.assertions]
+contains_any = [["fibonacci", "Fibonacci"]]
+
+# =============================================================================
+# Generator Iteration
+# =============================================================================
+
+[[test]]
+name = "generator_consume_list"
+description = "Consume generator into list"
+tags = ["generator", "consume"]
+
+[test.python]
+code = '''
+def first_n(n: int) -> list[int]:
+    def gen():
+        for i in range(n):
+            yield i
+    return list(gen())
+'''
+
+[test.assertions]
+contains = ["collect"]
+
+[[test]]
+name = "generator_for_loop"
+description = "Iterate generator in for loop"
+tags = ["generator", "iteration"]
+
+[test.python]
+code = '''
+def sum_generated(n: int) -> int:
+    total = 0
+    for x in range(n):
+        total += x
+    return total
+'''
+
+[test.assertions]
+contains = ["for"]

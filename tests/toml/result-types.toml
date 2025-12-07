@@ -1,0 +1,333 @@
+# Result Type Tests - Migrated from test_result_return_wrapping.rs, test_result_unwrapping.rs
+
+[metadata]
+name = "Result Type Tests"
+category = "result-types"
+
+# =============================================================================
+# Basic Result Return
+# =============================================================================
+
+[[test]]
+name = "result_ok"
+description = "Function returning Ok result"
+tags = ["result", "ok"]
+
+[test.python]
+code = '''
+def parse_int(s: str) -> int:
+    return int(s)
+'''
+
+[test.assertions]
+contains_any = [["Result<", "Ok(", "?", "-> i32", "-> i64"]]
+
+[[test]]
+name = "result_err"
+description = "Function returning Err result"
+tags = ["result", "err"]
+
+[test.python]
+code = '''
+def validate_positive(x: int) -> int:
+    if x < 0:
+        raise ValueError("must be positive")
+    return x
+'''
+
+[test.assertions]
+contains_any = [["Result<", "Err(", "return Err"]]
+
+# =============================================================================
+# Result Wrapping
+# =============================================================================
+
+[[test]]
+name = "result_wrap_ok"
+description = "Wrap success value in Ok"
+tags = ["result", "wrap"]
+
+[test.python]
+code = '''
+def success(value: int) -> int:
+    return value
+'''
+
+[test.assertions]
+contains_any = [["Ok(value)", "Ok(", "-> i32", "-> i64"]]
+
+[[test]]
+name = "result_wrap_err"
+description = "Wrap error in Err"
+tags = ["result", "wrap"]
+
+[test.python]
+code = '''
+def fail(message: str):
+    raise RuntimeError(message)
+'''
+
+[test.assertions]
+contains_any = [["Err(", "panic!", "return Err"]]
+
+# =============================================================================
+# Result Propagation
+# =============================================================================
+
+[[test]]
+name = "result_question_mark"
+description = "Propagate error with ?"
+tags = ["result", "propagation"]
+
+[test.python]
+code = '''
+def read_and_parse(content: str) -> int:
+    return int(content.strip())
+'''
+
+[test.assertions]
+contains_any = [["?", "Result<", "-> Result", "unwrap"]]
+
+# =============================================================================
+# Result Unwrapping
+# =============================================================================
+
+[[test]]
+name = "result_unwrap"
+description = "Unwrap Result (may panic)"
+tags = ["result", "unwrap"]
+
+[test.python]
+code = '''
+def force_parse(s: str) -> int:
+    return int(s)
+'''
+
+[test.assertions]
+contains_any = [["unwrap()", "expect(", "?"]]
+
+[[test]]
+name = "result_unwrap_or"
+description = "Unwrap with default on error"
+tags = ["result", "unwrap"]
+
+[test.python]
+code = '''
+def safe_parse(s: str) -> int:
+    try:
+        return int(s)
+    except ValueError:
+        return 0
+'''
+
+[test.assertions]
+contains_any = [["unwrap_or(0)", "unwrap_or_default()", "match"]]
+
+[[test]]
+name = "result_unwrap_or_else"
+description = "Unwrap with computed default"
+tags = ["result", "unwrap"]
+
+[test.python]
+code = '''
+def parse_with_fallback(s: str, fallback: int) -> int:
+    try:
+        return int(s)
+    except ValueError:
+        return fallback
+'''
+
+[test.assertions]
+contains_any = [["unwrap_or(fallback)", "unwrap_or_else(", "match"]]
+
+# =============================================================================
+# Result Pattern Matching
+# =============================================================================
+
+[[test]]
+name = "result_match"
+description = "Match on Result"
+tags = ["result", "match"]
+
+[test.python]
+code = '''
+def handle_result(s: str) -> str:
+    try:
+        value = int(s)
+        return f"Got: {value}"
+    except ValueError:
+        return "Error: invalid"
+'''
+
+[test.assertions]
+contains_any = [["match", "Ok(", "Err("]]
+
+# =============================================================================
+# Result Map Operations
+# =============================================================================
+
+[[test]]
+name = "result_map"
+description = "Map over Ok value"
+tags = ["result", "map"]
+
+[test.python]
+code = '''
+def parse_and_double(s: str) -> int:
+    return int(s) * 2
+'''
+
+[test.assertions]
+contains_any = [[".map(", "* 2"]]
+
+[[test]]
+name = "result_map_err"
+description = "Map over Err value"
+tags = ["result", "map_err"]
+
+[test.python]
+code = '''
+def parse_with_context(s: str) -> int:
+    try:
+        return int(s)
+    except ValueError:
+        raise ValueError(f"Failed to parse: {s}")
+'''
+
+[test.assertions]
+contains_any = [[".map_err(", "Err(", "format!"]]
+
+# =============================================================================
+# Result Chaining
+# =============================================================================
+
+[[test]]
+name = "result_and_then"
+description = "Chain Result operations"
+tags = ["result", "chain"]
+
+[test.python]
+code = '''
+def parse_and_validate(s: str) -> int:
+    value = int(s)
+    if value < 0:
+        raise ValueError("negative")
+    return value
+'''
+
+[test.assertions]
+contains_any = [[".and_then(", "?", "if value < 0"]]
+
+# =============================================================================
+# Result in Functions
+# =============================================================================
+
+[[test]]
+name = "result_return_type"
+description = "Function with Result return type"
+tags = ["result", "return"]
+
+[test.python]
+code = '''
+def divide(a: int, b: int) -> int:
+    if b == 0:
+        raise ZeroDivisionError("division by zero")
+    return a // b
+'''
+
+[test.assertions]
+contains_any = [["Result<", "Err(", "if b == 0"]]
+
+# =============================================================================
+# Result Return Wrapping - Migrated from test_result_return_wrapping.rs
+# =============================================================================
+
+[[test]]
+name = "side_effect_function_result"
+description = "Side effect function with try/except has Result return and Ok(())"
+tags = ["result", "side-effect"]
+
+[test.python]
+code = '''
+def set_value(data: dict[str, int], key: str, value: int):
+    try:
+        data[key] = value
+    except KeyError:
+        raise ValueError("Invalid key")
+'''
+
+[test.assertions]
+contains = ["Result<", "Ok(())"]
+
+[[test]]
+name = "return_value_wrapped_in_ok"
+description = "Function returning value with try/except wraps return in Ok()"
+tags = ["result", "return"]
+
+[test.python]
+code = '''
+def get_count(items: list[int]) -> int:
+    try:
+        return len(items)
+    except Exception:
+        raise ValueError("Invalid items")
+'''
+
+[test.assertions]
+contains = ["Result<", "Ok("]
+
+[[test]]
+name = "function_with_raise_has_result_type"
+description = "Function with raise has Result return type"
+tags = ["result", "raise"]
+
+[test.python]
+code = '''
+def update_config(config: dict[str, int], key: str, value: int):
+    if key not in config:
+        raise KeyError("Key not found")
+    config[key] = value
+'''
+
+[test.assertions]
+contains = ["Result<", "Ok(())"]
+
+[[test]]
+name = "divide_by_zero_result"
+description = "Safe divide with try/except generates Result"
+tags = ["result", "exception"]
+
+[test.python]
+code = '''
+def safe_divide(a: int, b: int) -> int:
+    try:
+        result = a // b
+        return result
+    except ZeroDivisionError:
+        raise ValueError("Division by zero")
+'''
+
+[test.assertions]
+contains = ["Result<"]
+
+# =============================================================================
+# Result Unwrapping - Migrated from test_result_unwrapping.rs
+# =============================================================================
+
+[[test]]
+name = "result_unwrapping_at_call_site"
+description = "Call site should unwrap Result for dict return"
+tags = ["result", "unwrap", "call"]
+compile_check = true
+
+[test.python]
+code = '''
+def calculate_stats(numbers: list[int]) -> dict[str, int]:
+    if not numbers:
+        return {"count": 0, "sum": 0}
+    count = len(numbers)
+    return {"count": count, "sum": 0}
+'''
+
+[test.assertions]
+contains = ["fn calculate_stats"]

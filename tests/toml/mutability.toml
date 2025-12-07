@@ -1,0 +1,322 @@
+# Mutability Tests - Migrated from test_mutability.rs, test_clone.rs, test_mutationing.rs
+
+[metadata]
+name = "Mutability Tests"
+category = "mutability"
+
+# =============================================================================
+# Variable Mutability
+# =============================================================================
+
+[[test]]
+name = "mut_reassign_variable"
+description = "Variable requiring mut for reassignment"
+tags = ["mutability", "reassign"]
+
+[test.python]
+code = '''
+def counter() -> int:
+    x = 0
+    x = 1
+    x = 2
+    return x
+'''
+
+[test.assertions]
+contains = ["let mut x"]
+
+[[test]]
+name = "immutable_no_reassign"
+description = "Variable not reassigned is immutable"
+tags = ["mutability", "immutable"]
+
+[test.python]
+code = '''
+def constant() -> int:
+    x = 42
+    return x
+'''
+
+[test.assertions]
+contains = ["let x"]
+not_contains = ["let mut x"]
+
+[[test]]
+name = "mut_augmented_assign"
+description = "Augmented assignment requires mut"
+tags = ["mutability", "augmented"]
+
+[test.python]
+code = '''
+def accumulate(items: list[int]) -> int:
+    total = 0
+    for item in items:
+        total += item
+    return total
+'''
+
+[test.assertions]
+contains = ["let mut total"]
+
+# =============================================================================
+# Collection Mutability
+# =============================================================================
+
+[[test]]
+name = "mut_list_append"
+description = "List append requires mut"
+tags = ["mutability", "list"]
+
+[test.python]
+code = '''
+def build_list() -> list[int]:
+    items = []
+    items.append(1)
+    items.append(2)
+    return items
+'''
+
+[test.assertions]
+contains = ["let mut items"]
+
+[[test]]
+name = "mut_dict_insert"
+description = "Dict insert requires mut"
+tags = ["mutability", "dict"]
+
+[test.python]
+code = '''
+def build_dict() -> dict:
+    d = {}
+    d["a"] = 1
+    d["b"] = 2
+    return d
+'''
+
+[test.assertions]
+contains = ["let mut d"]
+
+[[test]]
+name = "mut_list_sort"
+description = "In-place sort requires mut"
+tags = ["mutability", "list", "sort"]
+
+[test.python]
+code = '''
+def sort_in_place(items: list[int]) -> list[int]:
+    items.sort()
+    return items
+'''
+
+[test.assertions]
+contains_any = [["&mut", "mut items"]]
+
+# =============================================================================
+# Parameter Mutability
+# =============================================================================
+
+[[test]]
+name = "param_read_only"
+description = "Read-only parameter is immutable"
+tags = ["mutability", "parameter"]
+
+[test.python]
+code = '''
+def sum_list(items: list[int]) -> int:
+    return sum(items)
+'''
+
+[test.assertions]
+contains = ["&"]
+
+[[test]]
+name = "param_mutating"
+description = "Mutating parameter needs &mut"
+tags = ["mutability", "parameter"]
+
+[test.python]
+code = '''
+def clear_list(items: list[int]) -> None:
+    items.clear()
+'''
+
+[test.assertions]
+contains = ["&mut"]
+
+# =============================================================================
+# Clone for Immutability
+# =============================================================================
+
+[[test]]
+name = "clone_to_avoid_mut"
+description = "Clone to work with copy instead of mutating"
+tags = ["clone", "immutable"]
+
+[test.python]
+code = '''
+def sorted_copy(items: list[int]) -> list[int]:
+    return sorted(items)
+'''
+
+[test.assertions]
+contains_any = [["clone()", "sorted"]]
+
+[[test]]
+name = "clone_list_copy"
+description = "list() creates a clone"
+tags = ["clone", "list"]
+
+[test.python]
+code = '''
+def copy_list(items: list[int]) -> list[int]:
+    return list(items)
+'''
+
+[test.assertions]
+contains = ["clone()"]
+
+# =============================================================================
+# Loop Variable Mutability
+# =============================================================================
+
+[[test]]
+name = "loop_var_immutable"
+description = "Loop variable typically immutable"
+tags = ["mutability", "loop"]
+
+[test.python]
+code = '''
+def print_items(items: list[int]) -> None:
+    for item in items:
+        print(item)
+'''
+
+[test.assertions]
+contains = ["for item in"]
+
+[[test]]
+name = "loop_var_modified"
+description = "Loop variable modified in body"
+tags = ["mutability", "loop"]
+
+[test.python]
+code = '''
+def double_items(items: list[int]) -> list[int]:
+    result = []
+    for item in items:
+        doubled = item * 2
+        result.append(doubled)
+    return result
+'''
+
+[test.assertions]
+contains = ["for item in"]
+
+# =============================================================================
+# Struct Field Mutability
+# =============================================================================
+
+[[test]]
+name = "struct_field_mut"
+description = "Mutating struct field"
+tags = ["mutability", "struct"]
+
+[test.python]
+code = '''
+class Counter:
+    def __init__(self):
+        self.value = 0
+    
+    def increment(self):
+        self.value += 1
+'''
+
+[test.assertions]
+contains = ["&mut self"]
+
+[[test]]
+name = "struct_field_immut"
+description = "Reading struct field"
+tags = ["mutability", "struct"]
+
+[test.python]
+code = '''
+class Counter:
+    def __init__(self, start: int):
+        self.value = start
+    
+    def get(self) -> int:
+        return self.value
+'''
+
+[test.assertions]
+contains = ["&self"]
+
+# =============================================================================
+# Slice Assignment Mutability - Migrated from test_slice_assignment_mutability.rs
+# =============================================================================
+
+[[test]]
+name = "slice_assignment_requires_mut_param"
+description = "Slice assignment to a field should require &mut parameter"
+tags = ["mutability", "slice", "struct"]
+
+[test.python]
+code = '''
+from dataclasses import dataclass
+
+@dataclass
+class Player:
+    name: str
+    score: int
+
+@dataclass
+class State:
+    all_players: list[Player]
+
+def refresh_players(state: State) -> None:
+    combined = []
+    state.all_players[:] = combined
+'''
+
+[test.assertions]
+contains = ["state: &mut State"]
+
+[[test]]
+name = "slice_assignment_generates_clear_extend"
+description = "Slice assignment should generate clear() and extend() without clone()"
+tags = ["mutability", "slice", "codegen"]
+
+[test.python]
+code = '''
+from dataclasses import dataclass
+
+@dataclass
+class State:
+    items: list[int]
+
+def update_items(state: State) -> None:
+    new_items = [1, 2, 3]
+    state.items[:] = new_items
+'''
+
+[test.assertions]
+contains = [".clear()", ".extend("]
+not_contains = [".clone().clear()", ".clone().extend("]
+
+[[test]]
+name = "slice_assignment_simple_variable"
+description = "Slice assignment to a simple variable"
+tags = ["mutability", "slice", "variable"]
+
+[test.python]
+code = '''
+def update_list() -> list[int]:
+    items = [1, 2, 3]
+    new_items = [4, 5, 6]
+    items[:] = new_items
+    return items
+'''
+
+[test.assertions]
+contains = [".clear()", ".extend("]

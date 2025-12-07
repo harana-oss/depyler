@@ -1,0 +1,462 @@
+# Ownership and Borrowing Tests - Migrated from test_ownership_patterns.rs, test_function_borrowing.rs,
+# test_method_ownership.rs, test_lifetimes.rs
+
+[metadata]
+name = "Ownership Tests"
+category = "ownership"
+
+# =============================================================================
+# Basic Ownership
+# =============================================================================
+
+[[test]]
+name = "ownership_move"
+description = "Value moves when assigned"
+tags = ["ownership", "move"]
+
+[test.python]
+code = '''
+def transfer_ownership():
+    original = [1, 2, 3]
+    new_owner = original
+    return new_owner
+'''
+
+[test.assertions]
+contains_any = [["clone()", "let new_owner = original"]]
+
+[[test]]
+name = "ownership_clone"
+description = "Explicit clone for copy"
+tags = ["ownership", "clone"]
+
+[test.python]
+code = '''
+def copy_list(items: list[int]) -> list[int]:
+    copy = list(items)
+    return copy
+'''
+
+[test.assertions]
+contains_any = [["clone()", "into_iter().collect()"]]
+
+# =============================================================================
+# Borrowing Patterns
+# =============================================================================
+
+[[test]]
+name = "borrow_immutable_param"
+description = "Immutable borrow for read-only parameter"
+tags = ["borrow", "immutable"]
+
+[test.python]
+code = '''
+def read_only(items: list[int]) -> int:
+    return sum(items)
+'''
+
+[test.assertions]
+contains = ["&"]
+
+[[test]]
+name = "borrow_mutable_param"
+description = "Mutable borrow for modifying parameter"
+tags = ["borrow", "mutable"]
+
+[test.python]
+code = '''
+def add_item(items: list[int], item: int) -> None:
+    items.append(item)
+'''
+
+[test.assertions]
+contains = ["&mut"]
+
+[[test]]
+name = "borrow_multiple_immutable"
+description = "Multiple immutable borrows allowed"
+tags = ["borrow", "immutable", "multiple"]
+
+[test.python]
+code = '''
+def compare_lists(a: list[int], b: list[int]) -> bool:
+    return len(a) == len(b)
+'''
+
+[test.assertions]
+contains = ["&"]
+
+# =============================================================================
+# Return Value Ownership
+# =============================================================================
+
+[[test]]
+name = "return_owned"
+description = "Return owned value"
+tags = ["return", "owned"]
+
+[test.python]
+code = '''
+def create_list() -> list[int]:
+    return [1, 2, 3]
+'''
+
+[test.assertions]
+contains_any = [["Vec<i32>", "Vec<i64>"]]
+
+[[test]]
+name = "return_new_value"
+description = "Return newly created value"
+tags = ["return", "owned"]
+
+[test.python]
+code = '''
+def create_string() -> str:
+    return "hello"
+'''
+
+[test.assertions]
+contains_any = [["String", "&str"]]
+
+# =============================================================================
+# Struct Field Ownership
+# =============================================================================
+
+[[test]]
+name = "struct_owned_field"
+description = "Struct with owned field"
+tags = ["struct", "owned"]
+
+[test.python]
+code = '''
+class Container:
+    def __init__(self, items: list[int]):
+        self.items = items
+'''
+
+[test.assertions]
+contains_any = [["Vec<i32>", "Vec<i64>"]]
+
+[[test]]
+name = "struct_field_access"
+description = "Accessing struct field"
+tags = ["struct", "access"]
+
+[test.python]
+code = '''
+class Point:
+    def __init__(self, x: int, y: int):
+        self.x = x
+        self.y = y
+
+def get_x(p: Point) -> int:
+    return p.x
+'''
+
+[test.assertions]
+contains = ["p.x"]
+
+# =============================================================================
+# Method Borrowing
+# =============================================================================
+
+[[test]]
+name = "method_self_immutable"
+description = "Method with immutable self"
+tags = ["method", "borrow", "immutable"]
+
+[test.python]
+code = '''
+class Counter:
+    def __init__(self, value: int):
+        self.value = value
+    
+    def get_value(self) -> int:
+        return self.value
+'''
+
+[test.assertions]
+contains = ["&self"]
+
+[[test]]
+name = "method_self_mutable"
+description = "Method with mutable self"
+tags = ["method", "borrow", "mutable"]
+
+[test.python]
+code = '''
+class Counter:
+    def __init__(self, value: int):
+        self.value = value
+    
+    def increment(self):
+        self.value += 1
+'''
+
+[test.assertions]
+contains = ["&mut self"]
+
+# =============================================================================
+# String Ownership
+# =============================================================================
+
+[[test]]
+name = "string_ownership"
+description = "String ownership in return"
+tags = ["string", "ownership"]
+
+[test.python]
+code = '''
+def make_greeting(name: str) -> str:
+    return f"Hello, {name}!"
+'''
+
+[test.assertions]
+contains_any = [["String", "format!"]]
+
+[[test]]
+name = "string_borrow"
+description = "String borrowing in parameter"
+tags = ["string", "borrow"]
+
+[test.python]
+code = '''
+def print_greeting(name: str) -> None:
+    print(f"Hello, {name}!")
+'''
+
+[test.assertions]
+contains_any = [["&str", "&String", "impl AsRef<str>"]]
+
+# =============================================================================
+# Collection Ownership
+# =============================================================================
+
+[[test]]
+name = "list_ownership_return"
+description = "Return owned list"
+tags = ["list", "ownership"]
+
+[test.python]
+code = '''
+def make_numbers(n: int) -> list[int]:
+    result = []
+    for i in range(n):
+        result.append(i)
+    return result
+'''
+
+[test.assertions]
+contains_any = [["Vec<i32>", "Vec<i64>"]]
+
+[[test]]
+name = "list_borrow_iterate"
+description = "Borrow list for iteration"
+tags = ["list", "borrow"]
+
+[test.python]
+code = '''
+def sum_items(items: list[int]) -> int:
+    total = 0
+    for item in items:
+        total += item
+    return total
+'''
+
+[test.assertions]
+contains = ["&"]
+
+# =============================================================================
+# Clone Requirements
+# =============================================================================
+
+[[test]]
+name = "clone_string_used_twice"
+description = "String param used twice needs clone"
+tags = ["clone", "string"]
+
+[test.python]
+code = '''
+def use_string_twice(s: str) -> str:
+    a = s
+    b = s
+    return a + b
+'''
+
+[test.assertions]
+contains = ["clone()"]
+
+[[test]]
+name = "clone_list_field_returned"
+description = "List field returned needs clone"
+tags = ["clone", "list"]
+
+[test.python]
+code = '''
+from dataclasses import dataclass
+
+@dataclass
+class State:
+    items: list[int]
+
+def get_items(state: State) -> list[int]:
+    return state.items
+'''
+
+[test.assertions]
+contains = ["clone()"]
+
+[[test]]
+name = "clone_dict_field_returned"
+description = "Dict field returned needs clone"
+tags = ["clone", "dict"]
+
+[test.python]
+code = '''
+from dataclasses import dataclass
+
+@dataclass
+class State:
+    data: dict[str, int]
+
+def get_data(state: State) -> dict[str, int]:
+    return state.data
+'''
+
+[test.assertions]
+contains = ["clone()"]
+
+[[test]]
+name = "no_clone_copy_types"
+description = "Copy types (int, float, bool) don't need clone"
+tags = ["clone", "copy"]
+
+[test.python]
+code = '''
+def double_use(x: float, y: float) -> float:
+    a = x
+    b = x
+    return a + b + y
+'''
+
+[test.assertions]
+not_contains = ["x.clone()"]
+
+[[test]]
+name = "no_clone_last_use"
+description = "Last use moves, no clone needed"
+tags = ["clone", "move"]
+
+[test.python]
+code = '''
+def identity(items: list[int]) -> list[int]:
+    return items
+'''
+
+[test.assertions]
+not_contains = ["items.clone()"]
+
+[[test]]
+name = "clone_in_loop"
+description = "Clone string in loop append"
+tags = ["clone", "loop"]
+
+[test.python]
+code = '''
+from dataclasses import dataclass
+
+@dataclass
+class State:
+    template: str
+
+def build_list(state: State, n: int) -> list[str]:
+    result: list[str] = []
+    for i in range(n):
+        result.append(state.template)
+    return result
+'''
+
+[test.assertions]
+contains = ["clone()"]
+
+# =============================================================================
+# Struct Field Borrowing - Migrated from test_struct_field_borrow.rs
+# =============================================================================
+
+[[test]]
+name = "struct_field_passed_to_fn_borrows"
+description = "Struct String field passed to function should borrow"
+tags = ["borrow", "struct", "field"]
+
+[test.python]
+code = '''
+class State:
+    field: str
+
+    def __init__(self, field: str):
+        self.field = field
+
+def take_str(s: str) -> None:
+    pass
+
+def main() -> None:
+    state = State("hello")
+    take_str(state.field)
+'''
+
+[test.assertions]
+contains = ["fn take_str(s: &str)", "&state.field"]
+
+[[test]]
+name = "self_field_passed_to_fn_borrows"
+description = "self.field passed to function should borrow"
+tags = ["borrow", "self", "field"]
+
+[test.python]
+code = '''
+class State:
+    field: str
+
+    def __init__(self, field: str):
+        self.field = field
+
+    def process(self) -> None:
+        take_str(self.field)
+
+def take_str(s: str) -> None:
+    pass
+'''
+
+[test.assertions]
+contains = ["&self.field"]
+
+[[test]]
+name = "nested_field_passed_to_fn_borrows"
+description = "Nested struct field passed to function should borrow"
+tags = ["borrow", "nested", "field"]
+
+[test.python]
+code = '''
+class Inner:
+    value: str
+
+    def __init__(self, value: str):
+        self.value = value
+
+class Outer:
+    inner: Inner
+
+    def __init__(self, inner: Inner):
+        self.inner = inner
+
+def take_str(s: str) -> None:
+    pass
+
+def main() -> None:
+    inner = Inner("hello")
+    outer = Outer(inner)
+    take_str(outer.inner.value)
+'''
+
+[test.assertions]
+contains = ["&outer.inner.value"]

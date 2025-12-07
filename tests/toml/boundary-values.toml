@@ -1,0 +1,338 @@
+# Boundary Values Tests
+# Migrated from test_boundary_values.rs
+
+[metadata]
+name = "boundary-values"
+description = "Tests for boundary conditions and edge cases"
+
+# ========== ZERO AND EMPTY VALUES ==========
+
+[[test]]
+name = "zero_values"
+description = "Test zero values for int, float, list, and dict"
+tags = ["boundary", "zero", "empty"]
+
+[test.python]
+code = '''
+def zero_test() -> int:
+    zero_int = 0
+    zero_float = 0.0
+    zero_list = []
+    zero_dict = {}
+    return len(zero_list) + len(zero_dict) + zero_int
+'''
+
+[test.assertions]
+contains = ["len"]
+
+[[test]]
+name = "negative_one_values"
+description = "Test negative indexing with -1"
+tags = ["boundary", "negative", "indexing"]
+
+[test.python]
+code = '''
+def negative_one_test(arr: list) -> int:
+    last_index = -1
+    if arr:
+        return arr[last_index]
+    return -1
+'''
+
+[test.assertions]
+contains_any = [["- 1", "-1"]]
+
+[[test]]
+name = "maximum_list_size"
+description = "Test creating large lists with append"
+tags = ["boundary", "list", "size"]
+
+[test.python]
+code = '''
+def create_large_list(size: int) -> list:
+    result = []
+    for i in range(size):
+        result.append(i)
+    return result
+'''
+
+[test.assertions]
+contains = ["push"]
+
+[[test]]
+name = "single_element_collections"
+description = "Test single element list and dict"
+tags = ["boundary", "single", "collection"]
+
+[test.python]
+code = '''
+def single_element_test() -> int:
+    single_list = [42]
+    single_dict = {"key": "value"}
+    return len(single_list) + len(single_dict)
+'''
+
+[test.assertions]
+contains = ["len"]
+
+# ========== NUMERIC BOUNDARIES ==========
+
+[[test]]
+name = "power_of_two_boundaries"
+description = "Test power of two values in loops"
+tags = ["boundary", "numeric", "powers"]
+
+[test.python]
+code = '''
+def power_of_two_test() -> int:
+    powers = [1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024]
+    total = 0
+    for power in powers:
+        total += power
+    return total
+'''
+
+[test.assertions]
+contains = ["for"]
+
+[[test]]
+name = "off_by_one_loop_conditions"
+description = "Test loop boundary conditions to avoid off-by-one errors"
+tags = ["boundary", "loop", "off-by-one"]
+
+[test.python]
+code = '''
+def off_by_one_test(n: int) -> int:
+    count1 = 0
+    for i in range(n):
+        count1 += 1
+    
+    count2 = 0  
+    for i in range(n + 1):
+        count2 += 1
+        
+    count3 = 0
+    for i in range(n - 1):
+        count3 += 1
+        
+    return count1 + count2 + count3
+'''
+
+[test.assertions]
+contains = ["for"]
+
+[[test]]
+name = "floating_point_boundaries"
+description = "Test floating point boundary values"
+tags = ["boundary", "float", "numeric"]
+
+[test.python]
+code = '''
+def float_boundary_test() -> float:
+    tiny = 0.0001
+    zero = 0.0
+    negative_tiny = -0.0001
+    one = 1.0
+    
+    return tiny + zero + negative_tiny + one
+'''
+
+[test.assertions]
+contains = ["f64"]
+
+[[test]]
+name = "arithmetic_overflow_boundaries"
+description = "Test potential overflow conditions with large values"
+tags = ["boundary", "arithmetic", "overflow"]
+
+[test.python]
+code = '''
+def arithmetic_boundary_test() -> int:
+    large_positive = 1000000
+    large_negative = -1000000
+    
+    addition = large_positive + large_positive
+    subtraction = large_positive - large_negative
+    multiplication = large_positive * 2
+    
+    return addition + subtraction + multiplication
+'''
+
+[test.assertions]
+contains_any = [["+", "-", "*"]]
+
+# ========== STRING BOUNDARIES ==========
+
+[[test]]
+name = "string_length_boundaries"
+description = "Test empty, single-char, and long strings"
+tags = ["boundary", "string", "length"]
+
+[test.python]
+code = '''
+def string_boundary_test() -> int:
+    empty_string = ""
+    single_char = "a"
+    long_string = "a" * 1000
+    
+    return len(empty_string) + len(single_char) + len(long_string)
+'''
+
+[test.assertions]
+contains = ["len"]
+
+# ========== RECURSION ==========
+
+[[test]]
+name = "recursive_depth_boundaries"
+description = "Test recursive function calls at various depths"
+tags = ["boundary", "recursion"]
+
+[test.python]
+code = '''
+def factorial_recursive(n: int) -> int:
+    if n <= 1:
+        return 1
+    return n * factorial_recursive(n - 1)
+
+def test_recursion_depths() -> int:
+    small = factorial_recursive(5)
+    medium = factorial_recursive(10)
+    return small + medium
+'''
+
+[test.assertions]
+contains = ["factorial_recursive"]
+
+# ========== BOOLEAN BOUNDARIES ==========
+
+[[test]]
+name = "boolean_boundaries"
+description = "Test boolean truthiness boundaries"
+tags = ["boundary", "boolean", "truthiness"]
+
+[test.python]
+code = '''
+def boolean_boundary_test() -> bool:
+    true_val = True
+    false_val = False
+    
+    zero_truthy = bool(0)
+    one_truthy = bool(1)
+    empty_list_truthy = bool([])
+    non_empty_list_truthy = bool([1])
+    
+    return true_val and not false_val
+'''
+
+[test.assertions]
+contains_any = [["true", "false", "bool"]]
+
+# ========== MODULO AND RANGE ==========
+
+[[test]]
+name = "modulo_operation_boundaries"
+description = "Test modulo with various divisors"
+tags = ["boundary", "modulo", "arithmetic"]
+
+[test.python]
+code = '''
+def modulo_boundary_test(n: int) -> int:
+    mod_one = n % 1 if n != 0 else 0
+    mod_two = n % 2
+    mod_ten = n % 10
+    mod_hundred = n % 100
+    
+    return mod_two + mod_ten + mod_hundred
+'''
+
+[test.assertions]
+contains = ["%"]
+
+[[test]]
+name = "range_boundaries"
+description = "Test edge cases for range function"
+tags = ["boundary", "range"]
+
+[test.python]
+code = '''
+def range_boundary_test() -> int:
+    empty_range = list(range(0))
+    single_range = list(range(1))
+    reverse_range = list(range(5, 0, -1))
+    
+    return len(empty_range) + len(single_range) + len(reverse_range)
+'''
+
+[test.assertions]
+contains_any = [["collect", "range"]]
+
+# ========== CONDITIONAL BOUNDARIES ==========
+
+[[test]]
+name = "conditional_boundaries"
+description = "Test boundary conditions in if statements"
+tags = ["boundary", "conditional", "if"]
+
+[test.python]
+code = '''
+def conditional_boundary_test(x: int) -> int:
+    if x < 0:
+        return -1
+    elif x == 0:
+        return 0
+    elif x == 1:
+        return 1
+    else:
+        return x
+'''
+
+[test.assertions]
+contains_any = [["if", "else"]]
+
+[[test]]
+name = "comparison_operator_boundaries"
+description = "Test all comparison operators at boundaries"
+tags = ["boundary", "comparison", "operators"]
+
+[test.python]
+code = '''
+def comparison_boundary_test(a: int, b: int) -> bool:
+    equal = a == b
+    not_equal = a != b
+    less_than = a < b
+    less_equal = a <= b
+    greater_than = a > b
+    greater_equal = a >= b
+    
+    return equal or not_equal or less_than or less_equal or greater_than or greater_equal
+'''
+
+[test.assertions]
+contains_any = [["==", "!=", "<", "<=", ">", ">="]]
+
+# ========== CONTAINER ACCESS ==========
+
+[[test]]
+name = "container_access_boundaries"
+description = "Test boundary access patterns for lists including slicing"
+tags = ["boundary", "container", "access", "slicing"]
+
+[test.python]
+code = '''
+def container_access_test() -> int:
+    items = [1, 2, 3, 4, 5]
+    
+    first = items[0]
+    last = items[-1]
+    
+    all_items = items[:]
+    first_two = items[:2]
+    last_two = items[-2:]
+    middle = items[1:-1]
+    
+    return first + last + len(all_items) + len(first_two) + len(last_two) + len(middle)
+'''
+
+[test.assertions]
+contains_any = [["[", "]", "len"]]

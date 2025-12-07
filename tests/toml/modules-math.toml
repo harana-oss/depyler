@@ -1,0 +1,687 @@
+# Math Module Tests - Migrated from test_math_unit.rs, test_maths.rs, test_math_additional_unit.rs
+
+[metadata]
+name = "Math Module Tests"
+category = "stdlib-math"
+
+# =============================================================================
+# Trigonometric Functions
+# =============================================================================
+
+[[test]]
+name = "math_sin"
+description = "math.sin() function"
+tags = ["math", "trig"]
+
+[test.python]
+code = '''
+import math
+
+def calculate_sin(x: float) -> float:
+    return math.sin(x)
+'''
+
+[test.assertions]
+contains_any = [["x.sin()", "f64::sin", ".sin()"]]
+
+[[test]]
+name = "math_cos"
+description = "math.cos() function"
+tags = ["math", "trig"]
+
+[test.python]
+code = '''
+import math
+
+def calculate_cos(x: float) -> float:
+    return math.cos(x)
+'''
+
+[test.assertions]
+contains_any = [["x.cos()", "f64::cos", ".cos()"]]
+
+[[test]]
+name = "math_tan"
+description = "math.tan() function"
+tags = ["math", "trig"]
+
+[test.python]
+code = '''
+import math
+
+def calculate_tan(x: float) -> float:
+    return math.tan(x)
+'''
+
+[test.assertions]
+contains_any = [["x.tan()", "f64::tan", ".tan()"]]
+
+# =============================================================================
+# Exponential and Logarithmic
+# =============================================================================
+
+[[test]]
+name = "math_exp"
+description = "math.exp() function"
+tags = ["math", "exp"]
+
+[test.python]
+code = '''
+import math
+
+def calculate_exp(x: float) -> float:
+    return math.exp(x)
+'''
+
+[test.assertions]
+contains_any = [["x.exp()", "f64::exp", ".exp()"]]
+
+[[test]]
+name = "math_log"
+description = "math.log() natural logarithm"
+tags = ["math", "log"]
+
+[test.python]
+code = '''
+import math
+
+def calculate_log(x: float) -> float:
+    return math.log(x)
+'''
+
+[test.assertions]
+contains_any = [["x.ln()", "f64::ln", ".ln()"]]
+
+[[test]]
+name = "math_log10"
+description = "math.log10() base-10 logarithm"
+tags = ["math", "log"]
+
+[test.python]
+code = '''
+import math
+
+def calculate_log10(x: float) -> float:
+    return math.log10(x)
+'''
+
+[test.assertions]
+contains_any = [["x.log10()", "f64::log10", ".log10()"]]
+
+[[test]]
+name = "math_log2"
+description = "math.log2() base-2 logarithm"
+tags = ["math", "log"]
+
+[test.python]
+code = '''
+import math
+
+def calculate_log2(x: float) -> float:
+    return math.log2(x)
+'''
+
+[test.assertions]
+contains_any = [["x.log2()", "f64::log2", ".log2()"]]
+
+# =============================================================================
+# Power and Root Functions
+# =============================================================================
+
+[[test]]
+name = "math_sqrt"
+description = "math.sqrt() square root"
+tags = ["math", "power"]
+
+[test.python]
+code = '''
+import math
+
+def calculate_sqrt(x: float) -> float:
+    return math.sqrt(x)
+'''
+
+[test.assertions]
+contains_any = [["x.sqrt()", "f64::sqrt", ".sqrt()"]]
+
+[[test]]
+name = "math_pow"
+description = "math.pow() power function"
+tags = ["math", "power"]
+
+[test.python]
+code = '''
+import math
+
+def calculate_pow(x: float, y: float) -> float:
+    return math.pow(x, y)
+'''
+
+[test.assertions]
+contains_any = [["powf", "powi", ".pow("]]
+
+# =============================================================================
+# Rounding Functions
+# =============================================================================
+
+[[test]]
+name = "math_floor"
+description = "math.floor() function"
+tags = ["math", "round"]
+
+[test.python]
+code = '''
+import math
+
+def calculate_floor(x: float) -> int:
+    return math.floor(x)
+'''
+
+[test.assertions]
+contains_any = [["x.floor()", "f64::floor", ".floor()"]]
+
+[[test]]
+name = "math_ceil"
+description = "math.ceil() function"
+tags = ["math", "round"]
+
+[test.python]
+code = '''
+import math
+
+def calculate_ceil(x: float) -> int:
+    return math.ceil(x)
+'''
+
+[test.assertions]
+contains_any = [["x.ceil()", "f64::ceil", ".ceil()"]]
+
+[[test]]
+name = "math_trunc"
+description = "math.trunc() function"
+tags = ["math", "round"]
+
+[test.python]
+code = '''
+import math
+
+def calculate_trunc(x: float) -> int:
+    return math.trunc(x)
+'''
+
+[test.assertions]
+contains_any = [["x.trunc()", "f64::trunc", ".trunc()"]]
+
+[[test]]
+name = "math_round"
+description = "round() builtin function"
+tags = ["math", "round"]
+
+[test.python]
+code = '''
+def round_number(x: float) -> int:
+    return round(x)
+'''
+
+[test.assertions]
+contains_any = [["x.round()", "f64::round", ".round()"]]
+
+# =============================================================================
+# Absolute Value
+# =============================================================================
+
+[[test]]
+name = "math_fabs"
+description = "math.fabs() absolute value"
+tags = ["math", "abs"]
+
+[test.python]
+code = '''
+import math
+
+def absolute_float(x: float) -> float:
+    return math.fabs(x)
+'''
+
+[test.assertions]
+contains_any = [["x.abs()", "f64::abs", ".abs()"]]
+
+[[test]]
+name = "abs_builtin"
+description = "abs() builtin function"
+tags = ["math", "abs"]
+
+[test.python]
+code = '''
+def absolute_int(x: int) -> int:
+    return abs(x)
+'''
+
+[test.assertions]
+contains_any = [["x.abs()", ".abs()"]]
+
+# =============================================================================
+# Constants
+# =============================================================================
+
+[[test]]
+name = "math_pi"
+description = "math.pi constant"
+tags = ["math", "constant"]
+
+[test.python]
+code = '''
+import math
+
+def get_pi() -> float:
+    return math.pi
+'''
+
+[test.assertions]
+contains_any = [["std::f64::consts::PI", "PI", "3.14"]]
+
+[[test]]
+name = "math_e"
+description = "math.e constant"
+tags = ["math", "constant"]
+
+[test.python]
+code = '''
+import math
+
+def get_e() -> float:
+    return math.e
+'''
+
+[test.assertions]
+contains_any = [["std::f64::consts::E", "E", "2.71"]]
+
+# =============================================================================
+# Additional Math Functions
+# =============================================================================
+
+[[test]]
+name = "math_copysign"
+description = "math.copysign() function"
+tags = ["math", "sign"]
+
+[test.python]
+code = '''
+import math
+
+def copy_sign(x: float, y: float) -> float:
+    return math.copysign(x, y)
+'''
+
+[test.assertions]
+contains_any = [["copysign", "signum"]]
+
+[[test]]
+name = "math_hypot"
+description = "math.hypot() function"
+tags = ["math", "geometry"]
+
+[test.python]
+code = '''
+import math
+
+def hypotenuse(x: float, y: float) -> float:
+    return math.hypot(x, y)
+'''
+
+[test.assertions]
+contains_any = [["hypot", "sqrt"]]
+
+[[test]]
+name = "math_isnan"
+description = "math.isnan() check"
+tags = ["math", "check"]
+
+[test.python]
+code = '''
+import math
+
+def check_nan(x: float) -> bool:
+    return math.isnan(x)
+'''
+
+[test.assertions]
+contains_any = [["is_nan()", "isnan"]]
+
+[[test]]
+name = "math_isinf"
+description = "math.isinf() check"
+tags = ["math", "check"]
+
+[test.python]
+code = '''
+import math
+
+def check_inf(x: float) -> bool:
+    return math.isinf(x)
+'''
+
+[test.assertions]
+contains_any = [["is_infinite()", "isinf"]]
+
+# =============================================================================
+# Min/Max Builtin Functions
+# =============================================================================
+
+[[test]]
+name = "max_two_args"
+description = "max() with two arguments"
+tags = ["math", "minmax"]
+
+[test.python]
+code = '''
+def max_two(a: int, b: int) -> int:
+    return max(a, b)
+'''
+
+[test.assertions]
+contains = ["std::cmp::max(a, b)"]
+
+[[test]]
+name = "min_two_args"
+description = "min() with two arguments"
+tags = ["math", "minmax"]
+
+[test.python]
+code = '''
+def min_two(a: int, b: int) -> int:
+    return min(a, b)
+'''
+
+[test.assertions]
+contains = ["std::cmp::min(a, b)"]
+
+[[test]]
+name = "max_two_floats"
+description = "max() with float arguments"
+tags = ["math", "minmax"]
+
+[test.python]
+code = '''
+def max_two_f(a: float, b: float) -> float:
+    return max(a, b)
+'''
+
+[test.assertions]
+contains = ["f64::max(a, b)"]
+
+[[test]]
+name = "min_two_floats"
+description = "min() with float arguments"
+tags = ["math", "minmax"]
+
+[test.python]
+code = '''
+def min_two_f(a: float, b: float) -> float:
+    return min(a, b)
+'''
+
+[test.assertions]
+contains = ["f64::min(a, b)"]
+
+[[test]]
+name = "max_three_args"
+description = "max() with three arguments"
+tags = ["math", "minmax"]
+
+[test.python]
+code = '''
+def max_three() -> int:
+    return max(10, 20, 5)
+'''
+
+[test.assertions]
+contains = ["std::cmp::max(std::cmp::max(10, 20), 5)"]
+
+[[test]]
+name = "max_list"
+description = "max() on list"
+tags = ["math", "minmax"]
+
+[test.python]
+code = '''
+def max_list(items: list[int]) -> int:
+    return max(items)
+'''
+
+[test.assertions]
+contains = ["iter().max().unwrap()"]
+
+[[test]]
+name = "min_list"
+description = "min() on list"
+tags = ["math", "minmax"]
+
+[test.python]
+code = '''
+def min_list(items: list[int]) -> int:
+    return min(items)
+'''
+
+[test.assertions]
+contains = ["iter().min().unwrap()"]
+
+# =============================================================================
+# Power Operator
+# =============================================================================
+
+[[test]]
+name = "pow_builtin_literals"
+description = "pow() with literal arguments"
+tags = ["math", "power"]
+
+[test.python]
+code = '''
+def pow_literal() -> int:
+    return pow(2, 10)
+'''
+
+[test.assertions]
+contains = ["pow(10 as u32)"]
+
+[[test]]
+name = "power_operator"
+description = "** power operator"
+tags = ["math", "power"]
+
+[test.python]
+code = '''
+def power_op() -> int:
+    return 2 ** 8
+'''
+
+[test.assertions]
+contains = ["pow(8 as u32)"]
+
+[[test]]
+name = "pow_float"
+description = "pow() with float arguments"
+tags = ["math", "power"]
+
+[test.python]
+code = '''
+def pow_float(base: float, exp: float) -> float:
+    return pow(base, exp)
+'''
+
+[test.assertions]
+contains = ["powf(exp)"]
+
+# =============================================================================
+# Arithmetic Type Propagation
+# =============================================================================
+
+[[test]]
+name = "mixed_float_int_multiplication"
+description = "Float * int should cast int to f64"
+tags = ["math", "arithmetic"]
+
+[test.python]
+code = '''
+def multiply(x: float) -> float:
+    return x * 3
+'''
+
+[test.assertions]
+contains = ["x * (3 as f64)"]
+
+[[test]]
+name = "int_float_multiplication"
+description = "Int * float should cast int to f64"
+tags = ["math", "arithmetic"]
+
+[test.python]
+code = '''
+def multiply(n: int) -> float:
+    return 6.0 * n
+'''
+
+[test.assertions]
+contains = ["6.0 * (n as f64)"]
+
+[[test]]
+name = "arithmetic_no_format"
+description = "Arithmetic should not use format! for concatenation"
+tags = ["math", "arithmetic"]
+
+[test.python]
+code = '''
+def compute(a: int, b: int) -> int:
+    result = a * 10 + b
+    return result
+'''
+
+[test.assertions]
+contains = ["* 10", "+ b"]
+not_contains = ["format!"]
+
+# =============================================================================
+# Comparison Operators
+# =============================================================================
+
+[[test]]
+name = "comparison_less_than"
+description = "Less than comparison"
+tags = ["math", "comparison"]
+
+[test.python]
+code = '''
+def is_small(x: int) -> bool:
+    return x < 1
+'''
+
+[test.assertions]
+contains = ["x < 1"]
+
+[[test]]
+name = "comparison_greater_than"
+description = "Greater than comparison"
+tags = ["math", "comparison"]
+
+[test.python]
+code = '''
+def is_large(x: int) -> bool:
+    return x > 1
+'''
+
+[test.assertions]
+contains = ["x > 1"]
+
+[[test]]
+name = "comparison_equality"
+description = "Equality comparison"
+tags = ["math", "comparison"]
+
+[test.python]
+code = '''
+def is_one(x: int) -> bool:
+    return x == 1
+'''
+
+[test.assertions]
+contains = ["x == 1"]
+
+[[test]]
+name = "comparison_not_equal"
+description = "Not equal comparison"
+tags = ["math", "comparison"]
+
+[test.python]
+code = '''
+def is_not_one(x: int) -> bool:
+    return x != 1
+'''
+
+[test.assertions]
+contains = ["x != 1"]
+
+# =============================================================================
+# Number Theory Functions
+# =============================================================================
+
+[[test]]
+name = "math_gcd"
+description = "math.gcd() greatest common divisor"
+tags = ["math", "arithmetic"]
+
+[test.python]
+code = '''
+import math
+
+def gcd_func(a: int, b: int) -> int:
+    return math.gcd(a, b)
+'''
+
+[test.assertions]
+contains = ["gcd"]
+
+[[test]]
+name = "math_lcm"
+description = "math.lcm() least common multiple"
+tags = ["math", "arithmetic"]
+
+[test.python]
+code = '''
+import math
+
+def lcm_func(a: int, b: int) -> int:
+    return math.lcm(a, b)
+'''
+
+[test.assertions]
+contains = ["lcm"]
+
+[[test]]
+name = "math_fmod"
+description = "math.fmod() floating point modulo"
+tags = ["math", "arithmetic"]
+
+[test.python]
+code = '''
+import math
+
+def fmod_func(x: float, y: float) -> float:
+    return math.fmod(x, y)
+'''
+
+[test.assertions]
+contains = ["%"]
+
+[[test]]
+name = "builtin_divmod"
+description = "divmod() quotient and remainder"
+tags = ["builtin", "math"]
+
+[test.python]
+code = '''
+def div_and_mod(a: int, b: int) -> tuple:
+    return divmod(a, b)
+'''
+
+[test.assertions]
+contains_any = [["/", "%", "div_rem"]]

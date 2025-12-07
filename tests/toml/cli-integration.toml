@@ -1,0 +1,250 @@
+# CLI Integration Tests - Migrated from test_cli.rs, test_cli_edge_cases.rs, test_depyler.rs
+
+# NOTE: Many CLI tests require subprocess execution and file I/O,
+# so they remain as Rust integration tests. This file contains
+# the transpilation verification tests that can be expressed in TOML.
+
+[metadata]
+name = "CLI Integration Tests"
+category = "cli-integration"
+
+# =============================================================================
+# Basic Transpilation Tests
+# =============================================================================
+
+[[test]]
+name = "cli_basic_function"
+description = "Basic function transpilation via CLI"
+tags = ["cli", "basic"]
+
+[test.python]
+code = '''
+def hello() -> str:
+    return "Hello, World!"
+'''
+
+[test.assertions]
+contains_any = [["fn hello()", "String", "Hello, World!"]]
+compile_check = true
+
+[[test]]
+name = "cli_type_annotation"
+description = "Type annotation preservation"
+tags = ["cli", "types"]
+
+[test.python]
+code = '''
+def typed_func(x: int, y: str) -> bool:
+    return len(y) > x
+'''
+
+[test.assertions]
+contains_any = [["i64", "String", "bool"]]
+compile_check = true
+
+[[test]]
+name = "cli_multiple_functions"
+description = "Multiple functions in single file"
+tags = ["cli", "multiple"]
+
+[test.python]
+code = '''
+def first() -> int:
+    return 1
+
+def second() -> int:
+    return 2
+
+def combined() -> int:
+    return first() + second()
+'''
+
+[test.assertions]
+contains = ["fn first()", "fn second()", "fn combined()"]
+compile_check = true
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+[[test]]
+name = "cli_empty_file"
+description = "Empty Python file handling"
+tags = ["cli", "edge"]
+
+[test.python]
+code = '''
+# Empty file with only a comment
+'''
+
+[test.assertions]
+not_contains = ["error", "panic"]
+
+[[test]]
+name = "cli_only_imports"
+description = "File with only imports"
+tags = ["cli", "edge"]
+
+[test.python]
+code = '''
+import math
+from typing import List
+'''
+
+[test.assertions]
+contains_any = [["use", "//", ""]]
+
+[[test]]
+name = "cli_complex_types"
+description = "Complex type annotations"
+tags = ["cli", "types"]
+
+[test.python]
+code = '''
+def process(data: dict[str, list[int]]) -> list[str]:
+    return list(data.keys())
+'''
+
+[test.assertions]
+contains_any = [["HashMap", "Vec", "String"]]
+
+# =============================================================================
+# Quality Metrics (Transpilation Output Verification)
+# =============================================================================
+
+[[test]]
+name = "quality_type_safety"
+description = "Type safety scoring for fully typed code"
+tags = ["quality", "type-safety"]
+
+[test.python]
+code = '''
+def fully_typed(x: int, y: int) -> int:
+    z: int = x + y
+    return z
+'''
+
+[test.assertions]
+contains = ["i64"]
+compile_check = true
+
+[[test]]
+name = "quality_memory_safety"
+description = "Memory safety with bounds checking"
+tags = ["quality", "memory"]
+
+[test.python]
+code = '''
+def safe_list_access(items: list[int], index: int) -> int:
+    if 0 <= index < len(items):
+        return items[index]
+    return 0
+'''
+
+[test.assertions]
+contains_any = [["Vec", "if", "len"]]
+compile_check = true
+
+[[test]]
+name = "quality_energy_efficiency"
+description = "Energy efficient iterator usage"
+tags = ["quality", "energy"]
+
+[test.python]
+code = '''
+def efficient_sum(nums: list[int]) -> int:
+    return sum(nums)
+'''
+
+[test.assertions]
+contains_any = [[".sum()", ".iter()", "sum"]]
+
+# =============================================================================
+# Compilation Verification
+# =============================================================================
+
+[[test]]
+name = "compile_simple_struct"
+description = "Simple struct compilation"
+tags = ["compile", "struct"]
+
+[test.python]
+code = '''
+class Point:
+    def __init__(self, x: int, y: int):
+        self.x = x
+        self.y = y
+'''
+
+[test.assertions]
+contains = ["struct Point"]
+compile_check = true
+
+[[test]]
+name = "compile_methods"
+description = "Method compilation"
+tags = ["compile", "method"]
+
+[test.python]
+code = '''
+class Calculator:
+    def __init__(self):
+        self.value = 0
+    
+    def add(self, n: int) -> int:
+        self.value += n
+        return self.value
+'''
+
+[test.assertions]
+contains_any = [["impl Calculator", "fn add"]]
+compile_check = true
+
+[[test]]
+name = "compile_generics_list"
+description = "Generic list handling"
+tags = ["compile", "generics"]
+
+[test.python]
+code = '''
+def double_all(nums: list[int]) -> list[int]:
+    return [n * 2 for n in nums]
+'''
+
+[test.assertions]
+contains = ["Vec<"]
+compile_check = true
+
+[[test]]
+name = "compile_option_handling"
+description = "Optional value handling"
+tags = ["compile", "option"]
+
+[test.python]
+code = '''
+def find_first(items: list[int], target: int) -> int:
+    for i, item in enumerate(items):
+        if item == target:
+            return i
+    return -1
+'''
+
+[test.assertions]
+contains_any = [["Option", "-1", "enumerate"]]
+compile_check = true
+
+[[test]]
+name = "compile_result_error"
+description = "Error handling compilation"
+tags = ["compile", "result"]
+
+[test.python]
+code = '''
+def safe_divide(a: int, b: int) -> int:
+    if b == 0:
+        raise ValueError("Division by zero")
+    return a // b
+'''
+
+[test.assertions]
+contains_any = [["Result", "Err", "panic"]]

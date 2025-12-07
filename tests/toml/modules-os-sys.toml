@@ -1,0 +1,491 @@
+# OS and Sys Module Tests - Migrated from test_os_unit.rs, test_os_additional_unit.rs, test_sys_unit.rs
+
+[metadata]
+name = "OS and Sys Module Tests"
+category = "stdlib-os-sys"
+
+# =============================================================================
+# OS Environment
+# =============================================================================
+
+[[test]]
+name = "os_environ_get"
+description = "os.environ.get() for environment variable"
+tags = ["os", "env"]
+
+[test.python]
+code = '''
+import os
+
+def get_env(key: str) -> str:
+    return os.environ.get(key, "")
+'''
+
+[test.assertions]
+contains_any = [["std::env::var", "env::var"]]
+
+[[test]]
+name = "os_getenv"
+description = "os.getenv() function"
+tags = ["os", "env"]
+
+[test.python]
+code = '''
+import os
+
+def get_home() -> str:
+    return os.getenv("HOME", "/tmp")
+'''
+
+[test.assertions]
+contains_any = [["std::env::var", "env::var", "unwrap_or"]]
+
+# =============================================================================
+# OS Path Operations
+# =============================================================================
+
+[[test]]
+name = "os_path_join"
+description = "os.path.join() for paths"
+tags = ["os", "path"]
+
+[test.python]
+code = '''
+import os.path
+
+def make_path(directory: str, filename: str) -> str:
+    return os.path.join(directory, filename)
+'''
+
+[test.assertions]
+contains_any = [["Path::new", "PathBuf", "join("]]
+
+[[test]]
+name = "os_path_exists"
+description = "os.path.exists() check"
+tags = ["os", "path"]
+
+[test.python]
+code = '''
+import os.path
+
+def file_exists(path: str) -> bool:
+    return os.path.exists(path)
+'''
+
+[test.assertions]
+contains_any = [["Path::new", "exists()"]]
+
+[[test]]
+name = "os_path_isfile"
+description = "os.path.isfile() check"
+tags = ["os", "path"]
+
+[test.python]
+code = '''
+import os.path
+
+def is_regular_file(path: str) -> bool:
+    return os.path.isfile(path)
+'''
+
+[test.assertions]
+contains_any = [["is_file()", "metadata"]]
+
+[[test]]
+name = "os_path_isdir"
+description = "os.path.isdir() check"
+tags = ["os", "path"]
+
+[test.python]
+code = '''
+import os.path
+
+def is_directory(path: str) -> bool:
+    return os.path.isdir(path)
+'''
+
+[test.assertions]
+contains_any = [["is_dir()", "metadata"]]
+
+[[test]]
+name = "os_path_basename"
+description = "os.path.basename() extraction"
+tags = ["os", "path"]
+
+[test.python]
+code = '''
+import os.path
+
+def get_filename(path: str) -> str:
+    return os.path.basename(path)
+'''
+
+[test.assertions]
+contains_any = [["file_name()", "Path"]]
+
+[[test]]
+name = "os_path_dirname"
+description = "os.path.dirname() extraction"
+tags = ["os", "path"]
+
+[test.python]
+code = '''
+import os.path
+
+def get_directory(path: str) -> str:
+    return os.path.dirname(path)
+'''
+
+[test.assertions]
+contains_any = [["parent()", "Path"]]
+
+# =============================================================================
+# OS Directory Operations
+# =============================================================================
+
+[[test]]
+name = "os_listdir"
+description = "os.listdir() directory listing"
+tags = ["os", "directory"]
+
+[test.python]
+code = '''
+import os
+
+def list_files(directory: str) -> list[str]:
+    return os.listdir(directory)
+'''
+
+[test.assertions]
+contains_any = [["read_dir()", "fs::read_dir"]]
+
+[[test]]
+name = "os_makedirs"
+description = "os.makedirs() create directories"
+tags = ["os", "directory"]
+
+[test.python]
+code = '''
+import os
+
+def ensure_directory(path: str) -> None:
+    os.makedirs(path, exist_ok=True)
+'''
+
+[test.assertions]
+contains_any = [["create_dir_all()", "fs::create_dir_all"]]
+
+# =============================================================================
+# OS File Operations
+# =============================================================================
+
+[[test]]
+name = "os_remove"
+description = "os.remove() file deletion"
+tags = ["os", "file"]
+
+[test.python]
+code = '''
+import os
+
+def delete_file(path: str) -> None:
+    os.remove(path)
+'''
+
+[test.assertions]
+contains_any = [["remove_file()", "fs::remove_file"]]
+
+# =============================================================================
+# Sys Module
+# =============================================================================
+
+[[test]]
+name = "sys_argv"
+description = "sys.argv command line arguments"
+tags = ["sys", "args"]
+
+[test.python]
+code = '''
+import sys
+
+def get_first_arg() -> str:
+    if len(sys.argv) > 1:
+        return sys.argv[1]
+    return ""
+'''
+
+[test.assertions]
+contains_any = [["std::env::args()", "env::args"]]
+
+[[test]]
+name = "sys_exit"
+description = "sys.exit() program termination"
+tags = ["sys", "exit"]
+
+[test.python]
+code = '''
+import sys
+
+def exit_with_code(code: int) -> None:
+    sys.exit(code)
+'''
+
+[test.assertions]
+contains_any = [["std::process::exit", "process::exit"]]
+
+[[test]]
+name = "sys_platform"
+description = "sys.platform detection"
+tags = ["sys", "platform"]
+
+[test.python]
+code = '''
+import sys
+
+def is_linux() -> bool:
+    return sys.platform.startswith("linux")
+'''
+
+[test.assertions]
+contains_any = [["cfg!(target_os", "std::env::consts::OS"]]
+
+[[test]]
+name = "os_path_relpath"
+description = "os.path.relpath() for relative paths"
+tags = ["os", "path"]
+
+[test.python]
+code = '''
+import os.path
+
+def relative_path(path: str, start: str) -> str:
+    return os.path.relpath(path, start)
+'''
+
+[test.assertions]
+contains_any = [["strip_prefix", "relative"]]
+
+# =============================================================================
+# Platform Module Tests
+# =============================================================================
+
+[[test]]
+name = "platform_system"
+description = "platform.system() returns OS name"
+tags = ["platform", "os"]
+
+[test.python]
+code = '''
+import platform
+
+def get_os():
+    return platform.system()
+'''
+
+[test.assertions]
+contains_any = [["std::env::consts::OS", "env::consts::OS"]]
+contains = [".to_string()"]
+
+[[test]]
+name = "platform_machine"
+description = "platform.machine() returns architecture"
+tags = ["platform", "arch"]
+
+[test.python]
+code = '''
+import platform
+
+def get_arch():
+    return platform.machine()
+'''
+
+[test.assertions]
+contains_any = [["std::env::consts::ARCH", "env::consts::ARCH"]]
+contains = [".to_string()"]
+
+[[test]]
+name = "os_path_exists_instance_method"
+description = "os.path.exists() uses Path instance method"
+tags = ["os", "path", "exists"]
+
+[test.python]
+code = '''
+import os
+
+def check_file(path):
+    return os.path.exists(path)
+'''
+
+[test.assertions]
+contains = ["Path::new", ".exists()"]
+not_contains = ["Path.exists("]
+
+[[test]]
+name = "os_path_isfile_instance_method"
+description = "os.path.isfile() uses Path instance method"
+tags = ["os", "path", "isfile"]
+
+[test.python]
+code = '''
+import os
+
+def is_file(path):
+    return os.path.isfile(path)
+'''
+
+[test.assertions]
+contains = ["Path::new", ".is_file()"]
+not_contains = ["Path.is_file("]
+
+[[test]]
+name = "os_path_isdir_instance_method"
+description = "os.path.isdir() uses Path instance method"
+tags = ["os", "path", "isdir"]
+
+[test.python]
+code = '''
+import os
+
+def is_dir(path):
+    return os.path.isdir(path)
+'''
+
+[test.assertions]
+contains = ["Path::new", ".is_dir()"]
+not_contains = ["Path.is_dir("]
+
+# =============================================================================
+# String Literals and Environment - Migrated from test_string_literals_os_module.rs
+# =============================================================================
+
+[[test]]
+name = "string_literal_to_string"
+description = "String literal assignment adds .to_string()"
+tags = ["string", "literal"]
+
+[test.python]
+code = '''
+def test() -> str:
+    version: str = "Python 3.x"
+    return version
+'''
+
+[test.assertions]
+contains = ['"Python 3.x".to_string()']
+
+[[test]]
+name = "empty_string_literal"
+description = "Empty string literal assignment"
+tags = ["string", "literal"]
+
+[test.python]
+code = '''
+def test() -> str:
+    empty: str = ""
+    return empty
+'''
+
+[test.assertions]
+contains = ['.to_string()']
+
+[[test]]
+name = "unicode_string_literal"
+description = "Unicode string literal assignment"
+tags = ["string", "unicode"]
+
+[test.python]
+code = '''
+def test() -> str:
+    emoji: str = "🚀"
+    return emoji
+'''
+
+[test.assertions]
+contains = ['.to_string()']
+
+[[test]]
+name = "os_getenv_with_default"
+description = "os.getenv() with default value uses unwrap_or_else"
+tags = ["os", "env", "default"]
+
+[test.python]
+code = '''
+import os
+
+def test() -> str:
+    home: str = os.getenv("HOME", "/home/user")
+    return home
+'''
+
+[test.assertions]
+contains = ["std::env::var", "unwrap_or_else"]
+
+[[test]]
+name = "os_getenv_empty_default"
+description = "os.getenv() with empty default"
+tags = ["os", "env", "default"]
+
+[test.python]
+code = '''
+import os
+
+def test() -> str:
+    value: str = os.getenv("VAR", "")
+    return value
+'''
+
+[test.assertions]
+contains = ["unwrap_or_else"]
+
+[[test]]
+name = "os_environ_membership_check"
+description = "'key in os.environ' uses std::env::var().is_ok()"
+tags = ["os", "env", "membership"]
+
+[test.python]
+code = '''
+import os
+
+def test() -> bool:
+    exists: bool = "PATH" in os.environ
+    return exists
+'''
+
+[test.assertions]
+contains = ["std::env::var", ".is_ok()"]
+not_contains = ["contains_key"]
+
+[[test]]
+name = "os_environ_not_in"
+description = "'key not in os.environ' negation"
+tags = ["os", "env", "membership"]
+
+[test.python]
+code = '''
+import os
+
+def test() -> bool:
+    missing: bool = "NONEXISTENT" not in os.environ
+    return missing
+'''
+
+[test.assertions]
+contains = ["std::env::var", ".is_ok()", "!"]
+
+[[test]]
+name = "os_environ_variable_key"
+description = "Variable key in os.environ check"
+tags = ["os", "env", "membership"]
+
+[test.python]
+code = '''
+import os
+
+def test(key: str) -> bool:
+    exists: bool = key in os.environ
+    return exists
+'''
+
+[test.assertions]
+contains = ["std::env::var", ".is_ok()"]

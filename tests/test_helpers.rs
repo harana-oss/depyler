@@ -130,6 +130,7 @@ lazy_static = "1"
 serde_json = "1"
 rand = "0.8"
 bevy_reflect = "0.15"
+clap = { version = "4", features = ["derive"] }
 "#;
     fs::write(temp_dir.path().join("Cargo.toml"), cargo_toml).expect("Failed to write Cargo.toml");
 

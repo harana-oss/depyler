@@ -1,15 +1,12 @@
 use crate::test_helpers;
-use crate::test_helpers::transpile;
+use crate::test_helpers::{parse_to_hir, transpile_and_check};
 
-use depyler_core::DepylerPipeline;
 use std::fs;
 use std::path::Path;
 
 /// Validate that all example files can be successfully transpiled
 #[test]
 fn validate_example_transpilation() {
-    let pipeline = DepylerPipeline::new();
-
     let example_files = vec![
         "examples/mathematical/basic_math.py",
         "examples/algorithms/binary_search_simple.py",
@@ -23,7 +20,7 @@ fn validate_example_transpilation() {
         if Path::new(example_file).exists() {
             match fs::read_to_string(example_file) {
                 Ok(content) => {
-                    let result: Result<String, String> = Ok(transpile(&content));
+                    let result: Result<String, String> = Ok(transpile_and_check(&content, &[]));
                     println!("{}: {}", example_file, if result.is_ok() { "✓ PASS" } else { "✗ FAIL" });
 
                     assert!(
@@ -45,8 +42,6 @@ fn validate_example_transpilation() {
 /// Test example correctness by validating HIR generation
 #[test]
 fn validate_example_hir_generation() {
-    let pipeline = DepylerPipeline::new();
-
     let test_examples = vec![
         ("Simple Function", "def add(a: int, b: int) -> int: return a + b"),
         (
@@ -84,19 +79,13 @@ def main_func(y: int) -> int:
     println!("=== HIR Generation Validation ===");
 
     for (name, code) in test_examples {
-        match pipeline.parse_to_hir(code) {
-            Ok(hir) => {
-                println!("{}: ✓ PASS ({} functions)", name, hir.functions.len());
+        let hir = parse_to_hir(code);
+        println!("{}: ✓ PASS ({} functions)", name, hir.functions.len());
 
-                assert!(!hir.functions.is_empty(), "HIR should contain at least one function");
+        assert!(!hir.functions.is_empty(), "HIR should contain at least one function");
 
-                for function in &hir.functions {
-                    assert!(!function.name.is_empty(), "Function name should not be empty");
-                }
-            }
-            Err(e) => {
-                println!("{}: ✗ FAIL: {}", name, e);
-            }
+        for function in &hir.functions {
+            assert!(!function.name.is_empty(), "Function name should not be empty");
         }
     }
 }
@@ -104,8 +93,6 @@ def main_func(y: int) -> int:
 /// Validate example annotations are preserved
 #[test]
 fn validate_annotation_preservation() {
-    let pipeline = DepylerPipeline::new();
-
     let annotated_examples = [
         r#"
 # @depyler: optimization_level = "aggressive"
@@ -127,18 +114,12 @@ def string_func(s: str) -> str:
     println!("=== Annotation Preservation Validation ===");
 
     for (i, example) in annotated_examples.iter().enumerate() {
-        match pipeline.parse_to_hir(example) {
-            Ok(hir) => {
-                println!("Annotation Example {}: ✓ PASS", i + 1);
+        let hir = parse_to_hir(example);
+        println!("Annotation Example {}: ✓ PASS", i + 1);
 
-                if !hir.functions.is_empty() {
-                    let function = &hir.functions[0];
-                    println!("  Function: {} (annotations processed)", function.name);
-                }
-            }
-            Err(e) => {
-                println!("Annotation Example {}: ✗ FAIL: {}", i + 1, e);
-            }
+        if !hir.functions.is_empty() {
+            let function = &hir.functions[0];
+            println!("  Function: {} (annotations processed)", function.name);
         }
     }
 }
@@ -146,8 +127,6 @@ def string_func(s: str) -> str:
 /// Test example output quality
 #[test]
 fn validate_generated_rust_quality() {
-    let pipeline = DepylerPipeline::new();
-
     let quality_test_examples = vec![
         (
             "Type Safety",
@@ -166,31 +145,23 @@ fn validate_generated_rust_quality() {
     println!("=== Generated Rust Quality Validation ===");
 
     for (name, code) in quality_test_examples {
-        match pipeline.transpile(code) {
-            Ok(rust_code) => {
-                println!("{}: ✓ GENERATED", name);
+        let rust_code = transpile_and_check(code, &[]);
+        println!("{}: ✓ GENERATED", name);
 
-                assert!(rust_code.contains("pub fn"), "Should generate public function");
-                assert!(
-                    rust_code.len() > code.len(),
-                    "Generated code should be longer than source"
-                );
+        assert!(rust_code.contains("pub fn"), "Should generate public function");
+        assert!(
+            rust_code.len() > code.len(),
+            "Generated code should be longer than source"
+        );
 
-                let has_types = rust_code.contains("i32") || rust_code.contains("String") || rust_code.contains("&str");
-                println!("  Contains Rust types: {}", if has_types { "✓" } else { "✗" });
-            }
-            Err(e) => {
-                println!("{}: ✗ GENERATION FAILED: {}", name, e);
-            }
-        }
+        let has_types = rust_code.contains("i32") || rust_code.contains("String") || rust_code.contains("&str");
+        println!("  Contains Rust types: {}", if has_types { "✓" } else { "✗" });
     }
 }
 
 /// Test example compilation readiness  
 #[test]
 fn validate_compilation_readiness() {
-    let pipeline = DepylerPipeline::new();
-
     let compilation_examples = vec![
         ("Basic Arithmetic", "def add(a: int, b: int) -> int: return a + b"),
         (
@@ -204,24 +175,18 @@ fn validate_compilation_readiness() {
     println!("=== Compilation Readiness Validation ===");
 
     for (name, code) in compilation_examples {
-        match pipeline.transpile(code) {
-            Ok(rust_code) => {
-                println!("{}: ✓ TRANSPILED", name);
+        let rust_code = transpile_and_check(code, &[]);
+        println!("{}: ✓ TRANSPILED", name);
 
-                let checks = vec![
-                    ("Has function definition", rust_code.contains("pub fn")),
-                    ("Has return type", rust_code.contains("->")),
-                    ("Has return statement", rust_code.contains("return")),
-                    ("Has proper braces", rust_code.contains("{") && rust_code.contains("}")),
-                ];
+        let checks = vec![
+            ("Has function definition", rust_code.contains("pub fn")),
+            ("Has return type", rust_code.contains("->")),
+            ("Has return statement", rust_code.contains("return")),
+            ("Has proper braces", rust_code.contains("{") && rust_code.contains("}")),
+        ];
 
-                for (check_name, passed) in checks {
-                    println!("  {}: {}", check_name, if passed { "✓" } else { "✗" });
-                }
-            }
-            Err(e) => {
-                println!("{}: ✗ TRANSPILATION FAILED: {}", name, e);
-            }
+        for (check_name, passed) in checks {
+            println!("  {}: {}", check_name, if passed { "✓" } else { "✗" });
         }
     }
 }
@@ -229,8 +194,6 @@ fn validate_compilation_readiness() {
 /// Validate example documentation generation
 #[test]
 fn validate_documentation_generation() {
-    let pipeline = DepylerPipeline::new();
-
     let documented_examples = [
         r#"
 def documented_function(x: int) -> int:
@@ -257,29 +220,20 @@ def complex_function(a: int, b: int, c: int) -> int:
     println!("=== Documentation Generation Validation ===");
 
     for (i, example) in documented_examples.iter().enumerate() {
-        match pipeline.transpile(example) {
-            Ok(rust_code) => {
-                println!("Documented Example {}: ✓ TRANSPILED", i + 1);
+        let rust_code = transpile_and_check(example, &[]);
+        println!("Documented Example {}: ✓ TRANSPILED", i + 1);
 
-                let has_comments = rust_code.contains("//") || rust_code.contains("/*");
-                let has_doc_attrs = rust_code.contains("#[doc");
+        let has_comments = rust_code.contains("//") || rust_code.contains("/*");
+        let has_doc_attrs = rust_code.contains("#[doc");
 
-                println!("  Has comments: {}", if has_comments { "✓" } else { "✗" });
-                println!("  Has doc attributes: {}", if has_doc_attrs { "✓" } else { "✗" });
-            }
-            Err(e) => {
-                println!("Documented Example {}: ✗ FAILED: {}", i + 1, e);
-            }
-        }
+        println!("  Has comments: {}", if has_comments { "✓" } else { "✗" });
+        println!("  Has doc attributes: {}", if has_doc_attrs { "✓" } else { "✗" });
     }
 }
 
 /// Test edge case examples that should be handled gracefully  
 #[test]
-#[ignore]
 fn validate_edge_case_examples() {
-    let pipeline = DepylerPipeline::new();
-
     let long_name_code = format!("def {}() -> int: return 1", "very_long_function_name".repeat(10));
     let edge_case_examples = vec![
         ("Empty Function", "def empty(): pass"),
@@ -291,7 +245,7 @@ fn validate_edge_case_examples() {
     println!("=== Edge Case Example Validation ===");
 
     for (name, code) in edge_case_examples {
-        let result: Result<String, String> = Ok(transpile(code));
+        let result: Result<String, String> = Ok(transpile_and_check(code, &[]));
         println!(
             "{}: {}",
             name,

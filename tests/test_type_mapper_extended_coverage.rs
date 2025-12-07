@@ -13,7 +13,7 @@
 //! - Edge cases and error paths
 
 use crate::test_helpers;
-use crate::test_helpers::transpile;
+use crate::test_helpers::transpile_and_check;
 
 /// Unit Test: issue - Unknown type mapping
 ///
@@ -24,7 +24,7 @@ fn test_unknown_type_mapping() {
 def process_any(data) -> int:
     return 42
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // Unknown types should map to serde_json::Value
     assert!(rust_code.contains("fn process_any"));
@@ -39,7 +39,7 @@ fn test_int_type_default_i32() {
 def add_numbers(a: int, b: int) -> int:
     return a + b
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn add_numbers"));
     // Should use i32 by default
@@ -54,7 +54,7 @@ fn test_float_type_mapping() {
 def calculate(x: float, y: float) -> float:
     return x * y
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn calculate"));
     assert!(rust_code.contains("f64") || rust_code.contains("float"));
@@ -69,7 +69,7 @@ fn test_bool_type_mapping() {
 def check_flag(enabled: bool) -> bool:
     return not enabled
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn check_flag"));
     assert!(rust_code.contains("bool"));
@@ -84,7 +84,7 @@ fn test_none_type_unit_mapping() {
 def do_nothing():
     pass
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn do_nothing"));
 }
@@ -98,7 +98,7 @@ fn test_string_type_always_owned() {
 def greet(name: str) -> str:
     return "Hello, " + name
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn greet"));
     assert!(rust_code.contains("String") || rust_code.contains("str"));
@@ -116,7 +116,7 @@ def sum_list(numbers: list[int]) -> int:
         total = total + n
     return total
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn sum_list"));
     assert!(rust_code.contains("Vec") || rust_code.contains("vec"));
@@ -131,7 +131,7 @@ fn test_dict_with_key_value_types() {
 def lookup(mapping: dict[str, int], key: str) -> int:
     return mapping.get(key, 0)
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn lookup"));
 }
@@ -145,7 +145,7 @@ fn test_tuple_type_mapping() {
 def get_pair() -> tuple[int, str]:
     return (42, "hello")
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn get_pair"));
 }
@@ -163,7 +163,7 @@ def maybe_int(flag: bool) -> Optional[int]:
         return 42
     return None
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn maybe_int"));
     assert!(rust_code.contains("Option") || rust_code.contains("option"));
@@ -178,7 +178,7 @@ fn test_function_type_unsupported() {
 def accepts_callback(x: int) -> int:
     return x * 2
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn accepts_callback"));
 }
@@ -196,7 +196,7 @@ T = TypeVar('T')
 def identity(value: T) -> T:
     return value
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn identity"));
 }
@@ -212,7 +212,7 @@ from typing import Dict
 def process_dict() -> Dict:
     return {}
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn process_dict"));
 }
@@ -228,7 +228,7 @@ from typing import List
 def process_list() -> List:
     return []
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn process_list"));
 }
@@ -244,7 +244,7 @@ from typing import Set
 def get_unique() -> Set:
     return set()
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn get_unique"));
 }
@@ -258,7 +258,7 @@ fn test_custom_type_arbitrary_name() {
 def process_custom() -> int:
     return 42
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn process_custom"));
 }
@@ -276,7 +276,7 @@ T = TypeVar('T')
 def wrap(value: T) -> T:
     return value
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn wrap"));
 }
@@ -290,7 +290,7 @@ fn test_generic_type_other() {
 def process_generic(value: int) -> int:
     return value * 2
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn process_generic"));
 }
@@ -304,7 +304,7 @@ fn test_nested_list_types() {
 def process_matrix(matrix: list[list[int]]) -> int:
     return len(matrix)
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn process_matrix"));
 }
@@ -318,7 +318,7 @@ fn test_nested_dict_types() {
 def nested_lookup(data: dict[str, dict[str, int]]) -> int:
     return 0
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn nested_lookup"));
 }
@@ -332,7 +332,7 @@ fn test_complex_tuple_types() {
 def get_record() -> tuple[str, int, float, bool]:
     return ("test", 42, 3.14, True)
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn get_record"));
 }
@@ -348,7 +348,7 @@ from typing import Union
 def multi_type(value: Union[int, str, float]) -> str:
     return str(value)
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn multi_type"));
 }
@@ -366,7 +366,7 @@ def maybe_dict(flag: bool) -> Optional[dict[str, int]]:
         return {}
     return None
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn maybe_dict"));
 }
@@ -382,7 +382,7 @@ from typing import Optional
 def nullable_items(items: list[Optional[int]]) -> int:
     return len(items)
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn nullable_items"));
 }
@@ -396,7 +396,7 @@ fn test_dict_tuple_values() {
 def tuple_dict(data: dict[str, tuple[int, int]]) -> int:
     return 0
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn tuple_dict"));
 }
@@ -421,7 +421,7 @@ def test_{}_type(x: {}) -> {}:
 "#,
             type_name, type_name, type_name, value
         );
-        let result: Result<String, String> = Ok(transpile(&python_code));
+        let result: Result<String, String> = Ok(transpile_and_check(&python_code, &[]));
 
         assert!(
             result.is_ok(),
@@ -451,7 +451,7 @@ def test_{}_type() -> {}:
 "#,
             name, type_name, value
         );
-        let result: Result<String, String> = Ok(transpile(&python_code));
+        let result: Result<String, String> = Ok(transpile_and_check(&python_code, &[]));
 
         assert!(
             result.is_ok(),
@@ -480,7 +480,7 @@ def complex_types(
     status = "ok" if flag else "error"
     return (count, status)
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn complex_types"));
 }
@@ -495,7 +495,7 @@ fn test_mutation_type_mapping() {
 def test1(x: int) -> int:
     return x
 "#;
-    let rust1 = transpile(int_code);
+    let rust1 = transpile_and_check(int_code, &[]);
     assert!(rust1.contains("fn test1"));
 
     // Test Case 2: Dict must map correctly
@@ -503,7 +503,7 @@ def test1(x: int) -> int:
 def test2(d: dict[str, int]) -> int:
     return 0
 "#;
-    let rust2 = transpile(dict_code);
+    let rust2 = transpile_and_check(dict_code, &[]);
     assert!(rust2.contains("fn test2"));
 
     // Test Case 3: Optional must map correctly
@@ -512,6 +512,6 @@ from typing import Optional
 def test3(x: Optional[int]) -> int:
     return 0
 "#;
-    let rust3 = transpile(opt_code);
+    let rust3 = transpile_and_check(opt_code, &[]);
     assert!(rust3.contains("fn test3"));
 }

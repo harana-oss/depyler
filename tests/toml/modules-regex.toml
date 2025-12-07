@@ -1,0 +1,287 @@
+# Regex Module Tests - Migrated from test_re_unit.rs, test_fnmatch_unit.rs, test_glob_unit.rs
+
+[metadata]
+name = "Regex Module Tests"
+category = "stdlib-regex"
+
+# =============================================================================
+# Basic Pattern Matching
+# =============================================================================
+
+[[test]]
+name = "re_match"
+description = "re.match() pattern at start"
+tags = ["regex", "match"]
+
+[test.python]
+code = '''
+import re
+
+def starts_with_hello(s: str) -> bool:
+    return re.match(r"^hello", s) is not None
+'''
+
+[test.assertions]
+contains_any = [["Regex::new", "is_match(", "starts_with"]]
+
+[[test]]
+name = "re_search"
+description = "re.search() pattern anywhere"
+tags = ["regex", "search"]
+
+[test.python]
+code = '''
+import re
+
+def contains_number(s: str) -> bool:
+    return re.search(r"\d+", s) is not None
+'''
+
+[test.assertions]
+contains_any = [["Regex::new", "is_match(", "find("]]
+
+[[test]]
+name = "re_fullmatch"
+description = "re.fullmatch() complete string match"
+tags = ["regex", "fullmatch"]
+
+[test.python]
+code = '''
+import re
+
+def is_valid_email(s: str) -> bool:
+    pattern = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
+    return re.fullmatch(pattern, s) is not None
+'''
+
+[test.assertions]
+contains_any = [["Regex::new", "is_match("]]
+
+# =============================================================================
+# Pattern Finding
+# =============================================================================
+
+[[test]]
+name = "re_findall"
+description = "re.findall() all matches"
+tags = ["regex", "findall"]
+
+[test.python]
+code = '''
+import re
+
+def find_all_numbers(s: str) -> list[str]:
+    return re.findall(r"\d+", s)
+'''
+
+[test.assertions]
+contains_any = [["find_iter(", "captures_iter(", "collect()"]]
+
+[[test]]
+name = "re_finditer"
+description = "re.finditer() match iterator"
+tags = ["regex", "finditer"]
+
+[test.python]
+code = '''
+import re
+
+def find_word_positions(s: str, word: str) -> list[int]:
+    return [m.start() for m in re.finditer(word, s)]
+'''
+
+[test.assertions]
+contains_any = [["find_iter(", "start()", "collect()"]]
+
+# =============================================================================
+# Capture Groups
+# =============================================================================
+
+[[test]]
+name = "re_groups"
+description = "regex capture groups extraction"
+tags = ["regex", "groups"]
+
+[test.python]
+code = '''
+import re
+
+def extract_date_parts(s: str) -> tuple[str, str, str]:
+    m = re.match(r"(\d{4})-(\d{2})-(\d{2})", s)
+    if m:
+        return (m.group(1), m.group(2), m.group(3))
+    return ("", "", "")
+'''
+
+[test.assertions]
+contains_any = [["captures(", "get(", ".as_str()"]]
+
+[[test]]
+name = "re_named_groups"
+description = "regex named capture groups"
+tags = ["regex", "groups"]
+
+[test.python]
+code = '''
+import re
+
+def extract_name_value(s: str) -> dict[str, str]:
+    m = re.match(r"(?P<key>\w+)=(?P<value>\w+)", s)
+    if m:
+        return {"key": m.group("key"), "value": m.group("value")}
+    return {}
+'''
+
+[test.assertions]
+contains_any = [["captures(", "name("]]
+
+# =============================================================================
+# Pattern Substitution
+# =============================================================================
+
+[[test]]
+name = "re_sub"
+description = "re.sub() pattern replacement"
+tags = ["regex", "sub"]
+
+[test.python]
+code = '''
+import re
+
+def redact_numbers(s: str) -> str:
+    return re.sub(r"\d+", "XXX", s)
+'''
+
+[test.assertions]
+contains_any = [["replace_all(", "replace("]]
+
+[[test]]
+name = "re_subn"
+description = "re.subn() with count"
+tags = ["regex", "sub"]
+
+[test.python]
+code = '''
+import re
+
+def replace_first_number(s: str) -> str:
+    result, count = re.subn(r"\d+", "N", s, count=1)
+    return result
+'''
+
+[test.assertions]
+contains_any = [["replace(", "replacen("]]
+
+# =============================================================================
+# Pattern Splitting
+# =============================================================================
+
+[[test]]
+name = "re_split"
+description = "re.split() by pattern"
+tags = ["regex", "split"]
+
+[test.python]
+code = '''
+import re
+
+def split_on_whitespace(s: str) -> list[str]:
+    return re.split(r"\s+", s)
+'''
+
+[test.assertions]
+contains_any = [["split(", ".split_whitespace()"]]
+
+# =============================================================================
+# Compiled Patterns
+# =============================================================================
+
+[[test]]
+name = "re_compile"
+description = "re.compile() pattern caching"
+tags = ["regex", "compile"]
+
+[test.python]
+code = '''
+import re
+
+pattern = re.compile(r"\d+")
+
+def find_numbers(s: str) -> list[str]:
+    return pattern.findall(s)
+'''
+
+[test.assertions]
+contains_any = [["Regex::new", "lazy_static!", "once_cell"]]
+
+# =============================================================================
+# Glob Patterns
+# =============================================================================
+
+[[test]]
+name = "glob_match"
+description = "glob pattern matching"
+tags = ["glob", "pattern"]
+
+[test.python]
+code = '''
+import glob
+
+def find_python_files(directory: str) -> list[str]:
+    return glob.glob(f"{directory}/*.py")
+'''
+
+[test.assertions]
+contains_any = [["glob::", "Pattern", "read_dir"]]
+
+[[test]]
+name = "glob_recursive"
+description = "glob ** recursive matching"
+tags = ["glob", "recursive"]
+
+[test.python]
+code = '''
+import glob
+
+def find_all_python_files(directory: str) -> list[str]:
+    return glob.glob(f"{directory}/**/*.py", recursive=True)
+'''
+
+[test.assertions]
+contains_any = [["glob::", "WalkDir", "recursive"]]
+
+# =============================================================================
+# Fnmatch Patterns
+# =============================================================================
+
+[[test]]
+name = "fnmatch_match"
+description = "fnmatch filename matching"
+tags = ["fnmatch", "pattern"]
+
+[test.python]
+code = '''
+import fnmatch
+
+def matches_pattern(filename: str, pattern: str) -> bool:
+    return fnmatch.fnmatch(filename, pattern)
+'''
+
+[test.assertions]
+contains_any = [["Pattern::new", "matches("]]
+
+[[test]]
+name = "fnmatch_filter"
+description = "fnmatch.filter() list filtering"
+tags = ["fnmatch", "filter"]
+
+[test.python]
+code = '''
+import fnmatch
+
+def filter_py_files(files: list[str]) -> list[str]:
+    return fnmatch.filter(files, "*.py")
+'''
+
+[test.assertions]
+contains_any = [["filter(", "Pattern", "ends_with"]]

@@ -3,7 +3,7 @@
 // (like args.url in a clone handler), the transpiler generates proper pattern matching
 // to extract those fields from the Commands enum variant.
 
-use crate::test_helpers::transpile;
+use crate::test_helpers::transpile_and_check;
 use depyler_core::DepylerPipeline;
 
 fn transpile_str(python: &str) -> Result<String, Box<dyn std::error::Error>> {
@@ -41,8 +41,7 @@ if __name__ == "__main__":
 
     // Must contain pattern matching to extract url from Commands::Clone
     assert!(
-        rust_code.contains("if let Commands::Clone") ||
-        rust_code.contains("Commands::Clone { url }"),
+        rust_code.contains("if let Commands::Clone") || rust_code.contains("Commands::Clone { url }"),
         "Generated code must pattern match Commands::Clone variant to access url field.\nGenerated:\n{}",
         rust_code
     );

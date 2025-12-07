@@ -21,6 +21,7 @@ depyler-annotations = { path = "../crates/depyler-annotations" }
 depyler-quality = { path = "../crates/depyler-quality" }
 depyler-verify = { path = "../crates/depyler-verify" }
 
+toml = "0.8"
 anyhow.workspace = true
 thiserror.workspace = true
 serde.workspace = true

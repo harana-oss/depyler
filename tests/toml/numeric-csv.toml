@@ -1,0 +1,233 @@
+# Numeric and CSV Module Tests - decimal, fractions, csv
+
+[metadata]
+name = "Numeric and CSV Module Tests"
+category = "stdlib-numeric"
+
+# =============================================================================
+# csv Module
+# =============================================================================
+
+[[test]]
+name = "csv_reader"
+description = "csv.reader() basic reading"
+tags = ["csv", "reader"]
+
+[test.python]
+code = '''
+import csv
+
+def read_csv_file(filename: str) -> list:
+    with open(filename, 'r') as f:
+        reader = csv.reader(f)
+        return list(reader)
+'''
+
+[test.assertions]
+contains_any = [["csv::Reader", "reader"]]
+
+[[test]]
+name = "csv_reader_delimiter"
+description = "csv.reader() with delimiter"
+tags = ["csv", "reader", "delimiter"]
+
+[test.python]
+code = '''
+import csv
+
+def read_csv_with_delimiter(filename: str, delim: str) -> list:
+    with open(filename, 'r') as f:
+        reader = csv.reader(f, delimiter=delim)
+        return list(reader)
+'''
+
+[test.assertions]
+contains_any = [["delimiter", "ReaderBuilder"]]
+
+[[test]]
+name = "csv_writer"
+description = "csv.writer() basic writing"
+tags = ["csv", "writer"]
+
+[test.python]
+code = '''
+import csv
+
+def write_csv_file(filename: str, rows: list) -> None:
+    with open(filename, 'w') as f:
+        writer = csv.writer(f)
+        writer.writerows(rows)
+'''
+
+[test.assertions]
+contains_any = [["csv::Writer", "writer"]]
+
+[[test]]
+name = "csv_writerow"
+description = "csv.writer().writerow() single row"
+tags = ["csv", "writer"]
+
+[test.python]
+code = '''
+import csv
+
+def write_single_row(filename: str, row: list) -> None:
+    with open(filename, 'w') as f:
+        writer = csv.writer(f)
+        writer.writerow(row)
+'''
+
+[test.assertions]
+contains_any = [["write_record", "serialize", "write"]]
+
+# =============================================================================
+# decimal Module
+# =============================================================================
+
+[[test]]
+name = "decimal_constructor"
+description = "Decimal() from string"
+tags = ["decimal", "constructor"]
+
+[test.python]
+code = '''
+from decimal import Decimal
+
+def create_decimal(value: str) -> Decimal:
+    return Decimal(value)
+'''
+
+[test.assertions]
+contains_any = [["Decimal", "from_str"]]
+
+[[test]]
+name = "decimal_from_float"
+description = "Decimal() from float"
+tags = ["decimal", "constructor"]
+
+[test.python]
+code = '''
+from decimal import Decimal
+
+def decimal_from_float(value: float) -> Decimal:
+    return Decimal(value)
+'''
+
+[test.assertions]
+contains_any = [["Decimal", "from"]]
+
+[[test]]
+name = "decimal_add"
+description = "Decimal addition"
+tags = ["decimal", "arithmetic"]
+
+[test.python]
+code = '''
+from decimal import Decimal
+
+def add_decimals(a: Decimal, b: Decimal) -> Decimal:
+    return a + b
+'''
+
+[test.assertions]
+contains_any = [["+", "add"]]
+
+[[test]]
+name = "decimal_multiply"
+description = "Decimal multiplication"
+tags = ["decimal", "arithmetic"]
+
+[test.python]
+code = '''
+from decimal import Decimal
+
+def multiply_decimals(a: Decimal, b: Decimal) -> Decimal:
+    return a * b
+'''
+
+[test.assertions]
+contains_any = [["*", "mul"]]
+
+# =============================================================================
+# fractions Module
+# =============================================================================
+
+[[test]]
+name = "fraction_from_ints"
+description = "Fraction from numerator/denominator"
+tags = ["fractions", "constructor"]
+
+[test.python]
+code = '''
+from fractions import Fraction
+
+def create_fraction(num: int, denom: int) -> Fraction:
+    return Fraction(num, denom)
+'''
+
+[test.assertions]
+contains_any = [["Rational", "Fraction"]]
+
+[[test]]
+name = "fraction_from_string"
+description = "Fraction from string"
+tags = ["fractions", "constructor"]
+
+[test.python]
+code = '''
+from fractions import Fraction
+
+def parse_fraction(s: str) -> Fraction:
+    return Fraction(s)
+'''
+
+[test.assertions]
+contains_any = [["from_str", "parse"]]
+
+[[test]]
+name = "fraction_add"
+description = "Fraction addition"
+tags = ["fractions", "arithmetic"]
+
+[test.python]
+code = '''
+from fractions import Fraction
+
+def add_fractions(a: Fraction, b: Fraction) -> Fraction:
+    return a + b
+'''
+
+[test.assertions]
+contains = ["+"]
+
+[[test]]
+name = "fraction_multiply"
+description = "Fraction multiplication"
+tags = ["fractions", "arithmetic"]
+
+[test.python]
+code = '''
+from fractions import Fraction
+
+def multiply_fractions(a: Fraction, b: Fraction) -> Fraction:
+    return a * b
+'''
+
+[test.assertions]
+contains = ["*"]
+
+[[test]]
+name = "fraction_divide"
+description = "Fraction division"
+tags = ["fractions", "arithmetic"]
+
+[test.python]
+code = '''
+from fractions import Fraction
+
+def divide_fractions(a: Fraction, b: Fraction) -> Fraction:
+    return a / b
+'''
+
+[test.assertions]
+contains = ["/"]

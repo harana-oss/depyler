@@ -1,16 +1,14 @@
-use crate::test_helpers::transpile;
+use crate::test_helpers::transpile_and_check;
 use depyler_core::{DepylerPipeline, hir::Type};
 
 #[test]
-#[ignore]
 fn test_simple_generic_function() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 def identity(x: T) -> T:
     return x
 "#;
 
-    let result: Result<String, String> = Ok(transpile(python_code));
+    let result: Result<String, String> = Ok(transpile_and_check(python_code, &[]));
     assert!(result.is_ok());
     let rust_code = result.unwrap();
 
@@ -26,7 +24,6 @@ def identity(x: T) -> T:
 
 #[test]
 fn test_generic_list_function() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 from typing import List
 
@@ -34,7 +31,7 @@ def first_element(items: List[T]) -> T:
     return items[0]
 "#;
 
-    let result: Result<String, String> = Ok(transpile(python_code));
+    let result: Result<String, String> = Ok(transpile_and_check(python_code, &[]));
     assert!(result.is_ok());
     let rust_code = result.unwrap();
 
@@ -46,7 +43,6 @@ def first_element(items: List[T]) -> T:
 
 #[test]
 fn test_multiple_type_parameters() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 from typing import Tuple
 
@@ -54,7 +50,7 @@ def pair(a: T, b: U) -> Tuple[T, U]:
     return (a, b)
 "#;
 
-    let result: Result<String, String> = Ok(transpile(python_code));
+    let result: Result<String, String> = Ok(transpile_and_check(python_code, &[]));
     assert!(result.is_ok());
     let rust_code = result.unwrap();
 
@@ -71,13 +67,12 @@ def pair(a: T, b: U) -> Tuple[T, U]:
 
 #[test]
 fn test_generic_with_constraints() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 def compare(a: T, b: T) -> bool:
     return a < b
 "#;
 
-    let result: Result<String, String> = Ok(transpile(python_code));
+    let result: Result<String, String> = Ok(transpile_and_check(python_code, &[]));
     assert!(result.is_ok());
     let rust_code = result.unwrap();
 
@@ -87,7 +82,6 @@ def compare(a: T, b: T) -> bool:
 
 #[test]
 fn test_union_type() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 from typing import Union
 
@@ -98,6 +92,7 @@ def process_value(x: Union[int, str]) -> str:
         return x
 "#;
 
+    let pipeline = DepylerPipeline::new();
     let hir = pipeline.parse_to_hir(python_code).unwrap();
     assert_eq!(hir.functions.len(), 1);
 
@@ -114,7 +109,6 @@ def process_value(x: Union[int, str]) -> str:
 
 #[test]
 fn test_generic_dict() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 from typing import Dict
 
@@ -122,7 +116,7 @@ def get_value(mapping: Dict[K, V], key: K) -> V:
     return mapping[key]
 "#;
 
-    let result: Result<String, String> = Ok(transpile(python_code));
+    let result: Result<String, String> = Ok(transpile_and_check(python_code, &[]));
     assert!(result.is_ok());
     let rust_code = result.unwrap();
 
@@ -134,7 +128,6 @@ def get_value(mapping: Dict[K, V], key: K) -> V:
 
 #[test]
 fn test_type_var_in_optional() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 from typing import Optional
 
@@ -142,7 +135,7 @@ def maybe_value(x: Optional[T]) -> T:
     return x
 "#;
 
-    let result: Result<String, String> = Ok(transpile(python_code));
+    let result: Result<String, String> = Ok(transpile_and_check(python_code, &[]));
     assert!(result.is_ok());
     let rust_code = result.unwrap();
 
@@ -154,8 +147,7 @@ def maybe_value(x: Optional[T]) -> T:
 // Test commented out - class instantiation not yet supported
 // #[test]
 // fn test_generic_class_instantiation() {
-//     let pipeline = DepylerPipeline::new();
-//     let python_code = r#"
+// //     let python_code = r#"
 // from typing import Generic
 //
 // def create_container() -> Container[int]:
@@ -182,14 +174,13 @@ def maybe_value(x: Optional[T]) -> T:
 
 #[test]
 fn test_generic_method_call_single_type_param() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 def test_infer():
     result = infer[str]("hello")
     return result
 "#;
 
-    let result: Result<String, String> = Ok(transpile(python_code));
+    let result: Result<String, String> = Ok(transpile_and_check(python_code, &[]));
     assert!(result.is_ok());
     let rust_code = result.unwrap();
 
@@ -199,14 +190,13 @@ def test_infer():
 
 #[test]
 fn test_generic_method_call_multiple_type_params() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 def test_convert():
     result = convert[int, str](42)
     return result
 "#;
 
-    let result: Result<String, String> = Ok(transpile(python_code));
+    let result: Result<String, String> = Ok(transpile_and_check(python_code, &[]));
     assert!(result.is_ok());
     let rust_code = result.unwrap();
 
@@ -216,7 +206,6 @@ def test_convert():
 
 #[test]
 fn test_generic_method_on_object() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 def test_method():
     obj = SomeClass()
@@ -224,7 +213,7 @@ def test_method():
     return result
 "#;
 
-    let result: Result<String, String> = Ok(transpile(python_code));
+    let result: Result<String, String> = Ok(transpile_and_check(python_code, &[]));
     assert!(result.is_ok());
     let rust_code = result.unwrap();
 
@@ -234,7 +223,6 @@ def test_method():
 
 #[test]
 fn test_generic_method_with_complex_types() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 from typing import List, Dict
 
@@ -243,7 +231,7 @@ def test_complex():
     return result
 "#;
 
-    let result: Result<String, String> = Ok(transpile(python_code));
+    let result: Result<String, String> = Ok(transpile_and_check(python_code, &[]));
     assert!(result.is_ok());
     let rust_code = result.unwrap();
 
@@ -253,14 +241,13 @@ def test_complex():
 
 #[test]
 fn test_chained_generic_method_calls() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 def test_chain():
     result = obj.first[int](10).second[str]("hello")
     return result
 "#;
 
-    let result: Result<String, String> = Ok(transpile(python_code));
+    let result: Result<String, String> = Ok(transpile_and_check(python_code, &[]));
     assert!(result.is_ok());
     let rust_code = result.unwrap();
 
@@ -270,13 +257,13 @@ def test_chain():
 
 #[test]
 fn test_generic_method_hir_representation() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 def test_hir():
     result = cast[int]("42")
     return result
 "#;
 
+    let pipeline = DepylerPipeline::new();
     let hir = pipeline.parse_to_hir(python_code).unwrap();
     assert_eq!(hir.functions.len(), 1);
 
@@ -287,7 +274,6 @@ def test_hir():
 
 #[test]
 fn test_generic_method_with_type_vars() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 from typing import TypeVar
 
@@ -298,7 +284,7 @@ def wrapper(value: T) -> T:
     return result
 "#;
 
-    let result: Result<String, String> = Ok(transpile(python_code));
+    let result: Result<String, String> = Ok(transpile_and_check(python_code, &[]));
     assert!(result.is_ok());
     let rust_code = result.unwrap();
 
@@ -308,14 +294,13 @@ def wrapper(value: T) -> T:
 
 #[test]
 fn test_generic_constructor_call() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 def create_container():
     container = Container[int]()
     return container
 "#;
 
-    let result: Result<String, String> = Ok(transpile(python_code));
+    let result: Result<String, String> = Ok(transpile_and_check(python_code, &[]));
     assert!(result.is_ok());
     let rust_code = result.unwrap();
 
@@ -325,14 +310,13 @@ def create_container():
 
 #[test]
 fn test_generic_static_method_call() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 def test_static():
     result = MyClass.create[int](42)
     return result
 "#;
 
-    let result: Result<String, String> = Ok(transpile(python_code));
+    let result: Result<String, String> = Ok(transpile_and_check(python_code, &[]));
     assert!(result.is_ok());
     let rust_code = result.unwrap();
 
@@ -342,14 +326,13 @@ def test_static():
 
 #[test]
 fn test_generic_call_with_keyword_args_and_array() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 def test_func():
     result = call[Type](name = "name", input = [random.random(), float(int(2400 - 1200))])
     return result
 "#;
 
-    let result: Result<String, String> = Ok(transpile(python_code));
+    let result: Result<String, String> = Ok(transpile_and_check(python_code, &[]));
     assert!(result.is_ok(), "Transpilation failed: {:?}", result.err());
     let rust_code = result.unwrap();
 

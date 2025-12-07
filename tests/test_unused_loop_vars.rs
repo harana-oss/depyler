@@ -11,7 +11,7 @@
 #![allow(non_snake_case)]
 
 use crate::test_helpers;
-use crate::test_helpers::transpile;
+use crate::test_helpers::transpile_and_check;
 use std::fs;
 use std::process::Command;
 
@@ -93,7 +93,7 @@ def fibonacci(n: int) -> int:
     return b
 "#;
 
-    let rust_code = transpile(python);
+    let rust_code = transpile_and_check(python, &[]);
     println!("Generated code:\n{}", rust_code);
 
     // Verify generated code uses _i instead of i
@@ -118,7 +118,7 @@ def count_iterations(items: list[int]) -> int:
     return count
 "#;
 
-    let rust_code = transpile(python);
+    let rust_code = transpile_and_check(python, &[]);
     println!("Generated code:\n{}", rust_code);
 
     // Should generate: for _item in items.iter().cloned() {
@@ -140,7 +140,7 @@ def sum_list(numbers: list[int]) -> int:
     return total
 "#;
 
-    let rust_code = transpile(python);
+    let rust_code = transpile_and_check(python, &[]);
     println!("Generated code:\n{}", rust_code);
 
     // Should generate: for num in numbers.iter().cloned() {
@@ -172,7 +172,7 @@ def repeat_operations(n: int) -> int:
     return result
 "#;
 
-    let rust_code = transpile(python);
+    let rust_code = transpile_and_check(python, &[]);
     assert!(
         rust_code.contains("fn repeat_operations"),
         "Expected function repeat_operations not found"
@@ -198,7 +198,7 @@ def nested_count(outer: list[int], inner: list[int]) -> int:
     return count
 "#;
 
-    let rust_code = transpile(python);
+    let rust_code = transpile_and_check(python, &[]);
     println!("Generated code:\n{}", rust_code);
 
     // Outer loop: for _x in outer.iter().cloned() {
@@ -224,7 +224,7 @@ def process_values(items: list[str]) -> int:
     return count
 "#;
 
-    let rust_code = transpile(python);
+    let rust_code = transpile_and_check(python, &[]);
     println!("Generated code:\n{}", rust_code);
 
     // Tuple unpacking: for (_i, val) in items.iter().enumerate() {
@@ -245,7 +245,7 @@ def simple_loop(n: int) -> int:
     return result
 "#;
 
-    let rust_code = transpile(python);
+    let rust_code = transpile_and_check(python, &[]);
     println!("Generated code:\n{}", rust_code);
 
     // Check if current code produces unused variable warning
@@ -296,7 +296,7 @@ def f(start: int, end: int) -> int:
 
     for (name, python) in test_cases {
         println!("\nTesting pattern: {}", name);
-        let rust_code = transpile(python);
+        let rust_code = transpile_and_check(python, &[]);
         assert_compiles(&rust_code, &format!("pattern_{}", name.replace(' ', "_")));
     }
 }

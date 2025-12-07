@@ -1,0 +1,335 @@
+# Itertools and Functools Module Tests - Migrated from test_itertools_unit.rs, test_functools_unit.rs, test_functionals.rs
+
+[metadata]
+name = "Itertools and Functools Module Tests"
+category = "stdlib-itertools-functools"
+
+# =============================================================================
+# Itertools - Combinations
+# =============================================================================
+
+[[test]]
+name = "itertools_chain"
+description = "itertools.chain() iterator chaining"
+tags = ["itertools", "chain"]
+
+[test.python]
+code = '''
+from itertools import chain
+
+def combine_lists(a: list[int], b: list[int]) -> list[int]:
+    return list(chain(a, b))
+'''
+
+[test.assertions]
+contains_any = [[".chain(", ".into_iter"]]
+
+[[test]]
+name = "itertools_combinations"
+description = "itertools.combinations() n-choose-k"
+tags = ["itertools", "combinations"]
+
+[test.python]
+code = '''
+from itertools import combinations
+
+def all_pairs(items: list[int]) -> list[tuple[int, int]]:
+    return list(combinations(items, 2))
+'''
+
+[test.assertions]
+contains_any = [["combinations(", "itertools"]]
+
+[[test]]
+name = "itertools_permutations"
+description = "itertools.permutations() all orderings"
+tags = ["itertools", "permutations"]
+
+[test.python]
+code = '''
+from itertools import permutations
+
+def all_orderings(items: list[int]) -> list[tuple[int, ...]]:
+    return list(permutations(items))
+'''
+
+[test.assertions]
+contains_any = [["permutations(", "itertools"]]
+
+# =============================================================================
+# Itertools - Filtering
+# =============================================================================
+
+[[test]]
+name = "itertools_takewhile"
+description = "itertools.takewhile() conditional take"
+tags = ["itertools", "takewhile"]
+
+[test.python]
+code = '''
+from itertools import takewhile
+
+def take_positives(nums: list[int]) -> list[int]:
+    return list(takewhile(lambda x: x > 0, nums))
+'''
+
+[test.assertions]
+contains_any = [[".take_while(", "take_while"]]
+
+[[test]]
+name = "itertools_dropwhile"
+description = "itertools.dropwhile() conditional skip"
+tags = ["itertools", "dropwhile"]
+
+[test.python]
+code = '''
+from itertools import dropwhile
+
+def skip_zeros(nums: list[int]) -> list[int]:
+    return list(dropwhile(lambda x: x == 0, nums))
+'''
+
+[test.assertions]
+contains_any = [[".skip_while(", "skip_while"]]
+
+[[test]]
+name = "itertools_filter"
+description = "itertools filterfalse and filter"
+tags = ["itertools", "filter"]
+
+[test.python]
+code = '''
+from itertools import filterfalse
+
+def get_odd(nums: list[int]) -> list[int]:
+    return list(filterfalse(lambda x: x % 2 == 0, nums))
+'''
+
+[test.assertions]
+contains_any = [[".filter(", "filter"]]
+
+# =============================================================================
+# Itertools - Grouping
+# =============================================================================
+
+[[test]]
+name = "itertools_groupby"
+description = "itertools.groupby() grouping"
+tags = ["itertools", "groupby"]
+
+[test.python]
+code = '''
+from itertools import groupby
+
+def group_by_first_char(words: list[str]) -> dict[str, list[str]]:
+    result = {}
+    for k, g in groupby(sorted(words), key=lambda x: x[0]):
+        result[k] = list(g)
+    return result
+'''
+
+[test.assertions]
+contains_any = [["group_by(", "GroupBy", "HashMap"]]
+
+# =============================================================================
+# Itertools - Accumulation
+# =============================================================================
+
+[[test]]
+name = "itertools_accumulate"
+description = "itertools.accumulate() running sum"
+tags = ["itertools", "accumulate"]
+
+[test.python]
+code = '''
+from itertools import accumulate
+
+def running_sum(nums: list[int]) -> list[int]:
+    return list(accumulate(nums))
+'''
+
+[test.assertions]
+contains_any = [[".scan(", "scan"]]
+
+# =============================================================================
+# Itertools - Infinite
+# =============================================================================
+
+[[test]]
+name = "itertools_count"
+description = "itertools.count() infinite counter"
+tags = ["itertools", "infinite"]
+
+[test.python]
+code = '''
+from itertools import count, islice
+
+def first_n_from(start: int, n: int) -> list[int]:
+    return list(islice(count(start), n))
+'''
+
+[test.assertions]
+contains_any = [["(start..)", ".take("]]
+
+[[test]]
+name = "itertools_cycle"
+description = "itertools.cycle() repeating iterator"
+tags = ["itertools", "infinite"]
+
+[test.python]
+code = '''
+from itertools import cycle, islice
+
+def repeat_pattern(items: list[int], n: int) -> list[int]:
+    return list(islice(cycle(items), n))
+'''
+
+[test.assertions]
+contains_any = [[".cycle(", "cycle"]]
+
+[[test]]
+name = "itertools_repeat"
+description = "itertools.repeat() single value repetition"
+tags = ["itertools", "infinite"]
+
+[test.python]
+code = '''
+from itertools import repeat
+
+def make_n_copies(value: int, n: int) -> list[int]:
+    return list(repeat(value, n))
+'''
+
+[test.assertions]
+contains_any = [["std::iter::repeat", ".take("]]
+
+# =============================================================================
+# Functools
+# =============================================================================
+
+[[test]]
+name = "functools_reduce"
+description = "functools.reduce() fold operation"
+tags = ["functools", "reduce"]
+
+[test.python]
+code = '''
+from functools import reduce
+
+def sum_all(nums: list[int]) -> int:
+    return reduce(lambda a, b: a + b, nums, 0)
+'''
+
+[test.assertions]
+contains_any = [[".fold(", "fold"]]
+
+[[test]]
+name = "functools_reduce_product"
+description = "functools.reduce() for product"
+tags = ["functools", "reduce"]
+
+[test.python]
+code = '''
+from functools import reduce
+
+def product(nums: list[int]) -> int:
+    return reduce(lambda a, b: a * b, nums, 1)
+'''
+
+[test.assertions]
+contains_any = [[".fold(", ".product("]]
+
+[[test]]
+name = "functools_partial"
+description = "functools.partial() partial application"
+tags = ["functools", "partial"]
+
+[test.python]
+code = '''
+from functools import partial
+
+def make_adder(n: int):
+    return partial(lambda a, b: a + b, n)
+'''
+
+[test.assertions]
+contains_any = [["move |", "|", "closure"]]
+
+[[test]]
+name = "functools_lru_cache"
+description = "functools.lru_cache() memoization"
+tags = ["functools", "cache"]
+
+[test.python]
+code = '''
+from functools import lru_cache
+
+@lru_cache(maxsize=128)
+def fib(n: int) -> int:
+    if n < 2:
+        return n
+    return fib(n - 1) + fib(n - 2)
+'''
+
+[test.assertions]
+contains_any = [["HashMap", "cache", "memo"]]
+
+# =============================================================================
+# Map/Filter/Reduce Builtins
+# =============================================================================
+
+[[test]]
+name = "builtin_map"
+description = "Built-in map() function"
+tags = ["builtin", "map"]
+
+[test.python]
+code = '''
+def double_all(nums: list[int]) -> list[int]:
+    return list(map(lambda x: x * 2, nums))
+'''
+
+[test.assertions]
+contains_any = [[".map(|", ".map("]]
+
+[[test]]
+name = "builtin_filter"
+description = "Built-in filter() function"
+tags = ["builtin", "filter"]
+
+[test.python]
+code = '''
+def evens_only(nums: list[int]) -> list[int]:
+    return list(filter(lambda x: x % 2 == 0, nums))
+'''
+
+[test.assertions]
+contains_any = [[".filter(|", ".filter("]]
+
+[[test]]
+name = "zip_iteration"
+description = "Built-in zip() function"
+tags = ["builtin", "zip"]
+
+[test.python]
+code = '''
+def add_pairwise(a: list[int], b: list[int]) -> list[int]:
+    return [x + y for x, y in zip(a, b)]
+'''
+
+[test.assertions]
+contains_any = [[".zip(", "zip"]]
+
+[[test]]
+name = "enumerate_iteration"
+description = "Built-in enumerate() function"
+tags = ["builtin", "enumerate"]
+
+[test.python]
+code = '''
+def with_indices(items: list[str]) -> list[tuple[int, str]]:
+    return list(enumerate(items))
+'''
+
+[test.assertions]
+contains_any = [[".enumerate(", "enumerate"]]

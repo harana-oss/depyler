@@ -1,0 +1,463 @@
+# Exception Handling Tests
+# Migrated from test_exception_handlings.rs
+
+[metadata]
+name = "exception-handling"
+description = "Tests for Python try/except/finally error handling"
+
+# ============================================================================
+# Phase 1: Simple Try/Except Blocks
+# ============================================================================
+
+[[test]]
+name = "simple_try_except"
+description = "Test basic try/except with bare except"
+tags = ["exception", "try", "except", "simple"]
+
+[test.python]
+code = '''
+def safe_divide(a: int, b: int) -> int:
+    try:
+        return a // b
+    except:
+        return 0
+'''
+
+[test.assertions]
+contains = ["fn safe_divide"]
+contains_any = [["Result", "match", "if let"]]
+
+[[test]]
+name = "try_except_with_binding"
+description = "Test try/except with exception binding"
+tags = ["exception", "binding"]
+
+[test.python]
+code = '''
+def parse_number(s: str) -> int:
+    try:
+        return int(s)
+    except ValueError as e:
+        return -1
+'''
+
+[test.assertions]
+contains = ["fn parse_number"]
+contains_any = [["Result", "match", "Err"]]
+
+[[test]]
+name = "try_except_return_in_try"
+description = "Test try/except with return in try block"
+tags = ["exception", "return"]
+
+[test.python]
+code = '''
+def get_value(data: dict, key: str) -> str:
+    try:
+        return data[key]
+    except KeyError:
+        return "default"
+'''
+
+[test.assertions]
+contains = ["fn get_value"]
+contains_any = [["return", "->"]]
+
+[[test]]
+name = "nested_try_except"
+description = "Test nested try/except blocks"
+tags = ["exception", "nested"]
+
+[test.python]
+code = '''
+def nested_operation(x: int, y: int) -> int:
+    try:
+        try:
+            return x // y
+        except ValueError:
+            return x
+    except:
+        return 0
+'''
+
+[test.assertions]
+contains = ["fn nested_operation"]
+contains_any = [["Result", "match"]]
+
+[[test]]
+name = "try_except_specific_exception"
+description = "Test try/except with specific exception type"
+tags = ["exception", "specific"]
+
+[test.python]
+code = '''
+def convert_to_int(s: str) -> int:
+    try:
+        return int(s)
+    except ValueError:
+        return 0
+'''
+
+[test.assertions]
+contains = ["fn convert_to_int"]
+contains_any = [["Result", "match", "Err"]]
+
+[[test]]
+name = "try_except_with_pass"
+description = "Test try/except with pass in except block"
+tags = ["exception", "pass"]
+
+[test.python]
+code = '''
+def ignore_errors(x: int) -> int:
+    try:
+        result = x * 2
+        return result
+    except:
+        pass
+    return 0
+'''
+
+[test.assertions]
+contains = ["fn ignore_errors"]
+contains_any = [["Result", "match", "if let"]]
+
+[[test]]
+name = "try_except_with_computation"
+description = "Test try/except with computation in try block"
+tags = ["exception", "computation"]
+
+[test.python]
+code = '''
+def compute_ratio(a: int, b: int) -> float:
+    try:
+        ratio = a / b
+        return ratio
+    except ZeroDivisionError:
+        return 0.0
+'''
+
+[test.assertions]
+contains = ["fn compute_ratio", "ratio"]
+
+# ============================================================================
+# Phase 2: Multiple Exception Handlers
+# ============================================================================
+
+[[test]]
+name = "two_exception_types"
+description = "Test try with two exception handlers"
+tags = ["exception", "multiple"]
+
+[test.python]
+code = '''
+def parse_data(data: str) -> int:
+    try:
+        return int(data)
+    except ValueError:
+        return -1
+    except TypeError:
+        return -2
+'''
+
+[test.assertions]
+contains = ["fn parse_data"]
+contains_any = [["match", "if let"]]
+
+[[test]]
+name = "three_exception_types"
+description = "Test try with three exception handlers"
+tags = ["exception", "multiple"]
+
+[test.python]
+code = '''
+def safe_operation(x: int) -> int:
+    try:
+        result = x * 2
+        return result
+    except ValueError:
+        return -1
+    except KeyError:
+        return -2
+    except IndexError:
+        return -3
+'''
+
+[test.assertions]
+contains = ["fn safe_operation"]
+
+[[test]]
+name = "specific_then_bare_except"
+description = "Test specific exception followed by bare except"
+tags = ["exception", "fallback"]
+
+[test.python]
+code = '''
+def handle_errors(data: str) -> str:
+    try:
+        return data.upper()
+    except ValueError:
+        return "value_error"
+    except:
+        return "unknown_error"
+'''
+
+[test.assertions]
+contains = ["fn handle_errors"]
+
+[[test]]
+name = "multiple_exceptions_one_handler"
+description = "Test multiple exceptions in one handler (tuple)"
+tags = ["exception", "tuple"]
+
+[test.python]
+code = '''
+def process(data: str) -> int:
+    try:
+        return int(data)
+    except (ValueError, TypeError):
+        return 0
+'''
+
+[test.assertions]
+contains = ["fn process"]
+
+[[test]]
+name = "handlers_with_return_values"
+description = "Test multiple handlers each with different return values"
+tags = ["exception", "return"]
+
+[test.python]
+code = '''
+def get_value(data: dict, key: str) -> str:
+    try:
+        return data[key]
+    except KeyError:
+        return "default_key"
+    except TypeError:
+        return "default_type"
+'''
+
+[test.assertions]
+contains = ["fn get_value"]
+
+[[test]]
+name = "different_exception_variables"
+description = "Test handlers with different exception variable names"
+tags = ["exception", "variables"]
+
+[test.python]
+code = '''
+def handle_with_vars(data: str) -> str:
+    try:
+        return data.upper()
+    except ValueError as ve:
+        return str(ve)
+    except TypeError as te:
+        return str(te)
+'''
+
+[test.assertions]
+contains = ["fn handle_with_vars"]
+
+# ============================================================================
+# Phase 3: Finally Clause
+# ============================================================================
+
+[[test]]
+name = "simple_try_finally"
+description = "Test simple try/finally without except"
+tags = ["exception", "finally"]
+
+[test.python]
+code = '''
+def cleanup_operation(x: int) -> int:
+    try:
+        result = x * 2
+        return result
+    finally:
+        print("cleanup")
+'''
+
+[test.assertions]
+contains = ["fn cleanup_operation"]
+contains_any = [["print", "println"]]
+
+[[test]]
+name = "try_except_finally"
+description = "Test try/except/finally pattern"
+tags = ["exception", "finally"]
+
+[test.python]
+code = '''
+def safe_divide(a: int, b: int) -> int:
+    try:
+        return a // b
+    except ZeroDivisionError:
+        return 0
+    finally:
+        print("operation complete")
+'''
+
+[test.assertions]
+contains = ["fn safe_divide"]
+
+[[test]]
+name = "finally_with_return_in_try"
+description = "Test finally with return in try block"
+tags = ["exception", "finally", "return"]
+
+[test.python]
+code = '''
+def process_with_cleanup(x: int) -> int:
+    count = 0
+    try:
+        count = x * 2
+        return count
+    finally:
+        count = count + 1
+'''
+
+[test.assertions]
+contains = ["fn process_with_cleanup"]
+
+[[test]]
+name = "finally_with_exception"
+description = "Test finally with exception handler"
+tags = ["exception", "finally"]
+
+[test.python]
+code = '''
+def handle_with_cleanup(data: str) -> int:
+    result = 0
+    try:
+        result = int(data)
+        return result
+    except ValueError:
+        result = -1
+        return result
+    finally:
+        print("cleanup executed")
+'''
+
+[test.assertions]
+contains = ["fn handle_with_cleanup"]
+
+[[test]]
+name = "finally_with_variable_assignment"
+description = "Test finally with variable assignment"
+tags = ["exception", "finally", "variable"]
+
+[test.python]
+code = '''
+def track_execution(x: int) -> int:
+    executed = False
+    try:
+        result = x * 2
+        return result
+    finally:
+        executed = True
+'''
+
+[test.assertions]
+contains = ["fn track_execution"]
+
+[[test]]
+name = "try_except_else_finally"
+description = "Test complete try/except/else/finally pattern"
+tags = ["exception", "else", "finally"]
+
+[test.python]
+code = '''
+def complete_pattern(x: int) -> int:
+    try:
+        result = x * 2
+    except ValueError:
+        result = -1
+    else:
+        result = result + 1
+    finally:
+        print("done")
+    return result
+'''
+
+[test.assertions]
+contains = ["fn complete_pattern"]
+
+# ============================================================================
+# Complex Patterns
+# ============================================================================
+
+[[test]]
+name = "handlers_with_side_effects"
+description = "Test handlers with print side effects"
+tags = ["exception", "side-effects"]
+
+[test.python]
+code = '''
+def log_errors(x: int) -> int:
+    try:
+        result = x * 2
+        return result
+    except ValueError:
+        print("ValueError occurred")
+        return 0
+    except TypeError:
+        print("TypeError occurred")
+        return -1
+'''
+
+[test.assertions]
+contains = ["fn log_errors"]
+
+[[test]]
+name = "chained_exception_handlers"
+description = "Test chained/nested exception handling"
+tags = ["exception", "chained", "nested"]
+
+[test.python]
+code = '''
+def chained_handling(data: list) -> int:
+    try:
+        return data[0]
+    except IndexError:
+        try:
+            return len(data)
+        except TypeError:
+            return -1
+    except ValueError:
+        return -2
+'''
+
+[test.assertions]
+contains = ["fn chained_handling"]
+
+[[test]]
+name = "complex_exception_pattern"
+description = "Test complex exception pattern with multiple handlers"
+tags = ["exception", "complex"]
+
+[test.python]
+code = '''
+def complex_handling(a: int, b: int, c: int) -> int:
+    result = 0
+    try:
+        temp = a // b
+        result = temp * c
+        return result
+    except ZeroDivisionError:
+        result = a * c
+        return result
+    except ValueError:
+        result = b * c
+        return result
+    except TypeError:
+        result = -1
+        return result
+    except:
+        result = -2
+        return result
+'''
+
+[test.assertions]
+contains = ["fn complex_handling"]

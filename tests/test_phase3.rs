@@ -3,7 +3,7 @@
 // 2. dict merge operator | → .extend() (1 error)
 // 3. sum type inference → remove redundant .collect().iter() (1 error)
 
-use crate::test_helpers::transpile;
+use crate::test_helpers::transpile_and_check;
 
 // ========== Fix #6: zip iterator ownership ==========
 
@@ -14,7 +14,7 @@ def create_from_lists(keys: list[str], values: list[int]) -> dict[str, int]:
     return dict(zip(keys, values))
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
 
 
@@ -47,7 +47,7 @@ def pair_lists(a: list[str], b: list[int]) -> list[tuple[str, int]]:
     return list(zip(a, b))
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
 
 
@@ -69,7 +69,7 @@ def merge_with_pipe(d1: dict[str, int], d2: dict[str, int]) -> dict[str, int]:
     return d1 | d2
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
 
 
@@ -101,7 +101,7 @@ def average_values(d: dict[str, int]) -> float:
     return sum(d.values()) / len(d)
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
 
 
@@ -127,7 +127,7 @@ def sum_list(nums: list[int]) -> int:
     return sum(nums)
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
 
 
@@ -158,7 +158,7 @@ def process_lists(keys: list[str], values: list[int]) -> float:
     return sum(d.values()) / len(d)
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
 
 
@@ -185,7 +185,7 @@ def zip_literals() -> dict[str, int]:
     return dict(zip(["a", "b", "c"], [1, 2, 3]))
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
 
 

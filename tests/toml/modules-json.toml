@@ -1,0 +1,173 @@
+# JSON Module Tests - Migrated from test_json_unit.rs, test_json_basics_unit.rs
+
+[metadata]
+name = "JSON Module Tests"
+category = "stdlib-json"
+
+# =============================================================================
+# JSON Serialization
+# =============================================================================
+
+[[test]]
+name = "json_dumps"
+description = "json.dumps() serialization"
+tags = ["json", "serialize"]
+
+[test.python]
+code = '''
+import json
+
+def serialize_data(data: dict) -> str:
+    return json.dumps(data)
+'''
+
+[test.assertions]
+contains_any = [["serde_json", "to_string"]]
+
+[[test]]
+name = "json_dumps_indent"
+description = "json.dumps() with indentation"
+tags = ["json", "serialize", "pretty"]
+
+[test.python]
+code = '''
+import json
+
+def pretty_json(data: dict) -> str:
+    return json.dumps(data, indent=2)
+'''
+
+[test.assertions]
+contains_any = [["serde_json::to_string_pretty", "to_string_pretty"]]
+
+# =============================================================================
+# JSON Deserialization
+# =============================================================================
+
+[[test]]
+name = "json_loads"
+description = "json.loads() deserialization"
+tags = ["json", "deserialize"]
+
+[test.python]
+code = '''
+import json
+
+def deserialize_data(s: str) -> dict:
+    return json.loads(s)
+'''
+
+[test.assertions]
+contains_any = [["serde_json", "from_str"]]
+
+# =============================================================================
+# JSON with Types
+# =============================================================================
+
+[[test]]
+name = "json_list"
+description = "JSON with list data"
+tags = ["json", "list"]
+
+[test.python]
+code = '''
+import json
+
+def parse_array(s: str) -> list:
+    return json.loads(s)
+'''
+
+[test.assertions]
+contains_any = [["Vec<", "serde_json::Value"]]
+
+[[test]]
+name = "json_nested"
+description = "JSON with nested structure"
+tags = ["json", "nested"]
+
+[test.python]
+code = '''
+import json
+
+def get_nested_value(s: str, key1: str, key2: str):
+    data = json.loads(s)
+    return data[key1][key2]
+'''
+
+[test.assertions]
+contains_any = [["serde_json::Value", "HashMap", "get"]]
+
+# =============================================================================
+# JSON Value Access
+# =============================================================================
+
+[[test]]
+name = "json_get_string"
+description = "Get string from JSON"
+tags = ["json", "access"]
+
+[test.python]
+code = '''
+import json
+
+def get_name(s: str) -> str:
+    data = json.loads(s)
+    return data["name"]
+'''
+
+[test.assertions]
+contains_any = [["get(", "serde_json"]]
+
+[[test]]
+name = "json_get_number"
+description = "Get number from JSON"
+tags = ["json", "access"]
+
+[test.python]
+code = '''
+import json
+
+def get_age(s: str) -> int:
+    data = json.loads(s)
+    return data["age"]
+'''
+
+[test.assertions]
+contains_any = [["get(", "serde_json", "as_i64"]]
+
+# =============================================================================
+# JSON Building
+# =============================================================================
+
+[[test]]
+name = "json_build_dict"
+description = "Build JSON from dict"
+tags = ["json", "build"]
+
+[test.python]
+code = '''
+import json
+
+def create_json(name: str, age: int) -> str:
+    data = {"name": name, "age": age}
+    return json.dumps(data)
+'''
+
+[test.assertions]
+contains_any = [["HashMap", "serde_json", "to_string"]]
+
+[[test]]
+name = "json_build_list"
+description = "Build JSON array"
+tags = ["json", "build"]
+
+[test.python]
+code = '''
+import json
+
+def create_array(items: list[int]) -> str:
+    return json.dumps(items)
+'''
+
+[test.assertions]
+contains_any = [["Vec", "serde_json", "to_string"]]

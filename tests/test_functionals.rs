@@ -1,5 +1,5 @@
 use crate::test_helpers;
-use crate::test_helpers::transpile;
+use crate::test_helpers::transpile_and_check;
 
 // use serde_json::json;  // Not needed since test is commented out
 
@@ -74,7 +74,6 @@ async fn test_mcp_server_functionality() {
 }
 
 #[test]
-#[ignore]
 fn test_cli_functionality() {
     use std::fs;
     use std::process::Command;
@@ -129,11 +128,10 @@ fn test_integration_transpilation_pipeline() {
 
     println!("🧪 Testing Core Transpilation Pipeline");
 
-    let pipeline = DepylerPipeline::new();
 
     // Test simple function
     let python_code = "def square(n: int) -> int:\n    return n * n";
-    let result: Result<String, String> = Ok(transpile(python_code));
+    let result: Result<String, String> = Ok(transpile_and_check(python_code, &[]));
 
     assert!(result.is_ok(), "Simple function should transpile successfully");
 

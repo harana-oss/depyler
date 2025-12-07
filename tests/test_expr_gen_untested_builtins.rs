@@ -13,7 +13,7 @@
 //! - range() with negative/positive steps
 
 use crate::test_helpers;
-use crate::test_helpers::transpile;
+use crate::test_helpers::transpile_and_check;
 
 // ============================================================================
 // ARITHMETIC BUILTINS
@@ -27,7 +27,7 @@ def test_divmod(a: int, b: int):
     return quotient
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated divmod code:\n{}", rust_code);
 
     // divmod(a, b) should generate tuple (a / b, a % b) or dedicated logic
@@ -38,14 +38,13 @@ def test_divmod(a: int, b: int):
 }
 
 #[test]
-#[ignore]
 fn test_pow_builtin_with_modulo() {
         let python_code = r#"
 def test_pow(base: int, exp: int, modulo: int) -> int:
     return pow(base, exp, modulo)
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated pow with modulo code:\n{}", rust_code);
 
     // pow(base, exp, mod) should use modular exponentiation
@@ -66,7 +65,7 @@ def test_hex(num: int) -> str:
     return hex(num)
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated hex() code:\n{}", rust_code);
 
     // hex(n) should generate format!("0x{:x}", n) or similar
@@ -83,7 +82,7 @@ def test_bin(num: int) -> str:
     return bin(num)
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated bin() code:\n{}", rust_code);
 
     // bin(n) should generate format!("0b{:b}", n) or similar
@@ -100,7 +99,7 @@ def test_oct(num: int) -> str:
     return oct(num)
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated oct() code:\n{}", rust_code);
 
     // oct(n) should generate format!("0o{:o}", n) or similar
@@ -117,7 +116,7 @@ def test_chr(code: int) -> str:
     return chr(code)
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated chr() code:\n{}", rust_code);
 
     // chr(n) should generate char::from_u32() or from_u32_unchecked()
@@ -134,7 +133,7 @@ def test_ord(c: str) -> int:
     return ord(c)
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated ord() code:\n{}", rust_code);
 
     // ord(c) should generate char as u32 or similar
@@ -155,7 +154,7 @@ def test_hash(obj: int) -> int:
     return hash(obj)
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated hash() code:\n{}", rust_code);
 
     // hash(obj) should generate hasher or hash computation
@@ -172,7 +171,7 @@ def test_repr(obj: int) -> str:
     return repr(obj)
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated repr() code:\n{}", rust_code);
 
     // repr(obj) should generate format!("{:?}", obj) or Debug trait
@@ -189,7 +188,7 @@ def test_type(obj: int) -> str:
     return type(obj).__name__
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated type() code:\n{}", rust_code);
 
     // type(obj) should generate type_name or similar introspection
@@ -210,7 +209,7 @@ def test_getattr(p: Point, attr: str):
     return getattr(p, attr, 0)
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated getattr() code:\n{}", rust_code);
 
     // getattr(obj, name, default) should generate field access or match
@@ -231,7 +230,7 @@ def test_setattr(p: Point):
     setattr(p, "x", 42)
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated setattr() code:\n{}", rust_code);
 
     // setattr(obj, "attr", value) should generate obj.attr = value
@@ -253,7 +252,7 @@ def test_next(items: list):
     return next(it)
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated next() code:\n{}", rust_code);
 
     // next(iter) should generate .next() method call
@@ -271,7 +270,7 @@ def test_next(items: list):
     return next(it, -1)
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated next() with default code:\n{}", rust_code);
 
     // next(iter, default) should generate .next().unwrap_or(default)
@@ -288,7 +287,7 @@ def test_iter(items: list):
     return iter(items)
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated iter() code:\n{}", rust_code);
 
     // iter(obj) should generate .iter() or .into_iter()
@@ -305,7 +304,7 @@ def test_reversed(items: list):
     return reversed(items)
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated reversed() code:\n{}", rust_code);
 
     // reversed(seq) should generate .iter().rev() or .reverse()
@@ -316,7 +315,6 @@ def test_reversed(items: list):
 }
 
 #[test]
-#[ignore]
 fn test_enumerate_with_start() {
         let python_code = r#"
 def test_enumerate(items: list):
@@ -324,7 +322,7 @@ def test_enumerate(items: list):
         print(idx, val)
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated enumerate(start=10) code:\n{}", rust_code);
 
     // enumerate(iter, start=10) should generate .enumerate() with offset
@@ -345,7 +343,7 @@ def test_frozenset(items: list):
     return frozenset(items)
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated frozenset() code:\n{}", rust_code);
 
     // frozenset(iter) should generate HashSet (immutable in Rust by default)
@@ -362,7 +360,7 @@ def test_frozenset():
     return frozenset({1, 2, 3})
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated frozenset literal code:\n{}", rust_code);
 
     // frozenset({...}) should generate HashSet
@@ -383,7 +381,7 @@ def test_range():
     return list(range(10, 0, -1))
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated range(10, 0, -1) code:\n{}", rust_code);
 
     // range(start, stop, -step) should generate reverse iteration
@@ -400,7 +398,7 @@ def test_range():
     return list(range(0, 20, 2))
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated range(0, 20, 2) code:\n{}", rust_code);
 
     // range(start, stop, step) should generate .step_by(step)
@@ -417,7 +415,7 @@ def test_range():
     return list(range(5))
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated range(5) code:\n{}", rust_code);
 
     // range(n) should generate (0..n)

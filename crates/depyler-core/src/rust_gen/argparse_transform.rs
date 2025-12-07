@@ -757,7 +757,7 @@ pub fn generate_args_struct(parser_info: &ArgParserInfo, tracker: &ArgParserTrac
 
     // Generate the struct
     quote! {
-        #[derive(clap::Parser)]
+        #[derive(Debug, clap::Parser)]
         #(#command_attrs)*
         struct Args {
             #(#fields),*

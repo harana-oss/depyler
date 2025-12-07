@@ -11,22 +11,20 @@
 //! - Bare raise (no exception specified)
 //! - Different exception types
 
-use crate::test_helpers::transpile;
-use depyler_core::DepylerPipeline;
+use crate::test_helpers::transpile_and_check;
 
 /// Unit Test: Simple raise in can-fail function
 ///
 /// Verifies: return Err() generation (lines 324-336)
 #[test]
 fn test_raise_in_can_fail_function() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 def validate_positive(x: int) -> int:
     if x < 0:
         raise ValueError("Must be positive")
     return x
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn validate_positive"));
 }
@@ -36,14 +34,13 @@ def validate_positive(x: int) -> int:
 /// Verifies: Exception type extraction and handling
 #[test]
 fn test_raise_specific_exception() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 def check_bounds(x: int, max_val: int) -> int:
     if x > max_val:
         raise IndexError("Out of bounds")
     return x
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn check_bounds"));
 }
@@ -53,7 +50,6 @@ def check_bounds(x: int, max_val: int) -> int:
 /// Verifies: Multiple exception paths
 #[test]
 fn test_multiple_raise_statements() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 def validate_range(x: int) -> int:
     if x < 0:
@@ -62,7 +58,7 @@ def validate_range(x: int) -> int:
         raise ValueError("Too large")
     return x
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn validate_range"));
 }
@@ -72,14 +68,13 @@ def validate_range(x: int) -> int:
 /// Verifies: Exception expression generation (line 314)
 #[test]
 fn test_raise_with_formatted_message() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 def divide_safe(a: int, b: int) -> int:
     if b == 0:
         raise ZeroDivisionError("Cannot divide by zero")
     return a / b
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn divide_safe"));
 }
@@ -89,7 +84,6 @@ def divide_safe(a: int, b: int) -> int:
 /// Verifies: Raise within nested scope
 #[test]
 fn test_raise_in_nested_if() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 def complex_validation(x: int, y: int) -> int:
     if x > 0:
@@ -98,7 +92,7 @@ def complex_validation(x: int, y: int) -> int:
         return x + y
     raise ValueError("x must be positive")
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn complex_validation"));
 }
@@ -108,7 +102,6 @@ def complex_validation(x: int, y: int) -> int:
 /// Verifies: Early exit from iteration
 #[test]
 fn test_raise_in_loop() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 def find_or_fail(items: list[int], target: int) -> int:
     for item in items:
@@ -116,7 +109,7 @@ def find_or_fail(items: list[int], target: int) -> int:
             return item
     raise ValueError("Not found")
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn find_or_fail"));
 }
@@ -126,7 +119,6 @@ def find_or_fail(items: list[int], target: int) -> int:
 /// Verifies: Raise as final statement
 #[test]
 fn test_raise_after_statements() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 def process_or_fail(x: int) -> int:
     y = x * 2
@@ -135,7 +127,7 @@ def process_or_fail(x: int) -> int:
         raise ValueError("Result too large")
     return z
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn process_or_fail"));
 }
@@ -145,7 +137,6 @@ def process_or_fail(x: int) -> int:
 /// Verifies: Multiple exception type handling
 #[test]
 fn test_different_exception_types() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 def validate_input(x: int) -> int:
     if x < 0:
@@ -156,7 +147,7 @@ def validate_input(x: int) -> int:
         raise IndexError("Too large")
     return x
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn validate_input"));
 }
@@ -166,14 +157,13 @@ def validate_input(x: int) -> int:
 /// Verifies: Expression evaluation in exception
 #[test]
 fn test_raise_with_variable_message() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 def check_minimum(x: int, min_val: int) -> int:
     if x < min_val:
         raise ValueError("Value must be >= minimum")
     return x
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn check_minimum"));
 }
@@ -183,7 +173,6 @@ def check_minimum(x: int, min_val: int) -> int:
 /// Verifies: Raise in conditional branches
 #[test]
 fn test_raise_in_elif() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 def categorize_or_fail(x: int) -> str:
     if x < 0:
@@ -193,7 +182,7 @@ def categorize_or_fail(x: int) -> str:
     else:
         return "positive"
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn categorize_or_fail"));
 }
@@ -203,14 +192,13 @@ def categorize_or_fail(x: int) -> str:
 /// Verifies: Exception without arguments
 #[test]
 fn test_raise_simple_exception() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 def fail_fast(x: int) -> int:
     if x < 0:
         raise ValueError("error")
     return x
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn fail_fast"));
 }
@@ -220,7 +208,6 @@ def fail_fast(x: int) -> int:
 /// Verifies: Exception handling within try blocks
 #[test]
 fn test_raise_in_try_except() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 def nested_validation(x: int) -> int:
     try:
@@ -230,7 +217,7 @@ def nested_validation(x: int) -> int:
     except ValueError:
         raise RuntimeError("validation failed")
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn nested_validation"));
 }
@@ -240,7 +227,6 @@ def nested_validation(x: int) -> int:
 /// Verifies: All raise patterns together
 #[test]
 fn test_complex_exception_patterns() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 def complex_process(items: list[int], threshold: int) -> int:
     if len(items) == 0:
@@ -259,7 +245,7 @@ def complex_process(items: list[int], threshold: int) -> int:
     
     return total
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn complex_process"));
 }
@@ -269,7 +255,6 @@ def complex_process(items: list[int], threshold: int) -> int:
 /// Property: Different raise patterns are valid
 #[test]
 fn test_property_raise_patterns() {
-    let pipeline = DepylerPipeline::new();
 
     let test_cases = vec![
         ("simple", "if x < 0:\n        raise ValueError(\"error\")"),
@@ -292,7 +277,7 @@ def test_{}(x: int, items: list[int]) -> int:
 "#,
             name, raise_stmt
         );
-        let result: Result<String, String> = Ok(transpile(&python_code));
+        let result: Result<String, String> = Ok(transpile_and_check(&python_code, &[]));
 
         assert!(
             result.is_ok(),
@@ -311,7 +296,6 @@ def test_{}(x: int, items: list[int]) -> int:
 /// 3. Error path generation
 #[test]
 fn test_mutation_exception_paths() {
-    let pipeline = DepylerPipeline::new();
 
     // Test Case 1: Can-fail function must generate return Err
     let can_fail = r#"
@@ -320,7 +304,7 @@ def test1(x: int) -> int:
         raise ValueError("neg")
     return x
 "#;
-    let rust1 = transpile(can_fail);
+    let rust1 = transpile_and_check(can_fail, &[]);
     assert!(rust1.contains("fn test1"));
 
     // Test Case 2: Different exception types
@@ -332,7 +316,7 @@ def test2(x: int) -> int:
         raise ZeroDivisionError("zero")
     return x
 "#;
-    let rust2 = transpile(multi_type);
+    let rust2 = transpile_and_check(multi_type, &[]);
     assert!(rust2.contains("fn test2"));
 
     // Test Case 3: Raise after other statements
@@ -344,6 +328,6 @@ def test3(x: int) -> int:
         raise ValueError("big")
     return z
 "#;
-    let rust3 = transpile(after_stmts);
+    let rust3 = transpile_and_check(after_stmts, &[]);
     assert!(rust3.contains("fn test3"));
 }

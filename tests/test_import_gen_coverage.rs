@@ -9,8 +9,7 @@
 //! - Property tests for import mapping correctness
 //! - Mutation tests for import path generation
 
-use crate::test_helpers::transpile;
-use depyler_core::DepylerPipeline;
+use crate::test_helpers::transpile_and_check;
 
 /// Unit Test: Whole module import (e.g., `import math`)
 ///
@@ -18,14 +17,13 @@ use depyler_core::DepylerPipeline;
 /// Coverage: Lines 19-21 in import_gen.rs
 #[test]
 fn test_whole_module_import() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 import math
 
 def use_math():
     return math.sqrt(16)
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // Should not generate 'use' statement for unrecognized module
     // Module mapper handles known modules only
@@ -38,7 +36,6 @@ def use_math():
 /// Coverage: Lines 70-81 in import_gen.rs
 #[test]
 fn test_specific_items_import_typing() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 from typing import List, Dict
 
@@ -46,7 +43,7 @@ def typed_func(items: List[int]) -> Dict[str, int]:
     result = {}
     return result
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // Typing imports should map to Rust equivalents
     assert!(rust_code.contains("Vec<i32>") || rust_code.contains("vec"));
@@ -59,7 +56,6 @@ def typed_func(items: List[int]) -> Dict[str, int]:
 /// Coverage: Lines 76-78 in import_gen.rs
 #[test]
 fn test_aliased_import() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 from typing import List as L, Dict as D
 
@@ -67,7 +63,7 @@ def aliased_func(items: L[str]) -> D[str, int]:
     result = {}
     return result
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // Aliased types should still map correctly
     assert!(rust_code.contains("Vec") || rust_code.contains("HashMap"));
@@ -79,7 +75,6 @@ def aliased_func(items: L[str]) -> D[str, int]:
 /// Coverage: Lines 47-49 in import_gen.rs
 #[test]
 fn test_typing_module_special_handling() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 from typing import Optional
 
@@ -88,7 +83,7 @@ def maybe_value(x: Optional[int]) -> int:
         return 0
     return x
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // Optional should map to Option without full path
     assert!(rust_code.contains("Option<i32>"));
@@ -100,7 +95,6 @@ def maybe_value(x: Optional[int]) -> int:
 /// Coverage: Lines 71-80 in import_gen.rs
 #[test]
 fn test_multiple_items_same_module() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 from typing import List, Dict, Set, Tuple
 
@@ -109,7 +103,7 @@ def multi_import() -> Tuple[List[int], Set[str]]:
     names = {"a", "b"}
     return (items, names)
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // All typing imports should be processed
     assert!(rust_code.contains("fn multi_import"));
@@ -121,7 +115,6 @@ def multi_import() -> Tuple[List[int], Set[str]]:
 /// Coverage: Lines 111-112 in import_gen.rs
 #[test]
 fn test_empty_items_whole_module() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 import collections
 
@@ -129,7 +122,7 @@ def use_collections():
     data = {"a": 1}
     return data
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // Whole module import path
     assert!(rust_code.contains("fn use_collections"));
@@ -141,14 +134,13 @@ def use_collections():
 /// Coverage: Lines 73-75 in import_gen.rs
 #[test]
 fn test_named_import_item() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 from typing import Any
 
 def accepts_any(value: Any) -> Any:
     return value
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // Named import should be processed
     assert!(rust_code.contains("fn accepts_any"));
@@ -160,7 +152,6 @@ def accepts_any(value: Any) -> Any:
 /// Coverage: Lines 50-55 in import_gen.rs
 #[test]
 fn test_empty_rust_path() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 from typing import TypeVar
 
@@ -169,7 +160,7 @@ T = TypeVar('T')
 def generic_func(value: T) -> T:
     return value
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // Should handle TypeVar correctly
     assert!(rust_code.contains("fn generic_func"));
@@ -190,7 +181,6 @@ fn test_mutation_import_mapping_correctness() {
     // 2. typing module gets full path when it shouldn't
     // 3. Aliased imports use wrong key
 
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 from typing import List, Optional
 
@@ -199,7 +189,7 @@ def list_func(items: List[int]) -> Optional[str]:
         return None
     return "ok"
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // MUTATION KILL: Typing imports must not have full paths
     assert!(
@@ -219,7 +209,6 @@ def list_func(items: List[int]) -> Optional[str]:
 /// Property: Processing imports multiple times should produce same result
 #[test]
 fn test_import_processing_idempotency() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 from typing import List
 
@@ -230,8 +219,8 @@ def func2(items: List[str]) -> int:
     return len(items)
 "#;
 
-    let rust_code_1 = transpile(python_code);
-    let rust_code_2 = transpile(python_code);
+    let rust_code_1 = transpile_and_check(python_code, &[]);
+    let rust_code_2 = transpile_and_check(python_code, &[]);
 
     // Should produce identical output
     assert_eq!(rust_code_1, rust_code_2, "Import processing should be deterministic");
@@ -243,14 +232,13 @@ def func2(items: List[str]) -> int:
 /// Coverage: Lines 19-21, 70 (None case)
 #[test]
 fn test_unmapped_import() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 import unknown_module
 
 def use_unknown():
     return 42
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // Should not fail on unknown imports
     assert!(rust_code.contains("fn use_unknown"));
@@ -262,7 +250,6 @@ def use_unknown():
 /// Coverage: Lines 110-116 (loop with both branches)
 #[test]
 fn test_mixed_import_styles() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 import math
 from typing import List
@@ -271,7 +258,7 @@ def mixed():
     items: List[int] = [1, 2, 3]
     return len(items)
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // Both import styles should be handled
     assert!(rust_code.contains("fn mixed"));
@@ -282,7 +269,6 @@ def mixed():
 /// Verifies: All import processing paths together
 #[test]
 fn test_complex_import_scenario() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 from typing import List, Dict, Optional, Set
 from typing import Tuple as T
@@ -295,7 +281,7 @@ def complex_types(
 ) -> bool:
     return True
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // All imports should be processed correctly
     assert!(rust_code.contains("fn complex_types"));

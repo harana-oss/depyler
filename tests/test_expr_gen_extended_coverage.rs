@@ -10,7 +10,7 @@
 //! - TIER 4: Slice and index operations (negative indices, steps, complex expressions)
 
 use crate::test_helpers;
-use crate::test_helpers::transpile;
+use crate::test_helpers::transpile_and_check;
 
 // ============================================================================
 // TIER 1: Critical Error Paths - Keyword Conflicts
@@ -29,7 +29,7 @@ def use_reserved():
     value = 42
     return value
 "#;
-    let result: Result<String, String> = Ok(transpile(python_code));
+    let result: Result<String, String> = Ok(transpile_and_check(python_code, &[]));
 
     // Should successfully transpile (doesn't actually conflict since 'self' isn't used as var)
     assert!(result.is_ok());
@@ -43,7 +43,7 @@ def process():
     result = 100
     return result
 "#;
-    let result: Result<String, String> = Ok(transpile(python_code));
+    let result: Result<String, String> = Ok(transpile_and_check(python_code, &[]));
 
     assert!(result.is_ok());
 }
@@ -64,7 +64,7 @@ fn test_map_with_four_iterables_unsupported() {
 def combine_pairs(list1: list[int], list2: list[int]) -> list[int]:
     return list(map(lambda a, b: a + b, list1, list2))
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn combine_pairs"));
     // Should use zip pattern for 2 iterables
@@ -77,7 +77,7 @@ fn test_map_with_three_iterables_boundary() {
 def triple_combine(a: list[int], b: list[int], c: list[int]) -> list[int]:
     return list(map(lambda x, y, z: x + y + z, a, b, c))
 "#;
-    let result: Result<String, String> = Ok(transpile(python_code));
+    let result: Result<String, String> = Ok(transpile_and_check(python_code, &[]));
 
     // Should handle 3 iterables (izip3 pattern)
     assert!(
@@ -100,7 +100,7 @@ fn test_in_operator_string_contains() {
 def check_substring(text: str, pattern: str) -> bool:
     return pattern in text
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn check_substring"));
     assert!(rust_code.contains("contains") || rust_code.contains("bool"));
@@ -116,7 +116,7 @@ fn test_not_in_operator_dict() {
 def check_key_missing(data: dict[str, int], key: str) -> bool:
     return key not in data
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn check_key_missing"));
     // Should handle dict membership check negation
@@ -129,7 +129,7 @@ fn test_in_operator_list_contains() {
 def is_present(items: list[int], value: int) -> bool:
     return value in items
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn is_present"));
     assert!(rust_code.contains("contains") || rust_code.contains("bool"));
@@ -149,7 +149,7 @@ fn test_unary_not_on_list() {
 def is_list_empty(items: list[int]) -> bool:
     return not items
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn is_list_empty"));
     // Should generate .is_empty() for collection emptiness check
@@ -162,7 +162,7 @@ fn test_unary_not_on_bool() {
 def negate_flag(enabled: bool) -> bool:
     return not enabled
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn negate_flag"));
     assert!(rust_code.contains("!") || rust_code.contains("not"));
@@ -182,7 +182,7 @@ fn test_int_cast_from_string() {
 def parse_number(text: str) -> int:
     return int(text)
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn parse_number"));
     // Should use .parse() for string-to-int conversion
@@ -195,7 +195,7 @@ fn test_int_cast_from_float() {
 def truncate_float(value: float) -> int:
     return int(value)
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn truncate_float"));
     // Should use "as i32" cast for numeric conversion
@@ -215,7 +215,7 @@ fn test_list_comp_with_range() {
 def squares() -> list[int]:
     return [x * x for x in range(10)]
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn squares"));
     assert!(rust_code.contains("map") || rust_code.contains("collect"));
@@ -228,7 +228,7 @@ fn test_list_comp_range_with_filter() {
 def even_squares() -> list[int]:
     return [x * x for x in range(10) if x % 2 == 0]
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn even_squares"));
     assert!(rust_code.contains("filter") || rust_code.contains("if"));
@@ -241,7 +241,7 @@ fn test_list_comp_with_list_variable() {
 def double_items(items: list[int]) -> list[int]:
     return [x * 2 for x in items]
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn double_items"));
 }
@@ -260,7 +260,7 @@ fn test_set_comp_no_condition() {
 def unique_doubles(items: list[int]) -> set[int]:
     return {x * 2 for x in items}
 "#;
-    let result: Result<String, String> = Ok(transpile(python_code));
+    let result: Result<String, String> = Ok(transpile_and_check(python_code, &[]));
 
     // Set comprehensions should work
     assert!(result.is_ok() || result.is_err(), "Set comp handled");
@@ -276,7 +276,7 @@ fn test_dict_comp_with_condition() {
 def even_mapping() -> dict[int, int]:
     return {i: i * 2 for i in range(10) if i % 2 == 0}
 "#;
-    let result: Result<String, String> = Ok(transpile(python_code));
+    let result: Result<String, String> = Ok(transpile_and_check(python_code, &[]));
 
     // Dict comprehensions should work
     assert!(result.is_ok() || result.is_err(), "Dict comp handled");
@@ -296,7 +296,7 @@ fn test_string_slice_with_step() {
 def every_other_char(text: str) -> str:
     return text[::2]
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn every_other_char"));
 }
@@ -308,7 +308,7 @@ fn test_string_slice_negative_step() {
 def reverse_string(text: str) -> str:
     return text[::-1]
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn reverse_string"));
     // Should handle string reversal
@@ -321,7 +321,7 @@ fn test_string_slice_range() {
 def substring(text: str) -> str:
     return text[1:4]
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn substring"));
 }
@@ -340,7 +340,7 @@ fn test_list_slice_negative_indices() {
 def last_three(items: list[int]) -> list[int]:
     return items[-3:]
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn last_three"));
 }
@@ -352,7 +352,7 @@ fn test_list_slice_negative_range() {
 def middle_section(items: list[int]) -> list[int]:
     return items[-5:-2]
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn middle_section"));
 }
@@ -371,7 +371,7 @@ fn test_lambda_no_params() {
 def get_constant_function():
     return lambda: 42
 "#;
-    let result: Result<String, String> = Ok(transpile(python_code));
+    let result: Result<String, String> = Ok(transpile_and_check(python_code, &[]));
 
     // Should handle parameterless lambda
     assert!(
@@ -390,7 +390,7 @@ fn test_fstring_literal_only() {
 def get_message() -> str:
     return f"hello world"
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn get_message"));
 }
@@ -402,7 +402,7 @@ fn test_fstring_with_expressions() {
 def greet(name: str, age: int) -> str:
     return f"Hello {name}, you are {age} years old"
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn greet"));
     assert!(rust_code.contains("format!") || rust_code.contains("String"));
@@ -432,7 +432,7 @@ def test_{}_op(a: int, b: int) -> bool:
 "#,
             name, op
         );
-        let result: Result<String, String> = Ok(transpile(&python_code));
+        let result: Result<String, String> = Ok(transpile_and_check(&python_code, &[]));
 
         assert!(
             result.is_ok(),
@@ -468,7 +468,7 @@ def test_{}_op(value: int) -> int:
             )
         };
 
-        let result: Result<String, String> = Ok(transpile(&python_code));
+        let result: Result<String, String> = Ok(transpile_and_check(&python_code, &[]));
 
         assert!(
             result.is_ok(),
@@ -486,7 +486,7 @@ fn test_integration_complex_comprehension() {
 def process_data(numbers: list[int]) -> list[int]:
     return [x * 2 for x in numbers if x > 0 and x < 100]
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn process_data"));
 }
@@ -501,7 +501,7 @@ def string_processing(text: str) -> str:
     else:
         return text[::-1]
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn string_processing"));
 }
@@ -515,7 +515,7 @@ def check_and_convert(data: dict[str, int], key: str, value_str: str) -> int:
         return int(value_str)
     return data[key]
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn check_and_convert"));
 }

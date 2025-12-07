@@ -1,0 +1,289 @@
+# Assignment Tests - Migrated from test_assignment.rs, test_stmt_gen_assign_coverage.rs,
+# test_stmt_gen_assign_index_coverage.rs, test_stmt_gen_assign_symbol_coverage.rs
+
+[metadata]
+name = "Assignment Tests"
+category = "assignment"
+
+# =============================================================================
+# Basic Variable Assignment
+# =============================================================================
+
+[[test]]
+name = "assign_integer"
+description = "Simple integer assignment"
+tags = ["assignment", "integer"]
+
+[test.python]
+code = '''
+def assign_int():
+    x = 42
+    return x
+'''
+
+[test.assertions]
+contains = ["let x = 42"]
+
+[[test]]
+name = "assign_string"
+description = "Simple string assignment"
+tags = ["assignment", "string"]
+
+[test.python]
+code = '''
+def assign_str():
+    s = "hello"
+    return s
+'''
+
+[test.assertions]
+contains = ["let s"]
+
+[[test]]
+name = "assign_list"
+description = "List assignment"
+tags = ["assignment", "list"]
+
+[test.python]
+code = '''
+def assign_list():
+    items = [1, 2, 3]
+    return items
+'''
+
+[test.assertions]
+contains_any = [["let items = vec!", "let items: Vec"]]
+
+[[test]]
+name = "assign_dict"
+description = "Dictionary assignment"
+tags = ["assignment", "dict"]
+
+[test.python]
+code = '''
+def assign_dict():
+    d = {}
+    return d
+'''
+
+[test.assertions]
+contains = ["HashMap"]
+
+# =============================================================================
+# Augmented Assignment
+# =============================================================================
+
+[[test]]
+name = "augassign_add"
+description = "+= operator"
+tags = ["assignment", "augmented"]
+
+[test.python]
+code = '''
+def add_assign(x: int) -> int:
+    x += 10
+    return x
+'''
+
+[test.assertions]
+contains_any = [["+=", "+ 10"]]
+
+[[test]]
+name = "augassign_subtract"
+description = "-= operator"
+tags = ["assignment", "augmented"]
+
+[test.python]
+code = '''
+def sub_assign(x: int) -> int:
+    x -= 5
+    return x
+'''
+
+[test.assertions]
+contains_any = [["-=", "- 5"]]
+
+[[test]]
+name = "augassign_multiply"
+description = "*= operator"
+tags = ["assignment", "augmented"]
+
+[test.python]
+code = '''
+def mul_assign(x: int) -> int:
+    x *= 2
+    return x
+'''
+
+[test.assertions]
+contains_any = [["*=", "* 2"]]
+
+[[test]]
+name = "augassign_divide"
+description = "/= operator"
+tags = ["assignment", "augmented"]
+
+[test.python]
+code = '''
+def div_assign(x: float) -> float:
+    x /= 2.0
+    return x
+'''
+
+[test.assertions]
+contains_any = [["/=", "/ 2.0"]]
+
+[[test]]
+name = "augassign_modulo"
+description = "%= operator"
+tags = ["assignment", "augmented"]
+
+[test.python]
+code = '''
+def mod_assign(x: int) -> int:
+    x %= 7
+    return x
+'''
+
+[test.assertions]
+contains_any = [["%=", "% 7"]]
+
+# =============================================================================
+# Tuple Unpacking
+# =============================================================================
+
+[[test]]
+name = "tuple_unpack_basic"
+description = "Basic tuple unpacking"
+tags = ["assignment", "tuple", "unpack"]
+
+[test.python]
+code = '''
+def unpack_tuple():
+    a, b = (1, 2)
+    return a + b
+'''
+
+[test.assertions]
+contains_any = [["let (a, b)", "let a", "let b"]]
+
+[[test]]
+name = "tuple_unpack_triple"
+description = "Triple tuple unpacking"
+tags = ["assignment", "tuple", "unpack"]
+
+[test.python]
+code = '''
+def unpack_triple():
+    x, y, z = (1, 2, 3)
+    return x + y + z
+'''
+
+[test.assertions]
+contains_any = [["let (x, y, z)", "let x"]]
+
+# =============================================================================
+# Index Assignment
+# =============================================================================
+
+[[test]]
+name = "list_index_assign"
+description = "List index assignment"
+tags = ["assignment", "index", "list"]
+
+[test.python]
+code = '''
+def set_first(items: list[int], value: int):
+    items[0] = value
+'''
+
+[test.assertions]
+contains = ["items[0]"]
+
+[[test]]
+name = "dict_key_assign"
+description = "Dict key assignment"
+tags = ["assignment", "index", "dict"]
+
+[test.python]
+code = '''
+def set_key(d: dict, key: str, value: int):
+    d[key] = value
+'''
+
+[test.assertions]
+contains = ["insert"]
+
+# =============================================================================
+# Multiple Assignment
+# =============================================================================
+
+[[test]]
+name = "multi_assign_same_value"
+description = "Multiple variables same value"
+tags = ["assignment", "multiple"]
+
+[test.python]
+code = '''
+def multi_assign():
+    a = b = c = 0
+    return a + b + c
+'''
+
+[test.assertions]
+contains_any = [["let a", "let b", "let c"]]
+
+# =============================================================================
+# Reassignment
+# =============================================================================
+
+[[test]]
+name = "reassign_variable"
+description = "Variable reassignment requires mut"
+tags = ["assignment", "mutability"]
+
+[test.python]
+code = '''
+def reassign():
+    x = 1
+    x = 2
+    x = 3
+    return x
+'''
+
+[test.assertions]
+contains = ["let mut x"]
+
+[[test]]
+name = "no_reassign_immutable"
+description = "No reassignment means immutable"
+tags = ["assignment", "mutability"]
+
+[test.python]
+code = '''
+def no_reassign():
+    x = 42
+    return x
+'''
+
+[test.assertions]
+contains = ["let x"]
+not_contains = ["let mut x"]
+
+# =============================================================================
+# Slice Assignment
+# =============================================================================
+
+[[test]]
+name = "slice_assign"
+description = "Slice assignment"
+tags = ["assignment", "slice"]
+
+[test.python]
+code = '''
+def replace_slice(items: list[int], start: int, end: int, values: list[int]):
+    items[start:end] = values
+'''
+
+[test.assertions]
+contains_any = [["splice", "drain", "&mut"]]

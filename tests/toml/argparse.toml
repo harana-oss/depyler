@@ -1,0 +1,462 @@
+# Argparse Tests
+# Merged from argparse-transpilation and argparse-handler-types
+# Tests for Python argparse to Rust clap transpilation
+
+[metadata]
+name = "argparse"
+description = "Tests for Python argparse to Rust clap transpilation and handler types"
+
+# =============================================================================
+# BASIC ARGPARSE
+# =============================================================================
+
+[[test]]
+name = "argparse_basic_import"
+description = "Test basic argparse import"
+tags = ["argparse", "import"]
+
+[test.python]
+code = '''
+import argparse
+
+def run():
+    return 0
+'''
+
+[test.assertions]
+not_contains = ["argparse", "TODO"]
+
+[[test]]
+name = "argparse_argument_parser"
+description = "Test ArgumentParser creation and parse_args"
+tags = ["argparse", "parser"]
+
+[test.python]
+code = '''
+import argparse
+
+def run():
+    parser = argparse.ArgumentParser(description="Test program")
+    args = parser.parse_args()
+    print(args)
+    return 0
+'''
+
+[test.assertions]
+contains_any = [["clap", "Parser", "#[derive"]]
+not_contains = ["argparse", "ArgumentParser"]
+
+[[test]]
+name = "argparse_positional_argument"
+description = "Test positional argument with nargs"
+tags = ["argparse", "positional", "argument"]
+
+[test.python]
+code = '''
+import argparse
+from pathlib import Path
+
+def run() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("files", nargs="+", type=Path, help="Files to process")
+    args = parser.parse_args()
+    print(args)
+    return 0
+'''
+
+[test.assertions]
+contains = ["struct Args", "files"]
+contains_any = [["#[derive(Debug, clap::Parser)]", "Args::parse()"]]
+
+[[test]]
+name = "argparse_optional_flags"
+description = "Test optional flags with store_true and type"
+tags = ["argparse", "optional", "flags"]
+
+[test.python]
+code = '''
+import argparse
+
+def run():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-v", "--verbose", action="store_true", help="Enable verbose output")
+    parser.add_argument("-c", "--count", type=int, default=1, help="Count value")
+    args = parser.parse_args()
+    return 0
+'''
+
+[test.assertions]
+contains = ["verbose", "count"]
+contains_any = [["bool", "true", "#[arg", "#[clap"]]
+
+# =============================================================================
+# HANDLER FUNCTION TYPES
+# =============================================================================
+
+[[test]]
+name = "handler_function_simple"
+description = "Test handler function receives &Args type instead of &serde_json::Value"
+tags = ["argparse", "handler", "types"]
+
+[test.python]
+code = '''
+import argparse
+
+def main():
+    parser = argparse.ArgumentParser(description="Test CLI")
+    parser.add_argument("--verbose", action="store_true")
+    args = parser.parse_args()
+    handle_command(args)
+
+def handle_command(args):
+    if args.verbose:
+        print("Verbose mode")
+'''
+
+[test.assertions]
+contains = ["struct Args", "fn handle_command(args: &Args)", "handle_command(&args)"]
+not_contains = ["serde_json::Value"]
+
+[[test]]
+name = "subcommand_handlers"
+description = "Test subcommand handlers receive &Args type"
+tags = ["argparse", "subcommand", "handler", "types"]
+
+[test.python]
+code = '''
+import argparse
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--verbose", action="store_true")
+
+    subparsers = parser.add_subparsers(dest="command", required=True)
+
+    parser_clone = subparsers.add_parser("clone")
+    parser_clone.add_argument("url")
+
+    args = parser.parse_args()
+
+    if args.command == "clone":
+        handle_clone(args)
+
+def handle_clone(args):
+    print(args.url)
+'''
+
+[test.assertions]
+contains = ["fn handle_clone(args: &Args)"]
+not_contains = ["fn handle_clone(args: &serde_json::Value)"]
+
+[[test]]
+name = "multiple_handlers"
+description = "Test multiple handlers all receive &Args type"
+tags = ["argparse", "multiple", "handler", "types"]
+
+[test.python]
+code = '''
+import argparse
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--debug", action="store_true")
+    args = parser.parse_args()
+
+    handler_one(args)
+    handler_two(args)
+
+def handler_one(args):
+    if args.debug:
+        print("Handler one")
+
+def handler_two(args):
+    if args.debug:
+        print("Handler two")
+'''
+
+[test.assertions]
+contains = ["fn handler_one(args: &Args)", "fn handler_two(args: &Args)"]
+not_contains = ["serde_json::Value"]
+
+[[test]]
+name = "different_var_name"
+description = "Test handler receives &Args even with different variable name"
+tags = ["argparse", "handler", "types", "variable"]
+
+[test.python]
+code = '''
+import argparse
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--flag")
+    parsed_args = parser.parse_args()
+    process(parsed_args)
+
+def process(parsed_args):
+    print(parsed_args.flag)
+'''
+
+[test.assertions]
+contains = ["fn process(parsed_args: &Args)"]
+
+# =============================================================================
+# PATH METHODS
+# =============================================================================
+
+[[test]]
+name = "path_read_text_method"
+description = "Test Path.read_text() to fs::read_to_string"
+tags = ["path", "read", "file"]
+
+[test.python]
+code = '''
+from pathlib import Path
+
+def read_file(filepath: Path) -> str:
+    content = filepath.read_text()
+    return content
+'''
+
+[test.assertions]
+contains_any = [["fs::read_to_string", "read_to_string"]]
+not_contains = ["read_text"]
+
+# =============================================================================
+# STRING METHODS
+# =============================================================================
+
+[[test]]
+name = "string_splitlines_method"
+description = "Test str.splitlines() to .lines()"
+tags = ["string", "splitlines"]
+
+[test.python]
+code = '''
+def count_lines(text: str) -> int:
+    lines = text.splitlines()
+    return len(lines)
+'''
+
+[test.assertions]
+contains = [".lines()"]
+not_contains = ["splitlines"]
+
+[[test]]
+name = "string_split_whitespace"
+description = "Test str.split() to .split_whitespace()"
+tags = ["string", "split"]
+
+[test.python]
+code = '''
+def count_words(text: str) -> int:
+    words = text.split()
+    return len(words)
+'''
+
+[test.assertions]
+contains = ["split_whitespace"]
+
+# =============================================================================
+# ERROR HANDLING
+# =============================================================================
+
+[[test]]
+name = "try_except_with_ioerror"
+description = "Test try/except with IOError"
+tags = ["exception", "error", "io"]
+
+[test.python]
+code = '''
+from pathlib import Path
+
+def safe_read(filepath: Path) -> str:
+    try:
+        content = filepath.read_text()
+        return content
+    except IOError as e:
+        print(f"Error: {e}")
+        return ""
+'''
+
+[test.assertions]
+contains = ["match", "Ok(", "Err("]
+
+# =============================================================================
+# FULL INTEGRATION
+# =============================================================================
+
+[[test]]
+name = "wordcount_full_integration"
+description = "Test full wordcount program with argparse, Path, and exception handling"
+tags = ["argparse", "integration", "path", "exception"]
+
+[test.python]
+code = '''
+import argparse
+import sys
+from pathlib import Path
+from typing import NamedTuple
+
+class Stats(NamedTuple):
+    lines: int
+    words: int
+    chars: int
+    filename: str
+
+def count_file(filepath: Path) -> Stats:
+    try:
+        content = filepath.read_text()
+        lines = len(content.splitlines())
+        words = len(content.split())
+        chars = len(content)
+        return Stats(lines, words, chars, str(filepath))
+    except IOError as e:
+        print(f"Error reading {filepath}: {e}", file=sys.stderr)
+        return Stats(0, 0, 0, str(filepath))
+
+def run() -> int:
+    parser = argparse.ArgumentParser(description="Count words")
+    parser.add_argument("files", nargs="+", type=Path)
+    parser.add_argument("-l", "--lines", action="store_true")
+    args = parser.parse_args()
+
+    for filepath in args.files:
+        stats = count_file(filepath)
+        if args.lines:
+            print(f"{stats.lines} {stats.filename}")
+
+    return 0
+'''
+
+[test.assertions]
+contains = ["clap"]
+not_contains = ["TODO", "argparse"]
+
+# =============================================================================
+# SMOKE TESTS
+# =============================================================================
+
+[[test]]
+name = "argparse_smoke_basic"
+description = "Smoke test - basic parser creation"
+tags = ["argparse", "smoke"]
+
+[test.python]
+code = '''
+import argparse
+parser = argparse.ArgumentParser()
+'''
+
+[test.assertions]
+not_contains = ["argparse"]
+
+[[test]]
+name = "argparse_smoke_with_description"
+description = "Smoke test - parser with description and positional arg"
+tags = ["argparse", "smoke"]
+
+[test.python]
+code = '''
+import argparse
+parser = argparse.ArgumentParser(description="test")
+parser.add_argument("input")
+'''
+
+[test.assertions]
+not_contains = ["argparse"]
+
+[[test]]
+name = "argparse_smoke_with_flags"
+description = "Smoke test - parser with optional flags"
+tags = ["argparse", "smoke"]
+
+[test.python]
+code = '''
+import argparse
+parser = argparse.ArgumentParser()
+parser.add_argument("-v", "--verbose", action="store_true")
+'''
+
+[test.assertions]
+not_contains = ["argparse"]
+
+# =============================================================================
+# CUSTOM TYPE VALIDATORS (from test_argparse_type_inference.rs)
+# =============================================================================
+
+[[test]]
+name = "validator_parameter_type_str"
+description = "Argparse validator parameter should be &str"
+tags = ["argparse", "validator", "type-inference"]
+
+[test.python]
+code = '''
+def port_validator(value):
+    """Argparse custom type validator."""
+    port = int(value)
+    if port < 1 or port > 65535:
+        raise ValueError(f"Port must be 1-65535")
+    return port
+'''
+
+[test.assertions]
+contains = ["value: &str"]
+not_contains = ["serde_json::Value"]
+
+[[test]]
+name = "validator_int_parse_not_cast"
+description = "int() on string should use .parse(), not cast"
+tags = ["argparse", "validator", "parse"]
+
+[test.python]
+code = '''
+def validator(value):
+    num = int(value)
+    return num
+'''
+
+[test.assertions]
+contains_any = [[".parse", "parse::<i32>"]]
+not_contains = ["(value) as i32"]
+
+[[test]]
+name = "validator_with_try_except"
+description = "Validator with try/except should still use &str"
+tags = ["argparse", "validator", "exception"]
+
+[test.python]
+code = '''
+def validator(value):
+    try:
+        num = int(value)
+        return num
+    except ValueError:
+        raise ValueError("Invalid number")
+'''
+
+[test.assertions]
+contains = ["value: &str"]
+not_contains = ["serde_json::Value"]
+
+[[test]]
+name = "validator_full_port_compiles"
+description = "Complete port validator should compile"
+tags = ["argparse", "validator", "compile"]
+compile_check = true
+
+[test.python]
+code = '''
+def port_number(value):
+    """Port validator for argparse."""
+    try:
+        port = int(value)
+        if port < 1 or port > 65535:
+            raise ValueError(f"Port must be 1-65535, got {port}")
+        return port
+    except ValueError:
+        raise ValueError(f"Invalid port: {value}")
+'''
+
+[test.assertions]
+contains = ["fn port_number"]

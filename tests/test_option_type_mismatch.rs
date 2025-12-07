@@ -9,7 +9,7 @@
 //! **Solution**: Detect None-placeholder pattern and skip initial None assignment.
 
 use crate::test_helpers;
-use crate::test_helpers::transpile;
+use crate::test_helpers::transpile_and_check;
 
 /// Unit Test 1: Simple None + If-Else
 ///
@@ -18,7 +18,6 @@ use crate::test_helpers::transpile;
 ///
 /// Verifies: issue core issue
 #[test]
-#[ignore]
 fn test_simple_none_if_else() {
     let source = r#"
 def test_func():
@@ -31,7 +30,7 @@ def test_func():
     return result
 "#;
 
-    let rust_code = transpile(source);
+    let rust_code = transpile_and_check(source, &[]);
 
     // Should NOT have `let mut result = None;`
     assert!(
@@ -84,7 +83,6 @@ def test_func():
 ///
 /// Verifies: Works with multiple elif branches
 #[test]
-#[ignore]
 fn test_none_with_elif_chain() {
     let source = r#"
 def test_func():
@@ -103,7 +101,7 @@ def test_func():
     return value
 "#;
 
-    let rust_code = transpile(source);
+    let rust_code = transpile_and_check(source, &[]);
 
     // Should NOT have `let mut value = None;`
     assert!(
@@ -151,7 +149,6 @@ def test_func():
 ///
 /// NOTE: Ignored due to unrelated tuple return type inference issue
 #[test]
-#[ignore]
 fn test_multiple_variables_with_none() {
     let source = r#"
 def test_func():
@@ -167,7 +164,7 @@ def test_func():
     return (x, y)
 "#;
 
-    let rust_code = transpile(source);
+    let rust_code = transpile_and_check(source, &[]);
 
     // Should NOT have `let mut x = None;` or `let mut y = None;`
     assert!(
@@ -221,7 +218,6 @@ def test_func():
 /// NOTE: Ignored - current implementation skips all None for mutable vars
 /// This is acceptable as it's an edge case (None without reassignment is rare)
 #[test]
-#[ignore]
 fn test_keep_none_when_not_reassigned() {
     let source = r#"
 def test_func():
@@ -232,7 +228,7 @@ def test_func():
     return result
 "#;
 
-    let rust_code = transpile(source);
+    let rust_code = transpile_and_check(source, &[]);
 
     // SHOULD have `let mut result = None;` because it's never reassigned
     assert!(
@@ -249,7 +245,6 @@ def test_func():
 ///
 /// Verifies: Partial reassignment keeps Option
 #[test]
-#[ignore]
 fn test_partial_reassignment_keeps_option() {
     let source = r#"
 def test_func():
@@ -261,7 +256,7 @@ def test_func():
     return result
 "#;
 
-    let rust_code = transpile(source);
+    let rust_code = transpile_and_check(source, &[]);
 
     // Should either:
     // A) Keep `let mut result = None;` and wrap "yes" in Some(), OR
@@ -307,7 +302,6 @@ def test_func():
 ///
 /// Verifies: Nested scopes
 #[test]
-#[ignore]
 fn test_nested_if_with_none() {
     let source = r#"
 def test_func():
@@ -326,7 +320,7 @@ def test_func():
     return outer
 "#;
 
-    let rust_code = transpile(source);
+    let rust_code = transpile_and_check(source, &[]);
 
     // Outer should skip None
     assert!(
@@ -379,7 +373,6 @@ def test_func():
 ///
 /// Verifies: Real-world CLI configuration pattern
 #[test]
-#[ignore]
 fn test_cli_output_format_real_world() {
     let source = r#"
 def process_args():
@@ -399,7 +392,7 @@ def process_args():
     return output_format
 "#;
 
-    let rust_code = transpile(source);
+    let rust_code = transpile_and_check(source, &[]);
 
     // Should NOT have `let mut output_format = None;`
     assert!(
@@ -445,7 +438,6 @@ def process_args():
 ///
 /// Verifies: General correctness property
 #[test]
-#[ignore]
 fn test_property_none_placeholder_compiles() {
     let test_cases = vec![
         // 2 branches (if-else)
@@ -496,7 +488,7 @@ def test_func():
     ];
 
         for (i, source) in test_cases.iter().enumerate() {
-        let rust_code = transpile(source);
+        let rust_code = transpile_and_check(source, &[]);
 
         let temp_file = format!("/tmp/depyler_0440_test8_{}.rs", i);
         std::fs::write(&temp_file, &rust_code).unwrap();

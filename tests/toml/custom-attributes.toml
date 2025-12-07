@@ -1,0 +1,171 @@
+# Custom Attributes Tests - Migrated from test_custom_attributes.rs
+
+[metadata]
+name = "Custom Attributes Tests"
+category = "attributes"
+
+# =============================================================================
+# Single Attributes
+# =============================================================================
+
+[[test]]
+name = "single_custom_attribute"
+description = "Single custom attribute via @depyler annotation"
+tags = ["attributes", "inline"]
+
+[test.python]
+code = '''
+# @depyler: custom_attribute = "inline"
+def add(a: int, b: int) -> int:
+    return a + b
+'''
+
+[test.assertions]
+contains = ["#[inline]", "pub fn add"]
+
+[[test]]
+name = "custom_attribute_cold"
+description = "Cold attribute for error handlers"
+tags = ["attributes", "cold"]
+
+[test.python]
+code = '''
+# @depyler: custom_attribute = "cold"
+def error_handler(msg: str) -> None:
+    print(msg)
+'''
+
+[test.assertions]
+contains = ["#[cold]", "pub fn error_handler"]
+
+[[test]]
+name = "custom_attribute_repr"
+description = "repr(C) attribute"
+tags = ["attributes", "repr"]
+
+[test.python]
+code = '''
+# @depyler: custom_attribute = "repr(C)"
+def get_layout() -> int:
+    return 42
+'''
+
+[test.assertions]
+contains = ["#[repr(C)]", "pub fn get_layout"]
+
+# =============================================================================
+# Multiple Attributes
+# =============================================================================
+
+[[test]]
+name = "multiple_custom_attributes"
+description = "Multiple custom attributes on same function"
+tags = ["attributes", "multiple"]
+
+[test.python]
+code = '''
+# @depyler: custom_attribute = "inline"
+# @depyler: custom_attribute = "must_use"
+def calculate(x: int) -> int:
+    return x * 2
+'''
+
+[test.assertions]
+contains = ["#[inline]", "#[must_use]", "pub fn calculate"]
+
+[[test]]
+name = "custom_attribute_with_args"
+description = "Custom attribute with arguments"
+tags = ["attributes", "args"]
+
+[test.python]
+code = '''
+# @depyler: custom_attribute = "inline(always)"
+def fast_function(n: int) -> int:
+    return n + 1
+'''
+
+[test.assertions]
+contains = ["#[inline(always)]", "pub fn fast_function"]
+
+# =============================================================================
+# Mixed Annotations
+# =============================================================================
+
+[[test]]
+name = "custom_attributes_with_other_annotations"
+description = "Custom attributes mixed with other depyler annotations"
+tags = ["attributes", "annotations"]
+
+[test.python]
+code = '''
+# @depyler: optimization_level = "aggressive"
+# @depyler: custom_attribute = "inline"
+# @depyler: performance_critical = "true"
+def hot_path(items: list[int]) -> int:
+    total = 0
+    for item in items:
+        total += item
+    return total
+'''
+
+[test.assertions]
+contains = ["#[inline]", "pub fn hot_path"]
+
+[[test]]
+name = "no_custom_attributes"
+description = "Function without custom attributes"
+tags = ["attributes", "default"]
+
+[test.python]
+code = '''
+def normal_function(x: int) -> int:
+    return x * 2
+'''
+
+[test.assertions]
+contains = ["pub fn normal_function"]
+not_contains = ["#[inline]", "#[cold]"]
+
+# =============================================================================
+# Multiple Functions
+# =============================================================================
+
+[[test]]
+name = "multiple_functions_different_attributes"
+description = "Different functions with different attributes"
+tags = ["attributes", "multiple-functions"]
+
+[test.python]
+code = '''
+# @depyler: custom_attribute = "inline"
+def fast_func(x: int) -> int:
+    return x + 1
+
+# @depyler: custom_attribute = "cold"
+def slow_func(x: int) -> int:
+    return x - 1
+'''
+
+[test.assertions]
+contains = ["#[inline]", "#[cold]", "pub fn fast_func", "pub fn slow_func"]
+
+# =============================================================================
+# With Docstrings
+# =============================================================================
+
+[[test]]
+name = "custom_attribute_with_docstring"
+description = "Custom attribute with docstring"
+tags = ["attributes", "docstring"]
+
+[test.python]
+code = '''
+# @depyler: custom_attribute = "inline"
+def documented_function(x: int) -> int:
+    """This is a documented function."""
+    return x * 2
+'''
+
+[test.assertions]
+contains = ["#[inline]", "pub fn documented_function"]

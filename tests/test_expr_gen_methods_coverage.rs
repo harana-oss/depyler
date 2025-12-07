@@ -14,7 +14,7 @@
 //! Expected Coverage Gain: +23% (~2h effort, medium complexity)
 
 use crate::test_helpers;
-use crate::test_helpers::transpile;
+use crate::test_helpers::transpile_and_check;
 
 // ============================================================================
 // STRING METHOD TESTS
@@ -27,7 +27,7 @@ def test_upper(s: str) -> str:
     return s.upper()
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated upper() code:\n{}", rust_code);
 
     // str.upper() should generate .to_uppercase()
@@ -44,7 +44,7 @@ def test_lower(s: str) -> str:
     return s.lower()
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated lower() code:\n{}", rust_code);
 
     // str.lower() should generate .to_lowercase()
@@ -61,7 +61,7 @@ def test_strip(s: str) -> str:
     return s.strip()
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated strip() code:\n{}", rust_code);
 
     // str.strip() should generate .trim()
@@ -78,7 +78,7 @@ def test_split(s: str) -> list:
     return s.split(",")
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated split() code:\n{}", rust_code);
 
     // str.split(sep) should generate .split(sep).collect()
@@ -95,7 +95,7 @@ def test_join(items: list) -> str:
     return ",".join(items)
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated join() code:\n{}", rust_code);
 
     // sep.join(items) should generate items.join(sep)
@@ -112,7 +112,7 @@ def test_replace(s: str) -> str:
     return s.replace("old", "new")
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated replace() code:\n{}", rust_code);
 
     // str.replace(old, new) should generate .replace(old, new)
@@ -129,7 +129,7 @@ def test_find(s: str) -> int:
     return s.find("needle")
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated find() code:\n{}", rust_code);
 
     // str.find(sub) should generate .find(sub) or .position()
@@ -146,7 +146,7 @@ def test_count(s: str) -> int:
     return s.count("x")
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated count() code:\n{}", rust_code);
 
     // str.count(sub) should generate match counting logic
@@ -163,7 +163,7 @@ def test_startswith(s: str) -> bool:
     return s.startswith("prefix")
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated startswith() code:\n{}", rust_code);
 
     // str.startswith(prefix) should generate .starts_with(prefix)
@@ -180,7 +180,7 @@ def test_endswith(s: str) -> bool:
     return s.endswith("suffix")
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated endswith() code:\n{}", rust_code);
 
     // str.endswith(suffix) should generate .ends_with(suffix)
@@ -197,7 +197,7 @@ def test_isdigit(s: str) -> bool:
     return s.isdigit()
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated isdigit() code:\n{}", rust_code);
 
     // str.isdigit() should generate .chars().all(|c| c.is_numeric())
@@ -215,7 +215,7 @@ def test_isalpha(s: str) -> bool:
     return s.isalpha()
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated isalpha() code:\n{}", rust_code);
 
     // str.isalpha() should generate .chars().all(|c| c.is_alphabetic())
@@ -236,7 +236,7 @@ def test_append(items: list, value: int):
     items.append(value)
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated append() code:\n{}", rust_code);
 
     // list.append(item) should generate .push(item)
@@ -253,7 +253,7 @@ def test_extend(items: list, other: list):
     items.extend(other)
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated extend() code:\n{}", rust_code);
 
     // list.extend(other) should generate .extend(other)
@@ -270,7 +270,7 @@ def test_pop(items: list):
     return items.pop()
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated pop() code:\n{}", rust_code);
 
     // list.pop() should generate .pop()
@@ -287,7 +287,7 @@ def test_pop(items: list):
     return items.pop(0)
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated pop(index) code:\n{}", rust_code);
 
     // list.pop(index) should generate .remove(index)
@@ -304,7 +304,7 @@ def test_insert(items: list, value: int):
     items.insert(0, value)
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated insert() code:\n{}", rust_code);
 
     // list.insert(index, item) should generate .insert(index, item)
@@ -321,7 +321,7 @@ def test_remove(items: list, value: int):
     items.remove(value)
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated remove() code:\n{}", rust_code);
 
     // list.remove(value) should generate position().map(|i| remove(i))
@@ -338,7 +338,7 @@ def test_index(items: list, value: int) -> int:
     return items.index(value)
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated index() code:\n{}", rust_code);
 
     // list.index(value) should generate .iter().position()
@@ -355,7 +355,7 @@ def test_clear(items: list):
     items.clear()
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated clear() code:\n{}", rust_code);
 
     // list.clear() should generate .clear()
@@ -372,7 +372,7 @@ def test_copy(items: list) -> list:
     return items.copy()
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated copy() code:\n{}", rust_code);
 
     // list.copy() should generate .clone()
@@ -389,7 +389,7 @@ def test_reverse(items: list):
     items.reverse()
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated reverse() code:\n{}", rust_code);
 
     // list.reverse() should generate .reverse()
@@ -406,7 +406,7 @@ def test_sort(items: list):
     items.sort()
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated sort() code:\n{}", rust_code);
 
     // list.sort() should generate .sort()
@@ -427,7 +427,7 @@ def test_get(d: dict, key: str):
     return d.get(key)
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated get() code:\n{}", rust_code);
 
     // dict.get(key) should generate .get(key)
@@ -444,7 +444,7 @@ def test_get(d: dict, key: str):
     return d.get(key, "default")
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated get(key, default) code:\n{}", rust_code);
 
     // dict.get(key, default) should generate .get().unwrap_or(default)
@@ -462,7 +462,7 @@ def test_keys(d: dict):
     return d.keys()
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated keys() code:\n{}", rust_code);
 
     // dict.keys() should generate .keys()
@@ -479,7 +479,7 @@ def test_values(d: dict):
     return d.values()
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated values() code:\n{}", rust_code);
 
     // dict.values() should generate .values()
@@ -496,7 +496,7 @@ def test_items(d: dict):
     return d.items()
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated items() code:\n{}", rust_code);
 
     // dict.items() should generate .iter() or iteration
@@ -513,7 +513,7 @@ def test_update(d: dict, other: dict):
     d.update(other)
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated update() code:\n{}", rust_code);
 
     // dict.update(other) should generate .extend(other) or insert loop
@@ -532,7 +532,7 @@ def test_setdefault(d: dict, key: str):
     return d.setdefault(key, "default")
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated setdefault() code:\n{}", rust_code);
 
     // dict.setdefault(key, default) should generate .entry(key).or_insert(default)
@@ -549,7 +549,7 @@ def test_pop(d: dict, key: str):
     return d.pop(key)
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated pop() code:\n{}", rust_code);
 
     // dict.pop(key) should generate .remove(key)
@@ -566,7 +566,7 @@ def test_clear(d: dict):
     d.clear()
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated clear() code:\n{}", rust_code);
 
     // dict.clear() should generate .clear()

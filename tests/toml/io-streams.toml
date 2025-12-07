@@ -1,0 +1,186 @@
+# I/O Streams and File Handling Tests
+# Migrated from test_stream_handling.rs
+
+[metadata]
+name = "I/O Streams Tests"
+category = "io-streams"
+
+# =============================================================================
+# sys.stdin Operations
+# =============================================================================
+
+[[test]]
+name = "stdin_iteration"
+description = "sys.stdin iteration"
+tags = ["stdin", "io"]
+
+[test.python]
+code = '''
+import sys
+
+def process_stdin():
+    for line in sys.stdin:
+        print(line.rstrip())
+'''
+
+[test.assertions]
+contains_any = [["std::io::stdin()", "sys.stdin"]]
+contains = [".lines()"]
+
+[[test]]
+name = "stderr_print"
+description = "sys.stderr print output"
+tags = ["stderr", "io"]
+
+[test.python]
+code = '''
+import sys
+
+def log_error(msg: str):
+    print(f"Error: {msg}", file=sys.stderr)
+'''
+
+[test.assertions]
+contains_any = [["eprintln!", "std::io::stderr()"]]
+
+# =============================================================================
+# File Read Operations
+# =============================================================================
+
+[[test]]
+name = "file_read_text"
+description = "File read in text mode"
+tags = ["file", "read"]
+
+[test.python]
+code = '''
+def read_file(filepath: str) -> str:
+    with open(filepath) as f:
+        content = f.read()
+    return content
+'''
+
+[test.assertions]
+contains = ["std::fs::File::open", "read_to_string"]
+contains_any = [["Result<", "?"]]
+
+[[test]]
+name = "file_read_binary"
+description = "File read in binary mode"
+tags = ["file", "read", "binary"]
+
+[test.python]
+code = '''
+def read_binary(filepath: str) -> bytes:
+    with open(filepath, "rb") as f:
+        data = f.read()
+    return data
+'''
+
+[test.assertions]
+contains = ["std::fs::File::open"]
+contains_any = [["read_to_end", "Vec<u8>", "read_to_string"]]
+
+[[test]]
+name = "file_iteration"
+description = "File line-by-line iteration"
+tags = ["file", "iteration"]
+
+[test.python]
+code = '''
+def count_lines(filepath: str) -> int:
+    count = 0
+    with open(filepath) as f:
+        for line in f:
+            count += 1
+    return count
+'''
+
+[test.assertions]
+contains_any = [["BufReader", ".lines()"]]
+not_contains = [".iter()"]
+
+# =============================================================================
+# Argparse Type Inference
+# =============================================================================
+
+[[test]]
+name = "argparse_string_param"
+description = "Argparse string parameter type inference"
+tags = ["argparse", "type-inference"]
+
+[test.python]
+code = '''
+import argparse
+
+def process_file(filepath: str) -> str:
+    with open(filepath) as f:
+        return f.read()
+'''
+
+[test.assertions]
+contains_any = [["filepath: &str", "filepath: String"]]
+not_contains = ["filepath: serde_json::Value"]
+
+[[test]]
+name = "argparse_bool_param"
+description = "Argparse boolean parameter type inference"
+tags = ["argparse", "type-inference", "bool"]
+
+[test.python]
+code = '''
+import argparse
+
+def process(verbose: bool):
+    if verbose:
+        print("Verbose mode enabled")
+'''
+
+[test.assertions]
+contains = ["verbose: bool"]
+not_contains = ["verbose: serde_json::Value", "verbose: &serde_json::Value"]
+
+# =============================================================================
+# Argparse Subcommands
+# =============================================================================
+
+[[test]]
+name = "argparse_subcommand_enum"
+description = "Argparse subcommands generate enum variants"
+tags = ["argparse", "subcommand", "enum"]
+
+[test.python]
+code = '''
+import argparse
+import sys
+
+def read_stdin():
+    for line in sys.stdin:
+        print(line.rstrip())
+'''
+
+[test.assertions]
+contains_any = [["std::io::stdin()", "sys.stdin"]]
+
+# =============================================================================
+# Tempfile
+# =============================================================================
+
+[[test]]
+name = "tempfile_named"
+description = "tempfile.NamedTemporaryFile translation"
+tags = ["tempfile"]
+
+[test.python]
+code = '''
+import tempfile
+
+def create_temp() -> str:
+    with tempfile.NamedTemporaryFile(mode="w", delete=False) as f:
+        temp_path = f.name
+        f.write("test content")
+    return temp_path
+'''
+
+[test.assertions]
+contains_any = [["tempfile::", "NamedTempFile"]]

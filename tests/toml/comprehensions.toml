@@ -1,0 +1,227 @@
+# Comprehension Tests - Migrated from test_list_comprehension.rs
+
+[metadata]
+name = "Comprehension Tests"
+category = "comprehensions"
+
+# =============================================================================
+# Basic List Comprehension
+# =============================================================================
+
+[[test]]
+name = "comprehension_simple"
+description = "Simple list comprehension"
+tags = ["comprehension", "list"]
+
+[test.python]
+code = '''
+def squares(n: int) -> list[int]:
+    return [x * x for x in range(n)]
+'''
+
+[test.assertions]
+contains_any = [["map(", "iter()", "into_iter()"]]
+contains = ["collect"]
+
+[[test]]
+name = "comprehension_with_filter"
+description = "List comprehension with if condition"
+tags = ["comprehension", "list", "filter"]
+
+[test.python]
+code = '''
+def evens(n: int) -> list[int]:
+    return [x for x in range(n) if x % 2 == 0]
+'''
+
+[test.assertions]
+contains = ["filter(", "collect"]
+
+[[test]]
+name = "comprehension_transform_filter"
+description = "List comprehension with transform and filter"
+tags = ["comprehension", "list", "filter", "map"]
+
+[test.python]
+code = '''
+def even_squares(n: int) -> list[int]:
+    return [x * x for x in range(n) if x % 2 == 0]
+'''
+
+[test.assertions]
+contains = ["filter(", "map(", "collect"]
+
+# =============================================================================
+# String Comprehension
+# =============================================================================
+
+[[test]]
+name = "comprehension_string_transform"
+description = "List comprehension with string transformation"
+tags = ["comprehension", "string"]
+
+[test.python]
+code = '''
+def uppercase_words(words: list[str]) -> list[str]:
+    return [word.upper() for word in words]
+'''
+
+[test.assertions]
+contains = ["map(", "to_uppercase", "collect"]
+
+[[test]]
+name = "comprehension_string_filter"
+description = "List comprehension filtering strings"
+tags = ["comprehension", "string", "filter"]
+
+[test.python]
+code = '''
+def long_words(words: list[str]) -> list[str]:
+    return [word for word in words if len(word) > 4]
+'''
+
+[test.assertions]
+contains = ["filter(", "collect"]
+
+# =============================================================================
+# Nested Comprehension
+# =============================================================================
+
+[[test]]
+name = "comprehension_nested"
+description = "Nested list comprehension"
+tags = ["comprehension", "nested"]
+
+[test.python]
+code = '''
+def matrix(n: int) -> list[list[int]]:
+    return [[i * j for j in range(n)] for i in range(n)]
+'''
+
+[test.assertions]
+contains = ["map(", "collect"]
+
+[[test]]
+name = "comprehension_flatten"
+description = "Flattening nested lists"
+tags = ["comprehension", "flatten"]
+
+[test.python]
+code = '''
+def flatten(matrix: list[list[int]]) -> list[int]:
+    return [item for row in matrix for item in row]
+'''
+
+[test.assertions]
+contains_any = [["flat_map", "flatten()"]]
+
+# =============================================================================
+# Dict Comprehension
+# =============================================================================
+
+[[test]]
+name = "dict_comprehension_basic"
+description = "Basic dict comprehension"
+tags = ["comprehension", "dict"]
+
+[test.python]
+code = '''
+def squares_dict(n: int) -> dict[int, int]:
+    return {x: x * x for x in range(n)}
+'''
+
+[test.assertions]
+contains = ["HashMap", "collect"]
+
+[[test]]
+name = "dict_comprehension_filter"
+description = "Dict comprehension with filter"
+tags = ["comprehension", "dict", "filter"]
+
+[test.python]
+code = '''
+def even_squares_dict(n: int) -> dict[int, int]:
+    return {x: x * x for x in range(n) if x % 2 == 0}
+'''
+
+[test.assertions]
+contains = ["filter(", "collect"]
+
+[[test]]
+name = "dict_comprehension_from_list"
+description = "Dict comprehension from list with enumerate"
+tags = ["comprehension", "dict", "enumerate"]
+
+[test.python]
+code = '''
+def index_dict(items: list[str]) -> dict[int, str]:
+    return {i: item for i, item in enumerate(items)}
+'''
+
+[test.assertions]
+contains = ["enumerate()", "collect"]
+
+# =============================================================================
+# Set Comprehension
+# =============================================================================
+
+[[test]]
+name = "set_comprehension_basic"
+description = "Basic set comprehension"
+tags = ["comprehension", "set"]
+
+[test.python]
+code = '''
+def unique_squares(items: list[int]) -> set[int]:
+    return {x * x for x in items}
+'''
+
+[test.assertions]
+contains = ["HashSet", "collect"]
+
+# =============================================================================
+# Generator Expressions in Builtins
+# =============================================================================
+
+[[test]]
+name = "generator_expr_sum"
+description = "Generator expression in sum()"
+tags = ["comprehension", "generator", "sum"]
+
+[test.python]
+code = '''
+def sum_squares(n: int) -> int:
+    return sum(x * x for x in range(n))
+'''
+
+[test.assertions]
+contains = ["map("]
+contains_any = [[".sum()", "sum::<"]]
+
+[[test]]
+name = "generator_expr_any"
+description = "Generator expression in any()"
+tags = ["comprehension", "generator", "any"]
+
+[test.python]
+code = '''
+def has_positive(items: list[int]) -> bool:
+    return any(x > 0 for x in items)
+'''
+
+[test.assertions]
+contains = [".any("]
+
+[[test]]
+name = "generator_expr_all"
+description = "Generator expression in all()"
+tags = ["comprehension", "generator", "all"]
+
+[test.python]
+code = '''
+def all_positive(items: list[int]) -> bool:
+    return all(x > 0 for x in items)
+'''
+
+[test.assertions]
+contains = [".all("]

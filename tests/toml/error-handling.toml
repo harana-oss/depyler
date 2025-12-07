@@ -1,0 +1,474 @@
+# Error Handling Tests - Migrated from test_error_handlings.rs, test_exception_handlings.rs, 
+# test_exception_scope.rs, test_valueerror.rs
+
+[metadata]
+name = "Error Handling Tests"
+category = "error-handling"
+
+# =============================================================================
+# Try-Except Basic
+# =============================================================================
+
+[[test]]
+name = "try_except_simple"
+description = "Simple try-except block"
+tags = ["try", "except"]
+
+[test.python]
+code = '''
+def safe_divide(a: int, b: int) -> int:
+    try:
+        return a // b
+    except ZeroDivisionError:
+        return 0
+'''
+
+[test.assertions]
+contains_any = [["Result", "match", "?"]]
+
+[[test]]
+name = "try_except_generic"
+description = "Try-except with generic Exception"
+tags = ["try", "except"]
+
+[test.python]
+code = '''
+def safe_call() -> str:
+    try:
+        return "success"
+    except Exception:
+        return "error"
+'''
+
+[test.assertions]
+contains_any = [["Result", "Err(", "match"]]
+
+[[test]]
+name = "try_except_multiple"
+description = "Multiple except clauses"
+tags = ["try", "except", "multiple"]
+
+[test.python]
+code = '''
+def parse_safely(s: str) -> int:
+    try:
+        return int(s)
+    except ValueError:
+        return -1
+    except TypeError:
+        return -2
+'''
+
+[test.assertions]
+contains_any = [["match", "Err("]]
+
+# =============================================================================
+# Try-Except-Else
+# =============================================================================
+
+[[test]]
+name = "try_except_else"
+description = "Try-except with else block"
+tags = ["try", "except", "else"]
+
+[test.python]
+code = '''
+def safe_parse(s: str) -> str:
+    try:
+        value = int(s)
+    except ValueError:
+        return "invalid"
+    else:
+        return f"value: {value}"
+'''
+
+[test.assertions]
+contains_any = [["Ok(", "match"]]
+
+# =============================================================================
+# Raise Statements
+# =============================================================================
+
+[[test]]
+name = "raise_valueerror"
+description = "Raise ValueError"
+tags = ["raise", "valueerror"]
+
+[test.python]
+code = '''
+def validate_positive(x: int) -> int:
+    if x < 0:
+        raise ValueError("must be positive")
+    return x
+'''
+
+[test.assertions]
+contains_any = [["Err(", "panic!", "return Err"]]
+
+[[test]]
+name = "raise_typeerror"
+description = "Raise TypeError"
+tags = ["raise", "typeerror"]
+
+[test.python]
+code = '''
+def require_int(x: int) -> int:
+    if x == 0:
+        raise TypeError("cannot be zero")
+    return x
+'''
+
+[test.assertions]
+contains_any = [["Err(", "panic!"]]
+
+[[test]]
+name = "raise_custom_message"
+description = "Raise with custom message"
+tags = ["raise", "message"]
+
+[test.python]
+code = '''
+def check_bounds(x: int, low: int, high: int) -> int:
+    if x < low or x > high:
+        raise ValueError(f"out of bounds: {x}")
+    return x
+'''
+
+[test.assertions]
+contains_any = [["Err(", "format!"]]
+
+# =============================================================================
+# Result Type Patterns
+# =============================================================================
+
+[[test]]
+name = "result_return_ok"
+description = "Function returning success"
+tags = ["result", "ok"]
+
+[test.python]
+code = '''
+def success(value: int) -> int:
+    return value
+'''
+
+[test.assertions]
+contains_any = [["-> i32", "-> i64", "Ok("]]
+
+[[test]]
+name = "result_return_err"
+description = "Function returning error"
+tags = ["result", "err"]
+
+[test.python]
+code = '''
+def fail() -> int:
+    raise RuntimeError("failed")
+'''
+
+[test.assertions]
+contains_any = [["Err(", "panic!", "Result"]]
+
+# =============================================================================
+# Error Propagation
+# =============================================================================
+
+[[test]]
+name = "error_propagation"
+description = "Propagate error with ?"
+tags = ["error", "propagation"]
+
+[test.python]
+code = '''
+def parse_and_double(s: str) -> int:
+    value = int(s)
+    return value * 2
+'''
+
+[test.assertions]
+contains_any = [["?", "Result", "unwrap"]]
+
+# =============================================================================
+# Exception in Conditionals
+# =============================================================================
+
+[[test]]
+name = "conditional_raise"
+description = "Raise in conditional"
+tags = ["raise", "conditional"]
+
+[test.python]
+code = '''
+def divide_safe(a: int, b: int) -> int:
+    if b == 0:
+        raise ZeroDivisionError("division by zero")
+    return a // b
+'''
+
+[test.assertions]
+contains_any = [["Err(", "if b == 0"]]
+
+# =============================================================================
+# Assertion Errors
+# =============================================================================
+
+[[test]]
+name = "assert_statement"
+description = "Assert statement"
+tags = ["assert"]
+
+[test.python]
+code = '''
+def validate(x: int) -> int:
+    assert x > 0, "must be positive"
+    return x
+'''
+
+[test.assertions]
+contains_any = [["assert!", "debug_assert!", "panic!", "if"]]
+
+# =============================================================================
+# Error Recovery
+# =============================================================================
+
+[[test]]
+name = "error_with_default"
+description = "Error with default value"
+tags = ["error", "default"]
+
+[test.python]
+code = '''
+def get_or_default(d: dict, key: str) -> int:
+    try:
+        return d[key]
+    except KeyError:
+        return 0
+'''
+
+[test.assertions]
+contains_any = [["unwrap_or(", "get(", "match"]]
+
+# =============================================================================
+# Exception Scope Tracking
+# =============================================================================
+
+[[test]]
+name = "simple_try_except_caught"
+description = "Exception caught internally should NOT propagate Result"
+tags = ["try", "except", "scope", "caught"]
+
+[test.python]
+code = '''
+def safe_divide(a: int, b: int) -> int:
+    try:
+        return a // b
+    except ZeroDivisionError:
+        return 0
+'''
+
+[test.assertions]
+contains = ["fn safe_divide", "-> i32", "return 0"]
+not_contains = ["return Err(ZeroDivisionError"]
+
+[[test]]
+name = "nested_try_except_blocks"
+description = "Nested try blocks with different exception types"
+tags = ["try", "except", "nested"]
+
+[test.python]
+code = '''
+def nested_operations(data: list[int]) -> int:
+    try:
+        value = data[0]
+        try:
+            return 100 // value
+        except ZeroDivisionError:
+            return -1
+    except IndexError:
+        return -2
+'''
+
+[test.assertions]
+contains = ["-> i32", "-1", "-2"]
+
+[[test]]
+name = "try_except_finally_scope"
+description = "Try/except/finally block with finally logic"
+tags = ["try", "except", "finally"]
+
+[test.python]
+code = '''
+def with_finally(x: int) -> int:
+    result = 0
+    try:
+        result = 10 // x
+    except ZeroDivisionError:
+        result = -1
+    finally:
+        result = result + 1
+    return result
+'''
+
+[test.assertions]
+contains = ["result + 1"]
+
+[[test]]
+name = "raise_in_try_caught"
+description = "raise inside try block with matching handler"
+tags = ["raise", "try", "caught"]
+
+[test.python]
+code = '''
+def validate_positive(n: int) -> int:
+    try:
+        if n < 0:
+            raise ValueError("must be positive")
+        return n * 2
+    except ValueError:
+        return 0
+'''
+
+[test.assertions]
+contains = ["-> i32"]
+not_contains = ["return Err(ValueError"]
+
+[[test]]
+name = "raise_outside_try_panic"
+description = "raise outside try block should use panic or Result"
+tags = ["raise", "uncaught"]
+
+[test.python]
+code = '''
+def validate_positive(n: int) -> int:
+    if n < 0:
+        raise ValueError("must be positive")
+    return n * 2
+'''
+
+[test.assertions]
+contains_any = [["panic!", "Result<i32"]]
+
+# =============================================================================
+# ValueError Type Generation
+# =============================================================================
+
+[[test]]
+name = "valueerror_struct_generated"
+description = "ValueError should generate struct definition"
+tags = ["valueerror", "struct"]
+
+[test.python]
+code = '''
+# @depyler: error_strategy = "result_type"
+def check_positive(x: int) -> int:
+    if x < 0:
+        raise ValueError("negative value")
+    return x
+'''
+
+[test.assertions]
+contains = ["struct ValueError", "Result<i32, ValueError>"]
+
+[[test]]
+name = "valueerror_return_result"
+description = "Function raising ValueError should return Result"
+tags = ["valueerror", "result"]
+
+[test.python]
+code = '''
+# @depyler: error_strategy = "result_type"
+def validate_range(x: int) -> int:
+    if x < 0 or x > 100:
+        raise ValueError("value must be 0-100")
+    return x
+'''
+
+[test.assertions]
+contains = ["Result<i32, ValueError>", "Err(ValueError"]
+
+# =============================================================================
+# Try-Except Control Flow - Migrated from test_try_except_control_flow.rs
+# =============================================================================
+
+[[test]]
+name = "try_except_generates_match"
+description = "Try/except generates match expression, not sequential code"
+tags = ["try", "except", "match"]
+
+[test.python]
+code = '''
+def parse_int(value: str) -> int:
+    try:
+        num = int(value)
+        return num
+    except ValueError:
+        return -1
+'''
+
+[test.assertions]
+contains = ["match", ".parse"]
+not_contains = ["unwrap_or_default"]
+
+[[test]]
+name = "except_handler_in_err_branch"
+description = "Except handler code should be in Err branch"
+tags = ["try", "except", "err"]
+
+[test.python]
+code = '''
+def validator(value: str) -> int:
+    try:
+        num = int(value)
+        return num
+    except ValueError:
+        return -1
+'''
+
+[test.assertions]
+contains = ["Err(", "Ok(", "-1"]
+
+# =============================================================================
+# Try Block Analysis - Migrated from test_try_block_analysis.rs
+# =============================================================================
+
+[[test]]
+name = "try_except_caught_exception_types"
+description = "Exception types generated even when caught internally"
+tags = ["try", "except", "exception-type"]
+
+[test.python]
+code = '''
+def operation_with_cleanup(value: int) -> int:
+    try:
+        if value < 0:
+            raise ValueError("negative value")
+        return value * 2
+    except ValueError:
+        return 0
+'''
+
+[test.assertions]
+contains = ["struct ValueError", "ValueError::new("]
+
+[[test]]
+name = "try_except_multiple_caught_types"
+description = "Multiple exception types in try/except handlers"
+tags = ["try", "except", "multiple-types"]
+
+[test.python]
+code = '''
+def process_data(value: int, divisor: int) -> int:
+    try:
+        if value < 0:
+            raise ValueError("negative value")
+        if divisor == 0:
+            raise ZeroDivisionError("division by zero")
+        return value // divisor
+    except ValueError:
+        return -1
+    except ZeroDivisionError:
+        return -2
+'''
+
+[test.assertions]
+contains = ["struct ValueError", "struct ZeroDivisionError"]

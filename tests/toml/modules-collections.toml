@@ -1,0 +1,412 @@
+# Collections Module Tests - Migrated from test_collections_unit.rs, test_counter_unit.rs, test_defaultdict_unit.rs, test_deque_unit.rs
+
+[metadata]
+name = "Collections Module Tests"
+category = "stdlib-collections"
+
+# =============================================================================
+# Counter
+# =============================================================================
+
+[[test]]
+name = "counter_from_list"
+description = "Counter from list initialization"
+tags = ["collections", "counter"]
+
+[test.python]
+code = '''
+from collections import Counter
+
+def count_items(items: list[str]) -> dict[str, int]:
+    return dict(Counter(items))
+'''
+
+[test.assertions]
+contains_any = [["HashMap", "count", "entry"]]
+
+[[test]]
+name = "counter_most_common"
+description = "Counter.most_common() method"
+tags = ["collections", "counter"]
+
+[test.python]
+code = '''
+from collections import Counter
+
+def top_items(items: list[str], n: int) -> list[tuple[str, int]]:
+    return Counter(items).most_common(n)
+'''
+
+[test.assertions]
+contains_any = [["sort", "HashMap", "Vec"]]
+
+[[test]]
+name = "counter_elements"
+description = "Counter.elements() iteration"
+tags = ["collections", "counter"]
+
+[test.python]
+code = '''
+from collections import Counter
+
+def expand_counts(counts: dict[str, int]) -> list[str]:
+    c = Counter(counts)
+    return list(c.elements())
+'''
+
+[test.assertions]
+contains_any = [["flat_map", "repeat", "iter"]]
+
+# =============================================================================
+# DefaultDict
+# =============================================================================
+
+[[test]]
+name = "defaultdict_int"
+description = "defaultdict with int factory"
+tags = ["collections", "defaultdict"]
+
+[test.python]
+code = '''
+from collections import defaultdict
+
+def count_words(words: list[str]) -> dict[str, int]:
+    counts = defaultdict(int)
+    for word in words:
+        counts[word] += 1
+    return dict(counts)
+'''
+
+[test.assertions]
+contains_any = [["entry", "or_insert", "HashMap"]]
+
+[[test]]
+name = "defaultdict_list"
+description = "defaultdict with list factory"
+tags = ["collections", "defaultdict"]
+
+[test.python]
+code = '''
+from collections import defaultdict
+
+def group_by_first_char(words: list[str]) -> dict[str, list[str]]:
+    groups = defaultdict(list)
+    for word in words:
+        groups[word[0]].append(word)
+    return dict(groups)
+'''
+
+[test.assertions]
+contains_any = [["entry", "or_insert_with", "HashMap", "Vec"]]
+
+# =============================================================================
+# Deque
+# =============================================================================
+
+[[test]]
+name = "deque_creation"
+description = "deque creation and initialization"
+tags = ["collections", "deque"]
+
+[test.python]
+code = '''
+from collections import deque
+
+def make_deque(items: list[int]) -> deque:
+    return deque(items)
+'''
+
+[test.assertions]
+contains_any = [["VecDeque", "from"]]
+
+[[test]]
+name = "deque_append"
+description = "deque append operations"
+tags = ["collections", "deque"]
+
+[test.python]
+code = '''
+from collections import deque
+
+def add_items(d: deque, item: int) -> None:
+    d.append(item)
+'''
+
+[test.assertions]
+contains_any = [["push_back", "VecDeque"]]
+
+[[test]]
+name = "deque_appendleft"
+description = "deque appendleft operation"
+tags = ["collections", "deque"]
+
+[test.python]
+code = '''
+from collections import deque
+
+def add_front(d: deque, item: int) -> None:
+    d.appendleft(item)
+'''
+
+[test.assertions]
+contains_any = [["push_front", "VecDeque"]]
+
+[[test]]
+name = "deque_pop"
+description = "deque pop operations"
+tags = ["collections", "deque"]
+
+[test.python]
+code = '''
+from collections import deque
+
+def remove_last(d: deque) -> int:
+    return d.pop()
+'''
+
+[test.assertions]
+contains_any = [["pop_back", "VecDeque"]]
+
+[[test]]
+name = "deque_popleft"
+description = "deque popleft operation"
+tags = ["collections", "deque"]
+
+[test.python]
+code = '''
+from collections import deque
+
+def remove_first(d: deque) -> int:
+    return d.popleft()
+'''
+
+[test.assertions]
+contains_any = [["pop_front", "VecDeque"]]
+
+[[test]]
+name = "deque_rotate"
+description = "deque rotate operation"
+tags = ["collections", "deque"]
+
+[test.python]
+code = '''
+from collections import deque
+
+def rotate_right(d: deque, n: int) -> None:
+    d.rotate(n)
+'''
+
+[test.assertions]
+contains_any = [["rotate", "VecDeque"]]
+
+# =============================================================================
+# Named Tuple
+# =============================================================================
+
+[[test]]
+name = "namedtuple_creation"
+description = "namedtuple definition and creation"
+tags = ["collections", "namedtuple"]
+
+[test.python]
+code = '''
+from collections import namedtuple
+
+Point = namedtuple('Point', ['x', 'y'])
+
+def make_point(x: int, y: int) -> Point:
+    return Point(x, y)
+'''
+
+[test.assertions]
+contains_any = [["struct Point", "struct"]]
+
+[[test]]
+name = "namedtuple_access"
+description = "namedtuple field access"
+tags = ["collections", "namedtuple"]
+
+[test.python]
+code = '''
+from collections import namedtuple
+
+Point = namedtuple('Point', ['x', 'y'])
+
+def get_x(p: Point) -> int:
+    return p.x
+'''
+
+[test.assertions]
+contains_any = [[".x", "struct"]]
+
+# =============================================================================
+# OrderedDict
+# =============================================================================
+
+[[test]]
+name = "ordereddict_creation"
+description = "OrderedDict creation"
+tags = ["collections", "ordereddict"]
+
+[test.python]
+code = '''
+from collections import OrderedDict
+
+def make_ordered() -> OrderedDict:
+    return OrderedDict([("a", 1), ("b", 2)])
+'''
+
+[test.assertions]
+contains_any = [["IndexMap", "BTreeMap", "LinkedHashMap"]]
+
+# =============================================================================
+# heapq Module (from test_heapq_unit.rs)
+# =============================================================================
+
+[[test]]
+name = "heapq_heapify"
+description = "heapq.heapify() create min-heap"
+tags = ["heapq", "heap"]
+
+[test.python]
+code = '''
+import heapq
+
+def create_heap(items: list) -> None:
+    heapq.heapify(items)
+'''
+
+[test.assertions]
+contains_any = [["heap", "swap"]]
+
+[[test]]
+name = "heapq_heappush"
+description = "heapq.heappush() add to heap"
+tags = ["heapq", "push"]
+
+[test.python]
+code = '''
+import heapq
+
+def push_item(heap: list, item: int) -> None:
+    heapq.heappush(heap, item)
+'''
+
+[test.assertions]
+contains_any = [["push", "swap"]]
+
+[[test]]
+name = "heapq_heappop"
+description = "heapq.heappop() remove min"
+tags = ["heapq", "pop"]
+
+[test.python]
+code = '''
+import heapq
+
+def pop_min(heap: list) -> int:
+    return heapq.heappop(heap)
+'''
+
+[test.assertions]
+contains_any = [["pop", "swap"]]
+
+[[test]]
+name = "heapq_nlargest"
+description = "heapq.nlargest() get n largest"
+tags = ["heapq", "nlargest"]
+
+[test.python]
+code = '''
+import heapq
+
+def get_largest(n: int, items: list) -> list:
+    return heapq.nlargest(n, items)
+'''
+
+[test.assertions]
+contains_any = [["sort", "take"]]
+
+[[test]]
+name = "heapq_nsmallest"
+description = "heapq.nsmallest() get n smallest"
+tags = ["heapq", "nsmallest"]
+
+[test.python]
+code = '''
+import heapq
+
+def get_smallest(n: int, items: list) -> list:
+    return heapq.nsmallest(n, items)
+'''
+
+[test.assertions]
+contains_any = [["sort", "take"]]
+
+# =============================================================================
+# bisect Module (from test_bisect_unit.rs)
+# =============================================================================
+
+[[test]]
+name = "bisect_left"
+description = "bisect.bisect_left() leftmost insert point"
+tags = ["bisect", "search"]
+
+[test.python]
+code = '''
+import bisect
+
+def find_insert_left(a: list, x: int) -> int:
+    return bisect.bisect_left(a, x)
+'''
+
+[test.assertions]
+contains_any = [["bisect", "binary_search"]]
+
+[[test]]
+name = "bisect_right"
+description = "bisect.bisect_right() rightmost insert point"
+tags = ["bisect", "search"]
+
+[test.python]
+code = '''
+import bisect
+
+def find_insert_right(a: list, x: int) -> int:
+    return bisect.bisect_right(a, x)
+'''
+
+[test.assertions]
+contains_any = [["bisect", "binary_search"]]
+
+[[test]]
+name = "bisect_insort_left"
+description = "bisect.insort_left() insert in sorted order"
+tags = ["bisect", "insert"]
+
+[test.python]
+code = '''
+import bisect
+
+def insert_left(a: list, x: int) -> None:
+    bisect.insort_left(a, x)
+'''
+
+[test.assertions]
+contains_any = [["insert", "push"]]
+
+[[test]]
+name = "bisect_insort_right"
+description = "bisect.insort_right() insert at right"
+tags = ["bisect", "insert"]
+
+[test.python]
+code = '''
+import bisect
+
+def insert_right(a: list, x: int) -> None:
+    bisect.insort_right(a, x)
+'''
+
+[test.assertions]
+contains_any = [["insert", "push"]]

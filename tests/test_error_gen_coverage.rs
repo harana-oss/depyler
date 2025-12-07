@@ -14,7 +14,7 @@
 //! Strategy: Integration tests via DepylerPipeline that trigger error type flags
 
 use crate::test_helpers;
-use crate::test_helpers::transpile;
+use crate::test_helpers::transpile_and_check;
 
 // ============================================================================
 // ZERO DIVISION ERROR TESTS
@@ -29,7 +29,7 @@ def divide(a: int, b: int) -> int:
     return a // b
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated code with ZeroDivisionError:\n{}", rust_code);
 
     // Should generate ZeroDivisionError struct definition
@@ -46,7 +46,7 @@ def compute(x: int) -> int:
     return 100 // x
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated code with implicit division:\n{}", rust_code);
 
     // Division operations may generate error handling
@@ -70,7 +70,7 @@ def get_item(items: list, index: int) -> int:
     return items[index]
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated code with IndexError:\n{}", rust_code);
 
     // Should generate IndexError struct definition
@@ -87,7 +87,7 @@ def access_list(data: list) -> int:
     raise IndexError("invalid index")
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated code with explicit IndexError:\n{}", rust_code);
 
     // Explicit IndexError raise should generate the error type
@@ -110,7 +110,7 @@ def validate(x: int) -> int:
     return x
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated code with ValueError:\n{}", rust_code);
 
     // Should generate ValueError struct definition
@@ -129,7 +129,7 @@ def check_range(n: int) -> int:
     return n
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated code with range ValueError:\n{}", rust_code);
 
     // Explicit ValueError raise should generate the error type
@@ -156,7 +156,7 @@ def complex_operation(a: int, b: int, items: list) -> int:
     return (a // b) + items[b]
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated code with multiple error types:\n{}", rust_code);
 
     // Should handle multiple error types in same function
@@ -179,7 +179,7 @@ def simple_add(a: int, b: int) -> int:
     return a + b
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated code without error types:\n{}", rust_code);
 
     // Simple function should not generate error type definitions
@@ -201,7 +201,7 @@ def fails() -> int:
     raise ValueError("test error")
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated error type definition:\n{}", rust_code);
 
     // Error types should implement standard Error trait
@@ -221,7 +221,7 @@ def validate_positive(n: int) -> int:
     return n
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated error with message:\n{}", rust_code);
 
     // Error should preserve the message
@@ -251,7 +251,7 @@ def divide_by_zero() -> int:
 "#, a);
 
             // Should always transpile (even if it would panic at runtime)
-            let result: Result<String, String> = Ok(transpile(&python_code));
+            let result: Result<String, String> = Ok(transpile_and_check(&python_code, &[]));
             prop_assert!(result.is_ok(), "Division by zero should transpile");
         }
 
@@ -266,7 +266,7 @@ def check_threshold(x: int) -> int:
     return x
 "#, threshold);
 
-            let rust_code = transpile(&python_code);
+            let rust_code = transpile_and_check(&python_code, &[]);
             // Message content should be preserved
             prop_assert!(
                 rust_code.contains("threshold") || rust_code.contains("exceeds"),
@@ -285,7 +285,7 @@ def access_at_index(items: list) -> int:
     return items[{}]
 "#, index, index);
 
-            let result: Result<String, String> = Ok(transpile(&python_code));
+            let result: Result<String, String> = Ok(transpile_and_check(&python_code, &[]));
             prop_assert!(
                 result.is_ok(),
                 "IndexError code should always transpile"
@@ -309,7 +309,7 @@ def nested(x: int, y: int) -> int:
     return 100 // x
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated nested error handling:\n{}", rust_code);
 
     // Should handle nested error conditions
@@ -331,7 +331,7 @@ def process_items(items: list) -> int:
     return total
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated error in loop:\n{}", rust_code);
 
     // Should handle errors inside loops
@@ -352,7 +352,7 @@ def conditional_error(x: int, strict: bool) -> int:
     return x
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated conditional error:\n{}", rust_code);
 
     // Should handle conditional error raising

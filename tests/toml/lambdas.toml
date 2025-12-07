@@ -1,0 +1,276 @@
+# Lambda Tests - Migrated from test_lambdas.rs, test_lambda_integration.rs
+
+[metadata]
+name = "Lambda Tests"
+category = "lambdas"
+
+# =============================================================================
+# Basic Lambdas
+# =============================================================================
+
+[[test]]
+name = "lambda_simple"
+description = "Simple single-parameter lambda"
+tags = ["lambda", "map"]
+
+[test.python]
+code = '''
+def double_numbers(numbers: list[int]) -> list[int]:
+    return list(map(lambda x: x * 2, numbers))
+'''
+
+[test.assertions]
+contains = [".map"]
+contains_any = [["|x|", "| x |"]]
+
+[[test]]
+name = "lambda_identity"
+description = "Identity lambda"
+tags = ["lambda", "identity"]
+
+[test.python]
+code = '''
+def identity_map(items: list[int]) -> list[int]:
+    return list(map(lambda x: x, items))
+'''
+
+[test.assertions]
+contains_any = [["|x| x", "| x | x"]]
+
+# =============================================================================
+# Lambda with filter
+# =============================================================================
+
+[[test]]
+name = "lambda_filter_positive"
+description = "Lambda in filter for positive numbers"
+tags = ["lambda", "filter"]
+
+[test.python]
+code = '''
+def filter_positive(numbers: list[int]) -> list[int]:
+    return list(filter(lambda x: x > 0, numbers))
+'''
+
+[test.assertions]
+contains = [".filter"]
+contains_any = [["|x|", "| x |"]]
+
+[[test]]
+name = "lambda_filter_predicate"
+description = "Lambda filter with complex predicate"
+tags = ["lambda", "filter", "predicate"]
+
+[test.python]
+code = '''
+def filter_range(items: list[int], low: int, high: int) -> list[int]:
+    return list(filter(lambda x: x >= low and x <= high, items))
+'''
+
+[test.assertions]
+contains = [".filter"]
+contains_any = [["|x|", "&&"]]
+
+# =============================================================================
+# Lambda with sorted
+# =============================================================================
+
+[[test]]
+name = "lambda_sorted_key"
+description = "Lambda as key function for sorted"
+tags = ["lambda", "sorted", "key"]
+
+[test.python]
+code = '''
+def sort_by_length(words: list[str]) -> list[str]:
+    return sorted(words, key=lambda x: len(x))
+'''
+
+[test.assertions]
+contains_any = [["|x|", "| x |", "sort", "len()"]]
+
+[[test]]
+name = "lambda_sorted_reverse"
+description = "Lambda for reverse sorting"
+tags = ["lambda", "sorted", "reverse"]
+
+[test.python]
+code = '''
+def sort_descending(numbers: list[int]) -> list[int]:
+    return sorted(numbers, key=lambda x: -x)
+'''
+
+[test.assertions]
+contains_any = [["|x| -x", "cmp", "reverse", "sort"]]
+
+# =============================================================================
+# Multi-parameter Lambda
+# =============================================================================
+
+[[test]]
+name = "lambda_two_params"
+description = "Lambda with two parameters"
+tags = ["lambda", "multi-param"]
+
+[test.python]
+code = '''
+def add_pairs(pairs: list[tuple[int, int]]) -> list[int]:
+    return [x + y for x, y in pairs]
+'''
+
+[test.assertions]
+contains_any = [["|x, y|", "| x, y |", "|(x, y)|"]]
+
+# =============================================================================
+# Lambda with reduce
+# =============================================================================
+
+[[test]]
+name = "lambda_reduce_sum"
+description = "Lambda in reduce for sum"
+tags = ["lambda", "reduce", "fold"]
+
+[test.python]
+code = '''
+from functools import reduce
+
+def sum_all(numbers: list[int]) -> int:
+    return reduce(lambda acc, x: acc + x, numbers, 0)
+'''
+
+[test.assertions]
+contains = ["fold("]
+contains_any = [["|acc, x|", "|acc,x|"]]
+
+[[test]]
+name = "lambda_reduce_product"
+description = "Lambda in reduce for product"
+tags = ["lambda", "reduce", "fold"]
+
+[test.python]
+code = '''
+from functools import reduce
+
+def product_all(numbers: list[int]) -> int:
+    return reduce(lambda acc, x: acc * x, numbers, 1)
+'''
+
+[test.assertions]
+contains = ["fold("]
+contains_any = [["|acc, x|", "acc * x"]]
+
+# =============================================================================
+# Lambda with Complex Expressions
+# =============================================================================
+
+[[test]]
+name = "lambda_conditional"
+description = "Lambda with conditional expression"
+tags = ["lambda", "conditional"]
+
+[test.python]
+code = '''
+def classify(numbers: list[int]) -> list[str]:
+    return list(map(lambda x: "positive" if x > 0 else "non-positive", numbers))
+'''
+
+[test.assertions]
+contains = [".map"]
+contains_any = [["if", "else"]]
+
+[[test]]
+name = "lambda_arithmetic"
+description = "Lambda with arithmetic expression"
+tags = ["lambda", "arithmetic"]
+
+[test.python]
+code = '''
+def transform(numbers: list[int]) -> list[int]:
+    return list(map(lambda x: x * 2 + 1, numbers))
+'''
+
+[test.assertions]
+contains = [".map"]
+contains_any = [["|x|", "* 2 + 1"]]
+
+# =============================================================================
+# Lambda Capturing Variables
+# =============================================================================
+
+[[test]]
+name = "lambda_capture_variable"
+description = "Lambda capturing outer variable"
+tags = ["lambda", "capture"]
+
+[test.python]
+code = '''
+def add_constant(numbers: list[int], constant: int) -> list[int]:
+    return list(map(lambda x: x + constant, numbers))
+'''
+
+[test.assertions]
+contains = [".map", "constant"]
+contains_any = [["|x|", "| x |"]]
+
+[[test]]
+name = "lambda_closure"
+description = "Lambda as closure"
+tags = ["lambda", "closure"]
+
+[test.python]
+code = '''
+def make_multiplier(factor: int):
+    return lambda x: x * factor
+'''
+
+[test.assertions]
+contains_any = [["|x|", "| x |", "move |"]]
+
+# =============================================================================
+# Nested Lambdas
+# =============================================================================
+
+[[test]]
+name = "lambda_nested"
+description = "Nested lambda expressions"
+tags = ["lambda", "nested"]
+
+[test.python]
+code = '''
+def nested_transform(matrix: list) -> list:
+    return list(map(lambda row: list(map(lambda x: x * 2, row)), matrix))
+'''
+
+[test.assertions]
+contains_any = [["|row|", "| row |"]]
+contains = [".map"]
+
+[[test]]
+name = "lambda_in_comprehension"
+description = "Lambda in list comprehension"
+tags = ["lambda", "comprehension"]
+
+[test.python]
+code = '''
+def process_items(items: list) -> list:
+    transform = lambda x: x * 2
+    return [transform(item) for item in items]
+'''
+
+[test.assertions]
+contains_any = [["|x|", "| x |"]]
+
+[[test]]
+name = "lambda_distance_calc"
+description = "Lambda with complex math expression"
+tags = ["lambda", "math"]
+
+[test.python]
+code = '''
+def calculate_distances(points: list) -> list:
+    return list(map(lambda p: (p[0] ** 2 + p[1] ** 2) ** 0.5, points))
+'''
+
+[test.assertions]
+contains_any = [["|p|", "| p |"]]
+contains = [".map"]

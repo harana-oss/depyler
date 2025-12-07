@@ -1,4 +1,4 @@
-use crate::test_helpers::transpile;
+use crate::test_helpers::transpile_and_check;
 
 // ============================================================================
 // FINAL TYPE ANNOTATION TESTS - Python typing.Final to Rust const
@@ -14,7 +14,7 @@ def get_field_goal() -> int:
     return FIELD_GOAL
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated Rust code:\n{}", rust_code);
 
     // Check that 'const' is used instead of 'let'
@@ -63,7 +63,7 @@ def factorial(n: int) -> int:
     return result
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // Should contain proper range syntax (1..n + 1), not just "for i in 1" without the range
     assert!(
@@ -112,7 +112,7 @@ def binary_search(arr: list, target: int) -> int:
     return -1
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // Should NOT contain "let mut left =" or "let mut right =" inside conditionals
     let lines: Vec<&str> = rust_code.lines().collect();
@@ -141,7 +141,7 @@ def add(a: int, b: int) -> int:
     return a + b
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // Should NOT contain docstring as an expression like '"Add two numbers" . to_string ();'
     assert!(
@@ -167,7 +167,7 @@ def process_empty_list(arr: list) -> int:
     return right
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // Should handle empty array case properly
     assert!(
@@ -190,7 +190,7 @@ def divide(a: int, b: int) -> int:
     return a // b
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // Should use proper integer division, not float division
     assert!(
@@ -207,7 +207,7 @@ def get_item(arr: list, index: int) -> int:
     return arr[index]
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // Should use safe indexing methods
     assert!(
@@ -224,7 +224,7 @@ def concat_strings(a: str, b: str) -> str:
     return a + b
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // Should use efficient string operations
     assert!(
@@ -244,7 +244,7 @@ def process_data(data: list) -> list:
     return result
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // Should have proper ownership and borrowing
     assert!(
@@ -268,7 +268,7 @@ def example_function(x: int) -> int:
     return x * 2
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // Should NOT contain docstring as executable expression
     assert!(
@@ -291,7 +291,7 @@ def floor_divide(a: int, b: int) -> int:
     return a // b
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // Should use integer division, not float division
     // In Rust, integer division with / already truncates toward zero for integers
@@ -313,7 +313,7 @@ def multiply_by_two(x: int) -> int:
     return x * 2
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // Should either use multiplication or clearly documented bit shift
     // Bit shift is an optimization but can behave differently for negative numbers
@@ -340,7 +340,7 @@ def process_items(items: list) -> list:
     return items
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // Should NOT contain literal 'list' type
     assert!(
@@ -363,7 +363,7 @@ def get_last_index(arr: list) -> int:
     return len(arr) - 1
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // Should use saturating arithmetic or proper bounds checking
     assert!(
@@ -382,7 +382,7 @@ def get_length(arr: list) -> int:
     return len(arr)
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // Should NOT have spaces in method calls
     assert!(
@@ -405,7 +405,7 @@ def get_item(arr: list, i: int) -> int:
     return arr[i]
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // Should use safe indexing methods
     assert!(
@@ -423,7 +423,7 @@ def create_list() -> list:
     return items
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // Return type and variable type should be consistent
     let vec_count = rust_code.matches("Vec<").count();
@@ -450,7 +450,7 @@ def calculate_sum(numbers: List[int]) -> int:
     return total
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // Check proper generic spacing
     assert!(
@@ -500,7 +500,7 @@ def test_array():
     return arr
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // CRITICAL ASSERTION: Generated code MUST include the assignment
     assert!(
@@ -528,7 +528,7 @@ def test_arrays():
     return arr1, arr2, arr3
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // Check for assignments (not just variable names in return statement)
     let has_arr1_assign = rust_code.contains("arr1 =") || rust_code.contains("let arr1");
@@ -561,7 +561,7 @@ def test_bool_array():
     return flags
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(
         rust_code.contains("flags =") || rust_code.contains("let flags"),
@@ -599,7 +599,7 @@ def test_shallow_copy() -> int:
     return len(original)
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // CRITICAL: Should NOT generate `.copy()` method (doesn't exist in Rust)
     assert!(
@@ -636,7 +636,7 @@ def test_dict_copy() -> int:
     return len(original)
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // Should generate valid Rust code for dict copy
     assert!(
@@ -659,7 +659,7 @@ def test_deep_copy() -> int:
     return len(original[0])
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // Should generate valid deep copy operation
     assert!(
@@ -679,7 +679,7 @@ def sum_list(numbers: list) -> int:
     return total
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     assert!(rust_code.contains("fn sum_list"));
     assert!(!rust_code.contains("DynamicType"));
 }
@@ -691,7 +691,7 @@ def get_value(data: dict, key: str) -> int:
     return data.get(key, 0)
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     assert!(rust_code.contains("fn get_value"));
     assert!(!rust_code.contains("DynamicType"));
 }

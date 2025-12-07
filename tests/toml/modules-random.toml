@@ -1,0 +1,285 @@
+# Random Module Tests - Migrated from test_random_unit.rs, test_secrets_unit.rs
+
+[metadata]
+name = "Random Module Tests"
+category = "stdlib-random"
+
+# =============================================================================
+# Random Number Generation
+# =============================================================================
+
+[[test]]
+name = "random_random"
+description = "random.random() float [0, 1)"
+tags = ["random", "float"]
+
+[test.python]
+code = '''
+import random
+
+def get_random_float() -> float:
+    return random.random()
+'''
+
+[test.assertions]
+contains_any = [["rand::random", "Rng", "gen()"]]
+
+[[test]]
+name = "random_randint"
+description = "random.randint(a, b) inclusive range"
+tags = ["random", "int"]
+
+[test.python]
+code = '''
+import random
+
+def roll_dice() -> int:
+    return random.randint(1, 6)
+'''
+
+[test.assertions]
+contains_any = [["gen_range(", "Rng", "1..=6"]]
+
+[[test]]
+name = "random_randrange"
+description = "random.randrange(start, stop, step)"
+tags = ["random", "range"]
+
+[test.python]
+code = '''
+import random
+
+def random_even(max_val: int) -> int:
+    return random.randrange(0, max_val, 2)
+'''
+
+[test.assertions]
+contains_any = [["gen_range(", "step_by", "filter"]]
+
+[[test]]
+name = "random_uniform"
+description = "random.uniform(a, b) float range"
+tags = ["random", "float"]
+
+[test.python]
+code = '''
+import random
+
+def random_in_range(low: float, high: float) -> float:
+    return random.uniform(low, high)
+'''
+
+[test.assertions]
+contains_any = [["gen_range(", "Uniform"]]
+
+# =============================================================================
+# Random Selection
+# =============================================================================
+
+[[test]]
+name = "random_choice"
+description = "random.choice() single selection"
+tags = ["random", "choice"]
+
+[test.python]
+code = '''
+import random
+
+def pick_one(items: list[str]) -> str:
+    return random.choice(items)
+'''
+
+[test.assertions]
+contains_any = [["choose(", "gen_range"]]
+
+[[test]]
+name = "random_choices"
+description = "random.choices() with replacement"
+tags = ["random", "choice"]
+
+[test.python]
+code = '''
+import random
+
+def pick_many(items: list[str], k: int) -> list[str]:
+    return random.choices(items, k=k)
+'''
+
+[test.assertions]
+contains_any = [["choose(", "sample", "repeat_with"]]
+
+[[test]]
+name = "random_sample"
+description = "random.sample() without replacement"
+tags = ["random", "sample"]
+
+[test.python]
+code = '''
+import random
+
+def pick_unique(items: list[str], k: int) -> list[str]:
+    return random.sample(items, k)
+'''
+
+[test.assertions]
+contains_any = [["choose_multiple(", "sample", "shuffle"]]
+
+# =============================================================================
+# Random Shuffling
+# =============================================================================
+
+[[test]]
+name = "random_shuffle"
+description = "random.shuffle() in-place shuffle"
+tags = ["random", "shuffle"]
+
+[test.python]
+code = '''
+import random
+
+def mix_up(items: list[int]) -> None:
+    random.shuffle(items)
+'''
+
+[test.assertions]
+contains_any = [["shuffle(", "SliceRandom"]]
+
+# =============================================================================
+# Random Seed
+# =============================================================================
+
+[[test]]
+name = "random_seed"
+description = "random.seed() deterministic seeding"
+tags = ["random", "seed"]
+
+[test.python]
+code = '''
+import random
+
+def set_seed(seed: int) -> None:
+    random.seed(seed)
+'''
+
+[test.assertions]
+contains_any = [["SeedableRng", "seed_from_u64", "StdRng::seed"]]
+
+# =============================================================================
+# Secrets Module (Cryptographic)
+# =============================================================================
+
+[[test]]
+name = "secrets_token_bytes"
+description = "secrets.token_bytes() secure random"
+tags = ["secrets", "crypto"]
+
+[test.python]
+code = '''
+import secrets
+
+def random_bytes(n: int) -> bytes:
+    return secrets.token_bytes(n)
+'''
+
+[test.assertions]
+contains_any = [["OsRng", "getrandom", "thread_rng"]]
+
+[[test]]
+name = "secrets_token_hex"
+description = "secrets.token_hex() hex string"
+tags = ["secrets", "crypto"]
+
+[test.python]
+code = '''
+import secrets
+
+def random_hex(n: int) -> str:
+    return secrets.token_hex(n)
+'''
+
+[test.assertions]
+contains_any = [["OsRng", "hex::encode", "format!"]]
+
+[[test]]
+name = "secrets_choice"
+description = "secrets.choice() secure selection"
+tags = ["secrets", "crypto"]
+
+[test.python]
+code = '''
+import secrets
+
+def secure_pick(items: list[str]) -> str:
+    return secrets.choice(items)
+'''
+
+[test.assertions]
+contains_any = [["OsRng", "choose("]]
+
+[[test]]
+name = "secrets_randbelow"
+description = "secrets.randbelow() secure int"
+tags = ["secrets", "crypto"]
+
+[test.python]
+code = '''
+import secrets
+
+def secure_int(exclusive_max: int) -> int:
+    return secrets.randbelow(exclusive_max)
+'''
+
+[test.assertions]
+contains_any = [["OsRng", "gen_range(", "0.."]]
+
+# =============================================================================
+# Statistical Distributions
+# =============================================================================
+
+[[test]]
+name = "random_gauss"
+description = "random.gauss() normal distribution"
+tags = ["random", "distribution"]
+
+[test.python]
+code = '''
+import random
+
+def normal_random(mu: float, sigma: float) -> float:
+    return random.gauss(mu, sigma)
+'''
+
+[test.assertions]
+contains_any = [["Normal::", "sample(", "StandardNormal"]]
+
+[[test]]
+name = "random_expovariate"
+description = "random.expovariate() exponential distribution"
+tags = ["random", "distribution"]
+
+[test.python]
+code = '''
+import random
+
+def exponential_random(rate: float) -> float:
+    return random.expovariate(rate)
+'''
+
+[test.assertions]
+contains_any = [["Exp::", "Exponential", "sample("]]
+
+[[test]]
+name = "random_triangular"
+description = "random.triangular() triangular distribution"
+tags = ["random", "distribution"]
+
+[test.python]
+code = '''
+import random
+
+def triangular_random(low: float, high: float, mode: float) -> float:
+    return random.triangular(low, high, mode)
+'''
+
+[test.assertions]
+contains_any = [["Triangular", "triangular"]]

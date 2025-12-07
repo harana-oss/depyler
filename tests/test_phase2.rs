@@ -4,7 +4,7 @@
 // 3. Iterator reference cloning in for loops (2 errors)
 
 use crate::test_helpers;
-use crate::test_helpers::transpile;
+use crate::test_helpers::transpile_and_check;
 
 // ========== Cow<str> Fix Tests ==========
 
@@ -15,7 +15,7 @@ def has_key(d: dict[str, int], key: str) -> bool:
     return key in d
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     // Should NOT use Cow<'_, str>
     // Should NOT use Cow<'_, str>
     assert!(
@@ -41,7 +41,7 @@ def find_value(d: dict[str, int], search_key: str) -> int:
     return -1
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // String parameter used in comparison shouldn't use Cow
     assert!(
@@ -64,7 +64,7 @@ def get_without_default(d: dict[str, int], key: str) -> int | None:
     return result
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // Should NOT unwrap_or_default when return type is Optional
     assert!(
@@ -85,7 +85,7 @@ def get_with_default(d: dict[str, int], key: str) -> int:
     return d.get(key, 0)
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // With default value, should still unwrap
     assert!(
@@ -106,7 +106,7 @@ def get_or_zero(d: dict[str, int], key: str) -> int:
     return result
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // Non-optional return should unwrap
     // Note: This may not be perfect yet, but should not break
@@ -131,7 +131,7 @@ def sum_dict(d: dict[str, int]) -> int:
     return total
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // Both k and v are used, so pattern should be (k, v) not (_k, v)
     assert!(
@@ -156,7 +156,7 @@ def update_dict(d1: dict[str, int], d2: dict[str, int]) -> None:
         d1[k] = v
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // k is used in assignment target (d1[k]), so should be (k, v)
     assert!(
@@ -183,7 +183,7 @@ def sum_values(d: dict[str, int]) -> int:
     return total
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // k is unused, v is used, so pattern should be (_k, v)
     assert!(
@@ -204,7 +204,7 @@ def copy_keys(d: dict[str, int]) -> list[str]:
     return keys
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // Should use .iter().map(...).collect() for items()
     assert!(
@@ -236,7 +236,7 @@ def merge_and_get(d1: dict[str, int], d2: dict[str, int], key: str) -> int | Non
     return result.get(key)
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // Fix #5: String param should not use Cow
     assert!(!rust_code.contains("Cow<"), "Should NOT use Cow for string parameter");
@@ -267,7 +267,7 @@ def dict_ops(d: dict[str, int]) -> None:
         print(d["check_key"])
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // Basic dict operations should still work
     assert!(

@@ -1,0 +1,185 @@
+# CSV Module Tests
+# Migrated from test_csv_api.rs, test_csv_kwargs.rs
+
+[metadata]
+name = "CSV Module Tests"
+category = "stdlib-csv"
+
+# =============================================================================
+# CSV DictReader
+# =============================================================================
+
+[[test]]
+name = "csv_dictreader_creation"
+description = "csv.DictReader creation and usage"
+tags = ["csv", "dictreader"]
+
+[test.python]
+code = '''
+import csv
+
+def read_csv(filepath: str) -> list:
+    with open(filepath) as f:
+        reader = csv.DictReader(f)
+        return list(reader)
+'''
+
+[test.assertions]
+contains_any = [["csv::ReaderBuilder", "csv::Reader"]]
+not_contains = ["reader.iter()"]
+
+[[test]]
+name = "csv_fieldnames_access"
+description = "Access CSV headers via fieldnames"
+tags = ["csv", "headers"]
+
+[test.python]
+code = '''
+import csv
+
+def get_headers(filepath: str):
+    with open(filepath) as f:
+        reader = csv.DictReader(f)
+        return reader.fieldnames
+'''
+
+[test.assertions]
+contains = [".headers()"]
+not_contains = ["reader.fieldnames"]
+
+[[test]]
+name = "csv_row_iteration"
+description = "Iterate over CSV rows"
+tags = ["csv", "iteration"]
+
+[test.python]
+code = '''
+import csv
+
+def print_rows(filepath: str):
+    with open(filepath) as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            print(row)
+'''
+
+[test.assertions]
+contains_any = [["deserialize", "HashMap"]]
+not_contains = ["reader.iter()"]
+
+[[test]]
+name = "csv_row_item_access"
+description = "Access CSV row by column name"
+tags = ["csv", "access"]
+
+[test.python]
+code = '''
+import csv
+
+def get_column(filepath: str, column_name: str):
+    with open(filepath) as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            print(row[column_name])
+'''
+
+[test.assertions]
+contains = [".get("]
+not_contains = ["as usize"]
+
+[[test]]
+name = "csv_filtering"
+description = "Filter CSV rows by column value"
+tags = ["csv", "filter"]
+
+[test.python]
+code = '''
+import csv
+
+def filter_csv(filepath: str, column: str, value: str) -> list:
+    with open(filepath) as f:
+        reader = csv.DictReader(f)
+        results = []
+        for row in reader:
+            if row[column] == value:
+                results.append(row)
+        return results
+'''
+
+[test.assertions]
+contains_any = [["deserialize", "HashMap"]]
+contains = [".get("]
+
+[[test]]
+name = "csv_comprehension"
+description = "CSV filtering with list comprehension"
+tags = ["csv", "comprehension"]
+
+[test.python]
+code = '''
+import csv
+
+def filter_csv_generator(filepath: str, column: str, value: str) -> list:
+    with open(filepath) as f:
+        reader = csv.DictReader(f)
+        filtered = [row for row in reader if row[column] == value]
+        return filtered
+'''
+
+[test.assertions]
+contains_any = [["deserialize", "HashMap"]]
+not_contains = ["reader.iter()"]
+
+# =============================================================================
+# CSV DictWriter
+# =============================================================================
+
+[[test]]
+name = "csv_dictwriter_basic"
+description = "csv.DictWriter basic creation"
+tags = ["csv", "dictwriter"]
+
+[test.python]
+code = '''
+import csv
+
+def write_data(filename: str):
+    with open(filename, 'w') as f:
+        writer = csv.DictWriter(f, fieldnames=['name', 'age'])
+        writer.writeheader()
+'''
+
+[test.assertions]
+contains = ["csv::Writer"]
+
+[[test]]
+name = "csv_dictwriter_multiple_fields"
+description = "csv.DictWriter with multiple fields"
+tags = ["csv", "dictwriter"]
+
+[test.python]
+code = '''
+import csv
+
+def create_writer(output) -> None:
+    writer = csv.DictWriter(output, fieldnames=['id', 'name', 'email', 'age'])
+'''
+
+[test.assertions]
+contains = ["csv"]
+
+[[test]]
+name = "csv_dictwriter_variable_fieldnames"
+description = "csv.DictWriter with variable fieldnames"
+tags = ["csv", "dictwriter"]
+
+[test.python]
+code = '''
+import csv
+
+def create_writer(f, fields) -> None:
+    writer = csv.DictWriter(f, fieldnames=fields)
+'''
+
+[test.assertions]
+contains = ["csv"]

@@ -1,0 +1,480 @@
+# Operator Tests - Migrated from test_operators.rs, test_power_operator.rs, test_floor_div_zero_handler.rs
+
+[metadata]
+name = "Operator Tests"
+category = "operators"
+
+# =============================================================================
+# Arithmetic Operators
+# =============================================================================
+
+[[test]]
+name = "operator_add"
+description = "Addition operator"
+tags = ["operator", "arithmetic"]
+
+[test.python]
+code = '''
+def add(a: int, b: int) -> int:
+    return a + b
+'''
+
+[test.assertions]
+contains = ["a + b"]
+
+[[test]]
+name = "operator_subtract"
+description = "Subtraction operator"
+tags = ["operator", "arithmetic"]
+
+[test.python]
+code = '''
+def subtract(a: int, b: int) -> int:
+    return a - b
+'''
+
+[test.assertions]
+contains = ["a - b"]
+
+[[test]]
+name = "operator_multiply"
+description = "Multiplication operator"
+tags = ["operator", "arithmetic"]
+
+[test.python]
+code = '''
+def multiply(a: int, b: int) -> int:
+    return a * b
+'''
+
+[test.assertions]
+contains = ["a * b"]
+
+[[test]]
+name = "operator_divide"
+description = "Division operator"
+tags = ["operator", "arithmetic"]
+
+[test.python]
+code = '''
+def divide(a: float, b: float) -> float:
+    return a / b
+'''
+
+[test.assertions]
+contains = ["a / b"]
+
+[[test]]
+name = "operator_floor_div"
+description = "Floor division operator"
+tags = ["operator", "arithmetic"]
+
+[test.python]
+code = '''
+def floor_div(a: int, b: int) -> int:
+    return a // b
+'''
+
+[test.assertions]
+contains_any = [["a / b", "div_euclid"]]
+not_contains = ["//"]
+
+[[test]]
+name = "operator_modulo"
+description = "Modulo operator"
+tags = ["operator", "arithmetic"]
+
+[test.python]
+code = '''
+def modulo(a: int, b: int) -> int:
+    return a % b
+'''
+
+[test.assertions]
+contains = ["a % b"]
+
+# =============================================================================
+# Power Operator
+# =============================================================================
+
+[[test]]
+name = "operator_power_literal"
+description = "Power operator with literals"
+tags = ["operator", "power"]
+
+[test.python]
+code = '''
+def power_literal() -> int:
+    return 2 ** 8
+'''
+
+[test.assertions]
+contains_any = [["pow(8", "2_i32.pow(", "2i32.pow(", "256"]]
+
+[[test]]
+name = "operator_power_variable"
+description = "Power operator with variables"
+tags = ["operator", "power"]
+
+[test.python]
+code = '''
+def power_var(base: int, exp: int) -> int:
+    return base ** exp
+'''
+
+[test.assertions]
+contains_any = [["pow(", "checked_pow"]]
+
+[[test]]
+name = "operator_pow_builtin"
+description = "pow() builtin function"
+tags = ["operator", "power", "builtin"]
+
+[test.python]
+code = '''
+def pow_call(base: int, exp: int) -> int:
+    return pow(base, exp)
+'''
+
+[test.assertions]
+contains = ["pow("]
+
+# =============================================================================
+# Comparison Operators
+# =============================================================================
+
+[[test]]
+name = "operator_eq"
+description = "Equality operator"
+tags = ["operator", "comparison"]
+
+[test.python]
+code = '''
+def equals(a: int, b: int) -> bool:
+    return a == b
+'''
+
+[test.assertions]
+contains = ["a == b"]
+
+[[test]]
+name = "operator_ne"
+description = "Not equal operator"
+tags = ["operator", "comparison"]
+
+[test.python]
+code = '''
+def not_equals(a: int, b: int) -> bool:
+    return a != b
+'''
+
+[test.assertions]
+contains = ["a != b"]
+
+[[test]]
+name = "operator_lt"
+description = "Less than operator"
+tags = ["operator", "comparison"]
+
+[test.python]
+code = '''
+def less_than(a: int, b: int) -> bool:
+    return a < b
+'''
+
+[test.assertions]
+contains = ["a < b"]
+
+[[test]]
+name = "operator_le"
+description = "Less than or equal operator"
+tags = ["operator", "comparison"]
+
+[test.python]
+code = '''
+def less_equal(a: int, b: int) -> bool:
+    return a <= b
+'''
+
+[test.assertions]
+contains = ["a <= b"]
+
+[[test]]
+name = "operator_gt"
+description = "Greater than operator"
+tags = ["operator", "comparison"]
+
+[test.python]
+code = '''
+def greater_than(a: int, b: int) -> bool:
+    return a > b
+'''
+
+[test.assertions]
+contains = ["a > b"]
+
+[[test]]
+name = "operator_ge"
+description = "Greater than or equal operator"
+tags = ["operator", "comparison"]
+
+[test.python]
+code = '''
+def greater_equal(a: int, b: int) -> bool:
+    return a >= b
+'''
+
+[test.assertions]
+contains = ["a >= b"]
+
+# =============================================================================
+# Logical Operators
+# =============================================================================
+
+[[test]]
+name = "operator_and"
+description = "Logical and operator"
+tags = ["operator", "logical"]
+
+[test.python]
+code = '''
+def logical_and(a: bool, b: bool) -> bool:
+    return a and b
+'''
+
+[test.assertions]
+contains = ["&&"]
+not_contains = [" and "]
+
+[[test]]
+name = "operator_or"
+description = "Logical or operator"
+tags = ["operator", "logical"]
+
+[test.python]
+code = '''
+def logical_or(a: bool, b: bool) -> bool:
+    return a or b
+'''
+
+[test.assertions]
+contains = ["||"]
+not_contains = [" or "]
+
+[[test]]
+name = "operator_not"
+description = "Logical not operator"
+tags = ["operator", "logical"]
+
+[test.python]
+code = '''
+def logical_not(a: bool) -> bool:
+    return not a
+'''
+
+[test.assertions]
+contains = ["!"]
+not_contains = [" not "]
+
+# =============================================================================
+# Bitwise Operators
+# =============================================================================
+
+[[test]]
+name = "operator_bitwise_and"
+description = "Bitwise AND operator"
+tags = ["operator", "bitwise"]
+
+[test.python]
+code = '''
+def bitwise_and(a: int, b: int) -> int:
+    return a & b
+'''
+
+[test.assertions]
+contains = ["a & b"]
+
+[[test]]
+name = "operator_bitwise_or"
+description = "Bitwise OR operator"
+tags = ["operator", "bitwise"]
+
+[test.python]
+code = '''
+def bitwise_or(a: int, b: int) -> int:
+    return a | b
+'''
+
+[test.assertions]
+contains = ["a | b"]
+
+[[test]]
+name = "operator_bitwise_xor"
+description = "Bitwise XOR operator"
+tags = ["operator", "bitwise"]
+
+[test.python]
+code = '''
+def bitwise_xor(a: int, b: int) -> int:
+    return a ^ b
+'''
+
+[test.assertions]
+contains = ["a ^ b"]
+
+[[test]]
+name = "operator_left_shift"
+description = "Left shift operator"
+tags = ["operator", "bitwise"]
+
+[test.python]
+code = '''
+def left_shift(a: int, n: int) -> int:
+    return a << n
+'''
+
+[test.assertions]
+contains = ["a << n"]
+
+[[test]]
+name = "operator_right_shift"
+description = "Right shift operator"
+tags = ["operator", "bitwise"]
+
+[test.python]
+code = '''
+def right_shift(a: int, n: int) -> int:
+    return a >> n
+'''
+
+[test.assertions]
+contains = ["a >> n"]
+
+# =============================================================================
+# Unary Operators
+# =============================================================================
+
+[[test]]
+name = "operator_unary_minus"
+description = "Unary minus operator"
+tags = ["operator", "unary"]
+
+[test.python]
+code = '''
+def negate(x: int) -> int:
+    return -x
+'''
+
+[test.assertions]
+contains = ["-x"]
+
+[[test]]
+name = "operator_unary_plus"
+description = "Unary plus operator"
+tags = ["operator", "unary"]
+
+[test.python]
+code = '''
+def identity(x: int) -> int:
+    return +x
+'''
+
+[test.assertions]
+contains = ["x"]
+
+[[test]]
+name = "operator_bitwise_not"
+description = "Bitwise NOT operator"
+tags = ["operator", "unary", "bitwise"]
+
+[test.python]
+code = '''
+def bitwise_not(x: int) -> int:
+    return ~x
+'''
+
+[test.assertions]
+contains = ["!x"]
+
+# =============================================================================
+# Power Operator Extended (from test_power_operator.rs)
+# =============================================================================
+
+[[test]]
+name = "power_basic"
+description = "Basic power operator with integer literals"
+tags = ["operator", "power"]
+
+[test.python]
+code = '''
+def test_power() -> tuple[int, int]:
+    a = 2 ** 3
+    b = 10 ** 2
+    return a, b
+'''
+
+[test.assertions]
+contains = [".pow("]
+
+[[test]]
+name = "power_float"
+description = "Power operator with float values"
+tags = ["operator", "power", "float"]
+
+[test.python]
+code = '''
+def test_float_power() -> tuple[float, float]:
+    a = 2.5 ** 2
+    b = 4.0 ** 0.5
+    return a, b
+'''
+
+[test.assertions]
+contains_any = [["2.5", "powf"]]
+
+[[test]]
+name = "power_negative_exponent"
+description = "Power operator with negative exponent"
+tags = ["operator", "power"]
+
+[test.python]
+code = '''
+def test_negative() -> tuple[float, float]:
+    a = 2.0 ** -1
+    b = 10.0 ** -2
+    return a, b
+'''
+
+[test.assertions]
+contains = ["powf"]
+
+[[test]]
+name = "power_with_variables"
+description = "Power operator with variable base and exponent"
+tags = ["operator", "power"]
+
+[test.python]
+code = '''
+def compute_power(base: int, exp: int) -> int:
+    return base ** exp
+'''
+
+[test.assertions]
+contains = ["pow"]
+
+[[test]]
+name = "power_precedence"
+description = "Power operator precedence"
+tags = ["operator", "power", "precedence"]
+
+[test.python]
+code = '''
+def test_precedence() -> tuple[int, int, int]:
+    a = 2 + 3 ** 2
+    b = (2 + 3) ** 2
+    c = 2 ** 3 * 4
+    return a, b, c
+'''
+
+[test.assertions]
+contains = ["pow"]

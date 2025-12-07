@@ -1,5 +1,5 @@
 use crate::test_helpers;
-use crate::test_helpers::{transpile, transpile_and_check};
+use crate::test_helpers::transpile_and_check;
 
 use depyler_core::DepylerPipeline;
 
@@ -33,12 +33,11 @@ def factorial(n: int) -> int:
 }
 
 #[test]
-#[ignore]
 fn test_error_handling_coverage() {
     let pipeline = DepylerPipeline::new();
 
     let invalid_python = "def invalid_func(\n    return 42";
-    let result: Result<String, String> = Ok(transpile(invalid_python));
+    let result: Result<String, String> = Ok(transpile_and_check(invalid_python, &[]));
     assert!(result.is_err(), "Invalid Python should cause error");
 
     let empty_input = "";

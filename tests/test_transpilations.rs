@@ -1,4 +1,4 @@
-use crate::test_helpers::transpile;
+use crate::test_helpers::transpile_and_check;
 use std::fs;
 use std::process::Command;
 use tempfile::TempDir;

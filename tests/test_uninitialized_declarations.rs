@@ -11,7 +11,7 @@
 //! - Edge cases and error handling
 
 use crate::test_helpers;
-use crate::test_helpers::transpile;
+use crate::test_helpers::transpile_and_check;
 
 /// Test basic int type annotation without initial value
 #[test]
@@ -22,7 +22,7 @@ def process():
     count = 5
     return count
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // Should generate: let mut count: i32;
     assert!(
@@ -46,7 +46,7 @@ def process():
     name = "Alice"
     return name
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // Should generate: let mut name: String;
     assert!(
@@ -70,7 +70,7 @@ def check():
     valid = True
     return valid
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // Should generate: let mut valid: bool;
     assert!(
@@ -94,7 +94,7 @@ def process():
     position = FieldPosition()
     return position
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // Should generate: let mut position: FieldPosition;
     assert!(
@@ -113,7 +113,7 @@ def process():
     value = None
     return value
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // Should generate: let mut value: Option<i32>;
     assert!(
@@ -138,7 +138,7 @@ def process():
     
     return valid
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // Should generate declarations for all three
     assert!(
@@ -170,7 +170,7 @@ def process(flag: bool):
         result = 20
     return result
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // Should generate: let mut result: i32;
     assert!(
@@ -198,7 +198,7 @@ def process():
         val = "two"
     return val
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated Rust code:\n{}", rust_code);
 
     // Should be immutable since val is only assigned once (in whichever branch executes)
@@ -224,7 +224,7 @@ def process():
     count: int = 42
     return count
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // Should generate: let count: i32 = 42; (or let mut if mutated)
     assert!(
@@ -254,7 +254,7 @@ def calculate():
     result = 3.14
     return result
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // Should generate: let mut result: f64;
     assert!(
@@ -273,7 +273,7 @@ def process():
     items = [1, 2, 3]
     return items
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // Should generate: let mut items: Vec<i32>;
     assert!(
@@ -293,7 +293,7 @@ def process():
     # value is never reassigned, so could be immutable
     return value * 2
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // Should generate declaration (may be let or let mut depending on mutability analysis)
     assert!(
@@ -320,7 +320,7 @@ def bad_usage():
 "#;
 
     // Should transpile without error (semantic checking is Rust compiler's job)
-    let result: Result<String, String> = Ok(transpile(python_code));
+    let result: Result<String, String> = Ok(transpile_and_check(python_code, &[]));
 
     // We generate Rust code; it will fail at Rust compile time with proper error
     assert!(

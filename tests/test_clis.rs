@@ -1,5 +1,5 @@
 use crate::test_helpers;
-use crate::test_helpers::transpile;
+use crate::test_helpers::transpile_and_check;
 
 use depyler_core::DepylerPipeline;
 use std::fs;
@@ -83,16 +83,15 @@ fn test_invalid_file_handling() {
 }
 
 #[test]
-#[ignore]
 fn test_pipeline_error_handling() {
     let pipeline = DepylerPipeline::new();
 
     // Test with invalid Python syntax
-    let result: Result<String, String> = Ok(transpile("def invalid_syntax(\n    # Missing closing parenthesis"));
+    let result: Result<String, String> = Ok(transpile_and_check("def invalid_syntax(\n    # Missing closing parenthesis", &[]));
     assert!(result.is_err());
 
     // Test with empty input
-    let result: Result<String, String> = Ok(transpile(""));
+    let result: Result<String, String> = Ok(transpile_and_check("", &[]));
     // Empty can be either success or error, just check it doesn't panic
     let _ = result; // Both Ok and Err are acceptable
 
@@ -691,7 +690,6 @@ fn test_global_verbose_flag() {
 }
 
 #[test]
-#[ignore]
 fn test_help_flag() {
     let result = Command::new("cargo")
         .args(["run", "--", "--help"])
@@ -704,7 +702,6 @@ fn test_help_flag() {
 }
 
 #[test]
-#[ignore]
 fn test_version_flag() {
     let result = Command::new("cargo")
         .args(["run", "--", "--version"])

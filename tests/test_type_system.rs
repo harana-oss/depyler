@@ -8,7 +8,7 @@
 // Created: 2025-11-21
 // Ticket: https://github.com/paiml/depyler/issues/issue
 
-use crate::test_helpers::transpile;
+use crate::test_helpers::transpile_and_check;
 use depyler_core::DepylerPipeline;
 
 /// Helper function to transpile Python code
@@ -47,7 +47,6 @@ fn assert_not_contains(rust_code: &str, pattern: &str) {
 // Expected: `Err(ArgumentTypeError::new(format!(...)))`
 
 #[test]
-#[ignore]
 fn test_01_argument_type_error_exception() {
     let python = r#"
 import argparse
@@ -76,8 +75,7 @@ def validate_int(value):
 
     // Function signature should return Result with ArgumentTypeError
     let has_result_type = rust_code.contains("Result<")
-        && (rust_code.contains("ArgumentTypeError")
-            || rust_code.contains("Box<dyn std::error::Error>"));
+        && (rust_code.contains("ArgumentTypeError") || rust_code.contains("Box<dyn std::error::Error>"));
 
     assert!(
         has_result_type,
@@ -155,7 +153,6 @@ def process_format(use_json, format_str):
 // Expected: `if option_var.is_some()` OR `if let Some(value) = option_var`
 
 #[test]
-#[ignore]
 fn test_03_option_truthiness_check() {
     let python = r#"
 import os
@@ -175,8 +172,7 @@ def check_config():
     let rust_code = result.unwrap();
 
     // Should use .is_some() or if let Some for Option check
-    let has_proper_option_check = rust_code.contains(".is_some()")
-        || rust_code.contains("if let Some(");
+    let has_proper_option_check = rust_code.contains(".is_some()") || rust_code.contains("if let Some(");
 
     assert!(
         has_proper_option_check,
@@ -207,7 +203,6 @@ def check_config():
 // Expected: Pattern match to extract inner value OR unwrap after .is_some() check
 
 #[test]
-#[ignore]
 fn test_04_option_display_handling() {
     let python = r#"
 import os
@@ -283,7 +278,6 @@ def show_config():
 // It mirrors the actual code from example_complex that triggered issue
 
 #[test]
-#[ignore]
 fn test_05_combined_scenario() {
     let python = r#"
 import os
@@ -330,8 +324,7 @@ def main():
     assert!(has_string_handling);
 
     // Bug 3: Option truthiness
-    let has_option_check = rust_code.contains(".is_some()")
-        || rust_code.contains("if let Some(");
+    let has_option_check = rust_code.contains(".is_some()") || rust_code.contains("if let Some(");
     assert!(has_option_check);
 
     // Bug 4: Option Display (implicit in proper if let Some usage)
@@ -341,8 +334,7 @@ def main():
         assert!(true);
     } else if rust_code.contains(".is_some()") {
         // Should have corresponding .unwrap() or .unwrap_or()
-        let has_unwrap = rust_code.contains(".unwrap()")
-            || rust_code.contains(".unwrap_or(");
+        let has_unwrap = rust_code.contains(".unwrap()") || rust_code.contains(".unwrap_or(");
         assert!(has_unwrap, "Expected .unwrap() after .is_some() check");
     }
 }
@@ -354,7 +346,6 @@ def main():
 // Test that nested Option checks are handled correctly
 
 #[test]
-#[ignore]
 fn test_06_nested_option_checks() {
     let python = r#"
 import os
@@ -378,8 +369,7 @@ def check_multiple_env():
 
     // All Option checks should use .is_some() or if let
     let option_checks = rust_code.matches("if ").count();
-    let proper_checks = rust_code.matches(".is_some()").count()
-        + rust_code.matches("if let Some").count();
+    let proper_checks = rust_code.matches(".is_some()").count() + rust_code.matches("if let Some").count();
 
     assert!(
         proper_checks >= option_checks,

@@ -16,7 +16,7 @@
 //! 10. Property with conditional logic
 
 use crate::test_helpers;
-use crate::test_helpers::transpile;
+use crate::test_helpers::transpile_and_check;
 
 #[test]
 fn test_simple_property_getter() {
@@ -30,7 +30,7 @@ class Person:
         return self.name
 "#;
 
-        let result: Result<String, String> = Ok(transpile(python));
+        let result: Result<String, String> = Ok(transpile_and_check(python, &[]));
     assert!(
         result.is_ok(),
         "Transpilation failed: {:?}",
@@ -73,7 +73,7 @@ class Rectangle:
         return self.width * self.height
 "#;
 
-        let result: Result<String, String> = Ok(transpile(python));
+        let result: Result<String, String> = Ok(transpile_and_check(python, &[]));
     assert!(
         result.is_ok(),
         "Transpilation failed: {:?}",
@@ -114,7 +114,7 @@ class Person:
         return self.first + " " + self.last
 "#;
 
-        let result: Result<String, String> = Ok(transpile(python));
+        let result: Result<String, String> = Ok(transpile_and_check(python, &[]));
     assert!(
         result.is_ok(),
         "Transpilation failed: {:?}",
@@ -152,7 +152,7 @@ class Circle:
         return 2 * Circle.PI * self.radius
 "#;
 
-        let result: Result<String, String> = Ok(transpile(python));
+        let result: Result<String, String> = Ok(transpile_and_check(python, &[]));
     assert!(
         result.is_ok(),
         "Transpilation failed: {:?}",
@@ -201,7 +201,7 @@ class Person:
         return self.full_name + " (" + str(self.age) + ")"
 "#;
 
-        let result: Result<String, String> = Ok(transpile(python));
+        let result: Result<String, String> = Ok(transpile_and_check(python, &[]));
     assert!(
         result.is_ok(),
         "Transpilation failed: {:?}",
@@ -245,7 +245,7 @@ class Calculator:
         return self.double()
 "#;
 
-        let result: Result<String, String> = Ok(transpile(python));
+        let result: Result<String, String> = Ok(transpile_and_check(python, &[]));
     assert!(
         result.is_ok(),
         "Transpilation failed: {:?}",
@@ -287,7 +287,7 @@ class Counter:
         return self.count % 2 == 0
 "#;
 
-        let result: Result<String, String> = Ok(transpile(python));
+        let result: Result<String, String> = Ok(transpile_and_check(python, &[]));
     assert!(
         result.is_ok(),
         "Transpilation failed: {:?}",
@@ -333,7 +333,7 @@ class Account:
         return self.balance > 0.0
 "#;
 
-        let result: Result<String, String> = Ok(transpile(python));
+        let result: Result<String, String> = Ok(transpile_and_check(python, &[]));
     assert!(
         result.is_ok(),
         "Transpilation failed: {:?}",
@@ -389,7 +389,7 @@ class DataHolder:
         return float(self.value)
 "#;
 
-        let result: Result<String, String> = Ok(transpile(python));
+        let result: Result<String, String> = Ok(transpile_and_check(python, &[]));
     assert!(
         result.is_ok(),
         "Transpilation failed: {:?}",
@@ -435,7 +435,7 @@ class User:
             return "basic"
 "#;
 
-        let result: Result<String, String> = Ok(transpile(python));
+        let result: Result<String, String> = Ok(transpile_and_check(python, &[]));
     assert!(
         result.is_ok(),
         "Transpilation failed: {:?}",

@@ -1,40 +1,32 @@
-use crate::test_helpers;
-use crate::test_helpers::{transpile, transpile_and_check};
-
-use depyler_core::DepylerPipeline;
+use crate::test_helpers::transpile_and_check;
 
 #[test]
 fn test_empty_python_file() {
-    let empty_source = "";
-
-    let result: Result<String, String> = Ok(transpile(empty_source));
-    assert!(result.is_ok() || result.is_err());
+    transpile_and_check("", &[]);
 }
 
 #[test]
 fn test_whitespace_only_file() {
-    let whitespace_source = "   \n\t  \n   ";
-
-    let result: Result<String, String> = Ok(transpile(whitespace_source));
-    assert!(result.is_ok() || result.is_err());
+    transpile_and_check("   \n\t  \n   ", &[]);
 }
 
 #[test]
 fn test_comments_only_file() {
-    let comments_source = r#"
+    transpile_and_check(
+        r#"
 # This is a comment
 # Another comment
     # Indented comment
         # More comments
-"#;
-
-    let result: Result<String, String> = Ok(transpile(comments_source));
-    assert!(result.is_ok() || result.is_err());
+"#,
+        &[],
+    );
 }
 
 #[test]
 fn test_deeply_nested_functions() {
-    let nested_source = r#"
+    transpile_and_check(
+        r#"
 def level1(x: int) -> int:
     def level2(y: int) -> int:
         def level3(z: int) -> int:
@@ -43,10 +35,9 @@ def level1(x: int) -> int:
             return level4(z) + 1
         return level3(y) + 1
     return level2(x) + 1
-"#;
-
-    let result: Result<String, String> = Ok(transpile(nested_source));
-    assert!(result.is_ok() || result.is_err());
+"#,
+        &[],
+    );
 }
 
 #[test]
@@ -60,12 +51,12 @@ def {}(x: int) -> int:
         long_name
     );
 
-    let result: Result<String, String> = Ok(transpile(&long_name_source));
-    assert!(result.is_ok() || result.is_err());
+    transpile_and_check(&long_name_source, &[]);
 }
 
 #[test]
 #[ignore]
+// test_edge_case_coverage::test_function_with_many_parameters' (110405975) has overflowed its stack
 fn test_function_with_many_parameters() {
     let mut params = Vec::new();
     let mut args = Vec::new();
@@ -76,7 +67,7 @@ fn test_function_with_many_parameters() {
     }
 
     let many_params_source = format!(
-        r#"
+        r#"M
 def many_params({}) -> int:
     return {}
 "#,
@@ -84,18 +75,17 @@ def many_params({}) -> int:
         args.join(" + ")
     );
 
-    let result: Result<String, String> = Ok(transpile(&many_params_source));
-    assert!(result.is_ok() || result.is_err());
+    transpile_and_check(&many_params_source, &[]);
 }
 
 #[test]
 fn test_extremely_simple_function() {
-    let simple_source = r#"
+    transpile_and_check(
+        r#"
 def f(): pass
-"#;
-
-    let result: Result<String, String> = Ok(transpile(simple_source));
-    assert!(result.is_ok() || result.is_err());
+"#,
+        &[],
+    );
 }
 
 #[test]
@@ -111,56 +101,56 @@ def get_five() -> int:
 
 #[test]
 fn test_unicode_function_names() {
-    let unicode_source = r#"
+    transpile_and_check(
+        r#"
 def функция(x: int) -> int:
     return x * 2
 
 def 関数(y: int) -> int:
     return y + 1
-"#;
-
-    let result: Result<String, String> = Ok(transpile(unicode_source));
-    assert!(result.is_ok() || result.is_err());
+"#,
+        &[],
+    );
 }
 
 #[test]
 fn test_unicode_strings() {
-    let unicode_strings_source = r#"
+    transpile_and_check(
+        r#"
 def greet() -> str:
     return "Hello, 世界! 🌍"
 
 def emoji_func() -> str:
     return "🚀💯✨"
-"#;
-
-    let result: Result<String, String> = Ok(transpile(unicode_strings_source));
-    assert!(result.is_ok() || result.is_err());
+"#,
+        &[],
+    );
 }
 
 #[test]
 fn test_max_integer_values() {
-    let max_int_source = r#"
+    transpile_and_check(
+        r#"
 def big_numbers() -> int:
     x = 9223372036854775807
     y = -9223372036854775808
     return x + y
-"#;
-
-    let result: Result<String, String> = Ok(transpile(max_int_source));
-    assert!(result.is_ok() || result.is_err());
+"#,
+        &[],
+    );
 }
 
 #[test]
 fn test_empty_lists_and_dicts() {
-    let empty_collections_source = r#"
+    transpile_and_check(
+        r#"
 def empty_collections():
     empty_list = []
     empty_dict = {}
     return len(empty_list) + len(empty_dict)
-"#;
-
-    let result: Result<String, String> = Ok(transpile(empty_collections_source));
-    assert!(result.is_ok() || result.is_err());
+"#,
+        &[],
+    );
 }
 
 #[test]
@@ -188,13 +178,13 @@ def long_string() -> str:
         long_string
     );
 
-    let result: Result<String, String> = Ok(transpile(&long_string_source));
-    assert!(result.is_ok() || result.is_err());
+    transpile_and_check(&long_string_source, &[]);
 }
 
 #[test]
 fn test_nested_control_structures() {
-    let nested_control_source = r#"
+    transpile_and_check(
+        r#"
 def nested_control(n: int) -> int:
     result = 0
     for i in range(n):
@@ -207,15 +197,15 @@ def nested_control(n: int) -> int:
                         if result > 100:
                             break
     return result
-"#;
-
-    let result: Result<String, String> = Ok(transpile(nested_control_source));
-    assert!(result.is_ok() || result.is_err());
+"#,
+        &[],
+    );
 }
 
 #[test]
 fn test_all_python_operators() {
-    let all_operators_source = r#"
+    transpile_and_check(
+        r#"
 def all_operators(a: int, b: int) -> bool:
     # Arithmetic
     add = a + b
@@ -238,8 +228,7 @@ def all_operators(a: int, b: int) -> bool:
     not_op = not a
     
     return eq or ne or lt or le or gt or ge
-"#;
-
-    let result: Result<String, String> = Ok(transpile(all_operators_source));
-    assert!(result.is_ok() || result.is_err());
+"#,
+        &[],
+    );
 }

@@ -30,7 +30,6 @@ def shadow_test():
 }
 
 #[test]
-#[ignore]
 fn test_multiple_scope_levels() {
     let python_code = r#"
 def deep_scopes():
@@ -144,7 +143,6 @@ def simple():
 }
 
 #[test]
-#[ignore]
 fn test_complex_context_scenario() {
     let python_code = r#"
 from typing import Union
@@ -175,7 +173,6 @@ def mutable_tracking():
 }
 
 #[test]
-#[ignore]
 fn test_exception_scope_bare_except() {
     let python_code = r#"
 def try_bare_except():
@@ -189,7 +186,6 @@ def try_bare_except():
 }
 
 #[test]
-#[ignore]
 fn test_exception_scope_specific_type() {
     let python_code = r#"
 def try_specific():
@@ -203,7 +199,6 @@ def try_specific():
 }
 
 #[test]
-#[ignore]
 fn test_exception_scope_multiple_types() {
     let python_code = r#"
 def try_multiple():
@@ -218,7 +213,6 @@ def try_multiple():
 }
 
 #[test]
-#[ignore]
 fn test_exception_scope_nested_try() {
     let python_code = r#"
 def nested_try():
@@ -252,7 +246,6 @@ def try_finally():
 }
 
 #[test]
-#[ignore]
 fn test_exception_scope_with_else() {
     let python_code = r#"
 def try_else():
@@ -282,7 +275,6 @@ def raise_in_try(x: int):
 }
 
 #[test]
-#[ignore]
 fn test_exception_scope_sequential_try() {
     let python_code = r#"
 def sequential_try():
@@ -302,7 +294,6 @@ def sequential_try():
 }
 
 #[test]
-#[ignore]
 fn test_exception_scope_return_in_except() {
     let python_code = r#"
 def return_in_except(x: int):
@@ -316,7 +307,6 @@ def return_in_except(x: int):
 }
 
 #[test]
-#[ignore]
 fn test_exception_scope_in_loop() {
     let python_code = r#"
 def try_in_loop():
@@ -345,7 +335,6 @@ def empty_except():
 }
 
 #[test]
-#[ignore]
 fn test_exception_scope_multiple_except() {
     let python_code = r#"
 def multiple_except():
@@ -363,7 +352,6 @@ def multiple_except():
 }
 
 #[test]
-#[ignore]
 fn test_mutation_exception_scope_stack() {
     let python_code = r#"
 def nested_scopes():
@@ -383,7 +371,6 @@ def nested_scopes():
 }
 
 #[test]
-#[ignore]
 fn test_property_bare_except_catches_all() {
     let python_code = r#"
 def bare_catches_all():
@@ -399,7 +386,6 @@ def bare_catches_all():
 }
 
 #[test]
-#[ignore]
 fn test_integration_complex_exception_handling() {
     let python_code = r#"
 def complex_exceptions(values: list[int]):

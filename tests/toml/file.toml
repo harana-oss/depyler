@@ -1,0 +1,172 @@
+# Open Builtin Tests
+# Migrated from test_open_builtin.rs
+
+[metadata]
+name = "open-builtin"
+description = "Tests for Python open() builtin function"
+
+# ========== READ MODES ==========
+
+[[test]]
+name = "open_read_mode"
+description = "Test open() with read mode 'r'"
+tags = ["open", "file", "read"]
+
+[test.python]
+code = '''
+def read_file(path: str) -> str:
+    with open(path, 'r') as f:
+        return f.read()
+'''
+
+[test.assertions]
+contains_any = [["File::open", "read"]]
+
+[[test]]
+name = "open_default_mode"
+description = "Test open() with default mode (read)"
+tags = ["open", "file", "read", "default"]
+
+[test.python]
+code = '''
+def open_default(path: str) -> str:
+    with open(path) as f:
+        return f.read()
+'''
+
+[test.assertions]
+contains = ["File::open"]
+
+# ========== WRITE MODES ==========
+
+[[test]]
+name = "open_write_mode"
+description = "Test open() with write mode 'w'"
+tags = ["open", "file", "write"]
+
+[test.python]
+code = '''
+def write_file(path: str, content: str) -> None:
+    with open(path, 'w') as f:
+        f.write(content)
+'''
+
+[test.assertions]
+contains_any = [["File::create", "write"]]
+
+[[test]]
+name = "open_append_mode"
+description = "Test open() with append mode 'a'"
+tags = ["open", "file", "append"]
+
+[test.python]
+code = '''
+def append_file(path: str, content: str) -> None:
+    with open(path, 'a') as f:
+        f.write(content)
+'''
+
+[test.assertions]
+contains_any = [["OpenOptions", "append"]]
+
+[[test]]
+name = "open_read_write_mode"
+description = "Test open() with read+write mode 'r+'"
+tags = ["open", "file", "read", "write"]
+
+[test.python]
+code = '''
+def open_read_write(path: str) -> None:
+    with open(path, 'r+') as f:
+        content = f.read()
+        f.write(content)
+'''
+
+[test.assertions]
+contains_any = [["OpenOptions", "read"]]
+
+# ========== BINARY MODES ==========
+
+[[test]]
+name = "open_binary_read"
+description = "Test open() with binary read mode 'rb'"
+tags = ["open", "file", "binary", "read"]
+
+[test.python]
+code = '''
+def read_binary(path: str) -> bytes:
+    with open(path, 'rb') as f:
+        return f.read()
+'''
+
+[test.assertions]
+contains_any = [["File::open", "read"]]
+
+[[test]]
+name = "open_binary_write"
+description = "Test open() with binary write mode 'wb'"
+tags = ["open", "file", "binary", "write"]
+
+[test.python]
+code = '''
+def write_binary(path: str, data: bytes) -> None:
+    with open(path, 'wb') as f:
+        f.write(data)
+'''
+
+[test.assertions]
+contains_any = [["File::create", "write"]]
+
+# ========== ENCODING ==========
+
+[[test]]
+name = "open_with_encoding"
+description = "Test open() with encoding parameter"
+tags = ["open", "file", "encoding", "utf8"]
+
+[test.python]
+code = '''
+def read_utf8(path: str) -> str:
+    with open(path, 'r', encoding='utf-8') as f:
+        return f.read()
+'''
+
+[test.assertions]
+contains_any = [["File::open", "read"]]
+
+# ========== CONTEXT MANAGER ==========
+
+[[test]]
+name = "open_context_manager"
+description = "Test open() with context manager (with statement)"
+tags = ["open", "file", "context", "with"]
+
+[test.python]
+code = '''
+def use_context_manager(path: str) -> str:
+    with open(path) as f:
+        return f.read()
+'''
+
+[test.assertions]
+contains = ["File::open"]
+
+# ========== ERROR HANDLING ==========
+
+[[test]]
+name = "open_error_handling"
+description = "Test open() with try/except error handling"
+tags = ["open", "file", "error", "exception"]
+
+[test.python]
+code = '''
+def safe_read(path: str) -> str:
+    try:
+        with open(path) as f:
+            return f.read()
+    except FileNotFoundError:
+        return ""
+'''
+
+[test.assertions]
+contains_any = [["File::open", "Result"]]

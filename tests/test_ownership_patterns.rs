@@ -9,7 +9,6 @@ use depyler_core::type_mapper::TypeMapper;
 use smallvec::smallvec;
 
 #[test]
-#[ignore]
 fn test_read_only_string_borrowed() {
     let mut ctx = BorrowingContext::new(Some(PythonType::Int));
     let type_mapper = TypeMapper::new();
@@ -93,7 +92,6 @@ fn test_escaping_parameter_takes_ownership() {
 }
 
 #[test]
-#[ignore]
 fn test_string_concatenation_uses_cow() {
     let mut ctx = BorrowingContext::new(Some(PythonType::String));
     let type_mapper = TypeMapper::new();
@@ -188,7 +186,6 @@ fn test_unnecessary_move_detection() {
 }
 
 #[test]
-#[ignore]
 fn test_loop_usage_affects_borrowing() {
     let mut ctx = BorrowingContext::new(None);
     let type_mapper = TypeMapper::new();

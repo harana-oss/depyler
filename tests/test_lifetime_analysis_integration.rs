@@ -8,7 +8,6 @@ use depyler_core::type_mapper::TypeMapper;
 use smallvec::smallvec;
 
 #[test]
-#[ignore]
 fn test_lifetime_inference_for_string_parameter() {
     // Create a function that takes a string and returns its length
     let func = HirFunction {
@@ -82,7 +81,6 @@ fn test_lifetime_inference_for_mutable_parameter() {
 }
 
 #[test]
-#[ignore]
 fn test_lifetime_inference_with_multiple_parameters() {
     // Create a function with multiple string parameters
     let func = HirFunction {

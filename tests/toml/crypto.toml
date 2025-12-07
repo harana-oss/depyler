@@ -1,0 +1,393 @@
+# Encoding and Crypto Module Tests - base64, hashlib, binascii, hmac
+
+[metadata]
+name = "Encoding and Crypto Module Tests"
+category = "stdlib-encoding"
+
+# =============================================================================
+# base64 Module
+# =============================================================================
+
+[[test]]
+name = "base64_b64encode"
+description = "base64.b64encode() standard encoding"
+tags = ["base64", "encode"]
+
+[test.python]
+code = '''
+import base64
+
+def encode_base64(data: bytes) -> bytes:
+    return base64.b64encode(data)
+'''
+
+[test.assertions]
+contains_any = [["base64", "encode"]]
+
+[[test]]
+name = "base64_b64decode"
+description = "base64.b64decode() standard decoding"
+tags = ["base64", "decode"]
+
+[test.python]
+code = '''
+import base64
+
+def decode_base64(data: bytes) -> bytes:
+    return base64.b64decode(data)
+'''
+
+[test.assertions]
+contains_any = [["base64", "decode"]]
+
+[[test]]
+name = "base64_urlsafe_encode"
+description = "base64.urlsafe_b64encode() URL-safe encoding"
+tags = ["base64", "urlsafe", "encode"]
+
+[test.python]
+code = '''
+import base64
+
+def encode_urlsafe(data: bytes) -> bytes:
+    return base64.urlsafe_b64encode(data)
+'''
+
+[test.assertions]
+contains_any = [["base64", "encode"]]
+
+[[test]]
+name = "base64_urlsafe_decode"
+description = "base64.urlsafe_b64decode() URL-safe decoding"
+tags = ["base64", "urlsafe", "decode"]
+
+[test.python]
+code = '''
+import base64
+
+def decode_urlsafe(data: bytes) -> bytes:
+    return base64.urlsafe_b64decode(data)
+'''
+
+[test.assertions]
+contains_any = [["base64", "decode"]]
+
+[[test]]
+name = "base64_b32encode"
+description = "base64.b32encode() base32 encoding"
+tags = ["base64", "base32", "encode"]
+
+[test.python]
+code = '''
+import base64
+
+def encode_base32(data: bytes) -> bytes:
+    return base64.b32encode(data)
+'''
+
+[test.assertions]
+contains_any = [["base32", "encode"]]
+
+[[test]]
+name = "base64_b16encode"
+description = "base64.b16encode() hex encoding"
+tags = ["base64", "hex", "encode"]
+
+[test.python]
+code = '''
+import base64
+
+def encode_base16(data: bytes) -> bytes:
+    return base64.b16encode(data)
+'''
+
+[test.assertions]
+contains_any = [["hex", "encode"]]
+
+# =============================================================================
+# hashlib Module
+# =============================================================================
+
+[[test]]
+name = "hashlib_md5"
+description = "hashlib.md5() MD5 hash"
+tags = ["hashlib", "md5"]
+
+[test.python]
+code = '''
+import hashlib
+
+def hash_md5(data: bytes) -> str:
+    return hashlib.md5(data)
+'''
+
+[test.assertions]
+contains_any = [["md5", "Md5"]]
+contains = ["hex"]
+
+[[test]]
+name = "hashlib_sha1"
+description = "hashlib.sha1() SHA1 hash"
+tags = ["hashlib", "sha1"]
+
+[test.python]
+code = '''
+import hashlib
+
+def hash_sha1(data: bytes) -> str:
+    return hashlib.sha1(data)
+'''
+
+[test.assertions]
+contains_any = [["sha1", "Sha1"]]
+contains = ["hex"]
+
+[[test]]
+name = "hashlib_sha256"
+description = "hashlib.sha256() SHA256 hash"
+tags = ["hashlib", "sha256"]
+
+[test.python]
+code = '''
+import hashlib
+
+def hash_sha256(data: bytes) -> str:
+    return hashlib.sha256(data)
+'''
+
+[test.assertions]
+contains_any = [["sha256", "Sha256"]]
+contains = ["hex"]
+
+[[test]]
+name = "hashlib_sha512"
+description = "hashlib.sha512() SHA512 hash"
+tags = ["hashlib", "sha512"]
+
+[test.python]
+code = '''
+import hashlib
+
+def hash_sha512(data: bytes) -> str:
+    return hashlib.sha512(data)
+'''
+
+[test.assertions]
+contains_any = [["sha512", "Sha512"]]
+contains = ["hex"]
+
+[[test]]
+name = "hashlib_sha224"
+description = "hashlib.sha224() SHA224 hash"
+tags = ["hashlib", "sha224"]
+
+[test.python]
+code = '''
+import hashlib
+
+def hash_sha224(data: bytes) -> str:
+    return hashlib.sha224(data)
+'''
+
+[test.assertions]
+contains_any = [["sha224", "Sha224"]]
+contains = ["hex"]
+
+[[test]]
+name = "hashlib_sha3_256"
+description = "hashlib.sha3_256() SHA3-256 hash"
+tags = ["hashlib", "sha3"]
+
+[test.python]
+code = '''
+import hashlib
+
+def hash_sha3_256(data: bytes) -> str:
+    return hashlib.sha3_256(data).hexdigest()
+'''
+
+[test.assertions]
+contains_any = [["sha3", "Sha3"]]
+
+[[test]]
+name = "hashlib_blake2b"
+description = "hashlib.blake2b() BLAKE2b hash"
+tags = ["hashlib", "blake2"]
+
+[test.python]
+code = '''
+import hashlib
+
+def hash_blake2b(data: bytes) -> str:
+    return hashlib.blake2b(data)
+'''
+
+[test.assertions]
+contains_any = [["blake2", "Blake2"]]
+contains = ["hex"]
+
+# =============================================================================
+# hmac Module (from test_hmac_unit.rs)
+# =============================================================================
+
+[[test]]
+name = "hmac_new_sha256"
+description = "hmac.new() with SHA-256"
+tags = ["hmac", "sha256"]
+
+[test.python]
+code = '''
+import hmac
+import hashlib
+
+def create_hmac(key: bytes, msg: bytes) -> str:
+    return hmac.new(key, msg, hashlib.sha256)
+'''
+
+[test.assertions]
+contains_any = [["Hmac", "hmac"]]
+contains_any = [["Sha256", "sha256"]]
+contains = ["hex"]
+
+[[test]]
+name = "hmac_new_md5"
+description = "hmac.new() with MD5"
+tags = ["hmac", "md5"]
+
+[test.python]
+code = '''
+import hmac
+import hashlib
+
+def create_hmac_md5(key: bytes, msg: bytes) -> str:
+    return hmac.new(key, msg, hashlib.md5).hexdigest()
+'''
+
+[test.assertions]
+contains_any = [["Hmac", "hmac"]]
+contains_any = [["md5", "Md5"]]
+
+[[test]]
+name = "hmac_sha1"
+description = "hmac.new() with SHA-1"
+tags = ["hmac", "sha1"]
+
+[test.python]
+code = '''
+import hmac
+import hashlib
+
+def create_hmac_sha1(key: bytes, msg: bytes) -> str:
+    return hmac.new(key, msg, hashlib.sha1).hexdigest()
+'''
+
+[test.assertions]
+contains_any = [["Hmac", "hmac"]]
+contains_any = [["sha1", "Sha1"]]
+
+[[test]]
+name = "hmac_update"
+description = "hmac incremental update"
+tags = ["hmac", "update"]
+
+[test.python]
+code = '''
+import hmac
+import hashlib
+
+def incremental_hmac(key: bytes, msg1: bytes, msg2: bytes) -> str:
+    h = hmac.new(key, digestmod=hashlib.sha256)
+    h.update(msg1)
+    h.update(msg2)
+    return h.hexdigest()
+'''
+
+[test.assertions]
+contains = ["update"]
+
+# =============================================================================
+# binascii Module (from test_binascii_unit.rs)
+# =============================================================================
+
+[[test]]
+name = "binascii_hexlify"
+description = "binascii.hexlify() bytes to hex"
+tags = ["binascii", "hex"]
+
+[test.python]
+code = '''
+import binascii
+
+def bytes_to_hex(data: bytes) -> bytes:
+    return binascii.hexlify(data)
+'''
+
+[test.assertions]
+contains = ["hex"]
+contains_any = [["encode", "format"]]
+
+[[test]]
+name = "binascii_unhexlify"
+description = "binascii.unhexlify() hex to bytes"
+tags = ["binascii", "hex"]
+
+[test.python]
+code = '''
+import binascii
+
+def hex_to_bytes(hex_str: str) -> bytes:
+    return binascii.unhexlify(hex_str)
+'''
+
+[test.assertions]
+contains = ["hex"]
+contains_any = [["decode", "from_hex"]]
+
+[[test]]
+name = "binascii_b2a_base64"
+description = "binascii.b2a_base64() bytes to base64"
+tags = ["binascii", "base64"]
+
+[test.python]
+code = '''
+import binascii
+
+def bytes_to_base64(data: bytes) -> bytes:
+    return binascii.b2a_base64(data)
+'''
+
+[test.assertions]
+contains_any = [["base64", "encode"]]
+
+[[test]]
+name = "binascii_a2b_base64"
+description = "binascii.a2b_base64() base64 to bytes"
+tags = ["binascii", "base64"]
+
+[test.python]
+code = '''
+import binascii
+
+def base64_to_bytes(data: bytes) -> bytes:
+    return binascii.a2b_base64(data)
+'''
+
+[test.assertions]
+contains = ["base64"]
+contains_any = [["decode", "from"]]
+
+[[test]]
+name = "binascii_crc32"
+description = "binascii.crc32() checksum"
+tags = ["binascii", "crc32"]
+
+[test.python]
+code = '''
+import binascii
+
+def calculate_crc32(data: bytes) -> int:
+    return binascii.crc32(data)
+'''
+
+[test.assertions]
+contains_any = [["crc32", "Hasher", "crc"]]

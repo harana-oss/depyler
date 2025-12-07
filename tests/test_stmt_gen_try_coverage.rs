@@ -12,16 +12,14 @@
 //! - Multiple exception handlers
 //! - Bare except (catches all)
 
-use crate::test_helpers::transpile;
+use crate::test_helpers::transpile_and_check;
 
-use depyler_core::DepylerPipeline;
 
 /// Unit Test: Basic try/except pattern
 ///
 /// Verifies: Simple try/except block generation (lines 1244-1277)
 #[test]
 fn test_basic_try_except() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 def divide(a: int, b: int) -> int:
     try:
@@ -29,7 +27,7 @@ def divide(a: int, b: int) -> int:
     except:
         return 0
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn divide"));
 }
@@ -39,7 +37,6 @@ def divide(a: int, b: int) -> int:
 /// Verifies: Exception type handling 
 #[test]
 fn test_try_except_specific_exception() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 def safe_divide(a: int, b: int) -> int:
     try:
@@ -48,7 +45,7 @@ def safe_divide(a: int, b: int) -> int:
     except ZeroDivisionError:
         return 0
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn safe_divide"));
 }
@@ -58,7 +55,6 @@ def safe_divide(a: int, b: int) -> int:
 /// Verifies: Exception name binding (lines 1216-1218)
 #[test]
 fn test_try_except_with_name_binding() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 def handle_error(x: int) -> str:
     try:
@@ -68,7 +64,7 @@ def handle_error(x: int) -> str:
     except ValueError as e:
         return "error"
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn handle_error"));
 }
@@ -78,7 +74,6 @@ def handle_error(x: int) -> str:
 /// Verifies: Try/finally pattern (lines 1244-1252)
 #[test]
 fn test_try_finally_no_except() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 def cleanup_example() -> int:
     x = 0
@@ -88,7 +83,7 @@ def cleanup_example() -> int:
         print("cleanup")
     return x
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // Should generate try block with finally
     assert!(rust_code.contains("fn cleanup_example"));
@@ -99,7 +94,6 @@ def cleanup_example() -> int:
 /// Verifies: Full try/except/finally (lines 1262-1268)
 #[test]
 fn test_try_except_finally() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 def complete_example(x: int) -> int:
     try:
@@ -111,7 +105,7 @@ def complete_example(x: int) -> int:
     finally:
         print("done")
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn complete_example"));
 }
@@ -121,7 +115,6 @@ def complete_example(x: int) -> int:
 /// Verifies: Multiple except clauses (lines 1210-1230)
 #[test]
 fn test_multiple_exception_handlers() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 def multi_except(x: int) -> str:
     try:
@@ -135,7 +128,7 @@ def multi_except(x: int) -> str:
     except TypeError:
         return "type_error"
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn multi_except"));
 }
@@ -145,7 +138,6 @@ def multi_except(x: int) -> str:
 /// Verifies: Bare except handling (lines 1188-1195)
 #[test]
 fn test_bare_except() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 def catch_all() -> int:
     try:
@@ -153,7 +145,7 @@ def catch_all() -> int:
     except:
         return -1
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn catch_all"));
 }
@@ -163,7 +155,6 @@ def catch_all() -> int:
 /// Verifies: Nested exception handling (scope management)
 #[test]
 fn test_nested_try_blocks() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 def nested_try() -> int:
     try:
@@ -174,7 +165,7 @@ def nested_try() -> int:
     except:
         return -2
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn nested_try"));
 }
@@ -184,7 +175,6 @@ def nested_try() -> int:
 /// Verifies: Multiple statements in try block (lines 1199-1203)
 #[test]
 fn test_try_multiple_statements() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 def multi_stmt_try(x: int, y: int) -> int:
     try:
@@ -195,7 +185,7 @@ def multi_stmt_try(x: int, y: int) -> int:
     except:
         return 0
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn multi_stmt_try"));
 }
@@ -205,7 +195,6 @@ def multi_stmt_try(x: int, y: int) -> int:
 /// Verifies: Multiple statements in except handler (lines 1220-1224)
 #[test]
 fn test_except_multiple_statements() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 def multi_stmt_except(x: int) -> int:
     try:
@@ -217,7 +206,7 @@ def multi_stmt_except(x: int) -> int:
         print("error")
         return result
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn multi_stmt_except"));
 }
@@ -227,7 +216,6 @@ def multi_stmt_except(x: int) -> int:
 /// Verifies: Multiple statements in finally block (lines 1234-1238)
 #[test]
 fn test_finally_multiple_statements() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 def multi_stmt_finally() -> int:
     x = 0
@@ -239,7 +227,7 @@ def multi_stmt_finally() -> int:
         print("done")
     return x
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn multi_stmt_finally"));
 }
@@ -249,7 +237,6 @@ def multi_stmt_finally() -> int:
 /// Verifies: Return statements in exception handlers
 #[test]
 fn test_return_in_except() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 def return_in_handler(x: int) -> int:
     try:
@@ -259,7 +246,7 @@ def return_in_handler(x: int) -> int:
     except ValueError:
         return -1
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn return_in_handler"));
 }
@@ -269,7 +256,6 @@ def return_in_handler(x: int) -> int:
 /// Verifies: Return in finally clause
 #[test]
 fn test_return_in_finally() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 def return_in_finally() -> int:
     try:
@@ -277,7 +263,7 @@ def return_in_finally() -> int:
     finally:
         print("cleanup")
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn return_in_finally"));
 }
@@ -287,7 +273,6 @@ def return_in_finally() -> int:
 /// Verifies: Handling of empty try block
 #[test]
 fn test_empty_try_block() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 def empty_try():
     try:
@@ -295,7 +280,7 @@ def empty_try():
     except:
         pass
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn empty_try"));
 }
@@ -305,7 +290,6 @@ def empty_try():
 /// Verifies: Handling of empty except handler
 #[test]
 fn test_empty_except_block() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 def empty_except():
     try:
@@ -313,7 +297,7 @@ def empty_except():
     except:
         pass
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn empty_except"));
 }
@@ -323,7 +307,6 @@ def empty_except():
 /// Verifies: Handling of empty finally clause
 #[test]
 fn test_empty_finally_block() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 def empty_finally():
     try:
@@ -331,7 +314,7 @@ def empty_finally():
     finally:
         pass
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn empty_finally"));
 }
@@ -341,7 +324,6 @@ def empty_finally():
 /// Property: All combinations of try/except/finally should transpile
 #[test]
 fn test_property_try_combinations() {
-    let pipeline = DepylerPipeline::new();
 
     let test_cases = vec![
         (
@@ -379,7 +361,7 @@ def test_try_except_finally():
     ];
 
     for (name, python_code) in test_cases {
-        let result: Result<String, String> = Ok(transpile(python_code));
+        let result: Result<String, String> = Ok(transpile_and_check(python_code, &[]));
 
         assert!(
             result.is_ok(),
@@ -395,7 +377,6 @@ def test_try_except_finally():
 /// Verifies: All features working together
 #[test]
 fn test_complex_try_pattern() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 def complex_exception_handling(items: list[int]) -> int:
     total = 0
@@ -415,7 +396,7 @@ def complex_exception_handling(items: list[int]) -> int:
     
     return total
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn complex_exception_handling"));
 }
@@ -428,7 +409,6 @@ def complex_exception_handling(items: list[int]) -> int:
 /// 3. Name binding in except handlers
 #[test]
 fn test_mutation_exception_scope() {
-    let pipeline = DepylerPipeline::new();
 
     // Test Case 1: Scope tracking must work
     let scoped = r#"
@@ -438,7 +418,7 @@ def test1(x: int) -> int:
     except ZeroDivisionError:
         return 0
 "#;
-    let rust1 = transpile(scoped);
+    let rust1 = transpile_and_check(scoped, &[]);
     assert!(rust1.contains("fn test1"));
 
     // Test Case 2: Name binding must be declared
@@ -451,7 +431,7 @@ def test2(x: int) -> str:
     except ValueError as e:
         return "error"
 "#;
-    let rust2 = transpile(named);
+    let rust2 = transpile_and_check(named, &[]);
     assert!(rust2.contains("fn test2"));
 
     // Test Case 3: Multiple handlers must work
@@ -468,6 +448,6 @@ def test3(x: int) -> str:
     except TypeError:
         return "type"
 "#;
-    let rust3 = transpile(multi);
+    let rust3 = transpile_and_check(multi, &[]);
     assert!(rust3.contains("fn test3"));
 }

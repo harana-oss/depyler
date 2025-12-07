@@ -1,0 +1,76 @@
+# Pattern Matching Module Tests - fnmatch module
+
+[metadata]
+name = "Pattern Matching Module Tests"
+category = "stdlib-patterns"
+
+# =============================================================================
+# fnmatch Module
+# =============================================================================
+
+[[test]]
+name = "fnmatch_basic"
+description = "fnmatch.fnmatch() pattern matching"
+tags = ["fnmatch", "pattern"]
+
+[test.python]
+code = '''
+import fnmatch
+
+def match_pattern(filename: str, pattern: str) -> bool:
+    return fnmatch.fnmatch(filename, pattern)
+'''
+
+[test.assertions]
+contains_any = [["regex", "Regex"]]
+contains = ["is_match"]
+
+[[test]]
+name = "fnmatch_case"
+description = "fnmatch.fnmatchcase() case-sensitive matching"
+tags = ["fnmatch", "pattern", "case"]
+
+[test.python]
+code = '''
+import fnmatch
+
+def match_case_sensitive(filename: str, pattern: str) -> bool:
+    return fnmatch.fnmatchcase(filename, pattern)
+'''
+
+[test.assertions]
+contains_any = [["regex", "Regex"]]
+contains = ["is_match"]
+
+[[test]]
+name = "fnmatch_filter"
+description = "fnmatch.filter() filter list by pattern"
+tags = ["fnmatch", "filter"]
+
+[test.python]
+code = '''
+import fnmatch
+
+def filter_files(names: list, pattern: str) -> list:
+    return fnmatch.filter(names, pattern)
+'''
+
+[test.assertions]
+contains = ["filter"]
+contains_any = [["regex", "Regex"]]
+
+[[test]]
+name = "fnmatch_translate"
+description = "fnmatch.translate() pattern to regex"
+tags = ["fnmatch", "translate"]
+
+[test.python]
+code = '''
+import fnmatch
+
+def translate_pattern(pattern: str) -> str:
+    return fnmatch.translate(pattern)
+'''
+
+[test.assertions]
+contains_any = [["format", "replace"]]

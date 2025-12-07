@@ -1,19 +1,17 @@
 //! Tests for ownership transfer validation in method calls
 
 use crate::test_helpers;
-use crate::test_helpers::transpile;
+use crate::test_helpers::transpile_and_check;
 
-use depyler_core::DepylerPipeline;
 
 #[test]
 fn test_vector_push_takes_ownership() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 def add_to_list(items: List[str], new_item: str):
     items.append(new_item)
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated code for add_to_list:\n{}", rust_code);
 
     // Vec::push takes ownership of the value
@@ -27,13 +25,12 @@ def add_to_list(items: List[str], new_item: str):
 
 #[test]
 fn test_hashmap_insert_takes_ownership() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 def add_to_dict(data: Dict[str, int], key: str, value: int):
     data[key] = value
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated code for add_to_dict:\n{}", rust_code);
 
     // HashMap::insert takes ownership of both key and value
@@ -42,13 +39,12 @@ def add_to_dict(data: Dict[str, int], key: str, value: int):
 
 #[test]
 fn test_string_method_ownership() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 def check_string(s: str) -> bool:
     return s.startswith("hello")
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated code for check_string:\n{}", rust_code);
 
     // String parameters take ownership (String, not &str) to match Python semantics
@@ -58,13 +54,12 @@ def check_string(s: str) -> bool:
 
 #[test]
 fn test_method_chain_ownership() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 def process_string(s: str) -> str:
     return s.strip().upper()
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated code for process_string:\n{}", rust_code);
 
     // Method chains should handle ownership correctly
@@ -74,13 +69,12 @@ def process_string(s: str) -> str:
 
 #[test]
 fn test_consuming_iterator_methods() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 def sum_list(numbers: List[int]) -> int:
     return sum(numbers)
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated code for sum_list:\n{}", rust_code);
 
     // Iterator consuming methods should handle ownership
@@ -92,7 +86,6 @@ def sum_list(numbers: List[int]) -> int:
 
 #[test]
 fn test_self_consuming_method() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 class Counter:
     def __init__(self):
@@ -102,7 +95,7 @@ class Counter:
         self.count += 1
 "#;
 
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
     println!("Generated code for Counter:\n{}", rust_code);
 
     // Methods that mutate self should take &mut self, not self

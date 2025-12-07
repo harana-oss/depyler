@@ -7,7 +7,6 @@ use depyler_core::rust_gen::{RustCodeGen, generate_rust_file};
 use depyler_core::type_mapper::TypeMapper;
 
 #[test]
-#[ignore]
 fn test_simple_union_type_int_or_none() {
     // Python: def is_none(value: int | None) -> bool: return value is None
     // Expected Rust: pub fn is_none(value: Option<i32>) -> bool { value.is_none() }
@@ -89,7 +88,6 @@ fn test_union_return_type() {
 }
 
 #[test]
-#[ignore]
 fn test_optional_default_parameter() {
     // Python: def optional_default(value: int | None, default: int = 42) -> int
     // Expected Rust: pub fn optional_default(value: Option<i32>, default: i32) -> i32

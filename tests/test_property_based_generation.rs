@@ -1,7 +1,7 @@
 //! Tests for generating property-based tests using quickcheck
 
 use crate::test_helpers;
-use crate::test_helpers::transpile;
+use crate::test_helpers::transpile_and_check;
 
 #[test]
 fn test_generate_quickcheck_for_pure_function() {
@@ -11,7 +11,7 @@ def add(a: int, b: int) -> int:
     return a + b
 "#;
 
-    let result: Result<String, String> = Ok(transpile(python_code));
+    let result: Result<String, String> = Ok(transpile_and_check(python_code, &[]));
     println!("Pure function result: {:?}", result);
 
     if let Ok(rust_code) = result {
@@ -42,7 +42,7 @@ def bubble_sort(arr: list[int]) -> list[int]:
     return arr
 "#;
 
-    let result: Result<String, String> = Ok(transpile(python_code));
+    let result: Result<String, String> = Ok(transpile_and_check(python_code, &[]));
     println!("Sorting function result: {:?}", result);
 
     if let Ok(rust_code) = result {
@@ -65,7 +65,7 @@ def abs_value(x: int) -> int:
     return x
 "#;
 
-    let result: Result<String, String> = Ok(transpile(python_code));
+    let result: Result<String, String> = Ok(transpile_and_check(python_code, &[]));
     println!("Abs function result: {:?}", result);
 
     if let Ok(rust_code) = result {
@@ -98,7 +98,7 @@ def decode(s: str) -> str:
     return encode(s)
 "#;
 
-    let result: Result<String, String> = Ok(transpile(python_code));
+    let result: Result<String, String> = Ok(transpile_and_check(python_code, &[]));
     println!("Encoding functions result: {:?}", result);
 
     if let Ok(rust_code) = result {
@@ -118,7 +118,7 @@ def safe_divide(a: int, b: int) -> int:
     return a // b
 "#;
 
-    let result: Result<String, String> = Ok(transpile(python_code));
+    let result: Result<String, String> = Ok(transpile_and_check(python_code, &[]));
     println!("Safe divide result: {:?}", result);
 
     if let Ok(rust_code) = result {
@@ -144,7 +144,7 @@ def normalize_path(path: str) -> str:
     return path
 "#;
 
-    let result: Result<String, String> = Ok(transpile(python_code));
+    let result: Result<String, String> = Ok(transpile_and_check(python_code, &[]));
     println!("Normalize path result: {:?}", result);
 
     if let Ok(rust_code) = result {
@@ -168,7 +168,7 @@ def is_valid_email(email: str) -> bool:
     return len(local) > 0 and len(domain) > 0 and '.' in domain
 "#;
 
-    let result: Result<String, String> = Ok(transpile(python_code));
+    let result: Result<String, String> = Ok(transpile_and_check(python_code, &[]));
     println!("Email validation result: {:?}", result);
 
     if let Ok(rust_code) = result {
@@ -192,7 +192,7 @@ def find_max(arr: list[int]) -> int:
     return max_val
 "#;
 
-    let result: Result<String, String> = Ok(transpile(python_code));
+    let result: Result<String, String> = Ok(transpile_and_check(python_code, &[]));
     println!("Find max result: {:?}", result);
 
     if let Ok(rust_code) = result {

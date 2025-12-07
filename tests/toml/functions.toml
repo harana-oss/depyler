@@ -1,0 +1,930 @@
+# Function Transpilation Tests
+# Migrated from: test_func_gens.rs, test_nested_functions.rs, test_default_arguments.rs,
+#                test_main_return_type.rs, test_function_borrowing.rs, test_star_args_unpacking.rs
+# Note: test_default_parameters.rs contains HIR-level unit tests, not transpilation tests
+
+[metadata]
+name = "Function Tests"
+category = "functions"
+
+# =============================================================================
+# Basic Function Generation (from test_func_gens.rs)
+# =============================================================================
+
+[[test]]
+name = "generic_function"
+tags = ["function", "generics"]
+
+[test.python]
+code = '''
+from typing import TypeVar
+
+T = TypeVar('T')
+
+def identity(value: T) -> T:
+    return value
+'''
+
+[test.assertions]
+contains = ["fn identity"]
+
+[[test]]
+name = "function_with_docstring"
+tags = ["function", "docstring"]
+
+[test.python]
+code = '''
+def documented_function(x: int) -> int:
+    """This is a documented function."""
+    return x * 2
+'''
+
+[test.assertions]
+contains = ["fn documented_function"]
+
+[[test]]
+name = "function_mutable_parameter"
+tags = ["function", "mutability"]
+
+[test.python]
+code = '''
+def increment(x: int) -> int:
+    x = x + 1
+    return x
+'''
+
+[test.assertions]
+contains = ["fn increment"]
+
+[[test]]
+name = "function_returning_result"
+tags = ["function", "result", "error"]
+
+[test.python]
+code = '''
+def divide(a: int, b: int) -> float:
+    if b == 0:
+        raise ValueError("division by zero")
+    return a / b
+'''
+
+[test.assertions]
+contains = ["fn divide"]
+
+[[test]]
+name = "async_function"
+tags = ["function", "async"]
+
+[test.python]
+code = '''
+async def fetch_data(url: str) -> str:
+    return "data"
+'''
+
+[test.assertions]
+contains = ["fn fetch_data"]
+
+[[test]]
+name = "multiple_parameters"
+tags = ["function", "parameters"]
+
+[test.python]
+code = '''
+def add_three(a: int, b: int, c: int) -> int:
+    return a + b + c
+'''
+
+[test.assertions]
+contains = ["fn add_three", "i32"]
+
+[[test]]
+name = "union_return_type"
+tags = ["function", "union", "return-type"]
+
+[test.python]
+code = '''
+from typing import Union
+
+def maybe_int(flag: bool) -> Union[int, str]:
+    if flag:
+        return 42
+    return "none"
+'''
+
+[test.assertions]
+contains = ["fn maybe_int"]
+
+[[test]]
+name = "string_return_owned"
+tags = ["function", "string", "ownership"]
+
+[test.python]
+code = '''
+def to_upper(s: str) -> str:
+    return s.upper()
+'''
+
+[test.assertions]
+contains = ["fn to_upper"]
+
+[[test]]
+name = "string_return_borrowed"
+tags = ["function", "string", "bool"]
+
+[test.python]
+code = '''
+def starts_with_hello(s: str) -> bool:
+    return s.startswith("hello")
+'''
+
+[test.assertions]
+contains = ["fn starts_with_hello", "bool"]
+
+[[test]]
+name = "error_type_tracking"
+tags = ["function", "error", "exception"]
+
+[test.python]
+code = '''
+def safe_divide(a: int, b: int) -> float:
+    if b == 0:
+        raise ZeroDivisionError("cannot divide by zero")
+    return a / b
+'''
+
+[test.assertions]
+contains = ["fn safe_divide"]
+
+[[test]]
+name = "generator_function"
+tags = ["function", "generator", "yield"]
+
+[test.python]
+code = '''
+def counter(n: int):
+    for i in range(n):
+        yield i
+'''
+
+[test.assertions]
+contains = ["fn counter"]
+
+[[test]]
+name = "float_return_type"
+tags = ["function", "float", "return-type"]
+
+[test.python]
+code = '''
+def calculate_average(a: int, b: int) -> float:
+    return (a + b) / 2.0
+'''
+
+[test.assertions]
+contains = ["fn calculate_average", "f64"]
+
+# =============================================================================
+# Parameter Usage Detection (from test_func_gens.rs)
+# =============================================================================
+
+[[test]]
+name = "param_used_in_binary_expr"
+tags = ["function", "parameters", "usage"]
+
+[test.python]
+code = '''
+def add_ten(x: int, unused: int) -> int:
+    return x + 10
+'''
+
+[test.assertions]
+contains = ["fn add_ten"]
+
+[[test]]
+name = "param_used_in_method_call"
+tags = ["function", "parameters", "method"]
+
+[test.python]
+code = '''
+def uppercase(s: str, unused: int) -> str:
+    return s.upper()
+'''
+
+[test.assertions]
+contains = ["fn uppercase"]
+
+[[test]]
+name = "param_used_in_index"
+tags = ["function", "parameters", "index"]
+
+[test.python]
+code = '''
+def get_item(items: list[int], idx: int, unused: str) -> int:
+    return items[idx]
+'''
+
+[test.assertions]
+contains = ["fn get_item"]
+
+[[test]]
+name = "param_in_list_comprehension"
+tags = ["function", "parameters", "comprehension"]
+
+[test.python]
+code = '''
+def with_comprehension(items: list[int], multiplier: int) -> list[int]:
+    return [x * multiplier for x in items]
+'''
+
+[test.assertions]
+contains = ["fn with_comprehension"]
+
+# =============================================================================
+# String Method Classification (from test_func_gens.rs)
+# =============================================================================
+
+[[test]]
+name = "string_methods_upper_lower"
+tags = ["function", "string", "methods"]
+
+[test.python]
+code = '''
+def make_upper(text: str) -> str:
+    return text.upper()
+
+def make_lower(text: str) -> str:
+    return text.lower()
+'''
+
+[test.assertions]
+contains = ["fn make_upper", "fn make_lower"]
+
+[[test]]
+name = "string_methods_strip"
+tags = ["function", "string", "strip"]
+
+[test.python]
+code = '''
+def clean_text(text: str) -> str:
+    return text.strip()
+
+def clean_left(text: str) -> str:
+    return text.lstrip()
+
+def clean_right(text: str) -> str:
+    return text.rstrip()
+'''
+
+[test.assertions]
+contains = ["fn clean_text", "fn clean_left", "fn clean_right"]
+
+[[test]]
+name = "string_methods_transform"
+tags = ["function", "string", "transform"]
+
+[test.python]
+code = '''
+def replace_text(text: str) -> str:
+    return text.replace("old", "new")
+
+def title_case(text: str) -> str:
+    return text.title()
+'''
+
+[test.assertions]
+contains = ["fn replace_text", "fn title_case"]
+
+[[test]]
+name = "string_methods_predicates"
+tags = ["function", "string", "predicate"]
+
+[test.python]
+code = '''
+def starts_with_test(text: str) -> bool:
+    return text.startswith("hello")
+
+def ends_with_test(text: str) -> bool:
+    return text.endswith("world")
+'''
+
+[test.assertions]
+contains = ["fn starts_with_test", "fn ends_with_test", "bool"]
+
+[[test]]
+name = "string_concat"
+tags = ["function", "string", "concat"]
+
+[test.python]
+code = '''
+def concat_strings(a: str, b: str) -> str:
+    return a + b
+'''
+
+[test.assertions]
+contains = ["fn concat_strings"]
+
+# =============================================================================
+# Nested Functions (from test_nested_functions.rs)
+# =============================================================================
+
+[[test]]
+name = "simple_nested_function"
+tags = ["function", "nested"]
+
+[test.python]
+code = '''
+def outer():
+    def inner(x):
+        return x * 2
+    return inner(5)
+'''
+
+[test.assertions]
+contains = ["fn outer", "inner", "x * 2"]
+
+[[test]]
+name = "nested_with_multiple_params"
+tags = ["function", "nested", "parameters"]
+
+[test.python]
+code = '''
+def outer():
+    def add(a, b):
+        return a + b
+    return add(3, 4)
+'''
+
+[test.assertions]
+contains = ["fn outer", "add"]
+
+[[test]]
+name = "nested_with_closure_capture"
+tags = ["function", "nested", "closure"]
+
+[test.python]
+code = '''
+def outer(y):
+    def inner(x):
+        return x + y
+    return inner(5)
+'''
+
+[test.assertions]
+contains = ["x + y"]
+
+[[test]]
+name = "nested_with_multiple_captures"
+tags = ["function", "nested", "closure"]
+
+[test.python]
+code = '''
+def outer(y, z):
+    def inner(x):
+        return x + y + z
+    return inner(5)
+'''
+
+[test.assertions]
+contains = ["fn outer"]
+
+[[test]]
+name = "nested_function_with_docstring"
+tags = ["function", "nested", "docstring"]
+
+[test.python]
+code = '''
+def outer():
+    def inner(x):
+        """Double the input"""
+        return x * 2
+    return inner(5)
+'''
+
+[test.assertions]
+contains = ["fn outer"]
+
+[[test]]
+name = "nested_function_with_type_hints"
+tags = ["function", "nested", "types"]
+
+[test.python]
+code = '''
+def outer():
+    def inner(x: int) -> int:
+        return x * 2
+    return inner(5)
+'''
+
+[test.assertions]
+contains = ["fn outer"]
+
+# =============================================================================
+# Default Arguments (from test_default_arguments.rs)
+# =============================================================================
+
+[[test]]
+name = "mixed_positional_and_named"
+tags = ["function", "default", "arguments"]
+
+[test.python]
+code = '''
+def greet(name: str, greeting: str = "Hello") -> str:
+    return f"{greeting}, {name}!"
+
+def test() -> str:
+    return greet("Alice", greeting="Hi")
+'''
+
+[test.assertions]
+contains = ["greet(\"Alice\".to_string(), \"Hi\".to_string())"]
+
+[[test]]
+name = "all_named_arguments"
+tags = ["function", "default", "kwargs"]
+
+[test.python]
+code = '''
+def configure(width: int, height: int, title: str) -> dict:
+    return {"width": width, "height": height, "title": title}
+
+def test() -> dict:
+    return configure(width=800, height=600, title="My App")
+'''
+
+[test.assertions]
+contains = ["configure(800, 600, \"My App\".to_string())"]
+
+[[test]]
+name = "multiple_named_after_positional"
+tags = ["function", "default", "mixed"]
+
+[test.python]
+code = '''
+def calculate(a: int, b: int, operation: str = "add", verbose: bool = False) -> int:
+    if operation == "add":
+        result = a + b
+    else:
+        result = a - b
+    if verbose:
+        print(f"Result: {result}")
+    return result
+
+def test() -> int:
+    return calculate(10, 20, verbose=True, operation="add")
+'''
+
+[test.assertions]
+contains = ["calculate(10, 20, \"add\".to_string(), true)"]
+
+[[test]]
+name = "nested_function_calls"
+tags = ["function", "nested", "calls"]
+
+[test.python]
+code = '''
+def inner(x: int, y: int) -> int:
+    return x + y
+
+def outer(inner_result: int, scale: float = 1.0, offset: int = 0) -> int:
+    return inner_result * int(scale) + offset
+
+def test() -> int:
+    return outer(inner(x=10, y=20), scale=2.0, offset=inner(x=5, y=5))
+'''
+
+[test.assertions]
+contains = ["outer(inner(10, 20), 2.0, inner(5, 5))"]
+
+[[test]]
+name = "only_positional_args"
+tags = ["function", "arguments", "positional"]
+
+[test.python]
+code = '''
+def add(a: int, b: int) -> int:
+    return a + b
+
+def test() -> int:
+    return add(5, 3)
+'''
+
+[test.assertions]
+contains = ["add(5, 3)"]
+
+[[test]]
+name = "empty_function_call"
+tags = ["function", "arguments"]
+
+[test.python]
+code = '''
+def no_params() -> int:
+    return 42
+
+def test() -> int:
+    return no_params()
+'''
+
+[test.assertions]
+contains = ["no_params()"]
+
+[[test]]
+name = "reordered_arguments"
+tags = ["function", "arguments", "kwargs"]
+
+[test.python]
+code = '''
+def format_message(name: str, age: int, city: str, country: str) -> str:
+    return f"{name} is {age} years old from {city}, {country}"
+
+def test() -> str:
+    return format_message(country="USA", name="Alice", city="New York", age=30)
+'''
+
+[test.assertions]
+contains = ["fn format_message"]
+
+# =============================================================================
+# Main Return Type (from test_main_return_type.rs)
+# =============================================================================
+
+[[test]]
+name = "main_without_return_type"
+tags = ["function", "main", "return-type"]
+compile_check = true
+
+[test.python]
+code = '''
+def main():
+    """Entry point without return type."""
+    print("Hello world")
+'''
+
+[test.assertions]
+contains = ["fn main"]
+
+[[test]]
+name = "main_with_none_return_type"
+tags = ["function", "main", "return-type"]
+compile_check = true
+
+[test.python]
+code = '''
+def main() -> None:
+    """Entry point with explicit None return."""
+    print("Hello world")
+'''
+
+[test.assertions]
+contains = ["fn main"]
+
+[[test]]
+name = "regular_function_without_return"
+tags = ["function", "return-type"]
+compile_check = true
+
+[test.python]
+code = '''
+def helper():
+    """Helper function without return type."""
+    print("Helping")
+
+def main() -> None:
+    """Call the helper."""
+    helper()
+'''
+
+[test.assertions]
+contains = ["fn helper", "fn main"]
+
+[[test]]
+name = "function_with_none_return"
+tags = ["function", "return-type"]
+compile_check = true
+
+[test.python]
+code = '''
+def process() -> None:
+    """Process something without returning."""
+    value = 42
+    print(value)
+
+def main() -> None:
+    """Entry point."""
+    process()
+'''
+
+[test.assertions]
+contains = ["fn process", "fn main"]
+
+[[test]]
+name = "mixed_return_types"
+tags = ["function", "return-type"]
+compile_check = true
+
+[test.python]
+code = '''
+def get_value() -> int:
+    """Returns an integer."""
+    return 42
+
+def process() -> None:
+    """Processes without returning."""
+    value = get_value()
+    print(value)
+
+def helper():
+    """Helper without return type."""
+    print("Helping")
+
+def main():
+    """Entry point."""
+    helper()
+    process()
+'''
+
+[test.assertions]
+contains = ["fn get_value", "fn process", "fn helper", "fn main"]
+
+[[test]]
+name = "main_with_early_return"
+tags = ["function", "main", "return"]
+compile_check = true
+
+[test.python]
+code = '''
+def main() -> None:
+    """Main with early return."""
+    if True:
+        print("Early exit")
+        return
+    print("Normal exit")
+'''
+
+[test.assertions]
+contains = ["fn main"]
+
+[[test]]
+name = "benchmark_main_pattern"
+tags = ["function", "main", "benchmark"]
+compile_check = true
+
+[test.python]
+code = '''
+def fibonacci_iterative(n: int) -> int:
+    """Calculate nth Fibonacci number."""
+    if n <= 1:
+        return n
+    a = 0
+    b = 1
+    for i in range(2, n + 1):
+        c = a + b
+        a = b
+        b = c
+    return b
+
+def main():
+    """Run benchmark - NO RETURN TYPE."""
+    limits = [25, 30, 35]
+    for limit in limits:
+        result = fibonacci_iterative(limit)
+        print(result)
+'''
+
+[test.assertions]
+contains = ["fn fibonacci_iterative", "fn main"]
+
+# =============================================================================
+# Function Borrowing (from test_function_borrowing.rs)
+# =============================================================================
+
+[[test]]
+name = "basic_reference_parameter"
+tags = ["function", "borrow", "reference"]
+compile_check = true
+
+[test.python]
+code = '''
+def process(data: list[int]) -> int:
+    """Function that expects a reference to a list."""
+    return len(data)
+
+def main() -> None:
+    """Caller passes owned list."""
+    nums = [1, 2, 3]
+    result = process(nums)
+    print(result)
+'''
+
+[test.assertions]
+contains = ["fn process", "fn main"]
+
+[[test]]
+name = "multiple_reference_parameters"
+tags = ["function", "borrow", "reference"]
+compile_check = true
+
+[test.python]
+code = '''
+def merge(list1: list[int], list2: list[int]) -> list[int]:
+    """Merge two lists."""
+    return list1 + list2
+
+def main() -> None:
+    """Call with two owned lists."""
+    a = [1, 2]
+    b = [3, 4]
+    result = merge(a, b)
+    print(result)
+'''
+
+[test.assertions]
+contains = ["fn merge", "fn main"]
+
+[[test]]
+name = "string_reference_parameter"
+tags = ["function", "borrow", "string"]
+compile_check = true
+
+[test.python]
+code = '''
+def process_text(text: str) -> int:
+    """Process a string."""
+    return len(text)
+
+def main() -> None:
+    """Pass owned string."""
+    message = "hello world"
+    length = process_text(message)
+    print(length)
+'''
+
+[test.assertions]
+contains = ["fn process_text", "fn main"]
+
+[[test]]
+name = "dict_reference_parameter"
+tags = ["function", "borrow", "dict"]
+compile_check = true
+
+[test.python]
+code = '''
+def count_keys(data: dict[str, int]) -> int:
+    """Count keys in dict."""
+    return len(data)
+
+def main() -> None:
+    """Pass owned dict."""
+    info = {"a": 1, "b": 2, "c": 3}
+    count = count_keys(info)
+    print(count)
+'''
+
+[test.assertions]
+contains = ["fn count_keys", "fn main"]
+
+[[test]]
+name = "reference_list_str"
+tags = ["function", "borrow", "list"]
+compile_check = true
+
+[test.python]
+code = '''
+def f(x: list[str]) -> int:
+    return len(x)
+
+def main() -> None:
+    v = ["a", "b"]
+    f(v)
+'''
+
+[test.assertions]
+contains = ["fn f", "fn main"]
+
+[[test]]
+name = "reference_set_int"
+tags = ["function", "borrow", "set"]
+compile_check = true
+
+[test.python]
+code = '''
+def f(x: set[int]) -> int:
+    return len(x)
+
+def main() -> None:
+    v = {1, 2, 3}
+    f(v)
+'''
+
+[test.assertions]
+contains = ["fn f", "fn main"]
+
+# =============================================================================
+# Star Args Unpacking (from test_star_args_unpacking.rs)
+# =============================================================================
+
+[[test]]
+name = "star_args_basic"
+tags = ["function", "varargs", "star"]
+
+[test.python]
+code = '''
+import os
+
+def join_paths(*parts: str) -> str:
+    return os.path.join(*parts)
+'''
+
+[test.assertions]
+contains = ["fn join_paths"]
+
+[[test]]
+name = "star_args_with_list"
+tags = ["function", "varargs", "list"]
+
+[test.python]
+code = '''
+import os
+
+def test() -> str:
+    parts = ["home", "user", "docs"]
+    return os.path.join(*parts)
+'''
+
+[test.assertions]
+contains = ["fn test"]
+
+[[test]]
+name = "star_args_mixed"
+tags = ["function", "varargs", "mixed"]
+
+[test.python]
+code = '''
+import os
+
+def test(base: str, *rest: str) -> str:
+    return os.path.join(base, *rest)
+'''
+
+[test.assertions]
+contains = ["fn test"]
+
+[[test]]
+name = "print_starred"
+tags = ["function", "varargs", "print"]
+
+[test.python]
+code = '''
+def print_all(*items):
+    print(*items)
+'''
+
+[test.assertions]
+contains = ["fn print_all"]
+
+# =============================================================================
+# Return Statement Style - Idiomatic Rust
+# =============================================================================
+
+[[test]]
+name = "final_return_expression_style"
+description = "Final return should use expression style, not return keyword"
+tags = ["function", "return", "idiomatic"]
+
+[test.python]
+code = '''
+def add(a: int, b: int) -> int:
+    return a + b
+'''
+
+[test.assertions]
+contains = ["a + b"]
+not_contains = ["return a + b"]
+
+[[test]]
+name = "early_return_preserved"
+description = "Early return in control flow should keep return keyword"
+tags = ["function", "return", "early-return"]
+
+[test.python]
+code = '''
+def max_value(a: int, b: int) -> int:
+    if a > b:
+        return a
+    return b
+'''
+
+[test.assertions]
+contains = ["return a"]
+
+[[test]]
+name = "boolean_return_expression"
+description = "Boolean return should use expression style"
+tags = ["function", "return", "bool"]
+
+[test.python]
+code = '''
+def check_positive(x: int) -> bool:
+    return x > 0
+'''
+
+[test.assertions]
+contains = ["x > 0"]

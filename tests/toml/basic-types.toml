@@ -1,0 +1,508 @@
+# Basic Types Tests - Migrated from test_constants.rs, test_boolean_conversion.rs, test_dynamic_type.rs
+
+[[test]]
+name = "simple_constants"
+description = "Numeric constants should transpile to Rust const"
+
+[test.python]
+code = '''
+A = -1
+B = 2.0
+C = 3
+'''
+
+[test.assertions]
+contains = ["A", "B", "C", "1", "2", "3"]
+contains_any = [
+    ["pub const A: i64 = -1", "pub const A: i32 = -1"],
+    ["pub const B: f64 = 2.0"],
+    ["pub const C: i64 = 3", "pub const C: i32 = 3"]
+]
+
+[[test]]
+name = "constants_with_types"
+description = "Typed integer constants should transpile to Rust const"
+
+[test.python]
+code = '''
+A: int = -1
+B: int = 2
+C: int = 3
+'''
+
+[test.assertions]
+contains = ["A", "B", "C"]
+contains_any = [
+    ["pub const A: i64 = -1", "pub const A: i32 = -1"],
+    ["pub const B: i64 = 2", "pub const B: i32 = 2"],
+    ["pub const C: i64 = 3", "pub const C: i32 = 3"]
+]
+
+[[test]]
+name = "string_constants"
+description = "String constants should be preserved in output"
+
+[test.python]
+code = '''
+NAME = "Alice"
+GREETING = "Hello"
+MESSAGE = "World"
+'''
+
+[test.assertions]
+contains = ["NAME", "GREETING", "MESSAGE", "Alice", "Hello", "World"]
+
+[[test]]
+name = "mixed_type_constants"
+description = "Mixed type constants should preserve their types"
+
+[test.python]
+code = '''
+INT_VALUE = 42
+FLOAT_VALUE = 3.14
+STRING_VALUE = "test"
+BOOL_VALUE = True
+'''
+
+[test.assertions]
+contains = ["INT_VALUE", "FLOAT_VALUE", "STRING_VALUE", "BOOL_VALUE", "42", "3.14", "test"]
+contains_any = [["true", "True"]]
+
+[[test]]
+name = "generated_constants_compiles"
+description = "Simple constant declarations should compile"
+
+[test.python]
+code = '''
+A = 1
+B = 2
+C = 3
+'''
+
+[test.assertions]
+contains = ["A"]
+
+[[test]]
+name = "constants_used_in_function"
+description = "Constants used in functions should be accessible"
+
+[test.python]
+code = '''
+A = 1
+B = 2
+C = 3
+
+def sum_constants() -> int:
+    return A + B + C
+'''
+
+[test.assertions]
+contains = ["A", "B", "C", "sum_constants"]
+
+[[test]]
+name = "integer_list_constant"
+description = "Integer list constants should transpile"
+
+[test.python]
+code = '''
+VEC = [1, -2, 3, -4]
+'''
+
+[test.assertions]
+contains = ["VEC"]
+
+[[test]]
+name = "string_list_constant"
+description = "String list constants should transpile"
+
+[test.python]
+code = '''
+VEC = ["1", "2", "3", "4"]
+'''
+
+[test.assertions]
+contains = ["VEC"]
+
+[[test]]
+name = "float_list_constant"
+description = "Float list constants should transpile"
+
+[test.python]
+code = '''
+VEC = [1.1, 2.2, 3.3, 4.4]
+'''
+
+[test.assertions]
+contains = ["VEC"]
+
+[[test]]
+name = "bool_list_constant"
+description = "Boolean list constants should transpile"
+
+[test.python]
+code = '''
+VEC = [True, False, True, False]
+'''
+
+[test.assertions]
+contains = ["VEC"]
+
+[[test]]
+name = "nested_integer_list_constant"
+description = "Nested integer list constants should use lazy_static"
+
+[test.python]
+code = '''
+X_VALUES = [[0, 100], [100, 200]]
+'''
+
+[test.assertions]
+contains = ["lazy_static!", "pub static ref X_VALUES: Vec<Vec<i32>> = vec![vec![0, 100], vec![100, 200]]"]
+
+[[test]]
+name = "string_list_constant_multiple"
+description = "String list constants should use lazy_static with to_string"
+
+[test.python]
+code = '''
+STRINGS = ["one", "two", "three"]
+'''
+
+[test.assertions]
+contains = ["lazy_static!", "pub static ref STRINGS: Vec<String> = vec![\"one\".to_string(), \"two\".to_string(), \"three\".to_string()]"]
+
+# Boolean Conversion Tests (from test_boolean_conversion.rs)
+
+[[test]]
+name = "list_empty_check"
+description = "Empty list check with not should compile"
+
+[test.python]
+code = '''
+def is_empty_list(items: list[int]) -> bool:
+    if not items:
+        return True
+    return False
+'''
+
+[test.assertions]
+contains = ["fn is_empty_list"]
+
+[[test]]
+name = "string_empty_check"
+description = "Empty string check with not should compile"
+
+[test.python]
+code = '''
+def is_empty_string(text: str) -> bool:
+    if not text:
+        return True
+    return False
+'''
+
+[test.assertions]
+contains = ["fn is_empty_string"]
+
+[[test]]
+name = "dict_empty_check"
+description = "Empty dict check with not should compile"
+
+[test.python]
+code = '''
+def is_empty_dict(mapping: dict[str, int]) -> bool:
+    if not mapping:
+        return True
+    return False
+'''
+
+[test.assertions]
+contains = ["fn is_empty_dict"]
+
+[[test]]
+name = "guard_clause_pattern"
+description = "Guard clause pattern with not should compile"
+
+[test.python]
+code = '''
+def process_items(items: list[int]) -> int:
+    if not items:
+        return 0
+    total = 0
+    for item in items:
+        total = total + item
+    return total
+'''
+
+[test.assertions]
+contains = ["fn process_items"]
+
+[[test]]
+name = "boolean_not_with_flag"
+description = "Boolean not with flag should compile"
+
+[test.python]
+code = '''
+def negate_bool(flag: bool) -> bool:
+    if not flag:
+        return True
+    return False
+'''
+
+[test.assertions]
+contains = ["fn negate_bool"]
+
+# Dynamic Type Tests (from test_dynamic_type.rs)
+
+[[test]]
+name = "untyped_list_parameter"
+description = "Untyped list parameter should not use DynamicType"
+
+[test.python]
+code = '''
+def sum_list(numbers: list) -> int:
+    """Sum all numbers in a list."""
+    total = 0
+    for num in numbers:
+        total = total + num
+    return total
+'''
+
+[test.assertions]
+not_contains = ["DynamicType"]
+
+[[test]]
+name = "untyped_dict_parameter"
+description = "Untyped dict parameter should not use DynamicType"
+
+[test.python]
+code = '''
+def get_value(data: dict, key: str) -> int:
+    """Get a value from dictionary."""
+    if key in data:
+        return data[key]
+    return 0
+'''
+
+[test.assertions]
+not_contains = ["DynamicType"]
+
+[[test]]
+name = "untyped_set_parameter"
+description = "Untyped set parameter should not use DynamicType"
+
+[test.python]
+code = '''
+def count_unique(items: set) -> int:
+    """Count unique items in a set."""
+    return len(items)
+'''
+
+[test.assertions]
+not_contains = ["DynamicType"]
+
+# =============================================================================
+# Tuple Operations
+# =============================================================================
+
+[[test]]
+name = "tuple_string_variable_in"
+description = "String variable 'in' tuple check"
+tags = ["tuple", "membership"]
+
+[test.python]
+code = '''
+def check_location(location: str) -> bool:
+    return location in ("Home", "Away")
+'''
+
+[test.assertions]
+contains = ["contains"]
+
+[[test]]
+name = "tuple_string_literal_in"
+description = "String literal 'in' tuple check"
+tags = ["tuple", "membership"]
+
+[test.python]
+code = '''
+def check_location() -> bool:
+    return "Home" in ("Home", "Away")
+'''
+
+[test.assertions]
+contains = ["contains"]
+
+[[test]]
+name = "tuple_struct_field_in"
+description = "Struct field 'in' tuple check"
+tags = ["tuple", "membership"]
+
+[test.python]
+code = '''
+@dataclass
+class State:
+    item: str
+
+def check_location(state: State) -> bool:
+    return state.item in ("Home", "Away")
+'''
+
+[test.assertions]
+contains = ["contains"]
+
+# =============================================================================
+# Final Constants (from test_final_constant.rs)
+# =============================================================================
+
+[[test]]
+name = "final_int_constant"
+description = "Final[int] creates const"
+tags = ["final", "const"]
+
+[test.python]
+code = '''
+from typing import Final
+
+FIELD_GOAL: Final[int] = 600
+'''
+
+[test.assertions]
+contains = ["const FIELD_GOAL", ": i32", "= 600"]
+not_contains = ["let FIELD_GOAL"]
+
+[[test]]
+name = "final_string_constant"
+description = "Final[str] creates const"
+tags = ["final", "const", "string"]
+
+[test.python]
+code = '''
+from typing import Final
+
+API_KEY: Final[str] = "secret_key_123"
+'''
+
+[test.assertions]
+contains = ["const API_KEY"]
+contains_any = [[": &str", ": String"]]
+
+[[test]]
+name = "final_float_constant"
+description = "Final[float] creates const"
+tags = ["final", "const", "float"]
+
+[test.python]
+code = '''
+from typing import Final
+
+PI: Final[float] = 3.14159
+'''
+
+[test.assertions]
+contains = ["const PI", ": f64"]
+
+[[test]]
+name = "final_multiple_constants"
+description = "Multiple Final constants"
+tags = ["final", "const"]
+
+[test.python]
+code = '''
+from typing import Final
+
+MAX_CONNECTIONS: Final[int] = 100
+TIMEOUT_MS: Final[int] = 5000
+DEFAULT_NAME: Final[str] = "unnamed"
+'''
+
+[test.assertions]
+contains = ["const MAX_CONNECTIONS", "const TIMEOUT_MS", "const DEFAULT_NAME"]
+
+[[test]]
+name = "final_vs_regular_variable"
+description = "Final vs regular variable distinction"
+tags = ["final", "const", "variable"]
+
+[test.python]
+code = '''
+from typing import Final
+
+def process() -> int:
+    MAX_VALUE: Final[int] = 100
+    current: int = 50
+    return current
+'''
+
+[test.assertions]
+contains = ["const MAX_VALUE", "let current"]
+
+# =============================================================================
+# Rust Keyword Handling (issue: panic when Python uses Rust keywords as names)
+# =============================================================================
+
+[[test]]
+name = "rust_keyword_match"
+description = "Python variable named 'match' (Rust keyword) should not cause panic"
+tags = ["keywords", "identifiers", "match"]
+
+[test.python]
+code = '''
+def test_match_keyword() -> int:
+    match = 42
+    return match
+'''
+
+[test.assertions]
+contains_any = [["r#match", "let"]]
+
+[[test]]
+name = "rust_keyword_type"
+description = "Python variable named 'type' (Rust keyword) should not cause panic"
+tags = ["keywords", "identifiers", "type"]
+
+[test.python]
+code = '''
+def test_type_keyword() -> int:
+    type = 123
+    return type
+'''
+
+[test.assertions]
+contains_any = [["r#type", "let"]]
+
+[[test]]
+name = "rust_keyword_impl"
+description = "Python variable named 'impl' (Rust keyword) should not cause panic"
+tags = ["keywords", "identifiers", "impl"]
+
+[test.python]
+code = '''
+def test_impl_keyword() -> int:
+    impl = 456
+    return impl
+'''
+
+[test.assertions]
+contains_any = [["r#impl", "let"]]
+
+[[test]]
+name = "re_module_match_variable"
+description = "re.search result stored in 'match' variable"
+tags = ["keywords", "regex", "match"]
+
+[test.python]
+code = '''
+import re
+
+def test_search() -> int:
+    text = "hello world"
+    match = re.search(r"world", text)
+    
+    if match:
+        return 1
+    else:
+        return 0
+'''
+
+[test.assertions]
+contains = ["fn test_search"]

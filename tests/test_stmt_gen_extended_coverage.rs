@@ -11,8 +11,7 @@
 //! Based on systematic analysis identifying 33 high-value scenarios
 //! to push coverage from 78.26% to 85%+
 
-use crate::test_helpers::transpile;
-use depyler_core::DepylerPipeline;
+use crate::test_helpers::transpile_and_check;
 
 // ============================================================================
 // TIER 1: Critical Error Paths & Unsupported Features
@@ -23,9 +22,7 @@ use depyler_core::DepylerPipeline;
 /// Verifies: Line 612 - bail!("Unsupported for loop target type")
 /// Expected: Error for invalid loop target
 #[test]
-#[ignore]
 fn test_unsupported_for_loop_target_type() {
-    let pipeline = DepylerPipeline::new();
 
     // Try to use index assignment as loop target (not supported)
     let python_code = r#"
@@ -35,7 +32,7 @@ def test():
     for d["key"] in items:
         pass
 "#;
-    let result: Result<String, String> = Ok(transpile(python_code));
+    let result: Result<String, String> = Ok(transpile_and_check(python_code, &[]));
 
     // This should either error or handle gracefully
     // The transpiler may reject this or generate code
@@ -47,9 +44,7 @@ def test():
 /// Verifies: Lines 1173-1175 - bail!("Complex tuple unpacking not yet supported")
 /// Expected: Error or graceful handling for nested tuple unpacking
 #[test]
-#[ignore]
 fn test_complex_tuple_unpacking_unsupported() {
-    let pipeline = DepylerPipeline::new();
 
     let python_code = r#"
 def test():
@@ -57,7 +52,7 @@ def test():
     (a, (b, c)) = nested  # Nested tuple unpacking
     return a + b + c
 "#;
-    let result: Result<String, String> = Ok(transpile(python_code));
+    let result: Result<String, String> = Ok(transpile_and_check(python_code, &[]));
 
     // May error or handle gracefully depending on implementation
     assert!(result.is_ok() || result.is_err());
@@ -69,7 +64,6 @@ def test():
 /// Expected: Should not reach this branch in normal operation
 #[test]
 fn test_try_with_finally_only() {
-    let pipeline = DepylerPipeline::new();
 
     // Try with only finally (no except handlers)
     let python_code = r#"
@@ -80,7 +74,7 @@ def test():
         print("cleanup")
     return x
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn test"));
 }
@@ -91,7 +85,6 @@ def test():
 /// Expected: Proper exception scope tracking 
 #[test]
 fn test_raise_caught_exception_scope() {
-    let pipeline = DepylerPipeline::new();
 
     let python_code = r#"
 def test():
@@ -101,7 +94,7 @@ def test():
         return "caught"
     return "not reached"
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn test"));
     // Should handle exception properly
@@ -113,7 +106,6 @@ def test():
 /// Expected: Error or graceful handling for floor division
 #[test]
 fn test_augmented_assignment_floor_division() {
-    let pipeline = DepylerPipeline::new();
 
     let python_code = r#"
 def test():
@@ -121,7 +113,7 @@ def test():
     x //= 3  # Floor division augmented assignment
     return x
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn test"));
     // Should handle floor division
@@ -137,7 +129,6 @@ def test():
 /// Expected: break 'label_name; if labels are used
 #[test]
 fn test_break_in_nested_loop() {
-    let pipeline = DepylerPipeline::new();
 
     let python_code = r#"
 def test():
@@ -149,7 +140,7 @@ def test():
             break  # Outer loop break
     return i
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn test"));
     assert!(rust_code.contains("break"));
@@ -161,7 +152,6 @@ def test():
 /// Expected: continue 'label_name; if labels are used
 #[test]
 fn test_continue_in_nested_loop() {
-    let pipeline = DepylerPipeline::new();
 
     let python_code = r#"
 def test():
@@ -176,7 +166,7 @@ def test():
         count = count + 100
     return count
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn test"));
     assert!(rust_code.contains("continue"));
@@ -188,7 +178,6 @@ def test():
 /// Expected: let ctx = _context.__enter__();
 #[test]
 fn test_with_statement_with_target() {
-    let pipeline = DepylerPipeline::new();
 
     let python_code = r#"
 class ContextManager:
@@ -202,7 +191,7 @@ def test():
     with ContextManager() as ctx:
         return ctx
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn test"));
 }
@@ -213,7 +202,6 @@ def test():
 /// Expected: .unwrap_or(false) for function returning Result<bool>
 #[test]
 fn test_if_condition_result_bool_unwrap() {
-    let pipeline = DepylerPipeline::new();
 
     let python_code = r#"
 def is_even(n: int) -> bool:
@@ -224,7 +212,7 @@ def test(x: int) -> int:
         return 1
     return 0
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn is_even"));
     assert!(rust_code.contains("fn test"));
@@ -236,13 +224,12 @@ def test(x: int) -> int:
 /// Expected: as i32 cast for usize→i32 
 #[test]
 fn test_return_with_type_conversion_usize_to_i32() {
-    let pipeline = DepylerPipeline::new();
 
     let python_code = r#"
 def get_length(items: list[int]) -> int:
     return len(items)
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn get_length"));
     // Should handle len() returning usize, function expecting i32
@@ -254,7 +241,6 @@ def get_length(items: list[int]) -> int:
 /// Expected: return Ok(Some(item)); (not final statement)
 #[test]
 fn test_return_early_with_ok_some() {
-    let pipeline = DepylerPipeline::new();
 
     let python_code = r#"
 from typing import Optional
@@ -265,7 +251,7 @@ def maybe_find(items: list[int], target: int) -> Optional[int]:
             return item  # Early return (not final statement)
     return None
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn maybe_find"));
     assert!(rust_code.contains("Option") || rust_code.contains("option"));
@@ -277,7 +263,6 @@ def maybe_find(items: list[int], target: int) -> Optional[int]:
 /// Expected: Ok(None) not Ok(()) 
 #[test]
 fn test_return_none_optional_result() {
-    let pipeline = DepylerPipeline::new();
 
     let python_code = r#"
 from typing import Optional
@@ -285,7 +270,7 @@ from typing import Optional
 def optional_result() -> Optional[int]:
     return None
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn optional_result"));
     assert!(rust_code.contains("Option") || rust_code.contains("None"));
@@ -297,7 +282,6 @@ def optional_result() -> Optional[int]:
 /// Expected: return Ok(None);
 #[test]
 fn test_return_empty_optional_result_early() {
-    let pipeline = DepylerPipeline::new();
 
     let python_code = r#"
 from typing import Optional
@@ -307,7 +291,7 @@ def early_exit(flag: bool) -> Optional[int]:
         return  # Empty return in Optional Result function
     return 42
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn early_exit"));
 }
@@ -318,7 +302,6 @@ def early_exit(flag: bool) -> Optional[int]:
 /// Expected: return Ok(());
 #[test]
 fn test_return_empty_result_early() {
-    let pipeline = DepylerPipeline::new();
 
     let python_code = r#"
 def validate(x: int):
@@ -326,7 +309,7 @@ def validate(x: int):
         return  # Empty return in Result function (early)
     print(x)
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn validate"));
 }
@@ -337,7 +320,6 @@ def validate(x: int):
 /// Expected: No return keyword, just expression 
 #[test]
 fn test_return_final_statement_implicit() {
-    let pipeline = DepylerPipeline::new();
 
     let python_code = r#"
 def implicit_return(x: int) -> int:
@@ -346,7 +328,7 @@ def implicit_return(x: int) -> int:
     else:
         0
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn implicit_return"));
 }
@@ -361,13 +343,12 @@ def implicit_return(x: int) -> int:
 /// Expected: Returns true for count()
 #[test]
 fn test_expr_returns_usize_method_count() {
-    let pipeline = DepylerPipeline::new();
 
     let python_code = r#"
 def count_occurrences(text: str, char: str) -> int:
     return text.count(char)
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn count_occurrences"));
 }
@@ -378,13 +359,12 @@ def count_occurrences(text: str, char: str) -> int:
 /// Expected: Returns true for len()
 #[test]
 fn test_expr_returns_usize_builtin_len() {
-    let pipeline = DepylerPipeline::new();
 
     let python_code = r#"
 def get_size(items: list[int]) -> int:
     return len(items)
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn get_size"));
 }
@@ -395,13 +375,12 @@ def get_size(items: list[int]) -> int:
 /// Expected: Returns true if either operand is usize
 #[test]
 fn test_expr_returns_usize_binary_expr() {
-    let pipeline = DepylerPipeline::new();
 
     let python_code = r#"
 def total_size(a: list[int], b: list[int]) -> int:
     return len(a) + len(b)
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn total_size"));
 }
@@ -412,13 +391,12 @@ def total_size(a: list[int], b: list[int]) -> int:
 /// Expected: Detects variable used in lambda capture
 #[test]
 fn test_is_var_used_in_lambda() {
-    let pipeline = DepylerPipeline::new();
 
     let python_code = r#"
 def create_adder(x: int):
     return lambda y: x + y  # x captured in lambda
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn create_adder"));
 }
@@ -429,13 +407,12 @@ def create_adder(x: int):
 /// Expected: Detects x in test/body/orelse
 #[test]
 fn test_is_var_used_in_if_expr() {
-    let pipeline = DepylerPipeline::new();
 
     let python_code = r#"
 def abs_value(x: int) -> int:
     return x if x > 0 else -x  # x in ternary expression
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn abs_value"));
 }
@@ -446,13 +423,12 @@ def abs_value(x: int) -> int:
 /// Expected: Detects variable in slice start/stop/step
 #[test]
 fn test_is_var_used_in_slice() {
-    let pipeline = DepylerPipeline::new();
 
     let python_code = r#"
 def get_window(data: list[int], start: int, size: int) -> list[int]:
     return data[start:start+size]  # start in slice bounds
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn get_window"));
 }
@@ -463,13 +439,12 @@ def get_window(data: list[int], start: int, size: int) -> list[int]:
 /// Expected: Detects variable in set literal
 #[test]
 fn test_is_var_used_in_set_literal() {
-    let pipeline = DepylerPipeline::new();
 
     let python_code = r#"
 def create_set(x: int) -> set[int]:
     return {x, x+1, x+2}  # x in set literal
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn create_set"));
 }
@@ -480,7 +455,6 @@ def create_set(x: int) -> set[int]:
 /// Expected: Tracks instance as Type::Custom("Point") 
 #[test]
 fn test_assign_class_instance_type_tracking() {
-    let pipeline = DepylerPipeline::new();
 
     let python_code = r#"
 class Point:
@@ -492,7 +466,7 @@ def test():
     p = Point(1, 2)  # Track custom class instance
     return p.x + p.y
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("struct Point") || rust_code.contains("class Point"));
 }
@@ -503,14 +477,13 @@ def test():
 /// Expected: Tracks as Type::Set(Int) 
 #[test]
 fn test_assign_set_builtin_constructor() {
-    let pipeline = DepylerPipeline::new();
 
     let python_code = r#"
 def test():
     s = set([1, 2, 3])  # set() constructor
     return 1 in s
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn test"));
 }
@@ -525,7 +498,6 @@ def test():
 /// Expected: Multiple .get_mut() calls chained
 #[test]
 fn test_nested_dict_get_mut_chain() {
-    let pipeline = DepylerPipeline::new();
 
     let python_code = r#"
 def test():
@@ -533,7 +505,7 @@ def test():
     d["a"]["b"]["c"] = 2  # Nested assignment
     return d["a"]["b"]["c"]
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn test"));
 }
@@ -544,7 +516,6 @@ def test():
 /// Expected: .insert() for Vec 
 #[test]
 fn test_assign_index_vec_with_type_info() {
-    let pipeline = DepylerPipeline::new();
 
     let python_code = r#"
 def test():
@@ -552,7 +523,7 @@ def test():
     items[0] = 99  # Type-aware Vec assignment
     return items[0]
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn test"));
 }
@@ -563,7 +534,6 @@ def test():
 /// Expected: HashMap.insert (not Vec)
 #[test]
 fn test_assign_index_char_variable_dict() {
-    let pipeline = DepylerPipeline::new();
 
     let python_code = r#"
 def test():
@@ -572,7 +542,7 @@ def test():
     freq[char] = 1  # char variable → dict key
     return freq[char]
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn test"));
 }
@@ -583,7 +553,6 @@ def test():
 /// Expected: let (mut a, mut b) = ...; if variables are mutated
 #[test]
 fn test_assign_tuple_all_mutable() {
-    let pipeline = DepylerPipeline::new();
 
     let python_code = r#"
 def test():
@@ -592,7 +561,7 @@ def test():
     b = 4  # b is mutated later
     return a + b
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn test"));
 }
@@ -603,7 +572,6 @@ def test():
 /// Expected: Variable declared in handler scope
 #[test]
 fn test_try_handler_with_named_exception() {
-    let pipeline = DepylerPipeline::new();
 
     let python_code = r#"
 def test():
@@ -614,7 +582,7 @@ def test():
         return "caught"
     return "ok"
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn test"));
 }
@@ -625,7 +593,6 @@ def test():
 /// Expected: Tracks result as Vec<i32> 
 #[test]
 fn test_assign_function_return_type_tracking() {
-    let pipeline = DepylerPipeline::new();
 
     let python_code = r#"
 def merge(a: list[int], b: list[int]) -> list[int]:
@@ -635,7 +602,7 @@ def test():
     result = merge([1], [2])  # Track return type
     return len(result)
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn merge"));
     assert!(rust_code.contains("fn test"));
@@ -647,14 +614,13 @@ def test():
 /// Expected: Tracks as Type::String
 #[test]
 fn test_assign_method_call_string_methods() {
-    let pipeline = DepylerPipeline::new();
 
     let python_code = r#"
 def test(text: str) -> str:
     upper_text = text.upper()  # String method tracking
     return upper_text
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn test"));
 }
@@ -668,7 +634,6 @@ def test(text: str) -> str:
 /// Property: Core statement conversion is consistent
 #[test]
 fn test_property_statement_types() {
-    let pipeline = DepylerPipeline::new();
 
     let test_cases = vec![
         (
@@ -726,7 +691,7 @@ def test_return():
     ];
 
     for (stmt_type, python_code) in test_cases {
-        let result: Result<String, String> = Ok(transpile(python_code));
+        let result: Result<String, String> = Ok(transpile_and_check(python_code, &[]));
 
         assert!(
             result.is_ok(),
@@ -742,7 +707,6 @@ def test_return():
 /// Property: Return type conversions are applied correctly
 #[test]
 fn test_property_return_type_conversions() {
-    let pipeline = DepylerPipeline::new();
 
     let test_cases = vec![
         ("len", "list[int]", "int", "return len(items)"),
@@ -757,7 +721,7 @@ def test_{}(items: {}) -> {}:
 "#,
             func_name, param_type, return_type, return_stmt
         );
-        let result: Result<String, String> = Ok(transpile(&python_code));
+        let result: Result<String, String> = Ok(transpile_and_check(&python_code, &[]));
 
         assert!(
             result.is_ok(),
@@ -773,7 +737,6 @@ def test_{}(items: {}) -> {}:
 /// Verifies: All statement features working together
 #[test]
 fn test_integration_complex_statement_combinations() {
-    let pipeline = DepylerPipeline::new();
 
     let python_code = r#"
 from typing import Optional
@@ -799,7 +762,7 @@ def complex_logic(items: list[int], target: int) -> Optional[int]:
     # Final return
     return None
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     assert!(rust_code.contains("fn complex_logic"));
 }
@@ -809,7 +772,6 @@ def complex_logic(items: list[int], target: int) -> Optional[int]:
 /// Targets mutations in statement conversion logic
 #[test]
 fn test_mutation_statement_conversions() {
-    let pipeline = DepylerPipeline::new();
 
     // Test Case 1: If statement
     let if_code = r#"
@@ -819,7 +781,7 @@ def test1(x: int) -> int:
     else:
         return -1
 "#;
-    let rust1 = transpile(if_code);
+    let rust1 = transpile_and_check(if_code, &[]);
     assert!(rust1.contains("fn test1"));
 
     // Test Case 2: For loop
@@ -830,7 +792,7 @@ def test2(items: list[int]) -> int:
         total = total + item
     return total
 "#;
-    let rust2 = transpile(for_code);
+    let rust2 = transpile_and_check(for_code, &[]);
     assert!(rust2.contains("fn test2"));
 
     // Test Case 3: While loop
@@ -840,6 +802,6 @@ def test3(n: int) -> int:
         n = n - 1
     return n
 "#;
-    let rust3 = transpile(while_code);
+    let rust3 = transpile_and_check(while_code, &[]);
     assert!(rust3.contains("fn test3"));
 }

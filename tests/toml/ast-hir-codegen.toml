@@ -1,0 +1,301 @@
+# AST, HIR, and Code Generation Tests - Migrated from test_ast_bridge.rs, test_hir.rs, test_codegen.rs, test_codegen_edge_cases.rs, test_transpile_edge_cases.rs
+
+[metadata]
+name = "AST, HIR, and Code Generation Tests"
+category = "ast-hir-codegen"
+
+# =============================================================================
+# AST Bridge Tests
+# =============================================================================
+
+[[test]]
+name = "ast_function_def"
+description = "AST function definition parsing"
+tags = ["ast", "function"]
+
+[test.python]
+code = '''
+def simple_func():
+    pass
+'''
+
+[test.assertions]
+contains = ["fn simple_func"]
+
+[[test]]
+name = "ast_class_def"
+description = "AST class definition parsing"
+tags = ["ast", "class"]
+
+[test.python]
+code = '''
+class SimpleClass:
+    pass
+'''
+
+[test.assertions]
+contains = ["struct SimpleClass"]
+
+[[test]]
+name = "ast_assignment"
+description = "AST assignment statement parsing"
+tags = ["ast", "assignment"]
+
+[test.python]
+code = '''
+def main():
+    x = 42
+    y: int = 10
+'''
+
+[test.assertions]
+contains_any = [["let x", "let y"]]
+
+# =============================================================================
+# HIR (High-level IR) Tests - Type Inference
+# =============================================================================
+
+[[test]]
+name = "hir_type_inference_int"
+description = "HIR type inference for integers"
+tags = ["hir", "type"]
+
+[test.python]
+code = '''
+def get_number() -> int:
+    return 42
+'''
+
+[test.assertions]
+contains_any = [["i64", "i32", "-> i"]]
+
+[[test]]
+name = "hir_type_inference_string"
+description = "HIR type inference for strings"
+tags = ["hir", "type"]
+
+[test.python]
+code = '''
+def get_message() -> str:
+    return "hello"
+'''
+
+[test.assertions]
+contains_any = [["String", "&str"]]
+
+[[test]]
+name = "hir_type_inference_list"
+description = "HIR type inference for lists"
+tags = ["hir", "type"]
+
+[test.python]
+code = '''
+def get_numbers() -> list[int]:
+    return [1, 2, 3]
+'''
+
+[test.assertions]
+contains = ["Vec<"]
+
+# =============================================================================
+# HIR Control Flow Tests
+# =============================================================================
+
+[[test]]
+name = "hir_control_flow_if"
+description = "HIR control flow representation"
+tags = ["hir", "control-flow"]
+
+[test.python]
+code = '''
+def conditional(x: int) -> int:
+    if x > 0:
+        return 1
+    else:
+        return -1
+'''
+
+[test.assertions]
+contains = ["if"]
+contains_any = [["else", "}"]]
+
+[[test]]
+name = "hir_loop_for"
+description = "HIR for loop representation"
+tags = ["hir", "loop"]
+
+[test.python]
+code = '''
+def sum_list(nums: list[int]) -> int:
+    total = 0
+    for n in nums:
+        total += n
+    return total
+'''
+
+[test.assertions]
+contains_any = [["for", ".iter()", "into_iter()"]]
+
+[[test]]
+name = "hir_loop_while"
+description = "HIR while loop representation"
+tags = ["hir", "loop"]
+
+[test.python]
+code = '''
+def countdown(n: int) -> int:
+    while n > 0:
+        n -= 1
+    return n
+'''
+
+[test.assertions]
+contains = ["while"]
+
+# =============================================================================
+# Code Generation Tests
+# =============================================================================
+
+[[test]]
+name = "codegen_function_signature"
+description = "Function signature code generation"
+tags = ["codegen", "function"]
+
+[test.python]
+code = '''
+def add(a: int, b: int) -> int:
+    return a + b
+'''
+
+[test.assertions]
+contains_any = [["fn add(a: i64, b: i64) -> i64", "fn add("]]
+
+[[test]]
+name = "codegen_struct_definition"
+description = "Struct definition code generation"
+tags = ["codegen", "struct"]
+
+[test.python]
+code = '''
+class Point:
+    def __init__(self, x: int, y: int):
+        self.x = x
+        self.y = y
+'''
+
+[test.assertions]
+contains = ["struct Point"]
+
+[[test]]
+name = "codegen_impl_block"
+description = "Impl block code generation"
+tags = ["codegen", "impl"]
+
+[test.python]
+code = '''
+class Counter:
+    def __init__(self):
+        self.value = 0
+    
+    def increment(self) -> int:
+        self.value += 1
+        return self.value
+'''
+
+[test.assertions]
+contains_any = [["impl Counter", "fn increment"]]
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+[[test]]
+name = "edge_empty_function"
+description = "Empty function body handling"
+tags = ["edge", "function"]
+
+[test.python]
+code = '''
+def do_nothing():
+    pass
+'''
+
+[test.assertions]
+contains = ["fn do_nothing"]
+compile_check = true
+
+[[test]]
+name = "edge_nested_functions"
+description = "Nested function handling"
+tags = ["edge", "closure"]
+
+[test.python]
+code = '''
+def outer(x: int) -> int:
+    def inner(y: int) -> int:
+        return y * 2
+    return inner(x)
+'''
+
+[test.assertions]
+contains_any = [["fn outer", "closure", "|"]]
+
+[[test]]
+name = "edge_docstring"
+description = "Docstring preservation or comment"
+tags = ["edge", "docstring"]
+
+[test.python]
+code = '''
+def documented() -> int:
+    """This function returns 42."""
+    return 42
+'''
+
+[test.assertions]
+contains_any = [["//", "///", "42"]]
+
+[[test]]
+name = "edge_decorator"
+description = "Decorator handling"
+tags = ["edge", "decorator"]
+
+[test.python]
+code = '''
+class Foo:
+    @staticmethod
+    def helper() -> int:
+        return 0
+'''
+
+[test.assertions]
+contains_any = [["fn helper", "#["]]
+
+[[test]]
+name = "edge_multiple_return"
+description = "Multiple return values as tuple"
+tags = ["edge", "tuple"]
+
+[test.python]
+code = '''
+def divmod_impl(a: int, b: int) -> tuple[int, int]:
+    return a // b, a % b
+'''
+
+[test.assertions]
+contains_any = [["(i64, i64)", "tuple", "("]]
+
+[[test]]
+name = "edge_unicode_strings"
+description = "Unicode in strings"
+tags = ["edge", "unicode"]
+
+[test.python]
+code = '''
+def greet() -> str:
+    return "Hello, 世界!"
+'''
+
+[test.assertions]
+contains = ["世界"]
+compile_check = true

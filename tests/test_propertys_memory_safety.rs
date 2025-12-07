@@ -1,5 +1,5 @@
-use quickcheck::TestResult;
 use depyler_core::DepylerPipeline;
+use quickcheck::TestResult;
 
 /// Property: Generated Rust code should never produce use-after-free
 #[quickcheck_macros::quickcheck(tests = 30, max_tests = 60)]

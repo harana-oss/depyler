@@ -6,7 +6,7 @@
 // This ensures all transpiled code is idiomatic and production-ready
 
 use crate::test_helpers;
-use crate::test_helpers::transpile;
+use crate::test_helpers::transpile_and_check;
 use std::fs;
 use std::process::Command;
 
@@ -30,7 +30,7 @@ class DataProcessor:
 "#;
 
     // ACT: Transpile to Rust
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // Write to temporary file for rustfmt validation
     let temp_file = "/tmp/test_formatting.rs";
@@ -92,7 +92,7 @@ class Container(Generic[T]):
 "#;
 
     // ACT: Transpile to Rust
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // ASSERT: Check for common formatting issues in generics
     // No spaces in generic parameters
@@ -137,7 +137,7 @@ def log_error(message: str) -> None:
 "#;
 
     // ACT: Transpile to Rust
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // ASSERT: Check for proper macro formatting
     // No spaces before macro !
@@ -157,7 +157,6 @@ def log_error(message: str) -> None:
 }
 
 #[test]
-#[ignore]
 fn test_codegen_formatting_impl_blocks() {
     // This test is INTENTIONALLY IGNORED because it uses f-strings, which aren't yet supported.
     // The test is valid but requires f-string transpilation to be implemented first.
@@ -185,7 +184,7 @@ class Point:
 "#;
 
     // ACT: Transpile to Rust
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // ASSERT: Check for proper line breaks between impl blocks
     // Should not have: "}\nimpl" (needs blank line)
@@ -204,7 +203,6 @@ class Point:
 }
 
 #[test]
-#[ignore]
 fn test_codegen_formatting_comprehensive() {
     // This test is INTENTIONALLY IGNORED because it uses f-strings, which aren't yet supported.
     // The test is valid but requires f-string transpilation to be implemented first.
@@ -247,7 +245,7 @@ class Validator:
 "#;
 
     // ACT: Transpile to Rust
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // Write to temp file for comprehensive rustfmt check
     let temp_file = "/tmp/test_comprehensive.rs";

@@ -11,8 +11,7 @@
 //! - Property tests for statement transpilation correctness
 //! - Mutation tests for assignment strategies
 
-use crate::test_helpers::transpile;
-use depyler_core::DepylerPipeline;
+use crate::test_helpers::transpile_and_check;
 
 /// Unit Test: Try/except statement
 ///
@@ -20,7 +19,6 @@ use depyler_core::DepylerPipeline;
 /// Coverage: Lines 504-620 in stmt_gen.rs
 #[test]
 fn test_try_except_statement() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 def safe_operation():
     try:
@@ -28,7 +26,7 @@ def safe_operation():
     except:
         return -1
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // Should generate try/except pattern
     assert!(rust_code.contains("fn safe_operation"));
@@ -40,7 +38,6 @@ def safe_operation():
 /// Coverage: Lines 539-562 in stmt_gen.rs
 #[test]
 fn test_try_finally_statement() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 def with_finally():
     try:
@@ -48,7 +45,7 @@ def with_finally():
     finally:
         return x
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // Should generate finally block
     assert!(rust_code.contains("fn with_finally"));
@@ -60,7 +57,6 @@ def with_finally():
 /// Coverage: Lines 563-619 in stmt_gen.rs
 #[test]
 fn test_try_except_finally_statement() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 def complex_exception():
     try:
@@ -70,7 +66,7 @@ def complex_exception():
     finally:
         return x
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // Should generate try/except/finally
     assert!(rust_code.contains("fn complex_exception"));
@@ -82,14 +78,13 @@ def complex_exception():
 /// Coverage: Lines 216-252 in stmt_gen.rs
 #[test]
 fn test_with_statement() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 def use_context():
     with open("file.txt") as f:
         data = f.read()
     return data
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // Should generate context manager scope
     assert!(rust_code.contains("fn use_context"));
@@ -101,7 +96,6 @@ def use_context():
 /// Coverage: Lines 95-106 in stmt_gen.rs
 #[test]
 fn test_break_with_label() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 def loop_with_break():
     for i in [1, 2, 3]:
@@ -109,7 +103,7 @@ def loop_with_break():
             break
     return i
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // Should generate break statement
     assert!(rust_code.contains("fn loop_with_break"));
@@ -122,7 +116,6 @@ def loop_with_break():
 /// Coverage: Lines 109-120 in stmt_gen.rs
 #[test]
 fn test_continue_with_label() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 def loop_with_continue():
     for i in [1, 2, 3]:
@@ -130,7 +123,7 @@ def loop_with_continue():
             continue
         print(i)
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // Should generate continue statement
     assert!(rust_code.contains("fn loop_with_continue"));
@@ -142,13 +135,12 @@ def loop_with_continue():
 /// Coverage: Lines 79-92 in stmt_gen.rs
 #[test]
 fn test_assert_without_message() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 def check_value(x: int):
     assert x > 0
     return x
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // Should generate assert! macro
     assert!(rust_code.contains("fn check_value"));
@@ -161,13 +153,12 @@ def check_value(x: int):
 /// Coverage: Lines 86-88 in stmt_gen.rs
 #[test]
 fn test_assert_with_message() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 def check_positive(x: int):
     assert x > 0, "value must be positive"
     return x
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // Should generate assert! with message
     assert!(rust_code.contains("fn check_positive"));
@@ -179,13 +170,12 @@ def check_positive(x: int):
 /// Coverage: Lines 452-500 in stmt_gen.rs
 #[test]
 fn test_tuple_unpacking() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 def unpack_values():
     a, b = (1, 2)
     return a + b
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // Should generate tuple unpacking
     assert!(rust_code.contains("fn unpack_values"));
@@ -197,14 +187,13 @@ def unpack_values():
 /// Coverage: Lines 409-436 in stmt_gen.rs
 #[test]
 fn test_index_assignment() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 def update_dict():
     d = {"a": 1}
     d["b"] = 2
     return d
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // Should generate insert call
     assert!(rust_code.contains("fn update_dict"));
@@ -216,7 +205,6 @@ def update_dict():
 /// Coverage: Lines 439-449 in stmt_gen.rs
 #[test]
 fn test_attribute_assignment() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 class Point:
     def __init__(self):
@@ -224,7 +212,7 @@ class Point:
         self.y = 0
 "#;
     // Note: Classes may not be fully supported yet
-    let result: Result<String, String> = Ok(transpile(python_code));
+    let result: Result<String, String> = Ok(transpile_and_check(python_code, &[]));
 
     // Should handle gracefully
     assert!(result.is_ok() || result.is_err());
@@ -236,14 +224,13 @@ class Point:
 /// Coverage: Lines 44-64 in stmt_gen.rs
 #[test]
 fn test_type_conversion_assignment() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 def convert_type():
     items = [1, 2, 3]
     count: int = len(items)
     return count
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // Should apply type conversion (usize → i32)
     assert!(rust_code.contains("fn convert_type"));
@@ -255,7 +242,6 @@ def convert_type():
 /// Coverage: Lines 144-176 in stmt_gen.rs
 #[test]
 fn test_optional_return_type() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 from typing import Optional
 
@@ -264,7 +250,7 @@ def maybe_value(flag: bool) -> Optional[int]:
         return 42
     return None
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // Should wrap in Some() for non-None values
     assert!(rust_code.contains("fn maybe_value"));
@@ -276,12 +262,11 @@ def maybe_value(flag: bool) -> Optional[int]:
 /// Coverage: Lines 199-213 in stmt_gen.rs
 #[test]
 fn test_raise_with_exception() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 def raise_error():
     raise ValueError("invalid value")
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // Should generate return Err()
     assert!(rust_code.contains("fn raise_error"));
@@ -293,7 +278,6 @@ def raise_error():
 /// Coverage: Lines 209-211 in stmt_gen.rs
 #[test]
 fn test_bare_raise() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 def reraise_error():
     try:
@@ -301,7 +285,7 @@ def reraise_error():
     except:
         raise
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // Should generate generic error
     assert!(rust_code.contains("fn reraise_error"));
@@ -313,7 +297,6 @@ def reraise_error():
 /// Coverage: Lines 298-332 in stmt_gen.rs
 #[test]
 fn test_for_loop_scope() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 def iterate_items():
     total = 0
@@ -321,7 +304,7 @@ def iterate_items():
         total = total + i
     return total
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // Should manage loop variable scope
     assert!(rust_code.contains("fn iterate_items"));
@@ -334,14 +317,13 @@ def iterate_items():
 /// Coverage: Lines 178-197 in stmt_gen.rs
 #[test]
 fn test_while_loop() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 def count_down(n: int) -> int:
     while n > 0:
         n = n - 1
     return n
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // Should generate while loop
     assert!(rust_code.contains("fn count_down"));
@@ -354,7 +336,6 @@ def count_down(n: int) -> int:
 /// Coverage: Lines 259-296 in stmt_gen.rs
 #[test]
 fn test_if_else_statement() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 def abs_value(x: int) -> int:
     if x < 0:
@@ -362,7 +343,7 @@ def abs_value(x: int) -> int:
     else:
         return x
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // Should generate if/else
     assert!(rust_code.contains("fn abs_value"));
@@ -375,7 +356,6 @@ def abs_value(x: int) -> int:
 /// Coverage: Lines 591-619 in stmt_gen.rs
 #[test]
 fn test_multiple_except_handlers() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 def handle_errors():
     try:
@@ -385,7 +365,7 @@ def handle_errors():
     except TypeError:
         return -2
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // Should handle multiple except clauses
     assert!(rust_code.contains("fn handle_errors"));
@@ -406,7 +386,6 @@ fn test_mutation_statement_transpilation() {
     // 2. Return: return value → return Ok(value) [missing Result]
     // 3. Tuple: (a, b) = value → let a, b = value [wrong syntax]
 
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 def complex_statements(x: int) -> int:
     if x > 0:
@@ -416,7 +395,7 @@ def complex_statements(x: int) -> int:
         return total
     return 0
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // MUTATION KILL: Statements must be valid Rust
     assert!(rust_code.contains("fn complex_statements"));
@@ -429,14 +408,13 @@ def complex_statements(x: int) -> int:
 /// Coverage: Lines 14-37, 426-435 in stmt_gen.rs
 #[test]
 fn test_nested_index_assignment() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 def nested_dict():
     d = {"a": {"b": 1}}
     d["a"]["b"] = 2
     return d
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // Should handle nested access
     assert!(rust_code.contains("fn nested_dict"));
@@ -448,12 +426,11 @@ def nested_dict():
 /// Coverage: Lines 72-75 in stmt_gen.rs
 #[test]
 fn test_pass_statement() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 def empty_function():
     pass
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // Should generate empty function
     assert!(rust_code.contains("fn empty_function"));
@@ -465,13 +442,12 @@ def empty_function():
 /// Coverage: Lines 244-251 in stmt_gen.rs
 #[test]
 fn test_with_without_target() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 def use_context_no_var():
     with open("file.txt"):
         pass
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // Should handle context without binding
     assert!(rust_code.contains("fn use_context_no_var"));
@@ -482,7 +458,6 @@ def use_context_no_var():
 /// Verifies: All statement types working together
 #[test]
 fn test_complex_statement_combinations() {
-    let pipeline = DepylerPipeline::new();
     let python_code = r#"
 def complex_logic(items: list[int]) -> int:
     """Complex function with multiple statement types."""
@@ -504,7 +479,7 @@ def complex_logic(items: list[int]) -> int:
     except:
         return -1
 "#;
-    let rust_code = transpile(python_code);
+    let rust_code = transpile_and_check(python_code, &[]);
 
     // All statement types should work together
     assert!(rust_code.contains("fn complex_logic"));

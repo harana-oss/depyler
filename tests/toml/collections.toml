@@ -1,0 +1,740 @@
+# Collections Tests
+# Merged from builtins-collections, collection-operations, and python-collections
+# Tests for Python collection types, operations, and related builtins
+
+[metadata]
+name = "collections"
+description = "Tests for Python collection types, operations, builtins, and functional programming"
+
+# =============================================================================
+# LIST BASIC OPERATIONS
+# =============================================================================
+
+[[test]]
+name = "list_operations"
+description = "Test list creation, access, methods, and comprehension"
+tags = ["list", "operations"]
+
+[test.python]
+code = '''
+def work_with_lists():
+    numbers = [1, 2, 3, 4, 5]
+    
+    first = numbers[0]
+    last = numbers[-1]
+    
+    numbers.append(6)
+    numbers.extend([7, 8])
+    
+    squares = [x * x for x in numbers]
+    
+    return len(numbers)
+'''
+
+[test.assertions]
+contains = ["vec!"]
+
+[[test]]
+name = "list_extend"
+description = "list.extend() extend with iterable"
+tags = ["list", "method"]
+
+[test.python]
+code = '''
+def extend_list(lst: list, items: list) -> None:
+    lst.extend(items)
+'''
+
+[test.assertions]
+contains_any = [["extend", "append"]]
+
+[[test]]
+name = "list_index"
+description = "list.index() find element index"
+tags = ["list", "method"]
+
+[test.python]
+code = '''
+def find_index(lst: list, item: int) -> int:
+    return lst.index(item)
+'''
+
+[test.assertions]
+contains_any = [["position", "find"]]
+
+[[test]]
+name = "list_sort"
+description = "list.sort() in-place sort"
+tags = ["list", "method"]
+
+[test.python]
+code = '''
+def sort_list(lst: list) -> None:
+    lst.sort()
+'''
+
+[test.assertions]
+contains = ["sort"]
+
+[[test]]
+name = "list_count"
+description = "list.count() count occurrences"
+tags = ["list", "method"]
+
+[test.python]
+code = '''
+def count_items(lst: list, item: int) -> int:
+    return lst.count(item)
+'''
+
+[test.assertions]
+contains_any = [["filter", "count"]]
+
+[[test]]
+name = "list_pop_index"
+description = "list.pop() remove at index"
+tags = ["list", "method"]
+
+[test.python]
+code = '''
+def pop_item(lst: list, index: int) -> int:
+    return lst.pop(index)
+'''
+
+[test.assertions]
+contains = ["remove"]
+
+[[test]]
+name = "list_insert"
+description = "list.insert() insert at index"
+tags = ["list", "method"]
+
+[test.python]
+code = '''
+def insert_item(lst: list, index: int, value: int) -> None:
+    lst.insert(index, value)
+'''
+
+[test.assertions]
+contains = ["insert"]
+
+[[test]]
+name = "list_remove_value"
+description = "list.remove() remove first occurrence"
+tags = ["list", "method"]
+
+[test.python]
+code = '''
+def remove_item(lst: list, value: int) -> None:
+    lst.remove(value)
+'''
+
+[test.assertions]
+contains_any = [["remove", "position"]]
+
+# =============================================================================
+# VECTOR CONCATENATION & EXTEND
+# =============================================================================
+
+[[test]]
+name = "vector_concatenation"
+description = "Concatenate two lists using + operator"
+tags = ["list", "concatenation", "vector"]
+compile_check = true
+
+[test.python]
+code = '''
+def concat_lists(list1: list[int], list2: list[int]) -> list[int]:
+    """Concatenate two lists."""
+    return list1 + list2
+'''
+
+[test.assertions]
+contains_any = [["chain", "extend", "iter"]]
+
+[[test]]
+name = "list_extend_and_copy"
+description = "Extend list1 with list2 using extend method"
+tags = ["list", "extend", "vector"]
+compile_check = true
+
+[test.python]
+code = '''
+def extend_list_copy(list1: list[int], list2: list[int]) -> list[int]:
+    """Extend list1 with list2."""
+    result = list1.copy()
+    result.extend(list2)
+    return result
+'''
+
+[test.assertions]
+contains_any = [["extend", "clone"]]
+
+[[test]]
+name = "combined_vector_operations"
+description = "Combine lists using both concatenation and extend"
+tags = ["list", "concatenation", "extend", "vector"]
+compile_check = true
+
+[test.python]
+code = '''
+def combine_and_extend(list1: list[int], list2: list[int], list3: list[int]) -> list[int]:
+    """Combine lists using both concatenation and extend."""
+    combined = list1 + list2
+    result = combined.copy()
+    result.extend(list3)
+    return result
+'''
+
+[test.assertions]
+contains_any = [["extend", "chain", "clone"]]
+
+# =============================================================================
+# DICT OPERATIONS
+# =============================================================================
+
+[[test]]
+name = "dict_operations"
+description = "Test dict creation, access, and methods"
+tags = ["dict", "operations"]
+
+[test.python]
+code = '''
+def work_with_dicts():
+    scores = {"alice": 95, "bob": 87, "charlie": 92}
+    
+    alice_score = scores["alice"]
+    
+    scores["david"] = 89
+    all_names = list(scores.keys())
+    
+    return len(scores)
+'''
+
+[test.assertions]
+contains = ["HashMap"]
+
+# =============================================================================
+# TUPLE OPERATIONS
+# =============================================================================
+
+[[test]]
+name = "tuple_operations"
+description = "Test tuple creation, unpacking, and access"
+tags = ["tuple", "operations"]
+
+[test.python]
+code = '''
+def work_with_tuples():
+    point = (10, 20)
+    person = ("Alice", 30, True)
+    
+    x, y = point
+    name, age, active = person
+    
+    first_coord = point[0]
+    
+    return len(person)
+'''
+
+[test.assertions]
+contains = ["("]
+
+# =============================================================================
+# SET OPERATIONS
+# =============================================================================
+
+[[test]]
+name = "set_union"
+description = "set.union() returns union of two sets"
+tags = ["set", "operation"]
+
+[test.python]
+code = '''
+def union_sets(s1: set, s2: set) -> set:
+    return s1.union(s2)
+'''
+
+[test.assertions]
+contains_any = [["union", "extend"]]
+
+[[test]]
+name = "set_intersection"
+description = "set.intersection() returns common elements"
+tags = ["set", "operation"]
+
+[test.python]
+code = '''
+def intersect_sets(s1: set, s2: set) -> set:
+    return s1.intersection(s2)
+'''
+
+[test.assertions]
+contains_any = [["intersection", "retain"]]
+
+[[test]]
+name = "set_difference"
+description = "set.difference() elements in first but not second"
+tags = ["set", "operation"]
+
+[test.python]
+code = '''
+def diff_sets(s1: set, s2: set) -> set:
+    return s1.difference(s2)
+'''
+
+[test.assertions]
+contains_any = [["difference", "filter"]]
+
+[[test]]
+name = "set_symmetric_difference"
+description = "set.symmetric_difference() elements in either but not both"
+tags = ["set", "operation"]
+
+[test.python]
+code = '''
+def symmetric_diff(s1: set, s2: set) -> set:
+    return s1.symmetric_difference(s2)
+'''
+
+[test.assertions]
+contains_any = [["symmetric_difference", "union"]]
+
+[[test]]
+name = "set_issubset"
+description = "set.issubset() check subset relation"
+tags = ["set", "operation"]
+
+[test.python]
+code = '''
+def is_subset(s1: set, s2: set) -> bool:
+    return s1.issubset(s2)
+'''
+
+[test.assertions]
+contains_any = [["is_subset", "all"]]
+
+[[test]]
+name = "set_discard"
+description = "set.discard() remove element if present"
+tags = ["set", "operation"]
+
+[test.python]
+code = '''
+def discard_item(s: set, item: int) -> None:
+    s.discard(item)
+'''
+
+[test.assertions]
+contains = ["remove"]
+
+[[test]]
+name = "set_remove_method"
+description = "set.remove() remove element"
+tags = ["set", "operation"]
+
+[test.python]
+code = '''
+def remove_item(s: set, item: int) -> None:
+    s.remove(item)
+'''
+
+[test.assertions]
+contains = ["remove"]
+
+# =============================================================================
+# NESTED COLLECTIONS
+# =============================================================================
+
+[[test]]
+name = "nested_collections"
+description = "Test nested lists, list of dicts, and dict with list values"
+tags = ["nested", "collections"]
+
+[test.python]
+code = '''
+def work_with_nested():
+    matrix = [[1, 2], [3, 4], [5, 6]]
+    
+    users = [
+        {"name": "Alice", "age": 30},
+        {"name": "Bob", "age": 25}
+    ]
+    
+    groups = {
+        "admins": ["alice", "bob"],
+        "users": ["charlie", "david"]
+    }
+    
+    return len(matrix)
+'''
+
+[test.assertions]
+contains = ["vec!"]
+
+# =============================================================================
+# TYPED COLLECTIONS
+# =============================================================================
+
+[[test]]
+name = "collection_type_annotations"
+description = "Test typed collections with List, Dict, Tuple, Optional"
+tags = ["typed", "annotations", "collections"]
+
+[test.python]
+code = '''
+from typing import List, Dict, Tuple, Optional
+
+def typed_collections(
+    numbers: List[int],
+    scores: Dict[str, float],
+    point: Tuple[int, int],
+    maybe_name: Optional[str]
+) -> List[str]:
+    result = []
+    
+    for num in numbers:
+        result.append(str(num))
+    
+    return result
+'''
+
+[test.assertions]
+contains_any = [["Vec<i32>", "Vec<i64>", "Vec < i32 >", "Vec < i64 >"]]
+
+# =============================================================================
+# COLLECTION METHODS
+# =============================================================================
+
+[[test]]
+name = "collection_methods"
+description = "Test list and dict methods"
+tags = ["methods", "collections"]
+
+[test.python]
+code = '''
+def collection_methods():
+    numbers = [1, 2, 3]
+    numbers.append(4)
+    numbers.pop()
+    numbers.insert(0, 0)
+    numbers.remove(2)
+    
+    data = {"a": 1, "b": 2}
+    data.update({"c": 3})
+    value = data.get("a", 0)
+    data.pop("b")
+    
+    unique = set([1, 2, 2, 3])
+    
+    return len(numbers)
+'''
+
+[test.assertions]
+contains_any = [["push", "pop", "insert", "remove"]]
+
+# =============================================================================
+# COLLECTION ITERATION
+# =============================================================================
+
+[[test]]
+name = "collection_iteration"
+description = "Test iterating over lists and dicts"
+tags = ["iteration", "collections"]
+
+[test.python]
+code = '''
+def iterate_collections():
+    numbers = [1, 2, 3, 4, 5]
+    
+    total = 0
+    for num in numbers:
+        total += num
+    
+    scores = {"alice": 95, "bob": 87}
+    for name in scores:
+        print(name)
+    
+    for name, score in scores.items():
+        print(name, score)
+    
+    return total
+'''
+
+[test.assertions]
+contains = ["for"]
+
+# =============================================================================
+# NUMBER CONVERSIONS
+# =============================================================================
+
+[[test]]
+name = "builtin_hex"
+description = "hex() number to hexadecimal string"
+tags = ["builtin", "conversion"]
+
+[test.python]
+code = '''
+def to_hex(n: int) -> str:
+    return hex(n)
+'''
+
+[test.assertions]
+contains_any = [["format!", "0x"]]
+
+[[test]]
+name = "builtin_bin"
+description = "bin() number to binary string"
+tags = ["builtin", "conversion"]
+
+[test.python]
+code = '''
+def to_binary(n: int) -> str:
+    return bin(n)
+'''
+
+[test.assertions]
+contains_any = [["format!", "0b"]]
+
+[[test]]
+name = "builtin_oct"
+description = "oct() number to octal string"
+tags = ["builtin", "conversion"]
+
+[test.python]
+code = '''
+def to_octal(n: int) -> str:
+    return oct(n)
+'''
+
+[test.assertions]
+contains_any = [["format!", "0o"]]
+
+[[test]]
+name = "builtin_chr"
+description = "chr() code point to character"
+tags = ["builtin", "conversion"]
+
+[test.python]
+code = '''
+def code_to_char(code: int) -> str:
+    return chr(code)
+'''
+
+[test.assertions]
+contains_any = [["from_u32", "char::from"]]
+
+# =============================================================================
+# FUNCTIONAL PROGRAMMING
+# =============================================================================
+
+[[test]]
+name = "functools_reduce"
+description = "functools.reduce() accumulate values"
+tags = ["functools", "functional"]
+
+[test.python]
+code = '''
+from functools import reduce
+
+def sum_reduce(items: list) -> int:
+    return reduce(lambda x, y: x + y, items)
+'''
+
+[test.assertions]
+contains_any = [["fold", "reduce"]]
+
+[[test]]
+name = "itertools_chain"
+description = "itertools.chain() chain multiple iterators"
+tags = ["itertools", "functional"]
+
+[test.python]
+code = '''
+from itertools import chain
+
+def chain_lists(a: list, b: list) -> list:
+    return list(chain(a, b))
+'''
+
+[test.assertions]
+contains_any = [["chain", "extend"]]
+
+[[test]]
+name = "itertools_cycle"
+description = "itertools.cycle() infinite cycle"
+tags = ["itertools", "functional"]
+
+[test.python]
+code = '''
+from itertools import cycle
+
+def cycle_items(items: list, n: int) -> list:
+    cycler = cycle(items)
+    return [next(cycler) for _ in range(n)]
+'''
+
+[test.assertions]
+contains_any = [["cycle", "iter"]]
+
+# =============================================================================
+# OPERATOR MODULE
+# =============================================================================
+
+[[test]]
+name = "operator_attrgetter"
+description = "operator.attrgetter() attribute access"
+tags = ["operator", "functional"]
+
+[test.python]
+code = '''
+import operator
+
+def get_name_attr(obj) -> str:
+    getter = operator.attrgetter('name')
+    return getter(obj)
+'''
+
+[test.assertions]
+contains_any = [["name", "get"]]
+
+[[test]]
+name = "operator_itemgetter"
+description = "operator.itemgetter() item access"
+tags = ["operator", "functional"]
+
+[test.python]
+code = '''
+import operator
+
+def get_first_item(obj) -> object:
+    getter = operator.itemgetter(0)
+    return getter(obj)
+'''
+
+[test.assertions]
+contains_any = [["get", "[0]"]]
+
+[[test]]
+name = "operator_methodcaller"
+description = "operator.methodcaller() method invocation"
+tags = ["operator", "functional"]
+
+[test.python]
+code = '''
+import operator
+
+def call_upper(obj) -> str:
+    caller = operator.methodcaller('upper')
+    return caller(obj)
+'''
+
+[test.assertions]
+contains_any = [["upper", "to_uppercase"]]
+
+# =============================================================================
+# BUILTIN ITERATOR FUNCTIONS
+# =============================================================================
+
+[[test]]
+name = "builtin_iter"
+description = "iter() create iterator"
+tags = ["builtin", "iterator"]
+
+[test.python]
+code = '''
+def make_iter(items: list):
+    return iter(items)
+'''
+
+[test.assertions]
+contains = ["into_iter"]
+
+[[test]]
+name = "builtin_type"
+description = "type() get type name"
+tags = ["builtin", "type"]
+
+[test.python]
+code = '''
+def get_type(value: int) -> str:
+    return str(type(value))
+'''
+
+[test.assertions]
+contains = ["type_name"]
+
+[[test]]
+name = "builtin_next"
+description = "next() get next from iterator"
+tags = ["builtin", "iterator"]
+
+[test.python]
+code = '''
+def get_next(items: list) -> int:
+    it = iter(items)
+    return next(it)
+'''
+
+[test.assertions]
+contains = ["next"]
+
+[[test]]
+name = "builtin_callable"
+description = "callable() check if callable"
+tags = ["builtin", "type"]
+
+[test.python]
+code = '''
+def is_callable(obj) -> bool:
+    return callable(obj)
+'''
+
+[test.assertions]
+contains = ["callable"]
+
+[[test]]
+name = "builtin_slice"
+description = "slice() create slice object"
+tags = ["builtin", "slice"]
+
+[test.python]
+code = '''
+def make_slice(start: int, stop: int) -> slice:
+    return slice(start, stop)
+'''
+
+[test.assertions]
+contains = [".."]
+
+[[test]]
+name = "builtin_bytes"
+description = "bytes() convert to bytes"
+tags = ["builtin", "bytes"]
+
+[test.python]
+code = '''
+def to_bytes(s: str) -> bytes:
+    return bytes(s, 'utf-8')
+'''
+
+[test.assertions]
+contains_any = [["as_bytes", "to_bytes"]]
+
+# =============================================================================
+# BUILTIN ROUNDING
+# =============================================================================
+
+[[test]]
+name = "round_with_decimals"
+description = "round() with decimal places"
+tags = ["builtin", "round"]
+
+[test.python]
+code = '''
+def round_to_decimals(x: float, n: int) -> float:
+    return round(x, n)
+'''
+
+[test.assertions]
+contains_any = [["round", "powi", "multiplier"]]

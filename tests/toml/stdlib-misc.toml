@@ -1,0 +1,274 @@
+# Miscellaneous Standard Library Tests - uuid, urllib, statistics, shlex, textwrap
+
+[metadata]
+name = "Miscellaneous Stdlib Tests"
+category = "stdlib-misc"
+
+# =============================================================================
+# uuid Module
+# =============================================================================
+
+[[test]]
+name = "uuid_uuid1"
+description = "uuid.uuid1() time-based UUID"
+tags = ["uuid", "v1"]
+
+[test.python]
+code = '''
+import uuid
+
+def generate_uuid1() -> str:
+    return uuid.uuid1()
+'''
+
+[test.assertions]
+contains_any = [["uuid", "Uuid"]]
+contains = ["to_string"]
+
+[[test]]
+name = "uuid_uuid4"
+description = "uuid.uuid4() random UUID"
+tags = ["uuid", "v4"]
+
+[test.python]
+code = '''
+import uuid
+
+def generate_uuid4() -> str:
+    return uuid.uuid4()
+'''
+
+[test.assertions]
+contains_any = [["uuid", "Uuid"]]
+contains_any = [["new_v4", "v4"]]
+
+[[test]]
+name = "uuid_uuid3"
+description = "uuid.uuid3() MD5 hash UUID"
+tags = ["uuid", "v3"]
+
+[test.python]
+code = '''
+import uuid
+
+def generate_uuid3(namespace: uuid.UUID, name: str) -> str:
+    return str(uuid.uuid3(namespace, name))
+'''
+
+[test.assertions]
+contains_any = [["uuid", "Uuid"]]
+
+[[test]]
+name = "uuid_uuid5"
+description = "uuid.uuid5() SHA1 hash UUID"
+tags = ["uuid", "v5"]
+
+[test.python]
+code = '''
+import uuid
+
+def generate_uuid5(namespace: uuid.UUID, name: str) -> str:
+    return str(uuid.uuid5(namespace, name))
+'''
+
+[test.assertions]
+contains_any = [["uuid", "Uuid"]]
+
+# =============================================================================
+# urllib.parse Module
+# =============================================================================
+
+[[test]]
+name = "urlparse"
+description = "urlparse() parse URL"
+tags = ["urllib", "parse"]
+
+[test.python]
+code = '''
+from urllib.parse import urlparse
+
+def parse_url(url: str) -> tuple:
+    result = urlparse(url)
+    return (result.scheme, result.netloc, result.path)
+'''
+
+[test.assertions]
+contains_any = [["parse", "url"]]
+
+[[test]]
+name = "quote"
+description = "quote() URL encoding"
+tags = ["urllib", "encode"]
+
+[test.python]
+code = '''
+from urllib.parse import quote
+
+def encode_url(text: str) -> str:
+    return quote(text)
+'''
+
+[test.assertions]
+contains_any = [["percent_encoding", "utf8_percent_encode", "encode"]]
+
+[[test]]
+name = "unquote"
+description = "unquote() URL decoding"
+tags = ["urllib", "decode"]
+
+[test.python]
+code = '''
+from urllib.parse import unquote
+
+def decode_url(text: str) -> str:
+    return unquote(text)
+'''
+
+[test.assertions]
+contains_any = [["percent_decode", "decode_utf8_lossy", "decode"]]
+
+# =============================================================================
+# statistics Module
+# =============================================================================
+
+[[test]]
+name = "statistics_mean"
+description = "statistics.mean() average"
+tags = ["statistics", "mean"]
+
+[test.python]
+code = '''
+import statistics
+
+def calculate_mean(data: list[float]) -> float:
+    return statistics.mean(data)
+'''
+
+[test.assertions]
+contains_any = [["iter", "sum", "mean"]]
+
+[[test]]
+name = "statistics_median"
+description = "statistics.median() middle value"
+tags = ["statistics", "median"]
+
+[test.python]
+code = '''
+import statistics
+
+def calculate_median(data: list[float]) -> float:
+    return statistics.median(data)
+'''
+
+[test.assertions]
+contains_any = [["median", "sort"]]
+
+[[test]]
+name = "statistics_mode"
+description = "statistics.mode() most common"
+tags = ["statistics", "mode"]
+
+[test.python]
+code = '''
+import statistics
+
+def calculate_mode(data: list[int]) -> int:
+    return statistics.mode(data)
+'''
+
+[test.assertions]
+contains_any = [["mode", "HashMap", "count"]]
+
+[[test]]
+name = "statistics_stdev"
+description = "statistics.stdev() standard deviation"
+tags = ["statistics", "stdev"]
+
+[test.python]
+code = '''
+import statistics
+
+def calculate_stdev(data: list[float]) -> float:
+    return statistics.stdev(data)
+'''
+
+[test.assertions]
+contains_any = [["sqrt", "variance", "stdev"]]
+
+[[test]]
+name = "statistics_variance"
+description = "statistics.variance() sample variance"
+tags = ["statistics", "variance"]
+
+[test.python]
+code = '''
+import statistics
+
+def calculate_variance(data: list[float]) -> float:
+    return statistics.variance(data)
+'''
+
+[test.assertions]
+contains_any = [["variance", "mean", "pow"]]
+
+# =============================================================================
+# copy Module
+# =============================================================================
+
+[[test]]
+name = "copy_shallow_copy_list"
+description = "copy.copy() should generate clone, not invalid .copy() method"
+tags = ["copy", "shallow", "list"]
+
+[test.python]
+code = '''
+import copy
+
+def test_shallow_copy() -> int:
+    original = [1, 2, 3]
+    copied = copy.copy(original)
+    copied.append(4)
+    return len(original)
+'''
+
+[test.assertions]
+contains = ["fn test_shallow_copy"]
+not_contains = [".copy()"]
+
+[[test]]
+name = "copy_shallow_copy_dict"
+description = "copy.copy() for dictionaries"
+tags = ["copy", "shallow", "dict"]
+
+[test.python]
+code = '''
+import copy
+
+def test_dict_copy() -> int:
+    original = {"a": 1, "b": 2}
+    copied = copy.copy(original)
+    copied["c"] = 3
+    return len(original)
+'''
+
+[test.assertions]
+contains = ["fn test_dict_copy"]
+
+[[test]]
+name = "copy_deepcopy_list"
+description = "copy.deepcopy() for nested lists"
+tags = ["copy", "deep", "list"]
+
+[test.python]
+code = '''
+import copy
+
+def test_deep_copy() -> int:
+    original = [[1, 2], [3, 4]]
+    copied = copy.deepcopy(original)
+    copied[0].append(5)
+    return len(original[0])
+'''
+
+[test.assertions]
+contains = ["fn test_deep_copy"]

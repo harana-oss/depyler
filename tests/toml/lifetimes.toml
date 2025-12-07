@@ -1,0 +1,287 @@
+# Lifetime and COW Type Tests - Migrated from test_lifetimes.rs
+
+[metadata]
+name = "Lifetime Tests"
+category = "ownership-lifetimes"
+
+# =============================================================================
+# COW Type Tests
+# =============================================================================
+
+[[test]]
+name = "string_concat_returns_string"
+description = "String concatenation returns String, not Cow"
+tags = ["cow", "string", "concat"]
+
+[test.python]
+code = '''
+def concat(a: str, b: str) -> str:
+    return a + b
+'''
+
+[test.assertions]
+contains = ["-> String"]
+contains_any = [["a: &str", "a: String"]]
+not_contains = ["-> Cow<"]
+
+[[test]]
+name = "fstring_returns_string"
+description = "F-string returns String, not Cow"
+tags = ["cow", "string", "fstring"]
+
+[test.python]
+code = '''
+def format_name(first: str, last: str) -> str:
+    return f"{first} {last}"
+'''
+
+[test.assertions]
+contains = ["-> String"]
+not_contains = ["-> Cow<"]
+
+[[test]]
+name = "format_call_returns_string"
+description = "format() call returns String, not Cow"
+tags = ["cow", "string", "format"]
+
+[test.python]
+code = '''
+def format_msg(name: str, count: int) -> str:
+    return "{} has {}".format(name, count)
+'''
+
+[test.assertions]
+not_contains = ["-> Cow<"]
+
+[[test]]
+name = "multiple_concat_returns_string"
+description = "Multiple concatenation returns String"
+tags = ["cow", "string", "concat"]
+
+[test.python]
+code = '''
+def concat_three(a: str, b: str, c: str) -> str:
+    return a + b + c
+'''
+
+[test.assertions]
+contains = ["-> String"]
+not_contains = ["-> Cow<"]
+
+# =============================================================================
+# COW Lifetime Fix Tests
+# =============================================================================
+
+[[test]]
+name = "string_param_no_static_lifetime"
+description = "String parameter should not require 'static lifetime"
+tags = ["cow", "lifetime", "static"]
+
+[test.python]
+code = '''
+def concatenate(a: str, b: str) -> str:
+    return a + b
+'''
+
+[test.assertions]
+not_contains = ["Cow<'static, str>"]
+
+# =============================================================================
+# String Lifetime Tests
+# =============================================================================
+
+[[test]]
+name = "string_parameter_generates_lifetime"
+description = "String parameter with len() returns int"
+tags = ["string", "lifetime"]
+
+[test.python]
+code = '''
+def process_string(s: str) -> int:
+    return len(s)
+'''
+
+[test.assertions]
+contains_any = [["s: &str", "s: String"]]
+contains_any = [["-> i32", "-> usize", "-> i64"]]
+
+[[test]]
+name = "string_identity_returns_string"
+description = "String identity function uses String"
+tags = ["string", "identity"]
+
+[test.python]
+code = '''
+def identity(s: str) -> str:
+    return s
+'''
+
+[test.assertions]
+contains = ["String"]
+
+[[test]]
+name = "multiple_string_params"
+description = "Multiple string parameters with selection"
+tags = ["string", "lifetime", "conditional"]
+
+[test.python]
+code = '''
+def select_string(s1: str, s2: str, use_first: bool) -> str:
+    if use_first:
+        return s1
+    else:
+        return s2
+'''
+
+[test.assertions]
+contains = ["String"]
+
+[[test]]
+name = "string_concatenation_ownership"
+description = "String concatenation returns owned String"
+tags = ["string", "ownership", "concat"]
+
+[test.python]
+code = '''
+def concat_strings(s1: str, s2: str) -> str:
+    return s1 + s2
+'''
+
+[test.assertions]
+contains = ["-> String"]
+
+[[test]]
+name = "string_mutation_takes_ownership"
+description = "String mutation requires ownership"
+tags = ["string", "mutation", "ownership"]
+
+[test.python]
+code = '''
+def append_exclamation(s: str) -> str:
+    s = s + "!"
+    return s
+'''
+
+[test.assertions]
+contains_any = [["mut s: String", "String"]]
+
+# =============================================================================
+# Lifetime Violation Detection
+# =============================================================================
+
+[[test]]
+name = "dangling_reference_detection"
+description = "Handle potential dangling references"
+tags = ["lifetime", "safety"]
+
+[test.python]
+code = '''
+def get_local_ref() -> str:
+    local = "temporary"
+    return local
+'''
+
+[test.assertions]
+contains_any = [["String", "&str"]]
+
+[[test]]
+name = "iterator_modification"
+description = "Handle iteration with modification"
+tags = ["lifetime", "iterator"]
+
+[test.python]
+code = '''
+def modify_while_iterating(items: list[int]):
+    for item in items:
+        if item > 5:
+            items.remove(item)
+'''
+
+[test.assertions]
+contains_any = [["Vec", "for"]]
+
+# =============================================================================
+# V1 Lifetime Tests
+# =============================================================================
+
+[[test]]
+name = "returning_temp_string"
+description = "Return type for temporary string"
+tags = ["lifetime", "temporary"]
+
+[test.python]
+code = '''
+def get_temp_string() -> str:
+    return "temporary" + "data"
+'''
+
+[test.assertions]
+contains_any = [["-> String", "-> Cow"]]
+
+[[test]]
+name = "parameter_lifetime_propagation"
+description = "Lifetime propagation with string selection"
+tags = ["lifetime", "propagation"]
+
+[test.python]
+code = '''
+def select_longer(s1: str, s2: str) -> str:
+    if len(s1) > len(s2):
+        return s1
+    else:
+        return s2
+'''
+
+[test.assertions]
+contains_any = [["Cow", "String"]]
+
+[[test]]
+name = "mixed_lifetime_returns"
+description = "Mixed lifetime returns (literal vs parameter)"
+tags = ["lifetime", "mixed"]
+
+[test.python]
+code = '''
+def get_string(use_default: bool, custom: str) -> str:
+    if use_default:
+        return "default"
+    else:
+        return custom
+'''
+
+[test.assertions]
+contains_any = [["Cow", "String"]]
+
+[[test]]
+name = "nested_scope_lifetimes"
+description = "Nested scope with string operations"
+tags = ["lifetime", "scope"]
+
+[test.python]
+code = '''
+def process_in_scope(data: str) -> str:
+    if len(data) > 0:
+        temp = data + "!"
+        return temp
+    return ""
+'''
+
+[test.assertions]
+contains_any = [["String", "Cow"]]
+
+[[test]]
+name = "function_composition_lifetimes"
+description = "Lifetime propagation through function calls"
+tags = ["lifetime", "composition"]
+
+[test.python]
+code = '''
+def outer(s: str) -> str:
+    return inner(s)
+    
+def inner(s: str) -> str:
+    return s
+'''
+
+[test.assertions]
+contains = ["inner"]
