@@ -971,3 +971,25 @@ def use_set() -> set:
 
 [test.assertions]
 contains_any = [["HashSet", "set"]]
+
+
+# =============================================================================
+# LIST INDEX METHOD ON MODULE CONSTANTS
+# =============================================================================
+
+[[test]]
+name = "list_index_on_module_constant"
+description = "list.index() on module-level constant uses iter().position()"
+tags = ["list", "method", "lazy_static", "constant"]
+
+[test.python]
+code = '''
+VALUES = ["1", "2", "3", "4"]
+
+def find_index() -> int:
+    return VALUES.index("4")
+'''
+
+[test.assertions]
+contains = [".iter().position("]
+not_contains = ["VALUES::index"]

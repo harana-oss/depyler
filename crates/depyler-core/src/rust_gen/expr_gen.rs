@@ -10119,9 +10119,12 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             return self.convert_string_method(object, &object_expr, method, &arg_exprs, args);
         }
 
-        // Convert to ClassName::method(args)
+        // Convert to ClassName::method(args) for static method calls
+        // But NOT for module-level constants (lazy_static), which should use regular method calls
         if let HirExpr::Var(class_name) = object {
-            if class_name.chars().next().map(|c| c.is_uppercase()).unwrap_or(false) {
+            if class_name.chars().next().map(|c| c.is_uppercase()).unwrap_or(false)
+                && !self.ctx.lazy_static_constants.contains(class_name)
+            {
                 // This is likely a static method call - convert to ClassName::method(args)
                 let class_ident = syn::Ident::new(class_name, proc_macro2::Span::call_site());
                 let method_ident = syn::Ident::new(method, proc_macro2::Span::call_site());
