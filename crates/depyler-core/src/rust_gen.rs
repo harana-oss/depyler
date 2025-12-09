@@ -1615,6 +1615,7 @@ pub fn generate_rust_file(
         var_usage_current: std::collections::HashMap::new(),     // Current usage position during codegen
         optional_vars: HashSet::new(),                           // Track vars declared as Option<T>
         lazy_static_constants: HashSet::new(),                   // Track lazy_static constants (need deref)
+        is_assignment_target: false,                             // Flag for assignment target context
     };
 
     // Must run BEFORE function conversion so validator parameter types are correct
@@ -1858,6 +1859,7 @@ mod tests {
             var_usage_current: std::collections::HashMap::new(), // Current usage position during codegen
             optional_vars: HashSet::new(),               // Track vars declared as Option<T>
             lazy_static_constants: HashSet::new(),       // Track lazy_static constants (need deref)
+            is_assignment_target: false,                 // Flag for assignment target context
         }
     }
 

@@ -130,6 +130,10 @@ pub struct CodeGenContext<'a> {
 
     /// Track module-level constants that use lazy_static (need dereferencing to get actual type)
     pub lazy_static_constants: HashSet<String>,
+
+    /// Flag to indicate we're generating code for an assignment target (LHS)
+    /// When true, variables should not be cloned even if they have multiple uses
+    pub is_assignment_target: bool,
 }
 
 impl<'a> CodeGenContext<'a> {

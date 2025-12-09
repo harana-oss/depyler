@@ -3082,11 +3082,23 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                                 }
                             }
                         } else {
-                            let result: syn::Expr = parse_quote! { &#arg_expr };
-                            if needs_optional_unwrap {
-                                parse_quote! { #result.unwrap() }
+                            // Borrowing a variable - generate expression without .clone()
+                            // since arg_expr may have .clone() added by to_rust_expr
+                            if let HirExpr::Var(var_name) = hir_arg {
+                                let ident = format_ident!("{}", var_name);
+                                let result: syn::Expr = parse_quote! { &#ident };
+                                if needs_optional_unwrap {
+                                    parse_quote! { #result.unwrap() }
+                                } else {
+                                    result
+                                }
                             } else {
-                                result
+                                let result: syn::Expr = parse_quote! { &#arg_expr };
+                                if needs_optional_unwrap {
+                                    parse_quote! { #result.unwrap() }
+                                } else {
+                                    result
+                                }
                             }
                         }
                     } else if needs_clone_for_move {
@@ -11742,7 +11754,8 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
 
         // Check if field is a String type and needs cloning
         // When accessing a String field through a reference, we need .clone() to get an owned String
-        let needs_clone = self.field_needs_clone(value, attr);
+        // Skip clone for assignment targets - we need mutable access, not a copy
+        let needs_clone = !self.ctx.is_assignment_target && self.field_needs_clone(value, attr);
 
         if needs_clone {
             Ok(parse_quote! { #value_expr.#attr_ident.clone() })
@@ -13370,6 +13383,9 @@ impl ToRustExpr for HirExpr {
                 // lazy_static constants have unique wrapper types - clone to get actual type
                 if ctx.lazy_static_constants.contains(name) {
                     Ok(parse_quote! { #base_expr.clone() })
+                } else if ctx.is_assignment_target {
+                    // When used as assignment target (LHS), never clone
+                    Ok(base_expr)
                 } else if ctx.var_needs_clone(name) {
                     // Check if we need to clone this variable (non-Copy type with multiple uses)
                     Ok(parse_quote! { #base_expr.clone() })

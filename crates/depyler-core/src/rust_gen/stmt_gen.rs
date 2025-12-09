@@ -3234,6 +3234,12 @@ pub(crate) fn codegen_assign_attribute(
 ) -> Result<proc_macro2::TokenStream> {
     // For assignment targets, we need mutable access - don't use .get().cloned() patterns
     // Instead, use direct indexing which gives us a mutable reference
+    
+    // Set flag to indicate we're generating an assignment target (LHS)
+    // This prevents adding .clone() to the base expression
+    let was_assignment_target = ctx.is_assignment_target;
+    ctx.is_assignment_target = true;
+    
     let mut base_expr = if let HirExpr::Index {
         base: inner_base,
         index,
@@ -3252,6 +3258,9 @@ pub(crate) fn codegen_assign_attribute(
     } else {
         base.to_rust_expr(ctx)?
     };
+    
+    // Restore flag
+    ctx.is_assignment_target = was_assignment_target;
 
     // If the base is a variable with Optional type, unwrap it before accessing the field
     // This handles type narrowing scenarios like:
