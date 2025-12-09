@@ -2476,6 +2476,7 @@ pub(crate) fn codegen_assign_stmt(
                 // Lookup function return type and track it for type inference
                 // Enables: result = merge(&a, &b) where merge returns list[int]
                 // Also tracks primitive types (Int, Float, Bool, String) for arithmetic/concat detection
+                // And Custom types (structs/dataclasses) for clone analysis
                 else if let Some(ret_type) = ctx.function_return_types.get(func) {
                     if matches!(
                         ret_type,
@@ -2486,6 +2487,7 @@ pub(crate) fn codegen_assign_stmt(
                             | Type::Float
                             | Type::Bool
                             | Type::String
+                            | Type::Custom(_)
                     ) {
                         ctx.var_types.insert(var_name.clone(), ret_type.clone());
                     }
@@ -3232,7 +3234,11 @@ pub(crate) fn codegen_assign_attribute(
 ) -> Result<proc_macro2::TokenStream> {
     // For assignment targets, we need mutable access - don't use .get().cloned() patterns
     // Instead, use direct indexing which gives us a mutable reference
-    let mut base_expr = if let HirExpr::Index { base: inner_base, index } = base {
+    let mut base_expr = if let HirExpr::Index {
+        base: inner_base,
+        index,
+    } = base
+    {
         // Generate direct index access for mutation: items[0] instead of items.get(0).cloned().unwrap()
         let inner_base_expr = inner_base.to_rust_expr(ctx)?;
         let index_expr = index.to_rust_expr(ctx)?;
