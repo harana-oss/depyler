@@ -11755,7 +11755,9 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         // Check if field is a String type and needs cloning
         // When accessing a String field through a reference, we need .clone() to get an owned String
         // Skip clone for assignment targets - we need mutable access, not a copy
-        let needs_clone = !self.ctx.is_assignment_target && self.field_needs_clone(value, attr);
+        // Skip clone when function returns a reference - the return type already handles it
+        let needs_clone =
+            !self.ctx.is_assignment_target && !self.ctx.returns_reference && self.field_needs_clone(value, attr);
 
         if needs_clone {
             Ok(parse_quote! { #value_expr.#attr_ident.clone() })
@@ -13035,7 +13037,15 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
 
         let mut test_expr = test.to_rust_expr(self.ctx)?;
         let mut body_expr = body.to_rust_expr(self.ctx)?;
-        let orelse_expr = orelse.to_rust_expr(self.ctx)?;
+        let mut orelse_expr = orelse.to_rust_expr(self.ctx)?;
+
+        // When function returns a reference, wrap each branch in & to borrow the field
+        // This handles: `return state.home_players if ... else state.away_players`
+        // → `if ... { &state.home_players } else { &state.away_players }`
+        if self.ctx.returns_reference {
+            body_expr = parse_quote! { &#body_expr };
+            orelse_expr = parse_quote! { &#orelse_expr };
+        }
 
         // Ensure type consistency: if either branch is a string literal, wrap with .to_string()
         let body_is_string_lit = matches!(body, HirExpr::Literal(Literal::String(_)));

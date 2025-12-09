@@ -1616,6 +1616,7 @@ pub fn generate_rust_file(
         optional_vars: HashSet::new(),                           // Track vars declared as Option<T>
         lazy_static_constants: HashSet::new(),                   // Track lazy_static constants (need deref)
         is_assignment_target: false,                             // Flag for assignment target context
+        returns_reference: false,                                // Flag for reference return type
     };
 
     // Must run BEFORE function conversion so validator parameter types are correct
@@ -1666,7 +1667,8 @@ pub fn generate_rust_file(
     // Pre-populate function return types so they're available when processing assignments
     // This enables tracking `player = _resolve_player(...)` even if _resolve_player is defined later
     for func in &module.functions {
-        ctx.function_return_types.insert(func.name.clone(), func.ret_type.clone());
+        ctx.function_return_types
+            .insert(func.name.clone(), func.ret_type.clone());
     }
 
     // This allows convert_call to reorder keyword arguments to match function signatures
@@ -1860,6 +1862,7 @@ mod tests {
             optional_vars: HashSet::new(),               // Track vars declared as Option<T>
             lazy_static_constants: HashSet::new(),       // Track lazy_static constants (need deref)
             is_assignment_target: false,                 // Flag for assignment target context
+            returns_reference: false,                    // Flag for reference return type
         }
     }
 

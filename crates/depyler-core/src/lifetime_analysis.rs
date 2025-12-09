@@ -122,6 +122,8 @@ pub struct ParamUsage {
     pub is_read_only: bool,
     pub used_in_loop: bool,
     pub has_nested_borrows: bool,
+    /// When a field of this param is returned (e.g., `return state.players`)
+    pub field_escapes_through_return: bool,
 }
 
 /// Constraint between two lifetimes
@@ -142,6 +144,8 @@ pub struct LifetimeResult {
     pub lifetime_params: Vec<String>,
     pub lifetime_bounds: Vec<(String, String)>,
     pub borrowing_strategies: IndexMap<String, BorrowingStrategy>,
+    /// Params whose fields are returned (e.g., `return state.players` where state is borrowed)
+    pub params_with_field_return: Vec<String>,
 }
 
 #[derive(Debug, Clone)]
@@ -284,12 +288,21 @@ impl LifetimeInference {
         // Compute lifetime bounds from the constraint graph
         let lifetime_bounds = self.compute_lifetime_bounds();
 
+        // Collect params whose fields escape through return
+        let params_with_field_return: Vec<String> = self
+            .param_analysis
+            .iter()
+            .filter(|(_, usage)| usage.field_escapes_through_return)
+            .map(|(name, _)| name.clone())
+            .collect();
+
         LifetimeResult {
             param_lifetimes,
             return_lifetime,
             lifetime_params: lifetime_params.into_iter().collect(),
             lifetime_bounds,
             borrowing_strategies: borrowing_result.param_strategies,
+            params_with_field_return,
         }
     }
 
@@ -469,6 +482,9 @@ impl LifetimeInference {
                     if id == param {
                         usage.is_read_only = true;
                         usage.has_nested_borrows = true;
+                        if in_return {
+                            usage.field_escapes_through_return = true;
+                        }
                     }
                 }
                 self.analyze_expr_for_param(param, value, usage, in_loop, in_return);
@@ -806,6 +822,7 @@ impl LifetimeInference {
                 lifetime_params: vec![],
                 lifetime_bounds: vec![],
                 borrowing_strategies: full_result.borrowing_strategies,
+                params_with_field_return: full_result.params_with_field_return,
             });
         }
 
@@ -818,6 +835,7 @@ impl LifetimeInference {
                 lifetime_params: vec![], // No explicit lifetimes needed
                 lifetime_bounds: vec![],
                 borrowing_strategies: full_result.borrowing_strategies,
+                params_with_field_return: full_result.params_with_field_return,
             });
         }
 
@@ -831,6 +849,7 @@ impl LifetimeInference {
                 lifetime_params: vec![], // No explicit lifetimes needed
                 lifetime_bounds: vec![],
                 borrowing_strategies: full_result.borrowing_strategies,
+                params_with_field_return: full_result.params_with_field_return,
             });
         }
 
@@ -843,6 +862,7 @@ impl LifetimeInference {
                     lifetime_params: vec![],
                     lifetime_bounds: vec![],
                     borrowing_strategies: full_result.borrowing_strategies,
+                    params_with_field_return: full_result.params_with_field_return,
                 });
             }
         }

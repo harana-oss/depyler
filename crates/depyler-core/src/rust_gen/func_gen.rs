@@ -1301,6 +1301,27 @@ pub(crate) fn codegen_return_type(
     } else {
         let mut ty = rust_type_to_syn(&rust_ret_type)?;
 
+        // When a borrowed param's field escapes through return, return a reference instead of cloning
+        // e.g., `return state.home_players` where state: &State → return &Vec<Player> instead of Vec<Player>
+        let should_return_reference = !lifetime_result.params_with_field_return.is_empty()
+            && lifetime_result
+                .params_with_field_return
+                .iter()
+                .any(|param_name| {
+                    // Check if this param is borrowed
+                    lifetime_result
+                        .param_lifetimes
+                        .get(param_name)
+                        .is_some_and(|inferred| inferred.should_borrow)
+                });
+
+        if should_return_reference {
+            // Make the return type a reference
+            ty = parse_quote! { &#ty };
+            // Signal to expression generator not to add .clone()
+            ctx.returns_reference = true;
+        }
+
         // String concatenation (format!(), a + b) always returns owned String
         // Never use Cow for concatenation results
         let returns_concatenation =

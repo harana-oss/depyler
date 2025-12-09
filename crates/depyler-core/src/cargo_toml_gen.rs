@@ -365,6 +365,7 @@ mod tests {
             optional_vars: std::collections::HashSet::new(),
             lazy_static_constants: std::collections::HashSet::new(),
             is_assignment_target: false,
+            returns_reference: false,
         };
 
         // Property: Calling extract_dependencies multiple times returns same result
@@ -465,6 +466,7 @@ mod tests {
             optional_vars: HashSet::new(),
             lazy_static_constants: HashSet::new(),
             is_assignment_target: false,
+            returns_reference: false,
         };
 
         let deps = extract_dependencies(&ctx);
@@ -562,6 +564,7 @@ mod tests {
             optional_vars: HashSet::new(),
             lazy_static_constants: HashSet::new(),
             is_assignment_target: false,
+            returns_reference: false,
         };
 
         let deps = extract_dependencies(&ctx);
@@ -667,6 +670,7 @@ mod tests {
             optional_vars: HashSet::new(),
             lazy_static_constants: HashSet::new(),
             is_assignment_target: false,
+            returns_reference: false,
         };
 
         let deps = extract_dependencies(&ctx);

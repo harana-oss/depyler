@@ -539,6 +539,13 @@ pub(crate) fn codegen_return_stmt(
     if let Some(e) = expr {
         let mut expr_tokens = e.to_rust_expr(ctx)?;
 
+        // When function returns a reference, wrap the expression in &
+        // This handles cases like: return state.home_players → return &state.home_players
+        // NOTE: IfExpr handles its own & wrapping for each branch, so skip it here
+        if ctx.returns_reference && !matches!(e, HirExpr::IfExpr { .. }) {
+            expr_tokens = parse_quote! { &#expr_tokens };
+        }
+
         if let Some(return_type) = &ctx.current_return_type {
             // Unwrap Optional to get the underlying type
             let target_type = match return_type {
@@ -3234,12 +3241,12 @@ pub(crate) fn codegen_assign_attribute(
 ) -> Result<proc_macro2::TokenStream> {
     // For assignment targets, we need mutable access - don't use .get().cloned() patterns
     // Instead, use direct indexing which gives us a mutable reference
-    
+
     // Set flag to indicate we're generating an assignment target (LHS)
     // This prevents adding .clone() to the base expression
     let was_assignment_target = ctx.is_assignment_target;
     ctx.is_assignment_target = true;
-    
+
     let mut base_expr = if let HirExpr::Index {
         base: inner_base,
         index,
@@ -3258,7 +3265,7 @@ pub(crate) fn codegen_assign_attribute(
     } else {
         base.to_rust_expr(ctx)?
     };
-    
+
     // Restore flag
     ctx.is_assignment_target = was_assignment_target;
 

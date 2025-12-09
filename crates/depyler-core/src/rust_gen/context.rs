@@ -134,6 +134,9 @@ pub struct CodeGenContext<'a> {
     /// Flag to indicate we're generating code for an assignment target (LHS)
     /// When true, variables should not be cloned even if they have multiple uses
     pub is_assignment_target: bool,
+
+    /// Flag to indicate the current function returns a reference (to avoid cloning in return expressions)
+    pub returns_reference: bool,
 }
 
 impl<'a> CodeGenContext<'a> {
