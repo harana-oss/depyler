@@ -3247,13 +3247,15 @@ pub(crate) fn codegen_assign_attribute(
         base.to_rust_expr(ctx)?
     };
 
-    // If the base is a variable that was declared as Option<T>, unwrap it before accessing the field
+    // If the base is a variable with Optional type, unwrap it before accessing the field
     // This handles type narrowing scenarios like:
     //   player: Optional[Player] = _resolve_player(...)
     //   if player is not None:
     //       player.field = value  # Need to unwrap here
+    // Check var_types (not optional_vars) to correctly handle loop variables
+    // which have their element type set, not Optional type
     if let HirExpr::Var(var_name) = base {
-        if ctx.optional_vars.contains(var_name) {
+        if matches!(ctx.var_types.get(var_name), Some(Type::Optional(_))) {
             base_expr = parse_quote! { #base_expr.as_mut().unwrap() };
         }
     }
