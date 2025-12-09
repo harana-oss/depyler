@@ -1,4 +1,5 @@
 # Ownership and Borrowing Tests - Migrated from test_ownership_patterns.rs, test_function_borrowing.rs,
+ # Ownership and Borrowing Tests - Migrated from test_ownership_patterns.rs, test_function_borrowing.rs,
 # test_method_ownership.rs, test_lifetimes.rs
 
 [metadata]
@@ -483,6 +484,26 @@ def find_away_incident(try_incidents: List[Incident]) -> Optional[Incident]:
 
 [test.assertions]
 contains = ["struct Incident", "points_scored_team: String", "score: i32", "fn find_away_incident", "-> Option<Incident>", ".filter(", ".next()"]
+
+[[test]]
+name = "enumerate_next_dataclass_field_assignment"
+description = "enumerate with next() and assignment to dataclass field via index"
+tags = ["ownership", "iterator", "dataclass", "enumerate", "index-field-assignment"]
+
+[test.python]
+code = '''
+@dataclass
+class Item:
+    val: int
+
+def main(items: list[Item]):
+    (idx, b) = next((x, y) for x, y in enumerate(items) if y.val == items[0].val)
+    items[0].val = idx
+'''
+
+[test.assertions]
+contains = ["struct Item", "val: i32", "fn main", "&mut Vec<Item>", "enumerate()", ".filter(", ".next()", "items[0].val ="]
+not_contains = [".get(0usize).cloned().unwrap().val ="]
 
 [[test]]
 name = "vector_push_takes_ownership"

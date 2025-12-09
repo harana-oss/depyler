@@ -1444,10 +1444,13 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             }
         }
 
-        // Handle enumerate(items) → items.into_iter().enumerate()
+        // Handle enumerate(items) → items.iter().enumerate().map(|(i, x)| (i as i32, x.clone()))
+        // Use .iter() to avoid consuming the collection (allows references in filter closures)
+        // Cast index to i32 to match Python's int type
+        // Clone the item to get owned value from reference
         if func == "enumerate" && args.len() == 1 {
             let items_expr = args[0].to_rust_expr(self.ctx)?;
-            return Ok(parse_quote! { #items_expr.into_iter().enumerate() });
+            return Ok(parse_quote! { #items_expr.iter().enumerate().map(|(i, x)| (i as i32, x.clone())) });
         }
 
         // Handle zip(a, b, ...) → a.into_iter().zip(b.into_iter())...
@@ -13214,6 +13217,9 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 true // Default to cloned for non-variable iterators
             };
 
+            // Check if the iterator is an enumerate call (already returns an iterator)
+            let is_enumerate = matches!(&*gen.iter, HirExpr::Call { func, .. } if func == "enumerate");
+
             // When the iterator is a variable (likely a borrowed parameter like &Vec<i32>),
             // use .iter().copied() for Copy types or .iter().cloned() for non-Copy types
             // This prevents type mismatches like `&i32` vs `i32` in generator expressions
@@ -13226,9 +13232,9 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 } else {
                     parse_quote! { #iter_expr.iter().copied() }
                 }
-            } else if is_range {
-                // Ranges are already iterators, don't need clone
-                parse_quote! { #iter_expr.into_iter() }
+            } else if is_range || is_enumerate {
+                // Ranges and enumerate() already return iterators, don't need clone
+                parse_quote! { #iter_expr }
             } else {
                 // Field access, method calls, etc. - clone before consuming
                 parse_quote! { #iter_expr.clone().into_iter() }

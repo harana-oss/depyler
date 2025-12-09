@@ -3230,7 +3230,22 @@ pub(crate) fn codegen_assign_attribute(
     value_expr: syn::Expr,
     ctx: &mut CodeGenContext,
 ) -> Result<proc_macro2::TokenStream> {
-    let mut base_expr = base.to_rust_expr(ctx)?;
+    // For assignment targets, we need mutable access - don't use .get().cloned() patterns
+    // Instead, use direct indexing which gives us a mutable reference
+    let mut base_expr = if let HirExpr::Index { base: inner_base, index } = base {
+        // Generate direct index access for mutation: items[0] instead of items.get(0).cloned().unwrap()
+        let inner_base_expr = inner_base.to_rust_expr(ctx)?;
+        let index_expr = index.to_rust_expr(ctx)?;
+        // Check if index is a literal integer
+        if let HirExpr::Literal(crate::hir::Literal::Int(n)) = &**index {
+            let idx = *n as usize;
+            parse_quote! { #inner_base_expr[#idx] }
+        } else {
+            parse_quote! { #inner_base_expr[#index_expr as usize] }
+        }
+    } else {
+        base.to_rust_expr(ctx)?
+    };
 
     // If the base is a variable that was declared as Option<T>, unwrap it before accessing the field
     // This handles type narrowing scenarios like:
