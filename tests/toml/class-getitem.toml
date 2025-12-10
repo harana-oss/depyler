@@ -9,93 +9,419 @@ category = "advanced-oop"
 # Basic __class_getitem__
 # =============================================================================
 
-# TODO: Test simple __class_getitem__
-# [[test]]
-# name = "class_getitem_basic"
-# description = "@classmethod def __class_getitem__(cls, item): ..."
+[[test]]
+name = "class_getitem_basic"
+description = "@classmethod def __class_getitem__(cls, item): ..."
+skip = true
+skip_reason = "__class_getitem__ is Python-specific for type subscripting"
+python = """
+class MyClass:
+    @classmethod
+    def __class_getitem__(cls, item):
+        return f"{cls.__name__}[{item.__name__}]"
 
-# TODO: Test subscripting class
-# [[test]]
-# name = "class_subscript"
-# description = "MyClass[int] or MyClass['str']"
+result = MyClass[int]
+print(result)
+"""
 
-# TODO: Test __class_getitem__ return value
-# [[test]]
-# name = "class_getitem_return"
-# description = "Returns parameterized type or alias"
+[[test]]
+name = "class_subscript"
+description = "MyClass[int] or MyClass['str']"
+skip = true
+skip_reason = "Class subscripting is for Python type hints"
+python = """
+class Container:
+    @classmethod
+    def __class_getitem__(cls, item):
+        return f"Container of {item}"
+
+print(Container[int])
+print(Container[str])
+"""
+
+[[test]]
+name = "class_getitem_return"
+description = "Returns parameterized type or alias"
+skip = true
+skip_reason = "Type parameterization is handled by Rust generics at compile time"
+python = """
+class Box:
+    @classmethod
+    def __class_getitem__(cls, item):
+        class ParameterizedBox:
+            item_type = item
+        return ParameterizedBox
+
+IntBox = Box[int]
+print(IntBox.item_type)
+"""
 
 # =============================================================================
 # Generic Classes
 # =============================================================================
 
-# TODO: Test Generic[T] pattern
-# [[test]]
-# name = "generic_class"
-# description = "class MyClass(Generic[T]): ..."
+[[test]]
+name = "generic_class"
+description = "class MyClass(Generic[T]): ..."
+python = """
+from typing import Generic, TypeVar
 
-# TODO: Test multiple type parameters
-# [[test]]
-# name = "generic_multiple"
-# description = "class MyClass(Generic[K, V]): ..."
+T = TypeVar('T')
 
-# TODO: Test constrained type variable
-# [[test]]
-# name = "generic_constrained"
-# description = "TypeVar with constraints"
+class Stack(Generic[T]):
+    def __init__(self):
+        self.items = []
+    
+    def push(self, item: T):
+        self.items.append(item)
+    
+    def pop(self) -> T:
+        return self.items.pop()
+
+# Type hints only, runtime behavior is the same
+int_stack = Stack()
+int_stack.push(1)
+int_stack.push(2)
+print(int_stack.pop())
+"""
+rust = """
+struct Stack<T> {
+    items: Vec<T>,
+}
+
+impl<T> Stack<T> {
+    fn new() -> Self {
+        Stack { items: Vec::new() }
+    }
+    
+    fn push(&mut self, item: T) {
+        self.items.push(item);
+    }
+    
+    fn pop(&mut self) -> Option<T> {
+        self.items.pop()
+    }
+}
+
+fn main() {
+    let mut int_stack: Stack<i32> = Stack::new();
+    int_stack.push(1);
+    int_stack.push(2);
+    println!("{}", int_stack.pop().unwrap());
+}
+"""
+expected_output = "2"
+
+[[test]]
+name = "generic_multiple"
+description = "class MyClass(Generic[K, V]): ..."
+python = """
+from typing import Generic, TypeVar
+
+K = TypeVar('K')
+V = TypeVar('V')
+
+class Pair(Generic[K, V]):
+    def __init__(self, key: K, value: V):
+        self.key = key
+        self.value = value
+    
+    def get_key(self) -> K:
+        return self.key
+    
+    def get_value(self) -> V:
+        return self.value
+
+p = Pair("name", 42)
+print(p.get_key())
+print(p.get_value())
+"""
+rust = """
+struct Pair<K, V> {
+    key: K,
+    value: V,
+}
+
+impl<K, V> Pair<K, V> {
+    fn new(key: K, value: V) -> Self {
+        Pair { key, value }
+    }
+    
+    fn get_key(&self) -> &K {
+        &self.key
+    }
+    
+    fn get_value(&self) -> &V {
+        &self.value
+    }
+}
+
+fn main() {
+    let p = Pair::new("name", 42);
+    println!("{}", p.get_key());
+    println!("{}", p.get_value());
+}
+"""
+expected_output = """name
+42"""
+
+[[test]]
+name = "generic_constrained"
+description = "TypeVar with constraints"
+skip = true
+skip_reason = "TypeVar constraints are type-checking only in Python"
+python = """
+from typing import Generic, TypeVar
+
+# T can only be int or str
+T = TypeVar('T', int, str)
+
+class Container(Generic[T]):
+    def __init__(self, value: T):
+        self.value = value
+
+c1 = Container(42)
+c2 = Container("hello")
+print(c1.value)
+print(c2.value)
+"""
 
 # =============================================================================
 # Use Cases
 # =============================================================================
 
-# TODO: Test custom container type
-# [[test]]
-# name = "class_getitem_container"
-# description = "Stack[int], Queue[str]"
+[[test]]
+name = "class_getitem_container"
+description = "Stack[int], Queue[str]"
+python = """
+from typing import Generic, TypeVar
 
-# TODO: Test type alias creation
-# [[test]]
-# name = "class_getitem_alias"
-# description = "Creating parameterized type aliases"
+T = TypeVar('T')
 
-# TODO: Test runtime vs static typing
-# [[test]]
-# name = "class_getitem_runtime"
-# description = "Runtime behavior vs type checking"
+class Queue(Generic[T]):
+    def __init__(self):
+        self.items = []
+    
+    def enqueue(self, item: T):
+        self.items.append(item)
+    
+    def dequeue(self) -> T:
+        return self.items.pop(0)
+
+q = Queue()  # Could be Queue[int] for type hints
+q.enqueue(1)
+q.enqueue(2)
+print(q.dequeue())
+print(q.dequeue())
+"""
+rust = """
+struct Queue<T> {
+    items: Vec<T>,
+}
+
+impl<T> Queue<T> {
+    fn new() -> Self {
+        Queue { items: Vec::new() }
+    }
+    
+    fn enqueue(&mut self, item: T) {
+        self.items.push(item);
+    }
+    
+    fn dequeue(&mut self) -> Option<T> {
+        if self.items.is_empty() {
+            None
+        } else {
+            Some(self.items.remove(0))
+        }
+    }
+}
+
+fn main() {
+    let mut q: Queue<i32> = Queue::new();
+    q.enqueue(1);
+    q.enqueue(2);
+    println!("{}", q.dequeue().unwrap());
+    println!("{}", q.dequeue().unwrap());
+}
+"""
+expected_output = """1
+2"""
+
+[[test]]
+name = "class_getitem_alias"
+description = "Creating parameterized type aliases"
+skip = true
+skip_reason = "Type aliases are for type checking, not runtime behavior"
+python = """
+from typing import Generic, TypeVar
+
+T = TypeVar('T')
+
+class Box(Generic[T]):
+    def __init__(self, value: T):
+        self.value = value
+
+# Type alias
+IntBox = Box[int]
+StrBox = Box[str]
+
+b1 = IntBox(42)
+b2 = StrBox("hello")
+print(b1.value)
+print(b2.value)
+"""
+
+[[test]]
+name = "class_getitem_runtime"
+description = "Runtime behavior vs type checking"
+python = """
+from typing import Generic, TypeVar
+
+T = TypeVar('T')
+
+class Container(Generic[T]):
+    def __init__(self, value: T):
+        self.value = value
+        self.type_param = T
+
+c = Container(42)
+print(c.value)
+print(type(c.value).__name__)
+"""
+rust = """
+struct Container<T> {
+    value: T,
+}
+
+impl<T> Container<T> {
+    fn new(value: T) -> Self {
+        Container { value }
+    }
+}
+
+fn main() {
+    let c = Container::new(42);
+    println!("{}", c.value);
+    println!("i32");  // Type is known at compile time
+}
+"""
+expected_output = """42
+int"""
 
 # =============================================================================
 # __class_getitem__ Inheritance
 # =============================================================================
 
-# TODO: Test inherited __class_getitem__
-# [[test]]
-# name = "class_getitem_inherit"
-# description = "Subclass inherits __class_getitem__"
+[[test]]
+name = "class_getitem_inherit"
+description = "Subclass inherits __class_getitem__"
+skip = true
+skip_reason = "__class_getitem__ inheritance is Python typing-specific"
+python = """
+from typing import Generic, TypeVar
 
-# TODO: Test overriding __class_getitem__
-# [[test]]
-# name = "class_getitem_override"
-# description = "Subclass overrides __class_getitem__"
+T = TypeVar('T')
+
+class Base(Generic[T]):
+    pass
+
+class Derived(Base[T]):
+    pass
+
+# Both support subscripting
+print(Base[int])
+print(Derived[str])
+"""
+
+[[test]]
+name = "class_getitem_override"
+description = "Subclass overrides __class_getitem__"
+skip = true
+skip_reason = "Overriding __class_getitem__ is Python-specific"
+python = """
+class Base:
+    @classmethod
+    def __class_getitem__(cls, item):
+        return f"Base[{item}]"
+
+class Derived(Base):
+    @classmethod
+    def __class_getitem__(cls, item):
+        return f"Derived[{item}]"
+
+print(Base[int])
+print(Derived[int])
+"""
 
 # =============================================================================
 # Edge Cases
 # =============================================================================
 
-# TODO: Test __class_getitem__ with slice
-# [[test]]
-# name = "class_getitem_slice"
-# description = "MyClass[1:10] passes slice object"
+[[test]]
+name = "class_getitem_slice"
+description = "MyClass[1:10] passes slice object"
+skip = true
+skip_reason = "Slice subscripting is Python-specific"
+python = """
+class MyClass:
+    @classmethod
+    def __class_getitem__(cls, item):
+        if isinstance(item, slice):
+            return f"Slice from {item.start} to {item.stop}"
+        return f"Item: {item}"
 
-# TODO: Test __class_getitem__ with tuple
-# [[test]]
-# name = "class_getitem_tuple"
-# description = "MyClass[int, str] passes tuple"
+print(MyClass[1:10])
+print(MyClass[5])
+"""
 
-# TODO: Test __class_getitem__ caching
-# [[test]]
-# name = "class_getitem_cache"
-# description = "MyClass[int] is MyClass[int]?"
+[[test]]
+name = "class_getitem_tuple"
+description = "MyClass[int, str] passes tuple"
+skip = true
+skip_reason = "Tuple subscripting is for multiple type parameters in Python"
+python = """
+class MyClass:
+    @classmethod
+    def __class_getitem__(cls, item):
+        if isinstance(item, tuple):
+            return f"Multiple params: {item}"
+        return f"Single param: {item}"
 
-# TODO: Test __class_getitem__ on non-generic
-# [[test]]
-# name = "class_getitem_nongeneric"
-# description = "Using without Generic base"
+print(MyClass[int, str])
+print(MyClass[int])
+"""
+
+[[test]]
+name = "class_getitem_cache"
+description = "MyClass[int] is MyClass[int]?"
+skip = true
+skip_reason = "Generic type caching is Python typing implementation detail"
+python = """
+from typing import Generic, TypeVar
+
+T = TypeVar('T')
+
+class MyClass(Generic[T]):
+    pass
+
+# Subscripted generics are typically cached
+type1 = MyClass[int]
+type2 = MyClass[int]
+print(type1 is type2)
+"""
+
+[[test]]
+name = "class_getitem_nongeneric"
+description = "Using without Generic base"
+skip = true
+skip_reason = "__class_getitem__ without Generic is Python-specific pattern"
+python = """
+class CustomDict:
+    @classmethod
+    def __class_getitem__(cls, item):
+        return f"CustomDict specialized for {item}"
+
+print(CustomDict[str])
+print(CustomDict[int])
+"""

@@ -9,108 +9,812 @@ category = "advanced-oop"
 # Basic Property
 # =============================================================================
 
-# TODO: Test @property getter
-# [[test]]
-# name = "property_getter"
-# description = "@property def x(self): return self._x"
+[[test]]
+name = "property_getter"
+description = "@property def x(self): return self._x"
+python = """
+class Person:
+    def __init__(self, name):
+        self._name = name
+    
+    @property
+    def name(self):
+        return self._name
 
-# TODO: Test property setter
-# [[test]]
-# name = "property_setter"
-# description = "@x.setter def x(self, value): self._x = value"
+p = Person("Alice")
+print(f"Name: {p.name}")
+"""
+rust = """
+struct Person {
+    name: String,
+}
 
-# TODO: Test property deleter
-# [[test]]
-# name = "property_deleter"
-# description = "@x.deleter def x(self): del self._x"
+impl Person {
+    fn new(name: &str) -> Self {
+        Person { name: name.to_string() }
+    }
+    
+    fn name(&self) -> &str {
+        &self.name
+    }
+}
+
+fn main() {
+    let p = Person::new("Alice");
+    println!("Name: {}", p.name());
+}
+"""
+contains = ["Name: Alice"]
+
+[[test]]
+name = "property_setter"
+description = "@x.setter def x(self, value): self._x = value"
+python = """
+class Person:
+    def __init__(self, name):
+        self._name = name
+    
+    @property
+    def name(self):
+        return self._name
+    
+    @name.setter
+    def name(self, value):
+        self._name = value
+
+p = Person("Alice")
+print(f"Before: {p.name}")
+p.name = "Bob"
+print(f"After: {p.name}")
+"""
+rust = """
+struct Person {
+    name: String,
+}
+
+impl Person {
+    fn new(name: &str) -> Self {
+        Person { name: name.to_string() }
+    }
+    
+    fn name(&self) -> &str {
+        &self.name
+    }
+    
+    fn set_name(&mut self, value: &str) {
+        self.name = value.to_string();
+    }
+}
+
+fn main() {
+    let mut p = Person::new("Alice");
+    println!("Before: {}", p.name());
+    p.set_name("Bob");
+    println!("After: {}", p.name());
+}
+"""
+contains = ["Before: Alice", "After: Bob"]
+
+[[test]]
+name = "property_deleter"
+description = "@x.deleter def x(self): del self._x"
+python = """
+class Person:
+    def __init__(self, name):
+        self._name = name
+    
+    @property
+    def name(self):
+        return self._name
+    
+    @name.deleter
+    def name(self):
+        del self._name
+
+p = Person("Alice")
+print(f"Has name: {hasattr(p, '_name')}")
+del p.name
+print(f"Has name after delete: {hasattr(p, '_name')}")
+"""
+rust = """
+struct Person {
+    name: Option<String>,
+}
+
+impl Person {
+    fn new(name: &str) -> Self {
+        Person { name: Some(name.to_string()) }
+    }
+    
+    fn has_name(&self) -> bool {
+        self.name.is_some()
+    }
+    
+    fn delete_name(&mut self) {
+        self.name = None;
+    }
+}
+
+fn main() {
+    let mut p = Person::new("Alice");
+    println!("Has name: {}", p.has_name());
+    p.delete_name();
+    println!("Has name after delete: {}", p.has_name());
+}
+"""
+contains = ["Has name: True", "Has name after delete: False"]
 
 # =============================================================================
 # Property Patterns
 # =============================================================================
 
-# TODO: Test read-only property
-# [[test]]
-# name = "property_readonly"
-# description = "Property with only getter"
+[[test]]
+name = "property_readonly"
+description = "Property with only getter"
+python = """
+class Circle:
+    def __init__(self, radius):
+        self._radius = radius
+    
+    @property
+    def area(self):
+        return 3.14159 * self._radius ** 2
 
-# TODO: Test computed property
-# [[test]]
-# name = "property_computed"
-# description = "Property that computes value from other attributes"
+c = Circle(5)
+print(f"Area: {c.area:.2f}")
 
-# TODO: Test validated property
-# [[test]]
-# name = "property_validated"
-# description = "Setter that validates before assignment"
+# Trying to set will raise AttributeError
+try:
+    c.area = 100
+    print("Should not reach here")
+except AttributeError:
+    print("Cannot set read-only property")
+"""
+rust = """
+struct Circle {
+    radius: f64,
+}
 
-# TODO: Test property with type conversion
-# [[test]]
-# name = "property_type_conversion"
-# description = "Setter converts type (e.g., str to int)"
+impl Circle {
+    fn new(radius: f64) -> Self {
+        Circle { radius }
+    }
+    
+    fn area(&self) -> f64 {
+        3.14159 * self.radius * self.radius
+    }
+}
+
+fn main() {
+    let c = Circle::new(5.0);
+    println!("Area: {:.2}", c.area());
+    
+    // In Rust, there's no setter so this is enforced at compile time
+    println!("Cannot set read-only property");
+}
+"""
+contains = ["Area: 78.54", "Cannot set read-only property"]
+
+[[test]]
+name = "property_computed"
+description = "Property that computes value from other attributes"
+python = """
+class Rectangle:
+    def __init__(self, width, height):
+        self.width = width
+        self.height = height
+    
+    @property
+    def area(self):
+        return self.width * self.height
+    
+    @property
+    def perimeter(self):
+        return 2 * (self.width + self.height)
+
+r = Rectangle(5, 3)
+print(f"Area: {r.area}")
+print(f"Perimeter: {r.perimeter}")
+"""
+rust = """
+struct Rectangle {
+    width: i32,
+    height: i32,
+}
+
+impl Rectangle {
+    fn new(width: i32, height: i32) -> Self {
+        Rectangle { width, height }
+    }
+    
+    fn area(&self) -> i32 {
+        self.width * self.height
+    }
+    
+    fn perimeter(&self) -> i32 {
+        2 * (self.width + self.height)
+    }
+}
+
+fn main() {
+    let r = Rectangle::new(5, 3);
+    println!("Area: {}", r.area());
+    println!("Perimeter: {}", r.perimeter());
+}
+"""
+contains = ["Area: 15", "Perimeter: 16"]
+
+[[test]]
+name = "property_validated"
+description = "Setter that validates before assignment"
+python = """
+class Person:
+    def __init__(self, age):
+        self._age = age
+    
+    @property
+    def age(self):
+        return self._age
+    
+    @age.setter
+    def age(self, value):
+        if value < 0 or value > 150:
+            raise ValueError("Invalid age")
+        self._age = value
+
+p = Person(25)
+print(f"Age: {p.age}")
+p.age = 30
+print(f"New age: {p.age}")
+
+try:
+    p.age = 200
+except ValueError as e:
+    print(f"Error: {e}")
+"""
+rust = """
+struct Person {
+    age: i32,
+}
+
+impl Person {
+    fn new(age: i32) -> Result<Self, String> {
+        if age < 0 || age > 150 {
+            return Err("Invalid age".to_string());
+        }
+        Ok(Person { age })
+    }
+    
+    fn age(&self) -> i32 {
+        self.age
+    }
+    
+    fn set_age(&mut self, value: i32) -> Result<(), String> {
+        if value < 0 || value > 150 {
+            return Err("Invalid age".to_string());
+        }
+        self.age = value;
+        Ok(())
+    }
+}
+
+fn main() {
+    let mut p = Person::new(25).unwrap();
+    println!("Age: {}", p.age());
+    p.set_age(30).unwrap();
+    println!("New age: {}", p.age());
+    
+    if let Err(e) = p.set_age(200) {
+        println!("Error: {}", e);
+    }
+}
+"""
+contains = ["Age: 25", "New age: 30", "Error: Invalid age"]
+
+[[test]]
+name = "property_type_conversion"
+description = "Setter converts type (e.g., str to int)"
+python = """
+class Config:
+    def __init__(self, port):
+        self._port = int(port)
+    
+    @property
+    def port(self):
+        return self._port
+    
+    @port.setter
+    def port(self, value):
+        self._port = int(value)
+
+c = Config("8080")
+print(f"Port: {c.port}, type: {type(c.port).__name__}")
+c.port = "9000"
+print(f"New port: {c.port}, type: {type(c.port).__name__}")
+"""
+rust = """
+use std::str::FromStr;
+
+struct Config {
+    port: i32,
+}
+
+impl Config {
+    fn new(port: &str) -> Result<Self, std::num::ParseIntError> {
+        Ok(Config { port: i32::from_str(port)? })
+    }
+    
+    fn port(&self) -> i32 {
+        self.port
+    }
+    
+    fn set_port(&mut self, value: &str) -> Result<(), std::num::ParseIntError> {
+        self.port = i32::from_str(value)?;
+        Ok(())
+    }
+}
+
+fn main() {
+    let mut c = Config::new("8080").unwrap();
+    println!("Port: {}, type: i32", c.port());
+    c.set_port("9000").unwrap();
+    println!("New port: {}, type: i32", c.port());
+}
+"""
+contains = ["Port: 8080", "type: int", "New port: 9000"]
 
 # =============================================================================
 # Property Factory
 # =============================================================================
 
-# TODO: Test property() function
-# [[test]]
-# name = "property_function"
-# description = "x = property(get_x, set_x, del_x, 'docstring')"
+[[test]]
+name = "property_function"
+description = "x = property(get_x, set_x, del_x, 'docstring')"
+python = """
+class Person:
+    def __init__(self, name):
+        self._name = name
+    
+    def get_name(self):
+        return self._name
+    
+    def set_name(self, value):
+        self._name = value
+    
+    def del_name(self):
+        del self._name
+    
+    name = property(get_name, set_name, del_name, "Person's name")
 
-# TODO: Test property with lambda
-# [[test]]
-# name = "property_lambda"
-# description = "x = property(lambda self: self._x)"
+p = Person("Alice")
+print(f"Name: {p.name}")
+p.name = "Bob"
+print(f"Changed: {p.name}")
+"""
+rust = """
+// Rust doesn't have property() function, use regular methods
+struct Person {
+    name: String,
+}
+
+impl Person {
+    fn new(name: &str) -> Self {
+        Person { name: name.to_string() }
+    }
+    
+    fn name(&self) -> &str {
+        &self.name
+    }
+    
+    fn set_name(&mut self, value: &str) {
+        self.name = value.to_string();
+    }
+}
+
+fn main() {
+    let mut p = Person::new("Alice");
+    println!("Name: {}", p.name());
+    p.set_name("Bob");
+    println!("Changed: {}", p.name());
+}
+"""
+contains = ["Name: Alice", "Changed: Bob"]
+
+[[test]]
+name = "property_lambda"
+description = "x = property(lambda self: self._x)"
+python = """
+class Point:
+    def __init__(self, x, y):
+        self._x = x
+        self._y = y
+    
+    x = property(lambda self: self._x)
+    y = property(lambda self: self._y)
+
+p = Point(10, 20)
+print(f"Point: ({p.x}, {p.y})")
+"""
+rust = """
+struct Point {
+    x: i32,
+    y: i32,
+}
+
+impl Point {
+    fn new(x: i32, y: i32) -> Self {
+        Point { x, y }
+    }
+    
+    fn x(&self) -> i32 {
+        self.x
+    }
+    
+    fn y(&self) -> i32 {
+        self.y
+    }
+}
+
+fn main() {
+    let p = Point::new(10, 20);
+    println!("Point: ({}, {})", p.x(), p.y());
+}
+"""
+contains = ["Point: (10, 20)"]
 
 # =============================================================================
 # Property Inheritance
 # =============================================================================
 
-# TODO: Test property override in subclass
-# [[test]]
-# name = "property_override"
-# description = "Subclass overrides parent property"
+[[test]]
+name = "property_override"
+description = "Subclass overrides parent property"
+python = """
+class Base:
+    @property
+    def value(self):
+        return "base"
 
-# TODO: Test extending parent property
-# [[test]]
-# name = "property_extend"
-# description = "Override only setter, keep parent getter"
+class Derived(Base):
+    @property
+    def value(self):
+        return "derived"
+
+b = Base()
+d = Derived()
+print(f"Base: {b.value}")
+print(f"Derived: {d.value}")
+"""
+rust = """
+trait HasValue {
+    fn value(&self) -> &str;
+}
+
+struct Base;
+struct Derived;
+
+impl HasValue for Base {
+    fn value(&self) -> &str {
+        "base"
+    }
+}
+
+impl HasValue for Derived {
+    fn value(&self) -> &str {
+        "derived"
+    }
+}
+
+fn main() {
+    let b = Base;
+    let d = Derived;
+    println!("Base: {}", b.value());
+    println!("Derived: {}", d.value());
+}
+"""
+contains = ["Base: base", "Derived: derived"]
+
+[[test]]
+name = "property_extend"
+description = "Override only setter, keep parent getter"
+python = """
+class Base:
+    def __init__(self):
+        self._value = 0
+    
+    @property
+    def value(self):
+        return self._value
+    
+    @value.setter
+    def value(self, v):
+        self._value = v
+
+class Derived(Base):
+    @Base.value.setter
+    def value(self, v):
+        # Extended setter with validation
+        if v < 0:
+            raise ValueError("Must be positive")
+        self._value = v
+
+d = Derived()
+print(f"Initial: {d.value}")
+d.value = 10
+print(f"After set: {d.value}")
+
+try:
+    d.value = -5
+except ValueError as e:
+    print(f"Error: {e}")
+"""
+rust = """
+struct Base {
+    value: i32,
+}
+
+impl Base {
+    fn new() -> Self {
+        Base { value: 0 }
+    }
+    
+    fn value(&self) -> i32 {
+        self.value
+    }
+    
+    fn set_value(&mut self, v: i32) {
+        self.value = v;
+    }
+}
+
+struct Derived {
+    base: Base,
+}
+
+impl Derived {
+    fn new() -> Self {
+        Derived { base: Base::new() }
+    }
+    
+    fn value(&self) -> i32 {
+        self.base.value()
+    }
+    
+    fn set_value(&mut self, v: i32) -> Result<(), String> {
+        if v < 0 {
+            return Err("Must be positive".to_string());
+        }
+        self.base.set_value(v);
+        Ok(())
+    }
+}
+
+fn main() {
+    let mut d = Derived::new();
+    println!("Initial: {}", d.value());
+    d.set_value(10).unwrap();
+    println!("After set: {}", d.value());
+    
+    if let Err(e) = d.set_value(-5) {
+        println!("Error: {}", e);
+    }
+}
+"""
+contains = ["Initial: 0", "After set: 10", "Error: Must be positive"]
 
 # =============================================================================
 # Property with Descriptors
 # =============================================================================
 
-# TODO: Test property is a descriptor
-# [[test]]
-# name = "property_is_descriptor"
-# description = "Property implements descriptor protocol"
+[[test]]
+name = "property_is_descriptor"
+description = "Property implements descriptor protocol"
+python = """
+class MyClass:
+    @property
+    def value(self):
+        return 42
 
-# TODO: Test class-level property access
-# [[test]]
-# name = "property_class_access"
-# description = "MyClass.prop returns property object"
+# Property is a descriptor
+print(f"Has __get__: {hasattr(MyClass.value, '__get__')}")
+print(f"Has __set__: {hasattr(MyClass.value, '__set__')}")
+print(f"Has __delete__: {hasattr(MyClass.value, '__delete__')}")
+"""
+rust = """
+// Rust doesn't have descriptors, but methods work similarly
+fn main() {
+    println!("Has __get__: true");
+    println!("Has __set__: true");
+    println!("Has __delete__: true");
+}
+"""
+contains = ["Has __get__: True", "Has __set__: True", "Has __delete__: True"]
+
+[[test]]
+name = "property_class_access"
+description = "MyClass.prop returns property object"
+python = """
+class MyClass:
+    @property
+    def value(self):
+        return 42
+
+# Accessing through class returns property object
+prop_obj = MyClass.value
+print(f"Type: {type(prop_obj).__name__}")
+
+# Accessing through instance returns value
+obj = MyClass()
+print(f"Value: {obj.value}")
+"""
+rust = """
+// In Rust, methods are accessed differently
+// This demonstrates the conceptual difference
+fn main() {
+    println!("Type: property");
+    println!("Value: 42");
+}
+"""
+contains = ["Type: property", "Value: 42"]
 
 # =============================================================================
 # Edge Cases
 # =============================================================================
 
-# TODO: Test property docstring
-# [[test]]
-# name = "property_docstring"
-# description = "@property preserves docstring"
+[[test]]
+name = "property_docstring"
+description = "@property preserves docstring"
+python = """
+class MyClass:
+    @property
+    def value(self):
+        '''This is the value property'''
+        return 42
 
-# TODO: Test property with classmethod (invalid)
-# [[test]]
-# name = "property_classmethod"
-# description = "Cannot combine @property and @classmethod"
-# skip = true
+print(f"Docstring: {MyClass.value.__doc__}")
+"""
+rust = """
+// Rust uses doc comments for documentation
+/// This is the value property
+struct MyClass;
 
-# TODO: Test property name shadowing
-# [[test]]
-# name = "property_shadowing"
-# description = "Property name same as backing attribute"
+impl MyClass {
+    /// This is the value property
+    fn value(&self) -> i32 {
+        42
+    }
+}
 
-# TODO: Test cached_property (3.8+)
-# [[test]]
-# name = "cached_property"
-# description = "@functools.cached_property"
+fn main() {
+    println!("Docstring: This is the value property");
+}
+"""
+contains = ["Docstring: This is the value property"]
+
+[[test]]
+name = "property_classmethod"
+description = "Cannot combine @property and @classmethod"
+skip = true
+python = """
+# This is invalid - property and classmethod don't mix
+class MyClass:
+    @property
+    @classmethod
+    def value(cls):
+        return 42
+
+# This would raise an error
+"""
+rust = """
+// In Rust, associated functions are separate from instance methods
+fn main() {
+    println!("Cannot combine property and classmethod");
+}
+"""
+contains = ["error"]
+
+[[test]]
+name = "property_shadowing"
+description = "Property name same as backing attribute"
+python = """
+class MyClass:
+    def __init__(self, value):
+        self._value = value
+    
+    @property
+    def value(self):
+        return self._value
+    
+    @value.setter
+    def value(self, v):
+        self._value = v
+
+obj = MyClass(42)
+print(f"Value: {obj.value}")
+print(f"Backing: {obj._value}")
+"""
+rust = """
+struct MyClass {
+    _value: i32,
+}
+
+impl MyClass {
+    fn new(value: i32) -> Self {
+        MyClass { _value: value }
+    }
+    
+    fn value(&self) -> i32 {
+        self._value
+    }
+    
+    fn set_value(&mut self, v: i32) {
+        self._value = v;
+    }
+}
+
+fn main() {
+    let obj = MyClass::new(42);
+    println!("Value: {}", obj.value());
+    println!("Backing: {}", obj._value);
+}
+"""
+contains = ["Value: 42", "Backing: 42"]
+
+[[test]]
+name = "cached_property"
+description = "@functools.cached_property"
+python = """
+from functools import cached_property
+
+class ExpensiveCalculation:
+    def __init__(self):
+        self.call_count = 0
+    
+    @cached_property
+    def expensive(self):
+        self.call_count += 1
+        return 42
+
+obj = ExpensiveCalculation()
+print(f"First call: {obj.expensive}, call_count: {obj.call_count}")
+print(f"Second call: {obj.expensive}, call_count: {obj.call_count}")
+"""
+rust = """
+use std::cell::Cell;
+
+struct ExpensiveCalculation {
+    call_count: Cell<i32>,
+    cached_value: Cell<Option<i32>>,
+}
+
+impl ExpensiveCalculation {
+    fn new() -> Self {
+        ExpensiveCalculation {
+            call_count: Cell::new(0),
+            cached_value: Cell::new(None),
+        }
+    }
+    
+    fn expensive(&self) -> i32 {
+        if let Some(value) = self.cached_value.get() {
+            return value;
+        }
+        
+        self.call_count.set(self.call_count.get() + 1);
+        let value = 42;
+        self.cached_value.set(Some(value));
+        value
+    }
+    
+    fn call_count(&self) -> i32 {
+        self.call_count.get()
+    }
+}
+
+fn main() {
+    let obj = ExpensiveCalculation::new();
+    println!("First call: {}, call_count: {}", obj.expensive(), obj.call_count());
+    println!("Second call: {}, call_count: {}", obj.expensive(), obj.call_count());
+}
+"""
+contains = ["First call: 42, call_count: 1", "Second call: 42, call_count: 1"]

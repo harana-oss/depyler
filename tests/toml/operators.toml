@@ -13,546 +13,957 @@ name = "operator_add"
 description = "Addition operator"
 tags = ["operator", "arithmetic"]
 
-[test.python]
-code = '''
+python = '''
 def add(a: int, b: int) -> int:
     return a + b
 '''
 
-[test.assertions]
-contains = ["a + b"]
+rust = '''
+pub fn add(a: i32, b: i32) -> i32 {
+    return a + b;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn quickcheck_add() {
+        fn prop(a: i32, b: i32) -> TestResult {
+            if (a > 0 && b > i32::MAX - a) || (a < 0 && b < i32::MIN - a) {
+                return TestResult::discard();
+            }
+            let result1 = add(a.clone(), b.clone());
+            let result2 = add(b.clone(), a.clone());
+            if result1 != result2 {
+                return TestResult::failed();
+            }
+            TestResult::passed()
+        }
+        quickcheck(prop as fn(i32, i32) -> TestResult);
+    }
+    #[test]
+    fn test_add_examples() {
+        assert_eq!(add(0, 0), 0);
+        assert_eq!(add(1, 2), 3);
+        assert_eq!(add(-1, 1), 0);
+    }
+}
+'''
 
 [[test]]
 name = "operator_subtract"
 description = "Subtraction operator"
 tags = ["operator", "arithmetic"]
 
-[test.python]
-code = '''
+python = '''
 def subtract(a: int, b: int) -> int:
     return a - b
 '''
 
-[test.assertions]
-contains = ["a - b"]
+rust = '''
+pub fn subtract(a: i32, b: i32) -> i32 {
+    return a - b;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_subtract_examples() {
+        assert_eq!(subtract(0, 0), 0);
+        assert_eq!(subtract(1, 2), 3);
+        assert_eq!(subtract(-1, 1), 0);
+    }
+}
+'''
 
 [[test]]
 name = "operator_multiply"
 description = "Multiplication operator"
 tags = ["operator", "arithmetic"]
 
-[test.python]
-code = '''
+python = '''
 def multiply(a: int, b: int) -> int:
     return a * b
 '''
 
-[test.assertions]
-contains = ["a * b"]
+rust = '''
+pub fn multiply(a: i32, b: i32) -> i32 {
+    return a * b;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn quickcheck_multiply() {
+        fn prop(a: i32, b: i32) -> TestResult {
+            if (a > 0 && b > i32::MAX - a) || (a < 0 && b < i32::MIN - a) {
+                return TestResult::discard();
+            }
+            let result1 = multiply(a.clone(), b.clone());
+            let result2 = multiply(b.clone(), a.clone());
+            if result1 != result2 {
+                return TestResult::failed();
+            }
+            TestResult::passed()
+        }
+        quickcheck(prop as fn(i32, i32) -> TestResult);
+    }
+    #[test]
+    fn test_multiply_examples() {
+        assert_eq!(multiply(0, 0), 0);
+        assert_eq!(multiply(1, 2), 3);
+        assert_eq!(multiply(-1, 1), 0);
+    }
+}
+'''
 
 [[test]]
 name = "operator_divide"
 description = "Division operator"
 tags = ["operator", "arithmetic"]
 
-[test.python]
-code = '''
+python = '''
 def divide(a: float, b: float) -> float:
     return a / b
 '''
 
-[test.assertions]
-contains = ["a / b"]
+rust = '''
+#[derive(Debug, Clone)]
+pub struct ZeroDivisionError {
+    message: String,
+}
+impl std::fmt::Display for ZeroDivisionError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "division by zero: {}", self.message)
+    }
+}
+impl std::error::Error for ZeroDivisionError {}
+impl ZeroDivisionError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = " Depyler: proven to terminate"]
+pub fn divide(a: f64, b: f64) -> f64 {
+    return a / b;
+}
+'''
 
 [[test]]
 name = "operator_floor_div"
 description = "Floor division operator"
 tags = ["operator", "arithmetic"]
 
-[test.python]
-code = '''
+python = '''
 def floor_div(a: int, b: int) -> int:
     return a // b
 '''
 
-[test.assertions]
-contains_any = [["a / b", "div_euclid"]]
-not_contains = ["//"]
+rust = '''
+#[derive(Debug, Clone)]
+pub struct ZeroDivisionError {
+    message: String,
+}
+impl std::fmt::Display for ZeroDivisionError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "division by zero: {}", self.message)
+    }
+}
+impl std::error::Error for ZeroDivisionError {}
+impl ZeroDivisionError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = " Depyler: proven to terminate"]
+pub fn floor_div(a: i32, b: i32) -> i32 {
+    return {
+        let a = a;
+        let b = b;
+        let q = a / b;
+        let r = a % b;
+        let r_negative = r < 0;
+        let b_negative = b < 0;
+        let r_nonzero = r != 0;
+        let signs_differ = r_negative != b_negative;
+        let needs_adjustment = r_nonzero && signs_differ;
+        if needs_adjustment { q - 1 } else { q }
+    };
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_floor_div_examples() {
+        assert_eq!(floor_div(0, 0), 0);
+        assert_eq!(floor_div(1, 2), 3);
+        assert_eq!(floor_div(-1, 1), 0);
+    }
+}
+'''
 
 [[test]]
 name = "operator_modulo"
 description = "Modulo operator"
 tags = ["operator", "arithmetic"]
 
-[test.python]
-code = '''
+python = '''
 def modulo(a: int, b: int) -> int:
     return a % b
 '''
 
-[test.assertions]
-contains = ["a % b"]
-
-# =============================================================================
-# Power Operator
-# =============================================================================
+rust = '''
+#[derive(Debug, Clone)]
+pub struct ZeroDivisionError {
+    message: String,
+}
+impl std::fmt::Display for ZeroDivisionError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "division by zero: {}", self.message)
+    }
+}
+impl std::error::Error for ZeroDivisionError {}
+impl ZeroDivisionError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = " Depyler: proven to terminate"]
+pub fn modulo(a: i32, b: i32) -> i32 {
+    return a % b;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_modulo_examples() {
+        assert_eq!(modulo(0, 0), 0);
+        assert_eq!(modulo(1, 2), 3);
+        assert_eq!(modulo(-1, 1), 0);
+    }
+}
+'''
 
 [[test]]
 name = "operator_power_literal"
 description = "Power operator with literals"
 tags = ["operator", "power"]
 
-[test.python]
-code = '''
+python = '''
 def power_literal() -> int:
     return 2 ** 8
 '''
 
-[test.assertions]
-contains_any = [["pow(8", "2_i32.pow(", "2i32.pow(", "256"]]
+rust = '''
+pub fn power_literal() -> i32 {
+    return 2_i32.pow(8 as u32);
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_power_literal_examples() {
+        let _ = power_literal();
+    }
+}
+'''
 
 [[test]]
 name = "operator_power_variable"
 description = "Power operator with variables"
 tags = ["operator", "power"]
 
-[test.python]
-code = '''
+python = '''
 def power_var(base: int, exp: int) -> int:
     return base ** exp
 '''
 
-[test.assertions]
-contains_any = [["pow(", "checked_pow"]]
+rust = '''
+pub fn power_var(base: i32, exp: i32) -> i32 {
+    return base.checked_pow(exp as u32).expect("Power operation overflowed");
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_power_var_examples() {
+        assert_eq!(power_var(0, 0), 0);
+        assert_eq!(power_var(1, 2), 3);
+        assert_eq!(power_var(-1, 1), 0);
+    }
+}
+'''
 
 [[test]]
 name = "operator_pow_builtin"
 description = "pow() builtin function"
 tags = ["operator", "power", "builtin"]
 
-[test.python]
-code = '''
+python = '''
 def pow_call(base: int, exp: int) -> int:
     return pow(base, exp)
 '''
 
-[test.assertions]
-contains = ["pow("]
-
-# =============================================================================
-# Comparison Operators
-# =============================================================================
+rust = '''
+pub fn pow_call(base: i32, exp: i32) -> i32 {
+    return base.checked_pow(exp as u32).expect("Power operation overflowed");
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_pow_call_examples() {
+        assert_eq!(pow_call(0, 0), 0);
+        assert_eq!(pow_call(1, 2), 3);
+        assert_eq!(pow_call(-1, 1), 0);
+    }
+}
+'''
 
 [[test]]
 name = "operator_eq"
 description = "Equality operator"
 tags = ["operator", "comparison"]
 
-[test.python]
-code = '''
+python = '''
 def equals(a: int, b: int) -> bool:
     return a == b
 '''
 
-[test.assertions]
-contains = ["a == b"]
+rust = '''
+pub fn equals(a: i32, b: i32) -> bool {
+    return a == b;
+}
+'''
 
 [[test]]
 name = "operator_ne"
 description = "Not equal operator"
 tags = ["operator", "comparison"]
 
-[test.python]
-code = '''
+python = '''
 def not_equals(a: int, b: int) -> bool:
     return a != b
 '''
 
-[test.assertions]
-contains = ["a != b"]
+rust = '''
+pub fn not_equals(a: i32, b: i32) -> bool {
+    return a != b;
+}
+'''
 
 [[test]]
 name = "operator_lt"
 description = "Less than operator"
 tags = ["operator", "comparison"]
 
-[test.python]
-code = '''
+python = '''
 def less_than(a: int, b: int) -> bool:
     return a < b
 '''
 
-[test.assertions]
-contains = ["a < b"]
+rust = '''
+pub fn less_than(a: i32, b: i32) -> bool {
+    return a < b;
+}
+'''
 
 [[test]]
 name = "operator_le"
 description = "Less than or equal operator"
 tags = ["operator", "comparison"]
 
-[test.python]
-code = '''
+python = '''
 def less_equal(a: int, b: int) -> bool:
     return a <= b
 '''
 
-[test.assertions]
-contains = ["a <= b"]
+rust = '''
+pub fn less_equal(a: i32, b: i32) -> bool {
+    return a <= b;
+}
+'''
 
 [[test]]
 name = "operator_gt"
 description = "Greater than operator"
 tags = ["operator", "comparison"]
 
-[test.python]
-code = '''
+python = '''
 def greater_than(a: int, b: int) -> bool:
     return a > b
 '''
 
-[test.assertions]
-contains = ["a > b"]
+rust = '''
+pub fn greater_than(a: i32, b: i32) -> bool {
+    return a > b;
+}
+'''
 
 [[test]]
 name = "operator_ge"
 description = "Greater than or equal operator"
 tags = ["operator", "comparison"]
 
-[test.python]
-code = '''
+python = '''
 def greater_equal(a: int, b: int) -> bool:
     return a >= b
 '''
 
-[test.assertions]
-contains = ["a >= b"]
-
-# =============================================================================
-# Logical Operators
-# =============================================================================
+rust = '''
+pub fn greater_equal(a: i32, b: i32) -> bool {
+    return a >= b;
+}
+'''
 
 [[test]]
 name = "operator_and"
 description = "Logical and operator"
 tags = ["operator", "logical"]
 
-[test.python]
-code = '''
+python = '''
 def logical_and(a: bool, b: bool) -> bool:
     return a and b
 '''
 
-[test.assertions]
-contains = ["&&"]
-not_contains = [" and "]
+rust = '''
+pub fn logical_and(a: bool, b: bool) -> bool {
+    return (a) && (b);
+}
+'''
 
 [[test]]
 name = "operator_or"
 description = "Logical or operator"
 tags = ["operator", "logical"]
 
-[test.python]
-code = '''
+python = '''
 def logical_or(a: bool, b: bool) -> bool:
     return a or b
 '''
 
-[test.assertions]
-contains = ["||"]
-not_contains = [" or "]
+rust = '''
+pub fn logical_or(a: bool, b: bool) -> bool {
+    return (a) || (b);
+}
+'''
 
 [[test]]
 name = "operator_not"
 description = "Logical not operator"
 tags = ["operator", "logical"]
 
-[test.python]
-code = '''
+python = '''
 def logical_not(a: bool) -> bool:
     return not a
 '''
 
-[test.assertions]
-contains = ["!"]
-not_contains = [" not "]
-
-# =============================================================================
-# Bitwise Operators
-# =============================================================================
+rust = '''
+pub fn logical_not(a: bool) -> bool {
+    return !a;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_logical_not_examples() {
+        let _ = logical_not(Default::default());
+    }
+}
+'''
 
 [[test]]
 name = "operator_bitwise_and"
 description = "Bitwise AND operator"
 tags = ["operator", "bitwise"]
 
-[test.python]
-code = '''
+python = '''
 def bitwise_and(a: int, b: int) -> int:
     return a & b
 '''
 
-[test.assertions]
-contains = ["a & b"]
+rust = '''
+pub fn bitwise_and(a: i32, b: i32) -> i32 {
+    return a & b;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn quickcheck_bitwise_and() {
+        fn prop(a: i32, b: i32) -> TestResult {
+            if (a > 0 && b > i32::MAX - a) || (a < 0 && b < i32::MIN - a) {
+                return TestResult::discard();
+            }
+            let result1 = bitwise_and(a.clone(), b.clone());
+            let result2 = bitwise_and(b.clone(), a.clone());
+            if result1 != result2 {
+                return TestResult::failed();
+            }
+            TestResult::passed()
+        }
+        quickcheck(prop as fn(i32, i32) -> TestResult);
+    }
+    #[test]
+    fn test_bitwise_and_examples() {
+        assert_eq!(bitwise_and(0, 0), 0);
+        assert_eq!(bitwise_and(1, 2), 3);
+        assert_eq!(bitwise_and(-1, 1), 0);
+    }
+}
+'''
 
 [[test]]
 name = "operator_bitwise_or"
 description = "Bitwise OR operator"
 tags = ["operator", "bitwise"]
 
-[test.python]
-code = '''
+python = '''
 def bitwise_or(a: int, b: int) -> int:
     return a | b
 '''
 
-[test.assertions]
-contains = ["a | b"]
+rust = '''
+pub fn bitwise_or(a: i32, b: i32) -> i32 {
+    return a | b;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn quickcheck_bitwise_or() {
+        fn prop(a: i32, b: i32) -> TestResult {
+            if (a > 0 && b > i32::MAX - a) || (a < 0 && b < i32::MIN - a) {
+                return TestResult::discard();
+            }
+            let result1 = bitwise_or(a.clone(), b.clone());
+            let result2 = bitwise_or(b.clone(), a.clone());
+            if result1 != result2 {
+                return TestResult::failed();
+            }
+            TestResult::passed()
+        }
+        quickcheck(prop as fn(i32, i32) -> TestResult);
+    }
+    #[test]
+    fn test_bitwise_or_examples() {
+        assert_eq!(bitwise_or(0, 0), 0);
+        assert_eq!(bitwise_or(1, 2), 3);
+        assert_eq!(bitwise_or(-1, 1), 0);
+    }
+}
+'''
 
 [[test]]
 name = "operator_bitwise_xor"
 description = "Bitwise XOR operator"
 tags = ["operator", "bitwise"]
 
-[test.python]
-code = '''
+python = '''
 def bitwise_xor(a: int, b: int) -> int:
     return a ^ b
 '''
 
-[test.assertions]
-contains = ["a ^ b"]
+rust = '''
+pub fn bitwise_xor(a: i32, b: i32) -> i32 {
+    return a ^ b;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn quickcheck_bitwise_xor() {
+        fn prop(a: i32, b: i32) -> TestResult {
+            if (a > 0 && b > i32::MAX - a) || (a < 0 && b < i32::MIN - a) {
+                return TestResult::discard();
+            }
+            let result1 = bitwise_xor(a.clone(), b.clone());
+            let result2 = bitwise_xor(b.clone(), a.clone());
+            if result1 != result2 {
+                return TestResult::failed();
+            }
+            TestResult::passed()
+        }
+        quickcheck(prop as fn(i32, i32) -> TestResult);
+    }
+    #[test]
+    fn test_bitwise_xor_examples() {
+        assert_eq!(bitwise_xor(0, 0), 0);
+        assert_eq!(bitwise_xor(1, 2), 3);
+        assert_eq!(bitwise_xor(-1, 1), 0);
+    }
+}
+'''
 
 [[test]]
 name = "operator_left_shift"
 description = "Left shift operator"
 tags = ["operator", "bitwise"]
 
-[test.python]
-code = '''
+python = '''
 def left_shift(a: int, n: int) -> int:
     return a << n
 '''
 
-[test.assertions]
-contains = ["a << n"]
+rust = '''
+pub fn left_shift(a: i32, n: i32) -> i32 {
+    return a << n;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_left_shift_examples() {
+        assert_eq!(left_shift(0, 0), 0);
+        assert_eq!(left_shift(1, 2), 3);
+        assert_eq!(left_shift(-1, 1), 0);
+    }
+}
+'''
 
 [[test]]
 name = "operator_right_shift"
 description = "Right shift operator"
 tags = ["operator", "bitwise"]
 
-[test.python]
-code = '''
+python = '''
 def right_shift(a: int, n: int) -> int:
     return a >> n
 '''
 
-[test.assertions]
-contains = ["a >> n"]
-
-# =============================================================================
-# Unary Operators
-# =============================================================================
+rust = '''
+pub fn right_shift(a: i32, n: i32) -> i32 {
+    return a >> n;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_right_shift_examples() {
+        assert_eq!(right_shift(0, 0), 0);
+        assert_eq!(right_shift(1, 2), 3);
+        assert_eq!(right_shift(-1, 1), 0);
+    }
+}
+'''
 
 [[test]]
 name = "operator_unary_minus"
 description = "Unary minus operator"
 tags = ["operator", "unary"]
 
-[test.python]
-code = '''
+python = '''
 def negate(x: int) -> int:
     return -x
 '''
 
-[test.assertions]
-contains = ["-x"]
+rust = '''
+pub fn negate(x: i32) -> i32 {
+    return (-x);
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_negate_examples() {
+        assert_eq!(negate(0), 0);
+        assert_eq!(negate(1), 1);
+        assert_eq!(negate(-1), -1);
+    }
+}
+'''
 
 [[test]]
 name = "operator_unary_plus"
 description = "Unary plus operator"
 tags = ["operator", "unary"]
 
-[test.python]
-code = '''
+python = '''
 def identity(x: int) -> int:
     return +x
 '''
 
-[test.assertions]
-contains = ["x"]
+rust = '''
+pub fn identity(x: i32) -> i32 {
+    return x;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_identity_examples() {
+        assert_eq!(identity(0), 0);
+        assert_eq!(identity(1), 1);
+        assert_eq!(identity(-1), -1);
+    }
+}
+'''
 
 [[test]]
 name = "operator_bitwise_not"
 description = "Bitwise NOT operator"
 tags = ["operator", "unary", "bitwise"]
 
-[test.python]
-code = '''
+python = '''
 def bitwise_not(x: int) -> int:
     return ~x
 '''
 
-[test.assertions]
-contains = ["!x"]
-
-# =============================================================================
-# Power Operator Extended (from test_power_operator.rs)
+rust = '''
+pub fn bitwise_not(x: i32) -> i32 {
+    return !x;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_bitwise_not_examples() {
+        assert_eq!(bitwise_not(0), 0);
+        assert_eq!(bitwise_not(1), 1);
+        assert_eq!(bitwise_not(-1), -1);
+    }
+}
+'''
 
 [[test]]
 name = "operator_power_int_int"
 description = "int ** int should generate integer power operations"
 tags = ["operator", "power"]
 
-[test.python]
-code = '''
+python = '''
 def test_pow(a: int, b: int) -> int:
     return a ** b
 '''
 
-[test.assertions]
-contains_any = [[".pow(", ".checked_pow(", "pow("]]
+rust = '''
+pub fn test_pow(a: i32, b: i32) -> i32 {
+    return a.checked_pow(b as u32).expect("Power operation overflowed");
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_test_pow_examples() {
+        assert_eq!(test_pow(0, 0), 0);
+        assert_eq!(test_pow(1, 2), 3);
+        assert_eq!(test_pow(-1, 1), 0);
+    }
+}
+'''
 
 [[test]]
 name = "operator_power_int_float"
 description = "int ** float should use powf or casts"
 tags = ["operator", "power"]
 
-[test.python]
-code = '''
+python = '''
 def test_pow(a: int, b: float) -> float:
     return a ** b
 '''
 
-[test.assertions]
-contains_any = [[".powf(", "as f64", "powf("]]
+rust = '''
+pub fn test_pow(a: i32, b: f64) -> f64 {
+    return (a as f64).powf(b as f64);
+}
+'''
 
 [[test]]
 name = "operator_power_float_float"
 description = "float ** float should generate powf"
 tags = ["operator", "power"]
 
-[test.python]
-code = '''
+python = '''
 def test_pow(a: float, b: float) -> float:
     return a ** b
 '''
 
-[test.assertions]
-contains = [".powf("]
+rust = '''
+pub fn test_pow(a: f64, b: f64) -> f64 {
+    return (a as f64).powf(b as f64);
+}
+'''
 
 [[test]]
 name = "operator_power_negative_exponent"
 description = "Negative exponent handling for power operation"
 tags = ["operator", "power"]
 
-[test.python]
-code = '''
+python = '''
 def test_pow(a: float) -> float:
     return a ** -2
 '''
 
-[test.assertions]
-contains_any = [["-2", "powi", "powf("]]
+rust = '''
+pub fn test_pow(a: f64) -> f64 {
+    return (a as f64).powf(-2 as f64);
+}
+'''
 
 [[test]]
 name = "operator_power_zero_exponent"
 description = "Zero exponent optimization or pow(0)"
 tags = ["operator", "power"]
 
-[test.python]
-code = '''
+python = '''
 def test_pow(a: int) -> int:
     return a ** 0
 '''
 
-[test.assertions]
-contains_any = [[".pow(", "1", "pow("]]
+rust = '''
+pub fn test_pow(a: i32) -> i32 {
+    return a.pow(0 as u32);
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_test_pow_examples() {
+        assert_eq!(test_pow(0), 0);
+        assert_eq!(test_pow(1), 1);
+        assert_eq!(test_pow(-1), -1);
+    }
+}
+'''
 
 [[test]]
 name = "operator_power_fractional_exponent"
 description = "Fractional exponent should produce powf or sqrt"
 tags = ["operator", "power"]
 
-[test.python]
-code = '''
+python = '''
 def test_pow(a: float) -> float:
     return a ** 0.5
 '''
 
-[test.assertions]
-contains_any = [[".powf(", ".sqrt("]]
-# =============================================================================
+rust = '''
+pub fn test_pow(a: f64) -> f64 {
+    return (a as f64).powf(0.5 as f64);
+}
+'''
 
 [[test]]
 name = "power_basic"
 description = "Basic power operator with integer literals"
 tags = ["operator", "power"]
 
-[test.python]
-code = '''
+python = '''
 def test_power() -> tuple[int, int]:
     a = 2 ** 3
     b = 10 ** 2
     return a, b
 '''
 
-[test.assertions]
-contains = [".pow("]
+rust = '''
+pub fn test_power() -> (i32, i32) {
+    let _cse_temp_0 = 2_i32.pow(3 as u32);
+    let a = _cse_temp_0;
+    let _cse_temp_1 = 10_i32.pow(2 as u32);
+    let b = _cse_temp_1;
+    return (a, b);
+}
+'''
 
 [[test]]
 name = "power_float"
 description = "Power operator with float values"
 tags = ["operator", "power", "float"]
 
-[test.python]
-code = '''
+python = '''
 def test_float_power() -> tuple[float, float]:
     a = 2.5 ** 2
     b = 4.0 ** 0.5
     return a, b
 '''
 
-[test.assertions]
-contains_any = [["2.5", "powf"]]
+rust = '''
+pub fn test_float_power() -> (f64, f64) {
+    let _cse_temp_0 = (2.5 as f64).powf(2 as f64);
+    let a = _cse_temp_0;
+    let _cse_temp_1 = (4.0 as f64).powf(0.5 as f64);
+    let b = _cse_temp_1;
+    return (a, b);
+}
+'''
 
 [[test]]
 name = "power_negative_exponent"
 description = "Power operator with negative exponent"
 tags = ["operator", "power"]
 
-[test.python]
-code = '''
+python = '''
 def test_negative() -> tuple[float, float]:
     a = 2.0 ** -1
     b = 10.0 ** -2
     return a, b
 '''
 
-[test.assertions]
-contains = ["powf"]
+rust = '''
+pub fn test_negative() -> (f64, f64) {
+    let _cse_temp_0 = (2.0 as f64).powf(-1 as f64);
+    let a = _cse_temp_0;
+    let _cse_temp_1 = (10.0 as f64).powf(-2 as f64);
+    let b = _cse_temp_1;
+    return (a, b);
+}
+'''
 
 [[test]]
 name = "power_with_variables"
 description = "Power operator with variable base and exponent"
 tags = ["operator", "power"]
 
-[test.python]
-code = '''
+python = '''
 def compute_power(base: int, exp: int) -> int:
     return base ** exp
 '''
 
-[test.assertions]
-contains = ["pow"]
+rust = '''
+pub fn compute_power(base: i32, exp: i32) -> i32 {
+    return base.checked_pow(exp as u32).expect("Power operation overflowed");
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_compute_power_examples() {
+        assert_eq!(compute_power(0, 0), 0);
+        assert_eq!(compute_power(1, 2), 3);
+        assert_eq!(compute_power(-1, 1), 0);
+    }
+}
+'''
 
 [[test]]
 name = "power_precedence"
 description = "Power operator precedence"
 tags = ["operator", "power", "precedence"]
 
-[test.python]
-code = '''
+python = '''
 def test_precedence() -> tuple[int, int, int]:
     a = 2 + 3 ** 2
     b = (2 + 3) ** 2
@@ -560,154 +971,440 @@ def test_precedence() -> tuple[int, int, int]:
     return a, b, c
 '''
 
-[test.assertions]
-contains = ["pow"]
-
-# =============================================================================
-# Floor Division Extended (from test_direct_rules_coverage.rs)
-# =============================================================================
+rust = '''
+pub fn test_precedence() -> (i32, i32, i32) {
+    let _cse_temp_0 = 3_i32.pow(2 as u32);
+    let a = (2 as f64) + _cse_temp_0;
+    let _cse_temp_1 = 5_i32.pow(2 as u32);
+    let b = _cse_temp_1;
+    let _cse_temp_2 = 2_i32.pow(3 as u32);
+    let _cse_temp_3 = _cse_temp_2 * (4 as f64);
+    let c = _cse_temp_3;
+    return (a, b, c);
+}
+'''
 
 [[test]]
 name = "floor_division_positive"
 description = "Floor division with positive operands"
 tags = ["operator", "floor-division"]
 
-[test.python]
-code = '''
+python = '''
 def test_floordiv(a: int, b: int) -> int:
     return a // b
 '''
 
-[test.assertions]
-contains_any = [["/", "div_euclid"]]
-not_contains = ["//"]
+rust = '''
+#[derive(Debug, Clone)]
+pub struct ZeroDivisionError {
+    message: String,
+}
+impl std::fmt::Display for ZeroDivisionError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "division by zero: {}", self.message)
+    }
+}
+impl std::error::Error for ZeroDivisionError {}
+impl ZeroDivisionError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = " Depyler: proven to terminate"]
+pub fn test_floordiv(a: i32, b: i32) -> i32 {
+    return {
+        let a = a;
+        let b = b;
+        let q = a / b;
+        let r = a % b;
+        let r_negative = r < 0;
+        let b_negative = b < 0;
+        let r_nonzero = r != 0;
+        let signs_differ = r_negative != b_negative;
+        let needs_adjustment = r_nonzero && signs_differ;
+        if needs_adjustment { q - 1 } else { q }
+    };
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_test_floordiv_examples() {
+        assert_eq!(test_floordiv(0, 0), 0);
+        assert_eq!(test_floordiv(1, 2), 3);
+        assert_eq!(test_floordiv(-1, 1), 0);
+    }
+}
+'''
 
 [[test]]
 name = "floor_division_negative_dividend"
 description = "Floor division with negative dividend"
 tags = ["operator", "floor-division"]
 
-[test.python]
-code = '''
+python = '''
 def test_floordiv() -> int:
     return -7 // 3
 '''
 
-[test.assertions]
-contains = ["/"]
+rust = '''
+#[derive(Debug, Clone)]
+pub struct ZeroDivisionError {
+    message: String,
+}
+impl std::fmt::Display for ZeroDivisionError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "division by zero: {}", self.message)
+    }
+}
+impl std::error::Error for ZeroDivisionError {}
+impl ZeroDivisionError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = " Depyler: proven to terminate"]
+pub fn test_floordiv() -> i32 {
+    return {
+        let a = -7;
+        let b = 3;
+        let q = a / b;
+        let r = a % b;
+        let r_negative = r < 0;
+        let b_negative = b < 0;
+        let r_nonzero = r != 0;
+        let signs_differ = r_negative != b_negative;
+        let needs_adjustment = r_nonzero && signs_differ;
+        if needs_adjustment { q - 1 } else { q }
+    };
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_test_floordiv_examples() {
+        let _ = test_floordiv();
+    }
+}
+'''
 
 [[test]]
 name = "floor_division_negative_divisor"
 description = "Floor division with negative divisor"
 tags = ["operator", "floor-division"]
 
-[test.python]
-code = '''
+python = '''
 def test_floordiv() -> int:
     return 7 // -3
 '''
 
-[test.assertions]
-contains = ["/"]
+rust = '''
+#[derive(Debug, Clone)]
+pub struct ZeroDivisionError {
+    message: String,
+}
+impl std::fmt::Display for ZeroDivisionError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "division by zero: {}", self.message)
+    }
+}
+impl std::error::Error for ZeroDivisionError {}
+impl ZeroDivisionError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = " Depyler: proven to terminate"]
+pub fn test_floordiv() -> i32 {
+    return {
+        let a = 7;
+        let b = -3;
+        let q = a / b;
+        let r = a % b;
+        let r_negative = r < 0;
+        let b_negative = b < 0;
+        let r_nonzero = r != 0;
+        let signs_differ = r_negative != b_negative;
+        let needs_adjustment = r_nonzero && signs_differ;
+        if needs_adjustment { q - 1 } else { q }
+    };
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_test_floordiv_examples() {
+        let _ = test_floordiv();
+    }
+}
+'''
 
 [[test]]
 name = "floor_division_both_negative"
 description = "Floor division with both operands negative"
 tags = ["operator", "floor-division"]
 
-[test.python]
-code = '''
+python = '''
 def test_floordiv() -> int:
     return -7 // -3
 '''
 
-[test.assertions]
-contains = ["/"]
+rust = '''
+#[derive(Debug, Clone)]
+pub struct ZeroDivisionError {
+    message: String,
+}
+impl std::fmt::Display for ZeroDivisionError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "division by zero: {}", self.message)
+    }
+}
+impl std::error::Error for ZeroDivisionError {}
+impl ZeroDivisionError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = " Depyler: proven to terminate"]
+pub fn test_floordiv() -> i32 {
+    return {
+        let a = -7;
+        let b = -3;
+        let q = a / b;
+        let r = a % b;
+        let r_negative = r < 0;
+        let b_negative = b < 0;
+        let r_nonzero = r != 0;
+        let signs_differ = r_negative != b_negative;
+        let needs_adjustment = r_nonzero && signs_differ;
+        if needs_adjustment { q - 1 } else { q }
+    };
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_test_floordiv_examples() {
+        let _ = test_floordiv();
+    }
+}
+'''
 
 [[test]]
 name = "floor_division_generic"
 description = "Generic floor division with variables"
 tags = ["operator", "floor-division"]
 
-[test.python]
-code = '''
+python = '''
 def test_floordiv(a: int, b: int) -> int:
     return a // b
 '''
 
-[test.assertions]
-contains_any = [["//", "/", "div_euclid"]]
-
-# =============================================================================
-# Set Operations (from test_direct_rules_coverage.rs)
-# =============================================================================
+rust = '''
+#[derive(Debug, Clone)]
+pub struct ZeroDivisionError {
+    message: String,
+}
+impl std::fmt::Display for ZeroDivisionError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "division by zero: {}", self.message)
+    }
+}
+impl std::error::Error for ZeroDivisionError {}
+impl ZeroDivisionError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = " Depyler: proven to terminate"]
+pub fn test_floordiv(a: i32, b: i32) -> i32 {
+    return {
+        let a = a;
+        let b = b;
+        let q = a / b;
+        let r = a % b;
+        let r_negative = r < 0;
+        let b_negative = b < 0;
+        let r_nonzero = r != 0;
+        let signs_differ = r_negative != b_negative;
+        let needs_adjustment = r_nonzero && signs_differ;
+        if needs_adjustment { q - 1 } else { q }
+    };
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_test_floordiv_examples() {
+        assert_eq!(test_floordiv(0, 0), 0);
+        assert_eq!(test_floordiv(1, 2), 3);
+        assert_eq!(test_floordiv(-1, 1), 0);
+    }
+}
+'''
 
 [[test]]
 name = "set_union_operator"
 description = "Set union using | operator"
 tags = ["operator", "set"]
 
-[test.python]
-code = '''
+python = '''
 def test_union(a: set, b: set) -> set:
     return a | b
 '''
 
-[test.assertions]
-contains_any = [[".union(", "BitOr", "|"]]
+rust = '''
+use serde_json;
+use std::collections::HashSet;
+pub fn test_union(a: &HashSet<serde_json::Value>, b: &HashSet<serde_json::Value>) -> HashSet<serde_json::Value> {
+    return a.union(&b).cloned().collect::<std::collections::HashSet<_>>();
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn quickcheck_test_union() {
+        fn prop(a: (), b: ()) -> TestResult {
+            let result1 = test_union(a.clone(), b.clone());
+            let result2 = test_union(b.clone(), a.clone());
+            if result1 != result2 {
+                return TestResult::failed();
+            }
+            TestResult::passed()
+        }
+        quickcheck(prop as fn((), ()) -> TestResult);
+    }
+}
+'''
 
 [[test]]
 name = "set_intersection_operator"
 description = "Set intersection using & operator"
 tags = ["operator", "set"]
 
-[test.python]
-code = '''
+python = '''
 def test_intersection(a: set, b: set) -> set:
     return a & b
 '''
 
-[test.assertions]
-contains_any = [[".intersection(", "BitAnd", "&"]]
+rust = '''
+use serde_json;
+use std::collections::HashSet;
+pub fn test_intersection(a: &HashSet<serde_json::Value>, b: &HashSet<serde_json::Value>) -> HashSet<serde_json::Value> {
+    return a.intersection(&b).cloned().collect::<std::collections::HashSet<_>>();
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn quickcheck_test_intersection() {
+        fn prop(a: (), b: ()) -> TestResult {
+            let result1 = test_intersection(a.clone(), b.clone());
+            let result2 = test_intersection(b.clone(), a.clone());
+            if result1 != result2 {
+                return TestResult::failed();
+            }
+            TestResult::passed()
+        }
+        quickcheck(prop as fn((), ()) -> TestResult);
+    }
+}
+'''
 
 [[test]]
 name = "set_difference_operator"
 description = "Set difference using - operator"
 tags = ["operator", "set"]
 
-[test.python]
-code = '''
+python = '''
 def test_difference(a: set, b: set) -> set:
     return a - b
 '''
 
-[test.assertions]
-contains_any = [[".difference(", "Sub", "-"]]
+rust = '''
+use serde_json;
+use std::collections::HashSet;
+pub fn test_difference(a: &HashSet<serde_json::Value>, b: &HashSet<serde_json::Value>) -> HashSet<serde_json::Value> {
+    return a.difference(&b).cloned().collect::<std::collections::HashSet<_>>();
+}
+'''
 
 [[test]]
 name = "set_symmetric_difference_operator"
 description = "Set symmetric difference using ^ operator"
 tags = ["operator", "set"]
 
-[test.python]
-code = '''
+python = '''
 def test_symmetric_diff(a: set, b: set) -> set:
     return a ^ b
 '''
 
-[test.assertions]
-contains_any = [[".symmetric_difference(", "BitXor", "^"]]
+rust = '''
+use serde_json;
+use std::collections::HashSet;
+pub fn test_symmetric_diff(
+    a: &HashSet<serde_json::Value>,
+    b: &HashSet<serde_json::Value>,
+) -> HashSet<serde_json::Value> {
+    return a
+        .symmetric_difference(&b)
+        .cloned()
+        .collect::<std::collections::HashSet<_>>();
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn quickcheck_test_symmetric_diff() {
+        fn prop(a: (), b: ()) -> TestResult {
+            let result1 = test_symmetric_diff(a.clone(), b.clone());
+            let result2 = test_symmetric_diff(b.clone(), a.clone());
+            if result1 != result2 {
+                return TestResult::failed();
+            }
+            TestResult::passed()
+        }
+        quickcheck(prop as fn((), ()) -> TestResult);
+    }
+}
+'''
 
 [[test]]
 name = "set_operations_chained"
 description = "Chained set operations"
 tags = ["operator", "set"]
 
-[test.python]
-code = '''
+python = '''
 def test_ops(a: set, b: set, c: set) -> set:
     return (a | b) & c
 '''
 
-[test.assertions]
-contains_any = [["&", "|", ".union(", ".intersection("]]
+rust = '''
+use serde_json;
+use std::collections::HashSet;
+pub fn test_ops(
+    a: &HashSet<serde_json::Value>,
+    b: &HashSet<serde_json::Value>,
+    c: &HashSet<serde_json::Value>,
+) -> HashSet<serde_json::Value> {
+    return a.union(&b).cloned().collect::<std::collections::HashSet<_>>() & c;
+}
+'''

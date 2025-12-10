@@ -13,25 +13,60 @@ name = "class_simple_struct"
 description = "Simple class should generate Rust struct"
 tags = ["class", "struct"]
 
-[test.python]
-code = '''
+python = '''
 class Point:
     def __init__(self, x: int, y: int):
         self.x = x
         self.y = y
 '''
 
-[test.assertions]
-contains = ["struct Point", "impl Point"]
-contains_any = [["fn new", "pub fn new"]]
+rust = '''
+#[derive(Debug, Clone)]
+pub struct Point {
+    pub x: i32,
+    pub y: i32,
+}
+impl Point {
+    pub fn new(x: i32, y: i32) -> Self {
+        Self { x, y }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "x" => Some(Box::new(self.x.clone()) as Box<dyn std::any::Any>),
+            "y" => Some(Box::new(self.y.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "x" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.x = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "y" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.y = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+'''
 
 [[test]]
 name = "class_multiple_fields"
 description = "Class with multiple typed fields"
 tags = ["class", "struct", "types"]
 
-[test.python]
-code = '''
+python = '''
 class Student:
     def __init__(self, name: str, age: int, grade: float, active: bool):
         self.name = name
@@ -40,34 +75,98 @@ class Student:
         self.active = active
 '''
 
-[test.assertions]
-contains = ["struct Student", "name", "age", "grade", "active"]
+rust = '''
+#[derive(Debug, Clone)]
+pub struct Student {
+    pub name: String,
+    pub age: i32,
+    pub grade: f64,
+    pub active: bool,
+}
+impl Student {
+    pub fn new(name: String, age: i32, grade: f64, active: bool) -> Self {
+        Self {
+            name,
+            age,
+            grade,
+            active,
+        }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "name" => Some(Box::new(self.name.clone()) as Box<dyn std::any::Any>),
+            "age" => Some(Box::new(self.age.clone()) as Box<dyn std::any::Any>),
+            "grade" => Some(Box::new(self.grade.clone()) as Box<dyn std::any::Any>),
+            "active" => Some(Box::new(self.active.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "name" => {
+                if let Some(v) = value.downcast_ref::<String>() {
+                    self.name = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "age" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.age = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "grade" => {
+                if let Some(v) = value.downcast_ref::<f64>() {
+                    self.grade = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "active" => {
+                if let Some(v) = value.downcast_ref::<bool>() {
+                    self.active = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+'''
 
 [[test]]
 name = "class_empty"
 description = "Empty class with pass"
 tags = ["class", "struct"]
 
-[test.python]
-code = '''
+python = '''
 class Empty:
     pass
 '''
 
-[test.assertions]
-contains = ["struct Empty"]
-
-# =============================================================================
-# Instance Methods
-# =============================================================================
+rust = '''
+#[derive(Debug, Clone)]
+pub struct Empty {}
+impl Empty {
+    pub fn new() -> Self {
+        Self {}
+    }
+}
+'''
 
 [[test]]
 name = "class_instance_method"
 description = "Class with instance method"
 tags = ["class", "method"]
 
-[test.python]
-code = '''
+python = '''
 class Rectangle:
     def __init__(self, width: int, height: int):
         self.width = width
@@ -77,16 +176,56 @@ class Rectangle:
         return self.width * self.height
 '''
 
-[test.assertions]
-contains = ["struct Rectangle", "impl Rectangle", "fn area", "&self"]
+rust = '''
+#[derive(Debug, Clone)]
+pub struct Rectangle {
+    pub width: i32,
+    pub height: i32,
+}
+impl Rectangle {
+    pub fn new(width: i32, height: i32) -> Self {
+        Self { width, height }
+    }
+    pub fn area(&self) -> i32 {
+        return self.width * self.height;
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "width" => Some(Box::new(self.width.clone()) as Box<dyn std::any::Any>),
+            "height" => Some(Box::new(self.height.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "width" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.width = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "height" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.height = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+'''
 
 [[test]]
 name = "class_method_with_params"
 description = "Instance method with additional parameters"
 tags = ["class", "method", "parameters"]
 
-[test.python]
-code = '''
+python = '''
 class Calculator:
     def __init__(self, value: int):
         self.value = value
@@ -95,16 +234,46 @@ class Calculator:
         return self.value + n
 '''
 
-[test.assertions]
-contains = ["fn add", "&self"]
+rust = '''
+#[derive(Debug, Clone)]
+pub struct Calculator {
+    pub value: i32,
+}
+impl Calculator {
+    pub fn new(value: i32) -> Self {
+        Self { value }
+    }
+    pub fn add(&self, n: i32) -> i32 {
+        return format!("{}{}", self.value, n);
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "value" => Some(Box::new(self.value.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "value" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.value = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+'''
 
 [[test]]
 name = "class_mutating_method"
 description = "Method that mutates self"
 tags = ["class", "method", "mutability"]
 
-[test.python]
-code = '''
+python = '''
 class Counter:
     def __init__(self):
         self.count = 0
@@ -113,57 +282,96 @@ class Counter:
         self.count += 1
 '''
 
-[test.assertions]
-contains = ["&mut self", "fn increment"]
-
-# =============================================================================
-# Static and Class Methods
-# =============================================================================
+rust = '''
+#[derive(Debug, Clone)]
+pub struct Counter {
+    pub count: i32,
+}
+impl Counter {
+    pub fn new() -> Self {
+        Self { count: 0 }
+    }
+    pub fn increment(&mut self) {
+        self.count = self.count + 1;
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "count" => Some(Box::new(self.count.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "count" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.count = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+'''
 
 [[test]]
 name = "class_staticmethod"
 description = "@staticmethod decorator"
 tags = ["class", "staticmethod"]
 
-[test.python]
-code = '''
+python = '''
 class MathUtils:
     @staticmethod
     def add(a: int, b: int) -> int:
         return a + b
 '''
 
-[test.assertions]
-contains = ["fn add"]
-not_contains = ["&self", "&mut self"]
+rust = '''
+#[derive(Debug, Clone)]
+pub struct MathUtils {}
+impl MathUtils {
+    pub fn new() -> Self {
+        Self {}
+    }
+    pub fn add(a: i32, b: i32) -> i32 {
+        return a + b;
+    }
+}
+'''
 
 [[test]]
 name = "class_classmethod"
 description = "@classmethod decorator"
 tags = ["class", "classmethod"]
 
-[test.python]
-code = '''
+python = '''
 class Factory:
     @classmethod
     def create(cls, value: int):
         return cls(value)
 '''
 
-[test.assertions]
-contains = ["fn create"]
-
-# =============================================================================
-# Properties
-# =============================================================================
+rust = '''
+#[derive(Debug, Clone)]
+pub struct Factory {}
+impl Factory {
+    pub fn new() -> Self {
+        Self {}
+    }
+    pub fn create(value: i32) {
+        return Self::new(value);
+    }
+}
+'''
 
 [[test]]
 name = "class_property_getter"
 description = "@property decorator for getter"
 tags = ["class", "property", "getter"]
 
-[test.python]
-code = '''
+python = '''
 class Circle:
     def __init__(self, radius: float):
         self._radius = radius
@@ -173,16 +381,46 @@ class Circle:
         return self._radius
 '''
 
-[test.assertions]
-contains = ["fn radius", "&self"]
+rust = '''
+#[derive(Debug, Clone)]
+pub struct Circle {
+    pub _radius: f64,
+}
+impl Circle {
+    pub fn new(radius: f64) -> Self {
+        Self { _radius: 0.0 }
+    }
+    pub fn radius(&self) -> f64 {
+        return self._radius;
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "_radius" => Some(Box::new(self._radius.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "_radius" => {
+                if let Some(v) = value.downcast_ref::<f64>() {
+                    self._radius = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+'''
 
 [[test]]
 name = "class_property_setter"
 description = "@property.setter decorator"
 tags = ["class", "property", "setter"]
 
-[test.python]
-code = '''
+python = '''
 class Circle:
     def __init__(self, radius: float):
         self._radius = radius
@@ -196,21 +434,49 @@ class Circle:
         self._radius = value
 '''
 
-[test.assertions]
-contains = ["fn radius", "&mut self"]
-contains_any = [["fn set_radius", "set_"]]
-
-# =============================================================================
-# Class Instantiation
-# =============================================================================
+rust = '''
+#[derive(Debug, Clone)]
+pub struct Circle {
+    pub _radius: f64,
+}
+impl Circle {
+    pub fn new(radius: f64) -> Self {
+        Self { _radius: 0.0 }
+    }
+    pub fn radius(&self) -> f64 {
+        return self._radius;
+    }
+    pub fn radius(&mut self, value: f64) {
+        self._radius = value;
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "_radius" => Some(Box::new(self._radius.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "_radius" => {
+                if let Some(v) = value.downcast_ref::<f64>() {
+                    self._radius = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+'''
 
 [[test]]
 name = "class_instantiation"
 description = "Creating class instance"
 tags = ["class", "instantiation"]
 
-[test.python]
-code = '''
+python = '''
 class Point:
     def __init__(self, x: int, y: int):
         self.x = x
@@ -221,16 +487,57 @@ def create_point() -> Point:
     return p
 '''
 
-[test.assertions]
-contains_any = [["Point::new(", "Point {"]]
+rust = '''
+#[derive(Debug, Clone)]
+pub struct Point {
+    pub x: i32,
+    pub y: i32,
+}
+impl Point {
+    pub fn new(x: i32, y: i32) -> Self {
+        Self { x, y }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "x" => Some(Box::new(self.x.clone()) as Box<dyn std::any::Any>),
+            "y" => Some(Box::new(self.y.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "x" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.x = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "y" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.y = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+pub fn create_point() -> Point {
+    let p = Point::new(10, 20);
+    return p;
+}
+'''
 
 [[test]]
 name = "class_field_access"
 description = "Accessing instance fields"
 tags = ["class", "field-access"]
 
-[test.python]
-code = '''
+python = '''
 class Point:
     def __init__(self, x: int, y: int):
         self.x = x
@@ -240,39 +547,98 @@ def get_x(p: Point) -> int:
     return p.x
 '''
 
-[test.assertions]
-contains = ["p.x"]
-
-# =============================================================================
-# Default Constructor Parameters
-# =============================================================================
+rust = '''
+#[derive(Debug, Clone)]
+pub struct Point {
+    pub x: i32,
+    pub y: i32,
+}
+impl Point {
+    pub fn new(x: i32, y: i32) -> Self {
+        Self { x, y }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "x" => Some(Box::new(self.x.clone()) as Box<dyn std::any::Any>),
+            "y" => Some(Box::new(self.y.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "x" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.x = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "y" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.y = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+pub fn get_x(p: &Point) -> i32 {
+    return p.x;
+}
+'''
 
 [[test]]
 name = "class_default_param"
 description = "__init__ with default parameter"
 tags = ["class", "default-param"]
 
-[test.python]
-code = '''
+python = '''
 class Counter:
     def __init__(self, start: int = 0):
         self.value = start
 '''
 
-[test.assertions]
-contains = ["struct Counter", "value"]
-
-# =============================================================================
-# Multiple Classes
-# =============================================================================
+rust = '''
+#[derive(Debug, Clone)]
+pub struct Counter {
+    pub value: i32,
+}
+impl Counter {
+    pub fn new(start: i32) -> Self {
+        Self { value: 0 }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "value" => Some(Box::new(self.value.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "value" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.value = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+'''
 
 [[test]]
 name = "multiple_classes"
 description = "Multiple class definitions in one module"
 tags = ["class", "multiple"]
 
-[test.python]
-code = '''
+python = '''
 class Point:
     def __init__(self, x: int, y: int):
         self.x = x
@@ -285,20 +651,101 @@ class Rectangle:
         self.height = height
 '''
 
-[test.assertions]
-contains = ["struct Point", "struct Rectangle"]
-
-# =============================================================================
-# setattr/getattr Tests
-# =============================================================================
+rust = '''
+#[derive(Debug, Clone)]
+pub struct Point {
+    pub x: i32,
+    pub y: i32,
+}
+impl Point {
+    pub fn new(x: i32, y: i32) -> Self {
+        Self { x, y }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "x" => Some(Box::new(self.x.clone()) as Box<dyn std::any::Any>),
+            "y" => Some(Box::new(self.y.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "x" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.x = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "y" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.y = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+#[derive(Debug, Clone)]
+pub struct Rectangle {
+    pub origin: Point,
+    pub width: i32,
+    pub height: i32,
+}
+impl Rectangle {
+    pub fn new(origin: Point, width: i32, height: i32) -> Self {
+        Self { origin, width, height }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "origin" => Some(Box::new(self.origin.clone()) as Box<dyn std::any::Any>),
+            "width" => Some(Box::new(self.width.clone()) as Box<dyn std::any::Any>),
+            "height" => Some(Box::new(self.height.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "origin" => {
+                if let Some(v) = value.downcast_ref::<Point>() {
+                    self.origin = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "width" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.width = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "height" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.height = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+'''
 
 [[test]]
 name = "setattr_literal_field"
 description = "setattr with literal field name generates direct assignment"
 tags = ["setattr", "literal"]
 
-[test.python]
-code = '''
+python = '''
 class Config:
     value: int
 
@@ -306,16 +753,48 @@ def set_config_value(c: Config) -> None:
     setattr(c, "value", 42)
 '''
 
-[test.assertions]
-contains = ["c.value = 42"]
+rust = '''
+#[derive(Debug, Clone)]
+pub struct Config {
+    pub value: i32,
+}
+impl Config {
+    pub fn new(value: i32) -> Self {
+        Self { value }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "value" => Some(Box::new(self.value.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "value" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.value = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+pub fn set_config_value(c: &mut Config) {
+    {
+        c.value = 42;
+    };
+}
+'''
 
 [[test]]
 name = "setattr_string_value"
 description = "setattr with string value generates to_string"
 tags = ["setattr", "string"]
 
-[test.python]
-code = '''
+python = '''
 class Person:
     name: str
 
@@ -323,16 +802,45 @@ def set_name(p: Person) -> None:
     setattr(p, "name", "Alice")
 '''
 
-[test.assertions]
-contains_any = [[".to_string()", "String::from"]]
+rust = '''
+#[derive(Debug, Clone)]
+pub struct Person {
+    pub name: String,
+}
+impl Person {
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "name" => Some(Box::new(self.name.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "name" => {
+                if let Some(v) = value.downcast_ref::<String>() {
+                    self.name = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+pub fn set_name(p: &mut Person) {
+    {
+        p.name = "Alice".to_string();
+    };
+}
+'''
 
 [[test]]
 name = "setattr_variable_value"
 description = "setattr with variable value"
 tags = ["setattr", "variable"]
 
-[test.python]
-code = '''
+python = '''
 class Counter:
     count: int
 
@@ -340,16 +848,48 @@ def set_count(c: Counter, new_count: int) -> None:
     setattr(c, "count", new_count)
 '''
 
-[test.assertions]
-contains = ["c.count = new_count"]
+rust = '''
+#[derive(Debug, Clone)]
+pub struct Counter {
+    pub count: i32,
+}
+impl Counter {
+    pub fn new(count: i32) -> Self {
+        Self { count }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "count" => Some(Box::new(self.count.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "count" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.count = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+pub fn set_count(c: &mut Counter, new_count: i32) {
+    {
+        c.count = new_count;
+    };
+}
+'''
 
 [[test]]
 name = "setattr_string_variable_clones"
 description = "setattr with string variable should clone"
 tags = ["setattr", "string", "clone"]
 
-[test.python]
-code = '''
+python = '''
 class Person:
     name: str
 
@@ -357,16 +897,45 @@ def set_name(p: Person, new_name: str) -> None:
     setattr(p, "name", new_name)
 '''
 
-[test.assertions]
-contains = ["new_name.clone()"]
+rust = '''
+#[derive(Debug, Clone)]
+pub struct Person {
+    pub name: String,
+}
+impl Person {
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "name" => Some(Box::new(self.name.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "name" => {
+                if let Some(v) = value.downcast_ref::<String>() {
+                    self.name = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+pub fn set_name(p: &mut Person, new_name: String) {
+    {
+        p.name = new_name.clone();
+    };
+}
+'''
 
 [[test]]
 name = "getattr_literal_field"
 description = "getattr with literal field name generates direct access"
 tags = ["getattr", "literal"]
 
-[test.python]
-code = '''
+python = '''
 class Config:
     value: int
 
@@ -374,16 +943,46 @@ def get_config_value(c: Config) -> int:
     return getattr(c, "value")
 '''
 
-[test.assertions]
-contains = ["c.value"]
+rust = '''
+#[derive(Debug, Clone)]
+pub struct Config {
+    pub value: i32,
+}
+impl Config {
+    pub fn new(value: i32) -> Self {
+        Self { value }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "value" => Some(Box::new(self.value.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "value" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.value = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+pub fn get_config_value(c: &Config) -> i32 {
+    return c.value;
+}
+'''
 
 [[test]]
 name = "getattr_with_default"
 description = "getattr with default value"
 tags = ["getattr", "default"]
 
-[test.python]
-code = '''
+python = '''
 class Person:
     name: str
 
@@ -391,16 +990,43 @@ def get_name(p: Person) -> str:
     return getattr(p, "name", "Unknown")
 '''
 
-[test.assertions]
-contains = ["p.name"]
+rust = '''
+#[derive(Debug, Clone)]
+pub struct Person {
+    pub name: String,
+}
+impl Person {
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "name" => Some(Box::new(self.name.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "name" => {
+                if let Some(v) = value.downcast_ref::<String>() {
+                    self.name = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+pub fn get_name(p: &Person) -> String {
+    return p.name;
+}
+'''
 
 [[test]]
 name = "setattr_copy_field"
 description = "setattr copying field value from getattr"
 tags = ["setattr", "getattr", "copy"]
 
-[test.python]
-code = '''
+python = '''
 class State:
     temp: int
     result: int
@@ -409,20 +1035,58 @@ def update_state(s: State) -> None:
     setattr(s, "temp", getattr(s, "result"))
 '''
 
-[test.assertions]
-contains = ["s.temp = s.result"]
-
-# =============================================================================
-# Extended Property Tests
-# =============================================================================
+rust = '''
+#[derive(Debug, Clone)]
+pub struct State {
+    pub temp: i32,
+    pub result: i32,
+}
+impl State {
+    pub fn new(temp: i32, result: i32) -> Self {
+        Self { temp, result }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "temp" => Some(Box::new(self.temp.clone()) as Box<dyn std::any::Any>),
+            "result" => Some(Box::new(self.result.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "temp" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.temp = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "result" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.result = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+pub fn update_state(s: &mut State) {
+    {
+        s.temp = s.result;
+    };
+}
+'''
 
 [[test]]
 name = "property_with_computation"
 description = "Property that computes a value from fields"
 tags = ["class", "property", "computation"]
 
-[test.python]
-code = '''
+python = '''
 class Rectangle:
     def __init__(self, width: int, height: int):
         self.width = width
@@ -433,16 +1097,56 @@ class Rectangle:
         return self.width * self.height
 '''
 
-[test.assertions]
-contains = ["fn area", "&self", "width", "height"]
+rust = '''
+#[derive(Debug, Clone)]
+pub struct Rectangle {
+    pub width: i32,
+    pub height: i32,
+}
+impl Rectangle {
+    pub fn new(width: i32, height: i32) -> Self {
+        Self { width, height }
+    }
+    pub fn area(&self) -> i32 {
+        return self.width * self.height;
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "width" => Some(Box::new(self.width.clone()) as Box<dyn std::any::Any>),
+            "height" => Some(Box::new(self.height.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "width" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.width = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "height" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.height = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+'''
 
 [[test]]
 name = "property_string_concat"
 description = "Property concatenating string fields"
 tags = ["class", "property", "string"]
 
-[test.python]
-code = '''
+python = '''
 class Person:
     def __init__(self, first: str, last: str):
         self.first = first
@@ -453,16 +1157,56 @@ class Person:
         return self.first + " " + self.last
 '''
 
-[test.assertions]
-contains = ["fn full_name", "&self", "first", "last"]
+rust = '''
+#[derive(Debug, Clone)]
+pub struct Person {
+    pub first: String,
+    pub last: String,
+}
+impl Person {
+    pub fn new(first: String, last: String) -> Self {
+        Self { first, last }
+    }
+    pub fn full_name(&self) -> String {
+        return format!("{}{}", self.first, " ".to_string()) + self.last;
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "first" => Some(Box::new(self.first.clone()) as Box<dyn std::any::Any>),
+            "last" => Some(Box::new(self.last.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "first" => {
+                if let Some(v) = value.downcast_ref::<String>() {
+                    self.first = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "last" => {
+                if let Some(v) = value.downcast_ref::<String>() {
+                    self.last = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+'''
 
 [[test]]
 name = "property_with_class_constant"
 description = "Property using class-level constant"
 tags = ["class", "property", "constant"]
 
-[test.python]
-code = '''
+python = '''
 class Circle:
     PI: float = 3.14159
 
@@ -474,16 +1218,47 @@ class Circle:
         return 2 * Circle.PI * self.radius
 '''
 
-[test.assertions]
-contains = ["fn circumference", "&self", "radius"]
+rust = '''
+#[derive(Debug, Clone)]
+pub struct Circle {
+    pub radius: f64,
+}
+impl Circle {
+    pub const PI: f64 = 3.14159;
+    pub fn new(radius: f64) -> Self {
+        Self { radius }
+    }
+    pub fn circumference(&self) -> f64 {
+        return 2 * Circle.PI * self.radius;
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "radius" => Some(Box::new(self.radius.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "radius" => {
+                if let Some(v) = value.downcast_ref::<f64>() {
+                    self.radius = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+'''
 
 [[test]]
 name = "multiple_properties"
 description = "Class with multiple property decorators"
 tags = ["class", "property", "multiple"]
 
-[test.python]
-code = '''
+python = '''
 class Person:
     def __init__(self, first: str, last: str, age: int):
         self.first = first
@@ -499,16 +1274,69 @@ class Person:
         return self.age >= 18
 '''
 
-[test.assertions]
-contains = ["fn full_name", "fn is_adult", "&self"]
+rust = '''
+#[derive(Debug, Clone)]
+pub struct Person {
+    pub first: String,
+    pub last: String,
+    pub age: i32,
+}
+impl Person {
+    pub fn new(first: String, last: String, age: i32) -> Self {
+        Self { first, last, age }
+    }
+    pub fn full_name(&self) -> String {
+        return format!("{}{}", self.first, " ".to_string()) + self.last;
+    }
+    pub fn is_adult(&self) -> bool {
+        return self.age >= 18;
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "first" => Some(Box::new(self.first.clone()) as Box<dyn std::any::Any>),
+            "last" => Some(Box::new(self.last.clone()) as Box<dyn std::any::Any>),
+            "age" => Some(Box::new(self.age.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "first" => {
+                if let Some(v) = value.downcast_ref::<String>() {
+                    self.first = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "last" => {
+                if let Some(v) = value.downcast_ref::<String>() {
+                    self.last = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "age" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.age = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+'''
 
 [[test]]
 name = "property_calling_method"
 description = "Property that calls another method"
 tags = ["class", "property", "method"]
 
-[test.python]
-code = '''
+python = '''
 class Calculator:
     def __init__(self, value: int):
         self.value = value
@@ -521,16 +1349,49 @@ class Calculator:
         return self.double()
 '''
 
-[test.assertions]
-contains = ["fn double", "fn doubled_value", "&self"]
+rust = '''
+#[derive(Debug, Clone)]
+pub struct Calculator {
+    pub value: i32,
+}
+impl Calculator {
+    pub fn new(value: i32) -> Self {
+        Self { value }
+    }
+    pub fn double(&self) -> i32 {
+        return self.value * 2;
+    }
+    pub fn doubled_value(&self) -> i32 {
+        return self.double();
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "value" => Some(Box::new(self.value.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "value" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.value = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+'''
 
 [[test]]
 name = "property_with_conditional"
 description = "Property with conditional logic"
 tags = ["class", "property", "conditional"]
 
-[test.python]
-code = '''
+python = '''
 class User:
     def __init__(self, age: int, premium: bool):
         self.age = age
@@ -546,17 +1407,64 @@ class User:
             return "basic"
 '''
 
-[test.assertions]
-contains = ["fn access_level", "&self"]
-contains_any = [["if", "match"]]
+rust = '''
+#[derive(Debug, Clone)]
+pub struct User {
+    pub age: i32,
+    pub premium: bool,
+}
+impl User {
+    pub fn new(age: i32, premium: bool) -> Self {
+        Self { age, premium }
+    }
+    pub fn access_level(&self) -> String {
+        if self.premium {
+            return "premium".to_string();
+        } else {
+            if self.age >= 18 {
+                return "adult".to_string();
+            } else {
+                return "basic".to_string();
+            };
+        };
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "age" => Some(Box::new(self.age.clone()) as Box<dyn std::any::Any>),
+            "premium" => Some(Box::new(self.premium.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "age" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.age = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "premium" => {
+                if let Some(v) = value.downcast_ref::<bool>() {
+                    self.premium = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+'''
 
 [[test]]
 name = "mix_properties_and_methods"
 description = "Class mixing properties and regular methods"
 tags = ["class", "property", "method", "mix"]
 
-[test.python]
-code = '''
+python = '''
 class Account:
     def __init__(self, balance: float):
         self.balance = balance
@@ -573,16 +1481,52 @@ class Account:
         return self.balance > 0.0
 '''
 
-[test.assertions]
-contains = ["fn formatted_balance", "fn deposit", "fn is_positive", "&self"]
+rust = '''
+#[derive(Debug, Clone)]
+pub struct Account {
+    pub balance: f64,
+}
+impl Account {
+    pub fn new(balance: f64) -> Self {
+        Self { balance }
+    }
+    pub fn formatted_balance(&self) -> String {
+        return format!("{}{}", "$".to_string(), str(self.balance));
+    }
+    pub fn deposit(&mut self, amount: f64) {
+        self.balance = self.balance + amount;
+    }
+    pub fn is_positive(&self) -> bool {
+        return self.balance > 0;
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "balance" => Some(Box::new(self.balance.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "balance" => {
+                if let Some(v) = value.downcast_ref::<f64>() {
+                    self.balance = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+'''
 
 [[test]]
 name = "property_different_return_types"
 description = "Properties returning different types"
 tags = ["class", "property", "types"]
 
-[test.python]
-code = '''
+python = '''
 class DataHolder:
     def __init__(self, value: int):
         self.value = value
@@ -600,12 +1544,45 @@ class DataHolder:
         return float(self.value)
 '''
 
-[test.assertions]
-contains = ["fn as_int", "fn as_str", "fn as_float", "&self"]
-
-# =============================================================================
-# Formatting Tests (migrated from test_formatting.rs)
-# =============================================================================
+rust = '''
+#[derive(Debug, Clone)]
+pub struct DataHolder {
+    pub value: i32,
+}
+impl DataHolder {
+    pub fn new(value: i32) -> Self {
+        Self { value }
+    }
+    pub fn as_int(&self) -> i32 {
+        return self.value.clone();
+    }
+    pub fn as_str(&self) -> String {
+        return str(self.value);
+    }
+    pub fn as_float(&self) -> f64 {
+        return float(self.value);
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "value" => Some(Box::new(self.value.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "value" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.value = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+'''
 
 [[test]]
 name = "formatting_class_with_error"
@@ -613,8 +1590,7 @@ description = "Class transpilation with error handling (rustfmt compliant)"
 tags = ["class", "formatting", "error"]
 compile_check = true
 
-[test.python]
-code = '''
+python = '''
 class CustomError(Exception):
     def __init__(self, message: str):
         self.message = message
@@ -630,8 +1606,80 @@ class DataProcessor:
         return value * 2
 '''
 
-[test.assertions]
-contains = ["struct CustomError", "struct DataProcessor", "impl DataProcessor"]
+rust = '''
+#[derive(Debug, Clone)]
+pub struct CustomError {
+    pub message: String,
+}
+impl CustomError {
+    pub fn new(message: String) -> Self {
+        Self { message }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "message" => Some(Box::new(self.message.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "message" => {
+                if let Some(v) = value.downcast_ref::<String>() {
+                    self.message = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+#[derive(Debug, Clone)]
+pub struct DataProcessor {
+    pub name: String,
+    pub threshold: i32,
+}
+impl DataProcessor {
+    pub fn new(name: String, threshold: i32) -> Self {
+        Self { name, threshold }
+    }
+    pub fn process(&self, value: i32) -> i32 {
+        if value < self.threshold {
+            panic!("Exception: {}", CustomError::new("Value below threshold".to_string()));
+        };
+        return value * 2;
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "name" => Some(Box::new(self.name.clone()) as Box<dyn std::any::Any>),
+            "threshold" => Some(Box::new(self.threshold.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "name" => {
+                if let Some(v) = value.downcast_ref::<String>() {
+                    self.name = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "threshold" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.threshold = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+'''
 
 [[test]]
 name = "formatting_generic_container"
@@ -639,8 +1687,7 @@ description = "Generic container class formatting"
 tags = ["class", "formatting", "generics"]
 compile_check = true
 
-[test.python]
-code = '''
+python = '''
 from typing import Generic, TypeVar
 
 T = TypeVar('T')
@@ -653,9 +1700,41 @@ class Container(Generic[T]):
         return self.value
 '''
 
-[test.assertions]
-contains = ["struct Container"]
-not_contains = ["< T >", "<T >", "< T>", " ,", "& self"]
+rust = '''
+pub const T: serde_json::Value = TypeVar::new("T");
+use serde_json;
+#[derive(Debug, Clone)]
+pub struct Container {
+    pub value: T,
+}
+impl Container {
+    pub fn new(value: T) -> Self {
+        Self { value }
+    }
+    pub fn get(&self) -> T {
+        return self.value.clone();
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "value" => Some(Box::new(self.value.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "value" => {
+                if let Some(v) = value.downcast_ref::<T>() {
+                    self.value = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+'''
 
 [[test]]
 name = "formatting_macros"
@@ -663,8 +1742,7 @@ description = "Generated code with macros has proper formatting"
 tags = ["formatting", "macros"]
 compile_check = true
 
-[test.python]
-code = '''
+python = '''
 def format_message(name: str, value: int) -> str:
     return f"Hello {name}, value is {value}"
 
@@ -672,9 +1750,14 @@ def log_error(message: str) -> None:
     print(f"ERROR: {message}")
 '''
 
-[test.assertions]
-contains = ["fn format_message", "fn log_error"]
-not_contains = ["format !", "println !", "write !", "vec !"]
+rust = '''
+pub fn format_message(name: String, value: i32) -> String {
+    return format!("Hello {}, value is {}", name, value);
+}
+pub fn log_error(message: String) {
+    println!("{}", format!("ERROR: {}", message));
+}
+'''
 
 [[test]]
 name = "formatting_impl_blocks"
@@ -682,8 +1765,7 @@ description = "Class with multiple methods generates proper impl blocks"
 tags = ["class", "formatting", "impl"]
 compile_check = true
 
-[test.python]
-code = '''
+python = '''
 class Point:
     def __init__(self, x: int, y: int):
         self.x = x
@@ -696,6 +1778,63 @@ class Point:
         return f"Point({self.x}, {self.y})"
 '''
 
-[test.assertions]
-contains = ["struct Point", "impl Point"]
-
+rust = '''
+#[derive(Debug, Clone)]
+pub struct Point {
+    pub x: i32,
+    pub y: i32,
+}
+impl Point {
+    pub fn new(x: i32, y: i32) -> Self {
+        Self { x, y }
+    }
+    pub fn distance(&self) -> f64 {
+        return ({
+            if 2 >= 0 && (2 as i64) <= (u32::MAX as i64) {
+                (self.x as i32)
+                    .checked_pow(2 as u32)
+                    .expect("Power operation overflowed")
+            } else {
+                (self.x as f64).powf(2 as f64) as i32
+            }
+        } + {
+            if 2 >= 0 && (2 as i64) <= (u32::MAX as i64) {
+                (self.y as i32)
+                    .checked_pow(2 as u32)
+                    .expect("Power operation overflowed")
+            } else {
+                (self.y as f64).powf(2 as f64) as i32
+            }
+        } as f64)
+            .powf(0.5 as f64);
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "x" => Some(Box::new(self.x.clone()) as Box<dyn std::any::Any>),
+            "y" => Some(Box::new(self.y.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "x" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.x = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "y" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.y = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+'''

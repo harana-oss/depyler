@@ -76,6 +76,7 @@ pub mod debug_cmd;
 pub mod docs_cmd;
 pub mod interactive;
 pub mod profile_cmd;
+pub mod test_cmd;
 
 #[derive(Parser)]
 #[command(name = "depyler")]
@@ -337,6 +338,29 @@ pub enum Commands {
     /// Background agent mode with MCP integration
     #[command(subcommand)]
     Agent(AgentCommands),
+
+    /// Run TOML-based transpilation tests
+    Test {
+        /// Path to test directory or specific TOML file
+        #[arg(short, long)]
+        path: Option<PathBuf>,
+
+        /// Filter tests by name
+        #[arg(short, long)]
+        filter: Option<String>,
+
+        /// Enable verbose output
+        #[arg(short, long)]
+        verbose: bool,
+
+        /// Run tests in parallel using Rayon
+        #[arg(long, short = 'j')]
+        parallel: bool,
+
+        /// Compile generated Rust code to verify it's valid
+        #[arg(long, short = 'c')]
+        compile: bool,
+    },
 }
 
 #[derive(Subcommand)]

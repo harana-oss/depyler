@@ -9,143 +9,978 @@ category = "dunder-methods"
 # __format__
 # =============================================================================
 
-# TODO: Test __format__ basic
-# [[test]]
-# name = "dunder_format"
-# description = "def __format__(self, spec): return formatted_string"
+[[test]]
+name = "dunder_format"
+description = "def __format__(self, spec): return formatted_string"
+python = """
+class Point:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+    
+    def __format__(self, spec):
+        if spec == 'polar':
+            import math
+            r = math.sqrt(self.x**2 + self.y**2)
+            theta = math.atan2(self.y, self.x)
+            return f"({r:.2f}, {theta:.2f})"
+        return f"({self.x}, {self.y})"
 
-# TODO: Test format() builtin
-# [[test]]
-# name = "format_builtin"
-# description = "format(obj, spec) calls obj.__format__(spec)"
+p = Point(3, 4)
+print(format(p))
+print(format(p, 'polar'))
+"""
+rust = """
+use std::fmt;
 
-# TODO: Test f-string uses __format__
-# [[test]]
-# name = "fstring_format"
-# description = "f'{obj:spec}' calls __format__"
+struct Point {
+    x: f64,
+    y: f64,
+}
 
-# TODO: Test __format__ with empty spec
-# [[test]]
-# name = "format_empty_spec"
-# description = "__format__('') default formatting"
+impl Point {
+    fn new(x: f64, y: f64) -> Self {
+        Point { x, y }
+    }
+}
+
+impl fmt::Display for Point {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "({}, {})", self.x, self.y)
+    }
+}
+
+fn main() {
+    let p = Point::new(3.0, 4.0);
+    println!("{}", p);
+    // Polar format would require custom implementation
+    let r = (p.x.powi(2) + p.y.powi(2)).sqrt();
+    let theta = p.y.atan2(p.x);
+    println!("({:.2}, {:.2})", r, theta);
+}
+"""
+expected_output = """(3, 4)
+(5.00, 0.93)"""
+
+[[test]]
+name = "format_builtin"
+description = "format(obj, spec) calls obj.__format__(spec)"
+python = """
+class Temperature:
+    def __init__(self, celsius):
+        self.celsius = celsius
+    
+    def __format__(self, spec):
+        if spec == 'F':
+            return f"{self.celsius * 9/5 + 32:.1f}°F"
+        elif spec == 'K':
+            return f"{self.celsius + 273.15:.1f}K"
+        return f"{self.celsius:.1f}°C"
+
+temp = Temperature(25)
+print(format(temp))
+print(format(temp, 'F'))
+print(format(temp, 'K'))
+"""
+rust = """
+use std::fmt;
+
+struct Temperature {
+    celsius: f64,
+}
+
+impl Temperature {
+    fn new(celsius: f64) -> Self {
+        Temperature { celsius }
+    }
+    
+    fn format_spec(&self, spec: &str) -> String {
+        match spec {
+            "F" => format!("{:.1}°F", self.celsius * 9.0/5.0 + 32.0),
+            "K" => format!("{:.1}K", self.celsius + 273.15),
+            _ => format!("{:.1}°C", self.celsius),
+        }
+    }
+}
+
+fn main() {
+    let temp = Temperature::new(25.0);
+    println!("{}", temp.format_spec(""));
+    println!("{}", temp.format_spec("F"));
+    println!("{}", temp.format_spec("K"));
+}
+"""
+expected_output = """25.0°C
+77.0°F
+298.2K"""
+
+[[test]]
+name = "fstring_format"
+description = "f'{obj:spec}' calls __format__"
+python = """
+class Money:
+    def __init__(self, amount):
+        self.amount = amount
+    
+    def __format__(self, spec):
+        if spec == 'USD':
+            return f"${self.amount:.2f}"
+        elif spec == 'EUR':
+            return f"€{self.amount:.2f}"
+        return f"{self.amount:.2f}"
+
+m = Money(42.5)
+print(f"{m}")
+print(f"{m:USD}")
+print(f"{m:EUR}")
+"""
+rust = """
+struct Money {
+    amount: f64,
+}
+
+impl Money {
+    fn new(amount: f64) -> Self {
+        Money { amount }
+    }
+    
+    fn format_spec(&self, spec: &str) -> String {
+        match spec {
+            "USD" => format!("${:.2}", self.amount),
+            "EUR" => format!("€{:.2}", self.amount),
+            _ => format!("{:.2}", self.amount),
+        }
+    }
+}
+
+fn main() {
+    let m = Money::new(42.5);
+    println!("{}", m.format_spec(""));
+    println!("{}", m.format_spec("USD"));
+    println!("{}", m.format_spec("EUR"));
+}
+"""
+expected_output = """42.50
+$42.50
+€42.50"""
+
+[[test]]
+name = "format_empty_spec"
+description = "__format__('') default formatting"
+python = """
+class Person:
+    def __init__(self, name):
+        self.name = name
+    
+    def __format__(self, spec):
+        if not spec:
+            return self.name
+        return f"Person({self.name})"
+
+p = Person("Alice")
+print(f"{p}")
+print(f"{p:full}")
+"""
+rust = """
+struct Person {
+    name: String,
+}
+
+impl Person {
+    fn new(name: &str) -> Self {
+        Person { name: name.to_string() }
+    }
+    
+    fn format_spec(&self, spec: &str) -> String {
+        if spec.is_empty() {
+            self.name.clone()
+        } else {
+            format!("Person({})", self.name)
+        }
+    }
+}
+
+fn main() {
+    let p = Person::new("Alice");
+    println!("{}", p.format_spec(""));
+    println!("{}", p.format_spec("full"));
+}
+"""
+expected_output = """Alice
+Person(Alice)"""
 
 # =============================================================================
 # __format__ Specifications
 # =============================================================================
 
-# TODO: Test custom format spec
-# [[test]]
-# name = "format_custom_spec"
-# description = "Custom format specification language"
+[[test]]
+name = "format_custom_spec"
+description = "Custom format specification language"
+python = """
+class Color:
+    def __init__(self, r, g, b):
+        self.r = r
+        self.g = g
+        self.b = b
+    
+    def __format__(self, spec):
+        if spec == 'hex':
+            return f"#{self.r:02x}{self.g:02x}{self.b:02x}"
+        elif spec == 'rgb':
+            return f"rgb({self.r}, {self.g}, {self.b})"
+        return f"Color({self.r}, {self.g}, {self.b})"
 
-# TODO: Test width and alignment
-# [[test]]
-# name = "format_width"
-# description = "f'{obj:>10}' right align with width"
+c = Color(255, 128, 64)
+print(f"{c}")
+print(f"{c:hex}")
+print(f"{c:rgb}")
+"""
+rust = """
+struct Color {
+    r: u8,
+    g: u8,
+    b: u8,
+}
 
-# TODO: Test fill character
-# [[test]]
-# name = "format_fill"
-# description = "f'{obj:*^10}' fill with *"
+impl Color {
+    fn new(r: u8, g: u8, b: u8) -> Self {
+        Color { r, g, b }
+    }
+    
+    fn format_spec(&self, spec: &str) -> String {
+        match spec {
+            "hex" => format!("#{:02x}{:02x}{:02x}", self.r, self.g, self.b),
+            "rgb" => format!("rgb({}, {}, {})", self.r, self.g, self.b),
+            _ => format!("Color({}, {}, {})", self.r, self.g, self.b),
+        }
+    }
+}
+
+fn main() {
+    let c = Color::new(255, 128, 64);
+    println!("{}", c.format_spec(""));
+    println!("{}", c.format_spec("hex"));
+    println!("{}", c.format_spec("rgb"));
+}
+"""
+expected_output = """Color(255, 128, 64)
+#ff8040
+rgb(255, 128, 64)"""
+
+[[test]]
+name = "format_width"
+description = "f'{obj:>10}' right align with width"
+python = """
+class Item:
+    def __init__(self, value):
+        self.value = value
+    
+    def __format__(self, spec):
+        result = str(self.value)
+        if spec:
+            return format(result, spec)
+        return result
+
+item = Item(42)
+print(f"'{item:>10}'")
+print(f"'{item:<10}'")
+print(f"'{item:^10}'")
+"""
+rust = """
+struct Item {
+    value: i32,
+}
+
+impl Item {
+    fn new(value: i32) -> Self {
+        Item { value }
+    }
+}
+
+fn main() {
+    let item = Item::new(42);
+    println!("'{:>10}'", item.value);
+    println!("'{:<10}'", item.value);
+    println!("'{:^10}'", item.value);
+}
+"""
+expected_output = """'        42'
+'42        '
+'    42    '"""
+
+[[test]]
+name = "format_fill"
+description = "f'{obj:*^10}' fill with *"
+python = """
+class Label:
+    def __init__(self, text):
+        self.text = text
+    
+    def __format__(self, spec):
+        if spec:
+            return format(self.text, spec)
+        return self.text
+
+label = Label("Hi")
+print(f"{label:*^10}")
+print(f"{label:=>10}")
+print(f"{label:-<10}")
+"""
+rust = """
+fn main() {
+    let label = "Hi";
+    // Rust's formatting doesn't support custom fill characters as easily
+    // Manual implementation:
+    let width = 10;
+    let len = label.len();
+    let padding = width.saturating_sub(len);
+    
+    // Center with *
+    let left = padding / 2;
+    let right = padding - left;
+    println!("{}{}{}", "*".repeat(left), label, "*".repeat(right));
+    
+    // Right align with =
+    println!("{}{}", "=".repeat(padding), label);
+    
+    // Left align with -
+    println!("{}{}", label, "-".repeat(padding));
+}
+"""
+expected_output = """****Hi****
+========Hi
+Hi--------"""
 
 # =============================================================================
 # __bytes__
 # =============================================================================
 
-# TODO: Test __bytes__
-# [[test]]
-# name = "dunder_bytes"
-# description = "def __bytes__(self): return bytes(...)"
+[[test]]
+name = "dunder_bytes"
+description = "def __bytes__(self): return bytes(...)"
+python = """
+class Message:
+    def __init__(self, text):
+        self.text = text
+    
+    def __bytes__(self):
+        return self.text.encode('utf-8')
 
-# TODO: Test bytes() builtin
-# [[test]]
-# name = "bytes_builtin"
-# description = "bytes(obj) calls obj.__bytes__()"
+msg = Message("Hello")
+b = bytes(msg)
+print(b)
+print(type(b).__name__)
+"""
+rust = """
+struct Message {
+    text: String,
+}
 
-# TODO: Test __bytes__ for serialization
-# [[test]]
-# name = "bytes_serialization"
-# description = "Convert object to bytes representation"
+impl Message {
+    fn new(text: &str) -> Self {
+        Message { text: text.to_string() }
+    }
+    
+    fn to_bytes(&self) -> Vec<u8> {
+        self.text.as_bytes().to_vec()
+    }
+}
+
+fn main() {
+    let msg = Message::new("Hello");
+    let b = msg.to_bytes();
+    println!("{:?}", b);
+    println!("Vec");
+}
+"""
+expected_output = """b'Hello'
+bytes"""
+
+[[test]]
+name = "bytes_builtin"
+description = "bytes(obj) calls obj.__bytes__()"
+python = """
+class Data:
+    def __init__(self, values):
+        self.values = values
+    
+    def __bytes__(self):
+        return bytes(self.values)
+
+data = Data([72, 101, 108, 108, 111])
+print(bytes(data))
+print(bytes(data).decode('utf-8'))
+"""
+rust = """
+struct Data {
+    values: Vec<u8>,
+}
+
+impl Data {
+    fn new(values: Vec<u8>) -> Self {
+        Data { values }
+    }
+    
+    fn to_bytes(&self) -> Vec<u8> {
+        self.values.clone()
+    }
+}
+
+fn main() {
+    let data = Data::new(vec![72, 101, 108, 108, 111]);
+    let b = data.to_bytes();
+    println!("{:?}", b);
+    println!("{}", String::from_utf8(b.clone()).unwrap());
+}
+"""
+expected_output = """b'Hello'
+Hello"""
+
+[[test]]
+name = "bytes_serialization"
+description = "Convert object to bytes representation"
+python = """
+class Packet:
+    def __init__(self, type_id, data):
+        self.type_id = type_id
+        self.data = data
+    
+    def __bytes__(self):
+        # Simple serialization: type (1 byte) + length (2 bytes) + data
+        data_bytes = self.data.encode('utf-8')
+        length = len(data_bytes)
+        return bytes([self.type_id]) + length.to_bytes(2, 'big') + data_bytes
+
+packet = Packet(1, "test")
+b = bytes(packet)
+print(b)
+print(len(b))
+"""
+rust = """
+struct Packet {
+    type_id: u8,
+    data: String,
+}
+
+impl Packet {
+    fn new(type_id: u8, data: &str) -> Self {
+        Packet { type_id, data: data.to_string() }
+    }
+    
+    fn to_bytes(&self) -> Vec<u8> {
+        let data_bytes = self.data.as_bytes();
+        let length = data_bytes.len() as u16;
+        let mut result = vec![self.type_id];
+        result.extend_from_slice(&length.to_be_bytes());
+        result.extend_from_slice(data_bytes);
+        result
+    }
+}
+
+fn main() {
+    let packet = Packet::new(1, "test");
+    let b = packet.to_bytes();
+    println!("{:?}", b);
+    println!("{}", b.len());
+}
+"""
+expected_output = """b'\\x01\\x00\\x04test'
+7"""
 
 # =============================================================================
 # __bool__
 # =============================================================================
 
-# TODO: Test __bool__
-# [[test]]
-# name = "dunder_bool"
-# description = "def __bool__(self): return bool_value"
+[[test]]
+name = "dunder_bool"
+description = "def __bool__(self): return bool_value"
+python = """
+class Container:
+    def __init__(self, items):
+        self.items = items
+    
+    def __bool__(self):
+        return len(self.items) > 0
 
-# TODO: Test bool() builtin
-# [[test]]
-# name = "bool_builtin"
-# description = "bool(obj) calls obj.__bool__()"
+c1 = Container([1, 2, 3])
+c2 = Container([])
+print(bool(c1))
+print(bool(c2))
+"""
+rust = """
+struct Container {
+    items: Vec<i32>,
+}
 
-# TODO: Test if condition
-# [[test]]
-# name = "bool_if"
-# description = "if obj: uses __bool__"
+impl Container {
+    fn new(items: Vec<i32>) -> Self {
+        Container { items }
+    }
+    
+    fn to_bool(&self) -> bool {
+        !self.items.is_empty()
+    }
+}
 
-# TODO: Test __bool__ fallback to __len__
-# [[test]]
-# name = "bool_len_fallback"
-# description = "Without __bool__, uses __len__() != 0"
+fn main() {
+    let c1 = Container::new(vec![1, 2, 3]);
+    let c2 = Container::new(vec![]);
+    println!("{}", c1.to_bool());
+    println!("{}", c2.to_bool());
+}
+"""
+expected_output = """True
+False"""
 
-# TODO: Test __bool__ default
-# [[test]]
-# name = "bool_default"
-# description = "Without __bool__ or __len__, always True"
+[[test]]
+name = "bool_builtin"
+description = "bool(obj) calls obj.__bool__()"
+python = """
+class Status:
+    def __init__(self, is_active):
+        self.is_active = is_active
+    
+    def __bool__(self):
+        return self.is_active
+
+active = Status(True)
+inactive = Status(False)
+print(bool(active))
+print(bool(inactive))
+"""
+rust = """
+struct Status {
+    is_active: bool,
+}
+
+impl Status {
+    fn new(is_active: bool) -> Self {
+        Status { is_active }
+    }
+    
+    fn to_bool(&self) -> bool {
+        self.is_active
+    }
+}
+
+fn main() {
+    let active = Status::new(true);
+    let inactive = Status::new(false);
+    println!("{}", active.to_bool());
+    println!("{}", inactive.to_bool());
+}
+"""
+expected_output = """True
+False"""
+
+[[test]]
+name = "bool_if"
+description = "if obj: uses __bool__"
+python = """
+class Gate:
+    def __init__(self, is_open):
+        self.is_open = is_open
+    
+    def __bool__(self):
+        return self.is_open
+
+gate = Gate(True)
+if gate:
+    print("Gate is open")
+else:
+    print("Gate is closed")
+
+gate2 = Gate(False)
+if gate2:
+    print("Gate is open")
+else:
+    print("Gate is closed")
+"""
+rust = """
+struct Gate {
+    is_open: bool,
+}
+
+impl Gate {
+    fn new(is_open: bool) -> Self {
+        Gate { is_open }
+    }
+}
+
+fn main() {
+    let gate = Gate::new(true);
+    if gate.is_open {
+        println!("Gate is open");
+    } else {
+        println!("Gate is closed");
+    }
+    
+    let gate2 = Gate::new(false);
+    if gate2.is_open {
+        println!("Gate is open");
+    } else {
+        println!("Gate is closed");
+    }
+}
+"""
+expected_output = """Gate is open
+Gate is closed"""
+
+[[test]]
+name = "bool_len_fallback"
+description = "Without __bool__, uses __len__() != 0"
+python = """
+class Queue:
+    def __init__(self, items):
+        self.items = items
+    
+    def __len__(self):
+        return len(self.items)
+    # No __bool__ defined, so it will use __len__
+
+q1 = Queue([1, 2, 3])
+q2 = Queue([])
+print(bool(q1))
+print(bool(q2))
+"""
+rust = """
+struct Queue {
+    items: Vec<i32>,
+}
+
+impl Queue {
+    fn new(items: Vec<i32>) -> Self {
+        Queue { items }
+    }
+    
+    fn len(&self) -> usize {
+        self.items.len()
+    }
+    
+    fn to_bool(&self) -> bool {
+        self.len() != 0
+    }
+}
+
+fn main() {
+    let q1 = Queue::new(vec![1, 2, 3]);
+    let q2 = Queue::new(vec![]);
+    println!("{}", q1.to_bool());
+    println!("{}", q2.to_bool());
+}
+"""
+expected_output = """True
+False"""
+
+[[test]]
+name = "bool_default"
+description = "Without __bool__ or __len__, always True"
+python = """
+class Thing:
+    def __init__(self, value):
+        self.value = value
+    # No __bool__ or __len__ defined
+
+thing = Thing(42)
+print(bool(thing))
+
+thing2 = Thing(0)
+print(bool(thing2))
+"""
+rust = """
+struct Thing {
+    value: i32,
+}
+
+impl Thing {
+    fn new(value: i32) -> Self {
+        Thing { value }
+    }
+}
+
+fn main() {
+    let thing = Thing::new(42);
+    // In Rust, we need to explicitly define what "truthy" means
+    // Python objects without __bool__ or __len__ are always True
+    println!("True");
+    
+    let thing2 = Thing::new(0);
+    println!("True");
+}
+"""
+expected_output = """True
+True"""
 
 # =============================================================================
 # __sizeof__
 # =============================================================================
 
-# TODO: Test __sizeof__
-# [[test]]
-# name = "dunder_sizeof"
-# description = "def __sizeof__(self): return size_in_bytes"
+[[test]]
+name = "dunder_sizeof"
+description = "def __sizeof__(self): return size_in_bytes"
+skip = true
+skip_reason = "sys.getsizeof and __sizeof__ are Python-specific runtime introspection"
+python = """
+class CustomObject:
+    def __init__(self, data):
+        self.data = data
+    
+    def __sizeof__(self):
+        import sys
+        return object.__sizeof__(self) + sys.getsizeof(self.data)
 
-# TODO: Test sys.getsizeof
-# [[test]]
-# name = "getsizeof"
-# description = "sys.getsizeof(obj) uses __sizeof__"
+obj = CustomObject([1, 2, 3, 4, 5])
+print(f"Size: {obj.__sizeof__()} bytes")
+"""
+
+[[test]]
+name = "getsizeof"
+description = "sys.getsizeof(obj) uses __sizeof__"
+skip = true
+skip_reason = "sys.getsizeof is Python runtime-specific"
+python = """
+import sys
+
+class Buffer:
+    def __init__(self, size):
+        self.data = bytearray(size)
+    
+    def __sizeof__(self):
+        return object.__sizeof__(self) + len(self.data)
+
+buf = Buffer(1024)
+print(f"Buffer size: {sys.getsizeof(buf)} bytes")
+"""
 
 # =============================================================================
 # Use Cases
 # =============================================================================
 
-# TODO: Test custom number formatting
-# [[test]]
-# name = "format_number"
-# description = "Custom numeric type with format spec"
+[[test]]
+name = "format_number"
+description = "Custom numeric type with format spec"
+python = """
+class Fraction:
+    def __init__(self, numerator, denominator):
+        self.num = numerator
+        self.den = denominator
+    
+    def __format__(self, spec):
+        if spec == 'dec':
+            return f"{self.num / self.den:.2f}"
+        elif spec == 'perc':
+            return f"{100 * self.num / self.den:.1f}%"
+        return f"{self.num}/{self.den}"
 
-# TODO: Test date/time formatting
-# [[test]]
-# name = "format_datetime"
-# description = "f'{dt:%Y-%m-%d}' style formatting"
+f = Fraction(3, 4)
+print(f"{f}")
+print(f"{f:dec}")
+print(f"{f:perc}")
+"""
+rust = """
+struct Fraction {
+    num: i32,
+    den: i32,
+}
 
-# TODO: Test falsy custom object
-# [[test]]
-# name = "falsy_object"
-# description = "Object that evaluates to False"
+impl Fraction {
+    fn new(num: i32, den: i32) -> Self {
+        Fraction { num, den }
+    }
+    
+    fn format_spec(&self, spec: &str) -> String {
+        match spec {
+            "dec" => format!("{:.2}", self.num as f64 / self.den as f64),
+            "perc" => format!("{:.1}%", 100.0 * self.num as f64 / self.den as f64),
+            _ => format!("{}/{}", self.num, self.den),
+        }
+    }
+}
+
+fn main() {
+    let f = Fraction::new(3, 4);
+    println!("{}", f.format_spec(""));
+    println!("{}", f.format_spec("dec"));
+    println!("{}", f.format_spec("perc"));
+}
+"""
+expected_output = """3/4
+0.75
+75.0%"""
+
+[[test]]
+name = "format_datetime"
+description = "f'{dt:%Y-%m-%d}' style formatting"
+skip = true
+skip_reason = "Requires datetime module for proper implementation"
+python = """
+from datetime import datetime
+
+class CustomDate:
+    def __init__(self, year, month, day):
+        self.dt = datetime(year, month, day)
+    
+    def __format__(self, spec):
+        if not spec:
+            return str(self.dt)
+        return self.dt.strftime(spec)
+
+d = CustomDate(2025, 12, 10)
+print(f"{d:%Y-%m-%d}")
+print(f"{d:%B %d, %Y}")
+"""
+
+[[test]]
+name = "falsy_object"
+description = "Object that evaluates to False"
+python = """
+class Result:
+    def __init__(self, success, value=None):
+        self.success = success
+        self.value = value
+    
+    def __bool__(self):
+        return self.success
+
+result_ok = Result(True, 42)
+result_fail = Result(False)
+
+if result_ok:
+    print("Success!")
+    
+if not result_fail:
+    print("Failed!")
+"""
+rust = """
+struct Result {
+    success: bool,
+    value: Option<i32>,
+}
+
+impl Result {
+    fn new(success: bool, value: Option<i32>) -> Self {
+        Result { success, value }
+    }
+}
+
+fn main() {
+    let result_ok = Result::new(true, Some(42));
+    let result_fail = Result::new(false, None);
+    
+    if result_ok.success {
+        println!("Success!");
+    }
+    
+    if !result_fail.success {
+        println!("Failed!");
+    }
+}
+"""
+expected_output = """Success!
+Failed!"""
 
 # =============================================================================
 # Edge Cases
 # =============================================================================
 
-# TODO: Test __format__ returning non-string
-# [[test]]
-# name = "format_non_string"
-# description = "__format__ must return str"
-# skip = true
+[[test]]
+name = "format_non_string"
+description = "__format__ must return str"
+skip = true
+skip_reason = "Error case - __format__ returning non-string raises TypeError"
+python = """
+class BadFormat:
+    def __format__(self, spec):
+        return 42  # Should return str
 
-# TODO: Test __bool__ returning non-bool
-# [[test]]
-# name = "bool_non_bool"
-# description = "__bool__ must return True or False"
-# skip = true
+try:
+    format(BadFormat())
+except TypeError as e:
+    print(f"TypeError: {e}")
+"""
 
-# TODO: Test format spec parsing
-# [[test]]
-# name = "format_spec_parse"
-# description = "Parsing complex format specifications"
+[[test]]
+name = "bool_non_bool"
+description = "__bool__ must return True or False"
+skip = true
+skip_reason = "Error case - __bool__ returning non-bool raises TypeError"
+python = """
+class BadBool:
+    def __bool__(self):
+        return "yes"  # Should return bool
+
+try:
+    bool(BadBool())
+except TypeError as e:
+    print(f"TypeError: {e}")
+"""
+
+[[test]]
+name = "format_spec_parse"
+description = "Parsing complex format specifications"
+python = """
+class Styled:
+    def __init__(self, text):
+        self.text = text
+    
+    def __format__(self, spec):
+        # Parse spec like: 'u' (upper), 'l' (lower), 't' (title)
+        if 'u' in spec:
+            return self.text.upper()
+        elif 'l' in spec:
+            return self.text.lower()
+        elif 't' in spec:
+            return self.text.title()
+        return self.text
+
+s = Styled("hello world")
+print(f"{s}")
+print(f"{s:u}")
+print(f"{s:l}")
+print(f"{s:t}")
+"""
+rust = """
+struct Styled {
+    text: String,
+}
+
+impl Styled {
+    fn new(text: &str) -> Self {
+        Styled { text: text.to_string() }
+    }
+    
+    fn format_spec(&self, spec: &str) -> String {
+        if spec.contains('u') {
+            self.text.to_uppercase()
+        } else if spec.contains('l') {
+            self.text.to_lowercase()
+        } else if spec.contains('t') {
+            // Title case approximation
+            self.text.split_whitespace()
+                .map(|word| {
+                    let mut chars = word.chars();
+                    match chars.next() {
+                        Some(first) => first.to_uppercase().collect::<String>() + chars.as_str(),
+                        None => String::new(),
+                    }
+                })
+                .collect::<Vec<_>>()
+                .join(" ")
+        } else {
+            self.text.clone()
+        }
+    }
+}
+
+fn main() {
+    let s = Styled::new("hello world");
+    println!("{}", s.format_spec(""));
+    println!("{}", s.format_spec("u"));
+    println!("{}", s.format_spec("l"));
+    println!("{}", s.format_spec("t"));
+}
+"""
+expected_output = """hello world
+HELLO WORLD
+hello world
+Hello World"""

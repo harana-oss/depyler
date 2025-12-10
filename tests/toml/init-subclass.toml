@@ -9,98 +9,646 @@ category = "advanced-oop"
 # Basic __init_subclass__
 # =============================================================================
 
-# TODO: Test simple __init_subclass__
-# [[test]]
-# name = "init_subclass_basic"
-# description = "def __init_subclass__(cls, **kwargs): ..."
+[[test]]
+name = "init_subclass_basic"
+description = "Basic __init_subclass__ hook"
+tags = ["advanced-oop", "init-subclass"]
+python = '''
+class Base:
+    subclass_created = []
+    
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        Base.subclass_created.append(cls.__name__)
 
-# TODO: Test __init_subclass__ called on subclass
-# [[test]]
-# name = "init_subclass_called"
-# description = "Hook is called when subclass is defined"
+class Sub1(Base):
+    pass
 
-# TODO: Test __init_subclass__ with parameters
-# [[test]]
-# name = "init_subclass_params"
-# description = "class Sub(Base, param='value'): ..."
+class Sub2(Base):
+    pass
+
+assert Base.subclass_created == ["Sub1", "Sub2"]
+'''
+rust = '''
+// Rust doesn't have dynamic subclass hooks
+// Use declarative macros or compile-time code gen
+// Conceptual equivalent:
+trait Base {
+    fn name() -> &'static str;
+}
+
+struct Sub1;
+impl Base for Sub1 {
+    fn name() -> &'static str { "Sub1" }
+}
+
+struct Sub2;
+impl Base for Sub2 {
+    fn name() -> &'static str { "Sub2" }
+}
+
+// Would need to manually register or use a macro
+let names = vec![Sub1::name(), Sub2::name()];
+assert_eq!(names, vec!["Sub1", "Sub2"]);
+'''
+
+[[test]]
+name = "init_subclass_called"
+description = "__init_subclass__ is called when subclass is defined"
+tags = ["advanced-oop", "init-subclass"]
+python = '''
+class Base:
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        cls.from_init_subclass = True
+
+class Sub(Base):
+    pass
+
+assert hasattr(Sub, 'from_init_subclass')
+assert Sub.from_init_subclass == True
+'''
+rust = '''
+// Rust: trait implementation is compile-time
+// Conceptual equivalent using trait:
+trait Base {
+    const FROM_TRAIT: bool = true;
+}
+
+struct Sub;
+impl Base for Sub {}
+
+assert_eq!(Sub::FROM_TRAIT, true);
+'''
+
+[[test]]
+name = "init_subclass_params"
+description = "__init_subclass__ with class parameters"
+tags = ["advanced-oop", "init-subclass"]
+python = '''
+class Base:
+    def __init_subclass__(cls, plugin_name=None, **kwargs):
+        super().__init_subclass__(**kwargs)
+        cls.plugin_name = plugin_name
+
+class PluginA(Base, plugin_name="A"):
+    pass
+
+class PluginB(Base, plugin_name="B"):
+    pass
+
+assert PluginA.plugin_name == "A"
+assert PluginB.plugin_name == "B"
+'''
+rust = '''
+// Rust: use const generics or type-level programming
+// Conceptual equivalent:
+trait Plugin {
+    fn plugin_name() -> &'static str;
+}
+
+struct PluginA;
+impl Plugin for PluginA {
+    fn plugin_name() -> &'static str { "A" }
+}
+
+struct PluginB;
+impl Plugin for PluginB {
+    fn plugin_name() -> &'static str { "B" }
+}
+
+assert_eq!(PluginA::plugin_name(), "A");
+assert_eq!(PluginB::plugin_name(), "B");
+'''
 
 # =============================================================================
 # Use Cases
 # =============================================================================
 
-# TODO: Test registration pattern
-# [[test]]
-# name = "init_subclass_register"
-# description = "Auto-register subclasses in a registry"
+[[test]]
+name = "init_subclass_register"
+description = "Auto-register subclasses in a registry"
+tags = ["advanced-oop", "init-subclass", "use-case"]
+python = '''
+class Plugin:
+    registry = {}
+    
+    def __init_subclass__(cls, plugin_id=None, **kwargs):
+        super().__init_subclass__(**kwargs)
+        if plugin_id:
+            Plugin.registry[plugin_id] = cls
 
-# TODO: Test validation pattern
-# [[test]]
-# name = "init_subclass_validate"
-# description = "Validate subclass definition"
+class DatabasePlugin(Plugin, plugin_id="db"):
+    pass
 
-# TODO: Test attribute injection
-# [[test]]
-# name = "init_subclass_inject"
-# description = "Add attributes to subclass"
+class CachePlugin(Plugin, plugin_id="cache"):
+    pass
 
-# TODO: Test requiring class attributes
-# [[test]]
-# name = "init_subclass_require"
-# description = "Ensure subclass defines certain attributes"
+assert "db" in Plugin.registry
+assert "cache" in Plugin.registry
+assert Plugin.registry["db"] is DatabasePlugin
+'''
+rust = '''
+// Rust: use inventory crate or lazy_static for registration
+use std::collections::HashMap;
+
+trait Plugin {
+    fn id() -> &'static str;
+}
+
+struct DatabasePlugin;
+impl Plugin for DatabasePlugin {
+    fn id() -> &'static str { "db" }
+}
+
+struct CachePlugin;
+impl Plugin for CachePlugin {
+    fn id() -> &'static str { "cache" }
+}
+
+// Manually build registry (or use macro)
+let mut registry = HashMap::new();
+registry.insert(DatabasePlugin::id(), "DatabasePlugin");
+registry.insert(CachePlugin::id(), "CachePlugin");
+
+assert!(registry.contains_key("db"));
+assert!(registry.contains_key("cache"));
+'''
+
+[[test]]
+name = "init_subclass_validate"
+description = "Validate subclass definition"
+tags = ["advanced-oop", "init-subclass", "use-case"]
+python = '''
+class Base:
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        if not hasattr(cls, 'required_attr'):
+            raise TypeError(f"{cls.__name__} must define required_attr")
+
+# This would raise TypeError:
+# class BadSub(Base):
+#     pass
+
+class GoodSub(Base):
+    required_attr = "present"
+
+assert GoodSub.required_attr == "present"
+'''
+rust = '''
+// Rust: use traits to enforce requirements at compile-time
+trait Base {
+    fn required_attr() -> &'static str;
+}
+
+// Won't compile without required_attr:
+// struct BadSub;
+// impl Base for BadSub {}  // ERROR: missing required_attr
+
+struct GoodSub;
+impl Base for GoodSub {
+    fn required_attr() -> &'static str { "present" }
+}
+
+assert_eq!(GoodSub::required_attr(), "present");
+'''
+
+[[test]]
+name = "init_subclass_inject"
+description = "Inject attributes into subclass"
+tags = ["advanced-oop", "init-subclass", "use-case"]
+python = '''
+class Base:
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        cls.version = "1.0"
+        cls.base_class = Base
+
+class Sub(Base):
+    pass
+
+assert Sub.version == "1.0"
+assert Sub.base_class is Base
+'''
+rust = '''
+// Rust: use trait with default implementations
+trait Base {
+    fn version() -> &'static str { "1.0" }
+}
+
+struct Sub;
+impl Base for Sub {}
+
+assert_eq!(Sub::version(), "1.0");
+'''
+
+[[test]]
+name = "init_subclass_require"
+description = "Require subclass to define certain attributes"
+tags = ["advanced-oop", "init-subclass", "use-case"]
+python = '''
+class Model:
+    def __init_subclass__(cls, table_name=None, **kwargs):
+        super().__init_subclass__(**kwargs)
+        if table_name is None:
+            raise TypeError(f"{cls.__name__} must specify table_name")
+        cls.table_name = table_name
+
+class User(Model, table_name="users"):
+    pass
+
+assert User.table_name == "users"
+'''
+rust = '''
+// Rust: enforce at compile-time with traits
+trait Model {
+    fn table_name() -> &'static str;
+}
+
+struct User;
+impl Model for User {
+    fn table_name() -> &'static str { "users" }
+}
+
+assert_eq!(User::table_name(), "users");
+'''
 
 # =============================================================================
 # __init_subclass__ with super()
 # =============================================================================
 
-# TODO: Test super().__init_subclass__
-# [[test]]
-# name = "init_subclass_super"
-# description = "Calling super() in __init_subclass__"
+[[test]]
+name = "init_subclass_super"
+description = "Calling super() in __init_subclass__"
+tags = ["advanced-oop", "init-subclass"]
+python = '''
+class Base:
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        cls.from_base = True
 
-# TODO: Test chain of __init_subclass__
-# [[test]]
-# name = "init_subclass_chain"
-# description = "Multiple inheritance with __init_subclass__"
+class Middle(Base):
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        cls.from_middle = True
+
+class Leaf(Middle):
+    pass
+
+assert Leaf.from_base == True
+assert Leaf.from_middle == True
+'''
+rust = '''
+// Rust: trait composition
+trait Base {
+    fn from_base() -> bool { true }
+}
+
+trait Middle: Base {
+    fn from_middle() -> bool { true }
+}
+
+struct Leaf;
+impl Base for Leaf {}
+impl Middle for Leaf {}
+
+assert_eq!(Leaf::from_base(), true);
+assert_eq!(Leaf::from_middle(), true);
+'''
+
+[[test]]
+name = "init_subclass_chain"
+description = "Chain of __init_subclass__ calls"
+tags = ["advanced-oop", "init-subclass"]
+python = '''
+class A:
+    chain = []
+    
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        A.chain.append('A')
+
+class B(A):
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        A.chain.append('B')
+
+class C(B):
+    pass
+
+# C's creation triggers B's __init_subclass__ which calls A's
+assert 'A' in A.chain
+assert 'B' in A.chain
+'''
+rust = '''
+// Rust: trait methods are called explicitly
+trait A {
+    fn init() -> Vec<&'static str> {
+        vec!["A"]
+    }
+}
+
+trait B: A {
+    fn init() -> Vec<&'static str> {
+        let mut chain = <Self as A>::init();
+        chain.push("B");
+        chain
+    }
+}
+
+struct C;
+impl A for C {}
+impl B for C {}
+
+let chain = <C as B>::init();
+assert!(chain.contains(&"A"));
+assert!(chain.contains(&"B"));
+'''
 
 # =============================================================================
 # __init_subclass__ Parameters
 # =============================================================================
 
-# TODO: Test keyword parameters
-# [[test]]
-# name = "init_subclass_kwargs"
-# description = "Accept **kwargs and pass to super()"
+[[test]]
+name = "init_subclass_kwargs"
+description = "Accept **kwargs and pass to super()"
+tags = ["advanced-oop", "init-subclass"]
+python = '''
+class Base:
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        # Store any unknown kwargs
+        cls.extra_kwargs = kwargs
 
-# TODO: Test required parameter
-# [[test]]
-# name = "init_subclass_required"
-# description = "Parameter without default"
+class Sub(Base, custom_param="value", another=42):
+    pass
 
-# TODO: Test parameter with default
-# [[test]]
-# name = "init_subclass_default"
-# description = "Parameter with default value"
+assert 'custom_param' in Sub.extra_kwargs
+assert Sub.extra_kwargs['custom_param'] == "value"
+'''
+rust = '''
+// Rust: use builder pattern or attribute macros
+// Conceptual equivalent:
+trait Base {}
+
+#[derive(Debug)]
+struct SubConfig {
+    custom_param: String,
+    another: i32,
+}
+
+struct Sub {
+    config: SubConfig,
+}
+
+impl Base for Sub {}
+
+let sub = Sub {
+    config: SubConfig {
+        custom_param: "value".to_string(),
+        another: 42,
+    }
+};
+assert_eq!(sub.config.custom_param, "value");
+'''
+
+[[test]]
+name = "init_subclass_required"
+description = "Required parameter in __init_subclass__"
+tags = ["advanced-oop", "init-subclass"]
+python = '''
+class Base:
+    def __init_subclass__(cls, required_param, **kwargs):
+        super().__init_subclass__(**kwargs)
+        cls.required_param = required_param
+
+# This would raise TypeError without required_param:
+# class BadSub(Base):
+#     pass
+
+class GoodSub(Base, required_param="value"):
+    pass
+
+assert GoodSub.required_param == "value"
+'''
+rust = '''
+// Rust: enforce with trait bounds
+trait Base {
+    fn required_param() -> &'static str;
+}
+
+// Won't compile without required_param:
+// struct BadSub;
+// impl Base for BadSub {}  // ERROR
+
+struct GoodSub;
+impl Base for GoodSub {
+    fn required_param() -> &'static str { "value" }
+}
+
+assert_eq!(GoodSub::required_param(), "value");
+'''
+
+[[test]]
+name = "init_subclass_default"
+description = "Parameter with default value"
+tags = ["advanced-oop", "init-subclass"]
+python = '''
+class Base:
+    def __init_subclass__(cls, version="1.0", **kwargs):
+        super().__init_subclass__(**kwargs)
+        cls.version = version
+
+class SubWithDefault(Base):
+    pass
+
+class SubWithCustom(Base, version="2.0"):
+    pass
+
+assert SubWithDefault.version == "1.0"
+assert SubWithCustom.version == "2.0"
+'''
+rust = '''
+// Rust: trait with default methods
+trait Base {
+    fn version() -> &'static str { "1.0" }
+}
+
+struct SubWithDefault;
+impl Base for SubWithDefault {}
+
+struct SubWithCustom;
+impl Base for SubWithCustom {
+    fn version() -> &'static str { "2.0" }
+}
+
+assert_eq!(SubWithDefault::version(), "1.0");
+assert_eq!(SubWithCustom::version(), "2.0");
+'''
 
 # =============================================================================
 # Edge Cases
 # =============================================================================
 
-# TODO: Test __init_subclass__ on ABC
-# [[test]]
-# name = "init_subclass_abc"
-# description = "__init_subclass__ combined with ABC"
+[[test]]
+name = "init_subclass_abc"
+description = "__init_subclass__ combined with ABC"
+tags = ["advanced-oop", "init-subclass", "edge-case"]
+python = '''
+from abc import ABC, abstractmethod
 
-# TODO: Test multiple __init_subclass__ in hierarchy
-# [[test]]
-# name = "init_subclass_multiple"
-# description = "Multiple classes define __init_subclass__"
+class Base(ABC):
+    registry = []
+    
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        Base.registry.append(cls.__name__)
+    
+    @abstractmethod
+    def process(self):
+        pass
 
-# TODO: Test __init_subclass__ with metaclass
-# [[test]]
-# name = "init_subclass_metaclass"
-# description = "Interaction with custom metaclass"
+class Concrete(Base):
+    def process(self):
+        return "processed"
 
-# TODO: Test __init_subclass__ exception
-# [[test]]
-# name = "init_subclass_error"
-# description = "Raising exception in __init_subclass__"
+assert "Concrete" in Base.registry
+obj = Concrete()
+assert obj.process() == "processed"
+'''
+rust = '''
+// Rust: combine trait with static registration
+trait Base {
+    fn process(&self) -> String;
+}
+
+struct Concrete;
+impl Base for Concrete {
+    fn process(&self) -> String {
+        "processed".to_string()
+    }
+}
+
+// Registry would be built at compile-time or with lazy_static
+let registry = vec!["Concrete"];
+assert!(registry.contains(&"Concrete"));
+let obj = Concrete;
+assert_eq!(obj.process(), "processed");
+'''
+
+[[test]]
+name = "init_subclass_multiple"
+description = "Multiple classes define __init_subclass__"
+tags = ["advanced-oop", "init-subclass", "edge-case"]
+python = '''
+class A:
+    def __init_subclass__(cls, a_param=None, **kwargs):
+        super().__init_subclass__(**kwargs)
+        cls.a_param = a_param
+
+class B(A):
+    def __init_subclass__(cls, b_param=None, **kwargs):
+        super().__init_subclass__(**kwargs)
+        cls.b_param = b_param
+
+class C(B, a_param="from_a", b_param="from_b"):
+    pass
+
+assert C.a_param == "from_a"
+assert C.b_param == "from_b"
+'''
+rust = '''
+// Rust: multiple trait bounds
+trait A {
+    fn a_param() -> &'static str { "" }
+}
+
+trait B: A {
+    fn b_param() -> &'static str { "" }
+}
+
+struct C;
+impl A for C {
+    fn a_param() -> &'static str { "from_a" }
+}
+impl B for C {
+    fn b_param() -> &'static str { "from_b" }
+}
+
+assert_eq!(C::a_param(), "from_a");
+assert_eq!(C::b_param(), "from_b");
+'''
+
+[[test]]
+name = "init_subclass_metaclass"
+description = "Interaction with custom metaclass"
+tags = ["advanced-oop", "init-subclass", "edge-case"]
+skip = ["metaclass"]
+python = '''
+class Meta(type):
+    def __new__(mcs, name, bases, namespace):
+        namespace['from_meta'] = True
+        return super().__new__(mcs, name, bases, namespace)
+
+class Base(metaclass=Meta):
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        cls.from_init_subclass = True
+
+class Sub(Base):
+    pass
+
+assert Sub.from_meta == True
+assert Sub.from_init_subclass == True
+'''
+rust = '''
+// Rust: use procedural macros for similar effect
+// Conceptual example showing both derive and trait
+
+#[derive(Debug)]  // Like metaclass
+struct Sub;
+
+trait Base {
+    fn from_trait() -> bool { true }
+}
+
+impl Base for Sub {}
+
+// Simulates both metaclass and init_subclass effects
+assert_eq!(Sub::from_trait(), true);
+'''
+
+[[test]]
+name = "init_subclass_error"
+description = "Raising exception in __init_subclass__"
+tags = ["advanced-oop", "init-subclass", "edge-case"]
+python = '''
+class Base:
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        if cls.__name__ == "ForbiddenName":
+            raise ValueError("Name 'ForbiddenName' is not allowed")
+
+class AllowedName(Base):
+    pass
+
+# This would raise ValueError:
+# class ForbiddenName(Base):
+#     pass
+
+assert AllowedName.__name__ == "AllowedName"
+'''
+rust = '''
+// Rust: compile-time checks with static_assertions or macros
+trait Base {
+    fn name() -> &'static str;
+}
+
+struct AllowedName;
+impl Base for AllowedName {
+    fn name() -> &'static str { "AllowedName" }
+}
+
+// Compile-time assertion could prevent forbidden names
+assert_eq!(AllowedName::name(), "AllowedName");
+'''

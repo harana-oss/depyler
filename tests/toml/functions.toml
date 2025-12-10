@@ -15,8 +15,7 @@ category = "functions"
 name = "generic_function"
 tags = ["function", "generics"]
 
-[test.python]
-code = '''
+python = '''
 from typing import TypeVar
 
 T = TypeVar('T')
@@ -25,84 +24,177 @@ def identity(value: T) -> T:
     return value
 '''
 
-[test.assertions]
-contains = ["fn identity"]
+rust = '''
+pub const T: serde_json::Value = TypeVar::new("T");
+use serde_json;
+pub fn identity<T: Clone>(value: T) -> T {
+    return value;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn quickcheck_identity() {
+        fn prop(value: ()) -> TestResult {
+            let result = identity(value.clone());
+            if result != value {
+                return TestResult::failed();
+            }
+            TestResult::passed()
+        }
+        quickcheck(prop as fn(()) -> TestResult);
+    }
+}
+'''
 
 [[test]]
 name = "function_with_docstring"
 tags = ["function", "docstring"]
 
-[test.python]
-code = '''
+python = '''
 def documented_function(x: int) -> int:
     """This is a documented function."""
     return x * 2
 '''
 
-[test.assertions]
-contains = ["fn documented_function"]
+rust = '''
+#[doc = "This is a documented function."]
+pub fn documented_function(x: i32) -> i32 {
+    return x * 2;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_documented_function_examples() {
+        assert_eq!(documented_function(0), 0);
+        assert_eq!(documented_function(1), 1);
+        assert_eq!(documented_function(-1), -1);
+    }
+}
+'''
 
 [[test]]
 name = "function_mutable_parameter"
 tags = ["function", "mutability"]
 
-[test.python]
-code = '''
+python = '''
 def increment(x: int) -> int:
     x = x + 1
     return x
 '''
 
-[test.assertions]
-contains = ["fn increment"]
+rust = '''
+pub fn increment(mut x: i32) -> i32 {
+    x = x + 1;
+    return x;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_increment_examples() {
+        assert_eq!(increment(0), 0);
+        assert_eq!(increment(1), 1);
+        assert_eq!(increment(-1), -1);
+    }
+}
+'''
 
 [[test]]
 name = "function_returning_result"
 tags = ["function", "result", "error"]
 
-[test.python]
-code = '''
+python = '''
 def divide(a: int, b: int) -> float:
     if b == 0:
         raise ValueError("division by zero")
     return a / b
 '''
 
-[test.assertions]
-contains = ["fn divide"]
+rust = '''
+#[derive(Debug, Clone)]
+pub struct ZeroDivisionError {
+    message: String,
+}
+impl std::fmt::Display for ZeroDivisionError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "division by zero: {}", self.message)
+    }
+}
+impl std::error::Error for ZeroDivisionError {}
+impl ZeroDivisionError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[derive(Debug, Clone)]
+pub struct ValueError {
+    message: String,
+}
+impl std::fmt::Display for ValueError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "value error: {}", self.message)
+    }
+}
+impl std::error::Error for ValueError {}
+impl ValueError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = " Depyler: proven to terminate"]
+pub fn divide(a: i32, b: i32) -> f64 {
+    let _cse_temp_0 = b == 0;
+    if _cse_temp_0 {
+        panic!("{}", "division by zero");
+    }
+    return (a as f64) / (b as f64);
+}
+'''
 
 [[test]]
 name = "async_function"
 tags = ["function", "async"]
 
-[test.python]
-code = '''
+python = '''
 async def fetch_data(url: str) -> str:
     return "data"
 '''
 
-[test.assertions]
-contains = ["fn fetch_data"]
+rust = '''
+#[doc = " Depyler: verified panic-free"] #[doc = " Depyler: proven to terminate"] pub async fn fetch_data(url: String) -> String {
+    return "data".to_string();
+    }
+'''
 
 [[test]]
 name = "multiple_parameters"
 tags = ["function", "parameters"]
 
-[test.python]
-code = '''
+python = '''
 def add_three(a: int, b: int, c: int) -> int:
     return a + b + c
 '''
 
-[test.assertions]
-contains = ["fn add_three", "i32"]
+rust = '''
+pub fn add_three(a: i32, b: i32, c: i32) -> i32 {
+    return a + b + c;
+}
+'''
 
 [[test]]
 name = "union_return_type"
 tags = ["function", "union", "return-type"]
 
-[test.python]
-code = '''
+python = '''
 from typing import Union
 
 def maybe_int(flag: bool) -> Union[int, str]:
@@ -111,143 +203,293 @@ def maybe_int(flag: bool) -> Union[int, str]:
     return "none"
 '''
 
-[test.assertions]
-contains = ["fn maybe_int"]
+rust = '''
+#[derive(Debug, Clone, PartialEq)]
+pub enum IntOrStringUnion {
+    Integer(i32),
+    Text(String),
+}
+impl From<i32> for IntOrStringUnion {
+    fn from(value: i32) -> Self {
+        IntOrStringUnion::Integer(value)
+    }
+}
+impl From<String> for IntOrStringUnion {
+    fn from(value: String) -> Self {
+        IntOrStringUnion::Text(value)
+    }
+}
+impl IntOrStringUnion {
+    pub fn is_integer(&self) -> bool {
+        matches!(self, IntOrStringUnion::Integer(_))
+    }
+    pub fn is_text(&self) -> bool {
+        matches!(self, IntOrStringUnion::Text(_))
+    }
+    pub fn as_integer(&self) -> Option<&i32> {
+        match self {
+            IntOrStringUnion::Integer(value) => Some(value),
+            _ => None,
+        }
+    }
+    pub fn as_text(&self) -> Option<&String> {
+        match self {
+            IntOrStringUnion::Text(value) => Some(value),
+            _ => None,
+        }
+    }
+}
+pub fn maybe_int(flag: bool) -> IntOrStringUnion {
+    if flag {
+        return 42;
+    }
+    return "none";
+}
+'''
 
 [[test]]
 name = "string_return_owned"
 tags = ["function", "string", "ownership"]
 
-[test.python]
-code = '''
+python = '''
 def to_upper(s: str) -> str:
     return s.upper()
 '''
 
-[test.assertions]
-contains = ["fn to_upper"]
+rust = '''
+pub fn to_upper(s: String) -> String {
+    return s.to_uppercase();
+}
+'''
 
 [[test]]
 name = "string_return_borrowed"
 tags = ["function", "string", "bool"]
 
-[test.python]
-code = '''
+python = '''
 def starts_with_hello(s: str) -> bool:
     return s.startswith("hello")
 '''
 
-[test.assertions]
-contains = ["fn starts_with_hello", "bool"]
+rust = '''
+pub fn starts_with_hello(s: String) -> bool {
+    return s.starts_with("hello");
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_starts_with_hello_examples() {
+        let _ = starts_with_hello(Default::default());
+    }
+}
+'''
 
 [[test]]
 name = "error_type_tracking"
 tags = ["function", "error", "exception"]
 
-[test.python]
-code = '''
+python = '''
 def safe_divide(a: int, b: int) -> float:
     if b == 0:
         raise ZeroDivisionError("cannot divide by zero")
     return a / b
 '''
 
-[test.assertions]
-contains = ["fn safe_divide"]
+rust = '''
+#[derive(Debug, Clone)]
+pub struct ZeroDivisionError {
+    message: String,
+}
+impl std::fmt::Display for ZeroDivisionError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "division by zero: {}", self.message)
+    }
+}
+impl std::error::Error for ZeroDivisionError {}
+impl ZeroDivisionError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = " Depyler: proven to terminate"]
+pub fn safe_divide(a: i32, b: i32) -> f64 {
+    let _cse_temp_0 = b == 0;
+    if _cse_temp_0 {
+        panic!("{}", "cannot divide by zero");
+    }
+    return (a as f64) / (b as f64);
+}
+'''
 
 [[test]]
 name = "generator_function"
 tags = ["function", "generator", "yield"]
 
-[test.python]
-code = '''
+python = '''
 def counter(n: int):
     for i in range(n):
         yield i
 '''
 
-[test.assertions]
-contains = ["fn counter"]
+rust = '''
+#[doc = " Generator state struct"]
+#[derive(Debug)]
+struct CounterState {
+    state: usize,
+    n: i32,
+}
+#[doc = " Generator function - returns Iterator"]
+pub fn counter(n: i32) -> impl Iterator<Item = i32> {
+    CounterState { state: 0, n: n }
+}
+impl Iterator for CounterState {
+    type Item = i32;
+    fn next(&mut self) -> Option<Self::Item> {
+        match self.state {
+            0 => {
+                self.state = 1;
+                for _i in 0..self.n {
+                    return Some(i);
+                }
+                None
+            }
+            _ => None,
+        }
+    }
+}
+'''
 
 [[test]]
 name = "float_return_type"
 tags = ["function", "float", "return-type"]
 
-[test.python]
-code = '''
+python = '''
 def calculate_average(a: int, b: int) -> float:
     return (a + b) / 2.0
 '''
 
-[test.assertions]
-contains = ["fn calculate_average", "f64"]
-
-# =============================================================================
-# Parameter Usage Detection (from test_func_gens.rs)
-# =============================================================================
+rust = '''
+#[derive(Debug, Clone)]
+pub struct ZeroDivisionError {
+    message: String,
+}
+impl std::fmt::Display for ZeroDivisionError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "division by zero: {}", self.message)
+    }
+}
+impl std::error::Error for ZeroDivisionError {}
+impl ZeroDivisionError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = " Depyler: proven to terminate"]
+pub fn calculate_average(a: i32, b: i32) -> f64 {
+    return (a + b as f64) / 2.0;
+}
+'''
 
 [[test]]
 name = "param_used_in_binary_expr"
 tags = ["function", "parameters", "usage"]
 
-[test.python]
-code = '''
+python = '''
 def add_ten(x: int, unused: int) -> int:
     return x + 10
 '''
 
-[test.assertions]
-contains = ["fn add_ten"]
+rust = '''
+pub fn add_ten(x: i32, unused: i32) -> i32 {
+    return x + 10;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_add_ten_examples() {
+        assert_eq!(add_ten(0, 0), 0);
+        assert_eq!(add_ten(1, 2), 3);
+        assert_eq!(add_ten(-1, 1), 0);
+    }
+}
+'''
 
 [[test]]
 name = "param_used_in_method_call"
 tags = ["function", "parameters", "method"]
 
-[test.python]
-code = '''
+python = '''
 def uppercase(s: str, unused: int) -> str:
     return s.upper()
 '''
 
-[test.assertions]
-contains = ["fn uppercase"]
+rust = '''
+pub fn uppercase(s: String, unused: i32) -> String {
+    return s.to_uppercase();
+}
+'''
 
 [[test]]
 name = "param_used_in_index"
 tags = ["function", "parameters", "index"]
 
-[test.python]
-code = '''
+python = '''
 def get_item(items: list[int], idx: int, unused: str) -> int:
     return items[idx]
 '''
 
-[test.assertions]
-contains = ["fn get_item"]
+rust = '''
+#[derive(Debug, Clone)]
+pub struct IndexError {
+    message: String,
+}
+impl std::fmt::Display for IndexError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "index out of range: {}", self.message)
+    }
+}
+impl std::error::Error for IndexError {}
+impl IndexError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = " Depyler: proven to terminate"]
+pub fn get_item(items: &Vec<i32>, idx: i32, unused: String) -> i32 {
+    return items.get(idx as usize).cloned().unwrap();
+}
+'''
 
 [[test]]
 name = "param_in_list_comprehension"
 tags = ["function", "parameters", "comprehension"]
 
-[test.python]
-code = '''
+python = '''
 def with_comprehension(items: list[int], multiplier: int) -> list[int]:
     return [x * multiplier for x in items]
 '''
 
-[test.assertions]
-contains = ["fn with_comprehension"]
-
-# =============================================================================
-# String Method Classification (from test_func_gens.rs)
-# =============================================================================
+rust = '''
+pub fn with_comprehension(items: &Vec<i32>, multiplier: i32) -> Vec<i32> {
+    return items.clone().into_iter().map(|x| x * multiplier).collect::<Vec<_>>();
+}
+'''
 
 [[test]]
 name = "string_methods_upper_lower"
 tags = ["function", "string", "methods"]
 
-[test.python]
-code = '''
+python = '''
 def make_upper(text: str) -> str:
     return text.upper()
 
@@ -255,15 +497,20 @@ def make_lower(text: str) -> str:
     return text.lower()
 '''
 
-[test.assertions]
-contains = ["fn make_upper", "fn make_lower"]
+rust = '''
+pub fn make_upper(text: String) -> String {
+    return text.to_uppercase();
+}
+pub fn make_lower(text: String) -> String {
+    return text.to_lowercase();
+}
+'''
 
 [[test]]
 name = "string_methods_strip"
 tags = ["function", "string", "strip"]
 
-[test.python]
-code = '''
+python = '''
 def clean_text(text: str) -> str:
     return text.strip()
 
@@ -274,15 +521,64 @@ def clean_right(text: str) -> str:
     return text.rstrip()
 '''
 
-[test.assertions]
-contains = ["fn clean_text", "fn clean_left", "fn clean_right"]
+rust = '''
+pub fn clean_text(text: String) -> String {
+    return text.trim().to_string();
+}
+pub fn clean_left(text: String) -> String {
+    return text.trim_start().to_string();
+}
+pub fn clean_right(text: String) -> String {
+    return text.trim_end().to_string();
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn quickcheck_clean_text() {
+        fn prop(text: String) -> TestResult {
+            let once = clean_text((&*text).into());
+            let twice = clean_text(once.clone());
+            if once != twice {
+                return TestResult::failed();
+            }
+            TestResult::passed()
+        }
+        quickcheck(prop as fn(String) -> TestResult);
+    }
+    #[test]
+    fn quickcheck_clean_left() {
+        fn prop(text: String) -> TestResult {
+            let once = clean_left((&*text).into());
+            let twice = clean_left(once.clone());
+            if once != twice {
+                return TestResult::failed();
+            }
+            TestResult::passed()
+        }
+        quickcheck(prop as fn(String) -> TestResult);
+    }
+    #[test]
+    fn quickcheck_clean_right() {
+        fn prop(text: String) -> TestResult {
+            let once = clean_right((&*text).into());
+            let twice = clean_right(once.clone());
+            if once != twice {
+                return TestResult::failed();
+            }
+            TestResult::passed()
+        }
+        quickcheck(prop as fn(String) -> TestResult);
+    }
+}
+'''
 
 [[test]]
 name = "string_methods_transform"
 tags = ["function", "string", "transform"]
 
-[test.python]
-code = '''
+python = '''
 def replace_text(text: str) -> str:
     return text.replace("old", "new")
 
@@ -290,15 +586,30 @@ def title_case(text: str) -> str:
     return text.title()
 '''
 
-[test.assertions]
-contains = ["fn replace_text", "fn title_case"]
+rust = '''
+pub fn replace_text(text: String) -> String {
+    return text.replace("old", "new");
+}
+pub fn title_case(text: String) -> String {
+    return text
+        .split_whitespace()
+        .map(|word| {
+            let mut chars = word.chars();
+            match chars.next() {
+                None => String::new(),
+                Some(first) => first.to_uppercase().chain(chars).collect::<String>(),
+            }
+        })
+        .collect::<Vec<_>>()
+        .join(" ");
+}
+'''
 
 [[test]]
 name = "string_methods_predicates"
 tags = ["function", "string", "predicate"]
 
-[test.python]
-code = '''
+python = '''
 def starts_with_test(text: str) -> bool:
     return text.startswith("hello")
 
@@ -306,92 +617,130 @@ def ends_with_test(text: str) -> bool:
     return text.endswith("world")
 '''
 
-[test.assertions]
-contains = ["fn starts_with_test", "fn ends_with_test", "bool"]
+rust = '''
+pub fn starts_with_test(text: String) -> bool {
+    return text.starts_with("hello");
+}
+pub fn ends_with_test(text: String) -> bool {
+    return text.ends_with("world");
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_starts_with_test_examples() {
+        let _ = starts_with_test(Default::default());
+    }
+    #[test]
+    fn test_ends_with_test_examples() {
+        let _ = ends_with_test(Default::default());
+    }
+}
+'''
 
 [[test]]
 name = "string_concat"
 tags = ["function", "string", "concat"]
 
-[test.python]
-code = '''
+python = '''
 def concat_strings(a: str, b: str) -> str:
     return a + b
 '''
 
-[test.assertions]
-contains = ["fn concat_strings"]
-
-# =============================================================================
-# Nested Functions (from test_nested_functions.rs)
-# =============================================================================
+rust = '''
+pub fn concat_strings(a: String, b: String) -> String {
+    return format!("{}{}", a, b);
+}
+'''
 
 [[test]]
 name = "simple_nested_function"
 tags = ["function", "nested"]
 
-[test.python]
-code = '''
+python = '''
 def outer():
     def inner(x):
         return x * 2
     return inner(5)
 '''
 
-[test.assertions]
-contains = ["fn outer", "inner", "x * 2"]
+rust = '''
+pub fn outer() {
+    fn inner(x: ()) -> () {
+        return x * 2;
+    }
+    return inner(5);
+}
+'''
 
 [[test]]
 name = "nested_with_multiple_params"
 tags = ["function", "nested", "parameters"]
 
-[test.python]
-code = '''
+python = '''
 def outer():
     def add(a, b):
         return a + b
     return add(3, 4)
 '''
 
-[test.assertions]
-contains = ["fn outer", "add"]
+rust = '''
+pub fn outer() {
+    fn add(a: (), b: ()) -> () {
+        return a + b;
+    }
+    return add(3, 4);
+}
+'''
 
 [[test]]
 name = "nested_with_closure_capture"
 tags = ["function", "nested", "closure"]
 
-[test.python]
-code = '''
+python = '''
 def outer(y):
     def inner(x):
         return x + y
     return inner(5)
 '''
 
-[test.assertions]
-contains = ["x + y"]
+rust = '''
+use serde_json;
+pub fn outer(y: &serde_json::Value) {
+    fn inner(x: ()) -> () {
+        return x + y;
+    }
+    return inner(5);
+}
+'''
 
 [[test]]
 name = "nested_with_multiple_captures"
 tags = ["function", "nested", "closure"]
 
-[test.python]
-code = '''
+python = '''
 def outer(y, z):
     def inner(x):
         return x + y + z
     return inner(5)
 '''
 
-[test.assertions]
-contains = ["fn outer"]
+rust = '''
+use serde_json;
+pub fn outer(y: &serde_json::Value, z: &serde_json::Value) {
+    fn inner(x: ()) -> () {
+        return x + y + z;
+    }
+    return inner(5);
+}
+'''
 
 [[test]]
 name = "nested_function_with_docstring"
 tags = ["function", "nested", "docstring"]
 
-[test.python]
-code = '''
+python = '''
 def outer():
     def inner(x):
         """Double the input"""
@@ -399,34 +748,40 @@ def outer():
     return inner(5)
 '''
 
-[test.assertions]
-contains = ["fn outer"]
+rust = '''
+pub fn outer() {
+    fn inner(x: ()) -> () {
+        return x * 2;
+    }
+    return inner(5);
+}
+'''
 
 [[test]]
 name = "nested_function_with_type_hints"
 tags = ["function", "nested", "types"]
 
-[test.python]
-code = '''
+python = '''
 def outer():
     def inner(x: int) -> int:
         return x * 2
     return inner(5)
 '''
 
-[test.assertions]
-contains = ["fn outer"]
-
-# =============================================================================
-# Default Arguments (from test_default_arguments.rs)
-# =============================================================================
+rust = '''
+pub fn outer() {
+    fn inner(x: i64) -> i64 {
+        return x * 2;
+    }
+    return inner(5);
+}
+'''
 
 [[test]]
 name = "mixed_positional_and_named"
 tags = ["function", "default", "arguments"]
 
-[test.python]
-code = '''
+python = '''
 def greet(name: str, greeting: str = "Hello") -> str:
     return f"{greeting}, {name}!"
 
@@ -434,15 +789,20 @@ def test() -> str:
     return greet("Alice", greeting="Hi")
 '''
 
-[test.assertions]
-contains = ["greet(\"Alice\".to_string(), \"Hi\".to_string())"]
+rust = '''
+pub fn greet(name: String, greeting: String) -> String {
+    return format!("{}, {}!", greeting, name);
+}
+pub fn test() -> String {
+    return greet("Alice".to_string(), "Hi".to_string());
+}
+'''
 
 [[test]]
 name = "all_named_arguments"
 tags = ["function", "default", "kwargs"]
 
-[test.python]
-code = '''
+python = '''
 def configure(width: int, height: int, title: str) -> dict:
     return {"width": width, "height": height, "title": title}
 
@@ -450,15 +810,28 @@ def test() -> dict:
     return configure(width=800, height=600, title="My App")
 '''
 
-[test.assertions]
-contains = ["configure(800, 600, \"My App\".to_string())"]
+rust = '''
+use serde_json;
+use std::collections::HashMap;
+pub fn configure(width: i32, height: i32, title: String) -> HashMap<String, serde_json::Value> {
+    return {
+        let mut map = HashMap::new();
+        map.insert("width".to_string(), width);
+        map.insert("height".to_string(), height);
+        map.insert("title".to_string(), title);
+        map
+    };
+}
+pub fn test() -> HashMap<serde_json::Value, serde_json::Value> {
+    return configure(800, 600, "My App".to_string());
+}
+'''
 
 [[test]]
 name = "multiple_named_after_positional"
 tags = ["function", "default", "mixed"]
 
-[test.python]
-code = '''
+python = '''
 def calculate(a: int, b: int, operation: str = "add", verbose: bool = False) -> int:
     if operation == "add":
         result = a + b
@@ -472,15 +845,39 @@ def test() -> int:
     return calculate(10, 20, verbose=True, operation="add")
 '''
 
-[test.assertions]
-contains = ["calculate(10, 20, \"add\".to_string(), true)"]
+rust = '''
+pub fn calculate(a: i32, b: i32, operation: String, verbose: bool) -> i32 {
+    let _cse_temp_0 = operation == "add".to_string();
+    let result;
+    if _cse_temp_0 {
+        result = a + b;
+    } else {
+        result = a - b;
+    }
+    if verbose {
+        println!("{}", format!("Result: {}", result));
+    }
+    return result;
+}
+pub fn test() -> i32 {
+    return calculate(10, 20, "add".to_string(), true);
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_test_examples() {
+        let _ = test();
+    }
+}
+'''
 
 [[test]]
 name = "nested_function_calls"
 tags = ["function", "nested", "calls"]
 
-[test.python]
-code = '''
+python = '''
 def inner(x: int, y: int) -> int:
     return x + y
 
@@ -491,15 +888,53 @@ def test() -> int:
     return outer(inner(x=10, y=20), scale=2.0, offset=inner(x=5, y=5))
 '''
 
-[test.assertions]
-contains = ["outer(inner(10, 20), 2.0, inner(5, 5))"]
+rust = '''
+pub fn inner(x: i32, y: i32) -> i32 {
+    return x + y;
+}
+pub fn outer(inner_result: i32, scale: f64, offset: i32) -> i32 {
+    return inner_result * (scale) as i32 + offset;
+}
+pub fn test() -> i32 {
+    return outer(inner(10, 20), 2.0, inner(5, 5));
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn quickcheck_inner() {
+        fn prop(x: i32, y: i32) -> TestResult {
+            if (x > 0 && y > i32::MAX - x) || (x < 0 && y < i32::MIN - x) {
+                return TestResult::discard();
+            }
+            let result1 = inner(x.clone(), y.clone());
+            let result2 = inner(y.clone(), x.clone());
+            if result1 != result2 {
+                return TestResult::failed();
+            }
+            TestResult::passed()
+        }
+        quickcheck(prop as fn(i32, i32) -> TestResult);
+    }
+    #[test]
+    fn test_inner_examples() {
+        assert_eq!(inner(0, 0), 0);
+        assert_eq!(inner(1, 2), 3);
+        assert_eq!(inner(-1, 1), 0);
+    }
+    #[test]
+    fn test_test_examples() {
+        let _ = test();
+    }
+}
+'''
 
 [[test]]
 name = "only_positional_args"
 tags = ["function", "arguments", "positional"]
 
-[test.python]
-code = '''
+python = '''
 def add(a: int, b: int) -> int:
     return a + b
 
@@ -507,15 +942,50 @@ def test() -> int:
     return add(5, 3)
 '''
 
-[test.assertions]
-contains = ["add(5, 3)"]
+rust = '''
+pub fn add(a: i32, b: i32) -> i32 {
+    return a + b;
+}
+pub fn test() -> i32 {
+    return add(5, 3);
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn quickcheck_add() {
+        fn prop(a: i32, b: i32) -> TestResult {
+            if (a > 0 && b > i32::MAX - a) || (a < 0 && b < i32::MIN - a) {
+                return TestResult::discard();
+            }
+            let result1 = add(a.clone(), b.clone());
+            let result2 = add(b.clone(), a.clone());
+            if result1 != result2 {
+                return TestResult::failed();
+            }
+            TestResult::passed()
+        }
+        quickcheck(prop as fn(i32, i32) -> TestResult);
+    }
+    #[test]
+    fn test_add_examples() {
+        assert_eq!(add(0, 0), 0);
+        assert_eq!(add(1, 2), 3);
+        assert_eq!(add(-1, 1), 0);
+    }
+    #[test]
+    fn test_test_examples() {
+        let _ = test();
+    }
+}
+'''
 
 [[test]]
 name = "empty_function_call"
 tags = ["function", "arguments"]
 
-[test.python]
-code = '''
+python = '''
 def no_params() -> int:
     return 42
 
@@ -523,15 +993,33 @@ def test() -> int:
     return no_params()
 '''
 
-[test.assertions]
-contains = ["no_params()"]
+rust = '''
+pub fn no_params() -> i32 {
+    return 42;
+}
+pub fn test() -> i32 {
+    return no_params();
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_no_params_examples() {
+        let _ = no_params();
+    }
+    #[test]
+    fn test_test_examples() {
+        let _ = test();
+    }
+}
+'''
 
 [[test]]
 name = "reordered_arguments"
 tags = ["function", "arguments", "kwargs"]
 
-[test.python]
-code = '''
+python = '''
 def format_message(name: str, age: int, city: str, country: str) -> str:
     return f"{name} is {age} years old from {city}, {country}"
 
@@ -539,50 +1027,57 @@ def test() -> str:
     return format_message(country="USA", name="Alice", city="New York", age=30)
 '''
 
-[test.assertions]
-contains = ["fn format_message"]
-
-# =============================================================================
-# Main Return Type (from test_main_return_type.rs)
-# =============================================================================
+rust = '''
+pub fn format_message(name: String, age: i32, city: String, country: String) -> String {
+    return format!("{} is {} years old from {}, {}", name, age, city, country);
+}
+pub fn test() -> String {
+    return format_message("Alice".to_string(), 30, "New York".to_string(), "USA".to_string());
+}
+'''
 
 [[test]]
 name = "main_without_return_type"
 tags = ["function", "main", "return-type"]
 compile_check = true
 
-[test.python]
-code = '''
+python = '''
 def main():
     """Entry point without return type."""
     print("Hello world")
 '''
 
-[test.assertions]
-contains = ["fn main"]
+rust = '''
+#[doc = "Entry point without return type."]
+pub fn main() {
+    println!("{}", "Hello world");
+}
+'''
 
 [[test]]
 name = "main_with_none_return_type"
 tags = ["function", "main", "return-type"]
 compile_check = true
 
-[test.python]
-code = '''
+python = '''
 def main() -> None:
     """Entry point with explicit None return."""
     print("Hello world")
 '''
 
-[test.assertions]
-contains = ["fn main"]
+rust = '''
+#[doc = "Entry point with explicit None return."]
+pub fn main() {
+    println!("{}", "Hello world");
+}
+'''
 
 [[test]]
 name = "regular_function_without_return"
 tags = ["function", "return-type"]
 compile_check = true
 
-[test.python]
-code = '''
+python = '''
 def helper():
     """Helper function without return type."""
     print("Helping")
@@ -592,16 +1087,23 @@ def main() -> None:
     helper()
 '''
 
-[test.assertions]
-contains = ["fn helper", "fn main"]
+rust = '''
+#[doc = "Helper function without return type."]
+pub fn helper() {
+    println!("{}", "Helping");
+}
+#[doc = "Call the helper."]
+pub fn main() {
+    helper();
+}
+'''
 
 [[test]]
 name = "function_with_none_return"
 tags = ["function", "return-type"]
 compile_check = true
 
-[test.python]
-code = '''
+python = '''
 def process() -> None:
     """Process something without returning."""
     value = 42
@@ -612,16 +1114,24 @@ def main() -> None:
     process()
 '''
 
-[test.assertions]
-contains = ["fn process", "fn main"]
+rust = '''
+#[doc = "Process something without returning."]
+pub fn process() {
+    let value = 42;
+    println!("{}", value);
+}
+#[doc = "Entry point."]
+pub fn main() {
+    process();
+}
+'''
 
 [[test]]
 name = "mixed_return_types"
 tags = ["function", "return-type"]
 compile_check = true
 
-[test.python]
-code = '''
+python = '''
 def get_value() -> int:
     """Returns an integer."""
     return 42
@@ -641,16 +1151,42 @@ def main():
     process()
 '''
 
-[test.assertions]
-contains = ["fn get_value", "fn process", "fn helper", "fn main"]
+rust = '''
+#[doc = "Returns an integer."]
+pub fn get_value() -> i32 {
+    return 42;
+}
+#[doc = "Processes without returning."]
+pub fn process() {
+    let value = get_value();
+    println!("{}", value);
+}
+#[doc = "Helper without return type."]
+pub fn helper() {
+    println!("{}", "Helping");
+}
+#[doc = "Entry point."]
+pub fn main() {
+    helper();
+    process();
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_get_value_examples() {
+        let _ = get_value();
+    }
+}
+'''
 
 [[test]]
 name = "main_with_early_return"
 tags = ["function", "main", "return"]
 compile_check = true
 
-[test.python]
-code = '''
+python = '''
 def main() -> None:
     """Main with early return."""
     if True:
@@ -659,16 +1195,23 @@ def main() -> None:
     print("Normal exit")
 '''
 
-[test.assertions]
-contains = ["fn main"]
+rust = '''
+#[doc = "Main with early return."]
+pub fn main() {
+    if true {
+        println!("{}", "Early exit");
+        return;
+    }
+    println!("{}", "Normal exit");
+}
+'''
 
 [[test]]
 name = "benchmark_main_pattern"
 tags = ["function", "main", "benchmark"]
 compile_check = true
 
-[test.python]
-code = '''
+python = '''
 def fibonacci_iterative(n: int) -> int:
     """Calculate nth Fibonacci number."""
     if n <= 1:
@@ -689,20 +1232,49 @@ def main():
         print(result)
 '''
 
-[test.assertions]
-contains = ["fn fibonacci_iterative", "fn main"]
-
-# =============================================================================
-# Function Borrowing (from test_function_borrowing.rs)
-# =============================================================================
+rust = '''
+#[doc = "Calculate nth Fibonacci number."]
+pub fn fibonacci_iterative(n: i32) -> i32 {
+    let _cse_temp_0 = n <= 1;
+    if _cse_temp_0 {
+        return n;
+    }
+    let mut a = 0;
+    let mut b = 1;
+    for _i in 2..n + 1 {
+        let c = a + b;
+        a = b;
+        b = c;
+    }
+    return b;
+}
+#[doc = "Run benchmark - NO RETURN TYPE."]
+pub fn main() {
+    let limits = vec![25, 30, 35];
+    for limit in limits.iter().cloned() {
+        let result = fibonacci_iterative(limit);
+        println!("{}", result);
+    }
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_fibonacci_iterative_examples() {
+        assert_eq!(fibonacci_iterative(0), 0);
+        assert_eq!(fibonacci_iterative(1), 1);
+        assert_eq!(fibonacci_iterative(-1), -1);
+    }
+}
+'''
 
 [[test]]
 name = "basic_reference_parameter"
 tags = ["function", "borrow", "reference"]
 compile_check = true
 
-[test.python]
-code = '''
+python = '''
 def process(data: list[int]) -> int:
     """Function that expects a reference to a list."""
     return len(data)
@@ -714,16 +1286,36 @@ def main() -> None:
     print(result)
 '''
 
-[test.assertions]
-contains = ["fn process", "fn main"]
+rust = '''
+#[doc = "Function that expects a reference to a list."]
+pub fn process(data: &Vec<i32>) -> i32 {
+    return data.len() as i32 as i32;
+}
+#[doc = "Caller passes owned list."]
+pub fn main() {
+    let nums = vec![1, 2, 3];
+    let result = process(&nums);
+    println!("{}", result);
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_process_examples() {
+        assert_eq!(process(vec![]), 0);
+        assert_eq!(process(vec![1]), 1);
+        assert_eq!(process(vec![1, 2, 3]), 3);
+    }
+}
+'''
 
 [[test]]
 name = "multiple_reference_parameters"
 tags = ["function", "borrow", "reference"]
 compile_check = true
 
-[test.python]
-code = '''
+python = '''
 def merge(list1: list[int], list2: list[int]) -> list[int]:
     """Merge two lists."""
     return list1 + list2
@@ -736,16 +1328,43 @@ def main() -> None:
     print(result)
 '''
 
-[test.assertions]
-contains = ["fn merge", "fn main"]
+rust = '''
+#[doc = "Merge two lists."]
+pub fn merge(list1: &Vec<i32>, list2: &Vec<i32>) -> Vec<i32> {
+    return list1.iter().chain(list2.iter()).cloned().collect::<Vec<_>>();
+}
+#[doc = "Call with two owned lists."]
+pub fn main() {
+    let a = vec![1, 2];
+    let b = vec![3, 4];
+    let result = merge(&a, &b);
+    println!("{:?}", result);
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn quickcheck_merge() {
+        fn prop(list1: Vec<i32>, list2: Vec<i32>) -> TestResult {
+            let result1 = merge(&list1, &list2);
+            let result2 = merge(&list2, &list1);
+            if result1 != result2 {
+                return TestResult::failed();
+            }
+            TestResult::passed()
+        }
+        quickcheck(prop as fn(Vec<i32>, Vec<i32>) -> TestResult);
+    }
+}
+'''
 
 [[test]]
 name = "string_reference_parameter"
 tags = ["function", "borrow", "string"]
 compile_check = true
 
-[test.python]
-code = '''
+python = '''
 def process_text(text: str) -> int:
     """Process a string."""
     return len(text)
@@ -757,16 +1376,36 @@ def main() -> None:
     print(length)
 '''
 
-[test.assertions]
-contains = ["fn process_text", "fn main"]
+rust = '''
+#[doc = "Process a string."]
+pub fn process_text(text: String) -> i32 {
+    return text.len() as i32 as i32;
+}
+#[doc = "Pass owned string."]
+pub fn main() {
+    let message = "hello world".to_string();
+    let length = process_text(message);
+    println!("{}", length);
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_process_text_examples() {
+        assert_eq!(process_text(""), 0);
+        assert_eq!(process_text("a"), 1);
+        assert_eq!(process_text("abc"), 3);
+    }
+}
+'''
 
 [[test]]
 name = "dict_reference_parameter"
 tags = ["function", "borrow", "dict"]
 compile_check = true
 
-[test.python]
-code = '''
+python = '''
 def count_keys(data: dict[str, int]) -> int:
     """Count keys in dict."""
     return len(data)
@@ -778,16 +1417,32 @@ def main() -> None:
     print(count)
 '''
 
-[test.assertions]
-contains = ["fn count_keys", "fn main"]
+rust = '''
+use std::collections::HashMap;
+#[doc = "Count keys in dict."]
+pub fn count_keys(data: &HashMap<String, i32>) -> i32 {
+    return data.len() as i32 as i32;
+}
+#[doc = "Pass owned dict."]
+pub fn main() {
+    let info = {
+        let mut map = HashMap::new();
+        map.insert("a".to_string(), 1);
+        map.insert("b".to_string(), 2);
+        map.insert("c".to_string(), 3);
+        map
+    };
+    let count = count_keys(&info);
+    println!("{}", count);
+}
+'''
 
 [[test]]
 name = "reference_list_str"
 tags = ["function", "borrow", "list"]
 compile_check = true
 
-[test.python]
-code = '''
+python = '''
 def f(x: list[str]) -> int:
     return len(x)
 
@@ -796,16 +1451,33 @@ def main() -> None:
     f(v)
 '''
 
-[test.assertions]
-contains = ["fn f", "fn main"]
+rust = '''
+pub fn f(x: &Vec<String>) -> i32 {
+    return x.len() as i32 as i32;
+}
+pub fn main() {
+    let v = vec!["a".to_string(), "b".to_string()];
+    f(&v);
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_f_examples() {
+        assert_eq!(f(vec![]), 0);
+        assert_eq!(f(vec![1]), 1);
+        assert_eq!(f(vec![1, 2, 3]), 3);
+    }
+}
+'''
 
 [[test]]
 name = "reference_set_int"
 tags = ["function", "borrow", "set"]
 compile_check = true
 
-[test.python]
-code = '''
+python = '''
 def f(x: set[int]) -> int:
     return len(x)
 
@@ -814,34 +1486,50 @@ def main() -> None:
     f(v)
 '''
 
-[test.assertions]
-contains = ["fn f", "fn main"]
-
-# =============================================================================
-# Star Args Unpacking (from test_star_args_unpacking.rs)
-# =============================================================================
+rust = '''
+use std::collections::HashSet;
+pub fn f(x: &HashSet<i32>) -> i32 {
+    return x.len() as i32 as i32;
+}
+pub fn main() {
+    let v = {
+        let mut set = HashSet::new();
+        set.insert(1);
+        set.insert(2);
+        set.insert(3);
+        set
+    };
+    f(&v);
+}
+'''
 
 [[test]]
 name = "star_args_basic"
 tags = ["function", "varargs", "star"]
 
-[test.python]
-code = '''
+python = '''
 import os
 
 def join_paths(*parts: str) -> str:
     return os.path.join(*parts)
 '''
 
-[test.assertions]
-contains = ["fn join_paths"]
+rust = '''
+use std as os;
+pub fn join_paths() -> String {
+    return if parts.is_empty() {
+        String::new()
+    } else {
+        parts.join(std::path::MAIN_SEPARATOR_STR)
+    };
+}
+'''
 
 [[test]]
 name = "star_args_with_list"
 tags = ["function", "varargs", "list"]
 
-[test.python]
-code = '''
+python = '''
 import os
 
 def test() -> str:
@@ -849,91 +1537,159 @@ def test() -> str:
     return os.path.join(*parts)
 '''
 
-[test.assertions]
-contains = ["fn test"]
+rust = '''
+use std as os;
+pub fn test() -> String {
+    let parts = vec!["home".to_string(), "user".to_string(), "docs".to_string()];
+    return if parts.is_empty() {
+        String::new()
+    } else {
+        parts.join(std::path::MAIN_SEPARATOR_STR)
+    };
+}
+'''
 
 [[test]]
 name = "star_args_mixed"
 tags = ["function", "varargs", "mixed"]
 
-[test.python]
-code = '''
+python = '''
 import os
 
 def test(base: str, *rest: str) -> str:
     return os.path.join(base, *rest)
 '''
 
-[test.assertions]
-contains = ["fn test"]
+rust = '''
+use std as os;
+pub fn test(base: String) -> String {
+    return if rest.is_empty() {
+        String::new()
+    } else {
+        rest.join(std::path::MAIN_SEPARATOR_STR)
+    };
+}
+'''
 
 [[test]]
 name = "print_starred"
 tags = ["function", "varargs", "print"]
 
-[test.python]
-code = '''
+python = '''
 def print_all(*items):
     print(*items)
 '''
 
-[test.assertions]
-contains = ["fn print_all"]
-
-# =============================================================================
-# Return Statement Style - Idiomatic Rust
-# =============================================================================
+rust = '''
+pub fn print_all() {
+    {
+        for item in items {
+            print!("{} ", item);
+        }
+        println!();
+    };
+}
+'''
 
 [[test]]
 name = "final_return_expression_style"
 description = "Final return should use expression style, not return keyword"
 tags = ["function", "return", "idiomatic"]
-skip = true  # TODO: Transpiler currently generates return keyword; needs implementation
 
-[test.python]
-code = '''
+python = '''
 def add(a: int, b: int) -> int:
     return a + b
 '''
 
-[test.assertions]
-contains = ["a + b"]
-not_contains = ["return a + b"]
+rust = '''
+pub fn add(a: i32, b: i32) -> i32 {
+    a + b
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn quickcheck_add() {
+        fn prop(a: i32, b: i32) -> TestResult {
+            if (a > 0 && b > i32::MAX - a) || (a < 0 && b < i32::MIN - a) {
+                return TestResult::discard();
+            }
+            let result1 = add(a.clone(), b.clone());
+            let result2 = add(b.clone(), a.clone());
+            if result1 != result2 {
+                return TestResult::failed();
+            }
+            TestResult::passed()
+        }
+        quickcheck(prop as fn(i32, i32) -> TestResult);
+    }
+    #[test]
+    fn test_add_examples() {
+        assert_eq!(add(0, 0), 0);
+        assert_eq!(add(1, 2), 3);
+        assert_eq!(add(-1, 1), 0);
+    }
+}
+'''
 
 [[test]]
 name = "early_return_preserved"
 description = "Early return in control flow should keep return keyword"
 tags = ["function", "return", "early-return"]
 
-[test.python]
-code = '''
+python = '''
 def max_value(a: int, b: int) -> int:
     if a > b:
         return a
     return b
 '''
 
-[test.assertions]
-contains = ["return a"]
+rust = '''
+pub fn max_value(a: i32, b: i32) -> i32 {
+    let _cse_temp_0 = a > b;
+    if _cse_temp_0 {
+        return a;
+    }
+    return b;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_max_value_examples() {
+        assert_eq!(max_value(0, 0), 0);
+        assert_eq!(max_value(1, 2), 3);
+        assert_eq!(max_value(-1, 1), 0);
+    }
+}
+'''
 
 [[test]]
 name = "boolean_return_expression"
 description = "Boolean return should use expression style"
 tags = ["function", "return", "bool"]
-skip = true  # TODO: Transpiler currently generates return keyword; needs implementation
 
-[test.python]
-code = '''
+python = '''
 def check_positive(x: int) -> bool:
     return x > 0
 '''
 
-[test.assertions]
-contains = ["x > 0"]
-
-# =============================================================================
-# Property-Based Test Generation (migrated from test_property_based_generation.rs)
-# =============================================================================
+rust = '''
+pub fn check_positive(x: i32) -> bool {
+    x > 0
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_check_positive_examples() {
+        let _ = check_positive(Default::default());
+    }
+}
+'''
 
 [[test]]
 name = "pure_add_function"
@@ -941,14 +1697,42 @@ description = "Simple pure function for adding integers"
 tags = ["function", "pure", "property-based"]
 compile_check = true
 
-[test.python]
-code = '''
+python = '''
 def add(a: int, b: int) -> int:
     return a + b
 '''
 
-[test.assertions]
-contains = ["fn add"]
+rust = '''
+pub fn add(a: i32, b: i32) -> i32 {
+    return a + b;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn quickcheck_add() {
+        fn prop(a: i32, b: i32) -> TestResult {
+            if (a > 0 && b > i32::MAX - a) || (a < 0 && b < i32::MIN - a) {
+                return TestResult::discard();
+            }
+            let result1 = add(a.clone(), b.clone());
+            let result2 = add(b.clone(), a.clone());
+            if result1 != result2 {
+                return TestResult::failed();
+            }
+            TestResult::passed()
+        }
+        quickcheck(prop as fn(i32, i32) -> TestResult);
+    }
+    #[test]
+    fn test_add_examples() {
+        assert_eq!(add(0, 0), 0);
+        assert_eq!(add(1, 2), 3);
+        assert_eq!(add(-1, 1), 0);
+    }
+}
+'''
 
 [[test]]
 name = "bubble_sort_function"
@@ -956,8 +1740,7 @@ description = "Sorting function with nested loops"
 tags = ["function", "sorting", "property-based"]
 compile_check = true
 
-[test.python]
-code = '''
+python = '''
 def bubble_sort(arr: list[int]) -> list[int]:
     n = len(arr)
     for i in range(n):
@@ -967,8 +1750,98 @@ def bubble_sort(arr: list[int]) -> list[int]:
     return arr
 '''
 
-[test.assertions]
-contains = ["fn bubble_sort"]
+rust = '''
+#[derive(Debug, Clone)]
+pub struct IndexError {
+    message: String,
+}
+impl std::fmt::Display for IndexError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "index out of range: {}", self.message)
+    }
+}
+impl std::error::Error for IndexError {}
+impl IndexError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = " Depyler: proven to terminate"]
+pub fn bubble_sort(mut arr: Vec<i32>) -> Vec<i32> {
+    let _cse_temp_0 = arr.clone().len() as i32;
+    let n = _cse_temp_0;
+    for i in 0..n {
+        for j in 0..n - i - 1 {
+            if arr.clone().get(j as usize).cloned().unwrap() > {
+                let base = &arr.clone();
+                let idx: i32 = j + 1;
+                let actual_idx = if idx < 0 {
+                    base.len().saturating_sub(idx.abs() as usize)
+                } else {
+                    idx as usize
+                };
+                base.get(actual_idx).cloned().unwrap()
+            } {
+                {
+                    let (_swap_tmp0, _swap_tmp1) = (
+                        {
+                            let base = &arr.clone();
+                            let idx: i32 = j + 1;
+                            let actual_idx = if idx < 0 {
+                                base.len().saturating_sub(idx.abs() as usize)
+                            } else {
+                                idx as usize
+                            };
+                            base.get(actual_idx).cloned().unwrap()
+                        },
+                        arr.clone().get(j as usize).cloned().unwrap(),
+                    );
+                    arr[j as usize] = _swap_tmp0;
+                    arr[j + 1 as usize] = _swap_tmp1;
+                }
+            }
+        }
+    }
+    return arr;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn quickcheck_bubble_sort() {
+        fn prop(arr: Vec<i32>) -> TestResult {
+            let input_len = arr.len();
+            let result = bubble_sort(&arr);
+            if result.len() != input_len {
+                return TestResult::failed();
+            }
+            let result = bubble_sort(&arr);
+            for i in 1..result.len() {
+                if result[i - 1] > result[i] {
+                    return TestResult::failed();
+                }
+            }
+            let mut input_sorted = arr.clone();
+            input_sorted.sort();
+            let mut result = bubble_sort(&arr);
+            result.sort();
+            if input_sorted != result {
+                return TestResult::failed();
+            }
+            TestResult::passed()
+        }
+        quickcheck(prop as fn(Vec<i32>) -> TestResult);
+    }
+    #[test]
+    fn test_bubble_sort_examples() {
+        assert_eq!(bubble_sort(vec![]), vec![]);
+        assert_eq!(bubble_sort(vec![1]), vec![1]);
+    }
+}
+'''
 
 [[test]]
 name = "abs_value_function"
@@ -976,16 +1849,45 @@ description = "Absolute value function"
 tags = ["function", "math", "property-based"]
 compile_check = true
 
-[test.python]
-code = '''
+python = '''
 def abs_value(x: int) -> int:
     if x < 0:
         return -x
     return x
 '''
 
-[test.assertions]
-contains = ["fn abs_value"]
+rust = '''
+pub fn abs_value(x: i32) -> i32 {
+    let _cse_temp_0 = x < 0;
+    if _cse_temp_0 {
+        return (-x);
+    }
+    return x;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn quickcheck_abs_value() {
+        fn prop(x: i32) -> TestResult {
+            let result = abs_value(x.clone());
+            if result < 0 {
+                return TestResult::failed();
+            }
+            TestResult::passed()
+        }
+        quickcheck(prop as fn(i32) -> TestResult);
+    }
+    #[test]
+    fn test_abs_value_examples() {
+        assert_eq!(abs_value(0), 0);
+        assert_eq!(abs_value(1), 1);
+        assert_eq!(abs_value(-1), 1);
+        assert_eq!(abs_value(i32::MIN + 1), i32::MAX);
+    }
+}
+'''
 
 [[test]]
 name = "safe_divide_function"
@@ -993,16 +1895,62 @@ description = "Division with safety check for zero"
 tags = ["function", "safety", "property-based"]
 compile_check = true
 
-[test.python]
-code = '''
+python = '''
 def safe_divide(a: int, b: int) -> int:
     if b == 0:
         return 0
     return a // b
 '''
 
-[test.assertions]
-contains = ["fn safe_divide"]
+rust = '''
+#[derive(Debug, Clone)]
+pub struct ZeroDivisionError {
+    message: String,
+}
+impl std::fmt::Display for ZeroDivisionError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "division by zero: {}", self.message)
+    }
+}
+impl std::error::Error for ZeroDivisionError {}
+impl ZeroDivisionError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = " Depyler: proven to terminate"]
+pub fn safe_divide(a: i32, b: i32) -> i32 {
+    let _cse_temp_0 = b == 0;
+    if _cse_temp_0 {
+        return 0;
+    }
+    return {
+        let a = a;
+        let b = b;
+        let q = a / b;
+        let r = a % b;
+        let r_negative = r < 0;
+        let b_negative = b < 0;
+        let r_nonzero = r != 0;
+        let signs_differ = r_negative != b_negative;
+        let needs_adjustment = r_nonzero && signs_differ;
+        if needs_adjustment { q - 1 } else { q }
+    };
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_safe_divide_examples() {
+        assert_eq!(safe_divide(0, 0), 0);
+        assert_eq!(safe_divide(1, 2), 3);
+        assert_eq!(safe_divide(-1, 1), 0);
+    }
+}
+'''
 
 [[test]]
 name = "normalize_path_function"
@@ -1010,8 +1958,7 @@ description = "Path normalization with string operations"
 tags = ["function", "string", "property-based"]
 compile_check = true
 
-[test.python]
-code = '''
+python = '''
 def normalize_path(path: str) -> str:
     while "//" in path:
         path = path.replace("//", "/")
@@ -1020,8 +1967,41 @@ def normalize_path(path: str) -> str:
     return path
 '''
 
-[test.assertions]
-contains = ["fn normalize_path"]
+rust = '''
+pub fn normalize_path(mut path: String) -> String {
+    while path.clone().contains(&"//") {
+        path = path.clone().replace("//", "/");
+    }
+    let _cse_temp_0 = path.clone().len() as i32;
+    let _cse_temp_1 = _cse_temp_0 > 1;
+    let _cse_temp_2 = (_cse_temp_1) && (path.ends_with("/"));
+    if _cse_temp_2 {
+        path = {
+            let base = &path;
+            let stop = (-1).max(0) as usize;
+            base[..stop.min(base.len())].to_vec()
+        };
+    }
+    return path;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn quickcheck_normalize_path() {
+        fn prop(path: String) -> TestResult {
+            let once = normalize_path((&*path).into());
+            let twice = normalize_path(once.clone());
+            if once != twice {
+                return TestResult::failed();
+            }
+            TestResult::passed()
+        }
+        quickcheck(prop as fn(String) -> TestResult);
+    }
+}
+'''
 
 [[test]]
 name = "email_validation_function"
@@ -1029,8 +2009,7 @@ description = "Email validation with string checks"
 tags = ["function", "validation", "property-based"]
 compile_check = true
 
-[test.python]
-code = '''
+python = '''
 def is_valid_email(email: str) -> bool:
     if "@" not in email:
         return False
@@ -1042,8 +2021,50 @@ def is_valid_email(email: str) -> bool:
     return len(local) > 0 and len(domain) > 0 and "." in domain
 '''
 
-[test.assertions]
-contains = ["fn is_valid_email"]
+rust = '''
+#[derive(Debug, Clone)]
+pub struct IndexError {
+    message: String,
+}
+impl std::fmt::Display for IndexError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "index out of range: {}", self.message)
+    }
+}
+impl std::error::Error for IndexError {}
+impl IndexError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = " Depyler: proven to terminate"]
+pub fn is_valid_email(email: String) -> bool {
+    let _cse_temp_0 = !email.contains(&"@");
+    if _cse_temp_0 {
+        return false;
+    }
+    let parts = email.split("@").map(|s| s.to_string()).collect::<Vec<String>>();
+    let _cse_temp_1 = parts.clone().len() as i32;
+    let _cse_temp_2 = _cse_temp_1 != 2;
+    if _cse_temp_2 {
+        return false;
+    }
+    let local = parts.clone().get(0usize).cloned().unwrap();
+    let domain = parts.get(1usize).cloned().unwrap();
+    return ((local.len() as i32 > 0) && (domain.clone().len() as i32 > 0)) && (domain.contains(&"."));
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_is_valid_email_examples() {
+        let _ = is_valid_email(Default::default());
+    }
+}
+'''
 
 [[test]]
 name = "find_max_function"
@@ -1051,8 +2072,7 @@ description = "Find maximum element in array"
 tags = ["function", "search", "property-based"]
 compile_check = true
 
-[test.python]
-code = '''
+python = '''
 def find_max(arr: list[int]) -> int:
     if len(arr) == 0:
         return 0
@@ -1063,12 +2083,50 @@ def find_max(arr: list[int]) -> int:
     return max_val
 '''
 
-[test.assertions]
-contains = ["fn find_max"]
-
-# =============================================================================
-# Transpilation Tests (migrated from test_transpilations.rs)
-# =============================================================================
+rust = '''
+#[derive(Debug, Clone)]
+pub struct IndexError {
+    message: String,
+}
+impl std::fmt::Display for IndexError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "index out of range: {}", self.message)
+    }
+}
+impl std::error::Error for IndexError {}
+impl IndexError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+pub fn find_max(arr: &Vec<i32>) -> i32 {
+    let _cse_temp_0 = arr.clone().len() as i32;
+    let _cse_temp_1 = _cse_temp_0 == 0;
+    if _cse_temp_1 {
+        return 0;
+    }
+    let mut max_val = arr.clone().get(0usize).cloned().unwrap();
+    for x in arr.iter().cloned() {
+        if x > max_val {
+            max_val = x;
+        }
+    }
+    return max_val;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_find_max_examples() {
+        assert_eq!(find_max(vec![]), 0);
+        assert_eq!(find_max(vec![1]), 1);
+        assert_eq!(find_max(vec![1, 2, 3]), 3);
+    }
+}
+'''
 
 [[test]]
 name = "simple_function_transpilation"
@@ -1076,14 +2134,42 @@ description = "Simple function with add operation"
 tags = ["transpilation", "function", "arithmetic"]
 compile_check = true
 
-[test.python]
-code = '''
+python = '''
 def add_numbers(a: int, b: int) -> int:
     return a + b
 '''
 
-[test.assertions]
-contains = ["fn add_numbers", "a: i32", "b: i32", "-> i32"]
+rust = '''
+pub fn add_numbers(a: i32, b: i32) -> i32 {
+    return a + b;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn quickcheck_add_numbers() {
+        fn prop(a: i32, b: i32) -> TestResult {
+            if (a > 0 && b > i32::MAX - a) || (a < 0 && b < i32::MIN - a) {
+                return TestResult::discard();
+            }
+            let result1 = add_numbers(a.clone(), b.clone());
+            let result2 = add_numbers(b.clone(), a.clone());
+            if result1 != result2 {
+                return TestResult::failed();
+            }
+            TestResult::passed()
+        }
+        quickcheck(prop as fn(i32, i32) -> TestResult);
+    }
+    #[test]
+    fn test_add_numbers_examples() {
+        assert_eq!(add_numbers(0, 0), 0);
+        assert_eq!(add_numbers(1, 2), 3);
+        assert_eq!(add_numbers(-1, 1), 0);
+    }
+}
+'''
 
 [[test]]
 name = "list_operations_transpilation"
@@ -1091,8 +2177,7 @@ description = "List sum operation with loop"
 tags = ["transpilation", "list", "loop"]
 compile_check = true
 
-[test.python]
-code = '''
+python = '''
 from typing import List
 
 def sum_list(numbers: List[int]) -> int:
@@ -1102,8 +2187,26 @@ def sum_list(numbers: List[int]) -> int:
     return total
 '''
 
-[test.assertions]
-contains = ["fn sum_list"]
+rust = '''
+pub fn sum_list(numbers: &Vec<i32>) -> i32 {
+    let mut total: i32 = 0;
+    for n in numbers.iter().cloned() {
+        total = total + n;
+    }
+    return total;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_sum_list_examples() {
+        assert_eq!(sum_list(vec![]), 0);
+        assert_eq!(sum_list(vec![1]), 1);
+        assert_eq!(sum_list(vec![1, 2, 3]), 6);
+    }
+}
+'''
 
 [[test]]
 name = "conditional_logic_transpilation"
@@ -1111,8 +2214,7 @@ description = "Conditional logic with if/elif/else"
 tags = ["transpilation", "conditional"]
 compile_check = true
 
-[test.python]
-code = '''
+python = '''
 def classify_number(n: int) -> str:
     if n > 0:
         return "positive"
@@ -1122,6 +2224,18 @@ def classify_number(n: int) -> str:
         return "zero"
 '''
 
-[test.assertions]
-contains = ["fn classify_number", "positive", "negative", "zero"]
-
+rust = '''
+pub fn classify_number(n: i32) -> String {
+    let _cse_temp_0 = n > 0;
+    if _cse_temp_0 {
+        return "positive".to_string();
+    } else {
+        let _cse_temp_1 = n < 0;
+        if _cse_temp_1 {
+            return "negative".to_string();
+        } else {
+            return "zero".to_string();
+        }
+    }
+}
+'''

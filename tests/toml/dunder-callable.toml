@@ -9,122 +9,729 @@ category = "dunder-methods"
 # Basic __call__
 # =============================================================================
 
-# TODO: Test __call__ no args
-# [[test]]
-# name = "dunder_call_no_args"
-# description = "def __call__(self): return self.value"
+[[test]]
+name = "dunder_call_no_args"
+description = "def __call__(self): return self.value"
+python = """
+class Callable:
+    def __init__(self, value):
+        self.value = value
+    
+    def __call__(self):
+        return self.value
 
-# TODO: Test __call__ with args
-# [[test]]
-# name = "dunder_call_args"
-# description = "def __call__(self, x, y): return x + y"
+obj = Callable(42)
+print(obj())
+"""
+rust = """
+struct Callable {
+    value: i32,
+}
 
-# TODO: Test __call__ with kwargs
-# [[test]]
-# name = "dunder_call_kwargs"
-# description = "def __call__(self, **kwargs): ..."
+impl Callable {
+    fn new(value: i32) -> Self {
+        Callable { value }
+    }
+    
+    fn call(&self) -> i32 {
+        self.value
+    }
+}
 
-# TODO: Test __call__ with *args, **kwargs
-# [[test]]
-# name = "dunder_call_varargs"
-# description = "def __call__(self, *args, **kwargs): ..."
+fn main() {
+    let obj = Callable::new(42);
+    println!("{}", obj.call());
+}
+"""
+contains = ["42"]
+
+[[test]]
+name = "dunder_call_args"
+description = "def __call__(self, x, y): return x + y"
+python = """
+class Adder:
+    def __call__(self, x, y):
+        return x + y
+
+add = Adder()
+print(add(3, 4))
+print(add(10, 20))
+"""
+rust = """
+struct Adder;
+
+impl Adder {
+    fn call(&self, x: i32, y: i32) -> i32 {
+        x + y
+    }
+}
+
+fn main() {
+    let add = Adder;
+    println!("{}", add.call(3, 4));
+    println!("{}", add.call(10, 20));
+}
+"""
+contains = ["7", "30"]
+
+[[test]]
+name = "dunder_call_kwargs"
+description = "def __call__(self, **kwargs): ..."
+python = """
+class Handler:
+    def __call__(self, **kwargs):
+        return f"Called with: {sorted(kwargs.items())}"
+
+handler = Handler()
+print(handler(a=1, b=2))
+"""
+rust = """
+use std::collections::HashMap;
+
+struct Handler;
+
+impl Handler {
+    fn call(&self, kwargs: HashMap<String, i32>) -> String {
+        let mut items: Vec<_> = kwargs.iter().collect();
+        items.sort_by_key(|&(k, _)| k);
+        format!("Called with: {:?}", items)
+    }
+}
+
+fn main() {
+    let handler = Handler;
+    let mut kwargs = HashMap::new();
+    kwargs.insert("a".to_string(), 1);
+    kwargs.insert("b".to_string(), 2);
+    println!("{}", handler.call(kwargs));
+}
+"""
+contains = ["Called with:"]
+
+[[test]]
+name = "dunder_call_varargs"
+description = "def __call__(self, *args, **kwargs): ..."
+python = """
+class Flexible:
+    def __call__(self, *args, **kwargs):
+        return f"args: {args}, kwargs: {kwargs}"
+
+flex = Flexible()
+print(flex(1, 2, x=3))
+"""
+rust = """
+use std::collections::HashMap;
+
+struct Flexible;
+
+impl Flexible {
+    fn call(&self, args: Vec<i32>, kwargs: HashMap<String, i32>) -> String {
+        format!("args: {:?}, kwargs: {:?}", args, kwargs)
+    }
+}
+
+fn main() {
+    let flex = Flexible;
+    let args = vec![1, 2];
+    let mut kwargs = HashMap::new();
+    kwargs.insert("x".to_string(), 3);
+    println!("{}", flex.call(args, kwargs));
+}
+"""
+contains = ["args:", "kwargs:"]
 
 # =============================================================================
 # callable() Check
 # =============================================================================
 
-# TODO: Test callable() on callable object
-# [[test]]
-# name = "callable_true"
-# description = "callable(obj_with_call) == True"
+[[test]]
+name = "callable_true"
+description = "callable(obj_with_call) == True"
+python = """
+class MyCallable:
+    def __call__(self):
+        return "called"
 
-# TODO: Test callable() on non-callable
-# [[test]]
-# name = "callable_false"
-# description = "callable(regular_obj) == False"
+obj = MyCallable()
+print(callable(obj))
+print(obj())
+"""
+rust = """
+// Rust doesn't have a built-in callable() check
+// Use traits to make objects callable
+struct MyCallable;
 
-# TODO: Test callable() on function
-# [[test]]
-# name = "callable_function"
-# description = "callable(func) == True"
+impl MyCallable {
+    fn call(&self) -> &str {
+        "called"
+    }
+}
+
+fn main() {
+    let obj = MyCallable;
+    println!("true");  // Would be callable in Python
+    println!("{}", obj.call());
+}
+"""
+contains = ["True", "called"]
+
+[[test]]
+name = "callable_false"
+description = "callable(regular_obj) == False"
+python = """
+class NotCallable:
+    pass
+
+obj = NotCallable()
+print(callable(obj))
+print(callable(42))
+"""
+rust = """
+struct NotCallable;
+
+fn main() {
+    let _obj = NotCallable;
+    println!("false");  // No __call__ method
+    println!("false");  // Integers aren't callable
+}
+"""
+contains = ["False", "False"]
+
+[[test]]
+name = "callable_function"
+description = "callable(func) == True"
+python = """
+def my_function():
+    return "hello"
+
+print(callable(my_function))
+print(callable(lambda x: x * 2))
+"""
+rust = """
+fn my_function() -> &'static str {
+    "hello"
+}
+
+fn main() {
+    println!("true");  // Functions are callable
+    println!("true");  // Closures are callable
+}
+"""
+contains = ["True", "True"]
 
 # =============================================================================
 # Use Cases
 # =============================================================================
 
-# TODO: Test function-like object
-# [[test]]
-# name = "functor"
-# description = "Class that acts like a function"
+[[test]]
+name = "functor"
+description = "Class that acts like a function"
+python = """
+class Multiplier:
+    def __init__(self, factor):
+        self.factor = factor
+    
+    def __call__(self, x):
+        return x * self.factor
 
-# TODO: Test stateful callable
-# [[test]]
-# name = "stateful_callable"
-# description = "Callable that remembers state between calls"
+times_two = Multiplier(2)
+times_three = Multiplier(3)
+print(times_two(5))
+print(times_three(5))
+"""
+rust = """
+struct Multiplier {
+    factor: i32,
+}
 
-# TODO: Test callable as decorator
-# [[test]]
-# name = "callable_decorator"
-# description = "Class decorator using __call__"
+impl Multiplier {
+    fn new(factor: i32) -> Self {
+        Multiplier { factor }
+    }
+    
+    fn call(&self, x: i32) -> i32 {
+        x * self.factor
+    }
+}
 
-# TODO: Test callable factory
-# [[test]]
-# name = "callable_factory"
-# description = "Callable that returns other callables"
+fn main() {
+    let times_two = Multiplier::new(2);
+    let times_three = Multiplier::new(3);
+    println!("{}", times_two.call(5));
+    println!("{}", times_three.call(5));
+}
+"""
+contains = ["10", "15"]
 
-# TODO: Test memoization
-# [[test]]
-# name = "callable_memoize"
-# description = "Callable that caches results"
+[[test]]
+name = "stateful_callable"
+description = "Callable that remembers state between calls"
+python = """
+class Counter:
+    def __init__(self):
+        self.count = 0
+    
+    def __call__(self):
+        self.count += 1
+        return self.count
+
+counter = Counter()
+print(counter())
+print(counter())
+print(counter())
+"""
+rust = """
+struct Counter {
+    count: i32,
+}
+
+impl Counter {
+    fn new() -> Self {
+        Counter { count: 0 }
+    }
+    
+    fn call(&mut self) -> i32 {
+        self.count += 1;
+        self.count
+    }
+}
+
+fn main() {
+    let mut counter = Counter::new();
+    println!("{}", counter.call());
+    println!("{}", counter.call());
+    println!("{}", counter.call());
+}
+"""
+contains = ["1", "2", "3"]
+
+[[test]]
+name = "callable_decorator"
+description = "Class decorator using __call__"
+python = """
+class TimesTwo:
+    def __init__(self, func):
+        self.func = func
+    
+    def __call__(self, x):
+        return self.func(x) * 2
+
+@TimesTwo
+def add_five(x):
+    return x + 5
+
+print(add_five(3))
+"""
+rust = """
+// Rust doesn't have decorators, but we can wrap functions
+struct TimesTwo<F> {
+    func: F,
+}
+
+impl<F> TimesTwo<F>
+where
+    F: Fn(i32) -> i32,
+{
+    fn new(func: F) -> Self {
+        TimesTwo { func }
+    }
+    
+    fn call(&self, x: i32) -> i32 {
+        (self.func)(x) * 2
+    }
+}
+
+fn main() {
+    let add_five = |x: i32| x + 5;
+    let decorated = TimesTwo::new(add_five);
+    println!("{}", decorated.call(3));
+}
+"""
+contains = ["16"]
+
+[[test]]
+name = "callable_factory"
+description = "Callable that returns other callables"
+python = """
+class Adder:
+    def __init__(self, n):
+        self.n = n
+    
+    def __call__(self, x):
+        return x + self.n
+
+def make_adder(n):
+    return Adder(n)
+
+add_10 = make_adder(10)
+print(add_10(5))
+"""
+rust = """
+struct Adder {
+    n: i32,
+}
+
+impl Adder {
+    fn new(n: i32) -> Self {
+        Adder { n }
+    }
+    
+    fn call(&self, x: i32) -> i32 {
+        x + self.n
+    }
+}
+
+fn make_adder(n: i32) -> Adder {
+    Adder::new(n)
+}
+
+fn main() {
+    let add_10 = make_adder(10);
+    println!("{}", add_10.call(5));
+}
+"""
+contains = ["15"]
+
+[[test]]
+name = "callable_memoize"
+description = "Callable that caches results"
+python = """
+class Memoize:
+    def __init__(self):
+        self.cache = {}
+    
+    def __call__(self, x):
+        if x not in self.cache:
+            print(f"Computing {x}")
+            self.cache[x] = x * x
+        return self.cache[x]
+
+memo = Memoize()
+print(memo(5))
+print(memo(5))
+print(memo(3))
+"""
+rust = """
+use std::collections::HashMap;
+
+struct Memoize {
+    cache: HashMap<i32, i32>,
+}
+
+impl Memoize {
+    fn new() -> Self {
+        Memoize { cache: HashMap::new() }
+    }
+    
+    fn call(&mut self, x: i32) -> i32 {
+        if !self.cache.contains_key(&x) {
+            println!("Computing {}", x);
+            self.cache.insert(x, x * x);
+        }
+        *self.cache.get(&x).unwrap()
+    }
+}
+
+fn main() {
+    let mut memo = Memoize::new();
+    println!("{}", memo.call(5));
+    println!("{}", memo.call(5));
+    println!("{}", memo.call(3));
+}
+"""
+contains = ["Computing 5", "25", "25", "Computing 3", "9"]
 
 # =============================================================================
 # __call__ with Methods
 # =============================================================================
 
-# TODO: Test __call__ calling other methods
-# [[test]]
-# name = "call_uses_methods"
-# description = "__call__ delegating to other methods"
+[[test]]
+name = "call_uses_methods"
+description = "__call__ delegating to other methods"
+python = """
+class Processor:
+    def process(self, x):
+        return x * 2
+    
+    def __call__(self, x):
+        return self.process(x) + 1
 
-# TODO: Test __call__ with self modification
-# [[test]]
-# name = "call_modifies_self"
-# description = "__call__ that modifies instance state"
+proc = Processor()
+print(proc(5))
+"""
+rust = """
+struct Processor;
+
+impl Processor {
+    fn process(&self, x: i32) -> i32 {
+        x * 2
+    }
+    
+    fn call(&self, x: i32) -> i32 {
+        self.process(x) + 1
+    }
+}
+
+fn main() {
+    let proc = Processor;
+    println!("{}", proc.call(5));
+}
+"""
+contains = ["11"]
+
+[[test]]
+name = "call_modifies_self"
+description = "__call__ that modifies instance state"
+python = """
+class Accumulator:
+    def __init__(self):
+        self.total = 0
+    
+    def __call__(self, x):
+        self.total += x
+        return self.total
+
+acc = Accumulator()
+print(acc(10))
+print(acc(5))
+print(acc(3))
+"""
+rust = """
+struct Accumulator {
+    total: i32,
+}
+
+impl Accumulator {
+    fn new() -> Self {
+        Accumulator { total: 0 }
+    }
+    
+    fn call(&mut self, x: i32) -> i32 {
+        self.total += x;
+        self.total
+    }
+}
+
+fn main() {
+    let mut acc = Accumulator::new();
+    println!("{}", acc.call(10));
+    println!("{}", acc.call(5));
+    println!("{}", acc.call(3));
+}
+"""
+contains = ["10", "15", "18"]
 
 # =============================================================================
 # Callable as Callback
 # =============================================================================
 
-# TODO: Test callable as callback
-# [[test]]
-# name = "callable_callback"
-# description = "Pass callable instance where function expected"
+[[test]]
+name = "callable_callback"
+description = "Pass callable instance where function expected"
+python = """
+class Logger:
+    def __call__(self, message):
+        print(f"LOG: {message}")
 
-# TODO: Test callable with higher-order functions
-# [[test]]
-# name = "callable_higher_order"
-# description = "map(callable_obj, items)"
+def process(callback, data):
+    callback(data)
+
+logger = Logger()
+process(logger, "Processing data")
+"""
+rust = """
+struct Logger;
+
+impl Logger {
+    fn call(&self, message: &str) {
+        println!("LOG: {}", message);
+    }
+}
+
+fn process<F>(callback: F, data: &str)
+where
+    F: Fn(&str),
+{
+    callback(data);
+}
+
+fn main() {
+    let logger = Logger;
+    process(|msg| logger.call(msg), "Processing data");
+}
+"""
+contains = ["LOG: Processing data"]
+
+[[test]]
+name = "callable_higher_order"
+description = "map(callable_obj, items)"
+python = """
+class Square:
+    def __call__(self, x):
+        return x * x
+
+square = Square()
+result = list(map(square, [1, 2, 3, 4]))
+print(result)
+"""
+rust = """
+struct Square;
+
+impl Square {
+    fn call(&self, x: i32) -> i32 {
+        x * x
+    }
+}
+
+fn main() {
+    let square = Square;
+    let result: Vec<i32> = vec![1, 2, 3, 4]
+        .iter()
+        .map(|&x| square.call(x))
+        .collect();
+    println!("{:?}", result);
+}
+"""
+contains = ["[1, 4, 9, 16]"]
 
 # =============================================================================
 # Edge Cases
 # =============================================================================
 
-# TODO: Test __call__ returning None
-# [[test]]
-# name = "call_returns_none"
-# description = "__call__ with no return statement"
+[[test]]
+name = "call_returns_none"
+description = "__call__ with no return statement"
+python = """
+class SideEffect:
+    def __call__(self):
+        print("Side effect")
 
-# TODO: Test nested __call__
-# [[test]]
-# name = "call_nested"
-# description = "obj()(x) chained calls"
+obj = SideEffect()
+result = obj()
+print(f"Result: {result}")
+"""
+rust = """
+struct SideEffect;
 
-# TODO: Test __call__ with type hints
-# [[test]]
-# name = "call_type_hints"
-# description = "__call__ with parameter and return type hints"
+impl SideEffect {
+    fn call(&self) {
+        println!("Side effect");
+    }
+}
 
-# TODO: Test callable subclassing
-# [[test]]
-# name = "callable_subclass"
-# description = "Subclass overriding __call__"
+fn main() {
+    let obj = SideEffect;
+    obj.call();
+    println!("Result: None");
+}
+"""
+contains = ["Side effect", "Result: None"]
+
+[[test]]
+name = "call_nested"
+description = "obj()(x) chained calls"
+python = """
+class Outer:
+    def __call__(self):
+        return Inner()
+
+class Inner:
+    def __call__(self, x):
+        return x * 2
+
+obj = Outer()
+result = obj()(5)
+print(result)
+"""
+rust = """
+struct Outer;
+struct Inner;
+
+impl Outer {
+    fn call(&self) -> Inner {
+        Inner
+    }
+}
+
+impl Inner {
+    fn call(&self, x: i32) -> i32 {
+        x * 2
+    }
+}
+
+fn main() {
+    let obj = Outer;
+    let result = obj.call().call(5);
+    println!("{}", result);
+}
+"""
+contains = ["10"]
+
+[[test]]
+name = "call_type_hints"
+description = "__call__ with parameter and return type hints"
+python = """
+class TypedCallable:
+    def __call__(self, x: int, y: int) -> int:
+        return x + y
+
+obj = TypedCallable()
+print(obj(3, 4))
+"""
+rust = """
+struct TypedCallable;
+
+impl TypedCallable {
+    fn call(&self, x: i32, y: i32) -> i32 {
+        x + y
+    }
+}
+
+fn main() {
+    let obj = TypedCallable;
+    println!("{}", obj.call(3, 4));
+}
+"""
+contains = ["7"]
+
+[[test]]
+name = "callable_subclass"
+description = "Subclass overriding __call__"
+python = """
+class Base:
+    def __call__(self, x):
+        return x
+
+class Derived(Base):
+    def __call__(self, x):
+        return super().__call__(x) * 2
+
+obj = Derived()
+print(obj(5))
+"""
+rust = """
+trait Callable {
+    fn call(&self, x: i32) -> i32;
+}
+
+struct Base;
+struct Derived;
+
+impl Callable for Base {
+    fn call(&self, x: i32) -> i32 {
+        x
+    }
+}
+
+impl Callable for Derived {
+    fn call(&self, x: i32) -> i32 {
+        Base.call(x) * 2
+    }
+}
+
+fn main() {
+    let obj = Derived;
+    println!("{}", obj.call(5));
+}
+"""
+contains = ["10"]

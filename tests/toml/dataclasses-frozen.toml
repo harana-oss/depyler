@@ -9,133 +9,1454 @@ category = "data-structures"
 # Basic Frozen
 # =============================================================================
 
-# TODO: Test frozen dataclass
-# [[test]]
-# name = "frozen_basic"
-# description = "@dataclass(frozen=True)"
+[[test]]
+name = "frozen_basic"
+description = "@dataclass(frozen=True)"
+tags = ["dataclasses", "frozen"]
 
-# TODO: Test frozen prevents mutation
-# [[test]]
-# name = "frozen_no_mutate"
-# description = "obj.x = 5 raises FrozenInstanceError"
-# skip = true
+python = '''
+from dataclasses import dataclass
 
-# TODO: Test frozen delete
-# [[test]]
-# name = "frozen_no_delete"
-# description = "del obj.x raises FrozenInstanceError"
-# skip = true
+@dataclass(frozen=True)
+class Point:
+    x: int
+    y: int
+
+p = Point(1, 2)
+result = (p.x, p.y)
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+pub const p: serde_json::Value = Point::new(1, 2);
+pub const result: (serde_json::Value, serde_json::Value) = (p.x, p.y);
+use serde_json;
+#[derive(Debug, Clone)]
+pub struct Point {
+    pub x: i32,
+    pub y: i32,
+}
+impl Point {
+    pub fn new(x: i32, y: i32) -> Self {
+        Self { x, y }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "x" => Some(Box::new(self.x.clone()) as Box<dyn std::any::Any>),
+            "y" => Some(Box::new(self.y.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "x" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.x = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "y" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.y = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+'''
+
+[[test]]
+name = "frozen_no_mutate"
+description = "obj.x = 5 raises FrozenInstanceError"
+tags = ["dataclasses", "frozen", "error"]
+skip = true
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass(frozen=True)
+class Point:
+    x: int
+    y: int
+
+p = Point(1, 2)
+try:
+    p.x = 5
+    result = False
+except:
+    result = True
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+pub const p: serde_json::Value = Point::new(1, 2);
+use serde_json;
+#[derive(Debug, Clone)]
+pub struct Point {
+    pub x: i32,
+    pub y: i32,
+}
+impl Point {
+    pub fn new(x: i32, y: i32) -> Self {
+        Self { x, y }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "x" => Some(Box::new(self.x.clone()) as Box<dyn std::any::Any>),
+            "y" => Some(Box::new(self.y.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "x" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.x = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "y" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.y = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+'''
+
+[[test]]
+name = "frozen_no_delete"
+description = "del obj.x raises FrozenInstanceError"
+tags = ["dataclasses", "frozen", "error"]
+skip = true
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass(frozen=True)
+class Point:
+    x: int
+    y: int
+
+p = Point(1, 2)
+try:
+    del p.x
+    result = False
+except:
+    result = True
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+pub const p: serde_json::Value = Point::new(1, 2);
+use serde_json;
+#[derive(Debug, Clone)]
+pub struct Point {
+    pub x: i32,
+    pub y: i32,
+}
+impl Point {
+    pub fn new(x: i32, y: i32) -> Self {
+        Self { x, y }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "x" => Some(Box::new(self.x.clone()) as Box<dyn std::any::Any>),
+            "y" => Some(Box::new(self.y.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "x" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.x = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "y" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.y = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+'''
 
 # =============================================================================
 # Hashability
 # =============================================================================
 
-# TODO: Test frozen is hashable
-# [[test]]
-# name = "frozen_hashable"
-# description = "hash(frozen_instance)"
+[[test]]
+name = "frozen_hashable"
+description = "hash(frozen_instance)"
+tags = ["dataclasses", "frozen", "hash"]
 
-# TODO: Test frozen as dict key
-# [[test]]
-# name = "frozen_dict_key"
-# description = "{frozen_obj: 'value'}"
+python = '''
+from dataclasses import dataclass
 
-# TODO: Test frozen in set
-# [[test]]
-# name = "frozen_set_element"
-# description = "{frozen_obj1, frozen_obj2}"
+@dataclass(frozen=True)
+class Point:
+    x: int
+    y: int
 
-# TODO: Test hash stability
-# [[test]]
-# name = "frozen_hash_stable"
-# description = "Same values = same hash"
+p = Point(1, 2)
+result = hash(p)
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+pub const p: serde_json::Value = Point::new(1, 2);
+pub const result: serde_json::Value = {
+    use std::collections::hash_map::DefaultHasher;
+    use std::hash::{Hash, Hasher};
+    let mut hasher = DefaultHasher::new();
+    p.hash(&mut hasher);
+    hasher.finish() as i64
+};
+use serde_json;
+#[derive(Debug, Clone)]
+pub struct Point {
+    pub x: i32,
+    pub y: i32,
+}
+impl Point {
+    pub fn new(x: i32, y: i32) -> Self {
+        Self { x, y }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "x" => Some(Box::new(self.x.clone()) as Box<dyn std::any::Any>),
+            "y" => Some(Box::new(self.y.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "x" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.x = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "y" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.y = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+'''
+
+[[test]]
+name = "frozen_dict_key"
+description = "{frozen_obj: 'value'}"
+tags = ["dataclasses", "frozen", "hash"]
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass(frozen=True)
+class Point:
+    x: int
+    y: int
+
+p = Point(1, 2)
+d = {p: 'value'}
+result = d[p]
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+pub const p: serde_json::Value = Point::new(1, 2);
+lazy_static! {
+    pub static ref d: HashMap<serde_json::Value, String> = {
+        let mut map = HashMap::new();
+        map.insert(p, "value".to_string());
+        map
+    };
+}
+use lazy_static::lazy_static;
+use serde_json;
+use std::collections::HashMap;
+#[derive(Debug, Clone)]
+pub struct Point {
+    pub x: i32,
+    pub y: i32,
+}
+impl Point {
+    pub fn new(x: i32, y: i32) -> Self {
+        Self { x, y }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "x" => Some(Box::new(self.x.clone()) as Box<dyn std::any::Any>),
+            "y" => Some(Box::new(self.y.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "x" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.x = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "y" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.y = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+'''
+
+[[test]]
+name = "frozen_set_element"
+description = "{frozen_obj1, frozen_obj2}"
+tags = ["dataclasses", "frozen", "hash"]
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass(frozen=True)
+class Point:
+    x: int
+    y: int
+
+p1 = Point(1, 2)
+p2 = Point(3, 4)
+s = {p1, p2}
+result = len(s)
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+pub const p1: serde_json::Value = Point::new(1, 2);
+pub const p2: serde_json::Value = Point::new(3, 4);
+pub const result: serde_json::Value = s.clone().len() as i32;
+lazy_static! {
+    pub static ref s: HashSet<serde_json::Value> = {
+        let mut set = HashSet::new();
+        set.insert(p1);
+        set.insert(p2);
+        set
+    };
+}
+use lazy_static::lazy_static;
+use serde_json;
+use std::collections::HashSet;
+#[derive(Debug, Clone)]
+pub struct Point {
+    pub x: i32,
+    pub y: i32,
+}
+impl Point {
+    pub fn new(x: i32, y: i32) -> Self {
+        Self { x, y }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "x" => Some(Box::new(self.x.clone()) as Box<dyn std::any::Any>),
+            "y" => Some(Box::new(self.y.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "x" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.x = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "y" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.y = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+'''
+
+[[test]]
+name = "frozen_hash_stable"
+description = "Same values = same hash"
+tags = ["dataclasses", "frozen", "hash"]
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass(frozen=True)
+class Point:
+    x: int
+    y: int
+
+p1 = Point(1, 2)
+p2 = Point(1, 2)
+result = hash(p1) == hash(p2)
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+pub const p1: serde_json::Value = Point::new(1, 2);
+pub const p2: serde_json::Value = Point::new(1, 2);
+pub const result: serde_json::Value = {
+    use std::collections::hash_map::DefaultHasher;
+    use std::hash::{Hash, Hasher};
+    let mut hasher = DefaultHasher::new();
+    p1.hash(&mut hasher);
+    hasher.finish() as i64
+} == {
+    use std::collections::hash_map::DefaultHasher;
+    use std::hash::{Hash, Hasher};
+    let mut hasher = DefaultHasher::new();
+    p2.hash(&mut hasher);
+    hasher.finish() as i64
+};
+use serde_json;
+#[derive(Debug, Clone)]
+pub struct Point {
+    pub x: i32,
+    pub y: i32,
+}
+impl Point {
+    pub fn new(x: i32, y: i32) -> Self {
+        Self { x, y }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "x" => Some(Box::new(self.x.clone()) as Box<dyn std::any::Any>),
+            "y" => Some(Box::new(self.y.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "x" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.x = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "y" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.y = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+'''
 
 # =============================================================================
 # Creating Modified Copies
 # =============================================================================
 
-# TODO: Test replace for modification
-# [[test]]
-# name = "frozen_replace"
-# description = "new = replace(frozen, x=10)"
+[[test]]
+name = "frozen_replace"
+description = "new = replace(frozen, x=10)"
+tags = ["dataclasses", "frozen", "replace"]
 
-# TODO: Test original unchanged
-# [[test]]
-# name = "frozen_original_unchanged"
-# description = "replace returns new, old unchanged"
+python = '''
+from dataclasses import dataclass, replace
 
-# TODO: Test chain of replaces
-# [[test]]
-# name = "frozen_replace_chain"
-# description = "replace(replace(obj, x=1), y=2)"
+@dataclass(frozen=True)
+class Point:
+    x: int
+    y: int
+
+p = Point(1, 2)
+p2 = replace(p, x=10)
+result = (p2.x, p2.y)
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+pub const p: serde_json::Value = Point::new(1, 2);
+pub const p2: serde_json::Value = replace(p, 10);
+pub const result: (serde_json::Value, serde_json::Value) = (p2.x, p2.y);
+use serde_json;
+#[derive(Debug, Clone)]
+pub struct Point {
+    pub x: i32,
+    pub y: i32,
+}
+impl Point {
+    pub fn new(x: i32, y: i32) -> Self {
+        Self { x, y }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "x" => Some(Box::new(self.x.clone()) as Box<dyn std::any::Any>),
+            "y" => Some(Box::new(self.y.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "x" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.x = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "y" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.y = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+'''
+
+[[test]]
+name = "frozen_original_unchanged"
+description = "replace returns new, old unchanged"
+tags = ["dataclasses", "frozen", "replace"]
+
+python = '''
+from dataclasses import dataclass, replace
+
+@dataclass(frozen=True)
+class Point:
+    x: int
+    y: int
+
+p = Point(1, 2)
+p2 = replace(p, x=10)
+result = (p.x, p2.x)
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+pub const p: serde_json::Value = Point::new(1, 2);
+pub const p2: serde_json::Value = replace(p, 10);
+pub const result: (serde_json::Value, serde_json::Value) = (p.x, p2.x);
+use serde_json;
+#[derive(Debug, Clone)]
+pub struct Point {
+    pub x: i32,
+    pub y: i32,
+}
+impl Point {
+    pub fn new(x: i32, y: i32) -> Self {
+        Self { x, y }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "x" => Some(Box::new(self.x.clone()) as Box<dyn std::any::Any>),
+            "y" => Some(Box::new(self.y.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "x" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.x = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "y" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.y = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+'''
+
+[[test]]
+name = "frozen_replace_chain"
+description = "replace(replace(obj, x=1), y=2)"
+tags = ["dataclasses", "frozen", "replace"]
+
+python = '''
+from dataclasses import dataclass, replace
+
+@dataclass(frozen=True)
+class Point:
+    x: int
+    y: int
+
+p = Point(0, 0)
+p2 = replace(replace(p, x=1), y=2)
+result = (p2.x, p2.y)
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+pub const p: serde_json::Value = Point::new(0, 0);
+pub const p2: serde_json::Value = replace(replace(p, 1), 2);
+pub const result: (serde_json::Value, serde_json::Value) = (p2.x, p2.y);
+use serde_json;
+#[derive(Debug, Clone)]
+pub struct Point {
+    pub x: i32,
+    pub y: i32,
+}
+impl Point {
+    pub fn new(x: i32, y: i32) -> Self {
+        Self { x, y }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "x" => Some(Box::new(self.x.clone()) as Box<dyn std::any::Any>),
+            "y" => Some(Box::new(self.y.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "x" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.x = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "y" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.y = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+'''
 
 # =============================================================================
 # Frozen with Nested Mutable
 # =============================================================================
 
-# TODO: Test frozen with list field
-# [[test]]
-# name = "frozen_mutable_field"
-# description = "items: list can still be mutated"
+[[test]]
+name = "frozen_mutable_field"
+description = "items: list can still be mutated"
+tags = ["dataclasses", "frozen", "mutable"]
 
-# TODO: Test deep freeze pattern
-# [[test]]
-# name = "frozen_deep"
-# description = "Freeze nested structures manually"
+python = '''
+from dataclasses import dataclass
 
-# TODO: Test frozen with tuple
-# [[test]]
-# name = "frozen_tuple_field"
-# description = "Use tuple for truly immutable collections"
+@dataclass(frozen=True)
+class Container:
+    items: list
+
+c = Container([1, 2, 3])
+c.items.append(4)
+result = len(c.items)
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+pub const c: serde_json::Value = Container::new(vec![1, 2, 3]);
+pub const result: serde_json::Value = c.items.len() as i32;
+use serde_json;
+#[derive(Debug, Clone)]
+pub struct Container {
+    pub items: Vec<serde_json::Value>,
+}
+impl Container {
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "items" => Some(Box::new(self.items.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "items" => {
+                if let Some(v) = value.downcast_ref::<Vec<serde_json::Value>>() {
+                    self.items = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+'''
+
+[[test]]
+name = "frozen_deep"
+description = "Freeze nested structures manually"
+tags = ["dataclasses", "frozen"]
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass(frozen=True)
+class Inner:
+    value: int
+
+@dataclass(frozen=True)
+class Outer:
+    inner: Inner
+
+o = Outer(Inner(42))
+result = o.inner.value
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+pub const o: serde_json::Value = Outer::new(Inner::new(42));
+pub const result: serde_json::Value = o.inner.value;
+use serde_json;
+#[derive(Debug, Clone)]
+pub struct Inner {
+    pub value: i32,
+}
+impl Inner {
+    pub fn new(value: i32) -> Self {
+        Self { value }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "value" => Some(Box::new(self.value.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "value" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.value = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+#[derive(Debug, Clone)]
+pub struct Outer {
+    pub inner: Inner,
+}
+impl Outer {
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "inner" => Some(Box::new(self.inner.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "inner" => {
+                if let Some(v) = value.downcast_ref::<Inner>() {
+                    self.inner = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+'''
+
+[[test]]
+name = "frozen_tuple_field"
+description = "Use tuple for truly immutable collections"
+tags = ["dataclasses", "frozen"]
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass(frozen=True)
+class Point:
+    coords: tuple
+
+p = Point((1, 2, 3))
+result = len(p.coords)
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+pub const p: serde_json::Value = Point::new((1, 2, 3));
+pub const result: serde_json::Value = p.coords.len() as i32;
+use serde_json;
+#[derive(Debug, Clone)]
+pub struct Point {
+    pub coords: (),
+}
+impl Point {
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "coords" => Some(Box::new(self.coords.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "coords" => {
+                if let Some(v) = value.downcast_ref::<()>() {
+                    self.coords = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+'''
 
 # =============================================================================
 # Inheritance with Frozen
 # =============================================================================
 
-# TODO: Test frozen inheriting frozen
-# [[test]]
-# name = "frozen_inherit_frozen"
-# description = "Frozen subclass of frozen"
+[[test]]
+name = "frozen_inherit_frozen"
+description = "Frozen subclass of frozen"
+tags = ["dataclasses", "frozen", "inheritance"]
 
-# TODO: Test frozen inheriting non-frozen
-# [[test]]
-# name = "frozen_inherit_mutable"
-# description = "Frozen cannot inherit non-frozen dataclass"
+python = '''
+from dataclasses import dataclass
 
-# TODO: Test mutable inheriting frozen
-# [[test]]
-# name = "mutable_inherit_frozen"
-# description = "Mutable subclass of frozen"
+@dataclass(frozen=True)
+class Point2D:
+    x: int
+    y: int
+
+@dataclass(frozen=True)
+class Point3D(Point2D):
+    z: int
+
+p = Point3D(1, 2, 3)
+result = (p.x, p.y, p.z)
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+pub const p: serde_json::Value = Point3D::new(1, 2, 3);
+pub const result: (serde_json::Value, serde_json::Value, serde_json::Value) = (p.x, p.y, p.z);
+use serde_json;
+#[derive(Debug, Clone)]
+pub struct Point2D {
+    pub x: i32,
+    pub y: i32,
+}
+impl Point2D {
+    pub fn new(x: i32, y: i32) -> Self {
+        Self { x, y }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "x" => Some(Box::new(self.x.clone()) as Box<dyn std::any::Any>),
+            "y" => Some(Box::new(self.y.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "x" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.x = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "y" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.y = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+#[derive(Debug, Clone)]
+pub struct Point3D {
+    pub z: i32,
+}
+impl Point3D {
+    pub fn new(z: i32) -> Self {
+        Self { z }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "z" => Some(Box::new(self.z.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "z" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.z = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+'''
+
+[[test]]
+name = "frozen_inherit_mutable"
+description = "Frozen cannot inherit non-frozen dataclass"
+tags = ["dataclasses", "frozen", "inheritance"]
+skip = true
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass
+class Point2D:
+    x: int
+    y: int
+
+try:
+    @dataclass(frozen=True)
+    class Point3D(Point2D):
+        z: int
+    result = False
+except:
+    result = True
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Point2D {
+    pub x: i32,
+    pub y: i32,
+}
+impl Point2D {
+    pub fn new(x: i32, y: i32) -> Self {
+        Self { x, y }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "x" => Some(Box::new(self.x.clone()) as Box<dyn std::any::Any>),
+            "y" => Some(Box::new(self.y.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "x" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.x = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "y" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.y = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+'''
+
+[[test]]
+name = "mutable_inherit_frozen"
+description = "Mutable subclass of frozen"
+tags = ["dataclasses", "frozen", "inheritance"]
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass(frozen=True)
+class Point2D:
+    x: int
+    y: int
+
+@dataclass
+class Point3D(Point2D):
+    z: int
+
+p = Point3D(1, 2, 3)
+result = (p.x, p.y, p.z)
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+pub const p: serde_json::Value = Point3D::new(1, 2, 3);
+pub const result: (serde_json::Value, serde_json::Value, serde_json::Value) = (p.x, p.y, p.z);
+use serde_json;
+#[derive(Debug, Clone)]
+pub struct Point2D {
+    pub x: i32,
+    pub y: i32,
+}
+impl Point2D {
+    pub fn new(x: i32, y: i32) -> Self {
+        Self { x, y }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "x" => Some(Box::new(self.x.clone()) as Box<dyn std::any::Any>),
+            "y" => Some(Box::new(self.y.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "x" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.x = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "y" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.y = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Point3D {
+    pub z: i32,
+}
+impl Point3D {
+    pub fn new(z: i32) -> Self {
+        Self { z }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "z" => Some(Box::new(self.z.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "z" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.z = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+'''
 
 # =============================================================================
 # __post_init__ with Frozen
 # =============================================================================
 
-# TODO: Test post_init with frozen
-# [[test]]
-# name = "frozen_post_init"
-# description = "Can use object.__setattr__ in __post_init__"
+[[test]]
+name = "frozen_post_init"
+description = "Can use object.__setattr__ in __post_init__"
+tags = ["dataclasses", "frozen", "post_init"]
 
-# TODO: Test computed field in frozen
-# [[test]]
-# name = "frozen_computed"
-# description = "Set computed field in __post_init__"
+python = '''
+from dataclasses import dataclass
+
+@dataclass(frozen=True)
+class Point:
+    x: int
+    y: int
+    
+    def __post_init__(self):
+        object.__setattr__(self, 'x', self.x * 2)
+
+p = Point(5, 10)
+result = p.x
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+pub const p: serde_json::Value = Point::new(5, 10);
+pub const result: serde_json::Value = p.x;
+use serde_json;
+#[derive(Debug, Clone)]
+pub struct Point {
+    pub x: i32,
+    pub y: i32,
+}
+impl Point {
+    pub fn new(x: i32, y: i32) -> Self {
+        Self { x, y }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "x" => Some(Box::new(self.x.clone()) as Box<dyn std::any::Any>),
+            "y" => Some(Box::new(self.y.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "x" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.x = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "y" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.y = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+'''
+
+[[test]]
+name = "frozen_computed"
+description = "Set computed field in __post_init__"
+tags = ["dataclasses", "frozen", "post_init"]
+
+python = '''
+from dataclasses import dataclass, field
+
+@dataclass(frozen=True)
+class Rectangle:
+    width: int
+    height: int
+    area: int = field(init=False)
+    
+    def __post_init__(self):
+        object.__setattr__(self, 'area', self.width * self.height)
+
+r = Rectangle(3, 4)
+result = r.area
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+pub const r: serde_json::Value = Rectangle::new(3, 4);
+pub const result: serde_json::Value = r.area;
+use serde_json;
+#[derive(Debug, Clone)]
+pub struct Rectangle {
+    pub width: i32,
+    pub height: i32,
+}
+impl Rectangle {
+    pub const area: i32 = field();
+    pub fn new(width: i32, height: i32) -> Self {
+        Self { width, height }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "width" => Some(Box::new(self.width.clone()) as Box<dyn std::any::Any>),
+            "height" => Some(Box::new(self.height.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "width" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.width = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "height" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.height = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+'''
 
 # =============================================================================
 # Edge Cases
 # =============================================================================
 
-# TODO: Test frozen with ClassVar
-# [[test]]
-# name = "frozen_classvar"
-# description = "ClassVar can be modified"
+[[test]]
+name = "frozen_classvar"
+description = "ClassVar can be modified"
+tags = ["dataclasses", "frozen", "classvar"]
 
-# TODO: Test frozen equality
-# [[test]]
-# name = "frozen_equality"
-# description = "Frozen objects compare by value"
+python = '''
+from dataclasses import dataclass
+from typing import ClassVar
 
-# TODO: Test frozen repr
-# [[test]]
-# name = "frozen_repr"
-# description = "repr shows field values"
+@dataclass(frozen=True)
+class Point:
+    x: int
+    y: int
+    count: ClassVar[int] = 0
+
+Point.count = 5
+result = Point.count
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+pub const result: serde_json::Value = Point.count;
+use serde_json;
+#[derive(Debug, Clone)]
+pub struct Point {
+    pub x: i32,
+    pub y: i32,
+}
+impl Point {
+    pub const count: ClassVar<i32> = 0;
+    pub fn new(x: i32, y: i32) -> Self {
+        Self { x, y }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "x" => Some(Box::new(self.x.clone()) as Box<dyn std::any::Any>),
+            "y" => Some(Box::new(self.y.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "x" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.x = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "y" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.y = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+'''
+
+[[test]]
+name = "frozen_equality"
+description = "Frozen objects compare by value"
+tags = ["dataclasses", "frozen", "equality"]
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass(frozen=True)
+class Point:
+    x: int
+    y: int
+
+p1 = Point(1, 2)
+p2 = Point(1, 2)
+result = p1 == p2
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+pub const p1: serde_json::Value = Point::new(1, 2);
+pub const p2: serde_json::Value = Point::new(1, 2);
+pub const result: serde_json::Value = p1 == p2;
+use serde_json;
+#[derive(Debug, Clone)]
+pub struct Point {
+    pub x: i32,
+    pub y: i32,
+}
+impl Point {
+    pub fn new(x: i32, y: i32) -> Self {
+        Self { x, y }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "x" => Some(Box::new(self.x.clone()) as Box<dyn std::any::Any>),
+            "y" => Some(Box::new(self.y.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "x" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.x = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "y" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.y = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+'''
+
+[[test]]
+name = "frozen_repr"
+description = "repr shows field values"
+tags = ["dataclasses", "frozen", "repr"]
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass(frozen=True)
+class Point:
+    x: int
+    y: int
+
+p = Point(1, 2)
+result = repr(p)
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+pub const p: serde_json::Value = Point::new(1, 2);
+pub const result: serde_json::Value = format!("{:?}", p);
+use serde_json;
+#[derive(Debug, Clone)]
+pub struct Point {
+    pub x: i32,
+    pub y: i32,
+}
+impl Point {
+    pub fn new(x: i32, y: i32) -> Self {
+        Self { x, y }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "x" => Some(Box::new(self.x.clone()) as Box<dyn std::any::Any>),
+            "y" => Some(Box::new(self.y.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "x" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.x = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "y" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.y = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+'''

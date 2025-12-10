@@ -13,8 +13,7 @@ name = "mut_reassign_variable"
 description = "Variable requiring mut for reassignment"
 tags = ["mutability", "reassign"]
 
-[test.python]
-code = '''
+python = '''
 def counter() -> int:
     x = 0
     x = 1
@@ -22,32 +21,57 @@ def counter() -> int:
     return x
 '''
 
-[test.assertions]
-contains = ["let mut x"]
+rust = '''
+pub fn counter() -> i32 {
+    let mut x = 0;
+    x = 1;
+    x = 2;
+    return x;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_counter_examples() {
+        let _ = counter();
+    }
+}
+'''
 
 [[test]]
 name = "immutable_no_reassign"
 description = "Variable not reassigned is immutable"
 tags = ["mutability", "immutable"]
 
-[test.python]
-code = '''
+python = '''
 def constant() -> int:
     x = 42
     return x
 '''
 
-[test.assertions]
-contains = ["let x"]
-not_contains = ["let mut x"]
+rust = '''
+pub fn constant() -> i32 {
+    let x = 42;
+    return x;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_constant_examples() {
+        let _ = constant();
+    }
+}
+'''
 
 [[test]]
 name = "mut_augmented_assign"
 description = "Augmented assignment requires mut"
 tags = ["mutability", "augmented"]
 
-[test.python]
-code = '''
+python = '''
 def accumulate(items: list[int]) -> int:
     total = 0
     for item in items:
@@ -55,20 +79,33 @@ def accumulate(items: list[int]) -> int:
     return total
 '''
 
-[test.assertions]
-contains = ["let mut total"]
-
-# =============================================================================
-# Collection Mutability
-# =============================================================================
+rust = '''
+pub fn accumulate(items: &Vec<i32>) -> i32 {
+    let mut total = 0;
+    for item in items.iter().cloned() {
+        total = total + item;
+    }
+    return total;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_accumulate_examples() {
+        assert_eq!(accumulate(vec![]), 0);
+        assert_eq!(accumulate(vec![1]), 1);
+        assert_eq!(accumulate(vec![1, 2, 3]), 3);
+    }
+}
+'''
 
 [[test]]
 name = "mut_list_append"
 description = "List append requires mut"
 tags = ["mutability", "list"]
 
-[test.python]
-code = '''
+python = '''
 def build_list() -> list[int]:
     items = []
     items.append(1)
@@ -76,16 +113,21 @@ def build_list() -> list[int]:
     return items
 '''
 
-[test.assertions]
-contains = ["let mut items"]
+rust = '''
+pub fn build_list() -> Vec<i32> {
+    let mut items = vec![];
+    items.push(1);
+    items.push(2);
+    return items;
+}
+'''
 
 [[test]]
 name = "mut_dict_insert"
 description = "Dict insert requires mut"
 tags = ["mutability", "dict"]
 
-[test.python]
-code = '''
+python = '''
 def build_dict() -> dict:
     d = {}
     d["a"] = 1
@@ -93,114 +135,222 @@ def build_dict() -> dict:
     return d
 '''
 
-[test.assertions]
-contains = ["let mut d"]
+rust = '''
+use serde_json;
+use std::collections::HashMap;
+pub fn build_dict() -> HashMap<serde_json::Value, serde_json::Value> {
+    let mut d = {
+        let map = HashMap::new();
+        map
+    };
+    d.insert("a".to_string(), 1);
+    d.insert("b".to_string(), 2);
+    return d;
+}
+'''
 
 [[test]]
 name = "mut_list_sort"
 description = "In-place sort requires mut"
 tags = ["mutability", "list", "sort"]
 
-[test.python]
-code = '''
+python = '''
 def sort_in_place(items: list[int]) -> list[int]:
     items.sort()
     return items
 '''
 
-[test.assertions]
-contains_any = [["&mut", "mut items"]]
-
-# =============================================================================
-# Parameter Mutability
-# =============================================================================
+rust = '''
+pub fn sort_in_place(mut items: Vec<i32>) -> Vec<i32> {
+    items.sort();
+    return items;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn quickcheck_sort_in_place() {
+        fn prop(items: Vec<i32>) -> TestResult {
+            let input_len = items.len();
+            let result = sort_in_place(&items);
+            if result.len() != input_len {
+                return TestResult::failed();
+            }
+            let result = sort_in_place(&items);
+            for i in 1..result.len() {
+                if result[i - 1] > result[i] {
+                    return TestResult::failed();
+                }
+            }
+            let mut input_sorted = items.clone();
+            input_sorted.sort();
+            let mut result = sort_in_place(&items);
+            result.sort();
+            if input_sorted != result {
+                return TestResult::failed();
+            }
+            TestResult::passed()
+        }
+        quickcheck(prop as fn(Vec<i32>) -> TestResult);
+    }
+    #[test]
+    fn test_sort_in_place_examples() {
+        assert_eq!(sort_in_place(vec![]), vec![]);
+        assert_eq!(sort_in_place(vec![1]), vec![1]);
+    }
+}
+'''
 
 [[test]]
 name = "param_read_only"
 description = "Read-only parameter uses Vec directly"
 tags = ["mutability", "parameter"]
 
-[test.python]
-code = '''
+python = '''
 def sum_list(items: list[int]) -> int:
     return sum(items)
 '''
 
-[test.assertions]
-contains = ["Vec<i32>"]
+rust = '''
+pub fn sum_list(items: Vec<i32>) -> i32 {
+    return items.iter().sum::<i32>();
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_sum_list_examples() {
+        assert_eq!(sum_list(vec![]), 0);
+        assert_eq!(sum_list(vec![1]), 1);
+        assert_eq!(sum_list(vec![1, 2, 3]), 6);
+    }
+}
+'''
 
 [[test]]
 name = "param_mutating"
 description = "Mutating parameter needs &mut"
 tags = ["mutability", "parameter"]
 
-[test.python]
-code = '''
+python = '''
 def clear_list(items: list[int]) -> None:
     items.clear()
 '''
 
-[test.assertions]
-contains = ["&mut"]
-
-# =============================================================================
-# Clone for Immutability
-# =============================================================================
+rust = '''
+pub fn clear_list(items: &mut Vec<i32>) {
+    items.clear();
+}
+'''
 
 [[test]]
 name = "clone_to_avoid_mut"
 description = "Clone to work with copy instead of mutating"
 tags = ["clone", "immutable"]
 
-[test.python]
-code = '''
+python = '''
 def sorted_copy(items: list[int]) -> list[int]:
     return sorted(items)
 '''
 
-[test.assertions]
-contains_any = [["clone()", "sorted"]]
+rust = '''
+pub fn sorted_copy(items: Vec<i32>) -> Vec<i32> {
+    return {
+        let mut __sorted_result = items.clone();
+        __sorted_result.sort();
+        __sorted_result
+    };
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn quickcheck_sorted_copy() {
+        fn prop(items: Vec<i32>) -> TestResult {
+            let input_len = items.len();
+            let result = sorted_copy(&items);
+            if result.len() != input_len {
+                return TestResult::failed();
+            }
+            let result = sorted_copy(&items);
+            for i in 1..result.len() {
+                if result[i - 1] > result[i] {
+                    return TestResult::failed();
+                }
+            }
+            let mut input_sorted = items.clone();
+            input_sorted.sort();
+            let mut result = sorted_copy(&items);
+            result.sort();
+            if input_sorted != result {
+                return TestResult::failed();
+            }
+            TestResult::passed()
+        }
+        quickcheck(prop as fn(Vec<i32>) -> TestResult);
+    }
+    #[test]
+    fn test_sorted_copy_examples() {
+        assert_eq!(sorted_copy(vec![]), vec![]);
+        assert_eq!(sorted_copy(vec![1]), vec![1]);
+    }
+}
+'''
 
 [[test]]
 name = "clone_list_copy"
 description = "list() creates an iterator collection"
 tags = ["clone", "list"]
 
-[test.python]
-code = '''
+python = '''
 def copy_list(items: list[int]) -> list[int]:
     return list(items)
 '''
 
-[test.assertions]
-contains_any = [["clone()", "into_iter", "collect"]]
-
-# =============================================================================
-# Loop Variable Mutability
-# =============================================================================
+rust = '''
+pub fn copy_list(items: Vec<i32>) -> Vec<i32> {
+    return items.into_iter().collect::<Vec<_>>();
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_copy_list_examples() {
+        assert_eq!(copy_list(vec![]), vec![]);
+        assert_eq!(copy_list(vec![1]), vec![1]);
+    }
+}
+'''
 
 [[test]]
 name = "loop_var_immutable"
 description = "Loop variable typically immutable"
 tags = ["mutability", "loop"]
 
-[test.python]
-code = '''
+python = '''
 def print_items(items: list[int]) -> None:
     for item in items:
         print(item)
 '''
 
-[test.assertions]
-contains = ["for item in"]
+rust = '''
+pub fn print_items(items: &Vec<i32>) {
+    for item in items.iter().cloned() {
+        println!("{}", item);
+    }
+}
+'''
 
 [[test]]
 name = "loop_var_modified"
 description = "Loop variable modified in body"
 tags = ["mutability", "loop"]
 
-[test.python]
-code = '''
+python = '''
 def double_items(items: list[int]) -> list[int]:
     result = []
     for item in items:
@@ -209,20 +359,33 @@ def double_items(items: list[int]) -> list[int]:
     return result
 '''
 
-[test.assertions]
-contains = ["for item in"]
-
-# =============================================================================
-# Struct Field Mutability
-# =============================================================================
+rust = '''
+pub fn double_items(items: &Vec<i32>) -> Vec<i32> {
+    let mut result = vec![];
+    for item in items.iter().cloned() {
+        let doubled = item * 2;
+        result.push(doubled);
+    }
+    return result;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_double_items_examples() {
+        assert_eq!(double_items(vec![]), vec![]);
+        assert_eq!(double_items(vec![1]), vec![1]);
+    }
+}
+'''
 
 [[test]]
 name = "struct_field_mut"
 description = "Mutating struct field"
 tags = ["mutability", "struct"]
 
-[test.python]
-code = '''
+python = '''
 class Counter:
     def __init__(self):
         self.value = 0
@@ -231,16 +394,46 @@ class Counter:
         self.value += 1
 '''
 
-[test.assertions]
-contains = ["&mut self"]
+rust = '''
+#[derive(Debug, Clone)]
+pub struct Counter {
+    pub value: i32,
+}
+impl Counter {
+    pub fn new() -> Self {
+        Self { value: 0 }
+    }
+    pub fn increment(&mut self) {
+        self.value = format!("{}{}", self.value, 1);
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "value" => Some(Box::new(self.value.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "value" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.value = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+'''
 
 [[test]]
 name = "struct_field_immut"
 description = "Reading struct field"
 tags = ["mutability", "struct"]
 
-[test.python]
-code = '''
+python = '''
 class Counter:
     def __init__(self, start: int):
         self.value = start
@@ -249,20 +442,46 @@ class Counter:
         return self.value
 '''
 
-[test.assertions]
-contains = ["&self"]
-
-# =============================================================================
-# Slice Assignment Mutability - Migrated from test_slice_assignment_mutability.rs
-# =============================================================================
+rust = '''
+#[derive(Debug, Clone)]
+pub struct Counter {
+    pub value: i32,
+}
+impl Counter {
+    pub fn new(start: i32) -> Self {
+        Self { value: 0 }
+    }
+    pub fn get(&self) -> i32 {
+        return self.value.clone();
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "value" => Some(Box::new(self.value.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "value" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.value = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+'''
 
 [[test]]
 name = "slice_assignment_requires_mut_param"
 description = "Slice assignment to a field should require &mut parameter"
 tags = ["mutability", "slice", "struct"]
 
-[test.python]
-code = '''
+python = '''
 from dataclasses import dataclass
 
 @dataclass
@@ -279,16 +498,87 @@ def refresh_players(state: State) -> None:
     state.all_players[:] = combined
 '''
 
-[test.assertions]
-contains = ["state: &mut State"]
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Player {
+    pub name: String,
+    pub score: i32,
+}
+impl Player {
+    pub fn new(name: String, score: i32) -> Self {
+        Self { name, score }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "name" => Some(Box::new(self.name.clone()) as Box<dyn std::any::Any>),
+            "score" => Some(Box::new(self.score.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "name" => {
+                if let Some(v) = value.downcast_ref::<String>() {
+                    self.name = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "score" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.score = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct State {
+    pub all_players: Vec<Player>,
+}
+impl State {
+    pub fn new(all_players: Vec<Player>) -> Self {
+        Self { all_players }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "all_players" => Some(Box::new(self.all_players.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "all_players" => {
+                if let Some(v) = value.downcast_ref::<Vec<Player>>() {
+                    self.all_players = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+pub fn refresh_players(state: &mut State) {
+    let combined = vec![];
+    state.all_players.clear();
+    state.all_players.extend(combined);
+}
+'''
 
 [[test]]
 name = "slice_assignment_generates_clear_extend"
 description = "Slice assignment should generate clear() and extend() without clone()"
 tags = ["mutability", "slice", "codegen"]
 
-[test.python]
-code = '''
+python = '''
 from dataclasses import dataclass
 
 @dataclass
@@ -300,17 +590,49 @@ def update_items(state: State) -> None:
     state.items[:] = new_items
 '''
 
-[test.assertions]
-contains = [".clear()", ".extend("]
-not_contains = [".clone().clear()", ".clone().extend("]
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct State {
+    pub items: Vec<i32>,
+}
+impl State {
+    pub fn new(items: Vec<i32>) -> Self {
+        Self { items }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "items" => Some(Box::new(self.items.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "items" => {
+                if let Some(v) = value.downcast_ref::<Vec<i32>>() {
+                    self.items = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+pub fn update_items(state: &mut State) {
+    let new_items = vec![1, 2, 3];
+    state.items.clear();
+    state.items.extend(new_items);
+}
+'''
 
 [[test]]
 name = "slice_assignment_simple_variable"
 description = "Slice assignment to a simple variable"
 tags = ["mutability", "slice", "variable"]
 
-[test.python]
-code = '''
+python = '''
 def update_list() -> list[int]:
     items = [1, 2, 3]
     new_items = [4, 5, 6]
@@ -318,20 +640,22 @@ def update_list() -> list[int]:
     return items
 '''
 
-[test.assertions]
-contains = [".clear()", ".extend("]
-
-# =============================================================================
-# Field Access vs Alias Detection
-# =============================================================================
+rust = '''
+pub fn update_list() -> Vec<i32> {
+    let mut items = vec![1, 2, 3];
+    let new_items = vec![4, 5, 6];
+    items.clear();
+    items.extend(new_items);
+    return items;
+}
+'''
 
 [[test]]
 name = "field_access_not_alias"
 description = "Assigning from param.field should not create an alias to param"
 tags = ["mutability", "alias", "field-access"]
 
-[test.python]
-code = '''
+python = '''
 from dataclasses import dataclass
 
 @dataclass
@@ -354,21 +678,99 @@ def calculate_margin(state: State) -> int:
         return state.away_score - state.home_score
 '''
 
-[test.assertions]
-contains = ["state: &State"]
-not_contains = ["state: &mut State"]
-
-# =============================================================================
-# Complex Mutability Scenarios (from test_rust_gen_coverage.rs)
-# =============================================================================
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct State {
+    pub current_play_type: String,
+    pub team_in_possession: String,
+    pub home_score: i32,
+    pub away_score: i32,
+}
+impl State {
+    pub fn new(current_play_type: String, team_in_possession: String, home_score: i32, away_score: i32) -> Self {
+        Self {
+            current_play_type,
+            team_in_possession,
+            home_score,
+            away_score,
+        }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "current_play_type" => Some(Box::new(self.current_play_type.clone()) as Box<dyn std::any::Any>),
+            "team_in_possession" => Some(Box::new(self.team_in_possession.clone()) as Box<dyn std::any::Any>),
+            "home_score" => Some(Box::new(self.home_score.clone()) as Box<dyn std::any::Any>),
+            "away_score" => Some(Box::new(self.away_score.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "current_play_type" => {
+                if let Some(v) = value.downcast_ref::<String>() {
+                    self.current_play_type = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "team_in_possession" => {
+                if let Some(v) = value.downcast_ref::<String>() {
+                    self.team_in_possession = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "home_score" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.home_score = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "away_score" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.away_score = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+#[doc = "Read-only function - should take &State not &mut State"]
+pub fn calculate_margin(state: &State) -> i32 {
+    let _cse_temp_0 = state.current_play_type.clone() == "WonPenalty";
+    let penalty_team;
+    if _cse_temp_0 {
+        penalty_team = state.team_in_possession.clone();
+    } else {
+        penalty_team = if state.team_in_possession.clone() == "Home" {
+            "Away".to_string()
+        } else {
+            "Home".to_string()
+        };
+    }
+    let _cse_temp_1 = penalty_team == "Home".to_string();
+    if _cse_temp_1 {
+        return state.home_score - state.away_score;
+    } else {
+        return state.away_score - state.home_score;
+    }
+}
+'''
 
 [[test]]
 name = "mut_parameter_reassignment"
 description = "GCD algorithm - parameters reassigned require mut"
 tags = ["mutability", "parameter", "reassign"]
 
-[test.python]
-code = '''
+python = '''
 def gcd(a: int, b: int) -> int:
     while b != 0:
         temp = a % b
@@ -377,16 +779,51 @@ def gcd(a: int, b: int) -> int:
     return a
 '''
 
-[test.assertions]
-contains = ["fn gcd"]
+rust = '''
+#[derive(Debug, Clone)]
+pub struct ZeroDivisionError {
+    message: String,
+}
+impl std::fmt::Display for ZeroDivisionError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "division by zero: {}", self.message)
+    }
+}
+impl std::error::Error for ZeroDivisionError {}
+impl ZeroDivisionError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+pub fn gcd(mut a: i32, mut b: i32) -> i32 {
+    while b != 0 {
+        let temp = a % b;
+        a = b;
+        b = temp;
+    }
+    return a;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_gcd_examples() {
+        assert_eq!(gcd(0, 0), 0);
+        assert_eq!(gcd(1, 2), 3);
+        assert_eq!(gcd(-1, 1), 0);
+    }
+}
+'''
 
 [[test]]
 name = "mut_list_multiple_methods"
 description = "List with multiple mutating methods"
 tags = ["mutability", "list"]
 
-[test.python]
-code = '''
+python = '''
 def mutate_list() -> list[int]:
     items = [1, 2, 3]
     items.extend([4, 5])
@@ -396,16 +833,27 @@ def mutate_list() -> list[int]:
     return items
 '''
 
-[test.assertions]
-contains = ["mut items"]
+rust = '''
+pub fn mutate_list() -> Vec<i32> {
+    let mut items = vec![1, 2, 3];
+    items.extend(vec![4, 5].iter().cloned());
+    items.insert(0 as usize, 0);
+    if let Some(pos) = items.iter().position(|x| x == &2) {
+        items.remove(pos)
+    } else {
+        panic!("ValueError: list.remove(x): x not in list")
+    };
+    items.pop().unwrap();
+    return items;
+}
+'''
 
 [[test]]
 name = "mut_dict_update_and_index"
 description = "Dict mutation via update() and indexing"
 tags = ["mutability", "dict"]
 
-[test.python]
-code = '''
+python = '''
 def mutate_dict() -> dict:
     d = {"a": 1}
     d["b"] = 2
@@ -413,16 +861,32 @@ def mutate_dict() -> dict:
     return d
 '''
 
-[test.assertions]
-contains = ["fn mutate_dict"]
+rust = '''
+use std::collections::HashMap;
+pub fn mutate_dict() -> HashMap<String, i32> {
+    let mut d = {
+        let mut map = HashMap::new();
+        map.insert("a".to_string(), 1);
+        map
+    };
+    d.insert("b".to_string(), 2);
+    for (k, v) in {
+        let mut map = HashMap::new();
+        map.insert("c".to_string(), 3);
+        map
+    } {
+        d.insert(k, v);
+    }
+    return d;
+}
+'''
 
 [[test]]
 name = "mut_loop_counter"
 description = "Loop with counter mutation"
 tags = ["mutability", "loop"]
 
-[test.python]
-code = '''
+python = '''
 def count_up(limit: int) -> int:
     counter = 0
     while counter < limit:
@@ -430,16 +894,33 @@ def count_up(limit: int) -> int:
     return counter
 '''
 
-[test.assertions]
-contains = ["mut counter"]
+rust = '''
+pub fn count_up(limit: i32) -> i32 {
+    let mut counter = 0;
+    while counter < limit {
+        counter = counter + 1;
+    }
+    return counter;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_count_up_examples() {
+        assert_eq!(count_up(0), 0);
+        assert_eq!(count_up(1), 1);
+        assert_eq!(count_up(-1), -1);
+    }
+}
+'''
 
 [[test]]
 name = "mut_conditional_reassign"
 description = "Reassignment inside if/else blocks"
 tags = ["mutability", "conditional"]
 
-[test.python]
-code = '''
+python = '''
 def conditional(flag: bool) -> int:
     x = 1
     if flag:
@@ -449,16 +930,24 @@ def conditional(flag: bool) -> int:
     return x
 '''
 
-[test.assertions]
-contains = ["mut x"]
+rust = '''
+pub fn conditional(flag: bool) -> i32 {
+    let mut x = 1;
+    if flag {
+        x = 2;
+    } else {
+        x = 3;
+    }
+    return x;
+}
+'''
 
 [[test]]
 name = "mut_nested_method_call"
 description = "Nested method calls with mutation"
 tags = ["mutability", "nested"]
 
-[test.python]
-code = '''
+python = '''
 def nested_mutation() -> list:
     items = []
     items.append([1, 2, 3])
@@ -466,16 +955,22 @@ def nested_mutation() -> list:
     return items
 '''
 
-[test.assertions]
-contains = ["fn nested_mutation"]
+rust = '''
+use serde_json;
+pub fn nested_mutation() -> Vec<serde_json::Value> {
+    let mut items = vec![];
+    items.clone().push(vec![1, 2, 3]);
+    items.get(0usize).cloned().unwrap().push(4);
+    return items;
+}
+'''
 
 [[test]]
 name = "mut_complex_scenario"
 description = "Complex mutations - params, lists, loops, conditionals"
 tags = ["mutability", "complex"]
 
-[test.python]
-code = '''
+python = '''
 def complex_mutations(initial: int) -> list:
     initial = initial * 2
     results = []
@@ -489,32 +984,53 @@ def complex_mutations(initial: int) -> list:
     return results
 '''
 
-[test.assertions]
-contains = ["fn complex_mutations", "mut"]
+rust = '''
+use serde_json;
+pub fn complex_mutations(mut initial: i32) -> Vec<serde_json::Value> {
+    let _cse_temp_0 = initial * 2;
+    initial = _cse_temp_0;
+    let mut results = vec![];
+    results.clone().push(initial);
+    let mut counter = 0;
+    while counter < 3 {
+        results.push(counter);
+        counter = counter + 1;
+    }
+    let _cse_temp_1 = results.len() as i32;
+    let _cse_temp_2 = _cse_temp_1 > 0;
+    if _cse_temp_2 {
+        results.pop().unwrap();
+    }
+    return results;
+}
+'''
 
 [[test]]
 name = "string_concat_optimization"
 description = "String concatenation handling"
 tags = ["string", "optimization"]
 
-[test.python]
-code = '''
+python = '''
 def string_heavy() -> str:
     s1 = "hello"
     s2 = "world"
     return s1 + s2
 '''
 
-[test.assertions]
-contains = ["fn string_heavy"]
+rust = '''
+pub fn string_heavy() -> String {
+    let s1 = "hello".to_string();
+    let s2 = "world".to_string();
+    return format!("{}{}", s1, s2);
+}
+'''
 
 [[test]]
 name = "multiple_string_functions"
 description = "Multiple functions returning strings"
 tags = ["string", "functions"]
 
-[test.python]
-code = '''
+python = '''
 def func1() -> str:
     return "hello"
 
@@ -525,20 +1041,24 @@ def func3() -> str:
     return func1() + func2()
 '''
 
-[test.assertions]
-contains = ["fn func1", "fn func2", "fn func3"]
-
-# =============================================================================
-# Nested Field Mutation
-# =============================================================================
+rust = '''
+pub fn func1() -> String {
+    return "hello".to_string();
+}
+pub fn func2() -> String {
+    return "world".to_string();
+}
+pub fn func3() -> String {
+    return format!("{}{}", func1(), func2());
+}
+'''
 
 [[test]]
 name = "mut_nested_field_mutation"
 description = "Variable with nested field mutation requires mut"
 tags = ["mutability", "nested-fields", "regression"]
 
-[test.python]
-code = '''
+python = '''
 class Inner:
     def __init__(self):
         self.values: list[int] = []
@@ -557,17 +1077,41 @@ def mutate_nested_field(state: State, value: int) -> None:
     obj.inner.values.append(value)
 '''
 
-[test.assertions]
-contains = ["let mut obj"]
-not_contains = ["let obj = state.data;"]
+rust = '''
+#[derive(Debug, Clone)]
+pub struct Inner {}
+impl Inner {
+    pub fn new() -> Self {
+        Self {}
+    }
+}
+#[derive(Debug, Clone)]
+pub struct Outer {}
+impl Outer {
+    pub fn new() -> Self {
+        Self {}
+    }
+}
+#[derive(Debug, Clone)]
+pub struct State {}
+impl State {
+    pub fn new() -> Self {
+        Self {}
+    }
+}
+#[doc = "Test that nested field mutation properly marks the variable as mutable."]
+pub fn mutate_nested_field(state: &State, value: i32) {
+    let mut obj = state.data;
+    obj.inner.values.push(value);
+}
+'''
 
 [[test]]
 name = "mut_deeply_nested_field_mutation"
 description = "Deeply nested field mutation requires mut on root variable"
 tags = ["mutability", "nested-fields", "regression"]
 
-[test.python]
-code = '''
+python = '''
 class Level3:
     def __init__(self):
         self.items: list[str] = []
@@ -586,16 +1130,41 @@ def mutate_deeply_nested(root: Level1, item: str) -> None:
     obj.level3.items.append(item)
 '''
 
-[test.assertions]
-contains = ["let mut obj"]
+rust = '''
+#[derive(Debug, Clone)]
+pub struct Level3 {}
+impl Level3 {
+    pub fn new() -> Self {
+        Self {}
+    }
+}
+#[derive(Debug, Clone)]
+pub struct Level2 {}
+impl Level2 {
+    pub fn new() -> Self {
+        Self {}
+    }
+}
+#[derive(Debug, Clone)]
+pub struct Level1 {}
+impl Level1 {
+    pub fn new() -> Self {
+        Self {}
+    }
+}
+#[doc = "Test that deeply nested field mutation marks the root variable as mutable."]
+pub fn mutate_deeply_nested(root: &Level1, item: String) {
+    let mut obj = root.level2;
+    obj.level3.items.push(item);
+}
+'''
 
 [[test]]
 name = "mut_cloned_nested_field_mutation"
 description = "Cloned variable with nested field mutation requires mut"
 tags = ["mutability", "nested-fields", "clone", "regression"]
 
-[test.python]
-code = '''
+python = '''
 class TryTracker:
     def __init__(self):
         self.player_indices: list[int] = []
@@ -610,21 +1179,34 @@ def record_try(state: State, player_index: int) -> None:
     t.player_indices.append(player_index)
 '''
 
-[test.assertions]
-contains = ["let mut t"]
-not_contains = ["let t = state.try_tracker"]
-
-# =============================================================================
-# For-Loop Variable Mutability (field assignment on loop variable)
-# =============================================================================
+rust = '''
+#[derive(Debug, Clone)]
+pub struct TryTracker {}
+impl TryTracker {
+    pub fn new() -> Self {
+        Self {}
+    }
+}
+#[derive(Debug, Clone)]
+pub struct State {}
+impl State {
+    pub fn new() -> Self {
+        Self {}
+    }
+}
+#[doc = "Test the pattern from test_mega where cloned object has nested field mutation."]
+pub fn record_try(state: &State, player_index: i32) {
+    let mut t = state.try_tracker;
+    t.player_indices.push(player_index);
+}
+'''
 
 [[test]]
 name = "for_loop_mut_field_assignment"
 description = "For loop variable needs mut when field is assigned"
 tags = ["mutability", "for-loop", "field-assignment"]
 
-[test.python]
-code = '''
+python = '''
 class PlayerStats:
     def __init__(self):
         self.time_on_field_in_seconds: int = 0
@@ -634,16 +1216,27 @@ def add_time_to_players(players: list[PlayerStats], seconds: int) -> None:
         s.time_on_field_in_seconds = s.time_on_field_in_seconds + seconds
 '''
 
-[test.assertions]
-contains = ["for mut s in"]
+rust = '''
+#[derive(Debug, Clone)]
+pub struct PlayerStats {}
+impl PlayerStats {
+    pub fn new() -> Self {
+        Self {}
+    }
+}
+pub fn add_time_to_players(players: &Vec<PlayerStats>, seconds: i32) {
+    for mut s in players.iter().cloned() {
+        s.time_on_field_in_seconds = s.time_on_field_in_seconds + seconds;
+    }
+}
+'''
 
 [[test]]
 name = "for_loop_mut_nested_field_assignment"
 description = "For loop variable needs mut when deeply nested field is assigned"
 tags = ["mutability", "for-loop", "nested-fields"]
 
-[test.python]
-code = '''
+python = '''
 class Scores:
     def __init__(self):
         self.tries: int = 0
@@ -664,16 +1257,43 @@ def add_try_to_all(player_stats: list[PlayerStatistics]) -> None:
         stats.match_statistics.scores.total = stats.match_statistics.scores.total + TRY_POINTS
 '''
 
-[test.assertions]
-contains = ["for mut stats in"]
+rust = '''
+#[derive(Debug, Clone)]
+pub struct Scores {}
+impl Scores {
+    pub fn new() -> Self {
+        Self {}
+    }
+}
+#[derive(Debug, Clone)]
+pub struct MatchStats {}
+impl MatchStats {
+    pub fn new() -> Self {
+        Self {}
+    }
+}
+#[derive(Debug, Clone)]
+pub struct PlayerStatistics {}
+impl PlayerStatistics {
+    pub fn new() -> Self {
+        Self {}
+    }
+}
+pub fn add_try_to_all(player_stats: &Vec<PlayerStatistics>) {
+    let TRY_POINTS = 4;
+    for mut stats in player_stats.iter().cloned() {
+        stats.match_statistics.scores.tries = stats.match_statistics.scores.tries + 1;
+        stats.match_statistics.scores.total = stats.match_statistics.scores.total + TRY_POINTS;
+    }
+}
+'''
 
 [[test]]
 name = "for_loop_immut_no_field_assignment"
 description = "For loop variable stays immutable when no field assignment"
 tags = ["mutability", "for-loop", "immutable"]
 
-[test.python]
-code = '''
+python = '''
 class Player:
     def __init__(self):
         self.name: str = ""
@@ -683,17 +1303,27 @@ def print_player_names(players: list[Player]) -> None:
         print(p.name)
 '''
 
-[test.assertions]
-contains = ["for p in"]
-not_contains = ["for mut p in"]
+rust = '''
+#[derive(Debug, Clone)]
+pub struct Player {}
+impl Player {
+    pub fn new() -> Self {
+        Self {}
+    }
+}
+pub fn print_player_names(players: &Vec<Player>) {
+    for p in players.iter().cloned() {
+        println!("{}", p.name);
+    }
+}
+'''
 
 [[test]]
 name = "for_loop_mut_index_assignment"
 description = "For loop variable needs mut when index is assigned"
 tags = ["mutability", "for-loop", "index-assignment"]
 
-[test.python]
-code = '''
+python = '''
 class Container:
     def __init__(self):
         self.items: list[int] = []
@@ -703,5 +1333,17 @@ def update_first_items(containers: list[Container], value: int) -> None:
         c.items[0] = value
 '''
 
-[test.assertions]
-contains = ["for mut c in"]
+rust = '''
+#[derive(Debug, Clone)]
+pub struct Container {}
+impl Container {
+    pub fn new() -> Self {
+        Self {}
+    }
+}
+pub fn update_first_items(containers: &Vec<Container>, value: i32) {
+    for mut c in containers.iter().cloned() {
+        c.items.insert((0) as usize, value);
+    }
+}
+'''

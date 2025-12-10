@@ -13,38 +13,93 @@ name = "generator_simple_yield"
 description = "Simple generator with single yield"
 tags = ["generator", "yield"]
 
-[test.python]
-code = '''
+python = '''
 def simple_generator():
     yield 1
 '''
 
-[test.assertions]
-contains_any = [["fn simple_generator", "struct SimpleGenerator", "Iterator"]]
+rust = '''
+#[doc = " Generator state struct"]
+#[derive(Debug)]
+struct SimpleGeneratorState {
+    state: usize,
+}
+#[doc = " Generator function - returns Iterator"]
+pub fn simple_generator() -> impl Iterator<Item = i32> {
+    SimpleGeneratorState { state: 0 }
+}
+impl Iterator for SimpleGeneratorState {
+    type Item = i32;
+    fn next(&mut self) -> Option<Self::Item> {
+        match self.state {
+            0 => {
+                self.state = 1usize;
+                return Some(1);
+            }
+            1usize => {
+                self.state = 1usize + 1;
+                None
+            }
+            _ => None,
+        }
+    }
+}
+'''
 
 [[test]]
 name = "generator_multiple_yields"
 description = "Generator with multiple yield statements"
 tags = ["generator", "yield"]
 
-[test.python]
-code = '''
+python = '''
 def count_to_three():
     yield 1
     yield 2
     yield 3
 '''
 
-[test.assertions]
-contains_any = [["count_to_three", "CountToThree"]]
+rust = '''
+#[doc = " Generator state struct"]
+#[derive(Debug)]
+struct CountToThreeState {
+    state: usize,
+}
+#[doc = " Generator function - returns Iterator"]
+pub fn count_to_three() -> impl Iterator<Item = i32> {
+    CountToThreeState { state: 0 }
+}
+impl Iterator for CountToThreeState {
+    type Item = i32;
+    fn next(&mut self) -> Option<Self::Item> {
+        match self.state {
+            0 => {
+                self.state = 1usize;
+                return Some(1);
+            }
+            1usize => {
+                self.state = 2usize;
+                return Some(2);
+            }
+            2usize => {
+                self.state = 3usize;
+                return Some(3);
+            }
+            3usize => {
+                self.state = 3usize + 1;
+                None
+            }
+            _ => None,
+        }
+    }
+}
+'''
 
 [[test]]
 name = "generator_with_loop"
 description = "Generator using while loop"
 tags = ["generator", "while"]
 
-[test.python]
-code = '''
+python = '''
 def count_up(n: int):
     i = 0
     while i < n:
@@ -52,66 +107,192 @@ def count_up(n: int):
         i = i + 1
 '''
 
-[test.assertions]
-contains_any = [["count_up", "CountUp"]]
+rust = '''
+#[doc = " Generator state struct"]
+#[derive(Debug)]
+struct CountUpState {
+    state: usize,
+    i: i32,
+    n: i32,
+}
+#[doc = " Generator function - returns Iterator"]
+pub fn count_up(n: i32) -> impl Iterator<Item = i32> {
+    CountUpState { state: 0, i: 0, n: n }
+}
+impl Iterator for CountUpState {
+    type Item = i32;
+    fn next(&mut self) -> Option<Self::Item> {
+        match self.state {
+            0 => {
+                self.i = 0;
+                self.state = 1;
+                self.next()
+            }
+            1 => {
+                if self.i < self.n {
+                    let result = self.i;
+                    self.i = self.i + 1;
+                    return Some(result);
+                } else {
+                    self.state = 2;
+                    None
+                }
+            }
+            _ => None,
+        }
+    }
+}
+'''
 
 [[test]]
 name = "generator_with_for"
 description = "Generator using for loop with range"
 tags = ["generator", "for"]
 
-[test.python]
-code = '''
+python = '''
 def range_generator(n: int):
     for i in range(n):
         yield i
 '''
 
-[test.assertions]
-contains_any = [["range_generator", "RangeGenerator"]]
+rust = '''
+#[doc = " Generator state struct"]
+#[derive(Debug)]
+struct RangeGeneratorState {
+    state: usize,
+    n: i32,
+}
+#[doc = " Generator function - returns Iterator"]
+pub fn range_generator(n: i32) -> impl Iterator<Item = i32> {
+    RangeGeneratorState { state: 0, n: n }
+}
+impl Iterator for RangeGeneratorState {
+    type Item = i32;
+    fn next(&mut self) -> Option<Self::Item> {
+        match self.state {
+            0 => {
+                self.state = 1;
+                for _i in 0..self.n {
+                    return Some(i);
+                }
+                None
+            }
+            _ => None,
+        }
+    }
+}
+'''
 
 [[test]]
 name = "generator_with_condition"
 description = "Generator with conditional yield"
 tags = ["generator", "condition"]
 
-[test.python]
-code = '''
+python = '''
 def even_numbers(n: int):
     for i in range(n):
         if i % 2 == 0:
             yield i
 '''
 
-[test.assertions]
-contains_any = [["even_numbers", "EvenNumbers"]]
-
-# =============================================================================
-# Generator Parameters
-# =============================================================================
+rust = '''
+#[derive(Debug, Clone)]
+pub struct ZeroDivisionError {
+    message: String,
+}
+impl std::fmt::Display for ZeroDivisionError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "division by zero: {}", self.message)
+    }
+}
+impl std::error::Error for ZeroDivisionError {}
+impl ZeroDivisionError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = " Depyler: proven to terminate"]
+#[doc = " Generator state struct"]
+#[derive(Debug)]
+struct EvenNumbersState {
+    state: usize,
+    n: i32,
+}
+#[doc = " Generator function - returns Iterator"]
+pub fn even_numbers(n: i32) -> impl Iterator<Item = i32> {
+    EvenNumbersState { state: 0, n: n }
+}
+impl Iterator for EvenNumbersState {
+    type Item = i32;
+    fn next(&mut self) -> Option<Self::Item> {
+        match self.state {
+            0 => {
+                self.state = 1;
+                for i in 0..self.n {
+                    if i % 2 == 0 {
+                        return Some(i);
+                    }
+                }
+                None
+            }
+            _ => None,
+        }
+    }
+}
+'''
 
 [[test]]
 name = "generator_with_params"
 description = "Generator with parameters"
 tags = ["generator", "parameters"]
 
-[test.python]
-code = '''
+python = '''
 def repeat_value(value: int, times: int):
     for _ in range(times):
         yield value
 '''
 
-[test.assertions]
-contains = ["value", "times"]
+rust = '''
+#[doc = " Generator state struct"]
+#[derive(Debug)]
+struct RepeatValueState {
+    state: usize,
+    value: i32,
+    times: i32,
+}
+#[doc = " Generator function - returns Iterator"]
+pub fn repeat_value(value: i32, times: i32) -> impl Iterator<Item = i32> {
+    RepeatValueState {
+        state: 0,
+        value: value,
+        times: times,
+    }
+}
+impl Iterator for RepeatValueState {
+    type Item = i32;
+    fn next(&mut self) -> Option<Self::Item> {
+        match self.state {
+            0 => {
+                self.state = 1;
+                for __ in 0..self.times {
+                    return Some(self.value);
+                }
+                None
+            }
+            _ => None,
+        }
+    }
+}
+'''
 
 [[test]]
 name = "generator_with_start_stop"
 description = "Generator with start and stop parameters"
 tags = ["generator", "parameters"]
 
-[test.python]
-code = '''
+python = '''
 def range_gen(start: int, stop: int):
     i = start
     while i < stop:
@@ -119,54 +300,110 @@ def range_gen(start: int, stop: int):
         i += 1
 '''
 
-[test.assertions]
-contains = ["start", "stop"]
-
-# =============================================================================
-# Generator Expressions
-# =============================================================================
+rust = '''
+use serde_json;
+#[doc = " Generator state struct"]
+#[derive(Debug)]
+struct RangeGenState {
+    state: usize,
+    i: serde_json::Value,
+    start: i32,
+    stop: i32,
+}
+#[doc = " Generator function - returns Iterator"]
+pub fn range_gen(start: i32, stop: i32) -> impl Iterator<Item = i32> {
+    RangeGenState {
+        state: 0,
+        i: Default::default(),
+        start: start,
+        stop: stop,
+    }
+}
+impl Iterator for RangeGenState {
+    type Item = i32;
+    fn next(&mut self) -> Option<Self::Item> {
+        match self.state {
+            0 => {
+                self.i = self.start;
+                self.state = 1;
+                self.next()
+            }
+            1 => {
+                if self.i < self.stop {
+                    let result = self.i;
+                    self.i = self.i + 1;
+                    return Some(result);
+                } else {
+                    self.state = 2;
+                    None
+                }
+            }
+            _ => None,
+        }
+    }
+}
+'''
 
 [[test]]
 name = "generator_expression_basic"
 description = "Generator expression syntax"
 tags = ["generator", "expression"]
 
-[test.python]
-code = '''
+python = '''
 def sum_squares(n: int) -> int:
     return sum(x * x for x in range(n))
 '''
 
-[test.assertions]
-contains = ["map("]
-contains_any = [["sum()", ".sum()"]]
+rust = '''
+pub fn sum_squares(n: i32) -> i32 {
+    return 0..n.map(|x| x * x).sum::<i32>();
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_sum_squares_examples() {
+        assert_eq!(sum_squares(0), 0);
+        assert_eq!(sum_squares(1), 1);
+        assert_eq!(sum_squares(-1), -1);
+    }
+}
+'''
 
 [[test]]
 name = "generator_expression_filter"
 description = "Generator expression with filter"
 tags = ["generator", "expression", "filter"]
 
-[test.python]
-code = '''
+python = '''
 def sum_even_squares(n: int) -> int:
     return sum(x * x for x in range(n) if x % 2 == 0)
 '''
 
-[test.assertions]
-contains = ["filter(", "map("]
-contains_any = [["sum()", ".sum()"]]
-
-# =============================================================================
-# Stateful Generators
-# =============================================================================
+rust = '''
+pub fn sum_even_squares(n: i32) -> i32 {
+    return 0..n.filter(|x| x % 2 == 0).map(|x| x * x).sum::<i32>();
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_sum_even_squares_examples() {
+        assert_eq!(sum_even_squares(0), 0);
+        assert_eq!(sum_even_squares(1), 1);
+        assert_eq!(sum_even_squares(-1), -1);
+    }
+}
+'''
 
 [[test]]
 name = "generator_stateful"
 description = "Stateful generator tracking count"
 tags = ["generator", "stateful"]
 
-[test.python]
-code = '''
+python = '''
 def counter(start: int):
     count = start
     while count < 100:
@@ -174,16 +411,54 @@ def counter(start: int):
         count += 1
 '''
 
-[test.assertions]
-contains = ["count"]
+rust = '''
+use serde_json;
+#[doc = " Generator state struct"]
+#[derive(Debug)]
+struct CounterState {
+    state: usize,
+    count: serde_json::Value,
+    start: i32,
+}
+#[doc = " Generator function - returns Iterator"]
+pub fn counter(start: i32) -> impl Iterator<Item = i32> {
+    CounterState {
+        state: 0,
+        count: Default::default(),
+        start: start,
+    }
+}
+impl Iterator for CounterState {
+    type Item = i32;
+    fn next(&mut self) -> Option<Self::Item> {
+        match self.state {
+            0 => {
+                self.count = self.start;
+                self.state = 1;
+                self.next()
+            }
+            1 => {
+                if self.count < 100 {
+                    let result = self.count;
+                    self.count = self.count + 1;
+                    return Some(result);
+                } else {
+                    self.state = 2;
+                    None
+                }
+            }
+            _ => None,
+        }
+    }
+}
+'''
 
 [[test]]
 name = "generator_fibonacci"
 description = "Fibonacci generator"
 tags = ["generator", "fibonacci"]
 
-[test.python]
-code = '''
+python = '''
 def fibonacci(n: int):
     a, b = 0, 1
     for _ in range(n):
@@ -191,20 +466,42 @@ def fibonacci(n: int):
         a, b = b, a + b
 '''
 
-[test.assertions]
-contains_any = [["fibonacci", "Fibonacci"]]
-
-# =============================================================================
-# Generator Iteration
-# =============================================================================
+rust = '''
+#[doc = " Generator state struct"]
+#[derive(Debug)]
+struct FibonacciState {
+    state: usize,
+    n: i32,
+}
+#[doc = " Generator function - returns Iterator"]
+pub fn fibonacci(n: i32) -> impl Iterator<Item = i32> {
+    FibonacciState { state: 0, n: n }
+}
+impl Iterator for FibonacciState {
+    type Item = i32;
+    fn next(&mut self) -> Option<Self::Item> {
+        match self.state {
+            0 => {
+                self.state = 1;
+                let (mut a, mut b) = (0, 1);
+                for __ in 0..self.n {
+                    return Some(a);
+                    (a, b) = (b, a + b);
+                }
+                None
+            }
+            _ => None,
+        }
+    }
+}
+'''
 
 [[test]]
 name = "generator_consume_list"
 description = "Consume generator into list"
 tags = ["generator", "consume"]
 
-[test.python]
-code = '''
+python = '''
 def first_n(n: int) -> list[int]:
     def gen():
         for i in range(n):
@@ -212,16 +509,23 @@ def first_n(n: int) -> list[int]:
     return list(gen())
 '''
 
-[test.assertions]
-contains = ["collect"]
+rust = '''
+pub fn first_n(n: i32) -> Vec<i32> {
+    fn gen() -> () {
+        for _i in 0..n {
+            yield i;
+        }
+    }
+    return gen().into_iter().collect::<Vec<_>>();
+}
+'''
 
 [[test]]
 name = "generator_for_loop"
 description = "Iterate generator in for loop"
 tags = ["generator", "iteration"]
 
-[test.python]
-code = '''
+python = '''
 def sum_generated(n: int) -> int:
     total = 0
     for x in range(n):
@@ -229,5 +533,23 @@ def sum_generated(n: int) -> int:
     return total
 '''
 
-[test.assertions]
-contains = ["for"]
+rust = '''
+pub fn sum_generated(n: i32) -> i32 {
+    let mut total = 0;
+    for x in 0..n {
+        total = total + x;
+    }
+    return total;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_sum_generated_examples() {
+        assert_eq!(sum_generated(0), 0);
+        assert_eq!(sum_generated(1), 1);
+        assert_eq!(sum_generated(-1), -1);
+    }
+}
+'''

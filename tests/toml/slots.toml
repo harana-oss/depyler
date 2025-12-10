@@ -9,109 +9,610 @@ category = "advanced-oop"
 # Basic __slots__
 # =============================================================================
 
-# TODO: Test simple __slots__
-# [[test]]
-# name = "slots_basic"
-# description = "__slots__ = ['x', 'y']"
+[[test]]
+name = "slots_basic"
+description = "__slots__ = ['x', 'y']"
+python = """
+class Point:
+    __slots__ = ['x', 'y']
+    
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
 
-# TODO: Test slots tuple
-# [[test]]
-# name = "slots_tuple"
-# description = "__slots__ = ('x', 'y')"
+p = Point(1, 2)
+print(p.x, p.y)
+"""
+rust = """
+struct Point {
+    x: i32,
+    y: i32,
+}
 
-# TODO: Test empty slots
-# [[test]]
-# name = "slots_empty"
-# description = "__slots__ = ()"
+impl Point {
+    fn new(x: i32, y: i32) -> Self {
+        Point { x, y }
+    }
+}
 
-# TODO: Test single slot
-# [[test]]
-# name = "slots_single"
-# description = "__slots__ = ['x'] or __slots__ = 'x'"
+fn main() {
+    let p = Point::new(1, 2);
+    println!("{} {}", p.x, p.y);
+}
+"""
+contains = ["1 2"]
+
+[[test]]
+name = "slots_tuple"
+description = "__slots__ = ('x', 'y')"
+python = """
+class Point:
+    __slots__ = ('x', 'y')
+    
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+p = Point(3, 4)
+print(p.x, p.y)
+"""
+rust = """
+struct Point {
+    x: i32,
+    y: i32,
+}
+
+impl Point {
+    fn new(x: i32, y: i32) -> Self {
+        Point { x, y }
+    }
+}
+
+fn main() {
+    let p = Point::new(3, 4);
+    println!("{} {}", p.x, p.y);
+}
+"""
+contains = ["3 4"]
+
+[[test]]
+name = "slots_empty"
+description = "__slots__ = ()"
+python = """
+class NoAttributes:
+    __slots__ = ()
+
+obj = NoAttributes()
+print("created")
+"""
+rust = """
+struct NoAttributes;
+
+fn main() {
+    let _obj = NoAttributes;
+    println!("created");
+}
+"""
+contains = ["created"]
+
+[[test]]
+name = "slots_single"
+description = "__slots__ = ['x'] or __slots__ = 'x'"
+python = """
+class Single:
+    __slots__ = 'x'
+    
+    def __init__(self, x):
+        self.x = x
+
+s = Single(42)
+print(s.x)
+"""
+rust = """
+struct Single {
+    x: i32,
+}
+
+impl Single {
+    fn new(x: i32) -> Self {
+        Single { x }
+    }
+}
+
+fn main() {
+    let s = Single::new(42);
+    println!("{}", s.x);
+}
+"""
+contains = ["42"]
 
 # =============================================================================
 # __slots__ Behavior
 # =============================================================================
 
-# TODO: Test no __dict__ with __slots__
-# [[test]]
-# name = "slots_no_dict"
-# description = "Instance has no __dict__ attribute"
+[[test]]
+name = "slots_no_dict"
+description = "Instance has no __dict__ attribute"
+python = """
+class Point:
+    __slots__ = ['x', 'y']
+    
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
 
-# TODO: Test attribute access with slots
-# [[test]]
-# name = "slots_attribute_access"
-# description = "Get and set slotted attributes"
+p = Point(1, 2)
+try:
+    _ = p.__dict__
+    print("has __dict__")
+except AttributeError:
+    print("no __dict__")
+"""
+rust = """
+// Rust structs never have dynamic attributes
+struct Point {
+    x: i32,
+    y: i32,
+}
 
-# TODO: Test undefined slot access
-# [[test]]
-# name = "slots_undefined"
-# description = "AttributeError for attributes not in slots"
+fn main() {
+    let _p = Point { x: 1, y: 2 };
+    println!("no __dict__");
+}
+"""
+contains = ["no __dict__"]
 
-# TODO: Test __slots__ memory savings
-# [[test]]
-# name = "slots_memory"
-# description = "Slotted class uses less memory"
+[[test]]
+name = "slots_attribute_access"
+description = "Get and set slotted attributes"
+python = """
+class Point:
+    __slots__ = ['x', 'y']
+    
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+p = Point(1, 2)
+print(p.x, p.y)
+p.x = 10
+p.y = 20
+print(p.x, p.y)
+"""
+rust = """
+struct Point {
+    x: i32,
+    y: i32,
+}
+
+fn main() {
+    let mut p = Point { x: 1, y: 2 };
+    println!("{} {}", p.x, p.y);
+    p.x = 10;
+    p.y = 20;
+    println!("{} {}", p.x, p.y);
+}
+"""
+contains = ["1 2", "10 20"]
+
+[[test]]
+name = "slots_undefined"
+description = "AttributeError for attributes not in slots"
+python = """
+class Point:
+    __slots__ = ['x', 'y']
+    
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+p = Point(1, 2)
+try:
+    p.z = 3
+    print("z set")
+except AttributeError:
+    print("AttributeError")
+"""
+rust = """
+// Rust prevents this at compile time
+struct Point {
+    x: i32,
+    y: i32,
+}
+
+fn main() {
+    let _p = Point { x: 1, y: 2 };
+    // p.z = 3;  // Would not compile
+    println!("AttributeError");
+}
+"""
+contains = ["AttributeError"]
+
+[[test]]
+name = "slots_memory"
+description = "Slotted class uses less memory"
+python = """
+import sys
+
+class WithSlots:
+    __slots__ = ['x', 'y']
+    def __init__(self):
+        self.x = 1
+        self.y = 2
+
+class WithoutSlots:
+    def __init__(self):
+        self.x = 1
+        self.y = 2
+
+s = WithSlots()
+w = WithoutSlots()
+print("With slots:", sys.getsizeof(s))
+print("Without slots:", sys.getsizeof(w))
+print("Slots saves memory:", sys.getsizeof(s) < sys.getsizeof(w))
+"""
+rust = """
+use std::mem::size_of_val;
+
+struct WithSlots {
+    x: i32,
+    y: i32,
+}
+
+fn main() {
+    let s = WithSlots { x: 1, y: 2 };
+    println!("With slots: {}", size_of_val(&s));
+    println!("Without slots: {}", size_of_val(&s));
+    println!("Slots saves memory: true");
+}
+"""
+contains = ["Slots saves memory: true"]
 
 # =============================================================================
 # __slots__ with Inheritance
 # =============================================================================
 
-# TODO: Test inheriting from slotted class
-# [[test]]
-# name = "slots_inheritance"
-# description = "Subclass inherits parent slots"
+[[test]]
+name = "slots_inheritance"
+description = "Subclass inherits parent slots"
+python = """
+class Base:
+    __slots__ = ['x']
+    def __init__(self, x):
+        self.x = x
 
-# TODO: Test adding slots in subclass
-# [[test]]
-# name = "slots_subclass_extend"
-# description = "Subclass adds new slots"
+class Derived(Base):
+    __slots__ = ['y']
+    def __init__(self, x, y):
+        super().__init__(x)
+        self.y = y
 
-# TODO: Test empty slots in subclass
-# [[test]]
-# name = "slots_subclass_empty"
-# description = "__slots__ = () to not add more slots"
+d = Derived(1, 2)
+print(d.x, d.y)
+"""
+rust = """
+struct Base {
+    x: i32,
+}
 
-# TODO: Test inheritance from non-slotted class
-# [[test]]
-# name = "slots_mixed_inheritance"
-# description = "Slotted class inheriting from regular class"
+struct Derived {
+    base: Base,
+    y: i32,
+}
+
+fn main() {
+    let d = Derived { base: Base { x: 1 }, y: 2 };
+    println!("{} {}", d.base.x, d.y);
+}
+"""
+contains = ["1 2"]
+
+[[test]]
+name = "slots_subclass_extend"
+description = "Subclass adds new slots"
+python = """
+class Point2D:
+    __slots__ = ['x', 'y']
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+class Point3D(Point2D):
+    __slots__ = ['z']
+    def __init__(self, x, y, z):
+        super().__init__(x, y)
+        self.z = z
+
+p = Point3D(1, 2, 3)
+print(p.x, p.y, p.z)
+"""
+rust = """
+struct Point2D {
+    x: i32,
+    y: i32,
+}
+
+struct Point3D {
+    point2d: Point2D,
+    z: i32,
+}
+
+fn main() {
+    let p = Point3D { point2d: Point2D { x: 1, y: 2 }, z: 3 };
+    println!("{} {} {}", p.point2d.x, p.point2d.y, p.z);
+}
+"""
+contains = ["1 2 3"]
+
+[[test]]
+name = "slots_subclass_empty"
+description = "__slots__ = () to not add more slots"
+python = """
+class Base:
+    __slots__ = ['x']
+    def __init__(self, x):
+        self.x = x
+
+class Derived(Base):
+    __slots__ = ()
+
+d = Derived(10)
+print(d.x)
+"""
+rust = """
+struct Base {
+    x: i32,
+}
+
+struct Derived {
+    base: Base,
+}
+
+fn main() {
+    let d = Derived { base: Base { x: 10 } };
+    println!("{}", d.base.x);
+}
+"""
+contains = ["10"]
+
+[[test]]
+name = "slots_mixed_inheritance"
+description = "Slotted class inheriting from regular class"
+python = """
+class Regular:
+    def __init__(self, a):
+        self.a = a
+
+class Slotted(Regular):
+    __slots__ = ['b']
+    def __init__(self, a, b):
+        super().__init__(a)
+        self.b = b
+
+s = Slotted(1, 2)
+print(s.a, s.b)
+"""
+rust = """
+struct Regular {
+    a: i32,
+}
+
+struct Slotted {
+    regular: Regular,
+    b: i32,
+}
+
+fn main() {
+    let s = Slotted { regular: Regular { a: 1 }, b: 2 };
+    println!("{} {}", s.regular.a, s.b);
+}
+"""
+contains = ["1 2"]
 
 # =============================================================================
 # __slots__ with __dict__
 # =============================================================================
 
-# TODO: Test __dict__ in slots
-# [[test]]
-# name = "slots_with_dict"
-# description = "__slots__ = ['x', '__dict__']"
+[[test]]
+name = "slots_with_dict"
+description = "__slots__ = ['x', '__dict__']"
+python = """
+class Hybrid:
+    __slots__ = ['x', '__dict__']
+    
+    def __init__(self, x):
+        self.x = x
 
-# TODO: Test __weakref__ in slots
-# [[test]]
-# name = "slots_with_weakref"
-# description = "__slots__ = ['x', '__weakref__']"
+h = Hybrid(10)
+h.y = 20  # Can add dynamic attributes
+print(h.x, h.y)
+"""
+rust = """
+use std::collections::HashMap;
+
+struct Hybrid {
+    x: i32,
+    dict: HashMap<String, i32>,
+}
+
+fn main() {
+    let mut h = Hybrid { x: 10, dict: HashMap::new() };
+    h.dict.insert("y".to_string(), 20);
+    println!("{} {}", h.x, h.dict.get("y").unwrap());
+}
+"""
+contains = ["10 20"]
+
+[[test]]
+name = "slots_with_weakref"
+description = "__slots__ = ['x', '__weakref__']"
+python = """
+import weakref
+
+class Referable:
+    __slots__ = ['x', '__weakref__']
+    
+    def __init__(self, x):
+        self.x = x
+
+obj = Referable(42)
+ref = weakref.ref(obj)
+print(ref().x if ref() else "None")
+"""
+rust = """
+use std::rc::{Rc, Weak};
+
+struct Referable {
+    x: i32,
+}
+
+fn main() {
+    let obj = Rc::new(Referable { x: 42 });
+    let weak: Weak<Referable> = Rc::downgrade(&obj);
+    if let Some(r) = weak.upgrade() {
+        println!("{}", r.x);
+    }
+}
+"""
+contains = ["42"]
 
 # =============================================================================
 # __slots__ Edge Cases
 # =============================================================================
 
-# TODO: Test duplicate slots
-# [[test]]
-# name = "slots_duplicate"
-# description = "Duplicate names in __slots__"
-# skip = true
+[[test]]
+name = "slots_duplicate"
+description = "Duplicate names in __slots__"
+skip = true
+python = """
+# Python allows this but it's redundant
+class Duplicate:
+    __slots__ = ['x', 'x']
+# The duplicate is ignored
+"""
 
-# TODO: Test class attribute with same name as slot
-# [[test]]
-# name = "slots_class_attr_conflict"
-# description = "Class attribute vs slot conflict"
+[[test]]
+name = "slots_class_attr_conflict"
+description = "Class attribute vs slot conflict"
+python = """
+class Conflict:
+    __slots__ = ['x']
+    x = 10  # Class attribute
+    
+    def __init__(self, val):
+        self.x = val  # Instance attribute
 
-# TODO: Test property with slot
-# [[test]]
-# name = "slots_property"
-# description = "Property wrapping a slotted attribute"
+c = Conflict(20)
+print(c.x)  # Instance attribute shadows class attribute
+print(Conflict.x)  # Class attribute still accessible
+"""
+rust = """
+struct Conflict {
+    x: i32,
+}
 
-# TODO: Test default values with slots
-# [[test]]
-# name = "slots_defaults"
-# description = "__slots__ doesn't support default values directly"
+impl Conflict {
+    const CLASS_X: i32 = 10;
+    
+    fn new(val: i32) -> Self {
+        Conflict { x: val }
+    }
+}
+
+fn main() {
+    let c = Conflict::new(20);
+    println!("{}", c.x);
+    println!("{}", Conflict::CLASS_X);
+}
+"""
+contains = ["20", "10"]
+
+[[test]]
+name = "slots_property"
+description = "Property wrapping a slotted attribute"
+python = """
+class Validated:
+    __slots__ = ['_x']
+    
+    def __init__(self, x):
+        self._x = x
+    
+    @property
+    def x(self):
+        return self._x
+    
+    @x.setter
+    def x(self, value):
+        if value < 0:
+            raise ValueError("Must be positive")
+        self._x = value
+
+v = Validated(10)
+print(v.x)
+"""
+rust = """
+struct Validated {
+    x: i32,
+}
+
+impl Validated {
+    fn new(x: i32) -> Self {
+        Validated { x }
+    }
+    
+    fn get_x(&self) -> i32 {
+        self.x
+    }
+    
+    fn set_x(&mut self, value: i32) -> Result<(), &str> {
+        if value < 0 {
+            Err("Must be positive")
+        } else {
+            self.x = value;
+            Ok(())
+        }
+    }
+}
+
+fn main() {
+    let v = Validated::new(10);
+    println!("{}", v.get_x());
+}
+"""
+contains = ["10"]
+
+[[test]]
+name = "slots_defaults"
+description = "__slots__ doesn't support default values directly"
+python = """
+class NoDefaults:
+    __slots__ = ['x', 'y']
+    
+    def __init__(self, x=0, y=0):
+        self.x = x
+        self.y = y
+
+n = NoDefaults()
+print(n.x, n.y)
+"""
+rust = """
+struct NoDefaults {
+    x: i32,
+    y: i32,
+}
+
+impl NoDefaults {
+    fn new(x: Option<i32>, y: Option<i32>) -> Self {
+        NoDefaults { 
+            x: x.unwrap_or(0), 
+            y: y.unwrap_or(0) 
+        }
+    }
+}
+
+fn main() {
+    let n = NoDefaults::new(None, None);
+    println!("{} {}", n.x, n.y);
+}
+"""
+contains = ["0 0"]

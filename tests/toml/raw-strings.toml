@@ -9,133 +9,361 @@ category = "strings"
 # Basic Raw Strings
 # =============================================================================
 
-# TODO: Test basic raw
-# [[test]]
-# name = "raw_basic"
-# description = "r'\\n' contains backslash n"
+[[test]]
+name = "raw_basic"
+description = "r'\\n' contains backslash n"
+tags = ["raw-strings", "escape"]
 
-# TODO: Test path
-# [[test]]
-# name = "raw_path"
-# description = "r'C:\\Users\\name'"
+python = '''
+s = r'\n'
+result = s == '\\n'
+'''
 
-# TODO: Test regex
-# [[test]]
-# name = "raw_regex"
-# description = "r'\\d+\\.\\d+'"
+rust = '''
+let s = r"\n";
+let result = s == "\\n";
+'''
+
+[[test]]
+name = "raw_path"
+description = "r'C:\\Users\\name'"
+tags = ["raw-strings", "path"]
+
+python = '''
+path = r'C:\Users\name'
+result = path == 'C:\\Users\\name'
+'''
+
+rust = '''
+let path = r"C:\Users\name";
+let result = path == "C:\\Users\\name";
+'''
+
+[[test]]
+name = "raw_regex"
+description = "r'\\d+\\.\\d+'"
+tags = ["raw-strings", "regex"]
+
+python = '''
+pattern = r'\d+\.\d+'
+result = pattern == '\\d+\\.\\d+'
+'''
+
+rust = '''
+let pattern = r"\d+\.\d+";
+let result = pattern == "\\d+\\.\\d+";
+'''
 
 # =============================================================================
 # Escape Sequences
 # =============================================================================
 
-# TODO: Test backslash n
-# [[test]]
-# name = "raw_backslash_n"
-# description = "r'\\n' vs '\\n'"
+[[test]]
+name = "raw_backslash_n"
+description = "r'\\n' vs '\\n'"
+tags = ["raw-strings", "escape", "newline"]
 
-# TODO: Test backslash t
-# [[test]]
-# name = "raw_backslash_t"
-# description = "r'\\t' vs '\\t'"
+python = '''
+raw = r'\n'
+normal = '\n'
+result = (len(raw) == 2 and len(normal) == 1)
+'''
 
-# TODO: Test unicode escape
-# [[test]]
-# name = "raw_unicode"
-# description = "r'\\u0041' literal backslash"
+rust = '''
+let raw = r"\n";
+let normal = "\n";
+let result = (raw.len() == 2 && normal.len() == 1);
+'''
 
-# TODO: Test hex escape
-# [[test]]
-# name = "raw_hex"
-# description = "r'\\x41' literal backslash"
+[[test]]
+name = "raw_backslash_t"
+description = "r'\\t' vs '\\t'"
+tags = ["raw-strings", "escape", "tab"]
+
+python = '''
+raw = r'\t'
+normal = '\t'
+result = (len(raw) == 2 and len(normal) == 1)
+'''
+
+rust = '''
+let raw = r"\t";
+let normal = "\t";
+let result = (raw.len() == 2 && normal.len() == 1);
+'''
+
+[[test]]
+name = "raw_unicode"
+description = "r'\\u0041' literal backslash"
+tags = ["raw-strings", "unicode"]
+
+python = '''
+raw = r'\u0041'
+result = raw == '\\u0041'
+'''
+
+rust = '''
+let raw = r"\u0041";
+let result = raw == "\\u0041";
+'''
+
+[[test]]
+name = "raw_hex"
+description = "r'\\x41' literal backslash"
+tags = ["raw-strings", "hex"]
+
+python = '''
+raw = r'\x41'
+result = raw == '\\x41'
+'''
+
+rust = '''
+let raw = r"\x41";
+let result = raw == "\\x41";
+'''
 
 # =============================================================================
 # Quotes in Raw Strings
 # =============================================================================
 
-# TODO: Test single quotes
-# [[test]]
-# name = "raw_single"
-# description = "r'text'"
+[[test]]
+name = "raw_single"
+description = "r'text'"
+tags = ["raw-strings", "quotes"]
 
-# TODO: Test double quotes
-# [[test]]
-# name = "raw_double"
-# description = "r\"text\""
+python = '''
+s = r'text'
+result = s == 'text'
+'''
 
-# TODO: Test triple single
-# [[test]]
-# name = "raw_triple_single"
-# description = "r'''text'''"
+rust = '''
+let s = r"text";
+let result = s == "text";
+'''
 
-# TODO: Test triple double
-# [[test]]
-# name = "raw_triple_double"
-# description = "r\"\"\"text\"\"\""
+[[test]]
+name = "raw_double"
+description = "r\"text\""
+tags = ["raw-strings", "quotes"]
+
+python = '''
+s = r"text"
+result = s == "text"
+'''
+
+rust = '''
+let s = r"text";
+let result = s == "text";
+'''
+
+[[test]]
+name = "raw_triple_single"
+description = "r'''text'''"
+tags = ["raw-strings", "quotes", "multiline"]
+
+python = """
+s = r'''text'''
+result = s == 'text'
+"""
+
+rust = '''
+let s = r"text";
+let result = s == "text";
+'''
+
+[[test]]
+name = "raw_triple_double"
+description = "r\"\"\"text\"\"\""
+tags = ["raw-strings", "quotes", "multiline"]
+
+python = '''
+s = r"""text"""
+result = s == "text"
+'''
+
+rust = '''
+let s = r"text";
+let result = s == "text";
+'''
 
 # =============================================================================
 # Raw F-Strings
 # =============================================================================
 
-# TODO: Test rf-string
-# [[test]]
-# name = "raw_fstring"
-# description = "rf'{var}\\n'"
+[[test]]
+name = "raw_fstring"
+description = "rf'{var}\\n'"
+tags = ["raw-strings", "f-strings"]
 
-# TODO: Test fr-string
-# [[test]]
-# name = "fr_string"
-# description = "fr'{var}\\n' same as rf"
+python = '''
+var = "test"
+s = rf'{var}\n'
+result = s == 'test\\n'
+'''
+
+rust = '''
+let var = "test";
+let s = format!(r"{}\n", var);
+let result = s == "test\\n";
+'''
+
+[[test]]
+name = "fr_string"
+description = "fr'{var}\\n' same as rf"
+tags = ["raw-strings", "f-strings"]
+
+python = '''
+var = "test"
+s = fr'{var}\n'
+result = s == 'test\\n'
+'''
+
+rust = '''
+let var = "test";
+let s = format!(r"{}\n", var);
+let result = s == "test\\n";
+'''
 
 # =============================================================================
 # Limitations
 # =============================================================================
 
-# TODO: Test trailing backslash
-# [[test]]
-# name = "raw_trailing_backslash"
-# description = "r'text\\' - odd backslashes at end"
-# skip = true
+[[test]]
+name = "raw_trailing_backslash"
+description = "r'text\\' - odd backslashes at end"
+tags = ["raw-strings", "limitations"]
+skip = true
 
-# TODO: Test ending quote escape
-# [[test]]
-# name = "raw_quote_escape"
-# description = "r'\\'' invalid"
-# skip = true
+python = '''
+# This is actually invalid syntax in Python
+# s = r'text\'
+result = True
+'''
+
+rust = '''
+// Similar limitation in Rust
+let result = true;
+'''
+
+[[test]]
+name = "raw_quote_escape"
+description = "r'\\'' invalid"
+tags = ["raw-strings", "limitations"]
+skip = true
+
+python = '''
+# Cannot escape quotes in raw strings
+# s = r'\''
+result = True
+'''
+
+rust = '''
+// Cannot escape quotes in raw strings
+let result = true;
+'''
 
 # =============================================================================
 # Use Cases
 # =============================================================================
 
-# TODO: Test regex pattern
-# [[test]]
-# name = "raw_regex_use"
-# description = "re.match(r'\\d+', text)"
+[[test]]
+name = "raw_regex_use"
+description = "re.match(r'\\d+', text)"
+tags = ["raw-strings", "regex", "use-case"]
 
-# TODO: Test Windows path
-# [[test]]
-# name = "raw_windows"
-# description = "r'C:\\Program Files\\App'"
+python = '''
+import re
+text = "123abc"
+pattern = r'\d+'
+match = re.match(pattern, text)
+result = match is not None
+'''
 
-# TODO: Test LaTeX
-# [[test]]
-# name = "raw_latex"
-# description = "r'\\frac{1}{2}'"
+rust = '''
+use regex::Regex;
+let text = "123abc";
+let pattern = r"\d+";
+let re = Regex::new(pattern).unwrap();
+let result = re.is_match(text);
+'''
+
+[[test]]
+name = "raw_windows"
+description = "r'C:\\Program Files\\App'"
+tags = ["raw-strings", "path", "use-case"]
+
+python = '''
+path = r'C:\Program Files\App'
+result = path == 'C:\\Program Files\\App'
+'''
+
+rust = '''
+let path = r"C:\Program Files\App";
+let result = path == "C:\\Program Files\\App";
+'''
+
+[[test]]
+name = "raw_latex"
+description = "r'\\frac{1}{2}'"
+tags = ["raw-strings", "latex", "use-case"]
+
+python = '''
+latex = r'\frac{1}{2}'
+result = latex == '\\frac{1}{2}'
+'''
+
+rust = '''
+let latex = r"\frac{1}{2}";
+let result = latex == "\\frac{1}{2}";
+'''
 
 # =============================================================================
 # Edge Cases
 # =============================================================================
 
-# TODO: Test empty raw
-# [[test]]
-# name = "raw_empty"
-# description = "r''"
+[[test]]
+name = "raw_empty"
+description = "r''"
+tags = ["raw-strings", "edge-case"]
 
-# TODO: Test multiline raw
-# [[test]]
-# name = "raw_multiline"
-# description = "r'''multi\\nline'''"
+python = '''
+s = r''
+result = s == ''
+'''
 
-# TODO: Test raw bytes
-# [[test]]
-# name = "raw_bytes"
-# description = "rb'\\x00' or br'\\x00'"
+rust = '''
+let s = r"";
+let result = s == "";
+'''
+
+[[test]]
+name = "raw_multiline"
+description = "r'''multi\\nline'''"
+tags = ["raw-strings", "multiline", "edge-case"]
+
+python = """
+s = r'''multi\nline'''
+result = s == 'multi\\nline'
+"""
+
+rust = '''
+let s = r"multi\nline";
+let result = s == "multi\\nline";
+'''
+
+[[test]]
+name = "raw_bytes"
+description = "rb'\\x00' or br'\\x00'"
+tags = ["raw-strings", "bytes", "edge-case"]
+
+python = '''
+b1 = rb'\x00'
+b2 = br'\x00'
+result = (b1 == b'\\x00' and b2 == b'\\x00')
+'''
+
+rust = '''
+let b1 = br"\x00";
+let b2 = br"\x00";
+let result = (b1 == b"\\x00" && b2 == b"\\x00");
+'''

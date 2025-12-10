@@ -9,144 +9,752 @@ category = "data-structures"
 # Instance Methods
 # =============================================================================
 
-# TODO: Test custom method
-# [[test]]
-# name = "enum_custom_method"
-# description = "def describe(self): return f'{self.name}: {self.value}'"
+[[test]]
+name = "enum_custom_method"
+description = "def describe(self): return f'{self.name}: {self.value}'"
+python = """
+from enum import Enum
 
-# TODO: Test method accessing value
-# [[test]]
-# name = "enum_method_value"
-# description = "Method using self.value"
+class Status(Enum):
+    PENDING = 1
+    ACTIVE = 2
+    DONE = 3
+    
+    def describe(self):
+        return f"{self.name}: {self.value}"
 
-# TODO: Test method accessing name
-# [[test]]
-# name = "enum_method_name"
-# description = "Method using self.name"
+print(Status.PENDING.describe())
+print(Status.ACTIVE.describe())
+"""
+rust = """
+#[derive(Debug)]
+enum Status {
+    Pending = 1,
+    Active = 2,
+    Done = 3,
+}
+
+impl Status {
+    fn describe(&self) -> String {
+        format!("{:?}: {}", self, *self as i32)
+    }
+}
+
+fn main() {
+    println!("{}", Status::Pending.describe());
+    println!("{}", Status::Active.describe());
+}
+"""
+expected_output = """PENDING: 1
+ACTIVE: 2"""
+
+[[test]]
+name = "enum_method_value"
+description = "Method using self.value"
+python = """
+from enum import Enum
+
+class Priority(Enum):
+    LOW = 1
+    MEDIUM = 5
+    HIGH = 10
+    
+    def is_high(self):
+        return self.value >= 8
+
+print(Priority.LOW.is_high())
+print(Priority.HIGH.is_high())
+"""
+rust = """
+#[derive(Debug, Copy, Clone)]
+enum Priority {
+    Low = 1,
+    Medium = 5,
+    High = 10,
+}
+
+impl Priority {
+    fn is_high(&self) -> bool {
+        (*self as i32) >= 8
+    }
+}
+
+fn main() {
+    println!("{}", Priority::Low.is_high());
+    println!("{}", Priority::High.is_high());
+}
+"""
+expected_output = """False
+True"""
+
+[[test]]
+name = "enum_method_name"
+description = "Method using self.name"
+python = """
+from enum import Enum
+
+class Color(Enum):
+    RED = 1
+    GREEN = 2
+    BLUE = 3
+    
+    def display_name(self):
+        return self.name.lower().capitalize()
+
+print(Color.RED.display_name())
+print(Color.BLUE.display_name())
+"""
+rust = """
+#[derive(Debug)]
+enum Color {
+    Red = 1,
+    Green = 2,
+    Blue = 3,
+}
+
+impl Color {
+    fn display_name(&self) -> String {
+        format!("{:?}", self)
+    }
+}
+
+fn main() {
+    println!("{}", Color::Red.display_name());
+    println!("{}", Color::Blue.display_name());
+}
+"""
+expected_output = """Red
+Blue"""
 
 # =============================================================================
 # Static and Class Methods
 # =============================================================================
 
-# TODO: Test staticmethod
-# [[test]]
-# name = "enum_staticmethod"
-# description = "@staticmethod def helper(): ..."
+[[test]]
+name = "enum_staticmethod"
+description = "@staticmethod def helper(): ..."
+python = """
+from enum import Enum
 
-# TODO: Test classmethod
-# [[test]]
-# name = "enum_classmethod"
-# description = "@classmethod def from_string(cls, s): ..."
+class HttpMethod(Enum):
+    GET = "GET"
+    POST = "POST"
+    PUT = "PUT"
+    
+    @staticmethod
+    def all_methods():
+        return ["GET", "POST", "PUT", "DELETE"]
 
-# TODO: Test classmethod access members
-# [[test]]
-# name = "enum_classmethod_members"
-# description = "cls.__members__ in classmethod"
+print(HttpMethod.all_methods())
+print(HttpMethod.GET.value)
+"""
+rust = """
+#[derive(Debug)]
+enum HttpMethod {
+    Get,
+    Post,
+    Put,
+}
+
+impl HttpMethod {
+    fn all_methods() -> Vec<&'static str> {
+        vec!["GET", "POST", "PUT", "DELETE"]
+    }
+    
+    fn value(&self) -> &str {
+        match self {
+            HttpMethod::Get => "GET",
+            HttpMethod::Post => "POST",
+            HttpMethod::Put => "PUT",
+        }
+    }
+}
+
+fn main() {
+    println!("{:?}", HttpMethod::all_methods());
+    println!("{}", HttpMethod::Get.value());
+}
+"""
+expected_output = """['GET', 'POST', 'PUT', 'DELETE']
+GET"""
+
+[[test]]
+name = "enum_classmethod"
+description = "@classmethod def from_string(cls, s): ..."
+python = """
+from enum import Enum
+
+class Day(Enum):
+    MONDAY = 1
+    TUESDAY = 2
+    WEDNESDAY = 3
+    
+    @classmethod
+    def from_string(cls, s):
+        try:
+            return cls[s.upper()]
+        except KeyError:
+            return None
+
+d = Day.from_string("monday")
+print(d.name if d else "None")
+print(d.value if d else "None")
+"""
+rust = """
+#[derive(Debug)]
+enum Day {
+    Monday = 1,
+    Tuesday = 2,
+    Wednesday = 3,
+}
+
+impl Day {
+    fn from_string(s: &str) -> Option<Self> {
+        match s.to_uppercase().as_str() {
+            "MONDAY" => Some(Day::Monday),
+            "TUESDAY" => Some(Day::Tuesday),
+            "WEDNESDAY" => Some(Day::Wednesday),
+            _ => None,
+        }
+    }
+}
+
+fn main() {
+    let d = Day::from_string("monday");
+    match d {
+        Some(day) => {
+            println!("{:?}", format!("{:?}", day).to_uppercase());
+            println!("{}", day as i32);
+        }
+        None => println!("None"),
+    }
+}
+"""
+expected_output = """MONDAY
+1"""
+
+[[test]]
+name = "enum_classmethod_members"
+description = "cls.__members__ in classmethod"
+skip = true
+skip_reason = "Python's __members__ dict is runtime-specific"
+python = """
+from enum import Enum
+
+class Suit(Enum):
+    HEARTS = 1
+    DIAMONDS = 2
+    CLUBS = 3
+    SPADES = 4
+    
+    @classmethod
+    def count(cls):
+        return len(cls.__members__)
+
+print(Suit.count())
+"""
 
 # =============================================================================
 # Dunder Methods
 # =============================================================================
 
-# TODO: Test __str__
-# [[test]]
-# name = "enum_custom_str"
-# description = "def __str__(self): return self.value"
+[[test]]
+name = "enum_custom_str"
+description = "def __str__(self): return self.value"
+python = """
+from enum import Enum
 
-# TODO: Test __repr__
-# [[test]]
-# name = "enum_custom_repr"
-# description = "def __repr__(self): ..."
+class Currency(Enum):
+    USD = "$"
+    EUR = "€"
+    GBP = "£"
+    
+    def __str__(self):
+        return self.value
 
-# TODO: Test __format__
-# [[test]]
-# name = "enum_custom_format"
-# description = "def __format__(self, spec): ..."
+print(str(Currency.USD))
+print(f"Price: {Currency.EUR}100")
+"""
+rust = """
+use std::fmt;
 
-# TODO: Test __bool__
-# [[test]]
-# name = "enum_custom_bool"
-# description = "def __bool__(self): return self.value != 0"
+enum Currency {
+    Usd,
+    Eur,
+    Gbp,
+}
+
+impl fmt::Display for Currency {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            Currency::Usd => write!(f, "$"),
+            Currency::Eur => write!(f, "€"),
+            Currency::Gbp => write!(f, "£"),
+        }
+    }
+}
+
+fn main() {
+    println!("{}", Currency::Usd);
+    println!("Price: {}100", Currency::Eur);
+}
+"""
+expected_output = """$
+Price: €100"""
+
+[[test]]
+name = "enum_custom_repr"
+description = "def __repr__(self): ..."
+python = """
+from enum import Enum
+
+class State(Enum):
+    INIT = 0
+    RUNNING = 1
+    STOPPED = 2
+    
+    def __repr__(self):
+        return f"<State.{self.name}>"
+
+print(repr(State.RUNNING))
+"""
+rust = """
+use std::fmt;
+
+#[derive(Debug)]
+enum State {
+    Init = 0,
+    Running = 1,
+    Stopped = 2,
+}
+
+impl fmt::Display for State {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "<State.{:?}>", self)
+    }
+}
+
+fn main() {
+    println!("{}", State::Running);
+}
+"""
+expected_output = "<State.Running>"
+
+[[test]]
+name = "enum_custom_format"
+description = "def __format__(self, spec): ..."
+python = """
+from enum import Enum
+
+class Size(Enum):
+    SMALL = 1
+    MEDIUM = 2
+    LARGE = 3
+    
+    def __format__(self, spec):
+        if spec == 'short':
+            return self.name[0]
+        return self.name
+
+s = Size.MEDIUM
+print(f"{s}")
+print(f"{s:short}")
+"""
+rust = """
+enum Size {
+    Small = 1,
+    Medium = 2,
+    Large = 3,
+}
+
+impl Size {
+    fn format_spec(&self, spec: &str) -> String {
+        let name = match self {
+            Size::Small => "SMALL",
+            Size::Medium => "MEDIUM",
+            Size::Large => "LARGE",
+        };
+        if spec == "short" {
+            name.chars().next().unwrap().to_string()
+        } else {
+            name.to_string()
+        }
+    }
+}
+
+fn main() {
+    let s = Size::Medium;
+    println!("{}", s.format_spec(""));
+    println!("{}", s.format_spec("short"));
+}
+"""
+expected_output = """MEDIUM
+M"""
+
+[[test]]
+name = "enum_custom_bool"
+description = "def __bool__(self): return self.value != 0"
+python = """
+from enum import Enum
+
+class Toggle(Enum):
+    OFF = 0
+    ON = 1
+    
+    def __bool__(self):
+        return self.value != 0
+
+if Toggle.ON:
+    print("Toggle is ON")
+
+if not Toggle.OFF:
+    print("Toggle is OFF")
+"""
+rust = """
+#[derive(Copy, Clone)]
+enum Toggle {
+    Off = 0,
+    On = 1,
+}
+
+impl Toggle {
+    fn to_bool(&self) -> bool {
+        *self as i32 != 0
+    }
+}
+
+fn main() {
+    if Toggle::On.to_bool() {
+        println!("Toggle is ON");
+    }
+    
+    if !Toggle::Off.to_bool() {
+        println!("Toggle is OFF");
+    }
+}
+"""
+expected_output = """Toggle is ON
+Toggle is OFF"""
 
 # =============================================================================
 # Properties
 # =============================================================================
 
-# TODO: Test property
-# [[test]]
-# name = "enum_property"
-# description = "@property def label(self): ..."
+[[test]]
+name = "enum_property"
+description = "@property def label(self): ..."
+python = """
+from enum import Enum
 
-# TODO: Test computed property
-# [[test]]
-# name = "enum_computed"
-# description = "Property computing from value"
+class Level(Enum):
+    DEBUG = 10
+    INFO = 20
+    WARNING = 30
+    ERROR = 40
+    
+    @property
+    def label(self):
+        return f"[{self.name}]"
+
+print(Level.INFO.label)
+print(Level.ERROR.label)
+"""
+rust = """
+#[derive(Debug)]
+enum Level {
+    Debug = 10,
+    Info = 20,
+    Warning = 30,
+    Error = 40,
+}
+
+impl Level {
+    fn label(&self) -> String {
+        format!("[{:?}]", self).to_uppercase()
+    }
+}
+
+fn main() {
+    println!("{}", Level::Info.label());
+    println!("{}", Level::Error.label());
+}
+"""
+expected_output = """[INFO]
+[ERROR]"""
+
+[[test]]
+name = "enum_computed"
+description = "Property computing from value"
+python = """
+from enum import Enum
+
+class Temperature(Enum):
+    COLD = 0
+    WARM = 20
+    HOT = 35
+    
+    @property
+    def fahrenheit(self):
+        return self.value * 9/5 + 32
+
+print(Temperature.COLD.fahrenheit)
+print(Temperature.HOT.fahrenheit)
+"""
+rust = """
+#[derive(Copy, Clone)]
+enum Temperature {
+    Cold = 0,
+    Warm = 20,
+    Hot = 35,
+}
+
+impl Temperature {
+    fn fahrenheit(&self) -> f64 {
+        (*self as i32 as f64) * 9.0/5.0 + 32.0
+    }
+}
+
+fn main() {
+    println!("{}", Temperature::Cold.fahrenheit());
+    println!("{}", Temperature::Hot.fahrenheit());
+}
+"""
+expected_output = """32.0
+95.0"""
 
 # =============================================================================
 # _generate_next_value_
 # =============================================================================
 
-# TODO: Test _generate_next_value_
-# [[test]]
-# name = "enum_generate_next"
-# description = "Customize auto() behavior"
+[[test]]
+name = "enum_generate_next"
+description = "Customize auto() behavior"
+skip = true
+skip_reason = "Python's auto() mechanism is not available in Rust"
+python = """
+from enum import Enum, auto
 
-# TODO: Test custom auto values
-# [[test]]
-# name = "enum_custom_auto"
-# description = "auto() returns custom values"
+class Power(Enum):
+    def _generate_next_value_(name, start, count, last_values):
+        return 2 ** count
+    
+    FIRST = auto()   # 2^0 = 1
+    SECOND = auto()  # 2^1 = 2
+    THIRD = auto()   # 2^2 = 4
+
+print(Power.FIRST.value)
+print(Power.SECOND.value)
+print(Power.THIRD.value)
+"""
+
+[[test]]
+name = "enum_custom_auto"
+description = "auto() returns custom values"
+skip = true
+skip_reason = "Python's auto() mechanism is not available in Rust"
+python = """
+from enum import Enum, auto
+
+class Id(Enum):
+    def _generate_next_value_(name, start, count, last_values):
+        return f"ID_{count:03d}"
+    
+    FIRST = auto()
+    SECOND = auto()
+
+print(Id.FIRST.value)
+print(Id.SECOND.value)
+"""
 
 # =============================================================================
 # _missing_
 # =============================================================================
 
-# TODO: Test _missing_
-# [[test]]
-# name = "enum_missing"
-# description = "Handle unknown values"
+[[test]]
+name = "enum_missing"
+description = "Handle unknown values"
+skip = true
+skip_reason = "_missing_ is Python-specific enum fallback mechanism"
+python = """
+from enum import Enum
 
-# TODO: Test fallback value
-# [[test]]
-# name = "enum_fallback"
-# description = "_missing_ returns default member"
+class ErrorCode(Enum):
+    SUCCESS = 0
+    ERROR = 1
+    UNKNOWN = 999
+    
+    @classmethod
+    def _missing_(cls, value):
+        return cls.UNKNOWN
+
+print(ErrorCode(0).name)
+print(ErrorCode(100).name)  # Returns UNKNOWN
+"""
+
+[[test]]
+name = "enum_fallback"
+description = "_missing_ returns default member"
+skip = true
+skip_reason = "_missing_ is Python-specific enum fallback mechanism"
+python = """
+from enum import Enum
+
+class Grade(Enum):
+    A = 90
+    B = 80
+    C = 70
+    F = 0
+    
+    @classmethod
+    def _missing_(cls, value):
+        if value >= 90:
+            return cls.A
+        elif value >= 80:
+            return cls.B
+        elif value >= 70:
+            return cls.C
+        return cls.F
+
+print(Grade(95).name)
+print(Grade(85).name)
+"""
 
 # =============================================================================
 # _ignore_
 # =============================================================================
 
-# TODO: Test _ignore_
-# [[test]]
-# name = "enum_ignore"
-# description = "_ignore_ = ['helper'] excludes names"
+[[test]]
+name = "enum_ignore"
+description = "_ignore_ = ['helper'] excludes names"
+skip = true
+skip_reason = "_ignore_ is Python-specific enum directive"
+python = """
+from enum import Enum
+
+class Animal(Enum):
+    _ignore_ = ['helper']
+    
+    @staticmethod
+    def helper():
+        return "Helper method"
+    
+    CAT = 1
+    DOG = 2
+
+print(list(Animal.__members__.keys()))
+print(Animal.helper())
+"""
 
 # =============================================================================
 # Mixin Classes
 # =============================================================================
 
-# TODO: Test enum with mixin
-# [[test]]
-# name = "enum_mixin"
-# description = "class Color(Mixin, Enum): ..."
+[[test]]
+name = "enum_mixin"
+description = "class Color(Mixin, Enum): ..."
+skip = true
+skip_reason = "Enum mixins are complex Python patterns"
+python = """
+from enum import Enum
 
-# TODO: Test OrderedEnum
-# [[test]]
-# name = "enum_ordered"
-# description = "Mixin providing ordering"
+class JsonMixin:
+    def to_json(self):
+        return {'name': self.name, 'value': self.value}
+
+class Status(JsonMixin, Enum):
+    PENDING = 1
+    ACTIVE = 2
+
+print(Status.PENDING.to_json())
+"""
+
+[[test]]
+name = "enum_ordered"
+description = "Mixin providing ordering"
+skip = true
+skip_reason = "Ordered enum mixins are Python-specific"
+python = """
+from enum import Enum
+
+class OrderedEnum(Enum):
+    def __lt__(self, other):
+        if self.__class__ is other.__class__:
+            return self.value < other.value
+        return NotImplemented
+
+class Priority(OrderedEnum):
+    LOW = 1
+    MEDIUM = 2
+    HIGH = 3
+
+print(Priority.LOW < Priority.HIGH)
+print(sorted([Priority.HIGH, Priority.LOW, Priority.MEDIUM]))
+"""
 
 # =============================================================================
 # Edge Cases
 # =============================================================================
 
-# TODO: Test new with extra data
-# [[test]]
-# name = "enum_new"
-# description = "__new__ for complex members"
+[[test]]
+name = "enum_new"
+description = "__new__ for complex members"
+skip = true
+skip_reason = "Custom __new__ in enums is Python-specific"
+python = """
+from enum import Enum
 
-# TODO: Test member with multiple values
-# [[test]]
-# name = "enum_multi_value"
-# description = "MEMBER = (value, extra)"
+class Planet(Enum):
+    def __new__(cls, mass, radius):
+        obj = object.__new__(cls)
+        obj._value_ = mass
+        obj.mass = mass
+        obj.radius = radius
+        return obj
+    
+    EARTH = (5.97e24, 6371)
+    MARS = (6.39e23, 3390)
 
-# TODO: Test __init__ with args
-# [[test]]
-# name = "enum_init_args"
-# description = "__init__(self, val, desc): ..."
+print(Planet.EARTH.mass)
+print(Planet.EARTH.radius)
+"""
+
+[[test]]
+name = "enum_multi_value"
+description = "MEMBER = (value, extra)"
+skip = true
+skip_reason = "Multi-value enum members require custom __init__"
+python = """
+from enum import Enum
+
+class Month(Enum):
+    JANUARY = (1, 31)
+    FEBRUARY = (2, 28)
+    MARCH = (3, 31)
+    
+    def __init__(self, number, days):
+        self.number = number
+        self.days = days
+
+print(Month.JANUARY.number)
+print(Month.JANUARY.days)
+"""
+
+[[test]]
+name = "enum_init_args"
+description = "__init__(self, val, desc): ..."
+skip = true
+skip_reason = "Custom __init__ in enums requires special handling"
+python = """
+from enum import Enum
+
+class HttpStatus(Enum):
+    def __init__(self, code, description):
+        self.code = code
+        self.description = description
+    
+    OK = (200, "Request succeeded")
+    NOT_FOUND = (404, "Resource not found")
+
+print(HttpStatus.OK.code)
+print(HttpStatus.OK.description)
+"""

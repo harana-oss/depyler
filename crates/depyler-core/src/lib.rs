@@ -377,8 +377,8 @@ impl DepylerPipeline {
             for (idx, func) in hir.functions.iter().enumerate() {
                 if let Ok(hints) = type_hint_provider.analyze_function(func) {
                     if !hints.is_empty() {
-                        eprintln!("Type inference hints:");
-                        eprintln!("{}", type_hint_provider.format_hints(&hints));
+                        log::debug!("Type inference hints:");
+                        log::debug!("{}", type_hint_provider.format_hints(&hints));
                         function_hints.push((idx, hints));
                     }
                 }
@@ -401,7 +401,7 @@ impl DepylerPipeline {
                                     )
                                 {
                                     param.ty = hint.suggested_type.clone();
-                                    eprintln!("Applied type hint: {} -> {:?}", param.name, param.ty);
+                                    log::debug!("Applied type hint: {} -> {:?}", param.name, param.ty);
                                     break;
                                 }
                             }
@@ -421,7 +421,7 @@ impl DepylerPipeline {
                             )
                         {
                             func.ret_type = hint.suggested_type.clone();
-                            eprintln!("Applied return type hint: {:?}", func.ret_type);
+                            log::debug!("Applied return type hint: {:?}", func.ret_type);
                             break;
                         }
                     }
@@ -508,8 +508,8 @@ impl DepylerPipeline {
             for (idx, func) in hir.functions.iter().enumerate() {
                 if let Ok(hints) = type_hint_provider.analyze_function(func) {
                     if !hints.is_empty() {
-                        eprintln!("Type inference hints:");
-                        eprintln!("{}", type_hint_provider.format_hints(&hints));
+                        log::debug!("Type inference hints:");
+                        log::debug!("{}", type_hint_provider.format_hints(&hints));
                         function_hints.push((idx, hints));
                     }
                 }
@@ -532,7 +532,7 @@ impl DepylerPipeline {
                                     )
                                 {
                                     param.ty = hint.suggested_type.clone();
-                                    eprintln!("Applied type hint: {} -> {:?}", param.name, param.ty);
+                                    log::debug!("Applied type hint: {} -> {:?}", param.name, param.ty);
                                     break;
                                 }
                             }
@@ -552,7 +552,7 @@ impl DepylerPipeline {
                             )
                         {
                             func.ret_type = hint.suggested_type.clone();
-                            eprintln!("Applied return type hint: {:?}", func.ret_type);
+                            log::debug!("Applied return type hint: {:?}", func.ret_type);
                             break;
                         }
                     }

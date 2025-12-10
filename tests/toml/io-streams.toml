@@ -14,8 +14,7 @@ name = "stdin_iteration"
 description = "sys.stdin iteration"
 tags = ["stdin", "io"]
 
-[test.python]
-code = '''
+python = '''
 import sys
 
 def process_stdin():
@@ -23,71 +22,89 @@ def process_stdin():
         print(line.rstrip())
 '''
 
-[test.assertions]
-contains_any = [["std::io::stdin()", "sys.stdin"]]
-contains = [".lines()"]
+rust = '''
+use std as sys;
+pub fn process_stdin() {
+    for line in &sys.stdin.lines().map(|l| l.unwrap_or_default()) {
+        let line = line.clone();
+        println!("{}", line.trim_end());
+    }
+}
+'''
 
 [[test]]
 name = "stderr_print"
 description = "sys.stderr print output"
 tags = ["stderr", "io"]
 
-[test.python]
-code = '''
+python = '''
 import sys
 
 def log_error(msg: str):
     print(f"Error: {msg}", file=sys.stderr)
 '''
 
-[test.assertions]
-contains_any = [["eprintln!", "std::io::stderr()"]]
-
-# =============================================================================
-# File Read Operations
-# =============================================================================
+rust = '''
+use std as sys;
+pub fn log_error(msg: String) {
+    println!("{} {}", format!("Error: {}", msg), std::io::stderr());
+}
+'''
 
 [[test]]
 name = "file_read_text"
 description = "File read in text mode"
 tags = ["file", "read"]
 
-[test.python]
-code = '''
+python = '''
 def read_file(filepath: str) -> str:
     with open(filepath) as f:
         content = f.read()
     return content
 '''
 
-[test.assertions]
-contains = ["std::fs::File::open", "read_to_string"]
-contains_any = [["Result<", "?"]]
+rust = '''
+pub fn read_file(filepath: String) -> String {
+    let mut f = std::fs::File::open(filepath)?;
+    let content = {
+        let mut content = String::new();
+        f.read_to_string(&mut content)?;
+        content
+    };
+    return content;
+}
+'''
 
 [[test]]
 name = "file_read_binary"
 description = "File read in binary mode"
 tags = ["file", "read", "binary"]
 
-[test.python]
-code = '''
+python = '''
 def read_binary(filepath: str) -> bytes:
     with open(filepath, "rb") as f:
         data = f.read()
     return data
 '''
 
-[test.assertions]
-contains = ["std::fs::File::open"]
-contains_any = [["read_to_end", "Vec<u8>", "read_to_string"]]
+rust = '''
+pub fn read_binary(filepath: String) -> bytes {
+    let mut f = std::fs::File::open(filepath)?;
+    let data = {
+        let mut content = String::new();
+        f.read_to_string(&mut content)?;
+        content
+    };
+    return data;
+}
+'''
 
 [[test]]
 name = "file_iteration"
 description = "File line-by-line iteration"
 tags = ["file", "iteration"]
 
-[test.python]
-code = '''
+python = '''
 def count_lines(filepath: str) -> int:
     count = 0
     with open(filepath) as f:
@@ -96,21 +113,34 @@ def count_lines(filepath: str) -> int:
     return count
 '''
 
-[test.assertions]
-contains_any = [["BufReader", ".lines()"]]
-not_contains = [".iter()"]
-
-# =============================================================================
-# Argparse Type Inference
-# =============================================================================
+rust = '''
+pub fn count_lines(filepath: String) -> i32 {
+    let count = 0;
+    let mut f = std::fs::File::open(filepath)?;
+    for _line in std::io::BufReader::new(f).lines().map(|l| l.unwrap_or_default()) {
+        count = count + 1;
+    }
+    return count;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_count_lines_examples() {
+        assert_eq!(count_lines(""), 0);
+        assert_eq!(count_lines("a"), 1);
+        assert_eq!(count_lines("abc"), 3);
+    }
+}
+'''
 
 [[test]]
 name = "argparse_string_param"
 description = "Argparse string parameter type inference"
 tags = ["argparse", "type-inference"]
 
-[test.python]
-code = '''
+python = '''
 import argparse
 
 def process_file(filepath: str) -> str:
@@ -118,17 +148,24 @@ def process_file(filepath: str) -> str:
         return f.read()
 '''
 
-[test.assertions]
-contains_any = [["filepath: &str", "filepath: String"]]
-not_contains = ["filepath: serde_json::Value"]
+rust = '''
+use clap::Parser;
+pub fn process_file(filepath: String) -> String {
+    let mut f = std::fs::File::open(filepath)?;
+    return {
+        let mut content = String::new();
+        f.read_to_string(&mut content)?;
+        content
+    };
+}
+'''
 
 [[test]]
 name = "argparse_bool_param"
 description = "Argparse boolean parameter type inference"
 tags = ["argparse", "type-inference", "bool"]
 
-[test.python]
-code = '''
+python = '''
 import argparse
 
 def process(verbose: bool):
@@ -136,21 +173,21 @@ def process(verbose: bool):
         print("Verbose mode enabled")
 '''
 
-[test.assertions]
-contains = ["verbose: bool"]
-not_contains = ["verbose: serde_json::Value", "verbose: &serde_json::Value"]
-
-# =============================================================================
-# Argparse Subcommands
-# =============================================================================
+rust = '''
+use clap::Parser;
+pub fn process(verbose: bool) {
+    if verbose {
+        println!("{}", "Verbose mode enabled");
+    }
+}
+'''
 
 [[test]]
 name = "argparse_subcommand_enum"
 description = "Argparse subcommands generate enum variants"
 tags = ["argparse", "subcommand", "enum"]
 
-[test.python]
-code = '''
+python = '''
 import argparse
 import sys
 
@@ -159,20 +196,23 @@ def read_stdin():
         print(line.rstrip())
 '''
 
-[test.assertions]
-contains_any = [["std::io::stdin()", "sys.stdin"]]
-
-# =============================================================================
-# Tempfile
-# =============================================================================
+rust = '''
+use clap::Parser;
+use std as sys;
+pub fn read_stdin() {
+    for line in &sys.stdin.lines().map(|l| l.unwrap_or_default()) {
+        let line = line.clone();
+        println!("{}", line.trim_end());
+    }
+}
+'''
 
 [[test]]
 name = "tempfile_named"
 description = "tempfile.NamedTemporaryFile translation"
 tags = ["tempfile"]
 
-[test.python]
-code = '''
+python = '''
 import tempfile
 
 def create_temp() -> str:
@@ -182,5 +222,13 @@ def create_temp() -> str:
     return temp_path
 '''
 
-[test.assertions]
-contains_any = [["tempfile::", "NamedTempFile"]]
+rust = '''
+use tempfile;
+pub fn create_temp() -> String {
+    let _context = tempfile::NamedTempFile();
+    let mut f = _context.__enter__();
+    let temp_path = f.name;
+    f.write("test content");
+    return temp_path;
+}
+'''

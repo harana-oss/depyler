@@ -1296,17 +1296,6 @@ fn convert_function(func: &HirFunction, type_mapper: &TypeMapper) -> Result<syn:
         });
     }
 
-    if func.properties.panic_free {
-        attrs.push(parse_quote! {
-            #[doc = " Depyler: verified panic-free"]
-        });
-    }
-    if func.properties.always_terminates {
-        attrs.push(parse_quote! {
-            #[doc = " Depyler: proven to terminate"]
-        });
-    }
-
     Ok(syn::ItemFn {
         attrs,
         vis: syn::Visibility::Public(Default::default()),

@@ -9,143 +9,465 @@ category = "core-language"
 # Complex Literals
 # =============================================================================
 
-# TODO: Test imaginary literal
-# [[test]]
-# name = "imaginary_literal"
-# description = "x = 3j"
+[[test]]
+name = "imaginary_literal"
+description = "Imaginary literal with j suffix"
+python = """
+x = 3j
+print(x.real)
+print(x.imag)
+"""
+rust = """
+use num::Complex;
 
-# TODO: Test complex literal
-# [[test]]
-# name = "complex_literal"
-# description = "x = 3 + 4j"
+fn main() {
+    let x = Complex::new(0.0, 3.0);
+    println!("{}", x.re);
+    println!("{}", x.im);
+}
+"""
+expected_output = """0.0
+3.0"""
 
-# TODO: Test complex with float
-# [[test]]
-# name = "complex_float"
-# description = "x = 3.14 + 2.71j"
+[[test]]
+name = "complex_literal"
+description = "Complex literal notation"
+python = """
+x = 3 + 4j
+print(x.real)
+print(x.imag)
+"""
+rust = """
+use num::Complex;
 
-# TODO: Test pure imaginary
-# [[test]]
-# name = "pure_imaginary"
-# description = "x = 1j"
+fn main() {
+    let x = Complex::new(3.0, 4.0);
+    println!("{}", x.re);
+    println!("{}", x.im);
+}
+"""
+expected_output = """3.0
+4.0"""
 
-# TODO: Test complex() constructor
-# [[test]]
-# name = "complex_constructor"
-# description = "complex(3, 4)"
+[[test]]
+name = "complex_float"
+description = "Complex with floating point components"
+python = """
+x = 3.14 + 2.71j
+print(f"{x.real:.2f}")
+print(f"{x.imag:.2f}")
+"""
+rust = """
+use num::Complex;
 
-# TODO: Test complex from string
-# [[test]]
-# name = "complex_from_string"
-# description = "complex('3+4j')"
+fn main() {
+    let x = Complex::new(3.14, 2.71);
+    println!("{:.2}", x.re);
+    println!("{:.2}", x.im);
+}
+"""
+expected_output = """3.14
+2.71"""
+
+[[test]]
+name = "pure_imaginary"
+description = "Pure imaginary number"
+python = """
+x = 1j
+print(x.real)
+print(x.imag)
+"""
+rust = """
+use num::Complex;
+
+fn main() {
+    let x = Complex::new(0.0, 1.0);
+    println!("{}", x.re);
+    println!("{}", x.im);
+}
+"""
+expected_output = """0.0
+1.0"""
+
+[[test]]
+name = "complex_constructor"
+description = "Complex constructor"
+python = """
+x = complex(3, 4)
+print(x.real)
+print(x.imag)
+"""
+rust = """
+use num::Complex;
+
+fn main() {
+    let x = Complex::new(3.0, 4.0);
+    println!("{}", x.re);
+    println!("{}", x.im);
+}
+"""
+expected_output = """3.0
+4.0"""
+
+[[test]]
+name = "complex_from_string"
+description = "Parse complex from string"
+python = """
+x = complex('3+4j')
+print(x.real)
+print(x.imag)
+"""
+rust = """
+use num::Complex;
+
+fn main() {
+    // Rust requires explicit parsing
+    let x = Complex::new(3.0, 4.0);
+    println!("{}", x.re);
+    println!("{}", x.im);
+}
+"""
+expected_output = """3.0
+4.0"""
 
 # =============================================================================
 # Complex Arithmetic
 # =============================================================================
 
-# TODO: Test complex addition
-# [[test]]
-# name = "complex_add"
-# description = "(1+2j) + (3+4j)"
+[[test]]
+name = "complex_add"
+description = "Complex addition"
+python = """
+result = (1+2j) + (3+4j)
+print(f"{result.real}+{result.imag}j")
+"""
+rust = """
+use num::Complex;
 
-# TODO: Test complex subtraction
-# [[test]]
-# name = "complex_sub"
-# description = "(5+6j) - (1+2j)"
+fn main() {
+    let a = Complex::new(1.0, 2.0);
+    let b = Complex::new(3.0, 4.0);
+    let result = a + b;
+    println!("{}+{}j", result.re, result.im);
+}
+"""
+expected_output = "4.0+6.0j"
 
-# TODO: Test complex multiplication
-# [[test]]
-# name = "complex_mul"
-# description = "(1+2j) * (3+4j)"
+[[test]]
+name = "complex_sub"
+description = "Complex subtraction"
+python = """
+result = (5+6j) - (1+2j)
+print(f"{result.real}+{result.imag}j")
+"""
+rust = """
+use num::Complex;
 
-# TODO: Test complex division
-# [[test]]
-# name = "complex_div"
-# description = "(1+2j) / (3+4j)"
+fn main() {
+    let a = Complex::new(5.0, 6.0);
+    let b = Complex::new(1.0, 2.0);
+    let result = a - b;
+    println!("{}+{}j", result.re, result.im);
+}
+"""
+expected_output = "4.0+4.0j"
 
-# TODO: Test complex power
-# [[test]]
-# name = "complex_pow"
-# description = "(1+1j) ** 2"
+[[test]]
+name = "complex_mul"
+description = "Complex multiplication"
+python = """
+result = (1+2j) * (3+4j)
+print(f"{result.real}+{result.imag}j")
+"""
+rust = """
+use num::Complex;
 
-# TODO: Test complex negation
-# [[test]]
-# name = "complex_neg"
-# description = "-(3+4j)"
+fn main() {
+    let a = Complex::new(1.0, 2.0);
+    let b = Complex::new(3.0, 4.0);
+    let result = a * b;
+    println!("{}+{}j", result.re, result.im);
+}
+"""
+expected_output = "-5.0+10.0j"
+
+[[test]]
+name = "complex_div"
+description = "Complex division"
+python = """
+result = (1+2j) / (3+4j)
+print(f"{result.real:.2f}+{result.imag:.2f}j")
+"""
+rust = """
+use num::Complex;
+
+fn main() {
+    let a = Complex::new(1.0, 2.0);
+    let b = Complex::new(3.0, 4.0);
+    let result = a / b;
+    println!("{:.2}+{:.2}j", result.re, result.im);
+}
+"""
+expected_output = "0.44+0.08j"
+
+[[test]]
+name = "complex_pow"
+description = "Complex exponentiation"
+python = """
+result = (1+1j) ** 2
+print(f"{result.real}+{result.imag}j")
+"""
+rust = """
+use num::Complex;
+
+fn main() {
+    let base = Complex::new(1.0, 1.0);
+    let result = base.powu(2);
+    println!("{}+{}j", result.re, result.im);
+}
+"""
+expected_output = "0.0+2.0j"
+
+[[test]]
+name = "complex_neg"
+description = "Complex negation"
+python = """
+x = 3+4j
+result = -x
+print(f"{result.real}+{result.imag}j")
+"""
+rust = """
+use num::Complex;
+
+fn main() {
+    let x = Complex::new(3.0, 4.0);
+    let result = -x;
+    println!("{}+{}j", result.re, result.im);
+}
+"""
+expected_output = "-3.0+-4.0j"
 
 # =============================================================================
 # Complex Properties
 # =============================================================================
 
-# TODO: Test real part
-# [[test]]
-# name = "complex_real"
-# description = "(3+4j).real == 3.0"
+[[test]]
+name = "complex_real"
+description = "Real part property"
+python = """
+x = 3+4j
+print(x.real)
+"""
+rust = """
+use num::Complex;
 
-# TODO: Test imaginary part
-# [[test]]
-# name = "complex_imag"
-# description = "(3+4j).imag == 4.0"
+fn main() {
+    let x = Complex::new(3.0, 4.0);
+    println!("{}", x.re);
+}
+"""
+expected_output = "3.0"
 
-# TODO: Test conjugate
-# [[test]]
-# name = "complex_conjugate"
-# description = "(3+4j).conjugate() == (3-4j)"
+[[test]]
+name = "complex_imag"
+description = "Imaginary part property"
+python = """
+x = 3+4j
+print(x.imag)
+"""
+rust = """
+use num::Complex;
+
+fn main() {
+    let x = Complex::new(3.0, 4.0);
+    println!("{}", x.im);
+}
+"""
+expected_output = "4.0"
+
+[[test]]
+name = "complex_conjugate"
+description = "Complex conjugate"
+python = """
+x = 3+4j
+result = x.conjugate()
+print(f"{result.real}+{result.imag}j")
+"""
+rust = """
+use num::Complex;
+
+fn main() {
+    let x = Complex::new(3.0, 4.0);
+    let result = x.conj();
+    println!("{}+{}j", result.re, result.im);
+}
+"""
+expected_output = "3.0+-4.0j"
 
 # =============================================================================
 # Complex Functions
 # =============================================================================
 
-# TODO: Test abs of complex (magnitude)
-# [[test]]
-# name = "complex_abs"
-# description = "abs(3+4j) == 5.0"
+[[test]]
+name = "complex_abs"
+description = "Magnitude of complex number"
+python = """
+x = 3+4j
+print(abs(x))
+"""
+rust = """
+use num::Complex;
 
-# TODO: Test complex with cmath
-# [[test]]
-# name = "complex_cmath"
-# description = "cmath functions: sqrt, exp, log, etc."
+fn main() {
+    let x = Complex::new(3.0, 4.0);
+    println!("{}", x.norm());
+}
+"""
+expected_output = "5.0"
+
+[[test]]
+name = "complex_cmath"
+description = "Complex math functions"
+python = """
+import cmath
+x = 1+1j
+sqrt_result = cmath.sqrt(x)
+print(f"{sqrt_result.real:.2f}+{sqrt_result.imag:.2f}j")
+"""
+rust = """
+use num::Complex;
+
+fn main() {
+    let x = Complex::new(1.0, 1.0);
+    let sqrt_result = x.sqrt();
+    println!("{:.2}+{:.2}j", sqrt_result.re, sqrt_result.im);
+}
+"""
+expected_output = "1.10+0.46j"
 
 # =============================================================================
 # Mixed Operations
 # =============================================================================
 
-# TODO: Test complex + int
-# [[test]]
-# name = "complex_plus_int"
-# description = "(3+4j) + 1"
+[[test]]
+name = "complex_plus_int"
+description = "Complex plus integer"
+python = """
+result = (3+4j) + 1
+print(f"{result.real}+{result.imag}j")
+"""
+rust = """
+use num::Complex;
 
-# TODO: Test complex + float
-# [[test]]
-# name = "complex_plus_float"
-# description = "(3+4j) + 1.0"
+fn main() {
+    let x = Complex::new(3.0, 4.0);
+    let result = x + 1.0;
+    println!("{}+{}j", result.re, result.im);
+}
+"""
+expected_output = "4.0+4.0j"
 
-# TODO: Test int + complex
-# [[test]]
-# name = "int_plus_complex"
-# description = "1 + (3+4j)"
+[[test]]
+name = "complex_plus_float"
+description = "Complex plus float"
+python = """
+result = (3+4j) + 1.0
+print(f"{result.real}+{result.imag}j")
+"""
+rust = """
+use num::Complex;
+
+fn main() {
+    let x = Complex::new(3.0, 4.0);
+    let result = x + 1.0;
+    println!("{}+{}j", result.re, result.im);
+}
+"""
+expected_output = "4.0+4.0j"
+
+[[test]]
+name = "int_plus_complex"
+description = "Integer plus complex"
+python = """
+result = 1 + (3+4j)
+print(f"{result.real}+{result.imag}j")
+"""
+rust = """
+use num::Complex;
+
+fn main() {
+    let x = Complex::new(3.0, 4.0);
+    let result = 1.0 + x;
+    println!("{}+{}j", result.re, result.im);
+}
+"""
+expected_output = "4.0+4.0j"
 
 # =============================================================================
 # Edge Cases
 # =============================================================================
 
-# TODO: Test complex comparison (not supported)
-# [[test]]
-# name = "complex_comparison"
-# description = "Complex numbers cannot be compared with < > <= >="
-# skip = true
+[[test]]
+name = "complex_comparison"
+description = "Complex numbers cannot be compared with < > <= >="
+skip = true
 
-# TODO: Test complex equality
-# [[test]]
-# name = "complex_equality"
-# description = "(3+4j) == complex(3, 4)"
+[[test]]
+name = "complex_equality"
+description = "Complex equality comparison"
+python = """
+x = 3+4j
+y = complex(3, 4)
+print(x == y)
+"""
+rust = """
+use num::Complex;
 
-# TODO: Test zero imaginary
-# [[test]]
-# name = "zero_imaginary"
-# description = "(5+0j).imag == 0"
+fn main() {
+    let x = Complex::new(3.0, 4.0);
+    let y = Complex::new(3.0, 4.0);
+    println!("{}", x == y);
+}
+"""
+expected_output = "True"
 
-# TODO: Test complex in list
-# [[test]]
-# name = "complex_in_list"
-# description = "[1+2j, 3+4j, 5+6j]"
+[[test]]
+name = "zero_imaginary"
+description = "Zero imaginary part"
+python = """
+x = 5+0j
+print(x.imag)
+"""
+rust = """
+use num::Complex;
+
+fn main() {
+    let x = Complex::new(5.0, 0.0);
+    println!("{}", x.im);
+}
+"""
+expected_output = "0.0"
+
+[[test]]
+name = "complex_in_list"
+description = "Complex numbers in list"
+python = """
+numbers = [1+2j, 3+4j, 5+6j]
+print(len(numbers))
+print(f"{numbers[0].real}+{numbers[0].imag}j")
+"""
+rust = """
+use num::Complex;
+
+fn main() {
+    let numbers = vec![
+        Complex::new(1.0, 2.0),
+        Complex::new(3.0, 4.0),
+        Complex::new(5.0, 6.0),
+    ];
+    println!("{}", numbers.len());
+    println!("{}+{}j", numbers[0].re, numbers[0].im);
+}
+"""
+expected_output = """3
+1.0+2.0j"""

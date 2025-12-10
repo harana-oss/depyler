@@ -9,128 +9,936 @@ category = "dunder-methods"
 # Reflected Arithmetic
 # =============================================================================
 
-# TODO: Test __radd__
-# [[test]]
-# name = "dunder_radd"
-# description = "def __radd__(self, other): return ... (other + self)"
+[[test]]
+name = "dunder_radd"
+description = "def __radd__(self, other): return ... (other + self)"
+python = """
+class Number:
+    def __init__(self, value):
+        self.value = value
+    
+    def __radd__(self, other):
+        return Number(other + self.value)
+    
+    def __repr__(self):
+        return f"Number({self.value})"
 
-# TODO: Test __rsub__
-# [[test]]
-# name = "dunder_rsub"
-# description = "def __rsub__(self, other): return ... (other - self)"
+n = Number(5)
+result = 10 + n
+print(result)
+"""
+rust = """
+use std::ops::Add;
+use std::fmt;
 
-# TODO: Test __rmul__
-# [[test]]
-# name = "dunder_rmul"
-# description = "def __rmul__(self, other): return ... (other * self)"
+#[derive(Debug)]
+struct Number {
+    value: i32,
+}
 
-# TODO: Test __rtruediv__
-# [[test]]
-# name = "dunder_rtruediv"
-# description = "def __rtruediv__(self, other): return ... (other / self)"
+impl Add<Number> for i32 {
+    type Output = Number;
+    
+    fn add(self, other: Number) -> Number {
+        Number { value: self + other.value }
+    }
+}
 
-# TODO: Test __rfloordiv__
-# [[test]]
-# name = "dunder_rfloordiv"
-# description = "def __rfloordiv__(self, other): return ... (other // self)"
+impl fmt::Display for Number {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Number({})", self.value)
+    }
+}
 
-# TODO: Test __rmod__
-# [[test]]
-# name = "dunder_rmod"
-# description = "def __rmod__(self, other): return ... (other % self)"
+fn main() {
+    let n = Number { value: 5 };
+    let result = 10 + n;
+    println!("{}", result);
+}
+"""
+contains = ["Number(15)"]
 
-# TODO: Test __rpow__
-# [[test]]
-# name = "dunder_rpow"
-# description = "def __rpow__(self, other): return ... (other ** self)"
+[[test]]
+name = "dunder_rsub"
+description = "def __rsub__(self, other): return ... (other - self)"
+python = """
+class Number:
+    def __init__(self, value):
+        self.value = value
+    
+    def __rsub__(self, other):
+        return Number(other - self.value)
+    
+    def __repr__(self):
+        return f"Number({self.value})"
+
+n = Number(3)
+result = 10 - n
+print(result)
+"""
+rust = """
+use std::ops::Sub;
+use std::fmt;
+
+#[derive(Debug)]
+struct Number {
+    value: i32,
+}
+
+impl Sub<Number> for i32 {
+    type Output = Number;
+    
+    fn sub(self, other: Number) -> Number {
+        Number { value: self - other.value }
+    }
+}
+
+impl fmt::Display for Number {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Number({})", self.value)
+    }
+}
+
+fn main() {
+    let n = Number { value: 3 };
+    let result = 10 - n;
+    println!("{}", result);
+}
+"""
+contains = ["Number(7)"]
+
+[[test]]
+name = "dunder_rmul"
+description = "def __rmul__(self, other): return ... (other * self)"
+python = """
+class Vector:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+    
+    def __rmul__(self, scalar):
+        return Vector(scalar * self.x, scalar * self.y)
+    
+    def __repr__(self):
+        return f"Vector({self.x}, {self.y})"
+
+v = Vector(3, 4)
+result = 2 * v
+print(result)
+"""
+rust = """
+use std::ops::Mul;
+use std::fmt;
+
+#[derive(Debug)]
+struct Vector {
+    x: i32,
+    y: i32,
+}
+
+impl Mul<Vector> for i32 {
+    type Output = Vector;
+    
+    fn mul(self, vec: Vector) -> Vector {
+        Vector { x: self * vec.x, y: self * vec.y }
+    }
+}
+
+impl fmt::Display for Vector {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Vector({}, {})", self.x, self.y)
+    }
+}
+
+fn main() {
+    let v = Vector { x: 3, y: 4 };
+    let result = 2 * v;
+    println!("{}", result);
+}
+"""
+contains = ["Vector(6, 8)"]
+
+[[test]]
+name = "dunder_rtruediv"
+description = "def __rtruediv__(self, other): return ... (other / self)"
+python = """
+class Number:
+    def __init__(self, value):
+        self.value = value
+    
+    def __rtruediv__(self, other):
+        return Number(other / self.value)
+    
+    def __repr__(self):
+        return f"Number({self.value:.1f})"
+
+n = Number(2)
+result = 10 / n
+print(result)
+"""
+rust = """
+use std::ops::Div;
+use std::fmt;
+
+#[derive(Debug)]
+struct Number {
+    value: f64,
+}
+
+impl Div<Number> for i32 {
+    type Output = Number;
+    
+    fn div(self, other: Number) -> Number {
+        Number { value: self as f64 / other.value }
+    }
+}
+
+impl fmt::Display for Number {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Number({:.1})", self.value)
+    }
+}
+
+fn main() {
+    let n = Number { value: 2.0 };
+    let result = 10 / n;
+    println!("{}", result);
+}
+"""
+contains = ["Number(5.0)"]
+
+[[test]]
+name = "dunder_rfloordiv"
+description = "def __rfloordiv__(self, other): return ... (other // self)"
+python = """
+class Number:
+    def __init__(self, value):
+        self.value = value
+    
+    def __rfloordiv__(self, other):
+        return Number(other // self.value)
+    
+    def __repr__(self):
+        return f"Number({self.value})"
+
+n = Number(3)
+result = 10 // n
+print(result)
+"""
+rust = """
+use std::ops::Div;
+use std::fmt;
+
+#[derive(Debug)]
+struct Number {
+    value: i32,
+}
+
+impl Div<Number> for i32 {
+    type Output = Number;
+    
+    fn div(self, other: Number) -> Number {
+        Number { value: self / other.value }
+    }
+}
+
+impl fmt::Display for Number {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Number({})", self.value)
+    }
+}
+
+fn main() {
+    let n = Number { value: 3 };
+    let result = 10 / n;
+    println!("{}", result);
+}
+"""
+contains = ["Number(3)"]
+
+[[test]]
+name = "dunder_rmod"
+description = "def __rmod__(self, other): return ... (other % self)"
+python = """
+class Number:
+    def __init__(self, value):
+        self.value = value
+    
+    def __rmod__(self, other):
+        return Number(other % self.value)
+    
+    def __repr__(self):
+        return f"Number({self.value})"
+
+n = Number(3)
+result = 10 % n
+print(result)
+"""
+rust = """
+use std::ops::Rem;
+use std::fmt;
+
+#[derive(Debug)]
+struct Number {
+    value: i32,
+}
+
+impl Rem<Number> for i32 {
+    type Output = Number;
+    
+    fn rem(self, other: Number) -> Number {
+        Number { value: self % other.value }
+    }
+}
+
+impl fmt::Display for Number {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Number({})", self.value)
+    }
+}
+
+fn main() {
+    let n = Number { value: 3 };
+    let result = 10 % n;
+    println!("{}", result);
+}
+"""
+contains = ["Number(1)"]
+
+[[test]]
+name = "dunder_rpow"
+description = "def __rpow__(self, other): return ... (other ** self)"
+python = """
+class Number:
+    def __init__(self, value):
+        self.value = value
+    
+    def __rpow__(self, other):
+        return Number(other ** self.value)
+    
+    def __repr__(self):
+        return f"Number({self.value})"
+
+n = Number(3)
+result = 2 ** n
+print(result)
+"""
+rust = """
+use std::fmt;
+
+#[derive(Debug)]
+struct Number {
+    value: i32,
+}
+
+fn pow(base: i32, exp: Number) -> Number {
+    Number { value: base.pow(exp.value as u32) }
+}
+
+impl fmt::Display for Number {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Number({})", self.value)
+    }
+}
+
+fn main() {
+    let n = Number { value: 3 };
+    let result = pow(2, n);
+    println!("{}", result);
+}
+"""
+contains = ["Number(8)"]
 
 # =============================================================================
 # Reflected Bitwise
 # =============================================================================
 
-# TODO: Test __rand__
-# [[test]]
-# name = "dunder_rand"
-# description = "def __rand__(self, other): return ... (other & self)"
+[[test]]
+name = "dunder_rand"
+description = "def __rand__(self, other): return ... (other & self)"
+python = """
+class Bits:
+    def __init__(self, value):
+        self.value = value
+    
+    def __rand__(self, other):
+        return Bits(other & self.value)
+    
+    def __repr__(self):
+        return f"Bits({self.value})"
 
-# TODO: Test __ror__
-# [[test]]
-# name = "dunder_ror"
-# description = "def __ror__(self, other): return ... (other | self)"
+b = Bits(0b1100)
+result = 0b1010 & b
+print(result)
+"""
+rust = """
+use std::ops::BitAnd;
+use std::fmt;
 
-# TODO: Test __rxor__
-# [[test]]
-# name = "dunder_rxor"
-# description = "def __rxor__(self, other): return ... (other ^ self)"
+#[derive(Debug)]
+struct Bits {
+    value: i32,
+}
 
-# TODO: Test __rlshift__
-# [[test]]
-# name = "dunder_rlshift"
-# description = "def __rlshift__(self, other): return ... (other << self)"
+impl BitAnd<Bits> for i32 {
+    type Output = Bits;
+    
+    fn bitand(self, other: Bits) -> Bits {
+        Bits { value: self & other.value }
+    }
+}
 
-# TODO: Test __rrshift__
-# [[test]]
-# name = "dunder_rrshift"
-# description = "def __rrshift__(self, other): return ... (other >> self)"
+impl fmt::Display for Bits {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Bits({})", self.value)
+    }
+}
+
+fn main() {
+    let b = Bits { value: 0b1100 };
+    let result = 0b1010 & b;
+    println!("{}", result);
+}
+"""
+contains = ["Bits(8)"]
+
+[[test]]
+name = "dunder_ror"
+description = "def __ror__(self, other): return ... (other | self)"
+python = """
+class Bits:
+    def __init__(self, value):
+        self.value = value
+    
+    def __ror__(self, other):
+        return Bits(other | self.value)
+    
+    def __repr__(self):
+        return f"Bits({self.value})"
+
+b = Bits(0b1100)
+result = 0b1010 | b
+print(result)
+"""
+rust = """
+use std::ops::BitOr;
+use std::fmt;
+
+#[derive(Debug)]
+struct Bits {
+    value: i32,
+}
+
+impl BitOr<Bits> for i32 {
+    type Output = Bits;
+    
+    fn bitor(self, other: Bits) -> Bits {
+        Bits { value: self | other.value }
+    }
+}
+
+impl fmt::Display for Bits {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Bits({})", self.value)
+    }
+}
+
+fn main() {
+    let b = Bits { value: 0b1100 };
+    let result = 0b1010 | b;
+    println!("{}", result);
+}
+"""
+contains = ["Bits(14)"]
+
+[[test]]
+name = "dunder_rxor"
+description = "def __rxor__(self, other): return ... (other ^ self)"
+python = """
+class Bits:
+    def __init__(self, value):
+        self.value = value
+    
+    def __rxor__(self, other):
+        return Bits(other ^ self.value)
+    
+    def __repr__(self):
+        return f"Bits({self.value})"
+
+b = Bits(0b1100)
+result = 0b1010 ^ b
+print(result)
+"""
+rust = """
+use std::ops::BitXor;
+use std::fmt;
+
+#[derive(Debug)]
+struct Bits {
+    value: i32,
+}
+
+impl BitXor<Bits> for i32 {
+    type Output = Bits;
+    
+    fn bitxor(self, other: Bits) -> Bits {
+        Bits { value: self ^ other.value }
+    }
+}
+
+impl fmt::Display for Bits {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Bits({})", self.value)
+    }
+}
+
+fn main() {
+    let b = Bits { value: 0b1100 };
+    let result = 0b1010 ^ b;
+    println!("{}", result);
+}
+"""
+contains = ["Bits(6)"]
+
+[[test]]
+name = "dunder_rlshift"
+description = "def __rlshift__(self, other): return ... (other << self)"
+python = """
+class Shift:
+    def __init__(self, amount):
+        self.amount = amount
+    
+    def __rlshift__(self, other):
+        return other << self.amount
+
+s = Shift(2)
+result = 5 << s
+print(result)
+"""
+rust = """
+use std::ops::Shl;
+
+struct Shift {
+    amount: u32,
+}
+
+impl Shl<Shift> for i32 {
+    type Output = i32;
+    
+    fn shl(self, other: Shift) -> i32 {
+        self << other.amount
+    }
+}
+
+fn main() {
+    let s = Shift { amount: 2 };
+    let result = 5 << s;
+    println!("{}", result);
+}
+"""
+contains = ["20"]
+
+[[test]]
+name = "dunder_rrshift"
+description = "def __rrshift__(self, other): return ... (other >> self)"
+python = """
+class Shift:
+    def __init__(self, amount):
+        self.amount = amount
+    
+    def __rrshift__(self, other):
+        return other >> self.amount
+
+s = Shift(2)
+result = 20 >> s
+print(result)
+"""
+rust = """
+use std::ops::Shr;
+
+struct Shift {
+    amount: u32,
+}
+
+impl Shr<Shift> for i32 {
+    type Output = i32;
+    
+    fn shr(self, other: Shift) -> i32 {
+        self >> other.amount
+    }
+}
+
+fn main() {
+    let s = Shift { amount: 2 };
+    let result = 20 >> s;
+    println!("{}", result);
+}
+"""
+contains = ["5"]
 
 # =============================================================================
 # Other Reflected
 # =============================================================================
 
-# TODO: Test __rmatmul__
-# [[test]]
-# name = "dunder_rmatmul"
-# description = "def __rmatmul__(self, other): return ... (other @ self)"
+[[test]]
+name = "dunder_rmatmul"
+description = "def __rmatmul__(self, other): return ... (other @ self)"
+python = """
+class Matrix:
+    def __init__(self, data):
+        self.data = data
+    
+    def __rmatmul__(self, other):
+        return Matrix(f"{other} @ {self.data}")
+    
+    def __repr__(self):
+        return f"Matrix({self.data})"
 
-# TODO: Test __rdivmod__
-# [[test]]
-# name = "dunder_rdivmod"
-# description = "def __rdivmod__(self, other): return divmod(other, self)"
+m = Matrix("B")
+result = "A" @ m
+print(result)
+"""
+rust = """
+use std::fmt;
+
+#[derive(Debug)]
+struct Matrix {
+    data: String,
+}
+
+impl fmt::Display for Matrix {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Matrix({})", self.data)
+    }
+}
+
+fn matmul(left: &str, right: Matrix) -> Matrix {
+    Matrix { data: format!("{} @ {}", left, right.data) }
+}
+
+fn main() {
+    let m = Matrix { data: "B".to_string() };
+    let result = matmul("A", m);
+    println!("{}", result);
+}
+"""
+contains = ["Matrix(A @ B)"]
+
+[[test]]
+name = "dunder_rdivmod"
+description = "def __rdivmod__(self, other): return divmod(other, self)"
+python = """
+class Number:
+    def __init__(self, value):
+        self.value = value
+    
+    def __rdivmod__(self, other):
+        q, r = divmod(other, self.value)
+        return (q, r)
+
+n = Number(3)
+result = divmod(10, n)
+print(result)
+"""
+rust = """
+fn divmod(dividend: i32, divisor: i32) -> (i32, i32) {
+    (dividend / divisor, dividend % divisor)
+}
+
+fn main() {
+    let result = divmod(10, 3);
+    println!("{:?}", result);
+}
+"""
+contains = ["(3, 1)"]
 
 # =============================================================================
 # When Reflected is Called
 # =============================================================================
 
-# TODO: Test reflected called when left fails
-# [[test]]
-# name = "reflected_fallback"
-# description = "1 + custom_obj calls custom_obj.__radd__(1)"
+[[test]]
+name = "reflected_fallback"
+description = "1 + custom_obj calls custom_obj.__radd__(1)"
+python = """
+class Custom:
+    def __init__(self, value):
+        self.value = value
+    
+    def __radd__(self, other):
+        return f"Reflected: {other} + {self.value}"
 
-# TODO: Test reflected with subclass
-# [[test]]
-# name = "reflected_subclass"
-# description = "Subclass reflected method called first"
+obj = Custom(5)
+result = 1 + obj
+print(result)
+"""
+rust = """
+use std::ops::Add;
 
-# TODO: Test both sides NotImplemented
-# [[test]]
-# name = "reflected_both_fail"
-# description = "TypeError when both __add__ and __radd__ return NotImplemented"
+struct Custom {
+    value: i32,
+}
+
+impl Add<Custom> for i32 {
+    type Output = String;
+    
+    fn add(self, other: Custom) -> String {
+        format!("Reflected: {} + {}", self, other.value)
+    }
+}
+
+fn main() {
+    let obj = Custom { value: 5 };
+    let result = 1 + obj;
+    println!("{}", result);
+}
+"""
+contains = ["Reflected: 1 + 5"]
+
+[[test]]
+name = "reflected_subclass"
+description = "Subclass reflected method called first"
+python = """
+class Base:
+    def __init__(self, value):
+        self.value = value
+    
+    def __radd__(self, other):
+        return f"Base: {other} + {self.value}"
+
+class Derived(Base):
+    def __radd__(self, other):
+        return f"Derived: {other} + {self.value}"
+
+obj = Derived(10)
+result = 5 + obj
+print(result)
+"""
+rust = """
+trait Addable {
+    fn radd(&self, other: i32) -> String;
+}
+
+struct Base {
+    value: i32,
+}
+
+struct Derived {
+    value: i32,
+}
+
+impl Addable for Base {
+    fn radd(&self, other: i32) -> String {
+        format!("Base: {} + {}", other, self.value)
+    }
+}
+
+impl Addable for Derived {
+    fn radd(&self, other: i32) -> String {
+        format!("Derived: {} + {}", other, self.value)
+    }
+}
+
+fn main() {
+    let obj = Derived { value: 10 };
+    let result = obj.radd(5);
+    println!("{}", result);
+}
+"""
+contains = ["Derived: 5 + 10"]
+
+[[test]]
+name = "reflected_both_fail"
+description = "TypeError when both __add__ and __radd__ return NotImplemented"
+python = """
+class Custom:
+    def __init__(self, value):
+        self.value = value
+
+# This would raise TypeError: unsupported operand type(s)
+# But for demo, we'll just show the concept
+obj = Custom(5)
+try:
+    result = obj + "string"
+except TypeError as e:
+    print(f"TypeError: unsupported operand types")
+"""
+rust = """
+fn main() {
+    // Rust's type system prevents this at compile time
+    println!("TypeError: unsupported operand types");
+}
+"""
+contains = ["TypeError: unsupported operand types"]
 
 # =============================================================================
 # Use Cases
 # =============================================================================
 
-# TODO: Test scalar * custom_object
-# [[test]]
-# name = "scalar_times_object"
-# description = "2 * Vector(1, 2) via __rmul__"
+[[test]]
+name = "scalar_times_object"
+description = "2 * Vector(1, 2) via __rmul__"
+python = """
+class Vector:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+    
+    def __rmul__(self, scalar):
+        return Vector(scalar * self.x, scalar * self.y)
+    
+    def __repr__(self):
+        return f"Vector({self.x}, {self.y})"
 
-# TODO: Test string formatting
-# [[test]]
-# name = "reflected_format"
-# description = "'%s' % custom_obj uses __str__"
+v = Vector(1, 2)
+result = 2 * v
+print(result)
+"""
+rust = """
+use std::ops::Mul;
+use std::fmt;
+
+#[derive(Debug)]
+struct Vector {
+    x: i32,
+    y: i32,
+}
+
+impl Mul<Vector> for i32 {
+    type Output = Vector;
+    
+    fn mul(self, vec: Vector) -> Vector {
+        Vector { x: self * vec.x, y: self * vec.y }
+    }
+}
+
+impl fmt::Display for Vector {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Vector({}, {})", self.x, self.y)
+    }
+}
+
+fn main() {
+    let v = Vector { x: 1, y: 2 };
+    let result = 2 * v;
+    println!("{}", result);
+}
+"""
+contains = ["Vector(2, 4)"]
+
+[[test]]
+name = "reflected_format"
+description = "'%s' % custom_obj uses __str__"
+python = """
+class Person:
+    def __init__(self, name):
+        self.name = name
+    
+    def __str__(self):
+        return self.name
+
+p = Person("Alice")
+result = "Hello, %s!" % p
+print(result)
+"""
+rust = """
+use std::fmt;
+
+struct Person {
+    name: String,
+}
+
+impl fmt::Display for Person {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.name)
+    }
+}
+
+fn main() {
+    let p = Person { name: "Alice".to_string() };
+    let result = format!("Hello, {}!", p);
+    println!("{}", result);
+}
+"""
+contains = ["Hello, Alice!"]
 
 # =============================================================================
 # Edge Cases
 # =============================================================================
 
-# TODO: Test reflected same type
-# [[test]]
-# name = "reflected_same_type"
-# description = "When both operands are same custom type"
+[[test]]
+name = "reflected_same_type"
+description = "When both operands are same custom type"
+python = """
+class Number:
+    def __init__(self, value):
+        self.value = value
+    
+    def __add__(self, other):
+        if isinstance(other, Number):
+            return Number(self.value + other.value)
+        return NotImplemented
+    
+    def __radd__(self, other):
+        if isinstance(other, Number):
+            return Number(other.value + self.value)
+        return NotImplemented
+    
+    def __repr__(self):
+        return f"Number({self.value})"
 
-# TODO: Test reflected with None
-# [[test]]
-# name = "reflected_none"
-# description = "Reflected operation with None"
-# skip = true
+a = Number(5)
+b = Number(3)
+result = a + b
+print(result)
+"""
+rust = """
+use std::ops::Add;
+use std::fmt;
+
+#[derive(Debug)]
+struct Number {
+    value: i32,
+}
+
+impl Add for Number {
+    type Output = Number;
+    
+    fn add(self, other: Number) -> Number {
+        Number { value: self.value + other.value }
+    }
+}
+
+impl fmt::Display for Number {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Number({})", self.value)
+    }
+}
+
+fn main() {
+    let a = Number { value: 5 };
+    let b = Number { value: 3 };
+    let result = a + b;
+    println!("{}", result);
+}
+"""
+contains = ["Number(8)"]
+
+[[test]]
+name = "reflected_none"
+description = "Reflected operation with None"
+skip = true
+python = """
+class Custom:
+    def __radd__(self, other):
+        if other is None:
+            return "None + Custom"
+        return NotImplemented
+
+obj = Custom()
+# This would actually fail since None doesn't call __radd__
+# result = None + obj
+"""
+rust = """
+// N/A - skip test
+"""
+contains = []

@@ -14,181 +14,302 @@ name = "assign_integer"
 description = "Simple integer assignment"
 tags = ["assignment", "integer"]
 
-[test.python]
-code = '''
+python = '''
 def assign_int():
     x = 42
     return x
 '''
 
-[test.assertions]
-contains = ["let x = 42"]
+rust = '''
+pub fn assign_int() -> i32 {
+    let x = 42;
+    return x;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_assign_int_examples() {
+        let _ = assign_int();
+    }
+}
+'''
 
 [[test]]
 name = "assign_string"
 description = "Simple string assignment"
 tags = ["assignment", "string"]
 
-[test.python]
-code = '''
+python = '''
 def assign_str():
     s = "hello"
     return s
 '''
 
-[test.assertions]
-contains = ["let s"]
+rust = '''
+pub fn assign_str() -> String {
+    let s = "hello".to_string();
+    return s;
+}
+'''
 
 [[test]]
 name = "assign_list"
 description = "List assignment"
 tags = ["assignment", "list"]
 
-[test.python]
-code = '''
+python = '''
 def assign_list():
     items = [1, 2, 3]
     return items
 '''
 
-[test.assertions]
-contains_any = [["let items = vec!", "let items: Vec"]]
+rust = '''
+pub fn assign_list() -> Vec<i32> {
+    let items = vec![1, 2, 3];
+    return items;
+}
+'''
 
 [[test]]
 name = "assign_dict"
 description = "Dictionary assignment"
 tags = ["assignment", "dict"]
 
-[test.python]
-code = '''
+python = '''
 def assign_dict():
     d = {}
     return d
 '''
 
-[test.assertions]
-contains = ["HashMap"]
-
-# =============================================================================
-# Augmented Assignment
-# =============================================================================
+rust = '''
+use serde_json;
+use std::collections::HashMap;
+pub fn assign_dict() -> HashMap<serde_json::Value, serde_json::Value> {
+    let d = {
+        let map = HashMap::new();
+        map
+    };
+    return d;
+}
+'''
 
 [[test]]
 name = "augassign_add"
 description = "+= operator"
 tags = ["assignment", "augmented"]
 
-[test.python]
-code = '''
+python = '''
 def add_assign(x: int) -> int:
     x += 10
     return x
 '''
 
-[test.assertions]
-contains_any = [["+=", "+ 10"]]
+rust = '''
+pub fn add_assign(mut x: i32) -> i32 {
+    x = x + 10;
+    return x;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_add_assign_examples() {
+        assert_eq!(add_assign(0), 0);
+        assert_eq!(add_assign(1), 1);
+        assert_eq!(add_assign(-1), -1);
+    }
+}
+'''
 
 [[test]]
 name = "augassign_subtract"
 description = "-= operator"
 tags = ["assignment", "augmented"]
 
-[test.python]
-code = '''
+python = '''
 def sub_assign(x: int) -> int:
     x -= 5
     return x
 '''
 
-[test.assertions]
-contains_any = [["-=", "- 5"]]
+rust = '''
+pub fn sub_assign(mut x: i32) -> i32 {
+    x = x - 5;
+    return x;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_sub_assign_examples() {
+        assert_eq!(sub_assign(0), 0);
+        assert_eq!(sub_assign(1), 1);
+        assert_eq!(sub_assign(-1), -1);
+    }
+}
+'''
 
 [[test]]
 name = "augassign_multiply"
 description = "*= operator"
 tags = ["assignment", "augmented"]
 
-[test.python]
-code = '''
+python = '''
 def mul_assign(x: int) -> int:
     x *= 2
     return x
 '''
 
-[test.assertions]
-contains_any = [["*=", "* 2"]]
+rust = '''
+pub fn mul_assign(mut x: i32) -> i32 {
+    let _cse_temp_0 = x * 2;
+    x = _cse_temp_0;
+    return x;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_mul_assign_examples() {
+        assert_eq!(mul_assign(0), 0);
+        assert_eq!(mul_assign(1), 1);
+        assert_eq!(mul_assign(-1), -1);
+    }
+}
+'''
 
 [[test]]
 name = "augassign_divide"
 description = "/= operator"
 tags = ["assignment", "augmented"]
 
-[test.python]
-code = '''
+python = '''
 def div_assign(x: float) -> float:
     x /= 2.0
     return x
 '''
 
-[test.assertions]
-contains_any = [["/=", "/ 2.0"]]
+rust = '''
+#[derive(Debug, Clone)]
+pub struct ZeroDivisionError {
+    message: String,
+}
+impl std::fmt::Display for ZeroDivisionError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "division by zero: {}", self.message)
+    }
+}
+impl std::error::Error for ZeroDivisionError {}
+impl ZeroDivisionError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = " Depyler: proven to terminate"]
+pub fn div_assign(mut x: f64) -> f64 {
+    let _cse_temp_0 = x / 2.0;
+    x = _cse_temp_0;
+    return x;
+}
+'''
 
 [[test]]
 name = "augassign_modulo"
 description = "%= operator"
 tags = ["assignment", "augmented"]
 
-[test.python]
-code = '''
+python = '''
 def mod_assign(x: int) -> int:
     x %= 7
     return x
 '''
 
-[test.assertions]
-contains_any = [["%=", "% 7"]]
-
-# =============================================================================
-# Tuple Unpacking
-# =============================================================================
+rust = '''
+#[derive(Debug, Clone)]
+pub struct ZeroDivisionError {
+    message: String,
+}
+impl std::fmt::Display for ZeroDivisionError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "division by zero: {}", self.message)
+    }
+}
+impl std::error::Error for ZeroDivisionError {}
+impl ZeroDivisionError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = " Depyler: proven to terminate"]
+pub fn mod_assign(mut x: i32) -> i32 {
+    let _cse_temp_0 = x % 7;
+    x = _cse_temp_0;
+    return x;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_mod_assign_examples() {
+        assert_eq!(mod_assign(0), 0);
+        assert_eq!(mod_assign(1), 1);
+        assert_eq!(mod_assign(-1), -1);
+    }
+}
+'''
 
 [[test]]
 name = "tuple_unpack_basic"
 description = "Basic tuple unpacking"
 tags = ["assignment", "tuple", "unpack"]
 
-[test.python]
-code = '''
+python = '''
 def unpack_tuple():
     a, b = (1, 2)
     return a + b
 '''
 
-[test.assertions]
-contains_any = [["let (a, b)", "let a", "let b"]]
+rust = '''
+pub fn unpack_tuple() {
+    let (a, b) = (1, 2);
+    return a + b;
+}
+'''
 
 [[test]]
 name = "tuple_unpack_triple"
 description = "Triple tuple unpacking"
 tags = ["assignment", "tuple", "unpack"]
 
-[test.python]
-code = '''
+python = '''
 def unpack_triple():
     x, y, z = (1, 2, 3)
     return x + y + z
 '''
 
-[test.assertions]
-contains_any = [["let (x, y, z)", "let x"]]
+rust = '''
+pub fn unpack_triple() {
+    let (x, y, z) = (1, 2, 3);
+    return x + y + z;
+}
+'''
 
 [[test]]
 name = "tuple_unpack_enumerate_nested"
 description = "Tuple unpacking with enumerate and nested tuples"
 tags = ["assignment", "tuple", "unpack", "enumerate"]
 
-[test.python]
-code = '''
+python = '''
 def process_bounds():
     values = [(1, 1), (2, 2), (3, 3)]
     total = 0
@@ -198,16 +319,33 @@ def process_bounds():
     return total
 '''
 
-[test.assertions]
-contains_any = [["enumerate", "iter().enumerate()"], ["let (lower, upper)", "let lower"]]
+rust = '''
+pub fn process_bounds() -> i32 {
+    let values = vec![(1, 1), (2, 2), (3, 3)];
+    let mut total = 0;
+    for (_index, bounds) in values.iter().enumerate().map(|(i, x)| (i as i32, x.clone())) {
+        let (lower, upper) = bounds;
+        total = total + lower + upper;
+    }
+    return total;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_process_bounds_examples() {
+        let _ = process_bounds();
+    }
+}
+'''
 
 [[test]]
 name = "tuple_index_access_in_loop"
 description = "Accessing tuple elements by index in enumerate loop"
 tags = ["assignment", "tuple", "index", "enumerate"]
 
-[test.python]
-code = '''
+python = '''
 def access_bounds():
     values = [(1, 1), (2, 2), (3, 3)]
     total = 0
@@ -216,16 +354,50 @@ def access_bounds():
     return total
 '''
 
-[test.assertions]
-contains = ["bounds.0", "bounds.1"]
+rust = '''
+#[derive(Debug, Clone)]
+pub struct IndexError {
+    message: String,
+}
+impl std::fmt::Display for IndexError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "index out of range: {}", self.message)
+    }
+}
+impl std::error::Error for IndexError {}
+impl IndexError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = " Depyler: proven to terminate"]
+pub fn access_bounds() -> i32 {
+    let values = vec![(1, 1), (2, 2), (3, 3)];
+    let mut total = 0;
+    for (_index, bounds) in values.iter().enumerate().map(|(i, x)| (i as i32, x.clone())) {
+        total = total + bounds.0 + bounds.1;
+    }
+    return total;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_access_bounds_examples() {
+        let _ = access_bounds();
+    }
+}
+'''
 
 [[test]]
 name = "tuple_index_after_list_index"
 description = "Tuple index access after extracting from list"
 tags = ["assignment", "tuple", "index", "list"]
 
-[test.python]
-code = '''
+python = '''
 import random
 
 def one(x: int, y: int):
@@ -237,44 +409,69 @@ def two():
     return one(x=random.randint(value1[0], value1[1] - 1))
 '''
 
-[test.assertions]
-contains = ["value1.0", "value1.1"]
-
-# =============================================================================
-# Index Assignment
-# =============================================================================
+rust = '''
+use rand as random;
+use rand::Rng;
+use rand::prelude::*;
+#[derive(Debug, Clone)]
+pub struct IndexError {
+    message: String,
+}
+impl std::fmt::Display for IndexError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "index out of range: {}", self.message)
+    }
+}
+impl std::error::Error for IndexError {}
+impl IndexError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+pub fn one(x: i32, y: i32) {}
+#[doc = " Depyler: proven to terminate"]
+pub fn two() {
+    let values = vec![(1, 1), (2, 2), (3, 3)];
+    let value1 = values.get(0usize).cloned().unwrap();
+    return one(rand::thread_rng().gen_range(value1.0..=value1.1 - 1));
+}
+'''
 
 [[test]]
 name = "list_index_assign"
 description = "List index assignment"
 tags = ["assignment", "index", "list"]
 
-[test.python]
-code = '''
+python = '''
 def set_first(items: list[int], value: int):
     items[0] = value
 '''
 
-[test.assertions]
-contains_any = [["items[0]", "items.insert"]]
+rust = '''
+pub fn set_first(items: &mut Vec<i32>, value: i32) {
+    items.insert((0) as usize, value);
+}
+'''
 
 [[test]]
 name = "dict_key_assign"
 description = "Dict key assignment"
 tags = ["assignment", "index", "dict"]
 
-[test.python]
-code = '''
+python = '''
 def set_key(d: dict, key: str, value: int):
     d[key] = value
 '''
 
-[test.assertions]
-contains = ["insert"]
-
-# =============================================================================
-# Multiple Assignment
-# =============================================================================
+rust = '''
+use serde_json;
+use std::collections::HashMap;
+pub fn set_key(d: &mut HashMap<serde_json::Value, serde_json::Value>, key: String, value: i32) {
+    d.insert(key, value);
+}
+'''
 
 [[test]]
 name = "multi_assign_same_value"
@@ -282,27 +479,22 @@ description = "Multiple variables same value (not yet supported)"
 tags = ["assignment", "multiple"]
 skip = true
 
-[test.python]
-code = '''
+python = '''
 def multi_assign():
     a = b = c = 0
     return a + b + c
 '''
 
-[test.assertions]
-contains_any = [["let a", "let b", "let c"]]
-
-# =============================================================================
-# Reassignment
-# =============================================================================
+rust = '''
+// Transpilation failed
+'''
 
 [[test]]
 name = "reassign_variable"
 description = "Variable reassignment requires mut"
 tags = ["assignment", "mutability"]
 
-[test.python]
-code = '''
+python = '''
 def reassign():
     x = 1
     x = 2
@@ -310,150 +502,203 @@ def reassign():
     return x
 '''
 
-[test.assertions]
-contains = ["let mut x"]
+rust = '''
+pub fn reassign() -> i32 {
+    let mut x = 1;
+    x = 2;
+    x = 3;
+    return x;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_reassign_examples() {
+        let _ = reassign();
+    }
+}
+'''
 
 [[test]]
 name = "no_reassign_immutable"
 description = "No reassignment means immutable"
 tags = ["assignment", "mutability"]
 
-[test.python]
-code = '''
+python = '''
 def no_reassign():
     x = 42
     return x
 '''
 
-[test.assertions]
-contains = ["let x"]
-not_contains = ["let mut x"]
-
-# =============================================================================
-# Slice Assignment
-# =============================================================================
+rust = '''
+pub fn no_reassign() -> i32 {
+    let x = 42;
+    return x;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_no_reassign_examples() {
+        let _ = no_reassign();
+    }
+}
+'''
 
 [[test]]
 name = "slice_assign"
 description = "Slice assignment (limited support)"
 tags = ["assignment", "slice"]
 
-[test.python]
-code = '''
+python = '''
 def replace_slice(items: list[int], start: int, end: int, values: list[int]):
     items[start:end] = values
 '''
 
-[test.assertions]
-contains_any = [["splice", "drain", "&mut", "clear", "extend"]]
-
-# =============================================================================
-# Uninitialized Declarations - Migrated from test_uninitialized_declarations.rs
-# =============================================================================
+rust = '''
+pub fn replace_slice(mut items: Vec<i32>, start: i32, end: i32, values: &Vec<i32>) {
+    items.clear();
+    items.extend(values);
+}
+'''
 
 [[test]]
 name = "uninitialized_int_declaration"
 description = "Type annotation without initial value for int"
 tags = ["assignment", "declaration", "int"]
 
-[test.python]
-code = '''
+python = '''
 def process():
     count: int
     count = 5
     return count
 '''
 
-[test.assertions]
-contains = ["let mut count: i32;", "count = 5"]
+rust = '''
+pub fn process() -> i32 {
+    let mut count: i32;
+    count = 5;
+    return count;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_process_examples() {
+        let _ = process();
+    }
+}
+'''
 
 [[test]]
 name = "uninitialized_string_declaration"
 description = "Type annotation without initial value for str"
 tags = ["assignment", "declaration", "string"]
 
-[test.python]
-code = '''
+python = '''
 def process():
     name: str
     name = "Alice"
     return name
 '''
 
-[test.assertions]
-contains_any = [["let mut name: String;", "let mut name : String ;"]]
+rust = '''
+pub fn process() -> String {
+    let mut name: String;
+    name = "Alice".to_string();
+    return name;
+}
+'''
 
 [[test]]
 name = "uninitialized_bool_declaration"
 description = "Type annotation without initial value for bool"
 tags = ["assignment", "declaration", "bool"]
 
-[test.python]
-code = '''
+python = '''
 def check():
     valid: bool
     valid = True
     return valid
 '''
 
-[test.assertions]
-contains_any = [["let mut valid: bool;", "let mut valid : bool ;"], ["valid = true"]]
+rust = '''
+pub fn check() -> bool {
+    let mut valid: bool;
+    valid = true;
+    return valid;
+}
+'''
 
 [[test]]
 name = "uninitialized_float_declaration"
 description = "Type annotation without initial value for float"
 tags = ["assignment", "declaration", "float"]
 
-[test.python]
-code = '''
+python = '''
 def calculate():
     result: float
     result = 3.14
     return result
 '''
 
-[test.assertions]
-contains_any = [["result: f64;", "result : f64 ;"]]
+rust = '''
+pub fn calculate() -> f64 {
+    let mut result: f64;
+    result = 3.14;
+    return result;
+}
+'''
 
 [[test]]
 name = "uninitialized_list_declaration"
 description = "Type annotation without initial value for list"
 tags = ["assignment", "declaration", "list"]
 
-[test.python]
-code = '''
+python = '''
 def process():
     items: list[int]
     items = [1, 2, 3]
     return items
 '''
 
-[test.assertions]
-contains = ["items", "Vec"]
+rust = '''
+pub fn process() -> Vec<i32> {
+    let mut items: Vec<i32>;
+    items = vec![1, 2, 3];
+    return items;
+}
+'''
 
 [[test]]
 name = "uninitialized_optional_declaration"
 description = "Type annotation without initial value for Optional"
 tags = ["assignment", "declaration", "optional"]
 
-[test.python]
-code = '''
+python = '''
 def process():
     value: Optional[int]
     value = None
     return value
 '''
 
-[test.assertions]
-contains_any = [["value: Option", "value : Option"]]
+rust = '''
+pub fn process() {
+    let mut value: Option<i32>;
+    value = None;
+    return;
+}
+'''
 
 [[test]]
 name = "multiple_uninitialized_declarations"
 description = "Multiple uninitialized declarations in same function"
 tags = ["assignment", "declaration", "multiple"]
 
-[test.python]
-code = '''
+python = '''
 def process():
     field_position: FieldPosition
     new_team: str
@@ -466,16 +711,24 @@ def process():
     return valid
 '''
 
-[test.assertions]
-contains = ["field_position", "FieldPosition", "new_team", "String", "valid", "bool"]
+rust = '''
+pub fn process() -> bool {
+    let mut field_position: FieldPosition;
+    let mut new_team: String;
+    let mut valid: bool;
+    field_position = FieldPosition::new();
+    new_team = "Team A".to_string();
+    valid = true;
+    return valid;
+}
+'''
 
 [[test]]
 name = "uninitialized_with_conditional_assignment"
 description = "Uninitialized declaration with if/else assignment"
 tags = ["assignment", "declaration", "conditional"]
 
-[test.python]
-code = '''
+python = '''
 def process(flag: bool):
     result: int
     if flag:
@@ -485,132 +738,361 @@ def process(flag: bool):
     return result
 '''
 
-[test.assertions]
-contains_any = [["let mut result: i32;", "let mut result : i32 ;"], ["result = 10", "result = 20"]]
+rust = '''
+pub fn process(flag: bool) -> i32 {
+    let mut result: i32;
+    if flag {
+        result = 10;
+    } else {
+        result = 20;
+    }
+    return result;
+}
+'''
 
 [[test]]
 name = "annotated_with_value_unchanged"
 description = "Annotated assignment WITH value should still work"
 tags = ["assignment", "declaration", "value"]
 
-[test.python]
-code = '''
+python = '''
 def process():
     count: int = 42
     return count
 '''
 
-[test.assertions]
-contains = ["count", "42"]
-
-# =============================================================================
-# Dict Augmented Assignment - Migrated from test_stmt_gen_assign_coverage.rs
-# =============================================================================
+rust = '''
+pub fn process() -> i32 {
+    let count: i32 = 42;
+    return count;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_process_examples() {
+        let _ = process();
+    }
+}
+'''
 
 [[test]]
 name = "dict_augmented_add"
 description = "Dict += operator requires get/insert pattern"
 tags = ["assignment", "dict", "augmented"]
 
-[test.python]
-code = '''
+python = '''
 def increment_dict_value():
     d = {"count": 0}
     d["count"] += 5
     return d["count"]
 '''
 
-[test.assertions]
-contains_any = [["insert", "get"]]
+rust = '''
+use std::collections::HashMap;
+#[derive(Debug, Clone)]
+pub struct IndexError {
+    message: String,
+}
+impl std::fmt::Display for IndexError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "index out of range: {}", self.message)
+    }
+}
+impl std::error::Error for IndexError {}
+impl IndexError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = " Depyler: proven to terminate"]
+pub fn increment_dict_value() -> i32 {
+    let mut d = {
+        let mut map = HashMap::new();
+        map.insert("count".to_string(), 0);
+        map
+    };
+    let _cse_temp_0 = d.clone().get("count").cloned().unwrap() + 5;
+    d.insert("count".to_string(), _cse_temp_0);
+    return d.get("count").cloned().unwrap();
+}
+'''
 
 [[test]]
 name = "dict_augmented_sub"
 description = "Dict -= operator"
 tags = ["assignment", "dict", "augmented"]
 
-[test.python]
-code = '''
+python = '''
 def decrement_dict_value():
     d = {"score": 100}
     d["score"] -= 10
     return d["score"]
 '''
 
-[test.assertions]
-contains_any = [["insert", "get", "-"]]
+rust = '''
+use std::collections::HashMap;
+#[derive(Debug, Clone)]
+pub struct IndexError {
+    message: String,
+}
+impl std::fmt::Display for IndexError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "index out of range: {}", self.message)
+    }
+}
+impl std::error::Error for IndexError {}
+impl IndexError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = " Depyler: proven to terminate"]
+pub fn decrement_dict_value() -> i32 {
+    let mut d = {
+        let mut map = HashMap::new();
+        map.insert("score".to_string(), 100);
+        map
+    };
+    let _cse_temp_0 = d.clone().get("score").cloned().unwrap() - 10;
+    d.insert("score".to_string(), _cse_temp_0);
+    return d.get("score").cloned().unwrap();
+}
+'''
 
 [[test]]
 name = "dict_augmented_mul"
 description = "Dict *= operator"
 tags = ["assignment", "dict", "augmented"]
 
-[test.python]
-code = '''
+python = '''
 def multiply_dict_value():
     d = {"factor": 2}
     d["factor"] *= 3
     return d["factor"]
 '''
 
-[test.assertions]
-contains_any = [["insert", "get", "*"]]
+rust = '''
+use std::collections::HashMap;
+#[derive(Debug, Clone)]
+pub struct IndexError {
+    message: String,
+}
+impl std::fmt::Display for IndexError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "index out of range: {}", self.message)
+    }
+}
+impl std::error::Error for IndexError {}
+impl IndexError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = " Depyler: proven to terminate"]
+pub fn multiply_dict_value() -> i32 {
+    let mut d = {
+        let mut map = HashMap::new();
+        map.insert("factor".to_string(), 2);
+        map
+    };
+    let _cse_temp_0 = d.clone().get("factor").cloned().unwrap() * 3;
+    d.insert("factor".to_string(), _cse_temp_0);
+    return d.get("factor").cloned().unwrap();
+}
+'''
 
 [[test]]
 name = "dict_augmented_div"
 description = "Dict /= operator"
 tags = ["assignment", "dict", "augmented"]
 
-[test.python]
-code = '''
+python = '''
 def divide_dict_value():
     d = {"amount": 100}
     d["amount"] /= 4
     return d["amount"]
 '''
 
-[test.assertions]
-contains_any = [["insert", "get", "/"]]
+rust = '''
+use std::collections::HashMap;
+#[derive(Debug, Clone)]
+pub struct ZeroDivisionError {
+    message: String,
+}
+impl std::fmt::Display for ZeroDivisionError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "division by zero: {}", self.message)
+    }
+}
+impl std::error::Error for ZeroDivisionError {}
+impl ZeroDivisionError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[derive(Debug, Clone)]
+pub struct IndexError {
+    message: String,
+}
+impl std::fmt::Display for IndexError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "index out of range: {}", self.message)
+    }
+}
+impl std::error::Error for IndexError {}
+impl IndexError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = " Depyler: proven to terminate"]
+pub fn divide_dict_value() -> i32 {
+    let mut d = {
+        let mut map = HashMap::new();
+        map.insert("amount".to_string(), 100);
+        map
+    };
+    let _cse_temp_0 = d.clone().get("amount").cloned().unwrap() / 4;
+    d.insert("amount".to_string(), _cse_temp_0);
+    return d.get("amount").cloned().unwrap();
+}
+'''
 
 [[test]]
 name = "dict_augmented_mod"
 description = "Dict %= operator"
 tags = ["assignment", "dict", "augmented"]
 
-[test.python]
-code = '''
+python = '''
 def modulo_dict_value():
     d = {"remainder": 17}
     d["remainder"] %= 5
     return d["remainder"]
 '''
 
-[test.assertions]
-contains_any = [["insert", "get", "%"]]
+rust = '''
+use std::collections::HashMap;
+#[derive(Debug, Clone)]
+pub struct ZeroDivisionError {
+    message: String,
+}
+impl std::fmt::Display for ZeroDivisionError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "division by zero: {}", self.message)
+    }
+}
+impl std::error::Error for ZeroDivisionError {}
+impl ZeroDivisionError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[derive(Debug, Clone)]
+pub struct IndexError {
+    message: String,
+}
+impl std::fmt::Display for IndexError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "index out of range: {}", self.message)
+    }
+}
+impl std::error::Error for IndexError {}
+impl IndexError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = " Depyler: proven to terminate"]
+pub fn modulo_dict_value() -> i32 {
+    let mut d = {
+        let mut map = HashMap::new();
+        map.insert("remainder".to_string(), 17);
+        map
+    };
+    let _cse_temp_0 = d.clone().get("remainder").cloned().unwrap() % 5;
+    d.insert("remainder".to_string(), _cse_temp_0);
+    return d.get("remainder").cloned().unwrap();
+}
+'''
 
 [[test]]
 name = "nested_dict_augmented_assignment"
 description = "Nested dict with augmented assignment"
 tags = ["assignment", "dict", "augmented", "nested"]
 
-[test.python]
-code = '''
+python = '''
 def nested_update():
     data = {"stats": {"count": 0}}
     data["stats"]["count"] += 1
     return data
 '''
 
-[test.assertions]
-contains = ["fn nested_update"]
-contains_any = [["get_mut", "insert"]]
+rust = '''
+use std::collections::HashMap;
+#[derive(Debug, Clone)]
+pub struct IndexError {
+    message: String,
+}
+impl std::fmt::Display for IndexError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "index out of range: {}", self.message)
+    }
+}
+impl std::error::Error for IndexError {}
+impl IndexError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = " Depyler: proven to terminate"]
+pub fn nested_update() -> HashMap<String, HashMap<String, i32>> {
+    let mut data = {
+        let mut map = HashMap::new();
+        map.insert("stats".to_string(), {
+            let mut map = HashMap::new();
+            map.insert("count".to_string(), 0);
+            map
+        });
+        map
+    };
+    let _cse_temp_0 = data
+        .clone()
+        .get("stats")
+        .cloned()
+        .unwrap()
+        .get("count")
+        .cloned()
+        .unwrap()
+        + 1;
+    data.get_mut(&"stats").unwrap().insert("count".to_string(), _cse_temp_0);
+    return data;
+}
+'''
 
 [[test]]
 name = "multiple_dict_augmented_assignments"
 description = "Multiple augmented assignments to same dict key"
 tags = ["assignment", "dict", "augmented"]
 
-[test.python]
-code = '''
+python = '''
 def multi_assign():
     d = {"x": 1}
     d["x"] += 2
@@ -619,95 +1101,169 @@ def multi_assign():
     return d["x"]
 '''
 
-[test.assertions]
-contains = ["fn multi_assign"]
-
-# =============================================================================
-# Type Tracking - Migrated from test_stmt_gen_assign_coverage.rs
-# =============================================================================
+rust = '''
+use std::collections::HashMap;
+#[derive(Debug, Clone)]
+pub struct IndexError {
+    message: String,
+}
+impl std::fmt::Display for IndexError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "index out of range: {}", self.message)
+    }
+}
+impl std::error::Error for IndexError {}
+impl IndexError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = " Depyler: proven to terminate"]
+pub fn multi_assign() -> i32 {
+    let mut d = {
+        let mut map = HashMap::new();
+        map.insert("x".to_string(), 1);
+        map
+    };
+    let _cse_temp_0 = d.clone().get("x").cloned().unwrap() + 2;
+    d.clone().insert("x".to_string(), _cse_temp_0);
+    let _cse_temp_1 = d.clone().get("x").cloned().unwrap() * 3;
+    d.insert("x".to_string(), _cse_temp_1);
+    let _cse_temp_2 = d.get("x").cloned().unwrap() - 1;
+    d.insert("x".to_string(), _cse_temp_2);
+    return d.get("x").cloned().unwrap();
+}
+'''
 
 [[test]]
 name = "type_tracking_list_annotation"
 description = "Type annotation tracking for List creates Vec"
 tags = ["assignment", "type-tracking", "list"]
 
-[test.python]
-code = '''
+python = '''
 def merge_lists(a: list[int], b: list[int]) -> list[int]:
     result: list[int] = a + b
     return result
 '''
 
-[test.assertions]
-contains = ["Vec<i32>"]
+rust = '''
+pub fn merge_lists(a: &Vec<i32>, b: &Vec<i32>) -> Vec<i32> {
+    let result: Vec<i32> = a.iter().chain(b.iter()).cloned().collect::<Vec<_>>();
+    return result;
+}
+'''
 
 [[test]]
 name = "type_tracking_dict_annotation"
 description = "Type annotation tracking for Dict creates HashMap"
 tags = ["assignment", "type-tracking", "dict"]
 
-[test.python]
-code = '''
+python = '''
 def create_mapping() -> dict[str, int]:
     mapping: dict[str, int] = {"a": 1, "b": 2}
     return mapping
 '''
 
-[test.assertions]
-contains = ["HashMap"]
+rust = '''
+use std::collections::HashMap;
+pub fn create_mapping() -> HashMap<String, i32> {
+    let mapping: HashMap<String, i32> = {
+        let mut map = HashMap::new();
+        map.insert("a".to_string(), 1);
+        map.insert("b".to_string(), 2);
+        map
+    };
+    return mapping;
+}
+'''
 
 [[test]]
 name = "type_tracking_list_literal"
 description = "List literal creates Vec"
 tags = ["assignment", "type-tracking", "list"]
 
-[test.python]
-code = '''
+python = '''
 def literal_list():
     numbers = [1, 2, 3]
     return len(numbers)
 '''
 
-[test.assertions]
-contains_any = [["vec!", "Vec"]]
+rust = '''
+pub fn literal_list() -> i32 {
+    let numbers = vec![1, 2, 3];
+    return numbers.len() as i32;
+}
+'''
 
 [[test]]
 name = "type_tracking_dict_literal"
 description = "Dict literal creates HashMap"
 tags = ["assignment", "type-tracking", "dict"]
 
-[test.python]
-code = '''
+python = '''
 def literal_dict():
     mapping = {"a": 1, "b": 2}
     return len(mapping)
 '''
 
-[test.assertions]
-contains = ["HashMap"]
+rust = '''
+use std::collections::HashMap;
+pub fn literal_dict() -> i32 {
+    let mapping = {
+        let mut map = HashMap::new();
+        map.insert("a".to_string(), 1);
+        map.insert("b".to_string(), 2);
+        map
+    };
+    return mapping.len() as i32;
+}
+'''
 
 [[test]]
 name = "type_tracking_slice"
 description = "Slicing operation preserves Vec type"
 tags = ["assignment", "type-tracking", "slice"]
 
-[test.python]
-code = '''
+python = '''
 def slice_list(items: list[int]) -> list[int]:
     subset = items[1:3]
     return subset
 '''
 
-[test.assertions]
-contains_any = [["Vec", "slice", "[1..3]", "[1..=2]"]]
+rust = '''
+pub fn slice_list(items: &Vec<i32>) -> Vec<i32> {
+    let subset = {
+        let base = &items;
+        let start = (1).max(0) as usize;
+        let stop = (3).max(0) as usize;
+        if start < base.len() {
+            base[start..stop.min(base.len())].to_vec()
+        } else {
+            Vec::new()
+        }
+    };
+    return subset;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_slice_list_examples() {
+        assert_eq!(slice_list(vec![]), vec![]);
+        assert_eq!(slice_list(vec![1]), vec![1]);
+    }
+}
+'''
 
 [[test]]
 name = "plain_assignment_no_unwrap"
 description = "Plain int assignment should not add .unwrap()"
 tags = ["assignment", "regression"]
 
-[test.python]
-code = '''
+python = '''
 def accumulate(items: list[int]) -> int:
     total = 0
     for item in items:
@@ -715,188 +1271,264 @@ def accumulate(items: list[int]) -> int:
     return total
 '''
 
-[test.assertions]
-contains = ["total"]
-not_contains = ["total.unwrap()"]
-
-# =============================================================================
-# Index Assignment - Migrated from test_stmt_gen_assign_index_coverage.rs
-# =============================================================================
+rust = '''
+pub fn accumulate(items: &Vec<i32>) -> i32 {
+    let mut total = 0;
+    for item in items.iter().cloned() {
+        total = total + item;
+    }
+    return total;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_accumulate_examples() {
+        assert_eq!(accumulate(vec![]), 0);
+        assert_eq!(accumulate(vec![1]), 1);
+        assert_eq!(accumulate(vec![1, 2, 3]), 3);
+    }
+}
+'''
 
 [[test]]
 name = "list_assignment_literal_index"
 description = "List assignment with literal index uses Vec indexing"
 tags = ["assignment", "index", "list"]
 
-[test.python]
-code = '''
+python = '''
 def update_list(items: list[int]) -> list[int]:
     items[0] = 42
     return items
 '''
 
-[test.assertions]
-contains = ["fn update_list"]
+rust = '''
+pub fn update_list(mut items: Vec<i32>) -> Vec<i32> {
+    items.insert((0) as usize, 42);
+    return items;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_update_list_examples() {
+        assert_eq!(update_list(vec![]), vec![]);
+        assert_eq!(update_list(vec![1]), vec![1]);
+    }
+}
+'''
 
 [[test]]
 name = "list_assignment_variable_index"
 description = "List assignment with variable index"
 tags = ["assignment", "index", "list"]
 
-[test.python]
-code = '''
+python = '''
 def update_at_index(items: list[int], index: int, value: int) -> list[int]:
     items[index] = value
     return items
 '''
 
-[test.assertions]
-contains = ["fn update_at_index"]
+rust = '''
+pub fn update_at_index(mut items: Vec<i32>, index: i32, value: i32) -> Vec<i32> {
+    items.insert((index) as usize, value);
+    return items;
+}
+'''
 
 [[test]]
 name = "list_assignment_expression_index"
 description = "List assignment with binary expression index"
 tags = ["assignment", "index", "list"]
 
-[test.python]
-code = '''
+python = '''
 def update_next_item(items: list[int], i: int) -> list[int]:
     items[i + 1] = 100
     return items
 '''
 
-[test.assertions]
-contains = ["fn update_next_item"]
+rust = '''
+pub fn update_next_item(mut items: Vec<i32>, i: i32) -> Vec<i32> {
+    items.insert((i + 1) as usize, 100);
+    return items;
+}
+'''
 
 [[test]]
 name = "dict_assignment_string_key"
 description = "Dict assignment with string key uses HashMap.insert"
 tags = ["assignment", "index", "dict"]
 
-[test.python]
-code = '''
+python = '''
 def update_dict(d: dict[str, int]) -> dict[str, int]:
     d["key"] = 42
     return d
 '''
 
-[test.assertions]
-contains = ["fn update_dict", "insert"]
+rust = '''
+use std::collections::HashMap;
+pub fn update_dict(mut d: HashMap<String, i32>) -> HashMap<String, i32> {
+    d.insert("key".to_string(), 42);
+    return d;
+}
+'''
 
 [[test]]
 name = "dict_assignment_variable_key"
 description = "Dict assignment with variable key"
 tags = ["assignment", "index", "dict"]
 
-[test.python]
-code = '''
+python = '''
 def update_with_key(d: dict[str, int], key: str, value: int) -> dict[str, int]:
     d[key] = value
     return d
 '''
 
-[test.assertions]
-contains = ["fn update_with_key", "insert"]
+rust = '''
+use std::collections::HashMap;
+pub fn update_with_key(mut d: HashMap<String, i32>, key: String, value: i32) -> HashMap<String, i32> {
+    d.insert(key, value);
+    return d;
+}
+'''
 
 [[test]]
 name = "dict_assignment_char_heuristic"
 description = "Character variable name triggers HashMap"
 tags = ["assignment", "index", "dict", "heuristic"]
 
-[test.python]
-code = '''
+python = '''
 def update_by_char(d: dict[str, int], c: str) -> dict[str, int]:
     d[c] = 1
     return d
 '''
 
-[test.assertions]
-contains = ["fn update_by_char", "insert"]
+rust = '''
+use std::collections::HashMap;
+pub fn update_by_char(mut d: HashMap<String, i32>, c: String) -> HashMap<String, i32> {
+    d.insert(c, 1);
+    return d;
+}
+'''
 
 [[test]]
 name = "type_tracked_list_assignment"
 description = "Type-annotated list uses Vec"
 tags = ["assignment", "index", "list", "type-tracking"]
 
-[test.python]
-code = '''
+python = '''
 def modify_list() -> list[int]:
     numbers: list[int] = [1, 2, 3]
     numbers[0] = 10
     return numbers
 '''
 
-[test.assertions]
-contains = ["fn modify_list"]
+rust = '''
+pub fn modify_list() -> Vec<i32> {
+    let mut numbers: Vec<i32> = vec![1, 2, 3];
+    numbers.insert((0) as usize, 10);
+    return numbers;
+}
+'''
 
 [[test]]
 name = "type_tracked_dict_assignment"
 description = "Type-annotated dict uses HashMap"
 tags = ["assignment", "index", "dict", "type-tracking"]
 
-[test.python]
-code = '''
+python = '''
 def modify_dict() -> dict[str, int]:
     data: dict[str, int] = {}
     data["key"] = 42
     return data
 '''
 
-[test.assertions]
-contains = ["fn modify_dict", "insert"]
+rust = '''
+use std::collections::HashMap;
+pub fn modify_dict() -> HashMap<String, i32> {
+    let mut data: HashMap<String, i32> = {
+        let map = HashMap::new();
+        map
+    };
+    data.insert("key".to_string(), 42);
+    return data;
+}
+'''
 
 [[test]]
 name = "nested_list_assignment"
 description = "Nested list assignment uses get_mut chain"
 tags = ["assignment", "index", "nested", "list"]
 
-[test.python]
-code = '''
+python = '''
 def update_matrix(matrix: list[list[int]]) -> list[list[int]]:
     matrix[0][1] = 99
     return matrix
 '''
 
-[test.assertions]
-contains = ["fn update_matrix"]
+rust = '''
+pub fn update_matrix(mut matrix: Vec<Vec<i32>>) -> Vec<Vec<i32>> {
+    matrix.get_mut(0 as usize).unwrap().insert((1) as usize, 99);
+    return matrix;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_update_matrix_examples() {
+        assert_eq!(update_matrix(vec![]), vec![]);
+        assert_eq!(update_matrix(vec![1]), vec![1]);
+    }
+}
+'''
 
 [[test]]
 name = "nested_dict_assignment"
 description = "Nested dict assignment uses get_mut chain"
 tags = ["assignment", "index", "nested", "dict"]
 
-[test.python]
-code = '''
+python = '''
 def update_nested_dict(d: dict[str, dict[str, int]]) -> dict[str, dict[str, int]]:
     d["outer"]["inner"] = 42
     return d
 '''
 
-[test.assertions]
-contains = ["fn update_nested_dict"]
+rust = '''
+use std::collections::HashMap;
+pub fn update_nested_dict(mut d: HashMap<String, HashMap<String, i32>>) -> HashMap<String, HashMap<String, i32>> {
+    d.get_mut(&"outer").unwrap().insert("inner".to_string(), 42);
+    return d;
+}
+'''
 
 [[test]]
 name = "mixed_nested_assignment"
 description = "Dict of lists nested assignment"
 tags = ["assignment", "index", "nested", "mixed"]
 
-[test.python]
-code = '''
+python = '''
 def update_dict_of_lists(data: dict[str, list[int]], key: str) -> dict[str, list[int]]:
     data[key][0] = 100
     return data
 '''
 
-[test.assertions]
-contains = ["fn update_dict_of_lists"]
+rust = '''
+use std::collections::HashMap;
+pub fn update_dict_of_lists(mut data: HashMap<String, Vec<i32>>, key: String) -> HashMap<String, Vec<i32>> {
+    data.get_mut(key as usize).unwrap().insert((0) as usize, 100);
+    return data;
+}
+'''
 
 [[test]]
 name = "multiple_list_assignments"
 description = "Multiple Vec assignments in sequence"
 tags = ["assignment", "index", "list"]
 
-[test.python]
-code = '''
+python = '''
 def update_multiple(items: list[int]) -> list[int]:
     items[0] = 1
     items[1] = 2
@@ -904,16 +1536,31 @@ def update_multiple(items: list[int]) -> list[int]:
     return items
 '''
 
-[test.assertions]
-contains = ["fn update_multiple"]
+rust = '''
+pub fn update_multiple(mut items: Vec<i32>) -> Vec<i32> {
+    items.insert((0) as usize, 1);
+    items.insert((1) as usize, 2);
+    items.insert((2) as usize, 3);
+    return items;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_update_multiple_examples() {
+        assert_eq!(update_multiple(vec![]), vec![]);
+        assert_eq!(update_multiple(vec![1]), vec![1]);
+    }
+}
+'''
 
 [[test]]
 name = "multiple_dict_key_assignments"
 description = "Multiple HashMap insertions in sequence"
 tags = ["assignment", "index", "dict"]
 
-[test.python]
-code = '''
+python = '''
 def populate_dict(d: dict[str, int]) -> dict[str, int]:
     d["a"] = 1
     d["b"] = 2
@@ -921,77 +1568,138 @@ def populate_dict(d: dict[str, int]) -> dict[str, int]:
     return d
 '''
 
-[test.assertions]
-contains = ["fn populate_dict"]
+rust = '''
+use std::collections::HashMap;
+pub fn populate_dict(mut d: HashMap<String, i32>) -> HashMap<String, i32> {
+    d.insert("a".to_string(), 1);
+    d.insert("b".to_string(), 2);
+    d.insert("c".to_string(), 3);
+    return d;
+}
+'''
 
 [[test]]
 name = "assignment_complex_value"
 description = "Index assignment with complex value expression"
 tags = ["assignment", "index"]
 
-[test.python]
-code = '''
+python = '''
 def calculate_and_store(items: list[int], x: int, y: int) -> list[int]:
     items[0] = x * 2 + y
     return items
 '''
 
-[test.assertions]
-contains = ["fn calculate_and_store"]
+rust = '''
+pub fn calculate_and_store(mut items: Vec<i32>, x: i32, y: i32) -> Vec<i32> {
+    let _cse_temp_0 = x * 2;
+    items.insert((0) as usize, _cse_temp_0 + y);
+    return items;
+}
+'''
 
 [[test]]
 name = "assignment_in_loop"
 description = "Index assignment within iteration"
 tags = ["assignment", "index", "loop"]
 
-[test.python]
-code = '''
+python = '''
 def double_values(items: list[int]) -> list[int]:
     for i in range(len(items)):
         items[i] = items[i] * 2
     return items
 '''
 
-[test.assertions]
-contains = ["fn double_values"]
+rust = '''
+#[derive(Debug, Clone)]
+pub struct IndexError {
+    message: String,
+}
+impl std::fmt::Display for IndexError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "index out of range: {}", self.message)
+    }
+}
+impl std::error::Error for IndexError {}
+impl IndexError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = " Depyler: proven to terminate"]
+pub fn double_values(mut items: Vec<i32>) -> Vec<i32> {
+    for i in 0..items.clone().len() as i32 {
+        {
+            let _key = i;
+            let _old_val = items.clone().get(&_key).cloned().unwrap_or_default();
+            items.clone().insert(_key, _old_val * 2);
+        }
+    }
+    return items;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_double_values_examples() {
+        assert_eq!(double_values(vec![]), vec![]);
+        assert_eq!(double_values(vec![1]), vec![1]);
+    }
+}
+'''
 
 [[test]]
 name = "character_variable_heuristic"
 description = "Character variable name triggers HashMap for counts"
 tags = ["assignment", "index", "dict", "heuristic"]
 
-[test.python]
-code = '''
+python = '''
 def count_chars(counts: dict[str, int], character: str) -> dict[str, int]:
     counts[character] = 1
     return counts
 '''
 
-[test.assertions]
-contains = ["fn count_chars"]
+rust = '''
+use std::collections::HashMap;
+pub fn count_chars(mut counts: HashMap<String, i32>, character: String) -> HashMap<String, i32> {
+    counts.insert(character, 1);
+    return counts;
+}
+'''
 
 [[test]]
 name = "deep_nested_assignment"
 description = "3+ level nested dict assignment"
 tags = ["assignment", "index", "nested", "dict"]
 
-[test.python]
-code = '''
+python = '''
 def update_deep(data: dict[str, dict[str, dict[str, int]]]) -> dict[str, dict[str, dict[str, int]]]:
     data["a"]["b"]["c"] = 42
     return data
 '''
 
-[test.assertions]
-contains = ["fn update_deep"]
+rust = '''
+use std::collections::HashMap;
+pub fn update_deep(
+    mut data: HashMap<String, HashMap<String, HashMap<String, i32>>>,
+) -> HashMap<String, HashMap<String, HashMap<String, i32>>> {
+    data.get_mut(&"a")
+        .unwrap()
+        .get_mut(&"b")
+        .unwrap()
+        .insert("c".to_string(), 42);
+    return data;
+}
+'''
 
 [[test]]
 name = "complex_assignment_patterns"
 description = "Combined list, dict and nested assignment patterns"
 tags = ["assignment", "index", "integration"]
 
-[test.python]
-code = '''
+python = '''
 def complex_updates(
     numbers: list[int],
     data: dict[str, list[int]],
@@ -1003,5 +1711,20 @@ def complex_updates(
     return (numbers, data, nested)
 '''
 
-[test.assertions]
-contains = ["fn complex_updates"]
+rust = '''
+use std::collections::HashMap;
+pub fn complex_updates(
+    numbers: &mut Vec<i32>,
+    data: &mut HashMap<String, Vec<i32>>,
+    nested: &mut HashMap<String, HashMap<String, i32>>,
+) -> (
+    Vec<i32>,
+    HashMap<String, Vec<i32>>,
+    HashMap<String, HashMap<String, i32>>,
+) {
+    numbers.insert((0) as usize, 42);
+    data.get_mut("key" as usize).unwrap().insert((1) as usize, 100);
+    nested.get_mut(&"outer").unwrap().insert("inner".to_string(), 200);
+    return (numbers, data, nested);
+}
+'''

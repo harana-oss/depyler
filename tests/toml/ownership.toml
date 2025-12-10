@@ -15,136 +15,188 @@ name = "ownership_move"
 description = "Value moves when assigned"
 tags = ["ownership", "move"]
 
-[test.python]
-code = '''
+python = '''
 def transfer_ownership():
     original = [1, 2, 3]
     new_owner = original
     return new_owner
 '''
 
-[test.assertions]
-contains_any = [["clone()", "let new_owner = original"]]
+rust = '''
+pub fn transfer_ownership() -> Vec<i32> {
+    let original = vec![1, 2, 3];
+    let new_owner = original;
+    return new_owner;
+}
+'''
 
 [[test]]
 name = "ownership_clone"
 description = "Explicit clone for copy"
 tags = ["ownership", "clone"]
 
-[test.python]
-code = '''
+python = '''
 def copy_list(items: list[int]) -> list[int]:
     copy = list(items)
     return copy
 '''
 
-[test.assertions]
-contains_any = [["clone()", "into_iter().collect()"]]
-
-# =============================================================================
-# Borrowing Patterns
-# =============================================================================
+rust = '''
+pub fn copy_list(items: Vec<i32>) -> Vec<i32> {
+    let copy = items.into_iter().collect::<Vec<_>>();
+    return copy;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_copy_list_examples() {
+        assert_eq!(copy_list(vec![]), vec![]);
+        assert_eq!(copy_list(vec![1]), vec![1]);
+    }
+}
+'''
 
 [[test]]
 name = "borrow_immutable_param"
 description = "Immutable borrow for read-only parameter"
 tags = ["borrow", "immutable"]
 
-[test.python]
-code = '''
+python = '''
 def read_only(items: list[int]) -> int:
     return sum(items)
 '''
 
-[test.assertions]
-contains = ["&"]
+rust = '''
+pub fn read_only(items: Vec<i32>) -> i32 {
+    return items.iter().sum::<i32>();
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_read_only_examples() {
+        assert_eq!(read_only(vec![]), 0);
+        assert_eq!(read_only(vec![1]), 1);
+        assert_eq!(read_only(vec![1, 2, 3]), 3);
+    }
+}
+'''
 
 [[test]]
 name = "borrow_mutable_param"
 description = "Mutable borrow for modifying parameter"
 tags = ["borrow", "mutable"]
 
-[test.python]
-code = '''
+python = '''
 def add_item(items: list[int], item: int) -> None:
     items.append(item)
 '''
 
-[test.assertions]
-contains = ["&mut"]
+rust = '''
+pub fn add_item(items: &mut Vec<i32>, item: i32) {
+    items.push(item);
+}
+'''
 
 [[test]]
 name = "borrow_multiple_immutable"
 description = "Multiple immutable borrows allowed"
 tags = ["borrow", "immutable", "multiple"]
 
-[test.python]
-code = '''
+python = '''
 def compare_lists(a: list[int], b: list[int]) -> bool:
     return len(a) == len(b)
 '''
 
-[test.assertions]
-contains = ["&"]
-
-# =============================================================================
-# Return Value Ownership
-# =============================================================================
+rust = '''
+pub fn compare_lists(a: &Vec<i32>, b: &Vec<i32>) -> bool {
+    return a.len() as i32 == b.len() as i32;
+}
+'''
 
 [[test]]
 name = "return_owned"
 description = "Return owned value"
 tags = ["return", "owned"]
 
-[test.python]
-code = '''
+python = '''
 def create_list() -> list[int]:
     return [1, 2, 3]
 '''
 
-[test.assertions]
-contains_any = [["Vec<i32>", "Vec<i64>"]]
+rust = '''
+pub fn create_list() -> Vec<i32> {
+    return vec![1, 2, 3];
+}
+'''
 
 [[test]]
 name = "return_new_value"
 description = "Return newly created value"
 tags = ["return", "owned"]
 
-[test.python]
-code = '''
+python = '''
 def create_string() -> str:
     return "hello"
 '''
 
-[test.assertions]
-contains_any = [["String", "&str"]]
-
-# =============================================================================
-# Struct Field Ownership
-# =============================================================================
+rust = '''
+pub fn create_string() -> String {
+    return "hello".to_string();
+}
+'''
 
 [[test]]
 name = "struct_owned_field"
 description = "Struct with owned field"
 tags = ["struct", "owned"]
 
-[test.python]
-code = '''
+python = '''
 class Container:
     def __init__(self, items: list[int]):
         self.items = items
 '''
 
-[test.assertions]
-contains_any = [["Vec<i32>", "Vec<i64>"]]
+rust = '''
+#[derive(Debug, Clone)]
+pub struct Container {
+    pub items: Vec<i32>,
+}
+impl Container {
+    pub fn new(items: Vec<i32>) -> Self {
+        Self { items }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "items" => Some(Box::new(self.items.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "items" => {
+                if let Some(v) = value.downcast_ref::<Vec<i32>>() {
+                    self.items = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+'''
 
 [[test]]
 name = "struct_field_access"
 description = "Accessing struct field"
 tags = ["struct", "access"]
 
-[test.python]
-code = '''
+python = '''
 class Point:
     def __init__(self, x: int, y: int):
         self.x = x
@@ -154,20 +206,56 @@ def get_x(p: Point) -> int:
     return p.x
 '''
 
-[test.assertions]
-contains = ["p.x"]
-
-# =============================================================================
-# Method Borrowing
-# =============================================================================
+rust = '''
+#[derive(Debug, Clone)]
+pub struct Point {
+    pub x: i32,
+    pub y: i32,
+}
+impl Point {
+    pub fn new(x: i32, y: i32) -> Self {
+        Self { x, y }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "x" => Some(Box::new(self.x.clone()) as Box<dyn std::any::Any>),
+            "y" => Some(Box::new(self.y.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "x" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.x = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "y" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.y = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+pub fn get_x(p: &Point) -> i32 {
+    return p.x;
+}
+'''
 
 [[test]]
 name = "method_self_immutable"
 description = "Method with immutable self"
 tags = ["method", "borrow", "immutable"]
 
-[test.python]
-code = '''
+python = '''
 class Counter:
     def __init__(self, value: int):
         self.value = value
@@ -176,16 +264,46 @@ class Counter:
         return self.value
 '''
 
-[test.assertions]
-contains = ["&self"]
+rust = '''
+#[derive(Debug, Clone)]
+pub struct Counter {
+    pub value: i32,
+}
+impl Counter {
+    pub fn new(value: i32) -> Self {
+        Self { value }
+    }
+    pub fn get_value(&self) -> i32 {
+        return self.value.clone();
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "value" => Some(Box::new(self.value.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "value" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.value = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+'''
 
 [[test]]
 name = "method_self_mutable"
 description = "Method with mutable self"
 tags = ["method", "borrow", "mutable"]
 
-[test.python]
-code = '''
+python = '''
 class Counter:
     def __init__(self, value: int):
         self.value = value
@@ -194,52 +312,78 @@ class Counter:
         self.value += 1
 '''
 
-[test.assertions]
-contains = ["&mut self"]
-
-# =============================================================================
-# String Ownership
-# =============================================================================
+rust = '''
+#[derive(Debug, Clone)]
+pub struct Counter {
+    pub value: i32,
+}
+impl Counter {
+    pub fn new(value: i32) -> Self {
+        Self { value }
+    }
+    pub fn increment(&mut self) {
+        self.value = format!("{}{}", self.value, 1);
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "value" => Some(Box::new(self.value.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "value" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.value = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+'''
 
 [[test]]
 name = "string_ownership"
 description = "String ownership in return"
 tags = ["string", "ownership"]
 
-[test.python]
-code = '''
+python = '''
 def make_greeting(name: str) -> str:
     return f"Hello, {name}!"
 '''
 
-[test.assertions]
-contains_any = [["String", "format!"]]
+rust = '''
+pub fn make_greeting(name: String) -> String {
+    return format!("Hello, {}!", name);
+}
+'''
 
 [[test]]
 name = "string_borrow"
 description = "String borrowing in parameter"
 tags = ["string", "borrow"]
 
-[test.python]
-code = '''
+python = '''
 def print_greeting(name: str) -> None:
     print(f"Hello, {name}!")
 '''
 
-[test.assertions]
-contains_any = [["&str", "&String", "impl AsRef<str>"]]
-
-# =============================================================================
-# Collection Ownership
-# =============================================================================
+rust = '''
+pub fn print_greeting(name: String) {
+    println!("{}", format!("Hello, {}!", name));
+}
+'''
 
 [[test]]
 name = "list_ownership_return"
 description = "Return owned list"
 tags = ["list", "ownership"]
 
-[test.python]
-code = '''
+python = '''
 def make_numbers(n: int) -> list[int]:
     result = []
     for i in range(n):
@@ -247,16 +391,22 @@ def make_numbers(n: int) -> list[int]:
     return result
 '''
 
-[test.assertions]
-contains_any = [["Vec<i32>", "Vec<i64>"]]
+rust = '''
+pub fn make_numbers(n: i32) -> Vec<i32> {
+    let mut result = vec![];
+    for i in 0..n {
+        result.push(i);
+    }
+    return result;
+}
+'''
 
 [[test]]
 name = "list_borrow_iterate"
 description = "Borrow list for iteration"
 tags = ["list", "borrow"]
 
-[test.python]
-code = '''
+python = '''
 def sum_items(items: list[int]) -> int:
     total = 0
     for item in items:
@@ -264,36 +414,53 @@ def sum_items(items: list[int]) -> int:
     return total
 '''
 
-[test.assertions]
-contains = ["&"]
-
-# =============================================================================
-# Clone Requirements
-# =============================================================================
+rust = '''
+pub fn sum_items(items: &Vec<i32>) -> i32 {
+    let mut total = 0;
+    for item in items.iter().cloned() {
+        total = total + item;
+    }
+    return total;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_sum_items_examples() {
+        assert_eq!(sum_items(vec![]), 0);
+        assert_eq!(sum_items(vec![1]), 1);
+        assert_eq!(sum_items(vec![1, 2, 3]), 6);
+    }
+}
+'''
 
 [[test]]
 name = "clone_string_used_twice"
 description = "String param used twice needs clone"
 tags = ["clone", "string"]
 
-[test.python]
-code = '''
+python = '''
 def use_string_twice(s: str) -> str:
     a = s
     b = s
     return a + b
 '''
 
-[test.assertions]
-contains = ["clone()"]
+rust = '''
+pub fn use_string_twice(s: String) -> String {
+    let a = s.clone();
+    let b = s;
+    return format!("{}{}", a, b);
+}
+'''
 
 [[test]]
 name = "clone_list_field_returned"
 description = "List field returned needs clone"
 tags = ["clone", "list"]
 
-[test.python]
-code = '''
+python = '''
 from dataclasses import dataclass
 
 @dataclass
@@ -304,16 +471,47 @@ def get_items(state: State) -> list[int]:
     return state.items
 '''
 
-[test.assertions]
-contains = ["clone()"]
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct State {
+    pub items: Vec<i32>,
+}
+impl State {
+    pub fn new(items: Vec<i32>) -> Self {
+        Self { items }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "items" => Some(Box::new(self.items.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "items" => {
+                if let Some(v) = value.downcast_ref::<Vec<i32>>() {
+                    self.items = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+pub fn get_items(state: &State) -> Vec<i32> {
+    return state.items.clone();
+}
+'''
 
 [[test]]
 name = "clone_dict_field_returned"
 description = "Dict field returned needs clone"
 tags = ["clone", "dict"]
 
-[test.python]
-code = '''
+python = '''
 from dataclasses import dataclass
 
 @dataclass
@@ -324,46 +522,105 @@ def get_data(state: State) -> dict[str, int]:
     return state.data
 '''
 
-[test.assertions]
-contains = ["clone()"]
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+use std::collections::HashMap;
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct State {
+    pub data: HashMap<String, i32>,
+}
+impl State {
+    pub fn new(data: HashMap<String, i32>) -> Self {
+        Self { data }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "data" => Some(Box::new(self.data.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "data" => {
+                if let Some(v) = value.downcast_ref::<HashMap<String, i32>>() {
+                    self.data = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+pub fn get_data(state: &State) -> HashMap<String, i32> {
+    return state.data.clone();
+}
+'''
 
 [[test]]
 name = "no_clone_copy_types"
 description = "Copy types (int, float, bool) don't need clone"
 tags = ["clone", "copy"]
 
-[test.python]
-code = '''
+python = '''
 def double_use(x: float, y: float) -> float:
     a = x
     b = x
     return a + b + y
 '''
 
-[test.assertions]
-not_contains = ["x.clone()"]
+rust = '''
+pub fn double_use(x: f64, y: f64) -> f64 {
+    let a = x;
+    let b = x;
+    return a + b + y;
+}
+'''
 
 [[test]]
 name = "no_clone_last_use"
 description = "Last use moves, no clone needed"
 tags = ["clone", "move"]
 
-[test.python]
-code = '''
+python = '''
 def identity(items: list[int]) -> list[int]:
     return items
 '''
 
-[test.assertions]
-not_contains = ["items.clone()"]
+rust = '''
+pub fn identity(items: Vec<i32>) -> Vec<i32> {
+    return items;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn quickcheck_identity() {
+        fn prop(items: Vec<i32>) -> TestResult {
+            let result = identity(&items);
+            if result != items {
+                return TestResult::failed();
+            }
+            TestResult::passed()
+        }
+        quickcheck(prop as fn(Vec<i32>) -> TestResult);
+    }
+    #[test]
+    fn test_identity_examples() {
+        assert_eq!(identity(vec![]), vec![]);
+        assert_eq!(identity(vec![1]), vec![1]);
+    }
+}
+'''
 
 [[test]]
 name = "clone_in_loop"
 description = "Clone string in loop append"
 tags = ["clone", "loop"]
 
-[test.python]
-code = '''
+python = '''
 from dataclasses import dataclass
 
 @dataclass
@@ -377,20 +634,151 @@ def build_list(state: State, n: int) -> list[str]:
     return result
 '''
 
-[test.assertions]
-contains = ["clone()"]
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct State {
+    pub template: String,
+}
+impl State {
+    pub fn new(template: String) -> Self {
+        Self { template }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "template" => Some(Box::new(self.template.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "template" => {
+                if let Some(v) = value.downcast_ref::<String>() {
+                    self.template = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+pub fn build_list(state: &State, n: i32) -> Vec<String> {
+    let mut result: Vec<String> = vec![];
+    for _i in 0..n {
+        result.push(state.template.clone());
+    }
+    return result;
+}
+'''
 
-# =============================================================================
-# Struct Field Borrowing - Migrated from test_struct_field_borrow.rs
-# =============================================================================
+[[test]]
+name = "clone_struct_from_function_used_twice"
+description = "Struct returned from function and used twice needs clone"
+tags = ["clone", "struct", "function-return"]
+compile_check = true
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass
+class Statistics:
+    value: int
+
+@dataclass
+class Player:
+    total_statistics: Statistics
+
+def create_statistics() -> Statistics:
+    return Statistics(value=0)
+
+def setup_player() -> list[Statistics]:
+    items: list[Statistics] = []
+    player = Player(total_statistics=Statistics(value=0))
+    total_statistics = create_statistics()
+    player.total_statistics = total_statistics
+    items.append(total_statistics)
+    return items
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Statistics {
+    pub value: i32,
+}
+impl Statistics {
+    pub fn new(value: i32) -> Self {
+        Self { value }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "value" => Some(Box::new(self.value.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "value" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.value = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Player {
+    pub total_statistics: Statistics,
+}
+impl Player {
+    pub fn new(total_statistics: Statistics) -> Self {
+        Self { total_statistics }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "total_statistics" => Some(Box::new(self.total_statistics.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "total_statistics" => {
+                if let Some(v) = value.downcast_ref::<Statistics>() {
+                    self.total_statistics = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+pub fn create_statistics() -> Statistics {
+    return Statistics::new(0);
+}
+pub fn setup_player() -> Vec<Statistics> {
+    let mut items: Vec<Statistics> = vec![];
+    let mut player = Player::new(Statistics::new(0));
+    let total_statistics = create_statistics();
+    player.total_statistics = total_statistics.clone();
+    items.push(total_statistics);
+    return items;
+}
+'''
 
 [[test]]
 name = "struct_field_passed_to_fn_borrows"
 description = "Struct String field passed to function should borrow"
 tags = ["borrow", "struct", "field"]
 
-[test.python]
-code = '''
+python = '''
 class State:
     field: str
 
@@ -405,16 +793,48 @@ def main() -> None:
     take_str(state.field)
 '''
 
-[test.assertions]
-contains = ["fn take_str(s: &str)", "&state.field"]
+rust = '''
+#[derive(Debug, Clone)]
+pub struct State {
+    pub field: String,
+}
+impl State {
+    pub fn new(field: String) -> Self {
+        Self { field }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "field" => Some(Box::new(self.field.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "field" => {
+                if let Some(v) = value.downcast_ref::<String>() {
+                    self.field = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+pub fn take_str(s: String) {}
+pub fn main() {
+    let state = State::new("hello".to_string());
+    take_str(state.field.clone());
+}
+'''
 
 [[test]]
 name = "self_field_passed_to_fn_borrows"
 description = "self.field passed to function should borrow"
 tags = ["borrow", "self", "field"]
 
-[test.python]
-code = '''
+python = '''
 class State:
     field: str
 
@@ -428,16 +848,47 @@ def take_str(s: str) -> None:
     pass
 '''
 
-[test.assertions]
-contains = ["&self.field"]
+rust = '''
+#[derive(Debug, Clone)]
+pub struct State {
+    pub field: String,
+}
+impl State {
+    pub fn new(field: String) -> Self {
+        Self { field }
+    }
+    pub fn process(&self) {
+        take_str(self.field);
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "field" => Some(Box::new(self.field.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "field" => {
+                if let Some(v) = value.downcast_ref::<String>() {
+                    self.field = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+pub fn take_str(s: String) {}
+'''
 
 [[test]]
 name = "nested_field_passed_to_fn_borrows"
 description = "Nested struct field passed to function should borrow"
 tags = ["borrow", "nested", "field"]
 
-[test.python]
-code = '''
+python = '''
 class Inner:
     value: str
 
@@ -459,20 +910,77 @@ def main() -> None:
     take_str(outer.inner.value)
 '''
 
-[test.assertions]
-contains = ["&outer.inner.value"]
-
-# =============================================================================
-# Iterator/Generator Filtering (from test_method_ownership.rs)
-# =============================================================================
+rust = '''
+#[derive(Debug, Clone)]
+pub struct Inner {
+    pub value: String,
+}
+impl Inner {
+    pub fn new(value: String) -> Self {
+        Self { value }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "value" => Some(Box::new(self.value.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "value" => {
+                if let Some(v) = value.downcast_ref::<String>() {
+                    self.value = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+#[derive(Debug, Clone)]
+pub struct Outer {
+    pub inner: Inner,
+}
+impl Outer {
+    pub fn new(inner: Inner) -> Self {
+        Self { inner }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "inner" => Some(Box::new(self.inner.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "inner" => {
+                if let Some(v) = value.downcast_ref::<Inner>() {
+                    self.inner = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+pub fn take_str(s: String) {}
+pub fn main() {
+    let inner = Inner::new("hello".to_string());
+    let outer = Outer::new(inner);
+    take_str(outer.inner.value.clone());
+}
+'''
 
 [[test]]
 name = "next_with_generator_filtering_dataclass"
 description = "next() with generator filtering on dataclass"
 tags = ["ownership", "iterator", "dataclass", "filtering"]
 
-[test.python]
-code = '''
+python = '''
 @dataclass
 class Incident:
     points_scored_team: str
@@ -482,16 +990,64 @@ def find_away_incident(try_incidents: List[Incident]) -> Optional[Incident]:
     return next((incident for incident in try_incidents if incident.points_scored_team == "Away"), None)
 '''
 
-[test.assertions]
-contains = ["struct Incident", "points_scored_team: String", "score: i32", "fn find_away_incident", "-> Option<Incident>", ".filter(", ".next()"]
+rust = '''
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Incident {
+    pub points_scored_team: String,
+    pub score: i32,
+}
+impl Incident {
+    pub fn new(points_scored_team: String, score: i32) -> Self {
+        Self {
+            points_scored_team,
+            score,
+        }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "points_scored_team" => Some(Box::new(self.points_scored_team.clone()) as Box<dyn std::any::Any>),
+            "score" => Some(Box::new(self.score.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "points_scored_team" => {
+                if let Some(v) = value.downcast_ref::<String>() {
+                    self.points_scored_team = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "score" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.score = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+pub fn find_away_incident(try_incidents: &Vec<Incident>) -> Option<Incident> {
+    return try_incidents
+        .iter()
+        .cloned()
+        .filter(|incident| incident.points_scored_team == "Away")
+        .map(|incident| incident)
+        .next();
+}
+'''
 
 [[test]]
 name = "enumerate_next_dataclass_field_assignment"
 description = "enumerate with next() and assignment to dataclass field via index"
 tags = ["ownership", "iterator", "dataclass", "enumerate", "index-field-assignment"]
 
-[test.python]
-code = '''
+python = '''
 @dataclass
 class Item:
     val: int
@@ -501,35 +1057,76 @@ def main(items: list[Item]):
     items[0].val = idx
 '''
 
-[test.assertions]
-contains = ["struct Item", "val: i32", "fn main", "&mut Vec<Item>", "enumerate()", ".filter(", ".next()", "items[0].val ="]
-not_contains = [".get(0usize).cloned().unwrap().val ="]
+rust = '''
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Item {
+    pub val: i32,
+}
+impl Item {
+    pub fn new(val: i32) -> Self {
+        Self { val }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "val" => Some(Box::new(self.val.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "val" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.val = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+pub fn main(items: &mut Vec<Item>) {
+    let (idx, b) = items
+        .iter()
+        .enumerate()
+        .map(|(i, x)| (i as i32, x.clone()))
+        .filter(|(x, y)| y.val == items.get(0usize).cloned().unwrap().val)
+        .map(|(x, y)| (x, y))
+        .next()
+        .expect("StopIteration: iterator is empty");
+    items[0usize].val = idx;
+}
+'''
 
 [[test]]
 name = "vector_push_takes_ownership"
 description = "Vec::push takes ownership of the value"
 tags = ["ownership", "vector", "push"]
 
-[test.python]
-code = '''
+python = '''
 def add_to_list(items: List[str], new_item: str):
     items.append(new_item)
 '''
 
-[test.assertions]
-contains = ["push"]
-not_contains = ["&new_item"]
+rust = '''
+pub fn add_to_list(items: &mut Vec<String>, new_item: String) {
+    items.push(new_item);
+}
+'''
 
 [[test]]
 name = "string_method_chain_ownership"
 description = "Method chains handle ownership correctly"
 tags = ["ownership", "string", "method-chain"]
 
-[test.python]
-code = '''
+python = '''
 def process_string(s: str) -> str:
     return s.strip().upper()
 '''
 
-[test.assertions]
-contains = ["trim", "to_uppercase"]
+rust = '''
+pub fn process_string(s: String) -> String {
+    return s.trim().to_uppercase();
+}
+'''

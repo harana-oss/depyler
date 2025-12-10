@@ -9,131 +9,353 @@ category = "decorators-closures"
 # Basic Closures
 # =============================================================================
 
-# TODO: Test simple closure
-# [[test]]
-# name = "closure_basic"
-# description = "def outer(): x = 1; def inner(): return x; return inner"
+[[test]]
+name = "closure_basic"
+description = "Test simple closure - inner function accesses outer's variable"
+python = '''
+def outer():
+    x = 1
+    def inner():
+        return x
+    return inner
 
-# TODO: Test closure captures variable
-# [[test]]
-# name = "closure_capture"
-# description = "Inner function accesses outer's variable"
+result = outer()()
+assert result == 1
+'''
 
-# TODO: Test closure returned
-# [[test]]
-# name = "closure_return"
-# description = "Outer returns inner, inner still accesses x"
+[[test]]
+name = "closure_capture"
+description = "Test closure captures variable from enclosing scope"
+python = '''
+def outer():
+    message = "hello"
+    def inner():
+        return message + " world"
+    return inner
 
-# TODO: Test closure call
-# [[test]]
-# name = "closure_call"
-# description = "f = outer(); f() returns captured value"
+f = outer()
+result = f()
+assert result == "hello world"
+'''
+
+[[test]]
+name = "closure_return"
+description = "Test outer returns inner, inner still accesses x after outer finishes"
+python = '''
+def make_greeter(name):
+    greeting = "Hello"
+    def greet():
+        return f"{greeting}, {name}!"
+    return greet
+
+greet_alice = make_greeter("Alice")
+greet_bob = make_greeter("Bob")
+assert greet_alice() == "Hello, Alice!"
+assert greet_bob() == "Hello, Bob!"
+'''
+
+[[test]]
+name = "closure_call"
+description = "Test f = outer(); f() returns captured value"
+python = '''
+def outer():
+    x = 42
+    def inner():
+        return x * 2
+    return inner
+
+f = outer()
+result = f()
+assert result == 84
+'''
 
 # =============================================================================
 # Closure Scope
 # =============================================================================
 
-# TODO: Test multiple captures
-# [[test]]
-# name = "closure_multi_capture"
-# description = "Capture multiple variables from outer"
+[[test]]
+name = "closure_multi_capture"
+description = "Test closure captures multiple variables from outer scope"
+python = '''
+def outer():
+    x = 10
+    y = 20
+    z = 30
+    def inner():
+        return x + y + z
+    return inner
 
-# TODO: Test nested closure
-# [[test]]
-# name = "closure_nested"
-# description = "Closure inside closure"
+f = outer()
+result = f()
+assert result == 60
+'''
 
-# TODO: Test capture from multiple levels
-# [[test]]
-# name = "closure_multi_level"
-# description = "Inner captures from outer and outer's outer"
+[[test]]
+name = "closure_nested"
+description = "Test nested closures - closure inside closure"
+python = '''
+def outer(x):
+    def middle(y):
+        def inner(z):
+            return x + y + z
+        return inner
+    return middle
+
+f = outer(1)(2)(3)
+assert f == 6
+'''
+
+[[test]]
+name = "closure_multi_level"
+description = "Test inner closure captures from multiple nesting levels"
+python = '''
+def level1():
+    a = 1
+    def level2():
+        b = 2
+        def level3():
+            c = 3
+            return a + b + c
+        return level3
+    return level2
+
+result = level1()()()
+assert result == 6
+'''
 
 # =============================================================================
 # Closure vs Parameter
 # =============================================================================
 
-# TODO: Test closure vs parameter
-# [[test]]
-# name = "closure_vs_param"
-# description = "Closure captures, parameter receives at call"
+[[test]]
+name = "closure_vs_param"
+description = "Test closure captures from scope, parameter receives at call time"
+python = '''
+def outer(x):
+    def with_closure():
+        return x * 2
+    def with_param(y):
+        return y * 2
+    return with_closure, with_param
 
-# TODO: Test both closure and parameter
-# [[test]]
-# name = "closure_and_param"
-# description = "def inner(y): return x + y"
+closure_fn, param_fn = outer(5)
+assert closure_fn() == 10  # Uses captured x
+assert param_fn(7) == 14   # Uses passed y
+'''
+
+[[test]]
+name = "closure_and_param"
+description = "Test closure with both captured variable and parameter"
+python = '''
+def outer(x):
+    def inner(y):
+        return x + y
+    return inner
+
+add_10 = outer(10)
+assert add_10(5) == 15
+assert add_10(20) == 30
+'''
 
 # =============================================================================
 # Closures in Loops
 # =============================================================================
 
-# TODO: Test closure in loop (gotcha)
-# [[test]]
-# name = "closure_loop_gotcha"
-# description = "[lambda: i for i in range(3)] all return 2"
+[[test]]
+name = "closure_loop_gotcha"
+description = "Test closure in loop captures last value (common gotcha)"
+python = '''
+# All lambdas capture the same 'i', which ends at 2
+funcs = [lambda: i for i in range(3)]
+results = [f() for f in funcs]
+# All return 2 because i = 2 after loop
+assert results == [2, 2, 2]
+'''
 
-# TODO: Test closure loop fix with default arg
-# [[test]]
-# name = "closure_loop_fix_default"
-# description = "[lambda i=i: i for i in range(3)]"
+[[test]]
+name = "closure_loop_fix_default"
+description = "Test closure loop fix using default argument"
+python = '''
+# Default argument binds at definition time
+funcs = [lambda i=i: i for i in range(3)]
+results = [f() for f in funcs]
+assert results == [0, 1, 2]
+'''
 
-# TODO: Test closure loop fix with functools.partial
-# [[test]]
-# name = "closure_loop_fix_partial"
-# description = "[partial(f, i) for i in range(3)]"
+[[test]]
+name = "closure_loop_fix_partial"
+description = "Test closure loop fix using functools.partial"
+python = '''
+from functools import partial
+
+def return_value(x):
+    return x
+
+# partial binds the argument at creation time
+funcs = [partial(return_value, i) for i in range(3)]
+results = [f() for f in funcs]
+assert results == [0, 1, 2]
+'''
 
 # =============================================================================
 # Closure Use Cases
 # =============================================================================
 
-# TODO: Test factory function
-# [[test]]
-# name = "closure_factory"
-# description = "def make_adder(n): return lambda x: x + n"
+[[test]]
+name = "closure_factory"
+description = "Test factory function returning customized closure"
+python = '''
+def make_adder(n):
+    def adder(x):
+        return x + n
+    return adder
 
-# TODO: Test counter closure
-# [[test]]
-# name = "closure_counter"
-# description = "Closure maintaining count"
+add_5 = make_adder(5)
+add_10 = make_adder(10)
+assert add_5(3) == 8
+assert add_10(3) == 13
+'''
 
-# TODO: Test accumulator
-# [[test]]
-# name = "closure_accumulator"
-# description = "Closure accumulating values"
+[[test]]
+name = "closure_counter"
+description = "Test closure maintaining state as a counter"
+python = '''
+def make_counter():
+    count = [0]  # Use list to allow mutation
+    def counter():
+        count[0] += 1
+        return count[0]
+    return counter
 
-# TODO: Test callback with context
-# [[test]]
-# name = "closure_callback"
-# description = "Callback capturing context"
+c1 = make_counter()
+c2 = make_counter()
+assert c1() == 1
+assert c1() == 2
+assert c2() == 1  # Independent counter
+assert c1() == 3
+'''
+
+[[test]]
+name = "closure_accumulator"
+description = "Test closure accumulating values over time"
+python = '''
+def make_accumulator():
+    values = []
+    def accumulate(value):
+        values.append(value)
+        return sum(values)
+    return accumulate
+
+acc = make_accumulator()
+assert acc(10) == 10
+assert acc(20) == 30
+assert acc(5) == 35
+'''
+
+[[test]]
+name = "closure_callback"
+description = "Test callback function capturing context from enclosing scope"
+python = '''
+def process_data(data, multiplier):
+    def callback(x):
+        return x * multiplier
+    return [callback(item) for item in data]
+
+result = process_data([1, 2, 3], 10)
+assert result == [10, 20, 30]
+'''
 
 # =============================================================================
 # __closure__ Attribute
 # =============================================================================
 
-# TODO: Test __closure__
-# [[test]]
-# name = "closure_attribute"
-# description = "f.__closure__ contains cell objects"
+[[test]]
+name = "closure_attribute"
+description = "Test __closure__ attribute contains cell objects for free variables"
+python = '''
+def outer(x):
+    y = 2
+    def inner():
+        return x + y
+    return inner
 
-# TODO: Test cell_contents
-# [[test]]
-# name = "closure_cell_contents"
-# description = "cell.cell_contents accesses value"
+f = outer(10)
+# f.__closure__ is a tuple of cell objects
+assert f.__closure__ is not None
+assert len(f.__closure__) == 2  # Two captured variables: x and y
+'''
+
+[[test]]
+name = "closure_cell_contents"
+description = "Test accessing captured values via cell_contents"
+python = '''
+def outer(x):
+    def inner():
+        return x * 2
+    return inner
+
+f = outer(5)
+# Access the captured value through the cell
+assert f.__closure__[0].cell_contents == 5
+assert f() == 10
+'''
 
 # =============================================================================
 # Edge Cases
 # =============================================================================
 
-# TODO: Test closure without free variables
-# [[test]]
-# name = "closure_no_free"
-# description = "def inner(): return 1 (no capture)"
+[[test]]
+name = "closure_no_free"
+description = "Test function with no free variables has no closure"
+python = '''
+def outer():
+    def inner():
+        return 42  # No captured variables
+    return inner
 
-# TODO: Test closure over class variable
-# [[test]]
-# name = "closure_class_var"
-# description = "Closure in method capturing class variable"
+f = outer()
+# No free variables, so __closure__ is None
+assert f.__closure__ is None or f.__closure__ == ()
+assert f() == 42
+'''
 
-# TODO: Test closure over global
-# [[test]]
-# name = "closure_global"
-# description = "Globals not in __closure__"
+[[test]]
+name = "closure_class_var"
+description = "Test closure in method can capture class/instance variables"
+python = '''
+class Counter:
+    def __init__(self):
+        self.count = 0
+    
+    def make_incrementer(self, step):
+        def increment():
+            self.count += step
+            return self.count
+        return increment
+
+c = Counter()
+inc = c.make_incrementer(5)
+assert inc() == 5
+assert inc() == 10
+assert c.count == 10
+'''
+
+[[test]]
+name = "closure_global"
+description = "Test global variables are not in __closure__"
+python = '''
+global_var = 100
+
+def outer():
+    local_var = 10
+    def inner():
+        # Uses global (not captured) and local_var (captured)
+        return global_var + local_var
+    return inner
+
+f = outer()
+assert f() == 110
+# Only local_var is in closure, not global_var
+assert len(f.__closure__) == 1
+assert f.__closure__[0].cell_contents == 10
+'''

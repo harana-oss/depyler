@@ -159,7 +159,7 @@ pub(crate) fn codegen_where_clause(lifetime_bounds: &[(String, String)]) -> proc
 #[inline]
 pub(crate) fn codegen_function_attrs(
     docstring: &Option<String>,
-    properties: &crate::hir::FunctionProperties,
+    _properties: &crate::hir::FunctionProperties,
     custom_attributes: &[String],
 ) -> Vec<proc_macro2::TokenStream> {
     let mut attrs = vec![];
@@ -168,18 +168,6 @@ pub(crate) fn codegen_function_attrs(
     if let Some(docstring) = docstring {
         attrs.push(quote! {
             #[doc = #docstring]
-        });
-    }
-
-    if properties.panic_free {
-        attrs.push(quote! {
-            #[doc = " Depyler: verified panic-free"]
-        });
-    }
-
-    if properties.always_terminates {
-        attrs.push(quote! {
-            #[doc = " Depyler: proven to terminate"]
         });
     }
 
@@ -336,9 +324,13 @@ fn codegen_single_param(
 
     // Get the inferred parameter info
     #[cfg(debug_assertions)]
-    eprintln!(
-        "DEBUG codegen_single_param: func={}, param={}, interprocedural_needs_mut={}, is_mutated_in_body={}, force_borrow_from_call_chain={}",
-        func.name, param.name, interprocedural_needs_mut, is_mutated_in_body, force_borrow_from_call_chain
+    log::debug!(
+        "codegen_single_param: func={}, param={}, interprocedural_needs_mut={}, is_mutated_in_body={}, force_borrow_from_call_chain={}",
+        func.name,
+        param.name,
+        interprocedural_needs_mut,
+        is_mutated_in_body,
+        force_borrow_from_call_chain
     );
 
     if let Some(inferred) = lifetime_result.param_lifetimes.get(&param.name) {
@@ -1304,16 +1296,13 @@ pub(crate) fn codegen_return_type(
         // When a borrowed param's field escapes through return, return a reference instead of cloning
         // e.g., `return state.home_players` where state: &State → return &Vec<Player> instead of Vec<Player>
         let should_return_reference = !lifetime_result.params_with_field_return.is_empty()
-            && lifetime_result
-                .params_with_field_return
-                .iter()
-                .any(|param_name| {
-                    // Check if this param is borrowed
-                    lifetime_result
-                        .param_lifetimes
-                        .get(param_name)
-                        .is_some_and(|inferred| inferred.should_borrow)
-                });
+            && lifetime_result.params_with_field_return.iter().any(|param_name| {
+                // Check if this param is borrowed
+                lifetime_result
+                    .param_lifetimes
+                    .get(param_name)
+                    .is_some_and(|inferred| inferred.should_borrow)
+            });
 
         if should_return_reference {
             // Make the return type a reference

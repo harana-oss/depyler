@@ -12,154 +12,195 @@ name = "open_read_mode"
 description = "Test open() with read mode 'r'"
 tags = ["open", "file", "read"]
 
-[test.python]
-code = '''
+python = '''
 def read_file(path: str) -> str:
     with open(path, 'r') as f:
         return f.read()
 '''
 
-[test.assertions]
-contains_any = [["File::open", "read"]]
+rust = '''
+pub fn read_file(path: String) -> String {
+    let mut f = std::fs::File::open(path)?;
+    return {
+        let mut content = String::new();
+        f.read_to_string(&mut content)?;
+        content
+    };
+}
+'''
 
 [[test]]
 name = "open_default_mode"
 description = "Test open() with default mode (read)"
 tags = ["open", "file", "read", "default"]
 
-[test.python]
-code = '''
+python = '''
 def open_default(path: str) -> str:
     with open(path) as f:
         return f.read()
 '''
 
-[test.assertions]
-contains = ["File::open"]
-
-# ========== WRITE MODES ==========
+rust = '''
+pub fn open_default(path: String) -> String {
+    let mut f = std::fs::File::open(path)?;
+    return {
+        let mut content = String::new();
+        f.read_to_string(&mut content)?;
+        content
+    };
+}
+'''
 
 [[test]]
 name = "open_write_mode"
 description = "Test open() with write mode 'w'"
 tags = ["open", "file", "write"]
 
-[test.python]
-code = '''
+python = '''
 def write_file(path: str, content: str) -> None:
     with open(path, 'w') as f:
         f.write(content)
 '''
 
-[test.assertions]
-contains_any = [["File::create", "write"]]
+rust = '''
+pub fn write_file(path: String, content: String) {
+    let mut f = std::fs::File::create(path)?;
+    f.write(content);
+}
+'''
 
 [[test]]
 name = "open_append_mode"
 description = "Test open() with append mode 'a'"
 tags = ["open", "file", "append"]
 
-[test.python]
-code = '''
+python = '''
 def append_file(path: str, content: str) -> None:
     with open(path, 'a') as f:
         f.write(content)
 '''
 
-[test.assertions]
-contains_any = [["OpenOptions", "append"]]
+rust = '''
+pub fn append_file(path: String, content: String) {
+    let mut f = std::fs::OpenOptions::new().append(true).create(true).open(path)?;
+    f.write(content);
+}
+'''
 
 [[test]]
 name = "open_read_write_mode"
 description = "Test open() with read+write mode 'r+'"
 tags = ["open", "file", "read", "write"]
 
-[test.python]
-code = '''
+python = '''
 def open_read_write(path: str) -> None:
     with open(path, 'r+') as f:
         content = f.read()
         f.write(content)
 '''
 
-[test.assertions]
-contains_any = [["OpenOptions", "read"]]
-
-# ========== BINARY MODES ==========
+rust = '''
+pub fn open_read_write(path: String) {
+    let mut f = std::fs::File::open(path)?;
+    let content = {
+        let mut content = String::new();
+        f.read_to_string(&mut content)?;
+        content
+    };
+    f.write(content);
+}
+'''
 
 [[test]]
 name = "open_binary_read"
 description = "Test open() with binary read mode 'rb'"
 tags = ["open", "file", "binary", "read"]
 
-[test.python]
-code = '''
+python = '''
 def read_binary(path: str) -> bytes:
     with open(path, 'rb') as f:
         return f.read()
 '''
 
-[test.assertions]
-contains_any = [["File::open", "read"]]
+rust = '''
+pub fn read_binary(path: String) -> bytes {
+    let mut f = std::fs::File::open(path)?;
+    return {
+        let mut content = String::new();
+        f.read_to_string(&mut content)?;
+        content
+    };
+}
+'''
 
 [[test]]
 name = "open_binary_write"
 description = "Test open() with binary write mode 'wb'"
 tags = ["open", "file", "binary", "write"]
 
-[test.python]
-code = '''
+python = '''
 def write_binary(path: str, data: bytes) -> None:
     with open(path, 'wb') as f:
         f.write(data)
 '''
 
-[test.assertions]
-contains_any = [["File::create", "write"]]
-
-# ========== ENCODING ==========
+rust = '''
+pub fn write_binary(path: String, data: &bytes) {
+    let mut f = std::fs::File::create(path)?;
+    f.write(data);
+}
+'''
 
 [[test]]
 name = "open_with_encoding"
 description = "Test open() with encoding parameter"
 tags = ["open", "file", "encoding", "utf8"]
 
-[test.python]
-code = '''
+python = '''
 def read_utf8(path: str) -> str:
     with open(path, 'r', encoding='utf-8') as f:
         return f.read()
 '''
 
-[test.assertions]
-contains_any = [["File::open", "read"]]
-
-# ========== CONTEXT MANAGER ==========
+rust = '''
+pub fn read_utf8(path: String) -> String {
+    let mut f = std::fs::File::open(path)?;
+    return {
+        let mut content = String::new();
+        f.read_to_string(&mut content)?;
+        content
+    };
+}
+'''
 
 [[test]]
 name = "open_context_manager"
 description = "Test open() with context manager (with statement)"
 tags = ["open", "file", "context", "with"]
 
-[test.python]
-code = '''
+python = '''
 def use_context_manager(path: str) -> str:
     with open(path) as f:
         return f.read()
 '''
 
-[test.assertions]
-contains = ["File::open"]
-
-# ========== ERROR HANDLING ==========
+rust = '''
+pub fn use_context_manager(path: String) -> String {
+    let mut f = std::fs::File::open(path)?;
+    return {
+        let mut content = String::new();
+        f.read_to_string(&mut content)?;
+        content
+    };
+}
+'''
 
 [[test]]
 name = "open_error_handling"
 description = "Test open() with try/except error handling"
 tags = ["open", "file", "error", "exception"]
 
-[test.python]
-code = '''
+python = '''
 def safe_read(path: str) -> str:
     try:
         with open(path) as f:
@@ -168,5 +209,16 @@ def safe_read(path: str) -> str:
         return ""
 '''
 
-[test.assertions]
-contains_any = [["File::open", "Result"]]
+rust = '''
+pub fn safe_read(path: String) -> String {
+    {
+        let mut f = std::fs::File::open(path)?;
+        return {
+            let mut content = String::new();
+            f.read_to_string(&mut content)?;
+            content
+        };
+        return "".to_string();
+    }
+}
+'''

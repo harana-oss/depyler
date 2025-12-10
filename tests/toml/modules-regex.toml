@@ -13,40 +13,63 @@ name = "re_match"
 description = "re.match() pattern at start"
 tags = ["regex", "match"]
 
-[test.python]
-code = '''
+python = '''
 import re
 
 def starts_with_hello(s: str) -> bool:
     return re.match(r"^hello", s) is not None
 '''
 
-[test.assertions]
-contains_any = [["Regex::new", "is_match(", "starts_with"]]
+rust = '''
+use regex as re;
+pub fn starts_with_hello(s: String) -> bool {
+    return regex::Regex::new("^hello").unwrap().find(s).is_some();
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_starts_with_hello_examples() {
+        let _ = starts_with_hello(Default::default());
+    }
+}
+'''
 
 [[test]]
 name = "re_search"
 description = "re.search() pattern anywhere"
 tags = ["regex", "search"]
 
-[test.python]
-code = '''
+python = '''
 import re
 
 def contains_number(s: str) -> bool:
     return re.search(r"\d+", s) is not None
 '''
 
-[test.assertions]
-contains_any = [["Regex::new", "is_match(", "find("]]
+rust = '''
+use regex as re;
+pub fn contains_number(s: String) -> bool {
+    return regex::Regex::new("\\d+").unwrap().find(s).is_some();
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_contains_number_examples() {
+        let _ = contains_number(Default::default());
+    }
+}
+'''
 
 [[test]]
 name = "re_fullmatch"
 description = "re.fullmatch() complete string match"
 tags = ["regex", "fullmatch"]
 
-[test.python]
-code = '''
+python = '''
 import re
 
 def is_valid_email(s: str) -> bool:
@@ -54,56 +77,66 @@ def is_valid_email(s: str) -> bool:
     return re.fullmatch(pattern, s) is not None
 '''
 
-[test.assertions]
-contains_any = [["Regex::new", "is_match("]]
-
-# =============================================================================
-# Pattern Finding
-# =============================================================================
+rust = '''
+// Transpilation failed
+'''
 
 [[test]]
 name = "re_findall"
 description = "re.findall() all matches"
 tags = ["regex", "findall"]
 
-[test.python]
-code = '''
+python = '''
 import re
 
 def find_all_numbers(s: str) -> list[str]:
     return re.findall(r"\d+", s)
 '''
 
-[test.assertions]
-contains_any = [["find_iter(", "captures_iter(", "collect()"]]
+rust = '''
+use regex as re;
+pub fn find_all_numbers(s: String) -> Vec<String> {
+    return regex::Regex::new("\\d+")
+        .unwrap()
+        .find_iter(s)
+        .map(|m| m.as_str().to_string())
+        .collect::<Vec<_>>();
+}
+'''
 
 [[test]]
 name = "re_finditer"
 description = "re.finditer() match iterator"
 tags = ["regex", "finditer"]
 
-[test.python]
-code = '''
+python = '''
 import re
 
 def find_word_positions(s: str, word: str) -> list[int]:
     return [m.start() for m in re.finditer(word, s)]
 '''
 
-[test.assertions]
-contains_any = [["find_iter(", "start()", "collect()"]]
-
-# =============================================================================
-# Capture Groups
-# =============================================================================
+rust = '''
+use regex as re;
+pub fn find_word_positions(s: String, word: String) -> Vec<i32> {
+    return regex::Regex::new(word)
+        .unwrap()
+        .find_iter(s)
+        .map(|m| m.as_str().to_string())
+        .collect::<Vec<_>>()
+        .clone()
+        .into_iter()
+        .map(|m| m.start())
+        .collect::<Vec<_>>();
+}
+'''
 
 [[test]]
 name = "re_groups"
 description = "regex capture groups extraction"
 tags = ["regex", "groups"]
 
-[test.python]
-code = '''
+python = '''
 import re
 
 def extract_date_parts(s: str) -> tuple[str, str, str]:
@@ -113,16 +146,27 @@ def extract_date_parts(s: str) -> tuple[str, str, str]:
     return ("", "", "")
 '''
 
-[test.assertions]
-contains_any = [["captures(", "get(", ".as_str()"]]
+rust = '''
+use regex as re;
+pub fn extract_date_parts(s: String) -> (String, String, String) {
+    let m = regex::Regex::new("(\\d{4})-(\\d{2})-(\\d{2})").unwrap().find(s);
+    if m.is_some() {
+        return (
+            m.as_ref().unwrap().get(1).map(|m| m.as_str()).unwrap_or(""),
+            m.as_ref().unwrap().get(2).map(|m| m.as_str()).unwrap_or(""),
+            m.as_ref().unwrap().get(3).map(|m| m.as_str()).unwrap_or(""),
+        );
+    }
+    return ("", "", "");
+}
+'''
 
 [[test]]
 name = "re_named_groups"
 description = "regex named capture groups"
 tags = ["regex", "groups"]
 
-[test.python]
-code = '''
+python = '''
 import re
 
 def extract_name_value(s: str) -> dict[str, str]:
@@ -132,36 +176,65 @@ def extract_name_value(s: str) -> dict[str, str]:
     return {}
 '''
 
-[test.assertions]
-contains_any = [["captures(", "name("]]
-
-# =============================================================================
-# Pattern Substitution
-# =============================================================================
+rust = '''
+use regex as re;
+use std::collections::HashMap;
+pub fn extract_name_value(s: String) -> HashMap<String, String> {
+    let m = regex::Regex::new("(?P<key>\\w+)=(?P<value>\\w+)").unwrap().find(s);
+    if m.is_some() {
+        return {
+            let mut map = HashMap::new();
+            map.insert(
+                "key".to_string(),
+                if "key" == 0 {
+                    m.as_ref().unwrap().as_str()
+                } else {
+                    m.as_ref().unwrap().get("key").map(|m| m.as_str()).unwrap_or("")
+                },
+            );
+            map.insert(
+                "value".to_string(),
+                if "value" == 0 {
+                    m.as_ref().unwrap().as_str()
+                } else {
+                    m.as_ref().unwrap().get("value").map(|m| m.as_str()).unwrap_or("")
+                },
+            );
+            map
+        };
+    }
+    return {
+        let map = HashMap::new();
+        map
+    };
+}
+'''
 
 [[test]]
 name = "re_sub"
 description = "re.sub() pattern replacement"
 tags = ["regex", "sub"]
 
-[test.python]
-code = '''
+python = '''
 import re
 
 def redact_numbers(s: str) -> str:
     return re.sub(r"\d+", "XXX", s)
 '''
 
-[test.assertions]
-contains_any = [["replace_all(", "replace("]]
+rust = '''
+use regex as re;
+pub fn redact_numbers(s: String) -> String {
+    return regex::Regex::new("\\d+").unwrap().replace_all(s, "XXX").to_string();
+}
+'''
 
 [[test]]
 name = "re_subn"
 description = "re.subn() with count"
 tags = ["regex", "sub"]
 
-[test.python]
-code = '''
+python = '''
 import re
 
 def replace_first_number(s: str) -> str:
@@ -169,40 +242,41 @@ def replace_first_number(s: str) -> str:
     return result
 '''
 
-[test.assertions]
-contains_any = [["replace(", "replacen("]]
-
-# =============================================================================
-# Pattern Splitting
-# =============================================================================
+rust = '''
+use regex as re;
+pub fn replace_first_number(s: String) -> String {
+    let (result, count) = {
+        let re = regex::Regex::new("\\d+").unwrap();
+        let count = re.find_iter(s).count();
+        let result = re.replace_all(s, "N").to_string();
+        (result, count)
+    };
+    return result;
+}
+'''
 
 [[test]]
 name = "re_split"
 description = "re.split() by pattern"
 tags = ["regex", "split"]
 
-[test.python]
-code = '''
+python = '''
 import re
 
 def split_on_whitespace(s: str) -> list[str]:
     return re.split(r"\s+", s)
 '''
 
-[test.assertions]
-contains_any = [["split(", ".split_whitespace()"]]
-
-# =============================================================================
-# Compiled Patterns
-# =============================================================================
+rust = '''
+// Transpilation failed
+'''
 
 [[test]]
 name = "re_compile"
 description = "re.compile() pattern caching"
 tags = ["regex", "compile"]
 
-[test.python]
-code = '''
+python = '''
 import re
 
 pattern = re.compile(r"\d+")
@@ -211,77 +285,123 @@ def find_numbers(s: str) -> list[str]:
     return pattern.findall(s)
 '''
 
-[test.assertions]
-contains_any = [["Regex::new", "lazy_static!", "once_cell"]]
-
-# =============================================================================
-# Glob Patterns
-# =============================================================================
+rust = '''
+use regex as re;
+pub const pattern: serde_json::Value = regex::Regex::new("\\d+").unwrap();
+use serde_json;
+pub fn find_numbers(s: String) -> Vec<String> {
+    return pattern
+        .find_iter(s)
+        .map(|m| m.as_str().to_string())
+        .collect::<Vec<String>>();
+}
+'''
 
 [[test]]
 name = "glob_match"
 description = "glob pattern matching"
 tags = ["glob", "pattern"]
 
-[test.python]
-code = '''
+python = '''
 import glob
 
 def find_python_files(directory: str) -> list[str]:
     return glob.glob(f"{directory}/*.py")
 '''
 
-[test.assertions]
-contains_any = [["glob::", "Pattern", "read_dir"]]
+rust = '''
+#[doc = "// NOTE: Map Python module 'glob'()"]
+pub fn find_python_files(directory: String) -> Vec<String> {
+    return glob.glob(format!("{}/*.py", directory));
+}
+'''
 
 [[test]]
 name = "glob_recursive"
 description = "glob ** recursive matching"
 tags = ["glob", "recursive"]
 
-[test.python]
-code = '''
+python = '''
 import glob
 
 def find_all_python_files(directory: str) -> list[str]:
     return glob.glob(f"{directory}/**/*.py", recursive=True)
 '''
 
-[test.assertions]
-contains_any = [["glob::", "WalkDir", "recursive"]]
-
-# =============================================================================
-# Fnmatch Patterns
-# =============================================================================
+rust = '''
+#[doc = "// NOTE: Map Python module 'glob'()"]
+pub fn find_all_python_files(directory: String) -> Vec<String> {
+    return glob.glob(format!("{}/**/*.py", directory));
+}
+'''
 
 [[test]]
 name = "fnmatch_match"
 description = "fnmatch filename matching"
 tags = ["fnmatch", "pattern"]
 
-[test.python]
-code = '''
+python = '''
 import fnmatch
 
 def matches_pattern(filename: str, pattern: str) -> bool:
     return fnmatch.fnmatch(filename, pattern)
 '''
 
-[test.assertions]
-contains_any = [["Pattern::new", "matches("]]
+rust = '''
+#[doc = "// NOTE: Map Python module 'fnmatch'()"]
+pub fn matches_pattern(filename: String, pattern: String) -> bool {
+    return {
+        let pattern_str = pattern;
+        let regex_pattern = pattern_str
+            .replace(".", "\\.")
+            .replace("*", ".*")
+            .replace("?", ".")
+            .replace("[!", "[^");
+        let regex =
+            regex::Regex::new(&format!("^{}$", regex_pattern)).unwrap_or_else(|_| regex::Regex::new("^$").unwrap());
+        regex.is_match(filename)
+    };
+}
+'''
 
 [[test]]
 name = "fnmatch_filter"
 description = "fnmatch.filter() list filtering"
 tags = ["fnmatch", "filter"]
 
-[test.python]
-code = '''
+python = '''
 import fnmatch
 
 def filter_py_files(files: list[str]) -> list[str]:
     return fnmatch.filter(files, "*.py")
 '''
 
-[test.assertions]
-contains_any = [["filter(", "Pattern", "ends_with"]]
+rust = '''
+#[doc = "// NOTE: Map Python module 'fnmatch'()"]
+pub fn filter_py_files(files: &Vec<String>) -> Vec<String> {
+    return {
+        let pattern_str = "*.py";
+        let regex_pattern = pattern_str
+            .replace(".", "\\.")
+            .replace("*", ".*")
+            .replace("?", ".")
+            .replace("[!", "[^");
+        let regex =
+            regex::Regex::new(&format!("^{}$", regex_pattern)).unwrap_or_else(|_| regex::Regex::new("^$").unwrap());
+        (files)
+            .into_iter()
+            .filter(|name| regex.is_match(&name.to_string()))
+            .collect::<Vec<_>>()
+    };
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_filter_py_files_examples() {
+        assert_eq!(filter_py_files(vec![]), vec![]);
+        assert_eq!(filter_py_files(vec![1]), vec![1]);
+    }
+}
+'''

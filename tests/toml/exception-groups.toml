@@ -9,123 +9,956 @@ category = "modern-python"
 # ExceptionGroup
 # =============================================================================
 
-# TODO: Test creating ExceptionGroup
-# [[test]]
-# name = "exception_group_create"
-# description = "ExceptionGroup('msg', [exc1, exc2])"
+[[test]]
+name = "exception_group_create"
+description = "Creating an ExceptionGroup"
+python = """
+errors = [ValueError("val error"), TypeError("type error")]
+eg = ExceptionGroup("Multiple errors", errors)
+print(f"Message: {eg.message}")
+print(f"Count: {len(eg.exceptions)}")
+"""
+rust = """
+// Rust uses Result and custom error types
+// This demonstrates error aggregation pattern
 
-# TODO: Test raising ExceptionGroup
-# [[test]]
-# name = "exception_group_raise"
-# description = "raise ExceptionGroup('errors', errors)"
+#[derive(Debug)]
+struct MultiError {
+    message: String,
+    errors: Vec<String>,
+}
 
-# TODO: Test nested ExceptionGroup
-# [[test]]
-# name = "exception_group_nested"
-# description = "ExceptionGroup containing ExceptionGroup"
+impl MultiError {
+    fn new(message: &str, errors: Vec<String>) -> Self {
+        MultiError {
+            message: message.to_string(),
+            errors,
+        }
+    }
+}
+
+fn main() {
+    let errors = vec![
+        "val error".to_string(),
+        "type error".to_string(),
+    ];
+    let eg = MultiError::new("Multiple errors", errors);
+    println!("Message: {}", eg.message);
+    println!("Count: {}", eg.errors.len());
+}
+"""
+expected_output = """Message: Multiple errors
+Count: 2"""
+
+[[test]]
+name = "exception_group_raise"
+description = "Raising an ExceptionGroup"
+python = """
+def validate(values):
+    errors = []
+    for val in values:
+        if val < 0:
+            errors.append(ValueError(f"{val} is negative"))
+    if errors:
+        raise ExceptionGroup("Validation errors", errors)
+    return "OK"
+
+try:
+    validate([-1, -2])
+except ExceptionGroup as eg:
+    print(f"Caught: {eg.message}")
+    print(f"Errors: {len(eg.exceptions)}")
+"""
+rust = """
+#[derive(Debug)]
+struct ValidationError {
+    message: String,
+    errors: Vec<String>,
+}
+
+fn validate(values: &[i32]) -> Result<&'static str, ValidationError> {
+    let mut errors = Vec::new();
+    for &val in values {
+        if val < 0 {
+            errors.push(format!("{} is negative", val));
+        }
+    }
+    if !errors.is_empty() {
+        return Err(ValidationError {
+            message: "Validation errors".to_string(),
+            errors,
+        });
+    }
+    Ok("OK")
+}
+
+fn main() {
+    match validate(&[-1, -2]) {
+        Err(eg) => {
+            println!("Caught: {}", eg.message);
+            println!("Errors: {}", eg.errors.len());
+        }
+        Ok(msg) => println!("{}", msg),
+    }
+}
+"""
+expected_output = """Caught: Validation errors
+Errors: 2"""
+
+[[test]]
+name = "exception_group_nested"
+description = "Nested ExceptionGroup"
+python = """
+inner_errors = [ValueError("inner1"), ValueError("inner2")]
+inner_group = ExceptionGroup("Inner errors", inner_errors)
+
+outer_errors = [TypeError("outer"), inner_group]
+outer_group = ExceptionGroup("Outer errors", outer_errors)
+
+print(f"Outer: {len(outer_group.exceptions)}")
+print(f"Has nested: {isinstance(outer_group.exceptions[1], ExceptionGroup)}")
+"""
+rust = """
+#[derive(Debug)]
+enum ErrorItem {
+    Single(String),
+    Group(ErrorGroup),
+}
+
+#[derive(Debug)]
+struct ErrorGroup {
+    message: String,
+    errors: Vec<ErrorItem>,
+}
+
+fn main() {
+    let inner_group = ErrorGroup {
+        message: "Inner errors".to_string(),
+        errors: vec![
+            ErrorItem::Single("inner1".to_string()),
+            ErrorItem::Single("inner2".to_string()),
+        ],
+    };
+    
+    let outer_group = ErrorGroup {
+        message: "Outer errors".to_string(),
+        errors: vec![
+            ErrorItem::Single("outer".to_string()),
+            ErrorItem::Group(inner_group),
+        ],
+    };
+    
+    println!("Outer: {}", outer_group.errors.len());
+    println!("Has nested: {}", matches!(outer_group.errors[1], ErrorItem::Group(_)));
+}
+"""
+expected_output = """Outer: 2
+Has nested: True"""
 
 # =============================================================================
 # except* Syntax
 # =============================================================================
 
-# TODO: Test except* basic
-# [[test]]
-# name = "except_star_basic"
-# description = "except* ValueError as eg: ..."
+[[test]]
+name = "except_star_basic"
+description = "Basic except* usage"
+python = """
+try:
+    raise ExceptionGroup("errors", [
+        ValueError("val"),
+        TypeError("type"),
+    ])
+except* ValueError as eg:
+    print(f"Caught ValueError group: {len(eg.exceptions)}")
+except* TypeError as eg:
+    print(f"Caught TypeError group: {len(eg.exceptions)}")
+"""
+rust = """
+// Rust handles this with match on error types
+#[derive(Debug)]
+enum Error {
+    ValueError(String),
+    TypeError(String),
+}
 
-# TODO: Test multiple except* clauses
-# [[test]]
-# name = "except_star_multiple"
-# description = "except* ValueError: ... except* TypeError: ..."
+struct ErrorGroup {
+    errors: Vec<Error>,
+}
 
-# TODO: Test except* with tuple
-# [[test]]
-# name = "except_star_tuple"
-# description = "except* (ValueError, TypeError) as eg: ..."
+impl ErrorGroup {
+    fn filter_value_errors(&self) -> Vec<&Error> {
+        self.errors.iter()
+            .filter(|e| matches!(e, Error::ValueError(_)))
+            .collect()
+    }
+    
+    fn filter_type_errors(&self) -> Vec<&Error> {
+        self.errors.iter()
+            .filter(|e| matches!(e, Error::TypeError(_)))
+            .collect()
+    }
+}
+
+fn main() {
+    let eg = ErrorGroup {
+        errors: vec![
+            Error::ValueError("val".to_string()),
+            Error::TypeError("type".to_string()),
+        ],
+    };
+    
+    let value_errs = eg.filter_value_errors();
+    if !value_errs.is_empty() {
+        println!("Caught ValueError group: {}", value_errs.len());
+    }
+    
+    let type_errs = eg.filter_type_errors();
+    if !type_errs.is_empty() {
+        println!("Caught TypeError group: {}", type_errs.len());
+    }
+}
+"""
+expected_output = """Caught ValueError group: 1
+Caught TypeError group: 1"""
+
+[[test]]
+name = "except_star_multiple"
+description = "Multiple except* clauses"
+python = """
+try:
+    raise ExceptionGroup("errors", [
+        ValueError("v1"),
+        ValueError("v2"),
+        TypeError("t1"),
+    ])
+except* ValueError:
+    print("Handling ValueErrors")
+except* TypeError:
+    print("Handling TypeErrors")
+"""
+rust = """
+#[derive(Debug)]
+enum Error {
+    ValueError(String),
+    TypeError(String),
+}
+
+struct ErrorGroup {
+    errors: Vec<Error>,
+}
+
+impl ErrorGroup {
+    fn has_value_errors(&self) -> bool {
+        self.errors.iter().any(|e| matches!(e, Error::ValueError(_)))
+    }
+    
+    fn has_type_errors(&self) -> bool {
+        self.errors.iter().any(|e| matches!(e, Error::TypeError(_)))
+    }
+}
+
+fn main() {
+    let eg = ErrorGroup {
+        errors: vec![
+            Error::ValueError("v1".to_string()),
+            Error::ValueError("v2".to_string()),
+            Error::TypeError("t1".to_string()),
+        ],
+    };
+    
+    if eg.has_value_errors() {
+        println!("Handling ValueErrors");
+    }
+    if eg.has_type_errors() {
+        println!("Handling TypeErrors");
+    }
+}
+"""
+expected_output = """Handling ValueErrors
+Handling TypeErrors"""
+
+[[test]]
+name = "except_star_tuple"
+description = "except* with tuple of exception types"
+python = """
+try:
+    raise ExceptionGroup("errors", [
+        ValueError("val"),
+        TypeError("type"),
+        RuntimeError("runtime"),
+    ])
+except* (ValueError, TypeError) as eg:
+    print(f"Caught val/type errors: {len(eg.exceptions)}")
+except* RuntimeError:
+    print("Caught RuntimeError")
+"""
+rust = """
+#[derive(Debug)]
+enum Error {
+    ValueError(String),
+    TypeError(String),
+    RuntimeError(String),
+}
+
+struct ErrorGroup {
+    errors: Vec<Error>,
+}
+
+impl ErrorGroup {
+    fn filter_val_or_type(&self) -> Vec<&Error> {
+        self.errors.iter()
+            .filter(|e| matches!(e, Error::ValueError(_) | Error::TypeError(_)))
+            .collect()
+    }
+    
+    fn has_runtime_error(&self) -> bool {
+        self.errors.iter().any(|e| matches!(e, Error::RuntimeError(_)))
+    }
+}
+
+fn main() {
+    let eg = ErrorGroup {
+        errors: vec![
+            Error::ValueError("val".to_string()),
+            Error::TypeError("type".to_string()),
+            Error::RuntimeError("runtime".to_string()),
+        ],
+    };
+    
+    let val_type_errs = eg.filter_val_or_type();
+    if !val_type_errs.is_empty() {
+        println!("Caught val/type errors: {}", val_type_errs.len());
+    }
+    
+    if eg.has_runtime_error() {
+        println!("Caught RuntimeError");
+    }
+}
+"""
+expected_output = """Caught val/type errors: 2
+Caught RuntimeError"""
 
 # =============================================================================
 # Partial Handling
 # =============================================================================
 
-# TODO: Test partial exception handling
-# [[test]]
-# name = "exception_group_partial"
-# description = "except* handles some, rest propagates"
+[[test]]
+name = "exception_group_partial"
+description = "Partial exception handling"
+python = """
+try:
+    try:
+        raise ExceptionGroup("errors", [
+            ValueError("val"),
+            TypeError("type"),
+        ])
+    except* ValueError:
+        print("Handled ValueError")
+        # TypeError still propagates
+except TypeError:
+    print("Caught propagated TypeError")
+"""
+rust = """
+#[derive(Debug)]
+enum Error {
+    ValueError(String),
+    TypeError(String),
+}
 
-# TODO: Test subgroup method
-# [[test]]
-# name = "exception_group_subgroup"
-# description = "eg.subgroup(ValueError) extracts matching"
+fn main() {
+    let errors = vec![
+        Error::ValueError("val".to_string()),
+        Error::TypeError("type".to_string()),
+    ];
+    
+    // Handle ValueError
+    for err in &errors {
+        if matches!(err, Error::ValueError(_)) {
+            println!("Handled ValueError");
+        }
+    }
+    
+    // TypeError propagates
+    for err in &errors {
+        if matches!(err, Error::TypeError(_)) {
+            println!("Caught propagated TypeError");
+        }
+    }
+}
+"""
+expected_output = """Handled ValueError
+Caught propagated TypeError"""
 
-# TODO: Test split method
-# [[test]]
-# name = "exception_group_split"
-# description = "eg.split(ValueError) returns (match, rest)"
+[[test]]
+name = "exception_group_subgroup"
+description = "Extract subgroup of matching exceptions"
+python = """
+eg = ExceptionGroup("errors", [
+    ValueError("v1"),
+    TypeError("t1"),
+    ValueError("v2"),
+])
+
+# Extract only ValueErrors
+value_errors = eg.subgroup(ValueError)
+if value_errors:
+    print(f"ValueErrors: {len(value_errors.exceptions)}")
+"""
+rust = """
+#[derive(Debug, Clone)]
+enum Error {
+    ValueError(String),
+    TypeError(String),
+}
+
+struct ErrorGroup {
+    message: String,
+    errors: Vec<Error>,
+}
+
+impl ErrorGroup {
+    fn subgroup_value_errors(&self) -> Option<ErrorGroup> {
+        let filtered: Vec<Error> = self.errors.iter()
+            .filter(|e| matches!(e, Error::ValueError(_)))
+            .cloned()
+            .collect();
+        
+        if filtered.is_empty() {
+            None
+        } else {
+            Some(ErrorGroup {
+                message: self.message.clone(),
+                errors: filtered,
+            })
+        }
+    }
+}
+
+fn main() {
+    let eg = ErrorGroup {
+        message: "errors".to_string(),
+        errors: vec![
+            Error::ValueError("v1".to_string()),
+            Error::TypeError("t1".to_string()),
+            Error::ValueError("v2".to_string()),
+        ],
+    };
+    
+    if let Some(value_errors) = eg.subgroup_value_errors() {
+        println!("ValueErrors: {}", value_errors.errors.len());
+    }
+}
+"""
+expected_output = "ValueErrors: 2"
+
+[[test]]
+name = "exception_group_split"
+description = "Split into matching and non-matching"
+python = """
+eg = ExceptionGroup("errors", [
+    ValueError("v1"),
+    TypeError("t1"),
+    ValueError("v2"),
+])
+
+matching, rest = eg.split(ValueError)
+print(f"Matching: {len(matching.exceptions) if matching else 0}")
+print(f"Rest: {len(rest.exceptions) if rest else 0}")
+"""
+rust = """
+#[derive(Debug, Clone)]
+enum Error {
+    ValueError(String),
+    TypeError(String),
+}
+
+struct ErrorGroup {
+    errors: Vec<Error>,
+}
+
+impl ErrorGroup {
+    fn split_value_errors(&self) -> (Option<ErrorGroup>, Option<ErrorGroup>) {
+        let matching: Vec<Error> = self.errors.iter()
+            .filter(|e| matches!(e, Error::ValueError(_)))
+            .cloned()
+            .collect();
+        
+        let rest: Vec<Error> = self.errors.iter()
+            .filter(|e| !matches!(e, Error::ValueError(_)))
+            .cloned()
+            .collect();
+        
+        let matching_group = if matching.is_empty() {
+            None
+        } else {
+            Some(ErrorGroup { errors: matching })
+        };
+        
+        let rest_group = if rest.is_empty() {
+            None
+        } else {
+            Some(ErrorGroup { errors: rest })
+        };
+        
+        (matching_group, rest_group)
+    }
+}
+
+fn main() {
+    let eg = ErrorGroup {
+        errors: vec![
+            Error::ValueError("v1".to_string()),
+            Error::TypeError("t1".to_string()),
+            Error::ValueError("v2".to_string()),
+        ],
+    };
+    
+    let (matching, rest) = eg.split_value_errors();
+    println!("Matching: {}", matching.map_or(0, |g| g.errors.len()));
+    println!("Rest: {}", rest.map_or(0, |g| g.errors.len()));
+}
+"""
+expected_output = """Matching: 2
+Rest: 1"""
 
 # =============================================================================
 # BaseExceptionGroup
 # =============================================================================
 
-# TODO: Test BaseExceptionGroup
-# [[test]]
-# name = "base_exception_group"
-# description = "For BaseException subclasses like KeyboardInterrupt"
+[[test]]
+name = "base_exception_group"
+description = "BaseExceptionGroup for BaseException subclasses"
+python = """
+# BaseExceptionGroup can contain any BaseException
+# ExceptionGroup can only contain Exception subclasses
+eg = BaseExceptionGroup("system errors", [
+    SystemExit(1),
+    KeyboardInterrupt(),
+])
+print(f"Base group: {len(eg.exceptions)}")
+"""
+rust = """
+// Rust doesn't distinguish BaseException vs Exception
+// All errors use Result/panic mechanism
 
-# TODO: Test derive method
-# [[test]]
-# name = "exception_group_derive"
-# description = "Create new group with same message"
+#[derive(Debug)]
+enum SystemError {
+    Exit(i32),
+    Interrupt,
+}
+
+struct BaseErrorGroup {
+    message: String,
+    errors: Vec<SystemError>,
+}
+
+fn main() {
+    let eg = BaseErrorGroup {
+        message: "system errors".to_string(),
+        errors: vec![
+            SystemError::Exit(1),
+            SystemError::Interrupt,
+        ],
+    };
+    println!("Base group: {}", eg.errors.len());
+}
+"""
+expected_output = "Base group: 2"
+
+[[test]]
+name = "exception_group_derive"
+description = "Create derived group with same message"
+python = """
+original = ExceptionGroup("errors", [
+    ValueError("v1"),
+    TypeError("t1"),
+])
+
+# derive creates new group with same message
+derived = original.derive([ValueError("v2")])
+print(f"Original message: {original.message}")
+print(f"Derived message: {derived.message}")
+print(f"Derived count: {len(derived.exceptions)}")
+"""
+rust = """
+#[derive(Debug, Clone)]
+enum Error {
+    ValueError(String),
+    TypeError(String),
+}
+
+#[derive(Clone)]
+struct ErrorGroup {
+    message: String,
+    errors: Vec<Error>,
+}
+
+impl ErrorGroup {
+    fn derive(&self, new_errors: Vec<Error>) -> ErrorGroup {
+        ErrorGroup {
+            message: self.message.clone(),
+            errors: new_errors,
+        }
+    }
+}
+
+fn main() {
+    let original = ErrorGroup {
+        message: "errors".to_string(),
+        errors: vec![
+            Error::ValueError("v1".to_string()),
+            Error::TypeError("t1".to_string()),
+        ],
+    };
+    
+    let derived = original.derive(vec![Error::ValueError("v2".to_string())]);
+    println!("Original message: {}", original.message);
+    println!("Derived message: {}", derived.message);
+    println!("Derived count: {}", derived.errors.len());
+}
+"""
+expected_output = """Original message: errors
+Derived message: errors
+Derived count: 1"""
 
 # =============================================================================
 # Use Cases
 # =============================================================================
 
-# TODO: Test concurrent task errors
-# [[test]]
-# name = "exception_group_concurrent"
-# description = "Collecting errors from multiple tasks"
+[[test]]
+name = "exception_group_concurrent"
+description = "Collecting errors from multiple tasks"
+python = """
+def process_item(item):
+    if item < 0:
+        raise ValueError(f"Negative: {item}")
+    if item == 0:
+        raise ZeroDivisionError("Cannot be zero")
+    return item * 2
 
-# TODO: Test validation errors
-# [[test]]
-# name = "exception_group_validation"
-# description = "Multiple validation failures at once"
+items = [-1, 0, 5]
+errors = []
+for item in items:
+    try:
+        result = process_item(item)
+    except Exception as e:
+        errors.append(e)
 
-# TODO: Test cleanup errors
-# [[test]]
-# name = "exception_group_cleanup"
-# description = "Multiple cleanup failures"
+if errors:
+    raise ExceptionGroup("Processing errors", errors)
+"""
+rust = """
+#[derive(Debug)]
+enum ProcessError {
+    Negative(i32),
+    Zero,
+}
+
+fn process_item(item: i32) -> Result<i32, ProcessError> {
+    if item < 0 {
+        Err(ProcessError::Negative(item))
+    } else if item == 0 {
+        Err(ProcessError::Zero)
+    } else {
+        Ok(item * 2)
+    }
+}
+
+fn main() {
+    let items = vec![-1, 0, 5];
+    let mut errors = Vec::new();
+    
+    for item in items {
+        if let Err(e) = process_item(item) {
+            errors.push(e);
+        }
+    }
+    
+    if !errors.is_empty() {
+        println!("Processing errors: {:?}", errors);
+    }
+}
+"""
+expected_output = "Processing errors: [Negative(-1), Zero]"
+
+[[test]]
+name = "exception_group_validation"
+description = "Multiple validation failures"
+python = """
+def validate_user(data):
+    errors = []
+    if len(data.get('name', '')) < 3:
+        errors.append(ValueError("Name too short"))
+    if data.get('age', 0) < 18:
+        errors.append(ValueError("Must be 18+"))
+    if '@' not in data.get('email', ''):
+        errors.append(ValueError("Invalid email"))
+    
+    if errors:
+        raise ExceptionGroup("Validation failed", errors)
+
+try:
+    validate_user({'name': 'Al', 'age': 16, 'email': 'invalid'})
+except ExceptionGroup as eg:
+    print(f"Validation errors: {len(eg.exceptions)}")
+"""
+rust = """
+#[derive(Debug)]
+struct ValidationError(String);
+
+fn validate_user(name: &str, age: i32, email: &str) -> Result<(), Vec<ValidationError>> {
+    let mut errors = Vec::new();
+    
+    if name.len() < 3 {
+        errors.push(ValidationError("Name too short".to_string()));
+    }
+    if age < 18 {
+        errors.push(ValidationError("Must be 18+".to_string()));
+    }
+    if !email.contains('@') {
+        errors.push(ValidationError("Invalid email".to_string()));
+    }
+    
+    if errors.is_empty() {
+        Ok(())
+    } else {
+        Err(errors)
+    }
+}
+
+fn main() {
+    match validate_user("Al", 16, "invalid") {
+        Err(errors) => println!("Validation errors: {}", errors.len()),
+        Ok(_) => println!("Valid"),
+    }
+}
+"""
+expected_output = "Validation errors: 3"
+
+[[test]]
+name = "exception_group_cleanup"
+description = "Multiple cleanup failures"
+python = """
+class Resource:
+    def __init__(self, name, should_fail=False):
+        self.name = name
+        self.should_fail = should_fail
+    
+    def close(self):
+        if self.should_fail:
+            raise RuntimeError(f"Failed to close {self.name}")
+
+resources = [
+    Resource("db", True),
+    Resource("file", False),
+    Resource("socket", True),
+]
+
+errors = []
+for res in resources:
+    try:
+        res.close()
+    except Exception as e:
+        errors.append(e)
+
+if errors:
+    print(f"Cleanup errors: {len(errors)}")
+"""
+rust = """
+#[derive(Debug)]
+struct CloseError(String);
+
+struct Resource {
+    name: String,
+    should_fail: bool,
+}
+
+impl Resource {
+    fn new(name: &str, should_fail: bool) -> Self {
+        Resource {
+            name: name.to_string(),
+            should_fail,
+        }
+    }
+    
+    fn close(&self) -> Result<(), CloseError> {
+        if self.should_fail {
+            Err(CloseError(format!("Failed to close {}", self.name)))
+        } else {
+            Ok(())
+        }
+    }
+}
+
+fn main() {
+    let resources = vec![
+        Resource::new("db", true),
+        Resource::new("file", false),
+        Resource::new("socket", true),
+    ];
+    
+    let mut errors = Vec::new();
+    for res in &resources {
+        if let Err(e) = res.close() {
+            errors.push(e);
+        }
+    }
+    
+    if !errors.is_empty() {
+        println!("Cleanup errors: {}", errors.len());
+    }
+}
+"""
+expected_output = "Cleanup errors: 2"
 
 # =============================================================================
 # Interaction with Regular Exceptions
 # =============================================================================
 
-# TODO: Test except* with non-group
-# [[test]]
-# name = "except_star_non_group"
-# description = "except* with regular exception (wrapped)"
+[[test]]
+name = "except_star_non_group"
+description = "except* with regular exception"
+python = """
+try:
+    # Regular exception gets wrapped in ExceptionGroup
+    raise ValueError("single error")
+except* ValueError as eg:
+    print(f"Caught: {len(eg.exceptions)}")
+"""
+rust = """
+// In Rust, we handle single errors normally
+// No need for wrapping in groups
 
-# TODO: Test mixing except and except*
-# [[test]]
-# name = "except_mixed"
-# description = "Cannot mix except and except* in same try"
-# skip = true
+#[derive(Debug)]
+enum Error {
+    ValueError(String),
+}
+
+fn main() {
+    let error = Error::ValueError("single error".to_string());
+    // Treat as single-item group for consistency
+    let errors = vec![error];
+    println!("Caught: {}", errors.len());
+}
+"""
+expected_output = "Caught: 1"
+
+[[test]]
+name = "except_mixed"
+description = "Cannot mix except and except* in same try"
+skip = true
 
 # =============================================================================
 # Edge Cases
 # =============================================================================
 
-# TODO: Test empty ExceptionGroup
-# [[test]]
-# name = "exception_group_empty"
-# description = "ExceptionGroup with empty list"
-# skip = true
+[[test]]
+name = "exception_group_empty"
+description = "ExceptionGroup with empty list"
+skip = true
 
-# TODO: Test exception group message
-# [[test]]
-# name = "exception_group_message"
-# description = "Accessing group message and exceptions"
+[[test]]
+name = "exception_group_message"
+description = "Accessing group message and exceptions"
+python = """
+eg = ExceptionGroup("Test errors", [
+    ValueError("error 1"),
+    TypeError("error 2"),
+])
 
-# TODO: Test traceback with groups
-# [[test]]
-# name = "exception_group_traceback"
-# description = "Traceback formatting for groups"
+print(f"Message: {eg.message}")
+print(f"Exception count: {len(eg.exceptions)}")
+print(f"First exception type: {type(eg.exceptions[0]).__name__}")
+"""
+rust = """
+#[derive(Debug)]
+enum Error {
+    ValueError(String),
+    TypeError(String),
+}
+
+impl Error {
+    fn type_name(&self) -> &str {
+        match self {
+            Error::ValueError(_) => "ValueError",
+            Error::TypeError(_) => "TypeError",
+        }
+    }
+}
+
+struct ErrorGroup {
+    message: String,
+    exceptions: Vec<Error>,
+}
+
+fn main() {
+    let eg = ErrorGroup {
+        message: "Test errors".to_string(),
+        exceptions: vec![
+            Error::ValueError("error 1".to_string()),
+            Error::TypeError("error 2".to_string()),
+        ],
+    };
+    
+    println!("Message: {}", eg.message);
+    println!("Exception count: {}", eg.exceptions.len());
+    println!("First exception type: {}", eg.exceptions[0].type_name());
+}
+"""
+expected_output = """Message: Test errors
+Exception count: 2
+First exception type: ValueError"""
+
+[[test]]
+name = "exception_group_traceback"
+description = "Exception group structure"
+python = """
+try:
+    raise ExceptionGroup("errors", [
+        ValueError("error 1"),
+        TypeError("error 2"),
+    ])
+except ExceptionGroup as eg:
+    print("ExceptionGroup:", eg.message)
+    for i, exc in enumerate(eg.exceptions):
+        print(f"  [{i}] {type(exc).__name__}: {exc}")
+"""
+rust = """
+#[derive(Debug)]
+enum Error {
+    ValueError(String),
+    TypeError(String),
+}
+
+impl std::fmt::Display for Error {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        match self {
+            Error::ValueError(msg) => write!(f, "ValueError: {}", msg),
+            Error::TypeError(msg) => write!(f, "TypeError: {}", msg),
+        }
+    }
+}
+
+struct ErrorGroup {
+    message: String,
+    exceptions: Vec<Error>,
+}
+
+fn main() {
+    let eg = ErrorGroup {
+        message: "errors".to_string(),
+        exceptions: vec![
+            Error::ValueError("error 1".to_string()),
+            Error::TypeError("error 2".to_string()),
+        ],
+    };
+    
+    println!("ExceptionGroup: {}", eg.message);
+    for (i, exc) in eg.exceptions.iter().enumerate() {
+        println!("  [{}] {}", i, exc);
+    }
+}
+"""
+expected_output = """ExceptionGroup: errors
+  [0] ValueError: error 1
+  [1] TypeError: error 2"""

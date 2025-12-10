@@ -9,186 +9,925 @@ category = "data-structures"
 # Set Creation
 # =============================================================================
 
-# TODO: Test set literal
-# [[test]]
-# name = "set_literal"
-# description = "{1, 2, 3}"
+[[test]]
+name = "set_literal"
+description = "{1, 2, 3}"
+tags = ["sets", "creation"]
 
-# TODO: Test set constructor
-# [[test]]
-# name = "set_constructor"
-# description = "set([1, 2, 3])"
+python = '''
+result = {1, 2, 3}
+'''
 
-# TODO: Test empty set
-# [[test]]
-# name = "set_empty"
-# description = "set() not {}"
+rust = '''
+lazy_static! {
+    pub static ref result: HashSet<i32> = {
+        let mut set = HashSet::new();
+        set.insert(1);
+        set.insert(2);
+        set.insert(3);
+        set
+    };
+}
+use lazy_static::lazy_static;
+use std::collections::HashSet;
+'''
 
-# TODO: Test set from string
-# [[test]]
-# name = "set_from_string"
-# description = "set('hello')"
+[[test]]
+name = "set_constructor"
+description = "set([1, 2, 3])"
+tags = ["sets", "creation"]
+
+python = '''
+result = set([1, 2, 3])
+'''
+
+rust = '''
+pub const result: serde_json::Value = vec![1, 2, 3].into_iter().collect::<HashSet<_>>();
+use serde_json;
+use std::collections::HashSet;
+'''
+
+[[test]]
+name = "set_empty"
+description = "set() not {}"
+tags = ["sets", "creation"]
+
+python = '''
+result = set()
+empty_dict = {}
+is_set = type(result).__name__ == 'set'
+is_dict = type(empty_dict).__name__ == 'dict'
+result = (is_set, is_dict)
+'''
+
+rust = '''
+pub const result: serde_json::Value = HashSet::<i32>::new();
+pub const is_set: serde_json::Value = std::any::type_name_of_val(&result).__name__ == "set";
+pub const is_dict: serde_json::Value = std::any::type_name_of_val(&empty_dict.clone()).__name__ == "dict";
+pub const result: (serde_json::Value, serde_json::Value) = (is_set, is_dict);
+lazy_static! {
+    pub static ref empty_dict: HashMap<serde_json::Value, serde_json::Value> = {
+        let map = HashMap::new();
+        map
+    };
+}
+use lazy_static::lazy_static;
+use serde_json;
+use std::collections::HashMap;
+use std::collections::HashSet;
+'''
+
+[[test]]
+name = "set_from_string"
+description = "set('hello')"
+tags = ["sets", "creation"]
+
+python = '''
+result = set('hello')
+'''
+
+rust = '''
+pub const result: serde_json::Value = "hello".into_iter().collect::<HashSet<_>>();
+use serde_json;
+use std::collections::HashSet;
+'''
 
 # =============================================================================
 # Set Operations (Methods)
 # =============================================================================
 
-# TODO: Test union
-# [[test]]
-# name = "set_union"
-# description = "a.union(b)"
+[[test]]
+name = "set_union"
+description = "a.union(b)"
+tags = ["sets", "operations"]
 
-# TODO: Test intersection
-# [[test]]
-# name = "set_intersection"
-# description = "a.intersection(b)"
+python = '''
+a = {1, 2, 3}
+b = {3, 4, 5}
+result = a.union(b)
+'''
 
-# TODO: Test difference
-# [[test]]
-# name = "set_difference"
-# description = "a.difference(b)"
+rust = '''
+pub const result: serde_json::Value = a
+    .clone()
+    .union(&b.clone())
+    .cloned()
+    .collect::<std::collections::HashSet<_>>();
+lazy_static! {
+    pub static ref a: HashSet<i32> = {
+        let mut set = HashSet::new();
+        set.insert(1);
+        set.insert(2);
+        set.insert(3);
+        set
+    };
+    pub static ref b: HashSet<i32> = {
+        let mut set = HashSet::new();
+        set.insert(3);
+        set.insert(4);
+        set.insert(5);
+        set
+    };
+}
+use lazy_static::lazy_static;
+use serde_json;
+use std::collections::HashSet;
+'''
 
-# TODO: Test symmetric_difference
-# [[test]]
-# name = "set_symmetric_difference"
-# description = "a.symmetric_difference(b)"
+[[test]]
+name = "set_intersection"
+description = "a.intersection(b)"
+tags = ["sets", "operations"]
+
+python = '''
+a = {1, 2, 3}
+b = {2, 3, 4}
+result = a.intersection(b)
+'''
+
+rust = '''
+pub const result: serde_json::Value = a
+    .clone()
+    .intersection(&b.clone())
+    .cloned()
+    .collect::<std::collections::HashSet<_>>();
+lazy_static! {
+    pub static ref a: HashSet<i32> = {
+        let mut set = HashSet::new();
+        set.insert(1);
+        set.insert(2);
+        set.insert(3);
+        set
+    };
+    pub static ref b: HashSet<i32> = {
+        let mut set = HashSet::new();
+        set.insert(2);
+        set.insert(3);
+        set.insert(4);
+        set
+    };
+}
+use lazy_static::lazy_static;
+use serde_json;
+use std::collections::HashSet;
+'''
+
+[[test]]
+name = "set_difference"
+description = "a.difference(b)"
+tags = ["sets", "operations"]
+
+python = '''
+a = {1, 2, 3}
+b = {2, 3, 4}
+result = a.difference(b)
+'''
+
+rust = '''
+pub const result: serde_json::Value = a
+    .clone()
+    .difference(&b.clone())
+    .cloned()
+    .collect::<std::collections::HashSet<_>>();
+lazy_static! {
+    pub static ref a: HashSet<i32> = {
+        let mut set = HashSet::new();
+        set.insert(1);
+        set.insert(2);
+        set.insert(3);
+        set
+    };
+    pub static ref b: HashSet<i32> = {
+        let mut set = HashSet::new();
+        set.insert(2);
+        set.insert(3);
+        set.insert(4);
+        set
+    };
+}
+use lazy_static::lazy_static;
+use serde_json;
+use std::collections::HashSet;
+'''
+
+[[test]]
+name = "set_symmetric_difference"
+description = "a.symmetric_difference(b)"
+tags = ["sets", "operations"]
+
+python = '''
+a = {1, 2, 3}
+b = {3, 4, 5}
+result = a.symmetric_difference(b)
+'''
+
+rust = '''
+pub const result: serde_json::Value = a
+    .clone()
+    .symmetric_difference(&b.clone())
+    .cloned()
+    .collect::<std::collections::HashSet<_>>();
+lazy_static! {
+    pub static ref a: HashSet<i32> = {
+        let mut set = HashSet::new();
+        set.insert(1);
+        set.insert(2);
+        set.insert(3);
+        set
+    };
+    pub static ref b: HashSet<i32> = {
+        let mut set = HashSet::new();
+        set.insert(3);
+        set.insert(4);
+        set.insert(5);
+        set
+    };
+}
+use lazy_static::lazy_static;
+use serde_json;
+use std::collections::HashSet;
+'''
 
 # =============================================================================
 # Set Operations (Operators)
 # =============================================================================
 
-# TODO: Test union operator
-# [[test]]
-# name = "set_union_op"
-# description = "a | b"
+[[test]]
+name = "set_union_op"
+description = "a | b"
+tags = ["sets", "operators"]
 
-# TODO: Test intersection operator
-# [[test]]
-# name = "set_intersection_op"
-# description = "a & b"
+python = '''
+a = {1, 2, 3}
+b = {3, 4, 5}
+result = a | b
+'''
 
-# TODO: Test difference operator
-# [[test]]
-# name = "set_difference_op"
-# description = "a - b"
+rust = '''
+pub const result: serde_json::Value = a
+    .clone()
+    .union(&b.clone())
+    .cloned()
+    .collect::<std::collections::HashSet<_>>();
+lazy_static! {
+    pub static ref a: HashSet<i32> = {
+        let mut set = HashSet::new();
+        set.insert(1);
+        set.insert(2);
+        set.insert(3);
+        set
+    };
+    pub static ref b: HashSet<i32> = {
+        let mut set = HashSet::new();
+        set.insert(3);
+        set.insert(4);
+        set.insert(5);
+        set
+    };
+}
+use lazy_static::lazy_static;
+use serde_json;
+use std::collections::HashSet;
+'''
 
-# TODO: Test symmetric_difference operator
-# [[test]]
-# name = "set_symmetric_difference_op"
-# description = "a ^ b"
+[[test]]
+name = "set_intersection_op"
+description = "a & b"
+tags = ["sets", "operators"]
+
+python = '''
+a = {1, 2, 3}
+b = {2, 3, 4}
+result = a & b
+'''
+
+rust = '''
+pub const result: serde_json::Value = a
+    .clone()
+    .intersection(&b.clone())
+    .cloned()
+    .collect::<std::collections::HashSet<_>>();
+lazy_static! {
+    pub static ref a: HashSet<i32> = {
+        let mut set = HashSet::new();
+        set.insert(1);
+        set.insert(2);
+        set.insert(3);
+        set
+    };
+    pub static ref b: HashSet<i32> = {
+        let mut set = HashSet::new();
+        set.insert(2);
+        set.insert(3);
+        set.insert(4);
+        set
+    };
+}
+use lazy_static::lazy_static;
+use serde_json;
+use std::collections::HashSet;
+'''
+
+[[test]]
+name = "set_difference_op"
+description = "a - b"
+tags = ["sets", "operators"]
+
+python = '''
+a = {1, 2, 3}
+b = {2, 3, 4}
+result = a - b
+'''
+
+rust = '''
+pub const result: serde_json::Value = a
+    .clone()
+    .difference(&b.clone())
+    .cloned()
+    .collect::<std::collections::HashSet<_>>();
+lazy_static! {
+    pub static ref a: HashSet<i32> = {
+        let mut set = HashSet::new();
+        set.insert(1);
+        set.insert(2);
+        set.insert(3);
+        set
+    };
+    pub static ref b: HashSet<i32> = {
+        let mut set = HashSet::new();
+        set.insert(2);
+        set.insert(3);
+        set.insert(4);
+        set
+    };
+}
+use lazy_static::lazy_static;
+use serde_json;
+use std::collections::HashSet;
+'''
+
+[[test]]
+name = "set_symmetric_difference_op"
+description = "a ^ b"
+tags = ["sets", "operators"]
+
+python = '''
+a = {1, 2, 3}
+b = {3, 4, 5}
+result = a ^ b
+'''
+
+rust = '''
+pub const result: serde_json::Value = a
+    .clone()
+    .symmetric_difference(&b.clone())
+    .cloned()
+    .collect::<std::collections::HashSet<_>>();
+lazy_static! {
+    pub static ref a: HashSet<i32> = {
+        let mut set = HashSet::new();
+        set.insert(1);
+        set.insert(2);
+        set.insert(3);
+        set
+    };
+    pub static ref b: HashSet<i32> = {
+        let mut set = HashSet::new();
+        set.insert(3);
+        set.insert(4);
+        set.insert(5);
+        set
+    };
+}
+use lazy_static::lazy_static;
+use serde_json;
+use std::collections::HashSet;
+'''
 
 # =============================================================================
 # Set Comparisons
 # =============================================================================
 
-# TODO: Test subset
-# [[test]]
-# name = "set_subset"
-# description = "a.issubset(b) or a <= b"
+[[test]]
+name = "set_subset"
+description = "a.issubset(b) or a <= b"
+tags = ["sets", "comparison"]
 
-# TODO: Test proper subset
-# [[test]]
-# name = "set_proper_subset"
-# description = "a < b"
+python = '''
+a = {1, 2}
+b = {1, 2, 3}
+result = a.issubset(b)
+'''
 
-# TODO: Test superset
-# [[test]]
-# name = "set_superset"
-# description = "a.issuperset(b) or a >= b"
+rust = '''
+pub const result: serde_json::Value = a.clone().is_subset(&b.clone());
+lazy_static! {
+    pub static ref a: HashSet<i32> = {
+        let mut set = HashSet::new();
+        set.insert(1);
+        set.insert(2);
+        set
+    };
+    pub static ref b: HashSet<i32> = {
+        let mut set = HashSet::new();
+        set.insert(1);
+        set.insert(2);
+        set.insert(3);
+        set
+    };
+}
+use lazy_static::lazy_static;
+use serde_json;
+use std::collections::HashSet;
+'''
 
-# TODO: Test disjoint
-# [[test]]
-# name = "set_disjoint"
-# description = "a.isdisjoint(b)"
+[[test]]
+name = "set_proper_subset"
+description = "a < b"
+tags = ["sets", "comparison"]
+
+python = '''
+a = {1, 2}
+b = {1, 2, 3}
+result = a < b
+'''
+
+rust = '''
+pub const result: serde_json::Value = a.clone() < b.clone();
+lazy_static! {
+    pub static ref a: HashSet<i32> = {
+        let mut set = HashSet::new();
+        set.insert(1);
+        set.insert(2);
+        set
+    };
+    pub static ref b: HashSet<i32> = {
+        let mut set = HashSet::new();
+        set.insert(1);
+        set.insert(2);
+        set.insert(3);
+        set
+    };
+}
+use lazy_static::lazy_static;
+use serde_json;
+use std::collections::HashSet;
+'''
+
+[[test]]
+name = "set_superset"
+description = "a.issuperset(b) or a >= b"
+tags = ["sets", "comparison"]
+
+python = '''
+a = {1, 2, 3}
+b = {1, 2}
+result = a.issuperset(b)
+'''
+
+rust = '''
+pub const result: serde_json::Value = a.clone().is_superset(&b.clone());
+lazy_static! {
+    pub static ref a: HashSet<i32> = {
+        let mut set = HashSet::new();
+        set.insert(1);
+        set.insert(2);
+        set.insert(3);
+        set
+    };
+    pub static ref b: HashSet<i32> = {
+        let mut set = HashSet::new();
+        set.insert(1);
+        set.insert(2);
+        set
+    };
+}
+use lazy_static::lazy_static;
+use serde_json;
+use std::collections::HashSet;
+'''
+
+[[test]]
+name = "set_disjoint"
+description = "a.isdisjoint(b)"
+tags = ["sets", "comparison"]
+
+python = '''
+a = {1, 2}
+b = {3, 4}
+result = a.isdisjoint(b)
+'''
+
+rust = '''
+pub const result: serde_json::Value = a.clone().is_disjoint(&b.clone());
+lazy_static! {
+    pub static ref a: HashSet<i32> = {
+        let mut set = HashSet::new();
+        set.insert(1);
+        set.insert(2);
+        set
+    };
+    pub static ref b: HashSet<i32> = {
+        let mut set = HashSet::new();
+        set.insert(3);
+        set.insert(4);
+        set
+    };
+}
+use lazy_static::lazy_static;
+use serde_json;
+use std::collections::HashSet;
+'''
 
 # =============================================================================
 # Set Modification
 # =============================================================================
 
-# TODO: Test add
-# [[test]]
-# name = "set_add"
-# description = "s.add(elem)"
+[[test]]
+name = "set_add"
+description = "s.add(elem)"
+tags = ["sets", "modification"]
 
-# TODO: Test remove
-# [[test]]
-# name = "set_remove"
-# description = "s.remove(elem) raises if missing"
+python = '''
+s = {1, 2}
+s.add(3)
+result = len(s)
+'''
 
-# TODO: Test discard
-# [[test]]
-# name = "set_discard"
-# description = "s.discard(elem) no error if missing"
+rust = '''
+pub const result: serde_json::Value = s.clone().len() as i32;
+lazy_static! {
+    pub static ref s: HashSet<i32> = {
+        let mut set = HashSet::new();
+        set.insert(1);
+        set.insert(2);
+        set
+    };
+}
+use lazy_static::lazy_static;
+use serde_json;
+use std::collections::HashSet;
+'''
 
-# TODO: Test pop
-# [[test]]
-# name = "set_pop"
-# description = "s.pop() arbitrary element"
+[[test]]
+name = "set_remove"
+description = "s.remove(elem) raises if missing"
+tags = ["sets", "modification"]
 
-# TODO: Test clear
-# [[test]]
-# name = "set_clear"
-# description = "s.clear()"
+python = '''
+s = {1, 2, 3}
+s.remove(2)
+result = len(s)
+'''
+
+rust = '''
+pub const result: serde_json::Value = s.clone().len() as i32;
+lazy_static! {
+    pub static ref s: HashSet<i32> = {
+        let mut set = HashSet::new();
+        set.insert(1);
+        set.insert(2);
+        set.insert(3);
+        set
+    };
+}
+use lazy_static::lazy_static;
+use serde_json;
+use std::collections::HashSet;
+'''
+
+[[test]]
+name = "set_discard"
+description = "s.discard(elem) no error if missing"
+tags = ["sets", "modification"]
+
+python = '''
+s = {1, 2, 3}
+s.discard(2)
+s.discard(99)
+result = len(s)
+'''
+
+rust = '''
+pub const result: serde_json::Value = s.clone().len() as i32;
+lazy_static! {
+    pub static ref s: HashSet<i32> = {
+        let mut set = HashSet::new();
+        set.insert(1);
+        set.insert(2);
+        set.insert(3);
+        set
+    };
+}
+use lazy_static::lazy_static;
+use serde_json;
+use std::collections::HashSet;
+'''
+
+[[test]]
+name = "set_pop"
+description = "s.pop() arbitrary element"
+tags = ["sets", "modification"]
+
+python = '''
+s = {1}
+elem = s.pop()
+result = (elem, len(s))
+'''
+
+rust = '''
+pub const elem: serde_json::Value = s
+    .clone()
+    .iter()
+    .next()
+    .cloned()
+    .map(|x| {
+        s.clone().remove(&x);
+        x
+    })
+    .expect("pop from empty set");
+pub const result: (serde_json::Value, serde_json::Value) = (elem, s.clone().len() as i32);
+lazy_static! {
+    pub static ref s: HashSet<i32> = {
+        let mut set = HashSet::new();
+        set.insert(1);
+        set
+    };
+}
+use lazy_static::lazy_static;
+use serde_json;
+use std::collections::HashSet;
+'''
+
+[[test]]
+name = "set_clear"
+description = "s.clear()"
+tags = ["sets", "modification"]
+
+python = '''
+s = {1, 2, 3}
+s.clear()
+result = len(s)
+'''
+
+rust = '''
+pub const result: serde_json::Value = s.clone().len() as i32;
+lazy_static! {
+    pub static ref s: HashSet<i32> = {
+        let mut set = HashSet::new();
+        set.insert(1);
+        set.insert(2);
+        set.insert(3);
+        set
+    };
+}
+use lazy_static::lazy_static;
+use serde_json;
+use std::collections::HashSet;
+'''
 
 # =============================================================================
 # In-Place Operations
 # =============================================================================
 
-# TODO: Test update
-# [[test]]
-# name = "set_update"
-# description = "a.update(b) or a |= b"
+[[test]]
+name = "set_update"
+description = "a.update(b) or a |= b"
+tags = ["sets", "inplace"]
 
-# TODO: Test intersection_update
-# [[test]]
-# name = "set_intersection_update"
-# description = "a.intersection_update(b) or a &= b"
+python = '''
+a = {1, 2}
+a.update({2, 3})
+result = a
+'''
 
-# TODO: Test difference_update
-# [[test]]
-# name = "set_difference_update"
-# description = "a.difference_update(b) or a -= b"
+rust = '''
+pub const result: serde_json::Value = a.clone();
+lazy_static! {
+    pub static ref a: HashSet<i32> = {
+        let mut set = HashSet::new();
+        set.insert(1);
+        set.insert(2);
+        set
+    };
+}
+use lazy_static::lazy_static;
+use serde_json;
+use std::collections::HashSet;
+'''
 
-# TODO: Test symmetric_difference_update
-# [[test]]
-# name = "set_symmetric_diff_update"
-# description = "a.symmetric_difference_update(b) or a ^= b"
+[[test]]
+name = "set_intersection_update"
+description = "a.intersection_update(b) or a &= b"
+tags = ["sets", "inplace"]
+
+python = '''
+a = {1, 2, 3}
+a.intersection_update({2, 3, 4})
+result = a
+'''
+
+rust = '''
+pub const result: serde_json::Value = a.clone();
+lazy_static! {
+    pub static ref a: HashSet<i32> = {
+        let mut set = HashSet::new();
+        set.insert(1);
+        set.insert(2);
+        set.insert(3);
+        set
+    };
+}
+use lazy_static::lazy_static;
+use serde_json;
+use std::collections::HashSet;
+'''
+
+[[test]]
+name = "set_difference_update"
+description = "a.difference_update(b) or a -= b"
+tags = ["sets", "inplace"]
+
+python = '''
+a = {1, 2, 3}
+a.difference_update({2, 3, 4})
+result = a
+'''
+
+rust = '''
+pub const result: serde_json::Value = a.clone();
+lazy_static! {
+    pub static ref a: HashSet<i32> = {
+        let mut set = HashSet::new();
+        set.insert(1);
+        set.insert(2);
+        set.insert(3);
+        set
+    };
+}
+use lazy_static::lazy_static;
+use serde_json;
+use std::collections::HashSet;
+'''
+
+[[test]]
+name = "set_symmetric_diff_update"
+description = "a.symmetric_difference_update(b) or a ^= b"
+tags = ["sets", "inplace"]
+
+python = '''
+a = {1, 2, 3}
+a.symmetric_difference_update({3, 4, 5})
+result = a
+'''
+
+rust = '''
+pub const result: serde_json::Value = a.clone();
+lazy_static! {
+    pub static ref a: HashSet<i32> = {
+        let mut set = HashSet::new();
+        set.insert(1);
+        set.insert(2);
+        set.insert(3);
+        set
+    };
+}
+use lazy_static::lazy_static;
+use serde_json;
+use std::collections::HashSet;
+'''
 
 # =============================================================================
 # Frozenset
 # =============================================================================
 
-# TODO: Test frozenset
-# [[test]]
-# name = "frozenset_create"
-# description = "frozenset([1, 2, 3])"
+[[test]]
+name = "frozenset_create"
+description = "frozenset([1, 2, 3])"
+tags = ["frozenset", "creation"]
 
-# TODO: Test frozenset immutable
-# [[test]]
-# name = "frozenset_immutable"
-# description = "Cannot add/remove"
+python = '''
+result = frozenset([1, 2, 3])
+'''
 
-# TODO: Test frozenset hashable
-# [[test]]
-# name = "frozenset_hashable"
-# description = "Can be dict key or set element"
+rust = '''
+pub const result: serde_json::Value = std::sync::Arc::new(vec![1, 2, 3].into_iter().collect::<HashSet<_>>());
+use serde_json;
+use std::collections::HashSet;
+'''
+
+[[test]]
+name = "frozenset_immutable"
+description = "Cannot add/remove"
+tags = ["frozenset"]
+skip = true
+
+python = '''
+fs = frozenset([1, 2, 3])
+try:
+    fs.add(4)
+    result = False
+except AttributeError:
+    result = True
+'''
+
+rust = '''
+pub const fs: serde_json::Value = std::sync::Arc::new(vec![1, 2, 3].into_iter().collect::<HashSet<_>>());
+use serde_json;
+use std::collections::HashSet;
+'''
+
+[[test]]
+name = "frozenset_hashable"
+description = "Can be dict key or set element"
+tags = ["frozenset", "hash"]
+
+python = '''
+fs = frozenset([1, 2, 3])
+d = {fs: 'value'}
+s = {fs, frozenset([4, 5])}
+result = (d[fs], len(s))
+'''
+
+rust = '''
+pub const fs: serde_json::Value = std::sync::Arc::new(vec![1, 2, 3].into_iter().collect::<HashSet<_>>());
+pub const result: (serde_json::Value, serde_json::Value) =
+    (d.clone().get(&fs).cloned().unwrap(), s.clone().len() as i32);
+lazy_static! {
+    pub static ref d: HashMap<serde_json::Value, String> = {
+        let mut map = HashMap::new();
+        map.insert(fs, "value".to_string());
+        map
+    };
+    pub static ref s: HashSet<serde_json::Value> = {
+        let mut set = HashSet::new();
+        set.insert(fs);
+        set.insert(std::sync::Arc::new(vec![4, 5].into_iter().collect::<HashSet<_>>()));
+        set
+    };
+}
+use lazy_static::lazy_static;
+use serde_json;
+use std::collections::HashMap;
+use std::collections::HashSet;
+'''
 
 # =============================================================================
 # Edge Cases
 # =============================================================================
 
-# TODO: Test set of mixed types
-# [[test]]
-# name = "set_mixed"
-# description = "{1, 'a', (1, 2)}"
+[[test]]
+name = "set_mixed"
+description = "{1, 'a', (1, 2)}"
+tags = ["sets", "mixed"]
 
-# TODO: Test unhashable error
-# [[test]]
-# name = "set_unhashable"
-# description = "{[1, 2]} raises TypeError"
-# skip = true
+python = '''
+result = {1, 'a', (1, 2)}
+'''
 
-# TODO: Test set comprehension
-# [[test]]
-# name = "set_comprehension"
-# description = "{x*2 for x in range(5)}"
+rust = '''
+lazy_static! {
+    pub static ref result: HashSet<i32> = {
+        let mut set = HashSet::new();
+        set.insert(1);
+        set.insert("a");
+        set.insert((1, 2));
+        set
+    };
+}
+use lazy_static::lazy_static;
+use std::collections::HashSet;
+'''
+
+[[test]]
+name = "set_unhashable"
+description = "{[1, 2]} raises TypeError"
+tags = ["sets", "error"]
+skip = true
+
+python = '''
+try:
+    result = {[1, 2]}
+    result = False
+except TypeError:
+    result = True
+'''
+
+rust = '''
+
+'''
+
+[[test]]
+name = "set_comprehension"
+description = "{x*2 for x in range(5)}"
+tags = ["sets", "comprehension"]
+
+python = '''
+result = {x*2 for x in range(5)}
+'''
+
+rust = '''
+pub const result: serde_json::Value = (0..5).map(|x| x * 2).collect::<HashSet<_>>();
+use serde_json;
+use std::collections::HashSet;
+'''

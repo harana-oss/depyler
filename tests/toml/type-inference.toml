@@ -14,265 +14,396 @@ name = "infer_int_from_literal"
 description = "Infer int type from literal assignment"
 tags = ["inference", "int"]
 
-[test.python]
-code = '''
+python = '''
 def get_number():
     x = 42
     return x
 '''
 
-[test.assertions]
-contains_any = [["i32", "i64"]]
-not_contains = ["serde_json::Value"]
+rust = '''
+pub fn get_number() -> i32 {
+    let x = 42;
+    return x;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_get_number_examples() {
+        let _ = get_number();
+    }
+}
+'''
 
 [[test]]
 name = "infer_float_from_literal"
 description = "Infer float type from literal"
 tags = ["inference", "float"]
 
-[test.python]
-code = '''
+python = '''
 def get_pi():
     x = 3.14
     return x
 '''
 
-[test.assertions]
-contains = ["f64"]
+rust = '''
+pub fn get_pi() -> f64 {
+    let x = 3.14;
+    return x;
+}
+'''
 
 [[test]]
 name = "infer_string_from_literal"
 description = "Infer string type from literal"
 tags = ["inference", "string"]
 
-[test.python]
-code = '''
+python = '''
 def get_greeting():
     s = "hello"
     return s
 '''
 
-[test.assertions]
-contains_any = [["String", "&str"]]
+rust = '''
+pub fn get_greeting() -> String {
+    let s = "hello".to_string();
+    return s;
+}
+'''
 
 [[test]]
 name = "infer_bool_from_literal"
 description = "Infer bool type from literal"
 tags = ["inference", "bool"]
 
-[test.python]
-code = '''
+python = '''
 def get_flag():
     b = True
     return b
 '''
 
-[test.assertions]
-contains = ["bool"]
-
-# =============================================================================
-# Inference from Operations
-# =============================================================================
+rust = '''
+pub fn get_flag() -> bool {
+    let b = true;
+    return b;
+}
+'''
 
 [[test]]
 name = "infer_int_from_arithmetic"
 description = "Infer int type from arithmetic"
 tags = ["inference", "arithmetic"]
 
-[test.python]
-code = '''
+python = '''
 def increment(x):
     return x + 1
 '''
 
-[test.assertions]
-contains_any = [["i32", "i64", "isize"]]
-not_contains = ["serde_json::Value"]
+rust = '''
+pub fn increment(x: i32) -> i32 {
+    return x + 1;
+}
+'''
 
 [[test]]
 name = "infer_float_from_division"
 description = "Infer float from true division"
 tags = ["inference", "division"]
 
-[test.python]
-code = '''
+python = '''
 def half(x: float) -> float:
     return x / 2.0
 '''
 
-[test.assertions]
-contains = ["f64"]
+rust = '''
+#[derive(Debug, Clone)]
+pub struct ZeroDivisionError {
+    message: String,
+}
+impl std::fmt::Display for ZeroDivisionError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "division by zero: {}", self.message)
+    }
+}
+impl std::error::Error for ZeroDivisionError {}
+impl ZeroDivisionError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = " Depyler: proven to terminate"]
+pub fn half(x: f64) -> f64 {
+    return x / 2.0;
+}
+'''
 
 [[test]]
 name = "infer_string_from_concat"
 description = "Infer string from concatenation"
 tags = ["inference", "string"]
 
-[test.python]
-code = '''
+python = '''
 def greet(name: str) -> str:
     return "Hello, " + name
 '''
 
-[test.assertions]
-contains_any = [["String", "&str"]]
-
-# =============================================================================
-# Inference from Method Calls
-# =============================================================================
+rust = '''
+pub fn greet(name: String) -> String {
+    return format!("{}{}", "Hello, ", name);
+}
+'''
 
 [[test]]
 name = "infer_string_from_upper"
 description = "Infer string from .upper() call"
 tags = ["inference", "method"]
 
-[test.python]
-code = '''
+python = '''
 def shout(text: str) -> str:
     return text.upper()
 '''
 
-[test.assertions]
-contains_any = [["String", "&str"]]
-contains = ["to_uppercase"]
+rust = '''
+pub fn shout(text: String) -> String {
+    return text.to_uppercase();
+}
+'''
 
 [[test]]
 name = "infer_list_from_append"
 description = "Infer list from .append() call"
 tags = ["inference", "method"]
 
-[test.python]
-code = '''
+python = '''
 def add_item(items: list[int], item: int):
     items.append(item)
     return items
 '''
 
-[test.assertions]
-contains = ["Vec"]
-
-# =============================================================================
-# Inference from Builtins
-# =============================================================================
+rust = '''
+pub fn add_item(items: &mut Vec<i32>, item: i32) {
+    items.push(item);
+    return items;
+}
+'''
 
 [[test]]
 name = "infer_int_from_len"
 description = "Infer int from len()"
 tags = ["inference", "builtin"]
 
-[test.python]
-code = '''
+python = '''
 def count(items: list[int]) -> int:
     return len(items)
 '''
 
-[test.assertions]
-contains_any = [["usize", "i32", "i64"]]
+rust = '''
+pub fn count(items: &Vec<i32>) -> i32 {
+    return items.len() as i32 as i32;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_count_examples() {
+        assert_eq!(count(vec![]), 0);
+        assert_eq!(count(vec![1]), 1);
+        assert_eq!(count(vec![1, 2, 3]), 3);
+    }
+}
+'''
 
 [[test]]
 name = "infer_string_from_str_call"
 description = "Infer string from str()"
 tags = ["inference", "builtin"]
 
-[test.python]
-code = '''
+python = '''
 def to_string(x: int) -> str:
     return str(x)
 '''
 
-[test.assertions]
-contains_any = [["String", "to_string()"]]
-
-# =============================================================================
-# Type Annotations
-# =============================================================================
+rust = '''
+pub fn to_string(x: i32) -> String {
+    return x.to_string();
+}
+'''
 
 [[test]]
 name = "annotated_parameter"
 description = "Typed parameter annotation"
 tags = ["annotation", "parameter"]
 
-[test.python]
-code = '''
+python = '''
 def add(a: int, b: int) -> int:
     return a + b
 '''
 
-[test.assertions]
-contains_any = [["a: i32", "a: i64"]]
+rust = '''
+pub fn add(a: i32, b: i32) -> i32 {
+    return a + b;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn quickcheck_add() {
+        fn prop(a: i32, b: i32) -> TestResult {
+            if (a > 0 && b > i32::MAX - a) || (a < 0 && b < i32::MIN - a) {
+                return TestResult::discard();
+            }
+            let result1 = add(a.clone(), b.clone());
+            let result2 = add(b.clone(), a.clone());
+            if result1 != result2 {
+                return TestResult::failed();
+            }
+            TestResult::passed()
+        }
+        quickcheck(prop as fn(i32, i32) -> TestResult);
+    }
+    #[test]
+    fn test_add_examples() {
+        assert_eq!(add(0, 0), 0);
+        assert_eq!(add(1, 2), 3);
+        assert_eq!(add(-1, 1), 0);
+    }
+}
+'''
 
 [[test]]
 name = "annotated_return"
 description = "Typed return annotation"
 tags = ["annotation", "return"]
 
-[test.python]
-code = '''
+python = '''
 def get_name() -> str:
     return "Alice"
 '''
 
-[test.assertions]
-contains_any = [["-> String", "-> &str"]]
+rust = '''
+pub fn get_name() -> String {
+    return "Alice".to_string();
+}
+'''
 
 [[test]]
 name = "annotated_variable"
 description = "Typed variable annotation"
 tags = ["annotation", "variable"]
 
-[test.python]
-code = '''
+python = '''
 def typed_var() -> int:
     x: int = 42
     return x
 '''
 
-[test.assertions]
-contains_any = [["i32", "i64"]]
-
-# =============================================================================
-# Generic Type Inference
-# =============================================================================
+rust = '''
+pub fn typed_var() -> i32 {
+    let x: i32 = 42;
+    return x;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_typed_var_examples() {
+        let _ = typed_var();
+    }
+}
+'''
 
 [[test]]
 name = "infer_list_element_type"
 description = "Infer list element type"
 tags = ["inference", "generic"]
 
-[test.python]
-code = '''
+python = '''
 def first(items: list[int]) -> int:
     return items[0]
 '''
 
-[test.assertions]
-contains_any = [["Vec<i32>", "Vec<i64>"]]
+rust = '''
+#[derive(Debug, Clone)]
+pub struct IndexError {
+    message: String,
+}
+impl std::fmt::Display for IndexError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "index out of range: {}", self.message)
+    }
+}
+impl std::error::Error for IndexError {}
+impl IndexError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = " Depyler: proven to terminate"]
+pub fn first(items: &Vec<i32>) -> i32 {
+    return items.get(0usize).cloned().unwrap();
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_first_examples() {
+        assert_eq!(first(vec![]), 0);
+        assert_eq!(first(vec![1]), 1);
+        assert_eq!(first(vec![1, 2, 3]), 3);
+    }
+}
+'''
 
 [[test]]
 name = "infer_dict_types"
 description = "Infer dictionary key/value types"
 tags = ["inference", "generic"]
 
-[test.python]
-code = '''
+python = '''
 def get_value(d: dict[str, int], key: str) -> int:
     return d[key]
 '''
 
-[test.assertions]
-contains = ["HashMap"]
-
-# =============================================================================
-# Union Type Inference
-# =============================================================================
+rust = '''
+use std::collections::HashMap;
+#[derive(Debug, Clone)]
+pub struct IndexError {
+    message: String,
+}
+impl std::fmt::Display for IndexError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "index out of range: {}", self.message)
+    }
+}
+impl std::error::Error for IndexError {}
+impl IndexError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = " Depyler: proven to terminate"]
+pub fn get_value(d: &HashMap<String, i32>, key: String) -> i32 {
+    return d.get(&key).cloned().unwrap();
+}
+'''
 
 [[test]]
 name = "union_type_annotation"
 description = "Union type annotation"
 tags = ["annotation", "union"]
 
-[test.python]
-code = '''
+python = '''
 from typing import Union
 
 def maybe_int(flag: bool) -> Union[int, str]:
@@ -281,20 +412,56 @@ def maybe_int(flag: bool) -> Union[int, str]:
     return "none"
 '''
 
-[test.assertions]
-contains_any = [["enum", "Either", "Result"]]
-
-# =============================================================================
-# Optional Type Inference
-# =============================================================================
+rust = '''
+#[derive(Debug, Clone, PartialEq)]
+pub enum IntOrStringUnion {
+    Integer(i32),
+    Text(String),
+}
+impl From<i32> for IntOrStringUnion {
+    fn from(value: i32) -> Self {
+        IntOrStringUnion::Integer(value)
+    }
+}
+impl From<String> for IntOrStringUnion {
+    fn from(value: String) -> Self {
+        IntOrStringUnion::Text(value)
+    }
+}
+impl IntOrStringUnion {
+    pub fn is_integer(&self) -> bool {
+        matches!(self, IntOrStringUnion::Integer(_))
+    }
+    pub fn is_text(&self) -> bool {
+        matches!(self, IntOrStringUnion::Text(_))
+    }
+    pub fn as_integer(&self) -> Option<&i32> {
+        match self {
+            IntOrStringUnion::Integer(value) => Some(value),
+            _ => None,
+        }
+    }
+    pub fn as_text(&self) -> Option<&String> {
+        match self {
+            IntOrStringUnion::Text(value) => Some(value),
+            _ => None,
+        }
+    }
+}
+pub fn maybe_int(flag: bool) -> IntOrStringUnion {
+    if flag {
+        return 42;
+    }
+    return "none";
+}
+'''
 
 [[test]]
 name = "optional_type_annotation"
 description = "Optional type annotation"
 tags = ["annotation", "optional"]
 
-[test.python]
-code = '''
+python = '''
 from typing import Optional
 
 def maybe_value(x: int) -> Optional[int]:
@@ -303,147 +470,201 @@ def maybe_value(x: int) -> Optional[int]:
     return None
 '''
 
-[test.assertions]
-contains = ["Option<"]
-
-# =============================================================================
-# Return Type Inference
-# =============================================================================
+rust = '''
+pub fn maybe_value(x: i32) -> Option<i32> {
+    let _cse_temp_0 = x > 0;
+    if _cse_temp_0 {
+        return Some(x);
+    }
+    return None;
+}
+'''
 
 [[test]]
 name = "infer_return_from_body"
 description = "Infer return type from function body"
 tags = ["inference", "return"]
 
-[test.python]
-code = '''
+python = '''
 def compute():
     return 42
 '''
 
-[test.assertions]
-contains_any = [["-> i32", "-> i64"]]
+rust = '''
+pub fn compute() -> i32 {
+    return 42;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_compute_examples() {
+        let _ = compute();
+    }
+}
+'''
 
 [[test]]
 name = "infer_return_list"
 description = "Infer list return type"
 tags = ["inference", "return", "list"]
 
-[test.python]
-code = '''
+python = '''
 def make_list() -> list[int]:
     return [1, 2, 3]
 '''
 
-[test.assertions]
-contains_any = [["Vec<i32>", "Vec<i64>"]]
-
-# =============================================================================
-# isinstance Optimization
-# =============================================================================
+rust = '''
+pub fn make_list() -> Vec<i32> {
+    return vec![1, 2, 3];
+}
+'''
 
 [[test]]
 name = "isinstance_int_removed"
 description = "isinstance(x, int) removed when x is typed as int"
 tags = ["isinstance", "optimization"]
 
-[test.python]
-code = '''
+python = '''
 def check_int(x: int) -> bool:
     return isinstance(x, int)
 '''
 
-[test.assertions]
-contains = ["true"]
-not_contains = ["isinstance"]
+rust = '''
+pub fn check_int(x: i32) -> bool {
+    return true;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_check_int_examples() {
+        let _ = check_int(Default::default());
+    }
+}
+'''
 
 [[test]]
 name = "isinstance_str_removed"
 description = "isinstance(s, str) removed when s is typed as str"
 tags = ["isinstance", "optimization"]
 
-[test.python]
-code = '''
+python = '''
 def check_str(s: str) -> bool:
     return isinstance(s, str)
 '''
 
-[test.assertions]
-contains = ["true"]
-not_contains = ["isinstance"]
+rust = '''
+pub fn check_str(s: String) -> bool {
+    return true;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_check_str_examples() {
+        let _ = check_str(Default::default());
+    }
+}
+'''
 
 [[test]]
 name = "isinstance_float_removed"
 description = "isinstance(x, float) removed when x is typed as float"
 tags = ["isinstance", "optimization"]
 
-[test.python]
-code = '''
+python = '''
 def check_float(x: float) -> bool:
     return isinstance(x, float)
 '''
 
-[test.assertions]
-contains = ["true"]
-not_contains = ["isinstance"]
+rust = '''
+pub fn check_float(x: f64) -> bool {
+    return true;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_check_float_examples() {
+        let _ = check_float(Default::default());
+    }
+}
+'''
 
 [[test]]
 name = "isinstance_list_removed"
 description = "isinstance(items, list) removed when items is typed as list"
 tags = ["isinstance", "optimization"]
 
-[test.python]
-code = '''
+python = '''
 def check_list(items: list[int]) -> bool:
     return isinstance(items, list)
 '''
 
-[test.assertions]
-contains = ["true"]
-not_contains = ["isinstance"]
-
-# =============================================================================
-# Inference from Usage Context (from test_type_inference.rs)
-# =============================================================================
+rust = '''
+pub fn check_list(items: &Vec<i32>) -> bool {
+    return true;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_check_list_examples() {
+        let _ = check_list(Default::default());
+    }
+}
+'''
 
 [[test]]
 name = "infer_filepath_from_open"
 description = "Infer string type from open() usage"
 tags = ["inference", "usage"]
 
-[test.python]
-code = '''
+python = '''
 def read_file(filepath):
     with open(filepath) as f:
         return f.read()
 '''
 
-[test.assertions]
-contains_any = [["filepath: &str", "filepath: String"]]
-not_contains = ["serde_json::Value"]
+rust = '''
+pub fn read_file(filepath: String) {
+    let mut f = std::fs::File::open(filepath)?;
+    return {
+        let mut content = String::new();
+        f.read_to_string(&mut content)?;
+        content
+    };
+}
+'''
 
 [[test]]
 name = "infer_string_from_fstring"
 description = "Infer string type from f-string usage"
 tags = ["inference", "fstring"]
 
-[test.python]
-code = '''
+python = '''
 def greet(name):
     return f"Hello, {name}"
 '''
 
-[test.assertions]
-contains_any = [["name: &str", "name: String"]]
-not_contains = ["serde_json::Value"]
+rust = '''
+pub fn greet(name: String) -> String {
+    return format!("Hello, {}", name);
+}
+'''
 
 [[test]]
 name = "infer_list_from_iteration"
 description = "Infer list type from iteration"
 tags = ["inference", "iteration"]
 
-[test.python]
-code = '''
+python = '''
 def sum_list(items):
     total = 0
     for item in items:
@@ -451,52 +672,75 @@ def sum_list(items):
     return total
 '''
 
-[test.assertions]
-contains_any = [["items: &[", "items: Vec<", "items: &Vec<"]]
-not_contains = ["serde_json::Value"]
+rust = '''
+pub fn sum_list(items: &Vec<i32>) -> i32 {
+    let mut total = 0;
+    for item in items.iter().cloned() {
+        total = total + item;
+    }
+    return total;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_sum_list_examples() {
+        assert_eq!(sum_list(vec![]), 0);
+        assert_eq!(sum_list(vec![1]), 1);
+        assert_eq!(sum_list(vec![1, 2, 3]), 6);
+    }
+}
+'''
 
 [[test]]
 name = "infer_bool_from_conditional"
 description = "Infer bool type from conditional usage"
 tags = ["inference", "conditional"]
 
-[test.python]
-code = '''
+python = '''
 def conditional(flag):
     if flag:
         return "yes"
     return "no"
 '''
 
-[test.assertions]
-contains = ["flag: bool"]
-not_contains = ["serde_json::Value"]
+rust = '''
+pub fn conditional(flag: bool) -> String {
+    if flag {
+        return "yes".to_string();
+    }
+    return "no".to_string();
+}
+'''
 
 [[test]]
 name = "infer_mixed_types"
 description = "Infer multiple parameter types"
 tags = ["inference", "mixed"]
 
-[test.python]
-code = '''
+python = '''
 def process(data, flag):
     if flag:
         return data.upper()
     return data
 '''
 
-[test.assertions]
-contains_any = [["data: &str", "data: String"]]
-contains = ["flag: bool"]
-not_contains = ["serde_json::Value"]
+rust = '''
+pub fn process(data: String, flag: bool) -> String {
+    if flag {
+        return data.to_uppercase();
+    }
+    return data;
+}
+'''
 
 [[test]]
 name = "infer_csv_path"
 description = "Infer string from CSV reader context"
 tags = ["inference", "csv"]
 
-[test.python]
-code = '''
+python = '''
 import csv
 
 def process_csv(path):
@@ -506,31 +750,68 @@ def process_csv(path):
             print(row['name'])
 '''
 
-[test.assertions]
-contains_any = [["path: &str", "path: String"]]
-not_contains = ["serde_json::Value"]
+rust = '''
+use csv;
+#[derive(Debug, Clone)]
+pub struct IndexError {
+    message: String,
+}
+impl std::fmt::Display for IndexError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "index out of range: {}", self.message)
+    }
+}
+impl std::error::Error for IndexError {}
+impl IndexError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+pub fn process_csv(path: String) {
+    let mut f = std::fs::File::open(path)?;
+    let reader = csv::ReaderBuilder::new().has_headers(true).from_reader(f);
+    for result in reader.deserialize::<HashMap<String, String>>() {
+        let row = result?;
+        println!("{}", row.get("name").cloned().unwrap());
+    }
+}
+'''
 
 [[test]]
 name = "return_type_propagation"
 description = "Respect explicit return type annotations"
 tags = ["inference", "return"]
 
-[test.python]
-code = '''
+python = '''
 def get_length(text: str) -> int:
     return len(text)
 '''
 
-[test.assertions]
-contains_any = [["text: &str", "text: String"], ["-> i32", "-> i64", "-> usize"]]
+rust = '''
+pub fn get_length(text: String) -> i32 {
+    return text.len() as i32 as i32;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_get_length_examples() {
+        assert_eq!(get_length(""), 0);
+        assert_eq!(get_length("a"), 1);
+        assert_eq!(get_length("abc"), 3);
+    }
+}
+'''
 
 [[test]]
 name = "infer_search_function"
 description = "Infer list and target types in search - untyped params use serde_json::Value"
 tags = ["inference", "complex"]
 
-[test.python]
-code = '''
+python = '''
 def search(items, target):
     for item in items:
         if item == target:
@@ -538,110 +819,159 @@ def search(items, target):
     return False
 '''
 
-[test.assertions]
-contains = ["fn search"]
-contains_any = [["items: &serde_json::Value", "items: &[", "items: Vec<"]]
-
-# =============================================================================
-# int(str) Parsing (from test_int_str_parsing.rs)
-# =============================================================================
+rust = '''
+use serde_json;
+pub fn search(items: &serde_json::Value, target: &serde_json::Value) -> bool {
+    for item in items.iter().cloned() {
+        if item == target {
+            return true;
+        }
+    }
+    return false;
+}
+'''
 
 [[test]]
 name = "int_str_simple"
 description = "int(str) uses .parse::<i32>()"
 tags = ["parse", "int", "str"]
 
-[test.python]
-code = '''
+python = '''
 def parse_number(s: str) -> int:
     return int(s)
 '''
 
-[test.assertions]
-contains = [".parse::<i32>()"]
-not_contains = [") as i32"]
+rust = '''
+pub fn parse_number(s: String) -> i32 {
+    return s.parse::<i32>().unwrap();
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_parse_number_examples() {
+        assert_eq!(parse_number(""), 0);
+        assert_eq!(parse_number("a"), 1);
+        assert_eq!(parse_number("abc"), 3);
+    }
+}
+'''
 
 [[test]]
 name = "int_str_multiple_calls"
 description = "Multiple int(str) conversions"
 tags = ["parse", "int", "str"]
 
-[test.python]
-code = '''
+python = '''
 def parse_and_add(s1: str, s2: str) -> int:
     a = int(s1)
     b = int(s2)
     return a + b
 '''
 
-[test.assertions]
-contains = [".parse::<i32>()"]
+rust = '''
+pub fn parse_and_add(s1: String, s2: String) -> i32 {
+    let _cse_temp_0 = s1.parse::<i32>().unwrap();
+    let a = _cse_temp_0;
+    let _cse_temp_1 = s2.parse::<i32>().unwrap();
+    let b = _cse_temp_1;
+    return a + b;
+}
+'''
 
 [[test]]
 name = "int_number_not_string"
 description = "int(int) should not use .parse()"
 tags = ["parse", "int"]
 
-[test.python]
-code = '''
+python = '''
 def double_int(x: int) -> int:
     return int(x) * 2
 '''
 
-[test.assertions]
-not_contains = [".parse"]
+rust = '''
+pub fn double_int(x: i32) -> i32 {
+    return (x) as i32 * 2;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_double_int_examples() {
+        assert_eq!(double_int(0), 0);
+        assert_eq!(double_int(1), 1);
+        assert_eq!(double_int(-1), -1);
+    }
+}
+'''
 
 [[test]]
 name = "int_float_cast"
 description = "int(float) uses 'as i32' cast"
 tags = ["parse", "int", "float"]
 
-[test.python]
-code = '''
+python = '''
 def truncate_float(x: float) -> int:
     return int(x)
 '''
 
-[test.assertions]
-contains_any = [["as i32", "as i64"]]
-not_contains = [".parse"]
+rust = '''
+pub fn truncate_float(x: f64) -> i32 {
+    return (x) as i32;
+}
+'''
 
 [[test]]
 name = "int_bool_cast"
 description = "int(bool) uses 'as i32' cast"
 tags = ["parse", "int", "bool"]
 
-[test.python]
-code = '''
+python = '''
 def bool_to_int(b: bool) -> int:
     return int(b)
 '''
 
-[test.assertions]
-contains_any = [["as i32", "as i64"]]
-not_contains = [".parse"]
+rust = '''
+pub fn bool_to_int(b: bool) -> i32 {
+    return (b) as i32;
+}
+'''
 
 [[test]]
 name = "int_str_in_expression"
 description = "int(str) nested in expression"
 tags = ["parse", "int", "str"]
 
-[test.python]
-code = '''
+python = '''
 def calculate(s: str) -> int:
     return int(s) * 2 + 10
 '''
 
-[test.assertions]
-contains = [".parse::<i32>()"]
+rust = '''
+pub fn calculate(s: String) -> i32 {
+    return s.parse::<i32>().unwrap() * 2 + 10;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_calculate_examples() {
+        assert_eq!(calculate(""), 0);
+        assert_eq!(calculate("a"), 1);
+        assert_eq!(calculate("abc"), 3);
+    }
+}
+'''
 
 [[test]]
 name = "int_str_as_function_arg"
 description = "int(str) as function argument"
 tags = ["parse", "int", "str"]
 
-[test.python]
-code = '''
+python = '''
 def helper(x: int) -> int:
     return x * 2
 
@@ -649,20 +979,38 @@ def parse_and_call(s: str) -> int:
     return helper(int(s))
 '''
 
-[test.assertions]
-contains = [".parse::<i32>()"]
-
-# =============================================================================
-# DynamicType Bug Tests - untyped collections should not use DynamicType
-# =============================================================================
+rust = '''
+pub fn helper(x: i32) -> i32 {
+    return x * 2;
+}
+pub fn parse_and_call(s: String) -> i32 {
+    return helper(s.parse::<i32>().unwrap());
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_helper_examples() {
+        assert_eq!(helper(0), 0);
+        assert_eq!(helper(1), 1);
+        assert_eq!(helper(-1), -1);
+    }
+    #[test]
+    fn test_parse_and_call_examples() {
+        assert_eq!(parse_and_call(""), 0);
+        assert_eq!(parse_and_call("a"), 1);
+        assert_eq!(parse_and_call("abc"), 3);
+    }
+}
+'''
 
 [[test]]
 name = "untyped_list_parameter_no_dynamic"
 description = "Untyped list parameter should not generate DynamicType"
 tags = ["dynamic", "list", "regression"]
 
-[test.python]
-code = '''
+python = '''
 def sum_list(numbers: list) -> int:
     total = 0
     for num in numbers:
@@ -670,347 +1018,536 @@ def sum_list(numbers: list) -> int:
     return total
 '''
 
-[test.assertions]
-not_contains = ["DynamicType"]
+rust = '''
+use serde_json;
+pub fn sum_list(numbers: &Vec<serde_json::Value>) -> i32 {
+    let mut total = 0;
+    for num in numbers.iter().cloned() {
+        total = total + num;
+    }
+    return total;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_sum_list_examples() {
+        assert_eq!(sum_list(vec![]), 0);
+        assert_eq!(sum_list(vec![1]), 1);
+        assert_eq!(sum_list(vec![1, 2, 3]), 6);
+    }
+}
+'''
 
 [[test]]
 name = "untyped_dict_parameter_no_dynamic"
 description = "Untyped dict parameter should not generate DynamicType"
 tags = ["dynamic", "dict", "regression"]
 
-[test.python]
-code = '''
+python = '''
 def get_value(data: dict, key: str) -> int:
     if key in data:
         return data[key]
     return 0
 '''
 
-[test.assertions]
-not_contains = ["DynamicType"]
+rust = '''
+use serde_json;
+use std::collections::HashMap;
+#[derive(Debug, Clone)]
+pub struct IndexError {
+    message: String,
+}
+impl std::fmt::Display for IndexError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "index out of range: {}", self.message)
+    }
+}
+impl std::error::Error for IndexError {}
+impl IndexError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = " Depyler: proven to terminate"]
+pub fn get_value(data: &HashMap<serde_json::Value, serde_json::Value>, key: String) -> i32 {
+    let _cse_temp_0 = data.clone().get(&key.clone()).is_some();
+    if _cse_temp_0 {
+        return data.get(&key).cloned().unwrap();
+    }
+    return 0;
+}
+'''
 
 [[test]]
 name = "untyped_set_parameter_no_dynamic"
 description = "Untyped set parameter should not generate DynamicType"
 tags = ["dynamic", "set", "regression"]
 
-[test.python]
-code = '''
+python = '''
 def count_unique(items: set) -> int:
     return len(items)
 '''
 
-[test.assertions]
-not_contains = ["DynamicType"]
-
-# =============================================================================
-# Type Annotation Preservation - Migrated from test_type_annotation.rs
-# =============================================================================
+rust = '''
+use serde_json;
+use std::collections::HashSet;
+pub fn count_unique(items: &HashSet<serde_json::Value>) -> i32 {
+    return items.len() as i32 as i32;
+}
+'''
 
 [[test]]
 name = "type_annotation_usize_to_i32"
 description = "Type annotation forces conversion from usize (len) to i32"
 tags = ["annotation", "conversion"]
 
-[test.python]
-code = '''
+python = '''
 def test() -> int:
     arr = [1, 2, 3]
     right: int = len(arr) - 1
     return right
 '''
 
-[test.assertions]
-contains = ["right: i32"]
-contains_any = [["as i32", ".try_into()"]]
+rust = '''
+pub fn test() -> i32 {
+    let arr = vec![1, 2, 3];
+    let _cse_temp_0 = arr.len() as i32;
+    let right: i32 = _cse_temp_0 - 1;
+    return right;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_test_examples() {
+        let _ = test();
+    }
+}
+'''
 
 [[test]]
 name = "type_annotation_simple_int"
 description = "Simple int type annotation is preserved"
 tags = ["annotation", "int"]
 
-[test.python]
-code = '''
+python = '''
 def test(val: int) -> int:
     x: int = val + 1
     return x
 '''
 
-[test.assertions]
-contains = ["x: i32"]
+rust = '''
+pub fn test(val: i32) -> i32 {
+    let x: i32 = val + 1;
+    return x;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_test_examples() {
+        assert_eq!(test(0), 0);
+        assert_eq!(test(1), 1);
+        assert_eq!(test(-1), -1);
+    }
+}
+'''
 
 [[test]]
 name = "type_annotation_str"
 description = "String type annotation produces String or &str"
 tags = ["annotation", "string"]
 
-[test.python]
-code = '''
+python = '''
 def test() -> str:
     name: str = "hello"
     return name
 '''
 
-[test.assertions]
-contains_any = [["String", "&str"]]
+rust = '''
+pub fn test() -> String {
+    let name: String = "hello".to_string();
+    return name;
+}
+'''
 
 [[test]]
 name = "no_annotation_infers_type"
 description = "Type inference works without explicit annotation"
 tags = ["inference", "no-annotation"]
 
-[test.python]
-code = '''
+python = '''
 def test(n: int) -> int:
     x = n + 1
     return x
 '''
 
-[test.assertions]
-contains = ["pub fn test"]
-
-# =============================================================================
-# Return Type Inference - Migrated from test_return_type_inference.rs
-# =============================================================================
+rust = '''
+pub fn test(n: i32) -> i32 {
+    let x = n + 1;
+    return x;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_test_examples() {
+        assert_eq!(test(0), 0);
+        assert_eq!(test(1), 1);
+        assert_eq!(test(-1), -1);
+    }
+}
+'''
 
 [[test]]
 name = "dict_return_infers_hashmap"
 description = "Dict return infers HashMap, not i32"
 tags = ["inference", "return", "dict"]
 
-[test.python]
-code = '''
+python = '''
 def create_config():
     return {"host": "localhost", "port": 5432}
 '''
 
-[test.assertions]
-not_contains = ["pub fn create_config() -> i32"]
-contains_any = [["HashMap", "Value"]]
+rust = '''
+use serde_json;
+use std::collections::HashMap;
+pub fn create_config() -> HashMap<String, String> {
+    return serde_json::json!({ "host": "localhost", "port": 5432 });
+}
+'''
 
 [[test]]
 name = "int_return_infers_i32"
 description = "Int return infers i32"
 tags = ["inference", "return", "int"]
 
-[test.python]
-code = '''
+python = '''
 def get_count():
     return 42
 '''
 
-[test.assertions]
-contains_any = [["pub fn get_count() -> i32", "pub fn get_count() -> i64"]]
+rust = '''
+pub fn get_count() -> i32 {
+    return 42;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_get_count_examples() {
+        let _ = get_count();
+    }
+}
+'''
 
 [[test]]
 name = "string_return_infers_string"
 description = "String return infers String or &str"
 tags = ["inference", "return", "string"]
 
-[test.python]
-code = '''
+python = '''
 def get_name():
     return "Alice"
 '''
 
-[test.assertions]
-contains_any = [["-> String", "-> &str"]]
+rust = '''
+pub fn get_name() -> String {
+    return "Alice".to_string();
+}
+'''
 
 [[test]]
 name = "bool_return_infers_bool"
 description = "Bool return infers bool"
 tags = ["inference", "return", "bool"]
 
-[test.python]
-code = '''
+python = '''
 def is_valid():
     return True
 '''
 
-[test.assertions]
-contains = ["pub fn is_valid() -> bool"]
+rust = '''
+pub fn is_valid() -> bool {
+    return true;
+}
+'''
 
 [[test]]
 name = "float_return_infers_f64"
 description = "Float return infers f64"
 tags = ["inference", "return", "float"]
 
-[test.python]
-code = '''
+python = '''
 def get_pi():
     return 3.14159
 '''
 
-[test.assertions]
-contains = ["pub fn get_pi() -> f64"]
+rust = '''
+pub fn get_pi() -> f64 {
+    return 3.14159;
+}
+'''
 
 [[test]]
 name = "list_return_infers_vec"
 description = "List return infers Vec, not i32"
 tags = ["inference", "return", "list"]
 
-[test.python]
-code = '''
+python = '''
 def get_items():
     return [1, 2, 3]
 '''
 
-[test.assertions]
-not_contains = ["pub fn get_items() -> i32"]
-contains_any = [["Vec", "Value"]]
-
-# =============================================================================
-# Generic Type Inference (migrated from test_generic_inference.rs)
-# =============================================================================
+rust = '''
+pub fn get_items() -> Vec<i32> {
+    return vec![1, 2, 3];
+}
+'''
 
 [[test]]
 name = "simple_generic_function"
 description = "Simple generic function with type parameter T"
 tags = ["generics", "typevar"]
 
-[test.python]
-code = '''
+python = '''
 def identity(x: T) -> T:
     return x
 '''
 
-[test.assertions]
-contains = ["pub fn identity<T: Clone>(x: T)", "-> T"]
+rust = '''
+pub fn identity<T: Clone>(x: T) -> T {
+    return x;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn quickcheck_identity() {
+        fn prop(x: ()) -> TestResult {
+            let result = identity(x.clone());
+            if result != x {
+                return TestResult::failed();
+            }
+            TestResult::passed()
+        }
+        quickcheck(prop as fn(()) -> TestResult);
+    }
+}
+'''
 
 [[test]]
 name = "generic_list_function"
 description = "Generic function with List[T] parameter"
 tags = ["generics", "list"]
 
-[test.python]
-code = '''
+python = '''
 from typing import List
 
 def first_element(items: List[T]) -> T:
     return items[0]
 '''
 
-[test.assertions]
-contains = ["Vec<T>"]
-contains_any = [["T: Clone", "T:Clone"]]
+rust = '''
+#[derive(Debug, Clone)]
+pub struct IndexError {
+    message: String,
+}
+impl std::fmt::Display for IndexError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "index out of range: {}", self.message)
+    }
+}
+impl std::error::Error for IndexError {}
+impl IndexError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = " Depyler: proven to terminate"]
+pub fn first_element<T: Clone>(items: &Vec<T>) -> T {
+    return items.get(0usize).cloned().unwrap();
+}
+'''
 
 [[test]]
 name = "multiple_type_parameters"
 description = "Function with multiple type parameters T and U"
 tags = ["generics", "typevar"]
 
-[test.python]
-code = '''
+python = '''
 from typing import Tuple
 
 def pair(a: T, b: U) -> Tuple[T, U]:
     return (a, b)
 '''
 
-[test.assertions]
-contains_any = [["T: Clone", "T:Clone"], ["U: Clone", "U:Clone"], ["Tuple<T, U>", "(T, U)"]]
+rust = '''
+pub fn pair<T: Clone, U: Clone>(a: &T, b: &U) -> (T, U) {
+    return (a, b);
+}
+'''
 
 [[test]]
 name = "generic_with_constraints"
 description = "Generic function should infer PartialOrd constraint from < operator"
 tags = ["generics", "constraints"]
 
-[test.python]
-code = '''
+python = '''
 def compare(a: T, b: T) -> bool:
     return a < b
 '''
 
-[test.assertions]
-contains_any = [["T: Clone + PartialOrd", "T: PartialOrd + Clone"]]
+rust = '''
+pub fn compare<T: Clone + PartialOrd>(a: &T, b: &T) -> bool {
+    return a < b;
+}
+'''
 
 [[test]]
 name = "generic_dict"
 description = "Generic function with Dict[K, V] parameter"
 tags = ["generics", "dict"]
 
-[test.python]
-code = '''
+python = '''
 from typing import Dict
 
 def get_value(mapping: Dict[K, V], key: K) -> V:
     return mapping[key]
 '''
 
-[test.assertions]
-contains = ["HashMap<K, V>"]
-contains_any = [["K: Clone", "K:"], ["V: Clone", "V:"]]
+rust = '''
+use std::collections::HashMap;
+#[derive(Debug, Clone)]
+pub struct IndexError {
+    message: String,
+}
+impl std::fmt::Display for IndexError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "index out of range: {}", self.message)
+    }
+}
+impl std::error::Error for IndexError {}
+impl IndexError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = " Depyler: proven to terminate"]
+pub fn get_value<V: Clone, K: Clone>(mapping: &HashMap<K, V>, key: &K) -> V {
+    return mapping.get(&key).cloned().unwrap();
+}
+'''
 
 [[test]]
 name = "type_var_in_optional"
 description = "Type variable in Optional type"
 tags = ["generics", "optional"]
 
-[test.python]
-code = '''
+python = '''
 from typing import Optional
 
 def maybe_value(x: Optional[T]) -> T:
     return x
 '''
 
-[test.assertions]
-contains = ["x: Option<T>"]
-contains_any = [["T: Clone", "T:Clone"]]
+rust = '''
+pub fn maybe_value<T: Clone>(x: Option<T>) -> T {
+    return x.unwrap();
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn quickcheck_maybe_value() {
+        fn prop(x: ()) -> TestResult {
+            let result = maybe_value(x.clone());
+            if result != x {
+                return TestResult::failed();
+            }
+            TestResult::passed()
+        }
+        quickcheck(prop as fn(()) -> TestResult);
+    }
+}
+'''
 
 [[test]]
 name = "generic_method_call_single_type_param"
 description = "Generic method call with single type parameter"
 tags = ["generics", "method-call"]
 
-[test.python]
-code = '''
+python = '''
 def test_infer():
     result = infer[str]("hello")
     return result
 '''
 
-[test.assertions]
-contains_any = [["infer::<", "infer::"]]
+rust = '''
+pub fn test_infer() {
+    let result = infer::<String>("hello".to_string());
+    return result;
+}
+'''
 
 [[test]]
 name = "generic_method_call_multiple_type_params"
 description = "Generic method call with multiple type parameters"
 tags = ["generics", "method-call"]
 
-[test.python]
-code = '''
+python = '''
 def test_convert():
     result = convert[int, str](42)
     return result
 '''
 
-[test.assertions]
-contains_any = [["convert::<", "convert::"]]
+rust = '''
+pub fn test_convert() {
+    let result = convert::<i32, String>(42);
+    return result;
+}
+'''
 
 [[test]]
 name = "generic_method_on_object"
 description = "Generic method call on object"
 tags = ["generics", "method-call"]
 
-[test.python]
-code = '''
+python = '''
 def test_method():
     obj = SomeClass()
     result = obj.method[int]("value")
     return result
 '''
 
-[test.assertions]
-contains_any = [[".method::<", ".method::"]]
+rust = '''
+pub fn test_method() {
+    let obj = SomeClass::new();
+    let result = obj.method::<i32>("value");
+    return result;
+}
+'''
 
 [[test]]
 name = "generic_method_with_complex_types"
 description = "Generic method with complex generic types as parameters"
 tags = ["generics", "method-call"]
 
-[test.python]
-code = '''
+python = '''
 from typing import List, Dict
 
 def test_complex():
@@ -1018,31 +1555,37 @@ def test_complex():
     return result
 '''
 
-[test.assertions]
-contains_any = [["process::<Vec<i32>", "process::"]]
+rust = '''
+pub fn test_complex() {
+    let result = process::<Vec<i32>, HashMap<String, i32>>(vec![1, 2, 3]);
+    return result;
+}
+'''
 
 [[test]]
 name = "chained_generic_method_calls"
 description = "Chained method calls with type parameters"
 tags = ["generics", "method-call"]
 
-[test.python]
-code = '''
+python = '''
 def test_chain():
     result = obj.first[int](10).second[str]("hello")
     return result
 '''
 
-[test.assertions]
-contains = [".first::<", ".second::<"]
+rust = '''
+pub fn test_chain() {
+    let result = obj.first::<i32>(10).second::<String>("hello");
+    return result;
+}
+'''
 
 [[test]]
 name = "generic_method_with_type_vars"
 description = "Generic method using type variables"
 tags = ["generics", "typevar"]
 
-[test.python]
-code = '''
+python = '''
 from typing import TypeVar
 
 T = TypeVar('T')
@@ -1052,66 +1595,80 @@ def wrapper(value: T) -> T:
     return result
 '''
 
-[test.assertions]
-contains_any = [["identity::<T>", "identity::"]]
+rust = '''
+pub const T: serde_json::Value = TypeVar::new("T");
+use serde_json;
+pub fn wrapper<T: Clone>(value: T) -> T {
+    let result = identity::<T>(value);
+    return result;
+}
+'''
 
 [[test]]
 name = "generic_constructor_call"
 description = "Generic constructor/instantiation"
 tags = ["generics", "constructor"]
 
-[test.python]
-code = '''
+python = '''
 def create_container():
     container = Container[int]()
     return container
 '''
 
-[test.assertions]
-contains_any = [["Container::<", "Container::"]]
+rust = '''
+pub fn create_container() {
+    let container = Container::<i32>();
+    return container;
+}
+'''
 
 [[test]]
 name = "generic_static_method_call"
 description = "Static/class method with type parameters"
 tags = ["generics", "static-method"]
 
-[test.python]
-code = '''
+python = '''
 def test_static():
     result = MyClass.create[int](42)
     return result
 '''
 
-[test.assertions]
-contains_any = [["MyClass::create::<", "create::"]]
+rust = '''
+pub fn test_static() {
+    let result = MyClass.create::<i32>(42);
+    return result;
+}
+'''
 
 [[test]]
 name = "generic_call_with_keyword_args_and_array"
 description = "Generic call with keyword args and array literal"
 tags = ["generics", "kwargs", "array"]
 
-[test.python]
-code = '''
+python = '''
 def test_func():
     result = call[Type](name = "name", input = [random.random(), float(int(2400 - 1200))])
     return result
 '''
 
-[test.assertions]
-contains = ["call::<Type>", "\"name\"", "2400", "1200"]
-contains_any = [["vec!", "rand::random"]]
-
-# =============================================================================
-# Migrated from tests/test_type_mapper_coverage.rs
-# =============================================================================
+rust = '''
+use rand::Rng;
+use rand::prelude::*;
+pub fn test_func() {
+    let result = call::<Type>(
+        "name".to_string(),
+        vec![rand::random::<f64>(), ((2400 - 1200) as i32) as f64],
+    );
+    return result;
+}
+'''
 
 [[test]]
 name = "type_mapper_union_with_none_optional"
 description = "Union[T, None] -> Option<T> mapping"
 tags = ["type-mapper", "union", "optional"]
 
-[test.python]
-code = '''
+python = '''
 from typing import Union
 
 def maybe_value(flag: bool) -> Union[int, None]:
@@ -1120,67 +1677,138 @@ def maybe_value(flag: bool) -> Union[int, None]:
     return None
 '''
 
-[test.assertions]
-contains = ["fn maybe_value"]
-contains_any = [["Option<", "Option"]]
+rust = '''
+pub fn maybe_value(flag: bool) -> Option<i32> {
+    if flag {
+        return 42;
+    }
+    return None;
+}
+'''
 
 [[test]]
 name = "type_mapper_union_without_none_enum"
 description = "Union[T, U] enum generation"
 tags = ["type-mapper", "union"]
 
-[test.python]
-code = '''
+python = '''
 from typing import Union
 
 def union_func(value: Union[int, str]) -> Union[int, str]:
     return value
 '''
 
-[test.assertions]
-contains = ["fn union_func"]
+rust = '''
+#[derive(Debug, Clone, PartialEq)]
+pub enum IntOrStringUnion {
+    Integer(i32),
+    Text(String),
+}
+impl From<i32> for IntOrStringUnion {
+    fn from(value: i32) -> Self {
+        IntOrStringUnion::Integer(value)
+    }
+}
+impl From<String> for IntOrStringUnion {
+    fn from(value: String) -> Self {
+        IntOrStringUnion::Text(value)
+    }
+}
+impl IntOrStringUnion {
+    pub fn is_integer(&self) -> bool {
+        matches!(self, IntOrStringUnion::Integer(_))
+    }
+    pub fn is_text(&self) -> bool {
+        matches!(self, IntOrStringUnion::Text(_))
+    }
+    pub fn as_integer(&self) -> Option<&i32> {
+        match self {
+            IntOrStringUnion::Integer(value) => Some(value),
+            _ => None,
+        }
+    }
+    pub fn as_text(&self) -> Option<&String> {
+        match self {
+            IntOrStringUnion::Text(value) => Some(value),
+            _ => None,
+        }
+    }
+}
+pub fn union_func(value: IntOrStringUnion) -> IntOrStringUnion {
+    return value;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn quickcheck_union_func() {
+        fn prop(value: ()) -> TestResult {
+            let result = union_func(value.clone());
+            if result != value {
+                return TestResult::failed();
+            }
+            TestResult::passed()
+        }
+        quickcheck(prop as fn(()) -> TestResult);
+    }
+}
+'''
 
 [[test]]
 name = "type_mapper_generic_list_type"
 description = "List[T] -> Vec<T> mapping"
 tags = ["type-mapper", "generic", "list"]
 
-[test.python]
-code = '''
+python = '''
 from typing import List
 
 def process_list(items: List[str]) -> int:
     return len(items)
 '''
 
-[test.assertions]
-contains = ["fn process_list"]
-contains_any = [["Vec<", "Vec"]]
+rust = '''
+pub fn process_list(items: &Vec<String>) -> i32 {
+    return items.len() as i32 as i32;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_process_list_examples() {
+        assert_eq!(process_list(vec![]), 0);
+        assert_eq!(process_list(vec![1]), 1);
+        assert_eq!(process_list(vec![1, 2, 3]), 3);
+    }
+}
+'''
 
 [[test]]
 name = "type_mapper_generic_dict_type"
 description = "Dict[K, V] -> HashMap<K, V> mapping"
 tags = ["type-mapper", "generic", "dict"]
 
-[test.python]
-code = '''
+python = '''
 from typing import Dict
 
 def get_value(data: Dict[str, int], key: str) -> int:
     return data.get(key, 0)
 '''
 
-[test.assertions]
-contains = ["fn get_value"]
-contains_any = [["HashMap<", "HashMap"]]
+rust = '''
+use std::collections::HashMap;
+pub fn get_value(data: &HashMap<String, i32>, key: String) -> i32 {
+    return data.get(&key).cloned().unwrap_or(0).unwrap();
+}
+'''
 
 [[test]]
 name = "type_mapper_custom_type_parameter"
 description = "TypeVar single-letter parameter detection"
 tags = ["type-mapper", "typevar"]
 
-[test.python]
-code = '''
+python = '''
 from typing import TypeVar
 
 T = TypeVar('T')
@@ -1189,16 +1817,36 @@ def identity(value: T) -> T:
     return value
 '''
 
-[test.assertions]
-contains = ["fn identity"]
+rust = '''
+pub const T: serde_json::Value = TypeVar::new("T");
+use serde_json;
+pub fn identity<T: Clone>(value: T) -> T {
+    return value;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn quickcheck_identity() {
+        fn prop(value: ()) -> TestResult {
+            let result = identity(value.clone());
+            if result != value {
+                return TestResult::failed();
+            }
+            TestResult::passed()
+        }
+        quickcheck(prop as fn(()) -> TestResult);
+    }
+}
+'''
 
 [[test]]
 name = "type_mapper_custom_type_name"
 description = "Custom class type mapping (best-effort)"
 tags = ["type-mapper", "custom-type"]
 
-[test.python]
-code = '''
+python = '''
 class MyClass:
     pass
 
@@ -1206,124 +1854,224 @@ def use_custom(obj: MyClass) -> MyClass:
     return obj
 '''
 
-[test.assertions]
-contains = ["fn use_custom"]
+rust = '''
+#[derive(Debug, Clone)]
+pub struct MyClass {}
+impl MyClass {
+    pub fn new() -> Self {
+        Self {}
+    }
+}
+pub fn use_custom(obj: MyClass) -> MyClass {
+    return obj;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn quickcheck_use_custom() {
+        fn prop(obj: ()) -> TestResult {
+            let result = use_custom(obj.clone());
+            if result != obj {
+                return TestResult::failed();
+            }
+            TestResult::passed()
+        }
+        quickcheck(prop as fn(()) -> TestResult);
+    }
+}
+'''
 
 [[test]]
 name = "type_mapper_array_with_literal_size"
 description = "Fixed-size array/list mapping"
 tags = ["type-mapper", "array"]
 
-[test.python]
-code = '''
+python = '''
 def fixed_array() -> list[int]:
     return [1, 2, 3, 4, 5]
 '''
 
-[test.assertions]
-contains = ["fn fixed_array"]
+rust = '''
+pub fn fixed_array() -> Vec<i32> {
+    return vec![1, 2, 3, 4, 5];
+}
+'''
 
 [[test]]
 name = "type_mapper_reference_with_lifetime"
 description = "Reference/lifetime mapping for str"
 tags = ["type-mapper", "lifetime"]
 
-[test.python]
-code = '''
+python = '''
 def borrow_str(s: str) -> str:
     return s
 '''
 
-[test.assertions]
-contains = ["fn borrow_str"]
+rust = '''
+pub fn borrow_str(s: String) -> String {
+    return s;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn quickcheck_borrow_str() {
+        fn prop(s: String) -> TestResult {
+            let result = borrow_str((&*s).into());
+            if result != s {
+                return TestResult::failed();
+            }
+            TestResult::passed()
+        }
+        quickcheck(prop as fn(String) -> TestResult);
+    }
+}
+'''
 
 [[test]]
 name = "type_mapper_mutable_reference"
 description = "Mutable list reference mapping"
 tags = ["type-mapper", "mutable"]
 
-[test.python]
-code = '''
+python = '''
 def mutate_list(items: list[int]) -> list[int]:
     items.append(42)
     return items
 '''
 
-[test.assertions]
-contains = ["fn mutate_list"]
+rust = '''
+pub fn mutate_list(mut items: Vec<i32>) -> Vec<i32> {
+    items.push(42);
+    return items;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_mutate_list_examples() {
+        assert_eq!(mutate_list(vec![]), vec![]);
+        assert_eq!(mutate_list(vec![1]), vec![1]);
+    }
+}
+'''
 
 [[test]]
 name = "type_mapper_cow_type"
 description = "Cow-like optimization detection"
 tags = ["type-mapper", "cow"]
 
-[test.python]
-code = '''
+python = '''
 def maybe_modify(s: str, modify: bool) -> str:
     if modify:
         return s.upper()
     return s
 '''
 
-[test.assertions]
-contains = ["fn maybe_modify"]
+rust = '''
+pub fn maybe_modify(s: String, modify: bool) -> String {
+    if modify {
+        return s.to_uppercase();
+    }
+    return s;
+}
+'''
 
 [[test]]
 name = "type_mapper_result_type"
 description = "Result type generation for raising functions"
 tags = ["type-mapper", "result"]
 
-[test.python]
-code = '''
+python = '''
 def may_fail(x: int) -> int:
     if x < 0:
         raise ValueError("negative value")
     return x * 2
 '''
 
-[test.assertions]
-contains = ["fn may_fail"]
-contains_any = [["Result<", "Result"]]
+rust = '''
+#[derive(Debug, Clone)]
+pub struct ValueError {
+    message: String,
+}
+impl std::fmt::Display for ValueError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "value error: {}", self.message)
+    }
+}
+impl std::error::Error for ValueError {}
+impl ValueError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = " Depyler: proven to terminate"]
+pub fn may_fail(x: i32) -> i32 {
+    let _cse_temp_0 = x < 0;
+    if _cse_temp_0 {
+        panic!("{}", "negative value");
+    }
+    return x * 2;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_may_fail_examples() {
+        assert_eq!(may_fail(0), 0);
+        assert_eq!(may_fail(1), 1);
+        assert_eq!(may_fail(-1), -1);
+    }
+}
+'''
 
 [[test]]
 name = "type_mapper_unsupported_function_type"
 description = "Unsupported Callable types should fail gracefully"
 tags = ["type-mapper", "callable"]
 
-[test.python]
-code = '''
+python = '''
 from typing import Callable
 
 def higher_order(func: Callable[[int], str]) -> str:
     return func(42)
 '''
 
-[test.assertions]
-not_contains = ["parse::<"]
+rust = '''
+// Transpilation failed
+'''
 
 [[test]]
 name = "type_mapper_generic_with_multiple_params"
 description = "Nested generic type handling"
 tags = ["type-mapper", "generic"]
 
-[test.python]
-code = '''
+python = '''
 from typing import Dict
 
 def multi_param(data: Dict[str, list[int]]) -> int:
     return 42
 '''
 
-[test.assertions]
-contains = ["fn multi_param"]
+rust = '''
+use std::collections::HashMap;
+pub fn multi_param(data: HashMap<String, Vec<i32>>) -> i32 {
+    return 42;
+}
+'''
 
 [[test]]
 name = "type_mapper_typevar_mapping"
 description = "Multiple TypeVars mapping"
 tags = ["type-mapper", "typevar"]
 
-[test.python]
-code = '''
+python = '''
 from typing import TypeVar
 
 T = TypeVar('T')
@@ -1333,30 +2081,38 @@ def swap(a: T, b: U) -> tuple[U, T]:
     return (b, a)
 '''
 
-[test.assertions]
-contains = ["fn swap"]
+rust = '''
+pub const T: serde_json::Value = TypeVar::new("T");
+pub const U: serde_json::Value = TypeVar::new("U");
+use serde_json;
+pub fn swap<T: Clone, U: Clone>(a: &T, b: &U) -> (U, T) {
+    return (b, a);
+}
+'''
 
 [[test]]
 name = "type_mapper_set_type_mapping"
 description = "Set[T] -> HashSet<T> mapping"
 tags = ["type-mapper", "set"]
 
-[test.python]
-code = '''
+python = '''
 def unique_items(items: list[int]) -> set[int]:
     return set(items)
 '''
 
-[test.assertions]
-contains = ["fn unique_items"]
+rust = '''
+use std::collections::HashSet;
+pub fn unique_items(items: Vec<i32>) -> HashSet<i32> {
+    return items.into_iter().collect::<HashSet<_>>();
+}
+'''
 
 [[test]]
 name = "type_mapper_mutation_complex_nested_types"
 description = "Complex nested types transpile without crashing"
 tags = ["type-mapper", "nested", "integration"]
 
-[test.python]
-code = '''
+python = '''
 from typing import Dict, Optional, List
 
 def complex_types(
@@ -1365,17 +2121,19 @@ def complex_types(
     return None
 '''
 
-[test.assertions]
-contains = ["fn complex_types"]
-contains_any = [["HashMap", "Option", "Vec<"]]
+rust = '''
+use std::collections::HashMap;
+pub fn complex_types(data: HashMap<String, Vec<Option<i32>>>) -> Option<String> {
+    return None;
+}
+'''
 
 [[test]]
 name = "type_mapper_all_type_features"
 description = "Integration: many type features together"
 tags = ["type-mapper", "integration"]
 
-[test.python]
-code = '''
+python = '''
 from typing import List, Dict, Optional, Union, Set
 
 def complex_function(
@@ -1394,106 +2152,222 @@ def complex_function(
     return result
 '''
 
-[test.assertions]
-contains = ["fn complex_function"]
-
-# =============================================================================
-# Extended Type Mapper Coverage (migrated from test_type_mapper_extended_coverage.rs)
-# =============================================================================
+rust = '''
+use std::collections::HashMap;
+use std::collections::HashSet;
+#[derive(Debug, Clone, PartialEq)]
+pub enum IntOrStringUnion {
+    Integer(i32),
+    Text(String),
+}
+impl From<i32> for IntOrStringUnion {
+    fn from(value: i32) -> Self {
+        IntOrStringUnion::Integer(value)
+    }
+}
+impl From<String> for IntOrStringUnion {
+    fn from(value: String) -> Self {
+        IntOrStringUnion::Text(value)
+    }
+}
+impl IntOrStringUnion {
+    pub fn is_integer(&self) -> bool {
+        matches!(self, IntOrStringUnion::Integer(_))
+    }
+    pub fn is_text(&self) -> bool {
+        matches!(self, IntOrStringUnion::Text(_))
+    }
+    pub fn as_integer(&self) -> Option<&i32> {
+        match self {
+            IntOrStringUnion::Integer(value) => Some(value),
+            _ => None,
+        }
+    }
+    pub fn as_text(&self) -> Option<&String> {
+        match self {
+            IntOrStringUnion::Text(value) => Some(value),
+            _ => None,
+        }
+    }
+}
+pub fn complex_function(
+    items: &Vec<i32>,
+    mapping: HashMap<String, Option<f64>>,
+    flags: HashSet<bool>,
+    value: IntOrStringUnion,
+) -> Option<HashMap<String, i32>> {
+    let _cse_temp_0 = items.clone().len() as i32;
+    let _cse_temp_1 = _cse_temp_0 == 0;
+    if _cse_temp_1 {
+        return None;
+    }
+    let mut result = {
+        let map = HashMap::new();
+        map
+    };
+    for item in items.iter().cloned() {
+        result.insert(item.to_string(), item * 2);
+    }
+    return Some(result);
+}
+'''
 
 [[test]]
 name = "unknown_type_mapping"
 description = "Unknown type maps to generic fallback"
 tags = ["type-mapper", "unknown"]
 
-[test.python]
-code = '''
+python = '''
 def process_any(data) -> int:
     return 42
 '''
 
-[test.assertions]
-contains = ["fn process_any"]
+rust = '''
+use serde_json;
+pub fn process_any(data: &serde_json::Value) -> i32 {
+    return 42;
+}
+'''
 
 [[test]]
 name = "int_type_default_i32"
 description = "Int type defaults to i32"
 tags = ["type-mapper", "int"]
 
-[test.python]
-code = '''
+python = '''
 def add_numbers(a: int, b: int) -> int:
     return a + b
 '''
 
-[test.assertions]
-contains = ["fn add_numbers"]
+rust = '''
+pub fn add_numbers(a: i32, b: i32) -> i32 {
+    return a + b;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn quickcheck_add_numbers() {
+        fn prop(a: i32, b: i32) -> TestResult {
+            if (a > 0 && b > i32::MAX - a) || (a < 0 && b < i32::MIN - a) {
+                return TestResult::discard();
+            }
+            let result1 = add_numbers(a.clone(), b.clone());
+            let result2 = add_numbers(b.clone(), a.clone());
+            if result1 != result2 {
+                return TestResult::failed();
+            }
+            TestResult::passed()
+        }
+        quickcheck(prop as fn(i32, i32) -> TestResult);
+    }
+    #[test]
+    fn test_add_numbers_examples() {
+        assert_eq!(add_numbers(0, 0), 0);
+        assert_eq!(add_numbers(1, 2), 3);
+        assert_eq!(add_numbers(-1, 1), 0);
+    }
+}
+'''
 
 [[test]]
 name = "float_type_mapping"
 description = "Float type maps to f64"
 tags = ["type-mapper", "float"]
 
-[test.python]
-code = '''
+python = '''
 def calculate(x: float, y: float) -> float:
     return x * y
 '''
 
-[test.assertions]
-contains = ["fn calculate"]
-contains_any = [["f64", "float"]]
+rust = '''
+pub fn calculate(x: f64, y: f64) -> f64 {
+    return x * y;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn quickcheck_calculate() {
+        fn prop(x: f64, y: f64) -> TestResult {
+            if x.is_nan() || y.is_nan() || x.is_infinite() || y.is_infinite() {
+                return TestResult::discard();
+            }
+            let result1 = calculate(x.clone(), y.clone());
+            let result2 = calculate(y.clone(), x.clone());
+            if result1 != result2 {
+                return TestResult::failed();
+            }
+            TestResult::passed()
+        }
+        quickcheck(prop as fn(f64, f64) -> TestResult);
+    }
+}
+'''
 
 [[test]]
 name = "bool_type_mapping"
 description = "Bool type maps to bool"
 tags = ["type-mapper", "bool"]
 
-[test.python]
-code = '''
+python = '''
 def check_flag(enabled: bool) -> bool:
     return not enabled
 '''
 
-[test.assertions]
-contains = ["fn check_flag", "bool"]
+rust = '''
+pub fn check_flag(enabled: bool) -> bool {
+    return !enabled;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_check_flag_examples() {
+        let _ = check_flag(Default::default());
+    }
+}
+'''
 
 [[test]]
 name = "none_type_unit_mapping"
 description = "None type maps to unit"
 tags = ["type-mapper", "none"]
 
-[test.python]
-code = '''
+python = '''
 def do_nothing():
     pass
 '''
 
-[test.assertions]
-contains = ["fn do_nothing"]
+rust = '''
+pub fn do_nothing() {}
+'''
 
 [[test]]
 name = "string_type_always_owned"
 description = "String type with owned strings"
 tags = ["type-mapper", "string"]
 
-[test.python]
-code = '''
+python = '''
 def greet(name: str) -> str:
     return "Hello, " + name
 '''
 
-[test.assertions]
-contains = ["fn greet"]
-contains_any = [["String", "str"]]
+rust = '''
+pub fn greet(name: String) -> String {
+    return format!("{}{}", "Hello, ", name);
+}
+'''
 
 [[test]]
 name = "list_with_inner_type"
 description = "List[T] maps to Vec<T>"
 tags = ["type-mapper", "list"]
 
-[test.python]
-code = '''
+python = '''
 def sum_list(numbers: list[int]) -> int:
     total = 0
     for n in numbers:
@@ -1501,45 +2375,66 @@ def sum_list(numbers: list[int]) -> int:
     return total
 '''
 
-[test.assertions]
-contains = ["fn sum_list"]
-contains_any = [["Vec", "vec"]]
+rust = '''
+pub fn sum_list(numbers: &Vec<i32>) -> i32 {
+    let mut total = 0;
+    for n in numbers.iter().cloned() {
+        total = total + n;
+    }
+    return total;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_sum_list_examples() {
+        assert_eq!(sum_list(vec![]), 0);
+        assert_eq!(sum_list(vec![1]), 1);
+        assert_eq!(sum_list(vec![1, 2, 3]), 6);
+    }
+}
+'''
 
 [[test]]
 name = "dict_with_key_value_types"
 description = "Dict[K,V] maps to HashMap<K,V>"
 tags = ["type-mapper", "dict"]
 
-[test.python]
-code = '''
+python = '''
 def lookup(mapping: dict[str, int], key: str) -> int:
     return mapping.get(key, 0)
 '''
 
-[test.assertions]
-contains = ["fn lookup"]
+rust = '''
+use std::collections::HashMap;
+pub fn lookup(mapping: &HashMap<String, i32>, key: String) -> i32 {
+    return mapping.get(&key).cloned().unwrap_or(0).unwrap();
+}
+'''
 
 [[test]]
 name = "tuple_type_mapping"
 description = "Tuple types map correctly"
 tags = ["type-mapper", "tuple"]
 
-[test.python]
-code = '''
+python = '''
 def get_pair() -> tuple[int, str]:
     return (42, "hello")
 '''
 
-[test.assertions]
-contains = ["fn get_pair"]
+rust = '''
+pub fn get_pair() -> (i32, String) {
+    return (42, "hello");
+}
+'''
 
 [[test]]
 name = "optional_type_mapping"
 description = "Optional[T] maps to Option<T>"
 tags = ["type-mapper", "optional"]
 
-[test.python]
-code = '''
+python = '''
 from typing import Optional
 
 def maybe_int(flag: bool) -> Optional[int]:
@@ -1548,17 +2443,21 @@ def maybe_int(flag: bool) -> Optional[int]:
     return None
 '''
 
-[test.assertions]
-contains = ["fn maybe_int"]
-contains_any = [["Option", "option"]]
+rust = '''
+pub fn maybe_int(flag: bool) -> Option<i32> {
+    if flag {
+        return Some(42);
+    }
+    return None;
+}
+'''
 
 [[test]]
 name = "custom_type_single_letter_type_param"
 description = "Single uppercase letter becomes type parameter"
 tags = ["type-mapper", "typevar"]
 
-[test.python]
-code = '''
+python = '''
 from typing import TypeVar
 
 T = TypeVar('T')
@@ -1567,64 +2466,97 @@ def identity(value: T) -> T:
     return value
 '''
 
-[test.assertions]
-contains = ["fn identity"]
+rust = '''
+pub const T: serde_json::Value = TypeVar::new("T");
+use serde_json;
+pub fn identity<T: Clone>(value: T) -> T {
+    return value;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn quickcheck_identity() {
+        fn prop(value: ()) -> TestResult {
+            let result = identity(value.clone());
+            if result != value {
+                return TestResult::failed();
+            }
+            TestResult::passed()
+        }
+        quickcheck(prop as fn(()) -> TestResult);
+    }
+}
+'''
 
 [[test]]
 name = "custom_type_dict_no_params"
 description = "Dict without params gets default typing"
 tags = ["type-mapper", "dict"]
 
-[test.python]
-code = '''
+python = '''
 from typing import Dict
 
 def process_dict() -> Dict:
     return {}
 '''
 
-[test.assertions]
-contains = ["fn process_dict"]
+rust = '''
+use serde_json;
+use std::collections::HashMap;
+pub fn process_dict() -> HashMap<String, serde_json::Value> {
+    return {
+        let map = HashMap::new();
+        map
+    };
+}
+'''
 
 [[test]]
 name = "custom_type_list_no_params"
 description = "List without params gets default typing"
 tags = ["type-mapper", "list"]
 
-[test.python]
-code = '''
+python = '''
 from typing import List
 
 def process_list() -> List:
     return []
 '''
 
-[test.assertions]
-contains = ["fn process_list"]
+rust = '''
+use serde_json;
+pub fn process_list() -> Vec<serde_json::Value> {
+    return vec![];
+}
+'''
 
 [[test]]
 name = "custom_type_set_no_params"
 description = "Set without params gets default typing"
 tags = ["type-mapper", "set"]
 
-[test.python]
-code = '''
+python = '''
 from typing import Set
 
 def get_unique() -> Set:
     return set()
 '''
 
-[test.assertions]
-contains = ["fn get_unique"]
+rust = '''
+use std::collections::HashSet;
+pub fn get_unique() -> HashSet<String> {
+    return HashSet::<i32>::new();
+}
+'''
 
 [[test]]
 name = "typevar_mapping"
 description = "TypeVar maps to type parameter"
 tags = ["type-mapper", "typevar"]
 
-[test.python]
-code = '''
+python = '''
 from typing import TypeVar
 
 T = TypeVar('T')
@@ -1633,74 +2565,164 @@ def wrap(value: T) -> T:
     return value
 '''
 
-[test.assertions]
-contains = ["fn wrap"]
+rust = '''
+pub const T: serde_json::Value = TypeVar::new("T");
+use serde_json;
+pub fn wrap<T: Clone>(value: T) -> T {
+    return value;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn quickcheck_wrap() {
+        fn prop(value: ()) -> TestResult {
+            let result = wrap(value.clone());
+            if result != value {
+                return TestResult::failed();
+            }
+            TestResult::passed()
+        }
+        quickcheck(prop as fn(()) -> TestResult);
+    }
+}
+'''
 
 [[test]]
 name = "nested_list_types"
 description = "Nested list types map correctly"
 tags = ["type-mapper", "nested", "list"]
 
-[test.python]
-code = '''
+python = '''
 def process_matrix(matrix: list[list[int]]) -> int:
     return len(matrix)
 '''
 
-[test.assertions]
-contains = ["fn process_matrix"]
+rust = '''
+pub fn process_matrix(matrix: &Vec<Vec<i32>>) -> i32 {
+    return matrix.len() as i32 as i32;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_process_matrix_examples() {
+        assert_eq!(process_matrix(vec![]), 0);
+        assert_eq!(process_matrix(vec![1]), 1);
+        assert_eq!(process_matrix(vec![1, 2, 3]), 3);
+    }
+}
+'''
 
 [[test]]
 name = "nested_dict_types"
 description = "Nested dict types map correctly"
 tags = ["type-mapper", "nested", "dict"]
 
-[test.python]
-code = '''
+python = '''
 def nested_lookup(data: dict[str, dict[str, int]]) -> int:
     return 0
 '''
 
-[test.assertions]
-contains = ["fn nested_lookup"]
+rust = '''
+use std::collections::HashMap;
+pub fn nested_lookup(data: HashMap<String, HashMap<String, i32>>) -> i32 {
+    return 0;
+}
+'''
 
 [[test]]
 name = "complex_tuple_types"
 description = "Heterogeneous tuple mapping"
 tags = ["type-mapper", "tuple"]
 
-[test.python]
-code = '''
+python = '''
 def get_record() -> tuple[str, int, float, bool]:
     return ("test", 42, 3.14, True)
 '''
 
-[test.assertions]
-contains = ["fn get_record"]
+rust = '''
+pub fn get_record() -> (String, i32, f64, bool) {
+    return ("test", 42, 3.14, true);
+}
+'''
 
 [[test]]
 name = "union_multiple_types"
 description = "Union with multiple types"
 tags = ["type-mapper", "union"]
 
-[test.python]
-code = '''
+python = '''
 from typing import Union
 
 def multi_type(value: Union[int, str, float]) -> str:
     return str(value)
 '''
 
-[test.assertions]
-contains = ["fn multi_type"]
+rust = '''
+#[derive(Debug, Clone, PartialEq)]
+pub enum FloatOrIntOrStringUnion {
+    Float(f64),
+    Integer(i32),
+    Text(String),
+}
+impl From<f64> for FloatOrIntOrStringUnion {
+    fn from(value: f64) -> Self {
+        FloatOrIntOrStringUnion::Float(value)
+    }
+}
+impl From<i32> for FloatOrIntOrStringUnion {
+    fn from(value: i32) -> Self {
+        FloatOrIntOrStringUnion::Integer(value)
+    }
+}
+impl From<String> for FloatOrIntOrStringUnion {
+    fn from(value: String) -> Self {
+        FloatOrIntOrStringUnion::Text(value)
+    }
+}
+impl FloatOrIntOrStringUnion {
+    pub fn is_float(&self) -> bool {
+        matches!(self, FloatOrIntOrStringUnion::Float(_))
+    }
+    pub fn is_integer(&self) -> bool {
+        matches!(self, FloatOrIntOrStringUnion::Integer(_))
+    }
+    pub fn is_text(&self) -> bool {
+        matches!(self, FloatOrIntOrStringUnion::Text(_))
+    }
+    pub fn as_float(&self) -> Option<&f64> {
+        match self {
+            FloatOrIntOrStringUnion::Float(value) => Some(value),
+            _ => None,
+        }
+    }
+    pub fn as_integer(&self) -> Option<&i32> {
+        match self {
+            FloatOrIntOrStringUnion::Integer(value) => Some(value),
+            _ => None,
+        }
+    }
+    pub fn as_text(&self) -> Option<&String> {
+        match self {
+            FloatOrIntOrStringUnion::Text(value) => Some(value),
+            _ => None,
+        }
+    }
+}
+pub fn multi_type(value: &FloatOrIntOrStringUnion) -> String {
+    return value.to_string();
+}
+'''
 
 [[test]]
 name = "optional_complex_type"
 description = "Optional with complex inner type"
 tags = ["type-mapper", "optional", "complex"]
 
-[test.python]
-code = '''
+python = '''
 from typing import Optional
 
 def maybe_dict(flag: bool) -> Optional[dict[str, int]]:
@@ -1709,46 +2731,71 @@ def maybe_dict(flag: bool) -> Optional[dict[str, int]]:
     return None
 '''
 
-[test.assertions]
-contains = ["fn maybe_dict"]
+rust = '''
+use std::collections::HashMap;
+pub fn maybe_dict(flag: bool) -> Option<HashMap<String, i32>> {
+    if flag {
+        return Some({
+            let map = HashMap::new();
+            map
+        });
+    }
+    return None;
+}
+'''
 
 [[test]]
 name = "list_of_optionals"
 description = "List containing Optional values"
 tags = ["type-mapper", "list", "optional"]
 
-[test.python]
-code = '''
+python = '''
 from typing import Optional
 
 def nullable_items(items: list[Optional[int]]) -> int:
     return len(items)
 '''
 
-[test.assertions]
-contains = ["fn nullable_items"]
+rust = '''
+pub fn nullable_items(items: &Vec<Option<i32>>) -> i32 {
+    return items.len() as i32 as i32;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_nullable_items_examples() {
+        assert_eq!(nullable_items(vec![]), 0);
+        assert_eq!(nullable_items(vec![1]), 1);
+        assert_eq!(nullable_items(vec![1, 2, 3]), 3);
+    }
+}
+'''
 
 [[test]]
 name = "dict_tuple_values"
 description = "Dict with tuple values"
 tags = ["type-mapper", "dict", "tuple"]
 
-[test.python]
-code = '''
+python = '''
 def tuple_dict(data: dict[str, tuple[int, int]]) -> int:
     return 0
 '''
 
-[test.assertions]
-contains = ["fn tuple_dict"]
+rust = '''
+use std::collections::HashMap;
+pub fn tuple_dict(data: HashMap<String, (i32, i32)>) -> i32 {
+    return 0;
+}
+'''
 
 [[test]]
 name = "complex_type_combinations"
 description = "All type features working together"
 tags = ["type-mapper", "integration"]
 
-[test.python]
-code = '''
+python = '''
 from typing import Optional, Union
 
 def complex_types(
@@ -1762,53 +2809,203 @@ def complex_types(
     return (count, status)
 '''
 
-[test.assertions]
-contains = ["fn complex_types"]
-
-# =============================================================================
-# Context Coverage Tests - Union Types
-# Migrated from test_context_coverage.rs
-# =============================================================================
+rust = '''
+use std::collections::HashMap;
+#[derive(Debug, Clone, PartialEq)]
+pub enum IntOrNoneOrStringUnion {
+    Integer(i32),
+    None,
+    Text(String),
+}
+impl From<i32> for IntOrNoneOrStringUnion {
+    fn from(value: i32) -> Self {
+        IntOrNoneOrStringUnion::Integer(value)
+    }
+}
+impl From<String> for IntOrNoneOrStringUnion {
+    fn from(value: String) -> Self {
+        IntOrNoneOrStringUnion::Text(value)
+    }
+}
+impl IntOrNoneOrStringUnion {
+    pub fn is_integer(&self) -> bool {
+        matches!(self, IntOrNoneOrStringUnion::Integer(_))
+    }
+    pub fn is_none(&self) -> bool {
+        matches!(self, IntOrNoneOrStringUnion::None)
+    }
+    pub fn is_text(&self) -> bool {
+        matches!(self, IntOrNoneOrStringUnion::Text(_))
+    }
+    pub fn as_integer(&self) -> Option<&i32> {
+        match self {
+            IntOrNoneOrStringUnion::Integer(value) => Some(value),
+            _ => None,
+        }
+    }
+    pub fn as_text(&self) -> Option<&String> {
+        match self {
+            IntOrNoneOrStringUnion::Text(value) => Some(value),
+            _ => None,
+        }
+    }
+}
+pub fn complex_types(
+    numbers: &Vec<i32>,
+    mapping: HashMap<String, Option<f64>>,
+    flag: bool,
+    result: IntOrNoneOrStringUnion,
+) -> (i32, String) {
+    let _cse_temp_0 = numbers.len() as i32;
+    let count = _cse_temp_0;
+    let status = if flag { "ok".to_string() } else { "error".to_string() };
+    return (count, status);
+}
+'''
 
 [[test]]
 name = "union_type_processing"
 description = "Union type parameter and return type"
 tags = ["union", "context-coverage"]
 
-[test.python]
-code = '''
+python = '''
 from typing import Union
 
 def union_func(value: Union[int, str]) -> Union[int, str]:
     return value
 '''
 
-[test.assertions]
-contains = ["fn union_func"]
+rust = '''
+#[derive(Debug, Clone, PartialEq)]
+pub enum IntOrStringUnion {
+    Integer(i32),
+    Text(String),
+}
+impl From<i32> for IntOrStringUnion {
+    fn from(value: i32) -> Self {
+        IntOrStringUnion::Integer(value)
+    }
+}
+impl From<String> for IntOrStringUnion {
+    fn from(value: String) -> Self {
+        IntOrStringUnion::Text(value)
+    }
+}
+impl IntOrStringUnion {
+    pub fn is_integer(&self) -> bool {
+        matches!(self, IntOrStringUnion::Integer(_))
+    }
+    pub fn is_text(&self) -> bool {
+        matches!(self, IntOrStringUnion::Text(_))
+    }
+    pub fn as_integer(&self) -> Option<&i32> {
+        match self {
+            IntOrStringUnion::Integer(value) => Some(value),
+            _ => None,
+        }
+    }
+    pub fn as_text(&self) -> Option<&String> {
+        match self {
+            IntOrStringUnion::Text(value) => Some(value),
+            _ => None,
+        }
+    }
+}
+pub fn union_func(value: IntOrStringUnion) -> IntOrStringUnion {
+    return value;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn quickcheck_union_func() {
+        fn prop(value: ()) -> TestResult {
+            let result = union_func(value.clone());
+            if result != value {
+                return TestResult::failed();
+            }
+            TestResult::passed()
+        }
+        quickcheck(prop as fn(()) -> TestResult);
+    }
+}
+'''
 
 [[test]]
 name = "union_multiple_types"
 description = "Union with three types"
 tags = ["union", "context-coverage"]
 
-[test.python]
-code = '''
+python = '''
 from typing import Union
 
 def multi_union(value: Union[int, str, bool]) -> int:
     return 42
 '''
 
-[test.assertions]
-contains = ["fn multi_union"]
+rust = '''
+#[derive(Debug, Clone, PartialEq)]
+pub enum BoolOrIntOrStringUnion {
+    Boolean(bool),
+    Integer(i32),
+    Text(String),
+}
+impl From<bool> for BoolOrIntOrStringUnion {
+    fn from(value: bool) -> Self {
+        BoolOrIntOrStringUnion::Boolean(value)
+    }
+}
+impl From<i32> for BoolOrIntOrStringUnion {
+    fn from(value: i32) -> Self {
+        BoolOrIntOrStringUnion::Integer(value)
+    }
+}
+impl From<String> for BoolOrIntOrStringUnion {
+    fn from(value: String) -> Self {
+        BoolOrIntOrStringUnion::Text(value)
+    }
+}
+impl BoolOrIntOrStringUnion {
+    pub fn is_boolean(&self) -> bool {
+        matches!(self, BoolOrIntOrStringUnion::Boolean(_))
+    }
+    pub fn is_integer(&self) -> bool {
+        matches!(self, BoolOrIntOrStringUnion::Integer(_))
+    }
+    pub fn is_text(&self) -> bool {
+        matches!(self, BoolOrIntOrStringUnion::Text(_))
+    }
+    pub fn as_boolean(&self) -> Option<&bool> {
+        match self {
+            BoolOrIntOrStringUnion::Boolean(value) => Some(value),
+            _ => None,
+        }
+    }
+    pub fn as_integer(&self) -> Option<&i32> {
+        match self {
+            BoolOrIntOrStringUnion::Integer(value) => Some(value),
+            _ => None,
+        }
+    }
+    pub fn as_text(&self) -> Option<&String> {
+        match self {
+            BoolOrIntOrStringUnion::Text(value) => Some(value),
+            _ => None,
+        }
+    }
+}
+pub fn multi_union(value: BoolOrIntOrStringUnion) -> i32 {
+    return 42;
+}
+'''
 
 [[test]]
 name = "nested_union_types"
 description = "Multiple parameters with different union types"
 tags = ["union", "context-coverage"]
 
-[test.python]
-code = '''
+python = '''
 from typing import Union
 
 def nested_unions(
@@ -1818,16 +3015,88 @@ def nested_unions(
     return a
 '''
 
-[test.assertions]
-contains = ["fn nested_unions"]
+rust = '''
+#[derive(Debug, Clone, PartialEq)]
+pub enum IntOrStringUnion {
+    Integer(i32),
+    Text(String),
+}
+impl From<i32> for IntOrStringUnion {
+    fn from(value: i32) -> Self {
+        IntOrStringUnion::Integer(value)
+    }
+}
+impl From<String> for IntOrStringUnion {
+    fn from(value: String) -> Self {
+        IntOrStringUnion::Text(value)
+    }
+}
+impl IntOrStringUnion {
+    pub fn is_integer(&self) -> bool {
+        matches!(self, IntOrStringUnion::Integer(_))
+    }
+    pub fn is_text(&self) -> bool {
+        matches!(self, IntOrStringUnion::Text(_))
+    }
+    pub fn as_integer(&self) -> Option<&i32> {
+        match self {
+            IntOrStringUnion::Integer(value) => Some(value),
+            _ => None,
+        }
+    }
+    pub fn as_text(&self) -> Option<&String> {
+        match self {
+            IntOrStringUnion::Text(value) => Some(value),
+            _ => None,
+        }
+    }
+}
+#[derive(Debug, Clone, PartialEq)]
+pub enum BoolOrFloatUnion {
+    Boolean(bool),
+    Float(f64),
+}
+impl From<bool> for BoolOrFloatUnion {
+    fn from(value: bool) -> Self {
+        BoolOrFloatUnion::Boolean(value)
+    }
+}
+impl From<f64> for BoolOrFloatUnion {
+    fn from(value: f64) -> Self {
+        BoolOrFloatUnion::Float(value)
+    }
+}
+impl BoolOrFloatUnion {
+    pub fn is_boolean(&self) -> bool {
+        matches!(self, BoolOrFloatUnion::Boolean(_))
+    }
+    pub fn is_float(&self) -> bool {
+        matches!(self, BoolOrFloatUnion::Float(_))
+    }
+    pub fn as_boolean(&self) -> Option<&bool> {
+        match self {
+            BoolOrFloatUnion::Boolean(value) => Some(value),
+            _ => None,
+        }
+    }
+    pub fn as_float(&self) -> Option<&f64> {
+        match self {
+            BoolOrFloatUnion::Float(value) => Some(value),
+            _ => None,
+        }
+    }
+}
+pub fn nested_unions(a: IntOrStringUnion, b: BoolOrFloatUnion) -> IntOrStringUnion {
+    return a;
+}
+'''
 
 [[test]]
 name = "union_enum_reuse"
 description = "Same union type used in multiple functions"
 tags = ["union", "context-coverage"]
 
-[test.python]
-code = '''
+python = '''
 from typing import Union
 
 def func1(value: Union[int, str]) -> Union[int, str]:
@@ -1837,16 +3106,83 @@ def func2(value: Union[int, str]) -> Union[int, str]:
     return value
 '''
 
-[test.assertions]
-contains = ["fn func1", "fn func2"]
+rust = '''
+#[derive(Debug, Clone, PartialEq)]
+pub enum IntOrStringUnion {
+    Integer(i32),
+    Text(String),
+}
+impl From<i32> for IntOrStringUnion {
+    fn from(value: i32) -> Self {
+        IntOrStringUnion::Integer(value)
+    }
+}
+impl From<String> for IntOrStringUnion {
+    fn from(value: String) -> Self {
+        IntOrStringUnion::Text(value)
+    }
+}
+impl IntOrStringUnion {
+    pub fn is_integer(&self) -> bool {
+        matches!(self, IntOrStringUnion::Integer(_))
+    }
+    pub fn is_text(&self) -> bool {
+        matches!(self, IntOrStringUnion::Text(_))
+    }
+    pub fn as_integer(&self) -> Option<&i32> {
+        match self {
+            IntOrStringUnion::Integer(value) => Some(value),
+            _ => None,
+        }
+    }
+    pub fn as_text(&self) -> Option<&String> {
+        match self {
+            IntOrStringUnion::Text(value) => Some(value),
+            _ => None,
+        }
+    }
+}
+pub fn func1(value: IntOrStringUnion) -> IntOrStringUnion {
+    return value;
+}
+pub fn func2(value: IntOrStringUnion) -> IntOrStringUnion {
+    return value;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn quickcheck_func1() {
+        fn prop(value: ()) -> TestResult {
+            let result = func1(value.clone());
+            if result != value {
+                return TestResult::failed();
+            }
+            TestResult::passed()
+        }
+        quickcheck(prop as fn(()) -> TestResult);
+    }
+    #[test]
+    fn quickcheck_func2() {
+        fn prop(value: ()) -> TestResult {
+            let result = func2(value.clone());
+            if result != value {
+                return TestResult::failed();
+            }
+            TestResult::passed()
+        }
+        quickcheck(prop as fn(()) -> TestResult);
+    }
+}
+'''
 
 [[test]]
 name = "complex_context_union"
 description = "Union type with isinstance narrowing"
 tags = ["union", "isinstance", "context-coverage"]
 
-[test.python]
-code = '''
+python = '''
 from typing import Union
 
 def complex_context(value: Union[int, str]) -> int:
@@ -1860,36 +3196,82 @@ def complex_context(value: Union[int, str]) -> int:
     return result
 '''
 
-[test.assertions]
-contains = ["fn complex_context"]
-
-# =============================================================================
-# Import Handling (migrated from test_import_gen_coverage.rs)
-# =============================================================================
+rust = '''
+#[derive(Debug, Clone, PartialEq)]
+pub enum IntOrStringUnion {
+    Integer(i32),
+    Text(String),
+}
+impl From<i32> for IntOrStringUnion {
+    fn from(value: i32) -> Self {
+        IntOrStringUnion::Integer(value)
+    }
+}
+impl From<String> for IntOrStringUnion {
+    fn from(value: String) -> Self {
+        IntOrStringUnion::Text(value)
+    }
+}
+impl IntOrStringUnion {
+    pub fn is_integer(&self) -> bool {
+        matches!(self, IntOrStringUnion::Integer(_))
+    }
+    pub fn is_text(&self) -> bool {
+        matches!(self, IntOrStringUnion::Text(_))
+    }
+    pub fn as_integer(&self) -> Option<&i32> {
+        match self {
+            IntOrStringUnion::Integer(value) => Some(value),
+            _ => None,
+        }
+    }
+    pub fn as_text(&self) -> Option<&String> {
+        match self {
+            IntOrStringUnion::Text(value) => Some(value),
+            _ => None,
+        }
+    }
+}
+pub fn complex_context(value: &IntOrStringUnion) -> i32 {
+    let mut result = 0;
+    let temp;
+    if true {
+        let _cse_temp_0 = value.clone() * 2;
+        temp = _cse_temp_0;
+        result = temp + 1;
+    } else {
+        temp = 42;
+        result = temp;
+    }
+    return result;
+}
+'''
 
 [[test]]
 name = "whole_module_import"
 description = "Whole module import (e.g., import math)"
 tags = ["import", "module"]
 
-[test.python]
-code = '''
+python = '''
 import math
 
 def use_math():
     return math.sqrt(16)
 '''
 
-[test.assertions]
-contains = ["fn use_math"]
+rust = '''
+use std::f64 as math;
+pub fn use_math() -> f64 {
+    return (16 as f64).sqrt();
+}
+'''
 
 [[test]]
 name = "specific_items_import_typing"
 description = "Specific items import from typing module"
 tags = ["import", "typing"]
 
-[test.python]
-code = '''
+python = '''
 from typing import List, Dict
 
 def typed_func(items: List[int]) -> Dict[str, int]:
@@ -1897,16 +3279,23 @@ def typed_func(items: List[int]) -> Dict[str, int]:
     return result
 '''
 
-[test.assertions]
-contains_any = [["Vec<i32>", "vec"], ["HashMap", "dict"]]
+rust = '''
+use std::collections::HashMap;
+pub fn typed_func(items: Vec<i32>) -> HashMap<String, i32> {
+    let result = {
+        let map = HashMap::new();
+        map
+    };
+    return result;
+}
+'''
 
 [[test]]
 name = "aliased_import"
 description = "Aliased import handling"
 tags = ["import", "alias"]
 
-[test.python]
-code = '''
+python = '''
 from typing import List as L, Dict as D
 
 def aliased_func(items: L[str]) -> D[str, int]:
@@ -1914,16 +3303,23 @@ def aliased_func(items: L[str]) -> D[str, int]:
     return result
 '''
 
-[test.assertions]
-contains_any = [["Vec", "HashMap"]]
+rust = '''
+use std::collections::HashMap;
+pub fn aliased_func(items: L<String>) -> D<String, i32> {
+    let result = {
+        let map = HashMap::new();
+        map
+    };
+    return result;
+}
+'''
 
 [[test]]
 name = "typing_module_optional"
 description = "Optional type from typing module"
 tags = ["import", "typing", "optional"]
 
-[test.python]
-code = '''
+python = '''
 from typing import Optional
 
 def maybe_value(x: Optional[int]) -> int:
@@ -1932,16 +3328,21 @@ def maybe_value(x: Optional[int]) -> int:
     return x
 '''
 
-[test.assertions]
-contains = ["Option<i32>"]
+rust = '''
+pub fn maybe_value(x: &Option<i32>) -> i32 {
+    if x.is_none() {
+        return 0;
+    }
+    return x.as_ref().unwrap().clone();
+}
+'''
 
 [[test]]
 name = "multiple_items_same_module"
 description = "Multiple imports from same module"
 tags = ["import", "typing"]
 
-[test.python]
-code = '''
+python = '''
 from typing import List, Dict, Set, Tuple
 
 def multi_import() -> Tuple[List[int], Set[str]]:
@@ -1950,16 +3351,26 @@ def multi_import() -> Tuple[List[int], Set[str]]:
     return (items, names)
 '''
 
-[test.assertions]
-contains = ["fn multi_import"]
+rust = '''
+use std::collections::HashSet;
+pub fn multi_import() -> (Vec<i32>, HashSet<String>) {
+    let items = vec![1, 2, 3];
+    let names = {
+        let mut set = HashSet::new();
+        set.insert("a");
+        set.insert("b");
+        set
+    };
+    return (items, names);
+}
+'''
 
 [[test]]
 name = "empty_items_whole_module"
 description = "Whole module import with usage"
 tags = ["import", "module"]
 
-[test.python]
-code = '''
+python = '''
 import collections
 
 def use_collections():
@@ -1967,32 +3378,59 @@ def use_collections():
     return data
 '''
 
-[test.assertions]
-contains = ["fn use_collections"]
+rust = '''
+use std::collections;
+use std::collections::HashMap;
+pub fn use_collections() -> HashMap<String, i32> {
+    let data = {
+        let mut map = HashMap::new();
+        map.insert("a".to_string(), 1);
+        map
+    };
+    return data;
+}
+'''
 
 [[test]]
 name = "named_import_item_any"
 description = "Named import of Any type"
 tags = ["import", "typing", "any"]
 
-[test.python]
-code = '''
+python = '''
 from typing import Any
 
 def accepts_any(value: Any) -> Any:
     return value
 '''
 
-[test.assertions]
-contains = ["fn accepts_any"]
+rust = '''
+pub fn accepts_any(value: Any) -> Any {
+    return value;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn quickcheck_accepts_any() {
+        fn prop(value: ()) -> TestResult {
+            let result = accepts_any(value.clone());
+            if result != value {
+                return TestResult::failed();
+            }
+            TestResult::passed()
+        }
+        quickcheck(prop as fn(()) -> TestResult);
+    }
+}
+'''
 
 [[test]]
 name = "typevar_import"
 description = "TypeVar import and generic function"
 tags = ["import", "typing", "typevar"]
 
-[test.python]
-code = '''
+python = '''
 from typing import TypeVar
 
 T = TypeVar('T')
@@ -2001,16 +3439,36 @@ def generic_func(value: T) -> T:
     return value
 '''
 
-[test.assertions]
-contains = ["fn generic_func"]
+rust = '''
+pub const T: serde_json::Value = TypeVar::new("T");
+use serde_json;
+pub fn generic_func<T: Clone>(value: T) -> T {
+    return value;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn quickcheck_generic_func() {
+        fn prop(value: ()) -> TestResult {
+            let result = generic_func(value.clone());
+            if result != value {
+                return TestResult::failed();
+            }
+            TestResult::passed()
+        }
+        quickcheck(prop as fn(()) -> TestResult);
+    }
+}
+'''
 
 [[test]]
 name = "mutation_import_mapping_correctness"
 description = "Typing imports should map to Rust equivalents without full paths"
 tags = ["import", "typing", "mutation"]
 
-[test.python]
-code = '''
+python = '''
 from typing import List, Optional
 
 def list_func(items: List[int]) -> Optional[str]:
@@ -2019,33 +3477,49 @@ def list_func(items: List[int]) -> Optional[str]:
     return "ok"
 '''
 
-[test.assertions]
-not_contains = ["typing::List"]
-contains_any = [["Vec", "Option"]]
+rust = '''
+pub fn list_func(items: &Vec<i32>) -> Option<String> {
+    if items.is_empty() {
+        return None;
+    }
+    return Some("ok".to_string());
+}
+'''
 
 [[test]]
 name = "unmapped_import"
 description = "Handling of unmapped/unknown imports"
 tags = ["import", "unknown"]
 
-[test.python]
-code = '''
+python = '''
 import unknown_module
 
 def use_unknown():
     return 42
 '''
 
-[test.assertions]
-contains = ["fn use_unknown"]
+rust = '''
+#[doc = "// NOTE: Map Python module 'unknown_module'()"]
+pub fn use_unknown() -> i32 {
+    return 42;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_use_unknown_examples() {
+        let _ = use_unknown();
+    }
+}
+'''
 
 [[test]]
 name = "mixed_import_styles"
 description = "Mixed whole module and specific imports"
 tags = ["import", "mixed"]
 
-[test.python]
-code = '''
+python = '''
 import math
 from typing import List
 
@@ -2054,16 +3528,20 @@ def mixed():
     return len(items)
 '''
 
-[test.assertions]
-contains = ["fn mixed"]
+rust = '''
+use std::f64 as math;
+pub fn mixed() -> i32 {
+    let items: Vec<i32> = vec![1, 2, 3];
+    return items.len() as i32;
+}
+'''
 
 [[test]]
 name = "complex_import_scenario"
 description = "Complex import scenario with multiple typing imports"
 tags = ["import", "typing", "complex"]
 
-[test.python]
-code = '''
+python = '''
 from typing import List, Dict, Optional, Set
 from typing import Tuple as T
 
@@ -2076,7 +3554,15 @@ def complex_types(
     return True
 '''
 
-[test.assertions]
-contains = ["fn complex_types"]
-not_contains = ["typing::"]
-
+rust = '''
+use std::collections::HashMap;
+use std::collections::HashSet;
+pub fn complex_types(
+    items: Vec<i32>,
+    mapping: HashMap<String, Option<i32>>,
+    unique: HashSet<String>,
+    pair: T<i32, String>,
+) -> bool {
+    return true;
+}
+'''

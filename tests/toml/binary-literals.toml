@@ -9,136 +9,347 @@ category = "core-language"
 # Binary Literals
 # =============================================================================
 
-# TODO: Test binary literal
-# [[test]]
-# name = "binary_literal"
-# description = "x = 0b1010"
+[[test]]
+name = "binary_literal"
+description = "x = 0b1010"
+tags = ["binary", "literal"]
 
-# TODO: Test binary literal uppercase
-# [[test]]
-# name = "binary_literal_upper"
-# description = "x = 0B1010"
+python = '''
+x = 0b1010
+result = x == 10
+'''
 
-# TODO: Test binary with underscores
-# [[test]]
-# name = "binary_underscore"
-# description = "x = 0b1010_1010"
+rust = '''
+let x = 0b1010;
+let result = x == 10;
+'''
+
+[[test]]
+name = "binary_literal_upper"
+description = "x = 0B1010"
+tags = ["binary", "literal", "uppercase"]
+
+python = '''
+x = 0B1010
+result = x == 10
+'''
+
+rust = '''
+let x = 0b1010;
+let result = x == 10;
+'''
+
+[[test]]
+name = "binary_underscore"
+description = "x = 0b1010_1010"
+tags = ["binary", "literal", "underscore"]
+
+python = '''
+x = 0b1010_1010
+result = x == 170
+'''
+
+rust = '''
+let x = 0b1010_1010;
+let result = x == 170;
+'''
 
 # =============================================================================
 # Octal Literals
 # =============================================================================
 
-# TODO: Test octal literal
-# [[test]]
-# name = "octal_literal"
-# description = "x = 0o777"
+[[test]]
+name = "octal_literal"
+description = "x = 0o777"
+tags = ["octal", "literal"]
 
-# TODO: Test octal literal uppercase
-# [[test]]
-# name = "octal_literal_upper"
-# description = "x = 0O777"
+python = '''
+x = 0o777
+result = x == 511
+'''
 
-# TODO: Test octal with underscores
-# [[test]]
-# name = "octal_underscore"
-# description = "x = 0o7_7_7"
+rust = '''
+let x = 0o777;
+let result = x == 511;
+'''
+
+[[test]]
+name = "octal_literal_upper"
+description = "x = 0O777"
+tags = ["octal", "literal", "uppercase"]
+
+python = '''
+x = 0O777
+result = x == 511
+'''
+
+rust = '''
+let x = 0o777;
+let result = x == 511;
+'''
+
+[[test]]
+name = "octal_underscore"
+description = "x = 0o7_7_7"
+tags = ["octal", "literal", "underscore"]
+
+python = '''
+x = 0o7_7_7
+result = x == 511
+'''
+
+rust = '''
+let x = 0o7_7_7;
+let result = x == 511;
+'''
 
 # =============================================================================
 # Hexadecimal Literals
 # =============================================================================
 
-# TODO: Test hex literal lowercase
-# [[test]]
-# name = "hex_literal_lower"
-# description = "x = 0xff"
+[[test]]
+name = "hex_literal_lower"
+description = "x = 0xff"
+tags = ["hex", "literal", "lowercase"]
 
-# TODO: Test hex literal uppercase
-# [[test]]
-# name = "hex_literal_upper"
-# description = "x = 0xFF"
+python = '''
+x = 0xff
+result = x == 255
+'''
 
-# TODO: Test hex with underscores
-# [[test]]
-# name = "hex_underscore"
-# description = "x = 0xFF_FF"
+rust = '''
+let x = 0xff;
+let result = x == 255;
+'''
 
-# TODO: Test hex with mixed case digits
-# [[test]]
-# name = "hex_mixed_case"
-# description = "x = 0xDeAdBeEf"
+[[test]]
+name = "hex_literal_upper"
+description = "x = 0xFF"
+tags = ["hex", "literal", "uppercase"]
+
+python = '''
+x = 0xFF
+result = x == 255
+'''
+
+rust = '''
+let x = 0xFF;
+let result = x == 255;
+'''
+
+[[test]]
+name = "hex_underscore"
+description = "x = 0xFF_FF"
+tags = ["hex", "literal", "underscore"]
+
+python = '''
+x = 0xFF_FF
+result = x == 65535
+'''
+
+rust = '''
+let x = 0xFF_FF;
+let result = x == 65535;
+'''
+
+[[test]]
+name = "hex_mixed_case"
+description = "x = 0xDeAdBeEf"
+tags = ["hex", "literal", "mixed-case"]
+
+python = '''
+x = 0xDeAdBeEf
+result = x == 3735928559
+'''
+
+rust = '''
+let x = 0xDeAdBeEf;
+let result = x == 3735928559;
+'''
 
 # =============================================================================
 # Decimal with Underscores
 # =============================================================================
 
-# TODO: Test decimal with underscores
-# [[test]]
-# name = "decimal_underscore"
-# description = "x = 1_000_000"
+[[test]]
+name = "decimal_underscore"
+description = "x = 1_000_000"
+tags = ["decimal", "literal", "underscore"]
 
-# TODO: Test float with underscores
-# [[test]]
-# name = "float_underscore"
-# description = "x = 1_000.000_001"
+python = '''
+x = 1_000_000
+result = x == 1000000
+'''
+
+rust = '''
+let x = 1_000_000;
+let result = x == 1000000;
+'''
+
+[[test]]
+name = "float_underscore"
+description = "x = 1_000.000_001"
+tags = ["float", "literal", "underscore"]
+
+python = '''
+x = 1_000.000_001
+result = abs(x - 1000.000001) < 0.000001
+'''
+
+rust = '''
+let x = 1_000.000_001;
+let result = (x - 1000.000001).abs() < 0.000001;
+'''
 
 # =============================================================================
 # Operations with Literals
 # =============================================================================
 
-# TODO: Test binary in arithmetic
-# [[test]]
-# name = "binary_arithmetic"
-# description = "0b1010 + 0b0101"
+[[test]]
+name = "binary_arithmetic"
+description = "0b1010 + 0b0101"
+tags = ["binary", "arithmetic"]
 
-# TODO: Test mixed base arithmetic
-# [[test]]
-# name = "mixed_base_arithmetic"
-# description = "0xFF + 0o77 + 0b11"
+python = '''
+result = (0b1010 + 0b0101) == 15
+'''
 
-# TODO: Test bitwise on binary literals
-# [[test]]
-# name = "binary_bitwise"
-# description = "0b1010 & 0b1100"
+rust = '''
+let result = (0b1010 + 0b0101) == 15;
+'''
+
+[[test]]
+name = "mixed_base_arithmetic"
+description = "0xFF + 0o77 + 0b11"
+tags = ["mixed-base", "arithmetic"]
+
+python = '''
+result = (0xFF + 0o77 + 0b11) == 321
+'''
+
+rust = '''
+let result = (0xFF + 0o77 + 0b11) == 321;
+'''
+
+[[test]]
+name = "binary_bitwise"
+description = "0b1010 & 0b1100"
+tags = ["binary", "bitwise"]
+
+python = '''
+result = (0b1010 & 0b1100) == 8
+'''
+
+rust = '''
+let result = (0b1010 & 0b1100) == 8;
+'''
 
 # =============================================================================
 # Type Conversion
 # =============================================================================
 
-# TODO: Test bin() function
-# [[test]]
-# name = "bin_function"
-# description = "bin(10) == '0b1010'"
+[[test]]
+name = "bin_function"
+description = "bin(10) == '0b1010'"
+tags = ["conversion", "bin"]
 
-# TODO: Test oct() function
-# [[test]]
-# name = "oct_function"
-# description = "oct(64) == '0o100'"
+python = '''
+result = bin(10) == '0b1010'
+'''
 
-# TODO: Test hex() function
-# [[test]]
-# name = "hex_function"
-# description = "hex(255) == '0xff'"
+rust = '''
+fn bin(n: i32) -> String {
+    format!("0b{:b}", n)
+}
+let result = bin(10) == "0b1010";
+'''
 
-# TODO: Test int() with base
-# [[test]]
-# name = "int_with_base"
-# description = "int('ff', 16) == 255"
+[[test]]
+name = "oct_function"
+description = "oct(64) == '0o100'"
+tags = ["conversion", "oct"]
+
+python = '''
+result = oct(64) == '0o100'
+'''
+
+rust = '''
+fn oct(n: i32) -> String {
+    format!("0o{:o}", n)
+}
+let result = oct(64) == "0o100";
+'''
+
+[[test]]
+name = "hex_function"
+description = "hex(255) == '0xff'"
+tags = ["conversion", "hex"]
+
+python = '''
+result = hex(255) == '0xff'
+'''
+
+rust = '''
+fn hex(n: i32) -> String {
+    format!("0x{:x}", n)
+}
+let result = hex(255) == "0xff";
+'''
+
+[[test]]
+name = "int_with_base"
+description = "int('ff', 16) == 255"
+tags = ["conversion", "int", "base"]
+
+python = '''
+result = int('ff', 16) == 255
+'''
+
+rust = '''
+let result = i32::from_str_radix("ff", 16).unwrap() == 255;
+'''
 
 # =============================================================================
 # Edge Cases
 # =============================================================================
 
-# TODO: Test zero in different bases
-# [[test]]
-# name = "zero_all_bases"
-# description = "0b0, 0o0, 0x0"
+[[test]]
+name = "zero_all_bases"
+description = "0b0, 0o0, 0x0"
+tags = ["edge-case", "zero"]
 
-# TODO: Test negative literals (actually unary minus)
-# [[test]]
-# name = "negative_literals"
-# description = "-0xFF is unary minus applied to 0xFF"
+python = '''
+result = (0b0 == 0) and (0o0 == 0) and (0x0 == 0)
+'''
 
-# TODO: Test very large literals
-# [[test]]
-# name = "large_literals"
-# description = "0xFFFF_FFFF_FFFF_FFFF"
+rust = '''
+let result = (0b0 == 0) && (0o0 == 0) && (0x0 == 0);
+'''
+
+[[test]]
+name = "negative_literals"
+description = "-0xFF is unary minus applied to 0xFF"
+tags = ["edge-case", "negative"]
+
+python = '''
+result = -0xFF == -255
+'''
+
+rust = '''
+let result = -0xFF == -255;
+'''
+
+[[test]]
+name = "large_literals"
+description = "0xFFFF_FFFF_FFFF_FFFF"
+tags = ["edge-case", "large"]
+
+python = '''
+x = 0xFFFF_FFFF_FFFF_FFFF
+result = x == 18446744073709551615
+'''
+
+rust = '''
+let x: u64 = 0xFFFF_FFFF_FFFF_FFFF;
+let result = x == 18446744073709551615;
+'''

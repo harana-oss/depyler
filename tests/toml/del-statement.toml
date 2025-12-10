@@ -9,53 +9,178 @@ category = "core-language"
 # Del Variables
 # =============================================================================
 
-# TODO: Test del single variable
-# [[test]]
-# name = "del_variable"
-# description = "del x"
+[[test]]
+name = "del_variable"
+description = "Delete a single variable"
+tags = ["del", "variables"]
+python = '''
+x = 42
+assert x == 42
+del x
+# x is no longer defined
+# Accessing x would raise NameError
+'''
+rust = '''
+// Rust: variables go out of scope automatically
+// Or explicitly drop:
+{
+    let x = 42;
+    assert_eq!(x, 42);
+    drop(x);
+    // x is no longer accessible
+}
+'''
 
-# TODO: Test del multiple variables
-# [[test]]
-# name = "del_multiple_variables"
-# description = "del a, b, c"
+[[test]]
+name = "del_multiple_variables"
+description = "Delete multiple variables at once"
+tags = ["del", "variables"]
+python = '''
+a, b, c = 1, 2, 3
+assert a == 1
+assert b == 2
+assert c == 3
+del a, b, c
+# All three variables are now deleted
+'''
+rust = '''
+// Rust: multiple variables go out of scope
+{
+    let a = 1;
+    let b = 2;
+    let c = 3;
+    assert_eq!(a, 1);
+    assert_eq!(b, 2);
+    assert_eq!(c, 3);
+    drop(a);
+    drop(b);
+    drop(c);
+}
+'''
 
 # =============================================================================
 # Del List Items
 # =============================================================================
 
-# TODO: Test del list element by index
-# [[test]]
-# name = "del_list_index"
-# description = "del lst[0]"
+[[test]]
+name = "del_list_index"
+description = "Delete list element by index"
+tags = ["del", "list"]
+python = '''
+lst = [1, 2, 3, 4, 5]
+del lst[2]
+assert lst == [1, 2, 4, 5]
+assert len(lst) == 4
+'''
+rust = '''
+let mut lst = vec![1, 2, 3, 4, 5];
+lst.remove(2);
+assert_eq!(lst, vec![1, 2, 4, 5]);
+assert_eq!(lst.len(), 4);
+'''
 
-# TODO: Test del list element negative index
-# [[test]]
-# name = "del_list_negative_index"
-# description = "del lst[-1]"
+[[test]]
+name = "del_list_negative_index"
+description = "Delete list element by negative index"
+tags = ["del", "list"]
+python = '''
+lst = [1, 2, 3, 4, 5]
+del lst[-1]  # Delete last element
+assert lst == [1, 2, 3, 4]
+del lst[-2]  # Delete second to last
+assert lst == [1, 2, 4]
+'''
+rust = '''
+let mut lst = vec![1, 2, 3, 4, 5];
+lst.pop();  // Remove last
+assert_eq!(lst, vec![1, 2, 3, 4]);
+let idx = lst.len() - 2;
+lst.remove(idx);  // Remove second to last
+assert_eq!(lst, vec![1, 2, 4]);
+'''
 
-# TODO: Test del list slice
-# [[test]]
-# name = "del_list_slice"
-# description = "del lst[1:3]"
+[[test]]
+name = "del_list_slice"
+description = "Delete list slice"
+tags = ["del", "list", "slice"]
+python = '''
+lst = [0, 1, 2, 3, 4, 5]
+del lst[1:4]  # Delete elements at indices 1, 2, 3
+assert lst == [0, 4, 5]
+'''
+rust = '''
+let mut lst = vec![0, 1, 2, 3, 4, 5];
+lst.drain(1..4);
+assert_eq!(lst, vec![0, 4, 5]);
+'''
 
-# TODO: Test del list slice with step
-# [[test]]
-# name = "del_list_slice_step"
-# description = "del lst[::2]"
+[[test]]
+name = "del_list_slice_step"
+description = "Delete list slice with step"
+tags = ["del", "list", "slice"]
+python = '''
+lst = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+del lst[::2]  # Delete every other element starting from 0
+assert lst == [1, 3, 5, 7, 9]
+'''
+rust = '''
+let mut lst = vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+// Rust: collect indices and remove in reverse order
+let to_remove: Vec<usize> = (0..lst.len()).step_by(2).collect();
+for &idx in to_remove.iter().rev() {
+    lst.remove(idx);
+}
+assert_eq!(lst, vec![1, 3, 5, 7, 9]);
+'''
 
 # =============================================================================
 # Del Dict Keys
 # =============================================================================
 
-# TODO: Test del dict key
-# [[test]]
-# name = "del_dict_key"
-# description = "del d['key']"
+[[test]]
+name = "del_dict_key"
+description = "Delete dictionary key"
+tags = ["del", "dict"]
+python = '''
+d = {"a": 1, "b": 2, "c": 3}
+del d["b"]
+assert d == {"a": 1, "c": 3}
+assert "b" not in d
+'''
+rust = '''
+use std::collections::HashMap;
 
-# TODO: Test del dict with variable key
-# [[test]]
-# name = "del_dict_variable_key"
-# description = "del d[key_var]"
+let mut d = HashMap::new();
+d.insert("a", 1);
+d.insert("b", 2);
+d.insert("c", 3);
+d.remove("b");
+assert_eq!(d.len(), 2);
+assert!(!d.contains_key("b"));
+'''
+
+[[test]]
+name = "del_dict_variable_key"
+description = "Delete dict key using variable"
+tags = ["del", "dict"]
+python = '''
+d = {"x": 10, "y": 20, "z": 30}
+key_var = "y"
+del d[key_var]
+assert d == {"x": 10, "z": 30}
+'''
+rust = '''
+use std::collections::HashMap;
+
+let mut d = HashMap::new();
+d.insert("x", 10);
+d.insert("y", 20);
+d.insert("z", 30);
+let key_var = "y";
+d.remove(key_var);
+assert_eq!(d.len(), 2);
+assert!(!d.contains_key("y"));
+'''
 
 # =============================================================================
 # Del Attributes

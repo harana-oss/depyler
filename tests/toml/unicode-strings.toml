@@ -9,160 +9,583 @@ category = "strings"
 # Unicode Literals
 # =============================================================================
 
-# TODO: Test unicode escape
-# [[test]]
-# name = "unicode_escape"
-# description = "'\\u0041' == 'A'"
+[[test]]
+name = "unicode_escape"
+description = "Unicode escape sequences"
+tags = ["unicode", "literal", "escape"]
 
-# TODO: Test unicode name
-# [[test]]
-# name = "unicode_name"
-# description = "'\\N{GREEK SMALL LETTER ALPHA}'"
+python = '''
+def test_escape() -> str:
+    return "\u0041"  # Returns 'A'
+'''
 
-# TODO: Test unicode hex
-# [[test]]
-# name = "unicode_hex"
-# description = "'\\U0001F600' emoji"
+rust = '''
+pub fn test_escape() -> String {
+    return "A".to_string();
+}
+'''
 
-# TODO: Test direct unicode
-# [[test]]
-# name = "unicode_direct"
-# description = "'α β γ' direct input"
+[[test]]
+name = "unicode_name"
+description = "Unicode character by name"
+tags = ["unicode", "literal", "name"]
 
-# =============================================================================
-# Unicode Normalization
-# =============================================================================
+python = '''
+def test_name() -> str:
+    return "\N{GREEK SMALL LETTER ALPHA}"  # Returns 'α'
+'''
 
-# TODO: Test NFC
-# [[test]]
-# name = "unicode_nfc"
-# description = "unicodedata.normalize('NFC', s)"
+rust = '''
+pub fn test_name() -> String {
+    return "α".to_string();
+}
+'''
 
-# TODO: Test NFD
-# [[test]]
-# name = "unicode_nfd"
-# description = "unicodedata.normalize('NFD', s)"
+[[test]]
+name = "unicode_hex"
+description = "Unicode extended hex escape"
+tags = ["unicode", "literal", "hex"]
 
-# TODO: Test NFKC
-# [[test]]
-# name = "unicode_nfkc"
-# description = "unicodedata.normalize('NFKC', s)"
+python = '''
+def test_emoji() -> str:
+    return "\U0001F600"  # Returns '😀'
+'''
 
-# TODO: Test NFKD
-# [[test]]
-# name = "unicode_nfkd"
-# description = "unicodedata.normalize('NFKD', s)"
+rust = '''
+pub fn test_emoji() -> String {
+    return "😀".to_string();
+}
+'''
 
-# =============================================================================
-# Unicode Properties
-# =============================================================================
+[[test]]
+name = "unicode_direct"
+description = "Direct unicode characters in source"
+tags = ["unicode", "literal", "direct"]
 
-# TODO: Test category
-# [[test]]
-# name = "unicode_category"
-# description = "unicodedata.category('A') == 'Lu'"
+python = '''
+def greek_letters() -> str:
+    return "α β γ"
+'''
 
-# TODO: Test name
-# [[test]]
-# name = "unicode_charname"
-# description = "unicodedata.name('A')"
+rust = '''
+pub fn greek_letters() -> String {
+    return "α β γ".to_string();
+}
+'''
 
-# TODO: Test lookup
-# [[test]]
-# name = "unicode_lookup"
-# description = "unicodedata.lookup('LATIN CAPITAL LETTER A')"
+[[test]]
+name = "unicode_nfc"
+description = "NFC normalization (canonical composition)"
+tags = ["unicode", "normalize", "nfc"]
 
-# =============================================================================
-# String Encoding
-# =============================================================================
+python = '''
+import unicodedata
 
-# TODO: Test UTF-8 encode
-# [[test]]
-# name = "unicode_utf8"
-# description = "'α'.encode('utf-8')"
+def normalize_nfc(s: str) -> str:
+    return unicodedata.normalize("NFC", s)
+'''
 
-# TODO: Test UTF-16 encode
-# [[test]]
-# name = "unicode_utf16"
-# description = "'α'.encode('utf-16')"
+rust = '''
+#[doc = "// NOTE: Map Python module 'unicodedata'()"]
+pub fn normalize_nfc(s: String) -> String {
+    return unicodedata.normalize("NFC", s);
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn quickcheck_normalize_nfc() {
+        fn prop(s: String) -> TestResult {
+            let once = normalize_nfc((&*s).into());
+            let twice = normalize_nfc(once.clone());
+            if once != twice {
+                return TestResult::failed();
+            }
+            TestResult::passed()
+        }
+        quickcheck(prop as fn(String) -> TestResult);
+    }
+}
+'''
 
-# TODO: Test ASCII with errors
-# [[test]]
-# name = "unicode_ascii_errors"
-# description = "'α'.encode('ascii', errors='replace')"
+[[test]]
+name = "unicode_nfd"
+description = "NFD normalization (canonical decomposition)"
+tags = ["unicode", "normalize", "nfd"]
 
-# =============================================================================
-# Unicode Methods
-# =============================================================================
+python = '''
+import unicodedata
 
-# TODO: Test isalpha unicode
-# [[test]]
-# name = "unicode_isalpha"
-# description = "'α'.isalpha()"
+def normalize_nfd(s: str) -> str:
+    return unicodedata.normalize("NFD", s)
+'''
 
-# TODO: Test isnumeric unicode
-# [[test]]
-# name = "unicode_isnumeric"
-# description = "'①'.isnumeric()"
+rust = '''
+#[doc = "// NOTE: Map Python module 'unicodedata'()"]
+pub fn normalize_nfd(s: String) -> String {
+    return unicodedata.normalize("NFD", s);
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn quickcheck_normalize_nfd() {
+        fn prop(s: String) -> TestResult {
+            let once = normalize_nfd((&*s).into());
+            let twice = normalize_nfd(once.clone());
+            if once != twice {
+                return TestResult::failed();
+            }
+            TestResult::passed()
+        }
+        quickcheck(prop as fn(String) -> TestResult);
+    }
+}
+'''
 
-# TODO: Test casefold
-# [[test]]
-# name = "unicode_casefold"
-# description = "'ß'.casefold() == 'ss'"
+[[test]]
+name = "unicode_nfkc"
+description = "NFKC normalization (compatibility composition)"
+tags = ["unicode", "normalize", "nfkc"]
 
-# =============================================================================
-# Unicode Length
-# =============================================================================
+python = '''
+import unicodedata
 
-# TODO: Test len with unicode
-# [[test]]
-# name = "unicode_len"
-# description = "len('αβγ') == 3"
+def normalize_nfkc(s: str) -> str:
+    return unicodedata.normalize("NFKC", s)
+'''
 
-# TODO: Test surrogate pairs
-# [[test]]
-# name = "unicode_surrogate"
-# description = "len('😀') == 1"
+rust = '''
+#[doc = "// NOTE: Map Python module 'unicodedata'()"]
+pub fn normalize_nfkc(s: String) -> String {
+    return unicodedata.normalize("NFKC", s);
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn quickcheck_normalize_nfkc() {
+        fn prop(s: String) -> TestResult {
+            let once = normalize_nfkc((&*s).into());
+            let twice = normalize_nfkc(once.clone());
+            if once != twice {
+                return TestResult::failed();
+            }
+            TestResult::passed()
+        }
+        quickcheck(prop as fn(String) -> TestResult);
+    }
+}
+'''
 
-# TODO: Test combining chars
-# [[test]]
-# name = "unicode_combining"
-# description = "len('é') vs len('e\\u0301')"
+[[test]]
+name = "unicode_nfkd"
+description = "NFKD normalization (compatibility decomposition)"
+tags = ["unicode", "normalize", "nfkd"]
 
-# =============================================================================
-# Unicode Comparison
-# =============================================================================
+python = '''
+import unicodedata
 
-# TODO: Test equality with normalization
-# [[test]]
-# name = "unicode_eq_normal"
-# description = "'é' vs 'e\\u0301'"
+def normalize_nfkd(s: str) -> str:
+    return unicodedata.normalize("NFKD", s)
+'''
 
-# TODO: Test locale-aware comparison
-# [[test]]
-# name = "unicode_locale"
-# description = "locale.strcoll for sorting"
+rust = '''
+#[doc = "// NOTE: Map Python module 'unicodedata'()"]
+pub fn normalize_nfkd(s: String) -> String {
+    return unicodedata.normalize("NFKD", s);
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn quickcheck_normalize_nfkd() {
+        fn prop(s: String) -> TestResult {
+            let once = normalize_nfkd((&*s).into());
+            let twice = normalize_nfkd(once.clone());
+            if once != twice {
+                return TestResult::failed();
+            }
+            TestResult::passed()
+        }
+        quickcheck(prop as fn(String) -> TestResult);
+    }
+}
+'''
 
-# =============================================================================
-# Edge Cases
-# =============================================================================
+[[test]]
+name = "unicode_category"
+description = "Get Unicode character category"
+tags = ["unicode", "property", "category"]
 
-# TODO: Test emoji
-# [[test]]
-# name = "unicode_emoji"
-# description = "'👨‍👩‍👧‍👦' grapheme cluster"
+python = '''
+import unicodedata
 
-# TODO: Test BOM
-# [[test]]
-# name = "unicode_bom"
-# description = "'\\ufeff' byte order mark"
+def get_category(c: str) -> str:
+    return unicodedata.category(c)
+'''
 
-# TODO: Test replacement char
-# [[test]]
-# name = "unicode_replacement"
-# description = "'\\ufffd' replacement character"
+rust = '''
+#[doc = "// NOTE: Map Python module 'unicodedata'()"]
+pub fn get_category(c: String) -> String {
+    return unicodedata.category(c);
+}
+'''
 
-# TODO: Test zero-width
-# [[test]]
-# name = "unicode_zero_width"
-# description = "'\\u200b' zero-width space"
+[[test]]
+name = "unicode_charname"
+description = "Get Unicode character name"
+tags = ["unicode", "property", "name"]
+
+python = '''
+import unicodedata
+
+def get_name(c: str) -> str:
+    return unicodedata.name(c)
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'unicodedata'()"]
+pub fn get_name(c: String) -> String {
+    return unicodedata.name(c);
+}
+'''
+
+[[test]]
+name = "unicode_lookup"
+description = "Lookup character by name"
+tags = ["unicode", "property", "lookup"]
+
+python = '''
+import unicodedata
+
+def lookup_char(name: str) -> str:
+    return unicodedata.lookup(name)
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'unicodedata'()"]
+pub fn lookup_char(name: String) -> String {
+    return unicodedata.lookup(name);
+}
+'''
+
+[[test]]
+name = "unicode_utf8"
+description = "Encode string to UTF-8"
+tags = ["unicode", "encoding", "utf8"]
+
+python = '''
+def encode_utf8(s: str) -> bytes:
+    return s.encode("utf-8")
+'''
+
+rust = '''
+pub fn encode_utf8(s: String) -> bytes {
+    return s.encode("utf-8");
+}
+'''
+
+[[test]]
+name = "unicode_utf16"
+description = "Encode string to UTF-16"
+tags = ["unicode", "encoding", "utf16"]
+
+python = '''
+def encode_utf16(s: str) -> bytes:
+    return s.encode("utf-16")
+'''
+
+rust = '''
+pub fn encode_utf16(s: String) -> bytes {
+    return s.encode("utf-16");
+}
+'''
+
+[[test]]
+name = "unicode_ascii_errors"
+description = "Encode with error handling"
+tags = ["unicode", "encoding", "errors"]
+
+python = '''
+def encode_ascii_safe(s: str) -> bytes:
+    return s.encode("ascii", errors="replace")
+'''
+
+rust = '''
+pub fn encode_ascii_safe(s: String) -> bytes {
+    return s.encode("ascii");
+}
+'''
+
+[[test]]
+name = "unicode_isalpha"
+description = "Check if unicode char is alphabetic"
+tags = ["unicode", "method", "isalpha"]
+
+python = '''
+def is_alpha(s: str) -> bool:
+    return s.isalpha()
+'''
+
+rust = '''
+pub fn is_alpha(s: String) -> bool {
+    return s.chars().all(|c| c.is_alphabetic());
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_is_alpha_examples() {
+        let _ = is_alpha(Default::default());
+    }
+}
+'''
+
+[[test]]
+name = "unicode_isnumeric"
+description = "Check if unicode char is numeric"
+tags = ["unicode", "method", "isnumeric"]
+
+python = '''
+def is_numeric(s: str) -> bool:
+    return s.isnumeric()
+'''
+
+rust = '''
+pub fn is_numeric(s: String) -> bool {
+    return s.isnumeric();
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_is_numeric_examples() {
+        let _ = is_numeric(Default::default());
+    }
+}
+'''
+
+[[test]]
+name = "unicode_casefold"
+description = "Case folding for case-insensitive comparison"
+tags = ["unicode", "method", "casefold"]
+
+python = '''
+def case_fold(s: str) -> str:
+    return s.casefold()
+'''
+
+rust = '''
+pub fn case_fold(s: String) -> String {
+    return s.casefold();
+}
+'''
+
+[[test]]
+name = "unicode_len"
+description = "Length of unicode string in characters"
+tags = ["unicode", "length", "chars"]
+
+python = '''
+def string_length(s: str) -> int:
+    return len(s)
+'''
+
+rust = '''
+pub fn string_length(s: String) -> i32 {
+    return s.len() as i32 as i32;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_string_length_examples() {
+        assert_eq!(string_length(""), 0);
+        assert_eq!(string_length("a"), 1);
+        assert_eq!(string_length("abc"), 3);
+    }
+}
+'''
+
+[[test]]
+name = "unicode_surrogate"
+description = "Length of emoji (single grapheme cluster)"
+tags = ["unicode", "length", "emoji"]
+
+python = '''
+def emoji_length() -> int:
+    return len("😀")  # Should be 1
+'''
+
+rust = '''
+pub fn emoji_length() -> i32 {
+    return "😀".len() as i32 as i32;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_emoji_length_examples() {
+        let _ = emoji_length();
+    }
+}
+'''
+
+[[test]]
+name = "unicode_combining"
+description = "Length with combining characters"
+tags = ["unicode", "length", "combining"]
+
+python = '''
+def combining_length() -> tuple:
+    composed = "é"  # Single character
+    decomposed = "e\u0301"  # e + combining acute
+    return (len(composed), len(decomposed))
+'''
+
+rust = '''
+pub fn combining_length() -> () {
+    let composed = "é".to_string();
+    let decomposed = "e\u{301}".to_string();
+    return (composed.len() as i32, decomposed.len() as i32);
+}
+'''
+
+[[test]]
+name = "unicode_eq_normal"
+description = "Equality with normalization"
+tags = ["unicode", "comparison", "normalize"]
+
+python = '''
+import unicodedata
+
+def compare_normalized(s1: str, s2: str) -> bool:
+    return unicodedata.normalize("NFC", s1) == unicodedata.normalize("NFC", s2)
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'unicodedata'()"]
+pub fn compare_normalized(s1: String, s2: String) -> bool {
+    return unicodedata.normalize("NFC", s1) == unicodedata.normalize("NFC", s2);
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn quickcheck_compare_normalized() {
+        fn prop(s1: String, s2: String) -> TestResult {
+            let once = compare_normalized((&*s1).into(), (&*s2).into());
+            let twice = compare_normalized(once.clone());
+            if once != twice {
+                return TestResult::failed();
+            }
+            TestResult::passed()
+        }
+        quickcheck(prop as fn(String, String) -> TestResult);
+    }
+}
+'''
+
+[[test]]
+name = "unicode_locale"
+description = "Locale-aware string comparison"
+tags = ["unicode", "comparison", "locale"]
+
+python = '''
+import locale
+
+def locale_compare(s1: str, s2: str) -> int:
+    locale.setlocale(locale.LC_ALL, "")
+    return locale.strcoll(s1, s2)
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'locale'()"]
+pub fn locale_compare(s1: String, s2: String) -> i32 {
+    locale.setlocale(locale.LC_ALL, "");
+    return locale.strcoll(s1, s2);
+}
+'''
+
+[[test]]
+name = "unicode_emoji"
+description = "Complex emoji with zero-width joiners"
+tags = ["unicode", "emoji", "grapheme"]
+
+python = '''
+def family_emoji() -> str:
+    return "👨‍👩‍👧‍👦"  # Family grapheme cluster
+'''
+
+rust = '''
+pub fn family_emoji() -> String {
+    return "👨\u{200d}👩\u{200d}👧\u{200d}👦".to_string();
+}
+'''
+
+[[test]]
+name = "unicode_bom"
+description = "Byte Order Mark character"
+tags = ["unicode", "bom", "edge"]
+
+python = '''
+def has_bom(s: str) -> bool:
+    return s.startswith("\ufeff")
+'''
+
+rust = '''
+pub fn has_bom(s: String) -> bool {
+    return s.starts_with("\u{feff}");
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_has_bom_examples() {
+        let _ = has_bom(Default::default());
+    }
+}
+'''
+
+[[test]]
+name = "unicode_replacement"
+description = "Unicode replacement character"
+tags = ["unicode", "replacement", "edge"]
+
+python = '''
+def replacement_char() -> str:
+    return "\ufffd"
+'''
+
+rust = '''
+pub fn replacement_char() -> String {
+    return "�".to_string();
+}
+'''
+
+[[test]]
+name = "unicode_zero_width"
+description = "Zero-width space character"
+tags = ["unicode", "zwsp", "edge"]
+
+python = '''
+def zero_width_space() -> str:
+    return "\u200b"
+'''
+
+rust = '''
+pub fn zero_width_space() -> String {
+    return "\u{200b}".to_string();
+}
+'''

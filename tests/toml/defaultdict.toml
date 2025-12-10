@@ -9,160 +9,428 @@ category = "data-structures"
 # Creating DefaultDict
 # =============================================================================
 
-# TODO: Test with list factory
-# [[test]]
-# name = "defaultdict_list"
-# description = "defaultdict(list)"
+[[test]]
+name = "defaultdict_list"
+description = "Test defaultdict with list factory"
+python = '''
+from collections import defaultdict
 
-# TODO: Test with int factory
-# [[test]]
-# name = "defaultdict_int"
-# description = "defaultdict(int)"
+d = defaultdict(list)
+d["a"].append(1)
+d["a"].append(2)
+d["b"].append(3)
+assert d["a"] == [1, 2]
+assert d["b"] == [3]
+'''
 
-# TODO: Test with set factory
-# [[test]]
-# name = "defaultdict_set"
-# description = "defaultdict(set)"
+[[test]]
+name = "defaultdict_int"
+description = "Test defaultdict with int factory (defaults to 0)"
+python = '''
+from collections import defaultdict
 
-# TODO: Test with lambda
-# [[test]]
-# name = "defaultdict_lambda"
-# description = "defaultdict(lambda: 'default')"
+d = defaultdict(int)
+d["count"] += 1
+d["count"] += 1
+d["other"] += 5
+assert d["count"] == 2
+assert d["other"] == 5
+'''
 
-# TODO: Test with initial data
-# [[test]]
-# name = "defaultdict_init"
-# description = "defaultdict(int, {'a': 1})"
+[[test]]
+name = "defaultdict_set"
+description = "Test defaultdict with set factory"
+python = '''
+from collections import defaultdict
+
+d = defaultdict(set)
+d["colors"].add("red")
+d["colors"].add("blue")
+d["colors"].add("red")  # Duplicate ignored
+assert d["colors"] == {"red", "blue"}
+'''
+
+[[test]]
+name = "defaultdict_lambda"
+description = "Test defaultdict with lambda factory"
+python = '''
+from collections import defaultdict
+
+d = defaultdict(lambda: "N/A")
+assert d["missing"] == "N/A"
+d["existing"] = "value"
+assert d["existing"] == "value"
+'''
+
+[[test]]
+name = "defaultdict_init"
+description = "Test defaultdict with initial data"
+python = '''
+from collections import defaultdict
+
+d = defaultdict(int, {"a": 10, "b": 20})
+assert d["a"] == 10
+assert d["b"] == 20
+d["c"] += 5
+assert d["c"] == 5  # Uses default
+'''
 
 # =============================================================================
 # Automatic Key Creation
 # =============================================================================
 
-# TODO: Test missing key
-# [[test]]
-# name = "defaultdict_missing"
-# description = "d[missing_key] creates default"
+[[test]]
+name = "defaultdict_missing"
+description = "Test accessing missing key creates default value"
+python = '''
+from collections import defaultdict
 
-# TODO: Test auto list append
-# [[test]]
-# name = "defaultdict_list_append"
-# description = "d[key].append(value)"
+d = defaultdict(int)
+value = d["new_key"]  # Creates with default
+assert value == 0
+assert "new_key" in d
+'''
 
-# TODO: Test auto int increment
-# [[test]]
-# name = "defaultdict_int_inc"
-# description = "d[key] += 1"
+[[test]]
+name = "defaultdict_list_append"
+description = "Test auto-creating list and appending in one step"
+python = '''
+from collections import defaultdict
 
-# TODO: Test auto set add
-# [[test]]
-# name = "defaultdict_set_add"
-# description = "d[key].add(value)"
+d = defaultdict(list)
+d["items"].append("first")  # Creates list automatically
+d["items"].append("second")
+assert d["items"] == ["first", "second"]
+'''
+
+[[test]]
+name = "defaultdict_int_inc"
+description = "Test auto-creating int and incrementing"
+python = '''
+from collections import defaultdict
+
+d = defaultdict(int)
+for char in "hello":
+    d[char] += 1  # Auto-creates 0 then increments
+
+assert d["h"] == 1
+assert d["e"] == 1
+assert d["l"] == 2
+assert d["o"] == 1
+'''
+
+[[test]]
+name = "defaultdict_set_add"
+description = "Test auto-creating set and adding"
+python = '''
+from collections import defaultdict
+
+d = defaultdict(set)
+words = ["apple", "banana", "apricot"]
+for word in words:
+    d[word[0]].add(word)
+
+assert d["a"] == {"apple", "apricot"}
+assert d["b"] == {"banana"}
+'''
 
 # =============================================================================
 # __missing__ Method
 # =============================================================================
 
-# TODO: Test __missing__ called
-# [[test]]
-# name = "defaultdict_missing_method"
-# description = "__missing__ called on missing key"
+[[test]]
+name = "defaultdict_missing_method"
+description = "Test __missing__ method is called on missing key access"
+python = '''
+from collections import defaultdict
 
-# TODO: Test custom subclass
-# [[test]]
-# name = "defaultdict_subclass"
-# description = "Override __missing__ in subclass"
+d = defaultdict(lambda: "default_value")
+# __missing__ is called internally when key doesn't exist
+result = d["nonexistent"]
+assert result == "default_value"
+'''
+
+[[test]]
+name = "defaultdict_subclass"
+description = "Test custom subclass overriding __missing__"
+python = '''
+from collections import defaultdict
+
+class ConstantDict(defaultdict):
+    def __missing__(self, key):
+        return 42
+
+d = ConstantDict()
+assert d["any_key"] == 42
+assert d["another_key"] == 42
+# Keys are not added to dict
+assert len(d) == 0
+'''
 
 # =============================================================================
 # default_factory Attribute
 # =============================================================================
 
-# TODO: Test default_factory access
-# [[test]]
-# name = "defaultdict_factory"
-# description = "d.default_factory"
+[[test]]
+name = "defaultdict_factory"
+description = "Test accessing default_factory attribute"
+python = '''
+from collections import defaultdict
 
-# TODO: Test change factory
-# [[test]]
-# name = "defaultdict_change_factory"
-# description = "d.default_factory = str"
+d = defaultdict(list)
+assert d.default_factory is list
+d2 = defaultdict(int)
+assert d2.default_factory is int
+'''
 
-# TODO: Test None factory
-# [[test]]
-# name = "defaultdict_none_factory"
-# description = "d.default_factory = None"
+[[test]]
+name = "defaultdict_change_factory"
+description = "Test changing default_factory after creation"
+python = '''
+from collections import defaultdict
+
+d = defaultdict(int)
+d["a"] = 5
+d.default_factory = list
+d["b"].append(1)  # Now uses list factory
+assert d["a"] == 5
+assert d["b"] == [1]
+'''
+
+[[test]]
+name = "defaultdict_none_factory"
+description = "Test setting default_factory to None"
+python = '''
+from collections import defaultdict
+
+d = defaultdict(int)
+d.default_factory = None
+# Now behaves like regular dict
+try:
+    _ = d["missing"]
+    raised = False
+except KeyError:
+    raised = True
+assert raised
+'''
 
 # =============================================================================
 # Use Cases
 # =============================================================================
 
-# TODO: Test grouping
-# [[test]]
-# name = "defaultdict_grouping"
-# description = "Group items by key"
+[[test]]
+name = "defaultdict_grouping"
+description = "Test grouping items by key using defaultdict"
+python = '''
+from collections import defaultdict
 
-# TODO: Test counting
-# [[test]]
-# name = "defaultdict_counting"
-# description = "Count occurrences"
+items = [("fruit", "apple"), ("veg", "carrot"), ("fruit", "banana"), ("veg", "lettuce")]
+groups = defaultdict(list)
+for category, item in items:
+    groups[category].append(item)
 
-# TODO: Test nested defaultdict
-# [[test]]
-# name = "defaultdict_nested"
-# description = "defaultdict(lambda: defaultdict(int))"
+assert groups["fruit"] == ["apple", "banana"]
+assert groups["veg"] == ["carrot", "lettuce"]
+'''
 
-# TODO: Test accumulating
-# [[test]]
-# name = "defaultdict_accumulate"
-# description = "Accumulate lists of values"
+[[test]]
+name = "defaultdict_counting"
+description = "Test counting occurrences with defaultdict"
+python = '''
+from collections import defaultdict
+
+words = ["apple", "banana", "apple", "cherry", "banana", "apple"]
+counts = defaultdict(int)
+for word in words:
+    counts[word] += 1
+
+assert counts["apple"] == 3
+assert counts["banana"] == 2
+assert counts["cherry"] == 1
+'''
+
+[[test]]
+name = "defaultdict_nested"
+description = "Test nested defaultdict for 2D structure"
+python = '''
+from collections import defaultdict
+
+# Create a nested defaultdict
+matrix = defaultdict(lambda: defaultdict(int))
+matrix[0][0] = 1
+matrix[0][1] = 2
+matrix[1][0] = 3
+# Accessing new keys creates nested defaults
+matrix[2][2] += 5
+
+assert matrix[0][0] == 1
+assert matrix[2][2] == 5
+assert matrix[3][3] == 0  # Auto-created
+'''
+
+[[test]]
+name = "defaultdict_accumulate"
+description = "Test accumulating lists of values"
+python = '''
+from collections import defaultdict
+
+transactions = [
+    ("Alice", 100),
+    ("Bob", 50),
+    ("Alice", 200),
+    ("Charlie", 75),
+    ("Bob", 25)
+]
+
+accounts = defaultdict(list)
+for name, amount in transactions:
+    accounts[name].append(amount)
+
+assert accounts["Alice"] == [100, 200]
+assert accounts["Bob"] == [50, 25]
+assert accounts["Charlie"] == [75]
+'''
 
 # =============================================================================
 # Dict Operations
 # =============================================================================
 
-# TODO: Test get method
-# [[test]]
-# name = "defaultdict_get"
-# description = "d.get(key) doesn't create"
+[[test]]
+name = "defaultdict_get"
+description = "Test get() method doesn't create default (unlike subscript)"
+python = '''
+from collections import defaultdict
 
-# TODO: Test in operator
-# [[test]]
-# name = "defaultdict_in"
-# description = "key in d doesn't create"
+d = defaultdict(int)
+value = d.get("missing")  # Returns None, doesn't create key
+assert value is None
+assert "missing" not in d
 
-# TODO: Test iteration
-# [[test]]
-# name = "defaultdict_iter"
-# description = "for k in d: ..."
+# With default argument
+value = d.get("missing", 42)
+assert value == 42
+'''
+
+[[test]]
+name = "defaultdict_in"
+description = "Test 'in' operator doesn't create default"
+python = '''
+from collections import defaultdict
+
+d = defaultdict(list)
+assert "key" not in d
+# Checking doesn't create it
+assert "key" not in d
+assert len(d) == 0
+
+# But subscript does
+_ = d["key"]
+assert "key" in d
+'''
+
+[[test]]
+name = "defaultdict_iter"
+description = "Test iteration over defaultdict"
+python = '''
+from collections import defaultdict
+
+d = defaultdict(int, {"a": 1, "b": 2, "c": 3})
+keys = sorted(d.keys())
+assert keys == ["a", "b", "c"]
+
+values = sorted(d.values())
+assert values == [1, 2, 3]
+
+items = sorted(d.items())
+assert items == [("a", 1), ("b", 2), ("c", 3)]
+'''
 
 # =============================================================================
 # Comparison with Regular Dict
 # =============================================================================
 
-# TODO: Test vs setdefault
-# [[test]]
-# name = "defaultdict_vs_setdefault"
-# description = "Compare to dict.setdefault"
+[[test]]
+name = "defaultdict_vs_setdefault"
+description = "Test defaultdict compared to dict.setdefault"
+python = '''
+from collections import defaultdict
 
-# TODO: Test vs get with default
-# [[test]]
-# name = "defaultdict_vs_get"
-# description = "Compare to dict.get(k, default)"
+# With defaultdict
+dd = defaultdict(list)
+dd["key"].append(1)
+
+# With regular dict and setdefault
+d = {}
+d.setdefault("key", []).append(1)
+
+assert dd["key"] == d["key"]
+# defaultdict is cleaner for repeated operations
+'''
+
+[[test]]
+name = "defaultdict_vs_get"
+description = "Test defaultdict compared to dict.get with default"
+python = '''
+from collections import defaultdict
+
+# Counting with defaultdict
+dd = defaultdict(int)
+for c in "hello":
+    dd[c] += 1
+
+# Counting with regular dict
+d = {}
+for c in "hello":
+    d[c] = d.get(c, 0) + 1
+
+assert dd == d
+'''
 
 # =============================================================================
 # Edge Cases
 # =============================================================================
 
-# TODO: Test copy
-# [[test]]
-# name = "defaultdict_copy"
-# description = "d.copy()"
+[[test]]
+name = "defaultdict_copy"
+description = "Test copying a defaultdict"
+python = '''
+from collections import defaultdict
 
-# TODO: Test repr
-# [[test]]
-# name = "defaultdict_repr"
-# description = "repr(defaultdict(list))"
+d = defaultdict(int, {"a": 1, "b": 2})
+d_copy = d.copy()
 
-# TODO: Test equality with dict
-# [[test]]
-# name = "defaultdict_eq_dict"
-# description = "defaultdict equals dict with same items"
+# Copy has same data and factory
+assert d_copy["a"] == 1
+assert d_copy["c"] == 0  # Uses factory
+assert d_copy.default_factory is int
+'''
+
+[[test]]
+name = "defaultdict_repr"
+description = "Test repr of defaultdict"
+python = '''
+from collections import defaultdict
+
+d = defaultdict(list)
+d["a"].append(1)
+repr_str = repr(d)
+assert "defaultdict" in repr_str
+assert "list" in repr_str
+'''
+
+[[test]]
+name = "defaultdict_eq_dict"
+description = "Test defaultdict equals dict with same items"
+python = '''
+from collections import defaultdict
+
+dd = defaultdict(int, {"a": 1, "b": 2})
+d = {"a": 1, "b": 2}
+
+# They compare equal if items are same
+assert dd == d
+assert d == dd
+
+# But they're not the same type
+assert type(dd) != type(d)
+'''

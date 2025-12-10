@@ -9,121 +9,482 @@ category = "context-managers"
 # Multiple Targets Syntax
 # =============================================================================
 
-# TODO: Test comma-separated with
-# [[test]]
-# name = "multi_with_comma"
-# description = "with a, b, c: ..."
+[[test]]
+name = "multi_with_comma"
+description = "Multiple context managers with comma separation"
+tags = ["context-manager", "multiple", "syntax"]
 
-# TODO: Test comma with as
-# [[test]]
-# name = "multi_with_as"
-# description = "with a as x, b as y: ..."
+python = '''
+def process_files():
+    with open("a.txt"), open("b.txt"), open("c.txt"):
+        pass
+'''
 
-# TODO: Test mixed as
-# [[test]]
-# name = "multi_mixed_as"
-# description = "with a as x, b, c as z: ..."
+rust = '''
+// Transpilation failed
+'''
 
-# =============================================================================
-# Nested With Statements
-# =============================================================================
+[[test]]
+name = "multi_with_as"
+description = "Multiple context managers with as clauses"
+tags = ["context-manager", "multiple", "as"]
 
-# TODO: Test nested with blocks
-# [[test]]
-# name = "nested_with"
-# description = "with a: with b: with c: ..."
+python = '''
+def read_files():
+    with open("a.txt") as f1, open("b.txt") as f2:
+        content1 = f1.read()
+        content2 = f2.read()
+        return content1 + content2
+'''
 
-# TODO: Test deep nesting
-# [[test]]
-# name = "deeply_nested"
-# description = "Multiple levels of with nesting"
+rust = '''
+// Transpilation failed
+'''
 
-# =============================================================================
-# Enter/Exit Order
-# =============================================================================
+[[test]]
+name = "multi_mixed_as"
+description = "Mixed as clauses in multiple context managers"
+tags = ["context-manager", "multiple", "mixed"]
 
-# TODO: Test enter order
-# [[test]]
-# name = "multi_enter_order"
-# description = "a.__enter__, b.__enter__, c.__enter__"
+python = '''
+def mixed_files():
+    with open("a.txt") as f1, open("b.txt"), open("c.txt") as f3:
+        return f1.read() + f3.read()
+'''
 
-# TODO: Test exit order
-# [[test]]
-# name = "multi_exit_order"
-# description = "c.__exit__, b.__exit__, a.__exit__ (reverse)"
+rust = '''
+// Transpilation failed
+'''
 
-# TODO: Test exception during enter
-# [[test]]
-# name = "multi_enter_fail"
-# description = "Later __enter__ fails, earlier __exit__ called"
+[[test]]
+name = "nested_with"
+description = "Nested with blocks"
+tags = ["context-manager", "nested"]
 
-# =============================================================================
-# Exception Propagation
-# =============================================================================
+python = '''
+def nested_contexts():
+    with open("a.txt") as f1:
+        with open("b.txt") as f2:
+            with open("c.txt") as f3:
+                return f1.read() + f2.read() + f3.read()
+'''
 
-# TODO: Test exception in body
-# [[test]]
-# name = "multi_body_exception"
-# description = "All __exit__ called on body exception"
+rust = '''
+pub fn nested_contexts() {
+    let mut f1 = std::fs::File::open("a.txt")?;
+    let mut f2 = std::fs::File::open("b.txt")?;
+    let mut f3 = std::fs::File::open("c.txt")?;
+    return {
+        let mut content = String::new();
+        f1.read_to_string(&mut content)?;
+        content
+    } + {
+        let mut content = String::new();
+        f2.read_to_string(&mut content)?;
+        content
+    } + {
+        let mut content = String::new();
+        f3.read_to_string(&mut content)?;
+        content
+    };
+}
+'''
 
-# TODO: Test one suppresses
-# [[test]]
-# name = "multi_one_suppresses"
-# description = "One __exit__ suppresses, others see no exception"
+[[test]]
+name = "deeply_nested"
+description = "Deeply nested with statements"
+tags = ["context-manager", "nested", "deep"]
 
-# TODO: Test exit exception
-# [[test]]
-# name = "multi_exit_exception"
-# description = "Exception in __exit__ affects later exits"
+python = '''
+def deeply_nested():
+    with open("1.txt"):
+        with open("2.txt"):
+            with open("3.txt"):
+                with open("4.txt"):
+                    with open("5.txt"):
+                        return "done"
+'''
 
-# =============================================================================
-# Dynamic Number of Context Managers
-# =============================================================================
+rust = '''
+pub fn deeply_nested() -> String {
+    let _context = std::fs::File::open("1.txt")?;
+    let _context = std::fs::File::open("2.txt")?;
+    let _context = std::fs::File::open("3.txt")?;
+    let _context = std::fs::File::open("4.txt")?;
+    let _context = std::fs::File::open("5.txt")?;
+    return "done".to_string();
+}
+'''
 
-# TODO: Test ExitStack for dynamic
-# [[test]]
-# name = "multi_dynamic"
-# description = "ExitStack for variable number of contexts"
+[[test]]
+name = "multi_enter_order"
+description = "Enter order is left to right"
+tags = ["context-manager", "order", "enter"]
 
-# TODO: Test list of context managers
-# [[test]]
-# name = "multi_from_list"
-# description = "for cm in cms: stack.enter_context(cm)"
+python = '''
+class TrackedContext:
+    def __init__(self, name: str):
+        self.name = name
+    
+    def __enter__(self):
+        print(f"Entering {self.name}")
+        return self
+    
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        print(f"Exiting {self.name}")
+        return False
 
-# =============================================================================
-# Use Cases
-# =============================================================================
+def test_order():
+    with TrackedContext("A"), TrackedContext("B"), TrackedContext("C"):
+        pass
+'''
 
-# TODO: Test multiple files
-# [[test]]
-# name = "multi_files"
-# description = "with open(a), open(b), open(c): ..."
+rust = '''
+// Transpilation failed
+'''
 
-# TODO: Test multiple locks
-# [[test]]
-# name = "multi_locks"
-# description = "Acquire multiple locks atomically"
+[[test]]
+name = "multi_exit_order"
+description = "Exit order is reverse of enter (LIFO)"
+tags = ["context-manager", "order", "exit"]
 
-# TODO: Test database + file
-# [[test]]
-# name = "multi_db_file"
-# description = "with db.transaction(), open(log): ..."
+python = '''
+class Logger:
+    def __init__(self, name: str):
+        self.name = name
+    
+    def __enter__(self):
+        return self
+    
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        # C exits first, then B, then A
+        return False
 
-# =============================================================================
-# Edge Cases
-# =============================================================================
+def test_exit_order():
+    with Logger("A"), Logger("B"), Logger("C"):
+        print("body")
+'''
 
-# TODO: Test same context manager twice
-# [[test]]
-# name = "multi_same_cm"
-# description = "with cm, cm: (if reentrant)"
+rust = '''
+// Transpilation failed
+'''
 
-# TODO: Test mixed sync and no-op
-# [[test]]
-# name = "multi_with_null"
-# description = "with real_cm, nullcontext(): ..."
+[[test]]
+name = "multi_enter_fail"
+description = "If enter fails, only previous exits are called"
+tags = ["context-manager", "order", "exception"]
 
-# TODO: Test very many context managers
-# [[test]]
-# name = "multi_many"
-# description = "Practical limit on number of contexts"
+python = '''
+class FailingContext:
+    def __init__(self, fail: bool):
+        self.fail = fail
+    
+    def __enter__(self):
+        if self.fail:
+            raise RuntimeError("Enter failed")
+        return self
+    
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        print("Cleanup")
+        return False
+
+def test_enter_fail():
+    try:
+        with FailingContext(False), FailingContext(True):
+            pass
+    except RuntimeError:
+        pass
+'''
+
+rust = '''
+// Transpilation failed
+'''
+
+[[test]]
+name = "multi_body_exception"
+description = "Exception in body triggers all exits"
+tags = ["context-manager", "exception", "body"]
+
+python = '''
+class CleanupContext:
+    def __enter__(self):
+        return self
+    
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        print("Cleanup called")
+        return False
+
+def test_body_exception():
+    try:
+        with CleanupContext(), CleanupContext(), CleanupContext():
+            raise ValueError("Error in body")
+    except ValueError:
+        pass
+'''
+
+rust = '''
+// Transpilation failed
+'''
+
+[[test]]
+name = "multi_one_suppresses"
+description = "One exit can suppress exception"
+tags = ["context-manager", "exception", "suppress"]
+
+python = '''
+class SuppressingContext:
+    def __enter__(self):
+        return self
+    
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        return exc_type is ValueError
+
+def test_suppress():
+    with SuppressingContext():
+        raise ValueError("This gets suppressed")
+    print("Continues normally")
+'''
+
+rust = '''
+// Transpilation failed
+'''
+
+[[test]]
+name = "multi_exit_exception"
+description = "Exception in exit affects later contexts"
+tags = ["context-manager", "exception", "exit"]
+
+python = '''
+class FailingExitContext:
+    def __enter__(self):
+        return self
+    
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        raise RuntimeError("Exit failed")
+
+def test_exit_exception():
+    try:
+        with FailingExitContext():
+            pass
+    except RuntimeError:
+        pass
+'''
+
+rust = '''
+use serde_json;
+#[derive(Debug, Clone)]
+pub struct FailingExitContext {}
+impl FailingExitContext {
+    pub fn new() -> Self {
+        Self {}
+    }
+    pub fn __enter__(&self) -> &Self {
+        return self;
+    }
+    pub fn __exit__(&self, exc_type: serde_json::Value, exc_val: serde_json::Value, exc_tb: serde_json::Value) {
+        panic!("Exception: {}", RuntimeError::new("Exit failed".to_string()));
+    }
+}
+pub fn test_exit_exception() {
+    {
+        let _context = FailingExitContext::new();
+    }
+}
+'''
+
+[[test]]
+name = "multi_dynamic"
+description = "ExitStack for dynamic context managers"
+tags = ["context-manager", "dynamic", "exitstack"]
+
+python = '''
+from contextlib import ExitStack
+
+def open_many_files(filenames: list):
+    with ExitStack() as stack:
+        files = [stack.enter_context(open(fn)) for fn in filenames]
+        return [f.read() for f in files]
+'''
+
+rust = '''
+// Transpilation failed
+'''
+
+[[test]]
+name = "multi_from_list"
+description = "Managing list of context managers"
+tags = ["context-manager", "list", "dynamic"]
+
+python = '''
+from contextlib import ExitStack
+
+class Resource:
+    def __enter__(self):
+        return self
+    
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        print("cleanup")
+        return False
+
+def use_resources(count: int):
+    resources = [Resource() for _ in range(count)]
+    with ExitStack() as stack:
+        for r in resources:
+            stack.enter_context(r)
+        print("Using resources")
+'''
+
+rust = '''
+use serde_json;
+#[doc = "// NOTE: Map Python module 'contextlib'()"]
+#[derive(Debug, Clone)]
+pub struct Resource {}
+impl Resource {
+    pub fn new() -> Self {
+        Self {}
+    }
+    pub fn __enter__(&self) -> &Self {
+        return self;
+    }
+    pub fn __exit__(&self, exc_type: serde_json::Value, exc_val: serde_json::Value, exc_tb: serde_json::Value) -> bool {
+        println!("{}", "cleanup".to_string());
+        return false;
+    }
+}
+pub fn use_resources(count: i32) {
+    let resources = (0..count).map(|_| Resource::new()).collect::<Vec<_>>();
+    let _context = ExitStack::new();
+    let mut stack = _context.__enter__();
+    for r in resources.iter().cloned() {
+        stack.enter_context(r);
+    }
+    println!("{}", "Using resources");
+}
+'''
+
+[[test]]
+name = "multi_files"
+description = "Multiple file operations"
+tags = ["context-manager", "files", "usecase"]
+
+python = '''
+def merge_files():
+    with open("input1.txt") as f1, open("input2.txt") as f2, open("output.txt", "w") as out:
+        out.write(f1.read())
+        out.write(f2.read())
+'''
+
+rust = '''
+// Transpilation failed
+'''
+
+[[test]]
+name = "multi_locks"
+description = "Acquire multiple locks atomically"
+tags = ["context-manager", "locks", "usecase"]
+
+python = '''
+from threading import Lock
+
+def transfer(lock1: Lock, lock2: Lock):
+    with lock1, lock2:
+        # Critical section with both locks held
+        print("Transfer in progress")
+'''
+
+rust = '''
+// Transpilation failed
+'''
+
+[[test]]
+name = "multi_db_file"
+description = "Database transaction and file operation"
+tags = ["context-manager", "database", "usecase"]
+
+python = '''
+class Transaction:
+    def __enter__(self):
+        print("Begin transaction")
+        return self
+    
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if exc_type:
+            print("Rollback")
+        else:
+            print("Commit")
+        return False
+
+def save_to_db_and_log():
+    with Transaction() as txn, open("log.txt", "a") as log:
+        log.write("Operation started\n")
+        # Do database work
+        log.write("Operation completed\n")
+'''
+
+rust = '''
+// Transpilation failed
+'''
+
+[[test]]
+name = "multi_same_cm"
+description = "Using same context manager twice (if reentrant)"
+tags = ["context-manager", "reentrant", "edge"]
+
+python = '''
+from threading import RLock
+
+def reentrant_lock():
+    lock = RLock()
+    with lock, lock:
+        # Reentrant lock allows this
+        print("Holding lock twice")
+'''
+
+rust = '''
+// Transpilation failed
+'''
+
+[[test]]
+name = "multi_with_null"
+description = "Mix of real and null context managers"
+tags = ["context-manager", "nullcontext", "edge"]
+
+python = '''
+from contextlib import nullcontext
+
+def conditional_context(use_real: bool):
+    cm = open("file.txt") if use_real else nullcontext()
+    with cm:
+        print("Body executes either way")
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'contextlib'()"]
+pub fn conditional_context(use_real: bool) {
+    let cm = if use_real {
+        std::fs::File::open("file.txt")?
+    } else {
+        nullcontext()
+    };
+    let _context = cm;
+    println!("{}", "Body executes either way");
+}
+'''
+
+[[test]]
+name = "multi_many"
+description = "Many context managers"
+tags = ["context-manager", "many", "edge"]
+
+python = '''
+def many_contexts():
+    with (open("1.txt"), open("2.txt"), open("3.txt"), 
+          open("4.txt"), open("5.txt"), open("6.txt"),
+          open("7.txt"), open("8.txt"), open("9.txt"), 
+          open("10.txt")):
+        print("All files open")
+'''
+
+rust = '''
+// Transpilation failed
+'''

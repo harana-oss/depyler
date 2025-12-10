@@ -12,8 +12,7 @@ name = "zero_values"
 description = "Test zero values for int, float, list, and dict"
 tags = ["boundary", "zero", "empty"]
 
-[test.python]
-code = '''
+python = '''
 def zero_test() -> int:
     zero_int = 0
     zero_float = 0.0
@@ -22,16 +21,35 @@ def zero_test() -> int:
     return len(zero_list) + len(zero_dict) + zero_int
 '''
 
-[test.assertions]
-contains = ["len"]
+rust = '''
+use std::collections::HashMap;
+pub fn zero_test() -> i32 {
+    let zero_int = 0;
+    let zero_float = 0.0;
+    let zero_list = vec![];
+    let zero_dict = {
+        let map = HashMap::new();
+        map
+    };
+    return zero_list.len() as i32 + zero_dict.len() as i32 + zero_int as i32;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_zero_test_examples() {
+        let _ = zero_test();
+    }
+}
+'''
 
 [[test]]
 name = "negative_one_values"
 description = "Test negative indexing with -1"
 tags = ["boundary", "negative", "indexing"]
 
-[test.python]
-code = '''
+python = '''
 def negative_one_test(arr: list) -> int:
     last_index = -1
     if arr:
@@ -39,16 +57,52 @@ def negative_one_test(arr: list) -> int:
     return -1
 '''
 
-[test.assertions]
-contains_any = [["- 1", "-1"]]
+rust = '''
+use serde_json;
+#[derive(Debug, Clone)]
+pub struct IndexError {
+    message: String,
+}
+impl std::fmt::Display for IndexError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "index out of range: {}", self.message)
+    }
+}
+impl std::error::Error for IndexError {}
+impl IndexError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = " Depyler: proven to terminate"]
+pub fn negative_one_test(arr: &Vec<serde_json::Value>) -> i32 {
+    let last_index = -1;
+    if !arr.clone().is_empty() {
+        return arr.get(last_index as usize).cloned().unwrap();
+    }
+    return -1;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_negative_one_test_examples() {
+        assert_eq!(negative_one_test(vec![]), 0);
+        assert_eq!(negative_one_test(vec![1]), 1);
+        assert_eq!(negative_one_test(vec![1, 2, 3]), 3);
+    }
+}
+'''
 
 [[test]]
 name = "maximum_list_size"
 description = "Test creating large lists with append"
 tags = ["boundary", "list", "size"]
 
-[test.python]
-code = '''
+python = '''
 def create_large_list(size: int) -> list:
     result = []
     for i in range(size):
@@ -56,34 +110,57 @@ def create_large_list(size: int) -> list:
     return result
 '''
 
-[test.assertions]
-contains = ["push"]
+rust = '''
+use serde_json;
+pub fn create_large_list(size: i32) -> Vec<serde_json::Value> {
+    let mut result = vec![];
+    for i in 0..size {
+        result.push(i);
+    }
+    return result;
+}
+'''
 
 [[test]]
 name = "single_element_collections"
 description = "Test single element list and dict"
 tags = ["boundary", "single", "collection"]
 
-[test.python]
-code = '''
+python = '''
 def single_element_test() -> int:
     single_list = [42]
     single_dict = {"key": "value"}
     return len(single_list) + len(single_dict)
 '''
 
-[test.assertions]
-contains = ["len"]
-
-# ========== NUMERIC BOUNDARIES ==========
+rust = '''
+use std::collections::HashMap;
+pub fn single_element_test() -> i32 {
+    let single_list = vec![42];
+    let single_dict = {
+        let mut map = HashMap::new();
+        map.insert("key".to_string(), "value".to_string());
+        map
+    };
+    return single_list.len() as i32 + single_dict.len() as i32 as i32;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_single_element_test_examples() {
+        let _ = single_element_test();
+    }
+}
+'''
 
 [[test]]
 name = "power_of_two_boundaries"
 description = "Test power of two values in loops"
 tags = ["boundary", "numeric", "powers"]
 
-[test.python]
-code = '''
+python = '''
 def power_of_two_test() -> int:
     powers = [1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024]
     total = 0
@@ -92,16 +169,32 @@ def power_of_two_test() -> int:
     return total
 '''
 
-[test.assertions]
-contains = ["for"]
+rust = '''
+pub fn power_of_two_test() -> i32 {
+    let powers = vec![1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024];
+    let mut total = 0;
+    for power in powers.iter().cloned() {
+        total = total + power;
+    }
+    return total;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_power_of_two_test_examples() {
+        let _ = power_of_two_test();
+    }
+}
+'''
 
 [[test]]
 name = "off_by_one_loop_conditions"
 description = "Test loop boundary conditions to avoid off-by-one errors"
 tags = ["boundary", "loop", "off-by-one"]
 
-[test.python]
-code = '''
+python = '''
 def off_by_one_test(n: int) -> int:
     count1 = 0
     for i in range(n):
@@ -118,16 +211,41 @@ def off_by_one_test(n: int) -> int:
     return count1 + count2 + count3
 '''
 
-[test.assertions]
-contains = ["for"]
+rust = '''
+pub fn off_by_one_test(n: i32) -> i32 {
+    let mut count1 = 0;
+    for _i in 0..n {
+        count1 = count1 + 1;
+    }
+    let mut count2 = 0;
+    for _i in 0..n + 1 {
+        count2 = count2 + 1;
+    }
+    let mut count3 = 0;
+    for _i in 0..n - 1 {
+        count3 = count3 + 1;
+    }
+    return count1 + count2 + count3;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_off_by_one_test_examples() {
+        assert_eq!(off_by_one_test(0), 0);
+        assert_eq!(off_by_one_test(1), 1);
+        assert_eq!(off_by_one_test(-1), -1);
+    }
+}
+'''
 
 [[test]]
 name = "floating_point_boundaries"
 description = "Test floating point boundary values"
 tags = ["boundary", "float", "numeric"]
 
-[test.python]
-code = '''
+python = '''
 def float_boundary_test() -> float:
     tiny = 0.0001
     zero = 0.0
@@ -137,16 +255,22 @@ def float_boundary_test() -> float:
     return tiny + zero + negative_tiny + one
 '''
 
-[test.assertions]
-contains = ["f64"]
+rust = '''
+pub fn float_boundary_test() -> f64 {
+    let tiny = 0.0001;
+    let zero = 0.0;
+    let negative_tiny = -0.0001;
+    let one = 1.0;
+    return tiny + zero + negative_tiny + one;
+}
+'''
 
 [[test]]
 name = "arithmetic_overflow_boundaries"
 description = "Test potential overflow conditions with large values"
 tags = ["boundary", "arithmetic", "overflow"]
 
-[test.python]
-code = '''
+python = '''
 def arithmetic_boundary_test() -> int:
     large_positive = 1000000
     large_negative = -1000000
@@ -158,18 +282,33 @@ def arithmetic_boundary_test() -> int:
     return addition + subtraction + multiplication
 '''
 
-[test.assertions]
-contains_any = [["+", "-", "*"]]
-
-# ========== STRING BOUNDARIES ==========
+rust = '''
+pub fn arithmetic_boundary_test() -> i32 {
+    let large_positive = 1000000;
+    let large_negative = -1000000;
+    let addition = large_positive + large_positive;
+    let subtraction = large_positive - large_negative;
+    let _cse_temp_0 = large_positive * 2;
+    let multiplication = _cse_temp_0;
+    return addition + subtraction + multiplication;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_arithmetic_boundary_test_examples() {
+        let _ = arithmetic_boundary_test();
+    }
+}
+'''
 
 [[test]]
 name = "string_length_boundaries"
 description = "Test empty, single-char, and long strings"
 tags = ["boundary", "string", "length"]
 
-[test.python]
-code = '''
+python = '''
 def string_boundary_test() -> int:
     empty_string = ""
     single_char = "a"
@@ -178,18 +317,31 @@ def string_boundary_test() -> int:
     return len(empty_string) + len(single_char) + len(long_string)
 '''
 
-[test.assertions]
-contains = ["len"]
-
-# ========== RECURSION ==========
+rust = '''
+pub fn string_boundary_test() -> i32 {
+    let empty_string = "".to_string();
+    let single_char = "a".to_string();
+    let _cse_temp_0 = "a".repeat(1000 as usize);
+    let long_string = _cse_temp_0;
+    return empty_string.len() as i32 + single_char.len() as i32 + long_string.len() as i32 as i32;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_string_boundary_test_examples() {
+        let _ = string_boundary_test();
+    }
+}
+'''
 
 [[test]]
 name = "recursive_depth_boundaries"
 description = "Test recursive function calls at various depths"
 tags = ["boundary", "recursion"]
 
-[test.python]
-code = '''
+python = '''
 def factorial_recursive(n: int) -> int:
     if n <= 1:
         return 1
@@ -201,18 +353,42 @@ def test_recursion_depths() -> int:
     return small + medium
 '''
 
-[test.assertions]
-contains = ["factorial_recursive"]
-
-# ========== BOOLEAN BOUNDARIES ==========
+rust = '''
+pub fn factorial_recursive(n: i32) -> i32 {
+    let _cse_temp_0 = n <= 1;
+    if _cse_temp_0 {
+        return 1;
+    }
+    return n * factorial_recursive(n - 1);
+}
+pub fn test_recursion_depths() -> i32 {
+    let small = factorial_recursive(5);
+    let medium = factorial_recursive(10);
+    return small + medium;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_factorial_recursive_examples() {
+        assert_eq!(factorial_recursive(0), 0);
+        assert_eq!(factorial_recursive(1), 1);
+        assert_eq!(factorial_recursive(-1), -1);
+    }
+    #[test]
+    fn test_test_recursion_depths_examples() {
+        let _ = test_recursion_depths();
+    }
+}
+'''
 
 [[test]]
 name = "boolean_boundaries"
 description = "Test boolean truthiness boundaries"
 tags = ["boundary", "boolean", "truthiness"]
 
-[test.python]
-code = '''
+python = '''
 def boolean_boundary_test() -> bool:
     true_val = True
     false_val = False
@@ -225,18 +401,27 @@ def boolean_boundary_test() -> bool:
     return true_val and not false_val
 '''
 
-[test.assertions]
-contains_any = [["true", "false", "bool"]]
-
-# ========== MODULO AND RANGE ==========
+rust = '''
+pub fn boolean_boundary_test() -> bool {
+    let true_val = true;
+    let false_val = false;
+    let _cse_temp_0 = 0 != 0;
+    let zero_truthy = _cse_temp_0;
+    let _cse_temp_1 = 1 != 0;
+    let one_truthy = _cse_temp_1;
+    let _cse_temp_2 = vec![] != 0;
+    let empty_list_truthy = _cse_temp_2;
+    let non_empty_list_truthy = _cse_temp_2;
+    return (true_val) && (!false_val);
+}
+'''
 
 [[test]]
 name = "modulo_operation_boundaries"
 description = "Test modulo with various divisors"
 tags = ["boundary", "modulo", "arithmetic"]
 
-[test.python]
-code = '''
+python = '''
 def modulo_boundary_test(n: int) -> int:
     mod_one = n % 1 if n != 0 else 0
     mod_two = n % 2
@@ -246,16 +431,54 @@ def modulo_boundary_test(n: int) -> int:
     return mod_two + mod_ten + mod_hundred
 '''
 
-[test.assertions]
-contains = ["%"]
+rust = '''
+#[derive(Debug, Clone)]
+pub struct ZeroDivisionError {
+    message: String,
+}
+impl std::fmt::Display for ZeroDivisionError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "division by zero: {}", self.message)
+    }
+}
+impl std::error::Error for ZeroDivisionError {}
+impl ZeroDivisionError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = " Depyler: proven to terminate"]
+pub fn modulo_boundary_test(n: i32) -> i32 {
+    let mod_one = if n != 0 { n % 1 } else { 0 };
+    let _cse_temp_0 = n % 2;
+    let mod_two = _cse_temp_0;
+    let _cse_temp_1 = n % 10;
+    let mod_ten = _cse_temp_1;
+    let _cse_temp_2 = n % 100;
+    let mod_hundred = _cse_temp_2;
+    return mod_two + mod_ten + mod_hundred;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_modulo_boundary_test_examples() {
+        assert_eq!(modulo_boundary_test(0), 0);
+        assert_eq!(modulo_boundary_test(1), 1);
+        assert_eq!(modulo_boundary_test(-1), -1);
+    }
+}
+'''
 
 [[test]]
 name = "range_boundaries"
 description = "Test edge cases for range function"
 tags = ["boundary", "range"]
 
-[test.python]
-code = '''
+python = '''
 def range_boundary_test() -> int:
     empty_range = list(range(0))
     single_range = list(range(1))
@@ -264,18 +487,38 @@ def range_boundary_test() -> int:
     return len(empty_range) + len(single_range) + len(reverse_range)
 '''
 
-[test.assertions]
-contains_any = [["collect", "range"]]
-
-# ========== CONDITIONAL BOUNDARIES ==========
+rust = '''
+pub fn range_boundary_test() -> i32 {
+    let empty_range = (0..0).collect::<Vec<_>>();
+    let single_range = (0..1).collect::<Vec<_>>();
+    let reverse_range = {
+        let step = (-1 as i32).abs() as usize;
+        if step == 0 {
+            panic!("range() arg 3 must not be zero");
+        }
+        (0..5).rev().step_by(step.max(1))
+    }
+    .into_iter()
+    .collect::<Vec<_>>();
+    return empty_range.len() as i32 + single_range.len() as i32 + reverse_range.len() as i32 as i32;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_range_boundary_test_examples() {
+        let _ = range_boundary_test();
+    }
+}
+'''
 
 [[test]]
 name = "conditional_boundaries"
 description = "Test boundary conditions in if statements"
 tags = ["boundary", "conditional", "if"]
 
-[test.python]
-code = '''
+python = '''
 def conditional_boundary_test(x: int) -> int:
     if x < 0:
         return -1
@@ -287,16 +530,44 @@ def conditional_boundary_test(x: int) -> int:
         return x
 '''
 
-[test.assertions]
-contains_any = [["if", "else"]]
+rust = '''
+pub fn conditional_boundary_test(x: i32) -> i32 {
+    let _cse_temp_0 = x < 0;
+    if _cse_temp_0 {
+        return -1;
+    } else {
+        let _cse_temp_1 = x == 0;
+        if _cse_temp_1 {
+            return 0;
+        } else {
+            let _cse_temp_2 = x == 1;
+            if _cse_temp_2 {
+                return 1;
+            } else {
+                return x;
+            }
+        }
+    }
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_conditional_boundary_test_examples() {
+        assert_eq!(conditional_boundary_test(0), 0);
+        assert_eq!(conditional_boundary_test(1), 1);
+        assert_eq!(conditional_boundary_test(-1), -1);
+    }
+}
+'''
 
 [[test]]
 name = "comparison_operator_boundaries"
 description = "Test all comparison operators at boundaries"
 tags = ["boundary", "comparison", "operators"]
 
-[test.python]
-code = '''
+python = '''
 def comparison_boundary_test(a: int, b: int) -> bool:
     equal = a == b
     not_equal = a != b
@@ -308,18 +579,30 @@ def comparison_boundary_test(a: int, b: int) -> bool:
     return equal or not_equal or less_than or less_equal or greater_than or greater_equal
 '''
 
-[test.assertions]
-contains_any = [["==", "!=", "<", "<=", ">", ">="]]
-
-# ========== CONTAINER ACCESS ==========
+rust = '''
+pub fn comparison_boundary_test(a: i32, b: i32) -> bool {
+    let _cse_temp_0 = a == b;
+    let equal = _cse_temp_0;
+    let _cse_temp_1 = a != b;
+    let not_equal = _cse_temp_1;
+    let _cse_temp_2 = a < b;
+    let less_than = _cse_temp_2;
+    let _cse_temp_3 = a <= b;
+    let less_equal = _cse_temp_3;
+    let _cse_temp_4 = a > b;
+    let greater_than = _cse_temp_4;
+    let _cse_temp_5 = a >= b;
+    let greater_equal = _cse_temp_5;
+    return (((((equal) || (not_equal)) || (less_than)) || (less_equal)) || (greater_than)) || (greater_equal);
+}
+'''
 
 [[test]]
 name = "container_access_boundaries"
 description = "Test boundary access patterns for lists including slicing"
 tags = ["boundary", "container", "access", "slicing"]
 
-[test.python]
-code = '''
+python = '''
 def container_access_test() -> int:
     items = [1, 2, 3, 4, 5]
     
@@ -334,62 +617,142 @@ def container_access_test() -> int:
     return first + last + len(all_items) + len(first_two) + len(last_two) + len(middle)
 '''
 
-[test.assertions]
-contains_any = [["[", "]", "len"]]
-
-# =============================================================================
-# Edge Cases (migrated from test_edge_case_coverage.rs)
-# =============================================================================
+rust = '''
+#[derive(Debug, Clone)]
+pub struct IndexError {
+    message: String,
+}
+impl std::fmt::Display for IndexError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "index out of range: {}", self.message)
+    }
+}
+impl std::error::Error for IndexError {}
+impl IndexError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = " Depyler: proven to terminate"]
+pub fn container_access_test() -> i32 {
+    let items = vec![1, 2, 3, 4, 5];
+    let first = items.clone().get(0usize).cloned().unwrap();
+    let last = items.clone().last().cloned().unwrap();
+    let all_items = items.clone().clone();
+    let first_two = {
+        let base = &items.clone();
+        let stop = (2).max(0) as usize;
+        base[..stop.min(base.len())].to_vec()
+    };
+    let last_two = {
+        let base = &items.clone();
+        let start = (-2).max(0) as usize;
+        if start < base.len() {
+            base[start..].to_vec()
+        } else {
+            Vec::new()
+        }
+    };
+    let middle = {
+        let base = &items;
+        let start = (1).max(0) as usize;
+        let stop = (-1).max(0) as usize;
+        if start < base.len() {
+            base[start..stop.min(base.len())].to_vec()
+        } else {
+            Vec::new()
+        }
+    };
+    return first
+        + last
+        + all_items.len() as i32
+        + first_two.len() as i32
+        + last_two.len() as i32
+        + middle.len() as i32 as i32;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_container_access_test_examples() {
+        let _ = container_access_test();
+    }
+}
+'''
 
 [[test]]
 name = "empty_python_file"
 description = "Empty Python source should transpile to empty output"
 tags = ["edge-case", "empty"]
 
-[test.python]
-code = ''
+python = ''
 
-[test.assertions]
-contains = []
+rust = '''
+
+'''
 
 [[test]]
 name = "whitespace_only_file"
 description = "Whitespace-only source should transpile"
 tags = ["edge-case", "whitespace"]
 
-[test.python]
-code = '''
+python = '''
    
 	  
    
 '''
 
-[test.assertions]
-contains = []
+rust = '''
+
+'''
 
 [[test]]
 name = "comments_only_file"
 description = "Comments-only source should transpile"
 tags = ["edge-case", "comments"]
 
-[test.python]
-code = '''
+python = '''
 # This is a comment
 # Another comment
     # Indented comment
         # More comments
 '''
 
-[test.assertions]
-contains = []
+rust = '''
+pub fn level1(x: i32) -> i32 {
+    fn level2(y: i64) -> i64 {
+        fn level3(z: i64) -> i64 {
+            fn level4(w: i64) -> i64 {
+                return w + 1;
+            }
+            return level4(z) + 1;
+        }
+        return level3(y) + 1;
+    }
+    return level2(x) + 1;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_level1_examples() {
+        assert_eq!(level1(0), 0);
+        assert_eq!(level1(1), 1);
+        assert_eq!(level1(-1), -1);
+    }
+}
+'''
 
 [[test]]
 name = "deeply_nested_functions"
 description = "Deeply nested function definitions"
 tags = ["edge-case", "nested", "functions"]
 
-[test.python]
-code = '''
+python = '''
 def level1(x: int) -> int:
     def level2(y: int) -> int:
         def level3(z: int) -> int:
@@ -400,103 +763,164 @@ def level1(x: int) -> int:
     return level2(x) + 1
 '''
 
-[test.assertions]
-contains = ["fn level1"]
+rust = '''
+pub fn f() {}
+'''
 
 [[test]]
 name = "extremely_simple_function"
 description = "Function with only pass statement"
 tags = ["edge-case", "simple"]
 
-[test.python]
-code = '''
+python = '''
 def f(): pass
 '''
 
-[test.assertions]
-contains = ["fn f"]
+rust = '''
+pub fn get_five() -> i32 {
+    return 5;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_get_five_examples() {
+        let _ = get_five();
+    }
+}
+'''
 
 [[test]]
 name = "function_with_only_return"
 description = "Function that only returns a literal"
 tags = ["edge-case", "simple", "return"]
 
-[test.python]
-code = '''
+python = '''
 def get_five() -> int:
     return 5
 '''
 
-[test.assertions]
-contains = ["fn get_five", "5"]
+rust = '''
+pub fn функция(x: i32) -> i32 {
+    return x * 2;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_функция_examples() {
+        assert_eq!(функция(0), 0);
+        assert_eq!(функция(1), 1);
+        assert_eq!(функция(-1), -1);
+    }
+}
+'''
 
 [[test]]
 name = "unicode_function_names"
 description = "Function names with unicode characters"
 tags = ["edge-case", "unicode"]
 
-[test.python]
-code = '''
+python = '''
 def функция(x: int) -> int:
     return x * 2
 '''
 
-[test.assertions]
-contains = ["fn"]
+rust = '''
+pub fn greet() -> String {
+    return "Hello, 世界! 🌍".to_string();
+}
+'''
 
 [[test]]
 name = "unicode_strings"
 description = "String literals with unicode and emoji"
 tags = ["edge-case", "unicode", "strings"]
 
-[test.python]
-code = '''
+python = '''
 def greet() -> str:
     return "Hello, 世界! 🌍"
 '''
 
-[test.assertions]
-contains = ["fn greet", "Hello"]
+rust = '''
+pub fn big_numbers() -> i32 {
+    let x = 9223372036854775807;
+    let y = 0;
+    return x + y;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_big_numbers_examples() {
+        let _ = big_numbers();
+    }
+}
+'''
 
 [[test]]
 name = "max_integer_values"
 description = "Maximum i64 integer values"
 tags = ["edge-case", "integer", "max"]
 
-[test.python]
-code = '''
+python = '''
 def big_numbers() -> int:
     x = 9223372036854775807
     y = -9223372036854775808
     return x + y
 '''
 
-[test.assertions]
-contains = ["fn big_numbers"]
+rust = '''
+use std::collections::HashMap;
+pub fn empty_collections() -> i32 {
+    let empty_list = vec![];
+    let empty_dict = {
+        let map = HashMap::new();
+        map
+    };
+    return empty_list.len() as i32 + empty_dict.len() as i32 as i32;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_empty_collections_examples() {
+        let _ = empty_collections();
+    }
+}
+'''
 
 [[test]]
 name = "empty_lists_and_dicts"
 description = "Empty collection initializers"
 tags = ["edge-case", "collections", "empty"]
 
-[test.python]
-code = '''
+python = '''
 def empty_collections() -> int:
     empty_list = []
     empty_dict = {}
     return len(empty_list) + len(empty_dict)
 '''
 
-[test.assertions]
-contains = ["fn empty_collections", "len"]
+rust = '''
+pub fn single_chars(a: i32, b: i32, c: i32) -> i32 {
+    let x = a;
+    let y = b;
+    let z = c;
+    return x + y + z;
+}
+'''
 
 [[test]]
 name = "single_character_variables"
 description = "Single character variable names"
 tags = ["edge-case", "variables"]
 
-[test.python]
-code = '''
+python = '''
 def single_chars(a: int, b: int, c: int) -> int:
     x = a
     y = b
@@ -504,16 +928,57 @@ def single_chars(a: int, b: int, c: int) -> int:
     return x + y + z
 '''
 
-[test.assertions]
-contains = ["fn single_chars", "+ y +"]
+rust = '''
+#[derive(Debug, Clone)]
+pub struct ZeroDivisionError {
+    message: String,
+}
+impl std::fmt::Display for ZeroDivisionError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "division by zero: {}", self.message)
+    }
+}
+impl std::error::Error for ZeroDivisionError {}
+impl ZeroDivisionError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = " Depyler: proven to terminate"]
+pub fn nested_control(n: i32) -> i32 {
+    let mut result = 0;
+    for i in 0..n {
+        if i % 2 == 0 {
+            for j in 0..i {
+                if j % 3 == 0 {
+                    result = result + j;
+                }
+            }
+        }
+    }
+    return result;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_nested_control_examples() {
+        assert_eq!(nested_control(0), 0);
+        assert_eq!(nested_control(1), 1);
+        assert_eq!(nested_control(-1), -1);
+    }
+}
+'''
 
 [[test]]
 name = "nested_control_structures"
 description = "Deeply nested control flow structures"
 tags = ["edge-case", "control-flow", "nested"]
 
-[test.python]
-code = '''
+python = '''
 def nested_control(n: int) -> int:
     result = 0
     for i in range(n):
@@ -524,16 +989,72 @@ def nested_control(n: int) -> int:
     return result
 '''
 
-[test.assertions]
-contains = ["fn nested_control", "for", "if"]
+rust = '''
+#[derive(Debug, Clone)]
+pub struct ZeroDivisionError {
+    message: String,
+}
+impl std::fmt::Display for ZeroDivisionError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "division by zero: {}", self.message)
+    }
+}
+impl std::error::Error for ZeroDivisionError {}
+impl ZeroDivisionError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = " Depyler: proven to terminate"]
+pub fn all_operators(a: i32, b: i32) -> bool {
+    let add = a + b;
+    let sub = a - b;
+    let _cse_temp_0 = a * b;
+    let mul = _cse_temp_0;
+    let _cse_temp_1 = {
+        let a = a;
+        let b = b;
+        let q = a / b;
+        let r = a % b;
+        let r_negative = r < 0;
+        let b_negative = b < 0;
+        let r_nonzero = r != 0;
+        let signs_differ = r_negative != b_negative;
+        let needs_adjustment = r_nonzero && signs_differ;
+        if needs_adjustment { q - 1 } else { q }
+    };
+    let div = _cse_temp_1;
+    let _cse_temp_2 = a % b;
+    let r#mod = _cse_temp_2;
+    let _cse_temp_3 = a == b;
+    let eq = _cse_temp_3;
+    let _cse_temp_4 = a != b;
+    let ne = _cse_temp_4;
+    let _cse_temp_5 = a < b;
+    let lt = _cse_temp_5;
+    let _cse_temp_6 = a <= b;
+    let le = _cse_temp_6;
+    let _cse_temp_7 = a > b;
+    let gt = _cse_temp_7;
+    let _cse_temp_8 = a >= b;
+    let ge = _cse_temp_8;
+    let _cse_temp_9 = (a != 0) && (b != 0);
+    let and_op = _cse_temp_9;
+    let _cse_temp_10 = (a != 0) || (b != 0);
+    let or_op = _cse_temp_10;
+    let not_op = !a;
+    return (((((eq) || (ne)) || (lt)) || (le)) || (gt)) || (ge);
+}
+'''
 
 [[test]]
 name = "all_python_operators"
 description = "All Python operators in a single function"
 tags = ["edge-case", "operators"]
 
-[test.python]
-code = '''
+python = '''
 def all_operators(a: int, b: int) -> bool:
     add = a + b
     sub = a - b
@@ -555,5 +1076,62 @@ def all_operators(a: int, b: int) -> bool:
     return eq or ne or lt or le or gt or ge
 '''
 
-[test.assertions]
-contains = ["fn all_operators"]
+rust = '''
+#[derive(Debug, Clone)]
+pub struct ZeroDivisionError {
+    message: String,
+}
+impl std::fmt::Display for ZeroDivisionError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "division by zero: {}", self.message)
+    }
+}
+impl std::error::Error for ZeroDivisionError {}
+impl ZeroDivisionError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = " Depyler: proven to terminate"]
+pub fn all_operators(a: i32, b: i32) -> bool {
+    let add = a + b;
+    let sub = a - b;
+    let _cse_temp_0 = a * b;
+    let mul = _cse_temp_0;
+    let _cse_temp_1 = {
+        let a = a;
+        let b = b;
+        let q = a / b;
+        let r = a % b;
+        let r_negative = r < 0;
+        let b_negative = b < 0;
+        let r_nonzero = r != 0;
+        let signs_differ = r_negative != b_negative;
+        let needs_adjustment = r_nonzero && signs_differ;
+        if needs_adjustment { q - 1 } else { q }
+    };
+    let div = _cse_temp_1;
+    let _cse_temp_2 = a % b;
+    let r#mod = _cse_temp_2;
+    let _cse_temp_3 = a == b;
+    let eq = _cse_temp_3;
+    let _cse_temp_4 = a != b;
+    let ne = _cse_temp_4;
+    let _cse_temp_5 = a < b;
+    let lt = _cse_temp_5;
+    let _cse_temp_6 = a <= b;
+    let le = _cse_temp_6;
+    let _cse_temp_7 = a > b;
+    let gt = _cse_temp_7;
+    let _cse_temp_8 = a >= b;
+    let ge = _cse_temp_8;
+    let _cse_temp_9 = (a != 0) && (b != 0);
+    let and_op = _cse_temp_9;
+    let _cse_temp_10 = (a != 0) || (b != 0);
+    let or_op = _cse_temp_10;
+    let not_op = !a;
+    return (((((eq) || (ne)) || (lt)) || (le)) || (gt)) || (ge);
+}
+'''

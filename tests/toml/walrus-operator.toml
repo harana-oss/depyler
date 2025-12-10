@@ -9,41 +9,162 @@ category = "core-language"
 # Basic Assignment Expressions
 # =============================================================================
 
-# TODO: Test := in if conditions
-# [[test]]
-# name = "walrus_in_if_condition"
-# description = "Assignment expression in if condition"
-# Example: if (n := len(items)) > 10:
+[[test]]
+name = "walrus_in_if_condition"
+description = "Assignment expression in if condition"
+python = """
+items = [1, 2, 3, 4, 5]
+if (n := len(items)) > 3:
+    print(f"List has {n} items, which is more than 3")
+"""
+rust = """
+fn main() {
+    let items = vec![1, 2, 3, 4, 5];
+    let n = items.len();
+    if n > 3 {
+        println!("List has {} items, which is more than 3", n);
+    }
+}
+"""
+contains = ["List has 5 items"]
 
-# TODO: Test := in while conditions
-# [[test]]
-# name = "walrus_in_while_condition"
-# description = "Assignment expression in while loop"
-# Example: while (line := file.readline()):
+[[test]]
+name = "walrus_in_while_condition"
+description = "Assignment expression in while loop"
+python = """
+data = [1, 2, 3]
+index = 0
+while (item := data[index] if index < len(data) else None) is not None:
+    print(f"Item: {item}")
+    index += 1
+"""
+rust = """
+fn main() {
+    let data = vec![1, 2, 3];
+    let mut index = 0;
+    while index < data.len() {
+        let item = data[index];
+        println!("Item: {}", item);
+        index += 1;
+    }
+}
+"""
+contains = ["Item: 1", "Item: 2", "Item: 3"]
 
-# TODO: Test := in list comprehensions
-# [[test]]
-# name = "walrus_in_list_comprehension"
-# description = "Assignment expression in list comprehension filter"
-# Example: [y for x in data if (y := f(x)) is not None]
+[[test]]
+name = "walrus_in_list_comprehension"
+description = "Assignment expression in list comprehension filter"
+python = """
+def expensive_func(x):
+    return x * 2
 
-# TODO: Test := with function calls
-# [[test]]
-# name = "walrus_with_function_call"
-# description = "Assignment expression capturing function result"
-# Example: if (match := pattern.search(text)) is not None:
+data = [1, 2, 3, 4, 5]
+results = [y for x in data if (y := expensive_func(x)) > 5]
+print(results)
+"""
+rust = """
+fn expensive_func(x: i32) -> i32 {
+    x * 2
+}
 
-# TODO: Test nested walrus operators
-# [[test]]
-# name = "walrus_nested"
-# description = "Multiple assignment expressions in one statement"
+fn main() {
+    let data = vec![1, 2, 3, 4, 5];
+    let results: Vec<i32> = data.iter()
+        .map(|&x| expensive_func(x))
+        .filter(|&y| y > 5)
+        .collect();
+    println!("{:?}", results);
+}
+"""
+contains = ["[6, 8, 10]"]
 
-# TODO: Test walrus in generator expressions
-# [[test]]
-# name = "walrus_in_generator"
-# description = "Assignment expression in generator expression"
+[[test]]
+name = "walrus_with_function_call"
+description = "Assignment expression capturing function result"
+python = """
+import re
 
-# TODO: Test walrus operator scope
-# [[test]]
-# name = "walrus_scope"
-# description = "Variable scope with walrus operator"
+text = "The answer is 42"
+pattern = r'\\d+'
+
+if (match := re.search(pattern, text)) is not None:
+    print(f"Found: {match.group()}")
+"""
+rust = """
+use regex::Regex;
+
+fn main() {
+    let text = "The answer is 42";
+    let pattern = Regex::new(r"\\d+").unwrap();
+    
+    if let Some(match_) = pattern.find(text) {
+        println!("Found: {}", match_.as_str());
+    }
+}
+"""
+contains = ["Found: 42"]
+
+[[test]]
+name = "walrus_nested"
+description = "Multiple assignment expressions in one statement"
+python = """
+x = 5
+y = 10
+if (a := x * 2) > 5 and (b := y * 2) > 15:
+    print(f"a={a}, b={b}")
+"""
+rust = """
+fn main() {
+    let x = 5;
+    let y = 10;
+    let a = x * 2;
+    let b = y * 2;
+    if a > 5 && b > 15 {
+        println!("a={}, b={}", a, b);
+    }
+}
+"""
+contains = ["a=10, b=20"]
+
+[[test]]
+name = "walrus_in_generator"
+description = "Assignment expression in generator expression"
+python = """
+data = [1, 2, 3, 4, 5]
+gen = (y for x in data if (y := x * 2) > 5)
+print(list(gen))
+"""
+rust = """
+fn main() {
+    let data = vec![1, 2, 3, 4, 5];
+    let gen: Vec<i32> = data.iter()
+        .map(|&x| x * 2)
+        .filter(|&y| y > 5)
+        .collect();
+    println!("{:?}", gen);
+}
+"""
+contains = ["[6, 8, 10]"]
+
+[[test]]
+name = "walrus_scope"
+description = "Variable scope with walrus operator"
+python = """
+# Variable defined in walrus is available after the expression
+if (result := 10 + 20) > 25:
+    pass
+
+# result is still accessible
+print(f"Result: {result}")
+"""
+rust = """
+fn main() {
+    let result = 10 + 20;
+    if result > 25 {
+        // pass
+    }
+    
+    println!("Result: {}", result);
+}
+"""
+contains = ["Result: 30"]

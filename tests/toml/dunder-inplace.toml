@@ -9,123 +9,819 @@ category = "dunder-methods"
 # In-Place Arithmetic
 # =============================================================================
 
-# TODO: Test __iadd__
-# [[test]]
-# name = "dunder_iadd"
-# description = "def __iadd__(self, other): self.x += other.x; return self"
+[[test]]
+name = "dunder_iadd"
+description = "def __iadd__(self, other): self.x += other.x; return self"
+python = """
+class Counter:
+    def __init__(self, x):
+        self.x = x
+    
+    def __iadd__(self, other):
+        self.x += other.x
+        return self
+    
+    def __repr__(self):
+        return f"Counter({self.x})"
 
-# TODO: Test __isub__
-# [[test]]
-# name = "dunder_isub"
-# description = "def __isub__(self, other): self.x -= other.x; return self"
+a = Counter(5)
+a += Counter(3)
+print(a)
+"""
+rust = """
+use std::ops::AddAssign;
 
-# TODO: Test __imul__
-# [[test]]
-# name = "dunder_imul"
-# description = "def __imul__(self, other): self.x *= other.x; return self"
+#[derive(Debug)]
+struct Counter {
+    x: i32,
+}
 
-# TODO: Test __itruediv__
-# [[test]]
-# name = "dunder_itruediv"
-# description = "def __itruediv__(self, other): self.x /= other.x; return self"
+impl AddAssign for Counter {
+    fn add_assign(&mut self, other: Counter) {
+        self.x += other.x;
+    }
+}
 
-# TODO: Test __ifloordiv__
-# [[test]]
-# name = "dunder_ifloordiv"
-# description = "def __ifloordiv__(self, other): self.x //= other.x; return self"
+fn main() {
+    let mut a = Counter { x: 5 };
+    a += Counter { x: 3 };
+    println!("Counter({})", a.x);
+}
+"""
+contains = ["Counter(8)"]
 
-# TODO: Test __imod__
-# [[test]]
-# name = "dunder_imod"
-# description = "def __imod__(self, other): self.x %= other.x; return self"
+[[test]]
+name = "dunder_isub"
+description = "def __isub__(self, other): self.x -= other.x; return self"
+python = """
+class Counter:
+    def __init__(self, x):
+        self.x = x
+    
+    def __isub__(self, other):
+        self.x -= other.x
+        return self
+    
+    def __repr__(self):
+        return f"Counter({self.x})"
 
-# TODO: Test __ipow__
-# [[test]]
-# name = "dunder_ipow"
-# description = "def __ipow__(self, other): self.x **= other.x; return self"
+a = Counter(10)
+a -= Counter(3)
+print(a)
+"""
+rust = """
+use std::ops::SubAssign;
+
+#[derive(Debug)]
+struct Counter {
+    x: i32,
+}
+
+impl SubAssign for Counter {
+    fn sub_assign(&mut self, other: Counter) {
+        self.x -= other.x;
+    }
+}
+
+fn main() {
+    let mut a = Counter { x: 10 };
+    a -= Counter { x: 3 };
+    println!("Counter({})", a.x);
+}
+"""
+contains = ["Counter(7)"]
+
+[[test]]
+name = "dunder_imul"
+description = "def __imul__(self, other): self.x *= other.x; return self"
+python = """
+class Counter:
+    def __init__(self, x):
+        self.x = x
+    
+    def __imul__(self, other):
+        self.x *= other.x
+        return self
+    
+    def __repr__(self):
+        return f"Counter({self.x})"
+
+a = Counter(5)
+a *= Counter(3)
+print(a)
+"""
+rust = """
+use std::ops::MulAssign;
+
+#[derive(Debug)]
+struct Counter {
+    x: i32,
+}
+
+impl MulAssign for Counter {
+    fn mul_assign(&mut self, other: Counter) {
+        self.x *= other.x;
+    }
+}
+
+fn main() {
+    let mut a = Counter { x: 5 };
+    a *= Counter { x: 3 };
+    println!("Counter({})", a.x);
+}
+"""
+contains = ["Counter(15)"]
+
+[[test]]
+name = "dunder_itruediv"
+description = "def __itruediv__(self, other): self.x /= other.x; return self"
+python = """
+class Counter:
+    def __init__(self, x):
+        self.x = x
+    
+    def __itruediv__(self, other):
+        self.x /= other.x
+        return self
+    
+    def __repr__(self):
+        return f"Counter({self.x})"
+
+a = Counter(10.0)
+a /= Counter(2.0)
+print(a)
+"""
+rust = """
+use std::ops::DivAssign;
+
+#[derive(Debug)]
+struct Counter {
+    x: f64,
+}
+
+impl DivAssign for Counter {
+    fn div_assign(&mut self, other: Counter) {
+        self.x /= other.x;
+    }
+}
+
+fn main() {
+    let mut a = Counter { x: 10.0 };
+    a /= Counter { x: 2.0 };
+    println!("Counter({})", a.x);
+}
+"""
+contains = ["Counter(5"]
+
+[[test]]
+name = "dunder_ifloordiv"
+description = "def __ifloordiv__(self, other): self.x //= other.x; return self"
+python = """
+class Counter:
+    def __init__(self, x):
+        self.x = x
+    
+    def __ifloordiv__(self, other):
+        self.x //= other.x
+        return self
+    
+    def __repr__(self):
+        return f"Counter({self.x})"
+
+a = Counter(10)
+a //= Counter(3)
+print(a)
+"""
+rust = """
+// Rust doesn't have a FloorDivAssign trait, use DivAssign with integer division
+use std::ops::DivAssign;
+
+#[derive(Debug)]
+struct Counter {
+    x: i32,
+}
+
+impl DivAssign for Counter {
+    fn div_assign(&mut self, other: Counter) {
+        self.x /= other.x;  // Integer division floors automatically
+    }
+}
+
+fn main() {
+    let mut a = Counter { x: 10 };
+    a /= Counter { x: 3 };
+    println!("Counter({})", a.x);
+}
+"""
+contains = ["Counter(3)"]
+
+[[test]]
+name = "dunder_imod"
+description = "def __imod__(self, other): self.x %= other.x; return self"
+python = """
+class Counter:
+    def __init__(self, x):
+        self.x = x
+    
+    def __imod__(self, other):
+        self.x %= other.x
+        return self
+    
+    def __repr__(self):
+        return f"Counter({self.x})"
+
+a = Counter(10)
+a %= Counter(3)
+print(a)
+"""
+rust = """
+use std::ops::RemAssign;
+
+#[derive(Debug)]
+struct Counter {
+    x: i32,
+}
+
+impl RemAssign for Counter {
+    fn rem_assign(&mut self, other: Counter) {
+        self.x %= other.x;
+    }
+}
+
+fn main() {
+    let mut a = Counter { x: 10 };
+    a %= Counter { x: 3 };
+    println!("Counter({})", a.x);
+}
+"""
+contains = ["Counter(1)"]
+
+[[test]]
+name = "dunder_ipow"
+description = "def __ipow__(self, other): self.x **= other.x; return self"
+python = """
+class Counter:
+    def __init__(self, x):
+        self.x = x
+    
+    def __ipow__(self, other):
+        self.x **= other.x
+        return self
+    
+    def __repr__(self):
+        return f"Counter({self.x})"
+
+a = Counter(2)
+a **= Counter(3)
+print(a)
+"""
+rust = """
+// Rust doesn't have a PowAssign trait, need to implement manually
+#[derive(Debug)]
+struct Counter {
+    x: i32,
+}
+
+impl Counter {
+    fn pow_assign(&mut self, other: Counter) {
+        self.x = self.x.pow(other.x as u32);
+    }
+}
+
+fn main() {
+    let mut a = Counter { x: 2 };
+    a.pow_assign(Counter { x: 3 });
+    println!("Counter({})", a.x);
+}
+"""
+contains = ["Counter(8)"]
 
 # =============================================================================
 # In-Place Bitwise
 # =============================================================================
 
-# TODO: Test __iand__
-# [[test]]
-# name = "dunder_iand"
-# description = "def __iand__(self, other): self.x &= other.x; return self"
+[[test]]
+name = "dunder_iand"
+description = "def __iand__(self, other): self.x &= other.x; return self"
+python = """
+class Flags:
+    def __init__(self, x):
+        self.x = x
+    
+    def __iand__(self, other):
+        self.x &= other.x
+        return self
+    
+    def __repr__(self):
+        return f"Flags({self.x})"
 
-# TODO: Test __ior__
-# [[test]]
-# name = "dunder_ior"
-# description = "def __ior__(self, other): self.x |= other.x; return self"
+a = Flags(0b1100)
+a &= Flags(0b1010)
+print(a)
+"""
+rust = """
+use std::ops::BitAndAssign;
 
-# TODO: Test __ixor__
-# [[test]]
-# name = "dunder_ixor"
-# description = "def __ixor__(self, other): self.x ^= other.x; return self"
+#[derive(Debug)]
+struct Flags {
+    x: i32,
+}
 
-# TODO: Test __ilshift__
-# [[test]]
-# name = "dunder_ilshift"
-# description = "def __ilshift__(self, other): self.x <<= other.x; return self"
+impl BitAndAssign for Flags {
+    fn bitand_assign(&mut self, other: Flags) {
+        self.x &= other.x;
+    }
+}
 
-# TODO: Test __irshift__
-# [[test]]
-# name = "dunder_irshift"
-# description = "def __irshift__(self, other): self.x >>= other.x; return self"
+fn main() {
+    let mut a = Flags { x: 0b1100 };
+    a &= Flags { x: 0b1010 };
+    println!("Flags({})", a.x);
+}
+"""
+contains = ["Flags(8)"]
+
+[[test]]
+name = "dunder_ior"
+description = "def __ior__(self, other): self.x |= other.x; return self"
+python = """
+class Flags:
+    def __init__(self, x):
+        self.x = x
+    
+    def __ior__(self, other):
+        self.x |= other.x
+        return self
+    
+    def __repr__(self):
+        return f"Flags({self.x})"
+
+a = Flags(0b1100)
+a |= Flags(0b1010)
+print(a)
+"""
+rust = """
+use std::ops::BitOrAssign;
+
+#[derive(Debug)]
+struct Flags {
+    x: i32,
+}
+
+impl BitOrAssign for Flags {
+    fn bitor_assign(&mut self, other: Flags) {
+        self.x |= other.x;
+    }
+}
+
+fn main() {
+    let mut a = Flags { x: 0b1100 };
+    a |= Flags { x: 0b1010 };
+    println!("Flags({})", a.x);
+}
+"""
+contains = ["Flags(14)"]
+
+[[test]]
+name = "dunder_ixor"
+description = "def __ixor__(self, other): self.x ^= other.x; return self"
+python = """
+class Flags:
+    def __init__(self, x):
+        self.x = x
+    
+    def __ixor__(self, other):
+        self.x ^= other.x
+        return self
+    
+    def __repr__(self):
+        return f"Flags({self.x})"
+
+a = Flags(0b1100)
+a ^= Flags(0b1010)
+print(a)
+"""
+rust = """
+use std::ops::BitXorAssign;
+
+#[derive(Debug)]
+struct Flags {
+    x: i32,
+}
+
+impl BitXorAssign for Flags {
+    fn bitxor_assign(&mut self, other: Flags) {
+        self.x ^= other.x;
+    }
+}
+
+fn main() {
+    let mut a = Flags { x: 0b1100 };
+    a ^= Flags { x: 0b1010 };
+    println!("Flags({})", a.x);
+}
+"""
+contains = ["Flags(6)"]
+
+[[test]]
+name = "dunder_ilshift"
+description = "def __ilshift__(self, other): self.x <<= other.x; return self"
+python = """
+class Shifter:
+    def __init__(self, x):
+        self.x = x
+    
+    def __ilshift__(self, other):
+        self.x <<= other.x
+        return self
+    
+    def __repr__(self):
+        return f"Shifter({self.x})"
+
+a = Shifter(5)
+a <<= Shifter(2)
+print(a)
+"""
+rust = """
+use std::ops::ShlAssign;
+
+#[derive(Debug)]
+struct Shifter {
+    x: i32,
+}
+
+impl ShlAssign<Shifter> for Shifter {
+    fn shl_assign(&mut self, other: Shifter) {
+        self.x <<= other.x;
+    }
+}
+
+fn main() {
+    let mut a = Shifter { x: 5 };
+    a <<= Shifter { x: 2 };
+    println!("Shifter({})", a.x);
+}
+"""
+contains = ["Shifter(20)"]
+
+[[test]]
+name = "dunder_irshift"
+description = "def __irshift__(self, other): self.x >>= other.x; return self"
+python = """
+class Shifter:
+    def __init__(self, x):
+        self.x = x
+    
+    def __irshift__(self, other):
+        self.x >>= other.x
+        return self
+    
+    def __repr__(self):
+        return f"Shifter({self.x})"
+
+a = Shifter(20)
+a >>= Shifter(2)
+print(a)
+"""
+rust = """
+use std::ops::ShrAssign;
+
+#[derive(Debug)]
+struct Shifter {
+    x: i32,
+}
+
+impl ShrAssign<Shifter> for Shifter {
+    fn shr_assign(&mut self, other: Shifter) {
+        self.x >>= other.x;
+    }
+}
+
+fn main() {
+    let mut a = Shifter { x: 20 };
+    a >>= Shifter { x: 2 };
+    println!("Shifter({})", a.x);
+}
+"""
+contains = ["Shifter(5)"]
 
 # =============================================================================
 # Other In-Place
 # =============================================================================
 
-# TODO: Test __imatmul__
-# [[test]]
-# name = "dunder_imatmul"
-# description = "def __imatmul__(self, other): ... (@= operator)"
+[[test]]
+name = "dunder_imatmul"
+description = "def __imatmul__(self, other): ... (@= operator)"
+python = """
+class Matrix:
+    def __init__(self, data):
+        self.data = data
+    
+    def __imatmul__(self, other):
+        # Simplified matrix multiplication
+        self.data = [[sum(a*b for a,b in zip(row, col)) 
+                     for col in zip(*other.data)] 
+                     for row in self.data]
+        return self
+    
+    def __repr__(self):
+        return f"Matrix({self.data})"
+
+a = Matrix([[1, 2], [3, 4]])
+b = Matrix([[2, 0], [1, 2]])
+a @= b
+print(a)
+"""
+rust = """
+// Rust doesn't have a MatMulAssign trait in std
+// This would typically be in a linear algebra library like nalgebra
+#[derive(Debug)]
+struct Matrix {
+    data: Vec<Vec<i32>>,
+}
+
+impl Matrix {
+    fn matmul_assign(&mut self, other: &Matrix) {
+        // Simplified 2x2 matrix multiplication
+        let result = vec![
+            vec![
+                self.data[0][0] * other.data[0][0] + self.data[0][1] * other.data[1][0],
+                self.data[0][0] * other.data[0][1] + self.data[0][1] * other.data[1][1]
+            ],
+            vec![
+                self.data[1][0] * other.data[0][0] + self.data[1][1] * other.data[1][0],
+                self.data[1][0] * other.data[0][1] + self.data[1][1] * other.data[1][1]
+            ]
+        ];
+        self.data = result;
+    }
+}
+
+fn main() {
+    let mut a = Matrix { data: vec![vec![1, 2], vec![3, 4]] };
+    let b = Matrix { data: vec![vec![2, 0], vec![1, 2]] };
+    a.matmul_assign(&b);
+    println!("Matrix({:?})", a.data);
+}
+"""
+contains = ["Matrix([[4, 4], [10, 8]]"]
 
 # =============================================================================
 # Fallback Behavior
 # =============================================================================
 
-# TODO: Test fallback to __add__
-# [[test]]
-# name = "inplace_fallback"
-# description = "a += b falls back to a = a + b if no __iadd__"
+[[test]]
+name = "inplace_fallback"
+description = "a += b falls back to a = a + b if no __iadd__"
+python = """
+class NoInPlace:
+    def __init__(self, x):
+        self.x = x
+    
+    def __add__(self, other):
+        return NoInPlace(self.x + other.x)
+    
+    def __repr__(self):
+        return f"NoInPlace({self.x})"
 
-# TODO: Test __iadd__ must return self
-# [[test]]
-# name = "iadd_return_self"
-# description = "In-place methods should return self"
+# No __iadd__ defined, so += falls back to __add__
+a = NoInPlace(5)
+original_id = id(a)
+a += NoInPlace(3)
+new_id = id(a)
+
+print(a)
+print(f"Object changed: {original_id != new_id}")
+"""
+rust = """
+use std::ops::Add;
+
+#[derive(Debug)]
+struct NoInPlace {
+    x: i32,
+}
+
+impl Add for NoInPlace {
+    type Output = NoInPlace;
+    
+    fn add(self, other: NoInPlace) -> NoInPlace {
+        NoInPlace { x: self.x + other.x }
+    }
+}
+
+fn main() {
+    let a = NoInPlace { x: 5 };
+    let a = a + NoInPlace { x: 3 };  // No in-place in Rust without mut + AddAssign
+    
+    println!("NoInPlace({})", a.x);
+    println!("Object changed: true");
+}
+"""
+contains = ["NoInPlace(8)", "Object changed: True"]
+
+[[test]]
+name = "iadd_return_self"
+description = "In-place methods should return self"
+python = """
+class Accumulator:
+    def __init__(self, x):
+        self.x = x
+    
+    def __iadd__(self, other):
+        self.x += other.x
+        return self  # Must return self
+    
+    def __repr__(self):
+        return f"Accumulator({self.x})"
+
+a = Accumulator(5)
+original_id = id(a)
+a += Accumulator(3)
+new_id = id(a)
+
+print(a)
+print(f"Same object: {original_id == new_id}")
+"""
+rust = """
+use std::ops::AddAssign;
+
+#[derive(Debug)]
+struct Accumulator {
+    x: i32,
+}
+
+impl AddAssign for Accumulator {
+    fn add_assign(&mut self, other: Accumulator) {
+        self.x += other.x;
+        // Rust's += automatically works on &mut self
+    }
+}
+
+fn main() {
+    let mut a = Accumulator { x: 5 };
+    a += Accumulator { x: 3 };
+    
+    println!("Accumulator({})", a.x);
+    println!("Same object: true");
+}
+"""
+contains = ["Accumulator(8)", "Same object: True"]
 
 # =============================================================================
 # Mutable vs Immutable
 # =============================================================================
 
-# TODO: Test mutable in-place
-# [[test]]
-# name = "inplace_mutable"
-# description = "list += [x] modifies in-place"
+[[test]]
+name = "inplace_mutable"
+description = "list += [x] modifies in-place"
+python = """
+original = [1, 2, 3]
+original_id = id(original)
 
-# TODO: Test immutable in-place
-# [[test]]
-# name = "inplace_immutable"
-# description = "int += 1 creates new object (rebinds)"
+original += [4, 5]
+new_id = id(original)
+
+print(f"List: {original}")
+print(f"Same object: {original_id == new_id}")
+"""
+rust = """
+fn main() {
+    let mut original = vec![1, 2, 3];
+    
+    original.extend_from_slice(&[4, 5]);
+    
+    println!("List: {:?}", original);
+    println!("Same object: true");
+}
+"""
+contains = ["List: [1, 2, 3, 4, 5]", "Same object: True"]
+
+[[test]]
+name = "inplace_immutable"
+description = "int += 1 creates new object (rebinds)"
+python = """
+x = 5
+original_id = id(x)
+
+x += 1
+new_id = id(x)
+
+print(f"Value: {x}")
+print(f"Different object: {original_id != new_id}")
+"""
+rust = """
+fn main() {
+    let mut x = 5;
+    
+    x += 1;  // In Rust, integers are always copied
+    
+    println!("Value: {}", x);
+    println!("Different object: true");
+}
+"""
+contains = ["Value: 6", "Different object: True"]
 
 # =============================================================================
 # Edge Cases
 # =============================================================================
 
-# TODO: Test in-place with different type
-# [[test]]
-# name = "inplace_different_type"
-# description = "list += tuple extends list"
+[[test]]
+name = "inplace_different_type"
+description = "list += tuple extends list"
+python = """
+my_list = [1, 2, 3]
+my_list += (4, 5)  # Tuple is iterable, extends list
 
-# TODO: Test in-place returning different object
-# [[test]]
-# name = "inplace_different_object"
-# description = "In-place can return different object"
+print(f"List: {my_list}")
+"""
+rust = """
+fn main() {
+    let mut my_list = vec![1, 2, 3];
+    let tuple = [4, 5];  // Rust doesn't have true tuples for this, use array
+    my_list.extend_from_slice(&tuple);
+    
+    println!("List: {:?}", my_list);
+}
+"""
+contains = ["List: [1, 2, 3, 4, 5]"]
 
-# TODO: Test chained in-place
-# [[test]]
-# name = "inplace_chained"
-# description = "a += b += c not valid (different from a = b = c)"
+[[test]]
+name = "inplace_different_object"
+description = "In-place can return different object"
+python = """
+class Weird:
+    def __init__(self, x):
+        self.x = x
+    
+    def __iadd__(self, other):
+        # Return a different object (unusual but allowed)
+        return Weird(self.x + other.x)
+    
+    def __repr__(self):
+        return f"Weird({self.x})"
+
+a = Weird(5)
+original_id = id(a)
+a += Weird(3)
+new_id = id(a)
+
+print(a)
+print(f"Different object: {original_id != new_id}")
+"""
+rust = """
+// In Rust, AddAssign must mutate self, can't return different object
+// But regular Add can
+use std::ops::Add;
+
+#[derive(Debug)]
+struct Weird {
+    x: i32,
+}
+
+impl Add for Weird {
+    type Output = Weird;
+    
+    fn add(self, other: Weird) -> Weird {
+        Weird { x: self.x + other.x }
+    }
+}
+
+fn main() {
+    let a = Weird { x: 5 };
+    let a = a + Weird { x: 3 };
+    
+    println!("Weird({})", a.x);
+    println!("Different object: true");
+}
+"""
+contains = ["Weird(8)", "Different object: True"]
+
+[[test]]
+name = "inplace_chained"
+description = "a += b += c not valid (different from a = b = c)"
+python = """
+# This demonstrates that in-place operators don't chain like assignment
+a = 5
+b = 10
+c = 3
+
+# b += c returns None implicitly for built-ins, but for our purposes:
+b += c
+a += b
+
+print(f"a: {a}, b: {b}, c: {c}")
+"""
+rust = """
+fn main() {
+    let mut a = 5;
+    let mut b = 10;
+    let c = 3;
+    
+    b += c;
+    a += b;
+    
+    println!("a: {}, b: {}, c: {}", a, b, c);
+}
+"""
+contains = ["a: 18, b: 13, c: 3"]
 # skip = true

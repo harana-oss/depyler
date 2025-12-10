@@ -14,293 +14,434 @@ name = "list_empty"
 description = "Create empty list"
 tags = ["list", "creation"]
 
-[test.python]
-code = '''
+python = '''
 def create_empty() -> list:
     return []
 '''
 
-[test.assertions]
-contains_any = [["Vec::new()", "vec![]"]]
+rust = '''
+use serde_json;
+pub fn create_empty() -> Vec<serde_json::Value> {
+    return vec![];
+}
+'''
 
 [[test]]
 name = "list_literal"
 description = "Create list with literal values"
 tags = ["list", "creation"]
 
-[test.python]
-code = '''
+python = '''
 def create_list() -> list[int]:
     return [1, 2, 3, 4, 5]
 '''
 
-[test.assertions]
-contains = ["vec![1, 2, 3, 4, 5]"]
+rust = '''
+pub fn create_list() -> Vec<i32> {
+    return vec![1, 2, 3, 4, 5];
+}
+'''
 
 [[test]]
 name = "list_typed"
 description = "Typed list annotation"
 tags = ["list", "typing"]
 
-[test.python]
-code = '''
+python = '''
 from typing import List
 
 def typed_list(items: List[int]) -> int:
     return len(items)
 '''
 
-[test.assertions]
-contains_any = [["Vec<i32>", "Vec<i64>"]]
-
-# =============================================================================
-# List Methods
-# =============================================================================
+rust = '''
+pub fn typed_list(items: &Vec<i32>) -> i32 {
+    return items.len() as i32 as i32;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_typed_list_examples() {
+        assert_eq!(typed_list(vec![]), 0);
+        assert_eq!(typed_list(vec![1]), 1);
+        assert_eq!(typed_list(vec![1, 2, 3]), 3);
+    }
+}
+'''
 
 [[test]]
 name = "list_append"
 description = "List append() method"
 tags = ["list", "method"]
 
-[test.python]
-code = '''
+python = '''
 def add_item(items: list[int], item: int) -> None:
     items.append(item)
 '''
 
-[test.assertions]
-contains = ["push("]
+rust = '''
+pub fn add_item(items: &mut Vec<i32>, item: i32) {
+    items.push(item);
+}
+'''
 
 [[test]]
 name = "list_extend"
 description = "List extend() method"
 tags = ["list", "method"]
 
-[test.python]
-code = '''
+python = '''
 def add_items(items: list[int], more: list[int]) -> None:
     items.extend(more)
 '''
 
-[test.assertions]
-contains = ["extend("]
+rust = '''
+pub fn add_items(items: &mut Vec<i32>, more: &Vec<i32>) {
+    items.extend(more.iter().cloned());
+}
+'''
 
 [[test]]
 name = "list_insert"
 description = "List insert() method"
 tags = ["list", "method"]
 
-[test.python]
-code = '''
+python = '''
 def insert_at(items: list[int], index: int, item: int) -> None:
     items.insert(index, item)
 '''
 
-[test.assertions]
-contains = ["insert("]
+rust = '''
+pub fn insert_at(items: &mut Vec<i32>, index: i32, item: i32) {
+    items.insert(index as usize, item);
+}
+'''
 
 [[test]]
 name = "list_pop"
 description = "List pop() method"
 tags = ["list", "method"]
 
-[test.python]
-code = '''
+python = '''
 def pop_last(items: list[int]) -> int:
     return items.pop()
 '''
 
-[test.assertions]
-contains = ["pop()"]
+rust = '''
+pub fn pop_last(items: &mut Vec<i32>) -> i32 {
+    return items.pop().unwrap();
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_pop_last_examples() {
+        assert_eq!(pop_last(vec![]), 0);
+        assert_eq!(pop_last(vec![1]), 1);
+        assert_eq!(pop_last(vec![1, 2, 3]), 3);
+    }
+}
+'''
 
 [[test]]
 name = "list_pop_index"
 description = "List pop() with index"
 tags = ["list", "method"]
 
-[test.python]
-code = '''
+python = '''
 def pop_at(items: list[int], index: int) -> int:
     return items.pop(index)
 '''
 
-[test.assertions]
-contains = ["remove("]
+rust = '''
+pub fn pop_at(items: &mut Vec<i32>, index: i32) -> i32 {
+    return items.remove(index as usize);
+}
+'''
 
 [[test]]
 name = "list_clear"
 description = "List clear() method"
 tags = ["list", "method"]
 
-[test.python]
-code = '''
+python = '''
 def clear_list(items: list[int]) -> None:
     items.clear()
 '''
 
-[test.assertions]
-contains = ["clear()"]
+rust = '''
+pub fn clear_list(items: &mut Vec<i32>) {
+    items.clear();
+}
+'''
 
 [[test]]
 name = "list_reverse"
 description = "List reverse() method"
 tags = ["list", "method"]
 
-[test.python]
-code = '''
+python = '''
 def reverse_list(items: list[int]) -> None:
     items.reverse()
 '''
 
-[test.assertions]
-contains = ["reverse()"]
+rust = '''
+pub fn reverse_list(items: &mut Vec<i32>) {
+    items.reverse();
+}
+'''
 
 [[test]]
 name = "list_sort"
 description = "List sort() method"
 tags = ["list", "method"]
 
-[test.python]
-code = '''
+python = '''
 def sort_list(items: list[int]) -> None:
     items.sort()
 '''
 
-[test.assertions]
-contains = ["sort()"]
+rust = '''
+pub fn sort_list(items: &mut Vec<i32>) {
+    items.sort();
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn quickcheck_sort_list() {
+        fn prop(items: Vec<i32>) -> TestResult {
+            let result = sort_list(&items);
+            for i in 1..result.len() {
+                if result[i - 1] > result[i] {
+                    return TestResult::failed();
+                }
+            }
+            let mut input_sorted = items.clone();
+            input_sorted.sort();
+            let mut result = sort_list(&items);
+            result.sort();
+            if input_sorted != result {
+                return TestResult::failed();
+            }
+            TestResult::passed()
+        }
+        quickcheck(prop as fn(Vec<i32>) -> TestResult);
+    }
+}
+'''
 
 [[test]]
 name = "list_copy"
 description = "List copy() method"
 tags = ["list", "method"]
 
-[test.python]
-code = '''
+python = '''
 def copy_list(items: list[int]) -> list[int]:
     return items.copy()
 '''
 
-[test.assertions]
-contains = ["clone()"]
-
-# =============================================================================
-# List Access
-# =============================================================================
+rust = '''
+pub fn copy_list(items: &Vec<i32>) -> Vec<i32> {
+    return items.clone();
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_copy_list_examples() {
+        assert_eq!(copy_list(vec![]), vec![]);
+        assert_eq!(copy_list(vec![1]), vec![1]);
+    }
+}
+'''
 
 [[test]]
 name = "list_index_access"
 description = "Access list by index"
 tags = ["list", "access"]
 
-[test.python]
-code = '''
+python = '''
 def get_item(items: list[int], i: int) -> int:
     return items[i]
 '''
 
-[test.assertions]
-contains_any = [["items[", ".get(", "[i as usize]"]]
+rust = '''
+#[derive(Debug, Clone)]
+pub struct IndexError {
+    message: String,
+}
+impl std::fmt::Display for IndexError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "index out of range: {}", self.message)
+    }
+}
+impl std::error::Error for IndexError {}
+impl IndexError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = " Depyler: proven to terminate"]
+pub fn get_item(items: &Vec<i32>, i: i32) -> i32 {
+    return items.get(i as usize).cloned().unwrap();
+}
+'''
 
 [[test]]
 name = "list_negative_index"
 description = "Access list with negative index"
 tags = ["list", "access"]
 
-[test.python]
-code = '''
+python = '''
 def get_last(items: list[int]) -> int:
     return items[-1]
 '''
 
-[test.assertions]
-contains_any = [["len()", "last()", ".get("]]
-
-# =============================================================================
-# List Membership
-# =============================================================================
+rust = '''
+#[derive(Debug, Clone)]
+pub struct IndexError {
+    message: String,
+}
+impl std::fmt::Display for IndexError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "index out of range: {}", self.message)
+    }
+}
+impl std::error::Error for IndexError {}
+impl IndexError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = " Depyler: proven to terminate"]
+pub fn get_last(items: &Vec<i32>) -> i32 {
+    return items.last().cloned().unwrap();
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_get_last_examples() {
+        assert_eq!(get_last(vec![]), 0);
+        assert_eq!(get_last(vec![1]), 1);
+        assert_eq!(get_last(vec![1, 2, 3]), 3);
+    }
+}
+'''
 
 [[test]]
 name = "list_in_check"
 description = "'in' operator for membership"
 tags = ["list", "membership"]
 
-[test.python]
-code = '''
+python = '''
 def has_item(items: list[int], item: int) -> bool:
     return item in items
 '''
 
-[test.assertions]
-contains = ["contains"]
+rust = '''
+pub fn has_item(items: &Vec<i32>, item: i32) -> bool {
+    return items.contains(&item);
+}
+'''
 
 [[test]]
 name = "list_not_in_check"
 description = "'not in' operator for membership"
 tags = ["list", "membership"]
 
-[test.python]
-code = '''
+python = '''
 def missing_item(items: list[int], item: int) -> bool:
     return item not in items
 '''
 
-[test.assertions]
-contains = ["contains"]
+rust = '''
+pub fn missing_item(items: &Vec<i32>, item: i32) -> bool {
+    return !items.contains(&item);
+}
+'''
 
 [[test]]
 name = "list_if_in_check"
 description = "'if item in items' conditional membership"
 tags = ["list", "membership", "conditional"]
 
-[test.python]
-code = '''
+python = '''
 def find_item(items: list[int], item: int) -> int:
     if item in items:
         return 1
     return 0
 '''
 
-[test.assertions]
-contains = ["contains"]
+rust = '''
+pub fn find_item(items: &Vec<i32>, item: i32) -> i32 {
+    let _cse_temp_0 = items.contains(&item);
+    if _cse_temp_0 {
+        return 1;
+    }
+    return 0;
+}
+'''
 
 [[test]]
 name = "list_if_not_in_check"
 description = "'if item not in items' conditional membership"
 tags = ["list", "membership", "conditional"]
 
-[test.python]
-code = '''
+python = '''
 def item_missing(items: list[int], item: int) -> int:
     if item not in items:
         return 1
     return 0
 '''
 
-[test.assertions]
-contains = ["contains"]
+rust = '''
+pub fn item_missing(items: &Vec<i32>, item: i32) -> i32 {
+    let _cse_temp_0 = !items.contains(&item);
+    if _cse_temp_0 {
+        return 1;
+    }
+    return 0;
+}
+'''
 
 [[test]]
 name = "list_add_if_missing"
 description = "'if item not in items' with append - common dedup pattern"
 tags = ["list", "membership", "conditional", "mutation"]
 
-[test.python]
-code = '''
+python = '''
 def add_if_missing(items: list[int], item: int) -> None:
     if item not in items:
         items.append(item)
 '''
  
-[test.assertions]
-contains = ["contains", "push"]
+rust = '''
+pub fn add_if_missing(items: &mut Vec<i32>, item: i32) {
+    let _cse_temp_0 = !items.contains(&item);
+    if _cse_temp_0 {
+        items.push(item);
+    }
+}
+'''
 
 [[test]]
 name = "list_add_if_missing_dataclass"
 description = "'if item not in items' with dataclass - membership check with custom type"
 tags = ["list", "membership", "conditional", "mutation", "dataclass"]
 
-[test.python]
-code = '''
+python = '''
 from dataclasses import dataclass
 
 @dataclass
@@ -312,20 +453,50 @@ def add_if_missing(items: list[Value], item: Value) -> None:
         items.append(item)
 '''
 
-[test.assertions]
-contains = ["struct Value", "contains", "push"]
-
-# =============================================================================
-# List Iteration
-# =============================================================================
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Value {
+    pub x: i32,
+}
+impl Value {
+    pub fn new(x: i32) -> Self {
+        Self { x }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "x" => Some(Box::new(self.x.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "x" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.x = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+pub fn add_if_missing(items: &mut Vec<Value>, item: &Value) {
+    let _cse_temp_0 = !items.contains(&item.clone());
+    if _cse_temp_0 {
+        items.push(item);
+    }
+}
+'''
 
 [[test]]
 name = "list_iterate"
 description = "Iterate over list"
 tags = ["list", "iteration"]
 
-[test.python]
-code = '''
+python = '''
 def sum_list(items: list[int]) -> int:
     total = 0
     for item in items:
@@ -333,137 +504,275 @@ def sum_list(items: list[int]) -> int:
     return total
 '''
 
-[test.assertions]
-contains = ["for item in"]
+rust = '''
+pub fn sum_list(items: &Vec<i32>) -> i32 {
+    let mut total = 0;
+    for item in items.iter().cloned() {
+        total = total + item;
+    }
+    return total;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_sum_list_examples() {
+        assert_eq!(sum_list(vec![]), 0);
+        assert_eq!(sum_list(vec![1]), 1);
+        assert_eq!(sum_list(vec![1, 2, 3]), 6);
+    }
+}
+'''
 
 [[test]]
 name = "list_enumerate"
 description = "Enumerate list items"
 tags = ["list", "iteration"]
 
-[test.python]
-code = '''
+python = '''
 def print_indexed(items: list[str]) -> None:
     for i, item in enumerate(items):
         print(f"{i}: {item}")
 '''
 
-[test.assertions]
-contains = ["enumerate()"]
-
-# =============================================================================
-# List Length
-# =============================================================================
+rust = '''
+pub fn print_indexed(items: Vec<String>) {
+    for (i, item) in items.iter().enumerate().map(|(i, x)| (i as i32, x.clone())) {
+        let i = i as i32;
+        println!("{}", format!("{}: {}", i, item));
+    }
+}
+'''
 
 [[test]]
 name = "list_len"
 description = "List length with len()"
 tags = ["list", "builtin"]
 
-[test.python]
-code = '''
+python = '''
 def list_size(items: list[int]) -> int:
     return len(items)
 '''
 
-[test.assertions]
-contains = ["len()"]
-
-# =============================================================================
-# List Concatenation
-# =============================================================================
+rust = '''
+pub fn list_size(items: &Vec<i32>) -> i32 {
+    return items.len() as i32 as i32;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_list_size_examples() {
+        assert_eq!(list_size(vec![]), 0);
+        assert_eq!(list_size(vec![1]), 1);
+        assert_eq!(list_size(vec![1, 2, 3]), 3);
+    }
+}
+'''
 
 [[test]]
 name = "list_concat"
 description = "List concatenation with +"
 tags = ["list", "concat"]
 
-[test.python]
-code = '''
+python = '''
 def concat_lists(a: list[int], b: list[int]) -> list[int]:
     return a + b
 '''
 
-[test.assertions]
-contains_any = [["extend", "concat", "chain"]]
+rust = '''
+pub fn concat_lists(a: &Vec<i32>, b: &Vec<i32>) -> Vec<i32> {
+    return a.iter().chain(b.iter()).cloned().collect::<Vec<_>>();
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn quickcheck_concat_lists() {
+        fn prop(a: Vec<i32>, b: Vec<i32>) -> TestResult {
+            let result1 = concat_lists(&a, &b);
+            let result2 = concat_lists(&b, &a);
+            if result1 != result2 {
+                return TestResult::failed();
+            }
+            TestResult::passed()
+        }
+        quickcheck(prop as fn(Vec<i32>, Vec<i32>) -> TestResult);
+    }
+}
+'''
 
 [[test]]
 name = "list_multiply"
 description = "List repetition with *"
 tags = ["list", "repeat"]
 
-[test.python]
-code = '''
+python = '''
 def repeat_list(items: list[int], n: int) -> list[int]:
     return items * n
 '''
 
-[test.assertions]
-contains_any = [["repeat", "flat_map"]]
-
-# =============================================================================
-# List Builtins
-# =============================================================================
+rust = '''
+pub fn repeat_list(items: &Vec<i32>, n: i32) -> Vec<i32> {
+    return items * n;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn quickcheck_repeat_list() {
+        fn prop(items: Vec<i32>, n: i32) -> TestResult {
+            let result1 = repeat_list(&items, n.clone());
+            let result2 = repeat_list(n.clone(), &items);
+            if result1 != result2 {
+                return TestResult::failed();
+            }
+            TestResult::passed()
+        }
+        quickcheck(prop as fn(Vec<i32>, i32) -> TestResult);
+    }
+}
+'''
 
 [[test]]
 name = "list_sum"
 description = "sum() on list"
 tags = ["list", "builtin"]
 
-[test.python]
-code = '''
+python = '''
 def total(items: list[int]) -> int:
     return sum(items)
 '''
 
-[test.assertions]
-contains_any = [[".sum()", "iter().sum()", "fn total"]]
+rust = '''
+pub fn total(items: Vec<i32>) -> i32 {
+    return items.iter().sum::<i32>();
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_total_examples() {
+        assert_eq!(total(vec![]), 0);
+        assert_eq!(total(vec![1]), 1);
+        assert_eq!(total(vec![1, 2, 3]), 3);
+    }
+}
+'''
 
 [[test]]
 name = "list_min"
 description = "min() on list"
 tags = ["list", "builtin"]
 
-[test.python]
-code = '''
+python = '''
 def minimum(items: list[int]) -> int:
     return min(items)
 '''
 
-[test.assertions]
-contains_any = [[".min()", "fn minimum"]]
+rust = '''
+pub fn minimum(items: Vec<i32>) -> i32 {
+    return *items.iter().min().unwrap();
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_minimum_examples() {
+        assert_eq!(minimum(vec![]), 0);
+        assert_eq!(minimum(vec![1]), 1);
+        assert_eq!(minimum(vec![1, 2, 3]), 3);
+    }
+}
+'''
 
 [[test]]
 name = "list_max"
 description = "max() on list"
 tags = ["list", "builtin"]
 
-[test.python]
-code = '''
+python = '''
 def maximum(items: list[int]) -> int:
     return max(items)
 '''
 
-[test.assertions]
-contains_any = [[".max()", "fn maximum"]]
+rust = '''
+pub fn maximum(items: Vec<i32>) -> i32 {
+    return *items.iter().max().unwrap();
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_maximum_examples() {
+        assert_eq!(maximum(vec![]), 0);
+        assert_eq!(maximum(vec![1]), 1);
+        assert_eq!(maximum(vec![1, 2, 3]), 3);
+    }
+}
+'''
 
 [[test]]
 name = "list_sorted"
 description = "sorted() builtin"
 tags = ["list", "builtin"]
 
-[test.python]
-code = '''
+python = '''
 def sort_copy(items: list[int]) -> list[int]:
     return sorted(items)
 '''
 
-[test.assertions]
-contains_any = [["clone()", "sorted"]]
-
-# =============================================================================
-# List Indexing Compilation Tests
-# =============================================================================
+rust = '''
+pub fn sort_copy(items: Vec<i32>) -> Vec<i32> {
+    return {
+        let mut __sorted_result = items.clone();
+        __sorted_result.sort();
+        __sorted_result
+    };
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn quickcheck_sort_copy() {
+        fn prop(items: Vec<i32>) -> TestResult {
+            let input_len = items.len();
+            let result = sort_copy(&items);
+            if result.len() != input_len {
+                return TestResult::failed();
+            }
+            let result = sort_copy(&items);
+            for i in 1..result.len() {
+                if result[i - 1] > result[i] {
+                    return TestResult::failed();
+                }
+            }
+            let mut input_sorted = items.clone();
+            input_sorted.sort();
+            let mut result = sort_copy(&items);
+            result.sort();
+            if input_sorted != result {
+                return TestResult::failed();
+            }
+            TestResult::passed()
+        }
+        quickcheck(prop as fn(Vec<i32>) -> TestResult);
+    }
+    #[test]
+    fn test_sort_copy_examples() {
+        assert_eq!(sort_copy(vec![]), vec![]);
+        assert_eq!(sort_copy(vec![1]), vec![1]);
+    }
+}
+'''
 
 [[test]]
 name = "list_string_index_compiles"
@@ -471,14 +780,34 @@ description = "String list index should compile (cloned, not copied)"
 tags = ["list", "index", "compile"]
 compile_check = true
 
-[test.python]
-code = '''
+python = '''
 def get_string(items: list[str], index: int) -> str:
     return items[index]
 '''
 
-[test.assertions]
-contains = ["fn get_string"]
+rust = '''
+#[derive(Debug, Clone)]
+pub struct IndexError {
+    message: String,
+}
+impl std::fmt::Display for IndexError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "index out of range: {}", self.message)
+    }
+}
+impl std::error::Error for IndexError {}
+impl IndexError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = " Depyler: proven to terminate"]
+pub fn get_string(items: &Vec<String>, index: i32) -> String {
+    return items.get(index as usize).cloned().unwrap();
+}
+'''
 
 [[test]]
 name = "list_nested_index_compiles"
@@ -486,14 +815,34 @@ description = "Nested list index should compile"
 tags = ["list", "index", "nested", "compile"]
 compile_check = true
 
-[test.python]
-code = '''
+python = '''
 def get_row(matrix: list[list[int]], row: int) -> list[int]:
     return matrix[row]
 '''
 
-[test.assertions]
-contains = ["fn get_row"]
+rust = '''
+#[derive(Debug, Clone)]
+pub struct IndexError {
+    message: String,
+}
+impl std::fmt::Display for IndexError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "index out of range: {}", self.message)
+    }
+}
+impl std::error::Error for IndexError {}
+impl IndexError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = " Depyler: proven to terminate"]
+pub fn get_row(matrix: &Vec<Vec<i32>>, row: i32) -> Vec<i32> {
+    return matrix.get(row as usize).cloned().unwrap();
+}
+'''
 
 [[test]]
 name = "list_negative_index_compiles"
@@ -501,42 +850,61 @@ description = "Negative index should compile without usize error"
 tags = ["list", "index", "negative", "compile"]
 compile_check = true
 
-[test.python]
-code = '''
+python = '''
 def get_last(items: list[str]) -> str:
     return items[-1]
 '''
 
-[test.assertions]
-contains = ["fn get_last"]
-
-# =============================================================================
-# Array Generation (from test_array_generation.rs)
-# =============================================================================
+rust = '''
+#[derive(Debug, Clone)]
+pub struct IndexError {
+    message: String,
+}
+impl std::fmt::Display for IndexError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "index out of range: {}", self.message)
+    }
+}
+impl std::error::Error for IndexError {}
+impl IndexError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = " Depyler: proven to terminate"]
+pub fn get_last(items: &Vec<String>) -> String {
+    return items.last().cloned().unwrap();
+}
+'''
 
 [[test]]
 name = "array_literal_generation"
 description = "Literal arrays should generate with proper syntax"
 tags = ["array", "literal"]
 
-[test.python]
-code = '''
+python = '''
 def test_arrays():
     arr1 = [1, 2, 3, 4, 5]
     arr2 = [True, False, True]
     return arr1, arr2
 '''
 
-[test.assertions]
-contains = ["[1, 2, 3, 4, 5]", "[true, false, true]", "vec!"]
+rust = '''
+pub fn test_arrays() -> (Vec<i32>, Vec<bool>) {
+    let arr1 = vec![1, 2, 3, 4, 5];
+    let arr2 = vec![true, false, true];
+    return (arr1, arr2);
+}
+'''
 
 [[test]]
 name = "array_multiplication_pattern"
 description = "Array multiplication pattern [x] * n"
 tags = ["array", "multiplication"]
 
-[test.python]
-code = '''
+python = '''
 def test_multiplication():
     zeros = [0] * 10
     ones = [1] * 5
@@ -544,16 +912,24 @@ def test_multiplication():
     return zeros, ones, pattern
 '''
 
-[test.assertions]
-contains = ["[0; 10]", "[1; 5]", "[42; 8]"]
+rust = '''
+pub fn test_multiplication() -> ([i32; 10], [i32; 5], [i32; 8]) {
+    let _cse_temp_0 = [0; 10];
+    let zeros = _cse_temp_0;
+    let _cse_temp_1 = [1; 5];
+    let ones = _cse_temp_1;
+    let _cse_temp_2 = [42; 8];
+    let pattern = _cse_temp_2;
+    return (zeros, ones, pattern);
+}
+'''
 
 [[test]]
 name = "array_init_functions"
 description = "Array initialization functions zeros/ones/full"
 tags = ["array", "init"]
 
-[test.python]
-code = '''
+python = '''
 def test_init():
     z = zeros(10)
     o = ones(5)
@@ -561,47 +937,65 @@ def test_init():
     return z, o, f
 '''
 
-[test.assertions]
-contains = ["[0; 10 as usize]", "[1; 5 as usize]", "[42; 8 as usize]"]
+rust = '''
+pub fn test_init() -> (Vec<i32>, Vec<i32>, Vec<i32>) {
+    let z = vec![0; 10 as usize];
+    let o = vec![1; 5 as usize];
+    let f = vec![42; 8 as usize];
+    return (z, o, f);
+}
+'''
 
 [[test]]
 name = "array_large_uses_vec"
 description = "Large arrays use proper array syntax"
 tags = ["array", "large"]
 
-[test.python]
-code = '''
+python = '''
 def test_large():
     large = [0] * 50
     return large
 '''
 
-[test.assertions]
-contains = ["[0; 50]"]
-not_contains = ["* 50"]
+rust = '''
+pub fn test_large() -> Vec<i32> {
+    let _cse_temp_0 = vec![0; 50];
+    let large = _cse_temp_0;
+    return large;
+}
+'''
 
 [[test]]
 name = "array_not_in_string_list"
 description = "not in operator for string list"
 tags = ["array", "membership"]
 
-[test.python]
-code = '''
+python = '''
 def test_membership(variable: str) -> bool:
     return variable not in ['A', 'B']
 '''
 
-[test.assertions]
-contains = ["fn test_membership", "contains"]
-not_contains = ["contains_key"]
+rust = '''
+pub fn test_membership(variable: String) -> bool {
+    return !["A", "B"].contains(&variable.as_str());
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_test_membership_examples() {
+        let _ = test_membership(Default::default());
+    }
+}
+'''
 
 [[test]]
 name = "array_iteration_with_fstring"
 description = "Array iteration with f-string formatting"
 tags = ["array", "iteration", "fstring"]
 
-[test.python]
-code = '''
+python = '''
 def test_array_iteration_with_fstring():
     array = [10, 20, 30, 40, 50]
     temp = "10"
@@ -610,219 +1004,261 @@ def test_array_iteration_with_fstring():
     return temp
 '''
 
-[test.assertions]
-contains = ["fn test_array_iteration_with_fstring", "[10, 20, 30, 40, 50]", "for item in array", "format!"]
-
-# =============================================================================
-# Nested Array Tests (from test_array_generation.rs)
-# =============================================================================
+rust = '''
+pub fn test_array_iteration_with_fstring() -> String {
+    let array = vec![10, 20, 30, 40, 50];
+    let mut temp = "10".to_string();
+    for item in array.iter().cloned() {
+        temp = format!("{}", item);
+    }
+    return temp;
+}
+'''
 
 [[test]]
 name = "nested_arrays_2d_integers"
 description = "2D integer arrays"
 tags = ["array", "nested", "2d"]
 
-[test.python]
-code = '''
+python = '''
 def test_2d_int():
     matrix = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
     return matrix
 '''
 
-[test.assertions]
-contains = ["let matrix = vec![vec![1, 2, 3], vec![4, 5, 6], vec![7, 8, 9]]"]
+rust = '''
+pub fn test_2d_int() -> Vec<Vec<i32>> {
+    let matrix = vec![vec![1, 2, 3], vec![4, 5, 6], vec![7, 8, 9]];
+    return matrix;
+}
+'''
 
 [[test]]
 name = "nested_arrays_2d_floats"
 description = "2D float arrays"
 tags = ["array", "nested", "2d", "float"]
 
-[test.python]
-code = '''
+python = '''
 def test_2d_float():
     matrix = [[1.0, 2.5, 3.7], [4.2, 5.1, 6.9]]
     return matrix
 '''
 
-[test.assertions]
-contains = ["let matrix = vec![vec![1.0, 2.5, 3.7], vec![4.2, 5.1, 6.9]]"]
+rust = '''
+pub fn test_2d_float() -> Vec<Vec<f64>> {
+    let matrix = vec![vec![1.0, 2.5, 3.7], vec![4.2, 5.1, 6.9]];
+    return matrix;
+}
+'''
 
 [[test]]
 name = "nested_arrays_2d_booleans"
 description = "2D boolean arrays"
 tags = ["array", "nested", "2d", "bool"]
 
-[test.python]
-code = '''
+python = '''
 def test_2d_bool():
     flags = [[True, False, True], [False, True, False]]
     return flags
 '''
 
-[test.assertions]
-contains = ["let flags = vec![vec![true, false, true], vec![false, true, false]]"]
+rust = '''
+pub fn test_2d_bool() -> Vec<Vec<bool>> {
+    let flags = vec![vec![true, false, true], vec![false, true, false]];
+    return flags;
+}
+'''
 
 [[test]]
 name = "nested_arrays_2d_strings"
 description = "2D string arrays"
 tags = ["array", "nested", "2d", "string"]
 
-[test.python]
-code = '''
+python = '''
 def test_2d_str():
     words = [["hello", "world"], ["foo", "bar", "baz"]]
     return words
 '''
 
-[test.assertions]
-contains = ["let words = vec!", "\"hello\".to_string()", "\"world\".to_string()"]
+rust = '''
+pub fn test_2d_str() -> Vec<Vec<String>> {
+    let words = vec![
+        vec!["hello".to_string(), "world".to_string()],
+        vec!["foo".to_string(), "bar".to_string(), "baz".to_string()],
+    ];
+    return words;
+}
+'''
 
 [[test]]
 name = "nested_arrays_3d_integers"
 description = "3D integer arrays"
 tags = ["array", "nested", "3d"]
 
-[test.python]
-code = '''
+python = '''
 def test_3d_int():
     cube = [[[1, 2], [3, 4]], [[5, 6], [7, 8]]]
     return cube
 '''
 
-[test.assertions]
-contains = ["let cube = vec![vec![vec![1, 2], vec![3, 4]], vec![vec![5, 6], vec![7, 8]]]"]
+rust = '''
+pub fn test_3d_int() -> Vec<Vec<Vec<i32>>> {
+    let cube = vec![vec![vec![1, 2], vec![3, 4]], vec![vec![5, 6], vec![7, 8]]];
+    return cube;
+}
+'''
 
 [[test]]
 name = "nested_arrays_jagged"
 description = "Jagged arrays with varying row lengths"
 tags = ["array", "nested", "jagged"]
 
-[test.python]
-code = '''
+python = '''
 def test_jagged():
     jagged = [[1], [2, 3], [4, 5, 6], [7, 8, 9, 10]]
     return jagged
 '''
 
-[test.assertions]
-contains = ["let jagged = vec![vec![1], vec![2, 3], vec![4, 5, 6], vec![7, 8, 9, 10]]"]
+rust = '''
+pub fn test_jagged() -> Vec<Vec<i32>> {
+    let jagged = vec![vec![1], vec![2, 3], vec![4, 5, 6], vec![7, 8, 9, 10]];
+    return jagged;
+}
+'''
 
 [[test]]
 name = "nested_arrays_empty_subarrays"
 description = "Arrays with empty subarrays"
 tags = ["array", "nested", "empty"]
 
-[test.python]
-code = '''
+python = '''
 def test_empty_nested():
     data = [[], [1, 2], [], [3]]
     return data
 '''
 
-[test.assertions]
-contains = ["let data = vec![vec![], vec![1, 2], vec![], vec![3]]"]
+rust = '''
+pub fn test_empty_nested() -> Vec<Vec<i32>> {
+    let data = vec![vec![], vec![1, 2], vec![], vec![3]];
+    return data;
+}
+'''
 
 [[test]]
 name = "nested_arrays_with_multiplication"
 description = "Nested array with multiplication pattern"
 tags = ["array", "nested", "multiplication"]
 
-[test.python]
-code = '''
+python = '''
 def test_nested_mult():
     matrix = [[0] * 3] * 2
     return matrix
 '''
 
-[test.assertions]
-contains = ["let _cse_temp_0 = [[0; 3]; 2]", "let matrix = _cse_temp_0"]
+rust = '''
+pub fn test_nested_mult() -> [[i32; 3]; 2] {
+    let _cse_temp_0 = [[0; 3]; 2];
+    let matrix = _cse_temp_0;
+    return matrix;
+}
+'''
 
 [[test]]
 name = "nested_arrays_single_element"
 description = "Single element nested array"
 tags = ["array", "nested", "single"]
 
-[test.python]
-code = '''
+python = '''
 def test_single():
     single = [[42]]
     return single
 '''
 
-[test.assertions]
-contains = ["let single = vec![vec![42]]"]
+rust = '''
+pub fn test_single() -> Vec<Vec<i32>> {
+    let single = vec![vec![42]];
+    return single;
+}
+'''
 
 [[test]]
 name = "nested_arrays_negative_numbers"
 description = "Nested arrays with negative numbers"
 tags = ["array", "nested", "negative"]
 
-[test.python]
-code = '''
+python = '''
 def test_negative():
     matrix = [[-1, -2, -3], [4, -5, 6], [-7, 8, -9]]
     return matrix
 '''
 
-[test.assertions]
-contains = ["let matrix = vec![vec![-1, -2, -3], vec![4, -5, 6], vec![-7, 8, -9]]"]
+rust = '''
+pub fn test_negative() -> Vec<Vec<i32>> {
+    let matrix = vec![vec![-1, -2, -3], vec![4, -5, 6], vec![-7, 8, -9]];
+    return matrix;
+}
+'''
 
 [[test]]
 name = "nested_arrays_identity_matrix"
 description = "Identity matrix pattern"
 tags = ["array", "nested", "identity"]
 
-[test.python]
-code = '''
+python = '''
 def test_identity():
     identity = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
     return identity
 '''
 
-[test.assertions]
-contains = ["let identity = vec![vec![1, 0, 0], vec![0, 1, 0], vec![0, 0, 1]]"]
+rust = '''
+pub fn test_identity() -> Vec<Vec<i32>> {
+    let identity = vec![vec![1, 0, 0], vec![0, 1, 0], vec![0, 0, 1]];
+    return identity;
+}
+'''
 
 [[test]]
 name = "nested_arrays_coordinate_pairs"
 description = "Arrays that look like coordinate pairs"
 tags = ["array", "nested", "coordinates"]
 
-[test.python]
-code = '''
+python = '''
 def test_tuplelike():
     points = [[0, 0], [1, 1], [2, 4], [3, 9]]
     return points
 '''
 
-[test.assertions]
-contains = ["let points = vec![vec![0, 0], vec![1, 1], vec![2, 4], vec![3, 9]]"]
-
-# =============================================================================
-# Array Assignment Regression Tests (from test_array_literal_regression.rs)
-# =============================================================================
+rust = '''
+pub fn test_tuplelike() -> Vec<Vec<i32>> {
+    let points = vec![vec![0, 0], vec![1, 1], vec![2, 4], vec![3, 9]];
+    return points;
+}
+'''
 
 [[test]]
 name = "array_literal_assignment_simple"
 description = "Simple array literal assignment must be present"
 tags = ["array", "assignment", "regression"]
 
-[test.python]
-code = '''
+python = '''
 def test_array():
     arr = [1, 2, 3]
     return arr
 '''
 
-[test.assertions]
-contains_any = [["arr = ", "let arr"]]
+rust = '''
+pub fn test_array() -> Vec<i32> {
+    let arr = vec![1, 2, 3];
+    return arr;
+}
+'''
 
 [[test]]
 name = "array_literal_assignment_multiple"
 description = "Multiple array assignments must all be present"
 tags = ["array", "assignment", "regression"]
 
-[test.python]
-code = '''
+python = '''
 def test_arrays():
     arr1 = [1, 2, 3]
     arr2 = [4, 5, 6]
@@ -830,96 +1266,109 @@ def test_arrays():
     return arr1, arr2, arr3
 '''
 
-[test.assertions]
-contains = ["arr1", "arr2", "arr3"]
+rust = '''
+pub fn test_arrays() -> (Vec<i32>, Vec<i32>, Vec<i32>) {
+    let arr1 = vec![1, 2, 3];
+    let arr2 = vec![4, 5, 6];
+    let arr3 = vec![7, 8, 9];
+    return (arr1, arr2, arr3);
+}
+'''
 
 [[test]]
 name = "array_with_booleans"
 description = "Array with boolean literals"
 tags = ["array", "boolean", "regression"]
 
-[test.python]
-code = '''
+python = '''
 def test_bool_array():
     flags = [True, False, True]
     return flags
 '''
 
-[test.assertions]
-contains_any = [["flags = ", "let flags"]]
-contains = ["true", "false"]
-
-# =============================================================================
-# Array Initialization Extended (from test_direct_rules_coverage.rs)
-# =============================================================================
+rust = '''
+pub fn test_bool_array() -> Vec<bool> {
+    let flags = vec![true, false, true];
+    return flags;
+}
+'''
 
 [[test]]
 name = "zeros_static_size"
 description = "zeros(10) with static size"
 tags = ["array", "init", "zeros"]
 
-[test.python]
-code = '''
+python = '''
 def test_zeros() -> list:
     return zeros(10)
 '''
 
-[test.assertions]
-contains_any = [["vec![0", "[0;"]]
+rust = '''
+pub fn test_zeros() -> Vec<i32> {
+    return vec![0; 10 as usize];
+}
+'''
 
 [[test]]
 name = "ones_static_size"
 description = "ones(5) with static size"
 tags = ["array", "init", "ones"]
 
-[test.python]
-code = '''
+python = '''
 def test_ones() -> list:
     return ones(5)
 '''
 
-[test.assertions]
-contains_any = [["vec![1", "[1;"]]
+rust = '''
+pub fn test_ones() -> Vec<i32> {
+    return vec![1; 5 as usize];
+}
+'''
 
 [[test]]
 name = "full_static_value"
 description = "full(8, 42) with static size and value"
 tags = ["array", "init", "full"]
 
-[test.python]
-code = '''
+python = '''
 def test_full() -> list:
     return full(8, 42)
 '''
 
-[test.assertions]
-contains_any = [["vec![42", "[42;"]]
+rust = '''
+pub fn test_full() -> Vec<i32> {
+    return vec![42; 8 as usize];
+}
+'''
 
 [[test]]
 name = "zeros_dynamic_size"
 description = "zeros(n) with dynamic size variable"
 tags = ["array", "init", "zeros", "dynamic"]
 
-[test.python]
-code = '''
+python = '''
 def test_zeros(n: int) -> list:
     return zeros(n)
 '''
 
-[test.assertions]
-contains = ["vec![0"]
-contains_any = [["as usize", "n"]]
+rust = '''
+pub fn test_zeros(n: i32) -> Vec<i32> {
+    return vec![0; n as usize];
+}
+'''
 
 [[test]]
 name = "zeros_edge_zero_size"
 description = "zeros(0) edge case with zero size"
 tags = ["array", "init", "zeros", "edge"]
 
-[test.python]
-code = '''
+python = '''
 def test_zeros() -> list:
     return zeros(0)
 '''
 
-[test.assertions]
-contains_any = [["vec![", "Vec::new()"]]
+rust = '''
+pub fn test_zeros() -> Vec<i32> {
+    return vec![0; 0 as usize];
+}
+'''

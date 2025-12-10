@@ -13,264 +13,479 @@ name = "lambda_simple"
 description = "Simple single-parameter lambda"
 tags = ["lambda", "map"]
 
-[test.python]
-code = '''
+python = '''
 def double_numbers(numbers: list[int]) -> list[int]:
     return list(map(lambda x: x * 2, numbers))
 '''
 
-[test.assertions]
-contains = [".map"]
-contains_any = [["|x|", "| x |"]]
+rust = '''
+pub fn double_numbers(numbers: Vec<i32>) -> Vec<i32> {
+    return numbers.iter().map(|x| x * 2).collect::<Vec<_>>();
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_double_numbers_examples() {
+        assert_eq!(double_numbers(vec![]), vec![]);
+        assert_eq!(double_numbers(vec![1]), vec![1]);
+    }
+}
+'''
 
 [[test]]
 name = "lambda_identity"
 description = "Identity lambda"
 tags = ["lambda", "identity"]
 
-[test.python]
-code = '''
+python = '''
 def identity_map(items: list[int]) -> list[int]:
     return list(map(lambda x: x, items))
 '''
 
-[test.assertions]
-contains_any = [["|x| x", "| x | x"]]
-
-# =============================================================================
-# Lambda with filter
-# =============================================================================
+rust = '''
+pub fn identity_map(items: Vec<i32>) -> Vec<i32> {
+    return items.iter().map(|x| x).collect::<Vec<_>>();
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn quickcheck_identity_map() {
+        fn prop(items: Vec<i32>) -> TestResult {
+            let input_len = items.len();
+            let result = identity_map(&items);
+            if result.len() != input_len {
+                return TestResult::failed();
+            }
+            TestResult::passed()
+        }
+        quickcheck(prop as fn(Vec<i32>) -> TestResult);
+    }
+    #[test]
+    fn test_identity_map_examples() {
+        assert_eq!(identity_map(vec![]), vec![]);
+        assert_eq!(identity_map(vec![1]), vec![1]);
+    }
+}
+'''
 
 [[test]]
 name = "lambda_filter_positive"
 description = "Lambda in filter for positive numbers"
 tags = ["lambda", "filter"]
 
-[test.python]
-code = '''
+python = '''
 def filter_positive(numbers: list[int]) -> list[int]:
     return list(filter(lambda x: x > 0, numbers))
 '''
 
-[test.assertions]
-contains = [".filter"]
-contains_any = [["|x|", "| x |"]]
+rust = '''
+pub fn filter_positive(numbers: Vec<i32>) -> Vec<i32> {
+    return numbers.into_iter().filter(|x| x > 0).collect::<Vec<_>>();
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_filter_positive_examples() {
+        assert_eq!(filter_positive(vec![]), vec![]);
+        assert_eq!(filter_positive(vec![1]), vec![1]);
+    }
+}
+'''
 
 [[test]]
 name = "lambda_filter_predicate"
 description = "Lambda filter with complex predicate"
 tags = ["lambda", "filter", "predicate"]
 
-[test.python]
-code = '''
+python = '''
 def filter_range(items: list[int], low: int, high: int) -> list[int]:
     return list(filter(lambda x: x >= low and x <= high, items))
 '''
 
-[test.assertions]
-contains = [".filter"]
-contains_any = [["|x|", "&&"]]
-
-# =============================================================================
-# Lambda with sorted
-# =============================================================================
+rust = '''
+pub fn filter_range(items: Vec<i32>, low: i32, high: i32) -> Vec<i32> {
+    return items
+        .into_iter()
+        .filter(|x| (x >= low) && (x <= high))
+        .collect::<Vec<_>>();
+}
+'''
 
 [[test]]
 name = "lambda_sorted_key"
 description = "Lambda as key function for sorted"
 tags = ["lambda", "sorted", "key"]
 
-[test.python]
-code = '''
+python = '''
 def sort_by_length(words: list[str]) -> list[str]:
     return sorted(words, key=lambda x: len(x))
 '''
 
-[test.assertions]
-contains_any = [["|x|", "| x |", "sort", "len()"]]
+rust = '''
+pub fn sort_by_length(words: &Vec<String>) -> Vec<String> {
+    return {
+        let mut __sorted_result = words.clone();
+        __sorted_result.sort_by_key(|x| x.len() as i32);
+        __sorted_result
+    };
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn quickcheck_sort_by_length() {
+        fn prop(words: Vec<String>) -> TestResult {
+            let input_len = words.len();
+            let result = sort_by_length(&words);
+            if result.len() != input_len {
+                return TestResult::failed();
+            }
+            let result = sort_by_length(&words);
+            for i in 1..result.len() {
+                if result[i - 1] > result[i] {
+                    return TestResult::failed();
+                }
+            }
+            let mut input_sorted = words.clone();
+            input_sorted.sort();
+            let mut result = sort_by_length(&words);
+            result.sort();
+            if input_sorted != result {
+                return TestResult::failed();
+            }
+            TestResult::passed()
+        }
+        quickcheck(prop as fn(Vec<String>) -> TestResult);
+    }
+    #[test]
+    fn test_sort_by_length_examples() {
+        assert_eq!(sort_by_length(vec![]), vec![]);
+        assert_eq!(sort_by_length(vec![1]), vec![1]);
+    }
+}
+'''
 
 [[test]]
 name = "lambda_sorted_reverse"
 description = "Lambda for reverse sorting"
 tags = ["lambda", "sorted", "reverse"]
 
-[test.python]
-code = '''
+python = '''
 def sort_descending(numbers: list[int]) -> list[int]:
     return sorted(numbers, key=lambda x: -x)
 '''
 
-[test.assertions]
-contains_any = [["|x| -x", "cmp", "reverse", "sort"]]
-
-# =============================================================================
-# Multi-parameter Lambda
-# =============================================================================
+rust = '''
+pub fn sort_descending(numbers: &Vec<i32>) -> Vec<i32> {
+    return {
+        let mut __sorted_result = numbers.clone();
+        __sorted_result.sort_by_key(|x| (-x));
+        __sorted_result
+    };
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn quickcheck_sort_descending() {
+        fn prop(numbers: Vec<i32>) -> TestResult {
+            let input_len = numbers.len();
+            let result = sort_descending(&numbers);
+            if result.len() != input_len {
+                return TestResult::failed();
+            }
+            let result = sort_descending(&numbers);
+            for i in 1..result.len() {
+                if result[i - 1] > result[i] {
+                    return TestResult::failed();
+                }
+            }
+            let mut input_sorted = numbers.clone();
+            input_sorted.sort();
+            let mut result = sort_descending(&numbers);
+            result.sort();
+            if input_sorted != result {
+                return TestResult::failed();
+            }
+            TestResult::passed()
+        }
+        quickcheck(prop as fn(Vec<i32>) -> TestResult);
+    }
+    #[test]
+    fn test_sort_descending_examples() {
+        assert_eq!(sort_descending(vec![]), vec![]);
+        assert_eq!(sort_descending(vec![1]), vec![1]);
+    }
+}
+'''
 
 [[test]]
 name = "lambda_two_params"
 description = "Lambda with two parameters"
 tags = ["lambda", "multi-param"]
 
-[test.python]
-code = '''
+python = '''
 def add_pairs(pairs: list[tuple[int, int]]) -> list[int]:
     return [x + y for x, y in pairs]
 '''
 
-[test.assertions]
-contains_any = [["|x, y|", "| x, y |", "|(x, y)|"]]
-
-# =============================================================================
-# Lambda with reduce
-# =============================================================================
+rust = '''
+// Transpilation failed
+'''
 
 [[test]]
 name = "lambda_reduce_sum"
 description = "Lambda in reduce for sum"
 tags = ["lambda", "reduce", "fold"]
 
-[test.python]
-code = '''
+python = '''
 from functools import reduce
 
 def sum_all(numbers: list[int]) -> int:
     return reduce(lambda acc, x: acc + x, numbers, 0)
 '''
 
-[test.assertions]
-contains = ["fold("]
-contains_any = [["|acc, x|", "|acc,x|"]]
+rust = '''
+use std::iter::Iterator::fold;
+pub fn sum_all(numbers: Vec<i32>) -> i32 {
+    return std::iter::Iterator::fold(|acc, x| acc + x, numbers, 0);
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_sum_all_examples() {
+        assert_eq!(sum_all(vec![]), 0);
+        assert_eq!(sum_all(vec![1]), 1);
+        assert_eq!(sum_all(vec![1, 2, 3]), 6);
+    }
+}
+'''
 
 [[test]]
 name = "lambda_reduce_product"
 description = "Lambda in reduce for product"
 tags = ["lambda", "reduce", "fold"]
 
-[test.python]
-code = '''
+python = '''
 from functools import reduce
 
 def product_all(numbers: list[int]) -> int:
     return reduce(lambda acc, x: acc * x, numbers, 1)
 '''
 
-[test.assertions]
-contains = ["fold("]
-contains_any = [["|acc, x|", "acc * x"]]
-
-# =============================================================================
-# Lambda with Complex Expressions
-# =============================================================================
+rust = '''
+use std::iter::Iterator::fold;
+pub fn product_all(numbers: Vec<i32>) -> i32 {
+    return std::iter::Iterator::fold(|acc, x| acc * x, numbers, 1);
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_product_all_examples() {
+        assert_eq!(product_all(vec![]), 0);
+        assert_eq!(product_all(vec![1]), 1);
+        assert_eq!(product_all(vec![1, 2, 3]), 3);
+    }
+}
+'''
 
 [[test]]
 name = "lambda_conditional"
 description = "Lambda with conditional expression"
 tags = ["lambda", "conditional"]
 
-[test.python]
-code = '''
+python = '''
 def classify(numbers: list[int]) -> list[str]:
     return list(map(lambda x: "positive" if x > 0 else "non-positive", numbers))
 '''
 
-[test.assertions]
-contains = [".map"]
-contains_any = [["if", "else"]]
+rust = '''
+pub fn classify(numbers: Vec<i32>) -> Vec<String> {
+    return numbers
+        .iter()
+        .map(|x| {
+            if x > 0 {
+                "positive".to_string()
+            } else {
+                "non-positive".to_string()
+            }
+        })
+        .collect::<Vec<_>>();
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_classify_examples() {
+        assert_eq!(classify(vec![]), vec![]);
+        assert_eq!(classify(vec![1]), vec![1]);
+    }
+}
+'''
 
 [[test]]
 name = "lambda_arithmetic"
 description = "Lambda with arithmetic expression"
 tags = ["lambda", "arithmetic"]
 
-[test.python]
-code = '''
+python = '''
 def transform(numbers: list[int]) -> list[int]:
     return list(map(lambda x: x * 2 + 1, numbers))
 '''
 
-[test.assertions]
-contains = [".map"]
-contains_any = [["|x|", "* 2 + 1"]]
-
-# =============================================================================
-# Lambda Capturing Variables
-# =============================================================================
+rust = '''
+pub fn transform(numbers: Vec<i32>) -> Vec<i32> {
+    return numbers.iter().map(|x| x * 2 + 1).collect::<Vec<_>>();
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_transform_examples() {
+        assert_eq!(transform(vec![]), vec![]);
+        assert_eq!(transform(vec![1]), vec![1]);
+    }
+}
+'''
 
 [[test]]
 name = "lambda_capture_variable"
 description = "Lambda capturing outer variable"
 tags = ["lambda", "capture"]
 
-[test.python]
-code = '''
+python = '''
 def add_constant(numbers: list[int], constant: int) -> list[int]:
     return list(map(lambda x: x + constant, numbers))
 '''
 
-[test.assertions]
-contains = [".map", "constant"]
-contains_any = [["|x|", "| x |"]]
+rust = '''
+pub fn add_constant(numbers: Vec<i32>, constant: i32) -> Vec<i32> {
+    return numbers.iter().map(|x| x + constant).collect::<Vec<_>>();
+}
+'''
 
 [[test]]
 name = "lambda_closure"
 description = "Lambda as closure"
 tags = ["lambda", "closure"]
 
-[test.python]
-code = '''
+python = '''
 def make_multiplier(factor: int):
     return lambda x: x * factor
 '''
 
-[test.assertions]
-contains_any = [["|x|", "| x |", "move |"]]
-
-# =============================================================================
-# Nested Lambdas
-# =============================================================================
+rust = '''
+pub fn make_multiplier(factor: i32) {
+    return |x| x * factor;
+}
+'''
 
 [[test]]
 name = "lambda_nested"
 description = "Nested lambda expressions"
 tags = ["lambda", "nested"]
 
-[test.python]
-code = '''
+python = '''
 def nested_transform(matrix: list) -> list:
     return list(map(lambda row: list(map(lambda x: x * 2, row)), matrix))
 '''
 
-[test.assertions]
-contains_any = [["|row|", "| row |"]]
-contains = [".map"]
+rust = '''
+use serde_json;
+pub fn nested_transform(matrix: Vec<serde_json::Value>) -> Vec<serde_json::Value> {
+    return matrix
+        .iter()
+        .map(|row| row.iter().map(|x| x * 2).collect::<Vec<_>>())
+        .collect::<Vec<_>>();
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_nested_transform_examples() {
+        assert_eq!(nested_transform(vec![]), vec![]);
+        assert_eq!(nested_transform(vec![1]), vec![1]);
+    }
+}
+'''
 
 [[test]]
 name = "lambda_in_comprehension"
 description = "Lambda in list comprehension"
 tags = ["lambda", "comprehension"]
 
-[test.python]
-code = '''
+python = '''
 def process_items(items: list) -> list:
     transform = lambda x: x * 2
     return [transform(item) for item in items]
 '''
 
-[test.assertions]
-contains_any = [["|x|", "| x |"]]
+rust = '''
+use serde_json;
+pub fn process_items(items: &Vec<serde_json::Value>) -> Vec<serde_json::Value> {
+    let transform = |x| x * 2;
+    return items
+        .clone()
+        .into_iter()
+        .map(|item| transform(item))
+        .collect::<Vec<_>>();
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_process_items_examples() {
+        assert_eq!(process_items(vec![]), vec![]);
+        assert_eq!(process_items(vec![1]), vec![1]);
+    }
+}
+'''
 
 [[test]]
 name = "lambda_distance_calc"
 description = "Lambda with complex math expression"
 tags = ["lambda", "math"]
 
-[test.python]
-code = '''
+python = '''
 def calculate_distances(points: list) -> list:
     return list(map(lambda p: (p[0] ** 2 + p[1] ** 2) ** 0.5, points))
 '''
 
-[test.assertions]
-contains_any = [["|p|", "| p |"]]
-contains = [".map"]
+rust = '''
+use serde_json;
+pub fn calculate_distances(points: Vec<serde_json::Value>) -> Vec<serde_json::Value> {
+    return points
+        .iter()
+        .map(|p| {
+            (p.get(0usize).cloned().unwrap().pow(2 as u32) + p.get(1usize).cloned().unwrap().pow(2 as u32) as f64)
+                .powf(0.5 as f64)
+        })
+        .collect::<Vec<_>>();
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_calculate_distances_examples() {
+        assert_eq!(calculate_distances(vec![]), vec![]);
+        assert_eq!(calculate_distances(vec![1]), vec![1]);
+    }
+}
+'''

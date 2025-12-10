@@ -9,127 +9,1114 @@ category = "context-managers"
 # Basic With Statement
 # =============================================================================
 
-# TODO: Test simple with
-# [[test]]
-# name = "with_basic"
-# description = "with open('file') as f: ..."
+[[test]]
+name = "with_basic"
+description = "Basic with statement with as clause"
+tags = ["context-manager", "with"]
+python = '''
+class File:
+    def __init__(self, name):
+        self.name = name
+        self.closed = False
+    
+    def __enter__(self):
+        return self
+    
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.closed = True
+        return False
+    
+    def read(self):
+        return "content"
 
-# TODO: Test with no as
-# [[test]]
-# name = "with_no_as"
-# description = "with lock: ..."
+with File("data.txt") as f:
+    content = f.read()
+    assert content == "content"
+    assert not f.closed
+assert f.closed
+'''
+rust = '''
+struct File {
+    name: String,
+    closed: bool,
+}
 
-# TODO: Test with body
-# [[test]]
-# name = "with_body"
-# description = "Execute code in managed context"
+impl File {
+    fn new(name: &str) -> Self {
+        File {
+            name: name.to_string(),
+            closed: false,
+        }
+    }
+    
+    fn read(&self) -> String {
+        "content".to_string()
+    }
+}
+
+impl Drop for File {
+    fn drop(&mut self) {
+        self.closed = true;
+    }
+}
+
+{
+    let mut f = File::new("data.txt");
+    let content = f.read();
+    assert_eq!(content, "content");
+    assert!(!f.closed);
+} // Drop called here
+// assert!(f.closed); // f no longer in scope
+'''
+
+[[test]]
+name = "with_no_as"
+description = "with statement without as clause"
+tags = ["context-manager", "with"]
+python = '''
+class Lock:
+    def __init__(self):
+        self.locked = False
+    
+    def __enter__(self):
+        self.locked = True
+        return None  # No value returned
+    
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.locked = False
+        return False
+
+lock = Lock()
+with lock:
+    assert lock.locked
+assert not lock.locked
+'''
+rust = '''
+struct Lock {
+    locked: bool,
+}
+
+impl Lock {
+    fn new() -> Self {
+        Lock { locked: false }
+    }
+    
+    fn acquire(&mut self) {
+        self.locked = true;
+    }
+    
+    fn release(&mut self) {
+        self.locked = false;
+    }
+}
+
+impl Drop for Lock {
+    fn drop(&mut self) {
+        self.release();
+    }
+}
+
+let mut lock = Lock::new();
+{
+    lock.acquire();
+    assert!(lock.locked);
+} // Drop called, releases lock
+assert!(!lock.locked);
+'''
+
+[[test]]
+name = "with_body"
+description = "Execute code in managed context"
+tags = ["context-manager", "with"]
+python = '''
+class Counter:
+    def __init__(self):
+        self.count = 0
+    
+    def __enter__(self):
+        self.count += 1
+        return self
+    
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.count -= 1
+        return False
+
+counter = Counter()
+assert counter.count == 0
+with counter:
+    assert counter.count == 1
+    with counter:
+        assert counter.count == 2
+    assert counter.count == 1
+assert counter.count == 0
+'''
+rust = '''
+use std::rc::Rc;
+use std::cell::RefCell;
+
+struct Counter {
+    count: i32,
+}
+
+impl Counter {
+    fn new() -> Self {
+        Counter { count: 0 }
+    }
+    
+    fn enter(&mut self) {
+        self.count += 1;
+    }
+    
+    fn exit(&mut self) {
+        self.count -= 1;
+    }
+}
+
+let counter = Rc::new(RefCell::new(Counter::new()));
+assert_eq!(counter.borrow().count, 0);
+{
+    counter.borrow_mut().enter();
+    assert_eq!(counter.borrow().count, 1);
+    {
+        counter.borrow_mut().enter();
+        assert_eq!(counter.borrow().count, 2);
+        counter.borrow_mut().exit();
+    }
+    assert_eq!(counter.borrow().count, 1);
+    counter.borrow_mut().exit();
+}
+assert_eq!(counter.borrow().count, 0);
+'''
 
 # =============================================================================
 # Context Manager Protocol
 # =============================================================================
 
-# TODO: Test __enter__
-# [[test]]
-# name = "cm_enter"
-# description = "def __enter__(self): setup; return self"
+[[test]]
+name = "cm_enter"
+description = "__enter__ method for setup"
+tags = ["context-manager", "protocol"]
+python = '''
+class Resource:
+    def __init__(self):
+        self.setup_called = False
+    
+    def __enter__(self):
+        self.setup_called = True
+        return self
+    
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        return False
 
-# TODO: Test __exit__
-# [[test]]
-# name = "cm_exit"
-# description = "def __exit__(self, exc_type, exc_val, exc_tb): cleanup"
+r = Resource()
+assert not r.setup_called
+with r:
+    assert r.setup_called
+'''
+rust = '''
+struct Resource {
+    setup_called: bool,
+}
 
-# TODO: Test __enter__ return value
-# [[test]]
-# name = "cm_enter_return"
-# description = "Return value bound with as"
+impl Resource {
+    fn new() -> Self {
+        Resource { setup_called: false }
+    }
+    
+    fn setup(&mut self) {
+        self.setup_called = true;
+    }
+}
+
+let mut r = Resource::new();
+assert!(!r.setup_called);
+r.setup();
+assert!(r.setup_called);
+'''
+
+[[test]]
+name = "cm_exit"
+description = "__exit__ method for cleanup"
+tags = ["context-manager", "protocol"]
+python = '''
+class Resource:
+    def __init__(self):
+        self.cleanup_called = False
+    
+    def __enter__(self):
+        return self
+    
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.cleanup_called = True
+        return False
+
+r = Resource()
+assert not r.cleanup_called
+with r:
+    pass
+assert r.cleanup_called
+'''
+rust = '''
+struct Resource {
+    cleanup_called: bool,
+}
+
+impl Resource {
+    fn new() -> Self {
+        Resource { cleanup_called: false }
+    }
+}
+
+impl Drop for Resource {
+    fn drop(&mut self) {
+        self.cleanup_called = true;
+    }
+}
+
+let mut r = Resource::new();
+assert!(!r.cleanup_called);
+{
+    // Resource used here
+} // Drop called
+// assert!(r.cleanup_called); // r moved/dropped
+'''
+
+[[test]]
+name = "cm_enter_return"
+description = "__enter__ return value bound with as"
+tags = ["context-manager", "protocol"]
+python = '''
+class ResourceFactory:
+    def __enter__(self):
+        return "resource_handle"
+    
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        return False
+
+with ResourceFactory() as handle:
+    assert handle == "resource_handle"
+'''
+rust = '''
+struct ResourceFactory;
+
+impl ResourceFactory {
+    fn acquire(&self) -> String {
+        "resource_handle".to_string()
+    }
+}
+
+let factory = ResourceFactory;
+let handle = factory.acquire();
+assert_eq!(handle, "resource_handle");
+'''
 
 # =============================================================================
 # Exception Handling
 # =============================================================================
 
-# TODO: Test __exit__ on success
-# [[test]]
-# name = "cm_exit_success"
-# description = "__exit__(None, None, None)"
+[[test]]
+name = "cm_exit_success"
+description = "__exit__ called with None on success"
+tags = ["context-manager", "exceptions"]
+python = '''
+class Observer:
+    def __init__(self):
+        self.exc_info = None
+    
+    def __enter__(self):
+        return self
+    
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.exc_info = (exc_type, exc_val, exc_tb)
+        return False
 
-# TODO: Test __exit__ on exception
-# [[test]]
-# name = "cm_exit_exception"
-# description = "__exit__ receives exception info"
+obs = Observer()
+with obs:
+    x = 1 + 1
+assert obs.exc_info == (None, None, None)
+'''
+rust = '''
+struct Observer {
+    success: bool,
+}
 
-# TODO: Test suppress exception
-# [[test]]
-# name = "cm_suppress"
-# description = "Return True from __exit__ to suppress"
+impl Observer {
+    fn new() -> Self {
+        Observer { success: false }
+    }
+}
 
-# TODO: Test propagate exception
-# [[test]]
-# name = "cm_propagate"
-# description = "Return False/None to propagate"
+impl Drop for Observer {
+    fn drop(&mut self) {
+        self.success = true;
+    }
+}
+
+{
+    let mut obs = Observer::new();
+    let x = 1 + 1;
+} // Drop called on success
+'''
+
+[[test]]
+name = "cm_exit_exception"
+description = "__exit__ receives exception info"
+tags = ["context-manager", "exceptions"]
+python = '''
+class ExceptionLogger:
+    def __init__(self):
+        self.exc_type = None
+    
+    def __enter__(self):
+        return self
+    
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.exc_type = exc_type
+        return False  # Don't suppress
+
+logger = ExceptionLogger()
+try:
+    with logger:
+        raise ValueError("test")
+except ValueError:
+    pass
+assert logger.exc_type == ValueError
+'''
+rust = '''
+// Rust uses Result for explicit error handling
+struct ExceptionLogger {
+    exc_occurred: bool,
+}
+
+impl ExceptionLogger {
+    fn new() -> Self {
+        ExceptionLogger { exc_occurred: false }
+    }
+    
+    fn log_error(&mut self) {
+        self.exc_occurred = true;
+    }
+}
+
+let mut logger = ExceptionLogger::new();
+let result: Result<(), String> = (|| {
+    Err("test".to_string())
+})();
+
+if result.is_err() {
+    logger.log_error();
+}
+assert!(logger.exc_occurred);
+'''
+
+[[test]]
+name = "cm_suppress"
+description = "Return True from __exit__ to suppress exception"
+tags = ["context-manager", "exceptions"]
+python = '''
+class Suppressor:
+    def __enter__(self):
+        return self
+    
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        return True  # Suppress all exceptions
+
+with Suppressor():
+    raise ValueError("This will be suppressed")
+# No exception propagated
+'''
+rust = '''
+// Rust doesn't have exception suppression; use Result
+fn with_suppressor<F>(f: F) 
+where F: FnOnce() -> Result<(), String>
+{
+    let _ = f(); // Ignore error
+}
+
+with_suppressor(|| {
+    Err("This will be suppressed".to_string())
+});
+// Error suppressed by ignoring Result
+'''
+
+[[test]]
+name = "cm_propagate"
+description = "Return False/None to propagate exception"
+tags = ["context-manager", "exceptions"]
+python = '''
+class Propagator:
+    def __enter__(self):
+        return self
+    
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        return False  # Don't suppress
+
+caught = False
+try:
+    with Propagator():
+        raise ValueError("This will propagate")
+except ValueError:
+    caught = True
+assert caught
+'''
+rust = '''
+// Rust propagates errors explicitly with Result
+fn with_propagator<F>(f: F) -> Result<(), String>
+where F: FnOnce() -> Result<(), String>
+{
+    f() // Propagate error with ?
+}
+
+let result = with_propagator(|| {
+    Err("This will propagate".to_string())
+});
+assert!(result.is_err());
+'''
 
 # =============================================================================
 # Class-Based Context Manager
 # =============================================================================
 
-# TODO: Test custom context manager class
-# [[test]]
-# name = "cm_custom_class"
-# description = "Class implementing __enter__ and __exit__"
+[[test]]
+name = "cm_custom_class"
+description = "Class implementing __enter__ and __exit__"
+tags = ["context-manager", "class"]
+python = '''
+class Database:
+    def __init__(self):
+        self.connected = False
+    
+    def __enter__(self):
+        self.connected = True
+        return self
+    
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.connected = False
+        return False
+    
+    def query(self):
+        assert self.connected
+        return "result"
 
-# TODO: Test reusable context manager
-# [[test]]
-# name = "cm_reusable"
-# description = "Context manager used multiple times"
+db = Database()
+assert not db.connected
+with db:
+    assert db.connected
+    result = db.query()
+    assert result == "result"
+assert not db.connected
+'''
+rust = '''
+struct Database {
+    connected: bool,
+}
 
-# TODO: Test context manager with state
-# [[test]]
-# name = "cm_stateful"
-# description = "Context manager maintaining state"
+impl Database {
+    fn new() -> Self {
+        Database { connected: false }
+    }
+    
+    fn connect(&mut self) {
+        self.connected = true;
+    }
+    
+    fn disconnect(&mut self) {
+        self.connected = false;
+    }
+    
+    fn query(&self) -> String {
+        assert!(self.connected);
+        "result".to_string()
+    }
+}
+
+impl Drop for Database {
+    fn drop(&mut self) {
+        self.disconnect();
+    }
+}
+
+let mut db = Database::new();
+assert!(!db.connected);
+{
+    db.connect();
+    assert!(db.connected);
+    let result = db.query();
+    assert_eq!(result, "result");
+} // Drop called
+assert!(!db.connected);
+'''
+
+[[test]]
+name = "cm_reusable"
+description = "Context manager used multiple times"
+tags = ["context-manager", "class"]
+python = '''
+class Connection:
+    def __init__(self):
+        self.active = False
+    
+    def __enter__(self):
+        self.active = True
+        return self
+    
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.active = False
+        return False
+
+conn = Connection()
+
+with conn:
+    assert conn.active
+assert not conn.active
+
+with conn:
+    assert conn.active
+assert not conn.active
+'''
+rust = '''
+struct Connection {
+    active: bool,
+}
+
+impl Connection {
+    fn new() -> Self {
+        Connection { active: false }
+    }
+    
+    fn open(&mut self) {
+        self.active = true;
+    }
+    
+    fn close(&mut self) {
+        self.active = false;
+    }
+}
+
+let mut conn = Connection::new();
+
+{
+    conn.open();
+    assert!(conn.active);
+    conn.close();
+}
+assert!(!conn.active);
+
+{
+    conn.open();
+    assert!(conn.active);
+    conn.close();
+}
+assert!(!conn.active);
+'''
+
+[[test]]
+name = "cm_stateful"
+description = "Context manager maintaining state"
+tags = ["context-manager", "class"]
+python = '''
+class Transaction:
+    def __init__(self):
+        self.depth = 0
+        self.committed = False
+    
+    def __enter__(self):
+        self.depth += 1
+        return self
+    
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.depth -= 1
+        if self.depth == 0 and exc_type is None:
+            self.committed = True
+        return False
+
+txn = Transaction()
+assert txn.depth == 0
+with txn:
+    assert txn.depth == 1
+    with txn:
+        assert txn.depth == 2
+    assert txn.depth == 1
+assert txn.depth == 0
+assert txn.committed
+'''
+rust = '''
+struct Transaction {
+    depth: i32,
+    committed: bool,
+}
+
+impl Transaction {
+    fn new() -> Self {
+        Transaction { depth: 0, committed: false }
+    }
+    
+    fn begin(&mut self) {
+        self.depth += 1;
+    }
+    
+    fn end(&mut self, success: bool) {
+        self.depth -= 1;
+        if self.depth == 0 && success {
+            self.committed = true;
+        }
+    }
+}
+
+let mut txn = Transaction::new();
+assert_eq!(txn.depth, 0);
+txn.begin();
+assert_eq!(txn.depth, 1);
+txn.begin();
+assert_eq!(txn.depth, 2);
+txn.end(true);
+assert_eq!(txn.depth, 1);
+txn.end(true);
+assert_eq!(txn.depth, 0);
+assert!(txn.committed);
+'''
 
 # =============================================================================
 # Use Cases
 # =============================================================================
 
-# TODO: Test file handling
-# [[test]]
-# name = "cm_file"
-# description = "with open() for file handling"
+[[test]]
+name = "cm_file"
+description = "File handling with context manager"
+tags = ["context-manager", "use-case"]
+skip = ["runtime-file-io"]
+python = '''
+# Conceptual example - file operations
+class MockFile:
+    def __init__(self, name):
+        self.name = name
+        self.closed = False
+    
+    def __enter__(self):
+        return self
+    
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.closed = True
+        return False
+    
+    def write(self, data):
+        assert not self.closed
 
-# TODO: Test lock handling
-# [[test]]
-# name = "cm_lock"
-# description = "with lock: for thread safety"
+with MockFile("output.txt") as f:
+    f.write("data")
+    assert not f.closed
+assert f.closed
+'''
+rust = '''
+use std::fs::File;
+use std::io::Write;
 
-# TODO: Test database transaction
-# [[test]]
-# name = "cm_transaction"
-# description = "Commit/rollback on exit"
+// In Rust, File implements Drop automatically
+// Conceptual example
+struct MockFile {
+    name: String,
+    closed: bool,
+}
 
-# TODO: Test temporary state
-# [[test]]
-# name = "cm_temp_state"
-# description = "Save and restore state"
+impl MockFile {
+    fn new(name: &str) -> Self {
+        MockFile {
+            name: name.to_string(),
+            closed: false,
+        }
+    }
+    
+    fn write(&mut self, data: &str) {
+        assert!(!self.closed);
+    }
+}
+
+impl Drop for MockFile {
+    fn drop(&mut self) {
+        self.closed = true;
+    }
+}
+
+{
+    let mut f = MockFile::new("output.txt");
+    f.write("data");
+    assert!(!f.closed);
+} // Drop called
+'''
+
+[[test]]
+name = "cm_lock"
+description = "Thread lock with context manager"
+tags = ["context-manager", "use-case"]
+python = '''
+class ThreadLock:
+    def __init__(self):
+        self.locked = False
+    
+    def __enter__(self):
+        self.locked = True
+        return self
+    
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.locked = False
+        return False
+
+lock = ThreadLock()
+with lock:
+    assert lock.locked
+    # Critical section
+assert not lock.locked
+'''
+rust = '''
+use std::sync::Mutex;
+
+// Rust's Mutex guard is a context manager
+let data = Mutex::new(0);
+{
+    let mut guard = data.lock().unwrap();
+    *guard = 42;
+} // MutexGuard dropped, lock released
+'''
+
+[[test]]
+name = "cm_transaction"
+description = "Database transaction with commit/rollback"
+tags = ["context-manager", "use-case"]
+python = '''
+class Transaction:
+    def __init__(self):
+        self.committed = False
+        self.rolled_back = False
+    
+    def __enter__(self):
+        return self
+    
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if exc_type is None:
+            self.committed = True
+        else:
+            self.rolled_back = True
+        return False
+
+# Success case
+txn1 = Transaction()
+with txn1:
+    pass
+assert txn1.committed
+assert not txn1.rolled_back
+
+# Failure case
+txn2 = Transaction()
+try:
+    with txn2:
+        raise ValueError()
+except ValueError:
+    pass
+assert not txn2.committed
+assert txn2.rolled_back
+'''
+rust = '''
+struct Transaction {
+    committed: bool,
+    rolled_back: bool,
+}
+
+impl Transaction {
+    fn new() -> Self {
+        Transaction {
+            committed: false,
+            rolled_back: false,
+        }
+    }
+    
+    fn commit(&mut self) {
+        self.committed = true;
+    }
+    
+    fn rollback(&mut self) {
+        self.rolled_back = true;
+    }
+}
+
+// Success case
+let mut txn1 = Transaction::new();
+let result1: Result<(), ()> = Ok(());
+if result1.is_ok() {
+    txn1.commit();
+}
+assert!(txn1.committed);
+assert!(!txn1.rolled_back);
+
+// Failure case
+let mut txn2 = Transaction::new();
+let result2: Result<(), String> = Err("error".to_string());
+if result2.is_err() {
+    txn2.rollback();
+}
+assert!(!txn2.committed);
+assert!(txn2.rolled_back);
+'''
+
+[[test]]
+name = "cm_temp_state"
+description = "Save and restore temporary state"
+tags = ["context-manager", "use-case"]
+python = '''
+class StateManager:
+    def __init__(self):
+        self.value = 10
+        self.saved = None
+    
+    def __enter__(self):
+        self.saved = self.value
+        return self
+    
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.value = self.saved
+        return False
+
+manager = StateManager()
+assert manager.value == 10
+with manager:
+    manager.value = 20
+    assert manager.value == 20
+assert manager.value == 10  # Restored
+'''
+rust = '''
+struct StateManager {
+    value: i32,
+}
+
+impl StateManager {
+    fn new() -> Self {
+        StateManager { value: 10 }
+    }
+    
+    fn save(&self) -> i32 {
+        self.value
+    }
+    
+    fn restore(&mut self, saved: i32) {
+        self.value = saved;
+    }
+}
+
+let mut manager = StateManager::new();
+assert_eq!(manager.value, 10);
+{
+    let saved = manager.save();
+    manager.value = 20;
+    assert_eq!(manager.value, 20);
+    manager.restore(saved);
+}
+assert_eq!(manager.value, 10);
+'''
 
 # =============================================================================
 # Edge Cases
 # =============================================================================
 
-# TODO: Test exception in __enter__
-# [[test]]
-# name = "cm_enter_exception"
-# description = "__exit__ not called if __enter__ fails"
+[[test]]
+name = "cm_enter_exception"
+description = "__exit__ not called if __enter__ fails"
+tags = ["context-manager", "edge-case"]
+python = '''
+class FailingEnter:
+    def __init__(self):
+        self.exit_called = False
+    
+    def __enter__(self):
+        raise ValueError("Enter failed")
+    
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.exit_called = True
+        return False
 
-# TODO: Test exception in __exit__
-# [[test]]
-# name = "cm_exit_exception"
-# description = "Exception in __exit__ masks original"
+cm = FailingEnter()
+try:
+    with cm:
+        pass
+except ValueError:
+    pass
+assert not cm.exit_called  # __exit__ not called
+'''
+rust = '''
+// Rust: Drop not called if constructor fails
+struct Resource {
+    dropped: bool,
+}
 
-# TODO: Test return in with block
-# [[test]]
-# name = "cm_return"
-# description = "return in with block still calls __exit__"
+impl Resource {
+    fn new() -> Result<Self, String> {
+        Err("Constructor failed".to_string())
+    }
+}
 
-# TODO: Test break in with block
-# [[test]]
-# name = "cm_break"
-# description = "break in with block still calls __exit__"
+impl Drop for Resource {
+    fn drop(&mut self) {
+        self.dropped = true;
+    }
+}
+
+let result = Resource::new();
+assert!(result.is_err());
+// Drop not called because resource was never created
+'''
+
+[[test]]
+name = "cm_exit_exception"
+description = "Exception in __exit__ masks original"
+tags = ["context-manager", "edge-case"]
+python = '''
+class ExitRaises:
+    def __enter__(self):
+        return self
+    
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        raise RuntimeError("Exit error")
+
+caught = None
+try:
+    with ExitRaises():
+        raise ValueError("Body error")
+except RuntimeError as e:
+    caught = e
+assert str(caught) == "Exit error"  # Exit exception masks body exception
+'''
+rust = '''
+// Rust: panicking in Drop is problematic
+// This is a conceptual example showing error handling
+
+fn cleanup_that_fails() -> Result<(), String> {
+    Err("Cleanup failed".to_string())
+}
+
+let body_error: Result<(), String> = Err("Body error".to_string());
+let cleanup_error = cleanup_that_fails();
+
+// In practice, handle both errors carefully
+// Cleanup error would typically be prioritized
+assert!(cleanup_error.is_err());
+'''
+
+[[test]]
+name = "cm_return"
+description = "return in with block still calls __exit__"
+tags = ["context-manager", "edge-case"]
+python = '''
+class Tracker:
+    def __init__(self):
+        self.exit_called = False
+    
+    def __enter__(self):
+        return self
+    
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.exit_called = True
+        return False
+
+tracker = Tracker()
+
+def func():
+    with tracker:
+        return "early"
+    return "late"
+
+result = func()
+assert result == "early"
+assert tracker.exit_called  # __exit__ still called
+'''
+rust = '''
+// Rust: Drop still called on early return
+struct Tracker {
+    exit_called: bool,
+}
+
+impl Tracker {
+    fn new() -> Self {
+        Tracker { exit_called: false }
+    }
+}
+
+impl Drop for Tracker {
+    fn drop(&mut self) {
+        // In real code, would use RefCell or similar to track
+        // Conceptual example
+    }
+}
+
+fn func() -> String {
+    let _tracker = Tracker::new();
+    return "early".to_string(); // Drop still called
+    // "late".to_string()
+}
+
+let result = func();
+assert_eq!(result, "early");
+'''
+
+[[test]]
+name = "cm_break"
+description = "break in with block still calls __exit__"
+tags = ["context-manager", "edge-case"]
+python = '''
+class Counter:
+    def __init__(self):
+        self.enter_count = 0
+        self.exit_count = 0
+    
+    def __enter__(self):
+        self.enter_count += 1
+        return self
+    
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.exit_count += 1
+        return False
+
+counter = Counter()
+for i in range(5):
+    with counter:
+        if i == 2:
+            break
+assert counter.enter_count == 3  # Entered 0, 1, 2
+assert counter.exit_count == 3   # Exited all 3 times
+'''
+rust = '''
+// Rust: Drop called even with break
+struct Counter {
+    enter_count: i32,
+    exit_count: i32,
+}
+
+impl Counter {
+    fn new() -> Self {
+        Counter { enter_count: 0, exit_count: 0 }
+    }
+    
+    fn enter(&mut self) {
+        self.enter_count += 1;
+    }
+}
+
+struct Guard<'a> {
+    counter: &'a mut Counter,
+}
+
+impl<'a> Drop for Guard<'a> {
+    fn drop(&mut self) {
+        self.counter.exit_count += 1;
+    }
+}
+
+let mut counter = Counter::new();
+for i in 0..5 {
+    counter.enter();
+    let _guard = Guard { counter: &mut counter };
+    if i == 2 {
+        break;
+    }
+    // Guard dropped here in each iteration
+}
+assert_eq!(counter.enter_count, 3);
+assert_eq!(counter.exit_count, 3);
+'''

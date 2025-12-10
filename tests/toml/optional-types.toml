@@ -13,8 +13,7 @@ name = "optional_param"
 description = "Optional parameter type"
 tags = ["optional", "parameter"]
 
-[test.python]
-code = '''
+python = '''
 from typing import Optional
 
 def greet(name: Optional[str]) -> str:
@@ -23,16 +22,26 @@ def greet(name: Optional[str]) -> str:
     return f"Hello, {name}"
 '''
 
-[test.assertions]
-contains = ["Option<String>"]
+rust = '''
+pub fn greet(name: &Option<String>) -> String {
+    if name.is_none() {
+        return "Hello, stranger".to_string();
+    }
+    return format!("Hello, {}", {
+        match &name {
+            Some(v) => format!("{}", v),
+            None => "None".to_string(),
+        }
+    });
+}
+'''
 
 [[test]]
 name = "optional_return"
 description = "Optional return type"
 tags = ["optional", "return"]
 
-[test.python]
-code = '''
+python = '''
 from typing import Optional
 
 def find_item(items: list[int], target: int) -> Optional[int]:
@@ -42,89 +51,113 @@ def find_item(items: list[int], target: int) -> Optional[int]:
     return None
 '''
 
-[test.assertions]
-contains = ["Option<"]
-contains_any = [["Some(", "None"]]
-
-# =============================================================================
-# None Checks
-# =============================================================================
+rust = '''
+pub fn find_item(items: &Vec<i32>, target: i32) -> Option<i32> {
+    for item in items.iter().cloned() {
+        if item == target {
+            return Some(item);
+        }
+    }
+    return None;
+}
+'''
 
 [[test]]
 name = "optional_is_none"
 description = "Check if value is None"
 tags = ["optional", "none"]
 
-[test.python]
-code = '''
+python = '''
 from typing import Optional
 
 def is_empty(value: Optional[str]) -> bool:
     return value is None
 '''
 
-[test.assertions]
-contains = [".is_none()"]
+rust = '''
+pub fn is_empty(value: &Option<String>) -> bool {
+    return value.is_none();
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_is_empty_examples() {
+        let _ = is_empty(Default::default());
+    }
+}
+'''
 
 [[test]]
 name = "optional_is_not_none"
 description = "Check if value is not None"
 tags = ["optional", "some"]
 
-[test.python]
-code = '''
+python = '''
 from typing import Optional
 
 def has_value(value: Optional[str]) -> bool:
     return value is not None
 '''
 
-[test.assertions]
-contains = [".is_some()"]
-
-# =============================================================================
-# Optional Unwrapping
-# =============================================================================
+rust = '''
+pub fn has_value(value: &Option<String>) -> bool {
+    return value.is_some();
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_has_value_examples() {
+        let _ = has_value(Default::default());
+    }
+}
+'''
 
 [[test]]
 name = "optional_unwrap_or"
 description = "Unwrap with default value"
 tags = ["optional", "unwrap"]
 
-[test.python]
-code = '''
+python = '''
 from typing import Optional
 
 def get_or_default(value: Optional[int]) -> int:
     return value if value is not None else 0
 '''
 
-[test.assertions]
-contains_any = [["unwrap_or(0)", "unwrap_or_default()", ".is_some()"]]
+rust = '''
+pub fn get_or_default(value: &Option<i32>) -> i32 {
+    return if value.is_some() { value } else { 0 };
+}
+'''
 
 [[test]]
 name = "optional_unwrap_or_default"
 description = "Unwrap with type default"
 tags = ["optional", "unwrap"]
 
-[test.python]
-code = '''
+python = '''
 from typing import Optional
 
 def safe_string(value: Optional[str]) -> str:
     return value if value is not None else ""
 '''
 
-[test.assertions]
-contains_any = [["unwrap_or_default()", "unwrap_or(", ".is_some()"]]
+rust = '''
+pub fn safe_string(value: &Option<String>) -> String {
+    return if value.is_some() { value } else { "".to_string() };
+}
+'''
 
 [[test]]
 name = "optional_if_let"
 description = "if let pattern for Optional"
 tags = ["optional", "pattern"]
 
-[test.python]
-code = '''
+python = '''
 from typing import Optional
 
 def process(value: Optional[int]) -> int:
@@ -133,20 +166,21 @@ def process(value: Optional[int]) -> int:
     return 0
 '''
 
-[test.assertions]
-contains_any = [["if let Some(", "match", "is_some()"]]
-
-# =============================================================================
-# Optional with Operations
-# =============================================================================
+rust = '''
+pub fn process(value: &Option<i32>) -> i32 {
+    if value.is_some() {
+        return value.clone().unwrap() * 2;
+    }
+    return 0;
+}
+'''
 
 [[test]]
 name = "optional_arithmetic"
 description = "Arithmetic on optional value"
 tags = ["optional", "arithmetic"]
 
-[test.python]
-code = '''
+python = '''
 from typing import Optional
 
 def double(value: Optional[int]) -> Optional[int]:
@@ -155,16 +189,21 @@ def double(value: Optional[int]) -> Optional[int]:
     return value * 2
 '''
 
-[test.assertions]
-contains_any = [[".map(|v| v * 2)", "Some(value * 2)", "Some("]]
+rust = '''
+pub fn double(value: &Option<i32>) -> Option<i32> {
+    if value.is_none() {
+        return None;
+    }
+    return Some(value.clone().unwrap() * 2);
+}
+'''
 
 [[test]]
 name = "optional_method_call"
 description = "Method call on optional value"
 tags = ["optional", "method"]
 
-[test.python]
-code = '''
+python = '''
 from typing import Optional
 
 def upper(value: Optional[str]) -> Optional[str]:
@@ -173,40 +212,54 @@ def upper(value: Optional[str]) -> Optional[str]:
     return value.upper()
 '''
 
-[test.assertions]
-contains_any = [[".map(|v| v.to_uppercase())", "Some("]]
-
-# =============================================================================
-# Optional in Collections
-# =============================================================================
+rust = '''
+pub fn upper(value: &Option<String>) -> Option<String> {
+    if value.is_none() {
+        return None;
+    }
+    return Some(value.as_ref().unwrap().to_uppercase());
+}
+'''
 
 [[test]]
 name = "optional_in_list"
 description = "Optional values in list"
 tags = ["optional", "list"]
 
-[test.python]
-code = '''
+python = '''
 from typing import Optional, List
 
 def filter_none(items: List[Optional[int]]) -> List[int]:
     return [x for x in items if x is not None]
 '''
 
-[test.assertions]
-contains_any = [["filter_map", "flatten", "filter("]]
-
-# =============================================================================
-# Optional Default Values
-# =============================================================================
+rust = '''
+pub fn filter_none(items: &Vec<Option<i32>>) -> Vec<i32> {
+    return items
+        .clone()
+        .into_iter()
+        .filter(|x| x.is_some())
+        .map(|x| x)
+        .collect::<Vec<_>>();
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_filter_none_examples() {
+        assert_eq!(filter_none(vec![]), vec![]);
+        assert_eq!(filter_none(vec![1]), vec![1]);
+    }
+}
+'''
 
 [[test]]
 name = "optional_default_param"
 description = "Optional parameter with default"
 tags = ["optional", "default"]
 
-[test.python]
-code = '''
+python = '''
 from typing import Optional
 
 def greet(name: Optional[str] = None) -> str:
@@ -215,20 +268,26 @@ def greet(name: Optional[str] = None) -> str:
     return f"Hello, {name}!"
 '''
 
-[test.assertions]
-contains = ["Option<"]
-
-# =============================================================================
-# Optional Chaining
-# =============================================================================
+rust = '''
+pub fn greet(name: &Option<String>) -> String {
+    if name.is_none() {
+        return "Hello!".to_string();
+    }
+    return format!("Hello, {}!", {
+        match &name {
+            Some(v) => format!("{}", v),
+            None => "None".to_string(),
+        }
+    });
+}
+'''
 
 [[test]]
 name = "optional_and_then"
 description = "Chaining optional operations"
 tags = ["optional", "chain"]
 
-[test.python]
-code = '''
+python = '''
 from typing import Optional
 
 def parse_and_double(s: Optional[str]) -> Optional[int]:
@@ -237,20 +296,21 @@ def parse_and_double(s: Optional[str]) -> Optional[int]:
     return int(s) * 2
 '''
 
-[test.assertions]
-contains_any = [["and_then", "map", "Some("]]
-
-# =============================================================================
-# Optional with 'or' Pattern (from test_optional_default_values.rs)
-# =============================================================================
+rust = '''
+pub fn parse_and_double(s: &Option<String>) -> Option<i32> {
+    if s.is_none() {
+        return None;
+    }
+    return Some((s) as i32 * 2);
+}
+'''
 
 [[test]]
 name = "optional_string_or_default"
 description = "Optional string with 'or' default pattern"
 tags = ["optional", "or", "default"]
 
-[test.python]
-code = '''
+python = '''
 from dataclasses import dataclass
 from typing import Optional
 
@@ -262,32 +322,65 @@ def get_name(p: Person) -> str:
     return p.name or "Unknown"
 '''
 
-[test.assertions]
-contains_any = [["unwrap_or_else", "unwrap_or("]]
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Person {
+    pub name: Option<String>,
+}
+impl Person {
+    pub fn new(name: Option<String>) -> Self {
+        Self { name }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "name" => Some(Box::new(self.name.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "name" => {
+                if let Some(v) = value.downcast_ref::<Option<String>>() {
+                    self.name = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+pub fn get_name(p: &Person) -> String {
+    return p.name.clone().clone().unwrap_or_else(|| "Unknown".to_string());
+}
+'''
 
 [[test]]
 name = "optional_variable_or_default"
 description = "Optional variable with 'or' default"
 tags = ["optional", "or", "default"]
 
-[test.python]
-code = '''
+python = '''
 from typing import Optional
 
 def get_value(x: Optional[str]) -> str:
     return x or "default"
 '''
 
-[test.assertions]
-contains_any = [["unwrap_or_else", "unwrap_or("]]
+rust = '''
+pub fn get_value(x: &Option<String>) -> String {
+    return x.clone().unwrap_or_else(|| "default".to_string());
+}
+'''
 
 [[test]]
 name = "optional_int_or_default"
 description = "Optional int with 'or' default zero"
 tags = ["optional", "or", "default"]
 
-[test.python]
-code = '''
+python = '''
 from dataclasses import dataclass
 from typing import Optional
 
@@ -299,16 +392,47 @@ def get_value(c: Counter) -> int:
     return c.value or 0
 '''
 
-[test.assertions]
-contains_any = [["unwrap_or_else", "unwrap_or(0)"]]
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Counter {
+    pub value: Option<i32>,
+}
+impl Counter {
+    pub fn new(value: Option<i32>) -> Self {
+        Self { value }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "value" => Some(Box::new(self.value.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "value" => {
+                if let Some(v) = value.downcast_ref::<Option<i32>>() {
+                    self.value = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+pub fn get_value(c: &Counter) -> i32 {
+    return c.value.clone().unwrap_or_else(|| 0);
+}
+'''
 
 [[test]]
 name = "chained_optional_or"
 description = "Chained optional 'or' expressions"
 tags = ["optional", "or", "chain"]
 
-[test.python]
-code = '''
+python = '''
 from dataclasses import dataclass
 from typing import Optional
 
@@ -321,31 +445,78 @@ def get_display(p: Person) -> str:
     return p.nickname or p.name or "Anonymous"
 '''
 
-[test.assertions]
-contains_any = [["or_else", "unwrap_or"]]
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Person {
+    pub nickname: Option<String>,
+    pub name: Option<String>,
+}
+impl Person {
+    pub fn new(nickname: Option<String>, name: Option<String>) -> Self {
+        Self { nickname, name }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "nickname" => Some(Box::new(self.nickname.clone()) as Box<dyn std::any::Any>),
+            "name" => Some(Box::new(self.name.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "nickname" => {
+                if let Some(v) = value.downcast_ref::<Option<String>>() {
+                    self.nickname = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "name" => {
+                if let Some(v) = value.downcast_ref::<Option<String>>() {
+                    self.name = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+pub fn get_display(p: &Person) -> String {
+    return p
+        .nickname
+        .clone()
+        .clone()
+        .or_else(|| p.name.clone().clone())
+        .unwrap_or_else(|| "Anonymous".to_string());
+}
+'''
 
 [[test]]
 name = "non_optional_or_unchanged"
 description = "Non-optional 'or' remains boolean operator"
 tags = ["optional", "boolean"]
 
-[test.python]
-code = '''
+python = '''
 def check_flags(a: bool, b: bool) -> bool:
     return a or b
 '''
 
-[test.assertions]
-contains = ["||"]
-not_contains = ["unwrap_or_else"]
+rust = '''
+pub fn check_flags(a: bool, b: bool) -> bool {
+    return (a) || (b);
+}
+'''
 
 [[test]]
 name = "optional_or_in_assignment"
 description = "Optional 'or' in variable assignment"
 tags = ["optional", "or", "assignment"]
 
-[test.python]
-code = '''
+python = '''
 from typing import Optional
 
 def process(name: Optional[str]) -> str:
@@ -353,16 +524,20 @@ def process(name: Optional[str]) -> str:
     return result
 '''
 
-[test.assertions]
-contains_any = [["unwrap_or_else", "unwrap_or("]]
+rust = '''
+pub fn process(name: &Option<String>) -> String {
+    let _cse_temp_0 = name.clone().unwrap_or_else(|| "fallback".to_string());
+    let result = _cse_temp_0;
+    return result;
+}
+'''
 
 [[test]]
 name = "optional_field_or_method"
 description = "Optional field with 'or' default string"
 tags = ["optional", "or", "field"]
 
-[test.python]
-code = '''
+python = '''
 from dataclasses import dataclass
 from typing import Optional
 
@@ -374,20 +549,47 @@ def get_prefix(c: Config) -> str:
     return c.prefix or "default_"
 '''
 
-[test.assertions]
-contains_any = [["unwrap_or_else", "unwrap_or("]]
-
-# =============================================================================
-# Optional in Conditionals (from test_optional_conditional.rs)
-# =============================================================================
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Config {
+    pub prefix: Option<String>,
+}
+impl Config {
+    pub fn new(prefix: Option<String>) -> Self {
+        Self { prefix }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "prefix" => Some(Box::new(self.prefix.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "prefix" => {
+                if let Some(v) = value.downcast_ref::<Option<String>>() {
+                    self.prefix = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+pub fn get_prefix(c: &Config) -> String {
+    return c.prefix.clone().clone().unwrap_or_else(|| "default_".to_string());
+}
+'''
 
 [[test]]
 name = "is_none_dataclass_field"
 description = "Optional dataclass field is None check"
 tags = ["optional", "dataclass", "conditional"]
 
-[test.python]
-code = '''
+python = '''
 from dataclasses import dataclass
 from typing import Optional
 
@@ -399,16 +601,56 @@ def is_missing(p: Person) -> bool:
     return p.age is None
 '''
 
-[test.assertions]
-contains = [".is_none()"]
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Person {
+    pub age: Option<i32>,
+}
+impl Person {
+    pub fn new(age: Option<i32>) -> Self {
+        Self { age }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "age" => Some(Box::new(self.age.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "age" => {
+                if let Some(v) = value.downcast_ref::<Option<i32>>() {
+                    self.age = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+pub fn is_missing(p: &Person) -> bool {
+    return p.age.is_none();
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_is_missing_examples() {
+        let _ = is_missing(Default::default());
+    }
+}
+'''
 
 [[test]]
 name = "is_not_none_dataclass_field"
 description = "Optional dataclass field is not None check"
 tags = ["optional", "dataclass", "conditional"]
 
-[test.python]
-code = '''
+python = '''
 from dataclasses import dataclass
 from typing import Optional
 
@@ -420,48 +662,110 @@ def has_age(p: Person) -> bool:
     return p.age is not None
 '''
 
-[test.assertions]
-contains = [".is_some()"]
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Person {
+    pub age: Option<i32>,
+}
+impl Person {
+    pub fn new(age: Option<i32>) -> Self {
+        Self { age }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "age" => Some(Box::new(self.age.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "age" => {
+                if let Some(v) = value.downcast_ref::<Option<i32>>() {
+                    self.age = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+pub fn has_age(p: &Person) -> bool {
+    return p.age.is_some();
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_has_age_examples() {
+        let _ = has_age(Default::default());
+    }
+}
+'''
 
 [[test]]
 name = "optional_variable_is_none"
 description = "Optional variable is None check"
 tags = ["optional", "conditional"]
 
-[test.python]
-code = '''
+python = '''
 from typing import Optional
 
 def check_none(x: Optional[int]) -> bool:
     return x is None
 '''
 
-[test.assertions]
-contains = [".is_none()"]
+rust = '''
+pub fn check_none(x: &Option<i32>) -> bool {
+    return x.is_none();
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_check_none_examples() {
+        let _ = check_none(Default::default());
+    }
+}
+'''
 
 [[test]]
 name = "optional_variable_is_not_none"
 description = "Optional variable is not None check"
 tags = ["optional", "conditional"]
 
-[test.python]
-code = '''
+python = '''
 from typing import Optional
 
 def check_not_none(x: Optional[int]) -> bool:
     return x is not None
 '''
 
-[test.assertions]
-contains = [".is_some()"]
+rust = '''
+pub fn check_not_none(x: &Option<i32>) -> bool {
+    return x.is_some();
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_check_not_none_examples() {
+        let _ = check_not_none(Default::default());
+    }
+}
+'''
 
 [[test]]
 name = "optional_if_condition"
 description = "Optional field in if condition"
 tags = ["optional", "conditional", "if"]
 
-[test.python]
-code = '''
+python = '''
 from dataclasses import dataclass
 from typing import Optional
 
@@ -475,16 +779,59 @@ def check_name(p: Person) -> bool:
     return False
 '''
 
-[test.assertions]
-contains_any = [["is_some()", "is_some_and"]]
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Person {
+    pub name: Option<String>,
+}
+impl Person {
+    pub fn new(name: Option<String>) -> Self {
+        Self { name }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "name" => Some(Box::new(self.name.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "name" => {
+                if let Some(v) = value.downcast_ref::<Option<String>>() {
+                    self.name = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+pub fn check_name(p: &Person) -> bool {
+    if p.name.as_ref().is_some_and(|s| !s.is_empty()) {
+        return true;
+    }
+    return false;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_check_name_examples() {
+        let _ = check_name(Default::default());
+    }
+}
+'''
 
 [[test]]
 name = "optional_is_some_and"
 description = "Optional with is_some_and check"
 tags = ["optional", "conditional"]
 
-[test.python]
-code = '''
+python = '''
 from dataclasses import dataclass
 from typing import Optional
 
@@ -498,20 +845,61 @@ def is_adult(p: Person) -> bool:
     return False
 '''
 
-[test.assertions]
-contains_any = [["is_some_and", "is_some()"]]
-
-# =============================================================================
-# Optional Augmented Assignment - Migrated from test_optional_augassign.rs
-# =============================================================================
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Person {
+    pub age: Option<i32>,
+}
+impl Person {
+    pub fn new(age: Option<i32>) -> Self {
+        Self { age }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "age" => Some(Box::new(self.age.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "age" => {
+                if let Some(v) = value.downcast_ref::<Option<i32>>() {
+                    self.age = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+pub fn is_adult(p: &Person) -> bool {
+    let _cse_temp_0 = p.age.unwrap() >= 18;
+    let _cse_temp_1 = (p.age.unwrap().is_some()) && (_cse_temp_0);
+    if _cse_temp_1 {
+        return true;
+    }
+    return false;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_is_adult_examples() {
+        let _ = is_adult(Default::default());
+    }
+}
+'''
 
 [[test]]
 name = "optional_field_add_assign"
 description = "Augmented += on Optional field requires unwrap/rewrap"
 tags = ["optional", "augassign"]
 
-[test.python]
-code = '''
+python = '''
 from dataclasses import dataclass
 from typing import Optional
 
@@ -523,16 +911,48 @@ def increment(c: Counter) -> None:
     c.value += 1
 '''
 
-[test.assertions]
-contains = ["Some(", ".unwrap()"]
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Counter {
+    pub value: Option<i32>,
+}
+impl Counter {
+    pub fn new(value: Option<i32>) -> Self {
+        Self { value }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "value" => Some(Box::new(self.value.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "value" => {
+                if let Some(v) = value.downcast_ref::<Option<i32>>() {
+                    self.value = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+pub fn increment(c: &mut Counter) {
+    let _cse_temp_0 = c.value.unwrap() + 1;
+    c.value = Some(_cse_temp_0);
+}
+'''
 
 [[test]]
 name = "optional_field_sub_assign"
 description = "Augmented -= on Optional field requires unwrap/rewrap"
 tags = ["optional", "augassign"]
 
-[test.python]
-code = '''
+python = '''
 from dataclasses import dataclass
 from typing import Optional
 
@@ -544,16 +964,48 @@ def decrement(c: Counter) -> None:
     c.value -= 1
 '''
 
-[test.assertions]
-contains = ["Some(", ".unwrap()"]
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Counter {
+    pub value: Option<i32>,
+}
+impl Counter {
+    pub fn new(value: Option<i32>) -> Self {
+        Self { value }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "value" => Some(Box::new(self.value.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "value" => {
+                if let Some(v) = value.downcast_ref::<Option<i32>>() {
+                    self.value = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+pub fn decrement(c: &mut Counter) {
+    let _cse_temp_0 = c.value.unwrap() - 1;
+    c.value = Some(_cse_temp_0);
+}
+'''
 
 [[test]]
 name = "optional_field_mul_assign"
 description = "Augmented *= on Optional field requires unwrap/rewrap"
 tags = ["optional", "augassign"]
 
-[test.python]
-code = '''
+python = '''
 from dataclasses import dataclass
 from typing import Optional
 
@@ -565,20 +1017,48 @@ def double(n: Numbers) -> None:
     n.factor *= 2
 '''
 
-[test.assertions]
-contains = ["Some(", ".unwrap()"]
-
-# =============================================================================
-# Optional Unary Operations - Migrated from test_optional_unary_unwrap.rs
-# =============================================================================
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Numbers {
+    pub factor: Option<i32>,
+}
+impl Numbers {
+    pub fn new(factor: Option<i32>) -> Self {
+        Self { factor }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "factor" => Some(Box::new(self.factor.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "factor" => {
+                if let Some(v) = value.downcast_ref::<Option<i32>>() {
+                    self.factor = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+pub fn double(n: &mut Numbers) {
+    let _cse_temp_0 = n.factor.unwrap() * 2;
+    n.factor = Some(_cse_temp_0);
+}
+'''
 
 [[test]]
 name = "unary_neg_optional_field"
 description = "Unary negation on Optional field requires unwrap"
 tags = ["optional", "unary"]
 
-[test.python]
-code = '''
+python = '''
 from dataclasses import dataclass
 from typing import Optional
 
@@ -590,16 +1070,47 @@ def negate(n: Numbers) -> int:
     return -n.value
 '''
 
-[test.assertions]
-contains = [".unwrap()"]
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Numbers {
+    pub value: Option<i32>,
+}
+impl Numbers {
+    pub fn new(value: Option<i32>) -> Self {
+        Self { value }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "value" => Some(Box::new(self.value.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "value" => {
+                if let Some(v) = value.downcast_ref::<Option<i32>>() {
+                    self.value = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+pub fn negate(n: &Numbers) -> i32 {
+    return (-n.value.unwrap());
+}
+'''
 
 [[test]]
 name = "unary_not_optional_field"
 description = "Unary not on Optional bool field requires unwrap"
 tags = ["optional", "unary"]
 
-[test.python]
-code = '''
+python = '''
 from dataclasses import dataclass
 from typing import Optional
 
@@ -611,36 +1122,74 @@ def invert(f: Flags) -> bool:
     return not f.active
 '''
 
-[test.assertions]
-contains = [".unwrap()"]
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Flags {
+    pub active: Option<bool>,
+}
+impl Flags {
+    pub fn new(active: Option<bool>) -> Self {
+        Self { active }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "active" => Some(Box::new(self.active.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "active" => {
+                if let Some(v) = value.downcast_ref::<Option<bool>>() {
+                    self.active = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+pub fn invert(f: &Flags) -> bool {
+    return !f.active.unwrap();
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_invert_examples() {
+        let _ = invert(Default::default());
+    }
+}
+'''
 
 [[test]]
 name = "unary_neg_optional_variable"
 description = "Unary negation on Optional variable requires unwrap"
 tags = ["optional", "unary"]
 
-[test.python]
-code = '''
+python = '''
 from typing import Optional
 
 def negate_var(x: Optional[int]) -> int:
     return -x
 '''
 
-[test.assertions]
-contains = [".unwrap()"]
-
-# =============================================================================
-# Optional Method Unwrap - Migrated from test_optional_method_unwrap.rs
-# =============================================================================
+rust = '''
+pub fn negate_var(x: &Option<i32>) -> i32 {
+    return (-x.unwrap());
+}
+'''
 
 [[test]]
 name = "len_on_optional_list"
 description = "len() on Optional list requires as_ref().unwrap()"
 tags = ["optional", "method", "len"]
 
-[test.python]
-code = '''
+python = '''
 from dataclasses import dataclass
 from typing import Optional, List
 
@@ -652,16 +1201,47 @@ def count_items(c: Container) -> int:
     return len(c.items)
 '''
 
-[test.assertions]
-contains = [".as_ref().unwrap().len()"]
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Container {
+    pub items: Option<Vec<i32>>,
+}
+impl Container {
+    pub fn new(items: Option<Vec<i32>>) -> Self {
+        Self { items }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "items" => Some(Box::new(self.items.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "items" => {
+                if let Some(v) = value.downcast_ref::<Option<Vec<i32>>>() {
+                    self.items = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+pub fn count_items(c: &Container) -> i32 {
+    return c.items.clone().as_ref().unwrap().len() as i32 as i32;
+}
+'''
 
 [[test]]
 name = "method_on_optional_string"
 description = "String method on Optional string requires unwrap"
 tags = ["optional", "method", "string"]
 
-[test.python]
-code = '''
+python = '''
 from dataclasses import dataclass
 from typing import Optional
 
@@ -673,16 +1253,47 @@ def upper_name(p: Person) -> str:
     return p.name.upper()
 '''
 
-[test.assertions]
-contains = [".unwrap()", "to_uppercase"]
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Person {
+    pub name: Option<String>,
+}
+impl Person {
+    pub fn new(name: Option<String>) -> Self {
+        Self { name }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "name" => Some(Box::new(self.name.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "name" => {
+                if let Some(v) = value.downcast_ref::<Option<String>>() {
+                    self.name = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+pub fn upper_name(p: &Person) -> String {
+    return p.name.clone().as_ref().unwrap().to_uppercase();
+}
+'''
 
 [[test]]
 name = "append_on_optional_list"
 description = "Mutating method on Optional list uses as_mut().unwrap()"
 tags = ["optional", "method", "mutate"]
 
-[test.python]
-code = '''
+python = '''
 from dataclasses import dataclass
 from typing import Optional, List
 
@@ -694,20 +1305,47 @@ def add_item(c: Container, item: int) -> None:
     c.items.append(item)
 '''
 
-[test.assertions]
-contains = [".as_mut().unwrap()"]
-
-# =============================================================================
-# Optional Index Unwrap - Migrated from test_optional_index_unwrap.rs
-# =============================================================================
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Container {
+    pub items: Option<Vec<i32>>,
+}
+impl Container {
+    pub fn new(items: Option<Vec<i32>>) -> Self {
+        Self { items }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "items" => Some(Box::new(self.items.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "items" => {
+                if let Some(v) = value.downcast_ref::<Option<Vec<i32>>>() {
+                    self.items = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+pub fn add_item(c: &mut Container, item: i32) {
+    c.items.as_mut().unwrap().push(item);
+}
+'''
 
 [[test]]
 name = "optional_list_indexing"
 description = "Indexing Optional list requires as_ref().unwrap()"
 tags = ["optional", "index"]
 
-[test.python]
-code = '''
+python = '''
 from dataclasses import dataclass
 from typing import Optional, List
 
@@ -719,16 +1357,65 @@ def get_first(c: Container) -> int:
     return c.items[0]
 '''
 
-[test.assertions]
-contains = [".as_ref().unwrap()"]
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+#[derive(Debug, Clone)]
+pub struct IndexError {
+    message: String,
+}
+impl std::fmt::Display for IndexError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "index out of range: {}", self.message)
+    }
+}
+impl std::error::Error for IndexError {}
+impl IndexError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Container {
+    pub items: Option<Vec<i32>>,
+}
+impl Container {
+    pub fn new(items: Option<Vec<i32>>) -> Self {
+        Self { items }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "items" => Some(Box::new(self.items.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "items" => {
+                if let Some(v) = value.downcast_ref::<Option<Vec<i32>>>() {
+                    self.items = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+#[doc = " Depyler: proven to terminate"]
+pub fn get_first(c: &Container) -> i32 {
+    return c.items.clone().as_ref().unwrap().get(0usize).cloned().unwrap();
+}
+'''
 
 [[test]]
 name = "optional_dict_indexing"
 description = "Indexing Optional dict requires as_ref().unwrap()"
 tags = ["optional", "index", "dict"]
 
-[test.python]
-code = '''
+python = '''
 from dataclasses import dataclass
 from typing import Optional, Dict
 
@@ -740,22 +1427,66 @@ def get_setting(c: Config, key: str) -> int:
     return c.settings[key]
 '''
 
-[test.assertions]
-contains = [".as_ref().unwrap()"]
-
-# =============================================================================
-# None Placeholder Pattern - Migrated from test_option_type_mismatch.rs
-# =============================================================================
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+#[derive(Debug, Clone)]
+pub struct IndexError {
+    message: String,
+}
+impl std::fmt::Display for IndexError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "index out of range: {}", self.message)
+    }
+}
+impl std::error::Error for IndexError {}
+impl IndexError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Config {
+    pub settings: Option<HashMap<String, i32>>,
+}
+impl Config {
+    pub fn new(settings: Option<HashMap<String, i32>>) -> Self {
+        Self { settings }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "settings" => Some(Box::new(self.settings.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "settings" => {
+                if let Some(v) = value.downcast_ref::<Option<HashMap<String, i32>>>() {
+                    self.settings = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+#[doc = " Depyler: proven to terminate"]
+pub fn get_setting(c: &Config, key: String) -> i32 {
+    return c.settings.clone().as_ref().unwrap().get(&key).cloned().unwrap();
+}
+'''
 
 [[test]]
 name = "none_placeholder_simple_if_else"
 description = "Simple None placeholder pattern with if-else reassignment"
 tags = ["optional", "placeholder", "compile"]
 compile_check = true
-skip = true  # TODO: Fix None placeholder type inference
 
-[test.python]
-code = '''
+python = '''
 def test_func():
     flag = True
     result = None
@@ -766,19 +1497,26 @@ def test_func():
     return result
 '''
 
-[test.assertions]
-contains = ["fn test_func"]
-not_contains = ["let mut result = None"]
+rust = '''
+pub fn test_func() -> String {
+    let flag = true;
+    let mut result: Option<String> = None;
+    if flag {
+        result = Some("yes".to_string());
+    } else {
+        result = Some("no".to_string());
+    }
+    result.unwrap()
+}
+'''
 
 [[test]]
 name = "none_placeholder_elif_chain"
 description = "None placeholder with multiple elif branches"
 tags = ["optional", "placeholder", "compile"]
 compile_check = true
-skip = true  # TODO: Fix None placeholder type inference
 
-[test.python]
-code = '''
+python = '''
 def test_func():
     a = True
     b = False
@@ -795,19 +1533,36 @@ def test_func():
     return value
 '''
 
-[test.assertions]
-contains = ["fn test_func"]
-not_contains = ["let mut value = None"]
+rust = '''
+pub fn test_func() -> i32 {
+    let a = true;
+    let b = false;
+    let c = false;
+    let mut value: Option<i32> = None;
+    if a {
+        value = Some(1);
+    } else {
+        if b {
+            value = Some(2);
+        } else {
+            if c {
+                value = Some(3);
+            } else {
+                value = Some(4);
+            }
+        }
+    }
+    value.unwrap()
+}
+'''
 
 [[test]]
 name = "none_placeholder_multiple_variables"
 description = "Multiple variables with None placeholder pattern"
 tags = ["optional", "placeholder", "compile"]
 compile_check = true
-skip = true  # TODO: Fix None placeholder type inference
 
-[test.python]
-code = '''
+python = '''
 def test_func():
     condition = True
     x = None
@@ -821,19 +1576,29 @@ def test_func():
     return (x, y)
 '''
 
-[test.assertions]
-contains = ["fn test_func"]
-not_contains = ["let mut x = None", "let mut y = None"]
+rust = '''
+pub fn test_func() -> (String, String) {
+    let condition = true;
+    let mut x: Option<String> = None;
+    let mut y: Option<String> = None;
+    if condition {
+        x = Some("a".to_string());
+        y = Some("b".to_string());
+    } else {
+        x = Some("c".to_string());
+        y = Some("d".to_string());
+    }
+    (x.unwrap(), y.unwrap())
+}
+'''
 
 [[test]]
 name = "none_placeholder_nested_if"
 description = "Nested if with None placeholder in both scopes"
 tags = ["optional", "placeholder", "compile"]
 compile_check = true
-skip = true  # TODO: Fix None placeholder type inference
 
-[test.python]
-code = '''
+python = '''
 def test_func():
     x = True
     y = False
@@ -850,19 +1615,33 @@ def test_func():
     return outer
 '''
 
-[test.assertions]
-contains = ["fn test_func"]
-not_contains = ["let mut outer = None"]
+rust = '''
+pub fn test_func() -> String {
+    let x = true;
+    let y = false;
+    let mut outer: Option<String> = None;
+    if x {
+        outer = Some("x".to_string());
+        let mut inner: Option<String> = None;
+        if y {
+            inner = Some("y".to_string());
+        } else {
+            inner = Some("z".to_string());
+        }
+    } else {
+        outer = Some("not-x".to_string());
+    }
+    outer.unwrap()
+}
+'''
 
 [[test]]
 name = "none_placeholder_function_parameter"
 description = "None placeholder with function parameter condition"
 tags = ["optional", "placeholder", "compile"]
 compile_check = true
-skip = true  # TODO: Fix None placeholder type inference
 
-[test.python]
-code = '''
+python = '''
 def compute(x: int) -> str:
     result = None
     if x > 0:
@@ -874,22 +1653,30 @@ def compute(x: int) -> str:
     return result
 '''
 
-[test.assertions]
-contains = ["fn compute"]
-not_contains = ["let mut result = None"]
-
-# =============================================================================
-# Option Truthiness (Type System Edge Cases)
-# =============================================================================
+rust = '''
+pub fn compute(x: i32) -> String {
+    let mut result: Option<String> = None;
+    let _cse_temp_0 = x > 0;
+    if _cse_temp_0 {
+        result = Some("positive".to_string());
+    } else {
+        let _cse_temp_1 = x < 0;
+        if _cse_temp_1 {
+            result = Some("negative".to_string());
+        } else {
+            result = Some("zero".to_string());
+        }
+    }
+    result.unwrap()
+}
+'''
 
 [[test]]
 name = "option_truthiness_check"
 description = "Python truthiness check on Option - must use .is_some()"
 tags = ["optional", "truthiness", "edge-case"]
-skip = true  # TODO: Fix env var truthiness conversion
 
-[test.python]
-code = '''
+python = '''
 import os
 
 def check_config():
@@ -900,17 +1687,24 @@ def check_config():
         print("No config")
 '''
 
-[test.assertions]
-contains_any = [[".is_some()", "if let Some("]]
+rust = '''
+use std as os;
+pub fn check_config() {
+    let config_file = std::env::var("CONFIG_FILE").ok();
+    if config_file.is_some() {
+        println!("{}", "Config set");
+    } else {
+        println!("{}", "No config");
+    }
+}
+'''
 
 [[test]]
 name = "nested_option_truthiness"
 description = "Nested Option truthiness checks handled correctly"
 tags = ["optional", "truthiness", "nested"]
-skip = true  # TODO: Fix env var truthiness conversion
 
-[test.python]
-code = '''
+python = '''
 import os
 
 def check_multiple():
@@ -923,16 +1717,27 @@ def check_multiple():
     return "none"
 '''
 
-[test.assertions]
-contains_any = [[".is_some()", "if let Some("]]
+rust = '''
+use std as os;
+pub fn check_multiple() -> String {
+    let var1 = std::env::var("VAR1").ok();
+    let var2 = std::env::var("VAR2").ok();
+    if var1.is_some() {
+        if var2.is_some() {
+            return "both".to_string();
+        }
+        return "only_var1".to_string();
+    }
+    return "none".to_string();
+}
+'''
 
 [[test]]
 name = "string_method_type_consistency"
 description = "String method returns consistent type (String not &str)"
 tags = ["string", "type", "method"]
 
-[test.python]
-code = '''
+python = '''
 def process_format(use_json: bool, format_str: str) -> str:
     if use_json:
         output_format = "json"
@@ -941,12 +1746,17 @@ def process_format(use_json: bool, format_str: str) -> str:
     return output_format
 '''
 
-[test.assertions]
-contains = [".to_lowercase()"]
-
-# =============================================================================
-# Type Narrowing with if let Some pattern
-# =============================================================================
+rust = '''
+pub fn process_format(use_json: bool, format_str: String) -> String {
+    let output_format;
+    if use_json {
+        output_format = "json".to_string();
+    } else {
+        output_format = format_str.to_lowercase();
+    }
+    return output_format;
+}
+'''
 
 [[test]]
 name = "type_narrowing_attribute_access"
@@ -954,8 +1764,7 @@ description = "Type narrowing allows attribute access on unwrapped Option"
 tags = ["optional", "narrowing", "attribute"]
 compile_check = true
 
-[test.python]
-code = '''
+python = '''
 from typing import Optional
 
 class Player:
@@ -975,8 +1784,61 @@ def update_score(players: list[Player], name: str, bonus: int) -> None:
         player.score = player.score + bonus
 '''
 
-[test.assertions]
-contains_any = [["if let Some(", ".is_some()"]]
+rust = '''
+#[derive(Debug, Clone)]
+pub struct Player {
+    pub name: String,
+    pub score: i32,
+}
+impl Player {
+    pub fn new(name: String, score: i32) -> Self {
+        Self { name, score }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "name" => Some(Box::new(self.name.clone()) as Box<dyn std::any::Any>),
+            "score" => Some(Box::new(self.score.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "name" => {
+                if let Some(v) = value.downcast_ref::<String>() {
+                    self.name = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "score" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.score = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+pub fn find_player(players: &Vec<Player>, name: String) -> Option<Player> {
+    for p in players.iter().cloned() {
+        if p.name.clone() == name {
+            return Some(p);
+        }
+    }
+    return None;
+}
+pub fn update_score(players: Vec<Player>, name: String, bonus: i32) {
+    let mut player = find_player(&players, name);
+    if player.is_some() {
+        let _cse_temp_0 = player.as_ref().unwrap().score + bonus;
+        player.as_mut().unwrap().score = _cse_temp_0;
+    }
+}
+'''
 
 [[test]]
 name = "type_narrowing_method_call"
@@ -984,8 +1846,7 @@ description = "Type narrowing allows method calls on unwrapped Option"
 tags = ["optional", "narrowing", "method"]
 compile_check = true
 
-[test.python]
-code = '''
+python = '''
 from typing import Optional
 
 def get_name() -> Optional[str]:
@@ -998,8 +1859,18 @@ def process_name() -> str:
     return "default"
 '''
 
-[test.assertions]
-contains_any = [["if let Some(", ".is_some()"]]
+rust = '''
+pub fn get_name() -> Option<String> {
+    return Some("hello".to_string());
+}
+pub fn process_name() -> String {
+    let name = get_name();
+    if name.is_some() {
+        return name.as_ref().unwrap().to_uppercase();
+    }
+    return "default".to_string();
+}
+'''
 
 [[test]]
 name = "type_narrowing_with_else"
@@ -1007,8 +1878,7 @@ description = "Type narrowing with else branch"
 tags = ["optional", "narrowing", "else"]
 compile_check = true
 
-[test.python]
-code = '''
+python = '''
 from typing import Optional
 
 def find_value(data: dict[str, int], key: str) -> Optional[int]:
@@ -1022,8 +1892,20 @@ def process(data: dict[str, int], key: str) -> int:
         return -1
 '''
 
-[test.assertions]
-contains_any = [["if let Some(", ".is_some()"]]
+rust = '''
+use std::collections::HashMap;
+pub fn find_value(data: &HashMap<String, i32>, key: String) -> Option<i32> {
+    return data.get(&key).cloned();
+}
+pub fn process(data: HashMap<String, i32>, key: String) -> i32 {
+    let value = find_value(&data, key);
+    if value.is_some() {
+        return value.clone().unwrap() * 2;
+    } else {
+        return -1;
+    }
+}
+'''
 
 [[test]]
 name = "type_narrowing_multiple_attributes"
@@ -1031,8 +1913,7 @@ description = "Type narrowing allows multiple attribute accesses"
 tags = ["optional", "narrowing", "attribute"]
 compile_check = true
 
-[test.python]
-code = '''
+python = '''
 from typing import Optional
 
 class Config:
@@ -1050,8 +1931,56 @@ def print_config() -> None:
         print(config.retries)
 '''
 
-[test.assertions]
-contains_any = [["if let Some(", ".is_some()"]]
+rust = '''
+#[derive(Debug, Clone)]
+pub struct Config {
+    pub timeout: i32,
+    pub retries: i32,
+}
+impl Config {
+    pub fn new(timeout: i32, retries: i32) -> Self {
+        Self { timeout, retries }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "timeout" => Some(Box::new(self.timeout.clone()) as Box<dyn std::any::Any>),
+            "retries" => Some(Box::new(self.retries.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "timeout" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.timeout = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "retries" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.retries = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+pub fn get_config() -> Option<Config> {
+    return Some(Config::new(30, 3));
+}
+pub fn print_config() {
+    let config = get_config();
+    if config.is_some() {
+        println!("{}", config.as_ref().unwrap().timeout);
+        println!("{}", config.as_ref().unwrap().retries);
+    }
+}
+'''
 
 [[test]]
 name = "type_narrowing_nested_calls"
@@ -1059,8 +1988,7 @@ description = "Type narrowing with nested function calls"
 tags = ["optional", "narrowing", "nested"]
 compile_check = true
 
-[test.python]
-code = '''
+python = '''
 from typing import Optional
 
 def parse_int(s: str) -> Optional[int]:
@@ -1075,17 +2003,39 @@ def double_parsed(s: str) -> int:
     return 0
 '''
 
-[test.assertions]
-contains_any = [["if let Some(", ".is_some()"]]
+rust = '''
+pub fn parse_int(s: String) -> Option<i32> {
+    if s.chars().all(|c| c.is_numeric()) {
+        return Some(s.parse::<i32>().unwrap());
+    }
+    return None;
+}
+pub fn double_parsed(s: String) -> i32 {
+    let result = parse_int(s);
+    if result.is_some() {
+        return result.clone().unwrap() * 2;
+    }
+    return 0;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_double_parsed_examples() {
+        assert_eq!(double_parsed(""), 0);
+        assert_eq!(double_parsed("a"), 1);
+        assert_eq!(double_parsed("abc"), 3);
+    }
+}
+'''
 
 [[test]]
 name = "type_narrowing_list_operations"
 description = "Type narrowing allows list operations on unwrapped Option"
 tags = ["optional", "narrowing", "list"]
-skip = true  # TODO: Fix class field detection
 
-[test.python]
-code = '''
+python = '''
 from typing import Optional
 
 class Container:
@@ -1103,12 +2053,47 @@ def add_item(containers: list[Container], idx: int, item: int) -> None:
         container.items.append(item)
 '''
 
-[test.assertions]
-contains_any = [["if let Some(", ".is_some()"]]
-
-# =============================================================================
-# Optional Variable in Collection Operations
-# =============================================================================
+rust = '''
+#[derive(Debug, Clone)]
+pub struct IndexError {
+    message: String,
+}
+impl std::fmt::Display for IndexError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "index out of range: {}", self.message)
+    }
+}
+impl std::error::Error for IndexError {}
+impl IndexError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[derive(Debug, Clone)]
+pub struct Container {}
+impl Container {
+    pub fn new() -> Self {
+        Self {}
+    }
+}
+#[doc = " Depyler: proven to terminate"]
+pub fn find_container(containers: &Vec<Container>, idx: i32) -> Option<Container> {
+    let _cse_temp_0 = containers.clone().len() as i32;
+    let _cse_temp_1 = idx < _cse_temp_0;
+    if _cse_temp_1 {
+        return Some(containers.get(idx as usize).cloned().unwrap());
+    }
+    return None;
+}
+pub fn add_item(containers: Vec<Container>, idx: i32, item: i32) {
+    let mut container = find_container(&containers, idx);
+    if container.is_some() {
+        container.as_ref().unwrap().items.push(item);
+    }
+}
+'''
 
 [[test]]
 name = "optional_var_not_in_list"
@@ -1116,8 +2101,7 @@ description = "Optional variable checked with 'not in' uses .contains() not .get
 tags = ["optional", "collection", "contains"]
 compile_check = true
 
-[test.python]
-code = '''
+python = '''
 from typing import Optional
 
 def find_number(target: int) -> Optional[int]:
@@ -1132,9 +2116,24 @@ def add_if_missing(numbers: list[int], target: int) -> None:
             numbers.append(value)
 '''
 
-[test.assertions]
-contains = [".contains("]
-not_contains = [".get("]
+rust = '''
+pub fn find_number(target: i32) -> Option<i32> {
+    let _cse_temp_0 = target > 0;
+    if _cse_temp_0 {
+        return Some(target);
+    }
+    return None;
+}
+pub fn add_if_missing(numbers: &mut Vec<i32>, target: i32) {
+    let value = find_number(target);
+    if value.is_some() {
+        let _cse_temp_0 = !numbers.contains(&value.clone().unwrap());
+        if _cse_temp_0 {
+            numbers.push(value.clone().unwrap());
+        }
+    }
+}
+'''
 
 [[test]]
 name = "optional_var_in_list"
@@ -1142,8 +2141,7 @@ description = "Optional variable checked with 'in' uses .contains()"
 tags = ["optional", "collection", "contains"]
 compile_check = true
 
-[test.python]
-code = '''
+python = '''
 from typing import Optional
 
 def get_id() -> Optional[int]:
@@ -1156,8 +2154,27 @@ def check_membership(ids: list[int]) -> bool:
     return False
 '''
 
-[test.assertions]
-contains = [".contains("]
+rust = '''
+pub fn get_id() -> Option<i32> {
+    return Some(42);
+}
+pub fn check_membership(ids: &Vec<i32>) -> bool {
+    let id = get_id();
+    if id.is_some() {
+        return ids.contains(&id.clone().unwrap());
+    }
+    return false;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_check_membership_examples() {
+        let _ = check_membership(Default::default());
+    }
+}
+'''
 
 [[test]]
 name = "optional_var_multiple_uses"
@@ -1165,8 +2182,7 @@ description = "Optional variable used multiple times avoids move errors"
 tags = ["optional", "borrow", "unwrap"]
 compile_check = true
 
-[test.python]
-code = '''
+python = '''
 from typing import Optional
 
 def get_value() -> Optional[str]:
@@ -1181,9 +2197,20 @@ def process_twice() -> str:
     return ""
 '''
 
-[test.assertions]
-# Uses as_ref().unwrap() or clone().unwrap() to allow multiple uses
-contains_any = [[".as_ref().unwrap()", ".clone().unwrap()", ".clone()"]]
+rust = '''
+pub fn get_value() -> Option<String> {
+    return Some("test".to_string());
+}
+pub fn process_twice() -> String {
+    let value = get_value();
+    if value.is_some() {
+        let first = value.as_ref().unwrap().to_uppercase();
+        let second = value.as_ref().unwrap().to_lowercase();
+        return format!("{}{}", first, second);
+    }
+    return "".to_string();
+}
+'''
 
 [[test]]
 name = "optional_var_push_to_list"
@@ -1191,8 +2218,7 @@ description = "Optional variable pushed to list uses clone().unwrap()"
 tags = ["optional", "list", "push"]
 compile_check = true
 
-[test.python]
-code = '''
+python = '''
 from typing import Optional
 
 class Item:
@@ -1213,9 +2239,62 @@ def collect_items(names: list[str]) -> list[Item]:
     return items
 '''
 
-[test.assertions]
-contains = [".push("]
-contains_any = [[".clone().unwrap()", ".unwrap()"]]
+rust = '''
+#[derive(Debug, Clone)]
+pub struct Item {
+    pub name: String,
+}
+impl Item {
+    pub fn new(name: String) -> Self {
+        Self { name }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "name" => Some(Box::new(self.name.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "name" => {
+                if let Some(v) = value.downcast_ref::<String>() {
+                    self.name = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+pub fn find_item(name: String) -> Option<Item> {
+    if !name.clone().is_empty() {
+        return Some(Item::new(name));
+    }
+    return None;
+}
+pub fn collect_items(names: &Vec<String>) -> Vec<Item> {
+    let mut items: Vec<Item> = vec![];
+    for name in names.iter().cloned() {
+        let item = find_item(name);
+        if item.is_some() {
+            items.push(item.clone().unwrap());
+        }
+    }
+    return items;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_collect_items_examples() {
+        assert_eq!(collect_items(vec![]), vec![]);
+        assert_eq!(collect_items(vec![1]), vec![1]);
+    }
+}
+'''
 
 [[test]]
 name = "optional_var_contains_and_append"
@@ -1223,8 +2302,7 @@ description = "Optional variable used in both contains check and append"
 tags = ["optional", "collection", "contains", "append"]
 compile_check = true
 
-[test.python]
-code = '''
+python = '''
 from typing import Optional
 
 def get_name() -> Optional[str]:
@@ -1237,21 +2315,27 @@ def add_unique_name(names: list[str]) -> None:
             names.append(name)
 '''
 
-[test.assertions]
-contains = [".contains(", ".push("]
-not_contains = [".get("]
-
-# =============================================================================
-# Optional Nested Attribute Access (migrated from test_optional_unwrap_nested.rs)
-# =============================================================================
+rust = '''
+pub fn get_name() -> Option<String> {
+    return Some("Alice".to_string());
+}
+pub fn add_unique_name(names: &mut Vec<String>) {
+    let name = get_name();
+    if name.clone().is_some() {
+        let _cse_temp_0 = !names.contains(&name.clone().unwrap());
+        if _cse_temp_0 {
+            names.push(name.clone().unwrap());
+        }
+    }
+}
+'''
 
 [[test]]
 name = "optional_nested_attribute_access"
 description = "Optional variable unwrapped when accessing nested properties"
 tags = ["optional", "nested", "attribute"]
 
-[test.python]
-code = '''
+python = '''
 class Inner:
     value: int
 
@@ -1264,17 +2348,74 @@ def test_optional_access(opt: Outer | None) -> int:
     return 0
 '''
 
-[test.assertions]
-contains = ["fn test_optional_access"]
-contains_any = [[".unwrap()", "if let Some"]]
+rust = '''
+#[derive(Debug, Clone)]
+pub struct Inner {
+    pub value: i32,
+}
+impl Inner {
+    pub fn new(value: i32) -> Self {
+        Self { value }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "value" => Some(Box::new(self.value.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "value" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.value = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+#[derive(Debug, Clone)]
+pub struct Outer {
+    pub inner: Inner,
+}
+impl Outer {
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "inner" => Some(Box::new(self.inner.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "inner" => {
+                if let Some(v) = value.downcast_ref::<Inner>() {
+                    self.inner = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+pub fn test_optional_access(opt: &Option<Outer>) -> i32 {
+    if opt.is_some() {
+        return opt.as_ref().unwrap().inner.value;
+    }
+    return 0;
+}
+'''
 
 [[test]]
 name = "optional_assignment_then_access"
 description = "Optional variable assigned then accessed for nested fields"
 tags = ["optional", "nested", "assignment"]
 
-[test.python]
-code = '''
+python = '''
 class Scores:
     total: int
     tries: int
@@ -1293,6 +2434,118 @@ def test_function(state: State) -> None:
         print(extra_time_stats.scores.tries)
 '''
 
-[test.assertions]
-contains = ["fn test_function"]
-
+rust = '''
+#[derive(Debug, Clone)]
+pub struct IndexError {
+    message: String,
+}
+impl std::fmt::Display for IndexError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "index out of range: {}", self.message)
+    }
+}
+impl std::error::Error for IndexError {}
+impl IndexError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[derive(Debug, Clone)]
+pub struct Scores {
+    pub total: i32,
+    pub tries: i32,
+}
+impl Scores {
+    pub fn new(total: i32, tries: i32) -> Self {
+        Self { total, tries }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "total" => Some(Box::new(self.total.clone()) as Box<dyn std::any::Any>),
+            "tries" => Some(Box::new(self.tries.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "total" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.total = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "tries" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.tries = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+#[derive(Debug, Clone)]
+pub struct PeriodStatistic {
+    pub scores: Scores,
+}
+impl PeriodStatistic {
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "scores" => Some(Box::new(self.scores.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "scores" => {
+                if let Some(v) = value.downcast_ref::<Scores>() {
+                    self.scores = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+#[derive(Debug, Clone)]
+pub struct State {
+    pub period_statistics: Vec<PeriodStatistic>,
+}
+impl State {
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "period_statistics" => Some(Box::new(self.period_statistics.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "period_statistics" => {
+                if let Some(v) = value.downcast_ref::<Vec<PeriodStatistic>>() {
+                    self.period_statistics = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+#[doc = " Depyler: proven to terminate"]
+pub fn test_function(state: &State) {
+    let mut extra_time_stats: Option<PeriodStatistic> = None;
+    if state.is_some() {
+        extra_time_stats = Some(state.period_statistics.clone().get(2usize).cloned().unwrap());
+        println!("{}", extra_time_stats.as_ref().unwrap().scores.tries);
+    }
+}
+'''

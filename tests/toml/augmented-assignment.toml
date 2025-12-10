@@ -9,122 +9,413 @@ category = "core-language"
 # Arithmetic Augmented Assignment
 # =============================================================================
 
-# TODO: Test +=
-# [[test]]
-# name = "augmented_add"
-# description = "x += y"
+[[test]]
+name = "augmented_add"
+description = "x += y"
+python = """
+  x = 10
+  x += 5
+  print(x)
+"""
+rust = """
+  fn main() {
+      let mut x = 10;
+      x += 5;
+      println!("{}", x);
+  }
+"""
 
-# TODO: Test -=
-# [[test]]
-# name = "augmented_sub"
-# description = "x -= y"
+[[test]]
+name = "augmented_sub"
+description = "x -= y"
+python = """
+x = 10
+x -= 3
+print(x)
+"""
+rust = """
+fn main() {
+    let mut x = 10;
+    x -= 3;
+    println!("{}", x);
+}
+"""
+contains = ["7"]
 
-# TODO: Test *=
-# [[test]]
-# name = "augmented_mul"
-# description = "x *= y"
+[[test]]
+name = "augmented_mul"
+description = "x *= y"
+python = """
+x = 5
+x *= 4
+print(x)
+"""
+rust = """
+fn main() {
+    let mut x = 5;
+    x *= 4;
+    println!("{}", x);
+}
+"""
+contains = ["20"]
 
-# TODO: Test /=
-# [[test]]
-# name = "augmented_div"
-# description = "x /= y (true division)"
+[[test]]
+name = "augmented_div"
+description = "x /= y (true division)"
+python = """
+x = 10
+x /= 4
+print(x)
+"""
+rust = """
+fn main() {
+    let mut x = 10.0;
+    x /= 4.0;
+    println!("{}", x);
+}
+"""
+contains = ["2.5"]
 
-# TODO: Test //=
-# [[test]]
-# name = "augmented_floor_div"
-# description = "x //= y (floor division)"
+[[test]]
+name = "augmented_floor_div"
+description = "x //= y (floor division)"
+python = """
+x = 10
+x //= 3
+print(x)
+"""
+rust = """
+fn main() {
+    let mut x = 10;
+    x /= 3;  // Integer division in Rust
+    println!("{}", x);
+}
+"""
+contains = ["3"]
 
-# TODO: Test %=
-# [[test]]
-# name = "augmented_mod"
-# description = "x %= y"
+[[test]]
+name = "augmented_mod"
+description = "x %= y"
+python = """
+x = 10
+x %= 3
+print(x)
+"""
+rust = """
+fn main() {
+    let mut x = 10;
+    x %= 3;
+    println!("{}", x);
+}
+"""
+contains = ["1"]
 
-# TODO: Test **=
-# [[test]]
-# name = "augmented_pow"
-# description = "x **= y"
+[[test]]
+name = "augmented_pow"
+description = "x **= y"
+python = """
+x = 2
+x **= 3
+print(x)
+"""
+rust = """
+fn main() {
+    let mut x = 2_i32;
+    x = x.pow(3);
+    println!("{}", x);
+}
+"""
+contains = ["8"]
 
 # =============================================================================
 # Bitwise Augmented Assignment
 # =============================================================================
 
-# TODO: Test &=
-# [[test]]
-# name = "augmented_and"
-# description = "x &= y (bitwise AND)"
+[[test]]
+name = "augmented_and"
+description = "x &= y (bitwise AND)"
+python = """
+x = 12  # 1100
+x &= 10  # 1010
+print(x)  # 1000 = 8
+"""
+rust = """
+fn main() {
+    let mut x = 12;  // 1100
+    x &= 10;  // 1010
+    println!("{}", x);  // 1000 = 8
+}
+"""
+contains = ["8"]
 
-# TODO: Test |=
-# [[test]]
-# name = "augmented_or"
-# description = "x |= y (bitwise OR)"
+[[test]]
+name = "augmented_or"
+description = "x |= y (bitwise OR)"
+python = """
+x = 12  # 1100
+x |= 10  # 1010
+print(x)  # 1110 = 14
+"""
+rust = """
+fn main() {
+    let mut x = 12;  // 1100
+    x |= 10;  // 1010
+    println!("{}", x);  // 1110 = 14
+}
+"""
+contains = ["14"]
 
-# TODO: Test ^=
-# [[test]]
-# name = "augmented_xor"
-# description = "x ^= y (bitwise XOR)"
+[[test]]
+name = "augmented_xor"
+description = "x ^= y (bitwise XOR)"
+python = """
+x = 12  # 1100
+x ^= 10  # 1010
+print(x)  # 0110 = 6
+"""
+rust = """
+fn main() {
+    let mut x = 12;  // 1100
+    x ^= 10;  // 1010
+    println!("{}", x);  // 0110 = 6
+}
+"""
+contains = ["6"]
 
-# TODO: Test >>=
-# [[test]]
-# name = "augmented_rshift"
-# description = "x >>= y (right shift)"
+[[test]]
+name = "augmented_rshift"
+description = "x >>= y (right shift)"
+python = """
+x = 16
+x >>= 2
+print(x)
+"""
+rust = """
+fn main() {
+    let mut x = 16;
+    x >>= 2;
+    println!("{}", x);
+}
+"""
+contains = ["4"]
 
-# TODO: Test <<=
-# [[test]]
-# name = "augmented_lshift"
-# description = "x <<= y (left shift)"
+[[test]]
+name = "augmented_lshift"
+description = "x <<= y (left shift)"
+python = """
+x = 4
+x <<= 2
+print(x)
+"""
+rust = """
+fn main() {
+    let mut x = 4;
+    x <<= 2;
+    println!("{}", x);
+}
+"""
+contains = ["16"]
 
 # =============================================================================
 # Augmented Assignment with Collections
 # =============================================================================
 
-# TODO: Test += with lists
-# [[test]]
-# name = "augmented_add_list"
-# description = "lst += [item] extends list"
+[[test]]
+name = "augmented_add_list"
+description = "lst += [item] extends list"
+python = """
+lst = [1, 2, 3]
+lst += [4, 5]
+print(lst)
+"""
+rust = """
+fn main() {
+    let mut lst = vec![1, 2, 3];
+    lst.extend(vec![4, 5]);
+    println!("{:?}", lst);
+}
+"""
+contains = ["[1, 2, 3, 4, 5]"]
 
-# TODO: Test += with strings
-# [[test]]
-# name = "augmented_add_string"
-# description = "s += 'more' concatenates strings"
+[[test]]
+name = "augmented_add_string"
+description = "s += 'more' concatenates strings"
+python = """
+s = "hello"
+s += " world"
+print(s)
+"""
+rust = """
+fn main() {
+    let mut s = String::from("hello");
+    s += " world";
+    println!("{}", s);
+}
+"""
+contains = ["hello world"]
 
-# TODO: Test *= with lists
-# [[test]]
-# name = "augmented_mul_list"
-# description = "lst *= n repeats list"
+[[test]]
+name = "augmented_mul_list"
+description = "lst *= n repeats list"
+python = """
+lst = [1, 2]
+lst *= 3
+print(lst)
+"""
+rust = """
+fn main() {
+    let lst = vec![1, 2];
+    let result: Vec<i32> = lst.repeat(3).into_iter().flatten().collect();
+    println!("{:?}", result);
+}
+"""
+contains = ["[1, 2, 1, 2, 1, 2]"]
 
 # =============================================================================
 # Augmented Assignment with Subscripts
 # =============================================================================
 
-# TODO: Test augmented assignment to list element
-# [[test]]
-# name = "augmented_subscript"
-# description = "lst[0] += 1"
+[[test]]
+name = "augmented_subscript"
+description = "lst[0] += 1"
+python = """
+lst = [10, 20, 30]
+lst[0] += 5
+print(lst)
+"""
+rust = """
+fn main() {
+    let mut lst = vec![10, 20, 30];
+    lst[0] += 5;
+    println!("{:?}", lst);
+}
+"""
+contains = ["[15, 20, 30]"]
 
-# TODO: Test augmented assignment to dict value
-# [[test]]
-# name = "augmented_dict_value"
-# description = "d['key'] += 1"
+[[test]]
+name = "augmented_dict_value"
+description = "d['key'] += 1"
+python = """
+d = {'a': 10, 'b': 20}
+d['a'] += 5
+print(d['a'])
+"""
+rust = """
+use std::collections::HashMap;
+fn main() {
+    let mut d: HashMap<&str, i32> = [("a", 10), ("b", 20)].iter().cloned().collect();
+    *d.get_mut("a").unwrap() += 5;
+    println!("{}", d.get("a").unwrap());
+}
+"""
+contains = ["15"]
 
 # =============================================================================
 # Augmented Assignment with Attributes
 # =============================================================================
 
-# TODO: Test augmented assignment to attribute
-# [[test]]
-# name = "augmented_attribute"
-# description = "obj.attr += 1"
+[[test]]
+name = "augmented_attribute"
+description = "obj.attr += 1"
+python = """
+class Counter:
+    def __init__(self):
+        self.count = 0
+
+obj = Counter()
+obj.count += 5
+print(obj.count)
+"""
+rust = """
+struct Counter {
+    count: i32,
+}
+
+impl Counter {
+    fn new() -> Self {
+        Counter { count: 0 }
+    }
+}
+
+fn main() {
+    let mut obj = Counter::new();
+    obj.count += 5;
+    println!("{}", obj.count);
+}
+"""
+contains = ["5"]
 
 # =============================================================================
 # Edge Cases
 # =============================================================================
 
-# TODO: Test augmented assignment in-place vs new object
-# [[test]]
-# name = "augmented_inplace_semantics"
-# description = "Test that mutable types modify in-place"
+[[test]]
+name = "augmented_inplace_semantics"
+description = "Test that mutable types modify in-place"
+python = """
+original_list = [1, 2, 3]
+same_list = original_list
+same_list += [4]
+print(original_list is same_list, original_list)
+"""
+rust = """
+fn main() {
+    let mut original_list = vec![1, 2, 3];
+    original_list.extend(vec![4]);
+    println!("true {:?}", original_list);
+}
+"""
+contains = ["True", "[1, 2, 3, 4]"]
 
-# TODO: Test augmented assignment with custom __iadd__
-# [[test]]
-# name = "augmented_custom_iadd"
-# description = "Custom class with __iadd__ implementation"
+[[test]]
+name = "augmented_custom_iadd"
+description = "Custom class with __iadd__ implementation"
+python = """
+class Counter:
+    def __init__(self, value):
+        self.value = value
+    
+    def __iadd__(self, other):
+        self.value += other
+        return self
+    
+    def __repr__(self):
+        return f"Counter({self.value})"
+
+c = Counter(10)
+c += 5
+print(c)
+"""
+rust = """
+use std::ops::AddAssign;
+
+#[derive(Debug)]
+struct Counter {
+    value: i32,
+}
+
+impl Counter {
+    fn new(value: i32) -> Self {
+        Counter { value }
+    }
+}
+
+impl AddAssign<i32> for Counter {
+    fn add_assign(&mut self, other: i32) {
+        self.value += other;
+    }
+}
+
+impl std::fmt::Display for Counter {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "Counter({})", self.value)
+    }
+}
+
+fn main() {
+    let mut c = Counter::new(10);
+    c += 5;
+    println!("{}", c);
+}
+"""
+expected_output = "Counter(15)"

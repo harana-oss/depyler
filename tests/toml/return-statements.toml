@@ -15,58 +15,98 @@ name = "simple_return_value"
 description = "Basic return with value (non-Optional, non-Result)"
 tags = ["return", "simple"]
 
-[test.python]
-code = '''
+python = '''
 def get_value() -> int:
     return 42
 '''
 
-[test.assertions]
-contains = ["fn get_value"]
+rust = '''
+pub fn get_value() -> i32 {
+    return 42;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_get_value_examples() {
+        let _ = get_value();
+    }
+}
+'''
 
 [[test]]
 name = "early_return"
 description = "Early return with return keyword preserved"
 tags = ["return", "early"]
 
-[test.python]
-code = '''
+python = '''
 def check_value(x: int) -> int:
     if x < 0:
         return 0
     return x
 '''
 
-[test.assertions]
-contains = ["fn check_value"]
+rust = '''
+pub fn check_value(x: i32) -> i32 {
+    let _cse_temp_0 = x < 0;
+    if _cse_temp_0 {
+        return 0;
+    }
+    return x;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_check_value_examples() {
+        assert_eq!(check_value(0), 0);
+        assert_eq!(check_value(1), 1);
+        assert_eq!(check_value(-1), -1);
+    }
+}
+'''
 
 [[test]]
 name = "final_vs_early_return"
 description = "Final return (no keyword) vs early return (with keyword)"
 tags = ["return", "idiomatic"]
 
-[test.python]
-code = '''
+python = '''
 def max_value(a: int, b: int) -> int:
     if a > b:
         return a
     return b
 '''
 
-[test.assertions]
-contains = ["fn max_value"]
-
-# =============================================================================
-# Optional Returns with Some() Wrapping
-# =============================================================================
+rust = '''
+pub fn max_value(a: i32, b: i32) -> i32 {
+    let _cse_temp_0 = a > b;
+    if _cse_temp_0 {
+        return a;
+    }
+    return b;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_max_value_examples() {
+        assert_eq!(max_value(0, 0), 0);
+        assert_eq!(max_value(1, 2), 3);
+        assert_eq!(max_value(-1, 1), 0);
+    }
+}
+'''
 
 [[test]]
 name = "optional_return_some"
 description = "Optional return with Some() wrapping for non-None value"
 tags = ["return", "optional", "some"]
 
-[test.python]
-code = '''
+python = '''
 def find_value(items: list[int], target: int) -> int | None:
     for item in items:
         if item == target:
@@ -74,32 +114,44 @@ def find_value(items: list[int], target: int) -> int | None:
     return None
 '''
 
-[test.assertions]
-contains = ["fn find_value"]
+rust = '''
+pub fn find_value(items: &Vec<i32>, target: i32) -> Option<i32> {
+    for item in items.iter().cloned() {
+        if item == target {
+            return Some(item);
+        }
+    }
+    return None;
+}
+'''
 
 [[test]]
 name = "optional_return_none"
 description = "Optional return with None literal (not Some(None))"
 tags = ["return", "optional", "none"]
 
-[test.python]
-code = '''
+python = '''
 def maybe_value(condition: bool) -> int | None:
     if condition:
         return 42
     return None
 '''
 
-[test.assertions]
-contains = ["fn maybe_value"]
+rust = '''
+pub fn maybe_value(condition: bool) -> Option<i32> {
+    if condition {
+        return Some(42);
+    }
+    return None;
+}
+'''
 
 [[test]]
 name = "optional_early_return_some"
 description = "Optional with early return - return Some()"
 tags = ["return", "optional", "early"]
 
-[test.python]
-code = '''
+python = '''
 def first_positive(items: list[int]) -> int | None:
     for item in items:
         if item > 0:
@@ -107,66 +159,148 @@ def first_positive(items: list[int]) -> int | None:
     return None
 '''
 
-[test.assertions]
-contains = ["fn first_positive"]
+rust = '''
+pub fn first_positive(items: &Vec<i32>) -> Option<i32> {
+    for item in items.iter().cloned() {
+        if item > 0 {
+            return Some(item);
+        }
+    }
+    return None;
+}
+'''
 
 [[test]]
 name = "optional_early_return_none"
 description = "Optional with early None - return None"
 tags = ["return", "optional", "early", "none"]
 
-[test.python]
-code = '''
+python = '''
 def find_or_none(items: list[int], target: int) -> int | None:
     if len(items) == 0:
         return None
     return items[0]
 '''
 
-[test.assertions]
-contains = ["fn find_or_none"]
+rust = '''
+#[derive(Debug, Clone)]
+pub struct IndexError {
+    message: String,
+}
+impl std::fmt::Display for IndexError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "index out of range: {}", self.message)
+    }
+}
+impl std::error::Error for IndexError {}
+impl IndexError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = " Depyler: proven to terminate"]
+pub fn find_or_none(items: &Vec<i32>, target: i32) -> Option<i32> {
+    let _cse_temp_0 = items.clone().len() as i32;
+    let _cse_temp_1 = _cse_temp_0 == 0;
+    if _cse_temp_1 {
+        return None;
+    }
+    return Some(items.get(0usize).cloned().unwrap());
+}
+'''
 
 [[test]]
 name = "empty_optional_function"
 description = "Empty Optional function returns None"
 tags = ["return", "optional", "empty"]
 
-[test.python]
-code = '''
+python = '''
 def empty_optional() -> int | None:
     return
 '''
 
-[test.assertions]
-contains = ["fn empty_optional"]
-
-# =============================================================================
-# Result Returns with Ok() Wrapping
-# =============================================================================
+rust = '''
+pub fn empty_optional() -> Option<i32> {
+    return;
+}
+'''
 
 [[test]]
 name = "result_return_ok"
 description = "Result return with Ok() wrapping for can-fail function"
 tags = ["return", "result", "ok"]
 
-[test.python]
-code = '''
+python = '''
 def divide(a: int, b: int) -> int:
     if b == 0:
         raise ValueError("Division by zero")
     return a / b
 '''
 
-[test.assertions]
-contains = ["fn divide"]
+rust = '''
+#[derive(Debug, Clone)]
+pub struct ZeroDivisionError {
+    message: String,
+}
+impl std::fmt::Display for ZeroDivisionError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "division by zero: {}", self.message)
+    }
+}
+impl std::error::Error for ZeroDivisionError {}
+impl ZeroDivisionError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[derive(Debug, Clone)]
+pub struct ValueError {
+    message: String,
+}
+impl std::fmt::Display for ValueError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "value error: {}", self.message)
+    }
+}
+impl std::error::Error for ValueError {}
+impl ValueError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = " Depyler: proven to terminate"]
+pub fn divide(a: i32, b: i32) -> i32 {
+    let _cse_temp_0 = b == 0;
+    if _cse_temp_0 {
+        panic!("{}", "Division by zero");
+    }
+    return a / b;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_divide_examples() {
+        assert_eq!(divide(0, 0), 0);
+        assert_eq!(divide(1, 2), 3);
+        assert_eq!(divide(-1, 1), 0);
+    }
+}
+'''
 
 [[test]]
 name = "result_early_return"
 description = "Can-fail with early return = return Ok()"
 tags = ["return", "result", "early"]
 
-[test.python]
-code = '''
+python = '''
 def safe_divide(a: int, b: int) -> int:
     if b == 0:
         raise ValueError("Division by zero")
@@ -175,20 +309,72 @@ def safe_divide(a: int, b: int) -> int:
     return a / b
 '''
 
-[test.assertions]
-contains = ["fn safe_divide"]
-
-# =============================================================================
-# Combined Result + Optional Returns
-# =============================================================================
+rust = '''
+#[derive(Debug, Clone)]
+pub struct ZeroDivisionError {
+    message: String,
+}
+impl std::fmt::Display for ZeroDivisionError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "division by zero: {}", self.message)
+    }
+}
+impl std::error::Error for ZeroDivisionError {}
+impl ZeroDivisionError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[derive(Debug, Clone)]
+pub struct ValueError {
+    message: String,
+}
+impl std::fmt::Display for ValueError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "value error: {}", self.message)
+    }
+}
+impl std::error::Error for ValueError {}
+impl ValueError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = " Depyler: proven to terminate"]
+pub fn safe_divide(a: i32, b: i32) -> i32 {
+    let _cse_temp_0 = b == 0;
+    if _cse_temp_0 {
+        panic!("{}", "Division by zero");
+    }
+    let _cse_temp_1 = a == 0;
+    if _cse_temp_1 {
+        return 0;
+    }
+    return a / b;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_safe_divide_examples() {
+        assert_eq!(safe_divide(0, 0), 0);
+        assert_eq!(safe_divide(1, 2), 3);
+        assert_eq!(safe_divide(-1, 1), 0);
+    }
+}
+'''
 
 [[test]]
 name = "result_optional_return_some"
 description = "Result + Optional return with Ok(Some()) wrapping"
 tags = ["return", "result", "optional", "some"]
 
-[test.python]
-code = '''
+python = '''
 def safe_find(items: list[int], target: int) -> int | None:
     if len(items) == 0:
         raise ValueError("Empty list")
@@ -198,32 +384,86 @@ def safe_find(items: list[int], target: int) -> int | None:
     return None
 '''
 
-[test.assertions]
-contains = ["fn safe_find"]
+rust = '''
+#[derive(Debug, Clone)]
+pub struct ValueError {
+    message: String,
+}
+impl std::fmt::Display for ValueError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "value error: {}", self.message)
+    }
+}
+impl std::error::Error for ValueError {}
+impl ValueError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+pub fn safe_find(items: &Vec<i32>, target: i32) -> Option<i32> {
+    let _cse_temp_0 = items.clone().len() as i32;
+    let _cse_temp_1 = _cse_temp_0 == 0;
+    if _cse_temp_1 {
+        panic!("{}", "Empty list");
+    }
+    for item in items.iter().cloned() {
+        if item == target {
+            return Some(item);
+        }
+    }
+    return None;
+}
+'''
 
 [[test]]
 name = "result_optional_return_none"
 description = "Result + Optional return with Ok(None) for None literal"
 tags = ["return", "result", "optional", "none"]
 
-[test.python]
-code = '''
+python = '''
 def validate_and_find(items: list[int]) -> int | None:
     if len(items) == 0:
         raise ValueError("Empty list")
     return None
 '''
 
-[test.assertions]
-contains = ["fn validate_and_find"]
+rust = '''
+#[derive(Debug, Clone)]
+pub struct ValueError {
+    message: String,
+}
+impl std::fmt::Display for ValueError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "value error: {}", self.message)
+    }
+}
+impl std::error::Error for ValueError {}
+impl ValueError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = " Depyler: proven to terminate"]
+pub fn validate_and_find(items: &Vec<i32>) -> Option<i32> {
+    let _cse_temp_0 = items.len() as i32;
+    let _cse_temp_1 = _cse_temp_0 == 0;
+    if _cse_temp_1 {
+        panic!("{}", "Empty list");
+    }
+    return None;
+}
+'''
 
 [[test]]
 name = "result_optional_early_return_some"
 description = "Can-fail + Optional + early = return Ok(Some())"
 tags = ["return", "result", "optional", "early"]
 
-[test.python]
-code = '''
+python = '''
 def find_positive(items: list[int]) -> int | None:
     if len(items) == 0:
         raise ValueError("Empty list")
@@ -233,16 +473,45 @@ def find_positive(items: list[int]) -> int | None:
     return None
 '''
 
-[test.assertions]
-contains = ["fn find_positive"]
+rust = '''
+#[derive(Debug, Clone)]
+pub struct ValueError {
+    message: String,
+}
+impl std::fmt::Display for ValueError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "value error: {}", self.message)
+    }
+}
+impl std::error::Error for ValueError {}
+impl ValueError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+pub fn find_positive(items: &Vec<i32>) -> Option<i32> {
+    let _cse_temp_0 = items.clone().len() as i32;
+    let _cse_temp_1 = _cse_temp_0 == 0;
+    if _cse_temp_1 {
+        panic!("{}", "Empty list");
+    }
+    for item in items.iter().cloned() {
+        if item > 0 {
+            return Some(item);
+        }
+    }
+    return None;
+}
+'''
 
 [[test]]
 name = "result_optional_early_return_none"
 description = "Can-fail + Optional + early None = return Ok(None)"
 tags = ["return", "result", "optional", "early", "none"]
 
-[test.python]
-code = '''
+python = '''
 def validate_and_search(items: list[int], target: int) -> int | None:
     if len(items) == 0:
         raise ValueError("Empty list")
@@ -251,89 +520,188 @@ def validate_and_search(items: list[int], target: int) -> int | None:
     return items[0]
 '''
 
-[test.assertions]
-contains = ["fn validate_and_search"]
-
-# =============================================================================
-# Empty Returns
-# =============================================================================
+rust = '''
+#[derive(Debug, Clone)]
+pub struct IndexError {
+    message: String,
+}
+impl std::fmt::Display for IndexError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "index out of range: {}", self.message)
+    }
+}
+impl std::error::Error for IndexError {}
+impl IndexError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[derive(Debug, Clone)]
+pub struct ValueError {
+    message: String,
+}
+impl std::fmt::Display for ValueError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "value error: {}", self.message)
+    }
+}
+impl std::error::Error for ValueError {}
+impl ValueError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = " Depyler: proven to terminate"]
+pub fn validate_and_search(items: &Vec<i32>, target: i32) -> Option<i32> {
+    let _cse_temp_0 = items.clone().len() as i32;
+    let _cse_temp_1 = _cse_temp_0 == 0;
+    if _cse_temp_1 {
+        panic!("{}", "Empty list");
+    }
+    let _cse_temp_2 = target < 0;
+    if _cse_temp_2 {
+        return None;
+    }
+    return Some(items.get(0usize).cloned().unwrap());
+}
+'''
 
 [[test]]
 name = "empty_return_non_failing"
 description = "Bare return or empty in non-failing function"
 tags = ["return", "empty", "unit"]
 
-[test.python]
-code = '''
+python = '''
 def do_something():
     print("Hello")
     return
 '''
 
-[test.assertions]
-contains = ["fn do_something"]
+rust = '''
+pub fn do_something() {
+    println!("{}", "Hello");
+    return;
+}
+'''
 
 [[test]]
 name = "empty_return_can_fail"
 description = "Ok(()) for empty return in can-fail function"
 tags = ["return", "empty", "result"]
 
-[test.python]
-code = '''
+python = '''
 def validate(x: int):
     if x < 0:
         raise ValueError("Negative value")
     return
 '''
 
-[test.assertions]
-contains = ["fn validate"]
+rust = '''
+#[derive(Debug, Clone)]
+pub struct ValueError {
+    message: String,
+}
+impl std::fmt::Display for ValueError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "value error: {}", self.message)
+    }
+}
+impl std::error::Error for ValueError {}
+impl ValueError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = " Depyler: proven to terminate"]
+pub fn validate(x: i32) {
+    let _cse_temp_0 = x < 0;
+    if _cse_temp_0 {
+        panic!("{}", "Negative value");
+    }
+    return;
+}
+'''
 
 [[test]]
 name = "empty_return_can_fail_optional"
 description = "Ok(None) for empty return with Optional in can-fail"
 tags = ["return", "empty", "result", "optional"]
 
-[test.python]
-code = '''
+python = '''
 def find_if_valid(items: list[int]) -> int | None:
     if len(items) == 0:
         raise ValueError("Empty list")
     return
 '''
 
-[test.assertions]
-contains = ["fn find_if_valid"]
-
-# =============================================================================
-# Type Conversion on Return
-# =============================================================================
+rust = '''
+#[derive(Debug, Clone)]
+pub struct ValueError {
+    message: String,
+}
+impl std::fmt::Display for ValueError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "value error: {}", self.message)
+    }
+}
+impl std::error::Error for ValueError {}
+impl ValueError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = " Depyler: proven to terminate"]
+pub fn find_if_valid(items: &Vec<i32>) -> Option<i32> {
+    let _cse_temp_0 = items.len() as i32;
+    let _cse_temp_1 = _cse_temp_0 == 0;
+    if _cse_temp_1 {
+        panic!("{}", "Empty list");
+    }
+    return;
+}
+'''
 
 [[test]]
 name = "type_conversion_len_to_int"
 description = "Type conversion on return (usize → i32)"
 tags = ["return", "type", "conversion"]
 
-[test.python]
-code = '''
+python = '''
 def count_items(items: list[int]) -> int:
     return len(items)
 '''
 
-[test.assertions]
-contains = ["fn count_items"]
-
-# =============================================================================
-# Multiple Returns
-# =============================================================================
+rust = '''
+pub fn count_items(items: &Vec<i32>) -> i32 {
+    return items.len() as i32 as i32;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_count_items_examples() {
+        assert_eq!(count_items(vec![]), 0);
+        assert_eq!(count_items(vec![1]), 1);
+        assert_eq!(count_items(vec![1, 2, 3]), 3);
+    }
+}
+'''
 
 [[test]]
 name = "multiple_early_returns"
 description = "Multiple early returns with different wrapping"
 tags = ["return", "multiple", "optional"]
 
-[test.python]
-code = '''
+python = '''
 def categorize(x: int) -> str | None:
     if x < 0:
         return None
@@ -344,16 +712,30 @@ def categorize(x: int) -> str | None:
     return "many"
 '''
 
-[test.assertions]
-contains = ["fn categorize"]
+rust = '''
+pub fn categorize(x: i32) -> Option<String> {
+    let _cse_temp_0 = x < 0;
+    if _cse_temp_0 {
+        return None;
+    }
+    let _cse_temp_1 = x == 0;
+    if _cse_temp_1 {
+        return Some("zero".to_string());
+    }
+    let _cse_temp_2 = x == 1;
+    if _cse_temp_2 {
+        return Some("one".to_string());
+    }
+    return Some("many".to_string());
+}
+'''
 
 [[test]]
 name = "nested_optional_returns"
 description = "Deep nesting doesn't break wrapping"
 tags = ["return", "nested", "optional"]
 
-[test.python]
-code = '''
+python = '''
 def nested_search(matrix: list[list[int]], target: int) -> int | None:
     for row in matrix:
         for val in row:
@@ -362,20 +744,25 @@ def nested_search(matrix: list[list[int]], target: int) -> int | None:
     return None
 '''
 
-[test.assertions]
-contains = ["fn nested_search"]
-
-# =============================================================================
-# Complex Return Patterns
-# =============================================================================
+rust = '''
+pub fn nested_search(matrix: &Vec<Vec<i32>>, target: i32) -> Option<i32> {
+    for row in matrix.iter().cloned() {
+        for val in row.iter().cloned() {
+            if val == target {
+                return Some(val);
+            }
+        }
+    }
+    return None;
+}
+'''
 
 [[test]]
 name = "complex_return_patterns"
 description = "Complex function with all return patterns"
 tags = ["return", "complex", "integration"]
 
-[test.python]
-code = '''
+python = '''
 def complex_logic(items: list[int], threshold: int) -> int | None:
     """Complex function with multiple return patterns."""
     if len(items) == 0:
@@ -388,5 +775,40 @@ def complex_logic(items: list[int], threshold: int) -> int | None:
     return None
 '''
 
-[test.assertions]
-contains = ["fn complex_logic"]
+rust = '''
+#[derive(Debug, Clone)]
+pub struct ValueError {
+    message: String,
+}
+impl std::fmt::Display for ValueError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "value error: {}", self.message)
+    }
+}
+impl std::error::Error for ValueError {}
+impl ValueError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = "Complex function with multiple return patterns."]
+pub fn complex_logic(items: &Vec<i32>, threshold: i32) -> Option<i32> {
+    let _cse_temp_0 = items.clone().len() as i32;
+    let _cse_temp_1 = _cse_temp_0 == 0;
+    if _cse_temp_1 {
+        panic!("{}", "Empty list");
+    }
+    let _cse_temp_2 = threshold < 0;
+    if _cse_temp_2 {
+        return None;
+    }
+    for item in items.iter().cloned() {
+        if item > threshold {
+            return Some(item);
+        }
+    }
+    return None;
+}
+'''

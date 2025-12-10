@@ -9,146 +9,1385 @@ category = "dunder-methods"
 # __iter__
 # =============================================================================
 
-# TODO: Test __iter__ returning self
-# [[test]]
-# name = "dunder_iter_self"
-# description = "def __iter__(self): return self (iterator)"
+[[test]]
+name = "dunder_iter_self"
+description = "Iterator returning self"
+python = """
+class Counter:
+    def __init__(self, max_val):
+        self.max_val = max_val
+        self.current = 0
+    
+    def __iter__(self):
+        return self
+    
+    def __next__(self):
+        if self.current < self.max_val:
+            self.current += 1
+            return self.current
+        raise StopIteration
 
-# TODO: Test __iter__ returning iterator
-# [[test]]
-# name = "dunder_iter_new"
-# description = "def __iter__(self): return iter(self.items)"
+counter = Counter(3)
+for i in counter:
+    print(i)
+"""
+rust = """
+struct Counter {
+    max_val: i32,
+    current: i32,
+}
 
-# TODO: Test __iter__ with generator
-# [[test]]
-# name = "dunder_iter_generator"
-# description = "def __iter__(self): yield from self.items"
+impl Counter {
+    fn new(max_val: i32) -> Self {
+        Counter { max_val, current: 0 }
+    }
+}
 
-# TODO: Test iter() builtin
-# [[test]]
-# name = "iter_builtin"
-# description = "iter(obj) calls obj.__iter__()"
+impl Iterator for Counter {
+    type Item = i32;
+    
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.current < self.max_val {
+            self.current += 1;
+            Some(self.current)
+        } else {
+            None
+        }
+    }
+}
+
+fn main() {
+    let counter = Counter::new(3);
+    for i in counter {
+        println!("{}", i);
+    }
+}
+"""
+expected_output = """1
+2
+3"""
+
+[[test]]
+name = "dunder_iter_new"
+description = "Iterable returning new iterator"
+python = """
+class NumberList:
+    def __init__(self, numbers):
+        self.numbers = numbers
+    
+    def __iter__(self):
+        return iter(self.numbers)
+
+num_list = NumberList([1, 2, 3])
+for n in num_list:
+    print(n)
+"""
+rust = """
+struct NumberList {
+    numbers: Vec<i32>,
+}
+
+impl NumberList {
+    fn new(numbers: Vec<i32>) -> Self {
+        NumberList { numbers }
+    }
+}
+
+impl IntoIterator for NumberList {
+    type Item = i32;
+    type IntoIter = std::vec::IntoIter<i32>;
+    
+    fn into_iter(self) -> Self::IntoIter {
+        self.numbers.into_iter()
+    }
+}
+
+fn main() {
+    let num_list = NumberList::new(vec![1, 2, 3]);
+    for n in num_list {
+        println!("{}", n);
+    }
+}
+"""
+expected_output = """1
+2
+3"""
+
+[[test]]
+name = "dunder_iter_generator"
+description = "Iterator using generator"
+python = """
+class NumberGenerator:
+    def __init__(self, max_val):
+        self.max_val = max_val
+    
+    def __iter__(self):
+        for i in range(1, self.max_val + 1):
+            yield i
+
+gen = NumberGenerator(3)
+for n in gen:
+    print(n)
+"""
+rust = """
+struct NumberGenerator {
+    max_val: i32,
+    current: i32,
+}
+
+impl NumberGenerator {
+    fn new(max_val: i32) -> Self {
+        NumberGenerator { max_val, current: 0 }
+    }
+}
+
+impl Iterator for NumberGenerator {
+    type Item = i32;
+    
+    fn next(&mut self) -> Option<Self::Item> {
+        self.current += 1;
+        if self.current <= self.max_val {
+            Some(self.current)
+        } else {
+            None
+        }
+    }
+}
+
+fn main() {
+    let gen = NumberGenerator::new(3);
+    for n in gen {
+        println!("{}", n);
+    }
+}
+"""
+expected_output = """1
+2
+3"""
+
+[[test]]
+name = "iter_builtin"
+description = "iter() builtin calls __iter__"
+python = """
+class MyList:
+    def __init__(self, items):
+        self.items = items
+    
+    def __iter__(self):
+        print("__iter__ called")
+        return iter(self.items)
+
+my_list = MyList([1, 2, 3])
+iterator = iter(my_list)
+print(next(iterator))
+print(next(iterator))
+"""
+rust = """
+struct MyList {
+    items: Vec<i32>,
+}
+
+impl MyList {
+    fn new(items: Vec<i32>) -> Self {
+        MyList { items }
+    }
+}
+
+impl IntoIterator for MyList {
+    type Item = i32;
+    type IntoIter = std::vec::IntoIter<i32>;
+    
+    fn into_iter(self) -> Self::IntoIter {
+        println!("__iter__ called");
+        self.items.into_iter()
+    }
+}
+
+fn main() {
+    let my_list = MyList::new(vec![1, 2, 3]);
+    let mut iterator = my_list.into_iter();
+    println!("{}", iterator.next().unwrap());
+    println!("{}", iterator.next().unwrap());
+}
+"""
+expected_output = """__iter__ called
+1
+2"""
 
 # =============================================================================
 # __next__
 # =============================================================================
 
-# TODO: Test __next__
-# [[test]]
-# name = "dunder_next"
-# description = "def __next__(self): return next_item or raise StopIteration"
+[[test]]
+name = "dunder_next"
+description = "Iterator protocol with __next__"
+python = """
+class SimpleIterator:
+    def __init__(self, data):
+        self.data = data
+        self.index = 0
+    
+    def __iter__(self):
+        return self
+    
+    def __next__(self):
+        if self.index < len(self.data):
+            result = self.data[self.index]
+            self.index += 1
+            return result
+        raise StopIteration
 
-# TODO: Test StopIteration
-# [[test]]
-# name = "stop_iteration"
-# description = "raise StopIteration to end iteration"
+it = SimpleIterator([10, 20, 30])
+print(next(it))
+print(next(it))
+print(next(it))
+"""
+rust = """
+struct SimpleIterator {
+    data: Vec<i32>,
+    index: usize,
+}
 
-# TODO: Test next() builtin
-# [[test]]
-# name = "next_builtin"
-# description = "next(iterator) calls iterator.__next__()"
+impl SimpleIterator {
+    fn new(data: Vec<i32>) -> Self {
+        SimpleIterator { data, index: 0 }
+    }
+}
 
-# TODO: Test next() with default
-# [[test]]
-# name = "next_default"
-# description = "next(iterator, default) returns default on StopIteration"
+impl Iterator for SimpleIterator {
+    type Item = i32;
+    
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.index < self.data.len() {
+            let result = self.data[self.index];
+            self.index += 1;
+            Some(result)
+        } else {
+            None
+        }
+    }
+}
+
+fn main() {
+    let mut it = SimpleIterator::new(vec![10, 20, 30]);
+    println!("{}", it.next().unwrap());
+    println!("{}", it.next().unwrap());
+    println!("{}", it.next().unwrap());
+}
+"""
+expected_output = """10
+20
+30"""
+
+[[test]]
+name = "stop_iteration"
+description = "StopIteration signals end of iteration"
+python = """
+class ThreeIterator:
+    def __init__(self):
+        self.count = 0
+    
+    def __iter__(self):
+        return self
+    
+    def __next__(self):
+        if self.count < 3:
+            self.count += 1
+            return self.count
+        raise StopIteration
+
+it = ThreeIterator()
+try:
+    while True:
+        print(next(it))
+except StopIteration:
+    print("Done")
+"""
+rust = """
+struct ThreeIterator {
+    count: i32,
+}
+
+impl ThreeIterator {
+    fn new() -> Self {
+        ThreeIterator { count: 0 }
+    }
+}
+
+impl Iterator for ThreeIterator {
+    type Item = i32;
+    
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.count < 3 {
+            self.count += 1;
+            Some(self.count)
+        } else {
+            None
+        }
+    }
+}
+
+fn main() {
+    let mut it = ThreeIterator::new();
+    while let Some(val) = it.next() {
+        println!("{}", val);
+    }
+    println!("Done");
+}
+"""
+expected_output = """1
+2
+3
+Done"""
+
+[[test]]
+name = "next_builtin"
+description = "next() builtin calls __next__"
+python = """
+class MyIterator:
+    def __init__(self, items):
+        self.items = items
+        self.index = 0
+    
+    def __iter__(self):
+        return self
+    
+    def __next__(self):
+        if self.index < len(self.items):
+            result = self.items[self.index]
+            self.index += 1
+            return result
+        raise StopIteration
+
+it = MyIterator(['a', 'b', 'c'])
+print(next(it))
+print(next(it))
+"""
+rust = """
+struct MyIterator {
+    items: Vec<char>,
+    index: usize,
+}
+
+impl MyIterator {
+    fn new(items: Vec<char>) -> Self {
+        MyIterator { items, index: 0 }
+    }
+}
+
+impl Iterator for MyIterator {
+    type Item = char;
+    
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.index < self.items.len() {
+            let result = self.items[self.index];
+            self.index += 1;
+            Some(result)
+        } else {
+            None
+        }
+    }
+}
+
+fn main() {
+    let mut it = MyIterator::new(vec!['a', 'b', 'c']);
+    println!("{}", it.next().unwrap());
+    println!("{}", it.next().unwrap());
+}
+"""
+expected_output = """a
+b"""
+
+[[test]]
+name = "next_default"
+description = "next() with default value"
+python = """
+class MyIterator:
+    def __init__(self, items):
+        self.items = items
+        self.index = 0
+    
+    def __iter__(self):
+        return self
+    
+    def __next__(self):
+        if self.index < len(self.items):
+            result = self.items[self.index]
+            self.index += 1
+            return result
+        raise StopIteration
+
+it = MyIterator([1, 2])
+print(next(it, -1))
+print(next(it, -1))
+print(next(it, -1))  # Exhausted, returns default
+"""
+rust = """
+struct MyIterator {
+    items: Vec<i32>,
+    index: usize,
+}
+
+impl MyIterator {
+    fn new(items: Vec<i32>) -> Self {
+        MyIterator { items, index: 0 }
+    }
+}
+
+impl Iterator for MyIterator {
+    type Item = i32;
+    
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.index < self.items.len() {
+            let result = self.items[self.index];
+            self.index += 1;
+            Some(result)
+        } else {
+            None
+        }
+    }
+}
+
+fn main() {
+    let mut it = MyIterator::new(vec![1, 2]);
+    println!("{}", it.next().unwrap_or(-1));
+    println!("{}", it.next().unwrap_or(-1));
+    println!("{}", it.next().unwrap_or(-1));
+}
+"""
+expected_output = """1
+2
+-1"""
 
 # =============================================================================
 # __reversed__
 # =============================================================================
 
-# TODO: Test __reversed__
-# [[test]]
-# name = "dunder_reversed"
-# description = "def __reversed__(self): return reversed(self.items)"
+[[test]]
+name = "dunder_reversed"
+description = "Custom __reversed__ implementation"
+python = """
+class MyList:
+    def __init__(self, items):
+        self.items = items
+    
+    def __reversed__(self):
+        return iter(reversed(self.items))
 
-# TODO: Test reversed() builtin
-# [[test]]
-# name = "reversed_builtin"
-# description = "reversed(obj) calls obj.__reversed__()"
+my_list = MyList([1, 2, 3])
+for item in reversed(my_list):
+    print(item)
+"""
+rust = """
+struct MyList {
+    items: Vec<i32>,
+}
 
-# TODO: Test reversed fallback
-# [[test]]
-# name = "reversed_fallback"
-# description = "Without __reversed__, uses __len__ + __getitem__"
+impl MyList {
+    fn new(items: Vec<i32>) -> Self {
+        MyList { items }
+    }
+    
+    fn reversed(&self) -> impl Iterator<Item = &i32> {
+        self.items.iter().rev()
+    }
+}
+
+fn main() {
+    let my_list = MyList::new(vec![1, 2, 3]);
+    for item in my_list.reversed() {
+        println!("{}", item);
+    }
+}
+"""
+expected_output = """3
+2
+1"""
+
+[[test]]
+name = "reversed_builtin"
+description = "reversed() builtin"
+python = """
+class MySequence:
+    def __init__(self, data):
+        self.data = data
+    
+    def __reversed__(self):
+        print("__reversed__ called")
+        for item in reversed(self.data):
+            yield item
+
+seq = MySequence([10, 20, 30])
+for item in reversed(seq):
+    print(item)
+"""
+rust = """
+struct MySequence {
+    data: Vec<i32>,
+}
+
+impl MySequence {
+    fn new(data: Vec<i32>) -> Self {
+        MySequence { data }
+    }
+    
+    fn reversed(&self) -> impl Iterator<Item = &i32> {
+        println!("__reversed__ called");
+        self.data.iter().rev()
+    }
+}
+
+fn main() {
+    let seq = MySequence::new(vec![10, 20, 30]);
+    for item in seq.reversed() {
+        println!("{}", item);
+    }
+}
+"""
+expected_output = """__reversed__ called
+30
+20
+10"""
+
+[[test]]
+name = "reversed_fallback"
+description = "reversed() fallback to __len__ and __getitem__"
+python = """
+class MySequence:
+    def __init__(self, data):
+        self.data = data
+    
+    def __len__(self):
+        return len(self.data)
+    
+    def __getitem__(self, index):
+        return self.data[index]
+
+seq = MySequence([5, 10, 15])
+for item in reversed(seq):
+    print(item)
+"""
+rust = """
+struct MySequence {
+    data: Vec<i32>,
+}
+
+impl MySequence {
+    fn new(data: Vec<i32>) -> Self {
+        MySequence { data }
+    }
+    
+    fn len(&self) -> usize {
+        self.data.len()
+    }
+    
+    fn get(&self, index: usize) -> Option<&i32> {
+        self.data.get(index)
+    }
+}
+
+fn main() {
+    let seq = MySequence::new(vec![5, 10, 15]);
+    for i in (0..seq.len()).rev() {
+        println!("{}", seq.get(i).unwrap());
+    }
+}
+"""
+expected_output = """15
+10
+5"""
 
 # =============================================================================
 # Iterator Protocol
 # =============================================================================
 
-# TODO: Test custom iterator class
-# [[test]]
-# name = "custom_iterator"
-# description = "Class with __iter__ and __next__"
+[[test]]
+name = "custom_iterator"
+description = "Complete iterator implementation"
+python = """
+class Countdown:
+    def __init__(self, start):
+        self.current = start
+    
+    def __iter__(self):
+        return self
+    
+    def __next__(self):
+        if self.current <= 0:
+            raise StopIteration
+        self.current -= 1
+        return self.current + 1
 
-# TODO: Test iterator state
-# [[test]]
-# name = "iterator_state"
-# description = "Iterator maintains position state"
+for i in Countdown(3):
+    print(i)
+"""
+rust = """
+struct Countdown {
+    current: i32,
+}
 
-# TODO: Test iterator exhaustion
-# [[test]]
-# name = "iterator_exhausted"
-# description = "Iterator raises StopIteration when exhausted"
+impl Countdown {
+    fn new(start: i32) -> Self {
+        Countdown { current: start }
+    }
+}
 
-# TODO: Test multiple iterations
-# [[test]]
-# name = "multiple_iterations"
-# description = "Iterable can be iterated multiple times"
+impl Iterator for Countdown {
+    type Item = i32;
+    
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.current <= 0 {
+            None
+        } else {
+            let result = self.current;
+            self.current -= 1;
+            Some(result)
+        }
+    }
+}
+
+fn main() {
+    for i in Countdown::new(3) {
+        println!("{}", i);
+    }
+}
+"""
+expected_output = """3
+2
+1"""
+
+[[test]]
+name = "iterator_state"
+description = "Iterator maintains position"
+python = """
+class PositionIterator:
+    def __init__(self, items):
+        self.items = items
+        self.position = 0
+    
+    def __iter__(self):
+        return self
+    
+    def __next__(self):
+        if self.position >= len(self.items):
+            raise StopIteration
+        result = self.items[self.position]
+        self.position += 1
+        return result
+
+it = PositionIterator(['a', 'b', 'c'])
+print(next(it))
+print(f"Position: {it.position}")
+print(next(it))
+print(f"Position: {it.position}")
+"""
+rust = """
+struct PositionIterator {
+    items: Vec<char>,
+    position: usize,
+}
+
+impl PositionIterator {
+    fn new(items: Vec<char>) -> Self {
+        PositionIterator { items, position: 0 }
+    }
+}
+
+impl Iterator for PositionIterator {
+    type Item = char;
+    
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.position >= self.items.len() {
+            None
+        } else {
+            let result = self.items[self.position];
+            self.position += 1;
+            Some(result)
+        }
+    }
+}
+
+fn main() {
+    let mut it = PositionIterator::new(vec!['a', 'b', 'c']);
+    println!("{}", it.next().unwrap());
+    println!("Position: {}", it.position);
+    println!("{}", it.next().unwrap());
+    println!("Position: {}", it.position);
+}
+"""
+expected_output = """a
+Position: 1
+b
+Position: 2"""
+
+[[test]]
+name = "iterator_exhausted"
+description = "Iterator raises StopIteration when exhausted"
+python = """
+class TwoIterator:
+    def __init__(self):
+        self.count = 0
+    
+    def __iter__(self):
+        return self
+    
+    def __next__(self):
+        if self.count < 2:
+            self.count += 1
+            return self.count
+        raise StopIteration
+
+it = TwoIterator()
+print(next(it))
+print(next(it))
+try:
+    print(next(it))
+except StopIteration:
+    print("Exhausted")
+"""
+rust = """
+struct TwoIterator {
+    count: i32,
+}
+
+impl TwoIterator {
+    fn new() -> Self {
+        TwoIterator { count: 0 }
+    }
+}
+
+impl Iterator for TwoIterator {
+    type Item = i32;
+    
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.count < 2 {
+            self.count += 1;
+            Some(self.count)
+        } else {
+            None
+        }
+    }
+}
+
+fn main() {
+    let mut it = TwoIterator::new();
+    println!("{}", it.next().unwrap());
+    println!("{}", it.next().unwrap());
+    match it.next() {
+        Some(val) => println!("{}", val),
+        None => println!("Exhausted"),
+    }
+}
+"""
+expected_output = """1
+2
+Exhausted"""
+
+[[test]]
+name = "multiple_iterations"
+description = "Iterable can be iterated multiple times"
+python = """
+class ReusableIterable:
+    def __init__(self, items):
+        self.items = items
+    
+    def __iter__(self):
+        return iter(self.items)
+
+iterable = ReusableIterable([1, 2, 3])
+print("First iteration:")
+for item in iterable:
+    print(item)
+print("Second iteration:")
+for item in iterable:
+    print(item)
+"""
+rust = """
+struct ReusableIterable {
+    items: Vec<i32>,
+}
+
+impl ReusableIterable {
+    fn new(items: Vec<i32>) -> Self {
+        ReusableIterable { items }
+    }
+}
+
+impl<'a> IntoIterator for &'a ReusableIterable {
+    type Item = &'a i32;
+    type IntoIter = std::slice::Iter<'a, i32>;
+    
+    fn into_iter(self) -> Self::IntoIter {
+        self.items.iter()
+    }
+}
+
+fn main() {
+    let iterable = ReusableIterable::new(vec![1, 2, 3]);
+    println!("First iteration:");
+    for item in &iterable {
+        println!("{}", item);
+    }
+    println!("Second iteration:");
+    for item in &iterable {
+        println!("{}", item);
+    }
+}
+"""
+expected_output = """First iteration:
+1
+2
+3
+Second iteration:
+1
+2
+3"""
 
 # =============================================================================
 # For Loop Integration
 # =============================================================================
 
-# TODO: Test for loop
-# [[test]]
-# name = "for_loop"
-# description = "for x in obj: uses __iter__ and __next__"
+[[test]]
+name = "for_loop"
+description = "For loop uses iterator protocol"
+python = """
+class CustomRange:
+    def __init__(self, end):
+        self.end = end
+    
+    def __iter__(self):
+        return RangeIterator(self.end)
 
-# TODO: Test for loop with break
-# [[test]]
-# name = "for_break"
-# description = "Breaking from loop doesn't exhaust iterator"
+class RangeIterator:
+    def __init__(self, end):
+        self.end = end
+        self.current = 0
+    
+    def __iter__(self):
+        return self
+    
+    def __next__(self):
+        if self.current < self.end:
+            result = self.current
+            self.current += 1
+            return result
+        raise StopIteration
 
-# TODO: Test unpacking
-# [[test]]
-# name = "unpack_iterable"
-# description = "a, b, c = iterable uses __iter__"
+for i in CustomRange(3):
+    print(i)
+"""
+rust = """
+struct CustomRange {
+    end: i32,
+}
+
+impl CustomRange {
+    fn new(end: i32) -> Self {
+        CustomRange { end }
+    }
+}
+
+struct RangeIterator {
+    end: i32,
+    current: i32,
+}
+
+impl RangeIterator {
+    fn new(end: i32) -> Self {
+        RangeIterator { end, current: 0 }
+    }
+}
+
+impl Iterator for RangeIterator {
+    type Item = i32;
+    
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.current < self.end {
+            let result = self.current;
+            self.current += 1;
+            Some(result)
+        } else {
+            None
+        }
+    }
+}
+
+impl IntoIterator for CustomRange {
+    type Item = i32;
+    type IntoIter = RangeIterator;
+    
+    fn into_iter(self) -> Self::IntoIter {
+        RangeIterator::new(self.end)
+    }
+}
+
+fn main() {
+    for i in CustomRange::new(3) {
+        println!("{}", i);
+    }
+}
+"""
+expected_output = """0
+1
+2"""
+
+[[test]]
+name = "for_break"
+description = "Breaking from loop"
+python = """
+class InfiniteCounter:
+    def __iter__(self):
+        return self
+    
+    def __next__(self):
+        return 1
+
+counter = InfiniteCounter()
+count = 0
+for val in counter:
+    count += 1
+    print(val)
+    if count >= 3:
+        break
+print("Done")
+"""
+rust = """
+struct InfiniteCounter;
+
+impl InfiniteCounter {
+    fn new() -> Self {
+        InfiniteCounter
+    }
+}
+
+impl Iterator for InfiniteCounter {
+    type Item = i32;
+    
+    fn next(&mut self) -> Option<Self::Item> {
+        Some(1)
+    }
+}
+
+fn main() {
+    let counter = InfiniteCounter::new();
+    let mut count = 0;
+    for val in counter {
+        count += 1;
+        println!("{}", val);
+        if count >= 3 {
+            break;
+        }
+    }
+    println!("Done");
+}
+"""
+expected_output = """1
+1
+1
+Done"""
+
+[[test]]
+name = "unpack_iterable"
+description = "Unpacking uses iterator protocol"
+python = """
+class Triple:
+    def __init__(self, a, b, c):
+        self.items = [a, b, c]
+    
+    def __iter__(self):
+        return iter(self.items)
+
+triple = Triple(10, 20, 30)
+a, b, c = triple
+print(f"{a}, {b}, {c}")
+"""
+rust = """
+struct Triple {
+    items: [i32; 3],
+}
+
+impl Triple {
+    fn new(a: i32, b: i32, c: i32) -> Self {
+        Triple { items: [a, b, c] }
+    }
+    
+    fn unpack(&self) -> (i32, i32, i32) {
+        (self.items[0], self.items[1], self.items[2])
+    }
+}
+
+fn main() {
+    let triple = Triple::new(10, 20, 30);
+    let (a, b, c) = triple.unpack();
+    println!("{}, {}, {}", a, b, c);
+}
+"""
+expected_output = "10, 20, 30"
 
 # =============================================================================
 # Use Cases
 # =============================================================================
 
-# TODO: Test range-like iterator
-# [[test]]
-# name = "range_iterator"
-# description = "Custom range implementation"
+[[test]]
+name = "range_iterator"
+description = "Custom range implementation"
+python = """
+class MyRange:
+    def __init__(self, start, end, step=1):
+        self.start = start
+        self.end = end
+        self.step = step
+    
+    def __iter__(self):
+        current = self.start
+        while current < self.end:
+            yield current
+            current += self.step
 
-# TODO: Test file-like iterator
-# [[test]]
-# name = "file_iterator"
-# description = "Iterate over lines"
+for i in MyRange(0, 6, 2):
+    print(i)
+"""
+rust = """
+struct MyRange {
+    current: i32,
+    end: i32,
+    step: i32,
+}
 
-# TODO: Test infinite iterator
-# [[test]]
-# name = "infinite_iterator"
-# description = "Iterator that never raises StopIteration"
+impl MyRange {
+    fn new(start: i32, end: i32, step: i32) -> Self {
+        MyRange {
+            current: start,
+            end,
+            step,
+        }
+    }
+}
+
+impl Iterator for MyRange {
+    type Item = i32;
+    
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.current < self.end {
+            let result = self.current;
+            self.current += self.step;
+            Some(result)
+        } else {
+            None
+        }
+    }
+}
+
+fn main() {
+    for i in MyRange::new(0, 6, 2) {
+        println!("{}", i);
+    }
+}
+"""
+expected_output = """0
+2
+4"""
+
+[[test]]
+name = "file_iterator"
+description = "Iterate over lines"
+python = """
+class LineReader:
+    def __init__(self, lines):
+        self.lines = lines
+    
+    def __iter__(self):
+        return iter(self.lines)
+
+reader = LineReader(["line 1", "line 2", "line 3"])
+for line in reader:
+    print(line)
+"""
+rust = """
+struct LineReader {
+    lines: Vec<String>,
+}
+
+impl LineReader {
+    fn new(lines: Vec<String>) -> Self {
+        LineReader { lines }
+    }
+}
+
+impl IntoIterator for LineReader {
+    type Item = String;
+    type IntoIter = std::vec::IntoIter<String>;
+    
+    fn into_iter(self) -> Self::IntoIter {
+        self.lines.into_iter()
+    }
+}
+
+fn main() {
+    let reader = LineReader::new(vec![
+        "line 1".to_string(),
+        "line 2".to_string(),
+        "line 3".to_string(),
+    ]);
+    for line in reader {
+        println!("{}", line);
+    }
+}
+"""
+expected_output = """line 1
+line 2
+line 3"""
+
+[[test]]
+name = "infinite_iterator"
+description = "Iterator that never stops"
+python = """
+class Repeater:
+    def __init__(self, value):
+        self.value = value
+    
+    def __iter__(self):
+        return self
+    
+    def __next__(self):
+        return self.value
+
+repeater = Repeater(42)
+for i, val in enumerate(repeater):
+    print(val)
+    if i >= 2:
+        break
+"""
+rust = """
+struct Repeater {
+    value: i32,
+}
+
+impl Repeater {
+    fn new(value: i32) -> Self {
+        Repeater { value }
+    }
+}
+
+impl Iterator for Repeater {
+    type Item = i32;
+    
+    fn next(&mut self) -> Option<Self::Item> {
+        Some(self.value)
+    }
+}
+
+fn main() {
+    let repeater = Repeater::new(42);
+    for (i, val) in repeater.enumerate() {
+        println!("{}", val);
+        if i >= 2 {
+            break;
+        }
+    }
+}
+"""
+expected_output = """42
+42
+42"""
 
 # =============================================================================
 # Edge Cases
 # =============================================================================
 
-# TODO: Test iterator not reusable
-# [[test]]
-# name = "iterator_not_reusable"
-# description = "Iterator exhausted after one pass"
+[[test]]
+name = "iterator_not_reusable"
+description = "Iterator exhausted after one pass"
+python = """
+class OneTimeIterator:
+    def __init__(self, items):
+        self.items = items
+        self.index = 0
+    
+    def __iter__(self):
+        return self
+    
+    def __next__(self):
+        if self.index < len(self.items):
+            result = self.items[self.index]
+            self.index += 1
+            return result
+        raise StopIteration
 
-# TODO: Test iter with sentinel
-# [[test]]
-# name = "iter_sentinel"
-# description = "iter(callable, sentinel) two-arg form"
+it = OneTimeIterator([1, 2, 3])
+print("First pass:")
+for item in it:
+    print(item)
+print("Second pass:")
+for item in it:
+    print(item)
+print("Done")
+"""
+rust = """
+struct OneTimeIterator {
+    items: Vec<i32>,
+    index: usize,
+}
 
-# TODO: Test __length_hint__
-# [[test]]
-# name = "length_hint"
-# description = "Optional hint for container allocation"
+impl OneTimeIterator {
+    fn new(items: Vec<i32>) -> Self {
+        OneTimeIterator { items, index: 0 }
+    }
+}
+
+impl Iterator for OneTimeIterator {
+    type Item = i32;
+    
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.index < self.items.len() {
+            let result = self.items[self.index];
+            self.index += 1;
+            Some(result)
+        } else {
+            None
+        }
+    }
+}
+
+fn main() {
+    let mut it = OneTimeIterator::new(vec![1, 2, 3]);
+    println!("First pass:");
+    for item in &mut it {
+        println!("{}", item);
+    }
+    println!("Second pass:");
+    for item in &mut it {
+        println!("{}", item);
+    }
+    println!("Done");
+}
+"""
+expected_output = """First pass:
+1
+2
+3
+Second pass:
+Done"""
+
+[[test]]
+name = "iter_sentinel"
+description = "iter() with sentinel value"
+python = """
+class Counter:
+    def __init__(self):
+        self.count = 0
+    
+    def __call__(self):
+        self.count += 1
+        return self.count
+
+counter = Counter()
+# Stop when counter returns 3
+for val in iter(counter, 3):
+    print(val)
+"""
+rust = """
+struct Counter {
+    count: i32,
+}
+
+impl Counter {
+    fn new() -> Self {
+        Counter { count: 0 }
+    }
+    
+    fn next(&mut self) -> i32 {
+        self.count += 1;
+        self.count
+    }
+}
+
+fn main() {
+    let mut counter = Counter::new();
+    loop {
+        let val = counter.next();
+        if val == 3 {
+            break;
+        }
+        println!("{}", val);
+    }
+}
+"""
+expected_output = """1
+2"""
+
+[[test]]
+name = "length_hint"
+description = "Optional __length_hint__ for optimization"
+python = """
+class HintedIterator:
+    def __init__(self, items):
+        self.items = items
+        self.index = 0
+    
+    def __iter__(self):
+        return self
+    
+    def __next__(self):
+        if self.index < len(self.items):
+            result = self.items[self.index]
+            self.index += 1
+            return result
+        raise StopIteration
+    
+    def __length_hint__(self):
+        return len(self.items) - self.index
+
+it = HintedIterator([1, 2, 3, 4, 5])
+print(f"Length hint: {it.__length_hint__()}")
+print(next(it))
+print(next(it))
+print(f"Length hint: {it.__length_hint__()}")
+"""
+rust = """
+struct HintedIterator {
+    items: Vec<i32>,
+    index: usize,
+}
+
+impl HintedIterator {
+    fn new(items: Vec<i32>) -> Self {
+        HintedIterator { items, index: 0 }
+    }
+    
+    fn length_hint(&self) -> usize {
+        self.items.len() - self.index
+    }
+}
+
+impl Iterator for HintedIterator {
+    type Item = i32;
+    
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.index < self.items.len() {
+            let result = self.items[self.index];
+            self.index += 1;
+            Some(result)
+        } else {
+            None
+        }
+    }
+    
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        let remaining = self.items.len() - self.index;
+        (remaining, Some(remaining))
+    }
+}
+
+fn main() {
+    let mut it = HintedIterator::new(vec![1, 2, 3, 4, 5]);
+    println!("Length hint: {}", it.length_hint());
+    println!("{}", it.next().unwrap());
+    println!("{}", it.next().unwrap());
+    println!("Length hint: {}", it.length_hint());
+}
+"""
+expected_output = """Length hint: 5
+1
+2
+Length hint: 3"""

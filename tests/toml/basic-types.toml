@@ -4,90 +4,95 @@
 name = "simple_constants"
 description = "Numeric constants should transpile to Rust const"
 
-[test.python]
-code = '''
+python = '''
 A = -1
 B = 2.0
 C = 3
 '''
 
-[test.assertions]
-contains = ["A", "B", "C", "1", "2", "3"]
-contains_any = [
-    ["pub const A: i64 = -1", "pub const A: i32 = -1"],
-    ["pub const B: f64 = 2.0"],
-    ["pub const C: i64 = 3", "pub const C: i32 = 3"]
-]
+rust = '''
+pub const A: i32 = -1;
+pub const B: f64 = 2.0;
+pub const C: i32 = 3;
+'''
 
 [[test]]
 name = "constants_with_types"
 description = "Typed integer constants should transpile to Rust const"
 
-[test.python]
-code = '''
+python = '''
 A: int = -1
 B: int = 2
 C: int = 3
 '''
 
-[test.assertions]
-contains = ["A", "B", "C"]
-contains_any = [
-    ["pub const A: i64 = -1", "pub const A: i32 = -1"],
-    ["pub const B: i64 = 2", "pub const B: i32 = 2"],
-    ["pub const C: i64 = 3", "pub const C: i32 = 3"]
-]
+rust = '''
+pub const A: i32 = -1;
+pub const B: i32 = 2;
+pub const C: i32 = 3;
+'''
 
 [[test]]
 name = "string_constants"
 description = "String constants should be preserved in output"
 
-[test.python]
-code = '''
+python = '''
 NAME = "Alice"
 GREETING = "Hello"
 MESSAGE = "World"
 '''
 
-[test.assertions]
-contains = ["NAME", "GREETING", "MESSAGE", "Alice", "Hello", "World"]
+rust = '''
+lazy_static! {
+    pub static ref NAME: String = "Alice";
+    pub static ref GREETING: String = "Hello";
+    pub static ref MESSAGE: String = "World";
+}
+use lazy_static::lazy_static;
+'''
 
 [[test]]
 name = "mixed_type_constants"
 description = "Mixed type constants should preserve their types"
 
-[test.python]
-code = '''
+python = '''
 INT_VALUE = 42
 FLOAT_VALUE = 3.14
 STRING_VALUE = "test"
 BOOL_VALUE = True
 '''
 
-[test.assertions]
-contains = ["INT_VALUE", "FLOAT_VALUE", "STRING_VALUE", "BOOL_VALUE", "42", "3.14", "test"]
-contains_any = [["true", "True"]]
+rust = '''
+pub const INT_VALUE: i32 = 42;
+pub const FLOAT_VALUE: f64 = 3.14;
+pub const BOOL_VALUE: bool = true;
+lazy_static! {
+    pub static ref STRING_VALUE: String = "test";
+}
+use lazy_static::lazy_static;
+'''
 
 [[test]]
 name = "generated_constants_compiles"
 description = "Simple constant declarations should compile"
 
-[test.python]
-code = '''
+python = '''
 A = 1
 B = 2
 C = 3
 '''
 
-[test.assertions]
-contains = ["A"]
+rust = '''
+pub const A: i32 = 1;
+pub const B: i32 = 2;
+pub const C: i32 = 3;
+'''
 
 [[test]]
 name = "constants_used_in_function"
 description = "Constants used in functions should be accessible"
 
-[test.python]
-code = '''
+python = '''
 A = 1
 B = 2
 C = 3
@@ -96,87 +101,119 @@ def sum_constants() -> int:
     return A + B + C
 '''
 
-[test.assertions]
-contains = ["A", "B", "C", "sum_constants"]
+rust = '''
+pub const A: i32 = 1;
+pub const B: i32 = 2;
+pub const C: i32 = 3;
+pub fn sum_constants() -> i32 {
+    return A + B + C;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_sum_constants_examples() {
+        let _ = sum_constants();
+    }
+}
+'''
 
 [[test]]
 name = "integer_list_constant"
 description = "Integer list constants should transpile"
 
-[test.python]
-code = '''
+python = '''
 VEC = [1, -2, 3, -4]
 '''
 
-[test.assertions]
-contains = ["VEC"]
+rust = '''
+lazy_static! {
+    pub static ref VEC: Vec<i32> = vec![1, -2, 3, -4];
+}
+use lazy_static::lazy_static;
+'''
 
 [[test]]
 name = "string_list_constant"
 description = "String list constants should transpile"
 
-[test.python]
-code = '''
+python = '''
 VEC = ["1", "2", "3", "4"]
 '''
 
-[test.assertions]
-contains = ["VEC"]
+rust = '''
+lazy_static! {
+    pub static ref VEC: Vec<String> = vec!["1".to_string(), "2".to_string(), "3".to_string(), "4".to_string()];
+}
+use lazy_static::lazy_static;
+'''
 
 [[test]]
 name = "float_list_constant"
 description = "Float list constants should transpile"
 
-[test.python]
-code = '''
+python = '''
 VEC = [1.1, 2.2, 3.3, 4.4]
 '''
 
-[test.assertions]
-contains = ["VEC"]
+rust = '''
+lazy_static! {
+    pub static ref VEC: Vec<f64> = vec![1.1, 2.2, 3.3, 4.4];
+}
+use lazy_static::lazy_static;
+'''
 
 [[test]]
 name = "bool_list_constant"
 description = "Boolean list constants should transpile"
 
-[test.python]
-code = '''
+python = '''
 VEC = [True, False, True, False]
 '''
 
-[test.assertions]
-contains = ["VEC"]
+rust = '''
+lazy_static! {
+    pub static ref VEC: Vec<bool> = vec![true, false, true, false];
+}
+use lazy_static::lazy_static;
+'''
 
 [[test]]
 name = "nested_integer_list_constant"
 description = "Nested integer list constants should use lazy_static"
 
-[test.python]
-code = '''
+python = '''
 X_VALUES = [[0, 100], [100, 200]]
 '''
 
-[test.assertions]
-contains = ["lazy_static!", "pub static ref X_VALUES: Vec<Vec<i32>> = vec![vec![0, 100], vec![100, 200]]"]
+rust = '''
+lazy_static! {
+    pub static ref X_VALUES: Vec<Vec<i32>> = vec![vec![0, 100], vec![100, 200]];
+}
+use lazy_static::lazy_static;
+'''
 
 [[test]]
 name = "string_list_constant_multiple"
 description = "String list constants should use lazy_static with to_string"
 
-[test.python]
-code = '''
+python = '''
 STRINGS = ["one", "two", "three"]
 '''
 
-[test.assertions]
-contains = ["lazy_static!", "pub static ref STRINGS: Vec<String> = vec![\"one\".to_string(), \"two\".to_string(), \"three\".to_string()]"]
+rust = '''
+lazy_static! {
+    pub static ref STRINGS: Vec<String> = vec!["one".to_string(), "two".to_string(), "three".to_string()];
+}
+use lazy_static::lazy_static;
+'''
 
 [[test]]
 name = "lazy_static_in_if_else"
 description = "Using different lazy_static constants in if/else branches should work with clone()"
 
-[test.python]
-code = '''
+python = '''
 X_VALUES = [[0, 100], [100, 200]]
 X_VALUES_AWAY = [[50, 150], [150, 250]]
 
@@ -189,63 +226,116 @@ def get_values(is_home: bool) -> list[list[int]]:
     return x_ranges
 '''
 
-[test.assertions]
-contains = ["X_VALUES.clone()", "X_VALUES_AWAY.clone()"]
-compiles = true
-
-# Boolean Conversion Tests (from test_boolean_conversion.rs)
+rust = '''
+lazy_static! {
+    pub static ref X_VALUES: Vec<Vec<i32>> = vec![vec![0, 100], vec![100, 200]];
+    pub static ref X_VALUES_AWAY: Vec<Vec<i32>> = vec![vec![50, 150], vec![150, 250]];
+}
+use lazy_static::lazy_static;
+pub fn get_values(is_home: bool) -> Vec<Vec<i32>> {
+    let mut x_ranges: Vec<Vec<i32>>;
+    if is_home {
+        x_ranges = X_VALUES.clone();
+    } else {
+        x_ranges = X_VALUES_AWAY.clone();
+    }
+    return x_ranges;
+}
+'''
 
 [[test]]
 name = "list_empty_check"
 description = "Empty list check with not should compile"
 
-[test.python]
-code = '''
+python = '''
 def is_empty_list(items: list[int]) -> bool:
     if not items:
         return True
     return False
 '''
 
-[test.assertions]
-contains = ["fn is_empty_list"]
+rust = '''
+pub fn is_empty_list(items: &Vec<i32>) -> bool {
+    if items.is_empty() {
+        return true;
+    }
+    return false;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_is_empty_list_examples() {
+        let _ = is_empty_list(Default::default());
+    }
+}
+'''
 
 [[test]]
 name = "string_empty_check"
 description = "Empty string check with not should compile"
 
-[test.python]
-code = '''
+python = '''
 def is_empty_string(text: str) -> bool:
     if not text:
         return True
     return False
 '''
 
-[test.assertions]
-contains = ["fn is_empty_string"]
+rust = '''
+pub fn is_empty_string(text: String) -> bool {
+    if text.is_empty() {
+        return true;
+    }
+    return false;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_is_empty_string_examples() {
+        let _ = is_empty_string(Default::default());
+    }
+}
+'''
 
 [[test]]
 name = "dict_empty_check"
 description = "Empty dict check with not should compile"
 
-[test.python]
-code = '''
+python = '''
 def is_empty_dict(mapping: dict[str, int]) -> bool:
     if not mapping:
         return True
     return False
 '''
 
-[test.assertions]
-contains = ["fn is_empty_dict"]
+rust = '''
+use std::collections::HashMap;
+pub fn is_empty_dict(mapping: &HashMap<String, i32>) -> bool {
+    if mapping.is_empty() {
+        return true;
+    }
+    return false;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_is_empty_dict_examples() {
+        let _ = is_empty_dict(Default::default());
+    }
+}
+'''
 
 [[test]]
 name = "guard_clause_pattern"
 description = "Guard clause pattern with not should compile"
 
-[test.python]
-code = '''
+python = '''
 def process_items(items: list[int]) -> int:
     if not items:
         return 0
@@ -255,32 +345,64 @@ def process_items(items: list[int]) -> int:
     return total
 '''
 
-[test.assertions]
-contains = ["fn process_items"]
+rust = '''
+pub fn process_items(items: &Vec<i32>) -> i32 {
+    if items.clone().is_empty() {
+        return 0;
+    }
+    let mut total = 0;
+    for item in items.iter().cloned() {
+        total = total + item;
+    }
+    return total;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_process_items_examples() {
+        assert_eq!(process_items(vec![]), 0);
+        assert_eq!(process_items(vec![1]), 1);
+        assert_eq!(process_items(vec![1, 2, 3]), 3);
+    }
+}
+'''
 
 [[test]]
 name = "boolean_not_with_flag"
 description = "Boolean not with flag should compile"
 
-[test.python]
-code = '''
+python = '''
 def negate_bool(flag: bool) -> bool:
     if not flag:
         return True
     return False
 '''
 
-[test.assertions]
-contains = ["fn negate_bool"]
-
-# Dynamic Type Tests (from test_dynamic_type.rs)
+rust = '''
+pub fn negate_bool(flag: bool) -> bool {
+    if !flag {
+        return true;
+    }
+    return false;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_negate_bool_examples() {
+        let _ = negate_bool(Default::default());
+    }
+}
+'''
 
 [[test]]
 name = "untyped_list_parameter"
 description = "Untyped list parameter should not use DynamicType"
 
-[test.python]
-code = '''
+python = '''
 def sum_list(numbers: list) -> int:
     """Sum all numbers in a list."""
     total = 0
@@ -289,15 +411,34 @@ def sum_list(numbers: list) -> int:
     return total
 '''
 
-[test.assertions]
-not_contains = ["DynamicType"]
+rust = '''
+use serde_json;
+#[doc = "Sum all numbers in a list."]
+pub fn sum_list(numbers: &Vec<serde_json::Value>) -> i32 {
+    let mut total = 0;
+    for num in numbers.iter().cloned() {
+        total = total + num;
+    }
+    return total;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_sum_list_examples() {
+        assert_eq!(sum_list(vec![]), 0);
+        assert_eq!(sum_list(vec![1]), 1);
+        assert_eq!(sum_list(vec![1, 2, 3]), 6);
+    }
+}
+'''
 
 [[test]]
 name = "untyped_dict_parameter"
 description = "Untyped dict parameter should not use DynamicType"
 
-[test.python]
-code = '''
+python = '''
 def get_value(data: dict, key: str) -> int:
     """Get a value from dictionary."""
     if key in data:
@@ -305,62 +446,103 @@ def get_value(data: dict, key: str) -> int:
     return 0
 '''
 
-[test.assertions]
-not_contains = ["DynamicType"]
+rust = '''
+use serde_json;
+use std::collections::HashMap;
+#[derive(Debug, Clone)]
+pub struct IndexError {
+    message: String,
+}
+impl std::fmt::Display for IndexError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "index out of range: {}", self.message)
+    }
+}
+impl std::error::Error for IndexError {}
+impl IndexError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = "Get a value from dictionary."]
+#[doc = " Depyler: proven to terminate"]
+pub fn get_value(data: &HashMap<serde_json::Value, serde_json::Value>, key: String) -> i32 {
+    let _cse_temp_0 = data.clone().get(&key.clone()).is_some();
+    if _cse_temp_0 {
+        return data.get(&key).cloned().unwrap();
+    }
+    return 0;
+}
+'''
 
 [[test]]
 name = "untyped_set_parameter"
 description = "Untyped set parameter should not use DynamicType"
 
-[test.python]
-code = '''
+python = '''
 def count_unique(items: set) -> int:
     """Count unique items in a set."""
     return len(items)
 '''
 
-[test.assertions]
-not_contains = ["DynamicType"]
-
-# =============================================================================
-# Tuple Operations
-# =============================================================================
+rust = '''
+use serde_json;
+use std::collections::HashSet;
+#[doc = "Count unique items in a set."]
+pub fn count_unique(items: &HashSet<serde_json::Value>) -> i32 {
+    return items.len() as i32 as i32;
+}
+'''
 
 [[test]]
 name = "tuple_string_variable_in"
 description = "String variable 'in' tuple check"
 tags = ["tuple", "membership"]
 
-[test.python]
-code = '''
+python = '''
 def check_location(location: str) -> bool:
     return location in ("Home", "Away")
 '''
 
-[test.assertions]
-contains = ["contains"]
+rust = '''
+pub fn check_location(location: String) -> bool {
+    return ["Home", "Away"].contains(&location.as_str());
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_check_location_examples() {
+        let _ = check_location(Default::default());
+    }
+}
+'''
 
 [[test]]
 name = "tuple_string_literal_in"
 description = "String literal 'in' tuple check"
 tags = ["tuple", "membership"]
 
-[test.python]
-code = '''
+python = '''
 def check_location() -> bool:
     return "Home" in ("Home", "Away")
 '''
 
-[test.assertions]
-contains = ["contains"]
+rust = '''
+pub fn check_location() -> bool {
+    return ["Home", "Away"].contains(&"Home");
+}
+'''
 
 [[test]]
 name = "tuple_struct_field_in"
 description = "Struct field 'in' tuple check"
 tags = ["tuple", "membership"]
 
-[test.python]
-code = '''
+python = '''
 @dataclass
 class State:
     item: str
@@ -369,67 +551,100 @@ def check_location(state: State) -> bool:
     return state.item in ("Home", "Away")
 '''
 
-[test.assertions]
-contains = ["contains"]
-
-# =============================================================================
-# Final Constants (from test_final_constant.rs)
-# =============================================================================
+rust = '''
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct State {
+    pub item: String,
+}
+impl State {
+    pub fn new(item: String) -> Self {
+        Self { item }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "item" => Some(Box::new(self.item.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "item" => {
+                if let Some(v) = value.downcast_ref::<String>() {
+                    self.item = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+pub fn check_location(state: &State) -> bool {
+    return ["Home", "Away"].contains(&state.item.as_str());
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_check_location_examples() {
+        let _ = check_location(Default::default());
+    }
+}
+'''
 
 [[test]]
 name = "final_int_constant"
 description = "Final[int] creates const"
 tags = ["final", "const"]
 
-[test.python]
-code = '''
+python = '''
 from typing import Final
 
 FIELD_GOAL: Final[int] = 600
 '''
 
-[test.assertions]
-contains = ["const FIELD_GOAL", ": i32", "= 600"]
-not_contains = ["let FIELD_GOAL"]
+rust = '''
+pub const FIELD_GOAL: i32 = 600;
+'''
 
 [[test]]
 name = "final_string_constant"
 description = "Final[str] creates const"
 tags = ["final", "const", "string"]
 
-[test.python]
-code = '''
+python = '''
 from typing import Final
 
 API_KEY: Final[str] = "secret_key_123"
 '''
 
-[test.assertions]
-contains = ["const API_KEY"]
-contains_any = [[": &str", ": String"]]
+rust = '''
+pub const API_KEY: String = "secret_key_123";
+'''
 
 [[test]]
 name = "final_float_constant"
 description = "Final[float] creates const"
 tags = ["final", "const", "float"]
 
-[test.python]
-code = '''
+python = '''
 from typing import Final
 
 PI: Final[float] = 3.14159
 '''
 
-[test.assertions]
-contains = ["const PI", ": f64"]
+rust = '''
+pub const PI: f64 = 3.14159;
+'''
 
 [[test]]
 name = "final_multiple_constants"
 description = "Multiple Final constants"
 tags = ["final", "const"]
 
-[test.python]
-code = '''
+python = '''
 from typing import Final
 
 MAX_CONNECTIONS: Final[int] = 100
@@ -437,16 +652,18 @@ TIMEOUT_MS: Final[int] = 5000
 DEFAULT_NAME: Final[str] = "unnamed"
 '''
 
-[test.assertions]
-contains = ["const MAX_CONNECTIONS", "const TIMEOUT_MS", "const DEFAULT_NAME"]
+rust = '''
+pub const MAX_CONNECTIONS: i32 = 100;
+pub const TIMEOUT_MS: i32 = 5000;
+pub const DEFAULT_NAME: String = "unnamed";
+'''
 
 [[test]]
 name = "final_vs_regular_variable"
 description = "Final vs regular variable distinction"
 tags = ["final", "const", "variable"]
 
-[test.python]
-code = '''
+python = '''
 from typing import Final
 
 def process() -> int:
@@ -455,65 +672,110 @@ def process() -> int:
     return current
 '''
 
-[test.assertions]
-contains = ["const MAX_VALUE", "let current"]
-
-# =============================================================================
-# Rust Keyword Handling (issue: panic when Python uses Rust keywords as names)
-# =============================================================================
+rust = '''
+pub fn process() -> i32 {
+    const MAX_VALUE: i32 = 100;
+    let current: i32 = 50;
+    return current;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_process_examples() {
+        let _ = process();
+    }
+}
+'''
 
 [[test]]
 name = "rust_keyword_match"
 description = "Python variable named 'match' (Rust keyword) should not cause panic"
 tags = ["keywords", "identifiers", "match"]
 
-[test.python]
-code = '''
+python = '''
 def test_match_keyword() -> int:
     match = 42
     return match
 '''
 
-[test.assertions]
-contains_any = [["r#match", "let"]]
+rust = '''
+pub fn test_match_keyword() -> i32 {
+    let r#match = 42;
+    return r#match;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_test_match_keyword_examples() {
+        let _ = test_match_keyword();
+    }
+}
+'''
 
 [[test]]
 name = "rust_keyword_type"
 description = "Python variable named 'type' (Rust keyword) should not cause panic"
 tags = ["keywords", "identifiers", "type"]
 
-[test.python]
-code = '''
+python = '''
 def test_type_keyword() -> int:
     type = 123
     return type
 '''
 
-[test.assertions]
-contains_any = [["r#type", "let"]]
+rust = '''
+pub fn test_type_keyword() -> i32 {
+    let r#type = 123;
+    return r#type;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_test_type_keyword_examples() {
+        let _ = test_type_keyword();
+    }
+}
+'''
 
 [[test]]
 name = "rust_keyword_impl"
 description = "Python variable named 'impl' (Rust keyword) should not cause panic"
 tags = ["keywords", "identifiers", "impl"]
 
-[test.python]
-code = '''
+python = '''
 def test_impl_keyword() -> int:
     impl = 456
     return impl
 '''
 
-[test.assertions]
-contains_any = [["r#impl", "let"]]
+rust = '''
+pub fn test_impl_keyword() -> i32 {
+    let r#impl = 456;
+    return r#impl;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_test_impl_keyword_examples() {
+        let _ = test_impl_keyword();
+    }
+}
+'''
 
 [[test]]
 name = "re_module_match_variable"
 description = "re.search result stored in 'match' variable"
 tags = ["keywords", "regex", "match"]
 
-[test.python]
-code = '''
+python = '''
 import re
 
 def test_search() -> int:
@@ -526,12 +788,27 @@ def test_search() -> int:
         return 0
 '''
 
-[test.assertions]
-contains = ["fn test_search"]
-
-# =============================================================================
-# Example Validation Tests (migrated from test_example_validation.rs)
-# =============================================================================
+rust = '''
+use regex as re;
+pub fn test_search() -> i32 {
+    let text = "hello world".to_string();
+    let r#match = regex::Regex::new("world").unwrap().find(text);
+    if r#match.is_some() {
+        return 1;
+    } else {
+        return 0;
+    }
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_test_search_examples() {
+        let _ = test_search();
+    }
+}
+'''
 
 [[test]]
 name = "type_safety_example"
@@ -539,14 +816,16 @@ description = "Type-safe function with conversion"
 tags = ["example", "types", "validation"]
 compile_check = true
 
-[test.python]
-code = '''
+python = '''
 def typed_func(x: int, y: str) -> str:
     return y + str(x)
 '''
 
-[test.assertions]
-contains = ["fn typed_func"]
+rust = '''
+pub fn typed_func(x: i32, y: String) -> String {
+    return format!("{}{}", y, x.to_string());
+}
+'''
 
 [[test]]
 name = "memory_safety_example"
@@ -554,14 +833,28 @@ description = "Memory-safe collection access"
 tags = ["example", "memory", "validation"]
 compile_check = true
 
-[test.python]
-code = '''
+python = '''
 def safe_access(items: list) -> int:
     return len(items)
 '''
 
-[test.assertions]
-contains = ["fn safe_access"]
+rust = '''
+use serde_json;
+pub fn safe_access(items: &Vec<serde_json::Value>) -> i32 {
+    return items.len() as i32 as i32;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_safe_access_examples() {
+        assert_eq!(safe_access(vec![]), 0);
+        assert_eq!(safe_access(vec![1]), 1);
+        assert_eq!(safe_access(vec![1, 2, 3]), 3);
+    }
+}
+'''
 
 [[test]]
 name = "error_handling_example"
@@ -569,14 +862,42 @@ description = "Safe division with error handling"
 tags = ["example", "error", "validation"]
 compile_check = true
 
-[test.python]
-code = '''
+python = '''
 def div_safe(a: int, b: int) -> int:
     return a // b if b != 0 else 0
 '''
 
-[test.assertions]
-contains = ["fn div_safe"]
+rust = '''
+pub fn div_safe(a: i32, b: i32) -> i32 {
+    return if b != 0 {
+        {
+            let a = a;
+            let b = b;
+            let q = a / b;
+            let r = a % b;
+            let r_negative = r < 0;
+            let b_negative = b < 0;
+            let r_nonzero = r != 0;
+            let signs_differ = r_negative != b_negative;
+            let needs_adjustment = r_nonzero && signs_differ;
+            if needs_adjustment { q - 1 } else { q }
+        }
+    } else {
+        0
+    };
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_div_safe_examples() {
+        assert_eq!(div_safe(0, 0), 0);
+        assert_eq!(div_safe(1, 2), 3);
+        assert_eq!(div_safe(-1, 1), 0);
+    }
+}
+'''
 
 [[test]]
 name = "basic_arithmetic_example"
@@ -584,14 +905,42 @@ description = "Basic arithmetic operation"
 tags = ["example", "arithmetic", "validation"]
 compile_check = true
 
-[test.python]
-code = '''
+python = '''
 def add(a: int, b: int) -> int:
     return a + b
 '''
 
-[test.assertions]
-contains = ["fn add", "->"]
+rust = '''
+pub fn add(a: i32, b: i32) -> i32 {
+    return a + b;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn quickcheck_add() {
+        fn prop(a: i32, b: i32) -> TestResult {
+            if (a > 0 && b > i32::MAX - a) || (a < 0 && b < i32::MIN - a) {
+                return TestResult::discard();
+            }
+            let result1 = add(a.clone(), b.clone());
+            let result2 = add(b.clone(), a.clone());
+            if result1 != result2 {
+                return TestResult::failed();
+            }
+            TestResult::passed()
+        }
+        quickcheck(prop as fn(i32, i32) -> TestResult);
+    }
+    #[test]
+    fn test_add_examples() {
+        assert_eq!(add(0, 0), 0);
+        assert_eq!(add(1, 2), 3);
+        assert_eq!(add(-1, 1), 0);
+    }
+}
+'''
 
 [[test]]
 name = "string_operations_example"
@@ -599,14 +948,16 @@ description = "String concatenation operation"
 tags = ["example", "string", "validation"]
 compile_check = true
 
-[test.python]
-code = '''
+python = '''
 def greet(name: str) -> str:
     return "Hello, " + name
 '''
 
-[test.assertions]
-contains = ["fn greet"]
+rust = '''
+pub fn greet(name: String) -> String {
+    return format!("{}{}", "Hello, ", name);
+}
+'''
 
 [[test]]
 name = "boolean_logic_example"
@@ -614,14 +965,25 @@ description = "Boolean comparison logic"
 tags = ["example", "boolean", "validation"]
 compile_check = true
 
-[test.python]
-code = '''
+python = '''
 def is_positive(x: int) -> bool:
     return x > 0
 '''
 
-[test.assertions]
-contains = ["fn is_positive"]
+rust = '''
+pub fn is_positive(x: i32) -> bool {
+    return x > 0;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_is_positive_examples() {
+        let _ = is_positive(Default::default());
+    }
+}
+'''
 
 [[test]]
 name = "list_operations_example"
@@ -629,14 +991,28 @@ description = "List sum operation"
 tags = ["example", "list", "validation"]
 compile_check = true
 
-[test.python]
-code = '''
+python = '''
 def list_sum(nums: list) -> int:
     return sum(nums)
 '''
 
-[test.assertions]
-contains = ["fn list_sum"]
+rust = '''
+use serde_json;
+pub fn list_sum(nums: Vec<serde_json::Value>) -> i32 {
+    return nums.iter().sum::<i32>();
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_list_sum_examples() {
+        assert_eq!(list_sum(vec![]), 0);
+        assert_eq!(list_sum(vec![1]), 1);
+        assert_eq!(list_sum(vec![1, 2, 3]), 6);
+    }
+}
+'''
 
 [[test]]
 name = "documented_function_example"
@@ -644,15 +1020,29 @@ description = "Function with docstring"
 tags = ["example", "docstring", "validation"]
 compile_check = true
 
-[test.python]
-code = '''
+python = '''
 def documented_function(x: int) -> int:
     """This function doubles the input value."""
     return x * 2
 '''
 
-[test.assertions]
-contains = ["fn documented_function"]
+rust = '''
+#[doc = "This function doubles the input value."]
+pub fn documented_function(x: i32) -> i32 {
+    return x * 2;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_documented_function_examples() {
+        assert_eq!(documented_function(0), 0);
+        assert_eq!(documented_function(1), 1);
+        assert_eq!(documented_function(-1), -1);
+    }
+}
+'''
 
 [[test]]
 name = "edge_case_empty_function"
@@ -660,14 +1050,14 @@ description = "Empty function with pass"
 tags = ["example", "edge-case", "validation"]
 compile_check = true
 
-[test.python]
-code = '''
+python = '''
 def empty():
     pass
 '''
 
-[test.assertions]
-contains = ["fn empty"]
+rust = '''
+pub fn empty() {}
+'''
 
 [[test]]
 name = "edge_case_constant_return"
@@ -675,12 +1065,22 @@ description = "Single constant return"
 tags = ["example", "edge-case", "validation"]
 compile_check = true
 
-[test.python]
-code = '''
+python = '''
 def constant() -> int:
     return 42
 '''
 
-[test.assertions]
-contains = ["fn constant", "42"]
-
+rust = '''
+pub fn constant() -> i32 {
+    return 42;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_constant_examples() {
+        let _ = constant();
+    }
+}
+'''

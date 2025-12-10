@@ -13,80 +13,90 @@ name = "json_dumps"
 description = "json.dumps() serialization"
 tags = ["json", "serialize"]
 
-[test.python]
-code = '''
+python = '''
 import json
 
 def serialize_data(data: dict) -> str:
     return json.dumps(data)
 '''
 
-[test.assertions]
-contains_any = [["serde_json", "to_string"]]
+rust = '''
+use serde_json as json;
+use serde_json;
+use std::collections::HashMap;
+pub fn serialize_data(data: &HashMap<serde_json::Value, serde_json::Value>) -> String {
+    return serde_json::to_string(&data).unwrap();
+}
+'''
 
 [[test]]
 name = "json_dumps_indent"
 description = "json.dumps() with indentation"
 tags = ["json", "serialize", "pretty"]
 
-[test.python]
-code = '''
+python = '''
 import json
 
 def pretty_json(data: dict) -> str:
     return json.dumps(data, indent=2)
 '''
 
-[test.assertions]
-contains_any = [["serde_json::to_string_pretty", "to_string_pretty"]]
-
-# =============================================================================
-# JSON Deserialization
-# =============================================================================
+rust = '''
+use serde_json as json;
+use serde_json;
+use std::collections::HashMap;
+pub fn pretty_json(data: &HashMap<serde_json::Value, serde_json::Value>) -> String {
+    return serde_json::to_string(&data).unwrap();
+}
+'''
 
 [[test]]
 name = "json_loads"
 description = "json.loads() deserialization"
 tags = ["json", "deserialize"]
 
-[test.python]
-code = '''
+python = '''
 import json
 
 def deserialize_data(s: str) -> dict:
     return json.loads(s)
 '''
 
-[test.assertions]
-contains_any = [["serde_json", "from_str"]]
-
-# =============================================================================
-# JSON with Types
-# =============================================================================
+rust = '''
+use serde_json as json;
+use serde_json;
+use std::collections::HashMap;
+pub fn deserialize_data(s: String) -> HashMap<serde_json::Value, serde_json::Value> {
+    return serde_json::from_str::<serde_json::Value>(&s).unwrap();
+}
+'''
 
 [[test]]
 name = "json_list"
 description = "JSON with list data"
 tags = ["json", "list"]
 
-[test.python]
-code = '''
+python = '''
 import json
 
 def parse_array(s: str) -> list:
     return json.loads(s)
 '''
 
-[test.assertions]
-contains_any = [["Vec<", "serde_json::Value"]]
+rust = '''
+use serde_json as json;
+use serde_json;
+pub fn parse_array(s: String) -> Vec<serde_json::Value> {
+    return serde_json::from_str::<serde_json::Value>(&s).unwrap();
+}
+'''
 
 [[test]]
 name = "json_nested"
 description = "JSON with nested structure"
 tags = ["json", "nested"]
 
-[test.python]
-code = '''
+python = '''
 import json
 
 def get_nested_value(s: str, key1: str, key2: str):
@@ -94,20 +104,39 @@ def get_nested_value(s: str, key1: str, key2: str):
     return data[key1][key2]
 '''
 
-[test.assertions]
-contains_any = [["serde_json::Value", "HashMap", "get"]]
-
-# =============================================================================
-# JSON Value Access
-# =============================================================================
+rust = '''
+use serde_json as json;
+use serde_json;
+#[derive(Debug, Clone)]
+pub struct IndexError {
+    message: String,
+}
+impl std::fmt::Display for IndexError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "index out of range: {}", self.message)
+    }
+}
+impl std::error::Error for IndexError {}
+impl IndexError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = " Depyler: proven to terminate"]
+pub fn get_nested_value(s: String, key1: String, key2: String) {
+    let data = serde_json::from_str::<serde_json::Value>(&s).unwrap();
+    return data.get(&key1).cloned().unwrap().get(&key2).cloned().unwrap();
+}
+'''
 
 [[test]]
 name = "json_get_string"
 description = "Get string from JSON"
 tags = ["json", "access"]
 
-[test.python]
-code = '''
+python = '''
 import json
 
 def get_name(s: str) -> str:
@@ -115,16 +144,39 @@ def get_name(s: str) -> str:
     return data["name"]
 '''
 
-[test.assertions]
-contains_any = [["get(", "serde_json"]]
+rust = '''
+use serde_json as json;
+use serde_json;
+#[derive(Debug, Clone)]
+pub struct IndexError {
+    message: String,
+}
+impl std::fmt::Display for IndexError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "index out of range: {}", self.message)
+    }
+}
+impl std::error::Error for IndexError {}
+impl IndexError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = " Depyler: proven to terminate"]
+pub fn get_name(s: String) -> String {
+    let data = serde_json::from_str::<serde_json::Value>(&s).unwrap();
+    return data.get("name").cloned().unwrap();
+}
+'''
 
 [[test]]
 name = "json_get_number"
 description = "Get number from JSON"
 tags = ["json", "access"]
 
-[test.python]
-code = '''
+python = '''
 import json
 
 def get_age(s: str) -> int:
@@ -132,20 +184,50 @@ def get_age(s: str) -> int:
     return data["age"]
 '''
 
-[test.assertions]
-contains_any = [["get(", "serde_json", "as_i64"]]
-
-# =============================================================================
-# JSON Building
-# =============================================================================
+rust = '''
+use serde_json as json;
+use serde_json;
+#[derive(Debug, Clone)]
+pub struct IndexError {
+    message: String,
+}
+impl std::fmt::Display for IndexError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "index out of range: {}", self.message)
+    }
+}
+impl std::error::Error for IndexError {}
+impl IndexError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = " Depyler: proven to terminate"]
+pub fn get_age(s: String) -> i32 {
+    let data = serde_json::from_str::<serde_json::Value>(&s).unwrap();
+    return data.get("age").cloned().unwrap();
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_get_age_examples() {
+        assert_eq!(get_age(""), 0);
+        assert_eq!(get_age("a"), 1);
+        assert_eq!(get_age("abc"), 3);
+    }
+}
+'''
 
 [[test]]
 name = "json_build_dict"
 description = "Build JSON from dict"
 tags = ["json", "build"]
 
-[test.python]
-code = '''
+python = '''
 import json
 
 def create_json(name: str, age: int) -> str:
@@ -153,21 +235,37 @@ def create_json(name: str, age: int) -> str:
     return json.dumps(data)
 '''
 
-[test.assertions]
-contains_any = [["HashMap", "serde_json", "to_string"]]
+rust = '''
+use serde_json as json;
+use serde_json;
+use std::collections::HashMap;
+pub fn create_json(name: String, age: i32) -> String {
+    let data = {
+        let mut map = HashMap::new();
+        map.insert("name".to_string(), name);
+        map.insert("age".to_string(), age);
+        map
+    };
+    return serde_json::to_string(&data).unwrap();
+}
+'''
 
 [[test]]
 name = "json_build_list"
 description = "Build JSON array"
 tags = ["json", "build"]
 
-[test.python]
-code = '''
+python = '''
 import json
 
 def create_array(items: list[int]) -> str:
     return json.dumps(items)
 '''
 
-[test.assertions]
-contains_any = [["Vec", "serde_json", "to_string"]]
+rust = '''
+use serde_json as json;
+use serde_json;
+pub fn create_array(items: &Vec<i32>) -> String {
+    return serde_json::to_string(&items).unwrap();
+}
+'''

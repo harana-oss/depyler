@@ -9,127 +9,885 @@ category = "dunder-methods"
 # __new__
 # =============================================================================
 
-# TODO: Test __new__ basic
-# [[test]]
-# name = "dunder_new"
-# description = "def __new__(cls): return super().__new__(cls)"
+[[test]]
+name = "dunder_new"
+description = "def __new__(cls): return super().__new__(cls)"
+python = """
+class Counter:
+    _count = 0
+    
+    def __new__(cls):
+        cls._count += 1
+        instance = super().__new__(cls)
+        return instance
+    
+    def __init__(self):
+        self.id = Counter._count
 
-# TODO: Test __new__ with args
-# [[test]]
-# name = "dunder_new_args"
-# description = "__new__ receiving and passing arguments"
+c1 = Counter()
+c2 = Counter()
+print(c1.id)
+print(c2.id)
+"""
+rust = """
+struct Counter {
+    id: i32,
+}
+
+static mut COUNT: i32 = 0;
+
+impl Counter {
+    fn new() -> Self {
+        unsafe {
+            COUNT += 1;
+            Counter { id: COUNT }
+        }
+    }
+}
+
+fn main() {
+    let c1 = Counter::new();
+    let c2 = Counter::new();
+    println!("{}", c1.id);
+    println!("{}", c2.id);
+}
+"""
+expected_output = """1
+2"""
+
+[[test]]
+name = "dunder_new_args"
+description = "__new__ receiving and passing arguments"
+python = """
+class Validated:
+    def __new__(cls, value):
+        if value < 0:
+            raise ValueError("Value must be non-negative")
+        instance = super().__new__(cls)
+        return instance
+    
+    def __init__(self, value):
+        self.value = value
+
+v = Validated(10)
+print(v.value)
+"""
+rust = """
+struct Validated {
+    value: i32,
+}
+
+impl Validated {
+    fn new(value: i32) -> Result<Self, String> {
+        if value < 0 {
+            Err("Value must be non-negative".to_string())
+        } else {
+            Ok(Validated { value })
+        }
+    }
+}
+
+fn main() {
+    let v = Validated::new(10).unwrap();
+    println!("{}", v.value);
+}
+"""
+expected_output = "10"
 
 # =============================================================================
 # __init__
 # =============================================================================
 
-# TODO: Test __init__ basic
-# [[test]]
-# name = "dunder_init"
-# description = "def __init__(self): self.x = 0"
+[[test]]
+name = "dunder_init"
+description = "def __init__(self): self.x = 0"
+python = """
+class Point:
+    def __init__(self):
+        self.x = 0
+        self.y = 0
 
-# TODO: Test __init__ with parameters
-# [[test]]
-# name = "dunder_init_params"
-# description = "def __init__(self, x, y): ..."
+p = Point()
+print(p.x)
+print(p.y)
+"""
+rust = """
+struct Point {
+    x: i32,
+    y: i32,
+}
 
-# TODO: Test __init__ with defaults
-# [[test]]
-# name = "dunder_init_defaults"
-# description = "def __init__(self, x=0): ..."
+impl Point {
+    fn new() -> Self {
+        Point { x: 0, y: 0 }
+    }
+}
+
+fn main() {
+    let p = Point::new();
+    println!("{}", p.x);
+    println!("{}", p.y);
+}
+"""
+expected_output = """0
+0"""
+
+[[test]]
+name = "dunder_init_params"
+description = "def __init__(self, x, y): ..."
+python = """
+class Rectangle:
+    def __init__(self, width, height):
+        self.width = width
+        self.height = height
+    
+    def area(self):
+        return self.width * self.height
+
+r = Rectangle(5, 3)
+print(r.width)
+print(r.height)
+print(r.area())
+"""
+rust = """
+struct Rectangle {
+    width: i32,
+    height: i32,
+}
+
+impl Rectangle {
+    fn new(width: i32, height: i32) -> Self {
+        Rectangle { width, height }
+    }
+    
+    fn area(&self) -> i32 {
+        self.width * self.height
+    }
+}
+
+fn main() {
+    let r = Rectangle::new(5, 3);
+    println!("{}", r.width);
+    println!("{}", r.height);
+    println!("{}", r.area());
+}
+"""
+expected_output = """5
+3
+15"""
+
+[[test]]
+name = "dunder_init_defaults"
+description = "def __init__(self, x=0): ..."
+python = """
+class Config:
+    def __init__(self, timeout=30, retries=3):
+        self.timeout = timeout
+        self.retries = retries
+
+c1 = Config()
+c2 = Config(60)
+c3 = Config(timeout=45, retries=5)
+
+print(f"{c1.timeout}, {c1.retries}")
+print(f"{c2.timeout}, {c2.retries}")
+print(f"{c3.timeout}, {c3.retries}")
+"""
+rust = """
+struct Config {
+    timeout: i32,
+    retries: i32,
+}
+
+impl Config {
+    fn new() -> Self {
+        Config { timeout: 30, retries: 3 }
+    }
+    
+    fn with_timeout(timeout: i32) -> Self {
+        Config { timeout, retries: 3 }
+    }
+    
+    fn with_both(timeout: i32, retries: i32) -> Self {
+        Config { timeout, retries }
+    }
+}
+
+fn main() {
+    let c1 = Config::new();
+    let c2 = Config::with_timeout(60);
+    let c3 = Config::with_both(45, 5);
+    
+    println!("{}, {}", c1.timeout, c1.retries);
+    println!("{}, {}", c2.timeout, c2.retries);
+    println!("{}, {}", c3.timeout, c3.retries);
+}
+"""
+expected_output = """30, 3
+60, 3
+45, 5"""
 
 # =============================================================================
 # __del__
 # =============================================================================
 
-# TODO: Test __del__ basic
-# [[test]]
-# name = "dunder_del"
-# description = "def __del__(self): cleanup()"
+[[test]]
+name = "dunder_del"
+description = "def __del__(self): cleanup()"
+python = """
+class Resource:
+    def __init__(self, name):
+        self.name = name
+        print(f"Acquired {name}")
+    
+    def __del__(self):
+        print(f"Released {self.name}")
 
-# TODO: Test __del__ timing
-# [[test]]
-# name = "dunder_del_timing"
-# description = "__del__ called when object is garbage collected"
+r = Resource("file.txt")
+print("Using resource")
+del r
+print("Done")
+"""
+rust = """
+struct Resource {
+    name: String,
+}
 
-# TODO: Test __del__ with references
-# [[test]]
-# name = "dunder_del_references"
-# description = "__del__ not called with circular references (without gc)"
+impl Resource {
+    fn new(name: &str) -> Self {
+        println!("Acquired {}", name);
+        Resource { name: name.to_string() }
+    }
+}
+
+impl Drop for Resource {
+    fn drop(&mut self) {
+        println!("Released {}", self.name);
+    }
+}
+
+fn main() {
+    let r = Resource::new("file.txt");
+    println!("Using resource");
+    drop(r);
+    println!("Done");
+}
+"""
+expected_output = """Acquired file.txt
+Using resource
+Released file.txt
+Done"""
+
+[[test]]
+name = "dunder_del_timing"
+description = "__del__ called when object is garbage collected"
+python = """
+class Temp:
+    def __init__(self, id):
+        self.id = id
+    
+    def __del__(self):
+        print(f"Deleting Temp {self.id}")
+
+def create_temp():
+    t = Temp(1)
+    print("Inside function")
+    # t goes out of scope here
+
+create_temp()
+print("After function")
+"""
+rust = """
+struct Temp {
+    id: i32,
+}
+
+impl Temp {
+    fn new(id: i32) -> Self {
+        Temp { id }
+    }
+}
+
+impl Drop for Temp {
+    fn drop(&mut self) {
+        println!("Deleting Temp {}", self.id);
+    }
+}
+
+fn create_temp() {
+    let t = Temp::new(1);
+    println!("Inside function");
+    // t goes out of scope here
+}
+
+fn main() {
+    create_temp();
+    println!("After function");
+}
+"""
+expected_output = """Inside function
+Deleting Temp 1
+After function"""
+
+[[test]]
+name = "dunder_del_references"
+description = "__del__ not called with circular references (without gc)"
+skip = true
+skip_reason = "Circular reference handling is Python GC-specific"
+python = """
+import gc
+
+class Node:
+    def __init__(self, value):
+        self.value = value
+        self.next = None
+    
+    def __del__(self):
+        print(f"Deleting Node {self.value}")
+
+# Create circular reference
+gc.disable()
+n1 = Node(1)
+n2 = Node(2)
+n1.next = n2
+n2.next = n1
+
+del n1
+del n2
+print("Nodes deleted (but __del__ not called due to circular ref)")
+gc.enable()
+gc.collect()
+print("After gc.collect()")
+"""
 
 # =============================================================================
 # __repr__
 # =============================================================================
 
-# TODO: Test __repr__ basic
-# [[test]]
-# name = "dunder_repr"
-# description = "def __repr__(self): return f'MyClass({self.x})'"
+[[test]]
+name = "dunder_repr"
+description = "def __repr__(self): return f'MyClass({self.x})'"
+python = """
+class Point:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+    
+    def __repr__(self):
+        return f"Point({self.x}, {self.y})"
 
-# TODO: Test __repr__ unambiguous
-# [[test]]
-# name = "dunder_repr_eval"
-# description = "__repr__ should be eval()-able when possible"
+p = Point(3, 4)
+print(repr(p))
+print(p)  # Also uses __repr__ in interactive mode
+"""
+rust = """
+use std::fmt;
 
-# TODO: Test repr() builtin
-# [[test]]
-# name = "repr_builtin"
-# description = "repr(obj) calls obj.__repr__()"
+#[derive(Debug)]
+struct Point {
+    x: i32,
+    y: i32,
+}
+
+impl Point {
+    fn new(x: i32, y: i32) -> Self {
+        Point { x, y }
+    }
+}
+
+impl fmt::Display for Point {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Point({}, {})", self.x, self.y)
+    }
+}
+
+fn main() {
+    let p = Point::new(3, 4);
+    println!("{}", p);
+    println!("{}", p);
+}
+"""
+expected_output = """Point(3, 4)
+Point(3, 4)"""
+
+[[test]]
+name = "dunder_repr_eval"
+description = "__repr__ should be eval()-able when possible"
+python = """
+class Circle:
+    def __init__(self, radius):
+        self.radius = radius
+    
+    def __repr__(self):
+        return f"Circle({self.radius})"
+
+c1 = Circle(5)
+print(repr(c1))
+
+# Should be able to recreate object from repr
+c2 = eval(repr(c1))
+print(c2.radius)
+"""
+rust = """
+struct Circle {
+    radius: i32,
+}
+
+impl Circle {
+    fn new(radius: i32) -> Self {
+        Circle { radius }
+    }
+}
+
+impl std::fmt::Display for Circle {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "Circle({})", self.radius)
+    }
+}
+
+fn main() {
+    let c1 = Circle::new(5);
+    println!("{}", c1);
+    
+    // Rust doesn't have eval, but the concept is that repr should be clear
+    let c2 = Circle::new(5);  // Simulating recreation
+    println!("{}", c2.radius);
+}
+"""
+expected_output = """Circle(5)
+5"""
+
+[[test]]
+name = "repr_builtin"
+description = "repr(obj) calls obj.__repr__()"
+python = """
+class Book:
+    def __init__(self, title, author):
+        self.title = title
+        self.author = author
+    
+    def __repr__(self):
+        return f"Book(title='{self.title}', author='{self.author}')"
+
+b = Book("1984", "Orwell")
+print(repr(b))
+"""
+rust = """
+struct Book {
+    title: String,
+    author: String,
+}
+
+impl Book {
+    fn new(title: &str, author: &str) -> Self {
+        Book {
+            title: title.to_string(),
+            author: author.to_string(),
+        }
+    }
+}
+
+impl std::fmt::Display for Book {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "Book(title='{}', author='{}')", self.title, self.author)
+    }
+}
+
+fn main() {
+    let b = Book::new("1984", "Orwell");
+    println!("{}", b);
+}
+"""
+expected_output = "Book(title='1984', author='Orwell')"
 
 # =============================================================================
 # __str__
 # =============================================================================
 
-# TODO: Test __str__ basic
-# [[test]]
-# name = "dunder_str"
-# description = "def __str__(self): return 'human readable'"
+[[test]]
+name = "dunder_str"
+description = "def __str__(self): return 'human readable'"
+python = """
+class Person:
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
+    
+    def __str__(self):
+        return f"{self.name}, {self.age} years old"
+    
+    def __repr__(self):
+        return f"Person('{self.name}', {self.age})"
 
-# TODO: Test __str__ fallback to __repr__
-# [[test]]
-# name = "dunder_str_fallback"
-# description = "str() uses __repr__ if __str__ not defined"
+p = Person("Alice", 30)
+print(str(p))
+print(repr(p))
+"""
+rust = """
+use std::fmt;
 
-# TODO: Test str() builtin
-# [[test]]
-# name = "str_builtin"
-# description = "str(obj) calls obj.__str__()"
+struct Person {
+    name: String,
+    age: i32,
+}
 
-# TODO: Test print uses __str__
-# [[test]]
-# name = "print_uses_str"
-# description = "print(obj) uses str(obj)"
+impl Person {
+    fn new(name: &str, age: i32) -> Self {
+        Person { name: name.to_string(), age }
+    }
+}
+
+impl fmt::Display for Person {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}, {} years old", self.name, self.age)
+    }
+}
+
+impl fmt::Debug for Person {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Person('{}', {})", self.name, self.age)
+    }
+}
+
+fn main() {
+    let p = Person::new("Alice", 30);
+    println!("{}", p);
+    println!("{:?}", p);
+}
+"""
+expected_output = """Alice, 30 years old
+Person('Alice', 30)"""
+
+[[test]]
+name = "dunder_str_fallback"
+description = "str() uses __repr__ if __str__ not defined"
+python = """
+class Widget:
+    def __init__(self, id):
+        self.id = id
+    
+    def __repr__(self):
+        return f"Widget({self.id})"
+    # No __str__ defined
+
+w = Widget(42)
+print(str(w))  # Falls back to __repr__
+print(repr(w))
+"""
+rust = """
+use std::fmt;
+
+struct Widget {
+    id: i32,
+}
+
+impl Widget {
+    fn new(id: i32) -> Self {
+        Widget { id }
+    }
+}
+
+impl fmt::Display for Widget {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Widget({})", self.id)
+    }
+}
+
+impl fmt::Debug for Widget {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Widget({})", self.id)
+    }
+}
+
+fn main() {
+    let w = Widget::new(42);
+    println!("{}", w);
+    println!("{:?}", w);
+}
+"""
+expected_output = """Widget(42)
+Widget(42)"""
+
+[[test]]
+name = "str_builtin"
+description = "str(obj) calls obj.__str__()"
+python = """
+class Status:
+    def __init__(self, code, message):
+        self.code = code
+        self.message = message
+    
+    def __str__(self):
+        return f"[{self.code}] {self.message}"
+
+s = Status(200, "OK")
+print(str(s))
+"""
+rust = """
+use std::fmt;
+
+struct Status {
+    code: i32,
+    message: String,
+}
+
+impl Status {
+    fn new(code: i32, message: &str) -> Self {
+        Status { code, message: message.to_string() }
+    }
+}
+
+impl fmt::Display for Status {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "[{}] {}", self.code, self.message)
+    }
+}
+
+fn main() {
+    let s = Status::new(200, "OK");
+    println!("{}", s);
+}
+"""
+expected_output = "[200] OK"
+
+[[test]]
+name = "print_uses_str"
+description = "print(obj) uses str(obj)"
+python = """
+class Message:
+    def __init__(self, text):
+        self.text = text
+    
+    def __str__(self):
+        return f"Message: {self.text}"
+    
+    def __repr__(self):
+        return f"Message('{self.text}')"
+
+m = Message("Hello")
+print(m)  # Uses __str__
+"""
+rust = """
+use std::fmt;
+
+struct Message {
+    text: String,
+}
+
+impl Message {
+    fn new(text: &str) -> Self {
+        Message { text: text.to_string() }
+    }
+}
+
+impl fmt::Display for Message {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Message: {}", self.text)
+    }
+}
+
+fn main() {
+    let m = Message::new("Hello");
+    println!("{}", m);
+}
+"""
+expected_output = "Message: Hello"
 
 # =============================================================================
 # Combined Lifecycle
 # =============================================================================
 
-# TODO: Test __new__ -> __init__ flow
-# [[test]]
-# name = "lifecycle_flow"
-# description = "Complete object creation sequence"
+[[test]]
+name = "lifecycle_flow"
+description = "Complete object creation sequence"
+python = """
+class Tracked:
+    def __new__(cls, value):
+        print("__new__ called")
+        instance = super().__new__(cls)
+        return instance
+    
+    def __init__(self, value):
+        print("__init__ called")
+        self.value = value
+    
+    def __del__(self):
+        print("__del__ called")
 
-# TODO: Test __repr__ vs __str__
-# [[test]]
-# name = "repr_vs_str"
-# description = "Different purposes: debugging vs display"
+t = Tracked(42)
+print(f"Value: {t.value}")
+del t
+print("End")
+"""
+rust = """
+struct Tracked {
+    value: i32,
+}
+
+impl Tracked {
+    fn new(value: i32) -> Self {
+        println!("__new__ called");
+        println!("__init__ called");
+        Tracked { value }
+    }
+}
+
+impl Drop for Tracked {
+    fn drop(&mut self) {
+        println!("__del__ called");
+    }
+}
+
+fn main() {
+    let t = Tracked::new(42);
+    println!("Value: {}", t.value);
+    drop(t);
+    println!("End");
+}
+"""
+expected_output = """__new__ called
+__init__ called
+Value: 42
+__del__ called
+End"""
+
+[[test]]
+name = "repr_vs_str"
+description = "Different purposes: debugging vs display"
+python = """
+class Product:
+    def __init__(self, name, price):
+        self.name = name
+        self.price = price
+    
+    def __str__(self):
+        return f"{self.name} - ${self.price:.2f}"
+    
+    def __repr__(self):
+        return f"Product(name='{self.name}', price={self.price})"
+
+p = Product("Laptop", 999.99)
+print(f"For users: {str(p)}")
+print(f"For developers: {repr(p)}")
+"""
+rust = """
+use std::fmt;
+
+struct Product {
+    name: String,
+    price: f64,
+}
+
+impl Product {
+    fn new(name: &str, price: f64) -> Self {
+        Product { name: name.to_string(), price }
+    }
+}
+
+impl fmt::Display for Product {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{} - ${:.2}", self.name, self.price)
+    }
+}
+
+impl fmt::Debug for Product {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Product(name='{}', price={})", self.name, self.price)
+    }
+}
+
+fn main() {
+    let p = Product::new("Laptop", 999.99);
+    println!("For users: {}", p);
+    println!("For developers: {:?}", p);
+}
+"""
+expected_output = """For users: Laptop - $999.99
+For developers: Product(name='Laptop', price=999.99)"""
 
 # =============================================================================
 # Edge Cases
 # =============================================================================
 
-# TODO: Test __del__ exceptions
-# [[test]]
-# name = "dunder_del_exception"
-# description = "Exception in __del__ is ignored (warning only)"
+[[test]]
+name = "dunder_del_exception"
+description = "Exception in __del__ is ignored (warning only)"
+skip = true
+skip_reason = "Exception handling in __del__ is Python-specific"
+python = """
+class Broken:
+    def __del__(self):
+        raise Exception("Error in __del__")
 
-# TODO: Test __repr__ returning non-string
-# [[test]]
-# name = "repr_non_string"
-# description = "__repr__ must return str"
-# skip = true
+try:
+    b = Broken()
+    del b
+    print("Deleted")
+except Exception as e:
+    print(f"Caught: {e}")
+"""
 
-# TODO: Test recursive __repr__
-# [[test]]
-# name = "repr_recursive"
-# description = "Handling self-referential structures"
+[[test]]
+name = "repr_non_string"
+description = "__repr__ must return str"
+skip = true
+skip_reason = "Type checking in __repr__ is Python-specific"
+python = """
+class Bad:
+    def __repr__(self):
+        return 42  # Should return str
+
+try:
+    print(repr(Bad()))
+except TypeError as e:
+    print(f"TypeError: {e}")
+"""
+
+[[test]]
+name = "repr_recursive"
+description = "Handling self-referential structures"
+python = """
+class Node:
+    def __init__(self, value):
+        self.value = value
+        self.children = []
+    
+    def __repr__(self):
+        return f"Node({self.value}, {self.children})"
+
+# Create a structure that references itself
+n = Node(1)
+n.children.append(n)  # Circular reference
+
+# Python's repr handles this with ...
+print(repr(n))
+"""
+rust = """
+use std::fmt;
+use std::rc::Rc;
+use std::cell::RefCell;
+
+struct Node {
+    value: i32,
+    children: Vec<Rc<RefCell<Node>>>,
+}
+
+impl Node {
+    fn new(value: i32) -> Rc<RefCell<Self>> {
+        Rc::new(RefCell::new(Node { value, children: vec![] }))
+    }
+}
+
+impl fmt::Debug for Node {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Node({}, [...])", self.value)
+    }
+}
+
+fn main() {
+    let n = Node::new(1);
+    n.borrow_mut().children.push(Rc::clone(&n));
+    println!("{:?}", n.borrow());
+}
+"""
+expected_output = "Node(1, [...])"

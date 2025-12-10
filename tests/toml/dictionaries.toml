@@ -13,58 +13,79 @@ name = "dict_empty_creation"
 description = "Create empty dictionary"
 tags = ["dict", "creation"]
 
-[test.python]
-code = '''
+python = '''
 def create_empty() -> dict:
     d = {}
     return d
 '''
 
-[test.assertions]
-contains = ["HashMap::new()"]
+rust = '''
+use serde_json;
+use std::collections::HashMap;
+pub fn create_empty() -> HashMap<serde_json::Value, serde_json::Value> {
+    let d = {
+        let map = HashMap::new();
+        map
+    };
+    return d;
+}
+'''
 
 [[test]]
 name = "dict_literal_creation"
 description = "Create dictionary with literal"
 tags = ["dict", "creation"]
 
-[test.python]
-code = '''
+python = '''
 def create_dict() -> dict:
     d = {"a": 1, "b": 2}
     return d
 '''
 
-[test.assertions]
-contains = ["HashMap"]
+rust = '''
+use std::collections::HashMap;
+pub fn create_dict() -> HashMap<String, i32> {
+    let d = {
+        let mut map = HashMap::new();
+        map.insert("a".to_string(), 1);
+        map.insert("b".to_string(), 2);
+        map
+    };
+    return d;
+}
+'''
 
 [[test]]
 name = "dict_basic_assignment"
 description = "Basic dictionary assignment"
 tags = ["dict", "assignment"]
 
-[test.python]
-code = '''
+python = '''
 def test_basic():
     d = {}
     d["key"] = "value"
     return d
 '''
 
-[test.assertions]
-contains = ["insert"]
-
-# =============================================================================
-# Nested Dict Operations
-# =============================================================================
+rust = '''
+use serde_json;
+use std::collections::HashMap;
+pub fn test_basic() -> HashMap<serde_json::Value, serde_json::Value> {
+    let mut d = {
+        let map = HashMap::new();
+        map
+    };
+    d.insert("key".to_string(), "value".to_string());
+    return d;
+}
+'''
 
 [[test]]
 name = "dict_nested_assignment"
 description = "Nested dictionary assignment"
 tags = ["dict", "nested"]
 
-[test.python]
-code = '''
+python = '''
 def test_nested():
     d = {}
     d["outer"] = {}
@@ -72,258 +93,330 @@ def test_nested():
     return d
 '''
 
-[test.assertions]
-contains_any = [["get_mut", "entry"]]
-
-# =============================================================================
-# Dict Access
-# =============================================================================
+rust = '''
+use serde_json;
+use std::collections::HashMap;
+pub fn test_nested() -> HashMap<serde_json::Value, serde_json::Value> {
+    let mut d = {
+        let map = HashMap::new();
+        map
+    };
+    d.insert("outer".to_string(), {
+        let map = HashMap::new();
+        map
+    });
+    d.get_mut(&"outer")
+        .unwrap()
+        .insert("inner".to_string(), "value".to_string());
+    return d;
+}
+'''
 
 [[test]]
 name = "dict_access_bracket"
 description = "Access dict with bracket notation"
 tags = ["dict", "access"]
 
-[test.python]
-code = '''
+python = '''
 def get_value(d: dict, key: str) -> int:
     return d[key]
 '''
 
-[test.assertions]
-contains_any = [["get(", "[&key]"]]
+rust = '''
+use serde_json;
+use std::collections::HashMap;
+#[derive(Debug, Clone)]
+pub struct IndexError {
+    message: String,
+}
+impl std::fmt::Display for IndexError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "index out of range: {}", self.message)
+    }
+}
+impl std::error::Error for IndexError {}
+impl IndexError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = " Depyler: proven to terminate"]
+pub fn get_value(d: &HashMap<serde_json::Value, serde_json::Value>, key: String) -> i32 {
+    return d.get(&key).cloned().unwrap();
+}
+'''
 
 [[test]]
 name = "dict_get_method"
 description = "Dictionary get() method"
 tags = ["dict", "method"]
 
-[test.python]
-code = '''
+python = '''
 def safe_get(d: dict, key: str) -> int:
     return d.get(key, 0)
 '''
 
-[test.assertions]
-contains_any = [["get(", "unwrap_or"]]
+rust = '''
+use serde_json;
+use std::collections::HashMap;
+pub fn safe_get(d: &HashMap<serde_json::Value, serde_json::Value>, key: String) -> i32 {
+    return d.get(&key).cloned().unwrap_or(0).unwrap();
+}
+'''
 
 [[test]]
 name = "dict_get_default"
 description = "Dictionary get() with default value"
 tags = ["dict", "method"]
 
-[test.python]
-code = '''
+python = '''
 def get_or_default(d: dict, key: str, default: str) -> str:
     return d.get(key, default)
 '''
 
-[test.assertions]
-contains_any = [["get(", "unwrap_or"]]
-
-# =============================================================================
-# Dict Methods
-# =============================================================================
+rust = '''
+use serde_json;
+use std::collections::HashMap;
+pub fn get_or_default(d: &HashMap<serde_json::Value, serde_json::Value>, key: String, default: String) -> String {
+    return d.get(&key).cloned().unwrap_or(default).unwrap();
+}
+'''
 
 [[test]]
 name = "dict_keys"
 description = "Dictionary keys() method"
 tags = ["dict", "method"]
 
-[test.python]
-code = '''
+python = '''
 def get_keys(d: dict) -> list:
     return list(d.keys())
 '''
 
-[test.assertions]
-contains = ["keys()"]
+rust = '''
+use serde_json;
+use std::collections::HashMap;
+pub fn get_keys(d: &HashMap<serde_json::Value, serde_json::Value>) -> Vec<serde_json::Value> {
+    return d.keys().cloned().collect::<Vec<_>>();
+}
+'''
 
 [[test]]
 name = "dict_values"
 description = "Dictionary values() method"
 tags = ["dict", "method"]
 
-[test.python]
-code = '''
+python = '''
 def get_values(d: dict) -> list:
     return list(d.values())
 '''
 
-[test.assertions]
-contains = ["values()"]
+rust = '''
+use serde_json;
+use std::collections::HashMap;
+pub fn get_values(d: &HashMap<serde_json::Value, serde_json::Value>) -> Vec<serde_json::Value> {
+    return d.values().cloned().collect::<Vec<_>>();
+}
+'''
 
 [[test]]
 name = "dict_items"
 description = "Dictionary items() method"
 tags = ["dict", "method"]
 
-[test.python]
-code = '''
+python = '''
 def get_items(d: dict) -> list:
     return list(d.items())
 '''
 
-[test.assertions]
-contains_any = [["iter()", "into_iter()"]]
+rust = '''
+use serde_json;
+use std::collections::HashMap;
+pub fn get_items(d: &HashMap<serde_json::Value, serde_json::Value>) -> Vec<serde_json::Value> {
+    return d.iter().map(|(k, v)| (k.clone(), v.clone())).collect::<Vec<_>>();
+}
+'''
 
 [[test]]
 name = "dict_pop"
 description = "Dictionary pop() method"
 tags = ["dict", "method"]
 
-[test.python]
-code = '''
+python = '''
 def pop_key(d: dict, key: str) -> int:
     return d.pop(key)
 '''
 
-[test.assertions]
-contains = ["remove"]
+rust = '''
+use serde_json;
+use std::collections::HashMap;
+pub fn pop_key(d: &mut HashMap<serde_json::Value, serde_json::Value>, key: String) -> i32 {
+    return d.remove(key).expect("KeyError: key not found");
+}
+'''
 
 [[test]]
 name = "dict_update"
 description = "Dictionary update() method - uses iteration with insert"
 tags = ["dict", "method"]
 
-[test.python]
-code = '''
+python = '''
 def update_dict(d: dict, other: dict):
     d.update(other)
 '''
 
-[test.assertions]
-contains_any = [["extend", ".insert("]]
+rust = '''
+use serde_json;
+use std::collections::HashMap;
+pub fn update_dict(
+    d: &mut HashMap<serde_json::Value, serde_json::Value>,
+    other: &HashMap<serde_json::Value, serde_json::Value>,
+) {
+    for (k, v) in other {
+        d.insert(k, v);
+    }
+}
+'''
 
 [[test]]
 name = "dict_clear"
 description = "Dictionary clear() method"
 tags = ["dict", "method"]
 
-[test.python]
-code = '''
+python = '''
 def clear_dict(d: dict):
     d.clear()
 '''
 
-[test.assertions]
-contains = ["clear()"]
-
-# =============================================================================
-# Dict Membership
-# =============================================================================
+rust = '''
+use serde_json;
+use std::collections::HashMap;
+pub fn clear_dict(d: &mut HashMap<serde_json::Value, serde_json::Value>) {
+    d.clear();
+}
+'''
 
 [[test]]
 name = "dict_in_check"
 description = "'in' operator for key check - uses .get().is_some()"
 tags = ["dict", "membership"]
 
-[test.python]
-code = '''
+python = '''
 def has_key(d: dict, key: str) -> bool:
     return key in d
 '''
 
-[test.assertions]
-contains_any = [["contains_key", ".get(", ".is_some()"]]
+rust = '''
+use serde_json;
+use std::collections::HashMap;
+pub fn has_key(d: &HashMap<serde_json::Value, serde_json::Value>, key: String) -> bool {
+    return d.get(&key).is_some();
+}
+'''
 
 [[test]]
 name = "dict_not_in_check"
 description = "'not in' operator for key check - uses negated .get().is_some()"
 tags = ["dict", "membership"]
 
-[test.python]
-code = '''
+python = '''
 def missing_key(d: dict, key: str) -> bool:
     return key not in d
 '''
 
-[test.assertions]
-contains_any = [["contains_key", "!d.get(", ".is_some()"]]
-
-# =============================================================================
-# Dict Iteration
-# =============================================================================
+rust = '''
+use serde_json;
+use std::collections::HashMap;
+pub fn missing_key(d: &HashMap<serde_json::Value, serde_json::Value>, key: String) -> bool {
+    return !d.get(&key).is_some();
+}
+'''
 
 [[test]]
 name = "dict_iterate_keys"
 description = "Iterate over dict keys"
 tags = ["dict", "iteration"]
 
-[test.python]
-code = '''
+python = '''
 def print_keys(d: dict):
     for key in d:
         print(key)
 '''
 
-[test.assertions]
-contains = ["for"]
-contains_any = [["keys()", "iter()"]]
+rust = '''
+use serde_json;
+use std::collections::HashMap;
+pub fn print_keys(d: &HashMap<serde_json::Value, serde_json::Value>) {
+    for key in d.iter().cloned() {
+        println!("{}", key);
+    }
+}
+'''
 
 [[test]]
 name = "dict_iterate_items"
 description = "Iterate over dict items"
 tags = ["dict", "iteration"]
 
-[test.python]
-code = '''
+python = '''
 def print_items(d: dict):
     for key, value in d.items():
         print(f"{key}: {value}")
 '''
 
-[test.assertions]
-contains = ["for"]
-
-# =============================================================================
-# Dict Length
-# =============================================================================
+rust = '''
+use serde_json;
+use std::collections::HashMap;
+pub fn print_items(d: &HashMap<serde_json::Value, serde_json::Value>) {
+    for (key, value) in d.iter().map(|(k, v)| (k.clone(), v.clone())).collect::<Vec<_>>() {
+        println!("{}", format!("{}: {}", key, value));
+    }
+}
+'''
 
 [[test]]
 name = "dict_len"
 description = "Dictionary length with len()"
 tags = ["dict", "builtin"]
 
-[test.python]
-code = '''
+python = '''
 def dict_size(d: dict) -> int:
     return len(d)
 '''
 
-[test.assertions]
-contains = ["len()"]
-
-# =============================================================================
-# Dict Comprehension
-# =============================================================================
+rust = '''
+use serde_json;
+use std::collections::HashMap;
+pub fn dict_size(d: &HashMap<serde_json::Value, serde_json::Value>) -> i32 {
+    return d.len() as i32 as i32;
+}
+'''
 
 [[test]]
 name = "dict_comprehension"
 description = "Dictionary comprehension"
 tags = ["dict", "comprehension"]
 
-[test.python]
-code = '''
+python = '''
 def squares_dict(n: int) -> dict:
     return {i: i * i for i in range(n)}
 '''
 
-[test.assertions]
-contains = ["HashMap"]
-contains_any = [["collect", "map"]]
-
-# =============================================================================
-# Dict Variable Key Access
-# =============================================================================
+rust = '''
+use serde_json;
+use std::collections::HashMap;
+pub fn squares_dict(n: i32) -> HashMap<serde_json::Value, serde_json::Value> {
+    return (0..n).map(|i| (i, i * i)).collect::<HashMap<_, _>>();
+}
+'''
 
 [[test]]
 name = "dict_access_string_variable"
 description = "Dict access with string variable keys"
 tags = ["dict", "access", "variable-key"]
 
-[test.python]
-code = '''
+python = '''
 from typing import Dict, List
 
 def lookup_values(data: Dict[str, int], keys: List[str]) -> List[int]:
@@ -336,117 +429,153 @@ def lookup_values(data: Dict[str, int], keys: List[str]) -> List[int]:
     return results
 '''
 
-[test.assertions]
-contains = ["fn lookup_values"]
-not_contains = ["key as usize"]
+rust = '''
+use std::collections::HashMap;
+pub fn lookup_values(data: &HashMap<String, i32>, keys: &Vec<String>) -> Vec<i32> {
+    let mut results = vec![];
+    for key in keys.iter().cloned() {
+        if data.clone().get(&key.clone()).is_some() {
+            results.push(data.get(&key).cloned().unwrap());
+        } else {
+            results.push(0);
+        }
+    }
+    return results;
+}
+'''
 
 [[test]]
 name = "dict_literal_key_access"
 description = "Dict access with string literal"
 tags = ["dict", "access", "literal-key"]
 
-[test.python]
-code = '''
+python = '''
 from typing import Dict
 
 def get_value(data: Dict[str, int]) -> int:
     return data["mykey"]
 '''
 
-[test.assertions]
-contains = ["fn get_value"]
-not_contains = ["as usize"]
-
-# =============================================================================
-# Dict Mutability Detection
-# =============================================================================
+rust = '''
+use std::collections::HashMap;
+#[derive(Debug, Clone)]
+pub struct IndexError {
+    message: String,
+}
+impl std::fmt::Display for IndexError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "index out of range: {}", self.message)
+    }
+}
+impl std::error::Error for IndexError {}
+impl IndexError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = " Depyler: proven to terminate"]
+pub fn get_value(data: &HashMap<String, i32>) -> i32 {
+    return data.get("mykey").cloned().unwrap();
+}
+'''
 
 [[test]]
 name = "dict_insert_adds_mut"
 description = "Dict insert should add mut"
 tags = ["dict", "mutability"]
 
-[test.python]
-code = '''
+python = '''
 def add_entry(d: dict[str, int], key: str, value: int) -> dict[str, int]:
     d[key] = value
     return d
 '''
 
-[test.assertions]
-contains = ["fn add_entry", "insert(", "mut d: HashMap<String, i"]
+rust = '''
+use std::collections::HashMap;
+pub fn add_entry(mut d: HashMap<String, i32>, key: String, value: i32) -> HashMap<String, i32> {
+    d.insert(key, value);
+    return d;
+}
+'''
 
 [[test]]
 name = "dict_clear_adds_mut"
 description = "Dict clear should add mut"
 tags = ["dict", "mutability"]
 
-[test.python]
-code = '''
+python = '''
 def clear_dict(d: dict[str, int]) -> dict[str, int]:
     d.clear()
     return d
 '''
 
-[test.assertions]
-contains = ["fn clear_dict", "clear()", "mut d: HashMap<String, i"]
+rust = '''
+use std::collections::HashMap;
+pub fn clear_dict(mut d: HashMap<String, i32>) -> HashMap<String, i32> {
+    d.clear();
+    return d;
+}
+'''
 
 [[test]]
 name = "dict_no_mut_when_readonly"
 description = "Dict read-only access should not add mut"
 tags = ["dict", "mutability"]
 
-[test.python]
-code = '''
+python = '''
 def get_value(d: dict[str, int], key: str) -> int:
     return d.get(key, 0)
 '''
 
-[test.assertions]
-contains = ["fn get_value", "HashMap"]
-not_contains = ["mut d:"]
-
-# =============================================================================
-# Dict Double Reference Prevention
-# =============================================================================
+rust = '''
+use std::collections::HashMap;
+pub fn get_value(d: &HashMap<String, i32>, key: String) -> i32 {
+    return d.get(&key).cloned().unwrap_or(0).unwrap();
+}
+'''
 
 [[test]]
 name = "dict_pop_no_double_ref"
 description = "Dict pop should not create double reference"
 tags = ["dict", "reference"]
 
-[test.python]
-code = '''
+python = '''
 def pop_entry(d: dict[str, int], key: str) -> int:
     return d.pop(key, -1)
 '''
 
-[test.assertions]
-contains = ["fn pop_entry"]
-not_contains = ["&&key", "& & key"]
+rust = '''
+use std::collections::HashMap;
+pub fn pop_entry(d: &mut HashMap<String, i32>, key: String) -> i32 {
+    return d.remove(key).unwrap_or(-1);
+}
+'''
 
 [[test]]
 name = "dict_contains_key_no_double_ref"
 description = "Dict contains_key should not create double reference"
 tags = ["dict", "reference"]
 
-[test.python]
-code = '''
+python = '''
 def has_key(d: dict[str, int], key: str) -> bool:
     return key in d
 '''
 
-[test.assertions]
-contains = ["fn has_key"]
-not_contains = ["&&key", "& & key"]
+rust = '''
+use std::collections::HashMap;
+pub fn has_key(d: &HashMap<String, i32>, key: String) -> bool {
+    return d.get(&key).is_some();
+}
+'''
 
 [[test]]
 name = "dict_combined_mutations"
 description = "Dict combined mutations without double references"
 tags = ["dict", "mutability", "reference"]
 
-[test.python]
-code = '''
+python = '''
 def modify_dict(d: dict[str, int], k1: str, k2: str) -> dict[str, int]:
     d[k1] = 10
     if k2 in d:
@@ -454,194 +583,294 @@ def modify_dict(d: dict[str, int], k1: str, k2: str) -> dict[str, int]:
     return d
 '''
 
-[test.assertions]
-contains = ["fn modify_dict", "mut d: HashMap<String, i"]
-not_contains = ["&&k2", "& & k2"]
+rust = '''
+use std::collections::HashMap;
+pub fn modify_dict(mut d: HashMap<String, i32>, k1: String, k2: String) -> HashMap<String, i32> {
+    d.clone().insert(k1, 10);
+    let _cse_temp_0 = d.get(&k2.clone()).is_some();
+    if _cse_temp_0 {
+        d.remove(k2).expect("KeyError: key not found");
+    }
+    return d;
+}
+'''
 
 [[test]]
 name = "dict_remove_in_conditional"
 description = "Dict remove in conditional without double references"
 tags = ["dict", "mutability", "reference"]
 
-[test.python]
-code = '''
+python = '''
 def remove_if_exists(d: dict[str, int], key: str) -> dict[str, int]:
     if key in d:
         d.pop(key)
     return d
 '''
 
-[test.assertions]
-contains = ["fn remove_if_exists", "mut d: HashMap<String, i"]
-not_contains = ["&&key", "& & key"]
-
-# =============================================================================
-# Advanced Dict Methods
-# =============================================================================
+rust = '''
+use std::collections::HashMap;
+pub fn remove_if_exists(mut d: HashMap<String, i32>, key: String) -> HashMap<String, i32> {
+    let _cse_temp_0 = d.clone().get(&key.clone()).is_some();
+    if _cse_temp_0 {
+        d.remove(key).expect("KeyError: key not found");
+    }
+    return d;
+}
+'''
 
 [[test]]
 name = "dict_setdefault"
 description = "dict.setdefault() set and return value"
 tags = ["dict", "method"]
 
-[test.python]
-code = '''
+python = '''
 def set_default_value(d: dict, key: str, default: str) -> str:
     return d.setdefault(key, default)
 '''
 
-[test.assertions]
-contains_any = [["entry", "or_insert"]]
+rust = '''
+use serde_json;
+use std::collections::HashMap;
+pub fn set_default_value(
+    d: &mut HashMap<serde_json::Value, serde_json::Value>,
+    key: String,
+    default: String,
+) -> String {
+    return d.entry(key).or_insert(default).clone();
+}
+'''
 
 [[test]]
 name = "dict_pop_with_default"
 description = "dict.pop() remove and return value with default"
 tags = ["dict", "method"]
 
-[test.python]
-code = '''
+python = '''
 def pop_value(d: dict, key: str, default: str) -> str:
     return d.pop(key, default)
 '''
 
-[test.assertions]
-contains_any = [["remove", "unwrap_or"]]
+rust = '''
+use serde_json;
+use std::collections::HashMap;
+pub fn pop_value(d: &mut HashMap<serde_json::Value, serde_json::Value>, key: String, default: String) -> String {
+    return d.remove(key).unwrap_or(default);
+}
+'''
 
 [[test]]
 name = "dict_popitem"
 description = "dict.popitem() remove arbitrary item"
 tags = ["dict", "method"]
 
-[test.python]
-code = '''
+python = '''
 def pop_item(d: dict) -> tuple:
     return d.popitem()
 '''
 
-[test.assertions]
-contains_any = [["pop", "next"]]
+rust = '''
+use serde_json;
+use std::collections::HashMap;
+pub fn pop_item(d: &mut HashMap<serde_json::Value, serde_json::Value>) -> () {
+    return {
+        let key = d
+            .keys()
+            .next()
+            .cloned()
+            .expect("KeyError: popitem(): dictionary is empty");
+        let value = d.remove(&key).expect("KeyError: key disappeared");
+        (key, value)
+    };
+}
+'''
 
 [[test]]
 name = "dict_fromkeys"
 description = "dict.fromkeys() create dict from keys"
 tags = ["dict", "method"]
 
-[test.python]
-code = '''
+python = '''
 def dict_from_keys(keys: list, value: int) -> dict:
     return dict.fromkeys(keys, value)
 '''
 
-[test.assertions]
-contains_any = [["map", "collect"]]
+rust = '''
+use serde_json;
+use std::collections::HashMap;
+pub fn dict_from_keys(keys: &Vec<serde_json::Value>, value: i32) -> HashMap<serde_json::Value, serde_json::Value> {
+    return dict.fromkeys(keys, value);
+}
+'''
 
 [[test]]
 name = "dict_copy"
 description = "dict.copy() shallow copy"
 tags = ["dict", "method"]
 
-[test.python]
-code = '''
+python = '''
 def copy_dict(d: dict) -> dict:
     return d.copy()
 '''
 
-[test.assertions]
-contains = ["clone"]
-
-# =============================================================================
-# Dict Value Operations (serde_json::Value compatibility)
-# =============================================================================
+rust = '''
+use serde_json;
+use std::collections::HashMap;
+pub fn copy_dict(d: &HashMap<serde_json::Value, serde_json::Value>) -> HashMap<serde_json::Value, serde_json::Value> {
+    return d.clone();
+}
+'''
 
 [[test]]
 name = "dict_in_operator_uses_get"
 description = "'in' operator should use Value methods, not contains_key"
 tags = ["dict", "value", "in"]
 
-[test.python]
-code = '''
+python = '''
 config = {"host": "localhost", "port": 5432}
 
 def has_host(config):
     return "host" in config
 '''
 
-[test.assertions]
-not_contains = ["config.contains_key("]
-contains_any = [[".get(", ".as_object()"]]
+rust = '''
+lazy_static! {
+    pub static ref config: HashMap<String, String> = serde_json::json!({ "host": "localhost", "port": 5432 });
+}
+use lazy_static::lazy_static;
+use serde_json;
+pub fn has_host(config: &serde_json::Value) -> bool {
+    return config.clone().contains(&"host");
+}
+'''
 
 [[test]]
 name = "dict_not_in_operator"
 description = "'not in' operator should use Value methods"
 tags = ["dict", "value", "not-in"]
 
-[test.python]
-code = '''
+python = '''
 def is_missing(data, key):
     return key not in data
 '''
 
-[test.assertions]
-not_contains = ["data.contains_key("]
+rust = '''
+use serde_json;
+pub fn is_missing(data: &serde_json::Value, key: &serde_json::Value) -> bool {
+    return !data.contains(&key);
+}
+'''
 
 [[test]]
 name = "dict_indexing_on_value"
 description = "Dict indexing should use Value indexing syntax"
 tags = ["dict", "value", "index"]
 
-[test.python]
-code = '''
+python = '''
 config = {"host": "localhost"}
 
 def get_host(config):
     return config["host"]
 '''
 
-[test.assertions]
-contains = ["config"]
+rust = '''
+use serde_json;
+lazy_static! {
+    pub static ref config: HashMap<String, String> = {
+        let mut map = HashMap::new();
+        map.insert("host".to_string(), "localhost".to_string());
+        map
+    };
+}
+use lazy_static::lazy_static;
+use std::collections::HashMap;
+#[derive(Debug, Clone)]
+pub struct IndexError {
+    message: String,
+}
+impl std::fmt::Display for IndexError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "index out of range: {}", self.message)
+    }
+}
+impl std::error::Error for IndexError {}
+impl IndexError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = " Depyler: proven to terminate"]
+pub fn get_host(config: &serde_json::Value) {
+    return config.clone().get("host").cloned().unwrap();
+}
+'''
 
 [[test]]
 name = "dict_isinstance_and_in"
 description = "isinstance(x, dict) with 'in' should work"
 tags = ["dict", "value", "isinstance"]
 
-[test.python]
-code = '''
+python = '''
 def get_value(data, key):
     if isinstance(data, dict) and key in data:
         return data[key]
     return None
 '''
 
-[test.assertions]
-not_contains = ["data.contains_key("]
-
-# =============================================================================
-# Phase2 Dict Tests (migrated from test_phase2.rs)
-# =============================================================================
+rust = '''
+use serde_json;
+#[derive(Debug, Clone)]
+pub struct IndexError {
+    message: String,
+}
+impl std::fmt::Display for IndexError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "index out of range: {}", self.message)
+    }
+}
+impl std::error::Error for IndexError {}
+impl IndexError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = " Depyler: proven to terminate"]
+pub fn get_value(data: &serde_json::Value, key: &serde_json::Value) {
+    let _cse_temp_0 = data.clone().contains(&key.clone());
+    let _cse_temp_1 = (true) && (_cse_temp_0);
+    if _cse_temp_1 {
+        return;
+    }
+    return;
+}
+'''
 
 [[test]]
 name = "has_key_uses_simple_str_not_cow"
 description = "String parameters should use String, not Cow"
 tags = ["dict", "string", "cow"]
 
-[test.python]
-code = '''
+python = '''
 def has_key(d: dict[str, int], key: str) -> bool:
     return key in d
 '''
 
-[test.assertions]
-contains = ["key: String"]
-not_contains = ["Cow<"]
+rust = '''
+use std::collections::HashMap;
+pub fn has_key(d: &HashMap<String, i32>, key: String) -> bool {
+    return d.get(&key).is_some();
+}
+'''
 
 [[test]]
 name = "string_param_not_escaping"
 description = "String used in comparison shouldn't use Cow"
 tags = ["dict", "string", "cow"]
 
-[test.python]
-code = '''
+python = '''
 def find_value(d: dict[str, int], search_key: str) -> int:
     for k, v in d.items():
         if k == search_key:
@@ -649,16 +878,24 @@ def find_value(d: dict[str, int], search_key: str) -> int:
     return -1
 '''
 
-[test.assertions]
-not_contains = ["Cow<"]
+rust = '''
+use std::collections::HashMap;
+pub fn find_value(d: &HashMap<String, i32>, search_key: String) -> i32 {
+    for (k, v) in d.iter().map(|(k, v)| (k.clone(), v.clone())).collect::<Vec<_>>() {
+        if k == search_key {
+            return v;
+        }
+    }
+    return -1;
+}
+'''
 
 [[test]]
 name = "get_without_default_returns_option"
 description = "dict.get() without default should use .cloned() for Option"
 tags = ["dict", "get", "option"]
 
-[test.python]
-code = '''
+python = '''
 def get_without_default(d: dict[str, int], key: str) -> int | None:
     result = d.get(key)
     if result is None:
@@ -666,31 +903,40 @@ def get_without_default(d: dict[str, int], key: str) -> int | None:
     return result
 '''
 
-[test.assertions]
-contains = [".cloned()"]
-contains_any = [["Option<"]]
+rust = '''
+use std::collections::HashMap;
+pub fn get_without_default(d: &HashMap<String, i32>, key: String) -> Option<i32> {
+    let result = d.get(&key).cloned();
+    if result.is_none() {
+        return None;
+    }
+    return Some(result);
+}
+'''
 
 [[test]]
 name = "get_with_default_still_unwraps"
 description = "dict.get() with default value should unwrap"
 tags = ["dict", "get", "unwrap"]
 
-[test.python]
-code = '''
+python = '''
 def get_with_default(d: dict[str, int], key: str) -> int:
     return d.get(key, 0)
 '''
 
-[test.assertions]
-contains_any = [[".unwrap_or(", ".unwrap_or_default()"]]
+rust = '''
+use std::collections::HashMap;
+pub fn get_with_default(d: &HashMap<String, i32>, key: String) -> i32 {
+    return d.get(&key).cloned().unwrap_or(0).unwrap();
+}
+'''
 
 [[test]]
 name = "get_non_optional_return_unwraps"
 description = "Non-optional return type should not be Option<i32>"
 tags = ["dict", "get", "return-type"]
 
-[test.python]
-code = '''
+python = '''
 def get_or_zero(d: dict[str, int], key: str) -> int:
     result = d.get(key)
     if result is None:
@@ -698,17 +944,23 @@ def get_or_zero(d: dict[str, int], key: str) -> int:
     return result
 '''
 
-[test.assertions]
-contains = ["i32"]
-not_contains = ["Option<i32"]
+rust = '''
+use std::collections::HashMap;
+pub fn get_or_zero(d: &HashMap<String, i32>, key: String) -> i32 {
+    let result = d.get(&key).cloned();
+    if result.is_none() {
+        return 0;
+    }
+    return result;
+}
+'''
 
 [[test]]
 name = "for_loop_tuple_both_vars_used"
 description = "Both k and v used should be (k, v) not (_k, v)"
 tags = ["dict", "iteration", "tuple"]
 
-[test.python]
-code = '''
+python = '''
 def sum_dict(d: dict[str, int]) -> int:
     total = 0
     for k, v in d.items():
@@ -717,33 +969,44 @@ def sum_dict(d: dict[str, int]) -> int:
     return total
 '''
 
-[test.assertions]
-contains = ["for (k, v)"]
-not_contains = ["for (_k, v)"]
+rust = '''
+use std::collections::HashMap;
+pub fn sum_dict(d: &HashMap<String, i32>) -> i32 {
+    let mut total = 0;
+    for (k, v) in d.iter().map(|(k, v)| (k.clone(), v.clone())).collect::<Vec<_>>() {
+        total = total + v;
+        println!("{}", k);
+    }
+    return total;
+}
+'''
 
 [[test]]
 name = "for_loop_key_used_in_index"
 description = "Key used in assignment target should be (k, v)"
 tags = ["dict", "iteration", "tuple"]
 
-[test.python]
-code = '''
+python = '''
 def update_dict(d1: dict[str, int], d2: dict[str, int]) -> None:
     for k, v in d2.items():
         d1[k] = v
 '''
 
-[test.assertions]
-contains = ["for (k, v)"]
-not_contains = ["for (_k,"]
+rust = '''
+use std::collections::HashMap;
+pub fn update_dict(d1: &mut HashMap<String, i32>, d2: &HashMap<String, i32>) {
+    for (k, v) in d2.iter().map(|(k, v)| (k.clone(), v.clone())).collect::<Vec<_>>() {
+        d1.insert(k, v);
+    }
+}
+'''
 
 [[test]]
 name = "for_loop_only_value_used"
 description = "Only value used should prefix unused key with underscore"
 tags = ["dict", "iteration", "tuple"]
 
-[test.python]
-code = '''
+python = '''
 def sum_values(d: dict[str, int]) -> int:
     total = 0
     for k, v in d.items():
@@ -751,16 +1014,23 @@ def sum_values(d: dict[str, int]) -> int:
     return total
 '''
 
-[test.assertions]
-contains_any = [["for (_k, v)", "for (_, v)"]]
+rust = '''
+use std::collections::HashMap;
+pub fn sum_values(d: &HashMap<String, i32>) -> i32 {
+    let mut total = 0;
+    for (_k, v) in d.iter().map(|(k, v)| (k.clone(), v.clone())).collect::<Vec<_>>() {
+        total = total + v;
+    }
+    return total;
+}
+'''
 
 [[test]]
 name = "for_loop_items_clones_correctly"
 description = "dict.items() iteration should clone both k and v"
 tags = ["dict", "iteration", "clone"]
 
-[test.python]
-code = '''
+python = '''
 def copy_keys(d: dict[str, int]) -> list[str]:
     keys = []
     for k, v in d.items():
@@ -768,16 +1038,23 @@ def copy_keys(d: dict[str, int]) -> list[str]:
     return keys
 '''
 
-[test.assertions]
-contains = [".iter()", ".map(", "k.clone()", "v.clone()"]
+rust = '''
+use std::collections::HashMap;
+pub fn copy_keys(d: &HashMap<String, i32>) -> Vec<String> {
+    let mut keys = vec![];
+    for (k, _v) in d.iter().map(|(k, v)| (k.clone(), v.clone())).collect::<Vec<_>>() {
+        keys.push(k);
+    }
+    return keys;
+}
+'''
 
 [[test]]
 name = "phase2_all_fixes_combined"
 description = "Test all phase2 fixes together"
 tags = ["dict", "integration"]
 
-[test.python]
-code = '''
+python = '''
 def merge_and_get(d1: dict[str, int], d2: dict[str, int], key: str) -> int | None:
     result = {}
     for k, v in d1.items():
@@ -787,17 +1064,29 @@ def merge_and_get(d1: dict[str, int], d2: dict[str, int], key: str) -> int | Non
     return result.get(key)
 '''
 
-[test.assertions]
-contains = ["for (k, v)", ".cloned()"]
-not_contains = ["Cow<", ".cloned().unwrap_or_default()"]
+rust = '''
+use std::collections::HashMap;
+pub fn merge_and_get(d1: &HashMap<String, i32>, d2: &HashMap<String, i32>, key: String) -> Option<i32> {
+    let mut result = {
+        let map = HashMap::new();
+        map
+    };
+    for (k, v) in d1.iter().map(|(k, v)| (k.clone(), v.clone())).collect::<Vec<_>>() {
+        result.insert(k, v);
+    }
+    for (k, v) in d2.iter().map(|(k, v)| (k.clone(), v.clone())).collect::<Vec<_>>() {
+        result.insert(k, v);
+    }
+    return result.get(&key).cloned();
+}
+'''
 
 [[test]]
 name = "regression_dict_operations_still_work"
 description = "Ensure dict operations still work after fixes"
 tags = ["dict", "regression"]
 
-[test.python]
-code = '''
+python = '''
 def dict_ops(d: dict[str, int]) -> None:
     d["new_key"] = 42
     d.pop("old_key", None)
@@ -805,25 +1094,70 @@ def dict_ops(d: dict[str, int]) -> None:
         print(d["check_key"])
 '''
 
-[test.assertions]
-contains = [".insert(", ".get(", ".is_some()"]
-contains_any = [[".remove(", ".pop("]]
-
-# =============================================================================
-# Dict Merge Operator - Migrated from test_phase3.rs
-# =============================================================================
+rust = '''
+use std::collections::HashMap;
+#[derive(Debug, Clone)]
+pub struct IndexError {
+    message: String,
+}
+impl std::fmt::Display for IndexError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "index out of range: {}", self.message)
+    }
+}
+impl std::error::Error for IndexError {}
+impl IndexError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = " Depyler: proven to terminate"]
+pub fn dict_ops(d: &mut HashMap<String, i32>) {
+    d.clone().insert("new_key".to_string(), 42);
+    d.remove("old_key").unwrap_or(None);
+    let _cse_temp_0 = d.get(&"check_key").is_some();
+    if _cse_temp_0 {
+        println!("{}", d.get("check_key").cloned().unwrap());
+    }
+}
+'''
 
 [[test]]
 name = "dict_merge_operator"
 description = "Dict merge operator | should translate to extend or clone+extend"
 tags = ["dict", "merge", "operator"]
 
-[test.python]
-code = '''
+python = '''
 def merge_with_pipe(d1: dict[str, int], d2: dict[str, int]) -> dict[str, int]:
     return d1 | d2
 '''
 
-[test.assertions]
-not_contains = ["d1 | d2"]
-contains_any = [[".extend(", ".clone("]]
+rust = '''
+use std::collections::HashMap;
+pub fn merge_with_pipe(d1: &HashMap<String, i32>, d2: &HashMap<String, i32>) -> HashMap<String, i32> {
+    return {
+        let mut __merge_result = d1.clone();
+        __merge_result.extend(d2.iter().map(|(k, v)| (k.clone(), *v)));
+        __merge_result
+    };
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn quickcheck_merge_with_pipe() {
+        fn prop(d1: (), d2: ()) -> TestResult {
+            let result1 = merge_with_pipe(&d1, &d2);
+            let result2 = merge_with_pipe(&d2, &d1);
+            if result1 != result2 {
+                return TestResult::failed();
+            }
+            TestResult::passed()
+        }
+        quickcheck(prop as fn((), ()) -> TestResult);
+    }
+}
+'''

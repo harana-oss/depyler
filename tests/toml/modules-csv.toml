@@ -14,8 +14,7 @@ name = "csv_dictreader_creation"
 description = "csv.DictReader creation and usage"
 tags = ["csv", "dictreader"]
 
-[test.python]
-code = '''
+python = '''
 import csv
 
 def read_csv(filepath: str) -> list:
@@ -24,17 +23,22 @@ def read_csv(filepath: str) -> list:
         return list(reader)
 '''
 
-[test.assertions]
-contains_any = [["csv::ReaderBuilder", "csv::Reader"]]
-not_contains = ["reader.iter()"]
+rust = '''
+use csv;
+use serde_json;
+pub fn read_csv(filepath: String) -> Vec<serde_json::Value> {
+    let mut f = std::fs::File::open(filepath)?;
+    let reader = csv::ReaderBuilder::new().has_headers(true).from_reader(f);
+    return reader.deserialize::<HashMap<String, String>>().collect::<Vec<_>>();
+}
+'''
 
 [[test]]
 name = "csv_fieldnames_access"
 description = "Access CSV headers via fieldnames"
 tags = ["csv", "headers"]
 
-[test.python]
-code = '''
+python = '''
 import csv
 
 def get_headers(filepath: str):
@@ -43,17 +47,21 @@ def get_headers(filepath: str):
         return reader.fieldnames
 '''
 
-[test.assertions]
-contains = [".headers()"]
-not_contains = ["reader.fieldnames"]
+rust = '''
+use csv;
+pub fn get_headers(filepath: String) {
+    let mut f = std::fs::File::open(filepath)?;
+    let reader = csv::ReaderBuilder::new().has_headers(true).from_reader(f);
+    return reader.headers()?;
+}
+'''
 
 [[test]]
 name = "csv_row_iteration"
 description = "Iterate over CSV rows"
 tags = ["csv", "iteration"]
 
-[test.python]
-code = '''
+python = '''
 import csv
 
 def print_rows(filepath: str):
@@ -63,17 +71,24 @@ def print_rows(filepath: str):
             print(row)
 '''
 
-[test.assertions]
-contains_any = [["deserialize", "HashMap"]]
-not_contains = ["reader.iter()"]
+rust = '''
+use csv;
+pub fn print_rows(filepath: String) {
+    let mut f = std::fs::File::open(filepath)?;
+    let reader = csv::ReaderBuilder::new().has_headers(true).from_reader(f);
+    for result in reader.deserialize::<HashMap<String, String>>() {
+        let row = result?;
+        println!("{}", row);
+    }
+}
+'''
 
 [[test]]
 name = "csv_row_item_access"
 description = "Access CSV row by column name"
 tags = ["csv", "access"]
 
-[test.python]
-code = '''
+python = '''
 import csv
 
 def get_column(filepath: str, column_name: str):
@@ -83,17 +98,41 @@ def get_column(filepath: str, column_name: str):
             print(row[column_name])
 '''
 
-[test.assertions]
-contains = [".get("]
-not_contains = ["as usize"]
+rust = '''
+use csv;
+#[derive(Debug, Clone)]
+pub struct IndexError {
+    message: String,
+}
+impl std::fmt::Display for IndexError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "index out of range: {}", self.message)
+    }
+}
+impl std::error::Error for IndexError {}
+impl IndexError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+pub fn get_column(filepath: String, column_name: String) {
+    let mut f = std::fs::File::open(filepath)?;
+    let reader = csv::ReaderBuilder::new().has_headers(true).from_reader(f);
+    for result in reader.deserialize::<HashMap<String, String>>() {
+        let row = result?;
+        println!("{}", row.get(&column_name).cloned().unwrap());
+    }
+}
+'''
 
 [[test]]
 name = "csv_filtering"
 description = "Filter CSV rows by column value"
 tags = ["csv", "filter"]
 
-[test.python]
-code = '''
+python = '''
 import csv
 
 def filter_csv(filepath: str, column: str, value: str) -> list:
@@ -106,17 +145,46 @@ def filter_csv(filepath: str, column: str, value: str) -> list:
         return results
 '''
 
-[test.assertions]
-contains_any = [["deserialize", "HashMap"]]
-contains = [".get("]
+rust = '''
+use csv;
+use serde_json;
+#[derive(Debug, Clone)]
+pub struct IndexError {
+    message: String,
+}
+impl std::fmt::Display for IndexError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "index out of range: {}", self.message)
+    }
+}
+impl std::error::Error for IndexError {}
+impl IndexError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+pub fn filter_csv(filepath: String, column: String, value: String) -> Vec<serde_json::Value> {
+    let mut f = std::fs::File::open(filepath)?;
+    let reader = csv::ReaderBuilder::new().has_headers(true).from_reader(f);
+    let results = vec![];
+    for result in reader.deserialize::<HashMap<String, String>>() {
+        let row = result?;
+        if row.get(&column).cloned().unwrap() == value {
+            results.push(row);
+        }
+    }
+    return results;
+}
+'''
 
 [[test]]
 name = "csv_comprehension"
 description = "CSV filtering with list comprehension"
 tags = ["csv", "comprehension"]
 
-[test.python]
-code = '''
+python = '''
 import csv
 
 def filter_csv_generator(filepath: str, column: str, value: str) -> list:
@@ -126,21 +194,28 @@ def filter_csv_generator(filepath: str, column: str, value: str) -> list:
         return filtered
 '''
 
-[test.assertions]
-contains_any = [["deserialize", "HashMap"]]
-not_contains = ["reader.iter()"]
-
-# =============================================================================
-# CSV DictWriter
-# =============================================================================
+rust = '''
+use csv;
+use serde_json;
+pub fn filter_csv_generator(filepath: String, column: String, value: String) -> Vec<serde_json::Value> {
+    let mut f = std::fs::File::open(filepath)?;
+    let reader = csv::ReaderBuilder::new().has_headers(true).from_reader(f);
+    let filtered = reader
+        .deserialize::<std::collections::HashMap<String, String>>()
+        .filter_map(|result| result.ok())
+        .filter(|row| row.get(&column).cloned().unwrap() == value)
+        .map(|row| row)
+        .collect::<Vec<_>>();
+    return filtered;
+}
+'''
 
 [[test]]
 name = "csv_dictwriter_basic"
 description = "csv.DictWriter basic creation"
 tags = ["csv", "dictwriter"]
 
-[test.python]
-code = '''
+python = '''
 import csv
 
 def write_data(filename: str):
@@ -149,37 +224,51 @@ def write_data(filename: str):
         writer.writeheader()
 '''
 
-[test.assertions]
-contains = ["csv::Writer"]
+rust = '''
+use csv;
+pub fn write_data(filename: String) {
+    let mut f = std::fs::File::create(filename)?;
+    let writer = csv::Writer::from_writer(f);
+    writer.writeheader();
+}
+'''
 
 [[test]]
 name = "csv_dictwriter_multiple_fields"
 description = "csv.DictWriter with multiple fields"
 tags = ["csv", "dictwriter"]
 
-[test.python]
-code = '''
+python = '''
 import csv
 
 def create_writer(output) -> None:
     writer = csv.DictWriter(output, fieldnames=['id', 'name', 'email', 'age'])
 '''
 
-[test.assertions]
-contains = ["csv"]
+rust = '''
+use csv;
+use serde_json;
+pub fn create_writer(output: &serde_json::Value) {
+    let writer = csv::Writer::from_writer(output);
+}
+'''
 
 [[test]]
 name = "csv_dictwriter_variable_fieldnames"
 description = "csv.DictWriter with variable fieldnames"
 tags = ["csv", "dictwriter"]
 
-[test.python]
-code = '''
+python = '''
 import csv
 
 def create_writer(f, fields) -> None:
     writer = csv.DictWriter(f, fieldnames=fields)
 '''
 
-[test.assertions]
-contains = ["csv"]
+rust = '''
+use csv;
+use serde_json;
+pub fn create_writer(f: &serde_json::Value, fields: &serde_json::Value) {
+    let writer = csv::Writer::from_writer(f);
+}
+'''

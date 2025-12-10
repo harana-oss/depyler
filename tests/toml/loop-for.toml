@@ -14,8 +14,7 @@ name = "unused_loop_variable"
 description = "Test unused loop variable detection and underscore prefixing"
 tags = ["for", "loop", "unused", "variable"]
 
-[test.python]
-code = '''
+python = '''
 def count_items(items: list[int]) -> int:
     count = 0
     for item in items:
@@ -23,17 +22,33 @@ def count_items(items: list[int]) -> int:
     return count
 '''
 
-[test.assertions]
-contains = ["fn count_items"]
-contains_any = [["for", "iter"]]
+rust = '''
+pub fn count_items(items: &Vec<i32>) -> i32 {
+    let mut count = 0;
+    for _item in items.iter().cloned() {
+        count = count + 1;
+    }
+    return count;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_count_items_examples() {
+        assert_eq!(count_items(vec![]), 0);
+        assert_eq!(count_items(vec![1]), 1);
+        assert_eq!(count_items(vec![1, 2, 3]), 3);
+    }
+}
+'''
 
 [[test]]
 name = "used_loop_variable"
 description = "Test used loop variable should not be prefixed with underscore"
 tags = ["for", "loop", "used", "variable"]
 
-[test.python]
-code = '''
+python = '''
 def sum_items(items: list[int]) -> int:
     total = 0
     for item in items:
@@ -41,20 +56,33 @@ def sum_items(items: list[int]) -> int:
     return total
 '''
 
-[test.assertions]
-contains = ["fn sum_items"]
-
-# ============================================================================
-# Tuple Unpacking
-# ============================================================================
+rust = '''
+pub fn sum_items(items: &Vec<i32>) -> i32 {
+    let mut total = 0;
+    for item in items.iter().cloned() {
+        total = total + item;
+    }
+    return total;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_sum_items_examples() {
+        assert_eq!(sum_items(vec![]), 0);
+        assert_eq!(sum_items(vec![1]), 1);
+        assert_eq!(sum_items(vec![1, 2, 3]), 6);
+    }
+}
+'''
 
 [[test]]
 name = "tuple_unpacking_all_used"
 description = "Test tuple unpacking with all elements used"
 tags = ["for", "loop", "tuple", "unpacking"]
 
-[test.python]
-code = '''
+python = '''
 def process_pairs(pairs: list[tuple[int, int]]) -> int:
     total = 0
     for a, b in pairs:
@@ -62,16 +90,33 @@ def process_pairs(pairs: list[tuple[int, int]]) -> int:
     return total
 '''
 
-[test.assertions]
-contains = ["fn process_pairs"]
+rust = '''
+pub fn process_pairs(pairs: &Vec<(i32, i32)>) -> i32 {
+    let mut total = 0;
+    for (a, b) in pairs.iter().cloned() {
+        total = total + a + b;
+    }
+    return total;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_process_pairs_examples() {
+        assert_eq!(process_pairs(vec![]), 0);
+        assert_eq!(process_pairs(vec![1]), 1);
+        assert_eq!(process_pairs(vec![1, 2, 3]), 3);
+    }
+}
+'''
 
 [[test]]
 name = "tuple_unpacking_first_unused"
 description = "Test tuple unpacking with first element unused"
 tags = ["for", "loop", "tuple", "unused"]
 
-[test.python]
-code = '''
+python = '''
 def process_values(items: list[tuple[int, str]]) -> str:
     result = ""
     for idx, val in items:
@@ -79,16 +124,22 @@ def process_values(items: list[tuple[int, str]]) -> str:
     return result
 '''
 
-[test.assertions]
-contains = ["fn process_values"]
+rust = '''
+pub fn process_values(items: &Vec<(i32, String)>) -> String {
+    let mut result = "".to_string();
+    for (_idx, val) in items.iter().cloned() {
+        result = format!("{}{}", result, val);
+    }
+    return result;
+}
+'''
 
 [[test]]
 name = "tuple_unpacking_second_unused"
 description = "Test tuple unpacking with second element unused"
 tags = ["for", "loop", "tuple", "unused"]
 
-[test.python]
-code = '''
+python = '''
 def count_by_index(items: list[tuple[int, str]]) -> int:
     total = 0
     for idx, val in items:
@@ -96,16 +147,33 @@ def count_by_index(items: list[tuple[int, str]]) -> int:
     return total
 '''
 
-[test.assertions]
-contains = ["fn count_by_index"]
+rust = '''
+pub fn count_by_index(items: &Vec<(i32, String)>) -> i32 {
+    let mut total = 0;
+    for (idx, _val) in items.iter().cloned() {
+        total = total + idx;
+    }
+    return total;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_count_by_index_examples() {
+        assert_eq!(count_by_index(vec![]), 0);
+        assert_eq!(count_by_index(vec![1]), 1);
+        assert_eq!(count_by_index(vec![1, 2, 3]), 3);
+    }
+}
+'''
 
 [[test]]
 name = "tuple_unpacking_all_unused"
 description = "Test tuple unpacking with all elements unused"
 tags = ["for", "loop", "tuple", "unused"]
 
-[test.python]
-code = '''
+python = '''
 def count_pairs(pairs: list[tuple[int, int]]) -> int:
     count = 0
     for a, b in pairs:
@@ -113,20 +181,33 @@ def count_pairs(pairs: list[tuple[int, int]]) -> int:
     return count
 '''
 
-[test.assertions]
-contains = ["fn count_pairs"]
-
-# ============================================================================
-# String Iteration
-# ============================================================================
+rust = '''
+pub fn count_pairs(pairs: &Vec<(i32, i32)>) -> i32 {
+    let mut count = 0;
+    for (_a, _b) in pairs.iter().cloned() {
+        count = count + 1;
+    }
+    return count;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_count_pairs_examples() {
+        assert_eq!(count_pairs(vec![]), 0);
+        assert_eq!(count_pairs(vec![1]), 1);
+        assert_eq!(count_pairs(vec![1, 2, 3]), 3);
+    }
+}
+'''
 
 [[test]]
 name = "string_iteration_singular"
 description = "Test string iteration detection with singular variable name"
 tags = ["for", "loop", "string", "iteration"]
 
-[test.python]
-code = '''
+python = '''
 def count_chars(s: str) -> int:
     count = 0
     for c in s:
@@ -134,16 +215,34 @@ def count_chars(s: str) -> int:
     return count
 '''
 
-[test.assertions]
-contains = ["fn count_chars"]
+rust = '''
+pub fn count_chars(s: String) -> i32 {
+    let mut count = 0;
+    for _c in s.chars() {
+        let c = _c.to_string();
+        count = count + 1;
+    }
+    return count;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_count_chars_examples() {
+        assert_eq!(count_chars(""), 0);
+        assert_eq!(count_chars("a"), 1);
+        assert_eq!(count_chars("abc"), 3);
+    }
+}
+'''
 
 [[test]]
 name = "string_iteration_string_name"
 description = "Test string iteration with 'string' variable name"
 tags = ["for", "loop", "string", "iteration"]
 
-[test.python]
-code = '''
+python = '''
 def process_string(string: str) -> int:
     total = 0
     for char in string:
@@ -151,16 +250,34 @@ def process_string(string: str) -> int:
     return total
 '''
 
-[test.assertions]
-contains = ["fn process_string"]
+rust = '''
+pub fn process_string(string: String) -> i32 {
+    let mut total = 0;
+    for _char in string.chars() {
+        let char = _char.to_string();
+        total = total + 1;
+    }
+    return total;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_process_string_examples() {
+        assert_eq!(process_string(""), 0);
+        assert_eq!(process_string("a"), 1);
+        assert_eq!(process_string("abc"), 3);
+    }
+}
+'''
 
 [[test]]
 name = "string_iteration_prefix"
 description = "Test string iteration with str_ prefix pattern"
 tags = ["for", "loop", "string", "iteration"]
 
-[test.python]
-code = '''
+python = '''
 def process_str_data(str_input: str) -> int:
     count = 0
     for c in str_input:
@@ -168,16 +285,34 @@ def process_str_data(str_input: str) -> int:
     return count
 '''
 
-[test.assertions]
-contains = ["fn process_str_data"]
+rust = '''
+pub fn process_str_data(str_input: String) -> i32 {
+    let mut count = 0;
+    for _c in str_input.chars() {
+        let c = _c.to_string();
+        count = count + 1;
+    }
+    return count;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_process_str_data_examples() {
+        assert_eq!(process_str_data(""), 0);
+        assert_eq!(process_str_data("a"), 1);
+        assert_eq!(process_str_data("abc"), 3);
+    }
+}
+'''
 
 [[test]]
 name = "string_iteration_suffix"
 description = "Test string iteration with _str suffix pattern"
 tags = ["for", "loop", "string", "iteration"]
 
-[test.python]
-code = '''
+python = '''
 def process_input(input_str: str) -> int:
     length = 0
     for c in input_str:
@@ -185,16 +320,34 @@ def process_input(input_str: str) -> int:
     return length
 '''
 
-[test.assertions]
-contains = ["fn process_input"]
+rust = '''
+pub fn process_input(input_str: String) -> i32 {
+    let mut length = 0;
+    for _c in input_str.chars() {
+        let c = _c.to_string();
+        length = length + 1;
+    }
+    return length;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_process_input_examples() {
+        assert_eq!(process_input(""), 0);
+        assert_eq!(process_input("a"), 1);
+        assert_eq!(process_input("abc"), 3);
+    }
+}
+'''
 
 [[test]]
 name = "string_iteration_text"
 description = "Test string iteration with 'text' variable name"
 tags = ["for", "loop", "string", "iteration"]
 
-[test.python]
-code = '''
+python = '''
 def analyze_text(text: str) -> int:
     vowels = 0
     for c in text:
@@ -202,16 +355,34 @@ def analyze_text(text: str) -> int:
     return vowels
 '''
 
-[test.assertions]
-contains = ["fn analyze_text"]
+rust = '''
+pub fn analyze_text(text: String) -> i32 {
+    let mut vowels = 0;
+    for _c in text.chars() {
+        let c = _c.to_string();
+        vowels = vowels + 1;
+    }
+    return vowels;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_analyze_text_examples() {
+        assert_eq!(analyze_text(""), 0);
+        assert_eq!(analyze_text("a"), 1);
+        assert_eq!(analyze_text("abc"), 3);
+    }
+}
+'''
 
 [[test]]
 name = "string_iteration_word"
 description = "Test string iteration with 'word' variable name"
 tags = ["for", "loop", "string", "iteration"]
 
-[test.python]
-code = '''
+python = '''
 def count_letters(word: str) -> int:
     count = 0
     for letter in word:
@@ -219,16 +390,34 @@ def count_letters(word: str) -> int:
     return count
 '''
 
-[test.assertions]
-contains = ["fn count_letters"]
+rust = '''
+pub fn count_letters(word: String) -> i32 {
+    let mut count = 0;
+    for _letter in word.chars() {
+        let letter = _letter.to_string();
+        count = count + 1;
+    }
+    return count;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_count_letters_examples() {
+        assert_eq!(count_letters(""), 0);
+        assert_eq!(count_letters("a"), 1);
+        assert_eq!(count_letters("abc"), 3);
+    }
+}
+'''
 
 [[test]]
 name = "collection_iteration"
 description = "Test collection iteration uses iter().cloned() not chars()"
 tags = ["for", "loop", "collection", "iteration"]
 
-[test.python]
-code = '''
+python = '''
 def sum_numbers(numbers: list[int]) -> int:
     total = 0
     for num in numbers:
@@ -236,16 +425,33 @@ def sum_numbers(numbers: list[int]) -> int:
     return total
 '''
 
-[test.assertions]
-contains = ["fn sum_numbers"]
+rust = '''
+pub fn sum_numbers(numbers: &Vec<i32>) -> i32 {
+    let mut total = 0;
+    for num in numbers.iter().cloned() {
+        total = total + num;
+    }
+    return total;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_sum_numbers_examples() {
+        assert_eq!(sum_numbers(vec![]), 0);
+        assert_eq!(sum_numbers(vec![1]), 1);
+        assert_eq!(sum_numbers(vec![1, 2, 3]), 6);
+    }
+}
+'''
 
 [[test]]
 name = "plural_not_string"
 description = "Test plural form variable should not match string pattern"
 tags = ["for", "loop", "collection", "plural"]
 
-[test.python]
-code = '''
+python = '''
 def process_strings(strings: list[str]) -> int:
     count = 0
     for s in strings:
@@ -253,20 +459,33 @@ def process_strings(strings: list[str]) -> int:
     return count
 '''
 
-[test.assertions]
-contains = ["fn process_strings"]
-
-# ============================================================================
-# Enumerate Pattern
-# ============================================================================
+rust = '''
+pub fn process_strings(strings: &Vec<String>) -> i32 {
+    let mut count = 0;
+    for _s in strings.iter().cloned() {
+        count = count + 1;
+    }
+    return count;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_process_strings_examples() {
+        assert_eq!(process_strings(vec![]), 0);
+        assert_eq!(process_strings(vec![1]), 1);
+        assert_eq!(process_strings(vec![1, 2, 3]), 3);
+    }
+}
+'''
 
 [[test]]
 name = "enumerate_index_used"
 description = "Test enumerate with used index requires type cast"
 tags = ["for", "loop", "enumerate", "index"]
 
-[test.python]
-code = '''
+python = '''
 def indexed_sum(items: list[int]) -> int:
     total = 0
     for i, val in enumerate(items):
@@ -274,16 +493,34 @@ def indexed_sum(items: list[int]) -> int:
     return total
 '''
 
-[test.assertions]
-contains = ["fn indexed_sum"]
+rust = '''
+pub fn indexed_sum(items: Vec<i32>) -> i32 {
+    let mut total = 0;
+    for (i, val) in items.iter().enumerate().map(|(i, x)| (i as i32, x.clone())) {
+        let i = i as i32;
+        total = total + i + val;
+    }
+    return total;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_indexed_sum_examples() {
+        assert_eq!(indexed_sum(vec![]), 0);
+        assert_eq!(indexed_sum(vec![1]), 1);
+        assert_eq!(indexed_sum(vec![1, 2, 3]), 6);
+    }
+}
+'''
 
 [[test]]
 name = "enumerate_value_unused"
 description = "Test enumerate with unused value"
 tags = ["for", "loop", "enumerate", "unused"]
 
-[test.python]
-code = '''
+python = '''
 def count_items(items: list[int]) -> int:
     count = 0
     for i, val in enumerate(items):
@@ -291,20 +528,34 @@ def count_items(items: list[int]) -> int:
     return count
 '''
 
-[test.assertions]
-contains = ["fn count_items"]
-
-# ============================================================================
-# Other Loop Patterns
-# ============================================================================
+rust = '''
+pub fn count_items(items: Vec<i32>) -> i32 {
+    let mut count = 0;
+    for (i, _val) in items.iter().enumerate().map(|(i, x)| (i as i32, x.clone())) {
+        let i = i as i32;
+        count = count + i;
+    }
+    return count;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_count_items_examples() {
+        assert_eq!(count_items(vec![]), 0);
+        assert_eq!(count_items(vec![1]), 1);
+        assert_eq!(count_items(vec![1, 2, 3]), 3);
+    }
+}
+'''
 
 [[test]]
 name = "char_to_string_conversion"
 description = "Test char-to-String conversion for dict keys"
 tags = ["for", "loop", "string", "dict"]
 
-[test.python]
-code = '''
+python = '''
 def char_frequency(s: str) -> dict[str, int]:
     freq: dict[str, int] = {}
     for char in s:
@@ -315,16 +566,52 @@ def char_frequency(s: str) -> dict[str, int]:
     return freq
 '''
 
-[test.assertions]
-contains = ["fn char_frequency"]
+rust = '''
+use std::collections::HashMap;
+#[derive(Debug, Clone)]
+pub struct IndexError {
+    message: String,
+}
+impl std::fmt::Display for IndexError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "index out of range: {}", self.message)
+    }
+}
+impl std::error::Error for IndexError {}
+impl IndexError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+pub fn char_frequency(s: String) -> HashMap<String, i32> {
+    let mut freq: HashMap<String, i32> = {
+        let map = HashMap::new();
+        map
+    };
+    for _char in s.chars() {
+        let char = _char.to_string();
+        if freq.clone().get(&char).is_some() {
+            {
+                let _key = char;
+                let _old_val = freq.clone().get(&_key).cloned().unwrap_or_default();
+                freq.clone().insert(_key, _old_val + 1);
+            }
+        } else {
+            freq.insert(char, 1);
+        }
+    }
+    return freq;
+}
+'''
 
 [[test]]
 name = "range_loop"
 description = "Test range loop without enumerate"
 tags = ["for", "loop", "range"]
 
-[test.python]
-code = '''
+python = '''
 def sum_range(n: int) -> int:
     total = 0
     for i in range(n):
@@ -332,16 +619,33 @@ def sum_range(n: int) -> int:
     return total
 '''
 
-[test.assertions]
-contains = ["fn sum_range"]
+rust = '''
+pub fn sum_range(n: i32) -> i32 {
+    let mut total = 0;
+    for i in 0..n {
+        total = total + i;
+    }
+    return total;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_sum_range_examples() {
+        assert_eq!(sum_range(0), 0);
+        assert_eq!(sum_range(1), 1);
+        assert_eq!(sum_range(-1), -1);
+    }
+}
+'''
 
 [[test]]
 name = "nested_loops"
 description = "Test nested loops with mixed variable usage"
 tags = ["for", "loop", "nested"]
 
-[test.python]
-code = '''
+python = '''
 def nested_sum(matrix: list[list[int]]) -> int:
     total = 0
     for row in matrix:
@@ -350,31 +654,53 @@ def nested_sum(matrix: list[list[int]]) -> int:
     return total
 '''
 
-[test.assertions]
-contains = ["fn nested_sum"]
+rust = '''
+pub fn nested_sum(matrix: &Vec<Vec<i32>>) -> i32 {
+    let mut total = 0;
+    for row in matrix.iter().cloned() {
+        for val in row.iter().cloned() {
+            total = total + val;
+        }
+    }
+    return total;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_nested_sum_examples() {
+        assert_eq!(nested_sum(vec![]), 0);
+        assert_eq!(nested_sum(vec![1]), 1);
+        assert_eq!(nested_sum(vec![1, 2, 3]), 6);
+    }
+}
+'''
 
 [[test]]
 name = "empty_loop_unused_variable"
 description = "Test empty loop body with pass and unused variable"
 tags = ["for", "loop", "pass", "unused"]
 
-[test.python]
-code = '''
+python = '''
 def noop_loop(items: list[int]):
     for item in items:
         pass
 '''
 
-[test.assertions]
-contains = ["fn noop_loop"]
+rust = '''
+#[doc = " Depyler: verified panic-free"]
+pub fn noop_loop(items: &Vec<i32>) {
+    for _item in items.iter().cloned() {}
+}
+'''
 
 [[test]]
 name = "loop_variable_shadowing"
 description = "Test loop variable shadowing outer variable"
 tags = ["for", "loop", "shadowing"]
 
-[test.python]
-code = '''
+python = '''
 def shadowing_test():
     x = 10
     for x in [1, 2, 3]:
@@ -382,16 +708,22 @@ def shadowing_test():
     return x
 '''
 
-[test.assertions]
-contains = ["fn shadowing_test"]
+rust = '''
+pub fn shadowing_test() -> i32 {
+    let x = 10;
+    for x in vec![1, 2, 3] {
+        println!("{}", x);
+    }
+    return x;
+}
+'''
 
 [[test]]
 name = "complex_loop_patterns"
 description = "Test complex loop with enumerate, tuple unpacking, and type tracking"
 tags = ["for", "loop", "complex", "enumerate"]
 
-[test.python]
-code = '''
+python = '''
 def complex_analysis(data: list[tuple[int, str]]) -> dict[str, int]:
     result: dict[str, int] = {}
     for idx, item in enumerate(data):
@@ -401,12 +733,23 @@ def complex_analysis(data: list[tuple[int, str]]) -> dict[str, int]:
     return result
 '''
 
-[test.assertions]
-contains = ["fn complex_analysis"]
-
-# ============================================================================
-# Iterator Dereferencing - Migrated from test_iterator_deref.rs
-# ============================================================================
+rust = '''
+use std::collections::HashMap;
+pub fn complex_analysis(data: Vec<(i32, String)>) -> HashMap<String, i32> {
+    let mut result: HashMap<String, i32> = {
+        let map = HashMap::new();
+        map
+    };
+    for (idx, item) in data.iter().enumerate().map(|(i, x)| (i as i32, x.clone())) {
+        let idx = idx as i32;
+        let (key, val) = item;
+        if idx > 0 {
+            result.insert(key, val.len() as i32);
+        }
+    }
+    return result;
+}
+'''
 
 [[test]]
 name = "for_loop_comparison_compiles"
@@ -414,8 +757,7 @@ description = "For loop with comparison should compile (iterator dereferencing)"
 tags = ["for", "loop", "compile", "comparison"]
 compile_check = true
 
-[test.python]
-code = '''
+python = '''
 def find_min(numbers: list[int]) -> int:
     if not numbers:
         return 0
@@ -426,8 +768,48 @@ def find_min(numbers: list[int]) -> int:
     return min_val
 '''
 
-[test.assertions]
-contains = ["fn find_min"]
+rust = '''
+#[derive(Debug, Clone)]
+pub struct IndexError {
+    message: String,
+}
+impl std::fmt::Display for IndexError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "index out of range: {}", self.message)
+    }
+}
+impl std::error::Error for IndexError {}
+impl IndexError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+pub fn find_min(numbers: &Vec<i32>) -> i32 {
+    if numbers.clone().is_empty() {
+        return 0;
+    }
+    let mut min_val = numbers.clone().get(0usize).cloned().unwrap();
+    for num in numbers.iter().cloned() {
+        if num < min_val {
+            min_val = num;
+        }
+    }
+    return min_val;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_find_min_examples() {
+        assert_eq!(find_min(vec![]), 0);
+        assert_eq!(find_min(vec![1]), 1);
+        assert_eq!(find_min(vec![1, 2, 3]), 3);
+    }
+}
+'''
 
 [[test]]
 name = "for_loop_arithmetic_compiles"
@@ -435,8 +817,7 @@ description = "For loop with arithmetic should compile"
 tags = ["for", "loop", "compile", "arithmetic"]
 compile_check = true
 
-[test.python]
-code = '''
+python = '''
 def sum_list(numbers: list[int]) -> int:
     total = 0
     for num in numbers:
@@ -444,8 +825,27 @@ def sum_list(numbers: list[int]) -> int:
     return total
 '''
 
-[test.assertions]
-contains = ["fn sum_list"]
+rust = '''
+#[doc = " Depyler: verified panic-free"]
+pub fn sum_list(numbers: &Vec<i32>) -> i32 {
+    let mut total = 0;
+    for num in numbers.iter().cloned() {
+        total = total + num;
+    }
+    return total;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_sum_list_examples() {
+        assert_eq!(sum_list(vec![]), 0);
+        assert_eq!(sum_list(vec![1]), 1);
+        assert_eq!(sum_list(vec![1, 2, 3]), 6);
+    }
+}
+'''
 
 [[test]]
 name = "for_loop_assignment_compiles"
@@ -453,8 +853,7 @@ description = "For loop with conditional assignment should compile"
 tags = ["for", "loop", "compile", "assignment"]
 compile_check = true
 
-[test.python]
-code = '''
+python = '''
 def find_max(numbers: list[int]) -> int:
     if not numbers:
         return 0
@@ -465,8 +864,48 @@ def find_max(numbers: list[int]) -> int:
     return max_val
 '''
 
-[test.assertions]
-contains = ["fn find_max"]
+rust = '''
+#[derive(Debug, Clone)]
+pub struct IndexError {
+    message: String,
+}
+impl std::fmt::Display for IndexError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "index out of range: {}", self.message)
+    }
+}
+impl std::error::Error for IndexError {}
+impl IndexError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+pub fn find_max(numbers: &Vec<i32>) -> i32 {
+    if numbers.clone().is_empty() {
+        return 0;
+    }
+    let mut max_val = numbers.clone().get(0usize).cloned().unwrap();
+    for num in numbers.iter().cloned() {
+        if num > max_val {
+            max_val = num;
+        }
+    }
+    return max_val;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_find_max_examples() {
+        assert_eq!(find_max(vec![]), 0);
+        assert_eq!(find_max(vec![1]), 1);
+        assert_eq!(find_max(vec![1, 2, 3]), 3);
+    }
+}
+'''
 
 [[test]]
 name = "for_loop_string_compiles"
@@ -474,8 +913,7 @@ description = "For loop over strings with len comparison should compile"
 tags = ["for", "loop", "compile", "string"]
 compile_check = true
 
-[test.python]
-code = '''
+python = '''
 def find_longest(words: list[str]) -> str:
     if not words:
         return ""
@@ -486,12 +924,37 @@ def find_longest(words: list[str]) -> str:
     return longest
 '''
 
-[test.assertions]
-contains = ["fn find_longest"]
-
-# ============================================================================
-# Unused Variable Compilation Tests - Migrated from test_unused_loop_vars.rs
-# ============================================================================
+rust = '''
+#[derive(Debug, Clone)]
+pub struct IndexError {
+    message: String,
+}
+impl std::fmt::Display for IndexError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "index out of range: {}", self.message)
+    }
+}
+impl std::error::Error for IndexError {}
+impl IndexError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+pub fn find_longest(words: &Vec<String>) -> String {
+    if words.clone().is_empty() {
+        return "".to_string();
+    }
+    let mut longest = words.clone().get(0usize).cloned().unwrap();
+    for word in words.iter().cloned() {
+        if word.clone().len() as i32 > longest.clone().len() as i32 {
+            longest = word;
+        }
+    }
+    return longest;
+}
+'''
 
 [[test]]
 name = "fibonacci_unused_index_compiles"
@@ -499,8 +962,7 @@ description = "Fibonacci with unused loop index should compile without warnings"
 tags = ["for", "loop", "compile", "unused", "fibonacci"]
 compile_check = true
 
-[test.python]
-code = '''
+python = '''
 def fibonacci(n: int) -> int:
     """Calculate Fibonacci number."""
     if n <= 1:
@@ -514,8 +976,34 @@ def fibonacci(n: int) -> int:
     return b
 '''
 
-[test.assertions]
-contains = ["fn fibonacci"]
+rust = '''
+#[doc = "Calculate Fibonacci number."]
+pub fn fibonacci(n: i32) -> i32 {
+    let _cse_temp_0 = n <= 1;
+    if _cse_temp_0 {
+        return n;
+    }
+    let mut a = 0;
+    let mut b = 1;
+    for _i in 2..n + 1 {
+        let c = a + b;
+        a = b;
+        b = c;
+    }
+    return b;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_fibonacci_examples() {
+        assert_eq!(fibonacci(0), 0);
+        assert_eq!(fibonacci(1), 1);
+        assert_eq!(fibonacci(-1), -1);
+    }
+}
+'''
 
 [[test]]
 name = "multiple_unused_loops_compile"
@@ -523,8 +1011,7 @@ description = "Multiple loops with unused variables should compile"
 tags = ["for", "loop", "compile", "unused", "multiple"]
 compile_check = true
 
-[test.python]
-code = '''
+python = '''
 def repeat_operations(n: int) -> int:
     """Perform operations n times."""
     result = 0
@@ -535,8 +1022,30 @@ def repeat_operations(n: int) -> int:
     return result
 '''
 
-[test.assertions]
-contains = ["fn repeat_operations"]
+rust = '''
+#[doc = "Perform operations n times."]
+pub fn repeat_operations(n: i32) -> i32 {
+    let mut result = 0;
+    for _i in 0..n {
+        result = result + 1;
+    }
+    for _j in 0..n {
+        result = result * 2;
+    }
+    return result;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_repeat_operations_examples() {
+        assert_eq!(repeat_operations(0), 0);
+        assert_eq!(repeat_operations(1), 1);
+        assert_eq!(repeat_operations(-1), -1);
+    }
+}
+'''
 
 [[test]]
 name = "nested_loops_mixed_usage_compiles"
@@ -544,8 +1053,7 @@ description = "Nested loops where outer is unused and inner is used should compi
 tags = ["for", "loop", "compile", "unused", "nested"]
 compile_check = true
 
-[test.python]
-code = '''
+python = '''
 def nested_count(outer: list[int], inner: list[int]) -> int:
     """Nested loops with unused outer variable."""
     count = 0
@@ -555,8 +1063,19 @@ def nested_count(outer: list[int], inner: list[int]) -> int:
     return count
 '''
 
-[test.assertions]
-contains = ["fn nested_count"]
+rust = '''
+#[doc = "Nested loops with unused outer variable."]
+#[doc = " Depyler: verified panic-free"]
+pub fn nested_count(outer: &Vec<i32>, inner: &Vec<i32>) -> i32 {
+    let mut count = 0;
+    for _x in outer.iter().cloned() {
+        for y in inner.iter().cloned() {
+            count = count + y;
+        }
+    }
+    return count;
+}
+'''
 
 [[test]]
 name = "enumerate_unused_index_compiles"
@@ -564,8 +1083,7 @@ description = "Enumerate with unused index should compile"
 tags = ["for", "loop", "compile", "unused", "enumerate"]
 compile_check = true
 
-[test.python]
-code = '''
+python = '''
 def process_values(items: list[str]) -> int:
     """Process list values, ignore indices."""
     count = 0
@@ -575,5 +1093,26 @@ def process_values(items: list[str]) -> int:
     return count
 '''
 
-[test.assertions]
-contains = ["fn process_values"]
+rust = '''
+#[doc = "Process list values, ignore indices."]
+pub fn process_values(items: Vec<String>) -> i32 {
+    let mut count = 0;
+    for (_i, val) in items.iter().enumerate().map(|(i, x)| (i as i32, x.clone())) {
+        if !val.is_empty() {
+            count = count + 1;
+        }
+    }
+    return count;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_process_values_examples() {
+        assert_eq!(process_values(vec![]), 0);
+        assert_eq!(process_values(vec![1]), 1);
+        assert_eq!(process_values(vec![1, 2, 3]), 3);
+    }
+}
+'''

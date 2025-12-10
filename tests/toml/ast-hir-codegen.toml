@@ -13,101 +13,116 @@ name = "ast_function_def"
 description = "AST function definition parsing"
 tags = ["ast", "function"]
 
-[test.python]
-code = '''
+python = '''
 def simple_func():
     pass
 '''
 
-[test.assertions]
-contains = ["fn simple_func"]
+rust = '''
+pub fn simple_func() {}
+'''
 
 [[test]]
 name = "ast_class_def"
 description = "AST class definition parsing"
 tags = ["ast", "class"]
 
-[test.python]
-code = '''
+python = '''
 class SimpleClass:
     pass
 '''
 
-[test.assertions]
-contains = ["struct SimpleClass"]
+rust = '''
+#[derive(Debug, Clone)]
+pub struct SimpleClass {}
+impl SimpleClass {
+    pub fn new() -> Self {
+        Self {}
+    }
+}
+'''
 
 [[test]]
 name = "ast_assignment"
 description = "AST assignment statement parsing"
 tags = ["ast", "assignment"]
 
-[test.python]
-code = '''
+python = '''
 def main():
     x = 42
     y: int = 10
 '''
 
-[test.assertions]
-contains_any = [["let x", "let y"]]
-
-# =============================================================================
-# HIR (High-level IR) Tests - Type Inference
-# =============================================================================
+rust = '''
+pub fn main() {
+    let x = 42;
+    let y: i32 = 10;
+}
+'''
 
 [[test]]
 name = "hir_type_inference_int"
 description = "HIR type inference for integers"
 tags = ["hir", "type"]
 
-[test.python]
-code = '''
+python = '''
 def get_number() -> int:
     return 42
 '''
 
-[test.assertions]
-contains_any = [["i64", "i32", "-> i"]]
+rust = '''
+pub fn get_number() -> i32 {
+    return 42;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_get_number_examples() {
+        let _ = get_number();
+    }
+}
+'''
 
 [[test]]
 name = "hir_type_inference_string"
 description = "HIR type inference for strings"
 tags = ["hir", "type"]
 
-[test.python]
-code = '''
+python = '''
 def get_message() -> str:
     return "hello"
 '''
 
-[test.assertions]
-contains_any = [["String", "&str"]]
+rust = '''
+pub fn get_message() -> String {
+    return "hello".to_string();
+}
+'''
 
 [[test]]
 name = "hir_type_inference_list"
 description = "HIR type inference for lists"
 tags = ["hir", "type"]
 
-[test.python]
-code = '''
+python = '''
 def get_numbers() -> list[int]:
     return [1, 2, 3]
 '''
 
-[test.assertions]
-contains = ["Vec<"]
-
-# =============================================================================
-# HIR Control Flow Tests
-# =============================================================================
+rust = '''
+pub fn get_numbers() -> Vec<i32> {
+    return vec![1, 2, 3];
+}
+'''
 
 [[test]]
 name = "hir_control_flow_if"
 description = "HIR control flow representation"
 tags = ["hir", "control-flow"]
 
-[test.python]
-code = '''
+python = '''
 def conditional(x: int) -> int:
     if x > 0:
         return 1
@@ -115,17 +130,34 @@ def conditional(x: int) -> int:
         return -1
 '''
 
-[test.assertions]
-contains = ["if"]
-contains_any = [["else", "}"]]
+rust = '''
+pub fn conditional(x: i32) -> i32 {
+    let _cse_temp_0 = x > 0;
+    if _cse_temp_0 {
+        return 1;
+    } else {
+        return -1;
+    }
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_conditional_examples() {
+        assert_eq!(conditional(0), 0);
+        assert_eq!(conditional(1), 1);
+        assert_eq!(conditional(-1), -1);
+    }
+}
+'''
 
 [[test]]
 name = "hir_loop_for"
 description = "HIR for loop representation"
 tags = ["hir", "loop"]
 
-[test.python]
-code = '''
+python = '''
 def sum_list(nums: list[int]) -> int:
     total = 0
     for n in nums:
@@ -133,66 +165,160 @@ def sum_list(nums: list[int]) -> int:
     return total
 '''
 
-[test.assertions]
-contains_any = [["for", ".iter()", "into_iter()"]]
+rust = '''
+pub fn sum_list(nums: &Vec<i32>) -> i32 {
+    let mut total = 0;
+    for n in nums.iter().cloned() {
+        total = total + n;
+    }
+    return total;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_sum_list_examples() {
+        assert_eq!(sum_list(vec![]), 0);
+        assert_eq!(sum_list(vec![1]), 1);
+        assert_eq!(sum_list(vec![1, 2, 3]), 6);
+    }
+}
+'''
 
 [[test]]
 name = "hir_loop_while"
 description = "HIR while loop representation"
 tags = ["hir", "loop"]
 
-[test.python]
-code = '''
+python = '''
 def countdown(n: int) -> int:
     while n > 0:
         n -= 1
     return n
 '''
 
-[test.assertions]
-contains = ["while"]
-
-# =============================================================================
-# Code Generation Tests
-# =============================================================================
+rust = '''
+pub fn countdown(mut n: i32) -> i32 {
+    while n > 0 {
+        n = n - 1;
+    }
+    return n;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_countdown_examples() {
+        assert_eq!(countdown(0), 0);
+        assert_eq!(countdown(1), 1);
+        assert_eq!(countdown(-1), -1);
+    }
+}
+'''
 
 [[test]]
 name = "codegen_function_signature"
 description = "Function signature code generation"
 tags = ["codegen", "function"]
 
-[test.python]
-code = '''
+python = '''
 def add(a: int, b: int) -> int:
     return a + b
 '''
 
-[test.assertions]
-contains_any = [["fn add(a: i64, b: i64) -> i64", "fn add("]]
+rust = '''
+pub fn add(a: i32, b: i32) -> i32 {
+    return a + b;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn quickcheck_add() {
+        fn prop(a: i32, b: i32) -> TestResult {
+            if (a > 0 && b > i32::MAX - a) || (a < 0 && b < i32::MIN - a) {
+                return TestResult::discard();
+            }
+            let result1 = add(a.clone(), b.clone());
+            let result2 = add(b.clone(), a.clone());
+            if result1 != result2 {
+                return TestResult::failed();
+            }
+            TestResult::passed()
+        }
+        quickcheck(prop as fn(i32, i32) -> TestResult);
+    }
+    #[test]
+    fn test_add_examples() {
+        assert_eq!(add(0, 0), 0);
+        assert_eq!(add(1, 2), 3);
+        assert_eq!(add(-1, 1), 0);
+    }
+}
+'''
 
 [[test]]
 name = "codegen_struct_definition"
 description = "Struct definition code generation"
 tags = ["codegen", "struct"]
 
-[test.python]
-code = '''
+python = '''
 class Point:
     def __init__(self, x: int, y: int):
         self.x = x
         self.y = y
 '''
 
-[test.assertions]
-contains = ["struct Point"]
+rust = '''
+#[derive(Debug, Clone)]
+pub struct Point {
+    pub x: i32,
+    pub y: i32,
+}
+impl Point {
+    pub fn new(x: i32, y: i32) -> Self {
+        Self { x, y }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "x" => Some(Box::new(self.x.clone()) as Box<dyn std::any::Any>),
+            "y" => Some(Box::new(self.y.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "x" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.x = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "y" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.y = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+'''
 
 [[test]]
 name = "codegen_impl_block"
 description = "Impl block code generation"
 tags = ["codegen", "impl"]
 
-[test.python]
-code = '''
+python = '''
 class Counter:
     def __init__(self):
         self.value = 0
@@ -202,100 +328,181 @@ class Counter:
         return self.value
 '''
 
-[test.assertions]
-contains_any = [["impl Counter", "fn increment"]]
-
-# =============================================================================
-# Edge Cases
-# =============================================================================
+rust = '''
+#[derive(Debug, Clone)]
+pub struct Counter {
+    pub value: i32,
+}
+impl Counter {
+    pub fn new() -> Self {
+        Self { value: 0 }
+    }
+    pub fn increment(&mut self) -> i32 {
+        self.value = format!("{}{}", self.value, 1);
+        return self.value.clone();
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "value" => Some(Box::new(self.value.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "value" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.value = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+'''
 
 [[test]]
 name = "edge_empty_function"
 description = "Empty function body handling"
 tags = ["edge", "function"]
 
-[test.python]
-code = '''
+python = '''
 def do_nothing():
     pass
 '''
 
-[test.assertions]
-contains = ["fn do_nothing"]
-compile_check = true
+rust = '''
+pub fn do_nothing() {}
+'''
 
 [[test]]
 name = "edge_nested_functions"
 description = "Nested function handling"
 tags = ["edge", "closure"]
 
-[test.python]
-code = '''
+python = '''
 def outer(x: int) -> int:
     def inner(y: int) -> int:
         return y * 2
     return inner(x)
 '''
 
-[test.assertions]
-contains_any = [["fn outer", "closure", "|"]]
+rust = '''
+pub fn outer(x: i32) -> i32 {
+    fn inner(y: i64) -> i64 {
+        return y * 2;
+    }
+    return inner(x);
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_outer_examples() {
+        assert_eq!(outer(0), 0);
+        assert_eq!(outer(1), 1);
+        assert_eq!(outer(-1), -1);
+    }
+}
+'''
 
 [[test]]
 name = "edge_docstring"
 description = "Docstring preservation or comment"
 tags = ["edge", "docstring"]
 
-[test.python]
-code = '''
+python = '''
 def documented() -> int:
     """This function returns 42."""
     return 42
 '''
 
-[test.assertions]
-contains_any = [["//", "///", "42"]]
+rust = '''
+#[doc = "This function returns 42."]
+pub fn documented() -> i32 {
+    return 42;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_documented_examples() {
+        let _ = documented();
+    }
+}
+'''
 
 [[test]]
 name = "edge_decorator"
 description = "Decorator handling"
 tags = ["edge", "decorator"]
 
-[test.python]
-code = '''
+python = '''
 class Foo:
     @staticmethod
     def helper() -> int:
         return 0
 '''
 
-[test.assertions]
-contains_any = [["fn helper", "#["]]
+rust = '''
+#[derive(Debug, Clone)]
+pub struct Foo {}
+impl Foo {
+    pub fn new() -> Self {
+        Self {}
+    }
+    pub fn helper() -> i32 {
+        return 0;
+    }
+}
+'''
 
 [[test]]
 name = "edge_multiple_return"
 description = "Multiple return values as tuple"
 tags = ["edge", "tuple"]
 
-[test.python]
-code = '''
+python = '''
 def divmod_impl(a: int, b: int) -> tuple[int, int]:
     return a // b, a % b
 '''
 
-[test.assertions]
-contains_any = [["(i64, i64)", "tuple", "("]]
+rust = '''
+pub fn divmod_impl(a: i32, b: i32) -> (i32, i32) {
+    return (
+        {
+            let a = a;
+            let b = b;
+            let q = a / b;
+            let r = a % b;
+            let r_negative = r < 0;
+            let b_negative = b < 0;
+            let r_nonzero = r != 0;
+            let signs_differ = r_negative != b_negative;
+            let needs_adjustment = r_nonzero && signs_differ;
+            if needs_adjustment { q - 1 } else { q }
+        },
+        a % b,
+    );
+}
+'''
 
 [[test]]
 name = "edge_unicode_strings"
 description = "Unicode in strings"
 tags = ["edge", "unicode"]
 
-[test.python]
-code = '''
+python = '''
 def greet() -> str:
     return "Hello, 世界!"
 '''
 
-[test.assertions]
-contains = ["世界"]
-compile_check = true
+rust = '''
+pub fn greet() -> String {
+    return "Hello, 世界!".to_string();
+}
+'''

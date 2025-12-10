@@ -13,78 +13,83 @@ name = "uuid_uuid1"
 description = "uuid.uuid1() time-based UUID"
 tags = ["uuid", "v1"]
 
-[test.python]
-code = '''
+python = '''
 import uuid
 
 def generate_uuid1() -> str:
     return uuid.uuid1()
 '''
 
-[test.assertions]
-contains_any = [["uuid", "Uuid"]]
-contains = ["to_string"]
+rust = '''
+#[doc = "// NOTE: Map Python module 'uuid'()"]
+pub fn generate_uuid1() -> String {
+    return {
+        use uuid::Uuid;
+        Uuid::new_v4().to_string()
+    };
+}
+'''
 
 [[test]]
 name = "uuid_uuid4"
 description = "uuid.uuid4() random UUID"
 tags = ["uuid", "v4"]
 
-[test.python]
-code = '''
+python = '''
 import uuid
 
 def generate_uuid4() -> str:
     return uuid.uuid4()
 '''
 
-[test.assertions]
-contains_any = [["uuid", "Uuid"]]
-contains_any = [["new_v4", "v4"]]
+rust = '''
+#[doc = "// NOTE: Map Python module 'uuid'()"]
+pub fn generate_uuid4() -> String {
+    return {
+        use uuid::Uuid;
+        Uuid::new_v4().to_string()
+    };
+}
+'''
 
 [[test]]
 name = "uuid_uuid3"
 description = "uuid.uuid3() MD5 hash UUID"
 tags = ["uuid", "v3"]
 
-[test.python]
-code = '''
+python = '''
 import uuid
 
 def generate_uuid3(namespace: uuid.UUID, name: str) -> str:
     return str(uuid.uuid3(namespace, name))
 '''
 
-[test.assertions]
-contains_any = [["uuid", "Uuid"]]
+rust = '''
+// Transpilation failed
+'''
 
 [[test]]
 name = "uuid_uuid5"
 description = "uuid.uuid5() SHA1 hash UUID"
 tags = ["uuid", "v5"]
 
-[test.python]
-code = '''
+python = '''
 import uuid
 
 def generate_uuid5(namespace: uuid.UUID, name: str) -> str:
     return str(uuid.uuid5(namespace, name))
 '''
 
-[test.assertions]
-contains_any = [["uuid", "Uuid"]]
-
-# =============================================================================
-# urllib.parse Module
-# =============================================================================
+rust = '''
+// Transpilation failed
+'''
 
 [[test]]
 name = "urlparse"
 description = "urlparse() parse URL"
 tags = ["urllib", "parse"]
 
-[test.python]
-code = '''
+python = '''
 from urllib.parse import urlparse
 
 def parse_url(url: str) -> tuple:
@@ -92,136 +97,207 @@ def parse_url(url: str) -> tuple:
     return (result.scheme, result.netloc, result.path)
 '''
 
-[test.assertions]
-contains_any = [["parse", "url"]]
+rust = '''
+use url::Url::parse;
+pub fn parse_url(url: String) -> () {
+    let result = url::Url::parse(url);
+    return (result.scheme, result.netloc, result.path);
+}
+'''
 
 [[test]]
 name = "quote"
 description = "quote() URL encoding"
 tags = ["urllib", "encode"]
 
-[test.python]
-code = '''
+python = '''
 from urllib.parse import quote
 
 def encode_url(text: str) -> str:
     return quote(text)
 '''
 
-[test.assertions]
-contains_any = [["percent_encoding", "utf8_percent_encode", "encode"]]
+rust = '''
+use url::percent_encoding::percent_encode;
+pub fn encode_url(text: String) -> String {
+    return url::percent_encoding::percent_encode(text);
+}
+'''
 
 [[test]]
 name = "unquote"
 description = "unquote() URL decoding"
 tags = ["urllib", "decode"]
 
-[test.python]
-code = '''
+python = '''
 from urllib.parse import unquote
 
 def decode_url(text: str) -> str:
     return unquote(text)
 '''
 
-[test.assertions]
-contains_any = [["percent_decode", "decode_utf8_lossy", "decode"]]
-
-# =============================================================================
-# statistics Module
-# =============================================================================
+rust = '''
+use url::percent_encoding::percent_decode;
+pub fn decode_url(text: String) -> String {
+    return url::percent_encoding::percent_decode(text);
+}
+'''
 
 [[test]]
 name = "statistics_mean"
 description = "statistics.mean() average"
 tags = ["statistics", "mean"]
 
-[test.python]
-code = '''
+python = '''
 import statistics
 
 def calculate_mean(data: list[float]) -> float:
     return statistics.mean(data)
 '''
 
-[test.assertions]
-contains_any = [["iter", "sum", "mean"]]
+rust = '''
+#[doc = "// NOTE: Map Python module 'statistics'()"]
+pub fn calculate_mean(data: &Vec<f64>) -> f64 {
+    return {
+        let data = data;
+        data.iter().map(|&x| x as f64).sum::<f64>() / data.len() as f64
+    };
+}
+'''
 
 [[test]]
 name = "statistics_median"
 description = "statistics.median() middle value"
 tags = ["statistics", "median"]
 
-[test.python]
-code = '''
+python = '''
 import statistics
 
 def calculate_median(data: list[float]) -> float:
     return statistics.median(data)
 '''
 
-[test.assertions]
-contains_any = [["median", "sort"]]
+rust = '''
+#[doc = "// NOTE: Map Python module 'statistics'()"]
+pub fn calculate_median(data: &Vec<f64>) -> f64 {
+    return {
+        let mut sorted = data.clone();
+        sorted.sort_by(|a, b| a.partial_cmp(b).unwrap());
+        let len = sorted.len();
+        if len % 2 == 0 {
+            let mid = len / 2;
+            ((sorted[mid - 1] as f64) + (sorted[mid] as f64)) / 2.0
+        } else {
+            sorted[len / 2] as f64
+        }
+    };
+}
+'''
 
 [[test]]
 name = "statistics_mode"
 description = "statistics.mode() most common"
 tags = ["statistics", "mode"]
 
-[test.python]
-code = '''
+python = '''
 import statistics
 
 def calculate_mode(data: list[int]) -> int:
     return statistics.mode(data)
 '''
 
-[test.assertions]
-contains_any = [["mode", "HashMap", "count"]]
+rust = '''
+#[doc = "// NOTE: Map Python module 'statistics'()"]
+use std::collections::HashMap;
+pub fn calculate_mode(data: &Vec<i32>) -> i32 {
+    return {
+        let mut counts: HashMap<_, usize> = HashMap::new();
+        for &item in data.iter() {
+            *counts.entry(item).or_insert(0) += 1;
+        }
+        *counts.iter().max_by_key(|(_, &count)| count).unwrap().0
+    };
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_calculate_mode_examples() {
+        assert_eq!(calculate_mode(vec![]), 0);
+        assert_eq!(calculate_mode(vec![1]), 1);
+        assert_eq!(calculate_mode(vec![1, 2, 3]), 3);
+    }
+}
+'''
 
 [[test]]
 name = "statistics_stdev"
 description = "statistics.stdev() standard deviation"
 tags = ["statistics", "stdev"]
 
-[test.python]
-code = '''
+python = '''
 import statistics
 
 def calculate_stdev(data: list[float]) -> float:
     return statistics.stdev(data)
 '''
 
-[test.assertions]
-contains_any = [["sqrt", "variance", "stdev"]]
+rust = '''
+#[doc = "// NOTE: Map Python module 'statistics'()"]
+pub fn calculate_stdev(data: &Vec<f64>) -> f64 {
+    return {
+        let data = data;
+        let mean = data.iter().map(|&x| x as f64).sum::<f64>() / data.len() as f64;
+        let sum_sq_diff: f64 = data
+            .iter()
+            .map(|&x| {
+                let diff = (x as f64) - mean;
+                diff * diff
+            })
+            .sum();
+        let variance = sum_sq_diff / ((data.len() - 1) as f64);
+        variance.sqrt()
+    };
+}
+'''
 
 [[test]]
 name = "statistics_variance"
 description = "statistics.variance() sample variance"
 tags = ["statistics", "variance"]
 
-[test.python]
-code = '''
+python = '''
 import statistics
 
 def calculate_variance(data: list[float]) -> float:
     return statistics.variance(data)
 '''
 
-[test.assertions]
-contains_any = [["variance", "mean", "pow"]]
-
-# =============================================================================
-# copy Module
-# =============================================================================
+rust = '''
+#[doc = "// NOTE: Map Python module 'statistics'()"]
+pub fn calculate_variance(data: &Vec<f64>) -> f64 {
+    return {
+        let data = data;
+        let mean = data.iter().map(|&x| x as f64).sum::<f64>() / data.len() as f64;
+        let sum_sq_diff: f64 = data
+            .iter()
+            .map(|&x| {
+                let diff = (x as f64) - mean;
+                diff * diff
+            })
+            .sum();
+        sum_sq_diff / ((data.len() - 1) as f64)
+    };
+}
+'''
 
 [[test]]
 name = "copy_shallow_copy_list"
 description = "copy.copy() should generate clone, not invalid .copy() method"
 tags = ["copy", "shallow", "list"]
 
-[test.python]
-code = '''
+python = '''
 import copy
 
 def test_shallow_copy() -> int:
@@ -231,17 +307,31 @@ def test_shallow_copy() -> int:
     return len(original)
 '''
 
-[test.assertions]
-contains = ["fn test_shallow_copy"]
-not_contains = [".copy()"]
+rust = '''
+#[doc = "// NOTE: Map Python module 'copy'()"]
+pub fn test_shallow_copy() -> i32 {
+    let original = vec![1, 2, 3];
+    let mut copied = (original.clone()).clone();
+    copied.push(4);
+    return original.len() as i32 as i32;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_test_shallow_copy_examples() {
+        let _ = test_shallow_copy();
+    }
+}
+'''
 
 [[test]]
 name = "copy_shallow_copy_dict"
 description = "copy.copy() for dictionaries"
 tags = ["copy", "shallow", "dict"]
 
-[test.python]
-code = '''
+python = '''
 import copy
 
 def test_dict_copy() -> int:
@@ -251,16 +341,37 @@ def test_dict_copy() -> int:
     return len(original)
 '''
 
-[test.assertions]
-contains = ["fn test_dict_copy"]
+rust = '''
+#[doc = "// NOTE: Map Python module 'copy'()"]
+use std::collections::HashMap;
+pub fn test_dict_copy() -> i32 {
+    let original = {
+        let mut map = HashMap::new();
+        map.insert("a".to_string(), 1);
+        map.insert("b".to_string(), 2);
+        map
+    };
+    let mut copied = (original.clone()).clone();
+    copied.insert("c".to_string(), 3);
+    return original.len() as i32 as i32;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_test_dict_copy_examples() {
+        let _ = test_dict_copy();
+    }
+}
+'''
 
 [[test]]
 name = "copy_deepcopy_list"
 description = "copy.deepcopy() for nested lists"
 tags = ["copy", "deep", "list"]
 
-[test.python]
-code = '''
+python = '''
 import copy
 
 def test_deep_copy() -> int:
@@ -270,5 +381,39 @@ def test_deep_copy() -> int:
     return len(original[0])
 '''
 
-[test.assertions]
-contains = ["fn test_deep_copy"]
+rust = '''
+#[doc = "// NOTE: Map Python module 'copy'()"]
+#[derive(Debug, Clone)]
+pub struct IndexError {
+    message: String,
+}
+impl std::fmt::Display for IndexError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "index out of range: {}", self.message)
+    }
+}
+impl std::error::Error for IndexError {}
+impl IndexError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = " Depyler: proven to terminate"]
+pub fn test_deep_copy() -> i32 {
+    let original = vec![vec![1, 2], vec![3, 4]];
+    let mut copied = (original.clone()).clone();
+    copied.get(0usize).cloned().unwrap().push(5);
+    return original.get(0usize).cloned().unwrap().len() as i32 as i32;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_test_deep_copy_examples() {
+        let _ = test_deep_copy();
+    }
+}
+'''

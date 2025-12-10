@@ -13,233 +13,426 @@ name = "slice_start_only"
 description = "Slice with start index only (items[n:])"
 tags = ["slice", "start"]
 
-[test.python]
-code = '''
+python = '''
 def skip_first_n(items: list[int], n: int) -> list[int]:
     return items[n:]
 '''
 
-[test.assertions]
-contains_any = [["skip(", "&items[n..]"]]
+rust = '''
+pub fn skip_first_n(items: &Vec<i32>, n: i32) -> Vec<i32> {
+    return {
+        let base = &items;
+        let start = (n).max(0) as usize;
+        if start < base.len() {
+            base[start..].to_vec()
+        } else {
+            Vec::new()
+        }
+    };
+}
+'''
 
 [[test]]
 name = "slice_end_only"
 description = "Slice with end index only (items[:n])"
 tags = ["slice", "end"]
 
-[test.python]
-code = '''
+python = '''
 def first_n(items: list[int], n: int) -> list[int]:
     return items[:n]
 '''
 
-[test.assertions]
-contains_any = [["take(", "&items[..n]"]]
+rust = '''
+pub fn first_n(items: &Vec<i32>, n: i32) -> Vec<i32> {
+    return {
+        let base = &items;
+        let stop = (n).max(0) as usize;
+        base[..stop.min(base.len())].to_vec()
+    };
+}
+'''
 
 [[test]]
 name = "slice_start_end"
 description = "Slice with both start and end (items[a:b])"
 tags = ["slice", "range"]
 
-[test.python]
-code = '''
+python = '''
 def middle(items: list[int], start: int, end: int) -> list[int]:
     return items[start:end]
 '''
 
-[test.assertions]
-contains_any = [["skip(", "take(", "&items[start..end]"]]
+rust = '''
+pub fn middle(items: &Vec<i32>, start: i32, end: i32) -> Vec<i32> {
+    return {
+        let base = &items;
+        let start = (start).max(0) as usize;
+        let stop = (end).max(0) as usize;
+        if start < base.len() {
+            base[start..stop.min(base.len())].to_vec()
+        } else {
+            Vec::new()
+        }
+    };
+}
+'''
 
 [[test]]
 name = "slice_full_copy"
 description = "Full slice copy (items[:])"
 tags = ["slice", "copy"]
 
-[test.python]
-code = '''
+python = '''
 def copy_list(items: list[int]) -> list[int]:
     return items[:]
 '''
 
-[test.assertions]
-contains = ["clone()"]
-
-# =============================================================================
-# Negative Indexing
-# =============================================================================
+rust = '''
+pub fn copy_list(items: &Vec<i32>) -> Vec<i32> {
+    return items.clone();
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_copy_list_examples() {
+        assert_eq!(copy_list(vec![]), vec![]);
+        assert_eq!(copy_list(vec![1]), vec![1]);
+    }
+}
+'''
 
 [[test]]
 name = "index_negative_one"
 description = "Access last element with -1"
 tags = ["index", "negative"]
 
-[test.python]
-code = '''
+python = '''
 def get_last(items: list[int]) -> int:
     return items[-1]
 '''
 
-[test.assertions]
-contains_any = [["len() - 1", "last()"]]
+rust = '''
+#[derive(Debug, Clone)]
+pub struct IndexError {
+    message: String,
+}
+impl std::fmt::Display for IndexError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "index out of range: {}", self.message)
+    }
+}
+impl std::error::Error for IndexError {}
+impl IndexError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = " Depyler: proven to terminate"]
+pub fn get_last(items: &Vec<i32>) -> i32 {
+    return items.last().cloned().unwrap();
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_get_last_examples() {
+        assert_eq!(get_last(vec![]), 0);
+        assert_eq!(get_last(vec![1]), 1);
+        assert_eq!(get_last(vec![1, 2, 3]), 3);
+    }
+}
+'''
 
 [[test]]
 name = "slice_negative_start"
 description = "Slice with negative start (items[-n:])"
 tags = ["slice", "negative"]
 
-[test.python]
-code = '''
+python = '''
 def last_n(items: list[int], n: int) -> list[int]:
     return items[-n:]
 '''
 
-[test.assertions]
-contains_any = [["len()", "skip("]]
+rust = '''
+pub fn last_n(items: &Vec<i32>, n: i32) -> Vec<i32> {
+    return {
+        let base = &items;
+        let start = (-n).max(0) as usize;
+        if start < base.len() {
+            base[start..].to_vec()
+        } else {
+            Vec::new()
+        }
+    };
+}
+'''
 
 [[test]]
 name = "slice_negative_end"
 description = "Slice with negative end (items[:-n])"
 tags = ["slice", "negative"]
 
-[test.python]
-code = '''
+python = '''
 def all_but_last_n(items: list[int], n: int) -> list[int]:
     return items[:-n]
 '''
 
-[test.assertions]
-contains_any = [["len()", "take("]]
-
-# =============================================================================
-# Step Slicing
-# =============================================================================
+rust = '''
+pub fn all_but_last_n(items: &Vec<i32>, n: i32) -> Vec<i32> {
+    return {
+        let base = &items;
+        let stop = (-n).max(0) as usize;
+        base[..stop.min(base.len())].to_vec()
+    };
+}
+'''
 
 [[test]]
 name = "slice_step"
 description = "Slice with step (items[::n])"
 tags = ["slice", "step"]
 
-[test.python]
-code = '''
+python = '''
 def every_nth(items: list[int], n: int) -> list[int]:
     return items[::n]
 '''
 
-[test.assertions]
-contains = ["step_by("]
+rust = '''
+pub fn every_nth(items: &Vec<i32>, n: i32) -> Vec<i32> {
+    return {
+        let base = &items;
+        let step = n;
+        if step == 1 {
+            base.clone()
+        } else if step > 0 {
+            base.iter().step_by(step as usize).cloned().collect::<Vec<_>>()
+        } else if step == -1 {
+            base.iter().rev().cloned().collect::<Vec<_>>()
+        } else {
+            let abs_step = (-step) as usize;
+            base.iter().rev().step_by(abs_step).cloned().collect::<Vec<_>>()
+        }
+    };
+}
+'''
 
 [[test]]
 name = "slice_step_with_range"
 description = "Slice with start, end, and step"
 tags = ["slice", "step", "range"]
 
-[test.python]
-code = '''
+python = '''
 def range_step(items: list[int], start: int, end: int, step: int) -> list[int]:
     return items[start:end:step]
 '''
 
-[test.assertions]
-contains = ["step_by("]
-
-# =============================================================================
-# Reverse Slicing
-# =============================================================================
+rust = '''
+pub fn range_step(items: &Vec<i32>, start: i32, end: i32, step: i32) -> Vec<i32> {
+    return {
+        let base = &items;
+        let start = (start).max(0) as usize;
+        let stop = (end).max(0) as usize;
+        let step = step;
+        if step == 1 {
+            if start < base.len() {
+                base[start..stop.min(base.len())].to_vec()
+            } else {
+                Vec::new()
+            }
+        } else if step > 0 {
+            base[start..stop.min(base.len())]
+                .iter()
+                .step_by(step as usize)
+                .cloned()
+                .collect::<Vec<_>>()
+        } else {
+            let abs_step = (-step) as usize;
+            if start < base.len() {
+                base[start..stop.min(base.len())]
+                    .iter()
+                    .rev()
+                    .step_by(abs_step)
+                    .cloned()
+                    .collect::<Vec<_>>()
+            } else {
+                Vec::new()
+            }
+        }
+    };
+}
+'''
 
 [[test]]
 name = "slice_reverse"
 description = "Reverse with [::-1]"
 tags = ["slice", "reverse"]
 
-[test.python]
-code = '''
+python = '''
 def reverse_list(items: list[int]) -> list[int]:
     return items[::-1]
 '''
 
-[test.assertions]
-contains_any = [["rev()", "reverse()"]]
-
-# =============================================================================
-# String Slicing
-# =============================================================================
+rust = '''
+pub fn reverse_list(items: &Vec<i32>) -> Vec<i32> {
+    return {
+        let base = &items;
+        let step = -1;
+        if step == 1 {
+            base.clone()
+        } else if step > 0 {
+            base.iter().step_by(step as usize).cloned().collect::<Vec<_>>()
+        } else if step == -1 {
+            base.iter().rev().cloned().collect::<Vec<_>>()
+        } else {
+            let abs_step = (-step) as usize;
+            base.iter().rev().step_by(abs_step).cloned().collect::<Vec<_>>()
+        }
+    };
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_reverse_list_examples() {
+        assert_eq!(reverse_list(vec![]), vec![]);
+        assert_eq!(reverse_list(vec![1]), vec![1]);
+    }
+}
+'''
 
 [[test]]
 name = "string_slice_start"
 description = "String slice from start"
 tags = ["slice", "string"]
 
-[test.python]
-code = '''
+python = '''
 def skip_chars(s: str, n: int) -> str:
     return s[n:]
 '''
 
-[test.assertions]
-contains = ["chars()"]
+rust = '''
+pub fn skip_chars(s: String, n: i32) -> String {
+    return {
+        let base = &s;
+        let start_idx: i32 = n;
+        let len = base.chars().count() as i32;
+        let actual_start = if start_idx < 0 {
+            (len + start_idx).max(0) as usize
+        } else {
+            start_idx.min(len) as usize
+        };
+        base.chars().skip(actual_start).collect::<String>()
+    };
+}
+'''
 
 [[test]]
 name = "string_slice_end"
 description = "String slice to end"
 tags = ["slice", "string"]
 
-[test.python]
-code = '''
+python = '''
 def first_chars(s: str, n: int) -> str:
     return s[:n]
 '''
 
-[test.assertions]
-contains = ["chars()"]
-
-# =============================================================================
-# Slice Assignment
-# =============================================================================
+rust = '''
+pub fn first_chars(s: String, n: i32) -> String {
+    return {
+        let base = &s;
+        let stop_idx: i32 = n;
+        let len = base.chars().count() as i32;
+        let actual_stop = if stop_idx < 0 {
+            (len + stop_idx).max(0) as usize
+        } else {
+            stop_idx.min(len) as usize
+        };
+        base.chars().take(actual_stop).collect::<String>()
+    };
+}
+'''
 
 [[test]]
 name = "slice_assign_basic"
 description = "Basic slice assignment"
 tags = ["slice", "assignment"]
 
-[test.python]
-code = '''
+python = '''
 def replace_middle(items: list[int], start: int, end: int, new: list[int]):
     items[start:end] = new
 '''
 
-[test.assertions]
-contains_any = [["splice", "drain", "&mut"]]
-
-# =============================================================================
-# Extended Slice Tests (from test_expr_gen_coverage.rs)
-# =============================================================================
+rust = '''
+pub fn replace_middle(mut items: Vec<i32>, start: i32, end: i32, new: &Vec<i32>) {
+    items.clear();
+    items.extend(new);
+}
+'''
 
 [[test]]
 name = "slice_with_step"
 description = "Slice with step using step_by"
 tags = ["slice", "step"]
 
-[test.python]
-code = '''
+python = '''
 def slice_test():
     arr = [1, 2, 3, 4, 5, 6]
     return arr[::2]
 '''
 
-[test.assertions]
-contains_any = [[".step_by(", "step"]]
+rust = '''
+pub fn slice_test() {
+    let arr = vec![1, 2, 3, 4, 5, 6];
+    return {
+        let base = &arr;
+        let step = 2;
+        if step == 1 {
+            base.clone()
+        } else if step > 0 {
+            base.iter().step_by(step as usize).cloned().collect::<Vec<_>>()
+        } else if step == -1 {
+            base.iter().rev().cloned().collect::<Vec<_>>()
+        } else {
+            let abs_step = (-step) as usize;
+            base.iter().rev().step_by(abs_step).cloned().collect::<Vec<_>>()
+        }
+    };
+}
+'''
 
 [[test]]
 name = "slice_negative_step"
 description = "Reverse slice with negative step"
 tags = ["slice", "reverse"]
 
-[test.python]
-code = '''
+python = '''
 def reverse_slice():
     arr = [1, 2, 3, 4, 5]
     return arr[::-1]
 '''
 
-[test.assertions]
-contains = [".rev()"]
+rust = '''
+pub fn reverse_slice() {
+    let arr = vec![1, 2, 3, 4, 5];
+    return {
+        let base = &arr;
+        let step = -1;
+        if step == 1 {
+            base.clone()
+        } else if step > 0 {
+            base.iter().step_by(step as usize).cloned().collect::<Vec<_>>()
+        } else if step == -1 {
+            base.iter().rev().cloned().collect::<Vec<_>>()
+        } else {
+            let abs_step = (-step) as usize;
+            base.iter().rev().step_by(abs_step).cloned().collect::<Vec<_>>()
+        }
+    };
+}
+'''

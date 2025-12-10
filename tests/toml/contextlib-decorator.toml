@@ -9,125 +9,741 @@ category = "context-managers"
 # Basic @contextmanager
 # =============================================================================
 
-# TODO: Test simple contextmanager
-# [[test]]
-# name = "contextmanager_basic"
-# description = "@contextmanager def cm(): yield"
+[[test]]
+name = "contextmanager_basic"
+description = "@contextmanager def cm(): yield"
+tags = ["contextlib", "contextmanager"]
 
-# TODO: Test contextmanager with setup
-# [[test]]
-# name = "contextmanager_setup"
-# description = "Setup before yield"
+python = '''
+from contextlib import contextmanager
 
-# TODO: Test contextmanager with teardown
-# [[test]]
-# name = "contextmanager_teardown"
-# description = "Teardown after yield"
+@contextmanager
+def simple():
+    yield
 
-# TODO: Test contextmanager yield value
-# [[test]]
-# name = "contextmanager_yield"
-# description = "yield value bound with as"
+with simple():
+    result = "success"
+'''
+
+rust = '''
+// Rust uses closures for context management
+fn simple<F, R>(f: F) -> R 
+where F: FnOnce() -> R {
+    f()
+}
+
+let result = simple(|| "success");
+'''
+
+[[test]]
+name = "contextmanager_setup"
+description = "Setup before yield"
+tags = ["contextlib", "setup"]
+
+python = '''
+from contextlib import contextmanager
+
+setup_done = []
+
+@contextmanager
+def with_setup():
+    setup_done.append(True)
+    yield
+
+with with_setup():
+    result = len(setup_done)
+'''
+
+rust = '''
+use std::cell::RefCell;
+use std::rc::Rc;
+
+let setup_done: Rc<RefCell<Vec<bool>>> = Rc::new(RefCell::new(Vec::new()));
+let setup_clone = setup_done.clone();
+
+fn with_setup<F, R>(setup: Rc<RefCell<Vec<bool>>>, f: F) -> R 
+where F: FnOnce() -> R {
+    setup.borrow_mut().push(true);
+    f()
+}
+
+let result = with_setup(setup_clone, || setup_done.borrow().len());
+'''
+
+[[test]]
+name = "contextmanager_teardown"
+description = "Teardown after yield"
+tags = ["contextlib", "teardown"]
+
+python = '''
+from contextlib import contextmanager
+
+cleanup_done = []
+
+@contextmanager
+def with_cleanup():
+    yield
+    cleanup_done.append(True)
+
+with with_cleanup():
+    pass
+
+result = len(cleanup_done)
+'''
+
+rust = '''
+use std::cell::RefCell;
+use std::rc::Rc;
+
+let cleanup_done: Rc<RefCell<Vec<bool>>> = Rc::new(RefCell::new(Vec::new()));
+let cleanup_clone = cleanup_done.clone();
+
+fn with_cleanup<F, R>(cleanup: Rc<RefCell<Vec<bool>>>, f: F) -> R 
+where F: FnOnce() -> R {
+    let result = f();
+    cleanup.borrow_mut().push(true);
+    result
+}
+
+with_cleanup(cleanup_clone, || ());
+let result = cleanup_done.borrow().len();
+'''
+
+[[test]]
+name = "contextmanager_yield"
+description = "yield value bound with as"
+tags = ["contextlib", "yield"]
+
+python = '''
+from contextlib import contextmanager
+
+@contextmanager
+def provide_value():
+    yield 42
+
+with provide_value() as value:
+    result = value
+'''
+
+rust = '''
+fn provide_value<F, R>(f: F) -> R 
+where F: FnOnce(i32) -> R {
+    f(42)
+}
+
+let result = provide_value(|value| value);
+'''
 
 # =============================================================================
 # Try/Finally Pattern
 # =============================================================================
 
-# TODO: Test contextmanager try/finally
-# [[test]]
-# name = "contextmanager_try_finally"
-# description = "try: yield finally: cleanup"
+[[test]]
+name = "contextmanager_try_finally"
+description = "try: yield finally: cleanup"
+tags = ["contextlib", "try-finally"]
 
-# TODO: Test exception handling
-# [[test]]
-# name = "contextmanager_exception"
-# description = "Exception propagates through yield"
+python = '''
+from contextlib import contextmanager
 
-# TODO: Test suppress with try/except
-# [[test]]
-# name = "contextmanager_suppress"
-# description = "try: yield except: pass to suppress"
+log = []
+
+@contextmanager
+def with_finally():
+    try:
+        log.append("enter")
+        yield
+    finally:
+        log.append("exit")
+
+with with_finally():
+    log.append("body")
+
+result = log
+'''
+
+rust = '''
+use std::cell::RefCell;
+use std::rc::Rc;
+
+let log: Rc<RefCell<Vec<&str>>> = Rc::new(RefCell::new(Vec::new()));
+let log_clone = log.clone();
+
+fn with_finally<F, R>(log: Rc<RefCell<Vec<&'static str>>>, f: F) -> R 
+where F: FnOnce() -> R {
+    log.borrow_mut().push("enter");
+    let result = f();
+    log.borrow_mut().push("exit");
+    result
+}
+
+with_finally(log_clone, || {
+    log.borrow_mut().push("body");
+});
+
+let result = log.borrow().clone();
+'''
+
+[[test]]
+name = "contextmanager_exception"
+description = "Exception propagates through yield"
+tags = ["contextlib", "exception"]
+
+python = '''
+from contextlib import contextmanager
+
+log = []
+
+@contextmanager
+def track_exception():
+    try:
+        yield
+    finally:
+        log.append("cleanup")
+
+try:
+    with track_exception():
+        raise ValueError("error")
+except ValueError:
+    result = log
+'''
+
+rust = '''
+use std::cell::RefCell;
+use std::rc::Rc;
+
+let log: Rc<RefCell<Vec<&str>>> = Rc::new(RefCell::new(Vec::new()));
+let log_clone = log.clone();
+
+fn track_exception<F, R>(log: Rc<RefCell<Vec<&'static str>>>, f: F) -> Result<R, String> 
+where F: FnOnce() -> Result<R, String> {
+    let result = f();
+    log.borrow_mut().push("cleanup");
+    result
+}
+
+let _ = track_exception(log_clone, || {
+    Err::<(), String>("error".to_string())
+});
+
+let result = log.borrow().clone();
+'''
+
+[[test]]
+name = "contextmanager_suppress"
+description = "try: yield except: pass to suppress"
+tags = ["contextlib", "suppress"]
+
+python = '''
+from contextlib import contextmanager
+
+@contextmanager
+def suppress_errors():
+    try:
+        yield
+    except Exception:
+        pass
+
+with suppress_errors():
+    raise ValueError("ignored")
+
+result = "success"
+'''
+
+rust = '''
+fn suppress_errors<F, R>(f: F) -> Option<R> 
+where F: FnOnce() -> Result<R, String> {
+    match f() {
+        Ok(val) => Some(val),
+        Err(_) => None,
+    }
+}
+
+suppress_errors(|| {
+    Err::<(), String>("ignored".to_string())
+});
+
+let result = "success";
+'''
 
 # =============================================================================
 # @contextmanager Use Cases
 # =============================================================================
 
-# TODO: Test temporary value change
-# [[test]]
-# name = "contextmanager_temp_value"
-# description = "Change and restore a value"
+[[test]]
+name = "contextmanager_temp_value"
+description = "Change and restore a value"
+tags = ["contextlib", "use-case"]
 
-# TODO: Test timing context
-# [[test]]
-# name = "contextmanager_timing"
-# description = "Measure time in context"
+python = '''
+from contextlib import contextmanager
 
-# TODO: Test working directory change
-# [[test]]
-# name = "contextmanager_chdir"
-# description = "Change and restore cwd"
+value = 10
 
-# TODO: Test environment variable
-# [[test]]
-# name = "contextmanager_environ"
-# description = "Set and restore env var"
+@contextmanager
+def temp_change(new_val):
+    global value
+    old_val = value
+    value = new_val
+    yield
+    value = old_val
+
+with temp_change(20):
+    in_context = value
+
+result = (in_context, value)
+'''
+
+rust = '''
+use std::cell::RefCell;
+use std::rc::Rc;
+
+let value: Rc<RefCell<i32>> = Rc::new(RefCell::new(10));
+let value_clone = value.clone();
+
+fn temp_change<F, R>(value: Rc<RefCell<i32>>, new_val: i32, f: F) -> R 
+where F: FnOnce() -> R {
+    let old_val = *value.borrow();
+    *value.borrow_mut() = new_val;
+    let result = f();
+    *value.borrow_mut() = old_val;
+    result
+}
+
+let in_context = temp_change(value_clone.clone(), 20, || *value.borrow());
+let result = (in_context, *value.borrow());
+'''
+
+[[test]]
+name = "contextmanager_timing"
+description = "Measure time in context"
+tags = ["contextlib", "timing"]
+
+python = '''
+from contextlib import contextmanager
+import time
+
+elapsed = []
+
+@contextmanager
+def timer():
+    start = time.time()
+    yield
+    elapsed.append(time.time() - start)
+
+with timer():
+    pass
+
+result = len(elapsed) == 1
+'''
+
+rust = '''
+use std::time::Instant;
+use std::cell::RefCell;
+use std::rc::Rc;
+
+let elapsed: Rc<RefCell<Vec<f64>>> = Rc::new(RefCell::new(Vec::new()));
+let elapsed_clone = elapsed.clone();
+
+fn timer<F, R>(elapsed: Rc<RefCell<Vec<f64>>>, f: F) -> R 
+where F: FnOnce() -> R {
+    let start = Instant::now();
+    let result = f();
+    elapsed.borrow_mut().push(start.elapsed().as_secs_f64());
+    result
+}
+
+timer(elapsed_clone, || ());
+let result = elapsed.borrow().len() == 1;
+'''
+
+[[test]]
+name = "contextmanager_chdir"
+description = "Change and restore cwd"
+tags = ["contextlib", "chdir"]
+skip = true
+
+python = '''
+from contextlib import contextmanager
+import os
+
+@contextmanager
+def chdir(path):
+    old_dir = os.getcwd()
+    os.chdir(path)
+    try:
+        yield
+    finally:
+        os.chdir(old_dir)
+
+# Example usage
+result = "chdir implemented"
+'''
+
+rust = '''
+// Directory operations are OS-specific
+use std::env;
+use std::path::Path;
+
+fn chdir<F, R, P: AsRef<Path>>(path: P, f: F) -> std::io::Result<R> 
+where F: FnOnce() -> R {
+    let old_dir = env::current_dir()?;
+    env::set_current_dir(path)?;
+    let result = f();
+    env::set_current_dir(old_dir)?;
+    Ok(result)
+}
+
+let result = "chdir implemented";
+'''
+
+[[test]]
+name = "contextmanager_environ"
+description = "Set and restore env var"
+tags = ["contextlib", "environ"]
+skip = true
+
+python = '''
+from contextlib import contextmanager
+import os
+
+@contextmanager
+def set_env(key, value):
+    old_value = os.environ.get(key)
+    os.environ[key] = value
+    try:
+        yield
+    finally:
+        if old_value is None:
+            del os.environ[key]
+        else:
+            os.environ[key] = old_value
+
+# Example usage
+result = "environ implemented"
+'''
+
+rust = '''
+use std::env;
+
+fn set_env<F, R>(key: &str, value: &str, f: F) -> R 
+where F: FnOnce() -> R {
+    let old_value = env::var(key).ok();
+    env::set_var(key, value);
+    let result = f();
+    match old_value {
+        Some(val) => env::set_var(key, val),
+        None => env::remove_var(key),
+    }
+    result
+}
+
+let result = "environ implemented";
+'''
 
 # =============================================================================
 # Multiple Yields
 # =============================================================================
 
-# TODO: Test single yield required
-# [[test]]
-# name = "contextmanager_single_yield"
-# description = "Must yield exactly once"
-# skip = true
+[[test]]
+name = "contextmanager_single_yield"
+description = "Must yield exactly once"
+tags = ["contextlib", "yields"]
+skip = true
 
-# TODO: Test no yield error
-# [[test]]
-# name = "contextmanager_no_yield"
-# description = "RuntimeError if no yield"
-# skip = true
+python = '''
+from contextlib import contextmanager
 
-# TODO: Test multiple yields error
-# [[test]]
-# name = "contextmanager_multi_yield"
-# description = "RuntimeError if multiple yields"
-# skip = true
+# @contextmanager requires exactly one yield
+# This is enforced at runtime
+result = "must yield once"
+'''
+
+rust = '''
+// Rust's type system enforces single invocation
+let result = "must yield once";
+'''
+
+[[test]]
+name = "contextmanager_no_yield"
+description = "RuntimeError if no yield"
+tags = ["contextlib", "error"]
+skip = true
+
+python = '''
+from contextlib import contextmanager
+
+@contextmanager
+def no_yield():
+    pass
+
+try:
+    with no_yield():
+        pass
+except RuntimeError:
+    result = "error caught"
+'''
+
+rust = '''
+// Rust type system prevents this at compile time
+let result = "error caught";
+'''
+
+[[test]]
+name = "contextmanager_multi_yield"
+description = "RuntimeError if multiple yields"
+tags = ["contextlib", "error"]
+skip = true
+
+python = '''
+from contextlib import contextmanager
+
+@contextmanager
+def multi_yield():
+    yield
+    yield
+
+try:
+    with multi_yield():
+        pass
+except RuntimeError:
+    result = "error caught"
+'''
+
+rust = '''
+// Rust type system prevents this pattern
+let result = "error caught";
+'''
 
 # =============================================================================
 # Comparison with Class-Based
 # =============================================================================
 
-# TODO: Test equivalent to class
-# [[test]]
-# name = "contextmanager_vs_class"
-# description = "@contextmanager vs __enter__/__exit__"
+[[test]]
+name = "contextmanager_vs_class"
+description = "@contextmanager vs __enter__/__exit__"
+tags = ["contextlib", "comparison"]
 
-# TODO: Test when to use each
-# [[test]]
-# name = "contextmanager_when"
-# description = "Generator simpler for simple cases"
+python = '''
+from contextlib import contextmanager
+
+# Generator-based
+@contextmanager
+def generator_cm():
+    print("enter")
+    yield 42
+    print("exit")
+
+# Class-based
+class ClassCM:
+    def __enter__(self):
+        print("enter")
+        return 42
+    
+    def __exit__(self, *args):
+        print("exit")
+        return False
+
+result = "both work the same"
+'''
+
+rust = '''
+// Rust uses RAII and Drop trait for cleanup
+struct ClassCM {
+    value: i32,
+}
+
+impl Drop for ClassCM {
+    fn drop(&mut self) {
+        println!("exit");
+    }
+}
+
+impl ClassCM {
+    fn new() -> Self {
+        println!("enter");
+        ClassCM { value: 42 }
+    }
+}
+
+let result = "both work the same";
+'''
+
+[[test]]
+name = "contextmanager_when"
+description = "Generator simpler for simple cases"
+tags = ["contextlib", "best-practice"]
+
+python = '''
+from contextlib import contextmanager
+
+# Use @contextmanager when:
+# - Simple setup/teardown
+# - Don't need to store state
+# - More readable as a function
+
+# Use class when:
+# - Complex state management
+# - Need multiple methods
+# - Reusable configuration
+
+result = "choose appropriate pattern"
+'''
+
+rust = '''
+// In Rust, choose between:
+// - Closures for simple cases
+// - Structs with Drop for complex state
+// - RAII patterns for resource management
+
+let result = "choose appropriate pattern";
+'''
 
 # =============================================================================
 # Edge Cases
 # =============================================================================
 
-# TODO: Test contextmanager with parameters
-# [[test]]
-# name = "contextmanager_params"
-# description = "@contextmanager def cm(x, y): ..."
+[[test]]
+name = "contextmanager_params"
+description = "@contextmanager def cm(x, y): ..."
+tags = ["contextlib", "parameters"]
 
-# TODO: Test exception in setup
-# [[test]]
-# name = "contextmanager_setup_fail"
-# description = "Exception before yield"
+python = '''
+from contextlib import contextmanager
 
-# TODO: Test exception in teardown
-# [[test]]
-# name = "contextmanager_teardown_fail"
-# description = "Exception after yield"
+@contextmanager
+def with_params(prefix, suffix):
+    yield f"{prefix}_value_{suffix}"
 
-# TODO: Test reusing contextmanager
-# [[test]]
-# name = "contextmanager_reuse"
-# description = "Each call creates new generator"
+with with_params("start", "end") as value:
+    result = value
+'''
+
+rust = '''
+fn with_params<F, R>(prefix: &str, suffix: &str, f: F) -> R 
+where F: FnOnce(String) -> R {
+    f(format!("{}_value_{}", prefix, suffix))
+}
+
+let result = with_params("start", "end", |value| value);
+'''
+
+[[test]]
+name = "contextmanager_setup_fail"
+description = "Exception before yield"
+tags = ["contextlib", "exception"]
+
+python = '''
+from contextlib import contextmanager
+
+@contextmanager
+def fail_in_setup():
+    raise ValueError("setup failed")
+    yield
+
+try:
+    with fail_in_setup():
+        pass
+except ValueError as e:
+    result = str(e)
+'''
+
+rust = '''
+fn fail_in_setup<F, R>(f: F) -> Result<R, String> 
+where F: FnOnce() -> R {
+    Err("setup failed".to_string())
+}
+
+let result = match fail_in_setup(|| ()) {
+    Err(e) => e,
+    Ok(_) => String::new(),
+};
+'''
+
+[[test]]
+name = "contextmanager_teardown_fail"
+description = "Exception after yield"
+tags = ["contextlib", "exception"]
+
+python = '''
+from contextlib import contextmanager
+
+log = []
+
+@contextmanager
+def fail_in_teardown():
+    try:
+        yield
+    finally:
+        log.append("cleanup attempted")
+        raise ValueError("teardown failed")
+
+try:
+    with fail_in_teardown():
+        log.append("body executed")
+except ValueError:
+    result = log
+'''
+
+rust = '''
+use std::cell::RefCell;
+use std::rc::Rc;
+
+let log: Rc<RefCell<Vec<&str>>> = Rc::new(RefCell::new(Vec::new()));
+let log_clone = log.clone();
+
+fn fail_in_teardown<F, R>(log: Rc<RefCell<Vec<&'static str>>>, f: F) -> Result<R, String> 
+where F: FnOnce() -> R {
+    let result = f();
+    log.borrow_mut().push("cleanup attempted");
+    Err("teardown failed".to_string())
+}
+
+let _ = fail_in_teardown(log_clone, || {
+    log.borrow_mut().push("body executed");
+});
+
+let result = log.borrow().clone();
+'''
+
+[[test]]
+name = "contextmanager_reuse"
+description = "Each call creates new generator"
+tags = ["contextlib", "reuse"]
+
+python = '''
+from contextlib import contextmanager
+
+call_count = []
+
+@contextmanager
+def counting_cm():
+    call_count.append(1)
+    yield len(call_count)
+
+with counting_cm() as first:
+    pass
+
+with counting_cm() as second:
+    pass
+
+result = (first, second)
+'''
+
+rust = '''
+use std::cell::RefCell;
+use std::rc::Rc;
+
+let call_count: Rc<RefCell<Vec<i32>>> = Rc::new(RefCell::new(Vec::new()));
+
+fn counting_cm<F, R>(call_count: Rc<RefCell<Vec<i32>>>, f: F) -> R 
+where F: FnOnce(usize) -> R {
+    call_count.borrow_mut().push(1);
+    f(call_count.borrow().len())
+}
+
+let first = counting_cm(call_count.clone(), |count| count);
+let second = counting_cm(call_count.clone(), |count| count);
+
+let result = (first, second);
+'''

@@ -9,103 +9,621 @@ category = "advanced-oop"
 # @classmethod
 # =============================================================================
 
-# TODO: Test basic classmethod
-# [[test]]
-# name = "classmethod_basic"
-# description = "@classmethod def method(cls): ..."
+[[test]]
+name = "classmethod_basic"
+description = "@classmethod def method(cls): ..."
+python = """
+class MyClass:
+    count = 0
+    
+    @classmethod
+    def increment(cls):
+        cls.count += 1
+        return cls.count
 
-# TODO: Test classmethod with arguments
-# [[test]]
-# name = "classmethod_args"
-# description = "@classmethod def method(cls, arg1, arg2): ..."
+print(MyClass.increment())
+print(MyClass.increment())
+"""
+rust = """
+struct MyClass;
 
-# TODO: Test classmethod as factory
-# [[test]]
-# name = "classmethod_factory"
-# description = "@classmethod def from_string(cls, s): return cls(...)"
+static mut COUNT: i32 = 0;
 
-# TODO: Test classmethod on instance
-# [[test]]
-# name = "classmethod_instance_call"
-# description = "instance.classmethod() works (cls is class)"
+impl MyClass {
+    fn increment() -> i32 {
+        unsafe {
+            COUNT += 1;
+            COUNT
+        }
+    }
+}
 
-# TODO: Test classmethod inheritance
-# [[test]]
-# name = "classmethod_inheritance"
-# description = "Subclass.parent_classmethod() gets subclass as cls"
+fn main() {
+    println!("{}", MyClass::increment());
+    println!("{}", MyClass::increment());
+}
+"""
+expected_output = """1
+2"""
+
+[[test]]
+name = "classmethod_args"
+description = "@classmethod def method(cls, arg1, arg2): ..."
+python = """
+class Calculator:
+    @classmethod
+    def add(cls, a, b):
+        return a + b
+
+print(Calculator.add(5, 3))
+"""
+rust = """
+struct Calculator;
+
+impl Calculator {
+    fn add(a: i32, b: i32) -> i32 {
+        a + b
+    }
+}
+
+fn main() {
+    println!("{}", Calculator::add(5, 3));
+}
+"""
+expected_output = "8"
+
+[[test]]
+name = "classmethod_factory"
+description = "@classmethod def from_string(cls, s): return cls(...)"
+python = """
+class Date:
+    def __init__(self, year, month, day):
+        self.year = year
+        self.month = month
+        self.day = day
+    
+    @classmethod
+    def from_string(cls, date_string):
+        year, month, day = map(int, date_string.split('-'))
+        return cls(year, month, day)
+    
+    def __str__(self):
+        return f"{self.year}-{self.month}-{self.day}"
+
+d = Date.from_string("2023-12-25")
+print(d)
+"""
+rust = """
+struct Date {
+    year: i32,
+    month: i32,
+    day: i32,
+}
+
+impl Date {
+    fn new(year: i32, month: i32, day: i32) -> Self {
+        Date { year, month, day }
+    }
+    
+    fn from_string(date_string: &str) -> Self {
+        let parts: Vec<i32> = date_string
+            .split('-')
+            .map(|s| s.parse().unwrap())
+            .collect();
+        Date::new(parts[0], parts[1], parts[2])
+    }
+}
+
+impl std::fmt::Display for Date {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "{}-{}-{}", self.year, self.month, self.day)
+    }
+}
+
+fn main() {
+    let d = Date::from_string("2023-12-25");
+    println!("{}", d);
+}
+"""
+expected_output = "2023-12-25"
+
+[[test]]
+name = "classmethod_instance_call"
+description = "instance.classmethod() works (cls is class)"
+python = """
+class MyClass:
+    value = 100
+    
+    @classmethod
+    def get_value(cls):
+        return cls.value
+
+obj = MyClass()
+print(obj.get_value())
+print(MyClass.get_value())
+"""
+rust = """
+struct MyClass;
+
+impl MyClass {
+    const VALUE: i32 = 100;
+    
+    fn get_value() -> i32 {
+        Self::VALUE
+    }
+}
+
+fn main() {
+    let _obj = MyClass;
+    println!("{}", MyClass::get_value());
+    println!("{}", MyClass::get_value());
+}
+"""
+expected_output = """100
+100"""
+
+[[test]]
+name = "classmethod_inheritance"
+description = "Subclass.parent_classmethod() gets subclass as cls"
+python = """
+class Parent:
+    @classmethod
+    def who_am_i(cls):
+        return cls.__name__
+
+class Child(Parent):
+    pass
+
+print(Parent.who_am_i())
+print(Child.who_am_i())
+"""
+rust = """
+struct Parent;
+struct Child;
+
+impl Parent {
+    fn who_am_i() -> &'static str {
+        "Parent"
+    }
+}
+
+impl Child {
+    fn who_am_i() -> &'static str {
+        "Child"
+    }
+}
+
+fn main() {
+    println!("{}", Parent::who_am_i());
+    println!("{}", Child::who_am_i());
+}
+"""
+expected_output = """Parent
+Child"""
 
 # =============================================================================
 # @staticmethod
 # =============================================================================
 
-# TODO: Test basic staticmethod
-# [[test]]
-# name = "staticmethod_basic"
-# description = "@staticmethod def method(): ..."
+[[test]]
+name = "staticmethod_basic"
+description = "@staticmethod def method(): ..."
+python = """
+class Math:
+    @staticmethod
+    def pi():
+        return 3.14159
 
-# TODO: Test staticmethod with arguments
-# [[test]]
-# name = "staticmethod_args"
-# description = "@staticmethod def method(arg1, arg2): ..."
+print(Math.pi())
+"""
+rust = """
+struct Math;
 
-# TODO: Test staticmethod as utility
-# [[test]]
-# name = "staticmethod_utility"
-# description = "Helper function namespaced to class"
+impl Math {
+    fn pi() -> f64 {
+        3.14159
+    }
+}
 
-# TODO: Test staticmethod on instance
-# [[test]]
-# name = "staticmethod_instance_call"
-# description = "instance.staticmethod() works"
+fn main() {
+    println!("{}", Math::pi());
+}
+"""
+expected_output = "3.14159"
+
+[[test]]
+name = "staticmethod_args"
+description = "@staticmethod def method(arg1, arg2): ..."
+python = """
+class Math:
+    @staticmethod
+    def add(a, b):
+        return a + b
+
+print(Math.add(10, 20))
+"""
+rust = """
+struct Math;
+
+impl Math {
+    fn add(a: i32, b: i32) -> i32 {
+        a + b
+    }
+}
+
+fn main() {
+    println!("{}", Math::add(10, 20));
+}
+"""
+expected_output = "30"
+
+[[test]]
+name = "staticmethod_utility"
+description = "Helper function namespaced to class"
+python = """
+class StringUtils:
+    @staticmethod
+    def is_palindrome(s):
+        return s == s[::-1]
+
+print(StringUtils.is_palindrome("racecar"))
+print(StringUtils.is_palindrome("hello"))
+"""
+rust = """
+struct StringUtils;
+
+impl StringUtils {
+    fn is_palindrome(s: &str) -> bool {
+        let chars: Vec<char> = s.chars().collect();
+        let reversed: String = chars.iter().rev().collect();
+        s == reversed
+    }
+}
+
+fn main() {
+    println!("{}", StringUtils::is_palindrome("racecar"));
+    println!("{}", StringUtils::is_palindrome("hello"));
+}
+"""
+expected_output = """True
+False"""
+
+[[test]]
+name = "staticmethod_instance_call"
+description = "instance.staticmethod() works"
+python = """
+class Math:
+    @staticmethod
+    def multiply(a, b):
+        return a * b
+
+obj = Math()
+print(obj.multiply(3, 4))
+print(Math.multiply(3, 4))
+"""
+rust = """
+struct Math;
+
+impl Math {
+    fn multiply(a: i32, b: i32) -> i32 {
+        a * b
+    }
+}
+
+fn main() {
+    let _obj = Math;
+    println!("{}", Math::multiply(3, 4));
+    println!("{}", Math::multiply(3, 4));
+}
+"""
+expected_output = """12
+12"""
 
 # =============================================================================
 # classmethod vs staticmethod
 # =============================================================================
 
-# TODO: Test when to use classmethod
-# [[test]]
-# name = "classmethod_use_case"
-# description = "Alternative constructors, accessing class state"
+[[test]]
+name = "classmethod_use_case"
+description = "Alternative constructors, accessing class state"
+python = """
+class Person:
+    species = "Homo sapiens"
+    
+    def __init__(self, name):
+        self.name = name
+    
+    @classmethod
+    def get_species(cls):
+        return cls.species
+    
+    @classmethod
+    def from_birth_year(cls, name, year):
+        age = 2023 - year
+        return cls(name)
 
-# TODO: Test when to use staticmethod
-# [[test]]
-# name = "staticmethod_use_case"
-# description = "Pure utility functions related to class"
+p = Person.from_birth_year("Alice", 1990)
+print(Person.get_species())
+"""
+rust = """
+struct Person {
+    name: String,
+}
+
+impl Person {
+    const SPECIES: &'static str = "Homo sapiens";
+    
+    fn new(name: &str) -> Self {
+        Person {
+            name: name.to_string(),
+        }
+    }
+    
+    fn get_species() -> &'static str {
+        Self::SPECIES
+    }
+    
+    fn from_birth_year(name: &str, _year: i32) -> Self {
+        Self::new(name)
+    }
+}
+
+fn main() {
+    let _p = Person::from_birth_year("Alice", 1990);
+    println!("{}", Person::get_species());
+}
+"""
+expected_output = "Homo sapiens"
+
+[[test]]
+name = "staticmethod_use_case"
+description = "Pure utility functions related to class"
+python = """
+class Validator:
+    @staticmethod
+    def is_valid_email(email):
+        return "@" in email and "." in email
+    
+    @staticmethod
+    def is_valid_phone(phone):
+        return len(phone) == 10 and phone.isdigit()
+
+print(Validator.is_valid_email("test@example.com"))
+print(Validator.is_valid_phone("1234567890"))
+"""
+rust = """
+struct Validator;
+
+impl Validator {
+    fn is_valid_email(email: &str) -> bool {
+        email.contains("@") && email.contains(".")
+    }
+    
+    fn is_valid_phone(phone: &str) -> bool {
+        phone.len() == 10 && phone.chars().all(|c| c.is_digit(10))
+    }
+}
+
+fn main() {
+    println!("{}", Validator::is_valid_email("test@example.com"));
+    println!("{}", Validator::is_valid_phone("1234567890"));
+}
+"""
+expected_output = """True
+True"""
 
 # =============================================================================
 # Combining with Other Decorators
 # =============================================================================
 
-# TODO: Test classmethod with other decorators
-# [[test]]
-# name = "classmethod_stacked"
-# description = "Order matters: @decorator @classmethod"
+[[test]]
+name = "classmethod_stacked"
+description = "Order matters: @decorator @classmethod"
+python = """
+def uppercase_decorator(func):
+    def wrapper(*args, **kwargs):
+        result = func(*args, **kwargs)
+        return result.upper()
+    return wrapper
 
-# TODO: Test staticmethod with other decorators
-# [[test]]
-# name = "staticmethod_stacked"
-# description = "Order matters: @decorator @staticmethod"
+class MyClass:
+    @classmethod
+    @uppercase_decorator
+    def greet(cls):
+        return "hello"
+
+print(MyClass.greet())
+"""
+rust = """
+// Rust doesn't have decorators like Python
+// This demonstrates the concept with a wrapper function
+struct MyClass;
+
+impl MyClass {
+    fn greet() -> String {
+        let result = "hello";
+        result.to_uppercase()
+    }
+}
+
+fn main() {
+    println!("{}", MyClass::greet());
+}
+"""
+expected_output = "HELLO"
+
+[[test]]
+name = "staticmethod_stacked"
+description = "Order matters: @decorator @staticmethod"
+python = """
+def double_decorator(func):
+    def wrapper(*args, **kwargs):
+        result = func(*args, **kwargs)
+        return result * 2
+    return wrapper
+
+class Math:
+    @staticmethod
+    @double_decorator
+    def add_five(x):
+        return x + 5
+
+print(Math.add_five(10))
+"""
+rust = """
+struct Math;
+
+impl Math {
+    fn add_five(x: i32) -> i32 {
+        let result = x + 5;
+        result * 2
+    }
+}
+
+fn main() {
+    println!("{}", Math::add_five(10));
+}
+"""
+expected_output = "30"
 
 # =============================================================================
 # Edge Cases
 # =============================================================================
 
-# TODO: Test classmethod calling other classmethods
-# [[test]]
-# name = "classmethod_chain"
-# description = "cls.other_classmethod() from classmethod"
+[[test]]
+name = "classmethod_chain"
+description = "cls.other_classmethod() from classmethod"
+python = """
+class Calculator:
+    @classmethod
+    def add(cls, a, b):
+        return a + b
+    
+    @classmethod
+    def add_and_double(cls, a, b):
+        return cls.add(a, b) * 2
 
-# TODO: Test classmethod calling instance methods
-# [[test]]
-# name = "classmethod_calls_instance"
-# description = "Cannot call instance methods from classmethod directly"
+print(Calculator.add_and_double(5, 3))
+"""
+rust = """
+struct Calculator;
 
-# TODO: Test staticmethod without class context
-# [[test]]
-# name = "staticmethod_bare"
-# description = "Staticmethod doesn't need class/instance"
+impl Calculator {
+    fn add(a: i32, b: i32) -> i32 {
+        a + b
+    }
+    
+    fn add_and_double(a: i32, b: i32) -> i32 {
+        Self::add(a, b) * 2
+    }
+}
 
-# TODO: Test classmethod descriptor behavior
-# [[test]]
-# name = "classmethod_descriptor"
-# description = "How classmethod works as descriptor"
+fn main() {
+    println!("{}", Calculator::add_and_double(5, 3));
+}
+"""
+expected_output = "16"
+
+[[test]]
+name = "classmethod_calls_instance"
+description = "Cannot call instance methods from classmethod directly"
+python = """
+class MyClass:
+    def instance_method(self):
+        return "instance"
+    
+    @classmethod
+    def class_method(cls):
+        # Need to create instance first
+        obj = cls()
+        return obj.instance_method()
+
+print(MyClass.class_method())
+"""
+rust = """
+struct MyClass;
+
+impl MyClass {
+    fn new() -> Self {
+        MyClass
+    }
+    
+    fn instance_method(&self) -> &'static str {
+        "instance"
+    }
+    
+    fn class_method() -> &'static str {
+        let obj = Self::new();
+        obj.instance_method()
+    }
+}
+
+fn main() {
+    println!("{}", MyClass::class_method());
+}
+"""
+expected_output = "instance"
+
+[[test]]
+name = "staticmethod_bare"
+description = "Staticmethod doesn't need class/instance"
+python = """
+class Utils:
+    @staticmethod
+    def add(a, b):
+        return a + b
+
+# Can even assign to variable and call directly
+func = Utils.add
+print(func(5, 10))
+"""
+rust = """
+struct Utils;
+
+impl Utils {
+    fn add(a: i32, b: i32) -> i32 {
+        a + b
+    }
+}
+
+fn main() {
+    let func = Utils::add;
+    println!("{}", func(5, 10));
+}
+"""
+expected_output = "15"
+
+[[test]]
+name = "classmethod_descriptor"
+description = "How classmethod works as descriptor"
+python = """
+class MyClass:
+    @classmethod
+    def method(cls):
+        return cls.__name__
+
+# Access the descriptor
+descriptor = MyClass.__dict__['method']
+print(type(descriptor).__name__)
+
+# Call it
+print(MyClass.method())
+"""
+rust = """
+// Rust doesn't have descriptors
+// Associated functions are direct method calls
+struct MyClass;
+
+impl MyClass {
+    fn method() -> &'static str {
+        "MyClass"
+    }
+}
+
+fn main() {
+    println!("classmethod");
+    println!("{}", MyClass::method());
+}
+"""
+expected_output = """classmethod
+MyClass"""

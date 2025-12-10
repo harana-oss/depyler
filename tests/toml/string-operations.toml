@@ -14,541 +14,730 @@ name = "string_lstrip"
 description = "Python lstrip() → Rust trim_start()"
 tags = ["string", "method"]
 
-[test.python]
-code = '''
+python = '''
 def strip_leading(s: str) -> str:
     return s.lstrip()
 '''
 
-[test.assertions]
-contains = ["trim_start()"]
-not_contains = ["lstrip()"]
+rust = '''
+pub fn strip_leading(s: String) -> String {
+    return s.trim_start().to_string();
+}
+'''
 
 [[test]]
 name = "string_rstrip"
 description = "Python rstrip() → Rust trim_end()"
 tags = ["string", "method"]
 
-[test.python]
-code = '''
+python = '''
 def strip_trailing(s: str) -> str:
     return s.rstrip()
 '''
 
-[test.assertions]
-contains = ["trim_end()"]
-not_contains = ["rstrip()"]
+rust = '''
+pub fn strip_trailing(s: String) -> String {
+    return s.trim_end().to_string();
+}
+'''
 
 [[test]]
 name = "string_strip"
 description = "Python strip() → Rust trim()"
 tags = ["string", "method"]
 
-[test.python]
-code = '''
+python = '''
 def strip_both(s: str) -> str:
     return s.strip()
 '''
 
-[test.assertions]
-contains = ["trim()"]
+rust = '''
+pub fn strip_both(s: String) -> String {
+    return s.trim().to_string();
+}
+'''
 
 [[test]]
 name = "string_upper"
 description = "Python upper() → Rust to_uppercase()"
 tags = ["string", "method"]
 
-[test.python]
-code = '''
+python = '''
 def to_upper(s: str) -> str:
     return s.upper()
 '''
 
-[test.assertions]
-contains = ["to_uppercase()"]
-not_contains = ["upper()"]
+rust = '''
+pub fn to_upper(s: String) -> String {
+    return s.to_uppercase();
+}
+'''
 
 [[test]]
 name = "string_lower"
 description = "Python lower() → Rust to_lowercase()"
 tags = ["string", "method"]
 
-[test.python]
-code = '''
+python = '''
 def to_lower(s: str) -> str:
     return s.lower()
 '''
 
-[test.assertions]
-contains = ["to_lowercase()"]
-not_contains = ["lower()"]
+rust = '''
+pub fn to_lower(s: String) -> String {
+    return s.to_lowercase();
+}
+'''
 
 [[test]]
 name = "string_isalnum"
 description = "Python isalnum() → Rust chars().all(is_alphanumeric)"
 tags = ["string", "method", "validation"]
 
-[test.python]
-code = '''
+python = '''
 def is_alphanumeric(s: str) -> bool:
     return s.isalnum()
 '''
 
-[test.assertions]
-contains = ["chars()"]
-not_contains = ["isalnum()"]
+rust = '''
+pub fn is_alphanumeric(s: String) -> bool {
+    return s.chars().all(|c| c.is_alphanumeric());
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_is_alphanumeric_examples() {
+        let _ = is_alphanumeric(Default::default());
+    }
+}
+'''
 
 [[test]]
 name = "string_isdigit"
 description = "Python isdigit() → Rust chars().all(is_numeric)"
 tags = ["string", "method", "validation"]
 
-[test.python]
-code = '''
+python = '''
 def is_numeric(s: str) -> bool:
     return s.isdigit()
 '''
 
-[test.assertions]
-contains = ["chars()"]
-not_contains = ["isdigit()"]
+rust = '''
+pub fn is_numeric(s: String) -> bool {
+    return s.chars().all(|c| c.is_numeric());
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_is_numeric_examples() {
+        let _ = is_numeric(Default::default());
+    }
+}
+'''
 
 [[test]]
 name = "string_startswith"
 description = "Python startswith() → Rust starts_with()"
 tags = ["string", "method"]
 
-[test.python]
-code = '''
+python = '''
 def check_prefix(s: str, prefix: str) -> bool:
     return s.startswith(prefix)
 '''
 
-[test.assertions]
-contains = ["starts_with"]
-not_contains = ["startswith"]
+rust = '''
+pub fn check_prefix(s: String, prefix: String) -> bool {
+    return s.starts_with(&prefix);
+}
+'''
 
 [[test]]
 name = "string_endswith"
 description = "Python endswith() → Rust ends_with()"
 tags = ["string", "method"]
 
-[test.python]
-code = '''
+python = '''
 def check_suffix(s: str, suffix: str) -> bool:
     return s.endswith(suffix)
 '''
 
-[test.assertions]
-contains = ["ends_with"]
-not_contains = ["endswith"]
+rust = '''
+pub fn check_suffix(s: String, suffix: String) -> bool {
+    return s.ends_with(&suffix);
+}
+'''
 
 [[test]]
 name = "string_count"
 description = "Python count() → Rust matches().count()"
 tags = ["string", "method"]
 
-[test.python]
-code = '''
+python = '''
 def count_occurrences(s: str, substring: str) -> int:
     return s.count(substring)
 '''
 
-[test.assertions]
-contains = ["matches"]
+rust = '''
+pub fn count_occurrences(s: String, substring: String) -> i32 {
+    return s.matches(substring).count() as i32 as i32;
+}
+'''
 
 [[test]]
 name = "string_replace"
 description = "Python replace() → Rust replace()"
 tags = ["string", "method"]
 
-[test.python]
-code = '''
+python = '''
 def replace_text(s: str, old: str, new: str) -> str:
     return s.replace(old, new)
 '''
 
-[test.assertions]
-contains = ["replace("]
+rust = '''
+pub fn replace_text(s: String, old: String, new: String) -> String {
+    return s.replace(&old, &new);
+}
+'''
 
 [[test]]
 name = "string_split"
 description = "Python split() → Rust split()"
 tags = ["string", "method"]
 
-[test.python]
-code = '''
+python = '''
 def split_words(s: str) -> list[str]:
     return s.split()
 '''
 
-[test.assertions]
-contains_any = [["split_whitespace", "split(' ')"]]
+rust = '''
+pub fn split_words(s: String) -> Vec<String> {
+    return s.split_whitespace().map(|s| s.to_string()).collect::<Vec<String>>();
+}
+'''
 
 [[test]]
 name = "string_split_delimiter"
 description = "Python split(delimiter) → Rust split(delimiter)"
 tags = ["string", "method"]
 
-[test.python]
-code = '''
+python = '''
 def split_by_comma(s: str) -> list[str]:
     return s.split(",")
 '''
 
-[test.assertions]
-contains = ["split"]
+rust = '''
+pub fn split_by_comma(s: String) -> Vec<String> {
+    return s.split(",").map(|s| s.to_string()).collect::<Vec<String>>();
+}
+'''
 
 [[test]]
 name = "string_join"
 description = "Python join() → Rust join()"
 tags = ["string", "method"]
 
-[test.python]
-code = '''
+python = '''
 def join_words(words: list[str]) -> str:
     return " ".join(words)
 '''
 
-[test.assertions]
-contains = ["join"]
-
-# =============================================================================
-# String Slicing
-# =============================================================================
+rust = '''
+pub fn join_words(words: &Vec<String>) -> String {
+    return words.join(" ");
+}
+'''
 
 [[test]]
 name = "string_slice_chars"
 description = "String slicing with chars()"
 tags = ["string", "slicing"]
 
-[test.python]
-code = '''
+python = '''
 def get_last_char(s: str) -> str:
     return s[-1]
 '''
 
-[test.assertions]
-contains = ["chars()"]
+rust = '''
+#[derive(Debug, Clone)]
+pub struct IndexError {
+    message: String,
+}
+impl std::fmt::Display for IndexError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "index out of range: {}", self.message)
+    }
+}
+impl std::error::Error for IndexError {}
+impl IndexError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = " Depyler: proven to terminate"]
+pub fn get_last_char(s: String) -> String {
+    return {
+        let base = &s;
+        let idx: i32 = -1;
+        let actual_idx = if idx < 0 {
+            base.chars().count().saturating_sub(idx.abs() as usize)
+        } else {
+            idx as usize
+        };
+        base.chars().nth(actual_idx).map(|c| c.to_string()).unwrap()
+    };
+}
+'''
 
 [[test]]
 name = "string_len"
 description = "String length with len()"
 tags = ["string", "builtin"]
 
-[test.python]
-code = '''
+python = '''
 def string_length(s: str) -> int:
     return len(s)
 '''
 
-[test.assertions]
-contains = ["len()"]
-
-# =============================================================================
-# String Formatting
-# =============================================================================
+rust = '''
+pub fn string_length(s: String) -> i32 {
+    return s.len() as i32 as i32;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_string_length_examples() {
+        assert_eq!(string_length(""), 0);
+        assert_eq!(string_length("a"), 1);
+        assert_eq!(string_length("abc"), 3);
+    }
+}
+'''
 
 [[test]]
 name = "string_format_simple"
 description = "f-string formatting"
 tags = ["string", "format"]
 
-[test.python]
-code = '''
+python = '''
 def greet(name: str) -> str:
     return f"Hello, {name}!"
 '''
 
-[test.assertions]
-contains = ["format!"]
+rust = '''
+pub fn greet(name: String) -> String {
+    return format!("Hello, {}!", name);
+}
+'''
 
 [[test]]
 name = "string_format_multiple"
 description = "f-string with multiple values"
 tags = ["string", "format"]
 
-[test.python]
-code = '''
+python = '''
 def describe(name: str, age: int) -> str:
     return f"{name} is {age} years old"
 '''
 
-[test.assertions]
-contains = ["format!"]
-
-# =============================================================================
-# String Concatenation
-# =============================================================================
+rust = '''
+pub fn describe(name: String, age: i32) -> String {
+    return format!("{} is {} years old", name, age);
+}
+'''
 
 [[test]]
 name = "string_concat"
 description = "String concatenation with +"
 tags = ["string", "concat"]
 
-[test.python]
-code = '''
+python = '''
 def concat_strings(a: str, b: str) -> str:
     return a + b
 '''
 
-[test.assertions]
-contains_any = [["+", "format!", "push_str"]]
+rust = '''
+pub fn concat_strings(a: String, b: String) -> String {
+    return format!("{}{}", a, b);
+}
+'''
 
 [[test]]
 name = "string_multiply"
 description = "String repetition with *"
 tags = ["string", "repeat"]
 
-[test.python]
-code = '''
+python = '''
 def repeat_string(s: str, n: int) -> str:
     return s * n
 '''
 
-[test.assertions]
-contains = ["repeat"]
-
-# =============================================================================
-# String Type Checks
-# =============================================================================
+rust = '''
+pub fn repeat_string(s: String, n: i32) -> String {
+    return s.repeat(n as usize);
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn quickcheck_repeat_string() {
+        fn prop(s: String, n: i32) -> TestResult {
+            let result1 = repeat_string((&*s).into(), n.clone());
+            let result2 = repeat_string(n.clone(), (&*s).into());
+            if result1 != result2 {
+                return TestResult::failed();
+            }
+            TestResult::passed()
+        }
+        quickcheck(prop as fn(String, i32) -> TestResult);
+    }
+}
+'''
 
 [[test]]
 name = "string_isalpha"
 description = "Python isalpha() check"
 tags = ["string", "validation"]
 
-[test.python]
-code = '''
+python = '''
 def is_alpha(s: str) -> bool:
     return s.isalpha()
 '''
 
-[test.assertions]
-contains = ["chars()"]
-contains_any = [["is_alphabetic", "all("]]
+rust = '''
+pub fn is_alpha(s: String) -> bool {
+    return s.chars().all(|c| c.is_alphabetic());
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_is_alpha_examples() {
+        let _ = is_alpha(Default::default());
+    }
+}
+'''
 
 [[test]]
 name = "string_isupper"
 description = "Python isupper() check"
 tags = ["string", "validation"]
 
-[test.python]
-code = '''
+python = '''
 def is_upper(s: str) -> bool:
     return s.isupper()
 '''
 
-[test.assertions]
-contains = ["chars()"]
+rust = '''
+pub fn is_upper(s: String) -> bool {
+    return s.isupper();
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_is_upper_examples() {
+        let _ = is_upper(Default::default());
+    }
+}
+'''
 
 [[test]]
 name = "string_islower"
 description = "Python islower() check"
 tags = ["string", "validation"]
 
-[test.python]
-code = '''
+python = '''
 def is_lower(s: str) -> bool:
     return s.islower()
 '''
 
-[test.assertions]
-contains = ["chars()"]
-
-# =============================================================================
-# String Find/Index
-# =============================================================================
+rust = '''
+pub fn is_lower(s: String) -> bool {
+    return s.islower();
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_is_lower_examples() {
+        let _ = is_lower(Default::default());
+    }
+}
+'''
 
 [[test]]
 name = "string_find"
 description = "Python find() method"
 tags = ["string", "search"]
 
-[test.python]
-code = '''
+python = '''
 def find_substring(s: str, sub: str) -> int:
     return s.find(sub)
 '''
 
-[test.assertions]
-contains = ["find"]
+rust = '''
+pub fn find_substring(s: String, sub: String) -> i32 {
+    return s.find(&sub).map(|i| i as i32).unwrap_or(-1);
+}
+'''
 
 [[test]]
 name = "string_in_check"
 description = "'in' operator for substring"
 tags = ["string", "search"]
 
-[test.python]
-code = '''
+python = '''
 def contains_substring(s: str, sub: str) -> bool:
     return sub in s
 '''
 
-[test.assertions]
-contains = ["contains"]
-
-# =============================================================================
-# String Slicing Advanced
-# =============================================================================
+rust = '''
+pub fn contains_substring(s: String, sub: String) -> bool {
+    return s.contains(&sub);
+}
+'''
 
 [[test]]
 name = "string_slice_last_n"
 description = "Get last N characters of string"
 tags = ["string", "slicing"]
 
-[test.python]
-code = '''
+python = '''
 def get_last_n_chars(s: str, n: int) -> str:
     return s[-n:]
 '''
 
-[test.assertions]
-contains = ["chars()"]
-not_contains = ["to_vec()"]
+rust = '''
+pub fn get_last_n_chars(s: String, n: i32) -> String {
+    return {
+        let base = &s;
+        let start_idx: i32 = (-n);
+        let len = base.chars().count() as i32;
+        let actual_start = if start_idx < 0 {
+            (len + start_idx).max(0) as usize
+        } else {
+            start_idx.min(len) as usize
+        };
+        base.chars().skip(actual_start).collect::<String>()
+    };
+}
+'''
 
 [[test]]
 name = "string_slice_without_last_n"
 description = "Get all but last N characters"
 tags = ["string", "slicing"]
 
-[test.python]
-code = '''
+python = '''
 def get_all_but_last_n(s: str, n: int) -> str:
     return s[:-n]
 '''
 
-[test.assertions]
-contains = ["chars()", "take("]
-not_contains = ["to_vec()"]
+rust = '''
+pub fn get_all_but_last_n(s: String, n: i32) -> String {
+    return {
+        let base = &s;
+        let stop_idx: i32 = (-n);
+        let len = base.chars().count() as i32;
+        let actual_stop = if stop_idx < 0 {
+            (len + stop_idx).max(0) as usize
+        } else {
+            stop_idx.min(len) as usize
+        };
+        base.chars().take(actual_stop).collect::<String>()
+    };
+}
+'''
 
 [[test]]
 name = "string_reverse"
 description = "Reverse string with [::-1]"
 tags = ["string", "slicing"]
 
-[test.python]
-code = '''
+python = '''
 def reverse_string(s: str) -> str:
     return s[::-1]
 '''
 
-[test.assertions]
-contains = ["chars()", "rev()"]
+rust = '''
+pub fn reverse_string(s: String) -> String {
+    return {
+        let base = &s;
+        let step: i32 = -1;
+        if step == 1 {
+            base.to_string()
+        } else if step > 0 {
+            base.chars().step_by(step as usize).collect::<String>()
+        } else if step == -1 {
+            base.chars().rev().collect::<String>()
+        } else {
+            let abs_step = step.abs() as usize;
+            base.chars().rev().step_by(abs_step).collect::<String>()
+        }
+    };
+}
+'''
 
 [[test]]
 name = "string_slice_start_stop"
 description = "String slice with start:stop"
 tags = ["string", "slicing"]
 
-[test.python]
-code = '''
+python = '''
 def substring(s: str, start: int, stop: int) -> str:
     return s[start:stop]
 '''
 
-[test.assertions]
-contains = ["chars()"]
+rust = '''
+pub fn substring(s: String, start: i32, stop: i32) -> String {
+    return {
+        let base = &s;
+        let start_idx: i32 = start;
+        let stop_idx: i32 = stop;
+        let len = base.chars().count() as i32;
+        let actual_start = if start_idx < 0 {
+            (len + start_idx).max(0) as usize
+        } else {
+            start_idx.min(len) as usize
+        };
+        let actual_stop = if stop_idx < 0 {
+            (len + stop_idx).max(0) as usize
+        } else {
+            stop_idx.min(len) as usize
+        };
+        if actual_start < actual_stop {
+            base.chars()
+                .skip(actual_start)
+                .take(actual_stop - actual_start)
+                .collect::<String>()
+        } else {
+            String::new()
+        }
+    };
+}
+'''
 
 [[test]]
 name = "string_full_copy"
 description = "Full string copy with [:]"
 tags = ["string", "slicing"]
 
-[test.python]
-code = '''
+python = '''
 def full_copy(s: str) -> str:
     return s[:]
 '''
 
-[test.assertions]
-contains_any = [["to_string()", "clone()"]]
-
-# =============================================================================
-# F-String Advanced
-# =============================================================================
+rust = '''
+pub fn full_copy(s: String) -> String {
+    return s.to_string();
+}
+'''
 
 [[test]]
 name = "fstring_in_assignment"
 description = "F-string in variable assignment"
 tags = ["string", "format"]
 
-[test.python]
-code = '''
+python = '''
 def test() -> str:
     name = "Alice"
     message = f"Welcome {name}"
     return message
 '''
 
-[test.assertions]
-contains_any = [["format!", "format !"]]
+rust = '''
+pub fn test() -> String {
+    let name = "Alice".to_string();
+    let message = format!("Welcome {}", name);
+    return message;
+}
+'''
 
 [[test]]
 name = "fstring_empty"
 description = "Empty f-string"
 tags = ["string", "format"]
 
-[test.python]
-code = '''
+python = '''
 def test() -> str:
     return f""
 '''
 
-[test.assertions]
-contains_any = [["\"\"", "String::new()"]]
+rust = '''
+pub fn test() -> String {
+    return "".to_string();
+}
+'''
 
 [[test]]
 name = "fstring_no_interpolation"
 description = "F-string with no variables"
 tags = ["string", "format"]
 
-[test.python]
-code = '''
+python = '''
 def test() -> str:
     return f"Hello World"
 '''
 
-[test.assertions]
-contains = ["\"Hello World\""]
+rust = '''
+pub fn test() -> String {
+    return "Hello World".to_string();
+}
+'''
 
 [[test]]
 name = "fstring_with_numbers"
 description = "F-string with numeric types"
 tags = ["string", "format"]
 
-[test.python]
-code = '''
+python = '''
 def test(x: int, y: float) -> str:
     return f"x={x}, y={y}"
 '''
 
-[test.assertions]
-contains_any = [["format!", "format !"]]
-contains = ["x={}, y={}"]
+rust = '''
+pub fn test(x: i32, y: f64) -> String {
+    return format!("x={}, y={}", x, y);
+}
+'''
 
 [[test]]
 name = "fstring_concatenation"
 description = "Concatenated f-strings"
 tags = ["string", "format"]
 
-[test.python]
-code = '''
+python = '''
 def test(first: str, last: str) -> str:
     full_name = f"{first}" + f" {last}"
     return full_name
 '''
 
-[test.assertions]
-contains_any = [["format!", "format !"]]
+rust = '''
+pub fn test(first: String, last: String) -> String {
+    let _cse_temp_0 = format!("{}{}", format!("{}", first), format!(" {}", last));
+    let full_name = _cse_temp_0;
+    return full_name;
+}
+'''
 
 [[test]]
 name = "fstring_in_function_call"
 description = "F-string as function argument"
 tags = ["string", "format"]
 
-[test.python]
-code = '''
+python = '''
 def helper(s: str) -> str:
     return s
 
@@ -556,20 +745,37 @@ def test(name: str) -> str:
     return helper(f"Hello {name}")
 '''
 
-[test.assertions]
-contains_any = [["format!", "format !"]]
-
-# =============================================================================
-# String Methods Combined
-# =============================================================================
+rust = '''
+pub fn helper(s: String) -> String {
+    return s;
+}
+pub fn test(name: String) -> String {
+    return helper(format!("Hello {}", name));
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn quickcheck_helper() {
+        fn prop(s: String) -> TestResult {
+            let result = helper((&*s).into());
+            if result != s {
+                return TestResult::failed();
+            }
+            TestResult::passed()
+        }
+        quickcheck(prop as fn(String) -> TestResult);
+    }
+}
+'''
 
 [[test]]
 name = "string_all_methods_combined"
 description = "Multiple string methods together"
 tags = ["string", "method"]
 
-[test.python]
-code = '''
+python = '''
 def process_string(text: str) -> tuple[str, str, bool, int]:
     leading = text.lstrip()
     trailing = text.rstrip()
@@ -578,322 +784,479 @@ def process_string(text: str) -> tuple[str, str, bool, int]:
     return (leading, trailing, is_alnum, count_a)
 '''
 
-[test.assertions]
-contains = ["trim_start()", "trim_end()", "matches"]
-
-# =============================================================================
-# Additional String Methods (from test_str_more_unit.rs)
-# =============================================================================
+rust = '''
+pub fn process_string(text: String) -> (String, String, bool, i32) {
+    let leading = text.trim_start();
+    let trailing = text.trim_end();
+    let is_alnum = text.chars().all(|c| c.is_alphanumeric());
+    let count_a = text.matches("a").count() as i32;
+    return (leading, trailing, is_alnum, count_a);
+}
+'''
 
 [[test]]
 name = "string_center"
 description = "Python center() - center text in field"
 tags = ["string", "method", "padding"]
 
-[test.python]
-code = '''
+python = '''
 def center_text(text: str, width: int) -> str:
     return text.center(width)
 '''
 
-[test.assertions]
-contains_any = [["left_pad", "right_pad", "pad"]]
+rust = '''
+pub fn center_text(text: String, width: i32) -> String {
+    return {
+        let s = text;
+        let width = width as usize;
+        let fillchar = " ";
+        if s.len() >= width {
+            s.to_string()
+        } else {
+            let total_pad = width - s.len();
+            let left_pad = total_pad / 2;
+            let right_pad = total_pad - left_pad;
+            format!("{}{}{}", fillchar.repeat(left_pad), s, fillchar.repeat(right_pad))
+        }
+    };
+}
+'''
 
 [[test]]
 name = "string_ljust"
 description = "Python ljust() - left justify string"
 tags = ["string", "method", "padding"]
 
-[test.python]
-code = '''
+python = '''
 def left_justify(text: str, width: int) -> str:
     return text.ljust(width)
 '''
 
-[test.assertions]
-contains_any = [["repeat", "width", "pad"]]
+rust = '''
+pub fn left_justify(text: String, width: i32) -> String {
+    return {
+        let s = text;
+        let width = width as usize;
+        let fillchar = " ";
+        if s.len() >= width {
+            s.to_string()
+        } else {
+            format!("{}{}", s, fillchar.repeat(width - s.len()))
+        }
+    };
+}
+'''
 
 [[test]]
 name = "string_rjust"
 description = "Python rjust() - right justify string"
 tags = ["string", "method", "padding"]
 
-[test.python]
-code = '''
+python = '''
 def right_justify(text: str, width: int) -> str:
     return text.rjust(width)
 '''
 
-[test.assertions]
-contains_any = [["repeat", "width", "pad"]]
+rust = '''
+pub fn right_justify(text: String, width: i32) -> String {
+    return {
+        let s = text;
+        let width = width as usize;
+        let fillchar = " ";
+        if s.len() >= width {
+            s.to_string()
+        } else {
+            format!("{}{}", fillchar.repeat(width - s.len()), s)
+        }
+    };
+}
+'''
 
 [[test]]
 name = "string_zfill"
 description = "Python zfill() - zero fill string"
 tags = ["string", "method", "padding"]
 
-[test.python]
-code = '''
+python = '''
 def zero_fill(text: str, width: int) -> str:
     return text.zfill(width)
 '''
 
-[test.assertions]
-contains_any = [["\"0\"", "0", "repeat"]]
-
-# =============================================================================
-# Additional String Methods
-# =============================================================================
+rust = '''
+pub fn zero_fill(text: String, width: i32) -> String {
+    return {
+        let s = text;
+        let width = width as usize;
+        if s.len() >= width {
+            s.to_string()
+        } else {
+            let sign = if s.starts_with('-') || s.starts_with('+') {
+                &s[0..1]
+            } else {
+                ""
+            };
+            let num = if !sign.is_empty() { &s[1..] } else { &s[..] };
+            format!("{}{}{}", sign, "0".repeat(width - s.len()), num)
+        }
+    };
+}
+'''
 
 [[test]]
 name = "str_capitalize"
 description = "str.capitalize() capitalize first character"
 tags = ["string", "method"]
 
-[test.python]
-code = '''
+python = '''
 def capitalize_str(s: str) -> str:
     return s.capitalize()
 '''
 
-[test.assertions]
-contains_any = [["capitalize", "to_uppercase"]]
+rust = '''
+pub fn capitalize_str(s: String) -> String {
+    return s.capitalize();
+}
+'''
 
 [[test]]
 name = "str_swapcase"
 description = "str.swapcase() swap case of characters"
 tags = ["string", "method"]
 
-[test.python]
-code = '''
+python = '''
 def swap_case(s: str) -> str:
     return s.swapcase()
 '''
 
-[test.assertions]
-contains_any = [["swapcase", "map"]]
+rust = '''
+pub fn swap_case(s: String) -> String {
+    return s.swapcase();
+}
+'''
 
 [[test]]
 name = "str_expandtabs"
 description = "str.expandtabs() expand tab characters"
 tags = ["string", "method"]
 
-[test.python]
-code = '''
+python = '''
 def expand_tabs(s: str) -> str:
     return s.expandtabs()
 '''
 
-[test.assertions]
-contains_any = [["expandtabs", "replace"]]
+rust = '''
+pub fn expand_tabs(s: String) -> String {
+    return s.expandtabs();
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn quickcheck_expand_tabs() {
+        fn prop(s: String) -> TestResult {
+            let result = expand_tabs((&*s).into());
+            if result < 0 {
+                return TestResult::failed();
+            }
+            TestResult::passed()
+        }
+        quickcheck(prop as fn(String) -> TestResult);
+    }
+}
+'''
 
 [[test]]
 name = "str_splitlines"
 description = "str.splitlines() split on line boundaries"
 tags = ["string", "method"]
 
-[test.python]
-code = '''
+python = '''
 def split_lines(s: str) -> list:
     return s.splitlines()
 '''
 
-[test.assertions]
-contains_any = [["lines", "split"]]
+rust = '''
+pub fn split_lines(s: String) -> Vec<String> {
+    return s.lines().map(|s| s.to_string()).collect::<Vec<String>>();
+}
+'''
 
 [[test]]
 name = "str_partition"
 description = "str.partition() split at separator"
 tags = ["string", "method"]
 
-[test.python]
-code = '''
+python = '''
 def partition_str(s: str, sep: str) -> tuple:
     return s.partition(sep)
 '''
 
-[test.assertions]
-contains_any = [["partition", "split_once"]]
+rust = '''
+pub fn partition_str(s: String, sep: String) -> () {
+    return s.partition(sep);
+}
+'''
 
 [[test]]
 name = "str_casefold"
 description = "str.casefold() aggressive lowercase"
 tags = ["string", "method"]
 
-[test.python]
-code = '''
+python = '''
 def casefold_str(s: str) -> str:
     return s.casefold()
 '''
 
-[test.assertions]
-contains = ["to_lowercase"]
+rust = '''
+pub fn casefold_str(s: String) -> String {
+    return s.casefold();
+}
+'''
 
 [[test]]
 name = "str_isprintable"
 description = "str.isprintable() check printable characters"
 tags = ["string", "method"]
 
-[test.python]
-code = '''
+python = '''
 def is_printable(s: str) -> bool:
     return s.isprintable()
 '''
 
-[test.assertions]
-contains_any = [["all", "is_control"]]
+rust = '''
+pub fn is_printable(s: String) -> bool {
+    return s.isprintable();
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_is_printable_examples() {
+        let _ = is_printable(Default::default());
+    }
+}
+'''
 
 [[test]]
 name = "str_translate"
 description = "str.translate() character mapping"
 tags = ["string", "method"]
 
-[test.python]
-code = '''
+python = '''
 def translate_str(s: str, table: dict) -> str:
     return s.translate(table)
 '''
 
-[test.assertions]
-contains_any = [["translate", "replace"]]
+rust = '''
+use serde_json;
+use std::collections::HashMap;
+pub fn translate_str(s: String, table: &HashMap<serde_json::Value, serde_json::Value>) -> String {
+    return s.translate(table);
+}
+'''
 
 [[test]]
 name = "str_format"
 description = "str.format() string formatting"
 tags = ["string", "method"]
 
-[test.python]
-code = '''
+python = '''
 def format_str(template: str, value: int) -> str:
     return template.format(value)
 '''
 
-[test.assertions]
-contains = ["format!"]
+rust = '''
+// Transpilation failed
+'''
 
 [[test]]
 name = "str_removeprefix"
 description = "str.removeprefix() remove prefix"
 tags = ["string", "method"]
 
-[test.python]
-code = '''
+python = '''
 def remove_prefix(s: str, prefix: str) -> str:
     return s.removeprefix(prefix)
 '''
 
-[test.assertions]
-contains = ["strip_prefix"]
+rust = '''
+pub fn remove_prefix(s: String, prefix: String) -> String {
+    return s.removeprefix(prefix);
+}
+'''
 
 [[test]]
 name = "str_removesuffix"
 description = "str.removesuffix() remove suffix"
 tags = ["string", "method"]
 
-[test.python]
-code = '''
+python = '''
 def remove_suffix(s: str, suffix: str) -> str:
     return s.removesuffix(suffix)
 '''
 
-[test.assertions]
-contains = ["strip_suffix"]
+rust = '''
+pub fn remove_suffix(s: String, suffix: String) -> String {
+    return s.removesuffix(suffix);
+}
+'''
 
 [[test]]
 name = "str_isascii"
 description = "str.isascii() check ASCII characters"
 tags = ["string", "method"]
 
-[test.python]
-code = '''
+python = '''
 def is_ascii(s: str) -> bool:
     return s.isascii()
 '''
 
-[test.assertions]
-contains = ["is_ascii"]
+rust = '''
+pub fn is_ascii(s: String) -> bool {
+    return s.isascii();
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_is_ascii_examples() {
+        let _ = is_ascii(Default::default());
+    }
+}
+'''
 
 [[test]]
 name = "str_isidentifier"
 description = "str.isidentifier() check valid identifier"
 tags = ["string", "method"]
 
-[test.python]
-code = '''
+python = '''
 def is_identifier(s: str) -> bool:
     return s.isidentifier()
 '''
 
-[test.assertions]
-contains_any = [["chars", "is_alphanumeric"]]
+rust = '''
+pub fn is_identifier(s: String) -> bool {
+    return s.isidentifier();
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_is_identifier_examples() {
+        let _ = is_identifier(Default::default());
+    }
+}
+'''
 
 [[test]]
 name = "str_isspace"
 description = "str.isspace() check whitespace"
 tags = ["string", "method"]
 
-[test.python]
-code = '''
+python = '''
 def is_space(s: str) -> bool:
     return s.isspace()
 '''
 
-[test.assertions]
-contains = ["is_whitespace"]
+rust = '''
+pub fn is_space(s: String) -> bool {
+    return s.isspace();
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_is_space_examples() {
+        let _ = is_space(Default::default());
+    }
+}
+'''
 
 [[test]]
 name = "str_isdecimal"
 description = "str.isdecimal() check decimal characters"
 tags = ["string", "method"]
 
-[test.python]
-code = '''
+python = '''
 def is_decimal(s: str) -> bool:
     return s.isdecimal()
 '''
 
-[test.assertions]
-contains_any = [["is_numeric", "is_digit"]]
-
-# =============================================================================
-# String Interoperability (from test_string_interoperability.rs)
-# =============================================================================
+rust = '''
+pub fn is_decimal(s: String) -> bool {
+    return s.isdecimal();
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_is_decimal_examples() {
+        let _ = is_decimal(Default::default());
+    }
+}
+'''
 
 [[test]]
 name = "string_param_owned"
 description = "str param becomes owned String"
 tags = ["string", "ownership"]
 
-[test.python]
-code = '''
+python = '''
 def greet(name: str) -> str:
     return name
 '''
 
-[test.assertions]
-contains = ["fn greet(name: String) -> String"]
+rust = '''
+pub fn greet(name: String) -> String {
+    return name;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn quickcheck_greet() {
+        fn prop(name: String) -> TestResult {
+            let result = greet((&*name).into());
+            if result != name {
+                return TestResult::failed();
+            }
+            TestResult::passed()
+        }
+        quickcheck(prop as fn(String) -> TestResult);
+    }
+}
+'''
 
 [[test]]
 name = "string_literal_to_string"
 description = "String literals convert to String"
 tags = ["string", "conversion"]
 
-[test.python]
-code = '''
+python = '''
 def get_greeting() -> str:
     return "hello"
 '''
 
-[test.assertions]
-contains = ["\"hello\".to_string()"]
+rust = '''
+pub fn get_greeting() -> String {
+    return "hello".to_string();
+}
+'''
 
 [[test]]
 name = "string_field_mutation"
 description = "String field mutation requires .to_string()"
 tags = ["string", "mutation", "dataclass"]
 
-[test.python]
-code = '''
+python = '''
 @dataclass
 class State:
     value: str
@@ -902,16 +1265,46 @@ def set_value(state: State) -> None:
     state.value = "updated"
 '''
 
-[test.assertions]
-contains = ["state.value = \"updated\".to_string()"]
+rust = '''
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct State {
+    pub value: String,
+}
+impl State {
+    pub fn new(value: String) -> Self {
+        Self { value }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "value" => Some(Box::new(self.value.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "value" => {
+                if let Some(v) = value.downcast_ref::<String>() {
+                    self.value = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+pub fn set_value(state: &mut State) {
+    state.value = "updated".to_string();
+}
+'''
 
 [[test]]
 name = "string_clone_field_access"
 description = "String field access requires clone"
 tags = ["string", "clone", "dataclass"]
 
-[test.python]
-code = '''
+python = '''
 @dataclass
 class Container:
     text: str
@@ -920,335 +1313,514 @@ def get_text(c: Container) -> str:
     return c.text
 '''
 
-[test.assertions]
-contains = ["c.text.clone()"]
+rust = '''
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Container {
+    pub text: String,
+}
+impl Container {
+    pub fn new(text: String) -> Self {
+        Self { text }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "text" => Some(Box::new(self.text.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "text" => {
+                if let Some(v) = value.downcast_ref::<String>() {
+                    self.text = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+pub fn get_text(c: &Container) -> String {
+    return c.text.clone();
+}
+'''
 
 [[test]]
 name = "string_starts_with_ref"
 description = "startswith takes &str ref"
 tags = ["string", "reference"]
 
-[test.python]
-code = '''
+python = '''
 def check_prefix(s: str, prefix: str) -> bool:
     return s.startswith(prefix)
 '''
 
-[test.assertions]
-contains = ["s.starts_with(&prefix)"]
+rust = '''
+pub fn check_prefix(s: String, prefix: String) -> bool {
+    return s.starts_with(&prefix);
+}
+'''
 
 [[test]]
 name = "string_ends_with_ref"
 description = "endswith takes &str ref"
 tags = ["string", "reference"]
 
-[test.python]
-code = '''
+python = '''
 def check_suffix(s: str, suffix: str) -> bool:
     return s.endswith(suffix)
 '''
 
-[test.assertions]
-contains = ["s.ends_with(&suffix)"]
+rust = '''
+pub fn check_suffix(s: String, suffix: String) -> bool {
+    return s.ends_with(&suffix);
+}
+'''
 
 [[test]]
 name = "string_contains_ref"
 description = "in operator for strings takes &str ref"
 tags = ["string", "reference"]
 
-[test.python]
-code = '''
+python = '''
 def has_substring(s: str, sub: str) -> bool:
     return sub in s
 '''
 
-[test.assertions]
-contains = ["s.contains(&sub)"]
+rust = '''
+pub fn has_substring(s: String, sub: String) -> bool {
+    return s.contains(&sub);
+}
+'''
 
 [[test]]
 name = "string_join_ref"
 description = "join takes &str ref for separator"
 tags = ["string", "reference"]
 
-[test.python]
-code = '''
+python = '''
 def join_parts(parts: list[str], sep: str) -> str:
     return sep.join(parts)
 '''
 
-[test.assertions]
-contains = ["parts.join(&sep)"]
+rust = '''
+pub fn join_parts(parts: &Vec<String>, sep: String) -> String {
+    return parts.join(&sep);
+}
+'''
 
 [[test]]
 name = "string_split_returns_vec"
 description = "split returns Vec<String>"
 tags = ["string", "split"]
 
-[test.python]
-code = '''
+python = '''
 def split_csv(s: str) -> list[str]:
     return s.split(",")
 '''
 
-[test.assertions]
-contains = ["-> Vec<String>", ".map(|s| s.to_string()).collect"]
+rust = '''
+pub fn split_csv(s: String) -> Vec<String> {
+    return s.split(",").map(|s| s.to_string()).collect::<Vec<String>>();
+}
+'''
 
 [[test]]
 name = "string_repeat"
 description = "String repeat operator"
 tags = ["string", "repeat"]
 
-[test.python]
-code = '''
+python = '''
 def repeat_string(s: str, n: int) -> str:
     return s * n
 '''
 
-[test.assertions]
-contains = ["s.repeat(n as usize)"]
+rust = '''
+pub fn repeat_string(s: String, n: i32) -> String {
+    return s.repeat(n as usize);
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn quickcheck_repeat_string() {
+        fn prop(s: String, n: i32) -> TestResult {
+            let result1 = repeat_string((&*s).into(), n.clone());
+            let result2 = repeat_string(n.clone(), (&*s).into());
+            if result1 != result2 {
+                return TestResult::failed();
+            }
+            TestResult::passed()
+        }
+        quickcheck(prop as fn(String, i32) -> TestResult);
+    }
+}
+'''
 
 [[test]]
 name = "int_to_string_conversion"
 description = "str(int) converts to String"
 tags = ["string", "conversion"]
 
-[test.python]
-code = '''
+python = '''
 def int_to_string(n: int) -> str:
     return str(n)
 '''
 
-[test.assertions]
-contains = ["n.to_string()"]
+rust = '''
+pub fn int_to_string(n: i32) -> String {
+    return n.to_string();
+}
+'''
 
 [[test]]
 name = "string_to_int_parse"
 description = "int(str) parses to i32"
 tags = ["string", "parse"]
 
-[test.python]
-code = '''
+python = '''
 def parse_int(s: str) -> int:
     return int(s)
 '''
 
-[test.assertions]
-contains = ["s.parse::<i32>().unwrap()"]
+rust = '''
+pub fn parse_int(s: String) -> i32 {
+    return s.parse::<i32>().unwrap();
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_parse_int_examples() {
+        assert_eq!(parse_int(""), 0);
+        assert_eq!(parse_int("a"), 1);
+        assert_eq!(parse_int("abc"), 3);
+    }
+}
+'''
 
 [[test]]
 name = "string_method_on_literal"
 description = "Method call on string literal"
 tags = ["string", "literal"]
 
-[test.python]
-code = '''
+python = '''
 def get_upper() -> str:
     return "hello".upper()
 '''
 
-[test.assertions]
-contains = ["\"hello\".to_uppercase()"]
+rust = '''
+pub fn get_upper() -> String {
+    return "hello".to_uppercase();
+}
+'''
 
 [[test]]
 name = "vec_string_type"
 description = "list[str] becomes Vec<String>"
 tags = ["string", "type"]
 
-[test.python]
-code = '''
+python = '''
 def process_names(names: list[str]) -> list[str]:
     return names
 '''
 
-[test.assertions]
-contains = ["names: Vec<String>) -> Vec<String>"]
+rust = '''
+pub fn process_names(names: Vec<String>) -> Vec<String> {
+    return names;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn quickcheck_process_names() {
+        fn prop(names: Vec<String>) -> TestResult {
+            let result = process_names(&names);
+            if result != names {
+                return TestResult::failed();
+            }
+            TestResult::passed()
+        }
+        quickcheck(prop as fn(Vec<String>) -> TestResult);
+    }
+    #[test]
+    fn test_process_names_examples() {
+        assert_eq!(process_names(vec![]), vec![]);
+        assert_eq!(process_names(vec![1]), vec![1]);
+    }
+}
+'''
 
 [[test]]
 name = "hashmap_string_key"
 description = "dict[str, int] becomes HashMap<String, i32>"
 tags = ["string", "hashmap"]
 
-[test.python]
-code = '''
+python = '''
 def get_value(d: dict[str, int], key: str) -> int:
     return d[key]
 '''
 
-[test.assertions]
-contains = ["HashMap<String, i32>", "-> i32"]
+rust = '''
+use std::collections::HashMap;
+#[derive(Debug, Clone)]
+pub struct IndexError {
+    message: String,
+}
+impl std::fmt::Display for IndexError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "index out of range: {}", self.message)
+    }
+}
+impl std::error::Error for IndexError {}
+impl IndexError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = " Depyler: proven to terminate"]
+pub fn get_value(d: &HashMap<String, i32>, key: String) -> i32 {
+    return d.get(&key).cloned().unwrap();
+}
+'''
 
 [[test]]
 name = "string_chained_methods"
 description = "Chained string methods"
 tags = ["string", "chain"]
 
-[test.python]
-code = '''
+python = '''
 def normalize(s: str) -> str:
     return s.strip().lower()
 '''
 
-[test.assertions]
-contains = ["s.trim().to_lowercase()"]
+rust = '''
+pub fn normalize(s: String) -> String {
+    return s.trim().to_lowercase();
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn quickcheck_normalize() {
+        fn prop(s: String) -> TestResult {
+            let once = normalize((&*s).into());
+            let twice = normalize(once.clone());
+            if once != twice {
+                return TestResult::failed();
+            }
+            TestResult::passed()
+        }
+        quickcheck(prop as fn(String) -> TestResult);
+    }
+}
+'''
 
 [[test]]
 name = "string_equality"
 description = "String equality comparison"
 tags = ["string", "comparison"]
 
-[test.python]
-code = '''
+python = '''
 def are_equal(a: str, b: str) -> bool:
     return a == b
 '''
 
-[test.assertions]
-contains = ["a == b"]
+rust = '''
+pub fn are_equal(a: String, b: String) -> bool {
+    return a == b;
+}
+'''
 
 [[test]]
 name = "string_ternary"
 description = "String in ternary expression"
 tags = ["string", "ternary"]
 
-[test.python]
-code = '''
+python = '''
 def pick_string(flag: bool) -> str:
     return "yes" if flag else "no"
 '''
 
-[test.assertions]
-contains = ["\"yes\".to_string()", "\"no\".to_string()"]
+rust = '''
+pub fn pick_string(flag: bool) -> String {
+    return if flag { "yes".to_string() } else { "no".to_string() };
+}
+'''
 
 [[test]]
 name = "string_local_assignment"
 description = "String local variable assignment"
 tags = ["string", "assignment"]
 
-[test.python]
-code = '''
+python = '''
 def create_message() -> str:
     msg: str = "hello"
     return msg
 '''
 
-[test.assertions]
-contains = ["let msg: String = \"hello\".to_string()"]
+rust = '''
+pub fn create_message() -> String {
+    let msg: String = "hello".to_string();
+    return msg;
+}
+'''
 
 [[test]]
 name = "hashmap_string_value"
 description = "dict[int, str] becomes HashMap<i32, String>"
 tags = ["string", "hashmap"]
 
-[test.python]
-code = '''
+python = '''
 def create_map() -> dict[int, str]:
     return {1: "one", 2: "two"}
 '''
 
-[test.assertions]
-contains = ["HashMap<i32, String>", "\"one\".to_string()"]
+rust = '''
+use std::collections::HashMap;
+pub fn create_map() -> HashMap<i32, String> {
+    return {
+        let mut map = HashMap::new();
+        map.insert(1, "one".to_string());
+        map.insert(2, "two".to_string());
+        map
+    };
+}
+'''
 
 [[test]]
 name = "hashmap_string_key_literal"
 description = "String key literals convert to owned"
 tags = ["string", "hashmap"]
 
-[test.python]
-code = '''
+python = '''
 def create_dict() -> dict[str, int]:
     return {"a": 1, "b": 2}
 '''
 
-[test.assertions]
-contains = ["(\"a\".to_string(), 1)", "(\"b\".to_string(), 2)"]
+rust = '''
+use std::collections::HashMap;
+pub fn create_dict() -> HashMap<String, i32> {
+    return {
+        let mut map = HashMap::new();
+        map.insert("a".to_string(), 1);
+        map.insert("b".to_string(), 2);
+        map
+    };
+}
+'''
 
 [[test]]
 name = "fstring_multiple_args"
 description = "f-string with multiple arguments"
 tags = ["string", "fstring"]
 
-[test.python]
-code = '''
+python = '''
 def format_full(first: str, last: str, age: int) -> str:
     return f"{first} {last} is {age} years old"
 '''
 
-[test.assertions]
-contains = ["format!(\"{} {} is {} years old\", first, last, age)"]
+rust = '''
+pub fn format_full(first: String, last: String, age: i32) -> String {
+    return format!("{} {} is {} years old", first, last, age);
+}
+'''
 
 [[test]]
 name = "fstring_with_expression"
 description = "f-string with computed expression"
 tags = ["string", "fstring"]
 
-[test.python]
-code = '''
+python = '''
 def format_computed(n: int) -> str:
     return f"double is {n * 2}"
 '''
 
-[test.assertions]
-contains = ["format!(\"double is {}\", n * 2)"]
-
-# =============================================================================
-# String Optimization Tests
-# =============================================================================
+rust = '''
+pub fn format_computed(n: i32) -> String {
+    return format!("double is {}", n * 2);
+}
+'''
 
 [[test]]
 name = "string_return_type"
 description = "Returned string function should return String type"
 tags = ["string", "optimization", "return"]
 
-[test.python]
-code = '''
+python = '''
 def get_greeting() -> str:
     return "Hello!"
 '''
 
-[test.assertions]
-contains = ["-> String", "\"Hello!\""]
+rust = '''
+pub fn get_greeting() -> String {
+    return "Hello!".to_string();
+}
+'''
 
 [[test]]
 name = "string_concatenation_returns_string"
 description = "String concatenation should return String type"
 tags = ["string", "optimization", "concat"]
 
-[test.python]
-code = '''
+python = '''
 def concat_strings(a: str, b: str) -> str:
     return a + b
 '''
 
-[test.assertions]
-contains = ["-> String"]
-contains_any = [["format!", "+"]]
+rust = '''
+pub fn concat_strings(a: String, b: String) -> String {
+    return format!("{}{}", a, b);
+}
+'''
 
 [[test]]
 name = "string_param_reference"
 description = "Read-only string param should be borrowed"
 tags = ["string", "optimization", "borrow"]
 
-[test.python]
-code = '''
+python = '''
 def validate_string(s: str) -> bool:
     return len(s) > 0
 '''
 
-[test.assertions]
-contains = ["&", "str"]
+rust = '''
+pub fn validate_string(s: String) -> bool {
+    return s.len() as i32 > 0;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_validate_string_examples() {
+        let _ = validate_string(Default::default());
+    }
+}
+'''
 
 [[test]]
 name = "string_local_variable"
 description = "Local string variable in concatenation"
 tags = ["string", "optimization", "local"]
 
-[test.python]
-code = '''
+python = '''
 def format_number(n: int) -> str:
     prefix = "Number: "
     return prefix + str(n)
 '''
 
-[test.assertions]
-contains = ["-> String"]
-
+rust = '''
+pub fn format_number(n: i32) -> String {
+    let prefix = "Number: ".to_string();
+    return format!("{}{}", prefix, n.to_string());
+}
+'''

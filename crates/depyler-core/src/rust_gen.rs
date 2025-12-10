@@ -192,7 +192,7 @@ fn pre_analyze_parameter_mutability(ctx: &mut CodeGenContext, functions: &[HirFu
     // Debug: print final function_param_muts
     #[cfg(debug_assertions)]
     for (func_name, muts) in &ctx.function_param_muts {
-        eprintln!("DEBUG function_param_muts: {} = {:?}", func_name, muts);
+        log::debug!("function_param_muts: {} = {:?}", func_name, muts);
     }
 }
 

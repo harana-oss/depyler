@@ -9,89 +9,344 @@ category = "modern-python"
 # Basic Positional-Only
 # =============================================================================
 
-# TODO: Test simple positional-only
-# [[test]]
-# name = "posonly_basic"
-# description = "def f(x, /): ..."
+[[test]]
+name = "posonly_basic"
+description = "def f(x, /): ..."
+python = """
+def greet(name, /):
+    return f"Hello, {name}!"
 
-# TODO: Test multiple positional-only
-# [[test]]
-# name = "posonly_multiple"
-# description = "def f(a, b, c, /): ..."
+print(greet("Alice"))
+"""
+rust = """
+fn greet(name: &str) -> String {
+    format!("Hello, {}!", name)
+}
 
-# TODO: Test mixed positional-only and regular
-# [[test]]
-# name = "posonly_mixed"
-# description = "def f(a, /, b): ..."
+fn main() {
+    println!("{}", greet("Alice"));
+}
+"""
+contains = ["Hello, Alice!"]
 
-# TODO: Test positional-only with defaults
-# [[test]]
-# name = "posonly_defaults"
-# description = "def f(a, b=1, /): ..."
+[[test]]
+name = "posonly_multiple"
+description = "def f(a, b, c, /): ..."
+python = """
+def add_three(a, b, c, /):
+    return a + b + c
+
+print(add_three(1, 2, 3))
+"""
+rust = """
+fn add_three(a: i32, b: i32, c: i32) -> i32 {
+    a + b + c
+}
+
+fn main() {
+    println!("{}", add_three(1, 2, 3));
+}
+"""
+contains = ["6"]
+
+[[test]]
+name = "posonly_mixed"
+description = "def f(a, /, b): ..."
+python = """
+def mixed(a, /, b):
+    return f"a={a}, b={b}"
+
+print(mixed(1, 2))
+print(mixed(1, b=2))
+"""
+rust = """
+fn mixed(a: i32, b: i32) -> String {
+    format!("a={}, b={}", a, b)
+}
+
+fn main() {
+    println!("{}", mixed(1, 2));
+    println!("{}", mixed(1, 2));
+}
+"""
+contains = ["a=1, b=2"]
+
+[[test]]
+name = "posonly_defaults"
+description = "def f(a, b=1, /): ..."
+python = """
+def with_default(a, b=10, /):
+    return a + b
+
+print(with_default(5))
+print(with_default(5, 3))
+"""
+rust = """
+fn with_default(a: i32, b: Option<i32>) -> i32 {
+    a + b.unwrap_or(10)
+}
+
+fn main() {
+    println!("{}", with_default(5, None));
+    println!("{}", with_default(5, Some(3)));
+}
+"""
+contains = ["15", "8"]
 
 # =============================================================================
 # Combined with Keyword-Only
 # =============================================================================
 
-# TODO: Test positional-only and keyword-only
-# [[test]]
-# name = "posonly_kwonly"
-# description = "def f(a, /, b, *, c): ..."
+[[test]]
+name = "posonly_kwonly"
+description = "def f(a, /, b, *, c): ..."
+python = """
+def combined(a, /, b, *, c):
+    return f"a={a}, b={b}, c={c}"
 
-# TODO: Test all three kinds
-# [[test]]
-# name = "all_arg_kinds"
-# description = "def f(a, /, b, *args, c, **kwargs): ..."
+print(combined(1, 2, c=3))
+"""
+rust = """
+fn combined(a: i32, b: i32, c: i32) -> String {
+    format!("a={}, b={}, c={}", a, b, c)
+}
+
+fn main() {
+    println!("{}", combined(1, 2, 3));
+}
+"""
+contains = ["a=1, b=2, c=3"]
+
+[[test]]
+name = "all_arg_kinds"
+description = "def f(a, /, b, *args, c, **kwargs): ..."
+python = """
+def all_kinds(a, /, b, *args, c, **kwargs):
+    print(f"a={a}, b={b}")
+    print(f"args={args}")
+    print(f"c={c}")
+    print(f"kwargs={kwargs}")
+
+all_kinds(1, 2, 3, 4, c=5, x=10, y=20)
+"""
+rust = """
+use std::collections::HashMap;
+
+fn all_kinds(a: i32, b: i32, args: &[i32], c: i32, kwargs: &HashMap<&str, i32>) {
+    println!("a={}, b={}", a, b);
+    println!("args={:?}", args);
+    println!("c={}", c);
+    println!("kwargs={:?}", kwargs);
+}
+
+fn main() {
+    let args = vec![3, 4];
+    let mut kwargs = HashMap::new();
+    kwargs.insert("x", 10);
+    kwargs.insert("y", 20);
+    all_kinds(1, 2, &args, 5, &kwargs);
+}
+"""
+contains = ["a=1, b=2", "args=(3, 4)", "c=5"]
 
 # =============================================================================
 # Use Cases
 # =============================================================================
 
-# TODO: Test preventing keyword usage
-# [[test]]
-# name = "posonly_prevent_kw"
-# description = "f(x=1) raises TypeError for positional-only x"
+[[test]]
+name = "posonly_prevent_kw"
+description = "f(x=1) raises TypeError for positional-only x"
+python = """
+def pos_only(x, /):
+    return x * 2
 
-# TODO: Test allowing same name as local
-# [[test]]
-# name = "posonly_name_reuse"
-# description = "def f(x, /): x = 1 (no conflict)"
+# This works
+print(pos_only(5))
+# This would fail: pos_only(x=5)
+"""
+rust = """
+fn pos_only(x: i32) -> i32 {
+    x * 2
+}
 
-# TODO: Test API flexibility
-# [[test]]
-# name = "posonly_api_flex"
-# description = "Can rename positional-only params without breaking callers"
+fn main() {
+    println!("{}", pos_only(5));
+}
+"""
+contains = ["10"]
+
+[[test]]
+name = "posonly_name_reuse"
+description = "def f(x, /): x = 1 (no conflict)"
+python = """
+def reuse_name(x, /):
+    # Can reuse parameter name in function body
+    x = x + 1
+    return x
+
+print(reuse_name(5))
+"""
+rust = """
+fn reuse_name(mut x: i32) -> i32 {
+    x = x + 1;
+    x
+}
+
+fn main() {
+    println!("{}", reuse_name(5));
+}
+"""
+contains = ["6"]
+
+[[test]]
+name = "posonly_api_flex"
+description = "Can rename positional-only params without breaking callers"
+python = """
+# Version 1
+def calculate(x, /):
+    return x * 2
+
+# Version 2 - renamed param, but callers don't break
+def calculate_v2(value, /):
+    return value * 2
+
+print(calculate(10))
+print(calculate_v2(10))
+"""
+rust = """
+fn calculate(x: i32) -> i32 {
+    x * 2
+}
+
+fn calculate_v2(value: i32) -> i32 {
+    value * 2
+}
+
+fn main() {
+    println!("{}", calculate(10));
+    println!("{}", calculate_v2(10));
+}
+"""
+contains = ["20"]
 
 # =============================================================================
 # Built-in Examples
 # =============================================================================
 
-# TODO: Test len(obj, /) pattern
-# [[test]]
-# name = "posonly_len"
-# description = "len() style: single positional-only arg"
+[[test]]
+name = "posonly_len"
+description = "len() style: single positional-only arg"
+python = """
+def my_len(obj, /):
+    \"\"\"Custom len implementation style\"\"\"
+    if isinstance(obj, (list, tuple, str)):
+        return len(obj)
+    return 0
 
-# TODO: Test pow(base, exp, mod=None, /)
-# [[test]]
-# name = "posonly_pow"
-# description = "pow() style: multiple with optional"
+print(my_len([1, 2, 3]))
+print(my_len("hello"))
+"""
+rust = """
+fn my_len<T>(obj: &[T]) -> usize {
+    obj.len()
+}
+
+fn main() {
+    let list = vec![1, 2, 3];
+    println!("{}", my_len(&list));
+    
+    let s = "hello";
+    println!("{}", s.len());
+}
+"""
+contains = ["3", "5"]
+
+[[test]]
+name = "posonly_pow"
+description = "pow() style: multiple with optional"
+python = """
+def my_pow(base, exp, mod=None, /):
+    result = base ** exp
+    if mod is not None:
+        result = result % mod
+    return result
+
+print(my_pow(2, 3))
+print(my_pow(2, 3, 5))
+"""
+rust = """
+fn my_pow(base: i32, exp: u32, modulo: Option<i32>) -> i32 {
+    let result = base.pow(exp);
+    if let Some(m) = modulo {
+        result % m
+    } else {
+        result
+    }
+}
+
+fn main() {
+    println!("{}", my_pow(2, 3, None));
+    println!("{}", my_pow(2, 3, Some(5)));
+}
+"""
+contains = ["8", "3"]
 
 # =============================================================================
 # Edge Cases
 # =============================================================================
 
-# TODO: Test empty after /
-# [[test]]
-# name = "posonly_empty_after"
-# description = "def f(a, /): all params are positional-only"
+[[test]]
+name = "posonly_empty_after"
+description = "def f(a, /): all params are positional-only"
+python = """
+def all_posonly(a, b, c, /):
+    return a + b + c
 
-# TODO: Test / at start (invalid)
-# [[test]]
-# name = "posonly_invalid"
-# description = "def f(/, a): is syntax error"
-# skip = true
+print(all_posonly(1, 2, 3))
+"""
+rust = """
+fn all_posonly(a: i32, b: i32, c: i32) -> i32 {
+    a + b + c
+}
 
-# TODO: Test positional-only with *args
-# [[test]]
-# name = "posonly_varargs"
-# description = "def f(a, /, *args): ..."
+fn main() {
+    println!("{}", all_posonly(1, 2, 3));
+}
+"""
+contains = ["6"]
+
+[[test]]
+name = "posonly_invalid"
+description = "def f(/, a): is syntax error"
+skip = true
+python = """
+# This is invalid syntax in Python
+# def invalid(/, a):
+#     pass
+"""
+rust = """
+// N/A - syntax error
+"""
+contains = []
+
+[[test]]
+name = "posonly_varargs"
+description = "def f(a, /, *args): ..."
+python = """
+def with_varargs(a, /, *args):
+    return f"a={a}, args={args}"
+
+print(with_varargs(1))
+print(with_varargs(1, 2, 3, 4))
+"""
+rust = """
+fn with_varargs(a: i32, args: &[i32]) -> String {
+    format!("a={}, args={:?}", a, args)
+}
+
+fn main() {
+    println!("{}", with_varargs(1, &[]));
+    println!("{}", with_varargs(1, &[2, 3, 4]));
+}
+"""
+contains = ["a=1, args=()", "a=1, args=(2, 3, 4)"]

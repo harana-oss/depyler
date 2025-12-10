@@ -14,8 +14,7 @@ name = "simple_try_except"
 description = "Test basic try/except with bare except"
 tags = ["exception", "try", "except", "simple"]
 
-[test.python]
-code = '''
+python = '''
 def safe_divide(a: int, b: int) -> int:
     try:
         return a // b
@@ -23,17 +22,60 @@ def safe_divide(a: int, b: int) -> int:
         return 0
 '''
 
-[test.assertions]
-contains = ["fn safe_divide"]
-contains_any = [["Result", "match", "if let"]]
+rust = '''
+#[derive(Debug, Clone)]
+pub struct ZeroDivisionError {
+    message: String,
+}
+impl std::fmt::Display for ZeroDivisionError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "division by zero: {}", self.message)
+    }
+}
+impl std::error::Error for ZeroDivisionError {}
+impl ZeroDivisionError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+pub fn safe_divide(a: i32, b: i32) -> i32 {
+    {
+        return {
+            let a = a;
+            let b = b;
+            let q = a / b;
+            let r = a % b;
+            let r_negative = r < 0;
+            let b_negative = b < 0;
+            let r_nonzero = r != 0;
+            let signs_differ = r_negative != b_negative;
+            let needs_adjustment = r_nonzero && signs_differ;
+            if needs_adjustment { q - 1 } else { q }
+        };
+        return 0;
+    }
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_safe_divide_examples() {
+        assert_eq!(safe_divide(0, 0), 0);
+        assert_eq!(safe_divide(1, 2), 3);
+        assert_eq!(safe_divide(-1, 1), 0);
+    }
+}
+'''
 
 [[test]]
 name = "try_except_with_binding"
 description = "Test try/except with exception binding"
 tags = ["exception", "binding"]
 
-[test.python]
-code = '''
+python = '''
 def parse_number(s: str) -> int:
     try:
         return int(s)
@@ -41,17 +83,51 @@ def parse_number(s: str) -> int:
         return -1
 '''
 
-[test.assertions]
-contains = ["fn parse_number"]
-contains_any = [["Result", "match", "Err"]]
+rust = '''
+#[derive(Debug, Clone)]
+pub struct ValueError {
+    message: String,
+}
+impl std::fmt::Display for ValueError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "value error: {}", self.message)
+    }
+}
+impl std::error::Error for ValueError {}
+impl ValueError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+pub fn parse_number(s: String) -> i32 {
+    match s.parse::<i32>() {
+        Ok(__value) => __value,
+        Err(e) => {
+            return -1;
+        }
+    }
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_parse_number_examples() {
+        assert_eq!(parse_number(""), 0);
+        assert_eq!(parse_number("a"), 1);
+        assert_eq!(parse_number("abc"), 3);
+    }
+}
+'''
 
 [[test]]
 name = "try_except_return_in_try"
 description = "Test try/except with return in try block"
 tags = ["exception", "return"]
 
-[test.python]
-code = '''
+python = '''
 def get_value(data: dict, key: str) -> str:
     try:
         return data[key]
@@ -59,17 +135,40 @@ def get_value(data: dict, key: str) -> str:
         return "default"
 '''
 
-[test.assertions]
-contains = ["fn get_value"]
-contains_any = [["return", "->"]]
+rust = '''
+use serde_json;
+use std::collections::HashMap;
+#[derive(Debug, Clone)]
+pub struct IndexError {
+    message: String,
+}
+impl std::fmt::Display for IndexError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "index out of range: {}", self.message)
+    }
+}
+impl std::error::Error for IndexError {}
+impl IndexError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+pub fn get_value(data: &HashMap<serde_json::Value, serde_json::Value>, key: String) -> String {
+    {
+        return data.get(&key).cloned().unwrap();
+        return "default".to_string();
+    }
+}
+'''
 
 [[test]]
 name = "nested_try_except"
 description = "Test nested try/except blocks"
 tags = ["exception", "nested"]
 
-[test.python]
-code = '''
+python = '''
 def nested_operation(x: int, y: int) -> int:
     try:
         try:
@@ -80,17 +179,80 @@ def nested_operation(x: int, y: int) -> int:
         return 0
 '''
 
-[test.assertions]
-contains = ["fn nested_operation"]
-contains_any = [["Result", "match"]]
+rust = '''
+#[derive(Debug, Clone)]
+pub struct ZeroDivisionError {
+    message: String,
+}
+impl std::fmt::Display for ZeroDivisionError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "division by zero: {}", self.message)
+    }
+}
+impl std::error::Error for ZeroDivisionError {}
+impl ZeroDivisionError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[derive(Debug, Clone)]
+pub struct ValueError {
+    message: String,
+}
+impl std::fmt::Display for ValueError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "value error: {}", self.message)
+    }
+}
+impl std::error::Error for ValueError {}
+impl ValueError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+pub fn nested_operation(x: i32, y: i32) -> i32 {
+    {
+        {
+            return {
+                let a = x;
+                let b = y;
+                let q = a / b;
+                let r = a % b;
+                let r_negative = r < 0;
+                let b_negative = b < 0;
+                let r_nonzero = r != 0;
+                let signs_differ = r_negative != b_negative;
+                let needs_adjustment = r_nonzero && signs_differ;
+                if needs_adjustment { q - 1 } else { q }
+            };
+            return x;
+        }
+        return 0;
+    }
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_nested_operation_examples() {
+        assert_eq!(nested_operation(0, 0), 0);
+        assert_eq!(nested_operation(1, 2), 3);
+        assert_eq!(nested_operation(-1, 1), 0);
+    }
+}
+'''
 
 [[test]]
 name = "try_except_specific_exception"
 description = "Test try/except with specific exception type"
 tags = ["exception", "specific"]
 
-[test.python]
-code = '''
+python = '''
 def convert_to_int(s: str) -> int:
     try:
         return int(s)
@@ -98,17 +260,49 @@ def convert_to_int(s: str) -> int:
         return 0
 '''
 
-[test.assertions]
-contains = ["fn convert_to_int"]
-contains_any = [["Result", "match", "Err"]]
+rust = '''
+#[derive(Debug, Clone)]
+pub struct ValueError {
+    message: String,
+}
+impl std::fmt::Display for ValueError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "value error: {}", self.message)
+    }
+}
+impl std::error::Error for ValueError {}
+impl ValueError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+pub fn convert_to_int(s: String) -> i32 {
+    {
+        return s.parse::<i32>().unwrap();
+        return 0;
+    }
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_convert_to_int_examples() {
+        assert_eq!(convert_to_int(""), 0);
+        assert_eq!(convert_to_int("a"), 1);
+        assert_eq!(convert_to_int("abc"), 3);
+    }
+}
+'''
 
 [[test]]
 name = "try_except_with_pass"
 description = "Test try/except with pass in except block"
 tags = ["exception", "pass"]
 
-[test.python]
-code = '''
+python = '''
 def ignore_errors(x: int) -> int:
     try:
         result = x * 2
@@ -118,17 +312,33 @@ def ignore_errors(x: int) -> int:
     return 0
 '''
 
-[test.assertions]
-contains = ["fn ignore_errors"]
-contains_any = [["Result", "match", "if let"]]
+rust = '''
+pub fn ignore_errors(x: i32) -> i32 {
+    {
+        let result = x * 2;
+        return result;
+    }
+    return 0;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_ignore_errors_examples() {
+        assert_eq!(ignore_errors(0), 0);
+        assert_eq!(ignore_errors(1), 1);
+        assert_eq!(ignore_errors(-1), -1);
+    }
+}
+'''
 
 [[test]]
 name = "try_except_with_computation"
 description = "Test try/except with computation in try block"
 tags = ["exception", "computation"]
 
-[test.python]
-code = '''
+python = '''
 def compute_ratio(a: int, b: int) -> float:
     try:
         ratio = a / b
@@ -137,20 +347,39 @@ def compute_ratio(a: int, b: int) -> float:
         return 0.0
 '''
 
-[test.assertions]
-contains = ["fn compute_ratio", "ratio"]
-
-# ============================================================================
-# Phase 2: Multiple Exception Handlers
-# ============================================================================
+rust = '''
+#[derive(Debug, Clone)]
+pub struct ZeroDivisionError {
+    message: String,
+}
+impl std::fmt::Display for ZeroDivisionError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "division by zero: {}", self.message)
+    }
+}
+impl std::error::Error for ZeroDivisionError {}
+impl ZeroDivisionError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+pub fn compute_ratio(a: i32, b: i32) -> f64 {
+    {
+        let ratio = (a as f64) / (b as f64);
+        return ratio;
+        return 0.0;
+    }
+}
+'''
 
 [[test]]
 name = "two_exception_types"
 description = "Test try with two exception handlers"
 tags = ["exception", "multiple"]
 
-[test.python]
-code = '''
+python = '''
 def parse_data(data: str) -> int:
     try:
         return int(data)
@@ -160,17 +389,53 @@ def parse_data(data: str) -> int:
         return -2
 '''
 
-[test.assertions]
-contains = ["fn parse_data"]
-contains_any = [["match", "if let"]]
+rust = '''
+#[derive(Debug, Clone)]
+pub struct ValueError {
+    message: String,
+}
+impl std::fmt::Display for ValueError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "value error: {}", self.message)
+    }
+}
+impl std::error::Error for ValueError {}
+impl ValueError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+pub fn parse_data(data: String) -> i32 {
+    {
+        if let Ok(__parse_result) = data.parse::<i32>() {
+            __parse_result
+        } else {
+            return -1;
+            return -2;
+        }
+    }
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_parse_data_examples() {
+        assert_eq!(parse_data(""), 0);
+        assert_eq!(parse_data("a"), 1);
+        assert_eq!(parse_data("abc"), 3);
+    }
+}
+'''
 
 [[test]]
 name = "three_exception_types"
 description = "Test try with three exception handlers"
 tags = ["exception", "multiple"]
 
-[test.python]
-code = '''
+python = '''
 def safe_operation(x: int) -> int:
     try:
         result = x * 2
@@ -183,16 +448,69 @@ def safe_operation(x: int) -> int:
         return -3
 '''
 
-[test.assertions]
-contains = ["fn safe_operation"]
+rust = '''
+#[derive(Debug, Clone)]
+pub struct IndexError {
+    message: String,
+}
+impl std::fmt::Display for IndexError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "index out of range: {}", self.message)
+    }
+}
+impl std::error::Error for IndexError {}
+impl IndexError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[derive(Debug, Clone)]
+pub struct ValueError {
+    message: String,
+}
+impl std::fmt::Display for ValueError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "value error: {}", self.message)
+    }
+}
+impl std::error::Error for ValueError {}
+impl ValueError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+pub fn safe_operation(x: i32) -> i32 {
+    {
+        let result = x * 2;
+        return result;
+        return -1;
+        return -2;
+        return -3;
+    }
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_safe_operation_examples() {
+        assert_eq!(safe_operation(0), 0);
+        assert_eq!(safe_operation(1), 1);
+        assert_eq!(safe_operation(-1), -1);
+    }
+}
+'''
 
 [[test]]
 name = "specific_then_bare_except"
 description = "Test specific exception followed by bare except"
 tags = ["exception", "fallback"]
 
-[test.python]
-code = '''
+python = '''
 def handle_errors(data: str) -> str:
     try:
         return data.upper()
@@ -202,16 +520,39 @@ def handle_errors(data: str) -> str:
         return "unknown_error"
 '''
 
-[test.assertions]
-contains = ["fn handle_errors"]
+rust = '''
+#[derive(Debug, Clone)]
+pub struct ValueError {
+    message: String,
+}
+impl std::fmt::Display for ValueError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "value error: {}", self.message)
+    }
+}
+impl std::error::Error for ValueError {}
+impl ValueError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+pub fn handle_errors(data: String) -> String {
+    {
+        return data.to_uppercase();
+        return "value_error".to_string();
+        return "unknown_error".to_string();
+    }
+}
+'''
 
 [[test]]
 name = "multiple_exceptions_one_handler"
 description = "Test multiple exceptions in one handler (tuple)"
 tags = ["exception", "tuple"]
 
-[test.python]
-code = '''
+python = '''
 def process(data: str) -> int:
     try:
         return int(data)
@@ -219,16 +560,32 @@ def process(data: str) -> int:
         return 0
 '''
 
-[test.assertions]
-contains = ["fn process"]
+rust = '''
+pub fn process(data: String) -> i32 {
+    {
+        return data.parse::<i32>().unwrap();
+        return 0;
+    }
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_process_examples() {
+        assert_eq!(process(""), 0);
+        assert_eq!(process("a"), 1);
+        assert_eq!(process("abc"), 3);
+    }
+}
+'''
 
 [[test]]
 name = "handlers_with_return_values"
 description = "Test multiple handlers each with different return values"
 tags = ["exception", "return"]
 
-[test.python]
-code = '''
+python = '''
 def get_value(data: dict, key: str) -> str:
     try:
         return data[key]
@@ -238,16 +595,41 @@ def get_value(data: dict, key: str) -> str:
         return "default_type"
 '''
 
-[test.assertions]
-contains = ["fn get_value"]
+rust = '''
+use serde_json;
+use std::collections::HashMap;
+#[derive(Debug, Clone)]
+pub struct IndexError {
+    message: String,
+}
+impl std::fmt::Display for IndexError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "index out of range: {}", self.message)
+    }
+}
+impl std::error::Error for IndexError {}
+impl IndexError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+pub fn get_value(data: &HashMap<serde_json::Value, serde_json::Value>, key: String) -> String {
+    {
+        return data.get(&key).cloned().unwrap();
+        return "default_key".to_string();
+        return "default_type".to_string();
+    }
+}
+'''
 
 [[test]]
 name = "different_exception_variables"
 description = "Test handlers with different exception variable names"
 tags = ["exception", "variables"]
 
-[test.python]
-code = '''
+python = '''
 def handle_with_vars(data: str) -> str:
     try:
         return data.upper()
@@ -257,20 +639,39 @@ def handle_with_vars(data: str) -> str:
         return str(te)
 '''
 
-[test.assertions]
-contains = ["fn handle_with_vars"]
-
-# ============================================================================
-# Phase 3: Finally Clause
-# ============================================================================
+rust = '''
+#[derive(Debug, Clone)]
+pub struct ValueError {
+    message: String,
+}
+impl std::fmt::Display for ValueError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "value error: {}", self.message)
+    }
+}
+impl std::error::Error for ValueError {}
+impl ValueError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+pub fn handle_with_vars(data: String) -> String {
+    {
+        return data.to_uppercase();
+        return ve.to_string();
+        return te.to_string();
+    }
+}
+'''
 
 [[test]]
 name = "simple_try_finally"
 description = "Test simple try/finally without except"
 tags = ["exception", "finally"]
 
-[test.python]
-code = '''
+python = '''
 def cleanup_operation(x: int) -> int:
     try:
         result = x * 2
@@ -279,17 +680,45 @@ def cleanup_operation(x: int) -> int:
         print("cleanup")
 '''
 
-[test.assertions]
-contains = ["fn cleanup_operation"]
-contains_any = [["print", "println"]]
+rust = '''
+pub fn cleanup_operation(x: i32) -> i32 {
+    {
+        let result = x * 2;
+        return result;
+        println!("{}", "cleanup");
+    }
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn quickcheck_cleanup_operation() {
+        fn prop(x: i32) -> TestResult {
+            let once = cleanup_operation(x.clone());
+            let twice = cleanup_operation(once.clone());
+            if once != twice {
+                return TestResult::failed();
+            }
+            TestResult::passed()
+        }
+        quickcheck(prop as fn(i32) -> TestResult);
+    }
+    #[test]
+    fn test_cleanup_operation_examples() {
+        assert_eq!(cleanup_operation(0), 0);
+        assert_eq!(cleanup_operation(1), 1);
+        assert_eq!(cleanup_operation(-1), -1);
+    }
+}
+'''
 
 [[test]]
 name = "try_except_finally"
 description = "Test try/except/finally pattern"
 tags = ["exception", "finally"]
 
-[test.python]
-code = '''
+python = '''
 def safe_divide(a: int, b: int) -> int:
     try:
         return a // b
@@ -299,16 +728,64 @@ def safe_divide(a: int, b: int) -> int:
         print("operation complete")
 '''
 
-[test.assertions]
-contains = ["fn safe_divide"]
+rust = '''
+#[derive(Debug, Clone)]
+pub struct ZeroDivisionError {
+    message: String,
+}
+impl std::fmt::Display for ZeroDivisionError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "division by zero: {}", self.message)
+    }
+}
+impl std::error::Error for ZeroDivisionError {}
+impl ZeroDivisionError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+pub fn safe_divide(a: i32, b: i32) -> i32 {
+    {
+        if b == 0 {
+            return 0;
+        } else {
+            return {
+                let a = a;
+                let b = b;
+                let q = a / b;
+                let r = a % b;
+                let r_negative = r < 0;
+                let b_negative = b < 0;
+                let r_nonzero = r != 0;
+                let signs_differ = r_negative != b_negative;
+                let needs_adjustment = r_nonzero && signs_differ;
+                if needs_adjustment { q - 1 } else { q }
+            };
+        }
+        println!("{}", "operation complete");
+    }
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_safe_divide_examples() {
+        assert_eq!(safe_divide(0, 0), 0);
+        assert_eq!(safe_divide(1, 2), 3);
+        assert_eq!(safe_divide(-1, 1), 0);
+    }
+}
+'''
 
 [[test]]
 name = "finally_with_return_in_try"
 description = "Test finally with return in try block"
 tags = ["exception", "finally", "return"]
 
-[test.python]
-code = '''
+python = '''
 def process_with_cleanup(x: int) -> int:
     count = 0
     try:
@@ -318,16 +795,46 @@ def process_with_cleanup(x: int) -> int:
         count = count + 1
 '''
 
-[test.assertions]
-contains = ["fn process_with_cleanup"]
+rust = '''
+pub fn process_with_cleanup(x: i32) -> i32 {
+    let mut count = 0;
+    {
+        count = x * 2;
+        return count;
+        count = count + 1;
+    }
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn quickcheck_process_with_cleanup() {
+        fn prop(x: i32) -> TestResult {
+            let once = process_with_cleanup(x.clone());
+            let twice = process_with_cleanup(once.clone());
+            if once != twice {
+                return TestResult::failed();
+            }
+            TestResult::passed()
+        }
+        quickcheck(prop as fn(i32) -> TestResult);
+    }
+    #[test]
+    fn test_process_with_cleanup_examples() {
+        assert_eq!(process_with_cleanup(0), 0);
+        assert_eq!(process_with_cleanup(1), 1);
+        assert_eq!(process_with_cleanup(-1), -1);
+    }
+}
+'''
 
 [[test]]
 name = "finally_with_exception"
 description = "Test finally with exception handler"
 tags = ["exception", "finally"]
 
-[test.python]
-code = '''
+python = '''
 def handle_with_cleanup(data: str) -> int:
     result = 0
     try:
@@ -340,16 +847,65 @@ def handle_with_cleanup(data: str) -> int:
         print("cleanup executed")
 '''
 
-[test.assertions]
-contains = ["fn handle_with_cleanup"]
+rust = '''
+#[derive(Debug, Clone)]
+pub struct ValueError {
+    message: String,
+}
+impl std::fmt::Display for ValueError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "value error: {}", self.message)
+    }
+}
+impl std::error::Error for ValueError {}
+impl ValueError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+pub fn handle_with_cleanup(data: String) -> i32 {
+    let mut result = 0;
+    {
+        result = data.parse::<i32>().unwrap();
+        return result;
+        result = -1;
+        return result;
+        println!("{}", "cleanup executed");
+    }
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn quickcheck_handle_with_cleanup() {
+        fn prop(data: String) -> TestResult {
+            let once = handle_with_cleanup((&*data).into());
+            let twice = handle_with_cleanup(once.clone());
+            if once != twice {
+                return TestResult::failed();
+            }
+            TestResult::passed()
+        }
+        quickcheck(prop as fn(String) -> TestResult);
+    }
+    #[test]
+    fn test_handle_with_cleanup_examples() {
+        assert_eq!(handle_with_cleanup(""), 0);
+        assert_eq!(handle_with_cleanup("a"), 1);
+        assert_eq!(handle_with_cleanup("abc"), 3);
+    }
+}
+'''
 
 [[test]]
 name = "finally_with_variable_assignment"
 description = "Test finally with variable assignment"
 tags = ["exception", "finally", "variable"]
 
-[test.python]
-code = '''
+python = '''
 def track_execution(x: int) -> int:
     executed = False
     try:
@@ -359,16 +915,34 @@ def track_execution(x: int) -> int:
         executed = True
 '''
 
-[test.assertions]
-contains = ["fn track_execution"]
+rust = '''
+pub fn track_execution(x: i32) -> i32 {
+    let mut executed = false;
+    {
+        let result = x * 2;
+        return result;
+        executed = true;
+    }
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_track_execution_examples() {
+        assert_eq!(track_execution(0), 0);
+        assert_eq!(track_execution(1), 1);
+        assert_eq!(track_execution(-1), -1);
+    }
+}
+'''
 
 [[test]]
 name = "try_except_else_finally"
 description = "Test complete try/except/else/finally pattern"
 tags = ["exception", "else", "finally"]
 
-[test.python]
-code = '''
+python = '''
 def complete_pattern(x: int) -> int:
     try:
         result = x * 2
@@ -381,20 +955,51 @@ def complete_pattern(x: int) -> int:
     return result
 '''
 
-[test.assertions]
-contains = ["fn complete_pattern"]
-
-# ============================================================================
-# Complex Patterns
-# ============================================================================
+rust = '''
+#[derive(Debug, Clone)]
+pub struct ValueError {
+    message: String,
+}
+impl std::fmt::Display for ValueError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "value error: {}", self.message)
+    }
+}
+impl std::error::Error for ValueError {}
+impl ValueError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+pub fn complete_pattern(x: i32) -> i32 {
+    {
+        let mut result = x * 2;
+        let mut result = -1;
+        println!("{}", "done");
+    }
+    return result;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_complete_pattern_examples() {
+        assert_eq!(complete_pattern(0), 0);
+        assert_eq!(complete_pattern(1), 1);
+        assert_eq!(complete_pattern(-1), -1);
+    }
+}
+'''
 
 [[test]]
 name = "handlers_with_side_effects"
 description = "Test handlers with print side effects"
 tags = ["exception", "side-effects"]
 
-[test.python]
-code = '''
+python = '''
 def log_errors(x: int) -> int:
     try:
         result = x * 2
@@ -407,16 +1012,53 @@ def log_errors(x: int) -> int:
         return -1
 '''
 
-[test.assertions]
-contains = ["fn log_errors"]
+rust = '''
+#[derive(Debug, Clone)]
+pub struct ValueError {
+    message: String,
+}
+impl std::fmt::Display for ValueError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "value error: {}", self.message)
+    }
+}
+impl std::error::Error for ValueError {}
+impl ValueError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+pub fn log_errors(x: i32) -> i32 {
+    {
+        let result = x * 2;
+        return result;
+        println!("{}", "ValueError occurred");
+        return 0;
+        println!("{}", "TypeError occurred");
+        return -1;
+    }
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_log_errors_examples() {
+        assert_eq!(log_errors(0), 0);
+        assert_eq!(log_errors(1), 1);
+        assert_eq!(log_errors(-1), -1);
+    }
+}
+'''
 
 [[test]]
 name = "chained_exception_handlers"
 description = "Test chained/nested exception handling"
 tags = ["exception", "chained", "nested"]
 
-[test.python]
-code = '''
+python = '''
 def chained_handling(data: list) -> int:
     try:
         return data[0]
@@ -429,16 +1071,71 @@ def chained_handling(data: list) -> int:
         return -2
 '''
 
-[test.assertions]
-contains = ["fn chained_handling"]
+rust = '''
+use serde_json;
+#[derive(Debug, Clone)]
+pub struct IndexError {
+    message: String,
+}
+impl std::fmt::Display for IndexError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "index out of range: {}", self.message)
+    }
+}
+impl std::error::Error for IndexError {}
+impl IndexError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[derive(Debug, Clone)]
+pub struct ValueError {
+    message: String,
+}
+impl std::fmt::Display for ValueError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "value error: {}", self.message)
+    }
+}
+impl std::error::Error for ValueError {}
+impl ValueError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+pub fn chained_handling(data: &Vec<serde_json::Value>) -> i32 {
+    {
+        return data.clone().get(0usize).cloned().unwrap();
+        {
+            return data.len() as i32 as i32;
+            return -1;
+        }
+        return -2;
+    }
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_chained_handling_examples() {
+        assert_eq!(chained_handling(vec![]), 0);
+        assert_eq!(chained_handling(vec![1]), 1);
+        assert_eq!(chained_handling(vec![1, 2, 3]), 3);
+    }
+}
+'''
 
 [[test]]
 name = "complex_exception_pattern"
 description = "Test complex exception pattern with multiple handlers"
 tags = ["exception", "complex"]
 
-[test.python]
-code = '''
+python = '''
 def complex_handling(a: int, b: int, c: int) -> int:
     result = 0
     try:
@@ -459,5 +1156,66 @@ def complex_handling(a: int, b: int, c: int) -> int:
         return result
 '''
 
-[test.assertions]
-contains = ["fn complex_handling"]
+rust = '''
+#[derive(Debug, Clone)]
+pub struct ZeroDivisionError {
+    message: String,
+}
+impl std::fmt::Display for ZeroDivisionError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "division by zero: {}", self.message)
+    }
+}
+impl std::error::Error for ZeroDivisionError {}
+impl ZeroDivisionError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[derive(Debug, Clone)]
+pub struct ValueError {
+    message: String,
+}
+impl std::fmt::Display for ValueError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "value error: {}", self.message)
+    }
+}
+impl std::error::Error for ValueError {}
+impl ValueError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+pub fn complex_handling(a: i32, b: i32, c: i32) -> i32 {
+    let mut result = 0;
+    {
+        let temp = {
+            let a = a;
+            let b = b;
+            let q = a / b;
+            let r = a % b;
+            let r_negative = r < 0;
+            let b_negative = b < 0;
+            let r_nonzero = r != 0;
+            let signs_differ = r_negative != b_negative;
+            let needs_adjustment = r_nonzero && signs_differ;
+            if needs_adjustment { q - 1 } else { q }
+        };
+        result = temp * c;
+        return result;
+        result = a * c;
+        return result;
+        result = b * c;
+        return result;
+        result = -1;
+        return result;
+        result = -2;
+        return result;
+    }
+}
+'''

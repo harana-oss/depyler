@@ -13,273 +13,407 @@ name = "random_random"
 description = "random.random() float [0, 1)"
 tags = ["random", "float"]
 
-[test.python]
-code = '''
+python = '''
 import random
 
 def get_random_float() -> float:
     return random.random()
 '''
 
-[test.assertions]
-contains_any = [["rand::random", "Rng", "gen()"]]
+rust = '''
+use rand as random;
+use rand::Rng;
+use rand::prelude::*;
+pub fn get_random_float() -> f64 {
+    return rand::random::<f64>();
+}
+'''
 
 [[test]]
 name = "random_randint"
 description = "random.randint(a, b) inclusive range"
 tags = ["random", "int"]
 
-[test.python]
-code = '''
+python = '''
 import random
 
 def roll_dice() -> int:
     return random.randint(1, 6)
 '''
 
-[test.assertions]
-contains_any = [["gen_range(", "Rng", "1..=6"]]
+rust = '''
+use rand as random;
+use rand::Rng;
+use rand::prelude::*;
+pub fn roll_dice() -> i32 {
+    return rand::thread_rng().gen_range(1..=6);
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_roll_dice_examples() {
+        let _ = roll_dice();
+    }
+}
+'''
 
 [[test]]
 name = "random_randrange"
 description = "random.randrange(start, stop, step)"
 tags = ["random", "range"]
 
-[test.python]
-code = '''
+python = '''
 import random
 
 def random_even(max_val: int) -> int:
     return random.randrange(0, max_val, 2)
 '''
 
-[test.assertions]
-contains_any = [["gen_range(", "step_by", "filter"]]
+rust = '''
+use rand as random;
+use rand::Rng;
+use rand::prelude::*;
+pub fn random_even(max_val: i32) -> i32 {
+    return {
+        let start = 0;
+        let stop = max_val;
+        let step = 2;
+        let num_steps = ((stop - start) / step).max(0);
+        let offset = rand::thread_rng().gen_range(0..num_steps);
+        start + offset * step
+    };
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_random_even_examples() {
+        assert_eq!(random_even(0), 0);
+        assert_eq!(random_even(1), 1);
+        assert_eq!(random_even(-1), -1);
+    }
+}
+'''
 
 [[test]]
 name = "random_uniform"
 description = "random.uniform(a, b) float range"
 tags = ["random", "float"]
 
-[test.python]
-code = '''
+python = '''
 import random
 
 def random_in_range(low: float, high: float) -> float:
     return random.uniform(low, high)
 '''
 
-[test.assertions]
-contains_any = [["gen_range(", "Uniform"]]
-
-# =============================================================================
-# Random Selection
-# =============================================================================
+rust = '''
+use rand as random;
+use rand::Rng;
+use rand::prelude::*;
+pub fn random_in_range(low: f64, high: f64) -> f64 {
+    return rand::thread_rng().gen_range((low as f64)..=(high as f64));
+}
+'''
 
 [[test]]
 name = "random_choice"
 description = "random.choice() single selection"
 tags = ["random", "choice"]
 
-[test.python]
-code = '''
+python = '''
 import random
 
 def pick_one(items: list[str]) -> str:
     return random.choice(items)
 '''
 
-[test.assertions]
-contains_any = [["choose(", "gen_range"]]
+rust = '''
+use rand as random;
+use rand::Rng;
+use rand::prelude::*;
+use rand::seq::SliceRandom;
+pub fn pick_one(items: &Vec<String>) -> String {
+    return *items.choose(&mut rand::thread_rng()).unwrap();
+}
+'''
 
 [[test]]
 name = "random_choices"
 description = "random.choices() with replacement"
 tags = ["random", "choice"]
 
-[test.python]
-code = '''
+python = '''
 import random
 
 def pick_many(items: list[str], k: int) -> list[str]:
     return random.choices(items, k=k)
 '''
 
-[test.assertions]
-contains_any = [["choose(", "sample", "repeat_with"]]
+rust = '''
+use rand as random;
+use rand::Rng;
+use rand::prelude::*;
+use rand::seq::SliceRandom;
+pub fn pick_many(items: &Vec<String>, k: i32) -> Vec<String> {
+    return {
+        let mut rng = rand::thread_rng();
+        (0..1)
+            .map(|_| items.choose(&mut rng).cloned().unwrap())
+            .collect::<Vec<_>>()
+    };
+}
+'''
 
 [[test]]
 name = "random_sample"
 description = "random.sample() without replacement"
 tags = ["random", "sample"]
 
-[test.python]
-code = '''
+python = '''
 import random
 
 def pick_unique(items: list[str], k: int) -> list[str]:
     return random.sample(items, k)
 '''
 
-[test.assertions]
-contains_any = [["choose_multiple(", "sample", "shuffle"]]
-
-# =============================================================================
-# Random Shuffling
-# =============================================================================
+rust = '''
+use rand as random;
+use rand::Rng;
+use rand::prelude::*;
+use rand::seq::SliceRandom;
+pub fn pick_unique(items: &Vec<String>, k: i32) -> Vec<String> {
+    return items
+        .choose_multiple(&mut rand::thread_rng(), k as usize)
+        .cloned()
+        .collect::<Vec<_>>();
+}
+'''
 
 [[test]]
 name = "random_shuffle"
 description = "random.shuffle() in-place shuffle"
 tags = ["random", "shuffle"]
 
-[test.python]
-code = '''
+python = '''
 import random
 
 def mix_up(items: list[int]) -> None:
     random.shuffle(items)
 '''
 
-[test.assertions]
-contains_any = [["shuffle(", "SliceRandom"]]
-
-# =============================================================================
-# Random Seed
-# =============================================================================
+rust = '''
+use rand as random;
+use rand::Rng;
+use rand::prelude::*;
+use rand::seq::SliceRandom;
+pub fn mix_up(items: &Vec<i32>) {
+    items.shuffle(&mut rand::thread_rng());
+}
+'''
 
 [[test]]
 name = "random_seed"
 description = "random.seed() deterministic seeding"
 tags = ["random", "seed"]
 
-[test.python]
-code = '''
+python = '''
 import random
 
 def set_seed(seed: int) -> None:
     random.seed(seed)
 '''
 
-[test.assertions]
-contains_any = [["SeedableRng", "seed_from_u64", "StdRng::seed"]]
-
-# =============================================================================
-# Secrets Module (Cryptographic)
-# =============================================================================
+rust = '''
+use rand as random;
+use rand::Rng;
+use rand::prelude::*;
+pub fn set_seed(seed: i32) {
+    {
+        let _seed = seed;
+        ()
+    };
+}
+'''
 
 [[test]]
 name = "secrets_token_bytes"
 description = "secrets.token_bytes() secure random"
 tags = ["secrets", "crypto"]
 
-[test.python]
-code = '''
+python = '''
 import secrets
 
 def random_bytes(n: int) -> bytes:
     return secrets.token_bytes(n)
 '''
 
-[test.assertions]
-contains_any = [["OsRng", "getrandom", "thread_rng"]]
+rust = '''
+#[doc = "// NOTE: Map Python module 'secrets'()"]
+use rand::Rng;
+use rand::prelude::*;
+pub fn random_bytes(n: i32) -> bytes {
+    return {
+        let mut bytes = vec![0u8; n];
+        rand::thread_rng().fill(&mut bytes[..]);
+        bytes
+    };
+}
+'''
 
 [[test]]
 name = "secrets_token_hex"
 description = "secrets.token_hex() hex string"
 tags = ["secrets", "crypto"]
 
-[test.python]
-code = '''
+python = '''
 import secrets
 
 def random_hex(n: int) -> str:
     return secrets.token_hex(n)
 '''
 
-[test.assertions]
-contains_any = [["OsRng", "hex::encode", "format!"]]
+rust = '''
+#[doc = "// NOTE: Map Python module 'secrets'()"]
+use rand::Rng;
+use rand::prelude::*;
+pub fn random_hex(n: i32) -> String {
+    return {
+        let mut bytes = vec![0u8; n];
+        rand::thread_rng().fill(&mut bytes[..]);
+        hex::encode(&bytes)
+    };
+}
+'''
 
 [[test]]
 name = "secrets_choice"
 description = "secrets.choice() secure selection"
 tags = ["secrets", "crypto"]
 
-[test.python]
-code = '''
+python = '''
 import secrets
 
 def secure_pick(items: list[str]) -> str:
     return secrets.choice(items)
 '''
 
-[test.assertions]
-contains_any = [["OsRng", "choose("]]
+rust = '''
+#[doc = "// NOTE: Map Python module 'secrets'()"]
+use rand::Rng;
+use rand::prelude::*;
+use rand::seq::SliceRandom;
+pub fn secure_pick(items: &Vec<String>) -> String {
+    return *items.choose(&mut rand::thread_rng()).unwrap();
+}
+'''
 
 [[test]]
 name = "secrets_randbelow"
 description = "secrets.randbelow() secure int"
 tags = ["secrets", "crypto"]
 
-[test.python]
-code = '''
+python = '''
 import secrets
 
 def secure_int(exclusive_max: int) -> int:
     return secrets.randbelow(exclusive_max)
 '''
 
-[test.assertions]
-contains_any = [["OsRng", "gen_range(", "0.."]]
-
-# =============================================================================
-# Statistical Distributions
-# =============================================================================
+rust = '''
+#[doc = "// NOTE: Map Python module 'secrets'()"]
+use rand::Rng;
+use rand::prelude::*;
+pub fn secure_int(exclusive_max: i32) -> i32 {
+    return rand::thread_rng().gen_range(0..exclusive_max);
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_secure_int_examples() {
+        assert_eq!(secure_int(0), 0);
+        assert_eq!(secure_int(1), 1);
+        assert_eq!(secure_int(-1), -1);
+    }
+}
+'''
 
 [[test]]
 name = "random_gauss"
 description = "random.gauss() normal distribution"
 tags = ["random", "distribution"]
 
-[test.python]
-code = '''
+python = '''
 import random
 
 def normal_random(mu: float, sigma: float) -> float:
     return random.gauss(mu, sigma)
 '''
 
-[test.assertions]
-contains_any = [["Normal::", "sample(", "StandardNormal"]]
+rust = '''
+use rand as random;
+use rand::Rng;
+use rand::prelude::*;
+pub fn normal_random(mu: f64, sigma: f64) -> f64 {
+    return {
+        use rand::distributions::Distribution;
+        let normal = rand_distr::Normal::new(mu as f64, sigma as f64).unwrap();
+        normal.sample(&mut rand::thread_rng())
+    };
+}
+'''
 
 [[test]]
 name = "random_expovariate"
 description = "random.expovariate() exponential distribution"
 tags = ["random", "distribution"]
 
-[test.python]
-code = '''
+python = '''
 import random
 
 def exponential_random(rate: float) -> float:
     return random.expovariate(rate)
 '''
 
-[test.assertions]
-contains_any = [["Exp::", "Exponential", "sample("]]
+rust = '''
+use rand as random;
+use rand::Rng;
+use rand::prelude::*;
+pub fn exponential_random(rate: f64) -> f64 {
+    return {
+        use rand::distributions::Distribution;
+        let exp = rand_distr::Exp::new(rate as f64).unwrap();
+        exp.sample(&mut rand::thread_rng())
+    };
+}
+'''
 
 [[test]]
 name = "random_triangular"
 description = "random.triangular() triangular distribution"
 tags = ["random", "distribution"]
 
-[test.python]
-code = '''
+python = '''
 import random
 
 def triangular_random(low: float, high: float, mode: float) -> float:
     return random.triangular(low, high, mode)
 '''
 
-[test.assertions]
-contains_any = [["Triangular", "triangular"]]
+rust = '''
+use rand as random;
+use rand::Rng;
+use rand::prelude::*;
+pub fn triangular_random(low: f64, high: f64, mode: f64) -> f64 {
+    return {
+        use rand::distributions::Distribution;
+        let triangular = rand_distr::Triangular::new(low as f64, high as f64, mode as f64).unwrap();
+        triangular.sample(&mut rand::thread_rng())
+    };
+}
+'''

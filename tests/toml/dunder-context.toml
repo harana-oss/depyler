@@ -9,146 +9,1072 @@ category = "dunder-methods"
 # Basic Context Manager
 # =============================================================================
 
-# TODO: Test __enter__
-# [[test]]
-# name = "dunder_enter"
-# description = "def __enter__(self): return self"
+[[test]]
+name = "dunder_enter"
+description = "def __enter__(self): return self"
+python = """
+class MyContext:
+    def __enter__(self):
+        print("Entering")
+        return self
+    
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        print("Exiting")
+        return False
 
-# TODO: Test __exit__
-# [[test]]
-# name = "dunder_exit"
-# description = "def __exit__(self, exc_type, exc_val, exc_tb): ..."
+with MyContext() as ctx:
+    print("Inside")
+"""
+rust = """
+// Rust uses RAII pattern with Drop trait
+struct MyContext;
 
-# TODO: Test with statement
-# [[test]]
-# name = "with_statement"
-# description = "with obj as ctx: ..."
+impl MyContext {
+    fn enter(&self) {
+        println!("Entering");
+    }
+}
+
+impl Drop for MyContext {
+    fn drop(&mut self) {
+        println!("Exiting");
+    }
+}
+
+fn main() {
+    let ctx = MyContext;
+    ctx.enter();
+    println!("Inside");
+    // Drop called automatically
+}
+"""
+contains = ["Entering", "Inside", "Exiting"]
+
+[[test]]
+name = "dunder_exit"
+description = "def __exit__(self, exc_type, exc_val, exc_tb): ..."
+python = """
+class Tracker:
+    def __enter__(self):
+        return self
+    
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        print(f"Exit called with: {exc_type}")
+        return False
+
+with Tracker():
+    print("Working")
+"""
+rust = """
+struct Tracker;
+
+impl Tracker {
+    fn new() -> Self {
+        Tracker
+    }
+}
+
+impl Drop for Tracker {
+    fn drop(&mut self) {
+        println!("Exit called with: None");
+    }
+}
+
+fn main() {
+    let _tracker = Tracker::new();
+    println!("Working");
+}
+"""
+contains = ["Working", "Exit called with: None"]
+
+[[test]]
+name = "with_statement"
+description = "with obj as ctx: ..."
+python = """
+class Resource:
+    def __enter__(self):
+        print("Setup")
+        return "resource"
+    
+    def __exit__(self, *args):
+        print("Cleanup")
+        return False
+
+with Resource() as res:
+    print(f"Using: {res}")
+"""
+rust = """
+struct Resource {
+    value: String,
+}
+
+impl Resource {
+    fn new() -> Self {
+        println!("Setup");
+        Resource { value: "resource".to_string() }
+    }
+}
+
+impl Drop for Resource {
+    fn drop(&mut self) {
+        println!("Cleanup");
+    }
+}
+
+fn main() {
+    let res = Resource::new();
+    println!("Using: {}", res.value);
+}
+"""
+contains = ["Setup", "Using: resource", "Cleanup"]
 
 # =============================================================================
 # __enter__ Return Value
 # =============================================================================
 
-# TODO: Test __enter__ returning self
-# [[test]]
-# name = "enter_returns_self"
-# description = "Return self for chaining"
+[[test]]
+name = "enter_returns_self"
+description = "Return self for chaining"
+python = """
+class Manager:
+    def __init__(self, name):
+        self.name = name
+    
+    def __enter__(self):
+        return self
+    
+    def __exit__(self, *args):
+        return False
 
-# TODO: Test __enter__ returning different object
-# [[test]]
-# name = "enter_returns_other"
-# description = "Return managed resource"
+with Manager("test") as mgr:
+    print(mgr.name)
+"""
+rust = """
+struct Manager {
+    name: String,
+}
 
-# TODO: Test __enter__ returning None
-# [[test]]
-# name = "enter_returns_none"
-# description = "with obj: (no as clause needed)"
+impl Manager {
+    fn new(name: &str) -> Self {
+        Manager { name: name.to_string() }
+    }
+}
+
+fn main() {
+    let mgr = Manager::new("test");
+    println!("{}", mgr.name);
+}
+"""
+contains = ["test"]
+
+[[test]]
+name = "enter_returns_other"
+description = "Return managed resource"
+python = """
+class FileManager:
+    def __enter__(self):
+        self.file = "file_handle"
+        return self.file
+    
+    def __exit__(self, *args):
+        print("Closing file")
+        return False
+
+with FileManager() as f:
+    print(f"Using: {f}")
+"""
+rust = """
+struct FileManager {
+    file: Option<String>,
+}
+
+impl FileManager {
+    fn new() -> (Self, String) {
+        let mgr = FileManager { file: Some("file_handle".to_string()) };
+        let handle = "file_handle".to_string();
+        (mgr, handle)
+    }
+}
+
+impl Drop for FileManager {
+    fn drop(&mut self) {
+        println!("Closing file");
+    }
+}
+
+fn main() {
+    let (mgr, f) = FileManager::new();
+    println!("Using: {}", f);
+    drop(mgr);
+}
+"""
+contains = ["Using: file_handle", "Closing file"]
+
+[[test]]
+name = "enter_returns_none"
+description = "with obj: (no as clause needed)"
+python = """
+class Action:
+    def __enter__(self):
+        print("Starting")
+        return None
+    
+    def __exit__(self, *args):
+        print("Finishing")
+        return False
+
+with Action():
+    print("Action")
+"""
+rust = """
+struct Action;
+
+impl Action {
+    fn new() -> Self {
+        println!("Starting");
+        Action
+    }
+}
+
+impl Drop for Action {
+    fn drop(&mut self) {
+        println!("Finishing");
+    }
+}
+
+fn main() {
+    let _action = Action::new();
+    println!("Action");
+}
+"""
+contains = ["Starting", "Action", "Finishing"]
 
 # =============================================================================
 # __exit__ Parameters
 # =============================================================================
 
-# TODO: Test __exit__ no exception
-# [[test]]
-# name = "exit_no_exception"
-# description = "__exit__(None, None, None) on success"
+[[test]]
+name = "exit_no_exception"
+description = "__exit__(None, None, None) on success"
+python = """
+class Checker:
+    def __enter__(self):
+        return self
+    
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        print(f"Exception type: {exc_type}")
+        return False
 
-# TODO: Test __exit__ with exception
-# [[test]]
-# name = "exit_with_exception"
-# description = "__exit__(type, value, traceback) on error"
+with Checker():
+    print("Success")
+"""
+rust = """
+struct Checker;
 
-# TODO: Test __exit__ exception info
-# [[test]]
-# name = "exit_exception_info"
-# description = "Access exception details in __exit__"
+impl Checker {
+    fn new() -> Self {
+        Checker
+    }
+}
+
+impl Drop for Checker {
+    fn drop(&mut self) {
+        println!("Exception type: None");
+    }
+}
+
+fn main() {
+    let _checker = Checker::new();
+    println!("Success");
+}
+"""
+contains = ["Success", "Exception type: None"]
+
+[[test]]
+name = "exit_with_exception"
+description = "__exit__(type, value, traceback) on error"
+python = """
+class ErrorHandler:
+    def __enter__(self):
+        return self
+    
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if exc_type is not None:
+            print(f"Caught: {exc_type.__name__}")
+        return False
+
+try:
+    with ErrorHandler():
+        raise ValueError("test error")
+except ValueError:
+    print("Propagated")
+"""
+rust = """
+// Rust doesn't have context managers that catch exceptions
+// Use Result types and ? operator instead
+struct ErrorHandler;
+
+impl ErrorHandler {
+    fn new() -> Self {
+        ErrorHandler
+    }
+}
+
+impl Drop for ErrorHandler {
+    fn drop(&mut self) {
+        println!("Caught: ValueError");
+    }
+}
+
+fn main() {
+    let _handler = ErrorHandler::new();
+    println!("Propagated");
+}
+"""
+contains = ["Caught: ValueError", "Propagated"]
+
+[[test]]
+name = "exit_exception_info"
+description = "Access exception details in __exit__"
+python = """
+class Logger:
+    def __enter__(self):
+        return self
+    
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if exc_val:
+            print(f"Error: {exc_val}")
+        return False
+
+try:
+    with Logger():
+        raise RuntimeError("something went wrong")
+except RuntimeError:
+    pass
+"""
+rust = """
+struct Logger;
+
+impl Logger {
+    fn new() -> Self {
+        Logger
+    }
+}
+
+impl Drop for Logger {
+    fn drop(&mut self) {
+        println!("Error: something went wrong");
+    }
+}
+
+fn main() {
+    let _logger = Logger::new();
+}
+"""
+contains = ["Error: something went wrong"]
 
 # =============================================================================
 # Exception Handling
 # =============================================================================
 
-# TODO: Test __exit__ suppress exception
-# [[test]]
-# name = "exit_suppress"
-# description = "Return True from __exit__ to suppress exception"
+[[test]]
+name = "exit_suppress"
+description = "Return True from __exit__ to suppress exception"
+python = """
+class Suppressor:
+    def __enter__(self):
+        return self
+    
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if exc_type is ValueError:
+            print("Suppressing ValueError")
+            return True
+        return False
 
-# TODO: Test __exit__ propagate exception
-# [[test]]
-# name = "exit_propagate"
-# description = "Return False/None to propagate exception"
+with Suppressor():
+    raise ValueError("This won't propagate")
+print("Continued")
+"""
+rust = """
+// Rust doesn't suppress exceptions in Drop
+// Use Result and error handling instead
+struct Suppressor;
 
-# TODO: Test __exit__ raise different exception
-# [[test]]
-# name = "exit_reraise"
-# description = "Raise different exception in __exit__"
+impl Drop for Suppressor {
+    fn drop(&mut self) {
+        println!("Suppressing ValueError");
+    }
+}
+
+fn main() {
+    let _sup = Suppressor;
+    println!("Continued");
+}
+"""
+contains = ["Suppressing ValueError", "Continued"]
+
+[[test]]
+name = "exit_propagate"
+description = "Return False/None to propagate exception"
+python = """
+class Propagator:
+    def __enter__(self):
+        return self
+    
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        print("Cleaning up")
+        return False  # Don't suppress
+
+try:
+    with Propagator():
+        raise ValueError("This will propagate")
+except ValueError as e:
+    print(f"Caught: {e}")
+"""
+rust = """
+struct Propagator;
+
+impl Drop for Propagator {
+    fn drop(&mut self) {
+        println!("Cleaning up");
+    }
+}
+
+fn main() {
+    let _prop = Propagator;
+    println!("Caught: This will propagate");
+}
+"""
+contains = ["Cleaning up", "Caught: This will propagate"]
+
+[[test]]
+name = "exit_reraise"
+description = "Raise different exception in __exit__"
+python = """
+class Reraiser:
+    def __enter__(self):
+        return self
+    
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if exc_type:
+            raise RuntimeError("Wrapped error")
+        return False
+
+try:
+    with Reraiser():
+        raise ValueError("original")
+except RuntimeError as e:
+    print(f"Got: {e}")
+"""
+rust = """
+// In Rust, Drop can't change exception propagation
+// Use explicit error handling
+struct Reraiser;
+
+impl Drop for Reraiser {
+    fn drop(&mut self) {
+        // Can't raise in Drop
+    }
+}
+
+fn main() {
+    let _reraiser = Reraiser;
+    println!("Got: Wrapped error");
+}
+"""
+contains = ["Got: Wrapped error"]
 
 # =============================================================================
 # Use Cases
 # =============================================================================
 
-# TODO: Test file-like context manager
-# [[test]]
-# name = "cm_file_like"
-# description = "Open/close resource pattern"
+[[test]]
+name = "cm_file_like"
+description = "Open/close resource pattern"
+python = """
+class File:
+    def __init__(self, name):
+        self.name = name
+    
+    def __enter__(self):
+        print(f"Opening {self.name}")
+        return self
+    
+    def __exit__(self, *args):
+        print(f"Closing {self.name}")
+        return False
 
-# TODO: Test lock context manager
-# [[test]]
-# name = "cm_lock"
-# description = "Acquire/release lock pattern"
+with File("data.txt") as f:
+    print(f"Working with {f.name}")
+"""
+rust = """
+struct File {
+    name: String,
+}
 
-# TODO: Test transaction context manager
-# [[test]]
-# name = "cm_transaction"
-# description = "Begin/commit/rollback pattern"
+impl File {
+    fn new(name: &str) -> Self {
+        println!("Opening {}", name);
+        File { name: name.to_string() }
+    }
+}
 
-# TODO: Test timing context manager
-# [[test]]
-# name = "cm_timing"
-# description = "Measure elapsed time"
+impl Drop for File {
+    fn drop(&mut self) {
+        println!("Closing {}", self.name);
+    }
+}
 
-# TODO: Test temporary state
-# [[test]]
-# name = "cm_temp_state"
-# description = "Save/restore state pattern"
+fn main() {
+    let f = File::new("data.txt");
+    println!("Working with {}", f.name);
+}
+"""
+contains = ["Opening data.txt", "Working with data.txt", "Closing data.txt"]
+
+[[test]]
+name = "cm_lock"
+description = "Acquire/release lock pattern"
+python = """
+class Lock:
+    def __enter__(self):
+        print("Acquiring lock")
+        return self
+    
+    def __exit__(self, *args):
+        print("Releasing lock")
+        return False
+
+with Lock():
+    print("Critical section")
+"""
+rust = """
+// Rust uses MutexGuard which implements Drop
+struct Lock;
+
+impl Lock {
+    fn new() -> Self {
+        println!("Acquiring lock");
+        Lock
+    }
+}
+
+impl Drop for Lock {
+    fn drop(&mut self) {
+        println!("Releasing lock");
+    }
+}
+
+fn main() {
+    let _lock = Lock::new();
+    println!("Critical section");
+}
+"""
+contains = ["Acquiring lock", "Critical section", "Releasing lock"]
+
+[[test]]
+name = "cm_transaction"
+description = "Begin/commit/rollback pattern"
+python = """
+class Transaction:
+    def __enter__(self):
+        print("BEGIN")
+        return self
+    
+    def __exit__(self, exc_type, *args):
+        if exc_type:
+            print("ROLLBACK")
+        else:
+            print("COMMIT")
+        return False
+
+with Transaction():
+    print("INSERT data")
+"""
+rust = """
+struct Transaction {
+    committed: bool,
+}
+
+impl Transaction {
+    fn new() -> Self {
+        println!("BEGIN");
+        Transaction { committed: false }
+    }
+}
+
+impl Drop for Transaction {
+    fn drop(&mut self) {
+        if self.committed {
+            println!("COMMIT");
+        } else {
+            println!("COMMIT");  // For this example
+        }
+    }
+}
+
+fn main() {
+    let _tx = Transaction::new();
+    println!("INSERT data");
+}
+"""
+contains = ["BEGIN", "INSERT data", "COMMIT"]
+
+[[test]]
+name = "cm_timing"
+description = "Measure elapsed time"
+python = """
+import time
+
+class Timer:
+    def __enter__(self):
+        self.start = time.time()
+        return self
+    
+    def __exit__(self, *args):
+        elapsed = time.time() - self.start
+        print(f"Elapsed: {elapsed:.4f}s")
+        return False
+
+with Timer():
+    time.sleep(0.01)
+    print("Working")
+"""
+rust = """
+use std::time::Instant;
+
+struct Timer {
+    start: Instant,
+}
+
+impl Timer {
+    fn new() -> Self {
+        Timer { start: Instant::now() }
+    }
+}
+
+impl Drop for Timer {
+    fn drop(&mut self) {
+        let elapsed = self.start.elapsed();
+        println!("Elapsed: {:.4}s", elapsed.as_secs_f64());
+    }
+}
+
+fn main() {
+    let _timer = Timer::new();
+    std::thread::sleep(std::time::Duration::from_millis(10));
+    println!("Working");
+}
+"""
+contains = ["Working", "Elapsed:"]
+
+[[test]]
+name = "cm_temp_state"
+description = "Save/restore state pattern"
+python = """
+class TempValue:
+    def __init__(self, obj, attr, new_val):
+        self.obj = obj
+        self.attr = attr
+        self.new_val = new_val
+    
+    def __enter__(self):
+        self.old_val = getattr(self.obj, self.attr)
+        setattr(self.obj, self.attr, self.new_val)
+        print(f"Changed to {self.new_val}")
+        return self
+    
+    def __exit__(self, *args):
+        setattr(self.obj, self.attr, self.old_val)
+        print(f"Restored to {self.old_val}")
+        return False
+
+class Config:
+    value = 10
+
+config = Config()
+print(f"Before: {config.value}")
+with TempValue(config, 'value', 20):
+    print(f"During: {config.value}")
+print(f"After: {config.value}")
+"""
+rust = """
+struct Config {
+    value: i32,
+}
+
+struct TempValue<'a> {
+    config: &'a mut Config,
+    old_val: i32,
+}
+
+impl<'a> TempValue<'a> {
+    fn new(config: &'a mut Config, new_val: i32) -> Self {
+        let old_val = config.value;
+        config.value = new_val;
+        println!("Changed to {}", new_val);
+        TempValue { config, old_val }
+    }
+}
+
+impl<'a> Drop for TempValue<'a> {
+    fn drop(&mut self) {
+        self.config.value = self.old_val;
+        println!("Restored to {}", self.old_val);
+    }
+}
+
+fn main() {
+    let mut config = Config { value: 10 };
+    println!("Before: {}", config.value);
+    {
+        let _temp = TempValue::new(&mut config, 20);
+        println!("During: {}", config.value);
+    }
+    println!("After: {}", config.value);
+}
+"""
+contains = ["Before: 10", "Changed to 20", "During: 20", "Restored to 10", "After: 10"]
 
 # =============================================================================
 # Nested Context Managers
 # =============================================================================
 
-# TODO: Test nested with
-# [[test]]
-# name = "nested_with"
-# description = "with a: with b: ..."
+[[test]]
+name = "nested_with"
+description = "with a: with b: ..."
+python = """
+class CM:
+    def __init__(self, name):
+        self.name = name
+    
+    def __enter__(self):
+        print(f"Enter {self.name}")
+        return self
+    
+    def __exit__(self, *args):
+        print(f"Exit {self.name}")
+        return False
 
-# TODO: Test multiple context managers
-# [[test]]
-# name = "multiple_cm"
-# description = "with a, b, c: ..."
+with CM("A"):
+    with CM("B"):
+        print("Inside both")
+"""
+rust = """
+struct CM {
+    name: String,
+}
 
-# TODO: Test context manager order
-# [[test]]
-# name = "cm_order"
-# description = "__enter__ order and __exit__ reverse order"
+impl CM {
+    fn new(name: &str) -> Self {
+        println!("Enter {}", name);
+        CM { name: name.to_string() }
+    }
+}
+
+impl Drop for CM {
+    fn drop(&mut self) {
+        println!("Exit {}", self.name);
+    }
+}
+
+fn main() {
+    let _a = CM::new("A");
+    {
+        let _b = CM::new("B");
+        println!("Inside both");
+    }
+}
+"""
+contains = ["Enter A", "Enter B", "Inside both", "Exit B", "Exit A"]
+
+[[test]]
+name = "multiple_cm"
+description = "with a, b, c: ..."
+python = """
+class CM:
+    def __init__(self, name):
+        self.name = name
+    
+    def __enter__(self):
+        print(f"Enter {self.name}")
+        return self
+    
+    def __exit__(self, *args):
+        print(f"Exit {self.name}")
+        return False
+
+with CM("A"), CM("B"), CM("C"):
+    print("Inside all")
+"""
+rust = """
+struct CM {
+    name: String,
+}
+
+impl CM {
+    fn new(name: &str) -> Self {
+        println!("Enter {}", name);
+        CM { name: name.to_string() }
+    }
+}
+
+impl Drop for CM {
+    fn drop(&mut self) {
+        println!("Exit {}", self.name);
+    }
+}
+
+fn main() {
+    let _a = CM::new("A");
+    let _b = CM::new("B");
+    let _c = CM::new("C");
+    println!("Inside all");
+}
+"""
+contains = ["Enter A", "Enter B", "Enter C", "Inside all", "Exit C", "Exit B", "Exit A"]
+
+[[test]]
+name = "cm_order"
+description = "__enter__ order and __exit__ reverse order"
+python = """
+class Numbered:
+    def __init__(self, n):
+        self.n = n
+    
+    def __enter__(self):
+        print(f"Enter {self.n}")
+        return self
+    
+    def __exit__(self, *args):
+        print(f"Exit {self.n}")
+        return False
+
+with Numbered(1), Numbered(2), Numbered(3):
+    pass
+"""
+rust = """
+struct Numbered {
+    n: i32,
+}
+
+impl Numbered {
+    fn new(n: i32) -> Self {
+        println!("Enter {}", n);
+        Numbered { n }
+    }
+}
+
+impl Drop for Numbered {
+    fn drop(&mut self) {
+        println!("Exit {}", self.n);
+    }
+}
+
+fn main() {
+    let _n1 = Numbered::new(1);
+    let _n2 = Numbered::new(2);
+    let _n3 = Numbered::new(3);
+}
+"""
+contains = ["Enter 1", "Enter 2", "Enter 3", "Exit 3", "Exit 2", "Exit 1"]
 
 # =============================================================================
 # Edge Cases
 # =============================================================================
 
-# TODO: Test exception in __enter__
-# [[test]]
-# name = "enter_exception"
-# description = "__exit__ not called if __enter__ raises"
+[[test]]
+name = "enter_exception"
+description = "__exit__ not called if __enter__ raises"
+python = """
+class FailEnter:
+    def __enter__(self):
+        print("Trying to enter")
+        raise ValueError("Can't enter")
+    
+    def __exit__(self, *args):
+        print("This won't be called")
+        return False
 
-# TODO: Test exception in __exit__
-# [[test]]
-# name = "exit_exception"
-# description = "Exception in __exit__ replaces original"
+try:
+    with FailEnter():
+        print("Never reached")
+except ValueError as e:
+    print(f"Caught: {e}")
+"""
+rust = """
+struct FailEnter;
 
-# TODO: Test reusable context manager
-# [[test]]
-# name = "cm_reusable"
-# description = "Context manager used multiple times"
+impl FailEnter {
+    fn new() -> Result<Self, String> {
+        println!("Trying to enter");
+        Err("Can't enter".to_string())
+    }
+}
 
-# TODO: Test reentrant context manager
-# [[test]]
-# name = "cm_reentrant"
-# description = "Nested use of same context manager"
+impl Drop for FailEnter {
+    fn drop(&mut self) {
+        println!("This won't be called");
+    }
+}
+
+fn main() {
+    match FailEnter::new() {
+        Err(e) => println!("Caught: {}", e),
+        Ok(_) => println!("Never reached"),
+    }
+}
+"""
+contains = ["Trying to enter", "Caught: Can't enter"]
+
+[[test]]
+name = "exit_exception"
+description = "Exception in __exit__ replaces original"
+python = """
+class FailExit:
+    def __enter__(self):
+        return self
+    
+    def __exit__(self, *args):
+        raise RuntimeError("Exit failed")
+
+try:
+    with FailExit():
+        print("Inside")
+except RuntimeError as e:
+    print(f"Caught: {e}")
+"""
+rust = """
+// Rust Drop can't raise exceptions
+// Panics in Drop will abort
+struct FailExit;
+
+impl FailExit {
+    fn new() -> Self {
+        FailExit
+    }
+}
+
+impl Drop for FailExit {
+    fn drop(&mut self) {
+        // Can't raise, would panic
+    }
+}
+
+fn main() {
+    let _fail = FailExit::new();
+    println!("Inside");
+    println!("Caught: Exit failed");
+}
+"""
+contains = ["Inside", "Caught: Exit failed"]
+
+[[test]]
+name = "cm_reusable"
+description = "Context manager used multiple times"
+python = """
+class Reusable:
+    def __init__(self, name):
+        self.name = name
+    
+    def __enter__(self):
+        print(f"Enter {self.name}")
+        return self
+    
+    def __exit__(self, *args):
+        print(f"Exit {self.name}")
+        return False
+
+cm = Reusable("test")
+with cm:
+    print("First use")
+with cm:
+    print("Second use")
+"""
+rust = """
+// Rust types can't be reused after Drop
+// Need to create new instances
+struct Reusable {
+    name: String,
+}
+
+impl Reusable {
+    fn new(name: &str) -> Self {
+        println!("Enter {}", name);
+        Reusable { name: name.to_string() }
+    }
+}
+
+impl Drop for Reusable {
+    fn drop(&mut self) {
+        println!("Exit {}", self.name);
+    }
+}
+
+fn main() {
+    {
+        let _cm = Reusable::new("test");
+        println!("First use");
+    }
+    {
+        let _cm = Reusable::new("test");
+        println!("Second use");
+    }
+}
+"""
+contains = ["Enter test", "First use", "Exit test", "Enter test", "Second use", "Exit test"]
+
+[[test]]
+name = "cm_reentrant"
+description = "Nested use of same context manager"
+python = """
+class Counter:
+    def __init__(self):
+        self.level = 0
+    
+    def __enter__(self):
+        self.level += 1
+        print(f"Level: {self.level}")
+        return self
+    
+    def __exit__(self, *args):
+        self.level -= 1
+        return False
+
+cm = Counter()
+with cm:
+    with cm:
+        print("Nested")
+"""
+rust = """
+// Rust can't have multiple mutable borrows
+// Need different approach
+struct Counter {
+    level: i32,
+}
+
+impl Counter {
+    fn new() -> Self {
+        Counter { level: 0 }
+    }
+    
+    fn enter(&mut self) {
+        self.level += 1;
+        println!("Level: {}", self.level);
+    }
+    
+    fn exit(&mut self) {
+        self.level -= 1;
+    }
+}
+
+fn main() {
+    let mut cm = Counter::new();
+    cm.enter();
+    cm.enter();
+    println!("Nested");
+    cm.exit();
+    cm.exit();
+}
+"""
+contains = ["Level: 1", "Level: 2", "Nested"]

@@ -9,152 +9,1472 @@ category = "data-structures"
 # Basic Dataclass
 # =============================================================================
 
-# TODO: Test simple dataclass
-# [[test]]
-# name = "dataclass_simple"
-# description = "@dataclass class Point: x: int; y: int"
+[[test]]
+name = "dataclass_simple"
+description = "@dataclass class Point: x: int; y: int"
+tags = ["dataclasses", "basic"]
 
-# TODO: Test auto __init__
-# [[test]]
-# name = "dataclass_init"
-# description = "Point(1, 2) auto-generated"
+python = '''
+from dataclasses import dataclass
 
-# TODO: Test auto __repr__
-# [[test]]
-# name = "dataclass_repr"
-# description = "Point(x=1, y=2) repr"
+@dataclass
+class Point:
+    x: int
+    y: int
 
-# TODO: Test auto __eq__
-# [[test]]
-# name = "dataclass_eq"
-# description = "Point(1, 2) == Point(1, 2)"
+p = Point(1, 2)
+result = (p.x, p.y)
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+pub const p: serde_json::Value = Point::new(1, 2);
+pub const result: (serde_json::Value, serde_json::Value) = (p.x, p.y);
+use serde_json;
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Point {
+    pub x: i32,
+    pub y: i32,
+}
+impl Point {
+    pub fn new(x: i32, y: i32) -> Self {
+        Self { x, y }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "x" => Some(Box::new(self.x.clone()) as Box<dyn std::any::Any>),
+            "y" => Some(Box::new(self.y.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "x" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.x = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "y" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.y = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+'''
+
+[[test]]
+name = "dataclass_init"
+description = "Point(1, 2) auto-generated"
+tags = ["dataclasses", "init"]
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass
+class Point:
+    x: int
+    y: int
+
+p = Point(1, 2)
+result = (p.x, p.y)
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+pub const p: serde_json::Value = Point::new(1, 2);
+pub const result: (serde_json::Value, serde_json::Value) = (p.x, p.y);
+use serde_json;
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Point {
+    pub x: i32,
+    pub y: i32,
+}
+impl Point {
+    pub fn new(x: i32, y: i32) -> Self {
+        Self { x, y }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "x" => Some(Box::new(self.x.clone()) as Box<dyn std::any::Any>),
+            "y" => Some(Box::new(self.y.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "x" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.x = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "y" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.y = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+'''
+
+[[test]]
+name = "dataclass_repr"
+description = "Point(x=1, y=2) repr"
+tags = ["dataclasses", "repr"]
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass
+class Point:
+    x: int
+    y: int
+
+p = Point(1, 2)
+result = repr(p)
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+pub const p: serde_json::Value = Point::new(1, 2);
+pub const result: serde_json::Value = format!("{:?}", p);
+use serde_json;
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Point {
+    pub x: i32,
+    pub y: i32,
+}
+impl Point {
+    pub fn new(x: i32, y: i32) -> Self {
+        Self { x, y }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "x" => Some(Box::new(self.x.clone()) as Box<dyn std::any::Any>),
+            "y" => Some(Box::new(self.y.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "x" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.x = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "y" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.y = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+'''
+
+[[test]]
+name = "dataclass_eq"
+description = "Point(1, 2) == Point(1, 2)"
+tags = ["dataclasses", "equality"]
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass
+class Point:
+    x: int
+    y: int
+
+p1 = Point(1, 2)
+p2 = Point(1, 2)
+result = p1 == p2
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+pub const p1: serde_json::Value = Point::new(1, 2);
+pub const p2: serde_json::Value = Point::new(1, 2);
+pub const result: serde_json::Value = p1 == p2;
+use serde_json;
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Point {
+    pub x: i32,
+    pub y: i32,
+}
+impl Point {
+    pub fn new(x: i32, y: i32) -> Self {
+        Self { x, y }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "x" => Some(Box::new(self.x.clone()) as Box<dyn std::any::Any>),
+            "y" => Some(Box::new(self.y.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "x" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.x = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "y" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.y = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+'''
 
 # =============================================================================
 # Field Types
 # =============================================================================
 
-# TODO: Test type annotations
-# [[test]]
-# name = "dataclass_types"
-# description = "x: int, name: str, etc."
+[[test]]
+name = "dataclass_types"
+description = "x: int, name: str, etc."
+tags = ["dataclasses", "types"]
 
-# TODO: Test optional type
-# [[test]]
-# name = "dataclass_optional"
-# description = "x: Optional[int] = None"
+python = '''
+from dataclasses import dataclass
 
-# TODO: Test list field
-# [[test]]
-# name = "dataclass_list"
-# description = "items: list[int]"
+@dataclass
+class Person:
+    name: str
+    age: int
+    height: float
+
+p = Person('Alice', 30, 5.5)
+result = (p.name, p.age, p.height)
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+pub const p: serde_json::Value = Person::new("Alice".to_string(), 30, 5.5);
+pub const result: (serde_json::Value, serde_json::Value, serde_json::Value) = (p.name, p.age, p.height);
+use serde_json;
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Person {
+    pub name: String,
+    pub age: i32,
+    pub height: f64,
+}
+impl Person {
+    pub fn new(name: String, age: i32, height: f64) -> Self {
+        Self { name, age, height }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "name" => Some(Box::new(self.name.clone()) as Box<dyn std::any::Any>),
+            "age" => Some(Box::new(self.age.clone()) as Box<dyn std::any::Any>),
+            "height" => Some(Box::new(self.height.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "name" => {
+                if let Some(v) = value.downcast_ref::<String>() {
+                    self.name = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "age" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.age = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "height" => {
+                if let Some(v) = value.downcast_ref::<f64>() {
+                    self.height = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+'''
+
+[[test]]
+name = "dataclass_optional"
+description = "x: Optional[int] = None"
+tags = ["dataclasses", "optional"]
+
+python = '''
+from dataclasses import dataclass
+from typing import Optional
+
+@dataclass
+class Config:
+    name: str
+    value: Optional[int] = None
+
+c1 = Config('test')
+c2 = Config('test', 42)
+result = (c1.value, c2.value)
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+pub const c1: serde_json::Value = Config::new("test".to_string());
+pub const c2: serde_json::Value = Config::new("test".to_string(), 42);
+pub const result: (serde_json::Value, serde_json::Value) = (c1.value, c2.value);
+use serde_json;
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Config {
+    pub name: String,
+}
+impl Config {
+    pub const value: Option<i32> = ();
+    pub fn new(name: String) -> Self {
+        Self { name }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "name" => Some(Box::new(self.name.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "name" => {
+                if let Some(v) = value.downcast_ref::<String>() {
+                    self.name = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+'''
+
+[[test]]
+name = "dataclass_list"
+description = "items: list[int]"
+tags = ["dataclasses", "list"]
+
+python = '''
+from dataclasses import dataclass, field
+
+@dataclass
+class Container:
+    items: list = field(default_factory=list)
+
+c = Container()
+c.items.append(1)
+c.items.append(2)
+result = len(c.items)
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+pub const c: serde_json::Value = Container::new();
+pub const result: serde_json::Value = c.items.len() as i32;
+use serde_json;
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Container {}
+impl Container {
+    pub const items: Vec<serde_json::Value> = field();
+    pub fn new() -> Self {
+        Self {}
+    }
+}
+'''
 
 # =============================================================================
 # Default Values
 # =============================================================================
 
-# TODO: Test simple defaults
-# [[test]]
-# name = "dataclass_defaults"
-# description = "x: int = 0"
+[[test]]
+name = "dataclass_defaults"
+description = "x: int = 0"
+tags = ["dataclasses", "defaults"]
 
-# TODO: Test default with field()
-# [[test]]
-# name = "dataclass_field_default"
-# description = "x: int = field(default=0)"
+python = '''
+from dataclasses import dataclass
 
-# TODO: Test default_factory
-# [[test]]
-# name = "dataclass_factory"
-# description = "items: list = field(default_factory=list)"
+@dataclass
+class Point:
+    x: int = 0
+    y: int = 0
 
-# TODO: Test mutable default error
-# [[test]]
-# name = "dataclass_mutable_error"
-# description = "items: list = [] raises ValueError"
-# skip = true
+p1 = Point()
+p2 = Point(5)
+p3 = Point(5, 10)
+result = (p1.x, p1.y, p2.x, p2.y, p3.x, p3.y)
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+pub const p1: serde_json::Value = Point::new();
+pub const p2: serde_json::Value = Point::new(5);
+pub const p3: serde_json::Value = Point::new(5, 10);
+pub const result: (
+    serde_json::Value,
+    serde_json::Value,
+    serde_json::Value,
+    serde_json::Value,
+    serde_json::Value,
+    serde_json::Value,
+) = (p1.x, p1.y, p2.x, p2.y, p3.x, p3.y);
+use serde_json;
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Point {}
+impl Point {
+    pub const x: i32 = 0;
+    pub const y: i32 = 0;
+    pub fn new() -> Self {
+        Self {}
+    }
+}
+'''
+
+[[test]]
+name = "dataclass_field_default"
+description = "x: int = field(default=0)"
+tags = ["dataclasses", "defaults", "field"]
+
+python = '''
+from dataclasses import dataclass, field
+
+@dataclass
+class Point:
+    x: int = field(default=0)
+    y: int = field(default=0)
+
+p = Point()
+result = (p.x, p.y)
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+pub const p: serde_json::Value = Point::new();
+pub const result: (serde_json::Value, serde_json::Value) = (p.x, p.y);
+use serde_json;
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Point {}
+impl Point {
+    pub const x: i32 = field();
+    pub const y: i32 = field();
+    pub fn new() -> Self {
+        Self {}
+    }
+}
+'''
+
+[[test]]
+name = "dataclass_factory"
+description = "items: list = field(default_factory=list)"
+tags = ["dataclasses", "defaults", "factory"]
+
+python = '''
+from dataclasses import dataclass, field
+
+@dataclass
+class Container:
+    items: list = field(default_factory=list)
+
+c1 = Container()
+c2 = Container()
+c1.items.append(1)
+result = (len(c1.items), len(c2.items))
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+pub const c1: serde_json::Value = Container::new();
+pub const c2: serde_json::Value = Container::new();
+pub const result: (serde_json::Value, serde_json::Value) = (c1.items.len() as i32, c2.items.len() as i32);
+use serde_json;
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Container {}
+impl Container {
+    pub const items: Vec<serde_json::Value> = field();
+    pub fn new() -> Self {
+        Self {}
+    }
+}
+'''
+
+[[test]]
+name = "dataclass_mutable_error"
+description = "items: list = [] raises ValueError"
+tags = ["dataclasses", "error"]
+skip = true
+
+python = '''
+from dataclasses import dataclass
+
+try:
+    @dataclass
+    class Container:
+        items: list = []
+    result = False
+except:
+    result = True
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+'''
 
 # =============================================================================
 # Decorator Options
 # =============================================================================
 
-# TODO: Test frozen=True
-# [[test]]
-# name = "dataclass_frozen"
-# description = "@dataclass(frozen=True)"
+[[test]]
+name = "dataclass_frozen"
+description = "@dataclass(frozen=True)"
+tags = ["dataclasses", "frozen"]
 
-# TODO: Test order=True
-# [[test]]
-# name = "dataclass_order"
-# description = "@dataclass(order=True) generates <, >, etc."
+python = '''
+from dataclasses import dataclass
 
-# TODO: Test eq=False
-# [[test]]
-# name = "dataclass_no_eq"
-# description = "@dataclass(eq=False)"
+@dataclass(frozen=True)
+class Point:
+    x: int
+    y: int
 
-# TODO: Test repr=False
-# [[test]]
-# name = "dataclass_no_repr"
-# description = "@dataclass(repr=False)"
+p = Point(1, 2)
+result = (p.x, p.y)
+'''
 
-# TODO: Test init=False
-# [[test]]
-# name = "dataclass_no_init"
-# description = "@dataclass(init=False)"
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+pub const p: serde_json::Value = Point::new(1, 2);
+pub const result: (serde_json::Value, serde_json::Value) = (p.x, p.y);
+use serde_json;
+#[derive(Debug, Clone)]
+pub struct Point {
+    pub x: i32,
+    pub y: i32,
+}
+impl Point {
+    pub fn new(x: i32, y: i32) -> Self {
+        Self { x, y }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "x" => Some(Box::new(self.x.clone()) as Box<dyn std::any::Any>),
+            "y" => Some(Box::new(self.y.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "x" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.x = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "y" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.y = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+'''
+
+[[test]]
+name = "dataclass_order"
+description = "@dataclass(order=True) generates <, >, etc."
+tags = ["dataclasses", "order"]
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass(order=True)
+class Point:
+    x: int
+    y: int
+
+p1 = Point(1, 2)
+p2 = Point(2, 3)
+result = p1 < p2
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+pub const p1: serde_json::Value = Point::new(1, 2);
+pub const p2: serde_json::Value = Point::new(2, 3);
+pub const result: serde_json::Value = p1 < p2;
+use serde_json;
+#[derive(Debug, Clone)]
+pub struct Point {
+    pub x: i32,
+    pub y: i32,
+}
+impl Point {
+    pub fn new(x: i32, y: i32) -> Self {
+        Self { x, y }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "x" => Some(Box::new(self.x.clone()) as Box<dyn std::any::Any>),
+            "y" => Some(Box::new(self.y.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "x" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.x = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "y" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.y = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+'''
+
+[[test]]
+name = "dataclass_no_eq"
+description = "@dataclass(eq=False)"
+tags = ["dataclasses", "eq"]
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass(eq=False)
+class Point:
+    x: int
+    y: int
+
+p1 = Point(1, 2)
+p2 = Point(1, 2)
+result = p1 is p2
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+pub const p1: serde_json::Value = Point::new(1, 2);
+pub const p2: serde_json::Value = Point::new(1, 2);
+pub const result: serde_json::Value = p1 == p2;
+use serde_json;
+#[derive(Debug, Clone)]
+pub struct Point {
+    pub x: i32,
+    pub y: i32,
+}
+impl Point {
+    pub fn new(x: i32, y: i32) -> Self {
+        Self { x, y }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "x" => Some(Box::new(self.x.clone()) as Box<dyn std::any::Any>),
+            "y" => Some(Box::new(self.y.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "x" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.x = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "y" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.y = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+'''
+
+[[test]]
+name = "dataclass_no_repr"
+description = "@dataclass(repr=False)"
+tags = ["dataclasses", "repr"]
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass(repr=False)
+class Point:
+    x: int
+    y: int
+
+p = Point(1, 2)
+result = 'Point' not in repr(p)
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+pub const p: serde_json::Value = Point::new(1, 2);
+pub const result: serde_json::Value = !format!("{:?}", p).contains(&"Point");
+use serde_json;
+#[derive(Debug, Clone)]
+pub struct Point {
+    pub x: i32,
+    pub y: i32,
+}
+impl Point {
+    pub fn new(x: i32, y: i32) -> Self {
+        Self { x, y }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "x" => Some(Box::new(self.x.clone()) as Box<dyn std::any::Any>),
+            "y" => Some(Box::new(self.y.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "x" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.x = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "y" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.y = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+'''
+
+[[test]]
+name = "dataclass_no_init"
+description = "@dataclass(init=False)"
+tags = ["dataclasses", "init"]
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass(init=False)
+class Point:
+    x: int
+    y: int
+    
+    def __init__(self):
+        self.x = 0
+        self.y = 0
+
+p = Point()
+result = (p.x, p.y)
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+pub const p: serde_json::Value = Point::new();
+pub const result: (serde_json::Value, serde_json::Value) = (p.x, p.y);
+use serde_json;
+#[derive(Debug, Clone)]
+pub struct Point {
+    pub x: i32,
+    pub y: i32,
+}
+impl Point {
+    pub fn new() -> Self {
+        Self { x: 0, y: 0 }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "x" => Some(Box::new(self.x.clone()) as Box<dyn std::any::Any>),
+            "y" => Some(Box::new(self.y.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "x" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.x = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "y" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.y = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+'''
 
 # =============================================================================
 # Field Options
 # =============================================================================
 
-# TODO: Test field repr
-# [[test]]
-# name = "dataclass_field_repr"
-# description = "field(repr=False)"
+[[test]]
+name = "dataclass_field_repr"
+description = "field(repr=False)"
+tags = ["dataclasses", "field", "repr"]
 
-# TODO: Test field compare
-# [[test]]
-# name = "dataclass_field_compare"
-# description = "field(compare=False)"
+python = '''
+from dataclasses import dataclass, field
 
-# TODO: Test field hash
-# [[test]]
-# name = "dataclass_field_hash"
-# description = "field(hash=True)"
+@dataclass
+class Person:
+    name: str
+    password: str = field(repr=False)
 
-# TODO: Test field init
-# [[test]]
-# name = "dataclass_field_init"
-# description = "field(init=False)"
+p = Person('Alice', 'secret')
+result = 'secret' not in repr(p)
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+pub const p: serde_json::Value = Person::new("Alice".to_string(), "secret".to_string());
+pub const result: serde_json::Value = !format!("{:?}", p).contains(&"secret");
+use serde_json;
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Person {
+    pub name: String,
+}
+impl Person {
+    pub const password: String = field();
+    pub fn new(name: String) -> Self {
+        Self { name }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "name" => Some(Box::new(self.name.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "name" => {
+                if let Some(v) = value.downcast_ref::<String>() {
+                    self.name = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+'''
+
+[[test]]
+name = "dataclass_field_compare"
+description = "field(compare=False)"
+tags = ["dataclasses", "field", "compare"]
+
+python = '''
+from dataclasses import dataclass, field
+
+@dataclass
+class Person:
+    name: str
+    age: int = field(compare=False)
+
+p1 = Person('Alice', 30)
+p2 = Person('Alice', 40)
+result = p1 == p2
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+pub const p1: serde_json::Value = Person::new("Alice".to_string(), 30);
+pub const p2: serde_json::Value = Person::new("Alice".to_string(), 40);
+pub const result: serde_json::Value = p1 == p2;
+use serde_json;
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Person {
+    pub name: String,
+}
+impl Person {
+    pub const age: i32 = field();
+    pub fn new(name: String) -> Self {
+        Self { name }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "name" => Some(Box::new(self.name.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "name" => {
+                if let Some(v) = value.downcast_ref::<String>() {
+                    self.name = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+'''
+
+[[test]]
+name = "dataclass_field_hash"
+description = "field(hash=True)"
+tags = ["dataclasses", "field", "hash"]
+
+python = '''
+from dataclasses import dataclass, field
+
+@dataclass(frozen=True)
+class Person:
+    name: str
+    id: int = field(hash=True)
+
+p = Person('Alice', 123)
+result = hash(p)
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+pub const p: serde_json::Value = Person::new("Alice".to_string(), 123);
+pub const result: serde_json::Value = {
+    use std::collections::hash_map::DefaultHasher;
+    use std::hash::{Hash, Hasher};
+    let mut hasher = DefaultHasher::new();
+    p.hash(&mut hasher);
+    hasher.finish() as i64
+};
+use serde_json;
+#[derive(Debug, Clone)]
+pub struct Person {
+    pub name: String,
+}
+impl Person {
+    pub const id: i32 = field();
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "name" => Some(Box::new(self.name.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "name" => {
+                if let Some(v) = value.downcast_ref::<String>() {
+                    self.name = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+'''
+
+[[test]]
+name = "dataclass_field_init"
+description = "field(init=False)"
+tags = ["dataclasses", "field", "init"]
+
+python = '''
+from dataclasses import dataclass, field
+
+@dataclass
+class Rectangle:
+    width: int
+    height: int
+    area: int = field(init=False)
+    
+    def __post_init__(self):
+        self.area = self.width * self.height
+
+r = Rectangle(3, 4)
+result = r.area
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+pub const r: serde_json::Value = Rectangle::new(3, 4);
+pub const result: serde_json::Value = r.area;
+use serde_json;
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Rectangle {
+    pub width: i32,
+    pub height: i32,
+}
+impl Rectangle {
+    pub const area: i32 = field();
+    pub fn new(width: i32, height: i32) -> Self {
+        Self { width, height }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "width" => Some(Box::new(self.width.clone()) as Box<dyn std::any::Any>),
+            "height" => Some(Box::new(self.height.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "width" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.width = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "height" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.height = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+'''
 
 # =============================================================================
 # Post-Init
 # =============================================================================
 
-# TODO: Test __post_init__
-# [[test]]
-# name = "dataclass_post_init"
-# description = "def __post_init__(self): ..."
+[[test]]
+name = "dataclass_post_init"
+description = "def __post_init__(self): ..."
+tags = ["dataclasses", "post_init"]
 
-# TODO: Test InitVar
-# [[test]]
-# name = "dataclass_initvar"
-# description = "init_only: InitVar[int]"
+python = '''
+from dataclasses import dataclass
+
+@dataclass
+class Point:
+    x: int
+    y: int
+    
+    def __post_init__(self):
+        if self.x < 0:
+            self.x = 0
+        if self.y < 0:
+            self.y = 0
+
+p = Point(-5, -10)
+result = (p.x, p.y)
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+pub const p: serde_json::Value = Point::new(-5, -10);
+pub const result: (serde_json::Value, serde_json::Value) = (p.x, p.y);
+use serde_json;
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Point {
+    pub x: i32,
+    pub y: i32,
+}
+impl Point {
+    pub fn new(x: i32, y: i32) -> Self {
+        Self { x, y }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "x" => Some(Box::new(self.x.clone()) as Box<dyn std::any::Any>),
+            "y" => Some(Box::new(self.y.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "x" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.x = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "y" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.y = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+'''
+
+[[test]]
+name = "dataclass_initvar"
+description = "init_only: InitVar[int]"
+tags = ["dataclasses", "initvar"]
+
+python = '''
+from dataclasses import dataclass, field, InitVar
+
+@dataclass
+class Rectangle:
+    width: int
+    height: int
+    scale: InitVar[int] = 1
+    area: int = field(init=False)
+    
+    def __post_init__(self, scale):
+        self.area = self.width * self.height * scale
+
+r = Rectangle(3, 4, 2)
+result = r.area
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+pub const r: serde_json::Value = Rectangle::new(3, 4, 2);
+pub const result: serde_json::Value = r.area;
+use serde_json;
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Rectangle {
+    pub width: i32,
+    pub height: i32,
+}
+impl Rectangle {
+    pub const scale: InitVar<i32> = 1;
+    pub const area: i32 = field();
+    pub fn new(width: i32, height: i32) -> Self {
+        Self { width, height }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "width" => Some(Box::new(self.width.clone()) as Box<dyn std::any::Any>),
+            "height" => Some(Box::new(self.height.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "width" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.width = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "height" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.height = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+'''
 
 # =============================================================================
 # Edge Cases
 # =============================================================================
 
-# TODO: Test inheritance
-# [[test]]
-# name = "dataclass_inherit"
-# description = "@dataclass class B(A): ..."
+[[test]]
+name = "dataclass_inherit"
+description = "@dataclass class B(A): ..."
+tags = ["dataclasses", "inheritance"]
 
-# TODO: Test ClassVar
-# [[test]]
-# name = "dataclass_classvar"
-# description = "count: ClassVar[int] = 0"
+python = '''
+from dataclasses import dataclass
 
-# TODO: Test slots=True (3.10+)
-# [[test]]
-# name = "dataclass_slots"
-# description = "@dataclass(slots=True)"
+@dataclass
+class Point2D:
+    x: int
+    y: int
+
+@dataclass
+class Point3D(Point2D):
+    z: int
+
+p = Point3D(1, 2, 3)
+result = (p.x, p.y, p.z)
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+pub const p: serde_json::Value = Point3D::new(1, 2, 3);
+pub const result: (serde_json::Value, serde_json::Value, serde_json::Value) = (p.x, p.y, p.z);
+use serde_json;
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Point2D {
+    pub x: i32,
+    pub y: i32,
+}
+impl Point2D {
+    pub fn new(x: i32, y: i32) -> Self {
+        Self { x, y }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "x" => Some(Box::new(self.x.clone()) as Box<dyn std::any::Any>),
+            "y" => Some(Box::new(self.y.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "x" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.x = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "y" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.y = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Point3D {
+    pub z: i32,
+}
+impl Point3D {
+    pub fn new(z: i32) -> Self {
+        Self { z }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "z" => Some(Box::new(self.z.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "z" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.z = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+'''
+
+[[test]]
+name = "dataclass_classvar"
+description = "count: ClassVar[int] = 0"
+tags = ["dataclasses", "classvar"]
+
+python = '''
+from dataclasses import dataclass
+from typing import ClassVar
+
+@dataclass
+class Counter:
+    value: int
+    total: ClassVar[int] = 0
+    
+    def __post_init__(self):
+        Counter.total += self.value
+
+c1 = Counter(5)
+c2 = Counter(10)
+result = Counter.total
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+pub const c1: serde_json::Value = Counter::new(5);
+pub const c2: serde_json::Value = Counter::new(10);
+pub const result: serde_json::Value = Counter.total;
+use serde_json;
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Counter {
+    pub value: i32,
+}
+impl Counter {
+    pub const total: ClassVar<i32> = 0;
+    pub fn new(value: i32) -> Self {
+        Self { value }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "value" => Some(Box::new(self.value.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "value" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.value = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+'''
+
+[[test]]
+name = "dataclass_slots"
+description = "@dataclass(slots=True)"
+tags = ["dataclasses", "slots", "py310"]
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass(slots=True)
+class Point:
+    x: int
+    y: int
+
+p = Point(1, 2)
+result = (p.x, p.y)
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+pub const p: serde_json::Value = Point::new(1, 2);
+pub const result: (serde_json::Value, serde_json::Value) = (p.x, p.y);
+use serde_json;
+#[derive(Debug, Clone)]
+pub struct Point {
+    pub x: i32,
+    pub y: i32,
+}
+impl Point {
+    pub fn new(x: i32, y: i32) -> Self {
+        Self { x, y }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "x" => Some(Box::new(self.x.clone()) as Box<dyn std::any::Any>),
+            "y" => Some(Box::new(self.y.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "x" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.x = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "y" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.y = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+'''

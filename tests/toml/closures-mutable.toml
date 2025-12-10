@@ -9,128 +9,396 @@ category = "decorators-closures"
 # Read-Only vs Mutable
 # =============================================================================
 
-# TODO: Test read-only closure
-# [[test]]
-# name = "closure_readonly"
-# description = "Inner reads but doesn't modify outer variable"
+[[test]]
+name = "closure_readonly"
+description = "Test inner function reads but doesn't modify outer variable"
+python = '''
+def outer():
+    x = 1
+    def inner():
+        return x + 10  # Read only, no modification
+    return inner
 
-# TODO: Test assignment creates local
-# [[test]]
-# name = "closure_local_shadow"
-# description = "x = 1 in inner creates local, not modify outer"
+f = outer()
+assert f() == 11
+assert f() == 11  # x remains unchanged
+'''
 
-# TODO: Test UnboundLocalError
-# [[test]]
-# name = "closure_unbound_error"
-# description = "Read before assign in same function"
-# skip = true
+[[test]]
+name = "closure_local_shadow"
+description = "Test assignment in inner creates local variable, shadows outer"
+python = '''
+def outer():
+    x = 1
+    def inner():
+        x = 10  # Creates local x, doesn't modify outer x
+        return x
+    inner()
+    return x
+
+result = outer()
+assert result == 1  # Outer x unchanged
+'''
+
+[[test]]
+name = "closure_unbound_error"
+description = "Test UnboundLocalError when reading before assignment in same function"
+skip = true
+python = '''
+def outer():
+    x = 1
+    def inner():
+        print(x)  # Tries to read x
+        x = 10    # But then assigns to x, making it local
+        return x
+    return inner
+
+f = outer()
+# This would raise UnboundLocalError
+# f()
+'''
 
 # =============================================================================
 # nonlocal Statement
 # =============================================================================
 
-# TODO: Test nonlocal basic
-# [[test]]
-# name = "nonlocal_basic"
-# description = "nonlocal x; x = new_value"
+[[test]]
+name = "nonlocal_basic"
+description = "Test nonlocal keyword allows modifying enclosing scope variable"
+python = '''
+def outer():
+    x = 1
+    def inner():
+        nonlocal x
+        x = 10
+    inner()
+    return x
 
-# TODO: Test nonlocal modify
-# [[test]]
-# name = "nonlocal_modify"
-# description = "Modify enclosing scope variable"
+result = outer()
+assert result == 10  # x was modified by inner
+'''
 
-# TODO: Test nonlocal increment
-# [[test]]
-# name = "nonlocal_increment"
-# description = "nonlocal count; count += 1"
+[[test]]
+name = "nonlocal_modify"
+description = "Test nonlocal modifies enclosing scope variable"
+python = '''
+def outer():
+    message = "Hello"
+    def inner():
+        nonlocal message
+        message = message + " World"
+    inner()
+    return message
+
+result = outer()
+assert result == "Hello World"
+'''
+
+[[test]]
+name = "nonlocal_increment"
+description = "Test nonlocal with increment operator"
+python = '''
+def outer():
+    count = 0
+    def inner():
+        nonlocal count
+        count += 1
+        return count
+    return inner
+
+f = outer()
+assert f() == 1
+assert f() == 2
+assert f() == 3
+'''
 
 # =============================================================================
 # Mutable Closure Patterns
 # =============================================================================
 
-# TODO: Test counter with nonlocal
-# [[test]]
-# name = "mutable_counter"
-# description = "def counter(): count = 0; def inc(): nonlocal count; count += 1; return count"
+[[test]]
+name = "mutable_counter"
+description = "Test counter pattern with nonlocal"
+python = '''
+def make_counter():
+    count = 0
+    def increment():
+        nonlocal count
+        count += 1
+        return count
+    return increment
 
-# TODO: Test stateful closure
-# [[test]]
-# name = "mutable_state"
-# description = "Closure maintaining mutable state"
+counter = make_counter()
+assert counter() == 1
+assert counter() == 2
+assert counter() == 3
+'''
 
-# TODO: Test getter/setter closure
-# [[test]]
-# name = "mutable_getter_setter"
-# description = "Return get and set functions"
+[[test]]
+name = "mutable_state"
+description = "Test closure maintaining and modifying state"
+python = '''
+def make_bank_account(initial_balance):
+    balance = initial_balance
+    def deposit(amount):
+        nonlocal balance
+        balance += amount
+        return balance
+    return deposit
+
+account = make_bank_account(100)
+assert account(50) == 150
+assert account(25) == 175
+'''
+
+[[test]]
+name = "mutable_getter_setter"
+description = "Test returning getter and setter closure functions"
+python = '''
+def make_cell(value):
+    data = value
+    def get():
+        return data
+    def set(new_value):
+        nonlocal data
+        data = new_value
+    return get, set
+
+get_value, set_value = make_cell(10)
+assert get_value() == 10
+set_value(20)
+assert get_value() == 20
+'''
 
 # =============================================================================
 # Multiple Functions Sharing State
 # =============================================================================
 
-# TODO: Test shared state
-# [[test]]
-# name = "mutable_shared"
-# description = "Multiple inner functions share outer variable"
+[[test]]
+name = "mutable_shared"
+description = "Test multiple inner functions sharing and modifying outer variable"
+python = '''
+def make_shared():
+    value = 0
+    def add(n):
+        nonlocal value
+        value += n
+        return value
+    def get():
+        return value
+    return add, get
 
-# TODO: Test increment and decrement
-# [[test]]
-# name = "mutable_inc_dec"
-# description = "def make(): x=0; def inc(): nonlocal x; x+=1; def dec(): nonlocal x; x-=1"
+add, get = make_shared()
+add(5)
+add(3)
+assert get() == 8
+'''
 
-# TODO: Test factory with shared state
-# [[test]]
-# name = "mutable_factory_shared"
-# description = "Closures from same call share state"
+[[test]]
+name = "mutable_inc_dec"
+description = "Test increment and decrement functions sharing state"
+python = '''
+def make_counter():
+    count = 0
+    def increment():
+        nonlocal count
+        count += 1
+        return count
+    def decrement():
+        nonlocal count
+        count -= 1
+        return count
+    return increment, decrement
+
+inc, dec = make_counter()
+assert inc() == 1
+assert inc() == 2
+assert dec() == 1
+assert inc() == 2
+'''
+
+[[test]]
+name = "mutable_factory_shared"
+description = "Test multiple closures from same call share state"
+python = '''
+def make_counters():
+    shared = 0
+    def inc():
+        nonlocal shared
+        shared += 1
+        return shared
+    def double():
+        nonlocal shared
+        shared *= 2
+        return shared
+    return inc, double
+
+inc1, double1 = make_counters()
+inc2, double2 = make_counters()
+assert inc1() == 1
+assert double1() == 2  # Same shared state
+assert inc2() == 1     # Different shared state
+'''
 
 # =============================================================================
 # nonlocal Chain
 # =============================================================================
 
-# TODO: Test nonlocal chain
-# [[test]]
-# name = "nonlocal_chain"
-# description = "nonlocal in deeply nested function"
+[[test]]
+name = "nonlocal_chain"
+description = "Test nonlocal in deeply nested functions"
+python = '''
+def level1():
+    x = 1
+    def level2():
+        def level3():
+            nonlocal x
+            x = 10
+        level3()
+        return x
+    return level2()
 
-# TODO: Test nonlocal skipping level
-# [[test]]
-# name = "nonlocal_skip"
-# description = "nonlocal finds variable in outer scope"
+result = level1()
+assert result == 10
+'''
+
+[[test]]
+name = "nonlocal_skip"
+description = "Test nonlocal finds variable in enclosing (not immediate) scope"
+python = '''
+def outer():
+    x = 1
+    def middle():
+        # middle doesn't have x, but nonlocal finds it in outer
+        def inner():
+            nonlocal x
+            x = 10
+        inner()
+    middle()
+    return x
+
+result = outer()
+assert result == 10
+'''
 
 # =============================================================================
 # Alternatives to nonlocal
 # =============================================================================
 
-# TODO: Test mutable container instead
-# [[test]]
-# name = "mutable_container"
-# description = "state = [0] instead of nonlocal"
+[[test]]
+name = "mutable_container"
+description = "Test using mutable container instead of nonlocal"
+python = '''
+def make_counter():
+    state = [0]  # Mutable container
+    def increment():
+        state[0] += 1  # Modify contents, not reassign
+        return state[0]
+    return increment
 
-# TODO: Test class instead of closure
-# [[test]]
-# name = "mutable_class_alternative"
-# description = "Class with __call__ vs mutable closure"
+counter = make_counter()
+assert counter() == 1
+assert counter() == 2
+assert counter() == 3
+'''
+
+[[test]]
+name = "mutable_class_alternative"
+description = "Test using class with __call__ instead of mutable closure"
+python = '''
+class Counter:
+    def __init__(self):
+        self.count = 0
+    def __call__(self):
+        self.count += 1
+        return self.count
+
+counter = Counter()
+assert counter() == 1
+assert counter() == 2
+assert counter() == 3
+'''
 
 # =============================================================================
 # Edge Cases
 # =============================================================================
 
-# TODO: Test nonlocal not in global
-# [[test]]
-# name = "nonlocal_not_global"
-# description = "nonlocal doesn't work for globals"
-# skip = true
+[[test]]
+name = "nonlocal_not_global"
+description = "Test nonlocal doesn't work for global variables"
+skip = true
+python = '''
+x = 1
 
-# TODO: Test nonlocal in method
-# [[test]]
-# name = "nonlocal_method"
-# description = "nonlocal in nested function in method"
+def outer():
+    def inner():
+        # nonlocal x  # Would raise SyntaxError: no binding for nonlocal 'x' found
+        pass
+    inner()
 
-# TODO: Test del with nonlocal
-# [[test]]
-# name = "nonlocal_del"
-# description = "del on nonlocal variable"
+# nonlocal only works for enclosing function scopes, not global
+'''
 
-# TODO: Test nonlocal multiple variables
-# [[test]]
-# name = "nonlocal_multiple"
-# description = "nonlocal a, b, c"
+[[test]]
+name = "nonlocal_method"
+description = "Test nonlocal in nested function inside a method"
+python = '''
+class MyClass:
+    def method(self):
+        x = 10
+        def inner():
+            nonlocal x
+            x = 20
+        inner()
+        return x
+
+obj = MyClass()
+result = obj.method()
+assert result == 20
+'''
+
+[[test]]
+name = "nonlocal_del"
+description = "Test delete operation on nonlocal variable"
+python = '''
+def outer():
+    x = 10
+    def inner():
+        nonlocal x
+        result = x
+        del x
+        return result
+    value = inner()
+    # x is now deleted in outer scope
+    try:
+        _ = x
+        exists = False
+    except UnboundLocalError:
+        exists = False
+    except NameError:
+        exists = False
+    return value
+
+result = outer()
+assert result == 10
+'''
+
+[[test]]
+name = "nonlocal_multiple"
+description = "Test nonlocal with multiple variables"
+python = '''
+def outer():
+    a = 1
+    b = 2
+    c = 3
+    def inner():
+        nonlocal a, b, c
+        a = 10
+        b = 20
+        c = 30
+    inner()
+    return a, b, c
+
+result = outer()
+assert result == (10, 20, 30)
+'''

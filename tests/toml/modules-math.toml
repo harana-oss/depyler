@@ -13,691 +13,1009 @@ name = "math_sin"
 description = "math.sin() function"
 tags = ["math", "trig"]
 
-[test.python]
-code = '''
+python = '''
 import math
 
 def calculate_sin(x: float) -> float:
     return math.sin(x)
 '''
 
-[test.assertions]
-contains_any = [["x.sin()", "f64::sin", ".sin()"]]
+rust = '''
+use std::f64 as math;
+pub fn calculate_sin(x: f64) -> f64 {
+    return (x as f64).sin();
+}
+'''
 
 [[test]]
 name = "math_cos"
 description = "math.cos() function"
 tags = ["math", "trig"]
 
-[test.python]
-code = '''
+python = '''
 import math
 
 def calculate_cos(x: float) -> float:
     return math.cos(x)
 '''
 
-[test.assertions]
-contains_any = [["x.cos()", "f64::cos", ".cos()"]]
+rust = '''
+use std::f64 as math;
+pub fn calculate_cos(x: f64) -> f64 {
+    return (x as f64).cos();
+}
+'''
 
 [[test]]
 name = "math_tan"
 description = "math.tan() function"
 tags = ["math", "trig"]
 
-[test.python]
-code = '''
+python = '''
 import math
 
 def calculate_tan(x: float) -> float:
     return math.tan(x)
 '''
 
-[test.assertions]
-contains_any = [["x.tan()", "f64::tan", ".tan()"]]
-
-# =============================================================================
-# Exponential and Logarithmic
-# =============================================================================
+rust = '''
+use std::f64 as math;
+pub fn calculate_tan(x: f64) -> f64 {
+    return (x as f64).tan();
+}
+'''
 
 [[test]]
 name = "math_exp"
 description = "math.exp() function"
 tags = ["math", "exp"]
 
-[test.python]
-code = '''
+python = '''
 import math
 
 def calculate_exp(x: float) -> float:
     return math.exp(x)
 '''
 
-[test.assertions]
-contains_any = [["x.exp()", "f64::exp", ".exp()"]]
+rust = '''
+use std::f64 as math;
+pub fn calculate_exp(x: f64) -> f64 {
+    return (x as f64).exp();
+}
+'''
 
 [[test]]
 name = "math_log"
 description = "math.log() natural logarithm"
 tags = ["math", "log"]
 
-[test.python]
-code = '''
+python = '''
 import math
 
 def calculate_log(x: float) -> float:
     return math.log(x)
 '''
 
-[test.assertions]
-contains_any = [["x.ln()", "f64::ln", ".ln()"]]
+rust = '''
+use std::f64 as math;
+pub fn calculate_log(x: f64) -> f64 {
+    return (x as f64).ln();
+}
+'''
 
 [[test]]
 name = "math_log10"
 description = "math.log10() base-10 logarithm"
 tags = ["math", "log"]
 
-[test.python]
-code = '''
+python = '''
 import math
 
 def calculate_log10(x: float) -> float:
     return math.log10(x)
 '''
 
-[test.assertions]
-contains_any = [["x.log10()", "f64::log10", ".log10()"]]
+rust = '''
+use std::f64 as math;
+pub fn calculate_log10(x: f64) -> f64 {
+    return (x as f64).log10();
+}
+'''
 
 [[test]]
 name = "math_log2"
 description = "math.log2() base-2 logarithm"
 tags = ["math", "log"]
 
-[test.python]
-code = '''
+python = '''
 import math
 
 def calculate_log2(x: float) -> float:
     return math.log2(x)
 '''
 
-[test.assertions]
-contains_any = [["x.log2()", "f64::log2", ".log2()"]]
-
-# =============================================================================
-# Power and Root Functions
-# =============================================================================
+rust = '''
+use std::f64 as math;
+pub fn calculate_log2(x: f64) -> f64 {
+    return (x as f64).log2();
+}
+'''
 
 [[test]]
 name = "math_sqrt"
 description = "math.sqrt() square root"
 tags = ["math", "power"]
 
-[test.python]
-code = '''
+python = '''
 import math
 
 def calculate_sqrt(x: float) -> float:
     return math.sqrt(x)
 '''
 
-[test.assertions]
-contains_any = [["x.sqrt()", "f64::sqrt", ".sqrt()"]]
+rust = '''
+use std::f64 as math;
+pub fn calculate_sqrt(x: f64) -> f64 {
+    return (x as f64).sqrt();
+}
+'''
 
 [[test]]
 name = "math_pow"
 description = "math.pow() power function"
 tags = ["math", "power"]
 
-[test.python]
-code = '''
+python = '''
 import math
 
 def calculate_pow(x: float, y: float) -> float:
     return math.pow(x, y)
 '''
 
-[test.assertions]
-contains_any = [["powf", "powi", ".pow("]]
-
-# =============================================================================
-# Rounding Functions
-# =============================================================================
+rust = '''
+use std::f64 as math;
+pub fn calculate_pow(x: f64, y: f64) -> f64 {
+    return (x as f64).powf(y as f64);
+}
+'''
 
 [[test]]
 name = "math_floor"
 description = "math.floor() function"
 tags = ["math", "round"]
 
-[test.python]
-code = '''
+python = '''
 import math
 
 def calculate_floor(x: float) -> int:
     return math.floor(x)
 '''
 
-[test.assertions]
-contains_any = [["x.floor()", "f64::floor", ".floor()"]]
+rust = '''
+use std::f64 as math;
+pub fn calculate_floor(x: f64) -> i32 {
+    return (x as f64).floor() as i32;
+}
+'''
 
 [[test]]
 name = "math_ceil"
 description = "math.ceil() function"
 tags = ["math", "round"]
 
-[test.python]
-code = '''
+python = '''
 import math
 
 def calculate_ceil(x: float) -> int:
     return math.ceil(x)
 '''
 
-[test.assertions]
-contains_any = [["x.ceil()", "f64::ceil", ".ceil()"]]
+rust = '''
+use std::f64 as math;
+pub fn calculate_ceil(x: f64) -> i32 {
+    return (x as f64).ceil() as i32;
+}
+'''
 
 [[test]]
 name = "math_trunc"
 description = "math.trunc() function"
 tags = ["math", "round"]
 
-[test.python]
-code = '''
+python = '''
 import math
 
 def calculate_trunc(x: float) -> int:
     return math.trunc(x)
 '''
 
-[test.assertions]
-contains_any = [["x.trunc()", "f64::trunc", ".trunc()"]]
+rust = '''
+use std::f64 as math;
+pub fn calculate_trunc(x: f64) -> i32 {
+    return (x as f64).trunc();
+}
+'''
 
 [[test]]
 name = "math_round"
 description = "round() builtin function"
 tags = ["math", "round"]
 
-[test.python]
-code = '''
+python = '''
 def round_number(x: float) -> int:
     return round(x)
 '''
 
-[test.assertions]
-contains_any = [["x.round()", "f64::round", ".round()"]]
-
-# =============================================================================
-# Absolute Value
-# =============================================================================
+rust = '''
+pub fn round_number(x: f64) -> i32 {
+    return x.round() as i32;
+}
+'''
 
 [[test]]
 name = "math_fabs"
 description = "math.fabs() absolute value"
 tags = ["math", "abs"]
 
-[test.python]
-code = '''
+python = '''
 import math
 
 def absolute_float(x: float) -> float:
     return math.fabs(x)
 '''
 
-[test.assertions]
-contains_any = [["x.abs()", "f64::abs", ".abs()"]]
+rust = '''
+use std::f64 as math;
+pub fn absolute_float(x: f64) -> f64 {
+    return (x as f64).abs();
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn quickcheck_absolute_float() {
+        fn prop(x: f64) -> TestResult {
+            let result = absolute_float(x.clone());
+            if result < 0 {
+                return TestResult::failed();
+            }
+            TestResult::passed()
+        }
+        quickcheck(prop as fn(f64) -> TestResult);
+    }
+}
+'''
 
 [[test]]
 name = "abs_builtin"
 description = "abs() builtin function"
 tags = ["math", "abs"]
 
-[test.python]
-code = '''
+python = '''
 def absolute_int(x: int) -> int:
     return abs(x)
 '''
 
-[test.assertions]
-contains_any = [["x.abs()", ".abs()"]]
-
-# =============================================================================
-# Constants
-# =============================================================================
+rust = '''
+pub fn absolute_int(x: i32) -> i32 {
+    return x.abs();
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn quickcheck_absolute_int() {
+        fn prop(x: i32) -> TestResult {
+            let result = absolute_int(x.clone());
+            if result < 0 {
+                return TestResult::failed();
+            }
+            TestResult::passed()
+        }
+        quickcheck(prop as fn(i32) -> TestResult);
+    }
+    #[test]
+    fn test_absolute_int_examples() {
+        assert_eq!(absolute_int(0), 0);
+        assert_eq!(absolute_int(1), 1);
+        assert_eq!(absolute_int(-1), 1);
+        assert_eq!(absolute_int(i32::MIN + 1), i32::MAX);
+    }
+}
+'''
 
 [[test]]
 name = "math_pi"
 description = "math.pi constant"
 tags = ["math", "constant"]
 
-[test.python]
-code = '''
+python = '''
 import math
 
 def get_pi() -> float:
     return math.pi
 '''
 
-[test.assertions]
-contains_any = [["std::f64::consts::PI", "PI", "3.14"]]
+rust = '''
+use std::f64 as math;
+pub fn get_pi() -> f64 {
+    return std::f64::consts::PI;
+}
+'''
 
 [[test]]
 name = "math_e"
 description = "math.e constant"
 tags = ["math", "constant"]
 
-[test.python]
-code = '''
+python = '''
 import math
 
 def get_e() -> float:
     return math.e
 '''
 
-[test.assertions]
-contains_any = [["std::f64::consts::E", "E", "2.71"]]
-
-# =============================================================================
-# Additional Math Functions
-# =============================================================================
+rust = '''
+use std::f64 as math;
+pub fn get_e() -> f64 {
+    return std::f64::consts::E;
+}
+'''
 
 [[test]]
 name = "math_copysign"
 description = "math.copysign() function"
 tags = ["math", "sign"]
 
-[test.python]
-code = '''
+python = '''
 import math
 
 def copy_sign(x: float, y: float) -> float:
     return math.copysign(x, y)
 '''
 
-[test.assertions]
-contains_any = [["copysign", "signum"]]
+rust = '''
+use std::f64 as math;
+pub fn copy_sign(x: f64, y: f64) -> f64 {
+    return (x as f64).copysign(y as f64);
+}
+'''
 
 [[test]]
 name = "math_hypot"
 description = "math.hypot() function"
 tags = ["math", "geometry"]
 
-[test.python]
-code = '''
+python = '''
 import math
 
 def hypotenuse(x: float, y: float) -> float:
     return math.hypot(x, y)
 '''
 
-[test.assertions]
-contains_any = [["hypot", "sqrt"]]
+rust = '''
+use std::f64 as math;
+pub fn hypotenuse(x: f64, y: f64) -> f64 {
+    return (x as f64).hypot(y as f64);
+}
+'''
 
 [[test]]
 name = "math_isnan"
 description = "math.isnan() check"
 tags = ["math", "check"]
 
-[test.python]
-code = '''
+python = '''
 import math
 
 def check_nan(x: float) -> bool:
     return math.isnan(x)
 '''
 
-[test.assertions]
-contains_any = [["is_nan()", "isnan"]]
+rust = '''
+use std::f64 as math;
+pub fn check_nan(x: f64) -> bool {
+    return (x as f64).is_nan();
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_check_nan_examples() {
+        let _ = check_nan(Default::default());
+    }
+}
+'''
 
 [[test]]
 name = "math_isinf"
 description = "math.isinf() check"
 tags = ["math", "check"]
 
-[test.python]
-code = '''
+python = '''
 import math
 
 def check_inf(x: float) -> bool:
     return math.isinf(x)
 '''
 
-[test.assertions]
-contains_any = [["is_infinite()", "isinf"]]
-
-# =============================================================================
-# Min/Max Builtin Functions
-# =============================================================================
+rust = '''
+use std::f64 as math;
+pub fn check_inf(x: f64) -> bool {
+    return (x as f64).is_infinite();
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_check_inf_examples() {
+        let _ = check_inf(Default::default());
+    }
+}
+'''
 
 [[test]]
 name = "max_two_args"
 description = "max() with two arguments"
 tags = ["math", "minmax"]
 
-[test.python]
-code = '''
+python = '''
 def max_two(a: int, b: int) -> int:
     return max(a, b)
 '''
 
-[test.assertions]
-contains = ["std::cmp::max(a, b)"]
+rust = '''
+pub fn max_two(a: i32, b: i32) -> i32 {
+    return std::cmp::max(a, b);
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_max_two_examples() {
+        assert_eq!(max_two(0, 0), 0);
+        assert_eq!(max_two(1, 2), 3);
+        assert_eq!(max_two(-1, 1), 0);
+    }
+}
+'''
 
 [[test]]
 name = "min_two_args"
 description = "min() with two arguments"
 tags = ["math", "minmax"]
 
-[test.python]
-code = '''
+python = '''
 def min_two(a: int, b: int) -> int:
     return min(a, b)
 '''
 
-[test.assertions]
-contains = ["std::cmp::min(a, b)"]
+rust = '''
+pub fn min_two(a: i32, b: i32) -> i32 {
+    return std::cmp::min(a, b);
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_min_two_examples() {
+        assert_eq!(min_two(0, 0), 0);
+        assert_eq!(min_two(1, 2), 3);
+        assert_eq!(min_two(-1, 1), 0);
+    }
+}
+'''
 
 [[test]]
 name = "max_two_floats"
 description = "max() with float arguments"
 tags = ["math", "minmax"]
 
-[test.python]
-code = '''
+python = '''
 def max_two_f(a: float, b: float) -> float:
     return max(a, b)
 '''
 
-[test.assertions]
-contains = ["f64::max(a, b)"]
+rust = '''
+pub fn max_two_f(a: f64, b: f64) -> f64 {
+    return f64::max(a, b);
+}
+'''
 
 [[test]]
 name = "min_two_floats"
 description = "min() with float arguments"
 tags = ["math", "minmax"]
 
-[test.python]
-code = '''
+python = '''
 def min_two_f(a: float, b: float) -> float:
     return min(a, b)
 '''
 
-[test.assertions]
-contains = ["f64::min(a, b)"]
+rust = '''
+pub fn min_two_f(a: f64, b: f64) -> f64 {
+    return f64::min(a, b);
+}
+'''
 
 [[test]]
 name = "max_three_args"
 description = "max() with three arguments"
 tags = ["math", "minmax"]
 
-[test.python]
-code = '''
+python = '''
 def max_three() -> int:
     return max(10, 20, 5)
 '''
 
-[test.assertions]
-contains = ["std::cmp::max(std::cmp::max(10, 20), 5)"]
+rust = '''
+pub fn max_three() -> i32 {
+    return std::cmp::max(std::cmp::max(10, 20), 5);
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_max_three_examples() {
+        let _ = max_three();
+    }
+}
+'''
 
 [[test]]
 name = "max_list"
 description = "max() on list"
 tags = ["math", "minmax"]
 
-[test.python]
-code = '''
+python = '''
 def max_list(items: list[int]) -> int:
     return max(items)
 '''
 
-[test.assertions]
-contains = ["iter().max().unwrap()"]
+rust = '''
+pub fn max_list(items: Vec<i32>) -> i32 {
+    return *items.iter().max().unwrap();
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_max_list_examples() {
+        assert_eq!(max_list(vec![]), 0);
+        assert_eq!(max_list(vec![1]), 1);
+        assert_eq!(max_list(vec![1, 2, 3]), 3);
+    }
+}
+'''
 
 [[test]]
 name = "min_list"
 description = "min() on list"
 tags = ["math", "minmax"]
 
-[test.python]
-code = '''
+python = '''
 def min_list(items: list[int]) -> int:
     return min(items)
 '''
 
-[test.assertions]
-contains = ["iter().min().unwrap()"]
-
-# =============================================================================
-# Power Operator
-# =============================================================================
+rust = '''
+pub fn min_list(items: Vec<i32>) -> i32 {
+    return *items.iter().min().unwrap();
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_min_list_examples() {
+        assert_eq!(min_list(vec![]), 0);
+        assert_eq!(min_list(vec![1]), 1);
+        assert_eq!(min_list(vec![1, 2, 3]), 3);
+    }
+}
+'''
 
 [[test]]
 name = "pow_builtin_literals"
 description = "pow() with literal arguments"
 tags = ["math", "power"]
 
-[test.python]
-code = '''
+python = '''
 def pow_literal() -> int:
     return pow(2, 10)
 '''
 
-[test.assertions]
-contains = ["pow(10 as u32)"]
+rust = '''
+pub fn pow_literal() -> i32 {
+    return 2_i32.pow(10 as u32);
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_pow_literal_examples() {
+        let _ = pow_literal();
+    }
+}
+'''
 
 [[test]]
 name = "power_operator"
 description = "** power operator"
 tags = ["math", "power"]
 
-[test.python]
-code = '''
+python = '''
 def power_op() -> int:
     return 2 ** 8
 '''
 
-[test.assertions]
-contains = ["pow(8 as u32)"]
+rust = '''
+pub fn power_op() -> i32 {
+    return 2_i32.pow(8 as u32);
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_power_op_examples() {
+        let _ = power_op();
+    }
+}
+'''
 
 [[test]]
 name = "pow_float"
 description = "pow() with float arguments"
 tags = ["math", "power"]
 
-[test.python]
-code = '''
+python = '''
 def pow_float(base: float, exp: float) -> float:
     return pow(base, exp)
 '''
 
-[test.assertions]
-contains = ["powf(exp)"]
-
-# =============================================================================
-# Arithmetic Type Propagation
-# =============================================================================
+rust = '''
+pub fn pow_float(base: f64, exp: f64) -> f64 {
+    return base.powf(exp);
+}
+'''
 
 [[test]]
 name = "mixed_float_int_multiplication"
 description = "Float * int should cast int to f64"
 tags = ["math", "arithmetic"]
 
-[test.python]
-code = '''
+python = '''
 def multiply(x: float) -> float:
     return x * 3
 '''
 
-[test.assertions]
-contains = ["x * (3 as f64)"]
+rust = '''
+pub fn multiply(x: f64) -> f64 {
+    return x * (3 as f64);
+}
+'''
 
 [[test]]
 name = "int_float_multiplication"
 description = "Int * float should cast int to f64"
 tags = ["math", "arithmetic"]
 
-[test.python]
-code = '''
+python = '''
 def multiply(n: int) -> float:
     return 6.0 * n
 '''
 
-[test.assertions]
-contains = ["6.0 * (n as f64)"]
+rust = '''
+pub fn multiply(n: i32) -> f64 {
+    return 6.0 * (n as f64);
+}
+'''
 
 [[test]]
 name = "arithmetic_no_format"
 description = "Arithmetic should not use format! for concatenation"
 tags = ["math", "arithmetic"]
 
-[test.python]
-code = '''
+python = '''
 def compute(a: int, b: int) -> int:
     result = a * 10 + b
     return result
 '''
 
-[test.assertions]
-contains = ["* 10", "+ b"]
-not_contains = ["format!"]
-
-# =============================================================================
-# Comparison Operators
-# =============================================================================
+rust = '''
+pub fn compute(a: i32, b: i32) -> i32 {
+    let _cse_temp_0 = a * 10;
+    let result = _cse_temp_0 + b;
+    return result;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_compute_examples() {
+        assert_eq!(compute(0, 0), 0);
+        assert_eq!(compute(1, 2), 3);
+        assert_eq!(compute(-1, 1), 0);
+    }
+}
+'''
 
 [[test]]
 name = "comparison_less_than"
 description = "Less than comparison"
 tags = ["math", "comparison"]
 
-[test.python]
-code = '''
+python = '''
 def is_small(x: int) -> bool:
     return x < 1
 '''
 
-[test.assertions]
-contains = ["x < 1"]
+rust = '''
+pub fn is_small(x: i32) -> bool {
+    return x < 1;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_is_small_examples() {
+        let _ = is_small(Default::default());
+    }
+}
+'''
 
 [[test]]
 name = "comparison_greater_than"
 description = "Greater than comparison"
 tags = ["math", "comparison"]
 
-[test.python]
-code = '''
+python = '''
 def is_large(x: int) -> bool:
     return x > 1
 '''
 
-[test.assertions]
-contains = ["x > 1"]
+rust = '''
+pub fn is_large(x: i32) -> bool {
+    return x > 1;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_is_large_examples() {
+        let _ = is_large(Default::default());
+    }
+}
+'''
 
 [[test]]
 name = "comparison_equality"
 description = "Equality comparison"
 tags = ["math", "comparison"]
 
-[test.python]
-code = '''
+python = '''
 def is_one(x: int) -> bool:
     return x == 1
 '''
 
-[test.assertions]
-contains = ["x == 1"]
+rust = '''
+pub fn is_one(x: i32) -> bool {
+    return x == 1;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_is_one_examples() {
+        let _ = is_one(Default::default());
+    }
+}
+'''
 
 [[test]]
 name = "comparison_not_equal"
 description = "Not equal comparison"
 tags = ["math", "comparison"]
 
-[test.python]
-code = '''
+python = '''
 def is_not_one(x: int) -> bool:
     return x != 1
 '''
 
-[test.assertions]
-contains = ["x != 1"]
-
-# =============================================================================
-# Number Theory Functions
-# =============================================================================
+rust = '''
+pub fn is_not_one(x: i32) -> bool {
+    return x != 1;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_is_not_one_examples() {
+        let _ = is_not_one(Default::default());
+    }
+}
+'''
 
 [[test]]
 name = "math_gcd"
 description = "math.gcd() greatest common divisor"
 tags = ["math", "arithmetic"]
 
-[test.python]
-code = '''
+python = '''
 import math
 
 def gcd_func(a: int, b: int) -> int:
     return math.gcd(a, b)
 '''
 
-[test.assertions]
-contains = ["gcd"]
+rust = '''
+use std::f64 as math;
+pub fn gcd_func(a: i32, b: i32) -> i32 {
+    return {
+        let mut a = (a as i64).abs();
+        let mut b = (b as i64).abs();
+        while b != 0 {
+            let temp = b;
+            b = a % b;
+            a = temp;
+        }
+        a as i32
+    };
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_gcd_func_examples() {
+        assert_eq!(gcd_func(0, 0), 0);
+        assert_eq!(gcd_func(1, 2), 3);
+        assert_eq!(gcd_func(-1, 1), 0);
+    }
+}
+'''
 
 [[test]]
 name = "math_lcm"
 description = "math.lcm() least common multiple"
 tags = ["math", "arithmetic"]
 
-[test.python]
-code = '''
+python = '''
 import math
 
 def lcm_func(a: int, b: int) -> int:
     return math.lcm(a, b)
 '''
 
-[test.assertions]
-contains = ["lcm"]
+rust = '''
+use std::f64 as math;
+pub fn lcm_func(a: i32, b: i32) -> i32 {
+    return {
+        let a = (a as i64).abs();
+        let b = (b as i64).abs();
+        if a == 0 || b == 0 {
+            0
+        } else {
+            let mut gcd_a = a;
+            let mut gcd_b = b;
+            while gcd_b != 0 {
+                let temp = gcd_b;
+                gcd_b = gcd_a % gcd_b;
+                gcd_a = temp;
+            }
+            let gcd = gcd_a;
+            ((a / gcd) * b) as i32
+        }
+    };
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_lcm_func_examples() {
+        assert_eq!(lcm_func(0, 0), 0);
+        assert_eq!(lcm_func(1, 2), 3);
+        assert_eq!(lcm_func(-1, 1), 0);
+    }
+}
+'''
 
 [[test]]
 name = "math_fmod"
 description = "math.fmod() floating point modulo"
 tags = ["math", "arithmetic"]
 
-[test.python]
-code = '''
+python = '''
 import math
 
 def fmod_func(x: float, y: float) -> float:
     return math.fmod(x, y)
 '''
 
-[test.assertions]
-contains = ["%"]
+rust = '''
+use std::f64 as math;
+pub fn fmod_func(x: f64, y: f64) -> f64 {
+    return (x as f64) % (y as f64);
+}
+'''
 
 [[test]]
 name = "builtin_divmod"
 description = "divmod() quotient and remainder"
 tags = ["builtin", "math"]
 
-[test.python]
-code = '''
+python = '''
 def div_and_mod(a: int, b: int) -> tuple:
     return divmod(a, b)
 '''
 
-[test.assertions]
-contains_any = [["/", "%", "div_rem"]]
+rust = '''
+pub fn div_and_mod(a: i32, b: i32) -> () {
+    return (a / b, a % b);
+}
+'''
 
 [[test]]
 name = "floor_division_with_constant"
 description = "Floor division operation with module-level constant"
 tags = ["math", "operators", "floor-division"]
 
-[test.python]
-code = '''
+python = '''
 VALUE = 23.34
 
 def test() -> None:
     a = VALUE // 2
 '''
 
-[test.assertions]
-contains_any = [["as f64", "needs_adjustment", "signs_differ"]]
+rust = '''
+pub const VALUE: f64 = 23.34;
+#[derive(Debug, Clone)]
+pub struct ZeroDivisionError {
+    message: String,
+}
+impl std::fmt::Display for ZeroDivisionError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "division by zero: {}", self.message)
+    }
+}
+impl std::error::Error for ZeroDivisionError {}
+impl ZeroDivisionError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = " Depyler: proven to terminate"]
+pub fn test() {
+    let _cse_temp_0 = {
+        let a = VALUE;
+        let b = 2 as f64;
+        let q = a / b;
+        let r = a % b;
+        let r_negative = r < 0.0;
+        let b_negative = b < 0.0;
+        let r_nonzero = r != 0.0;
+        let signs_differ = r_negative != b_negative;
+        let needs_adjustment = r_nonzero && signs_differ;
+        if needs_adjustment { q - 1.0 } else { q }
+    };
+    let a = _cse_temp_0;
+}
+'''

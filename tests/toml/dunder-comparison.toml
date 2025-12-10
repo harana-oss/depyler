@@ -9,117 +9,890 @@ category = "dunder-methods"
 # Equality
 # =============================================================================
 
-# TODO: Test __eq__
-# [[test]]
-# name = "dunder_eq"
-# description = "def __eq__(self, other): return self.x == other.x"
+[[test]]
+name = "dunder_eq"
+description = "def __eq__(self, other): return self.x == other.x"
+python = """
+class Point:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+    
+    def __eq__(self, other):
+        if not isinstance(other, Point):
+            return False
+        return self.x == other.x and self.y == other.y
 
-# TODO: Test __ne__
-# [[test]]
-# name = "dunder_ne"
-# description = "def __ne__(self, other): return self.x != other.x"
+p1 = Point(1, 2)
+p2 = Point(1, 2)
+p3 = Point(2, 3)
+print(p1 == p2)
+print(p1 == p3)
+"""
+rust = """
+#[derive(PartialEq)]
+struct Point {
+    x: i32,
+    y: i32,
+}
 
-# TODO: Test __ne__ default
-# [[test]]
-# name = "dunder_ne_default"
-# description = "__ne__ defaults to not __eq__"
+impl Point {
+    fn new(x: i32, y: i32) -> Self {
+        Point { x, y }
+    }
+}
+
+fn main() {
+    let p1 = Point::new(1, 2);
+    let p2 = Point::new(1, 2);
+    let p3 = Point::new(2, 3);
+    println!("{}", p1 == p2);
+    println!("{}", p1 == p3);
+}
+"""
+expected_output = """True
+False"""
+
+[[test]]
+name = "dunder_ne"
+description = "def __ne__(self, other): return self.x != other.x"
+python = """
+class Value:
+    def __init__(self, x):
+        self.x = x
+    
+    def __eq__(self, other):
+        return self.x == other.x
+    
+    def __ne__(self, other):
+        return self.x != other.x
+
+v1 = Value(5)
+v2 = Value(5)
+v3 = Value(10)
+print(v1 != v2)
+print(v1 != v3)
+"""
+rust = """
+#[derive(PartialEq)]
+struct Value {
+    x: i32,
+}
+
+impl Value {
+    fn new(x: i32) -> Self {
+        Value { x }
+    }
+}
+
+fn main() {
+    let v1 = Value::new(5);
+    let v2 = Value::new(5);
+    let v3 = Value::new(10);
+    println!("{}", v1 != v2);
+    println!("{}", v1 != v3);
+}
+"""
+expected_output = """False
+True"""
+
+[[test]]
+name = "dunder_ne_default"
+description = "__ne__ defaults to not __eq__"
+python = """
+class Simple:
+    def __init__(self, x):
+        self.x = x
+    
+    def __eq__(self, other):
+        return self.x == other.x
+    # __ne__ is automatically the negation of __eq__
+
+s1 = Simple(5)
+s2 = Simple(5)
+s3 = Simple(10)
+print(s1 == s2)
+print(s1 != s3)
+"""
+rust = """
+#[derive(PartialEq)]
+struct Simple {
+    x: i32,
+}
+
+impl Simple {
+    fn new(x: i32) -> Self {
+        Simple { x }
+    }
+}
+
+fn main() {
+    let s1 = Simple::new(5);
+    let s2 = Simple::new(5);
+    let s3 = Simple::new(10);
+    println!("{}", s1 == s2);
+    println!("{}", s1 != s3);
+}
+"""
+expected_output = """True
+True"""
 
 # =============================================================================
 # Ordering
 # =============================================================================
 
-# TODO: Test __lt__
-# [[test]]
-# name = "dunder_lt"
-# description = "def __lt__(self, other): return self.x < other.x"
+[[test]]
+name = "dunder_lt"
+description = "def __lt__(self, other): return self.x < other.x"
+python = """
+class Number:
+    def __init__(self, x):
+        self.x = x
+    
+    def __lt__(self, other):
+        return self.x < other.x
 
-# TODO: Test __le__
-# [[test]]
-# name = "dunder_le"
-# description = "def __le__(self, other): return self.x <= other.x"
+n1 = Number(5)
+n2 = Number(10)
+print(n1 < n2)
+print(n2 < n1)
+"""
+rust = """
+#[derive(PartialEq, PartialOrd)]
+struct Number {
+    x: i32,
+}
 
-# TODO: Test __gt__
-# [[test]]
-# name = "dunder_gt"
-# description = "def __gt__(self, other): return self.x > other.x"
+impl Number {
+    fn new(x: i32) -> Self {
+        Number { x }
+    }
+}
 
-# TODO: Test __ge__
-# [[test]]
-# name = "dunder_ge"
-# description = "def __ge__(self, other): return self.x >= other.x"
+fn main() {
+    let n1 = Number::new(5);
+    let n2 = Number::new(10);
+    println!("{}", n1 < n2);
+    println!("{}", n2 < n1);
+}
+"""
+expected_output = """True
+False"""
+
+[[test]]
+name = "dunder_le"
+description = "def __le__(self, other): return self.x <= other.x"
+python = """
+class Number:
+    def __init__(self, x):
+        self.x = x
+    
+    def __le__(self, other):
+        return self.x <= other.x
+
+n1 = Number(5)
+n2 = Number(5)
+n3 = Number(10)
+print(n1 <= n2)
+print(n1 <= n3)
+print(n3 <= n1)
+"""
+rust = """
+#[derive(PartialEq, PartialOrd)]
+struct Number {
+    x: i32,
+}
+
+impl Number {
+    fn new(x: i32) -> Self {
+        Number { x }
+    }
+}
+
+fn main() {
+    let n1 = Number::new(5);
+    let n2 = Number::new(5);
+    let n3 = Number::new(10);
+    println!("{}", n1 <= n2);
+    println!("{}", n1 <= n3);
+    println!("{}", n3 <= n1);
+}
+"""
+expected_output = """True
+True
+False"""
+
+[[test]]
+name = "dunder_gt"
+description = "def __gt__(self, other): return self.x > other.x"
+python = """
+class Number:
+    def __init__(self, x):
+        self.x = x
+    
+    def __gt__(self, other):
+        return self.x > other.x
+
+n1 = Number(10)
+n2 = Number(5)
+print(n1 > n2)
+print(n2 > n1)
+"""
+rust = """
+#[derive(PartialEq, PartialOrd)]
+struct Number {
+    x: i32,
+}
+
+impl Number {
+    fn new(x: i32) -> Self {
+        Number { x }
+    }
+}
+
+fn main() {
+    let n1 = Number::new(10);
+    let n2 = Number::new(5);
+    println!("{}", n1 > n2);
+    println!("{}", n2 > n1);
+}
+"""
+expected_output = """True
+False"""
+
+[[test]]
+name = "dunder_ge"
+description = "def __ge__(self, other): return self.x >= other.x"
+python = """
+class Number:
+    def __init__(self, x):
+        self.x = x
+    
+    def __ge__(self, other):
+        return self.x >= other.x
+
+n1 = Number(10)
+n2 = Number(10)
+n3 = Number(5)
+print(n1 >= n2)
+print(n1 >= n3)
+print(n3 >= n1)
+"""
+rust = """
+#[derive(PartialEq, PartialOrd)]
+struct Number {
+    x: i32,
+}
+
+impl Number {
+    fn new(x: i32) -> Self {
+        Number { x }
+    }
+}
+
+fn main() {
+    let n1 = Number::new(10);
+    let n2 = Number::new(10);
+    let n3 = Number::new(5);
+    println!("{}", n1 >= n2);
+    println!("{}", n1 >= n3);
+    println!("{}", n3 >= n1);
+}
+"""
+expected_output = """True
+True
+False"""
 
 # =============================================================================
 # @total_ordering
 # =============================================================================
 
-# TODO: Test functools.total_ordering
-# [[test]]
-# name = "total_ordering"
-# description = "@total_ordering with __eq__ and one of __lt__, __le__, __gt__, __ge__"
+[[test]]
+name = "total_ordering"
+description = "@total_ordering with __eq__ and one of __lt__, __le__, __gt__, __ge__"
+python = """
+from functools import total_ordering
+
+@total_ordering
+class Student:
+    def __init__(self, name, grade):
+        self.name = name
+        self.grade = grade
+    
+    def __eq__(self, other):
+        return self.grade == other.grade
+    
+    def __lt__(self, other):
+        return self.grade < other.grade
+
+s1 = Student("Alice", 85)
+s2 = Student("Bob", 90)
+print(s1 < s2)
+print(s1 <= s2)
+print(s1 > s2)
+print(s1 >= s2)
+"""
+rust = """
+#[derive(Eq, PartialEq, Ord, PartialOrd)]
+struct Student {
+    grade: i32,
+    name: String,
+}
+
+impl Student {
+    fn new(name: &str, grade: i32) -> Self {
+        Student {
+            name: name.to_string(),
+            grade,
+        }
+    }
+}
+
+fn main() {
+    let s1 = Student::new("Alice", 85);
+    let s2 = Student::new("Bob", 90);
+    println!("{}", s1 < s2);
+    println!("{}", s1 <= s2);
+    println!("{}", s1 > s2);
+    println!("{}", s1 >= s2);
+}
+"""
+expected_output = """True
+True
+False
+False"""
 
 # =============================================================================
 # __hash__
 # =============================================================================
 
-# TODO: Test __hash__
-# [[test]]
-# name = "dunder_hash"
-# description = "def __hash__(self): return hash(self.x)"
+[[test]]
+name = "dunder_hash"
+description = "def __hash__(self): return hash(self.x)"
+python = """
+class Point:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+    
+    def __eq__(self, other):
+        return self.x == other.x and self.y == other.y
+    
+    def __hash__(self):
+        return hash((self.x, self.y))
 
-# TODO: Test __hash__ consistency with __eq__
-# [[test]]
-# name = "hash_eq_consistency"
-# description = "Equal objects must have same hash"
+p1 = Point(1, 2)
+p2 = Point(1, 2)
+print(hash(p1) == hash(p2))
+"""
+rust = """
+use std::collections::hash_map::DefaultHasher;
+use std::hash::{Hash, Hasher};
 
-# TODO: Test unhashable
-# [[test]]
-# name = "unhashable"
-# description = "__hash__ = None makes class unhashable"
+#[derive(PartialEq, Eq, Hash)]
+struct Point {
+    x: i32,
+    y: i32,
+}
 
-# TODO: Test hash in dict
-# [[test]]
-# name = "hash_in_dict"
-# description = "Object as dict key requires __hash__"
+impl Point {
+    fn new(x: i32, y: i32) -> Self {
+        Point { x, y }
+    }
+}
 
-# TODO: Test hash in set
-# [[test]]
-# name = "hash_in_set"
-# description = "Object in set requires __hash__"
+fn calculate_hash<T: Hash>(t: &T) -> u64 {
+    let mut s = DefaultHasher::new();
+    t.hash(&mut s);
+    s.finish()
+}
+
+fn main() {
+    let p1 = Point::new(1, 2);
+    let p2 = Point::new(1, 2);
+    println!("{}", calculate_hash(&p1) == calculate_hash(&p2));
+}
+"""
+expected_output = "True"
+
+[[test]]
+name = "hash_eq_consistency"
+description = "Equal objects must have same hash"
+python = """
+class HashableValue:
+    def __init__(self, x):
+        self.x = x
+    
+    def __eq__(self, other):
+        return self.x == other.x
+    
+    def __hash__(self):
+        return hash(self.x)
+
+v1 = HashableValue(42)
+v2 = HashableValue(42)
+print(v1 == v2)
+print(hash(v1) == hash(v2))
+"""
+rust = """
+use std::collections::hash_map::DefaultHasher;
+use std::hash::{Hash, Hasher};
+
+#[derive(PartialEq, Eq, Hash)]
+struct HashableValue {
+    x: i32,
+}
+
+impl HashableValue {
+    fn new(x: i32) -> Self {
+        HashableValue { x }
+    }
+}
+
+fn calculate_hash<T: Hash>(t: &T) -> u64 {
+    let mut s = DefaultHasher::new();
+    t.hash(&mut s);
+    s.finish()
+}
+
+fn main() {
+    let v1 = HashableValue::new(42);
+    let v2 = HashableValue::new(42);
+    println!("{}", v1 == v2);
+    println!("{}", calculate_hash(&v1) == calculate_hash(&v2));
+}
+"""
+expected_output = """True
+True"""
+
+[[test]]
+name = "unhashable"
+description = "__hash__ = None makes class unhashable"
+python = """
+class Unhashable:
+    __hash__ = None
+    
+    def __init__(self, x):
+        self.x = x
+
+obj = Unhashable(5)
+try:
+    hash(obj)
+    print("Should not reach here")
+except TypeError:
+    print("TypeError: unhashable type")
+"""
+rust = """
+// Rust doesn't have __hash__ = None equivalent
+// Types simply don't implement Hash trait
+struct Unhashable {
+    x: i32,
+}
+
+impl Unhashable {
+    fn new(x: i32) -> Self {
+        Unhashable { x }
+    }
+}
+
+fn main() {
+    let _obj = Unhashable::new(5);
+    // In Rust, trying to hash would be a compile-time error
+    println!("TypeError: unhashable type");
+}
+"""
+expected_output = "TypeError: unhashable type"
+
+[[test]]
+name = "hash_in_dict"
+description = "Object as dict key requires __hash__"
+python = """
+class Hashable:
+    def __init__(self, x):
+        self.x = x
+    
+    def __eq__(self, other):
+        return self.x == other.x
+    
+    def __hash__(self):
+        return hash(self.x)
+
+obj1 = Hashable(1)
+obj2 = Hashable(2)
+d = {obj1: "first", obj2: "second"}
+print(d[obj1])
+"""
+rust = """
+use std::collections::HashMap;
+use std::hash::{Hash, Hasher};
+
+#[derive(PartialEq, Eq, Hash)]
+struct Hashable {
+    x: i32,
+}
+
+impl Hashable {
+    fn new(x: i32) -> Self {
+        Hashable { x }
+    }
+}
+
+fn main() {
+    let obj1 = Hashable::new(1);
+    let obj2 = Hashable::new(2);
+    let mut d = HashMap::new();
+    d.insert(obj1, "first");
+    d.insert(obj2, "second");
+    let key = Hashable::new(1);
+    println!("{}", d.get(&key).unwrap());
+}
+"""
+expected_output = "first"
+
+[[test]]
+name = "hash_in_set"
+description = "Object in set requires __hash__"
+python = """
+class Hashable:
+    def __init__(self, x):
+        self.x = x
+    
+    def __eq__(self, other):
+        return self.x == other.x
+    
+    def __hash__(self):
+        return hash(self.x)
+
+obj1 = Hashable(1)
+obj2 = Hashable(1)
+obj3 = Hashable(2)
+s = {obj1, obj2, obj3}
+print(len(s))
+"""
+rust = """
+use std::collections::HashSet;
+
+#[derive(PartialEq, Eq, Hash)]
+struct Hashable {
+    x: i32,
+}
+
+impl Hashable {
+    fn new(x: i32) -> Self {
+        Hashable { x }
+    }
+}
+
+fn main() {
+    let obj1 = Hashable::new(1);
+    let obj2 = Hashable::new(1);
+    let obj3 = Hashable::new(2);
+    let mut s = HashSet::new();
+    s.insert(obj1);
+    s.insert(obj2);
+    s.insert(obj3);
+    println!("{}", s.len());
+}
+"""
+expected_output = "2"
 
 # =============================================================================
 # Comparison with Different Types
 # =============================================================================
 
-# TODO: Test __eq__ with different type
-# [[test]]
-# name = "eq_different_type"
-# description = "Return NotImplemented for incompatible types"
+[[test]]
+name = "eq_different_type"
+description = "Return NotImplemented for incompatible types"
+python = """
+class Value:
+    def __init__(self, x):
+        self.x = x
+    
+    def __eq__(self, other):
+        if not isinstance(other, Value):
+            return NotImplemented
+        return self.x == other.x
 
-# TODO: Test __lt__ with different type
-# [[test]]
-# name = "lt_different_type"
-# description = "Comparison with incompatible type"
+v = Value(5)
+print(v == Value(5))
+print(v == 5)
+"""
+rust = """
+struct Value {
+    x: i32,
+}
 
-# TODO: Test reflected comparison
-# [[test]]
-# name = "comparison_reflected"
-# description = "Python tries reflected method if NotImplemented"
+impl Value {
+    fn new(x: i32) -> Self {
+        Value { x }
+    }
+}
+
+impl PartialEq for Value {
+    fn eq(&self, other: &Self) -> bool {
+        self.x == other.x
+    }
+}
+
+fn main() {
+    let v = Value::new(5);
+    let v2 = Value::new(5);
+    println!("{}", v == v2);
+    // Rust is statically typed, can't compare Value with i32
+    println!("False");
+}
+"""
+expected_output = """True
+False"""
+
+[[test]]
+name = "lt_different_type"
+description = "Comparison with incompatible type"
+python = """
+class Value:
+    def __init__(self, x):
+        self.x = x
+    
+    def __lt__(self, other):
+        if not isinstance(other, Value):
+            return NotImplemented
+        return self.x < other.x
+
+v = Value(5)
+try:
+    result = v < "string"
+    print(result)
+except TypeError:
+    print("TypeError")
+"""
+rust = """
+// Rust prevents this at compile time
+struct Value {
+    x: i32,
+}
+
+impl Value {
+    fn new(x: i32) -> Self {
+        Value { x }
+    }
+}
+
+fn main() {
+    let _v = Value::new(5);
+    // v < "string" would not compile in Rust
+    println!("TypeError");
+}
+"""
+expected_output = "TypeError"
+
+[[test]]
+name = "comparison_reflected"
+description = "Python tries reflected method if NotImplemented"
+python = """
+class A:
+    def __init__(self, x):
+        self.x = x
+    
+    def __eq__(self, other):
+        if isinstance(other, B):
+            return self.x == other.y
+        return NotImplemented
+
+class B:
+    def __init__(self, y):
+        self.y = y
+    
+    def __eq__(self, other):
+        if isinstance(other, A):
+            return self.y == other.x
+        return NotImplemented
+
+a = A(5)
+b = B(5)
+print(a == b)
+print(b == a)
+"""
+rust = """
+struct A {
+    x: i32,
+}
+
+struct B {
+    y: i32,
+}
+
+impl A {
+    fn new(x: i32) -> Self {
+        A { x }
+    }
+    
+    fn eq_b(&self, other: &B) -> bool {
+        self.x == other.y
+    }
+}
+
+impl B {
+    fn new(y: i32) -> Self {
+        B { y }
+    }
+    
+    fn eq_a(&self, other: &A) -> bool {
+        self.y == other.x
+    }
+}
+
+fn main() {
+    let a = A::new(5);
+    let b = B::new(5);
+    println!("{}", a.eq_b(&b));
+    println!("{}", b.eq_a(&a));
+}
+"""
+expected_output = """True
+True"""
 
 # =============================================================================
 # Edge Cases
 # =============================================================================
 
-# TODO: Test comparison chaining with dunders
-# [[test]]
-# name = "dunder_chaining"
-# description = "a < b < c with custom comparisons"
+[[test]]
+name = "dunder_chaining"
+description = "a < b < c with custom comparisons"
+python = """
+class Number:
+    def __init__(self, x):
+        self.x = x
+    
+    def __lt__(self, other):
+        return self.x < other.x
 
-# TODO: Test __eq__ returning non-bool
-# [[test]]
-# name = "eq_non_bool"
-# description = "__eq__ can return non-bool (like numpy)"
+a = Number(1)
+b = Number(2)
+c = Number(3)
+print(a < b < c)
+print(c < b < a)
+"""
+rust = """
+#[derive(PartialOrd, PartialEq)]
+struct Number {
+    x: i32,
+}
 
-# TODO: Test mutable object hash
-# [[test]]
-# name = "mutable_hash"
-# description = "Mutable objects should not be hashable"
+impl Number {
+    fn new(x: i32) -> Self {
+        Number { x }
+    }
+}
+
+fn main() {
+    let a = Number::new(1);
+    let b = Number::new(2);
+    let c = Number::new(3);
+    println!("{}", a < b && b < c);
+    println!("{}", c < b && b < a);
+}
+"""
+expected_output = """True
+False"""
+
+[[test]]
+name = "eq_non_bool"
+description = "__eq__ can return non-bool (like numpy)"
+python = """
+class Special:
+    def __init__(self, x):
+        self.x = x
+    
+    def __eq__(self, other):
+        # Return a string instead of bool
+        if self.x == other.x:
+            return "equal"
+        return "not equal"
+
+s1 = Special(5)
+s2 = Special(5)
+s3 = Special(10)
+print(s1 == s2)
+print(s1 == s3)
+"""
+rust = """
+// Rust's PartialEq trait requires bool return
+// This is a Python-specific feature
+struct Special {
+    x: i32,
+}
+
+impl Special {
+    fn new(x: i32) -> Self {
+        Special { x }
+    }
+    
+    fn eq_str(&self, other: &Special) -> &'static str {
+        if self.x == other.x {
+            "equal"
+        } else {
+            "not equal"
+        }
+    }
+}
+
+fn main() {
+    let s1 = Special::new(5);
+    let s2 = Special::new(5);
+    let s3 = Special::new(10);
+    println!("{}", s1.eq_str(&s2));
+    println!("{}", s1.eq_str(&s3));
+}
+"""
+expected_output = """equal
+not equal"""
+
+[[test]]
+name = "mutable_hash"
+description = "Mutable objects should not be hashable"
+python = """
+class MutablePoint:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+    
+    def __eq__(self, other):
+        return self.x == other.x and self.y == other.y
+    
+    # Don't define __hash__ for mutable objects
+    __hash__ = None
+
+p = MutablePoint(1, 2)
+try:
+    hash(p)
+    print("Should not be hashable")
+except TypeError:
+    print("TypeError: unhashable type")
+"""
+rust = """
+// Rust prevents this through the type system
+// Mutable references can't implement Hash
+struct MutablePoint {
+    x: i32,
+    y: i32,
+}
+
+impl MutablePoint {
+    fn new(x: i32, y: i32) -> Self {
+        MutablePoint { x, y }
+    }
+}
+
+impl PartialEq for MutablePoint {
+    fn eq(&self, other: &Self) -> bool {
+        self.x == other.x && self.y == other.y
+    }
+}
+
+fn main() {
+    let _p = MutablePoint::new(1, 2);
+    // Attempting to hash would fail at compile time without Hash trait
+    println!("TypeError: unhashable type");
+}
+"""
+expected_output = "TypeError: unhashable type"

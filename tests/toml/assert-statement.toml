@@ -9,118 +9,386 @@ category = "core-language"
 # Basic Assert
 # =============================================================================
 
-# TODO: Test simple assert
-# [[test]]
-# name = "assert_basic"
-# description = "assert condition"
+[[test]]
+name = "assert_basic"
+description = "assert condition"
+tags = ["assert", "basic"]
 
-# TODO: Test assert with message
-# [[test]]
-# name = "assert_with_message"
-# description = "assert condition, 'error message'"
+python = '''
+x = 5
+assert x > 0
+result = True
+'''
 
-# TODO: Test assert True
-# [[test]]
-# name = "assert_true"
-# description = "assert True (always passes)"
+rust = '''
+let x = 5;
+assert!(x > 0);
+let result = true;
+'''
+
+[[test]]
+name = "assert_with_message"
+description = "assert condition, 'error message'"
+tags = ["assert", "message"]
+
+python = '''
+x = 5
+assert x > 0, "x must be positive"
+result = True
+'''
+
+rust = '''
+let x = 5;
+assert!(x > 0, "x must be positive");
+let result = true;
+'''
+
+[[test]]
+name = "assert_true"
+description = "assert True (always passes)"
+tags = ["assert", "literal"]
+
+python = '''
+assert True
+result = True
+'''
+
+rust = '''
+assert!(true);
+let result = true;
+'''
 
 # =============================================================================
 # Assert with Expressions
 # =============================================================================
 
-# TODO: Test assert with comparison
-# [[test]]
-# name = "assert_comparison"
-# description = "assert x > 0"
+[[test]]
+name = "assert_comparison"
+description = "assert x > 0"
+tags = ["assert", "comparison"]
 
-# TODO: Test assert with equality
-# [[test]]
-# name = "assert_equality"
-# description = "assert result == expected"
+python = '''
+x = 10
+assert x > 0
+result = x > 0
+'''
 
-# TODO: Test assert with isinstance
-# [[test]]
-# name = "assert_isinstance"
-# description = "assert isinstance(x, int)"
+rust = '''
+let x = 10;
+assert!(x > 0);
+let result = x > 0;
+'''
 
-# TODO: Test assert with in operator
-# [[test]]
-# name = "assert_in"
-# description = "assert item in collection"
+[[test]]
+name = "assert_equality"
+description = "assert result == expected"
+tags = ["assert", "equality"]
+
+python = '''
+result = 42
+expected = 42
+assert result == expected
+value = result == expected
+'''
+
+rust = '''
+let result = 42;
+let expected = 42;
+assert!(result == expected);
+let value = result == expected;
+'''
+
+[[test]]
+name = "assert_isinstance"
+description = "assert isinstance(x, int)"
+tags = ["assert", "type-check"]
+
+python = '''
+x = 42
+assert isinstance(x, int)
+result = True
+'''
+
+rust = '''
+let x: i32 = 42;
+// Rust uses static typing, no runtime check needed
+let result = true;
+'''
+
+[[test]]
+name = "assert_in"
+description = "assert item in collection"
+tags = ["assert", "membership"]
+
+python = '''
+item = 2
+collection = [1, 2, 3]
+assert item in collection
+result = True
+'''
+
+rust = '''
+let item = 2;
+let collection = vec![1, 2, 3];
+assert!(collection.contains(&item));
+let result = true;
+'''
 
 # =============================================================================
 # Assert with Complex Conditions
 # =============================================================================
 
-# TODO: Test assert with and
-# [[test]]
-# name = "assert_and"
-# description = "assert cond1 and cond2"
+[[test]]
+name = "assert_and"
+description = "assert cond1 and cond2"
+tags = ["assert", "logical-and"]
 
-# TODO: Test assert with or
-# [[test]]
-# name = "assert_or"
-# description = "assert cond1 or cond2"
+python = '''
+x = 5
+y = 10
+assert x > 0 and y > 0
+result = True
+'''
 
-# TODO: Test assert with not
-# [[test]]
-# name = "assert_not"
-# description = "assert not invalid"
+rust = '''
+let x = 5;
+let y = 10;
+assert!(x > 0 && y > 0);
+let result = true;
+'''
 
-# TODO: Test assert with function call
-# [[test]]
-# name = "assert_function_call"
-# description = "assert is_valid(x)"
+[[test]]
+name = "assert_or"
+description = "assert cond1 or cond2"
+tags = ["assert", "logical-or"]
+
+python = '''
+x = 5
+y = -1
+assert x > 0 or y > 0
+result = True
+'''
+
+rust = '''
+let x = 5;
+let y = -1;
+assert!(x > 0 || y > 0);
+let result = true;
+'''
+
+[[test]]
+name = "assert_not"
+description = "assert not invalid"
+tags = ["assert", "logical-not"]
+
+python = '''
+invalid = False
+assert not invalid
+result = True
+'''
+
+rust = '''
+let invalid = false;
+assert!(!invalid);
+let result = true;
+'''
+
+[[test]]
+name = "assert_function_call"
+description = "assert is_valid(x)"
+tags = ["assert", "function-call"]
+
+python = '''
+def is_valid(x):
+    return x > 0
+
+x = 5
+assert is_valid(x)
+result = True
+'''
+
+rust = '''
+fn is_valid(x: i32) -> bool {
+    x > 0
+}
+
+let x = 5;
+assert!(is_valid(x));
+let result = true;
+'''
 
 # =============================================================================
 # Assert Message Formatting
 # =============================================================================
 
-# TODO: Test assert with f-string message
-# [[test]]
-# name = "assert_fstring_message"
-# description = "assert x > 0, f'x must be positive, got {x}'"
+[[test]]
+name = "assert_fstring_message"
+description = "assert x > 0, f'x must be positive, got {x}'"
+tags = ["assert", "f-string", "message"]
 
-# TODO: Test assert with expression in message
-# [[test]]
-# name = "assert_expression_message"
-# description = "assert valid, str(error_details)"
+python = '''
+x = 5
+assert x > 0, f"x must be positive, got {x}"
+result = True
+'''
+
+rust = '''
+let x = 5;
+assert!(x > 0, "x must be positive, got {}", x);
+let result = true;
+'''
+
+[[test]]
+name = "assert_expression_message"
+description = "assert valid, str(error_details)"
+tags = ["assert", "message"]
+
+python = '''
+valid = True
+error_details = {"code": 500}
+assert valid, str(error_details)
+result = True
+'''
+
+rust = '''
+let valid = true;
+let error_details = format!("{{code: 500}}");
+assert!(valid, "{}", error_details);
+let result = true;
+'''
 
 # =============================================================================
 # Assert in Functions
 # =============================================================================
 
-# TODO: Test assert as precondition
-# [[test]]
-# name = "assert_precondition"
-# description = "Assert at start of function for input validation"
+[[test]]
+name = "assert_precondition"
+description = "Assert at start of function for input validation"
+tags = ["assert", "precondition", "validation"]
 
-# TODO: Test assert as postcondition
-# [[test]]
-# name = "assert_postcondition"
-# description = "Assert before return for output validation"
+python = '''
+def divide(a, b):
+    assert b != 0, "Divisor cannot be zero"
+    return a / b
 
-# TODO: Test assert as invariant
-# [[test]]
-# name = "assert_invariant"
-# description = "Assert inside loop for invariant checking"
+result = divide(10, 2) == 5.0
+'''
+
+rust = '''
+fn divide(a: i32, b: i32) -> i32 {
+    assert!(b != 0, "Divisor cannot be zero");
+    a / b
+}
+
+let result = divide(10, 2) == 5;
+'''
+
+[[test]]
+name = "assert_postcondition"
+description = "Assert before return for output validation"
+tags = ["assert", "postcondition", "validation"]
+
+python = '''
+def get_positive(x):
+    result = abs(x)
+    assert result >= 0, "Result must be positive"
+    return result
+
+value = get_positive(-5)
+result = value == 5
+'''
+
+rust = '''
+fn get_positive(x: i32) -> i32 {
+    let result = x.abs();
+    assert!(result >= 0, "Result must be positive");
+    result
+}
+
+let value = get_positive(-5);
+let result = value == 5;
+'''
+
+[[test]]
+name = "assert_invariant"
+description = "Assert inside loop for invariant checking"
+tags = ["assert", "invariant", "loop"]
+
+python = '''
+total = 0
+for i in range(1, 6):
+    total += i
+    assert total == i * (i + 1) // 2, "Sum invariant violated"
+
+result = total == 15
+'''
+
+rust = '''
+let mut total = 0;
+for i in 1..=5 {
+    total += i;
+    assert!(total == i * (i + 1) / 2, "Sum invariant violated");
+}
+
+let result = total == 15;
+'''
 
 # =============================================================================
 # Edge Cases
 # =============================================================================
 
-# TODO: Test assert with tuple (gotcha)
-# [[test]]
-# name = "assert_tuple_gotcha"
-# description = "assert (False, 'msg') is always True!"
-# skip = true
+[[test]]
+name = "assert_tuple_gotcha"
+description = "assert (False, 'msg') is always True!"
+tags = ["assert", "gotcha", "edge-case"]
+skip = true
 
-# TODO: Test assert with None
-# [[test]]
-# name = "assert_none"
-# description = "assert x is not None"
+python = '''
+# This assert will PASS because non-empty tuple is truthy!
+# assert (False, "This should fail")  # Actually passes!
+# Correct usage: assert False, "This should fail"
+result = True
+'''
 
-# TODO: Test assert vs debug mode
-# [[test]]
-# name = "assert_optimization"
-# description = "Assert behavior with __debug__"
+rust = '''
+// Rust doesn't have this gotcha
+// assert!(false, "This fails");
+let result = true;
+'''
+
+[[test]]
+name = "assert_none"
+description = "assert x is not None"
+tags = ["assert", "none", "identity"]
+
+python = '''
+x = 42
+assert x is not None
+result = True
+'''
+
+rust = '''
+let x: Option<i32> = Some(42);
+assert!(x.is_some());
+let result = true;
+'''
+
+[[test]]
+name = "assert_optimization"
+description = "Assert behavior with __debug__"
+tags = ["assert", "debug", "optimization"]
+
+python = '''
+# Asserts can be disabled with -O flag
+# In Python, __debug__ is True by default
+assert __debug__ or True
+result = True
+'''
+
+rust = '''
+// Rust has debug_assert! for debug-only checks
+debug_assert!(true);
+// Regular assert! is always checked
+assert!(true);
+let result = true;
+'''

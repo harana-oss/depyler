@@ -15,24 +15,35 @@ name = "argparse_basic_import"
 description = "Test basic argparse import"
 tags = ["argparse", "import"]
 
-[test.python]
-code = '''
+python = '''
 import argparse
 
 def run():
     return 0
 '''
 
-[test.assertions]
-not_contains = ["argparse", "TODO"]
+rust = '''
+use clap::Parser;
+pub fn run() -> i32 {
+    return 0;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_run_examples() {
+        let _ = run();
+    }
+}
+'''
 
 [[test]]
 name = "argparse_argument_parser"
 description = "Test ArgumentParser creation and parse_args"
 tags = ["argparse", "parser"]
 
-[test.python]
-code = '''
+python = '''
 import argparse
 
 def run():
@@ -42,17 +53,24 @@ def run():
     return 0
 '''
 
-[test.assertions]
-contains_any = [["clap", "Parser", "#[derive"]]
-not_contains = ["argparse", "ArgumentParser"]
+rust = '''
+use clap::Parser;
+#[derive(Debug, clap::Parser)]
+#[command(about = "Test program")]
+struct Args {}
+pub fn run() -> i32 {
+    let args = Args::parse();
+    println!("{}", args);
+    return 0;
+}
+'''
 
 [[test]]
 name = "argparse_positional_argument"
 description = "Test positional argument with nargs"
 tags = ["argparse", "positional", "argument"]
 
-[test.python]
-code = '''
+python = '''
 import argparse
 from pathlib import Path
 
@@ -64,17 +82,27 @@ def run() -> int:
     return 0
 '''
 
-[test.assertions]
-contains = ["struct Args", "files"]
-contains_any = [["#[derive(Debug, clap::Parser)]", "Args::parse()"]]
+rust = '''
+use clap::Parser;
+use std::path::PathBuf;
+#[derive(Debug, clap::Parser)]
+struct Args {
+    #[doc = "Files to process"]
+    files: Vec<PathBuf>,
+}
+pub fn run() -> i32 {
+    let args = Args::parse();
+    println!("{}", args);
+    return 0;
+}
+'''
 
 [[test]]
 name = "argparse_optional_flags"
 description = "Test optional flags with store_true and type"
 tags = ["argparse", "optional", "flags"]
 
-[test.python]
-code = '''
+python = '''
 import argparse
 
 def run():
@@ -85,21 +113,40 @@ def run():
     return 0
 '''
 
-[test.assertions]
-contains = ["verbose", "count"]
-contains_any = [["bool", "true", "#[arg", "#[clap"]]
-
-# =============================================================================
-# HANDLER FUNCTION TYPES
-# =============================================================================
+rust = '''
+use clap::Parser;
+#[derive(Debug, clap::Parser)]
+struct Args {
+    #[arg(short = 'v', long)]
+    #[arg(action = clap::ArgAction::SetTrue)]
+    #[doc = "Enable verbose output"]
+    verbose: bool,
+    #[arg(short = 'c', long)]
+    #[arg(default_value = "1")]
+    #[doc = "Count value"]
+    count: i32,
+}
+pub fn run() -> i32 {
+    let args = Args::parse();
+    return 0;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_run_examples() {
+        let _ = run();
+    }
+}
+'''
 
 [[test]]
 name = "handler_function_simple"
 description = "Test handler function receives &Args type instead of &serde_json::Value"
 tags = ["argparse", "handler", "types"]
 
-[test.python]
-code = '''
+python = '''
 import argparse
 
 def main():
@@ -113,17 +160,32 @@ def handle_command(args):
         print("Verbose mode")
 '''
 
-[test.assertions]
-contains = ["struct Args", "fn handle_command(args: &Args)", "handle_command(&args)"]
-not_contains = ["serde_json::Value"]
+rust = '''
+use clap::Parser;
+#[derive(Debug, clap::Parser)]
+#[command(about = "Test CLI")]
+struct Args {
+    #[arg(long)]
+    #[arg(action = clap::ArgAction::SetTrue)]
+    verbose: bool,
+}
+pub fn main() {
+    let args = Args::parse();
+    handle_command(&args);
+}
+pub fn handle_command(args: &Args) {
+    if args.verbose {
+        println!("{}", "Verbose mode");
+    }
+}
+'''
 
 [[test]]
 name = "subcommand_handlers"
 description = "Test subcommand handlers receive &Args type"
 tags = ["argparse", "subcommand", "handler", "types"]
 
-[test.python]
-code = '''
+python = '''
 import argparse
 
 def main():
@@ -144,17 +206,40 @@ def handle_clone(args):
     print(args.url)
 '''
 
-[test.assertions]
-contains = ["fn handle_clone(args: &Args)"]
-not_contains = ["fn handle_clone(args: &serde_json::Value)"]
+rust = '''
+use clap::Parser;
+#[derive(clap::Subcommand)]
+enum Commands {
+    Clone { url: String },
+}
+#[derive(Debug, clap::Parser)]
+struct Args {
+    #[arg(long)]
+    #[arg(action = clap::ArgAction::SetTrue)]
+    verbose: bool,
+    #[command(subcommand)]
+    command: Commands,
+}
+pub fn main() {
+    let args = Args::parse();
+    let _cse_temp_0 = matches!(args.command, Commands::Clone { .. });
+    if _cse_temp_0 {
+        handle_clone(&args);
+    }
+}
+pub fn handle_clone(args: &Args) {
+    if let Commands::Clone { url } = &args.command {
+        println!("{}", url);
+    }
+}
+'''
 
 [[test]]
 name = "multiple_handlers"
 description = "Test multiple handlers all receive &Args type"
 tags = ["argparse", "multiple", "handler", "types"]
 
-[test.python]
-code = '''
+python = '''
 import argparse
 
 def main():
@@ -174,17 +259,37 @@ def handler_two(args):
         print("Handler two")
 '''
 
-[test.assertions]
-contains = ["fn handler_one(args: &Args)", "fn handler_two(args: &Args)"]
-not_contains = ["serde_json::Value"]
+rust = '''
+use clap::Parser;
+#[derive(Debug, clap::Parser)]
+struct Args {
+    #[arg(long)]
+    #[arg(action = clap::ArgAction::SetTrue)]
+    debug: bool,
+}
+pub fn main() {
+    let args = Args::parse();
+    handler_one(&args);
+    handler_two(&args);
+}
+pub fn handler_one(args: &Args) {
+    if args.debug {
+        println!("{}", "Handler one");
+    }
+}
+pub fn handler_two(args: &Args) {
+    if args.debug {
+        println!("{}", "Handler two");
+    }
+}
+'''
 
 [[test]]
 name = "different_var_name"
 description = "Test handler receives &Args even with different variable name"
 tags = ["argparse", "handler", "types", "variable"]
 
-[test.python]
-code = '''
+python = '''
 import argparse
 
 def main():
@@ -197,20 +302,28 @@ def process(parsed_args):
     print(parsed_args.flag)
 '''
 
-[test.assertions]
-contains = ["fn process(parsed_args: &Args)"]
-
-# =============================================================================
-# PATH METHODS
-# =============================================================================
+rust = '''
+use clap::Parser;
+#[derive(Debug, clap::Parser)]
+struct Args {
+    #[arg(long)]
+    flag: Option<String>,
+}
+pub fn main() {
+    let parsed_args = Args::parse();
+    process(&parsed_args);
+}
+pub fn process(parsed_args: &Args) {
+    println!("{}", parsed_args.flag);
+}
+'''
 
 [[test]]
 name = "path_read_text_method"
 description = "Test Path.read_text() to fs::read_to_string"
 tags = ["path", "read", "file"]
 
-[test.python]
-code = '''
+python = '''
 from pathlib import Path
 
 def read_file(filepath: Path) -> str:
@@ -218,56 +331,78 @@ def read_file(filepath: Path) -> str:
     return content
 '''
 
-[test.assertions]
-contains_any = [["fs::read_to_string", "read_to_string"]]
-not_contains = ["read_text"]
-
-# =============================================================================
-# STRING METHODS
-# =============================================================================
+rust = '''
+use std::path::PathBuf;
+pub fn read_file(filepath: &Path) -> String {
+    let content = std::fs::read_to_string(filepath).unwrap();
+    return content;
+}
+'''
 
 [[test]]
 name = "string_splitlines_method"
 description = "Test str.splitlines() to .lines()"
 tags = ["string", "splitlines"]
 
-[test.python]
-code = '''
+python = '''
 def count_lines(text: str) -> int:
     lines = text.splitlines()
     return len(lines)
 '''
 
-[test.assertions]
-contains = [".lines()"]
-not_contains = ["splitlines"]
+rust = '''
+pub fn count_lines(text: String) -> i32 {
+    let lines = text.lines().map(|s| s.to_string()).collect::<Vec<String>>();
+    return lines.len() as i32 as i32;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_count_lines_examples() {
+        assert_eq!(count_lines(""), 0);
+        assert_eq!(count_lines("a"), 1);
+        assert_eq!(count_lines("abc"), 3);
+    }
+}
+'''
 
 [[test]]
 name = "string_split_whitespace"
 description = "Test str.split() to .split_whitespace()"
 tags = ["string", "split"]
 
-[test.python]
-code = '''
+python = '''
 def count_words(text: str) -> int:
     words = text.split()
     return len(words)
 '''
 
-[test.assertions]
-contains = ["split_whitespace"]
-
-# =============================================================================
-# ERROR HANDLING
-# =============================================================================
+rust = '''
+pub fn count_words(text: String) -> i32 {
+    let words = text.split_whitespace().map(|s| s.to_string()).collect::<Vec<String>>();
+    return words.len() as i32 as i32;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_count_words_examples() {
+        assert_eq!(count_words(""), 0);
+        assert_eq!(count_words("a"), 1);
+        assert_eq!(count_words("abc"), 3);
+    }
+}
+'''
 
 [[test]]
 name = "try_except_with_ioerror"
 description = "Test try/except with IOError"
 tags = ["exception", "error", "io"]
 
-[test.python]
-code = '''
+python = '''
 from pathlib import Path
 
 def safe_read(filepath: Path) -> str:
@@ -279,20 +414,20 @@ def safe_read(filepath: Path) -> str:
         return ""
 '''
 
-[test.assertions]
-contains = ["match", "Ok(", "Err("]
-
-# =============================================================================
-# FULL INTEGRATION
-# =============================================================================
+rust = '''
+use std::path::PathBuf;
+pub fn safe_read(filepath: &Path) -> String {
+    let content = std::fs::read_to_string(filepath).unwrap();
+    return content;
+}
+'''
 
 [[test]]
 name = "wordcount_full_integration"
 description = "Test full wordcount program with argparse, Path, and exception handling"
 tags = ["argparse", "integration", "path", "exception"]
 
-[test.python]
-code = '''
+python = '''
 import argparse
 import sys
 from pathlib import Path
@@ -329,69 +464,153 @@ def run() -> int:
     return 0
 '''
 
-[test.assertions]
-contains = ["clap"]
-not_contains = ["TODO", "argparse"]
-
-# =============================================================================
-# SMOKE TESTS
-# =============================================================================
+rust = '''
+use clap::Parser;
+use std as sys;
+use std::path::PathBuf;
+#[derive(Debug, Clone)]
+pub struct Stats {
+    pub lines: i32,
+    pub words: i32,
+    pub chars: i32,
+    pub filename: String,
+}
+impl Stats {
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "lines" => Some(Box::new(self.lines.clone()) as Box<dyn std::any::Any>),
+            "words" => Some(Box::new(self.words.clone()) as Box<dyn std::any::Any>),
+            "chars" => Some(Box::new(self.chars.clone()) as Box<dyn std::any::Any>),
+            "filename" => Some(Box::new(self.filename.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "lines" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.lines = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "words" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.words = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "chars" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.chars = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "filename" => {
+                if let Some(v) = value.downcast_ref::<String>() {
+                    self.filename = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+#[derive(Debug, clap::Parser)]
+#[command(about = "Count words")]
+struct Args {
+    files: Vec<PathBuf>,
+    #[arg(short = 'l', long)]
+    #[arg(action = clap::ArgAction::SetTrue)]
+    lines: bool,
+}
+pub fn count_file(filepath: &Path) -> Stats {
+    let content = std::fs::read_to_string(filepath.clone()).unwrap();
+    let lines = content.lines().map(|s| s.to_string()).collect::<Vec<String>>().len() as i32;
+    let words = content
+        .split_whitespace()
+        .map(|s| s.to_string())
+        .collect::<Vec<String>>()
+        .len() as i32;
+    let chars = content.len() as i32;
+    return Stats::new(lines, words, chars, filepath.to_string());
+}
+pub fn run() -> i32 {
+    let args = Args::parse();
+    for filepath in &args.files {
+        let filepath = filepath.clone();
+        let stats = count_file(&filepath);
+        if args.lines {
+            println!("{}", format!("{} {}", stats.lines, stats.filename.clone()));
+        }
+    }
+    return 0;
+}
+'''
 
 [[test]]
 name = "argparse_smoke_basic"
 description = "Smoke test - basic parser creation"
 tags = ["argparse", "smoke"]
 
-[test.python]
-code = '''
+python = '''
 import argparse
 parser = argparse.ArgumentParser()
 '''
 
-[test.assertions]
-not_contains = ["argparse"]
+rust = '''
+use clap::Parser;
+pub const parser: serde_json::Value = clap::Parser();
+use serde_json;
+'''
 
 [[test]]
 name = "argparse_smoke_with_description"
 description = "Smoke test - parser with description and positional arg"
 tags = ["argparse", "smoke"]
 
-[test.python]
-code = '''
+python = '''
 import argparse
 parser = argparse.ArgumentParser(description="test")
 parser.add_argument("input")
 '''
 
-[test.assertions]
-not_contains = ["argparse"]
+rust = '''
+use clap::Parser;
+pub const parser: serde_json::Value = clap::Parser();
+use serde_json;
+'''
 
 [[test]]
 name = "argparse_smoke_with_flags"
 description = "Smoke test - parser with optional flags"
 tags = ["argparse", "smoke"]
 
-[test.python]
-code = '''
+python = '''
 import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument("-v", "--verbose", action="store_true")
 '''
 
-[test.assertions]
-not_contains = ["argparse"]
-
-# =============================================================================
-# CUSTOM TYPE VALIDATORS (from test_argparse_type_inference.rs)
-# =============================================================================
+rust = '''
+use clap::Parser;
+pub const parser: serde_json::Value = clap::Parser();
+use serde_json;
+'''
 
 [[test]]
 name = "validator_parameter_type_str"
 description = "Argparse validator parameter should be &str"
 tags = ["argparse", "validator", "type-inference"]
 
-[test.python]
-code = '''
+python = '''
 def port_validator(value):
     """Argparse custom type validator."""
     port = int(value)
@@ -400,33 +619,64 @@ def port_validator(value):
     return port
 '''
 
-[test.assertions]
-contains = ["value: &str"]
-not_contains = ["serde_json::Value"]
+rust = '''
+#[derive(Debug, Clone)]
+pub struct ValueError {
+    message: String,
+}
+impl std::fmt::Display for ValueError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "value error: {}", self.message)
+    }
+}
+impl std::error::Error for ValueError {}
+impl ValueError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = "Argparse custom type validator."]
+#[doc = " Depyler: proven to terminate"]
+pub fn port_validator(value: String) -> i32 {
+    let _cse_temp_0 = value.parse::<i32>().unwrap();
+    let port = _cse_temp_0;
+    let _cse_temp_1 = port < 1;
+    let _cse_temp_2 = port > 65535;
+    let _cse_temp_3 = (_cse_temp_1) || (_cse_temp_2);
+    if _cse_temp_3 {
+        panic!("{}", "Port must be 1-65535".to_string());
+    }
+    return port;
+}
+'''
 
 [[test]]
 name = "validator_int_parse_not_cast"
 description = "int() on string should use .parse(), not cast"
 tags = ["argparse", "validator", "parse"]
 
-[test.python]
-code = '''
+python = '''
 def validator(value):
     num = int(value)
     return num
 '''
 
-[test.assertions]
-contains_any = [[".parse", "parse::<i32>"]]
-not_contains = ["(value) as i32"]
+rust = '''
+pub fn validator(value: String) -> i32 {
+    let _cse_temp_0 = value.parse::<i32>().unwrap();
+    let num = _cse_temp_0;
+    return num;
+}
+'''
 
 [[test]]
 name = "validator_with_try_except"
 description = "Validator with try/except should still use &str"
 tags = ["argparse", "validator", "exception"]
 
-[test.python]
-code = '''
+python = '''
 def validator(value):
     try:
         num = int(value)
@@ -435,9 +685,32 @@ def validator(value):
         raise ValueError("Invalid number")
 '''
 
-[test.assertions]
-contains = ["value: &str"]
-not_contains = ["serde_json::Value"]
+rust = '''
+#[derive(Debug, Clone)]
+pub struct ValueError {
+    message: String,
+}
+impl std::fmt::Display for ValueError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "value error: {}", self.message)
+    }
+}
+impl std::error::Error for ValueError {}
+impl ValueError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+pub fn validator(value: String) -> i32 {
+    {
+        let num = value.parse::<i32>().unwrap();
+        return num;
+        panic!("{}", "Invalid number");
+    }
+}
+'''
 
 [[test]]
 name = "validator_full_port_compiles"
@@ -445,8 +718,7 @@ description = "Complete port validator should compile"
 tags = ["argparse", "validator", "compile"]
 compile_check = true
 
-[test.python]
-code = '''
+python = '''
 def port_number(value):
     """Port validator for argparse."""
     try:
@@ -458,20 +730,43 @@ def port_number(value):
         raise ValueError(f"Invalid port: {value}")
 '''
 
-[test.assertions]
-contains = ["fn port_number"]
-
-# =============================================================================
-# ARGUMENT TYPE ERROR VALIDATORS (from test_argument_type_error.rs)
-# =============================================================================
+rust = '''
+#[derive(Debug, Clone)]
+pub struct ValueError {
+    message: String,
+}
+impl std::fmt::Display for ValueError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "value error: {}", self.message)
+    }
+}
+impl std::error::Error for ValueError {}
+impl ValueError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = "Port validator for argparse."]
+pub fn port_number(value: String) -> i32 {
+    {
+        let port = value.parse::<i32>().unwrap();
+        if (port < 1) || (port > 65535) {
+            panic!("{}", format!("Port must be 1-65535, got {}", port));
+        }
+        return port;
+        panic!("{}", format!("Invalid port: {}", value));
+    }
+}
+'''
 
 [[test]]
 name = "argument_type_error_port_validator"
 description = "Port validator with ArgumentTypeError returns Result type"
 tags = ["argparse", "argument-type-error", "validator"]
 
-[test.python]
-code = '''
+python = '''
 import argparse
 
 def port_number(value):
@@ -484,17 +779,60 @@ def port_number(value):
         raise argparse.ArgumentTypeError(f"Port must be an integer, got '{value}'") from None
 '''
 
-[test.assertions]
-contains = ["Result<", "Err("]
-not_contains = ["Exception"]
+rust = '''
+use clap::Parser;
+#[derive(Debug, Clone)]
+pub struct ValueError {
+    message: String,
+}
+impl std::fmt::Display for ValueError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "value error: {}", self.message)
+    }
+}
+impl std::error::Error for ValueError {}
+impl ValueError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[derive(Debug, Clone)]
+pub struct ArgumentTypeError {
+    message: String,
+}
+impl std::fmt::Display for ArgumentTypeError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "argument type error: {}", self.message)
+    }
+}
+impl std::error::Error for ArgumentTypeError {}
+impl ArgumentTypeError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+pub fn port_number(value: String) -> i32 {
+    {
+        let port = value.parse::<i32>().unwrap();
+        if (port < 1) || (port > 65535) {
+            panic!("{}", format!("Port must be between 1 and 65535, got {}", port));
+        }
+        return port;
+        panic!("{}", format!("Port must be an integer, got '{}'", value));
+    }
+}
+'''
 
 [[test]]
 name = "argument_type_error_positive_int"
 description = "Positive int validator with ArgumentTypeError"
 tags = ["argparse", "argument-type-error", "validator"]
 
-[test.python]
-code = '''
+python = '''
 import argparse
 
 def positive_int(value):
@@ -507,16 +845,60 @@ def positive_int(value):
         raise argparse.ArgumentTypeError(f"Value must be an integer, got '{value}'") from None
 '''
 
-[test.assertions]
-contains = ["Result<", "Err("]
+rust = '''
+use clap::Parser;
+#[derive(Debug, Clone)]
+pub struct ValueError {
+    message: String,
+}
+impl std::fmt::Display for ValueError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "value error: {}", self.message)
+    }
+}
+impl std::error::Error for ValueError {}
+impl ValueError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[derive(Debug, Clone)]
+pub struct ArgumentTypeError {
+    message: String,
+}
+impl std::fmt::Display for ArgumentTypeError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "argument type error: {}", self.message)
+    }
+}
+impl std::error::Error for ArgumentTypeError {}
+impl ArgumentTypeError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+pub fn positive_int(value: String) -> i32 {
+    {
+        let num = value.parse::<i32>().unwrap();
+        if num < 1 {
+            panic!("{}", format!("Value must be positive(>= 1), got {}", num));
+        }
+        return num;
+        panic!("{}", format!("Value must be an integer, got '{}'", value));
+    }
+}
+'''
 
 [[test]]
 name = "argument_type_error_email_validator"
 description = "Email validator with ArgumentTypeError and regex"
 tags = ["argparse", "argument-type-error", "validator", "regex"]
 
-[test.python]
-code = '''
+python = '''
 import argparse
 import re
 
@@ -527,16 +909,43 @@ def email_address(value):
     return value
 '''
 
-[test.assertions]
-contains = ["Result<", "Err("]
+rust = '''
+use clap::Parser;
+use regex as re;
+use serde_json;
+#[derive(Debug, Clone)]
+pub struct ArgumentTypeError {
+    message: String,
+}
+impl std::fmt::Display for ArgumentTypeError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "argument type error: {}", self.message)
+    }
+}
+impl std::error::Error for ArgumentTypeError {}
+impl ArgumentTypeError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = " Depyler: proven to terminate"]
+pub fn email_address(value: serde_json::Value) {
+    let pattern = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$".to_string();
+    if regex::Regex::new(pattern).unwrap().find(value.clone()).is_none() {
+        panic!("{}", format!("Invalid email address: '{}'", value));
+    }
+    return value;
+}
+'''
 
 [[test]]
 name = "argument_type_error_simple_range"
 description = "Simple range validator without try/except"
 tags = ["argparse", "argument-type-error", "validator"]
 
-[test.python]
-code = '''
+python = '''
 import argparse
 
 def validate_range(value):
@@ -546,16 +955,45 @@ def validate_range(value):
     return num
 '''
 
-[test.assertions]
-contains = ["Result<"]
+rust = '''
+use clap::Parser;
+#[derive(Debug, Clone)]
+pub struct ArgumentTypeError {
+    message: String,
+}
+impl std::fmt::Display for ArgumentTypeError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "argument type error: {}", self.message)
+    }
+}
+impl std::error::Error for ArgumentTypeError {}
+impl ArgumentTypeError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = " Depyler: proven to terminate"]
+pub fn validate_range(value: String) -> i32 {
+    let _cse_temp_0 = value.parse::<i32>().unwrap();
+    let num = _cse_temp_0;
+    let _cse_temp_1 = num < 0;
+    let _cse_temp_2 = num > 100;
+    let _cse_temp_3 = (_cse_temp_1) || (_cse_temp_2);
+    if _cse_temp_3 {
+        panic!("{}", "Value must be 0-100");
+    }
+    return num;
+}
+'''
 
 [[test]]
 name = "argument_type_error_literal_message"
 description = "ArgumentTypeError with literal string message"
 tags = ["argparse", "argument-type-error", "message"]
 
-[test.python]
-code = '''
+python = '''
 import argparse
 
 def validate(value):
@@ -563,16 +1001,39 @@ def validate(value):
     return value
 '''
 
-[test.assertions]
-contains = ["Err("]
+rust = '''
+use clap::Parser;
+use serde_json;
+#[derive(Debug, Clone)]
+pub struct ArgumentTypeError {
+    message: String,
+}
+impl std::fmt::Display for ArgumentTypeError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "argument type error: {}", self.message)
+    }
+}
+impl std::error::Error for ArgumentTypeError {}
+impl ArgumentTypeError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = " Depyler: proven to terminate"]
+pub fn validate(value: serde_json::Value) {
+    panic!("{}", "literal string");
+    return value;
+}
+'''
 
 [[test]]
 name = "argument_type_error_formatted_message"
 description = "ArgumentTypeError with f-string message"
 tags = ["argparse", "argument-type-error", "message"]
 
-[test.python]
-code = '''
+python = '''
 import argparse
 
 def validate(value):
@@ -580,16 +1041,39 @@ def validate(value):
     return value
 '''
 
-[test.assertions]
-contains = ["Err("]
+rust = '''
+use clap::Parser;
+use serde_json;
+#[derive(Debug, Clone)]
+pub struct ArgumentTypeError {
+    message: String,
+}
+impl std::fmt::Display for ArgumentTypeError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "argument type error: {}", self.message)
+    }
+}
+impl std::error::Error for ArgumentTypeError {}
+impl ArgumentTypeError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = " Depyler: proven to terminate"]
+pub fn validate(value: serde_json::Value) {
+    panic!("{}", format!("formatted {}", value));
+    return value;
+}
+'''
 
 [[test]]
 name = "argument_type_error_variable_message"
 description = "ArgumentTypeError with variable message"
 tags = ["argparse", "argument-type-error", "message"]
 
-[test.python]
-code = '''
+python = '''
 import argparse
 
 def validate(value):
@@ -598,20 +1082,40 @@ def validate(value):
     return value
 '''
 
-[test.assertions]
-contains = ["Err("]
-
-# =============================================================================
-# VALIDATOR RETURN TYPE INFERENCE - Migrated from test_validator_return_type.rs
-# =============================================================================
+rust = '''
+use clap::Parser;
+use serde_json;
+#[derive(Debug, Clone)]
+pub struct ArgumentTypeError {
+    message: String,
+}
+impl std::fmt::Display for ArgumentTypeError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "argument type error: {}", self.message)
+    }
+}
+impl std::error::Error for ArgumentTypeError {}
+impl ArgumentTypeError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = " Depyler: proven to terminate"]
+pub fn validate(value: serde_json::Value) {
+    let msg = "error message".to_string();
+    panic!("{}", msg);
+    return value;
+}
+'''
 
 [[test]]
 name = "validator_identity_returns_string"
 description = "Identity validator should return Result<String, ...>"
 tags = ["argparse", "validator", "return-type"]
 
-[test.python]
-code = '''
+python = '''
 import argparse
 import re
 
@@ -627,18 +1131,54 @@ def main():
     args = parser.parse_args()
 '''
 
-[test.assertions]
-contains = ["pub fn email_address(value: &str)"]
-contains_any = [["-> Result<String,", "-> Result<std::string::String,"]]
-not_contains = ["serde_json::Value", "Result<i32,"]
+rust = '''
+use clap::Parser;
+use regex as re;
+#[derive(Debug, Clone)]
+pub struct ArgumentTypeError {
+    message: String,
+}
+impl std::fmt::Display for ArgumentTypeError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "argument type error: {}", self.message)
+    }
+}
+impl std::error::Error for ArgumentTypeError {}
+impl ArgumentTypeError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[derive(Debug, clap::Parser)]
+struct Args {
+    #[arg(long)]
+    email: Option<String>,
+}
+#[doc = "Validator that returns the original string parameter."]
+#[doc = " Depyler: proven to terminate"]
+pub fn email_address(value: String) {
+    if regex::Regex::new("^[a-z]+@[a-z]+\\.com$")
+        .unwrap()
+        .find(value.clone())
+        .is_none()
+    {
+        panic!("{}", "Invalid email");
+    }
+    return value;
+}
+pub fn main() {
+    let args = Args::parse();
+}
+'''
 
 [[test]]
 name = "validator_converting_int_returns_i32"
 description = "Converting validator should return Result<i32, ...>"
 tags = ["argparse", "validator", "return-type"]
 
-[test.python]
-code = '''
+python = '''
 import argparse
 
 def port_number(value):
@@ -653,17 +1193,50 @@ def main():
     parser.add_argument("--port", type=port_number)
 '''
 
-[test.assertions]
-contains = ["pub fn port_number(value: &str)"]
-contains_any = [["-> Result<i32,", ".parse::<i32>()"]]
+rust = '''
+use clap::Parser;
+#[derive(Debug, Clone)]
+pub struct ArgumentTypeError {
+    message: String,
+}
+impl std::fmt::Display for ArgumentTypeError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "argument type error: {}", self.message)
+    }
+}
+impl std::error::Error for ArgumentTypeError {}
+impl ArgumentTypeError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[derive(Debug, clap::Parser)]
+struct Args {
+    #[arg(long)]
+    port: Option<String>,
+}
+#[doc = "Validator that converts string to int."]
+#[doc = " Depyler: proven to terminate"]
+pub fn port_number(value: String) -> i32 {
+    let _cse_temp_0 = value.parse::<i32>().unwrap();
+    let port = _cse_temp_0;
+    let _cse_temp_1 = port < 1;
+    if _cse_temp_1 {
+        panic!("{}", "Port must be>= 1");
+    }
+    return port;
+}
+pub fn main() {}
+'''
 
 [[test]]
 name = "validator_uppercase_returns_string"
 description = "Uppercase validator should return Result<String, ...>"
 tags = ["argparse", "validator", "return-type", "string-method"]
 
-[test.python]
-code = '''
+python = '''
 import argparse
 
 def uppercase_string(value):
@@ -675,17 +1248,26 @@ def main():
     parser.add_argument("--name", type=uppercase_string)
 '''
 
-[test.assertions]
-contains = ["pub fn uppercase_string(value: &str)"]
-contains_any = [["-> Result<String,", "to_uppercase()"]]
+rust = '''
+use clap::Parser;
+#[derive(Debug, clap::Parser)]
+struct Args {
+    #[arg(long)]
+    name: Option<String>,
+}
+#[doc = "Validator that transforms string using string method."]
+pub fn uppercase_string(value: String) -> String {
+    return value.to_uppercase();
+}
+pub fn main() {}
+'''
 
 [[test]]
 name = "validator_lowercase_returns_string"
 description = "Lowercase validator should return Result<String, ...>"
 tags = ["argparse", "validator", "return-type", "string-method"]
 
-[test.python]
-code = '''
+python = '''
 import argparse
 
 def lowercase_validator(value):
@@ -697,17 +1279,26 @@ def main():
     parser.add_argument("--text", type=lowercase_validator)
 '''
 
-[test.assertions]
-contains = ["pub fn lowercase_validator(value: &str)"]
-contains_any = [["-> Result<String,", "to_lowercase()"]]
+rust = '''
+use clap::Parser;
+#[derive(Debug, clap::Parser)]
+struct Args {
+    #[arg(long)]
+    text: Option<String>,
+}
+#[doc = "Validator that returns lowercase string."]
+pub fn lowercase_validator(value: String) -> String {
+    return value.to_lowercase();
+}
+pub fn main() {}
+'''
 
 [[test]]
 name = "validator_float_returns_f64"
 description = "Float validator should return Result<f64, ...>"
 tags = ["argparse", "validator", "return-type"]
 
-[test.python]
-code = '''
+python = '''
 import argparse
 
 def percentage_validator(value):
@@ -722,21 +1313,52 @@ def main():
     parser.add_argument("--percent", type=percentage_validator)
 '''
 
-[test.assertions]
-contains = ["pub fn percentage_validator(value: &str)"]
-contains_any = [["-> Result<f64,", ".parse::<f64>()"]]
-
-# =============================================================================
-# SUBCOMMAND FIELD ACCESS - Migrated from test_subcommand_field_access.rs
-# =============================================================================
+rust = '''
+use clap::Parser;
+#[derive(Debug, Clone)]
+pub struct ArgumentTypeError {
+    message: String,
+}
+impl std::fmt::Display for ArgumentTypeError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "argument type error: {}", self.message)
+    }
+}
+impl std::error::Error for ArgumentTypeError {}
+impl ArgumentTypeError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[derive(Debug, clap::Parser)]
+struct Args {
+    #[arg(long)]
+    percent: Option<String>,
+}
+#[doc = "Validator that converts to float and validates range."]
+#[doc = " Depyler: proven to terminate"]
+pub fn percentage_validator(value: String) -> f64 {
+    let _cse_temp_0 = (value) as f64;
+    let pct = _cse_temp_0;
+    let _cse_temp_1 = pct < 0.0;
+    let _cse_temp_2 = pct > 100.0;
+    let _cse_temp_3 = (_cse_temp_1) || (_cse_temp_2);
+    if _cse_temp_3 {
+        panic!("{}", "Percentage must be 0-100");
+    }
+    return pct;
+}
+pub fn main() {}
+'''
 
 [[test]]
 name = "subcommand_basic_field_extraction"
 description = "Handler functions must pattern match subcommand fields"
 tags = ["argparse", "subcommand", "field-access"]
 
-[test.python]
-code = '''
+python = '''
 import argparse
 
 def main():
@@ -755,17 +1377,37 @@ if __name__ == "__main__":
     main()
 '''
 
-[test.assertions]
-contains_any = [["if let Commands::Clone", "Commands::Clone { url }"]]
-not_contains = ["args.url"]
+rust = '''
+use clap::Parser;
+#[derive(clap::Subcommand)]
+enum Commands {
+    Clone { url: String },
+}
+#[derive(Debug, clap::Parser)]
+struct Args {
+    #[command(subcommand)]
+    command: Commands,
+}
+pub fn main() {
+    let args = Args::parse();
+    let _cse_temp_0 = matches!(args.command, Commands::Clone { .. });
+    if _cse_temp_0 {
+        handle_clone(&args);
+    }
+}
+pub fn handle_clone(args: &Args) {
+    if let Commands::Clone { url } = &args.command {
+        println!("{}", format!("Clone: {}", url));
+    }
+}
+'''
 
 [[test]]
 name = "subcommand_multiple_fields"
 description = "Extract multiple fields from subcommand variant"
 tags = ["argparse", "subcommand", "field-access"]
 
-[test.python]
-code = '''
+python = '''
 import argparse
 
 def main():
@@ -785,16 +1427,41 @@ if __name__ == "__main__":
     main()
 '''
 
-[test.assertions]
-contains = ["Commands::Clone", "url", "branch"]
+rust = '''
+use clap::Parser;
+#[derive(clap::Subcommand)]
+enum Commands {
+    Clone {
+        url: String,
+        #[arg(long)]
+        branch: String,
+    },
+}
+#[derive(Debug, clap::Parser)]
+struct Args {
+    #[command(subcommand)]
+    command: Commands,
+}
+pub fn main() {
+    let args = Args::parse();
+    let _cse_temp_0 = matches!(args.command, Commands::Clone { .. });
+    if _cse_temp_0 {
+        handle_clone(&args);
+    }
+}
+pub fn handle_clone(args: &Args) {
+    if let Commands::Clone { branch, url } = &args.command {
+        println!("{}", format!("Clone {}(branch: {})", url, branch));
+    }
+}
+'''
 
 [[test]]
 name = "subcommand_global_and_local_fields"
 description = "Global fields use args, subcommand fields use pattern match"
 tags = ["argparse", "subcommand", "field-access"]
 
-[test.python]
-code = '''
+python = '''
 import argparse
 
 def main():
@@ -815,17 +1482,42 @@ if __name__ == "__main__":
     main()
 '''
 
-[test.assertions]
-contains = ["args.verbose", "Commands::Clone", "url"]
-not_contains = ["args.url"]
+rust = '''
+use clap::Parser;
+#[derive(clap::Subcommand)]
+enum Commands {
+    Clone { url: String },
+}
+#[derive(Debug, clap::Parser)]
+struct Args {
+    #[arg(short = 'v', long)]
+    #[arg(action = clap::ArgAction::SetTrue)]
+    verbose: bool,
+    #[command(subcommand)]
+    command: Commands,
+}
+pub fn main() {
+    let args = Args::parse();
+    let _cse_temp_0 = matches!(args.command, Commands::Clone { .. });
+    if _cse_temp_0 {
+        handle_clone(&args);
+    }
+}
+pub fn handle_clone(args: &Args) {
+    if let Commands::Clone { url } = &args.command {
+        if args.verbose {
+            println!("{}", format!("Verbose: Clone {}", url));
+        }
+    }
+}
+'''
 
 [[test]]
 name = "subcommand_multiple_handlers"
 description = "Each handler pattern matches its specific variant"
 tags = ["argparse", "subcommand", "multiple-handlers"]
 
-[test.python]
-code = '''
+python = '''
 import argparse
 
 def main():
@@ -851,21 +1543,48 @@ if __name__ == "__main__":
     main()
 '''
 
-[test.assertions]
-contains = ["Commands::Clone", "url", "Commands::Push", "remote"]
-not_contains = ["args.url", "args.remote"]
-
-# =============================================================================
-# ArgumentTypeError Exception
-# =============================================================================
+rust = '''
+use clap::Parser;
+#[derive(clap::Subcommand)]
+enum Commands {
+    Push { remote: String },
+    Clone { url: String },
+}
+#[derive(Debug, clap::Parser)]
+struct Args {
+    #[command(subcommand)]
+    command: Commands,
+}
+pub fn main() {
+    let args = Args::parse();
+    let _cse_temp_0 = matches!(args.command, Commands::Clone { .. });
+    if _cse_temp_0 {
+        handle_clone(&args);
+    } else {
+        let _cse_temp_1 = matches!(args.command, Commands::Push { .. });
+        if _cse_temp_1 {
+            handle_push(&args);
+        }
+    }
+}
+pub fn handle_clone(args: &Args) {
+    if let Commands::Clone { url } = &args.command {
+        println!("{}", format!("Clone: {}", url));
+    }
+}
+pub fn handle_push(args: &Args) {
+    if let Commands::Push { remote } = &args.command {
+        println!("{}", format!("Push to: {}", remote));
+    }
+}
+'''
 
 [[test]]
 name = "argument_type_error_exception"
 description = "ArgumentTypeError should construct proper error type"
 tags = ["argparse", "error", "exception"]
 
-[test.python]
-code = '''
+python = '''
 import argparse
 
 def validate_int(value: str) -> int:
@@ -876,17 +1595,68 @@ def validate_int(value: str) -> int:
         raise argparse.ArgumentTypeError(f"Must be integer, got {value}")
 '''
 
-[test.assertions]
-contains = ["ArgumentTypeError"]
-not_contains = ["return Err(format!("]
+rust = '''
+use clap::Parser;
+#[derive(Debug, Clone)]
+pub struct ValueError {
+    message: String,
+}
+impl std::fmt::Display for ValueError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "value error: {}", self.message)
+    }
+}
+impl std::error::Error for ValueError {}
+impl ValueError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[derive(Debug, Clone)]
+pub struct ArgumentTypeError {
+    message: String,
+}
+impl std::fmt::Display for ArgumentTypeError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "argument type error: {}", self.message)
+    }
+}
+impl std::error::Error for ArgumentTypeError {}
+impl ArgumentTypeError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+pub fn validate_int(value: String) -> i32 {
+    {
+        let num = value.parse::<i32>().unwrap();
+        return num;
+        panic!("{}", format!("Must be integer, got {}", value));
+    }
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_validate_int_examples() {
+        assert_eq!(validate_int(""), 0);
+        assert_eq!(validate_int("a"), 1);
+        assert_eq!(validate_int("abc"), 3);
+    }
+}
+'''
 
 [[test]]
 name = "email_validation_with_error"
 description = "Email validation with ArgumentTypeError"
 tags = ["argparse", "validation", "error"]
 
-[test.python]
-code = '''
+python = '''
 import argparse
 import re
 
@@ -897,5 +1667,32 @@ def email_address(value: str) -> str:
     return value
 '''
 
-[test.assertions]
-contains = ["ArgumentTypeError"]
+rust = '''
+use clap::Parser;
+use regex as re;
+#[derive(Debug, Clone)]
+pub struct ArgumentTypeError {
+    message: String,
+}
+impl std::fmt::Display for ArgumentTypeError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "argument type error: {}", self.message)
+    }
+}
+impl std::error::Error for ArgumentTypeError {}
+impl ArgumentTypeError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = " Depyler: proven to terminate"]
+pub fn email_address(value: String) -> String {
+    let pattern = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$".to_string();
+    if regex::Regex::new(pattern).unwrap().find(value.clone()).is_none() {
+        panic!("{}", format!("Invalid email: {}", value));
+    }
+    return value;
+}
+'''

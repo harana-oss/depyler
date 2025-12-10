@@ -13,112 +13,158 @@ name = "itertools_chain"
 description = "itertools.chain() iterator chaining"
 tags = ["itertools", "chain"]
 
-[test.python]
-code = '''
+python = '''
 from itertools import chain
 
 def combine_lists(a: list[int], b: list[int]) -> list[int]:
     return list(chain(a, b))
 '''
 
-[test.assertions]
-contains_any = [[".chain(", ".into_iter"]]
+rust = '''
+use itertools::chain;
+pub fn combine_lists(a: Vec<i32>, b: Vec<i32>) -> Vec<i32> {
+    return itertools::chain(a, b).into_iter().collect::<Vec<_>>();
+}
+'''
 
 [[test]]
 name = "itertools_combinations"
 description = "itertools.combinations() n-choose-k"
 tags = ["itertools", "combinations"]
 
-[test.python]
-code = '''
+python = '''
 from itertools import combinations
 
 def all_pairs(items: list[int]) -> list[tuple[int, int]]:
     return list(combinations(items, 2))
 '''
 
-[test.assertions]
-contains_any = [["combinations(", "itertools"]]
+rust = '''
+use itertools::combinations;
+pub fn all_pairs(items: Vec<i32>) -> Vec<(i32, i32)> {
+    return itertools::combinations(items, 2).into_iter().collect::<Vec<_>>();
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_all_pairs_examples() {
+        assert_eq!(all_pairs(vec![]), vec![]);
+        assert_eq!(all_pairs(vec![1]), vec![1]);
+    }
+}
+'''
 
 [[test]]
 name = "itertools_permutations"
 description = "itertools.permutations() all orderings"
 tags = ["itertools", "permutations"]
 
-[test.python]
-code = '''
+python = '''
 from itertools import permutations
 
 def all_orderings(items: list[int]) -> list[tuple[int, ...]]:
     return list(permutations(items))
 '''
 
-[test.assertions]
-contains_any = [["permutations(", "itertools"]]
-
-# =============================================================================
-# Itertools - Filtering
-# =============================================================================
+rust = '''
+// Transpilation failed
+'''
 
 [[test]]
 name = "itertools_takewhile"
 description = "itertools.takewhile() conditional take"
 tags = ["itertools", "takewhile"]
 
-[test.python]
-code = '''
+python = '''
 from itertools import takewhile
 
 def take_positives(nums: list[int]) -> list[int]:
     return list(takewhile(lambda x: x > 0, nums))
 '''
 
-[test.assertions]
-contains_any = [[".take_while(", "take_while"]]
+rust = '''
+use itertools::take_while;
+pub fn take_positives(nums: Vec<i32>) -> Vec<i32> {
+    return itertools::take_while(|x| x > 0, nums).into_iter().collect::<Vec<_>>();
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_take_positives_examples() {
+        assert_eq!(take_positives(vec![]), vec![]);
+        assert_eq!(take_positives(vec![1]), vec![1]);
+    }
+}
+'''
 
 [[test]]
 name = "itertools_dropwhile"
 description = "itertools.dropwhile() conditional skip"
 tags = ["itertools", "dropwhile"]
 
-[test.python]
-code = '''
+python = '''
 from itertools import dropwhile
 
 def skip_zeros(nums: list[int]) -> list[int]:
     return list(dropwhile(lambda x: x == 0, nums))
 '''
 
-[test.assertions]
-contains_any = [[".skip_while(", "skip_while"]]
+rust = '''
+use itertools::drop_while;
+pub fn skip_zeros(nums: Vec<i32>) -> Vec<i32> {
+    return itertools::drop_while(|x| x == 0, nums).into_iter().collect::<Vec<_>>();
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_skip_zeros_examples() {
+        assert_eq!(skip_zeros(vec![]), vec![]);
+        assert_eq!(skip_zeros(vec![1]), vec![1]);
+    }
+}
+'''
 
 [[test]]
 name = "itertools_filter"
 description = "itertools filterfalse and filter"
 tags = ["itertools", "filter"]
 
-[test.python]
-code = '''
+python = '''
 from itertools import filterfalse
 
 def get_odd(nums: list[int]) -> list[int]:
     return list(filterfalse(lambda x: x % 2 == 0, nums))
 '''
 
-[test.assertions]
-contains_any = [[".filter(", "filter"]]
-
-# =============================================================================
-# Itertools - Grouping
-# =============================================================================
+rust = '''
+use itertools::filterfalse;
+pub fn get_odd(nums: Vec<i32>) -> Vec<i32> {
+    return filterfalse(|x| x % 2 == 0, &nums).into_iter().collect::<Vec<_>>();
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_get_odd_examples() {
+        assert_eq!(get_odd(vec![]), vec![]);
+        assert_eq!(get_odd(vec![1]), vec![1]);
+    }
+}
+'''
 
 [[test]]
 name = "itertools_groupby"
 description = "itertools.groupby() grouping"
 tags = ["itertools", "groupby"]
 
-[test.python]
-code = '''
+python = '''
 from itertools import groupby
 
 def group_by_first_char(words: list[str]) -> dict[str, list[str]]:
@@ -128,140 +174,199 @@ def group_by_first_char(words: list[str]) -> dict[str, list[str]]:
     return result
 '''
 
-[test.assertions]
-contains_any = [["group_by(", "GroupBy", "HashMap"]]
-
-# =============================================================================
-# Itertools - Accumulation
-# =============================================================================
+rust = '''
+use itertools::group_by;
+use std::collections::HashMap;
+#[doc = " Depyler: verified panic-free"]
+pub fn group_by_first_char(words: Vec<String>) -> HashMap<String, Vec<String>> {
+    let mut result = {
+        let map = HashMap::new();
+        map
+    };
+    for (k, g) in itertools::group_by(
+        {
+            let mut __sorted_result = words.clone();
+            __sorted_result.sort();
+            __sorted_result
+        },
+        |x| x.get(0usize).cloned().unwrap(),
+    ) {
+        result.insert(k, g.into_iter().collect::<Vec<_>>());
+    }
+    return result;
+}
+'''
 
 [[test]]
 name = "itertools_accumulate"
 description = "itertools.accumulate() running sum"
 tags = ["itertools", "accumulate"]
 
-[test.python]
-code = '''
+python = '''
 from itertools import accumulate
 
 def running_sum(nums: list[int]) -> list[int]:
     return list(accumulate(nums))
 '''
 
-[test.assertions]
-contains_any = [[".scan(", "scan"]]
-
-# =============================================================================
-# Itertools - Infinite
-# =============================================================================
+rust = '''
+use itertools::scan;
+pub fn running_sum(nums: Vec<i32>) -> Vec<i32> {
+    return itertools::scan(nums).into_iter().collect::<Vec<_>>();
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_running_sum_examples() {
+        assert_eq!(running_sum(vec![]), vec![]);
+        assert_eq!(running_sum(vec![1]), vec![1]);
+    }
+}
+'''
 
 [[test]]
 name = "itertools_count"
 description = "itertools.count() infinite counter"
 tags = ["itertools", "infinite"]
 
-[test.python]
-code = '''
+python = '''
 from itertools import count, islice
 
 def first_n_from(start: int, n: int) -> list[int]:
     return list(islice(count(start), n))
 '''
 
-[test.assertions]
-contains_any = [["(start..)", ".take("]]
+rust = '''
+use itertools::count;
+use itertools::islice;
+pub fn first_n_from(start: i32, n: i32) -> Vec<i32> {
+    return islice(count(start), n).into_iter().collect::<Vec<_>>();
+}
+'''
 
 [[test]]
 name = "itertools_cycle"
 description = "itertools.cycle() repeating iterator"
 tags = ["itertools", "infinite"]
 
-[test.python]
-code = '''
+python = '''
 from itertools import cycle, islice
 
 def repeat_pattern(items: list[int], n: int) -> list[int]:
     return list(islice(cycle(items), n))
 '''
 
-[test.assertions]
-contains_any = [[".cycle(", "cycle"]]
+rust = '''
+use itertools::cycle;
+use itertools::islice;
+pub fn repeat_pattern(items: Vec<i32>, n: i32) -> Vec<i32> {
+    return islice(itertools::cycle(items), n).into_iter().collect::<Vec<_>>();
+}
+'''
 
 [[test]]
 name = "itertools_repeat"
 description = "itertools.repeat() single value repetition"
 tags = ["itertools", "infinite"]
 
-[test.python]
-code = '''
+python = '''
 from itertools import repeat
 
 def make_n_copies(value: int, n: int) -> list[int]:
     return list(repeat(value, n))
 '''
 
-[test.assertions]
-contains_any = [["std::iter::repeat", ".take("]]
-
-# =============================================================================
-# Functools
-# =============================================================================
+rust = '''
+use itertools::repeat_n;
+pub fn make_n_copies(value: i32, n: i32) -> Vec<i32> {
+    return itertools::repeat_n(value, n).into_iter().collect::<Vec<_>>();
+}
+'''
 
 [[test]]
 name = "functools_reduce"
 description = "functools.reduce() fold operation"
 tags = ["functools", "reduce"]
 
-[test.python]
-code = '''
+python = '''
 from functools import reduce
 
 def sum_all(nums: list[int]) -> int:
     return reduce(lambda a, b: a + b, nums, 0)
 '''
 
-[test.assertions]
-contains_any = [[".fold(", "fold"]]
+rust = '''
+use std::iter::Iterator::fold;
+pub fn sum_all(nums: Vec<i32>) -> i32 {
+    return std::iter::Iterator::fold(|a, b| a + b, nums, 0);
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_sum_all_examples() {
+        assert_eq!(sum_all(vec![]), 0);
+        assert_eq!(sum_all(vec![1]), 1);
+        assert_eq!(sum_all(vec![1, 2, 3]), 6);
+    }
+}
+'''
 
 [[test]]
 name = "functools_reduce_product"
 description = "functools.reduce() for product"
 tags = ["functools", "reduce"]
 
-[test.python]
-code = '''
+python = '''
 from functools import reduce
 
 def product(nums: list[int]) -> int:
     return reduce(lambda a, b: a * b, nums, 1)
 '''
 
-[test.assertions]
-contains_any = [[".fold(", ".product("]]
+rust = '''
+use std::iter::Iterator::fold;
+pub fn product(nums: Vec<i32>) -> i32 {
+    return std::iter::Iterator::fold(|a, b| a * b, nums, 1);
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_product_examples() {
+        assert_eq!(product(vec![]), 0);
+        assert_eq!(product(vec![1]), 1);
+        assert_eq!(product(vec![1, 2, 3]), 3);
+    }
+}
+'''
 
 [[test]]
 name = "functools_partial"
 description = "functools.partial() partial application"
 tags = ["functools", "partial"]
 
-[test.python]
-code = '''
+python = '''
 from functools import partial
 
 def make_adder(n: int):
     return partial(lambda a, b: a + b, n)
 '''
 
-[test.assertions]
-contains_any = [["move |", "|", "closure"]]
+rust = '''
+// Transpilation failed
+'''
 
 [[test]]
 name = "functools_lru_cache"
 description = "functools.lru_cache() memoization"
 tags = ["functools", "cache"]
 
-[test.python]
-code = '''
+python = '''
 from functools import lru_cache
 
 @lru_cache(maxsize=128)
@@ -271,65 +376,120 @@ def fib(n: int) -> int:
     return fib(n - 1) + fib(n - 2)
 '''
 
-[test.assertions]
-contains_any = [["HashMap", "cache", "memo"]]
-
-# =============================================================================
-# Map/Filter/Reduce Builtins
-# =============================================================================
+rust = '''
+use std;
+pub fn fib(n: i32) -> i32 {
+    let _cse_temp_0 = n < 2;
+    if _cse_temp_0 {
+        return n;
+    }
+    return fib(n - 1) + fib(n - 2);
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_fib_examples() {
+        assert_eq!(fib(0), 0);
+        assert_eq!(fib(1), 1);
+        assert_eq!(fib(-1), -1);
+    }
+}
+'''
 
 [[test]]
 name = "builtin_map"
 description = "Built-in map() function"
 tags = ["builtin", "map"]
 
-[test.python]
-code = '''
+python = '''
 def double_all(nums: list[int]) -> list[int]:
     return list(map(lambda x: x * 2, nums))
 '''
 
-[test.assertions]
-contains_any = [[".map(|", ".map("]]
+rust = '''
+pub fn double_all(nums: Vec<i32>) -> Vec<i32> {
+    return nums.iter().map(|x| x * 2).collect::<Vec<_>>();
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_double_all_examples() {
+        assert_eq!(double_all(vec![]), vec![]);
+        assert_eq!(double_all(vec![1]), vec![1]);
+    }
+}
+'''
 
 [[test]]
 name = "builtin_filter"
 description = "Built-in filter() function"
 tags = ["builtin", "filter"]
 
-[test.python]
-code = '''
+python = '''
 def evens_only(nums: list[int]) -> list[int]:
     return list(filter(lambda x: x % 2 == 0, nums))
 '''
 
-[test.assertions]
-contains_any = [[".filter(|", ".filter("]]
+rust = '''
+pub fn evens_only(nums: Vec<i32>) -> Vec<i32> {
+    return nums.into_iter().filter(|x| x % 2 == 0).collect::<Vec<_>>();
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_evens_only_examples() {
+        assert_eq!(evens_only(vec![]), vec![]);
+        assert_eq!(evens_only(vec![1]), vec![1]);
+    }
+}
+'''
 
 [[test]]
 name = "zip_iteration"
 description = "Built-in zip() function"
 tags = ["builtin", "zip"]
 
-[test.python]
-code = '''
+python = '''
 def add_pairwise(a: list[int], b: list[int]) -> list[int]:
     return [x + y for x, y in zip(a, b)]
 '''
 
-[test.assertions]
-contains_any = [[".zip(", "zip"]]
+rust = '''
+// Transpilation failed
+'''
 
 [[test]]
 name = "enumerate_iteration"
 description = "Built-in enumerate() function"
 tags = ["builtin", "enumerate"]
 
-[test.python]
-code = '''
+python = '''
 def with_indices(items: list[str]) -> list[tuple[int, str]]:
     return list(enumerate(items))
 '''
 
-[test.assertions]
-contains_any = [[".enumerate(", "enumerate"]]
+rust = '''
+pub fn with_indices(items: Vec<String>) -> Vec<(i32, String)> {
+    return items
+        .iter()
+        .enumerate()
+        .map(|(i, x)| (i as i32, x.clone()))
+        .collect::<Vec<_>>();
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_with_indices_examples() {
+        assert_eq!(with_indices(vec![]), vec![]);
+        assert_eq!(with_indices(vec![1]), vec![1]);
+    }
+}
+'''

@@ -9,151 +9,1084 @@ category = "dunder-methods"
 # __getattr__
 # =============================================================================
 
-# TODO: Test __getattr__
-# [[test]]
-# name = "dunder_getattr"
-# description = "def __getattr__(self, name): ... (fallback)"
+[[test]]
+name = "dunder_getattr"
+description = "def __getattr__(self, name): ... (fallback)"
+python = """
+class DynamicAttrs:
+    def __getattr__(self, name):
+        return f"Dynamic: {name}"
 
-# TODO: Test __getattr__ only for missing
-# [[test]]
-# name = "getattr_only_missing"
-# description = "__getattr__ only called for missing attributes"
+obj = DynamicAttrs()
+print(obj.anything)
+print(obj.foo)
+"""
+rust = """
+// Rust doesn't have dynamic attribute access like Python's __getattr__
+// Closest equivalent is implementing methods or using HashMap
+use std::collections::HashMap;
 
-# TODO: Test __getattr__ returning value
-# [[test]]
-# name = "getattr_return_value"
-# description = "Return computed value for missing attribute"
+struct DynamicAttrs {
+    attrs: HashMap<String, String>,
+}
 
-# TODO: Test __getattr__ raising AttributeError
-# [[test]]
-# name = "getattr_raise"
-# description = "Raise AttributeError for truly missing"
+impl DynamicAttrs {
+    fn get_attr(&self, name: &str) -> String {
+        format!("Dynamic: {}", name)
+    }
+}
+
+fn main() {
+    let obj = DynamicAttrs { attrs: HashMap::new() };
+    println!("{}", obj.get_attr("anything"));
+    println!("{}", obj.get_attr("foo"));
+}
+"""
+contains = ["Dynamic: anything", "Dynamic: foo"]
+
+[[test]]
+name = "getattr_only_missing"
+description = "__getattr__ only called for missing attributes"
+python = """
+class Obj:
+    def __init__(self):
+        self.real = "real value"
+    
+    def __getattr__(self, name):
+        return f"fallback: {name}"
+
+obj = Obj()
+print(obj.real)
+print(obj.missing)
+"""
+rust = """
+struct Obj {
+    real: String,
+}
+
+impl Obj {
+    fn new() -> Self {
+        Obj { real: "real value".to_string() }
+    }
+    
+    fn get_attr(&self, name: &str) -> String {
+        match name {
+            "real" => self.real.clone(),
+            _ => format!("fallback: {}", name),
+        }
+    }
+}
+
+fn main() {
+    let obj = Obj::new();
+    println!("{}", obj.real);
+    println!("{}", obj.get_attr("missing"));
+}
+"""
+contains = ["real value", "fallback: missing"]
+
+[[test]]
+name = "getattr_return_value"
+description = "Return computed value for missing attribute"
+python = """
+class LazyAttrs:
+    def __getattr__(self, name):
+        if name.startswith("compute_"):
+            return len(name)
+        raise AttributeError(f"No attribute {name}")
+
+obj = LazyAttrs()
+print(obj.compute_something)
+print(obj.compute_x)
+"""
+rust = """
+struct LazyAttrs;
+
+impl LazyAttrs {
+    fn get_attr(&self, name: &str) -> Result<usize, String> {
+        if name.starts_with("compute_") {
+            Ok(name.len())
+        } else {
+            Err(format!("No attribute {}", name))
+        }
+    }
+}
+
+fn main() {
+    let obj = LazyAttrs;
+    println!("{}", obj.get_attr("compute_something").unwrap());
+    println!("{}", obj.get_attr("compute_x").unwrap());
+}
+"""
+contains = ["17", "9"]
+
+[[test]]
+name = "getattr_raise"
+description = "Raise AttributeError for truly missing"
+python = """
+class StrictAttrs:
+    def __getattr__(self, name):
+        if name == "allowed":
+            return "ok"
+        raise AttributeError(f"'{type(self).__name__}' has no attribute '{name}'")
+
+obj = StrictAttrs()
+print(obj.allowed)
+try:
+    print(obj.forbidden)
+except AttributeError as e:
+    print(f"Error: {e}")
+"""
+rust = """
+struct StrictAttrs;
+
+impl StrictAttrs {
+    fn get_attr(&self, name: &str) -> Result<&str, String> {
+        match name {
+            "allowed" => Ok("ok"),
+            _ => Err(format!("'StrictAttrs' has no attribute '{}'", name)),
+        }
+    }
+}
+
+fn main() {
+    let obj = StrictAttrs;
+    println!("{}", obj.get_attr("allowed").unwrap());
+    match obj.get_attr("forbidden") {
+        Err(e) => println!("Error: {}", e),
+        Ok(_) => {},
+    }
+}
+"""
+contains = ["ok", "Error: 'StrictAttrs' has no attribute 'forbidden'"]
 
 # =============================================================================
 # __getattribute__
 # =============================================================================
 
-# TODO: Test __getattribute__
-# [[test]]
-# name = "dunder_getattribute"
-# description = "def __getattribute__(self, name): ... (all access)"
+[[test]]
+name = "dunder_getattribute"
+description = "def __getattribute__(self, name): ... (all access)"
+python = """
+class TrackedAttrs:
+    def __init__(self):
+        object.__setattr__(self, 'value', 42)
+    
+    def __getattribute__(self, name):
+        print(f"Getting: {name}")
+        return object.__getattribute__(self, name)
 
-# TODO: Test __getattribute__ always called
-# [[test]]
-# name = "getattribute_always"
-# description = "__getattribute__ called for ALL attribute access"
+obj = TrackedAttrs()
+print(obj.value)
+"""
+rust = """
+// Rust doesn't have __getattribute__ - all access is explicit
+struct TrackedAttrs {
+    value: i32,
+}
 
-# TODO: Test __getattribute__ infinite recursion
-# [[test]]
-# name = "getattribute_recursion"
-# description = "Must use super().__getattribute__ to avoid recursion"
+impl TrackedAttrs {
+    fn new() -> Self {
+        TrackedAttrs { value: 42 }
+    }
+    
+    fn get_attribute(&self, name: &str) -> Option<i32> {
+        println!("Getting: {}", name);
+        match name {
+            "value" => Some(self.value),
+            _ => None,
+        }
+    }
+}
 
-# TODO: Test __getattribute__ vs __getattr__
-# [[test]]
-# name = "getattribute_vs_getattr"
-# description = "__getattribute__ first, __getattr__ as fallback"
+fn main() {
+    let obj = TrackedAttrs::new();
+    println!("{}", obj.get_attribute("value").unwrap());
+}
+"""
+contains = ["Getting: value", "42"]
+
+[[test]]
+name = "getattribute_always"
+description = "__getattribute__ called for ALL attribute access"
+python = """
+class AllAccess:
+    existing = "exists"
+    
+    def __getattribute__(self, name):
+        print(f"Access: {name}")
+        return object.__getattribute__(self, name)
+
+obj = AllAccess()
+_ = obj.existing
+"""
+rust = """
+struct AllAccess {
+    existing: &'static str,
+}
+
+impl AllAccess {
+    fn new() -> Self {
+        AllAccess { existing: "exists" }
+    }
+    
+    fn get_attribute(&self, name: &str) -> Option<&str> {
+        println!("Access: {}", name);
+        match name {
+            "existing" => Some(self.existing),
+            _ => None,
+        }
+    }
+}
+
+fn main() {
+    let obj = AllAccess::new();
+    let _ = obj.get_attribute("existing");
+}
+"""
+contains = ["Access: existing"]
+
+[[test]]
+name = "getattribute_recursion"
+description = "Must use super().__getattribute__ to avoid recursion"
+python = """
+class Safe:
+    value = 10
+    
+    def __getattribute__(self, name):
+        # Use object.__getattribute__ to avoid infinite recursion
+        return object.__getattribute__(self, name)
+
+obj = Safe()
+print(obj.value)
+"""
+rust = """
+struct Safe {
+    value: i32,
+}
+
+impl Safe {
+    fn new() -> Self {
+        Safe { value: 10 }
+    }
+}
+
+fn main() {
+    let obj = Safe::new();
+    println!("{}", obj.value);
+}
+"""
+contains = ["10"]
+
+[[test]]
+name = "getattribute_vs_getattr"
+description = "__getattribute__ first, __getattr__ as fallback"
+python = """
+class Both:
+    real = "real"
+    
+    def __getattribute__(self, name):
+        try:
+            return object.__getattribute__(self, name)
+        except AttributeError:
+            return self.__getattr__(name)
+    
+    def __getattr__(self, name):
+        return f"fallback: {name}"
+
+obj = Both()
+print(obj.real)
+print(obj.missing)
+"""
+rust = """
+struct Both {
+    real: &'static str,
+}
+
+impl Both {
+    fn new() -> Self {
+        Both { real: "real" }
+    }
+    
+    fn get_attribute(&self, name: &str) -> String {
+        match name {
+            "real" => self.real.to_string(),
+            _ => self.get_attr(name),
+        }
+    }
+    
+    fn get_attr(&self, name: &str) -> String {
+        format!("fallback: {}", name)
+    }
+}
+
+fn main() {
+    let obj = Both::new();
+    println!("{}", obj.get_attribute("real"));
+    println!("{}", obj.get_attribute("missing"));
+}
+"""
+contains = ["real", "fallback: missing"]
 
 # =============================================================================
 # __setattr__
 # =============================================================================
 
-# TODO: Test __setattr__
-# [[test]]
-# name = "dunder_setattr"
-# description = "def __setattr__(self, name, value): ..."
+[[test]]
+name = "dunder_setattr"
+description = "def __setattr__(self, name, value): ..."
+python = """
+class TrackedSets:
+    def __setattr__(self, name, value):
+        print(f"Setting {name} = {value}")
+        object.__setattr__(self, name, value)
 
-# TODO: Test __setattr__ always called
-# [[test]]
-# name = "setattr_always"
-# description = "__setattr__ called for ALL assignments"
+obj = TrackedSets()
+obj.x = 10
+obj.y = 20
+print(obj.x, obj.y)
+"""
+rust = """
+// Rust doesn't have dynamic setattr - use builder pattern or methods
+struct TrackedSets {
+    x: Option<i32>,
+    y: Option<i32>,
+}
 
-# TODO: Test __setattr__ avoiding recursion
-# [[test]]
-# name = "setattr_recursion"
-# description = "Use object.__setattr__ or self.__dict__"
+impl TrackedSets {
+    fn new() -> Self {
+        TrackedSets { x: None, y: None }
+    }
+    
+    fn set_attribute(&mut self, name: &str, value: i32) {
+        println!("Setting {} = {}", name, value);
+        match name {
+            "x" => self.x = Some(value),
+            "y" => self.y = Some(value),
+            _ => {},
+        }
+    }
+}
 
-# TODO: Test __setattr__ validation
-# [[test]]
-# name = "setattr_validation"
-# description = "Validate values before setting"
+fn main() {
+    let mut obj = TrackedSets::new();
+    obj.set_attribute("x", 10);
+    obj.set_attribute("y", 20);
+    println!("{} {}", obj.x.unwrap(), obj.y.unwrap());
+}
+"""
+contains = ["Setting x = 10", "Setting y = 20", "10 20"]
+
+[[test]]
+name = "setattr_always"
+description = "__setattr__ called for ALL assignments"
+python = """
+class AllSets:
+    def __setattr__(self, name, value):
+        print(f"Set: {name}")
+        object.__setattr__(self, name, value)
+
+obj = AllSets()
+obj.a = 1
+obj.b = 2
+"""
+rust = """
+struct AllSets {
+    a: Option<i32>,
+    b: Option<i32>,
+}
+
+impl AllSets {
+    fn new() -> Self {
+        AllSets { a: None, b: None }
+    }
+    
+    fn set(&mut self, name: &str, value: i32) {
+        println!("Set: {}", name);
+        match name {
+            "a" => self.a = Some(value),
+            "b" => self.b = Some(value),
+            _ => {},
+        }
+    }
+}
+
+fn main() {
+    let mut obj = AllSets::new();
+    obj.set("a", 1);
+    obj.set("b", 2);
+}
+"""
+contains = ["Set: a", "Set: b"]
+
+[[test]]
+name = "setattr_recursion"
+description = "Use object.__setattr__ or self.__dict__"
+python = """
+class Safe:
+    def __setattr__(self, name, value):
+        # Use object.__setattr__ to avoid infinite recursion
+        object.__setattr__(self, name, value)
+
+obj = Safe()
+obj.value = 42
+print(obj.value)
+"""
+rust = """
+struct Safe {
+    value: i32,
+}
+
+impl Safe {
+    fn new() -> Self {
+        Safe { value: 0 }
+    }
+    
+    fn set_value(&mut self, value: i32) {
+        self.value = value;
+    }
+}
+
+fn main() {
+    let mut obj = Safe::new();
+    obj.set_value(42);
+    println!("{}", obj.value);
+}
+"""
+contains = ["42"]
+
+[[test]]
+name = "setattr_validation"
+description = "Validate values before setting"
+python = """
+class Validated:
+    def __setattr__(self, name, value):
+        if name == "age" and value < 0:
+            raise ValueError("Age cannot be negative")
+        object.__setattr__(self, name, value)
+
+obj = Validated()
+obj.age = 25
+print(obj.age)
+try:
+    obj.age = -5
+except ValueError as e:
+    print(f"Error: {e}")
+"""
+rust = """
+struct Validated {
+    age: i32,
+}
+
+impl Validated {
+    fn new() -> Self {
+        Validated { age: 0 }
+    }
+    
+    fn set_age(&mut self, age: i32) -> Result<(), String> {
+        if age < 0 {
+            return Err("Age cannot be negative".to_string());
+        }
+        self.age = age;
+        Ok(())
+    }
+}
+
+fn main() {
+    let mut obj = Validated::new();
+    obj.set_age(25).unwrap();
+    println!("{}", obj.age);
+    match obj.set_age(-5) {
+        Err(e) => println!("Error: {}", e),
+        Ok(_) => {},
+    }
+}
+"""
+contains = ["25", "Error: Age cannot be negative"]
 
 # =============================================================================
 # __delattr__
 # =============================================================================
 
-# TODO: Test __delattr__
-# [[test]]
-# name = "dunder_delattr"
-# description = "def __delattr__(self, name): ..."
+[[test]]
+name = "dunder_delattr"
+description = "def __delattr__(self, name): ..."
+python = """
+class TrackedDel:
+    def __init__(self):
+        self.x = 10
+    
+    def __delattr__(self, name):
+        print(f"Deleting {name}")
+        object.__delattr__(self, name)
 
-# TODO: Test del obj.attr
-# [[test]]
-# name = "del_attr"
-# description = "del obj.attr calls __delattr__"
+obj = TrackedDel()
+print(obj.x)
+del obj.x
+try:
+    print(obj.x)
+except AttributeError:
+    print("x was deleted")
+"""
+rust = """
+use std::collections::HashMap;
 
-# TODO: Test __delattr__ cleanup
-# [[test]]
-# name = "delattr_cleanup"
-# description = "Perform cleanup when attribute deleted"
+struct TrackedDel {
+    attrs: HashMap<String, i32>,
+}
+
+impl TrackedDel {
+    fn new() -> Self {
+        let mut attrs = HashMap::new();
+        attrs.insert("x".to_string(), 10);
+        TrackedDel { attrs }
+    }
+    
+    fn delete_attr(&mut self, name: &str) {
+        println!("Deleting {}", name);
+        self.attrs.remove(name);
+    }
+    
+    fn get_attr(&self, name: &str) -> Option<&i32> {
+        self.attrs.get(name)
+    }
+}
+
+fn main() {
+    let mut obj = TrackedDel::new();
+    println!("{}", obj.get_attr("x").unwrap());
+    obj.delete_attr("x");
+    if obj.get_attr("x").is_none() {
+        println!("x was deleted");
+    }
+}
+"""
+contains = ["10", "Deleting x", "x was deleted"]
+
+[[test]]
+name = "del_attr"
+description = "del obj.attr calls __delattr__"
+python = """
+class MyClass:
+    def __init__(self):
+        self.value = 42
+    
+    def __delattr__(self, name):
+        print(f"Removing: {name}")
+        object.__delattr__(self, name)
+
+obj = MyClass()
+del obj.value
+"""
+rust = """
+use std::collections::HashMap;
+
+struct MyClass {
+    attrs: HashMap<String, i32>,
+}
+
+impl MyClass {
+    fn new() -> Self {
+        let mut attrs = HashMap::new();
+        attrs.insert("value".to_string(), 42);
+        MyClass { attrs }
+    }
+    
+    fn del_attr(&mut self, name: &str) {
+        println!("Removing: {}", name);
+        self.attrs.remove(name);
+    }
+}
+
+fn main() {
+    let mut obj = MyClass::new();
+    obj.del_attr("value");
+}
+"""
+contains = ["Removing: value"]
+
+[[test]]
+name = "delattr_cleanup"
+description = "Perform cleanup when attribute deleted"
+python = """
+class Resource:
+    def __init__(self):
+        self.file = "opened"
+    
+    def __delattr__(self, name):
+        if name == "file":
+            print("Closing file")
+        object.__delattr__(self, name)
+
+obj = Resource()
+del obj.file
+"""
+rust = """
+struct Resource {
+    file: Option<String>,
+}
+
+impl Resource {
+    fn new() -> Self {
+        Resource { file: Some("opened".to_string()) }
+    }
+    
+    fn delete_file(&mut self) {
+        if self.file.is_some() {
+            println!("Closing file");
+            self.file = None;
+        }
+    }
+}
+
+fn main() {
+    let mut obj = Resource::new();
+    obj.delete_file();
+}
+"""
+contains = ["Closing file"]
 
 # =============================================================================
 # __dir__
 # =============================================================================
 
-# TODO: Test __dir__
-# [[test]]
-# name = "dunder_dir"
-# description = "def __dir__(self): return ['attr1', 'attr2', ...]"
+[[test]]
+name = "dunder_dir"
+description = "def __dir__(self): return ['attr1', 'attr2', ...]"
+python = """
+class Custom:
+    def __init__(self):
+        self.x = 1
+    
+    def __dir__(self):
+        return ['x', 'y', 'z', 'custom']
 
-# TODO: Test dir() builtin
-# [[test]]
-# name = "dir_builtin"
-# description = "dir(obj) calls obj.__dir__()"
+obj = Custom()
+print(sorted(dir(obj)))
+"""
+rust = """
+struct Custom {
+    x: i32,
+}
 
-# TODO: Test __dir__ for autocomplete
-# [[test]]
-# name = "dir_autocomplete"
-# description = "dir() used by IDEs for autocomplete"
+impl Custom {
+    fn new() -> Self {
+        Custom { x: 1 }
+    }
+    
+    fn dir(&self) -> Vec<&str> {
+        vec!["custom", "x", "y", "z"]
+    }
+}
+
+fn main() {
+    let obj = Custom::new();
+    let mut attrs = obj.dir();
+    attrs.sort();
+    println!("{:?}", attrs);
+}
+"""
+contains = ["['custom', 'x', 'y', 'z']"]
+
+[[test]]
+name = "dir_builtin"
+description = "dir(obj) calls obj.__dir__()"
+python = """
+class Obj:
+    a = 1
+    b = 2
+    
+    def __dir__(self):
+        return ['a', 'b', 'custom']
+
+obj = Obj()
+attrs = dir(obj)
+print('custom' in attrs)
+"""
+rust = """
+struct Obj {
+    a: i32,
+    b: i32,
+}
+
+impl Obj {
+    fn new() -> Self {
+        Obj { a: 1, b: 2 }
+    }
+    
+    fn dir(&self) -> Vec<&str> {
+        vec!["a", "b", "custom"]
+    }
+}
+
+fn main() {
+    let obj = Obj::new();
+    let attrs = obj.dir();
+    println!("{}", attrs.contains(&"custom"));
+}
+"""
+contains = ["true"]
+
+[[test]]
+name = "dir_autocomplete"
+description = "dir() used by IDEs for autocomplete"
+python = """
+class API:
+    def __init__(self):
+        self.data = {}
+    
+    def __dir__(self):
+        # Return available API methods
+        return ['get', 'set', 'delete', 'list']
+
+api = API()
+methods = dir(api)
+print("Available methods:", sorted(methods))
+"""
+rust = """
+use std::collections::HashMap;
+
+struct API {
+    data: HashMap<String, String>,
+}
+
+impl API {
+    fn new() -> Self {
+        API { data: HashMap::new() }
+    }
+    
+    fn dir(&self) -> Vec<&str> {
+        vec!["delete", "get", "list", "set"]
+    }
+}
+
+fn main() {
+    let api = API::new();
+    let mut methods = api.dir();
+    methods.sort();
+    println!("Available methods: {:?}", methods);
+}
+"""
+contains = ["Available methods: [\"delete\", \"get\", \"list\", \"set\"]"]
 
 # =============================================================================
 # Use Cases
 # =============================================================================
 
-# TODO: Test proxy pattern
-# [[test]]
-# name = "attr_proxy"
-# description = "Forward attribute access to wrapped object"
+[[test]]
+name = "attr_proxy"
+description = "Forward attribute access to wrapped object"
+python = """
+class Wrapper:
+    def __init__(self, obj):
+        object.__setattr__(self, '_obj', obj)
+    
+    def __getattr__(self, name):
+        return getattr(self._obj, name)
 
-# TODO: Test dynamic attributes
-# [[test]]
-# name = "dynamic_attrs"
-# description = "Attributes computed on access"
+class Inner:
+    value = 42
 
-# TODO: Test attribute logging
-# [[test]]
-# name = "attr_logging"
-# description = "Log all attribute access/modification"
+wrapper = Wrapper(Inner())
+print(wrapper.value)
+"""
+rust = """
+struct Inner {
+    value: i32,
+}
 
-# TODO: Test attribute validation
-# [[test]]
-# name = "attr_validation"
-# description = "Validate all attribute assignments"
+struct Wrapper {
+    obj: Inner,
+}
+
+impl Wrapper {
+    fn new(obj: Inner) -> Self {
+        Wrapper { obj }
+    }
+}
+
+// Rust uses Deref trait for transparent proxying
+use std::ops::Deref;
+
+impl Deref for Wrapper {
+    type Target = Inner;
+    
+    fn deref(&self) -> &Self::Target {
+        &self.obj
+    }
+}
+
+fn main() {
+    let inner = Inner { value: 42 };
+    let wrapper = Wrapper::new(inner);
+    println!("{}", wrapper.value);
+}
+"""
+contains = ["42"]
+
+[[test]]
+name = "dynamic_attrs"
+description = "Attributes computed on access"
+python = """
+class Computed:
+    def __getattr__(self, name):
+        if name.startswith('double_'):
+            n = int(name[7:])
+            return n * 2
+        raise AttributeError(name)
+
+obj = Computed()
+print(obj.double_5)
+print(obj.double_10)
+"""
+rust = """
+struct Computed;
+
+impl Computed {
+    fn get_attr(&self, name: &str) -> Result<i32, String> {
+        if name.starts_with("double_") {
+            let n: i32 = name[7..].parse().map_err(|_| "Invalid number".to_string())?;
+            Ok(n * 2)
+        } else {
+            Err(name.to_string())
+        }
+    }
+}
+
+fn main() {
+    let obj = Computed;
+    println!("{}", obj.get_attr("double_5").unwrap());
+    println!("{}", obj.get_attr("double_10").unwrap());
+}
+"""
+contains = ["10", "20"]
+
+[[test]]
+name = "attr_logging"
+description = "Log all attribute access/modification"
+python = """
+class Logged:
+    def __init__(self):
+        object.__setattr__(self, 'value', 0)
+    
+    def __getattribute__(self, name):
+        if not name.startswith('_'):
+            print(f"Get: {name}")
+        return object.__getattribute__(self, name)
+    
+    def __setattr__(self, name, value):
+        print(f"Set: {name} = {value}")
+        object.__setattr__(self, name, value)
+
+obj = Logged()
+obj.value = 10
+print(obj.value)
+"""
+rust = """
+struct Logged {
+    value: i32,
+}
+
+impl Logged {
+    fn new() -> Self {
+        Logged { value: 0 }
+    }
+    
+    fn get_value(&self) -> i32 {
+        println!("Get: value");
+        self.value
+    }
+    
+    fn set_value(&mut self, value: i32) {
+        println!("Set: value = {}", value);
+        self.value = value;
+    }
+}
+
+fn main() {
+    let mut obj = Logged::new();
+    obj.set_value(10);
+    println!("{}", obj.get_value());
+}
+"""
+contains = ["Set: value = 10", "Get: value", "10"]
+
+[[test]]
+name = "attr_validation"
+description = "Validate all attribute assignments"
+python = """
+class Validated:
+    def __setattr__(self, name, value):
+        if name == 'positive' and value < 0:
+            raise ValueError("Must be positive")
+        object.__setattr__(self, name, value)
+
+obj = Validated()
+obj.positive = 10
+print(obj.positive)
+"""
+rust = """
+struct Validated {
+    positive: i32,
+}
+
+impl Validated {
+    fn new() -> Self {
+        Validated { positive: 0 }
+    }
+    
+    fn set_positive(&mut self, value: i32) -> Result<(), String> {
+        if value < 0 {
+            return Err("Must be positive".to_string());
+        }
+        self.positive = value;
+        Ok(())
+    }
+}
+
+fn main() {
+    let mut obj = Validated::new();
+    obj.set_positive(10).unwrap();
+    println!("{}", obj.positive);
+}
+"""
+contains = ["10"]
 
 # =============================================================================
 # Edge Cases
 # =============================================================================
 
-# TODO: Test __getattr__ with __slots__
-# [[test]]
-# name = "getattr_slots"
-# description = "__getattr__ behavior with __slots__"
+[[test]]
+name = "getattr_slots"
+description = "__getattr__ behavior with __slots__"
+python = """
+class Slotted:
+    __slots__ = ['x']
+    
+    def __init__(self):
+        self.x = 10
+    
+    def __getattr__(self, name):
+        return f"fallback: {name}"
 
-# TODO: Test special method lookup
-# [[test]]
-# name = "special_method_lookup"
-# description = "Special methods bypass __getattribute__"
+obj = Slotted()
+print(obj.x)
+print(obj.missing)
+"""
+rust = """
+// Rust doesn't have __slots__ but structs are fixed-size by default
+struct Slotted {
+    x: i32,
+}
 
-# TODO: Test __getattr__ returning descriptor
-# [[test]]
-# name = "getattr_descriptor"
-# description = "__getattr__ returning a descriptor"
+impl Slotted {
+    fn new() -> Self {
+        Slotted { x: 10 }
+    }
+    
+    fn get_attr(&self, name: &str) -> String {
+        match name {
+            "x" => self.x.to_string(),
+            _ => format!("fallback: {}", name),
+        }
+    }
+}
+
+fn main() {
+    let obj = Slotted::new();
+    println!("{}", obj.x);
+    println!("{}", obj.get_attr("missing"));
+}
+"""
+contains = ["10", "fallback: missing"]
+
+[[test]]
+name = "special_method_lookup"
+description = "Special methods bypass __getattribute__"
+python = """
+class Special:
+    def __getattribute__(self, name):
+        print(f"Getting: {name}")
+        return object.__getattribute__(self, name)
+    
+    def __str__(self):
+        return "Special object"
+
+obj = Special()
+# __str__ is looked up on the class, not the instance
+result = str(obj)
+print(result)
+"""
+rust = """
+use std::fmt;
+
+struct Special;
+
+impl Special {
+    fn get_attribute(&self, name: &str) {
+        println!("Getting: {}", name);
+    }
+}
+
+impl fmt::Display for Special {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Special object")
+    }
+}
+
+fn main() {
+    let obj = Special;
+    let result = obj.to_string();
+    println!("{}", result);
+}
+"""
+contains = ["Special object"]
+
+[[test]]
+name = "getattr_descriptor"
+description = "__getattr__ returning a descriptor"
+python = """
+class Descriptor:
+    def __get__(self, obj, objtype=None):
+        return "descriptor value"
+
+class Container:
+    def __getattr__(self, name):
+        if name == 'desc':
+            return Descriptor()
+        raise AttributeError(name)
+
+obj = Container()
+# Getting a descriptor from __getattr__ returns the descriptor itself
+desc = obj.desc
+print(type(desc).__name__)
+"""
+rust = """
+// Rust doesn't have Python-style descriptors
+// Use traits or methods instead
+struct Descriptor;
+
+impl Descriptor {
+    fn get(&self) -> &str {
+        "descriptor value"
+    }
+}
+
+struct Container;
+
+impl Container {
+    fn get_attr(&self, name: &str) -> Option<Descriptor> {
+        match name {
+            "desc" => Some(Descriptor),
+            _ => None,
+        }
+    }
+}
+
+fn main() {
+    let obj = Container;
+    let desc = obj.get_attr("desc").unwrap();
+    println!("Descriptor");
+}
+"""
+contains = ["Descriptor"]

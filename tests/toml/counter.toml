@@ -9,174 +9,623 @@ category = "data-structures"
 # Creating Counters
 # =============================================================================
 
-# TODO: Test empty counter
-# [[test]]
-# name = "counter_empty"
-# description = "Counter()"
+[[test]]
+name = "counter_empty"
+description = "Counter()"
+python = """
+from collections import Counter
+c = Counter()
+print(dict(c))
+"""
+rust = """
+use std::collections::HashMap;
 
-# TODO: Test from iterable
-# [[test]]
-# name = "counter_iterable"
-# description = "Counter('abracadabra')"
+fn main() {
+    let c: HashMap<String, usize> = HashMap::new();
+    println!("{{}}");
+}
+"""
+contains = ["{}"]
 
-# TODO: Test from mapping
-# [[test]]
-# name = "counter_mapping"
-# description = "Counter({'a': 4, 'b': 2})"
+[[test]]
+name = "counter_iterable"
+description = "Counter('abracadabra')"
+python = """
+from collections import Counter
+c = Counter('abracadabra')
+print(dict(sorted(c.items())))
+"""
+rust = """
+use std::collections::HashMap;
 
-# TODO: Test from kwargs
-# [[test]]
-# name = "counter_kwargs"
-# description = "Counter(a=4, b=2)"
+fn main() {
+    let s = "abracadabra";
+    let mut c: HashMap<char, usize> = HashMap::new();
+    for ch in s.chars() {
+        *c.entry(ch).or_insert(0) += 1;
+    }
+    let mut items: Vec<_> = c.iter().collect();
+    items.sort_by_key(|&(k, _)| k);
+    println!("{:?}", items);
+}
+"""
+contains = ["'a': 5", "'b': 2", "'r': 2", "'c': 1", "'d': 1"]
+
+[[test]]
+name = "counter_mapping"
+description = "Counter({'a': 4, 'b': 2})"
+python = """
+from collections import Counter
+c = Counter({'a': 4, 'b': 2})
+print(dict(sorted(c.items())))
+"""
+rust = """
+use std::collections::HashMap;
+
+fn main() {
+    let mut c: HashMap<char, usize> = HashMap::new();
+    c.insert('a', 4);
+    c.insert('b', 2);
+    let mut items: Vec<_> = c.iter().collect();
+    items.sort_by_key(|&(k, _)| k);
+    println!("{:?}", items);
+}
+"""
+contains = ["'a': 4", "'b': 2"]
+
+[[test]]
+name = "counter_kwargs"
+description = "Counter(a=4, b=2)"
+python = """
+from collections import Counter
+c = Counter(a=4, b=2)
+print(dict(sorted(c.items())))
+"""
+rust = """
+use std::collections::HashMap;
+
+fn main() {
+    let mut c: HashMap<&str, usize> = HashMap::new();
+    c.insert("a", 4);
+    c.insert("b", 2);
+    let mut items: Vec<_> = c.iter().collect();
+    items.sort_by_key(|&(k, _)| k);
+    println!("{:?}", items);
+}
+"""
+contains = ["'a': 4", "'b': 2"]
 
 # =============================================================================
 # Counting
 # =============================================================================
 
-# TODO: Test count access
-# [[test]]
-# name = "counter_access"
-# description = "c['a']"
+[[test]]
+name = "counter_access"
+description = "c['a']"
+python = """
+from collections import Counter
+c = Counter('aab')
+print(c['a'], c['b'])
+"""
+rust = """
+use std::collections::HashMap;
+fn main() {
+    let s = "aab";
+    let mut c: HashMap<char, usize> = HashMap::new();
+    for ch in s.chars() { *c.entry(ch).or_insert(0) += 1; }
+    println!("{} {}", c.get(&'a').unwrap_or(&0), c.get(&'b').unwrap_or(&0));
+}
+"""
+contains = ["2 1"]
 
-# TODO: Test missing key
-# [[test]]
-# name = "counter_missing"
-# description = "c['missing'] returns 0"
+[[test]]
+name = "counter_missing"
+description = "c['missing'] returns 0"
+python = """
+from collections import Counter
+c = Counter('abc')
+print(c['x'])
+"""
+rust = """
+use std::collections::HashMap;
+fn main() {
+    let s = "abc";
+    let mut c: HashMap<char, usize> = HashMap::new();
+    for ch in s.chars() { *c.entry(ch).or_insert(0) += 1; }
+    println!("{}", c.get(&'x').unwrap_or(&0));
+}
+"""
+contains = ["0"]
 
-# TODO: Test update
-# [[test]]
-# name = "counter_update"
-# description = "c.update('more')"
+[[test]]
+name = "counter_update"
+description = "c.update('more')"
+python = """
+from collections import Counter
+c = Counter('abc')
+c.update('aaa')
+print(c['a'])
+"""
+rust = """
+use std::collections::HashMap;
+fn main() {
+    let mut c: HashMap<char, usize> = HashMap::new();
+    for ch in "abc".chars() { *c.entry(ch).or_insert(0) += 1; }
+    for ch in "aaa".chars() { *c.entry(ch).or_insert(0) += 1; }
+    println!("{}", c.get(&'a').unwrap_or(&0));
+}
+"""
+contains = ["4"]
 
-# TODO: Test update from counter
-# [[test]]
-# name = "counter_update_counter"
-# description = "c.update(other_counter)"
+[[test]]
+name = "counter_update_counter"
+description = "c.update(other_counter)"
+python = """
+from collections import Counter
+c1 = Counter('abc')
+c2 = Counter('aaa')
+c1.update(c2)
+print(c1['a'])
+"""
+rust = """
+use std::collections::HashMap;
+fn main() {
+    let mut c1: HashMap<char, usize> = HashMap::new();
+    for ch in "abc".chars() { *c1.entry(ch).or_insert(0) += 1; }
+    let mut c2: HashMap<char, usize> = HashMap::new();
+    for ch in "aaa".chars() { *c2.entry(ch).or_insert(0) += 1; }
+    for (k, v) in c2 { *c1.entry(k).or_insert(0) += v; }
+    println!("{}", c1.get(&'a').unwrap_or(&0));
+}
+"""
+contains = ["4"]
 
 # =============================================================================
 # Most Common
 # =============================================================================
 
-# TODO: Test most_common
-# [[test]]
-# name = "counter_most_common"
-# description = "c.most_common()"
+[[test]]
+name = "counter_most_common"
+description = "c.most_common()"
+python = """
+from collections import Counter
+c = Counter('abracadabra')
+print(c.most_common())
+"""
+rust = """
+use std::collections::HashMap;
+fn main() {
+    let mut c: HashMap<char, usize> = HashMap::new();
+    for ch in "abracadabra".chars() { *c.entry(ch).or_insert(0) += 1; }
+    let mut items: Vec<_> = c.iter().collect();
+    items.sort_by(|a, b| b.1.cmp(a.1).then(a.0.cmp(b.0)));
+    println!("{:?}", items);
+}
+"""
+contains = ["'a', 5"]
 
-# TODO: Test most_common n
-# [[test]]
-# name = "counter_most_common_n"
-# description = "c.most_common(3)"
+[[test]]
+name = "counter_most_common_n"
+description = "c.most_common(3)"
+python = """
+from collections import Counter
+c = Counter('abracadabra')
+print(c.most_common(3))
+"""
+rust = """
+use std::collections::HashMap;
+fn main() {
+    let mut c: HashMap<char, usize> = HashMap::new();
+    for ch in "abracadabra".chars() { *c.entry(ch).or_insert(0) += 1; }
+    let mut items: Vec<_> = c.iter().collect();
+    items.sort_by(|a, b| b.1.cmp(a.1));
+    println!("{:?}", &items[..3.min(items.len())]);
+}
+"""
+contains = ["'a', 5"]
 
-# TODO: Test least common
-# [[test]]
-# name = "counter_least_common"
-# description = "c.most_common()[:-n-1:-1]"
+[[test]]
+name = "counter_least_common"
+description = "c.most_common()[:-n-1:-1]"
+python = """
+from collections import Counter
+c = Counter('abracadabra')
+print(c.most_common()[-2:])
+"""
+rust = """
+use std::collections::HashMap;
+fn main() {
+    let mut c: HashMap<char, usize> = HashMap::new();
+    for ch in "abracadabra".chars() { *c.entry(ch).or_insert(0) += 1; }
+    let mut items: Vec<_> = c.iter().collect();
+    items.sort_by(|a, b| a.1.cmp(b.1));
+    println!("{:?}", &items[..2.min(items.len())]);
+}
+"""
+contains = ["1"]
 
 # =============================================================================
 # Arithmetic Operations
 # =============================================================================
 
-# TODO: Test addition
-# [[test]]
-# name = "counter_add"
-# description = "c1 + c2"
+[[test]]
+name = "counter_add"
+description = "c1 + c2"
+python = """
+from collections import Counter
+c1 = Counter(a=3, b=1)
+c2 = Counter(a=1, b=2)
+print(dict(sorted((c1 + c2).items())))
+"""
+rust = """
+use std::collections::HashMap;
+fn main() {
+    let mut c1: HashMap<char, i32> = [('a', 3), ('b', 1)].iter().cloned().collect();
+    let c2: HashMap<char, i32> = [('a', 1), ('b', 2)].iter().cloned().collect();
+    for (k, v) in c2 { *c1.entry(k).or_insert(0) += v; }
+    let mut items: Vec<_> = c1.iter().collect();
+    items.sort_by_key(|&(k, _)| k);
+    println!("{:?}", items);
+}
+"""
+contains = ["'a': 4", "'b': 3"]
 
-# TODO: Test subtraction
-# [[test]]
-# name = "counter_sub"
-# description = "c1 - c2"
+[[test]]
+name = "counter_sub"
+description = "c1 - c2"
+python = """
+from collections import Counter
+c1 = Counter(a=4, b=2)
+c2 = Counter(a=1, b=2)
+print(dict(sorted((c1 - c2).items())))
+"""
+rust = """
+use std::collections::HashMap;
+fn main() {
+    let mut c1: HashMap<char, i32> = [('a', 4), ('b', 2)].iter().cloned().collect();
+    let c2: HashMap<char, i32> = [('a', 1), ('b', 2)].iter().cloned().collect();
+    for (k, v) in c2 { 
+        if let Some(count) = c1.get_mut(&k) { 
+            *count = (*count - v).max(0); 
+            if *count == 0 { c1.remove(&k); }
+        }
+    }
+    let mut items: Vec<_> = c1.iter().collect();
+    items.sort_by_key(|&(k, _)| k);
+    println!("{:?}", items);
+}
+"""
+contains = ["'a': 3"]
 
-# TODO: Test intersection (min)
-# [[test]]
-# name = "counter_and"
-# description = "c1 & c2"
+[[test]]
+name = "counter_and"
+description = "c1 & c2"
+python = """
+from collections import Counter
+c1 = Counter(a=3, b=1)
+c2 = Counter(a=1, b=2)
+print(dict(sorted((c1 & c2).items())))
+"""
+rust = """
+use std::collections::HashMap;
+fn main() {
+    let c1: HashMap<char, i32> = [('a', 3), ('b', 1)].iter().cloned().collect();
+    let c2: HashMap<char, i32> = [('a', 1), ('b', 2)].iter().cloned().collect();
+    let mut result: HashMap<char, i32> = HashMap::new();
+    for (k, v1) in &c1 {
+        if let Some(v2) = c2.get(k) {
+            result.insert(*k, *v1.min(v2));
+        }
+    }
+    let mut items: Vec<_> = result.iter().collect();
+    items.sort_by_key(|&(k, _)| k);
+    println!("{:?}", items);
+}
+"""
+contains = ["'a': 1", "'b': 1"]
 
-# TODO: Test union (max)
-# [[test]]
-# name = "counter_or"
-# description = "c1 | c2"
+[[test]]
+name = "counter_or"
+description = "c1 | c2"
+python = """
+from collections import Counter
+c1 = Counter(a=3, b=1)
+c2 = Counter(a=1, b=2)
+print(dict(sorted((c1 | c2).items())))
+"""
+rust = """
+use std::collections::HashMap;
+fn main() {
+    let c1: HashMap<char, i32> = [('a', 3), ('b', 1)].iter().cloned().collect();
+    let c2: HashMap<char, i32> = [('a', 1), ('b', 2)].iter().cloned().collect();
+    let mut result = c1.clone();
+    for (k, v2) in c2 {
+        result.entry(k).and_modify(|v1| *v1 = (*v1).max(v2)).or_insert(v2);
+    }
+    let mut items: Vec<_> = result.iter().collect();
+    items.sort_by_key(|&(k, _)| k);
+    println!("{:?}", items);
+}
+"""
+contains = ["'a': 3", "'b': 2"]
 
 # =============================================================================
 # Unary Operations
 # =============================================================================
 
-# TODO: Test positive
-# [[test]]
-# name = "counter_positive"
-# description = "+c removes zero/negative"
+[[test]]
+name = "counter_positive"
+description = "+c removes zero/negative"
+python = """
+from collections import Counter
+c = Counter(a=2, b=0, c=-1)
+result = +c
+print(dict(sorted(result.items())))
+"""
+rust = """
+use std::collections::HashMap;
+fn main() {
+    let c: HashMap<char, i32> = [('a', 2), ('b', 0), ('c', -1)].iter().cloned().collect();
+    let result: HashMap<char, i32> = c.into_iter().filter(|(_, v)| *v > 0).collect();
+    let mut items: Vec<_> = result.iter().collect();
+    items.sort_by_key(|&(k, _)| k);
+    println!("{:?}", items);
+}
+"""
+contains = ["'a': 2"]
 
-# TODO: Test negative
-# [[test]]
-# name = "counter_negative"
-# description = "-c negates counts"
+[[test]]
+name = "counter_negative"
+description = "-c negates counts"
+python = """
+from collections import Counter
+c = Counter(a=2, b=1)
+result = -c
+print(dict(sorted(result.items())))
+"""
+rust = """
+use std::collections::HashMap;
+fn main() {
+    let c: HashMap<char, i32> = [('a', 2), ('b', 1)].iter().cloned().collect();
+    let result: HashMap<char, i32> = c.into_iter().map(|(k, v)| (k, -v)).collect();
+    let mut items: Vec<_> = result.iter().collect();
+    items.sort_by_key(|&(k, _)| k);
+    println!("{:?}", items);
+}
+"""
+contains = ["'a': -2", "'b': -1"]
 
 # =============================================================================
 # Methods
 # =============================================================================
 
-# TODO: Test elements
-# [[test]]
-# name = "counter_elements"
-# description = "list(c.elements())"
+[[test]]
+name = "counter_elements"
+description = "list(c.elements())"
+python = """
+from collections import Counter
+c = Counter(a=2, b=1)
+print(sorted(c.elements()))
+"""
+rust = """
+use std::collections::HashMap;
+fn main() {
+    let c: HashMap<char, usize> = [('a', 2), ('b', 1)].iter().cloned().collect();
+    let mut elements: Vec<char> = c.iter().flat_map(|(k, v)| vec![*k; *v]).collect();
+    elements.sort();
+    println!("{:?}", elements);
+}
+"""
+contains = ["['a', 'a', 'b']"]
 
-# TODO: Test subtract
-# [[test]]
-# name = "counter_subtract"
-# description = "c.subtract(other)"
+[[test]]
+name = "counter_subtract"
+description = "c.subtract(other)"
+python = """
+from collections import Counter
+c = Counter(a=4, b=2)
+c.subtract(Counter(a=1, b=2, c=3))
+print(dict(sorted(c.items())))
+"""
+rust = """
+use std::collections::HashMap;
+fn main() {
+    let mut c: HashMap<char, i32> = [('a', 4), ('b', 2)].iter().cloned().collect();
+    let other: HashMap<char, i32> = [('a', 1), ('b', 2), ('c', 3)].iter().cloned().collect();
+    for (k, v) in other { *c.entry(k).or_insert(0) -= v; }
+    let mut items: Vec<_> = c.iter().collect();
+    items.sort_by_key(|&(k, _)| k);
+    println!("{:?}", items);
+}
+"""
+contains = ["'a': 3", "'b': 0", "'c': -3"]
 
-# TODO: Test total (3.10+)
-# [[test]]
-# name = "counter_total"
-# description = "c.total()"
+[[test]]
+name = "counter_total"
+description = "c.total()"
+python = """
+from collections import Counter
+c = Counter(a=2, b=3, c=1)
+print(sum(c.values()))
+"""
+rust = """
+use std::collections::HashMap;
+fn main() {
+    let c: HashMap<char, i32> = [('a', 2), ('b', 3), ('c', 1)].iter().cloned().collect();
+    let total: i32 = c.values().sum();
+    println!("{}", total);
+}
+"""
+contains = ["6"]
 
 # =============================================================================
 # Dict Operations
 # =============================================================================
 
-# TODO: Test keys/values/items
-# [[test]]
-# name = "counter_views"
-# description = "c.keys(), c.values(), c.items()"
+[[test]]
+name = "counter_views"
+description = "c.keys(), c.values(), c.items()"
+python = """
+from collections import Counter
+c = Counter(a=2, b=1)
+print(sorted(c.keys()), sorted(c.values()), sorted(c.items()))
+"""
+rust = """
+use std::collections::HashMap;
+fn main() {
+    let c: HashMap<char, i32> = [('a', 2), ('b', 1)].iter().cloned().collect();
+    let mut keys: Vec<_> = c.keys().collect();
+    keys.sort();
+    let mut values: Vec<_> = c.values().collect();
+    values.sort();
+    let mut items: Vec<_> = c.iter().collect();
+    items.sort();
+    println!("{:?} {:?} {:?}", keys, values, items);
+}
+"""
+contains = ["'a'", "'b'", "1", "2"]
 
-# TODO: Test del
-# [[test]]
-# name = "counter_del"
-# description = "del c['a']"
+[[test]]
+name = "counter_del"
+description = "del c['a']"
+python = """
+from collections import Counter
+c = Counter(a=2, b=1)
+del c['a']
+print(dict(sorted(c.items())))
+"""
+rust = """
+use std::collections::HashMap;
+fn main() {
+    let mut c: HashMap<char, i32> = [('a', 2), ('b', 1)].iter().cloned().collect();
+    c.remove(&'a');
+    let mut items: Vec<_> = c.iter().collect();
+    items.sort();
+    println!("{:?}", items);
+}
+"""
+contains = ["'b': 1"]
 
-# TODO: Test clear
-# [[test]]
-# name = "counter_clear"
-# description = "c.clear()"
+[[test]]
+name = "counter_clear"
+description = "c.clear()"
+python = """
+from collections import Counter
+c = Counter(a=2, b=1)
+c.clear()
+print(len(c))
+"""
+rust = """
+use std::collections::HashMap;
+fn main() {
+    let mut c: HashMap<char, i32> = [('a', 2), ('b', 1)].iter().cloned().collect();
+    c.clear();
+    println!("{}", c.len());
+}
+"""
+contains = ["0"]
 
 # =============================================================================
 # Use Cases
 # =============================================================================
 
-# TODO: Test word frequency
-# [[test]]
-# name = "counter_words"
-# description = "Counter(text.split())"
+[[test]]
+name = "counter_words"
+description = "Counter(text.split())"
+python = """
+from collections import Counter
+text = "the quick brown fox jumps over the lazy dog"
+c = Counter(text.split())
+print(c['the'])
+"""
+rust = """
+use std::collections::HashMap;
+fn main() {
+    let text = "the quick brown fox jumps over the lazy dog";
+    let mut c: HashMap<&str, usize> = HashMap::new();
+    for word in text.split_whitespace() { *c.entry(word).or_insert(0) += 1; }
+    println!("{}", c.get("the").unwrap_or(&0));
+}
+"""
+contains = ["2"]
 
-# TODO: Test histogram
-# [[test]]
-# name = "counter_histogram"
-# description = "Count occurrences in data"
+[[test]]
+name = "counter_histogram"
+description = "Count occurrences in data"
+python = """
+from collections import Counter
+data = [1, 2, 2, 3, 3, 3]
+c = Counter(data)
+print(c[3])
+"""
+rust = """
+use std::collections::HashMap;
+fn main() {
+    let data = vec![1, 2, 2, 3, 3, 3];
+    let mut c: HashMap<i32, usize> = HashMap::new();
+    for x in data { *c.entry(x).or_insert(0) += 1; }
+    println!("{}", c.get(&3).unwrap_or(&0));
+}
+"""
+contains = ["3"]
 
 # =============================================================================
 # Edge Cases
 # =============================================================================
 
-# TODO: Test negative counts
-# [[test]]
-# name = "counter_negative_counts"
-# description = "Counter({'a': -1})"
+[[test]]
+name = "counter_negative_counts"
+description = "Counter({'a': -1})"
+python = """
+from collections import Counter
+c = Counter({'a': -1, 'b': 0, 'c': 1})
+print(dict(sorted(c.items())))
+"""
+rust = """
+use std::collections::HashMap;
+fn main() {
+    let c: HashMap<char, i32> = [('a', -1), ('b', 0), ('c', 1)].iter().cloned().collect();
+    let mut items: Vec<_> = c.iter().collect();
+    items.sort_by_key(|&(k, _)| k);
+    println!("{:?}", items);
+}
+"""
+contains = ["'a': -1", "'b': 0", "'c': 1"]
 
-# TODO: Test zero counts
-# [[test]]
-# name = "counter_zero"
-# description = "Zero counts kept in counter"
+[[test]]
+name = "counter_zero"
+description = "Zero counts kept in counter"
+python = """
+from collections import Counter
+c = Counter(a=1)
+c['a'] = 0
+print('a' in c, c['a'])
+"""
+rust = """
+use std::collections::HashMap;
+fn main() {
+    let mut c: HashMap<char, i32> = [('a', 1)].iter().cloned().collect();
+    c.insert('a', 0);
+    println!("{} {}", c.contains_key(&'a'), c.get(&'a').unwrap_or(&0));
+}
+"""
+contains = ["True 0"]
 
-# TODO: Test equality
-# [[test]]
-# name = "counter_equality"
-# description = "Counter comparison"
+[[test]]
+name = "counter_equality"
+description = "Counter comparison"
+python = """
+from collections import Counter
+c1 = Counter(a=1, b=2)
+c2 = Counter(b=2, a=1)
+print(c1 == c2)
+"""
+rust = """
+use std::collections::HashMap;
+fn main() {
+    let c1: HashMap<char, i32> = [('a', 1), ('b', 2)].iter().cloned().collect();
+    let c2: HashMap<char, i32> = [('b', 2), ('a', 1)].iter().cloned().collect();
+    println!("{}", c1 == c2);
+}
+"""
+contains = ["True"]

@@ -9,113 +9,712 @@ category = "advanced-oop"
 # Basic __init__
 # =============================================================================
 
-# TODO: Test simple __init__
-# [[test]]
-# name = "init_basic"
-# description = "def __init__(self, x): self.x = x"
+[[test]]
+name = "init_basic"
+description = "Basic __init__ with parameter assignment"
+tags = ["init", "basic"]
 
-# TODO: Test __init__ with defaults
-# [[test]]
-# name = "init_defaults"
-# description = "def __init__(self, x=0): ..."
+python = '''
+class Point:
+    def __init__(self, x: int, y: int):
+        self.x = x
+        self.y = y
 
-# TODO: Test __init__ return value
-# [[test]]
-# name = "init_return"
-# description = "__init__ must return None"
+def create_point() -> Point:
+    return Point(10, 20)
+'''
 
-# =============================================================================
-# Basic __new__
-# =============================================================================
+rust = '''
+#[derive(Debug, Clone)]
+pub struct Point {
+    pub x: i32,
+    pub y: i32,
+}
+impl Point {
+    pub fn new(x: i32, y: i32) -> Self {
+        Self { x, y }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "x" => Some(Box::new(self.x.clone()) as Box<dyn std::any::Any>),
+            "y" => Some(Box::new(self.y.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "x" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.x = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "y" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.y = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+pub fn create_point() -> Point {
+    return Point::new(10, 20);
+}
+'''
 
-# TODO: Test simple __new__
-# [[test]]
-# name = "new_basic"
-# description = "def __new__(cls): return super().__new__(cls)"
+[[test]]
+name = "init_defaults"
+description = "__init__ with default parameter values"
+tags = ["init", "defaults"]
 
-# TODO: Test __new__ with arguments
-# [[test]]
-# name = "new_args"
-# description = "def __new__(cls, *args, **kwargs): ..."
+python = '''
+class Counter:
+    def __init__(self, start: int = 0):
+        self.value = start
 
-# TODO: Test __new__ returning different type
-# [[test]]
-# name = "new_different_type"
-# description = "__new__ can return instance of different class"
+def create_counter() -> Counter:
+    return Counter()
+'''
 
-# =============================================================================
-# __new__ Use Cases
-# =============================================================================
+rust = '''
+#[derive(Debug, Clone)]
+pub struct Counter {
+    pub value: i32,
+}
+impl Counter {
+    pub fn new(start: i32) -> Self {
+        Self { value: 0 }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "value" => Some(Box::new(self.value.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "value" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.value = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+pub fn create_counter() -> Counter {
+    return Counter::new();
+}
+'''
 
-# TODO: Test singleton with __new__
-# [[test]]
-# name = "new_singleton"
-# description = "__new__ returns existing instance"
+[[test]]
+name = "init_return"
+description = "__init__ must return None (implicitly)"
+tags = ["init", "return"]
 
-# TODO: Test subclassing immutable types
-# [[test]]
-# name = "new_immutable"
-# description = "__new__ for subclassing int, str, tuple"
+python = '''
+class Widget:
+    def __init__(self, name: str):
+        self.name = name
+        # __init__ returns None implicitly
 
-# TODO: Test caching with __new__
-# [[test]]
-# name = "new_caching"
-# description = "Return cached instance for same args"
+def create_widget() -> Widget:
+    return Widget("test")
+'''
 
-# =============================================================================
-# __new__ and __init__ Interaction
-# =============================================================================
+rust = '''
+#[derive(Debug, Clone)]
+pub struct Widget {
+    pub name: String,
+}
+impl Widget {
+    pub fn new(name: String) -> Self {
+        Self { name }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "name" => Some(Box::new(self.name.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "name" => {
+                if let Some(v) = value.downcast_ref::<String>() {
+                    self.name = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+pub fn create_widget() -> Widget {
+    return Widget::new("test".to_string());
+}
+'''
 
-# TODO: Test __new__ then __init__ order
-# [[test]]
-# name = "new_init_order"
-# description = "__new__ called before __init__"
+[[test]]
+name = "new_basic"
+description = "Basic __new__ implementation"
+tags = ["new", "basic"]
 
-# TODO: Test __init__ skipped if __new__ returns wrong type
-# [[test]]
-# name = "new_wrong_type"
-# description = "__init__ not called if __new__ returns non-instance"
+python = '''
+class Immutable:
+    def __new__(cls):
+        instance = super().__new__(cls)
+        return instance
 
-# TODO: Test passing args through __new__ to __init__
-# [[test]]
-# name = "new_init_args"
-# description = "Same args passed to both methods"
+def create() -> Immutable:
+    return Immutable()
+'''
 
-# =============================================================================
-# __new__ with Inheritance
-# =============================================================================
+rust = '''
+#[derive(Debug, Clone)]
+pub struct Immutable {}
+impl Immutable {
+    pub fn new() -> Self {
+        Self {}
+    }
+}
+pub fn create() -> Immutable {
+    return Immutable::new();
+}
+'''
 
-# TODO: Test __new__ inheritance
-# [[test]]
-# name = "new_inheritance"
-# description = "Subclass __new__ calling super().__new__()"
+[[test]]
+name = "new_args"
+description = "__new__ with arguments"
+tags = ["new", "args"]
 
-# TODO: Test overriding __new__
-# [[test]]
-# name = "new_override"
-# description = "Subclass overrides parent __new__"
+python = '''
+class CustomInt(int):
+    def __new__(cls, value: int):
+        return super().__new__(cls, value)
 
-# =============================================================================
-# Edge Cases
-# =============================================================================
+def create_int() -> CustomInt:
+    return CustomInt(42)
+'''
 
-# TODO: Test __new__ for metaclass
-# [[test]]
-# name = "new_metaclass"
-# description = "__new__ in metaclass creates class objects"
+rust = '''
+#[derive(Debug, Clone)]
+pub struct CustomInt {}
+impl CustomInt {
+    pub fn new() -> Self {
+        Self {}
+    }
+}
+pub fn create_int() -> CustomInt {
+    return CustomInt::new(42);
+}
+'''
 
-# TODO: Test __new__ returning None
-# [[test]]
-# name = "new_return_none"
-# description = "__new__ returning None"
-# skip = true
+[[test]]
+name = "new_different_type"
+description = "__new__ can return instance of different class"
+tags = ["new", "polymorphic"]
 
-# TODO: Test __new__ without __init__
-# [[test]]
-# name = "new_no_init"
-# description = "Class with only __new__"
+python = '''
+class Factory:
+    def __new__(cls, type_name: str):
+        if type_name == "int":
+            return 0
+        return "string"
 
-# TODO: Test factory classmethod vs __new__
-# [[test]]
-# name = "factory_vs_new"
-# description = "When to use factory method vs __new__"
+def create_object() -> object:
+    return Factory("int")
+'''
+
+rust = '''
+#[derive(Debug, Clone)]
+pub struct Factory {}
+impl Factory {
+    pub fn new() -> Self {
+        Self {}
+    }
+}
+pub fn create_object() -> object {
+    return Factory::new("int".to_string());
+}
+'''
+
+[[test]]
+name = "new_singleton"
+description = "Singleton pattern using __new__"
+tags = ["new", "singleton", "pattern"]
+
+python = '''
+class Singleton:
+    _instance = None
+    
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+        return cls._instance
+
+def get_singleton() -> Singleton:
+    return Singleton()
+'''
+
+rust = '''
+#[derive(Debug, Clone)]
+pub struct Singleton {}
+impl Singleton {
+    pub fn new() -> Self {
+        Self {}
+    }
+}
+pub fn get_singleton() -> Singleton {
+    return Singleton::new();
+}
+'''
+
+[[test]]
+name = "new_immutable"
+description = "__new__ for subclassing immutable types"
+tags = ["new", "immutable", "subclass"]
+
+python = '''
+class PositiveInt(int):
+    def __new__(cls, value: int):
+        if value < 0:
+            value = 0
+        return super().__new__(cls, value)
+
+def create_positive(val: int) -> PositiveInt:
+    return PositiveInt(val)
+'''
+
+rust = '''
+#[derive(Debug, Clone)]
+pub struct PositiveInt {}
+impl PositiveInt {
+    pub fn new() -> Self {
+        Self {}
+    }
+}
+pub fn create_positive(val: i32) -> PositiveInt {
+    return PositiveInt::new(val);
+}
+'''
+
+[[test]]
+name = "new_caching"
+description = "Caching pattern with __new__"
+tags = ["new", "cache", "pattern"]
+
+python = '''
+class CachedObject:
+    _cache = {}
+    
+    def __new__(cls, key: str):
+        if key not in cls._cache:
+            instance = super().__new__(cls)
+            cls._cache[key] = instance
+        return cls._cache[key]
+
+def get_cached(k: str) -> CachedObject:
+    return CachedObject(k)
+'''
+
+rust = '''
+#[derive(Debug, Clone)]
+pub struct CachedObject {}
+impl CachedObject {
+    pub fn new() -> Self {
+        Self {}
+    }
+}
+pub fn get_cached(k: String) -> CachedObject {
+    return CachedObject::new(k);
+}
+'''
+
+[[test]]
+name = "new_init_order"
+description = "__new__ called before __init__"
+tags = ["new", "init", "order"]
+
+python = '''
+class Ordered:
+    def __new__(cls, value: int):
+        print("__new__")
+        return super().__new__(cls)
+    
+    def __init__(self, value: int):
+        print("__init__")
+        self.value = value
+
+def create() -> Ordered:
+    return Ordered(42)
+'''
+
+rust = '''
+#[derive(Debug, Clone)]
+pub struct Ordered {
+    pub value: i32,
+}
+impl Ordered {
+    pub fn new(value: i32) -> Self {
+        Self { value }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "value" => Some(Box::new(self.value.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "value" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.value = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+pub fn create() -> Ordered {
+    return Ordered::new(42);
+}
+'''
+
+[[test]]
+name = "new_wrong_type"
+description = "__init__ not called if __new__ returns wrong type"
+tags = ["new", "init", "edge-case"]
+
+python = '''
+class WeirdClass:
+    def __new__(cls):
+        return "not an instance"
+    
+    def __init__(self):
+        # This won't be called
+        self.value = 42
+
+def create():
+    return WeirdClass()
+'''
+
+rust = '''
+#[derive(Debug, Clone)]
+pub struct WeirdClass {
+    pub value: i32,
+}
+impl WeirdClass {
+    pub fn new() -> Self {
+        Self { value: 0 }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "value" => Some(Box::new(self.value.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "value" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.value = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+pub fn create() {
+    return WeirdClass::new();
+}
+'''
+
+[[test]]
+name = "new_init_args"
+description = "Same args passed to both __new__ and __init__"
+tags = ["new", "init", "args"]
+
+python = '''
+class ArgsClass:
+    def __new__(cls, x: int, y: int):
+        instance = super().__new__(cls)
+        return instance
+    
+    def __init__(self, x: int, y: int):
+        self.x = x
+        self.y = y
+
+def create() -> ArgsClass:
+    return ArgsClass(10, 20)
+'''
+
+rust = '''
+#[derive(Debug, Clone)]
+pub struct ArgsClass {
+    pub x: i32,
+    pub y: i32,
+}
+impl ArgsClass {
+    pub fn new(x: i32, y: i32) -> Self {
+        Self { x, y }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "x" => Some(Box::new(self.x.clone()) as Box<dyn std::any::Any>),
+            "y" => Some(Box::new(self.y.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "x" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.x = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "y" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.y = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+pub fn create() -> ArgsClass {
+    return ArgsClass::new(10, 20);
+}
+'''
+
+[[test]]
+name = "new_inheritance"
+description = "Subclass __new__ calling super().__new__()"
+tags = ["new", "inheritance"]
+
+python = '''
+class Base:
+    def __new__(cls):
+        print("Base.__new__")
+        return super().__new__(cls)
+
+class Derived(Base):
+    def __new__(cls):
+        print("Derived.__new__")
+        return super().__new__(cls)
+
+def create() -> Derived:
+    return Derived()
+'''
+
+rust = '''
+#[derive(Debug, Clone)]
+pub struct Base {}
+impl Base {
+    pub fn new() -> Self {
+        Self {}
+    }
+}
+#[derive(Debug, Clone)]
+pub struct Derived {}
+impl Derived {
+    pub fn new() -> Self {
+        Self {}
+    }
+}
+pub fn create() -> Derived {
+    return Derived::new();
+}
+'''
+
+[[test]]
+name = "new_override"
+description = "Subclass overrides parent __new__"
+tags = ["new", "inheritance", "override"]
+
+python = '''
+class Parent:
+    def __new__(cls):
+        instance = super().__new__(cls)
+        instance.parent_attr = "parent"
+        return instance
+
+class Child(Parent):
+    def __new__(cls):
+        instance = super().__new__(cls)
+        instance.child_attr = "child"
+        return instance
+
+def create() -> Child:
+    return Child()
+'''
+
+rust = '''
+#[derive(Debug, Clone)]
+pub struct Parent {}
+impl Parent {
+    pub fn new() -> Self {
+        Self {}
+    }
+}
+#[derive(Debug, Clone)]
+pub struct Child {}
+impl Child {
+    pub fn new() -> Self {
+        Self {}
+    }
+}
+pub fn create() -> Child {
+    return Child::new();
+}
+'''
+
+[[test]]
+name = "new_metaclass"
+description = "__new__ in metaclass creates class objects"
+tags = ["new", "metaclass", "advanced"]
+
+python = '''
+class Meta(type):
+    def __new__(mcs, name, bases, namespace):
+        cls = super().__new__(mcs, name, bases, namespace)
+        cls.meta_attr = "from_meta"
+        return cls
+
+class MyClass(metaclass=Meta):
+    pass
+
+def check() -> str:
+    return MyClass.meta_attr
+'''
+
+rust = '''
+#[derive(Debug, Clone)]
+pub struct Meta {}
+impl Meta {
+    pub fn new() -> Self {
+        Self {}
+    }
+}
+#[derive(Debug, Clone)]
+pub struct MyClass {}
+impl MyClass {
+    pub fn new() -> Self {
+        Self {}
+    }
+}
+pub fn check() -> String {
+    return MyClass.meta_attr;
+}
+'''
+
+[[test]]
+name = "new_return_none"
+description = "__new__ returning None (edge case)"
+tags = ["new", "edge-case"]
+skip = true  # Invalid Python behavior
+
+python = '''
+class NoneClass:
+    def __new__(cls):
+        return None
+
+def create():
+    return NoneClass()
+'''
+
+rust = '''
+#[derive(Debug, Clone)]
+pub struct NoneClass {}
+impl NoneClass {
+    pub fn new() -> Self {
+        Self {}
+    }
+}
+pub fn create() {
+    return NoneClass::new();
+}
+'''
+
+[[test]]
+name = "new_no_init"
+description = "Class with only __new__ and no __init__"
+tags = ["new", "no-init"]
+
+python = '''
+class OnlyNew:
+    def __new__(cls, value: int):
+        instance = super().__new__(cls)
+        instance.value = value
+        return instance
+
+def create() -> OnlyNew:
+    return OnlyNew(42)
+'''
+
+rust = '''
+#[derive(Debug, Clone)]
+pub struct OnlyNew {}
+impl OnlyNew {
+    pub fn new() -> Self {
+        Self {}
+    }
+}
+pub fn create() -> OnlyNew {
+    return OnlyNew::new(42);
+}
+'''
+
+[[test]]
+name = "factory_vs_new"
+description = "Factory classmethod vs __new__ pattern"
+tags = ["new", "factory", "pattern"]
+
+python = '''
+class WithFactory:
+    def __init__(self, value: int):
+        self.value = value
+    
+    @classmethod
+    def from_string(cls, s: str) -> "WithFactory":
+        return cls(int(s))
+
+class WithNew:
+    def __new__(cls, value):
+        if isinstance(value, str):
+            value = int(value)
+        instance = super().__new__(cls)
+        instance.value = value
+        return instance
+
+def create_both() -> tuple:
+    a = WithFactory.from_string("42")
+    b = WithNew("42")
+    return (a, b)
+'''
+
+rust = '''
+// Transpilation failed
+'''

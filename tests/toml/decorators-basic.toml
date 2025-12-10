@@ -9,119 +9,805 @@ category = "decorators-closures"
 # Simple Decorators
 # =============================================================================
 
-# TODO: Test basic decorator
-# [[test]]
-# name = "decorator_basic"
-# description = "@decorator def f(): ..."
+[[test]]
+name = "decorator_basic"
+description = "@decorator def f(): ..."
+tags = ["decorators", "basic"]
 
-# TODO: Test decorator as wrapper
-# [[test]]
-# name = "decorator_wrapper"
-# description = "def decorator(f): def wrapper(): return f() return wrapper"
+python = '''
+def identity(f):
+    return f
 
-# TODO: Test decorated function call
-# [[test]]
-# name = "decorator_call"
-# description = "Calling decorated function"
+@identity
+def greet():
+    return "hello"
+
+result = greet()
+'''
+
+rust = '''
+fn identity<F>(f: F) -> F where F: Fn() -> String {
+    f
+}
+
+fn greet_impl() -> String {
+    "hello".to_string()
+}
+
+let greet = identity(greet_impl);
+let result = greet();
+'''
+
+[[test]]
+name = "decorator_wrapper"
+description = "def decorator(f): def wrapper(): return f() return wrapper"
+tags = ["decorators", "wrapper"]
+
+python = '''
+def decorator(f):
+    def wrapper():
+        return f()
+    return wrapper
+
+@decorator
+def greet():
+    return "hello"
+
+result = greet()
+'''
+
+rust = '''
+fn decorator<F>(f: F) -> impl Fn() -> String 
+where F: Fn() -> String {
+    move || f()
+}
+
+fn greet_impl() -> String {
+    "hello".to_string()
+}
+
+let greet = decorator(greet_impl);
+let result = greet();
+'''
+
+[[test]]
+name = "decorator_call"
+description = "Calling decorated function"
+tags = ["decorators", "call"]
+
+python = '''
+def add_prefix(f):
+    def wrapper():
+        return "PREFIX: " + f()
+    return wrapper
+
+@add_prefix
+def message():
+    return "hello"
+
+result = message()
+'''
+
+rust = '''
+fn add_prefix<F>(f: F) -> impl Fn() -> String 
+where F: Fn() -> String {
+    move || format!("PREFIX: {}", f())
+}
+
+fn message_impl() -> String {
+    "hello".to_string()
+}
+
+let message = add_prefix(message_impl);
+let result = message();
+'''
 
 # =============================================================================
 # Decorator Application Order
 # =============================================================================
 
-# TODO: Test stacked decorators
-# [[test]]
-# name = "decorator_stacked"
-# description = "@a @b @c def f(): ... equivalent to a(b(c(f)))"
+[[test]]
+name = "decorator_stacked"
+description = "@a @b @c def f(): ... equivalent to a(b(c(f)))"
+tags = ["decorators", "stacking"]
 
-# TODO: Test stacking order
-# [[test]]
-# name = "decorator_order"
-# description = "Bottom decorator applied first"
+python = '''
+def add_a(f):
+    def wrapper():
+        return "a(" + f() + ")"
+    return wrapper
 
-# TODO: Test three decorators
-# [[test]]
-# name = "decorator_three"
-# description = "Multiple decorator application"
+def add_b(f):
+    def wrapper():
+        return "b(" + f() + ")"
+    return wrapper
+
+def add_c(f):
+    def wrapper():
+        return "c(" + f() + ")"
+    return wrapper
+
+@add_a
+@add_b
+@add_c
+def func():
+    return "x"
+
+result = func()
+'''
+
+rust = '''
+fn add_a<F>(f: F) -> impl Fn() -> String 
+where F: Fn() -> String {
+    move || format!("a({})", f())
+}
+
+fn add_b<F>(f: F) -> impl Fn() -> String 
+where F: Fn() -> String {
+    move || format!("b({})", f())
+}
+
+fn add_c<F>(f: F) -> impl Fn() -> String 
+where F: Fn() -> String {
+    move || format!("c({})", f())
+}
+
+fn func_impl() -> String {
+    "x".to_string()
+}
+
+let func = add_a(add_b(add_c(func_impl)));
+let result = func();
+'''
+
+[[test]]
+name = "decorator_order"
+description = "Bottom decorator applied first"
+tags = ["decorators", "order"]
+
+python = '''
+def add_1(f):
+    def wrapper():
+        return f() + " first"
+    return wrapper
+
+def add_2(f):
+    def wrapper():
+        return f() + " second"
+    return wrapper
+
+@add_2
+@add_1
+def message():
+    return "hello"
+
+result = message()
+'''
+
+rust = '''
+fn add_1<F>(f: F) -> impl Fn() -> String 
+where F: Fn() -> String {
+    move || format!("{} first", f())
+}
+
+fn add_2<F>(f: F) -> impl Fn() -> String 
+where F: Fn() -> String {
+    move || format!("{} second", f())
+}
+
+fn message_impl() -> String {
+    "hello".to_string()
+}
+
+let message = add_2(add_1(message_impl));
+let result = message();
+'''
+
+[[test]]
+name = "decorator_three"
+description = "Multiple decorator application"
+tags = ["decorators", "multiple"]
+
+python = '''
+def upper(f):
+    def wrapper():
+        return f().upper()
+    return wrapper
+
+def exclaim(f):
+    def wrapper():
+        return f() + "!"
+    return wrapper
+
+def repeat(f):
+    def wrapper():
+        return f() + " " + f()
+    return wrapper
+
+@upper
+@exclaim
+@repeat
+def word():
+    return "hi"
+
+result = word()
+'''
+
+rust = '''
+fn upper<F>(f: F) -> impl Fn() -> String 
+where F: Fn() -> String {
+    move || f().to_uppercase()
+}
+
+fn exclaim<F>(f: F) -> impl Fn() -> String 
+where F: Fn() -> String {
+    move || format!("{}!", f())
+}
+
+fn repeat<F>(f: F) -> impl Fn() -> String 
+where F: Fn() -> String + Clone {
+    move || {
+        let val = f();
+        format!("{} {}", val, val)
+    }
+}
+
+fn word_impl() -> String {
+    "hi".to_string()
+}
+
+let word = upper(exclaim(repeat(word_impl)));
+let result = word();
+'''
 
 # =============================================================================
 # Common Decorator Patterns
 # =============================================================================
 
-# TODO: Test logging decorator
-# [[test]]
-# name = "decorator_logging"
-# description = "Log function calls"
+[[test]]
+name = "decorator_logging"
+description = "Log function calls"
+tags = ["decorators", "logging"]
 
-# TODO: Test timing decorator
-# [[test]]
-# name = "decorator_timing"
-# description = "Measure execution time"
+python = '''
+log = []
 
-# TODO: Test validation decorator
-# [[test]]
-# name = "decorator_validation"
-# description = "Validate arguments"
+def logging_decorator(f):
+    def wrapper():
+        log.append(f"Calling {f.__name__}")
+        result = f()
+        log.append(f"Returned {result}")
+        return result
+    return wrapper
 
-# TODO: Test retry decorator
-# [[test]]
-# name = "decorator_retry"
-# description = "Retry on failure"
+@logging_decorator
+def add():
+    return 42
+
+result = add()
+log_result = log
+'''
+
+rust = '''
+use std::cell::RefCell;
+use std::rc::Rc;
+
+fn logging_decorator<F>(f: F, log: Rc<RefCell<Vec<String>>>) -> impl Fn() -> i32 
+where F: Fn() -> i32 {
+    let log_clone = log.clone();
+    move || {
+        log_clone.borrow_mut().push(format!("Calling add"));
+        let result = f();
+        log_clone.borrow_mut().push(format!("Returned {}", result));
+        result
+    }
+}
+
+fn add_impl() -> i32 {
+    42
+}
+
+let log: Rc<RefCell<Vec<String>>> = Rc::new(RefCell::new(Vec::new()));
+let add = logging_decorator(add_impl, log.clone());
+let result = add();
+let log_result = log.borrow().clone();
+'''
+
+[[test]]
+name = "decorator_timing"
+description = "Measure execution time"
+tags = ["decorators", "timing"]
+
+python = '''
+import time
+
+def timing_decorator(f):
+    def wrapper():
+        start = time.time()
+        result = f()
+        elapsed = time.time() - start
+        return result
+    return wrapper
+
+@timing_decorator
+def slow_function():
+    return "done"
+
+result = slow_function()
+'''
+
+rust = '''
+use std::time::Instant;
+
+fn timing_decorator<F>(f: F) -> impl Fn() -> String 
+where F: Fn() -> String {
+    move || {
+        let start = Instant::now();
+        let result = f();
+        let _elapsed = start.elapsed();
+        result
+    }
+}
+
+fn slow_function_impl() -> String {
+    "done".to_string()
+}
+
+let slow_function = timing_decorator(slow_function_impl);
+let result = slow_function();
+'''
+
+[[test]]
+name = "decorator_validation"
+description = "Validate arguments"
+tags = ["decorators", "validation"]
+
+python = '''
+def validate_positive(f):
+    def wrapper(x):
+        if x < 0:
+            raise ValueError("Must be positive")
+        return f(x)
+    return wrapper
+
+@validate_positive
+def square(x):
+    return x * x
+
+result = square(5)
+'''
+
+rust = '''
+fn validate_positive<F>(f: F) -> impl Fn(i32) -> Result<i32, String> 
+where F: Fn(i32) -> i32 {
+    move |x| {
+        if x < 0 {
+            Err("Must be positive".to_string())
+        } else {
+            Ok(f(x))
+        }
+    }
+}
+
+fn square_impl(x: i32) -> i32 {
+    x * x
+}
+
+let square = validate_positive(square_impl);
+let result = square(5).unwrap();
+'''
+
+[[test]]
+name = "decorator_retry"
+description = "Retry on failure"
+tags = ["decorators", "retry"]
+
+python = '''
+attempts = []
+
+def retry(max_attempts=3):
+    def decorator(f):
+        def wrapper():
+            for i in range(max_attempts):
+                attempts.append(i)
+                try:
+                    return f()
+                except Exception:
+                    if i == max_attempts - 1:
+                        raise
+            return None
+        return wrapper
+    return decorator
+
+@retry(max_attempts=2)
+def unreliable():
+    if len(attempts) < 2:
+        raise ValueError("fail")
+    return "success"
+
+result = unreliable()
+'''
+
+rust = '''
+use std::cell::RefCell;
+use std::rc::Rc;
+
+fn retry<F>(f: F, max_attempts: usize, attempts: Rc<RefCell<Vec<usize>>>) -> impl Fn() -> Result<String, String> 
+where F: Fn() -> Result<String, String> {
+    let attempts_clone = attempts.clone();
+    move || {
+        for i in 0..max_attempts {
+            attempts_clone.borrow_mut().push(i);
+            match f() {
+                Ok(val) => return Ok(val),
+                Err(e) => {
+                    if i == max_attempts - 1 {
+                        return Err(e);
+                    }
+                }
+            }
+        }
+        Err("Max attempts reached".to_string())
+    }
+}
+
+let attempts: Rc<RefCell<Vec<usize>>> = Rc::new(RefCell::new(Vec::new()));
+let attempts_clone = attempts.clone();
+
+let unreliable = retry(
+    move || {
+        if attempts_clone.borrow().len() < 2 {
+            Err("fail".to_string())
+        } else {
+            Ok("success".to_string())
+        }
+    },
+    2,
+    attempts.clone()
+);
+
+let result = unreliable().unwrap();
+'''
 
 # =============================================================================
 # Decorators Preserving Signature
 # =============================================================================
 
-# TODO: Test *args, **kwargs passing
-# [[test]]
-# name = "decorator_args_kwargs"
-# description = "def wrapper(*args, **kwargs): return f(*args, **kwargs)"
+[[test]]
+name = "decorator_args_kwargs"
+description = "def wrapper(*args, **kwargs): return f(*args, **kwargs)"
+tags = ["decorators", "args"]
 
-# TODO: Test return value preservation
-# [[test]]
-# name = "decorator_return"
-# description = "Return decorated function's result"
+python = '''
+def passthrough(f):
+    def wrapper(*args, **kwargs):
+        return f(*args, **kwargs)
+    return wrapper
 
-# TODO: Test exception propagation
-# [[test]]
-# name = "decorator_exception"
-# description = "Exceptions propagate through wrapper"
+@passthrough
+def add(a, b):
+    return a + b
+
+result = add(3, 5)
+'''
+
+rust = '''
+fn passthrough<F>(f: F) -> impl Fn(i32, i32) -> i32 
+where F: Fn(i32, i32) -> i32 {
+    move |a, b| f(a, b)
+}
+
+fn add_impl(a: i32, b: i32) -> i32 {
+    a + b
+}
+
+let add = passthrough(add_impl);
+let result = add(3, 5);
+'''
+
+[[test]]
+name = "decorator_return"
+description = "Return decorated function's result"
+tags = ["decorators", "return"]
+
+python = '''
+def decorator(f):
+    def wrapper():
+        result = f()
+        return result
+    return wrapper
+
+@decorator
+def get_value():
+    return 42
+
+result = get_value()
+'''
+
+rust = '''
+fn decorator<F>(f: F) -> impl Fn() -> i32 
+where F: Fn() -> i32 {
+    move || {
+        let result = f();
+        result
+    }
+}
+
+fn get_value_impl() -> i32 {
+    42
+}
+
+let get_value = decorator(get_value_impl);
+let result = get_value();
+'''
+
+[[test]]
+name = "decorator_exception"
+description = "Exceptions propagate through wrapper"
+tags = ["decorators", "exception"]
+
+python = '''
+def decorator(f):
+    def wrapper():
+        return f()
+    return wrapper
+
+@decorator
+def failing():
+    raise ValueError("error")
+
+try:
+    result = failing()
+except ValueError as e:
+    result = str(e)
+'''
+
+rust = '''
+fn decorator<F>(f: F) -> impl Fn() -> Result<String, String> 
+where F: Fn() -> Result<String, String> {
+    move || f()
+}
+
+fn failing_impl() -> Result<String, String> {
+    Err("error".to_string())
+}
+
+let failing = decorator(failing_impl);
+let result = match failing() {
+    Ok(val) => val,
+    Err(e) => e,
+};
+'''
 
 # =============================================================================
 # Method Decorators
 # =============================================================================
 
-# TODO: Test decorating method
-# [[test]]
-# name = "decorator_method"
-# description = "@decorator def method(self): ..."
+[[test]]
+name = "decorator_method"
+description = "@decorator def method(self): ..."
+tags = ["decorators", "method"]
 
-# TODO: Test self handling
-# [[test]]
-# name = "decorator_self"
-# description = "Wrapper receives self correctly"
+python = '''
+def add_prefix(f):
+    def wrapper(self):
+        return "PREFIX: " + f(self)
+    return wrapper
+
+class MyClass:
+    @add_prefix
+    def greet(self):
+        return "hello"
+
+obj = MyClass()
+result = obj.greet()
+'''
+
+rust = '''
+fn add_prefix<F>(f: F) -> impl Fn(&MyClass) -> String 
+where F: Fn(&MyClass) -> String {
+    move |self_ref| format!("PREFIX: {}", f(self_ref))
+}
+
+struct MyClass;
+
+impl MyClass {
+    fn greet_impl(&self) -> String {
+        "hello".to_string()
+    }
+    
+    fn greet(&self) -> String {
+        add_prefix(Self::greet_impl)(self)
+    }
+}
+
+let obj = MyClass;
+let result = obj.greet();
+'''
+
+[[test]]
+name = "decorator_self"
+description = "Wrapper receives self correctly"
+tags = ["decorators", "self"]
+
+python = '''
+def add_name(f):
+    def wrapper(self):
+        return f(self) + " - " + self.name
+    return wrapper
+
+class Person:
+    def __init__(self, name):
+        self.name = name
+    
+    @add_name
+    def greet(self):
+        return "Hello"
+
+person = Person("Alice")
+result = person.greet()
+'''
+
+rust = '''
+fn add_name<F>(f: F) -> impl Fn(&Person) -> String 
+where F: Fn(&Person) -> String {
+    move |self_ref| format!("{} - {}", f(self_ref), self_ref.name)
+}
+
+struct Person {
+    name: String,
+}
+
+impl Person {
+    fn new(name: String) -> Self {
+        Person { name }
+    }
+    
+    fn greet_impl(&self) -> String {
+        "Hello".to_string()
+    }
+    
+    fn greet(&self) -> String {
+        add_name(Self::greet_impl)(self)
+    }
+}
+
+let person = Person::new("Alice".to_string());
+let result = person.greet();
+'''
 
 # =============================================================================
 # Edge Cases
 # =============================================================================
 
-# TODO: Test decorator returning None
-# [[test]]
-# name = "decorator_return_none"
-# description = "Decorator not returning function"
-# skip = true
+[[test]]
+name = "decorator_return_none"
+description = "Decorator not returning function"
+tags = ["decorators", "edge-case"]
+skip = true
 
-# TODO: Test decorator not wrapping
-# [[test]]
-# name = "decorator_no_wrap"
-# description = "def decorator(f): return f"
+python = '''
+def bad_decorator(f):
+    return None
 
-# TODO: Test decorator with lambda
-# [[test]]
-# name = "decorator_lambda"
-# description = "@decorator applied to lambda"
-# skip = true
+@bad_decorator
+def func():
+    return 42
 
-# TODO: Test recursive decorated function
-# [[test]]
-# name = "decorator_recursive"
-# description = "Recursive function with decorator"
+# This will raise TypeError: 'NoneType' object is not callable
+try:
+    result = func()
+except TypeError:
+    result = "error"
+'''
+
+rust = '''
+// Rust's type system prevents this at compile time
+// A decorator must return a callable type
+'''
+
+[[test]]
+name = "decorator_no_wrap"
+description = "def decorator(f): return f"
+tags = ["decorators", "passthrough"]
+
+python = '''
+def no_op_decorator(f):
+    return f
+
+@no_op_decorator
+def greet():
+    return "hello"
+
+result = greet()
+'''
+
+rust = '''
+fn no_op_decorator<F>(f: F) -> F {
+    f
+}
+
+fn greet_impl() -> String {
+    "hello".to_string()
+}
+
+let greet = no_op_decorator(greet_impl);
+let result = greet();
+'''
+
+[[test]]
+name = "decorator_lambda"
+description = "@decorator applied to lambda"
+tags = ["decorators", "lambda"]
+skip = true
+
+python = '''
+def add_one(f):
+    def wrapper(x):
+        return f(x) + 1
+    return wrapper
+
+# Lambda can't use @ syntax, must use explicit decoration
+add_two = add_one(lambda x: x + 1)
+result = add_two(5)
+'''
+
+rust = '''
+fn add_one<F>(f: F) -> impl Fn(i32) -> i32 
+where F: Fn(i32) -> i32 {
+    move |x| f(x) + 1
+}
+
+let add_two = add_one(|x| x + 1);
+let result = add_two(5);
+'''
+
+[[test]]
+name = "decorator_recursive"
+description = "Recursive function with decorator"
+tags = ["decorators", "recursive"]
+
+python = '''
+call_count = []
+
+def count_calls(f):
+    def wrapper(n):
+        call_count.append(1)
+        return f(n)
+    return wrapper
+
+@count_calls
+def factorial(n):
+    if n <= 1:
+        return 1
+    return n * factorial(n - 1)
+
+result = factorial(5)
+total_calls = len(call_count)
+'''
+
+rust = '''
+use std::cell::RefCell;
+use std::rc::Rc;
+
+fn count_calls<F>(f: Rc<F>, call_count: Rc<RefCell<Vec<i32>>>) -> impl Fn(i32) -> i32 
+where F: Fn(i32) -> i32 {
+    let call_count_clone = call_count.clone();
+    move |n| {
+        call_count_clone.borrow_mut().push(1);
+        f(n)
+    }
+}
+
+fn factorial(n: i32) -> i32 {
+    if n <= 1 {
+        1
+    } else {
+        n * factorial(n - 1)
+    }
+}
+
+let call_count: Rc<RefCell<Vec<i32>>> = Rc::new(RefCell::new(Vec::new()));
+let result = factorial(5);
+let total_calls = call_count.borrow().len() as i32;
+'''

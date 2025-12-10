@@ -9,97 +9,356 @@ category = "advanced-oop"
 # Basic Metaclass
 # =============================================================================
 
-# TODO: Test type() as metaclass
-# [[test]]
-# name = "type_as_metaclass"
-# description = "type('MyClass', (Base,), {'attr': value})"
+[[test]]
+name = "type_as_metaclass"
+description = "type('MyClass', (Base,), {'attr': value})"
+skip = true
+skip_reason = "Dynamic type() creation not supported in Rust"
+python = """
+# Creating a class dynamically with type()
+MyClass = type('MyClass', (), {'x': 10, 'method': lambda self: self.x * 2})
+obj = MyClass()
+print(obj.x)
+print(obj.method())
+"""
 
-# TODO: Test custom metaclass
-# [[test]]
-# name = "custom_metaclass"
-# description = "class Meta(type): ..."
+[[test]]
+name = "custom_metaclass"
+description = "class Meta(type): ..."
+skip = true
+skip_reason = "Metaclasses are Python-specific; use proc macros in Rust"
+python = """
+class Meta(type):
+    def __new__(mcs, name, bases, namespace):
+        namespace['added_by_meta'] = True
+        return super().__new__(mcs, name, bases, namespace)
 
-# TODO: Test metaclass keyword
-# [[test]]
-# name = "metaclass_keyword"
-# description = "class MyClass(metaclass=Meta): ..."
+class MyClass(metaclass=Meta):
+    pass
+
+obj = MyClass()
+print(hasattr(obj, 'added_by_meta'))
+print(obj.added_by_meta)
+"""
+
+[[test]]
+name = "metaclass_keyword"
+description = "class MyClass(metaclass=Meta): ..."
+skip = true
+skip_reason = "Metaclass keyword argument not supported"
+python = """
+class UpperAttrMeta(type):
+    def __new__(mcs, name, bases, namespace):
+        uppercase_attrs = {
+            (k.upper() if not k.startswith('__') else k): v
+            for k, v in namespace.items()
+        }
+        return super().__new__(mcs, name, bases, uppercase_attrs)
+
+class MyClass(metaclass=UpperAttrMeta):
+    x = 10
+    
+print(hasattr(MyClass, 'X'))
+print(MyClass.X)
+"""
 
 # =============================================================================
 # Metaclass Methods
 # =============================================================================
 
-# TODO: Test __new__ in metaclass
-# [[test]]
-# name = "metaclass_new"
-# description = "def __new__(mcs, name, bases, namespace): ..."
+[[test]]
+name = "metaclass_new"
+description = "def __new__(mcs, name, bases, namespace): ..."
+skip = true
+skip_reason = "Metaclass __new__ requires runtime type manipulation"
+python = """
+class TrackedMeta(type):
+    _classes = []
+    
+    def __new__(mcs, name, bases, namespace):
+        cls = super().__new__(mcs, name, bases, namespace)
+        mcs._classes.append(name)
+        return cls
 
-# TODO: Test __init__ in metaclass
-# [[test]]
-# name = "metaclass_init"
-# description = "def __init__(cls, name, bases, namespace): ..."
+class A(metaclass=TrackedMeta):
+    pass
 
-# TODO: Test __call__ in metaclass
-# [[test]]
-# name = "metaclass_call"
-# description = "Control instance creation"
+class B(metaclass=TrackedMeta):
+    pass
 
-# TODO: Test __prepare__ in metaclass
-# [[test]]
-# name = "metaclass_prepare"
-# description = "@classmethod def __prepare__(mcs, name, bases): ..."
+print(TrackedMeta._classes)
+"""
+
+[[test]]
+name = "metaclass_init"
+description = "def __init__(cls, name, bases, namespace): ..."
+skip = true
+skip_reason = "Metaclass __init__ not supported in transpilation"
+python = """
+class InitMeta(type):
+    def __init__(cls, name, bases, namespace):
+        super().__init__(name, bases, namespace)
+        cls.initialized = True
+        print(f"Initialized {name}")
+
+class MyClass(metaclass=InitMeta):
+    pass
+
+print(MyClass.initialized)
+"""
+
+[[test]]
+name = "metaclass_call"
+description = "Control instance creation"
+skip = true
+skip_reason = "Metaclass __call__ requires custom instantiation logic"
+python = """
+class CallMeta(type):
+    def __call__(cls, *args, **kwargs):
+        print(f"Creating instance of {cls.__name__}")
+        instance = super().__call__(*args, **kwargs)
+        print(f"Instance created")
+        return instance
+
+class MyClass(metaclass=CallMeta):
+    def __init__(self, x):
+        self.x = x
+
+obj = MyClass(42)
+print(obj.x)
+"""
+
+[[test]]
+name = "metaclass_prepare"
+description = "@classmethod def __prepare__(mcs, name, bases): ..."
+skip = true
+skip_reason = "Metaclass __prepare__ not supported"
+python = """
+from collections import OrderedDict
+
+class OrderedMeta(type):
+    @classmethod
+    def __prepare__(mcs, name, bases):
+        return OrderedDict()
+    
+    def __new__(mcs, name, bases, namespace):
+        result = super().__new__(mcs, name, bases, namespace)
+        result._ordered_keys = list(namespace.keys())
+        return result
+
+class MyClass(metaclass=OrderedMeta):
+    a = 1
+    b = 2
+    c = 3
+
+print([k for k in MyClass._ordered_keys if not k.startswith('__')])
+"""
 
 # =============================================================================
 # Metaclass Use Cases
 # =============================================================================
 
-# TODO: Test singleton metaclass
-# [[test]]
-# name = "singleton_metaclass"
-# description = "Metaclass ensuring single instance"
+[[test]]
+name = "singleton_metaclass"
+description = "Metaclass ensuring single instance"
+skip = true
+skip_reason = "Singleton pattern should use static Once cell in Rust"
+python = """
+class Singleton(type):
+    _instances = {}
+    
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instances:
+            cls._instances[cls] = super().__call__(*args, **kwargs)
+        return cls._instances[cls]
 
-# TODO: Test registration metaclass
-# [[test]]
-# name = "registration_metaclass"
-# description = "Auto-register classes on creation"
+class Database(metaclass=Singleton):
+    def __init__(self):
+        self.connection = "Connected"
 
-# TODO: Test validation metaclass
-# [[test]]
-# name = "validation_metaclass"
-# description = "Validate class definition at creation"
+db1 = Database()
+db2 = Database()
+print(db1 is db2)
+print(db1.connection)
+"""
 
-# TODO: Test attribute injection
-# [[test]]
-# name = "attribute_injection"
-# description = "Add attributes/methods via metaclass"
+[[test]]
+name = "registration_metaclass"
+description = "Auto-register classes on creation"
+skip = true
+skip_reason = "Use inventory crate or static registry in Rust"
+python = """
+class RegistryMeta(type):
+    registry = {}
+    
+    def __new__(mcs, name, bases, namespace):
+        cls = super().__new__(mcs, name, bases, namespace)
+        if name != 'Base':
+            mcs.registry[name] = cls
+        return cls
+
+class Base(metaclass=RegistryMeta):
+    pass
+
+class PluginA(Base):
+    pass
+
+class PluginB(Base):
+    pass
+
+print(sorted(RegistryMeta.registry.keys()))
+"""
+
+[[test]]
+name = "validation_metaclass"
+description = "Validate class definition at creation"
+skip = true
+skip_reason = "Use compile-time checks or proc macros in Rust"
+python = """
+class ValidatedMeta(type):
+    def __new__(mcs, name, bases, namespace):
+        if 'required_method' not in namespace and name != 'Base':
+            raise TypeError(f"{name} must define 'required_method'")
+        return super().__new__(mcs, name, bases, namespace)
+
+class Base(metaclass=ValidatedMeta):
+    pass
+
+class Valid(Base):
+    def required_method(self):
+        return "OK"
+
+obj = Valid()
+print(obj.required_method())
+
+# This would raise TypeError:
+# class Invalid(Base):
+#     pass
+"""
+
+[[test]]
+name = "attribute_injection"
+description = "Add attributes/methods via metaclass"
+skip = true
+skip_reason = "Use proc macros or trait implementations in Rust"
+python = """
+class InjectorMeta(type):
+    def __new__(mcs, name, bases, namespace):
+        # Inject a to_dict method
+        def to_dict(self):
+            return {k: v for k, v in self.__dict__.items()}
+        namespace['to_dict'] = to_dict
+        namespace['__class_name__'] = name
+        return super().__new__(mcs, name, bases, namespace)
+
+class MyClass(metaclass=InjectorMeta):
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+obj = MyClass(10, 20)
+print(obj.to_dict())
+print(obj.__class_name__)
+"""
 
 # =============================================================================
 # Metaclass Inheritance
 # =============================================================================
 
-# TODO: Test metaclass inheritance
-# [[test]]
-# name = "metaclass_inheritance"
-# description = "Subclass inherits parent's metaclass"
+[[test]]
+name = "metaclass_inheritance"
+description = "Subclass inherits parent's metaclass"
+skip = true
+skip_reason = "Metaclass inheritance is complex to transpile"
+python = """
+class Meta(type):
+    def __new__(mcs, name, bases, namespace):
+        namespace['from_meta'] = True
+        return super().__new__(mcs, name, bases, namespace)
 
-# TODO: Test metaclass conflict
-# [[test]]
-# name = "metaclass_conflict"
-# description = "Multiple inheritance with different metaclasses"
-# skip = true
+class Base(metaclass=Meta):
+    pass
+
+class Derived(Base):
+    pass
+
+print(hasattr(Derived, 'from_meta'))
+print(Derived.from_meta)
+"""
+
+[[test]]
+name = "metaclass_conflict"
+description = "Multiple inheritance with different metaclasses"
+skip = true
+skip_reason = "Metaclass conflicts cannot be resolved automatically"
+python = """
+class Meta1(type):
+    pass
+
+class Meta2(type):
+    pass
+
+class A(metaclass=Meta1):
+    pass
+
+class B(metaclass=Meta2):
+    pass
+
+# This would raise TypeError: metaclass conflict
+# class C(A, B):
+#     pass
+
+print("Metaclass conflict handled")
+"""
 
 # =============================================================================
 # Edge Cases
 # =============================================================================
 
-# TODO: Test __instancecheck__
-# [[test]]
-# name = "metaclass_instancecheck"
-# description = "Custom isinstance() behavior"
+[[test]]
+name = "metaclass_instancecheck"
+description = "Custom isinstance() behavior"
+skip = true
+skip_reason = "Custom isinstance() behavior not supported"
+python = """
+class InstanceCheckMeta(type):
+    def __instancecheck__(cls, instance):
+        # Always return True for demonstration
+        return hasattr(instance, 'special_attr') or super().__instancecheck__(instance)
 
-# TODO: Test __subclasscheck__
-# [[test]]
-# name = "metaclass_subclasscheck"
-# description = "Custom issubclass() behavior"
+class MyClass(metaclass=InstanceCheckMeta):
+    pass
+
+class Other:
+    special_attr = True
+
+obj = Other()
+print(isinstance(obj, MyClass))
+"""
+
+[[test]]
+name = "metaclass_subclasscheck"
+description = "Custom issubclass() behavior"
+skip = true
+skip_reason = "Custom issubclass() behavior not supported"
+python = """
+class SubclassCheckMeta(type):
+    def __subclasscheck__(cls, subclass):
+        # Check for duck-typing compatibility
+        return (hasattr(subclass, 'required_method') or 
+                super().__subclasscheck__(subclass))
+
+class Interface(metaclass=SubclassCheckMeta):
+    def required_method(self):
+        pass
+
+class Implementation:
+    def required_method(self):
+        return "Implemented"
+
+print(issubclass(Implementation, Interface))
+"""
 
 # Note: Full metaclass support is limited in transpilation
 # Most use cases should be converted to trait-based patterns
+# Consider using: proc macros, derive macros, or trait-based designs in Rust

@@ -15,8 +15,7 @@ name = "final_int_constant"
 description = "Final[int] should generate const with i32 type"
 tags = ["final", "const", "typing"]
 
-[test.python]
-code = '''
+python = '''
 from typing import Final
 
 def get_field_goal() -> int:
@@ -24,21 +23,28 @@ def get_field_goal() -> int:
     return FIELD_GOAL
 '''
 
-[test.assertions]
-contains = ["const FIELD_GOAL", ": i32", "= 600"]
-not_contains = ["let FIELD_GOAL"]
-
-# =============================================================================
-# Variable Shadowing Tests
-# =============================================================================
+rust = '''
+pub fn get_field_goal() -> i32 {
+    const FIELD_GOAL: i32 = 600;
+    return FIELD_GOAL;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_get_field_goal_examples() {
+        let _ = get_field_goal();
+    }
+}
+'''
 
 [[test]]
 name = "variable_shadowing_in_loops"
 description = "Variable assignments inside loops should update existing variables, not shadow them"
 tags = ["loops", "shadowing", "assignment"]
 
-[test.python]
-code = '''
+python = '''
 def factorial(n: int) -> int:
     result = 1
     for i in range(1, n + 1):
@@ -46,17 +52,33 @@ def factorial(n: int) -> int:
     return result
 '''
 
-[test.assertions]
-contains = ["for i in 1.."]
-not_contains = ["let mut result = result * i", "let mut result = (result * i)"]
+rust = '''
+pub fn factorial(n: i32) -> i32 {
+    let mut result = 1;
+    for i in 1..n + 1 {
+        result = result * i;
+    }
+    return result;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_factorial_examples() {
+        assert_eq!(factorial(0), 0);
+        assert_eq!(factorial(1), 1);
+        assert_eq!(factorial(-1), -1);
+    }
+}
+'''
 
 [[test]]
 name = "binary_search_variable_shadowing"
 description = "Variable assignments in conditionals should not create new variables"
 tags = ["conditional", "shadowing", "assignment"]
 
-[test.python]
-code = '''
+python = '''
 def binary_search(arr: list, target: int) -> int:
     left = 0
     right = len(arr) - 1
@@ -71,108 +93,280 @@ def binary_search(arr: list, target: int) -> int:
     return -1
 '''
 
-[test.assertions]
-contains = ["fn binary_search"]
-
-# =============================================================================
-# Docstring Tests
-# =============================================================================
+rust = '''
+use serde_json;
+#[derive(Debug, Clone)]
+pub struct ZeroDivisionError {
+    message: String,
+}
+impl std::fmt::Display for ZeroDivisionError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "division by zero: {}", self.message)
+    }
+}
+impl std::error::Error for ZeroDivisionError {}
+impl ZeroDivisionError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[derive(Debug, Clone)]
+pub struct IndexError {
+    message: String,
+}
+impl std::fmt::Display for IndexError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "index out of range: {}", self.message)
+    }
+}
+impl std::error::Error for IndexError {}
+impl IndexError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+pub fn binary_search(arr: &Vec<serde_json::Value>, target: i32) -> i32 {
+    let mut left = 0;
+    let _cse_temp_0 = arr.clone().len() as i32;
+    let mut right = _cse_temp_0 - 1;
+    while left <= right {
+        let mid = {
+            let a = left + right;
+            let b = 2;
+            let q = a / b;
+            let r = a % b;
+            let r_negative = r < 0;
+            let b_negative = b < 0;
+            let r_nonzero = r != 0;
+            let signs_differ = r_negative != b_negative;
+            let needs_adjustment = r_nonzero && signs_differ;
+            if needs_adjustment { q - 1 } else { q }
+        };
+        if arr.clone().get(mid as usize).cloned().unwrap() == target {
+            return mid;
+        } else {
+            if arr.get(mid as usize).cloned().unwrap() < target {
+                left = mid + 1;
+            } else {
+                right = mid - 1;
+            }
+        }
+    }
+    return -1;
+}
+'''
 
 [[test]]
 name = "docstring_as_comment"
 description = "Docstrings should become Rust doc comments, not executable expressions"
 tags = ["docstring", "documentation"]
 
-[test.python]
-code = '''
+python = '''
 def add(a: int, b: int) -> int:
     "Add two numbers"
     return a + b
 '''
 
-[test.assertions]
-contains_any = [["/// Add two numbers", "#[doc"]]
-not_contains = ["\"Add two numbers\" . to_string ()"]
+rust = '''
+#[doc = "Add two numbers"]
+pub fn add(a: i32, b: i32) -> i32 {
+    return a + b;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn quickcheck_add() {
+        fn prop(a: i32, b: i32) -> TestResult {
+            if (a > 0 && b > i32::MAX - a) || (a < 0 && b < i32::MIN - a) {
+                return TestResult::discard();
+            }
+            let result1 = add(a.clone(), b.clone());
+            let result2 = add(b.clone(), a.clone());
+            if result1 != result2 {
+                return TestResult::failed();
+            }
+            TestResult::passed()
+        }
+        quickcheck(prop as fn(i32, i32) -> TestResult);
+    }
+    #[test]
+    fn test_add_examples() {
+        assert_eq!(add(0, 0), 0);
+        assert_eq!(add(1, 2), 3);
+        assert_eq!(add(-1, 1), 0);
+    }
+}
+'''
 
 [[test]]
 name = "docstring_generation"
 description = "Docstrings should generate proper Rust documentation"
 tags = ["docstring", "documentation"]
 
-[test.python]
-code = '''
+python = '''
 def example_function(x: int) -> int:
     """This is a docstring that should become a comment"""
     return x * 2
 '''
 
-[test.assertions]
-contains_any = [["/// This is a docstring", "#[doc = \"This is a docstring"]]
-not_contains = ["\"This is a docstring that should become a comment\" . to_string ()"]
-
-# =============================================================================
-# Integer Division Tests
-# =============================================================================
+rust = '''
+#[doc = "This is a docstring that should become a comment"]
+pub fn example_function(x: i32) -> i32 {
+    return x * 2;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_example_function_examples() {
+        assert_eq!(example_function(0), 0);
+        assert_eq!(example_function(1), 1);
+        assert_eq!(example_function(-1), -1);
+    }
+}
+'''
 
 [[test]]
 name = "integer_division_operator"
 description = "Python // operator should map to integer division"
 tags = ["operators", "division"]
 
-[test.python]
-code = '''
+python = '''
 def divide(a: int, b: int) -> int:
     return a // b
 '''
 
-[test.assertions]
-contains = ["/ b"]
-not_contains = ["/ b as f"]
+rust = '''
+#[derive(Debug, Clone)]
+pub struct ZeroDivisionError {
+    message: String,
+}
+impl std::fmt::Display for ZeroDivisionError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "division by zero: {}", self.message)
+    }
+}
+impl std::error::Error for ZeroDivisionError {}
+impl ZeroDivisionError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = " Depyler: proven to terminate"]
+pub fn divide(a: i32, b: i32) -> i32 {
+    return {
+        let a = a;
+        let b = b;
+        let q = a / b;
+        let r = a % b;
+        let r_negative = r < 0;
+        let b_negative = b < 0;
+        let r_nonzero = r != 0;
+        let signs_differ = r_negative != b_negative;
+        let needs_adjustment = r_nonzero && signs_differ;
+        if needs_adjustment { q - 1 } else { q }
+    };
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_divide_examples() {
+        assert_eq!(divide(0, 0), 0);
+        assert_eq!(divide(1, 2), 3);
+        assert_eq!(divide(-1, 1), 0);
+    }
+}
+'''
 
 [[test]]
 name = "floor_divide_operator"
 description = "Python // operator should use integer division, not float division"
 tags = ["operators", "division"]
 
-[test.python]
-code = '''
+python = '''
 def floor_divide(a: int, b: int) -> int:
     return a // b
 '''
 
-[test.assertions]
-contains = ["/ b"]
-not_contains = ["/ b as f"]
-
-# =============================================================================
-# String Operations Tests
-# =============================================================================
+rust = '''
+#[derive(Debug, Clone)]
+pub struct ZeroDivisionError {
+    message: String,
+}
+impl std::fmt::Display for ZeroDivisionError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "division by zero: {}", self.message)
+    }
+}
+impl std::error::Error for ZeroDivisionError {}
+impl ZeroDivisionError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = " Depyler: proven to terminate"]
+pub fn floor_divide(a: i32, b: i32) -> i32 {
+    return {
+        let a = a;
+        let b = b;
+        let q = a / b;
+        let r = a % b;
+        let r_negative = r < 0;
+        let b_negative = b < 0;
+        let r_nonzero = r != 0;
+        let signs_differ = r_negative != b_negative;
+        let needs_adjustment = r_nonzero && signs_differ;
+        if needs_adjustment { q - 1 } else { q }
+    };
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_floor_divide_examples() {
+        assert_eq!(floor_divide(0, 0), 0);
+        assert_eq!(floor_divide(1, 2), 3);
+        assert_eq!(floor_divide(-1, 1), 0);
+    }
+}
+'''
 
 [[test]]
 name = "string_concatenation_efficiency"
 description = "String operations should be efficient"
 tags = ["string", "efficiency"]
 
-[test.python]
-code = '''
+python = '''
 def concat_strings(a: str, b: str) -> str:
     return a + b
 '''
 
-[test.assertions]
-contains_any = [["format!", "String::from", "&str"]]
-
-# =============================================================================
-# List/Array Operations Tests
-# =============================================================================
+rust = '''
+pub fn concat_strings(a: String, b: String) -> String {
+    return format!("{}{}", a, b);
+}
+'''
 
 [[test]]
 name = "type_inference_ownership"
 description = "Type inference should generate correct ownership patterns"
 tags = ["list", "ownership", "inference"]
 
-[test.python]
-code = '''
+python = '''
 def process_data(data: list) -> list:
     result = []
     for item in data:
@@ -180,47 +374,89 @@ def process_data(data: list) -> list:
     return result
 '''
 
-[test.assertions]
-contains = ["Vec<", "push"]
-not_contains = [".clone().clone()"]
+rust = '''
+use serde_json;
+pub fn process_data(data: &Vec<serde_json::Value>) -> Vec<serde_json::Value> {
+    let mut result = vec![];
+    for item in data.iter().cloned() {
+        result.push(item * 2);
+    }
+    return result;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_process_data_examples() {
+        assert_eq!(process_data(vec![]), vec![]);
+        assert_eq!(process_data(vec![1]), vec![1]);
+    }
+}
+'''
 
 [[test]]
 name = "plain_list_type_mapping"
 description = "Plain 'list' type should map to Vec<T> not literal 'list'"
 tags = ["list", "type-mapping"]
 
-[test.python]
-code = '''
+python = '''
 def process_items(items: list) -> list:
     return items
 '''
 
-[test.assertions]
-contains_any = [["Vec<", "&["]]
-not_contains = ["items : list"]
+rust = '''
+use serde_json;
+pub fn process_items(items: Vec<serde_json::Value>) -> Vec<serde_json::Value> {
+    return items;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn quickcheck_process_items() {
+        fn prop(items: Vec<()>) -> TestResult {
+            let result = process_items(&items);
+            if result != items {
+                return TestResult::failed();
+            }
+            TestResult::passed()
+        }
+        quickcheck(prop as fn(Vec<()>) -> TestResult);
+    }
+    #[test]
+    fn test_process_items_examples() {
+        assert_eq!(process_items(vec![]), vec![]);
+        assert_eq!(process_items(vec![1]), vec![1]);
+    }
+}
+'''
 
 [[test]]
 name = "simple_array_literal_assignment"
 description = "Array literal assignments should not be dropped during code generation"
 tags = ["array", "assignment"]
 
-[test.python]
-code = '''
+python = '''
 def test_array():
     arr = [1, 2, 3]
     return arr
 '''
 
-[test.assertions]
-contains_any = [["arr =", "let arr", "[1", "vec!"]]
+rust = '''
+pub fn test_array() -> Vec<i32> {
+    let arr = vec![1, 2, 3];
+    return arr;
+}
+'''
 
 [[test]]
 name = "multiple_array_assignments"
 description = "Multiple array assignments should all be generated"
 tags = ["array", "assignment"]
 
-[test.python]
-code = '''
+python = '''
 def test_arrays():
     arr1 = [1, 2, 3]
     arr2 = [4, 5, 6]
@@ -228,86 +464,137 @@ def test_arrays():
     return arr1, arr2, arr3
 '''
 
-[test.assertions]
-contains_any = [["arr1 =", "let arr1"], ["arr2 =", "let arr2"], ["arr3 =", "let arr3"]]
+rust = '''
+pub fn test_arrays() -> (Vec<i32>, Vec<i32>, Vec<i32>) {
+    let arr1 = vec![1, 2, 3];
+    let arr2 = vec![4, 5, 6];
+    let arr3 = vec![7, 8, 9];
+    return (arr1, arr2, arr3);
+}
+'''
 
 [[test]]
 name = "boolean_array_assignment"
 description = "Boolean array assignments should not be dropped"
 tags = ["array", "boolean", "assignment"]
 
-[test.python]
-code = '''
+python = '''
 def test_bool_array():
     flags = [True, False, True]
     return flags
 '''
 
-[test.assertions]
-contains_any = [["flags =", "let flags"], ["true", "false"]]
-
-# =============================================================================
-# Safe Indexing Tests
-# =============================================================================
+rust = '''
+pub fn test_bool_array() -> Vec<bool> {
+    let flags = vec![true, false, true];
+    return flags;
+}
+'''
 
 [[test]]
 name = "list_indexing_bounds_checking"
 description = "Array indexing should have proper bounds checking"
 tags = ["indexing", "safety"]
 
-[test.python]
-code = '''
+python = '''
 def get_item(arr: list, index: int) -> int:
     return arr[index]
 '''
 
-[test.assertions]
-contains_any = [[".get(", "bounds_check", "unwrap_or"]]
+rust = '''
+use serde_json;
+#[derive(Debug, Clone)]
+pub struct IndexError {
+    message: String,
+}
+impl std::fmt::Display for IndexError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "index out of range: {}", self.message)
+    }
+}
+impl std::error::Error for IndexError {}
+impl IndexError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = " Depyler: proven to terminate"]
+pub fn get_item(arr: &Vec<serde_json::Value>, index: i32) -> i32 {
+    return arr.get(index as usize).cloned().unwrap();
+}
+'''
 
 [[test]]
 name = "bounds_checking_array_indexing"
 description = "Array indexing should use safe indexing methods"
 tags = ["indexing", "safety"]
 
-[test.python]
-code = '''
+python = '''
 def get_item(arr: list, i: int) -> int:
     return arr[i]
 '''
 
-[test.assertions]
-contains_any = [[".get(", "bounds_check", "unwrap_or"]]
-
-# =============================================================================
-# Method Call Formatting Tests
-# =============================================================================
+rust = '''
+use serde_json;
+#[derive(Debug, Clone)]
+pub struct IndexError {
+    message: String,
+}
+impl std::fmt::Display for IndexError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "index out of range: {}", self.message)
+    }
+}
+impl std::error::Error for IndexError {}
+impl IndexError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = " Depyler: proven to terminate"]
+pub fn get_item(arr: &Vec<serde_json::Value>, i: i32) -> i32 {
+    return arr.get(i as usize).cloned().unwrap();
+}
+'''
 
 [[test]]
 name = "method_call_spacing"
 description = "Method calls should not have unnecessary spaces"
 tags = ["formatting", "method-call"]
 
-[test.python]
-code = '''
+python = '''
 def get_length(arr: list) -> int:
     return len(arr)
 '''
 
-[test.assertions]
-contains_any = [["arr.len()", "len(arr)"]]
-not_contains = ["arr . len ()"]
-
-# =============================================================================
-# Copy Module Tests
-# =============================================================================
+rust = '''
+use serde_json;
+pub fn get_length(arr: &Vec<serde_json::Value>) -> i32 {
+    return arr.len() as i32 as i32;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_get_length_examples() {
+        assert_eq!(get_length(vec![]), 0);
+        assert_eq!(get_length(vec![1]), 1);
+        assert_eq!(get_length(vec![1, 2, 3]), 3);
+    }
+}
+'''
 
 [[test]]
 name = "copy_copy_list"
 description = "copy.copy() for lists should generate .clone() not .copy()"
 tags = ["copy", "stdlib"]
 
-[test.python]
-code = '''
+python = '''
 import copy
 
 def test_shallow_copy() -> int:
@@ -317,17 +604,31 @@ def test_shallow_copy() -> int:
     return len(original)
 '''
 
-[test.assertions]
-contains_any = [[".clone()", "copy::copy"]]
-not_contains = [".copy()"]
+rust = '''
+#[doc = "// NOTE: Map Python module 'copy'()"]
+pub fn test_shallow_copy() -> i32 {
+    let original = vec![1, 2, 3];
+    let mut copied = (original.clone()).clone();
+    copied.push(4);
+    return original.len() as i32 as i32;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_test_shallow_copy_examples() {
+        let _ = test_shallow_copy();
+    }
+}
+'''
 
 [[test]]
 name = "copy_copy_dict"
 description = "copy.copy() for dicts should generate valid Rust code"
 tags = ["copy", "dict", "stdlib"]
 
-[test.python]
-code = '''
+python = '''
 import copy
 
 def test_dict_copy() -> int:
@@ -337,16 +638,37 @@ def test_dict_copy() -> int:
     return len(original)
 '''
 
-[test.assertions]
-contains_any = [[".clone()", "copy"]]
+rust = '''
+#[doc = "// NOTE: Map Python module 'copy'()"]
+use std::collections::HashMap;
+pub fn test_dict_copy() -> i32 {
+    let original = {
+        let mut map = HashMap::new();
+        map.insert("a".to_string(), 1);
+        map.insert("b".to_string(), 2);
+        map
+    };
+    let mut copied = (original.clone()).clone();
+    copied.insert("c".to_string(), 3);
+    return original.len() as i32 as i32;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_test_dict_copy_examples() {
+        let _ = test_dict_copy();
+    }
+}
+'''
 
 [[test]]
 name = "copy_deepcopy_list"
 description = "copy.deepcopy() should generate valid deep copy operation"
 tags = ["copy", "deepcopy", "stdlib"]
 
-[test.python]
-code = '''
+python = '''
 import copy
 
 def test_deep_copy() -> int:
@@ -356,20 +678,49 @@ def test_deep_copy() -> int:
     return len(original[0])
 '''
 
-[test.assertions]
-contains_any = [["clone", "deep"]]
-
-# =============================================================================
-# Untyped Parameter Tests
-# =============================================================================
+rust = '''
+#[doc = "// NOTE: Map Python module 'copy'()"]
+#[derive(Debug, Clone)]
+pub struct IndexError {
+    message: String,
+}
+impl std::fmt::Display for IndexError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "index out of range: {}", self.message)
+    }
+}
+impl std::error::Error for IndexError {}
+impl IndexError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = " Depyler: proven to terminate"]
+pub fn test_deep_copy() -> i32 {
+    let original = vec![vec![1, 2], vec![3, 4]];
+    let mut copied = (original.clone()).clone();
+    copied.get(0usize).cloned().unwrap().push(5);
+    return original.get(0usize).cloned().unwrap().len() as i32 as i32;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_test_deep_copy_examples() {
+        let _ = test_deep_copy();
+    }
+}
+'''
 
 [[test]]
 name = "untyped_list_parameter"
 description = "Untyped list parameter should compile without DynamicType"
 tags = ["list", "untyped", "inference"]
 
-[test.python]
-code = '''
+python = '''
 def sum_list(numbers: list) -> int:
     total = 0
     for num in numbers:
@@ -377,36 +728,52 @@ def sum_list(numbers: list) -> int:
     return total
 '''
 
-[test.assertions]
-contains = ["fn sum_list"]
-not_contains = ["DynamicType"]
+rust = '''
+use serde_json;
+pub fn sum_list(numbers: &Vec<serde_json::Value>) -> i32 {
+    let mut total = 0;
+    for num in numbers.iter().cloned() {
+        total = total + num;
+    }
+    return total;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_sum_list_examples() {
+        assert_eq!(sum_list(vec![]), 0);
+        assert_eq!(sum_list(vec![1]), 1);
+        assert_eq!(sum_list(vec![1, 2, 3]), 6);
+    }
+}
+'''
 
 [[test]]
 name = "untyped_dict_parameter"
 description = "Untyped dict parameter should compile without DynamicType"
 tags = ["dict", "untyped", "inference"]
 
-[test.python]
-code = '''
+python = '''
 def get_value(data: dict, key: str) -> int:
     return data.get(key, 0)
 '''
 
-[test.assertions]
-contains = ["fn get_value"]
-not_contains = ["DynamicType"]
-
-# =============================================================================
-# Rust Code Formatting Tests
-# =============================================================================
+rust = '''
+use serde_json;
+use std::collections::HashMap;
+pub fn get_value(data: &HashMap<serde_json::Value, serde_json::Value>, key: String) -> i32 {
+    return data.get(&key).cloned().unwrap_or(0).unwrap();
+}
+'''
 
 [[test]]
 name = "rust_code_formatting_consistency"
 description = "Generated Rust code should have consistent formatting"
 tags = ["formatting", "generics"]
 
-[test.python]
-code = '''
+python = '''
 from typing import List
 
 def calculate_sum(numbers: List[int]) -> int:
@@ -417,172 +784,203 @@ def calculate_sum(numbers: List[int]) -> int:
     return total
 '''
 
-[test.assertions]
-contains = ["Vec<i32>", " = "]
-not_contains = ["=(", ". "]
-
-# =============================================================================
-# Consistent Type Mapping Tests
-# =============================================================================
+rust = '''
+#[doc = "Calculate the sum of a list of integers."]
+pub fn calculate_sum(numbers: &Vec<i32>) -> i32 {
+    let mut total: i32 = 0;
+    for n in numbers.iter().cloned() {
+        total = total + n;
+    }
+    return total;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_calculate_sum_examples() {
+        assert_eq!(calculate_sum(vec![]), 0);
+        assert_eq!(calculate_sum(vec![1]), 1);
+        assert_eq!(calculate_sum(vec![1, 2, 3]), 6);
+    }
+}
+'''
 
 [[test]]
 name = "consistent_type_mapping"
 description = "Type mapping should be consistent across contexts"
 tags = ["type-mapping", "list"]
 
-[test.python]
-code = '''
+python = '''
 def create_list() -> list:
     items = []
     return items
 '''
 
-[test.assertions]
-contains_any = [["Vec<"]]
-
-# =============================================================================
-# Rust Keyword Method Name Handling (from test_direct_rules_coverage.rs)
-# Note: Some Python keywords like 'as', 'in' can't be method names in Python either.
-# Tests here cover cases that ARE valid Python but use Rust keywords.
-# =============================================================================
+rust = '''
+use serde_json;
+pub fn create_list() -> Vec<serde_json::Value> {
+    let items = vec![];
+    return items;
+}
+'''
 
 [[test]]
 name = "method_name_type_keyword"
 description = "Method name 'type' (Rust keyword) should be handled"
 tags = ["keyword", "method"]
 
-[test.python]
-code = '''
+python = '''
 def test_type(obj):
     return obj.type()
 '''
 
-[test.assertions]
-contains_any = [["type_", "r#type", ".type("]]
+rust = '''
+use serde_json;
+pub fn test_type(obj: &serde_json::Value) {
+    return obj.r#type();
+}
+'''
 
 [[test]]
 name = "method_name_mut_keyword"
 description = "Method name 'mut' (Rust keyword) should be escaped"
 tags = ["keyword", "method"]
 
-[test.python]
-code = '''
+python = '''
 def test_mut(obj):
     return obj.mut()
 '''
 
-[test.assertions]
-contains_any = [["mut_", "r#mut", ".mut("]]
+rust = '''
+use serde_json;
+pub fn test_mut(obj: &serde_json::Value) {
+    return obj.r#mut();
+}
+'''
 
 [[test]]
 name = "method_name_ref_keyword"
 description = "Method name 'ref' (Rust keyword) should be escaped"
 tags = ["keyword", "method"]
 
-[test.python]
-code = '''
+python = '''
 def test_ref(obj):
     return obj.ref()
 '''
 
-[test.assertions]
-contains_any = [["ref_", "r#ref", ".ref("]]
+rust = '''
+use serde_json;
+pub fn test_ref(obj: &serde_json::Value) {
+    return obj.r#ref();
+}
+'''
 
 [[test]]
 name = "method_name_match_keyword"
 description = "Method name 'match' (Python 3.10+ keyword, Rust keyword) should be handled"
 tags = ["keyword", "method"]
 
-[test.python]
-code = '''
+python = '''
 def test_match_method(obj):
     return obj.match_pattern()
 '''
 
-[test.assertions]
-contains = [".match_pattern("]
+rust = '''
+use serde_json;
+pub fn test_match_method(obj: &serde_json::Value) {
+    return obj.match_pattern();
+}
+'''
 
 [[test]]
 name = "method_name_loop_keyword"
 description = "Method name 'loop' (Rust keyword) should be escaped"
 tags = ["keyword", "method"]
 
-[test.python]
-code = '''
+python = '''
 def test_loop(obj):
     return obj.loop()
 '''
 
-[test.assertions]
-contains_any = [["loop_", "r#loop", ".loop("]]
+rust = '''
+use serde_json;
+pub fn test_loop(obj: &serde_json::Value) {
+    return obj.r#loop();
+}
+'''
 
 [[test]]
 name = "method_name_impl_keyword"
 description = "Method name 'impl' (Rust keyword) should be escaped"
 tags = ["keyword", "method"]
 
-[test.python]
-code = '''
+python = '''
 def test_impl(obj):
     return obj.impl()
 '''
 
-[test.assertions]
-contains_any = [["impl_", "r#impl", ".impl("]]
-
-# =============================================================================
-# Edge Cases and Robustness (from test_error_handlings.rs)
-# =============================================================================
+rust = '''
+use serde_json;
+pub fn test_impl(obj: &serde_json::Value) {
+    return obj.r#impl();
+}
+'''
 
 [[test]]
 name = "unicode_string_handling"
 description = "Unicode strings should be handled correctly"
 tags = ["unicode", "string"]
 
-[test.python]
-code = '''
+python = '''
 def test_unicode() -> str:
     return "Hello 世界"
 '''
 
-[test.assertions]
-contains = ["Hello 世界"]
+rust = '''
+pub fn test_unicode() -> String {
+    return "Hello 世界".to_string();
+}
+'''
 
 [[test]]
 name = "emoji_string_handling"
 description = "Emoji in strings should be preserved"
 tags = ["unicode", "emoji"]
 
-[test.python]
-code = '''
+python = '''
 def test_emoji() -> str:
     return "🚀 Rust"
 '''
 
-[test.assertions]
-contains = ["🚀"]
+rust = '''
+pub fn test_emoji() -> String {
+    return "🚀 Rust".to_string();
+}
+'''
 
 [[test]]
 name = "accented_characters"
 description = "Accented characters should be preserved"
 tags = ["unicode", "accents"]
 
-[test.python]
-code = '''
+python = '''
 def test_accents() -> str:
     return "café"
 '''
 
-[test.assertions]
-contains = ["café"]
+rust = '''
+pub fn test_accents() -> String {
+    return "café".to_string();
+}
+'''
 
 [[test]]
 name = "large_conditional_function"
 description = "Large functions with many conditionals should transpile"
 tags = ["large", "conditional"]
 
-[test.python]
-code = '''
+python = '''
 def large_func(x: int) -> int:
     result = 0
     if x > 0:
@@ -598,12 +996,43 @@ def large_func(x: int) -> int:
     return result
 '''
 
-[test.assertions]
-contains = ["fn large_func"]
-
-# =============================================================================
-# Large Integration Tests (migrated from test_mega.rs)
-# =============================================================================
+rust = '''
+pub fn large_func(x: i32) -> i32 {
+    let mut result = 0;
+    let _cse_temp_0 = x > 0;
+    if _cse_temp_0 {
+        result = result + 1;
+    }
+    let _cse_temp_1 = x > 1;
+    if _cse_temp_1 {
+        result = result + 2;
+    }
+    let _cse_temp_2 = x > 2;
+    if _cse_temp_2 {
+        result = result + 3;
+    }
+    let _cse_temp_3 = x > 3;
+    if _cse_temp_3 {
+        result = result + 4;
+    }
+    let _cse_temp_4 = x > 4;
+    if _cse_temp_4 {
+        result = result + 5;
+    }
+    return result;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_large_func_examples() {
+        assert_eq!(large_func(0), 0);
+        assert_eq!(large_func(1), 1);
+        assert_eq!(large_func(-1), -1);
+    }
+}
+'''
 
 [[test]]
 name = "sports_simulation_dataclasses"
@@ -611,8 +1040,7 @@ description = "Complex dataclass hierarchy for sports simulation"
 tags = ["integration", "dataclass", "complex"]
 compile_check = true
 
-[test.python]
-code = '''
+python = '''
 from dataclasses import dataclass
 from typing import List, Optional
 
@@ -710,16 +1138,908 @@ class State:
     team_in_possession: str
 '''
 
-[test.assertions]
-contains = ["struct Scores", "struct State", "struct Player", "struct TeamStatistic"]
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Scores {
+    pub conversions: i32,
+    pub field_goals: i32,
+    pub penalties: i32,
+    pub total: i32,
+    pub tries: i32,
+}
+impl Scores {
+    pub fn new(conversions: i32, field_goals: i32, penalties: i32, total: i32, tries: i32) -> Self {
+        Self {
+            conversions,
+            field_goals,
+            penalties,
+            total,
+            tries,
+        }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "conversions" => Some(Box::new(self.conversions.clone()) as Box<dyn std::any::Any>),
+            "field_goals" => Some(Box::new(self.field_goals.clone()) as Box<dyn std::any::Any>),
+            "penalties" => Some(Box::new(self.penalties.clone()) as Box<dyn std::any::Any>),
+            "total" => Some(Box::new(self.total.clone()) as Box<dyn std::any::Any>),
+            "tries" => Some(Box::new(self.tries.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "conversions" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.conversions = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "field_goals" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.field_goals = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "penalties" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.penalties = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "total" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.total = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "tries" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.tries = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Period {
+    pub number: i32,
+    pub name: String,
+}
+impl Period {
+    pub fn new(number: i32, name: String) -> Self {
+        Self { number, name }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "number" => Some(Box::new(self.number.clone()) as Box<dyn std::any::Any>),
+            "name" => Some(Box::new(self.name.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "number" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.number = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "name" => {
+                if let Some(v) = value.downcast_ref::<String>() {
+                    self.name = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct PeriodStatistic {
+    pub conversions_missed: i32,
+    pub penalties_awarded: i32,
+    pub period: Period,
+    pub scores: Scores,
+    pub tackles: i32,
+    pub turnovers: i32,
+}
+impl PeriodStatistic {
+    pub fn new(
+        conversions_missed: i32,
+        penalties_awarded: i32,
+        period: Period,
+        scores: Scores,
+        tackles: i32,
+        turnovers: i32,
+    ) -> Self {
+        Self {
+            conversions_missed,
+            penalties_awarded,
+            period,
+            scores,
+            tackles,
+            turnovers,
+        }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "conversions_missed" => Some(Box::new(self.conversions_missed.clone()) as Box<dyn std::any::Any>),
+            "penalties_awarded" => Some(Box::new(self.penalties_awarded.clone()) as Box<dyn std::any::Any>),
+            "period" => Some(Box::new(self.period.clone()) as Box<dyn std::any::Any>),
+            "scores" => Some(Box::new(self.scores.clone()) as Box<dyn std::any::Any>),
+            "tackles" => Some(Box::new(self.tackles.clone()) as Box<dyn std::any::Any>),
+            "turnovers" => Some(Box::new(self.turnovers.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "conversions_missed" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.conversions_missed = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "penalties_awarded" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.penalties_awarded = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "period" => {
+                if let Some(v) = value.downcast_ref::<Period>() {
+                    self.period = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "scores" => {
+                if let Some(v) = value.downcast_ref::<Scores>() {
+                    self.scores = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "tackles" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.tackles = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "turnovers" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.turnovers = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct FieldPosition {
+    pub x: i32,
+    pub y: i32,
+}
+impl FieldPosition {
+    pub fn new(x: i32, y: i32) -> Self {
+        Self { x, y }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "x" => Some(Box::new(self.x.clone()) as Box<dyn std::any::Any>),
+            "y" => Some(Box::new(self.y.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "x" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.x = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "y" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.y = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct PlayerPosition {
+    pub position_type: String,
+}
+impl PlayerPosition {
+    pub fn new(position_type: String) -> Self {
+        Self { position_type }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "position_type" => Some(Box::new(self.position_type.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "position_type" => {
+                if let Some(v) = value.downcast_ref::<String>() {
+                    self.position_type = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct PlayerPeriodStatistics {
+    pub metres_gained: i32,
+    pub scores: Scores,
+    pub tackles: i32,
+}
+impl PlayerPeriodStatistics {
+    pub fn new(metres_gained: i32, scores: Scores, tackles: i32) -> Self {
+        Self {
+            metres_gained,
+            scores,
+            tackles,
+        }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "metres_gained" => Some(Box::new(self.metres_gained.clone()) as Box<dyn std::any::Any>),
+            "scores" => Some(Box::new(self.scores.clone()) as Box<dyn std::any::Any>),
+            "tackles" => Some(Box::new(self.tackles.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "metres_gained" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.metres_gained = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "scores" => {
+                if let Some(v) = value.downcast_ref::<Scores>() {
+                    self.scores = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "tackles" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.tackles = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct PlayerStatistics {
+    pub jersey_number: i32,
+    pub player_index: i32,
+    pub tackles: i32,
+    pub metres_gained: i32,
+    pub scores: Scores,
+    pub time_on_field_in_seconds: f64,
+}
+impl PlayerStatistics {
+    pub fn new(
+        jersey_number: i32,
+        player_index: i32,
+        tackles: i32,
+        metres_gained: i32,
+        scores: Scores,
+        time_on_field_in_seconds: f64,
+    ) -> Self {
+        Self {
+            jersey_number,
+            player_index,
+            tackles,
+            metres_gained,
+            scores,
+            time_on_field_in_seconds,
+        }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "jersey_number" => Some(Box::new(self.jersey_number.clone()) as Box<dyn std::any::Any>),
+            "player_index" => Some(Box::new(self.player_index.clone()) as Box<dyn std::any::Any>),
+            "tackles" => Some(Box::new(self.tackles.clone()) as Box<dyn std::any::Any>),
+            "metres_gained" => Some(Box::new(self.metres_gained.clone()) as Box<dyn std::any::Any>),
+            "scores" => Some(Box::new(self.scores.clone()) as Box<dyn std::any::Any>),
+            "time_on_field_in_seconds" => {
+                Some(Box::new(self.time_on_field_in_seconds.clone()) as Box<dyn std::any::Any>)
+            }
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "jersey_number" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.jersey_number = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "player_index" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.player_index = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "tackles" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.tackles = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "metres_gained" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.metres_gained = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "scores" => {
+                if let Some(v) = value.downcast_ref::<Scores>() {
+                    self.scores = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "time_on_field_in_seconds" => {
+                if let Some(v) = value.downcast_ref::<f64>() {
+                    self.time_on_field_in_seconds = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Player {
+    pub is_home_team: bool,
+    pub is_injured: bool,
+    pub is_voided: bool,
+    pub jersey_number: i32,
+    pub on_field: bool,
+    pub player_index: i32,
+    pub position: PlayerPosition,
+    pub tries: i32,
+}
+impl Player {
+    pub fn new(
+        is_home_team: bool,
+        is_injured: bool,
+        is_voided: bool,
+        jersey_number: i32,
+        on_field: bool,
+        player_index: i32,
+        position: PlayerPosition,
+        tries: i32,
+    ) -> Self {
+        Self {
+            is_home_team,
+            is_injured,
+            is_voided,
+            jersey_number,
+            on_field,
+            player_index,
+            position,
+            tries,
+        }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "is_home_team" => Some(Box::new(self.is_home_team.clone()) as Box<dyn std::any::Any>),
+            "is_injured" => Some(Box::new(self.is_injured.clone()) as Box<dyn std::any::Any>),
+            "is_voided" => Some(Box::new(self.is_voided.clone()) as Box<dyn std::any::Any>),
+            "jersey_number" => Some(Box::new(self.jersey_number.clone()) as Box<dyn std::any::Any>),
+            "on_field" => Some(Box::new(self.on_field.clone()) as Box<dyn std::any::Any>),
+            "player_index" => Some(Box::new(self.player_index.clone()) as Box<dyn std::any::Any>),
+            "position" => Some(Box::new(self.position.clone()) as Box<dyn std::any::Any>),
+            "tries" => Some(Box::new(self.tries.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "is_home_team" => {
+                if let Some(v) = value.downcast_ref::<bool>() {
+                    self.is_home_team = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "is_injured" => {
+                if let Some(v) = value.downcast_ref::<bool>() {
+                    self.is_injured = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "is_voided" => {
+                if let Some(v) = value.downcast_ref::<bool>() {
+                    self.is_voided = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "jersey_number" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.jersey_number = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "on_field" => {
+                if let Some(v) = value.downcast_ref::<bool>() {
+                    self.on_field = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "player_index" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.player_index = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "position" => {
+                if let Some(v) = value.downcast_ref::<PlayerPosition>() {
+                    self.position = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "tries" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.tries = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct TeamStatistic {
+    pub match_scores: Scores,
+    pub match_tackles: i32,
+    pub match_turnovers: i32,
+    pub period_statistics: Vec<PeriodStatistic>,
+    pub sin_bin_players: Vec<Player>,
+}
+impl TeamStatistic {
+    pub fn new(
+        match_scores: Scores,
+        match_tackles: i32,
+        match_turnovers: i32,
+        period_statistics: Vec<PeriodStatistic>,
+        sin_bin_players: Vec<Player>,
+    ) -> Self {
+        Self {
+            match_scores,
+            match_tackles,
+            match_turnovers,
+            period_statistics,
+            sin_bin_players,
+        }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "match_scores" => Some(Box::new(self.match_scores.clone()) as Box<dyn std::any::Any>),
+            "match_tackles" => Some(Box::new(self.match_tackles.clone()) as Box<dyn std::any::Any>),
+            "match_turnovers" => Some(Box::new(self.match_turnovers.clone()) as Box<dyn std::any::Any>),
+            "period_statistics" => Some(Box::new(self.period_statistics.clone()) as Box<dyn std::any::Any>),
+            "sin_bin_players" => Some(Box::new(self.sin_bin_players.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "match_scores" => {
+                if let Some(v) = value.downcast_ref::<Scores>() {
+                    self.match_scores = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "match_tackles" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.match_tackles = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "match_turnovers" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.match_turnovers = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "period_statistics" => {
+                if let Some(v) = value.downcast_ref::<Vec<PeriodStatistic>>() {
+                    self.period_statistics = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "sin_bin_players" => {
+                if let Some(v) = value.downcast_ref::<Vec<Player>>() {
+                    self.sin_bin_players = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct TryScorers {
+    pub player_indices: Vec<i32>,
+}
+impl TryScorers {
+    pub fn new(player_indices: Vec<i32>) -> Self {
+        Self { player_indices }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "player_indices" => Some(Box::new(self.player_indices.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "player_indices" => {
+                if let Some(v) = value.downcast_ref::<Vec<i32>>() {
+                    self.player_indices = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct SimulationInvariants {
+    pub away_handicap: f64,
+    pub home_handicap: f64,
+    pub total_points: f64,
+}
+impl SimulationInvariants {
+    pub fn new(away_handicap: f64, home_handicap: f64, total_points: f64) -> Self {
+        Self {
+            away_handicap,
+            home_handicap,
+            total_points,
+        }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "away_handicap" => Some(Box::new(self.away_handicap.clone()) as Box<dyn std::any::Any>),
+            "home_handicap" => Some(Box::new(self.home_handicap.clone()) as Box<dyn std::any::Any>),
+            "total_points" => Some(Box::new(self.total_points.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "away_handicap" => {
+                if let Some(v) = value.downcast_ref::<f64>() {
+                    self.away_handicap = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "home_handicap" => {
+                if let Some(v) = value.downcast_ref::<f64>() {
+                    self.home_handicap = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "total_points" => {
+                if let Some(v) = value.downcast_ref::<f64>() {
+                    self.total_points = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct State {
+    pub away_match_score: i32,
+    pub away_players: Vec<Player>,
+    pub away_statistics: TeamStatistic,
+    pub ball_location: FieldPosition,
+    pub current_play_type: String,
+    pub home_match_score: i32,
+    pub home_players: Vec<Player>,
+    pub home_statistics: TeamStatistic,
+    pub is_over: bool,
+    pub period: Period,
+    pub seconds_elapsed: i32,
+    pub set: i32,
+    pub simulation_invariants: SimulationInvariants,
+    pub tackles: i32,
+    pub team_in_possession: String,
+}
+impl State {
+    pub fn new(
+        away_match_score: i32,
+        away_players: Vec<Player>,
+        away_statistics: TeamStatistic,
+        ball_location: FieldPosition,
+        current_play_type: String,
+        home_match_score: i32,
+        home_players: Vec<Player>,
+        home_statistics: TeamStatistic,
+        is_over: bool,
+        period: Period,
+        seconds_elapsed: i32,
+        set: i32,
+        simulation_invariants: SimulationInvariants,
+        tackles: i32,
+        team_in_possession: String,
+    ) -> Self {
+        Self {
+            away_match_score,
+            away_players,
+            away_statistics,
+            ball_location,
+            current_play_type,
+            home_match_score,
+            home_players,
+            home_statistics,
+            is_over,
+            period,
+            seconds_elapsed,
+            set,
+            simulation_invariants,
+            tackles,
+            team_in_possession,
+        }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "away_match_score" => Some(Box::new(self.away_match_score.clone()) as Box<dyn std::any::Any>),
+            "away_players" => Some(Box::new(self.away_players.clone()) as Box<dyn std::any::Any>),
+            "away_statistics" => Some(Box::new(self.away_statistics.clone()) as Box<dyn std::any::Any>),
+            "ball_location" => Some(Box::new(self.ball_location.clone()) as Box<dyn std::any::Any>),
+            "current_play_type" => Some(Box::new(self.current_play_type.clone()) as Box<dyn std::any::Any>),
+            "home_match_score" => Some(Box::new(self.home_match_score.clone()) as Box<dyn std::any::Any>),
+            "home_players" => Some(Box::new(self.home_players.clone()) as Box<dyn std::any::Any>),
+            "home_statistics" => Some(Box::new(self.home_statistics.clone()) as Box<dyn std::any::Any>),
+            "is_over" => Some(Box::new(self.is_over.clone()) as Box<dyn std::any::Any>),
+            "period" => Some(Box::new(self.period.clone()) as Box<dyn std::any::Any>),
+            "seconds_elapsed" => Some(Box::new(self.seconds_elapsed.clone()) as Box<dyn std::any::Any>),
+            "set" => Some(Box::new(self.set.clone()) as Box<dyn std::any::Any>),
+            "simulation_invariants" => Some(Box::new(self.simulation_invariants.clone()) as Box<dyn std::any::Any>),
+            "tackles" => Some(Box::new(self.tackles.clone()) as Box<dyn std::any::Any>),
+            "team_in_possession" => Some(Box::new(self.team_in_possession.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "away_match_score" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.away_match_score = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "away_players" => {
+                if let Some(v) = value.downcast_ref::<Vec<Player>>() {
+                    self.away_players = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "away_statistics" => {
+                if let Some(v) = value.downcast_ref::<TeamStatistic>() {
+                    self.away_statistics = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "ball_location" => {
+                if let Some(v) = value.downcast_ref::<FieldPosition>() {
+                    self.ball_location = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "current_play_type" => {
+                if let Some(v) = value.downcast_ref::<String>() {
+                    self.current_play_type = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "home_match_score" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.home_match_score = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "home_players" => {
+                if let Some(v) = value.downcast_ref::<Vec<Player>>() {
+                    self.home_players = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "home_statistics" => {
+                if let Some(v) = value.downcast_ref::<TeamStatistic>() {
+                    self.home_statistics = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "is_over" => {
+                if let Some(v) = value.downcast_ref::<bool>() {
+                    self.is_over = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "period" => {
+                if let Some(v) = value.downcast_ref::<Period>() {
+                    self.period = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "seconds_elapsed" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.seconds_elapsed = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "set" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.set = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "simulation_invariants" => {
+                if let Some(v) = value.downcast_ref::<SimulationInvariants>() {
+                    self.simulation_invariants = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "tackles" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.tackles = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "team_in_possession" => {
+                if let Some(v) = value.downcast_ref::<String>() {
+                    self.team_in_possession = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+'''
 
 [[test]]
 name = "sports_simulation_constants"
 description = "Multiple constant definitions with various types"
 tags = ["integration", "constants"]
 
-[test.python]
-code = '''
+python = '''
 from typing import Final
 
 CENTRE_OF_THE_FIELD_X: Final[int] = 500
@@ -736,16 +2056,33 @@ PLAYING_FIELD_WIDTH: Final[int] = 1000
 PLAYING_FIELD_HEIGHT: Final[int] = 700
 '''
 
-[test.assertions]
-contains = ["const CENTRE_OF_THE_FIELD_X", "const TRY_POINTS"]
+rust = '''
+pub const CENTRE_OF_THE_FIELD_X: i32 = 500;
+pub const CENTRE_OF_THE_FIELD_Y: i32 = 350;
+pub const TRY_POINTS: i32 = 4;
+pub const PENALTY_POINTS: i32 = 2;
+pub const FIELD_GOAL_POINTS: i32 = 1;
+pub const TACKLES_PER_SET: i32 = 6;
+pub const MAX_INTERCHANGES: i32 = 8;
+pub const GAME_LENGTH_IN_SECONDS: i32 = 4800;
+pub const HALF_LENGTH_IN_SECONDS: i32 = 2400;
+pub const PLAYER_POSITIONS: Vec<String> = vec![
+    "FullBack".to_string(),
+    "WingerOne".to_string(),
+    "CentreOne".to_string(),
+    "CentreTwo".to_string(),
+    "WingerTwo".to_string(),
+];
+pub const PLAYING_FIELD_WIDTH: i32 = 1000;
+pub const PLAYING_FIELD_HEIGHT: i32 = 700;
+'''
 
 [[test]]
 name = "sports_simulation_game_logic"
 description = "Complex game logic with conditional branching"
 tags = ["integration", "logic", "conditional"]
 
-[test.python]
-code = '''
+python = '''
 from typing import Final
 
 TACKLES_PER_SET: Final[int] = 6
@@ -772,16 +2109,47 @@ def is_in_scoring_position(ball_x: int, team: str, field_width: int) -> bool:
     return ball_x < 100
 '''
 
-[test.assertions]
-contains = ["fn swap_possession", "fn process_tackle", "fn calculate_margin", "fn is_in_scoring_position"]
+rust = '''
+pub const TACKLES_PER_SET: i32 = 6;
+pub const STARTING_TACKLE: i32 = 1;
+pub fn swap_possession(team_in_possession: String) -> String {
+    return if team_in_possession == "Home".to_string() {
+        "Away".to_string()
+    } else {
+        "Home".to_string()
+    };
+}
+pub fn process_tackle(mut tackles: i32, team_in_possession: String) -> (i32, String) {
+    tackles = tackles + 1;
+    let _cse_temp_0 = tackles > TACKLES_PER_SET;
+    if _cse_temp_0 {
+        team_in_possession = swap_possession(team_in_possession.clone());
+        tackles = STARTING_TACKLE;
+    }
+    return (tackles, team_in_possession);
+}
+pub fn calculate_margin(home_score: i32, away_score: i32, team: String) -> i32 {
+    let _cse_temp_0 = team == "Home".to_string();
+    if _cse_temp_0 {
+        return home_score - away_score;
+    }
+    return away_score - home_score;
+}
+pub fn is_in_scoring_position(ball_x: i32, team: String, field_width: i32) -> bool {
+    let _cse_temp_0 = team == "Home".to_string();
+    if _cse_temp_0 {
+        return ball_x > field_width - 100;
+    }
+    return ball_x < 100;
+}
+'''
 
 [[test]]
 name = "sports_simulation_event_handler"
 description = "Event handler pattern with optional types"
 tags = ["integration", "events", "optional"]
 
-[test.python]
-code = '''
+python = '''
 from dataclasses import dataclass
 from typing import Optional
 
@@ -825,6 +2193,256 @@ def end_of_game_output_event(state: State) -> None:
         draw_match = state.home_match_score == state.away_match_score
 '''
 
-[test.assertions]
-contains = ["fn end_of_game_output_event", "struct State", "struct TeamStatistics"]
-
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+pub const FIRST_HALF_INDEX: i32 = 0;
+pub const SECOND_HALF_INDEX: i32 = 1;
+#[derive(Debug, Clone)]
+pub struct IndexError {
+    message: String,
+}
+impl std::fmt::Display for IndexError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "index out of range: {}", self.message)
+    }
+}
+impl std::error::Error for IndexError {}
+impl IndexError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Scores {
+    pub total: i32,
+    pub tries: i32,
+}
+impl Scores {
+    pub fn new(total: i32, tries: i32) -> Self {
+        Self { total, tries }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "total" => Some(Box::new(self.total.clone()) as Box<dyn std::any::Any>),
+            "tries" => Some(Box::new(self.tries.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "total" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.total = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "tries" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.tries = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct PeriodStatistic {
+    pub scores: Scores,
+}
+impl PeriodStatistic {
+    pub fn new(scores: Scores) -> Self {
+        Self { scores }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "scores" => Some(Box::new(self.scores.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "scores" => {
+                if let Some(v) = value.downcast_ref::<Scores>() {
+                    self.scores = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct TeamStatistics {
+    pub period_statistics: Vec<PeriodStatistic>,
+    pub match_scores: Scores,
+}
+impl TeamStatistics {
+    pub fn new(period_statistics: Vec<PeriodStatistic>, match_scores: Scores) -> Self {
+        Self {
+            period_statistics,
+            match_scores,
+        }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "period_statistics" => Some(Box::new(self.period_statistics.clone()) as Box<dyn std::any::Any>),
+            "match_scores" => Some(Box::new(self.match_scores.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "period_statistics" => {
+                if let Some(v) = value.downcast_ref::<Vec<PeriodStatistic>>() {
+                    self.period_statistics = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "match_scores" => {
+                if let Some(v) = value.downcast_ref::<Scores>() {
+                    self.match_scores = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct State {
+    pub game_status: String,
+    pub is_over: bool,
+    pub home_statistics: TeamStatistics,
+    pub away_statistics: TeamStatistics,
+    pub home_match_score: i32,
+    pub away_match_score: i32,
+}
+impl State {
+    pub fn new(
+        game_status: String,
+        is_over: bool,
+        home_statistics: TeamStatistics,
+        away_statistics: TeamStatistics,
+        home_match_score: i32,
+        away_match_score: i32,
+    ) -> Self {
+        Self {
+            game_status,
+            is_over,
+            home_statistics,
+            away_statistics,
+            home_match_score,
+            away_match_score,
+        }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "game_status" => Some(Box::new(self.game_status.clone()) as Box<dyn std::any::Any>),
+            "is_over" => Some(Box::new(self.is_over.clone()) as Box<dyn std::any::Any>),
+            "home_statistics" => Some(Box::new(self.home_statistics.clone()) as Box<dyn std::any::Any>),
+            "away_statistics" => Some(Box::new(self.away_statistics.clone()) as Box<dyn std::any::Any>),
+            "home_match_score" => Some(Box::new(self.home_match_score.clone()) as Box<dyn std::any::Any>),
+            "away_match_score" => Some(Box::new(self.away_match_score.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "game_status" => {
+                if let Some(v) = value.downcast_ref::<String>() {
+                    self.game_status = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "is_over" => {
+                if let Some(v) = value.downcast_ref::<bool>() {
+                    self.is_over = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "home_statistics" => {
+                if let Some(v) = value.downcast_ref::<TeamStatistics>() {
+                    self.home_statistics = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "away_statistics" => {
+                if let Some(v) = value.downcast_ref::<TeamStatistics>() {
+                    self.away_statistics = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "home_match_score" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.home_match_score = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "away_match_score" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.away_match_score = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+#[doc = " Depyler: proven to terminate"]
+pub fn end_of_game_output_event(state: &State) {
+    let mut away_second_half_stats: Option<PeriodStatistic> = None;
+    let mut home_second_half_stats: Option<PeriodStatistic> = None;
+    let mut team_a_won_match: bool = false;
+    let mut draw_match: bool = false;
+    let _cse_temp_0 = state.game_status.clone() == "ENDED";
+    if _cse_temp_0 {
+        home_second_half_stats = Some(
+            state
+                .home_statistics
+                .period_statistics
+                .clone()
+                .get(SECOND_HALF_INDEX as usize)
+                .cloned()
+                .unwrap(),
+        );
+        away_second_half_stats = Some(
+            state
+                .away_statistics
+                .period_statistics
+                .clone()
+                .get(SECOND_HALF_INDEX as usize)
+                .cloned()
+                .unwrap(),
+        );
+        let _cse_temp_1 = state.home_match_score > state.away_match_score;
+        team_a_won_match = _cse_temp_1;
+        let _cse_temp_2 = state.home_match_score == state.away_match_score;
+        draw_match = _cse_temp_2;
+    }
+}
+'''

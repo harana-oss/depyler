@@ -13,106 +13,194 @@ name = "result_ok"
 description = "Function returning Ok result"
 tags = ["result", "ok"]
 
-[test.python]
-code = '''
+python = '''
 def parse_int(s: str) -> int:
     return int(s)
 '''
 
-[test.assertions]
-contains_any = [["Result<", "Ok(", "?", "-> i32", "-> i64"]]
+rust = '''
+pub fn parse_int(s: String) -> i32 {
+    return s.parse::<i32>().unwrap();
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_parse_int_examples() {
+        assert_eq!(parse_int(""), 0);
+        assert_eq!(parse_int("a"), 1);
+        assert_eq!(parse_int("abc"), 3);
+    }
+}
+'''
 
 [[test]]
 name = "result_err"
 description = "Function returning Err result"
 tags = ["result", "err"]
 
-[test.python]
-code = '''
+python = '''
 def validate_positive(x: int) -> int:
     if x < 0:
         raise ValueError("must be positive")
     return x
 '''
 
-[test.assertions]
-contains_any = [["Result<", "Err(", "return Err"]]
-
-# =============================================================================
-# Result Wrapping
-# =============================================================================
+rust = '''
+#[derive(Debug, Clone)]
+pub struct ValueError {
+    message: String,
+}
+impl std::fmt::Display for ValueError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "value error: {}", self.message)
+    }
+}
+impl std::error::Error for ValueError {}
+impl ValueError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = " Depyler: proven to terminate"]
+pub fn validate_positive(x: i32) -> i32 {
+    let _cse_temp_0 = x < 0;
+    if _cse_temp_0 {
+        panic!("{}", "must be positive");
+    }
+    return x;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_validate_positive_examples() {
+        assert_eq!(validate_positive(0), 0);
+        assert_eq!(validate_positive(1), 1);
+        assert_eq!(validate_positive(-1), -1);
+    }
+}
+'''
 
 [[test]]
 name = "result_wrap_ok"
 description = "Wrap success value in Ok"
 tags = ["result", "wrap"]
 
-[test.python]
-code = '''
+python = '''
 def success(value: int) -> int:
     return value
 '''
 
-[test.assertions]
-contains_any = [["Ok(value)", "Ok(", "-> i32", "-> i64"]]
+rust = '''
+pub fn success(value: i32) -> i32 {
+    return value;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn quickcheck_success() {
+        fn prop(value: i32) -> TestResult {
+            let result = success(value.clone());
+            if result != value {
+                return TestResult::failed();
+            }
+            TestResult::passed()
+        }
+        quickcheck(prop as fn(i32) -> TestResult);
+    }
+    #[test]
+    fn test_success_examples() {
+        assert_eq!(success(0), 0);
+        assert_eq!(success(1), 1);
+        assert_eq!(success(-1), -1);
+    }
+}
+'''
 
 [[test]]
 name = "result_wrap_err"
 description = "Wrap error in Err"
 tags = ["result", "wrap"]
 
-[test.python]
-code = '''
+python = '''
 def fail(message: str):
     raise RuntimeError(message)
 '''
 
-[test.assertions]
-contains_any = [["Err(", "panic!", "return Err"]]
-
-# =============================================================================
-# Result Propagation
-# =============================================================================
+rust = '''
+#[doc = " Depyler: proven to terminate"]
+pub fn fail(message: String) {
+    panic!("{}", RuntimeError::new(message));
+}
+'''
 
 [[test]]
 name = "result_question_mark"
 description = "Propagate error with ?"
 tags = ["result", "propagation"]
 
-[test.python]
-code = '''
+python = '''
 def read_and_parse(content: str) -> int:
     return int(content.strip())
 '''
 
-[test.assertions]
-contains_any = [["?", "Result<", "-> Result", "unwrap"]]
-
-# =============================================================================
-# Result Unwrapping
-# =============================================================================
+rust = '''
+pub fn read_and_parse(content: String) -> i32 {
+    return content.trim().parse::<i32>().unwrap();
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_read_and_parse_examples() {
+        assert_eq!(read_and_parse(""), 0);
+        assert_eq!(read_and_parse("a"), 1);
+        assert_eq!(read_and_parse("abc"), 3);
+    }
+}
+'''
 
 [[test]]
 name = "result_unwrap"
 description = "Unwrap Result (may panic)"
 tags = ["result", "unwrap"]
 
-[test.python]
-code = '''
+python = '''
 def force_parse(s: str) -> int:
     return int(s)
 '''
 
-[test.assertions]
-contains_any = [["unwrap()", "expect(", "?"]]
+rust = '''
+pub fn force_parse(s: String) -> i32 {
+    return s.parse::<i32>().unwrap();
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_force_parse_examples() {
+        assert_eq!(force_parse(""), 0);
+        assert_eq!(force_parse("a"), 1);
+        assert_eq!(force_parse("abc"), 3);
+    }
+}
+'''
 
 [[test]]
 name = "result_unwrap_or"
 description = "Unwrap with default on error"
 tags = ["result", "unwrap"]
 
-[test.python]
-code = '''
+python = '''
 def safe_parse(s: str) -> int:
     try:
         return int(s)
@@ -120,16 +208,49 @@ def safe_parse(s: str) -> int:
         return 0
 '''
 
-[test.assertions]
-contains_any = [["unwrap_or(0)", "unwrap_or_default()", "match"]]
+rust = '''
+#[derive(Debug, Clone)]
+pub struct ValueError {
+    message: String,
+}
+impl std::fmt::Display for ValueError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "value error: {}", self.message)
+    }
+}
+impl std::error::Error for ValueError {}
+impl ValueError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+pub fn safe_parse(s: String) -> i32 {
+    {
+        return s.parse::<i32>().unwrap();
+        return 0;
+    }
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_safe_parse_examples() {
+        assert_eq!(safe_parse(""), 0);
+        assert_eq!(safe_parse("a"), 1);
+        assert_eq!(safe_parse("abc"), 3);
+    }
+}
+'''
 
 [[test]]
 name = "result_unwrap_or_else"
 description = "Unwrap with computed default"
 tags = ["result", "unwrap"]
 
-[test.python]
-code = '''
+python = '''
 def parse_with_fallback(s: str, fallback: int) -> int:
     try:
         return int(s)
@@ -137,20 +258,38 @@ def parse_with_fallback(s: str, fallback: int) -> int:
         return fallback
 '''
 
-[test.assertions]
-contains_any = [["unwrap_or(fallback)", "unwrap_or_else(", "match"]]
-
-# =============================================================================
-# Result Pattern Matching
-# =============================================================================
+rust = '''
+#[derive(Debug, Clone)]
+pub struct ValueError {
+    message: String,
+}
+impl std::fmt::Display for ValueError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "value error: {}", self.message)
+    }
+}
+impl std::error::Error for ValueError {}
+impl ValueError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+pub fn parse_with_fallback(s: String, fallback: i32) -> i32 {
+    {
+        return s.parse::<i32>().unwrap();
+        return fallback;
+    }
+}
+'''
 
 [[test]]
 name = "result_match"
 description = "Match on Result"
 tags = ["result", "match"]
 
-[test.python]
-code = '''
+python = '''
 def handle_result(s: str) -> str:
     try:
         value = int(s)
@@ -159,34 +298,66 @@ def handle_result(s: str) -> str:
         return "Error: invalid"
 '''
 
-[test.assertions]
-contains_any = [["match", "Ok(", "Err("]]
-
-# =============================================================================
-# Result Map Operations
-# =============================================================================
+rust = '''
+#[derive(Debug, Clone)]
+pub struct ValueError {
+    message: String,
+}
+impl std::fmt::Display for ValueError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "value error: {}", self.message)
+    }
+}
+impl std::error::Error for ValueError {}
+impl ValueError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+pub fn handle_result(s: String) -> String {
+    {
+        let value = s.parse::<i32>().unwrap();
+        return format!("Got: {}", value);
+        return "Error: invalid".to_string();
+    }
+}
+'''
 
 [[test]]
 name = "result_map"
 description = "Map over Ok value"
 tags = ["result", "map"]
 
-[test.python]
-code = '''
+python = '''
 def parse_and_double(s: str) -> int:
     return int(s) * 2
 '''
 
-[test.assertions]
-contains_any = [[".map(", "* 2"]]
+rust = '''
+pub fn parse_and_double(s: String) -> i32 {
+    return s.parse::<i32>().unwrap() * 2;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_parse_and_double_examples() {
+        assert_eq!(parse_and_double(""), 0);
+        assert_eq!(parse_and_double("a"), 1);
+        assert_eq!(parse_and_double("abc"), 3);
+    }
+}
+'''
 
 [[test]]
 name = "result_map_err"
 description = "Map over Err value"
 tags = ["result", "map_err"]
 
-[test.python]
-code = '''
+python = '''
 def parse_with_context(s: str) -> int:
     try:
         return int(s)
@@ -194,20 +365,49 @@ def parse_with_context(s: str) -> int:
         raise ValueError(f"Failed to parse: {s}")
 '''
 
-[test.assertions]
-contains_any = [[".map_err(", "Err(", "format!"]]
-
-# =============================================================================
-# Result Chaining
-# =============================================================================
+rust = '''
+#[derive(Debug, Clone)]
+pub struct ValueError {
+    message: String,
+}
+impl std::fmt::Display for ValueError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "value error: {}", self.message)
+    }
+}
+impl std::error::Error for ValueError {}
+impl ValueError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+pub fn parse_with_context(s: String) -> i32 {
+    {
+        return s.parse::<i32>().unwrap();
+        panic!("{}", format!("Failed to parse: {}", s));
+    }
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_parse_with_context_examples() {
+        assert_eq!(parse_with_context(""), 0);
+        assert_eq!(parse_with_context("a"), 1);
+        assert_eq!(parse_with_context("abc"), 3);
+    }
+}
+'''
 
 [[test]]
 name = "result_and_then"
 description = "Chain Result operations"
 tags = ["result", "chain"]
 
-[test.python]
-code = '''
+python = '''
 def parse_and_validate(s: str) -> int:
     value = int(s)
     if value < 0:
@@ -215,40 +415,115 @@ def parse_and_validate(s: str) -> int:
     return value
 '''
 
-[test.assertions]
-contains_any = [[".and_then(", "?", "if value < 0"]]
-
-# =============================================================================
-# Result in Functions
-# =============================================================================
+rust = '''
+#[derive(Debug, Clone)]
+pub struct ValueError {
+    message: String,
+}
+impl std::fmt::Display for ValueError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "value error: {}", self.message)
+    }
+}
+impl std::error::Error for ValueError {}
+impl ValueError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = " Depyler: proven to terminate"]
+pub fn parse_and_validate(s: String) -> i32 {
+    let _cse_temp_0 = s.parse::<i32>().unwrap();
+    let value = _cse_temp_0;
+    let _cse_temp_1 = value < 0;
+    if _cse_temp_1 {
+        panic!("{}", "negative");
+    }
+    return value;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_parse_and_validate_examples() {
+        assert_eq!(parse_and_validate(""), 0);
+        assert_eq!(parse_and_validate("a"), 1);
+        assert_eq!(parse_and_validate("abc"), 3);
+    }
+}
+'''
 
 [[test]]
 name = "result_return_type"
 description = "Function with Result return type"
 tags = ["result", "return"]
 
-[test.python]
-code = '''
+python = '''
 def divide(a: int, b: int) -> int:
     if b == 0:
         raise ZeroDivisionError("division by zero")
     return a // b
 '''
 
-[test.assertions]
-contains_any = [["Result<", "Err(", "if b == 0"]]
-
-# =============================================================================
-# Result Return Wrapping - Migrated from test_result_return_wrapping.rs
-# =============================================================================
+rust = '''
+#[derive(Debug, Clone)]
+pub struct ZeroDivisionError {
+    message: String,
+}
+impl std::fmt::Display for ZeroDivisionError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "division by zero: {}", self.message)
+    }
+}
+impl std::error::Error for ZeroDivisionError {}
+impl ZeroDivisionError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = " Depyler: proven to terminate"]
+pub fn divide(a: i32, b: i32) -> i32 {
+    let _cse_temp_0 = b == 0;
+    if _cse_temp_0 {
+        panic!("{}", "division by zero");
+    }
+    return {
+        let a = a;
+        let b = b;
+        let q = a / b;
+        let r = a % b;
+        let r_negative = r < 0;
+        let b_negative = b < 0;
+        let r_nonzero = r != 0;
+        let signs_differ = r_negative != b_negative;
+        let needs_adjustment = r_nonzero && signs_differ;
+        if needs_adjustment { q - 1 } else { q }
+    };
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_divide_examples() {
+        assert_eq!(divide(0, 0), 0);
+        assert_eq!(divide(1, 2), 3);
+        assert_eq!(divide(-1, 1), 0);
+    }
+}
+'''
 
 [[test]]
 name = "side_effect_function_result"
 description = "Side effect function with try/except has Result return and Ok(())"
 tags = ["result", "side-effect"]
 
-[test.python]
-code = '''
+python = '''
 def set_value(data: dict[str, int], key: str, value: int):
     try:
         data[key] = value
@@ -256,16 +531,39 @@ def set_value(data: dict[str, int], key: str, value: int):
         raise ValueError("Invalid key")
 '''
 
-[test.assertions]
-contains = ["Result<", "Ok(())"]
+rust = '''
+use std::collections::HashMap;
+#[derive(Debug, Clone)]
+pub struct ValueError {
+    message: String,
+}
+impl std::fmt::Display for ValueError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "value error: {}", self.message)
+    }
+}
+impl std::error::Error for ValueError {}
+impl ValueError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+pub fn set_value(data: &mut HashMap<String, i32>, key: String, value: i32) {
+    {
+        data.insert(key, value);
+        panic!("{}", "Invalid key");
+    }
+}
+'''
 
 [[test]]
 name = "return_value_wrapped_in_ok"
 description = "Function returning value with try/except wraps return in Ok()"
 tags = ["result", "return"]
 
-[test.python]
-code = '''
+python = '''
 def get_count(items: list[int]) -> int:
     try:
         return len(items)
@@ -273,32 +571,73 @@ def get_count(items: list[int]) -> int:
         raise ValueError("Invalid items")
 '''
 
-[test.assertions]
-contains = ["Result<", "Ok("]
+rust = '''
+#[derive(Debug, Clone)]
+pub struct ValueError {
+    message: String,
+}
+impl std::fmt::Display for ValueError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "value error: {}", self.message)
+    }
+}
+impl std::error::Error for ValueError {}
+impl ValueError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+pub fn get_count(items: &Vec<i32>) -> i32 {
+    {
+        return items.len() as i32 as i32;
+        panic!("{}", "Invalid items");
+    }
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_get_count_examples() {
+        assert_eq!(get_count(vec![]), 0);
+        assert_eq!(get_count(vec![1]), 1);
+        assert_eq!(get_count(vec![1, 2, 3]), 3);
+    }
+}
+'''
 
 [[test]]
 name = "function_with_raise_has_result_type"
 description = "Function with raise has Result return type"
 tags = ["result", "raise"]
 
-[test.python]
-code = '''
+python = '''
 def update_config(config: dict[str, int], key: str, value: int):
     if key not in config:
         raise KeyError("Key not found")
     config[key] = value
 '''
 
-[test.assertions]
-contains = ["Result<", "Ok(())"]
+rust = '''
+use std::collections::HashMap;
+#[doc = " Depyler: proven to terminate"]
+pub fn update_config(config: &mut HashMap<String, i32>, key: String, value: i32) {
+    let _cse_temp_0 = !config.get(&key).is_some();
+    if _cse_temp_0 {
+        panic!("{}", "Key not found");
+    }
+    config.insert(key, value);
+}
+'''
 
 [[test]]
 name = "divide_by_zero_result"
 description = "Safe divide with try/except generates Result"
 tags = ["result", "exception"]
 
-[test.python]
-code = '''
+python = '''
 def safe_divide(a: int, b: int) -> int:
     try:
         result = a // b
@@ -307,12 +646,71 @@ def safe_divide(a: int, b: int) -> int:
         raise ValueError("Division by zero")
 '''
 
-[test.assertions]
-contains = ["Result<"]
-
-# =============================================================================
-# Result Unwrapping - Migrated from test_result_unwrapping.rs
-# =============================================================================
+rust = '''
+#[derive(Debug, Clone)]
+pub struct ZeroDivisionError {
+    message: String,
+}
+impl std::fmt::Display for ZeroDivisionError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "division by zero: {}", self.message)
+    }
+}
+impl std::error::Error for ZeroDivisionError {}
+impl ZeroDivisionError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[derive(Debug, Clone)]
+pub struct ValueError {
+    message: String,
+}
+impl std::fmt::Display for ValueError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "value error: {}", self.message)
+    }
+}
+impl std::error::Error for ValueError {}
+impl ValueError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+pub fn safe_divide(a: i32, b: i32) -> i32 {
+    {
+        let result = {
+            let a = a;
+            let b = b;
+            let q = a / b;
+            let r = a % b;
+            let r_negative = r < 0;
+            let b_negative = b < 0;
+            let r_nonzero = r != 0;
+            let signs_differ = r_negative != b_negative;
+            let needs_adjustment = r_nonzero && signs_differ;
+            if needs_adjustment { q - 1 } else { q }
+        };
+        return result;
+        panic!("{}", "Division by zero");
+    }
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_safe_divide_examples() {
+        assert_eq!(safe_divide(0, 0), 0);
+        assert_eq!(safe_divide(1, 2), 3);
+        assert_eq!(safe_divide(-1, 1), 0);
+    }
+}
+'''
 
 [[test]]
 name = "result_unwrapping_at_call_site"
@@ -320,8 +718,7 @@ description = "Call site should unwrap Result for dict return"
 tags = ["result", "unwrap", "call"]
 compile_check = true
 
-[test.python]
-code = '''
+python = '''
 def calculate_stats(numbers: list[int]) -> dict[str, int]:
     if not numbers:
         return {"count": 0, "sum": 0}
@@ -329,5 +726,24 @@ def calculate_stats(numbers: list[int]) -> dict[str, int]:
     return {"count": count, "sum": 0}
 '''
 
-[test.assertions]
-contains = ["fn calculate_stats"]
+rust = '''
+use std::collections::HashMap;
+pub fn calculate_stats(numbers: &Vec<i32>) -> HashMap<String, i32> {
+    if numbers.clone().is_empty() {
+        return {
+            let mut map = HashMap::new();
+            map.insert("count".to_string(), 0);
+            map.insert("sum".to_string(), 0);
+            map
+        };
+    }
+    let _cse_temp_0 = numbers.len() as i32;
+    let count = _cse_temp_0;
+    return {
+        let mut map = HashMap::new();
+        map.insert("count".to_string(), count);
+        map.insert("sum".to_string(), 0);
+        map
+    };
+}
+'''

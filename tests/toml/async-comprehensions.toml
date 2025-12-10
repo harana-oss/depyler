@@ -9,114 +9,546 @@ category = "async"
 # Async For in Comprehension
 # =============================================================================
 
-# TODO: Test async list comprehension
-# [[test]]
-# name = "async_list_comp"
-# description = "[x async for x in async_iter]"
+[[test]]
+name = "async_list_comp"
+description = "[x async for x in async_iter]"
+python = """
+async def async_range(n):
+    for i in range(n):
+        yield i
 
-# TODO: Test async set comprehension
-# [[test]]
-# name = "async_set_comp"
-# description = "{x async for x in async_iter}"
+async def test():
+    result = [x async for x in async_range(5)]
+    return result
 
-# TODO: Test async dict comprehension
-# [[test]]
-# name = "async_dict_comp"
-# description = "{k: v async for k, v in async_iter}"
+import asyncio
+print(asyncio.run(test()))
+"""
+rust = """
+// Async comprehensions map to stream collectors
+use futures::stream::{self, StreamExt};
 
-# TODO: Test async generator expression
-# [[test]]
-# name = "async_gen_expr"
-# description = "(x async for x in async_iter)"
+#[tokio::main]
+async fn main() {
+    let result: Vec<i32> = stream::iter(0..5).collect().await;
+    println!("{:?}", result);
+}
+"""
+contains = ["[0, 1, 2, 3, 4]"]
+
+[[test]]
+name = "async_set_comp"
+description = "{x async for x in async_iter}"
+python = """
+async def async_range(n):
+    for i in range(n):
+        yield i
+
+async def test():
+    result = {x async for x in async_range(5)}
+    return sorted(result)
+
+import asyncio
+print(asyncio.run(test()))
+"""
+rust = """
+use futures::stream::{self, StreamExt};
+use std::collections::HashSet;
+
+#[tokio::main]
+async fn main() {
+    let result: HashSet<i32> = stream::iter(0..5).collect().await;
+    let mut sorted: Vec<_> = result.into_iter().collect();
+    sorted.sort();
+    println!("{:?}", sorted);
+}
+"""
+contains = ["[0, 1, 2, 3, 4]"]
+
+[[test]]
+name = "async_dict_comp"
+description = "{k: v async for k, v in async_iter}"
+python = """
+async def async_items():
+    items = [('a', 1), ('b', 2), ('c', 3)]
+    for item in items:
+        yield item
+
+async def test():
+    result = {k: v async for k, v in async_items()}
+    return result
+
+import asyncio
+print(asyncio.run(test()))
+"""
+rust = """
+use futures::stream::{self, StreamExt};
+use std::collections::HashMap;
+
+#[tokio::main]
+async fn main() {
+    let items = vec![("a", 1), ("b", 2), ("c", 3)];
+    let result: HashMap<&str, i32> = stream::iter(items).collect().await;
+    println!("{:?}", result);
+}
+"""
+contains = ["'a': 1", "'b': 2", "'c': 3"]
+
+[[test]]
+name = "async_gen_expr"
+description = "(x async for x in async_iter)"
+python = """
+async def async_range(n):
+    for i in range(n):
+        yield i
+
+async def test():
+    gen = (x async for x in async_range(5))
+    result = []
+    async for x in gen:
+        result.append(x)
+    return result
+
+import asyncio
+print(asyncio.run(test()))
+"""
+rust = """
+use futures::stream::{self, StreamExt};
+
+#[tokio::main]
+async fn main() {
+    let mut stream = stream::iter(0..5);
+    let mut result = Vec::new();
+    while let Some(x) = stream.next().await {
+        result.push(x);
+    }
+    println!("{:?}", result);
+}
+"""
+contains = ["[0, 1, 2, 3, 4]"]
 
 # =============================================================================
 # Await in Comprehension
 # =============================================================================
 
-# TODO: Test await in list comprehension
-# [[test]]
-# name = "await_in_comp"
-# description = "[await f(x) for x in items]"
+[[test]]
+name = "await_in_comp"
+description = "[await f(x) for x in items]"
+python = """
+async def fetch(x):
+    return x * 2
 
-# TODO: Test await in async for comprehension
-# [[test]]
-# name = "await_async_for_comp"
-# description = "[await f(x) async for x in async_iter]"
+async def test():
+    items = [1, 2, 3]
+    result = [await fetch(x) for x in items]
+    return result
 
-# TODO: Test await in filter
-# [[test]]
-# name = "await_in_filter"
-# description = "[x for x in items if await is_valid(x)]"
+import asyncio
+print(asyncio.run(test()))
+"""
+rust = """
+async fn fetch(x: i32) -> i32 {
+    x * 2
+}
+
+#[tokio::main]
+async fn main() {
+    let items = vec![1, 2, 3];
+    let mut result = Vec::new();
+    for x in items {
+        result.push(fetch(x).await);
+    }
+    println!("{:?}", result);
+}
+"""
+contains = ["[2, 4, 6]"]
+
+[[test]]
+name = "await_async_for_comp"
+description = "[await f(x) async for x in async_iter]"
+python = """
+async def async_range(n):
+    for i in range(n):
+        yield i
+
+async def process(x):
+    return x * 2
+
+async def test():
+    result = [await process(x) async for x in async_range(5)]
+    return result
+
+import asyncio
+print(asyncio.run(test()))
+"""
+rust = """
+use futures::stream::{self, StreamExt};
+
+async fn process(x: i32) -> i32 {
+    x * 2
+}
+
+#[tokio::main]
+async fn main() {
+    let stream = stream::iter(0..5);
+    let result: Vec<i32> = stream.then(|x| async move { process(x).await }).collect().await;
+    println!("{:?}", result);
+}
+"""
+contains = ["[0, 2, 4, 6, 8]"]
+
+[[test]]
+name = "await_in_filter"
+description = "[x for x in items if await is_valid(x)]"
+python = """
+async def is_valid(x):
+    return x % 2 == 0
+
+async def test():
+    items = [1, 2, 3, 4, 5]
+    result = [x for x in items if await is_valid(x)]
+    return result
+
+import asyncio
+print(asyncio.run(test()))
+"""
+rust = """
+async fn is_valid(x: i32) -> bool {
+    x % 2 == 0
+}
+
+#[tokio::main]
+async fn main() {
+    let items = vec![1, 2, 3, 4, 5];
+    let mut result = Vec::new();
+    for x in items {
+        if is_valid(x).await {
+            result.push(x);
+        }
+    }
+    println!("{:?}", result);
+}
+"""
+contains = ["[2, 4]"]
 
 # =============================================================================
 # Combined Patterns
 # =============================================================================
 
-# TODO: Test async for with condition
-# [[test]]
-# name = "async_comp_condition"
-# description = "[x async for x in iter if x > 0]"
+[[test]]
+name = "async_comp_condition"
+description = "[x async for x in iter if x > 0]"
+python = """
+async def async_range(start, end):
+    for i in range(start, end):
+        yield i
 
-# TODO: Test async for with await condition
-# [[test]]
-# name = "async_comp_await_cond"
-# description = "[x async for x in iter if await check(x)]"
+async def test():
+    result = [x async for x in async_range(-2, 3) if x > 0]
+    return result
 
-# TODO: Test nested async comprehension
-# [[test]]
-# name = "async_comp_nested"
-# description = "[y async for x in iter1 for y in x]"
+import asyncio
+print(asyncio.run(test()))
+"""
+rust = """
+use futures::stream::{self, StreamExt};
+
+#[tokio::main]
+async fn main() {
+    let result: Vec<i32> = stream::iter(-2..3)
+        .filter(|x| futures::future::ready(*x > 0))
+        .collect()
+        .await;
+    println!("{:?}", result);
+}
+"""
+contains = ["[1, 2]"]
+
+[[test]]
+name = "async_comp_await_cond"
+description = "[x async for x in iter if await check(x)]"
+python = """
+async def async_range(n):
+    for i in range(n):
+        yield i
+
+async def check(x):
+    return x % 2 == 0
+
+async def test():
+    result = [x async for x in async_range(5) if await check(x)]
+    return result
+
+import asyncio
+print(asyncio.run(test()))
+"""
+rust = """
+use futures::stream::{self, StreamExt};
+
+async fn check(x: i32) -> bool {
+    x % 2 == 0
+}
+
+#[tokio::main]
+async fn main() {
+    let result: Vec<i32> = stream::iter(0..5)
+        .filter(|x| async move { check(*x).await })
+        .collect()
+        .await;
+    println!("{:?}", result);
+}
+"""
+contains = ["[0, 2, 4]"]
+
+[[test]]
+name = "async_comp_nested"
+description = "[y async for x in iter1 for y in x]"
+python = """
+async def async_lists():
+    lists = [[1, 2], [3, 4], [5, 6]]
+    for lst in lists:
+        yield lst
+
+async def test():
+    result = [y async for x in async_lists() for y in x]
+    return result
+
+import asyncio
+print(asyncio.run(test()))
+"""
+rust = """
+use futures::stream::{self, StreamExt};
+
+#[tokio::main]
+async fn main() {
+    let lists = vec![vec![1, 2], vec![3, 4], vec![5, 6]];
+    let result: Vec<i32> = stream::iter(lists)
+        .flat_map(|lst| stream::iter(lst))
+        .collect()
+        .await;
+    println!("{:?}", result);
+}
+"""
+contains = ["[1, 2, 3, 4, 5, 6]"]
 
 # =============================================================================
 # Use Cases
 # =============================================================================
 
-# TODO: Test collecting async results
-# [[test]]
-# name = "async_comp_collect"
-# description = "Collect all results from async iterator"
+[[test]]
+name = "async_comp_collect"
+description = "Collect all results from async iterator"
+python = """
+async def fetch_data(items):
+    for item in items:
+        yield item * 2
 
-# TODO: Test transforming async stream
-# [[test]]
-# name = "async_comp_transform"
-# description = "Transform items from async stream"
+async def test():
+    items = [1, 2, 3, 4, 5]
+    results = [x async for x in fetch_data(items)]
+    return results
 
-# TODO: Test filtering async stream
-# [[test]]
-# name = "async_comp_filter"
-# description = "Filter items from async stream"
+import asyncio
+print(asyncio.run(test()))
+"""
+rust = """
+use futures::stream::{self, StreamExt};
+
+#[tokio::main]
+async fn main() {
+    let items = vec![1, 2, 3, 4, 5];
+    let results: Vec<i32> = stream::iter(items).map(|x| x * 2).collect().await;
+    println!("{:?}", results);
+}
+"""
+contains = ["[2, 4, 6, 8, 10]"]
+
+[[test]]
+name = "async_comp_transform"
+description = "Transform items from async stream"
+python = """
+async def async_data():
+    for x in range(1, 4):
+        yield x
+
+async def test():
+    results = [x ** 2 async for x in async_data()]
+    return results
+
+import asyncio
+print(asyncio.run(test()))
+"""
+rust = """
+use futures::stream::{self, StreamExt};
+
+#[tokio::main]
+async fn main() {
+    let results: Vec<i32> = stream::iter(1..4).map(|x| x * x).collect().await;
+    println!("{:?}", results);
+}
+"""
+contains = ["[1, 4, 9]"]
+
+[[test]]
+name = "async_comp_filter"
+description = "Filter items from async stream"
+python = """
+async def async_numbers():
+    for x in range(10):
+        yield x
+
+async def test():
+    evens = [x async for x in async_numbers() if x % 2 == 0]
+    return evens
+
+import asyncio
+print(asyncio.run(test()))
+"""
+rust = """
+use futures::stream::{self, StreamExt};
+
+#[tokio::main]
+async fn main() {
+    let evens: Vec<i32> = stream::iter(0..10)
+        .filter(|x| futures::future::ready(*x % 2 == 0))
+        .collect()
+        .await;
+    println!("{:?}", evens);
+}
+"""
+contains = ["[0, 2, 4, 6, 8]"]
 
 # =============================================================================
 # Context Requirements
 # =============================================================================
 
-# TODO: Test async comprehension context
-# [[test]]
-# name = "async_comp_context"
-# description = "async comprehension only in async function"
-# skip = true
+[[test]]
+name = "async_comp_context"
+description = "async comprehension only in async function"
+skip = true
+python = """
+# This would be a syntax error:
+# result = [x async for x in async_iter()]
+# SyntaxError: asynchronous comprehension outside of an async function
+"""
 
-# TODO: Test await comp in sync function
-# [[test]]
-# name = "await_comp_sync"
-# description = "[await x for ...] in sync function is error"
-# skip = true
+[[test]]
+name = "await_comp_sync"
+description = "[await x for ...] in sync function is error"
+skip = true
+python = """
+# This would be a syntax error:
+# def sync_function():
+#     result = [await x for x in items]
+# SyntaxError: 'await' outside async function
+"""
 
 # =============================================================================
 # Edge Cases
 # =============================================================================
 
-# TODO: Test empty async iterator
-# [[test]]
-# name = "async_comp_empty"
-# description = "[x async for x in empty_async]"
+[[test]]
+name = "async_comp_empty"
+description = "[x async for x in empty_async]"
+python = """
+async def empty_async():
+    return
+    yield
 
-# TODO: Test exception in async comprehension
-# [[test]]
-# name = "async_comp_exception"
-# description = "Exception during async comprehension"
+async def test():
+    result = [x async for x in empty_async()]
+    return result
 
-# TODO: Test memory efficiency
-# [[test]]
-# name = "async_comp_memory"
-# description = "Generator expression vs list comprehension"
+import asyncio
+print(asyncio.run(test()))
+"""
+rust = """
+use futures::stream::{self, StreamExt};
+
+#[tokio::main]
+async fn main() {
+    let result: Vec<i32> = stream::empty().collect().await;
+    println!("{:?}", result);
+}
+"""
+contains = ["[]"]
+
+[[test]]
+name = "async_comp_exception"
+description = "Exception during async comprehension"
+python = """
+async def failing_async():
+    for i in range(3):
+        if i == 2:
+            raise ValueError("Error at 2")
+        yield i
+
+async def test():
+    try:
+        result = [x async for x in failing_async()]
+        return result
+    except ValueError as e:
+        return str(e)
+
+import asyncio
+print(asyncio.run(test()))
+"""
+rust = """
+use futures::stream::{self, StreamExt};
+
+#[tokio::main]
+async fn main() {
+    let stream = stream::iter(0..3).map(|i| {
+        if i == 2 {
+            Err("Error at 2")
+        } else {
+            Ok(i)
+        }
+    });
+    
+    match stream.collect::<Vec<_>>().await.into_iter().collect::<Result<Vec<_>, _>>() {
+        Ok(result) => println!("{:?}", result),
+        Err(e) => println!("{}", e),
+    }
+}
+"""
+contains = ["Error at 2"]
+
+[[test]]
+name = "async_comp_memory"
+description = "Generator expression vs list comprehension"
+python = """
+async def async_range(n):
+    for i in range(n):
+        yield i
+
+async def test():
+    # List comprehension - evaluates immediately
+    list_comp = [x async for x in async_range(5)]
+    
+    # Generator expression - lazy evaluation
+    gen_expr = (x async for x in async_range(5))
+    gen_result = [x async for x in gen_expr]
+    
+    return list_comp, gen_result
+
+import asyncio
+result = asyncio.run(test())
+print(result[0], result[1])
+"""
+rust = """
+use futures::stream::{self, StreamExt};
+
+#[tokio::main]
+async fn main() {
+    // Eager collection
+    let list_comp: Vec<i32> = stream::iter(0..5).collect().await;
+    
+    // Lazy stream
+    let gen_expr = stream::iter(0..5);
+    let gen_result: Vec<i32> = gen_expr.collect().await;
+    
+    println!("{:?} {:?}", list_comp, gen_result);
+}
+"""
+contains = ["[0, 1, 2, 3, 4]"]

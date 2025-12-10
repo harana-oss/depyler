@@ -9,99 +9,496 @@ category = "modern-python"
 # Basic Keyword-Only
 # =============================================================================
 
-# TODO: Test bare * for keyword-only
-# [[test]]
-# name = "kwonly_basic"
-# description = "def f(*, x): ... (x must be keyword)"
+[[test]]
+name = "kwonly_basic"
+description = "def f(*, x): ... (x must be keyword)"
+python = """
+def greet(*, name):
+    return f"Hello, {name}!"
 
-# TODO: Test multiple keyword-only
-# [[test]]
-# name = "kwonly_multiple"
-# description = "def f(*, a, b, c): ..."
+print(greet(name="Alice"))
+"""
+rust = """
+struct GreetArgs {
+    name: String,
+}
 
-# TODO: Test keyword-only with defaults
-# [[test]]
-# name = "kwonly_defaults"
-# description = "def f(*, x=0, y=0): ..."
+fn greet(args: GreetArgs) -> String {
+    format!("Hello, {}!", args.name)
+}
+
+fn main() {
+    let args = GreetArgs { name: "Alice".to_string() };
+    println!("{}", greet(args));
+}
+"""
+contains = ["Hello, Alice!"]
+
+[[test]]
+name = "kwonly_multiple"
+description = "def f(*, a, b, c): ..."
+python = """
+def configure(*, host, port, debug):
+    return f"Connecting to {host}:{port} (debug={debug})"
+
+print(configure(host="localhost", port=8080, debug=True))
+"""
+rust = """
+struct ConfigArgs {
+    host: String,
+    port: u16,
+    debug: bool,
+}
+
+fn configure(args: ConfigArgs) -> String {
+    format!("Connecting to {}:{} (debug={})", args.host, args.port, args.debug)
+}
+
+fn main() {
+    let args = ConfigArgs {
+        host: "localhost".to_string(),
+        port: 8080,
+        debug: true,
+    };
+    println!("{}", configure(args));
+}
+"""
+contains = ["Connecting to localhost:8080 (debug=True)"]
+
+[[test]]
+name = "kwonly_defaults"
+description = "def f(*, x=0, y=0): ..."
+python = """
+def point(*, x=0, y=0):
+    return f"({x}, {y})"
+
+print(point())
+print(point(x=5))
+print(point(x=3, y=4))
+"""
+rust = """
+struct PointArgs {
+    x: i32,
+    y: i32,
+}
+
+impl Default for PointArgs {
+    fn default() -> Self {
+        PointArgs { x: 0, y: 0 }
+    }
+}
+
+fn point(args: PointArgs) -> String {
+    format!("({}, {})", args.x, args.y)
+}
+
+fn main() {
+    println!("{}", point(PointArgs::default()));
+    println!("{}", point(PointArgs { x: 5, ..Default::default() }));
+    println!("{}", point(PointArgs { x: 3, y: 4 }));
+}
+"""
+contains = ["(0, 0)", "(5, 0)", "(3, 4)"]
 
 # =============================================================================
 # Combined with Regular Args
 # =============================================================================
 
-# TODO: Test regular and keyword-only
-# [[test]]
-# name = "kwonly_with_regular"
-# description = "def f(a, b, *, c, d): ..."
+[[test]]
+name = "kwonly_with_regular"
+description = "def f(a, b, *, c, d): ..."
+python = """
+def mixed(a, b, *, c, d):
+    return f"a={a}, b={b}, c={c}, d={d}"
 
-# TODO: Test *args before keyword-only
-# [[test]]
-# name = "kwonly_with_varargs"
-# description = "def f(*args, x, y): ..."
+print(mixed(1, 2, c=3, d=4))
+"""
+rust = """
+fn mixed(a: i32, b: i32, c: i32, d: i32) -> String {
+    format!("a={}, b={}, c={}, d={}", a, b, c, d)
+}
 
-# TODO: Test **kwargs after keyword-only
-# [[test]]
-# name = "kwonly_with_kwargs"
-# description = "def f(*, x, **kwargs): ..."
+fn main() {
+    println!("{}", mixed(1, 2, 3, 4));
+}
+"""
+contains = ["a=1, b=2, c=3, d=4"]
+
+[[test]]
+name = "kwonly_with_varargs"
+description = "def f(*args, x, y): ..."
+python = """
+def varargs_kwonly(*args, x, y):
+    return f"args={args}, x={x}, y={y}"
+
+print(varargs_kwonly(1, 2, 3, x=10, y=20))
+"""
+rust = """
+fn varargs_kwonly(args: &[i32], x: i32, y: i32) -> String {
+    format!("args={:?}, x={}, y={}", args, x, y)
+}
+
+fn main() {
+    let args = vec![1, 2, 3];
+    println!("{}", varargs_kwonly(&args, 10, 20));
+}
+"""
+contains = ["args=(1, 2, 3), x=10, y=20"]
+
+[[test]]
+name = "kwonly_with_kwargs"
+description = "def f(*, x, **kwargs): ..."
+python = """
+def kwonly_kwargs(*, x, **kwargs):
+    print(f"x={x}")
+    for k, v in kwargs.items():
+        print(f"{k}={v}")
+
+kwonly_kwargs(x=5, a=1, b=2)
+"""
+rust = """
+use std::collections::HashMap;
+
+fn kwonly_kwargs(x: i32, kwargs: &HashMap<&str, i32>) {
+    println!("x={}", x);
+    for (k, v) in kwargs {
+        println!("{}={}", k, v);
+    }
+}
+
+fn main() {
+    let mut kwargs = HashMap::new();
+    kwargs.insert("a", 1);
+    kwargs.insert("b", 2);
+    kwonly_kwargs(5, &kwargs);
+}
+"""
+contains = ["x=5", "a=1", "b=2"]
 
 # =============================================================================
 # Use Cases
 # =============================================================================
 
-# TODO: Test forcing keyword usage
-# [[test]]
-# name = "kwonly_force_named"
-# description = "f(x=1) required, f(1) raises TypeError"
+[[test]]
+name = "kwonly_force_named"
+description = "f(x=1) required, f(1) raises TypeError"
+python = """
+def create_user(*, username, email):
+    return f"User: {username} <{email}>"
 
-# TODO: Test self-documenting calls
-# [[test]]
-# name = "kwonly_self_doc"
-# description = "f(verbose=True, recursive=False)"
+# This works
+print(create_user(username="alice", email="alice@example.com"))
+# This would fail: create_user("alice", "alice@example.com")
+"""
+rust = """
+struct CreateUserArgs {
+    username: String,
+    email: String,
+}
 
-# TODO: Test preventing argument confusion
-# [[test]]
-# name = "kwonly_clarity"
-# description = "Avoid confusion with multiple similar args"
+fn create_user(args: CreateUserArgs) -> String {
+    format!("User: {} <{}>", args.username, args.email)
+}
+
+fn main() {
+    let args = CreateUserArgs {
+        username: "alice".to_string(),
+        email: "alice@example.com".to_string(),
+    };
+    println!("{}", create_user(args));
+}
+"""
+contains = ["User: alice <alice@example.com>"]
+
+[[test]]
+name = "kwonly_self_doc"
+description = "f(verbose=True, recursive=False)"
+python = """
+def process_files(*, verbose=False, recursive=False, backup=True):
+    flags = []
+    if verbose:
+        flags.append("verbose")
+    if recursive:
+        flags.append("recursive")
+    if backup:
+        flags.append("backup")
+    return f"Processing with: {', '.join(flags)}"
+
+print(process_files(verbose=True, recursive=False))
+"""
+rust = """
+struct ProcessFilesArgs {
+    verbose: bool,
+    recursive: bool,
+    backup: bool,
+}
+
+fn process_files(args: ProcessFilesArgs) -> String {
+    let mut flags = Vec::new();
+    if args.verbose { flags.push("verbose"); }
+    if args.recursive { flags.push("recursive"); }
+    if args.backup { flags.push("backup"); }
+    format!("Processing with: {}", flags.join(", "))
+}
+
+fn main() {
+    let args = ProcessFilesArgs {
+        verbose: true,
+        recursive: false,
+        backup: true,
+    };
+    println!("{}", process_files(args));
+}
+"""
+contains = ["Processing with: verbose, backup"]
+
+[[test]]
+name = "kwonly_clarity"
+description = "Avoid confusion with multiple similar args"
+python = """
+def resize_image(*, width, height, maintain_aspect=True):
+    return f"Resizing to {width}x{height} (maintain={maintain_aspect})"
+
+# Clear what each number means
+print(resize_image(width=800, height=600, maintain_aspect=False))
+"""
+rust = """
+struct ResizeImageArgs {
+    width: u32,
+    height: u32,
+    maintain_aspect: bool,
+}
+
+fn resize_image(args: ResizeImageArgs) -> String {
+    format!("Resizing to {}x{} (maintain={})", 
+            args.width, args.height, args.maintain_aspect)
+}
+
+fn main() {
+    let args = ResizeImageArgs {
+        width: 800,
+        height: 600,
+        maintain_aspect: false,
+    };
+    println!("{}", resize_image(args));
+}
+"""
+contains = ["Resizing to 800x600 (maintain=False)"]
 
 # =============================================================================
 # Required vs Optional Keyword-Only
 # =============================================================================
 
-# TODO: Test required keyword-only
-# [[test]]
-# name = "kwonly_required"
-# description = "def f(*, x): x has no default, must be passed"
+[[test]]
+name = "kwonly_required"
+description = "def f(*, x): x has no default, must be passed"
+python = """
+def login(*, username):
+    return f"Logging in as {username}"
 
-# TODO: Test optional keyword-only
-# [[test]]
-# name = "kwonly_optional"
-# description = "def f(*, x=None): x has default"
+print(login(username="admin"))
+"""
+rust = """
+struct LoginArgs {
+    username: String,
+}
 
-# TODO: Test mixed required and optional
-# [[test]]
-# name = "kwonly_mixed_req"
-# description = "def f(*, a, b=0): a required, b optional"
+fn login(args: LoginArgs) -> String {
+    format!("Logging in as {}", args.username)
+}
+
+fn main() {
+    let args = LoginArgs {
+        username: "admin".to_string(),
+    };
+    println!("{}", login(args));
+}
+"""
+contains = ["Logging in as admin"]
+
+[[test]]
+name = "kwonly_optional"
+description = "def f(*, x=None): x has default"
+python = """
+def connect(*, timeout=30):
+    return f"Connecting with timeout={timeout}s"
+
+print(connect())
+print(connect(timeout=60))
+"""
+rust = """
+struct ConnectArgs {
+    timeout: u32,
+}
+
+impl Default for ConnectArgs {
+    fn default() -> Self {
+        ConnectArgs { timeout: 30 }
+    }
+}
+
+fn connect(args: ConnectArgs) -> String {
+    format!("Connecting with timeout={}s", args.timeout)
+}
+
+fn main() {
+    println!("{}", connect(ConnectArgs::default()));
+    println!("{}", connect(ConnectArgs { timeout: 60 }));
+}
+"""
+contains = ["Connecting with timeout=30s", "Connecting with timeout=60s"]
+
+[[test]]
+name = "kwonly_mixed_req"
+description = "def f(*, a, b=0): a required, b optional"
+python = """
+def setup(*, host, port=8080):
+    return f"Server at {host}:{port}"
+
+print(setup(host="localhost"))
+print(setup(host="example.com", port=9000))
+"""
+rust = """
+struct SetupArgs {
+    host: String,
+    port: u16,
+}
+
+impl SetupArgs {
+    fn new(host: String) -> Self {
+        SetupArgs { host, port: 8080 }
+    }
+}
+
+fn setup(args: SetupArgs) -> String {
+    format!("Server at {}:{}", args.host, args.port)
+}
+
+fn main() {
+    println!("{}", setup(SetupArgs::new("localhost".to_string())));
+    println!("{}", setup(SetupArgs {
+        host: "example.com".to_string(),
+        port: 9000,
+    }));
+}
+"""
+contains = ["Server at localhost:8080", "Server at example.com:9000"]
 
 # =============================================================================
 # Edge Cases
 # =============================================================================
 
-# TODO: Test keyword-only with type hints
-# [[test]]
-# name = "kwonly_type_hints"
-# description = "def f(*, x: int, y: str = ''): ..."
+[[test]]
+name = "kwonly_type_hints"
+description = "def f(*, x: int, y: str = ''): ..."
+python = """
+def typed_func(*, count: int, message: str = "default"):
+    return f"{message}: {count}"
 
-# TODO: Test keyword-only in method
-# [[test]]
-# name = "kwonly_method"
-# description = "def method(self, *, x): ..."
+print(typed_func(count=42))
+print(typed_func(count=5, message="Items"))
+"""
+rust = """
+struct TypedFuncArgs {
+    count: i32,
+    message: String,
+}
 
-# TODO: Test keyword-only with classmethod
-# [[test]]
-# name = "kwonly_classmethod"
-# description = "@classmethod def f(cls, *, x): ..."
+impl TypedFuncArgs {
+    fn new(count: i32) -> Self {
+        TypedFuncArgs {
+            count,
+            message: "default".to_string(),
+        }
+    }
+}
 
-# TODO: Test * without following args (valid but useless)
-# [[test]]
-# name = "kwonly_bare_star_end"
-# description = "def f(a, *): is syntax error"
-# skip = true
+fn typed_func(args: TypedFuncArgs) -> String {
+    format!("{}: {}", args.message, args.count)
+}
+
+fn main() {
+    println!("{}", typed_func(TypedFuncArgs::new(42)));
+    println!("{}", typed_func(TypedFuncArgs {
+        count: 5,
+        message: "Items".to_string(),
+    }));
+}
+"""
+contains = ["default: 42", "Items: 5"]
+
+[[test]]
+name = "kwonly_method"
+description = "def method(self, *, x): ..."
+python = """
+class Calculator:
+    def __init__(self):
+        self.base = 10
+    
+    def add(self, *, value):
+        return self.base + value
+
+calc = Calculator()
+print(calc.add(value=5))
+"""
+rust = """
+struct Calculator {
+    base: i32,
+}
+
+impl Calculator {
+    fn new() -> Self {
+        Calculator { base: 10 }
+    }
+    
+    fn add(&self, value: i32) -> i32 {
+        self.base + value
+    }
+}
+
+fn main() {
+    let calc = Calculator::new();
+    println!("{}", calc.add(5));
+}
+"""
+contains = ["15"]
+
+[[test]]
+name = "kwonly_classmethod"
+description = "@classmethod def f(cls, *, x): ..."
+python = """
+class Factory:
+    @classmethod
+    def create(cls, *, name, value):
+        return f"Creating {name}={value}"
+
+print(Factory.create(name="item", value=42))
+"""
+rust = """
+struct Factory;
+
+impl Factory {
+    fn create(name: &str, value: i32) -> String {
+        format!("Creating {}={}", name, value)
+    }
+}
+
+fn main() {
+    println!("{}", Factory::create("item", 42));
+}
+"""
+contains = ["Creating item=42"]
+
+[[test]]
+name = "kwonly_bare_star_end"
+description = "def f(a, *): is syntax error"
+skip = true
+python = """
+# This is invalid syntax - * needs to be followed by kwargs
+# def invalid(a, *):
+#     pass
+"""
+rust = """
+// N/A - syntax error
+"""
+contains = []

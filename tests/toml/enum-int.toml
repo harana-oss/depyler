@@ -9,136 +9,823 @@ category = "data-structures"
 # Basic IntEnum
 # =============================================================================
 
-# TODO: Test IntEnum
-# [[test]]
-# name = "intenum_basic"
-# description = "class Priority(IntEnum): LOW = 1; HIGH = 2"
+[[test]]
+name = "intenum_basic"
+description = "IntEnum inherits from both int and Enum"
+tags = ["enum", "int-enum"]
+python = '''
+from enum import IntEnum
 
-# TODO: Test int operations
-# [[test]]
-# name = "intenum_int_ops"
-# description = "Priority.HIGH + 1"
+class Priority(IntEnum):
+    LOW = 1
+    MEDIUM = 2
+    HIGH = 3
 
-# TODO: Test comparison with int
-# [[test]]
-# name = "intenum_compare_int"
-# description = "Priority.HIGH == 2"
+assert Priority.LOW == 1
+assert Priority.HIGH == 3
+assert isinstance(Priority.LOW, int)
+'''
+rust = '''
+#[repr(i32)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum Priority {
+    Low = 1,
+    Medium = 2,
+    High = 3,
+}
 
-# TODO: Test ordering
-# [[test]]
-# name = "intenum_ordering"
-# description = "Priority.LOW < Priority.HIGH"
+assert_eq!(Priority::Low as i32, 1);
+assert_eq!(Priority::High as i32, 3);
+'''
+
+[[test]]
+name = "intenum_int_ops"
+description = "IntEnum can be used in arithmetic"
+tags = ["enum", "int-enum"]
+python = '''
+from enum import IntEnum
+
+class Priority(IntEnum):
+    LOW = 1
+    HIGH = 2
+
+result = Priority.HIGH + 1
+assert result == 3
+assert isinstance(result, int)
+'''
+rust = '''
+#[repr(i32)]
+#[derive(Debug, Clone, Copy)]
+enum Priority {
+    Low = 1,
+    High = 2,
+}
+
+let result = (Priority::High as i32) + 1;
+assert_eq!(result, 3);
+'''
+
+[[test]]
+name = "intenum_compare_int"
+description = "IntEnum can be compared with int"
+tags = ["enum", "int-enum"]
+python = '''
+from enum import IntEnum
+
+class Priority(IntEnum):
+    LOW = 1
+    HIGH = 2
+
+assert Priority.HIGH == 2
+assert Priority.LOW == 1
+assert 2 == Priority.HIGH
+'''
+rust = '''
+#[repr(i32)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum Priority {
+    Low = 1,
+    High = 2,
+}
+
+assert_eq!(Priority::High as i32, 2);
+assert_eq!(Priority::Low as i32, 1);
+assert_eq!(2, Priority::High as i32);
+'''
+
+[[test]]
+name = "intenum_ordering"
+description = "IntEnum supports ordering operations"
+tags = ["enum", "int-enum"]
+python = '''
+from enum import IntEnum
+
+class Priority(IntEnum):
+    LOW = 1
+    MEDIUM = 2
+    HIGH = 3
+
+assert Priority.LOW < Priority.HIGH
+assert Priority.HIGH > Priority.MEDIUM
+assert Priority.MEDIUM >= Priority.LOW
+'''
+rust = '''
+#[repr(i32)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+enum Priority {
+    Low = 1,
+    Medium = 2,
+    High = 3,
+}
+
+assert!(Priority::Low < Priority::High);
+assert!(Priority::High > Priority::Medium);
+assert!(Priority::Medium >= Priority::Low);
+'''
 
 # =============================================================================
 # IntEnum Arithmetic
 # =============================================================================
 
-# TODO: Test addition
-# [[test]]
-# name = "intenum_add"
-# description = "Priority.LOW + 1"
+[[test]]
+name = "intenum_add"
+description = "Addition with IntEnum"
+tags = ["enum", "int-enum", "arithmetic"]
+python = '''
+from enum import IntEnum
 
-# TODO: Test subtraction
-# [[test]]
-# name = "intenum_sub"
-# description = "Priority.HIGH - 1"
+class Priority(IntEnum):
+    LOW = 1
+    HIGH = 2
 
-# TODO: Test multiplication
-# [[test]]
-# name = "intenum_mul"
-# description = "Priority.LOW * 2"
+result = Priority.LOW + 1
+assert result == 2
+result2 = 5 + Priority.HIGH
+assert result2 == 7
+'''
+rust = '''
+#[repr(i32)]
+#[derive(Debug, Clone, Copy)]
+enum Priority {
+    Low = 1,
+    High = 2,
+}
+
+let result = (Priority::Low as i32) + 1;
+assert_eq!(result, 2);
+let result2 = 5 + (Priority::High as i32);
+assert_eq!(result2, 7);
+'''
+
+[[test]]
+name = "intenum_sub"
+description = "Subtraction with IntEnum"
+tags = ["enum", "int-enum", "arithmetic"]
+python = '''
+from enum import IntEnum
+
+class Priority(IntEnum):
+    LOW = 1
+    HIGH = 3
+
+result = Priority.HIGH - 1
+assert result == 2
+result2 = 10 - Priority.HIGH
+assert result2 == 7
+'''
+rust = '''
+#[repr(i32)]
+#[derive(Debug, Clone, Copy)]
+enum Priority {
+    Low = 1,
+    High = 3,
+}
+
+let result = (Priority::High as i32) - 1;
+assert_eq!(result, 2);
+let result2 = 10 - (Priority::High as i32);
+assert_eq!(result2, 7);
+'''
+
+[[test]]
+name = "intenum_mul"
+description = "Multiplication with IntEnum"
+tags = ["enum", "int-enum", "arithmetic"]
+python = '''
+from enum import IntEnum
+
+class Priority(IntEnum):
+    LOW = 2
+    HIGH = 5
+
+result = Priority.LOW * 2
+assert result == 4
+result2 = 3 * Priority.HIGH
+assert result2 == 15
+'''
+rust = '''
+#[repr(i32)]
+#[derive(Debug, Clone, Copy)]
+enum Priority {
+    Low = 2,
+    High = 5,
+}
+
+let result = (Priority::Low as i32) * 2;
+assert_eq!(result, 4);
+let result2 = 3 * (Priority::High as i32);
+assert_eq!(result2, 15);
+'''
 
 # =============================================================================
 # IntFlag
 # =============================================================================
 
-# TODO: Test IntFlag
-# [[test]]
-# name = "intflag_basic"
-# description = "class Perm(IntFlag): R = 4; W = 2; X = 1"
+[[test]]
+name = "intflag_basic"
+description = "IntFlag for bitwise flag operations"
+tags = ["enum", "int-flag"]
+python = '''
+from enum import IntFlag
 
-# TODO: Test bitwise OR
-# [[test]]
-# name = "intflag_or"
-# description = "Perm.R | Perm.W"
+class Perm(IntFlag):
+    R = 4
+    W = 2
+    X = 1
 
-# TODO: Test bitwise AND
-# [[test]]
-# name = "intflag_and"
-# description = "(Perm.R | Perm.W) & Perm.R"
+assert Perm.R == 4
+assert Perm.W == 2
+assert Perm.X == 1
+'''
+rust = '''
+use std::ops::{BitOr, BitAnd};
 
-# TODO: Test membership check
-# [[test]]
-# name = "intflag_in"
-# description = "Perm.R in (Perm.R | Perm.W)"
+#[repr(i32)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+struct Perm(i32);
+
+impl Perm {
+    const R: Perm = Perm(4);
+    const W: Perm = Perm(2);
+    const X: Perm = Perm(1);
+}
+
+impl BitOr for Perm {
+    type Output = Perm;
+    fn bitor(self, rhs: Self) -> Self::Output {
+        Perm(self.0 | rhs.0)
+    }
+}
+
+impl BitAnd for Perm {
+    type Output = Perm;
+    fn bitand(self, rhs: Self) -> Self::Output {
+        Perm(self.0 & rhs.0)
+    }
+}
+
+assert_eq!(Perm::R.0, 4);
+assert_eq!(Perm::W.0, 2);
+assert_eq!(Perm::X.0, 1);
+'''
+
+[[test]]
+name = "intflag_or"
+description = "Combine flags with bitwise OR"
+tags = ["enum", "int-flag"]
+python = '''
+from enum import IntFlag
+
+class Perm(IntFlag):
+    R = 4
+    W = 2
+    X = 1
+
+rw = Perm.R | Perm.W
+assert rw == 6
+assert isinstance(rw, Perm)
+'''
+rust = '''
+use std::ops::BitOr;
+
+#[repr(i32)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+struct Perm(i32);
+
+impl Perm {
+    const R: Perm = Perm(4);
+    const W: Perm = Perm(2);
+    const X: Perm = Perm(1);
+}
+
+impl BitOr for Perm {
+    type Output = Perm;
+    fn bitor(self, rhs: Self) -> Self::Output {
+        Perm(self.0 | rhs.0)
+    }
+}
+
+let rw = Perm::R | Perm::W;
+assert_eq!(rw.0, 6);
+'''
+
+[[test]]
+name = "intflag_and"
+description = "Test flags with bitwise AND"
+tags = ["enum", "int-flag"]
+python = '''
+from enum import IntFlag
+
+class Perm(IntFlag):
+    R = 4
+    W = 2
+    X = 1
+
+rw = Perm.R | Perm.W
+has_read = (rw & Perm.R) == Perm.R
+has_execute = (rw & Perm.X) == Perm.X
+assert has_read
+assert not has_execute
+'''
+rust = '''
+use std::ops::{BitOr, BitAnd};
+
+#[repr(i32)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+struct Perm(i32);
+
+impl Perm {
+    const R: Perm = Perm(4);
+    const W: Perm = Perm(2);
+    const X: Perm = Perm(1);
+}
+
+impl BitOr for Perm {
+    type Output = Perm;
+    fn bitor(self, rhs: Self) -> Self::Output {
+        Perm(self.0 | rhs.0)
+    }
+}
+
+impl BitAnd for Perm {
+    type Output = Perm;
+    fn bitand(self, rhs: Self) -> Self::Output {
+        Perm(self.0 & rhs.0)
+    }
+}
+
+let rw = Perm::R | Perm::W;
+let has_read = (rw & Perm::R).0 == Perm::R.0;
+let has_execute = (rw & Perm::X).0 == Perm::X.0;
+assert!(has_read);
+assert!(!has_execute);
+'''
+
+[[test]]
+name = "intflag_in"
+description = "Check flag membership"
+tags = ["enum", "int-flag"]
+python = '''
+from enum import IntFlag
+
+class Perm(IntFlag):
+    R = 4
+    W = 2
+    X = 1
+
+rw = Perm.R | Perm.W
+assert Perm.R in rw
+assert Perm.W in rw
+assert Perm.X not in rw
+'''
+rust = '''
+use std::ops::{BitOr, BitAnd};
+
+#[repr(i32)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+struct Perm(i32);
+
+impl Perm {
+    const R: Perm = Perm(4);
+    const W: Perm = Perm(2);
+    const X: Perm = Perm(1);
+    
+    fn contains(self, flag: Perm) -> bool {
+        (self.0 & flag.0) == flag.0
+    }
+}
+
+impl BitOr for Perm {
+    type Output = Perm;
+    fn bitor(self, rhs: Self) -> Self::Output {
+        Perm(self.0 | rhs.0)
+    }
+}
+
+let rw = Perm::R | Perm::W;
+assert!(rw.contains(Perm::R));
+assert!(rw.contains(Perm::W));
+assert!(!rw.contains(Perm::X));
+'''
 
 # =============================================================================
 # Flag
 # =============================================================================
 
-# TODO: Test Flag
-# [[test]]
-# name = "flag_basic"
-# description = "class Color(Flag): RED = auto(); GREEN = auto()"
+[[test]]
+name = "flag_basic"
+description = "Flag with auto() for power-of-two values"
+tags = ["enum", "flag"]
+python = '''
+from enum import Flag, auto
 
-# TODO: Test Flag combination
-# [[test]]
-# name = "flag_combine"
-# description = "Color.RED | Color.GREEN"
+class Color(Flag):
+    RED = auto()
+    GREEN = auto()
+    BLUE = auto()
 
-# TODO: Test Flag iteration
-# [[test]]
-# name = "flag_iter"
-# description = "list(Color.RED | Color.GREEN)"
+assert Color.RED.value == 1
+assert Color.GREEN.value == 2
+assert Color.BLUE.value == 4
+'''
+rust = '''
+use std::ops::BitOr;
+
+#[repr(i32)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+struct Color(i32);
+
+impl Color {
+    const RED: Color = Color(1);
+    const GREEN: Color = Color(2);
+    const BLUE: Color = Color(4);
+}
+
+impl BitOr for Color {
+    type Output = Color;
+    fn bitor(self, rhs: Self) -> Self::Output {
+        Color(self.0 | rhs.0)
+    }
+}
+
+assert_eq!(Color::RED.0, 1);
+assert_eq!(Color::GREEN.0, 2);
+assert_eq!(Color::BLUE.0, 4);
+'''
+
+[[test]]
+name = "flag_combine"
+description = "Combine Flag values"
+tags = ["enum", "flag"]
+python = '''
+from enum import Flag, auto
+
+class Color(Flag):
+    RED = auto()
+    GREEN = auto()
+    BLUE = auto()
+
+purple = Color.RED | Color.BLUE
+assert purple.value == 5
+'''
+rust = '''
+use std::ops::BitOr;
+
+#[repr(i32)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+struct Color(i32);
+
+impl Color {
+    const RED: Color = Color(1);
+    const GREEN: Color = Color(2);
+    const BLUE: Color = Color(4);
+}
+
+impl BitOr for Color {
+    type Output = Color;
+    fn bitor(self, rhs: Self) -> Self::Output {
+        Color(self.0 | rhs.0)
+    }
+}
+
+let purple = Color::RED | Color::BLUE;
+assert_eq!(purple.0, 5);
+'''
+
+[[test]]
+name = "flag_iter"
+description = "Iterate over flags in a combination"
+tags = ["enum", "flag"]
+skip = ["complex-iteration"]
+python = '''
+from enum import Flag, auto
+
+class Color(Flag):
+    RED = auto()
+    GREEN = auto()
+    BLUE = auto()
+
+purple = Color.RED | Color.BLUE
+flags = list(purple)
+assert len(flags) == 2
+assert Color.RED in flags
+assert Color.BLUE in flags
+'''
+rust = '''
+// Rust doesn't have built-in flag iteration
+// Would need custom implementation
+use std::ops::BitOr;
+
+#[repr(i32)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+struct Color(i32);
+
+impl Color {
+    const RED: Color = Color(1);
+    const GREEN: Color = Color(2);
+    const BLUE: Color = Color(4);
+    
+    fn iter_flags(self) -> Vec<Color> {
+        let mut result = Vec::new();
+        if self.0 & Color::RED.0 != 0 {
+            result.push(Color::RED);
+        }
+        if self.0 & Color::GREEN.0 != 0 {
+            result.push(Color::GREEN);
+        }
+        if self.0 & Color::BLUE.0 != 0 {
+            result.push(Color::BLUE);
+        }
+        result
+    }
+}
+
+impl BitOr for Color {
+    type Output = Color;
+    fn bitor(self, rhs: Self) -> Self::Output {
+        Color(self.0 | rhs.0)
+    }
+}
+
+let purple = Color::RED | Color::BLUE;
+let flags = purple.iter_flags();
+assert_eq!(flags.len(), 2);
+'''
 
 # =============================================================================
 # StrEnum (Python 3.11+)
 # =============================================================================
 
-# TODO: Test StrEnum
-# [[test]]
-# name = "strenum_basic"
-# description = "class Status(StrEnum): OK = 'ok'"
+[[test]]
+name = "strenum_basic"
+description = "StrEnum with string values"
+tags = ["enum", "str-enum"]
+skip = ["python-3.11"]
+python = '''
+# Python 3.11+
+from enum import StrEnum
 
-# TODO: Test string operations
-# [[test]]
-# name = "strenum_str_ops"
-# description = "Status.OK.upper()"
+class Status(StrEnum):
+    OK = "ok"
+    ERROR = "error"
 
-# TODO: Test auto StrEnum
-# [[test]]
-# name = "strenum_auto"
-# description = "class S(StrEnum): A = auto() # 'a'"
+assert Status.OK == "ok"
+assert isinstance(Status.OK, str)
+'''
+rust = '''
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum Status {
+    Ok,
+    Error,
+}
+
+impl Status {
+    fn as_str(&self) -> &'static str {
+        match self {
+            Status::Ok => "ok",
+            Status::Error => "error",
+        }
+    }
+}
+
+assert_eq!(Status::Ok.as_str(), "ok");
+'''
+
+[[test]]
+name = "strenum_str_ops"
+description = "StrEnum supports string operations"
+tags = ["enum", "str-enum"]
+skip = ["python-3.11"]
+python = '''
+# Python 3.11+
+from enum import StrEnum
+
+class Status(StrEnum):
+    OK = "ok"
+
+assert Status.OK.upper() == "OK"
+assert Status.OK.startswith("o")
+'''
+rust = '''
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum Status {
+    Ok,
+}
+
+impl Status {
+    fn as_str(&self) -> &'static str {
+        match self {
+            Status::Ok => "ok",
+        }
+    }
+}
+
+assert_eq!(Status::Ok.as_str().to_uppercase(), "OK");
+assert!(Status::Ok.as_str().starts_with("o"));
+'''
+
+[[test]]
+name = "strenum_auto"
+description = "StrEnum with auto() generates lowercase name"
+tags = ["enum", "str-enum"]
+skip = ["python-3.11"]
+python = '''
+# Python 3.11+
+from enum import StrEnum, auto
+
+class Status(StrEnum):
+    PENDING = auto()
+    APPROVED = auto()
+
+assert Status.PENDING == "pending"
+assert Status.APPROVED == "approved"
+'''
+rust = '''
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum Status {
+    Pending,
+    Approved,
+}
+
+impl Status {
+    fn as_str(&self) -> &'static str {
+        match self {
+            Status::Pending => "pending",
+            Status::Approved => "approved",
+        }
+    }
+}
+
+assert_eq!(Status::Pending.as_str(), "pending");
+assert_eq!(Status::Approved.as_str(), "approved");
+'''
 
 # =============================================================================
 # Type Mixing
 # =============================================================================
 
-# TODO: Test used as int
-# [[test]]
-# name = "intenum_as_int"
-# description = "range(Priority.LOW, Priority.HIGH)"
+[[test]]
+name = "intenum_as_int"
+description = "IntEnum used in range()"
+tags = ["enum", "int-enum"]
+python = '''
+from enum import IntEnum
 
-# TODO: Test in calculations
-# [[test]]
-# name = "intenum_calc"
-# description = "sum([Priority.LOW, Priority.HIGH])"
+class Priority(IntEnum):
+    LOW = 1
+    HIGH = 5
+
+values = list(range(Priority.LOW, Priority.HIGH))
+assert values == [1, 2, 3, 4]
+'''
+rust = '''
+#[repr(i32)]
+#[derive(Debug, Clone, Copy)]
+enum Priority {
+    Low = 1,
+    High = 5,
+}
+
+let values: Vec<i32> = ((Priority::Low as i32)..(Priority::High as i32)).collect();
+assert_eq!(values, vec![1, 2, 3, 4]);
+'''
+
+[[test]]
+name = "intenum_calc"
+description = "IntEnum in calculations"
+tags = ["enum", "int-enum"]
+python = '''
+from enum import IntEnum
+
+class Priority(IntEnum):
+    LOW = 1
+    MEDIUM = 2
+    HIGH = 3
+
+total = sum([Priority.LOW, Priority.MEDIUM, Priority.HIGH])
+assert total == 6
+'''
+rust = '''
+#[repr(i32)]
+#[derive(Debug, Clone, Copy)]
+enum Priority {
+    Low = 1,
+    Medium = 2,
+    High = 3,
+}
+
+let total = (Priority::Low as i32) + (Priority::Medium as i32) + (Priority::High as i32);
+assert_eq!(total, 6);
+'''
 
 # =============================================================================
 # Edge Cases
 # =============================================================================
 
-# TODO: Test IntEnum comparison order
-# [[test]]
-# name = "intenum_sort"
-# description = "sorted([Priority.HIGH, Priority.LOW])"
+[[test]]
+name = "intenum_sort"
+description = "Sort IntEnum values"
+tags = ["enum", "int-enum", "edge-case"]
+python = '''
+from enum import IntEnum
 
-# TODO: Test IntEnum in dict
-# [[test]]
-# name = "intenum_dict"
-# description = "{Priority.HIGH: 'important'}"
+class Priority(IntEnum):
+    LOW = 1
+    MEDIUM = 2
+    HIGH = 3
 
-# TODO: Test zero flag
-# [[test]]
-# name = "intflag_zero"
-# description = "Perm(0) or Perm.NONE"
+values = [Priority.HIGH, Priority.LOW, Priority.MEDIUM]
+sorted_values = sorted(values)
+assert sorted_values == [Priority.LOW, Priority.MEDIUM, Priority.HIGH]
+'''
+rust = '''
+#[repr(i32)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+enum Priority {
+    Low = 1,
+    Medium = 2,
+    High = 3,
+}
+
+let mut values = vec![Priority::High, Priority::Low, Priority::Medium];
+values.sort();
+assert_eq!(values, vec![Priority::Low, Priority::Medium, Priority::High]);
+'''
+
+[[test]]
+name = "intenum_dict"
+description = "IntEnum as dict key"
+tags = ["enum", "int-enum", "edge-case"]
+python = '''
+from enum import IntEnum
+
+class Priority(IntEnum):
+    LOW = 1
+    HIGH = 2
+
+mapping = {
+    Priority.HIGH: "important",
+    Priority.LOW: "can wait"
+}
+
+assert mapping[Priority.HIGH] == "important"
+assert mapping[2] == "important"  # Can use int value
+'''
+rust = '''
+use std::collections::HashMap;
+
+#[repr(i32)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+enum Priority {
+    Low = 1,
+    High = 2,
+}
+
+let mut mapping = HashMap::new();
+mapping.insert(Priority::High, "important");
+mapping.insert(Priority::Low, "can wait");
+
+assert_eq!(mapping[&Priority::High], "important");
+// Rust: can't mix enum and int as keys
+'''
+
+[[test]]
+name = "intflag_zero"
+description = "Zero value for IntFlag"
+tags = ["enum", "int-flag", "edge-case"]
+python = '''
+from enum import IntFlag
+
+class Perm(IntFlag):
+    NONE = 0
+    R = 4
+    W = 2
+    X = 1
+
+assert Perm.NONE == 0
+assert Perm(0) == Perm.NONE
+'''
+rust = '''
+use std::ops::BitOr;
+
+#[repr(i32)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+struct Perm(i32);
+
+impl Perm {
+    const NONE: Perm = Perm(0);
+    const R: Perm = Perm(4);
+    const W: Perm = Perm(2);
+    const X: Perm = Perm(1);
+}
+
+impl BitOr for Perm {
+    type Output = Perm;
+    fn bitor(self, rhs: Self) -> Self::Output {
+        Perm(self.0 | rhs.0)
+    }
+}
+
+assert_eq!(Perm::NONE.0, 0);
+assert_eq!(Perm(0), Perm::NONE);
+'''

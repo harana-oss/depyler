@@ -9,297 +9,818 @@ category = "strings"
 # Case Methods
 # =============================================================================
 
-# TODO: Test upper
-# [[test]]
-# name = "str_upper"
-# description = "'hello'.upper()"
+[[test]]
+name = "str_upper"
+description = "'hello'.upper()"
+tags = ["strings", "case"]
 
-# TODO: Test lower
-# [[test]]
-# name = "str_lower"
-# description = "'HELLO'.lower()"
+python = '''
+result = 'hello'.upper()
+'''
 
-# TODO: Test capitalize
-# [[test]]
-# name = "str_capitalize"
-# description = "'hello world'.capitalize()"
+rust = '''
+pub const result: serde_json::Value = "hello".to_uppercase();
+use serde_json;
+'''
 
-# TODO: Test title
-# [[test]]
-# name = "str_title"
-# description = "'hello world'.title()"
+[[test]]
+name = "str_lower"
+description = "'HELLO'.lower()"
+tags = ["strings", "case"]
 
-# TODO: Test swapcase
-# [[test]]
-# name = "str_swapcase"
-# description = "'Hello'.swapcase()"
+python = '''
+result = 'HELLO'.lower()
+'''
 
-# TODO: Test casefold
-# [[test]]
-# name = "str_casefold"
-# description = "'ß'.casefold()"
+rust = '''
+pub const result: serde_json::Value = "HELLO".to_lowercase();
+use serde_json;
+'''
+
+[[test]]
+name = "str_capitalize"
+description = "'hello world'.capitalize()"
+tags = ["strings", "case"]
+
+python = '''
+result = 'hello world'.capitalize()
+'''
+
+rust = '''
+pub const result: serde_json::Value = "hello world".capitalize();
+use serde_json;
+'''
+
+[[test]]
+name = "str_title"
+description = "'hello world'.title()"
+tags = ["strings", "case"]
+
+python = '''
+result = 'hello world'.title()
+'''
+
+rust = '''
+pub const result: serde_json::Value = "hello world"
+    .split_whitespace()
+    .map(|word| {
+        let mut chars = word.chars();
+        match chars.next() {
+            None => String::new(),
+            Some(first) => first.to_uppercase().chain(chars).collect::<String>(),
+        }
+    })
+    .collect::<Vec<_>>()
+    .join(" ");
+use serde_json;
+'''
+
+[[test]]
+name = "str_swapcase"
+description = "'Hello'.swapcase()"
+tags = ["strings", "case"]
+
+python = '''
+result = 'Hello'.swapcase()
+'''
+
+rust = '''
+pub const result: serde_json::Value = "Hello".swapcase();
+use serde_json;
+'''
+
+[[test]]
+name = "str_casefold"
+description = "'ß'.casefold()"
+tags = ["strings", "case", "unicode"]
+
+python = '''
+result = 'ß'.casefold()
+'''
+
+rust = '''
+pub const result: serde_json::Value = "ß".casefold();
+use serde_json;
+'''
 
 # =============================================================================
 # Search Methods
 # =============================================================================
 
-# TODO: Test find
-# [[test]]
-# name = "str_find"
-# description = "'hello'.find('l')"
+[[test]]
+name = "str_find"
+description = "'hello'.find('l')"
+tags = ["strings", "search"]
 
-# TODO: Test rfind
-# [[test]]
-# name = "str_rfind"
-# description = "'hello'.rfind('l')"
+python = '''
+result = 'hello'.find('l')
+'''
 
-# TODO: Test index
-# [[test]]
-# name = "str_index"
-# description = "'hello'.index('l')"
+rust = '''
+pub const result: serde_json::Value = "hello".find("l").map(|i| i as i32).unwrap_or(-1);
+use serde_json;
+'''
 
-# TODO: Test rindex
-# [[test]]
-# name = "str_rindex"
-# description = "'hello'.rindex('l')"
+[[test]]
+name = "str_rfind"
+description = "'hello'.rfind('l')"
+tags = ["strings", "search"]
 
-# TODO: Test count
-# [[test]]
-# name = "str_count"
-# description = "'hello'.count('l')"
+python = '''
+result = 'hello'.rfind('l')
+'''
+
+rust = '''
+pub const result: serde_json::Value = "hello".rfind("l").map(|i| i as i32).unwrap_or(-1);
+use serde_json;
+'''
+
+[[test]]
+name = "str_index"
+description = "'hello'.index('l')"
+tags = ["strings", "search"]
+
+python = '''
+result = 'hello'.index('l')
+'''
+
+rust = '''
+pub const result: serde_json::Value = "hello"
+    .iter()
+    .position(|x| x == &"l")
+    .map(|i| i as i32)
+    .expect("ValueError: value is not in list");
+use serde_json;
+'''
+
+[[test]]
+name = "str_rindex"
+description = "'hello'.rindex('l')"
+tags = ["strings", "search"]
+
+python = '''
+result = 'hello'.rindex('l')
+'''
+
+rust = '''
+pub const result: serde_json::Value = "hello".rfind("l").map(|i| i as i32).expect("substring not found");
+use serde_json;
+'''
+
+[[test]]
+name = "str_count"
+description = "'hello'.count('l')"
+tags = ["strings", "search"]
+
+python = '''
+result = 'hello'.count('l')
+'''
+
+rust = '''
+pub const result: serde_json::Value = "hello".matches("l").count() as i32;
+use serde_json;
+'''
 
 # =============================================================================
 # Prefix/Suffix Methods
 # =============================================================================
 
-# TODO: Test startswith
-# [[test]]
-# name = "str_startswith"
-# description = "'hello'.startswith('he')"
+[[test]]
+name = "str_startswith"
+description = "'hello'.startswith('he')"
+tags = ["strings", "prefix"]
 
-# TODO: Test endswith
-# [[test]]
-# name = "str_endswith"
-# description = "'hello'.endswith('lo')"
+python = '''
+result = 'hello'.startswith('he')
+'''
 
-# TODO: Test startswith tuple
-# [[test]]
-# name = "str_startswith_tuple"
-# description = "'hello'.startswith(('he', 'hi'))"
+rust = '''
+pub const result: serde_json::Value = "hello".starts_with("he");
+use serde_json;
+'''
 
-# TODO: Test removeprefix (3.9+)
-# [[test]]
-# name = "str_removeprefix"
-# description = "'hello'.removeprefix('he')"
+[[test]]
+name = "str_endswith"
+description = "'hello'.endswith('lo')"
+tags = ["strings", "suffix"]
 
-# TODO: Test removesuffix (3.9+)
-# [[test]]
-# name = "str_removesuffix"
-# description = "'hello'.removesuffix('lo')"
+python = '''
+result = 'hello'.endswith('lo')
+'''
+
+rust = '''
+pub const result: serde_json::Value = "hello".ends_with("lo");
+use serde_json;
+'''
+
+[[test]]
+name = "str_startswith_tuple"
+description = "'hello'.startswith(('he', 'hi'))"
+tags = ["strings", "prefix"]
+
+python = '''
+result = 'hello'.startswith(('he', 'hi'))
+'''
+
+rust = '''
+pub const result: serde_json::Value = "hello".starts_with(&("he", "hi"));
+use serde_json;
+'''
+
+[[test]]
+name = "str_removeprefix"
+description = "'hello'.removeprefix('he')"
+tags = ["strings", "prefix", "py39"]
+
+python = '''
+result = 'hello'.removeprefix('he')
+'''
+
+rust = '''
+pub const result: serde_json::Value = "hello".removeprefix("he");
+use serde_json;
+'''
+
+[[test]]
+name = "str_removesuffix"
+description = "'hello'.removesuffix('lo')"
+tags = ["strings", "suffix", "py39"]
+
+python = '''
+result = 'hello'.removesuffix('lo')
+'''
+
+rust = '''
+pub const result: serde_json::Value = "hello".removesuffix("lo");
+use serde_json;
+'''
 
 # =============================================================================
 # Strip Methods
 # =============================================================================
 
-# TODO: Test strip
-# [[test]]
-# name = "str_strip"
-# description = "'  hello  '.strip()"
+[[test]]
+name = "str_strip"
+description = "'  hello  '.strip()"
+tags = ["strings", "whitespace"]
 
-# TODO: Test lstrip
-# [[test]]
-# name = "str_lstrip"
-# description = "'  hello'.lstrip()"
+python = '''
+result = '  hello  '.strip()
+'''
 
-# TODO: Test rstrip
-# [[test]]
-# name = "str_rstrip"
-# description = "'hello  '.rstrip()"
+rust = '''
+pub const result: serde_json::Value = "  hello  ".trim();
+use serde_json;
+'''
 
-# TODO: Test strip chars
-# [[test]]
-# name = "str_strip_chars"
-# description = "'xxhelloxx'.strip('x')"
+[[test]]
+name = "str_lstrip"
+description = "'  hello'.lstrip()"
+tags = ["strings", "whitespace"]
+
+python = '''
+result = '  hello'.lstrip()
+'''
+
+rust = '''
+pub const result: serde_json::Value = "  hello".trim_start();
+use serde_json;
+'''
+
+[[test]]
+name = "str_rstrip"
+description = "'hello  '.rstrip()"
+tags = ["strings", "whitespace"]
+
+python = '''
+result = 'hello  '.rstrip()
+'''
+
+rust = '''
+pub const result: serde_json::Value = "hello  ".trim_end();
+use serde_json;
+'''
+
+[[test]]
+name = "str_strip_chars"
+description = "'xxhelloxx'.strip('x')"
+tags = ["strings", "whitespace"]
+
+python = '''
+result = 'xxhelloxx'.strip('x')
+'''
+
+rust = '''
+// Transpilation failed
+'''
 
 # =============================================================================
 # Split Methods
 # =============================================================================
 
-# TODO: Test split
-# [[test]]
-# name = "str_split"
-# description = "'a,b,c'.split(',')"
+[[test]]
+name = "str_split"
+description = "'a,b,c'.split(',')"
+tags = ["strings", "split"]
 
-# TODO: Test split maxsplit
-# [[test]]
-# name = "str_split_max"
-# description = "'a,b,c'.split(',', 1)"
+python = '''
+result = 'a,b,c'.split(',')
+'''
 
-# TODO: Test rsplit
-# [[test]]
-# name = "str_rsplit"
-# description = "'a,b,c'.rsplit(',', 1)"
+rust = '''
+pub const result: serde_json::Value = "a,b,c".split(",").map(|s| s.to_string()).collect::<Vec<String>>();
+use serde_json;
+'''
 
-# TODO: Test splitlines
-# [[test]]
-# name = "str_splitlines"
-# description = "'a\\nb\\nc'.splitlines()"
+[[test]]
+name = "str_split_max"
+description = "'a,b,c'.split(',', 1)"
+tags = ["strings", "split"]
 
-# TODO: Test partition
-# [[test]]
-# name = "str_partition"
-# description = "'hello'.partition('l')"
+python = '''
+result = 'a,b,c'.split(',', 1)
+'''
 
-# TODO: Test rpartition
-# [[test]]
-# name = "str_rpartition"
-# description = "'hello'.rpartition('l')"
+rust = '''
+// Transpilation failed
+'''
+
+[[test]]
+name = "str_rsplit"
+description = "'a,b,c'.rsplit(',', 1)"
+tags = ["strings", "split"]
+
+python = '''
+result = 'a,b,c'.rsplit(',', 1)
+'''
+
+rust = '''
+pub const result: serde_json::Value = "a,b,c".rsplit(",", 1);
+use serde_json;
+'''
+
+[[test]]
+name = "str_splitlines"
+description = "'a\\nb\\nc'.splitlines()"
+tags = ["strings", "split"]
+
+python = '''
+result = 'a\nb\nc'.splitlines()
+'''
+
+rust = '''
+pub const result: serde_json::Value = "a\nb\nc".lines().map(|s| s.to_string()).collect::<Vec<String>>();
+use serde_json;
+'''
+
+[[test]]
+name = "str_partition"
+description = "'hello'.partition('l')"
+tags = ["strings", "split"]
+
+python = '''
+result = 'hello'.partition('l')
+'''
+
+rust = '''
+pub const result: serde_json::Value = "hello".partition("l");
+use serde_json;
+'''
+
+[[test]]
+name = "str_rpartition"
+description = "'hello'.rpartition('l')"
+tags = ["strings", "split"]
+
+python = '''
+result = 'hello'.rpartition('l')
+'''
+
+rust = '''
+pub const result: serde_json::Value = "hello".rpartition("l");
+use serde_json;
+'''
 
 # =============================================================================
 # Join and Replace
 # =============================================================================
 
-# TODO: Test join
-# [[test]]
-# name = "str_join"
-# description = "','.join(['a', 'b', 'c'])"
+[[test]]
+name = "str_join"
+description = "','.join(['a', 'b', 'c'])"
+tags = ["strings", "join"]
 
-# TODO: Test replace
-# [[test]]
-# name = "str_replace"
-# description = "'hello'.replace('l', 'L')"
+python = '''
+result = ','.join(['a', 'b', 'c'])
+'''
 
-# TODO: Test replace count
-# [[test]]
-# name = "str_replace_count"
-# description = "'hello'.replace('l', 'L', 1)"
+rust = '''
+pub const result: serde_json::Value = vec!["a".to_string(), "b".to_string(), "c".to_string()].join(",");
+use serde_json;
+'''
+
+[[test]]
+name = "str_replace"
+description = "'hello'.replace('l', 'L')"
+tags = ["strings", "replace"]
+
+python = '''
+result = 'hello'.replace('l', 'L')
+'''
+
+rust = '''
+pub const result: serde_json::Value = "hello".replace("l", "L");
+use serde_json;
+'''
+
+[[test]]
+name = "str_replace_count"
+description = "'hello'.replace('l', 'L', 1)"
+tags = ["strings", "replace"]
+
+python = '''
+result = 'hello'.replace('l', 'L', 1)
+'''
+
+rust = '''
+pub const result: serde_json::Value = "hello".replacen("l", "L", 1 as usize);
+use serde_json;
+'''
 
 # =============================================================================
 # Padding Methods
 # =============================================================================
 
-# TODO: Test center
-# [[test]]
-# name = "str_center"
-# description = "'hi'.center(10)"
+[[test]]
+name = "str_center"
+description = "'hi'.center(10)"
+tags = ["strings", "padding"]
 
-# TODO: Test ljust
-# [[test]]
-# name = "str_ljust"
-# description = "'hi'.ljust(10)"
+python = '''
+result = 'hi'.center(10)
+'''
 
-# TODO: Test rjust
-# [[test]]
-# name = "str_rjust"
-# description = "'hi'.rjust(10)"
+rust = '''
+pub const result: serde_json::Value = {
+    let s = "hi";
+    let width = 10 as usize;
+    let fillchar = " ";
+    if s.len() >= width {
+        s.to_string()
+    } else {
+        let total_pad = width - s.len();
+        let left_pad = total_pad / 2;
+        let right_pad = total_pad - left_pad;
+        format!("{}{}{}", fillchar.repeat(left_pad), s, fillchar.repeat(right_pad))
+    }
+};
+use serde_json;
+'''
 
-# TODO: Test zfill
-# [[test]]
-# name = "str_zfill"
-# description = "'42'.zfill(5)"
+[[test]]
+name = "str_ljust"
+description = "'hi'.ljust(10)"
+tags = ["strings", "padding"]
+
+python = '''
+result = 'hi'.ljust(10)
+'''
+
+rust = '''
+pub const result: serde_json::Value = {
+    let s = "hi";
+    let width = 10 as usize;
+    let fillchar = " ";
+    if s.len() >= width {
+        s.to_string()
+    } else {
+        format!("{}{}", s, fillchar.repeat(width - s.len()))
+    }
+};
+use serde_json;
+'''
+
+[[test]]
+name = "str_rjust"
+description = "'hi'.rjust(10)"
+tags = ["strings", "padding"]
+
+python = '''
+result = 'hi'.rjust(10)
+'''
+
+rust = '''
+pub const result: serde_json::Value = {
+    let s = "hi";
+    let width = 10 as usize;
+    let fillchar = " ";
+    if s.len() >= width {
+        s.to_string()
+    } else {
+        format!("{}{}", fillchar.repeat(width - s.len()), s)
+    }
+};
+use serde_json;
+'''
+
+[[test]]
+name = "str_zfill"
+description = "'42'.zfill(5)"
+tags = ["strings", "padding"]
+
+python = '''
+result = '42'.zfill(5)
+'''
+
+rust = '''
+pub const result: serde_json::Value = {
+    let s = "42";
+    let width = 5 as usize;
+    if s.len() >= width {
+        s.to_string()
+    } else {
+        let sign = if s.starts_with('-') || s.starts_with('+') {
+            &s[0..1]
+        } else {
+            ""
+        };
+        let num = if !sign.is_empty() { &s[1..] } else { &s[..] };
+        format!("{}{}{}", sign, "0".repeat(width - s.len()), num)
+    }
+};
+use serde_json;
+'''
 
 # =============================================================================
 # Test Methods
 # =============================================================================
 
-# TODO: Test isalpha
-# [[test]]
-# name = "str_isalpha"
-# description = "'abc'.isalpha()"
+[[test]]
+name = "str_isalpha"
+description = "'abc'.isalpha()"
+tags = ["strings", "test"]
 
-# TODO: Test isdigit
-# [[test]]
-# name = "str_isdigit"
-# description = "'123'.isdigit()"
+python = '''
+result = 'abc'.isalpha()
+'''
 
-# TODO: Test isalnum
-# [[test]]
-# name = "str_isalnum"
-# description = "'abc123'.isalnum()"
+rust = '''
+pub const result: serde_json::Value = "abc".chars().all(|c| c.is_alphabetic());
+use serde_json;
+'''
 
-# TODO: Test isspace
-# [[test]]
-# name = "str_isspace"
-# description = "'   '.isspace()"
+[[test]]
+name = "str_isdigit"
+description = "'123'.isdigit()"
+tags = ["strings", "test"]
 
-# TODO: Test isupper
-# [[test]]
-# name = "str_isupper"
-# description = "'ABC'.isupper()"
+python = '''
+result = '123'.isdigit()
+'''
 
-# TODO: Test islower
-# [[test]]
-# name = "str_islower"
-# description = "'abc'.islower()"
+rust = '''
+pub const result: serde_json::Value = "123".chars().all(|c| c.is_numeric());
+use serde_json;
+'''
 
-# TODO: Test istitle
-# [[test]]
-# name = "str_istitle"
-# description = "'Hello World'.istitle()"
+[[test]]
+name = "str_isalnum"
+description = "'abc123'.isalnum()"
+tags = ["strings", "test"]
 
-# TODO: Test isnumeric
-# [[test]]
-# name = "str_isnumeric"
-# description = "'123'.isnumeric()"
+python = '''
+result = 'abc123'.isalnum()
+'''
 
-# TODO: Test isdecimal
-# [[test]]
-# name = "str_isdecimal"
-# description = "'123'.isdecimal()"
+rust = '''
+pub const result: serde_json::Value = "abc123".chars().all(|c| c.is_alphanumeric());
+use serde_json;
+'''
 
-# TODO: Test isidentifier
-# [[test]]
-# name = "str_isidentifier"
-# description = "'var_name'.isidentifier()"
+[[test]]
+name = "str_isspace"
+description = "'   '.isspace()"
+tags = ["strings", "test"]
 
-# TODO: Test isprintable
-# [[test]]
-# name = "str_isprintable"
-# description = "'hello'.isprintable()"
+python = '''
+result = '   '.isspace()
+'''
 
-# TODO: Test isascii (3.7+)
-# [[test]]
-# name = "str_isascii"
-# description = "'hello'.isascii()"
+rust = '''
+pub const result: serde_json::Value = "   ".isspace();
+use serde_json;
+'''
+
+[[test]]
+name = "str_isupper"
+description = "'ABC'.isupper()"
+tags = ["strings", "test"]
+
+python = '''
+result = 'ABC'.isupper()
+'''
+
+rust = '''
+pub const result: serde_json::Value = "ABC".isupper();
+use serde_json;
+'''
+
+[[test]]
+name = "str_islower"
+description = "'abc'.islower()"
+tags = ["strings", "test"]
+
+python = '''
+result = 'abc'.islower()
+'''
+
+rust = '''
+pub const result: serde_json::Value = "abc".islower();
+use serde_json;
+'''
+
+[[test]]
+name = "str_istitle"
+description = "'Hello World'.istitle()"
+tags = ["strings", "test"]
+
+python = '''
+result = 'Hello World'.istitle()
+'''
+
+rust = '''
+pub const result: serde_json::Value = "Hello World".istitle();
+use serde_json;
+'''
+
+[[test]]
+name = "str_isnumeric"
+description = "'123'.isnumeric()"
+tags = ["strings", "test"]
+
+python = '''
+result = '123'.isnumeric()
+'''
+
+rust = '''
+pub const result: serde_json::Value = "123".isnumeric();
+use serde_json;
+'''
+
+[[test]]
+name = "str_isdecimal"
+description = "'123'.isdecimal()"
+tags = ["strings", "test"]
+
+python = '''
+result = '123'.isdecimal()
+'''
+
+rust = '''
+pub const result: serde_json::Value = "123".isdecimal();
+use serde_json;
+'''
+
+[[test]]
+name = "str_isidentifier"
+description = "'var_name'.isidentifier()"
+tags = ["strings", "test"]
+
+python = '''
+result = 'var_name'.isidentifier()
+'''
+
+rust = '''
+pub const result: serde_json::Value = "var_name".isidentifier();
+use serde_json;
+'''
+
+[[test]]
+name = "str_isprintable"
+description = "'hello'.isprintable()"
+tags = ["strings", "test"]
+
+python = '''
+result = 'hello'.isprintable()
+'''
+
+rust = '''
+pub const result: serde_json::Value = "hello".isprintable();
+use serde_json;
+'''
+
+[[test]]
+name = "str_isascii"
+description = "'hello'.isascii()"
+tags = ["strings", "test", "py37"]
+
+python = '''
+result = 'hello'.isascii()
+'''
+
+rust = '''
+pub const result: serde_json::Value = "hello".isascii();
+use serde_json;
+'''
 
 # =============================================================================
 # Encoding/Formatting
 # =============================================================================
 
-# TODO: Test encode
-# [[test]]
-# name = "str_encode"
-# description = "'hello'.encode('utf-8')"
+[[test]]
+name = "str_encode"
+description = "'hello'.encode('utf-8')"
+tags = ["strings", "encoding"]
 
-# TODO: Test format
-# [[test]]
-# name = "str_format"
-# description = "'{} {}'.format('hello', 'world')"
+python = '''
+result = 'hello'.encode('utf-8')
+'''
 
-# TODO: Test format_map
-# [[test]]
-# name = "str_format_map"
-# description = "'{x}'.format_map({'x': 1})"
+rust = '''
+pub const result: serde_json::Value = "hello".encode("utf-8");
+use serde_json;
+'''
+
+[[test]]
+name = "str_format"
+description = "'{} {}'.format('hello', 'world')"
+tags = ["strings", "format"]
+
+python = '''
+result = '{} {}'.format('hello', 'world')
+'''
+
+rust = '''
+// Transpilation failed
+'''
+
+[[test]]
+name = "str_format_map"
+description = "'{x}'.format_map({'x': 1})"
+tags = ["strings", "format"]
+
+python = '''
+result = '{x}'.format_map({'x': 1})
+'''
+
+rust = '''
+pub const result: serde_json::Value = "{x}".format_map({
+    let mut map = HashMap::new();
+    map.insert("x".to_string(), 1);
+    map
+});
+use serde_json;
+use std::collections::HashMap;
+'''
 
 # =============================================================================
 # Translation
 # =============================================================================
 
-# TODO: Test maketrans
-# [[test]]
-# name = "str_maketrans"
-# description = "str.maketrans('abc', 'xyz')"
+[[test]]
+name = "str_maketrans"
+description = "str.maketrans('abc', 'xyz')"
+tags = ["strings", "translation"]
 
-# TODO: Test translate
-# [[test]]
-# name = "str_translate"
-# description = "'abc'.translate(table)"
+python = '''
+result = str.maketrans('abc', 'xyz')
+'''
+
+rust = '''
+pub const result: serde_json::Value = str.maketrans("abc", "xyz");
+use serde_json;
+'''
+
+[[test]]
+name = "str_translate"
+description = "'abc'.translate(table)"
+tags = ["strings", "translation"]
+
+python = '''
+table = str.maketrans('abc', 'xyz')
+result = 'abc'.translate(table)
+'''
+
+rust = '''
+pub const table: serde_json::Value = str.maketrans("abc", "xyz");
+pub const result: serde_json::Value = "abc".translate(table);
+use serde_json;
+'''
 
 # =============================================================================
 # Other Methods
 # =============================================================================
 
-# TODO: Test expandtabs
-# [[test]]
-# name = "str_expandtabs"
-# description = "'a\\tb'.expandtabs(4)"
+[[test]]
+name = "str_expandtabs"
+description = "'a\\tb'.expandtabs(4)"
+tags = ["strings", "tabs"]
+
+python = '''
+result = 'a\tb'.expandtabs(4)
+'''
+
+rust = '''
+pub const result: serde_json::Value = "a\tb".expandtabs(4);
+use serde_json;
+'''

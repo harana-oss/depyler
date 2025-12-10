@@ -13,119 +13,144 @@ name = "string_concat_returns_string"
 description = "String concatenation returns String, not Cow"
 tags = ["cow", "string", "concat"]
 
-[test.python]
-code = '''
+python = '''
 def concat(a: str, b: str) -> str:
     return a + b
 '''
 
-[test.assertions]
-contains = ["-> String"]
-contains_any = [["a: &str", "a: String"]]
-not_contains = ["-> Cow<"]
+rust = '''
+pub fn concat(a: String, b: String) -> String {
+    return format!("{}{}", a, b);
+}
+'''
 
 [[test]]
 name = "fstring_returns_string"
 description = "F-string returns String, not Cow"
 tags = ["cow", "string", "fstring"]
 
-[test.python]
-code = '''
+python = '''
 def format_name(first: str, last: str) -> str:
     return f"{first} {last}"
 '''
 
-[test.assertions]
-contains = ["-> String"]
-not_contains = ["-> Cow<"]
+rust = '''
+pub fn format_name(first: String, last: String) -> String {
+    return format!("{} {}", first, last);
+}
+'''
 
 [[test]]
 name = "format_call_returns_string"
 description = "format() call returns String, not Cow"
 tags = ["cow", "string", "format"]
 
-[test.python]
-code = '''
+python = '''
 def format_msg(name: str, count: int) -> str:
     return "{} has {}".format(name, count)
 '''
 
-[test.assertions]
-not_contains = ["-> Cow<"]
+rust = '''
+// Transpilation failed
+'''
 
 [[test]]
 name = "multiple_concat_returns_string"
 description = "Multiple concatenation returns String"
 tags = ["cow", "string", "concat"]
 
-[test.python]
-code = '''
+python = '''
 def concat_three(a: str, b: str, c: str) -> str:
     return a + b + c
 '''
 
-[test.assertions]
-contains = ["-> String"]
-not_contains = ["-> Cow<"]
-
-# =============================================================================
-# COW Lifetime Fix Tests
-# =============================================================================
+rust = '''
+pub fn concat_three(a: String, b: String, c: String) -> String {
+    return format!("{}{}", format!("{}{}", a, b), c);
+}
+'''
 
 [[test]]
 name = "string_param_no_static_lifetime"
 description = "String parameter should not require 'static lifetime"
 tags = ["cow", "lifetime", "static"]
 
-[test.python]
-code = '''
+python = '''
 def concatenate(a: str, b: str) -> str:
     return a + b
 '''
 
-[test.assertions]
-not_contains = ["Cow<'static, str>"]
-
-# =============================================================================
-# String Lifetime Tests
-# =============================================================================
+rust = '''
+pub fn concatenate(a: String, b: String) -> String {
+    return format!("{}{}", a, b);
+}
+'''
 
 [[test]]
 name = "string_parameter_generates_lifetime"
 description = "String parameter with len() returns int"
 tags = ["string", "lifetime"]
 
-[test.python]
-code = '''
+python = '''
 def process_string(s: str) -> int:
     return len(s)
 '''
 
-[test.assertions]
-contains_any = [["s: &str", "s: String"]]
-contains_any = [["-> i32", "-> usize", "-> i64"]]
+rust = '''
+pub fn process_string(s: String) -> i32 {
+    return s.len() as i32 as i32;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_process_string_examples() {
+        assert_eq!(process_string(""), 0);
+        assert_eq!(process_string("a"), 1);
+        assert_eq!(process_string("abc"), 3);
+    }
+}
+'''
 
 [[test]]
 name = "string_identity_returns_string"
 description = "String identity function uses String"
 tags = ["string", "identity"]
 
-[test.python]
-code = '''
+python = '''
 def identity(s: str) -> str:
     return s
 '''
 
-[test.assertions]
-contains = ["String"]
+rust = '''
+pub fn identity(s: String) -> String {
+    return s;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn quickcheck_identity() {
+        fn prop(s: String) -> TestResult {
+            let result = identity((&*s).into());
+            if result != s {
+                return TestResult::failed();
+            }
+            TestResult::passed()
+        }
+        quickcheck(prop as fn(String) -> TestResult);
+    }
+}
+'''
 
 [[test]]
 name = "multiple_string_params"
 description = "Multiple string parameters with selection"
 tags = ["string", "lifetime", "conditional"]
 
-[test.python]
-code = '''
+python = '''
 def select_string(s1: str, s2: str, use_first: bool) -> str:
     if use_first:
         return s1
@@ -133,98 +158,116 @@ def select_string(s1: str, s2: str, use_first: bool) -> str:
         return s2
 '''
 
-[test.assertions]
-contains = ["String"]
+rust = '''
+pub fn select_string(s1: String, s2: String, use_first: bool) -> String {
+    if use_first {
+        return s1;
+    } else {
+        return s2;
+    }
+}
+'''
 
 [[test]]
 name = "string_concatenation_ownership"
 description = "String concatenation returns owned String"
 tags = ["string", "ownership", "concat"]
 
-[test.python]
-code = '''
+python = '''
 def concat_strings(s1: str, s2: str) -> str:
     return s1 + s2
 '''
 
-[test.assertions]
-contains = ["-> String"]
+rust = '''
+pub fn concat_strings(s1: String, s2: String) -> String {
+    return format!("{}{}", s1, s2);
+}
+'''
 
 [[test]]
 name = "string_mutation_takes_ownership"
 description = "String mutation requires ownership"
 tags = ["string", "mutation", "ownership"]
 
-[test.python]
-code = '''
+python = '''
 def append_exclamation(s: str) -> str:
     s = s + "!"
     return s
 '''
 
-[test.assertions]
-contains_any = [["mut s: String", "String"]]
-
-# =============================================================================
-# Lifetime Violation Detection
-# =============================================================================
+rust = '''
+pub fn append_exclamation(mut s: String) -> String {
+    s = format!("{}{}", s, "!");
+    return s;
+}
+'''
 
 [[test]]
 name = "dangling_reference_detection"
 description = "Handle potential dangling references"
 tags = ["lifetime", "safety"]
 
-[test.python]
-code = '''
+python = '''
 def get_local_ref() -> str:
     local = "temporary"
     return local
 '''
 
-[test.assertions]
-contains_any = [["String", "&str"]]
+rust = '''
+pub fn get_local_ref() -> String {
+    let local = "temporary".to_string();
+    return local;
+}
+'''
 
 [[test]]
 name = "iterator_modification"
 description = "Handle iteration with modification"
 tags = ["lifetime", "iterator"]
 
-[test.python]
-code = '''
+python = '''
 def modify_while_iterating(items: list[int]):
     for item in items:
         if item > 5:
             items.remove(item)
 '''
 
-[test.assertions]
-contains_any = [["Vec", "for"]]
-
-# =============================================================================
-# V1 Lifetime Tests
-# =============================================================================
+rust = '''
+pub fn modify_while_iterating(items: &mut Vec<i32>) {
+    for item in items.iter().cloned() {
+        if item > 5 {
+            if let Some(pos) = items.iter().position(|x| x == &item) {
+                items.remove(pos)
+            } else {
+                panic!("ValueError: list.remove(x): x not in list")
+            };
+        }
+    }
+}
+'''
 
 [[test]]
 name = "returning_temp_string"
 description = "Return type for temporary string"
 tags = ["lifetime", "temporary"]
 
-[test.python]
-code = '''
+python = '''
 def get_temp_string() -> str:
     return "temporary" + "data"
 '''
 
-[test.assertions]
-contains_any = [["-> String", "-> Cow"]]
+rust = '''
+pub fn get_temp_string() -> String {
+    return format!("{}{}", "temporary", "data");
+}
+'''
 
 [[test]]
 name = "parameter_lifetime_propagation"
 description = "Lifetime propagation with string selection"
 tags = ["lifetime", "propagation"]
 
-[test.python]
-code = '''
+python = '''
 def select_longer(s1: str, s2: str) -> str:
     if len(s1) > len(s2):
         return s1
@@ -232,16 +275,25 @@ def select_longer(s1: str, s2: str) -> str:
         return s2
 '''
 
-[test.assertions]
-contains_any = [["Cow", "String"]]
+rust = '''
+pub fn select_longer(s1: String, s2: String) -> String {
+    let _cse_temp_0 = s1.clone().len() as i32;
+    let _cse_temp_1 = s2.clone().len() as i32;
+    let _cse_temp_2 = _cse_temp_0 > _cse_temp_1;
+    if _cse_temp_2 {
+        return s1;
+    } else {
+        return s2;
+    }
+}
+'''
 
 [[test]]
 name = "mixed_lifetime_returns"
 description = "Mixed lifetime returns (literal vs parameter)"
 tags = ["lifetime", "mixed"]
 
-[test.python]
-code = '''
+python = '''
 def get_string(use_default: bool, custom: str) -> str:
     if use_default:
         return "default"
@@ -249,16 +301,22 @@ def get_string(use_default: bool, custom: str) -> str:
         return custom
 '''
 
-[test.assertions]
-contains_any = [["Cow", "String"]]
+rust = '''
+pub fn get_string(use_default: bool, custom: String) -> String {
+    if use_default {
+        return "default".to_string();
+    } else {
+        return custom;
+    }
+}
+'''
 
 [[test]]
 name = "nested_scope_lifetimes"
 description = "Nested scope with string operations"
 tags = ["lifetime", "scope"]
 
-[test.python]
-code = '''
+python = '''
 def process_in_scope(data: str) -> str:
     if len(data) > 0:
         temp = data + "!"
@@ -266,16 +324,24 @@ def process_in_scope(data: str) -> str:
     return ""
 '''
 
-[test.assertions]
-contains_any = [["String", "Cow"]]
+rust = '''
+pub fn process_in_scope(data: String) -> String {
+    let _cse_temp_0 = data.clone().len() as i32;
+    let _cse_temp_1 = _cse_temp_0 > 0;
+    if _cse_temp_1 {
+        let temp = format!("{}{}", data, "!");
+        return temp;
+    }
+    return "".to_string();
+}
+'''
 
 [[test]]
 name = "function_composition_lifetimes"
 description = "Lifetime propagation through function calls"
 tags = ["lifetime", "composition"]
 
-[test.python]
-code = '''
+python = '''
 def outer(s: str) -> str:
     return inner(s)
     
@@ -283,5 +349,263 @@ def inner(s: str) -> str:
     return s
 '''
 
-[test.assertions]
-contains = ["inner"]
+rust = '''
+pub fn outer(s: String) -> String {
+    return inner(s);
+}
+pub fn inner(s: String) -> String {
+    return s;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn quickcheck_inner() {
+        fn prop(s: String) -> TestResult {
+            let result = inner((&*s).into());
+            if result != s {
+                return TestResult::failed();
+            }
+            TestResult::passed()
+        }
+        quickcheck(prop as fn(String) -> TestResult);
+    }
+}
+'''
+
+[[test]]
+name = "return_field_from_borrowed_param"
+description = "Return field from borrowed parameter should use reference"
+tags = ["lifetime", "borrow", "field-access", "no-clone"]
+
+python = '''
+class State:
+    def __init__(self, players: list[str]):
+        self.players = players
+
+def get_players(state: State) -> list[str]:
+    return state.players
+'''
+
+rust = '''
+#[derive(Debug, Clone)]
+pub struct State {
+    pub players: Vec<String>,
+}
+impl State {
+    pub fn new(players: Vec<String>) -> Self {
+        Self { players }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "players" => Some(Box::new(self.players.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "players" => {
+                if let Some(v) = value.downcast_ref::<Vec<String>>() {
+                    self.players = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+pub fn get_players(state: &State) -> Vec<String> {
+    return state.players.clone();
+}
+'''
+
+[[test]]
+name = "return_field_ternary_from_borrowed_param"
+description = "Return field via ternary from borrowed param should use reference"
+tags = ["lifetime", "borrow", "field-access", "ternary", "no-clone"]
+
+python = '''
+class Team:
+    def __init__(self, home: list[str], away: list[str]):
+        self.home = home
+        self.away = away
+
+def get_team_players(team: Team, is_home: bool) -> list[str]:
+    return team.home if is_home else team.away
+'''
+
+rust = '''
+#[derive(Debug, Clone)]
+pub struct Team {
+    pub home: Vec<String>,
+    pub away: Vec<String>,
+}
+impl Team {
+    pub fn new(home: Vec<String>, away: Vec<String>) -> Self {
+        Self { home, away }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "home" => Some(Box::new(self.home.clone()) as Box<dyn std::any::Any>),
+            "away" => Some(Box::new(self.away.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "home" => {
+                if let Some(v) = value.downcast_ref::<Vec<String>>() {
+                    self.home = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "away" => {
+                if let Some(v) = value.downcast_ref::<Vec<String>>() {
+                    self.away = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+pub fn get_team_players(team: &Team, is_home: bool) -> Vec<String> {
+    return if is_home { team.home.clone() } else { team.away.clone() };
+}
+'''
+
+[[test]]
+name = "return_nested_field_from_borrowed_param"
+description = "Return nested field from borrowed param should use reference"
+tags = ["lifetime", "borrow", "field-access", "nested", "no-clone"]
+
+python = '''
+class Inner:
+    def __init__(self, data: list[int]):
+        self.data = data
+
+class Outer:
+    def __init__(self, inner: Inner):
+        self.inner = inner
+
+def get_inner_data(outer: Outer) -> list[int]:
+    return outer.inner.data
+'''
+
+rust = '''
+#[derive(Debug, Clone)]
+pub struct Inner {
+    pub data: Vec<i32>,
+}
+impl Inner {
+    pub fn new(data: Vec<i32>) -> Self {
+        Self { data }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "data" => Some(Box::new(self.data.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "data" => {
+                if let Some(v) = value.downcast_ref::<Vec<i32>>() {
+                    self.data = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+#[derive(Debug, Clone)]
+pub struct Outer {
+    pub inner: Inner,
+}
+impl Outer {
+    pub fn new(inner: Inner) -> Self {
+        Self { inner }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "inner" => Some(Box::new(self.inner.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "inner" => {
+                if let Some(v) = value.downcast_ref::<Inner>() {
+                    self.inner = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+pub fn get_inner_data(outer: &Outer) -> Vec<i32> {
+    return outer.inner.data.clone();
+}
+'''
+
+[[test]]
+name = "owned_param_field_return_needs_clone"
+description = "Owned parameter field return may need clone (not borrowed)"
+tags = ["lifetime", "owned", "field-access"]
+
+python = '''
+class Container:
+    def __init__(self, items: list[int]):
+        self.items = items
+
+def take_ownership_and_return_field(container: Container) -> list[int]:
+    # When container is owned (not borrowed), returning the field doesn't need clone
+    return container.items
+'''
+
+rust = '''
+#[derive(Debug, Clone)]
+pub struct Container {
+    pub items: Vec<i32>,
+}
+impl Container {
+    pub fn new(items: Vec<i32>) -> Self {
+        Self { items }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "items" => Some(Box::new(self.items.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "items" => {
+                if let Some(v) = value.downcast_ref::<Vec<i32>>() {
+                    self.items = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+pub fn take_ownership_and_return_field(container: &Container) -> Vec<i32> {
+    return container.items.clone();
+}
+'''

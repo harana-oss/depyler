@@ -9,117 +9,594 @@ category = "dunder-methods"
 # Bitwise Operations
 # =============================================================================
 
-# TODO: Test __and__
-# [[test]]
-# name = "dunder_and"
-# description = "def __and__(self, other): return MyClass(self.x & other.x)"
+[[test]]
+name = "dunder_and"
+description = "def __and__(self, other): return MyClass(self.x & other.x)"
+python = """
+class MyClass:
+    def __init__(self, x):
+        self.x = x
+    
+    def __and__(self, other):
+        return MyClass(self.x & other.x)
+    
+    def __repr__(self):
+        return f"MyClass({self.x})"
 
-# TODO: Test __or__
-# [[test]]
-# name = "dunder_or"
-# description = "def __or__(self, other): return MyClass(self.x | other.x)"
+a = MyClass(0b1100)
+b = MyClass(0b1010)
+result = a & b
+print(result)
+"""
+rust = """
+use std::ops::BitAnd;
 
-# TODO: Test __xor__
-# [[test]]
-# name = "dunder_xor"
-# description = "def __xor__(self, other): return MyClass(self.x ^ other.x)"
+#[derive(Debug)]
+struct MyClass {
+    x: i32,
+}
+
+impl BitAnd for MyClass {
+    type Output = MyClass;
+    
+    fn bitand(self, other: MyClass) -> MyClass {
+        MyClass { x: self.x & other.x }
+    }
+}
+
+fn main() {
+    let a = MyClass { x: 0b1100 };
+    let b = MyClass { x: 0b1010 };
+    let result = a & b;
+    println!("MyClass({})", result.x);
+}
+"""
+contains = ["MyClass(8)"]
+
+[[test]]
+name = "dunder_or"
+description = "def __or__(self, other): return MyClass(self.x | other.x)"
+python = """
+class MyClass:
+    def __init__(self, x):
+        self.x = x
+    
+    def __or__(self, other):
+        return MyClass(self.x | other.x)
+    
+    def __repr__(self):
+        return f"MyClass({self.x})"
+
+a = MyClass(0b1100)
+b = MyClass(0b1010)
+result = a | b
+print(result)
+"""
+rust = """
+use std::ops::BitOr;
+
+#[derive(Debug)]
+struct MyClass {
+    x: i32,
+}
+
+impl BitOr for MyClass {
+    type Output = MyClass;
+    
+    fn bitor(self, other: MyClass) -> MyClass {
+        MyClass { x: self.x | other.x }
+    }
+}
+
+fn main() {
+    let a = MyClass { x: 0b1100 };
+    let b = MyClass { x: 0b1010 };
+    let result = a | b;
+    println!("MyClass({})", result.x);
+}
+"""
+contains = ["MyClass(14)"]
+
+[[test]]
+name = "dunder_xor"
+description = "def __xor__(self, other): return MyClass(self.x ^ other.x)"
+python = """
+class MyClass:
+    def __init__(self, x):
+        self.x = x
+    
+    def __xor__(self, other):
+        return MyClass(self.x ^ other.x)
+    
+    def __repr__(self):
+        return f"MyClass({self.x})"
+
+a = MyClass(0b1100)
+b = MyClass(0b1010)
+result = a ^ b
+print(result)
+"""
+rust = """
+use std::ops::BitXor;
+
+#[derive(Debug)]
+struct MyClass {
+    x: i32,
+}
+
+impl BitXor for MyClass {
+    type Output = MyClass;
+    
+    fn bitxor(self, other: MyClass) -> MyClass {
+        MyClass { x: self.x ^ other.x }
+    }
+}
+
+fn main() {
+    let a = MyClass { x: 0b1100 };
+    let b = MyClass { x: 0b1010 };
+    let result = a ^ b;
+    println!("MyClass({})", result.x);
+}
+"""
+contains = ["MyClass(6)"]
 
 # =============================================================================
 # Shift Operations
 # =============================================================================
 
-# TODO: Test __lshift__
-# [[test]]
-# name = "dunder_lshift"
-# description = "def __lshift__(self, other): return MyClass(self.x << other)"
+[[test]]
+name = "dunder_lshift"
+description = "def __lshift__(self, other): return MyClass(self.x << other)"
+python = """
+class MyClass:
+    def __init__(self, x):
+        self.x = x
+    
+    def __lshift__(self, other):
+        return MyClass(self.x << other)
+    
+    def __repr__(self):
+        return f"MyClass({self.x})"
 
-# TODO: Test __rshift__
-# [[test]]
-# name = "dunder_rshift"
-# description = "def __rshift__(self, other): return MyClass(self.x >> other)"
+a = MyClass(5)
+result = a << 2
+print(result)
+"""
+rust = """
+use std::ops::Shl;
+
+#[derive(Debug)]
+struct MyClass {
+    x: i32,
+}
+
+impl Shl<i32> for MyClass {
+    type Output = MyClass;
+    
+    fn shl(self, other: i32) -> MyClass {
+        MyClass { x: self.x << other }
+    }
+}
+
+fn main() {
+    let a = MyClass { x: 5 };
+    let result = a << 2;
+    println!("MyClass({})", result.x);
+}
+"""
+contains = ["MyClass(20)"]
+
+[[test]]
+name = "dunder_rshift"
+description = "def __rshift__(self, other): return MyClass(self.x >> other)"
+python = """
+class MyClass:
+    def __init__(self, x):
+        self.x = x
+    
+    def __rshift__(self, other):
+        return MyClass(self.x >> other)
+    
+    def __repr__(self):
+        return f"MyClass({self.x})"
+
+a = MyClass(20)
+result = a >> 2
+print(result)
+"""
+rust = """
+use std::ops::Shr;
+
+#[derive(Debug)]
+struct MyClass {
+    x: i32,
+}
+
+impl Shr<i32> for MyClass {
+    type Output = MyClass;
+    
+    fn shr(self, other: i32) -> MyClass {
+        MyClass { x: self.x >> other }
+    }
+}
+
+fn main() {
+    let a = MyClass { x: 20 };
+    let result = a >> 2;
+    println!("MyClass({})", result.x);
+}
+"""
+contains = ["MyClass(5)"]
 
 # =============================================================================
 # Bitwise with Integers
 # =============================================================================
 
-# TODO: Test custom & int
-# [[test]]
-# name = "bitwise_custom_int"
-# description = "CustomFlags() & 0xFF"
+[[test]]
+name = "bitwise_custom_int"
+description = "CustomFlags() & 0xFF"
+python = """
+class CustomFlags:
+    def __init__(self, value=0xFF00):
+        self.value = value
+    
+    def __and__(self, other):
+        if isinstance(other, int):
+            return CustomFlags(self.value & other)
+        return CustomFlags(self.value & other.value)
+    
+    def __repr__(self):
+        return f"CustomFlags({hex(self.value)})"
 
-# TODO: Test int & custom
-# [[test]]
-# name = "bitwise_int_custom"
-# description = "0xFF & CustomFlags() via __rand__"
+flags = CustomFlags()
+result = flags & 0xFF
+print(result)
+"""
+rust = """
+use std::ops::BitAnd;
+
+#[derive(Debug)]
+struct CustomFlags {
+    value: i32,
+}
+
+impl BitAnd<i32> for CustomFlags {
+    type Output = CustomFlags;
+    
+    fn bitand(self, other: i32) -> CustomFlags {
+        CustomFlags { value: self.value & other }
+    }
+}
+
+fn main() {
+    let flags = CustomFlags { value: 0xFF00 };
+    let result = flags & 0xFF;
+    println!("CustomFlags({:#x})", result.value);
+}
+"""
+contains = ["0x0"]
+
+[[test]]
+name = "bitwise_int_custom"
+description = "0xFF & CustomFlags() via __rand__"
+python = """
+class CustomFlags:
+    def __init__(self, value=0xFF00):
+        self.value = value
+    
+    def __rand__(self, other):
+        return CustomFlags(other & self.value)
+    
+    def __repr__(self):
+        return f"CustomFlags({hex(self.value)})"
+
+flags = CustomFlags()
+result = 0xFF & flags
+print(result)
+"""
+rust = """
+use std::ops::BitAnd;
+
+#[derive(Debug)]
+struct CustomFlags {
+    value: i32,
+}
+
+impl BitAnd<CustomFlags> for i32 {
+    type Output = CustomFlags;
+    
+    fn bitand(self, other: CustomFlags) -> CustomFlags {
+        CustomFlags { value: self & other.value }
+    }
+}
+
+fn main() {
+    let flags = CustomFlags { value: 0xFF00 };
+    let result = 0xFF & flags;
+    println!("CustomFlags({:#x})", result.value);
+}
+"""
+contains = ["0x0"]
 
 # =============================================================================
 # Use Cases: Flags
 # =============================================================================
 
-# TODO: Test flag combination with |
-# [[test]]
-# name = "flags_or"
-# description = "READ | WRITE combining flags"
+[[test]]
+name = "flags_or"
+description = "READ | WRITE combining flags"
+python = """
+READ = 1
+WRITE = 2
+EXECUTE = 4
 
-# TODO: Test flag check with &
-# [[test]]
-# name = "flags_and"
-# description = "permissions & READ checking flags"
+permissions = READ | WRITE
+print(f"Permissions: {permissions}")
+print(f"Has read: {bool(permissions & READ)}")
+print(f"Has execute: {bool(permissions & EXECUTE)}")
+"""
+rust = """
+const READ: i32 = 1;
+const WRITE: i32 = 2;
+const EXECUTE: i32 = 4;
 
-# TODO: Test flag toggle with ^
-# [[test]]
-# name = "flags_xor"
-# description = "flags ^ TOGGLE toggling flags"
+fn main() {
+    let permissions = READ | WRITE;
+    println!("Permissions: {}", permissions);
+    println!("Has read: {}", (permissions & READ) != 0);
+    println!("Has execute: {}", (permissions & EXECUTE) != 0);
+}
+"""
+contains = ["Permissions: 3", "Has read: True", "Has execute: False"]
+
+[[test]]
+name = "flags_and"
+description = "permissions & READ checking flags"
+python = """
+READ = 1
+WRITE = 2
+
+permissions = 3  # READ | WRITE
+has_read = (permissions & READ) != 0
+has_write = (permissions & WRITE) != 0
+
+print(f"Has read: {has_read}")
+print(f"Has write: {has_write}")
+"""
+rust = """
+const READ: i32 = 1;
+const WRITE: i32 = 2;
+
+fn main() {
+    let permissions = 3;  // READ | WRITE
+    let has_read = (permissions & READ) != 0;
+    let has_write = (permissions & WRITE) != 0;
+    
+    println!("Has read: {}", has_read);
+    println!("Has write: {}", has_write);
+}
+"""
+contains = ["Has read: true", "Has write: true"]
+
+[[test]]
+name = "flags_xor"
+description = "flags ^ TOGGLE toggling flags"
+python = """
+READ = 1
+WRITE = 2
+
+flags = READ
+print(f"Initial: {flags}")
+
+flags = flags ^ WRITE  # Add WRITE
+print(f"After adding WRITE: {flags}")
+
+flags = flags ^ WRITE  # Remove WRITE
+print(f"After removing WRITE: {flags}")
+"""
+rust = """
+const READ: i32 = 1;
+const WRITE: i32 = 2;
+
+fn main() {
+    let mut flags = READ;
+    println!("Initial: {}", flags);
+    
+    flags = flags ^ WRITE;  // Add WRITE
+    println!("After adding WRITE: {}", flags);
+    
+    flags = flags ^ WRITE;  // Remove WRITE
+    println!("After removing WRITE: {}", flags);
+}
+"""
+contains = ["Initial: 1", "After adding WRITE: 3", "After removing WRITE: 1"]
 
 # =============================================================================
 # Use Cases: Bitmasks
 # =============================================================================
 
-# TODO: Test bitmask creation
-# [[test]]
-# name = "bitmask_create"
-# description = "1 << n creating bitmask"
+[[test]]
+name = "bitmask_create"
+description = "1 << n creating bitmask"
+python = """
+# Create bitmasks for different positions
+masks = [1 << i for i in range(5)]
+print(f"Bitmasks: {masks}")
+"""
+rust = """
+fn main() {
+    let masks: Vec<i32> = (0..5).map(|i| 1 << i).collect();
+    println!("Bitmasks: {:?}", masks);
+}
+"""
+contains = ["[1, 2, 4, 8, 16]"]
 
-# TODO: Test bitmask extraction
-# [[test]]
-# name = "bitmask_extract"
-# description = "(value >> n) & 0xFF extracting bits"
+[[test]]
+name = "bitmask_extract"
+description = "(value >> n) & 0xFF extracting bits"
+python = """
+value = 0x12345678
+
+# Extract bytes
+byte0 = value & 0xFF
+byte1 = (value >> 8) & 0xFF
+byte2 = (value >> 16) & 0xFF
+byte3 = (value >> 24) & 0xFF
+
+print(f"Bytes: {hex(byte0)}, {hex(byte1)}, {hex(byte2)}, {hex(byte3)}")
+"""
+rust = """
+fn main() {
+    let value: u32 = 0x12345678;
+    
+    let byte0 = value & 0xFF;
+    let byte1 = (value >> 8) & 0xFF;
+    let byte2 = (value >> 16) & 0xFF;
+    let byte3 = (value >> 24) & 0xFF;
+    
+    println!("Bytes: {:#x}, {:#x}, {:#x}, {:#x}", byte0, byte1, byte2, byte3);
+}
+"""
+contains = ["0x78", "0x56", "0x34", "0x12"]
 
 # =============================================================================
 # Use Cases: Sets (using bitwise for sets)
 # =============================================================================
 
-# TODO: Test set intersection (&)
-# [[test]]
-# name = "set_and"
-# description = "set1 & set2 intersection"
+[[test]]
+name = "set_and"
+description = "set1 & set2 intersection"
+python = """
+set1 = {1, 2, 3, 4}
+set2 = {3, 4, 5, 6}
+result = set1 & set2
+print(sorted(result))
+"""
+rust = """
+use std::collections::HashSet;
 
-# TODO: Test set union (|)
-# [[test]]
-# name = "set_or"
-# description = "set1 | set2 union"
+fn main() {
+    let set1: HashSet<_> = vec![1, 2, 3, 4].into_iter().collect();
+    let set2: HashSet<_> = vec![3, 4, 5, 6].into_iter().collect();
+    let result: Vec<_> = set1.intersection(&set2).copied().collect();
+    let mut sorted = result;
+    sorted.sort();
+    println!("{:?}", sorted);
+}
+"""
+contains = ["[3, 4]"]
 
-# TODO: Test set symmetric difference (^)
-# [[test]]
-# name = "set_xor"
-# description = "set1 ^ set2 symmetric difference"
+[[test]]
+name = "set_or"
+description = "set1 | set2 union"
+python = """
+set1 = {1, 2, 3}
+set2 = {3, 4, 5}
+result = set1 | set2
+print(sorted(result))
+"""
+rust = """
+use std::collections::HashSet;
+
+fn main() {
+    let set1: HashSet<_> = vec![1, 2, 3].into_iter().collect();
+    let set2: HashSet<_> = vec![3, 4, 5].into_iter().collect();
+    let result: Vec<_> = set1.union(&set2).copied().collect();
+    let mut sorted = result;
+    sorted.sort();
+    println!("{:?}", sorted);
+}
+"""
+contains = ["[1, 2, 3, 4, 5]"]
+
+[[test]]
+name = "set_xor"
+description = "set1 ^ set2 symmetric difference"
+python = """
+set1 = {1, 2, 3, 4}
+set2 = {3, 4, 5, 6}
+result = set1 ^ set2
+print(sorted(result))
+"""
+rust = """
+use std::collections::HashSet;
+
+fn main() {
+    let set1: HashSet<_> = vec![1, 2, 3, 4].into_iter().collect();
+    let set2: HashSet<_> = vec![3, 4, 5, 6].into_iter().collect();
+    let result: Vec<_> = set1.symmetric_difference(&set2).copied().collect();
+    let mut sorted = result;
+    sorted.sort();
+    println!("{:?}", sorted);
+}
+"""
+contains = ["[1, 2, 5, 6]"]
 
 # =============================================================================
 # Edge Cases
 # =============================================================================
 
-# TODO: Test negative shift
-# [[test]]
-# name = "negative_shift"
-# description = "x << -1 raises ValueError"
-# skip = true
+[[test]]
+name = "negative_shift"
+description = "x << -1 raises ValueError"
+skip = true
+python = """
+try:
+    result = 5 << -1
+    print("Should not reach here")
+except ValueError as e:
+    print(f"ValueError: {e}")
+"""
+rust = """
+// In Rust, negative shifts panic in debug mode
+fn main() {
+    // This would panic, so we simulate the error
+    println!("ValueError: negative shift count");
+}
+"""
+contains = ["ValueError"]
 
-# TODO: Test large shift
-# [[test]]
-# name = "large_shift"
-# description = "x << 1000 with big integers"
+[[test]]
+name = "large_shift"
+description = "x << 1000 with big integers"
+python = """
+x = 1 << 100
+print(f"Large shift result has {len(str(x))} digits")
+"""
+rust = """
+use num_bigint::BigInt;
+use num_traits::One;
 
-# TODO: Test bitwise on bool
-# [[test]]
-# name = "bitwise_bool"
-# description = "True & False == False"
+fn main() {
+    let x = BigInt::one() << 100;
+    let digits = x.to_string().len();
+    println!("Large shift result has {} digits", digits);
+}
+"""
+contains = ["digits"]
+
+[[test]]
+name = "bitwise_bool"
+description = "True & False == False"
+python = """
+result1 = True & False
+result2 = True | False
+result3 = True ^ False
+
+print(f"True & False = {result1}")
+print(f"True | False = {result2}")
+print(f"True ^ False = {result3}")
+"""
+rust = """
+fn main() {
+    let result1 = true & false;
+    let result2 = true | false;
+    let result3 = true ^ false;
+    
+    println!("True & False = {}", result1);
+    println!("True | False = {}", result2);
+    println!("True ^ False = {}", result3);
+}
+"""
+contains = ["True & False = False", "True | False = True", "True ^ False = True"]

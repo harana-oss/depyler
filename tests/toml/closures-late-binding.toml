@@ -9,126 +9,343 @@ category = "decorators-closures"
 # The Late Binding Problem
 # =============================================================================
 
-# TODO: Test loop closure gotcha
-# [[test]]
-# name = "late_binding_loop"
-# description = "funcs = [lambda: i for i in range(3)] all return 2"
+[[test]]
+name = "late_binding_loop"
+description = "Test closure in loop captures last value - common gotcha"
+python = '''
+# All lambdas capture the same variable 'i'
+funcs = [lambda: i for i in range(3)]
+# After loop, i = 2, so all functions return 2
+results = [f() for f in funcs]
+assert results == [2, 2, 2]  # Not [0, 1, 2]!
+'''
 
-# TODO: Test variable changes
-# [[test]]
-# name = "late_binding_change"
-# description = "Closure sees current value, not value at definition"
+[[test]]
+name = "late_binding_change"
+description = "Test closure sees current value at call time, not definition time"
+python = '''
+x = 1
+f = lambda: x
+x = 2
+# f was defined when x=1, but returns current value
+assert f() == 2
+x = 3
+assert f() == 3
+'''
 
-# TODO: Test comprehension closure
-# [[test]]
-# name = "late_binding_comprehension"
-# description = "List comprehension with lambda"
+[[test]]
+name = "late_binding_comprehension"
+description = "Test late binding in list comprehension with lambda"
+python = '''
+# Creates 5 functions, all capture same 'n'
+multipliers = [lambda x: x * n for n in range(5)]
+# After loop, n = 4
+results = [m(2) for m in multipliers]
+assert results == [8, 8, 8, 8, 8]  # All use n=4
+'''
 
 # =============================================================================
 # Why It Happens
 # =============================================================================
 
-# TODO: Test closure captures name not value
-# [[test]]
-# name = "late_binding_name"
-# description = "Closure captures variable name, looks up at call time"
+[[test]]
+name = "late_binding_name"
+description = "Test closure captures variable name, looks up value at call time"
+python = '''
+# Closure captures the name 'x', not the value
+def make_closure():
+    x = 10
+    f = lambda: x
+    x = 20  # Change x after defining f
+    return f
 
-# TODO: Test demonstration
-# [[test]]
-# name = "late_binding_demo"
-# description = "x = 1; f = lambda: x; x = 2; f() returns 2"
+closure = make_closure()
+assert closure() == 20  # Returns new value of x
+'''
+
+[[test]]
+name = "late_binding_demo"
+description = "Test demonstration: x = 1; f = lambda: x; x = 2; f() returns 2"
+python = '''
+x = 1
+f = lambda: x
+assert f() == 1
+x = 2
+assert f() == 2  # f uses current value, not original
+x = 100
+assert f() == 100
+'''
 
 # =============================================================================
 # Solutions
 # =============================================================================
 
-# TODO: Test default argument fix
-# [[test]]
-# name = "late_binding_fix_default"
-# description = "[lambda i=i: i for i in range(3)]"
+[[test]]
+name = "late_binding_fix_default"
+description = "Test fix using default argument to capture value at definition time"
+python = '''
+# Default argument is evaluated at function definition time
+funcs = [lambda i=i: i for i in range(3)]
+results = [f() for f in funcs]
+assert results == [0, 1, 2]  # Correct!
+'''
 
-# TODO: Test partial fix
-# [[test]]
-# name = "late_binding_fix_partial"
-# description = "[partial(lambda x: x, i) for i in range(3)]"
+[[test]]
+name = "late_binding_fix_partial"
+description = "Test fix using functools.partial to bind argument"
+python = '''
+from functools import partial
 
-# TODO: Test nested function fix
-# [[test]]
-# name = "late_binding_fix_nested"
-# description = "def make(i): return lambda: i"
+def identity(x):
+    return x
 
-# TODO: Test factory function fix
-# [[test]]
-# name = "late_binding_fix_factory"
-# description = "[make_func(i) for i in range(3)]"
+# partial binds the argument at creation time
+funcs = [partial(identity, i) for i in range(3)]
+results = [f() for f in funcs]
+assert results == [0, 1, 2]
+'''
+
+[[test]]
+name = "late_binding_fix_nested"
+description = "Test fix using nested function to create new scope"
+python = '''
+def make_func(i):
+    # Each call creates new scope with its own i
+    return lambda: i
+
+funcs = [make_func(i) for i in range(3)]
+results = [f() for f in funcs]
+assert results == [0, 1, 2]
+'''
+
+[[test]]
+name = "late_binding_fix_factory"
+description = "Test fix using factory function pattern"
+python = '''
+def make_multiplier(n):
+    return lambda x: x * n
+
+multipliers = [make_multiplier(i) for i in range(1, 4)]
+results = [m(10) for m in multipliers]
+assert results == [10, 20, 30]  # 10*1, 10*2, 10*3
+'''
 
 # =============================================================================
 # Common Scenarios
 # =============================================================================
 
-# TODO: Test callback in loop
-# [[test]]
-# name = "late_binding_callback"
-# description = "for btn in buttons: btn.onclick = lambda: print(btn)"
+[[test]]
+name = "late_binding_callback"
+description = "Test late binding issue with callbacks in loop"
+python = '''
+# Simulate buttons with callbacks
+buttons = ["btn1", "btn2", "btn3"]
+callbacks = []
 
-# TODO: Test event handlers
-# [[test]]
-# name = "late_binding_events"
-# description = "Event handlers capturing loop variable"
+# All callbacks capture same 'btn' variable
+for btn in buttons:
+    callbacks.append(lambda: btn)
 
-# TODO: Test async tasks
-# [[test]]
-# name = "late_binding_async"
-# description = "[asyncio.create_task(f(i)) for i in items]"
+# All return last btn value
+results = [cb() for cb in callbacks]
+assert results == ["btn3", "btn3", "btn3"]
+
+# Fixed version:
+callbacks_fixed = []
+for btn in buttons:
+    callbacks_fixed.append(lambda b=btn: b)
+results_fixed = [cb() for cb in callbacks_fixed]
+assert results_fixed == ["btn1", "btn2", "btn3"]
+'''
+
+[[test]]
+name = "late_binding_events"
+description = "Test event handlers capturing loop variable"
+python = '''
+events = []
+for i in range(3):
+    # Wrong: captures i
+    events.append(lambda: f"Event {i}")
+
+# All use final value of i
+messages = [e() for e in events]
+assert messages == ["Event 2", "Event 2", "Event 2"]
+
+# Correct: bind i at definition
+events_fixed = []
+for i in range(3):
+    events_fixed.append(lambda i=i: f"Event {i}")
+messages_fixed = [e() for e in events_fixed]
+assert messages_fixed == ["Event 0", "Event 1", "Event 2"]
+'''
+
+[[test]]
+name = "late_binding_async"
+description = "Test late binding with async task creation"
+python = '''
+# Simulate async task creation in loop
+tasks = []
+for i in range(3):
+    # Without fix, all tasks would use final i value
+    tasks.append(lambda i=i: i * 2)  # Fixed with default arg
+
+results = [t() for t in tasks]
+assert results == [0, 2, 4]
+'''
 
 # =============================================================================
 # When Late Binding is Desired
 # =============================================================================
 
-# TODO: Test intentional late binding
-# [[test]]
-# name = "late_binding_intentional"
-# description = "Sometimes you want current value"
+[[test]]
+name = "late_binding_intentional"
+description = "Test intentional late binding - sometimes you want current value"
+python = '''
+# Late binding can be useful when you want current value
+config = {"mode": "test"}
 
-# TODO: Test configuration closure
-# [[test]]
-# name = "late_binding_config"
-# description = "Closure that reads config at call time"
+def get_mode():
+    return config["mode"]
+
+assert get_mode() == "test"
+config["mode"] = "production"
+assert get_mode() == "production"  # Intentionally uses current value
+'''
+
+[[test]]
+name = "late_binding_config"
+description = "Test closure reading config at call time, not definition time"
+python = '''
+settings = {"debug": False}
+
+def make_logger():
+    def log(message):
+        if settings["debug"]:
+            return f"DEBUG: {message}"
+        return message
+    return log
+
+logger = make_logger()
+assert logger("hello") == "hello"
+
+settings["debug"] = True
+# Logger now includes DEBUG because it reads current settings
+assert logger("hello") == "DEBUG: hello"
+'''
 
 # =============================================================================
 # Debugging Late Binding
 # =============================================================================
 
-# TODO: Test identifying the issue
-# [[test]]
-# name = "late_binding_debug"
-# description = "Check __closure__ and cell_contents"
+[[test]]
+name = "late_binding_debug"
+description = "Test using __closure__ to debug late binding issues"
+python = '''
+i = 999
+f = lambda: i
 
-# TODO: Test print value at definition
-# [[test]]
-# name = "late_binding_verify"
-# description = "Print i to see it's always last value"
+# Check the closure
+assert f.__closure__ is not None
+assert len(f.__closure__) == 1
+# The cell contains reference to 'i', not its value
+# at definition time
+assert f.__closure__[0].cell_contents == 999
+i = 0
+assert f.__closure__[0].cell_contents == 0  # Cell tracks variable
+'''
+
+[[test]]
+name = "late_binding_verify"
+description = "Test printing loop variable to verify late binding behavior"
+python = '''
+# Verify the issue by checking what i is after loop
+funcs = []
+for i in range(3):
+    funcs.append(lambda: i)
+
+# After loop completes, i = 2
+assert i == 2
+# So all functions return 2
+assert all(f() == 2 for f in funcs)
+'''
 
 # =============================================================================
 # Edge Cases
 # =============================================================================
 
-# TODO: Test class attribute late binding
-# [[test]]
-# name = "late_binding_class"
-# description = "Late binding in class definition"
+[[test]]
+name = "late_binding_class"
+description = "Test late binding in class definition"
+python = '''
+class MyClass:
+    # Late binding in class scope
+    methods = []
+    for i in range(3):
+        methods.append(lambda self: i)
 
-# TODO: Test nested loop late binding
-# [[test]]
-# name = "late_binding_nested_loop"
-# description = "Closures in nested loops"
+obj = MyClass()
+# All methods return last i value
+assert obj.methods[0](obj) == 2
+assert obj.methods[1](obj) == 2
+assert obj.methods[2](obj) == 2
+'''
 
-# TODO: Test comprehension scope (Python 3)
-# [[test]]
-# name = "late_binding_scope"
-# description = "Comprehension has own scope in Python 3"
+[[test]]
+name = "late_binding_nested_loop"
+description = "Test late binding in nested loops"
+python = '''
+funcs = []
+for i in range(2):
+    for j in range(2):
+        funcs.append(lambda: (i, j))
 
-# TODO: Test with walrus operator
-# [[test]]
-# name = "late_binding_walrus"
-# description = "Late binding with := operator"
+# All capture final values i=1, j=1
+results = [f() for f in funcs]
+assert results == [(1, 1), (1, 1), (1, 1), (1, 1)]
+
+# Fixed version:
+funcs_fixed = []
+for i in range(2):
+    for j in range(2):
+        funcs_fixed.append(lambda i=i, j=j: (i, j))
+results_fixed = [f() for f in funcs_fixed]
+assert results_fixed == [(0, 0), (0, 1), (1, 0), (1, 1)]
+'''
+
+[[test]]
+name = "late_binding_scope"
+description = "Test comprehension has own scope in Python 3"
+python = '''
+# In Python 3, list comprehension has its own scope
+# So the loop variable doesn't leak
+funcs = [lambda: i for i in range(3)]
+
+# But closures still capture the same variable
+results = [f() for f in funcs]
+assert results == [2, 2, 2]
+
+# The variable i doesn't exist outside comprehension
+try:
+    _ = i
+    leaked = True
+except NameError:
+    leaked = False
+# In Python 3, i is not defined (comprehension scope)
+# Note: This test may vary in test environment
+'''
+
+[[test]]
+name = "late_binding_walrus"
+description = "Test late binding with walrus operator"
+python = '''
+# Walrus operator := assigns and returns value
+funcs = [lambda: val for i in range(3) if (val := i * 2)]
+# All capture final val
+results = [f() for f in funcs]
+assert results == [4, 4, 4]  # Last val = 2*2 = 4
+
+# Fixed with default arg
+funcs_fixed = [lambda val=val: val for i in range(3) if (val := i * 2)]
+results_fixed = [f() for f in funcs_fixed]
+assert results_fixed == [0, 2, 4]
+'''

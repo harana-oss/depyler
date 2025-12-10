@@ -9,93 +9,412 @@ category = "core-language"
 # Ellipsis as Placeholder
 # =============================================================================
 
-# TODO: Test ellipsis in function body
-# [[test]]
-# name = "ellipsis_function_placeholder"
-# description = "def func(): ..."
+[[test]]
+name = "ellipsis_function_placeholder"
+description = "def func(): ..."
+python = """
+def func():
+    ...
 
-# TODO: Test ellipsis in class body
-# [[test]]
-# name = "ellipsis_class_placeholder"
-# description = "class Empty: ..."
+# Function exists but does nothing
+func()
+print("Function with ellipsis works")
+"""
+rust = """
+fn func() {
+    // Ellipsis maps to empty function body
+}
 
-# TODO: Test ellipsis in abstract method
-# [[test]]
-# name = "ellipsis_abstract"
-# description = "@abstractmethod def method(self): ..."
+fn main() {
+    func();
+    println!("Function with ellipsis works");
+}
+"""
+contains = ["Function with ellipsis works"]
 
-# TODO: Test ellipsis vs pass
-# [[test]]
-# name = "ellipsis_vs_pass"
-# description = "Both valid as no-op body"
+[[test]]
+name = "ellipsis_class_placeholder"
+description = "class Empty: ..."
+python = """
+class Empty:
+    ...
+
+# Class exists but has no members
+obj = Empty()
+print(f"Empty class works: {type(obj).__name__}")
+"""
+rust = """
+struct Empty;
+
+fn main() {
+    let _obj = Empty;
+    println!("Empty class works: Empty");
+}
+"""
+contains = ["Empty class works"]
+
+[[test]]
+name = "ellipsis_abstract"
+description = "@abstractmethod def method(self): ..."
+python = """
+from abc import ABC, abstractmethod
+
+class Base(ABC):
+    @abstractmethod
+    def method(self):
+        ...
+
+class Concrete(Base):
+    def method(self):
+        return "implemented"
+
+obj = Concrete()
+print(obj.method())
+"""
+rust = """
+trait Base {
+    fn method(&self) -> String;
+}
+
+struct Concrete;
+
+impl Base for Concrete {
+    fn method(&self) -> String {
+        "implemented".to_string()
+    }
+}
+
+fn main() {
+    let obj = Concrete;
+    println!("{}", obj.method());
+}
+"""
+contains = ["implemented"]
+
+[[test]]
+name = "ellipsis_vs_pass"
+description = "Both valid as no-op body"
+python = """
+def with_pass():
+    pass
+
+def with_ellipsis():
+    ...
+
+# Both work the same
+with_pass()
+with_ellipsis()
+print("Both pass and ellipsis work")
+"""
+rust = """
+fn with_pass() {
+    // pass equivalent
+}
+
+fn with_ellipsis() {
+    // ellipsis equivalent
+}
+
+fn main() {
+    with_pass();
+    with_ellipsis();
+    println!("Both pass and ellipsis work");
+}
+"""
+contains = ["Both pass and ellipsis work"]
 
 # =============================================================================
 # Ellipsis in Type Hints
 # =============================================================================
 
-# TODO: Test Callable with ellipsis
-# [[test]]
-# name = "ellipsis_callable"
-# description = "Callable[..., ReturnType]"
+[[test]]
+name = "ellipsis_callable"
+description = "Callable[..., ReturnType]"
+python = """
+from typing import Callable
 
-# TODO: Test Tuple with ellipsis
-# [[test]]
-# name = "ellipsis_tuple"
-# description = "Tuple[int, ...] for variable-length tuple"
+def accepts_any_callable(func: Callable[..., int]) -> int:
+    return func(1, 2, 3)
+
+def my_func(*args):
+    return sum(args)
+
+result = accepts_any_callable(my_func)
+print(f"Result: {result}")
+"""
+rust = """
+// Callable with ellipsis maps to trait objects with arbitrary args
+type AnyCallable = Box<dyn Fn(&[i32]) -> i32>;
+
+fn accepts_any_callable(func: AnyCallable) -> i32 {
+    func(&[1, 2, 3])
+}
+
+fn main() {
+    let my_func: AnyCallable = Box::new(|args| args.iter().sum());
+    let result = accepts_any_callable(my_func);
+    println!("Result: {}", result);
+}
+"""
+contains = ["Result: 6"]
+
+[[test]]
+name = "ellipsis_tuple"
+description = "Tuple[int, ...] for variable-length tuple"
+python = """
+from typing import Tuple
+
+def process_ints(items: Tuple[int, ...]) -> int:
+    return sum(items)
+
+result1 = process_ints((1, 2))
+result2 = process_ints((1, 2, 3, 4, 5))
+print(f"Results: {result1}, {result2}")
+"""
+rust = """
+// Tuple[int, ...] maps to Vec<i32> or slice
+fn process_ints(items: &[i32]) -> i32 {
+    items.iter().sum()
+}
+
+fn main() {
+    let result1 = process_ints(&[1, 2]);
+    let result2 = process_ints(&[1, 2, 3, 4, 5]);
+    println!("Results: {}, {}", result1, result2);
+}
+"""
+contains = ["Results: 3, 15"]
 
 # =============================================================================
 # Ellipsis in NumPy-style Slicing
 # =============================================================================
 
-# TODO: Test ellipsis in slice
-# [[test]]
-# name = "ellipsis_slice"
-# description = "arr[..., 0] for multi-dimensional indexing"
+[[test]]
+name = "ellipsis_slice"
+description = "arr[..., 0] for multi-dimensional indexing"
+python = """
+# Simulating multi-dimensional array behavior
+class Array:
+    def __getitem__(self, key):
+        if isinstance(key, tuple) and Ellipsis in key:
+            return "Ellipsis slice accessed"
+        return "Normal slice"
 
-# TODO: Test ellipsis expanding dimensions
-# [[test]]
-# name = "ellipsis_expand"
-# description = "arr[0, ...] equivalent to arr[0, :, :, :]"
+arr = Array()
+result = arr[..., 0]
+print(result)
+"""
+rust = """
+// Ellipsis in slicing is typically handled by array libraries
+// In Rust, this would be part of ndarray or similar
+struct Array;
+
+impl Array {
+    fn get(&self, _key: &str) -> &str {
+        "Ellipsis slice accessed"
+    }
+}
+
+fn main() {
+    let arr = Array;
+    let result = arr.get("..., 0");
+    println!("{}", result);
+}
+"""
+contains = ["Ellipsis slice accessed"]
+
+[[test]]
+name = "ellipsis_expand"
+description = "arr[0, ...] equivalent to arr[0, :, :, :]"
+python = """
+class Array:
+    def __getitem__(self, key):
+        if isinstance(key, tuple):
+            if Ellipsis in key:
+                return f"Ellipsis at position {key.index(Ellipsis)}"
+        return "No ellipsis"
+
+arr = Array()
+result = arr[0, ...]
+print(result)
+"""
+rust = """
+struct Array;
+
+impl Array {
+    fn get(&self, pos: usize) -> String {
+        format!("Ellipsis at position {}", pos)
+    }
+}
+
+fn main() {
+    let arr = Array;
+    let result = arr.get(1);
+    println!("{}", result);
+}
+"""
+contains = ["Ellipsis at position 1"]
 
 # =============================================================================
 # Ellipsis as Value
 # =============================================================================
 
-# TODO: Test ellipsis assignment
-# [[test]]
-# name = "ellipsis_assignment"
-# description = "x = ..."
+[[test]]
+name = "ellipsis_assignment"
+description = "x = ..."
+python = """
+x = ...
+print(f"Ellipsis assigned: {x}")
+print(f"Type: {type(x).__name__}")
+"""
+rust = """
+// Ellipsis as a value maps to unit type ()
+fn main() {
+    let x = ();
+    println!("Ellipsis assigned: ()");
+    println!("Type: ()");
+}
+"""
+contains = ["Ellipsis assigned", "ellipsis"]
 
-# TODO: Test ellipsis type
-# [[test]]
-# name = "ellipsis_type"
-# description = "type(...) == ellipsis"
+[[test]]
+name = "ellipsis_type"
+description = "type(...) == ellipsis"
+python = """
+print(f"Type of ellipsis: {type(...)}")
+print(f"Is ellipsis type: {type(...).__name__ == 'ellipsis'}")
+"""
+rust = """
+fn main() {
+    // In Rust, () is the unit type
+    println!("Type of ellipsis: ()");
+    println!("Is ellipsis type: true");
+}
+"""
+contains = ["ellipsis"]
 
-# TODO: Test ellipsis singleton
-# [[test]]
-# name = "ellipsis_singleton"
-# description = "... is ... (same object)"
+[[test]]
+name = "ellipsis_singleton"
+description = "... is ... (same object)"
+python = """
+a = ...
+b = ...
+print(f"Same object: {a is b}")
+print(f"Equal: {a == b}")
+"""
+rust = """
+fn main() {
+    // Unit type is always the same
+    let a = ();
+    let b = ();
+    println!("Same object: true");
+    println!("Equal: true");
+}
+"""
+contains = ["Same object: True", "Equal: True"]
 
-# TODO: Test ellipsis in dict
-# [[test]]
-# name = "ellipsis_in_dict"
-# description = "{...: 'ellipsis'} or {'key': ...}"
+[[test]]
+name = "ellipsis_in_dict"
+description = "{...: 'ellipsis'} or {'key': ...}"
+python = """
+d1 = {...: 'ellipsis_key'}
+d2 = {'key': ...}
+print(f"Dict with ellipsis key: {d1}")
+print(f"Dict with ellipsis value: {d2}")
+"""
+rust = """
+use std::collections::HashMap;
+
+fn main() {
+    let mut d1: HashMap<(), &str> = HashMap::new();
+    d1.insert((), "ellipsis_key");
+    
+    let mut d2: HashMap<&str, ()> = HashMap::new();
+    d2.insert("key", ());
+    
+    println!("Dict with ellipsis key: {{(): 'ellipsis_key'}}");
+    println!("Dict with ellipsis value: {{'key': ()}}");
+}
+"""
+contains = ["ellipsis"]
 
 # =============================================================================
 # Edge Cases
 # =============================================================================
 
-# TODO: Test ellipsis in if condition
-# [[test]]
-# name = "ellipsis_truthiness"
-# description = "if ...: (ellipsis is truthy)"
+[[test]]
+name = "ellipsis_truthiness"
+description = "if ...: (ellipsis is truthy)"
+python = """
+if ...:
+    print("Ellipsis is truthy")
+else:
+    print("Ellipsis is falsy")
+"""
+rust = """
+fn main() {
+    // Unit type () doesn't have boolean context in Rust
+    // But ellipsis in Python is truthy
+    if true {  // Ellipsis is always truthy in Python
+        println!("Ellipsis is truthy");
+    } else {
+        println!("Ellipsis is falsy");
+    }
+}
+"""
+contains = ["Ellipsis is truthy"]
 
-# TODO: Test ellipsis comparison
-# [[test]]
-# name = "ellipsis_comparison"
-# description = "... == ... is True"
+[[test]]
+name = "ellipsis_comparison"
+description = "... == ... is True"
+python = """
+print(f"Ellipsis equals itself: {... == ...}")
+print(f"Ellipsis is itself: {... is ...}")
+"""
+rust = """
+fn main() {
+    println!("Ellipsis equals itself: true");
+    println!("Ellipsis is itself: true");
+}
+"""
+contains = ["Ellipsis equals itself: True", "Ellipsis is itself: True"]
 
-# TODO: Test ellipsis as default argument
-# [[test]]
-# name = "ellipsis_default_arg"
-# description = "def f(x=...): to distinguish from None"
+[[test]]
+name = "ellipsis_default_arg"
+description = "def f(x=...): to distinguish from None"
+python = """
+def func(x=...):
+    if x is ...:
+        return "No argument provided"
+    elif x is None:
+        return "None provided"
+    else:
+        return f"Value: {x}"
+
+print(func())
+print(func(None))
+print(func(42))
+"""
+rust = """
+// Use Option<Option<T>> or a custom sentinel type
+enum Arg {
+    NotProvided,
+    Null,
+    Value(i32),
+}
+
+fn func(x: Arg) -> String {
+    match x {
+        Arg::NotProvided => "No argument provided".to_string(),
+        Arg::Null => "None provided".to_string(),
+        Arg::Value(v) => format!("Value: {}", v),
+    }
+}
+
+fn main() {
+    println!("{}", func(Arg::NotProvided));
+    println!("{}", func(Arg::Null));
+    println!("{}", func(Arg::Value(42)));
+}
+"""
+contains = ["No argument provided", "None provided", "Value: 42"]
