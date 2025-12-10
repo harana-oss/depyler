@@ -10498,6 +10498,21 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             {
                 if let HirExpr::Literal(Literal::Int(n)) = **operand {
                     let offset = n as usize;
+                    
+                    // Assignment targets need direct indexing, not .get().cloned()
+                    if self.ctx.is_assignment_target {
+                        // For negative indices in assignment, we need to compute the actual index
+                        // Special case for -1
+                        if offset == 1 {
+                            return Ok(parse_quote! {
+                                #base_expr[#base_expr.len() - 1]
+                            });
+                        }
+                        return Ok(parse_quote! {
+                            #base_expr[#base_expr.len().saturating_sub(#offset)]
+                        });
+                    }
+                    
                     // Special case for -1: use .last().cloned()
                     // Works for both Copy and non-Copy types (like String, Vec)
                     if offset == 1 {
@@ -10514,18 +10529,34 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             // This avoids unnecessary temporary variables and runtime checks
             if let HirExpr::Literal(Literal::Int(n)) = index {
                 let idx_value = *n as usize;
-                // Use consistent .get().cloned().unwrap() for all indices
-                // This works for both Copy and non-Copy types (like String)
-                return Ok(parse_quote! {
-                    #base_expr.get(#idx_value).cloned().unwrap()
-                });
+                // Check if we're generating an assignment target
+                if self.ctx.is_assignment_target {
+                    // Assignment target: use direct mutable indexing
+                    return Ok(parse_quote! {
+                        #base_expr[#idx_value]
+                    });
+                } else {
+                    // Use consistent .get().cloned().unwrap() for all indices
+                    // This works for both Copy and non-Copy types (like String)
+                    return Ok(parse_quote! {
+                        #base_expr.get(#idx_value).cloned().unwrap()
+                    });
+                }
             }
 
             // Simple variables in for loops like `for i in range(len(arr))` are guaranteed >= 0
             // For these, we can use simpler inline code that works in range contexts
             let is_simple_var = matches!(index, HirExpr::Var(_));
 
-            if is_simple_var {
+            // Check if we're generating an assignment target (LHS of assignment)
+            // In that case, we need mutable access via direct indexing, not .get().cloned()
+            if self.ctx.is_assignment_target {
+                // Assignment target: use direct mutable indexing
+                // This allows mutation of the indexed element
+                Ok(parse_quote! {
+                    #base_expr[#index_expr as usize]
+                })
+            } else if is_simple_var {
                 // Simple variable index - use inline expression (works in range contexts)
                 // This avoids block expressions that break in `for j in 0..matrix[i].len()`
                 Ok(parse_quote! {
