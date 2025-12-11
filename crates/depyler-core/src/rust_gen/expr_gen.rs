@@ -13535,7 +13535,9 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         // Pattern: `x if x is not None else default` → `x.unwrap_or(default)`
         // This handles Optional types correctly by unwrapping the Some value
         if let HirExpr::Binary { op, left, right } = test {
-            if matches!(op, BinOp::IsNot) && matches!(right.as_ref(), HirExpr::Literal(Literal::None)) {
+            if matches!(op, BinOp::IsNot)
+                && matches!(right.as_ref(), HirExpr::Literal(Literal::None))
+            {
                 // Test is `x is not None`
                 if left.as_ref() == body {
                     // Body is the same variable being tested
@@ -13543,7 +13545,9 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     let default_expr = orelse.to_rust_expr(self.ctx)?;
                     return Ok(parse_quote! { #var_expr.unwrap_or(#default_expr) });
                 }
-            } else if matches!(op, BinOp::Is) && matches!(right.as_ref(), HirExpr::Literal(Literal::None)) {
+            } else if matches!(op, BinOp::Is)
+                && matches!(right.as_ref(), HirExpr::Literal(Literal::None))
+            {
                 // Test is `x is None` - inverted logic
                 if left.as_ref() == body {
                     // Pattern: `x if x is None else default` → `x.unwrap_or(default)`
@@ -13583,6 +13587,21 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         // Without conversion: `if val` fails (expected bool, found Vec/String/etc)
         // With conversion: `if !val.is_empty()` / `if val.is_some()` / `if val != 0`
         test_expr = Self::apply_truthiness_conversion(test, test_expr, self.ctx);
+
+        // Check if body is an Optional that needs unwrapping when test checks .is_some()
+        // Pattern: `x if x is not None else 0` where pattern detection failed
+        // This occurs when test becomes `x.is_some()` and body is still the Option<T> value
+        let body_is_optional = self.ctx.get_optional_inner_type(body).is_some();
+        if body_is_optional {
+            // If test is checking the same variable for is_some(), we need to unwrap the body
+            // Test: `x is not None` → `x.is_some()`, Body: `x` (Option<T>) → `x.unwrap()`
+            if let HirExpr::Binary { op, left, .. } = test {
+                if matches!(op, BinOp::IsNot) && left.as_ref() == body {
+                    // Body is Option<T>, unwrap it to get T
+                    body_expr = parse_quote! { #body_expr.unwrap() };
+                }
+            }
+        }
 
         // Python: `x[0] if x else None` → Rust: `if !x.is_empty() { Some(x.get(0).cloned().unwrap()) } else { None }`
         // When else branch is None, wrap body in Some() for correct Option<T> type
