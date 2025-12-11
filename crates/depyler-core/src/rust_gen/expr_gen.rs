@@ -12249,7 +12249,12 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             let mut value_expr = if matches!(value.as_ref(), HirExpr::Attribute { .. }) {
                 self.convert_attribute_without_clone(value)?
             } else {
-                value.to_rust_expr(self.ctx)?
+                // Set is_assignment_target to prevent cloning the base variable
+                let was_assignment_target = self.ctx.is_assignment_target;
+                self.ctx.is_assignment_target = true;
+                let expr = value.to_rust_expr(self.ctx)?;
+                self.ctx.is_assignment_target = was_assignment_target;
+                expr
             };
 
             // Check if the base value (when it's an attribute) is Optional - need to unwrap before accessing
