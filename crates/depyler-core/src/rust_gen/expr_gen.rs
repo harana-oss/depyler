@@ -13545,7 +13545,8 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 };
                 
                 if vars_match {
-                    // Body is the same variable being tested
+                    // Body is the same variable being tested for None
+                    // Generate x.unwrap_or(default) which works for Option types
                     let var_expr = body.to_rust_expr(self.ctx)?;
                     let default_expr = orelse.to_rust_expr(self.ctx)?;
                     return Ok(parse_quote! { #var_expr.unwrap_or(#default_expr) });
@@ -13598,37 +13599,33 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         // With conversion: `if !val.is_empty()` / `if val.is_some()` / `if val != 0`
         test_expr = Self::apply_truthiness_conversion(test, test_expr, self.ctx);
 
-        // Check if body is an Optional that needs unwrapping when test checks .is_some()
-        // Pattern: `x if x is not None else 0` where x is Option<T>
+        // Check if we need to unwrap the body when test checks for None
+        // Pattern: `x if x is not None else 0` where x might be Option<T>
         // The test has already been converted to `x.is_some()` by apply_truthiness_conversion
         // But the body is still `x` (Option<T>), which needs to be unwrapped to T
-        let body_is_optional = self.ctx.get_optional_inner_type(body).is_some();
-        if body_is_optional {
-            // If test is checking a variable for None, and body is that same variable
-            // we need to unwrap the body to match the type of the else branch
-            let should_unwrap = if let HirExpr::Binary { op, left, right } = test {
-                // Check if test is `x is not None` or `x is None`
-                let is_none_check = matches!(op, BinOp::Is | BinOp::IsNot)
-                    && matches!(right.as_ref(), HirExpr::Literal(Literal::None));
-                
-                if is_none_check {
-                    // Check if both test and body refer to the same variable by name
-                    // This is more robust than checking expression equality
-                    match (left.as_ref(), body) {
-                        (HirExpr::Var(test_var), HirExpr::Var(body_var)) => test_var == body_var,
-                        _ => left.as_ref() == body,  // Fallback to equality check for other cases
-                    }
-                } else {
-                    false
+        let should_unwrap = if let HirExpr::Binary { op, left, right } = test {
+            // Check if test is `x is not None` or `x is None`
+            let is_none_check = matches!(op, BinOp::Is | BinOp::IsNot)
+                && matches!(right.as_ref(), HirExpr::Literal(Literal::None));
+            
+            if is_none_check {
+                // Check if both test and body refer to the same variable by name
+                // This is more robust than checking expression equality
+                match (left.as_ref(), body) {
+                    (HirExpr::Var(test_var), HirExpr::Var(body_var)) => test_var == body_var,
+                    _ => left.as_ref() == body,  // Fallback to equality check for other cases
                 }
             } else {
                 false
-            };
-            
-            if should_unwrap {
-                // Body is Option<T>, unwrap it to get T
-                body_expr = parse_quote! { #body_expr.unwrap() };
             }
+        } else {
+            false
+        };
+        
+        if should_unwrap {
+            // Body needs to be unwrapped because it's the same variable being tested for None
+            // This handles: `x if x is not None else 0` → `if x.is_some() { x.unwrap() } else { 0 }`
+            body_expr = parse_quote! { #body_expr.unwrap() };
         }
 
         // Python: `x[0] if x else None` → Rust: `if !x.is_empty() { Some(x.get(0).cloned().unwrap()) } else { None }`
