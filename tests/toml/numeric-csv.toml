@@ -11,7 +11,6 @@ category = "stdlib-numeric"
 [[test]]
 name = "csv_reader"
 description = "csv.reader() basic reading"
-tags = ["csv", "reader"]
 
 python = '''
 import csv
@@ -35,7 +34,6 @@ pub fn read_csv_file(filename: String) -> Vec<serde_json::Value> {
 [[test]]
 name = "csv_reader_delimiter"
 description = "csv.reader() with delimiter"
-tags = ["csv", "reader", "delimiter"]
 
 python = '''
 import csv
@@ -59,7 +57,6 @@ pub fn read_csv_with_delimiter(filename: String, delim: String) -> Vec<serde_jso
 [[test]]
 name = "csv_writer"
 description = "csv.writer() basic writing"
-tags = ["csv", "writer"]
 
 python = '''
 import csv
@@ -83,7 +80,6 @@ pub fn write_csv_file(filename: String, rows: &Vec<serde_json::Value>) {
 [[test]]
 name = "csv_writerow"
 description = "csv.writer().writerow() single row"
-tags = ["csv", "writer"]
 
 python = '''
 import csv
@@ -107,7 +103,6 @@ pub fn write_single_row(filename: String, row: &Vec<serde_json::Value>) {
 [[test]]
 name = "decimal_constructor"
 description = "Decimal() from string"
-tags = ["decimal", "constructor"]
 
 python = '''
 from decimal import Decimal
@@ -126,7 +121,6 @@ pub fn create_decimal(value: String) -> Decimal {
 [[test]]
 name = "decimal_from_float"
 description = "Decimal() from float"
-tags = ["decimal", "constructor"]
 
 python = '''
 from decimal import Decimal
@@ -145,7 +139,6 @@ pub fn decimal_from_float(value: f64) -> Decimal {
 [[test]]
 name = "decimal_add"
 description = "Decimal addition"
-tags = ["decimal", "arithmetic"]
 
 python = '''
 from decimal import Decimal
@@ -181,7 +174,6 @@ mod tests {
 [[test]]
 name = "decimal_multiply"
 description = "Decimal multiplication"
-tags = ["decimal", "arithmetic"]
 
 python = '''
 from decimal import Decimal
@@ -217,7 +209,6 @@ mod tests {
 [[test]]
 name = "fraction_from_ints"
 description = "Fraction from numerator/denominator"
-tags = ["fractions", "constructor"]
 
 python = '''
 from fractions import Fraction
@@ -236,7 +227,6 @@ pub fn create_fraction(num: i32, denom: i32) -> Fraction {
 [[test]]
 name = "fraction_from_string"
 description = "Fraction from string"
-tags = ["fractions", "constructor"]
 
 python = '''
 from fractions import Fraction
@@ -255,7 +245,6 @@ pub fn parse_fraction(s: String) -> Fraction {
 [[test]]
 name = "fraction_add"
 description = "Fraction addition"
-tags = ["fractions", "arithmetic"]
 
 python = '''
 from fractions import Fraction
@@ -291,7 +280,6 @@ mod tests {
 [[test]]
 name = "fraction_multiply"
 description = "Fraction multiplication"
-tags = ["fractions", "arithmetic"]
 
 python = '''
 from fractions import Fraction
@@ -327,7 +315,6 @@ mod tests {
 [[test]]
 name = "fraction_divide"
 description = "Fraction division"
-tags = ["fractions", "arithmetic"]
 
 python = '''
 from fractions import Fraction

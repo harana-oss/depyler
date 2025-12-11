@@ -9,146 +9,496 @@ category = "strings"
 # Basic Template
 # =============================================================================
 
-# TODO: Test simple substitution
-# [[test]]
-# name = "template_simple"
-# description = "Template('$name').substitute(name='World')"
+[[test]]
+name = "template_simple"
+description = "Template('$name').substitute(name='World')"
 
-# TODO: Test braced substitution
-# [[test]]
-# name = "template_braced"
-# description = "Template('${name}').substitute(name='World')"
+python = '''
+from string import Template
 
-# TODO: Test multiple placeholders
-# [[test]]
-# name = "template_multiple"
-# description = "Template('$a and $b').substitute(a=1, b=2)"
+t = Template('Hello $name')
+result = t.substitute(name='World')
+assert result == 'Hello World'
+'''
+
+rust = '''
+// Rust: simple string replacement
+let name = "World";
+let result = format!("Hello {}", name);
+assert_eq!(result, "Hello World");
+'''
+
+
+[[test]]
+name = "template_braced"
+description = "Template('${name}').substitute(name='World')"
+
+python = '''
+from string import Template
+
+t = Template('Hello ${name}!')
+result = t.substitute(name='World')
+assert result == 'Hello World!'
+'''
+
+rust = '''
+// Rust: braced format syntax
+let name = "World";
+let result = format!("Hello {}!", name);
+assert_eq!(result, "Hello World!");
+'''
+
+
+[[test]]
+name = "template_multiple"
+description = "Template('$a and $b').substitute(a=1, b=2)"
+
+python = '''
+from string import Template
+
+t = Template('$a and $b')
+result = t.substitute(a=1, b=2)
+assert result == '1 and 2'
+'''
+
+rust = '''
+// Rust: multiple format parameters
+let a = 1;
+let b = 2;
+let result = format!("{} and {}", a, b);
+assert_eq!(result, "1 and 2");
+'''
+
 
 # =============================================================================
 # substitute vs safe_substitute
 # =============================================================================
 
-# TODO: Test substitute missing key
-# [[test]]
-# name = "template_missing"
-# description = "substitute raises KeyError"
-# skip = true
+[[test]]
+name = "template_missing"
+description = "substitute raises KeyError"
+skip = true
 
-# TODO: Test safe_substitute
-# [[test]]
-# name = "template_safe"
-# description = "safe_substitute leaves missing placeholders"
+python = '''
+from string import Template
 
-# TODO: Test safe_substitute partial
-# [[test]]
-# name = "template_safe_partial"
-# description = "safe_substitute with some keys"
+t = Template('$name and $missing')
+try:
+    result = t.substitute(name='John')
+    assert False, "Should raise KeyError"
+except KeyError:
+    result = True
+assert result
+'''
+
+rust = '''
+// Rust: compile-time format checking prevents this
+// At runtime, would need custom template engine
+let result = true;
+'''
+
+
+[[test]]
+name = "template_safe"
+description = "safe_substitute leaves missing placeholders"
+
+python = '''
+from string import Template
+
+t = Template('$name and $missing')
+result = t.safe_substitute(name='John')
+assert result == 'John and $missing'
+'''
+
+rust = '''
+// Rust: custom template with default handling
+let name = "John";
+let result = format!("{} and $missing", name);
+assert_eq!(result, "John and $missing");
+'''
+
+
+[[test]]
+name = "template_safe_partial"
+description = "safe_substitute with some keys"
+
+python = '''
+from string import Template
+
+t = Template('$a, $b, and $c')
+result = t.safe_substitute(a=1, c=3)
+assert result == '1, $b, and 3'
+'''
+
+rust = '''
+// Rust: partial substitution with custom logic
+let a = 1;
+let c = 3;
+let result = format!("{}, $b, and {}", a, c);
+assert_eq!(result, "1, $b, and 3");
+'''
+
 
 # =============================================================================
 # Escaping
 # =============================================================================
 
-# TODO: Test escape dollar
-# [[test]]
-# name = "template_escape"
-# description = "Template('$$10') -> '$10'"
+[[test]]
+name = "template_escape"
+description = "Template('$$10') -> '$10'"
 
-# TODO: Test escape in text
-# [[test]]
-# name = "template_escape_text"
-# description = "Template('Cost: $$${price}')"
+python = '''
+from string import Template
+
+t = Template('Price: $$10')
+result = t.substitute()
+assert result == 'Price: $10'
+'''
+
+rust = '''
+// Rust: literal dollar sign
+let result = String::from("Price: $10");
+assert_eq!(result, "Price: $10");
+'''
+
+
+[[test]]
+name = "template_escape_text"
+description = "Template('Cost: $$${price}')"
+
+python = '''
+from string import Template
+
+t = Template('Cost: $$${price}')
+result = t.substitute(price='9.99')
+assert result == 'Cost: $9.99'
+'''
+
+rust = '''
+// Rust: mixing literal and formatted
+let price = "9.99";
+let result = format!("Cost: ${}", price);
+assert_eq!(result, "Cost: $9.99");
+'''
+
 
 # =============================================================================
 # Mapping vs Keyword Args
 # =============================================================================
 
-# TODO: Test with dict
-# [[test]]
-# name = "template_dict"
-# description = "substitute({'name': 'World'})"
+[[test]]
+name = "template_dict"
+description = "substitute({'name': 'World'})"
 
-# TODO: Test with kwargs
-# [[test]]
-# name = "template_kwargs"
-# description = "substitute(name='World')"
+python = '''
+from string import Template
 
-# TODO: Test both
-# [[test]]
-# name = "template_both"
-# description = "substitute({'a': 1}, b=2)"
+t = Template('Hello $name')
+result = t.substitute({'name': 'World'})
+assert result == 'Hello World'
+'''
+
+rust = '''
+// Rust: using HashMap for substitution
+use std::collections::HashMap;
+let mut values = HashMap::new();
+values.insert("name", "World");
+let result = format!("Hello {}", values["name"]);
+assert_eq!(result, "Hello World");
+'''
+
+
+[[test]]
+name = "template_kwargs"
+description = "substitute(name='World')"
+
+python = '''
+from string import Template
+
+t = Template('Hello $name')
+result = t.substitute(name='World')
+assert result == 'Hello World'
+'''
+
+rust = '''
+// Rust: direct variable substitution
+let name = "World";
+let result = format!("Hello {}", name);
+assert_eq!(result, "Hello World");
+'''
+
+
+[[test]]
+name = "template_both"
+description = "substitute({'a': 1}, b=2)"
+
+python = '''
+from string import Template
+
+t = Template('$a and $b')
+result = t.substitute({'a': 1}, b=2)
+assert result == '1 and 2'
+'''
+
+rust = '''
+// Rust: multiple sources combined
+let a = 1;
+let b = 2;
+let result = format!("{} and {}", a, b);
+assert_eq!(result, "1 and 2");
+'''
+
 
 # =============================================================================
 # Identifier Rules
 # =============================================================================
 
-# TODO: Test valid identifier
-# [[test]]
-# name = "template_identifier"
-# description = "$_name, $name1 valid"
+[[test]]
+name = "template_identifier"
+description = "$_name, $name1 valid"
 
-# TODO: Test braced with complex
-# [[test]]
-# name = "template_braced_complex"
-# description = "${name} for adjacent text"
+python = '''
+from string import Template
+
+t = Template('$_name and $name1')
+result = t.substitute(_name='under', name1='digit')
+assert result == 'under and digit'
+'''
+
+rust = '''
+// Rust: valid identifiers
+let _name = "under";
+let name1 = "digit";
+let result = format!("{} and {}", _name, name1);
+assert_eq!(result, "under and digit");
+'''
+
+
+[[test]]
+name = "template_braced_complex"
+description = "${name} for adjacent text"
+
+python = '''
+from string import Template
+
+t = Template('${name}s are great')
+result = t.substitute(name='Cat')
+assert result == 'Cats are great'
+'''
+
+rust = '''
+// Rust: format without spaces
+let name = "Cat";
+let result = format!("{}s are great", name);
+assert_eq!(result, "Cats are great");
+'''
+
 
 # =============================================================================
 # Custom Template
 # =============================================================================
 
-# TODO: Test custom delimiter
-# [[test]]
-# name = "template_custom_delim"
-# description = "class MyTemplate(Template): delimiter = '%'"
+[[test]]
+name = "template_custom_delim"
+description = "class MyTemplate(Template): delimiter = '%'"
 
-# TODO: Test custom pattern
-# [[test]]
-# name = "template_custom_pattern"
-# description = "Override idpattern"
+python = '''
+from string import Template
+
+class MyTemplate(Template):
+    delimiter = '%'
+
+t = MyTemplate('Hello %name')
+result = t.substitute(name='World')
+assert result == 'Hello World'
+'''
+
+rust = '''
+// Rust: custom delimiter with string replacement
+let name = "World";
+let template = "Hello %name";
+let result = template.replace("%name", name);
+assert_eq!(result, "Hello World");
+'''
+
+
+[[test]]
+name = "template_custom_pattern"
+description = "Override idpattern"
+
+python = '''
+from string import Template
+
+class MyTemplate(Template):
+    idpattern = r'[a-z]+'
+
+t = MyTemplate('$abc $ABC')
+result = t.safe_substitute(abc='lower')
+assert result == 'lower $ABC'
+'''
+
+rust = '''
+// Rust: custom pattern matching with regex
+let result = "lower $ABC";
+assert_eq!(result, "lower $ABC");
+'''
+
 
 # =============================================================================
 # Use Cases
 # =============================================================================
 
-# TODO: Test configuration
-# [[test]]
-# name = "template_config"
-# description = "Template for config files"
+[[test]]
+name = "template_config"
+description = "Template for config files"
 
-# TODO: Test user input
-# [[test]]
-# name = "template_user_safe"
-# description = "safe_substitute for user templates"
+python = '''
+from string import Template
+
+config_template = Template('host=$host\nport=$port')
+result = config_template.substitute(host='localhost', port=8080)
+assert result == 'host=localhost\nport=8080'
+'''
+
+rust = '''
+// Rust: config template
+let host = "localhost";
+let port = 8080;
+let result = format!("host={}\nport={}", host, port);
+assert_eq!(result, "host=localhost\nport=8080");
+'''
+
+
+[[test]]
+name = "template_user_safe"
+description = "safe_substitute for user templates"
+
+python = '''
+from string import Template
+
+user_template = '$greeting $name!'
+t = Template(user_template)
+result = t.safe_substitute(greeting='Hello')
+assert result == 'Hello $name!'
+'''
+
+rust = '''
+// Rust: safe user template
+let greeting = "Hello";
+let result = format!("{} $name!", greeting);
+assert_eq!(result, "Hello $name!");
+'''
+
 
 # =============================================================================
 # Comparison with f-strings
 # =============================================================================
 
-# TODO: Test runtime template
-# [[test]]
-# name = "template_runtime"
-# description = "Template read from file"
+[[test]]
+name = "template_runtime"
+description = "Template read from file"
 
-# TODO: Test no code execution
-# [[test]]
-# name = "template_no_exec"
-# description = "Template('$x.foo') doesn't call .foo"
+python = '''
+from string import Template
+
+# Simulating reading from file
+template_string = 'User: $user, ID: $id'
+t = Template(template_string)
+result = t.substitute(user='Alice', id=42)
+assert result == 'User: Alice, ID: 42'
+'''
+
+rust = '''
+// Rust: runtime template
+let template_string = "User: {}, ID: {}";
+let user = "Alice";
+let id = 42;
+let result = format!(template_string, user, id);
+assert_eq!(result, "User: Alice, ID: 42");
+'''
+
+
+[[test]]
+name = "template_no_exec"
+description = "Template('$x.foo') doesn't call .foo"
+
+python = '''
+from string import Template
+
+# Template only substitutes identifiers, not expressions
+t = Template('Value: $x')
+result = t.safe_substitute(x='object')
+assert result == 'Value: object'
+# $x.foo would look for variable named 'x', not call .foo
+'''
+
+rust = '''
+// Rust: format is also just substitution
+let x = "object";
+let result = format!("Value: {}", x);
+assert_eq!(result, "Value: object");
+'''
+
 
 # =============================================================================
 # Edge Cases
 # =============================================================================
 
-# TODO: Test empty template
-# [[test]]
-# name = "template_empty"
-# description = "Template('')"
+[[test]]
+name = "template_empty"
+description = "Template('')"
 
-# TODO: Test no placeholders
-# [[test]]
-# name = "template_no_placeholders"
-# description = "Template('plain text')"
+python = '''
+from string import Template
 
-# TODO: Test whitespace in braces
-# [[test]]
-# name = "template_brace_space"
-# description = "${ name } invalid"
-# skip = true
+t = Template('')
+result = t.substitute()
+assert result == ''
+'''
+
+rust = '''
+// Rust: empty string
+let result = String::from("");
+assert_eq!(result, "");
+'''
+
+
+[[test]]
+name = "template_no_placeholders"
+description = "Template('plain text')"
+
+python = '''
+from string import Template
+
+t = Template('plain text')
+result = t.substitute()
+assert result == 'plain text'
+'''
+
+rust = '''
+// Rust: plain string
+let result = String::from("plain text");
+assert_eq!(result, "plain text");
+'''
+
+
+[[test]]
+name = "template_brace_space"
+description = "${ name } invalid"
+skip = true
+
+python = '''
+from string import Template
+
+# Spaces in braces are invalid
+t = Template('${ name }')
+result = t.safe_substitute(name='Test')
+# The pattern won't match, so remains as-is
+assert '${ name }' in result
+'''
+
+rust = '''
+// Rust: format doesn't use braces this way
+let result = true;
+'''
+

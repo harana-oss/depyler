@@ -12,7 +12,6 @@ category = "io-streams"
 [[test]]
 name = "stdin_iteration"
 description = "sys.stdin iteration"
-tags = ["stdin", "io"]
 
 python = '''
 import sys
@@ -35,7 +34,6 @@ pub fn process_stdin() {
 [[test]]
 name = "stderr_print"
 description = "sys.stderr print output"
-tags = ["stderr", "io"]
 
 python = '''
 import sys
@@ -54,7 +52,6 @@ pub fn log_error(msg: String) {
 [[test]]
 name = "file_read_text"
 description = "File read in text mode"
-tags = ["file", "read"]
 
 python = '''
 def read_file(filepath: str) -> str:
@@ -78,7 +75,6 @@ pub fn read_file(filepath: String) -> String {
 [[test]]
 name = "file_read_binary"
 description = "File read in binary mode"
-tags = ["file", "read", "binary"]
 
 python = '''
 def read_binary(filepath: str) -> bytes:
@@ -102,7 +98,6 @@ pub fn read_binary(filepath: String) -> bytes {
 [[test]]
 name = "file_iteration"
 description = "File line-by-line iteration"
-tags = ["file", "iteration"]
 
 python = '''
 def count_lines(filepath: str) -> int:
@@ -138,7 +133,6 @@ mod tests {
 [[test]]
 name = "argparse_string_param"
 description = "Argparse string parameter type inference"
-tags = ["argparse", "type-inference"]
 
 python = '''
 import argparse
@@ -163,7 +157,6 @@ pub fn process_file(filepath: String) -> String {
 [[test]]
 name = "argparse_bool_param"
 description = "Argparse boolean parameter type inference"
-tags = ["argparse", "type-inference", "bool"]
 
 python = '''
 import argparse
@@ -185,7 +178,6 @@ pub fn process(verbose: bool) {
 [[test]]
 name = "argparse_subcommand_enum"
 description = "Argparse subcommands generate enum variants"
-tags = ["argparse", "subcommand", "enum"]
 
 python = '''
 import argparse
@@ -210,7 +202,6 @@ pub fn read_stdin() {
 [[test]]
 name = "tempfile_named"
 description = "tempfile.NamedTemporaryFile translation"
-tags = ["tempfile"]
 
 python = '''
 import tempfile

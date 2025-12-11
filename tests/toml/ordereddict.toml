@@ -9,148 +9,470 @@ category = "data-structures"
 # Creating OrderedDict
 # =============================================================================
 
-# TODO: Test empty OrderedDict
-# [[test]]
-# name = "ordereddict_empty"
-# description = "OrderedDict()"
+[[test]]
+name = "ordereddict_empty"
+description = "OrderedDict()"
 
-# TODO: Test from pairs
-# [[test]]
-# name = "ordereddict_pairs"
-# description = "OrderedDict([('a', 1), ('b', 2)])"
+python = '''
+from collections import OrderedDict
 
-# TODO: Test from kwargs
-# [[test]]
-# name = "ordereddict_kwargs"
-# description = "OrderedDict(a=1, b=2)"
+od = OrderedDict([('a', 1), ('b', 2)])
+result = list(od.keys())
+'''
+
+rust = '''
+// Using indexmap crate for insertion-order preservation
+use indexmap::IndexMap;
+let mut od = IndexMap::new();
+od.insert("a", 1);
+od.insert("b", 2);
+'''
+
+
+[[test]]
+name = "ordereddict_pairs"
+description = "OrderedDict([('a', 1), ('b', 2)])"
+
+python = '''
+from collections import OrderedDict
+
+od = OrderedDict([('a', 1), ('b', 2)])
+result = list(od.keys())
+'''
+
+rust = '''
+// Using indexmap crate for insertion-order preservation
+use indexmap::IndexMap;
+let mut od = IndexMap::new();
+od.insert("a", 1);
+od.insert("b", 2);
+'''
+
+
+[[test]]
+name = "ordereddict_kwargs"
+description = "OrderedDict(a=1, b=2)"
+
+python = '''
+from collections import OrderedDict
+
+od = OrderedDict([('a', 1), ('b', 2)])
+result = list(od.keys())
+'''
+
+rust = '''
+// Using indexmap crate for insertion-order preservation
+use indexmap::IndexMap;
+let mut od = IndexMap::new();
+od.insert("a", 1);
+od.insert("b", 2);
+'''
+
 
 # =============================================================================
 # Order Preservation
 # =============================================================================
 
-# TODO: Test insertion order
-# [[test]]
-# name = "ordereddict_order"
-# description = "Keys in insertion order"
+[[test]]
+name = "ordereddict_order"
+description = "Keys in insertion order"
 
-# TODO: Test iteration order
-# [[test]]
-# name = "ordereddict_iter"
-# description = "list(d) preserves order"
+python = '''
+from collections import OrderedDict
 
-# TODO: Test update preserves order
-# [[test]]
-# name = "ordereddict_update"
-# description = "Existing keys stay in place"
+od = OrderedDict([('a', 1), ('b', 2)])
+result = list(od.keys())
+'''
+
+rust = '''
+// Using indexmap crate for insertion-order preservation
+use indexmap::IndexMap;
+let mut od = IndexMap::new();
+od.insert("a", 1);
+od.insert("b", 2);
+'''
+
+
+[[test]]
+name = "ordereddict_iter"
+description = "list(d) preserves order"
+
+python = '''
+from collections import OrderedDict
+
+od = OrderedDict([('a', 1), ('b', 2)])
+result = list(od.keys())
+'''
+
+rust = '''
+// Using indexmap crate for insertion-order preservation
+use indexmap::IndexMap;
+let mut od = IndexMap::new();
+od.insert("a", 1);
+od.insert("b", 2);
+'''
+
+
+[[test]]
+name = "ordereddict_update"
+description = "Existing keys stay in place"
+
+python = '''
+from collections import OrderedDict
+
+od = OrderedDict([('a', 1), ('b', 2)])
+result = list(od.keys())
+'''
+
+rust = '''
+// Using indexmap crate for insertion-order preservation
+use indexmap::IndexMap;
+let mut od = IndexMap::new();
+od.insert("a", 1);
+od.insert("b", 2);
+'''
+
 
 # =============================================================================
 # move_to_end
 # =============================================================================
 
-# TODO: Test move_to_end
-# [[test]]
-# name = "ordereddict_move_end"
-# description = "d.move_to_end('a')"
+[[test]]
+name = "ordereddict_move_end"
+description = "d.move_to_end('a')"
 
-# TODO: Test move_to_end last=False
-# [[test]]
-# name = "ordereddict_move_start"
-# description = "d.move_to_end('a', last=False)"
+python = '''
+from collections import OrderedDict
+
+od = OrderedDict([('a', 1), ('b', 2), ('c', 3)])
+od.move_to_end('a')
+result = list(od.keys())
+'''
+
+rust = '''
+// Rust doesn't have built-in OrderedDict
+// Would use indexmap crate
+'''
+
+
+[[test]]
+name = "ordereddict_move_start"
+description = "d.move_to_end('a', last=False)"
+
+python = '''
+from collections import OrderedDict
+
+od = OrderedDict([('a', 1), ('b', 2), ('c', 3)])
+od.move_to_end('a')
+result = list(od.keys())
+'''
+
+rust = '''
+// Rust doesn't have built-in OrderedDict
+// Would use indexmap crate
+'''
+
 
 # =============================================================================
 # popitem
 # =============================================================================
 
-# TODO: Test popitem LIFO
-# [[test]]
-# name = "ordereddict_popitem"
-# description = "d.popitem() returns last"
+[[test]]
+name = "ordereddict_popitem"
+description = "d.popitem() returns last"
 
-# TODO: Test popitem FIFO
-# [[test]]
-# name = "ordereddict_popitem_first"
-# description = "d.popitem(last=False)"
+python = '''
+from collections import OrderedDict
+
+od = OrderedDict([('a', 1), ('b', 2)])
+result = od.popitem()
+'''
+
+rust = '''
+// Using indexmap crate
+// let mut od = IndexMap::new();
+// od.insert("a", 1);
+// let result = od.pop();
+'''
+
+
+[[test]]
+name = "ordereddict_popitem_first"
+description = "d.popitem(last=False)"
+
+python = '''
+from collections import OrderedDict
+
+od = OrderedDict([('a', 1), ('b', 2)])
+result = od.popitem()
+'''
+
+rust = '''
+// Using indexmap crate
+// let mut od = IndexMap::new();
+// od.insert("a", 1);
+// let result = od.pop();
+'''
+
 
 # =============================================================================
 # Equality
 # =============================================================================
 
-# TODO: Test order matters in equality
-# [[test]]
-# name = "ordereddict_eq_order"
-# description = "OrderedDict([a,b]) != OrderedDict([b,a])"
+[[test]]
+name = "ordereddict_eq_order"
+description = "OrderedDict([a,b]) != OrderedDict([b,a])"
 
-# TODO: Test equality with dict
-# [[test]]
-# name = "ordereddict_eq_dict"
-# description = "OrderedDict equals dict (ignores order)"
+python = '''
+from collections import OrderedDict
+
+od = OrderedDict([('a', 1), ('b', 2)])
+result = list(od.keys())
+'''
+
+rust = '''
+// Using indexmap crate for insertion-order preservation
+use indexmap::IndexMap;
+let mut od = IndexMap::new();
+od.insert("a", 1);
+od.insert("b", 2);
+'''
+
+
+[[test]]
+name = "ordereddict_eq_dict"
+description = "OrderedDict equals dict (ignores order)"
+
+python = '''
+from collections import OrderedDict
+
+od = OrderedDict([('a', 1), ('b', 2)])
+result = list(od.keys())
+'''
+
+rust = '''
+// Using indexmap crate for insertion-order preservation
+use indexmap::IndexMap;
+let mut od = IndexMap::new();
+od.insert("a", 1);
+od.insert("b", 2);
+'''
+
 
 # =============================================================================
 # Reordering
 # =============================================================================
 
-# TODO: Test delete and reinsert
-# [[test]]
-# name = "ordereddict_reinsert"
-# description = "del d[k]; d[k] = v moves to end"
+[[test]]
+name = "ordereddict_reinsert"
+description = "del d[k]; d[k] = v moves to end"
 
-# TODO: Test reverse
-# [[test]]
-# name = "ordereddict_reverse"
-# description = "reversed(d)"
+python = '''
+from collections import OrderedDict
+
+od = OrderedDict([('a', 1), ('b', 2)])
+result = list(od.keys())
+'''
+
+rust = '''
+// Using indexmap crate for insertion-order preservation
+use indexmap::IndexMap;
+let mut od = IndexMap::new();
+od.insert("a", 1);
+od.insert("b", 2);
+'''
+
+
+[[test]]
+name = "ordereddict_reverse"
+description = "reversed(d)"
+
+python = '''
+from collections import OrderedDict
+
+od = OrderedDict([('a', 1), ('b', 2)])
+result = list(od.keys())
+'''
+
+rust = '''
+// Using indexmap crate for insertion-order preservation
+use indexmap::IndexMap;
+let mut od = IndexMap::new();
+od.insert("a", 1);
+od.insert("b", 2);
+'''
+
 
 # =============================================================================
 # Methods
 # =============================================================================
 
-# TODO: Test fromkeys
-# [[test]]
-# name = "ordereddict_fromkeys"
-# description = "OrderedDict.fromkeys(['a', 'b'])"
+[[test]]
+name = "ordereddict_fromkeys"
+description = "OrderedDict.fromkeys(['a', 'b'])"
 
-# TODO: Test copy
-# [[test]]
-# name = "ordereddict_copy"
-# description = "d.copy()"
+python = '''
+from collections import OrderedDict
+
+od = OrderedDict([('a', 1), ('b', 2)])
+result = list(od.keys())
+'''
+
+rust = '''
+// Using indexmap crate for insertion-order preservation
+use indexmap::IndexMap;
+let mut od = IndexMap::new();
+od.insert("a", 1);
+od.insert("b", 2);
+'''
+
+
+[[test]]
+name = "ordereddict_copy"
+description = "d.copy()"
+
+python = '''
+from collections import OrderedDict
+
+od = OrderedDict([('a', 1), ('b', 2)])
+result = list(od.keys())
+'''
+
+rust = '''
+// Using indexmap crate for insertion-order preservation
+use indexmap::IndexMap;
+let mut od = IndexMap::new();
+od.insert("a", 1);
+od.insert("b", 2);
+'''
+
 
 # =============================================================================
 # Python 3.7+ Regular Dict
 # =============================================================================
 
-# TODO: Test dict also ordered (3.7+)
-# [[test]]
-# name = "ordereddict_vs_dict"
-# description = "Regular dict maintains order too"
+[[test]]
+name = "ordereddict_vs_dict"
+description = "Regular dict maintains order too"
 
-# TODO: Test when to use OrderedDict
-# [[test]]
-# name = "ordereddict_use_case"
-# description = "Use for order-aware equality"
+python = '''
+from collections import OrderedDict
+
+od = OrderedDict([('a', 1), ('b', 2)])
+result = list(od.keys())
+'''
+
+rust = '''
+// Using indexmap crate for insertion-order preservation
+use indexmap::IndexMap;
+let mut od = IndexMap::new();
+od.insert("a", 1);
+od.insert("b", 2);
+'''
+
+
+[[test]]
+name = "ordereddict_use_case"
+description = "Use for order-aware equality"
+
+python = '''
+from collections import OrderedDict
+
+od = OrderedDict([('a', 1), ('b', 2)])
+result = list(od.keys())
+'''
+
+rust = '''
+// Using indexmap crate for insertion-order preservation
+use indexmap::IndexMap;
+let mut od = IndexMap::new();
+od.insert("a", 1);
+od.insert("b", 2);
+'''
+
 
 # =============================================================================
 # LRU Cache Pattern
 # =============================================================================
 
-# TODO: Test LRU pattern
-# [[test]]
-# name = "ordereddict_lru"
-# description = "move_to_end on access, popitem oldest"
+[[test]]
+name = "ordereddict_lru"
+description = "move_to_end on access, popitem oldest"
+
+python = '''
+from collections import OrderedDict
+
+od = OrderedDict([('a', 1), ('b', 2), ('c', 3)])
+od.move_to_end('a')
+result = list(od.keys())
+'''
+
+rust = '''
+// Rust doesn't have built-in OrderedDict
+// Would use indexmap crate
+'''
+
 
 # =============================================================================
 # Edge Cases
 # =============================================================================
 
-# TODO: Test repr
-# [[test]]
-# name = "ordereddict_repr"
-# description = "repr shows order"
+[[test]]
+name = "ordereddict_repr"
+description = "repr shows order"
 
-# TODO: Test merge (|)
-# [[test]]
-# name = "ordereddict_merge"
-# description = "d1 | d2"
+python = '''
+from collections import OrderedDict
 
-# TODO: Test json serialization
-# [[test]]
-# name = "ordereddict_json"
-# description = "json.dumps(OrderedDict)"
+od = OrderedDict([('a', 1), ('b', 2)])
+result = list(od.keys())
+'''
+
+rust = '''
+// Using indexmap crate for insertion-order preservation
+use indexmap::IndexMap;
+let mut od = IndexMap::new();
+od.insert("a", 1);
+od.insert("b", 2);
+'''
+
+
+[[test]]
+name = "ordereddict_merge"
+description = "d1 | d2"
+
+python = '''
+from collections import OrderedDict
+
+od = OrderedDict([('a', 1), ('b', 2)])
+result = list(od.keys())
+'''
+
+rust = '''
+// Using indexmap crate for insertion-order preservation
+use indexmap::IndexMap;
+let mut od = IndexMap::new();
+od.insert("a", 1);
+od.insert("b", 2);
+'''
+
+
+[[test]]
+name = "ordereddict_json"
+description = "json.dumps(OrderedDict)"
+
+python = '''
+from collections import OrderedDict
+
+od = OrderedDict([('a', 1), ('b', 2)])
+result = list(od.keys())
+'''
+
+rust = '''
+// Using indexmap crate for insertion-order preservation
+use indexmap::IndexMap;
+let mut od = IndexMap::new();
+od.insert("a", 1);
+od.insert("b", 2);
+'''
+

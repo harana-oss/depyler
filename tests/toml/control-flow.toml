@@ -12,7 +12,6 @@ category = "control-flow"
 [[test]]
 name = "if_simple"
 description = "Simple if statement"
-tags = ["if", "conditional"]
 
 python = '''
 def check_positive(x: int) -> bool:
@@ -43,7 +42,6 @@ mod tests {
 [[test]]
 name = "if_else"
 description = "If-else statement"
-tags = ["if", "else", "conditional"]
 
 python = '''
 def sign(x: int) -> str:
@@ -67,7 +65,6 @@ pub fn sign(x: i32) -> String {
 [[test]]
 name = "if_elif_else"
 description = "If-elif-else chain"
-tags = ["if", "elif", "else", "conditional"]
 
 python = '''
 def classify(x: int) -> str:
@@ -98,7 +95,6 @@ pub fn classify(x: i32) -> String {
 [[test]]
 name = "ternary_simple"
 description = "Simple ternary expression"
-tags = ["ternary", "conditional"]
 
 python = '''
 def abs_value(x: int) -> int:
@@ -137,7 +133,6 @@ mod tests {
 [[test]]
 name = "ternary_nested"
 description = "Nested ternary expression"
-tags = ["ternary", "nested", "conditional"]
 
 python = '''
 def classify(x: int) -> str:
@@ -161,7 +156,6 @@ pub fn classify(x: i32) -> String {
 [[test]]
 name = "for_range"
 description = "For loop with range"
-tags = ["for", "loop", "range"]
 
 python = '''
 def sum_to_n(n: int) -> int:
@@ -195,7 +189,6 @@ mod tests {
 [[test]]
 name = "for_range_with_start"
 description = "For loop with range(start, stop)"
-tags = ["for", "loop", "range"]
 
 python = '''
 def sum_range(start: int, stop: int) -> int:
@@ -229,7 +222,6 @@ mod tests {
 [[test]]
 name = "for_range_with_step"
 description = "For loop with range(start, stop, step)"
-tags = ["for", "loop", "range", "step"]
 
 python = '''
 def sum_evens(n: int) -> int:
@@ -269,7 +261,6 @@ mod tests {
 [[test]]
 name = "for_iterate_list"
 description = "For loop iterating over list"
-tags = ["for", "loop", "list"]
 
 python = '''
 def sum_list(items: list[int]) -> int:
@@ -304,7 +295,6 @@ mod tests {
 [[test]]
 name = "for_enumerate"
 description = "For loop with enumerate"
-tags = ["for", "loop", "enumerate"]
 
 python = '''
 def indexed_items(items: list[str]) -> list[str]:
@@ -338,7 +328,6 @@ mod tests {
 [[test]]
 name = "while_simple"
 description = "Simple while loop"
-tags = ["while", "loop"]
 
 python = '''
 def count_down(n: int) -> int:
@@ -373,7 +362,6 @@ mod tests {
 [[test]]
 name = "while_with_break"
 description = "While loop with break"
-tags = ["while", "loop", "break"]
 
 python = '''
 def find_first(items: list[int], target: int) -> int:
@@ -418,7 +406,6 @@ pub fn find_first(items: &Vec<i32>, target: i32) -> i32 {
 [[test]]
 name = "while_with_continue"
 description = "While loop with continue"
-tags = ["while", "loop", "continue"]
 
 python = '''
 def sum_positive(items: list[int]) -> int:
@@ -480,7 +467,6 @@ mod tests {
 [[test]]
 name = "try_except_basic"
 description = "Basic try-except block"
-tags = ["try", "except", "error"]
 
 python = '''
 def safe_divide(a: int, b: int) -> int:
@@ -542,7 +528,6 @@ mod tests {
 [[test]]
 name = "if_variable_shadowing"
 description = "Variable shadowing in if blocks"
-tags = ["if", "shadowing"]
 
 python = '''
 def shadow_test(x: int) -> int:
@@ -581,7 +566,6 @@ mod tests {
 [[test]]
 name = "ternary_with_literals"
 description = "Ternary expression with string literals"
-tags = ["ternary", "conditional"]
 
 python = '''
 def check_sign(x: int) -> str:
@@ -601,7 +585,6 @@ pub fn check_sign(x: i32) -> String {
 [[test]]
 name = "ternary_with_variables"
 description = "Ternary expression with variable values"
-tags = ["ternary", "conditional"]
 
 python = '''
 def max_value(a: int, b: int) -> int:
@@ -628,7 +611,6 @@ mod tests {
 [[test]]
 name = "ternary_in_assignment"
 description = "Ternary expression in variable assignment"
-tags = ["ternary", "assignment"]
 
 python = '''
 def classify(score: int) -> str:
@@ -650,7 +632,6 @@ pub fn classify(score: i32) -> String {
 [[test]]
 name = "ternary_with_complex_condition"
 description = "Ternary with compound boolean condition"
-tags = ["ternary", "boolean"]
 
 python = '''
 def check_range(x: int) -> bool:
@@ -675,7 +656,6 @@ mod tests {
 [[test]]
 name = "ternary_with_arithmetic"
 description = "Ternary with arithmetic expressions"
-tags = ["ternary", "arithmetic"]
 
 python = '''
 def compute(x: int, y: int) -> int:
@@ -702,7 +682,6 @@ mod tests {
 [[test]]
 name = "simple_if_elif_else_single_declaration"
 description = "Elif chain should generate single variable declaration, not duplicates"
-tags = ["if", "elif", "shadowing"]
 
 python = '''
 def test_func():
@@ -739,7 +718,6 @@ pub fn test_func() {
 [[test]]
 name = "triple_elif_chain_no_duplicates"
 description = "Triple elif chain maintains single declaration"
-tags = ["if", "elif", "shadowing"]
 
 python = '''
 def test_func():
@@ -792,7 +770,6 @@ pub fn test_func() {
 [[test]]
 name = "cli_output_format_pattern"
 description = "Real-world CLI output format selection pattern"
-tags = ["if", "elif", "cli", "pattern"]
 
 python = '''
 def process_args():
@@ -837,7 +814,6 @@ pub fn process_args() {
 [[test]]
 name = "elif_chain_compiles"
 description = "Generated code for elif chains must compile"
-tags = ["if", "elif", "compile"]
 compile_check = true
 
 python = '''
@@ -875,7 +851,6 @@ pub fn test_func() {
 [[test]]
 name = "try_except_statement"
 description = "Try-except statement generation"
-tags = ["try", "except", "stmt-gen"]
 
 python = '''
 def safe_operation():
@@ -914,7 +889,6 @@ pub fn safe_operation() -> i32 {
 [[test]]
 name = "try_finally_statement"
 description = "Try-finally statement generation"
-tags = ["try", "finally", "stmt-gen"]
 
 python = '''
 def with_finally():
@@ -945,7 +919,6 @@ mod tests {
 [[test]]
 name = "try_except_finally_statement"
 description = "Complete try-except-finally"
-tags = ["try", "except", "finally", "stmt-gen"]
 
 python = '''
 def complex_exception():
@@ -996,7 +969,6 @@ mod tests {
 [[test]]
 name = "with_statement"
 description = "Context manager with statement"
-tags = ["with", "context-manager", "stmt-gen"]
 
 python = '''
 def use_context():
@@ -1020,7 +992,6 @@ pub fn use_context() {
 [[test]]
 name = "break_statement"
 description = "Break statement in loop"
-tags = ["break", "loop", "stmt-gen"]
 
 python = '''
 def loop_with_break():
@@ -1044,7 +1015,6 @@ pub fn loop_with_break() {
 [[test]]
 name = "continue_statement"
 description = "Continue statement in loop"
-tags = ["continue", "loop", "stmt-gen"]
 
 python = '''
 def loop_with_continue():
@@ -1068,7 +1038,6 @@ pub fn loop_with_continue() {
 [[test]]
 name = "assert_without_message"
 description = "Assert statement without message"
-tags = ["assert", "stmt-gen"]
 
 python = '''
 def check_value(x: int):
@@ -1086,7 +1055,6 @@ pub fn check_value(x: i32) {
 [[test]]
 name = "assert_with_message"
 description = "Assert statement with message"
-tags = ["assert", "stmt-gen"]
 
 python = '''
 def check_positive(x: int):
@@ -1104,7 +1072,6 @@ pub fn check_positive(x: i32) {
 [[test]]
 name = "tuple_unpacking"
 description = "Tuple unpacking assignment"
-tags = ["tuple", "unpacking", "stmt-gen"]
 
 python = '''
 def unpack_values():
@@ -1122,7 +1089,6 @@ pub fn unpack_values() {
 [[test]]
 name = "index_assignment"
 description = "Dictionary index assignment"
-tags = ["index", "assignment", "stmt-gen"]
 
 python = '''
 def update_dict():
@@ -1147,7 +1113,6 @@ pub fn update_dict() -> HashMap<String, i32> {
 [[test]]
 name = "type_conversion_assignment"
 description = "Type conversion in assignment"
-tags = ["type", "conversion", "stmt-gen"]
 
 python = '''
 def convert_type():
@@ -1168,7 +1133,6 @@ pub fn convert_type() -> i32 {
 [[test]]
 name = "optional_return_type"
 description = "Optional return type wrapping"
-tags = ["optional", "return", "stmt-gen"]
 
 python = '''
 from typing import Optional
@@ -1191,7 +1155,6 @@ pub fn maybe_value(flag: bool) -> Option<i32> {
 [[test]]
 name = "raise_with_exception"
 description = "Raise statement with exception"
-tags = ["raise", "exception", "stmt-gen"]
 
 python = '''
 def raise_error():
@@ -1225,7 +1188,6 @@ pub fn raise_error() {
 [[test]]
 name = "bare_raise"
 description = "Bare raise statement for re-raise"
-tags = ["raise", "bare", "stmt-gen"]
 
 python = '''
 def reraise_error():
@@ -1264,7 +1226,6 @@ pub fn reraise_error() {
 [[test]]
 name = "for_loop_scope"
 description = "For loop scope management"
-tags = ["for", "scope", "stmt-gen"]
 
 python = '''
 def iterate_items():
@@ -1296,7 +1257,6 @@ mod tests {
 [[test]]
 name = "while_loop"
 description = "While loop generation"
-tags = ["while", "loop", "stmt-gen"]
 
 python = '''
 def count_down(n: int) -> int:
@@ -1329,7 +1289,6 @@ mod tests {
 [[test]]
 name = "if_else_statement"
 description = "If-else statement generation"
-tags = ["if", "else", "stmt-gen"]
 
 python = '''
 def abs_value(x: int) -> int:
@@ -1376,7 +1335,6 @@ mod tests {
 [[test]]
 name = "multiple_except_handlers"
 description = "Multiple except clauses"
-tags = ["try", "except", "multiple", "stmt-gen"]
 
 python = '''
 def handle_errors():
@@ -1418,7 +1376,6 @@ pub fn handle_errors() -> i32 {
 [[test]]
 name = "complex_statements"
 description = "Complex statement combinations"
-tags = ["complex", "stmt-gen"]
 
 python = '''
 def complex_statements(x: int) -> int:
@@ -1458,7 +1415,6 @@ mod tests {
 [[test]]
 name = "nested_index_assignment"
 description = "Nested dictionary access"
-tags = ["nested", "index", "stmt-gen"]
 
 python = '''
 def nested_dict():
@@ -1487,7 +1443,6 @@ pub fn nested_dict() -> HashMap<String, HashMap<String, i32>> {
 [[test]]
 name = "pass_statement"
 description = "Pass statement generation"
-tags = ["pass", "stmt-gen"]
 
 python = '''
 def empty_function():
@@ -1501,7 +1456,6 @@ pub fn empty_function() {}
 [[test]]
 name = "with_without_target"
 description = "Context manager without variable binding"
-tags = ["with", "context-manager", "stmt-gen"]
 
 python = '''
 def use_context_no_var():
@@ -1518,7 +1472,6 @@ pub fn use_context_no_var() {
 [[test]]
 name = "complex_logic_combination"
 description = "All statement types working together"
-tags = ["complex", "integration", "stmt-gen"]
 
 python = '''
 def complex_logic(items: list) -> int:
@@ -1597,7 +1550,6 @@ mod tests {
 [[test]]
 name = "nested_scope_management"
 description = "Variable scoping in nested if blocks"
-tags = ["scope", "variable", "context-coverage"]
 
 python = '''
 def outer():
@@ -1631,7 +1583,6 @@ mod tests {
 [[test]]
 name = "variable_shadowing_context"
 description = "Variable shadowing in nested scopes"
-tags = ["scope", "shadowing", "context-coverage"]
 
 python = '''
 def shadow_test():
@@ -1665,7 +1616,6 @@ mod tests {
 [[test]]
 name = "multiple_scope_levels"
 description = "Deeply nested scopes"
-tags = ["scope", "nested", "context-coverage"]
 
 python = '''
 def deep_scopes():
@@ -1701,7 +1651,6 @@ pub fn deep_scopes() -> i32 {
 [[test]]
 name = "loop_scoping"
 description = "Variable scoping in loops"
-tags = ["scope", "loop", "context-coverage"]
 
 python = '''
 def loop_scope():
@@ -1735,7 +1684,6 @@ mod tests {
 [[test]]
 name = "parameter_scoping"
 description = "Parameter handling in function scope"
-tags = ["scope", "parameter", "context-coverage"]
 
 python = '''
 def with_params(x: int, y: int) -> int:
@@ -1764,7 +1712,6 @@ mod tests {
 [[test]]
 name = "mutation_scope_invariants"
 description = "Variable mutation across scopes"
-tags = ["scope", "mutation", "context-coverage"]
 
 python = '''
 def scope_invariant():
@@ -1791,7 +1738,6 @@ pub fn scope_invariant() -> i32 {
 [[test]]
 name = "empty_scope_stack"
 description = "Simple function with no nested scopes"
-tags = ["scope", "simple", "context-coverage"]
 
 python = '''
 def simple():
@@ -1816,7 +1762,6 @@ mod tests {
 [[test]]
 name = "mutable_variable_tracking"
 description = "Tracking mutable variable updates"
-tags = ["scope", "mutation", "context-coverage"]
 
 python = '''
 def mutable_tracking():
@@ -1847,7 +1792,6 @@ mod tests {
 [[test]]
 name = "exception_scope_bare_except"
 description = "Bare except clause handling"
-tags = ["exception", "try", "context-coverage"]
 
 python = '''
 def try_bare_except():
@@ -1897,7 +1841,6 @@ mod tests {
 [[test]]
 name = "exception_scope_specific_type"
 description = "Specific exception type handling"
-tags = ["exception", "try", "context-coverage"]
 
 python = '''
 def try_specific():
@@ -1947,7 +1890,6 @@ mod tests {
 [[test]]
 name = "exception_scope_multiple_types"
 description = "Multiple exception types in tuple"
-tags = ["exception", "try", "context-coverage"]
 
 python = '''
 def try_multiple():
@@ -2016,7 +1958,6 @@ mod tests {
 [[test]]
 name = "exception_scope_nested_try"
 description = "Nested try-except blocks"
-tags = ["exception", "try", "nested", "context-coverage"]
 
 python = '''
 def nested_try():
@@ -2082,7 +2023,6 @@ pub fn nested_try() -> i32 {
 [[test]]
 name = "exception_scope_with_finally"
 description = "Try-except-finally block"
-tags = ["exception", "try", "finally", "context-coverage"]
 
 python = '''
 def try_finally():
@@ -2137,7 +2077,6 @@ mod tests {
 [[test]]
 name = "exception_scope_with_else"
 description = "Try-except-else block"
-tags = ["exception", "try", "else", "context-coverage"]
 
 python = '''
 def try_else():
@@ -2189,7 +2128,6 @@ mod tests {
 [[test]]
 name = "exception_scope_raise_in_try"
 description = "Raise statement inside try block"
-tags = ["exception", "try", "raise", "context-coverage"]
 
 python = '''
 def raise_in_try(x: int):
@@ -2244,7 +2182,6 @@ mod tests {
 [[test]]
 name = "exception_scope_sequential_try"
 description = "Sequential try-except blocks"
-tags = ["exception", "try", "context-coverage"]
 
 python = '''
 def sequential_try():
@@ -2312,7 +2249,6 @@ pub fn sequential_try() -> i32 {
 [[test]]
 name = "exception_scope_return_in_except"
 description = "Return statement inside except block"
-tags = ["exception", "try", "return", "context-coverage"]
 
 python = '''
 def return_in_except(x: int):
@@ -2364,7 +2300,6 @@ mod tests {
 [[test]]
 name = "exception_scope_in_loop"
 description = "Try-except inside a loop"
-tags = ["exception", "try", "loop", "context-coverage"]
 
 python = '''
 def try_in_loop():
@@ -2419,7 +2354,6 @@ mod tests {
 [[test]]
 name = "exception_scope_empty_except"
 description = "Empty except with pass"
-tags = ["exception", "try", "pass", "context-coverage"]
 
 python = '''
 def empty_except():
@@ -2468,7 +2402,6 @@ mod tests {
 [[test]]
 name = "exception_scope_multiple_except"
 description = "Multiple except clauses for different types"
-tags = ["exception", "try", "multiple", "context-coverage"]
 
 python = '''
 def multiple_except():
@@ -2541,7 +2474,6 @@ mod tests {
 [[test]]
 name = "mutation_exception_scope_stack"
 description = "Deeply nested try-except blocks"
-tags = ["exception", "try", "nested", "context-coverage"]
 
 python = '''
 def nested_scopes():
@@ -2620,7 +2552,6 @@ mod tests {
 [[test]]
 name = "property_bare_except_catches_all"
 description = "Bare except catches all exception types"
-tags = ["exception", "try", "bare", "context-coverage"]
 
 python = '''
 def bare_catches_all():
@@ -2691,7 +2622,6 @@ mod tests {
 [[test]]
 name = "integration_complex_exception_handling"
 description = "Complex nested exception handling with loops"
-tags = ["exception", "try", "complex", "context-coverage"]
 
 python = '''
 def complex_exceptions(values: list[int]):
@@ -2777,7 +2707,6 @@ mod tests {
 [[test]]
 name = "if_empty_then_block"
 description = "Empty then block with pass statement"
-tags = ["if", "pass", "empty"]
 
 python = '''
 def noop_if(x: int) -> int:
@@ -2808,7 +2737,6 @@ mod tests {
 [[test]]
 name = "if_empty_else_block"
 description = "Empty else block with pass statement"
-tags = ["if", "else", "pass", "empty"]
 
 python = '''
 def noop_else(x: int) -> int:
@@ -2847,7 +2775,6 @@ mod tests {
 [[test]]
 name = "if_function_call_condition"
 description = "Function call in if condition"
-tags = ["if", "function-call", "condition"]
 
 python = '''
 def is_even(x: int) -> bool:
@@ -2903,7 +2830,6 @@ mod tests {
 [[test]]
 name = "if_complex_nested_elif"
 description = "Complex nested if-elif-else structure"
-tags = ["if", "elif", "else", "nested", "complex"]
 
 python = '''
 def complex_check(x: int, y: int) -> str:
@@ -2957,7 +2883,6 @@ pub fn complex_check(x: i32, y: i32) -> String {
 [[test]]
 name = "for_loop_dict_subscript_target"
 description = "For loop with dict subscript as target (edge case)"
-tags = ["for", "dict", "edge-case"]
 skip = true
 
 python = '''
@@ -2975,7 +2900,6 @@ rust = '''
 [[test]]
 name = "nested_tuple_unpacking"
 description = "Complex nested tuple unpacking (limited support)"
-tags = ["tuple", "unpacking", "edge-case"]
 skip = true
 
 python = '''
@@ -2992,7 +2916,6 @@ rust = '''
 [[test]]
 name = "try_with_finally_only"
 description = "Try block with only finally (no except)"
-tags = ["try", "finally"]
 
 python = '''
 def test():
@@ -3025,7 +2948,6 @@ mod tests {
 [[test]]
 name = "raise_caught_exception_scope"
 description = "Raise caught by try block"
-tags = ["raise", "try", "except"]
 
 python = '''
 def test():
@@ -3066,7 +2988,6 @@ pub fn test() -> String {
 [[test]]
 name = "augmented_floor_division"
 description = "Augmented assignment with floor division"
-tags = ["augmented", "floor-division"]
 
 python = '''
 def test():
@@ -3125,7 +3046,6 @@ mod tests {
 [[test]]
 name = "break_in_nested_loop"
 description = "Break in nested loops"
-tags = ["break", "nested", "loop"]
 
 python = '''
 def test():
@@ -3166,7 +3086,6 @@ mod tests {
 [[test]]
 name = "continue_in_nested_loop"
 description = "Continue in nested loops"
-tags = ["continue", "nested", "loop"]
 
 python = '''
 def test():
@@ -3231,7 +3150,6 @@ mod tests {
 [[test]]
 name = "with_statement_target"
 description = "With statement binding to target variable"
-tags = ["with", "context-manager"]
 
 python = '''
 class ContextManager:
@@ -3271,7 +3189,6 @@ pub fn test() {
 [[test]]
 name = "if_condition_result_bool"
 description = "If condition with function returning bool"
-tags = ["if", "bool", "function-call"]
 
 python = '''
 def is_even(n: int) -> bool:
@@ -3331,7 +3248,6 @@ mod tests {
 [[test]]
 name = "return_len_type_conversion"
 description = "Return len() with type conversion"
-tags = ["return", "len", "type-conversion"]
 
 python = '''
 def get_length(items: list[int]) -> int:
@@ -3358,7 +3274,6 @@ mod tests {
 [[test]]
 name = "return_early_optional"
 description = "Early return with Optional type"
-tags = ["return", "optional", "early-return"]
 
 python = '''
 from typing import Optional
@@ -3385,7 +3300,6 @@ pub fn maybe_find(items: &Vec<i32>, target: i32) -> Option<i32> {
 [[test]]
 name = "return_none_optional"
 description = "Return None for Optional type"
-tags = ["return", "none", "optional"]
 
 python = '''
 from typing import Optional
@@ -3403,7 +3317,6 @@ pub fn optional_result() -> Option<i32> {
 [[test]]
 name = "return_empty_optional_early"
 description = "Empty return in Optional function (early)"
-tags = ["return", "empty", "optional", "early"]
 
 python = '''
 from typing import Optional
@@ -3426,7 +3339,6 @@ pub fn early_exit(flag: bool) -> Option<i32> {
 [[test]]
 name = "return_empty_result_early"
 description = "Empty return in Result function (early)"
-tags = ["return", "empty", "early"]
 
 python = '''
 def validate(x: int):
@@ -3448,7 +3360,6 @@ pub fn validate(x: i32) {
 [[test]]
 name = "expr_usize_count_method"
 description = "Count method returns usize"
-tags = ["usize", "method", "count"]
 
 python = '''
 def count_occurrences(text: str, char: str) -> int:
@@ -3464,7 +3375,6 @@ pub fn count_occurrences(text: String, char: String) -> i32 {
 [[test]]
 name = "expr_usize_len_builtin"
 description = "Len builtin returns usize"
-tags = ["usize", "builtin", "len"]
 
 python = '''
 def get_size(items: list[int]) -> int:
@@ -3491,7 +3401,6 @@ mod tests {
 [[test]]
 name = "expr_usize_binary"
 description = "Binary expression with usize operands"
-tags = ["usize", "binary", "expression"]
 
 python = '''
 def total_size(a: list[int], b: list[int]) -> int:
@@ -3507,7 +3416,6 @@ pub fn total_size(a: &Vec<i32>, b: &Vec<i32>) -> i32 {
 [[test]]
 name = "lambda_capture_variable"
 description = "Lambda capturing variable from outer scope"
-tags = ["lambda", "capture"]
 
 python = '''
 def create_adder(x: int):
@@ -3523,7 +3431,6 @@ pub fn create_adder(x: i32) {
 [[test]]
 name = "ternary_variable_usage"
 description = "Variable used in ternary expression"
-tags = ["ternary", "variable"]
 
 python = '''
 def abs_value(x: int) -> int:
@@ -3562,7 +3469,6 @@ mod tests {
 [[test]]
 name = "slice_variable_bounds"
 description = "Variable in slice bounds"
-tags = ["slice", "variable"]
 
 python = '''
 def get_window(data: list[int], start: int, size: int) -> list[int]:
@@ -3587,7 +3493,6 @@ pub fn get_window(data: &Vec<i32>, start: i32, size: i32) -> Vec<i32> {
 [[test]]
 name = "set_literal_with_variable"
 description = "Variable in set literal"
-tags = ["set", "literal", "variable"]
 
 python = '''
 def create_set(x: int) -> set[int]:
@@ -3610,7 +3515,6 @@ pub fn create_set(x: i32) -> HashSet<i32> {
 [[test]]
 name = "class_instance_type_tracking"
 description = "Class instance assignment tracks type"
-tags = ["class", "instance", "type-tracking"]
 
 python = '''
 class Point:
@@ -3671,7 +3575,6 @@ pub fn test() {
 [[test]]
 name = "set_builtin_constructor"
 description = "set() builtin constructor type tracking"
-tags = ["set", "constructor", "builtin"]
 
 python = '''
 def test():
@@ -3690,7 +3593,6 @@ pub fn test() -> bool {
 [[test]]
 name = "nested_dict_get_mut_chain"
 description = "Nested dict assignment with get_mut chain"
-tags = ["dict", "nested", "get_mut"]
 
 python = '''
 def test():
@@ -3754,7 +3656,6 @@ pub fn test() -> i32 {
 [[test]]
 name = "vec_index_type_aware"
 description = "Vec index assignment with type info"
-tags = ["vec", "index", "type-aware"]
 
 python = '''
 def test():
@@ -3792,7 +3693,6 @@ pub fn test() -> i32 {
 [[test]]
 name = "char_variable_dict_heuristic"
 description = "Char variable triggers dict heuristic"
-tags = ["char", "dict", "heuristic"]
 
 python = '''
 def test():
@@ -3836,7 +3736,6 @@ pub fn test() {
 [[test]]
 name = "tuple_unpack_mutable"
 description = "Tuple unpacking with mutable variables"
-tags = ["tuple", "unpack", "mutable"]
 
 python = '''
 def test():
@@ -3858,7 +3757,6 @@ pub fn test() -> i32 {
 [[test]]
 name = "try_handler_named_exception"
 description = "Try handler with named exception variable"
-tags = ["try", "except", "named"]
 
 python = '''
 def test():
@@ -3897,7 +3795,6 @@ pub fn test() -> String {
 [[test]]
 name = "function_return_type_tracking"
 description = "Function return type tracking in assignment"
-tags = ["function", "return-type", "tracking"]
 
 python = '''
 def merge(a: list[int], b: list[int]) -> list[int]:
@@ -3938,7 +3835,6 @@ mod tests {
 [[test]]
 name = "string_method_type_tracking"
 description = "String method return type tracking"
-tags = ["string", "method", "type-tracking"]
 
 python = '''
 def test(text: str) -> str:
@@ -3956,7 +3852,6 @@ pub fn test(text: String) -> String {
 [[test]]
 name = "property_if_statement"
 description = "Property test: if statement transpiles"
-tags = ["property", "if"]
 
 python = '''
 def test_if():
@@ -3991,7 +3886,6 @@ mod tests {
 [[test]]
 name = "property_while_statement"
 description = "Property test: while statement transpiles"
-tags = ["property", "while"]
 
 python = '''
 def test_while():
@@ -4024,7 +3918,6 @@ mod tests {
 [[test]]
 name = "property_for_statement"
 description = "Property test: for statement transpiles"
-tags = ["property", "for"]
 
 python = '''
 def test_for():
@@ -4043,7 +3936,6 @@ pub fn test_for() {
 [[test]]
 name = "property_break_statement"
 description = "Property test: break statement transpiles"
-tags = ["property", "break"]
 
 python = '''
 def test_break():
@@ -4062,7 +3954,6 @@ pub fn test_break() {
 [[test]]
 name = "property_continue_statement"
 description = "Property test: continue statement transpiles"
-tags = ["property", "continue"]
 
 python = '''
 def test_continue():
@@ -4081,7 +3972,6 @@ pub fn test_continue() {
 [[test]]
 name = "property_return_statement"
 description = "Property test: return statement transpiles"
-tags = ["property", "return"]
 
 python = '''
 def test_return():
@@ -4106,7 +3996,6 @@ mod tests {
 [[test]]
 name = "complex_statement_combinations"
 description = "Complex statement combinations integration test"
-tags = ["integration", "complex"]
 
 python = '''
 from typing import Optional
@@ -4149,5 +4038,577 @@ pub fn complex_logic(items: Vec<i32>, target: i32) -> Option<i32> {
         }
     }
     return None;
+}
+'''
+# =============================================================================
+# Additional examples from examples/control_flow/
+# =============================================================================
+
+[[test]]
+name = "test_break_continue"
+description = "Example test"
+
+python = '''
+def test_simple_break():
+    """Test basic break statement"""
+    for i in range(10):
+        if i == 5:
+            break
+        print(i)
+
+def test_simple_continue():
+    """Test basic continue statement"""
+    for i in range(10):
+        if i % 2 == 0:
+            continue
+        print(i)
+
+def test_nested_break():
+    """Test break in nested loops"""
+    for i in range(3):
+        for j in range(3):
+            if i == 1 and j == 1:
+                break
+            print(i, j)
+
+def test_while_break():
+    """Test break in while loop"""
+    i = 0
+    while True:
+        if i >= 5:
+            break
+        print(i)
+        i += 1
+
+def test_while_continue():
+    """Test continue in while loop"""
+    i = 0
+    while i < 10:
+        i += 1
+        if i % 2 == 0:
+            continue
+        print(i)
+'''
+
+rust = '''
+#[derive(Debug, Clone)]
+pub struct ZeroDivisionError {
+    message: String,
+}
+impl std::fmt::Display for ZeroDivisionError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "division by zero: {}", self.message)
+    }
+}
+impl std::error::Error for ZeroDivisionError {}
+impl ZeroDivisionError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = "Test basic break statement"]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn test_simple_break() {
+    for i in 0..10 {
+        if i == 5 {
+            break;
+        }
+        println!("{}", i);
+    }
+}
+#[doc = "Test basic continue statement"]
+#[doc = " Depyler: proven to terminate"]
+pub fn test_simple_continue() -> Result<(), ZeroDivisionError> {
+    for i in 0..10 {
+        if i % 2 == 0 {
+            continue;
+        }
+        println!("{}", i);
+    }
+}
+#[doc = "Test break in nested loops"]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn test_nested_break() {
+    for i in 0..3 {
+        for j in 0..3 {
+            if (i == 1) && (j == 1) {
+                break;
+            }
+            println!("{} {}", i, j);
+        }
+    }
+}
+#[doc = "Test break in while loop"]
+#[doc = " Depyler: verified panic-free"]
+pub fn test_while_break() {
+    let mut i = 0;
+    while true {
+        if i >= 5 {
+            break;
+        }
+        println!("{}", i);
+        i = i + 1;
+    }
+}
+#[doc = "Test continue in while loop"]
+pub fn test_while_continue() -> Result<(), ZeroDivisionError> {
+    let mut i = 0;
+    while i < 10 {
+        i = i + 1;
+        if i % 2 == 0 {
+            continue;
+        }
+        println!("{}", i);
+    }
+}
+'''
+
+[[test]]
+name = "test_final_constant"
+description = "Example test"
+
+python = '''
+from typing import Final
+
+def get_field_goal() -> int:
+    FIELD_GOAL: Final[int] = 600
+    return FIELD_GOAL
+'''
+
+rust = '''
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn get_field_goal() -> i32 {
+    const FIELD_GOAL: i32 = 600;
+    FIELD_GOAL
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{quickcheck, TestResult};
+    #[test]
+    fn test_get_field_goal_examples() {
+        let _ = get_field_goal();
+    }
+}
+'''
+
+[[test]]
+name = "test_generator"
+description = "Example test"
+
+python = '''
+"""Test generator functions for v1.3.0"""
+
+def simple_generator(n: int) -> int:
+    """A simple generator that yields numbers"""
+    i = 0
+    while i < n:
+        yield i
+        i += 1
+
+def fibonacci_generator(n: int) -> int:
+    """Generate Fibonacci numbers"""
+    a, b = 0, 1
+    count = 0
+    while count < n:
+        yield a
+        a, b = b, a + b
+        count += 1
+
+def test_generator() -> int:
+    """Test generator usage"""
+    # For now, we can't use generators directly
+    # This would need yield support
+    return 42
+'''
+
+rust = '''
+#[doc = "A simple generator that yields numbers"]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Generator state struct"]
+#[derive(Debug)]
+struct SimpleGeneratorState {
+    state: usize,
+    i: i32,
+    n: i32,
+}
+#[doc = " Generator function - returns Iterator"]
+pub fn simple_generator(n: i32) -> impl Iterator<Item = i32> {
+    SimpleGeneratorState {
+        state: 0,
+        i: 0,
+        n: n,
+    }
+}
+impl Iterator for SimpleGeneratorState {
+    type Item = i32;
+    fn next(&mut self) -> Option<Self::Item> {
+        match self.state {
+            0 => {
+                self.i = 0;
+                self.state = 1;
+                self.next()
+            }
+            1 => {
+                if self.i < self.n {
+                    let result = self.i;
+                    self.i = self.i + 1;
+                    return Some(result);
+                } else {
+                    self.state = 2;
+                    None
+                }
+            }
+            _ => None,
+        }
+    }
+}
+#[doc = "Generate Fibonacci numbers"]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Generator state struct"]
+#[derive(Debug)]
+struct FibonacciGeneratorState {
+    state: usize,
+    count: i32,
+    n: i32,
+}
+#[doc = " Generator function - returns Iterator"]
+pub fn fibonacci_generator(n: i32) -> impl Iterator<Item = i32> {
+    FibonacciGeneratorState {
+        state: 0,
+        count: 0,
+        n: n,
+    }
+}
+impl Iterator for FibonacciGeneratorState {
+    type Item = i32;
+    fn next(&mut self) -> Option<Self::Item> {
+        match self.state {
+            0 => {
+                let (mut a, mut b) = (0, 1);
+                self.count = 0;
+                self.state = 1;
+                self.next()
+            }
+            1 => {
+                if self.count < self.n {
+                    let result = a;
+                    (a, b) = (b, a + b);
+                    self.count = self.count + 1;
+                    return Some(result);
+                } else {
+                    self.state = 2;
+                    None
+                }
+            }
+            _ => None,
+        }
+    }
+}
+#[doc = "Test generator usage"]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn test_generator() -> i32 {
+    42
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{quickcheck, TestResult};
+    #[test]
+    fn test_simple_generator_examples() {
+        assert_eq!(simple_generator(0), 0);
+        assert_eq!(simple_generator(1), 1);
+        assert_eq!(simple_generator(-1), -1);
+    }
+    #[test]
+    fn test_fibonacci_generator_examples() {
+        assert_eq!(fibonacci_generator(0), 0);
+        assert_eq!(fibonacci_generator(1), 1);
+        assert_eq!(fibonacci_generator(-1), -1);
+    }
+    #[test]
+    fn test_test_generator_examples() {
+        let _ = test_generator();
+    }
+}
+'''
+
+[[test]]
+name = "test_iterator"
+description = "Example test"
+
+python = '''
+"""Test iterator protocol for v1.3.0"""
+
+class Range:
+    """A simple range iterator"""
+    
+    def __init__(self, start: int, stop: int):
+        self.start = start
+        self.stop = stop
+        self.current = start
+    
+    def __iter__(self):
+        """Return self as iterator"""
+        return self
+    
+    def __next__(self) -> int:
+        """Get next value"""
+        if self.current < self.stop:
+            value = self.current
+            self.current += 1
+            return value
+        else:
+            # In Python, would raise StopIteration
+            return -1  # Simplified for now
+
+def test_custom_iterator():
+    """Test custom iterator"""
+    r = Range(0, 5)
+    total = 0
+    
+    # Manual iteration for now
+    value = r.__next__()
+    while value != -1:
+        total += value
+        value = r.__next__()
+    
+    return total
+
+def test_for_with_iterator():
+    """Test for loop with iterator"""
+    r = Range(0, 5)
+    total = 0
+    
+    # This should work once we have proper iterator support
+    for i in r:
+        total += i
+    
+    return total
+'''
+
+rust = '''
+#[derive(Debug, Clone)]
+pub struct Range {
+    pub start: i32,
+    pub stop: i32,
+    pub current: i32,
+}
+impl Range {
+    pub fn new(start: i32, stop: i32) -> Self {
+        Self {
+            start,
+            stop,
+            current: 0,
+        }
+    }
+    pub fn __iter__(&self) -> &Self {
+        return self;
+    }
+    pub fn __next__(&mut self) -> i32 {
+        if self.current < self.stop {
+            let mut value = self.current;
+            self.current = self.current + 1;
+            return value;
+        } else {
+            return -1;
+        };
+    }
+}
+#[doc = "Test custom iterator"]
+#[doc = " Depyler: verified panic-free"]
+pub fn test_custom_iterator() -> i32 {
+    let mut r = Range::new(0, 5);
+    let mut total = 0;
+    let mut value = r.__next__();
+    while value != -1 {
+        total = total + value;
+        value = r.__next__();
+    }
+    total
+}
+#[doc = "Test for loop with iterator"]
+#[doc = " Depyler: verified panic-free"]
+pub fn test_for_with_iterator() -> i32 {
+    let mut r = Range::new(0, 5);
+    let mut total = 0;
+    for i in r.iter().cloned() {
+        total = total + i;
+    }
+    total
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{quickcheck, TestResult};
+    #[test]
+    fn test_test_custom_iterator_examples() {
+        let _ = test_custom_iterator();
+    }
+    #[test]
+    fn test_test_for_with_iterator_examples() {
+        let _ = test_for_with_iterator();
+    }
+}
+'''
+
+[[test]]
+name = "test_simple_break"
+description = "Example test"
+
+python = '''
+def test_simple_break():
+    """Test basic break statement"""
+    for i in range(5):
+        if i == 3:
+            break
+'''
+
+rust = '''
+#[doc = "Test basic break statement"]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn test_simple_break() {
+    for i in 0..5 {
+        if i == 3 {
+            break;
+        }
+    }
+}
+'''
+
+[[test]]
+name = "test_simple_continue"
+description = "Example test"
+
+python = '''
+def test_simple_continue():
+    """Test basic continue statement"""
+    for i in range(5):
+        if i == 2:
+            continue
+        print(i)
+'''
+
+rust = '''
+#[doc = "Test basic continue statement"]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn test_simple_continue() {
+    for i in 0..5 {
+        if i == 2 {
+            continue;
+        }
+        println!("{}", i);
+    }
+}
+'''
+
+[[test]]
+name = "test_with_statement"
+description = "Example test"
+
+python = '''
+"""Test with statement support for v1.3.0"""
+
+class FileManager:
+    """A simple file manager context manager"""
+    
+    def __init__(self, filename: str):
+        self.filename = filename
+        self.file = None
+    
+    def __enter__(self):
+        """Enter the context"""
+        # In real code, would open file
+        self.file = self.filename
+        return self
+    
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        """Exit the context"""
+        # In real code, would close file
+        self.file = None
+        return False
+    
+    def write(self, data: str):
+        """Write data to file"""
+        # In real code, would write to file
+        return len(data)
+
+def test_simple_with():
+    """Test basic with statement"""
+    with FileManager("test.txt") as fm:
+        result = fm.write("Hello, World!")
+    return result
+
+def test_with_builtin():
+    """Test with built-in open"""
+    with open("test.txt", "w") as f:
+        f.write("Hello, World!")
+    return 1
+'''
+
+rust = '''
+use serde_json;
+#[derive(Debug, Clone)]
+pub struct FileManager {
+    pub filename: String,
+    pub file: (),
+}
+impl FileManager {
+    pub fn new(filename: String) -> Self {
+        Self {
+            filename,
+            file: Default::default(),
+        }
+    }
+    pub fn __enter__(&mut self) -> &Self {
+        self.file = self.filename;
+        return self;
+    }
+    pub fn __exit__(
+        &mut self,
+        exc_type: serde_json::Value,
+        exc_val: serde_json::Value,
+        exc_tb: serde_json::Value,
+    ) -> bool {
+        self.file = ();
+        return false;
+    }
+    pub fn write(&self, data: String) {
+        return data.len();
+    }
+}
+#[doc = "Test basic with statement"]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn test_simple_with() -> i32 {
+    let _context = FileManager::new("test.txt".to_string().to_string());
+    let fm = _context.__enter__();
+    let result = fm.write("Hello, World!".to_string());
+    result
+}
+#[doc = "Test with built-in open"]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn test_with_builtin() -> i32 {
+    let f = std::fs::File::create("test.txt".to_string())?;
+    f.write("Hello, World!".to_string());
+    1
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{quickcheck, TestResult};
+    #[test]
+    fn test_test_with_builtin_examples() {
+        let _ = test_with_builtin();
+    }
 }
 '''

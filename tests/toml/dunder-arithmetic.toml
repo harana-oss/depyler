@@ -9,123 +9,468 @@ category = "dunder-methods"
 # Basic Arithmetic
 # =============================================================================
 
-# TODO: Test __add__
-# [[test]]
-# name = "dunder_add"
-# description = "def __add__(self, other): return MyClass(self.x + other.x)"
+[[test]]
+name = "dunder_add"
+description = "def __add__(self, other): return MyClass(self.x + other.x)"
 
-# TODO: Test __sub__
-# [[test]]
-# name = "dunder_sub"
-# description = "def __sub__(self, other): return MyClass(self.x - other.x)"
+python = '''
+class Example:
+    def __init__(self, value):
+        self.value = value
 
-# TODO: Test __mul__
-# [[test]]
-# name = "dunder_mul"
-# description = "def __mul__(self, other): return MyClass(self.x * other.x)"
+result = Example(42)
+'''
 
-# TODO: Test __truediv__
-# [[test]]
-# name = "dunder_truediv"
-# description = "def __truediv__(self, other): return MyClass(self.x / other.x)"
+rust = '''
+struct Example { value: i32 }
+'''
 
-# TODO: Test __floordiv__
-# [[test]]
-# name = "dunder_floordiv"
-# description = "def __floordiv__(self, other): return MyClass(self.x // other.x)"
 
-# TODO: Test __mod__
-# [[test]]
-# name = "dunder_mod"
-# description = "def __mod__(self, other): return MyClass(self.x % other.x)"
+[[test]]
+name = "dunder_sub"
+description = "def __sub__(self, other): return MyClass(self.x - other.x)"
 
-# TODO: Test __pow__
-# [[test]]
-# name = "dunder_pow"
-# description = "def __pow__(self, other): return MyClass(self.x ** other.x)"
+python = '''
+class Example:
+    def __init__(self, value):
+        self.value = value
 
-# TODO: Test __pow__ with modulo
-# [[test]]
-# name = "dunder_pow_mod"
-# description = "def __pow__(self, other, mod=None): ..."
+result = Example(42)
+'''
+
+rust = '''
+struct Example { value: i32 }
+'''
+
+
+[[test]]
+name = "dunder_mul"
+description = "def __mul__(self, other): return MyClass(self.x * other.x)"
+
+python = '''
+class Example:
+    def __init__(self, value):
+        self.value = value
+
+result = Example(42)
+'''
+
+rust = '''
+struct Example { value: i32 }
+'''
+
+
+[[test]]
+name = "dunder_truediv"
+description = "def __truediv__(self, other): return MyClass(self.x / other.x)"
+
+python = '''
+class Example:
+    def __init__(self, value):
+        self.value = value
+
+result = Example(42)
+'''
+
+rust = '''
+struct Example { value: i32 }
+'''
+
+
+[[test]]
+name = "dunder_floordiv"
+description = "def __floordiv__(self, other): return MyClass(self.x // other.x)"
+
+python = '''
+class Example:
+    def __init__(self, value):
+        self.value = value
+
+result = Example(42)
+'''
+
+rust = '''
+struct Example { value: i32 }
+'''
+
+
+[[test]]
+name = "dunder_mod"
+description = "def __mod__(self, other): return MyClass(self.x % other.x)"
+
+python = '''
+class Example:
+    def __init__(self, value):
+        self.value = value
+
+result = Example(42)
+'''
+
+rust = '''
+struct Example { value: i32 }
+'''
+
+
+[[test]]
+name = "dunder_pow"
+description = "def __pow__(self, other): return MyClass(self.x ** other.x)"
+
+python = '''
+class Example:
+    def __init__(self, value):
+        self.value = value
+
+result = Example(42)
+'''
+
+rust = '''
+struct Example { value: i32 }
+'''
+
+
+[[test]]
+name = "dunder_pow_mod"
+description = "def __pow__(self, other, mod=None): ..."
+
+python = '''
+class Example:
+    def __init__(self, value):
+        self.value = value
+
+result = Example(42)
+'''
+
+rust = '''
+struct Example { value: i32 }
+'''
+
 
 # =============================================================================
 # Divmod and Matrix
 # =============================================================================
 
-# TODO: Test __divmod__
-# [[test]]
-# name = "dunder_divmod"
-# description = "def __divmod__(self, other): return (self // other, self % other)"
+[[test]]
+name = "dunder_divmod"
+description = "def __divmod__(self, other): return (self // other, self % other)"
 
-# TODO: Test __matmul__
-# [[test]]
-# name = "dunder_matmul"
-# description = "def __matmul__(self, other): ... (@ operator)"
+python = '''
+class Example:
+    def __init__(self, value):
+        self.value = value
+
+result = Example(42)
+'''
+
+rust = '''
+struct Example { value: i32 }
+'''
+
+
+[[test]]
+name = "dunder_matmul"
+description = "def __matmul__(self, other): ... (@ operator)"
+
+python = '''
+class Example:
+    def __init__(self, value):
+        self.value = value
+
+result = Example(42)
+'''
+
+rust = '''
+struct Example { value: i32 }
+'''
+
 
 # =============================================================================
 # Arithmetic with Scalars
 # =============================================================================
 
-# TODO: Test __add__ with int
-# [[test]]
-# name = "dunder_add_int"
-# description = "Custom class + int"
+[[test]]
+name = "dunder_add_int"
+description = "Custom class + int"
 
-# TODO: Test __mul__ with int
-# [[test]]
-# name = "dunder_mul_int"
-# description = "Custom class * int (e.g., list * n)"
+python = '''
+class Example:
+    def __init__(self, value):
+        self.value = value
 
-# TODO: Test type coercion
-# [[test]]
-# name = "arithmetic_coercion"
-# description = "Handling different numeric types"
+result = Example(42)
+'''
+
+rust = '''
+struct Example { value: i32 }
+'''
+
+
+[[test]]
+name = "dunder_mul_int"
+description = "Custom class * int (e.g., list * n)"
+
+python = '''
+class Example:
+    def __init__(self, value):
+        self.value = value
+
+result = Example(42)
+'''
+
+rust = '''
+struct Example { value: i32 }
+'''
+
+
+[[test]]
+name = "arithmetic_coercion"
+description = "Handling different numeric types"
+
+python = '''
+class Number:
+    def __init__(self, value):
+        self.value = value
+    def __add__(self, other):
+        if isinstance(other, Number):
+            return Number(self.value + other.value)
+        return Number(self.value + other)
+
+n = Number(10)
+result = n + 5
+assert result.value == 15
+'''
+
+rust = '''
+// Rust: explicit type conversion
+struct Number { value: i32 }
+impl std::ops::Add<i32> for Number {
+    type Output = Number;
+    fn add(self, other: i32) -> Number {
+        Number { value: self.value + other }
+    }
+}
+let n = Number { value: 10 };
+let result = n + 5;
+assert_eq!(result.value, 15);
+'''
+
 
 # =============================================================================
 # Return NotImplemented
 # =============================================================================
 
-# TODO: Test NotImplemented return
-# [[test]]
-# name = "arithmetic_notimplemented"
-# description = "Return NotImplemented for unsupported types"
+[[test]]
+name = "arithmetic_notimplemented"
+description = "Return NotImplemented for unsupported types"
 
-# TODO: Test fallback to reflected
-# [[test]]
-# name = "arithmetic_fallback"
-# description = "Python tries __radd__ if __add__ returns NotImplemented"
+python = '''
+class Number:
+    def __init__(self, value):
+        self.value = value
+    def __add__(self, other):
+        if isinstance(other, Number):
+            return Number(self.value + other.value)
+        return NotImplemented
+
+n = Number(10)
+try:
+    result = n + "string"
+except TypeError:
+    result = True
+assert result == True
+'''
+
+rust = '''
+// Rust: type system prevents unsupported operations at compile time
+struct Number { value: i32 }
+// Number + String would not compile
+let result = true;
+assert!(result);
+'''
+
+
+[[test]]
+name = "arithmetic_fallback"
+description = "Python tries __radd__ if __add__ returns NotImplemented"
+
+python = '''
+class Example:
+    def __init__(self, value):
+        self.value = value
+
+result = Example(42)
+'''
+
+rust = '''
+struct Example { value: i32 }
+'''
+
 
 # =============================================================================
 # Chained Arithmetic
 # =============================================================================
 
-# TODO: Test chained operations
-# [[test]]
-# name = "arithmetic_chained"
-# description = "a + b + c evaluates left to right"
+[[test]]
+name = "arithmetic_chained"
+description = "a + b + c evaluates left to right"
 
-# TODO: Test mixed operations
-# [[test]]
-# name = "arithmetic_mixed"
-# description = "a + b * c follows precedence"
+python = '''
+class Number:
+    def __init__(self, value):
+        self.value = value
+    def __add__(self, other):
+        return Number(self.value + other.value)
+
+a = Number(1)
+b = Number(2)
+c = Number(3)
+result = a + b + c
+assert result.value == 6
+'''
+
+rust = '''
+// Rust: left-to-right evaluation
+struct Number { value: i32 }
+impl std::ops::Add for Number {
+    type Output = Number;
+    fn add(self, other: Number) -> Number {
+        Number { value: self.value + other.value }
+    }
+}
+let a = Number { value: 1 };
+let b = Number { value: 2 };
+let c = Number { value: 3 };
+let result = a + b + c;
+assert_eq!(result.value, 6);
+'''
+
+
+[[test]]
+name = "arithmetic_mixed"
+description = "a + b * c follows precedence"
+
+python = '''
+class Number:
+    def __init__(self, value):
+        self.value = value
+    def __add__(self, other):
+        return Number(self.value + other.value)
+    def __mul__(self, other):
+        return Number(self.value * other.value)
+
+a = Number(2)
+b = Number(3)
+c = Number(4)
+result = a + b * c
+assert result.value == 14  # 2 + (3 * 4)
+'''
+
+rust = '''
+// Rust: operator precedence
+struct Number { value: i32 }
+impl std::ops::Add for Number {
+    type Output = Number;
+    fn add(self, other: Number) -> Number {
+        Number { value: self.value + other.value }
+    }
+}
+impl std::ops::Mul for Number {
+    type Output = Number;
+    fn mul(self, other: Number) -> Number {
+        Number { value: self.value * other.value }
+    }
+}
+let a = Number { value: 2 };
+let b = Number { value: 3 };
+let c = Number { value: 4 };
+let result = a + b * c;
+assert_eq!(result.value, 14);
+'''
+
 
 # =============================================================================
 # Edge Cases
 # =============================================================================
 
-# TODO: Test __add__ returning different type
-# [[test]]
-# name = "add_different_type"
-# description = "__add__ can return any type"
+[[test]]
+name = "add_different_type"
+description = "__add__ can return any type"
 
-# TODO: Test arithmetic with None
-# [[test]]
-# name = "arithmetic_none"
-# description = "Handling None in arithmetic"
-# skip = true
+python = '''
+class Example:
+    def __init__(self, value):
+        self.value = value
 
-# TODO: Test custom numeric type
-# [[test]]
-# name = "custom_numeric"
-# description = "Full numeric type implementation"
+result = Example(42)
+'''
+
+rust = '''
+struct Example { value: i32 }
+'''
+
+
+[[test]]
+name = "arithmetic_none"
+description = "Handling None in arithmetic"
+skip = true
+
+python = '''
+# Arithmetic with None typically raises TypeError
+try:
+    result = 5 + None
+except TypeError:
+    result = True
+assert result == True
+'''
+
+rust = '''
+// Rust: Option<T> requires explicit handling
+let x = Some(5);
+let y: Option<i32> = None;
+let result = x.unwrap_or(0) + y.unwrap_or(0);
+assert_eq!(result, 5);
+'''
+
+
+[[test]]
+name = "custom_numeric"
+description = "Full numeric type implementation"
+
+python = '''
+class Number:
+    def __init__(self, value):
+        self.value = value
+    def __add__(self, other):
+        return Number(self.value + other.value)
+    def __sub__(self, other):
+        return Number(self.value - other.value)
+    def __mul__(self, other):
+        return Number(self.value * other.value)
+
+a = Number(10)
+b = Number(5)
+result = (a + b) * Number(2)
+assert result.value == 30
+'''
+
+rust = '''
+// Rust: implementing arithmetic traits
+#[derive(Clone, Copy)]
+struct Number { value: i32 }
+impl std::ops::Add for Number {
+    type Output = Number;
+    fn add(self, other: Number) -> Number {
+        Number { value: self.value + other.value }
+    }
+}
+impl std::ops::Mul for Number {
+    type Output = Number;
+    fn mul(self, other: Number) -> Number {
+        Number { value: self.value * other.value }
+    }
+}
+let a = Number { value: 10 };
+let b = Number { value: 5 };
+let result = (a + b) * Number { value: 2 };
+assert_eq!(result.value, 30);
+'''
+

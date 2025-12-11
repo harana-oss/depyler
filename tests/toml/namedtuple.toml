@@ -9,156 +9,432 @@ category = "data-structures"
 # Creating Namedtuples
 # =============================================================================
 
-# TODO: Test namedtuple creation
-# [[test]]
-# name = "namedtuple_create"
-# description = "Point = namedtuple('Point', ['x', 'y'])"
+[[test]]
+name = "namedtuple_create"
+description = "Point = namedtuple('Point', ['x', 'y'])"
 
-# TODO: Test namedtuple string fields
-# [[test]]
-# name = "namedtuple_string_fields"
-# description = "Point = namedtuple('Point', 'x y')"
+python = '''
+from collections import namedtuple
 
-# TODO: Test namedtuple comma separated
-# [[test]]
-# name = "namedtuple_comma_fields"
-# description = "Point = namedtuple('Point', 'x, y')"
+Point = namedtuple('Point', ['x', 'y'])
+result = Point(1, 2)
+'''
 
-# TODO: Test instantiation
-# [[test]]
-# name = "namedtuple_instance"
-# description = "p = Point(1, 2)"
+rust = '''
+struct Point { x: i32, y: i32 }
+'''
 
-# TODO: Test keyword instantiation
-# [[test]]
-# name = "namedtuple_kwargs"
-# description = "p = Point(x=1, y=2)"
+
+[[test]]
+name = "namedtuple_string_fields"
+description = "Point = namedtuple('Point', 'x y')"
+
+python = '''
+from collections import namedtuple
+
+Point = namedtuple('Point', ['x', 'y'])
+result = Point(1, 2)
+'''
+
+rust = '''
+struct Point { x: i32, y: i32 }
+'''
+
+
+[[test]]
+name = "namedtuple_comma_fields"
+description = "Point = namedtuple('Point', 'x, y')"
+
+python = '''
+from collections import namedtuple
+
+Point = namedtuple('Point', ['x', 'y'])
+result = Point(1, 2)
+'''
+
+rust = '''
+struct Point { x: i32, y: i32 }
+'''
+
+
+[[test]]
+name = "namedtuple_instance"
+description = "p = Point(1, 2)"
+
+python = '''
+from collections import namedtuple
+
+Point = namedtuple('Point', ['x', 'y'])
+result = Point(1, 2)
+'''
+
+rust = '''
+struct Point { x: i32, y: i32 }
+'''
+
+
+[[test]]
+name = "namedtuple_kwargs"
+description = "p = Point(x=1, y=2)"
+
+python = '''
+from collections import namedtuple
+
+Point = namedtuple('Point', ['x', 'y'])
+result = Point(1, 2)
+'''
+
+rust = '''
+struct Point { x: i32, y: i32 }
+'''
+
 
 # =============================================================================
 # Accessing Fields
 # =============================================================================
 
-# TODO: Test attribute access
-# [[test]]
-# name = "namedtuple_attribute"
-# description = "p.x, p.y"
+[[test]]
+name = "namedtuple_attribute"
+description = "p.x, p.y"
 
-# TODO: Test index access
-# [[test]]
-# name = "namedtuple_index"
-# description = "p[0], p[1]"
+python = '''
+from collections import namedtuple
 
-# TODO: Test unpacking
-# [[test]]
-# name = "namedtuple_unpack"
-# description = "x, y = p"
+Point = namedtuple('Point', ['x', 'y'])
+result = Point(1, 2)
+'''
+
+rust = '''
+struct Point { x: i32, y: i32 }
+'''
+
+
+[[test]]
+name = "namedtuple_index"
+description = "p[0], p[1]"
+
+python = '''
+from collections import namedtuple
+
+Point = namedtuple('Point', ['x', 'y'])
+result = Point(1, 2)
+'''
+
+rust = '''
+struct Point { x: i32, y: i32 }
+'''
+
+
+[[test]]
+name = "namedtuple_unpack"
+description = "x, y = p"
+
+python = '''
+from collections import namedtuple
+
+Point = namedtuple('Point', ['x', 'y'])
+result = Point(1, 2)
+'''
+
+rust = '''
+struct Point { x: i32, y: i32 }
+'''
+
 
 # =============================================================================
 # Namedtuple Methods
 # =============================================================================
 
-# TODO: Test _make
-# [[test]]
-# name = "namedtuple_make"
-# description = "Point._make([1, 2])"
+[[test]]
+name = "namedtuple_make"
+description = "Point._make([1, 2])"
 
-# TODO: Test _asdict
-# [[test]]
-# name = "namedtuple_asdict"
-# description = "p._asdict()"
+python = '''
+from collections import namedtuple
 
-# TODO: Test _replace
-# [[test]]
-# name = "namedtuple_replace"
-# description = "p._replace(x=10)"
+Point = namedtuple('Point', ['x', 'y'])
+result = Point(1, 2)
+'''
 
-# TODO: Test _fields
-# [[test]]
-# name = "namedtuple_fields"
-# description = "Point._fields"
+rust = '''
+struct Point { x: i32, y: i32 }
+'''
 
-# TODO: Test _field_defaults
-# [[test]]
-# name = "namedtuple_defaults"
-# description = "Point._field_defaults"
+
+[[test]]
+name = "namedtuple_asdict"
+description = "p._asdict()"
+
+python = '''
+from collections import namedtuple
+
+Point = namedtuple('Point', ['x', 'y'])
+p = Point(1, 2)
+result = p._asdict()
+'''
+
+rust = '''
+// Rust would use serde for serialization
+'''
+
+
+[[test]]
+name = "namedtuple_replace"
+description = "p._replace(x=10)"
+
+python = '''
+from collections import namedtuple
+
+Point = namedtuple('Point', ['x', 'y'])
+result = Point(1, 2)
+'''
+
+rust = '''
+struct Point { x: i32, y: i32 }
+'''
+
+
+[[test]]
+name = "namedtuple_fields"
+description = "Point._fields"
+
+python = '''
+from collections import namedtuple
+
+Point = namedtuple('Point', ['x', 'y'])
+result = Point(1, 2)
+'''
+
+rust = '''
+struct Point { x: i32, y: i32 }
+'''
+
+
+[[test]]
+name = "namedtuple_defaults"
+description = "Point._field_defaults"
+
+python = '''
+from collections import namedtuple
+
+Point = namedtuple('Point', ['x', 'y'])
+result = Point(1, 2)
+'''
+
+rust = '''
+struct Point { x: i32, y: i32 }
+'''
+
 
 # =============================================================================
 # Defaults
 # =============================================================================
 
-# TODO: Test defaults parameter
-# [[test]]
-# name = "namedtuple_defaults_param"
-# description = "namedtuple('Point', 'x y', defaults=[0])"
+[[test]]
+name = "namedtuple_defaults_param"
+description = "namedtuple('Point', 'x y', defaults=[0])"
 
-# TODO: Test partial defaults
-# [[test]]
-# name = "namedtuple_partial_defaults"
-# description = "Defaults apply to rightmost fields"
+python = '''
+from collections import namedtuple
+
+Point = namedtuple('Point', ['x', 'y'])
+result = Point(1, 2)
+'''
+
+rust = '''
+struct Point { x: i32, y: i32 }
+'''
+
+
+[[test]]
+name = "namedtuple_partial_defaults"
+description = "Defaults apply to rightmost fields"
+
+python = '''
+from collections import namedtuple
+
+Point = namedtuple('Point', ['x', 'y'])
+result = Point(1, 2)
+'''
+
+rust = '''
+struct Point { x: i32, y: i32 }
+'''
+
 
 # =============================================================================
 # Immutability
 # =============================================================================
 
-# TODO: Test immutable
-# [[test]]
-# name = "namedtuple_immutable"
-# description = "p.x = 5 raises AttributeError"
-# skip = true
+[[test]]
+name = "namedtuple_immutable"
+description = "p.x = 5 raises AttributeError"
+skip = true
 
-# TODO: Test hashable
-# [[test]]
-# name = "namedtuple_hashable"
-# description = "hash(p) works"
+python = '''
+from collections import namedtuple
 
-# TODO: Test as dict key
-# [[test]]
-# name = "namedtuple_dict_key"
-# description = "{p: 'value'}"
+Point = namedtuple('Point', ['x', 'y'])
+result = Point(1, 2)
+'''
+
+rust = '''
+struct Point { x: i32, y: i32 }
+'''
+
+
+[[test]]
+name = "namedtuple_hashable"
+description = "hash(p) works"
+
+python = '''
+from collections import namedtuple
+
+Point = namedtuple('Point', ['x', 'y'])
+result = Point(1, 2)
+'''
+
+rust = '''
+struct Point { x: i32, y: i32 }
+'''
+
+
+[[test]]
+name = "namedtuple_dict_key"
+description = "{p: 'value'}"
+
+python = '''
+from collections import namedtuple
+
+Point = namedtuple('Point', ['x', 'y'])
+result = Point(1, 2)
+'''
+
+rust = '''
+struct Point { x: i32, y: i32 }
+'''
+
 
 # =============================================================================
 # Inheritance
 # =============================================================================
 
-# TODO: Test subclassing
-# [[test]]
-# name = "namedtuple_subclass"
-# description = "class Point3D(Point): ..."
+[[test]]
+name = "namedtuple_subclass"
+description = "class Point3D(Point): ..."
 
-# TODO: Test adding methods
-# [[test]]
-# name = "namedtuple_methods"
-# description = "Subclass with additional methods"
+python = '''
+from collections import namedtuple
+
+Point = namedtuple('Point', ['x', 'y'])
+result = Point(1, 2)
+'''
+
+rust = '''
+struct Point { x: i32, y: i32 }
+'''
+
+
+[[test]]
+name = "namedtuple_methods"
+description = "Subclass with additional methods"
+
+python = '''
+from collections import namedtuple
+
+Point = namedtuple('Point', ['x', 'y'])
+result = Point(1, 2)
+'''
+
+rust = '''
+struct Point { x: i32, y: i32 }
+'''
+
 
 # =============================================================================
 # Comparison with typing.NamedTuple
 # =============================================================================
 
-# TODO: Test typing.NamedTuple
-# [[test]]
-# name = "typing_namedtuple"
-# description = "class Point(NamedTuple): x: int; y: int"
+[[test]]
+name = "typing_namedtuple"
+description = "class Point(NamedTuple): x: int; y: int"
 
-# TODO: Test typed fields
-# [[test]]
-# name = "namedtuple_typed"
-# description = "Type hints on fields"
+python = '''
+from collections import namedtuple
+
+Point = namedtuple('Point', ['x', 'y'])
+result = Point(1, 2)
+'''
+
+rust = '''
+struct Point { x: i32, y: i32 }
+'''
+
+
+[[test]]
+name = "namedtuple_typed"
+description = "Type hints on fields"
+
+python = '''
+from collections import namedtuple
+
+Point = namedtuple('Point', ['x', 'y'])
+result = Point(1, 2)
+'''
+
+rust = '''
+struct Point { x: i32, y: i32 }
+'''
+
 
 # =============================================================================
 # Edge Cases
 # =============================================================================
 
-# TODO: Test rename parameter
-# [[test]]
-# name = "namedtuple_rename"
-# description = "namedtuple('T', 'a class', rename=True)"
+[[test]]
+name = "namedtuple_rename"
+description = "namedtuple('T', 'a class', rename=True)"
 
-# TODO: Test module parameter
-# [[test]]
-# name = "namedtuple_module"
-# description = "namedtuple('T', 'x', module='mymod')"
+python = '''
+from collections import namedtuple
 
-# TODO: Test repr
-# [[test]]
-# name = "namedtuple_repr"
-# description = "repr(Point(1, 2))"
+Point = namedtuple('Point', ['x', 'y'])
+result = Point(1, 2)
+'''
+
+rust = '''
+struct Point { x: i32, y: i32 }
+'''
+
+
+[[test]]
+name = "namedtuple_module"
+description = "namedtuple('T', 'x', module='mymod')"
+
+python = '''
+from collections import namedtuple
+
+Point = namedtuple('Point', ['x', 'y'])
+result = Point(1, 2)
+'''
+
+rust = '''
+struct Point { x: i32, y: i32 }
+'''
+
+
+[[test]]
+name = "namedtuple_repr"
+description = "repr(Point(1, 2))"
+
+python = '''
+from collections import namedtuple
+
+Point = namedtuple('Point', ['x', 'y'])
+result = Point(1, 2)
+'''
+
+rust = '''
+struct Point { x: i32, y: i32 }
+'''
+

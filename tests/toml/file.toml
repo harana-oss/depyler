@@ -10,7 +10,6 @@ description = "Tests for Python open() builtin function"
 [[test]]
 name = "open_read_mode"
 description = "Test open() with read mode 'r'"
-tags = ["open", "file", "read"]
 
 python = '''
 def read_file(path: str) -> str:
@@ -32,7 +31,6 @@ pub fn read_file(path: String) -> String {
 [[test]]
 name = "open_default_mode"
 description = "Test open() with default mode (read)"
-tags = ["open", "file", "read", "default"]
 
 python = '''
 def open_default(path: str) -> str:
@@ -54,7 +52,6 @@ pub fn open_default(path: String) -> String {
 [[test]]
 name = "open_write_mode"
 description = "Test open() with write mode 'w'"
-tags = ["open", "file", "write"]
 
 python = '''
 def write_file(path: str, content: str) -> None:
@@ -72,7 +69,6 @@ pub fn write_file(path: String, content: String) {
 [[test]]
 name = "open_append_mode"
 description = "Test open() with append mode 'a'"
-tags = ["open", "file", "append"]
 
 python = '''
 def append_file(path: str, content: str) -> None:
@@ -90,7 +86,6 @@ pub fn append_file(path: String, content: String) {
 [[test]]
 name = "open_read_write_mode"
 description = "Test open() with read+write mode 'r+'"
-tags = ["open", "file", "read", "write"]
 
 python = '''
 def open_read_write(path: str) -> None:
@@ -114,7 +109,6 @@ pub fn open_read_write(path: String) {
 [[test]]
 name = "open_binary_read"
 description = "Test open() with binary read mode 'rb'"
-tags = ["open", "file", "binary", "read"]
 
 python = '''
 def read_binary(path: str) -> bytes:
@@ -136,7 +130,6 @@ pub fn read_binary(path: String) -> bytes {
 [[test]]
 name = "open_binary_write"
 description = "Test open() with binary write mode 'wb'"
-tags = ["open", "file", "binary", "write"]
 
 python = '''
 def write_binary(path: str, data: bytes) -> None:
@@ -154,7 +147,6 @@ pub fn write_binary(path: String, data: &bytes) {
 [[test]]
 name = "open_with_encoding"
 description = "Test open() with encoding parameter"
-tags = ["open", "file", "encoding", "utf8"]
 
 python = '''
 def read_utf8(path: str) -> str:
@@ -176,7 +168,6 @@ pub fn read_utf8(path: String) -> String {
 [[test]]
 name = "open_context_manager"
 description = "Test open() with context manager (with statement)"
-tags = ["open", "file", "context", "with"]
 
 python = '''
 def use_context_manager(path: str) -> str:
@@ -198,7 +189,6 @@ pub fn use_context_manager(path: String) -> String {
 [[test]]
 name = "open_error_handling"
 description = "Test open() with try/except error handling"
-tags = ["open", "file", "error", "exception"]
 
 python = '''
 def safe_read(path: str) -> str:

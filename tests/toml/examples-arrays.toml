@@ -1,0 +1,982 @@
+# Arrays Examples
+# Migrated from examples/arrays/
+
+[metadata]
+name = "Arrays Examples"
+category = "arrays"
+
+# =============================================================================
+# Examples
+# =============================================================================
+
+[[test]]
+name = "array_functions_test"
+description = "Example test"
+
+python = '''
+"""Test array initialization functions"""
+
+def test_array_functions():
+    # Small arrays should be generated as [T; N]
+    z1 = zeros(5)      # Should become [0; 5]
+    o1 = ones(10)      # Should become [1; 10]
+    f1 = full(8, 42)   # Should become [42; 8]
+    
+    # Large arrays use vec!
+    z2 = zeros(100)    # Should become vec![0; 100]
+    
+    return z1[0] + o1[0] + f1[0]
+'''
+
+rust = '''
+#[derive(Debug, Clone)]
+pub struct IndexError {
+    message: String,
+}
+impl std::fmt::Display for IndexError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "index out of range: {}", self.message)
+    }
+}
+impl std::error::Error for IndexError {}
+impl IndexError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = " Depyler: proven to terminate"]
+pub fn test_array_functions() -> Result<i32, IndexError> {
+    let z1 = vec![0; 5 as usize];
+    let o1 = vec![1; 10 as usize];
+    let f1 = vec![42; 8 as usize];
+    let z2 = vec![0; 100 as usize];
+    Ok(z1.get(0usize).cloned().unwrap_or_default()
+        + o1.get(0usize).cloned().unwrap_or_default()
+        + f1.get(0usize).cloned().unwrap_or_default())
+}
+'''
+
+[[test]]
+name = "array_test"
+description = "Example test"
+
+python = '''
+"""Test array generation from fixed-size lists"""
+
+def test_array_literals():
+    # Small literal arrays should generate Rust arrays
+    arr1 = [1, 2, 3, 4, 5]
+    arr2 = [0, 0, 0, 0]
+    arr3 = [True, False, True]
+    
+    # Mixed literals
+    arr4 = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    
+    return arr1, arr2, arr3, arr4
+
+def test_array_multiplication():
+    # Array multiplication patterns
+    zeros = [0] * 10
+    ones = [1] * 5
+    pattern = [42] * 8
+    
+    # Reverse multiplication
+    reverse_zeros = 10 * [0]
+    reverse_ones = 5 * [1]
+    
+    return zeros, ones, pattern, reverse_zeros, reverse_ones
+
+def test_array_init_functions():
+    # zeros, ones, full functions
+    z = zeros(10)
+    o = ones(5)
+    f = full(8, 42)
+    
+    return z, o, f
+
+def test_large_arrays():
+    # Arrays larger than 32 should use vec!
+    large = [0] * 50
+    very_large = [1] * 100
+    
+    # Non-literal arrays should use vec!
+    x = 5
+    dynamic = [x] * 10
+    
+    return large, very_large, dynamic
+
+def test_nested_arrays():
+    # 2D arrays
+    matrix = [[0, 0], [0, 0], [0, 0]]
+    identity = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+    
+    return matrix, identity
+'''
+
+rust = '''
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn test_array_literals() -> (Vec<i32>, Vec<i32>, Vec<bool>, Vec<i32>) {
+    let arr1 = vec![1, 2, 3, 4, 5];
+    let arr2 = vec![0, 0, 0, 0];
+    let arr3 = vec![true, false, true];
+    let arr4 = vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+    (arr1, arr2, arr3, arr4)
+}
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn test_array_multiplication() -> ([i32; 10], [i32; 5], [i32; 8], [i32; 10], [i32; 5]) {
+    let _cse_temp_0 = [0; 10];
+    let zeros = _cse_temp_0;
+    let _cse_temp_1 = [1; 5];
+    let ones = _cse_temp_1;
+    let _cse_temp_2 = [42; 8];
+    let pattern = _cse_temp_2;
+    let _cse_temp_3 = [0; 10];
+    let reverse_zeros = _cse_temp_3;
+    let _cse_temp_4 = [1; 5];
+    let reverse_ones = _cse_temp_4;
+    (zeros, ones, pattern, reverse_zeros, reverse_ones)
+}
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn test_array_init_functions() -> (Vec<i32>, Vec<i32>, Vec<i32>) {
+    let z = vec![0; 10 as usize];
+    let o = vec![1; 5 as usize];
+    let f = vec![42; 8 as usize];
+    (z, o, f)
+}
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn test_large_arrays() -> (Vec<i32>, Vec<i32>, [i32; 10]) {
+    let _cse_temp_0 = vec![0; 50];
+    let large = _cse_temp_0;
+    let _cse_temp_1 = vec![1; 100];
+    let very_large = _cse_temp_1;
+    let x = 5;
+    let _cse_temp_2 = [x; 10];
+    let dynamic = _cse_temp_2;
+    (large, very_large, dynamic)
+}
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn test_nested_arrays() -> (Vec<Vec<i32>>, Vec<Vec<i32>>) {
+    let matrix = vec![vec![0, 0], vec![0, 0], vec![0, 0]];
+    let identity = vec![vec![1, 0, 0], vec![0, 1, 0], vec![0, 0, 1]];
+    (matrix, identity)
+}
+'''
+
+[[test]]
+name = "simple_array_test"
+description = "Example test"
+
+python = '''
+"""Simple test for array generation"""
+
+def test_arrays():
+    # Literal arrays
+    arr1 = [1, 2, 3, 4, 5]
+    arr2 = [0, 0, 0, 0]
+    
+    # Array multiplication
+    zeros = [0] * 10
+    ones = [1] * 5
+    
+    # Mixed operations
+    sum_val = arr1[0] + arr1[1]
+    
+    return sum_val
+'''
+
+rust = '''
+#[derive(Debug, Clone)]
+pub struct IndexError {
+    message: String,
+}
+impl std::fmt::Display for IndexError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "index out of range: {}", self.message)
+    }
+}
+impl std::error::Error for IndexError {}
+impl IndexError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = " Depyler: proven to terminate"]
+pub fn test_arrays() -> Result<i32, IndexError> {
+    let arr1 = vec![1, 2, 3, 4, 5];
+    let arr2 = vec![0, 0, 0, 0];
+    let _cse_temp_0 = [0; 10];
+    let zeros = _cse_temp_0;
+    let _cse_temp_1 = [1; 5];
+    let ones = _cse_temp_1;
+    let _cse_temp_2 = arr1.get(0usize).cloned().unwrap_or_default()
+        + arr1.get(1usize).cloned().unwrap_or_default();
+    let sum_val = _cse_temp_2;
+    Ok(sum_val)
+}
+'''
+
+[[test]]
+name = "test_array_queue_modules"
+description = "Example test"
+
+python = '''
+"""
+Comprehensive test of Python array and queue modules transpilation to Rust.
+
+This example demonstrates how Depyler transpiles Python's array and queue modules
+to their Rust equivalents.
+
+Expected Rust mappings:
+- array.array() -> Vec or fixed-size arrays
+- queue.Queue -> VecDeque or channel-based queue
+- queue.LifoQueue -> Vec (stack)
+- queue.PriorityQueue -> BinaryHeap
+
+Note: Manual implementations provided for learning.
+"""
+
+from typing import List, Optional
+
+
+# ============================================================================
+# ARRAY MODULE TESTS
+# ============================================================================
+
+def test_array_creation() -> List[int]:
+    """Test creating array with type code"""
+    # Python array.array('i', [1, 2, 3])
+    # Simulated with list
+    arr: List[int] = [1, 2, 3, 4, 5]
+
+    return arr
+
+
+def test_array_append() -> List[int]:
+    """Test appending to array"""
+    arr: List[int] = [1, 2, 3]
+    arr.append(4)
+    arr.append(5)
+
+    return arr
+
+
+def test_array_extend() -> List[int]:
+    """Test extending array"""
+    arr: List[int] = [1, 2, 3]
+    extension: List[int] = [4, 5, 6]
+
+    arr.extend(extension)
+
+    return arr
+
+
+def test_array_insert() -> List[int]:
+    """Test inserting into array"""
+    arr: List[int] = [1, 2, 4, 5]
+    arr.insert(2, 3)
+
+    return arr
+
+
+def test_array_remove() -> List[int]:
+    """Test removing from array"""
+    arr: List[int] = [1, 2, 3, 4, 5]
+    arr.remove(3)
+
+    return arr
+
+
+def test_array_pop() -> tuple:
+    """Test popping from array"""
+    arr: List[int] = [1, 2, 3, 4, 5]
+    popped: int = arr.pop()
+
+    return (popped, arr)
+
+
+def test_array_index() -> int:
+    """Test finding index in array"""
+    arr: List[int] = [10, 20, 30, 40, 50]
+    idx: int = arr.index(30)
+
+    return idx
+
+
+def test_array_count() -> int:
+    """Test counting in array"""
+    arr: List[int] = [1, 2, 2, 3, 2, 4]
+    count: int = arr.count(2)
+
+    return count
+
+
+def test_array_reverse() -> List[int]:
+    """Test reversing array"""
+    arr: List[int] = [1, 2, 3, 4, 5]
+    arr.reverse()
+
+    return arr
+
+
+def test_array_tolist() -> List[int]:
+    """Test converting array to list"""
+    arr: List[int] = [1, 2, 3, 4, 5]
+    # In Python: arr.tolist(), but already a list
+    return arr.copy()
+
+
+# ============================================================================
+# QUEUE MODULE TESTS
+# ============================================================================
+
+class SimpleQueue:
+    """Simple FIFO queue implementation"""
+
+    def __init__(self) -> None:
+        self.items: List[int] = []
+
+    def put(self, item: int) -> None:
+        """Add item to queue"""
+        self.items.append(item)
+
+    def get(self) -> int:
+        """Remove and return item from queue"""
+        if len(self.items) == 0:
+            return -1
+
+        item: int = self.items[0]
+
+        # Remove first element
+        new_items: List[int] = []
+        for i in range(1, len(self.items)):
+            new_items.append(self.items[i])
+
+        self.items = new_items
+
+        return item
+
+    def size(self) -> int:
+        """Get queue size"""
+        return len(self.items)
+
+    def empty(self) -> bool:
+        """Check if queue is empty"""
+        return len(self.items) == 0
+
+
+class SimpleStack:
+    """Simple LIFO stack implementation"""
+
+    def __init__(self) -> None:
+        self.items: List[int] = []
+
+    def push(self, item: int) -> None:
+        """Push item onto stack"""
+        self.items.append(item)
+
+    def pop(self) -> int:
+        """Pop item from stack"""
+        if len(self.items) == 0:
+            return -1
+
+        return self.items.pop()
+
+    def size(self) -> int:
+        """Get stack size"""
+        return len(self.items)
+
+    def empty(self) -> bool:
+        """Check if stack is empty"""
+        return len(self.items) == 0
+
+    def peek(self) -> int:
+        """Peek at top item without removing"""
+        if len(self.items) == 0:
+            return -1
+
+        return self.items[len(self.items) - 1]
+
+
+def test_queue_fifo() -> List[int]:
+    """Test FIFO queue operations"""
+    q: SimpleQueue = SimpleQueue()
+
+    # Enqueue
+    q.put(1)
+    q.put(2)
+    q.put(3)
+
+    # Dequeue
+    results: List[int] = []
+    while not q.empty():
+        item: int = q.get()
+        results.append(item)
+
+    return results
+
+
+def test_stack_lifo() -> List[int]:
+    """Test LIFO stack operations"""
+    s: SimpleStack = SimpleStack()
+
+    # Push
+    s.push(1)
+    s.push(2)
+    s.push(3)
+
+    # Pop
+    results: List[int] = []
+    while not s.empty():
+        item: int = s.pop()
+        results.append(item)
+
+    return results
+
+
+def test_queue_size() -> int:
+    """Test queue size tracking"""
+    q: SimpleQueue = SimpleQueue()
+
+    q.put(1)
+    q.put(2)
+    q.put(3)
+
+    size: int = q.size()
+
+    return size
+
+
+def test_stack_peek() -> int:
+    """Test stack peek operation"""
+    s: SimpleStack = SimpleStack()
+
+    s.push(1)
+    s.push(2)
+    s.push(3)
+
+    top: int = s.peek()
+
+    return top
+
+
+# Priority Queue (min-heap implementation)
+class SimplePriorityQueue:
+    """Simple priority queue implementation"""
+
+    def __init__(self) -> None:
+        self.items: List[tuple] = []
+
+    def put(self, priority: int, item: str) -> None:
+        """Add item with priority"""
+        self.items.append((priority, item))
+
+        # Sort by priority (manual sort)
+        for i in range(len(self.items)):
+            for j in range(i + 1, len(self.items)):
+                if self.items[j][0] < self.items[i][0]:
+                    temp: tuple = self.items[i]
+                    self.items[i] = self.items[j]
+                    self.items[j] = temp
+
+    def get(self) -> str:
+        """Get highest priority item"""
+        if len(self.items) == 0:
+            return ""
+
+        item: tuple = self.items[0]
+
+        # Remove first element
+        new_items: List[tuple] = []
+        for i in range(1, len(self.items)):
+            new_items.append(self.items[i])
+
+        self.items = new_items
+
+        return item[1]
+
+    def empty(self) -> bool:
+        """Check if queue is empty"""
+        return len(self.items) == 0
+
+
+def test_priority_queue() -> List[str]:
+    """Test priority queue"""
+    pq: SimplePriorityQueue = SimplePriorityQueue()
+
+    # Add with priorities
+    pq.put(3, "low")
+    pq.put(1, "high")
+    pq.put(2, "medium")
+
+    # Get in priority order
+    results: List[str] = []
+    while not pq.empty():
+        item: str = pq.get()
+        results.append(item)
+
+    return results
+
+
+def test_circular_buffer(size: int) -> List[int]:
+    """Test circular buffer implementation"""
+    buffer: List[int] = []
+    max_size: int = size
+
+    values: List[int] = [1, 2, 3, 4, 5, 6, 7, 8]
+
+    for val in values:
+        buffer.append(val)
+
+        # Remove oldest if over capacity
+        if len(buffer) > max_size:
+            # Remove first element
+            new_buffer: List[int] = []
+            for i in range(1, len(buffer)):
+                new_buffer.append(buffer[i])
+            buffer = new_buffer
+
+    return buffer
+
+
+def test_deque_simulation() -> List[int]:
+    """Simulate double-ended queue"""
+    deque: List[int] = []
+
+    # Append right
+    deque.append(1)
+    deque.append(2)
+    deque.append(3)
+
+    # Append left (insert at 0)
+    deque.insert(0, 0)
+
+    # Pop right
+    deque.pop()
+
+    # Pop left (remove at 0)
+    if len(deque) > 0:
+        new_deque: List[int] = []
+        for i in range(1, len(deque)):
+            new_deque.append(deque[i])
+        deque = new_deque
+
+    return deque
+
+
+def test_all_array_queue_features() -> None:
+    """Run all array and queue tests"""
+    # Array tests
+    arr: List[int] = test_array_creation()
+    appended: List[int] = test_array_append()
+    extended: List[int] = test_array_extend()
+    inserted: List[int] = test_array_insert()
+    removed: List[int] = test_array_remove()
+    pop_result: tuple = test_array_pop()
+    idx: int = test_array_index()
+    count: int = test_array_count()
+    reversed_arr: List[int] = test_array_reverse()
+    as_list: List[int] = test_array_tolist()
+
+    # Queue tests
+    fifo_result: List[int] = test_queue_fifo()
+    lifo_result: List[int] = test_stack_lifo()
+    size: int = test_queue_size()
+    top: int = test_stack_peek()
+
+    # Priority queue
+    priority_result: List[str] = test_priority_queue()
+
+    # Advanced structures
+    circular: List[int] = test_circular_buffer(3)
+    deque_result: List[int] = test_deque_simulation()
+
+    print("All array and queue module tests completed successfully")
+'''
+
+rust = '''
+#[derive(Debug, Clone)]
+pub struct SimpleQueue {}
+impl SimpleQueue {
+    pub fn new() -> Self {
+        Self {}
+    }
+    pub fn put(&self, item: i32) {
+        self.items.push(item);
+    }
+    pub fn get(&mut self) -> i32 {
+        if self.items.len() == 0 {
+            return -1;
+        };
+        let mut item = self.items[0 as usize];
+        let mut new_items = vec![];
+        for i in 1..self.items.len() {
+            new_items.push(self.items[i as usize]);
+        }
+        self.items = new_items;
+        return item;
+    }
+    pub fn size(&self) -> i32 {
+        return self.items.len();
+    }
+    pub fn empty(&self) -> bool {
+        return self.items.len() == 0;
+    }
+}
+#[derive(Debug, Clone)]
+pub struct SimpleStack {}
+impl SimpleStack {
+    pub fn new() -> Self {
+        Self {}
+    }
+    pub fn push(&self, item: i32) {
+        self.items.push(item);
+    }
+    pub fn pop(&self) -> i32 {
+        if self.items.len() == 0 {
+            return -1;
+        };
+        return self.items.pop().unwrap_or_default();
+    }
+    pub fn size(&self) -> i32 {
+        return self.items.len();
+    }
+    pub fn empty(&self) -> bool {
+        return self.items.len() == 0;
+    }
+    pub fn peek(&self) -> i32 {
+        if self.items.len() == 0 {
+            return -1;
+        };
+        return self.items[self.items.len().saturating_sub(1) as usize];
+    }
+}
+#[derive(Debug, Clone)]
+pub struct SimplePriorityQueue {}
+impl SimplePriorityQueue {
+    pub fn new() -> Self {
+        Self {}
+    }
+    pub fn put(&self, priority: i32, item: String) {
+        self.items.push((priority, item));
+        for i in 0..self.items.len() {
+            for j in i + 1..self.items.len() {
+                if self.items[j as usize][0 as usize] < self.items[i as usize][0 as usize] {
+                    let mut temp = self.items[i as usize];
+                    self.items.insert(i, self.items[j as usize]);
+                    self.items.insert(j, temp);
+                };
+            }
+        }
+    }
+    pub fn get(&mut self) -> String {
+        if self.items.len() == 0 {
+            return "".to_string();
+        };
+        let mut item = self.items[0 as usize];
+        let mut new_items = vec![];
+        for i in 1..self.items.len() {
+            new_items.push(self.items[i as usize]);
+        }
+        self.items = new_items;
+        return item[1 as usize];
+    }
+    pub fn empty(&self) -> bool {
+        return self.items.len() == 0;
+    }
+}
+#[doc = "Test creating array with type code"]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn test_array_creation() -> Vec<i32> {
+    let arr: Vec<i32> = vec![1, 2, 3, 4, 5];
+    arr
+}
+#[doc = "Test appending to array"]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn test_array_append() -> Vec<i32> {
+    let mut arr: Vec<i32> = vec![1, 2, 3];
+    arr.push(4);
+    arr.push(5);
+    arr
+}
+#[doc = "Test extending array"]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn test_array_extend() -> Vec<i32> {
+    let mut arr: Vec<i32> = vec![1, 2, 3];
+    let extension: Vec<i32> = vec![4, 5, 6];
+    arr.extend(extension.iter().cloned());
+    arr
+}
+#[doc = "Test inserting into array"]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn test_array_insert() -> Vec<i32> {
+    let mut arr: Vec<i32> = vec![1, 2, 4, 5];
+    arr.insert(2 as usize, 3);
+    arr
+}
+#[doc = "Test removing from array"]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn test_array_remove() -> Vec<i32> {
+    let mut arr: Vec<i32> = vec![1, 2, 3, 4, 5];
+    if let Some(pos) = arr.iter().position(|x| x == &3) {
+        arr.remove(pos)
+    } else {
+        panic!("ValueError: list.remove(x): x not in list")
+    };
+    arr
+}
+#[doc = "Test popping from array"]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn test_array_pop() -> () {
+    let mut arr: Vec<i32> = vec![1, 2, 3, 4, 5];
+    let popped: i32 = arr.pop().unwrap_or_default();
+    (popped, arr)
+}
+#[doc = "Test finding index in array"]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn test_array_index() -> i32 {
+    let mut arr: Vec<i32> = vec![10, 20, 30, 40, 50];
+    let idx: i32 = arr
+        .iter()
+        .position(|x| x == &30)
+        .map(|i| i as i32)
+        .expect("ValueError: value is not in list");
+    idx
+}
+#[doc = "Test counting in array"]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn test_array_count() -> i32 {
+    let mut arr: Vec<i32> = vec![1, 2, 2, 3, 2, 4];
+    let count: i32 = arr.iter().filter(|x| **x == 2).count() as i32 as i32;
+    count
+}
+#[doc = "Test reversing array"]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn test_array_reverse() -> Vec<i32> {
+    let mut arr: Vec<i32> = vec![1, 2, 3, 4, 5];
+    arr.reverse();
+    arr
+}
+#[doc = "Test converting array to list"]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn test_array_tolist() -> Vec<i32> {
+    let mut arr: Vec<i32> = vec![1, 2, 3, 4, 5];
+    arr.clone()
+}
+#[doc = "Test FIFO queue operations"]
+#[doc = " Depyler: verified panic-free"]
+pub fn test_queue_fifo() -> Vec<i32> {
+    let mut q: SimpleQueue = SimpleQueue::new();
+    q.put(1);
+    q.put(2);
+    q.put(3);
+    let mut results: Vec<i32> = vec![];
+    while !q.empty() {
+        let item: i32 = q.get();
+        results.push(item);
+    }
+    results
+}
+#[doc = "Test LIFO stack operations"]
+#[doc = " Depyler: verified panic-free"]
+pub fn test_stack_lifo() -> Vec<i32> {
+    let mut s: SimpleStack = SimpleStack::new();
+    s.push(1);
+    s.push(2);
+    s.push(3);
+    let mut results: Vec<i32> = vec![];
+    while !s.empty() {
+        let item: i32 = s.pop();
+        results.push(item);
+    }
+    results
+}
+#[doc = "Test queue size tracking"]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn test_queue_size() -> i32 {
+    let mut q: SimpleQueue = SimpleQueue::new();
+    q.put(1);
+    q.put(2);
+    q.put(3);
+    let size: i32 = q.size();
+    size
+}
+#[doc = "Test stack peek operation"]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn test_stack_peek() -> i32 {
+    let mut s: SimpleStack = SimpleStack::new();
+    s.push(1);
+    s.push(2);
+    s.push(3);
+    let top: i32 = s.peek();
+    top
+}
+#[doc = "Test priority queue"]
+#[doc = " Depyler: verified panic-free"]
+pub fn test_priority_queue() -> Vec<String> {
+    let mut pq: SimplePriorityQueue = SimplePriorityQueue::new();
+    pq.put(3, "low".to_string());
+    pq.put(1, "high".to_string());
+    pq.put(2, "medium".to_string());
+    let mut results: Vec<String> = vec![];
+    while !pq.empty() {
+        let item: String = pq.get();
+        results.push(item);
+    }
+    results
+}
+#[doc = "Test circular buffer implementation"]
+#[doc = " Depyler: verified panic-free"]
+pub fn test_circular_buffer(size: i32) -> Vec<i32> {
+    let mut buffer: Vec<i32> = vec![];
+    let max_size: i32 = size;
+    let values: Vec<i32> = vec![1, 2, 3, 4, 5, 6, 7, 8];
+    for val in values.iter().cloned() {
+        buffer.push(val);
+        if buffer.len() as i32 > max_size {
+            let mut new_buffer: Vec<i32> = vec![];
+            for i in 1..buffer.len() as i32 {
+                new_buffer.push(buffer.get(i as usize).cloned().unwrap_or_default());
+            }
+            buffer = new_buffer;
+        }
+    }
+    buffer
+}
+#[doc = "Simulate double-ended queue"]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn test_deque_simulation() -> Vec<i32> {
+    let mut deque: Vec<i32> = vec![];
+    deque.push(1);
+    deque.push(2);
+    deque.push(3);
+    deque.insert(0 as usize, 0);
+    deque.pop().unwrap_or_default();
+    let _cse_temp_0 = deque.len() as i32;
+    let _cse_temp_1 = _cse_temp_0 > 0;
+    if _cse_temp_1 {
+        let mut new_deque: Vec<i32> = vec![];
+        for i in 1..deque.len() as i32 {
+            new_deque.push(deque.get(i as usize).cloned().unwrap_or_default());
+        }
+        deque = new_deque;
+    }
+    deque
+}
+#[doc = "Run all array and queue tests"]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn test_all_array_queue_features() {
+    let mut arr: Vec<i32> = test_array_creation();
+    let appended: Vec<i32> = test_array_append();
+    let extended: Vec<i32> = test_array_extend();
+    let inserted: Vec<i32> = test_array_insert();
+    let removed: Vec<i32> = test_array_remove();
+    let pop_result: () = test_array_pop();
+    let idx: i32 = test_array_index();
+    let count: i32 = test_array_count();
+    let reversed_arr: Vec<i32> = test_array_reverse();
+    let as_list: Vec<i32> = test_array_tolist();
+    let fifo_result: Vec<i32> = test_queue_fifo();
+    let lifo_result: Vec<i32> = test_stack_lifo();
+    let size: i32 = test_queue_size();
+    let top: i32 = test_stack_peek();
+    let priority_result: Vec<String> = test_priority_queue();
+    let circular: Vec<i32> = test_circular_buffer(3);
+    let deque_result: Vec<i32> = test_deque_simulation();
+    println!(
+        "{}",
+        "All array and queue module tests completed successfully"
+    );
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{quickcheck, TestResult};
+    #[test]
+    fn test_test_array_index_examples() {
+        let _ = test_array_index();
+    }
+    #[test]
+    fn test_test_array_count_examples() {
+        let _ = test_array_count();
+    }
+    #[test]
+    fn test_test_queue_size_examples() {
+        let _ = test_queue_size();
+    }
+    #[test]
+    fn test_test_stack_peek_examples() {
+        let _ = test_stack_peek();
+    }
+}
+'''
+
+[[test]]
+name = "test_list_append"
+description = "Example test"
+
+python = '''
+"""Test list append method"""
+
+class Logger:
+    def __init__(self):
+        self.messages = []
+    
+    def log(self, msg: str) -> int:
+        """Add a message to the log"""
+        self.messages.append(msg)
+        return len(self.messages)
+
+def test_logger():
+    logger = Logger()
+    count = logger.log("Hello")
+    return count
+'''
+
+rust = '''
+use serde_json;
+#[derive(Debug, Clone)]
+pub struct Logger {
+    pub messages: Vec<serde_json::Value>,
+}
+impl Logger {
+    pub fn new() -> Self {
+        Self {
+            messages: Vec::new(),
+        }
+    }
+    pub fn log(&self, msg: String) -> i32 {
+        self.messages.push(msg);
+        return self.messages.len();
+    }
+}
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn test_logger() -> i32 {
+    let logger = Logger::new();
+    let count = logger.log("Hello".to_string());
+    count
+}
+'''

@@ -12,7 +12,6 @@ category = "context-managers"
 [[test]]
 name = "multi_with_comma"
 description = "Multiple context managers with comma separation"
-tags = ["context-manager", "multiple", "syntax"]
 
 python = '''
 def process_files():
@@ -27,7 +26,6 @@ rust = '''
 [[test]]
 name = "multi_with_as"
 description = "Multiple context managers with as clauses"
-tags = ["context-manager", "multiple", "as"]
 
 python = '''
 def read_files():
@@ -44,7 +42,6 @@ rust = '''
 [[test]]
 name = "multi_mixed_as"
 description = "Mixed as clauses in multiple context managers"
-tags = ["context-manager", "multiple", "mixed"]
 
 python = '''
 def mixed_files():
@@ -59,7 +56,6 @@ rust = '''
 [[test]]
 name = "nested_with"
 description = "Nested with blocks"
-tags = ["context-manager", "nested"]
 
 python = '''
 def nested_contexts():
@@ -93,7 +89,6 @@ pub fn nested_contexts() {
 [[test]]
 name = "deeply_nested"
 description = "Deeply nested with statements"
-tags = ["context-manager", "nested", "deep"]
 
 python = '''
 def deeply_nested():
@@ -119,7 +114,6 @@ pub fn deeply_nested() -> String {
 [[test]]
 name = "multi_enter_order"
 description = "Enter order is left to right"
-tags = ["context-manager", "order", "enter"]
 
 python = '''
 class TrackedContext:
@@ -146,7 +140,6 @@ rust = '''
 [[test]]
 name = "multi_exit_order"
 description = "Exit order is reverse of enter (LIFO)"
-tags = ["context-manager", "order", "exit"]
 
 python = '''
 class Logger:
@@ -172,7 +165,6 @@ rust = '''
 [[test]]
 name = "multi_enter_fail"
 description = "If enter fails, only previous exits are called"
-tags = ["context-manager", "order", "exception"]
 
 python = '''
 class FailingContext:
@@ -203,7 +195,6 @@ rust = '''
 [[test]]
 name = "multi_body_exception"
 description = "Exception in body triggers all exits"
-tags = ["context-manager", "exception", "body"]
 
 python = '''
 class CleanupContext:
@@ -229,7 +220,6 @@ rust = '''
 [[test]]
 name = "multi_one_suppresses"
 description = "One exit can suppress exception"
-tags = ["context-manager", "exception", "suppress"]
 
 python = '''
 class SuppressingContext:
@@ -252,7 +242,6 @@ rust = '''
 [[test]]
 name = "multi_exit_exception"
 description = "Exception in exit affects later contexts"
-tags = ["context-manager", "exception", "exit"]
 
 python = '''
 class FailingExitContext:
@@ -295,7 +284,6 @@ pub fn test_exit_exception() {
 [[test]]
 name = "multi_dynamic"
 description = "ExitStack for dynamic context managers"
-tags = ["context-manager", "dynamic", "exitstack"]
 
 python = '''
 from contextlib import ExitStack
@@ -313,7 +301,6 @@ rust = '''
 [[test]]
 name = "multi_from_list"
 description = "Managing list of context managers"
-tags = ["context-manager", "list", "dynamic"]
 
 python = '''
 from contextlib import ExitStack
@@ -365,7 +352,6 @@ pub fn use_resources(count: i32) {
 [[test]]
 name = "multi_files"
 description = "Multiple file operations"
-tags = ["context-manager", "files", "usecase"]
 
 python = '''
 def merge_files():
@@ -381,7 +367,6 @@ rust = '''
 [[test]]
 name = "multi_locks"
 description = "Acquire multiple locks atomically"
-tags = ["context-manager", "locks", "usecase"]
 
 python = '''
 from threading import Lock
@@ -399,7 +384,6 @@ rust = '''
 [[test]]
 name = "multi_db_file"
 description = "Database transaction and file operation"
-tags = ["context-manager", "database", "usecase"]
 
 python = '''
 class Transaction:
@@ -428,7 +412,6 @@ rust = '''
 [[test]]
 name = "multi_same_cm"
 description = "Using same context manager twice (if reentrant)"
-tags = ["context-manager", "reentrant", "edge"]
 
 python = '''
 from threading import RLock
@@ -447,7 +430,6 @@ rust = '''
 [[test]]
 name = "multi_with_null"
 description = "Mix of real and null context managers"
-tags = ["context-manager", "nullcontext", "edge"]
 
 python = '''
 from contextlib import nullcontext
@@ -474,7 +456,6 @@ pub fn conditional_context(use_real: bool) {
 [[test]]
 name = "multi_many"
 description = "Many context managers"
-tags = ["context-manager", "many", "edge"]
 
 python = '''
 def many_contexts():

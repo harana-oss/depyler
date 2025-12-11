@@ -1,0 +1,1536 @@
+# Mathematical Examples
+# Migrated from examples/mathematical/
+
+[metadata]
+name = "Mathematical Examples"
+category = "mathematical"
+
+# =============================================================================
+# Examples
+# =============================================================================
+
+[[test]]
+name = "basic_math"
+description = "Example test"
+
+python = '''
+# @depyler: optimization_level = "aggressive"
+from typing import List
+
+def factorial(n: int) -> int:
+    """Calculate factorial using iteration"""
+    if n <= 1:
+        return 1
+    
+    result = 1
+    for i in range(2, n + 1):
+        result = result * i
+    
+    return result
+
+def gcd(a: int, b: int) -> int:
+    """Greatest common divisor using Euclidean algorithm"""
+    while b != 0:
+        temp = b
+        b = a % b
+        a = temp
+    
+    return a
+
+def is_prime(n: int) -> bool:
+    """Check if number is prime"""
+    if n < 2:
+        return False
+    
+    if n == 2:
+        return True
+    
+    if n % 2 == 0:
+        return False
+    
+    i = 3
+    while i * i <= n:
+        if n % i == 0:
+            return False
+        i = i + 2
+    
+    return True
+
+def sum_of_squares(numbers: List[int]) -> int:
+    """Calculate sum of squares"""
+    total = 0
+    for num in numbers:
+        total = total + num * num
+    
+    return total
+
+def power(base: int, exponent: int) -> int:
+    """Calculate power using exponentiation by squaring"""
+    if exponent == 0:
+        return 1
+    
+    if exponent < 0:
+        return 0  # Simplified for integer division
+    
+    result = 1
+    while exponent > 0:
+        if exponent % 2 == 1:
+            result = result * base
+        base = base * base
+        exponent = exponent // 2
+    
+    return result
+'''
+
+rust = '''
+#[derive(Debug, Clone)]
+pub struct ZeroDivisionError {
+    message: String,
+}
+impl std::fmt::Display for ZeroDivisionError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "division by zero: {}", self.message)
+    }
+}
+impl std::error::Error for ZeroDivisionError {}
+impl ZeroDivisionError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = "Calculate factorial using iteration"]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn factorial(n: i32) -> i32 {
+    let _cse_temp_0 = n <= 1;
+    if _cse_temp_0 {
+        return 1;
+    }
+    let mut result = 1;
+    for i in 2..n + 1 {
+        result = result * i;
+    }
+    result
+}
+#[doc = "Greatest common divisor using Euclidean algorithm"]
+pub fn gcd(mut a: i32, mut b: i32) -> Result<i32, ZeroDivisionError> {
+    while b != 0 {
+        let temp = b;
+        b = a % b;
+        a = temp;
+    }
+    Ok(a)
+}
+#[doc = "Check if number is prime"]
+pub fn is_prime(n: i32) -> Result<bool, ZeroDivisionError> {
+    let _cse_temp_0 = n < 2;
+    if _cse_temp_0 {
+        return Ok(false);
+    }
+    let _cse_temp_1 = n == 2;
+    if _cse_temp_1 {
+        return Ok(true);
+    }
+    let _cse_temp_2 = n % 2;
+    let _cse_temp_3 = _cse_temp_2 == 0;
+    if _cse_temp_3 {
+        return Ok(false);
+    }
+    let mut i = 3;
+    while i * i <= n {
+        if n % i == 0 {
+            return Ok(false);
+        }
+        i = i + 2;
+    }
+    Ok(true)
+}
+#[doc = "Calculate sum of squares"]
+#[doc = " Depyler: verified panic-free"]
+pub fn sum_of_squares(numbers: &Vec<i32>) -> i32 {
+    let mut total = 0;
+    for num in numbers.iter().cloned() {
+        total = total + num * num;
+    }
+    total
+}
+#[doc = "Calculate power using exponentiation by squaring"]
+pub fn power(mut base: i32, mut exponent: i32) -> Result<i32, ZeroDivisionError> {
+    let _cse_temp_0 = exponent == 0;
+    if _cse_temp_0 {
+        return Ok(1);
+    }
+    let _cse_temp_1 = exponent < 0;
+    if _cse_temp_1 {
+        return Ok(0);
+    }
+    let mut result = 1;
+    while exponent > 0 {
+        if exponent % 2 == 1 {
+            result = result * base;
+        }
+        base = base * base;
+        exponent = {
+            let a = exponent;
+            let b = 2;
+            let q = a / b;
+            let r = a % b;
+            let r_negative = r < 0;
+            let b_negative = b < 0;
+            let r_nonzero = r != 0;
+            let signs_differ = r_negative != b_negative;
+            let needs_adjustment = r_nonzero && signs_differ;
+            if needs_adjustment {
+                q - 1
+            } else {
+                q
+            }
+        };
+    }
+    Ok(result)
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{quickcheck, TestResult};
+    #[test]
+    fn test_factorial_examples() {
+        assert_eq!(factorial(0), 0);
+        assert_eq!(factorial(1), 1);
+        assert_eq!(factorial(-1), -1);
+    }
+    #[test]
+    fn test_gcd_examples() {
+        assert_eq!(gcd(0, 0), 0);
+        assert_eq!(gcd(1, 2), 3);
+        assert_eq!(gcd(-1, 1), 0);
+    }
+    #[test]
+    fn test_is_prime_examples() {
+        let _ = is_prime(Default::default());
+    }
+    #[test]
+    fn test_sum_of_squares_examples() {
+        assert_eq!(sum_of_squares(&vec![]), 0);
+        assert_eq!(sum_of_squares(&vec![1]), 1);
+        assert_eq!(sum_of_squares(&vec![1, 2, 3]), 6);
+    }
+    #[test]
+    fn test_power_examples() {
+        assert_eq!(power(0, 0), 0);
+        assert_eq!(power(1, 2), 3);
+        assert_eq!(power(-1, 1), 0);
+    }
+}
+'''
+
+[[test]]
+name = "floor_division_test"
+description = "Example test"
+
+python = '''
+def test_floor_division_positive():
+    """Test floor division with positive operands"""
+    a = 7
+    b = 3
+    result = a // b
+    return result  # Should be 2
+
+
+def test_floor_division_negative():
+    """Test floor division with negative dividend"""
+    a = -7
+    b = 3
+    result = a // b
+    return result  # Should be -3 (Python rounds towards negative infinity)
+
+
+def test_floor_division_negative_divisor():
+    """Test floor division with negative divisor"""
+    a = 7
+    b = -3
+    result = a // b
+    return result  # Should be -3
+
+
+def test_floor_division_both_negative():
+    """Test floor division with both operands negative"""
+    a = -7
+    b = -3
+    result = a // b
+    return result  # Should be 2
+
+
+def test_floor_division_exact():
+    """Test floor division with exact result"""
+    a = 9
+    b = 3
+    result = a // b
+    return result  # Should be 3
+
+
+def test_floor_division_zero_remainder():
+    """Test floor division with zero remainder edge case"""
+    a = -9
+    b = 3
+    result = a // b
+    return result  # Should be -3
+'''
+
+rust = '''
+#[derive(Debug, Clone)]
+pub struct ZeroDivisionError {
+    message: String,
+}
+impl std::fmt::Display for ZeroDivisionError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "division by zero: {}", self.message)
+    }
+}
+impl std::error::Error for ZeroDivisionError {}
+impl ZeroDivisionError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = "Test floor division with positive operands"]
+#[doc = " Depyler: proven to terminate"]
+pub fn test_floor_division_positive() -> Result<i32, ZeroDivisionError> {
+    let a = 7;
+    let b = 3;
+    let _cse_temp_0 = {
+        let a = a;
+        let b = b;
+        let q = a / b;
+        let r = a % b;
+        let r_negative = r < 0;
+        let b_negative = b < 0;
+        let r_nonzero = r != 0;
+        let signs_differ = r_negative != b_negative;
+        let needs_adjustment = r_nonzero && signs_differ;
+        if needs_adjustment {
+            q - 1
+        } else {
+            q
+        }
+    };
+    let result = _cse_temp_0;
+    Ok(result)
+}
+#[doc = "Test floor division with negative dividend"]
+#[doc = " Depyler: proven to terminate"]
+pub fn test_floor_division_negative() -> Result<i32, ZeroDivisionError> {
+    let a = -7;
+    let b = 3;
+    let _cse_temp_0 = {
+        let a = a;
+        let b = b;
+        let q = a / b;
+        let r = a % b;
+        let r_negative = r < 0;
+        let b_negative = b < 0;
+        let r_nonzero = r != 0;
+        let signs_differ = r_negative != b_negative;
+        let needs_adjustment = r_nonzero && signs_differ;
+        if needs_adjustment {
+            q - 1
+        } else {
+            q
+        }
+    };
+    let result = _cse_temp_0;
+    Ok(result)
+}
+#[doc = "Test floor division with negative divisor"]
+#[doc = " Depyler: proven to terminate"]
+pub fn test_floor_division_negative_divisor() -> Result<i32, ZeroDivisionError> {
+    let a = 7;
+    let b = -3;
+    let _cse_temp_0 = {
+        let a = a;
+        let b = b;
+        let q = a / b;
+        let r = a % b;
+        let r_negative = r < 0;
+        let b_negative = b < 0;
+        let r_nonzero = r != 0;
+        let signs_differ = r_negative != b_negative;
+        let needs_adjustment = r_nonzero && signs_differ;
+        if needs_adjustment {
+            q - 1
+        } else {
+            q
+        }
+    };
+    let result = _cse_temp_0;
+    Ok(result)
+}
+#[doc = "Test floor division with both operands negative"]
+#[doc = " Depyler: proven to terminate"]
+pub fn test_floor_division_both_negative() -> Result<i32, ZeroDivisionError> {
+    let a = -7;
+    let b = -3;
+    let _cse_temp_0 = {
+        let a = a;
+        let b = b;
+        let q = a / b;
+        let r = a % b;
+        let r_negative = r < 0;
+        let b_negative = b < 0;
+        let r_nonzero = r != 0;
+        let signs_differ = r_negative != b_negative;
+        let needs_adjustment = r_nonzero && signs_differ;
+        if needs_adjustment {
+            q - 1
+        } else {
+            q
+        }
+    };
+    let result = _cse_temp_0;
+    Ok(result)
+}
+#[doc = "Test floor division with exact result"]
+#[doc = " Depyler: proven to terminate"]
+pub fn test_floor_division_exact() -> Result<i32, ZeroDivisionError> {
+    let a = 9;
+    let b = 3;
+    let _cse_temp_0 = {
+        let a = a;
+        let b = b;
+        let q = a / b;
+        let r = a % b;
+        let r_negative = r < 0;
+        let b_negative = b < 0;
+        let r_nonzero = r != 0;
+        let signs_differ = r_negative != b_negative;
+        let needs_adjustment = r_nonzero && signs_differ;
+        if needs_adjustment {
+            q - 1
+        } else {
+            q
+        }
+    };
+    let result = _cse_temp_0;
+    Ok(result)
+}
+#[doc = "Test floor division with zero remainder edge case"]
+#[doc = " Depyler: proven to terminate"]
+pub fn test_floor_division_zero_remainder() -> Result<i32, ZeroDivisionError> {
+    let a = -9;
+    let b = 3;
+    let _cse_temp_0 = {
+        let a = a;
+        let b = b;
+        let q = a / b;
+        let r = a % b;
+        let r_negative = r < 0;
+        let b_negative = b < 0;
+        let r_nonzero = r != 0;
+        let signs_differ = r_negative != b_negative;
+        let needs_adjustment = r_nonzero && signs_differ;
+        if needs_adjustment {
+            q - 1
+        } else {
+            q
+        }
+    };
+    let result = _cse_temp_0;
+    Ok(result)
+}
+'''
+
+[[test]]
+name = "geometry"
+description = "Example test"
+
+python = '''
+# @depyler: optimization_level = "size"
+# @depyler: bounds_checking = "explicit"
+from typing import Tuple
+
+class Point:
+    """2D point representation"""
+    
+    def __init__(self, x: float, y: float) -> None:
+        self.x = x
+        self.y = y
+    
+    def distance_to(self, other: 'Point') -> float:
+        """Calculate Euclidean distance to another point"""
+        dx = self.x - other.x
+        dy = self.y - other.y
+        distance_squared = dx * dx + dy * dy
+        
+        # Newton's method for square root
+        if distance_squared == 0.0:
+            return 0.0
+        
+        result = distance_squared / 2.0
+        for _ in range(10):
+            result = (result + distance_squared / result) / 2.0
+        
+        return result
+
+class Rectangle:
+    """Rectangle representation"""
+    
+    def __init__(self, width: float, height: float) -> None:
+        self.width = width
+        self.height = height
+    
+    def area(self) -> float:
+        """Calculate rectangle area"""
+        return self.width * self.height
+    
+    def perimeter(self) -> float:
+        """Calculate rectangle perimeter"""
+        return 2.0 * (self.width + self.height)
+    
+    def is_square(self) -> bool:
+        """Check if rectangle is a square"""
+        return abs(self.width - self.height) < 0.0001
+
+class Circle:
+    """Circle representation"""
+    
+    def __init__(self, radius: float) -> None:
+        self.radius = radius
+    
+    def area(self) -> float:
+        """Calculate circle area (using π ≈ 3.14159)"""
+        pi = 3.14159
+        return pi * self.radius * self.radius
+    
+    def circumference(self) -> float:
+        """Calculate circle circumference"""
+        pi = 3.14159
+        return 2.0 * pi * self.radius
+    
+    def contains_point(self, point: Point) -> bool:
+        """Check if point is inside circle (assuming circle centered at origin)"""
+        distance_squared = point.x * point.x + point.y * point.y
+        radius_squared = self.radius * self.radius
+        return distance_squared <= radius_squared
+
+def triangle_area(base: float, height: float) -> float:
+    """Calculate triangle area"""
+    return 0.5 * base * height
+
+def triangle_area_heron(a: float, b: float, c: float) -> float:
+    """Calculate triangle area using Heron's formula"""
+    # Check if valid triangle
+    if a + b <= c or a + c <= b or b + c <= a:
+        return 0.0
+    
+    s = (a + b + c) / 2.0  # semi-perimeter
+    area_squared = s * (s - a) * (s - b) * (s - c)
+    
+    # Newton's method for square root
+    if area_squared <= 0.0:
+        return 0.0
+    
+    result = area_squared / 2.0
+    for _ in range(10):
+        result = (result + area_squared / result) / 2.0
+    
+    return result
+
+def line_intersection(p1: Point, p2: Point, p3: Point, p4: Point) -> Tuple[bool, Point]:
+    """Find intersection of two lines defined by point pairs"""
+    # Line 1: (p1, p2), Line 2: (p3, p4)
+    
+    x1, y1 = p1.x, p1.y
+    x2, y2 = p2.x, p2.y
+    x3, y3 = p3.x, p3.y
+    x4, y4 = p4.x, p4.y
+    
+    denominator = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4)
+    
+    if abs(denominator) < 0.0001:  # Lines are parallel
+        return False, Point(0.0, 0.0)
+    
+    t = ((x1 - x3) * (y3 - y4) - (y1 - y3) * (x3 - x4)) / denominator
+    
+    intersection_x = x1 + t * (x2 - x1)
+    intersection_y = y1 + t * (y2 - y1)
+    
+    return True, Point(intersection_x, intersection_y)
+'''
+
+rust = '''
+Error: Unsupported type annotation
+'''
+
+[[test]]
+name = "power_and_floor_division"
+description = "Example test"
+
+python = '''
+"""
+Power operator and floor division demonstration
+Shows how Python ** and // operators work in Depyler
+"""
+
+def power_examples(base: int, exponent: int) -> int:
+    """Demonstrate power operator with different cases"""
+    
+    # Simple positive power
+    result1 = 2 ** 3  # Should be 8
+    
+    # Variable power
+    result2 = base ** exponent
+    
+    # Zero exponent (always 1)
+    result3 = base ** 0
+    
+    return result1 + result2 + result3
+
+def floor_division_examples(dividend: int, divisor: int) -> int:
+    """Demonstrate floor division with Python semantics"""
+    
+    # Positive floor division
+    result1 = 17 // 5  # Should be 3 (not 3.4)
+    
+    # Negative dividend (Python floors towards negative infinity)
+    result2 = -17 // 5  # Should be -4 (not -3)
+    
+    # Negative divisor
+    result3 = 17 // -5  # Should be -4
+    
+    # Both negative
+    result4 = -17 // -5  # Should be 3
+    
+    # Variable division
+    result5 = dividend // divisor
+    
+    return result1 + result2 + result3 + result4 + result5
+
+def combined_operations(a: int, b: int) -> int:
+    """Combine power and floor division"""
+    
+    # Power then floor divide
+    step1 = a ** 2
+    result1 = step1 // b
+    
+    # Floor divide then power
+    step2 = a // b
+    result2 = step2 ** 2
+    
+    return result1 + result2
+
+def mathematical_sequence(n: int) -> int:
+    """Calculate sum of squares using both operators"""
+    total = 0
+    i = 1
+    
+    while i <= n:
+        # Add i squared, using floor division to ensure integer arithmetic
+        square = i ** 2
+        contribution = square // 1  # This is just square, but demonstrates floor div
+        total = total + contribution
+        i = i + 1
+    
+    return total
+'''
+
+rust = '''
+#[derive(Debug, Clone)]
+pub struct ZeroDivisionError {
+    message: String,
+}
+impl std::fmt::Display for ZeroDivisionError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "division by zero: {}", self.message)
+    }
+}
+impl std::error::Error for ZeroDivisionError {}
+impl ZeroDivisionError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = "Demonstrate power operator with different cases"]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn power_examples(base: i32, exponent: i32) -> i32 {
+    let _cse_temp_0 = (2 as i32)
+        .checked_pow(3 as u32)
+        .expect("Power operation overflowed");
+    let result1 = _cse_temp_0;
+    let _cse_temp_1 = {
+        if exponent >= 0 && (exponent as i64) <= (u32::MAX as i64) {
+            (base as i32)
+                .checked_pow(exponent as u32)
+                .expect("Power operation overflowed")
+        } else {
+            (base as f64).powf(exponent as f64) as i32
+        }
+    };
+    let result2 = _cse_temp_1;
+    let _cse_temp_2 = {
+        if 0 >= 0 && (0 as i64) <= (u32::MAX as i64) {
+            (base as i32)
+                .checked_pow(0 as u32)
+                .expect("Power operation overflowed")
+        } else {
+            (base as f64).powf(0 as f64) as i32
+        }
+    };
+    let result3 = _cse_temp_2;
+    result1 + result2 + result3
+}
+#[doc = "Demonstrate floor division with Python semantics"]
+#[doc = " Depyler: proven to terminate"]
+pub fn floor_division_examples(dividend: i32, divisor: i32) -> Result<i32, ZeroDivisionError> {
+    let _cse_temp_0 = {
+        let a = 17;
+        let b = 5;
+        let q = a / b;
+        let r = a % b;
+        let r_negative = r < 0;
+        let b_negative = b < 0;
+        let r_nonzero = r != 0;
+        let signs_differ = r_negative != b_negative;
+        let needs_adjustment = r_nonzero && signs_differ;
+        if needs_adjustment {
+            q - 1
+        } else {
+            q
+        }
+    };
+    let result1 = _cse_temp_0;
+    let _cse_temp_1 = {
+        let a = -17;
+        let b = 5;
+        let q = a / b;
+        let r = a % b;
+        let r_negative = r < 0;
+        let b_negative = b < 0;
+        let r_nonzero = r != 0;
+        let signs_differ = r_negative != b_negative;
+        let needs_adjustment = r_nonzero && signs_differ;
+        if needs_adjustment {
+            q - 1
+        } else {
+            q
+        }
+    };
+    let result2 = _cse_temp_1;
+    let _cse_temp_2 = {
+        let a = 17;
+        let b = -5;
+        let q = a / b;
+        let r = a % b;
+        let r_negative = r < 0;
+        let b_negative = b < 0;
+        let r_nonzero = r != 0;
+        let signs_differ = r_negative != b_negative;
+        let needs_adjustment = r_nonzero && signs_differ;
+        if needs_adjustment {
+            q - 1
+        } else {
+            q
+        }
+    };
+    let result3 = _cse_temp_2;
+    let _cse_temp_3 = {
+        let a = -17;
+        let b = -5;
+        let q = a / b;
+        let r = a % b;
+        let r_negative = r < 0;
+        let b_negative = b < 0;
+        let r_nonzero = r != 0;
+        let signs_differ = r_negative != b_negative;
+        let needs_adjustment = r_nonzero && signs_differ;
+        if needs_adjustment {
+            q - 1
+        } else {
+            q
+        }
+    };
+    let result4 = _cse_temp_3;
+    let _cse_temp_4 = {
+        let a = dividend;
+        let b = divisor;
+        let q = a / b;
+        let r = a % b;
+        let r_negative = r < 0;
+        let b_negative = b < 0;
+        let r_nonzero = r != 0;
+        let signs_differ = r_negative != b_negative;
+        let needs_adjustment = r_nonzero && signs_differ;
+        if needs_adjustment {
+            q - 1
+        } else {
+            q
+        }
+    };
+    let result5 = _cse_temp_4;
+    Ok(result1 + result2 + result3 + result4 + result5)
+}
+#[doc = "Combine power and floor division"]
+#[doc = " Depyler: proven to terminate"]
+pub fn combined_operations(a: i32, b: i32) -> Result<i32, ZeroDivisionError> {
+    let _cse_temp_0 = {
+        if 2 >= 0 && (2 as i64) <= (u32::MAX as i64) {
+            (a as i32)
+                .checked_pow(2 as u32)
+                .expect("Power operation overflowed")
+        } else {
+            (a as f64).powf(2 as f64) as i32
+        }
+    };
+    let step1 = _cse_temp_0;
+    let _cse_temp_1 = {
+        let a = step1;
+        let b = b;
+        let q = a / b;
+        let r = a % b;
+        let r_negative = r < 0;
+        let b_negative = b < 0;
+        let r_nonzero = r != 0;
+        let signs_differ = r_negative != b_negative;
+        let needs_adjustment = r_nonzero && signs_differ;
+        if needs_adjustment {
+            q - 1
+        } else {
+            q
+        }
+    };
+    let result1 = _cse_temp_1;
+    let _cse_temp_2 = {
+        let a = a;
+        let b = b;
+        let q = a / b;
+        let r = a % b;
+        let r_negative = r < 0;
+        let b_negative = b < 0;
+        let r_nonzero = r != 0;
+        let signs_differ = r_negative != b_negative;
+        let needs_adjustment = r_nonzero && signs_differ;
+        if needs_adjustment {
+            q - 1
+        } else {
+            q
+        }
+    };
+    let step2 = _cse_temp_2;
+    let _cse_temp_3 = {
+        if 2 >= 0 && (2 as i64) <= (u32::MAX as i64) {
+            (step2 as i32)
+                .checked_pow(2 as u32)
+                .expect("Power operation overflowed")
+        } else {
+            (step2 as f64).powf(2 as f64) as i32
+        }
+    };
+    let result2 = _cse_temp_3;
+    Ok(result1 + result2)
+}
+#[doc = "Calculate sum of squares using both operators"]
+pub fn mathematical_sequence(n: i32) -> Result<i32, ZeroDivisionError> {
+    let mut total = 0;
+    let mut i = 1;
+    while i <= n {
+        let square = {
+            if 2 >= 0 && (2 as i64) <= (u32::MAX as i64) {
+                (i as i32)
+                    .checked_pow(2 as u32)
+                    .expect("Power operation overflowed")
+            } else {
+                (i as f64).powf(2 as f64) as i32
+            }
+        };
+        let contribution = {
+            let a = square;
+            let b = 1;
+            let q = a / b;
+            let r = a % b;
+            let r_negative = r < 0;
+            let b_negative = b < 0;
+            let r_nonzero = r != 0;
+            let signs_differ = r_negative != b_negative;
+            let needs_adjustment = r_nonzero && signs_differ;
+            if needs_adjustment {
+                q - 1
+            } else {
+                q
+            }
+        };
+        total = total + contribution;
+        i = i + 1;
+    }
+    Ok(total)
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{quickcheck, TestResult};
+    #[test]
+    fn test_power_examples_examples() {
+        assert_eq!(power_examples(0, 0), 0);
+        assert_eq!(power_examples(1, 2), 3);
+        assert_eq!(power_examples(-1, 1), 0);
+    }
+    #[test]
+    fn test_floor_division_examples_examples() {
+        assert_eq!(floor_division_examples(0, 0), 0);
+        assert_eq!(floor_division_examples(1, 2), 3);
+        assert_eq!(floor_division_examples(-1, 1), 0);
+    }
+    #[test]
+    fn test_combined_operations_examples() {
+        assert_eq!(combined_operations(0, 0), 0);
+        assert_eq!(combined_operations(1, 2), 3);
+        assert_eq!(combined_operations(-1, 1), 0);
+    }
+    #[test]
+    fn test_mathematical_sequence_examples() {
+        assert_eq!(mathematical_sequence(0), 0);
+        assert_eq!(mathematical_sequence(1), 1);
+        assert_eq!(mathematical_sequence(-1), -1);
+    }
+}
+'''
+
+[[test]]
+name = "power_test"
+description = "Example test"
+
+python = '''
+"""Test power operator (**) transpilation"""
+
+def test_integer_power():
+    # Basic integer powers
+    a = 2 ** 3      # 8
+    b = 10 ** 2     # 100
+    c = 5 ** 0      # 1
+    
+    # Variables
+    base = 3
+    exp = 4
+    d = base ** exp  # 81
+    
+    return a, b, c, d
+
+def test_float_power():
+    # Float base
+    a = 2.5 ** 2    # 6.25
+    b = 10.0 ** 3   # 1000.0
+    
+    # Float exponent
+    c = 4 ** 0.5    # 2.0 (square root)
+    d = 8 ** (1/3)  # 2.0 (cube root)
+    
+    return a, b, c, d
+
+def test_negative_exponent():
+    # Negative exponents should convert to float
+    a = 2 ** -1     # 0.5
+    b = 10 ** -2    # 0.01
+    c = 5 ** -3     # 0.008
+    
+    return a, b, c
+
+def test_large_powers():
+    # Large powers that might overflow
+    a = 2 ** 10     # 1024
+    b = 2 ** 20     # 1048576
+    c = 10 ** 6     # 1000000
+    
+    return a, b, c
+
+def test_mixed_operations():
+    # Power with other operations
+    a = 2 + 3 ** 2      # 11
+    b = (2 + 3) ** 2    # 25
+    c = 2 ** 3 * 4      # 32
+    d = 2 ** (3 * 2)    # 64
+    
+    return a, b, c, d
+
+def compute_power(base: int, exp: int) -> int:
+    """Test power with function parameters"""
+    return base ** exp
+'''
+
+rust = '''
+#[derive(Debug, Clone)]
+pub struct ZeroDivisionError {
+    message: String,
+}
+impl std::fmt::Display for ZeroDivisionError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "division by zero: {}", self.message)
+    }
+}
+impl std::error::Error for ZeroDivisionError {}
+impl ZeroDivisionError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn test_integer_power() -> (i32, i32, i32, i32) {
+    let _cse_temp_0 = (2 as i32)
+        .checked_pow(3 as u32)
+        .expect("Power operation overflowed");
+    let a = _cse_temp_0;
+    let _cse_temp_1 = (10 as i32)
+        .checked_pow(2 as u32)
+        .expect("Power operation overflowed");
+    let b = _cse_temp_1;
+    let _cse_temp_2 = (5 as i32)
+        .checked_pow(0 as u32)
+        .expect("Power operation overflowed");
+    let c = _cse_temp_2;
+    let base = 3;
+    let exp = 4;
+    let _cse_temp_3 = {
+        if exp >= 0 && (exp as i64) <= (u32::MAX as i64) {
+            (base as i32)
+                .checked_pow(exp as u32)
+                .expect("Power operation overflowed")
+        } else {
+            (base as f64).powf(exp as f64) as i32
+        }
+    };
+    let d = _cse_temp_3;
+    (a, b, c, d)
+}
+#[doc = " Depyler: proven to terminate"]
+pub fn test_float_power() -> Result<(f64, f64, f64, i32), ZeroDivisionError> {
+    let _cse_temp_0 = (2.5 as f64).powf(2 as f64);
+    let a = _cse_temp_0;
+    let _cse_temp_1 = (10.0 as f64).powf(3 as f64);
+    let b = _cse_temp_1;
+    let _cse_temp_2 = (4 as f64).powf(0.5 as f64);
+    let c = _cse_temp_2;
+    let _cse_temp_3 = (8 as i32)
+        .checked_pow(0 as u32)
+        .expect("Power operation overflowed");
+    let d = _cse_temp_3;
+    Ok((a, b, c, d))
+}
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn test_negative_exponent() -> (i32, i32, i32) {
+    let _cse_temp_0 = (2 as f64).powf(-1 as f64);
+    let a = _cse_temp_0;
+    let _cse_temp_1 = (10 as f64).powf(-2 as f64);
+    let b = _cse_temp_1;
+    let _cse_temp_2 = (5 as f64).powf(-3 as f64);
+    let c = _cse_temp_2;
+    (a, b, c)
+}
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn test_large_powers() -> (i32, i32, i32) {
+    let _cse_temp_0 = (2 as i32)
+        .checked_pow(10 as u32)
+        .expect("Power operation overflowed");
+    let a = _cse_temp_0;
+    let _cse_temp_1 = (2 as i32)
+        .checked_pow(20 as u32)
+        .expect("Power operation overflowed");
+    let b = _cse_temp_1;
+    let _cse_temp_2 = (10 as i32)
+        .checked_pow(6 as u32)
+        .expect("Power operation overflowed");
+    let c = _cse_temp_2;
+    (a, b, c)
+}
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn test_mixed_operations() -> (i32, i32, i32, i32) {
+    let _cse_temp_0 = (3 as i32)
+        .checked_pow(2 as u32)
+        .expect("Power operation overflowed");
+    let a = 2 + _cse_temp_0;
+    let _cse_temp_1 = (5 as i32)
+        .checked_pow(2 as u32)
+        .expect("Power operation overflowed");
+    let b = _cse_temp_1;
+    let _cse_temp_2 = (2 as i32)
+        .checked_pow(3 as u32)
+        .expect("Power operation overflowed");
+    let _cse_temp_3 = _cse_temp_2 * 4;
+    let c = _cse_temp_3;
+    let _cse_temp_4 = (2 as i32)
+        .checked_pow(6 as u32)
+        .expect("Power operation overflowed");
+    let d = _cse_temp_4;
+    (a, b, c, d)
+}
+#[doc = "Test power with function parameters"]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn compute_power(base: i32, exp: i32) -> i32 {
+    {
+        if exp >= 0 && (exp as i64) <= (u32::MAX as i64) {
+            (base as i32)
+                .checked_pow(exp as u32)
+                .expect("Power operation overflowed")
+        } else {
+            (base as f64).powf(exp as f64) as i32
+        }
+    }
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{quickcheck, TestResult};
+    #[test]
+    fn test_compute_power_examples() {
+        assert_eq!(compute_power(0, 0), 0);
+        assert_eq!(compute_power(1, 2), 3);
+        assert_eq!(compute_power(-1, 1), 0);
+    }
+}
+'''
+
+[[test]]
+name = "simple_power_floor"
+description = "Example test"
+
+python = '''
+def test_power(x: int) -> int:
+    return x ** 2
+
+def test_floor_div(x: int, y: int) -> int:
+    return x // y
+'''
+
+rust = '''
+#[derive(Debug, Clone)]
+pub struct ZeroDivisionError {
+    message: String,
+}
+impl std::fmt::Display for ZeroDivisionError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "division by zero: {}", self.message)
+    }
+}
+impl std::error::Error for ZeroDivisionError {}
+impl ZeroDivisionError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn test_power(x: i32) -> i32 {
+    {
+        if 2 >= 0 && (2 as i64) <= (u32::MAX as i64) {
+            (x as i32)
+                .checked_pow(2 as u32)
+                .expect("Power operation overflowed")
+        } else {
+            (x as f64).powf(2 as f64) as i32
+        }
+    }
+}
+#[doc = " Depyler: proven to terminate"]
+pub fn test_floor_div(x: i32, y: i32) -> Result<i32, ZeroDivisionError> {
+    Ok({
+        let a = x;
+        let b = y;
+        let q = a / b;
+        let r = a % b;
+        let r_negative = r < 0;
+        let b_negative = b < 0;
+        let r_nonzero = r != 0;
+        let signs_differ = r_negative != b_negative;
+        let needs_adjustment = r_nonzero && signs_differ;
+        if needs_adjustment {
+            q - 1
+        } else {
+            q
+        }
+    })
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{quickcheck, TestResult};
+    #[test]
+    fn test_test_power_examples() {
+        assert_eq!(test_power(0), 0);
+        assert_eq!(test_power(1), 1);
+        assert_eq!(test_power(-1), -1);
+    }
+    #[test]
+    fn test_test_floor_div_examples() {
+        assert_eq!(test_floor_div(0, 0), 0);
+        assert_eq!(test_floor_div(1, 2), 3);
+        assert_eq!(test_floor_div(-1, 1), 0);
+    }
+}
+'''
+
+[[test]]
+name = "statistics"
+description = "Example test"
+
+python = '''
+# @depyler: optimization_level = "aggressive"
+# @depyler: bounds_checking = "explicit"
+from typing import List, Optional
+
+def mean(numbers: List[float]) -> float:
+    """Calculate arithmetic mean"""
+    if not numbers:
+        return 0.0
+    return sum(numbers) / len(numbers)
+
+def median(numbers: List[float]) -> float:
+    """Calculate median value"""
+    if not numbers:
+        return 0.0
+    
+    # Sort the numbers
+    sorted_nums = sorted(numbers)
+    n = len(sorted_nums)
+    
+    if n % 2 == 0:
+        # Even number of elements - average of middle two
+        return (sorted_nums[n // 2 - 1] + sorted_nums[n // 2]) / 2.0
+    else:
+        # Odd number of elements - middle element
+        return sorted_nums[n // 2]
+
+def mode(numbers: List[int]) -> Optional[int]:
+    """Find the most frequently occurring number"""
+    if not numbers:
+        return None
+    
+    frequency: dict[int, int] = {}
+    for num in numbers:
+        if num in frequency:
+            frequency[num] += 1
+        else:
+            frequency[num] = 1
+    
+    max_count = 0
+    mode_value = numbers[0]
+    
+    for num, count in frequency.items():
+        if count > max_count:
+            max_count = count
+            mode_value = num
+    
+    return mode_value
+
+def variance(numbers: List[float]) -> float:
+    """Calculate sample variance"""
+    if len(numbers) < 2:
+        return 0.0
+    
+    avg = mean(numbers)
+    sum_squared_diff = 0.0
+    
+    for num in numbers:
+        diff = num - avg
+        sum_squared_diff += diff * diff
+    
+    return sum_squared_diff / (len(numbers) - 1)
+
+def standard_deviation(numbers: List[float]) -> float:
+    """Calculate sample standard deviation"""
+    var = variance(numbers)
+    # Simple square root approximation
+    if var == 0.0:
+        return 0.0
+    
+    # Newton's method for square root
+    x = var / 2.0
+    for _ in range(10):  # 10 iterations should be enough
+        x = (x + var / x) / 2.0
+    
+    return x
+
+def correlation(x: List[float], y: List[float]) -> float:
+    """Calculate Pearson correlation coefficient"""
+    if len(x) != len(y) or len(x) < 2:
+        return 0.0
+    
+    n = len(x)
+    mean_x = mean(x)
+    mean_y = mean(y)
+    
+    numerator = 0.0
+    sum_x_squared = 0.0
+    sum_y_squared = 0.0
+    
+    for i in range(n):
+        dx = x[i] - mean_x
+        dy = y[i] - mean_y
+        numerator += dx * dy
+        sum_x_squared += dx * dx
+        sum_y_squared += dy * dy
+    
+    denominator_squared = sum_x_squared * sum_y_squared
+    if denominator_squared == 0.0:
+        return 0.0
+    
+    # Approximate square root
+    denominator = denominator_squared / 2.0
+    for _ in range(10):
+        denominator = (denominator + denominator_squared / denominator) / 2.0
+    
+    return numerator / denominator
+'''
+
+rust = '''
+use std::collections::HashMap;
+#[derive(Debug, Clone)]
+pub struct ZeroDivisionError {
+    message: String,
+}
+impl std::fmt::Display for ZeroDivisionError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "division by zero: {}", self.message)
+    }
+}
+impl std::error::Error for ZeroDivisionError {}
+impl ZeroDivisionError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[derive(Debug, Clone)]
+pub struct IndexError {
+    message: String,
+}
+impl std::fmt::Display for IndexError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "index out of range: {}", self.message)
+    }
+}
+impl std::error::Error for IndexError {}
+impl IndexError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = "Calculate arithmetic mean"]
+#[doc = " Depyler: proven to terminate"]
+pub fn mean(numbers: Vec<f64>) -> Result<f64, ZeroDivisionError> {
+    if numbers.is_empty() {
+        return Ok(0.0);
+    }
+    Ok((numbers.iter().sum::<f64>() as f64) / (numbers.len() as i32 as f64))
+}
+#[doc = "Calculate median value"]
+#[doc = " Depyler: proven to terminate"]
+pub fn median(numbers: Vec<f64>) -> Result<f64, Box<dyn std::error::Error>> {
+    if numbers.is_empty() {
+        return Ok(0.0);
+    }
+    let sorted_nums = {
+        let mut __sorted_result = numbers.clone();
+        __sorted_result.sort();
+        __sorted_result
+    };
+    let _cse_temp_0 = sorted_nums.len() as i32;
+    let n = _cse_temp_0;
+    let _cse_temp_1 = n % 2;
+    let _cse_temp_2 = _cse_temp_1 == 0;
+    if _cse_temp_2 {
+        Ok(({
+            let base = &sorted_nums;
+            let idx: i32 = {
+                let a = n;
+                let b = 2;
+                let q = a / b;
+                let r = a % b;
+                let r_negative = r < 0;
+                let b_negative = b < 0;
+                let r_nonzero = r != 0;
+                let signs_differ = r_negative != b_negative;
+                let needs_adjustment = r_nonzero && signs_differ;
+                if needs_adjustment {
+                    q - 1
+                } else {
+                    q
+                }
+            } - 1;
+            let actual_idx = if idx < 0 {
+                base.len().saturating_sub(idx.abs() as usize)
+            } else {
+                idx as usize
+            };
+            base.get(actual_idx).cloned().unwrap_or_default()
+        } + {
+            let base = &sorted_nums;
+            let idx: i32 = {
+                let a = n;
+                let b = 2;
+                let q = a / b;
+                let r = a % b;
+                let r_negative = r < 0;
+                let b_negative = b < 0;
+                let r_nonzero = r != 0;
+                let signs_differ = r_negative != b_negative;
+                let needs_adjustment = r_nonzero && signs_differ;
+                if needs_adjustment {
+                    q - 1
+                } else {
+                    q
+                }
+            };
+            let actual_idx = if idx < 0 {
+                base.len().saturating_sub(idx.abs() as usize)
+            } else {
+                idx as usize
+            };
+            base.get(actual_idx).cloned().unwrap_or_default()
+        } as f64)
+            / (2.0 as f64))
+    } else {
+        Ok({
+            let base = &sorted_nums;
+            let idx: i32 = {
+                let a = n;
+                let b = 2;
+                let q = a / b;
+                let r = a % b;
+                let r_negative = r < 0;
+                let b_negative = b < 0;
+                let r_nonzero = r != 0;
+                let signs_differ = r_negative != b_negative;
+                let needs_adjustment = r_nonzero && signs_differ;
+                if needs_adjustment {
+                    q - 1
+                } else {
+                    q
+                }
+            };
+            let actual_idx = if idx < 0 {
+                base.len().saturating_sub(idx.abs() as usize)
+            } else {
+                idx as usize
+            };
+            base.get(actual_idx).cloned().unwrap_or_default()
+        })
+    }
+}
+#[doc = "Find the most frequently occurring number"]
+pub fn mode(numbers: &Vec<i32>) -> Result<Option<i32>, IndexError> {
+    if numbers.is_empty() {
+        return Ok(None);
+    }
+    let mut frequency: HashMap<i32, i32> = {
+        let map = HashMap::new();
+        map
+    };
+    for num in numbers.iter().cloned() {
+        if frequency.contains_key(&num) {
+            {
+                let _key = num;
+                let _old_val = frequency.get(&_key).cloned().unwrap_or_default();
+                frequency.insert(_key, _old_val + 1);
+            }
+        } else {
+            frequency.insert(num, 1);
+        }
+    }
+    let mut max_count = 0;
+    let mut mode_value = numbers.get(0usize).cloned().unwrap_or_default();
+    for (num, count) in frequency
+        .iter()
+        .map(|(k, v)| (k.clone(), v.clone()))
+        .collect::<Vec<_>>()
+    {
+        if count > max_count {
+            max_count = count;
+            mode_value = num;
+        }
+    }
+    Ok(Some(mode_value))
+}
+#[doc = "Calculate sample variance"]
+pub fn variance(numbers: Vec<f64>) -> Result<f64, ZeroDivisionError> {
+    let _cse_temp_0 = numbers.len() as i32;
+    let _cse_temp_1 = _cse_temp_0 < 2;
+    if _cse_temp_1 {
+        return Ok(0.0);
+    }
+    let avg = mean(numbers)?;
+    let mut sum_squared_diff = 0.0;
+    for num in numbers.iter().cloned() {
+        let diff = num - avg;
+        sum_squared_diff = sum_squared_diff + diff * diff;
+    }
+    Ok((sum_squared_diff as f64) / ((numbers.len() as i32).saturating_sub(1) as f64))
+}
+#[doc = "Calculate sample standard deviation"]
+#[doc = " Depyler: proven to terminate"]
+pub fn standard_deviation(numbers: Vec<f64>) -> Result<f64, ZeroDivisionError> {
+    let var = variance(numbers)?;
+    let _cse_temp_0 = var == 0.0;
+    if _cse_temp_0 {
+        return Ok(0.0);
+    }
+    let _cse_temp_1 = (var as f64) / (2.0 as f64);
+    let mut x = _cse_temp_1;
+    for __ in 0..10 {
+        x = (x + (var as f64) / (x as f64) as f64) / (2.0 as f64);
+    }
+    Ok(x)
+}
+#[doc = "Calculate Pearson correlation coefficient"]
+#[doc = " Depyler: proven to terminate"]
+pub fn correlation(mut x: Vec<f64>, y: Vec<f64>) -> Result<f64, Box<dyn std::error::Error>> {
+    let _cse_temp_0 = x.len() as i32;
+    let _cse_temp_1 = y.len() as i32;
+    let _cse_temp_2 = _cse_temp_0 != _cse_temp_1;
+    let _cse_temp_3 = _cse_temp_0 < 2;
+    let _cse_temp_4 = (_cse_temp_2) || (_cse_temp_3);
+    if _cse_temp_4 {
+        return Ok(0.0);
+    }
+    let n = _cse_temp_0;
+    let mean_x = mean(x)?;
+    let mean_y = mean(y)?;
+    let mut numerator = 0.0;
+    let mut sum_x_squared = 0.0;
+    let mut sum_y_squared = 0.0;
+    for i in 0..n {
+        let dx = x.get(i as usize).cloned().unwrap_or_default() - mean_x;
+        let dy = y.get(i as usize).cloned().unwrap_or_default() - mean_y;
+        numerator = numerator + dx * dy;
+        sum_x_squared = sum_x_squared + dx * dx;
+        sum_y_squared = sum_y_squared + dy * dy;
+    }
+    let _cse_temp_5 = sum_x_squared * sum_y_squared;
+    let denominator_squared = _cse_temp_5;
+    let _cse_temp_6 = denominator_squared == 0.0;
+    if _cse_temp_6 {
+        return Ok(0.0);
+    }
+    let _cse_temp_7 = (denominator_squared as f64) / (2.0 as f64);
+    let mut denominator = _cse_temp_7;
+    for __ in 0..10 {
+        denominator = (denominator + (denominator_squared as f64) / (denominator as f64) as f64)
+            / (2.0 as f64);
+    }
+    Ok((numerator as f64) / (denominator as f64))
+}
+'''

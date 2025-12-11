@@ -1,0 +1,452 @@
+# CLI Integration Tests - Migrated from test_cli.rs, test_cli_edge_cases.rs, test_depyler.rs
+
+# NOTE: Many CLI tests require subprocess execution and file I/O,
+# so they remain as Rust integration tests. This file contains
+# the transpilation verification tests that can be expressed in TOML.
+
+[metadata]
+name = "CLI Integration Tests"
+category = "cli-integration"
+
+# =============================================================================
+# Basic Transpilation Tests
+# =============================================================================
+
+[[test]]
+name = "cli_basic_function"
+description = "Basic function transpilation via CLI"
+
+python = '''
+def hello() -> str:
+    return "Hello, World!"
+'''
+
+rust = '''
+pub fn hello() -> String {
+    return "Hello, World!".to_string();
+}
+'''
+
+[[test]]
+name = "cli_type_annotation"
+description = "Type annotation preservation"
+
+python = '''
+def typed_func(x: int, y: str) -> bool:
+    return len(y) > x
+'''
+
+rust = '''
+pub fn typed_func(x: i32, y: String) -> bool {
+    return y.len() as i32 > x;
+}
+'''
+
+[[test]]
+name = "cli_multiple_functions"
+description = "Multiple functions in single file"
+
+python = '''
+def first() -> int:
+    return 1
+
+def second() -> int:
+    return 2
+
+def combined() -> int:
+    return first() + second()
+'''
+
+rust = '''
+pub fn first() -> i32 {
+    return 1;
+}
+pub fn second() -> i32 {
+    return 2;
+}
+pub fn combined() -> i32 {
+    return first() + second();
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_first_examples() {
+        let _ = first();
+    }
+    #[test]
+    fn test_second_examples() {
+        let _ = second();
+    }
+    #[test]
+    fn test_combined_examples() {
+        let _ = combined();
+    }
+}
+'''
+
+[[test]]
+name = "cli_empty_file"
+description = "Empty Python file handling"
+
+python = '''
+# Empty file with only a comment
+'''
+
+rust = '''
+
+'''
+
+[[test]]
+name = "cli_only_imports"
+description = "File with only imports"
+
+python = '''
+import math
+from typing import List
+'''
+
+rust = '''
+use std::f64 as math;
+'''
+
+[[test]]
+name = "cli_complex_types"
+description = "Complex type annotations"
+
+python = '''
+def process(data: dict[str, list[int]]) -> list[str]:
+    return list(data.keys())
+'''
+
+rust = '''
+use std::collections::HashMap;
+pub fn process(data: &HashMap<String, Vec<i32>>) -> Vec<String> {
+    return data.keys().cloned().collect::<Vec<_>>();
+}
+'''
+
+[[test]]
+name = "quality_type_safety"
+description = "Type safety scoring for fully typed code"
+
+python = '''
+def fully_typed(x: int, y: int) -> int:
+    z: int = x + y
+    return z
+'''
+
+rust = '''
+pub fn fully_typed(x: i32, y: i32) -> i32 {
+    let z: i32 = x + y;
+    return z;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_fully_typed_examples() {
+        assert_eq!(fully_typed(0, 0), 0);
+        assert_eq!(fully_typed(1, 2), 3);
+        assert_eq!(fully_typed(-1, 1), 0);
+    }
+}
+'''
+
+[[test]]
+name = "quality_memory_safety"
+description = "Memory safety with bounds checking"
+
+python = '''
+def safe_list_access(items: list[int], index: int) -> int:
+    if 0 <= index < len(items):
+        return items[index]
+    return 0
+'''
+
+rust = '''
+#[derive(Debug, Clone)]
+pub struct IndexError {
+    message: String,
+}
+impl std::fmt::Display for IndexError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "index out of range: {}", self.message)
+    }
+}
+impl std::error::Error for IndexError {}
+impl IndexError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = " Depyler: proven to terminate"]
+pub fn safe_list_access(items: &Vec<i32>, index: i32) -> i32 {
+    let _cse_temp_0 = 0 <= index;
+    let _cse_temp_1 = items.clone().len() as i32;
+    let _cse_temp_2 = index < _cse_temp_1;
+    let _cse_temp_3 = (_cse_temp_0) && (_cse_temp_2);
+    if _cse_temp_3 {
+        return items.get(index as usize).cloned().unwrap();
+    }
+    return 0;
+}
+'''
+
+[[test]]
+name = "quality_energy_efficiency"
+description = "Energy efficient iterator usage"
+
+python = '''
+def efficient_sum(nums: list[int]) -> int:
+    return sum(nums)
+'''
+
+rust = '''
+pub fn efficient_sum(nums: Vec<i32>) -> i32 {
+    return nums.iter().sum::<i32>();
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_efficient_sum_examples() {
+        assert_eq!(efficient_sum(vec![]), 0);
+        assert_eq!(efficient_sum(vec![1]), 1);
+        assert_eq!(efficient_sum(vec![1, 2, 3]), 6);
+    }
+}
+'''
+
+[[test]]
+name = "compile_simple_struct"
+description = "Simple struct compilation"
+
+python = '''
+class Point:
+    def __init__(self, x: int, y: int):
+        self.x = x
+        self.y = y
+'''
+
+rust = '''
+#[derive(Debug, Clone)]
+pub struct Point {
+    pub x: i32,
+    pub y: i32,
+}
+impl Point {
+    pub fn new(x: i32, y: i32) -> Self {
+        Self { x, y }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "x" => Some(Box::new(self.x.clone()) as Box<dyn std::any::Any>),
+            "y" => Some(Box::new(self.y.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "x" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.x = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "y" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.y = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+'''
+
+[[test]]
+name = "compile_methods"
+description = "Method compilation"
+
+python = '''
+class Calculator:
+    def __init__(self):
+        self.value = 0
+    
+    def add(self, n: int) -> int:
+        self.value += n
+        return self.value
+'''
+
+rust = '''
+#[derive(Debug, Clone)]
+pub struct Calculator {
+    pub value: i32,
+}
+impl Calculator {
+    pub fn new() -> Self {
+        Self { value: 0 }
+    }
+    pub fn add(&mut self, n: i32) -> i32 {
+        self.value = format!("{}{}", self.value, n);
+        return self.value.clone();
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "value" => Some(Box::new(self.value.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "value" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.value = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+'''
+
+[[test]]
+name = "compile_generics_list"
+description = "Generic list handling"
+
+python = '''
+def double_all(nums: list[int]) -> list[int]:
+    return [n * 2 for n in nums]
+'''
+
+rust = '''
+pub fn double_all(nums: &Vec<i32>) -> Vec<i32> {
+    return nums.clone().into_iter().map(|n| n * 2).collect::<Vec<_>>();
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_double_all_examples() {
+        assert_eq!(double_all(vec![]), vec![]);
+        assert_eq!(double_all(vec![1]), vec![1]);
+    }
+}
+'''
+
+[[test]]
+name = "compile_option_handling"
+description = "Optional value handling"
+
+python = '''
+def find_first(items: list[int], target: int) -> int:
+    for i, item in enumerate(items):
+        if item == target:
+            return i
+    return -1
+'''
+
+rust = '''
+pub fn find_first(items: Vec<i32>, target: i32) -> i32 {
+    for (i, item) in items.iter().enumerate().map(|(i, x)| (i as i32, x.clone())) {
+        let i = i as i32;
+        if item == target {
+            return i;
+        }
+    }
+    return -1;
+}
+'''
+
+[[test]]
+name = "compile_result_error"
+description = "Error handling compilation"
+
+python = '''
+def safe_divide(a: int, b: int) -> int:
+    if b == 0:
+        raise ValueError("Division by zero")
+    return a // b
+'''
+
+rust = '''
+#[derive(Debug, Clone)]
+pub struct ZeroDivisionError {
+    message: String,
+}
+impl std::fmt::Display for ZeroDivisionError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "division by zero: {}", self.message)
+    }
+}
+impl std::error::Error for ZeroDivisionError {}
+impl ZeroDivisionError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[derive(Debug, Clone)]
+pub struct ValueError {
+    message: String,
+}
+impl std::fmt::Display for ValueError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "value error: {}", self.message)
+    }
+}
+impl std::error::Error for ValueError {}
+impl ValueError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = " Depyler: proven to terminate"]
+pub fn safe_divide(a: i32, b: i32) -> i32 {
+    let _cse_temp_0 = b == 0;
+    if _cse_temp_0 {
+        panic!("{}", "Division by zero");
+    }
+    return {
+        let a = a;
+        let b = b;
+        let q = a / b;
+        let r = a % b;
+        let r_negative = r < 0;
+        let b_negative = b < 0;
+        let r_nonzero = r != 0;
+        let signs_differ = r_negative != b_negative;
+        let needs_adjustment = r_nonzero && signs_differ;
+        if needs_adjustment { q - 1 } else { q }
+    };
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_safe_divide_examples() {
+        assert_eq!(safe_divide(0, 0), 0);
+        assert_eq!(safe_divide(1, 2), 3);
+        assert_eq!(safe_divide(-1, 1), 0);
+    }
+}
+'''

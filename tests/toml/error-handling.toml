@@ -12,7 +12,6 @@ category = "error-handling"
 [[test]]
 name = "try_except_simple"
 description = "Simple try-except block"
-tags = ["try", "except"]
 
 python = '''
 def safe_divide(a: int, b: int) -> int:
@@ -74,7 +73,6 @@ mod tests {
 [[test]]
 name = "try_except_generic"
 description = "Try-except with generic Exception"
-tags = ["try", "except"]
 
 python = '''
 def safe_call() -> str:
@@ -96,7 +94,6 @@ pub fn safe_call() -> String {
 [[test]]
 name = "try_except_multiple"
 description = "Multiple except clauses"
-tags = ["try", "except", "multiple"]
 
 python = '''
 def parse_safely(s: str) -> int:
@@ -152,7 +149,6 @@ mod tests {
 [[test]]
 name = "try_except_else"
 description = "Try-except with else block"
-tags = ["try", "except", "else"]
 
 python = '''
 def safe_parse(s: str) -> str:
@@ -193,7 +189,6 @@ pub fn safe_parse(s: String) -> String {
 [[test]]
 name = "raise_valueerror"
 description = "Raise ValueError"
-tags = ["raise", "valueerror"]
 
 python = '''
 def validate_positive(x: int) -> int:
@@ -244,7 +239,6 @@ mod tests {
 [[test]]
 name = "raise_typeerror"
 description = "Raise TypeError"
-tags = ["raise", "typeerror"]
 
 python = '''
 def require_int(x: int) -> int:
@@ -278,7 +272,6 @@ mod tests {
 [[test]]
 name = "raise_custom_message"
 description = "Raise with custom message"
-tags = ["raise", "message"]
 
 python = '''
 def check_bounds(x: int, low: int, high: int) -> int:
@@ -320,7 +313,6 @@ pub fn check_bounds(x: i32, low: i32, high: i32) -> i32 {
 [[test]]
 name = "result_return_ok"
 description = "Function returning success"
-tags = ["result", "ok"]
 
 python = '''
 def success(value: int) -> int:
@@ -358,7 +350,6 @@ mod tests {
 [[test]]
 name = "result_return_err"
 description = "Function returning error"
-tags = ["result", "err"]
 
 python = '''
 def fail() -> int:
@@ -384,7 +375,6 @@ mod tests {
 [[test]]
 name = "error_propagation"
 description = "Propagate error with ?"
-tags = ["error", "propagation"]
 
 python = '''
 def parse_and_double(s: str) -> int:
@@ -414,7 +404,6 @@ mod tests {
 [[test]]
 name = "conditional_raise"
 description = "Raise in conditional"
-tags = ["raise", "conditional"]
 
 python = '''
 def divide_safe(a: int, b: int) -> int:
@@ -476,7 +465,6 @@ mod tests {
 [[test]]
 name = "assert_statement"
 description = "Assert statement"
-tags = ["assert"]
 
 python = '''
 def validate(x: int) -> int:
@@ -505,7 +493,6 @@ mod tests {
 [[test]]
 name = "error_with_default"
 description = "Error with default value"
-tags = ["error", "default"]
 
 python = '''
 def get_or_default(d: dict, key: str) -> int:
@@ -546,7 +533,6 @@ pub fn get_or_default(d: &HashMap<serde_json::Value, serde_json::Value>, key: St
 [[test]]
 name = "simple_try_except_caught"
 description = "Exception caught internally should NOT propagate Result"
-tags = ["try", "except", "scope", "caught"]
 
 python = '''
 def safe_divide(a: int, b: int) -> int:
@@ -608,7 +594,6 @@ mod tests {
 [[test]]
 name = "nested_try_except_blocks"
 description = "Nested try blocks with different exception types"
-tags = ["try", "except", "nested"]
 
 python = '''
 def nested_operations(data: list[int]) -> int:
@@ -695,7 +680,6 @@ mod tests {
 [[test]]
 name = "try_except_finally_scope"
 description = "Try/except/finally block with finally logic"
-tags = ["try", "except", "finally"]
 
 python = '''
 def with_finally(x: int) -> int:
@@ -763,7 +747,6 @@ mod tests {
 [[test]]
 name = "raise_in_try_caught"
 description = "raise inside try block with matching handler"
-tags = ["raise", "try", "caught"]
 
 python = '''
 def validate_positive(n: int) -> int:
@@ -818,7 +801,6 @@ mod tests {
 [[test]]
 name = "raise_outside_try_panic"
 description = "raise outside try block should use panic or Result"
-tags = ["raise", "uncaught"]
 
 python = '''
 def validate_positive(n: int) -> int:
@@ -869,7 +851,6 @@ mod tests {
 [[test]]
 name = "valueerror_struct_generated"
 description = "ValueError should generate struct definition"
-tags = ["valueerror", "struct"]
 
 python = '''
 # @depyler: error_strategy = "result_type"
@@ -921,7 +902,6 @@ mod tests {
 [[test]]
 name = "valueerror_return_result"
 description = "Function raising ValueError should return Result"
-tags = ["valueerror", "result"]
 
 python = '''
 # @depyler: error_strategy = "result_type"
@@ -975,7 +955,6 @@ mod tests {
 [[test]]
 name = "try_except_generates_match"
 description = "Try/except generates match expression, not sequential code"
-tags = ["try", "except", "match"]
 
 python = '''
 def parse_int(value: str) -> int:
@@ -1027,7 +1006,6 @@ mod tests {
 [[test]]
 name = "except_handler_in_err_branch"
 description = "Except handler code should be in Err branch"
-tags = ["try", "except", "err"]
 
 python = '''
 def validator(value: str) -> int:
@@ -1079,7 +1057,6 @@ mod tests {
 [[test]]
 name = "try_except_caught_exception_types"
 description = "Exception types generated even when caught internally"
-tags = ["try", "except", "exception-type"]
 
 python = '''
 def operation_with_cleanup(value: int) -> int:
@@ -1146,7 +1123,6 @@ mod tests {
 [[test]]
 name = "try_except_multiple_caught_types"
 description = "Multiple exception types in try/except handlers"
-tags = ["try", "except", "multiple-types"]
 
 python = '''
 def process_data(value: int, divisor: int) -> int:
@@ -1237,7 +1213,6 @@ mod tests {
 [[test]]
 name = "zero_division_error_generation"
 description = "ZeroDivisionError generates error type struct"
-tags = ["error", "zero-division"]
 
 python = '''
 def divide(a: int, b: int) -> int:
@@ -1299,7 +1274,6 @@ mod tests {
 [[test]]
 name = "implicit_zero_division"
 description = "Implicit division operation transpiles correctly"
-tags = ["error", "division"]
 
 python = '''
 def compute(x: int) -> int:
@@ -1355,7 +1329,6 @@ mod tests {
 [[test]]
 name = "index_error_generation"
 description = "IndexError generates error type struct"
-tags = ["error", "index"]
 
 python = '''
 def get_item(items: list, index: int) -> int:
@@ -1397,7 +1370,6 @@ pub fn get_item(items: &Vec<serde_json::Value>, index: i32) -> i32 {
 [[test]]
 name = "list_indexing_error"
 description = "Explicit IndexError raise generates error type"
-tags = ["error", "index"]
 
 python = '''
 def access_list(data: list) -> int:
@@ -1443,7 +1415,6 @@ mod tests {
 [[test]]
 name = "value_error_generation"
 description = "ValueError generates error type struct"
-tags = ["error", "value"]
 
 python = '''
 def validate(x: int) -> int:
@@ -1494,7 +1465,6 @@ mod tests {
 [[test]]
 name = "explicit_value_error"
 description = "Explicit ValueError for range validation"
-tags = ["error", "value"]
 
 python = '''
 def check_range(n: int) -> int:
@@ -1545,7 +1515,6 @@ mod tests {
 [[test]]
 name = "multiple_error_types"
 description = "Multiple error types in same function"
-tags = ["error", "multiple"]
 
 python = '''
 def complex_operation(a: int, b: int, items: list) -> int:
@@ -1644,7 +1613,6 @@ pub fn complex_operation(a: i32, b: i32, items: &Vec<serde_json::Value>) -> i32 
 [[test]]
 name = "no_error_types_needed"
 description = "Simple function without error types"
-tags = ["error", "simple"]
 
 python = '''
 def simple_add(a: int, b: int) -> int:
@@ -1686,7 +1654,6 @@ mod tests {
 [[test]]
 name = "error_type_with_message"
 description = "Error message preserved in generated code"
-tags = ["error", "message"]
 
 python = '''
 def validate_positive(n: int) -> int:
@@ -1737,7 +1704,6 @@ mod tests {
 [[test]]
 name = "nested_error_handling"
 description = "Nested error conditions"
-tags = ["error", "nested"]
 
 python = '''
 def nested(x: int, y: int) -> int:
@@ -1822,7 +1788,6 @@ mod tests {
 [[test]]
 name = "error_in_loop"
 description = "Error raising inside loop"
-tags = ["error", "loop"]
 
 python = '''
 def process_items(items: list) -> int:
@@ -1897,7 +1862,6 @@ mod tests {
 [[test]]
 name = "conditional_error_raising"
 description = "Conditional error raising with elif"
-tags = ["error", "conditional"]
 
 python = '''
 def conditional_error(x: int, strict: bool) -> int:
@@ -1945,7 +1909,6 @@ pub fn conditional_error(x: i32, strict: bool) -> i32 {
 [[test]]
 name = "try_block_empty"
 description = "Empty try block with pass"
-tags = ["try", "except", "edge-case"]
 
 python = '''
 def empty_try():
@@ -1964,7 +1927,6 @@ pub fn empty_try() {
 [[test]]
 name = "except_block_empty"
 description = "Empty except block with pass"
-tags = ["try", "except", "edge-case"]
 
 python = '''
 def empty_except():
@@ -1985,7 +1947,6 @@ pub fn empty_except() {
 [[test]]
 name = "finally_block_empty"
 description = "Empty finally block with pass"
-tags = ["try", "finally", "edge-case"]
 
 python = '''
 def empty_finally():
@@ -2006,7 +1967,6 @@ pub fn empty_finally() {
 [[test]]
 name = "try_finally_without_except"
 description = "Try/finally without except block"
-tags = ["try", "finally"]
 
 python = '''
 def cleanup_example() -> int:
@@ -2053,7 +2013,6 @@ mod tests {
 [[test]]
 name = "try_multiple_statements_in_body"
 description = "Multiple statements in try body"
-tags = ["try", "multiple-statements"]
 
 python = '''
 def multi_stmt_try(x: int, y: int) -> int:
@@ -2092,7 +2051,6 @@ mod tests {
 [[test]]
 name = "except_multiple_statements"
 description = "Multiple statements in except handler"
-tags = ["try", "except", "multiple-statements"]
 
 python = '''
 def multi_stmt_except(x: int) -> int:
@@ -2151,7 +2109,6 @@ mod tests {
 [[test]]
 name = "finally_multiple_statements"
 description = "Multiple statements in finally block"
-tags = ["try", "finally", "multiple-statements"]
 
 python = '''
 def multi_stmt_finally() -> int:
@@ -2190,7 +2147,6 @@ mod tests {
 [[test]]
 name = "return_in_except_handler"
 description = "Return statement in except handler"
-tags = ["try", "except", "return"]
 
 python = '''
 def return_in_handler(x: int) -> int:
@@ -2245,7 +2201,6 @@ mod tests {
 [[test]]
 name = "return_in_finally_block"
 description = "Return with finally clause"
-tags = ["try", "finally", "return"]
 
 python = '''
 def return_in_finally() -> int:
@@ -2276,7 +2231,6 @@ mod tests {
 [[test]]
 name = "nested_try_blocks_deep"
 description = "Deeply nested try blocks"
-tags = ["try", "except", "nested"]
 
 python = '''
 def nested_try() -> int:
@@ -2330,7 +2284,6 @@ mod tests {
 [[test]]
 name = "complex_exception_handling_pattern"
 description = "Complex try/except with loop and continue"
-tags = ["try", "except", "loop", "integration"]
 
 python = '''
 def complex_exception_handling(items: list[int]) -> int:
@@ -2400,7 +2353,6 @@ mod tests {
 [[test]]
 name = "raise_in_can_fail_function"
 description = "Raise in function returning int generates Result/Err"
-tags = ["raise", "result"]
 
 python = '''
 def validate_positive(x: int) -> int:
@@ -2451,7 +2403,6 @@ mod tests {
 [[test]]
 name = "raise_specific_exception"
 description = "Raise with IndexError type"
-tags = ["raise", "indexerror"]
 
 python = '''
 def check_bounds(x: int, max_val: int) -> int:
@@ -2502,7 +2453,6 @@ mod tests {
 [[test]]
 name = "raise_multiple_statements"
 description = "Multiple raise statements for different conditions"
-tags = ["raise", "multiple"]
 
 python = '''
 def validate_range(x: int) -> int:
@@ -2559,7 +2509,6 @@ mod tests {
 [[test]]
 name = "raise_formatted_message"
 description = "Raise with formatted error message"
-tags = ["raise", "format"]
 
 python = '''
 def divide_safe(a: int, b: int) -> int:
@@ -2610,7 +2559,6 @@ mod tests {
 [[test]]
 name = "raise_in_nested_if"
 description = "Raise within nested if blocks"
-tags = ["raise", "nested"]
 
 python = '''
 def complex_validation(x: int, y: int) -> int:
@@ -2667,7 +2615,6 @@ mod tests {
 [[test]]
 name = "raise_in_loop"
 description = "Raise for early exit from iteration"
-tags = ["raise", "loop"]
 
 python = '''
 def find_or_fail(items: list[int], target: int) -> int:
@@ -2708,7 +2655,6 @@ pub fn find_or_fail(items: &Vec<i32>, target: i32) -> i32 {
 [[test]]
 name = "raise_after_statements"
 description = "Raise as final statement after processing"
-tags = ["raise", "sequence"]
 
 python = '''
 def process_or_fail(x: int) -> int:
@@ -2764,7 +2710,6 @@ mod tests {
 [[test]]
 name = "raise_different_exception_types"
 description = "Multiple exception type handling"
-tags = ["raise", "types"]
 
 python = '''
 def validate_input(x: int) -> int:
@@ -2861,7 +2806,6 @@ mod tests {
 [[test]]
 name = "raise_with_variable_message"
 description = "Raise with variable in message"
-tags = ["raise", "variable"]
 
 python = '''
 def check_minimum(x: int, min_val: int) -> int:
@@ -2912,7 +2856,6 @@ mod tests {
 [[test]]
 name = "raise_in_elif"
 description = "Raise in elif branch"
-tags = ["raise", "elif"]
 
 python = '''
 def categorize_or_fail(x: int) -> str:
@@ -2961,7 +2904,6 @@ pub fn categorize_or_fail(x: i32) -> String {
 [[test]]
 name = "raise_in_try_except"
 description = "Multiple raises within try/except"
-tags = ["raise", "try", "except"]
 
 python = '''
 def nested_validation(x: int) -> int:
@@ -3016,7 +2958,6 @@ mod tests {
 [[test]]
 name = "complex_exception_patterns"
 description = "All raise patterns combined"
-tags = ["raise", "integration"]
 
 python = '''
 def complex_process(items: list[int], threshold: int) -> int:

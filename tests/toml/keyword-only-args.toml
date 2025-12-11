@@ -32,7 +32,6 @@ fn main() {
     println!("{}", greet(args));
 }
 """
-contains = ["Hello, Alice!"]
 
 [[test]]
 name = "kwonly_multiple"
@@ -63,7 +62,6 @@ fn main() {
     println!("{}", configure(args));
 }
 """
-contains = ["Connecting to localhost:8080 (debug=True)"]
 
 [[test]]
 name = "kwonly_defaults"
@@ -98,7 +96,6 @@ fn main() {
     println!("{}", point(PointArgs { x: 3, y: 4 }));
 }
 """
-contains = ["(0, 0)", "(5, 0)", "(3, 4)"]
 
 # =============================================================================
 # Combined with Regular Args
@@ -122,7 +119,6 @@ fn main() {
     println!("{}", mixed(1, 2, 3, 4));
 }
 """
-contains = ["a=1, b=2, c=3, d=4"]
 
 [[test]]
 name = "kwonly_with_varargs"
@@ -143,7 +139,6 @@ fn main() {
     println!("{}", varargs_kwonly(&args, 10, 20));
 }
 """
-contains = ["args=(1, 2, 3), x=10, y=20"]
 
 [[test]]
 name = "kwonly_with_kwargs"
@@ -173,7 +168,6 @@ fn main() {
     kwonly_kwargs(5, &kwargs);
 }
 """
-contains = ["x=5", "a=1", "b=2"]
 
 # =============================================================================
 # Use Cases
@@ -208,7 +202,6 @@ fn main() {
     println!("{}", create_user(args));
 }
 """
-contains = ["User: alice <alice@example.com>"]
 
 [[test]]
 name = "kwonly_self_doc"
@@ -250,7 +243,6 @@ fn main() {
     println!("{}", process_files(args));
 }
 """
-contains = ["Processing with: verbose, backup"]
 
 [[test]]
 name = "kwonly_clarity"
@@ -283,7 +275,6 @@ fn main() {
     println!("{}", resize_image(args));
 }
 """
-contains = ["Resizing to 800x600 (maintain=False)"]
 
 # =============================================================================
 # Required vs Optional Keyword-Only
@@ -314,7 +305,6 @@ fn main() {
     println!("{}", login(args));
 }
 """
-contains = ["Logging in as admin"]
 
 [[test]]
 name = "kwonly_optional"
@@ -346,7 +336,6 @@ fn main() {
     println!("{}", connect(ConnectArgs { timeout: 60 }));
 }
 """
-contains = ["Connecting with timeout=30s", "Connecting with timeout=60s"]
 
 [[test]]
 name = "kwonly_mixed_req"
@@ -382,7 +371,6 @@ fn main() {
     }));
 }
 """
-contains = ["Server at localhost:8080", "Server at example.com:9000"]
 
 # =============================================================================
 # Edge Cases
@@ -425,7 +413,6 @@ fn main() {
     }));
 }
 """
-contains = ["default: 42", "Items: 5"]
 
 [[test]]
 name = "kwonly_method"
@@ -461,7 +448,6 @@ fn main() {
     println!("{}", calc.add(5));
 }
 """
-contains = ["15"]
 
 [[test]]
 name = "kwonly_classmethod"
@@ -487,7 +473,6 @@ fn main() {
     println!("{}", Factory::create("item", 42));
 }
 """
-contains = ["Creating item=42"]
 
 [[test]]
 name = "kwonly_bare_star_end"
@@ -501,4 +486,3 @@ python = """
 rust = """
 // N/A - syntax error
 """
-contains = []

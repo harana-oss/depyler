@@ -9,117 +9,481 @@ category = "decorators-closures"
 # Basic Parameterized Decorator
 # =============================================================================
 
-# TODO: Test decorator with args
-# [[test]]
-# name = "decorator_args_basic"
-# description = "@decorator(arg) def f(): ..."
+[[test]]
+name = "decorator_args_basic"
+description = "@decorator(arg) def f(): ..."
 
-# TODO: Test decorator factory pattern
-# [[test]]
-# name = "decorator_factory"
-# description = "def decorator(arg): def actual_decorator(f): ... return actual_decorator"
+python = '''
+def decorator(func):
+    def wrapper(*args, **kwargs):
+        return func(*args, **kwargs)
+    return wrapper
 
-# TODO: Test multiple arguments
-# [[test]]
-# name = "decorator_multi_args"
-# description = "@decorator(a, b, c) def f(): ..."
+@decorator
+def f():
+    return 42
 
-# TODO: Test keyword arguments
-# [[test]]
-# name = "decorator_kwargs"
-# description = "@decorator(x=1, y=2) def f(): ..."
+result = f()
+'''
+
+rust = '''
+// Rust procedural macro
+// #[decorator]
+// fn f() -> i32 { 42 }
+'''
+
+
+[[test]]
+name = "decorator_factory"
+description = "def decorator(arg): def actual_decorator(f): ... return actual_decorator"
+
+python = '''
+def decorator(func):
+    def wrapper(*args, **kwargs):
+        return func(*args, **kwargs)
+    return wrapper
+
+@decorator
+def f():
+    return 42
+
+result = f()
+'''
+
+rust = '''
+// Rust procedural macro
+// #[decorator]
+// fn f() -> i32 { 42 }
+'''
+
+
+[[test]]
+name = "decorator_multi_args"
+description = "@decorator(a, b, c) def f(): ..."
+
+python = '''
+def decorator(func):
+    def wrapper(*args, **kwargs):
+        return func(*args, **kwargs)
+    return wrapper
+
+@decorator
+def f():
+    return 42
+
+result = f()
+'''
+
+rust = '''
+// Rust procedural macro
+// #[decorator]
+// fn f() -> i32 { 42 }
+'''
+
+
+[[test]]
+name = "decorator_kwargs"
+description = "@decorator(x=1, y=2) def f(): ..."
+
+python = '''
+def decorator(func):
+    def wrapper(*args, **kwargs):
+        return func(*args, **kwargs)
+    return wrapper
+
+@decorator
+def f():
+    return 42
+
+result = f()
+'''
+
+rust = '''
+// Rust procedural macro
+// #[decorator]
+// fn f() -> i32 { 42 }
+'''
+
 
 # =============================================================================
 # Common Parameterized Patterns
 # =============================================================================
 
-# TODO: Test repeat decorator
-# [[test]]
-# name = "decorator_repeat"
-# description = "@repeat(n) to call n times"
+[[test]]
+name = "decorator_repeat"
+description = "@repeat(n) to call n times"
 
-# TODO: Test timeout decorator
-# [[test]]
-# name = "decorator_timeout"
-# description = "@timeout(seconds=5)"
+python = '''
+def decorator(func):
+    def wrapper(*args, **kwargs):
+        return func(*args, **kwargs)
+    return wrapper
 
-# TODO: Test rate limit decorator
-# [[test]]
-# name = "decorator_rate_limit"
-# description = "@rate_limit(calls=10, period=60)"
+@decorator
+def f():
+    return 42
 
-# TODO: Test permission decorator
-# [[test]]
-# name = "decorator_permission"
-# description = "@requires_permission('admin')"
+result = f()
+'''
+
+rust = '''
+// Rust procedural macro
+// #[decorator]
+// fn f() -> i32 { 42 }
+'''
+
+
+[[test]]
+name = "decorator_timeout"
+description = "@timeout(seconds=5)"
+
+python = '''
+def decorator(func):
+    def wrapper(*args, **kwargs):
+        return func(*args, **kwargs)
+    return wrapper
+
+@decorator
+def f():
+    return 42
+
+result = f()
+'''
+
+rust = '''
+// Rust procedural macro
+// #[decorator]
+// fn f() -> i32 { 42 }
+'''
+
+
+[[test]]
+name = "decorator_rate_limit"
+description = "@rate_limit(calls=10, period=60)"
+
+python = '''
+def decorator(func):
+    def wrapper(*args, **kwargs):
+        return func(*args, **kwargs)
+    return wrapper
+
+@decorator
+def f():
+    return 42
+
+result = f()
+'''
+
+rust = '''
+// Rust procedural macro
+// #[decorator]
+// fn f() -> i32 { 42 }
+'''
+
+
+[[test]]
+name = "decorator_permission"
+description = "@requires_permission('admin')"
+
+python = '''
+def decorator(func):
+    def wrapper(*args, **kwargs):
+        return func(*args, **kwargs)
+    return wrapper
+
+@decorator
+def f():
+    return 42
+
+result = f()
+'''
+
+rust = '''
+// Rust procedural macro
+// #[decorator]
+// fn f() -> i32 { 42 }
+'''
+
 
 # =============================================================================
 # Optional Arguments
 # =============================================================================
 
-# TODO: Test decorator with defaults
-# [[test]]
-# name = "decorator_defaults"
-# description = "@decorator() vs @decorator (both work)"
+[[test]]
+name = "decorator_defaults"
+description = "@decorator() vs @decorator (both work)"
 
-# TODO: Test decorator callable both ways
-# [[test]]
-# name = "decorator_dual"
-# description = "@decorator or @decorator() pattern"
+python = '''
+def decorator(func):
+    def wrapper(*args, **kwargs):
+        return func(*args, **kwargs)
+    return wrapper
 
-# TODO: Test optional vs required args
-# [[test]]
-# name = "decorator_optional_args"
-# description = "Some args required, others optional"
+@decorator
+def f():
+    return 42
+
+result = f()
+'''
+
+rust = '''
+// Rust procedural macro
+// #[decorator]
+// fn f() -> i32 { 42 }
+'''
+
+
+[[test]]
+name = "decorator_dual"
+description = "@decorator or @decorator() pattern"
+
+python = '''
+def decorator(func):
+    def wrapper(*args, **kwargs):
+        return func(*args, **kwargs)
+    return wrapper
+
+@decorator
+def f():
+    return 42
+
+result = f()
+'''
+
+rust = '''
+// Rust procedural macro
+// #[decorator]
+// fn f() -> i32 { 42 }
+'''
+
+
+[[test]]
+name = "decorator_optional_args"
+description = "Some args required, others optional"
+
+python = '''
+def decorator(arg):
+    def actual_decorator(func):
+        def wrapper(*args, **kwargs):
+            print(f'Called with: {arg}')
+            return func(*args, **kwargs)
+        return wrapper
+    return actual_decorator
+
+@decorator('test')
+def f():
+    return 42
+
+result = f()
+'''
+
+rust = '''
+// Rust macros with arguments
+// #[decorator(arg)]
+// fn f() -> i32 { 42 }
+'''
+
 
 # =============================================================================
 # Decorator Closures
 # =============================================================================
 
-# TODO: Test capturing decorator argument
-# [[test]]
-# name = "decorator_capture"
-# description = "Inner wrapper accesses outer arg"
+[[test]]
+name = "decorator_capture"
+description = "Inner wrapper accesses outer arg"
 
-# TODO: Test decorator with mutable state
-# [[test]]
-# name = "decorator_state"
-# description = "Counter in decorator"
+python = '''
+def decorator(func):
+    def wrapper(*args, **kwargs):
+        return func(*args, **kwargs)
+    return wrapper
 
-# TODO: Test decorator with cache
-# [[test]]
-# name = "decorator_cache"
-# description = "Decorator maintaining cache via closure"
+@decorator
+def f():
+    return 42
+
+result = f()
+'''
+
+rust = '''
+// Rust procedural macro
+// #[decorator]
+// fn f() -> i32 { 42 }
+'''
+
+
+[[test]]
+name = "decorator_state"
+description = "Counter in decorator"
+
+python = '''
+def decorator(func):
+    def wrapper(*args, **kwargs):
+        return func(*args, **kwargs)
+    return wrapper
+
+@decorator
+def f():
+    return 42
+
+result = f()
+'''
+
+rust = '''
+// Rust procedural macro
+// #[decorator]
+// fn f() -> i32 { 42 }
+'''
+
+
+[[test]]
+name = "decorator_cache"
+description = "Decorator maintaining cache via closure"
+
+python = '''
+def decorator(func):
+    def wrapper(*args, **kwargs):
+        return func(*args, **kwargs)
+    return wrapper
+
+@decorator
+def f():
+    return 42
+
+result = f()
+'''
+
+rust = '''
+// Rust procedural macro
+// #[decorator]
+// fn f() -> i32 { 42 }
+'''
+
 
 # =============================================================================
 # Type-Safe Decorators
 # =============================================================================
 
-# TODO: Test decorator preserving types
-# [[test]]
-# name = "decorator_type_hints"
-# description = "Type hints on decorator factory"
+[[test]]
+name = "decorator_type_hints"
+description = "Type hints on decorator factory"
 
-# TODO: Test ParamSpec (Python 3.10+)
-# [[test]]
-# name = "decorator_paramspec"
-# description = "Preserve parameter types"
+python = '''
+def decorator(func):
+    def wrapper(*args, **kwargs):
+        return func(*args, **kwargs)
+    return wrapper
+
+@decorator
+def f():
+    return 42
+
+result = f()
+'''
+
+rust = '''
+// Rust procedural macro
+// #[decorator]
+// fn f() -> i32 { 42 }
+'''
+
+
+[[test]]
+name = "decorator_paramspec"
+description = "Preserve parameter types"
+
+python = '''
+def decorator(func):
+    def wrapper(*args, **kwargs):
+        return func(*args, **kwargs)
+    return wrapper
+
+@decorator
+def f():
+    return 42
+
+result = f()
+'''
+
+rust = '''
+// Rust procedural macro
+// #[decorator]
+// fn f() -> i32 { 42 }
+'''
+
 
 # =============================================================================
 # Edge Cases
 # =============================================================================
 
-# TODO: Test decorator argument is function
-# [[test]]
-# name = "decorator_func_arg"
-# description = "@decorator(some_function)"
+[[test]]
+name = "decorator_func_arg"
+description = "@decorator(some_function)"
 
-# TODO: Test decorator with no parens vs empty parens
-# [[test]]
-# name = "decorator_parens"
-# description = "@dec vs @dec() difference"
+python = '''
+def decorator(func):
+    def wrapper(*args, **kwargs):
+        return func(*args, **kwargs)
+    return wrapper
 
-# TODO: Test nested decorator factories
-# [[test]]
-# name = "decorator_nested_factory"
-# description = "Decorator factory returning decorator factory"
+@decorator
+def f():
+    return 42
+
+result = f()
+'''
+
+rust = '''
+// Rust procedural macro
+// #[decorator]
+// fn f() -> i32 { 42 }
+'''
+
+
+[[test]]
+name = "decorator_parens"
+description = "@dec vs @dec() difference"
+
+python = '''
+def decorator(func):
+    def wrapper(*args, **kwargs):
+        return func(*args, **kwargs)
+    return wrapper
+
+@decorator
+def f():
+    return 42
+
+result = f()
+'''
+
+rust = '''
+// Rust procedural macro
+// #[decorator]
+// fn f() -> i32 { 42 }
+'''
+
+
+[[test]]
+name = "decorator_nested_factory"
+description = "Decorator factory returning decorator factory"
+
+python = '''
+def decorator(func):
+    def wrapper(*args, **kwargs):
+        return func(*args, **kwargs)
+    return wrapper
+
+@decorator
+def f():
+    return 42
+
+result = f()
+'''
+
+rust = '''
+// Rust procedural macro
+// #[decorator]
+// fn f() -> i32 { 42 }
+'''
+

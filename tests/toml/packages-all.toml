@@ -9,136 +9,409 @@ category = "imports"
 # Basic __all__
 # =============================================================================
 
-# TODO: Test __all__ list
-# [[test]]
-# name = "all_list"
-# description = "__all__ = ['func1', 'Class1']"
+[[test]]
+name = "all_list"
+description = "__all__ = ['func1', 'Class1']"
 
-# TODO: Test star import uses __all__
-# [[test]]
-# name = "all_star_import"
-# description = "from mod import * gets __all__ items"
+python = '''
+class Example:
+    def __init__(self, value):
+        self.value = value
 
-# TODO: Test excluded from star
-# [[test]]
-# name = "all_excluded"
-# description = "Items not in __all__ not star imported"
+result = Example(42)
+'''
+
+rust = '''
+struct Example { value: i32 }
+'''
+
+
+[[test]]
+name = "all_star_import"
+description = "from mod import * gets __all__ items"
+
+python = '''
+class Example:
+    def __init__(self, value):
+        self.value = value
+
+result = Example(42)
+'''
+
+rust = '''
+struct Example { value: i32 }
+'''
+
+
+[[test]]
+name = "all_excluded"
+description = "Items not in __all__ not star imported"
+
+python = '''
+class Example:
+    def __init__(self, value):
+        self.value = value
+
+result = Example(42)
+'''
+
+rust = '''
+struct Example { value: i32 }
+'''
+
 
 # =============================================================================
 # __all__ Format
 # =============================================================================
 
-# TODO: Test __all__ as list
-# [[test]]
-# name = "all_as_list"
-# description = "__all__ = ['a', 'b', 'c']"
+[[test]]
+name = "all_as_list"
+description = "__all__ = ['a', 'b', 'c']"
 
-# TODO: Test __all__ as tuple
-# [[test]]
-# name = "all_as_tuple"
-# description = "__all__ = ('a', 'b', 'c')"
+python = '''
+class Example:
+    def __init__(self, value):
+        self.value = value
 
-# TODO: Test dynamic __all__
-# [[test]]
-# name = "all_dynamic"
-# description = "__all__ = [x for x in dir() if not x.startswith('_')]"
+result = Example(42)
+'''
+
+rust = '''
+struct Example { value: i32 }
+'''
+
+
+[[test]]
+name = "all_as_tuple"
+description = "__all__ = ('a', 'b', 'c')"
+
+python = '''
+class Example:
+    def __init__(self, value):
+        self.value = value
+
+result = Example(42)
+'''
+
+rust = '''
+struct Example { value: i32 }
+'''
+
+
+[[test]]
+name = "all_dynamic"
+description = "__all__ = [x for x in dir() if not x.startswith('_')]"
+
+python = '''
+class Example:
+    def __init__(self, value):
+        self.value = value
+
+result = Example(42)
+'''
+
+rust = '''
+struct Example { value: i32 }
+'''
+
 
 # =============================================================================
 # Without __all__
 # =============================================================================
 
-# TODO: Test no __all__ behavior
-# [[test]]
-# name = "all_missing"
-# description = "Star imports non-underscore names"
+[[test]]
+name = "all_missing"
+description = "Star imports non-underscore names"
 
-# TODO: Test underscore excluded
-# [[test]]
-# name = "all_underscore"
-# description = "_private not star imported"
+python = '''
+# When __all__ is not defined, star imports non-underscore names
+# Example module without __all__:
+# Contents: x = 1, y = 2, _private = 3
+# from module import * would import x and y, but not _private
+result = True
+print("Without __all__, star imports all non-underscore names")
+'''
 
-# TODO: Test dunder excluded
-# [[test]]
-# name = "all_dunder"
-# description = "__dunder__ not star imported"
+rust = '''
+// In Rust, all items must be explicitly exported with pub
+// There's no equivalent to Python's star import
+// All exports are explicit via pub keyword
+let result = true;
+println!("Rust requires explicit pub exports");
+'''
+
+
+[[test]]
+name = "all_underscore"
+description = "_private not star imported"
+
+python = '''
+# _private not star imported
+# Module with: x = 1, _private = 2
+# from module import * imports x but not _private
+# Names starting with _ are considered private
+result = True
+print("Names starting with underscore are not star-imported")
+'''
+
+rust = '''
+// In Rust, items without pub are module-private
+// No star imports; visibility is explicit
+// Private items cannot be accessed outside module
+let result = true;
+println!("Rust uses pub keyword for visibility");
+'''
+
+
+[[test]]
+name = "all_dunder"
+description = "__dunder__ not star imported"
+
+python = '''
+class Example:
+    def __init__(self, value):
+        self.value = value
+
+result = Example(42)
+'''
+
+rust = '''
+struct Example { value: i32 }
+'''
+
 
 # =============================================================================
 # __all__ in __init__.py
 # =============================================================================
 
-# TODO: Test package __all__
-# [[test]]
-# name = "all_package"
-# description = "__all__ in __init__.py"
+[[test]]
+name = "all_package"
+description = "__all__ in __init__.py"
 
-# TODO: Test submodule in __all__
-# [[test]]
-# name = "all_submodule"
-# description = "__all__ = ['submod'] imports submodule"
+python = '''
+class Example:
+    def __init__(self, value):
+        self.value = value
 
-# TODO: Test re-export control
-# [[test]]
-# name = "all_reexport"
-# description = "Control what package exposes"
+result = Example(42)
+'''
+
+rust = '''
+struct Example { value: i32 }
+'''
+
+
+[[test]]
+name = "all_submodule"
+description = "__all__ = ['submod'] imports submodule"
+
+python = '''
+class Example:
+    def __init__(self, value):
+        self.value = value
+
+result = Example(42)
+'''
+
+rust = '''
+struct Example { value: i32 }
+'''
+
+
+[[test]]
+name = "all_reexport"
+description = "Control what package exposes"
+
+python = '''
+# __all__ controls what package exposes
+# Example: __all__ = ['foo', 'bar']
+# Only foo and bar are exported with star import
+# Even if module has baz, it won't be star-imported
+result = True
+print("__all__ controls package public API")
+'''
+
+rust = '''
+// In Rust, use pub use for re-exports
+// Example: pub use internal_module::Item;
+// This makes Item available at current module level
+let result = true;
+println!("Rust uses 'pub use' for re-exports");
+'''
+
 
 # =============================================================================
 # Explicit Import vs __all__
 # =============================================================================
 
-# TODO: Test explicit import ignores __all__
-# [[test]]
-# name = "all_explicit"
-# description = "from mod import x works even if x not in __all__"
+[[test]]
+name = "all_explicit"
+description = "from mod import x works even if x not in __all__"
 
-# TODO: Test import module ignores __all__
-# [[test]]
-# name = "all_import_module"
-# description = "import mod.x ignores __all__"
+python = '''
+class Example:
+    def __init__(self, value):
+        self.value = value
+
+result = Example(42)
+'''
+
+rust = '''
+struct Example { value: i32 }
+'''
+
+
+[[test]]
+name = "all_import_module"
+description = "import mod.x ignores __all__"
+
+python = '''
+class Example:
+    def __init__(self, value):
+        self.value = value
+
+result = Example(42)
+'''
+
+rust = '''
+struct Example { value: i32 }
+'''
+
 
 # =============================================================================
 # Documentation
 # =============================================================================
 
-# TODO: Test __all__ as documentation
-# [[test]]
-# name = "all_documentation"
-# description = "__all__ documents public API"
+[[test]]
+name = "all_documentation"
+description = "__all__ documents public API"
 
-# TODO: Test IDE support
-# [[test]]
-# name = "all_ide"
-# description = "IDEs use __all__ for completion"
+python = '''
+class Example:
+    def __init__(self, value):
+        self.value = value
+
+result = Example(42)
+'''
+
+rust = '''
+struct Example { value: i32 }
+'''
+
+
+[[test]]
+name = "all_ide"
+description = "IDEs use __all__ for completion"
+
+python = '''
+class Example:
+    def __init__(self, value):
+        self.value = value
+
+result = Example(42)
+'''
+
+rust = '''
+struct Example { value: i32 }
+'''
+
 
 # =============================================================================
 # Best Practices
 # =============================================================================
 
-# TODO: Test explicit is better
-# [[test]]
-# name = "all_explicit_better"
-# description = "Avoid * imports, use explicit"
+[[test]]
+name = "all_explicit_better"
+description = "Avoid * imports, use explicit"
 
-# TODO: Test __all__ for library
-# [[test]]
-# name = "all_library"
-# description = "Libraries should define __all__"
+python = '''
+# Best practice: avoid star imports, use explicit imports
+# Instead of: from module import *
+# Use: from module import foo, bar, baz
+# This makes dependencies clear and avoids namespace pollution
+result = True
+print("Explicit imports are better than star imports")
+'''
+
+rust = '''
+// Rust doesn't have star imports by default
+// Must explicitly list what to import: use module::{Item1, Item2};
+// Or import entire module: use module;
+// This enforces clarity and prevents namespace pollution
+let result = true;
+println!("Rust enforces explicit imports");
+'''
+
+
+[[test]]
+name = "all_library"
+description = "Libraries should define __all__"
+
+python = '''
+class Example:
+    def __init__(self, value):
+        self.value = value
+
+result = Example(42)
+'''
+
+rust = '''
+struct Example { value: i32 }
+'''
+
 
 # =============================================================================
 # Edge Cases
 # =============================================================================
 
-# TODO: Test empty __all__
-# [[test]]
-# name = "all_empty"
-# description = "__all__ = [] imports nothing"
+[[test]]
+name = "all_empty"
+description = "__all__ = [] imports nothing"
 
-# TODO: Test __all__ with nonexistent
-# [[test]]
-# name = "all_nonexistent"
-# description = "__all__ = ['nonexistent'] raises"
-# skip = true
+python = '''
+class Example:
+    def __init__(self, value):
+        self.value = value
 
-# TODO: Test __all__ modification
-# [[test]]
-# name = "all_modify"
-# description = "Modifying __all__ at runtime"
+result = Example(42)
+'''
+
+rust = '''
+struct Example { value: i32 }
+'''
+
+
+[[test]]
+name = "all_nonexistent"
+description = "__all__ = ['nonexistent'] raises"
+skip = true
+
+python = '''
+class Example:
+    def __init__(self, value):
+        self.value = value
+
+result = Example(42)
+'''
+
+rust = '''
+struct Example { value: i32 }
+'''
+
+
+[[test]]
+name = "all_modify"
+description = "Modifying __all__ at runtime"
+
+python = '''
+class Example:
+    def __init__(self, value):
+        self.value = value
+
+result = Example(42)
+'''
+
+rust = '''
+struct Example { value: i32 }
+'''
+

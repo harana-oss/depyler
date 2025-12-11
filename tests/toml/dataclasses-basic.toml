@@ -12,7 +12,6 @@ category = "data-structures"
 [[test]]
 name = "dataclass_simple"
 description = "@dataclass class Point: x: int; y: int"
-tags = ["dataclasses", "basic"]
 
 python = '''
 from dataclasses import dataclass
@@ -74,7 +73,6 @@ impl Point {
 [[test]]
 name = "dataclass_init"
 description = "Point(1, 2) auto-generated"
-tags = ["dataclasses", "init"]
 
 python = '''
 from dataclasses import dataclass
@@ -136,7 +134,6 @@ impl Point {
 [[test]]
 name = "dataclass_repr"
 description = "Point(x=1, y=2) repr"
-tags = ["dataclasses", "repr"]
 
 python = '''
 from dataclasses import dataclass
@@ -198,7 +195,6 @@ impl Point {
 [[test]]
 name = "dataclass_eq"
 description = "Point(1, 2) == Point(1, 2)"
-tags = ["dataclasses", "equality"]
 
 python = '''
 from dataclasses import dataclass
@@ -266,7 +262,6 @@ impl Point {
 [[test]]
 name = "dataclass_types"
 description = "x: int, name: str, etc."
-tags = ["dataclasses", "types"]
 
 python = '''
 from dataclasses import dataclass
@@ -339,7 +334,6 @@ impl Person {
 [[test]]
 name = "dataclass_optional"
 description = "x: Optional[int] = None"
-tags = ["dataclasses", "optional"]
 
 python = '''
 from dataclasses import dataclass
@@ -395,7 +389,6 @@ impl Config {
 [[test]]
 name = "dataclass_list"
 description = "items: list[int]"
-tags = ["dataclasses", "list"]
 
 python = '''
 from dataclasses import dataclass, field
@@ -432,7 +425,6 @@ impl Container {
 [[test]]
 name = "dataclass_defaults"
 description = "x: int = 0"
-tags = ["dataclasses", "defaults"]
 
 python = '''
 from dataclasses import dataclass
@@ -476,7 +468,6 @@ impl Point {
 [[test]]
 name = "dataclass_field_default"
 description = "x: int = field(default=0)"
-tags = ["dataclasses", "defaults", "field"]
 
 python = '''
 from dataclasses import dataclass, field
@@ -509,7 +500,6 @@ impl Point {
 [[test]]
 name = "dataclass_factory"
 description = "items: list = field(default_factory=list)"
-tags = ["dataclasses", "defaults", "factory"]
 
 python = '''
 from dataclasses import dataclass, field
@@ -543,7 +533,6 @@ impl Container {
 [[test]]
 name = "dataclass_mutable_error"
 description = "items: list = [] raises ValueError"
-tags = ["dataclasses", "error"]
 skip = true
 
 python = '''
@@ -569,7 +558,6 @@ rust = '''
 [[test]]
 name = "dataclass_frozen"
 description = "@dataclass(frozen=True)"
-tags = ["dataclasses", "frozen"]
 
 python = '''
 from dataclasses import dataclass
@@ -631,7 +619,6 @@ impl Point {
 [[test]]
 name = "dataclass_order"
 description = "@dataclass(order=True) generates <, >, etc."
-tags = ["dataclasses", "order"]
 
 python = '''
 from dataclasses import dataclass
@@ -695,7 +682,6 @@ impl Point {
 [[test]]
 name = "dataclass_no_eq"
 description = "@dataclass(eq=False)"
-tags = ["dataclasses", "eq"]
 
 python = '''
 from dataclasses import dataclass
@@ -759,7 +745,6 @@ impl Point {
 [[test]]
 name = "dataclass_no_repr"
 description = "@dataclass(repr=False)"
-tags = ["dataclasses", "repr"]
 
 python = '''
 from dataclasses import dataclass
@@ -821,7 +806,6 @@ impl Point {
 [[test]]
 name = "dataclass_no_init"
 description = "@dataclass(init=False)"
-tags = ["dataclasses", "init"]
 
 python = '''
 from dataclasses import dataclass
@@ -891,7 +875,6 @@ impl Point {
 [[test]]
 name = "dataclass_field_repr"
 description = "field(repr=False)"
-tags = ["dataclasses", "field", "repr"]
 
 python = '''
 from dataclasses import dataclass, field
@@ -944,7 +927,6 @@ impl Person {
 [[test]]
 name = "dataclass_field_compare"
 description = "field(compare=False)"
-tags = ["dataclasses", "field", "compare"]
 
 python = '''
 from dataclasses import dataclass, field
@@ -999,7 +981,6 @@ impl Person {
 [[test]]
 name = "dataclass_field_hash"
 description = "field(hash=True)"
-tags = ["dataclasses", "field", "hash"]
 
 python = '''
 from dataclasses import dataclass, field
@@ -1055,7 +1036,6 @@ impl Person {
 [[test]]
 name = "dataclass_field_init"
 description = "field(init=False)"
-tags = ["dataclasses", "field", "init"]
 
 python = '''
 from dataclasses import dataclass, field
@@ -1126,7 +1106,6 @@ impl Rectangle {
 [[test]]
 name = "dataclass_post_init"
 description = "def __post_init__(self): ..."
-tags = ["dataclasses", "post_init"]
 
 python = '''
 from dataclasses import dataclass
@@ -1194,7 +1173,6 @@ impl Point {
 [[test]]
 name = "dataclass_initvar"
 description = "init_only: InitVar[int]"
-tags = ["dataclasses", "initvar"]
 
 python = '''
 from dataclasses import dataclass, field, InitVar
@@ -1267,7 +1245,6 @@ impl Rectangle {
 [[test]]
 name = "dataclass_inherit"
 description = "@dataclass class B(A): ..."
-tags = ["dataclasses", "inheritance"]
 
 python = '''
 from dataclasses import dataclass
@@ -1361,7 +1338,6 @@ impl Point3D {
 [[test]]
 name = "dataclass_classvar"
 description = "count: ClassVar[int] = 0"
-tags = ["dataclasses", "classvar"]
 
 python = '''
 from dataclasses import dataclass
@@ -1420,7 +1396,6 @@ impl Counter {
 [[test]]
 name = "dataclass_slots"
 description = "@dataclass(slots=True)"
-tags = ["dataclasses", "slots", "py310"]
 
 python = '''
 from dataclasses import dataclass

@@ -9,127 +9,669 @@ category = "modern-python"
 # Basic Class Patterns
 # =============================================================================
 
-# TODO: Test class pattern no args
-# [[test]]
-# name = "class_pattern_no_args"
-# description = "case Point(): ..."
+[[test]]
+name = "class_pattern_no_args"
+description = "case Point(): ..."
 
-# TODO: Test class pattern positional
-# [[test]]
-# name = "class_pattern_positional"
-# description = "case Point(0, 0): ..."
+python = '''
+class Point:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
 
-# TODO: Test class pattern keyword
-# [[test]]
-# name = "class_pattern_keyword"
-# description = "case Point(x=0, y=0): ..."
+value = Point(3, 4)
+match value:
+    case Point():
+        result = "matched"
+    case _:
+        result = "no match"
+'''
 
-# TODO: Test class pattern capture
-# [[test]]
-# name = "class_pattern_capture"
-# description = "case Point(x, y): use x, y"
+rust = '''
+struct Point {
+    x: i32,
+    y: i32,
+}
+
+let value = Point { x: 3, y: 4 };
+let result = match value {
+    Point { .. } => "matched",
+    _ => "no match",
+};
+'''
+
+
+[[test]]
+name = "class_pattern_positional"
+description = "case Point(0, 0): ..."
+
+python = '''
+class Point:
+    __match_args__ = ('x', 'y')
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+value = Point(0, 0)
+match value:
+    case Point(0, 0):
+        result = "origin"
+    case Point(0, y):
+        result = "y-axis"
+    case Point(x, 0):
+        result = "x-axis"
+    case _:
+        result = "elsewhere"
+'''
+
+rust = '''
+struct Point {
+    x: i32,
+    y: i32,
+}
+
+let value = Point { x: 0, y: 0 };
+let result = match value {
+    Point { x: 0, y: 0 } => "origin",
+    Point { x: 0, y } => "y-axis",
+    Point { x, y: 0 } => "x-axis",
+    _ => "elsewhere",
+};
+'''
+
+
+[[test]]
+name = "class_pattern_keyword"
+description = "case Point(x=0, y=0): ..."
+
+python = '''
+class Point:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+value = Point(0, 0)
+match value:
+    case Point(x=0, y=0):
+        result = "origin"
+    case Point(x=0, y=y):
+        result = f"y-axis at {y}"
+    case Point(x=x, y=0):
+        result = f"x-axis at {x}"
+    case _:
+        result = "elsewhere"
+'''
+
+rust = '''
+struct Point {
+    x: i32,
+    y: i32,
+}
+
+let value = Point { x: 0, y: 0 };
+let result = match value {
+    Point { x: 0, y: 0 } => "origin",
+    Point { x: 0, y } => format!("y-axis at {}", y),
+    Point { x, y: 0 } => format!("x-axis at {}", x),
+    _ => "elsewhere".to_string(),
+};
+'''
+
+
+[[test]]
+name = "class_pattern_capture"
+description = "case Point(x, y): use x, y"
+
+python = '''
+class Point:
+    __match_args__ = ('x', 'y')
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+value = Point(3, 4)
+match value:
+    case Point(x, y):
+        result = x + y
+    case _:
+        result = 0
+'''
+
+rust = '''
+struct Point {
+    x: i32,
+    y: i32,
+}
+
+let value = Point { x: 3, y: 4 };
+let result = match value {
+    Point { x, y } => x + y,
+};
+'''
+
 
 # =============================================================================
 # __match_args__
 # =============================================================================
 
-# TODO: Test __match_args__ attribute
-# [[test]]
-# name = "match_args"
-# description = "class Point: __match_args__ = ('x', 'y')"
+[[test]]
+name = "match_args"
+description = "class Point: __match_args__ = ('x', 'y')"
 
-# TODO: Test positional via __match_args__
-# [[test]]
-# name = "match_args_positional"
-# description = "case Point(a, b): maps to x, y via __match_args__"
+python = '''
+class Point:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
 
-# TODO: Test dataclass __match_args__
-# [[test]]
-# name = "dataclass_match_args"
-# description = "@dataclass auto-generates __match_args__"
+value = Point(1, 2)
+match value:
+    case Point(x=x, y=y):
+        result = x + y
+    case _:
+        result = 0
+'''
+
+rust = '''
+struct Point { x: i32, y: i32 }
+let value = Point { x: 1, y: 2 };
+let result = match value {
+    Point { x, y } => x + y,
+};
+'''
+
+
+[[test]]
+name = "match_args_positional"
+description = "case Point(a, b): maps to x, y via __match_args__"
+
+python = '''
+value = 1
+match value:
+    case 1:
+        result = 'one'
+    case _:
+        result = 'other'
+'''
+
+rust = '''
+let value = 1;
+let result = match value {
+    1 => "one",
+    _ => "other",
+};
+'''
+
+
+[[test]]
+name = "dataclass_match_args"
+description = "@dataclass auto-generates __match_args__"
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass
+class Point:
+    x: int
+    y: int
+
+result = Point(1, 2)
+'''
+
+rust = '''
+#[derive(Debug)]
+struct Point {
+    x: i32,
+    y: i32,
+}
+'''
+
 
 # =============================================================================
 # Mixed Patterns
 # =============================================================================
 
-# TODO: Test positional and keyword
-# [[test]]
-# name = "class_pattern_mixed"
-# description = "case Point(0, y=y): ..."
+[[test]]
+name = "class_pattern_mixed"
+description = "case Point(0, y=y): ..."
 
-# TODO: Test nested class patterns
-# [[test]]
-# name = "class_pattern_nested"
-# description = "case Line(Point(x1, y1), Point(x2, y2)): ..."
+python = '''
+class Point:
+    __match_args__ = ('x', 'y')
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
 
-# TODO: Test class pattern with guard
-# [[test]]
-# name = "class_pattern_guard"
-# description = "case Point(x, y) if x > 0: ..."
+value = Point(0, 5)
+match value:
+    case Point(0, y=y):
+        result = f"y-axis: {y}"
+    case Point(x, y=0):
+        result = f"x-axis: {x}"
+    case _:
+        result = "elsewhere"
+'''
+
+rust = '''
+struct Point {
+    x: i32,
+    y: i32,
+}
+
+let value = Point { x: 0, y: 5 };
+let result = match value {
+    Point { x: 0, y } => format!("y-axis: {}", y),
+    Point { x, y: 0 } => format!("x-axis: {}", x),
+    _ => "elsewhere".to_string(),
+};
+'''
+
+
+[[test]]
+name = "class_pattern_nested"
+description = "case Line(Point(x1, y1), Point(x2, y2)): ..."
+
+python = '''
+class Point:
+    __match_args__ = ('x', 'y')
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+class Line:
+    __match_args__ = ('start', 'end')
+    def __init__(self, start, end):
+        self.start = start
+        self.end = end
+
+value = Line(Point(0, 0), Point(3, 4))
+match value:
+    case Line(Point(x1, y1), Point(x2, y2)):
+        result = ((x2 - x1) ** 2 + (y2 - y1) ** 2) ** 0.5
+    case _:
+        result = 0.0
+'''
+
+rust = '''
+struct Point {
+    x: i32,
+    y: i32,
+}
+
+struct Line {
+    start: Point,
+    end: Point,
+}
+
+let value = Line {
+    start: Point { x: 0, y: 0 },
+    end: Point { x: 3, y: 4 },
+};
+let result = match value {
+    Line { start: Point { x: x1, y: y1 }, end: Point { x: x2, y: y2 } } => {
+        (((x2 - x1).pow(2) + (y2 - y1).pow(2)) as f64).sqrt()
+    }
+};
+'''
+
+
+[[test]]
+name = "class_pattern_guard"
+description = "case Point(x, y) if x > 0: ..."
+
+python = '''
+class Point:
+    __match_args__ = ('x', 'y')
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+value = Point(3, 4)
+match value:
+    case Point(x, y) if x > 0 and y > 0:
+        result = "quadrant I"
+    case Point(x, y) if x > 0:
+        result = "quadrant IV"
+    case Point(x, y) if y > 0:
+        result = "quadrant II"
+    case _:
+        result = "quadrant III"
+'''
+
+rust = '''
+struct Point {
+    x: i32,
+    y: i32,
+}
+
+let value = Point { x: 3, y: 4 };
+let result = match value {
+    Point { x, y } if x > 0 && y > 0 => "quadrant I",
+    Point { x, y } if x > 0 => "quadrant IV",
+    Point { x, y } if y > 0 => "quadrant II",
+    _ => "quadrant III",
+};
+'''
+
 
 # =============================================================================
 # Built-in Type Patterns
 # =============================================================================
 
-# TODO: Test int pattern
-# [[test]]
-# name = "builtin_int_pattern"
-# description = "case int(): matches any int"
+[[test]]
+name = "builtin_int_pattern"
+description = "case int(): matches any int"
 
-# TODO: Test str pattern
-# [[test]]
-# name = "builtin_str_pattern"
-# description = "case str(): matches any str"
+python = '''
+value = 42
+match value:
+    case int():
+        result = "integer"
+    case str():
+        result = "string"
+    case _:
+        result = "other"
+'''
 
-# TODO: Test bool pattern
-# [[test]]
-# name = "builtin_bool_pattern"
-# description = "case bool(): matches True or False"
+rust = '''
+use std::any::Any;
+
+let value: Box<dyn Any> = Box::new(42i32);
+let result = if value.is::<i32>() {
+    "integer"
+} else if value.is::<String>() {
+    "string"
+} else {
+    "other"
+};
+'''
+
+
+[[test]]
+name = "builtin_str_pattern"
+description = "case str(): matches any str"
+
+python = '''
+value = "hello"
+match value:
+    case str():
+        result = "string"
+    case int():
+        result = "integer"
+    case _:
+        result = "other"
+'''
+
+rust = '''
+use std::any::Any;
+
+let value: Box<dyn Any> = Box::new("hello".to_string());
+let result = if value.is::<String>() {
+    "string"
+} else if value.is::<i32>() {
+    "integer"
+} else {
+    "other"
+};
+'''
+
+
+[[test]]
+name = "builtin_bool_pattern"
+description = "case bool(): matches True or False"
+
+python = '''
+value = True
+match value:
+    case bool():
+        result = "boolean"
+    case int():
+        result = "integer"
+    case _:
+        result = "other"
+'''
+
+rust = '''
+use std::any::Any;
+
+let value: Box<dyn Any> = Box::new(true);
+let result = if value.is::<bool>() {
+    "boolean"
+} else if value.is::<i32>() {
+    "integer"
+} else {
+    "other"
+};
+'''
+
 
 # =============================================================================
 # Pattern with Wildcards
 # =============================================================================
 
-# TODO: Test class pattern wildcard
-# [[test]]
-# name = "class_pattern_wildcard"
-# description = "case Point(_, y): ignore x"
+[[test]]
+name = "class_pattern_wildcard"
+description = "case Point(_, y): ignore x"
 
-# TODO: Test class pattern partial capture
-# [[test]]
-# name = "class_pattern_partial"
-# description = "case Point(x=x): capture only x"
+python = '''
+class Point:
+    __match_args__ = ('x', 'y')
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+value = Point(3, 4)
+match value:
+    case Point(_, y):
+        result = y
+    case _:
+        result = 0
+'''
+
+rust = '''
+struct Point {
+    x: i32,
+    y: i32,
+}
+
+let value = Point { x: 3, y: 4 };
+let result = match value {
+    Point { y, .. } => y,
+    _ => 0,
+};
+'''
+
+
+[[test]]
+name = "class_pattern_partial"
+description = "case Point(x=x): capture only x"
+
+python = '''
+class Point:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+value = Point(3, 4)
+match value:
+    case Point(x=x):
+        result = x * 2
+    case _:
+        result = 0
+'''
+
+rust = '''
+struct Point {
+    x: i32,
+    y: i32,
+}
+
+let value = Point { x: 3, y: 4 };
+let result = match value {
+    Point { x, .. } => x * 2,
+};
+'''
+
 
 # =============================================================================
 # Inheritance
 # =============================================================================
 
-# TODO: Test subclass matching
-# [[test]]
-# name = "class_pattern_subclass"
-# description = "case Shape(): matches Circle, Rectangle, etc."
+[[test]]
+name = "class_pattern_subclass"
+description = "case Shape(): matches Circle, Rectangle, etc."
 
-# TODO: Test specific subclass
-# [[test]]
-# name = "class_pattern_specific"
-# description = "case Circle(radius=r): ..."
+python = '''
+class Shape:
+    pass
+
+class Circle(Shape):
+    def __init__(self, radius):
+        self.radius = radius
+
+class Rectangle(Shape):
+    def __init__(self, width, height):
+        self.width = width
+        self.height = height
+
+value = Circle(5)
+match value:
+    case Circle():
+        result = "circle"
+    case Rectangle():
+        result = "rectangle"
+    case Shape():
+        result = "shape"
+    case _:
+        result = "unknown"
+'''
+
+rust = '''
+enum Shape {
+    Circle { radius: i32 },
+    Rectangle { width: i32, height: i32 },
+    Other,
+}
+
+let value = Shape::Circle { radius: 5 };
+let result = match value {
+    Shape::Circle { .. } => "circle",
+    Shape::Rectangle { .. } => "rectangle",
+    Shape::Other => "shape",
+};
+'''
+
+
+[[test]]
+name = "class_pattern_specific"
+description = "case Circle(radius=r): ..."
+
+python = '''
+class Circle:
+    def __init__(self, radius):
+        self.radius = radius
+
+class Rectangle:
+    def __init__(self, width, height):
+        self.width = width
+        self.height = height
+
+value = Circle(5)
+match value:
+    case Circle(radius=r):
+        result = f"circle: {r}"
+    case Rectangle(width=w, height=h):
+        result = f"rectangle: {w}x{h}"
+    case _:
+        result = "unknown"
+'''
+
+rust = '''
+enum Shape {
+    Circle { radius: i32 },
+    Rectangle { width: i32, height: i32 },
+}
+
+let value = Shape::Circle { radius: 5 };
+let result = match value {
+    Shape::Circle { radius: r } => format!("circle: {}", r),
+    Shape::Rectangle { width: w, height: h } => format!("rectangle: {}x{}", w, h),
+};
+'''
+
 
 # =============================================================================
 # Edge Cases
 # =============================================================================
 
-# TODO: Test class pattern without __match_args__
-# [[test]]
-# name = "class_no_match_args"
-# description = "Positional patterns require __match_args__"
-# skip = true
+[[test]]
+name = "class_no_match_args"
+description = "Positional patterns require __match_args__"
+skip = true
 
-# TODO: Test class pattern with extra attrs
-# [[test]]
-# name = "class_pattern_extra"
-# description = "Pattern doesn't need all attributes"
+python = '''
+value = 1
+match value:
+    case 1:
+        result = 'one'
+    case _:
+        result = 'other'
+'''
 
-# TODO: Test NamedTuple pattern
-# [[test]]
-# name = "namedtuple_pattern"
-# description = "case Point(x=0, y=0): with NamedTuple"
+rust = '''
+let value = 1;
+let result = match value {
+    1 => "one",
+    _ => "other",
+};
+'''
+
+
+[[test]]
+name = "class_pattern_extra"
+description = "Pattern doesn't need all attributes"
+
+python = '''
+class Point3D:
+    def __init__(self, x, y, z):
+        self.x = x
+        self.y = y
+        self.z = z
+
+value = Point3D(1, 2, 3)
+match value:
+    case Point3D(x=x, y=y):
+        result = x + y
+    case _:
+        result = 0
+'''
+
+rust = '''
+struct Point3D {
+    x: i32,
+    y: i32,
+    z: i32,
+}
+
+let value = Point3D { x: 1, y: 2, z: 3 };
+let result = match value {
+    Point3D { x, y, .. } => x + y,
+};
+'''
+
+
+[[test]]
+name = "namedtuple_pattern"
+description = "case Point(x=0, y=0): with NamedTuple"
+
+python = '''
+from collections import namedtuple
+
+Point = namedtuple('Point', ['x', 'y'])
+result = Point(1, 2)
+'''
+
+rust = '''
+struct Point { x: i32, y: i32 }
+'''
+

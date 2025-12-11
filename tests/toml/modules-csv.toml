@@ -12,7 +12,6 @@ category = "stdlib-csv"
 [[test]]
 name = "csv_dictreader_creation"
 description = "csv.DictReader creation and usage"
-tags = ["csv", "dictreader"]
 
 python = '''
 import csv
@@ -36,7 +35,6 @@ pub fn read_csv(filepath: String) -> Vec<serde_json::Value> {
 [[test]]
 name = "csv_fieldnames_access"
 description = "Access CSV headers via fieldnames"
-tags = ["csv", "headers"]
 
 python = '''
 import csv
@@ -59,7 +57,6 @@ pub fn get_headers(filepath: String) {
 [[test]]
 name = "csv_row_iteration"
 description = "Iterate over CSV rows"
-tags = ["csv", "iteration"]
 
 python = '''
 import csv
@@ -86,7 +83,6 @@ pub fn print_rows(filepath: String) {
 [[test]]
 name = "csv_row_item_access"
 description = "Access CSV row by column name"
-tags = ["csv", "access"]
 
 python = '''
 import csv
@@ -130,7 +126,6 @@ pub fn get_column(filepath: String, column_name: String) {
 [[test]]
 name = "csv_filtering"
 description = "Filter CSV rows by column value"
-tags = ["csv", "filter"]
 
 python = '''
 import csv
@@ -182,7 +177,6 @@ pub fn filter_csv(filepath: String, column: String, value: String) -> Vec<serde_
 [[test]]
 name = "csv_comprehension"
 description = "CSV filtering with list comprehension"
-tags = ["csv", "comprehension"]
 
 python = '''
 import csv
@@ -213,7 +207,6 @@ pub fn filter_csv_generator(filepath: String, column: String, value: String) -> 
 [[test]]
 name = "csv_dictwriter_basic"
 description = "csv.DictWriter basic creation"
-tags = ["csv", "dictwriter"]
 
 python = '''
 import csv
@@ -236,7 +229,6 @@ pub fn write_data(filename: String) {
 [[test]]
 name = "csv_dictwriter_multiple_fields"
 description = "csv.DictWriter with multiple fields"
-tags = ["csv", "dictwriter"]
 
 python = '''
 import csv
@@ -256,7 +248,6 @@ pub fn create_writer(output: &serde_json::Value) {
 [[test]]
 name = "csv_dictwriter_variable_fieldnames"
 description = "csv.DictWriter with variable fieldnames"
-tags = ["csv", "dictwriter"]
 
 python = '''
 import csv

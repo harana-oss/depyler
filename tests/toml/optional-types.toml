@@ -11,7 +11,6 @@ category = "optional-types"
 [[test]]
 name = "optional_param"
 description = "Optional parameter type"
-tags = ["optional", "parameter"]
 
 python = '''
 from typing import Optional
@@ -39,7 +38,6 @@ pub fn greet(name: &Option<String>) -> String {
 [[test]]
 name = "optional_return"
 description = "Optional return type"
-tags = ["optional", "return"]
 
 python = '''
 from typing import Optional
@@ -65,7 +63,6 @@ pub fn find_item(items: &Vec<i32>, target: i32) -> Option<i32> {
 [[test]]
 name = "optional_is_none"
 description = "Check if value is None"
-tags = ["optional", "none"]
 
 python = '''
 from typing import Optional
@@ -92,7 +89,6 @@ mod tests {
 [[test]]
 name = "optional_is_not_none"
 description = "Check if value is not None"
-tags = ["optional", "some"]
 
 python = '''
 from typing import Optional
@@ -119,7 +115,6 @@ mod tests {
 [[test]]
 name = "optional_unwrap_or"
 description = "Unwrap with default value"
-tags = ["optional", "unwrap"]
 
 python = '''
 from typing import Optional
@@ -137,7 +132,6 @@ pub fn get_or_default(value: &Option<i32>) -> i32 {
 [[test]]
 name = "optional_unwrap_or_default"
 description = "Unwrap with type default"
-tags = ["optional", "unwrap"]
 
 python = '''
 from typing import Optional
@@ -155,7 +149,6 @@ pub fn safe_string(value: &Option<String>) -> String {
 [[test]]
 name = "optional_if_let"
 description = "if let pattern for Optional"
-tags = ["optional", "pattern"]
 
 python = '''
 from typing import Optional
@@ -178,7 +171,6 @@ pub fn process(value: &Option<i32>) -> i32 {
 [[test]]
 name = "optional_arithmetic"
 description = "Arithmetic on optional value"
-tags = ["optional", "arithmetic"]
 
 python = '''
 from typing import Optional
@@ -201,7 +193,6 @@ pub fn double(value: &Option<i32>) -> Option<i32> {
 [[test]]
 name = "optional_method_call"
 description = "Method call on optional value"
-tags = ["optional", "method"]
 
 python = '''
 from typing import Optional
@@ -224,7 +215,6 @@ pub fn upper(value: &Option<String>) -> Option<String> {
 [[test]]
 name = "optional_in_list"
 description = "Optional values in list"
-tags = ["optional", "list"]
 
 python = '''
 from typing import Optional, List
@@ -257,7 +247,6 @@ mod tests {
 [[test]]
 name = "optional_default_param"
 description = "Optional parameter with default"
-tags = ["optional", "default"]
 
 python = '''
 from typing import Optional
@@ -285,7 +274,6 @@ pub fn greet(name: &Option<String>) -> String {
 [[test]]
 name = "optional_and_then"
 description = "Chaining optional operations"
-tags = ["optional", "chain"]
 
 python = '''
 from typing import Optional
@@ -308,7 +296,6 @@ pub fn parse_and_double(s: &Option<String>) -> Option<i32> {
 [[test]]
 name = "optional_string_or_default"
 description = "Optional string with 'or' default pattern"
-tags = ["optional", "or", "default"]
 
 python = '''
 from dataclasses import dataclass
@@ -360,7 +347,6 @@ pub fn get_name(p: &Person) -> String {
 [[test]]
 name = "optional_variable_or_default"
 description = "Optional variable with 'or' default"
-tags = ["optional", "or", "default"]
 
 python = '''
 from typing import Optional
@@ -378,7 +364,6 @@ pub fn get_value(x: &Option<String>) -> String {
 [[test]]
 name = "optional_int_or_default"
 description = "Optional int with 'or' default zero"
-tags = ["optional", "or", "default"]
 
 python = '''
 from dataclasses import dataclass
@@ -430,7 +415,6 @@ pub fn get_value(c: &Counter) -> i32 {
 [[test]]
 name = "chained_optional_or"
 description = "Chained optional 'or' expressions"
-tags = ["optional", "or", "chain"]
 
 python = '''
 from dataclasses import dataclass
@@ -498,7 +482,6 @@ pub fn get_display(p: &Person) -> String {
 [[test]]
 name = "non_optional_or_unchanged"
 description = "Non-optional 'or' remains boolean operator"
-tags = ["optional", "boolean"]
 
 python = '''
 def check_flags(a: bool, b: bool) -> bool:
@@ -514,7 +497,6 @@ pub fn check_flags(a: bool, b: bool) -> bool {
 [[test]]
 name = "optional_or_in_assignment"
 description = "Optional 'or' in variable assignment"
-tags = ["optional", "or", "assignment"]
 
 python = '''
 from typing import Optional
@@ -535,7 +517,6 @@ pub fn process(name: &Option<String>) -> String {
 [[test]]
 name = "optional_field_or_method"
 description = "Optional field with 'or' default string"
-tags = ["optional", "or", "field"]
 
 python = '''
 from dataclasses import dataclass
@@ -587,7 +568,6 @@ pub fn get_prefix(c: &Config) -> String {
 [[test]]
 name = "is_none_dataclass_field"
 description = "Optional dataclass field is None check"
-tags = ["optional", "dataclass", "conditional"]
 
 python = '''
 from dataclasses import dataclass
@@ -648,7 +628,6 @@ mod tests {
 [[test]]
 name = "is_not_none_dataclass_field"
 description = "Optional dataclass field is not None check"
-tags = ["optional", "dataclass", "conditional"]
 
 python = '''
 from dataclasses import dataclass
@@ -709,7 +688,6 @@ mod tests {
 [[test]]
 name = "optional_variable_is_none"
 description = "Optional variable is None check"
-tags = ["optional", "conditional"]
 
 python = '''
 from typing import Optional
@@ -736,7 +714,6 @@ mod tests {
 [[test]]
 name = "optional_variable_is_not_none"
 description = "Optional variable is not None check"
-tags = ["optional", "conditional"]
 
 python = '''
 from typing import Optional
@@ -763,7 +740,6 @@ mod tests {
 [[test]]
 name = "optional_if_condition"
 description = "Optional field in if condition"
-tags = ["optional", "conditional", "if"]
 
 python = '''
 from dataclasses import dataclass
@@ -829,7 +805,6 @@ mod tests {
 [[test]]
 name = "optional_is_some_and"
 description = "Optional with is_some_and check"
-tags = ["optional", "conditional"]
 
 python = '''
 from dataclasses import dataclass
@@ -897,7 +872,6 @@ mod tests {
 [[test]]
 name = "optional_field_add_assign"
 description = "Augmented += on Optional field requires unwrap/rewrap"
-tags = ["optional", "augassign"]
 
 python = '''
 from dataclasses import dataclass
@@ -950,7 +924,6 @@ pub fn increment(c: &mut Counter) {
 [[test]]
 name = "optional_field_sub_assign"
 description = "Augmented -= on Optional field requires unwrap/rewrap"
-tags = ["optional", "augassign"]
 
 python = '''
 from dataclasses import dataclass
@@ -1003,7 +976,6 @@ pub fn decrement(c: &mut Counter) {
 [[test]]
 name = "optional_field_mul_assign"
 description = "Augmented *= on Optional field requires unwrap/rewrap"
-tags = ["optional", "augassign"]
 
 python = '''
 from dataclasses import dataclass
@@ -1056,7 +1028,6 @@ pub fn double(n: &mut Numbers) {
 [[test]]
 name = "unary_neg_optional_field"
 description = "Unary negation on Optional field requires unwrap"
-tags = ["optional", "unary"]
 
 python = '''
 from dataclasses import dataclass
@@ -1108,7 +1079,6 @@ pub fn negate(n: &Numbers) -> i32 {
 [[test]]
 name = "unary_not_optional_field"
 description = "Unary not on Optional bool field requires unwrap"
-tags = ["optional", "unary"]
 
 python = '''
 from dataclasses import dataclass
@@ -1169,7 +1139,6 @@ mod tests {
 [[test]]
 name = "unary_neg_optional_variable"
 description = "Unary negation on Optional variable requires unwrap"
-tags = ["optional", "unary"]
 
 python = '''
 from typing import Optional
@@ -1187,7 +1156,6 @@ pub fn negate_var(x: &Option<i32>) -> i32 {
 [[test]]
 name = "len_on_optional_list"
 description = "len() on Optional list requires as_ref().unwrap()"
-tags = ["optional", "method", "len"]
 
 python = '''
 from dataclasses import dataclass
@@ -1239,7 +1207,6 @@ pub fn count_items(c: &Container) -> i32 {
 [[test]]
 name = "method_on_optional_string"
 description = "String method on Optional string requires unwrap"
-tags = ["optional", "method", "string"]
 
 python = '''
 from dataclasses import dataclass
@@ -1291,7 +1258,6 @@ pub fn upper_name(p: &Person) -> String {
 [[test]]
 name = "append_on_optional_list"
 description = "Mutating method on Optional list uses as_mut().unwrap()"
-tags = ["optional", "method", "mutate"]
 
 python = '''
 from dataclasses import dataclass
@@ -1343,7 +1309,6 @@ pub fn add_item(c: &mut Container, item: i32) {
 [[test]]
 name = "optional_list_indexing"
 description = "Indexing Optional list requires as_ref().unwrap()"
-tags = ["optional", "index"]
 
 python = '''
 from dataclasses import dataclass
@@ -1413,7 +1378,6 @@ pub fn get_first(c: &Container) -> i32 {
 [[test]]
 name = "optional_dict_indexing"
 description = "Indexing Optional dict requires as_ref().unwrap()"
-tags = ["optional", "index", "dict"]
 
 python = '''
 from dataclasses import dataclass
@@ -1483,7 +1447,6 @@ pub fn get_setting(c: &Config, key: String) -> i32 {
 [[test]]
 name = "none_placeholder_simple_if_else"
 description = "Simple None placeholder pattern with if-else reassignment"
-tags = ["optional", "placeholder", "compile"]
 compile_check = true
 
 python = '''
@@ -1513,7 +1476,6 @@ pub fn test_func() -> String {
 [[test]]
 name = "none_placeholder_elif_chain"
 description = "None placeholder with multiple elif branches"
-tags = ["optional", "placeholder", "compile"]
 compile_check = true
 
 python = '''
@@ -1559,7 +1521,6 @@ pub fn test_func() -> i32 {
 [[test]]
 name = "none_placeholder_multiple_variables"
 description = "Multiple variables with None placeholder pattern"
-tags = ["optional", "placeholder", "compile"]
 compile_check = true
 
 python = '''
@@ -1595,7 +1556,6 @@ pub fn test_func() -> (String, String) {
 [[test]]
 name = "none_placeholder_nested_if"
 description = "Nested if with None placeholder in both scopes"
-tags = ["optional", "placeholder", "compile"]
 compile_check = true
 
 python = '''
@@ -1638,7 +1598,6 @@ pub fn test_func() -> String {
 [[test]]
 name = "none_placeholder_function_parameter"
 description = "None placeholder with function parameter condition"
-tags = ["optional", "placeholder", "compile"]
 compile_check = true
 
 python = '''
@@ -1674,7 +1633,6 @@ pub fn compute(x: i32) -> String {
 [[test]]
 name = "option_truthiness_check"
 description = "Python truthiness check on Option - must use .is_some()"
-tags = ["optional", "truthiness", "edge-case"]
 
 python = '''
 import os
@@ -1702,7 +1660,6 @@ pub fn check_config() {
 [[test]]
 name = "nested_option_truthiness"
 description = "Nested Option truthiness checks handled correctly"
-tags = ["optional", "truthiness", "nested"]
 
 python = '''
 import os
@@ -1735,7 +1692,6 @@ pub fn check_multiple() -> String {
 [[test]]
 name = "string_method_type_consistency"
 description = "String method returns consistent type (String not &str)"
-tags = ["string", "type", "method"]
 
 python = '''
 def process_format(use_json: bool, format_str: str) -> str:
@@ -1761,7 +1717,6 @@ pub fn process_format(use_json: bool, format_str: String) -> String {
 [[test]]
 name = "type_narrowing_attribute_access"
 description = "Type narrowing allows attribute access on unwrapped Option"
-tags = ["optional", "narrowing", "attribute"]
 compile_check = true
 
 python = '''
@@ -1843,7 +1798,6 @@ pub fn update_score(players: Vec<Player>, name: String, bonus: i32) {
 [[test]]
 name = "type_narrowing_method_call"
 description = "Type narrowing allows method calls on unwrapped Option"
-tags = ["optional", "narrowing", "method"]
 compile_check = true
 
 python = '''
@@ -1875,7 +1829,6 @@ pub fn process_name() -> String {
 [[test]]
 name = "type_narrowing_with_else"
 description = "Type narrowing with else branch"
-tags = ["optional", "narrowing", "else"]
 compile_check = true
 
 python = '''
@@ -1910,7 +1863,6 @@ pub fn process(data: HashMap<String, i32>, key: String) -> i32 {
 [[test]]
 name = "type_narrowing_multiple_attributes"
 description = "Type narrowing allows multiple attribute accesses"
-tags = ["optional", "narrowing", "attribute"]
 compile_check = true
 
 python = '''
@@ -1985,7 +1937,6 @@ pub fn print_config() {
 [[test]]
 name = "type_narrowing_nested_calls"
 description = "Type narrowing with nested function calls"
-tags = ["optional", "narrowing", "nested"]
 compile_check = true
 
 python = '''
@@ -2033,7 +1984,6 @@ mod tests {
 [[test]]
 name = "type_narrowing_list_operations"
 description = "Type narrowing allows list operations on unwrapped Option"
-tags = ["optional", "narrowing", "list"]
 
 python = '''
 from typing import Optional
@@ -2098,7 +2048,6 @@ pub fn add_item(containers: Vec<Container>, idx: i32, item: i32) {
 [[test]]
 name = "optional_var_not_in_list"
 description = "Optional variable checked with 'not in' uses .contains() not .get()"
-tags = ["optional", "collection", "contains"]
 compile_check = true
 
 python = '''
@@ -2138,7 +2087,6 @@ pub fn add_if_missing(numbers: &mut Vec<i32>, target: i32) {
 [[test]]
 name = "optional_var_in_list"
 description = "Optional variable checked with 'in' uses .contains()"
-tags = ["optional", "collection", "contains"]
 compile_check = true
 
 python = '''
@@ -2179,7 +2127,6 @@ mod tests {
 [[test]]
 name = "optional_var_multiple_uses"
 description = "Optional variable used multiple times avoids move errors"
-tags = ["optional", "borrow", "unwrap"]
 compile_check = true
 
 python = '''
@@ -2215,7 +2162,6 @@ pub fn process_twice() -> String {
 [[test]]
 name = "optional_var_push_to_list"
 description = "Optional variable pushed to list uses clone().unwrap()"
-tags = ["optional", "list", "push"]
 compile_check = true
 
 python = '''
@@ -2299,7 +2245,6 @@ mod tests {
 [[test]]
 name = "optional_var_contains_and_append"
 description = "Optional variable used in both contains check and append"
-tags = ["optional", "collection", "contains", "append"]
 compile_check = true
 
 python = '''
@@ -2333,7 +2278,6 @@ pub fn add_unique_name(names: &mut Vec<String>) {
 [[test]]
 name = "optional_nested_attribute_access"
 description = "Optional variable unwrapped when accessing nested properties"
-tags = ["optional", "nested", "attribute"]
 
 python = '''
 class Inner:
@@ -2413,7 +2357,6 @@ pub fn test_optional_access(opt: &Option<Outer>) -> i32 {
 [[test]]
 name = "optional_assignment_then_access"
 description = "Optional variable assigned then accessed for nested fields"
-tags = ["optional", "nested", "assignment"]
 
 python = '''
 class Scores:

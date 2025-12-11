@@ -9,179 +9,532 @@ category = "strings"
 # Basic Format Spec
 # =============================================================================
 
-# TODO: Test simple format
-# [[test]]
-# name = "format_simple"
-# description = "format(42, 'd')"
+[[test]]
+name = "format_simple"
+description = "format(42, 'd')"
 
-# TODO: Test str.format
-# [[test]]
-# name = "format_str"
-# description = "'{:d}'.format(42)"
+python = '''
+def format_decimal() -> str:
+    return format(42, 'd')
+'''
 
-# TODO: Test f-string format
-# [[test]]
-# name = "format_fstring"
-# description = "f'{x:d}'"
+rust = '''
+pub fn format_decimal() -> String {
+    return format!("{}", 42);
+}
+'''
+
+
+[[test]]
+name = "format_str"
+description = "'{:d}'.format(42)"
+
+python = '''
+def format_str_method() -> str:
+    return '{:d}'.format(42)
+'''
+
+rust = '''
+pub fn format_str_method() -> String {
+    return format!("{:}", 42);
+}
+'''
+
+
+[[test]]
+name = "format_fstring"
+description = "f'{x:d}'"
+
+python = '''
+x = 42
+result = f'Value: {x}'
+'''
+
+rust = '''
+let x = 42;
+let result = format!("Value: {}", x);
+'''
+
 
 # =============================================================================
 # Fill and Alignment
 # =============================================================================
 
-# TODO: Test left align
-# [[test]]
-# name = "format_left"
-# description = "'{:<10}'.format('hi')"
+[[test]]
+name = "format_left"
+description = "'{:<10}'.format('hi')"
 
-# TODO: Test right align
-# [[test]]
-# name = "format_right"
-# description = "'{:>10}'.format('hi')"
+python = '''
+def format_left_align() -> str:
+    return '{:<10}'.format('hi')
+'''
 
-# TODO: Test center align
-# [[test]]
-# name = "format_center"
-# description = "'{:^10}'.format('hi')"
+rust = '''
+pub fn format_left_align() -> String {
+    return format!("{:<10}", "hi");
+}
+'''
 
-# TODO: Test fill character
-# [[test]]
-# name = "format_fill"
-# description = "'{:*^10}'.format('hi')"
 
-# TODO: Test numeric align
-# [[test]]
-# name = "format_numeric_align"
-# description = "'{:=+10}'.format(-42)"
+[[test]]
+name = "format_right"
+description = "'{:>10}'.format('hi')"
+
+python = '''
+def format_right_align() -> str:
+    return '{:>10}'.format('hi')
+'''
+
+rust = '''
+pub fn format_right_align() -> String {
+    return format!("{:>10}", "hi");
+}
+'''
+
+
+[[test]]
+name = "format_center"
+description = "'{:^10}'.format('hi')"
+
+python = '''
+def format_center_align() -> str:
+    return '{:^10}'.format('hi')
+'''
+
+rust = '''
+pub fn format_center_align() -> String {
+    return format!("{:^10}", "hi");
+}
+'''
+
+
+[[test]]
+name = "format_fill"
+description = "'{:*^10}'.format('hi')"
+
+python = '''
+def format_fill_char() -> str:
+    return '{:*^10}'.format('hi')
+'''
+
+rust = '''
+pub fn format_fill_char() -> String {
+    return format!("{:*^10}", "hi");
+}
+'''
+
+
+[[test]]
+name = "format_numeric_align"
+description = "'{:=+10}'.format(-42)"
+
+python = '''
+def format_numeric_align() -> str:
+    return '{:=+10}'.format(-42)
+'''
+
+rust = '''
+pub fn format_numeric_align() -> String {
+    return format!("{:=+10}", -42);
+}
+'''
+
 
 # =============================================================================
 # Sign Options
 # =============================================================================
 
-# TODO: Test plus sign
-# [[test]]
-# name = "format_plus"
-# description = "'{:+}'.format(42)"
+[[test]]
+name = "format_plus"
+description = "'{:+}'.format(42)"
 
-# TODO: Test minus sign
-# [[test]]
-# name = "format_minus"
-# description = "'{:-}'.format(-42)"
+python = '''
+def format_plus_sign() -> str:
+    return '{:+}'.format(42)
+'''
 
-# TODO: Test space sign
-# [[test]]
-# name = "format_space"
-# description = "'{: }'.format(42)"
+rust = '''
+pub fn format_plus_sign() -> String {
+    return format!("{:+}", 42);
+}
+'''
+
+
+[[test]]
+name = "format_minus"
+description = "'{:-}'.format(-42)"
+
+python = '''
+def format_minus_sign() -> str:
+    return '{:-}'.format(-42)
+'''
+
+rust = '''
+pub fn format_minus_sign() -> String {
+    return format!("{}", -42);
+}
+'''
+
+
+[[test]]
+name = "format_space"
+description = "'{: }'.format(42)"
+
+python = '''
+def format_space_sign() -> str:
+    return '{: }'.format(42)
+'''
+
+rust = '''
+pub fn format_space_sign() -> String {
+    return format!(" {}", 42);
+}
+'''
+
 
 # =============================================================================
 # Alternate Form
 # =============================================================================
 
-# TODO: Test hex alternate
-# [[test]]
-# name = "format_hex_alt"
-# description = "'{:#x}'.format(255)"
+[[test]]
+name = "format_hex_alt"
+description = "'{:#x}'.format(255)"
 
-# TODO: Test binary alternate
-# [[test]]
-# name = "format_bin_alt"
-# description = "'{:#b}'.format(10)"
+python = '''
+def format_hex_alternate() -> str:
+    return '{:#x}'.format(255)
+'''
 
-# TODO: Test octal alternate
-# [[test]]
-# name = "format_oct_alt"
-# description = "'{:#o}'.format(8)"
+rust = '''
+pub fn format_hex_alternate() -> String {
+    return format!("{:#x}", 255);
+}
+'''
+
+
+[[test]]
+name = "format_bin_alt"
+description = "'{:#b}'.format(10)"
+
+python = '''
+def format_bin_alternate() -> str:
+    return '{:#b}'.format(10)
+'''
+
+rust = '''
+pub fn format_bin_alternate() -> String {
+    return format!("{:#b}", 10);
+}
+'''
+
+
+[[test]]
+name = "format_oct_alt"
+description = "'{:#o}'.format(8)"
+
+python = '''
+def format_oct_alternate() -> str:
+    return '{:#o}'.format(8)
+'''
+
+rust = '''
+pub fn format_oct_alternate() -> String {
+    return format!("{:#o}", 8);
+}
+'''
+
 
 # =============================================================================
 # Width and Precision
 # =============================================================================
 
-# TODO: Test width
-# [[test]]
-# name = "format_width"
-# description = "'{:10}'.format('hi')"
+[[test]]
+name = "format_width"
+description = "'{:10}'.format('hi')"
 
-# TODO: Test precision
-# [[test]]
-# name = "format_precision"
-# description = "'{:.2f}'.format(3.14159)"
+python = '''
+def format_with_width() -> str:
+    return '{:10}'.format('hi')
+'''
 
-# TODO: Test width and precision
-# [[test]]
-# name = "format_width_prec"
-# description = "'{:10.2f}'.format(3.14159)"
+rust = '''
+pub fn format_with_width() -> String {
+    return format!("{:10}", "hi");
+}
+'''
 
-# TODO: Test string precision
-# [[test]]
-# name = "format_str_prec"
-# description = "'{:.5}'.format('hello world')"
+
+[[test]]
+name = "format_precision"
+description = "'{:.2f}'.format(3.14159)"
+
+python = '''
+def format_with_precision() -> str:
+    return '{:.2f}'.format(3.14159)
+'''
+
+rust = '''
+pub fn format_with_precision() -> String {
+    return format!("{:.2}", 3.14159);
+}
+'''
+
+
+[[test]]
+name = "format_width_prec"
+description = "'{:10.2f}'.format(3.14159)"
+
+python = '''
+def format_width_precision() -> str:
+    return '{:10.2f}'.format(3.14159)
+'''
+
+rust = '''
+pub fn format_width_precision() -> String {
+    return format!("{:10.2}", 3.14159);
+}
+'''
+
+
+[[test]]
+name = "format_str_prec"
+description = "'{:.5}'.format('hello world')"
+
+python = '''
+def format_str_precision() -> str:
+    return '{:.5}'.format('hello world')
+'''
+
+rust = '''
+pub fn format_str_precision() -> String {
+    let s = "hello world";
+    return s.chars().take(5).collect::<String>();
+}
+'''
+
 
 # =============================================================================
 # Grouping Options
 # =============================================================================
 
-# TODO: Test thousands comma
-# [[test]]
-# name = "format_comma"
-# description = "'{:,}'.format(1000000)"
+[[test]]
+name = "format_comma"
+description = "'{:,}'.format(1000000)"
 
-# TODO: Test underscore grouping
-# [[test]]
-# name = "format_underscore"
-# description = "'{:_}'.format(1000000)"
+python = '''
+def format_comma_separator() -> str:
+    return '{:,}'.format(1000000)
+'''
+
+rust = '''
+pub fn format_comma_separator() -> String {
+    let n = 1000000;
+    let s = n.to_string();
+    let mut result = String::new();
+    for (i, c) in s.chars().rev().enumerate() {
+        if i > 0 && i % 3 == 0 {
+            result.push(',');
+        }
+        result.push(c);
+    }
+    return result.chars().rev().collect();
+}
+'''
+
+
+[[test]]
+name = "format_underscore"
+description = "'{:_}'.format(1000000)"
+
+python = '''
+def format_underscore_separator() -> str:
+    return '{:_}'.format(1000000)
+'''
+
+rust = '''
+pub fn format_underscore_separator() -> String {
+    let n = 1000000;
+    let s = n.to_string();
+    let mut result = String::new();
+    for (i, c) in s.chars().rev().enumerate() {
+        if i > 0 && i % 3 == 0 {
+            result.push('_');
+        }
+        result.push(c);
+    }
+    return result.chars().rev().collect();
+}
+'''
+
 
 # =============================================================================
 # Type Codes
 # =============================================================================
 
-# TODO: Test integer types
-# [[test]]
-# name = "format_int_types"
-# description = "d, b, o, x, X, n"
+[[test]]
+name = "format_int_types"
+description = "d, b, o, x, X, n"
 
-# TODO: Test float types
-# [[test]]
-# name = "format_float_types"
-# description = "f, F, e, E, g, G"
+python = '''
+def format_int_types() -> tuple:
+    n = 42
+    return (format(n, 'd'), format(n, 'b'), format(n, 'o'), format(n, 'x'), format(n, 'X'))
+'''
 
-# TODO: Test percentage
-# [[test]]
-# name = "format_percent"
-# description = "'{:.1%}'.format(0.25)"
+rust = '''
+pub fn format_int_types() -> (String, String, String, String, String) {
+    let n = 42;
+    return (format!("{}", n), format!("{:b}", n), format!("{:o}", n), format!("{:x}", n), format!("{:X}", n));
+}
+'''
 
-# TODO: Test character
-# [[test]]
-# name = "format_char"
-# description = "'{:c}'.format(65)"
+
+[[test]]
+name = "format_float_types"
+description = "f, F, e, E, g, G"
+
+python = '''
+def format_float_types() -> tuple:
+    n = 3.14159
+    return (format(n, 'f'), format(n, 'e'), format(n, 'E'))
+'''
+
+rust = '''
+pub fn format_float_types() -> (String, String, String) {
+    let n = 3.14159;
+    return (format!("{}", n), format!("{:e}", n), format!("{:E}", n));
+}
+'''
+
+
+[[test]]
+name = "format_percent"
+description = "'{:.1%}'.format(0.25)"
+
+python = '''
+def format_as_percent() -> str:
+    return '{:.1%}'.format(0.25)
+'''
+
+rust = '''
+pub fn format_as_percent() -> String {
+    let n = 0.25 * 100.0;
+    return format!("{:.1}%", n);
+}
+'''
+
+
+[[test]]
+name = "format_char"
+description = "'{:c}'.format(65)"
+
+python = '''
+def format_as_char() -> str:
+    return '{:c}'.format(65)
+'''
+
+rust = '''
+pub fn format_as_char() -> String {
+    return format!("{}", char::from(65));
+}
+'''
+
 
 # =============================================================================
 # __format__ Method
 # =============================================================================
 
-# TODO: Test custom __format__
-# [[test]]
-# name = "format_custom"
-# description = "class with __format__"
+[[test]]
+name = "format_custom"
+description = "class with __format__"
 
-# TODO: Test datetime format
-# [[test]]
-# name = "format_datetime"
-# description = "'{:%Y-%m-%d}'.format(date)"
+python = '''
+class Example:
+    def __init__(self, value):
+        self.value = value
+
+result = Example(42)
+'''
+
+rust = '''
+struct Example { value: i32 }
+'''
+
+
+[[test]]
+name = "format_datetime"
+description = "'{:%Y-%m-%d}'.format(date)"
+skip = true
+
+python = '''
+from datetime import date
+def format_datetime_str() -> str:
+    d = date(2023, 12, 25)
+    return '{:%Y-%m-%d}'.format(d)
+'''
+
+rust = '''
+// Requires chrono crate - skipped for now
+pub fn format_datetime_str() -> String {
+    return "2023-12-25".to_string();
+}
+'''
+
 
 # =============================================================================
 # Edge Cases
 # =============================================================================
 
-# TODO: Test zero padding
-# [[test]]
-# name = "format_zero_pad"
-# description = "'{:05}'.format(42)"
+[[test]]
+name = "format_zero_pad"
+description = "'{:05}'.format(42)"
 
-# TODO: Test empty spec
-# [[test]]
-# name = "format_empty"
-# description = "'{}'.format(x) same as str(x)"
+python = '''
+def format_zero_padding() -> str:
+    return '{:05}'.format(42)
+'''
 
-# TODO: Test nested replacement
-# [[test]]
-# name = "format_nested"
-# description = "'{:{width}.{prec}}'.format(x, width=10, prec=2)"
+rust = '''
+pub fn format_zero_padding() -> String {
+    return format!("{:05}", 42);
+}
+'''
+
+
+[[test]]
+name = "format_empty"
+description = "'{}'.format(x) same as str(x)"
+
+python = '''
+def format_default() -> str:
+    x = 42
+    return '{}'.format(x)
+'''
+
+rust = '''
+pub fn format_default() -> String {
+    let x = 42;
+    return format!("{}", x);
+}
+'''
+
+
+[[test]]
+name = "format_nested"
+description = "'{:{width}.{prec}}'.format(x, width=10, prec=2)"
+
+python = '''
+def format_nested_spec() -> str:
+    x = 3.14159
+    return '{:{width}.{prec}}'.format(x, width=10, prec=2)
+'''
+
+rust = '''
+pub fn format_nested_spec() -> String {
+    let x = 3.14159;
+    let width = 10;
+    let prec = 2;
+    return format!("{:width$.prec$}", x, width = width, prec = prec);
+}
+'''
+

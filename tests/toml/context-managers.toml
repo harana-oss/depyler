@@ -12,7 +12,6 @@ category = "context-managers"
 [[test]]
 name = "with_basic"
 description = "Basic with statement with as clause"
-tags = ["context-manager", "with"]
 python = '''
 class File:
     def __init__(self, name):
@@ -72,7 +71,6 @@ impl Drop for File {
 [[test]]
 name = "with_no_as"
 description = "with statement without as clause"
-tags = ["context-manager", "with"]
 python = '''
 class Lock:
     def __init__(self):
@@ -127,7 +125,6 @@ assert!(!lock.locked);
 [[test]]
 name = "with_body"
 description = "Execute code in managed context"
-tags = ["context-manager", "with"]
 python = '''
 class Counter:
     def __init__(self):
@@ -195,7 +192,6 @@ assert_eq!(counter.borrow().count, 0);
 [[test]]
 name = "cm_enter"
 description = "__enter__ method for setup"
-tags = ["context-manager", "protocol"]
 python = '''
 class Resource:
     def __init__(self):
@@ -237,7 +233,6 @@ assert!(r.setup_called);
 [[test]]
 name = "cm_exit"
 description = "__exit__ method for cleanup"
-tags = ["context-manager", "protocol"]
 python = '''
 class Resource:
     def __init__(self):
@@ -284,7 +279,6 @@ assert!(!r.cleanup_called);
 [[test]]
 name = "cm_enter_return"
 description = "__enter__ return value bound with as"
-tags = ["context-manager", "protocol"]
 python = '''
 class ResourceFactory:
     def __enter__(self):
@@ -317,7 +311,6 @@ assert_eq!(handle, "resource_handle");
 [[test]]
 name = "cm_exit_success"
 description = "__exit__ called with None on success"
-tags = ["context-manager", "exceptions"]
 python = '''
 class Observer:
     def __init__(self):
@@ -361,7 +354,6 @@ impl Drop for Observer {
 [[test]]
 name = "cm_exit_exception"
 description = "__exit__ receives exception info"
-tags = ["context-manager", "exceptions"]
 python = '''
 class ExceptionLogger:
     def __init__(self):
@@ -412,7 +404,6 @@ assert!(logger.exc_occurred);
 [[test]]
 name = "cm_suppress"
 description = "Return True from __exit__ to suppress exception"
-tags = ["context-manager", "exceptions"]
 python = '''
 class Suppressor:
     def __enter__(self):
@@ -442,7 +433,6 @@ with_suppressor(|| {
 [[test]]
 name = "cm_propagate"
 description = "Return False/None to propagate exception"
-tags = ["context-manager", "exceptions"]
 python = '''
 class Propagator:
     def __enter__(self):
@@ -480,7 +470,6 @@ assert!(result.is_err());
 [[test]]
 name = "cm_custom_class"
 description = "Class implementing __enter__ and __exit__"
-tags = ["context-manager", "class"]
 python = '''
 class Database:
     def __init__(self):
@@ -550,7 +539,6 @@ assert!(!db.connected);
 [[test]]
 name = "cm_reusable"
 description = "Context manager used multiple times"
-tags = ["context-manager", "class"]
 python = '''
 class Connection:
     def __init__(self):
@@ -613,7 +601,6 @@ assert!(!conn.active);
 [[test]]
 name = "cm_stateful"
 description = "Context manager maintaining state"
-tags = ["context-manager", "class"]
 python = '''
 class Transaction:
     def __init__(self):
@@ -683,7 +670,6 @@ assert!(txn.committed);
 [[test]]
 name = "cm_file"
 description = "File handling with context manager"
-tags = ["context-manager", "use-case"]
 skip = ["runtime-file-io"]
 python = '''
 # Conceptual example - file operations
@@ -747,7 +733,6 @@ impl Drop for MockFile {
 [[test]]
 name = "cm_lock"
 description = "Thread lock with context manager"
-tags = ["context-manager", "use-case"]
 python = '''
 class ThreadLock:
     def __init__(self):
@@ -781,7 +766,6 @@ let data = Mutex::new(0);
 [[test]]
 name = "cm_transaction"
 description = "Database transaction with commit/rollback"
-tags = ["context-manager", "use-case"]
 python = '''
 class Transaction:
     def __init__(self):
@@ -860,7 +844,6 @@ assert!(txn2.rolled_back);
 [[test]]
 name = "cm_temp_state"
 description = "Save and restore temporary state"
-tags = ["context-manager", "use-case"]
 python = '''
 class StateManager:
     def __init__(self):
@@ -919,7 +902,6 @@ assert_eq!(manager.value, 10);
 [[test]]
 name = "cm_enter_exception"
 description = "__exit__ not called if __enter__ fails"
-tags = ["context-manager", "edge-case"]
 python = '''
 class FailingEnter:
     def __init__(self):
@@ -966,7 +948,6 @@ assert!(result.is_err());
 [[test]]
 name = "cm_exit_exception"
 description = "Exception in __exit__ masks original"
-tags = ["context-manager", "edge-case"]
 python = '''
 class ExitRaises:
     def __enter__(self):
@@ -1002,7 +983,6 @@ assert!(cleanup_error.is_err());
 [[test]]
 name = "cm_return"
 description = "return in with block still calls __exit__"
-tags = ["context-manager", "edge-case"]
 python = '''
 class Tracker:
     def __init__(self):
@@ -1058,7 +1038,6 @@ assert_eq!(result, "early");
 [[test]]
 name = "cm_break"
 description = "break in with block still calls __exit__"
-tags = ["context-manager", "edge-case"]
 python = '''
 class Counter:
     def __init__(self):

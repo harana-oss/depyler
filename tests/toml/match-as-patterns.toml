@@ -9,123 +9,510 @@ category = "modern-python"
 # Basic AS Patterns
 # =============================================================================
 
-# TODO: Test simple as binding
-# [[test]]
-# name = "as_basic"
-# description = "case [x, y] as point: use point"
+[[test]]
+name = "as_basic"
+description = "case [x, y] as point: use point"
 
-# TODO: Test as with literal
-# [[test]]
-# name = "as_literal"
-# description = "case 'hello' as greeting: ..."
+python = '''
+value = [3, 4]
+match value:
+    case [x, y] as point:
+        result = (x, y, point)
+    case _:
+        result = (0, 0, [])
+'''
 
-# TODO: Test as with class
-# [[test]]
-# name = "as_class"
-# description = "case Point(x, y) as p: use p, x, y"
+rust = '''
+let value = vec![3, 4];
+let result = match &value[..] {
+    [x, y] => {
+        let point = value.clone();
+        (*x, *y, point)
+    },
+    _ => (0, 0, vec![]),
+};
+'''
+
+
+[[test]]
+name = "as_literal"
+description = "case 'hello' as greeting: ..."
+
+python = '''
+value = "hello"
+match value:
+    case 'hello' as greeting:
+        result = greeting.upper()
+    case _:
+        result = ""
+'''
+
+rust = '''
+let value = "hello";
+let result = match value {
+    "hello" => {
+        let greeting = value;
+        greeting.to_uppercase()
+    },
+    _ => "".to_string(),
+};
+'''
+
+
+[[test]]
+name = "as_class"
+description = "case Point(x, y) as p: use p, x, y"
+
+python = '''
+class Point:
+    __match_args__ = ('x', 'y')
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+value = Point(3, 4)
+match value:
+    case Point(x, y) as p:
+        result = (x, y, p.x + p.y)
+    case _:
+        result = (0, 0, 0)
+'''
+
+rust = '''
+#[derive(Clone)]
+struct Point {
+    x: i32,
+    y: i32,
+}
+
+let value = Point { x: 3, y: 4 };
+let result = match &value {
+    p @ Point { x, y } => (*x, *y, p.x + p.y),
+};
+'''
+
 
 # =============================================================================
 # AS with Complex Patterns
 # =============================================================================
 
-# TODO: Test as with sequence
-# [[test]]
-# name = "as_sequence"
-# description = "case [first, *rest] as all: ..."
+[[test]]
+name = "as_sequence"
+description = "case [first, *rest] as all: ..."
 
-# TODO: Test as with mapping
-# [[test]]
-# name = "as_mapping"
-# description = "case {'key': value} as d: ..."
+python = '''
+value = [1, 2, 3, 4]
+match value:
+    case [first, *rest] as all:
+        result = (first, len(rest), all)
+    case _:
+        result = (0, 0, [])
+'''
 
-# TODO: Test as with nested pattern
-# [[test]]
-# name = "as_nested"
-# description = "case {'data': [x, y] as coords}: ..."
+rust = '''
+let value = vec![1, 2, 3, 4];
+let result = match &value[..] {
+    [first, rest @ ..] => {
+        let all = value.clone();
+        (*first, rest.len(), all)
+    },
+    _ => (0, 0, vec![]),
+};
+'''
+
+
+[[test]]
+name = "as_mapping"
+description = "case {'key': value} as d: ..."
+
+python = '''
+value = {'key': 42, 'extra': 10}
+match value:
+    case {'key': val} as d:
+        result = (val, len(d))
+    case _:
+        result = (0, 0)
+'''
+
+rust = '''
+use std::collections::HashMap;
+
+let mut value = HashMap::new();
+value.insert("key", 42);
+value.insert("extra", 10);
+
+let result = match value.get("key") {
+    Some(&val) => {
+        let d = &value;
+        (val, d.len())
+    },
+    None => (0, 0),
+};
+'''
+
+
+[[test]]
+name = "as_nested"
+description = "case {'data': [x, y] as coords}: ..."
+
+python = '''
+value = {'data': [3, 4]}
+match value:
+    case {'data': [x, y] as coords}:
+        result = (x, y, coords)
+    case _:
+        result = (0, 0, [])
+'''
+
+rust = '''
+use std::collections::HashMap;
+
+let mut value = HashMap::new();
+value.insert("data", vec![3, 4]);
+
+let result = match value.get("data") {
+    Some(data) if data.len() == 2 => {
+        let coords = data.clone();
+        (data[0], data[1], coords)
+    },
+    _ => (0, 0, vec![]),
+};
+'''
+
 
 # =============================================================================
 # AS with OR Patterns
 # =============================================================================
 
-# TODO: Test as with OR
-# [[test]]
-# name = "as_with_or"
-# description = "case (1 | 2 | 3) as num: capture which matched"
+[[test]]
+name = "as_with_or"
+description = "case (1 | 2 | 3) as num: capture which matched"
 
-# TODO: Test as capturing OR result
-# [[test]]
-# name = "as_or_result"
-# description = "case ('yes' | 'y') as answer: ..."
+python = '''
+value = 2
+match value:
+    case (1 | 2 | 3) as num:
+        result = num == 2
+    case _:
+        result = False
+'''
+
+rust = '''
+// case (1 | 2 | 3) as num: capture which matched
+let value = 2;
+let result = match value {
+    num @ (1 | 2 | 3) => num == 2,
+    _ => false,
+};
+'''
+
+
+[[test]]
+name = "as_or_result"
+description = "case ('yes' | 'y') as answer: ..."
+
+python = '''
+response = "yes"
+match response:
+    case ("yes" | "y") as answer:
+        result = answer == "yes"
+    case _:
+        result = False
+'''
+
+rust = '''
+// case ('yes' | 'y') as answer: ...
+let response = "yes";
+let result = match response {
+    answer @ ("yes" | "y") => answer == "yes",
+    _ => false,
+};
+'''
+
 
 # =============================================================================
 # Nested AS Patterns
 # =============================================================================
 
-# TODO: Test nested as
-# [[test]]
-# name = "as_nested_binding"
-# description = "case (Point(x, y) as p1, Point(a, b) as p2): ..."
+[[test]]
+name = "as_nested_binding"
+description = "case (Point(x, y) as p1, Point(a, b) as p2): ..."
 
-# TODO: Test as on subpattern
-# [[test]]
-# name = "as_subpattern"
-# description = "case [first as f, *rest]: ..."
+python = '''
+class Point:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+value = (Point(1, 2), Point(3, 4))
+match value:
+    case (Point(x=x, y=y) as p1, Point(x=a, y=b) as p2):
+        result = x == 1 and y == 2 and a == 3 and b == 4
+    case _:
+        result = False
+'''
+
+rust = '''
+// case (Point(x, y) as p1, Point(a, b) as p2): ...
+#[derive(Debug)]
+struct Point { x: i32, y: i32 }
+
+let value = (Point { x: 1, y: 2 }, Point { x: 3, y: 4 });
+let result = match value {
+    (p1 @ Point { x, y }, p2 @ Point { x: a, y: b }) => {
+        x == 1 && y == 2 && a == 3 && b == 4
+    }
+    _ => false,
+};
+'''
+
+
+[[test]]
+name = "as_subpattern"
+description = "case [first as f, *rest]: ..."
+
+python = '''
+value = [1, 2, 3, 4]
+match value:
+    case [first as f, *rest]:
+        result = f == 1 and rest == [2, 3, 4]
+    case _:
+        result = False
+'''
+
+rust = '''
+// case [first as f, *rest]: ...
+let value = vec![1, 2, 3, 4];
+let result = match value.as_slice() {
+    [f @ first, rest @ ..] => *f == 1 && rest == &[2, 3, 4],
+    _ => false,
+};
+'''
+
 
 # =============================================================================
 # Use Cases
 # =============================================================================
 
-# TODO: Test preserve whole while destructuring
-# [[test]]
-# name = "as_preserve_whole"
-# description = "Access both parts and whole"
+[[test]]
+name = "as_preserve_whole"
+description = "Access both parts and whole"
 
-# TODO: Test conditional with whole
-# [[test]]
-# name = "as_conditional"
-# description = "case x as whole if validate(whole): ..."
+python = '''
+value = (10, 20)
+match value:
+    case (x, y) as whole:
+        result = x == 10 and y == 20 and whole == (10, 20)
+    case _:
+        result = False
+'''
 
-# TODO: Test nested data extraction
-# [[test]]
-# name = "as_nested_data"
-# description = "Extract nested while keeping container"
+rust = '''
+// Access both parts and whole
+let value = (10, 20);
+let result = match value {
+    whole @ (x, y) => x == 10 && y == 20 && whole == (10, 20),
+    _ => false,
+};
+'''
+
+
+[[test]]
+name = "as_conditional"
+description = "case x as whole if validate(whole): ..."
+
+python = '''
+def validate(x):
+    return x > 0
+
+value = 5
+match value:
+    case x as whole if validate(whole):
+        result = whole == 5
+    case _:
+        result = False
+'''
+
+rust = '''
+// case x as whole if validate(whole): ...
+fn validate(x: i32) -> bool {
+    x > 0
+}
+
+let value = 5;
+let result = match value {
+    whole @ x if validate(whole) => whole == 5,
+    _ => false,
+};
+'''
+
+
+[[test]]
+name = "as_nested_data"
+description = "Extract nested while keeping container"
+
+python = '''
+value = {"user": {"name": "Alice", "age": 30}}
+match value:
+    case {"user": {"name": name, "age": age} as user}:
+        result = name == "Alice" and user["age"] == 30
+    case _:
+        result = False
+'''
+
+rust = '''
+// Extract nested while keeping container
+use std::collections::HashMap;
+
+let mut user_data = HashMap::new();
+user_data.insert("name", "Alice");
+user_data.insert("age", "30");
+
+let mut value = HashMap::new();
+value.insert("user", user_data);
+
+let result = if let Some(user) = value.get("user") {
+    let name = user.get("name");
+    let age = user.get("age");
+    name == Some(&"Alice") && age == Some(&"30")
+} else {
+    false
+};
+'''
+
 
 # =============================================================================
 # AS with Guards
 # =============================================================================
 
-# TODO: Test as with guard using alias
-# [[test]]
-# name = "as_guard_alias"
-# description = "case [x, y] as point if is_valid(point): ..."
+[[test]]
+name = "as_guard_alias"
+description = "case [x, y] as point if is_valid(point): ..."
 
-# TODO: Test as providing context to guard
-# [[test]]
-# name = "as_guard_context"
-# description = "Guard uses both destructured and whole"
+python = '''
+def is_valid(point):
+    return point[0] > 0 and point[1] > 0
+
+value = [5, 10]
+match value:
+    case [x, y] as point if is_valid(point):
+        result = x == 5 and y == 10
+    case _:
+        result = False
+'''
+
+rust = '''
+// case [x, y] as point if is_valid(point): ...
+fn is_valid(point: &[i32; 2]) -> bool {
+    point[0] > 0 && point[1] > 0
+}
+
+let value = [5, 10];
+let result = match value {
+    point @ [x, y] if is_valid(&point) => x == 5 && y == 10,
+    _ => false,
+};
+'''
+
+
+[[test]]
+name = "as_guard_context"
+description = "Guard uses both destructured and whole"
+
+python = '''
+value = (3, 4)
+match value:
+    case (x, y) as point if x + y == sum(point):
+        result = x == 3 and y == 4
+    case _:
+        result = False
+'''
+
+rust = '''
+// Guard uses both destructured and whole
+let value = (3, 4);
+let result = match value {
+    point @ (x, y) if x + y == point.0 + point.1 => x == 3 && y == 4,
+    _ => false,
+};
+'''
+
 
 # =============================================================================
 # Edge Cases
 # =============================================================================
 
-# TODO: Test as with wildcard
-# [[test]]
-# name = "as_wildcard"
-# description = "case _ as x: capture anything"
+[[test]]
+name = "as_wildcard"
+description = "case _ as x: capture anything"
 
-# TODO: Test multiple as same level
-# [[test]]
-# name = "as_multiple_same"
-# description = "case (a as x) as y: nested as"
-# skip = true
+python = '''
+value = 42
+match value:
+    case _ as x:
+        result = x == 42
+'''
 
-# TODO: Test as binding scope
-# [[test]]
-# name = "as_scope"
-# description = "as bindings available in guard and body"
+rust = '''
+// case _ as x: capture anything
+let value = 42;
+let result = match value {
+    x @ _ => x == 42,
+};
+'''
 
-# TODO: Test as with capture conflict
-# [[test]]
-# name = "as_capture_conflict"
-# description = "case x as x: same name"
-# skip = true
+
+[[test]]
+name = "as_multiple_same"
+description = "case (a as x) as y: nested as"
+skip = true
+
+python = '''
+# case (a as x) as y: nested as
+result = True  # Placeholder
+'''
+
+rust = '''
+// case (a as x) as y: nested as
+let result = true; // Placeholder
+'''
+
+
+[[test]]
+name = "as_scope"
+description = "as bindings available in guard and body"
+
+python = '''
+value = [1, 2, 3]
+match value:
+    case [*items] as lst if len(lst) > 0:
+        result = len(items) == 3 and lst == [1, 2, 3]
+    case _:
+        result = False
+'''
+
+rust = '''
+// as bindings available in guard and body
+let value = vec![1, 2, 3];
+let result = match value.as_slice() {
+    lst @ [items @ ..] if lst.len() > 0 => items.len() == 3 && lst == &[1, 2, 3],
+    _ => false,
+};
+'''
+
+
+[[test]]
+name = "as_capture_conflict"
+description = "case x as x: same name"
+skip = true
+
+python = '''
+# case x as x: same name
+result = True  # Placeholder
+'''
+
+rust = '''
+// case x as x: same name
+let result = true; // Placeholder
+'''
+

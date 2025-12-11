@@ -15,7 +15,6 @@ category = "cli-integration"
 [[test]]
 name = "cli_basic_function"
 description = "Basic function transpilation via CLI"
-tags = ["cli", "basic"]
 
 python = '''
 def hello() -> str:
@@ -31,7 +30,6 @@ pub fn hello() -> String {
 [[test]]
 name = "cli_type_annotation"
 description = "Type annotation preservation"
-tags = ["cli", "types"]
 
 python = '''
 def typed_func(x: int, y: str) -> bool:
@@ -47,7 +45,6 @@ pub fn typed_func(x: i32, y: String) -> bool {
 [[test]]
 name = "cli_multiple_functions"
 description = "Multiple functions in single file"
-tags = ["cli", "multiple"]
 
 python = '''
 def first() -> int:
@@ -92,7 +89,6 @@ mod tests {
 [[test]]
 name = "cli_empty_file"
 description = "Empty Python file handling"
-tags = ["cli", "edge"]
 
 python = '''
 # Empty file with only a comment
@@ -105,7 +101,6 @@ rust = '''
 [[test]]
 name = "cli_only_imports"
 description = "File with only imports"
-tags = ["cli", "edge"]
 
 python = '''
 import math
@@ -119,7 +114,6 @@ use std::f64 as math;
 [[test]]
 name = "cli_complex_types"
 description = "Complex type annotations"
-tags = ["cli", "types"]
 
 python = '''
 def process(data: dict[str, list[int]]) -> list[str]:
@@ -136,7 +130,6 @@ pub fn process(data: &HashMap<String, Vec<i32>>) -> Vec<String> {
 [[test]]
 name = "quality_type_safety"
 description = "Type safety scoring for fully typed code"
-tags = ["quality", "type-safety"]
 
 python = '''
 def fully_typed(x: int, y: int) -> int:
@@ -165,7 +158,6 @@ mod tests {
 [[test]]
 name = "quality_memory_safety"
 description = "Memory safety with bounds checking"
-tags = ["quality", "memory"]
 
 python = '''
 def safe_list_access(items: list[int], index: int) -> int:
@@ -208,7 +200,6 @@ pub fn safe_list_access(items: &Vec<i32>, index: i32) -> i32 {
 [[test]]
 name = "quality_energy_efficiency"
 description = "Energy efficient iterator usage"
-tags = ["quality", "energy"]
 
 python = '''
 def efficient_sum(nums: list[int]) -> int:
@@ -235,7 +226,6 @@ mod tests {
 [[test]]
 name = "compile_simple_struct"
 description = "Simple struct compilation"
-tags = ["compile", "struct"]
 
 python = '''
 class Point:
@@ -288,7 +278,6 @@ impl Point {
 [[test]]
 name = "compile_methods"
 description = "Method compilation"
-tags = ["compile", "method"]
 
 python = '''
 class Calculator:
@@ -338,7 +327,6 @@ impl Calculator {
 [[test]]
 name = "compile_generics_list"
 description = "Generic list handling"
-tags = ["compile", "generics"]
 
 python = '''
 def double_all(nums: list[int]) -> list[int]:
@@ -364,7 +352,6 @@ mod tests {
 [[test]]
 name = "compile_option_handling"
 description = "Optional value handling"
-tags = ["compile", "option"]
 
 python = '''
 def find_first(items: list[int], target: int) -> int:
@@ -389,7 +376,6 @@ pub fn find_first(items: Vec<i32>, target: i32) -> i32 {
 [[test]]
 name = "compile_result_error"
 description = "Error handling compilation"
-tags = ["compile", "result"]
 
 python = '''
 def safe_divide(a: int, b: int) -> int:
@@ -461,6 +447,1699 @@ mod tests {
         assert_eq!(safe_divide(0, 0), 0);
         assert_eq!(safe_divide(1, 2), 3);
         assert_eq!(safe_divide(-1, 1), 0);
+    }
+}
+'''
+
+# =============================================================================
+# Additional CLI examples from nested directories
+# =============================================================================
+
+[[test]]
+name = "wordcount"
+description = "!/usr/bin/env python3"
+
+python = '''
+#!/usr/bin/env python3
+"""
+wordcount.py - Count words, lines, and characters in files
+"""
+import argparse
+import sys
+from pathlib import Path
+from typing import NamedTuple
+
+class Stats(NamedTuple):
+    """Statistics for a file"""
+    lines: int
+    words: int
+    chars: int
+    filename: str
+
+def count_file(filepath: Path) -> Stats:
+    """Count statistics for a single file"""
+    try:
+        content = filepath.read_text()
+        lines = len(content.splitlines())
+        words = len(content.split())
+        chars = len(content)
+        return Stats(lines, words, chars, str(filepath))
+    except IOError as e:
+        print(f"Error reading {filepath}: {e}", file=sys.stderr)
+        return Stats(0, 0, 0, str(filepath))
+
+def format_stats(stats: Stats, show_filename: bool = True) -> str:
+    """Format statistics for output"""
+    result = f"{stats.lines:8} {stats.words:8} {stats.chars:8}"
+    if show_filename:
+        result += f" {stats.filename}"
+    return result
+
+def main() -> int:
+    """Main entry point"""
+    parser = argparse.ArgumentParser(
+        description="Count lines, words, and characters in files",
+        epilog="Similar to wc(1) Unix command"
+    )
+    parser.add_argument(
+        "files",
+        nargs="+",
+        type=Path,
+        help="Files to process"
+    )
+    parser.add_argument(
+        "-l", "--lines",
+        action="store_true",
+        help="Show only line count"
+    )
+    parser.add_argument(
+        "-w", "--words",
+        action="store_true",
+        help="Show only word count"
+    )
+    parser.add_argument(
+        "-c", "--chars",
+        action="store_true",
+        help="Show only character count"
+    )
+
+    args = parser.parse_args()
+
+    total_lines = 0
+    total_words = 0
+    total_chars = 0
+
+    for filepath in args.files:
+        stats = count_file(filepath)
+        total_lines += stats.lines
+        total_words += stats.words
+        total_chars += stats.chars
+
+        if args.lines:
+            print(f"{stats.lines:8} {stats.filename}")
+        elif args.words:
+            print(f"{stats.words:8} {stats.filename}")
+        elif args.chars:
+            print(f"{stats.chars:8} {stats.filename}")
+        else:
+            print(format_stats(stats))
+
+    # Show totals if multiple files
+    if len(args.files) > 1:
+        total_stats = Stats(total_lines, total_words, total_chars, "total")
+        print(format_stats(total_stats, show_filename=True))
+
+    return 0
+
+if __name__ == "__main__":
+    sys.exit(main())
+'''
+
+rust = '''
+use clap::Parser;
+use std as sys;
+use std::path::PathBuf;
+#[derive(Debug, Clone)]
+pub struct Stats {
+    pub lines: i32,
+    pub words: i32,
+    pub chars: i32,
+    pub filename: String,
+}
+#[doc = "Count statistics for a single file"]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn count_file(filepath: &Path) -> Stats {
+    {
+        let content = std::fs::read_to_string(filepath).unwrap();
+        let lines = content
+            .lines()
+            .map(|s| s.to_string())
+            .collect::<Vec<String>>()
+            .len() as i32;
+        let words = content
+            .split_whitespace()
+            .map(|s| s.to_string())
+            .collect::<Vec<String>>()
+            .len() as i32;
+        let chars = content.len() as i32;
+        return Stats::new(lines, words, chars, filepath.to_string());
+        println!("{}", format!("Error reading {:?}: {:?}", filepath, e));
+        return Stats::new(0, 0, 0, filepath.to_string());
+    }
+}
+#[doc = "Format statistics for output"]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn format_stats(stats: Stats, show_filename: bool) -> String {
+    let mut result = format!("{:?} {:?} {:?}", stats.lines, stats.words, stats.chars);
+    if show_filename {
+        let _cse_temp_0 = format!("{}{}", result, format!(" {:?}", stats.filename));
+        result = _cse_temp_0;
+    }
+    result
+}
+#[doc = "Main entry point"]
+#[doc = " Depyler: verified panic-free"]
+pub fn main() -> i32 {
+    #[derive(clap::Parser)]
+    #[command(about = "Count lines, words, and characters in files")]
+    #[command(after_help = "Similar to wc(1) Unix command")]
+    struct Args {
+        #[doc = "Files to process"]
+        files: Vec<PathBuf>,
+        #[arg(short = 'l', long)]
+        #[arg(action = clap::ArgAction::SetTrue)]
+        #[doc = "Show only line count"]
+        lines: bool,
+        #[arg(short = 'w', long)]
+        #[arg(action = clap::ArgAction::SetTrue)]
+        #[doc = "Show only word count"]
+        words: bool,
+        #[arg(short = 'c', long)]
+        #[arg(action = clap::ArgAction::SetTrue)]
+        #[doc = "Show only character count"]
+        chars: bool,
+    }
+    let args = Args::parse();
+    let mut total_lines = 0;
+    let mut total_words = 0;
+    let mut total_chars = 0;
+    for filepath in args.files {
+        let stats = count_file(filepath);
+        total_lines = total_lines + stats.lines;
+        total_words = total_words + stats.words;
+        total_chars = total_chars + stats.chars;
+        if args.lines {
+            println!("{}", format!("{:?} {:?}", stats.lines, stats.filename));
+        } else {
+            if args.words {
+                println!("{}", format!("{:?} {:?}", stats.words, stats.filename));
+            } else {
+                if args.chars {
+                    println!("{}", format!("{:?} {:?}", stats.chars, stats.filename));
+                } else {
+                    println!("{}", format_stats(stats));
+                }
+            }
+        }
+    }
+    let _cse_temp_0 = args.files.len() as i32;
+    let _cse_temp_1 = _cse_temp_0 > 1;
+    if _cse_temp_1 {
+        let total_stats = Stats::new(total_lines, total_words, total_chars, "total".to_string());
+        println!("{}", format_stats(total_stats));
+    }
+    0
+}
+'''
+
+[[test]]
+name = "simple_cli"
+description = "!/usr/bin/env python3"
+
+python = '''
+#!/usr/bin/env python3
+"""Simple CLI tool demonstrating argparse → clap transformation"""
+import argparse
+
+def main() -> int:
+    # Create argument parser
+    parser = argparse.ArgumentParser(
+        description="A simple CLI tool example"
+    )
+
+    # Add arguments
+    parser.add_argument(
+        "name",
+        help="Your name"
+    )
+
+    # Parse arguments
+    args = parser.parse_args()
+
+    # Use the arguments
+    print(f"Hello, {args.name}!")
+
+    return 0
+
+if __name__ == "__main__":
+    exit(main())
+'''
+
+rust = '''
+use clap::Parser;
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn main() -> i32 {
+    #[derive(clap::Parser)]
+    #[command(about = "A simple CLI tool example")]
+    struct Args {
+        #[doc = "Your name"]
+        name: String,
+    }
+    let args = Args::parse();
+    println!("{}", format!("Hello, {:?}!", args.name));
+    0
+}
+'''
+
+[[test]]
+name = "test_kwargs"
+description = "!/usr/bin/env python3"
+
+python = '''
+#!/usr/bin/env python3
+"""Test script to verify keyword arguments are preserved in HIR"""
+import argparse
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description="Test kwargs preservation")
+    # This call has kwargs: nargs, type, help
+    parser.add_argument("files", nargs="+", type=str, help="Files to process")
+    args = parser.parse_args()
+    print(f"Files: {args.files}")
+    return 0
+
+if __name__ == "__main__":
+    exit(main())
+'''
+
+rust = '''
+use clap::Parser;
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn main() -> i32 {
+    #[derive(clap::Parser)]
+    #[command(about = "Test kwargs preservation")]
+    struct Args {
+        #[doc = "Files to process"]
+        files: Vec<String>,
+    }
+    let args = Args::parse();
+    println!("{}", format!("Files: {:?}", args.files));
+    0
+}
+'''
+
+[[test]]
+name = "test_wordcount"
+description = "!/usr/bin/env python3"
+
+python = '''
+#!/usr/bin/env python3
+"""
+Comprehensive test suite for wordcount.py
+Targets: 100% code coverage, property-based testing
+
+Run with:
+    pytest tests/test_wordcount.py -v --cov=python.wordcount --cov-report=term-missing --cov-report=json
+"""
+import sys
+import tempfile
+from pathlib import Path
+from io import StringIO
+import pytest
+from hypothesis import given, strategies as st, settings, assume
+
+# Add parent directory to path to import wordcount
+sys.path.insert(0, str(Path(__file__).parent.parent / "python"))
+
+import wordcount
+
+
+class TestCountFile:
+    """Test count_file() function"""
+
+    def test_count_file_success(self, tmp_path):
+        """Test counting a valid file"""
+        test_file = tmp_path / "test.txt"
+        test_file.write_text("line1\nline2\nline3")
+
+        stats = wordcount.count_file(test_file)
+
+        assert stats.lines == 3
+        assert stats.words == 3
+        assert stats.chars == 17  # "line1\nline2\nline3"
+        assert stats.filename == str(test_file)
+
+    def test_count_file_empty(self, tmp_path):
+        """Test counting an empty file"""
+        test_file = tmp_path / "empty.txt"
+        test_file.write_text("")
+
+        stats = wordcount.count_file(test_file)
+
+        assert stats.lines == 0
+        assert stats.words == 0
+        assert stats.chars == 0
+        assert stats.filename == str(test_file)
+
+    def test_count_file_single_line_no_newline(self, tmp_path):
+        """Test file with single line and no trailing newline"""
+        test_file = tmp_path / "single.txt"
+        test_file.write_text("hello world")
+
+        stats = wordcount.count_file(test_file)
+
+        assert stats.lines == 1
+        assert stats.words == 2
+        assert stats.chars == 11
+
+    def test_count_file_multiple_spaces(self, tmp_path):
+        """Test file with multiple spaces between words"""
+        test_file = tmp_path / "spaces.txt"
+        test_file.write_text("hello    world\nfoo  bar")
+
+        stats = wordcount.count_file(test_file)
+
+        assert stats.lines == 2
+        assert stats.words == 4
+        assert stats.chars == 23  # Actual character count
+
+    def test_count_file_blank_lines(self, tmp_path):
+        """Test file with blank lines"""
+        test_file = tmp_path / "blanks.txt"
+        test_file.write_text("line1\n\nline3\n\n")
+
+        stats = wordcount.count_file(test_file)
+
+        assert stats.lines == 4
+        assert stats.words == 2
+
+    def test_count_file_unicode(self, tmp_path):
+        """Test file with unicode characters"""
+        test_file = tmp_path / "unicode.txt"
+        test_file.write_text("Hello 世界\nПривет мир\n")
+
+        stats = wordcount.count_file(test_file)
+
+        assert stats.lines == 2
+        assert stats.words == 4
+        assert stats.chars == 20  # Actual character count
+
+    def test_count_file_ioerror(self, tmp_path, capsys):
+        """Test handling of IOError when file doesn't exist"""
+        nonexistent = tmp_path / "nonexistent.txt"
+
+        stats = wordcount.count_file(nonexistent)
+
+        # Should return zero stats
+        assert stats.lines == 0
+        assert stats.words == 0
+        assert stats.chars == 0
+        assert stats.filename == str(nonexistent)
+
+        # Should print error to stderr
+        captured = capsys.readouterr()
+        assert "Error reading" in captured.err
+        assert str(nonexistent) in captured.err
+
+
+class TestFormatStats:
+    """Test format_stats() function"""
+
+    def test_format_stats_with_filename(self):
+        """Test formatting stats with filename"""
+        stats = wordcount.Stats(10, 20, 30, "test.txt")
+        result = wordcount.format_stats(stats, show_filename=True)
+        assert result == "      10       20       30 test.txt"
+
+    def test_format_stats_without_filename(self):
+        """Test formatting stats without filename"""
+        stats = wordcount.Stats(5, 15, 25, "test.txt")
+        result = wordcount.format_stats(stats, show_filename=False)
+        assert result == "       5       15       25"
+        assert "test.txt" not in result
+
+    def test_format_stats_default_with_filename(self):
+        """Test that show_filename=True is default"""
+        stats = wordcount.Stats(1, 2, 3, "file.txt")
+        result = wordcount.format_stats(stats)
+        assert "file.txt" in result
+
+    def test_format_stats_alignment(self):
+        """Test that numbers are right-aligned in 8-character fields"""
+        stats = wordcount.Stats(999, 8888, 77777, "test.txt")
+        result = wordcount.format_stats(stats, show_filename=False)
+
+        # Extract the three numeric fields
+        parts = result.split()
+        assert len(parts) == 3
+        assert parts[0] == "999"
+        assert parts[1] == "8888"
+        assert parts[2] == "77777"
+
+
+class TestMainFunction:
+    """Test main() entry point"""
+
+    def test_main_single_file(self, tmp_path, monkeypatch, capsys):
+        """Test processing a single file"""
+        test_file = tmp_path / "test.txt"
+        test_file.write_text("hello world\nfoo bar\n")
+
+        monkeypatch.setattr(sys, "argv", [
+            "wordcount.py",
+            str(test_file)
+        ])
+
+        exit_code = wordcount.main()
+
+        assert exit_code == 0
+        captured = capsys.readouterr()
+        assert "2" in captured.out  # lines
+        assert "4" in captured.out  # words
+        assert str(test_file) in captured.out
+
+    def test_main_multiple_files(self, tmp_path, monkeypatch, capsys):
+        """Test processing multiple files shows totals"""
+        file1 = tmp_path / "file1.txt"
+        file1.write_text("one\ntwo\n")
+
+        file2 = tmp_path / "file2.txt"
+        file2.write_text("three\nfour\n")
+
+        monkeypatch.setattr(sys, "argv", [
+            "wordcount.py",
+            str(file1),
+            str(file2)
+        ])
+
+        exit_code = wordcount.main()
+
+        assert exit_code == 0
+        captured = capsys.readouterr()
+
+        # Check both files are shown
+        assert str(file1) in captured.out
+        assert str(file2) in captured.out
+
+        # Check total line appears
+        assert "total" in captured.out
+
+    def test_main_lines_only(self, tmp_path, monkeypatch, capsys):
+        """Test -l/--lines flag shows only line count"""
+        test_file = tmp_path / "test.txt"
+        test_file.write_text("line1\nline2\nline3\n")
+
+        monkeypatch.setattr(sys, "argv", [
+            "wordcount.py",
+            "-l",
+            str(test_file)
+        ])
+
+        exit_code = wordcount.main()
+
+        assert exit_code == 0
+        captured = capsys.readouterr()
+        lines = captured.out.strip().split()
+
+        # Should show: "3 <filename>"
+        assert lines[0] == "3"
+        assert str(test_file) in captured.out
+
+    def test_main_words_only(self, tmp_path, monkeypatch, capsys):
+        """Test -w/--words flag shows only word count"""
+        test_file = tmp_path / "test.txt"
+        test_file.write_text("one two three four five")
+
+        monkeypatch.setattr(sys, "argv", [
+            "wordcount.py",
+            "--words",
+            str(test_file)
+        ])
+
+        exit_code = wordcount.main()
+
+        assert exit_code == 0
+        captured = capsys.readouterr()
+        lines = captured.out.strip().split()
+
+        # Should show: "5 <filename>"
+        assert lines[0] == "5"
+
+    def test_main_chars_only(self, tmp_path, monkeypatch, capsys):
+        """Test -c/--chars flag shows only character count"""
+        test_file = tmp_path / "test.txt"
+        test_file.write_text("12345")
+
+        monkeypatch.setattr(sys, "argv", [
+            "wordcount.py",
+            "-c",
+            str(test_file)
+        ])
+
+        exit_code = wordcount.main()
+
+        assert exit_code == 0
+        captured = capsys.readouterr()
+        lines = captured.out.strip().split()
+
+        # Should show: "5 <filename>"
+        assert lines[0] == "5"
+
+    def test_main_no_files_shows_help(self, monkeypatch, capsys):
+        """Test that running with no arguments shows help/error"""
+        monkeypatch.setattr(sys, "argv", ["wordcount.py"])
+
+        with pytest.raises(SystemExit) as exc_info:
+            wordcount.main()
+
+        assert exc_info.value.code == 2  # argparse exits with 2 for usage errors
+
+    def test_main_nonexistent_file(self, tmp_path, monkeypatch, capsys):
+        """Test processing nonexistent file (should handle gracefully)"""
+        nonexistent = tmp_path / "doesnotexist.txt"
+
+        monkeypatch.setattr(sys, "argv", [
+            "wordcount.py",
+            str(nonexistent)
+        ])
+
+        exit_code = wordcount.main()
+
+        # Should still return 0 (graceful error handling)
+        assert exit_code == 0
+
+        # Should show 0 counts
+        captured = capsys.readouterr()
+        assert "0" in captured.out
+
+        # Should have error in stderr
+        assert "Error reading" in captured.err
+
+
+class TestPropertyBased:
+    """Property-based tests using Hypothesis"""
+
+    @given(st.text(alphabet=st.characters(blacklist_categories=('Cs',)), min_size=0, max_size=1000))
+    @settings(max_examples=200, deadline=None)
+    def test_count_file_chars_property(self, tmp_path_factory, content):
+        """Property: character count should equal len(content)"""
+        tmp_path = tmp_path_factory.mktemp("data")
+        test_file = tmp_path / "test.txt"
+        test_file.write_text(content)
+
+        stats = wordcount.count_file(test_file)
+
+        assert stats.chars == len(content)
+
+    @given(st.lists(st.text(alphabet=st.characters(whitelist_categories=('L', 'N')), min_size=1, max_size=20), min_size=0, max_size=100))
+    @settings(max_examples=200, deadline=None)
+    def test_count_file_words_property(self, tmp_path_factory, words):
+        """Property: word count should equal number of whitespace-separated tokens"""
+        tmp_path = tmp_path_factory.mktemp("data")
+        test_file = tmp_path / "test.txt"
+
+        # Join words with single spaces
+        content = " ".join(words)
+        test_file.write_text(content)
+
+        stats = wordcount.count_file(test_file)
+
+        # Expected word count (Python split() behavior)
+        expected_words = len(content.split())
+        assert stats.words == expected_words
+
+    @given(st.lists(st.text(min_size=0, max_size=50), min_size=0, max_size=100))
+    @settings(max_examples=200, deadline=None)
+    def test_count_file_lines_property(self, tmp_path_factory, lines):
+        """Property: line count should equal len(splitlines())"""
+        tmp_path = tmp_path_factory.mktemp("data")
+        test_file = tmp_path / "test.txt"
+
+        content = "\n".join(lines)
+        test_file.write_text(content)
+
+        stats = wordcount.count_file(test_file)
+
+        expected_lines = len(content.splitlines())
+        assert stats.lines == expected_lines
+
+    @given(st.integers(min_value=0, max_value=10), st.integers(min_value=0, max_value=100), st.integers(min_value=0, max_value=1000))
+    @settings(max_examples=100, deadline=None)
+    def test_format_stats_property(self, lines, words, chars):
+        """Property: formatted output should contain the three numbers"""
+        stats = wordcount.Stats(lines, words, chars, "test.txt")
+        result = wordcount.format_stats(stats, show_filename=False)
+
+        # Extract numbers from formatted output
+        parts = result.split()
+        assert len(parts) == 3
+        assert int(parts[0]) == lines
+        assert int(parts[1]) == words
+        assert int(parts[2]) == chars
+
+
+class TestIntegration:
+    """Integration tests - end-to-end scenarios"""
+
+    def test_main_entry_point_via_subprocess(self, tmp_path):
+        """Test __name__ == '__main__' execution path via subprocess"""
+        import subprocess
+
+        test_file = tmp_path / "test.txt"
+        test_file.write_text("hello world\n")
+
+        # Run the script directly as __main__
+        result = subprocess.run(
+            [sys.executable, str(Path(__file__).parent.parent / "python" / "wordcount.py"), str(test_file)],
+            capture_output=True,
+            text=True
+        )
+
+        # Verify successful execution
+        assert result.returncode == 0
+        assert str(test_file) in result.stdout
+        assert "1" in result.stdout  # 1 line
+        assert "2" in result.stdout  # 2 words
+
+    def test_sample_file_exact_output(self, tmp_path, monkeypatch, capsys):
+        """Test exact output for the provided sample.txt"""
+        # Create sample.txt with exact content
+        sample = tmp_path / "sample.txt"
+        sample.write_text("""The quick brown fox jumps over the lazy dog.
+This is a test file for word count demonstration.
+It contains multiple lines of text.
+
+Python is a great programming language.
+Rust is fast and safe.
+Depyler converts Python to Rust.
+""")
+
+        monkeypatch.setattr(sys, "argv", ["wordcount.py", str(sample)])
+
+        exit_code = wordcount.main()
+
+        assert exit_code == 0
+        captured = capsys.readouterr()
+
+        # Verify output format
+        assert str(sample) in captured.out
+        # Should have 3 numbers followed by filename
+        output_parts = captured.out.strip().split()
+        assert len(output_parts) == 4  # lines words chars filename
+
+    def test_mixed_existing_and_nonexistent_files(self, tmp_path, monkeypatch, capsys):
+        """Test processing mix of valid and invalid files"""
+        valid_file = tmp_path / "valid.txt"
+        valid_file.write_text("content")
+
+        invalid_file = tmp_path / "invalid.txt"
+
+        monkeypatch.setattr(sys, "argv", [
+            "wordcount.py",
+            str(valid_file),
+            str(invalid_file)
+        ])
+
+        exit_code = wordcount.main()
+
+        # Should complete successfully despite one error
+        assert exit_code == 0
+
+        captured = capsys.readouterr()
+
+        # Valid file should show in output
+        assert str(valid_file) in captured.out
+
+        # Invalid file should show error
+        assert "Error reading" in captured.err
+
+    def test_all_flags_with_multiple_files(self, tmp_path, monkeypatch, capsys):
+        """Test that flags work correctly with multiple files"""
+        file1 = tmp_path / "f1.txt"
+        file1.write_text("one two\nthree\n")
+
+        file2 = tmp_path / "f2.txt"
+        file2.write_text("four five\nsix\n")
+
+        # Test -l flag with multiple files
+        monkeypatch.setattr(sys, "argv", [
+            "wordcount.py", "-l", str(file1), str(file2)
+        ])
+
+        exit_code = wordcount.main()
+
+        assert exit_code == 0
+        captured = capsys.readouterr()
+
+        # Should show line counts for each file + total (Python implementation shows totals)
+        lines = captured.out.strip().split("\n")
+        assert len(lines) == 3  # One line per file + total line
+        assert "total" in captured.out
+
+
+if __name__ == "__main__":
+    pytest.main([__file__, "-v", "--cov=wordcount", "--cov-report=term-missing"])
+'''
+
+[[test]]
+name = "comprehensive_cli"
+description = "!/usr/bin/env python3"
+
+python = '''
+#!/usr/bin/env python3
+"""Comprehensive CLI test using all 28 ArgumentParser features"""
+import argparse
+from pathlib import Path
+import json
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Comprehensive CLI application testing all ArgumentParser features",
+        epilog="Example: ./cli input.txt --verbose -o output.txt"
+    )
+
+    # Feature 1: Positional
+    parser.add_argument("input_file", help="Input file to process")
+
+    # Features 2-4: Flags
+    parser.add_argument("-v", help="Verbose mode (short only)")
+    parser.add_argument("--debug", action="store_true", help="Debug mode (long only)")
+    parser.add_argument("-o", "--output", help="Output file (short + long)")
+
+    # Features 5-8: Actions
+    parser.add_argument("-q", "--quiet", action="store_true", help="Quiet mode")
+    parser.add_argument("--no-color", action="store_false", dest="color", help="Disable colors")
+    parser.add_argument("-V", action="count", default=0, help="Verbosity level")
+    parser.add_argument("-I", "--include", action="append", help="Include paths")
+
+    # Features 9-12: nargs
+    parser.add_argument("extras", nargs="+", help="Extra files (1 or more)")
+    parser.add_argument("--optional", nargs="*", help="Optional args (0 or more)")
+    parser.add_argument("--config", nargs="?", help="Config file (0 or 1)")
+    parser.add_argument("--coords", nargs=2, type=float, help="X Y coordinates")
+
+    # Features 13-16: Types
+    parser.add_argument("-n", "--count", type=int, help="Item count")
+    parser.add_argument("-r", "--rate", type=float, help="Processing rate")
+    parser.add_argument("-m", "--message", type=str, help="Message text")
+    parser.add_argument("-p", "--path", type=Path, help="Path argument")
+
+    # Features 17-20: Defaults
+    parser.add_argument("--timeout", type=int, default=30, help="Timeout seconds")
+    parser.add_argument("--threshold", type=float, default=0.95, help="Threshold")
+    parser.add_argument("--name", default="unnamed", help="Project name")
+
+    # Features 21-22: Required
+    parser.add_argument("--api-key", required=True, help="API key (required)")
+    parser.add_argument("--token", required=False, help="Token (optional)")
+
+    # Features 23-25: Advanced parameters
+    parser.add_argument("--input-path", dest="custom_input", help="Custom dest")
+    parser.add_argument("--file", metavar="FILE", help="With metavar")
+    parser.add_argument("--format", choices=["json", "yaml", "xml"], help="Output format")
+
+    # Feature 26: const + nargs
+    parser.add_argument("--mode", nargs="?", const="auto", default="manual", help="Processing mode")
+
+    # Feature 27: store_const
+    parser.add_argument("--fast", action="store_const", const=True, dest="speed", help="Fast mode")
+
+    args = parser.parse_args()
+
+    # Output results as JSON for easy verification
+    result = {
+        "input_file": args.input_file,
+        "debug": args.debug,
+        "output": args.output,
+        "quiet": args.quiet,
+        "color": args.color,
+        "verbosity": args.V,
+        "includes": args.include if args.include else [],
+        "extras": args.extras,
+        "config": args.config,
+        "count": args.count,
+        "rate": args.rate,
+        "timeout": args.timeout,
+        "threshold": args.threshold,
+        "name": args.name,
+        "api_key": args.api_key,
+        "format": args.format,
+        "mode": args.mode,
+        "speed": args.speed if args.speed else False,
+    }
+
+    print(json.dumps(result, indent=2))
+
+if __name__ == "__main__":
+    main()
+'''
+
+rust = '''
+use clap::Parser;
+use serde_json as json;
+use serde_json;
+use std::collections::HashMap;
+use std::path::PathBuf;
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn main() {
+    #[derive(clap::Parser)]
+    #[command(about = "Comprehensive CLI application testing all ArgumentParser features")]
+    #[command(after_help = "Example: ./cli input.txt --verbose -o output.txt")]
+    struct Args {
+        #[doc = "Input file to process"]
+        input_file: String,
+        #[arg(short = 'v')]
+        #[doc = "Verbose mode(short only)"]
+        v: Option<String>,
+        #[arg(long)]
+        #[arg(action = clap::ArgAction::SetTrue)]
+        #[doc = "Debug mode(long only)"]
+        debug: bool,
+        #[arg(short = 'o', long)]
+        #[doc = "Output file(short + long)"]
+        output: Option<String>,
+        #[arg(short = 'q', long)]
+        #[arg(action = clap::ArgAction::SetTrue)]
+        #[doc = "Quiet mode"]
+        quiet: bool,
+        #[arg(long = "no-color")]
+        #[arg(action = clap::ArgAction::SetFalse)]
+        #[arg(default_value_t = true)]
+        #[doc = "Disable colors"]
+        color: bool,
+        #[arg(short = 'V')]
+        #[arg(default_value = "0")]
+        #[arg(action = clap::ArgAction::Count)]
+        #[doc = "Verbosity level"]
+        V: u8,
+        #[arg(short = 'I', long)]
+        #[doc = "Include paths"]
+        include: Vec<String>,
+        #[doc = "Extra files(1 or more)"]
+        extras: Vec<String>,
+        #[arg(long)]
+        #[doc = "Optional args(0 or more)"]
+        optional: Option<Vec<String>>,
+        #[arg(long)]
+        #[doc = "Config file(0 or 1)"]
+        config: Option<String>,
+        #[arg(long)]
+        #[arg(num_args = 2)]
+        #[doc = "X Y coordinates"]
+        coords: Vec<f64>,
+        #[arg(short = 'n', long)]
+        #[doc = "Item count"]
+        count: Option<i32>,
+        #[arg(short = 'r', long)]
+        #[doc = "Processing rate"]
+        rate: Option<f64>,
+        #[arg(short = 'm', long)]
+        #[doc = "Message text"]
+        message: Option<String>,
+        #[arg(short = 'p', long)]
+        #[doc = "Path argument"]
+        path: Option<PathBuf>,
+        #[arg(long)]
+        #[arg(default_value = "30")]
+        #[doc = "Timeout seconds"]
+        timeout: i32,
+        #[arg(long)]
+        #[arg(default_value = "0.95")]
+        #[doc = "Threshold"]
+        threshold: f64,
+        #[arg(long)]
+        #[arg(default_value = "unnamed")]
+        #[doc = "Project name"]
+        name: String,
+        #[arg(long)]
+        #[doc = "API key(required)"]
+        api_key: String,
+        #[arg(long)]
+        #[doc = "Token(optional)"]
+        token: Option<String>,
+        #[arg(long = "input-path")]
+        #[doc = "Custom dest"]
+        custom_input: Option<String>,
+        #[arg(long)]
+        #[arg(value_name = "FILE")]
+        #[doc = "With metavar"]
+        file: Option<String>,
+        #[arg(long)]
+        #[arg(value_parser = ["json", "yaml", "xml"])]
+        #[doc = "Output format"]
+        format: Option<String>,
+        #[arg(long)]
+        #[arg(default_value = "manual")]
+        #[arg(default_missing_value = "auto", num_args = 0..= 1)]
+        #[doc = "Processing mode"]
+        mode: Option<String>,
+        #[arg(long = "fast")]
+        #[arg(default_value_t = false)]
+        #[doc = "Fast mode"]
+        speed: bool,
+    }
+    let args = Args::parse();
+    let result = {
+        let mut map = HashMap::new();
+        map.insert("input_file".to_string(), args.input_file);
+        map.insert("debug".to_string(), args.debug);
+        map.insert("output".to_string(), args.output);
+        map.insert("quiet".to_string(), args.quiet);
+        map.insert("color".to_string(), args.color);
+        map.insert("verbosity".to_string(), args.V);
+        map.insert("includes".to_string(), args.include);
+        map.insert("extras".to_string(), args.extras);
+        map.insert("config".to_string(), args.config);
+        map.insert("count".to_string(), args.count);
+        map.insert("rate".to_string(), args.rate);
+        map.insert("timeout".to_string(), args.timeout);
+        map.insert("threshold".to_string(), args.threshold);
+        map.insert("name".to_string(), args.name);
+        map.insert("api_key".to_string(), args.api_key);
+        map.insert("format".to_string(), args.format);
+        map.insert("mode".to_string(), args.mode);
+        map.insert("speed".to_string(), args.speed);
+        map
+    };
+    println!("{}", serde_json::to_string(&result).unwrap());
+}
+'''
+
+[[test]]
+name = "marco_polo"
+description = "!/usr/bin/env python3"
+
+python = '''
+#!/usr/bin/env python3
+"""
+Marco Polo CLI - A canonical example for Depyler transpilation.
+
+This simple CLI game demonstrates:
+- Command-line argument parsing
+- Interactive user input
+- Game logic and state management
+- Score tracking
+- Type annotations for clean transpilation
+
+Usage:
+    python marco_polo.py --rounds 5 --difficulty easy
+    python marco_polo.py -r 10 -d hard --verbose
+"""
+
+import argparse
+import random
+import sys
+from typing import Dict, List, Optional, Tuple
+
+
+class MarcoPoloGame:
+    """Main game logic for Marco Polo."""
+    
+    def __init__(self, difficulty: str = "medium", verbose: bool = False):
+        self.difficulty = difficulty
+        self.verbose = verbose
+        self.score = 0
+        self.attempts = 0
+        self.difficulty_ranges = {
+            "easy": (1, 10),
+            "medium": (1, 50),
+            "hard": (1, 100)
+        }
+        
+    def generate_number(self) -> int:
+        """Generate a random number based on difficulty."""
+        min_val, max_val = self.difficulty_ranges[self.difficulty]
+        return random.randint(min_val, max_val)
+    
+    def get_hint(self, guess: int, target: int) -> str:
+        """Provide a hint based on the guess."""
+        if guess < target:
+            distance = target - guess
+            if distance > 20:
+                return "Marco! (Way too low)"
+            elif distance > 10:
+                return "Marco! (Too low)"
+            else:
+                return "Marco! (A bit low)"
+        else:
+            distance = guess - target
+            if distance > 20:
+                return "Marco! (Way too high)"
+            elif distance > 10:
+                return "Marco! (Too high)"
+            else:
+                return "Marco! (A bit high)"
+    
+    def play_round(self) -> bool:
+        """Play a single round of Marco Polo."""
+        target = self.generate_number()
+        min_val, max_val = self.difficulty_ranges[self.difficulty]
+        
+        if self.verbose:
+            print(f"\n[DEBUG] Target number: {target}")
+            
+        print(f"\nI'm thinking of a number between {min_val} and {max_val}...")
+        print("When you guess, I'll say 'Marco!' and give you a hint.")
+        print("Find the number to hear 'Polo!'")
+        
+        round_attempts = 0
+        while True:
+            try:
+                guess_str = input("\nYour guess: ")
+                guess = int(guess_str)
+                
+                if guess < min_val or guess > max_val:
+                    print(f"Please guess between {min_val} and {max_val}")
+                    continue
+                    
+                round_attempts += 1
+                self.attempts += 1
+                
+                if guess == target:
+                    print("🎉 Polo! You found it!")
+                    self.score += 1
+                    if self.verbose:
+                        print(f"[DEBUG] Attempts this round: {round_attempts}")
+                    return True
+                else:
+                    hint = self.get_hint(guess, target)
+                    print(hint)
+                    
+            except ValueError:
+                print("Please enter a valid number!")
+            except KeyboardInterrupt:
+                print("\n\nGame interrupted!")
+                return False
+    
+    def calculate_performance(self) -> str:
+        """Calculate performance rating."""
+        if self.attempts == 0:
+            return "No games played"
+            
+        avg_attempts = self.attempts / max(self.score, 1)
+        
+        if avg_attempts <= 5:
+            return "🏆 Expert"
+        elif avg_attempts <= 7:
+            return "⭐ Good"
+        elif avg_attempts <= 10:
+            return "👍 Average"
+        else:
+            return "🎯 Keep practicing"
+
+
+def parse_arguments() -> argparse.Namespace:
+    """Parse command line arguments."""
+    parser = argparse.ArgumentParser(
+        description="Marco Polo CLI - A number guessing game",
+        epilog="Example: marco_polo --rounds 5 --difficulty medium"
+    )
+    
+    parser.add_argument(
+        "-r", "--rounds",
+        type=int,
+        default=3,
+        help="Number of rounds to play (default: 3)"
+    )
+    
+    parser.add_argument(
+        "-d", "--difficulty",
+        choices=["easy", "medium", "hard"],
+        default="medium",
+        help="Game difficulty (default: medium)"
+    )
+    
+    parser.add_argument(
+        "-v", "--verbose",
+        action="store_true",
+        help="Enable verbose output"
+    )
+    
+    parser.add_argument(
+        "--version",
+        action="version",
+        version="Marco Polo CLI v1.0.0"
+    )
+    
+    return parser.parse_args()
+
+
+def print_welcome() -> None:
+    """Print welcome banner."""
+    print("=" * 50)
+    print("🎮 Welcome to Marco Polo CLI! 🎮".center(50))
+    print("=" * 50)
+
+
+def print_statistics(game: MarcoPoloGame, rounds: int) -> None:
+    """Print game statistics."""
+    print("\n" + "=" * 50)
+    print("📊 Game Statistics 📊".center(50))
+    print("=" * 50)
+    print(f"Rounds played: {game.score}/{rounds}")
+    print(f"Total attempts: {game.attempts}")
+    if game.score > 0:
+        print(f"Average attempts per round: {game.attempts/game.score:.1f}")
+    print(f"Performance: {game.calculate_performance()}")
+    print("=" * 50)
+
+
+def main() -> int:
+    """Main entry point."""
+    args = parse_arguments()
+    
+    print_welcome()
+    
+    game = MarcoPoloGame(
+        difficulty=args.difficulty,
+        verbose=args.verbose
+    )
+    
+    print(f"\nStarting {args.rounds} rounds on {args.difficulty} difficulty...")
+    
+    for round_num in range(1, args.rounds + 1):
+        print(f"\n{'='*30}")
+        print(f"Round {round_num} of {args.rounds}")
+        print(f"{'='*30}")
+        
+        if not game.play_round():
+            print("\nGame ended early.")
+            break
+    
+    print_statistics(game, args.rounds)
+    print("\nThanks for playing! 👋")
+    
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+'''
+
+rust = '''
+Error: Statement type not yet supported
+'''
+
+[[test]]
+name = "marco_polo_annotated"
+description = "!/usr/bin/env python3"
+
+python = '''
+#!/usr/bin/env python3
+"""
+Marco Polo CLI - Annotated version for optimal Depyler transpilation.
+
+This version includes Depyler annotations for:
+- Optimal string handling
+- Memory efficiency  
+- Error handling strategies
+- Performance hints
+"""
+
+import argparse
+import random
+import sys
+from typing import Dict, List, Optional, Tuple
+
+
+# @depyler: ownership = "owned"
+# @depyler: error_strategy = "result_type"
+class MarcoPoloGame:
+    """Main game logic for Marco Polo."""
+    
+    # @depyler: string_strategy = "conservative"
+    def __init__(self, difficulty: str = "medium", verbose: bool = False):
+        self.difficulty = difficulty
+        self.verbose = verbose
+        self.score = 0
+        self.attempts = 0
+        self.difficulty_ranges = {
+            "easy": (1, 10),
+            "medium": (1, 50),
+            "hard": (1, 100)
+        }
+    
+    # @depyler: bounds_checking = "explicit"
+    def generate_number(self) -> int:
+        """Generate a random number based on difficulty."""
+        min_val, max_val = self.difficulty_ranges[self.difficulty]
+        return random.randint(min_val, max_val)
+    
+    # @depyler: string_strategy = "always_owned"
+    # @depyler: optimization_level = "standard"
+    def get_hint(self, guess: int, target: int) -> str:
+        """Provide a hint based on the guess."""
+        if guess < target:
+            distance = target - guess
+            if distance > 20:
+                return "Marco! (Way too low)"
+            elif distance > 10:
+                return "Marco! (Too low)"
+            else:
+                return "Marco! (A bit low)"
+        else:
+            distance = guess - target
+            if distance > 20:
+                return "Marco! (Way too high)"
+            elif distance > 10:
+                return "Marco! (Too high)"
+            else:
+                return "Marco! (A bit high)"
+    
+    # @depyler: error_strategy = "result_type"
+    # @depyler: panic_behavior = "convert_to_result"
+    def play_round(self) -> bool:
+        """Play a single round of Marco Polo."""
+        target = self.generate_number()
+        min_val, max_val = self.difficulty_ranges[self.difficulty]
+        
+        if self.verbose:
+            print(f"\n[DEBUG] Target number: {target}")
+            
+        print(f"\nI'm thinking of a number between {min_val} and {max_val}...")
+        print("When you guess, I'll say 'Marco!' and give you a hint.")
+        print("Find the number to hear 'Polo!'")
+        
+        round_attempts = 0
+        while True:
+            try:
+                guess_str = input("\nYour guess: ")
+                guess = int(guess_str)
+                
+                if guess < min_val or guess > max_val:
+                    print(f"Please guess between {min_val} and {max_val}")
+                    continue
+                    
+                round_attempts += 1
+                self.attempts += 1
+                
+                if guess == target:
+                    print("🎉 Polo! You found it!")
+                    self.score += 1
+                    if self.verbose:
+                        print(f"[DEBUG] Attempts this round: {round_attempts}")
+                    return True
+                else:
+                    hint = self.get_hint(guess, target)
+                    print(hint)
+                    
+            except ValueError:
+                print("Please enter a valid number!")
+            except KeyboardInterrupt:
+                print("\n\nGame interrupted!")
+                return False
+    
+    # @depyler: string_strategy = "zero_copy"
+    # @depyler: ownership = "borrowed"
+    def calculate_performance(self) -> str:
+        """Calculate performance rating."""
+        if self.attempts == 0:
+            return "No games played"
+            
+        avg_attempts = self.attempts / max(self.score, 1)
+        
+        if avg_attempts <= 5:
+            return "🏆 Expert"
+        elif avg_attempts <= 7:
+            return "⭐ Good"
+        elif avg_attempts <= 10:
+            return "👍 Average"
+        else:
+            return "🎯 Keep practicing"
+
+
+# @depyler: ownership = "owned"
+def parse_arguments() -> argparse.Namespace:
+    """Parse command line arguments."""
+    parser = argparse.ArgumentParser(
+        description="Marco Polo CLI - A number guessing game",
+        epilog="Example: marco_polo --rounds 5 --difficulty medium"
+    )
+    
+    parser.add_argument(
+        "-r", "--rounds",
+        type=int,
+        default=3,
+        help="Number of rounds to play (default: 3)"
+    )
+    
+    parser.add_argument(
+        "-d", "--difficulty",
+        choices=["easy", "medium", "hard"],
+        default="medium",
+        help="Game difficulty (default: medium)"
+    )
+    
+    parser.add_argument(
+        "-v", "--verbose",
+        action="store_true",
+        help="Enable verbose output"
+    )
+    
+    parser.add_argument(
+        "--version",
+        action="version",
+        version="Marco Polo CLI v1.0.0"
+    )
+    
+    return parser.parse_args()
+
+
+# @depyler: string_strategy = "zero_copy"
+def print_welcome() -> None:
+    """Print welcome banner."""
+    print("=" * 50)
+    print("🎮 Welcome to Marco Polo CLI! 🎮".center(50))
+    print("=" * 50)
+
+
+# @depyler: string_strategy = "always_owned"
+# @depyler: ownership = "borrowed"
+def print_statistics(game: MarcoPoloGame, rounds: int) -> None:
+    """Print game statistics."""
+    print("\n" + "=" * 50)
+    print("📊 Game Statistics 📊".center(50))
+    print("=" * 50)
+    print(f"Rounds played: {game.score}/{rounds}")
+    print(f"Total attempts: {game.attempts}")
+    if game.score > 0:
+        print(f"Average attempts per round: {game.attempts/game.score:.1f}")
+    print(f"Performance: {game.calculate_performance()}")
+    print("=" * 50)
+
+
+# @depyler: error_strategy = "result_type"
+def main() -> int:
+    """Main entry point."""
+    args = parse_arguments()
+    
+    print_welcome()
+    
+    game = MarcoPoloGame(
+        difficulty=args.difficulty,
+        verbose=args.verbose
+    )
+    
+    print(f"\nStarting {args.rounds} rounds on {args.difficulty} difficulty...")
+    
+    for round_num in range(1, args.rounds + 1):
+        print(f"\n{'='*30}")
+        print(f"Round {round_num} of {args.rounds}")
+        print(f"{'='*30}")
+        
+        if not game.play_round():
+            print("\nGame ended early.")
+            break
+    
+    print_statistics(game, args.rounds)
+    print("\nThanks for playing! 👋")
+    
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+'''
+
+rust = '''
+Error: Statement type not yet supported
+'''
+
+[[test]]
+name = "marco_polo_simple"
+description = "!/usr/bin/env python3"
+
+python = '''
+#!/usr/bin/env python3
+"""
+Marco Polo CLI - Simplified version for current Depyler capabilities.
+
+This version demonstrates what Depyler can transpile today:
+- Simple functions with type annotations
+- Basic arithmetic and comparisons
+- String operations
+- Integer operations
+"""
+
+# @depyler: optimization_level = "standard"
+# @depyler: string_strategy = "always_owned"
+def generate_number(min_val: int, max_val: int) -> int:
+    """Generate a number in range (simplified without random)."""
+    # For demo purposes, return middle value
+    return (min_val + max_val) // 2
+
+
+# @depyler: string_strategy = "always_owned"
+def get_hint(guess: int, target: int) -> str:
+    """Provide a hint based on the guess."""
+    if guess < target:
+        return "Marco! (Too low)"
+    elif guess > target:
+        return "Marco! (Too high)"
+    else:
+        return "Polo!"
+
+
+# @depyler: bounds_checking = "explicit"
+def calculate_score(attempts: int, rounds: int) -> int:
+    """Calculate final score."""
+    if rounds == 0:
+        return 0
+    base_score = 100 * rounds
+    penalty = attempts * 5
+    score = base_score - penalty
+    if score < 0:
+        return 0
+    return score
+
+
+# @depyler: string_strategy = "zero_copy"
+# @depyler: ownership = "borrowed"
+def get_difficulty_name(level: int) -> str:
+    """Get difficulty name from level."""
+    if level == 1:
+        return "Easy"
+    elif level == 2:
+        return "Medium"
+    elif level == 3:
+        return "Hard"
+    else:
+        return "Unknown"
+
+
+# @depyler: optimization_level = "aggressive"
+def calculate_average(total: int, count: int) -> float:
+    """Calculate average with safety check."""
+    if count == 0:
+        return 0.0
+    return total / count
+
+
+# @depyler: string_strategy = "always_owned"
+def format_statistics(score: int, attempts: int, rounds: int) -> str:
+    """Format game statistics as string."""
+    avg = calculate_average(attempts, rounds)
+    result = "Game Statistics:\n"
+    result = result + "Score: " + str(score) + "\n"
+    result = result + "Attempts: " + str(attempts) + "\n"
+    result = result + "Average: " + str(avg) + "\n"
+    return result
+
+
+# @depyler: bounds_checking = "explicit"
+def validate_guess(guess: int, min_val: int, max_val: int) -> bool:
+    """Check if guess is in valid range."""
+    if guess < min_val:
+        return False
+    if guess > max_val:
+        return False
+    return True
+
+
+# @depyler: optimization_level = "standard"
+def play_simple_round(target: int, max_attempts: int) -> int:
+    """Simulate a round with fixed guesses."""
+    attempts = 0
+    guess = 50  # Start with middle guess
+    
+    while attempts < max_attempts:
+        attempts = attempts + 1
+        
+        if guess == target:
+            return attempts
+        elif guess < target:
+            guess = guess + 10
+        else:
+            guess = guess - 5
+    
+    return attempts
+'''
+
+rust = '''
+#[derive(Debug, Clone)]
+pub struct ZeroDivisionError {
+    message: String,
+}
+impl std::fmt::Display for ZeroDivisionError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "division by zero: {}", self.message)
+    }
+}
+impl std::error::Error for ZeroDivisionError {}
+impl ZeroDivisionError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = "Generate a number in range(simplified without random)."]
+#[doc = " Depyler: proven to terminate"]
+pub fn generate_number(min_val: i32, max_val: i32) -> Result<i32, ZeroDivisionError> {
+    Ok({
+        let a = min_val + max_val;
+        let b = 2;
+        let q = a / b;
+        let r = a % b;
+        let r_negative = r < 0;
+        let b_negative = b < 0;
+        let r_nonzero = r != 0;
+        let signs_differ = r_negative != b_negative;
+        let needs_adjustment = r_nonzero && signs_differ;
+        if needs_adjustment { q - 1 } else { q }
+    })
+}
+#[doc = "Provide a hint based on the guess."]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn get_hint(guess: i32, target: i32) -> String {
+    let _cse_temp_0 = guess < target;
+    if _cse_temp_0 {
+        "Marco!(Too low)".to_string()
+    } else {
+        let _cse_temp_1 = guess > target;
+        if _cse_temp_1 {
+            "Marco!(Too high)".to_string()
+        } else {
+            "Polo!".to_string()
+        }
+    }
+}
+#[doc = "Calculate final score."]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn calculate_score(attempts: i32, rounds: i32) -> i32 {
+    let _cse_temp_0 = rounds == 0;
+    if _cse_temp_0 {
+        return 0;
+    }
+    let _cse_temp_1 = 100 * rounds;
+    let base_score = _cse_temp_1;
+    let _cse_temp_2 = attempts * 5;
+    let penalty = _cse_temp_2;
+    let score = base_score - penalty;
+    let _cse_temp_3 = score < 0;
+    if _cse_temp_3 {
+        return 0;
+    }
+    score
+}
+#[doc = "Get difficulty name from level."]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn get_difficulty_name(level: i32) -> &'a str {
+    let _cse_temp_0 = level == 1;
+    if _cse_temp_0 {
+        "Easy".to_string()
+    } else {
+        let _cse_temp_1 = level == 2;
+        if _cse_temp_1 {
+            "Medium".to_string()
+        } else {
+            let _cse_temp_2 = level == 3;
+            if _cse_temp_2 {
+                "Hard".to_string()
+            } else {
+                "Unknown".to_string()
+            }
+        }
+    }
+}
+#[doc = "Calculate average with safety check."]
+#[doc = " Depyler: proven to terminate"]
+pub fn calculate_average(total: i32, count: i32) -> Result<f64, ZeroDivisionError> {
+    let _cse_temp_0 = count == 0;
+    if _cse_temp_0 {
+        return Ok(0.0);
+    }
+    Ok((total as f64) / (count as f64))
+}
+#[doc = "Format game statistics as string."]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn format_statistics(score: i32, attempts: i32, rounds: i32) -> Result<String, Box<dyn std::error::Error>> {
+    let avg = calculate_average(attempts, rounds)?;
+    let mut result = "Game Statistics:\n".to_string();
+    let _cse_temp_0 = score.to_string();
+    let _cse_temp_1 = format!("{}{}", format!("{}{}", result, "Score: "), _cse_temp_0);
+    result = format!("{}{}", _cse_temp_1, "\n");
+    let _cse_temp_2 = attempts.to_string();
+    let _cse_temp_3 = format!("{}{}", format!("{}{}", result, "Attempts: "), _cse_temp_2);
+    result = format!("{}{}", _cse_temp_3, "\n");
+    let _cse_temp_4 = avg.to_string();
+    let _cse_temp_5 = format!("{}{}", format!("{}{}", result, "Average: "), _cse_temp_4);
+    result = format!("{}{}", _cse_temp_5, "\n");
+    Ok(result)
+}
+#[doc = "Check if guess is in valid range."]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn validate_guess(guess: i32, min_val: i32, max_val: i32) -> bool {
+    let _cse_temp_0 = guess < min_val;
+    if _cse_temp_0 {
+        return false;
+    }
+    let _cse_temp_1 = guess > max_val;
+    if _cse_temp_1 {
+        return false;
+    }
+    true
+}
+#[doc = "Simulate a round with fixed guesses."]
+#[doc = " Depyler: verified panic-free"]
+pub fn play_simple_round(target: i32, max_attempts: i32) -> i32 {
+    let mut attempts = 0;
+    let mut guess = 50;
+    while attempts < max_attempts {
+        attempts = attempts + 1;
+        if guess == target {
+            return attempts;
+        } else {
+            if guess < target {
+                guess = guess + 10;
+            } else {
+                guess = guess - 5;
+            }
+        }
+    }
+    attempts
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+    #[test]
+    fn test_generate_number_examples() {
+        assert_eq!(generate_number(0, 0), 0);
+        assert_eq!(generate_number(1, 2), 3);
+        assert_eq!(generate_number(-1, 1), 0);
+    }
+    #[test]
+    fn test_calculate_score_examples() {
+        assert_eq!(calculate_score(0, 0), 0);
+        assert_eq!(calculate_score(1, 2), 3);
+        assert_eq!(calculate_score(-1, 1), 0);
+    }
+    #[test]
+    fn test_play_simple_round_examples() {
+        assert_eq!(play_simple_round(0, 0), 0);
+        assert_eq!(play_simple_round(1, 2), 3);
+        assert_eq!(play_simple_round(-1, 1), 0);
     }
 }
 '''

@@ -1,0 +1,4350 @@
+# Tooling Examples
+# Migrated from examples/tooling/
+
+[metadata]
+name = "Tooling Examples"
+category = "tooling"
+
+# =============================================================================
+# Examples
+# =============================================================================
+
+[[test]]
+name = "ast_converters_demo"
+description = "!/usr/bin/env python3"
+
+python = '''
+#!/usr/bin/env python3
+"""
+Example: AST Converters Demonstration
+
+This example shows various Python constructs that Depyler's AST converters
+can transform from Python AST to HIR (High-level Intermediate Representation).
+"""
+
+# Expression Examples
+
+# Literals
+int_literal = 42
+float_literal = 3.14
+string_literal = "hello world"
+bool_literal = True
+none_literal = None
+
+# Binary operations
+addition = 10 + 20
+subtraction = 50 - 15
+multiplication = 7 * 8
+division = 100 / 4
+modulo = 17 % 5
+power = 2 ** 8
+
+# Comparison operations
+greater_than = 10 > 5
+less_than = 3 < 7
+equal_to = 42 == 42
+not_equal = "a" != "b"
+greater_equal = 100 >= 100
+less_equal = 50 <= 60
+
+# Logical operations
+and_op = True and False
+or_op = True or False
+not_op = not True
+
+# Unary operations
+negation = -42
+positive = +42
+bitwise_not = ~0xFF
+
+# Collections
+list_example = [1, 2, 3, 4, 5]
+tuple_example = (1, "hello", 3.14, True)
+dict_example = {"name": "John", "age": 30, "city": "NYC"}
+set_example = {1, 2, 3, 4, 5}
+
+# Indexing and slicing
+list_index = list_example[0]
+dict_access = dict_example["name"]
+slice_example = list_example[1:4]
+slice_with_step = list_example[::2]
+slice_reverse = list_example[::-1]
+
+# Comprehensions
+list_comp = [x * 2 for x in range(10)]
+list_comp_filtered = [x for x in range(20) if x % 2 == 0]
+set_comp = {x ** 2 for x in range(5)}
+dict_comp = {x: x ** 2 for x in range(5)}
+
+# Function calls
+simple_call = print("Hello")
+method_call = "hello".upper()
+chained_calls = "  hello  ".strip().upper()
+
+# Attribute access
+import math
+pi_value = math.pi
+module_function = math.sqrt(16)
+
+# Lambda expressions
+square = lambda x: x ** 2
+add = lambda x, y: x + y
+conditional_lambda = lambda x: x if x > 0 else -x
+
+# Statement Examples
+
+def demonstrate_statements():
+    """Show various statement types."""
+    
+    # Simple assignment
+    x = 10
+    y = 20
+    
+    # Augmented assignment
+    x += 5
+    y *= 2
+    x //= 3
+    
+    # Annotated assignment
+    count: int = 0
+    name: str = "Python"
+    
+    # Multiple operations
+    result = (x + y) * 2 - 10
+    
+    # If statements
+    if x > 0:
+        print("Positive")
+    elif x < 0:
+        print("Negative")
+    else:
+        print("Zero")
+    
+    # Nested if
+    if x > 0:
+        if x > 10:
+            print("Greater than 10")
+        else:
+            print("Between 1 and 10")
+    
+    # While loop
+    counter = 0
+    while counter < 5:
+        print(counter)
+        counter += 1
+    
+    # For loop
+    for i in range(10):
+        if i == 5:
+            continue
+        if i == 8:
+            break
+        print(i)
+    
+    # For with else
+    for i in range(3):
+        print(i)
+    else:
+        print("Loop completed")
+    
+    # Nested loops
+    for i in range(3):
+        for j in range(3):
+            print(f"({i}, {j})")
+    
+    # Return statements
+    if x > 100:
+        return x
+    elif x > 50:
+        return x * 2
+    else:
+        return None
+
+def demonstrate_advanced():
+    """Show advanced statement types."""
+    
+    # With statement
+    with open("file.txt", "w") as f:
+        f.write("Hello, World!")
+    
+    # Exception handling (raise)
+    if False:
+        raise ValueError("Something went wrong")
+    
+    # Await expression (in async context)
+    # await some_async_function()
+    
+    # Complex expressions
+    complex_expr = (
+        [x for x in range(10) if x % 2 == 0]
+        + [x * 2 for x in range(5)]
+    )
+    
+    # Nested data structures
+    nested = {
+        "users": [
+            {"name": "Alice", "age": 30},
+            {"name": "Bob", "age": 25}
+        ],
+        "count": 2,
+        "active": True
+    }
+    
+    # Method chaining
+    result = (
+        "  Hello World  "
+        .strip()
+        .lower()
+        .replace(" ", "_")
+    )
+    
+    return result
+
+def demonstrate_comprehensions():
+    """Show various comprehension types."""
+    
+    # Basic list comprehension
+    squares = [x ** 2 for x in range(10)]
+    
+    # Filtered comprehension
+    evens = [x for x in range(20) if x % 2 == 0]
+    
+    # Nested comprehension
+    matrix = [[i + j for j in range(3)] for i in range(3)]
+    
+    # Set comprehension
+    unique_squares = {x ** 2 for x in [-2, -1, 0, 1, 2]}
+    
+    # Dict comprehension
+    square_map = {x: x ** 2 for x in range(5)}
+    
+    # Comprehension with multiple conditions
+    filtered = [
+        x for x in range(100)
+        if x % 2 == 0
+        if x % 3 == 0
+    ]
+    
+    # Complex element expression
+    transformed = [
+        (x, x ** 2, x ** 3)
+        for x in range(5)
+    ]
+    
+    return transformed
+
+class DemoClass:
+    """Class to demonstrate attribute access conversion."""
+    
+    def __init__(self, value):
+        self.value = value
+        self.data = []
+    
+    def method(self):
+        return self.value * 2
+    
+    def chain_example(self):
+        return self.method() + 10
+
+# Demonstrate all conversions
+if __name__ == "__main__":
+    print("AST Converters Demo")
+    print("=" * 40)
+    
+    # Test expressions
+    print(f"Literals: {int_literal}, {float_literal}, {string_literal}")
+    print(f"Operations: {addition}, {multiplication}, {greater_than}")
+    print(f"Collections: {list_example}, {dict_example}")
+    print(f"Comprehensions: {list_comp}")
+    print(f"Lambda: {square(5)}, {add(3, 4)}")
+    
+    # Test statements
+    result = demonstrate_statements()
+    print(f"Statement result: {result}")
+    
+    # Test advanced features
+    advanced = demonstrate_advanced()
+    print(f"Advanced result: {advanced}")
+    
+    # Test comprehensions
+    comps = demonstrate_comprehensions()
+    print(f"Comprehensions: {comps}")
+    
+    # Test class
+    obj = DemoClass(10)
+    print(f"Object method: {obj.method()}")
+    print(f"Chained: {obj.chain_example()}")
+'''
+
+rust = '''
+Error: Unsupported type annotation
+'''
+
+[[test]]
+name = "custom_attributes_demo"
+description = "!/usr/bin/env python3"
+
+python = '''
+#!/usr/bin/env python3
+"""
+Demonstration of custom Rust attributes feature in Depyler.
+
+This example shows how to use the custom_attribute annotation to add
+custom Rust attributes to generated functions.
+"""
+
+# @depyler: custom_attribute = "inline"
+def add_numbers(a: int, b: int) -> int:
+    """Simple addition with inline hint."""
+    return a + b
+
+
+# @depyler: custom_attribute = "inline(always)"
+# @depyler: performance_critical = "true"
+def multiply_fast(x: int, y: int) -> int:
+    """Performance-critical multiplication with aggressive inlining."""
+    return x * y
+
+
+# @depyler: custom_attribute = "must_use"
+def calculate_checksum(data: list[int]) -> int:
+    """Calculate checksum - result must be used."""
+    checksum = 0
+    for value in data:
+        checksum ^= value
+    return checksum
+
+
+# @depyler: custom_attribute = "cold"
+def handle_panic(message: str) -> None:
+    """Error handler - rarely executed."""
+    print(f"PANIC: {message}")
+
+
+# @depyler: custom_attribute = "inline"
+# @depyler: custom_attribute = "must_use"
+def compute_hash(text: str) -> int:
+    """Hash function with multiple attributes."""
+    hash_val = 0
+    for char in text:
+        hash_val = (hash_val * 31 + ord(char)) % (2**32)
+    return hash_val
+
+
+if __name__ == "__main__":
+    print(f"add_numbers(5, 3) = {add_numbers(5, 3)}")
+    print(f"multiply_fast(4, 7) = {multiply_fast(4, 7)}")
+    print(f"calculate_checksum([1, 2, 3, 4]) = {calculate_checksum([1, 2, 3, 4])}")
+    print(f"compute_hash('hello') = {compute_hash('hello')}")
+'''
+
+rust = '''
+#[derive(Debug, Clone)]
+pub struct ZeroDivisionError {
+    message: String,
+}
+impl std::fmt::Display for ZeroDivisionError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "division by zero: {}", self.message)
+    }
+}
+impl std::error::Error for ZeroDivisionError {}
+impl ZeroDivisionError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = "Simple addition with inline hint."]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+#[inline]
+pub fn add_numbers(a: i32, b: i32) -> i32 {
+    a + b
+}
+#[doc = "Performance-critical multiplication with aggressive inlining."]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+#[inline(always)]
+pub fn multiply_fast(x: i32, y: i32) -> i32 {
+    x * y
+}
+#[doc = "Calculate checksum - result must be used."]
+#[doc = " Depyler: verified panic-free"]
+#[must_use]
+pub fn calculate_checksum(data: &Vec<i32>) -> i32 {
+    let mut checksum = 0;
+    for value in data.iter().cloned() {
+        checksum = checksum ^ value;
+    }
+    checksum
+}
+#[doc = "Error handler - rarely executed."]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+#[cold]
+pub fn handle_panic(message: String) {
+    println!("{}", format!("PANIC: {}", message));
+}
+#[doc = "Hash function with multiple attributes."]
+#[inline]
+#[must_use]
+pub fn compute_hash(text: &str) -> Result<i32, ZeroDivisionError> {
+    let mut hash_val = 0;
+    for _char in text.chars() {
+        let char = _char.to_string();
+        hash_val = (hash_val * 31 + char.chars().next().unwrap() as i32)
+            % (2 as i32)
+                .checked_pow(32 as u32)
+                .expect("Power operation overflowed");
+    }
+    Ok(hash_val)
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{quickcheck, TestResult};
+    #[test]
+    fn quickcheck_add_numbers() {
+        fn prop(a: i32, b: i32) -> TestResult {
+            if (a > 0 && b > i32::MAX - a) || (a < 0 && b < i32::MIN - a) {
+                return TestResult::discard();
+            }
+            let result1 = add_numbers(a.clone(), b.clone());
+            let result2 = add_numbers(b.clone(), a.clone());
+            if result1 != result2 {
+                return TestResult::failed();
+            }
+            TestResult::passed()
+        }
+        quickcheck(prop as fn(i32, i32) -> TestResult);
+    }
+    #[test]
+    fn test_add_numbers_examples() {
+        assert_eq!(add_numbers(0, 0), 0);
+        assert_eq!(add_numbers(1, 2), 3);
+        assert_eq!(add_numbers(-1, 1), 0);
+    }
+    #[test]
+    fn quickcheck_multiply_fast() {
+        fn prop(x: i32, y: i32) -> TestResult {
+            if (x > 0 && y > i32::MAX - x) || (x < 0 && y < i32::MIN - x) {
+                return TestResult::discard();
+            }
+            let result1 = multiply_fast(x.clone(), y.clone());
+            let result2 = multiply_fast(y.clone(), x.clone());
+            if result1 != result2 {
+                return TestResult::failed();
+            }
+            TestResult::passed()
+        }
+        quickcheck(prop as fn(i32, i32) -> TestResult);
+    }
+    #[test]
+    fn test_multiply_fast_examples() {
+        assert_eq!(multiply_fast(0, 0), 0);
+        assert_eq!(multiply_fast(1, 2), 3);
+        assert_eq!(multiply_fast(-1, 1), 0);
+    }
+    #[test]
+    fn test_calculate_checksum_examples() {
+        assert_eq!(calculate_checksum(&vec![]), 0);
+        assert_eq!(calculate_checksum(&vec![1]), 1);
+        assert_eq!(calculate_checksum(&vec![1, 2, 3]), 6);
+    }
+    #[test]
+    fn test_compute_hash_examples() {
+        assert_eq!(compute_hash(""), 0);
+        assert_eq!(compute_hash("a"), 1);
+        assert_eq!(compute_hash("abc"), 3);
+    }
+}
+'''
+
+[[test]]
+name = "debugging_workflow"
+description = "!/usr/bin/env python3"
+
+python = '''
+#!/usr/bin/env python3
+"""
+Example: Debugging Workflow with Depyler
+
+This example demonstrates how to use Depyler's debugging features
+to debug transpiled Rust code while maintaining Python source context.
+"""
+
+# Sample Python code to debug
+def fibonacci(n: int) -> int:
+    """Calculate fibonacci number recursively"""
+    if n <= 1:
+        return n
+    return fibonacci(n - 1) + fibonacci(n - 2)
+
+def factorial(n: int) -> int:
+    """Calculate factorial iteratively"""
+    result = 1
+    for i in range(2, n + 1):
+        result *= i
+    return result
+
+def find_max(numbers: list) -> int:
+    """Find maximum in a list"""
+    if not numbers:
+        return 0
+    
+    max_val = numbers[0]
+    for num in numbers:
+        if num > max_val:
+            max_val = num
+    return max_val
+
+def main():
+    """Main function demonstrating various algorithms"""
+    # Test fibonacci
+    print(f"Fibonacci(10) = {fibonacci(10)}")
+    
+    # Test factorial
+    print(f"Factorial(5) = {factorial(5)}")
+    
+    # Test find_max
+    numbers = [3, 7, 2, 9, 1, 5]
+    print(f"Max of {numbers} = {find_max(numbers)}")
+
+if __name__ == "__main__":
+    main()
+
+"""
+Debugging Steps:
+================
+
+1. Transpile with debug information:
+   $ depyler transpile debugging_workflow.py --debug --source-map
+
+2. Compile the Rust code with debug symbols:
+   $ rustc -g debugging_workflow.rs -o debugging_workflow
+
+3. Generate debugger script:
+   $ depyler debug debugging_workflow.py debugging_workflow.rs --debugger gdb
+
+4. Start debugging session:
+   $ rust-gdb ./debugging_workflow
+   (gdb) source debugging_workflow.gdb
+   
+5. Set breakpoints on Python function names:
+   (gdb) break fibonacci
+   (gdb) break factorial
+   (gdb) break find_max
+   
+6. Run and debug:
+   (gdb) run
+   (gdb) next
+   (gdb) print n
+   (gdb) backtrace
+   
+7. For LLDB users:
+   $ rust-lldb ./debugging_workflow
+   (lldb) command source debugging_workflow.lldb
+   (lldb) breakpoint set --name fibonacci
+   (lldb) run
+
+Tips:
+-----
+- Variable names are preserved from Python
+- Function names map directly
+- Line numbers correspond to Rust source
+- Use source map for Python line mapping
+"""
+'''
+
+rust = '''
+use serde_json;
+#[derive(Debug, Clone)]
+pub struct IndexError {
+    message: String,
+}
+impl std::fmt::Display for IndexError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "index out of range: {}", self.message)
+    }
+}
+impl std::error::Error for IndexError {}
+impl IndexError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = "Calculate fibonacci number recursively"]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn fibonacci(n: i32) -> i32 {
+    let _cse_temp_0 = n <= 1;
+    if _cse_temp_0 {
+        return n;
+    }
+    fibonacci(n - 1) + fibonacci(n - 2)
+}
+#[doc = "Calculate factorial iteratively"]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn factorial(n: i32) -> i32 {
+    let mut result = 1;
+    for i in 2..n + 1 {
+        result = result * i;
+    }
+    result
+}
+#[doc = "Find maximum in a list"]
+pub fn find_max(numbers: &Vec<serde_json::Value>) -> Result<i32, IndexError> {
+    if numbers.is_empty() {
+        return Ok(0);
+    }
+    let mut max_val = numbers.get(0usize).cloned().unwrap_or_default();
+    for num in numbers.iter().cloned() {
+        if num > max_val {
+            max_val = num;
+        }
+    }
+    Ok(max_val)
+}
+#[doc = "Main function demonstrating various algorithms"]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn main() {
+    println!("{}", format!("Fibonacci(10) = {:?}", fibonacci(10)));
+    println!("{}", format!("Factorial(5) = {:?}", factorial(5)));
+    let numbers = vec![3, 7, 2, 9, 1, 5];
+    println!(
+        "{}",
+        format!("Max of {:?} = {:?}", numbers, find_max(&numbers))
+    );
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{quickcheck, TestResult};
+    #[test]
+    fn test_fibonacci_examples() {
+        assert_eq!(fibonacci(0), 0);
+        assert_eq!(fibonacci(1), 1);
+        assert_eq!(fibonacci(-1), -1);
+    }
+    #[test]
+    fn test_factorial_examples() {
+        assert_eq!(factorial(0), 0);
+        assert_eq!(factorial(1), 1);
+        assert_eq!(factorial(-1), -1);
+    }
+    #[test]
+    fn test_find_max_examples() {
+        assert_eq!(find_max(&vec![]), 0);
+        assert_eq!(find_max(&vec![1]), 1);
+        assert_eq!(find_max(&vec![1, 2, 3]), 3);
+    }
+}
+'''
+
+[[test]]
+name = "interactive_annotation"
+description = "!/usr/bin/env python3"
+
+python = '''
+#!/usr/bin/env python3
+"""
+Example: Interactive Annotation Mode
+
+This example demonstrates Depyler's interactive annotation mode,
+which helps improve transpilation success by suggesting optimizations
+and ownership annotations.
+
+To run in interactive mode:
+    depyler transpile examples/interactive_annotation.py --interactive --annotate
+
+The interactive mode will:
+1. Attempt initial transpilation
+2. Analyze failures and suggest annotations
+3. Allow you to select which suggestions to apply
+4. Re-attempt transpilation with annotations
+"""
+
+import math
+from typing import List, Dict, Optional
+
+# Example 1: Performance-critical function that could benefit from annotations
+def matrix_multiply(a: List[List[float]], b: List[List[float]]) -> List[List[float]]:
+    """
+    Matrix multiplication with nested loops.
+    
+    Interactive mode will suggest:
+    - Aggressive optimization for nested loops
+    - Potential SIMD vectorization
+    - Loop unrolling opportunities
+    """
+    n = len(a)
+    m = len(b[0])
+    k = len(b)
+    
+    result = [[0.0 for _ in range(m)] for _ in range(n)]
+    
+    for i in range(n):
+        for j in range(m):
+            for p in range(k):
+                result[i][j] += a[i][p] * b[p][j]
+    
+    return result
+
+
+# Example 2: String processing that needs ownership hints
+def process_text_data(texts: List[str], keywords: List[str]) -> Dict[str, int]:
+    """
+    Process text data to count keyword occurrences.
+    
+    Interactive mode will suggest:
+    - String ownership strategy (borrowed vs owned)
+    - Potential zero-copy optimizations
+    """
+    keyword_counts = {kw: 0 for kw in keywords}
+    
+    for text in texts:
+        normalized = text.lower().strip()
+        for keyword in keywords:
+            if keyword in normalized:
+                keyword_counts[keyword] += 1
+    
+    return keyword_counts
+
+
+# Example 3: Recursive function that may need stack hints
+def quicksort(arr: List[int]) -> List[int]:
+    """
+    Recursive quicksort implementation.
+    
+    Interactive mode will suggest:
+    - Stack depth limits
+    - Tail recursion optimization
+    - Memory allocation strategy
+    """
+    if len(arr) <= 1:
+        return arr
+    
+    pivot = arr[len(arr) // 2]
+    left = [x for x in arr if x < pivot]
+    middle = [x for x in arr if x == pivot]
+    right = [x for x in arr if x > pivot]
+    
+    return quicksort(left) + middle + quicksort(right)
+
+
+# Example 4: Error-prone function needing safety annotations
+def safe_divide(numbers: List[float], divisors: List[float]) -> List[Optional[float]]:
+    """
+    Safe division with error handling.
+    
+    Interactive mode will suggest:
+    - Error handling strategy
+    - Result type usage
+    - Panic-free guarantees
+    """
+    results = []
+    
+    for i in range(min(len(numbers), len(divisors))):
+        if divisors[i] != 0:
+            results.append(numbers[i] / divisors[i])
+        else:
+            results.append(None)
+    
+    return results
+
+
+# Example 5: Concurrent data processing candidate
+def parallel_map(func, data: List[int]) -> List[int]:
+    """
+    Function that could benefit from parallelization.
+    
+    Interactive mode will suggest:
+    - Thread safety requirements
+    - Parallelization strategy
+    - Send/Sync trait bounds
+    """
+    results = []
+    for item in data:
+        # Simulate expensive computation
+        result = func(item)
+        for _ in range(1000):
+            result = (result * 7 + 13) % 1000000
+        results.append(result)
+    
+    return results
+
+
+# Example 6: Memory-intensive operation
+class DataBuffer:
+    """
+    Large data buffer that needs memory annotations.
+    
+    Interactive mode will suggest:
+    - Memory allocation strategy
+    - Ownership model (Rc, Arc, Box)
+    - Interior mutability needs
+    """
+    def __init__(self, size: int):
+        self.data = [0] * size
+        self.position = 0
+    
+    def write(self, values: List[int]) -> None:
+        for value in values:
+            if self.position < len(self.data):
+                self.data[self.position] = value
+                self.position += 1
+    
+    def read(self, count: int) -> List[int]:
+        start = max(0, self.position - count)
+        return self.data[start:self.position]
+
+
+# Example 7: Complex algorithm needing multiple annotations
+def optimize_route(
+    distances: Dict[str, Dict[str, float]], 
+    start: str, 
+    end: str
+) -> Optional[List[str]]:
+    """
+    Route optimization using dynamic programming.
+    
+    Interactive mode will suggest multiple annotations:
+    - Algorithm complexity hints
+    - Memory vs speed tradeoffs
+    - Caching strategy
+    - Error handling approach
+    """
+    # Simplified Dijkstra's algorithm
+    visited = set()
+    distances_from_start = {start: 0}
+    previous = {}
+    
+    while len(visited) < len(distances):
+        current = None
+        current_distance = float('inf')
+        
+        for node in distances:
+            if node not in visited and node in distances_from_start:
+                if distances_from_start[node] < current_distance:
+                    current = node
+                    current_distance = distances_from_start[node]
+        
+        if current is None:
+            break
+            
+        visited.add(current)
+        
+        for neighbor in distances[current]:
+            if neighbor not in visited:
+                new_distance = distances_from_start[current] + distances[current][neighbor]
+                if neighbor not in distances_from_start or new_distance < distances_from_start[neighbor]:
+                    distances_from_start[neighbor] = new_distance
+                    previous[neighbor] = current
+    
+    # Reconstruct path
+    if end not in previous:
+        return None
+        
+    path = []
+    current = end
+    while current != start:
+        path.append(current)
+        current = previous[current]
+    path.append(start)
+    path.reverse()
+    
+    return path
+
+
+def main():
+    """
+    Demonstration of functions that benefit from interactive annotation.
+    
+    When run with --interactive --annotate, Depyler will:
+    1. Analyze each function's characteristics
+    2. Suggest appropriate annotations
+    3. Guide you through the annotation process
+    4. Show before/after transpilation results
+    """
+    print("Interactive Annotation Examples")
+    print("=" * 40)
+    
+    # Test matrix multiplication
+    a = [[1, 2], [3, 4]]
+    b = [[5, 6], [7, 8]]
+    result = matrix_multiply(a, b)
+    print(f"Matrix multiplication result: {result}")
+    
+    # Test text processing
+    texts = ["Hello world", "Hello Python", "Rust is fast"]
+    keywords = ["hello", "rust", "python"]
+    counts = process_text_data(texts, keywords)
+    print(f"Keyword counts: {counts}")
+    
+    # Test sorting
+    numbers = [64, 34, 25, 12, 22, 11, 90]
+    sorted_nums = quicksort(numbers)
+    print(f"Sorted: {sorted_nums}")
+    
+    # Test safe division
+    nums = [10.0, 20.0, 30.0]
+    divs = [2.0, 0.0, 5.0]
+    results = safe_divide(nums, divs)
+    print(f"Division results: {results}")
+    
+    # Test parallel map
+    data = list(range(10))
+    mapped = parallel_map(lambda x: x * x, data)
+    print(f"Mapped data: {mapped}")
+    
+    # Test data buffer
+    buffer = DataBuffer(100)
+    buffer.write([1, 2, 3, 4, 5])
+    recent = buffer.read(3)
+    print(f"Recent buffer data: {recent}")
+    
+    # Test route optimization
+    graph = {
+        'A': {'B': 1, 'C': 4},
+        'B': {'A': 1, 'C': 2, 'D': 5},
+        'C': {'A': 4, 'B': 2, 'D': 1},
+        'D': {'B': 5, 'C': 1}
+    }
+    route = optimize_route(graph, 'A', 'D')
+    print(f"Optimal route: {route}")
+
+
+if __name__ == "__main__":
+    main()
+'''
+
+rust = '''
+Error: Augmented assignment not supported for this target type
+'''
+
+[[test]]
+name = "lsp_demo"
+description = "!/usr/bin/env python3"
+
+python = '''
+#!/usr/bin/env python3
+"""
+Example: Language Server Protocol (LSP) Demo
+
+This example demonstrates various Python code patterns that would be
+handled by Depyler's LSP server for IDE integration features like:
+- Code completion
+- Hover information
+- Go to definition
+- Find references
+- Diagnostics
+"""
+
+# Import statements for completion suggestions
+import math
+import json
+from typing import List, Dict, Optional
+
+# Global variables for reference tracking
+CONFIG_FILE = "config.json"
+MAX_RETRIES = 3
+DEBUG_MODE = True
+
+# Type annotations for hover information
+class User:
+    """Represents a user in the system."""
+    
+    def __init__(self, name: str, age: int):
+        """Initialize a new user.
+        
+        Args:
+            name: The user's name
+            age: The user's age
+        """
+        self.name = name
+        self.age = age
+        self.created_at = None
+    
+    def greet(self) -> str:
+        """Return a greeting message."""
+        return f"Hello, I'm {self.name}!"
+    
+    def is_adult(self) -> bool:
+        """Check if the user is an adult (18+)."""
+        return self.age >= 18
+
+# Function with rich documentation
+def calculate_fibonacci(n: int) -> int:
+    """Calculate the nth Fibonacci number.
+    
+    The Fibonacci sequence is defined as:
+    - F(0) = 0
+    - F(1) = 1
+    - F(n) = F(n-1) + F(n-2) for n > 1
+    
+    Args:
+        n: The position in the Fibonacci sequence
+        
+    Returns:
+        The nth Fibonacci number
+        
+    Raises:
+        ValueError: If n is negative
+        
+    Examples:
+        >>> calculate_fibonacci(0)
+        0
+        >>> calculate_fibonacci(1)
+        1
+        >>> calculate_fibonacci(10)
+        55
+    """
+    if n < 0:
+        raise ValueError("n must be non-negative")
+    
+    if n <= 1:
+        return n
+    
+    # Variable references for tracking
+    prev, curr = 0, 1
+    for _ in range(2, n + 1):
+        prev, curr = curr, prev + curr
+    
+    return curr
+
+# Complex function for go-to-definition
+def process_users(users: List[User], filter_adults: bool = True) -> Dict[str, List[User]]:
+    """Process and categorize users.
+    
+    Args:
+        users: List of User objects to process
+        filter_adults: Whether to filter only adult users
+        
+    Returns:
+        Dictionary with 'adults' and 'minors' keys
+    """
+    result = {"adults": [], "minors": []}
+    
+    for user in users:
+        # Method call - LSP should resolve User.is_adult()
+        if user.is_adult():
+            result["adults"].append(user)
+        else:
+            result["minors"].append(user)
+    
+    # Using global variable - LSP should find definition
+    if DEBUG_MODE:
+        print(f"Processed {len(users)} users")
+    
+    return result
+
+# Nested function definitions
+def create_handler(prefix: str):
+    """Create a message handler with a prefix."""
+    
+    def handler(message: str) -> str:
+        """Handle a message by adding prefix."""
+        # Reference to outer scope variable
+        return f"{prefix}: {message}"
+    
+    return handler
+
+# Class with inheritance for symbol hierarchy
+class AdminUser(User):
+    """An admin user with special privileges."""
+    
+    def __init__(self, name: str, age: int, permissions: List[str]):
+        super().__init__(name, age)
+        self.permissions = permissions
+    
+    def has_permission(self, permission: str) -> bool:
+        """Check if admin has a specific permission."""
+        return permission in self.permissions
+    
+    def greet(self) -> str:
+        """Admin-specific greeting."""
+        # Overrides parent method
+        return f"Hello, I'm Admin {self.name}!"
+
+# Function with multiple references
+def validate_age(age: int) -> bool:
+    """Validate if age is in acceptable range."""
+    MIN_AGE = 0
+    MAX_AGE = 150
+    
+    # Multiple references to parameters and local variables
+    if age < MIN_AGE:
+        return False
+    if age > MAX_AGE:
+        return False
+    
+    # Reference to the parameter again
+    return age >= 0
+
+# Code with potential diagnostics
+def problematic_function():
+    """Function that might trigger LSP diagnostics."""
+    
+    # Unused variable (warning)
+    unused_var = 42
+    
+    # Type mismatch (error in typed context)
+    result: int = "not an int"  # Type error
+    
+    # Undefined variable reference (error)
+    # print(undefined_variable)
+    
+    # Unreachable code (warning)
+    return result
+    print("This won't execute")
+
+# Lambda and comprehension expressions
+data_processors = {
+    "double": lambda x: x * 2,
+    "square": lambda x: x ** 2,
+    "stringify": lambda x: str(x)
+}
+
+# List comprehension with references
+def process_numbers(numbers: List[int]) -> List[int]:
+    """Process numbers using various transformations."""
+    # Reference to data_processors
+    doubled = [data_processors["double"](n) for n in numbers]
+    
+    # Nested comprehension
+    matrix = [[i * j for j in range(3)] for i in range(3)]
+    
+    # Generator expression
+    sum_of_squares = sum(n ** 2 for n in numbers if n > 0)
+    
+    return doubled
+
+# Decorator usage
+def log_calls(func):
+    """Decorator to log function calls."""
+    def wrapper(*args, **kwargs):
+        print(f"Calling {func.__name__}")
+        return func(*args, **kwargs)
+    return wrapper
+
+@log_calls
+def important_operation(value: str) -> str:
+    """An important operation that should be logged."""
+    return value.upper()
+
+# Context manager for with statements
+class FileManager:
+    """Context manager for file operations."""
+    
+    def __init__(self, filename: str, mode: str = 'r'):
+        self.filename = filename
+        self.mode = mode
+        self.file = None
+    
+    def __enter__(self):
+        self.file = open(self.filename, self.mode)
+        return self.file
+    
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if self.file:
+            self.file.close()
+
+# Main execution with various LSP triggers
+if __name__ == "__main__":
+    # Create users - completion should suggest User class
+    users = [
+        User("Alice", 25),
+        User("Bob", 17),
+        AdminUser("Charlie", 30, ["read", "write", "delete"])
+    ]
+    
+    # Process users - hover should show function signature
+    categorized = process_users(users)
+    
+    # Access results - completion should suggest dict keys
+    adults = categorized["adults"]
+    
+    # Method calls - go-to-definition should work
+    for user in adults:
+        print(user.greet())
+    
+    # Using imported modules - completion should work
+    pi_value = math.pi
+    sqrt_2 = math.sqrt(2)
+    
+    # JSON operations - hover should show types
+    config_data = {"debug": DEBUG_MODE, "retries": MAX_RETRIES}
+    json_str = json.dumps(config_data)
+    
+    # Fibonacci calculation - references should be found
+    fib_10 = calculate_fibonacci(10)
+    print(f"10th Fibonacci number: {fib_10}")
+    
+    # Handler creation - nested scopes
+    info_handler = create_handler("INFO")
+    error_handler = create_handler("ERROR")
+    
+    print(info_handler("Application started"))
+    print(error_handler("Something went wrong"))
+    
+    # File operations with context manager
+    try:
+        with FileManager(CONFIG_FILE, 'w') as f:
+            f.write(json_str)
+    except IOError as e:
+        print(f"Error writing config: {e}")
+    
+    # Data processing
+    numbers = [1, 2, 3, 4, 5]
+    processed = process_numbers(numbers)
+    print(f"Processed: {processed}")
+    
+    # Decorator in action
+    result = important_operation("hello world")
+    print(f"Result: {result}")
+'''
+
+rust = '''
+Error: Statement type not yet supported
+'''
+
+[[test]]
+name = "mcp_usage"
+description = "!/usr/bin/env python3"
+
+python = '''
+#!/usr/bin/env python3
+"""
+MCP Usage Examples for Depyler
+
+This script demonstrates how to use Depyler's Model Context Protocol (MCP) 
+integration for AI-powered Python-to-Rust transpilation.
+"""
+
+import asyncio
+import json
+from pathlib import Path
+from typing import Dict, Any, List
+
+# Example MCP client implementation
+class DepylerMCPClient:
+    """Simple MCP client for Depyler integration examples."""
+    
+    def __init__(self, server_command: str = "./target/release/depyler mcp-server"):
+        self.server_command = server_command
+        self.request_id = 0
+    
+    async def call_tool(self, tool_name: str, arguments: Dict[str, Any]) -> Dict[str, Any]:
+        """Call an MCP tool and return the result."""
+        self.request_id += 1
+        
+        # In a real implementation, this would communicate with the actual MCP server
+        # For demonstration purposes, we show the expected request/response format
+        
+        request = {
+            "id": str(self.request_id),
+            "method": "tools/call",
+            "params": {
+                "name": tool_name,
+                "arguments": arguments
+            }
+        }
+        
+        print(f"📤 MCP Request ({tool_name}):")
+        print(json.dumps(request, indent=2))
+        print()
+        
+        # Mock responses for demonstration
+        return await self._mock_response(tool_name, arguments)
+    
+    async def _mock_response(self, tool_name: str, arguments: Dict[str, Any]) -> Dict[str, Any]:
+        """Generate mock responses for demonstration."""
+        
+        if tool_name == "transpile_python":
+            return {
+                "rust_code": """pub fn add_numbers(a: i32, b: i32) -> i32 {
+    a + b
+}
+
+fn main() {
+    println!("{}", add_numbers(5, 3));
+}""",
+                "compilation_command": "rustc --edition 2021 output.rs",
+                "metrics": {
+                    "lines_of_code": 6,
+                    "cyclomatic_complexity": 1,
+                    "estimated_performance_gain": "15%",
+                    "memory_safety_score": 1.0,
+                    "energy_efficiency_rating": "A+"
+                },
+                "verification_status": {
+                    "passed": True,
+                    "warnings": [],
+                    "guarantees": ["memory_safe", "panic_free", "terminates"]
+                }
+            }
+        
+        elif tool_name == "analyze_migration_complexity":
+            return {
+                "complexity_score": 6.8,
+                "total_python_loc": 1250,
+                "estimated_rust_loc": 980,
+                "estimated_effort_hours": 45,
+                "risk_assessment": {
+                    "overall_risk": "Medium",
+                    "risk_factors": [
+                        {
+                            "factor": "Dynamic typing usage",
+                            "severity": "Medium",
+                            "affected_files": 8,
+                            "mitigation": "Add type hints where possible"
+                        }
+                    ]
+                },
+                "migration_strategy": {
+                    "recommended_approach": "incremental",
+                    "phases": [
+                        {
+                            "phase": 1,
+                            "description": "Transpile utility functions",
+                            "estimated_hours": 12,
+                            "files": ["utils.py", "helpers.py"]
+                        },
+                        {
+                            "phase": 2,
+                            "description": "Transpile core business logic",
+                            "estimated_hours": 25,
+                            "files": ["core.py", "processor.py"]
+                        }
+                    ]
+                },
+                "compatibility_report": {
+                    "supported_features": 0.87,
+                    "unsupported_constructs": ["eval statements", "dynamic imports"]
+                }
+            }
+        
+        elif tool_name == "verify_transpilation":
+            return {
+                "verification_passed": True,
+                "semantic_equivalence_score": 0.95,
+                "safety_guarantees": [
+                    "memory_safe",
+                    "panic_free", 
+                    "no_undefined_behavior",
+                    "terminates"
+                ],
+                "performance_comparison": {
+                    "rust_faster_by": "280%",
+                    "memory_usage_reduction": "42%",
+                    "energy_efficiency_improvement": "65%"
+                },
+                "property_verification_results": [
+                    {
+                        "property": "termination",
+                        "status": "proven",
+                        "method": "structural_analysis"
+                    },
+                    {
+                        "property": "memory_safety",
+                        "status": "proven",
+                        "method": "borrow_checker"
+                    }
+                ],
+                "test_results": {
+                    "total_tests": 15,
+                    "passed": 15,
+                    "failed": 0,
+                    "coverage": "100%"
+                }
+            }
+        
+        return {"error": "Unknown tool"}
+
+
+async def example_1_simple_transpilation():
+    """Example 1: Simple function transpilation with MCP."""
+    print("🔬 Example 1: Simple Function Transpilation")
+    print("=" * 50)
+    
+    client = DepylerMCPClient()
+    
+    python_code = """
+def add_numbers(a: int, b: int) -> int:
+    \"\"\"Add two numbers together.\"\"\"
+    return a + b
+
+if __name__ == "__main__":
+    result = add_numbers(5, 3)
+    print(f"Result: {result}")
+"""
+    
+    print("🐍 Python Source:")
+    print(python_code)
+    print()
+    
+    # Transpile using MCP
+    result = await client.call_tool("transpile_python", {
+        "source": python_code.strip(),
+        "mode": "inline",
+        "options": {
+            "optimization_level": "energy",
+            "type_inference": "conservative",
+            "verification_level": "comprehensive"
+        }
+    })
+    
+    print("📤 MCP Response:")
+    print(json.dumps(result, indent=2))
+    print()
+    
+    print("🦀 Generated Rust Code:")
+    print(result["rust_code"])
+    print()
+    
+    print("📊 Transpilation Metrics:")
+    for key, value in result["metrics"].items():
+        print(f"  • {key}: {value}")
+    print()
+
+
+async def example_2_project_analysis():
+    """Example 2: Analyze migration complexity for a project."""
+    print("🔬 Example 2: Project Migration Analysis")
+    print("=" * 50)
+    
+    client = DepylerMCPClient()
+    
+    # Analyze a Python project
+    result = await client.call_tool("analyze_migration_complexity", {
+        "project_path": "./examples/showcase",
+        "analysis_depth": "standard",
+        "options": {
+            "include_patterns": ["*.py"],
+            "exclude_patterns": ["*_test.py"],
+            "consider_dependencies": True
+        }
+    })
+    
+    print("📊 Project Analysis Results:")
+    print(f"  • Complexity Score: {result['complexity_score']}/10")
+    print(f"  • Python LOC: {result['total_python_loc']:,}")
+    print(f"  • Estimated Rust LOC: {result['estimated_rust_loc']:,}")
+    print(f"  • Migration Effort: {result['estimated_effort_hours']} hours")
+    print()
+    
+    print("⚠️  Risk Assessment:")
+    risk = result["risk_assessment"]
+    print(f"  • Overall Risk: {risk['overall_risk']}")
+    for factor in risk["risk_factors"]:
+        print(f"  • {factor['factor']}: {factor['severity']} ({factor['affected_files']} files)")
+        print(f"    Mitigation: {factor['mitigation']}")
+    print()
+    
+    print("🗓️  Migration Strategy:")
+    strategy = result["migration_strategy"]
+    print(f"  • Approach: {strategy['recommended_approach']}")
+    for phase in strategy["phases"]:
+        print(f"  • Phase {phase['phase']}: {phase['description']}")
+        print(f"    Effort: {phase['estimated_hours']} hours")
+        print(f"    Files: {', '.join(phase['files'])}")
+    print()
+
+
+async def example_3_verification():
+    """Example 3: Verify transpilation correctness."""
+    print("🔬 Example 3: Transpilation Verification")
+    print("=" * 50)
+    
+    client = DepylerMCPClient()
+    
+    python_source = """
+def factorial(n: int) -> int:
+    if n <= 1:
+        return 1
+    return n * factorial(n - 1)
+"""
+    
+    rust_source = """
+fn factorial(n: i32) -> i32 {
+    if n <= 1 {
+        1
+    } else {
+        n * factorial(n - 1)
+    }
+}
+"""
+    
+    print("🔍 Verifying semantic equivalence...")
+    print()
+    
+    result = await client.call_tool("verify_transpilation", {
+        "python_source": python_source.strip(),
+        "rust_source": rust_source.strip(),
+        "verification_level": "comprehensive",
+        "options": {
+            "property_checks": ["termination", "memory_safety", "overflow"],
+            "test_cases": [
+                {"input": [5], "expected_output": 120},
+                {"input": [0], "expected_output": 1},
+                {"input": [1], "expected_output": 1}
+            ]
+        }
+    })
+    
+    print("✅ Verification Results:")
+    print(f"  • Passed: {result['verification_passed']}")
+    print(f"  • Semantic Equivalence: {result['semantic_equivalence_score']:.1%}")
+    print()
+    
+    print("🛡️  Safety Guarantees:")
+    for guarantee in result["safety_guarantees"]:
+        print(f"  • {guarantee}")
+    print()
+    
+    print("⚡ Performance Comparison:")
+    perf = result["performance_comparison"]
+    for metric, improvement in perf.items():
+        print(f"  • {metric.replace('_', ' ').title()}: {improvement}")
+    print()
+    
+    print("🧪 Property Verification:")
+    for prop in result["property_verification_results"]:
+        print(f"  • {prop['property']}: {prop['status']} ({prop['method']})")
+    print()
+
+
+async def example_4_batch_processing():
+    """Example 4: Batch processing multiple files."""
+    print("🔬 Example 4: Batch Processing Workflow")
+    print("=" * 50)
+    
+    client = DepylerMCPClient()
+    
+    # List of Python files to process
+    python_files = [
+        ("binary_search.py", "def binary_search(arr, target): ..."),
+        ("calculate_sum.py", "def calculate_sum(numbers): ..."),
+        ("classify_number.py", "def classify_number(n): ...")
+    ]
+    
+    print("🔄 Processing multiple files with MCP...")
+    print()
+    
+    results = []
+    
+    for filename, code_snippet in python_files:
+        print(f"📄 Processing {filename}...")
+        
+        # Transpile each file
+        transpile_result = await client.call_tool("transpile_python", {
+            "source": code_snippet,
+            "mode": "file",
+            "options": {
+                "optimization_level": "balanced",
+                "verification_level": "basic"
+            }
+        })
+        
+        # Verify the transpilation
+        verify_result = await client.call_tool("verify_transpilation", {
+            "python_source": code_snippet,
+            "rust_source": transpile_result["rust_code"],
+            "verification_level": "standard"
+        })
+        
+        results.append({
+            "filename": filename,
+            "transpile_metrics": transpile_result["metrics"],
+            "verification_passed": verify_result["verification_passed"],
+            "performance_gain": verify_result["performance_comparison"]["rust_faster_by"]
+        })
+        
+        print(f"  ✅ {filename} processed successfully")
+    
+    print()
+    print("📊 Batch Processing Summary:")
+    print(f"  • Files processed: {len(results)}")
+    print(f"  • Success rate: {len([r for r in results if r['verification_passed']])/len(results):.1%}")
+    
+    total_loc = sum(r["transpile_metrics"]["lines_of_code"] for r in results)
+    avg_performance = sum(int(r["performance_gain"].rstrip('%')) for r in results) / len(results)
+    
+    print(f"  • Total lines of Rust: {total_loc}")
+    print(f"  • Average performance gain: {avg_performance:.1f}%")
+    print()
+
+
+async def example_5_ai_assistant_integration():
+    """Example 5: Integration pattern for AI assistants."""
+    print("🔬 Example 5: AI Assistant Integration Pattern")
+    print("=" * 50)
+    
+    print("🤖 AI Assistant Workflow:")
+    print()
+    
+    # Step 1: Project analysis
+    print("1️⃣  Analyze Python project complexity...")
+    analysis_request = {
+        "tool": "analyze_migration_complexity",
+        "arguments": {
+            "project_path": "/path/to/python/project",
+            "analysis_depth": "deep"
+        }
+    }
+    print(f"   Request: {json.dumps(analysis_request, indent=6)}")
+    print()
+    
+    # Step 2: Incremental transpilation
+    print("2️⃣  Transpile files in priority order...")
+    transpile_request = {
+        "tool": "transpile_python", 
+        "arguments": {
+            "source": "# Python code from high-priority file",
+            "mode": "file",
+            "options": {
+                "optimization_level": "energy",
+                "verification_level": "comprehensive"
+            }
+        }
+    }
+    print(f"   Request: {json.dumps(transpile_request, indent=6)}")
+    print()
+    
+    # Step 3: Verification
+    print("3️⃣  Verify each transpilation...")
+    verify_request = {
+        "tool": "verify_transpilation",
+        "arguments": {
+            "python_source": "# Original Python",
+            "rust_source": "# Generated Rust", 
+            "verification_level": "comprehensive"
+        }
+    }
+    print(f"   Request: {json.dumps(verify_request, indent=6)}")
+    print()
+    
+    print("🎯 Integration Benefits:")
+    print("  • AI assistants can make intelligent migration decisions")
+    print("  • Automated quality assurance through verification")
+    print("  • Incremental migration reduces project risk")
+    print("  • Performance metrics guide optimization priorities")
+    print()
+
+
+async def main():
+    """Run all MCP usage examples."""
+    print("🚀 Depyler MCP Integration Examples")
+    print("=" * 60)
+    print()
+    print("This script demonstrates various ways to use Depyler's")
+    print("Model Context Protocol (MCP) integration for AI-powered")
+    print("Python-to-Rust transpilation.")
+    print()
+    print("📋 Examples included:")
+    print("  1. Simple function transpilation")
+    print("  2. Project migration analysis") 
+    print("  3. Transpilation verification")
+    print("  4. Batch processing workflow")
+    print("  5. AI assistant integration patterns")
+    print()
+    print("=" * 60)
+    print()
+    
+    # Run examples
+    await example_1_simple_transpilation()
+    print("\n" + "="*60 + "\n")
+    
+    await example_2_project_analysis()
+    print("\n" + "="*60 + "\n")
+    
+    await example_3_verification()
+    print("\n" + "="*60 + "\n")
+    
+    await example_4_batch_processing()
+    print("\n" + "="*60 + "\n")
+    
+    await example_5_ai_assistant_integration()
+    
+    print("🎉 All examples completed!")
+    print()
+    print("📖 For more information:")
+    print("  • MCP Integration Guide: docs/mcp-integration.md")
+    print("  • API Reference: docs/cli-reference.md")
+    print("  • GitHub: https://github.com/paiml/depyler")
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
+'''
+
+rust = '''
+Error: Only simple name targets supported for loops
+'''
+
+[[test]]
+name = "module_mapping_demo"
+description = "!/usr/bin/env python3"
+
+python = '''
+#!/usr/bin/env python3
+"""
+Example: Module Mapping Demonstration
+
+This example shows how various Python imports are mapped to their
+Rust equivalents by Depyler's module mapping system.
+"""
+
+# Standard library imports
+import os
+import sys
+from os.path import join, exists
+from sys import argv, exit as sys_exit
+
+# External package imports  
+import json
+import re
+from datetime import datetime, timedelta
+from typing import List, Dict, Optional, Union
+
+# Collections and itertools
+from collections import defaultdict, deque
+import itertools
+
+# Other common modules
+import random
+import math
+import hashlib
+import base64
+from pathlib import Path
+import tempfile
+import csv
+
+def demonstrate_os_operations():
+    """Show how OS operations map to Rust."""
+    # os.getcwd() -> std::env::current_dir()
+    current_dir = os.getcwd()
+    print(f"Current directory: {current_dir}")
+    
+    # os.environ -> std::env::vars()
+    for key, value in os.environ.items():
+        if key.startswith("PATH"):
+            print(f"{key}: {value[:50]}...")
+    
+    # os.path operations -> std::path::Path methods
+    path = join("/tmp", "test.txt")
+    if exists(path):
+        print(f"Path exists: {path}")
+
+def demonstrate_json_operations(data: Dict[str, any]):
+    """Show how JSON operations map to serde_json."""
+    # json.dumps() -> serde_json::to_string()
+    json_str = json.dumps(data, indent=2)
+    
+    # json.loads() -> serde_json::from_str()
+    parsed = json.loads(json_str)
+    
+    return parsed
+
+def demonstrate_regex_operations(text: str, pattern: str):
+    """Show how regex operations map to the regex crate."""
+    # re.compile() -> regex::Regex::new()
+    regex = re.compile(pattern)
+    
+    # re.search() -> regex::Regex::find()
+    match = regex.search(text)
+    if match:
+        return match.group()
+    
+    # re.findall() -> regex::Regex::find_iter()
+    all_matches = regex.findall(text)
+    return all_matches
+
+def demonstrate_datetime_operations():
+    """Show how datetime operations map to chrono."""
+    # datetime.datetime -> chrono::DateTime
+    now = datetime.now()
+    
+    # timedelta -> chrono::Duration
+    delta = timedelta(days=7, hours=3, minutes=30)
+    
+    future = now + delta
+    return future
+
+def demonstrate_typing_annotations(
+    items: List[int],
+    config: Dict[str, str],
+    value: Optional[float],
+    result: Union[int, str]
+) -> List[str]:
+    """Show how typing annotations map to Rust types.
+    
+    List -> Vec
+    Dict -> HashMap
+    Optional -> Option
+    Union -> (custom enum or trait object)
+    """
+    return [str(item) for item in items]
+
+def demonstrate_collections():
+    """Show how collections map to Rust standard library."""
+    # defaultdict -> HashMap with default
+    counts = defaultdict(int)
+    
+    # deque -> VecDeque
+    queue = deque([1, 2, 3])
+    queue.append(4)
+    queue.appendleft(0)
+    
+    return dict(counts), list(queue)
+
+def demonstrate_math_operations(x: float) -> float:
+    """Show how math operations map to std::f64."""
+    # math functions -> f64 methods
+    result = math.sqrt(x)
+    result += math.sin(math.pi / 4)
+    result *= math.cos(math.e)
+    
+    return result
+
+def demonstrate_random_operations(items: List[str]) -> str:
+    """Show how random operations map to the rand crate."""
+    # random.choice() -> rand::seq::SliceRandom::choose()
+    choice = random.choice(items)
+    
+    # random.randint() -> rand::Rng::gen_range()
+    num = random.randint(1, 100)
+    
+    return f"{choice}:{num}"
+
+def demonstrate_itertools_operations(data: List[int]):
+    """Show how itertools maps to the itertools crate."""
+    # itertools.chain() -> itertools::chain()
+    chained = itertools.chain(data, [100, 200])
+    
+    # itertools.combinations() -> itertools::combinations()
+    combos = itertools.combinations(data, 2)
+    
+    # itertools.groupby() -> itertools::group_by()
+    grouped = itertools.groupby(data, key=lambda x: x % 2)
+    
+    return list(chained), list(combos), list(grouped)
+
+def demonstrate_hash_operations(data: bytes) -> str:
+    """Show how hashlib maps to crypto crates."""
+    # hashlib.sha256() -> sha2::Sha256
+    hash_obj = hashlib.sha256()
+    hash_obj.update(data)
+    digest = hash_obj.hexdigest()
+    
+    # base64.b64encode() -> base64::encode()
+    encoded = base64.b64encode(data).decode('utf-8')
+    
+    return f"SHA256: {digest}, Base64: {encoded}"
+
+def demonstrate_path_operations():
+    """Show how pathlib maps to std::path."""
+    # Path -> PathBuf
+    path = Path("/tmp/test.txt")
+    
+    # Path methods map to Path/PathBuf methods
+    if path.exists():
+        parent = path.parent
+        name = path.name
+        return f"Parent: {parent}, Name: {name}"
+    
+    return "Path does not exist"
+
+def demonstrate_file_operations():
+    """Show how tempfile maps to the tempfile crate."""
+    # NamedTemporaryFile -> tempfile::NamedTempFile
+    with tempfile.NamedTemporaryFile(mode='w', delete=False) as tmp:
+        tmp.write("Test data")
+        return tmp.name
+
+def demonstrate_csv_operations(filename: str):
+    """Show how csv module maps to the csv crate."""
+    # csv.reader() -> csv::Reader
+    # csv.writer() -> csv::Writer
+    data = [
+        ['Name', 'Age', 'City'],
+        ['Alice', '30', 'New York'],
+        ['Bob', '25', 'San Francisco']
+    ]
+    
+    # Write CSV
+    with open(filename, 'w', newline='') as f:
+        writer = csv.writer(f)
+        writer.writerows(data)
+    
+    # Read CSV
+    with open(filename, 'r') as f:
+        reader = csv.reader(f)
+        rows = list(reader)
+    
+    return rows
+
+if __name__ == "__main__":
+    print("Module Mapping Demonstration")
+    print("=" * 40)
+    
+    # Demonstrate various module mappings
+    demonstrate_os_operations()
+    
+    data = {"name": "test", "value": 42}
+    result = demonstrate_json_operations(data)
+    print(f"JSON result: {result}")
+    
+    matches = demonstrate_regex_operations("Hello 123 World 456", r"\d+")
+    print(f"Regex matches: {matches}")
+    
+    future = demonstrate_datetime_operations()
+    print(f"Future date: {future}")
+    
+    typed_result = demonstrate_typing_annotations(
+        [1, 2, 3],
+        {"key": "value"},
+        3.14,
+        "result"
+    )
+    print(f"Typed result: {typed_result}")
+    
+    collections_result = demonstrate_collections()
+    print(f"Collections: {collections_result}")
+    
+    math_result = demonstrate_math_operations(16.0)
+    print(f"Math result: {math_result}")
+    
+    random_result = demonstrate_random_operations(["apple", "banana", "cherry"])
+    print(f"Random result: {random_result}")
+    
+    hash_result = demonstrate_hash_operations(b"Hello, World!")
+    print(f"Hash result: {hash_result}")
+    
+    path_result = demonstrate_path_operations()
+    print(f"Path result: {path_result}")
+    
+    temp_file = demonstrate_file_operations()
+    print(f"Temp file: {temp_file}")
+    
+    # Clean up temp file
+    os.unlink(temp_file)
+'''
+
+rust = '''
+Error: Only simple name targets supported for loops
+'''
+
+[[test]]
+name = "simple_migration_demo"
+description = "Example test"
+
+python = '''
+"""
+Simple example to demonstrate migration suggestions.
+"""
+
+def accumulator_example(items):
+    """Shows accumulator pattern."""
+    result = []
+    for item in items:
+        result.append(item * 2)
+    return result
+
+
+def string_concat_example(values):
+    """Shows inefficient string building."""
+    output = ""
+    for val in values:
+        output = output + str(val)
+    return output
+
+
+def enumerate_example(data):
+    """Shows range(len()) antipattern."""
+    for i in range(len(data)):
+        print(i, data[i])
+
+
+def while_true_example():
+    """Shows while True pattern."""
+    count = 0
+    while True:
+        count = count + 1
+        if count > 10:
+            break
+    return count
+'''
+
+rust = '''
+use serde_json;
+#[derive(Debug, Clone)]
+pub struct IndexError {
+    message: String,
+}
+impl std::fmt::Display for IndexError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "index out of range: {}", self.message)
+    }
+}
+impl std::error::Error for IndexError {}
+impl IndexError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = "Shows accumulator pattern."]
+#[doc = " Depyler: verified panic-free"]
+pub fn accumulator_example(items: &serde_json::Value) -> Vec<serde_json::Value> {
+    let mut result = vec![];
+    for item in items.iter().cloned() {
+        result.push(item * 2);
+    }
+    result
+}
+#[doc = "Shows inefficient string building."]
+#[doc = " Depyler: verified panic-free"]
+pub fn string_concat_example(values: &serde_json::Value) -> String {
+    let mut output = "";
+    for val in values.iter().cloned() {
+        output = format!("{}{}", output, val.to_string());
+    }
+    output
+}
+#[doc = "Shows range(len()) antipattern."]
+#[doc = " Depyler: proven to terminate"]
+pub fn enumerate_example(data: &serde_json::Value) -> Result<(), IndexError> {
+    for i in 0..data.len() as i32 {
+        println!(
+            "{} {}",
+            i,
+            data.get(i as usize).cloned().unwrap_or_default()
+        );
+    }
+}
+#[doc = "Shows while True pattern."]
+#[doc = " Depyler: verified panic-free"]
+pub fn while_true_example() -> i32 {
+    let mut count = 0;
+    while true {
+        count = count + 1;
+        if count > 10 {
+            break;
+        }
+    }
+    count
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{quickcheck, TestResult};
+    #[test]
+    fn test_while_true_example_examples() {
+        let _ = while_true_example();
+    }
+}
+'''
+
+[[test]]
+name = "test_augmented_assign"
+description = "Example test"
+
+python = '''
+"""Test augmented assignment in classes"""
+
+class Counter:
+    def __init__(self, initial: int = 0):
+        self.value = initial
+    
+    def increment(self, amount: int):
+        """Test augmented assignment"""
+        self.value += amount
+        return self.value
+
+def test_counter():
+    c = Counter(10)
+    result = c.increment(5)
+    return result
+'''
+
+rust = '''
+#[derive(Debug, Clone)]
+pub struct Counter {
+    pub value: i32,
+}
+impl Counter {
+    pub fn new(initial: i32) -> Self {
+        Self { value: 0 }
+    }
+    pub fn increment(&mut self, amount: i32) {
+        self.value = self.value + amount;
+        return self.value;
+    }
+}
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn test_counter() -> i32 {
+    let mut c = Counter::new(10);
+    let result = c.increment(5);
+    result
+}
+'''
+
+[[test]]
+name = "test_cse"
+description = "Example test"
+
+python = '''
+"""
+Example demonstrating Common Subexpression Elimination (CSE).
+"""
+
+def repeated_complex_expressions(a: int, b: int, c: int) -> int:
+    """Multiple uses of the same complex expression."""
+    # (a + b) * c appears multiple times
+    x = (a + b) * c + 10
+    y = (a + b) * c - 5
+    z = ((a + b) * c) * 2
+    
+    # This should be optimized to compute (a + b) * c once
+    return x + y + z
+
+
+def repeated_function_calls(n: int) -> int:
+    """Repeated calls to pure functions."""
+    # abs(n - 10) is computed multiple times
+    if abs(n - 10) > 5:
+        result = abs(n - 10) * 2
+    else:
+        result = abs(n - 10) + 100
+    
+    # Should compute abs(n - 10) once
+    return result + abs(n - 10)
+
+
+def nested_expressions(x: int, y: int) -> int:
+    """Nested common subexpressions."""
+    # x * y appears in multiple places
+    a = (x * y) + (x * y) * 2
+    b = (x * y) * (x * y)
+    
+    # More complex: (x + 1) * (y + 1)
+    c = (x + 1) * (y + 1) + 10
+    d = (x + 1) * (y + 1) - 20
+    
+    return a + b + c + d
+
+
+def conditional_cse(flag: bool, a: int, b: int) -> int:
+    """CSE across conditional branches."""
+    base = (a * b) + (a - b)
+    
+    if flag:
+        # Same subexpression in then branch
+        result = (a * b) + (a - b) + 10
+    else:
+        # Same subexpression in else branch
+        result = (a * b) + (a - b) - 10
+    
+    return result + base
+
+
+def loop_invariant_expressions(items: list) -> int:
+    """Expressions that don't change in loops."""
+    x = 10
+    y = 20
+    total = 0
+    
+    for item in items:
+        # (x + y) * 2 is loop invariant
+        total += item + (x + y) * 2
+    
+    return total
+'''
+
+rust = '''
+use serde_json;
+#[doc = "Multiple uses of the same complex expression."]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn repeated_complex_expressions(a: i32, b: i32, c: i32) -> i32 {
+    let _cse_temp_0 = a + b * c;
+    let x = _cse_temp_0 + 10;
+    let y = _cse_temp_0 - 5;
+    let _cse_temp_1 = _cse_temp_0 * 2;
+    let z = _cse_temp_1;
+    x + y + z
+}
+#[doc = "Repeated calls to pure functions."]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn repeated_function_calls(n: i32) -> i32 {
+    let _cse_temp_0 = n - 10.abs();
+    let _cse_temp_1 = _cse_temp_0 > 5;
+    let mut result;
+    if _cse_temp_1 {
+        let _cse_temp_2 = _cse_temp_0 * 2;
+        result = _cse_temp_2;
+    } else {
+        result = _cse_temp_0 + 100;
+    }
+    result + n - 10.abs()
+}
+#[doc = "Nested common subexpressions."]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn nested_expressions(x: i32, y: i32) -> i32 {
+    let _cse_temp_0 = x * y;
+    let _cse_temp_1 = _cse_temp_0 * 2;
+    let a = _cse_temp_0 + _cse_temp_1;
+    let _cse_temp_2 = _cse_temp_0 * _cse_temp_0;
+    let b = _cse_temp_2;
+    let _cse_temp_3 = x + 1 * y + 1;
+    let c = _cse_temp_3 + 10;
+    let d = _cse_temp_3 - 20;
+    a + b + c + d
+}
+#[doc = "CSE across conditional branches."]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn conditional_cse(flag: bool, a: i32, b: i32) -> i32 {
+    let _cse_temp_0 = a * b;
+    let _cse_temp_1 = _cse_temp_0 + a - b;
+    let base = _cse_temp_1;
+    let mut result;
+    if flag {
+        result = _cse_temp_1 + 10;
+    } else {
+        result = _cse_temp_1 - 10;
+    }
+    result + base
+}
+#[doc = "Expressions that don't change in loops."]
+#[doc = " Depyler: verified panic-free"]
+pub fn loop_invariant_expressions(items: &Vec<serde_json::Value>) -> i32 {
+    let x = 10;
+    let y = 20;
+    let mut total = 0;
+    for item in items.iter().cloned() {
+        total = total + item + x + y * 2;
+    }
+    total
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{quickcheck, TestResult};
+    #[test]
+    fn test_repeated_function_calls_examples() {
+        assert_eq!(repeated_function_calls(0), 0);
+        assert_eq!(repeated_function_calls(1), 1);
+        assert_eq!(repeated_function_calls(-1), -1);
+    }
+    #[test]
+    fn test_nested_expressions_examples() {
+        assert_eq!(nested_expressions(0, 0), 0);
+        assert_eq!(nested_expressions(1, 2), 3);
+        assert_eq!(nested_expressions(-1, 1), 0);
+    }
+    #[test]
+    fn test_loop_invariant_expressions_examples() {
+        assert_eq!(loop_invariant_expressions(&vec![]), 0);
+        assert_eq!(loop_invariant_expressions(&vec![1]), 1);
+        assert_eq!(loop_invariant_expressions(&vec![1, 2, 3]), 3);
+    }
+}
+'''
+
+[[test]]
+name = "test_debugging"
+description = "Example test"
+
+python = '''
+"""
+Example demonstrating debugging features.
+"""
+
+def fibonacci(n: int) -> int:
+    """Calculate fibonacci number recursively."""
+    if n <= 1:
+        return n
+    
+    # Recursive calls
+    return fibonacci(n - 1) + fibonacci(n - 2)
+
+
+def find_prime_factors(n: int) -> list[int]:
+    """Find all prime factors of a number."""
+    factors = []
+    d = 2
+    
+    while d * d <= n:
+        while n % d == 0:
+            factors.append(d)
+            n = n // d
+        d = d + 1
+    
+    if n > 1:
+        factors.append(n)
+    
+    return factors
+
+
+def binary_search(arr: list[int], target: int) -> int:
+    """Perform binary search on sorted array."""
+    left = 0
+    right = len(arr) - 1
+    
+    while left <= right:
+        mid = (left + right) // 2
+        
+        if arr[mid] == target:
+            return mid
+        elif arr[mid] < target:
+            left = mid + 1
+        else:
+            right = mid - 1
+    
+    return -1
+
+
+# Test the functions
+def test_functions():
+    # Test fibonacci
+    result = fibonacci(10)
+    print(f"Fibonacci(10) = {result}")
+    
+    # Test prime factors
+    factors = find_prime_factors(60)
+    print(f"Prime factors of 60: {factors}")
+    
+    # Test binary search
+    test_array = [1, 3, 5, 7, 9, 11, 13, 15, 17, 19]
+    index = binary_search(test_array, 7)
+    print(f"Index of 7: {index}")
+
+
+if __name__ == "__main__":
+    test_functions()
+'''
+
+rust = '''
+#[derive(Debug, Clone)]
+pub struct ZeroDivisionError {
+    message: String,
+}
+impl std::fmt::Display for ZeroDivisionError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "division by zero: {}", self.message)
+    }
+}
+impl std::error::Error for ZeroDivisionError {}
+impl ZeroDivisionError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[derive(Debug, Clone)]
+pub struct IndexError {
+    message: String,
+}
+impl std::fmt::Display for IndexError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "index out of range: {}", self.message)
+    }
+}
+impl std::error::Error for IndexError {}
+impl IndexError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = "Calculate fibonacci number recursively."]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn fibonacci(n: i32) -> i32 {
+    let _cse_temp_0 = n <= 1;
+    if _cse_temp_0 {
+        return n;
+    }
+    fibonacci(n - 1) + fibonacci(n - 2)
+}
+#[doc = "Find all prime factors of a number."]
+pub fn find_prime_factors(mut n: i32) -> Result<Vec<i32>, ZeroDivisionError> {
+    let mut factors = vec![];
+    let mut d = 2;
+    while d * d <= n {
+        while n % d == 0 {
+            factors.push(d);
+            n = {
+                let a = n;
+                let b = d;
+                let q = a / b;
+                let r = a % b;
+                let r_negative = r < 0;
+                let b_negative = b < 0;
+                let r_nonzero = r != 0;
+                let signs_differ = r_negative != b_negative;
+                let needs_adjustment = r_nonzero && signs_differ;
+                if needs_adjustment {
+                    q - 1
+                } else {
+                    q
+                }
+            };
+        }
+        d = d + 1;
+    }
+    let _cse_temp_0 = n > 1;
+    if _cse_temp_0 {
+        factors.push(n);
+    }
+    Ok(factors)
+}
+#[doc = "Perform binary search on sorted array."]
+pub fn binary_search(arr: &Vec<i32>, target: i32) -> Result<i32, Box<dyn std::error::Error>> {
+    let mut left = 0;
+    let _cse_temp_0 = arr.len() as i32;
+    let mut right = _cse_temp_0 - 1;
+    while left <= right {
+        let mid = {
+            let a = left + right;
+            let b = 2;
+            let q = a / b;
+            let r = a % b;
+            let r_negative = r < 0;
+            let b_negative = b < 0;
+            let r_nonzero = r != 0;
+            let signs_differ = r_negative != b_negative;
+            let needs_adjustment = r_nonzero && signs_differ;
+            if needs_adjustment {
+                q - 1
+            } else {
+                q
+            }
+        };
+        if arr.get(mid as usize).cloned().unwrap_or_default() == target {
+            return Ok(mid);
+        } else {
+            if arr.get(mid as usize).cloned().unwrap_or_default() < target {
+                left = mid + 1;
+            } else {
+                right = mid - 1;
+            }
+        }
+    }
+    Ok(-1)
+}
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn test_functions() -> Result<(), Box<dyn std::error::Error>> {
+    let result = fibonacci(10);
+    println!("{}", format!("Fibonacci(10) = {:?}", result));
+    let mut factors = find_prime_factors(60)?;
+    println!("{}", format!("Prime factors of 60: {:?}", factors));
+    let test_array = vec![1, 3, 5, 7, 9, 11, 13, 15, 17, 19];
+    let index = binary_search(&test_array, 7)?;
+    println!("{}", format!("Index of 7: {:?}", index));
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{quickcheck, TestResult};
+    #[test]
+    fn test_fibonacci_examples() {
+        assert_eq!(fibonacci(0), 0);
+        assert_eq!(fibonacci(1), 1);
+        assert_eq!(fibonacci(-1), -1);
+    }
+}
+'''
+
+[[test]]
+name = "test_debugging_simple"
+description = "Example test"
+
+python = '''
+"""
+Simple example for debugging features.
+"""
+
+def calculate_sum(numbers: list[int]) -> int:
+    """Calculate sum of numbers."""
+    total = 0
+    for num in numbers:
+        total = total + num
+    return total
+
+
+def find_max(values: list[int]) -> int:
+    """Find maximum value."""
+    if not values:
+        return 0
+    
+    max_val = values[0]
+    for val in values:
+        if val > max_val:
+            max_val = val
+    
+    return max_val
+
+
+def process_data(data: list[int]) -> dict[str, int]:
+    """Process data and return statistics."""
+    result = {
+        "sum": calculate_sum(data),
+        "max": find_max(data),
+        "count": len(data)
+    }
+    return result
+'''
+
+rust = '''
+use std::collections::HashMap;
+#[derive(Debug, Clone)]
+pub struct IndexError {
+    message: String,
+}
+impl std::fmt::Display for IndexError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "index out of range: {}", self.message)
+    }
+}
+impl std::error::Error for IndexError {}
+impl IndexError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = "Calculate sum of numbers."]
+#[doc = " Depyler: verified panic-free"]
+pub fn calculate_sum(numbers: &Vec<i32>) -> i32 {
+    let mut total = 0;
+    for num in numbers.iter().cloned() {
+        total = total + num;
+    }
+    total
+}
+#[doc = "Find maximum value."]
+pub fn find_max(values: &Vec<i32>) -> Result<i32, IndexError> {
+    if values.is_empty() {
+        return Ok(0);
+    }
+    let mut max_val = values.get(0usize).cloned().unwrap_or_default();
+    for val in values.iter().cloned() {
+        if val > max_val {
+            max_val = val;
+        }
+    }
+    Ok(max_val)
+}
+#[doc = "Process data and return statistics."]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn process_data(data: Vec<i32>) -> HashMap<String, i32> {
+    let result = {
+        let mut map = HashMap::new();
+        map.insert("sum".to_string(), calculate_sum(&data));
+        map.insert("max".to_string(), find_max(&data));
+        map.insert("count".to_string(), data.len() as i32);
+        map
+    };
+    result
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{quickcheck, TestResult};
+    #[test]
+    fn test_calculate_sum_examples() {
+        assert_eq!(calculate_sum(&vec![]), 0);
+        assert_eq!(calculate_sum(&vec![1]), 1);
+        assert_eq!(calculate_sum(&vec![1, 2, 3]), 6);
+    }
+    #[test]
+    fn test_find_max_examples() {
+        assert_eq!(find_max(&vec![]), 0);
+        assert_eq!(find_max(&vec![1]), 1);
+        assert_eq!(find_max(&vec![1, 2, 3]), 3);
+    }
+}
+'''
+
+[[test]]
+name = "test_ide_integration"
+description = "Example test"
+
+python = '''
+"""
+Example demonstrating IDE integration features.
+"""
+
+def calculate_fibonacci(n: int) -> int:
+    """Calculate the nth Fibonacci number.
+    
+    Uses recursion with memoization for efficiency.
+    """
+    if n <= 1:
+        return n
+    return calculate_fibonacci(n - 1) + calculate_fibonacci(n - 2)
+
+
+class MathUtils:
+    """Utility class for mathematical operations."""
+    
+    def __init__(self):
+        self.precision = 2
+    
+    def round_number(self, value: float) -> float:
+        """Round a number to the configured precision."""
+        return round(value, self.precision)
+    
+    @staticmethod
+    def is_prime(n: int) -> bool:
+        """Check if a number is prime."""
+        if n < 2:
+            return False
+        for i in range(2, int(n ** 0.5) + 1):
+            if n % i == 0:
+                return False
+        return True
+
+
+def process_data(items: list[int]) -> dict[str, int]:
+    """Process a list of integers and return statistics."""
+    utils = MathUtils()
+    
+    stats = {
+        "count": len(items),
+        "sum": sum(items),
+        "primes": 0
+    }
+    
+    for item in items:
+        if utils.is_prime(item):
+            stats["primes"] = stats["primes"] + 1
+    
+    return stats
+
+
+# Example usage that would trigger hover/completion
+result = calculate_fibonacci(10)
+math_util = MathUtils()
+rounded = math_util.round_number(3.14159)
+'''
+
+rust = '''
+use std::collections::HashMap;
+#[derive(Debug, Clone)]
+pub struct IndexError {
+    message: String,
+}
+impl std::fmt::Display for IndexError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "index out of range: {}", self.message)
+    }
+}
+impl std::error::Error for IndexError {}
+impl IndexError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[derive(Debug, Clone)]
+pub struct MathUtils {
+    pub precision: i32,
+}
+impl MathUtils {
+    pub fn new() -> Self {
+        Self { precision: 0 }
+    }
+    pub fn round_number(&self, value: f64) -> f64 {
+        return round(value, self.precision);
+    }
+    pub fn is_prime(n: i32) -> bool {
+        if n < 2 {
+            return false;
+        };
+        for i in 2..int((n as f64).powf(0.5 as f64)) + 1 {
+            if n % i == 0 {
+                return false;
+            };
+        }
+        return true;
+    }
+}
+#[doc = "Calculate the nth Fibonacci number.\n    \n    Uses recursion with memoization for efficiency.\n    "]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn calculate_fibonacci(n: i32) -> i32 {
+    let _cse_temp_0 = n <= 1;
+    if _cse_temp_0 {
+        return n;
+    }
+    calculate_fibonacci(n - 1) + calculate_fibonacci(n - 2)
+}
+#[doc = "Process a list of integers and return statistics."]
+pub fn process_data(items: Vec<i32>) -> Result<HashMap<String, i32>, IndexError> {
+    let utils = MathUtils::new();
+    let mut stats = {
+        let mut map = HashMap::new();
+        map.insert("count".to_string(), items.len() as i32);
+        map.insert("sum".to_string(), items.iter().sum::<i32>());
+        map.insert("primes".to_string(), 0);
+        map
+    };
+    for item in items.iter().cloned() {
+        if utils.is_prime(item) {
+            stats.insert(
+                "primes",
+                stats.get("primes").cloned().unwrap_or_default() + 1,
+            );
+        }
+    }
+    Ok(stats)
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{quickcheck, TestResult};
+    #[test]
+    fn test_calculate_fibonacci_examples() {
+        assert_eq!(calculate_fibonacci(0), 0);
+        assert_eq!(calculate_fibonacci(1), 1);
+        assert_eq!(calculate_fibonacci(-1), -1);
+    }
+}
+'''
+
+[[test]]
+name = "test_inlining"
+description = "Example test"
+
+python = '''
+"""
+Example demonstrating function inlining optimizations in Depyler.
+"""
+
+def square(x: int) -> int:
+    """Trivial function - should be inlined."""
+    return x * x
+
+
+def add_one(n: int) -> int:
+    """Another trivial function."""
+    return n + 1
+
+
+def compute_distance_squared(x1: int, y1: int, x2: int, y2: int) -> int:
+    """Should inline the square calls."""
+    dx = x2 - x1
+    dy = y2 - y1
+    return square(dx) + square(dy)
+
+
+def process_single_use(value: int) -> int:
+    """Called only once - should be inlined."""
+    temp = value * 2
+    result = temp + 10
+    return result
+
+
+def main_computation(a: int, b: int) -> int:
+    """Main function that uses other functions."""
+    # This should inline process_single_use
+    step1 = process_single_use(a)
+    
+    # These should inline add_one
+    step2 = add_one(step1)
+    step3 = add_one(b)
+    
+    # This should inline square calls
+    distance = compute_distance_squared(0, 0, step2, step3)
+    
+    return distance
+
+
+def recursive_factorial(n: int) -> int:
+    """Recursive function - should NOT be inlined."""
+    if n <= 1:
+        return 1
+    return n * recursive_factorial(n - 1)
+
+
+def has_loop(items: list) -> int:
+    """Contains loop - may not be inlined depending on config."""
+    total = 0
+    for item in items:
+        total = total + item
+    return total
+
+
+def large_function(x: int, y: int, z: int) -> int:
+    """Large function - should NOT be inlined."""
+    a = x + y
+    b = y + z
+    c = z + x
+    d = a * b
+    e = b * c
+    f = c * a
+    g = d + e
+    h = e + f
+    i = f + d
+    j = g * h
+    k = h * i
+    l = i * g
+    m = j + k
+    n = k + l
+    o = l + j
+    result = m + n + o
+    return result
+'''
+
+rust = '''
+use serde_json;
+#[doc = "Trivial function - should be inlined."]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn square(x: i32) -> i32 {
+    x * x
+}
+#[doc = "Another trivial function."]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn add_one(n: i32) -> i32 {
+    n + 1
+}
+#[doc = "Should inline the square calls."]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn compute_distance_squared(x1: i32, y1: i32, x2: i32, y2: i32) -> i32 {
+    let dx = x2 - x1;
+    let dy = y2 - y1;
+    square(dx) + square(dy)
+}
+#[doc = "Called only once - should be inlined."]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn process_single_use(value: i32) -> i32 {
+    let _cse_temp_0 = value * 2;
+    let temp = _cse_temp_0;
+    let result = temp + 10;
+    result
+}
+#[doc = "Main function that uses other functions."]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn main_computation(a: i32, b: i32) -> i32 {
+    let step1 = process_single_use(a);
+    let step2 = add_one(step1);
+    let step3 = add_one(b);
+    let distance = compute_distance_squared(0, 0, step2, step3);
+    distance
+}
+#[doc = "Recursive function - should NOT be inlined."]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn recursive_factorial(n: i32) -> i32 {
+    let _cse_temp_0 = n <= 1;
+    if _cse_temp_0 {
+        return 1;
+    }
+    n * recursive_factorial(n - 1)
+}
+#[doc = "Contains loop - may not be inlined depending on config."]
+#[doc = " Depyler: verified panic-free"]
+pub fn has_loop(items: &Vec<serde_json::Value>) -> i32 {
+    let mut total = 0;
+    for item in items.iter().cloned() {
+        total = total + item;
+    }
+    total
+}
+#[doc = "Large function - should NOT be inlined."]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn large_function(x: i32, y: i32, z: i32) -> i32 {
+    let a = x + y;
+    let b = y + z;
+    let c = z + x;
+    let _cse_temp_0 = a * b;
+    let d = _cse_temp_0;
+    let _cse_temp_1 = b * c;
+    let e = _cse_temp_1;
+    let _cse_temp_2 = c * a;
+    let f = _cse_temp_2;
+    let g = d + e;
+    let h = e + f;
+    let i = f + d;
+    let _cse_temp_3 = g * h;
+    let j = _cse_temp_3;
+    let _cse_temp_4 = h * i;
+    let k = _cse_temp_4;
+    let _cse_temp_5 = i * g;
+    let l = _cse_temp_5;
+    let m = j + k;
+    let n = k + l;
+    let o = l + j;
+    let _cse_temp_6 = m + n + o;
+    let result = _cse_temp_6;
+    result
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{quickcheck, TestResult};
+    #[test]
+    fn test_square_examples() {
+        assert_eq!(square(0), 0);
+        assert_eq!(square(1), 1);
+        assert_eq!(square(-1), -1);
+    }
+    #[test]
+    fn test_add_one_examples() {
+        assert_eq!(add_one(0), 0);
+        assert_eq!(add_one(1), 1);
+        assert_eq!(add_one(-1), -1);
+    }
+    #[test]
+    fn test_process_single_use_examples() {
+        assert_eq!(process_single_use(0), 0);
+        assert_eq!(process_single_use(1), 1);
+        assert_eq!(process_single_use(-1), -1);
+    }
+    #[test]
+    fn test_main_computation_examples() {
+        assert_eq!(main_computation(0, 0), 0);
+        assert_eq!(main_computation(1, 2), 3);
+        assert_eq!(main_computation(-1, 1), 0);
+    }
+    #[test]
+    fn test_recursive_factorial_examples() {
+        assert_eq!(recursive_factorial(0), 0);
+        assert_eq!(recursive_factorial(1), 1);
+        assert_eq!(recursive_factorial(-1), -1);
+    }
+    #[test]
+    fn test_has_loop_examples() {
+        assert_eq!(has_loop(&vec![]), 0);
+        assert_eq!(has_loop(&vec![1]), 1);
+        assert_eq!(has_loop(&vec![1, 2, 3]), 3);
+    }
+}
+'''
+
+[[test]]
+name = "test_interactive"
+description = "Test case for interactive annotation suggestions"
+
+python = '''
+# Test case for interactive annotation suggestions
+
+from typing import List, Dict
+
+def compute_sum(numbers: List[int]) -> int:
+    """Compute the sum of a list of numbers."""
+    total = 0
+    for num in numbers:
+        total += num
+    return total
+
+def binary_search(arr: List[int], target: int) -> int:
+    """Binary search with nested loops and array access."""
+    left = 0
+    right = len(arr) - 1
+    
+    while left <= right:
+        mid = (left + right) // 2
+        if arr[mid] == target:
+            return mid
+        elif arr[mid] < target:
+            left = mid + 1
+        else:
+            right = mid - 1
+    
+    return -1
+
+def process_strings(strings: List[str]) -> str:
+    """Process strings with concatenation."""
+    result = ""
+    for s in strings:
+        result += s + " "
+    return result.strip()
+
+def lookup_values(data: Dict[str, int], keys: List[str]) -> List[int]:
+    """Function with frequent dictionary lookups."""
+    results = []
+    for key in keys:
+        if key in data:
+            results.append(data[key])
+        else:
+            results.append(0)
+    return results
+'''
+
+rust = '''
+use std::collections::HashMap;
+#[derive(Debug, Clone)]
+pub struct ZeroDivisionError {
+    message: String,
+}
+impl std::fmt::Display for ZeroDivisionError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "division by zero: {}", self.message)
+    }
+}
+impl std::error::Error for ZeroDivisionError {}
+impl ZeroDivisionError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[derive(Debug, Clone)]
+pub struct IndexError {
+    message: String,
+}
+impl std::fmt::Display for IndexError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "index out of range: {}", self.message)
+    }
+}
+impl std::error::Error for IndexError {}
+impl IndexError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = "Compute the sum of a list of numbers."]
+#[doc = " Depyler: verified panic-free"]
+pub fn compute_sum(numbers: &Vec<i32>) -> i32 {
+    let mut total = 0;
+    for num in numbers.iter().cloned() {
+        total = total + num;
+    }
+    total
+}
+#[doc = "Binary search with nested loops and array access."]
+pub fn binary_search(arr: &Vec<i32>, target: i32) -> Result<i32, Box<dyn std::error::Error>> {
+    let mut left = 0;
+    let _cse_temp_0 = arr.len() as i32;
+    let mut right = _cse_temp_0 - 1;
+    while left <= right {
+        let mid = {
+            let a = left + right;
+            let b = 2;
+            let q = a / b;
+            let r = a % b;
+            let r_negative = r < 0;
+            let b_negative = b < 0;
+            let r_nonzero = r != 0;
+            let signs_differ = r_negative != b_negative;
+            let needs_adjustment = r_nonzero && signs_differ;
+            if needs_adjustment {
+                q - 1
+            } else {
+                q
+            }
+        };
+        if arr.get(mid as usize).cloned().unwrap_or_default() == target {
+            return Ok(mid);
+        } else {
+            if arr.get(mid as usize).cloned().unwrap_or_default() < target {
+                left = mid + 1;
+            } else {
+                right = mid - 1;
+            }
+        }
+    }
+    Ok(-1)
+}
+#[doc = "Process strings with concatenation."]
+#[doc = " Depyler: verified panic-free"]
+pub fn process_strings(strings: &Vec<String>) -> String {
+    let mut result = "";
+    for s in strings.iter().cloned() {
+        result = format!("{}{}", result, format!("{}{}", s, " "));
+    }
+    result.trim().to_string()
+}
+#[doc = "Function with frequent dictionary lookups."]
+#[doc = " Depyler: verified panic-free"]
+pub fn lookup_values<'b, 'a>(data: &'a HashMap<String, i32>, keys: &'b Vec<String>) -> Vec<i32> {
+    let mut results = vec![];
+    for key in keys.iter().cloned() {
+        if data.contains_key(&key) {
+            results.push(data.get(&key).cloned().unwrap_or_default());
+        } else {
+            results.push(0);
+        }
+    }
+    results
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{quickcheck, TestResult};
+    #[test]
+    fn test_compute_sum_examples() {
+        assert_eq!(compute_sum(&vec![]), 0);
+        assert_eq!(compute_sum(&vec![1]), 1);
+        assert_eq!(compute_sum(&vec![1, 2, 3]), 6);
+    }
+}
+'''
+
+[[test]]
+name = "test_interactive_simple"
+description = "Simple test case for interactive annotation suggestions"
+
+python = '''
+# Simple test case for interactive annotation suggestions
+
+def add_numbers(a: int, b: int) -> int:
+    """Add two numbers."""
+    return a + b
+
+def multiply(x: int, y: int) -> int:
+    """Multiply two numbers."""
+    result = x * y
+    return result
+'''
+
+rust = '''
+#[doc = "Add two numbers."]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn add_numbers(a: i32, b: i32) -> i32 {
+    a + b
+}
+#[doc = "Multiply two numbers."]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn multiply(x: i32, y: i32) -> i32 {
+    let _cse_temp_0 = x * y;
+    let result = _cse_temp_0;
+    result
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{quickcheck, TestResult};
+    #[test]
+    fn quickcheck_add_numbers() {
+        fn prop(a: i32, b: i32) -> TestResult {
+            if (a > 0 && b > i32::MAX - a) || (a < 0 && b < i32::MIN - a) {
+                return TestResult::discard();
+            }
+            let result1 = add_numbers(a.clone(), b.clone());
+            let result2 = add_numbers(b.clone(), a.clone());
+            if result1 != result2 {
+                return TestResult::failed();
+            }
+            TestResult::passed()
+        }
+        quickcheck(prop as fn(i32, i32) -> TestResult);
+    }
+    #[test]
+    fn test_add_numbers_examples() {
+        assert_eq!(add_numbers(0, 0), 0);
+        assert_eq!(add_numbers(1, 2), 3);
+        assert_eq!(add_numbers(-1, 1), 0);
+    }
+    #[test]
+    fn test_multiply_examples() {
+        assert_eq!(multiply(0, 0), 0);
+        assert_eq!(multiply(1, 2), 3);
+        assert_eq!(multiply(-1, 1), 0);
+    }
+}
+'''
+
+[[test]]
+name = "test_migration_suggestions"
+description = "Example test"
+
+python = '''
+"""
+Example demonstrating patterns that trigger migration suggestions.
+"""
+
+def accumulator_pattern(items):
+    """Pattern: accumulator - should suggest iterator methods."""
+    result = []
+    for item in items:
+        if item > 0:
+            result.append(item * 2)
+    return result
+
+
+def error_with_none(value):
+    """Pattern: returning None for errors - should suggest Result."""
+    if not validate(value):
+        return None
+    
+    processed = process_data(value)
+    if processed is None:
+        return None
+    
+    return processed
+
+
+def mutating_parameter(data):
+    """Pattern: mutating parameters - should suggest ownership patterns."""
+    data.append(42)
+    data.sort()
+    return data
+
+
+def type_checking_pattern(value):
+    """Pattern: runtime type checking - should suggest enums."""
+    if isinstance(value, str):
+        return value.upper()
+    elif isinstance(value, int):
+        return value * 2
+    else:
+        return str(value)
+
+
+def inefficient_string_building(items):
+    """Pattern: string concatenation - should suggest efficient methods."""
+    result = ""
+    for item in items:
+        result = result + str(item) + ", "
+    return result
+
+
+def enumerate_pattern(items):
+    """Pattern: range(len()) - should suggest enumerate."""
+    for i in range(len(items)):
+        print(f"{i}: {items[i]}")
+
+
+def filter_map_pattern(data):
+    """Pattern: filter + map in loop - should suggest filter_map."""
+    output = []
+    for x in data:
+        if x > 0:
+            output.append(x * x)
+    return output
+
+
+def while_true_pattern():
+    """Pattern: while True - should suggest loop."""
+    counter = 0
+    while True:
+        counter += 1
+        if counter > 10:
+            break
+    return counter
+
+
+def none_checking_pattern(optional_value):
+    """Pattern: None checking - should suggest pattern matching."""
+    if optional_value is not None:
+        return process(optional_value)
+    else:
+        return default_value()
+
+
+# Helper functions (would be defined elsewhere)
+def validate(x):
+    return x > 0
+
+def process_data(x):
+    return x * 2
+
+def process(x):
+    return x
+
+def default_value():
+    return 0
+'''
+
+rust = '''
+use serde_json;
+#[doc = "Pattern: accumulator - should suggest iterator methods."]
+#[doc = " Depyler: verified panic-free"]
+pub fn accumulator_pattern(items: &serde_json::Value) -> Vec<serde_json::Value> {
+    let mut result = vec![];
+    for item in items.iter().cloned() {
+        if item > 0 {
+            result.push(item * 2);
+        }
+    }
+    result
+}
+#[doc = "Pattern: returning None for errors - should suggest Result."]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn error_with_none(value: serde_json::Value) {
+    if !validate(value) {
+        return;
+    }
+    let processed = process_data(value);
+    if processed.is_none() {
+        return;
+    }
+    ()
+}
+#[doc = "Pattern: mutating parameters - should suggest ownership patterns."]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn mutating_parameter(mut data: serde_json::Value) -> i32 {
+    data.push(42);
+    data.sort();
+    data
+}
+#[doc = "Pattern: runtime type checking - should suggest enums."]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn type_checking_pattern(value: &str) -> String {
+    if true {
+        value.to_uppercase()
+    } else {
+        if true {
+            value * 2
+        } else {
+            value.to_string()
+        }
+    }
+}
+#[doc = "Pattern: string concatenation - should suggest efficient methods."]
+#[doc = " Depyler: verified panic-free"]
+pub fn inefficient_string_building(items: &serde_json::Value) -> String {
+    let mut result = "";
+    for item in items.iter().cloned() {
+        result = format!("{}{}", format!("{}{}", result, item.to_string()), ", ");
+    }
+    result
+}
+#[doc = "Pattern: range(len()) - should suggest enumerate."]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn enumerate_pattern(items: &serde_json::Value) {
+    for _i in 0..items.len() as i32 {
+        println!(
+            "{}",
+            format!(
+                "{:?}: {:?}",
+                i,
+                items.get(i as usize).cloned().unwrap_or_default()
+            )
+        );
+    }
+}
+#[doc = "Pattern: filter + map in loop - should suggest filter_map."]
+#[doc = " Depyler: verified panic-free"]
+pub fn filter_map_pattern(data: &mut serde_json::Value) -> Vec<serde_json::Value> {
+    let mut output = vec![];
+    for x in data.iter().cloned() {
+        if x > 0 {
+            output.push(x * x);
+        }
+    }
+    output
+}
+#[doc = "Pattern: while True - should suggest loop."]
+#[doc = " Depyler: verified panic-free"]
+pub fn while_true_pattern() -> i32 {
+    let mut counter = 0;
+    while true {
+        counter = counter + 1;
+        if counter > 10 {
+            break;
+        }
+    }
+    counter
+}
+#[doc = "Pattern: None checking - should suggest pattern matching."]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn none_checking_pattern(optional_value: serde_json::Value) -> i32 {
+    if optional_value.is_some() {
+        process(optional_value)
+    } else {
+        default_value()
+    }
+}
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn validate(x: &serde_json::Value) -> bool {
+    x > 0
+}
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn process_data(x: &serde_json::Value) -> i32 {
+    x * 2
+}
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn process(x: serde_json::Value) -> i32 {
+    x
+}
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn default_value() -> i32 {
+    0
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{quickcheck, TestResult};
+    #[test]
+    fn test_while_true_pattern_examples() {
+        let _ = while_true_pattern();
+    }
+    #[test]
+    fn quickcheck_process() {
+        fn prop(x: ()) -> TestResult {
+            let result = process(x.clone());
+            if result != x {
+                return TestResult::failed();
+            }
+            TestResult::passed()
+        }
+        quickcheck(prop as fn(()) -> TestResult);
+    }
+    #[test]
+    fn test_default_value_examples() {
+        let _ = default_value();
+    }
+}
+'''
+
+[[test]]
+name = "test_optimization"
+description = "Example test"
+
+python = '''
+def compute_constants() -> int:
+    """Demonstrates constant propagation and dead code elimination"""
+    x = 5
+    y = 10
+    z = x + y  # Should be optimized to 15
+    unused = 42  # Should be eliminated
+    result = z * 2  # Should be optimized to 30
+    return result
+
+def fibonacci(n: int) -> int:
+    """Example that won't be fully optimized (recursive)"""
+    if n <= 1:
+        return n
+    return fibonacci(n - 1) + fibonacci(n - 2)
+
+def simple_math() -> float:
+    """More constant folding examples"""
+    a = 3.14
+    b = 2.0
+    c = a * b  # Should be optimized to 6.28
+    d = c / 2.0  # Should be optimized to 3.14
+    return d
+'''
+
+rust = '''
+#[derive(Debug, Clone)]
+pub struct ZeroDivisionError {
+    message: String,
+}
+impl std::fmt::Display for ZeroDivisionError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "division by zero: {}", self.message)
+    }
+}
+impl std::error::Error for ZeroDivisionError {}
+impl ZeroDivisionError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = "Demonstrates constant propagation and dead code elimination"]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn compute_constants() -> i32 {
+    let x = 5;
+    let y = 10;
+    let z = x + y;
+    let unused = 42;
+    let _cse_temp_0 = z * 2;
+    let result = _cse_temp_0;
+    result
+}
+#[doc = "Example that won't be fully optimized(recursive)"]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn fibonacci(n: i32) -> i32 {
+    let _cse_temp_0 = n <= 1;
+    if _cse_temp_0 {
+        return n;
+    }
+    fibonacci(n - 1) + fibonacci(n - 2)
+}
+#[doc = "More constant folding examples"]
+#[doc = " Depyler: proven to terminate"]
+pub fn simple_math() -> Result<f64, ZeroDivisionError> {
+    let a = 3.14;
+    let b = 2.0;
+    let _cse_temp_0 = a * b;
+    let c = _cse_temp_0;
+    let _cse_temp_1 = (c as f64) / (2.0 as f64);
+    let d = _cse_temp_1;
+    Ok(d)
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{quickcheck, TestResult};
+    #[test]
+    fn test_compute_constants_examples() {
+        let _ = compute_constants();
+    }
+    #[test]
+    fn test_fibonacci_examples() {
+        assert_eq!(fibonacci(0), 0);
+        assert_eq!(fibonacci(1), 1);
+        assert_eq!(fibonacci(-1), -1);
+    }
+}
+'''
+
+[[test]]
+name = "test_performance_warnings"
+description = "Example test"
+
+python = '''
+"""
+Example demonstrating patterns that trigger performance warnings.
+"""
+
+def string_concat_in_loop(items):
+    """String concatenation in loop - O(n²) complexity."""
+    result = ""
+    for item in items:
+        result = result + str(item)  # Warning: creates new string each time
+    return result
+
+
+def nested_loops_cubic(matrix):
+    """Deeply nested loops - O(n³) complexity."""
+    total = 0
+    for i in range(len(matrix)):
+        for j in range(len(matrix[i])):
+            for k in range(len(matrix[i][j])):
+                total += matrix[i][j][k]
+    return total
+
+
+def repeated_expensive_computation(data):
+    """Expensive operations in loop."""
+    results = []
+    for item in data:
+        # Sorting repeatedly - O(n² log n)
+        sorted_data = sorted(data)
+        results.append(item * len(sorted_data))
+    return results
+
+
+def inefficient_list_operations(items):
+    """Inefficient list operations."""
+    while len(items) > 0:
+        # O(n) remove in loop creates O(n²)
+        items.remove(items[0])
+
+
+def large_list_in_loop(n):
+    """Creating large objects in loops."""
+    results = []
+    for i in range(n):
+        # Creating large list repeatedly
+        temp = [j for j in range(1000)]
+        results.append(sum(temp))
+    return results
+
+
+def linear_search_in_loop(items, targets):
+    """Linear search in nested loop - O(n²)."""
+    found = []
+    for target in targets:
+        # index() is O(n) search
+        if target in items:
+            idx = items.index(target)
+            found.append((target, idx))
+    return found
+
+
+def power_in_tight_loop(values):
+    """Expensive math operations in loop."""
+    results = []
+    for x in values:
+        # Power operation is expensive
+        result = x ** 3.5
+        results.append(result)
+    return results
+
+
+def range_len_antipattern(items):
+    """Using range(len()) instead of enumerate."""
+    for i in range(len(items)):
+        process_item(i, items[i])
+
+
+def aggregate_in_nested_loop(matrix):
+    """Computing aggregates repeatedly."""
+    result = 0
+    for row in matrix:
+        for col in row:
+            # Computing sum repeatedly
+            total = sum(row)
+            result += col * total
+    return result
+
+
+def large_parameter_by_value(huge_list: list, huge_dict: dict) -> int:
+    """Large parameters passed by value."""
+    # These large collections are copied
+    return len(huge_list) + len(huge_dict)
+
+
+# Helper function
+def process_item(idx, item):
+    pass
+'''
+
+rust = '''
+use serde_json;
+use std::collections::HashMap;
+#[derive(Debug, Clone)]
+pub struct IndexError {
+    message: String,
+}
+impl std::fmt::Display for IndexError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "index out of range: {}", self.message)
+    }
+}
+impl std::error::Error for IndexError {}
+impl IndexError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = "String concatenation in loop - O(n²) complexity."]
+#[doc = " Depyler: verified panic-free"]
+pub fn string_concat_in_loop(items: &serde_json::Value) -> String {
+    let mut result = "";
+    for item in items.iter().cloned() {
+        result = format!("{}{}", result, item.to_string());
+    }
+    result
+}
+#[doc = "Deeply nested loops - O(n³) complexity."]
+#[doc = " Depyler: proven to terminate"]
+pub fn nested_loops_cubic(matrix: &serde_json::Value) -> Result<i32, IndexError> {
+    let mut total = 0;
+    for i in 0..matrix.len() as i32 {
+        for j in 0..matrix.get(i as usize).cloned().unwrap_or_default().len() as i32 {
+            for k in 0..matrix
+                .get(i as usize)
+                .cloned()
+                .unwrap_or_default()
+                .get(j as usize)
+                .cloned()
+                .unwrap_or_default()
+                .len() as i32
+            {
+                total = total
+                    + matrix
+                        .get(i as usize)
+                        .cloned()
+                        .unwrap_or_default()
+                        .get(j as usize)
+                        .cloned()
+                        .unwrap_or_default()
+                        .get(k as usize)
+                        .cloned()
+                        .unwrap_or_default();
+            }
+        }
+    }
+    Ok(total)
+}
+#[doc = "Expensive operations in loop."]
+#[doc = " Depyler: verified panic-free"]
+pub fn repeated_expensive_computation(data: serde_json::Value) -> Vec<serde_json::Value> {
+    let mut results = vec![];
+    for item in data.iter().cloned() {
+        let sorted_data = {
+            let mut __sorted_result = data.clone();
+            __sorted_result.sort();
+            __sorted_result
+        };
+        results.push(item * sorted_data.len() as i32);
+    }
+    results
+}
+#[doc = "Inefficient list operations."]
+#[doc = " Depyler: verified panic-free"]
+pub fn inefficient_list_operations(items: &mut serde_json::Value) {
+    while items.len() as i32 > 0 {
+        if let Some(pos) = items
+            .iter()
+            .position(|x| x == &items.get(0usize).cloned().unwrap_or_default())
+        {
+            items.remove(pos)
+        } else {
+            panic!("ValueError: list.remove(x): x not in list")
+        };
+    }
+}
+#[doc = "Creating large objects in loops."]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn large_list_in_loop(n: serde_json::Value) -> Vec<serde_json::Value> {
+    let mut results = vec![];
+    for _i in 0..n {
+        let temp = (0..1000).map(|j| j).collect::<Vec<_>>();
+        results.push(temp.iter().sum::<i32>());
+    }
+    results
+}
+#[doc = "Linear search in nested loop - O(n²)."]
+#[doc = " Depyler: verified panic-free"]
+pub fn linear_search_in_loop<'a, 'b>(
+    items: &'a mut serde_json::Value,
+    targets: &'b serde_json::Value,
+) -> Vec<serde_json::Value> {
+    let mut found = vec![];
+    for target in targets.iter().cloned() {
+        if items.contains_key(&target) {
+            let idx = items
+                .iter()
+                .position(|x| x == &target)
+                .map(|i| i as i32)
+                .expect("ValueError: value is not in list");
+            found.push((target, idx));
+        }
+    }
+    found
+}
+#[doc = "Expensive math operations in loop."]
+#[doc = " Depyler: verified panic-free"]
+pub fn power_in_tight_loop(values: &serde_json::Value) -> Vec<serde_json::Value> {
+    let mut results = vec![];
+    for x in values.iter().cloned() {
+        let mut result = (x as f64).powf(3.5 as f64);
+        results.push(result);
+    }
+    results
+}
+#[doc = "Using range(len()) instead of enumerate."]
+#[doc = " Depyler: proven to terminate"]
+pub fn range_len_antipattern(items: &mut serde_json::Value) -> Result<(), IndexError> {
+    for i in 0..items.len() as i32 {
+        process_item(i, items.get(i as usize).cloned().unwrap_or_default());
+    }
+}
+#[doc = "Computing aggregates repeatedly."]
+#[doc = " Depyler: verified panic-free"]
+pub fn aggregate_in_nested_loop(matrix: &serde_json::Value) -> i32 {
+    let mut result = 0;
+    for row in matrix.iter().cloned() {
+        for col in row.iter().cloned() {
+            let mut total = row.iter().sum::<i32>();
+            result = result + col * total;
+        }
+    }
+    result
+}
+#[doc = "Large parameters passed by value."]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn large_parameter_by_value<'a, 'b>(
+    huge_list: &'a Vec<serde_json::Value>,
+    huge_dict: &'b HashMap<serde_json::Value, serde_json::Value>,
+) -> i32 {
+    huge_list.len() as i32 + huge_dict.len() as i32 as i32
+}
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn process_item(idx: serde_json::Value, item: serde_json::Value) {}
+'''
+
+[[test]]
+name = "test_profiling"
+description = "!/usr/bin/env python3"
+
+python = '''
+#!/usr/bin/env python3
+"""Performance profiling demo for Depyler.
+
+This example demonstrates various performance patterns that the profiler
+can detect and analyze.
+"""
+
+
+def fibonacci_recursive(n: int) -> int:
+    """Recursive Fibonacci - will be identified as hot path."""
+    if n <= 1:
+        return n
+    return fibonacci_recursive(n - 1) + fibonacci_recursive(n - 2)
+
+
+def fibonacci_iterative(n: int) -> int:
+    """Iterative Fibonacci - more efficient."""
+    if n <= 1:
+        return n
+    
+    a, b = 0, 1
+    for _ in range(2, n + 1):
+        a, b = b, a + b
+    return b
+
+
+def process_list(items: list[int]) -> int:
+    """Process a list with nested loops - O(n²) complexity."""
+    total = 0
+    
+    # Nested loop pattern that profiler will flag
+    for i in range(len(items)):
+        for j in range(i, len(items)):
+            if items[i] < items[j]:
+                total += items[i] * items[j]
+    
+    return total
+
+
+def string_concatenation_in_loop(n: int) -> str:
+    """String concatenation in loop - inefficient pattern."""
+    result = ""
+    for i in range(n):
+        result += f"Item {i}, "  # O(n²) due to string immutability
+    return result
+
+
+def allocate_many_lists(n: int) -> list[list[int]]:
+    """Function with many allocations."""
+    results = []
+    for i in range(n):
+        # Each iteration allocates a new list
+        inner_list = []
+        for j in range(10):
+            inner_list.append(i * j)
+        results.append(inner_list)
+    return results
+
+
+def type_check_heavy(values: list[object]) -> int:
+    """Function with many type checks that Rust can optimize away."""
+    count = 0
+    for value in values:
+        if isinstance(value, int):
+            count += value
+        elif isinstance(value, str):
+            count += len(value)
+        elif isinstance(value, list):
+            count += len(value)
+    return count
+
+
+def matrix_multiply(a: list[list[float]], b: list[list[float]]) -> list[list[float]]:
+    """Matrix multiplication - triple nested loop."""
+    rows_a = len(a)
+    cols_a = len(a[0]) if a else 0
+    cols_b = len(b[0]) if b else 0
+    
+    # Initialize result matrix
+    result = [[0.0 for _ in range(cols_b)] for _ in range(rows_a)]
+    
+    # Triple nested loop - O(n³)
+    for i in range(rows_a):
+        for j in range(cols_b):
+            for k in range(cols_a):
+                result[i][j] += a[i][k] * b[k][j]
+    
+    return result
+
+
+def simple_function(x: int, y: int) -> int:
+    """Simple function for baseline comparison."""
+    return x + y
+
+
+def main():
+    """Main entry point with various function calls."""
+    # Hot path: recursive fibonacci
+    for i in range(5):
+        fibonacci_recursive(i)
+    
+    # More efficient version
+    fibonacci_iterative(30)
+    
+    # Nested loops
+    test_list = list(range(100))
+    process_list(test_list)
+    
+    # String concatenation
+    string_concatenation_in_loop(100)
+    
+    # Many allocations
+    allocate_many_lists(50)
+    
+    # Type checks
+    mixed_values = [1, "hello", [1, 2, 3], 42, "world"]
+    type_check_heavy(mixed_values)
+    
+    # Matrix multiplication
+    mat_a = [[1.0, 2.0], [3.0, 4.0]]
+    mat_b = [[5.0, 6.0], [7.0, 8.0]]
+    matrix_multiply(mat_a, mat_b)
+    
+    # Simple function
+    simple_function(10, 20)
+
+
+if __name__ == "__main__":
+    main()
+'''
+
+rust = '''
+#[derive(Debug, Clone)]
+pub struct IndexError {
+    message: String,
+}
+impl std::fmt::Display for IndexError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "index out of range: {}", self.message)
+    }
+}
+impl std::error::Error for IndexError {}
+impl IndexError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = "Recursive Fibonacci - will be identified as hot path."]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn fibonacci_recursive(n: i32) -> i32 {
+    let _cse_temp_0 = n <= 1;
+    if _cse_temp_0 {
+        return n;
+    }
+    fibonacci_recursive(n - 1) + fibonacci_recursive(n - 2)
+}
+#[doc = "Iterative Fibonacci - more efficient."]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn fibonacci_iterative(n: i32) -> i32 {
+    let _cse_temp_0 = n <= 1;
+    if _cse_temp_0 {
+        return n;
+    }
+    let (mut a, mut b) = (0, 1);
+    for __ in 2..n + 1 {
+        (a, b) = (b, a + b);
+    }
+    b
+}
+#[doc = "Process a list with nested loops - O(n²) complexity."]
+#[doc = " Depyler: proven to terminate"]
+pub fn process_list(items: &Vec<i32>) -> Result<i32, IndexError> {
+    let mut total = 0;
+    for i in 0..items.len() as i32 {
+        for j in i..items.len() as i32 {
+            if items.get(i as usize).cloned().unwrap_or_default()
+                < items.get(j as usize).cloned().unwrap_or_default()
+            {
+                total = total
+                    + items.get(i as usize).cloned().unwrap_or_default()
+                        * items.get(j as usize).cloned().unwrap_or_default();
+            }
+        }
+    }
+    Ok(total)
+}
+#[doc = "String concatenation in loop - inefficient pattern."]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn string_concatenation_in_loop(n: i32) -> String {
+    let mut result = "";
+    for _i in 0..n {
+        result = format!("{}{}", result, format!("Item {:?}, ", i));
+    }
+    result
+}
+#[doc = "Function with many allocations."]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn allocate_many_lists(n: i32) -> Vec<Vec<i32>> {
+    let mut results = vec![];
+    for i in 0..n {
+        let mut inner_list = vec![];
+        for j in 0..10 {
+            inner_list.push(i * j);
+        }
+        results.push(inner_list);
+    }
+    results
+}
+#[doc = "Function with many type checks that Rust can optimize away."]
+#[doc = " Depyler: verified panic-free"]
+pub fn type_check_heavy(values: &Vec<object>) -> i32 {
+    let mut count = 0;
+    for value in values.iter().cloned() {
+        let mut count;
+        if true {
+            count = count + value;
+        } else {
+            let mut count;
+            if true {
+                count = count + value.len() as i32;
+            } else {
+                if true {
+                    count = count + value.len() as i32;
+                }
+            }
+        }
+    }
+    count
+}
+#[doc = "Matrix multiplication - triple nested loop."]
+#[doc = " Depyler: proven to terminate"]
+pub fn matrix_multiply<'b, 'a>(
+    a: &'a mut Vec<Vec<f64>>,
+    b: &'b mut Vec<Vec<f64>>,
+) -> Result<Vec<Vec<f64>>, IndexError> {
+    let _cse_temp_0 = a.len() as i32;
+    let rows_a = _cse_temp_0;
+    let cols_a = if !a.is_empty() {
+        a.get(0usize).cloned().unwrap_or_default().len() as i32
+    } else {
+        0
+    };
+    let cols_b = if !b.is_empty() {
+        b.get(0usize).cloned().unwrap_or_default().len() as i32
+    } else {
+        0
+    };
+    let mut result = (0..rows_a)
+        .map(|_| (0..cols_b).map(|_| 0.0).collect::<Vec<_>>())
+        .collect::<Vec<_>>();
+    for i in 0..rows_a {
+        for j in 0..cols_b {
+            for k in 0..cols_a {
+                result.get_mut(&i).unwrap().insert(
+                    (j) as usize,
+                    result
+                        .get(i as usize)
+                        .cloned()
+                        .unwrap_or_default()
+                        .get(j as usize)
+                        .cloned()
+                        .unwrap_or_default()
+                        + a.get(i as usize)
+                            .cloned()
+                            .unwrap_or_default()
+                            .get(k as usize)
+                            .cloned()
+                            .unwrap_or_default()
+                            * b.get(k as usize)
+                                .cloned()
+                                .unwrap_or_default()
+                                .get(j as usize)
+                                .cloned()
+                                .unwrap_or_default(),
+                );
+            }
+        }
+    }
+    Ok(result)
+}
+#[doc = "Simple function for baseline comparison."]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn simple_function(x: i32, y: i32) -> i32 {
+    x + y
+}
+#[doc = "Main entry point with various function calls."]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn main() -> Result<(), Box<dyn std::error::Error>> {
+    for i in 0..5 {
+        fibonacci_recursive(i);
+    }
+    fibonacci_iterative(30);
+    let test_list = (0..100).collect::<Vec<_>>();
+    process_list(test_list);
+    string_concatenation_in_loop(100);
+    allocate_many_lists(50);
+    let mixed_values = vec![
+        1,
+        "hello".to_string(),
+        vec![1, 2, 3],
+        42,
+        "world".to_string(),
+    ];
+    type_check_heavy(&mixed_values);
+    let mat_a = vec![vec![1.0, 2.0], vec![3.0, 4.0]];
+    let mat_b = vec![vec![5.0, 6.0], vec![7.0, 8.0]];
+    matrix_multiply(&mat_a, &mat_b);
+    simple_function(10, 20);
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{quickcheck, TestResult};
+    #[test]
+    fn test_fibonacci_recursive_examples() {
+        assert_eq!(fibonacci_recursive(0), 0);
+        assert_eq!(fibonacci_recursive(1), 1);
+        assert_eq!(fibonacci_recursive(-1), -1);
+    }
+    #[test]
+    fn test_fibonacci_iterative_examples() {
+        assert_eq!(fibonacci_iterative(0), 0);
+        assert_eq!(fibonacci_iterative(1), 1);
+        assert_eq!(fibonacci_iterative(-1), -1);
+    }
+    #[test]
+    fn test_process_list_examples() {
+        assert_eq!(process_list(&vec![]), 0);
+        assert_eq!(process_list(&vec![1]), 1);
+        assert_eq!(process_list(&vec![1, 2, 3]), 3);
+    }
+    #[test]
+    fn test_type_check_heavy_examples() {
+        assert_eq!(type_check_heavy(&vec![]), 0);
+        assert_eq!(type_check_heavy(&vec![1]), 1);
+        assert_eq!(type_check_heavy(&vec![1, 2, 3]), 3);
+    }
+    #[test]
+    fn quickcheck_simple_function() {
+        fn prop(x: i32, y: i32) -> TestResult {
+            if (x > 0 && y > i32::MAX - x) || (x < 0 && y < i32::MIN - x) {
+                return TestResult::discard();
+            }
+            let result1 = simple_function(x.clone(), y.clone());
+            let result2 = simple_function(y.clone(), x.clone());
+            if result1 != result2 {
+                return TestResult::failed();
+            }
+            TestResult::passed()
+        }
+        quickcheck(prop as fn(i32, i32) -> TestResult);
+    }
+    #[test]
+    fn test_simple_function_examples() {
+        assert_eq!(simple_function(0, 0), 0);
+        assert_eq!(simple_function(1, 2), 3);
+        assert_eq!(simple_function(-1, 1), 0);
+    }
+}
+'''
+
+[[test]]
+name = "test_profiling_simple"
+description = "!/usr/bin/env python3"
+
+python = '''
+#!/usr/bin/env python3
+"""Simple performance profiling demo for Depyler."""
+
+
+def fibonacci_recursive(n: int) -> int:
+    """Recursive Fibonacci - will be identified as hot path."""
+    if n <= 1:
+        return n
+    return fibonacci_recursive(n - 1) + fibonacci_recursive(n - 2)
+
+
+def process_list(items: list[int]) -> int:
+    """Process a list with nested loops - O(n²) complexity."""
+    total = 0
+    
+    # Nested loop pattern that profiler will flag
+    for i in items:
+        for j in items:
+            if i < j:
+                total = total + (i * j)
+    
+    return total
+
+
+def string_concatenation_in_loop(n: int) -> str:
+    """String concatenation in loop - inefficient pattern."""
+    result = ""
+    for i in range(n):
+        # O(n²) due to string immutability
+        result = result + str(i)
+        result = result + ", "
+    return result
+
+
+def type_check_heavy(values: list[object]) -> int:
+    """Function with many type checks that Rust can optimize away."""
+    count = 0
+    for value in values:
+        if isinstance(value, int):
+            count = count + value
+        elif isinstance(value, str):
+            count = count + len(value)
+    return count
+
+
+def simple_function(x: int, y: int) -> int:
+    """Simple function for baseline comparison."""
+    return x + y
+
+
+def hot_loop():
+    """Function with hot nested loops."""
+    total = 0
+    for i in range(100):
+        for j in range(100):
+            total = total + (i * j)
+    return total
+'''
+
+rust = '''
+#[doc = "Recursive Fibonacci - will be identified as hot path."]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn fibonacci_recursive(n: i32) -> i32 {
+    let _cse_temp_0 = n <= 1;
+    if _cse_temp_0 {
+        return n;
+    }
+    fibonacci_recursive(n - 1) + fibonacci_recursive(n - 2)
+}
+#[doc = "Process a list with nested loops - O(n²) complexity."]
+#[doc = " Depyler: verified panic-free"]
+pub fn process_list(items: &Vec<i32>) -> i32 {
+    let mut total = 0;
+    for i in items.iter().cloned() {
+        for j in items.iter().cloned() {
+            if i < j {
+                total = total + i * j;
+            }
+        }
+    }
+    total
+}
+#[doc = "String concatenation in loop - inefficient pattern."]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn string_concatenation_in_loop(n: i32) -> String {
+    let mut result = "";
+    for i in 0..n {
+        result = format!("{}{}", result, i.to_string());
+        result = format!("{}{}", result, ", ");
+    }
+    result
+}
+#[doc = "Function with many type checks that Rust can optimize away."]
+#[doc = " Depyler: verified panic-free"]
+pub fn type_check_heavy(values: &Vec<object>) -> i32 {
+    let mut count = 0;
+    for value in values.iter().cloned() {
+        let mut count;
+        if true {
+            count = count + value;
+        } else {
+            if true {
+                count = count + value.len() as i32;
+            }
+        }
+    }
+    count
+}
+#[doc = "Simple function for baseline comparison."]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn simple_function(x: i32, y: i32) -> i32 {
+    x + y
+}
+#[doc = "Function with hot nested loops."]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn hot_loop() -> i32 {
+    let mut total = 0;
+    for i in 0..100 {
+        for j in 0..100 {
+            total = total + i * j;
+        }
+    }
+    total
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{quickcheck, TestResult};
+    #[test]
+    fn test_fibonacci_recursive_examples() {
+        assert_eq!(fibonacci_recursive(0), 0);
+        assert_eq!(fibonacci_recursive(1), 1);
+        assert_eq!(fibonacci_recursive(-1), -1);
+    }
+    #[test]
+    fn test_process_list_examples() {
+        assert_eq!(process_list(&vec![]), 0);
+        assert_eq!(process_list(&vec![1]), 1);
+        assert_eq!(process_list(&vec![1, 2, 3]), 3);
+    }
+    #[test]
+    fn test_type_check_heavy_examples() {
+        assert_eq!(type_check_heavy(&vec![]), 0);
+        assert_eq!(type_check_heavy(&vec![1]), 1);
+        assert_eq!(type_check_heavy(&vec![1, 2, 3]), 3);
+    }
+    #[test]
+    fn quickcheck_simple_function() {
+        fn prop(x: i32, y: i32) -> TestResult {
+            if (x > 0 && y > i32::MAX - x) || (x < 0 && y < i32::MIN - x) {
+                return TestResult::discard();
+            }
+            let result1 = simple_function(x.clone(), y.clone());
+            let result2 = simple_function(y.clone(), x.clone());
+            if result1 != result2 {
+                return TestResult::failed();
+            }
+            TestResult::passed()
+        }
+        quickcheck(prop as fn(i32, i32) -> TestResult);
+    }
+    #[test]
+    fn test_simple_function_examples() {
+        assert_eq!(simple_function(0, 0), 0);
+        assert_eq!(simple_function(1, 2), 3);
+        assert_eq!(simple_function(-1, 1), 0);
+    }
+    #[test]
+    fn test_hot_loop_examples() {
+        let _ = hot_loop();
+    }
+}
+'''

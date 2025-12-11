@@ -11,7 +11,6 @@ category = "stdlib-os-sys"
 [[test]]
 name = "os_environ_get"
 description = "os.environ.get() for environment variable"
-tags = ["os", "env"]
 
 python = '''
 import os
@@ -30,7 +29,6 @@ pub fn get_env(key: String) -> String {
 [[test]]
 name = "os_getenv"
 description = "os.getenv() function"
-tags = ["os", "env"]
 
 python = '''
 import os
@@ -49,7 +47,6 @@ pub fn get_home() -> String {
 [[test]]
 name = "os_path_join"
 description = "os.path.join() for paths"
-tags = ["os", "path"]
 
 python = '''
 import os.path
@@ -65,7 +62,6 @@ rust = '''
 [[test]]
 name = "os_path_exists"
 description = "os.path.exists() check"
-tags = ["os", "path"]
 
 python = '''
 import os.path
@@ -81,7 +77,6 @@ rust = '''
 [[test]]
 name = "os_path_isfile"
 description = "os.path.isfile() check"
-tags = ["os", "path"]
 
 python = '''
 import os.path
@@ -97,7 +92,6 @@ rust = '''
 [[test]]
 name = "os_path_isdir"
 description = "os.path.isdir() check"
-tags = ["os", "path"]
 
 python = '''
 import os.path
@@ -113,7 +107,6 @@ rust = '''
 [[test]]
 name = "os_path_basename"
 description = "os.path.basename() extraction"
-tags = ["os", "path"]
 
 python = '''
 import os.path
@@ -129,7 +122,6 @@ rust = '''
 [[test]]
 name = "os_path_dirname"
 description = "os.path.dirname() extraction"
-tags = ["os", "path"]
 
 python = '''
 import os.path
@@ -145,7 +137,6 @@ rust = '''
 [[test]]
 name = "os_listdir"
 description = "os.listdir() directory listing"
-tags = ["os", "directory"]
 
 python = '''
 import os
@@ -164,7 +155,6 @@ pub fn list_files(directory: String) -> Vec<String> {
 [[test]]
 name = "os_makedirs"
 description = "os.makedirs() create directories"
-tags = ["os", "directory"]
 
 python = '''
 import os
@@ -183,7 +173,6 @@ pub fn ensure_directory(path: String) {
 [[test]]
 name = "os_remove"
 description = "os.remove() file deletion"
-tags = ["os", "file"]
 
 python = '''
 import os
@@ -206,7 +195,6 @@ pub fn delete_file(path: String) {
 [[test]]
 name = "sys_argv"
 description = "sys.argv command line arguments"
-tags = ["sys", "args"]
 
 python = '''
 import sys
@@ -250,7 +238,6 @@ pub fn get_first_arg() -> String {
 [[test]]
 name = "sys_exit"
 description = "sys.exit() program termination"
-tags = ["sys", "exit"]
 
 python = '''
 import sys
@@ -269,7 +256,6 @@ pub fn exit_with_code(code: i32) {
 [[test]]
 name = "sys_platform"
 description = "sys.platform detection"
-tags = ["sys", "platform"]
 
 python = '''
 import sys
@@ -288,7 +274,6 @@ pub fn is_linux() -> bool {
 [[test]]
 name = "os_path_relpath"
 description = "os.path.relpath() for relative paths"
-tags = ["os", "path"]
 
 python = '''
 import os.path
@@ -304,7 +289,6 @@ rust = '''
 [[test]]
 name = "platform_system"
 description = "platform.system() returns OS name"
-tags = ["platform", "os"]
 
 python = '''
 import platform
@@ -323,7 +307,6 @@ pub fn get_os() {
 [[test]]
 name = "platform_machine"
 description = "platform.machine() returns architecture"
-tags = ["platform", "arch"]
 
 python = '''
 import platform
@@ -342,7 +325,6 @@ pub fn get_arch() {
 [[test]]
 name = "os_path_exists_instance_method"
 description = "os.path.exists() uses Path instance method"
-tags = ["os", "path", "exists"]
 
 python = '''
 import os
@@ -362,7 +344,6 @@ pub fn check_file(path: &serde_json::Value) {
 [[test]]
 name = "os_path_isfile_instance_method"
 description = "os.path.isfile() uses Path instance method"
-tags = ["os", "path", "isfile"]
 
 python = '''
 import os
@@ -382,7 +363,6 @@ pub fn is_file(path: &serde_json::Value) {
 [[test]]
 name = "os_path_isdir_instance_method"
 description = "os.path.isdir() uses Path instance method"
-tags = ["os", "path", "isdir"]
 
 python = '''
 import os
@@ -402,7 +382,6 @@ pub fn is_dir(path: &serde_json::Value) {
 [[test]]
 name = "string_literal_to_string"
 description = "String literal assignment adds .to_string()"
-tags = ["string", "literal"]
 
 python = '''
 def test() -> str:
@@ -420,7 +399,6 @@ pub fn test() -> String {
 [[test]]
 name = "empty_string_literal"
 description = "Empty string literal assignment"
-tags = ["string", "literal"]
 
 python = '''
 def test() -> str:
@@ -438,7 +416,6 @@ pub fn test() -> String {
 [[test]]
 name = "unicode_string_literal"
 description = "Unicode string literal assignment"
-tags = ["string", "unicode"]
 
 python = '''
 def test() -> str:
@@ -456,7 +433,6 @@ pub fn test() -> String {
 [[test]]
 name = "os_getenv_with_default"
 description = "os.getenv() with default value uses unwrap_or_else"
-tags = ["os", "env", "default"]
 
 python = '''
 import os
@@ -477,7 +453,6 @@ pub fn test() -> String {
 [[test]]
 name = "os_getenv_empty_default"
 description = "os.getenv() with empty default"
-tags = ["os", "env", "default"]
 
 python = '''
 import os
@@ -498,7 +473,6 @@ pub fn test() -> String {
 [[test]]
 name = "os_environ_membership_check"
 description = "'key in os.environ' uses std::env::var().is_ok()"
-tags = ["os", "env", "membership"]
 
 python = '''
 import os
@@ -520,7 +494,6 @@ pub fn test() -> bool {
 [[test]]
 name = "os_environ_not_in"
 description = "'key not in os.environ' negation"
-tags = ["os", "env", "membership"]
 
 python = '''
 import os
@@ -542,7 +515,6 @@ pub fn test() -> bool {
 [[test]]
 name = "os_environ_variable_key"
 description = "Variable key in os.environ check"
-tags = ["os", "env", "membership"]
 
 python = '''
 import os

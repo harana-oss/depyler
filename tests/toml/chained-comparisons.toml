@@ -9,103 +9,379 @@ category = "core-language"
 # Basic Chained Comparisons
 # =============================================================================
 
-# TODO: Test simple range check
-# [[test]]
-# name = "chained_less_than"
-# description = "a < b < c"
+[[test]]
+name = "chained_less_than"
+description = "a < b < c"
 
-# TODO: Test inclusive range check
-# [[test]]
-# name = "chained_less_equal"
-# description = "a <= b <= c"
+python = '''
+a = 1
+b = 2
+c = 3
+result = a < b < c
+'''
 
-# TODO: Test descending chain
-# [[test]]
-# name = "chained_greater_than"
-# description = "a > b > c"
+rust = '''
+// a < b < c
+let a = 1;
+let b = 2;
+let c = 3;
+let result = a < b && b < c;
+'''
 
-# TODO: Test equality chain
-# [[test]]
-# name = "chained_equality"
-# description = "a == b == c"
 
-# TODO: Test inequality chain
-# [[test]]
-# name = "chained_inequality"
-# description = "a != b != c"
+[[test]]
+name = "chained_less_equal"
+description = "a <= b <= c"
+
+python = '''
+a = 1
+b = 2
+c = 2
+result = a <= b <= c
+'''
+
+rust = '''
+// a <= b <= c
+let a = 1;
+let b = 2;
+let c = 2;
+let result = a <= b && b <= c;
+'''
+
+
+[[test]]
+name = "chained_greater_than"
+description = "a > b > c"
+
+python = '''
+a = 5
+b = 3
+c = 1
+result = a > b > c
+'''
+
+rust = '''
+// a > b > c
+let a = 5;
+let b = 3;
+let c = 1;
+let result = a > b && b > c;
+'''
+
+
+[[test]]
+name = "chained_equality"
+description = "a == b == c"
+
+python = '''
+a = 5
+b = 5
+c = 5
+result = a == b == c
+'''
+
+rust = '''
+// a == b == c
+let a = 5;
+let b = 5;
+let c = 5;
+let result = a == b && b == c;
+'''
+
+
+[[test]]
+name = "chained_inequality"
+description = "a != b != c"
+
+python = '''
+a = 1
+b = 2
+c = 3
+result = a != b != c
+'''
+
+rust = '''
+// a != b != c
+let a = 1;
+let b = 2;
+let c = 3;
+let result = a != b && b != c;
+'''
+
 
 # =============================================================================
 # Mixed Comparisons
 # =============================================================================
 
-# TODO: Test mixed operators
-# [[test]]
-# name = "chained_mixed_operators"
-# description = "a < b <= c < d"
+[[test]]
+name = "chained_mixed_operators"
+description = "a < b <= c < d"
 
-# TODO: Test equality with inequality
-# [[test]]
-# name = "chained_eq_neq"
-# description = "a == b != c"
+python = '''
+a = 1
+b = 2
+c = 2
+d = 3
+result = a < b <= c < d
+'''
 
-# TODO: Test range with equality
-# [[test]]
-# name = "chained_range_eq"
-# description = "a <= b == c <= d"
+rust = '''
+// a < b <= c < d
+let a = 1;
+let b = 2;
+let c = 2;
+let d = 3;
+let result = a < b && b <= c && c < d;
+'''
+
+
+[[test]]
+name = "chained_eq_neq"
+description = "a == b != c"
+
+python = '''
+a = 5
+b = 5
+c = 10
+result = a == b != c
+'''
+
+rust = '''
+// a == b != c
+let a = 5;
+let b = 5;
+let c = 10;
+let result = a == b && b != c;
+'''
+
+
+[[test]]
+name = "chained_range_eq"
+description = "a <= b == c <= d"
+
+python = '''
+a = 1
+b = 2
+c = 2
+d = 3
+result = a <= b == c <= d
+'''
+
+rust = '''
+// a <= b == c <= d
+let a = 1;
+let b = 2;
+let c = 2;
+let d = 3;
+let result = a <= b && b == c && c <= d;
+'''
+
 
 # =============================================================================
 # With Function Calls
 # =============================================================================
 
-# TODO: Test chained comparison with function calls
-# [[test]]
-# name = "chained_with_calls"
-# description = "0 < len(s) < 100 (middle expression evaluated once)"
+[[test]]
+name = "chained_with_calls"
+description = "0 < len(s) < 100 (middle expression evaluated once)"
 
-# TODO: Test short-circuit evaluation
-# [[test]]
-# name = "chained_short_circuit"
-# description = "Verify middle expressions only evaluated once"
+python = '''
+s = "hello"
+result = 0 < len(s) < 100
+'''
+
+rust = '''
+// 0 < len(s) < 100 (middle expression evaluated once)
+let s = "hello";
+let len_s = s.len();
+let result = 0 < len_s && len_s < 100;
+'''
+
+
+[[test]]
+name = "chained_short_circuit"
+description = "Verify middle expressions only evaluated once"
+
+python = '''
+count = 0
+
+def get_value():
+    global count
+    count += 1
+    return 5
+
+result = 0 < get_value() < 10 and count == 1
+'''
+
+rust = '''
+// Verify middle expressions only evaluated once
+use std::cell::Cell;
+
+pub fn test_short_circuit() -> bool {
+    let count = Cell::new(0);
+    let get_value = || {
+        count.set(count.get() + 1);
+        5
+    };
+    
+    let value = get_value();
+    let result = 0 < value && value < 10;
+    result && count.get() == 1
+}
+
+let result = test_short_circuit();
+'''
+
 
 # =============================================================================
 # Identity Comparisons
 # =============================================================================
 
-# TODO: Test is in chain
-# [[test]]
-# name = "chained_is"
-# description = "a is b is c"
+[[test]]
+name = "chained_is"
+description = "a is b is c"
 
-# TODO: Test is not in chain
-# [[test]]
-# name = "chained_is_not"
-# description = "a is not b is not c"
+python = '''
+x = []
+a = x
+b = x
+c = x
+result = a is b is c
+'''
 
-# TODO: Test in operator chain
-# [[test]]
-# name = "chained_in"
-# description = "a in b in c"
+rust = '''
+// a is b is c
+use std::rc::Rc;
+
+let x = Rc::new(vec![1, 2, 3]);
+let a = Rc::clone(&x);
+let b = Rc::clone(&x);
+let c = Rc::clone(&x);
+let result = Rc::ptr_eq(&a, &b) && Rc::ptr_eq(&b, &c);
+'''
+
+
+[[test]]
+name = "chained_is_not"
+description = "a is not b is not c"
+
+python = '''
+a = []
+b = []
+c = []
+result = a is not b is not c
+'''
+
+rust = '''
+// a is not b is not c
+use std::rc::Rc;
+
+let a = Rc::new(vec![1]);
+let b = Rc::new(vec![2]);
+let c = Rc::new(vec![3]);
+let result = !Rc::ptr_eq(&a, &b) && !Rc::ptr_eq(&b, &c);
+'''
+
+
+[[test]]
+name = "chained_in"
+description = "a in b in c"
+
+python = '''
+a = 1
+b = [1, 2, 3]
+c = [[1, 2, 3], [4, 5, 6]]
+result = a in b in c
+'''
+
+rust = '''
+// a in b in c
+let a = 1;
+let b = vec![1, 2, 3];
+let c = vec![vec![1, 2, 3], vec![4, 5, 6]];
+let result = b.contains(&a) && c.contains(&b);
+'''
+
 
 # =============================================================================
 # Edge Cases
 # =============================================================================
 
-# TODO: Test long chains
-# [[test]]
-# name = "chained_long"
-# description = "a < b < c < d < e"
+[[test]]
+name = "chained_long"
+description = "a < b < c < d < e"
 
-# TODO: Test chained comparison in conditions
-# [[test]]
-# name = "chained_in_if"
-# description = "if 0 <= x < 10:"
+python = '''
+a = 1
+b = 2
+c = 3
+d = 4
+e = 5
+result = a < b < c < d < e
+'''
 
-# TODO: Test chained comparison as expression
-# [[test]]
-# name = "chained_as_expression"
-# description = "result = 0 < x < 10"
+rust = '''
+// a < b < c < d < e
+let a = 1;
+let b = 2;
+let c = 3;
+let d = 4;
+let e = 5;
+let result = a < b && b < c && c < d && d < e;
+'''
 
-# TODO: Test chained comparison with floats
-# [[test]]
-# name = "chained_floats"
-# description = "0.0 < x < 1.0"
+
+[[test]]
+name = "chained_in_if"
+description = "if 0 <= x < 10:"
+
+python = '''
+x = 5
+if 0 <= x < 10:
+    result = True
+else:
+    result = False
+'''
+
+rust = '''
+// if 0 <= x < 10:
+let x = 5;
+let result = if 0 <= x && x < 10 {
+    true
+} else {
+    false
+};
+'''
+
+
+[[test]]
+name = "chained_as_expression"
+description = "result = 0 < x < 10"
+
+python = '''
+x = 5
+result = 0 < x < 10
+'''
+
+rust = '''
+// result = 0 < x < 10
+let x = 5;
+let result = 0 < x && x < 10;
+'''
+
+
+[[test]]
+name = "chained_floats"
+description = "0.0 < x < 1.0"
+
+python = '''
+x = 0.5
+result = 0.0 < x < 1.0
+'''
+
+rust = '''
+// 0.0 < x < 1.0
+let x = 0.5;
+let result = 0.0 < x && x < 1.0;
+'''
+

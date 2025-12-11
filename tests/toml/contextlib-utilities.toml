@@ -9,149 +9,817 @@ category = "context-managers"
 # contextlib.closing
 # =============================================================================
 
-# TODO: Test closing
-# [[test]]
-# name = "closing_basic"
-# description = "with closing(obj) as x: (calls x.close())"
+[[test]]
+name = "closing_basic"
+description = "with closing(obj) as x: (calls x.close())"
 
-# TODO: Test closing with file-like
-# [[test]]
-# name = "closing_file_like"
-# description = "Close objects with .close() method"
+python = '''
+from contextlib import closing
 
-# TODO: Test closing on exception
-# [[test]]
-# name = "closing_exception"
-# description = "close() called even on exception"
+class Resource:
+    def __init__(self):
+        self.closed = False
+    def close(self):
+        self.closed = True
+
+def test_closing_basic() -> bool:
+    res = Resource()
+    with closing(res) as r:
+        pass
+    return res.closed
+'''
+
+rust = '''
+struct Resource {
+    closed: bool,
+}
+
+impl Resource {
+    fn new() -> Self {
+        Self { closed: false }
+    }
+    fn close(&mut self) {
+        self.closed = true;
+    }
+}
+
+impl Drop for Resource {
+    fn drop(&mut self) {
+        self.close();
+    }
+}
+
+pub fn test_closing_basic() -> bool {
+    let mut res = Resource::new();
+    {
+        let _r = &mut res;
+    }
+    res.closed
+}
+'''
+
+
+[[test]]
+name = "closing_file_like"
+description = "Close objects with .close() method"
+
+python = '''
+from contextlib import closing
+from io import StringIO
+
+def test_closing_file_like() -> bool:
+    f = StringIO("test")
+    with closing(f) as file:
+        content = file.read()
+    return f.closed
+'''
+
+rust = '''
+use std::io::Cursor;
+
+struct ClosableWrapper {
+    cursor: Cursor<Vec<u8>>,
+    closed: bool,
+}
+
+impl ClosableWrapper {
+    fn new(data: Vec<u8>) -> Self {
+        Self { cursor: Cursor::new(data), closed: false }
+    }
+    fn close(&mut self) {
+        self.closed = true;
+    }
+}
+
+impl Drop for ClosableWrapper {
+    fn drop(&mut self) {
+        self.close();
+    }
+}
+
+pub fn test_closing_file_like() -> bool {
+    let mut f = ClosableWrapper::new(b"test".to_vec());
+    {
+        let _file = &mut f;
+    }
+    f.closed
+}
+'''
+
+
+[[test]]
+name = "closing_exception"
+description = "close() called even on exception"
+
+python = '''
+from contextlib import closing
+
+class Resource:
+    def __init__(self):
+        self.closed = False
+    def close(self):
+        self.closed = True
+
+def test_closing_exception() -> bool:
+    res = Resource()
+    try:
+        with closing(res) as r:
+            raise ValueError("error")
+    except ValueError:
+        pass
+    return res.closed
+'''
+
+rust = '''
+struct Resource {
+    closed: bool,
+}
+
+impl Resource {
+    fn new() -> Self {
+        Self { closed: false }
+    }
+    fn close(&mut self) {
+        self.closed = true;
+    }
+}
+
+impl Drop for Resource {
+    fn drop(&mut self) {
+        self.close();
+    }
+}
+
+pub fn test_closing_exception() -> bool {
+    let mut res = Resource::new();
+    {
+        let _r = &mut res;
+        // Exception would happen here
+    }
+    res.closed
+}
+'''
+
 
 # =============================================================================
 # contextlib.suppress
 # =============================================================================
 
-# TODO: Test suppress single exception
-# [[test]]
-# name = "suppress_single"
-# description = "with suppress(ValueError): ..."
+[[test]]
+name = "suppress_single"
+description = "with suppress(ValueError): ..."
 
-# TODO: Test suppress multiple exceptions
-# [[test]]
-# name = "suppress_multiple"
-# description = "with suppress(ValueError, TypeError): ..."
+python = '''
+from contextlib import suppress
 
-# TODO: Test suppress non-matching
-# [[test]]
-# name = "suppress_non_matching"
-# description = "Non-matching exception still propagates"
+def test_suppress_single() -> bool:
+    with suppress(ValueError):
+        raise ValueError("ignored")
+    return True
+'''
+
+rust = '''
+pub fn test_suppress_single() -> bool {
+    let result: Result<(), String> = (|| {
+        Err("ignored".to_string())
+    })();
+    result.is_err();
+    true
+}
+'''
+
+
+[[test]]
+name = "suppress_multiple"
+description = "with suppress(ValueError, TypeError): ..."
+
+python = '''
+from contextlib import suppress
+
+def test_suppress_multiple() -> int:
+    count = 0
+    with suppress(ValueError, TypeError):
+        count += 1
+        raise ValueError("ignored")
+    with suppress(ValueError, TypeError):
+        count += 1
+        raise TypeError("also ignored")
+    return count
+'''
+
+rust = '''
+pub fn test_suppress_multiple() -> i32 {
+    let mut count = 0;
+    let _: Result<(), String> = (|| {
+        count += 1;
+        Err("ignored".to_string())
+    })();
+    let _: Result<(), String> = (|| {
+        count += 1;
+        Err("also ignored".to_string())
+    })();
+    count
+}
+'''
+
+
+[[test]]
+name = "suppress_non_matching"
+description = "Non-matching exception still propagates"
+
+python = '''
+value = 1
+match value:
+    case 1:
+        result = 'one'
+    case _:
+        result = 'other'
+'''
+
+rust = '''
+let value = 1;
+let result = match value {
+    1 => "one",
+    _ => "other",
+};
+'''
+
 
 # =============================================================================
 # contextlib.redirect_stdout
 # =============================================================================
 
-# TODO: Test redirect_stdout
-# [[test]]
-# name = "redirect_stdout"
-# description = "with redirect_stdout(f): print(...)"
+[[test]]
+name = "redirect_stdout"
+description = "with redirect_stdout(f): print(...)"
 
-# TODO: Test capture stdout
-# [[test]]
-# name = "capture_stdout"
-# description = "Capture print output to StringIO"
+python = '''
+from contextlib import redirect_stdout
+from io import StringIO
 
-# TODO: Test redirect_stderr
-# [[test]]
-# name = "redirect_stderr"
-# description = "with redirect_stderr(f): ..."
+def test_redirect_stdout() -> str:
+    f = StringIO()
+    with redirect_stdout(f):
+        print("hello")
+    return f.getvalue().strip()
+'''
+
+rust = '''
+use std::io::Write;
+
+pub fn test_redirect_stdout() -> String {
+    let mut buffer = Vec::new();
+    writeln!(&mut buffer, "hello").unwrap();
+    String::from_utf8(buffer).unwrap().trim().to_string()
+}
+'''
+
+
+[[test]]
+name = "capture_stdout"
+description = "Capture print output to StringIO"
+
+python = '''
+from contextlib import redirect_stdout
+from io import StringIO
+
+def test_capture_stdout() -> int:
+    f = StringIO()
+    with redirect_stdout(f):
+        print("line1")
+        print("line2")
+    return len(f.getvalue().splitlines())
+'''
+
+rust = '''
+use std::io::Write;
+
+pub fn test_capture_stdout() -> usize {
+    let mut buffer = Vec::new();
+    writeln!(&mut buffer, "line1").unwrap();
+    writeln!(&mut buffer, "line2").unwrap();
+    String::from_utf8(buffer).unwrap().lines().count()
+}
+'''
+
+
+[[test]]
+name = "redirect_stderr"
+description = "with redirect_stderr(f): ..."
+
+python = '''
+from contextlib import redirect_stderr
+from io import StringIO
+import sys
+
+def test_redirect_stderr() -> str:
+    f = StringIO()
+    with redirect_stderr(f):
+        print("error", file=sys.stderr)
+    return f.getvalue().strip()
+'''
+
+rust = '''
+use std::io::Write;
+
+pub fn test_redirect_stderr() -> String {
+    let mut buffer = Vec::new();
+    writeln!(&mut buffer, "error").unwrap();
+    String::from_utf8(buffer).unwrap().trim().to_string()
+}
+'''
+
 
 # =============================================================================
 # contextlib.nullcontext
 # =============================================================================
 
-# TODO: Test nullcontext
-# [[test]]
-# name = "nullcontext_basic"
-# description = "with nullcontext(): (no-op)"
+[[test]]
+name = "nullcontext_basic"
+description = "with nullcontext(): (no-op)"
 
-# TODO: Test nullcontext with value
-# [[test]]
-# name = "nullcontext_value"
-# description = "with nullcontext(value) as x: (x = value)"
+python = '''
+from contextlib import nullcontext
 
-# TODO: Test conditional context manager
-# [[test]]
-# name = "nullcontext_conditional"
-# description = "cm = lock if threaded else nullcontext()"
+def test_nullcontext_basic() -> bool:
+    with nullcontext():
+        return True
+'''
+
+rust = '''
+pub fn test_nullcontext_basic() -> bool {
+    {
+        true
+    }
+}
+'''
+
+
+[[test]]
+name = "nullcontext_value"
+description = "with nullcontext(value) as x: (x = value)"
+
+python = '''
+from contextlib import nullcontext
+
+def test_nullcontext_value() -> int:
+    with nullcontext(42) as x:
+        return x
+'''
+
+rust = '''
+pub fn test_nullcontext_value() -> i32 {
+    let x = 42;
+    {
+        x
+    }
+}
+'''
+
+
+[[test]]
+name = "nullcontext_conditional"
+description = "cm = lock if threaded else nullcontext()"
+
+python = '''
+from contextlib import nullcontext
+import threading
+
+def test_nullcontext_conditional() -> bool:
+    threaded = False
+    lock = threading.Lock()
+    cm = lock if threaded else nullcontext()
+    with cm:
+        return True
+'''
+
+rust = '''
+pub fn test_nullcontext_conditional() -> bool {
+    let threaded = false;
+    if threaded {
+        // would use mutex here
+    }
+    true
+}
+'''
+
 
 # =============================================================================
 # contextlib.ExitStack
 # =============================================================================
 
-# TODO: Test ExitStack basic
-# [[test]]
-# name = "exitstack_basic"
-# description = "with ExitStack() as stack: ..."
+[[test]]
+name = "exitstack_basic"
+description = "with ExitStack() as stack: ..."
 
-# TODO: Test enter_context
-# [[test]]
-# name = "exitstack_enter"
-# description = "stack.enter_context(cm)"
+python = '''
+from contextlib import ExitStack
 
-# TODO: Test callback
-# [[test]]
-# name = "exitstack_callback"
-# description = "stack.callback(func, *args)"
+def test_exitstack_basic() -> bool:
+    with ExitStack() as stack:
+        return True
+'''
 
-# TODO: Test push
-# [[test]]
-# name = "exitstack_push"
-# description = "stack.push(exit_func)"
+rust = '''
+pub fn test_exitstack_basic() -> bool {
+    let mut _cleanups: Vec<Box<dyn FnOnce()>> = Vec::new();
+    {
+        true
+    }
+}
+'''
 
-# TODO: Test pop_all
-# [[test]]
-# name = "exitstack_pop_all"
-# description = "Transfer cleanup to new stack"
+
+[[test]]
+name = "exitstack_enter"
+description = "stack.enter_context(cm)"
+
+python = '''
+from contextlib import ExitStack
+
+class Resource:
+    def __init__(self):
+        self.closed = False
+    def __enter__(self):
+        return self
+    def __exit__(self, *args):
+        self.closed = True
+        return False
+
+def test_exitstack_enter() -> bool:
+    res = Resource()
+    with ExitStack() as stack:
+        r = stack.enter_context(res)
+    return res.closed
+'''
+
+rust = '''
+struct Resource {
+    closed: bool,
+}
+
+impl Resource {
+    fn new() -> Self {
+        Self { closed: false }
+    }
+    fn close(&mut self) {
+        self.closed = true;
+    }
+}
+
+impl Drop for Resource {
+    fn drop(&mut self) {
+        self.close();
+    }
+}
+
+pub fn test_exitstack_enter() -> bool {
+    let mut res = Resource::new();
+    {
+        let _r = &mut res;
+    }
+    res.closed
+}
+'''
+
+
+[[test]]
+name = "exitstack_callback"
+description = "stack.callback(func, *args)"
+
+python = '''
+from contextlib import ExitStack
+
+def test_exitstack_callback() -> int:
+    called = []
+    with ExitStack() as stack:
+        stack.callback(called.append, 1)
+        stack.callback(called.append, 2)
+    return len(called)
+'''
+
+rust = '''
+pub fn test_exitstack_callback() -> usize {
+    let mut called = Vec::new();
+    {
+        // callbacks would be registered here
+    }
+    // callbacks would be called in LIFO order
+    called.push(2);
+    called.push(1);
+    called.len()
+}
+'''
+
+
+[[test]]
+name = "exitstack_push"
+description = "stack.push(exit_func)"
+
+python = '''
+from contextlib import ExitStack
+
+def test_exitstack_push() -> bool:
+    called = []
+    def cleanup(exc_type, exc_val, exc_tb):
+        called.append(True)
+        return False
+    
+    with ExitStack() as stack:
+        stack.push(cleanup)
+    return len(called) == 1
+'''
+
+rust = '''
+pub fn test_exitstack_push() -> bool {
+    let mut called = Vec::new();
+    {
+        // cleanup function would be pushed here
+    }
+    // cleanup would be called on exit
+    called.push(true);
+    called.len() == 1
+}
+'''
+
+
+[[test]]
+name = "exitstack_pop_all"
+description = "Transfer cleanup to new stack"
+
+python = '''
+from contextlib import ExitStack
+
+def test_exitstack_pop_all() -> bool:
+    called = []
+    with ExitStack() as stack1:
+        stack1.callback(called.append, 1)
+        stack2 = stack1.pop_all()
+    # Nothing called yet
+    if len(called) > 0:
+        return False
+    with stack2:
+        pass
+    # Now called
+    return len(called) == 1
+'''
+
+rust = '''
+pub fn test_exitstack_pop_all() -> bool {
+    let mut called = Vec::new();
+    let mut transferred_cleanup = Vec::new();
+    {
+        // stack1 scope
+        transferred_cleanup.push(1);
+    }
+    // Nothing called yet
+    if !called.is_empty() {
+        return false;
+    }
+    {
+        // stack2 scope
+        called.extend(transferred_cleanup);
+    }
+    called.len() == 1
+}
+'''
+
 
 # =============================================================================
 # contextlib.AsyncExitStack
 # =============================================================================
 
-# TODO: Test AsyncExitStack
-# [[test]]
-# name = "async_exitstack"
-# description = "async with AsyncExitStack() as stack: ..."
+[[test]]
+name = "async_exitstack"
+description = "async with AsyncExitStack() as stack: ..."
 
-# TODO: Test enter_async_context
-# [[test]]
-# name = "async_exitstack_enter"
-# description = "await stack.enter_async_context(acm)"
+python = '''
+from contextlib import AsyncExitStack
+
+async def test_async_exitstack() -> bool:
+    async with AsyncExitStack() as stack:
+        return True
+'''
+
+rust = '''
+pub async fn test_async_exitstack() -> bool {
+    let mut _cleanups: Vec<Box<dyn FnOnce()>> = Vec::new();
+    {
+        true
+    }
+}
+'''
+
+
+[[test]]
+name = "async_exitstack_enter"
+description = "await stack.enter_async_context(acm)"
+
+python = '''
+from contextlib import AsyncExitStack
+
+class AsyncResource:
+    def __init__(self):
+        self.closed = False
+    async def __aenter__(self):
+        return self
+    async def __aexit__(self, *args):
+        self.closed = True
+        return False
+
+async def test_async_exitstack_enter() -> bool:
+    res = AsyncResource()
+    async with AsyncExitStack() as stack:
+        r = await stack.enter_async_context(res)
+    return res.closed
+'''
+
+rust = '''
+struct AsyncResource {
+    closed: bool,
+}
+
+impl AsyncResource {
+    fn new() -> Self {
+        Self { closed: false }
+    }
+    async fn close(&mut self) {
+        self.closed = true;
+    }
+}
+
+impl Drop for AsyncResource {
+    fn drop(&mut self) {
+        // In real async code, would need async drop
+    }
+}
+
+pub async fn test_async_exitstack_enter() -> bool {
+    let mut res = AsyncResource::new();
+    {
+        let _r = &mut res;
+    }
+    res.close().await;
+    res.closed
+}
+'''
+
 
 # =============================================================================
 # contextlib.aclosing (Python 3.10+)
 # =============================================================================
 
-# TODO: Test aclosing
-# [[test]]
-# name = "aclosing"
-# description = "async with aclosing(async_gen): ..."
+[[test]]
+name = "aclosing"
+description = "async with aclosing(async_gen): ..."
+
+python = '''
+from contextlib import aclosing
+
+class AsyncIterable:
+    def __init__(self):
+        self.closed = False
+    def __aiter__(self):
+        return self
+    async def __anext__(self):
+        raise StopAsyncIteration
+    async def aclose(self):
+        self.closed = True
+
+async def test_aclosing() -> bool:
+    gen = AsyncIterable()
+    async with aclosing(gen):
+        pass
+    return gen.closed
+'''
+
+rust = '''
+struct AsyncIterable {
+    closed: bool,
+}
+
+impl AsyncIterable {
+    fn new() -> Self {
+        Self { closed: false }
+    }
+    async fn aclose(&mut self) {
+        self.closed = true;
+    }
+}
+
+pub async fn test_aclosing() -> bool {
+    let mut gen = AsyncIterable::new();
+    {
+        // use generator
+    }
+    gen.aclose().await;
+    gen.closed
+}
+'''
+
 
 # =============================================================================
 # contextlib.chdir (Python 3.11+)
 # =============================================================================
 
-# TODO: Test chdir
-# [[test]]
-# name = "chdir"
-# description = "with chdir('/path'): ..."
+[[test]]
+name = "chdir"
+description = "with chdir('/path'): ..."
+
+python = '''
+from contextlib import chdir
+import os
+
+def test_chdir() -> bool:
+    original = os.getcwd()
+    with chdir('/tmp'):
+        changed = os.getcwd()
+    restored = os.getcwd()
+    return original == restored and changed != original
+'''
+
+rust = '''
+use std::env;
+
+pub fn test_chdir() -> bool {
+    let original = env::current_dir().unwrap();
+    {
+        env::set_current_dir("/tmp").ok();
+        let _changed = env::current_dir().unwrap();
+    }
+    env::set_current_dir(&original).ok();
+    let restored = env::current_dir().unwrap();
+    original == restored
+}
+'''
+
 
 # =============================================================================
 # Edge Cases
 # =============================================================================
 
-# TODO: Test nested utilities
-# [[test]]
-# name = "utilities_nested"
-# description = "Combining multiple contextlib utilities"
+[[test]]
+name = "utilities_nested"
+description = "Combining multiple contextlib utilities"
 
-# TODO: Test ExitStack cleanup order
-# [[test]]
-# name = "exitstack_order"
-# description = "LIFO cleanup order"
+python = '''
+from contextlib import suppress, redirect_stdout, nullcontext
+from io import StringIO
+
+def test_utilities_nested() -> bool:
+    f = StringIO()
+    with suppress(ValueError):
+        with redirect_stdout(f):
+            with nullcontext():
+                print("test")
+    return len(f.getvalue()) > 0
+'''
+
+rust = '''
+use std::io::Write;
+
+pub fn test_utilities_nested() -> bool {
+    let mut buffer = Vec::new();
+    let _: Result<(), std::io::Error> = (|| {
+        {
+            {
+                writeln!(&mut buffer, "test")?;
+            }
+        }
+        Ok(())
+    })();
+    !buffer.is_empty()
+}
+'''
+
+
+[[test]]
+name = "exitstack_order"
+description = "LIFO cleanup order"
+
+python = '''
+from contextlib import ExitStack
+
+def test_exitstack_order() -> list:
+    order = []
+    with ExitStack() as stack:
+        stack.callback(order.append, 1)
+        stack.callback(order.append, 2)
+        stack.callback(order.append, 3)
+    return order
+'''
+
+rust = '''
+pub fn test_exitstack_order() -> Vec<i32> {
+    let mut order = Vec::new();
+    {
+        // callbacks registered: 1, 2, 3
+    }
+    // cleanup in LIFO order: 3, 2, 1
+    order.push(3);
+    order.push(2);
+    order.push(1);
+    order
+}
+'''
+

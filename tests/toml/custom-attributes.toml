@@ -11,7 +11,6 @@ category = "attributes"
 [[test]]
 name = "single_custom_attribute"
 description = "Single custom attribute via @depyler annotation"
-tags = ["attributes", "inline"]
 
 python = '''
 # @depyler: custom_attribute = "inline"
@@ -55,7 +54,6 @@ mod tests {
 [[test]]
 name = "custom_attribute_cold"
 description = "Cold attribute for error handlers"
-tags = ["attributes", "cold"]
 
 python = '''
 # @depyler: custom_attribute = "cold"
@@ -73,7 +71,6 @@ pub fn error_handler(msg: String) {
 [[test]]
 name = "custom_attribute_repr"
 description = "repr(C) attribute"
-tags = ["attributes", "repr"]
 
 python = '''
 # @depyler: custom_attribute = "repr(C)"
@@ -100,7 +97,6 @@ mod tests {
 [[test]]
 name = "multiple_custom_attributes"
 description = "Multiple custom attributes on same function"
-tags = ["attributes", "multiple"]
 
 python = '''
 # @depyler: custom_attribute = "inline"
@@ -131,7 +127,6 @@ mod tests {
 [[test]]
 name = "custom_attribute_with_args"
 description = "Custom attribute with arguments"
-tags = ["attributes", "args"]
 
 python = '''
 # @depyler: custom_attribute = "inline(always)"
@@ -160,7 +155,6 @@ mod tests {
 [[test]]
 name = "custom_attributes_with_other_annotations"
 description = "Custom attributes mixed with other depyler annotations"
-tags = ["attributes", "annotations"]
 
 python = '''
 # @depyler: optimization_level = "aggressive"
@@ -201,7 +195,6 @@ mod tests {
 [[test]]
 name = "no_custom_attributes"
 description = "Function without custom attributes"
-tags = ["attributes", "default"]
 
 python = '''
 def normal_function(x: int) -> int:
@@ -228,7 +221,6 @@ mod tests {
 [[test]]
 name = "multiple_functions_different_attributes"
 description = "Different functions with different attributes"
-tags = ["attributes", "multiple-functions"]
 
 python = '''
 # @depyler: custom_attribute = "inline"
@@ -271,7 +263,6 @@ mod tests {
 [[test]]
 name = "custom_attribute_with_docstring"
 description = "Custom attribute with docstring"
-tags = ["attributes", "docstring"]
 
 python = '''
 # @depyler: custom_attribute = "inline"

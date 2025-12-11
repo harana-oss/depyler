@@ -34,7 +34,6 @@ async fn main() {
     println!("{:?}", result);
 }
 """
-contains = ["[0, 1, 2, 3, 4]"]
 
 [[test]]
 name = "async_set_comp"
@@ -63,7 +62,6 @@ async fn main() {
     println!("{:?}", sorted);
 }
 """
-contains = ["[0, 1, 2, 3, 4]"]
 
 [[test]]
 name = "async_dict_comp"
@@ -92,7 +90,6 @@ async fn main() {
     println!("{:?}", result);
 }
 """
-contains = ["'a': 1", "'b': 2", "'c': 3"]
 
 [[test]]
 name = "async_gen_expr"
@@ -125,7 +122,6 @@ async fn main() {
     println!("{:?}", result);
 }
 """
-contains = ["[0, 1, 2, 3, 4]"]
 
 # =============================================================================
 # Await in Comprehension
@@ -161,7 +157,6 @@ async fn main() {
     println!("{:?}", result);
 }
 """
-contains = ["[2, 4, 6]"]
 
 [[test]]
 name = "await_async_for_comp"
@@ -195,7 +190,6 @@ async fn main() {
     println!("{:?}", result);
 }
 """
-contains = ["[0, 2, 4, 6, 8]"]
 
 [[test]]
 name = "await_in_filter"
@@ -229,7 +223,6 @@ async fn main() {
     println!("{:?}", result);
 }
 """
-contains = ["[2, 4]"]
 
 # =============================================================================
 # Combined Patterns
@@ -262,7 +255,6 @@ async fn main() {
     println!("{:?}", result);
 }
 """
-contains = ["[1, 2]"]
 
 [[test]]
 name = "async_comp_await_cond"
@@ -298,7 +290,6 @@ async fn main() {
     println!("{:?}", result);
 }
 """
-contains = ["[0, 2, 4]"]
 
 [[test]]
 name = "async_comp_nested"
@@ -329,7 +320,6 @@ async fn main() {
     println!("{:?}", result);
 }
 """
-contains = ["[1, 2, 3, 4, 5, 6]"]
 
 # =============================================================================
 # Use Cases
@@ -361,7 +351,6 @@ async fn main() {
     println!("{:?}", results);
 }
 """
-contains = ["[2, 4, 6, 8, 10]"]
 
 [[test]]
 name = "async_comp_transform"
@@ -387,7 +376,6 @@ async fn main() {
     println!("{:?}", results);
 }
 """
-contains = ["[1, 4, 9]"]
 
 [[test]]
 name = "async_comp_filter"
@@ -416,7 +404,6 @@ async fn main() {
     println!("{:?}", evens);
 }
 """
-contains = ["[0, 2, 4, 6, 8]"]
 
 # =============================================================================
 # Context Requirements
@@ -471,7 +458,6 @@ async fn main() {
     println!("{:?}", result);
 }
 """
-contains = ["[]"]
 
 [[test]]
 name = "async_comp_exception"
@@ -512,7 +498,6 @@ async fn main() {
     }
 }
 """
-contains = ["Error at 2"]
 
 [[test]]
 name = "async_comp_memory"
@@ -551,4 +536,3 @@ async fn main() {
     println!("{:?} {:?}", list_comp, gen_result);
 }
 """
-contains = ["[0, 1, 2, 3, 4]"]

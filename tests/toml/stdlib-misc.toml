@@ -11,7 +11,6 @@ category = "stdlib-misc"
 [[test]]
 name = "uuid_uuid1"
 description = "uuid.uuid1() time-based UUID"
-tags = ["uuid", "v1"]
 
 python = '''
 import uuid
@@ -33,7 +32,6 @@ pub fn generate_uuid1() -> String {
 [[test]]
 name = "uuid_uuid4"
 description = "uuid.uuid4() random UUID"
-tags = ["uuid", "v4"]
 
 python = '''
 import uuid
@@ -55,7 +53,6 @@ pub fn generate_uuid4() -> String {
 [[test]]
 name = "uuid_uuid3"
 description = "uuid.uuid3() MD5 hash UUID"
-tags = ["uuid", "v3"]
 
 python = '''
 import uuid
@@ -71,7 +68,6 @@ rust = '''
 [[test]]
 name = "uuid_uuid5"
 description = "uuid.uuid5() SHA1 hash UUID"
-tags = ["uuid", "v5"]
 
 python = '''
 import uuid
@@ -87,7 +83,6 @@ rust = '''
 [[test]]
 name = "urlparse"
 description = "urlparse() parse URL"
-tags = ["urllib", "parse"]
 
 python = '''
 from urllib.parse import urlparse
@@ -108,7 +103,6 @@ pub fn parse_url(url: String) -> () {
 [[test]]
 name = "quote"
 description = "quote() URL encoding"
-tags = ["urllib", "encode"]
 
 python = '''
 from urllib.parse import quote
@@ -127,7 +121,6 @@ pub fn encode_url(text: String) -> String {
 [[test]]
 name = "unquote"
 description = "unquote() URL decoding"
-tags = ["urllib", "decode"]
 
 python = '''
 from urllib.parse import unquote
@@ -146,7 +139,6 @@ pub fn decode_url(text: String) -> String {
 [[test]]
 name = "statistics_mean"
 description = "statistics.mean() average"
-tags = ["statistics", "mean"]
 
 python = '''
 import statistics
@@ -168,7 +160,6 @@ pub fn calculate_mean(data: &Vec<f64>) -> f64 {
 [[test]]
 name = "statistics_median"
 description = "statistics.median() middle value"
-tags = ["statistics", "median"]
 
 python = '''
 import statistics
@@ -197,7 +188,6 @@ pub fn calculate_median(data: &Vec<f64>) -> f64 {
 [[test]]
 name = "statistics_mode"
 description = "statistics.mode() most common"
-tags = ["statistics", "mode"]
 
 python = '''
 import statistics
@@ -234,7 +224,6 @@ mod tests {
 [[test]]
 name = "statistics_stdev"
 description = "statistics.stdev() standard deviation"
-tags = ["statistics", "stdev"]
 
 python = '''
 import statistics
@@ -265,7 +254,6 @@ pub fn calculate_stdev(data: &Vec<f64>) -> f64 {
 [[test]]
 name = "statistics_variance"
 description = "statistics.variance() sample variance"
-tags = ["statistics", "variance"]
 
 python = '''
 import statistics
@@ -295,7 +283,6 @@ pub fn calculate_variance(data: &Vec<f64>) -> f64 {
 [[test]]
 name = "copy_shallow_copy_list"
 description = "copy.copy() should generate clone, not invalid .copy() method"
-tags = ["copy", "shallow", "list"]
 
 python = '''
 import copy
@@ -329,7 +316,6 @@ mod tests {
 [[test]]
 name = "copy_shallow_copy_dict"
 description = "copy.copy() for dictionaries"
-tags = ["copy", "shallow", "dict"]
 
 python = '''
 import copy
@@ -369,7 +355,6 @@ mod tests {
 [[test]]
 name = "copy_deepcopy_list"
 description = "copy.deepcopy() for nested lists"
-tags = ["copy", "deep", "list"]
 
 python = '''
 import copy

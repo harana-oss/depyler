@@ -12,7 +12,6 @@ category = "core-language"
 [[test]]
 name = "assert_basic"
 description = "assert condition"
-tags = ["assert", "basic"]
 
 python = '''
 x = 5
@@ -29,7 +28,6 @@ let result = true;
 [[test]]
 name = "assert_with_message"
 description = "assert condition, 'error message'"
-tags = ["assert", "message"]
 
 python = '''
 x = 5
@@ -46,7 +44,6 @@ let result = true;
 [[test]]
 name = "assert_true"
 description = "assert True (always passes)"
-tags = ["assert", "literal"]
 
 python = '''
 assert True
@@ -65,7 +62,6 @@ let result = true;
 [[test]]
 name = "assert_comparison"
 description = "assert x > 0"
-tags = ["assert", "comparison"]
 
 python = '''
 x = 10
@@ -82,7 +78,6 @@ let result = x > 0;
 [[test]]
 name = "assert_equality"
 description = "assert result == expected"
-tags = ["assert", "equality"]
 
 python = '''
 result = 42
@@ -101,7 +96,6 @@ let value = result == expected;
 [[test]]
 name = "assert_isinstance"
 description = "assert isinstance(x, int)"
-tags = ["assert", "type-check"]
 
 python = '''
 x = 42
@@ -118,7 +112,6 @@ let result = true;
 [[test]]
 name = "assert_in"
 description = "assert item in collection"
-tags = ["assert", "membership"]
 
 python = '''
 item = 2
@@ -141,7 +134,6 @@ let result = true;
 [[test]]
 name = "assert_and"
 description = "assert cond1 and cond2"
-tags = ["assert", "logical-and"]
 
 python = '''
 x = 5
@@ -160,7 +152,6 @@ let result = true;
 [[test]]
 name = "assert_or"
 description = "assert cond1 or cond2"
-tags = ["assert", "logical-or"]
 
 python = '''
 x = 5
@@ -179,7 +170,6 @@ let result = true;
 [[test]]
 name = "assert_not"
 description = "assert not invalid"
-tags = ["assert", "logical-not"]
 
 python = '''
 invalid = False
@@ -196,7 +186,6 @@ let result = true;
 [[test]]
 name = "assert_function_call"
 description = "assert is_valid(x)"
-tags = ["assert", "function-call"]
 
 python = '''
 def is_valid(x):
@@ -224,7 +213,6 @@ let result = true;
 [[test]]
 name = "assert_fstring_message"
 description = "assert x > 0, f'x must be positive, got {x}'"
-tags = ["assert", "f-string", "message"]
 
 python = '''
 x = 5
@@ -241,7 +229,6 @@ let result = true;
 [[test]]
 name = "assert_expression_message"
 description = "assert valid, str(error_details)"
-tags = ["assert", "message"]
 
 python = '''
 valid = True
@@ -264,7 +251,6 @@ let result = true;
 [[test]]
 name = "assert_precondition"
 description = "Assert at start of function for input validation"
-tags = ["assert", "precondition", "validation"]
 
 python = '''
 def divide(a, b):
@@ -286,7 +272,6 @@ let result = divide(10, 2) == 5;
 [[test]]
 name = "assert_postcondition"
 description = "Assert before return for output validation"
-tags = ["assert", "postcondition", "validation"]
 
 python = '''
 def get_positive(x):
@@ -312,7 +297,6 @@ let result = value == 5;
 [[test]]
 name = "assert_invariant"
 description = "Assert inside loop for invariant checking"
-tags = ["assert", "invariant", "loop"]
 
 python = '''
 total = 0
@@ -340,7 +324,6 @@ let result = total == 15;
 [[test]]
 name = "assert_tuple_gotcha"
 description = "assert (False, 'msg') is always True!"
-tags = ["assert", "gotcha", "edge-case"]
 skip = true
 
 python = '''
@@ -359,7 +342,6 @@ let result = true;
 [[test]]
 name = "assert_none"
 description = "assert x is not None"
-tags = ["assert", "none", "identity"]
 
 python = '''
 x = 42
@@ -376,7 +358,6 @@ let result = true;
 [[test]]
 name = "assert_optimization"
 description = "Assert behavior with __debug__"
-tags = ["assert", "debug", "optimization"]
 
 python = '''
 # Asserts can be disabled with -O flag

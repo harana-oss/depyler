@@ -11,7 +11,6 @@ category = "mutability"
 [[test]]
 name = "mut_reassign_variable"
 description = "Variable requiring mut for reassignment"
-tags = ["mutability", "reassign"]
 
 python = '''
 def counter() -> int:
@@ -42,7 +41,6 @@ mod tests {
 [[test]]
 name = "immutable_no_reassign"
 description = "Variable not reassigned is immutable"
-tags = ["mutability", "immutable"]
 
 python = '''
 def constant() -> int:
@@ -69,7 +67,6 @@ mod tests {
 [[test]]
 name = "mut_augmented_assign"
 description = "Augmented assignment requires mut"
-tags = ["mutability", "augmented"]
 
 python = '''
 def accumulate(items: list[int]) -> int:
@@ -103,7 +100,6 @@ mod tests {
 [[test]]
 name = "mut_list_append"
 description = "List append requires mut"
-tags = ["mutability", "list"]
 
 python = '''
 def build_list() -> list[int]:
@@ -125,7 +121,6 @@ pub fn build_list() -> Vec<i32> {
 [[test]]
 name = "mut_dict_insert"
 description = "Dict insert requires mut"
-tags = ["mutability", "dict"]
 
 python = '''
 def build_dict() -> dict:
@@ -152,7 +147,6 @@ pub fn build_dict() -> HashMap<serde_json::Value, serde_json::Value> {
 [[test]]
 name = "mut_list_sort"
 description = "In-place sort requires mut"
-tags = ["mutability", "list", "sort"]
 
 python = '''
 def sort_in_place(items: list[int]) -> list[int]:
@@ -205,7 +199,6 @@ mod tests {
 [[test]]
 name = "param_read_only"
 description = "Read-only parameter uses Vec directly"
-tags = ["mutability", "parameter"]
 
 python = '''
 def sum_list(items: list[int]) -> int:
@@ -232,7 +225,6 @@ mod tests {
 [[test]]
 name = "param_mutating"
 description = "Mutating parameter needs &mut"
-tags = ["mutability", "parameter"]
 
 python = '''
 def clear_list(items: list[int]) -> None:
@@ -248,7 +240,6 @@ pub fn clear_list(items: &mut Vec<i32>) {
 [[test]]
 name = "clone_to_avoid_mut"
 description = "Clone to work with copy instead of mutating"
-tags = ["clone", "immutable"]
 
 python = '''
 def sorted_copy(items: list[int]) -> list[int]:
@@ -303,7 +294,6 @@ mod tests {
 [[test]]
 name = "clone_list_copy"
 description = "list() creates an iterator collection"
-tags = ["clone", "list"]
 
 python = '''
 def copy_list(items: list[int]) -> list[int]:
@@ -329,7 +319,6 @@ mod tests {
 [[test]]
 name = "loop_var_immutable"
 description = "Loop variable typically immutable"
-tags = ["mutability", "loop"]
 
 python = '''
 def print_items(items: list[int]) -> None:
@@ -348,7 +337,6 @@ pub fn print_items(items: &Vec<i32>) {
 [[test]]
 name = "loop_var_modified"
 description = "Loop variable modified in body"
-tags = ["mutability", "loop"]
 
 python = '''
 def double_items(items: list[int]) -> list[int]:
@@ -383,7 +371,6 @@ mod tests {
 [[test]]
 name = "struct_field_mut"
 description = "Mutating struct field"
-tags = ["mutability", "struct"]
 
 python = '''
 class Counter:
@@ -431,7 +418,6 @@ impl Counter {
 [[test]]
 name = "struct_field_immut"
 description = "Reading struct field"
-tags = ["mutability", "struct"]
 
 python = '''
 class Counter:
@@ -479,7 +465,6 @@ impl Counter {
 [[test]]
 name = "slice_assignment_requires_mut_param"
 description = "Slice assignment to a field should require &mut parameter"
-tags = ["mutability", "slice", "struct"]
 
 python = '''
 from dataclasses import dataclass
@@ -576,7 +561,6 @@ pub fn refresh_players(state: &mut State) {
 [[test]]
 name = "slice_assignment_generates_clear_extend"
 description = "Slice assignment should generate clear() and extend() without clone()"
-tags = ["mutability", "slice", "codegen"]
 
 python = '''
 from dataclasses import dataclass
@@ -630,7 +614,6 @@ pub fn update_items(state: &mut State) {
 [[test]]
 name = "slice_assignment_simple_variable"
 description = "Slice assignment to a simple variable"
-tags = ["mutability", "slice", "variable"]
 
 python = '''
 def update_list() -> list[int]:
@@ -653,7 +636,6 @@ pub fn update_list() -> Vec<i32> {
 [[test]]
 name = "field_access_not_alias"
 description = "Assigning from param.field should not create an alias to param"
-tags = ["mutability", "alias", "field-access"]
 
 python = '''
 from dataclasses import dataclass
@@ -768,7 +750,6 @@ pub fn calculate_margin(state: &State) -> i32 {
 [[test]]
 name = "mut_parameter_reassignment"
 description = "GCD algorithm - parameters reassigned require mut"
-tags = ["mutability", "parameter", "reassign"]
 
 python = '''
 def gcd(a: int, b: int) -> int:
@@ -821,7 +802,6 @@ mod tests {
 [[test]]
 name = "mut_list_multiple_methods"
 description = "List with multiple mutating methods"
-tags = ["mutability", "list"]
 
 python = '''
 def mutate_list() -> list[int]:
@@ -851,7 +831,6 @@ pub fn mutate_list() -> Vec<i32> {
 [[test]]
 name = "mut_dict_update_and_index"
 description = "Dict mutation via update() and indexing"
-tags = ["mutability", "dict"]
 
 python = '''
 def mutate_dict() -> dict:
@@ -884,7 +863,6 @@ pub fn mutate_dict() -> HashMap<String, i32> {
 [[test]]
 name = "mut_loop_counter"
 description = "Loop with counter mutation"
-tags = ["mutability", "loop"]
 
 python = '''
 def count_up(limit: int) -> int:
@@ -918,7 +896,6 @@ mod tests {
 [[test]]
 name = "mut_conditional_reassign"
 description = "Reassignment inside if/else blocks"
-tags = ["mutability", "conditional"]
 
 python = '''
 def conditional(flag: bool) -> int:
@@ -945,7 +922,6 @@ pub fn conditional(flag: bool) -> i32 {
 [[test]]
 name = "mut_nested_method_call"
 description = "Nested method calls with mutation"
-tags = ["mutability", "nested"]
 
 python = '''
 def nested_mutation() -> list:
@@ -968,7 +944,6 @@ pub fn nested_mutation() -> Vec<serde_json::Value> {
 [[test]]
 name = "mut_complex_scenario"
 description = "Complex mutations - params, lists, loops, conditionals"
-tags = ["mutability", "complex"]
 
 python = '''
 def complex_mutations(initial: int) -> list:
@@ -1008,7 +983,6 @@ pub fn complex_mutations(mut initial: i32) -> Vec<serde_json::Value> {
 [[test]]
 name = "string_concat_optimization"
 description = "String concatenation handling"
-tags = ["string", "optimization"]
 
 python = '''
 def string_heavy() -> str:
@@ -1028,7 +1002,6 @@ pub fn string_heavy() -> String {
 [[test]]
 name = "multiple_string_functions"
 description = "Multiple functions returning strings"
-tags = ["string", "functions"]
 
 python = '''
 def func1() -> str:
@@ -1056,7 +1029,6 @@ pub fn func3() -> String {
 [[test]]
 name = "mut_nested_field_mutation"
 description = "Variable with nested field mutation requires mut"
-tags = ["mutability", "nested-fields", "regression"]
 
 python = '''
 class Inner:
@@ -1109,7 +1081,6 @@ pub fn mutate_nested_field(state: &State, value: i32) {
 [[test]]
 name = "mut_deeply_nested_field_mutation"
 description = "Deeply nested field mutation requires mut on root variable"
-tags = ["mutability", "nested-fields", "regression"]
 
 python = '''
 class Level3:
@@ -1162,7 +1133,6 @@ pub fn mutate_deeply_nested(root: &Level1, item: String) {
 [[test]]
 name = "mut_cloned_nested_field_mutation"
 description = "Cloned variable with nested field mutation requires mut"
-tags = ["mutability", "nested-fields", "clone", "regression"]
 
 python = '''
 class TryTracker:
@@ -1204,7 +1174,6 @@ pub fn record_try(state: &State, player_index: i32) {
 [[test]]
 name = "for_loop_mut_field_assignment"
 description = "For loop variable needs mut when field is assigned"
-tags = ["mutability", "for-loop", "field-assignment"]
 
 python = '''
 class PlayerStats:
@@ -1234,7 +1203,6 @@ pub fn add_time_to_players(players: &Vec<PlayerStats>, seconds: i32) {
 [[test]]
 name = "for_loop_mut_nested_field_assignment"
 description = "For loop variable needs mut when deeply nested field is assigned"
-tags = ["mutability", "for-loop", "nested-fields"]
 
 python = '''
 class Scores:
@@ -1291,7 +1259,6 @@ pub fn add_try_to_all(player_stats: &Vec<PlayerStatistics>) {
 [[test]]
 name = "for_loop_immut_no_field_assignment"
 description = "For loop variable stays immutable when no field assignment"
-tags = ["mutability", "for-loop", "immutable"]
 
 python = '''
 class Player:
@@ -1321,7 +1288,6 @@ pub fn print_player_names(players: &Vec<Player>) {
 [[test]]
 name = "for_loop_mut_index_assignment"
 description = "For loop variable needs mut when index is assigned"
-tags = ["mutability", "for-loop", "index-assignment"]
 
 python = '''
 class Container:

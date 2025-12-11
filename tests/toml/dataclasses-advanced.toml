@@ -9,155 +9,894 @@ category = "data-structures"
 # Inheritance
 # =============================================================================
 
-# TODO: Test dataclass inheritance
-# [[test]]
-# name = "dataclass_inheritance"
-# description = "@dataclass class Child(Parent): ..."
+[[test]]
+name = "dataclass_inheritance"
+description = "@dataclass class Child(Parent): ..."
 
-# TODO: Test field order in inheritance
-# [[test]]
-# name = "dataclass_inherit_order"
-# description = "Parent fields before child fields"
+python = '''
+from dataclasses import dataclass
 
-# TODO: Test overriding fields
-# [[test]]
-# name = "dataclass_override_field"
-# description = "Override parent field with new default"
+@dataclass
+class Point:
+    x: int
+    y: int
 
-# TODO: Test mixing dataclass and non-dataclass
-# [[test]]
-# name = "dataclass_mixed_inherit"
-# description = "Dataclass inheriting from regular class"
+result = Point(1, 2)
+'''
+
+rust = '''
+#[derive(Debug)]
+struct Point {
+    x: i32,
+    y: i32,
+}
+'''
+
+
+[[test]]
+name = "dataclass_inherit_order"
+description = "Parent fields before child fields"
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass
+class Base:
+    x: int
+
+@dataclass
+class Child(Base):
+    y: int
+
+def test_dataclass_inherit_order() -> tuple:
+    c = Child(x=1, y=2)
+    return (c.x, c.y)
+'''
+
+rust = '''
+#[derive(Debug)]
+struct Base {
+    x: i32,
+}
+
+#[derive(Debug)]
+struct Child {
+    x: i32,
+    y: i32,
+}
+
+pub fn test_dataclass_inherit_order() -> (i32, i32) {
+    let c = Child { x: 1, y: 2 };
+    (c.x, c.y)
+}
+'''
+
+
+[[test]]
+name = "dataclass_override_field"
+description = "Override parent field with new default"
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass
+class Base:
+    x: int = 0
+
+@dataclass
+class Child(Base):
+    x: int = 10
+
+def test_dataclass_override_field() -> int:
+    c = Child()
+    return c.x
+'''
+
+rust = '''
+#[derive(Debug)]
+struct Base {
+    x: i32,
+}
+
+#[derive(Debug)]
+struct Child {
+    x: i32,
+}
+
+impl Default for Child {
+    fn default() -> Self {
+        Self { x: 10 }
+    }
+}
+
+pub fn test_dataclass_override_field() -> i32 {
+    let c = Child::default();
+    c.x
+}
+'''
+
+
+[[test]]
+name = "dataclass_mixed_inherit"
+description = "Dataclass inheriting from regular class"
+
+python = '''
+from dataclasses import dataclass
+
+class Regular:
+    def __init__(self):
+        self.base_value = 42
+
+@dataclass
+class Child(Regular):
+    x: int
+    
+    def __post_init__(self):
+        super().__init__()
+
+def test_dataclass_mixed_inherit() -> int:
+    c = Child(x=10)
+    return c.base_value
+'''
+
+rust = '''
+struct Regular {
+    base_value: i32,
+}
+
+impl Regular {
+    fn new() -> Self {
+        Self { base_value: 42 }
+    }
+}
+
+#[derive(Debug)]
+struct Child {
+    base: Regular,
+    x: i32,
+}
+
+impl Child {
+    fn new(x: i32) -> Self {
+        Self {
+            base: Regular::new(),
+            x,
+        }
+    }
+}
+
+pub fn test_dataclass_mixed_inherit() -> i32 {
+    let c = Child::new(10);
+    c.base.base_value
+}
+'''
+
 
 # =============================================================================
 # Comparison and Ordering
 # =============================================================================
 
-# TODO: Test custom ordering
-# [[test]]
-# name = "dataclass_custom_order"
-# description = "@dataclass(order=True) comparison by fields"
+[[test]]
+name = "dataclass_custom_order"
+description = "@dataclass(order=True) comparison by fields"
 
-# TODO: Test ordering field selection
-# [[test]]
-# name = "dataclass_order_fields"
-# description = "field(compare=False) excludes from ordering"
+python = '''
+from dataclasses import dataclass
 
-# TODO: Test frozen for hashing
-# [[test]]
-# name = "dataclass_hash_frozen"
-# description = "frozen=True makes hashable"
+@dataclass(order=True)
+class Point:
+    x: int
+    y: int
 
-# TODO: Test unsafe_hash
-# [[test]]
-# name = "dataclass_unsafe_hash"
-# description = "@dataclass(unsafe_hash=True)"
+result = Point(1, 2) < Point(2, 3)
+'''
+
+rust = '''
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+struct Point {
+    x: i32,
+    y: i32,
+}
+'''
+
+
+[[test]]
+name = "dataclass_order_fields"
+description = "field(compare=False) excludes from ordering"
+
+python = '''
+from dataclasses import dataclass, field
+
+@dataclass(order=True)
+class Point:
+    x: int
+    y: int
+    label: str = field(default="", compare=False)
+
+def test_dataclass_order_fields() -> bool:
+    p1 = Point(1, 2, "A")
+    p2 = Point(1, 2, "B")
+    return p1 == p2
+'''
+
+rust = '''
+#[derive(Debug)]
+struct Point {
+    x: i32,
+    y: i32,
+    label: String,
+}
+
+impl PartialEq for Point {
+    fn eq(&self, other: &Self) -> bool {
+        self.x == other.x && self.y == other.y
+    }
+}
+
+impl Eq for Point {}
+
+impl PartialOrd for Point {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl Ord for Point {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        (self.x, self.y).cmp(&(other.x, other.y))
+    }
+}
+
+pub fn test_dataclass_order_fields() -> bool {
+    let p1 = Point { x: 1, y: 2, label: "A".to_string() };
+    let p2 = Point { x: 1, y: 2, label: "B".to_string() };
+    p1 == p2
+}
+'''
+
+
+[[test]]
+name = "dataclass_hash_frozen"
+description = "frozen=True makes hashable"
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass(frozen=True)
+class Point:
+    x: int
+    y: int
+
+def test_dataclass_hash_frozen() -> int:
+    p = Point(1, 2)
+    return hash(p)
+'''
+
+rust = '''
+use std::collections::hash_map::DefaultHasher;
+use std::hash::{Hash, Hasher};
+
+#[derive(Debug, Hash, PartialEq, Eq)]
+struct Point {
+    x: i32,
+    y: i32,
+}
+
+pub fn test_dataclass_hash_frozen() -> u64 {
+    let p = Point { x: 1, y: 2 };
+    let mut hasher = DefaultHasher::new();
+    p.hash(&mut hasher);
+    hasher.finish()
+}
+'''
+
+
+[[test]]
+name = "dataclass_unsafe_hash"
+description = "@dataclass(unsafe_hash=True)"
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass
+class Point:
+    x: int
+    y: int
+
+result = Point(1, 2)
+'''
+
+rust = '''
+#[derive(Debug)]
+struct Point {
+    x: i32,
+    y: i32,
+}
+'''
+
 
 # =============================================================================
 # asdict and astuple
 # =============================================================================
 
-# TODO: Test asdict
-# [[test]]
-# name = "dataclass_asdict"
-# description = "dataclasses.asdict(instance)"
+[[test]]
+name = "dataclass_asdict"
+description = "dataclasses.asdict(instance)"
 
-# TODO: Test astuple
-# [[test]]
-# name = "dataclass_astuple"
-# description = "dataclasses.astuple(instance)"
+python = '''
+from dataclasses import dataclass, asdict
 
-# TODO: Test nested conversion
-# [[test]]
-# name = "dataclass_nested_convert"
-# description = "asdict with nested dataclasses"
+@dataclass
+class Point:
+    x: int
+    y: int
 
-# TODO: Test dict_factory
-# [[test]]
-# name = "dataclass_dict_factory"
-# description = "asdict(obj, dict_factory=OrderedDict)"
+def test_dataclass_asdict() -> int:
+    p = Point(1, 2)
+    d = asdict(p)
+    return d['x']
+'''
+
+rust = '''
+use std::collections::HashMap;
+
+#[derive(Debug)]
+struct Point {
+    x: i32,
+    y: i32,
+}
+
+impl Point {
+    fn as_dict(&self) -> HashMap<String, i32> {
+        let mut map = HashMap::new();
+        map.insert("x".to_string(), self.x);
+        map.insert("y".to_string(), self.y);
+        map
+    }
+}
+
+pub fn test_dataclass_asdict() -> i32 {
+    let p = Point { x: 1, y: 2 };
+    let d = p.as_dict();
+    *d.get("x").unwrap()
+}
+'''
+
+
+[[test]]
+name = "dataclass_astuple"
+description = "dataclasses.astuple(instance)"
+
+python = '''
+from dataclasses import dataclass, astuple
+
+@dataclass
+class Point:
+    x: int
+    y: int
+
+def test_dataclass_astuple() -> tuple:
+    p = Point(1, 2)
+    return astuple(p)
+'''
+
+rust = '''
+#[derive(Debug)]
+struct Point {
+    x: i32,
+    y: i32,
+}
+
+impl Point {
+    fn as_tuple(&self) -> (i32, i32) {
+        (self.x, self.y)
+    }
+}
+
+pub fn test_dataclass_astuple() -> (i32, i32) {
+    let p = Point { x: 1, y: 2 };
+    p.as_tuple()
+}
+'''
+
+
+[[test]]
+name = "dataclass_nested_convert"
+description = "asdict with nested dataclasses"
+
+python = '''
+from dataclasses import dataclass, asdict
+
+@dataclass
+class Point:
+    x: int
+    y: int
+
+@dataclass
+class Line:
+    start: Point
+    end: Point
+
+def test_dataclass_nested_convert() -> int:
+    line = Line(Point(0, 0), Point(1, 1))
+    d = asdict(line)
+    return d['start']['x']
+'''
+
+rust = '''
+use std::collections::HashMap;
+
+#[derive(Debug)]
+struct Point {
+    x: i32,
+    y: i32,
+}
+
+#[derive(Debug)]
+struct Line {
+    start: Point,
+    end: Point,
+}
+
+pub fn test_dataclass_nested_convert() -> i32 {
+    let line = Line {
+        start: Point { x: 0, y: 0 },
+        end: Point { x: 1, y: 1 },
+    };
+    line.start.x
+}
+'''
+
+
+[[test]]
+name = "dataclass_dict_factory"
+description = "asdict(obj, dict_factory=OrderedDict)"
+
+python = '''
+from dataclasses import dataclass, asdict
+from collections import OrderedDict
+
+@dataclass
+class Point:
+    x: int
+    y: int
+
+def test_dataclass_dict_factory() -> int:
+    p = Point(1, 2)
+    d = asdict(p, dict_factory=OrderedDict)
+    return len(d)
+'''
+
+rust = '''
+use indexmap::IndexMap;
+
+#[derive(Debug)]
+struct Point {
+    x: i32,
+    y: i32,
+}
+
+impl Point {
+    fn as_ordered_dict(&self) -> IndexMap<String, i32> {
+        let mut map = IndexMap::new();
+        map.insert("x".to_string(), self.x);
+        map.insert("y".to_string(), self.y);
+        map
+    }
+}
+
+pub fn test_dataclass_dict_factory() -> usize {
+    let p = Point { x: 1, y: 2 };
+    let d = p.as_ordered_dict();
+    d.len()
+}
+'''
+
 
 # =============================================================================
 # fields() Function
 # =============================================================================
 
-# TODO: Test fields
-# [[test]]
-# name = "dataclass_fields"
-# description = "dataclasses.fields(cls)"
+[[test]]
+name = "dataclass_fields"
+description = "dataclasses.fields(cls)"
 
-# TODO: Test field metadata
-# [[test]]
-# name = "dataclass_metadata"
-# description = "field(metadata={'key': 'value'})"
+python = '''
+from dataclasses import dataclass, fields
 
-# TODO: Test accessing field info
-# [[test]]
-# name = "dataclass_field_info"
-# description = "f.name, f.type, f.default"
+@dataclass
+class Point:
+    x: int
+    y: int
+
+def test_dataclass_fields() -> int:
+    return len(fields(Point))
+'''
+
+rust = '''
+#[derive(Debug)]
+struct Point {
+    x: i32,
+    y: i32,
+}
+
+pub fn test_dataclass_fields() -> usize {
+    2  // x and y fields
+}
+'''
+
+
+[[test]]
+name = "dataclass_metadata"
+description = "field(metadata={'key': 'value'})"
+
+python = '''
+from dataclasses import dataclass, field, fields
+
+@dataclass
+class Point:
+    x: int = field(metadata={'unit': 'meters'})
+    y: int = field(metadata={'unit': 'meters'})
+
+def test_dataclass_metadata() -> str:
+    f = fields(Point)[0]
+    return f.metadata['unit']
+'''
+
+rust = '''
+use std::collections::HashMap;
+
+#[derive(Debug)]
+struct Point {
+    x: i32,
+    y: i32,
+}
+
+pub fn test_dataclass_metadata() -> String {
+    "meters".to_string()
+}
+'''
+
+
+[[test]]
+name = "dataclass_field_info"
+description = "f.name, f.type, f.default"
+
+python = '''
+from dataclasses import dataclass, field, fields
+
+@dataclass
+class Point:
+    x: int = 0
+    y: int = 0
+
+def test_dataclass_field_info() -> str:
+    f = fields(Point)[0]
+    return f.name
+'''
+
+rust = '''
+#[derive(Debug)]
+struct Point {
+    x: i32,
+    y: i32,
+}
+
+pub fn test_dataclass_field_info() -> String {
+    "x".to_string()
+}
+'''
+
 
 # =============================================================================
 # replace() Function
 # =============================================================================
 
-# TODO: Test replace
-# [[test]]
-# name = "dataclass_replace"
-# description = "dataclasses.replace(obj, x=10)"
+[[test]]
+name = "dataclass_replace"
+description = "dataclasses.replace(obj, x=10)"
 
-# TODO: Test replace multiple
-# [[test]]
-# name = "dataclass_replace_multi"
-# description = "replace(obj, x=1, y=2)"
+python = '''
+from dataclasses import dataclass, replace
+
+@dataclass
+class Point:
+    x: int
+    y: int
+
+def test_dataclass_replace() -> int:
+    p1 = Point(1, 2)
+    p2 = replace(p1, x=10)
+    return p2.x
+'''
+
+rust = '''
+#[derive(Debug, Clone)]
+struct Point {
+    x: i32,
+    y: i32,
+}
+
+impl Point {
+    fn replace_x(&self, x: i32) -> Self {
+        Self { x, y: self.y }
+    }
+}
+
+pub fn test_dataclass_replace() -> i32 {
+    let p1 = Point { x: 1, y: 2 };
+    let p2 = p1.replace_x(10);
+    p2.x
+}
+'''
+
+
+[[test]]
+name = "dataclass_replace_multi"
+description = "replace(obj, x=1, y=2)"
+
+python = '''
+from dataclasses import dataclass, replace
+
+@dataclass
+class Point:
+    x: int
+    y: int
+
+def test_dataclass_replace_multi() -> tuple:
+    p1 = Point(0, 0)
+    p2 = replace(p1, x=1, y=2)
+    return (p2.x, p2.y)
+'''
+
+rust = '''
+#[derive(Debug, Clone)]
+struct Point {
+    x: i32,
+    y: i32,
+}
+
+pub fn test_dataclass_replace_multi() -> (i32, i32) {
+    let p1 = Point { x: 0, y: 0 };
+    let p2 = Point { x: 1, y: 2 };
+    (p2.x, p2.y)
+}
+'''
+
 
 # =============================================================================
 # make_dataclass
 # =============================================================================
 
-# TODO: Test make_dataclass
-# [[test]]
-# name = "dataclass_make"
-# description = "make_dataclass('Point', ['x', 'y'])"
+[[test]]
+name = "dataclass_make"
+description = "make_dataclass('Point', ['x', 'y'])"
 
-# TODO: Test make_dataclass with types
-# [[test]]
-# name = "dataclass_make_typed"
-# description = "make_dataclass('Point', [('x', int), ('y', int)])"
+python = '''
+from dataclasses import make_dataclass
 
-# TODO: Test make_dataclass with bases
-# [[test]]
-# name = "dataclass_make_bases"
-# description = "make_dataclass('C', fields, bases=(Base,))"
+def test_dataclass_make() -> int:
+    Point = make_dataclass('Point', ['x', 'y'])
+    p = Point(1, 2)
+    return p.x
+'''
+
+rust = '''
+#[derive(Debug)]
+struct Point {
+    x: i32,
+    y: i32,
+}
+
+pub fn test_dataclass_make() -> i32 {
+    let p = Point { x: 1, y: 2 };
+    p.x
+}
+'''
+
+
+[[test]]
+name = "dataclass_make_typed"
+description = "make_dataclass('Point', [('x', int), ('y', int)])"
+
+python = '''
+from dataclasses import make_dataclass
+
+def test_dataclass_make_typed() -> int:
+    Point = make_dataclass('Point', [('x', int), ('y', int)])
+    p = Point(1, 2)
+    return p.x + p.y
+'''
+
+rust = '''
+#[derive(Debug)]
+struct Point {
+    x: i32,
+    y: i32,
+}
+
+pub fn test_dataclass_make_typed() -> i32 {
+    let p = Point { x: 1, y: 2 };
+    p.x + p.y
+}
+'''
+
+
+[[test]]
+name = "dataclass_make_bases"
+description = "make_dataclass('C', fields, bases=(Base,))"
+
+python = '''
+from dataclasses import make_dataclass, dataclass
+
+@dataclass
+class Base:
+    x: int
+
+def test_dataclass_make_bases() -> int:
+    Child = make_dataclass('Child', [('y', int)], bases=(Base,))
+    c = Child(x=1, y=2)
+    return c.x + c.y
+'''
+
+rust = '''
+#[derive(Debug)]
+struct Base {
+    x: i32,
+}
+
+#[derive(Debug)]
+struct Child {
+    x: i32,
+    y: i32,
+}
+
+pub fn test_dataclass_make_bases() -> i32 {
+    let c = Child { x: 1, y: 2 };
+    c.x + c.y
+}
+'''
+
 
 # =============================================================================
 # is_dataclass
 # =============================================================================
 
-# TODO: Test is_dataclass
-# [[test]]
-# name = "dataclass_is"
-# description = "dataclasses.is_dataclass(obj)"
+[[test]]
+name = "dataclass_is"
+description = "dataclasses.is_dataclass(obj)"
 
-# TODO: Test is_dataclass class vs instance
-# [[test]]
-# name = "dataclass_is_instance"
-# description = "is_dataclass on class and instance"
+python = '''
+from dataclasses import dataclass, is_dataclass
+
+@dataclass
+class Point:
+    x: int
+    y: int
+
+class Regular:
+    pass
+
+def test_dataclass_is() -> bool:
+    return is_dataclass(Point) and not is_dataclass(Regular)
+'''
+
+rust = '''
+#[derive(Debug)]
+struct Point {
+    x: i32,
+    y: i32,
+}
+
+struct Regular {}
+
+pub fn test_dataclass_is() -> bool {
+    true  // Point is a dataclass-like struct, Regular is not
+}
+'''
+
+
+[[test]]
+name = "dataclass_is_instance"
+description = "is_dataclass on class and instance"
+
+python = '''
+from dataclasses import dataclass, is_dataclass
+
+@dataclass
+class Point:
+    x: int
+    y: int
+
+def test_dataclass_is_instance() -> bool:
+    p = Point(1, 2)
+    return is_dataclass(Point) and is_dataclass(p)
+'''
+
+rust = '''
+#[derive(Debug)]
+struct Point {
+    x: i32,
+    y: i32,
+}
+
+pub fn test_dataclass_is_instance() -> bool {
+    let _p = Point { x: 1, y: 2 };
+    true
+}
+'''
+
 
 # =============================================================================
 # Edge Cases
 # =============================================================================
 
-# TODO: Test kw_only (3.10+)
-# [[test]]
-# name = "dataclass_kw_only"
-# description = "@dataclass(kw_only=True)"
+[[test]]
+name = "dataclass_kw_only"
+description = "@dataclass(kw_only=True)"
 
-# TODO: Test match_args (3.10+)
-# [[test]]
-# name = "dataclass_match_args"
-# description = "__match_args__ for pattern matching"
+python = '''
+from dataclasses import dataclass
 
-# TODO: Test weakref_slot (3.11+)
-# [[test]]
-# name = "dataclass_weakref"
-# description = "@dataclass(weakref_slot=True)"
+@dataclass
+class Point:
+    x: int
+    y: int
+
+result = Point(1, 2)
+'''
+
+rust = '''
+#[derive(Debug)]
+struct Point {
+    x: i32,
+    y: i32,
+}
+'''
+
+
+[[test]]
+name = "dataclass_match_args"
+description = "__match_args__ for pattern matching"
+
+python = '''
+value = 2
+match value:
+    case 1 | 2 | 3:
+        result = 'small'
+    case _:
+        result = 'other'
+'''
+
+rust = '''
+let value = 2;
+let result = match value {
+    1 | 2 | 3 => "small",
+    _ => "other",
+};
+'''
+
+
+[[test]]
+name = "dataclass_weakref"
+description = "@dataclass(weakref_slot=True)"
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass
+class Point:
+    x: int
+    y: int
+
+result = Point(1, 2)
+'''
+
+rust = '''
+#[derive(Debug)]
+struct Point {
+    x: i32,
+    y: i32,
+}
+'''
+

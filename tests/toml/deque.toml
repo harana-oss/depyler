@@ -9,189 +9,750 @@ category = "data-structures"
 # Creating Deques
 # =============================================================================
 
-# TODO: Test empty deque
-# [[test]]
-# name = "deque_empty"
-# description = "deque()"
+[[test]]
+name = "deque_empty"
+description = "deque()"
 
-# TODO: Test deque from iterable
-# [[test]]
-# name = "deque_from_iter"
-# description = "deque([1, 2, 3])"
+python = '''
+from collections import deque
 
-# TODO: Test deque with maxlen
-# [[test]]
-# name = "deque_maxlen"
-# description = "deque(maxlen=3)"
+d = deque()
+result = len(d) == 0
+'''
+
+rust = '''
+// deque()
+use std::collections::VecDeque;
+
+let d: VecDeque<i32> = VecDeque::new();
+let result = d.len() == 0;
+'''
+
+
+[[test]]
+name = "deque_from_iter"
+description = "deque([1, 2, 3])"
+
+python = '''
+from collections import deque
+
+d = deque([1, 2, 3])
+result = list(d) == [1, 2, 3]
+'''
+
+rust = '''
+// deque([1, 2, 3])
+use std::collections::VecDeque;
+
+let d: VecDeque<i32> = VecDeque::from(vec![1, 2, 3]);
+let result = d.iter().cloned().collect::<Vec<_>>() == vec![1, 2, 3];
+'''
+
+
+[[test]]
+name = "deque_maxlen"
+description = "deque(maxlen=3)"
+
+python = '''
+from collections import deque
+
+d = deque(maxlen=3)
+result = d.maxlen == 3
+'''
+
+rust = '''
+// deque(maxlen=3)
+use std::collections::VecDeque;
+
+struct BoundedDeque<T> {
+    deque: VecDeque<T>,
+    maxlen: usize,
+}
+
+let d = BoundedDeque {
+    deque: VecDeque::new(),
+    maxlen: 3,
+};
+let result = d.maxlen == 3;
+'''
+
 
 # =============================================================================
 # Adding Elements
 # =============================================================================
 
-# TODO: Test append
-# [[test]]
-# name = "deque_append"
-# description = "d.append(x)"
+[[test]]
+name = "deque_append"
+description = "d.append(x)"
 
-# TODO: Test appendleft
-# [[test]]
-# name = "deque_appendleft"
-# description = "d.appendleft(x)"
+python = '''
+from collections import deque
 
-# TODO: Test extend
-# [[test]]
-# name = "deque_extend"
-# description = "d.extend([1, 2, 3])"
+d = deque([1, 2])
+d.append(3)
+result = list(d) == [1, 2, 3]
+'''
 
-# TODO: Test extendleft
-# [[test]]
-# name = "deque_extendleft"
-# description = "d.extendleft([1, 2, 3]) # reversed"
+rust = '''
+// d.append(x)
+use std::collections::VecDeque;
 
-# TODO: Test insert
-# [[test]]
-# name = "deque_insert"
-# description = "d.insert(i, x)"
+let mut d = VecDeque::from(vec![1, 2]);
+d.push_back(3);
+let result = d.iter().cloned().collect::<Vec<_>>() == vec![1, 2, 3];
+'''
+
+
+[[test]]
+name = "deque_appendleft"
+description = "d.appendleft(x)"
+
+python = '''
+from collections import deque
+
+d = deque([2, 3])
+d.appendleft(1)
+result = list(d) == [1, 2, 3]
+'''
+
+rust = '''
+// d.appendleft(x)
+use std::collections::VecDeque;
+
+let mut d = VecDeque::from(vec![2, 3]);
+d.push_front(1);
+let result = d.iter().cloned().collect::<Vec<_>>() == vec![1, 2, 3];
+'''
+
+
+[[test]]
+name = "deque_extend"
+description = "d.extend([1, 2, 3])"
+
+python = '''
+from collections import deque
+
+d = deque([0])
+d.extend([1, 2, 3])
+result = list(d) == [0, 1, 2, 3]
+'''
+
+rust = '''
+// d.extend([1, 2, 3])
+use std::collections::VecDeque;
+
+let mut d = VecDeque::from(vec![0]);
+d.extend(vec![1, 2, 3]);
+let result = d.iter().cloned().collect::<Vec<_>>() == vec![0, 1, 2, 3];
+'''
+
+
+[[test]]
+name = "deque_extendleft"
+description = "d.extendleft([1, 2, 3]) # reversed"
+
+python = '''
+from collections import deque
+
+d = deque([4])
+d.extendleft([1, 2, 3])
+result = list(d) == [3, 2, 1, 4]
+'''
+
+rust = '''
+// d.extendleft([1, 2, 3]) # reversed
+use std::collections::VecDeque;
+
+let mut d = VecDeque::from(vec![4]);
+for x in vec![1, 2, 3] {
+    d.push_front(x);
+}
+let result = d.iter().cloned().collect::<Vec<_>>() == vec![3, 2, 1, 4];
+'''
+
+
+[[test]]
+name = "deque_insert"
+description = "d.insert(i, x)"
+
+python = '''
+from collections import deque
+
+d = deque([1, 3])
+d.insert(1, 2)
+result = list(d) == [1, 2, 3]
+'''
+
+rust = '''
+// d.insert(i, x)
+use std::collections::VecDeque;
+
+let mut d = VecDeque::from(vec![1, 3]);
+d.insert(1, 2);
+let result = d.iter().cloned().collect::<Vec<_>>() == vec![1, 2, 3];
+'''
+
 
 # =============================================================================
 # Removing Elements
 # =============================================================================
 
-# TODO: Test pop
-# [[test]]
-# name = "deque_pop"
-# description = "d.pop()"
+[[test]]
+name = "deque_pop"
+description = "d.pop()"
 
-# TODO: Test popleft
-# [[test]]
-# name = "deque_popleft"
-# description = "d.popleft()"
+python = '''
+from collections import deque
 
-# TODO: Test remove
-# [[test]]
-# name = "deque_remove"
-# description = "d.remove(x)"
+d = deque([1, 2, 3])
+x = d.pop()
+result = x == 3 and list(d) == [1, 2]
+'''
 
-# TODO: Test clear
-# [[test]]
-# name = "deque_clear"
-# description = "d.clear()"
+rust = '''
+// d.pop()
+use std::collections::VecDeque;
+
+let mut d = VecDeque::from(vec![1, 2, 3]);
+let x = d.pop_back().unwrap();
+let result = x == 3 && d.iter().cloned().collect::<Vec<_>>() == vec![1, 2];
+'''
+
+
+[[test]]
+name = "deque_popleft"
+description = "d.popleft()"
+
+python = '''
+from collections import deque
+
+d = deque([1, 2, 3])
+x = d.popleft()
+result = x == 1 and list(d) == [2, 3]
+'''
+
+rust = '''
+// d.popleft()
+use std::collections::VecDeque;
+
+let mut d = VecDeque::from(vec![1, 2, 3]);
+let x = d.pop_front().unwrap();
+let result = x == 1 && d.iter().cloned().collect::<Vec<_>>() == vec![2, 3];
+'''
+
+
+[[test]]
+name = "deque_remove"
+description = "d.remove(x)"
+
+python = '''
+from collections import deque
+
+d = deque([1, 2, 3, 2])
+d.remove(2)
+result = list(d) == [1, 3, 2]
+'''
+
+rust = '''
+// d.remove(x)
+use std::collections::VecDeque;
+
+let mut d = VecDeque::from(vec![1, 2, 3, 2]);
+if let Some(pos) = d.iter().position(|&x| x == 2) {
+    d.remove(pos);
+}
+let result = d.iter().cloned().collect::<Vec<_>>() == vec![1, 3, 2];
+'''
+
+
+[[test]]
+name = "deque_clear"
+description = "d.clear()"
+
+python = '''
+from collections import deque
+
+d = deque([1, 2, 3])
+d.clear()
+result = len(d) == 0
+'''
+
+rust = '''
+// d.clear()
+use std::collections::VecDeque;
+
+let mut d = VecDeque::from(vec![1, 2, 3]);
+d.clear();
+let result = d.len() == 0;
+'''
+
 
 # =============================================================================
 # Rotating
 # =============================================================================
 
-# TODO: Test rotate right
-# [[test]]
-# name = "deque_rotate_right"
-# description = "d.rotate(1)"
+[[test]]
+name = "deque_rotate_right"
+description = "d.rotate(1)"
 
-# TODO: Test rotate left
-# [[test]]
-# name = "deque_rotate_left"
-# description = "d.rotate(-1)"
+python = '''
+from collections import deque
 
-# TODO: Test rotate multiple
-# [[test]]
-# name = "deque_rotate_multi"
-# description = "d.rotate(3)"
+d = deque([1, 2, 3])
+d.rotate(1)
+result = list(d) == [3, 1, 2]
+'''
+
+rust = '''
+// d.rotate(1)
+use std::collections::VecDeque;
+
+let mut d = VecDeque::from(vec![1, 2, 3]);
+if let Some(x) = d.pop_back() {
+    d.push_front(x);
+}
+let result = d.iter().cloned().collect::<Vec<_>>() == vec![3, 1, 2];
+'''
+
+
+[[test]]
+name = "deque_rotate_left"
+description = "d.rotate(-1)"
+
+python = '''
+from collections import deque
+
+d = deque([1, 2, 3])
+d.rotate(-1)
+result = list(d) == [2, 3, 1]
+'''
+
+rust = '''
+// d.rotate(-1)
+use std::collections::VecDeque;
+
+let mut d = VecDeque::from(vec![1, 2, 3]);
+if let Some(x) = d.pop_front() {
+    d.push_back(x);
+}
+let result = d.iter().cloned().collect::<Vec<_>>() == vec![2, 3, 1];
+'''
+
+
+[[test]]
+name = "deque_rotate_multi"
+description = "d.rotate(3)"
+
+python = '''
+from collections import deque
+
+d = deque([1, 2, 3, 4, 5])
+d.rotate(3)
+result = list(d) == [3, 4, 5, 1, 2]
+'''
+
+rust = '''
+// d.rotate(3)
+use std::collections::VecDeque;
+
+let mut d = VecDeque::from(vec![1, 2, 3, 4, 5]);
+d.rotate_right(3);
+let result = d.iter().cloned().collect::<Vec<_>>() == vec![3, 4, 5, 1, 2];
+'''
+
 
 # =============================================================================
 # Accessing Elements
 # =============================================================================
 
-# TODO: Test indexing
-# [[test]]
-# name = "deque_index"
-# description = "d[0], d[-1]"
+[[test]]
+name = "deque_index"
+description = "d[0], d[-1]"
 
-# TODO: Test index method
-# [[test]]
-# name = "deque_index_method"
-# description = "d.index(x)"
+python = '''
+from collections import deque
 
-# TODO: Test count
-# [[test]]
-# name = "deque_count"
-# description = "d.count(x)"
+d = deque([1, 2, 3])
+result = d[0] == 1 and d[-1] == 3
+'''
+
+rust = '''
+// d[0], d[-1]
+use std::collections::VecDeque;
+
+let d = VecDeque::from(vec![1, 2, 3]);
+let result = d[0] == 1 && d[d.len() - 1] == 3;
+'''
+
+
+[[test]]
+name = "deque_index_method"
+description = "d.index(x)"
+
+python = '''
+from collections import deque
+
+d = deque([1, 2, 3, 2])
+result = d.index(2) == 1
+'''
+
+rust = '''
+// d.index(x)
+use std::collections::VecDeque;
+
+let d = VecDeque::from(vec![1, 2, 3, 2]);
+let result = d.iter().position(|&x| x == 2).unwrap() == 1;
+'''
+
+
+[[test]]
+name = "deque_count"
+description = "d.count(x)"
+
+python = '''
+from collections import deque
+
+d = deque([1, 2, 3, 2, 2])
+result = d.count(2) == 3
+'''
+
+rust = '''
+// d.count(x)
+use std::collections::VecDeque;
+
+let d = VecDeque::from(vec![1, 2, 3, 2, 2]);
+let result = d.iter().filter(|&&x| x == 2).count() == 3;
+'''
+
 
 # =============================================================================
 # Maxlen Behavior
 # =============================================================================
 
-# TODO: Test maxlen overflow right
-# [[test]]
-# name = "deque_maxlen_right"
-# description = "append to full deque drops left"
+[[test]]
+name = "deque_maxlen_right"
+description = "append to full deque drops left"
 
-# TODO: Test maxlen overflow left
-# [[test]]
-# name = "deque_maxlen_left"
-# description = "appendleft to full drops right"
+python = '''
+from collections import deque
 
-# TODO: Test maxlen property
-# [[test]]
-# name = "deque_maxlen_prop"
-# description = "d.maxlen"
+d = deque([1, 2, 3], maxlen=3)
+d.append(4)
+result = list(d) == [2, 3, 4]
+'''
+
+rust = '''
+// append to full deque drops left
+use std::collections::VecDeque;
+
+let mut d = VecDeque::from(vec![1, 2, 3]);
+let maxlen = 3;
+d.push_back(4);
+while d.len() > maxlen {
+    d.pop_front();
+}
+let result = d.iter().cloned().collect::<Vec<_>>() == vec![2, 3, 4];
+'''
+
+
+[[test]]
+name = "deque_maxlen_left"
+description = "appendleft to full drops right"
+
+python = '''
+from collections import deque
+
+d = deque([1, 2, 3], maxlen=3)
+d.appendleft(0)
+result = list(d) == [0, 1, 2]
+'''
+
+rust = '''
+// appendleft to full drops right
+use std::collections::VecDeque;
+
+let mut d = VecDeque::from(vec![1, 2, 3]);
+let maxlen = 3;
+d.push_front(0);
+while d.len() > maxlen {
+    d.pop_back();
+}
+let result = d.iter().cloned().collect::<Vec<_>>() == vec![0, 1, 2];
+'''
+
+
+[[test]]
+name = "deque_maxlen_prop"
+description = "d.maxlen"
+
+python = '''
+from collections import deque
+
+d1 = deque(maxlen=5)
+d2 = deque()
+result = d1.maxlen == 5 and d2.maxlen is None
+'''
+
+rust = '''
+// d.maxlen
+struct BoundedDeque<T> {
+    deque: std::collections::VecDeque<T>,
+    maxlen: Option<usize>,
+}
+
+let d1 = BoundedDeque {
+    deque: std::collections::VecDeque::new(),
+    maxlen: Some(5),
+};
+let d2 = BoundedDeque {
+    deque: std::collections::VecDeque::new(),
+    maxlen: None,
+};
+let result = d1.maxlen == Some(5) && d2.maxlen == None;
+'''
+
 
 # =============================================================================
 # Operations
 # =============================================================================
 
-# TODO: Test reverse
-# [[test]]
-# name = "deque_reverse"
-# description = "d.reverse()"
+[[test]]
+name = "deque_reverse"
+description = "d.reverse()"
 
-# TODO: Test copy
-# [[test]]
-# name = "deque_copy"
-# description = "d.copy()"
+python = '''
+from collections import deque
 
-# TODO: Test in operator
-# [[test]]
-# name = "deque_contains"
-# description = "x in d"
+d = deque([1, 2, 3])
+d.reverse()
+result = list(d) == [3, 2, 1]
+'''
 
-# TODO: Test len
-# [[test]]
-# name = "deque_len"
-# description = "len(d)"
+rust = '''
+// d.reverse()
+use std::collections::VecDeque;
+
+let mut d = VecDeque::from(vec![1, 2, 3]);
+let reversed: VecDeque<_> = d.iter().rev().cloned().collect();
+d = reversed;
+let result = d.iter().cloned().collect::<Vec<_>>() == vec![3, 2, 1];
+'''
+
+
+[[test]]
+name = "deque_copy"
+description = "d.copy()"
+
+python = '''
+from collections import deque
+
+d1 = deque([1, 2, 3])
+d2 = d1.copy()
+result = list(d2) == [1, 2, 3] and d1 is not d2
+'''
+
+rust = '''
+// d.copy()
+use std::collections::VecDeque;
+
+let d1 = VecDeque::from(vec![1, 2, 3]);
+let d2 = d1.clone();
+let result = d2.iter().cloned().collect::<Vec<_>>() == vec![1, 2, 3];
+'''
+
+
+[[test]]
+name = "deque_contains"
+description = "x in d"
+
+python = '''
+from collections import deque
+
+d = deque([1, 2, 3])
+result = 2 in d and 4 not in d
+'''
+
+rust = '''
+// x in d
+use std::collections::VecDeque;
+
+let d = VecDeque::from(vec![1, 2, 3]);
+let result = d.contains(&2) && !d.contains(&4);
+'''
+
+
+[[test]]
+name = "deque_len"
+description = "len(d)"
+
+python = '''
+from collections import deque
+
+d = deque([1, 2, 3])
+result = len(d) == 3
+'''
+
+rust = '''
+// len(d)
+use std::collections::VecDeque;
+
+let d = VecDeque::from(vec![1, 2, 3]);
+let result = d.len() == 3;
+'''
+
 
 # =============================================================================
 # Use Cases
 # =============================================================================
 
-# TODO: Test as queue (FIFO)
-# [[test]]
-# name = "deque_queue"
-# description = "append right, popleft"
+[[test]]
+name = "deque_queue"
+description = "append right, popleft"
 
-# TODO: Test as stack (LIFO)
-# [[test]]
-# name = "deque_stack"
-# description = "append right, pop right"
+python = '''
+from collections import deque
 
-# TODO: Test sliding window
-# [[test]]
-# name = "deque_sliding"
-# description = "maxlen for fixed-size window"
+queue = deque()
+queue.append(1)
+queue.append(2)
+result = queue.popleft() == 1 and queue.popleft() == 2
+'''
+
+rust = '''
+// append right, popleft
+use std::collections::VecDeque;
+
+let mut queue = VecDeque::new();
+queue.push_back(1);
+queue.push_back(2);
+let result = queue.pop_front().unwrap() == 1 && queue.pop_front().unwrap() == 2;
+'''
+
+
+[[test]]
+name = "deque_stack"
+description = "append right, pop right"
+
+python = '''
+from collections import deque
+
+stack = deque()
+stack.append(1)
+stack.append(2)
+result = stack.pop() == 2 and stack.pop() == 1
+'''
+
+rust = '''
+// append right, pop right
+use std::collections::VecDeque;
+
+let mut stack = VecDeque::new();
+stack.push_back(1);
+stack.push_back(2);
+let result = stack.pop_back().unwrap() == 2 && stack.pop_back().unwrap() == 1;
+'''
+
+
+[[test]]
+name = "deque_sliding"
+description = "maxlen for fixed-size window"
+
+python = '''
+from collections import deque
+
+window = deque(maxlen=3)
+for i in range(5):
+    window.append(i)
+result = list(window) == [2, 3, 4]
+'''
+
+rust = '''
+// maxlen for fixed-size window
+use std::collections::VecDeque;
+
+let mut window = VecDeque::new();
+let maxlen = 3;
+for i in 0..5 {
+    window.push_back(i);
+    if window.len() > maxlen {
+        window.pop_front();
+    }
+}
+let result = window.iter().cloned().collect::<Vec<_>>() == vec![2, 3, 4];
+'''
+
 
 # =============================================================================
 # Edge Cases
 # =============================================================================
 
-# TODO: Test iteration
-# [[test]]
-# name = "deque_iter"
-# description = "for x in d: ..."
+[[test]]
+name = "deque_iter"
+description = "for x in d: ..."
 
-# TODO: Test reversed
-# [[test]]
-# name = "deque_reversed"
-# description = "reversed(d)"
+python = '''
+from collections import deque
 
-# TODO: Test comparison
-# [[test]]
-# name = "deque_compare"
-# description = "deque([1,2]) == deque([1,2])"
+d = deque([1, 2, 3])
+sum_val = 0
+for x in d:
+    sum_val += x
+result = sum_val == 6
+'''
+
+rust = '''
+// for x in d: ...
+use std::collections::VecDeque;
+
+let d = VecDeque::from(vec![1, 2, 3]);
+let mut sum_val = 0;
+for x in &d {
+    sum_val += x;
+}
+let result = sum_val == 6;
+'''
+
+
+[[test]]
+name = "deque_reversed"
+description = "reversed(d)"
+
+python = '''
+from collections import deque
+
+d = deque([1, 2, 3])
+result = list(reversed(d)) == [3, 2, 1]
+'''
+
+rust = '''
+// reversed(d)
+use std::collections::VecDeque;
+
+let d = VecDeque::from(vec![1, 2, 3]);
+let result = d.iter().rev().cloned().collect::<Vec<_>>() == vec![3, 2, 1];
+'''
+
+
+[[test]]
+name = "deque_compare"
+description = "deque([1,2]) == deque([1,2])"
+
+python = '''
+from collections import deque
+
+d1 = deque([1, 2])
+d2 = deque([1, 2])
+d3 = deque([1, 3])
+result = d1 == d2 and d1 != d3
+'''
+
+rust = '''
+// deque([1,2]) == deque([1,2])
+use std::collections::VecDeque;
+
+let d1 = VecDeque::from(vec![1, 2]);
+let d2 = VecDeque::from(vec![1, 2]);
+let d3 = VecDeque::from(vec![1, 3]);
+let result = d1 == d2 && d1 != d3;
+'''
+

@@ -11,7 +11,6 @@ category = "slicing"
 [[test]]
 name = "slice_start_only"
 description = "Slice with start index only (items[n:])"
-tags = ["slice", "start"]
 
 python = '''
 def skip_first_n(items: list[int], n: int) -> list[int]:
@@ -35,7 +34,6 @@ pub fn skip_first_n(items: &Vec<i32>, n: i32) -> Vec<i32> {
 [[test]]
 name = "slice_end_only"
 description = "Slice with end index only (items[:n])"
-tags = ["slice", "end"]
 
 python = '''
 def first_n(items: list[int], n: int) -> list[int]:
@@ -55,7 +53,6 @@ pub fn first_n(items: &Vec<i32>, n: i32) -> Vec<i32> {
 [[test]]
 name = "slice_start_end"
 description = "Slice with both start and end (items[a:b])"
-tags = ["slice", "range"]
 
 python = '''
 def middle(items: list[int], start: int, end: int) -> list[int]:
@@ -80,7 +77,6 @@ pub fn middle(items: &Vec<i32>, start: i32, end: i32) -> Vec<i32> {
 [[test]]
 name = "slice_full_copy"
 description = "Full slice copy (items[:])"
-tags = ["slice", "copy"]
 
 python = '''
 def copy_list(items: list[int]) -> list[int]:
@@ -106,7 +102,6 @@ mod tests {
 [[test]]
 name = "index_negative_one"
 description = "Access last element with -1"
-tags = ["index", "negative"]
 
 python = '''
 def get_last(items: list[int]) -> int:
@@ -151,7 +146,6 @@ mod tests {
 [[test]]
 name = "slice_negative_start"
 description = "Slice with negative start (items[-n:])"
-tags = ["slice", "negative"]
 
 python = '''
 def last_n(items: list[int], n: int) -> list[int]:
@@ -175,7 +169,6 @@ pub fn last_n(items: &Vec<i32>, n: i32) -> Vec<i32> {
 [[test]]
 name = "slice_negative_end"
 description = "Slice with negative end (items[:-n])"
-tags = ["slice", "negative"]
 
 python = '''
 def all_but_last_n(items: list[int], n: int) -> list[int]:
@@ -195,7 +188,6 @@ pub fn all_but_last_n(items: &Vec<i32>, n: i32) -> Vec<i32> {
 [[test]]
 name = "slice_step"
 description = "Slice with step (items[::n])"
-tags = ["slice", "step"]
 
 python = '''
 def every_nth(items: list[int], n: int) -> list[int]:
@@ -224,7 +216,6 @@ pub fn every_nth(items: &Vec<i32>, n: i32) -> Vec<i32> {
 [[test]]
 name = "slice_step_with_range"
 description = "Slice with start, end, and step"
-tags = ["slice", "step", "range"]
 
 python = '''
 def range_step(items: list[int], start: int, end: int, step: int) -> list[int]:
@@ -270,7 +261,6 @@ pub fn range_step(items: &Vec<i32>, start: i32, end: i32, step: i32) -> Vec<i32>
 [[test]]
 name = "slice_reverse"
 description = "Reverse with [::-1]"
-tags = ["slice", "reverse"]
 
 python = '''
 def reverse_list(items: list[int]) -> list[int]:
@@ -309,7 +299,6 @@ mod tests {
 [[test]]
 name = "string_slice_start"
 description = "String slice from start"
-tags = ["slice", "string"]
 
 python = '''
 def skip_chars(s: str, n: int) -> str:
@@ -335,7 +324,6 @@ pub fn skip_chars(s: String, n: i32) -> String {
 [[test]]
 name = "string_slice_end"
 description = "String slice to end"
-tags = ["slice", "string"]
 
 python = '''
 def first_chars(s: str, n: int) -> str:
@@ -361,7 +349,6 @@ pub fn first_chars(s: String, n: i32) -> String {
 [[test]]
 name = "slice_assign_basic"
 description = "Basic slice assignment"
-tags = ["slice", "assignment"]
 
 python = '''
 def replace_middle(items: list[int], start: int, end: int, new: list[int]):
@@ -378,7 +365,6 @@ pub fn replace_middle(mut items: Vec<i32>, start: i32, end: i32, new: &Vec<i32>)
 [[test]]
 name = "slice_with_step"
 description = "Slice with step using step_by"
-tags = ["slice", "step"]
 
 python = '''
 def slice_test():
@@ -409,7 +395,6 @@ pub fn slice_test() {
 [[test]]
 name = "slice_negative_step"
 description = "Reverse slice with negative step"
-tags = ["slice", "reverse"]
 
 python = '''
 def reverse_slice():

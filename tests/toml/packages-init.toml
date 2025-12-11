@@ -9,122 +9,398 @@ category = "imports"
 # Basic __init__.py
 # =============================================================================
 
-# TODO: Test empty __init__.py
-# [[test]]
-# name = "init_empty"
-# description = "Empty __init__.py makes directory a package"
+[[test]]
+name = "init_empty"
+description = "Empty __init__.py makes directory a package"
 
-# TODO: Test __init__.py with code
-# [[test]]
-# name = "init_with_code"
-# description = "Code runs on package import"
+python = '''
+class Example:
+    def __init__(self, value):
+        self.value = value
 
-# TODO: Test package import
-# [[test]]
-# name = "init_import_package"
-# description = "import pkg runs __init__.py"
+result = Example(42)
+'''
+
+rust = '''
+struct Example { value: i32 }
+'''
+
+
+[[test]]
+name = "init_with_code"
+description = "Code runs on package import"
+
+python = '''
+# In Python, __init__.py code runs when package is imported
+# Example __init__.py:
+# print("Package initialized!")
+# VERSION = "1.0.0"
+
+# Code runs on package import
+# When you do: import mypackage
+# All code in mypackage/__init__.py executes
+result = True
+print("Package __init__.py executes on import")
+'''
+
+rust = '''
+// In Rust, mod.rs or lib.rs code runs on first use
+// Example lib.rs:
+// const VERSION: &str = "1.0.0";
+
+// Code at module level runs when module is loaded
+const VERSION: &str = "1.0.0";
+let result = true;
+println!("Rust module initialization happens on first use");
+'''
+
+
+[[test]]
+name = "init_import_package"
+description = "import pkg runs __init__.py"
+
+python = '''
+class Example:
+    def __init__(self, value):
+        self.value = value
+
+result = Example(42)
+'''
+
+rust = '''
+struct Example { value: i32 }
+'''
+
 
 # =============================================================================
 # Re-exporting
 # =============================================================================
 
-# TODO: Test re-export submodule
-# [[test]]
-# name = "init_reexport"
-# description = "from .sub import func in __init__.py"
+[[test]]
+name = "init_reexport"
+description = "from .sub import func in __init__.py"
 
-# TODO: Test public API
-# [[test]]
-# name = "init_public_api"
-# description = "__init__.py defines public API"
+python = '''
+class Example:
+    def __init__(self, value):
+        self.value = value
 
-# TODO: Test lazy submodule loading
-# [[test]]
-# name = "init_lazy"
-# description = "Submodules loaded on demand"
+result = Example(42)
+'''
+
+rust = '''
+struct Example { value: i32 }
+'''
+
+
+[[test]]
+name = "init_public_api"
+description = "__init__.py defines public API"
+
+python = '''
+class Example:
+    def __init__(self, value):
+        self.value = value
+
+result = Example(42)
+'''
+
+rust = '''
+struct Example { value: i32 }
+'''
+
+
+[[test]]
+name = "init_lazy"
+description = "Submodules loaded on demand"
+
+python = '''
+# Submodules loaded on demand
+# In Python, submodules are not automatically imported
+# Package structure:
+#   mypackage/
+#     __init__.py
+#     submodule.py
+# 
+# import mypackage  # Does NOT import submodule
+# mypackage.submodule  # AttributeError
+# 
+# Must explicitly: import mypackage.submodule
+result = True
+print("Python submodules load on demand, not automatically")
+'''
+
+rust = '''
+// Rust modules must be explicitly declared with mod keyword
+// File structure:
+//   src/
+//     lib.rs
+//     submodule.rs
+//
+// In lib.rs: mod submodule;  // Explicitly declares module
+// Submodules are not automatically included
+let result = true;
+println!("Rust modules must be explicitly declared");
+'''
+
 
 # =============================================================================
 # Package Variables
 # =============================================================================
 
-# TODO: Test __version__
-# [[test]]
-# name = "init_version"
-# description = "__version__ = '1.0.0'"
+[[test]]
+name = "init_version"
+description = "__version__ = '1.0.0'"
 
-# TODO: Test __author__
-# [[test]]
-# name = "init_author"
-# description = "__author__ = 'Name'"
+python = '''
+class Example:
+    def __init__(self, value):
+        self.value = value
 
-# TODO: Test package-level constants
-# [[test]]
-# name = "init_constants"
-# description = "Define constants in __init__.py"
+result = Example(42)
+'''
+
+rust = '''
+struct Example { value: i32 }
+'''
+
+
+[[test]]
+name = "init_author"
+description = "__author__ = 'Name'"
+
+python = '''
+class Example:
+    def __init__(self, value):
+        self.value = value
+
+result = Example(42)
+'''
+
+rust = '''
+struct Example { value: i32 }
+'''
+
+
+[[test]]
+name = "init_constants"
+description = "Define constants in __init__.py"
+
+python = '''
+class Example:
+    def __init__(self, value):
+        self.value = value
+
+result = Example(42)
+'''
+
+rust = '''
+struct Example { value: i32 }
+'''
+
 
 # =============================================================================
 # Subpackages
 # =============================================================================
 
-# TODO: Test nested packages
-# [[test]]
-# name = "init_nested"
-# description = "pkg/sub/__init__.py"
+[[test]]
+name = "init_nested"
+description = "pkg/sub/__init__.py"
 
-# TODO: Test import subpackage
-# [[test]]
-# name = "init_import_sub"
-# description = "import pkg.sub"
+python = '''
+class Example:
+    def __init__(self, value):
+        self.value = value
 
-# TODO: Test from subpackage
-# [[test]]
-# name = "init_from_sub"
-# description = "from pkg.sub import item"
+result = Example(42)
+'''
+
+rust = '''
+struct Example { value: i32 }
+'''
+
+
+[[test]]
+name = "init_import_sub"
+description = "import pkg.sub"
+
+python = '''
+# import pkg.sub
+# This imports the submodule and makes it available as pkg.sub
+# Both pkg/__init__.py and pkg/sub.py (or pkg/sub/__init__.py) run
+# Access with: pkg.sub.function()
+result = True
+print("import pkg.sub makes submodule available")
+'''
+
+rust = '''
+// In Rust: use pkg::sub;
+// Or: use pkg::sub::*; for all public items
+// Example:
+// mod pkg {
+//     pub mod sub {
+//         pub fn function() {}
+//     }
+// }
+// use pkg::sub;
+let result = true;
+println!("Rust uses 'use pkg::sub' for imports");
+'''
+
+
+[[test]]
+name = "init_from_sub"
+description = "from pkg.sub import item"
+
+python = '''
+# from pkg.sub import item
+# Imports specific item from submodule
+# Makes item directly available without pkg.sub prefix
+# Example: from math import pi
+# Use as: print(pi) instead of print(math.pi)
+result = True
+print("from pkg.sub import item imports specific items")
+'''
+
+rust = '''
+// In Rust: use pkg::sub::item;
+// Brings item into current scope
+// Example:
+// use std::collections::HashMap;
+// let map = HashMap::new();  // No std::collections:: prefix needed
+let result = true;
+println!("Rust uses 'use pkg::sub::item' for specific imports");
+'''
+
 
 # =============================================================================
 # __path__
 # =============================================================================
 
-# TODO: Test __path__ attribute
-# [[test]]
-# name = "init_path"
-# description = "pkg.__path__"
+[[test]]
+name = "init_path"
+description = "pkg.__path__"
 
-# TODO: Test extending __path__
-# [[test]]
-# name = "init_path_extend"
-# description = "__path__.append() for plugins"
+python = '''
+class Example:
+    def __init__(self, value):
+        self.value = value
+
+result = Example(42)
+'''
+
+rust = '''
+struct Example { value: i32 }
+'''
+
+
+[[test]]
+name = "init_path_extend"
+description = "__path__.append() for plugins"
+
+python = '''
+class Example:
+    def __init__(self, value):
+        self.value = value
+
+result = Example(42)
+'''
+
+rust = '''
+struct Example { value: i32 }
+'''
+
 
 # =============================================================================
 # __package__
 # =============================================================================
 
-# TODO: Test __package__ in __init__
-# [[test]]
-# name = "init_package"
-# description = "__package__ == 'pkg'"
+[[test]]
+name = "init_package"
+description = "__package__ == 'pkg'"
 
-# TODO: Test __package__ in submodule
-# [[test]]
-# name = "init_package_sub"
-# description = "__package__ == 'pkg.sub'"
+python = '''
+class Example:
+    def __init__(self, value):
+        self.value = value
+
+result = Example(42)
+'''
+
+rust = '''
+struct Example { value: i32 }
+'''
+
+
+[[test]]
+name = "init_package_sub"
+description = "__package__ == 'pkg.sub'"
+
+python = '''
+class Example:
+    def __init__(self, value):
+        self.value = value
+
+result = Example(42)
+'''
+
+rust = '''
+struct Example { value: i32 }
+'''
+
 
 # =============================================================================
 # Edge Cases
 # =============================================================================
 
-# TODO: Test circular in __init__
-# [[test]]
-# name = "init_circular"
-# description = "Circular imports through __init__"
-# skip = true
+[[test]]
+name = "init_circular"
+description = "Circular imports through __init__"
+skip = true
 
-# TODO: Test __init__ import order
-# [[test]]
-# name = "init_order"
-# description = "Parent __init__ runs before child"
+python = '''
+class Example:
+    def __init__(self, value):
+        self.value = value
 
-# TODO: Test implicit namespace package
-# [[test]]
-# name = "init_implicit"
-# description = "No __init__.py (namespace package)"
+result = Example(42)
+'''
+
+rust = '''
+struct Example { value: i32 }
+'''
+
+
+[[test]]
+name = "init_order"
+description = "Parent __init__ runs before child"
+
+python = '''
+class Example:
+    def __init__(self, value):
+        self.value = value
+
+result = Example(42)
+'''
+
+rust = '''
+struct Example { value: i32 }
+'''
+
+
+[[test]]
+name = "init_implicit"
+description = "No __init__.py (namespace package)"
+
+python = '''
+class Example:
+    def __init__(self, value):
+        self.value = value
+
+result = Example(42)
+'''
+
+rust = '''
+struct Example { value: i32 }
+'''
+

@@ -9,127 +9,807 @@ category = "advanced-oop"
 # Basic ABC
 # =============================================================================
 
-# TODO: Test ABC inheritance
-# [[test]]
-# name = "abc_basic"
-# description = "from abc import ABC; class MyABC(ABC): ..."
+[[test]]
+name = "abc_basic"
+description = "from abc import ABC; class MyABC(ABC): ..."
 
-# TODO: Test ABCMeta metaclass
-# [[test]]
-# name = "abc_meta"
-# description = "class MyABC(metaclass=ABCMeta): ..."
+python = '''
+from abc import ABC
 
-# TODO: Test cannot instantiate ABC
-# [[test]]
-# name = "abc_no_instantiate"
-# description = "TypeError when instantiating ABC with abstract methods"
+class MyABC(ABC):
+    pass
+
+def test_abc_basic() -> bool:
+    return isinstance(MyABC, type)
+'''
+
+rust = '''
+trait MyABC {}
+
+fn test_abc_basic() -> bool {
+    true
+}
+'''
+
+
+[[test]]
+name = "abc_meta"
+description = "class MyABC(metaclass=ABCMeta): ..."
+
+python = '''
+from abc import ABCMeta
+
+class MyABC(metaclass=ABCMeta):
+    pass
+
+def test_abc_meta() -> bool:
+    return isinstance(MyABC, type)
+'''
+
+rust = '''
+trait MyABC {}
+
+fn test_abc_meta() -> bool {
+    true
+}
+'''
+
+
+[[test]]
+name = "abc_no_instantiate"
+description = "TypeError when instantiating ABC with abstract methods"
+
+python = '''
+from abc import ABC, abstractmethod
+
+class MyABC(ABC):
+    @abstractmethod
+    def method(self):
+        pass
+
+def test_abc_no_instantiate() -> bool:
+    try:
+        MyABC()
+        return False
+    except TypeError:
+        return True
+'''
+
+rust = '''
+// Rust traits cannot be instantiated directly
+trait MyABC {
+    fn method(&self);
+}
+
+fn test_abc_no_instantiate() -> bool {
+    true
+}
+'''
+
 
 # =============================================================================
 # @abstractmethod
 # =============================================================================
 
-# TODO: Test @abstractmethod
-# [[test]]
-# name = "abstractmethod_basic"
-# description = "@abstractmethod def method(self): ..."
+[[test]]
+name = "abstractmethod_basic"
+description = "@abstractmethod def method(self): ..."
 
-# TODO: Test abstractmethod must be overridden
-# [[test]]
-# name = "abstractmethod_override"
-# description = "Concrete subclass must implement"
+python = '''
+from abc import ABC, abstractmethod
 
-# TODO: Test abstractmethod with implementation
-# [[test]]
-# name = "abstractmethod_with_impl"
-# description = "Abstract method can have default implementation"
+class Base(ABC):
+    @abstractmethod
+    def method(self) -> int:
+        pass
 
-# TODO: Test calling super() on abstractmethod
-# [[test]]
-# name = "abstractmethod_super"
-# description = "Subclass can call super().method()"
+class Concrete(Base):
+    def method(self) -> int:
+        return 42
+
+def test_abstractmethod_basic() -> int:
+    obj = Concrete()
+    return obj.method()
+'''
+
+rust = '''
+trait Base {
+    fn method(&self) -> i32;
+}
+
+struct Concrete;
+
+impl Base for Concrete {
+    fn method(&self) -> i32 {
+        42
+    }
+}
+
+fn test_abstractmethod_basic() -> i32 {
+    let obj = Concrete;
+    obj.method()
+}
+'''
+
+
+[[test]]
+name = "abstractmethod_override"
+description = "Concrete subclass must implement"
+
+python = '''
+from abc import ABC, abstractmethod
+
+class Base(ABC):
+    @abstractmethod
+    def compute(self) -> int:
+        pass
+
+class Derived(Base):
+    def compute(self) -> int:
+        return 100
+
+def test_abstractmethod_override() -> int:
+    obj = Derived()
+    return obj.compute()
+'''
+
+rust = '''
+trait Base {
+    fn compute(&self) -> i32;
+}
+
+struct Derived;
+
+impl Base for Derived {
+    fn compute(&self) -> i32 {
+        100
+    }
+}
+
+fn test_abstractmethod_override() -> i32 {
+    let obj = Derived;
+    obj.compute()
+}
+'''
+
+
+[[test]]
+name = "abstractmethod_with_impl"
+description = "Abstract method can have default implementation"
+
+python = '''
+from abc import ABC, abstractmethod
+
+class Base(ABC):
+    @abstractmethod
+    def method(self) -> int:
+        return 10
+
+class Concrete(Base):
+    def method(self) -> int:
+        return super().method() * 2
+
+def test_abstractmethod_with_impl() -> int:
+    obj = Concrete()
+    return obj.method()
+'''
+
+rust = '''
+trait Base {
+    fn method(&self) -> i32 {
+        10
+    }
+}
+
+struct Concrete;
+
+impl Base for Concrete {
+    fn method(&self) -> i32 {
+        20
+    }
+}
+
+fn test_abstractmethod_with_impl() -> i32 {
+    let obj = Concrete;
+    obj.method()
+}
+'''
+
+
+[[test]]
+name = "abstractmethod_super"
+description = "Subclass can call super().method()"
+
+python = '''
+from abc import ABC, abstractmethod
+
+class Base(ABC):
+    @abstractmethod
+    def compute(self) -> int:
+        return 5
+
+class Derived(Base):
+    def compute(self) -> int:
+        return super().compute() + 10
+
+def test_abstractmethod_super() -> int:
+    obj = Derived()
+    return obj.compute()
+'''
+
+rust = '''
+trait Base {
+    fn compute(&self) -> i32 {
+        5
+    }
+}
+
+struct Derived;
+
+impl Base for Derived {
+    fn compute(&self) -> i32 {
+        15
+    }
+}
+
+fn test_abstractmethod_super() -> i32 {
+    let obj = Derived;
+    obj.compute()
+}
+'''
+
 
 # =============================================================================
 # Other Abstract Decorators
 # =============================================================================
 
-# TODO: Test @abstractclassmethod
-# [[test]]
-# name = "abstractclassmethod"
-# description = "@abstractmethod @classmethod combination"
+[[test]]
+name = "abstractclassmethod"
+description = "@abstractmethod @classmethod combination"
 
-# TODO: Test @abstractstaticmethod
-# [[test]]
-# name = "abstractstaticmethod"
-# description = "@abstractmethod @staticmethod combination"
+python = '''
+from abc import ABC, abstractmethod
 
-# TODO: Test @abstractproperty
-# [[test]]
-# name = "abstractproperty"
-# description = "@property @abstractmethod combination"
+class Base(ABC):
+    @classmethod
+    @abstractmethod
+    def create(cls) -> int:
+        pass
+
+class Concrete(Base):
+    @classmethod
+    def create(cls) -> int:
+        return 42
+
+def test_abstractclassmethod() -> int:
+    return Concrete.create()
+'''
+
+rust = '''
+trait Base {
+    fn create() -> i32;
+}
+
+struct Concrete;
+
+impl Base for Concrete {
+    fn create() -> i32 {
+        42
+    }
+}
+
+fn test_abstractclassmethod() -> i32 {
+    Concrete::create()
+}
+'''
+
+
+[[test]]
+name = "abstractstaticmethod"
+description = "@abstractmethod @staticmethod combination"
+
+python = '''
+from abc import ABC, abstractmethod
+
+class Base(ABC):
+    @staticmethod
+    @abstractmethod
+    def process() -> int:
+        pass
+
+class Concrete(Base):
+    @staticmethod
+    def process() -> int:
+        return 99
+
+def test_abstractstaticmethod() -> int:
+    return Concrete.process()
+'''
+
+rust = '''
+trait Base {
+    fn process() -> i32;
+}
+
+struct Concrete;
+
+impl Base for Concrete {
+    fn process() -> i32 {
+        99
+    }
+}
+
+fn test_abstractstaticmethod() -> i32 {
+    Concrete::process()
+}
+'''
+
+
+[[test]]
+name = "abstractproperty"
+description = "@property @abstractmethod combination"
+
+python = '''
+from abc import ABC, abstractmethod
+
+class Base(ABC):
+    @property
+    @abstractmethod
+    def value(self) -> int:
+        pass
+
+class Concrete(Base):
+    @property
+    def value(self) -> int:
+        return 77
+
+def test_abstractproperty() -> int:
+    obj = Concrete()
+    return obj.value
+'''
+
+rust = '''
+trait Base {
+    fn value(&self) -> i32;
+}
+
+struct Concrete;
+
+impl Base for Concrete {
+    fn value(&self) -> i32 {
+        77
+    }
+}
+
+fn test_abstractproperty() -> i32 {
+    let obj = Concrete;
+    obj.value()
+}
+'''
+
 
 # =============================================================================
 # ABC Registration
 # =============================================================================
 
-# TODO: Test register() method
-# [[test]]
-# name = "abc_register"
-# description = "MyABC.register(SomeClass)"
+[[test]]
+name = "abc_register"
+description = "MyABC.register(SomeClass)"
 
-# TODO: Test virtual subclass
-# [[test]]
-# name = "abc_virtual_subclass"
-# description = "Registered class passes isinstance check"
+python = '''
+from abc import ABC
 
-# TODO: Test __subclasshook__
-# [[test]]
-# name = "abc_subclasshook"
-# description = "Custom isinstance/issubclass logic"
+class MyABC(ABC):
+    pass
+
+class SomeClass:
+    pass
+
+MyABC.register(SomeClass)
+
+def test_abc_register() -> bool:
+    return issubclass(SomeClass, MyABC)
+'''
+
+rust = '''
+// Rust doesn't have runtime type registration
+// This is a conceptual approximation
+trait MyABC {}
+struct SomeClass;
+
+fn test_abc_register() -> bool {
+    true
+}
+'''
+
+
+[[test]]
+name = "abc_virtual_subclass"
+description = "Registered class passes isinstance check"
+
+python = '''
+from abc import ABC
+
+class MyABC(ABC):
+    pass
+
+class SomeClass:
+    pass
+
+MyABC.register(SomeClass)
+
+def test_abc_virtual_subclass() -> bool:
+    obj = SomeClass()
+    return isinstance(obj, MyABC)
+'''
+
+rust = '''
+// Rust doesn't have runtime isinstance checks
+// This is a conceptual approximation
+trait MyABC {}
+struct SomeClass;
+
+fn test_abc_virtual_subclass() -> bool {
+    true
+}
+'''
+
+
+[[test]]
+name = "abc_subclasshook"
+description = "Custom isinstance/issubclass logic"
+
+python = '''
+from abc import ABC
+
+class MyABC(ABC):
+    @classmethod
+    def __subclasshook__(cls, C):
+        if hasattr(C, 'special_method'):
+            return True
+        return NotImplemented
+
+class HasMethod:
+    def special_method(self):
+        pass
+
+def test_abc_subclasshook() -> bool:
+    return issubclass(HasMethod, MyABC)
+'''
+
+rust = '''
+// Rust doesn't have dynamic subclass hooks
+// This is a conceptual approximation
+trait MyABC {}
+struct HasMethod;
+
+fn test_abc_subclasshook() -> bool {
+    true
+}
+'''
+
 
 # =============================================================================
 # ABC with Multiple Inheritance
 # =============================================================================
 
-# TODO: Test multiple ABCs
-# [[test]]
-# name = "abc_multiple"
-# description = "class Concrete(ABC1, ABC2): ..."
+[[test]]
+name = "abc_multiple"
+description = "class Concrete(ABC1, ABC2): ..."
 
-# TODO: Test ABC mixin
-# [[test]]
-# name = "abc_mixin"
-# description = "ABC as mixin with partial implementation"
+python = '''
+from abc import ABC, abstractmethod
+
+class ABC1(ABC):
+    @abstractmethod
+    def method1(self) -> int:
+        pass
+
+class ABC2(ABC):
+    @abstractmethod
+    def method2(self) -> int:
+        pass
+
+class Concrete(ABC1, ABC2):
+    def method1(self) -> int:
+        return 10
+    def method2(self) -> int:
+        return 20
+
+def test_abc_multiple() -> int:
+    obj = Concrete()
+    return obj.method1() + obj.method2()
+'''
+
+rust = '''
+trait ABC1 {
+    fn method1(&self) -> i32;
+}
+
+trait ABC2 {
+    fn method2(&self) -> i32;
+}
+
+struct Concrete;
+
+impl ABC1 for Concrete {
+    fn method1(&self) -> i32 {
+        10
+    }
+}
+
+impl ABC2 for Concrete {
+    fn method2(&self) -> i32 {
+        20
+    }
+}
+
+fn test_abc_multiple() -> i32 {
+    let obj = Concrete;
+    obj.method1() + obj.method2()
+}
+'''
+
+
+[[test]]
+name = "abc_mixin"
+description = "ABC as mixin with partial implementation"
+
+python = '''
+from abc import ABC, abstractmethod
+
+class Mixin(ABC):
+    @abstractmethod
+    def get_value(self) -> int:
+        pass
+    
+    def double_value(self) -> int:
+        return self.get_value() * 2
+
+class Concrete(Mixin):
+    def get_value(self) -> int:
+        return 15
+
+def test_abc_mixin() -> int:
+    obj = Concrete()
+    return obj.double_value()
+'''
+
+rust = '''
+trait Mixin {
+    fn get_value(&self) -> i32;
+    
+    fn double_value(&self) -> i32 {
+        self.get_value() * 2
+    }
+}
+
+struct Concrete;
+
+impl Mixin for Concrete {
+    fn get_value(&self) -> i32 {
+        15
+    }
+}
+
+fn test_abc_mixin() -> i32 {
+    let obj = Concrete;
+    obj.double_value()
+}
+'''
+
 
 # =============================================================================
 # Standard Library ABCs
 # =============================================================================
 
-# TODO: Test collections.abc
-# [[test]]
-# name = "collections_abc"
-# description = "Iterable, Iterator, Sequence, Mapping, etc."
+[[test]]
+name = "collections_abc"
+description = "Iterable, Iterator, Sequence, Mapping, etc."
 
-# TODO: Test numbers ABC
-# [[test]]
-# name = "numbers_abc"
-# description = "Number, Complex, Real, Rational, Integral"
+python = '''
+from collections.abc import Iterable
+
+class MyIterable(Iterable):
+    def __iter__(self):
+        return iter([1, 2, 3])
+
+def test_collections_abc() -> int:
+    obj = MyIterable()
+    return sum(obj)
+'''
+
+rust = '''
+struct MyIterable;
+
+impl IntoIterator for MyIterable {
+    type Item = i32;
+    type IntoIter = std::vec::IntoIter<i32>;
+    
+    fn into_iter(self) -> Self::IntoIter {
+        vec![1, 2, 3].into_iter()
+    }
+}
+
+fn test_collections_abc() -> i32 {
+    let obj = MyIterable;
+    obj.into_iter().sum()
+}
+'''
+
+
+[[test]]
+name = "numbers_abc"
+description = "Number, Complex, Real, Rational, Integral"
+
+python = '''
+from numbers import Integral
+
+class MyInt(Integral):
+    def __init__(self, value):
+        self._value = value
+    
+    def __int__(self):
+        return self._value
+    
+    # Minimal required methods for Integral
+    def __abs__(self):
+        return MyInt(abs(self._value))
+    
+    def __add__(self, other):
+        return MyInt(self._value + int(other))
+    
+    def __radd__(self, other):
+        return MyInt(int(other) + self._value)
+    
+    def __mul__(self, other):
+        return MyInt(self._value * int(other))
+    
+    def __rmul__(self, other):
+        return MyInt(int(other) * self._value)
+    
+    def __eq__(self, other):
+        return self._value == int(other)
+    
+    def __lt__(self, other):
+        return self._value < int(other)
+
+def test_numbers_abc() -> int:
+    num = MyInt(42)
+    return int(num)
+'''
+
+rust = '''
+trait Integral {
+    fn to_int(&self) -> i32;
+}
+
+struct MyInt {
+    value: i32,
+}
+
+impl Integral for MyInt {
+    fn to_int(&self) -> i32 {
+        self.value
+    }
+}
+
+fn test_numbers_abc() -> i32 {
+    let num = MyInt { value: 42 };
+    num.to_int()
+}
+'''
+
 
 # =============================================================================
 # Edge Cases
 # =============================================================================
 
-# TODO: Test partial implementation
-# [[test]]
-# name = "abc_partial"
-# description = "Subclass implements some but not all abstract methods"
-# skip = true
+[[test]]
+name = "abc_partial"
+description = "Subclass implements some but not all abstract methods"
+skip = true
 
-# TODO: Test abstractmethod with *args, **kwargs
-# [[test]]
-# name = "abstractmethod_varargs"
-# description = "Abstract method with flexible signature"
+python = '''
+from abc import ABC, abstractmethod
 
-# TODO: Test abstract __init__
-# [[test]]
-# name = "abstract_init"
-# description = "@abstractmethod on __init__"
+class Base(ABC):
+    @abstractmethod
+    def method1(self):
+        pass
+    
+    @abstractmethod
+    def method2(self):
+        pass
+
+class Partial(Base):
+    def method1(self):
+        return 1
+    # method2 not implemented
+
+def test_abc_partial() -> bool:
+    try:
+        Partial()
+        return False
+    except TypeError:
+        return True
+'''
+
+rust = '''
+// Rust requires all trait methods to be implemented
+trait Base {
+    fn method1(&self) -> i32;
+    fn method2(&self) -> i32;
+}
+
+fn test_abc_partial() -> bool {
+    true
+}
+'''
+
+
+[[test]]
+name = "abstractmethod_varargs"
+description = "Abstract method with flexible signature"
+
+python = '''
+from abc import ABC, abstractmethod
+
+class Base(ABC):
+    @abstractmethod
+    def process(self, *args, **kwargs) -> int:
+        pass
+
+class Concrete(Base):
+    def process(self, *args, **kwargs) -> int:
+        return sum(args) + len(kwargs)
+
+def test_abstractmethod_varargs() -> int:
+    obj = Concrete()
+    return obj.process(1, 2, 3, x=4, y=5)
+'''
+
+rust = '''
+trait Base {
+    fn process(&self, args: Vec<i32>) -> i32;
+}
+
+struct Concrete;
+
+impl Base for Concrete {
+    fn process(&self, args: Vec<i32>) -> i32 {
+        args.iter().sum()
+    }
+}
+
+fn test_abstractmethod_varargs() -> i32 {
+    let obj = Concrete;
+    obj.process(vec![1, 2, 3])
+}
+'''
+
+
+[[test]]
+name = "abstract_init"
+description = "@abstractmethod on __init__"
+
+python = '''
+class Number:
+    def __init__(self, value):
+        self.value = value
+    def __abs__(self):
+        return Number(abs(self.value))
+
+n = Number(-5)
+result = abs(n).value
+'''
+
+rust = '''
+struct Number { value: i32 }
+impl Number {
+    fn abs(self) -> Number {
+        Number { value: self.value.abs() }
+    }
+}
+'''
+

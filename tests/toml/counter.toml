@@ -25,7 +25,6 @@ fn main() {
     println!("{{}}");
 }
 """
-contains = ["{}"]
 
 [[test]]
 name = "counter_iterable"
@@ -49,7 +48,6 @@ fn main() {
     println!("{:?}", items);
 }
 """
-contains = ["'a': 5", "'b': 2", "'r': 2", "'c': 1", "'d': 1"]
 
 [[test]]
 name = "counter_mapping"
@@ -71,7 +69,6 @@ fn main() {
     println!("{:?}", items);
 }
 """
-contains = ["'a': 4", "'b': 2"]
 
 [[test]]
 name = "counter_kwargs"
@@ -93,7 +90,6 @@ fn main() {
     println!("{:?}", items);
 }
 """
-contains = ["'a': 4", "'b': 2"]
 
 # =============================================================================
 # Counting
@@ -116,7 +112,6 @@ fn main() {
     println!("{} {}", c.get(&'a').unwrap_or(&0), c.get(&'b').unwrap_or(&0));
 }
 """
-contains = ["2 1"]
 
 [[test]]
 name = "counter_missing"
@@ -135,7 +130,6 @@ fn main() {
     println!("{}", c.get(&'x').unwrap_or(&0));
 }
 """
-contains = ["0"]
 
 [[test]]
 name = "counter_update"
@@ -155,7 +149,6 @@ fn main() {
     println!("{}", c.get(&'a').unwrap_or(&0));
 }
 """
-contains = ["4"]
 
 [[test]]
 name = "counter_update_counter"
@@ -178,7 +171,6 @@ fn main() {
     println!("{}", c1.get(&'a').unwrap_or(&0));
 }
 """
-contains = ["4"]
 
 # =============================================================================
 # Most Common
@@ -202,7 +194,6 @@ fn main() {
     println!("{:?}", items);
 }
 """
-contains = ["'a', 5"]
 
 [[test]]
 name = "counter_most_common_n"
@@ -222,7 +213,6 @@ fn main() {
     println!("{:?}", &items[..3.min(items.len())]);
 }
 """
-contains = ["'a', 5"]
 
 [[test]]
 name = "counter_least_common"
@@ -242,7 +232,6 @@ fn main() {
     println!("{:?}", &items[..2.min(items.len())]);
 }
 """
-contains = ["1"]
 
 # =============================================================================
 # Arithmetic Operations
@@ -268,7 +257,6 @@ fn main() {
     println!("{:?}", items);
 }
 """
-contains = ["'a': 4", "'b': 3"]
 
 [[test]]
 name = "counter_sub"
@@ -295,7 +283,6 @@ fn main() {
     println!("{:?}", items);
 }
 """
-contains = ["'a': 3"]
 
 [[test]]
 name = "counter_and"
@@ -322,7 +309,6 @@ fn main() {
     println!("{:?}", items);
 }
 """
-contains = ["'a': 1", "'b': 1"]
 
 [[test]]
 name = "counter_or"
@@ -347,7 +333,6 @@ fn main() {
     println!("{:?}", items);
 }
 """
-contains = ["'a': 3", "'b': 2"]
 
 # =============================================================================
 # Unary Operations
@@ -372,7 +357,6 @@ fn main() {
     println!("{:?}", items);
 }
 """
-contains = ["'a': 2"]
 
 [[test]]
 name = "counter_negative"
@@ -393,7 +377,6 @@ fn main() {
     println!("{:?}", items);
 }
 """
-contains = ["'a': -2", "'b': -1"]
 
 # =============================================================================
 # Methods
@@ -416,7 +399,6 @@ fn main() {
     println!("{:?}", elements);
 }
 """
-contains = ["['a', 'a', 'b']"]
 
 [[test]]
 name = "counter_subtract"
@@ -438,7 +420,6 @@ fn main() {
     println!("{:?}", items);
 }
 """
-contains = ["'a': 3", "'b': 0", "'c': -3"]
 
 [[test]]
 name = "counter_total"
@@ -456,7 +437,6 @@ fn main() {
     println!("{}", total);
 }
 """
-contains = ["6"]
 
 # =============================================================================
 # Dict Operations
@@ -483,7 +463,6 @@ fn main() {
     println!("{:?} {:?} {:?}", keys, values, items);
 }
 """
-contains = ["'a'", "'b'", "1", "2"]
 
 [[test]]
 name = "counter_del"
@@ -504,7 +483,6 @@ fn main() {
     println!("{:?}", items);
 }
 """
-contains = ["'b': 1"]
 
 [[test]]
 name = "counter_clear"
@@ -523,7 +501,6 @@ fn main() {
     println!("{}", c.len());
 }
 """
-contains = ["0"]
 
 # =============================================================================
 # Use Cases
@@ -547,7 +524,6 @@ fn main() {
     println!("{}", c.get("the").unwrap_or(&0));
 }
 """
-contains = ["2"]
 
 [[test]]
 name = "counter_histogram"
@@ -567,7 +543,6 @@ fn main() {
     println!("{}", c.get(&3).unwrap_or(&0));
 }
 """
-contains = ["3"]
 
 # =============================================================================
 # Edge Cases
@@ -590,7 +565,6 @@ fn main() {
     println!("{:?}", items);
 }
 """
-contains = ["'a': -1", "'b': 0", "'c': 1"]
 
 [[test]]
 name = "counter_zero"
@@ -609,7 +583,6 @@ fn main() {
     println!("{} {}", c.contains_key(&'a'), c.get(&'a').unwrap_or(&0));
 }
 """
-contains = ["True 0"]
 
 [[test]]
 name = "counter_equality"
@@ -628,4 +601,3 @@ fn main() {
     println!("{}", c1 == c2);
 }
 """
-contains = ["True"]

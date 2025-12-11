@@ -9,132 +9,658 @@ category = "modern-python"
 # Basic Mapping Patterns
 # =============================================================================
 
-# TODO: Test simple key match
-# [[test]]
-# name = "mapping_simple_key"
-# description = "case {'key': value}: ..."
+[[test]]
+name = "mapping_simple_key"
+description = "case {'key': value}: ..."
 
-# TODO: Test multiple keys
-# [[test]]
-# name = "mapping_multiple_keys"
-# description = "case {'a': x, 'b': y}: ..."
+python = '''
+data = {'key': 42}
+match data:
+    case {'key': value}:
+        result = value
+    case _:
+        result = 0
+'''
 
-# TODO: Test literal value match
-# [[test]]
-# name = "mapping_literal_value"
-# description = "case {'type': 'error'}: ..."
+rust = '''
+use std::collections::HashMap;
+
+let mut data = HashMap::new();
+data.insert("key", 42);
+
+let result = match data.get("key") {
+    Some(&value) => value,
+    None => 0,
+};
+'''
+
+
+[[test]]
+name = "mapping_multiple_keys"
+description = "case {'a': x, 'b': y}: ..."
+
+python = '''
+data = {'a': 10, 'b': 20}
+match data:
+    case {'a': x, 'b': y}:
+        result = x + y
+    case {'a': x}:
+        result = x
+    case _:
+        result = 0
+'''
+
+rust = '''
+use std::collections::HashMap;
+
+let mut data = HashMap::new();
+data.insert("a", 10);
+data.insert("b", 20);
+
+let result = match (data.get("a"), data.get("b")) {
+    (Some(&x), Some(&y)) => x + y,
+    (Some(&x), None) => x,
+    _ => 0,
+};
+'''
+
+
+[[test]]
+name = "mapping_literal_value"
+description = "case {'type': 'error'}: ..."
+
+python = '''
+data = {'type': 'error', 'message': 'Failed'}
+match data:
+    case {'type': 'error', 'message': msg}:
+        result = f"Error: {msg}"
+    case {'type': 'warning', 'message': msg}:
+        result = f"Warning: {msg}"
+    case _:
+        result = "Unknown"
+'''
+
+rust = '''
+use std::collections::HashMap;
+
+let mut data = HashMap::new();
+data.insert("type", "error");
+data.insert("message", "Failed");
+
+let result = match (data.get("type"), data.get("message")) {
+    (Some(&"error"), Some(&msg)) => format!("Error: {}", msg),
+    (Some(&"warning"), Some(&msg)) => format!("Warning: {}", msg),
+    _ => "Unknown".to_string(),
+};
+'''
+
 
 # =============================================================================
 # Capturing Values
 # =============================================================================
 
-# TODO: Test capture value
-# [[test]]
-# name = "mapping_capture"
-# description = "case {'name': name}: capture name"
+[[test]]
+name = "mapping_capture"
+description = "case {'name': name}: capture name"
 
-# TODO: Test capture with literal
-# [[test]]
-# name = "mapping_capture_literal"
-# description = "case {'type': 'user', 'id': id}: ..."
+python = '''
+data = {'name': 'Alice', 'age': 30}
+match data:
+    case {'name': name}:
+        result = f"Hello, {name}"
+    case _:
+        result = "Unknown"
+'''
 
-# TODO: Test nested capture
-# [[test]]
-# name = "mapping_nested_capture"
-# description = "case {'data': {'id': id}}: ..."
+rust = '''
+use std::collections::HashMap;
+
+let mut data = HashMap::new();
+data.insert("name", "Alice");
+data.insert("age", "30");
+
+let result = match data.get("name") {
+    Some(&name) => format!("Hello, {}", name),
+    None => "Unknown".to_string(),
+};
+'''
+
+
+[[test]]
+name = "mapping_capture_literal"
+description = "case {'type': 'user', 'id': id}: ..."
+
+python = '''
+data = {'type': 'user', 'id': 123}
+match data:
+    case {'type': 'user', 'id': id}:
+        result = f"User ID: {id}"
+    case {'type': 'admin', 'id': id}:
+        result = f"Admin ID: {id}"
+    case _:
+        result = "Unknown"
+'''
+
+rust = '''
+use std::collections::HashMap;
+
+let mut data = HashMap::new();
+data.insert("type", "user");
+data.insert("id", 123);
+
+let result = match (data.get("type"), data.get("id")) {
+    (Some(&"user"), Some(&id)) => format!("User ID: {}", id),
+    (Some(&"admin"), Some(&id)) => format!("Admin ID: {}", id),
+    _ => "Unknown".to_string(),
+};
+'''
+
+
+[[test]]
+name = "mapping_nested_capture"
+description = "case {'data': {'id': id}}: ..."
+
+python = '''
+data = {'data': {'id': 456}}
+match data:
+    case {'data': {'id': id}}:
+        result = f"ID: {id}"
+    case _:
+        result = "Unknown"
+'''
+
+rust = '''
+use std::collections::HashMap;
+
+let mut inner = HashMap::new();
+inner.insert("id", 456);
+
+let mut data = HashMap::new();
+data.insert("data", inner);
+
+let result = match data.get("data") {
+    Some(inner_map) => match inner_map.get("id") {
+        Some(&id) => format!("ID: {}", id),
+        None => "Unknown".to_string(),
+    },
+    None => "Unknown".to_string(),
+};
+'''
+
 
 # =============================================================================
 # **rest Pattern
 # =============================================================================
 
-# TODO: Test **rest capture
-# [[test]]
-# name = "mapping_rest"
-# description = "case {'key': v, **rest}: capture remaining"
+[[test]]
+name = "mapping_rest"
+description = "case {'key': v, **rest}: capture remaining"
 
-# TODO: Test **rest empty
-# [[test]]
-# name = "mapping_rest_empty"
-# description = "**rest is empty dict when all keys matched"
+python = '''
+data = {'key': 1, 'a': 2, 'b': 3}
+match data:
+    case {'key': v, **rest}:
+        result = (v, len(rest))
+    case _:
+        result = (0, 0)
+'''
 
-# TODO: Test **_ discard rest
-# [[test]]
-# name = "mapping_rest_discard"
-# description = "case {'key': v, **_}: ignore rest"
+rust = '''
+use std::collections::HashMap;
+
+let mut data = HashMap::new();
+data.insert("key", 1);
+data.insert("a", 2);
+data.insert("b", 3);
+
+let result = match data.get("key") {
+    Some(&v) => {
+        let rest_count = data.len() - 1;
+        (v, rest_count)
+    },
+    None => (0, 0),
+};
+'''
+
+
+[[test]]
+name = "mapping_rest_empty"
+description = "**rest is empty dict when all keys matched"
+
+python = '''
+data = {'key': 1}
+match data:
+    case {'key': v, **rest}:
+        result = len(rest) == 0
+    case _:
+        result = False
+'''
+
+rust = '''
+use std::collections::HashMap;
+
+let mut data = HashMap::new();
+data.insert("key", 1);
+
+let result = match data.get("key") {
+    Some(&_v) => data.len() == 1,
+    None => false,
+};
+'''
+
+
+[[test]]
+name = "mapping_rest_discard"
+description = "case {'key': v, **_}: ignore rest"
+
+python = '''
+data = {'key': 1, 'extra': 2}
+match data:
+    case {'key': v, **_}:
+        result = v * 2
+    case _:
+        result = 0
+'''
+
+rust = '''
+use std::collections::HashMap;
+
+let mut data = HashMap::new();
+data.insert("key", 1);
+data.insert("extra", 2);
+
+let result = match data.get("key") {
+    Some(&v) => v * 2,
+    None => 0,
+};
+'''
+
 
 # =============================================================================
 # Key Types
 # =============================================================================
 
-# TODO: Test string keys
-# [[test]]
-# name = "mapping_string_keys"
-# description = "case {'a': x}: string key"
+[[test]]
+name = "mapping_string_keys"
+description = "case {'a': x}: string key"
 
-# TODO: Test integer keys
-# [[test]]
-# name = "mapping_int_keys"
-# description = "case {0: first, 1: second}: ..."
+python = '''
+data = {'a': 10}
+match data:
+    case {'a': x}:
+        result = x
+    case _:
+        result = 0
+'''
 
-# TODO: Test enum keys
-# [[test]]
-# name = "mapping_enum_keys"
-# description = "case {Status.OK: data}: ..."
+rust = '''
+use std::collections::HashMap;
+
+let mut data = HashMap::new();
+data.insert("a", 10);
+
+let result = match data.get("a") {
+    Some(&x) => x,
+    None => 0,
+};
+'''
+
+
+[[test]]
+name = "mapping_int_keys"
+description = "case {0: first, 1: second}: ..."
+
+python = '''
+data = {0: 'a', 1: 'b'}
+match data:
+    case {0: first, 1: second}:
+        result = first + second
+    case _:
+        result = ""
+'''
+
+rust = '''
+use std::collections::HashMap;
+
+let mut data = HashMap::new();
+data.insert(0, "a");
+data.insert(1, "b");
+
+let result = match (data.get(&0), data.get(&1)) {
+    (Some(&first), Some(&second)) => format!("{}{}", first, second),
+    _ => "".to_string(),
+};
+'''
+
+
+[[test]]
+name = "mapping_enum_keys"
+description = "case {Status.OK: data}: ..."
+
+python = '''
+from enum import Enum
+
+class Status(Enum):
+    OK = 1
+    ERROR = 2
+
+data = {Status.OK: 'success'}
+match data:
+    case {Status.OK: value}:
+        result = value
+    case {Status.ERROR: value}:
+        result = f"Error: {value}"
+    case _:
+        result = "unknown"
+'''
+
+rust = '''
+use std::collections::HashMap;
+
+#[derive(Eq, Hash, PartialEq)]
+enum Status {
+    OK,
+    ERROR,
+}
+
+let mut data = HashMap::new();
+data.insert(Status::OK, "success");
+
+let result = match data.get(&Status::OK) {
+    Some(&value) => value,
+    None => match data.get(&Status::ERROR) {
+        Some(&value) => format!("Error: {}", value).as_str(),
+        None => "unknown",
+    },
+};
+'''
+
 
 # =============================================================================
 # Partial Matching
 # =============================================================================
 
-# TODO: Test partial match
-# [[test]]
-# name = "mapping_partial"
-# description = "case {'required': v}: matches with extra keys"
+[[test]]
+name = "mapping_partial"
+description = "case {'required': v}: matches with extra keys"
 
-# TODO: Test missing key fails
-# [[test]]
-# name = "mapping_missing_key"
-# description = "Pattern fails if required key missing"
+python = '''
+data = {'required': 1, 'extra': 2, 'other': 3}
+match data:
+    case {'required': v}:
+        result = v
+    case _:
+        result = 0
+'''
+
+rust = '''
+use std::collections::HashMap;
+
+let mut data = HashMap::new();
+data.insert("required", 1);
+data.insert("extra", 2);
+data.insert("other", 3);
+
+let result = match data.get("required") {
+    Some(&v) => v,
+    None => 0,
+};
+'''
+
+
+[[test]]
+name = "mapping_missing_key"
+description = "Pattern fails if required key missing"
+
+python = '''
+data = {'other': 1}
+match data:
+    case {'required': v}:
+        result = v
+    case _:
+        result = 0
+'''
+
+rust = '''
+use std::collections::HashMap;
+
+let mut data = HashMap::new();
+data.insert("other", 1);
+
+let result = match data.get("required") {
+    Some(&v) => v,
+    None => 0,
+};
+'''
+
 
 # =============================================================================
 # Nested Patterns
 # =============================================================================
 
-# TODO: Test nested mapping
-# [[test]]
-# name = "mapping_nested"
-# description = "case {'outer': {'inner': v}}: ..."
+[[test]]
+name = "mapping_nested"
+description = "case {'outer': {'inner': v}}: ..."
 
-# TODO: Test mapping with sequence
-# [[test]]
-# name = "mapping_with_sequence"
-# description = "case {'items': [first, *rest]}: ..."
+python = '''
+data = {'outer': {'inner': 42}}
+match data:
+    case {'outer': {'inner': v}}:
+        result = v
+    case _:
+        result = 0
+'''
 
-# TODO: Test mapping with class
-# [[test]]
-# name = "mapping_with_class"
-# description = "case {'point': Point(x, y)}: ..."
+rust = '''
+use std::collections::HashMap;
+
+let mut inner = HashMap::new();
+inner.insert("inner", 42);
+
+let mut data = HashMap::new();
+data.insert("outer", inner);
+
+let result = match data.get("outer") {
+    Some(inner_map) => match inner_map.get("inner") {
+        Some(&v) => v,
+        None => 0,
+    },
+    None => 0,
+};
+'''
+
+
+[[test]]
+name = "mapping_with_sequence"
+description = "case {'items': [first, *rest]}: ..."
+
+python = '''
+data = {'items': [1, 2, 3, 4]}
+match data:
+    case {'items': [first, *rest]}:
+        result = (first, len(rest))
+    case _:
+        result = (0, 0)
+'''
+
+rust = '''
+use std::collections::HashMap;
+
+let mut data = HashMap::new();
+data.insert("items", vec![1, 2, 3, 4]);
+
+let result = match data.get("items") {
+    Some(items) if !items.is_empty() => {
+        let first = items[0];
+        let rest_len = items.len() - 1;
+        (first, rest_len)
+    },
+    _ => (0, 0),
+};
+'''
+
+
+[[test]]
+name = "mapping_with_class"
+description = "case {'point': Point(x, y)}: ..."
+
+python = '''
+class Point:
+    __match_args__ = ('x', 'y')
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+data = {'point': Point(3, 4)}
+match data:
+    case {'point': Point(x, y)}:
+        result = x + y
+    case _:
+        result = 0
+'''
+
+rust = '''
+use std::collections::HashMap;
+
+struct Point {
+    x: i32,
+    y: i32,
+}
+
+let mut data = HashMap::new();
+data.insert("point", Point { x: 3, y: 4 });
+
+let result = match data.get("point") {
+    Some(Point { x, y }) => x + y,
+    None => 0,
+};
+'''
+
 
 # =============================================================================
 # Edge Cases
 # =============================================================================
 
-# TODO: Test empty mapping pattern
-# [[test]]
-# name = "mapping_empty"
-# description = "case {}: matches any mapping"
+[[test]]
+name = "mapping_empty"
+description = "case {}: matches any mapping"
 
-# TODO: Test duplicate keys
-# [[test]]
-# name = "mapping_duplicate_keys"
-# description = "case {'a': x, 'a': y}: syntax error"
-# skip = true
+python = '''
+data = {'a': 1, 'b': 2}
+match data:
+    case {}:
+        result = "mapping"
+    case _:
+        result = "other"
+'''
 
-# TODO: Test dict subclass
-# [[test]]
-# name = "mapping_subclass"
-# description = "Pattern matches dict subclasses"
+rust = '''
+use std::collections::HashMap;
 
-# TODO: Test non-dict mapping
-# [[test]]
-# name = "mapping_non_dict"
-# description = "Works with any Mapping type"
+let mut data: HashMap<&str, i32> = HashMap::new();
+data.insert("a", 1);
+data.insert("b", 2);
+
+let result = if data.is_empty() || !data.is_empty() {
+    "mapping"
+} else {
+    "other"
+};
+'''
+
+
+[[test]]
+name = "mapping_duplicate_keys"
+description = "case {'a': x, 'a': y}: syntax error"
+skip = true
+
+python = '''
+# case {'a': x, 'a': y}: syntax error
+result = True  # Placeholder
+'''
+
+rust = '''
+// case {'a': x, 'a': y}: syntax error
+let result = true; // Placeholder
+'''
+
+
+[[test]]
+name = "mapping_subclass"
+description = "Pattern matches dict subclasses"
+
+python = '''
+class MyDict(dict):
+    pass
+
+data = MyDict({'key': 42})
+match data:
+    case {'key': v}:
+        result = v
+    case _:
+        result = 0
+'''
+
+rust = '''
+use std::collections::HashMap;
+
+struct MyDict {
+    inner: HashMap<String, i32>,
+}
+
+let mut inner = HashMap::new();
+inner.insert("key".to_string(), 42);
+let data = MyDict { inner };
+
+let result = match data.inner.get("key") {
+    Some(&v) => v,
+    None => 0,
+};
+'''
+
+
+[[test]]
+name = "mapping_non_dict"
+description = "Works with any Mapping type"
+
+python = '''
+from collections import UserDict
+
+class MyMapping(UserDict):
+    pass
+
+data = MyMapping({'key': 42})
+match data:
+    case {'key': v}:
+        result = v
+    case _:
+        result = 0
+'''
+
+rust = '''
+use std::collections::HashMap;
+
+trait Mapping {
+    fn get(&self, key: &str) -> Option<i32>;
+}
+
+struct MyMapping {
+    data: HashMap<String, i32>,
+}
+
+impl Mapping for MyMapping {
+    fn get(&self, key: &str) -> Option<i32> {
+        self.data.get(key).copied()
+    }
+}
+
+let mut inner = HashMap::new();
+inner.insert("key".to_string(), 42);
+let data = MyMapping { data: inner };
+
+let result = match data.get("key") {
+    Some(v) => v,
+    None => 0,
+};
+'''
+

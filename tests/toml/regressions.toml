@@ -13,7 +13,6 @@ category = "regressions"
 [[test]]
 name = "final_int_constant"
 description = "Final[int] should generate const with i32 type"
-tags = ["final", "const", "typing"]
 
 python = '''
 from typing import Final
@@ -42,7 +41,6 @@ mod tests {
 [[test]]
 name = "variable_shadowing_in_loops"
 description = "Variable assignments inside loops should update existing variables, not shadow them"
-tags = ["loops", "shadowing", "assignment"]
 
 python = '''
 def factorial(n: int) -> int:
@@ -76,7 +74,6 @@ mod tests {
 [[test]]
 name = "binary_search_variable_shadowing"
 description = "Variable assignments in conditionals should not create new variables"
-tags = ["conditional", "shadowing", "assignment"]
 
 python = '''
 def binary_search(arr: list, target: int) -> int:
@@ -163,7 +160,6 @@ pub fn binary_search(arr: &Vec<serde_json::Value>, target: i32) -> i32 {
 [[test]]
 name = "docstring_as_comment"
 description = "Docstrings should become Rust doc comments, not executable expressions"
-tags = ["docstring", "documentation"]
 
 python = '''
 def add(a: int, b: int) -> int:
@@ -207,7 +203,6 @@ mod tests {
 [[test]]
 name = "docstring_generation"
 description = "Docstrings should generate proper Rust documentation"
-tags = ["docstring", "documentation"]
 
 python = '''
 def example_function(x: int) -> int:
@@ -236,7 +231,6 @@ mod tests {
 [[test]]
 name = "integer_division_operator"
 description = "Python // operator should map to integer division"
-tags = ["operators", "division"]
 
 python = '''
 def divide(a: int, b: int) -> int:
@@ -292,7 +286,6 @@ mod tests {
 [[test]]
 name = "floor_divide_operator"
 description = "Python // operator should use integer division, not float division"
-tags = ["operators", "division"]
 
 python = '''
 def floor_divide(a: int, b: int) -> int:
@@ -348,7 +341,6 @@ mod tests {
 [[test]]
 name = "string_concatenation_efficiency"
 description = "String operations should be efficient"
-tags = ["string", "efficiency"]
 
 python = '''
 def concat_strings(a: str, b: str) -> str:
@@ -364,7 +356,6 @@ pub fn concat_strings(a: String, b: String) -> String {
 [[test]]
 name = "type_inference_ownership"
 description = "Type inference should generate correct ownership patterns"
-tags = ["list", "ownership", "inference"]
 
 python = '''
 def process_data(data: list) -> list:
@@ -398,7 +389,6 @@ mod tests {
 [[test]]
 name = "plain_list_type_mapping"
 description = "Plain 'list' type should map to Vec<T> not literal 'list'"
-tags = ["list", "type-mapping"]
 
 python = '''
 def process_items(items: list) -> list:
@@ -436,7 +426,6 @@ mod tests {
 [[test]]
 name = "simple_array_literal_assignment"
 description = "Array literal assignments should not be dropped during code generation"
-tags = ["array", "assignment"]
 
 python = '''
 def test_array():
@@ -454,7 +443,6 @@ pub fn test_array() -> Vec<i32> {
 [[test]]
 name = "multiple_array_assignments"
 description = "Multiple array assignments should all be generated"
-tags = ["array", "assignment"]
 
 python = '''
 def test_arrays():
@@ -476,7 +464,6 @@ pub fn test_arrays() -> (Vec<i32>, Vec<i32>, Vec<i32>) {
 [[test]]
 name = "boolean_array_assignment"
 description = "Boolean array assignments should not be dropped"
-tags = ["array", "boolean", "assignment"]
 
 python = '''
 def test_bool_array():
@@ -494,7 +481,6 @@ pub fn test_bool_array() -> Vec<bool> {
 [[test]]
 name = "list_indexing_bounds_checking"
 description = "Array indexing should have proper bounds checking"
-tags = ["indexing", "safety"]
 
 python = '''
 def get_item(arr: list, index: int) -> int:
@@ -529,7 +515,6 @@ pub fn get_item(arr: &Vec<serde_json::Value>, index: i32) -> i32 {
 [[test]]
 name = "bounds_checking_array_indexing"
 description = "Array indexing should use safe indexing methods"
-tags = ["indexing", "safety"]
 
 python = '''
 def get_item(arr: list, i: int) -> int:
@@ -564,7 +549,6 @@ pub fn get_item(arr: &Vec<serde_json::Value>, i: i32) -> i32 {
 [[test]]
 name = "method_call_spacing"
 description = "Method calls should not have unnecessary spaces"
-tags = ["formatting", "method-call"]
 
 python = '''
 def get_length(arr: list) -> int:
@@ -592,7 +576,6 @@ mod tests {
 [[test]]
 name = "copy_copy_list"
 description = "copy.copy() for lists should generate .clone() not .copy()"
-tags = ["copy", "stdlib"]
 
 python = '''
 import copy
@@ -626,7 +609,6 @@ mod tests {
 [[test]]
 name = "copy_copy_dict"
 description = "copy.copy() for dicts should generate valid Rust code"
-tags = ["copy", "dict", "stdlib"]
 
 python = '''
 import copy
@@ -666,7 +648,6 @@ mod tests {
 [[test]]
 name = "copy_deepcopy_list"
 description = "copy.deepcopy() should generate valid deep copy operation"
-tags = ["copy", "deepcopy", "stdlib"]
 
 python = '''
 import copy
@@ -718,7 +699,6 @@ mod tests {
 [[test]]
 name = "untyped_list_parameter"
 description = "Untyped list parameter should compile without DynamicType"
-tags = ["list", "untyped", "inference"]
 
 python = '''
 def sum_list(numbers: list) -> int:
@@ -753,7 +733,6 @@ mod tests {
 [[test]]
 name = "untyped_dict_parameter"
 description = "Untyped dict parameter should compile without DynamicType"
-tags = ["dict", "untyped", "inference"]
 
 python = '''
 def get_value(data: dict, key: str) -> int:
@@ -771,7 +750,6 @@ pub fn get_value(data: &HashMap<serde_json::Value, serde_json::Value>, key: Stri
 [[test]]
 name = "rust_code_formatting_consistency"
 description = "Generated Rust code should have consistent formatting"
-tags = ["formatting", "generics"]
 
 python = '''
 from typing import List
@@ -809,7 +787,6 @@ mod tests {
 [[test]]
 name = "consistent_type_mapping"
 description = "Type mapping should be consistent across contexts"
-tags = ["type-mapping", "list"]
 
 python = '''
 def create_list() -> list:
@@ -828,7 +805,6 @@ pub fn create_list() -> Vec<serde_json::Value> {
 [[test]]
 name = "method_name_type_keyword"
 description = "Method name 'type' (Rust keyword) should be handled"
-tags = ["keyword", "method"]
 
 python = '''
 def test_type(obj):
@@ -845,7 +821,6 @@ pub fn test_type(obj: &serde_json::Value) {
 [[test]]
 name = "method_name_mut_keyword"
 description = "Method name 'mut' (Rust keyword) should be escaped"
-tags = ["keyword", "method"]
 
 python = '''
 def test_mut(obj):
@@ -862,7 +837,6 @@ pub fn test_mut(obj: &serde_json::Value) {
 [[test]]
 name = "method_name_ref_keyword"
 description = "Method name 'ref' (Rust keyword) should be escaped"
-tags = ["keyword", "method"]
 
 python = '''
 def test_ref(obj):
@@ -879,7 +853,6 @@ pub fn test_ref(obj: &serde_json::Value) {
 [[test]]
 name = "method_name_match_keyword"
 description = "Method name 'match' (Python 3.10+ keyword, Rust keyword) should be handled"
-tags = ["keyword", "method"]
 
 python = '''
 def test_match_method(obj):
@@ -896,7 +869,6 @@ pub fn test_match_method(obj: &serde_json::Value) {
 [[test]]
 name = "method_name_loop_keyword"
 description = "Method name 'loop' (Rust keyword) should be escaped"
-tags = ["keyword", "method"]
 
 python = '''
 def test_loop(obj):
@@ -913,7 +885,6 @@ pub fn test_loop(obj: &serde_json::Value) {
 [[test]]
 name = "method_name_impl_keyword"
 description = "Method name 'impl' (Rust keyword) should be escaped"
-tags = ["keyword", "method"]
 
 python = '''
 def test_impl(obj):
@@ -930,7 +901,6 @@ pub fn test_impl(obj: &serde_json::Value) {
 [[test]]
 name = "unicode_string_handling"
 description = "Unicode strings should be handled correctly"
-tags = ["unicode", "string"]
 
 python = '''
 def test_unicode() -> str:
@@ -946,7 +916,6 @@ pub fn test_unicode() -> String {
 [[test]]
 name = "emoji_string_handling"
 description = "Emoji in strings should be preserved"
-tags = ["unicode", "emoji"]
 
 python = '''
 def test_emoji() -> str:
@@ -962,7 +931,6 @@ pub fn test_emoji() -> String {
 [[test]]
 name = "accented_characters"
 description = "Accented characters should be preserved"
-tags = ["unicode", "accents"]
 
 python = '''
 def test_accents() -> str:
@@ -978,7 +946,6 @@ pub fn test_accents() -> String {
 [[test]]
 name = "large_conditional_function"
 description = "Large functions with many conditionals should transpile"
-tags = ["large", "conditional"]
 
 python = '''
 def large_func(x: int) -> int:
@@ -1037,7 +1004,6 @@ mod tests {
 [[test]]
 name = "sports_simulation_dataclasses"
 description = "Complex dataclass hierarchy for sports simulation"
-tags = ["integration", "dataclass", "complex"]
 compile_check = true
 
 python = '''
@@ -2037,7 +2003,6 @@ impl State {
 [[test]]
 name = "sports_simulation_constants"
 description = "Multiple constant definitions with various types"
-tags = ["integration", "constants"]
 
 python = '''
 from typing import Final
@@ -2080,7 +2045,6 @@ pub const PLAYING_FIELD_HEIGHT: i32 = 700;
 [[test]]
 name = "sports_simulation_game_logic"
 description = "Complex game logic with conditional branching"
-tags = ["integration", "logic", "conditional"]
 
 python = '''
 from typing import Final
@@ -2147,7 +2111,6 @@ pub fn is_in_scoring_position(ball_x: i32, team: String, field_width: i32) -> bo
 [[test]]
 name = "sports_simulation_event_handler"
 description = "Event handler pattern with optional types"
-tags = ["integration", "events", "optional"]
 
 python = '''
 from dataclasses import dataclass

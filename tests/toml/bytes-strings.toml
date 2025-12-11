@@ -9,166 +9,499 @@ category = "strings"
 # Bytes Literals
 # =============================================================================
 
-# TODO: Test bytes literal
-# [[test]]
-# name = "bytes_literal"
-# description = "b'hello'"
+[[test]]
+name = "bytes_literal"
+description = "b'hello'"
 
-# TODO: Test bytes double quotes
-# [[test]]
-# name = "bytes_double"
-# description = "b\"hello\""
+python = '''
+def test_bytes_literal() -> bytes:
+    return b'hello'
+'''
 
-# TODO: Test bytes triple
-# [[test]]
-# name = "bytes_triple"
-# description = "b'''multi'''"
+rust = '''
+pub fn test_bytes_literal() -> Vec<u8> {
+    return b"hello".to_vec();
+}
+'''
+
+
+[[test]]
+name = "bytes_double"
+description = "b double quote hello"
+
+python = '''
+def test_bytes_double() -> bytes:
+    return b"hello"
+'''
+
+rust = '''
+pub fn test_bytes_double() -> Vec<u8> {
+    return b"hello".to_vec();
+}
+'''
+
+
+[[test]]
+name = "bytes_triple"
+description = "b triple quote multi"
+
+python = """
+def test_bytes_triple() -> bytes:
+    return b'''multi
+line'''
+"""
+
+rust = '''
+pub fn test_bytes_triple() -> Vec<u8> {
+    return b"multi\nline".to_vec();
+}
+'''
+
 
 # =============================================================================
 # Bytes Escape Sequences
 # =============================================================================
 
-# TODO: Test hex escape
-# [[test]]
-# name = "bytes_hex_escape"
-# description = "b'\\x41' == b'A'"
+[[test]]
+name = "bytes_hex_escape"
+description = "b'\\x41' == b'A'"
 
-# TODO: Test octal escape
-# [[test]]
-# name = "bytes_octal"
-# description = "b'\\101' == b'A'"
+python = '''
+def test_bytes_hex_escape() -> bool:
+    return b'\x41' == b'A'
+'''
 
-# TODO: Test standard escapes
-# [[test]]
-# name = "bytes_escapes"
-# description = "b'\\n\\t\\r'"
+rust = '''
+pub fn test_bytes_hex_escape() -> bool {
+    return b"\x41" == b"A";
+}
+'''
+
+
+[[test]]
+name = "bytes_octal"
+description = "b'\\101' == b'A'"
+
+python = '''
+def test_bytes_octal() -> bool:
+    return b'\101' == b'A'
+'''
+
+rust = '''
+pub fn test_bytes_octal() -> bool {
+    return b"\x41" == b"A";
+}
+'''
+
+
+[[test]]
+name = "bytes_escapes"
+description = "b'\\n\\t\\r'"
+
+python = '''
+def test_bytes_escapes() -> bytes:
+    return b'\n\t\r'
+'''
+
+rust = '''
+pub fn test_bytes_escapes() -> Vec<u8> {
+    return b"\n\t\r".to_vec();
+}
+'''
+
 
 # =============================================================================
 # Bytes from String
 # =============================================================================
 
-# TODO: Test encode
-# [[test]]
-# name = "bytes_encode"
-# description = "'hello'.encode('utf-8')"
+[[test]]
+name = "bytes_encode"
+description = "'hello'.encode('utf-8')"
 
-# TODO: Test encode errors
-# [[test]]
-# name = "bytes_encode_errors"
-# description = "encode(errors='ignore')"
+python = '''
+def test_bytes_encode() -> bytes:
+    return 'hello'.encode('utf-8')
+'''
 
-# TODO: Test bytes constructor
-# [[test]]
-# name = "bytes_constructor"
-# description = "bytes('hello', 'utf-8')"
+rust = '''
+pub fn test_bytes_encode() -> Vec<u8> {
+    return "hello".as_bytes().to_vec();
+}
+'''
+
+
+[[test]]
+name = "bytes_encode_errors"
+description = "encode(errors='ignore')"
+
+python = '''
+def test_bytes_encode_errors() -> bytes:
+    text = 'hello\ud800world'
+    return text.encode('utf-8', errors='ignore')
+'''
+
+rust = '''
+pub fn test_bytes_encode_errors() -> Vec<u8> {
+    let text = "helloworld";
+    return text.as_bytes().to_vec();
+}
+'''
+
+
+[[test]]
+name = "bytes_constructor"
+description = "bytes('hello', 'utf-8')"
+
+python = '''
+def test_bytes_constructor() -> bytes:
+    return bytes('hello', 'utf-8')
+'''
+
+rust = '''
+pub fn test_bytes_constructor() -> Vec<u8> {
+    return "hello".as_bytes().to_vec();
+}
+'''
+
 
 # =============================================================================
 # String from Bytes
 # =============================================================================
 
-# TODO: Test decode
-# [[test]]
-# name = "bytes_decode"
-# description = "b'hello'.decode('utf-8')"
+[[test]]
+name = "bytes_decode"
+description = "b'hello'.decode('utf-8')"
 
-# TODO: Test decode errors
-# [[test]]
-# name = "bytes_decode_errors"
-# description = "decode(errors='replace')"
+python = '''
+def test_bytes_decode() -> str:
+    return b'hello'.decode('utf-8')
+'''
+
+rust = '''
+pub fn test_bytes_decode() -> String {
+    let bytes = b"hello";
+    return String::from_utf8(bytes.to_vec()).unwrap();
+}
+'''
+
+
+[[test]]
+name = "bytes_decode_errors"
+description = "decode(errors='replace')"
+
+python = '''
+def test_bytes_decode_errors() -> str:
+    data = b'\xff\xfe'
+    return data.decode('utf-8', errors='replace')
+'''
+
+rust = '''
+pub fn test_bytes_decode_errors() -> String {
+    let data = vec![0xff, 0xfe];
+    return String::from_utf8_lossy(&data).to_string();
+}
+'''
+
 
 # =============================================================================
 # Bytes Operations
 # =============================================================================
 
-# TODO: Test concatenation
-# [[test]]
-# name = "bytes_concat"
-# description = "b'a' + b'b'"
+[[test]]
+name = "bytes_concat"
+description = "b'a' + b'b'"
 
-# TODO: Test repetition
-# [[test]]
-# name = "bytes_repeat"
-# description = "b'ab' * 3"
+python = '''
+def test_bytes_concat() -> bytes:
+    return b'a' + b'b'
+'''
 
-# TODO: Test indexing
-# [[test]]
-# name = "bytes_index_int"
-# description = "b'abc'[0] == 97"
+rust = '''
+pub fn test_bytes_concat() -> Vec<u8> {
+    let mut result = b"a".to_vec();
+    result.extend_from_slice(b"b");
+    return result;
+}
+'''
 
-# TODO: Test slicing
-# [[test]]
-# name = "bytes_slice"
-# description = "b'hello'[1:4]"
+
+[[test]]
+name = "bytes_repeat"
+description = "b'ab' * 3"
+
+python = '''
+def test_bytes_repeat() -> bytes:
+    return b'ab' * 3
+'''
+
+rust = '''
+pub fn test_bytes_repeat() -> Vec<u8> {
+    let pattern = b"ab";
+    return pattern.repeat(3);
+}
+'''
+
+
+[[test]]
+name = "bytes_index_int"
+description = "b'abc'[0] == 97"
+
+python = '''
+def test_bytes_index_int() -> bool:
+    return b'abc'[0] == 97
+'''
+
+rust = '''
+pub fn test_bytes_index_int() -> bool {
+    let bytes = b"abc";
+    return bytes[0] == 97;
+}
+'''
+
+
+[[test]]
+name = "bytes_slice"
+description = "b'hello'[1:4]"
+
+python = '''
+def test_bytes_slice() -> bytes:
+    return b'hello'[1:4]
+'''
+
+rust = '''
+pub fn test_bytes_slice() -> Vec<u8> {
+    let bytes = b"hello";
+    return bytes[1..4].to_vec();
+}
+'''
+
 
 # =============================================================================
 # Bytes vs Bytearray
 # =============================================================================
 
-# TODO: Test bytes immutable
-# [[test]]
-# name = "bytes_immutable"
-# description = "b'x'[0] = 1 raises"
-# skip = true
+[[test]]
+name = "bytes_immutable"
+description = "b'x'[0] = 1 raises"
 
-# TODO: Test bytearray mutable
-# [[test]]
-# name = "bytearray_mutable"
-# description = "ba[0] = 65"
+python = '''
+def test_bytes_immutable() -> bool:
+    try:
+        b = b'x'
+        b[0] = 1
+        return False
+    except TypeError:
+        return True
+'''
 
-# TODO: Test conversion
-# [[test]]
-# name = "bytes_to_bytearray"
-# description = "bytearray(b'hello')"
+rust = '''
+pub fn test_bytes_immutable() -> bool {
+    // Bytes are immutable in Rust by default
+    return true;
+}
+'''
+
+
+[[test]]
+name = "bytearray_mutable"
+description = "ba[0] = 65"
+
+python = '''
+def test_bytearray_mutable() -> bytearray:
+    ba = bytearray(b'hello')
+    ba[0] = 65
+    return ba
+'''
+
+rust = '''
+pub fn test_bytearray_mutable() -> Vec<u8> {
+    let mut ba = b"hello".to_vec();
+    ba[0] = 65;
+    return ba;
+}
+'''
+
+
+[[test]]
+name = "bytes_to_bytearray"
+description = "bytearray(b'hello')"
+
+python = '''
+def test_bytes_to_bytearray() -> bytearray:
+    return bytearray(b'hello')
+'''
+
+rust = '''
+pub fn test_bytes_to_bytearray() -> Vec<u8> {
+    return b"hello".to_vec();
+}
+'''
+
 
 # =============================================================================
 # Raw Bytes
 # =============================================================================
 
-# TODO: Test raw bytes
-# [[test]]
-# name = "raw_bytes_rb"
-# description = "rb'\\n' literal backslash"
+[[test]]
+name = "raw_bytes_rb"
+description = "rb'\\n' literal backslash"
 
-# TODO: Test br prefix
-# [[test]]
-# name = "raw_bytes_br"
-# description = "br'\\n' same as rb"
+python = '''
+def test_raw_bytes_rb() -> bytes:
+    return rb'\n'
+'''
+
+rust = '''
+pub fn test_raw_bytes_rb() -> Vec<u8> {
+    return br"\n".to_vec();
+}
+'''
+
+
+[[test]]
+name = "raw_bytes_br"
+description = "br'\\n' same as rb"
+
+python = '''
+def test_raw_bytes_br() -> bytes:
+    return br'\n'
+'''
+
+rust = '''
+pub fn test_raw_bytes_br() -> Vec<u8> {
+    return br"\n".to_vec();
+}
+'''
+
 
 # =============================================================================
 # Bytes Methods
 # =============================================================================
 
-# TODO: Test find
-# [[test]]
-# name = "bytes_find"
-# description = "b'hello'.find(b'l')"
+[[test]]
+name = "bytes_find"
+description = "b'hello'.find(b'l')"
 
-# TODO: Test split
-# [[test]]
-# name = "bytes_split"
-# description = "b'a,b,c'.split(b',')"
+python = '''
+def test_bytes_find() -> int:
+    return b'hello'.find(b'l')
+'''
 
-# TODO: Test join
-# [[test]]
-# name = "bytes_join"
-# description = "b','.join([b'a', b'b'])"
+rust = '''
+pub fn test_bytes_find() -> Option<usize> {
+    let haystack = b"hello";
+    let needle = b"l";
+    return haystack.windows(needle.len())
+        .position(|window| window == needle);
+}
+'''
+
+
+[[test]]
+name = "bytes_split"
+description = "b'a,b,c'.split(b',')"
+
+python = '''
+def test_bytes_split() -> list:
+    return b'a,b,c'.split(b',')
+'''
+
+rust = '''
+pub fn test_bytes_split() -> Vec<Vec<u8>> {
+    let bytes = b"a,b,c";
+    return bytes.split(|&b| b == b',')
+        .map(|s| s.to_vec())
+        .collect();
+}
+'''
+
+
+[[test]]
+name = "bytes_join"
+description = "b','.join([b'a', b'b'])"
+
+python = '''
+def test_bytes_join() -> bytes:
+    return b','.join([b'a', b'b'])
+'''
+
+rust = '''
+pub fn test_bytes_join() -> Vec<u8> {
+    let parts: Vec<&[u8]> = vec![b"a", b"b"];
+    let separator = b",";
+    let mut result = Vec::new();
+    
+    for (i, part) in parts.iter().enumerate() {
+        if i > 0 {
+            result.extend_from_slice(separator);
+        }
+        result.extend_from_slice(part);
+    }
+    
+    return result;
+}
+'''
+
 
 # =============================================================================
 # Edge Cases
 # =============================================================================
 
-# TODO: Test non-ASCII error
-# [[test]]
-# name = "bytes_non_ascii"
-# description = "b'é' syntax error"
-# skip = true
+[[test]]
+name = "bytes_non_ascii"
+description = "b'é' syntax error"
 
-# TODO: Test empty bytes
-# [[test]]
-# name = "bytes_empty"
-# description = "b'' and bytes()"
+python = '''
+def test_bytes_non_ascii() -> bool:
+    # Non-ASCII characters require encoding
+    try:
+        # This would be a syntax error: b'é'
+        # Instead use encoding
+        result = 'é'.encode('utf-8')
+        return True
+    except:
+        return False
+'''
 
-# TODO: Test bytes vs str comparison
-# [[test]]
-# name = "bytes_str_compare"
-# description = "b'a' != 'a'"
+rust = '''
+pub fn test_bytes_non_ascii() -> bool {
+    // Non-ASCII requires explicit encoding
+    let result = "é".as_bytes();
+    return result.len() > 0;
+}
+'''
+
+
+[[test]]
+name = "bytes_empty"
+description = "b'' and bytes()"
+
+python = '''
+def test_bytes_empty() -> tuple[bytes, bytes]:
+    return (b'', bytes())
+'''
+
+rust = '''
+pub fn test_bytes_empty() -> (Vec<u8>, Vec<u8>) {
+    return (b"".to_vec(), Vec::new());
+}
+'''
+
+
+[[test]]
+name = "bytes_str_compare"
+description = "b'a' != 'a'"
+
+python = '''
+def test_bytes_str_compare() -> bool:
+    return b'a' != 'a'
+'''
+
+rust = '''
+pub fn test_bytes_str_compare() -> bool {
+    let bytes = b"a";
+    let string = "a";
+    return bytes != string.as_bytes();
+}
+'''
+

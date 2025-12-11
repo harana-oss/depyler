@@ -12,7 +12,6 @@ category = "data-structures"
 [[test]]
 name = "intenum_basic"
 description = "IntEnum inherits from both int and Enum"
-tags = ["enum", "int-enum"]
 python = '''
 from enum import IntEnum
 
@@ -41,7 +40,6 @@ assert_eq!(Priority::High as i32, 3);
 [[test]]
 name = "intenum_int_ops"
 description = "IntEnum can be used in arithmetic"
-tags = ["enum", "int-enum"]
 python = '''
 from enum import IntEnum
 
@@ -68,7 +66,6 @@ assert_eq!(result, 3);
 [[test]]
 name = "intenum_compare_int"
 description = "IntEnum can be compared with int"
-tags = ["enum", "int-enum"]
 python = '''
 from enum import IntEnum
 
@@ -96,7 +93,6 @@ assert_eq!(2, Priority::High as i32);
 [[test]]
 name = "intenum_ordering"
 description = "IntEnum supports ordering operations"
-tags = ["enum", "int-enum"]
 python = '''
 from enum import IntEnum
 
@@ -130,7 +126,6 @@ assert!(Priority::Medium >= Priority::Low);
 [[test]]
 name = "intenum_add"
 description = "Addition with IntEnum"
-tags = ["enum", "int-enum", "arithmetic"]
 python = '''
 from enum import IntEnum
 
@@ -160,7 +155,6 @@ assert_eq!(result2, 7);
 [[test]]
 name = "intenum_sub"
 description = "Subtraction with IntEnum"
-tags = ["enum", "int-enum", "arithmetic"]
 python = '''
 from enum import IntEnum
 
@@ -190,7 +184,6 @@ assert_eq!(result2, 7);
 [[test]]
 name = "intenum_mul"
 description = "Multiplication with IntEnum"
-tags = ["enum", "int-enum", "arithmetic"]
 python = '''
 from enum import IntEnum
 
@@ -224,7 +217,6 @@ assert_eq!(result2, 15);
 [[test]]
 name = "intflag_basic"
 description = "IntFlag for bitwise flag operations"
-tags = ["enum", "int-flag"]
 python = '''
 from enum import IntFlag
 
@@ -272,7 +264,6 @@ assert_eq!(Perm::X.0, 1);
 [[test]]
 name = "intflag_or"
 description = "Combine flags with bitwise OR"
-tags = ["enum", "int-flag"]
 python = '''
 from enum import IntFlag
 
@@ -312,7 +303,6 @@ assert_eq!(rw.0, 6);
 [[test]]
 name = "intflag_and"
 description = "Test flags with bitwise AND"
-tags = ["enum", "int-flag"]
 python = '''
 from enum import IntFlag
 
@@ -364,7 +354,6 @@ assert!(!has_execute);
 [[test]]
 name = "intflag_in"
 description = "Check flag membership"
-tags = ["enum", "int-flag"]
 python = '''
 from enum import IntFlag
 
@@ -415,7 +404,6 @@ assert!(!rw.contains(Perm::X));
 [[test]]
 name = "flag_basic"
 description = "Flag with auto() for power-of-two values"
-tags = ["enum", "flag"]
 python = '''
 from enum import Flag, auto
 
@@ -456,7 +444,6 @@ assert_eq!(Color::BLUE.0, 4);
 [[test]]
 name = "flag_combine"
 description = "Combine Flag values"
-tags = ["enum", "flag"]
 python = '''
 from enum import Flag, auto
 
@@ -495,7 +482,6 @@ assert_eq!(purple.0, 5);
 [[test]]
 name = "flag_iter"
 description = "Iterate over flags in a combination"
-tags = ["enum", "flag"]
 skip = ["complex-iteration"]
 python = '''
 from enum import Flag, auto
@@ -559,7 +545,6 @@ assert_eq!(flags.len(), 2);
 [[test]]
 name = "strenum_basic"
 description = "StrEnum with string values"
-tags = ["enum", "str-enum"]
 skip = ["python-3.11"]
 python = '''
 # Python 3.11+
@@ -594,7 +579,6 @@ assert_eq!(Status::Ok.as_str(), "ok");
 [[test]]
 name = "strenum_str_ops"
 description = "StrEnum supports string operations"
-tags = ["enum", "str-enum"]
 skip = ["python-3.11"]
 python = '''
 # Python 3.11+
@@ -627,7 +611,6 @@ assert!(Status::Ok.as_str().starts_with("o"));
 [[test]]
 name = "strenum_auto"
 description = "StrEnum with auto() generates lowercase name"
-tags = ["enum", "str-enum"]
 skip = ["python-3.11"]
 python = '''
 # Python 3.11+
@@ -667,7 +650,6 @@ assert_eq!(Status::Approved.as_str(), "approved");
 [[test]]
 name = "intenum_as_int"
 description = "IntEnum used in range()"
-tags = ["enum", "int-enum"]
 python = '''
 from enum import IntEnum
 
@@ -693,7 +675,6 @@ assert_eq!(values, vec![1, 2, 3, 4]);
 [[test]]
 name = "intenum_calc"
 description = "IntEnum in calculations"
-tags = ["enum", "int-enum"]
 python = '''
 from enum import IntEnum
 
@@ -725,7 +706,6 @@ assert_eq!(total, 6);
 [[test]]
 name = "intenum_sort"
 description = "Sort IntEnum values"
-tags = ["enum", "int-enum", "edge-case"]
 python = '''
 from enum import IntEnum
 
@@ -755,7 +735,6 @@ assert_eq!(values, vec![Priority::Low, Priority::Medium, Priority::High]);
 [[test]]
 name = "intenum_dict"
 description = "IntEnum as dict key"
-tags = ["enum", "int-enum", "edge-case"]
 python = '''
 from enum import IntEnum
 
@@ -792,7 +771,6 @@ assert_eq!(mapping[&Priority::High], "important");
 [[test]]
 name = "intflag_zero"
 description = "Zero value for IntFlag"
-tags = ["enum", "int-flag", "edge-case"]
 python = '''
 from enum import IntFlag
 

@@ -1,0 +1,751 @@
+# Validation Examples
+# Migrated from examples/validation/
+
+[metadata]
+name = "Validation Examples"
+category = "validation"
+
+# =============================================================================
+# Examples
+# =============================================================================
+
+[[test]]
+name = "test_all"
+description = "Example test"
+
+python = '''
+"""
+Test suite for validating Depyler transpilation.
+These tests compare Python output with Rust output.
+"""
+
+import subprocess
+import sys
+from typing import List, Any
+
+
+def test_binary_search():
+    """Test binary search implementation."""
+    test_cases = [
+        ([1, 3, 5, 7, 9], 5, 2),
+        ([1, 3, 5, 7, 9], 1, 0),
+        ([1, 3, 5, 7, 9], 9, 4),
+        ([1, 3, 5, 7, 9], 2, -1),
+        ([1, 3, 5, 7, 9], 10, -1),
+        ([], 5, -1),
+        ([42], 42, 0),
+        ([42], 41, -1),
+    ]
+    
+    print("Testing binary_search...")
+    for arr, target, expected in test_cases:
+        # Python implementation would be tested here
+        print(f"  ✓ binary_search({arr}, {target}) = {expected}")
+
+
+def test_calculate_sum():
+    """Test sum calculation."""
+    test_cases = [
+        ([1, 2, 3, 4, 5], 15),
+        ([10, -5, 3], 8),
+        ([], 0),
+        ([42], 42),
+        ([-1, -2, -3], -6),
+    ]
+    
+    print("\nTesting calculate_sum...")
+    for numbers, expected in test_cases:
+        print(f"  ✓ calculate_sum({numbers}) = {expected}")
+
+
+def test_process_config():
+    """Test config processing."""
+    test_cases = [
+        ({"debug": "true"}, "true"),
+        ({"verbose": "yes"}, None),
+        ({}, None),
+        ({"debug": "false", "level": "info"}, "false"),
+    ]
+    
+    print("\nTesting process_config...")
+    for config, expected in test_cases:
+        print(f"  ✓ process_config({config}) = {expected}")
+
+
+def test_classify_number():
+    """Test number classification."""
+    test_cases = [
+        (0, "zero"),
+        (42, "positive"),
+        (-42, "negative"),
+        (1, "positive"),
+        (-1, "negative"),
+    ]
+    
+    print("\nTesting classify_number...")
+    for n, expected in test_cases:
+        print(f"  ✓ classify_number({n}) = {expected}")
+
+
+if __name__ == "__main__":
+    print("Depyler Validation Test Suite")
+    print("=" * 30)
+    
+    test_binary_search()
+    test_calculate_sum()
+    test_process_config()
+    test_classify_number()
+    
+    print("\n✅ All tests passed!")
+'''
+
+rust = '''
+#[doc = "// TODO: Map Python module 'subprocess'"]
+use std as sys;
+use std::collections::HashMap;
+#[doc = "Test binary search implementation."]
+#[doc = " Depyler: verified panic-free"]
+pub fn test_binary_search() {
+    let test_cases = vec![
+        (vec![1, 3, 5, 7, 9], 5, 2),
+        (vec![1, 3, 5, 7, 9], 1, 0),
+        (vec![1, 3, 5, 7, 9], 9, 4),
+        (vec![1, 3, 5, 7, 9], 2, -1),
+        (vec![1, 3, 5, 7, 9], 10, -1),
+        (vec![], 5, -1),
+        (vec![42], 42, 0),
+        (vec![42], 41, -1),
+    ];
+    println!("{}", "Testing binary_search...");
+    for (_arr, _target, _expected) in test_cases.iter().cloned() {
+        println!(
+            "{}",
+            format!(
+                "  ✓ binary_search({:?}, {:?}) = {:?}",
+                arr, target, expected
+            )
+        );
+    }
+}
+#[doc = "Test sum calculation."]
+#[doc = " Depyler: verified panic-free"]
+pub fn test_calculate_sum() {
+    let test_cases = vec![
+        (vec![1, 2, 3, 4, 5], 15),
+        (vec![10, -5, 3], 8),
+        (vec![], 0),
+        (vec![42], 42),
+        (vec![-1, -2, -3], -6),
+    ];
+    println!("{}", "\nTesting calculate_sum...");
+    for (_numbers, _expected) in test_cases.iter().cloned() {
+        println!(
+            "{}",
+            format!("  ✓ calculate_sum({:?}) = {:?}", numbers, expected)
+        );
+    }
+}
+#[doc = "Test config processing."]
+#[doc = " Depyler: verified panic-free"]
+pub fn test_process_config() {
+    let test_cases = vec![
+        (
+            {
+                let mut map = HashMap::new();
+                map.insert("debug".to_string(), "true");
+                map
+            },
+            "true",
+        ),
+        (
+            {
+                let mut map = HashMap::new();
+                map.insert("verbose".to_string(), "yes");
+                map
+            },
+            None,
+        ),
+        (
+            {
+                let map = HashMap::new();
+                map
+            },
+            None,
+        ),
+        (
+            {
+                let mut map = HashMap::new();
+                map.insert("debug".to_string(), "false");
+                map.insert("level".to_string(), "info");
+                map
+            },
+            "false",
+        ),
+    ];
+    println!("{}", "\nTesting process_config...");
+    for (_config, _expected) in test_cases.iter().cloned() {
+        println!(
+            "{}",
+            format!("  ✓ process_config({:?}) = {:?}", config, expected)
+        );
+    }
+}
+#[doc = "Test number classification."]
+#[doc = " Depyler: verified panic-free"]
+pub fn test_classify_number() {
+    let test_cases = vec![
+        (0, "zero"),
+        (42, "positive"),
+        (-42, "negative"),
+        (1, "positive"),
+        (-1, "negative"),
+    ];
+    println!("{}", "\nTesting classify_number...");
+    for (_n, _expected) in test_cases.iter().cloned() {
+        println!(
+            "{}",
+            format!("  ✓ classify_number({:?}) = {:?}", n, expected)
+        );
+    }
+}
+'''
+
+[[test]]
+name = "test_async"
+description = "Test async/await support"
+
+python = '''
+# Test async/await support
+async def fetch_data(url: str) -> str:
+    """Fetch data asynchronously."""
+    result = await async_fetch(url)
+    return result
+
+async def process_batch(items: list[str]) -> list[str]:
+    """Process items asynchronously."""
+    results = []
+    for item in items:
+        data = await fetch_data(item)
+        results.append(data)
+    return results
+'''
+
+rust = '''
+#[doc = "Fetch data asynchronously."] #[doc = " Depyler: verified panic-free"] #[doc = " Depyler: proven to terminate"] pub async fn fetch_data(url: String) -> String {
+    let result = async_fetch(url).await;
+    result
+}
+#[doc = "Process items asynchronously."] #[doc = " Depyler: verified panic-free"] pub async fn process_batch(items: & Vec<String>) -> Vec<String>{
+    let mut results = vec! [];
+    for _item in items.iter().cloned() {
+    let data = fetch_data(item).await;
+    results.push(data);
+   
+}
+results
+}
+#[cfg(test)] mod tests {
+    use super::*;
+    use quickcheck::{
+    quickcheck, TestResult };
+    #[test] fn test_process_batch_examples() {
+    assert_eq!(process_batch(vec! []), vec! []);
+    assert_eq!(process_batch(vec! [1]), vec! [1]);
+   
+}
+}
+'''
+
+[[test]]
+name = "test_with"
+description = "Test with statement support"
+
+python = '''
+# Test with statement support
+def read_file(filename: str) -> str:
+    """Read file using with statement."""
+    with open(filename) as f:
+        content = f.read()
+    return content
+
+def write_file(filename: str, content: str) -> None:
+    """Write file using with statement."""
+    with open(filename, "w") as f:
+        f.write(content)
+
+def process_file(input_file: str, output_file: str) -> None:
+    """Process file with multiple with statements."""
+    with open(input_file) as fin:
+        data = fin.read()
+
+    with open(output_file, "w") as fout:
+        fout.write(data.upper())
+'''
+
+rust = '''
+#[doc = "Read file using with statement."]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn read_file(filename: String) -> String {
+    let f = std::fs::File::open(filename)?;
+    let content = f.read();
+    content
+}
+#[doc = "Write file using with statement."]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn write_file(filename: String, content: &str) {
+    let f = std::fs::File::create(filename)?;
+    f.write(content);
+}
+#[doc = "Process file with multiple with statements."]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn process_file(input_file: String, output_file: String) {
+    let fin = std::fs::File::open(input_file)?;
+    let data = fin.read();
+    let fout = std::fs::File::create(output_file)?;
+    fout.write(data.to_uppercase());
+}
+'''
+
+[[test]]
+name = "verification_demo"
+description = "!/usr/bin/env python3"
+
+python = '''
+#!/usr/bin/env python3
+"""
+Example: Property Verification with Depyler
+
+This example demonstrates how Depyler's verification system
+ensures correctness properties for transpiled code.
+"""
+
+from typing import List, Optional
+
+# Example 1: Pure function verification
+@depyler.pure
+def add(a: int, b: int) -> int:
+    """Pure function - no side effects"""
+    return a + b
+
+# Example 2: Memory safe function
+@depyler.memory_safe
+def safe_access(items: List[int], index: int) -> Optional[int]:
+    """Safe array access with bounds checking"""
+    if 0 <= index < len(items):
+        return items[index]
+    return None
+
+# Example 3: Thread safe function
+@depyler.thread_safe
+@depyler.interior_mutability("arc_mutex")
+def concurrent_counter(current: int, increment: int) -> int:
+    """Thread-safe counter increment"""
+    return current + increment
+
+# Example 4: Terminating function
+@depyler.always_terminates
+def factorial(n: int) -> int:
+    """Guaranteed to terminate for non-negative inputs"""
+    if n <= 0:
+        return 1
+    result = 1
+    for i in range(2, n + 1):
+        result *= i
+    return result
+
+# Example 5: Panic-free function
+@depyler.panic_free
+def safe_divide(a: int, b: int) -> Optional[float]:
+    """Division that never panics"""
+    if b == 0:
+        return None
+    return a / b
+
+# Example 6: Lifetime-safe function
+@depyler.lifetime_safe
+def find_max(numbers: List[int]) -> Optional[int]:
+    """Returns reference to max value with proper lifetime"""
+    if not numbers:
+        return None
+    
+    max_val = numbers[0]
+    for num in numbers[1:]:
+        if num > max_val:
+            max_val = num
+    return max_val
+
+# Example 7: Contract verification
+@depyler.contract(
+    requires="n >= 0",
+    ensures="result >= 1"
+)
+def fibonacci(n: int) -> int:
+    """Fibonacci with formal contracts"""
+    if n <= 1:
+        return 1
+    return fibonacci(n - 1) + fibonacci(n - 2)
+
+# Example 8: Complex verification
+@depyler.verify_all
+class VerifiedStack:
+    """Stack with full verification"""
+    
+    def __init__(self, capacity: int):
+        self.items: List[int] = []
+        self.capacity = capacity
+    
+    @depyler.contract(
+        requires="not self.is_full()",
+        ensures="self.size() == old(self.size()) + 1"
+    )
+    def push(self, item: int) -> None:
+        """Push with verification"""
+        if len(self.items) < self.capacity:
+            self.items.append(item)
+    
+    @depyler.contract(
+        requires="not self.is_empty()",
+        ensures="self.size() == old(self.size()) - 1"
+    )
+    def pop(self) -> int:
+        """Pop with verification"""
+        if self.items:
+            return self.items.pop()
+        return 0  # Should not reach here due to precondition
+    
+    @depyler.pure
+    def is_empty(self) -> bool:
+        """Check if empty"""
+        return len(self.items) == 0
+    
+    @depyler.pure
+    def is_full(self) -> bool:
+        """Check if full"""
+        return len(self.items) >= self.capacity
+    
+    @depyler.pure
+    def size(self) -> int:
+        """Get current size"""
+        return len(self.items)
+
+def main():
+    """Demonstrate verified functions"""
+    print("=== Verification Demo ===")
+    
+    # Pure function
+    result = add(5, 3)
+    print(f"Pure add: {result}")
+    
+    # Memory safe
+    items = [10, 20, 30]
+    print(f"Safe access: {safe_access(items, 1)}")
+    print(f"Safe access OOB: {safe_access(items, 10)}")
+    
+    # Thread safe
+    print(f"Concurrent: {concurrent_counter(100, 5)}")
+    
+    # Terminating
+    print(f"Factorial(5): {factorial(5)}")
+    
+    # Panic free
+    print(f"Safe divide: {safe_divide(10, 2)}")
+    print(f"Safe divide by zero: {safe_divide(10, 0)}")
+    
+    # Verified stack
+    stack = VerifiedStack(3)
+    stack.push(1)
+    stack.push(2)
+    print(f"Stack size: {stack.size()}")
+    print(f"Stack pop: {stack.pop()}")
+
+if __name__ == "__main__":
+    main()
+
+"""
+Verification Properties:
+=======================
+
+1. Type Preservation
+   - All types are preserved during transpilation
+   - No implicit conversions that could fail
+
+2. Memory Safety
+   - No use-after-free
+   - No buffer overflows
+   - Proper bounds checking
+
+3. Lifetime Safety
+   - References are always valid
+   - No dangling pointers
+   - Proper ownership tracking
+
+4. Thread Safety
+   - No data races
+   - Proper synchronization
+   - Safe concurrent access
+
+5. Termination
+   - Functions marked as terminating always halt
+   - No infinite loops
+   - Bounded recursion
+
+6. Panic Freedom
+   - No runtime panics
+   - All error cases handled
+   - Graceful error propagation
+
+7. Contract Verification
+   - Preconditions checked
+   - Postconditions ensured
+   - Invariants maintained
+
+Running Verification:
+====================
+
+$ depyler transpile verification_demo.py --verify
+
+This will:
+1. Check all annotated properties
+2. Generate property tests
+3. Run static analysis
+4. Report verification results
+5. Generate proof obligations
+"""
+'''
+
+rust = '''
+#[derive(Debug, Clone)]
+pub struct ZeroDivisionError {
+    message: String,
+}
+impl std::fmt::Display for ZeroDivisionError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "division by zero: {}", self.message)
+    }
+}
+impl std::error::Error for ZeroDivisionError {}
+impl ZeroDivisionError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[derive(Debug, Clone)]
+pub struct IndexError {
+    message: String,
+}
+impl std::fmt::Display for IndexError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "index out of range: {}", self.message)
+    }
+}
+impl std::error::Error for IndexError {}
+impl IndexError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[derive(Debug, Clone)]
+pub struct VerifiedStack {
+    pub capacity: i32,
+}
+impl VerifiedStack {
+    pub fn new(capacity: i32) -> Self {
+        Self { capacity }
+    }
+    pub fn push(&self, item: i32) {
+        if self.items.len() < self.capacity {
+            self.items.push(item);
+        };
+    }
+    pub fn pop(&self) -> i32 {
+        if self.items {
+            return self.items.pop().unwrap_or_default();
+        };
+        return 0;
+    }
+    pub fn is_empty(&self) -> bool {
+        return self.items.len() == 0;
+    }
+    pub fn is_full(&self) -> bool {
+        return self.items.len() >= self.capacity;
+    }
+    pub fn size(&self) -> i32 {
+        return self.items.len();
+    }
+}
+#[doc = "Pure function - no side effects"]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn add(a: i32, b: i32) -> i32 {
+    a + b
+}
+#[doc = "Safe array access with bounds checking"]
+#[doc = " Depyler: proven to terminate"]
+pub fn safe_access(items: &Vec<i32>, index: i32) -> Result<Option<i32>, IndexError> {
+    let _cse_temp_0 = 0 <= index;
+    let _cse_temp_1 = items.len() as i32;
+    let _cse_temp_2 = index < _cse_temp_1;
+    let _cse_temp_3 = (_cse_temp_0) && (_cse_temp_2);
+    if _cse_temp_3 {
+        return Ok(Some(items.get(index as usize).cloned().unwrap_or_default()));
+    }
+    Ok(None)
+}
+#[doc = "Thread-safe counter increment"]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn concurrent_counter(current: i32, increment: i32) -> i32 {
+    current + increment
+}
+#[doc = "Guaranteed to terminate for non-negative inputs"]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn factorial(n: i32) -> i32 {
+    let _cse_temp_0 = n <= 0;
+    if _cse_temp_0 {
+        return 1;
+    }
+    let mut result = 1;
+    for i in 2..n + 1 {
+        result = result * i;
+    }
+    result
+}
+#[doc = "Division that never panics"]
+#[doc = " Depyler: proven to terminate"]
+pub fn safe_divide(a: i32, b: i32) -> Result<Option<f64>, ZeroDivisionError> {
+    let _cse_temp_0 = b == 0;
+    if _cse_temp_0 {
+        return Ok(None);
+    }
+    Ok(Some((a as f64) / (b as f64)))
+}
+#[doc = "Returns reference to max value with proper lifetime"]
+pub fn find_max(numbers: &Vec<i32>) -> Result<Option<i32>, IndexError> {
+    if numbers.is_empty() {
+        return Ok(None);
+    }
+    let mut max_val = numbers.get(0usize).cloned().unwrap_or_default();
+    for num in {
+        let base = numbers;
+        let start = (1).max(0) as usize;
+        if start < base.len() {
+            base[start..].to_vec()
+        } else {
+            Vec::new()
+        }
+    } {
+        if num > max_val {
+            max_val = num;
+        }
+    }
+    Ok(Some(max_val))
+}
+#[doc = "Fibonacci with formal contracts"]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn fibonacci(n: i32) -> i32 {
+    let _cse_temp_0 = n <= 1;
+    if _cse_temp_0 {
+        return 1;
+    }
+    fibonacci(n - 1) + fibonacci(n - 2)
+}
+#[doc = "Demonstrate verified functions"]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn main() {
+    println!("{}", "=== Verification Demo ===");
+    let mut result = add(5, 3);
+    println!("{}", format!("Pure add: {:?}", result));
+    let items = vec![10, 20, 30];
+    println!("{}", format!("Safe access: {:?}", safe_access(&items, 1)));
+    println!(
+        "{}",
+        format!("Safe access OOB: {:?}", safe_access(&items, 10))
+    );
+    println!(
+        "{}",
+        format!("Concurrent: {:?}", concurrent_counter(100, 5))
+    );
+    println!("{}", format!("Factorial(5): {:?}", factorial(5)));
+    println!("{}", format!("Safe divide: {:?}", safe_divide(10, 2)));
+    println!(
+        "{}",
+        format!("Safe divide by zero: {:?}", safe_divide(10, 0))
+    );
+    let stack = VerifiedStack::new(3);
+    stack.push(1);
+    stack.push(2);
+    println!("{}", format!("Stack size: {:?}", stack.size()));
+    println!("{}", format!("Stack pop: {:?}", stack.pop()));
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{quickcheck, TestResult};
+    #[test]
+    fn quickcheck_add() {
+        fn prop(a: i32, b: i32) -> TestResult {
+            if (a > 0 && b > i32::MAX - a) || (a < 0 && b < i32::MIN - a) {
+                return TestResult::discard();
+            }
+            let result1 = add(a.clone(), b.clone());
+            let result2 = add(b.clone(), a.clone());
+            if result1 != result2 {
+                return TestResult::failed();
+            }
+            TestResult::passed()
+        }
+        quickcheck(prop as fn(i32, i32) -> TestResult);
+    }
+    #[test]
+    fn test_add_examples() {
+        assert_eq!(add(0, 0), 0);
+        assert_eq!(add(1, 2), 3);
+        assert_eq!(add(-1, 1), 0);
+    }
+    #[test]
+    fn quickcheck_concurrent_counter() {
+        fn prop(current: i32, increment: i32) -> TestResult {
+            if (current > 0 && increment > i32::MAX - current)
+                || (current < 0 && increment < i32::MIN - current)
+            {
+                return TestResult::discard();
+            }
+            let result1 = concurrent_counter(current.clone(), increment.clone());
+            let result2 = concurrent_counter(increment.clone(), current.clone());
+            if result1 != result2 {
+                return TestResult::failed();
+            }
+            TestResult::passed()
+        }
+        quickcheck(prop as fn(i32, i32) -> TestResult);
+    }
+    #[test]
+    fn test_concurrent_counter_examples() {
+        assert_eq!(concurrent_counter(0, 0), 0);
+        assert_eq!(concurrent_counter(1, 2), 3);
+        assert_eq!(concurrent_counter(-1, 1), 0);
+    }
+    #[test]
+    fn test_factorial_examples() {
+        assert_eq!(factorial(0), 0);
+        assert_eq!(factorial(1), 1);
+        assert_eq!(factorial(-1), -1);
+    }
+    #[test]
+    fn test_fibonacci_examples() {
+        assert_eq!(fibonacci(0), 0);
+        assert_eq!(fibonacci(1), 1);
+        assert_eq!(fibonacci(-1), -1);
+    }
+}
+'''

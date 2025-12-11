@@ -12,7 +12,6 @@ category = "context-managers"
 [[test]]
 name = "contextmanager_basic"
 description = "@contextmanager def cm(): yield"
-tags = ["contextlib", "contextmanager"]
 
 python = '''
 from contextlib import contextmanager
@@ -38,7 +37,6 @@ let result = simple(|| "success");
 [[test]]
 name = "contextmanager_setup"
 description = "Setup before yield"
-tags = ["contextlib", "setup"]
 
 python = '''
 from contextlib import contextmanager
@@ -73,7 +71,6 @@ let result = with_setup(setup_clone, || setup_done.borrow().len());
 [[test]]
 name = "contextmanager_teardown"
 description = "Teardown after yield"
-tags = ["contextlib", "teardown"]
 
 python = '''
 from contextlib import contextmanager
@@ -112,7 +109,6 @@ let result = cleanup_done.borrow().len();
 [[test]]
 name = "contextmanager_yield"
 description = "yield value bound with as"
-tags = ["contextlib", "yield"]
 
 python = '''
 from contextlib import contextmanager
@@ -141,7 +137,6 @@ let result = provide_value(|value| value);
 [[test]]
 name = "contextmanager_try_finally"
 description = "try: yield finally: cleanup"
-tags = ["contextlib", "try-finally"]
 
 python = '''
 from contextlib import contextmanager
@@ -187,7 +182,6 @@ let result = log.borrow().clone();
 [[test]]
 name = "contextmanager_exception"
 description = "Exception propagates through yield"
-tags = ["contextlib", "exception"]
 
 python = '''
 from contextlib import contextmanager
@@ -232,7 +226,6 @@ let result = log.borrow().clone();
 [[test]]
 name = "contextmanager_suppress"
 description = "try: yield except: pass to suppress"
-tags = ["contextlib", "suppress"]
 
 python = '''
 from contextlib import contextmanager
@@ -273,7 +266,6 @@ let result = "success";
 [[test]]
 name = "contextmanager_temp_value"
 description = "Change and restore a value"
-tags = ["contextlib", "use-case"]
 
 python = '''
 from contextlib import contextmanager
@@ -317,7 +309,6 @@ let result = (in_context, *value.borrow());
 [[test]]
 name = "contextmanager_timing"
 description = "Measure time in context"
-tags = ["contextlib", "timing"]
 
 python = '''
 from contextlib import contextmanager
@@ -360,7 +351,6 @@ let result = elapsed.borrow().len() == 1;
 [[test]]
 name = "contextmanager_chdir"
 description = "Change and restore cwd"
-tags = ["contextlib", "chdir"]
 skip = true
 
 python = '''
@@ -400,7 +390,6 @@ let result = "chdir implemented";
 [[test]]
 name = "contextmanager_environ"
 description = "Set and restore env var"
-tags = ["contextlib", "environ"]
 skip = true
 
 python = '''
@@ -448,7 +437,6 @@ let result = "environ implemented";
 [[test]]
 name = "contextmanager_single_yield"
 description = "Must yield exactly once"
-tags = ["contextlib", "yields"]
 skip = true
 
 python = '''
@@ -467,7 +455,6 @@ let result = "must yield once";
 [[test]]
 name = "contextmanager_no_yield"
 description = "RuntimeError if no yield"
-tags = ["contextlib", "error"]
 skip = true
 
 python = '''
@@ -492,7 +479,6 @@ let result = "error caught";
 [[test]]
 name = "contextmanager_multi_yield"
 description = "RuntimeError if multiple yields"
-tags = ["contextlib", "error"]
 skip = true
 
 python = '''
@@ -522,7 +508,6 @@ let result = "error caught";
 [[test]]
 name = "contextmanager_vs_class"
 description = "@contextmanager vs __enter__/__exit__"
-tags = ["contextlib", "comparison"]
 
 python = '''
 from contextlib import contextmanager
@@ -572,7 +557,6 @@ let result = "both work the same";
 [[test]]
 name = "contextmanager_when"
 description = "Generator simpler for simple cases"
-tags = ["contextlib", "best-practice"]
 
 python = '''
 from contextlib import contextmanager
@@ -606,7 +590,6 @@ let result = "choose appropriate pattern";
 [[test]]
 name = "contextmanager_params"
 description = "@contextmanager def cm(x, y): ..."
-tags = ["contextlib", "parameters"]
 
 python = '''
 from contextlib import contextmanager
@@ -631,7 +614,6 @@ let result = with_params("start", "end", |value| value);
 [[test]]
 name = "contextmanager_setup_fail"
 description = "Exception before yield"
-tags = ["contextlib", "exception"]
 
 python = '''
 from contextlib import contextmanager
@@ -663,7 +645,6 @@ let result = match fail_in_setup(|| ()) {
 [[test]]
 name = "contextmanager_teardown_fail"
 description = "Exception after yield"
-tags = ["contextlib", "exception"]
 
 python = '''
 from contextlib import contextmanager
@@ -709,7 +690,6 @@ let result = log.borrow().clone();
 [[test]]
 name = "contextmanager_reuse"
 description = "Each call creates new generator"
-tags = ["contextlib", "reuse"]
 
 python = '''
 from contextlib import contextmanager

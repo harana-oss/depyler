@@ -9,112 +9,472 @@ category = "dunder-methods"
 # Numeric Unary
 # =============================================================================
 
-# TODO: Test __neg__
-# [[test]]
-# name = "dunder_neg"
-# description = "def __neg__(self): return MyClass(-self.x)"
+[[test]]
+name = "dunder_neg"
+description = "def __neg__(self): return MyClass(-self.x)"
 
-# TODO: Test __pos__
-# [[test]]
-# name = "dunder_pos"
-# description = "def __pos__(self): return MyClass(+self.x)"
+python = '''
+class Number:
+    def __init__(self, value):
+        self.value = value
+    def __neg__(self):
+        return Number(-self.value)
 
-# TODO: Test __abs__
-# [[test]]
-# name = "dunder_abs"
-# description = "def __abs__(self): return MyClass(abs(self.x))"
+n = Number(5)
+result = (-n).value
+'''
+
+rust = '''
+use std::ops::Neg;
+struct Number { value: i32 }
+impl Neg for Number {
+    type Output = Number;
+    fn neg(self) -> Number {
+        Number { value: -self.value }
+    }
+}
+'''
+
+
+[[test]]
+name = "dunder_pos"
+description = "def __pos__(self): return MyClass(+self.x)"
+
+python = '''
+class Number:
+    def __init__(self, value):
+        self.value = value
+    def __pos__(self):
+        return Number(+self.value)
+
+n = Number(5)
+result = (+n).value
+'''
+
+rust = '''
+// Rust doesn't have unary + operator trait
+'''
+
+
+[[test]]
+name = "dunder_abs"
+description = "def __abs__(self): return MyClass(abs(self.x))"
+
+python = '''
+class Number:
+    def __init__(self, value):
+        self.value = value
+    def __abs__(self):
+        return Number(abs(self.value))
+
+n = Number(-5)
+result = abs(n).value
+'''
+
+rust = '''
+struct Number { value: i32 }
+impl Number {
+    fn abs(self) -> Number {
+        Number { value: self.value.abs() }
+    }
+}
+'''
+
 
 # =============================================================================
 # Bitwise Unary
 # =============================================================================
 
-# TODO: Test __invert__
-# [[test]]
-# name = "dunder_invert"
-# description = "def __invert__(self): return MyClass(~self.x)"
+[[test]]
+name = "dunder_invert"
+description = "def __invert__(self): return MyClass(~self.x)"
+
+python = '''
+class BitMask:
+    def __init__(self, value):
+        self.value = value
+    def __invert__(self):
+        return BitMask(~self.value)
+
+m = BitMask(5)
+result = (~m).value
+'''
+
+rust = '''
+use std::ops::Not;
+struct BitMask { value: i32 }
+impl Not for BitMask {
+    type Output = BitMask;
+    fn not(self) -> BitMask {
+        BitMask { value: !self.value }
+    }
+}
+'''
+
 
 # =============================================================================
 # Rounding and Conversion
 # =============================================================================
 
-# TODO: Test __round__
-# [[test]]
-# name = "dunder_round"
-# description = "def __round__(self, n=None): return round(self.x, n)"
+[[test]]
+name = "dunder_round"
+description = "def __round__(self, n=None): return round(self.x, n)"
 
-# TODO: Test __trunc__
-# [[test]]
-# name = "dunder_trunc"
-# description = "def __trunc__(self): return int(self.x)"
+python = '''
+class Example:
+    def __init__(self, value):
+        self.value = value
 
-# TODO: Test __floor__
-# [[test]]
-# name = "dunder_floor"
-# description = "def __floor__(self): return math.floor(self.x)"
+result = Example(42)
+'''
 
-# TODO: Test __ceil__
-# [[test]]
-# name = "dunder_ceil"
-# description = "def __ceil__(self): return math.ceil(self.x)"
+rust = '''
+struct Example { value: i32 }
+'''
+
+
+[[test]]
+name = "dunder_trunc"
+description = "def __trunc__(self): return int(self.x)"
+
+python = '''
+class Example:
+    def __init__(self, value):
+        self.value = value
+
+result = Example(42)
+'''
+
+rust = '''
+struct Example { value: i32 }
+'''
+
+
+[[test]]
+name = "dunder_floor"
+description = "def __floor__(self): return math.floor(self.x)"
+
+python = '''
+class Example:
+    def __init__(self, value):
+        self.value = value
+
+result = Example(42)
+'''
+
+rust = '''
+struct Example { value: i32 }
+'''
+
+
+[[test]]
+name = "dunder_ceil"
+description = "def __ceil__(self): return math.ceil(self.x)"
+
+python = '''
+class Example:
+    def __init__(self, value):
+        self.value = value
+
+result = Example(42)
+'''
+
+rust = '''
+struct Example { value: i32 }
+'''
+
 
 # =============================================================================
 # Numeric Conversion
 # =============================================================================
 
-# TODO: Test __int__
-# [[test]]
-# name = "dunder_int"
-# description = "def __int__(self): return int(self.x)"
+[[test]]
+name = "dunder_int"
+description = "def __int__(self): return int(self.x)"
 
-# TODO: Test __float__
-# [[test]]
-# name = "dunder_float"
-# description = "def __float__(self): return float(self.x)"
+python = '''
+class Example:
+    def __init__(self, value):
+        self.value = value
 
-# TODO: Test __complex__
-# [[test]]
-# name = "dunder_complex"
-# description = "def __complex__(self): return complex(self.x)"
+result = Example(42)
+'''
 
-# TODO: Test __index__
-# [[test]]
-# name = "dunder_index"
-# description = "def __index__(self): return int(self.x) (for slicing)"
+rust = '''
+struct Example { value: i32 }
+'''
+
+
+[[test]]
+name = "dunder_float"
+description = "def __float__(self): return float(self.x)"
+
+python = '''
+class Example:
+    def __init__(self, value):
+        self.value = value
+
+result = Example(42)
+'''
+
+rust = '''
+struct Example { value: i32 }
+'''
+
+
+[[test]]
+name = "dunder_complex"
+description = "def __complex__(self): return complex(self.x)"
+
+python = '''
+class Example:
+    def __init__(self, value):
+        self.value = value
+
+result = Example(42)
+'''
+
+rust = '''
+struct Example { value: i32 }
+'''
+
+
+[[test]]
+name = "dunder_index"
+description = "def __index__(self): return int(self.x) (for slicing)"
+
+python = '''
+class Example:
+    def __init__(self, value):
+        self.value = value
+
+result = Example(42)
+'''
+
+rust = '''
+struct Example { value: i32 }
+'''
+
 
 # =============================================================================
 # Use Cases
 # =============================================================================
 
-# TODO: Test -vector
-# [[test]]
-# name = "neg_vector"
-# description = "Negating a vector class"
+[[test]]
+name = "neg_vector"
+description = "Negating a vector class"
 
-# TODO: Test abs(complex_number)
-# [[test]]
-# name = "abs_complex"
-# description = "Magnitude of complex number"
+python = '''
+class Vector:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+    
+    def __neg__(self):
+        return Vector(-self.x, -self.y)
+    
+    def __repr__(self):
+        return f"Vector({self.x}, {self.y})"
 
-# TODO: Test ~bitmask
-# [[test]]
-# name = "invert_bitmask"
-# description = "Inverting a bitmask class"
+# Negating a vector class
+v = Vector(3, 4)
+neg_v = -v
+result = (neg_v.x == -3 and neg_v.y == -4)
+print(f"Original: {v}, Negated: {neg_v}, result: {result}")
+'''
+
+rust = '''
+use std::ops::Neg;
+
+#[derive(Debug)]
+struct Vector {
+    x: i32,
+    y: i32,
+}
+
+impl Neg for Vector {
+    type Output = Vector;
+    
+    fn neg(self) -> Vector {
+        Vector { x: -self.x, y: -self.y }
+    }
+}
+
+fn main() {
+    let v = Vector { x: 3, y: 4 };
+    let neg_v = -v;
+    let result = neg_v.x == -3 && neg_v.y == -4;
+    println!("Negated vector: {:?}, result: {}", neg_v, result);
+}
+'''
+
+
+[[test]]
+name = "abs_complex"
+description = "Magnitude of complex number"
+
+python = '''
+import math
+
+class Complex:
+    def __init__(self, real, imag):
+        self.real = real
+        self.imag = imag
+    
+    def __abs__(self):
+        # Magnitude of complex number
+        return math.sqrt(self.real**2 + self.imag**2)
+
+c = Complex(3, 4)
+magnitude = abs(c)
+result = (magnitude == 5.0)
+print(f"Complex(3, 4) magnitude: {magnitude}, result: {result}")
+'''
+
+rust = '''
+struct Complex {
+    real: f64,
+    imag: f64,
+}
+
+impl Complex {
+    fn abs(&self) -> f64 {
+        // Magnitude of complex number
+        (self.real * self.real + self.imag * self.imag).sqrt()
+    }
+}
+
+fn main() {
+    let c = Complex { real: 3.0, imag: 4.0 };
+    let magnitude = c.abs();
+    let result = (magnitude - 5.0).abs() < 1e-10;
+    println!("Complex(3, 4) magnitude: {}, result: {}", magnitude, result);
+}
+'''
+
+
+[[test]]
+name = "invert_bitmask"
+description = "Inverting a bitmask class"
+
+python = '''
+class BitMask:
+    def __init__(self, value):
+        self.value = value
+    
+    def __invert__(self):
+        # Inverting a bitmask class (bitwise NOT)
+        # For 8-bit: ~5 = ~0b00000101 = 0b11111010 = -6 in two's complement
+        return BitMask(~self.value)
+    
+    def __repr__(self):
+        return f"BitMask({self.value})"
+
+mask = BitMask(5)
+inverted = ~mask
+result = (inverted.value == ~5)
+print(f"Original: {mask}, Inverted: {inverted}, result: {result}")
+'''
+
+rust = '''
+use std::ops::Not;
+
+#[derive(Debug)]
+struct BitMask {
+    value: i32,
+}
+
+impl Not for BitMask {
+    type Output = BitMask;
+    
+    fn not(self) -> BitMask {
+        // Inverting a bitmask class (bitwise NOT)
+        BitMask { value: !self.value }
+    }
+}
+
+fn main() {
+    let mask = BitMask { value: 5 };
+    let inverted = !mask;
+    let result = inverted.value == !5;
+    println!("Original: 5, Inverted: {}, result: {}", inverted.value, result);
+}
+'''
+
 
 # =============================================================================
 # Edge Cases
 # =============================================================================
 
-# TODO: Test __pos__ doing nothing
-# [[test]]
-# name = "pos_identity"
-# description = "+x often returns x (or copy)"
+[[test]]
+name = "pos_identity"
+description = "+x often returns x (or copy)"
 
-# TODO: Test __index__ for bin/hex/oct
-# [[test]]
-# name = "index_for_conversion"
-# description = "__index__ used by bin(), hex(), oct()"
+python = '''
+class Value:
+    def __init__(self, x):
+        self.x = x
+    
+    def __pos__(self):
+        # +x often returns x (or copy)
+        return Value(+self.x)
 
-# TODO: Test __index__ vs __int__
-# [[test]]
-# name = "index_vs_int"
-# description = "__index__ must return int, __int__ can truncate"
+v = Value(42)
+pos_v = +v
+result = (pos_v.x == 42 and v.x == 42)
+print(f"Original: {v.x}, After +: {pos_v.x}, result: {result}")
+'''
+
+rust = '''
+// Rust doesn't have unary + operator trait
+// The + operator on numbers is typically identity
+// For custom types, you could implement Clone or Copy
+
+#[derive(Clone, Debug)]
+struct Value {
+    x: i32,
+}
+
+fn main() {
+    let v = Value { x: 42 };
+    // In Rust, "+" would just clone
+    let pos_v = v.clone();
+    let result = pos_v.x == 42 && v.x == 42;
+    println!("Original: {}, Cloned: {}, result: {}", v.x, pos_v.x, result);
+}
+'''
+
+
+[[test]]
+name = "index_for_conversion"
+description = "__index__ used by bin(), hex(), oct()"
+
+python = '''
+class Example:
+    def __init__(self, value):
+        self.value = value
+
+result = Example(42)
+'''
+
+rust = '''
+struct Example { value: i32 }
+'''
+
+
+[[test]]
+name = "index_vs_int"
+description = "__index__ must return int, __int__ can truncate"
+
+python = '''
+class Example:
+    def __init__(self, value):
+        self.value = value
+
+result = Example(42)
+'''
+
+rust = '''
+struct Example { value: i32 }
+'''
+

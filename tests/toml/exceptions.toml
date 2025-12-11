@@ -12,7 +12,6 @@ description = "Tests for Python try/except/finally error handling"
 [[test]]
 name = "simple_try_except"
 description = "Test basic try/except with bare except"
-tags = ["exception", "try", "except", "simple"]
 
 python = '''
 def safe_divide(a: int, b: int) -> int:
@@ -73,7 +72,6 @@ mod tests {
 [[test]]
 name = "try_except_with_binding"
 description = "Test try/except with exception binding"
-tags = ["exception", "binding"]
 
 python = '''
 def parse_number(s: str) -> int:
@@ -125,7 +123,6 @@ mod tests {
 [[test]]
 name = "try_except_return_in_try"
 description = "Test try/except with return in try block"
-tags = ["exception", "return"]
 
 python = '''
 def get_value(data: dict, key: str) -> str:
@@ -166,7 +163,6 @@ pub fn get_value(data: &HashMap<serde_json::Value, serde_json::Value>, key: Stri
 [[test]]
 name = "nested_try_except"
 description = "Test nested try/except blocks"
-tags = ["exception", "nested"]
 
 python = '''
 def nested_operation(x: int, y: int) -> int:
@@ -250,7 +246,6 @@ mod tests {
 [[test]]
 name = "try_except_specific_exception"
 description = "Test try/except with specific exception type"
-tags = ["exception", "specific"]
 
 python = '''
 def convert_to_int(s: str) -> int:
@@ -300,7 +295,6 @@ mod tests {
 [[test]]
 name = "try_except_with_pass"
 description = "Test try/except with pass in except block"
-tags = ["exception", "pass"]
 
 python = '''
 def ignore_errors(x: int) -> int:
@@ -336,7 +330,6 @@ mod tests {
 [[test]]
 name = "try_except_with_computation"
 description = "Test try/except with computation in try block"
-tags = ["exception", "computation"]
 
 python = '''
 def compute_ratio(a: int, b: int) -> float:
@@ -377,7 +370,6 @@ pub fn compute_ratio(a: i32, b: i32) -> f64 {
 [[test]]
 name = "two_exception_types"
 description = "Test try with two exception handlers"
-tags = ["exception", "multiple"]
 
 python = '''
 def parse_data(data: str) -> int:
@@ -433,7 +425,6 @@ mod tests {
 [[test]]
 name = "three_exception_types"
 description = "Test try with three exception handlers"
-tags = ["exception", "multiple"]
 
 python = '''
 def safe_operation(x: int) -> int:
@@ -508,7 +499,6 @@ mod tests {
 [[test]]
 name = "specific_then_bare_except"
 description = "Test specific exception followed by bare except"
-tags = ["exception", "fallback"]
 
 python = '''
 def handle_errors(data: str) -> str:
@@ -550,7 +540,6 @@ pub fn handle_errors(data: String) -> String {
 [[test]]
 name = "multiple_exceptions_one_handler"
 description = "Test multiple exceptions in one handler (tuple)"
-tags = ["exception", "tuple"]
 
 python = '''
 def process(data: str) -> int:
@@ -583,7 +572,6 @@ mod tests {
 [[test]]
 name = "handlers_with_return_values"
 description = "Test multiple handlers each with different return values"
-tags = ["exception", "return"]
 
 python = '''
 def get_value(data: dict, key: str) -> str:
@@ -627,7 +615,6 @@ pub fn get_value(data: &HashMap<serde_json::Value, serde_json::Value>, key: Stri
 [[test]]
 name = "different_exception_variables"
 description = "Test handlers with different exception variable names"
-tags = ["exception", "variables"]
 
 python = '''
 def handle_with_vars(data: str) -> str:
@@ -669,7 +656,6 @@ pub fn handle_with_vars(data: String) -> String {
 [[test]]
 name = "simple_try_finally"
 description = "Test simple try/finally without except"
-tags = ["exception", "finally"]
 
 python = '''
 def cleanup_operation(x: int) -> int:
@@ -716,7 +702,6 @@ mod tests {
 [[test]]
 name = "try_except_finally"
 description = "Test try/except/finally pattern"
-tags = ["exception", "finally"]
 
 python = '''
 def safe_divide(a: int, b: int) -> int:
@@ -783,7 +768,6 @@ mod tests {
 [[test]]
 name = "finally_with_return_in_try"
 description = "Test finally with return in try block"
-tags = ["exception", "finally", "return"]
 
 python = '''
 def process_with_cleanup(x: int) -> int:
@@ -832,7 +816,6 @@ mod tests {
 [[test]]
 name = "finally_with_exception"
 description = "Test finally with exception handler"
-tags = ["exception", "finally"]
 
 python = '''
 def handle_with_cleanup(data: str) -> int:
@@ -903,7 +886,6 @@ mod tests {
 [[test]]
 name = "finally_with_variable_assignment"
 description = "Test finally with variable assignment"
-tags = ["exception", "finally", "variable"]
 
 python = '''
 def track_execution(x: int) -> int:
@@ -940,7 +922,6 @@ mod tests {
 [[test]]
 name = "try_except_else_finally"
 description = "Test complete try/except/else/finally pattern"
-tags = ["exception", "else", "finally"]
 
 python = '''
 def complete_pattern(x: int) -> int:
@@ -997,7 +978,6 @@ mod tests {
 [[test]]
 name = "handlers_with_side_effects"
 description = "Test handlers with print side effects"
-tags = ["exception", "side-effects"]
 
 python = '''
 def log_errors(x: int) -> int:
@@ -1056,7 +1036,6 @@ mod tests {
 [[test]]
 name = "chained_exception_handlers"
 description = "Test chained/nested exception handling"
-tags = ["exception", "chained", "nested"]
 
 python = '''
 def chained_handling(data: list) -> int:
@@ -1133,7 +1112,6 @@ mod tests {
 [[test]]
 name = "complex_exception_pattern"
 description = "Test complex exception pattern with multiple handlers"
-tags = ["exception", "complex"]
 
 python = '''
 def complex_handling(a: int, b: int, c: int) -> int:

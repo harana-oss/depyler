@@ -12,7 +12,6 @@ category = "data-structures"
 [[test]]
 name = "set_literal"
 description = "{1, 2, 3}"
-tags = ["sets", "creation"]
 
 python = '''
 result = {1, 2, 3}
@@ -35,7 +34,6 @@ use std::collections::HashSet;
 [[test]]
 name = "set_constructor"
 description = "set([1, 2, 3])"
-tags = ["sets", "creation"]
 
 python = '''
 result = set([1, 2, 3])
@@ -50,7 +48,6 @@ use std::collections::HashSet;
 [[test]]
 name = "set_empty"
 description = "set() not {}"
-tags = ["sets", "creation"]
 
 python = '''
 result = set()
@@ -80,7 +77,6 @@ use std::collections::HashSet;
 [[test]]
 name = "set_from_string"
 description = "set('hello')"
-tags = ["sets", "creation"]
 
 python = '''
 result = set('hello')
@@ -99,7 +95,6 @@ use std::collections::HashSet;
 [[test]]
 name = "set_union"
 description = "a.union(b)"
-tags = ["sets", "operations"]
 
 python = '''
 a = {1, 2, 3}
@@ -137,7 +132,6 @@ use std::collections::HashSet;
 [[test]]
 name = "set_intersection"
 description = "a.intersection(b)"
-tags = ["sets", "operations"]
 
 python = '''
 a = {1, 2, 3}
@@ -175,7 +169,6 @@ use std::collections::HashSet;
 [[test]]
 name = "set_difference"
 description = "a.difference(b)"
-tags = ["sets", "operations"]
 
 python = '''
 a = {1, 2, 3}
@@ -213,7 +206,6 @@ use std::collections::HashSet;
 [[test]]
 name = "set_symmetric_difference"
 description = "a.symmetric_difference(b)"
-tags = ["sets", "operations"]
 
 python = '''
 a = {1, 2, 3}
@@ -255,7 +247,6 @@ use std::collections::HashSet;
 [[test]]
 name = "set_union_op"
 description = "a | b"
-tags = ["sets", "operators"]
 
 python = '''
 a = {1, 2, 3}
@@ -293,7 +284,6 @@ use std::collections::HashSet;
 [[test]]
 name = "set_intersection_op"
 description = "a & b"
-tags = ["sets", "operators"]
 
 python = '''
 a = {1, 2, 3}
@@ -331,7 +321,6 @@ use std::collections::HashSet;
 [[test]]
 name = "set_difference_op"
 description = "a - b"
-tags = ["sets", "operators"]
 
 python = '''
 a = {1, 2, 3}
@@ -369,7 +358,6 @@ use std::collections::HashSet;
 [[test]]
 name = "set_symmetric_difference_op"
 description = "a ^ b"
-tags = ["sets", "operators"]
 
 python = '''
 a = {1, 2, 3}
@@ -411,7 +399,6 @@ use std::collections::HashSet;
 [[test]]
 name = "set_subset"
 description = "a.issubset(b) or a <= b"
-tags = ["sets", "comparison"]
 
 python = '''
 a = {1, 2}
@@ -444,7 +431,6 @@ use std::collections::HashSet;
 [[test]]
 name = "set_proper_subset"
 description = "a < b"
-tags = ["sets", "comparison"]
 
 python = '''
 a = {1, 2}
@@ -477,7 +463,6 @@ use std::collections::HashSet;
 [[test]]
 name = "set_superset"
 description = "a.issuperset(b) or a >= b"
-tags = ["sets", "comparison"]
 
 python = '''
 a = {1, 2, 3}
@@ -510,7 +495,6 @@ use std::collections::HashSet;
 [[test]]
 name = "set_disjoint"
 description = "a.isdisjoint(b)"
-tags = ["sets", "comparison"]
 
 python = '''
 a = {1, 2}
@@ -546,7 +530,6 @@ use std::collections::HashSet;
 [[test]]
 name = "set_add"
 description = "s.add(elem)"
-tags = ["sets", "modification"]
 
 python = '''
 s = {1, 2}
@@ -572,7 +555,6 @@ use std::collections::HashSet;
 [[test]]
 name = "set_remove"
 description = "s.remove(elem) raises if missing"
-tags = ["sets", "modification"]
 
 python = '''
 s = {1, 2, 3}
@@ -599,7 +581,6 @@ use std::collections::HashSet;
 [[test]]
 name = "set_discard"
 description = "s.discard(elem) no error if missing"
-tags = ["sets", "modification"]
 
 python = '''
 s = {1, 2, 3}
@@ -627,7 +608,6 @@ use std::collections::HashSet;
 [[test]]
 name = "set_pop"
 description = "s.pop() arbitrary element"
-tags = ["sets", "modification"]
 
 python = '''
 s = {1}
@@ -662,7 +642,6 @@ use std::collections::HashSet;
 [[test]]
 name = "set_clear"
 description = "s.clear()"
-tags = ["sets", "modification"]
 
 python = '''
 s = {1, 2, 3}
@@ -693,7 +672,6 @@ use std::collections::HashSet;
 [[test]]
 name = "set_update"
 description = "a.update(b) or a |= b"
-tags = ["sets", "inplace"]
 
 python = '''
 a = {1, 2}
@@ -719,7 +697,6 @@ use std::collections::HashSet;
 [[test]]
 name = "set_intersection_update"
 description = "a.intersection_update(b) or a &= b"
-tags = ["sets", "inplace"]
 
 python = '''
 a = {1, 2, 3}
@@ -746,7 +723,6 @@ use std::collections::HashSet;
 [[test]]
 name = "set_difference_update"
 description = "a.difference_update(b) or a -= b"
-tags = ["sets", "inplace"]
 
 python = '''
 a = {1, 2, 3}
@@ -773,7 +749,6 @@ use std::collections::HashSet;
 [[test]]
 name = "set_symmetric_diff_update"
 description = "a.symmetric_difference_update(b) or a ^= b"
-tags = ["sets", "inplace"]
 
 python = '''
 a = {1, 2, 3}
@@ -804,7 +779,6 @@ use std::collections::HashSet;
 [[test]]
 name = "frozenset_create"
 description = "frozenset([1, 2, 3])"
-tags = ["frozenset", "creation"]
 
 python = '''
 result = frozenset([1, 2, 3])
@@ -819,7 +793,6 @@ use std::collections::HashSet;
 [[test]]
 name = "frozenset_immutable"
 description = "Cannot add/remove"
-tags = ["frozenset"]
 skip = true
 
 python = '''
@@ -840,7 +813,6 @@ use std::collections::HashSet;
 [[test]]
 name = "frozenset_hashable"
 description = "Can be dict key or set element"
-tags = ["frozenset", "hash"]
 
 python = '''
 fs = frozenset([1, 2, 3])
@@ -879,7 +851,6 @@ use std::collections::HashSet;
 [[test]]
 name = "set_mixed"
 description = "{1, 'a', (1, 2)}"
-tags = ["sets", "mixed"]
 
 python = '''
 result = {1, 'a', (1, 2)}
@@ -902,7 +873,6 @@ use std::collections::HashSet;
 [[test]]
 name = "set_unhashable"
 description = "{[1, 2]} raises TypeError"
-tags = ["sets", "error"]
 skip = true
 
 python = '''
@@ -920,7 +890,6 @@ rust = '''
 [[test]]
 name = "set_comprehension"
 description = "{x*2 for x in range(5)}"
-tags = ["sets", "comprehension"]
 
 python = '''
 result = {x*2 for x in range(5)}
@@ -930,4 +899,854 @@ rust = '''
 pub const result: serde_json::Value = (0..5).map(|x| x * 2).collect::<HashSet<_>>();
 use serde_json;
 use std::collections::HashSet;
+'''
+
+# =============================================================================
+# Additional examples from examples/sets/
+# =============================================================================
+
+[[test]]
+name = "set_operations"
+description = "Example test"
+
+python = '''
+from typing import Set
+
+def test_set_creation() -> Set[int]:
+    """Test basic set creation and operations"""
+    # Create sets using literal syntax
+    s1 = {1, 2, 3}
+    s2 = {3, 4, 5}
+    
+    # Create empty set
+    empty = set()
+    
+    return s1
+
+def test_set_operators() -> Set[int]:
+    """Test set operators"""
+    s1 = {1, 2, 3}
+    s2 = {3, 4, 5}
+    
+    # Union
+    union = s1 | s2  # {1, 2, 3, 4, 5}
+    
+    # Intersection
+    intersection = s1 & s2  # {3}
+    
+    # Difference
+    diff = s1 - s2  # {1, 2}
+    
+    # Symmetric difference
+    sym_diff = s1 ^ s2  # {1, 2, 4, 5}
+    
+    return union
+
+def test_set_methods():
+    """Test set mutation methods"""
+    s = {1, 2, 3}
+    
+    # Add element
+    s.add(4)
+    
+    # Remove element (raises KeyError if not found)
+    s.remove(2)
+    
+    # Discard element (no error if not found)
+    s.discard(5)
+    
+    return s
+
+def test_set_comprehension() -> Set[int]:
+    """Test set comprehension"""
+    # Set comprehension
+    squares = {x * x for x in range(5)}
+    
+    # With condition
+    even_squares = {x * x for x in range(10) if x % 2 == 0}
+    
+    return even_squares
+'''
+
+rust = '''
+use std::collections::HashSet;
+#[doc = "Test basic set creation and operations"]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn test_set_creation() -> HashSet<i32> {
+    let s1 = {
+        let mut set = HashSet::new();
+        set.insert(1);
+        set.insert(2);
+        set.insert(3);
+        set
+    };
+    let s2 = {
+        let mut set = HashSet::new();
+        set.insert(3);
+        set.insert(4);
+        set.insert(5);
+        set
+    };
+    let empty = HashSet::<i32>::new();
+    s1
+}
+#[doc = "Test set operators"]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn test_set_operators() -> HashSet<i32> {
+    let s1 = {
+        let mut set = HashSet::new();
+        set.insert(1);
+        set.insert(2);
+        set.insert(3);
+        set
+    };
+    let s2 = {
+        let mut set = HashSet::new();
+        set.insert(3);
+        set.insert(4);
+        set.insert(5);
+        set
+    };
+    let _cse_temp_0 = s1
+        .union(&s2)
+        .cloned()
+        .collect::<std::collections::HashSet<_>>();
+    let union = _cse_temp_0;
+    let _cse_temp_1 = s1
+        .intersection(&s2)
+        .cloned()
+        .collect::<std::collections::HashSet<_>>();
+    let intersection = _cse_temp_1;
+    let diff = s1
+        .difference(&s2)
+        .cloned()
+        .collect::<std::collections::HashSet<_>>();
+    let _cse_temp_2 = s1
+        .symmetric_difference(&s2)
+        .cloned()
+        .collect::<std::collections::HashSet<_>>();
+    let sym_diff = _cse_temp_2;
+    union
+}
+#[doc = "Test set mutation methods"]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn test_set_methods() -> HashSet<i32> {
+    let mut s = {
+        let mut set = HashSet::new();
+        set.insert(1);
+        set.insert(2);
+        set.insert(3);
+        set
+    };
+    s.insert(4);
+    if !s.remove(&2) {
+        panic!("KeyError: element not in set")
+    };
+    s.remove(&5);
+    s
+}
+#[doc = "Test set comprehension"]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn test_set_comprehension() -> HashSet<i32> {
+    let squares = (0..5).map(|x| x * x).collect::<HashSet<_>>();
+    let even_squares = (0..10)
+        .filter(|x| x % 2 == 0)
+        .map(|x| x * x)
+        .collect::<HashSet<_>>();
+    even_squares
+}
+'''
+
+[[test]]
+name = "simple_set"
+description = "Example test"
+
+python = '''
+def test_simple_set():
+    """Test just set literal"""
+    s = {1, 2, 3}
+    return s
+'''
+
+rust = '''
+use std::collections::HashSet;
+#[doc = "Test just set literal"]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn test_simple_set() -> HashSet<i32> {
+    let s = {
+        let mut set = HashSet::new();
+        set.insert(1);
+        set.insert(2);
+        set.insert(3);
+        set
+    };
+    s
+}
+'''
+
+[[test]]
+name = "test_frozenset"
+description = "Example test"
+
+python = '''
+def test_frozenset():
+    """Test frozenset functionality"""
+    # Empty frozenset
+    fs1 = frozenset()
+    
+    # Frozenset from list
+    fs2 = frozenset([1, 2, 3])
+    
+    # Frozenset from tuple
+    fs3 = frozenset((4, 5, 6))
+    
+    return fs1, fs2, fs3
+'''
+
+rust = '''
+use serde_json;
+use std::collections::HashSet;
+#[doc = "Test frozenset functionality"]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn test_frozenset() -> (serde_json::Value, serde_json::Value, serde_json::Value) {
+    let fs1 = std::sync::Arc::new(HashSet::<i32>::new());
+    let fs2 = std::sync::Arc::new(vec![1, 2, 3].into_iter().collect::<HashSet<_>>());
+    let fs3 = std::sync::Arc::new((4, 5, 6).into_iter().collect::<HashSet<_>>());
+    (fs1, fs2, fs3)
+}
+'''
+
+[[test]]
+name = "test_set_basic"
+description = "Example test"
+
+python = '''
+def test_set_creation():
+    # Empty set
+    s1 = set()
+    
+    # Set with integers
+    s2 = {1, 2, 3, 4, 5}
+    
+    # Set with strings
+    s3 = {"apple", "banana", "cherry"}
+    
+    # Set from list
+    s4 = set([1, 2, 3, 3, 4, 4, 5])
+    
+    return s2
+
+def test_set_with_duplicates():
+    # Duplicates should be removed
+    s = {1, 2, 2, 3, 3, 3, 4}
+    return s
+'''
+
+rust = '''
+use std::collections::HashSet;
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn test_set_creation() -> HashSet<i32> {
+    let s1 = HashSet::<i32>::new();
+    let s2 = {
+        let mut set = HashSet::new();
+        set.insert(1);
+        set.insert(2);
+        set.insert(3);
+        set.insert(4);
+        set.insert(5);
+        set
+    };
+    let s3 = {
+        let mut set = HashSet::new();
+        set.insert("apple".to_string());
+        set.insert("banana".to_string());
+        set.insert("cherry".to_string());
+        set
+    };
+    let s4 = vec![1, 2, 3, 3, 4, 4, 5]
+        .into_iter()
+        .collect::<HashSet<_>>();
+    s2
+}
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn test_set_with_duplicates() -> HashSet<i32> {
+    let s = {
+        let mut set = HashSet::new();
+        set.insert(1);
+        set.insert(2);
+        set.insert(2);
+        set.insert(3);
+        set.insert(3);
+        set.insert(3);
+        set.insert(4);
+        set
+    };
+    s
+}
+'''
+
+[[test]]
+name = "test_set_comprehensions"
+description = "Test set comprehensions"
+
+python = '''
+# Test set comprehensions
+from typing import Set
+
+def test_simple_set_comp() -> Set[int]:
+    """Basic set comprehension"""
+    return {x * 2 for x in range(5)}
+
+def test_set_comp_with_condition() -> Set[int]:
+    """Set comprehension with condition"""
+    return {x for x in range(10) if x % 2 == 0}
+
+def test_set_comp_from_list() -> Set[str]:
+    """Set comprehension from list"""
+    words = ["hello", "world", "hello", "python"]
+    return {w.upper() for w in words}
+
+def test_set_comp_complex_expr() -> Set[int]:
+    """Set comprehension with complex expression"""
+    numbers = [1, 2, 3, 4, 5]
+    return {x * x + 1 for x in numbers if x < 4}
+
+def test_set_comp_with_expression() -> Set[int]:
+    """Set comprehension with expression"""
+    return {x * x for x in range(5) if x > 0}
+'''
+
+rust = '''
+use std::collections::HashSet;
+#[doc = "Basic set comprehension"]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn test_simple_set_comp() -> HashSet<i32> {
+    (0..5).map(|x| x * 2).collect::<HashSet<_>>()
+}
+#[doc = "Set comprehension with condition"]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn test_set_comp_with_condition() -> HashSet<i32> {
+    (0..10)
+        .filter(|x| x % 2 == 0)
+        .map(|x| x)
+        .collect::<HashSet<_>>()
+}
+#[doc = "Set comprehension from list"]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn test_set_comp_from_list() -> HashSet<String> {
+    let words = vec![
+        "hello".to_string(),
+        "world".to_string(),
+        "hello".to_string(),
+        "python".to_string(),
+    ];
+    words
+        .iter()
+        .cloned()
+        .map(|w| w.to_uppercase())
+        .collect::<HashSet<_>>()
+}
+#[doc = "Set comprehension with complex expression"]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn test_set_comp_complex_expr() -> HashSet<i32> {
+    let numbers = vec![1, 2, 3, 4, 5];
+    numbers
+        .iter()
+        .filter(|&x| x < 4)
+        .cloned()
+        .map(|x| x * x + 1)
+        .collect::<HashSet<_>>()
+}
+#[doc = "Set comprehension with expression"]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn test_set_comp_with_expression() -> HashSet<i32> {
+    (0..5)
+        .filter(|x| x > 0)
+        .map(|x| x * x)
+        .collect::<HashSet<_>>()
+}
+'''
+
+[[test]]
+name = "test_set_methods"
+description = "Test set methods"
+
+python = '''
+# Test set methods
+from typing import Set
+
+def test_set_add() -> Set[int]:
+    s = {1, 2, 3}
+    s.add(4)
+    s.add(3)  # Adding existing element should be no-op
+    return s
+
+def test_set_remove() -> Set[str]:
+    s = {"apple", "banana", "cherry"}
+    s.remove("banana")
+    # Note: s.remove("grape") would raise KeyError in Python
+    return s
+
+def test_set_discard() -> Set[int]:
+    s = {1, 2, 3, 4, 5}
+    s.discard(3)
+    s.discard(10)  # discard() doesn't raise error if element not found
+    return s
+
+def test_set_clear():
+    s = {1, 2, 3}
+    s.clear()
+    return len(s) == 0
+
+def test_set_pop() -> int:
+    s = {42}  # Single element for predictable behavior
+    value = s.pop()
+    return value
+'''
+
+rust = '''
+use std::collections::HashSet;
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn test_set_add() -> HashSet<i32> {
+    let mut s = {
+        let mut set = HashSet::new();
+        set.insert(1);
+        set.insert(2);
+        set.insert(3);
+        set
+    };
+    s.insert(4);
+    s.insert(3);
+    s
+}
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn test_set_remove() -> HashSet<String> {
+    let mut s = {
+        let mut set = HashSet::new();
+        set.insert("apple".to_string());
+        set.insert("banana".to_string());
+        set.insert("cherry".to_string());
+        set
+    };
+    if !s.remove(&"banana".to_string()) {
+        panic!("KeyError: element not in set")
+    };
+    s
+}
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn test_set_discard() -> HashSet<i32> {
+    let mut s = {
+        let mut set = HashSet::new();
+        set.insert(1);
+        set.insert(2);
+        set.insert(3);
+        set.insert(4);
+        set.insert(5);
+        set
+    };
+    s.remove(&3);
+    s.remove(&10);
+    s
+}
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn test_set_clear() -> bool {
+    let mut s = {
+        let mut set = HashSet::new();
+        set.insert(1);
+        set.insert(2);
+        set.insert(3);
+        set
+    };
+    s.clear();
+    s.len() as i32 == 0
+}
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn test_set_pop() -> i32 {
+    let mut s = {
+        let mut set = HashSet::new();
+        set.insert(42);
+        set
+    };
+    let value = s
+        .iter()
+        .next()
+        .cloned()
+        .map(|x| {
+            s.remove(&x);
+            x
+        })
+        .expect("pop from empty set");
+    value
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{quickcheck, TestResult};
+    #[test]
+    fn test_test_set_pop_examples() {
+        let _ = test_set_pop();
+    }
+}
+'''
+
+[[test]]
+name = "test_set_operations"
+description = "Test set operations"
+
+python = '''
+# Test set operations
+from typing import Set
+
+def create_sets() -> tuple[Set[int], Set[int]]:
+    s1 = {1, 2, 3, 4, 5}
+    s2 = {4, 5, 6, 7, 8}
+    return s1, s2
+
+def test_set_intersection() -> Set[int]:
+    s1 = {1, 2, 3, 4, 5}
+    s2 = {4, 5, 6, 7, 8}
+    # Intersection using & operator
+    result = s1 & s2
+    return result
+
+def test_set_union() -> Set[int]:
+    s1 = {1, 2, 3}
+    s2 = {3, 4, 5}
+    # Union using | operator
+    result = s1 | s2
+    return result
+
+def test_set_difference() -> Set[int]:
+    s1 = {1, 2, 3, 4, 5}
+    s2 = {4, 5, 6}
+    # Difference using - operator
+    result = s1 - s2
+    return result
+
+def test_set_symmetric_difference() -> Set[int]:
+    s1 = {1, 2, 3, 4}
+    s2 = {3, 4, 5, 6}
+    # Symmetric difference using ^ operator
+    result = s1 ^ s2
+    return result
+'''
+
+rust = '''
+use std::collections::HashSet;
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn create_sets() -> (HashSet<i32>, HashSet<i32>) {
+    let s1 = {
+        let mut set = HashSet::new();
+        set.insert(1);
+        set.insert(2);
+        set.insert(3);
+        set.insert(4);
+        set.insert(5);
+        set
+    };
+    let s2 = {
+        let mut set = HashSet::new();
+        set.insert(4);
+        set.insert(5);
+        set.insert(6);
+        set.insert(7);
+        set.insert(8);
+        set
+    };
+    (s1, s2)
+}
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn test_set_intersection() -> HashSet<i32> {
+    let s1 = {
+        let mut set = HashSet::new();
+        set.insert(1);
+        set.insert(2);
+        set.insert(3);
+        set.insert(4);
+        set.insert(5);
+        set
+    };
+    let s2 = {
+        let mut set = HashSet::new();
+        set.insert(4);
+        set.insert(5);
+        set.insert(6);
+        set.insert(7);
+        set.insert(8);
+        set
+    };
+    let _cse_temp_0 = s1
+        .intersection(&s2)
+        .cloned()
+        .collect::<std::collections::HashSet<_>>();
+    let result = _cse_temp_0;
+    result
+}
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn test_set_union() -> HashSet<i32> {
+    let s1 = {
+        let mut set = HashSet::new();
+        set.insert(1);
+        set.insert(2);
+        set.insert(3);
+        set
+    };
+    let s2 = {
+        let mut set = HashSet::new();
+        set.insert(3);
+        set.insert(4);
+        set.insert(5);
+        set
+    };
+    let _cse_temp_0 = s1
+        .union(&s2)
+        .cloned()
+        .collect::<std::collections::HashSet<_>>();
+    let result = _cse_temp_0;
+    result
+}
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn test_set_difference() -> HashSet<i32> {
+    let s1 = {
+        let mut set = HashSet::new();
+        set.insert(1);
+        set.insert(2);
+        set.insert(3);
+        set.insert(4);
+        set.insert(5);
+        set
+    };
+    let s2 = {
+        let mut set = HashSet::new();
+        set.insert(4);
+        set.insert(5);
+        set.insert(6);
+        set
+    };
+    let result = s1
+        .difference(&s2)
+        .cloned()
+        .collect::<std::collections::HashSet<_>>();
+    result
+}
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn test_set_symmetric_difference() -> HashSet<i32> {
+    let s1 = {
+        let mut set = HashSet::new();
+        set.insert(1);
+        set.insert(2);
+        set.insert(3);
+        set.insert(4);
+        set
+    };
+    let s2 = {
+        let mut set = HashSet::new();
+        set.insert(3);
+        set.insert(4);
+        set.insert(5);
+        set.insert(6);
+        set
+    };
+    let _cse_temp_0 = s1
+        .symmetric_difference(&s2)
+        .cloned()
+        .collect::<std::collections::HashSet<_>>();
+    let result = _cse_temp_0;
+    result
+}
+'''
+
+[[test]]
+name = "test_set_summary"
+description = "Comprehensive test of implemented set features"
+
+python = '''
+# Comprehensive test of implemented set features
+from typing import Set
+
+def test_all_set_features() -> Set[int]:
+    # Set creation
+    s1 = {1, 2, 3}
+    s2 = set([4, 5, 6])
+    empty = set()
+    
+    # Set operators
+    union = s1 | s2
+    intersection = {1, 2, 3} & {2, 3, 4}
+    difference = {1, 2, 3, 4} - {3, 4, 5}
+    symmetric_diff = {1, 2, 3} ^ {2, 3, 4}
+    
+    # Set methods
+    s1.add(4)
+    s2.discard(5)
+    
+    # Combine results
+    result = union | intersection | difference | symmetric_diff
+    return result
+'''
+
+rust = '''
+use std::collections::HashSet;
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn test_all_set_features() -> HashSet<i32> {
+    let mut s1 = {
+        let mut set = HashSet::new();
+        set.insert(1);
+        set.insert(2);
+        set.insert(3);
+        set
+    };
+    let mut s2 = vec![4, 5, 6].into_iter().collect::<HashSet<_>>();
+    let empty = HashSet::<i32>::new();
+    let _cse_temp_0 = s1
+        .union(&s2)
+        .cloned()
+        .collect::<std::collections::HashSet<_>>();
+    let union = _cse_temp_0;
+    let _cse_temp_1 = {
+        let mut set = HashSet::new();
+        set.insert(1);
+        set.insert(2);
+        set.insert(3);
+        set
+    }
+    .intersection(&{
+        let mut set = HashSet::new();
+        set.insert(2);
+        set.insert(3);
+        set.insert(4);
+        set
+    })
+    .cloned()
+    .collect::<std::collections::HashSet<_>>();
+    let intersection = _cse_temp_1;
+    let _cse_temp_2 = {
+        let mut set = HashSet::new();
+        set.insert(1);
+        set.insert(2);
+        set.insert(3);
+        set.insert(4);
+        set
+    }
+    .difference(&{
+        let mut set = HashSet::new();
+        set.insert(3);
+        set.insert(4);
+        set.insert(5);
+        set
+    })
+    .cloned()
+    .collect::<std::collections::HashSet<_>>();
+    let difference = _cse_temp_2;
+    let _cse_temp_3 = {
+        let mut set = HashSet::new();
+        set.insert(1);
+        set.insert(2);
+        set.insert(3);
+        set
+    }
+    .symmetric_difference(&{
+        let mut set = HashSet::new();
+        set.insert(2);
+        set.insert(3);
+        set.insert(4);
+        set
+    })
+    .cloned()
+    .collect::<std::collections::HashSet<_>>();
+    let symmetric_diff = _cse_temp_3;
+    s1.insert(4);
+    s2.remove(&5);
+    let _cse_temp_4 = union | intersection;
+    let _cse_temp_5 = _cse_temp_4 | difference;
+    let _cse_temp_6 = _cse_temp_5 | symmetric_diff;
+    let result = _cse_temp_6;
+    result
+}
+'''
+
+[[test]]
+name = "test_simple_set_typed"
+description = "Example test"
+
+python = '''
+from typing import Set
+
+def test_simple_set() -> Set[int]:
+    s1 = {1, 2, 3}
+    s2 = {3, 4, 5}
+    
+    # Single operation
+    result = s1 | s2
+    
+    return result
+
+def test_set_method() -> Set[str]:
+    fruits = {"apple", "banana"}
+    fruits.add("cherry")
+    return fruits
+'''
+
+rust = '''
+use std::collections::HashSet;
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn test_simple_set() -> HashSet<i32> {
+    let s1 = {
+        let mut set = HashSet::new();
+        set.insert(1);
+        set.insert(2);
+        set.insert(3);
+        set
+    };
+    let s2 = {
+        let mut set = HashSet::new();
+        set.insert(3);
+        set.insert(4);
+        set.insert(5);
+        set
+    };
+    let _cse_temp_0 = s1
+        .union(&s2)
+        .cloned()
+        .collect::<std::collections::HashSet<_>>();
+    let result = _cse_temp_0;
+    result
+}
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn test_set_method() -> HashSet<String> {
+    let mut fruits = {
+        let mut set = HashSet::new();
+        set.insert("apple".to_string());
+        set.insert("banana".to_string());
+        set
+    };
+    fruits.insert("cherry".to_string());
+    fruits
+}
 '''

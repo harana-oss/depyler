@@ -13,7 +13,6 @@ category = "functions"
 
 [[test]]
 name = "generic_function"
-tags = ["function", "generics"]
 
 python = '''
 from typing import TypeVar
@@ -50,7 +49,6 @@ mod tests {
 
 [[test]]
 name = "function_with_docstring"
-tags = ["function", "docstring"]
 
 python = '''
 def documented_function(x: int) -> int:
@@ -78,7 +76,6 @@ mod tests {
 
 [[test]]
 name = "function_mutable_parameter"
-tags = ["function", "mutability"]
 
 python = '''
 def increment(x: int) -> int:
@@ -106,7 +103,6 @@ mod tests {
 
 [[test]]
 name = "function_returning_result"
-tags = ["function", "result", "error"]
 
 python = '''
 def divide(a: int, b: int) -> float:
@@ -162,7 +158,6 @@ pub fn divide(a: i32, b: i32) -> f64 {
 
 [[test]]
 name = "async_function"
-tags = ["function", "async"]
 
 python = '''
 async def fetch_data(url: str) -> str:
@@ -177,7 +172,6 @@ rust = '''
 
 [[test]]
 name = "multiple_parameters"
-tags = ["function", "parameters"]
 
 python = '''
 def add_three(a: int, b: int, c: int) -> int:
@@ -192,7 +186,6 @@ pub fn add_three(a: i32, b: i32, c: i32) -> i32 {
 
 [[test]]
 name = "union_return_type"
-tags = ["function", "union", "return-type"]
 
 python = '''
 from typing import Union
@@ -249,7 +242,6 @@ pub fn maybe_int(flag: bool) -> IntOrStringUnion {
 
 [[test]]
 name = "string_return_owned"
-tags = ["function", "string", "ownership"]
 
 python = '''
 def to_upper(s: str) -> str:
@@ -264,7 +256,6 @@ pub fn to_upper(s: String) -> String {
 
 [[test]]
 name = "string_return_borrowed"
-tags = ["function", "string", "bool"]
 
 python = '''
 def starts_with_hello(s: str) -> bool:
@@ -288,7 +279,6 @@ mod tests {
 
 [[test]]
 name = "error_type_tracking"
-tags = ["function", "error", "exception"]
 
 python = '''
 def safe_divide(a: int, b: int) -> float:
@@ -327,7 +317,6 @@ pub fn safe_divide(a: i32, b: i32) -> f64 {
 
 [[test]]
 name = "generator_function"
-tags = ["function", "generator", "yield"]
 
 python = '''
 def counter(n: int):
@@ -365,7 +354,6 @@ impl Iterator for CounterState {
 
 [[test]]
 name = "float_return_type"
-tags = ["function", "float", "return-type"]
 
 python = '''
 def calculate_average(a: int, b: int) -> float:
@@ -398,7 +386,6 @@ pub fn calculate_average(a: i32, b: i32) -> f64 {
 
 [[test]]
 name = "param_used_in_binary_expr"
-tags = ["function", "parameters", "usage"]
 
 python = '''
 def add_ten(x: int, unused: int) -> int:
@@ -424,7 +411,6 @@ mod tests {
 
 [[test]]
 name = "param_used_in_method_call"
-tags = ["function", "parameters", "method"]
 
 python = '''
 def uppercase(s: str, unused: int) -> str:
@@ -439,7 +425,6 @@ pub fn uppercase(s: String, unused: i32) -> String {
 
 [[test]]
 name = "param_used_in_index"
-tags = ["function", "parameters", "index"]
 
 python = '''
 def get_item(items: list[int], idx: int, unused: str) -> int:
@@ -472,7 +457,6 @@ pub fn get_item(items: &Vec<i32>, idx: i32, unused: String) -> i32 {
 
 [[test]]
 name = "param_in_list_comprehension"
-tags = ["function", "parameters", "comprehension"]
 
 python = '''
 def with_comprehension(items: list[int], multiplier: int) -> list[int]:
@@ -487,7 +471,6 @@ pub fn with_comprehension(items: &Vec<i32>, multiplier: i32) -> Vec<i32> {
 
 [[test]]
 name = "string_methods_upper_lower"
-tags = ["function", "string", "methods"]
 
 python = '''
 def make_upper(text: str) -> str:
@@ -508,7 +491,6 @@ pub fn make_lower(text: String) -> String {
 
 [[test]]
 name = "string_methods_strip"
-tags = ["function", "string", "strip"]
 
 python = '''
 def clean_text(text: str) -> str:
@@ -576,7 +558,6 @@ mod tests {
 
 [[test]]
 name = "string_methods_transform"
-tags = ["function", "string", "transform"]
 
 python = '''
 def replace_text(text: str) -> str:
@@ -607,7 +588,6 @@ pub fn title_case(text: String) -> String {
 
 [[test]]
 name = "string_methods_predicates"
-tags = ["function", "string", "predicate"]
 
 python = '''
 def starts_with_test(text: str) -> bool:
@@ -641,7 +621,6 @@ mod tests {
 
 [[test]]
 name = "string_concat"
-tags = ["function", "string", "concat"]
 
 python = '''
 def concat_strings(a: str, b: str) -> str:
@@ -656,7 +635,6 @@ pub fn concat_strings(a: String, b: String) -> String {
 
 [[test]]
 name = "simple_nested_function"
-tags = ["function", "nested"]
 
 python = '''
 def outer():
@@ -676,7 +654,6 @@ pub fn outer() {
 
 [[test]]
 name = "nested_with_multiple_params"
-tags = ["function", "nested", "parameters"]
 
 python = '''
 def outer():
@@ -696,7 +673,6 @@ pub fn outer() {
 
 [[test]]
 name = "nested_with_closure_capture"
-tags = ["function", "nested", "closure"]
 
 python = '''
 def outer(y):
@@ -717,7 +693,6 @@ pub fn outer(y: &serde_json::Value) {
 
 [[test]]
 name = "nested_with_multiple_captures"
-tags = ["function", "nested", "closure"]
 
 python = '''
 def outer(y, z):
@@ -738,7 +713,6 @@ pub fn outer(y: &serde_json::Value, z: &serde_json::Value) {
 
 [[test]]
 name = "nested_function_with_docstring"
-tags = ["function", "nested", "docstring"]
 
 python = '''
 def outer():
@@ -759,7 +733,6 @@ pub fn outer() {
 
 [[test]]
 name = "nested_function_with_type_hints"
-tags = ["function", "nested", "types"]
 
 python = '''
 def outer():
@@ -779,7 +752,6 @@ pub fn outer() {
 
 [[test]]
 name = "mixed_positional_and_named"
-tags = ["function", "default", "arguments"]
 
 python = '''
 def greet(name: str, greeting: str = "Hello") -> str:
@@ -800,7 +772,6 @@ pub fn test() -> String {
 
 [[test]]
 name = "all_named_arguments"
-tags = ["function", "default", "kwargs"]
 
 python = '''
 def configure(width: int, height: int, title: str) -> dict:
@@ -829,7 +800,6 @@ pub fn test() -> HashMap<serde_json::Value, serde_json::Value> {
 
 [[test]]
 name = "multiple_named_after_positional"
-tags = ["function", "default", "mixed"]
 
 python = '''
 def calculate(a: int, b: int, operation: str = "add", verbose: bool = False) -> int:
@@ -875,7 +845,6 @@ mod tests {
 
 [[test]]
 name = "nested_function_calls"
-tags = ["function", "nested", "calls"]
 
 python = '''
 def inner(x: int, y: int) -> int:
@@ -932,7 +901,6 @@ mod tests {
 
 [[test]]
 name = "only_positional_args"
-tags = ["function", "arguments", "positional"]
 
 python = '''
 def add(a: int, b: int) -> int:
@@ -983,7 +951,6 @@ mod tests {
 
 [[test]]
 name = "empty_function_call"
-tags = ["function", "arguments"]
 
 python = '''
 def no_params() -> int:
@@ -1017,7 +984,6 @@ mod tests {
 
 [[test]]
 name = "reordered_arguments"
-tags = ["function", "arguments", "kwargs"]
 
 python = '''
 def format_message(name: str, age: int, city: str, country: str) -> str:
@@ -1038,7 +1004,6 @@ pub fn test() -> String {
 
 [[test]]
 name = "main_without_return_type"
-tags = ["function", "main", "return-type"]
 compile_check = true
 
 python = '''
@@ -1056,7 +1021,6 @@ pub fn main() {
 
 [[test]]
 name = "main_with_none_return_type"
-tags = ["function", "main", "return-type"]
 compile_check = true
 
 python = '''
@@ -1074,7 +1038,6 @@ pub fn main() {
 
 [[test]]
 name = "regular_function_without_return"
-tags = ["function", "return-type"]
 compile_check = true
 
 python = '''
@@ -1100,7 +1063,6 @@ pub fn main() {
 
 [[test]]
 name = "function_with_none_return"
-tags = ["function", "return-type"]
 compile_check = true
 
 python = '''
@@ -1128,7 +1090,6 @@ pub fn main() {
 
 [[test]]
 name = "mixed_return_types"
-tags = ["function", "return-type"]
 compile_check = true
 
 python = '''
@@ -1183,7 +1144,6 @@ mod tests {
 
 [[test]]
 name = "main_with_early_return"
-tags = ["function", "main", "return"]
 compile_check = true
 
 python = '''
@@ -1208,7 +1168,6 @@ pub fn main() {
 
 [[test]]
 name = "benchmark_main_pattern"
-tags = ["function", "main", "benchmark"]
 compile_check = true
 
 python = '''
@@ -1271,7 +1230,6 @@ mod tests {
 
 [[test]]
 name = "basic_reference_parameter"
-tags = ["function", "borrow", "reference"]
 compile_check = true
 
 python = '''
@@ -1312,7 +1270,6 @@ mod tests {
 
 [[test]]
 name = "multiple_reference_parameters"
-tags = ["function", "borrow", "reference"]
 compile_check = true
 
 python = '''
@@ -1361,7 +1318,6 @@ mod tests {
 
 [[test]]
 name = "string_reference_parameter"
-tags = ["function", "borrow", "string"]
 compile_check = true
 
 python = '''
@@ -1402,7 +1358,6 @@ mod tests {
 
 [[test]]
 name = "dict_reference_parameter"
-tags = ["function", "borrow", "dict"]
 compile_check = true
 
 python = '''
@@ -1439,7 +1394,6 @@ pub fn main() {
 
 [[test]]
 name = "reference_list_str"
-tags = ["function", "borrow", "list"]
 compile_check = true
 
 python = '''
@@ -1474,7 +1428,6 @@ mod tests {
 
 [[test]]
 name = "reference_set_int"
-tags = ["function", "borrow", "set"]
 compile_check = true
 
 python = '''
@@ -1505,7 +1458,6 @@ pub fn main() {
 
 [[test]]
 name = "star_args_basic"
-tags = ["function", "varargs", "star"]
 
 python = '''
 import os
@@ -1527,7 +1479,6 @@ pub fn join_paths() -> String {
 
 [[test]]
 name = "star_args_with_list"
-tags = ["function", "varargs", "list"]
 
 python = '''
 import os
@@ -1551,7 +1502,6 @@ pub fn test() -> String {
 
 [[test]]
 name = "star_args_mixed"
-tags = ["function", "varargs", "mixed"]
 
 python = '''
 import os
@@ -1573,7 +1523,6 @@ pub fn test(base: String) -> String {
 
 [[test]]
 name = "print_starred"
-tags = ["function", "varargs", "print"]
 
 python = '''
 def print_all(*items):
@@ -1594,7 +1543,6 @@ pub fn print_all() {
 [[test]]
 name = "final_return_expression_style"
 description = "Final return should use expression style, not return keyword"
-tags = ["function", "return", "idiomatic"]
 
 python = '''
 def add(a: int, b: int) -> int:
@@ -1636,7 +1584,6 @@ mod tests {
 [[test]]
 name = "early_return_preserved"
 description = "Early return in control flow should keep return keyword"
-tags = ["function", "return", "early-return"]
 
 python = '''
 def max_value(a: int, b: int) -> int:
@@ -1669,7 +1616,6 @@ mod tests {
 [[test]]
 name = "boolean_return_expression"
 description = "Boolean return should use expression style"
-tags = ["function", "return", "bool"]
 
 python = '''
 def check_positive(x: int) -> bool:
@@ -1694,7 +1640,6 @@ mod tests {
 [[test]]
 name = "pure_add_function"
 description = "Simple pure function for adding integers"
-tags = ["function", "pure", "property-based"]
 compile_check = true
 
 python = '''
@@ -1737,7 +1682,6 @@ mod tests {
 [[test]]
 name = "bubble_sort_function"
 description = "Sorting function with nested loops"
-tags = ["function", "sorting", "property-based"]
 compile_check = true
 
 python = '''
@@ -1846,7 +1790,6 @@ mod tests {
 [[test]]
 name = "abs_value_function"
 description = "Absolute value function"
-tags = ["function", "math", "property-based"]
 compile_check = true
 
 python = '''
@@ -1892,7 +1835,6 @@ mod tests {
 [[test]]
 name = "safe_divide_function"
 description = "Division with safety check for zero"
-tags = ["function", "safety", "property-based"]
 compile_check = true
 
 python = '''
@@ -1955,7 +1897,6 @@ mod tests {
 [[test]]
 name = "normalize_path_function"
 description = "Path normalization with string operations"
-tags = ["function", "string", "property-based"]
 compile_check = true
 
 python = '''
@@ -2006,7 +1947,6 @@ mod tests {
 [[test]]
 name = "email_validation_function"
 description = "Email validation with string checks"
-tags = ["function", "validation", "property-based"]
 compile_check = true
 
 python = '''
@@ -2069,7 +2009,6 @@ mod tests {
 [[test]]
 name = "find_max_function"
 description = "Find maximum element in array"
-tags = ["function", "search", "property-based"]
 compile_check = true
 
 python = '''
@@ -2131,7 +2070,6 @@ mod tests {
 [[test]]
 name = "simple_function_transpilation"
 description = "Simple function with add operation"
-tags = ["transpilation", "function", "arithmetic"]
 compile_check = true
 
 python = '''
@@ -2174,7 +2112,6 @@ mod tests {
 [[test]]
 name = "list_operations_transpilation"
 description = "List sum operation with loop"
-tags = ["transpilation", "list", "loop"]
 compile_check = true
 
 python = '''
@@ -2211,7 +2148,6 @@ mod tests {
 [[test]]
 name = "conditional_logic_transpilation"
 description = "Conditional logic with if/elif/else"
-tags = ["transpilation", "conditional"]
 compile_check = true
 
 python = '''

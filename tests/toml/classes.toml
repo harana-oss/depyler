@@ -11,7 +11,6 @@ category = "classes"
 [[test]]
 name = "class_simple_struct"
 description = "Simple class should generate Rust struct"
-tags = ["class", "struct"]
 
 python = '''
 class Point:
@@ -64,7 +63,6 @@ impl Point {
 [[test]]
 name = "class_multiple_fields"
 description = "Class with multiple typed fields"
-tags = ["class", "struct", "types"]
 
 python = '''
 class Student:
@@ -144,7 +142,6 @@ impl Student {
 [[test]]
 name = "class_empty"
 description = "Empty class with pass"
-tags = ["class", "struct"]
 
 python = '''
 class Empty:
@@ -164,7 +161,6 @@ impl Empty {
 [[test]]
 name = "class_instance_method"
 description = "Class with instance method"
-tags = ["class", "method"]
 
 python = '''
 class Rectangle:
@@ -223,7 +219,6 @@ impl Rectangle {
 [[test]]
 name = "class_method_with_params"
 description = "Instance method with additional parameters"
-tags = ["class", "method", "parameters"]
 
 python = '''
 class Calculator:
@@ -271,7 +266,6 @@ impl Calculator {
 [[test]]
 name = "class_mutating_method"
 description = "Method that mutates self"
-tags = ["class", "method", "mutability"]
 
 python = '''
 class Counter:
@@ -319,7 +313,6 @@ impl Counter {
 [[test]]
 name = "class_staticmethod"
 description = "@staticmethod decorator"
-tags = ["class", "staticmethod"]
 
 python = '''
 class MathUtils:
@@ -344,7 +337,6 @@ impl MathUtils {
 [[test]]
 name = "class_classmethod"
 description = "@classmethod decorator"
-tags = ["class", "classmethod"]
 
 python = '''
 class Factory:
@@ -369,7 +361,6 @@ impl Factory {
 [[test]]
 name = "class_property_getter"
 description = "@property decorator for getter"
-tags = ["class", "property", "getter"]
 
 python = '''
 class Circle:
@@ -418,7 +409,6 @@ impl Circle {
 [[test]]
 name = "class_property_setter"
 description = "@property.setter decorator"
-tags = ["class", "property", "setter"]
 
 python = '''
 class Circle:
@@ -474,7 +464,6 @@ impl Circle {
 [[test]]
 name = "class_instantiation"
 description = "Creating class instance"
-tags = ["class", "instantiation"]
 
 python = '''
 class Point:
@@ -535,7 +524,6 @@ pub fn create_point() -> Point {
 [[test]]
 name = "class_field_access"
 description = "Accessing instance fields"
-tags = ["class", "field-access"]
 
 python = '''
 class Point:
@@ -594,7 +582,6 @@ pub fn get_x(p: &Point) -> i32 {
 [[test]]
 name = "class_default_param"
 description = "__init__ with default parameter"
-tags = ["class", "default-param"]
 
 python = '''
 class Counter:
@@ -636,7 +623,6 @@ impl Counter {
 [[test]]
 name = "multiple_classes"
 description = "Multiple class definitions in one module"
-tags = ["class", "multiple"]
 
 python = '''
 class Point:
@@ -743,7 +729,6 @@ impl Rectangle {
 [[test]]
 name = "setattr_literal_field"
 description = "setattr with literal field name generates direct assignment"
-tags = ["setattr", "literal"]
 
 python = '''
 class Config:
@@ -792,7 +777,6 @@ pub fn set_config_value(c: &mut Config) {
 [[test]]
 name = "setattr_string_value"
 description = "setattr with string value generates to_string"
-tags = ["setattr", "string"]
 
 python = '''
 class Person:
@@ -838,7 +822,6 @@ pub fn set_name(p: &mut Person) {
 [[test]]
 name = "setattr_variable_value"
 description = "setattr with variable value"
-tags = ["setattr", "variable"]
 
 python = '''
 class Counter:
@@ -887,7 +870,6 @@ pub fn set_count(c: &mut Counter, new_count: i32) {
 [[test]]
 name = "setattr_string_variable_clones"
 description = "setattr with string variable should clone"
-tags = ["setattr", "string", "clone"]
 
 python = '''
 class Person:
@@ -933,7 +915,6 @@ pub fn set_name(p: &mut Person, new_name: String) {
 [[test]]
 name = "getattr_literal_field"
 description = "getattr with literal field name generates direct access"
-tags = ["getattr", "literal"]
 
 python = '''
 class Config:
@@ -980,7 +961,6 @@ pub fn get_config_value(c: &Config) -> i32 {
 [[test]]
 name = "getattr_with_default"
 description = "getattr with default value"
-tags = ["getattr", "default"]
 
 python = '''
 class Person:
@@ -1024,7 +1004,6 @@ pub fn get_name(p: &Person) -> String {
 [[test]]
 name = "setattr_copy_field"
 description = "setattr copying field value from getattr"
-tags = ["setattr", "getattr", "copy"]
 
 python = '''
 class State:
@@ -1084,7 +1063,6 @@ pub fn update_state(s: &mut State) {
 [[test]]
 name = "property_with_computation"
 description = "Property that computes a value from fields"
-tags = ["class", "property", "computation"]
 
 python = '''
 class Rectangle:
@@ -1144,7 +1122,6 @@ impl Rectangle {
 [[test]]
 name = "property_string_concat"
 description = "Property concatenating string fields"
-tags = ["class", "property", "string"]
 
 python = '''
 class Person:
@@ -1204,7 +1181,6 @@ impl Person {
 [[test]]
 name = "property_with_class_constant"
 description = "Property using class-level constant"
-tags = ["class", "property", "constant"]
 
 python = '''
 class Circle:
@@ -1256,7 +1232,6 @@ impl Circle {
 [[test]]
 name = "multiple_properties"
 description = "Class with multiple property decorators"
-tags = ["class", "property", "multiple"]
 
 python = '''
 class Person:
@@ -1334,7 +1309,6 @@ impl Person {
 [[test]]
 name = "property_calling_method"
 description = "Property that calls another method"
-tags = ["class", "property", "method"]
 
 python = '''
 class Calculator:
@@ -1389,7 +1363,6 @@ impl Calculator {
 [[test]]
 name = "property_with_conditional"
 description = "Property with conditional logic"
-tags = ["class", "property", "conditional"]
 
 python = '''
 class User:
@@ -1462,7 +1435,6 @@ impl User {
 [[test]]
 name = "mix_properties_and_methods"
 description = "Class mixing properties and regular methods"
-tags = ["class", "property", "method", "mix"]
 
 python = '''
 class Account:
@@ -1524,7 +1496,6 @@ impl Account {
 [[test]]
 name = "property_different_return_types"
 description = "Properties returning different types"
-tags = ["class", "property", "types"]
 
 python = '''
 class DataHolder:
@@ -1587,7 +1558,6 @@ impl DataHolder {
 [[test]]
 name = "formatting_class_with_error"
 description = "Class transpilation with error handling (rustfmt compliant)"
-tags = ["class", "formatting", "error"]
 compile_check = true
 
 python = '''
@@ -1684,7 +1654,6 @@ impl DataProcessor {
 [[test]]
 name = "formatting_generic_container"
 description = "Generic container class formatting"
-tags = ["class", "formatting", "generics"]
 compile_check = true
 
 python = '''
@@ -1739,7 +1708,6 @@ impl Container {
 [[test]]
 name = "formatting_macros"
 description = "Generated code with macros has proper formatting"
-tags = ["formatting", "macros"]
 compile_check = true
 
 python = '''
@@ -1762,7 +1730,6 @@ pub fn log_error(message: String) {
 [[test]]
 name = "formatting_impl_blocks"
 description = "Class with multiple methods generates proper impl blocks"
-tags = ["class", "formatting", "impl"]
 compile_check = true
 
 python = '''
@@ -1836,5 +1803,607 @@ impl Point {
             _ => false,
         }
     }
+}
+'''
+# =============================================================================
+# Additional examples from examples/classes/
+# =============================================================================
+
+[[test]]
+name = "basic_class_test"
+description = "Example test"
+
+python = '''
+"""Test basic class support in Depyler"""
+
+class Point:
+    """A simple 2D point class"""
+    
+    def __init__(self, x: int, y: int):
+        """Initialize a point with x and y coordinates"""
+        self.x = x
+        self.y = y
+    
+    def distance_from_origin(self) -> float:
+        """Calculate distance from origin"""
+        return (self.x * self.x + self.y * self.y) ** 0.5
+    
+    def translate(self, dx: int, dy: int):
+        """Translate the point by dx and dy"""
+        self.x = self.x + dx
+        self.y = self.y + dy
+
+
+class Rectangle:
+    """A rectangle defined by width and height"""
+    
+    def __init__(self, width: int, height: int):
+        self.width = width
+        self.height = height
+    
+    def area(self) -> int:
+        """Calculate the area of the rectangle"""
+        return self.width * self.height
+    
+    def perimeter(self) -> int:
+        """Calculate the perimeter of the rectangle"""
+        return 2 * (self.width + self.height)
+    
+    def is_square(self) -> bool:
+        """Check if the rectangle is a square"""
+        return self.width == self.height
+
+
+# Dataclass example
+from dataclasses import dataclass
+
+@dataclass
+class Person:
+    """A person with name and age"""
+    name: str
+    age: int
+    
+    def greet(self) -> str:
+        """Return a greeting message"""
+        return f"Hello, my name is {self.name}"
+    
+    def is_adult(self) -> bool:
+        """Check if person is an adult"""
+        return self.age >= 18
+
+
+def test_point():
+    """Test Point class functionality"""
+    p = Point(3, 4)
+    assert p.x == 3
+    assert p.y == 4
+    assert p.distance_from_origin() == 5.0
+    
+    p.translate(1, 1)
+    assert p.x == 4
+    assert p.y == 5
+
+
+def test_rectangle():
+    """Test Rectangle class functionality"""
+    r = Rectangle(10, 20)
+    assert r.area() == 200
+    assert r.perimeter() == 60
+    assert not r.is_square()
+    
+    square = Rectangle(15, 15)
+    assert square.is_square()
+
+
+def test_person():
+    """Test Person dataclass functionality"""
+    p = Person("Alice", 25)
+    assert p.name == "Alice"
+    assert p.age == 25
+    assert p.is_adult()
+    assert p.greet() == "Hello, my name is Alice"
+    
+    child = Person("Bob", 10)
+    assert not child.is_adult()
+'''
+
+rust = '''
+Error: Statement type not yet supported
+'''
+
+[[test]]
+name = "simple_class_test"
+description = "Example test"
+
+python = '''
+"""Test simple class support in Depyler"""
+
+class Point:
+    """A simple 2D point class"""
+    x: int
+    y: int
+    
+    def __init__(self, x: int, y: int):
+        """Initialize a point with x and y coordinates"""
+        pass
+    
+    def distance(self) -> int:
+        """Calculate distance squared"""
+        return 0
+
+
+class Rectangle:
+    """A rectangle defined by width and height"""
+    width: int
+    height: int
+    
+    def __init__(self, width: int, height: int):
+        pass
+    
+    def area(self) -> int:
+        """Calculate the area of the rectangle"""
+        return 0
+'''
+
+rust = '''
+#[derive(Debug, Clone)]
+pub struct Point {
+    pub x: i32,
+    pub y: i32,
+}
+impl Point {
+    pub fn new(x: i32, y: i32) -> Self {
+        Self { x, y }
+    }
+    pub fn distance(&self) -> i32 {
+        return 0;
+    }
+}
+#[derive(Debug, Clone)]
+pub struct Rectangle {
+    pub width: i32,
+    pub height: i32,
+}
+impl Rectangle {
+    pub fn new(width: i32, height: i32) -> Self {
+        Self { width, height }
+    }
+    pub fn area(&self) -> i32 {
+        return 0;
+    }
+}
+'''
+
+[[test]]
+name = "test_basic_class"
+description = "Example test"
+
+python = '''
+"""Basic class example for v1.2.0"""
+from dataclasses import dataclass
+
+@dataclass
+class Counter:
+    """A simple counter"""
+    value: int = 0
+    
+    def increment(self):
+        """Increment counter"""
+        self.value = self.value + 1
+    
+    def get_value(self) -> int:
+        """Get current value"""
+        return self.value
+    
+    @staticmethod
+    def create_with_value(val: int):
+        """Create counter with initial value"""
+        return Counter(val)
+
+# Test function
+def test_counter():
+    # Create counter
+    c = Counter()
+    
+    # Use instance method
+    c.increment()
+    c.increment()
+    
+    # Get value
+    val = c.get_value()
+    
+    # Use static method
+    c2 = Counter.create_with_value(10)
+    
+    return val, c2.value
+'''
+
+rust = '''
+use serde_json;
+#[doc = "// TODO: Map Python module 'dataclasses'"]
+#[derive(Debug, Clone, PartialEq)]
+pub struct Counter {}
+impl Counter {
+    pub const value: i32 = 0;
+    pub fn new() -> Self {
+        Self {}
+    }
+    pub fn increment(&mut self) {
+        self.value = self.value + 1;
+    }
+    pub fn get_value(&self) -> i32 {
+        return self.value;
+    }
+    pub fn create_with_value(val: i32) {
+        return Counter::new(val);
+    }
+}
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn test_counter() -> (serde_json::Value, serde_json::Value) {
+    let mut c = Counter::new();
+    c.increment();
+    c.increment();
+    let val = c.get_value();
+    let c2 = Counter::create_with_value(10);
+    (val, c2.value)
+}
+'''
+
+[[test]]
+name = "test_class_methods"
+description = "Example test"
+
+python = '''
+"""Test class with various method types for v1.2.0"""
+
+class Calculator:
+    """A simple calculator class demonstrating method types"""
+    
+    def __init__(self, initial_value: int = 0):
+        """Initialize calculator with a value"""
+        self.value = initial_value
+        self.history = []
+    
+    def add(self, x: int) -> int:
+        """Add to current value (instance method)"""
+        self.value += x
+        self.history.append(f"add({x})")
+        return self.value
+    
+    def multiply(self, x: int) -> int:
+        """Multiply current value (instance method)"""
+        self.value *= x
+        self.history.append(f"multiply({x})")
+        return self.value
+    
+    @staticmethod
+    def square(x: int) -> int:
+        """Square a number (static method)"""
+        return x * x
+    
+    @classmethod
+    def from_string(cls, s: str):
+        """Create calculator from string (class method)"""
+        return cls(int(s))
+    
+    @property
+    def current(self) -> int:
+        """Get current value (property)"""
+        return self.value
+    
+    def get_history(self) -> list[str]:
+        """Get operation history"""
+        return self.history.copy()
+
+# Test usage
+def test_calculator():
+    # Create instance
+    calc = Calculator(10)
+    
+    # Instance methods
+    result1 = calc.add(5)
+    result2 = calc.multiply(2)
+    
+    # Static method
+    squared = Calculator.square(4)
+    
+    # Property access
+    current = calc.current
+    
+    # Get history
+    history = calc.get_history()
+    
+    return result1, result2, squared, current, history
+'''
+
+rust = '''
+Profiling Report
+══════════════════════════════════════════════════
+
+Summary
+  Total estimated instructions: 24
+  Total estimated allocations: 0
+  Functions analyzed: 1
+
+Hot Paths
+  [1] test_calculator (100.0% of execution time)
+
+Function Metrics
+🔥 test_calculator                 100.0% time |     24 inst |    0 alloc
+
+Performance Predictions
+  • Rust's memory layout is more cache-friendly than Python (1.3x speedup, 70% confidence)
+
+🚀 Estimated overall speedup: 1.3x
+
+Error: Expression type not yet supported: FString { parts: [Literal("add("), Expr(Var("x")), Literal(")")] }
+'''
+
+[[test]]
+name = "test_dataclass"
+description = "Example test"
+
+python = '''
+"""Dataclass example for v1.2.0"""
+from dataclasses import dataclass
+
+@dataclass
+class Point:
+    """A 2D point dataclass"""
+    x: int
+    y: int
+    
+    def move_by(self, dx: int, dy: int):
+        """Move point by delta"""
+        self.x += dx
+        self.y += dy
+    
+    def distance_to(self, other) -> float:
+        """Calculate distance to another point"""
+        dx = self.x - other.x
+        dy = self.y - other.y
+        return (dx * dx + dy * dy) ** 0.5
+    
+    @staticmethod
+    def origin():
+        """Create a point at origin"""
+        return Point(0, 0)
+    
+    @classmethod
+    def from_tuple(cls, coords: tuple[int, int]):
+        """Create from tuple"""
+        return cls(coords[0], coords[1])
+    
+    @property
+    def magnitude(self) -> float:
+        """Distance from origin"""
+        return (self.x * self.x + self.y * self.y) ** 0.5
+
+# Test function
+def test_point():
+    # Create points
+    p1 = Point(0, 0)
+    p2 = Point(3, 4)
+    
+    # Instance method
+    p1.move_by(1, 1)
+    
+    # Static method
+    origin = Point.origin()
+    
+    # Class method
+    p3 = Point.from_tuple((5, 5))
+    
+    # Property access
+    mag = p2.magnitude
+    
+    # Calculate distance
+    dist = p1.distance_to(p2)
+    
+    return dist, mag
+'''
+
+rust = '''
+use serde_json;
+#[doc = "// TODO: Map Python module 'dataclasses'"]
+#[derive(Debug, Clone, PartialEq)]
+pub struct Point {
+    pub x: i32,
+    pub y: i32,
+}
+impl Point {
+    pub fn new(x: i32, y: i32) -> Self {
+        Self { x, y }
+    }
+    pub fn move_by(&mut self, dx: i32, dy: i32) {
+        self.x = self.x + dx;
+        self.y = self.y + dy;
+    }
+    pub fn distance_to(&self, other: serde_json::Value) -> f64 {
+        let mut dx = self.x - other.x;
+        let mut dy = self.y - other.y;
+        return (dx * dx + dy * dy as f64).powf(0.5 as f64);
+    }
+    pub fn origin() {
+        return Point::new(0, 0);
+    }
+    pub fn from_tuple(coords: (i32, i32)) {
+        return Self::new(coords[0 as usize], coords[1 as usize]);
+    }
+    pub fn magnitude(&self) -> f64 {
+        return (self.x * self.x + self.y * self.y as f64).powf(0.5 as f64);
+    }
+}
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn test_point() -> (serde_json::Value, serde_json::Value) {
+    let mut p1 = Point::new(0, 0);
+    let p2 = Point::new(3, 4);
+    p1.move_by(1, 1);
+    let origin = Point::origin();
+    let p3 = Point::from_tuple((5, 5));
+    let mag = p2.magnitude;
+    let dist = p1.distance_to(p2);
+    (dist, mag)
+}
+'''
+
+[[test]]
+name = "test_property"
+description = "Example test"
+
+python = '''
+"""Test property decorator support"""
+
+class Point:
+    def __init__(self, x: int, y: int):
+        self.x = x
+        self.y = y
+    
+    @property
+    def magnitude(self) -> int:
+        """Get the magnitude of the point"""
+        return self.x * self.x + self.y * self.y
+
+def test_property():
+    p = Point(3, 4)
+    m = p.magnitude
+    return m
+'''
+
+rust = '''
+#[derive(Debug, Clone)]
+pub struct Point {
+    pub x: i32,
+    pub y: i32,
+}
+impl Point {
+    pub fn new(x: i32, y: i32) -> Self {
+        Self { x, y }
+    }
+    pub fn magnitude(&self) -> i32 {
+        return self.x * self.x + self.y * self.y;
+    }
+}
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn test_property() -> i32 {
+    let p = Point::new(3, 4);
+    let m = p.magnitude;
+    m
+}
+'''
+
+[[test]]
+name = "test_simple_class"
+description = "Example test"
+
+python = '''
+"""Simple class example for v1.2.0"""
+
+class Point:
+    """A 2D point class"""
+    
+    def __init__(self, x: int, y: int):
+        self.x = x
+        self.y = y
+    
+    def move_by(self, dx: int, dy: int):
+        """Move point by delta"""
+        self.x += dx
+        self.y += dy
+    
+    def distance_to(self, other) -> float:
+        """Calculate distance to another point"""
+        dx = self.x - other.x
+        dy = self.y - other.y
+        return (dx * dx + dy * dy) ** 0.5
+
+# Test function
+def test_point():
+    p1 = Point(0, 0)
+    p2 = Point(3, 4)
+    
+    # Move first point
+    p1.move_by(1, 1)
+    
+    # Calculate distance
+    dist = p1.distance_to(p2)
+    
+    return dist
+'''
+
+rust = '''
+use serde_json;
+#[derive(Debug, Clone)]
+pub struct Point {
+    pub x: i32,
+    pub y: i32,
+}
+impl Point {
+    pub fn new(x: i32, y: i32) -> Self {
+        Self { x, y }
+    }
+    pub fn move_by(&mut self, dx: i32, dy: i32) {
+        self.x = self.x + dx;
+        self.y = self.y + dy;
+    }
+    pub fn distance_to(&self, other: serde_json::Value) -> f64 {
+        let mut dx = self.x - other.x;
+        let mut dy = self.y - other.y;
+        return (dx * dx + dy * dy as f64).powf(0.5 as f64);
+    }
+}
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn test_point() -> i32 {
+    let mut p1 = Point::new(0, 0);
+    let p2 = Point::new(3, 4);
+    p1.move_by(1, 1);
+    let dist = p1.distance_to(p2);
+    dist
+}
+'''
+
+[[test]]
+name = "test_simple_method"
+description = "Example test"
+
+python = '''
+"""Test simple method call"""
+
+class Counter:
+    def __init__(self, n: int):
+        self.count = n
+    
+    def increment(self):
+        self.count += 1
+
+def test_counter():
+    c = Counter(0)
+    c.increment()
+    return c.count
+'''
+
+rust = '''
+#[derive(Debug, Clone)]
+pub struct Counter {
+    pub count: i32,
+}
+impl Counter {
+    pub fn new(n: i32) -> Self {
+        Self { count: 0 }
+    }
+    pub fn increment(&mut self) {
+        self.count = self.count + 1;
+    }
+}
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn test_counter() -> i32 {
+    let mut c = Counter::new(0);
+    c.increment();
+    c.count
 }
 '''

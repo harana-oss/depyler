@@ -12,7 +12,6 @@ category = "decorators-closures"
 [[test]]
 name = "decorator_basic"
 description = "@decorator def f(): ..."
-tags = ["decorators", "basic"]
 
 python = '''
 def identity(f):
@@ -41,7 +40,6 @@ let result = greet();
 [[test]]
 name = "decorator_wrapper"
 description = "def decorator(f): def wrapper(): return f() return wrapper"
-tags = ["decorators", "wrapper"]
 
 python = '''
 def decorator(f):
@@ -73,7 +71,6 @@ let result = greet();
 [[test]]
 name = "decorator_call"
 description = "Calling decorated function"
-tags = ["decorators", "call"]
 
 python = '''
 def add_prefix(f):
@@ -109,7 +106,6 @@ let result = message();
 [[test]]
 name = "decorator_stacked"
 description = "@a @b @c def f(): ... equivalent to a(b(c(f)))"
-tags = ["decorators", "stacking"]
 
 python = '''
 def add_a(f):
@@ -163,7 +159,6 @@ let result = func();
 [[test]]
 name = "decorator_order"
 description = "Bottom decorator applied first"
-tags = ["decorators", "order"]
 
 python = '''
 def add_1(f):
@@ -206,7 +201,6 @@ let result = message();
 [[test]]
 name = "decorator_three"
 description = "Multiple decorator application"
-tags = ["decorators", "multiple"]
 
 python = '''
 def upper(f):
@@ -267,7 +261,6 @@ let result = word();
 [[test]]
 name = "decorator_logging"
 description = "Log function calls"
-tags = ["decorators", "logging"]
 
 python = '''
 log = []
@@ -316,7 +309,6 @@ let log_result = log.borrow().clone();
 [[test]]
 name = "decorator_timing"
 description = "Measure execution time"
-tags = ["decorators", "timing"]
 
 python = '''
 import time
@@ -360,7 +352,6 @@ let result = slow_function();
 [[test]]
 name = "decorator_validation"
 description = "Validate arguments"
-tags = ["decorators", "validation"]
 
 python = '''
 def validate_positive(f):
@@ -400,7 +391,6 @@ let result = square(5).unwrap();
 [[test]]
 name = "decorator_retry"
 description = "Retry on failure"
-tags = ["decorators", "retry"]
 
 python = '''
 attempts = []
@@ -476,7 +466,6 @@ let result = unreliable().unwrap();
 [[test]]
 name = "decorator_args_kwargs"
 description = "def wrapper(*args, **kwargs): return f(*args, **kwargs)"
-tags = ["decorators", "args"]
 
 python = '''
 def passthrough(f):
@@ -508,7 +497,6 @@ let result = add(3, 5);
 [[test]]
 name = "decorator_return"
 description = "Return decorated function's result"
-tags = ["decorators", "return"]
 
 python = '''
 def decorator(f):
@@ -544,7 +532,6 @@ let result = get_value();
 [[test]]
 name = "decorator_exception"
 description = "Exceptions propagate through wrapper"
-tags = ["decorators", "exception"]
 
 python = '''
 def decorator(f):
@@ -586,7 +573,6 @@ let result = match failing() {
 [[test]]
 name = "decorator_method"
 description = "@decorator def method(self): ..."
-tags = ["decorators", "method"]
 
 python = '''
 def add_prefix(f):
@@ -628,7 +614,6 @@ let result = obj.greet();
 [[test]]
 name = "decorator_self"
 description = "Wrapper receives self correctly"
-tags = ["decorators", "self"]
 
 python = '''
 def add_name(f):
@@ -683,7 +668,6 @@ let result = person.greet();
 [[test]]
 name = "decorator_return_none"
 description = "Decorator not returning function"
-tags = ["decorators", "edge-case"]
 skip = true
 
 python = '''
@@ -709,7 +693,6 @@ rust = '''
 [[test]]
 name = "decorator_no_wrap"
 description = "def decorator(f): return f"
-tags = ["decorators", "passthrough"]
 
 python = '''
 def no_op_decorator(f):
@@ -738,7 +721,6 @@ let result = greet();
 [[test]]
 name = "decorator_lambda"
 description = "@decorator applied to lambda"
-tags = ["decorators", "lambda"]
 skip = true
 
 python = '''
@@ -765,7 +747,6 @@ let result = add_two(5);
 [[test]]
 name = "decorator_recursive"
 description = "Recursive function with decorator"
-tags = ["decorators", "recursive"]
 
 python = '''
 call_count = []
@@ -810,4 +791,117 @@ fn factorial(n: i32) -> i32 {
 let call_count: Rc<RefCell<Vec<i32>>> = Rc::new(RefCell::new(Vec::new()));
 let result = factorial(5);
 let total_calls = call_count.borrow().len() as i32;
+'''
+
+# =============================================================================
+# Additional examples from examples/decorators/
+# =============================================================================
+
+[[test]]
+name = "test_function_decorators"
+description = "Example test"
+
+python = '''
+"""Test function decorators for v1.3.0"""
+
+def timing_decorator(func):
+    """A simple timing decorator"""
+    def wrapper(*args, **kwargs):
+        # In real code, would time the function
+        result = func(*args, **kwargs)
+        return result
+    return wrapper
+
+def logging_decorator(func):
+    """A simple logging decorator"""
+    def wrapper(*args, **kwargs):
+        # In real code, would log the call
+        result = func(*args, **kwargs) 
+        return result
+    return wrapper
+
+@timing_decorator
+def slow_function(n: int) -> int:
+    """A function that would be slow"""
+    total = 0
+    for i in range(n):
+        total += i
+    return total
+
+@logging_decorator
+@timing_decorator
+def important_calculation(x: int, y: int) -> int:
+    """A function with stacked decorators"""
+    return x * y + x + y
+
+# Parameterized decorator
+def repeat(times: int):
+    """Decorator that repeats function call"""
+    def decorator(func):
+        def wrapper(*args, **kwargs):
+            result = None
+            for _ in range(times):
+                result = func(*args, **kwargs)
+            return result
+        return wrapper
+    return decorator
+
+@repeat(3)
+def greet(name: str) -> str:
+    """Function that will be called 3 times"""
+    return f"Hello, {name}!"
+
+def test_decorators():
+    """Test decorated functions"""
+    result1 = slow_function(100)
+    result2 = important_calculation(5, 10)
+    result3 = greet("World")
+    
+    return result1 + result2
+'''
+
+rust = '''
+Error: Statement type not yet supported
+'''
+
+[[test]]
+name = "test_simple_decorator"
+description = "Example test"
+
+python = '''
+"""Test simple decorator support"""
+
+def simple_function(x: int) -> int:
+    """A simple function without decorators"""
+    return x * 2
+
+def test_no_decorator():
+    result = simple_function(5)
+    return result
+'''
+
+rust = '''
+#[doc = "A simple function without decorators"]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn simple_function(x: i32) -> i32 {
+    x * 2
+}
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn test_no_decorator() -> i32 {
+    let result = simple_function(5);
+    result
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{quickcheck, TestResult};
+    #[test]
+    fn test_simple_function_examples() {
+        assert_eq!(simple_function(0), 0);
+        assert_eq!(simple_function(1), 1);
+        assert_eq!(simple_function(-1), -1);
+    }
+}
 '''

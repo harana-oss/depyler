@@ -13,7 +13,6 @@ description = "Tests for return statement code generation semantics"
 [[test]]
 name = "simple_return_value"
 description = "Basic return with value (non-Optional, non-Result)"
-tags = ["return", "simple"]
 
 python = '''
 def get_value() -> int:
@@ -38,7 +37,6 @@ mod tests {
 [[test]]
 name = "early_return"
 description = "Early return with return keyword preserved"
-tags = ["return", "early"]
 
 python = '''
 def check_value(x: int) -> int:
@@ -71,7 +69,6 @@ mod tests {
 [[test]]
 name = "final_vs_early_return"
 description = "Final return (no keyword) vs early return (with keyword)"
-tags = ["return", "idiomatic"]
 
 python = '''
 def max_value(a: int, b: int) -> int:
@@ -104,7 +101,6 @@ mod tests {
 [[test]]
 name = "optional_return_some"
 description = "Optional return with Some() wrapping for non-None value"
-tags = ["return", "optional", "some"]
 
 python = '''
 def find_value(items: list[int], target: int) -> int | None:
@@ -128,7 +124,6 @@ pub fn find_value(items: &Vec<i32>, target: i32) -> Option<i32> {
 [[test]]
 name = "optional_return_none"
 description = "Optional return with None literal (not Some(None))"
-tags = ["return", "optional", "none"]
 
 python = '''
 def maybe_value(condition: bool) -> int | None:
@@ -149,7 +144,6 @@ pub fn maybe_value(condition: bool) -> Option<i32> {
 [[test]]
 name = "optional_early_return_some"
 description = "Optional with early return - return Some()"
-tags = ["return", "optional", "early"]
 
 python = '''
 def first_positive(items: list[int]) -> int | None:
@@ -173,7 +167,6 @@ pub fn first_positive(items: &Vec<i32>) -> Option<i32> {
 [[test]]
 name = "optional_early_return_none"
 description = "Optional with early None - return None"
-tags = ["return", "optional", "early", "none"]
 
 python = '''
 def find_or_none(items: list[int], target: int) -> int | None:
@@ -214,7 +207,6 @@ pub fn find_or_none(items: &Vec<i32>, target: i32) -> Option<i32> {
 [[test]]
 name = "empty_optional_function"
 description = "Empty Optional function returns None"
-tags = ["return", "optional", "empty"]
 
 python = '''
 def empty_optional() -> int | None:
@@ -230,7 +222,6 @@ pub fn empty_optional() -> Option<i32> {
 [[test]]
 name = "result_return_ok"
 description = "Result return with Ok() wrapping for can-fail function"
-tags = ["return", "result", "ok"]
 
 python = '''
 def divide(a: int, b: int) -> int:
@@ -298,7 +289,6 @@ mod tests {
 [[test]]
 name = "result_early_return"
 description = "Can-fail with early return = return Ok()"
-tags = ["return", "result", "early"]
 
 python = '''
 def safe_divide(a: int, b: int) -> int:
@@ -372,7 +362,6 @@ mod tests {
 [[test]]
 name = "result_optional_return_some"
 description = "Result + Optional return with Ok(Some()) wrapping"
-tags = ["return", "result", "optional", "some"]
 
 python = '''
 def safe_find(items: list[int], target: int) -> int | None:
@@ -420,7 +409,6 @@ pub fn safe_find(items: &Vec<i32>, target: i32) -> Option<i32> {
 [[test]]
 name = "result_optional_return_none"
 description = "Result + Optional return with Ok(None) for None literal"
-tags = ["return", "result", "optional", "none"]
 
 python = '''
 def validate_and_find(items: list[int]) -> int | None:
@@ -461,7 +449,6 @@ pub fn validate_and_find(items: &Vec<i32>) -> Option<i32> {
 [[test]]
 name = "result_optional_early_return_some"
 description = "Can-fail + Optional + early = return Ok(Some())"
-tags = ["return", "result", "optional", "early"]
 
 python = '''
 def find_positive(items: list[int]) -> int | None:
@@ -509,7 +496,6 @@ pub fn find_positive(items: &Vec<i32>) -> Option<i32> {
 [[test]]
 name = "result_optional_early_return_none"
 description = "Can-fail + Optional + early None = return Ok(None)"
-tags = ["return", "result", "optional", "early", "none"]
 
 python = '''
 def validate_and_search(items: list[int], target: int) -> int | None:
@@ -573,7 +559,6 @@ pub fn validate_and_search(items: &Vec<i32>, target: i32) -> Option<i32> {
 [[test]]
 name = "empty_return_non_failing"
 description = "Bare return or empty in non-failing function"
-tags = ["return", "empty", "unit"]
 
 python = '''
 def do_something():
@@ -591,7 +576,6 @@ pub fn do_something() {
 [[test]]
 name = "empty_return_can_fail"
 description = "Ok(()) for empty return in can-fail function"
-tags = ["return", "empty", "result"]
 
 python = '''
 def validate(x: int):
@@ -631,7 +615,6 @@ pub fn validate(x: i32) {
 [[test]]
 name = "empty_return_can_fail_optional"
 description = "Ok(None) for empty return with Optional in can-fail"
-tags = ["return", "empty", "result", "optional"]
 
 python = '''
 def find_if_valid(items: list[int]) -> int | None:
@@ -672,7 +655,6 @@ pub fn find_if_valid(items: &Vec<i32>) -> Option<i32> {
 [[test]]
 name = "type_conversion_len_to_int"
 description = "Type conversion on return (usize → i32)"
-tags = ["return", "type", "conversion"]
 
 python = '''
 def count_items(items: list[int]) -> int:
@@ -699,7 +681,6 @@ mod tests {
 [[test]]
 name = "multiple_early_returns"
 description = "Multiple early returns with different wrapping"
-tags = ["return", "multiple", "optional"]
 
 python = '''
 def categorize(x: int) -> str | None:
@@ -733,7 +714,6 @@ pub fn categorize(x: i32) -> Option<String> {
 [[test]]
 name = "nested_optional_returns"
 description = "Deep nesting doesn't break wrapping"
-tags = ["return", "nested", "optional"]
 
 python = '''
 def nested_search(matrix: list[list[int]], target: int) -> int | None:
@@ -760,7 +740,6 @@ pub fn nested_search(matrix: &Vec<Vec<i32>>, target: i32) -> Option<i32> {
 [[test]]
 name = "complex_return_patterns"
 description = "Complex function with all return patterns"
-tags = ["return", "complex", "integration"]
 
 python = '''
 def complex_logic(items: list[int], threshold: int) -> int | None:

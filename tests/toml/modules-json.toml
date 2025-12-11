@@ -11,7 +11,6 @@ category = "stdlib-json"
 [[test]]
 name = "json_dumps"
 description = "json.dumps() serialization"
-tags = ["json", "serialize"]
 
 python = '''
 import json
@@ -32,7 +31,6 @@ pub fn serialize_data(data: &HashMap<serde_json::Value, serde_json::Value>) -> S
 [[test]]
 name = "json_dumps_indent"
 description = "json.dumps() with indentation"
-tags = ["json", "serialize", "pretty"]
 
 python = '''
 import json
@@ -53,7 +51,6 @@ pub fn pretty_json(data: &HashMap<serde_json::Value, serde_json::Value>) -> Stri
 [[test]]
 name = "json_loads"
 description = "json.loads() deserialization"
-tags = ["json", "deserialize"]
 
 python = '''
 import json
@@ -74,7 +71,6 @@ pub fn deserialize_data(s: String) -> HashMap<serde_json::Value, serde_json::Val
 [[test]]
 name = "json_list"
 description = "JSON with list data"
-tags = ["json", "list"]
 
 python = '''
 import json
@@ -94,7 +90,6 @@ pub fn parse_array(s: String) -> Vec<serde_json::Value> {
 [[test]]
 name = "json_nested"
 description = "JSON with nested structure"
-tags = ["json", "nested"]
 
 python = '''
 import json
@@ -134,7 +129,6 @@ pub fn get_nested_value(s: String, key1: String, key2: String) {
 [[test]]
 name = "json_get_string"
 description = "Get string from JSON"
-tags = ["json", "access"]
 
 python = '''
 import json
@@ -174,7 +168,6 @@ pub fn get_name(s: String) -> String {
 [[test]]
 name = "json_get_number"
 description = "Get number from JSON"
-tags = ["json", "access"]
 
 python = '''
 import json
@@ -225,7 +218,6 @@ mod tests {
 [[test]]
 name = "json_build_dict"
 description = "Build JSON from dict"
-tags = ["json", "build"]
 
 python = '''
 import json
@@ -253,7 +245,6 @@ pub fn create_json(name: String, age: i32) -> String {
 [[test]]
 name = "json_build_list"
 description = "Build JSON array"
-tags = ["json", "build"]
 
 python = '''
 import json

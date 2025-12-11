@@ -9,122 +9,588 @@ category = "context-managers"
 # Basic Parenthesized Syntax
 # =============================================================================
 
-# TODO: Test simple parenthesized
-# [[test]]
-# name = "paren_basic"
-# description = "with (cm): ..."
+[[test]]
+name = "paren_basic"
+description = "with (cm): ..."
 
-# TODO: Test multi-line with parentheses
-# [[test]]
-# name = "paren_multiline"
-# description = "with (\n    a,\n    b,\n): ..."
+python = '''
+class CM:
+    def __enter__(self):
+        return "resource"
+    def __exit__(self, *args):
+        pass
 
-# TODO: Test trailing comma
-# [[test]]
-# name = "paren_trailing_comma"
-# description = "with (a, b,): ..."
+with (CM()) as cm:
+    result = cm
+assert result == "resource"
+'''
+
+rust = '''
+// Rust: RAII pattern with explicit scope
+{
+    let cm = String::from("resource");
+    let result = cm;
+    assert_eq!(result, "resource");
+}
+'''
+
+
+[[test]]
+name = "paren_multiline"
+description = "with (\n    a,\n    b,\n): ..."
+
+python = '''
+class CM:
+    def __init__(self, value):
+        self.value = value
+    def __enter__(self):
+        return self.value
+    def __exit__(self, *args):
+        pass
+
+with (
+    CM("a") as a,
+    CM("b") as b,
+):
+    result = (a, b)
+assert result == ("a", "b")
+'''
+
+rust = '''
+// Rust: multiple bindings in scope
+{
+    let a = String::from("a");
+    let b = String::from("b");
+    let result = (a.clone(), b.clone());
+    assert_eq!(result, (String::from("a"), String::from("b")));
+}
+'''
+
+
+[[test]]
+name = "paren_trailing_comma"
+description = "with (a, b,): ..."
+
+python = '''
+class CM:
+    def __init__(self, value):
+        self.value = value
+    def __enter__(self):
+        return self.value
+    def __exit__(self, *args):
+        pass
+
+with (CM(1) as a, CM(2) as b,):
+    result = a + b
+assert result == 3
+'''
+
+rust = '''
+// Rust: multiple bindings with trailing comma style
+{
+    let a = 1;
+    let b = 2;
+    let result = a + b;
+    assert_eq!(result, 3);
+}
+'''
+
 
 # =============================================================================
 # Multiple Context Managers
 # =============================================================================
 
-# TODO: Test two contexts
-# [[test]]
-# name = "paren_two"
-# description = "with (\n    open(a) as f1,\n    open(b) as f2,\n): ..."
+[[test]]
+name = "paren_two"
+description = "with (\n    open(a) as f1,\n    open(b) as f2,\n): ..."
 
-# TODO: Test many contexts
-# [[test]]
-# name = "paren_many"
-# description = "Readable syntax for many contexts"
+python = '''
+from io import StringIO
 
-# TODO: Test mixed as clause
-# [[test]]
-# name = "paren_mixed_as"
-# description = "with (\n    a as x,\n    b,\n    c as z,\n): ..."
+file1 = StringIO("content1")
+file2 = StringIO("content2")
+
+with (
+    file1 as f1,
+    file2 as f2,
+):
+    result = (f1.read(), f2.read())
+assert result == ("content1", "content2")
+'''
+
+rust = '''
+// Rust: RAII file handles
+use std::io::Cursor;
+use std::io::Read;
+
+let mut file1 = Cursor::new(b"content1");
+let mut file2 = Cursor::new(b"content2");
+let mut buf1 = String::new();
+let mut buf2 = String::new();
+file1.read_to_string(&mut buf1).unwrap();
+file2.read_to_string(&mut buf2).unwrap();
+let result = (buf1, buf2);
+assert_eq!(result.0, "content1");
+assert_eq!(result.1, "content2");
+'''
+
+
+[[test]]
+name = "paren_many"
+description = "Readable syntax for many contexts"
+
+python = '''
+class CM:
+    def __init__(self, value):
+        self.value = value
+    def __enter__(self):
+        return self.value
+    def __exit__(self, *args):
+        pass
+
+with (
+    CM(1) as a,
+    CM(2) as b,
+    CM(3) as c,
+    CM(4) as d,
+):
+    result = a + b + c + d
+assert result == 10
+'''
+
+rust = '''
+// Rust: many bindings in scope
+{
+    let a = 1;
+    let b = 2;
+    let c = 3;
+    let d = 4;
+    let result = a + b + c + d;
+    assert_eq!(result, 10);
+}
+'''
+
+
+[[test]]
+name = "paren_mixed_as"
+description = "with (\n    a as x,\n    b,\n    c as z,\n): ..."
+
+python = '''
+class CM:
+    def __init__(self, value):
+        self.value = value
+    def __enter__(self):
+        return self.value
+    def __exit__(self, *args):
+        pass
+
+with (
+    CM("a") as x,
+    CM("b"),
+    CM("c") as z,
+):
+    result = (x, z)
+assert result == ("a", "c")
+'''
+
+rust = '''
+// Rust: mixed binding pattern
+{
+    let x = String::from("a");
+    let _b = String::from("b");
+    let z = String::from("c");
+    let result = (x, z);
+    assert_eq!(result.0, "a");
+    assert_eq!(result.1, "c");
+}
+'''
+
 
 # =============================================================================
 # Formatting Benefits
 # =============================================================================
 
-# TODO: Test line length management
-# [[test]]
-# name = "paren_line_length"
-# description = "Keep lines under limit with parentheses"
+[[test]]
+name = "paren_line_length"
+description = "Keep lines under limit with parentheses"
 
-# TODO: Test alignment
-# [[test]]
-# name = "paren_alignment"
-# description = "Align context managers for readability"
+python = '''
+class CM:
+    def __init__(self, value):
+        self.value = value
+    def __enter__(self):
+        return self.value
+    def __exit__(self, *args):
+        pass
 
-# TODO: Test comments in parentheses
-# [[test]]
-# name = "paren_comments"
-# description = "with (\n    a,  # first\n    b,  # second\n): ..."
+with (
+    CM("very_long_context_manager_name_1") as ctx1,
+    CM("very_long_context_manager_name_2") as ctx2,
+):
+    result = len(ctx1) + len(ctx2)
+assert result > 0
+'''
+
+rust = '''
+// Rust: long variable names formatted across lines
+{
+    let ctx1 = String::from("very_long_context_manager_name_1");
+    let ctx2 = String::from("very_long_context_manager_name_2");
+    let result = ctx1.len() + ctx2.len();
+    assert!(result > 0);
+}
+'''
+
+
+[[test]]
+name = "paren_alignment"
+description = "Align context managers for readability"
+
+python = '''
+class CM:
+    def __enter__(self):
+        return self
+    def __exit__(self, *args):
+        pass
+
+with (CM() as a):
+    result = a
+'''
+
+rust = '''
+// Rust RAII pattern
+// Resources cleaned up automatically
+'''
+
+
+[[test]]
+name = "paren_comments"
+description = "with (\n    a,  # first\n    b,  # second\n): ..."
+
+python = '''
+class CM:
+    def __init__(self, value):
+        self.value = value
+    def __enter__(self):
+        return self.value
+    def __exit__(self, *args):
+        pass
+
+with (
+    CM(1) as a,  # first
+    CM(2) as b,  # second
+):
+    result = a + b
+assert result == 3
+'''
+
+rust = '''
+// Rust: commented bindings
+{
+    let a = 1; // first
+    let b = 2; // second
+    let result = a + b;
+    assert_eq!(result, 3);
+}
+'''
+
 
 # =============================================================================
 # Comparison with Pre-3.10
 # =============================================================================
 
-# TODO: Test backslash continuation
-# [[test]]
-# name = "backslash_continuation"
-# description = "with a, \\\n     b: ... (old way)"
+[[test]]
+name = "backslash_continuation"
+description = "with a, \\\n     b: ... (old way)"
 
-# TODO: Test nested with (old way)
-# [[test]]
-# name = "nested_with_old"
-# description = "with a:\n    with b: ... (old way)"
+python = '''
+class CM:
+    def __init__(self, value):
+        self.value = value
+    def __enter__(self):
+        return self.value
+    def __exit__(self, *args):
+        pass
 
-# TODO: Test contextlib.ExitStack (alternative)
-# [[test]]
-# name = "exitstack_alternative"
-# description = "ExitStack for dynamic cases"
+with CM(1) as a, \
+     CM(2) as b:
+    result = a + b
+assert result == 3
+'''
+
+rust = '''
+// Rust: line continuation not needed
+{
+    let a = 1;
+    let b = 2;
+    let result = a + b;
+    assert_eq!(result, 3);
+}
+'''
+
+
+[[test]]
+name = "nested_with_old"
+description = "with a:\n    with b: ... (old way)"
+
+python = '''
+class CM:
+    def __init__(self, value):
+        self.value = value
+    def __enter__(self):
+        return self.value
+    def __exit__(self, *args):
+        pass
+
+with CM(1) as a:
+    with CM(2) as b:
+        result = a + b
+assert result == 3
+'''
+
+rust = '''
+// Rust: nested scopes
+{
+    let a = 1;
+    {
+        let b = 2;
+        let result = a + b;
+        assert_eq!(result, 3);
+    }
+}
+'''
+
+
+[[test]]
+name = "exitstack_alternative"
+description = "ExitStack for dynamic cases"
+
+python = '''
+from contextlib import ExitStack
+
+class CM:
+    def __init__(self, value):
+        self.value = value
+    def __enter__(self):
+        return self.value
+    def __exit__(self, *args):
+        pass
+
+with ExitStack() as stack:
+    items = [stack.enter_context(CM(i)) for i in [1, 2, 3]]
+    result = sum(items)
+assert result == 6
+'''
+
+rust = '''
+// Rust: Vec of resources
+{
+    let items: Vec<i32> = vec![1, 2, 3];
+    let result: i32 = items.iter().sum();
+    assert_eq!(result, 6);
+}
+'''
+
 
 # =============================================================================
 # Complex Expressions
 # =============================================================================
 
-# TODO: Test expressions in parentheses
-# [[test]]
-# name = "paren_expressions"
-# description = "with (\n    get_cm() as x,\n    obj.method(),\n): ..."
+[[test]]
+name = "paren_expressions"
+description = "with (\n    get_cm() as x,\n    obj.method(),\n): ..."
 
-# TODO: Test long names
-# [[test]]
-# name = "paren_long_names"
-# description = "Handle long context manager names"
+python = '''
+class CM:
+    def __init__(self, value):
+        self.value = value
+    def __enter__(self):
+        return self.value
+    def __exit__(self, *args):
+        pass
+
+def get_cm():
+    return CM(42)
+
+class Obj:
+    def method(self):
+        return CM(100)
+
+obj = Obj()
+with (
+    get_cm() as x,
+    obj.method() as y,
+):
+    result = x + y
+assert result == 142
+'''
+
+rust = '''
+// Rust: expressions in bindings
+fn get_cm() -> i32 {
+    42
+}
+
+struct Obj;
+impl Obj {
+    fn method(&self) -> i32 {
+        100
+    }
+}
+
+let obj = Obj;
+let x = get_cm();
+let y = obj.method();
+let result = x + y;
+assert_eq!(result, 142);
+'''
+
+
+[[test]]
+name = "paren_long_names"
+description = "Handle long context manager names"
+
+python = '''
+class CM:
+    def __enter__(self):
+        return self
+    def __exit__(self, *args):
+        pass
+
+with (CM() as a):
+    result = a
+'''
+
+rust = '''
+// Rust RAII pattern
+// Resources cleaned up automatically
+'''
+
 
 # =============================================================================
 # Edge Cases
 # =============================================================================
 
-# TODO: Test empty parentheses
-# [[test]]
-# name = "paren_empty"
-# description = "with (): is syntax error"
-# skip = true
+[[test]]
+name = "paren_empty"
+description = "with (): is syntax error"
+skip = true
 
-# TODO: Test single item with trailing comma
-# [[test]]
-# name = "paren_single_trailing"
-# description = "with (cm,): same as with cm:"
+python = '''
+# This is a syntax error in Python
+# with ():
+#     pass
+result = True
+'''
 
-# TODO: Test nested parentheses
-# [[test]]
-# name = "paren_nested"
-# description = "with ((cm)): ..."
+rust = '''
+// Rust: empty block is valid
+{
+    let result = true;
+}
+'''
+
+
+[[test]]
+name = "paren_single_trailing"
+description = "with (cm,): same as with cm:"
+
+python = '''
+class CM:
+    def __enter__(self):
+        return 99
+    def __exit__(self, *args):
+        pass
+
+with (CM(),) as cm:
+    result = cm
+assert result == 99
+'''
+
+rust = '''
+// Rust: single binding
+{
+    let cm = 99;
+    let result = cm;
+    assert_eq!(result, 99);
+}
+'''
+
+
+[[test]]
+name = "paren_nested"
+description = "with ((cm)): ..."
+
+python = '''
+class CM:
+    def __enter__(self):
+        return 77
+    def __exit__(self, *args):
+        pass
+
+with ((CM())) as cm:
+    result = cm
+assert result == 77
+'''
+
+rust = '''
+// Rust: nested parentheses
+{
+    let cm = 77;
+    let result = cm;
+    assert_eq!(result, 77);
+}
+'''
+
 
 # =============================================================================
 # Python Version Compatibility
 # =============================================================================
 
-# TODO: Test 3.10+ only
-# [[test]]
-# name = "paren_version"
-# description = "Parenthesized with requires Python 3.10+"
+[[test]]
+name = "paren_version"
+description = "Parenthesized with requires Python 3.10+"
 
-# TODO: Test backwards compatible alternatives
-# [[test]]
-# name = "paren_alternatives"
-# description = "Ways to achieve same in older Python"
+python = '''
+import sys
+# Parenthesized with requires Python 3.10+
+result = sys.version_info >= (3, 10)
+'''
+
+rust = '''
+// Rust: no version requirements for this pattern
+let result = true;
+'''
+
+
+[[test]]
+name = "paren_alternatives"
+description = "Ways to achieve same in older Python"
+
+python = '''
+class CM:
+    def __init__(self, value):
+        self.value = value
+    def __enter__(self):
+        return self.value
+    def __exit__(self, *args):
+        pass
+
+# Alternative 1: backslash continuation
+# Alternative 2: nested with statements
+# Alternative 3: contextlib.ExitStack
+with CM(10) as a, CM(20) as b:
+    result = a + b
+assert result == 30
+'''
+
+rust = '''
+// Rust: same pattern works at any version
+{
+    let a = 10;
+    let b = 20;
+    let result = a + b;
+    assert_eq!(result, 30);
+}
+'''
+

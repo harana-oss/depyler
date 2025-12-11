@@ -12,7 +12,6 @@ category = "advanced-oop"
 [[test]]
 name = "init_basic"
 description = "Basic __init__ with parameter assignment"
-tags = ["init", "basic"]
 
 python = '''
 class Point:
@@ -71,7 +70,6 @@ pub fn create_point() -> Point {
 [[test]]
 name = "init_defaults"
 description = "__init__ with default parameter values"
-tags = ["init", "defaults"]
 
 python = '''
 class Counter:
@@ -119,7 +117,6 @@ pub fn create_counter() -> Counter {
 [[test]]
 name = "init_return"
 description = "__init__ must return None (implicitly)"
-tags = ["init", "return"]
 
 python = '''
 class Widget:
@@ -168,7 +165,6 @@ pub fn create_widget() -> Widget {
 [[test]]
 name = "new_basic"
 description = "Basic __new__ implementation"
-tags = ["new", "basic"]
 
 python = '''
 class Immutable:
@@ -196,7 +192,6 @@ pub fn create() -> Immutable {
 [[test]]
 name = "new_args"
 description = "__new__ with arguments"
-tags = ["new", "args"]
 
 python = '''
 class CustomInt(int):
@@ -223,7 +218,6 @@ pub fn create_int() -> CustomInt {
 [[test]]
 name = "new_different_type"
 description = "__new__ can return instance of different class"
-tags = ["new", "polymorphic"]
 
 python = '''
 class Factory:
@@ -252,7 +246,6 @@ pub fn create_object() -> object {
 [[test]]
 name = "new_singleton"
 description = "Singleton pattern using __new__"
-tags = ["new", "singleton", "pattern"]
 
 python = '''
 class Singleton:
@@ -283,7 +276,6 @@ pub fn get_singleton() -> Singleton {
 [[test]]
 name = "new_immutable"
 description = "__new__ for subclassing immutable types"
-tags = ["new", "immutable", "subclass"]
 
 python = '''
 class PositiveInt(int):
@@ -312,7 +304,6 @@ pub fn create_positive(val: i32) -> PositiveInt {
 [[test]]
 name = "new_caching"
 description = "Caching pattern with __new__"
-tags = ["new", "cache", "pattern"]
 
 python = '''
 class CachedObject:
@@ -344,7 +335,6 @@ pub fn get_cached(k: String) -> CachedObject {
 [[test]]
 name = "new_init_order"
 description = "__new__ called before __init__"
-tags = ["new", "init", "order"]
 
 python = '''
 class Ordered:
@@ -397,7 +387,6 @@ pub fn create() -> Ordered {
 [[test]]
 name = "new_wrong_type"
 description = "__init__ not called if __new__ returns wrong type"
-tags = ["new", "init", "edge-case"]
 
 python = '''
 class WeirdClass:
@@ -449,7 +438,6 @@ pub fn create() {
 [[test]]
 name = "new_init_args"
 description = "Same args passed to both __new__ and __init__"
-tags = ["new", "init", "args"]
 
 python = '''
 class ArgsClass:
@@ -512,7 +500,6 @@ pub fn create() -> ArgsClass {
 [[test]]
 name = "new_inheritance"
 description = "Subclass __new__ calling super().__new__()"
-tags = ["new", "inheritance"]
 
 python = '''
 class Base:
@@ -552,7 +539,6 @@ pub fn create() -> Derived {
 [[test]]
 name = "new_override"
 description = "Subclass overrides parent __new__"
-tags = ["new", "inheritance", "override"]
 
 python = '''
 class Parent:
@@ -594,7 +580,6 @@ pub fn create() -> Child {
 [[test]]
 name = "new_metaclass"
 description = "__new__ in metaclass creates class objects"
-tags = ["new", "metaclass", "advanced"]
 
 python = '''
 class Meta(type):
@@ -633,7 +618,6 @@ pub fn check() -> String {
 [[test]]
 name = "new_return_none"
 description = "__new__ returning None (edge case)"
-tags = ["new", "edge-case"]
 skip = true  # Invalid Python behavior
 
 python = '''
@@ -661,7 +645,6 @@ pub fn create() {
 [[test]]
 name = "new_no_init"
 description = "Class with only __new__ and no __init__"
-tags = ["new", "no-init"]
 
 python = '''
 class OnlyNew:
@@ -690,7 +673,6 @@ pub fn create() -> OnlyNew {
 [[test]]
 name = "factory_vs_new"
 description = "Factory classmethod vs __new__ pattern"
-tags = ["new", "factory", "pattern"]
 
 python = '''
 class WithFactory:

@@ -11,7 +11,6 @@ category = "stdlib-collections"
 [[test]]
 name = "counter_from_list"
 description = "Counter from list initialization"
-tags = ["collections", "counter"]
 
 python = '''
 from collections import Counter
@@ -37,7 +36,6 @@ pub fn count_items(items: Vec<String>) -> HashMap<String, i32> {
 [[test]]
 name = "counter_most_common"
 description = "Counter.most_common() method"
-tags = ["collections", "counter"]
 
 python = '''
 from collections import Counter
@@ -62,7 +60,6 @@ pub fn top_items(items: Vec<String>, n: i32) -> Vec<(String, i32)> {
 [[test]]
 name = "counter_elements"
 description = "Counter.elements() iteration"
-tags = ["collections", "counter"]
 
 python = '''
 from collections import Counter
@@ -86,7 +83,6 @@ pub fn expand_counts(counts: HashMap<String, i32>) -> Vec<String> {
 [[test]]
 name = "defaultdict_int"
 description = "defaultdict with int factory"
-tags = ["collections", "defaultdict"]
 
 python = '''
 from collections import defaultdict
@@ -133,7 +129,6 @@ pub fn count_words(words: &Vec<String>) -> HashMap<String, i32> {
 [[test]]
 name = "defaultdict_list"
 description = "defaultdict with list factory"
-tags = ["collections", "defaultdict"]
 
 python = '''
 from collections import defaultdict
@@ -178,7 +173,6 @@ pub fn group_by_first_char(words: &Vec<String>) -> HashMap<String, Vec<String>> 
 [[test]]
 name = "deque_creation"
 description = "deque creation and initialization"
-tags = ["collections", "deque"]
 
 python = '''
 from collections import deque
@@ -197,7 +191,6 @@ pub fn make_deque(items: Vec<i32>) -> deque {
 [[test]]
 name = "deque_append"
 description = "deque append operations"
-tags = ["collections", "deque"]
 
 python = '''
 from collections import deque
@@ -216,7 +209,6 @@ pub fn add_items(d: &mut deque, item: i32) {
 [[test]]
 name = "deque_appendleft"
 description = "deque appendleft operation"
-tags = ["collections", "deque"]
 
 python = '''
 from collections import deque
@@ -235,7 +227,6 @@ pub fn add_front(d: &deque, item: i32) {
 [[test]]
 name = "deque_pop"
 description = "deque pop operations"
-tags = ["collections", "deque"]
 
 python = '''
 from collections import deque
@@ -254,7 +245,6 @@ pub fn remove_last(d: &mut deque) -> i32 {
 [[test]]
 name = "deque_popleft"
 description = "deque popleft operation"
-tags = ["collections", "deque"]
 
 python = '''
 from collections import deque
@@ -273,7 +263,6 @@ pub fn remove_first(d: &deque) -> i32 {
 [[test]]
 name = "deque_rotate"
 description = "deque rotate operation"
-tags = ["collections", "deque"]
 
 python = '''
 from collections import deque
@@ -292,7 +281,6 @@ pub fn rotate_right(d: &deque, n: i32) {
 [[test]]
 name = "namedtuple_creation"
 description = "namedtuple definition and creation"
-tags = ["collections", "namedtuple"]
 
 python = '''
 from collections import namedtuple
@@ -315,7 +303,6 @@ pub fn make_point(x: i32, y: i32) -> Point {
 [[test]]
 name = "namedtuple_access"
 description = "namedtuple field access"
-tags = ["collections", "namedtuple"]
 
 python = '''
 from collections import namedtuple
@@ -338,7 +325,6 @@ pub fn get_x(p: &Point) -> i32 {
 [[test]]
 name = "ordereddict_creation"
 description = "OrderedDict creation"
-tags = ["collections", "ordereddict"]
 
 python = '''
 from collections import OrderedDict
@@ -357,7 +343,6 @@ pub fn make_ordered() -> OrderedDict {
 [[test]]
 name = "heapq_heapify"
 description = "heapq.heapify() create min-heap"
-tags = ["heapq", "heap"]
 
 python = '''
 import heapq
@@ -401,7 +386,6 @@ pub fn create_heap(items: &Vec<serde_json::Value>) {
 [[test]]
 name = "heapq_heappush"
 description = "heapq.heappush() add to heap"
-tags = ["heapq", "push"]
 
 python = '''
 import heapq
@@ -434,7 +418,6 @@ pub fn push_item(heap: &Vec<serde_json::Value>, item: i32) {
 [[test]]
 name = "heapq_heappop"
 description = "heapq.heappop() remove min"
-tags = ["heapq", "pop"]
 
 python = '''
 import heapq
@@ -493,7 +476,6 @@ mod tests {
 [[test]]
 name = "heapq_nlargest"
 description = "heapq.nlargest() get n largest"
-tags = ["heapq", "nlargest"]
 
 python = '''
 import heapq
@@ -518,7 +500,6 @@ pub fn get_largest(n: i32, items: &Vec<serde_json::Value>) -> Vec<serde_json::Va
 [[test]]
 name = "heapq_nsmallest"
 description = "heapq.nsmallest() get n smallest"
-tags = ["heapq", "nsmallest"]
 
 python = '''
 import heapq
@@ -543,7 +524,6 @@ pub fn get_smallest(n: i32, items: &Vec<serde_json::Value>) -> Vec<serde_json::V
 [[test]]
 name = "bisect_left"
 description = "bisect.bisect_left() leftmost insert point"
-tags = ["bisect", "search"]
 
 python = '''
 import bisect
@@ -575,7 +555,6 @@ pub fn find_insert_left(a: &Vec<serde_json::Value>, x: i32) -> i32 {
 [[test]]
 name = "bisect_right"
 description = "bisect.bisect_right() rightmost insert point"
-tags = ["bisect", "search"]
 
 python = '''
 import bisect
@@ -608,7 +587,6 @@ pub fn find_insert_right(a: &Vec<serde_json::Value>, x: i32) -> i32 {
 [[test]]
 name = "bisect_insort_left"
 description = "bisect.insort_left() insert in sorted order"
-tags = ["bisect", "insert"]
 
 python = '''
 import bisect
@@ -641,7 +619,6 @@ pub fn insert_left(a: &Vec<serde_json::Value>, x: i32) {
 [[test]]
 name = "bisect_insort_right"
 description = "bisect.insort_right() insert at right"
-tags = ["bisect", "insert"]
 
 python = '''
 import bisect

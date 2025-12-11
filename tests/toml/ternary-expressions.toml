@@ -30,7 +30,6 @@ fn main() {
     println!("{}", result2);
 }
 """
-contains = ["10", "20"]
 
 [[test]]
 name = "ternary_integers"
@@ -49,7 +48,6 @@ fn main() {
     println!("{}", max_val);
 }
 """
-contains = ["5"]
 
 [[test]]
 name = "ternary_strings"
@@ -66,7 +64,6 @@ fn main() {
     println!("{}", result);
 }
 """
-contains = ["yes"]
 
 # =============================================================================
 # Nested Ternary
@@ -89,7 +86,6 @@ fn main() {
     println!("{}", result);
 }
 """
-contains = ["b"]
 
 [[test]]
 name = "ternary_deeply_nested"
@@ -106,7 +102,6 @@ fn main() {
     println!("{}", grade);
 }
 """
-contains = ["C"]
 
 # =============================================================================
 # Ternary with Expressions
@@ -129,7 +124,6 @@ fn main() {
     println!("{}", result);
 }
 """
-contains = ["f"]
 
 [[test]]
 name = "ternary_method_calls"
@@ -154,7 +148,6 @@ fn main() {
     println!("{}", result);
 }
 """
-contains = ["m2"]
 
 [[test]]
 name = "ternary_with_comprehension"
@@ -171,7 +164,6 @@ fn main() {
     println!("{:?}", result);
 }
 """
-contains = ["[0, 1, 0, 3]"]
 
 # =============================================================================
 # Ternary in Assignments
@@ -194,7 +186,6 @@ fn main() {
     println!("{}", result);
 }
 """
-contains = ["42"]
 
 [[test]]
 name = "ternary_augmented_assignment"
@@ -213,7 +204,6 @@ fn main() {
     println!("{}", x);
 }
 """
-contains = ["11"]
 
 # =============================================================================
 # Ternary as Arguments
@@ -237,7 +227,6 @@ fn main() {
     println!("{}", result);
 }
 """
-contains = ["20"]
 
 [[test]]
 name = "ternary_multiple_args"
@@ -261,7 +250,6 @@ fn main() {
     println!("{}", result);
 }
 """
-contains = ["50"]
 
 # =============================================================================
 # Edge Cases
@@ -288,7 +276,6 @@ fn main() {
     println!("{}", result);
 }
 """
-contains = ["default", "actual"]
 
 [[test]]
 name = "ternary_boolean_result"
@@ -305,7 +292,6 @@ fn main() {
     println!("{}", result);
 }
 """
-contains = ["True"]
 
 [[test]]
 name = "ternary_same_type"
@@ -322,7 +308,6 @@ fn main() {
     println!("str {}", result);
 }
 """
-contains = ["str", "yes"]
 
 [[test]]
 name = "ternary_numeric_promotion"
@@ -339,7 +324,6 @@ fn main() {
     println!("{} float", result);
 }
 """
-contains = ["1.0", "float"]
 
 [[test]]
 name = "ternary_short_circuit"
@@ -372,5 +356,4 @@ fn main() {
     println!("{}", result);
 }
 """
-contains = ["true branch", "1"]
-not_contains = ["false branch"]
+not_

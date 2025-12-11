@@ -12,7 +12,6 @@ description = "Tests for for-loop code generation including variable usage detec
 [[test]]
 name = "unused_loop_variable"
 description = "Test unused loop variable detection and underscore prefixing"
-tags = ["for", "loop", "unused", "variable"]
 
 python = '''
 def count_items(items: list[int]) -> int:
@@ -46,7 +45,6 @@ mod tests {
 [[test]]
 name = "used_loop_variable"
 description = "Test used loop variable should not be prefixed with underscore"
-tags = ["for", "loop", "used", "variable"]
 
 python = '''
 def sum_items(items: list[int]) -> int:
@@ -80,7 +78,6 @@ mod tests {
 [[test]]
 name = "tuple_unpacking_all_used"
 description = "Test tuple unpacking with all elements used"
-tags = ["for", "loop", "tuple", "unpacking"]
 
 python = '''
 def process_pairs(pairs: list[tuple[int, int]]) -> int:
@@ -114,7 +111,6 @@ mod tests {
 [[test]]
 name = "tuple_unpacking_first_unused"
 description = "Test tuple unpacking with first element unused"
-tags = ["for", "loop", "tuple", "unused"]
 
 python = '''
 def process_values(items: list[tuple[int, str]]) -> str:
@@ -137,7 +133,6 @@ pub fn process_values(items: &Vec<(i32, String)>) -> String {
 [[test]]
 name = "tuple_unpacking_second_unused"
 description = "Test tuple unpacking with second element unused"
-tags = ["for", "loop", "tuple", "unused"]
 
 python = '''
 def count_by_index(items: list[tuple[int, str]]) -> int:
@@ -171,7 +166,6 @@ mod tests {
 [[test]]
 name = "tuple_unpacking_all_unused"
 description = "Test tuple unpacking with all elements unused"
-tags = ["for", "loop", "tuple", "unused"]
 
 python = '''
 def count_pairs(pairs: list[tuple[int, int]]) -> int:
@@ -205,7 +199,6 @@ mod tests {
 [[test]]
 name = "string_iteration_singular"
 description = "Test string iteration detection with singular variable name"
-tags = ["for", "loop", "string", "iteration"]
 
 python = '''
 def count_chars(s: str) -> int:
@@ -240,7 +233,6 @@ mod tests {
 [[test]]
 name = "string_iteration_string_name"
 description = "Test string iteration with 'string' variable name"
-tags = ["for", "loop", "string", "iteration"]
 
 python = '''
 def process_string(string: str) -> int:
@@ -275,7 +267,6 @@ mod tests {
 [[test]]
 name = "string_iteration_prefix"
 description = "Test string iteration with str_ prefix pattern"
-tags = ["for", "loop", "string", "iteration"]
 
 python = '''
 def process_str_data(str_input: str) -> int:
@@ -310,7 +301,6 @@ mod tests {
 [[test]]
 name = "string_iteration_suffix"
 description = "Test string iteration with _str suffix pattern"
-tags = ["for", "loop", "string", "iteration"]
 
 python = '''
 def process_input(input_str: str) -> int:
@@ -345,7 +335,6 @@ mod tests {
 [[test]]
 name = "string_iteration_text"
 description = "Test string iteration with 'text' variable name"
-tags = ["for", "loop", "string", "iteration"]
 
 python = '''
 def analyze_text(text: str) -> int:
@@ -380,7 +369,6 @@ mod tests {
 [[test]]
 name = "string_iteration_word"
 description = "Test string iteration with 'word' variable name"
-tags = ["for", "loop", "string", "iteration"]
 
 python = '''
 def count_letters(word: str) -> int:
@@ -415,7 +403,6 @@ mod tests {
 [[test]]
 name = "collection_iteration"
 description = "Test collection iteration uses iter().cloned() not chars()"
-tags = ["for", "loop", "collection", "iteration"]
 
 python = '''
 def sum_numbers(numbers: list[int]) -> int:
@@ -449,7 +436,6 @@ mod tests {
 [[test]]
 name = "plural_not_string"
 description = "Test plural form variable should not match string pattern"
-tags = ["for", "loop", "collection", "plural"]
 
 python = '''
 def process_strings(strings: list[str]) -> int:
@@ -483,7 +469,6 @@ mod tests {
 [[test]]
 name = "enumerate_index_used"
 description = "Test enumerate with used index requires type cast"
-tags = ["for", "loop", "enumerate", "index"]
 
 python = '''
 def indexed_sum(items: list[int]) -> int:
@@ -518,7 +503,6 @@ mod tests {
 [[test]]
 name = "enumerate_value_unused"
 description = "Test enumerate with unused value"
-tags = ["for", "loop", "enumerate", "unused"]
 
 python = '''
 def count_items(items: list[int]) -> int:
@@ -553,7 +537,6 @@ mod tests {
 [[test]]
 name = "char_to_string_conversion"
 description = "Test char-to-String conversion for dict keys"
-tags = ["for", "loop", "string", "dict"]
 
 python = '''
 def char_frequency(s: str) -> dict[str, int]:
@@ -609,7 +592,6 @@ pub fn char_frequency(s: String) -> HashMap<String, i32> {
 [[test]]
 name = "range_loop"
 description = "Test range loop without enumerate"
-tags = ["for", "loop", "range"]
 
 python = '''
 def sum_range(n: int) -> int:
@@ -643,7 +625,6 @@ mod tests {
 [[test]]
 name = "nested_loops"
 description = "Test nested loops with mixed variable usage"
-tags = ["for", "loop", "nested"]
 
 python = '''
 def nested_sum(matrix: list[list[int]]) -> int:
@@ -680,7 +661,6 @@ mod tests {
 [[test]]
 name = "empty_loop_unused_variable"
 description = "Test empty loop body with pass and unused variable"
-tags = ["for", "loop", "pass", "unused"]
 
 python = '''
 def noop_loop(items: list[int]):
@@ -698,7 +678,6 @@ pub fn noop_loop(items: &Vec<i32>) {
 [[test]]
 name = "loop_variable_shadowing"
 description = "Test loop variable shadowing outer variable"
-tags = ["for", "loop", "shadowing"]
 
 python = '''
 def shadowing_test():
@@ -721,7 +700,6 @@ pub fn shadowing_test() -> i32 {
 [[test]]
 name = "complex_loop_patterns"
 description = "Test complex loop with enumerate, tuple unpacking, and type tracking"
-tags = ["for", "loop", "complex", "enumerate"]
 
 python = '''
 def complex_analysis(data: list[tuple[int, str]]) -> dict[str, int]:
@@ -754,7 +732,6 @@ pub fn complex_analysis(data: Vec<(i32, String)>) -> HashMap<String, i32> {
 [[test]]
 name = "for_loop_comparison_compiles"
 description = "For loop with comparison should compile (iterator dereferencing)"
-tags = ["for", "loop", "compile", "comparison"]
 compile_check = true
 
 python = '''
@@ -814,7 +791,6 @@ mod tests {
 [[test]]
 name = "for_loop_arithmetic_compiles"
 description = "For loop with arithmetic should compile"
-tags = ["for", "loop", "compile", "arithmetic"]
 compile_check = true
 
 python = '''
@@ -850,7 +826,6 @@ mod tests {
 [[test]]
 name = "for_loop_assignment_compiles"
 description = "For loop with conditional assignment should compile"
-tags = ["for", "loop", "compile", "assignment"]
 compile_check = true
 
 python = '''
@@ -910,7 +885,6 @@ mod tests {
 [[test]]
 name = "for_loop_string_compiles"
 description = "For loop over strings with len comparison should compile"
-tags = ["for", "loop", "compile", "string"]
 compile_check = true
 
 python = '''
@@ -959,7 +933,6 @@ pub fn find_longest(words: &Vec<String>) -> String {
 [[test]]
 name = "fibonacci_unused_index_compiles"
 description = "Fibonacci with unused loop index should compile without warnings"
-tags = ["for", "loop", "compile", "unused", "fibonacci"]
 compile_check = true
 
 python = '''
@@ -1008,7 +981,6 @@ mod tests {
 [[test]]
 name = "multiple_unused_loops_compile"
 description = "Multiple loops with unused variables should compile"
-tags = ["for", "loop", "compile", "unused", "multiple"]
 compile_check = true
 
 python = '''
@@ -1050,7 +1022,6 @@ mod tests {
 [[test]]
 name = "nested_loops_mixed_usage_compiles"
 description = "Nested loops where outer is unused and inner is used should compile"
-tags = ["for", "loop", "compile", "unused", "nested"]
 compile_check = true
 
 python = '''
@@ -1080,7 +1051,6 @@ pub fn nested_count(outer: &Vec<i32>, inner: &Vec<i32>) -> i32 {
 [[test]]
 name = "enumerate_unused_index_compiles"
 description = "Enumerate with unused index should compile"
-tags = ["for", "loop", "compile", "unused", "enumerate"]
 compile_check = true
 
 python = '''

@@ -1,0 +1,397 @@
+# Algorithms Examples
+# Migrated from examples/algorithms/
+
+[metadata]
+name = "Algorithms Examples"
+category = "algorithms"
+
+# =============================================================================
+# Examples
+# =============================================================================
+
+[[test]]
+name = "binary_search_simple"
+description = "Example test"
+
+python = '''
+# @depyler: optimization_level = "aggressive"
+# @depyler: bounds_checking = "explicit"
+from typing import List
+
+def binary_search(arr: List[int], target: int) -> int:
+    """Binary search implementation - returns index or -1"""
+    left = 0
+    right = len(arr) - 1
+    
+    while left <= right:
+        mid = (left + right) // 2
+        
+        if arr[mid] == target:
+            return mid
+        elif arr[mid] < target:
+            left = mid + 1
+        else:
+            right = mid - 1
+    
+    return -1
+
+def linear_search(arr: List[int], target: int) -> int:
+    """Linear search for comparison"""
+    for i in range(len(arr)):
+        if arr[i] == target:
+            return i
+    return -1
+
+def find_maximum(arr: List[int]) -> int:
+    """Find maximum element in array"""
+    if not arr:
+        return 0
+    
+    max_val = arr[0]
+    for val in arr:
+        if val > max_val:
+            max_val = val
+    
+    return max_val
+'''
+
+rust = '''
+#[derive(Debug, Clone)]
+pub struct ZeroDivisionError {
+    message: String,
+}
+impl std::fmt::Display for ZeroDivisionError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "division by zero: {}", self.message)
+    }
+}
+impl std::error::Error for ZeroDivisionError {}
+impl ZeroDivisionError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[derive(Debug, Clone)]
+pub struct IndexError {
+    message: String,
+}
+impl std::fmt::Display for IndexError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "index out of range: {}", self.message)
+    }
+}
+impl std::error::Error for IndexError {}
+impl IndexError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = "Binary search implementation - returns index or -1"]
+pub fn binary_search(arr: &Vec<i32>, target: i32) -> Result<i32, Box<dyn std::error::Error>> {
+    let mut left = 0;
+    let _cse_temp_0 = arr.len() as i32;
+    let mut right = _cse_temp_0 - 1;
+    while left <= right {
+        let mid = {
+            let a = left + right;
+            let b = 2;
+            let q = a / b;
+            let r = a % b;
+            let r_negative = r < 0;
+            let b_negative = b < 0;
+            let r_nonzero = r != 0;
+            let signs_differ = r_negative != b_negative;
+            let needs_adjustment = r_nonzero && signs_differ;
+            if needs_adjustment {
+                q - 1
+            } else {
+                q
+            }
+        };
+        if arr.get(mid as usize).cloned().unwrap_or_default() == target {
+            return Ok(mid);
+        } else {
+            if arr.get(mid as usize).cloned().unwrap_or_default() < target {
+                left = mid + 1;
+            } else {
+                right = mid - 1;
+            }
+        }
+    }
+    Ok(-1)
+}
+#[doc = "Linear search for comparison"]
+#[doc = " Depyler: proven to terminate"]
+pub fn linear_search(arr: &Vec<i32>, target: i32) -> Result<i32, IndexError> {
+    for i in 0..arr.len() as i32 {
+        if arr.get(i as usize).cloned().unwrap_or_default() == target {
+            return Ok(i);
+        }
+    }
+    Ok(-1)
+}
+#[doc = "Find maximum element in array"]
+pub fn find_maximum(arr: &Vec<i32>) -> Result<i32, IndexError> {
+    if arr.is_empty() {
+        return Ok(0);
+    }
+    let mut max_val = arr.get(0usize).cloned().unwrap_or_default();
+    for val in arr.iter().cloned() {
+        if val > max_val {
+            max_val = val;
+        }
+    }
+    Ok(max_val)
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{quickcheck, TestResult};
+    #[test]
+    fn test_find_maximum_examples() {
+        assert_eq!(find_maximum(&vec![]), 0);
+        assert_eq!(find_maximum(&vec![1]), 1);
+        assert_eq!(find_maximum(&vec![1, 2, 3]), 3);
+    }
+}
+'''
+
+[[test]]
+name = "fibonacci"
+description = "Example test"
+
+python = '''
+# @depyler: optimization_level = "aggressive"
+# @depyler: bounds_checking = "none"
+from typing import Dict
+
+def fibonacci_recursive(n: int) -> int:
+    """Classic recursive fibonacci - demonstrates recursion"""
+    if n <= 1:
+        return n
+    return fibonacci_recursive(n - 1) + fibonacci_recursive(n - 2)
+
+def fibonacci_memoized(n: int, memo: Dict[int, int] = None) -> int:
+    """Memoized fibonacci - demonstrates optimization patterns"""
+    if memo is None:
+        memo = {}
+    
+    if n in memo:
+        return memo[n]
+    
+    if n <= 1:
+        result = n
+    else:
+        result = fibonacci_memoized(n - 1, memo) + fibonacci_memoized(n - 2, memo)
+    
+    memo[n] = result
+    return result
+
+def fibonacci_iterative(n: int) -> int:
+    """Iterative fibonacci - demonstrates loops and efficiency"""
+    if n <= 1:
+        return n
+    
+    a, b = 0, 1
+    for _ in range(2, n + 1):
+        a, b = b, a + b
+    
+    return b
+'''
+
+rust = '''
+use std::collections::HashMap;
+#[derive(Debug, Clone)]
+pub struct IndexError {
+    message: String,
+}
+impl std::fmt::Display for IndexError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "index out of range: {}", self.message)
+    }
+}
+impl std::error::Error for IndexError {}
+impl IndexError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = "Classic recursive fibonacci - demonstrates recursion"]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn fibonacci_recursive(n: i32) -> i32 {
+    let _cse_temp_0 = n <= 1;
+    if _cse_temp_0 {
+        return n;
+    }
+    fibonacci_recursive(n - 1) + fibonacci_recursive(n - 2)
+}
+#[doc = "Memoized fibonacci - demonstrates optimization patterns"]
+#[doc = " Depyler: proven to terminate"]
+pub fn fibonacci_memoized(n: i32, mut memo: HashMap<i32, i32>) -> Result<i32, IndexError> {
+    if memo.is_none() {
+        memo = {
+            let map = HashMap::new();
+            map
+        };
+    }
+    let _cse_temp_0 = memo.contains_key(&n);
+    if _cse_temp_0 {
+        return Ok(memo.get(n as usize).cloned().unwrap_or_default());
+    }
+    let _cse_temp_1 = n <= 1;
+    let mut result;
+    if _cse_temp_1 {
+        result = n;
+    } else {
+        let _cse_temp_2 = fibonacci_memoized(n - 1, memo) + fibonacci_memoized(n - 2, memo);
+        result = _cse_temp_2;
+    }
+    memo.insert(n, result);
+    Ok(result)
+}
+#[doc = "Iterative fibonacci - demonstrates loops and efficiency"]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn fibonacci_iterative(n: i32) -> i32 {
+    let _cse_temp_0 = n <= 1;
+    if _cse_temp_0 {
+        return n;
+    }
+    let (mut a, mut b) = (0, 1);
+    for __ in 2..n + 1 {
+        (a, b) = (b, a + b);
+    }
+    b
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{quickcheck, TestResult};
+    #[test]
+    fn test_fibonacci_recursive_examples() {
+        assert_eq!(fibonacci_recursive(0), 0);
+        assert_eq!(fibonacci_recursive(1), 1);
+        assert_eq!(fibonacci_recursive(-1), -1);
+    }
+    #[test]
+    fn test_fibonacci_iterative_examples() {
+        assert_eq!(fibonacci_iterative(0), 0);
+        assert_eq!(fibonacci_iterative(1), 1);
+        assert_eq!(fibonacci_iterative(-1), -1);
+    }
+}
+'''
+
+[[test]]
+name = "quicksort"
+description = "Example test"
+
+python = '''
+# @depyler: optimization_level = "aggressive"
+# @depyler: bounds_checking = "explicit"
+from typing import List
+
+def quicksort(arr: List[int]) -> List[int]:
+    """Classic quicksort algorithm implementation"""
+    if len(arr) <= 1:
+        return arr
+    
+    pivot = arr[len(arr) // 2]
+    left = [x for x in arr if x < pivot]
+    middle = [x for x in arr if x == pivot]
+    right = [x for x in arr if x > pivot]
+    
+    return quicksort(left) + middle + quicksort(right)
+
+def partition(arr: List[int], low: int, high: int) -> int:
+    """In-place partition for quicksort"""
+    pivot = arr[high]
+    i = low - 1
+    
+    for j in range(low, high):
+        if arr[j] <= pivot:
+            i += 1
+            arr[i], arr[j] = arr[j], arr[i]
+    
+    arr[i + 1], arr[high] = arr[high], arr[i + 1]
+    return i + 1
+
+def quicksort_inplace(arr: List[int], low: int, high: int) -> None:
+    """In-place quicksort implementation"""
+    if low < high:
+        pi = partition(arr, low, high)
+        quicksort_inplace(arr, low, pi - 1)
+        quicksort_inplace(arr, pi + 1, high)
+'''
+
+rust = '''
+Type inference hints:
+Hint: list[Any] for variable 'arr' [High] (usage patterns suggest this type)
+Hint: int for variable 'middle' [Medium] (usage patterns suggest this type)
+
+Type inference hints:
+Hint: int for variable 'i' [Medium] (usage patterns suggest this type)
+Hint: list[Any] for variable 'arr' [Medium] (usage patterns suggest this type)
+Hint: int for variable 'low' [Medium] (usage patterns suggest this type)
+
+Type inference hints:
+Hint: int for variable 'pi' [Medium] (usage patterns suggest this type)
+
+
+Performance Warnings
+══════════════════════════════════════════════════
+
+[1] [Medium] Large value 'arr' passed by copy
+   Location: quicksort, line 0
+   Impact: Complexity: O(n), Scales: Yes, Hot path: No
+   Why: Passing large values by copy is inefficient
+   Fix: Consider passing by reference (&) or using Box/Arc for large types
+
+[2] [Medium] Large value 'arr' passed by copy
+   Location: partition, line 0
+   Impact: Complexity: O(n), Scales: Yes, Hot path: No
+   Why: Passing large values by copy is inefficient
+   Fix: Consider passing by reference (&) or using Box/Arc for large types
+
+[3] [Medium] Large value 'arr' passed by copy
+   Location: quicksort_inplace, line 0
+   Impact: Complexity: O(n), Scales: Yes, Hot path: No
+   Why: Passing large values by copy is inefficient
+   Fix: Consider passing by reference (&) or using Box/Arc for large types
+
+Summary: Found 3 warnings (0 critical, 0 high severity)
+
+
+Profiling Report
+══════════════════════════════════════════════════
+
+Summary
+  Total estimated instructions: 222
+  Total estimated allocations: 0
+  Functions analyzed: 3
+
+Hot Paths
+  [1] partition (558.6% of execution time)
+  [2] quicksort_inplace (21.6% of execution time)
+  [3] quicksort (22.5% of execution time)
+
+Function Metrics
+🔥 partition                       558.6% time |    124 inst |    0 alloc
+🔥 quicksort                        22.5% time |     50 inst |    0 alloc
+🔥 quicksort_inplace                21.6% time |     48 inst |    0 alloc
+
+Performance Predictions
+  • Rust's iterator fusion can optimize chained operations (1.2x speedup, 80% confidence)
+  • Rust's memory layout is more cache-friendly than Python (1.3x speedup, 70% confidence)
+
+🚀 Estimated overall speedup: 1.6x
+
+Error: Complex tuple unpacking not yet supported
+'''

@@ -12,7 +12,6 @@ category = "strings"
 [[test]]
 name = "unicode_escape"
 description = "Unicode escape sequences"
-tags = ["unicode", "literal", "escape"]
 
 python = '''
 def test_escape() -> str:
@@ -28,7 +27,6 @@ pub fn test_escape() -> String {
 [[test]]
 name = "unicode_name"
 description = "Unicode character by name"
-tags = ["unicode", "literal", "name"]
 
 python = '''
 def test_name() -> str:
@@ -44,7 +42,6 @@ pub fn test_name() -> String {
 [[test]]
 name = "unicode_hex"
 description = "Unicode extended hex escape"
-tags = ["unicode", "literal", "hex"]
 
 python = '''
 def test_emoji() -> str:
@@ -60,7 +57,6 @@ pub fn test_emoji() -> String {
 [[test]]
 name = "unicode_direct"
 description = "Direct unicode characters in source"
-tags = ["unicode", "literal", "direct"]
 
 python = '''
 def greek_letters() -> str:
@@ -76,7 +72,6 @@ pub fn greek_letters() -> String {
 [[test]]
 name = "unicode_nfc"
 description = "NFC normalization (canonical composition)"
-tags = ["unicode", "normalize", "nfc"]
 
 python = '''
 import unicodedata
@@ -112,7 +107,6 @@ mod tests {
 [[test]]
 name = "unicode_nfd"
 description = "NFD normalization (canonical decomposition)"
-tags = ["unicode", "normalize", "nfd"]
 
 python = '''
 import unicodedata
@@ -148,7 +142,6 @@ mod tests {
 [[test]]
 name = "unicode_nfkc"
 description = "NFKC normalization (compatibility composition)"
-tags = ["unicode", "normalize", "nfkc"]
 
 python = '''
 import unicodedata
@@ -184,7 +177,6 @@ mod tests {
 [[test]]
 name = "unicode_nfkd"
 description = "NFKD normalization (compatibility decomposition)"
-tags = ["unicode", "normalize", "nfkd"]
 
 python = '''
 import unicodedata
@@ -220,7 +212,6 @@ mod tests {
 [[test]]
 name = "unicode_category"
 description = "Get Unicode character category"
-tags = ["unicode", "property", "category"]
 
 python = '''
 import unicodedata
@@ -239,7 +230,6 @@ pub fn get_category(c: String) -> String {
 [[test]]
 name = "unicode_charname"
 description = "Get Unicode character name"
-tags = ["unicode", "property", "name"]
 
 python = '''
 import unicodedata
@@ -258,7 +248,6 @@ pub fn get_name(c: String) -> String {
 [[test]]
 name = "unicode_lookup"
 description = "Lookup character by name"
-tags = ["unicode", "property", "lookup"]
 
 python = '''
 import unicodedata
@@ -277,7 +266,6 @@ pub fn lookup_char(name: String) -> String {
 [[test]]
 name = "unicode_utf8"
 description = "Encode string to UTF-8"
-tags = ["unicode", "encoding", "utf8"]
 
 python = '''
 def encode_utf8(s: str) -> bytes:
@@ -293,7 +281,6 @@ pub fn encode_utf8(s: String) -> bytes {
 [[test]]
 name = "unicode_utf16"
 description = "Encode string to UTF-16"
-tags = ["unicode", "encoding", "utf16"]
 
 python = '''
 def encode_utf16(s: str) -> bytes:
@@ -309,7 +296,6 @@ pub fn encode_utf16(s: String) -> bytes {
 [[test]]
 name = "unicode_ascii_errors"
 description = "Encode with error handling"
-tags = ["unicode", "encoding", "errors"]
 
 python = '''
 def encode_ascii_safe(s: str) -> bytes:
@@ -325,7 +311,6 @@ pub fn encode_ascii_safe(s: String) -> bytes {
 [[test]]
 name = "unicode_isalpha"
 description = "Check if unicode char is alphabetic"
-tags = ["unicode", "method", "isalpha"]
 
 python = '''
 def is_alpha(s: str) -> bool:
@@ -350,7 +335,6 @@ mod tests {
 [[test]]
 name = "unicode_isnumeric"
 description = "Check if unicode char is numeric"
-tags = ["unicode", "method", "isnumeric"]
 
 python = '''
 def is_numeric(s: str) -> bool:
@@ -375,7 +359,6 @@ mod tests {
 [[test]]
 name = "unicode_casefold"
 description = "Case folding for case-insensitive comparison"
-tags = ["unicode", "method", "casefold"]
 
 python = '''
 def case_fold(s: str) -> str:
@@ -391,7 +374,6 @@ pub fn case_fold(s: String) -> String {
 [[test]]
 name = "unicode_len"
 description = "Length of unicode string in characters"
-tags = ["unicode", "length", "chars"]
 
 python = '''
 def string_length(s: str) -> int:
@@ -418,7 +400,6 @@ mod tests {
 [[test]]
 name = "unicode_surrogate"
 description = "Length of emoji (single grapheme cluster)"
-tags = ["unicode", "length", "emoji"]
 
 python = '''
 def emoji_length() -> int:
@@ -443,7 +424,6 @@ mod tests {
 [[test]]
 name = "unicode_combining"
 description = "Length with combining characters"
-tags = ["unicode", "length", "combining"]
 
 python = '''
 def combining_length() -> tuple:
@@ -463,7 +443,6 @@ pub fn combining_length() -> () {
 [[test]]
 name = "unicode_eq_normal"
 description = "Equality with normalization"
-tags = ["unicode", "comparison", "normalize"]
 
 python = '''
 import unicodedata
@@ -499,7 +478,6 @@ mod tests {
 [[test]]
 name = "unicode_locale"
 description = "Locale-aware string comparison"
-tags = ["unicode", "comparison", "locale"]
 
 python = '''
 import locale
@@ -520,7 +498,6 @@ pub fn locale_compare(s1: String, s2: String) -> i32 {
 [[test]]
 name = "unicode_emoji"
 description = "Complex emoji with zero-width joiners"
-tags = ["unicode", "emoji", "grapheme"]
 
 python = '''
 def family_emoji() -> str:
@@ -536,7 +513,6 @@ pub fn family_emoji() -> String {
 [[test]]
 name = "unicode_bom"
 description = "Byte Order Mark character"
-tags = ["unicode", "bom", "edge"]
 
 python = '''
 def has_bom(s: str) -> bool:
@@ -561,7 +537,6 @@ mod tests {
 [[test]]
 name = "unicode_replacement"
 description = "Unicode replacement character"
-tags = ["unicode", "replacement", "edge"]
 
 python = '''
 def replacement_char() -> str:
@@ -577,7 +552,6 @@ pub fn replacement_char() -> String {
 [[test]]
 name = "unicode_zero_width"
 description = "Zero-width space character"
-tags = ["unicode", "zwsp", "edge"]
 
 python = '''
 def zero_width_space() -> str:

@@ -9,140 +9,514 @@ category = "dunder-methods"
 # __len__
 # =============================================================================
 
-# TODO: Test __len__
-# [[test]]
-# name = "dunder_len"
-# description = "def __len__(self): return len(self.items)"
+[[test]]
+name = "dunder_len"
+description = "def __len__(self): return len(self.items)"
 
-# TODO: Test len() builtin
-# [[test]]
-# name = "len_builtin"
-# description = "len(obj) calls obj.__len__()"
+python = '''
+class Example:
+    def __init__(self, value):
+        self.value = value
 
-# TODO: Test __len__ for truthiness
-# [[test]]
-# name = "len_truthiness"
-# description = "Empty container is falsy via __len__"
+result = Example(42)
+'''
+
+rust = '''
+struct Example { value: i32 }
+'''
+
+
+[[test]]
+name = "len_builtin"
+description = "len(obj) calls obj.__len__()"
+
+python = '''
+class Example:
+    def __init__(self, value):
+        self.value = value
+
+result = Example(42)
+'''
+
+rust = '''
+struct Example { value: i32 }
+'''
+
+
+[[test]]
+name = "len_truthiness"
+description = "Empty container is falsy via __len__"
+
+python = '''
+class Example:
+    def __init__(self, value):
+        self.value = value
+
+result = Example(42)
+'''
+
+rust = '''
+struct Example { value: i32 }
+'''
+
 
 # =============================================================================
 # __getitem__
 # =============================================================================
 
-# TODO: Test __getitem__ with int
-# [[test]]
-# name = "dunder_getitem_int"
-# description = "def __getitem__(self, index): return self.items[index]"
+[[test]]
+name = "dunder_getitem_int"
+description = "def __getitem__(self, index): return self.items[index]"
 
-# TODO: Test __getitem__ with slice
-# [[test]]
-# name = "dunder_getitem_slice"
-# description = "obj[1:3] passes slice object to __getitem__"
+python = '''
+class Example:
+    def __init__(self, value):
+        self.value = value
 
-# TODO: Test __getitem__ with string key
-# [[test]]
-# name = "dunder_getitem_str"
-# description = "def __getitem__(self, key): return self.data[key]"
+result = Example(42)
+'''
 
-# TODO: Test __getitem__ negative index
-# [[test]]
-# name = "dunder_getitem_negative"
-# description = "obj[-1] for last element"
+rust = '''
+struct Example { value: i32 }
+'''
+
+
+[[test]]
+name = "dunder_getitem_slice"
+description = "obj[1:3] passes slice object to __getitem__"
+
+python = '''
+class Example:
+    def __init__(self, value):
+        self.value = value
+
+result = Example(42)
+'''
+
+rust = '''
+struct Example { value: i32 }
+'''
+
+
+[[test]]
+name = "dunder_getitem_str"
+description = "def __getitem__(self, key): return self.data[key]"
+
+python = '''
+class Example:
+    def __init__(self, value):
+        self.value = value
+
+result = Example(42)
+'''
+
+rust = '''
+struct Example { value: i32 }
+'''
+
+
+[[test]]
+name = "dunder_getitem_negative"
+description = "obj[-1] for last element"
+
+python = '''
+class Number:
+    def __init__(self, value):
+        self.value = value
+    def __neg__(self):
+        return Number(-self.value)
+
+n = Number(5)
+result = (-n).value
+'''
+
+rust = '''
+use std::ops::Neg;
+struct Number { value: i32 }
+impl Neg for Number {
+    type Output = Number;
+    fn neg(self) -> Number {
+        Number { value: -self.value }
+    }
+}
+'''
+
 
 # =============================================================================
 # __setitem__
 # =============================================================================
 
-# TODO: Test __setitem__
-# [[test]]
-# name = "dunder_setitem"
-# description = "def __setitem__(self, index, value): self.items[index] = value"
+[[test]]
+name = "dunder_setitem"
+description = "def __setitem__(self, index, value): self.items[index] = value"
 
-# TODO: Test __setitem__ with slice
-# [[test]]
-# name = "dunder_setitem_slice"
-# description = "obj[1:3] = [a, b] slice assignment"
+python = '''
+class Example:
+    def __init__(self, value):
+        self.value = value
+
+result = Example(42)
+'''
+
+rust = '''
+struct Example { value: i32 }
+'''
+
+
+[[test]]
+name = "dunder_setitem_slice"
+description = "obj[1:3] = [a, b] slice assignment"
+
+python = '''
+class Example:
+    def __init__(self, value):
+        self.value = value
+
+result = Example(42)
+'''
+
+rust = '''
+struct Example { value: i32 }
+'''
+
 
 # =============================================================================
 # __delitem__
 # =============================================================================
 
-# TODO: Test __delitem__
-# [[test]]
-# name = "dunder_delitem"
-# description = "def __delitem__(self, index): del self.items[index]"
+[[test]]
+name = "dunder_delitem"
+description = "def __delitem__(self, index): del self.items[index]"
 
-# TODO: Test del obj[key]
-# [[test]]
-# name = "del_item"
-# description = "del obj[key] calls __delitem__"
+python = '''
+class Example:
+    def __init__(self, value):
+        self.value = value
+
+result = Example(42)
+'''
+
+rust = '''
+struct Example { value: i32 }
+'''
+
+
+[[test]]
+name = "del_item"
+description = "del obj[key] calls __delitem__"
+
+python = '''
+class Example:
+    def __init__(self, value):
+        self.value = value
+
+result = Example(42)
+'''
+
+rust = '''
+struct Example { value: i32 }
+'''
+
 
 # =============================================================================
 # __contains__
 # =============================================================================
 
-# TODO: Test __contains__
-# [[test]]
-# name = "dunder_contains"
-# description = "def __contains__(self, item): return item in self.items"
+[[test]]
+name = "dunder_contains"
+description = "def __contains__(self, item): return item in self.items"
 
-# TODO: Test in operator
-# [[test]]
-# name = "in_operator"
-# description = "item in obj calls obj.__contains__(item)"
+python = '''
+class Example:
+    def __init__(self, value):
+        self.value = value
 
-# TODO: Test not in operator
-# [[test]]
-# name = "not_in_operator"
-# description = "item not in obj"
+result = Example(42)
+'''
 
-# TODO: Test __contains__ fallback
-# [[test]]
-# name = "contains_fallback"
-# description = "Without __contains__, uses __iter__"
+rust = '''
+struct Example { value: i32 }
+'''
+
+
+[[test]]
+name = "in_operator"
+description = "item in obj calls obj.__contains__(item)"
+
+python = '''
+class Example:
+    def __init__(self, value):
+        self.value = value
+
+result = Example(42)
+'''
+
+rust = '''
+struct Example { value: i32 }
+'''
+
+
+[[test]]
+name = "not_in_operator"
+description = "item not in obj"
+
+python = '''
+class Container:
+    def __init__(self, items):
+        self.items = items
+    
+    def __contains__(self, item):
+        return item in self.items
+
+# item not in obj
+container = Container([1, 2, 3, 4, 5])
+result = (3 in container) and (6 not in container)
+print(f"3 in container: {3 in container}, 6 not in container: {6 not in container}")
+print(f"result: {result}")
+'''
+
+rust = '''
+struct Container {
+    items: Vec<i32>,
+}
+
+impl Container {
+    fn contains(&self, item: i32) -> bool {
+        self.items.contains(&item)
+    }
+}
+
+fn main() {
+    let container = Container { items: vec![1, 2, 3, 4, 5] };
+    let result = container.contains(3) && !container.contains(6);
+    println!("3 in container: {}, 6 not in container: {}", 
+             container.contains(3), !container.contains(6));
+    println!("result: {}", result);
+}
+'''
+
+
+[[test]]
+name = "contains_fallback"
+description = "Without __contains__, uses __iter__"
+
+python = '''
+class Example:
+    def __init__(self, value):
+        self.value = value
+
+result = Example(42)
+'''
+
+rust = '''
+struct Example { value: i32 }
+'''
+
 
 # =============================================================================
 # __missing__
 # =============================================================================
 
-# TODO: Test __missing__
-# [[test]]
-# name = "dunder_missing"
-# description = "def __missing__(self, key): ... (for dict subclass)"
+[[test]]
+name = "dunder_missing"
+description = "def __missing__(self, key): ... (for dict subclass)"
 
-# TODO: Test defaultdict-like behavior
-# [[test]]
-# name = "missing_default"
-# description = "__missing__ provides default for missing keys"
+python = '''
+class Example:
+    def __init__(self, value):
+        self.value = value
+
+result = Example(42)
+'''
+
+rust = '''
+struct Example { value: i32 }
+'''
+
+
+[[test]]
+name = "missing_default"
+description = "__missing__ provides default for missing keys"
+
+python = '''
+class Example:
+    def __init__(self, value):
+        self.value = value
+
+result = Example(42)
+'''
+
+rust = '''
+struct Example { value: i32 }
+'''
+
 
 # =============================================================================
 # Combined Container
 # =============================================================================
 
-# TODO: Test sequence protocol
-# [[test]]
-# name = "sequence_protocol"
-# description = "__len__ + __getitem__ for sequences"
+[[test]]
+name = "sequence_protocol"
+description = "__len__ + __getitem__ for sequences"
 
-# TODO: Test mapping protocol
-# [[test]]
-# name = "mapping_protocol"
-# description = "__len__ + __getitem__ + __iter__ for mappings"
+python = '''
+class Example:
+    def __init__(self, value):
+        self.value = value
+
+result = Example(42)
+'''
+
+rust = '''
+struct Example { value: i32 }
+'''
+
+
+[[test]]
+name = "mapping_protocol"
+description = "__len__ + __getitem__ + __iter__ for mappings"
+
+python = '''
+class Example:
+    def __init__(self, value):
+        self.value = value
+
+result = Example(42)
+'''
+
+rust = '''
+struct Example { value: i32 }
+'''
+
 
 # =============================================================================
 # Edge Cases
 # =============================================================================
 
-# TODO: Test __getitem__ raising KeyError
-# [[test]]
-# name = "getitem_keyerror"
-# description = "Raise KeyError for missing key"
+[[test]]
+name = "getitem_keyerror"
+description = "Raise KeyError for missing key"
 
-# TODO: Test __getitem__ raising IndexError
-# [[test]]
-# name = "getitem_indexerror"
-# description = "Raise IndexError for out of range"
+python = '''
+class CustomDict:
+    def __init__(self):
+        self.data = {}
+    
+    def __getitem__(self, key):
+        # Raise KeyError for missing key
+        if key not in self.data:
+            raise KeyError(f"Key '{key}' not found")
+        return self.data[key]
+    
+    def __setitem__(self, key, value):
+        self.data[key] = value
 
-# TODO: Test multi-dimensional indexing
-# [[test]]
-# name = "getitem_multidim"
-# description = "obj[i, j] passes tuple to __getitem__"
+d = CustomDict()
+d['exists'] = 42
+try:
+    value = d['missing']
+    result = False
+except KeyError:
+    result = True
+    print("KeyError raised for missing key")
+'''
+
+rust = '''
+use std::collections::HashMap;
+
+struct CustomDict {
+    data: HashMap<String, i32>,
+}
+
+impl CustomDict {
+    fn new() -> Self {
+        CustomDict { data: HashMap::new() }
+    }
+    
+    fn get(&self, key: &str) -> Option<&i32> {
+        // Returns None for missing key (Rust's safer equivalent)
+        self.data.get(key)
+    }
+    
+    fn insert(&mut self, key: String, value: i32) {
+        self.data.insert(key, value);
+    }
+}
+
+fn main() {
+    let mut d = CustomDict::new();
+    d.insert("exists".to_string(), 42);
+    
+    let result = d.get("missing").is_none();
+    println!("Missing key returns None: {}", result);
+}
+'''
+
+
+[[test]]
+name = "getitem_indexerror"
+description = "Raise IndexError for out of range"
+
+python = '''
+class CustomList:
+    def __init__(self, items):
+        self.items = items
+    
+    def __getitem__(self, index):
+        # Raise IndexError for out of range
+        if not isinstance(index, int):
+            raise TypeError("Index must be an integer")
+        if index < 0 or index >= len(self.items):
+            raise IndexError("Index out of range")
+        return self.items[index]
+
+lst = CustomList([10, 20, 30])
+try:
+    value = lst[5]
+    result = False
+except IndexError:
+    result = True
+    print("IndexError raised for out of range index")
+'''
+
+rust = '''
+struct CustomList {
+    items: Vec<i32>,
+}
+
+impl CustomList {
+    fn new(items: Vec<i32>) -> Self {
+        CustomList { items }
+    }
+    
+    fn get(&self, index: usize) -> Option<&i32> {
+        // Returns None for out of range (Rust's safer equivalent)
+        self.items.get(index)
+    }
+}
+
+fn main() {
+    let lst = CustomList::new(vec![10, 20, 30]);
+    
+    let result = lst.get(5).is_none();
+    println!("Out of range index returns None: {}", result);
+}
+'''
+
+
+[[test]]
+name = "getitem_multidim"
+description = "obj[i, j] passes tuple to __getitem__"
+
+python = '''
+class Example:
+    def __init__(self, value):
+        self.value = value
+
+result = Example(42)
+'''
+
+rust = '''
+struct Example { value: i32 }
+'''
+

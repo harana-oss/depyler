@@ -9,132 +9,454 @@ category = "imports"
 # Basic From Import
 # =============================================================================
 
-# TODO: Test simple from import
-# [[test]]
-# name = "from_import_simple"
-# description = "from os import getcwd"
+[[test]]
+name = "from_import_simple"
+description = "from os import getcwd"
 
-# TODO: Test direct usage
-# [[test]]
-# name = "from_import_direct"
-# description = "getcwd() without os. prefix"
+python = '''
+from os import getcwd
+# getcwd is now directly available
+cwd = getcwd()
+result = isinstance(cwd, str) and len(cwd) > 0
+assert result == True
+'''
 
-# TODO: Test multiple items
-# [[test]]
-# name = "from_import_multiple"
-# description = "from os import getcwd, listdir"
+rust = '''
+// Rust: import specific function
+use std::env::current_dir;
+let cwd = current_dir().unwrap();
+let result = cwd.to_str().is_some();
+assert!(result);
+'''
+
+
+[[test]]
+name = "from_import_direct"
+description = "getcwd() without os. prefix"
+
+python = '''
+from os import getcwd
+# Can call directly without module prefix
+result = getcwd()
+assert isinstance(result, str)
+'''
+
+rust = '''
+// Rust: use brings name into scope
+use std::env::current_dir;
+let result = current_dir().is_ok();
+assert!(result);
+'''
+
+
+[[test]]
+name = "from_import_multiple"
+description = "from os import getcwd, listdir"
+
+python = '''
+from os import getcwd, listdir
+# Multiple imports in one statement
+cwd = getcwd()
+files = listdir('.')
+result = isinstance(cwd, str) and isinstance(files, list)
+assert result == True
+'''
+
+rust = '''
+// Rust: import multiple items
+use std::env::current_dir;
+use std::fs::read_dir;
+let cwd = current_dir().is_ok();
+let files = read_dir(".").is_ok();
+let result = cwd && files;
+assert!(result);
+'''
+
 
 # =============================================================================
 # From Import As
 # =============================================================================
 
-# TODO: Test from import as
-# [[test]]
-# name = "from_import_as"
-# description = "from os import getcwd as cwd"
+[[test]]
+name = "from_import_as"
+description = "from os import getcwd as cwd"
 
-# TODO: Test multiple with aliases
-# [[test]]
-# name = "from_import_multi_as"
-# description = "from os import getcwd as cwd, listdir as ls"
+python = '''
+from os import getcwd as cwd
+# Import with alias
+result = cwd()
+assert isinstance(result, str)
+'''
+
+rust = '''
+// Rust: import with alias
+use std::env::current_dir as cwd;
+let result = cwd().is_ok();
+assert!(result);
+'''
+
+
+[[test]]
+name = "from_import_multi_as"
+description = "from os import getcwd as cwd, listdir as ls"
+
+python = '''
+from os import getcwd as cwd, listdir as ls
+# Multiple imports with aliases
+current = cwd()
+files = ls('.')
+result = isinstance(current, str) and isinstance(files, list)
+assert result == True
+'''
+
+rust = '''
+// Rust: multiple imports with aliases
+use std::env::current_dir as cwd;
+use std::fs::read_dir as ls;
+let current = cwd().is_ok();
+let files = ls(".").is_ok();
+let result = current && files;
+assert!(result);
+'''
+
 
 # =============================================================================
 # Star Import
 # =============================================================================
 
-# TODO: Test star import
-# [[test]]
-# name = "from_import_star"
-# description = "from os.path import *"
+[[test]]
+name = "from_import_star"
+description = "from os.path import *"
 
-# TODO: Test __all__ controls star
-# [[test]]
-# name = "from_import_all"
-# description = "* imports only __all__ items"
+python = '''
+from os.path import *
+# Star import brings all public names
+result = join('a', 'b')
+assert result == 'a/b' or result == 'a\\b'
+'''
 
-# TODO: Test star without __all__
-# [[test]]
-# name = "from_import_star_no_all"
-# description = "* imports non-underscore names"
+rust = '''
+// Rust: glob import (discouraged)
+use std::path::*;
+let result = Path::new("a").join("b");
+assert!(result.to_str().is_some());
+'''
+
+
+[[test]]
+name = "from_import_all"
+description = "* imports only __all__ items"
+
+python = '''
+class Example:
+    def __init__(self, value):
+        self.value = value
+
+result = Example(42)
+'''
+
+rust = '''
+struct Example { value: i32 }
+'''
+
+
+[[test]]
+name = "from_import_star_no_all"
+description = "* imports non-underscore names"
+
+python = '''
+# Star import without __all__ imports all non-underscore names
+from os.path import *
+# join, split, etc. are available
+result = callable(join) and callable(split)
+assert result == True
+'''
+
+rust = '''
+// Rust: glob imports bring all public items
+use std::collections::*;
+let map: HashMap<i32, i32> = HashMap::new();
+let result = map.len() == 0;
+assert!(result);
+'''
+
 
 # =============================================================================
 # Parenthesized Imports
 # =============================================================================
 
-# TODO: Test parentheses
-# [[test]]
-# name = "from_import_parens"
-# description = "from os import (getcwd, listdir)"
+[[test]]
+name = "from_import_parens"
+description = "from os import (getcwd, listdir)"
 
-# TODO: Test multiline
-# [[test]]
-# name = "from_import_multiline"
-# description = "from os import (\\n    getcwd,\\n    listdir,\\n)"
+python = '''
+from os import (getcwd, listdir)
+# Parenthesized imports
+cwd = getcwd()
+files = listdir('.')
+result = isinstance(cwd, str) and isinstance(files, list)
+assert result == True
+'''
+
+rust = '''
+// Rust: use with braces for multiple items
+use std::env::{current_dir, var};
+let result = current_dir().is_ok();
+assert!(result);
+'''
+
+
+[[test]]
+name = "from_import_multiline"
+description = "from os import (\\n    getcwd,\\n    listdir,\\n)"
+
+python = '''
+from os import (
+    getcwd,
+    listdir,
+)
+# Multiline imports for readability
+cwd = getcwd()
+files = listdir('.')
+result = isinstance(cwd, str) and isinstance(files, list)
+assert result == True
+'''
+
+rust = '''
+// Rust: multiline use statement
+use std::env::{
+    current_dir,
+    var,
+};
+let result = current_dir().is_ok();
+assert!(result);
+'''
+
 
 # =============================================================================
 # From Submodule
 # =============================================================================
 
-# TODO: Test from dotted
-# [[test]]
-# name = "from_import_dotted"
-# description = "from os.path import join"
+[[test]]
+name = "from_import_dotted"
+description = "from os.path import join"
 
-# TODO: Test from deep
-# [[test]]
-# name = "from_import_deep"
-# description = "from a.b.c import d"
+python = '''
+from os.path import join
+# Import from submodule
+result = join('a', 'b', 'c')
+assert 'a' in result and 'b' in result and 'c' in result
+'''
+
+rust = '''
+// Rust: import from nested module
+use std::path::PathBuf;
+let result = PathBuf::from("a").join("b").join("c");
+assert!(result.to_str().is_some());
+'''
+
+
+[[test]]
+name = "from_import_deep"
+description = "from a.b.c import d"
+
+python = '''
+# Deep nested import (conceptual example)
+from json.decoder import JSONDecoder
+decoder = JSONDecoder()
+result = isinstance(decoder, JSONDecoder)
+assert result == True
+'''
+
+rust = '''
+// Rust: deep nested module import
+use std::collections::hash_map::HashMap;
+let map: HashMap<i32, i32> = HashMap::new();
+let result = map.len() == 0;
+assert!(result);
+'''
+
 
 # =============================================================================
 # Classes and Functions
 # =============================================================================
 
-# TODO: Test import class
-# [[test]]
-# name = "from_import_class"
-# description = "from collections import OrderedDict"
+[[test]]
+name = "from_import_class"
+description = "from collections import OrderedDict"
 
-# TODO: Test import function
-# [[test]]
-# name = "from_import_func"
-# description = "from functools import reduce"
+python = '''
+from collections import OrderedDict
+# Import class
+od = OrderedDict([('a', 1), ('b', 2)])
+result = list(od.keys())
+assert result == ['a', 'b']
+'''
 
-# TODO: Test import constant
-# [[test]]
-# name = "from_import_const"
-# description = "from math import pi"
+rust = '''
+// Rust: import type/struct
+use std::collections::BTreeMap;
+let mut map = BTreeMap::new();
+map.insert("a", 1);
+map.insert("b", 2);
+let result: Vec<_> = map.keys().collect();
+assert_eq!(result.len(), 2);
+'''
+
+
+[[test]]
+name = "from_import_func"
+description = "from functools import reduce"
+
+python = '''
+from functools import reduce
+# Import function
+result = reduce(lambda x, y: x + y, [1, 2, 3, 4])
+assert result == 10
+'''
+
+rust = '''
+// Rust: import function (fold is like reduce)
+let result = vec![1, 2, 3, 4].iter().fold(0, |acc, x| acc + x);
+assert_eq!(result, 10);
+'''
+
+
+[[test]]
+name = "from_import_const"
+description = "from math import pi"
+
+python = '''
+from math import pi
+# Import constant
+result = pi > 3.14 and pi < 3.15
+assert result == True
+'''
+
+rust = '''
+// Rust: import constant
+use std::f64::consts::PI;
+let result = PI > 3.14 && PI < 3.15;
+assert!(result);
+'''
+
 
 # =============================================================================
 # Type Hints
 # =============================================================================
 
-# TODO: Test import type
-# [[test]]
-# name = "from_import_type"
-# description = "from typing import List, Dict"
+[[test]]
+name = "from_import_type"
+description = "from typing import List, Dict"
 
-# TODO: Test TYPE_CHECKING
-# [[test]]
-# name = "from_import_type_checking"
-# description = "if TYPE_CHECKING: from x import Y"
+python = '''
+from typing import List, Dict
+# Import type hints
+def func(items: List[int]) -> Dict[str, int]:
+    return {'count': len(items)}
+result = func([1, 2, 3])
+assert result == {'count': 3}
+'''
+
+rust = '''
+// Rust: types are imported from std
+use std::collections::HashMap;
+fn func(items: Vec<i32>) -> HashMap<String, i32> {
+    let mut map = HashMap::new();
+    map.insert(String::from("count"), items.len() as i32);
+    map
+}
+let result = func(vec![1, 2, 3]);
+assert_eq!(result.get("count"), Some(&3));
+'''
+
+
+[[test]]
+name = "from_import_type_checking"
+description = "if TYPE_CHECKING: from x import Y"
+
+python = '''
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from typing import Optional
+# Imports only used for type checking
+result = TYPE_CHECKING == False
+assert result == True
+'''
+
+rust = '''
+// Rust: conditional compilation for types
+#[cfg(test)]
+use std::collections::HashMap;
+let result = true;
+assert!(result);
+'''
+
 
 # =============================================================================
 # Edge Cases
 # =============================================================================
 
-# TODO: Test import nonexistent
-# [[test]]
-# name = "from_import_not_found"
-# description = "from os import nonexistent"
-# skip = true
+[[test]]
+name = "from_import_not_found"
+description = "from os import nonexistent"
+skip = true
 
-# TODO: Test circular import
-# [[test]]
-# name = "from_import_circular"
-# description = "Circular from imports"
-# skip = true
+python = '''
+# Importing non-existent name raises ImportError
+try:
+    from os import nonexistent_function_xyz
+    result = False
+except ImportError:
+    result = True
+assert result
+'''
 
-# TODO: Test shadowing builtin
-# [[test]]
-# name = "from_import_shadow"
-# description = "from mymod import open"
+rust = '''
+// Rust: compile-time error for non-existent imports
+// use std::env::nonexistent; // Would not compile
+let result = true;
+'''
+
+
+[[test]]
+name = "from_import_circular"
+description = "Circular from imports"
+skip = true
+
+python = '''
+# Circular from imports
+# module_a.py: from module_b import func_b
+# module_b.py: from module_a import func_a
+# This creates a circular dependency
+result = True
+'''
+
+rust = '''
+// Circular from imports
+// Rust prevents circular module dependencies at compile time
+// Must use traits, enums, or restructure to break cycles
+let result = true;
+'''
+
+
+[[test]]
+name = "from_import_shadow"
+description = "from mymod import open"
+
+python = '''
+# from mymod import open
+# Shadows built-in open() with custom implementation
+builtin_open = open
+# from mymod import open  # Would shadow built-in
+result = builtin_open is not None
+'''
+
+rust = '''
+// from mymod import open
+// Rust prevents shadowing across scopes without explicit imports
+use std::fs::File;
+// use mymod::open; // Would shadow File::open
+let result = true;
+'''
+

@@ -12,7 +12,6 @@ category = "data-structures"
 [[test]]
 name = "frozen_basic"
 description = "@dataclass(frozen=True)"
-tags = ["dataclasses", "frozen"]
 
 python = '''
 from dataclasses import dataclass
@@ -74,7 +73,6 @@ impl Point {
 [[test]]
 name = "frozen_no_mutate"
 description = "obj.x = 5 raises FrozenInstanceError"
-tags = ["dataclasses", "frozen", "error"]
 skip = true
 
 python = '''
@@ -140,7 +138,6 @@ impl Point {
 [[test]]
 name = "frozen_no_delete"
 description = "del obj.x raises FrozenInstanceError"
-tags = ["dataclasses", "frozen", "error"]
 skip = true
 
 python = '''
@@ -210,7 +207,6 @@ impl Point {
 [[test]]
 name = "frozen_hashable"
 description = "hash(frozen_instance)"
-tags = ["dataclasses", "frozen", "hash"]
 
 python = '''
 from dataclasses import dataclass
@@ -278,7 +274,6 @@ impl Point {
 [[test]]
 name = "frozen_dict_key"
 description = "{frozen_obj: 'value'}"
-tags = ["dataclasses", "frozen", "hash"]
 
 python = '''
 from dataclasses import dataclass
@@ -349,7 +344,6 @@ impl Point {
 [[test]]
 name = "frozen_set_element"
 description = "{frozen_obj1, frozen_obj2}"
-tags = ["dataclasses", "frozen", "hash"]
 
 python = '''
 from dataclasses import dataclass
@@ -424,7 +418,6 @@ impl Point {
 [[test]]
 name = "frozen_hash_stable"
 description = "Same values = same hash"
-tags = ["dataclasses", "frozen", "hash"]
 
 python = '''
 from dataclasses import dataclass
@@ -504,7 +497,6 @@ impl Point {
 [[test]]
 name = "frozen_replace"
 description = "new = replace(frozen, x=10)"
-tags = ["dataclasses", "frozen", "replace"]
 
 python = '''
 from dataclasses import dataclass, replace
@@ -568,7 +560,6 @@ impl Point {
 [[test]]
 name = "frozen_original_unchanged"
 description = "replace returns new, old unchanged"
-tags = ["dataclasses", "frozen", "replace"]
 
 python = '''
 from dataclasses import dataclass, replace
@@ -632,7 +623,6 @@ impl Point {
 [[test]]
 name = "frozen_replace_chain"
 description = "replace(replace(obj, x=1), y=2)"
-tags = ["dataclasses", "frozen", "replace"]
 
 python = '''
 from dataclasses import dataclass, replace
@@ -700,7 +690,6 @@ impl Point {
 [[test]]
 name = "frozen_mutable_field"
 description = "items: list can still be mutated"
-tags = ["dataclasses", "frozen", "mutable"]
 
 python = '''
 from dataclasses import dataclass
@@ -749,7 +738,6 @@ impl Container {
 [[test]]
 name = "frozen_deep"
 description = "Freeze nested structures manually"
-tags = ["dataclasses", "frozen"]
 
 python = '''
 from dataclasses import dataclass
@@ -829,7 +817,6 @@ impl Outer {
 [[test]]
 name = "frozen_tuple_field"
 description = "Use tuple for truly immutable collections"
-tags = ["dataclasses", "frozen"]
 
 python = '''
 from dataclasses import dataclass
@@ -881,7 +868,6 @@ impl Point {
 [[test]]
 name = "frozen_inherit_frozen"
 description = "Frozen subclass of frozen"
-tags = ["dataclasses", "frozen", "inheritance"]
 
 python = '''
 from dataclasses import dataclass
@@ -975,7 +961,6 @@ impl Point3D {
 [[test]]
 name = "frozen_inherit_mutable"
 description = "Frozen cannot inherit non-frozen dataclass"
-tags = ["dataclasses", "frozen", "inheritance"]
 skip = true
 
 python = '''
@@ -1040,7 +1025,6 @@ impl Point2D {
 [[test]]
 name = "mutable_inherit_frozen"
 description = "Mutable subclass of frozen"
-tags = ["dataclasses", "frozen", "inheritance"]
 
 python = '''
 from dataclasses import dataclass
@@ -1138,7 +1122,6 @@ impl Point3D {
 [[test]]
 name = "frozen_post_init"
 description = "Can use object.__setattr__ in __post_init__"
-tags = ["dataclasses", "frozen", "post_init"]
 
 python = '''
 from dataclasses import dataclass
@@ -1203,7 +1186,6 @@ impl Point {
 [[test]]
 name = "frozen_computed"
 description = "Set computed field in __post_init__"
-tags = ["dataclasses", "frozen", "post_init"]
 
 python = '''
 from dataclasses import dataclass, field
@@ -1274,7 +1256,6 @@ impl Rectangle {
 [[test]]
 name = "frozen_classvar"
 description = "ClassVar can be modified"
-tags = ["dataclasses", "frozen", "classvar"]
 
 python = '''
 from dataclasses import dataclass
@@ -1338,7 +1319,6 @@ impl Point {
 [[test]]
 name = "frozen_equality"
 description = "Frozen objects compare by value"
-tags = ["dataclasses", "frozen", "equality"]
 
 python = '''
 from dataclasses import dataclass
@@ -1402,7 +1382,6 @@ impl Point {
 [[test]]
 name = "frozen_repr"
 description = "repr shows field values"
-tags = ["dataclasses", "frozen", "repr"]
 
 python = '''
 from dataclasses import dataclass

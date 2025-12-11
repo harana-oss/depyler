@@ -11,7 +11,6 @@ category = "result-types"
 [[test]]
 name = "result_ok"
 description = "Function returning Ok result"
-tags = ["result", "ok"]
 
 python = '''
 def parse_int(s: str) -> int:
@@ -38,7 +37,6 @@ mod tests {
 [[test]]
 name = "result_err"
 description = "Function returning Err result"
-tags = ["result", "err"]
 
 python = '''
 def validate_positive(x: int) -> int:
@@ -89,7 +87,6 @@ mod tests {
 [[test]]
 name = "result_wrap_ok"
 description = "Wrap success value in Ok"
-tags = ["result", "wrap"]
 
 python = '''
 def success(value: int) -> int:
@@ -127,7 +124,6 @@ mod tests {
 [[test]]
 name = "result_wrap_err"
 description = "Wrap error in Err"
-tags = ["result", "wrap"]
 
 python = '''
 def fail(message: str):
@@ -144,7 +140,6 @@ pub fn fail(message: String) {
 [[test]]
 name = "result_question_mark"
 description = "Propagate error with ?"
-tags = ["result", "propagation"]
 
 python = '''
 def read_and_parse(content: str) -> int:
@@ -171,7 +166,6 @@ mod tests {
 [[test]]
 name = "result_unwrap"
 description = "Unwrap Result (may panic)"
-tags = ["result", "unwrap"]
 
 python = '''
 def force_parse(s: str) -> int:
@@ -198,7 +192,6 @@ mod tests {
 [[test]]
 name = "result_unwrap_or"
 description = "Unwrap with default on error"
-tags = ["result", "unwrap"]
 
 python = '''
 def safe_parse(s: str) -> int:
@@ -248,7 +241,6 @@ mod tests {
 [[test]]
 name = "result_unwrap_or_else"
 description = "Unwrap with computed default"
-tags = ["result", "unwrap"]
 
 python = '''
 def parse_with_fallback(s: str, fallback: int) -> int:
@@ -287,7 +279,6 @@ pub fn parse_with_fallback(s: String, fallback: i32) -> i32 {
 [[test]]
 name = "result_match"
 description = "Match on Result"
-tags = ["result", "match"]
 
 python = '''
 def handle_result(s: str) -> str:
@@ -328,7 +319,6 @@ pub fn handle_result(s: String) -> String {
 [[test]]
 name = "result_map"
 description = "Map over Ok value"
-tags = ["result", "map"]
 
 python = '''
 def parse_and_double(s: str) -> int:
@@ -355,7 +345,6 @@ mod tests {
 [[test]]
 name = "result_map_err"
 description = "Map over Err value"
-tags = ["result", "map_err"]
 
 python = '''
 def parse_with_context(s: str) -> int:
@@ -405,7 +394,6 @@ mod tests {
 [[test]]
 name = "result_and_then"
 description = "Chain Result operations"
-tags = ["result", "chain"]
 
 python = '''
 def parse_and_validate(s: str) -> int:
@@ -459,7 +447,6 @@ mod tests {
 [[test]]
 name = "result_return_type"
 description = "Function with Result return type"
-tags = ["result", "return"]
 
 python = '''
 def divide(a: int, b: int) -> int:
@@ -521,7 +508,6 @@ mod tests {
 [[test]]
 name = "side_effect_function_result"
 description = "Side effect function with try/except has Result return and Ok(())"
-tags = ["result", "side-effect"]
 
 python = '''
 def set_value(data: dict[str, int], key: str, value: int):
@@ -561,7 +547,6 @@ pub fn set_value(data: &mut HashMap<String, i32>, key: String, value: i32) {
 [[test]]
 name = "return_value_wrapped_in_ok"
 description = "Function returning value with try/except wraps return in Ok()"
-tags = ["result", "return"]
 
 python = '''
 def get_count(items: list[int]) -> int:
@@ -611,7 +596,6 @@ mod tests {
 [[test]]
 name = "function_with_raise_has_result_type"
 description = "Function with raise has Result return type"
-tags = ["result", "raise"]
 
 python = '''
 def update_config(config: dict[str, int], key: str, value: int):
@@ -635,7 +619,6 @@ pub fn update_config(config: &mut HashMap<String, i32>, key: String, value: i32)
 [[test]]
 name = "divide_by_zero_result"
 description = "Safe divide with try/except generates Result"
-tags = ["result", "exception"]
 
 python = '''
 def safe_divide(a: int, b: int) -> int:
@@ -715,7 +698,6 @@ mod tests {
 [[test]]
 name = "result_unwrapping_at_call_site"
 description = "Call site should unwrap Result for dict return"
-tags = ["result", "unwrap", "call"]
 compile_check = true
 
 python = '''

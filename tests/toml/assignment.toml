@@ -12,7 +12,6 @@ category = "assignment"
 [[test]]
 name = "assign_integer"
 description = "Simple integer assignment"
-tags = ["assignment", "integer"]
 
 python = '''
 def assign_int():
@@ -39,7 +38,6 @@ mod tests {
 [[test]]
 name = "assign_string"
 description = "Simple string assignment"
-tags = ["assignment", "string"]
 
 python = '''
 def assign_str():
@@ -57,7 +55,6 @@ pub fn assign_str() -> String {
 [[test]]
 name = "assign_list"
 description = "List assignment"
-tags = ["assignment", "list"]
 
 python = '''
 def assign_list():
@@ -75,7 +72,6 @@ pub fn assign_list() -> Vec<i32> {
 [[test]]
 name = "assign_dict"
 description = "Dictionary assignment"
-tags = ["assignment", "dict"]
 
 python = '''
 def assign_dict():
@@ -98,7 +94,6 @@ pub fn assign_dict() -> HashMap<serde_json::Value, serde_json::Value> {
 [[test]]
 name = "augassign_add"
 description = "+= operator"
-tags = ["assignment", "augmented"]
 
 python = '''
 def add_assign(x: int) -> int:
@@ -127,7 +122,6 @@ mod tests {
 [[test]]
 name = "augassign_subtract"
 description = "-= operator"
-tags = ["assignment", "augmented"]
 
 python = '''
 def sub_assign(x: int) -> int:
@@ -156,7 +150,6 @@ mod tests {
 [[test]]
 name = "augassign_multiply"
 description = "*= operator"
-tags = ["assignment", "augmented"]
 
 python = '''
 def mul_assign(x: int) -> int:
@@ -186,7 +179,6 @@ mod tests {
 [[test]]
 name = "augassign_divide"
 description = "/= operator"
-tags = ["assignment", "augmented"]
 
 python = '''
 def div_assign(x: float) -> float:
@@ -223,7 +215,6 @@ pub fn div_assign(mut x: f64) -> f64 {
 [[test]]
 name = "augassign_modulo"
 description = "%= operator"
-tags = ["assignment", "augmented"]
 
 python = '''
 def mod_assign(x: int) -> int:
@@ -271,7 +262,6 @@ mod tests {
 [[test]]
 name = "tuple_unpack_basic"
 description = "Basic tuple unpacking"
-tags = ["assignment", "tuple", "unpack"]
 
 python = '''
 def unpack_tuple():
@@ -289,7 +279,6 @@ pub fn unpack_tuple() {
 [[test]]
 name = "tuple_unpack_triple"
 description = "Triple tuple unpacking"
-tags = ["assignment", "tuple", "unpack"]
 
 python = '''
 def unpack_triple():
@@ -307,7 +296,6 @@ pub fn unpack_triple() {
 [[test]]
 name = "tuple_unpack_enumerate_nested"
 description = "Tuple unpacking with enumerate and nested tuples"
-tags = ["assignment", "tuple", "unpack", "enumerate"]
 
 python = '''
 def process_bounds():
@@ -343,7 +331,6 @@ mod tests {
 [[test]]
 name = "tuple_index_access_in_loop"
 description = "Accessing tuple elements by index in enumerate loop"
-tags = ["assignment", "tuple", "index", "enumerate"]
 
 python = '''
 def access_bounds():
@@ -395,7 +382,6 @@ mod tests {
 [[test]]
 name = "tuple_index_after_list_index"
 description = "Tuple index access after extracting from list"
-tags = ["assignment", "tuple", "index", "list"]
 
 python = '''
 import random
@@ -442,7 +428,6 @@ pub fn two() {
 [[test]]
 name = "list_index_assign"
 description = "List index assignment"
-tags = ["assignment", "index", "list"]
 
 python = '''
 def set_first(items: list[int], value: int):
@@ -458,7 +443,6 @@ pub fn set_first(items: &mut Vec<i32>, value: i32) {
 [[test]]
 name = "dict_key_assign"
 description = "Dict key assignment"
-tags = ["assignment", "index", "dict"]
 
 python = '''
 def set_key(d: dict, key: str, value: int):
@@ -476,7 +460,6 @@ pub fn set_key(d: &mut HashMap<serde_json::Value, serde_json::Value>, key: Strin
 [[test]]
 name = "multi_assign_same_value"
 description = "Multiple variables same value (not yet supported)"
-tags = ["assignment", "multiple"]
 skip = true
 
 python = '''
@@ -492,7 +475,6 @@ rust = '''
 [[test]]
 name = "reassign_variable"
 description = "Variable reassignment requires mut"
-tags = ["assignment", "mutability"]
 
 python = '''
 def reassign():
@@ -523,7 +505,6 @@ mod tests {
 [[test]]
 name = "no_reassign_immutable"
 description = "No reassignment means immutable"
-tags = ["assignment", "mutability"]
 
 python = '''
 def no_reassign():
@@ -550,7 +531,6 @@ mod tests {
 [[test]]
 name = "slice_assign"
 description = "Slice assignment (limited support)"
-tags = ["assignment", "slice"]
 
 python = '''
 def replace_slice(items: list[int], start: int, end: int, values: list[int]):
@@ -567,7 +547,6 @@ pub fn replace_slice(mut items: Vec<i32>, start: i32, end: i32, values: &Vec<i32
 [[test]]
 name = "uninitialized_int_declaration"
 description = "Type annotation without initial value for int"
-tags = ["assignment", "declaration", "int"]
 
 python = '''
 def process():
@@ -596,7 +575,6 @@ mod tests {
 [[test]]
 name = "uninitialized_string_declaration"
 description = "Type annotation without initial value for str"
-tags = ["assignment", "declaration", "string"]
 
 python = '''
 def process():
@@ -616,7 +594,6 @@ pub fn process() -> String {
 [[test]]
 name = "uninitialized_bool_declaration"
 description = "Type annotation without initial value for bool"
-tags = ["assignment", "declaration", "bool"]
 
 python = '''
 def check():
@@ -636,7 +613,6 @@ pub fn check() -> bool {
 [[test]]
 name = "uninitialized_float_declaration"
 description = "Type annotation without initial value for float"
-tags = ["assignment", "declaration", "float"]
 
 python = '''
 def calculate():
@@ -656,7 +632,6 @@ pub fn calculate() -> f64 {
 [[test]]
 name = "uninitialized_list_declaration"
 description = "Type annotation without initial value for list"
-tags = ["assignment", "declaration", "list"]
 
 python = '''
 def process():
@@ -676,7 +651,6 @@ pub fn process() -> Vec<i32> {
 [[test]]
 name = "uninitialized_optional_declaration"
 description = "Type annotation without initial value for Optional"
-tags = ["assignment", "declaration", "optional"]
 
 python = '''
 def process():
@@ -696,7 +670,6 @@ pub fn process() {
 [[test]]
 name = "multiple_uninitialized_declarations"
 description = "Multiple uninitialized declarations in same function"
-tags = ["assignment", "declaration", "multiple"]
 
 python = '''
 def process():
@@ -726,7 +699,6 @@ pub fn process() -> bool {
 [[test]]
 name = "uninitialized_with_conditional_assignment"
 description = "Uninitialized declaration with if/else assignment"
-tags = ["assignment", "declaration", "conditional"]
 
 python = '''
 def process(flag: bool):
@@ -753,7 +725,6 @@ pub fn process(flag: bool) -> i32 {
 [[test]]
 name = "annotated_with_value_unchanged"
 description = "Annotated assignment WITH value should still work"
-tags = ["assignment", "declaration", "value"]
 
 python = '''
 def process():
@@ -780,7 +751,6 @@ mod tests {
 [[test]]
 name = "dict_augmented_add"
 description = "Dict += operator requires get/insert pattern"
-tags = ["assignment", "dict", "augmented"]
 
 python = '''
 def increment_dict_value():
@@ -824,7 +794,6 @@ pub fn increment_dict_value() -> i32 {
 [[test]]
 name = "dict_augmented_sub"
 description = "Dict -= operator"
-tags = ["assignment", "dict", "augmented"]
 
 python = '''
 def decrement_dict_value():
@@ -868,7 +837,6 @@ pub fn decrement_dict_value() -> i32 {
 [[test]]
 name = "dict_augmented_mul"
 description = "Dict *= operator"
-tags = ["assignment", "dict", "augmented"]
 
 python = '''
 def multiply_dict_value():
@@ -912,7 +880,6 @@ pub fn multiply_dict_value() -> i32 {
 [[test]]
 name = "dict_augmented_div"
 description = "Dict /= operator"
-tags = ["assignment", "dict", "augmented"]
 
 python = '''
 def divide_dict_value():
@@ -973,7 +940,6 @@ pub fn divide_dict_value() -> i32 {
 [[test]]
 name = "dict_augmented_mod"
 description = "Dict %= operator"
-tags = ["assignment", "dict", "augmented"]
 
 python = '''
 def modulo_dict_value():
@@ -1034,7 +1000,6 @@ pub fn modulo_dict_value() -> i32 {
 [[test]]
 name = "nested_dict_augmented_assignment"
 description = "Nested dict with augmented assignment"
-tags = ["assignment", "dict", "augmented", "nested"]
 
 python = '''
 def nested_update():
@@ -1090,7 +1055,6 @@ pub fn nested_update() -> HashMap<String, HashMap<String, i32>> {
 [[test]]
 name = "multiple_dict_augmented_assignments"
 description = "Multiple augmented assignments to same dict key"
-tags = ["assignment", "dict", "augmented"]
 
 python = '''
 def multi_assign():
@@ -1140,7 +1104,6 @@ pub fn multi_assign() -> i32 {
 [[test]]
 name = "type_tracking_list_annotation"
 description = "Type annotation tracking for List creates Vec"
-tags = ["assignment", "type-tracking", "list"]
 
 python = '''
 def merge_lists(a: list[int], b: list[int]) -> list[int]:
@@ -1158,7 +1121,6 @@ pub fn merge_lists(a: &Vec<i32>, b: &Vec<i32>) -> Vec<i32> {
 [[test]]
 name = "type_tracking_dict_annotation"
 description = "Type annotation tracking for Dict creates HashMap"
-tags = ["assignment", "type-tracking", "dict"]
 
 python = '''
 def create_mapping() -> dict[str, int]:
@@ -1182,7 +1144,6 @@ pub fn create_mapping() -> HashMap<String, i32> {
 [[test]]
 name = "type_tracking_list_literal"
 description = "List literal creates Vec"
-tags = ["assignment", "type-tracking", "list"]
 
 python = '''
 def literal_list():
@@ -1200,7 +1161,6 @@ pub fn literal_list() -> i32 {
 [[test]]
 name = "type_tracking_dict_literal"
 description = "Dict literal creates HashMap"
-tags = ["assignment", "type-tracking", "dict"]
 
 python = '''
 def literal_dict():
@@ -1224,7 +1184,6 @@ pub fn literal_dict() -> i32 {
 [[test]]
 name = "type_tracking_slice"
 description = "Slicing operation preserves Vec type"
-tags = ["assignment", "type-tracking", "slice"]
 
 python = '''
 def slice_list(items: list[int]) -> list[int]:
@@ -1261,7 +1220,6 @@ mod tests {
 [[test]]
 name = "plain_assignment_no_unwrap"
 description = "Plain int assignment should not add .unwrap()"
-tags = ["assignment", "regression"]
 
 python = '''
 def accumulate(items: list[int]) -> int:
@@ -1295,7 +1253,6 @@ mod tests {
 [[test]]
 name = "list_assignment_literal_index"
 description = "List assignment with literal index uses Vec indexing"
-tags = ["assignment", "index", "list"]
 
 python = '''
 def update_list(items: list[int]) -> list[int]:
@@ -1323,7 +1280,6 @@ mod tests {
 [[test]]
 name = "list_assignment_variable_index"
 description = "List assignment with variable index"
-tags = ["assignment", "index", "list"]
 
 python = '''
 def update_at_index(items: list[int], index: int, value: int) -> list[int]:
@@ -1341,7 +1297,6 @@ pub fn update_at_index(mut items: Vec<i32>, index: i32, value: i32) -> Vec<i32> 
 [[test]]
 name = "list_assignment_expression_index"
 description = "List assignment with binary expression index"
-tags = ["assignment", "index", "list"]
 
 python = '''
 def update_next_item(items: list[int], i: int) -> list[int]:
@@ -1359,7 +1314,6 @@ pub fn update_next_item(mut items: Vec<i32>, i: i32) -> Vec<i32> {
 [[test]]
 name = "dict_assignment_string_key"
 description = "Dict assignment with string key uses HashMap.insert"
-tags = ["assignment", "index", "dict"]
 
 python = '''
 def update_dict(d: dict[str, int]) -> dict[str, int]:
@@ -1378,7 +1332,6 @@ pub fn update_dict(mut d: HashMap<String, i32>) -> HashMap<String, i32> {
 [[test]]
 name = "dict_assignment_variable_key"
 description = "Dict assignment with variable key"
-tags = ["assignment", "index", "dict"]
 
 python = '''
 def update_with_key(d: dict[str, int], key: str, value: int) -> dict[str, int]:
@@ -1397,7 +1350,6 @@ pub fn update_with_key(mut d: HashMap<String, i32>, key: String, value: i32) -> 
 [[test]]
 name = "dict_assignment_char_heuristic"
 description = "Character variable name triggers HashMap"
-tags = ["assignment", "index", "dict", "heuristic"]
 
 python = '''
 def update_by_char(d: dict[str, int], c: str) -> dict[str, int]:
@@ -1416,7 +1368,6 @@ pub fn update_by_char(mut d: HashMap<String, i32>, c: String) -> HashMap<String,
 [[test]]
 name = "type_tracked_list_assignment"
 description = "Type-annotated list uses Vec"
-tags = ["assignment", "index", "list", "type-tracking"]
 
 python = '''
 def modify_list() -> list[int]:
@@ -1436,7 +1387,6 @@ pub fn modify_list() -> Vec<i32> {
 [[test]]
 name = "type_tracked_dict_assignment"
 description = "Type-annotated dict uses HashMap"
-tags = ["assignment", "index", "dict", "type-tracking"]
 
 python = '''
 def modify_dict() -> dict[str, int]:
@@ -1460,7 +1410,6 @@ pub fn modify_dict() -> HashMap<String, i32> {
 [[test]]
 name = "nested_list_assignment"
 description = "Nested list assignment uses get_mut chain"
-tags = ["assignment", "index", "nested", "list"]
 
 python = '''
 def update_matrix(matrix: list[list[int]]) -> list[list[int]]:
@@ -1488,7 +1437,6 @@ mod tests {
 [[test]]
 name = "nested_dict_assignment"
 description = "Nested dict assignment uses get_mut chain"
-tags = ["assignment", "index", "nested", "dict"]
 
 python = '''
 def update_nested_dict(d: dict[str, dict[str, int]]) -> dict[str, dict[str, int]]:
@@ -1507,7 +1455,6 @@ pub fn update_nested_dict(mut d: HashMap<String, HashMap<String, i32>>) -> HashM
 [[test]]
 name = "mixed_nested_assignment"
 description = "Dict of lists nested assignment"
-tags = ["assignment", "index", "nested", "mixed"]
 
 python = '''
 def update_dict_of_lists(data: dict[str, list[int]], key: str) -> dict[str, list[int]]:
@@ -1526,7 +1473,6 @@ pub fn update_dict_of_lists(mut data: HashMap<String, Vec<i32>>, key: String) ->
 [[test]]
 name = "multiple_list_assignments"
 description = "Multiple Vec assignments in sequence"
-tags = ["assignment", "index", "list"]
 
 python = '''
 def update_multiple(items: list[int]) -> list[int]:
@@ -1558,7 +1504,6 @@ mod tests {
 [[test]]
 name = "multiple_dict_key_assignments"
 description = "Multiple HashMap insertions in sequence"
-tags = ["assignment", "index", "dict"]
 
 python = '''
 def populate_dict(d: dict[str, int]) -> dict[str, int]:
@@ -1581,7 +1526,6 @@ pub fn populate_dict(mut d: HashMap<String, i32>) -> HashMap<String, i32> {
 [[test]]
 name = "assignment_complex_value"
 description = "Index assignment with complex value expression"
-tags = ["assignment", "index"]
 
 python = '''
 def calculate_and_store(items: list[int], x: int, y: int) -> list[int]:
@@ -1600,7 +1544,6 @@ pub fn calculate_and_store(mut items: Vec<i32>, x: i32, y: i32) -> Vec<i32> {
 [[test]]
 name = "assignment_in_loop"
 description = "Index assignment within iteration"
-tags = ["assignment", "index", "loop"]
 
 python = '''
 def double_values(items: list[int]) -> list[int]:
@@ -1653,7 +1596,6 @@ mod tests {
 [[test]]
 name = "character_variable_heuristic"
 description = "Character variable name triggers HashMap for counts"
-tags = ["assignment", "index", "dict", "heuristic"]
 
 python = '''
 def count_chars(counts: dict[str, int], character: str) -> dict[str, int]:
@@ -1672,7 +1614,6 @@ pub fn count_chars(mut counts: HashMap<String, i32>, character: String) -> HashM
 [[test]]
 name = "deep_nested_assignment"
 description = "3+ level nested dict assignment"
-tags = ["assignment", "index", "nested", "dict"]
 
 python = '''
 def update_deep(data: dict[str, dict[str, dict[str, int]]]) -> dict[str, dict[str, dict[str, int]]]:
@@ -1697,7 +1638,6 @@ pub fn update_deep(
 [[test]]
 name = "complex_assignment_patterns"
 description = "Combined list, dict and nested assignment patterns"
-tags = ["assignment", "index", "integration"]
 
 python = '''
 def complex_updates(

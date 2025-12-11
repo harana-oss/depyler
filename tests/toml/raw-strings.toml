@@ -12,7 +12,6 @@ category = "strings"
 [[test]]
 name = "raw_basic"
 description = "r'\\n' contains backslash n"
-tags = ["raw-strings", "escape"]
 
 python = '''
 s = r'\n'
@@ -27,7 +26,6 @@ let result = s == "\\n";
 [[test]]
 name = "raw_path"
 description = "r'C:\\Users\\name'"
-tags = ["raw-strings", "path"]
 
 python = '''
 path = r'C:\Users\name'
@@ -42,7 +40,6 @@ let result = path == "C:\\Users\\name";
 [[test]]
 name = "raw_regex"
 description = "r'\\d+\\.\\d+'"
-tags = ["raw-strings", "regex"]
 
 python = '''
 pattern = r'\d+\.\d+'
@@ -61,7 +58,6 @@ let result = pattern == "\\d+\\.\\d+";
 [[test]]
 name = "raw_backslash_n"
 description = "r'\\n' vs '\\n'"
-tags = ["raw-strings", "escape", "newline"]
 
 python = '''
 raw = r'\n'
@@ -78,7 +74,6 @@ let result = (raw.len() == 2 && normal.len() == 1);
 [[test]]
 name = "raw_backslash_t"
 description = "r'\\t' vs '\\t'"
-tags = ["raw-strings", "escape", "tab"]
 
 python = '''
 raw = r'\t'
@@ -95,7 +90,6 @@ let result = (raw.len() == 2 && normal.len() == 1);
 [[test]]
 name = "raw_unicode"
 description = "r'\\u0041' literal backslash"
-tags = ["raw-strings", "unicode"]
 
 python = '''
 raw = r'\u0041'
@@ -110,7 +104,6 @@ let result = raw == "\\u0041";
 [[test]]
 name = "raw_hex"
 description = "r'\\x41' literal backslash"
-tags = ["raw-strings", "hex"]
 
 python = '''
 raw = r'\x41'
@@ -129,7 +122,6 @@ let result = raw == "\\x41";
 [[test]]
 name = "raw_single"
 description = "r'text'"
-tags = ["raw-strings", "quotes"]
 
 python = '''
 s = r'text'
@@ -144,7 +136,6 @@ let result = s == "text";
 [[test]]
 name = "raw_double"
 description = "r\"text\""
-tags = ["raw-strings", "quotes"]
 
 python = '''
 s = r"text"
@@ -159,7 +150,6 @@ let result = s == "text";
 [[test]]
 name = "raw_triple_single"
 description = "r'''text'''"
-tags = ["raw-strings", "quotes", "multiline"]
 
 python = """
 s = r'''text'''
@@ -174,7 +164,6 @@ let result = s == "text";
 [[test]]
 name = "raw_triple_double"
 description = "r\"\"\"text\"\"\""
-tags = ["raw-strings", "quotes", "multiline"]
 
 python = '''
 s = r"""text"""
@@ -193,7 +182,6 @@ let result = s == "text";
 [[test]]
 name = "raw_fstring"
 description = "rf'{var}\\n'"
-tags = ["raw-strings", "f-strings"]
 
 python = '''
 var = "test"
@@ -210,7 +198,6 @@ let result = s == "test\\n";
 [[test]]
 name = "fr_string"
 description = "fr'{var}\\n' same as rf"
-tags = ["raw-strings", "f-strings"]
 
 python = '''
 var = "test"
@@ -231,7 +218,6 @@ let result = s == "test\\n";
 [[test]]
 name = "raw_trailing_backslash"
 description = "r'text\\' - odd backslashes at end"
-tags = ["raw-strings", "limitations"]
 skip = true
 
 python = '''
@@ -248,7 +234,6 @@ let result = true;
 [[test]]
 name = "raw_quote_escape"
 description = "r'\\'' invalid"
-tags = ["raw-strings", "limitations"]
 skip = true
 
 python = '''
@@ -269,7 +254,6 @@ let result = true;
 [[test]]
 name = "raw_regex_use"
 description = "re.match(r'\\d+', text)"
-tags = ["raw-strings", "regex", "use-case"]
 
 python = '''
 import re
@@ -290,7 +274,6 @@ let result = re.is_match(text);
 [[test]]
 name = "raw_windows"
 description = "r'C:\\Program Files\\App'"
-tags = ["raw-strings", "path", "use-case"]
 
 python = '''
 path = r'C:\Program Files\App'
@@ -305,7 +288,6 @@ let result = path == "C:\\Program Files\\App";
 [[test]]
 name = "raw_latex"
 description = "r'\\frac{1}{2}'"
-tags = ["raw-strings", "latex", "use-case"]
 
 python = '''
 latex = r'\frac{1}{2}'
@@ -324,7 +306,6 @@ let result = latex == "\\frac{1}{2}";
 [[test]]
 name = "raw_empty"
 description = "r''"
-tags = ["raw-strings", "edge-case"]
 
 python = '''
 s = r''
@@ -339,7 +320,6 @@ let result = s == "";
 [[test]]
 name = "raw_multiline"
 description = "r'''multi\\nline'''"
-tags = ["raw-strings", "multiline", "edge-case"]
 
 python = """
 s = r'''multi\nline'''
@@ -354,7 +334,6 @@ let result = s == "multi\\nline";
 [[test]]
 name = "raw_bytes"
 description = "rb'\\x00' or br'\\x00'"
-tags = ["raw-strings", "bytes", "edge-case"]
 
 python = '''
 b1 = rb'\x00'

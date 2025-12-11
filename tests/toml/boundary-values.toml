@@ -10,7 +10,6 @@ description = "Tests for boundary conditions and edge cases"
 [[test]]
 name = "zero_values"
 description = "Test zero values for int, float, list, and dict"
-tags = ["boundary", "zero", "empty"]
 
 python = '''
 def zero_test() -> int:
@@ -47,7 +46,6 @@ mod tests {
 [[test]]
 name = "negative_one_values"
 description = "Test negative indexing with -1"
-tags = ["boundary", "negative", "indexing"]
 
 python = '''
 def negative_one_test(arr: list) -> int:
@@ -100,7 +98,6 @@ mod tests {
 [[test]]
 name = "maximum_list_size"
 description = "Test creating large lists with append"
-tags = ["boundary", "list", "size"]
 
 python = '''
 def create_large_list(size: int) -> list:
@@ -124,7 +121,6 @@ pub fn create_large_list(size: i32) -> Vec<serde_json::Value> {
 [[test]]
 name = "single_element_collections"
 description = "Test single element list and dict"
-tags = ["boundary", "single", "collection"]
 
 python = '''
 def single_element_test() -> int:
@@ -158,7 +154,6 @@ mod tests {
 [[test]]
 name = "power_of_two_boundaries"
 description = "Test power of two values in loops"
-tags = ["boundary", "numeric", "powers"]
 
 python = '''
 def power_of_two_test() -> int:
@@ -192,7 +187,6 @@ mod tests {
 [[test]]
 name = "off_by_one_loop_conditions"
 description = "Test loop boundary conditions to avoid off-by-one errors"
-tags = ["boundary", "loop", "off-by-one"]
 
 python = '''
 def off_by_one_test(n: int) -> int:
@@ -243,7 +237,6 @@ mod tests {
 [[test]]
 name = "floating_point_boundaries"
 description = "Test floating point boundary values"
-tags = ["boundary", "float", "numeric"]
 
 python = '''
 def float_boundary_test() -> float:
@@ -268,7 +261,6 @@ pub fn float_boundary_test() -> f64 {
 [[test]]
 name = "arithmetic_overflow_boundaries"
 description = "Test potential overflow conditions with large values"
-tags = ["boundary", "arithmetic", "overflow"]
 
 python = '''
 def arithmetic_boundary_test() -> int:
@@ -306,7 +298,6 @@ mod tests {
 [[test]]
 name = "string_length_boundaries"
 description = "Test empty, single-char, and long strings"
-tags = ["boundary", "string", "length"]
 
 python = '''
 def string_boundary_test() -> int:
@@ -339,7 +330,6 @@ mod tests {
 [[test]]
 name = "recursive_depth_boundaries"
 description = "Test recursive function calls at various depths"
-tags = ["boundary", "recursion"]
 
 python = '''
 def factorial_recursive(n: int) -> int:
@@ -386,7 +376,6 @@ mod tests {
 [[test]]
 name = "boolean_boundaries"
 description = "Test boolean truthiness boundaries"
-tags = ["boundary", "boolean", "truthiness"]
 
 python = '''
 def boolean_boundary_test() -> bool:
@@ -419,7 +408,6 @@ pub fn boolean_boundary_test() -> bool {
 [[test]]
 name = "modulo_operation_boundaries"
 description = "Test modulo with various divisors"
-tags = ["boundary", "modulo", "arithmetic"]
 
 python = '''
 def modulo_boundary_test(n: int) -> int:
@@ -476,7 +464,6 @@ mod tests {
 [[test]]
 name = "range_boundaries"
 description = "Test edge cases for range function"
-tags = ["boundary", "range"]
 
 python = '''
 def range_boundary_test() -> int:
@@ -516,7 +503,6 @@ mod tests {
 [[test]]
 name = "conditional_boundaries"
 description = "Test boundary conditions in if statements"
-tags = ["boundary", "conditional", "if"]
 
 python = '''
 def conditional_boundary_test(x: int) -> int:
@@ -565,7 +551,6 @@ mod tests {
 [[test]]
 name = "comparison_operator_boundaries"
 description = "Test all comparison operators at boundaries"
-tags = ["boundary", "comparison", "operators"]
 
 python = '''
 def comparison_boundary_test(a: int, b: int) -> bool:
@@ -600,7 +585,6 @@ pub fn comparison_boundary_test(a: i32, b: i32) -> bool {
 [[test]]
 name = "container_access_boundaries"
 description = "Test boundary access patterns for lists including slicing"
-tags = ["boundary", "container", "access", "slicing"]
 
 python = '''
 def container_access_test() -> int:
@@ -686,7 +670,6 @@ mod tests {
 [[test]]
 name = "empty_python_file"
 description = "Empty Python source should transpile to empty output"
-tags = ["edge-case", "empty"]
 
 python = ''
 
@@ -697,7 +680,6 @@ rust = '''
 [[test]]
 name = "whitespace_only_file"
 description = "Whitespace-only source should transpile"
-tags = ["edge-case", "whitespace"]
 
 python = '''
    
@@ -712,7 +694,6 @@ rust = '''
 [[test]]
 name = "comments_only_file"
 description = "Comments-only source should transpile"
-tags = ["edge-case", "comments"]
 
 python = '''
 # This is a comment
@@ -750,7 +731,6 @@ mod tests {
 [[test]]
 name = "deeply_nested_functions"
 description = "Deeply nested function definitions"
-tags = ["edge-case", "nested", "functions"]
 
 python = '''
 def level1(x: int) -> int:
@@ -770,7 +750,6 @@ pub fn f() {}
 [[test]]
 name = "extremely_simple_function"
 description = "Function with only pass statement"
-tags = ["edge-case", "simple"]
 
 python = '''
 def f(): pass
@@ -794,7 +773,6 @@ mod tests {
 [[test]]
 name = "function_with_only_return"
 description = "Function that only returns a literal"
-tags = ["edge-case", "simple", "return"]
 
 python = '''
 def get_five() -> int:
@@ -821,7 +799,6 @@ mod tests {
 [[test]]
 name = "unicode_function_names"
 description = "Function names with unicode characters"
-tags = ["edge-case", "unicode"]
 
 python = '''
 def функция(x: int) -> int:
@@ -837,7 +814,6 @@ pub fn greet() -> String {
 [[test]]
 name = "unicode_strings"
 description = "String literals with unicode and emoji"
-tags = ["edge-case", "unicode", "strings"]
 
 python = '''
 def greet() -> str:
@@ -864,7 +840,6 @@ mod tests {
 [[test]]
 name = "max_integer_values"
 description = "Maximum i64 integer values"
-tags = ["edge-case", "integer", "max"]
 
 python = '''
 def big_numbers() -> int:
@@ -897,7 +872,6 @@ mod tests {
 [[test]]
 name = "empty_lists_and_dicts"
 description = "Empty collection initializers"
-tags = ["edge-case", "collections", "empty"]
 
 python = '''
 def empty_collections() -> int:
@@ -918,7 +892,6 @@ pub fn single_chars(a: i32, b: i32, c: i32) -> i32 {
 [[test]]
 name = "single_character_variables"
 description = "Single character variable names"
-tags = ["edge-case", "variables"]
 
 python = '''
 def single_chars(a: int, b: int, c: int) -> int:
@@ -976,7 +949,6 @@ mod tests {
 [[test]]
 name = "nested_control_structures"
 description = "Deeply nested control flow structures"
-tags = ["edge-case", "control-flow", "nested"]
 
 python = '''
 def nested_control(n: int) -> int:
@@ -1052,7 +1024,6 @@ pub fn all_operators(a: i32, b: i32) -> bool {
 [[test]]
 name = "all_python_operators"
 description = "All Python operators in a single function"
-tags = ["edge-case", "operators"]
 
 python = '''
 def all_operators(a: int, b: int) -> bool:

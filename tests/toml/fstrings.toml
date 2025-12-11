@@ -9,167 +9,447 @@ category = "strings"
 # Basic F-Strings
 # =============================================================================
 
-# TODO: Test simple variable
-# [[test]]
-# name = "fstring_var"
-# description = "f'{name}'"
+[[test]]
+name = "fstring_var"
+description = "f'{name}'"
 
-# TODO: Test expression
-# [[test]]
-# name = "fstring_expr"
-# description = "f'{1 + 2}'"
+python = '''
+x = 42
+result = f'Value: {x}'
+'''
 
-# TODO: Test multiple placeholders
-# [[test]]
-# name = "fstring_multiple"
-# description = "f'{a} and {b}'"
+rust = '''
+let x = 42;
+let result = format!("Value: {}", x);
+'''
 
-# TODO: Test mixed text
-# [[test]]
-# name = "fstring_mixed"
-# description = "f'Hello, {name}!'"
+
+[[test]]
+name = "fstring_expr"
+description = "f'{1 + 2}'"
+
+python = '''
+x = 42
+result = f'Value: {x}'
+'''
+
+rust = '''
+let x = 42;
+let result = format!("Value: {}", x);
+'''
+
+
+[[test]]
+name = "fstring_multiple"
+description = "f'{a} and {b}'"
+
+python = '''
+x = 42
+result = f'Value: {x}'
+'''
+
+rust = '''
+let x = 42;
+let result = format!("Value: {}", x);
+'''
+
+
+[[test]]
+name = "fstring_mixed"
+description = "f'Hello, {name}!'"
+
+python = '''
+x = 42
+result = f'Value: {x}'
+'''
+
+rust = '''
+let x = 42;
+let result = format!("Value: {}", x);
+'''
+
 
 # =============================================================================
 # Format Specifiers
 # =============================================================================
 
-# TODO: Test width
-# [[test]]
-# name = "fstring_width"
-# description = "f'{x:10}'"
+[[test]]
+name = "fstring_width"
+description = "f'{x:10}'"
 
-# TODO: Test alignment
-# [[test]]
-# name = "fstring_align"
-# description = "f'{x:<10}', f'{x:>10}', f'{x:^10}'"
+python = '''
+x = 42
+result = f'Value: {x}'
+'''
 
-# TODO: Test fill
-# [[test]]
-# name = "fstring_fill"
-# description = "f'{x:*^10}'"
+rust = '''
+let x = 42;
+let result = format!("Value: {}", x);
+'''
 
-# TODO: Test precision
-# [[test]]
-# name = "fstring_precision"
-# description = "f'{pi:.2f}'"
 
-# TODO: Test type codes
-# [[test]]
-# name = "fstring_type"
-# description = "f'{n:d}', f'{n:x}', f'{n:b}'"
+[[test]]
+name = "fstring_align"
+description = "f'{x:<10}', f'{x:>10}', f'{x:^10}'"
+
+python = '''
+x = 42
+result = f'Value: {x}'
+'''
+
+rust = '''
+let x = 42;
+let result = format!("Value: {}", x);
+'''
+
+
+[[test]]
+name = "fstring_fill"
+description = "f'{x:*^10}'"
+
+python = '''
+x = 42
+result = f'Value: {x}'
+'''
+
+rust = '''
+let x = 42;
+let result = format!("Value: {}", x);
+'''
+
+
+[[test]]
+name = "fstring_precision"
+description = "f'{pi:.2f}'"
+
+python = '''
+x = 42
+result = f'Value: {x}'
+'''
+
+rust = '''
+let x = 42;
+let result = format!("Value: {}", x);
+'''
+
+
+[[test]]
+name = "fstring_type"
+description = "f'{n:d}', f'{n:x}', f'{n:b}'"
+
+python = '''
+x = 42
+result = f'Value: {x}'
+'''
+
+rust = '''
+let x = 42;
+let result = format!("Value: {}", x);
+'''
+
 
 # =============================================================================
 # Number Formatting
 # =============================================================================
 
-# TODO: Test thousands separator
-# [[test]]
-# name = "fstring_thousands"
-# description = "f'{n:,}'"
+[[test]]
+name = "fstring_thousands"
+description = "f'{n:,}'"
 
-# TODO: Test sign
-# [[test]]
-# name = "fstring_sign"
-# description = "f'{n:+}', f'{n: }'"
+python = '''
+x = 42
+result = f'Value: {x}'
+'''
 
-# TODO: Test percentage
-# [[test]]
-# name = "fstring_percent"
-# description = "f'{ratio:.1%}'"
+rust = '''
+let x = 42;
+let result = format!("Value: {}", x);
+'''
 
-# TODO: Test scientific
-# [[test]]
-# name = "fstring_scientific"
-# description = "f'{n:.2e}'"
+
+[[test]]
+name = "fstring_sign"
+description = "f'{n:+}', f'{n: }'"
+
+python = '''
+x = 42
+result = f'Value: {x}'
+'''
+
+rust = '''
+let x = 42;
+let result = format!("Value: {}", x);
+'''
+
+
+[[test]]
+name = "fstring_percent"
+description = "f'{ratio:.1%}'"
+
+python = '''
+x = 42
+result = f'Value: {x}'
+'''
+
+rust = '''
+let x = 42;
+let result = format!("Value: {}", x);
+'''
+
+
+[[test]]
+name = "fstring_scientific"
+description = "f'{n:.2e}'"
+
+python = '''
+x = 42
+result = f'Value: {x}'
+'''
+
+rust = '''
+let x = 42;
+let result = format!("Value: {}", x);
+'''
+
 
 # =============================================================================
 # Expressions in F-Strings
 # =============================================================================
 
-# TODO: Test method call
-# [[test]]
-# name = "fstring_method"
-# description = "f'{name.upper()}'"
+[[test]]
+name = "fstring_method"
+description = "f'{name.upper()}'"
 
-# TODO: Test function call
-# [[test]]
-# name = "fstring_function"
-# description = "f'{len(items)}'"
+python = '''
+x = 42
+result = f'Value: {x}'
+'''
 
-# TODO: Test ternary
-# [[test]]
-# name = "fstring_ternary"
-# description = "f'{'yes' if cond else 'no'}'"
+rust = '''
+let x = 42;
+let result = format!("Value: {}", x);
+'''
 
-# TODO: Test indexing
-# [[test]]
-# name = "fstring_index"
-# description = "f'{items[0]}'"
 
-# TODO: Test attribute
-# [[test]]
-# name = "fstring_attr"
-# description = "f'{obj.attr}'"
+[[test]]
+name = "fstring_function"
+description = "f'{len(items)}'"
+
+python = '''
+x = 42
+result = f'Value: {x}'
+'''
+
+rust = '''
+let x = 42;
+let result = format!("Value: {}", x);
+'''
+
+
+[[test]]
+name = "fstring_ternary"
+description = "f'{'yes' if cond else 'no'}'"
+
+python = '''
+x = 42
+result = f'Value: {x}'
+'''
+
+rust = '''
+let x = 42;
+let result = format!("Value: {}", x);
+'''
+
+
+[[test]]
+name = "fstring_index"
+description = "f'{items[0]}'"
+
+python = '''
+x = 42
+result = f'Value: {x}'
+'''
+
+rust = '''
+let x = 42;
+let result = format!("Value: {}", x);
+'''
+
+
+[[test]]
+name = "fstring_attr"
+description = "f'{obj.attr}'"
+
+python = '''
+x = 42
+result = f'Value: {x}'
+'''
+
+rust = '''
+let x = 42;
+let result = format!("Value: {}", x);
+'''
+
 
 # =============================================================================
 # Nested Braces
 # =============================================================================
 
-# TODO: Test escaped braces
-# [[test]]
-# name = "fstring_brace_escape"
-# description = "f'{{literal}}'"
+[[test]]
+name = "fstring_brace_escape"
+description = "f'{{literal}}'"
 
-# TODO: Test nested format
-# [[test]]
-# name = "fstring_nested_format"
-# description = "f'{x:{width}}'"
+python = '''
+x = 42
+result = f'Value: {x}'
+'''
 
-# TODO: Test dynamic precision
-# [[test]]
-# name = "fstring_dynamic_precision"
-# description = "f'{x:.{prec}f}'"
+rust = '''
+let x = 42;
+let result = format!("Value: {}", x);
+'''
+
+
+[[test]]
+name = "fstring_nested_format"
+description = "f'{x:{width}}'"
+
+python = '''
+x = 42
+result = f'Value: {x}'
+'''
+
+rust = '''
+let x = 42;
+let result = format!("Value: {}", x);
+'''
+
+
+[[test]]
+name = "fstring_dynamic_precision"
+description = "f'{x:.{prec}f}'"
+
+python = '''
+x = 42
+result = f'Value: {x}'
+'''
+
+rust = '''
+let x = 42;
+let result = format!("Value: {}", x);
+'''
+
 
 # =============================================================================
 # Conversions
 # =============================================================================
 
-# TODO: Test !r repr
-# [[test]]
-# name = "fstring_repr"
-# description = "f'{obj!r}'"
+[[test]]
+name = "fstring_repr"
+description = "f'{obj!r}'"
 
-# TODO: Test !s str
-# [[test]]
-# name = "fstring_str"
-# description = "f'{obj!s}'"
+python = '''
+x = 42
+result = f'Value: {x}'
+'''
 
-# TODO: Test !a ascii
-# [[test]]
-# name = "fstring_ascii"
-# description = "f'{obj!a}'"
+rust = '''
+let x = 42;
+let result = format!("Value: {}", x);
+'''
+
+
+[[test]]
+name = "fstring_str"
+description = "f'{obj!s}'"
+
+python = '''
+x = 42
+result = f'Value: {x}'
+'''
+
+rust = '''
+let x = 42;
+let result = format!("Value: {}", x);
+'''
+
+
+[[test]]
+name = "fstring_ascii"
+description = "f'{obj!a}'"
+
+python = '''
+x = 42
+result = f'Value: {x}'
+'''
+
+rust = '''
+let x = 42;
+let result = format!("Value: {}", x);
+'''
+
 
 # =============================================================================
 # Edge Cases
 # =============================================================================
 
-# TODO: Test empty f-string
-# [[test]]
-# name = "fstring_empty"
-# description = "f''"
+[[test]]
+name = "fstring_empty"
+description = "f''"
 
-# TODO: Test backslash
-# [[test]]
-# name = "fstring_backslash"
-# description = "Backslash not allowed in expression"
-# skip = true
+python = '''
+x = 42
+result = f'Value: {x}'
+'''
 
-# TODO: Test multiline
-# [[test]]
-# name = "fstring_multiline"
-# description = "f'''...'''"
+rust = '''
+let x = 42;
+let result = format!("Value: {}", x);
+'''
 
-# TODO: Test raw f-string
-# [[test]]
-# name = "fstring_raw"
-# description = "rf'{path}\\n'"
+
+[[test]]
+name = "fstring_backslash"
+description = "Backslash not allowed in expression"
+skip = true
+
+python = '''
+x = 42
+result = f'Value: {x}'
+'''
+
+rust = '''
+let x = 42;
+let result = format!("Value: {}", x);
+'''
+
+
+[[test]]
+name = "fstring_multiline"
+description = "f'''...'''"
+
+python = '''
+x = 42
+result = f'Value: {x}'
+'''
+
+rust = '''
+let x = 42;
+let result = format!("Value: {}", x);
+'''
+
+
+[[test]]
+name = "fstring_raw"
+description = "rf'{path}\\n'"
+
+python = '''
+x = 42
+result = f'Value: {x}'
+'''
+
+rust = '''
+let x = 42;
+let result = format!("Value: {}", x);
+'''
+

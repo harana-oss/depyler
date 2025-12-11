@@ -13,7 +13,6 @@ description = "Tests for Python collection types, operations, builtins, and func
 [[test]]
 name = "list_operations"
 description = "Test list creation, access, methods, and comprehension"
-tags = ["list", "operations"]
 
 python = '''
 def work_with_lists():
@@ -63,7 +62,6 @@ pub fn work_with_lists() -> i32 {
 [[test]]
 name = "list_extend"
 description = "list.extend() extend with iterable"
-tags = ["list", "method"]
 
 python = '''
 def extend_list(lst: list, items: list) -> None:
@@ -80,7 +78,6 @@ pub fn extend_list(lst: &mut Vec<serde_json::Value>, items: &Vec<serde_json::Val
 [[test]]
 name = "list_index"
 description = "list.index() find element index"
-tags = ["list", "method"]
 
 python = '''
 def find_index(lst: list, item: int) -> int:
@@ -101,7 +98,6 @@ pub fn find_index(lst: &Vec<serde_json::Value>, item: i32) -> i32 {
 [[test]]
 name = "list_sort"
 description = "list.sort() in-place sort"
-tags = ["list", "method"]
 
 python = '''
 def sort_list(lst: list) -> None:
@@ -143,7 +139,6 @@ mod tests {
 [[test]]
 name = "list_count"
 description = "list.count() count occurrences"
-tags = ["list", "method"]
 
 python = '''
 def count_items(lst: list, item: int) -> int:
@@ -160,7 +155,6 @@ pub fn count_items(lst: &Vec<serde_json::Value>, item: i32) -> i32 {
 [[test]]
 name = "list_pop_index"
 description = "list.pop() remove at index"
-tags = ["list", "method"]
 
 python = '''
 def pop_item(lst: list, index: int) -> int:
@@ -177,7 +171,6 @@ pub fn pop_item(lst: &mut Vec<serde_json::Value>, index: i32) -> i32 {
 [[test]]
 name = "list_insert"
 description = "list.insert() insert at index"
-tags = ["list", "method"]
 
 python = '''
 def insert_item(lst: list, index: int, value: int) -> None:
@@ -194,7 +187,6 @@ pub fn insert_item(lst: &mut Vec<serde_json::Value>, index: i32, value: i32) {
 [[test]]
 name = "list_remove_value"
 description = "list.remove() remove first occurrence"
-tags = ["list", "method"]
 
 python = '''
 def remove_item(lst: list, value: int) -> None:
@@ -215,7 +207,6 @@ pub fn remove_item(lst: &mut Vec<serde_json::Value>, value: i32) {
 [[test]]
 name = "vector_concatenation"
 description = "Concatenate two lists using + operator"
-tags = ["list", "concatenation", "vector"]
 compile_check = true
 
 python = '''
@@ -251,7 +242,6 @@ mod tests {
 [[test]]
 name = "list_extend_and_copy"
 description = "Extend list1 with list2 using extend method"
-tags = ["list", "extend", "vector"]
 compile_check = true
 
 python = '''
@@ -274,7 +264,6 @@ pub fn extend_list_copy(list1: &Vec<i32>, list2: &Vec<i32>) -> Vec<i32> {
 [[test]]
 name = "combined_vector_operations"
 description = "Combine lists using both concatenation and extend"
-tags = ["list", "concatenation", "extend", "vector"]
 compile_check = true
 
 python = '''
@@ -299,7 +288,6 @@ pub fn combine_and_extend(list1: &Vec<i32>, list2: &Vec<i32>, list3: &Vec<i32>) 
 [[test]]
 name = "dict_operations"
 description = "Test dict creation, access, and methods"
-tags = ["dict", "operations"]
 
 python = '''
 def work_with_dicts():
@@ -351,7 +339,6 @@ pub fn work_with_dicts() -> i32 {
 [[test]]
 name = "tuple_operations"
 description = "Test tuple creation, unpacking, and access"
-tags = ["tuple", "operations"]
 
 python = '''
 def work_with_tuples():
@@ -398,7 +385,6 @@ pub fn work_with_tuples() -> i32 {
 [[test]]
 name = "set_union"
 description = "set.union() returns union of two sets"
-tags = ["set", "operation"]
 
 python = '''
 def union_sets(s1: set, s2: set) -> set:
@@ -416,7 +402,6 @@ pub fn union_sets(s1: &HashSet<serde_json::Value>, s2: &HashSet<serde_json::Valu
 [[test]]
 name = "set_intersection"
 description = "set.intersection() returns common elements"
-tags = ["set", "operation"]
 
 python = '''
 def intersect_sets(s1: set, s2: set) -> set:
@@ -434,7 +419,6 @@ pub fn intersect_sets(s1: &HashSet<serde_json::Value>, s2: &HashSet<serde_json::
 [[test]]
 name = "set_difference"
 description = "set.difference() elements in first but not second"
-tags = ["set", "operation"]
 
 python = '''
 def diff_sets(s1: set, s2: set) -> set:
@@ -452,7 +436,6 @@ pub fn diff_sets(s1: &HashSet<serde_json::Value>, s2: &HashSet<serde_json::Value
 [[test]]
 name = "set_symmetric_difference"
 description = "set.symmetric_difference() elements in either but not both"
-tags = ["set", "operation"]
 
 python = '''
 def symmetric_diff(s1: set, s2: set) -> set:
@@ -473,7 +456,6 @@ pub fn symmetric_diff(s1: &HashSet<serde_json::Value>, s2: &HashSet<serde_json::
 [[test]]
 name = "set_issubset"
 description = "set.issubset() check subset relation"
-tags = ["set", "operation"]
 
 python = '''
 def is_subset(s1: set, s2: set) -> bool:
@@ -491,7 +473,6 @@ pub fn is_subset(s1: &HashSet<serde_json::Value>, s2: &HashSet<serde_json::Value
 [[test]]
 name = "set_discard"
 description = "set.discard() remove element if present"
-tags = ["set", "operation"]
 
 python = '''
 def discard_item(s: set, item: int) -> None:
@@ -509,7 +490,6 @@ pub fn discard_item(s: &mut HashSet<serde_json::Value>, item: i32) {
 [[test]]
 name = "set_remove_method"
 description = "set.remove() remove element"
-tags = ["set", "operation"]
 
 python = '''
 def remove_item(s: set, item: int) -> None:
@@ -529,7 +509,6 @@ pub fn remove_item(s: &mut HashSet<serde_json::Value>, item: i32) {
 [[test]]
 name = "nested_collections"
 description = "Test nested lists, list of dicts, and dict with list values"
-tags = ["nested", "collections"]
 
 python = '''
 def work_with_nested():
@@ -570,7 +549,6 @@ pub fn work_with_nested() -> i32 {
 [[test]]
 name = "collection_type_annotations"
 description = "Test typed collections with List, Dict, Tuple, Optional"
-tags = ["typed", "annotations", "collections"]
 
 python = '''
 from typing import List, Dict, Tuple, Optional
@@ -608,7 +586,6 @@ pub fn typed_collections(
 [[test]]
 name = "collection_methods"
 description = "Test list and dict methods"
-tags = ["methods", "collections"]
 
 python = '''
 def collection_methods():
@@ -664,7 +641,6 @@ pub fn collection_methods() -> i32 {
 [[test]]
 name = "collection_iteration"
 description = "Test iterating over lists and dicts"
-tags = ["iteration", "collections"]
 
 python = '''
 def iterate_collections():
@@ -711,7 +687,6 @@ pub fn iterate_collections() -> i32 {
 [[test]]
 name = "builtin_hex"
 description = "hex() number to hexadecimal string"
-tags = ["builtin", "conversion"]
 
 python = '''
 def to_hex(n: int) -> str:
@@ -727,7 +702,6 @@ pub fn to_hex(n: i32) -> String {
 [[test]]
 name = "builtin_bin"
 description = "bin() number to binary string"
-tags = ["builtin", "conversion"]
 
 python = '''
 def to_binary(n: int) -> str:
@@ -743,7 +717,6 @@ pub fn to_binary(n: i32) -> String {
 [[test]]
 name = "builtin_oct"
 description = "oct() number to octal string"
-tags = ["builtin", "conversion"]
 
 python = '''
 def to_octal(n: int) -> str:
@@ -759,7 +732,6 @@ pub fn to_octal(n: i32) -> String {
 [[test]]
 name = "builtin_chr"
 description = "chr() code point to character"
-tags = ["builtin", "conversion"]
 
 python = '''
 def code_to_char(code: int) -> str:
@@ -775,7 +747,6 @@ pub fn code_to_char(code: i32) -> String {
 [[test]]
 name = "functools_reduce"
 description = "functools.reduce() accumulate values"
-tags = ["functools", "functional"]
 
 python = '''
 from functools import reduce
@@ -806,7 +777,6 @@ mod tests {
 [[test]]
 name = "itertools_chain"
 description = "itertools.chain() chain multiple iterators"
-tags = ["itertools", "functional"]
 
 python = '''
 from itertools import chain
@@ -826,7 +796,6 @@ pub fn chain_lists(a: Vec<serde_json::Value>, b: Vec<serde_json::Value>) -> Vec<
 [[test]]
 name = "itertools_cycle"
 description = "itertools.cycle() infinite cycle"
-tags = ["itertools", "functional"]
 
 python = '''
 from itertools import cycle
@@ -850,7 +819,6 @@ pub fn cycle_items(items: Vec<serde_json::Value>, n: i32) -> Vec<serde_json::Val
 [[test]]
 name = "operator_attrgetter"
 description = "operator.attrgetter() attribute access"
-tags = ["operator", "functional"]
 
 python = '''
 import operator
@@ -872,7 +840,6 @@ pub fn get_name_attr(obj: &serde_json::Value) -> String {
 [[test]]
 name = "operator_itemgetter"
 description = "operator.itemgetter() item access"
-tags = ["operator", "functional"]
 
 python = '''
 import operator
@@ -894,7 +861,6 @@ pub fn get_first_item(obj: &serde_json::Value) -> object {
 [[test]]
 name = "operator_methodcaller"
 description = "operator.methodcaller() method invocation"
-tags = ["operator", "functional"]
 
 python = '''
 import operator
@@ -916,7 +882,6 @@ pub fn call_upper(obj: &serde_json::Value) -> String {
 [[test]]
 name = "builtin_iter"
 description = "iter() create iterator"
-tags = ["builtin", "iterator"]
 
 python = '''
 def make_iter(items: list):
@@ -933,7 +898,6 @@ pub fn make_iter(items: Vec<serde_json::Value>) {
 [[test]]
 name = "builtin_type"
 description = "type() get type name"
-tags = ["builtin", "type"]
 
 python = '''
 def get_type(value: int) -> str:
@@ -949,7 +913,6 @@ pub fn get_type(value: i32) -> String {
 [[test]]
 name = "builtin_next"
 description = "next() get next from iterator"
-tags = ["builtin", "iterator"]
 
 python = '''
 def get_next(items: list) -> int:
@@ -979,7 +942,6 @@ mod tests {
 [[test]]
 name = "builtin_callable"
 description = "callable() check if callable"
-tags = ["builtin", "type"]
 
 python = '''
 def is_callable(obj) -> bool:
@@ -1005,7 +967,6 @@ mod tests {
 [[test]]
 name = "builtin_slice"
 description = "slice() create slice object"
-tags = ["builtin", "slice"]
 
 python = '''
 def make_slice(start: int, stop: int) -> slice:
@@ -1021,7 +982,6 @@ pub fn make_slice(start: i32, stop: i32) -> slice {
 [[test]]
 name = "builtin_bytes"
 description = "bytes() convert to bytes"
-tags = ["builtin", "bytes"]
 
 python = '''
 def to_bytes(s: str) -> bytes:
@@ -1037,7 +997,6 @@ pub fn to_bytes(s: String) -> bytes {
 [[test]]
 name = "round_with_decimals"
 description = "round() with decimal places"
-tags = ["builtin", "round"]
 
 python = '''
 def round_to_decimals(x: float, n: int) -> float:
@@ -1056,7 +1015,6 @@ pub fn round_to_decimals(x: f64, n: i32) -> f64 {
 [[test]]
 name = "counter_builtin_conversion"
 description = "Counter(items) uses iterator collection"
-tags = ["builtin", "counter", "collections"]
 
 python = '''
 from collections import Counter
@@ -1078,7 +1036,6 @@ pub fn count_items(items: &serde_json::Value) {
 [[test]]
 name = "dict_builtin_conversion"
 description = "dict(mapping) uses proper conversion"
-tags = ["builtin", "dict"]
 
 python = '''
 def convert_to_dict(mapping):
@@ -1096,7 +1053,6 @@ pub fn convert_to_dict(mapping: &serde_json::Value) -> HashMap<serde_json::Value
 [[test]]
 name = "dict_empty_constructor"
 description = "dict() with no args generates HashMap::new()"
-tags = ["builtin", "dict"]
 
 python = '''
 def make_empty_dict():
@@ -1114,7 +1070,6 @@ pub fn make_empty_dict() -> HashMap<serde_json::Value, serde_json::Value> {
 [[test]]
 name = "deque_builtin_conversion"
 description = "deque(items) uses VecDeque::from or collect"
-tags = ["builtin", "deque", "collections"]
 
 python = '''
 from collections import deque
@@ -1133,7 +1088,6 @@ pub fn make_deque(items: &serde_json::Value) {
 [[test]]
 name = "list_builtin_conversion"
 description = "list(iterable) uses proper conversion"
-tags = ["builtin", "list"]
 
 python = '''
 def convert_to_list(iterable):
@@ -1150,7 +1104,6 @@ pub fn convert_to_list(iterable: &serde_json::Value) -> Vec<serde_json::Value> {
 [[test]]
 name = "list_empty_constructor"
 description = "list() with no args generates Vec::new() or vec![]"
-tags = ["builtin", "list"]
 
 python = '''
 def make_empty_list():
@@ -1167,7 +1120,6 @@ pub fn make_empty_list() -> Vec<serde_json::Value> {
 [[test]]
 name = "set_method_add"
 description = "set.add() transpiles to .insert()"
-tags = ["set", "method"]
 
 python = '''
 def test_set():
@@ -1194,7 +1146,6 @@ pub fn test_set() -> HashSet<i32> {
 [[test]]
 name = "set_method_remove"
 description = "set.remove() transpiles to .remove()"
-tags = ["set", "method"]
 
 python = '''
 def test_set():
@@ -1223,7 +1174,6 @@ pub fn test_set() -> HashSet<i32> {
 [[test]]
 name = "frozenset_literal"
 description = "frozenset uses HashSet"
-tags = ["set", "frozenset"]
 
 python = '''
 def make_frozenset():
@@ -1242,7 +1192,6 @@ pub fn make_frozenset() {
 [[test]]
 name = "dict_method_keys"
 description = "dict.keys() transpiles to .keys()"
-tags = ["dict", "method"]
 
 python = '''
 def test_dict():
@@ -1267,7 +1216,6 @@ pub fn test_dict() -> Vec<serde_json::Value> {
 [[test]]
 name = "dict_method_values"
 description = "dict.values() transpiles to .values()"
-tags = ["dict", "method"]
 
 python = '''
 def test_dict():
@@ -1292,7 +1240,6 @@ pub fn test_dict() -> Vec<serde_json::Value> {
 [[test]]
 name = "dict_method_items"
 description = "dict.items() transpiles to .iter()"
-tags = ["dict", "method"]
 
 python = '''
 def test_dict():
@@ -1319,7 +1266,6 @@ pub fn test_dict() {
 [[test]]
 name = "list_method_clear"
 description = "list.clear() transpiles to .clear()"
-tags = ["list", "method"]
 
 python = '''
 def test_list():
@@ -1339,7 +1285,6 @@ pub fn test_list() -> Vec<i32> {
 [[test]]
 name = "conditional_import_hashmap"
 description = "Using dict imports HashMap"
-tags = ["dict", "import"]
 
 python = '''
 def use_dict() -> dict:
@@ -1360,7 +1305,6 @@ pub fn use_dict() -> HashMap<String, String> {
 [[test]]
 name = "conditional_import_hashset"
 description = "Using set imports HashSet"
-tags = ["set", "import"]
 
 python = '''
 def use_set() -> set:
@@ -1383,7 +1327,6 @@ pub fn use_set() -> HashSet<i32> {
 [[test]]
 name = "list_index_on_module_constant"
 description = "list.index() on module-level constant uses iter().position()"
-tags = ["list", "method", "lazy_static", "constant"]
 
 python = '''
 VALUES = ["1", "2", "3", "4"]

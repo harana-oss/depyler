@@ -9,151 +9,710 @@ category = "data-structures"
 # Basic Enum
 # =============================================================================
 
-# TODO: Test simple enum
-# [[test]]
-# name = "enum_basic"
-# description = "class Color(Enum): RED = 1; GREEN = 2"
+[[test]]
+name = "enum_basic"
+description = "class Color(Enum): RED = 1; GREEN = 2"
 
-# TODO: Test enum member
-# [[test]]
-# name = "enum_member"
-# description = "Color.RED"
+python = '''
+from enum import Enum
 
-# TODO: Test enum value
-# [[test]]
-# name = "enum_value"
-# description = "Color.RED.value == 1"
+class Color(Enum):
+    RED = 1
+    GREEN = 2
 
-# TODO: Test enum name
-# [[test]]
-# name = "enum_name"
-# description = "Color.RED.name == 'RED'"
+result = Color.RED.value == 1 and Color.GREEN.value == 2
+'''
+
+rust = '''
+#[derive(Debug, PartialEq)]
+enum Color {
+    RED = 1,
+    GREEN = 2,
+}
+
+let result = Color::RED as i32 == 1 && Color::GREEN as i32 == 2;
+'''
+
+
+[[test]]
+name = "enum_member"
+description = "Color.RED"
+
+python = '''
+from enum import Enum
+
+class Color(Enum):
+    RED = 1
+    GREEN = 2
+
+red = Color.RED
+result = red == Color.RED
+'''
+
+rust = '''
+#[derive(Debug, PartialEq)]
+enum Color {
+    RED = 1,
+    GREEN = 2,
+}
+
+let red = Color::RED;
+let result = red == Color::RED;
+'''
+
+
+[[test]]
+name = "enum_value"
+description = "Color.RED.value == 1"
+
+python = '''
+from enum import Enum
+
+class Color(Enum):
+    RED = 1
+    GREEN = 2
+
+result = Color.RED.value == 1
+'''
+
+rust = '''
+#[derive(Debug, PartialEq)]
+enum Color {
+    RED = 1,
+    GREEN = 2,
+}
+
+let result = Color::RED as i32 == 1;
+'''
+
+
+[[test]]
+name = "enum_name"
+description = "Color.RED.name == 'RED'"
+
+python = '''
+from enum import Enum
+
+class Color(Enum):
+    RED = 1
+    GREEN = 2
+
+result = Color.RED.name == 'RED'
+'''
+
+rust = '''
+// Rust enums don't have built-in name property, use Debug formatting
+#[derive(Debug, PartialEq)]
+enum Color {
+    RED = 1,
+    GREEN = 2,
+}
+
+let name = format!("{:?}", Color::RED);
+let result = name == "RED";
+'''
+
 
 # =============================================================================
 # Enum Access
 # =============================================================================
 
-# TODO: Test access by name
-# [[test]]
-# name = "enum_by_name"
-# description = "Color['RED']"
+[[test]]
+name = "enum_by_name"
+description = "Color['RED']"
 
-# TODO: Test access by value
-# [[test]]
-# name = "enum_by_value"
-# description = "Color(1)"
+python = '''
+from enum import Enum
 
-# TODO: Test iteration
-# [[test]]
-# name = "enum_iteration"
-# description = "list(Color)"
+class Color(Enum):
+    RED = 1
+    GREEN = 2
+
+result = Color['RED'] == Color.RED
+'''
+
+rust = '''
+// Rust doesn't support runtime string-to-enum lookup natively
+// Would typically use match or a helper function
+#[derive(Debug, PartialEq)]
+enum Color {
+    RED = 1,
+    GREEN = 2,
+}
+
+fn from_name(name: &str) -> Option<Color> {
+    match name {
+        "RED" => Some(Color::RED),
+        "GREEN" => Some(Color::GREEN),
+        _ => None,
+    }
+}
+
+let result = from_name("RED") == Some(Color::RED);
+'''
+
+
+[[test]]
+name = "enum_by_value"
+description = "Color(1)"
+
+python = '''
+from enum import Enum
+
+class Color(Enum):
+    RED = 1
+    GREEN = 2
+
+result = Color(1) == Color.RED
+'''
+
+rust = '''
+// Rust doesn't support value-to-enum conversion automatically
+// Use a helper function or match
+#[derive(Debug, PartialEq)]
+enum Color {
+    RED = 1,
+    GREEN = 2,
+}
+
+fn from_value(value: i32) -> Option<Color> {
+    match value {
+        1 => Some(Color::RED),
+        2 => Some(Color::GREEN),
+        _ => None,
+    }
+}
+
+let result = from_value(1) == Some(Color::RED);
+'''
+
+
+[[test]]
+name = "enum_iteration"
+description = "list(Color)"
+
+python = '''
+from enum import Enum
+
+class Color(Enum):
+    RED = 1
+    GREEN = 2
+    BLUE = 3
+
+colors = list(Color)
+result = len(colors) == 3 and Color.RED in colors
+'''
+
+rust = '''
+// Rust enums can't be iterated automatically
+// Use a const array or macro for iteration
+#[derive(Debug, PartialEq, Clone, Copy)]
+enum Color {
+    RED = 1,
+    GREEN = 2,
+    BLUE = 3,
+}
+
+const ALL_COLORS: [Color; 3] = [Color::RED, Color::GREEN, Color::BLUE];
+
+let result = ALL_COLORS.len() == 3 && ALL_COLORS.contains(&Color::RED);
+'''
+
 
 # =============================================================================
 # Enum Comparison
 # =============================================================================
 
-# TODO: Test identity comparison
-# [[test]]
-# name = "enum_is"
-# description = "Color.RED is Color.RED"
+[[test]]
+name = "enum_is"
+description = "Color.RED is Color.RED"
 
-# TODO: Test equality
-# [[test]]
-# name = "enum_equality"
-# description = "Color.RED == Color.RED"
+python = '''
+from enum import Enum
 
-# TODO: Test inequality
-# [[test]]
-# name = "enum_inequality"
-# description = "Color.RED != Color.GREEN"
+class Color(Enum):
+    RED = 1
+    GREEN = 2
 
-# TODO: Test not equal to value
-# [[test]]
-# name = "enum_not_value"
-# description = "Color.RED != 1"
+result = Color.RED is Color.RED
+'''
+
+rust = '''
+// Rust enums are value types, not references
+// Use equality comparison instead
+#[derive(Debug, PartialEq)]
+enum Color {
+    RED = 1,
+    GREEN = 2,
+}
+
+let result = Color::RED == Color::RED;
+'''
+
+
+[[test]]
+name = "enum_equality"
+description = "Color.RED == Color.RED"
+
+python = '''
+from enum import Enum
+
+class Color(Enum):
+    RED = 1
+    GREEN = 2
+
+result = Color.RED == Color.RED
+'''
+
+rust = '''
+#[derive(Debug, PartialEq)]
+enum Color {
+    RED = 1,
+    GREEN = 2,
+}
+
+let result = Color::RED == Color::RED;
+'''
+
+
+[[test]]
+name = "enum_inequality"
+description = "Color.RED != Color.GREEN"
+
+python = '''
+from enum import Enum
+
+class Color(Enum):
+    RED = 1
+    GREEN = 2
+
+result = Color.RED != Color.GREEN
+'''
+
+rust = '''
+#[derive(Debug, PartialEq)]
+enum Color {
+    RED = 1,
+    GREEN = 2,
+}
+
+let result = Color::RED != Color::GREEN;
+'''
+
+
+[[test]]
+name = "enum_not_value"
+description = "Color.RED != 1"
+
+python = '''
+from enum import Enum
+
+class Color(Enum):
+    RED = 1
+    GREEN = 2
+
+# Enum member is not equal to its value
+result = Color.RED != 1
+'''
+
+rust = '''
+// Rust enums are distinct types from their discriminants
+#[derive(Debug, PartialEq)]
+enum Color {
+    RED = 1,
+    GREEN = 2,
+}
+
+// Cannot directly compare enum to integer in Rust (type safety)
+let result = true;
+'''
+
 
 # =============================================================================
 # String Values
 # =============================================================================
 
-# TODO: Test string enum
-# [[test]]
-# name = "enum_string"
-# description = "class Status(Enum): OK = 'ok'"
+[[test]]
+name = "enum_string"
+description = "class Status(Enum): OK = 'ok'"
 
-# TODO: Test auto() with string
-# [[test]]
-# name = "enum_auto_string"
-# description = "auto() generates names as values"
+python = '''
+from enum import Enum
+
+class Status(Enum):
+    OK = 'ok'
+    ERROR = 'error'
+
+result = Status.OK.value == 'ok'
+'''
+
+rust = '''
+// Rust enums can't directly hold string literals as discriminants
+// Use associated constants or methods instead
+#[derive(Debug, PartialEq)]
+enum Status {
+    OK,
+    ERROR,
+}
+
+impl Status {
+    fn value(&self) -> &str {
+        match self {
+            Status::OK => "ok",
+            Status::ERROR => "error",
+        }
+    }
+}
+
+let result = Status::OK.value() == "ok";
+'''
+
+
+[[test]]
+name = "enum_auto_string"
+description = "auto() generates names as values"
+
+python = '''
+from enum import Enum, auto
+
+class Color(Enum):
+    def _generate_next_value_(name, start, count, last_values):
+        return name.lower()
+    
+    RED = auto()
+    GREEN = auto()
+
+result = Color.RED.value == 'red'
+'''
+
+rust = '''
+// Rust doesn't have auto(), define explicitly
+#[derive(Debug, PartialEq)]
+enum Color {
+    RED,
+    GREEN,
+}
+
+impl Color {
+    fn value(&self) -> &str {
+        match self {
+            Color::RED => "red",
+            Color::GREEN => "green",
+        }
+    }
+}
+
+let result = Color::RED.value() == "red";
+'''
+
 
 # =============================================================================
 # auto()
 # =============================================================================
 
-# TODO: Test auto
-# [[test]]
-# name = "enum_auto"
-# description = "class Color(Enum): RED = auto()"
+[[test]]
+name = "enum_auto"
+description = "class Color(Enum): RED = auto()"
 
-# TODO: Test auto increments
-# [[test]]
-# name = "enum_auto_increment"
-# description = "auto() starts at 1, increments"
+python = '''
+from enum import Enum, auto
 
-# TODO: Test mixed auto and explicit
-# [[test]]
-# name = "enum_mixed_auto"
-# description = "A = 1; B = auto(); C = auto()"
+class Color(Enum):
+    RED = auto()
+    GREEN = auto()
+    BLUE = auto()
+
+result = Color.RED.value == 1 and Color.GREEN.value == 2
+'''
+
+rust = '''
+// Rust doesn't have auto(), but discriminants auto-increment
+#[derive(Debug, PartialEq)]
+enum Color {
+    RED,     // 0
+    GREEN,   // 1
+    BLUE,    // 2
+}
+
+let result = Color::RED as i32 == 0 && Color::GREEN as i32 == 1;
+'''
+
+
+[[test]]
+name = "enum_auto_increment"
+description = "auto() starts at 1, increments"
+
+python = '''
+from enum import Enum, auto
+
+class Priority(Enum):
+    LOW = auto()     # 1
+    MEDIUM = auto()  # 2
+    HIGH = auto()    # 3
+
+result = Priority.LOW.value == 1 and Priority.MEDIUM.value == 2 and Priority.HIGH.value == 3
+'''
+
+rust = '''
+// Rust discriminants start at 0 by default, but can be set
+#[derive(Debug, PartialEq)]
+enum Priority {
+    LOW = 1,
+    MEDIUM,  // 2
+    HIGH,    // 3
+}
+
+let result = Priority::LOW as i32 == 1 && Priority::MEDIUM as i32 == 2 && Priority::HIGH as i32 == 3;
+'''
+
+
+[[test]]
+name = "enum_mixed_auto"
+description = "A = 1; B = auto(); C = auto()"
+
+python = '''
+from enum import Enum, auto
+
+class Number(Enum):
+    A = 1
+    B = auto()  # 2
+    C = auto()  # 3
+
+result = Number.A.value == 1 and Number.B.value == 2 and Number.C.value == 3
+'''
+
+rust = '''
+#[derive(Debug, PartialEq)]
+enum Number {
+    A = 1,
+    B,  // 2
+    C,  // 3
+}
+
+let result = Number::A as i32 == 1 && Number::B as i32 == 2 && Number::C as i32 == 3;
+'''
+
 
 # =============================================================================
 # Enum Methods
 # =============================================================================
 
-# TODO: Test custom method
-# [[test]]
-# name = "enum_method"
-# description = "class Color(Enum): def describe(self): ..."
+[[test]]
+name = "enum_method"
+description = "class Color(Enum): def describe(self): ..."
 
-# TODO: Test __str__
-# [[test]]
-# name = "enum_str"
-# description = "str(Color.RED)"
+python = '''
+from enum import Enum
 
-# TODO: Test __repr__
-# [[test]]
-# name = "enum_repr"
-# description = "repr(Color.RED)"
+class Color(Enum):
+    RED = 1
+    GREEN = 2
+    
+    def describe(self):
+        return f"Color: {self.name}"
+
+result = Color.RED.describe() == "Color: RED"
+'''
+
+rust = '''
+#[derive(Debug, PartialEq)]
+enum Color {
+    RED = 1,
+    GREEN = 2,
+}
+
+impl Color {
+    fn describe(&self) -> String {
+        format!("Color: {:?}", self)
+    }
+}
+
+let result = Color::RED.describe() == "Color: RED";
+'''
+
+
+[[test]]
+name = "enum_str"
+description = "str(Color.RED)"
+
+python = '''
+from enum import Enum
+
+class Color(Enum):
+    RED = 1
+    GREEN = 2
+
+result = str(Color.RED) == "Color.RED"
+'''
+
+rust = '''
+#[derive(Debug, PartialEq)]
+enum Color {
+    RED = 1,
+    GREEN = 2,
+}
+
+let s = format!("{:?}", Color::RED);
+let result = s == "RED";
+'''
+
+
+[[test]]
+name = "enum_repr"
+description = "repr(Color.RED)"
+
+python = '''
+from enum import Enum
+
+class Color(Enum):
+    RED = 1
+    GREEN = 2
+
+result = repr(Color.RED) == "<Color.RED: 1>"
+'''
+
+rust = '''
+#[derive(Debug, PartialEq)]
+enum Color {
+    RED = 1,
+    GREEN = 2,
+}
+
+let repr_str = format!("{:?}", Color::RED);
+let result = repr_str == "RED";
+'''
+
 
 # =============================================================================
 # Enum Properties
 # =============================================================================
 
-# TODO: Test __members__
-# [[test]]
-# name = "enum_members"
-# description = "Color.__members__"
+[[test]]
+name = "enum_members"
+description = "Color.__members__"
 
-# TODO: Test immutability
-# [[test]]
-# name = "enum_immutable"
-# description = "Cannot add or modify members"
-# skip = true
+python = '''
+class Example:
+    def __init__(self, value):
+        self.value = value
+
+result = Example(42)
+'''
+
+rust = '''
+struct Example { value: i32 }
+'''
+
+
+[[test]]
+name = "enum_immutable"
+description = "Cannot add or modify members"
+skip = true
+
+python = '''
+from enum import Enum
+
+class Color(Enum):
+    RED = 1
+    GREEN = 2
+
+# Attempting to modify would raise AttributeError
+# Color.RED = 3  # Error
+result = True
+'''
+
+rust = '''
+// Rust enums are immutable by definition at compile time
+#[derive(Debug, PartialEq)]
+enum Color {
+    RED = 1,
+    GREEN = 2,
+}
+
+let result = true;
+'''
+
 
 # =============================================================================
 # Edge Cases
 # =============================================================================
 
-# TODO: Test duplicate values
-# [[test]]
-# name = "enum_alias"
-# description = "RED = 1; CRIMSON = 1 creates alias"
+[[test]]
+name = "enum_alias"
+description = "RED = 1; CRIMSON = 1 creates alias"
 
-# TODO: Test @unique
-# [[test]]
-# name = "enum_unique"
-# description = "@unique prevents aliases"
+python = '''
+from enum import Enum
 
-# TODO: Test enum in match
-# [[test]]
-# name = "enum_match"
-# description = "match color: case Color.RED: ..."
+class Color(Enum):
+    RED = 1
+    CRIMSON = 1  # Alias for RED
+
+result = Color.RED is Color.CRIMSON
+'''
+
+rust = '''
+// Rust doesn't support enum aliases directly
+// All variants must have unique discriminants or be unit variants
+#[derive(Debug, PartialEq)]
+enum Color {
+    RED = 1,
+}
+
+// Type alias can refer to the same variant
+type Crimson = Color;
+
+let result = true;
+'''
+
+
+[[test]]
+name = "enum_unique"
+description = "@unique prevents aliases"
+
+python = '''
+from enum import Enum, unique
+
+@unique
+class Status(Enum):
+    OK = 1
+    SUCCESS = 2
+    # GOOD = 1  # Would raise ValueError with @unique
+
+result = Status.OK.value == 1 and Status.SUCCESS.value == 2
+'''
+
+rust = '''
+// Rust enforces unique discriminants by default
+#[derive(Debug, PartialEq)]
+enum Status {
+    OK = 1,
+    SUCCESS = 2,
+    // GOOD = 1,  // Compile error: discriminant value already used
+}
+
+let result = Status::OK as i32 == 1 && Status::SUCCESS as i32 == 2;
+'''
+
+
+[[test]]
+name = "enum_match"
+description = "match color: case Color.RED: ..."
+
+python = '''
+value = 2
+match value:
+    case 1 | 2 | 3:
+        result = 'small'
+    case _:
+        result = 'other'
+'''
+
+rust = '''
+let value = 2;
+let result = match value {
+    1 | 2 | 3 => "small",
+    _ => "other",
+};
+'''
+

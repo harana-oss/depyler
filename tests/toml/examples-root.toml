@@ -1,0 +1,160 @@
+# Root Examples
+# Miscellaneous examples from examples/ root
+
+[metadata]
+name = "Root Examples"
+category = "examples"
+
+# =============================================================================
+# Examples
+# =============================================================================
+
+[[test]]
+name = "test_simple_annotated"
+description = "!/usr/bin/env python3"
+
+python = '''
+#!/usr/bin/env python3
+"""Simple test for annotated assignments without values."""
+
+def test_annotated_assignments():
+    # Basic types without values
+    counter: int
+    name: str
+    is_valid: bool
+    score: float
+    
+    # Now assign values
+    counter = 10
+    name = "test"
+    is_valid = True
+    score = 3.14
+    
+    # Use them
+    print(counter)
+    print(name)
+    print(is_valid)
+    print(score)
+
+if __name__ == "__main__":
+    test_annotated_assignments()
+'''
+
+rust = '''
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn test_annotated_assignments() {
+    let mut counter: i32 = 0;
+    let mut name: String = "".to_string();
+    let mut is_valid: bool = false;
+    let mut score: f64 = 0.0;
+    counter = 10;
+    name = "test".to_string();
+    is_valid = true;
+    score = 3.14;
+    println!("{}", counter);
+    println!("{}", name);
+    println!("{}", is_valid);
+    println!("{}", score);
+}
+'''
+
+[[test]]
+name = "test_annotated_no_value"
+description = "!/usr/bin/env python3"
+
+python = '''
+#!/usr/bin/env python3
+"""Test annotated assignments without initial values."""
+
+# Basic types without values
+counter: int
+name: str
+is_valid: bool
+score: float
+
+# Collections without values
+items: list[int]
+mapping: dict[str, int]
+unique_values: set[str]
+
+# Custom type without value
+class FieldPosition:
+    def __init__(self, x: int, y: int):
+        self.x = x
+        self.y = y
+
+field_position: FieldPosition
+new_team: str
+valid: bool
+
+# Optional type without value
+from typing import Optional
+maybe_value: Optional[str]
+
+# Now assign values
+counter = 10
+name = "test"
+is_valid = True
+score = 3.14
+
+items = [1, 2, 3]
+mapping = {"a": 1, "b": 2}
+unique_values = {"x", "y", "z"}
+
+field_position = FieldPosition(5, 10)
+new_team = "TeamA"
+valid = True
+maybe_value = "found"
+
+# Test usage
+print(f"Counter: {counter}")
+print(f"Name: {name}")
+print(f"Valid: {is_valid}")
+print(f"Score: {score}")
+print(f"Items: {items}")
+print(f"Mapping: {mapping}")
+print(f"Unique values: {unique_values}")
+print(f"Field position: ({field_position.x}, {field_position.y})")
+print(f"Team: {new_team}")
+print(f"Valid flag: {valid}")
+print(f"Maybe value: {maybe_value}")
+'''
+
+rust = '''
+pub const counter: i32 = 10;
+pub const name: &str = "test";
+pub const is_valid: bool = true;
+pub const score: f64 = 3.14;
+pub const items: serde_json::Value = vec![1, 2, 3];
+pub const mapping: serde_json::Value = {
+    let mut map = HashMap::new();
+    map.insert("a".to_string(), 1);
+    map.insert("b".to_string(), 2);
+    map
+};
+pub const unique_values: serde_json::Value = {
+    let mut set = HashSet::new();
+    set.insert("x");
+    set.insert("y");
+    set.insert("z");
+    set
+};
+pub const field_position: serde_json::Value = FieldPosition::new(5, 10);
+pub const new_team: &str = "TeamA";
+pub const valid: bool = true;
+pub const maybe_value: &str = "found";
+use serde_json;
+use std::collections::HashMap;
+use std::collections::HashSet;
+#[derive(Debug, Clone)]
+pub struct FieldPosition {
+    pub x: i32,
+    pub y: i32,
+}
+impl FieldPosition {
+    pub fn new(x: i32, y: i32) -> Self {
+        Self { x, y }
+    }
+}
+'''

@@ -13,7 +13,6 @@ category = "ownership"
 [[test]]
 name = "ownership_move"
 description = "Value moves when assigned"
-tags = ["ownership", "move"]
 
 python = '''
 def transfer_ownership():
@@ -33,7 +32,6 @@ pub fn transfer_ownership() -> Vec<i32> {
 [[test]]
 name = "ownership_clone"
 description = "Explicit clone for copy"
-tags = ["ownership", "clone"]
 
 python = '''
 def copy_list(items: list[int]) -> list[int]:
@@ -61,7 +59,6 @@ mod tests {
 [[test]]
 name = "borrow_immutable_param"
 description = "Immutable borrow for read-only parameter"
-tags = ["borrow", "immutable"]
 
 python = '''
 def read_only(items: list[int]) -> int:
@@ -88,7 +85,6 @@ mod tests {
 [[test]]
 name = "borrow_mutable_param"
 description = "Mutable borrow for modifying parameter"
-tags = ["borrow", "mutable"]
 
 python = '''
 def add_item(items: list[int], item: int) -> None:
@@ -104,7 +100,6 @@ pub fn add_item(items: &mut Vec<i32>, item: i32) {
 [[test]]
 name = "borrow_multiple_immutable"
 description = "Multiple immutable borrows allowed"
-tags = ["borrow", "immutable", "multiple"]
 
 python = '''
 def compare_lists(a: list[int], b: list[int]) -> bool:
@@ -120,7 +115,6 @@ pub fn compare_lists(a: &Vec<i32>, b: &Vec<i32>) -> bool {
 [[test]]
 name = "return_owned"
 description = "Return owned value"
-tags = ["return", "owned"]
 
 python = '''
 def create_list() -> list[int]:
@@ -136,7 +130,6 @@ pub fn create_list() -> Vec<i32> {
 [[test]]
 name = "return_new_value"
 description = "Return newly created value"
-tags = ["return", "owned"]
 
 python = '''
 def create_string() -> str:
@@ -152,7 +145,6 @@ pub fn create_string() -> String {
 [[test]]
 name = "struct_owned_field"
 description = "Struct with owned field"
-tags = ["struct", "owned"]
 
 python = '''
 class Container:
@@ -194,7 +186,6 @@ impl Container {
 [[test]]
 name = "struct_field_access"
 description = "Accessing struct field"
-tags = ["struct", "access"]
 
 python = '''
 class Point:
@@ -253,7 +244,6 @@ pub fn get_x(p: &Point) -> i32 {
 [[test]]
 name = "method_self_immutable"
 description = "Method with immutable self"
-tags = ["method", "borrow", "immutable"]
 
 python = '''
 class Counter:
@@ -301,7 +291,6 @@ impl Counter {
 [[test]]
 name = "method_self_mutable"
 description = "Method with mutable self"
-tags = ["method", "borrow", "mutable"]
 
 python = '''
 class Counter:
@@ -349,7 +338,6 @@ impl Counter {
 [[test]]
 name = "string_ownership"
 description = "String ownership in return"
-tags = ["string", "ownership"]
 
 python = '''
 def make_greeting(name: str) -> str:
@@ -365,7 +353,6 @@ pub fn make_greeting(name: String) -> String {
 [[test]]
 name = "string_borrow"
 description = "String borrowing in parameter"
-tags = ["string", "borrow"]
 
 python = '''
 def print_greeting(name: str) -> None:
@@ -381,7 +368,6 @@ pub fn print_greeting(name: String) {
 [[test]]
 name = "list_ownership_return"
 description = "Return owned list"
-tags = ["list", "ownership"]
 
 python = '''
 def make_numbers(n: int) -> list[int]:
@@ -404,7 +390,6 @@ pub fn make_numbers(n: i32) -> Vec<i32> {
 [[test]]
 name = "list_borrow_iterate"
 description = "Borrow list for iteration"
-tags = ["list", "borrow"]
 
 python = '''
 def sum_items(items: list[int]) -> int:
@@ -438,7 +423,6 @@ mod tests {
 [[test]]
 name = "clone_string_used_twice"
 description = "String param used twice needs clone"
-tags = ["clone", "string"]
 
 python = '''
 def use_string_twice(s: str) -> str:
@@ -458,7 +442,6 @@ pub fn use_string_twice(s: String) -> String {
 [[test]]
 name = "clone_list_field_returned"
 description = "List field returned needs clone"
-tags = ["clone", "list"]
 
 python = '''
 from dataclasses import dataclass
@@ -509,7 +492,6 @@ pub fn get_items(state: &State) -> Vec<i32> {
 [[test]]
 name = "clone_dict_field_returned"
 description = "Dict field returned needs clone"
-tags = ["clone", "dict"]
 
 python = '''
 from dataclasses import dataclass
@@ -561,7 +543,6 @@ pub fn get_data(state: &State) -> HashMap<String, i32> {
 [[test]]
 name = "no_clone_copy_types"
 description = "Copy types (int, float, bool) don't need clone"
-tags = ["clone", "copy"]
 
 python = '''
 def double_use(x: float, y: float) -> float:
@@ -581,7 +562,6 @@ pub fn double_use(x: f64, y: f64) -> f64 {
 [[test]]
 name = "no_clone_last_use"
 description = "Last use moves, no clone needed"
-tags = ["clone", "move"]
 
 python = '''
 def identity(items: list[int]) -> list[int]:
@@ -618,7 +598,6 @@ mod tests {
 [[test]]
 name = "clone_in_loop"
 description = "Clone string in loop append"
-tags = ["clone", "loop"]
 
 python = '''
 from dataclasses import dataclass
@@ -676,7 +655,6 @@ pub fn build_list(state: &State, n: i32) -> Vec<String> {
 [[test]]
 name = "clone_struct_from_function_used_twice"
 description = "Struct returned from function and used twice needs clone"
-tags = ["clone", "struct", "function-return"]
 compile_check = true
 
 python = '''
@@ -776,7 +754,6 @@ pub fn setup_player() -> Vec<Statistics> {
 [[test]]
 name = "struct_field_passed_to_fn_borrows"
 description = "Struct String field passed to function should borrow"
-tags = ["borrow", "struct", "field"]
 
 python = '''
 class State:
@@ -832,7 +809,6 @@ pub fn main() {
 [[test]]
 name = "self_field_passed_to_fn_borrows"
 description = "self.field passed to function should borrow"
-tags = ["borrow", "self", "field"]
 
 python = '''
 class State:
@@ -886,7 +862,6 @@ pub fn take_str(s: String) {}
 [[test]]
 name = "nested_field_passed_to_fn_borrows"
 description = "Nested struct field passed to function should borrow"
-tags = ["borrow", "nested", "field"]
 
 python = '''
 class Inner:
@@ -978,7 +953,6 @@ pub fn main() {
 [[test]]
 name = "next_with_generator_filtering_dataclass"
 description = "next() with generator filtering on dataclass"
-tags = ["ownership", "iterator", "dataclass", "filtering"]
 
 python = '''
 @dataclass
@@ -1045,7 +1019,6 @@ pub fn find_away_incident(try_incidents: &Vec<Incident>) -> Option<Incident> {
 [[test]]
 name = "enumerate_next_dataclass_field_assignment"
 description = "enumerate with next() and assignment to dataclass field via index"
-tags = ["ownership", "iterator", "dataclass", "enumerate", "index-field-assignment"]
 
 python = '''
 @dataclass
@@ -1102,7 +1075,6 @@ pub fn main(items: &mut Vec<Item>) {
 [[test]]
 name = "vector_push_takes_ownership"
 description = "Vec::push takes ownership of the value"
-tags = ["ownership", "vector", "push"]
 
 python = '''
 def add_to_list(items: List[str], new_item: str):
@@ -1118,7 +1090,6 @@ pub fn add_to_list(items: &mut Vec<String>, new_item: String) {
 [[test]]
 name = "string_method_chain_ownership"
 description = "Method chains handle ownership correctly"
-tags = ["ownership", "string", "method-chain"]
 
 python = '''
 def process_string(s: str) -> str:

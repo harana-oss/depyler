@@ -11,7 +11,6 @@ category = "stdlib-random"
 [[test]]
 name = "random_random"
 description = "random.random() float [0, 1)"
-tags = ["random", "float"]
 
 python = '''
 import random
@@ -32,7 +31,6 @@ pub fn get_random_float() -> f64 {
 [[test]]
 name = "random_randint"
 description = "random.randint(a, b) inclusive range"
-tags = ["random", "int"]
 
 python = '''
 import random
@@ -62,7 +60,6 @@ mod tests {
 [[test]]
 name = "random_randrange"
 description = "random.randrange(start, stop, step)"
-tags = ["random", "range"]
 
 python = '''
 import random
@@ -101,7 +98,6 @@ mod tests {
 [[test]]
 name = "random_uniform"
 description = "random.uniform(a, b) float range"
-tags = ["random", "float"]
 
 python = '''
 import random
@@ -122,7 +118,6 @@ pub fn random_in_range(low: f64, high: f64) -> f64 {
 [[test]]
 name = "random_choice"
 description = "random.choice() single selection"
-tags = ["random", "choice"]
 
 python = '''
 import random
@@ -144,7 +139,6 @@ pub fn pick_one(items: &Vec<String>) -> String {
 [[test]]
 name = "random_choices"
 description = "random.choices() with replacement"
-tags = ["random", "choice"]
 
 python = '''
 import random
@@ -171,7 +165,6 @@ pub fn pick_many(items: &Vec<String>, k: i32) -> Vec<String> {
 [[test]]
 name = "random_sample"
 description = "random.sample() without replacement"
-tags = ["random", "sample"]
 
 python = '''
 import random
@@ -196,7 +189,6 @@ pub fn pick_unique(items: &Vec<String>, k: i32) -> Vec<String> {
 [[test]]
 name = "random_shuffle"
 description = "random.shuffle() in-place shuffle"
-tags = ["random", "shuffle"]
 
 python = '''
 import random
@@ -218,7 +210,6 @@ pub fn mix_up(items: &Vec<i32>) {
 [[test]]
 name = "random_seed"
 description = "random.seed() deterministic seeding"
-tags = ["random", "seed"]
 
 python = '''
 import random
@@ -242,7 +233,6 @@ pub fn set_seed(seed: i32) {
 [[test]]
 name = "secrets_token_bytes"
 description = "secrets.token_bytes() secure random"
-tags = ["secrets", "crypto"]
 
 python = '''
 import secrets
@@ -267,7 +257,6 @@ pub fn random_bytes(n: i32) -> bytes {
 [[test]]
 name = "secrets_token_hex"
 description = "secrets.token_hex() hex string"
-tags = ["secrets", "crypto"]
 
 python = '''
 import secrets
@@ -292,7 +281,6 @@ pub fn random_hex(n: i32) -> String {
 [[test]]
 name = "secrets_choice"
 description = "secrets.choice() secure selection"
-tags = ["secrets", "crypto"]
 
 python = '''
 import secrets
@@ -314,7 +302,6 @@ pub fn secure_pick(items: &Vec<String>) -> String {
 [[test]]
 name = "secrets_randbelow"
 description = "secrets.randbelow() secure int"
-tags = ["secrets", "crypto"]
 
 python = '''
 import secrets
@@ -346,7 +333,6 @@ mod tests {
 [[test]]
 name = "random_gauss"
 description = "random.gauss() normal distribution"
-tags = ["random", "distribution"]
 
 python = '''
 import random
@@ -371,7 +357,6 @@ pub fn normal_random(mu: f64, sigma: f64) -> f64 {
 [[test]]
 name = "random_expovariate"
 description = "random.expovariate() exponential distribution"
-tags = ["random", "distribution"]
 
 python = '''
 import random
@@ -396,7 +381,6 @@ pub fn exponential_random(rate: f64) -> f64 {
 [[test]]
 name = "random_triangular"
 description = "random.triangular() triangular distribution"
-tags = ["random", "distribution"]
 
 python = '''
 import random

@@ -1,0 +1,262 @@
+# Data Structures Examples
+# Migrated from examples/data_structures/
+
+[metadata]
+name = "Data Structures Examples"
+category = "data_structures"
+
+# =============================================================================
+# Examples
+# =============================================================================
+
+[[test]]
+name = "queue"
+description = "Example test"
+
+python = '''
+# @depyler: ownership = "owned"
+# @depyler: memory_strategy = "arena"
+from typing import List, Optional
+
+class Queue:
+    """Simple queue implementation with arena allocation"""
+    
+    def __init__(self) -> None:
+        self._items: List[int] = []
+        self._front: int = 0
+    
+    def enqueue(self, item: int) -> None:
+        """Add item to back of queue"""
+        self._items.append(item)
+    
+    def dequeue(self) -> Optional[int]:
+        """Remove item from front of queue"""
+        if self.is_empty():
+            return None
+        
+        item = self._items[self._front]
+        self._front += 1
+        
+        # Clean up if queue is mostly empty
+        if self._front > len(self._items) // 2:
+            self._items = self._items[self._front:]
+            self._front = 0
+        
+        return item
+    
+    def front(self) -> Optional[int]:
+        """Look at front item without removing it"""
+        if self.is_empty():
+            return None
+        return self._items[self._front]
+    
+    def is_empty(self) -> bool:
+        """Check if queue is empty"""
+        return self._front >= len(self._items)
+    
+    def size(self) -> int:
+        """Get number of items in queue"""
+        return len(self._items) - self._front
+
+def level_order_values(tree_values: List[Optional[int]]) -> List[int]:
+    """Process binary tree level by level using queue"""
+    if not tree_values or tree_values[0] is None:
+        return []
+    
+    queue = Queue()
+    result: List[int] = []
+    
+    # Start with root
+    queue.enqueue(0)  # Store indices
+    
+    while not queue.is_empty():
+        index = queue.dequeue()
+        if index is None or index >= len(tree_values):
+            continue
+            
+        value = tree_values[index]
+        if value is not None:
+            result.append(value)
+            
+            # Add children indices
+            left_child = 2 * index + 1
+            right_child = 2 * index + 2
+            
+            if left_child < len(tree_values):
+                queue.enqueue(left_child)
+            if right_child < len(tree_values):
+                queue.enqueue(right_child)
+    
+    return result
+'''
+
+rust = '''
+Error: Expression type not yet supported
+'''
+
+[[test]]
+name = "stack"
+description = "Example test"
+
+python = '''
+# @depyler: thread_safety = "required"
+# @depyler: bounds_checking = "explicit"
+from typing import List, Optional
+
+class Stack:
+    """Thread-safe stack implementation"""
+    
+    def __init__(self) -> None:
+        self._items: List[int] = []
+    
+    def push(self, item: int) -> None:
+        """Push item onto stack"""
+        self._items.append(item)
+    
+    def pop(self) -> Optional[int]:
+        """Pop item from stack, return None if empty"""
+        if self.is_empty():
+            return None
+        return self._items.pop()
+    
+    def peek(self) -> Optional[int]:
+        """Look at top item without removing it"""
+        if self.is_empty():
+            return None
+        return self._items[-1]
+    
+    def is_empty(self) -> bool:
+        """Check if stack is empty"""
+        return len(self._items) == 0
+    
+    def size(self) -> int:
+        """Get number of items in stack"""
+        return len(self._items)
+
+def balanced_parentheses(expression: str) -> bool:
+    """Check if parentheses are balanced using a stack"""
+    stack = Stack()
+    opening = "({["
+    closing = ")}]"
+    pairs = {"(": ")", "{": "}", "[": "]"}
+    
+    for char in expression:
+        if char in opening:
+            stack.push(ord(char))  # Store ASCII value
+        elif char in closing:
+            if stack.is_empty():
+                return False
+            
+            last = stack.pop()
+            if last is None:
+                return False
+            
+            expected = ord(pairs[chr(last)])
+            if ord(char) != expected:
+                return False
+    
+    return stack.is_empty()
+'''
+
+rust = '''
+use std::collections::HashMap;
+#[derive(Debug, Clone)]
+pub struct IndexError {
+    message: String,
+}
+impl std::fmt::Display for IndexError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "index out of range: {}", self.message)
+    }
+}
+impl std::error::Error for IndexError {}
+impl IndexError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[derive(Debug, Clone)]
+pub struct Stack {}
+impl Stack {
+    pub fn new() -> Self {
+        Self {}
+    }
+    pub fn push(&self, item: i32) {
+        self._items.push(item);
+    }
+    pub fn pop(&self) -> Option<i32> {
+        if self.is_empty() {
+            return ();
+        };
+        return self._items.pop().unwrap_or_default();
+    }
+    pub fn peek(&self) -> Option<i32> {
+        if self.is_empty() {
+            return ();
+        };
+        return self._items[-1 as usize];
+    }
+    pub fn is_empty(&self) -> bool {
+        return self._items.len() == 0;
+    }
+    pub fn size(&self) -> i32 {
+        return self._items.len();
+    }
+}
+#[doc = "Check if parentheses are balanced using a stack"]
+pub fn balanced_parentheses(expression: &str) -> Result<bool, IndexError> {
+    let mut stack = Stack::new();
+    let opening = "({[";
+    let closing = ")}]";
+    let pairs = {
+        let mut map = HashMap::new();
+        map.insert("(".to_string(), ")");
+        map.insert("{".to_string(), "}");
+        map.insert("[".to_string(), "]");
+        map
+    };
+    for char in expression.chars() {
+        if opening.contains_key(&char) {
+            stack.push(char.chars().next().unwrap() as i32);
+        } else {
+            if closing.contains_key(&char) {
+                if stack.is_empty() {
+                    return Ok(false);
+                }
+                let last = stack.pop();
+                if last.is_none() {
+                    return Ok(false);
+                }
+                let expected = {
+                    let base = &pairs;
+                    let idx: i32 = char::from_u32(last as u32).unwrap().to_string();
+                    let actual_idx = if idx < 0 {
+                        base.len().saturating_sub(idx.abs() as usize)
+                    } else {
+                        idx as usize
+                    };
+                    base.get(actual_idx).cloned().unwrap_or_default()
+                }
+                .chars()
+                .next()
+                .unwrap() as i32;
+                if char.chars().next().unwrap() as i32 != expected {
+                    return Ok(false);
+                }
+            }
+        }
+    }
+    Ok(stack.is_empty())
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{quickcheck, TestResult};
+    #[test]
+    fn test_balanced_parentheses_examples() {
+        let _ = balanced_parentheses(Default::default());
+    }
+}
+'''

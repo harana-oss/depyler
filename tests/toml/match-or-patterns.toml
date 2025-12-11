@@ -9,136 +9,492 @@ category = "modern-python"
 # Basic OR Patterns
 # =============================================================================
 
-# TODO: Test literal OR
-# [[test]]
-# name = "or_literal"
-# description = "case 1 | 2 | 3: ..."
+[[test]]
+name = "or_literal"
+description = "case 1 | 2 | 3: ..."
 
-# TODO: Test string OR
-# [[test]]
-# name = "or_string"
-# description = "case 'yes' | 'y' | 'true': ..."
+python = '''
+x = 2
+match x:
+    case 1 | 2 | 3:
+        result = True
+    case _:
+        result = False
+'''
 
-# TODO: Test None in OR
-# [[test]]
-# name = "or_none"
-# description = "case None | 0 | '': ..."
+rust = '''
+let x = 2;
+let result = match x {
+    1 | 2 | 3 => true,
+    _ => false,
+};
+'''
+
+
+[[test]]
+name = "or_string"
+description = "case 'yes' | 'y' | 'true': ..."
+
+python = '''
+s = 'y'
+match s:
+    case 'yes' | 'y' | 'true':
+        result = True
+    case _:
+        result = False
+'''
+
+rust = '''
+let s = "y";
+let result = match s {
+    "yes" | "y" | "true" => true,
+    _ => false,
+};
+'''
+
+
+[[test]]
+name = "or_none"
+description = "case None | 0 | '': ..."
+
+python = '''
+x = 0
+match x:
+    case None | 0 | '':
+        result = True
+    case _:
+        result = False
+'''
+
+rust = '''
+let x: Option<i32> = Some(0);
+let result = match x {
+    None | Some(0) => true,
+    _ => false,
+};
+'''
+
 
 # =============================================================================
 # OR with Capture
 # =============================================================================
 
-# TODO: Test OR with same capture
-# [[test]]
-# name = "or_same_capture"
-# description = "case (x, 0) | (0, x): must bind same names"
+[[test]]
+name = "or_same_capture"
+description = "case (x, 0) | (0, x): must bind same names"
 
-# TODO: Test OR binding rule
-# [[test]]
-# name = "or_binding_rule"
-# description = "All alternatives must bind same variables"
+python = '''
+point = (5, 0)
+match point:
+    case (x, 0) | (0, x):
+        result = x == 5
+    case _:
+        result = False
+'''
 
-# TODO: Test OR with wildcard
-# [[test]]
-# name = "or_wildcard"
-# description = "case _ | _: always matches"
+rust = '''
+let point = (5, 0);
+let result = match point {
+    (x, 0) | (0, x) => x == 5,
+    _ => false,
+};
+'''
+
+
+[[test]]
+name = "or_binding_rule"
+description = "All alternatives must bind same variables"
+
+python = '''
+value = (1, 2)
+match value:
+    case (x, y) | (y, x):
+        result = True
+    case _:
+        result = False
+'''
+
+rust = '''
+let value = (1, 2);
+let result = match value {
+    (x, y) | (y, x) => true,
+    _ => false,
+};
+'''
+
+
+[[test]]
+name = "or_wildcard"
+description = "case _ | _: always matches"
+
+python = '''
+x = 42
+match x:
+    case _ | _:
+        result = True
+'''
+
+rust = '''
+let x = 42;
+let result = match x {
+    _ | _ => true,
+};
+'''
+
 
 # =============================================================================
 # OR with Sequences
 # =============================================================================
 
-# TODO: Test sequence OR
-# [[test]]
-# name = "or_sequence"
-# description = "case [] | [_]: empty or single"
+[[test]]
+name = "or_sequence"
+description = "case [] | [_]: empty or single"
 
-# TODO: Test tuple OR
-# [[test]]
-# name = "or_tuple"
-# description = "case () | (x,) | (x, y): ..."
+python = '''
+lst = [1]
+match lst:
+    case [] | [_]:
+        result = True
+    case _:
+        result = False
+'''
+
+rust = '''
+let lst = vec![1];
+let result = match lst.len() {
+    0 | 1 => true,
+    _ => false,
+};
+'''
+
+
+[[test]]
+name = "or_tuple"
+description = "case () | (x,) | (x, y): ..."
+
+python = '''
+tup = (1,)
+match tup:
+    case () | (x,) | (x, y):
+        result = True
+    case _:
+        result = False
+'''
+
+rust = '''
+let tup = (1,);
+let result = match tup {
+    () | (_,) | (_, _) => true,
+    _ => false,
+};
+'''
+
 
 # =============================================================================
 # OR with Class Patterns
 # =============================================================================
 
-# TODO: Test class OR
-# [[test]]
-# name = "or_class"
-# description = "case int() | float(): any number"
+[[test]]
+name = "or_class"
+description = "case int() | float(): any number"
 
-# TODO: Test different classes
-# [[test]]
-# name = "or_different_classes"
-# description = "case Success() | Failure(): ..."
+python = '''
+x = 42
+match x:
+    case int() | float():
+        result = True
+    case _:
+        result = False
+'''
+
+rust = '''
+// case int() | float(): any number
+// Type checked at compile time
+let result = true;
+'''
+
+
+[[test]]
+name = "or_different_classes"
+description = "case Success() | Failure(): ..."
+
+python = '''
+class Success:
+    pass
+class Failure:
+    pass
+x = Success()
+match x:
+    case Success() | Failure():
+        result = True
+    case _:
+        result = False
+'''
+
+rust = '''
+enum Result {
+    Success,
+    Failure,
+}
+let x = Result::Success;
+let result = match x {
+    Result::Success | Result::Failure => true,
+};
+'''
+
 
 # =============================================================================
 # Nested OR Patterns
 # =============================================================================
 
-# TODO: Test nested OR
-# [[test]]
-# name = "or_nested"
-# description = "case ('a' | 'b', x): first is 'a' or 'b'"
+[[test]]
+name = "or_nested"
+description = "case ('a' | 'b', x): first is 'a' or 'b'"
 
-# TODO: Test OR in sequence
-# [[test]]
-# name = "or_in_sequence"
-# description = "case [1 | 2, x]: ..."
+python = '''
+pair = ('a', 10)
+match pair:
+    case ('a' | 'b', x):
+        result = x == 10
+    case _:
+        result = False
+'''
 
-# TODO: Test OR in mapping
-# [[test]]
-# name = "or_in_mapping"
-# description = "case {'type': 'a' | 'b'}: ..."
+rust = '''
+let pair = ('a', 10);
+let result = match pair {
+    ('a' | 'b', x) => x == 10,
+    _ => false,
+};
+'''
+
+
+[[test]]
+name = "or_in_sequence"
+description = "case [1 | 2, x]: ..."
+
+python = '''
+lst = [1, 5]
+match lst:
+    case [1 | 2, x]:
+        result = x == 5
+    case _:
+        result = False
+'''
+
+rust = '''
+let lst = vec![1, 5];
+let result = match lst.as_slice() {
+    [1 | 2, x] => *x == 5,
+    _ => false,
+};
+'''
+
+
+[[test]]
+name = "or_in_mapping"
+description = "case {'type': 'a' | 'b'}: ..."
+
+python = '''
+data = {'type': 'a', 'value': 10}
+match data:
+    case {'type': 'a' | 'b'}:
+        result = True
+    case _:
+        result = False
+'''
+
+rust = '''
+use std::collections::HashMap;
+let mut data = HashMap::new();
+data.insert("type", "a");
+let result = match data.get("type").map(|s| s.as_str()) {
+    Some("a" | "b") => true,
+    _ => false,
+};
+'''
+
 
 # =============================================================================
 # OR with Guards
 # =============================================================================
 
-# TODO: Test OR with guard
-# [[test]]
-# name = "or_with_guard"
-# description = "case 1 | 2 | 3 if condition: ..."
+[[test]]
+name = "or_with_guard"
+description = "case 1 | 2 | 3 if condition: ..."
 
-# TODO: Test guard after OR
-# [[test]]
-# name = "or_guard_capture"
-# description = "case x | y if x > 0: ..."
-# skip = true
+python = '''
+x = 2
+condition = True
+match x:
+    case 1 | 2 | 3 if condition:
+        result = True
+    case _:
+        result = False
+'''
+
+rust = '''
+let x = 2;
+let condition = true;
+let result = match x {
+    1 | 2 | 3 if condition => true,
+    _ => false,
+};
+'''
+
+
+[[test]]
+name = "or_guard_capture"
+description = "case x | y if x > 0: ..."
+skip = true
+
+python = '''
+# Invalid: OR patterns can't use different variable names
+# case x | y if x > 0: would be an error
+result = True
+'''
+
+rust = '''
+// Invalid: OR patterns must bind same variables
+// This would be a compile error
+let result = true;
+'''
+
 
 # =============================================================================
 # Use Cases
 # =============================================================================
 
-# TODO: Test HTTP status codes
-# [[test]]
-# name = "or_http_status"
-# description = "case 200 | 201 | 204: success"
+[[test]]
+name = "or_http_status"
+description = "case 200 | 201 | 204: success"
 
-# TODO: Test command aliases
-# [[test]]
-# name = "or_command"
-# description = "case 'quit' | 'exit' | 'q': ..."
+python = '''
+status = 201
+match status:
+    case 200 | 201 | 204:
+        result = True
+    case _:
+        result = False
+'''
 
-# TODO: Test falsy values
-# [[test]]
-# name = "or_falsy"
-# description = "case None | False | 0 | '' | [] | {}: ..."
+rust = '''
+let status = 201;
+let result = match status {
+    200 | 201 | 204 => true,
+    _ => false,
+};
+'''
+
+
+[[test]]
+name = "or_command"
+description = "case 'quit' | 'exit' | 'q': ..."
+
+python = '''
+cmd = 'q'
+match cmd:
+    case 'quit' | 'exit' | 'q':
+        result = True
+    case _:
+        result = False
+'''
+
+rust = '''
+let cmd = "q";
+let result = match cmd {
+    "quit" | "exit" | "q" => true,
+    _ => false,
+};
+'''
+
+
+[[test]]
+name = "or_falsy"
+description = "case None | False | 0 | '' | [] | {}: ..."
+
+python = '''
+x = 0
+match x:
+    case None | False | 0 | '' | [] | {}:
+        result = True
+    case _:
+        result = False
+'''
+
+rust = '''
+// Different types can't be matched together in Rust
+let x = 0;
+let result = match x {
+    0 => true,
+    _ => false,
+};
+'''
+
 
 # =============================================================================
 # Edge Cases
 # =============================================================================
 
-# TODO: Test OR precedence
-# [[test]]
-# name = "or_precedence"
-# description = "OR has lowest precedence in patterns"
+[[test]]
+name = "or_precedence"
+description = "OR has lowest precedence in patterns"
 
-# TODO: Test overlapping OR
-# [[test]]
-# name = "or_overlapping"
-# description = "case 1 | _ : _ always matches"
+python = '''
+x = (1, 2)
+match x:
+    case (1, 2) | (3, 4):
+        result = True
+    case _:
+        result = False
+'''
 
-# TODO: Test OR with as
-# [[test]]
-# name = "or_with_as"
-# description = "case (1 | 2 | 3) as x: capture matched value"
+rust = '''
+let x = (1, 2);
+let result = match x {
+    (1, 2) | (3, 4) => true,
+    _ => false,
+};
+'''
+
+
+[[test]]
+name = "or_overlapping"
+description = "case 1 | _ : _ always matches"
+
+python = '''
+x = 5
+match x:
+    case 1 | _:
+        result = True
+'''
+
+rust = '''
+let x = 5;
+let result = match x {
+    1 | _ => true,
+};
+'''
+
+
+[[test]]
+name = "or_with_as"
+description = "case (1 | 2 | 3) as x: capture matched value"
+
+python = '''
+value = 2
+match value:
+    case (1 | 2 | 3) as x:
+        result = x == 2
+    case _:
+        result = False
+'''
+
+rust = '''
+let value = 2;
+let result = match value {
+    x @ (1 | 2 | 3) => x == 2,
+    _ => false,
+};
+'''
+

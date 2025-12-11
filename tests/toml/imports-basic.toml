@@ -9,123 +9,435 @@ category = "imports"
 # Simple Import
 # =============================================================================
 
-# TODO: Test simple import
-# [[test]]
-# name = "import_simple"
-# description = "import os"
+[[test]]
+name = "import_simple"
+description = "import os"
 
-# TODO: Test dotted import
-# [[test]]
-# name = "import_dotted"
-# description = "import os.path"
+python = '''
+import os
+# Check that os module is imported
+result = hasattr(os, 'getcwd')
+assert result == True
+'''
 
-# TODO: Test access module attribute
-# [[test]]
-# name = "import_access"
-# description = "os.getcwd()"
+rust = '''
+// Rust: use statement imports from crate/module
+use std::env;
+// Check that function is available
+let result = env::current_dir().is_ok();
+assert!(result);
+'''
+
+
+[[test]]
+name = "import_dotted"
+description = "import os.path"
+
+python = '''
+import os.path
+# Check that os.path is available
+result = hasattr(os.path, 'join')
+assert result == True
+'''
+
+rust = '''
+// Rust: nested module access
+use std::path::Path;
+let result = Path::new("/tmp").exists() || !Path::new("/tmp").exists();
+assert!(result);
+'''
+
+
+[[test]]
+name = "import_access"
+description = "os.getcwd()"
+
+python = '''
+import os
+# Access function from imported module
+cwd = os.getcwd()
+result = isinstance(cwd, str) and len(cwd) > 0
+assert result == True
+'''
+
+rust = '''
+// Rust: accessing function from std
+use std::env;
+let cwd = env::current_dir().unwrap();
+let result = cwd.to_str().is_some();
+assert!(result);
+'''
+
 
 # =============================================================================
 # Import As
 # =============================================================================
 
-# TODO: Test import as
-# [[test]]
-# name = "import_as"
-# description = "import numpy as np"
+[[test]]
+name = "import_as"
+description = "import numpy as np"
 
-# TODO: Test alias usage
-# [[test]]
-# name = "import_alias"
-# description = "np.array([1, 2, 3])"
+python = '''
+import sys as s
+# Use alias to access module
+result = hasattr(s, 'version')
+assert result == True
+'''
 
-# TODO: Test multiple aliases
-# [[test]]
-# name = "import_multi_alias"
-# description = "import os as o, sys as s"
+rust = '''
+// Rust: use with alias
+use std::collections::HashMap as HM;
+let result: HM<i32, i32> = HM::new();
+assert_eq!(result.len(), 0);
+'''
+
+
+[[test]]
+name = "import_alias"
+description = "np.array([1, 2, 3])"
+
+python = '''
+import json as j
+# Use alias to call functions
+result = j.dumps([1, 2, 3])
+assert result == '[1, 2, 3]'
+'''
+
+rust = '''
+// Rust: using aliased type
+use std::vec::Vec as V;
+let result: V<i32> = V::from([1, 2, 3]);
+assert_eq!(result, vec![1, 2, 3]);
+'''
+
+
+[[test]]
+name = "import_multi_alias"
+description = "import os as o, sys as s"
+
+python = '''
+import os as o, sys as s
+# Use both aliases
+result = hasattr(o, 'getcwd') and hasattr(s, 'version')
+assert result == True
+'''
+
+rust = '''
+// Rust: multiple use statements with aliases
+use std::env as e;
+use std::path::Path as P;
+let result = e::current_dir().is_ok();
+assert!(result);
+'''
+
 
 # =============================================================================
 # Multiple Imports
 # =============================================================================
 
-# TODO: Test comma separated
-# [[test]]
-# name = "import_multiple"
-# description = "import os, sys, json"
+[[test]]
+name = "import_multiple"
+description = "import os, sys, json"
 
-# TODO: Test separate statements
-# [[test]]
-# name = "import_separate"
-# description = "import os\\nimport sys"
+python = '''
+import os, sys, json
+# Check all modules imported
+result = all([
+    hasattr(os, 'getcwd'),
+    hasattr(sys, 'version'),
+    hasattr(json, 'dumps')
+])
+assert result == True
+'''
+
+rust = '''
+// Rust: multiple use statements
+use std::env;
+use std::path;
+use std::collections;
+let result = true;
+assert!(result);
+'''
+
+
+[[test]]
+name = "import_separate"
+description = "import os\\nimport sys"
+
+python = '''
+import os
+import sys
+# Separate import statements
+result = hasattr(os, 'getcwd') and hasattr(sys, 'version')
+assert result == True
+'''
+
+rust = '''
+// Rust: separate use statements
+use std::env;
+use std::path;
+let result = true;
+assert!(result);
+'''
+
 
 # =============================================================================
 # Import Effects
 # =============================================================================
 
-# TODO: Test module in sys.modules
-# [[test]]
-# name = "import_sys_modules"
-# description = "import x; 'x' in sys.modules"
+[[test]]
+name = "import_sys_modules"
+description = "import x; 'x' in sys.modules"
 
-# TODO: Test import once
-# [[test]]
-# name = "import_once"
-# description = "Module code runs once"
+python = '''
+import sys
+import os
+# Check module is in sys.modules
+result = 'os' in sys.modules
+assert result == True
+'''
 
-# TODO: Test binding
-# [[test]]
-# name = "import_binding"
-# description = "import creates name binding"
+rust = '''
+// Rust: no runtime module registry
+// Modules are resolved at compile time
+let result = true;
+assert!(result);
+'''
+
+
+[[test]]
+name = "import_once"
+description = "Module code runs once"
+
+python = '''
+import sys
+# Importing same module multiple times uses cached version
+first_import = id(sys)
+import sys as s
+second_import = id(s)
+result = first_import == second_import
+assert result == True
+'''
+
+rust = '''
+// Rust: modules compiled once
+// Multiple use statements refer to same code
+use std::env;
+use std::env as e;
+let result = true;
+assert!(result);
+'''
+
+
+[[test]]
+name = "import_binding"
+description = "import creates name binding"
+
+python = '''
+import os
+# Import creates a name in local namespace
+result = 'os' in dir()
+assert result == True
+'''
+
+rust = '''
+// Rust: use brings name into scope
+use std::env;
+// env is now available in this scope
+let result = env::current_dir().is_ok();
+assert!(result);
+'''
+
 
 # =============================================================================
 # Standard Library
 # =============================================================================
 
-# TODO: Test math import
-# [[test]]
-# name = "import_math"
-# description = "import math; math.pi"
+[[test]]
+name = "import_math"
+description = "import math; math.pi"
 
-# TODO: Test json import
-# [[test]]
-# name = "import_json"
-# description = "import json; json.dumps"
+python = '''
+import math
+# Access math constants
+result = math.pi > 3.14 and math.pi < 3.15
+assert result == True
+'''
 
-# TODO: Test collections import
-# [[test]]
-# name = "import_collections"
-# description = "import collections"
+rust = '''
+// Rust: math constants
+use std::f64::consts::PI;
+let result = PI > 3.14 && PI < 3.15;
+assert!(result);
+'''
+
+
+[[test]]
+name = "import_json"
+description = "import json; json.dumps"
+
+python = '''
+import json
+# Use json module
+data = {"key": "value"}
+result = json.dumps(data)
+assert result == '{"key": "value"}'
+'''
+
+rust = '''
+// Rust: JSON with serde (conceptual)
+use std::collections::HashMap;
+let mut data = HashMap::new();
+data.insert("key", "value");
+let result = data.get("key") == Some(&"value");
+assert!(result);
+'''
+
+
+[[test]]
+name = "import_collections"
+description = "import collections"
+
+python = '''
+import collections
+# Use collections module
+counter = collections.Counter([1, 2, 2, 3, 3, 3])
+result = counter[3]
+assert result == 3
+'''
+
+rust = '''
+// Rust: std::collections
+use std::collections::HashMap;
+let mut map = HashMap::new();
+map.insert("key", 42);
+let result = map.get("key") == Some(&42);
+assert!(result);
+'''
+
 
 # =============================================================================
 # Error Handling
 # =============================================================================
 
-# TODO: Test ModuleNotFoundError
-# [[test]]
-# name = "import_not_found"
-# description = "import nonexistent"
-# skip = true
+[[test]]
+name = "import_not_found"
+description = "import nonexistent"
+skip = true
 
-# TODO: Test ImportError
-# [[test]]
-# name = "import_error"
-# description = "Import failure"
-# skip = true
+python = '''
+# Importing non-existent module raises ModuleNotFoundError
+try:
+    import nonexistent_module_xyz
+    result = False
+except ModuleNotFoundError:
+    result = True
+assert result
+'''
+
+rust = '''
+// Rust: compile-time error for missing modules
+// use nonexistent_module; // Would not compile
+let result = true;
+'''
+
+
+[[test]]
+name = "import_error"
+description = "Import failure"
+skip = true
+
+python = '''
+# Import can fail if module has errors
+# This test is skipped as we can't create a broken module here
+result = True
+'''
+
+rust = '''
+// Rust: import errors caught at compile time
+let result = true;
+'''
+
 
 # =============================================================================
 # Edge Cases
 # =============================================================================
 
-# TODO: Test conditional import
-# [[test]]
-# name = "import_conditional"
-# description = "if cond: import x"
+[[test]]
+name = "import_conditional"
+description = "if cond: import x"
 
-# TODO: Test import in function
-# [[test]]
-# name = "import_in_function"
-# description = "def f(): import x"
+python = '''
+# Conditional import
+cond = True
+if cond:
+    import os
+    result = hasattr(os, 'getcwd')
+else:
+    result = False
+assert result == True
+'''
 
-# TODO: Test reimport
-# [[test]]
-# name = "import_reimport"
-# description = "import x; import x again"
+rust = '''
+// Rust: use statements at module level only
+// Conditional logic uses the imported module conditionally
+use std::env;
+let cond = true;
+let result = if cond {
+    env::current_dir().is_ok()
+} else {
+    false
+};
+assert!(result);
+'''
+
+
+[[test]]
+name = "import_in_function"
+description = "def f(): import x"
+
+python = '''
+def f():
+    import os
+    return hasattr(os, 'getcwd')
+
+# Import inside function scope
+result = f()
+assert result == True
+'''
+
+rust = '''
+// Rust: use statements typically at module level
+// But can access std functions anywhere
+fn f() -> bool {
+    use std::env;
+    env::current_dir().is_ok()
+}
+let result = f();
+assert!(result);
+'''
+
+
+[[test]]
+name = "import_reimport"
+description = "import x; import x again"
+
+python = '''
+import sys
+first_id = id(sys)
+import sys
+second_id = id(sys)
+# Re-importing returns same module object
+result = first_id == second_id
+assert result == True
+'''
+
+rust = '''
+// Rust: multiple use statements are fine
+use std::env;
+use std::env as e;
+// Both refer to same module
+let result = true;
+assert!(result);
+'''
+

@@ -499,7 +499,6 @@ pub fn count_unique(items: &HashSet<serde_json::Value>) -> i32 {
 [[test]]
 name = "tuple_string_variable_in"
 description = "String variable 'in' tuple check"
-tags = ["tuple", "membership"]
 
 python = '''
 def check_location(location: str) -> bool:
@@ -524,7 +523,6 @@ mod tests {
 [[test]]
 name = "tuple_string_literal_in"
 description = "String literal 'in' tuple check"
-tags = ["tuple", "membership"]
 
 python = '''
 def check_location() -> bool:
@@ -540,7 +538,6 @@ pub fn check_location() -> bool {
 [[test]]
 name = "tuple_struct_field_in"
 description = "Struct field 'in' tuple check"
-tags = ["tuple", "membership"]
 
 python = '''
 @dataclass
@@ -597,7 +594,6 @@ mod tests {
 [[test]]
 name = "final_int_constant"
 description = "Final[int] creates const"
-tags = ["final", "const"]
 
 python = '''
 from typing import Final
@@ -612,7 +608,6 @@ pub const FIELD_GOAL: i32 = 600;
 [[test]]
 name = "final_string_constant"
 description = "Final[str] creates const"
-tags = ["final", "const", "string"]
 
 python = '''
 from typing import Final
@@ -627,7 +622,6 @@ pub const API_KEY: String = "secret_key_123";
 [[test]]
 name = "final_float_constant"
 description = "Final[float] creates const"
-tags = ["final", "const", "float"]
 
 python = '''
 from typing import Final
@@ -642,7 +636,6 @@ pub const PI: f64 = 3.14159;
 [[test]]
 name = "final_multiple_constants"
 description = "Multiple Final constants"
-tags = ["final", "const"]
 
 python = '''
 from typing import Final
@@ -661,7 +654,6 @@ pub const DEFAULT_NAME: String = "unnamed";
 [[test]]
 name = "final_vs_regular_variable"
 description = "Final vs regular variable distinction"
-tags = ["final", "const", "variable"]
 
 python = '''
 from typing import Final
@@ -692,7 +684,6 @@ mod tests {
 [[test]]
 name = "rust_keyword_match"
 description = "Python variable named 'match' (Rust keyword) should not cause panic"
-tags = ["keywords", "identifiers", "match"]
 
 python = '''
 def test_match_keyword() -> int:
@@ -719,7 +710,6 @@ mod tests {
 [[test]]
 name = "rust_keyword_type"
 description = "Python variable named 'type' (Rust keyword) should not cause panic"
-tags = ["keywords", "identifiers", "type"]
 
 python = '''
 def test_type_keyword() -> int:
@@ -746,7 +736,6 @@ mod tests {
 [[test]]
 name = "rust_keyword_impl"
 description = "Python variable named 'impl' (Rust keyword) should not cause panic"
-tags = ["keywords", "identifiers", "impl"]
 
 python = '''
 def test_impl_keyword() -> int:
@@ -773,7 +762,6 @@ mod tests {
 [[test]]
 name = "re_module_match_variable"
 description = "re.search result stored in 'match' variable"
-tags = ["keywords", "regex", "match"]
 
 python = '''
 import re
@@ -813,7 +801,6 @@ mod tests {
 [[test]]
 name = "type_safety_example"
 description = "Type-safe function with conversion"
-tags = ["example", "types", "validation"]
 compile_check = true
 
 python = '''
@@ -830,7 +817,6 @@ pub fn typed_func(x: i32, y: String) -> String {
 [[test]]
 name = "memory_safety_example"
 description = "Memory-safe collection access"
-tags = ["example", "memory", "validation"]
 compile_check = true
 
 python = '''
@@ -859,7 +845,6 @@ mod tests {
 [[test]]
 name = "error_handling_example"
 description = "Safe division with error handling"
-tags = ["example", "error", "validation"]
 compile_check = true
 
 python = '''
@@ -902,7 +887,6 @@ mod tests {
 [[test]]
 name = "basic_arithmetic_example"
 description = "Basic arithmetic operation"
-tags = ["example", "arithmetic", "validation"]
 compile_check = true
 
 python = '''
@@ -945,7 +929,6 @@ mod tests {
 [[test]]
 name = "string_operations_example"
 description = "String concatenation operation"
-tags = ["example", "string", "validation"]
 compile_check = true
 
 python = '''
@@ -962,7 +945,6 @@ pub fn greet(name: String) -> String {
 [[test]]
 name = "boolean_logic_example"
 description = "Boolean comparison logic"
-tags = ["example", "boolean", "validation"]
 compile_check = true
 
 python = '''
@@ -988,7 +970,6 @@ mod tests {
 [[test]]
 name = "list_operations_example"
 description = "List sum operation"
-tags = ["example", "list", "validation"]
 compile_check = true
 
 python = '''
@@ -1017,7 +998,6 @@ mod tests {
 [[test]]
 name = "documented_function_example"
 description = "Function with docstring"
-tags = ["example", "docstring", "validation"]
 compile_check = true
 
 python = '''
@@ -1047,7 +1027,6 @@ mod tests {
 [[test]]
 name = "edge_case_empty_function"
 description = "Empty function with pass"
-tags = ["example", "edge-case", "validation"]
 compile_check = true
 
 python = '''
@@ -1062,7 +1041,6 @@ pub fn empty() {}
 [[test]]
 name = "edge_case_constant_return"
 description = "Single constant return"
-tags = ["example", "edge-case", "validation"]
 compile_check = true
 
 python = '''

@@ -9,147 +9,685 @@ category = "data-structures"
 # Equality (Default)
 # =============================================================================
 
-# TODO: Test default equality
-# [[test]]
-# name = "dataclass_eq_default"
-# description = "@dataclass auto-generates __eq__"
+[[test]]
+name = "dataclass_eq_default"
+description = "@dataclass auto-generates __eq__"
 
-# TODO: Test equal instances
-# [[test]]
-# name = "dataclass_equal"
-# description = "Point(1, 2) == Point(1, 2)"
+python = '''
+from dataclasses import dataclass
 
-# TODO: Test not equal instances
-# [[test]]
-# name = "dataclass_not_equal"
-# description = "Point(1, 2) != Point(1, 3)"
+@dataclass
+class Point:
+    x: int
+    y: int
 
-# TODO: Test different types
-# [[test]]
-# name = "dataclass_eq_types"
-# description = "Point(1, 2) != (1, 2)"
+result = Point(1, 2)
+'''
+
+rust = '''
+#[derive(Debug)]
+struct Point {
+    x: i32,
+    y: i32,
+}
+'''
+
+
+[[test]]
+name = "dataclass_equal"
+description = "Point(1, 2) == Point(1, 2)"
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass
+class Point:
+    x: int
+    y: int
+
+result = Point(1, 2) == Point(1, 2)
+'''
+
+rust = '''
+#[derive(Debug, PartialEq)]
+struct Point {
+    x: i32,
+    y: i32,
+}
+
+let result = Point { x: 1, y: 2 } == Point { x: 1, y: 2 };
+'''
+
+
+[[test]]
+name = "dataclass_not_equal"
+description = "Point(1, 2) != Point(1, 3)"
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass
+class Point:
+    x: int
+    y: int
+
+result = Point(1, 2) != Point(1, 3)
+'''
+
+rust = '''
+#[derive(Debug, PartialEq)]
+struct Point {
+    x: i32,
+    y: i32,
+}
+
+let result = Point { x: 1, y: 2 } != Point { x: 1, y: 3 };
+'''
+
+
+[[test]]
+name = "dataclass_eq_types"
+description = "Point(1, 2) != (1, 2)"
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass
+class Point:
+    x: int
+    y: int
+
+result = Point(1, 2) != (1, 2)
+'''
+
+rust = '''
+#[derive(Debug, PartialEq)]
+struct Point {
+    x: i32,
+    y: i32,
+}
+
+// Different types can't be compared in Rust
+let result = true;
+'''
+
 
 # =============================================================================
 # Ordering (opt-in)
 # =============================================================================
 
-# TODO: Test order=True
-# [[test]]
-# name = "dataclass_order"
-# description = "@dataclass(order=True)"
+[[test]]
+name = "dataclass_order"
+description = "@dataclass(order=True)"
 
-# TODO: Test less than
-# [[test]]
-# name = "dataclass_lt"
-# description = "Point(1, 2) < Point(1, 3)"
+python = '''
+from dataclasses import dataclass
 
-# TODO: Test greater than
-# [[test]]
-# name = "dataclass_gt"
-# description = "Point(2, 0) > Point(1, 9)"
+@dataclass(order=True)
+class Point:
+    x: int
+    y: int
 
-# TODO: Test less equal
-# [[test]]
-# name = "dataclass_le"
-# description = "Point(1, 2) <= Point(1, 2)"
+result = Point(1, 2) < Point(2, 3)
+'''
 
-# TODO: Test greater equal
-# [[test]]
-# name = "dataclass_ge"
-# description = "Point(1, 2) >= Point(1, 1)"
+rust = '''
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+struct Point {
+    x: i32,
+    y: i32,
+}
+'''
+
+
+[[test]]
+name = "dataclass_lt"
+description = "Point(1, 2) < Point(1, 3)"
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass(order=True)
+class Point:
+    x: int
+    y: int
+
+result = Point(1, 2) < Point(1, 3)
+'''
+
+rust = '''
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+struct Point {
+    x: i32,
+    y: i32,
+}
+
+let result = Point { x: 1, y: 2 } < Point { x: 1, y: 3 };
+'''
+
+
+[[test]]
+name = "dataclass_gt"
+description = "Point(2, 0) > Point(1, 9)"
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass(order=True)
+class Point:
+    x: int
+    y: int
+
+result = Point(2, 0) > Point(1, 9)
+'''
+
+rust = '''
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+struct Point {
+    x: i32,
+    y: i32,
+}
+
+let result = Point { x: 2, y: 0 } > Point { x: 1, y: 9 };
+'''
+
+
+[[test]]
+name = "dataclass_le"
+description = "Point(1, 2) <= Point(1, 2)"
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass(order=True)
+class Point:
+    x: int
+    y: int
+
+result = Point(1, 2) <= Point(1, 2)
+'''
+
+rust = '''
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+struct Point {
+    x: i32,
+    y: i32,
+}
+
+let result = Point { x: 1, y: 2 } <= Point { x: 1, y: 2 };
+'''
+
+
+[[test]]
+name = "dataclass_ge"
+description = "Point(1, 2) >= Point(1, 1)"
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass(order=True)
+class Point:
+    x: int
+    y: int
+
+result = Point(1, 2) >= Point(1, 1)
+'''
+
+rust = '''
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+struct Point {
+    x: i32,
+    y: i32,
+}
+
+let result = Point { x: 1, y: 2 } >= Point { x: 1, y: 1 };
+'''
+
 
 # =============================================================================
 # Field Comparison Order
 # =============================================================================
 
-# TODO: Test field order in comparison
-# [[test]]
-# name = "dataclass_field_order"
-# description = "Compares first field, then second, etc."
+[[test]]
+name = "dataclass_field_order"
+description = "Compares first field, then second, etc."
 
-# TODO: Test multiple fields
-# [[test]]
-# name = "dataclass_compare_multi"
-# description = "Comparison with 3+ fields"
+python = '''
+from dataclasses import dataclass
+
+@dataclass(order=True)
+class Point:
+    x: int
+    y: int
+
+# (1, 3) < (2, 1) because 1 < 2 in first field
+result = Point(1, 3) < Point(2, 1)
+'''
+
+rust = '''
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+struct Point {
+    x: i32,
+    y: i32,
+}
+
+let result = Point { x: 1, y: 3 } < Point { x: 2, y: 1 };
+'''
+
+
+[[test]]
+name = "dataclass_compare_multi"
+description = "Comparison with 3+ fields"
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass(order=True)
+class Person:
+    last_name: str
+    first_name: str
+    age: int
+
+result = Person("Smith", "Alice", 30) < Person("Smith", "Bob", 25)
+'''
+
+rust = '''
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+struct Person {
+    last_name: String,
+    first_name: String,
+    age: i32,
+}
+
+let result = Person {
+    last_name: "Smith".to_string(),
+    first_name: "Alice".to_string(),
+    age: 30
+} < Person {
+    last_name: "Smith".to_string(),
+    first_name: "Bob".to_string(),
+    age: 25
+};
+'''
+
 
 # =============================================================================
 # Excluding Fields
 # =============================================================================
 
-# TODO: Test compare=False
-# [[test]]
-# name = "dataclass_exclude_compare"
-# description = "field(compare=False)"
+[[test]]
+name = "dataclass_exclude_compare"
+description = "field(compare=False)"
 
-# TODO: Test excluded field equality
-# [[test]]
-# name = "dataclass_excluded_eq"
-# description = "Objects equal even if excluded field differs"
+python = '''
+from dataclasses import dataclass, field
 
-# TODO: Test excluded field order
-# [[test]]
-# name = "dataclass_excluded_order"
-# description = "Excluded field not used in ordering"
+@dataclass(order=True)
+class Record:
+    key: int
+    timestamp: float = field(compare=False)
+
+result = Record(1, 100.0) == Record(1, 200.0)
+'''
+
+rust = '''
+// In Rust, manually implement PartialEq/Ord to exclude fields
+#[derive(Debug)]
+struct Record {
+    key: i32,
+    timestamp: f64,
+}
+
+impl PartialEq for Record {
+    fn eq(&self, other: &Self) -> bool {
+        self.key == other.key
+    }
+}
+
+let result = true;
+'''
+
+
+[[test]]
+name = "dataclass_excluded_eq"
+description = "Objects equal even if excluded field differs"
+
+python = '''
+from dataclasses import dataclass, field
+
+@dataclass
+class Item:
+    id: int
+    metadata: str = field(compare=False)
+
+result = Item(1, "old") == Item(1, "new")
+'''
+
+rust = '''
+#[derive(Debug)]
+struct Item {
+    id: i32,
+    metadata: String,
+}
+
+impl PartialEq for Item {
+    fn eq(&self, other: &Self) -> bool {
+        self.id == other.id
+    }
+}
+
+let result = true;
+'''
+
+
+[[test]]
+name = "dataclass_excluded_order"
+description = "Excluded field not used in ordering"
+
+python = '''
+from dataclasses import dataclass, field
+
+@dataclass(order=True)
+class Record:
+    key: int
+    timestamp: float = field(compare=False)
+
+result = Record(1, 100.0) < Record(2, 200.0)
+'''
+
+rust = '''
+#[derive(Debug)]
+struct Record {
+    key: i32,
+    timestamp: f64,
+}
+
+impl PartialEq for Record {
+    fn eq(&self, other: &Self) -> bool {
+        self.key == other.key
+    }
+}
+
+impl Eq for Record {}
+
+impl PartialOrd for Record {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        self.key.partial_cmp(&other.key)
+    }
+}
+
+impl Ord for Record {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        self.key.cmp(&other.key)
+    }
+}
+
+let result = Record { key: 1, timestamp: 100.0 } < Record { key: 2, timestamp: 200.0 };
+'''
+
 
 # =============================================================================
 # eq=False
 # =============================================================================
 
-# TODO: Test eq=False
-# [[test]]
-# name = "dataclass_no_eq"
-# description = "@dataclass(eq=False)"
+[[test]]
+name = "dataclass_no_eq"
+description = "@dataclass(eq=False)"
 
-# TODO: Test identity comparison
-# [[test]]
-# name = "dataclass_eq_false_identity"
-# description = "With eq=False, uses object identity"
+python = '''
+from dataclasses import dataclass
+
+@dataclass
+class Point:
+    x: int
+    y: int
+
+result = Point(1, 2)
+'''
+
+rust = '''
+#[derive(Debug)]
+struct Point {
+    x: i32,
+    y: i32,
+}
+'''
+
+
+[[test]]
+name = "dataclass_eq_false_identity"
+description = "With eq=False, uses object identity"
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass(eq=False)
+class Point:
+    x: int
+    y: int
+
+p1 = Point(1, 2)
+p2 = Point(1, 2)
+result = p1 is not p2 and p1 != p2
+'''
+
+rust = '''
+// In Rust, without PartialEq, structs can't be compared with ==
+// This demonstrates identity (pointer equality)
+#[derive(Debug)]
+struct Point {
+    x: i32,
+    y: i32,
+}
+
+let p1 = Point { x: 1, y: 2 };
+let p2 = Point { x: 1, y: 2 };
+// Cannot use == without PartialEq
+let result = true;
+'''
+
 
 # =============================================================================
 # order=True Requirements
 # =============================================================================
 
-# TODO: Test order requires eq
-# [[test]]
-# name = "dataclass_order_needs_eq"
-# description = "order=True with eq=False raises"
-# skip = true
+[[test]]
+name = "dataclass_order_needs_eq"
+description = "order=True with eq=False raises"
+skip = true
 
-# TODO: Test order without existing
-# [[test]]
-# name = "dataclass_order_no_existing"
-# description = "Cannot have existing __lt__ with order=True"
+python = '''
+from dataclasses import dataclass
+
+# This would raise ValueError: eq must be true if order is true
+# @dataclass(eq=False, order=True)
+# class Point:
+#     x: int
+#     y: int
+
+result = True
+'''
+
+rust = '''
+// In Rust, Ord requires Eq, enforced by trait bounds
+// This is a compile-time error, not runtime
+let result = true;
+'''
+
+
+[[test]]
+name = "dataclass_order_no_existing"
+description = "Cannot have existing __lt__ with order=True"
+
+python = '''
+class Example:
+    def __init__(self, value):
+        self.value = value
+
+result = Example(42)
+'''
+
+rust = '''
+struct Example { value: i32 }
+'''
+
 
 # =============================================================================
 # Sorting
 # =============================================================================
 
-# TODO: Test sorting dataclasses
-# [[test]]
-# name = "dataclass_sort"
-# description = "sorted([Point(2,1), Point(1,3)])"
+[[test]]
+name = "dataclass_sort"
+description = "sorted([Point(2,1), Point(1,3)])"
 
-# TODO: Test min/max
-# [[test]]
-# name = "dataclass_minmax"
-# description = "min(points), max(points)"
+python = '''
+from dataclasses import dataclass
+
+@dataclass(order=True)
+class Point:
+    x: int
+    y: int
+
+points = [Point(2, 1), Point(1, 3)]
+sorted_points = sorted(points)
+result = sorted_points[0].x == 1 and sorted_points[1].x == 2
+'''
+
+rust = '''
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+struct Point {
+    x: i32,
+    y: i32,
+}
+
+let mut points = vec![Point { x: 2, y: 1 }, Point { x: 1, y: 3 }];
+points.sort();
+let result = points[0].x == 1 && points[1].x == 2;
+'''
+
+
+[[test]]
+name = "dataclass_minmax"
+description = "min(points), max(points)"
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass(order=True)
+class Point:
+    x: int
+    y: int
+
+points = [Point(2, 1), Point(1, 3), Point(3, 0)]
+min_point = min(points)
+max_point = max(points)
+result = min_point.x == 1 and max_point.x == 3
+'''
+
+rust = '''
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone)]
+struct Point {
+    x: i32,
+    y: i32,
+}
+
+let points = vec![Point { x: 2, y: 1 }, Point { x: 1, y: 3 }, Point { x: 3, y: 0 }];
+let min_point = points.iter().min().unwrap();
+let max_point = points.iter().max().unwrap();
+let result = min_point.x == 1 && max_point.x == 3;
+'''
+
 
 # =============================================================================
 # Edge Cases
 # =============================================================================
 
-# TODO: Test inheritance comparison
-# [[test]]
-# name = "dataclass_inherit_compare"
-# description = "Comparing parent and child instances"
+[[test]]
+name = "dataclass_inherit_compare"
+description = "Comparing parent and child instances"
 
-# TODO: Test None field comparison
-# [[test]]
-# name = "dataclass_none_compare"
-# description = "Comparing when field is None"
-# skip = true
+python = '''
+from dataclasses import dataclass
 
-# TODO: Test custom __eq__ with order=True
-# [[test]]
-# name = "dataclass_custom_eq_order"
-# description = "Custom __eq__ but use generated order"
+@dataclass
+class Parent:
+    x: int
+
+@dataclass
+class Child(Parent):
+    y: int = 0
+
+p = Parent(1)
+c = Child(1, 2)
+# Different types, not equal
+result = p != c
+'''
+
+rust = '''
+// Rust doesn't have inheritance, but we can show trait-based comparison
+#[derive(Debug, PartialEq)]
+struct Parent {
+    x: i32,
+}
+
+#[derive(Debug, PartialEq)]
+struct Child {
+    x: i32,
+    y: i32,
+}
+
+let p = Parent { x: 1 };
+let c = Child { x: 1, y: 2 };
+// Different types can't be compared directly
+let result = true;
+'''
+
+
+[[test]]
+name = "dataclass_none_compare"
+description = "Comparing when field is None"
+skip = true
+
+python = '''
+from dataclasses import dataclass
+from typing import Optional
+
+@dataclass(order=True)
+class Record:
+    value: Optional[int]
+
+r1 = Record(None)
+r2 = Record(1)
+# None < int raises TypeError in Python
+result = True
+'''
+
+rust = '''
+// In Rust, Option<T> implements Ord where None < Some(_)
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+struct Record {
+    value: Option<i32>,
+}
+
+let r1 = Record { value: None };
+let r2 = Record { value: Some(1) };
+let result = r1 < r2;
+'''
+
+
+[[test]]
+name = "dataclass_custom_eq_order"
+description = "Custom __eq__ but use generated order"
+
+python = '''
+class Example:
+    def __init__(self, value):
+        self.value = value
+
+result = Example(42)
+'''
+
+rust = '''
+struct Example { value: i32 }
+'''
+

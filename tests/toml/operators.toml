@@ -11,7 +11,6 @@ category = "operators"
 [[test]]
 name = "operator_add"
 description = "Addition operator"
-tags = ["operator", "arithmetic"]
 
 python = '''
 def add(a: int, b: int) -> int:
@@ -53,7 +52,6 @@ mod tests {
 [[test]]
 name = "operator_subtract"
 description = "Subtraction operator"
-tags = ["operator", "arithmetic"]
 
 python = '''
 def subtract(a: int, b: int) -> int:
@@ -80,7 +78,6 @@ mod tests {
 [[test]]
 name = "operator_multiply"
 description = "Multiplication operator"
-tags = ["operator", "arithmetic"]
 
 python = '''
 def multiply(a: int, b: int) -> int:
@@ -122,7 +119,6 @@ mod tests {
 [[test]]
 name = "operator_divide"
 description = "Division operator"
-tags = ["operator", "arithmetic"]
 
 python = '''
 def divide(a: float, b: float) -> float:
@@ -156,7 +152,6 @@ pub fn divide(a: f64, b: f64) -> f64 {
 [[test]]
 name = "operator_floor_div"
 description = "Floor division operator"
-tags = ["operator", "arithmetic"]
 
 python = '''
 def floor_div(a: int, b: int) -> int:
@@ -212,7 +207,6 @@ mod tests {
 [[test]]
 name = "operator_modulo"
 description = "Modulo operator"
-tags = ["operator", "arithmetic"]
 
 python = '''
 def modulo(a: int, b: int) -> int:
@@ -257,7 +251,6 @@ mod tests {
 [[test]]
 name = "operator_power_literal"
 description = "Power operator with literals"
-tags = ["operator", "power"]
 
 python = '''
 def power_literal() -> int:
@@ -282,7 +275,6 @@ mod tests {
 [[test]]
 name = "operator_power_variable"
 description = "Power operator with variables"
-tags = ["operator", "power"]
 
 python = '''
 def power_var(base: int, exp: int) -> int:
@@ -309,7 +301,6 @@ mod tests {
 [[test]]
 name = "operator_pow_builtin"
 description = "pow() builtin function"
-tags = ["operator", "power", "builtin"]
 
 python = '''
 def pow_call(base: int, exp: int) -> int:
@@ -336,7 +327,6 @@ mod tests {
 [[test]]
 name = "operator_eq"
 description = "Equality operator"
-tags = ["operator", "comparison"]
 
 python = '''
 def equals(a: int, b: int) -> bool:
@@ -352,7 +342,6 @@ pub fn equals(a: i32, b: i32) -> bool {
 [[test]]
 name = "operator_ne"
 description = "Not equal operator"
-tags = ["operator", "comparison"]
 
 python = '''
 def not_equals(a: int, b: int) -> bool:
@@ -368,7 +357,6 @@ pub fn not_equals(a: i32, b: i32) -> bool {
 [[test]]
 name = "operator_lt"
 description = "Less than operator"
-tags = ["operator", "comparison"]
 
 python = '''
 def less_than(a: int, b: int) -> bool:
@@ -384,7 +372,6 @@ pub fn less_than(a: i32, b: i32) -> bool {
 [[test]]
 name = "operator_le"
 description = "Less than or equal operator"
-tags = ["operator", "comparison"]
 
 python = '''
 def less_equal(a: int, b: int) -> bool:
@@ -400,7 +387,6 @@ pub fn less_equal(a: i32, b: i32) -> bool {
 [[test]]
 name = "operator_gt"
 description = "Greater than operator"
-tags = ["operator", "comparison"]
 
 python = '''
 def greater_than(a: int, b: int) -> bool:
@@ -416,7 +402,6 @@ pub fn greater_than(a: i32, b: i32) -> bool {
 [[test]]
 name = "operator_ge"
 description = "Greater than or equal operator"
-tags = ["operator", "comparison"]
 
 python = '''
 def greater_equal(a: int, b: int) -> bool:
@@ -432,7 +417,6 @@ pub fn greater_equal(a: i32, b: i32) -> bool {
 [[test]]
 name = "operator_and"
 description = "Logical and operator"
-tags = ["operator", "logical"]
 
 python = '''
 def logical_and(a: bool, b: bool) -> bool:
@@ -448,7 +432,6 @@ pub fn logical_and(a: bool, b: bool) -> bool {
 [[test]]
 name = "operator_or"
 description = "Logical or operator"
-tags = ["operator", "logical"]
 
 python = '''
 def logical_or(a: bool, b: bool) -> bool:
@@ -464,7 +447,6 @@ pub fn logical_or(a: bool, b: bool) -> bool {
 [[test]]
 name = "operator_not"
 description = "Logical not operator"
-tags = ["operator", "logical"]
 
 python = '''
 def logical_not(a: bool) -> bool:
@@ -489,7 +471,6 @@ mod tests {
 [[test]]
 name = "operator_bitwise_and"
 description = "Bitwise AND operator"
-tags = ["operator", "bitwise"]
 
 python = '''
 def bitwise_and(a: int, b: int) -> int:
@@ -531,7 +512,6 @@ mod tests {
 [[test]]
 name = "operator_bitwise_or"
 description = "Bitwise OR operator"
-tags = ["operator", "bitwise"]
 
 python = '''
 def bitwise_or(a: int, b: int) -> int:
@@ -573,7 +553,6 @@ mod tests {
 [[test]]
 name = "operator_bitwise_xor"
 description = "Bitwise XOR operator"
-tags = ["operator", "bitwise"]
 
 python = '''
 def bitwise_xor(a: int, b: int) -> int:
@@ -615,7 +594,6 @@ mod tests {
 [[test]]
 name = "operator_left_shift"
 description = "Left shift operator"
-tags = ["operator", "bitwise"]
 
 python = '''
 def left_shift(a: int, n: int) -> int:
@@ -642,7 +620,6 @@ mod tests {
 [[test]]
 name = "operator_right_shift"
 description = "Right shift operator"
-tags = ["operator", "bitwise"]
 
 python = '''
 def right_shift(a: int, n: int) -> int:
@@ -669,7 +646,6 @@ mod tests {
 [[test]]
 name = "operator_unary_minus"
 description = "Unary minus operator"
-tags = ["operator", "unary"]
 
 python = '''
 def negate(x: int) -> int:
@@ -696,7 +672,6 @@ mod tests {
 [[test]]
 name = "operator_unary_plus"
 description = "Unary plus operator"
-tags = ["operator", "unary"]
 
 python = '''
 def identity(x: int) -> int:
@@ -723,7 +698,6 @@ mod tests {
 [[test]]
 name = "operator_bitwise_not"
 description = "Bitwise NOT operator"
-tags = ["operator", "unary", "bitwise"]
 
 python = '''
 def bitwise_not(x: int) -> int:
@@ -750,7 +724,6 @@ mod tests {
 [[test]]
 name = "operator_power_int_int"
 description = "int ** int should generate integer power operations"
-tags = ["operator", "power"]
 
 python = '''
 def test_pow(a: int, b: int) -> int:
@@ -777,7 +750,6 @@ mod tests {
 [[test]]
 name = "operator_power_int_float"
 description = "int ** float should use powf or casts"
-tags = ["operator", "power"]
 
 python = '''
 def test_pow(a: int, b: float) -> float:
@@ -793,7 +765,6 @@ pub fn test_pow(a: i32, b: f64) -> f64 {
 [[test]]
 name = "operator_power_float_float"
 description = "float ** float should generate powf"
-tags = ["operator", "power"]
 
 python = '''
 def test_pow(a: float, b: float) -> float:
@@ -809,7 +780,6 @@ pub fn test_pow(a: f64, b: f64) -> f64 {
 [[test]]
 name = "operator_power_negative_exponent"
 description = "Negative exponent handling for power operation"
-tags = ["operator", "power"]
 
 python = '''
 def test_pow(a: float) -> float:
@@ -825,7 +795,6 @@ pub fn test_pow(a: f64) -> f64 {
 [[test]]
 name = "operator_power_zero_exponent"
 description = "Zero exponent optimization or pow(0)"
-tags = ["operator", "power"]
 
 python = '''
 def test_pow(a: int) -> int:
@@ -852,7 +821,6 @@ mod tests {
 [[test]]
 name = "operator_power_fractional_exponent"
 description = "Fractional exponent should produce powf or sqrt"
-tags = ["operator", "power"]
 
 python = '''
 def test_pow(a: float) -> float:
@@ -868,7 +836,6 @@ pub fn test_pow(a: f64) -> f64 {
 [[test]]
 name = "power_basic"
 description = "Basic power operator with integer literals"
-tags = ["operator", "power"]
 
 python = '''
 def test_power() -> tuple[int, int]:
@@ -890,7 +857,6 @@ pub fn test_power() -> (i32, i32) {
 [[test]]
 name = "power_float"
 description = "Power operator with float values"
-tags = ["operator", "power", "float"]
 
 python = '''
 def test_float_power() -> tuple[float, float]:
@@ -912,7 +878,6 @@ pub fn test_float_power() -> (f64, f64) {
 [[test]]
 name = "power_negative_exponent"
 description = "Power operator with negative exponent"
-tags = ["operator", "power"]
 
 python = '''
 def test_negative() -> tuple[float, float]:
@@ -934,7 +899,6 @@ pub fn test_negative() -> (f64, f64) {
 [[test]]
 name = "power_with_variables"
 description = "Power operator with variable base and exponent"
-tags = ["operator", "power"]
 
 python = '''
 def compute_power(base: int, exp: int) -> int:
@@ -961,7 +925,6 @@ mod tests {
 [[test]]
 name = "power_precedence"
 description = "Power operator precedence"
-tags = ["operator", "power", "precedence"]
 
 python = '''
 def test_precedence() -> tuple[int, int, int]:
@@ -987,7 +950,6 @@ pub fn test_precedence() -> (i32, i32, i32) {
 [[test]]
 name = "floor_division_positive"
 description = "Floor division with positive operands"
-tags = ["operator", "floor-division"]
 
 python = '''
 def test_floordiv(a: int, b: int) -> int:
@@ -1043,7 +1005,6 @@ mod tests {
 [[test]]
 name = "floor_division_negative_dividend"
 description = "Floor division with negative dividend"
-tags = ["operator", "floor-division"]
 
 python = '''
 def test_floordiv() -> int:
@@ -1097,7 +1058,6 @@ mod tests {
 [[test]]
 name = "floor_division_negative_divisor"
 description = "Floor division with negative divisor"
-tags = ["operator", "floor-division"]
 
 python = '''
 def test_floordiv() -> int:
@@ -1151,7 +1111,6 @@ mod tests {
 [[test]]
 name = "floor_division_both_negative"
 description = "Floor division with both operands negative"
-tags = ["operator", "floor-division"]
 
 python = '''
 def test_floordiv() -> int:
@@ -1205,7 +1164,6 @@ mod tests {
 [[test]]
 name = "floor_division_generic"
 description = "Generic floor division with variables"
-tags = ["operator", "floor-division"]
 
 python = '''
 def test_floordiv(a: int, b: int) -> int:
@@ -1261,7 +1219,6 @@ mod tests {
 [[test]]
 name = "set_union_operator"
 description = "Set union using | operator"
-tags = ["operator", "set"]
 
 python = '''
 def test_union(a: set, b: set) -> set:
@@ -1296,7 +1253,6 @@ mod tests {
 [[test]]
 name = "set_intersection_operator"
 description = "Set intersection using & operator"
-tags = ["operator", "set"]
 
 python = '''
 def test_intersection(a: set, b: set) -> set:
@@ -1331,7 +1287,6 @@ mod tests {
 [[test]]
 name = "set_difference_operator"
 description = "Set difference using - operator"
-tags = ["operator", "set"]
 
 python = '''
 def test_difference(a: set, b: set) -> set:
@@ -1349,7 +1304,6 @@ pub fn test_difference(a: &HashSet<serde_json::Value>, b: &HashSet<serde_json::V
 [[test]]
 name = "set_symmetric_difference_operator"
 description = "Set symmetric difference using ^ operator"
-tags = ["operator", "set"]
 
 python = '''
 def test_symmetric_diff(a: set, b: set) -> set:
@@ -1390,7 +1344,6 @@ mod tests {
 [[test]]
 name = "set_operations_chained"
 description = "Chained set operations"
-tags = ["operator", "set"]
 
 python = '''
 def test_ops(a: set, b: set, c: set) -> set:

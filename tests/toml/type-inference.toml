@@ -12,7 +12,6 @@ category = "type-inference"
 [[test]]
 name = "infer_int_from_literal"
 description = "Infer int type from literal assignment"
-tags = ["inference", "int"]
 
 python = '''
 def get_number():
@@ -39,7 +38,6 @@ mod tests {
 [[test]]
 name = "infer_float_from_literal"
 description = "Infer float type from literal"
-tags = ["inference", "float"]
 
 python = '''
 def get_pi():
@@ -57,7 +55,6 @@ pub fn get_pi() -> f64 {
 [[test]]
 name = "infer_string_from_literal"
 description = "Infer string type from literal"
-tags = ["inference", "string"]
 
 python = '''
 def get_greeting():
@@ -75,7 +72,6 @@ pub fn get_greeting() -> String {
 [[test]]
 name = "infer_bool_from_literal"
 description = "Infer bool type from literal"
-tags = ["inference", "bool"]
 
 python = '''
 def get_flag():
@@ -93,7 +89,6 @@ pub fn get_flag() -> bool {
 [[test]]
 name = "infer_int_from_arithmetic"
 description = "Infer int type from arithmetic"
-tags = ["inference", "arithmetic"]
 
 python = '''
 def increment(x):
@@ -109,7 +104,6 @@ pub fn increment(x: i32) -> i32 {
 [[test]]
 name = "infer_float_from_division"
 description = "Infer float from true division"
-tags = ["inference", "division"]
 
 python = '''
 def half(x: float) -> float:
@@ -143,7 +137,6 @@ pub fn half(x: f64) -> f64 {
 [[test]]
 name = "infer_string_from_concat"
 description = "Infer string from concatenation"
-tags = ["inference", "string"]
 
 python = '''
 def greet(name: str) -> str:
@@ -159,7 +152,6 @@ pub fn greet(name: String) -> String {
 [[test]]
 name = "infer_string_from_upper"
 description = "Infer string from .upper() call"
-tags = ["inference", "method"]
 
 python = '''
 def shout(text: str) -> str:
@@ -175,7 +167,6 @@ pub fn shout(text: String) -> String {
 [[test]]
 name = "infer_list_from_append"
 description = "Infer list from .append() call"
-tags = ["inference", "method"]
 
 python = '''
 def add_item(items: list[int], item: int):
@@ -193,7 +184,6 @@ pub fn add_item(items: &mut Vec<i32>, item: i32) {
 [[test]]
 name = "infer_int_from_len"
 description = "Infer int from len()"
-tags = ["inference", "builtin"]
 
 python = '''
 def count(items: list[int]) -> int:
@@ -220,7 +210,6 @@ mod tests {
 [[test]]
 name = "infer_string_from_str_call"
 description = "Infer string from str()"
-tags = ["inference", "builtin"]
 
 python = '''
 def to_string(x: int) -> str:
@@ -236,7 +225,6 @@ pub fn to_string(x: i32) -> String {
 [[test]]
 name = "annotated_parameter"
 description = "Typed parameter annotation"
-tags = ["annotation", "parameter"]
 
 python = '''
 def add(a: int, b: int) -> int:
@@ -278,7 +266,6 @@ mod tests {
 [[test]]
 name = "annotated_return"
 description = "Typed return annotation"
-tags = ["annotation", "return"]
 
 python = '''
 def get_name() -> str:
@@ -294,7 +281,6 @@ pub fn get_name() -> String {
 [[test]]
 name = "annotated_variable"
 description = "Typed variable annotation"
-tags = ["annotation", "variable"]
 
 python = '''
 def typed_var() -> int:
@@ -321,7 +307,6 @@ mod tests {
 [[test]]
 name = "infer_list_element_type"
 description = "Infer list element type"
-tags = ["inference", "generic"]
 
 python = '''
 def first(items: list[int]) -> int:
@@ -366,7 +351,6 @@ mod tests {
 [[test]]
 name = "infer_dict_types"
 description = "Infer dictionary key/value types"
-tags = ["inference", "generic"]
 
 python = '''
 def get_value(d: dict[str, int], key: str) -> int:
@@ -401,7 +385,6 @@ pub fn get_value(d: &HashMap<String, i32>, key: String) -> i32 {
 [[test]]
 name = "union_type_annotation"
 description = "Union type annotation"
-tags = ["annotation", "union"]
 
 python = '''
 from typing import Union
@@ -459,7 +442,6 @@ pub fn maybe_int(flag: bool) -> IntOrStringUnion {
 [[test]]
 name = "optional_type_annotation"
 description = "Optional type annotation"
-tags = ["annotation", "optional"]
 
 python = '''
 from typing import Optional
@@ -483,7 +465,6 @@ pub fn maybe_value(x: i32) -> Option<i32> {
 [[test]]
 name = "infer_return_from_body"
 description = "Infer return type from function body"
-tags = ["inference", "return"]
 
 python = '''
 def compute():
@@ -508,7 +489,6 @@ mod tests {
 [[test]]
 name = "infer_return_list"
 description = "Infer list return type"
-tags = ["inference", "return", "list"]
 
 python = '''
 def make_list() -> list[int]:
@@ -524,7 +504,6 @@ pub fn make_list() -> Vec<i32> {
 [[test]]
 name = "isinstance_int_removed"
 description = "isinstance(x, int) removed when x is typed as int"
-tags = ["isinstance", "optimization"]
 
 python = '''
 def check_int(x: int) -> bool:
@@ -549,7 +528,6 @@ mod tests {
 [[test]]
 name = "isinstance_str_removed"
 description = "isinstance(s, str) removed when s is typed as str"
-tags = ["isinstance", "optimization"]
 
 python = '''
 def check_str(s: str) -> bool:
@@ -574,7 +552,6 @@ mod tests {
 [[test]]
 name = "isinstance_float_removed"
 description = "isinstance(x, float) removed when x is typed as float"
-tags = ["isinstance", "optimization"]
 
 python = '''
 def check_float(x: float) -> bool:
@@ -599,7 +576,6 @@ mod tests {
 [[test]]
 name = "isinstance_list_removed"
 description = "isinstance(items, list) removed when items is typed as list"
-tags = ["isinstance", "optimization"]
 
 python = '''
 def check_list(items: list[int]) -> bool:
@@ -624,7 +600,6 @@ mod tests {
 [[test]]
 name = "infer_filepath_from_open"
 description = "Infer string type from open() usage"
-tags = ["inference", "usage"]
 
 python = '''
 def read_file(filepath):
@@ -646,7 +621,6 @@ pub fn read_file(filepath: String) {
 [[test]]
 name = "infer_string_from_fstring"
 description = "Infer string type from f-string usage"
-tags = ["inference", "fstring"]
 
 python = '''
 def greet(name):
@@ -662,7 +636,6 @@ pub fn greet(name: String) -> String {
 [[test]]
 name = "infer_list_from_iteration"
 description = "Infer list type from iteration"
-tags = ["inference", "iteration"]
 
 python = '''
 def sum_list(items):
@@ -696,7 +669,6 @@ mod tests {
 [[test]]
 name = "infer_bool_from_conditional"
 description = "Infer bool type from conditional usage"
-tags = ["inference", "conditional"]
 
 python = '''
 def conditional(flag):
@@ -717,7 +689,6 @@ pub fn conditional(flag: bool) -> String {
 [[test]]
 name = "infer_mixed_types"
 description = "Infer multiple parameter types"
-tags = ["inference", "mixed"]
 
 python = '''
 def process(data, flag):
@@ -738,7 +709,6 @@ pub fn process(data: String, flag: bool) -> String {
 [[test]]
 name = "infer_csv_path"
 description = "Infer string from CSV reader context"
-tags = ["inference", "csv"]
 
 python = '''
 import csv
@@ -782,7 +752,6 @@ pub fn process_csv(path: String) {
 [[test]]
 name = "return_type_propagation"
 description = "Respect explicit return type annotations"
-tags = ["inference", "return"]
 
 python = '''
 def get_length(text: str) -> int:
@@ -809,7 +778,6 @@ mod tests {
 [[test]]
 name = "infer_search_function"
 description = "Infer list and target types in search - untyped params use serde_json::Value"
-tags = ["inference", "complex"]
 
 python = '''
 def search(items, target):
@@ -834,7 +802,6 @@ pub fn search(items: &serde_json::Value, target: &serde_json::Value) -> bool {
 [[test]]
 name = "int_str_simple"
 description = "int(str) uses .parse::<i32>()"
-tags = ["parse", "int", "str"]
 
 python = '''
 def parse_number(s: str) -> int:
@@ -861,7 +828,6 @@ mod tests {
 [[test]]
 name = "int_str_multiple_calls"
 description = "Multiple int(str) conversions"
-tags = ["parse", "int", "str"]
 
 python = '''
 def parse_and_add(s1: str, s2: str) -> int:
@@ -883,7 +849,6 @@ pub fn parse_and_add(s1: String, s2: String) -> i32 {
 [[test]]
 name = "int_number_not_string"
 description = "int(int) should not use .parse()"
-tags = ["parse", "int"]
 
 python = '''
 def double_int(x: int) -> int:
@@ -910,7 +875,6 @@ mod tests {
 [[test]]
 name = "int_float_cast"
 description = "int(float) uses 'as i32' cast"
-tags = ["parse", "int", "float"]
 
 python = '''
 def truncate_float(x: float) -> int:
@@ -926,7 +890,6 @@ pub fn truncate_float(x: f64) -> i32 {
 [[test]]
 name = "int_bool_cast"
 description = "int(bool) uses 'as i32' cast"
-tags = ["parse", "int", "bool"]
 
 python = '''
 def bool_to_int(b: bool) -> int:
@@ -942,7 +905,6 @@ pub fn bool_to_int(b: bool) -> i32 {
 [[test]]
 name = "int_str_in_expression"
 description = "int(str) nested in expression"
-tags = ["parse", "int", "str"]
 
 python = '''
 def calculate(s: str) -> int:
@@ -969,7 +931,6 @@ mod tests {
 [[test]]
 name = "int_str_as_function_arg"
 description = "int(str) as function argument"
-tags = ["parse", "int", "str"]
 
 python = '''
 def helper(x: int) -> int:
@@ -1008,7 +969,6 @@ mod tests {
 [[test]]
 name = "untyped_list_parameter_no_dynamic"
 description = "Untyped list parameter should not generate DynamicType"
-tags = ["dynamic", "list", "regression"]
 
 python = '''
 def sum_list(numbers: list) -> int:
@@ -1043,7 +1003,6 @@ mod tests {
 [[test]]
 name = "untyped_dict_parameter_no_dynamic"
 description = "Untyped dict parameter should not generate DynamicType"
-tags = ["dynamic", "dict", "regression"]
 
 python = '''
 def get_value(data: dict, key: str) -> int:
@@ -1085,7 +1044,6 @@ pub fn get_value(data: &HashMap<serde_json::Value, serde_json::Value>, key: Stri
 [[test]]
 name = "untyped_set_parameter_no_dynamic"
 description = "Untyped set parameter should not generate DynamicType"
-tags = ["dynamic", "set", "regression"]
 
 python = '''
 def count_unique(items: set) -> int:
@@ -1103,7 +1061,6 @@ pub fn count_unique(items: &HashSet<serde_json::Value>) -> i32 {
 [[test]]
 name = "type_annotation_usize_to_i32"
 description = "Type annotation forces conversion from usize (len) to i32"
-tags = ["annotation", "conversion"]
 
 python = '''
 def test() -> int:
@@ -1133,7 +1090,6 @@ mod tests {
 [[test]]
 name = "type_annotation_simple_int"
 description = "Simple int type annotation is preserved"
-tags = ["annotation", "int"]
 
 python = '''
 def test(val: int) -> int:
@@ -1162,7 +1118,6 @@ mod tests {
 [[test]]
 name = "type_annotation_str"
 description = "String type annotation produces String or &str"
-tags = ["annotation", "string"]
 
 python = '''
 def test() -> str:
@@ -1180,7 +1135,6 @@ pub fn test() -> String {
 [[test]]
 name = "no_annotation_infers_type"
 description = "Type inference works without explicit annotation"
-tags = ["inference", "no-annotation"]
 
 python = '''
 def test(n: int) -> int:
@@ -1209,7 +1163,6 @@ mod tests {
 [[test]]
 name = "dict_return_infers_hashmap"
 description = "Dict return infers HashMap, not i32"
-tags = ["inference", "return", "dict"]
 
 python = '''
 def create_config():
@@ -1227,7 +1180,6 @@ pub fn create_config() -> HashMap<String, String> {
 [[test]]
 name = "int_return_infers_i32"
 description = "Int return infers i32"
-tags = ["inference", "return", "int"]
 
 python = '''
 def get_count():
@@ -1252,7 +1204,6 @@ mod tests {
 [[test]]
 name = "string_return_infers_string"
 description = "String return infers String or &str"
-tags = ["inference", "return", "string"]
 
 python = '''
 def get_name():
@@ -1268,7 +1219,6 @@ pub fn get_name() -> String {
 [[test]]
 name = "bool_return_infers_bool"
 description = "Bool return infers bool"
-tags = ["inference", "return", "bool"]
 
 python = '''
 def is_valid():
@@ -1284,7 +1234,6 @@ pub fn is_valid() -> bool {
 [[test]]
 name = "float_return_infers_f64"
 description = "Float return infers f64"
-tags = ["inference", "return", "float"]
 
 python = '''
 def get_pi():
@@ -1300,7 +1249,6 @@ pub fn get_pi() -> f64 {
 [[test]]
 name = "list_return_infers_vec"
 description = "List return infers Vec, not i32"
-tags = ["inference", "return", "list"]
 
 python = '''
 def get_items():
@@ -1316,7 +1264,6 @@ pub fn get_items() -> Vec<i32> {
 [[test]]
 name = "simple_generic_function"
 description = "Simple generic function with type parameter T"
-tags = ["generics", "typevar"]
 
 python = '''
 def identity(x: T) -> T:
@@ -1348,7 +1295,6 @@ mod tests {
 [[test]]
 name = "generic_list_function"
 description = "Generic function with List[T] parameter"
-tags = ["generics", "list"]
 
 python = '''
 from typing import List
@@ -1384,7 +1330,6 @@ pub fn first_element<T: Clone>(items: &Vec<T>) -> T {
 [[test]]
 name = "multiple_type_parameters"
 description = "Function with multiple type parameters T and U"
-tags = ["generics", "typevar"]
 
 python = '''
 from typing import Tuple
@@ -1402,7 +1347,6 @@ pub fn pair<T: Clone, U: Clone>(a: &T, b: &U) -> (T, U) {
 [[test]]
 name = "generic_with_constraints"
 description = "Generic function should infer PartialOrd constraint from < operator"
-tags = ["generics", "constraints"]
 
 python = '''
 def compare(a: T, b: T) -> bool:
@@ -1418,7 +1362,6 @@ pub fn compare<T: Clone + PartialOrd>(a: &T, b: &T) -> bool {
 [[test]]
 name = "generic_dict"
 description = "Generic function with Dict[K, V] parameter"
-tags = ["generics", "dict"]
 
 python = '''
 from typing import Dict
@@ -1455,7 +1398,6 @@ pub fn get_value<V: Clone, K: Clone>(mapping: &HashMap<K, V>, key: &K) -> V {
 [[test]]
 name = "type_var_in_optional"
 description = "Type variable in Optional type"
-tags = ["generics", "optional"]
 
 python = '''
 from typing import Optional
@@ -1489,7 +1431,6 @@ mod tests {
 [[test]]
 name = "generic_method_call_single_type_param"
 description = "Generic method call with single type parameter"
-tags = ["generics", "method-call"]
 
 python = '''
 def test_infer():
@@ -1507,7 +1448,6 @@ pub fn test_infer() {
 [[test]]
 name = "generic_method_call_multiple_type_params"
 description = "Generic method call with multiple type parameters"
-tags = ["generics", "method-call"]
 
 python = '''
 def test_convert():
@@ -1525,7 +1465,6 @@ pub fn test_convert() {
 [[test]]
 name = "generic_method_on_object"
 description = "Generic method call on object"
-tags = ["generics", "method-call"]
 
 python = '''
 def test_method():
@@ -1545,7 +1484,6 @@ pub fn test_method() {
 [[test]]
 name = "generic_method_with_complex_types"
 description = "Generic method with complex generic types as parameters"
-tags = ["generics", "method-call"]
 
 python = '''
 from typing import List, Dict
@@ -1565,7 +1503,6 @@ pub fn test_complex() {
 [[test]]
 name = "chained_generic_method_calls"
 description = "Chained method calls with type parameters"
-tags = ["generics", "method-call"]
 
 python = '''
 def test_chain():
@@ -1583,7 +1520,6 @@ pub fn test_chain() {
 [[test]]
 name = "generic_method_with_type_vars"
 description = "Generic method using type variables"
-tags = ["generics", "typevar"]
 
 python = '''
 from typing import TypeVar
@@ -1607,7 +1543,6 @@ pub fn wrapper<T: Clone>(value: T) -> T {
 [[test]]
 name = "generic_constructor_call"
 description = "Generic constructor/instantiation"
-tags = ["generics", "constructor"]
 
 python = '''
 def create_container():
@@ -1625,7 +1560,6 @@ pub fn create_container() {
 [[test]]
 name = "generic_static_method_call"
 description = "Static/class method with type parameters"
-tags = ["generics", "static-method"]
 
 python = '''
 def test_static():
@@ -1643,7 +1577,6 @@ pub fn test_static() {
 [[test]]
 name = "generic_call_with_keyword_args_and_array"
 description = "Generic call with keyword args and array literal"
-tags = ["generics", "kwargs", "array"]
 
 python = '''
 def test_func():
@@ -1666,7 +1599,6 @@ pub fn test_func() {
 [[test]]
 name = "type_mapper_union_with_none_optional"
 description = "Union[T, None] -> Option<T> mapping"
-tags = ["type-mapper", "union", "optional"]
 
 python = '''
 from typing import Union
@@ -1689,7 +1621,6 @@ pub fn maybe_value(flag: bool) -> Option<i32> {
 [[test]]
 name = "type_mapper_union_without_none_enum"
 description = "Union[T, U] enum generation"
-tags = ["type-mapper", "union"]
 
 python = '''
 from typing import Union
@@ -1758,7 +1689,6 @@ mod tests {
 [[test]]
 name = "type_mapper_generic_list_type"
 description = "List[T] -> Vec<T> mapping"
-tags = ["type-mapper", "generic", "list"]
 
 python = '''
 from typing import List
@@ -1787,7 +1717,6 @@ mod tests {
 [[test]]
 name = "type_mapper_generic_dict_type"
 description = "Dict[K, V] -> HashMap<K, V> mapping"
-tags = ["type-mapper", "generic", "dict"]
 
 python = '''
 from typing import Dict
@@ -1806,7 +1735,6 @@ pub fn get_value(data: &HashMap<String, i32>, key: String) -> i32 {
 [[test]]
 name = "type_mapper_custom_type_parameter"
 description = "TypeVar single-letter parameter detection"
-tags = ["type-mapper", "typevar"]
 
 python = '''
 from typing import TypeVar
@@ -1844,7 +1772,6 @@ mod tests {
 [[test]]
 name = "type_mapper_custom_type_name"
 description = "Custom class type mapping (best-effort)"
-tags = ["type-mapper", "custom-type"]
 
 python = '''
 class MyClass:
@@ -1886,7 +1813,6 @@ mod tests {
 [[test]]
 name = "type_mapper_array_with_literal_size"
 description = "Fixed-size array/list mapping"
-tags = ["type-mapper", "array"]
 
 python = '''
 def fixed_array() -> list[int]:
@@ -1902,7 +1828,6 @@ pub fn fixed_array() -> Vec<i32> {
 [[test]]
 name = "type_mapper_reference_with_lifetime"
 description = "Reference/lifetime mapping for str"
-tags = ["type-mapper", "lifetime"]
 
 python = '''
 def borrow_str(s: str) -> str:
@@ -1934,7 +1859,6 @@ mod tests {
 [[test]]
 name = "type_mapper_mutable_reference"
 description = "Mutable list reference mapping"
-tags = ["type-mapper", "mutable"]
 
 python = '''
 def mutate_list(items: list[int]) -> list[int]:
@@ -1962,7 +1886,6 @@ mod tests {
 [[test]]
 name = "type_mapper_cow_type"
 description = "Cow-like optimization detection"
-tags = ["type-mapper", "cow"]
 
 python = '''
 def maybe_modify(s: str, modify: bool) -> str:
@@ -1983,7 +1906,6 @@ pub fn maybe_modify(s: String, modify: bool) -> String {
 [[test]]
 name = "type_mapper_result_type"
 description = "Result type generation for raising functions"
-tags = ["type-mapper", "result"]
 
 python = '''
 def may_fail(x: int) -> int:
@@ -2034,7 +1956,6 @@ mod tests {
 [[test]]
 name = "type_mapper_unsupported_function_type"
 description = "Unsupported Callable types should fail gracefully"
-tags = ["type-mapper", "callable"]
 
 python = '''
 from typing import Callable
@@ -2050,7 +1971,6 @@ rust = '''
 [[test]]
 name = "type_mapper_generic_with_multiple_params"
 description = "Nested generic type handling"
-tags = ["type-mapper", "generic"]
 
 python = '''
 from typing import Dict
@@ -2069,7 +1989,6 @@ pub fn multi_param(data: HashMap<String, Vec<i32>>) -> i32 {
 [[test]]
 name = "type_mapper_typevar_mapping"
 description = "Multiple TypeVars mapping"
-tags = ["type-mapper", "typevar"]
 
 python = '''
 from typing import TypeVar
@@ -2093,7 +2012,6 @@ pub fn swap<T: Clone, U: Clone>(a: &T, b: &U) -> (U, T) {
 [[test]]
 name = "type_mapper_set_type_mapping"
 description = "Set[T] -> HashSet<T> mapping"
-tags = ["type-mapper", "set"]
 
 python = '''
 def unique_items(items: list[int]) -> set[int]:
@@ -2110,7 +2028,6 @@ pub fn unique_items(items: Vec<i32>) -> HashSet<i32> {
 [[test]]
 name = "type_mapper_mutation_complex_nested_types"
 description = "Complex nested types transpile without crashing"
-tags = ["type-mapper", "nested", "integration"]
 
 python = '''
 from typing import Dict, Optional, List
@@ -2131,7 +2048,6 @@ pub fn complex_types(data: HashMap<String, Vec<Option<i32>>>) -> Option<String> 
 [[test]]
 name = "type_mapper_all_type_features"
 description = "Integration: many type features together"
-tags = ["type-mapper", "integration"]
 
 python = '''
 from typing import List, Dict, Optional, Union, Set
@@ -2215,7 +2131,6 @@ pub fn complex_function(
 [[test]]
 name = "unknown_type_mapping"
 description = "Unknown type maps to generic fallback"
-tags = ["type-mapper", "unknown"]
 
 python = '''
 def process_any(data) -> int:
@@ -2232,7 +2147,6 @@ pub fn process_any(data: &serde_json::Value) -> i32 {
 [[test]]
 name = "int_type_default_i32"
 description = "Int type defaults to i32"
-tags = ["type-mapper", "int"]
 
 python = '''
 def add_numbers(a: int, b: int) -> int:
@@ -2274,7 +2188,6 @@ mod tests {
 [[test]]
 name = "float_type_mapping"
 description = "Float type maps to f64"
-tags = ["type-mapper", "float"]
 
 python = '''
 def calculate(x: float, y: float) -> float:
@@ -2310,7 +2223,6 @@ mod tests {
 [[test]]
 name = "bool_type_mapping"
 description = "Bool type maps to bool"
-tags = ["type-mapper", "bool"]
 
 python = '''
 def check_flag(enabled: bool) -> bool:
@@ -2335,7 +2247,6 @@ mod tests {
 [[test]]
 name = "none_type_unit_mapping"
 description = "None type maps to unit"
-tags = ["type-mapper", "none"]
 
 python = '''
 def do_nothing():
@@ -2349,7 +2260,6 @@ pub fn do_nothing() {}
 [[test]]
 name = "string_type_always_owned"
 description = "String type with owned strings"
-tags = ["type-mapper", "string"]
 
 python = '''
 def greet(name: str) -> str:
@@ -2365,7 +2275,6 @@ pub fn greet(name: String) -> String {
 [[test]]
 name = "list_with_inner_type"
 description = "List[T] maps to Vec<T>"
-tags = ["type-mapper", "list"]
 
 python = '''
 def sum_list(numbers: list[int]) -> int:
@@ -2399,7 +2308,6 @@ mod tests {
 [[test]]
 name = "dict_with_key_value_types"
 description = "Dict[K,V] maps to HashMap<K,V>"
-tags = ["type-mapper", "dict"]
 
 python = '''
 def lookup(mapping: dict[str, int], key: str) -> int:
@@ -2416,7 +2324,6 @@ pub fn lookup(mapping: &HashMap<String, i32>, key: String) -> i32 {
 [[test]]
 name = "tuple_type_mapping"
 description = "Tuple types map correctly"
-tags = ["type-mapper", "tuple"]
 
 python = '''
 def get_pair() -> tuple[int, str]:
@@ -2432,7 +2339,6 @@ pub fn get_pair() -> (i32, String) {
 [[test]]
 name = "optional_type_mapping"
 description = "Optional[T] maps to Option<T>"
-tags = ["type-mapper", "optional"]
 
 python = '''
 from typing import Optional
@@ -2455,7 +2361,6 @@ pub fn maybe_int(flag: bool) -> Option<i32> {
 [[test]]
 name = "custom_type_single_letter_type_param"
 description = "Single uppercase letter becomes type parameter"
-tags = ["type-mapper", "typevar"]
 
 python = '''
 from typing import TypeVar
@@ -2493,7 +2398,6 @@ mod tests {
 [[test]]
 name = "custom_type_dict_no_params"
 description = "Dict without params gets default typing"
-tags = ["type-mapper", "dict"]
 
 python = '''
 from typing import Dict
@@ -2516,7 +2420,6 @@ pub fn process_dict() -> HashMap<String, serde_json::Value> {
 [[test]]
 name = "custom_type_list_no_params"
 description = "List without params gets default typing"
-tags = ["type-mapper", "list"]
 
 python = '''
 from typing import List
@@ -2535,7 +2438,6 @@ pub fn process_list() -> Vec<serde_json::Value> {
 [[test]]
 name = "custom_type_set_no_params"
 description = "Set without params gets default typing"
-tags = ["type-mapper", "set"]
 
 python = '''
 from typing import Set
@@ -2554,7 +2456,6 @@ pub fn get_unique() -> HashSet<String> {
 [[test]]
 name = "typevar_mapping"
 description = "TypeVar maps to type parameter"
-tags = ["type-mapper", "typevar"]
 
 python = '''
 from typing import TypeVar
@@ -2592,7 +2493,6 @@ mod tests {
 [[test]]
 name = "nested_list_types"
 description = "Nested list types map correctly"
-tags = ["type-mapper", "nested", "list"]
 
 python = '''
 def process_matrix(matrix: list[list[int]]) -> int:
@@ -2619,7 +2519,6 @@ mod tests {
 [[test]]
 name = "nested_dict_types"
 description = "Nested dict types map correctly"
-tags = ["type-mapper", "nested", "dict"]
 
 python = '''
 def nested_lookup(data: dict[str, dict[str, int]]) -> int:
@@ -2636,7 +2535,6 @@ pub fn nested_lookup(data: HashMap<String, HashMap<String, i32>>) -> i32 {
 [[test]]
 name = "complex_tuple_types"
 description = "Heterogeneous tuple mapping"
-tags = ["type-mapper", "tuple"]
 
 python = '''
 def get_record() -> tuple[str, int, float, bool]:
@@ -2652,7 +2550,6 @@ pub fn get_record() -> (String, i32, f64, bool) {
 [[test]]
 name = "union_multiple_types"
 description = "Union with multiple types"
-tags = ["type-mapper", "union"]
 
 python = '''
 from typing import Union
@@ -2720,7 +2617,6 @@ pub fn multi_type(value: &FloatOrIntOrStringUnion) -> String {
 [[test]]
 name = "optional_complex_type"
 description = "Optional with complex inner type"
-tags = ["type-mapper", "optional", "complex"]
 
 python = '''
 from typing import Optional
@@ -2747,7 +2643,6 @@ pub fn maybe_dict(flag: bool) -> Option<HashMap<String, i32>> {
 [[test]]
 name = "list_of_optionals"
 description = "List containing Optional values"
-tags = ["type-mapper", "list", "optional"]
 
 python = '''
 from typing import Optional
@@ -2776,7 +2671,6 @@ mod tests {
 [[test]]
 name = "dict_tuple_values"
 description = "Dict with tuple values"
-tags = ["type-mapper", "dict", "tuple"]
 
 python = '''
 def tuple_dict(data: dict[str, tuple[int, int]]) -> int:
@@ -2793,7 +2687,6 @@ pub fn tuple_dict(data: HashMap<String, (i32, i32)>) -> i32 {
 [[test]]
 name = "complex_type_combinations"
 description = "All type features working together"
-tags = ["type-mapper", "integration"]
 
 python = '''
 from typing import Optional, Union
@@ -2866,7 +2759,6 @@ pub fn complex_types(
 [[test]]
 name = "union_type_processing"
 description = "Union type parameter and return type"
-tags = ["union", "context-coverage"]
 
 python = '''
 from typing import Union
@@ -2935,7 +2827,6 @@ mod tests {
 [[test]]
 name = "union_multiple_types"
 description = "Union with three types"
-tags = ["union", "context-coverage"]
 
 python = '''
 from typing import Union
@@ -3003,7 +2894,6 @@ pub fn multi_union(value: BoolOrIntOrStringUnion) -> i32 {
 [[test]]
 name = "nested_union_types"
 description = "Multiple parameters with different union types"
-tags = ["union", "context-coverage"]
 
 python = '''
 from typing import Union
@@ -3094,7 +2984,6 @@ pub fn nested_unions(a: IntOrStringUnion, b: BoolOrFloatUnion) -> IntOrStringUni
 [[test]]
 name = "union_enum_reuse"
 description = "Same union type used in multiple functions"
-tags = ["union", "context-coverage"]
 
 python = '''
 from typing import Union
@@ -3180,7 +3069,6 @@ mod tests {
 [[test]]
 name = "complex_context_union"
 description = "Union type with isinstance narrowing"
-tags = ["union", "isinstance", "context-coverage"]
 
 python = '''
 from typing import Union
@@ -3250,7 +3138,6 @@ pub fn complex_context(value: &IntOrStringUnion) -> i32 {
 [[test]]
 name = "whole_module_import"
 description = "Whole module import (e.g., import math)"
-tags = ["import", "module"]
 
 python = '''
 import math
@@ -3269,7 +3156,6 @@ pub fn use_math() -> f64 {
 [[test]]
 name = "specific_items_import_typing"
 description = "Specific items import from typing module"
-tags = ["import", "typing"]
 
 python = '''
 from typing import List, Dict
@@ -3293,7 +3179,6 @@ pub fn typed_func(items: Vec<i32>) -> HashMap<String, i32> {
 [[test]]
 name = "aliased_import"
 description = "Aliased import handling"
-tags = ["import", "alias"]
 
 python = '''
 from typing import List as L, Dict as D
@@ -3317,7 +3202,6 @@ pub fn aliased_func(items: L<String>) -> D<String, i32> {
 [[test]]
 name = "typing_module_optional"
 description = "Optional type from typing module"
-tags = ["import", "typing", "optional"]
 
 python = '''
 from typing import Optional
@@ -3340,7 +3224,6 @@ pub fn maybe_value(x: &Option<i32>) -> i32 {
 [[test]]
 name = "multiple_items_same_module"
 description = "Multiple imports from same module"
-tags = ["import", "typing"]
 
 python = '''
 from typing import List, Dict, Set, Tuple
@@ -3368,7 +3251,6 @@ pub fn multi_import() -> (Vec<i32>, HashSet<String>) {
 [[test]]
 name = "empty_items_whole_module"
 description = "Whole module import with usage"
-tags = ["import", "module"]
 
 python = '''
 import collections
@@ -3394,7 +3276,6 @@ pub fn use_collections() -> HashMap<String, i32> {
 [[test]]
 name = "named_import_item_any"
 description = "Named import of Any type"
-tags = ["import", "typing", "any"]
 
 python = '''
 from typing import Any
@@ -3428,7 +3309,6 @@ mod tests {
 [[test]]
 name = "typevar_import"
 description = "TypeVar import and generic function"
-tags = ["import", "typing", "typevar"]
 
 python = '''
 from typing import TypeVar
@@ -3466,7 +3346,6 @@ mod tests {
 [[test]]
 name = "mutation_import_mapping_correctness"
 description = "Typing imports should map to Rust equivalents without full paths"
-tags = ["import", "typing", "mutation"]
 
 python = '''
 from typing import List, Optional
@@ -3489,7 +3368,6 @@ pub fn list_func(items: &Vec<i32>) -> Option<String> {
 [[test]]
 name = "unmapped_import"
 description = "Handling of unmapped/unknown imports"
-tags = ["import", "unknown"]
 
 python = '''
 import unknown_module
@@ -3517,7 +3395,6 @@ mod tests {
 [[test]]
 name = "mixed_import_styles"
 description = "Mixed whole module and specific imports"
-tags = ["import", "mixed"]
 
 python = '''
 import math
@@ -3539,7 +3416,6 @@ pub fn mixed() -> i32 {
 [[test]]
 name = "complex_import_scenario"
 description = "Complex import scenario with multiple typing imports"
-tags = ["import", "typing", "complex"]
 
 python = '''
 from typing import List, Dict, Optional, Set

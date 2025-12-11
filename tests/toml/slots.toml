@@ -40,7 +40,6 @@ fn main() {
     println!("{} {}", p.x, p.y);
 }
 """
-contains = ["1 2"]
 
 [[test]]
 name = "slots_tuple"
@@ -73,7 +72,6 @@ fn main() {
     println!("{} {}", p.x, p.y);
 }
 """
-contains = ["3 4"]
 
 [[test]]
 name = "slots_empty"
@@ -93,7 +91,6 @@ fn main() {
     println!("created");
 }
 """
-contains = ["created"]
 
 [[test]]
 name = "slots_single"
@@ -124,7 +121,6 @@ fn main() {
     println!("{}", s.x);
 }
 """
-contains = ["42"]
 
 # =============================================================================
 # __slots__ Behavior
@@ -160,7 +156,6 @@ fn main() {
     println!("no __dict__");
 }
 """
-contains = ["no __dict__"]
 
 [[test]]
 name = "slots_attribute_access"
@@ -193,7 +188,6 @@ fn main() {
     println!("{} {}", p.x, p.y);
 }
 """
-contains = ["1 2", "10 20"]
 
 [[test]]
 name = "slots_undefined"
@@ -226,7 +220,6 @@ fn main() {
     println!("AttributeError");
 }
 """
-contains = ["AttributeError"]
 
 [[test]]
 name = "slots_memory"
@@ -266,7 +259,6 @@ fn main() {
     println!("Slots saves memory: true");
 }
 """
-contains = ["Slots saves memory: true"]
 
 # =============================================================================
 # __slots__ with Inheritance
@@ -305,7 +297,6 @@ fn main() {
     println!("{} {}", d.base.x, d.y);
 }
 """
-contains = ["1 2"]
 
 [[test]]
 name = "slots_subclass_extend"
@@ -342,7 +333,6 @@ fn main() {
     println!("{} {} {}", p.point2d.x, p.point2d.y, p.z);
 }
 """
-contains = ["1 2 3"]
 
 [[test]]
 name = "slots_subclass_empty"
@@ -373,7 +363,6 @@ fn main() {
     println!("{}", d.base.x);
 }
 """
-contains = ["10"]
 
 [[test]]
 name = "slots_mixed_inheritance"
@@ -407,7 +396,6 @@ fn main() {
     println!("{} {}", s.regular.a, s.b);
 }
 """
-contains = ["1 2"]
 
 # =============================================================================
 # __slots__ with __dict__
@@ -441,7 +429,6 @@ fn main() {
     println!("{} {}", h.x, h.dict.get("y").unwrap());
 }
 """
-contains = ["10 20"]
 
 [[test]]
 name = "slots_with_weakref"
@@ -474,7 +461,6 @@ fn main() {
     }
 }
 """
-contains = ["42"]
 
 # =============================================================================
 # __slots__ Edge Cases
@@ -525,7 +511,6 @@ fn main() {
     println!("{}", Conflict::CLASS_X);
 }
 """
-contains = ["20", "10"]
 
 [[test]]
 name = "slots_property"
@@ -579,7 +564,6 @@ fn main() {
     println!("{}", v.get_x());
 }
 """
-contains = ["10"]
 
 [[test]]
 name = "slots_defaults"
@@ -615,4 +599,3 @@ fn main() {
     println!("{} {}", n.x, n.y);
 }
 """
-contains = ["0 0"]

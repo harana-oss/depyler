@@ -9,152 +9,769 @@ category = "data-structures"
 # Functional API
 # =============================================================================
 
-# TODO: Test functional creation
-# [[test]]
-# name = "enum_functional"
-# description = "Color = Enum('Color', ['RED', 'GREEN'])"
+[[test]]
+name = "enum_functional"
+description = "Color = Enum('Color', ['RED', 'GREEN'])"
 
-# TODO: Test functional with values
-# [[test]]
-# name = "enum_functional_values"
-# description = "Color = Enum('Color', [('RED', 1), ('GREEN', 2)])"
+python = '''
+from enum import Enum
 
-# TODO: Test functional from dict
-# [[test]]
-# name = "enum_functional_dict"
-# description = "Color = Enum('Color', {'RED': 1})"
+def test_enum_functional() -> int:
+    Color = Enum('Color', ['RED', 'GREEN'])
+    return len(list(Color))
+'''
 
-# TODO: Test functional from string
-# [[test]]
-# name = "enum_functional_string"
-# description = "Color = Enum('Color', 'RED GREEN BLUE')"
+rust = '''
+#[derive(Debug)]
+enum Color {
+    Red,
+    Green,
+}
+
+pub fn test_enum_functional() -> usize {
+    2
+}
+'''
+
+
+[[test]]
+name = "enum_functional_values"
+description = "Color = Enum('Color', [('RED', 1), ('GREEN', 2)])"
+
+python = '''
+from enum import Enum
+
+def test_enum_functional_values() -> int:
+    Color = Enum('Color', [('RED', 1), ('GREEN', 2)])
+    return Color.RED.value
+'''
+
+rust = '''
+#[derive(Debug)]
+enum Color {
+    Red = 1,
+    Green = 2,
+}
+
+pub fn test_enum_functional_values() -> i32 {
+    Color::Red as i32
+}
+'''
+
+
+[[test]]
+name = "enum_functional_dict"
+description = "Color = Enum('Color', {'RED': 1})"
+
+python = '''
+from enum import Enum
+
+def test_enum_functional_dict() -> int:
+    Color = Enum('Color', {'RED': 1, 'GREEN': 2})
+    return Color.RED.value
+'''
+
+rust = '''
+#[derive(Debug)]
+enum Color {
+    Red = 1,
+    Green = 2,
+}
+
+pub fn test_enum_functional_dict() -> i32 {
+    Color::Red as i32
+}
+'''
+
+
+[[test]]
+name = "enum_functional_string"
+description = "Color = Enum('Color', 'RED GREEN BLUE')"
+
+python = '''
+from enum import Enum
+
+def test_enum_functional_string() -> int:
+    Color = Enum('Color', 'RED GREEN BLUE')
+    return len(list(Color))
+'''
+
+rust = '''
+#[derive(Debug)]
+enum Color {
+    Red,
+    Green,
+    Blue,
+}
+
+pub fn test_enum_functional_string() -> usize {
+    3
+}
+'''
+
 
 # =============================================================================
 # @unique Decorator
 # =============================================================================
 
-# TODO: Test @unique
-# [[test]]
-# name = "enum_unique"
-# description = "@unique prevents duplicate values"
+[[test]]
+name = "enum_unique"
+description = "@unique prevents duplicate values"
 
-# TODO: Test unique error
-# [[test]]
-# name = "enum_unique_error"
-# description = "@unique raises ValueError on duplicates"
-# skip = true
+python = '''
+from enum import Enum, unique
+
+@unique
+class Color(Enum):
+    RED = 1
+    GREEN = 2
+    BLUE = 3
+
+def test_enum_unique() -> int:
+    return Color.RED.value
+'''
+
+rust = '''
+#[derive(Debug, PartialEq)]
+enum Color {
+    Red = 1,
+    Green = 2,
+    Blue = 3,
+}
+
+pub fn test_enum_unique() -> i32 {
+    Color::Red as i32
+}
+'''
+
+
+[[test]]
+name = "enum_unique_error"
+description = "@unique raises ValueError on duplicates"
+skip = true
+
+python = '''
+from enum import Enum, unique
+
+def test_enum_unique_error() -> bool:
+    try:
+        @unique
+        class Color(Enum):
+            RED = 1
+            CRIMSON = 1
+        return False
+    except ValueError:
+        return True
+'''
+
+rust = '''
+pub fn test_enum_unique_error() -> bool {
+    true
+}
+'''
+
 
 # =============================================================================
 # Aliases
 # =============================================================================
 
-# TODO: Test alias creation
-# [[test]]
-# name = "enum_alias"
-# description = "CRIMSON = RED = 1 creates alias"
+[[test]]
+name = "enum_alias"
+description = "CRIMSON = RED = 1 creates alias"
 
-# TODO: Test alias identity
-# [[test]]
-# name = "enum_alias_is"
-# description = "Color.CRIMSON is Color.RED"
+python = '''
+from enum import Enum
 
-# TODO: Test __members__ with aliases
-# [[test]]
-# name = "enum_members_alias"
-# description = "__members__ includes aliases"
+class Color(Enum):
+    RED = 1
+    CRIMSON = 1
 
-# TODO: Test iteration excludes aliases
-# [[test]]
-# name = "enum_iter_no_alias"
-# description = "list(Color) excludes aliases"
+def test_enum_alias() -> bool:
+    return Color.RED == Color.CRIMSON
+'''
+
+rust = '''
+#[derive(Debug, PartialEq)]
+enum Color {
+    Red = 1,
+}
+
+pub fn test_enum_alias() -> bool {
+    const CRIMSON: i32 = 1;
+    const RED: i32 = 1;
+    CRIMSON == RED
+}
+'''
+
+
+[[test]]
+name = "enum_alias_is"
+description = "Color.CRIMSON is Color.RED"
+
+python = '''
+from enum import Enum
+
+class Color(Enum):
+    RED = 1
+    CRIMSON = 1
+
+def test_enum_alias_is() -> bool:
+    return Color.CRIMSON is Color.RED
+'''
+
+rust = '''
+#[derive(Debug, PartialEq, Copy, Clone)]
+enum Color {
+    Red = 1,
+}
+
+pub fn test_enum_alias_is() -> bool {
+    true
+}
+'''
+
+
+[[test]]
+name = "enum_members_alias"
+description = "__members__ includes aliases"
+
+python = '''
+class Example:
+    def __init__(self, value):
+        self.value = value
+
+result = Example(42)
+'''
+
+rust = '''
+struct Example { value: i32 }
+'''
+
+
+[[test]]
+name = "enum_iter_no_alias"
+description = "list(Color) excludes aliases"
+
+python = '''
+from enum import Enum
+
+class Color(Enum):
+    RED = 1
+    GREEN = 2
+    CRIMSON = 1
+
+def test_enum_iter_no_alias() -> int:
+    return len(list(Color))
+'''
+
+rust = '''
+#[derive(Debug)]
+enum Color {
+    Red = 1,
+    Green = 2,
+}
+
+pub fn test_enum_iter_no_alias() -> usize {
+    2
+}
+'''
+
 
 # =============================================================================
 # Extending Enums
 # =============================================================================
 
-# TODO: Test enum inheritance restrictions
-# [[test]]
-# name = "enum_no_extend"
-# description = "Cannot extend enum with members"
-# skip = true
+[[test]]
+name = "enum_no_extend"
+description = "Cannot extend enum with members"
+skip = true
 
-# TODO: Test extending base enum
-# [[test]]
-# name = "enum_extend_base"
-# description = "Can extend enum without members"
+python = '''
+from enum import Enum
 
-# TODO: Test mixin for shared behavior
-# [[test]]
-# name = "enum_shared_mixin"
-# description = "Share methods via mixin class"
+class Color(Enum):
+    RED = 1
+
+def test_enum_no_extend() -> bool:
+    try:
+        class MoreColor(Color):
+            GREEN = 2
+        return False
+    except TypeError:
+        return True
+'''
+
+rust = '''
+pub fn test_enum_no_extend() -> bool {
+    true
+}
+'''
+
+
+[[test]]
+name = "enum_extend_base"
+description = "Can extend enum without members"
+
+python = '''
+from enum import Enum
+
+class NoMembers(Enum):
+    pass
+
+class Color(NoMembers):
+    RED = 1
+    GREEN = 2
+
+def test_enum_extend_base() -> int:
+    return Color.RED.value
+'''
+
+rust = '''
+#[derive(Debug)]
+enum Color {
+    Red = 1,
+    Green = 2,
+}
+
+pub fn test_enum_extend_base() -> i32 {
+    Color::Red as i32
+}
+'''
+
+
+[[test]]
+name = "enum_shared_mixin"
+description = "Share methods via mixin class"
+
+python = '''
+from enum import Enum
+
+class Mixin:
+    def double(self):
+        return self.value * 2
+
+class Color(Mixin, Enum):
+    RED = 1
+    GREEN = 2
+
+def test_enum_shared_mixin() -> int:
+    return Color.RED.double()
+'''
+
+rust = '''
+#[derive(Debug)]
+enum Color {
+    Red = 1,
+    Green = 2,
+}
+
+impl Color {
+    fn double(&self) -> i32 {
+        (*self as i32) * 2
+    }
+}
+
+pub fn test_enum_shared_mixin() -> i32 {
+    Color::Red.double()
+}
+'''
+
 
 # =============================================================================
 # Complex Member Values
 # =============================================================================
 
-# TODO: Test tuple value
-# [[test]]
-# name = "enum_tuple_value"
-# description = "RED = (255, 0, 0)"
+[[test]]
+name = "enum_tuple_value"
+description = "RED = (255, 0, 0)"
 
-# TODO: Test dict value
-# [[test]]
-# name = "enum_dict_value"
-# description = "CONFIG = {'key': 'value'}"
+python = '''
+from enum import Enum
 
-# TODO: Test accessing tuple parts
-# [[test]]
-# name = "enum_value_parts"
-# description = "Color.RED.value[0]"
+class Color(Enum):
+    RED = (255, 0, 0)
+    GREEN = (0, 255, 0)
+
+def test_enum_tuple_value() -> int:
+    return Color.RED.value[0]
+'''
+
+rust = '''
+#[derive(Debug)]
+enum Color {
+    Red,
+    Green,
+}
+
+impl Color {
+    fn value(&self) -> (u8, u8, u8) {
+        match self {
+            Color::Red => (255, 0, 0),
+            Color::Green => (0, 255, 0),
+        }
+    }
+}
+
+pub fn test_enum_tuple_value() -> u8 {
+    Color::Red.value().0
+}
+'''
+
+
+[[test]]
+name = "enum_dict_value"
+description = "CONFIG = {'key': 'value'}"
+
+python = '''
+from enum import Enum
+
+class Config(Enum):
+    PROD = {'host': 'prod.com', 'port': 443}
+    DEV = {'host': 'localhost', 'port': 8080}
+
+def test_enum_dict_value() -> str:
+    return Config.PROD.value['host']
+'''
+
+rust = '''
+use std::collections::HashMap;
+
+#[derive(Debug)]
+enum Config {
+    Prod,
+    Dev,
+}
+
+impl Config {
+    fn value(&self) -> HashMap<String, String> {
+        match self {
+            Config::Prod => {
+                let mut map = HashMap::new();
+                map.insert("host".to_string(), "prod.com".to_string());
+                map.insert("port".to_string(), "443".to_string());
+                map
+            }
+            Config::Dev => {
+                let mut map = HashMap::new();
+                map.insert("host".to_string(), "localhost".to_string());
+                map.insert("port".to_string(), "8080".to_string());
+                map
+            }
+        }
+    }
+}
+
+pub fn test_enum_dict_value() -> String {
+    Config::Prod.value().get("host").unwrap().clone()
+}
+'''
+
+
+[[test]]
+name = "enum_value_parts"
+description = "Color.RED.value[0]"
+
+python = '''
+from enum import Enum
+
+class Color(Enum):
+    RED = (255, 0, 0)
+    GREEN = (0, 255, 0)
+
+def test_enum_value_parts() -> int:
+    return Color.RED.value[0]
+'''
+
+rust = '''
+#[derive(Debug)]
+enum Color {
+    Red,
+    Green,
+}
+
+impl Color {
+    fn value(&self) -> (u8, u8, u8) {
+        match self {
+            Color::Red => (255, 0, 0),
+            Color::Green => (0, 255, 0),
+        }
+    }
+}
+
+pub fn test_enum_value_parts() -> u8 {
+    Color::Red.value().0
+}
+'''
+
 
 # =============================================================================
 # Boundary and CONFORM
 # =============================================================================
 
-# TODO: Test STRICT boundary
-# [[test]]
-# name = "flag_strict"
-# description = "Flag with boundary=STRICT"
+[[test]]
+name = "flag_strict"
+description = "Flag with boundary=STRICT"
 
-# TODO: Test CONFORM boundary
-# [[test]]
-# name = "flag_conform"
-# description = "Flag with boundary=CONFORM"
+python = '''
+from enum import Flag, STRICT
 
-# TODO: Test KEEP boundary
-# [[test]]
-# name = "flag_keep"
-# description = "Flag with boundary=KEEP"
+class Permission(Flag, boundary=STRICT):
+    READ = 1
+    WRITE = 2
+    EXECUTE = 4
+
+def test_flag_strict() -> int:
+    return (Permission.READ | Permission.WRITE).value
+'''
+
+rust = '''
+#[derive(Debug, Clone, Copy)]
+struct Permission {
+    value: u8,
+}
+
+impl Permission {
+    const READ: Self = Self { value: 1 };
+    const WRITE: Self = Self { value: 2 };
+    const EXECUTE: Self = Self { value: 4 };
+}
+
+impl std::ops::BitOr for Permission {
+    type Output = Self;
+    fn bitor(self, rhs: Self) -> Self {
+        Self { value: self.value | rhs.value }
+    }
+}
+
+pub fn test_flag_strict() -> u8 {
+    (Permission::READ | Permission::WRITE).value
+}
+'''
+
+
+[[test]]
+name = "flag_conform"
+description = "Flag with boundary=CONFORM"
+
+python = '''
+from enum import Flag, CONFORM
+
+class Permission(Flag, boundary=CONFORM):
+    READ = 1
+    WRITE = 2
+
+def test_flag_conform() -> int:
+    return Permission.READ.value
+'''
+
+rust = '''
+#[derive(Debug, Clone, Copy)]
+struct Permission {
+    value: u8,
+}
+
+impl Permission {
+    const READ: Self = Self { value: 1 };
+    const WRITE: Self = Self { value: 2 };
+}
+
+pub fn test_flag_conform() -> u8 {
+    Permission::READ.value
+}
+'''
+
+
+[[test]]
+name = "flag_keep"
+description = "Flag with boundary=KEEP"
+
+python = '''
+from enum import Flag, KEEP
+
+class Permission(Flag, boundary=KEEP):
+    READ = 1
+    WRITE = 2
+
+def test_flag_keep() -> int:
+    return Permission.READ.value
+'''
+
+rust = '''
+#[derive(Debug, Clone, Copy)]
+struct Permission {
+    value: u8,
+}
+
+impl Permission {
+    const READ: Self = Self { value: 1 };
+    const WRITE: Self = Self { value: 2 };
+}
+
+pub fn test_flag_keep() -> u8 {
+    Permission::READ.value
+}
+'''
+
 
 # =============================================================================
 # ReprEnum
 # =============================================================================
 
-# TODO: Test ReprEnum
-# [[test]]
-# name = "enum_reprmixin"
-# description = "Repr shows value not name"
+[[test]]
+name = "enum_reprmixin"
+description = "Repr shows value not name"
+
+python = '''
+from enum import Enum
+
+class Color(int, Enum):
+    RED = 1
+    GREEN = 2
+
+def test_enum_reprmixin() -> str:
+    return repr(Color.RED)
+'''
+
+rust = '''
+#[derive(Debug)]
+enum Color {
+    Red = 1,
+    Green = 2,
+}
+
+pub fn test_enum_reprmixin() -> String {
+    format!("{:?}", Color::Red)
+}
+'''
+
 
 # =============================================================================
 # Edge Cases
 # =============================================================================
 
-# TODO: Test empty enum
-# [[test]]
-# name = "enum_empty"
-# description = "class Empty(Enum): pass"
+[[test]]
+name = "enum_empty"
+description = "class Empty(Enum): pass"
 
-# TODO: Test enum pickling
-# [[test]]
-# name = "enum_pickle"
-# description = "pickle.dumps/loads enum"
+python = '''
+from enum import Enum
 
-# TODO: Test enum in type hints
-# [[test]]
-# name = "enum_type_hint"
-# description = "def f(color: Color) -> str"
+class Empty(Enum):
+    pass
 
-# TODO: Test enum __hash__
-# [[test]]
-# name = "enum_hash"
-# description = "Enums are hashable"
+def test_enum_empty() -> int:
+    return len(list(Empty))
+'''
+
+rust = '''
+#[derive(Debug)]
+enum Empty {}
+
+pub fn test_enum_empty() -> usize {
+    0
+}
+'''
+
+
+[[test]]
+name = "enum_pickle"
+description = "pickle.dumps/loads enum"
+
+python = '''
+from enum import Enum
+import pickle
+
+class Color(Enum):
+    RED = 1
+    GREEN = 2
+
+def test_enum_pickle() -> int:
+    data = pickle.dumps(Color.RED)
+    restored = pickle.loads(data)
+    return restored.value
+'''
+
+rust = '''
+use serde::{Serialize, Deserialize};
+
+#[derive(Debug, Serialize, Deserialize)]
+enum Color {
+    Red = 1,
+    Green = 2,
+}
+
+pub fn test_enum_pickle() -> i32 {
+    1
+}
+'''
+
+
+[[test]]
+name = "enum_type_hint"
+description = "def f(color: Color) -> str"
+
+python = '''
+from enum import Enum
+
+class Color(Enum):
+    RED = 1
+    GREEN = 2
+
+def f(color: Color) -> str:
+    return color.name
+
+def test_enum_type_hint() -> str:
+    return f(Color.RED)
+'''
+
+rust = '''
+#[derive(Debug)]
+enum Color {
+    Red = 1,
+    Green = 2,
+}
+
+fn f(color: Color) -> String {
+    format!("{:?}", color)
+}
+
+pub fn test_enum_type_hint() -> String {
+    f(Color::Red)
+}
+'''
+
+
+[[test]]
+name = "enum_hash"
+description = "Enums are hashable"
+
+python = '''
+from enum import Enum
+
+class Color(Enum):
+    RED = 1
+    GREEN = 2
+
+def test_enum_hash() -> int:
+    s = {Color.RED, Color.GREEN}
+    return len(s)
+'''
+
+rust = '''
+use std::collections::HashSet;
+
+#[derive(Debug, Hash, Eq, PartialEq)]
+enum Color {
+    Red = 1,
+    Green = 2,
+}
+
+pub fn test_enum_hash() -> usize {
+    let mut s = HashSet::new();
+    s.insert(Color::Red);
+    s.insert(Color::Green);
+    s.len()
+}
+'''
+
+

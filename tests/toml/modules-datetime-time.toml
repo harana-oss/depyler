@@ -11,7 +11,6 @@ category = "stdlib-datetime-time"
 [[test]]
 name = "datetime_now"
 description = "datetime.now() current time"
-tags = ["datetime", "now"]
 
 python = '''
 from datetime import datetime
@@ -30,7 +29,6 @@ pub fn get_current_time() -> datetime {
 [[test]]
 name = "datetime_utcnow"
 description = "datetime.utcnow() UTC time"
-tags = ["datetime", "utc"]
 
 python = '''
 from datetime import datetime
@@ -49,7 +47,6 @@ pub fn get_utc_time() -> datetime {
 [[test]]
 name = "datetime_constructor"
 description = "datetime(year, month, day) constructor"
-tags = ["datetime", "constructor"]
 
 python = '''
 from datetime import datetime
@@ -71,7 +68,6 @@ pub fn create_date(year: i32, month: i32, day: i32) -> datetime {
 [[test]]
 name = "datetime_date_extraction"
 description = "datetime component extraction"
-tags = ["datetime", "extract"]
 
 python = '''
 from datetime import datetime
@@ -90,7 +86,6 @@ pub fn get_year(dt: &datetime) -> i32 {
 [[test]]
 name = "datetime_month_extraction"
 description = "datetime month extraction"
-tags = ["datetime", "extract"]
 
 python = '''
 from datetime import datetime
@@ -109,7 +104,6 @@ pub fn get_month(dt: &datetime) -> i32 {
 [[test]]
 name = "datetime_day_extraction"
 description = "datetime day extraction"
-tags = ["datetime", "extract"]
 
 python = '''
 from datetime import datetime
@@ -128,7 +122,6 @@ pub fn get_day(dt: &datetime) -> i32 {
 [[test]]
 name = "time_sleep"
 description = "time.sleep() delay"
-tags = ["time", "sleep"]
 
 python = '''
 import time
@@ -147,7 +140,6 @@ pub fn wait_seconds(seconds: f64) {
 [[test]]
 name = "time_time"
 description = "time.time() unix timestamp"
-tags = ["time", "timestamp"]
 
 python = '''
 import time
@@ -169,7 +161,6 @@ pub fn get_timestamp() -> f64 {
 [[test]]
 name = "datetime_strftime"
 description = "datetime.strftime() formatting"
-tags = ["datetime", "format"]
 
 python = '''
 from datetime import datetime
@@ -188,7 +179,6 @@ pub fn format_date(dt: &datetime) -> String {
 [[test]]
 name = "datetime_strptime"
 description = "datetime.strptime() parsing"
-tags = ["datetime", "parse"]
 
 python = '''
 from datetime import datetime
@@ -207,7 +197,6 @@ pub fn parse_date(s: String) -> datetime {
 [[test]]
 name = "timedelta_creation"
 description = "timedelta creation"
-tags = ["datetime", "timedelta"]
 
 python = '''
 from datetime import timedelta
@@ -226,7 +215,6 @@ pub fn days_duration(n: i32) -> timedelta {
 [[test]]
 name = "timedelta_addition"
 description = "datetime + timedelta arithmetic"
-tags = ["datetime", "timedelta"]
 
 python = '''
 from datetime import datetime, timedelta

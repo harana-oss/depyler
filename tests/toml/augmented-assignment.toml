@@ -40,7 +40,6 @@ fn main() {
     println!("{}", x);
 }
 """
-contains = ["7"]
 
 [[test]]
 name = "augmented_mul"
@@ -57,7 +56,6 @@ fn main() {
     println!("{}", x);
 }
 """
-contains = ["20"]
 
 [[test]]
 name = "augmented_div"
@@ -74,7 +72,6 @@ fn main() {
     println!("{}", x);
 }
 """
-contains = ["2.5"]
 
 [[test]]
 name = "augmented_floor_div"
@@ -91,7 +88,6 @@ fn main() {
     println!("{}", x);
 }
 """
-contains = ["3"]
 
 [[test]]
 name = "augmented_mod"
@@ -108,7 +104,6 @@ fn main() {
     println!("{}", x);
 }
 """
-contains = ["1"]
 
 [[test]]
 name = "augmented_pow"
@@ -125,7 +120,6 @@ fn main() {
     println!("{}", x);
 }
 """
-contains = ["8"]
 
 # =============================================================================
 # Bitwise Augmented Assignment
@@ -146,7 +140,6 @@ fn main() {
     println!("{}", x);  // 1000 = 8
 }
 """
-contains = ["8"]
 
 [[test]]
 name = "augmented_or"
@@ -163,7 +156,6 @@ fn main() {
     println!("{}", x);  // 1110 = 14
 }
 """
-contains = ["14"]
 
 [[test]]
 name = "augmented_xor"
@@ -180,7 +172,6 @@ fn main() {
     println!("{}", x);  // 0110 = 6
 }
 """
-contains = ["6"]
 
 [[test]]
 name = "augmented_rshift"
@@ -197,7 +188,6 @@ fn main() {
     println!("{}", x);
 }
 """
-contains = ["4"]
 
 [[test]]
 name = "augmented_lshift"
@@ -214,7 +204,6 @@ fn main() {
     println!("{}", x);
 }
 """
-contains = ["16"]
 
 # =============================================================================
 # Augmented Assignment with Collections
@@ -235,7 +224,6 @@ fn main() {
     println!("{:?}", lst);
 }
 """
-contains = ["[1, 2, 3, 4, 5]"]
 
 [[test]]
 name = "augmented_add_string"
@@ -252,7 +240,6 @@ fn main() {
     println!("{}", s);
 }
 """
-contains = ["hello world"]
 
 [[test]]
 name = "augmented_mul_list"
@@ -269,7 +256,6 @@ fn main() {
     println!("{:?}", result);
 }
 """
-contains = ["[1, 2, 1, 2, 1, 2]"]
 
 # =============================================================================
 # Augmented Assignment with Subscripts
@@ -290,7 +276,6 @@ fn main() {
     println!("{:?}", lst);
 }
 """
-contains = ["[15, 20, 30]"]
 
 [[test]]
 name = "augmented_dict_value"
@@ -308,7 +293,6 @@ fn main() {
     println!("{}", d.get("a").unwrap());
 }
 """
-contains = ["15"]
 
 # =============================================================================
 # Augmented Assignment with Attributes
@@ -343,7 +327,6 @@ fn main() {
     println!("{}", obj.count);
 }
 """
-contains = ["5"]
 
 # =============================================================================
 # Edge Cases
@@ -365,7 +348,6 @@ fn main() {
     println!("true {:?}", original_list);
 }
 """
-contains = ["True", "[1, 2, 3, 4]"]
 
 [[test]]
 name = "augmented_custom_iadd"

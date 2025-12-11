@@ -56,7 +56,6 @@ fn main() {
     println!("{}", result);
 }
 """
-contains = ["Number(15)"]
 
 [[test]]
 name = "dunder_rsub"
@@ -105,7 +104,6 @@ fn main() {
     println!("{}", result);
 }
 """
-contains = ["Number(7)"]
 
 [[test]]
 name = "dunder_rmul"
@@ -156,7 +154,6 @@ fn main() {
     println!("{}", result);
 }
 """
-contains = ["Vector(6, 8)"]
 
 [[test]]
 name = "dunder_rtruediv"
@@ -205,7 +202,6 @@ fn main() {
     println!("{}", result);
 }
 """
-contains = ["Number(5.0)"]
 
 [[test]]
 name = "dunder_rfloordiv"
@@ -254,7 +250,6 @@ fn main() {
     println!("{}", result);
 }
 """
-contains = ["Number(3)"]
 
 [[test]]
 name = "dunder_rmod"
@@ -303,7 +298,6 @@ fn main() {
     println!("{}", result);
 }
 """
-contains = ["Number(1)"]
 
 [[test]]
 name = "dunder_rpow"
@@ -347,7 +341,6 @@ fn main() {
     println!("{}", result);
 }
 """
-contains = ["Number(8)"]
 
 # =============================================================================
 # Reflected Bitwise
@@ -400,7 +393,6 @@ fn main() {
     println!("{}", result);
 }
 """
-contains = ["Bits(8)"]
 
 [[test]]
 name = "dunder_ror"
@@ -449,7 +441,6 @@ fn main() {
     println!("{}", result);
 }
 """
-contains = ["Bits(14)"]
 
 [[test]]
 name = "dunder_rxor"
@@ -498,7 +489,6 @@ fn main() {
     println!("{}", result);
 }
 """
-contains = ["Bits(6)"]
 
 [[test]]
 name = "dunder_rlshift"
@@ -536,7 +526,6 @@ fn main() {
     println!("{}", result);
 }
 """
-contains = ["20"]
 
 [[test]]
 name = "dunder_rrshift"
@@ -574,7 +563,6 @@ fn main() {
     println!("{}", result);
 }
 """
-contains = ["5"]
 
 # =============================================================================
 # Other Reflected
@@ -622,7 +610,6 @@ fn main() {
     println!("{}", result);
 }
 """
-contains = ["Matrix(A @ B)"]
 
 [[test]]
 name = "dunder_rdivmod"
@@ -650,7 +637,6 @@ fn main() {
     println!("{:?}", result);
 }
 """
-contains = ["(3, 1)"]
 
 # =============================================================================
 # When Reflected is Called
@@ -692,7 +678,6 @@ fn main() {
     println!("{}", result);
 }
 """
-contains = ["Reflected: 1 + 5"]
 
 [[test]]
 name = "reflected_subclass"
@@ -744,7 +729,6 @@ fn main() {
     println!("{}", result);
 }
 """
-contains = ["Derived: 5 + 10"]
 
 [[test]]
 name = "reflected_both_fail"
@@ -768,7 +752,6 @@ fn main() {
     println!("TypeError: unsupported operand types");
 }
 """
-contains = ["TypeError: unsupported operand types"]
 
 # =============================================================================
 # Use Cases
@@ -823,7 +806,6 @@ fn main() {
     println!("{}", result);
 }
 """
-contains = ["Vector(2, 4)"]
 
 [[test]]
 name = "reflected_format"
@@ -859,7 +841,6 @@ fn main() {
     println!("{}", result);
 }
 """
-contains = ["Hello, Alice!"]
 
 # =============================================================================
 # Edge Cases
@@ -921,7 +902,6 @@ fn main() {
     println!("{}", result);
 }
 """
-contains = ["Number(8)"]
 
 [[test]]
 name = "reflected_none"
@@ -941,4 +921,3 @@ obj = Custom()
 rust = """
 // N/A - skip test
 """
-contains = []

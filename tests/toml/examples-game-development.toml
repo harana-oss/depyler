@@ -1,0 +1,1019 @@
+# Game Development Examples
+# Migrated from examples/game_development/
+
+[metadata]
+name = "Game Development Examples"
+category = "game_development"
+
+# =============================================================================
+# Examples
+# =============================================================================
+
+[[test]]
+name = "simulation_combined"
+description = "Example test"
+
+python = '''
+"""
+Comprehensive Simulation Example
+Combines: random, collections, statistics, math
+
+This example demonstrates realistic simulation scenarios using
+multiple Python stdlib modules working together.
+
+Tests transpiler's ability to handle:
+- Random number generation in simulations
+- Statistical analysis of results
+- Data collection and aggregation
+- Mathematical calculations
+"""
+
+import random
+import math
+from collections import defaultdict
+from typing import List, Dict, Tuple
+
+
+def roll_dice(num_dice: int, num_sides: int) -> int:
+    """Roll multiple dice and return sum"""
+    total: int = 0
+
+    for i in range(num_dice):
+        roll: int = random.randint(1, num_sides)
+        total = total + roll
+
+    return total
+
+
+def simulate_dice_rolls(num_dice: int, num_sides: int, num_trials: int) -> Dict[int, int]:
+    """Simulate dice rolls and collect distribution"""
+    results: Dict[int, int] = {}
+
+    for trial in range(num_trials):
+        total: int = roll_dice(num_dice, num_sides)
+
+        if total in results:
+            results[total] = results[total] + 1
+        else:
+            results[total] = 1
+
+    return results
+
+
+def coin_flip_sequence(num_flips: int) -> List[str]:
+    """Simulate sequence of coin flips"""
+    flips: List[str] = []
+
+    for i in range(num_flips):
+        flip: int = random.randint(0, 1)
+        if flip == 0:
+            flips.append("H")
+        else:
+            flips.append("T")
+
+    return flips
+
+
+def count_streaks(sequence: List[str]) -> Dict[str, int]:
+    """Count longest streaks in sequence"""
+    if len(sequence) == 0:
+        return {}
+
+    max_heads_streak: int = 0
+    max_tails_streak: int = 0
+    current_streak: int = 1
+    current_type: str = sequence[0]
+
+    for i in range(1, len(sequence)):
+        if sequence[i] == current_type:
+            current_streak = current_streak + 1
+        else:
+            # Update max streak
+            if current_type == "H" and current_streak > max_heads_streak:
+                max_heads_streak = current_streak
+            elif current_type == "T" and current_streak > max_tails_streak:
+                max_tails_streak = current_streak
+
+            # Reset for new streak
+            current_type = sequence[i]
+            current_streak = 1
+
+    # Check last streak
+    if current_type == "H" and current_streak > max_heads_streak:
+        max_heads_streak = current_streak
+    elif current_type == "T" and current_streak > max_tails_streak:
+        max_tails_streak = current_streak
+
+    streaks: Dict[str, int] = {
+        "max_heads": max_heads_streak,
+        "max_tails": max_tails_streak
+    }
+
+    return streaks
+
+
+def monte_carlo_pi_estimation(num_samples: int) -> Tuple[float, float]:
+    """Estimate pi using Monte Carlo method"""
+    inside_circle: int = 0
+
+    for i in range(num_samples):
+        x: float = random.random()
+        y: float = random.random()
+
+        distance_squared: float = x * x + y * y
+
+        if distance_squared <= 1.0:
+            inside_circle = inside_circle + 1
+
+    pi_estimate: float = 4.0 * float(inside_circle) / float(num_samples)
+
+    # Calculate error
+    actual_pi: float = 3.14159265359
+    error: float = abs(pi_estimate - actual_pi)
+
+    return (pi_estimate, error)
+
+
+def simulate_random_walk(num_steps: int) -> Tuple[int, int]:
+    """Simulate 2D random walk"""
+    x: int = 0
+    y: int = 0
+
+    for step in range(num_steps):
+        direction: int = random.randint(0, 3)
+
+        if direction == 0:  # North
+            y = y + 1
+        elif direction == 1:  # East
+            x = x + 1
+        elif direction == 2:  # South
+            y = y - 1
+        else:  # West
+            x = x - 1
+
+    return (x, y)
+
+
+def calculate_walk_distance(position: Tuple[int, int]) -> float:
+    """Calculate Euclidean distance from origin"""
+    x: int = position[0]
+    y: int = position[1]
+
+    distance: float = math.sqrt(float(x * x + y * y))
+    return distance
+
+
+def simulate_queue_system(num_customers: int, service_time_range: Tuple[int, int]) -> Dict[str, float]:
+    """Simulate queue/service system"""
+    wait_times: List[int] = []
+    queue_length: int = 0
+    current_time: int = 0
+
+    for customer in range(num_customers):
+        # Customer arrival
+        arrival_time: int = current_time
+
+        # Service time
+        service_time: int = random.randint(service_time_range[0], service_time_range[1])
+
+        # Wait time
+        wait_time: int = queue_length
+        wait_times.append(wait_time)
+
+        # Update queue
+        queue_length = queue_length + service_time
+        current_time = arrival_time + service_time
+
+        # Reduce queue as time passes
+        if queue_length > 0:
+            queue_length = max(0, queue_length - 1)
+
+    # Calculate statistics
+    total_wait: int = 0
+    for wait in wait_times:
+        total_wait = total_wait + wait
+
+    avg_wait: float = float(total_wait) / float(len(wait_times)) if len(wait_times) > 0 else 0.0
+
+    # Find max wait
+    max_wait: int = 0
+    for wait in wait_times:
+        if wait > max_wait:
+            max_wait = wait
+
+    stats: Dict[str, float] = {
+        "avg_wait": avg_wait,
+        "max_wait": float(max_wait),
+        "total_customers": float(num_customers)
+    }
+
+    return stats
+
+
+def simulate_card_game(num_games: int) -> Dict[str, int]:
+    """Simulate card game results"""
+    results: Dict[str, int] = {"wins": 0, "losses": 0, "ties": 0}
+
+    for game in range(num_games):
+        # Draw two cards (simplified)
+        player_card: int = random.randint(1, 13)
+        dealer_card: int = random.randint(1, 13)
+
+        if player_card > dealer_card:
+            results["wins"] = results["wins"] + 1
+        elif player_card < dealer_card:
+            results["losses"] = results["losses"] + 1
+        else:
+            results["ties"] = results["ties"] + 1
+
+    return results
+
+
+def calculate_win_rate(results: Dict[str, int]) -> float:
+    """Calculate win rate from game results"""
+    total_games: int = results["wins"] + results["losses"] + results["ties"]
+
+    if total_games == 0:
+        return 0.0
+
+    win_rate: float = float(results["wins"]) / float(total_games)
+    return win_rate
+
+
+def simulate_population_growth(initial_population: int, growth_rate: float, num_generations: int) -> List[int]:
+    """Simulate population growth with randomness"""
+    populations: List[int] = [initial_population]
+
+    current_population: int = initial_population
+
+    for generation in range(num_generations):
+        # Add randomness to growth rate
+        random_factor: float = random.random() * 0.2 - 0.1  # -0.1 to +0.1
+        actual_growth: float = growth_rate + random_factor
+
+        # Calculate new population
+        growth: int = int(float(current_population) * actual_growth)
+        current_population = current_population + growth
+
+        # Ensure non-negative
+        if current_population < 0:
+            current_population = 0
+
+        populations.append(current_population)
+
+    return populations
+
+
+def analyze_population_trend(populations: List[int]) -> Dict[str, float]:
+    """Analyze population growth trend"""
+    if len(populations) < 2:
+        return {}
+
+    # Calculate average growth rate
+    total_growth: float = 0.0
+    num_intervals: int = len(populations) - 1
+
+    for i in range(num_intervals):
+        if populations[i] > 0:
+            growth_rate: float = float(populations[i + 1] - populations[i]) / float(populations[i])
+            total_growth = total_growth + growth_rate
+
+    avg_growth: float = total_growth / float(num_intervals) if num_intervals > 0 else 0.0
+
+    # Find peak population
+    peak: int = populations[0]
+    for pop in populations:
+        if pop > peak:
+            peak = pop
+
+    analysis: Dict[str, float] = {
+        "avg_growth_rate": avg_growth,
+        "peak_population": float(peak),
+        "final_population": float(populations[-1])
+    }
+
+    return analysis
+
+
+def run_simulations() -> None:
+    """Run comprehensive simulation suite"""
+    print("=== Comprehensive Simulation Demo ===")
+
+    # Set seed for reproducibility
+    random.seed(42)
+
+    # Dice rolling simulation
+    print("\n1. Dice Rolling Simulation")
+    dice_results: Dict[int, int] = simulate_dice_rolls(2, 6, 1000)
+    print(f"   Simulated {1000} rolls of 2d6")
+    print(f"   Unique outcomes: {len(dice_results)}")
+
+    # Coin flip simulation
+    print("\n2. Coin Flip Sequence")
+    flips: List[str] = coin_flip_sequence(100)
+    streaks: Dict[str, int] = count_streaks(flips)
+    print(f"   100 flips, max heads streak: {streaks['max_heads']}")
+
+    # Monte Carlo Pi estimation
+    print("\n3. Monte Carlo Pi Estimation")
+    pi_result: Tuple[float, float] = monte_carlo_pi_estimation(10000)
+    print(f"   Pi estimate: {pi_result[0]:.5f}, Error: {pi_result[1]:.5f}")
+
+    # Random walk simulation
+    print("\n4. Random Walk Simulation")
+    final_pos: Tuple[int, int] = simulate_random_walk(1000)
+    distance: float = calculate_walk_distance(final_pos)
+    print(f"   Final position: ({final_pos[0]}, {final_pos[1]}), Distance: {distance:.2f}")
+
+    # Queue system simulation
+    print("\n5. Queue System Simulation")
+    queue_stats: Dict[str, float] = simulate_queue_system(100, (1, 5))
+    print(f"   Avg wait time: {queue_stats['avg_wait']:.2f}")
+
+    # Card game simulation
+    print("\n6. Card Game Simulation")
+    game_results: Dict[str, int] = simulate_card_game(1000)
+    win_rate: float = calculate_win_rate(game_results)
+    print(f"   Win rate: {win_rate:.2%}, Wins: {game_results['wins']}")
+
+    # Population growth simulation
+    print("\n7. Population Growth Simulation")
+    populations: List[int] = simulate_population_growth(100, 0.1, 20)
+    pop_analysis: Dict[str, float] = analyze_population_trend(populations)
+    print(f"   Final population: {pop_analysis['final_population']:.0f}")
+
+    print("\n=== All Simulations Complete ===")
+
+
+if __name__ == "__main__":
+    run_simulations()
+'''
+
+rust = '''
+use rand as random;
+use std::collections::HashMap;
+use std::f64 as math;
+#[derive(Debug, Clone)]
+pub struct ZeroDivisionError {
+    message: String,
+}
+impl std::fmt::Display for ZeroDivisionError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "division by zero: {}", self.message)
+    }
+}
+impl std::error::Error for ZeroDivisionError {}
+impl ZeroDivisionError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[derive(Debug, Clone)]
+pub struct IndexError {
+    message: String,
+}
+impl std::fmt::Display for IndexError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "index out of range: {}", self.message)
+    }
+}
+impl std::error::Error for IndexError {}
+impl IndexError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = "Roll multiple dice and return sum"]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn roll_dice(num_dice: i32, num_sides: i32) -> i32 {
+    let mut total: i32 = 0;
+    for _i in 0..num_dice {
+        let roll: i32 = rand::thread_rng().gen_range(1..=num_sides);
+        total = total + roll;
+    }
+    total
+}
+#[doc = "Simulate dice rolls and collect distribution"]
+#[doc = " Depyler: proven to terminate"]
+pub fn simulate_dice_rolls(
+    num_dice: i32,
+    num_sides: i32,
+    num_trials: i32,
+) -> Result<HashMap<i32, i32>, IndexError> {
+    let mut results: HashMap<i32, i32> = {
+        let map = HashMap::new();
+        map
+    };
+    for _trial in 0..num_trials {
+        let mut total: i32 = roll_dice(num_dice, num_sides);
+        if results.contains_key(&total) {
+            {
+                let _key = total;
+                let _old_val = results.get(&_key).cloned().unwrap_or_default();
+                results.insert(_key, _old_val + 1);
+            }
+        } else {
+            results.insert(total, 1);
+        }
+    }
+    Ok(results)
+}
+#[doc = "Simulate sequence of coin flips"]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn coin_flip_sequence(num_flips: i32) -> Vec<String> {
+    let mut flips: Vec<String> = vec![];
+    for _i in 0..num_flips {
+        let flip: i32 = rand::thread_rng().gen_range(0..=1);
+        if flip == 0 {
+            flips.push("H".to_string());
+        } else {
+            flips.push("T".to_string());
+        }
+    }
+    flips
+}
+#[doc = "Count longest streaks in sequence"]
+#[doc = " Depyler: proven to terminate"]
+pub fn count_streaks(sequence: &Vec<String>) -> Result<HashMap<String, i32>, IndexError> {
+    let _cse_temp_0 = sequence.len() as i32;
+    let _cse_temp_1 = _cse_temp_0 == 0;
+    if _cse_temp_1 {
+        return Ok({
+            let map = HashMap::new();
+            map
+        });
+    }
+    let mut max_heads_streak: i32 = 0;
+    let mut max_tails_streak: i32 = 0;
+    let mut current_streak: i32 = 1;
+    let mut current_type: String = sequence.get(0usize).cloned().unwrap_or_default();
+    for i in 1..sequence.len() as i32 {
+        let mut current_streak;
+        if sequence.get(i as usize).cloned().unwrap_or_default() == current_type {
+            current_streak = current_streak + 1;
+        } else {
+            if (current_type == "H") && (current_streak > max_heads_streak) {
+                max_heads_streak = current_streak;
+            } else {
+                if (current_type == "T") && (current_streak > max_tails_streak) {
+                    max_tails_streak = current_streak;
+                }
+            }
+            current_type = sequence.get(i as usize).cloned().unwrap_or_default();
+            current_streak = 1;
+        }
+    }
+    let _cse_temp_2 = current_type == "H";
+    let _cse_temp_3 = current_streak > max_heads_streak;
+    let _cse_temp_4 = (_cse_temp_2) && (_cse_temp_3);
+    if _cse_temp_4 {
+        max_heads_streak = current_streak;
+    } else {
+        let _cse_temp_5 = current_type == "T";
+        let _cse_temp_6 = current_streak > max_tails_streak;
+        let _cse_temp_7 = (_cse_temp_5) && (_cse_temp_6);
+        if _cse_temp_7 {
+            max_tails_streak = current_streak;
+        }
+    }
+    let streaks: HashMap<String, i32> = {
+        let mut map = HashMap::new();
+        map.insert("max_heads".to_string(), max_heads_streak);
+        map.insert("max_tails".to_string(), max_tails_streak);
+        map
+    };
+    Ok(streaks)
+}
+#[doc = "Estimate pi using Monte Carlo method"]
+#[doc = " Depyler: proven to terminate"]
+pub fn monte_carlo_pi_estimation(num_samples: i32) -> Result<(f64, f64), ZeroDivisionError> {
+    let mut inside_circle: i32 = 0;
+    for _i in 0..num_samples {
+        let x: f64 = rand::random::<f64>();
+        let y: f64 = rand::random::<f64>();
+        let distance_squared: f64 = x * x + y * y;
+        if distance_squared <= 1.0 {
+            inside_circle = inside_circle + 1;
+        }
+    }
+    let _cse_temp_0 = (inside_circle) as f64;
+    let _cse_temp_1 = 4.0 * _cse_temp_0;
+    let _cse_temp_2 = (num_samples) as f64;
+    let _cse_temp_3 = (_cse_temp_1 as f64) / (_cse_temp_2 as f64);
+    let pi_estimate: f64 = _cse_temp_3;
+    let actual_pi: f64 = 3.14159265359;
+    let _cse_temp_4 = pi_estimate - actual_pi.abs();
+    let error: f64 = _cse_temp_4;
+    Ok((pi_estimate, error))
+}
+#[doc = "Simulate 2D random walk"]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn simulate_random_walk(num_steps: i32) -> (i32, i32) {
+    let mut x: i32 = 0;
+    let mut y: i32 = 0;
+    for _step in 0..num_steps {
+        let direction: i32 = rand::thread_rng().gen_range(0..=3);
+        let mut y;
+        if direction == 0 {
+            y = y + 1;
+        } else {
+            let mut x;
+            if direction == 1 {
+                x = x + 1;
+            } else {
+                if direction == 2 {
+                    y = y - 1;
+                } else {
+                    x = x - 1;
+                }
+            }
+        }
+    }
+    (x, y)
+}
+#[doc = "Calculate Euclidean distance from origin"]
+#[doc = " Depyler: proven to terminate"]
+pub fn calculate_walk_distance(position: (i32, i32)) -> Result<f64, IndexError> {
+    let mut x: i32 = position.0;
+    let mut y: i32 = position.1;
+    let distance: f64 = ((x * x + y * y) as f64 as f64).sqrt();
+    Ok(distance)
+}
+#[doc = "Simulate queue/service system"]
+#[doc = " Depyler: verified panic-free"]
+pub fn simulate_queue_system(
+    num_customers: i32,
+    service_time_range: (i32, i32),
+) -> HashMap<String, f64> {
+    let mut wait_times: Vec<i32> = vec![];
+    let mut queue_length: i32 = 0;
+    let mut current_time: i32 = 0;
+    for _customer in 0..num_customers {
+        let arrival_time: i32 = current_time;
+        let service_time: i32 =
+            rand::thread_rng().gen_range(service_time_range.0..=service_time_range.1);
+        let wait_time: i32 = queue_length;
+        wait_times.push(wait_time);
+        queue_length = queue_length + service_time;
+        current_time = arrival_time + service_time;
+        if queue_length > 0 {
+            queue_length = std::cmp::max(0, queue_length - 1);
+        }
+    }
+    let mut total_wait: i32 = 0;
+    for wait in wait_times.iter().cloned() {
+        total_wait = total_wait + wait;
+    }
+    let avg_wait: f64 = if wait_times.len() as i32 > 0 {
+        (total_wait) as f64 / (wait_times.len() as i32) as f64
+    } else {
+        0.0
+    };
+    let mut max_wait: i32 = 0;
+    for wait in wait_times.iter().cloned() {
+        if wait > max_wait {
+            max_wait = wait;
+        }
+    }
+    let stats: HashMap<String, f64> = {
+        let mut map = HashMap::new();
+        map.insert("avg_wait".to_string(), avg_wait);
+        map.insert("max_wait".to_string(), (max_wait) as f64);
+        map.insert("total_customers".to_string(), (num_customers) as f64);
+        map
+    };
+    stats
+}
+#[doc = "Simulate card game results"]
+#[doc = " Depyler: proven to terminate"]
+pub fn simulate_card_game(num_games: i32) -> Result<HashMap<String, i32>, IndexError> {
+    let mut results: HashMap<String, i32> = {
+        let mut map = HashMap::new();
+        map.insert("wins".to_string(), 0);
+        map.insert("losses".to_string(), 0);
+        map.insert("ties".to_string(), 0);
+        map
+    };
+    for _game in 0..num_games {
+        let player_card: i32 = rand::thread_rng().gen_range(1..=13);
+        let dealer_card: i32 = rand::thread_rng().gen_range(1..=13);
+        if player_card > dealer_card {
+            results.insert("wins", results.get("wins").cloned().unwrap_or_default() + 1);
+        } else {
+            if player_card < dealer_card {
+                results.insert(
+                    "losses",
+                    results.get("losses").cloned().unwrap_or_default() + 1,
+                );
+            } else {
+                results.insert("ties", results.get("ties").cloned().unwrap_or_default() + 1);
+            }
+        }
+    }
+    Ok(results)
+}
+#[doc = "Calculate win rate from game results"]
+#[doc = " Depyler: proven to terminate"]
+pub fn calculate_win_rate(
+    results: &mut HashMap<String, i32>,
+) -> Result<f64, Box<dyn std::error::Error>> {
+    let _cse_temp_0 = results.get("wins").cloned().unwrap_or_default()
+        + results.get("losses").cloned().unwrap_or_default();
+    let _cse_temp_1 = _cse_temp_0 + results.get("ties").cloned().unwrap_or_default();
+    let total_games: i32 = _cse_temp_1;
+    let _cse_temp_2 = total_games == 0;
+    if _cse_temp_2 {
+        return Ok(0.0);
+    }
+    let _cse_temp_3 = (results.get("wins").cloned().unwrap_or_default()) as f64;
+    let _cse_temp_4 = (total_games) as f64;
+    let _cse_temp_5 = (_cse_temp_3 as f64) / (_cse_temp_4 as f64);
+    let win_rate: f64 = _cse_temp_5;
+    Ok(win_rate)
+}
+#[doc = "Simulate population growth with randomness"]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn simulate_population_growth(
+    initial_population: i32,
+    growth_rate: f64,
+    num_generations: i32,
+) -> Vec<i32> {
+    let mut populations: Vec<i32> = vec![initial_population];
+    let mut current_population: i32 = initial_population;
+    for _generation in 0..num_generations {
+        let random_factor: f64 = rand::random::<f64>() * 0.2 - 0.1;
+        let actual_growth: f64 = growth_rate + random_factor;
+        let growth: i32 = ((current_population) as f64 * actual_growth) as i32;
+        current_population = current_population + growth;
+        if current_population < 0 {
+            current_population = 0;
+        }
+        populations.push(current_population);
+    }
+    populations
+}
+#[doc = "Analyze population growth trend"]
+pub fn analyze_population_trend(
+    populations: &mut Vec<i32>,
+) -> Result<HashMap<String, f64>, Box<dyn std::error::Error>> {
+    let _cse_temp_0 = populations.len() as i32;
+    let _cse_temp_1 = _cse_temp_0 < 2;
+    if _cse_temp_1 {
+        return Ok({
+            let map = HashMap::new();
+            map
+        });
+    }
+    let mut total_growth: f64 = 0.0;
+    let num_intervals: i32 = _cse_temp_0 - 1;
+    for i in 0..num_intervals {
+        if populations.get(i as usize).cloned().unwrap_or_default() > 0 {
+            let growth_rate: f64 = ({
+                let base = &populations;
+                let idx: i32 = i + 1;
+                let actual_idx = if idx < 0 {
+                    base.len().saturating_sub(idx.abs() as usize)
+                } else {
+                    idx as usize
+                };
+                base.get(actual_idx).cloned().unwrap_or_default()
+            } - populations.get(i as usize).cloned().unwrap_or_default())
+                as f64
+                / (populations.get(i as usize).cloned().unwrap_or_default()) as f64;
+            total_growth = total_growth + growth_rate;
+        }
+    }
+    let avg_growth: f64 = if num_intervals > 0 {
+        total_growth / (num_intervals) as f64
+    } else {
+        0.0
+    };
+    let mut peak: i32 = populations.get(0usize).cloned().unwrap_or_default();
+    for pop in populations.iter().cloned() {
+        if pop > peak {
+            peak = pop;
+        }
+    }
+    let analysis: HashMap<String, f64> = {
+        let mut map = HashMap::new();
+        map.insert("avg_growth_rate".to_string(), avg_growth);
+        map.insert("peak_population".to_string(), (peak) as f64);
+        map.insert(
+            "final_population".to_string(),
+            ({
+                let base = &populations;
+                base.get(base.len().saturating_sub(1usize))
+                    .cloned()
+                    .unwrap_or_default()
+            }) as f64,
+        );
+        map
+    };
+    Ok(analysis)
+}
+#[doc = "Run comprehensive simulation suite"]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn run_simulations() -> Result<(), Box<dyn std::error::Error>> {
+    println!("{}", "=== Comprehensive Simulation Demo ===");
+    {
+        let _seed = 42;
+        ()
+    };
+    println!("{}", "\n1. Dice Rolling Simulation");
+    let dice_results: HashMap<i32, i32> = simulate_dice_rolls(2, 6, 1000)?;
+    println!("{}", format!("   Simulated {:?} rolls of 2d6", 1000));
+    println!(
+        "{}",
+        format!("   Unique outcomes: {:?}", dice_results.len() as i32)
+    );
+    println!("{}", "\n2. Coin Flip Sequence");
+    let mut flips: Vec<String> = coin_flip_sequence(100);
+    let streaks: HashMap<String, i32> = count_streaks(&flips)?;
+    println!(
+        "{}",
+        format!(
+            "   100 flips, max heads streak: {:?}",
+            streaks.get("max_heads").cloned().unwrap_or_default()
+        )
+    );
+    println!("{}", "\n3. Monte Carlo Pi Estimation");
+    let pi_result: (f64, f64) = monte_carlo_pi_estimation(10000)?;
+    println!(
+        "{}",
+        format!(
+            "   Pi estimate: {:?}, Error: {:?}",
+            pi_result.get(0usize).cloned().unwrap_or_default(),
+            pi_result.get(1usize).cloned().unwrap_or_default()
+        )
+    );
+    println!("{}", "\n4. Random Walk Simulation");
+    let final_pos: (i32, i32) = simulate_random_walk(1000);
+    let distance: f64 = calculate_walk_distance(final_pos)?;
+    println!(
+        "{}",
+        format!(
+            "   Final position:({:?}, {:?}), Distance: {:?}",
+            final_pos.get(0usize).cloned().unwrap_or_default(),
+            final_pos.get(1usize).cloned().unwrap_or_default(),
+            distance
+        )
+    );
+    println!("{}", "\n5. Queue System Simulation");
+    let queue_stats: HashMap<String, f64> = simulate_queue_system(100, (1, 5));
+    println!(
+        "{}",
+        format!(
+            "   Avg wait time: {:?}",
+            queue_stats.get("avg_wait").cloned().unwrap_or_default()
+        )
+    );
+    println!("{}", "\n6. Card Game Simulation");
+    let game_results: HashMap<String, i32> = simulate_card_game(1000)?;
+    let win_rate: f64 = calculate_win_rate(&game_results)?;
+    println!(
+        "{}",
+        format!(
+            "   Win rate: {:?}, Wins: {:?}",
+            win_rate,
+            game_results.get("wins").cloned().unwrap_or_default()
+        )
+    );
+    println!("{}", "\n7. Population Growth Simulation");
+    let mut populations: Vec<i32> = simulate_population_growth(100, 0.1, 20);
+    let pop_analysis: HashMap<String, f64> = analyze_population_trend(&populations)?;
+    println!(
+        "{}",
+        format!(
+            "   Final population: {:?}",
+            pop_analysis
+                .get("final_population")
+                .cloned()
+                .unwrap_or_default()
+        )
+    );
+    println!("{}", "\n=== All Simulations Complete ===");
+    Ok(())
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{quickcheck, TestResult};
+    #[test]
+    fn test_roll_dice_examples() {
+        assert_eq!(roll_dice(0, 0), 0);
+        assert_eq!(roll_dice(1, 2), 3);
+        assert_eq!(roll_dice(-1, 1), 0);
+    }
+}
+'''
+
+[[test]]
+name = "tic_tac_toe"
+description = "Example test"
+
+python = '''
+# @depyler: optimization_level = "aggressive"
+# @depyler: bounds_checking = "explicit"
+from typing import List, Optional, Tuple
+
+class TicTacToe:
+    """Tic-tac-toe game implementation"""
+    
+    def __init__(self) -> None:
+        self.board: List[List[str]] = [
+            [" ", " ", " "],
+            [" ", " ", " "],
+            [" ", " ", " "]
+        ]
+        self.current_player = "X"
+    
+    def make_move(self, row: int, col: int) -> bool:
+        """Make a move at specified position"""
+        if not self.is_valid_move(row, col):
+            return False
+        
+        self.board[row][col] = self.current_player
+        self.current_player = "O" if self.current_player == "X" else "X"
+        return True
+    
+    def is_valid_move(self, row: int, col: int) -> bool:
+        """Check if move is valid"""
+        if row < 0 or row >= 3 or col < 0 or col >= 3:
+            return False
+        return self.board[row][col] == " "
+    
+    def check_winner(self) -> Optional[str]:
+        """Check if there's a winner"""
+        # Check rows
+        for row in self.board:
+            if row[0] == row[1] == row[2] != " ":
+                return row[0]
+        
+        # Check columns
+        for col in range(3):
+            if self.board[0][col] == self.board[1][col] == self.board[2][col] != " ":
+                return self.board[0][col]
+        
+        # Check diagonals
+        if self.board[0][0] == self.board[1][1] == self.board[2][2] != " ":
+            return self.board[0][0]
+        
+        if self.board[0][2] == self.board[1][1] == self.board[2][0] != " ":
+            return self.board[0][2]
+        
+        return None
+    
+    def is_board_full(self) -> bool:
+        """Check if board is full"""
+        for row in self.board:
+            for cell in row:
+                if cell == " ":
+                    return False
+        return True
+    
+    def is_game_over(self) -> bool:
+        """Check if game is over"""
+        return self.check_winner() is not None or self.is_board_full()
+    
+    def get_empty_positions(self) -> List[Tuple[int, int]]:
+        """Get all empty positions on the board"""
+        positions: List[Tuple[int, int]] = []
+        for row in range(3):
+            for col in range(3):
+                if self.board[row][col] == " ":
+                    positions.append((row, col))
+        return positions
+    
+    def board_to_string(self) -> str:
+        """Convert board to string representation"""
+        lines: List[str] = []
+        for i, row in enumerate(self.board):
+            line = f" {row[0]} | {row[1]} | {row[2]} "
+            lines.append(line)
+            if i < 2:
+                lines.append("-----------")
+        return "\n".join(lines)
+
+class AIPlayer:
+    """Simple AI player using minimax algorithm"""
+    
+    def __init__(self, symbol: str) -> None:
+        self.symbol = symbol
+        self.opponent = "O" if symbol == "X" else "X"
+    
+    def get_best_move(self, game: TicTacToe) -> Tuple[int, int]:
+        """Get best move using minimax"""
+        best_score = -1000
+        best_move = (0, 0)
+        
+        for row, col in game.get_empty_positions():
+            # Make temporary move
+            game.board[row][col] = self.symbol
+            score = self.minimax(game, 0, False)
+            # Undo move
+            game.board[row][col] = " "
+            
+            if score > best_score:
+                best_score = score
+                best_move = (row, col)
+        
+        return best_move
+    
+    def minimax(self, game: TicTacToe, depth: int, is_maximizing: bool) -> int:
+        """Minimax algorithm implementation"""
+        winner = game.check_winner()
+        
+        if winner == self.symbol:
+            return 10 - depth
+        elif winner == self.opponent:
+            return depth - 10
+        elif game.is_board_full():
+            return 0
+        
+        if is_maximizing:
+            best_score = -1000
+            for row, col in game.get_empty_positions():
+                game.board[row][col] = self.symbol
+                score = self.minimax(game, depth + 1, False)
+                game.board[row][col] = " "
+                best_score = max(best_score, score)
+            return best_score
+        else:
+            best_score = 1000
+            for row, col in game.get_empty_positions():
+                game.board[row][col] = self.opponent
+                score = self.minimax(game, depth + 1, True)
+                game.board[row][col] = " "
+                best_score = min(best_score, score)
+            return best_score
+
+def play_computer_game() -> str:
+    """Play a complete game against computer"""
+    game = TicTacToe()
+    ai = AIPlayer("O")
+    moves_log: List[str] = []
+    
+    while not game.is_game_over():
+        if game.current_player == "X":
+            # Human player - make a simple move (first available)
+            empty_positions = game.get_empty_positions()
+            if empty_positions:
+                row, col = empty_positions[0]
+                game.make_move(row, col)
+                moves_log.append(f"Human plays at ({row}, {col})")
+        else:
+            # AI player
+            row, col = ai.get_best_move(game)
+            game.make_move(row, col)
+            moves_log.append(f"AI plays at ({row}, {col})")
+    
+    winner = game.check_winner()
+    if winner:
+        moves_log.append(f"Winner: {winner}")
+    else:
+        moves_log.append("Game ended in a tie")
+    
+    return "\n".join(moves_log)
+
+def count_winning_positions(board_state: List[List[str]], player: str) -> int:
+    """Count how many ways a player can win from current state"""
+    winning_positions = [
+        # Rows
+        [(0, 0), (0, 1), (0, 2)],
+        [(1, 0), (1, 1), (1, 2)],
+        [(2, 0), (2, 1), (2, 2)],
+        # Columns
+        [(0, 0), (1, 0), (2, 0)],
+        [(0, 1), (1, 1), (2, 1)],
+        [(0, 2), (1, 2), (2, 2)],
+        # Diagonals
+        [(0, 0), (1, 1), (2, 2)],
+        [(0, 2), (1, 1), (2, 0)]
+    ]
+    
+    count = 0
+    for positions in winning_positions:
+        can_win = True
+        for row, col in positions:
+            cell = board_state[row][col]
+            if cell != " " and cell != player:
+                can_win = False
+                break
+        if can_win:
+            count += 1
+    
+    return count
+'''
+
+rust = '''
+Error: Expression type not yet supported
+'''

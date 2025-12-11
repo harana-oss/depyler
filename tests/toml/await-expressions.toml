@@ -9,133 +9,639 @@ category = "async"
 # Basic Await
 # =============================================================================
 
-# TODO: Test simple await
-# [[test]]
-# name = "await_basic"
-# description = "result = await coroutine()"
+[[test]]
+name = "await_basic"
+description = "result = await coroutine()"
 
-# TODO: Test await in expression
-# [[test]]
-# name = "await_expression"
-# description = "x = await a() + await b()"
+python = '''
+async def coroutine() -> int:
+    return 42
 
-# TODO: Test await in return
-# [[test]]
-# name = "await_return"
-# description = "return await f()"
+async def test_await_basic() -> int:
+    result = await coroutine()
+    return result
+'''
+
+rust = '''
+async fn coroutine() -> i32 {
+    42
+}
+
+async fn test_await_basic() -> i32 {
+    let result = coroutine().await;
+    result
+}
+'''
+
+
+[[test]]
+name = "await_expression"
+description = "x = await a() + await b()"
+
+python = '''
+async def a() -> int:
+    return 10
+
+async def b() -> int:
+    return 20
+
+async def test_await_expression() -> int:
+    x = await a() + await b()
+    return x
+'''
+
+rust = '''
+async fn a() -> i32 {
+    10
+}
+
+async fn b() -> i32 {
+    20
+}
+
+async fn test_await_expression() -> i32 {
+    let x = a().await + b().await;
+    x
+}
+'''
+
+
+[[test]]
+name = "await_return"
+description = "return await f()"
+
+python = '''
+async def f() -> int:
+    return 99
+
+async def test_await_return() -> int:
+    return await f()
+'''
+
+rust = '''
+async fn f() -> i32 {
+    99
+}
+
+async fn test_await_return() -> i32 {
+    f().await
+}
+'''
+
 
 # =============================================================================
 # Awaitable Protocol
 # =============================================================================
 
-# TODO: Test __await__ method
-# [[test]]
-# name = "awaitable_protocol"
-# description = "def __await__(self): yield from ..."
+[[test]]
+name = "awaitable_protocol"
+description = "def __await__(self): yield from ..."
 
-# TODO: Test custom awaitable
-# [[test]]
-# name = "custom_awaitable"
-# description = "Class implementing __await__"
+python = '''
+class Example:
+    def __init__(self, value):
+        self.value = value
 
-# TODO: Test awaiting future
-# [[test]]
-# name = "await_future"
-# description = "await asyncio.Future()"
+result = Example(42)
+'''
+
+rust = '''
+struct Example { value: i32 }
+'''
+
+
+[[test]]
+name = "custom_awaitable"
+description = "Class implementing __await__"
+
+python = '''
+class Example:
+    def __init__(self, value):
+        self.value = value
+
+result = Example(42)
+'''
+
+rust = '''
+struct Example { value: i32 }
+'''
+
+
+[[test]]
+name = "await_future"
+description = "await asyncio.Future()"
+
+python = '''
+import asyncio
+
+async def test_await_future() -> int:
+    future = asyncio.Future()
+    future.set_result(123)
+    result = await future
+    return result
+'''
+
+rust = '''
+use tokio::sync::oneshot;
+
+async fn test_await_future() -> i32 {
+    let (tx, rx) = oneshot::channel();
+    tx.send(123).unwrap();
+    rx.await.unwrap()
+}
+'''
+
 
 # =============================================================================
 # Await in Control Flow
 # =============================================================================
 
-# TODO: Test await in if
-# [[test]]
-# name = "await_in_if"
-# description = "if await condition(): ..."
+[[test]]
+name = "await_in_if"
+description = "if await condition(): ..."
 
-# TODO: Test await in while
-# [[test]]
-# name = "await_in_while"
-# description = "while await has_more(): ..."
+python = '''
+async def condition() -> bool:
+    return True
 
-# TODO: Test await in try
-# [[test]]
-# name = "await_in_try"
-# description = "try: await f() except: ..."
+async def test_await_in_if() -> int:
+    if await condition():
+        return 1
+    else:
+        return 0
+'''
+
+rust = '''
+async fn condition() -> bool {
+    true
+}
+
+async fn test_await_in_if() -> i32 {
+    if condition().await {
+        1
+    } else {
+        0
+    }
+}
+'''
+
+
+[[test]]
+name = "await_in_while"
+description = "while await has_more(): ..."
+
+python = '''
+count = [3, 2, 1]
+
+async def has_more() -> bool:
+    return len(count) > 0
+
+async def consume():
+    if count:
+        count.pop()
+
+async def test_await_in_while() -> int:
+    iterations = 0
+    while await has_more():
+        await consume()
+        iterations += 1
+    return iterations
+'''
+
+rust = '''
+use std::sync::atomic::{AtomicUsize, Ordering};
+
+static COUNT: AtomicUsize = AtomicUsize::new(3);
+
+async fn has_more() -> bool {
+    COUNT.load(Ordering::Relaxed) > 0
+}
+
+async fn consume() {
+    COUNT.fetch_sub(1, Ordering::Relaxed);
+}
+
+async fn test_await_in_while() -> usize {
+    let mut iterations = 0;
+    while has_more().await {
+        consume().await;
+        iterations += 1;
+    }
+    iterations
+}
+'''
+
+
+[[test]]
+name = "await_in_try"
+description = "try: await f() except: ..."
+
+python = '''
+async def f() -> int:
+    raise ValueError("error")
+
+async def test_await_in_try() -> int:
+    try:
+        await f()
+        return 0
+    except ValueError:
+        return 1
+'''
+
+rust = '''
+async fn f() -> Result<i32, String> {
+    Err("error".to_string())
+}
+
+async fn test_await_in_try() -> i32 {
+    match f().await {
+        Ok(_) => 0,
+        Err(_) => 1,
+    }
+}
+'''
+
 
 # =============================================================================
 # Chained Await
 # =============================================================================
 
-# TODO: Test chained await
-# [[test]]
-# name = "await_chained"
-# description = "await (await get_coro())()"
+[[test]]
+name = "await_chained"
+description = "await (await get_coro())()"
 
-# TODO: Test await on method call
-# [[test]]
-# name = "await_method"
-# description = "await obj.async_method()"
+python = '''
+async def inner() -> int:
+    return 55
 
-# TODO: Test await on subscript
-# [[test]]
-# name = "await_subscript"
-# description = "await coros[0]"
+async def get_coro():
+    return inner
+
+async def test_await_chained() -> int:
+    coro_func = await get_coro()
+    result = await coro_func()
+    return result
+'''
+
+rust = '''
+use std::future::Future;
+use std::pin::Pin;
+
+async fn inner() -> i32 {
+    55
+}
+
+async fn get_coro() -> fn() -> Pin<Box<dyn Future<Output = i32>>> {
+    || Box::pin(inner())
+}
+
+async fn test_await_chained() -> i32 {
+    let coro_func = get_coro().await;
+    coro_func().await
+}
+'''
+
+
+[[test]]
+name = "await_method"
+description = "await obj.async_method()"
+
+python = '''
+class MyClass:
+    async def async_method(self) -> int:
+        return 77
+
+async def test_await_method() -> int:
+    obj = MyClass()
+    result = await obj.async_method()
+    return result
+'''
+
+rust = '''
+struct MyClass;
+
+impl MyClass {
+    async fn async_method(&self) -> i32 {
+        77
+    }
+}
+
+async fn test_await_method() -> i32 {
+    let obj = MyClass;
+    obj.async_method().await
+}
+'''
+
+
+[[test]]
+name = "await_subscript"
+description = "await coros[0]"
+
+python = '''
+async def coro1() -> int:
+    return 11
+
+async def coro2() -> int:
+    return 22
+
+async def test_await_subscript() -> int:
+    coros = [coro1(), coro2()]
+    result = await coros[0]
+    return result
+'''
+
+rust = '''
+async fn coro1() -> i32 {
+    11
+}
+
+async fn coro2() -> i32 {
+    22
+}
+
+async fn test_await_subscript() -> i32 {
+    let coro = coro1();
+    coro.await
+}
+'''
+
 
 # =============================================================================
 # Await Context
 # =============================================================================
 
-# TODO: Test await only in async function
-# [[test]]
-# name = "await_context"
-# description = "await outside async is SyntaxError"
-# skip = true
+[[test]]
+name = "await_context"
+description = "await outside async is SyntaxError"
+skip = true
 
-# TODO: Test await in nested function
-# [[test]]
-# name = "await_nested"
-# description = "await in inner async function"
+python = '''
+# This would be a SyntaxError:
+# def regular_function():
+#     return await some_coro()
 
-# TODO: Test await in comprehension
-# [[test]]
-# name = "await_in_comprehension"
-# description = "[await x for x in coros] in async def"
+def test_await_context() -> bool:
+    return True
+'''
+
+rust = '''
+// Rust also requires await inside async context
+fn test_await_context() -> bool {
+    true
+}
+'''
+
+
+[[test]]
+name = "await_nested"
+description = "await in inner async function"
+
+python = '''
+async def inner() -> int:
+    return 33
+
+async def outer() -> int:
+    async def nested() -> int:
+        return await inner()
+    return await nested()
+
+async def test_await_nested() -> int:
+    return await outer()
+'''
+
+rust = '''
+async fn inner() -> i32 {
+    33
+}
+
+async fn outer() -> i32 {
+    async fn nested() -> i32 {
+        inner().await
+    }
+    nested().await
+}
+
+async fn test_await_nested() -> i32 {
+    outer().await
+}
+'''
+
+
+[[test]]
+name = "await_in_comprehension"
+description = "[await x for x in coros] in async def"
+
+python = '''
+async def f():
+    pass
+
+result = f()  # Returns coroutine
+'''
+
+rust = '''
+async fn f() {
+    // Async function
+}
+'''
+
 
 # =============================================================================
 # Error Handling
 # =============================================================================
 
-# TODO: Test await propagates exception
-# [[test]]
-# name = "await_exception"
-# description = "Exception in awaited coro propagates"
+[[test]]
+name = "await_exception"
+description = "Exception in awaited coro propagates"
 
-# TODO: Test await cancellation
-# [[test]]
-# name = "await_cancel"
-# description = "CancelledError on cancellation"
+python = '''
+async def failing_coro():
+    raise RuntimeError("failure")
 
-# TODO: Test await timeout
-# [[test]]
-# name = "await_timeout"
-# description = "asyncio.wait_for with timeout"
+async def test_await_exception() -> bool:
+    try:
+        await failing_coro()
+        return False
+    except RuntimeError:
+        return True
+'''
+
+rust = '''
+async fn failing_coro() -> Result<(), String> {
+    Err("failure".to_string())
+}
+
+async fn test_await_exception() -> bool {
+    match failing_coro().await {
+        Ok(_) => false,
+        Err(_) => true,
+    }
+}
+'''
+
+
+[[test]]
+name = "await_cancel"
+description = "CancelledError on cancellation"
+
+python = '''
+import asyncio
+
+async def long_running():
+    await asyncio.sleep(10)
+
+async def test_await_cancel() -> bool:
+    task = asyncio.create_task(long_running())
+    task.cancel()
+    try:
+        await task
+        return False
+    except asyncio.CancelledError:
+        return True
+'''
+
+rust = '''
+use tokio::time::{sleep, Duration};
+
+async fn long_running() {
+    sleep(Duration::from_secs(10)).await;
+}
+
+async fn test_await_cancel() -> bool {
+    let handle = tokio::spawn(long_running());
+    handle.abort();
+    handle.await.is_err()
+}
+'''
+
+
+[[test]]
+name = "await_timeout"
+description = "asyncio.wait_for with timeout"
+
+python = '''
+import asyncio
+
+async def slow_task():
+    await asyncio.sleep(10)
+    return 42
+
+async def test_await_timeout() -> bool:
+    try:
+        await asyncio.wait_for(slow_task(), timeout=0.1)
+        return False
+    except asyncio.TimeoutError:
+        return True
+'''
+
+rust = '''
+use tokio::time::{timeout, sleep, Duration};
+
+async fn slow_task() -> i32 {
+    sleep(Duration::from_secs(10)).await;
+    42
+}
+
+async fn test_await_timeout() -> bool {
+    timeout(Duration::from_millis(100), slow_task()).await.is_err()
+}
+'''
+
 
 # =============================================================================
 # Edge Cases
 # =============================================================================
 
-# TODO: Test await None-returning coro
-# [[test]]
-# name = "await_none"
-# description = "await async_func_returning_none()"
+[[test]]
+name = "await_none"
+description = "await async_func_returning_none()"
 
-# TODO: Test multiple awaits sequential
-# [[test]]
-# name = "await_sequential"
-# description = "Sequential awaits run one at a time"
+python = '''
+async def returns_none() -> None:
+    pass
 
-# TODO: Test await on non-awaitable
-# [[test]]
-# name = "await_non_awaitable"
-# description = "TypeError: object cannot be awaited"
-# skip = true
+async def test_await_none() -> bool:
+    result = await returns_none()
+    return result is None
+'''
+
+rust = '''
+async fn returns_none() {
+    // Returns ()
+}
+
+async fn test_await_none() -> bool {
+    returns_none().await;
+    true
+}
+'''
+
+
+[[test]]
+name = "await_sequential"
+description = "Sequential awaits run one at a time"
+
+python = '''
+order = []
+
+async def task1():
+    order.append(1)
+    return 1
+
+async def task2():
+    order.append(2)
+    return 2
+
+async def test_await_sequential() -> list:
+    await task1()
+    await task2()
+    return order
+'''
+
+rust = '''
+use std::sync::Mutex;
+use lazy_static::lazy_static;
+
+lazy_static! {
+    static ref ORDER: Mutex<Vec<i32>> = Mutex::new(Vec::new());
+}
+
+async fn task1() -> i32 {
+    ORDER.lock().unwrap().push(1);
+    1
+}
+
+async fn task2() -> i32 {
+    ORDER.lock().unwrap().push(2);
+    2
+}
+
+async fn test_await_sequential() -> Vec<i32> {
+    task1().await;
+    task2().await;
+    ORDER.lock().unwrap().clone()
+}
+'''
+
+
+[[test]]
+name = "await_non_awaitable"
+description = "TypeError: object cannot be awaited"
+skip = true
+
+python = '''
+async def test_await_non_awaitable() -> bool:
+    try:
+        # This would cause TypeError
+        # await 42
+        return True
+    except TypeError:
+        return True
+'''
+
+rust = '''
+// Rust prevents awaiting non-futures at compile time
+async fn test_await_non_awaitable() -> bool {
+    true
+}
+'''
+

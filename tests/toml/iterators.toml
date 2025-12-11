@@ -11,7 +11,6 @@ category = "iterators"
 [[test]]
 name = "iterator_map"
 description = "map() function on iterable"
-tags = ["iterator", "map"]
 
 python = '''
 def double_all(items: list[int]) -> list[int]:
@@ -37,7 +36,6 @@ mod tests {
 [[test]]
 name = "iterator_filter"
 description = "filter() function on iterable"
-tags = ["iterator", "filter"]
 
 python = '''
 def positives(items: list[int]) -> list[int]:
@@ -63,7 +61,6 @@ mod tests {
 [[test]]
 name = "iterator_zip"
 description = "zip() function on iterables"
-tags = ["iterator", "zip"]
 
 python = '''
 def pair_up(a: list[int], b: list[str]) -> list[tuple]:
@@ -79,7 +76,6 @@ pub fn pair_up(a: Vec<i32>, b: Vec<String>) -> Vec<()> {
 [[test]]
 name = "iterator_enumerate"
 description = "enumerate() function"
-tags = ["iterator", "enumerate"]
 
 python = '''
 def with_index(items: list[str]) -> list[tuple]:
@@ -109,7 +105,6 @@ mod tests {
 [[test]]
 name = "iterator_reversed"
 description = "reversed() function"
-tags = ["iterator", "reverse"]
 
 python = '''
 def reverse_list(items: list[int]) -> list[int]:
@@ -141,7 +136,6 @@ mod tests {
 [[test]]
 name = "iterator_sum"
 description = "sum() on iterable"
-tags = ["iterator", "sum"]
 
 python = '''
 def total(items: list[int]) -> int:
@@ -168,7 +162,6 @@ mod tests {
 [[test]]
 name = "iterator_min"
 description = "min() on iterable"
-tags = ["iterator", "min"]
 
 python = '''
 def minimum(items: list[int]) -> int:
@@ -195,7 +188,6 @@ mod tests {
 [[test]]
 name = "iterator_max"
 description = "max() on iterable"
-tags = ["iterator", "max"]
 
 python = '''
 def maximum(items: list[int]) -> int:
@@ -222,7 +214,6 @@ mod tests {
 [[test]]
 name = "iterator_any"
 description = "any() on iterable"
-tags = ["iterator", "any"]
 
 python = '''
 def has_positive(items: list[int]) -> bool:
@@ -247,7 +238,6 @@ mod tests {
 [[test]]
 name = "iterator_all"
 description = "all() on iterable"
-tags = ["iterator", "all"]
 
 python = '''
 def all_positive(items: list[int]) -> bool:
@@ -272,7 +262,6 @@ mod tests {
 [[test]]
 name = "iterator_chain"
 description = "Chaining multiple iterator operations"
-tags = ["iterator", "chain"]
 
 python = '''
 def process(items: list[int]) -> list[int]:
@@ -303,7 +292,6 @@ mod tests {
 [[test]]
 name = "iterator_take"
 description = "Taking first n elements"
-tags = ["iterator", "take"]
 
 python = '''
 def first_n(items: list[int], n: int) -> list[int]:
@@ -332,7 +320,6 @@ pub fn first_n(items: Vec<i32>, n: i32) -> Vec<i32> {
 [[test]]
 name = "iterator_skip"
 description = "Skipping first n elements"
-tags = ["iterator", "skip"]
 
 python = '''
 def after_n(items: list[int], n: int) -> list[int]:
@@ -356,7 +343,6 @@ pub fn after_n(items: &Vec<i32>, n: i32) -> Vec<i32> {
 [[test]]
 name = "iterator_find"
 description = "Finding first matching element"
-tags = ["iterator", "find"]
 
 python = '''
 def find_first_positive(items: list[int]) -> int:
@@ -392,7 +378,6 @@ mod tests {
 [[test]]
 name = "iterator_position"
 description = "Finding position of element"
-tags = ["iterator", "position"]
 
 python = '''
 def find_index(items: list[int], target: int) -> int:
@@ -417,7 +402,6 @@ pub fn find_index(items: Vec<i32>, target: i32) -> i32 {
 [[test]]
 name = "iterator_count"
 description = "Counting elements"
-tags = ["iterator", "count"]
 
 python = '''
 def count_positive(items: list[int]) -> int:
@@ -450,7 +434,6 @@ mod tests {
 [[test]]
 name = "iterator_len"
 description = "Getting iterator length"
-tags = ["iterator", "len"]
 
 python = '''
 def length(items: list[int]) -> int:
@@ -477,7 +460,6 @@ mod tests {
 [[test]]
 name = "range_single_argument"
 description = "range(n) generates 0..n"
-tags = ["range", "basic"]
 
 python = '''
 def count_to_five():
@@ -496,7 +478,6 @@ pub fn count_to_five() {
 [[test]]
 name = "range_two_arguments"
 description = "range(start, end) generates start..end"
-tags = ["range", "basic"]
 
 python = '''
 def count_from_two():
@@ -515,7 +496,6 @@ pub fn count_from_two() {
 [[test]]
 name = "range_positive_step"
 description = "range with positive step uses step_by"
-tags = ["range", "step"]
 
 python = '''
 def count_by_twos():
@@ -540,7 +520,6 @@ pub fn count_by_twos() {
 [[test]]
 name = "range_negative_step"
 description = "range with negative step uses rev or step_by"
-tags = ["range", "step", "reverse"]
 
 python = '''
 def count_down():
@@ -565,7 +544,6 @@ pub fn count_down() {
 [[test]]
 name = "range_large_step"
 description = "range with large step value"
-tags = ["range", "step"]
 
 python = '''
 def count_by_fives():
@@ -595,7 +573,6 @@ pub fn count_by_fives() -> Vec<serde_json::Value> {
 [[test]]
 name = "range_negative_bounds"
 description = "range with negative start value"
-tags = ["range", "negative"]
 
 python = '''
 def negative_range():
@@ -614,7 +591,6 @@ pub fn negative_range() {
 [[test]]
 name = "range_with_variables"
 description = "range with dynamic variable arguments"
-tags = ["range", "dynamic"]
 
 python = '''
 def dynamic_range(start: int, end: int, step: int):
@@ -644,7 +620,6 @@ pub fn dynamic_range(start: i32, end: i32, step: i32) -> Vec<serde_json::Value> 
 [[test]]
 name = "zip_uses_into_iter"
 description = "zip() should use .into_iter() for owned collections"
-tags = ["iterator", "zip", "ownership"]
 
 python = '''
 def create_from_lists(keys: list[str], values: list[int]) -> dict[str, int]:
@@ -665,7 +640,6 @@ pub fn create_from_lists(keys: Vec<String>, values: Vec<i32>) -> HashMap<String,
 [[test]]
 name = "zip_with_both_owned_params"
 description = "zip() should use .into_iter() for both owned parameters"
-tags = ["iterator", "zip", "ownership"]
 
 python = '''
 def pair_lists(a: list[str], b: list[int]) -> list[tuple[str, int]]:
@@ -681,7 +655,6 @@ pub fn pair_lists(a: Vec<String>, b: Vec<i32>) -> Vec<(String, i32)> {
 [[test]]
 name = "zip_with_literals"
 description = "zip() with list literals should use .into_iter()"
-tags = ["iterator", "zip", "literals"]
 
 python = '''
 def zip_literals() -> dict[str, int]:
@@ -702,7 +675,6 @@ pub fn zip_literals() -> HashMap<String, i32> {
 [[test]]
 name = "sum_dict_values_direct"
 description = "sum() on dict values should not have redundant collect().iter()"
-tags = ["iterator", "sum", "dict"]
 
 python = '''
 def average_values(d: dict[str, int]) -> float:
@@ -744,7 +716,6 @@ pub fn average_values(d: &HashMap<String, i32>) -> f64 {
 [[test]]
 name = "sum_list_direct"
 description = "sum() on list should use .iter().sum directly"
-tags = ["iterator", "sum", "list"]
 
 python = '''
 def sum_list(nums: list[int]) -> int:

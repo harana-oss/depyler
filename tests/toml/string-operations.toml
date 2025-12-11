@@ -12,7 +12,6 @@ category = "strings"
 [[test]]
 name = "string_lstrip"
 description = "Python lstrip() → Rust trim_start()"
-tags = ["string", "method"]
 
 python = '''
 def strip_leading(s: str) -> str:
@@ -28,7 +27,6 @@ pub fn strip_leading(s: String) -> String {
 [[test]]
 name = "string_rstrip"
 description = "Python rstrip() → Rust trim_end()"
-tags = ["string", "method"]
 
 python = '''
 def strip_trailing(s: str) -> str:
@@ -44,7 +42,6 @@ pub fn strip_trailing(s: String) -> String {
 [[test]]
 name = "string_strip"
 description = "Python strip() → Rust trim()"
-tags = ["string", "method"]
 
 python = '''
 def strip_both(s: str) -> str:
@@ -60,7 +57,6 @@ pub fn strip_both(s: String) -> String {
 [[test]]
 name = "string_upper"
 description = "Python upper() → Rust to_uppercase()"
-tags = ["string", "method"]
 
 python = '''
 def to_upper(s: str) -> str:
@@ -76,7 +72,6 @@ pub fn to_upper(s: String) -> String {
 [[test]]
 name = "string_lower"
 description = "Python lower() → Rust to_lowercase()"
-tags = ["string", "method"]
 
 python = '''
 def to_lower(s: str) -> str:
@@ -92,7 +87,6 @@ pub fn to_lower(s: String) -> String {
 [[test]]
 name = "string_isalnum"
 description = "Python isalnum() → Rust chars().all(is_alphanumeric)"
-tags = ["string", "method", "validation"]
 
 python = '''
 def is_alphanumeric(s: str) -> bool:
@@ -117,7 +111,6 @@ mod tests {
 [[test]]
 name = "string_isdigit"
 description = "Python isdigit() → Rust chars().all(is_numeric)"
-tags = ["string", "method", "validation"]
 
 python = '''
 def is_numeric(s: str) -> bool:
@@ -142,7 +135,6 @@ mod tests {
 [[test]]
 name = "string_startswith"
 description = "Python startswith() → Rust starts_with()"
-tags = ["string", "method"]
 
 python = '''
 def check_prefix(s: str, prefix: str) -> bool:
@@ -158,7 +150,6 @@ pub fn check_prefix(s: String, prefix: String) -> bool {
 [[test]]
 name = "string_endswith"
 description = "Python endswith() → Rust ends_with()"
-tags = ["string", "method"]
 
 python = '''
 def check_suffix(s: str, suffix: str) -> bool:
@@ -174,7 +165,6 @@ pub fn check_suffix(s: String, suffix: String) -> bool {
 [[test]]
 name = "string_count"
 description = "Python count() → Rust matches().count()"
-tags = ["string", "method"]
 
 python = '''
 def count_occurrences(s: str, substring: str) -> int:
@@ -190,7 +180,6 @@ pub fn count_occurrences(s: String, substring: String) -> i32 {
 [[test]]
 name = "string_replace"
 description = "Python replace() → Rust replace()"
-tags = ["string", "method"]
 
 python = '''
 def replace_text(s: str, old: str, new: str) -> str:
@@ -206,7 +195,6 @@ pub fn replace_text(s: String, old: String, new: String) -> String {
 [[test]]
 name = "string_split"
 description = "Python split() → Rust split()"
-tags = ["string", "method"]
 
 python = '''
 def split_words(s: str) -> list[str]:
@@ -222,7 +210,6 @@ pub fn split_words(s: String) -> Vec<String> {
 [[test]]
 name = "string_split_delimiter"
 description = "Python split(delimiter) → Rust split(delimiter)"
-tags = ["string", "method"]
 
 python = '''
 def split_by_comma(s: str) -> list[str]:
@@ -238,7 +225,6 @@ pub fn split_by_comma(s: String) -> Vec<String> {
 [[test]]
 name = "string_join"
 description = "Python join() → Rust join()"
-tags = ["string", "method"]
 
 python = '''
 def join_words(words: list[str]) -> str:
@@ -254,7 +240,6 @@ pub fn join_words(words: &Vec<String>) -> String {
 [[test]]
 name = "string_slice_chars"
 description = "String slicing with chars()"
-tags = ["string", "slicing"]
 
 python = '''
 def get_last_char(s: str) -> str:
@@ -297,7 +282,6 @@ pub fn get_last_char(s: String) -> String {
 [[test]]
 name = "string_len"
 description = "String length with len()"
-tags = ["string", "builtin"]
 
 python = '''
 def string_length(s: str) -> int:
@@ -324,7 +308,6 @@ mod tests {
 [[test]]
 name = "string_format_simple"
 description = "f-string formatting"
-tags = ["string", "format"]
 
 python = '''
 def greet(name: str) -> str:
@@ -340,7 +323,6 @@ pub fn greet(name: String) -> String {
 [[test]]
 name = "string_format_multiple"
 description = "f-string with multiple values"
-tags = ["string", "format"]
 
 python = '''
 def describe(name: str, age: int) -> str:
@@ -356,7 +338,6 @@ pub fn describe(name: String, age: i32) -> String {
 [[test]]
 name = "string_concat"
 description = "String concatenation with +"
-tags = ["string", "concat"]
 
 python = '''
 def concat_strings(a: str, b: str) -> str:
@@ -372,7 +353,6 @@ pub fn concat_strings(a: String, b: String) -> String {
 [[test]]
 name = "string_multiply"
 description = "String repetition with *"
-tags = ["string", "repeat"]
 
 python = '''
 def repeat_string(s: str, n: int) -> str:
@@ -405,7 +385,6 @@ mod tests {
 [[test]]
 name = "string_isalpha"
 description = "Python isalpha() check"
-tags = ["string", "validation"]
 
 python = '''
 def is_alpha(s: str) -> bool:
@@ -430,7 +409,6 @@ mod tests {
 [[test]]
 name = "string_isupper"
 description = "Python isupper() check"
-tags = ["string", "validation"]
 
 python = '''
 def is_upper(s: str) -> bool:
@@ -455,7 +433,6 @@ mod tests {
 [[test]]
 name = "string_islower"
 description = "Python islower() check"
-tags = ["string", "validation"]
 
 python = '''
 def is_lower(s: str) -> bool:
@@ -480,7 +457,6 @@ mod tests {
 [[test]]
 name = "string_find"
 description = "Python find() method"
-tags = ["string", "search"]
 
 python = '''
 def find_substring(s: str, sub: str) -> int:
@@ -496,7 +472,6 @@ pub fn find_substring(s: String, sub: String) -> i32 {
 [[test]]
 name = "string_in_check"
 description = "'in' operator for substring"
-tags = ["string", "search"]
 
 python = '''
 def contains_substring(s: str, sub: str) -> bool:
@@ -512,7 +487,6 @@ pub fn contains_substring(s: String, sub: String) -> bool {
 [[test]]
 name = "string_slice_last_n"
 description = "Get last N characters of string"
-tags = ["string", "slicing"]
 
 python = '''
 def get_last_n_chars(s: str, n: int) -> str:
@@ -538,7 +512,6 @@ pub fn get_last_n_chars(s: String, n: i32) -> String {
 [[test]]
 name = "string_slice_without_last_n"
 description = "Get all but last N characters"
-tags = ["string", "slicing"]
 
 python = '''
 def get_all_but_last_n(s: str, n: int) -> str:
@@ -564,7 +537,6 @@ pub fn get_all_but_last_n(s: String, n: i32) -> String {
 [[test]]
 name = "string_reverse"
 description = "Reverse string with [::-1]"
-tags = ["string", "slicing"]
 
 python = '''
 def reverse_string(s: str) -> str:
@@ -593,7 +565,6 @@ pub fn reverse_string(s: String) -> String {
 [[test]]
 name = "string_slice_start_stop"
 description = "String slice with start:stop"
-tags = ["string", "slicing"]
 
 python = '''
 def substring(s: str, start: int, stop: int) -> str:
@@ -632,7 +603,6 @@ pub fn substring(s: String, start: i32, stop: i32) -> String {
 [[test]]
 name = "string_full_copy"
 description = "Full string copy with [:]"
-tags = ["string", "slicing"]
 
 python = '''
 def full_copy(s: str) -> str:
@@ -648,7 +618,6 @@ pub fn full_copy(s: String) -> String {
 [[test]]
 name = "fstring_in_assignment"
 description = "F-string in variable assignment"
-tags = ["string", "format"]
 
 python = '''
 def test() -> str:
@@ -668,7 +637,6 @@ pub fn test() -> String {
 [[test]]
 name = "fstring_empty"
 description = "Empty f-string"
-tags = ["string", "format"]
 
 python = '''
 def test() -> str:
@@ -684,7 +652,6 @@ pub fn test() -> String {
 [[test]]
 name = "fstring_no_interpolation"
 description = "F-string with no variables"
-tags = ["string", "format"]
 
 python = '''
 def test() -> str:
@@ -700,7 +667,6 @@ pub fn test() -> String {
 [[test]]
 name = "fstring_with_numbers"
 description = "F-string with numeric types"
-tags = ["string", "format"]
 
 python = '''
 def test(x: int, y: float) -> str:
@@ -716,7 +682,6 @@ pub fn test(x: i32, y: f64) -> String {
 [[test]]
 name = "fstring_concatenation"
 description = "Concatenated f-strings"
-tags = ["string", "format"]
 
 python = '''
 def test(first: str, last: str) -> str:
@@ -735,7 +700,6 @@ pub fn test(first: String, last: String) -> String {
 [[test]]
 name = "fstring_in_function_call"
 description = "F-string as function argument"
-tags = ["string", "format"]
 
 python = '''
 def helper(s: str) -> str:
@@ -773,7 +737,6 @@ mod tests {
 [[test]]
 name = "string_all_methods_combined"
 description = "Multiple string methods together"
-tags = ["string", "method"]
 
 python = '''
 def process_string(text: str) -> tuple[str, str, bool, int]:
@@ -797,7 +760,6 @@ pub fn process_string(text: String) -> (String, String, bool, i32) {
 [[test]]
 name = "string_center"
 description = "Python center() - center text in field"
-tags = ["string", "method", "padding"]
 
 python = '''
 def center_text(text: str, width: int) -> str:
@@ -825,7 +787,6 @@ pub fn center_text(text: String, width: i32) -> String {
 [[test]]
 name = "string_ljust"
 description = "Python ljust() - left justify string"
-tags = ["string", "method", "padding"]
 
 python = '''
 def left_justify(text: str, width: int) -> str:
@@ -850,7 +811,6 @@ pub fn left_justify(text: String, width: i32) -> String {
 [[test]]
 name = "string_rjust"
 description = "Python rjust() - right justify string"
-tags = ["string", "method", "padding"]
 
 python = '''
 def right_justify(text: str, width: int) -> str:
@@ -875,7 +835,6 @@ pub fn right_justify(text: String, width: i32) -> String {
 [[test]]
 name = "string_zfill"
 description = "Python zfill() - zero fill string"
-tags = ["string", "method", "padding"]
 
 python = '''
 def zero_fill(text: str, width: int) -> str:
@@ -905,7 +864,6 @@ pub fn zero_fill(text: String, width: i32) -> String {
 [[test]]
 name = "str_capitalize"
 description = "str.capitalize() capitalize first character"
-tags = ["string", "method"]
 
 python = '''
 def capitalize_str(s: str) -> str:
@@ -921,7 +879,6 @@ pub fn capitalize_str(s: String) -> String {
 [[test]]
 name = "str_swapcase"
 description = "str.swapcase() swap case of characters"
-tags = ["string", "method"]
 
 python = '''
 def swap_case(s: str) -> str:
@@ -937,7 +894,6 @@ pub fn swap_case(s: String) -> String {
 [[test]]
 name = "str_expandtabs"
 description = "str.expandtabs() expand tab characters"
-tags = ["string", "method"]
 
 python = '''
 def expand_tabs(s: str) -> str:
@@ -969,7 +925,6 @@ mod tests {
 [[test]]
 name = "str_splitlines"
 description = "str.splitlines() split on line boundaries"
-tags = ["string", "method"]
 
 python = '''
 def split_lines(s: str) -> list:
@@ -985,7 +940,6 @@ pub fn split_lines(s: String) -> Vec<String> {
 [[test]]
 name = "str_partition"
 description = "str.partition() split at separator"
-tags = ["string", "method"]
 
 python = '''
 def partition_str(s: str, sep: str) -> tuple:
@@ -1001,7 +955,6 @@ pub fn partition_str(s: String, sep: String) -> () {
 [[test]]
 name = "str_casefold"
 description = "str.casefold() aggressive lowercase"
-tags = ["string", "method"]
 
 python = '''
 def casefold_str(s: str) -> str:
@@ -1017,7 +970,6 @@ pub fn casefold_str(s: String) -> String {
 [[test]]
 name = "str_isprintable"
 description = "str.isprintable() check printable characters"
-tags = ["string", "method"]
 
 python = '''
 def is_printable(s: str) -> bool:
@@ -1042,7 +994,6 @@ mod tests {
 [[test]]
 name = "str_translate"
 description = "str.translate() character mapping"
-tags = ["string", "method"]
 
 python = '''
 def translate_str(s: str, table: dict) -> str:
@@ -1060,7 +1011,6 @@ pub fn translate_str(s: String, table: &HashMap<serde_json::Value, serde_json::V
 [[test]]
 name = "str_format"
 description = "str.format() string formatting"
-tags = ["string", "method"]
 
 python = '''
 def format_str(template: str, value: int) -> str:
@@ -1074,7 +1024,6 @@ rust = '''
 [[test]]
 name = "str_removeprefix"
 description = "str.removeprefix() remove prefix"
-tags = ["string", "method"]
 
 python = '''
 def remove_prefix(s: str, prefix: str) -> str:
@@ -1090,7 +1039,6 @@ pub fn remove_prefix(s: String, prefix: String) -> String {
 [[test]]
 name = "str_removesuffix"
 description = "str.removesuffix() remove suffix"
-tags = ["string", "method"]
 
 python = '''
 def remove_suffix(s: str, suffix: str) -> str:
@@ -1106,7 +1054,6 @@ pub fn remove_suffix(s: String, suffix: String) -> String {
 [[test]]
 name = "str_isascii"
 description = "str.isascii() check ASCII characters"
-tags = ["string", "method"]
 
 python = '''
 def is_ascii(s: str) -> bool:
@@ -1131,7 +1078,6 @@ mod tests {
 [[test]]
 name = "str_isidentifier"
 description = "str.isidentifier() check valid identifier"
-tags = ["string", "method"]
 
 python = '''
 def is_identifier(s: str) -> bool:
@@ -1156,7 +1102,6 @@ mod tests {
 [[test]]
 name = "str_isspace"
 description = "str.isspace() check whitespace"
-tags = ["string", "method"]
 
 python = '''
 def is_space(s: str) -> bool:
@@ -1181,7 +1126,6 @@ mod tests {
 [[test]]
 name = "str_isdecimal"
 description = "str.isdecimal() check decimal characters"
-tags = ["string", "method"]
 
 python = '''
 def is_decimal(s: str) -> bool:
@@ -1206,7 +1150,6 @@ mod tests {
 [[test]]
 name = "string_param_owned"
 description = "str param becomes owned String"
-tags = ["string", "ownership"]
 
 python = '''
 def greet(name: str) -> str:
@@ -1238,7 +1181,6 @@ mod tests {
 [[test]]
 name = "string_literal_to_string"
 description = "String literals convert to String"
-tags = ["string", "conversion"]
 
 python = '''
 def get_greeting() -> str:
@@ -1254,7 +1196,6 @@ pub fn get_greeting() -> String {
 [[test]]
 name = "string_field_mutation"
 description = "String field mutation requires .to_string()"
-tags = ["string", "mutation", "dataclass"]
 
 python = '''
 @dataclass
@@ -1302,7 +1243,6 @@ pub fn set_value(state: &mut State) {
 [[test]]
 name = "string_clone_field_access"
 description = "String field access requires clone"
-tags = ["string", "clone", "dataclass"]
 
 python = '''
 @dataclass
@@ -1350,7 +1290,6 @@ pub fn get_text(c: &Container) -> String {
 [[test]]
 name = "string_starts_with_ref"
 description = "startswith takes &str ref"
-tags = ["string", "reference"]
 
 python = '''
 def check_prefix(s: str, prefix: str) -> bool:
@@ -1366,7 +1305,6 @@ pub fn check_prefix(s: String, prefix: String) -> bool {
 [[test]]
 name = "string_ends_with_ref"
 description = "endswith takes &str ref"
-tags = ["string", "reference"]
 
 python = '''
 def check_suffix(s: str, suffix: str) -> bool:
@@ -1382,7 +1320,6 @@ pub fn check_suffix(s: String, suffix: String) -> bool {
 [[test]]
 name = "string_contains_ref"
 description = "in operator for strings takes &str ref"
-tags = ["string", "reference"]
 
 python = '''
 def has_substring(s: str, sub: str) -> bool:
@@ -1398,7 +1335,6 @@ pub fn has_substring(s: String, sub: String) -> bool {
 [[test]]
 name = "string_join_ref"
 description = "join takes &str ref for separator"
-tags = ["string", "reference"]
 
 python = '''
 def join_parts(parts: list[str], sep: str) -> str:
@@ -1414,7 +1350,6 @@ pub fn join_parts(parts: &Vec<String>, sep: String) -> String {
 [[test]]
 name = "string_split_returns_vec"
 description = "split returns Vec<String>"
-tags = ["string", "split"]
 
 python = '''
 def split_csv(s: str) -> list[str]:
@@ -1430,7 +1365,6 @@ pub fn split_csv(s: String) -> Vec<String> {
 [[test]]
 name = "string_repeat"
 description = "String repeat operator"
-tags = ["string", "repeat"]
 
 python = '''
 def repeat_string(s: str, n: int) -> str:
@@ -1463,7 +1397,6 @@ mod tests {
 [[test]]
 name = "int_to_string_conversion"
 description = "str(int) converts to String"
-tags = ["string", "conversion"]
 
 python = '''
 def int_to_string(n: int) -> str:
@@ -1479,7 +1412,6 @@ pub fn int_to_string(n: i32) -> String {
 [[test]]
 name = "string_to_int_parse"
 description = "int(str) parses to i32"
-tags = ["string", "parse"]
 
 python = '''
 def parse_int(s: str) -> int:
@@ -1506,7 +1438,6 @@ mod tests {
 [[test]]
 name = "string_method_on_literal"
 description = "Method call on string literal"
-tags = ["string", "literal"]
 
 python = '''
 def get_upper() -> str:
@@ -1522,7 +1453,6 @@ pub fn get_upper() -> String {
 [[test]]
 name = "vec_string_type"
 description = "list[str] becomes Vec<String>"
-tags = ["string", "type"]
 
 python = '''
 def process_names(names: list[str]) -> list[str]:
@@ -1559,7 +1489,6 @@ mod tests {
 [[test]]
 name = "hashmap_string_key"
 description = "dict[str, int] becomes HashMap<String, i32>"
-tags = ["string", "hashmap"]
 
 python = '''
 def get_value(d: dict[str, int], key: str) -> int:
@@ -1594,7 +1523,6 @@ pub fn get_value(d: &HashMap<String, i32>, key: String) -> i32 {
 [[test]]
 name = "string_chained_methods"
 description = "Chained string methods"
-tags = ["string", "chain"]
 
 python = '''
 def normalize(s: str) -> str:
@@ -1627,7 +1555,6 @@ mod tests {
 [[test]]
 name = "string_equality"
 description = "String equality comparison"
-tags = ["string", "comparison"]
 
 python = '''
 def are_equal(a: str, b: str) -> bool:
@@ -1643,7 +1570,6 @@ pub fn are_equal(a: String, b: String) -> bool {
 [[test]]
 name = "string_ternary"
 description = "String in ternary expression"
-tags = ["string", "ternary"]
 
 python = '''
 def pick_string(flag: bool) -> str:
@@ -1659,7 +1585,6 @@ pub fn pick_string(flag: bool) -> String {
 [[test]]
 name = "string_local_assignment"
 description = "String local variable assignment"
-tags = ["string", "assignment"]
 
 python = '''
 def create_message() -> str:
@@ -1677,7 +1602,6 @@ pub fn create_message() -> String {
 [[test]]
 name = "hashmap_string_value"
 description = "dict[int, str] becomes HashMap<i32, String>"
-tags = ["string", "hashmap"]
 
 python = '''
 def create_map() -> dict[int, str]:
@@ -1699,7 +1623,6 @@ pub fn create_map() -> HashMap<i32, String> {
 [[test]]
 name = "hashmap_string_key_literal"
 description = "String key literals convert to owned"
-tags = ["string", "hashmap"]
 
 python = '''
 def create_dict() -> dict[str, int]:
@@ -1721,7 +1644,6 @@ pub fn create_dict() -> HashMap<String, i32> {
 [[test]]
 name = "fstring_multiple_args"
 description = "f-string with multiple arguments"
-tags = ["string", "fstring"]
 
 python = '''
 def format_full(first: str, last: str, age: int) -> str:
@@ -1737,7 +1659,6 @@ pub fn format_full(first: String, last: String, age: i32) -> String {
 [[test]]
 name = "fstring_with_expression"
 description = "f-string with computed expression"
-tags = ["string", "fstring"]
 
 python = '''
 def format_computed(n: int) -> str:
@@ -1753,7 +1674,6 @@ pub fn format_computed(n: i32) -> String {
 [[test]]
 name = "string_return_type"
 description = "Returned string function should return String type"
-tags = ["string", "optimization", "return"]
 
 python = '''
 def get_greeting() -> str:
@@ -1769,7 +1689,6 @@ pub fn get_greeting() -> String {
 [[test]]
 name = "string_concatenation_returns_string"
 description = "String concatenation should return String type"
-tags = ["string", "optimization", "concat"]
 
 python = '''
 def concat_strings(a: str, b: str) -> str:
@@ -1785,7 +1704,6 @@ pub fn concat_strings(a: String, b: String) -> String {
 [[test]]
 name = "string_param_reference"
 description = "Read-only string param should be borrowed"
-tags = ["string", "optimization", "borrow"]
 
 python = '''
 def validate_string(s: str) -> bool:
@@ -1810,7 +1728,6 @@ mod tests {
 [[test]]
 name = "string_local_variable"
 description = "Local string variable in concatenation"
-tags = ["string", "optimization", "local"]
 
 python = '''
 def format_number(n: int) -> str:
@@ -1822,5 +1739,1482 @@ rust = '''
 pub fn format_number(n: i32) -> String {
     let prefix = "Number: ".to_string();
     return format!("{}{}", prefix, n.to_string());
+}
+'''
+# =============================================================================
+# Additional examples from examples/string_processing/
+# =============================================================================
+
+[[test]]
+name = "string_utils"
+description = "Example test"
+
+python = '''
+# @depyler: string_strategy = "zero_copy"
+# @depyler: optimization_level = "size"
+
+def reverse_string(s: str) -> str:
+    """Reverse a string"""
+    result = ""
+    for i in range(len(s) - 1, -1, -1):
+        result = result + s[i]
+    
+    return result
+
+def count_vowels(s: str) -> int:
+    """Count vowels in string"""
+    vowels = "aeiouAEIOU"
+    count = 0
+    
+    for char in s:
+        if char in vowels:
+            count = count + 1
+    
+    return count
+
+def is_palindrome_simple(s: str) -> bool:
+    """Check if string is palindrome"""
+    cleaned = ""
+    for char in s:
+        if char.isalpha():
+            cleaned = cleaned + char.lower()
+    
+    length = len(cleaned)
+    for i in range(length // 2):
+        if cleaned[i] != cleaned[length - 1 - i]:
+            return False
+    
+    return True
+
+def count_words(text: str) -> int:
+    """Count words in text"""
+    if not text:
+        return 0
+    
+    words = text.split()
+    return len(words)
+
+def capitalize_words(text: str) -> str:
+    """Capitalize first letter of each word"""
+    if not text:
+        return ""
+    
+    words = text.split()
+    result_words = []
+    
+    for word in words:
+        if word:
+            capitalized = word[0].upper() + word[1:].lower()
+            result_words.append(capitalized)
+    
+    return " ".join(result_words)
+'''
+
+rust = '''
+#[derive(Debug, Clone)]
+pub struct ZeroDivisionError {
+    message: String,
+}
+impl std::fmt::Display for ZeroDivisionError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "division by zero: {}", self.message)
+    }
+}
+impl std::error::Error for ZeroDivisionError {}
+impl ZeroDivisionError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[derive(Debug, Clone)]
+pub struct IndexError {
+    message: String,
+}
+impl std::fmt::Display for IndexError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "index out of range: {}", self.message)
+    }
+}
+impl std::error::Error for IndexError {}
+impl IndexError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = "Reverse a string"]
+#[doc = " Depyler: proven to terminate"]
+pub fn reverse_string(s: &str) -> Result<String, IndexError> {
+    let mut result = "".to_string();
+    for i in {
+        let step = (-1 as i32).abs() as usize;
+        if step == 0 {
+            panic!("range() arg 3 must not be zero");
+        }
+        (-1..(s.len() as i32).saturating_sub(1))
+            .rev()
+            .step_by(step.max(1))
+    } {
+        result = format!("{}{}", result, {
+            let base = &s;
+            let idx: i32 = i;
+            let actual_idx = if idx < 0 {
+                base.chars().count().saturating_sub(idx.abs() as usize)
+            } else {
+                idx as usize
+            };
+            base.chars()
+                .nth(actual_idx)
+                .map(|c| c.to_string())
+                .unwrap_or_default()
+        });
+    }
+    Ok(result)
+}
+#[doc = "Count vowels in string"]
+#[doc = " Depyler: verified panic-free"]
+pub fn count_vowels(s: &str) -> i32 {
+    let vowels = "aeiouAEIOU";
+    let mut count = 0;
+    for _char in s.chars() {
+        let char = _char.to_string();
+        if vowels.contains_key(&char) {
+            count = count + 1;
+        }
+    }
+    count
+}
+#[doc = "Check if string is palindrome"]
+pub fn is_palindrome_simple(s: &str) -> Result<bool, Box<dyn std::error::Error>> {
+    let mut cleaned = "".to_string();
+    for _char in s.chars() {
+        let char = _char.to_string();
+        if char.chars().all(|c| c.is_alphabetic()) {
+            cleaned = cleaned + char.to_lowercase();
+        }
+    }
+    let _cse_temp_0 = cleaned.len() as i32;
+    let length = _cse_temp_0;
+    for i in 0.. {
+        let a = length;
+        let b = 2;
+        let q = a / b;
+        let r = a % b;
+        let r_negative = r < 0;
+        let b_negative = b < 0;
+        let r_nonzero = r != 0;
+        let signs_differ = r_negative != b_negative;
+        let needs_adjustment = r_nonzero && signs_differ;
+        if needs_adjustment {
+            q - 1
+        } else {
+            q
+        }
+    }
+    {
+        if cleaned.get(i as usize).cloned().unwrap_or_default() != {
+            let base = &cleaned;
+            let idx: i32 = length - 1 - i;
+            let actual_idx = if idx < 0 {
+                base.len().saturating_sub(idx.abs() as usize)
+            } else {
+                idx as usize
+            };
+            base.get(actual_idx).cloned().unwrap_or_default()
+        } {
+            return Ok(false);
+        }
+    }
+    Ok(true)
+}
+#[doc = "Count words in text"]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn count_words(text: &str) -> i32 {
+    if text.is_empty() {
+        return 0;
+    }
+    let words = text
+        .split_whitespace()
+        .map(|s| s.to_string())
+        .collect::<Vec<String>>();
+    words.len() as i32 as i32
+}
+#[doc = "Capitalize first letter of each word"]
+#[doc = " Depyler: verified panic-free"]
+pub fn capitalize_words(text: &str) -> String {
+    if text.is_empty() {
+        return "".to_string();
+    }
+    let words = text
+        .split_whitespace()
+        .map(|s| s.to_string())
+        .collect::<Vec<String>>();
+    let mut result_words = vec![];
+    for word in words.iter().cloned() {
+        if !word.is_empty() {
+            let capitalized = format!(
+                "{}{}",
+                {
+                    let base = &word;
+                    let idx: i32 = 0;
+                    let actual_idx = if idx < 0 {
+                        base.chars().count().saturating_sub(idx.abs() as usize)
+                    } else {
+                        idx as usize
+                    };
+                    base.chars()
+                        .nth(actual_idx)
+                        .map(|c| c.to_string())
+                        .unwrap_or_default()
+                }
+                .to_uppercase(),
+                {
+                    let base = word;
+                    let start_idx: i32 = 1;
+                    let len = base.chars().count() as i32;
+                    let actual_start = if start_idx < 0 {
+                        (len + start_idx).max(0) as usize
+                    } else {
+                        start_idx.min(len) as usize
+                    };
+                    base.chars().skip(actual_start).collect::<String>()
+                }
+                .to_lowercase()
+            );
+            result_words.push(capitalized);
+        }
+    }
+    result_words.join(" ")
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{quickcheck, TestResult};
+    #[test]
+    fn test_count_vowels_examples() {
+        assert_eq!(count_vowels(""), 0);
+        assert_eq!(count_vowels("a"), 1);
+        assert_eq!(count_vowels("abc"), 3);
+    }
+    #[test]
+    fn test_is_palindrome_simple_examples() {
+        let _ = is_palindrome_simple(Default::default());
+    }
+    #[test]
+    fn test_count_words_examples() {
+        assert_eq!(count_words(""), 0);
+        assert_eq!(count_words("a"), 1);
+        assert_eq!(count_words("abc"), 3);
+    }
+}
+'''
+
+[[test]]
+name = "text_analyzer"
+description = "Example test"
+
+python = '''
+# @depyler: string_strategy = "zero_copy"
+# @depyler: optimization_level = "size"
+from typing import Dict, List, Set
+
+def word_frequency(text: str) -> Dict[str, int]:
+    """Count word frequencies in text"""
+    words = text.lower().split()
+    frequency: Dict[str, int] = {}
+    
+    for word in words:
+        # Remove punctuation
+        clean_word = ""
+        for char in word:
+            if char.isalpha():
+                clean_word += char
+        
+        if clean_word:
+            if clean_word in frequency:
+                frequency[clean_word] += 1
+            else:
+                frequency[clean_word] = 1
+    
+    return frequency
+
+def find_anagrams(words: List[str]) -> List[List[str]]:
+    """Group words that are anagrams of each other"""
+    groups: Dict[str, List[str]] = {}
+    
+    for word in words:
+        # Sort characters to create signature
+        sorted_chars = "".join(sorted(word.lower()))
+        
+        if sorted_chars in groups:
+            groups[sorted_chars].append(word)
+        else:
+            groups[sorted_chars] = [word]
+    
+    # Return groups with more than one word
+    result: List[List[str]] = []
+    for group in groups.values():
+        if len(group) > 1:
+            result.append(group)
+    
+    return result
+
+def longest_common_prefix(strings: List[str]) -> str:
+    """Find the longest common prefix among strings"""
+    if not strings:
+        return ""
+    
+    if len(strings) == 1:
+        return strings[0]
+    
+    # Find minimum length
+    min_length = len(strings[0])
+    for s in strings[1:]:
+        if len(s) < min_length:
+            min_length = len(s)
+    
+    # Check character by character
+    prefix = ""
+    for i in range(min_length):
+        char = strings[0][i]
+        
+        # Check if all strings have same character at position i
+        all_match = True
+        for s in strings[1:]:
+            if s[i] != char:
+                all_match = False
+                break
+        
+        if all_match:
+            prefix += char
+        else:
+            break
+    
+    return prefix
+
+def is_palindrome(s: str) -> bool:
+    """Check if string is a palindrome (ignoring case and non-alphanumeric)"""
+    # Build cleaned string
+    cleaned = ""
+    for char in s.lower():
+        if char.isalnum():
+            cleaned += char
+    
+    # Check if cleaned string reads same forwards and backwards
+    length = len(cleaned)
+    for i in range(length // 2):
+        if cleaned[i] != cleaned[length - 1 - i]:
+            return False
+    
+    return True
+'''
+
+rust = '''
+const STR_EMPTY: &'static str = "";
+use std::collections::HashMap;
+#[derive(Debug, Clone)]
+pub struct ZeroDivisionError {
+    message: String,
+}
+impl std::fmt::Display for ZeroDivisionError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "division by zero: {}", self.message)
+    }
+}
+impl std::error::Error for ZeroDivisionError {}
+impl ZeroDivisionError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[derive(Debug, Clone)]
+pub struct IndexError {
+    message: String,
+}
+impl std::fmt::Display for IndexError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "index out of range: {}", self.message)
+    }
+}
+impl std::error::Error for IndexError {}
+impl IndexError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = "Count word frequencies in text"]
+pub fn word_frequency(text: &str) -> Result<HashMap<String, i32>, IndexError> {
+    let words = text
+        .to_lowercase()
+        .split_whitespace()
+        .map(|s| s.to_string())
+        .collect::<Vec<String>>();
+    let mut frequency: HashMap<String, i32> = {
+        let map = HashMap::new();
+        map
+    };
+    for word in words.iter().cloned() {
+        let mut clean_word = STR_EMPTY;
+        for _char in word.chars() {
+            let char = _char.to_string();
+            if char.chars().all(|c| c.is_alphabetic()) {
+                clean_word = clean_word + char;
+            }
+        }
+        if clean_word {
+            if frequency.contains_key(&clean_word) {
+                {
+                    let _key = clean_word;
+                    let _old_val = frequency.get(&_key).cloned().unwrap_or_default();
+                    frequency.insert(_key, _old_val + 1);
+                }
+            } else {
+                frequency.insert(clean_word, 1);
+            }
+        }
+    }
+    Ok(frequency)
+}
+#[doc = "Group words that are anagrams of each other"]
+#[doc = " Depyler: verified panic-free"]
+pub fn find_anagrams(words: &Vec<String>) -> Vec<Vec<String>> {
+    let mut groups: HashMap<String, Vec<String>> = {
+        let map = HashMap::new();
+        map
+    };
+    for word in words.iter().cloned() {
+        let sorted_chars = {
+            let mut __sorted_result = word.to_lowercase().clone();
+            __sorted_result.sort();
+            __sorted_result
+        }
+        .join("");
+        if groups.contains_key(&sorted_chars) {
+            groups
+                .get(sorted_chars as usize)
+                .cloned()
+                .unwrap_or_default()
+                .push(word);
+        } else {
+            groups.insert(sorted_chars, vec![word]);
+        }
+    }
+    let mut result: Vec<Vec<String>> = vec![];
+    for group in groups.values().cloned().collect::<Vec<_>>() {
+        if group.len() as i32 > 1 {
+            result.push(group);
+        }
+    }
+    result
+}
+#[doc = "Find the longest common prefix among strings"]
+pub fn longest_common_prefix(strings: &Vec<String>) -> Result<String, IndexError> {
+    if strings.is_empty() {
+        return Ok(STR_EMPTY);
+    }
+    let _cse_temp_0 = strings.len() as i32;
+    let _cse_temp_1 = _cse_temp_0 == 1;
+    if _cse_temp_1 {
+        return Ok(strings.get(0usize).cloned().unwrap_or_default());
+    }
+    let _cse_temp_2 = strings.get(0usize).cloned().unwrap_or_default().len() as i32;
+    let mut min_length = _cse_temp_2;
+    for s in {
+        let base = strings;
+        let start = (1).max(0) as usize;
+        if start < base.len() {
+            base[start..].to_vec()
+        } else {
+            Vec::new()
+        }
+    } {
+        if (s.len() as i32) < min_length {
+            min_length = s.len() as i32;
+        }
+    }
+    let mut prefix = STR_EMPTY;
+    for i in 0..min_length {
+        let char = strings
+            .get(0usize)
+            .cloned()
+            .unwrap_or_default()
+            .get(i as usize)
+            .cloned()
+            .unwrap_or_default();
+        let mut all_match = true;
+        for s in {
+            let base = strings;
+            let start = (1).max(0) as usize;
+            if start < base.len() {
+                base[start..].to_vec()
+            } else {
+                Vec::new()
+            }
+        } {
+            if {
+                let base = &s;
+                let idx: i32 = i;
+                let actual_idx = if idx < 0 {
+                    base.chars().count().saturating_sub(idx.abs() as usize)
+                } else {
+                    idx as usize
+                };
+                base.chars()
+                    .nth(actual_idx)
+                    .map(|c| c.to_string())
+                    .unwrap_or_default()
+            } != char
+            {
+                all_match = false;
+                break;
+            }
+        }
+        if all_match {
+            prefix = format!("{}{}", prefix, char);
+        } else {
+            break;
+        }
+    }
+    Ok(prefix)
+}
+#[doc = "Check if string is a palindrome(ignoring case and non-alphanumeric)"]
+pub fn is_palindrome(s: &str) -> Result<bool, Box<dyn std::error::Error>> {
+    let mut cleaned = STR_EMPTY;
+    for char in s.to_lowercase() {
+        if char.chars().all(|c| c.is_alphanumeric()) {
+            cleaned = cleaned + char;
+        }
+    }
+    let _cse_temp_0 = cleaned.len() as i32;
+    let length = _cse_temp_0;
+    for i in 0.. {
+        let a = length;
+        let b = 2;
+        let q = a / b;
+        let r = a % b;
+        let r_negative = r < 0;
+        let b_negative = b < 0;
+        let r_nonzero = r != 0;
+        let signs_differ = r_negative != b_negative;
+        let needs_adjustment = r_nonzero && signs_differ;
+        if needs_adjustment {
+            q - 1
+        } else {
+            q
+        }
+    }
+    {
+        if cleaned.get(i as usize).cloned().unwrap_or_default() != {
+            let base = &cleaned;
+            let idx: i32 = length - 1 - i;
+            let actual_idx = if idx < 0 {
+                base.len().saturating_sub(idx.abs() as usize)
+            } else {
+                idx as usize
+            };
+            base.get(actual_idx).cloned().unwrap_or_default()
+        } {
+            return Ok(false);
+        }
+    }
+    Ok(true)
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{quickcheck, TestResult};
+    #[test]
+    fn test_find_anagrams_examples() {
+        assert_eq!(find_anagrams(vec![]), vec![]);
+        assert_eq!(find_anagrams(vec![1]), vec![1]);
+    }
+    #[test]
+    fn test_is_palindrome_examples() {
+        let _ = is_palindrome(Default::default());
+    }
+}
+'''
+
+[[test]]
+name = "text_processing_combined"
+description = "Example test"
+
+python = '''
+"""
+Comprehensive Text Processing Example
+Combines: string, re, collections, operator
+
+This example demonstrates realistic text processing scenarios using
+multiple Python stdlib modules working together.
+
+Tests transpiler's ability to handle:
+- String operations with collections
+- Pattern matching with data structures
+- Text analysis pipelines
+- Character classification with counting
+"""
+
+import string
+from collections import Counter, defaultdict
+from typing import List, Dict, Tuple
+
+
+def tokenize_text(text: str) -> List[str]:
+    """Tokenize text into words using string operations"""
+    # Remove punctuation
+    cleaned: str = ""
+    punctuation: str = ".,!?;:\"'()[]{}—-"
+
+    for char in text:
+        is_punct: bool = False
+        for p in punctuation:
+            if char == p:
+                is_punct = True
+                break
+
+        if not is_punct:
+            cleaned = cleaned + char
+        else:
+            cleaned = cleaned + " "
+
+    # Split into words
+    words: List[str] = cleaned.split()
+
+    # Normalize to lowercase
+    normalized: List[str] = []
+    for word in words:
+        normalized.append(word.lower())
+
+    return normalized
+
+
+def count_word_frequencies(words: List[str]) -> Dict[str, int]:
+    """Count word frequencies using Counter pattern"""
+    frequencies: Dict[str, int] = {}
+
+    for word in words:
+        if word in frequencies:
+            frequencies[word] = frequencies[word] + 1
+        else:
+            frequencies[word] = 1
+
+    return frequencies
+
+
+def get_most_common_words(frequencies: Dict[str, int], n: int) -> List[Tuple[str, int]]:
+    """Get n most common words"""
+    # Convert to list of tuples
+    word_counts: List[Tuple[str, int]] = []
+    for word in frequencies.keys():
+        count: int = frequencies[word]
+        word_counts.append((word, count))
+
+    # Sort by count (descending)
+    for i in range(len(word_counts)):
+        for j in range(i + 1, len(word_counts)):
+            if word_counts[j][1] > word_counts[i][1]:
+                temp: Tuple[str, int] = word_counts[i]
+                word_counts[i] = word_counts[j]
+                word_counts[j] = temp
+
+    # Return top n
+    result: List[Tuple[str, int]] = []
+    for i in range(min(n, len(word_counts))):
+        result.append(word_counts[i])
+
+    return result
+
+
+def analyze_character_distribution(text: str) -> Dict[str, int]:
+    """Analyze character types using string module patterns"""
+    distribution: Dict[str, int] = {
+        "letters": 0,
+        "digits": 0,
+        "spaces": 0,
+        "punctuation": 0,
+        "other": 0
+    }
+
+    for char in text:
+        if char.isalpha():
+            distribution["letters"] = distribution["letters"] + 1
+        elif char.isdigit():
+            distribution["digits"] = distribution["digits"] + 1
+        elif char.isspace():
+            distribution["spaces"] = distribution["spaces"] + 1
+        elif char in ".,!?;:":
+            distribution["punctuation"] = distribution["punctuation"] + 1
+        else:
+            distribution["other"] = distribution["other"] + 1
+
+    return distribution
+
+
+def extract_sentences(text: str) -> List[str]:
+    """Extract sentences using simple pattern matching"""
+    sentences: List[str] = []
+    current_sentence: str = ""
+
+    for char in text:
+        current_sentence = current_sentence + char
+
+        # End of sentence markers
+        if char == "." or char == "!" or char == "?":
+            # Trim whitespace
+            trimmed: str = current_sentence.strip()
+            if len(trimmed) > 0:
+                sentences.append(trimmed)
+            current_sentence = ""
+
+    # Add remaining text
+    if len(current_sentence.strip()) > 0:
+        sentences.append(current_sentence.strip())
+
+    return sentences
+
+
+def calculate_readability_metrics(text: str) -> Dict[str, float]:
+    """Calculate readability metrics combining multiple operations"""
+    metrics: Dict[str, float] = {}
+
+    # Tokenize
+    words: List[str] = tokenize_text(text)
+    sentences: List[str] = extract_sentences(text)
+
+    # Word count
+    metrics["word_count"] = float(len(words))
+
+    # Sentence count
+    metrics["sentence_count"] = float(len(sentences))
+
+    # Average word length
+    total_chars: int = 0
+    for word in words:
+        total_chars = total_chars + len(word)
+
+    if len(words) > 0:
+        metrics["avg_word_length"] = float(total_chars) / float(len(words))
+    else:
+        metrics["avg_word_length"] = 0.0
+
+    # Average sentence length
+    if len(sentences) > 0:
+        metrics["avg_sentence_length"] = float(len(words)) / float(len(sentences))
+    else:
+        metrics["avg_sentence_length"] = 0.0
+
+    return metrics
+
+
+def group_words_by_length(words: List[str]) -> Dict[int, List[str]]:
+    """Group words by length using collections pattern"""
+    groups: Dict[int, List[str]] = {}
+
+    for word in words:
+        length: int = len(word)
+
+        if length not in groups:
+            groups[length] = []
+
+        groups[length].append(word)
+
+    return groups
+
+
+def find_word_patterns(words: List[str]) -> Dict[str, List[str]]:
+    """Find words matching patterns (starts with, ends with, contains)"""
+    patterns: Dict[str, List[str]] = {
+        "starts_with_a": [],
+        "ends_with_ing": [],
+        "contains_th": []
+    }
+
+    for word in words:
+        # Starts with 'a'
+        if len(word) > 0 and word[0] == "a":
+            patterns["starts_with_a"].append(word)
+
+        # Ends with 'ing'
+        if len(word) >= 3 and word[-3:] == "ing":
+            patterns["ends_with_ing"].append(word)
+
+        # Contains 'th'
+        if "th" in word:
+            patterns["contains_th"].append(word)
+
+    return patterns
+
+
+def create_ngrams(words: List[str], n: int) -> List[str]:
+    """Create n-grams from word list"""
+    ngrams: List[str] = []
+
+    for i in range(len(words) - n + 1):
+        ngram_words: List[str] = []
+        for j in range(n):
+            ngram_words.append(words[i + j])
+
+        ngram: str = " ".join(ngram_words)
+        ngrams.append(ngram)
+
+    return ngrams
+
+
+def calculate_word_diversity(words: List[str]) -> float:
+    """Calculate lexical diversity (unique words / total words)"""
+    if len(words) == 0:
+        return 0.0
+
+    # Count unique words
+    unique_words: Dict[str, bool] = {}
+    for word in words:
+        unique_words[word] = True
+
+    diversity: float = float(len(unique_words)) / float(len(words))
+    return diversity
+
+
+def find_palindromes(words: List[str]) -> List[str]:
+    """Find palindrome words"""
+    palindromes: List[str] = []
+
+    for word in words:
+        # Reverse word
+        reversed_word: str = ""
+        for i in range(len(word) - 1, -1, -1):
+            reversed_word = reversed_word + word[i]
+
+        if word == reversed_word and len(word) > 1:
+            # Check if already in list
+            found: bool = False
+            for p in palindromes:
+                if p == word:
+                    found = True
+                    break
+
+            if not found:
+                palindromes.append(word)
+
+    return palindromes
+
+
+def analyze_vowel_consonant_ratio(text: str) -> Dict[str, float]:
+    """Analyze vowel to consonant ratio"""
+    vowels: str = "aeiouAEIOU"
+    vowel_count: int = 0
+    consonant_count: int = 0
+
+    for char in text:
+        if char.isalpha():
+            if char in vowels:
+                vowel_count = vowel_count + 1
+            else:
+                consonant_count = consonant_count + 1
+
+    total_letters: int = vowel_count + consonant_count
+
+    result: Dict[str, float] = {}
+    if total_letters > 0:
+        result["vowel_ratio"] = float(vowel_count) / float(total_letters)
+        result["consonant_ratio"] = float(consonant_count) / float(total_letters)
+    else:
+        result["vowel_ratio"] = 0.0
+        result["consonant_ratio"] = 0.0
+
+    result["vowel_count"] = float(vowel_count)
+    result["consonant_count"] = float(consonant_count)
+
+    return result
+
+
+def process_text_pipeline() -> None:
+    """Main text processing pipeline"""
+    print("=== Comprehensive Text Processing Demo ===")
+
+    # Sample text
+    sample_text: str = """
+    The quick brown fox jumps over the lazy dog. This is a sample text
+    for demonstrating text processing capabilities. Python is amazing!
+    We can analyze words, count frequencies, and find patterns easily.
+    """
+
+    # Tokenize
+    words: List[str] = tokenize_text(sample_text)
+    print(f"Total words: {len(words)}")
+
+    # Frequency analysis
+    frequencies: Dict[str, int] = count_word_frequencies(words)
+    print(f"Unique words: {len(frequencies)}")
+
+    # Most common words
+    top_words: List[Tuple[str, int]] = get_most_common_words(frequencies, 5)
+    print(f"Top 5 words: {len(top_words)}")
+
+    # Character distribution
+    char_dist: Dict[str, int] = analyze_character_distribution(sample_text)
+    print(f"Letters: {char_dist['letters']}, Digits: {char_dist['digits']}")
+
+    # Sentences
+    sentences: List[str] = extract_sentences(sample_text)
+    print(f"Sentences: {len(sentences)}")
+
+    # Readability metrics
+    metrics: Dict[str, float] = calculate_readability_metrics(sample_text)
+    print(f"Avg word length: {metrics['avg_word_length']:.2f}")
+
+    # Group by length
+    length_groups: Dict[int, List[str]] = group_words_by_length(words)
+    print(f"Length groups: {len(length_groups)}")
+
+    # Find patterns
+    patterns: Dict[str, List[str]] = find_word_patterns(words)
+    print(f"Words starting with 'a': {len(patterns['starts_with_a'])}")
+
+    # Create bigrams
+    bigrams: List[str] = create_ngrams(words, 2)
+    print(f"Bigrams created: {len(bigrams)}")
+
+    # Calculate diversity
+    diversity: float = calculate_word_diversity(words)
+    print(f"Lexical diversity: {diversity:.2f}")
+
+    # Find palindromes
+    palindromes: List[str] = find_palindromes(words)
+    print(f"Palindromes found: {len(palindromes)}")
+
+    # Vowel/consonant ratio
+    ratios: Dict[str, float] = analyze_vowel_consonant_ratio(sample_text)
+    print(f"Vowel ratio: {ratios['vowel_ratio']:.2f}")
+
+    print("=== Processing Complete ===")
+
+
+if __name__ == "__main__":
+    process_text_pipeline()
+'''
+
+rust = '''
+#[doc = "// TODO: Map Python module 'string'"]
+use std::collections::HashMap;
+const STR_EMPTY: &'static str = "";
+#[derive(Debug, Clone)]
+pub struct ZeroDivisionError {
+    message: String,
+}
+impl std::fmt::Display for ZeroDivisionError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "division by zero: {}", self.message)
+    }
+}
+impl std::error::Error for ZeroDivisionError {}
+impl ZeroDivisionError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[derive(Debug, Clone)]
+pub struct IndexError {
+    message: String,
+}
+impl std::fmt::Display for IndexError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "index out of range: {}", self.message)
+    }
+}
+impl std::error::Error for IndexError {}
+impl IndexError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = "Tokenize text into words using string operations"]
+#[doc = " Depyler: verified panic-free"]
+pub fn tokenize_text(text: &str) -> Vec<String> {
+    let mut cleaned: String = STR_EMPTY.to_string();
+    let punctuation: String = ".,!?;:\"'()[]{}—-".to_string();
+    for _char in text.chars() {
+        let char = _char.to_string();
+        let mut is_punct: bool = false;
+        for p in punctuation.iter().cloned() {
+            if char == p {
+                is_punct = true;
+                break;
+            }
+        }
+        let mut cleaned;
+        if !is_punct {
+            cleaned = cleaned + char;
+        } else {
+            cleaned = format!("{}{}", cleaned, " ");
+        }
+    }
+    let words: Vec<String> = cleaned
+        .split_whitespace()
+        .map(|s| s.to_string())
+        .collect::<Vec<String>>();
+    let mut normalized: Vec<String> = vec![];
+    for word in words.iter().cloned() {
+        normalized.push(word.to_lowercase());
+    }
+    normalized
+}
+#[doc = "Count word frequencies using Counter pattern"]
+pub fn count_word_frequencies(words: &Vec<String>) -> Result<HashMap<String, i32>, IndexError> {
+    let mut frequencies: HashMap<String, i32> = {
+        let map = HashMap::new();
+        map
+    };
+    for word in words.iter().cloned() {
+        if frequencies.contains_key(&word) {
+            {
+                let _key = word;
+                let _old_val = frequencies.get(&_key).cloned().unwrap_or_default();
+                frequencies.insert(_key, _old_val + 1);
+            }
+        } else {
+            frequencies.insert(word, 1);
+        }
+    }
+    Ok(frequencies)
+}
+#[doc = "Get n most common words"]
+pub fn get_most_common_words(
+    frequencies: &mut HashMap<String, i32>,
+    n: i32,
+) -> Result<Vec<(String, i32)>, IndexError> {
+    let mut word_counts: Vec<(String, i32)> = vec![];
+    for word in frequencies.keys().cloned().collect::<Vec<_>>() {
+        let count: i32 = frequencies.get(&word).cloned().unwrap_or_default();
+        word_counts.push((word, count));
+    }
+    for i in 0..word_counts.len() as i32 {
+        for j in i + 1..word_counts.len() as i32 {
+            if word_counts.get(j as usize).cloned().unwrap_or_default().1
+                > word_counts.get(i as usize).cloned().unwrap_or_default().1
+            {
+                let temp: (String, i32) = word_counts.get(i as usize).cloned().unwrap_or_default();
+                word_counts.insert(
+                    (i) as usize,
+                    word_counts.get(j as usize).cloned().unwrap_or_default(),
+                );
+                word_counts.insert((j) as usize, temp);
+            }
+        }
+    }
+    let mut result: Vec<(String, i32)> = vec![];
+    for i in 0..std::cmp::min(n, word_counts.len() as i32) {
+        result.push(word_counts.get(i as usize).cloned().unwrap_or_default());
+    }
+    Ok(result)
+}
+#[doc = "Analyze character types using string module patterns"]
+pub fn analyze_character_distribution(text: &str) -> Result<HashMap<String, i32>, IndexError> {
+    let mut distribution: HashMap<String, i32> = {
+        let mut map = HashMap::new();
+        map.insert("letters".to_string(), 0);
+        map.insert("digits".to_string(), 0);
+        map.insert("spaces".to_string(), 0);
+        map.insert("punctuation".to_string(), 0);
+        map.insert("other".to_string(), 0);
+        map
+    };
+    for _char in text.chars() {
+        let char = _char.to_string();
+        if char.chars().all(|c| c.is_alphabetic()) {
+            distribution.insert(
+                "letters",
+                distribution.get("letters").cloned().unwrap_or_default() + 1,
+            );
+        } else {
+            if char.chars().all(|c| c.is_numeric()) {
+                distribution.insert(
+                    "digits",
+                    distribution.get("digits").cloned().unwrap_or_default() + 1,
+                );
+            } else {
+                if char.isspace() {
+                    distribution.insert(
+                        "spaces",
+                        distribution.get("spaces").cloned().unwrap_or_default() + 1,
+                    );
+                } else {
+                    if ".,!?;:".contains(&char) {
+                        distribution.insert(
+                            "punctuation",
+                            distribution.get("punctuation").cloned().unwrap_or_default() + 1,
+                        );
+                    } else {
+                        distribution.insert(
+                            "other",
+                            distribution.get("other").cloned().unwrap_or_default() + 1,
+                        );
+                    }
+                }
+            }
+        }
+    }
+    Ok(distribution)
+}
+#[doc = "Extract sentences using simple pattern matching"]
+#[doc = " Depyler: verified panic-free"]
+pub fn extract_sentences(text: &str) -> Vec<String> {
+    let mut sentences: Vec<String> = vec![];
+    let mut current_sentence: String = STR_EMPTY.to_string();
+    for _char in text.chars() {
+        let char = _char.to_string();
+        current_sentence = current_sentence + char;
+        if ((char == ".") || (char == "!")) || (char == "?") {
+            let trimmed: String = current_sentence.trim().to_string();
+            if trimmed.len() as i32 > 0 {
+                sentences.push(trimmed);
+            }
+            current_sentence = STR_EMPTY;
+        }
+    }
+    let _cse_temp_0 = current_sentence.trim().to_string().len() as i32;
+    let _cse_temp_1 = _cse_temp_0 > 0;
+    if _cse_temp_1 {
+        sentences.push(current_sentence.trim().to_string());
+    }
+    sentences
+}
+#[doc = "Calculate readability metrics combining multiple operations"]
+pub fn calculate_readability_metrics(
+    text: String,
+) -> Result<HashMap<String, f64>, ZeroDivisionError> {
+    let mut metrics: HashMap<String, f64> = {
+        let map = HashMap::new();
+        map
+    };
+    let words: Vec<String> = tokenize_text(text);
+    let mut sentences: Vec<String> = extract_sentences(text);
+    let _cse_temp_0 = words.len() as i32;
+    let _cse_temp_1 = (_cse_temp_0) as f64;
+    metrics.insert("word_count".to_string(), _cse_temp_1);
+    let _cse_temp_2 = sentences.len() as i32;
+    let _cse_temp_3 = (_cse_temp_2) as f64;
+    metrics.insert("sentence_count".to_string(), _cse_temp_3);
+    let mut total_chars: i32 = 0;
+    for word in words.iter().cloned() {
+        total_chars = total_chars + word.len() as i32;
+    }
+    let _cse_temp_4 = _cse_temp_0 > 0;
+    if _cse_temp_4 {
+        let _cse_temp_5 = (total_chars) as f64;
+        let _cse_temp_6 = _cse_temp_5 / _cse_temp_1;
+        metrics.insert("avg_word_length".to_string(), _cse_temp_6);
+    } else {
+        metrics.insert("avg_word_length".to_string(), 0.0);
+    }
+    let _cse_temp_7 = _cse_temp_2 > 0;
+    if _cse_temp_7 {
+        let _cse_temp_8 = _cse_temp_1 / _cse_temp_3;
+        metrics.insert("avg_sentence_length".to_string(), _cse_temp_8);
+    } else {
+        metrics.insert("avg_sentence_length".to_string(), 0.0);
+    }
+    Ok(metrics)
+}
+#[doc = "Group words by length using collections pattern"]
+#[doc = " Depyler: verified panic-free"]
+pub fn group_words_by_length(words: &Vec<String>) -> HashMap<i32, Vec<String>> {
+    let mut groups: HashMap<i32, Vec<String>> = {
+        let map = HashMap::new();
+        map
+    };
+    for word in words.iter().cloned() {
+        let length: i32 = word.len() as i32 as i32;
+        if !groups.contains_key(&length) {
+            groups.insert(length, vec![]);
+        }
+        groups
+            .get(length as usize)
+            .cloned()
+            .unwrap_or_default()
+            .push(word);
+    }
+    groups
+}
+#[doc = "Find words matching patterns(starts with, ends with, contains)"]
+pub fn find_word_patterns(words: &Vec<String>) -> Result<HashMap<String, Vec<String>>, IndexError> {
+    let patterns: HashMap<String, Vec<String>> = {
+        let mut map = HashMap::new();
+        map.insert("starts_with_a".to_string(), vec![]);
+        map.insert("ends_with_ing".to_string(), vec![]);
+        map.insert("contains_th".to_string(), vec![]);
+        map
+    };
+    for word in words.iter().cloned() {
+        if (word.len() as i32 > 0)
+            && ({
+                let base = &word;
+                let idx: i32 = 0;
+                let actual_idx = if idx < 0 {
+                    base.chars().count().saturating_sub(idx.abs() as usize)
+                } else {
+                    idx as usize
+                };
+                base.chars()
+                    .nth(actual_idx)
+                    .map(|c| c.to_string())
+                    .unwrap_or_default()
+            } == "a")
+        {
+            patterns
+                .get("starts_with_a")
+                .cloned()
+                .unwrap_or_default()
+                .push(word);
+        }
+        if (word.len() as i32 >= 3)
+            && ({
+                let base = word;
+                let start_idx: i32 = -3;
+                let len = base.chars().count() as i32;
+                let actual_start = if start_idx < 0 {
+                    (len + start_idx).max(0) as usize
+                } else {
+                    start_idx.min(len) as usize
+                };
+                base.chars().skip(actual_start).collect::<String>()
+            } == "ing")
+        {
+            patterns
+                .get("ends_with_ing")
+                .cloned()
+                .unwrap_or_default()
+                .push(word);
+        }
+        if word.contains(&"th") {
+            patterns
+                .get("contains_th")
+                .cloned()
+                .unwrap_or_default()
+                .push(word);
+        }
+    }
+    Ok(patterns)
+}
+#[doc = "Create n-grams from word list"]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn create_ngrams(words: &Vec<String>, n: i32) -> Vec<String> {
+    let mut ngrams: Vec<String> = vec![];
+    for i in 0..(words.len() as i32).saturating_sub(n) + 1 {
+        let mut ngram_words: Vec<String> = vec![];
+        for j in 0..n {
+            ngram_words.push({
+                let base = &words;
+                let idx: i32 = i + j;
+                let actual_idx = if idx < 0 {
+                    base.len().saturating_sub(idx.abs() as usize)
+                } else {
+                    idx as usize
+                };
+                base.get(actual_idx).cloned().unwrap_or_default()
+            });
+        }
+        let ngram: String = ngram_words.join(" ");
+        ngrams.push(ngram);
+    }
+    ngrams
+}
+#[doc = "Calculate lexical diversity(unique words / total words)"]
+pub fn calculate_word_diversity(words: &Vec<String>) -> Result<f64, ZeroDivisionError> {
+    let _cse_temp_0 = words.len() as i32;
+    let _cse_temp_1 = _cse_temp_0 == 0;
+    if _cse_temp_1 {
+        return Ok(0.0);
+    }
+    let mut unique_words: HashMap<String, bool> = {
+        let map = HashMap::new();
+        map
+    };
+    for word in words.iter().cloned() {
+        unique_words.insert(word, true);
+    }
+    let _cse_temp_2 = unique_words.len() as i32;
+    let _cse_temp_3 = (_cse_temp_2) as f64;
+    let _cse_temp_4 = (_cse_temp_0) as f64;
+    let _cse_temp_5 = (_cse_temp_3 as f64) / (_cse_temp_4 as f64);
+    let diversity: f64 = _cse_temp_5;
+    Ok(diversity)
+}
+#[doc = "Find palindrome words"]
+pub fn find_palindromes(words: &Vec<String>) -> Result<Vec<String>, IndexError> {
+    let mut palindromes: Vec<String> = vec![];
+    for word in words.iter().cloned() {
+        let mut reversed_word: String = STR_EMPTY.to_string();
+        for i in {
+            let step = (-1 as i32).abs() as usize;
+            if step == 0 {
+                panic!("range() arg 3 must not be zero");
+            }
+            (-1..(word.len() as i32).saturating_sub(1))
+                .rev()
+                .step_by(step.max(1))
+        } {
+            reversed_word = reversed_word + {
+                let base = &word;
+                let idx: i32 = i;
+                let actual_idx = if idx < 0 {
+                    base.chars().count().saturating_sub(idx.abs() as usize)
+                } else {
+                    idx as usize
+                };
+                base.chars()
+                    .nth(actual_idx)
+                    .map(|c| c.to_string())
+                    .unwrap_or_default()
+            };
+        }
+        if (word == reversed_word) && (word.len() as i32 > 1) {
+            let mut found: bool = false;
+            for p in palindromes.iter().cloned() {
+                if p == word {
+                    found = true;
+                    break;
+                }
+            }
+            if !found {
+                palindromes.push(word);
+            }
+        }
+    }
+    Ok(palindromes)
+}
+#[doc = "Analyze vowel to consonant ratio"]
+pub fn analyze_vowel_consonant_ratio(
+    text: &str,
+) -> Result<HashMap<String, f64>, ZeroDivisionError> {
+    let vowels: String = "aeiouAEIOU".to_string();
+    let mut vowel_count: i32 = 0;
+    let mut consonant_count: i32 = 0;
+    for _char in text.chars() {
+        let char = _char.to_string();
+        if char.chars().all(|c| c.is_alphabetic()) {
+            if vowels.contains_key(&char) {
+                vowel_count = vowel_count + 1;
+            } else {
+                consonant_count = consonant_count + 1;
+            }
+        }
+    }
+    let total_letters: i32 = vowel_count + consonant_count;
+    let mut result: HashMap<String, f64> = {
+        let map = HashMap::new();
+        map
+    };
+    let _cse_temp_0 = total_letters > 0;
+    if _cse_temp_0 {
+        let _cse_temp_1 = (vowel_count) as f64;
+        let _cse_temp_2 = (total_letters) as f64;
+        let _cse_temp_3 = _cse_temp_1 / _cse_temp_2;
+        result.insert("vowel_ratio".to_string(), _cse_temp_3);
+        let _cse_temp_4 = (consonant_count) as f64;
+        let _cse_temp_5 = _cse_temp_4 / _cse_temp_2;
+        result.insert("consonant_ratio".to_string(), _cse_temp_5);
+    } else {
+        result.insert("vowel_ratio".to_string(), 0.0);
+        result.insert("consonant_ratio".to_string(), 0.0);
+    }
+    let _cse_temp_6 = (vowel_count) as f64;
+    result.insert("vowel_count".to_string(), _cse_temp_6);
+    let _cse_temp_7 = (consonant_count) as f64;
+    result.insert("consonant_count".to_string(), _cse_temp_7);
+    Ok(result)
+}
+#[doc = "Main text processing pipeline"]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn process_text_pipeline() -> Result<(), Box<dyn std::error::Error>> {
+    println!("{}", "=== Comprehensive Text Processing Demo ===");
+    let sample_text: String = "\n    The quick brown fox jumps over the lazy dog. This is a sample text\n    for demonstrating text processing capabilities. Python is amazing!\n    We can analyze words, count frequencies, and find patterns easily.\n    ".to_string();
+    let words: Vec<String> = tokenize_text(sample_text);
+    println!("{}", format!("Total words: {:?}", words.len() as i32));
+    let mut frequencies: HashMap<String, i32> = count_word_frequencies(&words)?;
+    println!(
+        "{}",
+        format!("Unique words: {:?}", frequencies.len() as i32)
+    );
+    let top_words: Vec<(String, i32)> = get_most_common_words(&frequencies, 5)?;
+    println!("{}", format!("Top 5 words: {:?}", top_words.len() as i32));
+    let char_dist: HashMap<String, i32> = analyze_character_distribution(sample_text)?;
+    println!(
+        "{}",
+        format!(
+            "Letters: {:?}, Digits: {:?}",
+            char_dist.get("letters").cloned().unwrap_or_default(),
+            char_dist.get("digits").cloned().unwrap_or_default()
+        )
+    );
+    let mut sentences: Vec<String> = extract_sentences(sample_text);
+    println!("{}", format!("Sentences: {:?}", sentences.len() as i32));
+    let mut metrics: HashMap<String, f64> = calculate_readability_metrics(sample_text)?;
+    println!(
+        "{}",
+        format!(
+            "Avg word length: {:?}",
+            metrics.get("avg_word_length").cloned().unwrap_or_default()
+        )
+    );
+    let length_groups: HashMap<i32, Vec<String>> = group_words_by_length(&words);
+    println!(
+        "{}",
+        format!("Length groups: {:?}", length_groups.len() as i32)
+    );
+    let patterns: HashMap<String, Vec<String>> = find_word_patterns(&words)?;
+    println!(
+        "{}",
+        format!(
+            "Words starting with 'a': {:?}",
+            patterns
+                .get("starts_with_a")
+                .cloned()
+                .unwrap_or_default()
+                .len() as i32
+        )
+    );
+    let bigrams: Vec<String> = create_ngrams(&words, 2);
+    println!("{}", format!("Bigrams created: {:?}", bigrams.len() as i32));
+    let diversity: f64 = calculate_word_diversity(&words)?;
+    println!("{}", format!("Lexical diversity: {:?}", diversity));
+    let mut palindromes: Vec<String> = find_palindromes(&words)?;
+    println!(
+        "{}",
+        format!("Palindromes found: {:?}", palindromes.len() as i32)
+    );
+    let ratios: HashMap<String, f64> = analyze_vowel_consonant_ratio(sample_text)?;
+    println!(
+        "{}",
+        format!(
+            "Vowel ratio: {:?}",
+            ratios.get("vowel_ratio").cloned().unwrap_or_default()
+        )
+    );
+    println!("{}", "=== Processing Complete ===");
+    Ok(())
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{quickcheck, TestResult};
+    #[test]
+    fn test_find_palindromes_examples() {
+        assert_eq!(find_palindromes(vec![]), vec![]);
+        assert_eq!(find_palindromes(vec![1]), vec![1]);
+    }
 }
 '''

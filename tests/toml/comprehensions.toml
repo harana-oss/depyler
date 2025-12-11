@@ -11,7 +11,6 @@ category = "comprehensions"
 [[test]]
 name = "comprehension_simple"
 description = "Simple list comprehension"
-tags = ["comprehension", "list"]
 
 python = '''
 def squares(n: int) -> list[int]:
@@ -27,7 +26,6 @@ pub fn squares(n: i32) -> Vec<i32> {
 [[test]]
 name = "comprehension_with_filter"
 description = "List comprehension with if condition"
-tags = ["comprehension", "list", "filter"]
 
 python = '''
 def evens(n: int) -> list[int]:
@@ -43,7 +41,6 @@ pub fn evens(n: i32) -> Vec<i32> {
 [[test]]
 name = "comprehension_transform_filter"
 description = "List comprehension with transform and filter"
-tags = ["comprehension", "list", "filter", "map"]
 
 python = '''
 def even_squares(n: int) -> list[int]:
@@ -59,7 +56,6 @@ pub fn even_squares(n: i32) -> Vec<i32> {
 [[test]]
 name = "comprehension_string_transform"
 description = "List comprehension with string transformation"
-tags = ["comprehension", "string"]
 
 python = '''
 def uppercase_words(words: list[str]) -> list[str]:
@@ -89,7 +85,6 @@ mod tests {
 [[test]]
 name = "comprehension_string_filter"
 description = "List comprehension filtering strings"
-tags = ["comprehension", "string", "filter"]
 
 python = '''
 def long_words(words: list[str]) -> list[str]:
@@ -120,7 +115,6 @@ mod tests {
 [[test]]
 name = "comprehension_nested"
 description = "Nested list comprehension"
-tags = ["comprehension", "nested"]
 
 python = '''
 def matrix(n: int) -> list[list[int]]:
@@ -138,7 +132,6 @@ pub fn matrix(n: i32) -> Vec<Vec<i32>> {
 [[test]]
 name = "comprehension_flatten"
 description = "Flattening nested lists"
-tags = ["comprehension", "flatten"]
 
 python = '''
 def flatten(matrix: list[list[int]]) -> list[int]:
@@ -152,7 +145,6 @@ rust = '''
 [[test]]
 name = "dict_comprehension_basic"
 description = "Basic dict comprehension"
-tags = ["comprehension", "dict"]
 
 python = '''
 def squares_dict(n: int) -> dict[int, int]:
@@ -169,7 +161,6 @@ pub fn squares_dict(n: i32) -> HashMap<i32, i32> {
 [[test]]
 name = "dict_comprehension_filter"
 description = "Dict comprehension with filter"
-tags = ["comprehension", "dict", "filter"]
 
 python = '''
 def even_squares_dict(n: int) -> dict[int, int]:
@@ -189,7 +180,6 @@ pub fn even_squares_dict(n: i32) -> HashMap<i32, i32> {
 [[test]]
 name = "dict_comprehension_from_list"
 description = "Dict comprehension from list with enumerate"
-tags = ["comprehension", "dict", "enumerate"]
 
 python = '''
 def index_dict(items: list[str]) -> dict[int, str]:
@@ -203,7 +193,6 @@ rust = '''
 [[test]]
 name = "set_comprehension_basic"
 description = "Basic set comprehension"
-tags = ["comprehension", "set"]
 
 python = '''
 def unique_squares(items: list[int]) -> set[int]:
@@ -220,7 +209,6 @@ pub fn unique_squares(items: &Vec<i32>) -> HashSet<i32> {
 [[test]]
 name = "generator_expr_sum"
 description = "Generator expression in sum()"
-tags = ["comprehension", "generator", "sum"]
 
 python = '''
 def sum_squares(n: int) -> int:
@@ -247,7 +235,6 @@ mod tests {
 [[test]]
 name = "generator_expr_any"
 description = "Generator expression in any()"
-tags = ["comprehension", "generator", "any"]
 
 python = '''
 def has_positive(items: list[int]) -> bool:
@@ -272,7 +259,6 @@ mod tests {
 [[test]]
 name = "generator_expr_all"
 description = "Generator expression in all()"
-tags = ["comprehension", "generator", "all"]
 
 python = '''
 def all_positive(items: list[int]) -> bool:
@@ -297,7 +283,6 @@ mod tests {
 [[test]]
 name = "list_comprehension_with_filter"
 description = "List comprehension with filter and map"
-tags = ["comprehension", "filter", "map"]
 
 python = '''
 def list_comp():
@@ -313,7 +298,6 @@ pub fn list_comp() -> Vec<i32> {
 [[test]]
 name = "set_comprehension"
 description = "Set comprehension creates HashSet"
-tags = ["comprehension", "set"]
 
 python = '''
 def make_set_comp():
@@ -330,7 +314,6 @@ pub fn make_set_comp() -> HashSet<i32> {
 [[test]]
 name = "dict_comprehension"
 description = "Dict comprehension creates HashMap"
-tags = ["comprehension", "dict"]
 
 python = '''
 def make_dict_comp():
@@ -348,7 +331,6 @@ pub fn make_dict_comp() -> HashMap<serde_json::Value, i32> {
 [[test]]
 name = "nested_list_comprehension"
 description = "Nested list comprehension with multiple maps"
-tags = ["comprehension", "nested"]
 
 python = '''
 def nested_comp():

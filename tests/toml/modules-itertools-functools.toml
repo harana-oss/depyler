@@ -11,7 +11,6 @@ category = "stdlib-itertools-functools"
 [[test]]
 name = "itertools_chain"
 description = "itertools.chain() iterator chaining"
-tags = ["itertools", "chain"]
 
 python = '''
 from itertools import chain
@@ -30,7 +29,6 @@ pub fn combine_lists(a: Vec<i32>, b: Vec<i32>) -> Vec<i32> {
 [[test]]
 name = "itertools_combinations"
 description = "itertools.combinations() n-choose-k"
-tags = ["itertools", "combinations"]
 
 python = '''
 from itertools import combinations
@@ -59,7 +57,6 @@ mod tests {
 [[test]]
 name = "itertools_permutations"
 description = "itertools.permutations() all orderings"
-tags = ["itertools", "permutations"]
 
 python = '''
 from itertools import permutations
@@ -75,7 +72,6 @@ rust = '''
 [[test]]
 name = "itertools_takewhile"
 description = "itertools.takewhile() conditional take"
-tags = ["itertools", "takewhile"]
 
 python = '''
 from itertools import takewhile
@@ -104,7 +100,6 @@ mod tests {
 [[test]]
 name = "itertools_dropwhile"
 description = "itertools.dropwhile() conditional skip"
-tags = ["itertools", "dropwhile"]
 
 python = '''
 from itertools import dropwhile
@@ -133,7 +128,6 @@ mod tests {
 [[test]]
 name = "itertools_filter"
 description = "itertools filterfalse and filter"
-tags = ["itertools", "filter"]
 
 python = '''
 from itertools import filterfalse
@@ -162,7 +156,6 @@ mod tests {
 [[test]]
 name = "itertools_groupby"
 description = "itertools.groupby() grouping"
-tags = ["itertools", "groupby"]
 
 python = '''
 from itertools import groupby
@@ -200,7 +193,6 @@ pub fn group_by_first_char(words: Vec<String>) -> HashMap<String, Vec<String>> {
 [[test]]
 name = "itertools_accumulate"
 description = "itertools.accumulate() running sum"
-tags = ["itertools", "accumulate"]
 
 python = '''
 from itertools import accumulate
@@ -229,7 +221,6 @@ mod tests {
 [[test]]
 name = "itertools_count"
 description = "itertools.count() infinite counter"
-tags = ["itertools", "infinite"]
 
 python = '''
 from itertools import count, islice
@@ -249,7 +240,6 @@ pub fn first_n_from(start: i32, n: i32) -> Vec<i32> {
 [[test]]
 name = "itertools_cycle"
 description = "itertools.cycle() repeating iterator"
-tags = ["itertools", "infinite"]
 
 python = '''
 from itertools import cycle, islice
@@ -269,7 +259,6 @@ pub fn repeat_pattern(items: Vec<i32>, n: i32) -> Vec<i32> {
 [[test]]
 name = "itertools_repeat"
 description = "itertools.repeat() single value repetition"
-tags = ["itertools", "infinite"]
 
 python = '''
 from itertools import repeat
@@ -288,7 +277,6 @@ pub fn make_n_copies(value: i32, n: i32) -> Vec<i32> {
 [[test]]
 name = "functools_reduce"
 description = "functools.reduce() fold operation"
-tags = ["functools", "reduce"]
 
 python = '''
 from functools import reduce
@@ -318,7 +306,6 @@ mod tests {
 [[test]]
 name = "functools_reduce_product"
 description = "functools.reduce() for product"
-tags = ["functools", "reduce"]
 
 python = '''
 from functools import reduce
@@ -348,7 +335,6 @@ mod tests {
 [[test]]
 name = "functools_partial"
 description = "functools.partial() partial application"
-tags = ["functools", "partial"]
 
 python = '''
 from functools import partial
@@ -364,7 +350,6 @@ rust = '''
 [[test]]
 name = "functools_lru_cache"
 description = "functools.lru_cache() memoization"
-tags = ["functools", "cache"]
 
 python = '''
 from functools import lru_cache
@@ -401,7 +386,6 @@ mod tests {
 [[test]]
 name = "builtin_map"
 description = "Built-in map() function"
-tags = ["builtin", "map"]
 
 python = '''
 def double_all(nums: list[int]) -> list[int]:
@@ -427,7 +411,6 @@ mod tests {
 [[test]]
 name = "builtin_filter"
 description = "Built-in filter() function"
-tags = ["builtin", "filter"]
 
 python = '''
 def evens_only(nums: list[int]) -> list[int]:
@@ -453,7 +436,6 @@ mod tests {
 [[test]]
 name = "zip_iteration"
 description = "Built-in zip() function"
-tags = ["builtin", "zip"]
 
 python = '''
 def add_pairwise(a: list[int], b: list[int]) -> list[int]:
@@ -467,7 +449,6 @@ rust = '''
 [[test]]
 name = "enumerate_iteration"
 description = "Built-in enumerate() function"
-tags = ["builtin", "enumerate"]
 
 python = '''
 def with_indices(items: list[str]) -> list[tuple[int, str]]:

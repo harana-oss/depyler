@@ -1,0 +1,878 @@
+# Type Hints Examples
+# Migrated from examples/type_hints/
+
+[metadata]
+name = "Type Hints Examples"
+category = "type_hints"
+
+# =============================================================================
+# Examples
+# =============================================================================
+
+[[test]]
+name = "showcase_type_inference"
+description = "Example test"
+
+python = '''
+"""
+Comprehensive showcase of Depyler's type inference capabilities.
+This example demonstrates how Depyler can infer types from usage patterns.
+"""
+
+def numeric_operations(x, y):
+    """Infers numeric types from arithmetic operations."""
+    sum_val = x + y
+    diff = x - y
+    product = x * y
+    quotient = x / y
+    
+    # Comparison operations also provide hints
+    if x > y:
+        return sum_val
+    else:
+        return product
+
+
+def string_manipulation(text):
+    """Infers string type from string methods."""
+    # String methods strongly suggest str type
+    upper_text = text.upper()
+    lower_text = text.lower()
+    
+    if text.startswith("Hello"):
+        return text.replace("Hello", "Hi")
+    
+    return text.strip()
+
+
+def list_processing(items):
+    """Infers list type from list operations."""
+    # List methods suggest list type
+    items.append("new item")
+    items.extend(["more", "items"])
+    
+    # Iteration suggests container type
+    result = []
+    for item in items:
+        result.append(item.upper())
+    
+    return result
+
+
+def mixed_inference(data, multiplier):
+    """Multiple inference sources for better confidence."""
+    # 'data' used as iterator -> container type
+    total = 0
+    for value in data:
+        # 'multiplier' used in numeric context -> numeric type
+        total = total + value * multiplier
+    
+    # len() also suggests container for 'data'
+    average = total / len(data)
+    return average
+
+
+def type_conversions_hint(value):
+    """Type conversion functions provide strong hints."""
+    # These conversions strongly suggest the target type
+    as_string = str(value)  # Suggests value could be any type
+    as_int = int(value)     # Suggests value is convertible to int
+    as_float = float(value) # Suggests value is convertible to float
+    
+    return (as_string, as_int, as_float)
+
+
+def boolean_logic(a, b, c):
+    """Boolean operations suggest bool type."""
+    # Logical operators suggest boolean context
+    if a and b:
+        return True
+    elif b or c:
+        return False
+    else:
+        return not c
+
+
+def dictionary_operations(mapping):
+    """Dictionary method usage."""
+    # Dictionary methods suggest dict type
+    keys = mapping.keys()
+    values = mapping.values()
+    
+    if "key" in mapping:
+        return mapping.get("key", "default")
+    
+    return None
+
+
+def function_composition(transform, data):
+    """Using parameters as callables."""
+    # 'transform' used as callable suggests function type
+    result = []
+    for item in data:
+        transformed = transform(item)
+        result.append(transformed)
+    
+    return result
+
+
+def confidence_levels_demo(certain_str, probable_num, possible_container):
+    """Demonstrates different confidence levels."""
+    # High confidence: multiple string operations
+    processed = certain_str.upper().strip().replace(" ", "_")
+    
+    # Medium confidence: single numeric operation
+    doubled = probable_num * 2
+    
+    # Low confidence: minimal usage
+    size = len(possible_container)
+    
+    return (processed, doubled, size)
+'''
+
+rust = '''
+use serde_json;
+#[derive(Debug, Clone)]
+pub struct ZeroDivisionError {
+    message: String,
+}
+impl std::fmt::Display for ZeroDivisionError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "division by zero: {}", self.message)
+    }
+}
+impl std::error::Error for ZeroDivisionError {}
+impl ZeroDivisionError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = "Infers numeric types from arithmetic operations."]
+#[doc = " Depyler: proven to terminate"]
+pub fn numeric_operations(x: i32, y: i32) -> Result<i32, ZeroDivisionError> {
+    let sum_val = x + y;
+    let diff = x - y;
+    let _cse_temp_0 = x * y;
+    let product = _cse_temp_0;
+    let _cse_temp_1 = x / y;
+    let quotient = _cse_temp_1;
+    let _cse_temp_2 = x > y;
+    if _cse_temp_2 {
+        Ok(sum_val)
+    } else {
+        Ok(product)
+    }
+}
+#[doc = "Infers string type from string methods."]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn string_manipulation(text: &str) -> String {
+    let upper_text = text.to_uppercase();
+    let lower_text = text.to_lowercase();
+    if text.starts_with("Hello") {
+        return text.replace("Hello", "Hi");
+    }
+    text.trim().to_string()
+}
+#[doc = "Infers list type from list operations."]
+#[doc = " Depyler: verified panic-free"]
+pub fn list_processing(items: &mut serde_json::Value) -> Vec<serde_json::Value> {
+    items.push("new item".to_string());
+    items.extend(
+        vec![
+            "more".to_string().to_string(),
+            "items".to_string().to_string(),
+        ]
+        .iter()
+        .cloned(),
+    );
+    let mut result = vec![];
+    for item in items.iter().cloned() {
+        result.push(item.to_uppercase());
+    }
+    result
+}
+#[doc = "Multiple inference sources for better confidence."]
+pub fn mixed_inference<'b, 'a>(
+    data: &'a serde_json::Value,
+    multiplier: &'b serde_json::Value,
+) -> Result<i32, ZeroDivisionError> {
+    let mut total = 0;
+    for value in data.iter().cloned() {
+        total = total + value * multiplier;
+    }
+    let _cse_temp_0 = data.len() as i32;
+    let _cse_temp_1 = total / _cse_temp_0;
+    let average = _cse_temp_1;
+    Ok(average)
+}
+#[doc = "Type conversion functions provide strong hints."]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn type_conversions_hint(value: serde_json::Value) -> (String, i32, f64) {
+    let _cse_temp_0 = value.to_string();
+    let as_string = _cse_temp_0;
+    let _cse_temp_1 = (value) as i32;
+    let as_int = _cse_temp_1;
+    let _cse_temp_2 = (value) as f64;
+    let as_float = _cse_temp_2;
+    (as_string, as_int, as_float)
+}
+#[doc = "Boolean operations suggest bool type."]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn boolean_logic<'b, 'c, 'a>(
+    a: &'a serde_json::Value,
+    b: &'b serde_json::Value,
+    c: &'c serde_json::Value,
+) -> bool {
+    let _cse_temp_0 = (a) && (b);
+    if _cse_temp_0 {
+        true
+    } else {
+        let _cse_temp_1 = (b) || (c);
+        if _cse_temp_1 {
+            false
+        } else {
+            !c
+        }
+    }
+}
+#[doc = "Dictionary method usage."]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn dictionary_operations(mapping: &serde_json::Value) {
+    let keys = mapping.keys().cloned().collect::<Vec<_>>();
+    let values = mapping.values().cloned().collect::<Vec<_>>();
+    let _cse_temp_0 = mapping.contains_key(&"key");
+    if _cse_temp_0 {
+        return;
+    }
+    ()
+}
+#[doc = "Using parameters as callables."]
+#[doc = " Depyler: verified panic-free"]
+pub fn function_composition(
+    transform: serde_json::Value,
+    data: &serde_json::Value,
+) -> Vec<serde_json::Value> {
+    let mut result = vec![];
+    for item in data.iter().cloned() {
+        let transformed = transform(item);
+        result.push(transformed);
+    }
+    result
+}
+#[doc = "Demonstrates different confidence levels."]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn confidence_levels_demo<'a, 'b, 'c>(
+    certain_str: &'a str,
+    probable_num: &'b serde_json::Value,
+    possible_container: &'c serde_json::Value,
+) -> (String, i32, i32) {
+    let processed = certain_str
+        .to_uppercase()
+        .trim()
+        .to_string()
+        .replace(" ", "_");
+    let _cse_temp_0 = probable_num * 2;
+    let doubled = _cse_temp_0;
+    let _cse_temp_1 = possible_container.len() as i32;
+    let size = _cse_temp_1;
+    (processed, doubled, size)
+}
+'''
+
+[[test]]
+name = "test_type_hints"
+description = "Example test"
+
+python = '''
+"""
+Example demonstrating type inference hints in Depyler.
+Functions without type annotations will receive inference suggestions.
+"""
+
+def process_numbers(data):
+    """Process a list of numbers."""
+    total = 0
+    for num in data:
+        total += num
+    return total / len(data)
+
+
+def manipulate_text(text):
+    """Various string operations."""
+    result = text.upper()
+    if result.startswith("HELLO"):
+        result = result.replace("HELLO", "HI")
+    return result.strip()
+
+
+def mixed_operations(x, y):
+    """Mixed numeric operations."""
+    # Numeric operations suggest int/float types
+    sum_val = x + y
+    product = x * y
+    
+    # Comparison operations
+    if x > y:
+        return sum_val
+    else:
+        return product
+
+
+def container_operations(items):
+    """Operations on containers."""
+    # Using len() suggests container type
+    if len(items) > 0:
+        # Indexing also suggests container
+        first = items[0]
+        # List methods suggest list type
+        items.append(42)
+        return first
+    return None
+
+
+def inferred_return_types():
+    """Function with inferable return type."""
+    x = 10
+    y = 20
+    # Return type can be inferred as int
+    return x + y
+
+
+def string_formatting(name, age):
+    """String formatting with mixed types."""
+    # name used with string methods -> str
+    formatted_name = name.upper()
+    # age used in numeric context -> int
+    next_age = age + 1
+    
+    return f"{formatted_name} will be {next_age} next year"
+
+
+def iterator_usage(collection, predicate):
+    """Using variables as iterators."""
+    results = []
+    # collection used as iterator
+    for item in collection:
+        # predicate used as callable
+        if predicate(item):
+            results.append(item)
+    return results
+
+
+def type_conversions(value):
+    """Type conversion hints."""
+    # Conversion functions provide strong hints
+    text = str(value)
+    number = int(value)
+    decimal = float(value)
+    
+    return (text, number, decimal)
+
+
+# Function with partial annotations for comparison
+def partial_annotations(data: list, multiplier) -> list:
+    """Only some parameters have annotations."""
+    result = []
+    for item in data:
+        # multiplier used in numeric context
+        result.append(item * multiplier)
+    return result
+'''
+
+rust = '''
+use serde_json;
+#[derive(Debug, Clone)] pub struct ZeroDivisionError {
+    message: String ,
+}
+impl std::fmt::Display for ZeroDivisionError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    write!(f, "division by zero: {}", self.message)
+}
+} impl std::error::Error for ZeroDivisionError {
+   
+}
+impl ZeroDivisionError {
+    pub fn new(message: impl Into<String>) -> Self {
+    Self {
+    message: message.into()
+}
+}
+}
+#[derive(Debug, Clone)] pub struct IndexError {
+    message: String ,
+}
+impl std::fmt::Display for IndexError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    write!(f, "index out of range: {}", self.message)
+}
+} impl std::error::Error for IndexError {
+   
+}
+impl IndexError {
+    pub fn new(message: impl Into<String>) -> Self {
+    Self {
+    message: message.into()
+}
+}
+}
+#[doc = "Process a list of numbers."] pub fn process_numbers(data: & serde_json::Value) -> Result<i32, ZeroDivisionError>{
+    let mut total = 0;
+    for num in data.iter().cloned() {
+    total = total + num;
+   
+}
+Ok(total / data.len() as i32)
+}
+#[doc = "Various string operations."] #[doc = " Depyler: verified panic-free"] #[doc = " Depyler: proven to terminate"] pub fn manipulate_text(text: & str) -> String {
+    let mut result = text.to_uppercase();
+    if result.starts_with("HELLO") {
+    result = result.replace("HELLO", "HI");
+   
+}
+result.trim().to_string()
+}
+#[doc = "Mixed numeric operations."] #[doc = " Depyler: verified panic-free"] #[doc = " Depyler: proven to terminate"] pub fn mixed_operations<'a, 'b>(x: & 'a serde_json::Value, y: & 'b serde_json::Value) -> i32 {
+    let sum_val = x + y;
+    let _cse_temp_0 = x * y;
+    let product = _cse_temp_0;
+    let _cse_temp_1 = x>y;
+    if _cse_temp_1 {
+    sum_val
+}
+else {
+    product
+}
+} #[doc = "Operations on containers."] #[doc = " Depyler: proven to terminate"] pub fn container_operations(items: &mut serde_json::Value) -> Result <(), IndexError>{
+    let _cse_temp_0 = items.len() as i32;
+    let _cse_temp_1 = _cse_temp_0>0;
+    if _cse_temp_1 {
+    let first = items.get(0usize).cloned().unwrap_or_default();
+    items.push(42);
+    return;
+   
+}
+() Ok(())
+}
+#[doc = "Function with inferable return type."] #[doc = " Depyler: verified panic-free"] #[doc = " Depyler: proven to terminate"] pub fn inferred_return_types() -> i32 {
+    let x = 10;
+    let y = 20;
+    x + y
+}
+#[doc = "String formatting with mixed types."] #[doc = " Depyler: verified panic-free"] #[doc = " Depyler: proven to terminate"] pub fn string_formatting<'b, 'a>(name: & 'a str, age: & 'b serde_json::Value) -> String {
+    let formatted_name = name.to_uppercase();
+    let next_age = age + 1;
+    format!("{:?} will be {:?} next year", formatted_name, next_age)
+}
+#[doc = "Using variables as iterators."] #[doc = " Depyler: verified panic-free"] pub fn iterator_usage(collection: & serde_json::Value, predicate: serde_json::Value) -> Vec<serde_json::Value>{
+    let mut results = vec! [];
+    for item in collection.iter().cloned() {
+    if predicate(item) {
+    results.push(item);
+   
+}
+} results
+}
+#[doc = "Type conversion hints."] #[doc = " Depyler: verified panic-free"] #[doc = " Depyler: proven to terminate"] pub fn type_conversions(value: serde_json::Value) -> (String, i32, f64) {
+    let _cse_temp_0 = value.to_string();
+    let text = _cse_temp_0;
+    let _cse_temp_1 = (value) as i32;
+    let number = _cse_temp_1;
+    let _cse_temp_2 = (value) as f64;
+    let decimal = _cse_temp_2;
+  (text, number, decimal)
+}
+#[doc = "Only some parameters have annotations."] #[doc = " Depyler: verified panic-free"] pub fn partial_annotations<'b, 'a>(data: & 'a Vec<serde_json::Value>, multiplier: & 'b serde_json::Value) -> Vec<serde_json::Value>{
+    let mut result = vec! [];
+    for item in data.iter().cloned() {
+    result.push(item * multiplier);
+   
+}
+result }
+'''
+
+[[test]]
+name = "test_type_hints_simple"
+description = "Example test"
+
+python = '''
+"""
+Simple example demonstrating type inference hints in Depyler.
+"""
+
+def add_numbers(a, b):
+    """Add two numbers - should infer numeric types."""
+    return a + b
+
+
+def process_text(text):
+    """Process text - should infer string type."""
+    result = text.upper()
+    return result
+
+
+def calculate_average(numbers):
+    """Calculate average - should infer list of numbers."""
+    total = 0
+    count = 0
+    for num in numbers:
+        total = total + num
+        count = count + 1
+    
+    if count > 0:
+        return total / count
+    return 0
+
+
+def string_checker(s):
+    """Check string properties."""
+    if s.startswith("hello"):
+        return True
+    return False
+
+
+def list_operations(items):
+    """Perform list operations."""
+    items.append(42)
+    return len(items)
+'''
+
+rust = '''
+use serde_json;
+#[derive(Debug, Clone)]
+pub struct ZeroDivisionError {
+    message: String,
+}
+impl std::fmt::Display for ZeroDivisionError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "division by zero: {}", self.message)
+    }
+}
+impl std::error::Error for ZeroDivisionError {}
+impl ZeroDivisionError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[doc = "Add two numbers - should infer numeric types."]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn add_numbers<'a, 'b>(a: &'a serde_json::Value, b: &'b serde_json::Value) -> i32 {
+    a + b
+}
+#[doc = "Process text - should infer string type."]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn process_text(text: &str) -> String {
+    let result = text.to_uppercase();
+    result
+}
+#[doc = "Calculate average - should infer list of numbers."]
+pub fn calculate_average(numbers: &serde_json::Value) -> Result<i32, ZeroDivisionError> {
+    let mut total = 0;
+    let mut count = 0;
+    for num in numbers.iter().cloned() {
+        total = total + num;
+        count = count + 1;
+    }
+    let _cse_temp_0 = count > 0;
+    if _cse_temp_0 {
+        return Ok(total / count);
+    }
+    Ok(0)
+}
+#[doc = "Check string properties."]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn string_checker(s: &str) -> bool {
+    if s.starts_with("hello") {
+        return true;
+    }
+    false
+}
+#[doc = "Perform list operations."]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn list_operations(items: &mut serde_json::Value) -> i32 {
+    items.push(42);
+    items.len() as i32
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{quickcheck, TestResult};
+    #[test]
+    fn quickcheck_add_numbers() {
+        fn prop(a: (), b: ()) -> TestResult {
+            let result1 = add_numbers(a.clone(), b.clone());
+            let result2 = add_numbers(b.clone(), a.clone());
+            if result1 != result2 {
+                return TestResult::failed();
+            }
+            TestResult::passed()
+        }
+        quickcheck(prop as fn((), ()) -> TestResult);
+    }
+    #[test]
+    fn test_string_checker_examples() {
+        let _ = string_checker(Default::default());
+    }
+}
+'''
+
+[[test]]
+name = "type_extraction_demo"
+description = "!/usr/bin/env python3"
+
+python = '''
+#!/usr/bin/env python3
+"""
+Example: Type Extraction Demonstration
+
+This example showcases various Python type annotations that
+Depyler's type extraction system can handle during transpilation.
+"""
+
+from typing import List, Dict, Set, Optional, Union, Tuple, Generic, TypeVar
+
+# Type variables
+T = TypeVar('T')
+K = TypeVar('K')
+V = TypeVar('V')
+
+# Basic type annotations
+def simple_types(
+    a: int,
+    b: float,
+    c: str,
+    d: bool,
+    e: None
+) -> int:
+    """Function with simple type annotations."""
+    return a
+
+# Container types
+def container_types(
+    items: List[int],
+    mapping: Dict[str, float],
+    unique: Set[str],
+    coords: Tuple[int, int, int]
+) -> List[str]:
+    """Function with container type annotations."""
+    return [str(item) for item in items]
+
+# Optional and Union types
+def optional_types(
+    maybe_value: Optional[int],
+    either_type: Union[int, str],
+    complex_union: Union[int, str, float, None]
+) -> Optional[str]:
+    """Function with optional and union types."""
+    if maybe_value is not None:
+        return str(maybe_value)
+    return None
+
+# Nested types
+def nested_types(
+    matrix: List[List[int]],
+    lookup: Dict[str, List[float]],
+    optional_dict: Optional[Dict[str, int]],
+    union_list: List[Union[int, str]]
+) -> Dict[str, List[Optional[int]]]:
+    """Function with nested type annotations."""
+    return {}
+
+# Generic types
+def generic_function(items: List[T]) -> T:
+    """Generic function with type variable."""
+    return items[0] if items else None
+
+# Custom generic class
+class Container(Generic[T]):
+    """Custom generic container."""
+    def __init__(self, value: T):
+        self.value = value
+    
+    def get(self) -> T:
+        return self.value
+    
+    def set(self, value: T) -> None:
+        self.value = value
+
+# Generic with multiple parameters
+class Mapping(Generic[K, V]):
+    """Generic mapping with key and value types."""
+    def __init__(self):
+        self.data: Dict[K, V] = {}
+    
+    def put(self, key: K, value: V) -> None:
+        self.data[key] = value
+    
+    def get(self, key: K) -> Optional[V]:
+        return self.data.get(key)
+
+# Complex nested generics
+def complex_generics(
+    data: List[Optional[Dict[str, Union[int, float]]]],
+    processor: Container[List[T]],
+    mappings: Dict[str, Mapping[str, int]]
+) -> Union[Container[int], List[Optional[str]]]:
+    """Function with complex nested generic types."""
+    return Container(42)
+
+# Type aliases (custom types)
+UserId = int
+Username = str
+UserData = Dict[UserId, Username]
+
+def custom_types(
+    user_id: UserId,
+    username: Username,
+    all_users: UserData
+) -> Optional[Username]:
+    """Function using type aliases."""
+    return all_users.get(user_id)
+
+# Tuple with variable length
+def variable_tuple(*args: int) -> Tuple[int, ...]:
+    """Function with variable-length tuple."""
+    return args
+
+# Function type annotation
+from typing import Callable
+
+def higher_order(
+    func: Callable[[int, int], int],
+    a: int,
+    b: int
+) -> int:
+    """Function taking another function as parameter."""
+    return func(a, b)
+
+# Demonstrating all type extraction capabilities
+def demo_all_types():
+    """Demonstrate type extraction for various Python types."""
+    print("Type Extraction Examples")
+    print("=" * 40)
+    
+    # Simple types
+    result1 = simple_types(1, 2.0, "hello", True, None)
+    print(f"Simple types result: {result1}")
+    
+    # Container types
+    result2 = container_types([1, 2, 3], {"a": 1.0}, {"x", "y"}, (1, 2, 3))
+    print(f"Container types result: {result2}")
+    
+    # Optional types
+    result3 = optional_types(42, "either", 3.14)
+    print(f"Optional types result: {result3}")
+    
+    # Generic usage
+    int_container = Container(42)
+    str_container = Container("hello")
+    print(f"Generic containers: {int_container.get()}, {str_container.get()}")
+    
+    # Mapping usage
+    mapping = Mapping[str, int]()
+    mapping.put("answer", 42)
+    print(f"Generic mapping: {mapping.get('answer')}")
+    
+    # Custom types
+    users = {1: "Alice", 2: "Bob"}
+    username = custom_types(1, "Alice", users)
+    print(f"Custom types result: {username}")
+
+if __name__ == "__main__":
+    demo_all_types()
+'''
+
+rust = '''
+Error: Expression type not yet supported
+'''
+
+[[test]]
+name = "type_inference_demo"
+description = "Example test"
+
+python = '''
+"""
+Demonstration of Depyler's type inference capabilities.
+"""
+
+def process_numbers(a, b):
+    """Numeric operations suggest int/float types."""
+    result = a + b
+    result = result * 2
+    return result
+
+
+def handle_text(message):
+    """String methods suggest str type."""
+    formatted = message.upper()
+    return formatted
+
+
+def work_with_list(data):
+    """List operations suggest list type."""
+    data.append(100)
+    total = 0
+    for item in data:
+        total = total + item
+    return total
+
+
+def check_condition(flag):
+    """Boolean context suggests bool type."""
+    if flag:
+        return 1
+    else:
+        return 0
+'''
+
+rust = '''
+use serde_json;
+#[doc = "Numeric operations suggest int/float types."]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn process_numbers<'b, 'a>(a: &'a serde_json::Value, b: &'b serde_json::Value) -> i32 {
+    let mut result = a + b;
+    let _cse_temp_0 = result * 2;
+    result = _cse_temp_0;
+    result
+}
+#[doc = "String methods suggest str type."]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn handle_text(message: &str) -> String {
+    let formatted = message.to_uppercase();
+    formatted
+}
+#[doc = "List operations suggest list type."]
+#[doc = " Depyler: verified panic-free"]
+pub fn work_with_list(data: &mut serde_json::Value) -> i32 {
+    data.push(100);
+    let mut total = 0;
+    for item in data.iter().cloned() {
+        total = total + item;
+    }
+    total
+}
+#[doc = "Boolean context suggests bool type."]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn check_condition(flag: &serde_json::Value) -> i32 {
+    if flag {
+        1
+    } else {
+        0
+    }
+}
+'''

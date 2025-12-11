@@ -11,7 +11,6 @@ category = "generators"
 [[test]]
 name = "generator_simple_yield"
 description = "Simple generator with single yield"
-tags = ["generator", "yield"]
 
 python = '''
 def simple_generator():
@@ -49,7 +48,6 @@ impl Iterator for SimpleGeneratorState {
 [[test]]
 name = "generator_multiple_yields"
 description = "Generator with multiple yield statements"
-tags = ["generator", "yield"]
 
 python = '''
 def count_to_three():
@@ -97,7 +95,6 @@ impl Iterator for CountToThreeState {
 [[test]]
 name = "generator_with_loop"
 description = "Generator using while loop"
-tags = ["generator", "while"]
 
 python = '''
 def count_up(n: int):
@@ -147,7 +144,6 @@ impl Iterator for CountUpState {
 [[test]]
 name = "generator_with_for"
 description = "Generator using for loop with range"
-tags = ["generator", "for"]
 
 python = '''
 def range_generator(n: int):
@@ -186,7 +182,6 @@ impl Iterator for RangeGeneratorState {
 [[test]]
 name = "generator_with_condition"
 description = "Generator with conditional yield"
-tags = ["generator", "condition"]
 
 python = '''
 def even_numbers(n: int):
@@ -246,7 +241,6 @@ impl Iterator for EvenNumbersState {
 [[test]]
 name = "generator_with_params"
 description = "Generator with parameters"
-tags = ["generator", "parameters"]
 
 python = '''
 def repeat_value(value: int, times: int):
@@ -290,7 +284,6 @@ impl Iterator for RepeatValueState {
 [[test]]
 name = "generator_with_start_stop"
 description = "Generator with start and stop parameters"
-tags = ["generator", "parameters"]
 
 python = '''
 def range_gen(start: int, stop: int):
@@ -347,7 +340,6 @@ impl Iterator for RangeGenState {
 [[test]]
 name = "generator_expression_basic"
 description = "Generator expression syntax"
-tags = ["generator", "expression"]
 
 python = '''
 def sum_squares(n: int) -> int:
@@ -374,7 +366,6 @@ mod tests {
 [[test]]
 name = "generator_expression_filter"
 description = "Generator expression with filter"
-tags = ["generator", "expression", "filter"]
 
 python = '''
 def sum_even_squares(n: int) -> int:
@@ -401,7 +392,6 @@ mod tests {
 [[test]]
 name = "generator_stateful"
 description = "Stateful generator tracking count"
-tags = ["generator", "stateful"]
 
 python = '''
 def counter(start: int):
@@ -456,7 +446,6 @@ impl Iterator for CounterState {
 [[test]]
 name = "generator_fibonacci"
 description = "Fibonacci generator"
-tags = ["generator", "fibonacci"]
 
 python = '''
 def fibonacci(n: int):
@@ -499,7 +488,6 @@ impl Iterator for FibonacciState {
 [[test]]
 name = "generator_consume_list"
 description = "Consume generator into list"
-tags = ["generator", "consume"]
 
 python = '''
 def first_n(n: int) -> list[int]:
@@ -523,7 +511,6 @@ pub fn first_n(n: i32) -> Vec<i32> {
 [[test]]
 name = "generator_for_loop"
 description = "Iterate generator in for loop"
-tags = ["generator", "iteration"]
 
 python = '''
 def sum_generated(n: int) -> int:

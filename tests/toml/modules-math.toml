@@ -11,7 +11,6 @@ category = "stdlib-math"
 [[test]]
 name = "math_sin"
 description = "math.sin() function"
-tags = ["math", "trig"]
 
 python = '''
 import math
@@ -30,7 +29,6 @@ pub fn calculate_sin(x: f64) -> f64 {
 [[test]]
 name = "math_cos"
 description = "math.cos() function"
-tags = ["math", "trig"]
 
 python = '''
 import math
@@ -49,7 +47,6 @@ pub fn calculate_cos(x: f64) -> f64 {
 [[test]]
 name = "math_tan"
 description = "math.tan() function"
-tags = ["math", "trig"]
 
 python = '''
 import math
@@ -68,7 +65,6 @@ pub fn calculate_tan(x: f64) -> f64 {
 [[test]]
 name = "math_exp"
 description = "math.exp() function"
-tags = ["math", "exp"]
 
 python = '''
 import math
@@ -87,7 +83,6 @@ pub fn calculate_exp(x: f64) -> f64 {
 [[test]]
 name = "math_log"
 description = "math.log() natural logarithm"
-tags = ["math", "log"]
 
 python = '''
 import math
@@ -106,7 +101,6 @@ pub fn calculate_log(x: f64) -> f64 {
 [[test]]
 name = "math_log10"
 description = "math.log10() base-10 logarithm"
-tags = ["math", "log"]
 
 python = '''
 import math
@@ -125,7 +119,6 @@ pub fn calculate_log10(x: f64) -> f64 {
 [[test]]
 name = "math_log2"
 description = "math.log2() base-2 logarithm"
-tags = ["math", "log"]
 
 python = '''
 import math
@@ -144,7 +137,6 @@ pub fn calculate_log2(x: f64) -> f64 {
 [[test]]
 name = "math_sqrt"
 description = "math.sqrt() square root"
-tags = ["math", "power"]
 
 python = '''
 import math
@@ -163,7 +155,6 @@ pub fn calculate_sqrt(x: f64) -> f64 {
 [[test]]
 name = "math_pow"
 description = "math.pow() power function"
-tags = ["math", "power"]
 
 python = '''
 import math
@@ -182,7 +173,6 @@ pub fn calculate_pow(x: f64, y: f64) -> f64 {
 [[test]]
 name = "math_floor"
 description = "math.floor() function"
-tags = ["math", "round"]
 
 python = '''
 import math
@@ -201,7 +191,6 @@ pub fn calculate_floor(x: f64) -> i32 {
 [[test]]
 name = "math_ceil"
 description = "math.ceil() function"
-tags = ["math", "round"]
 
 python = '''
 import math
@@ -220,7 +209,6 @@ pub fn calculate_ceil(x: f64) -> i32 {
 [[test]]
 name = "math_trunc"
 description = "math.trunc() function"
-tags = ["math", "round"]
 
 python = '''
 import math
@@ -239,7 +227,6 @@ pub fn calculate_trunc(x: f64) -> i32 {
 [[test]]
 name = "math_round"
 description = "round() builtin function"
-tags = ["math", "round"]
 
 python = '''
 def round_number(x: float) -> int:
@@ -255,7 +242,6 @@ pub fn round_number(x: f64) -> i32 {
 [[test]]
 name = "math_fabs"
 description = "math.fabs() absolute value"
-tags = ["math", "abs"]
 
 python = '''
 import math
@@ -290,7 +276,6 @@ mod tests {
 [[test]]
 name = "abs_builtin"
 description = "abs() builtin function"
-tags = ["math", "abs"]
 
 python = '''
 def absolute_int(x: int) -> int:
@@ -329,7 +314,6 @@ mod tests {
 [[test]]
 name = "math_pi"
 description = "math.pi constant"
-tags = ["math", "constant"]
 
 python = '''
 import math
@@ -348,7 +332,6 @@ pub fn get_pi() -> f64 {
 [[test]]
 name = "math_e"
 description = "math.e constant"
-tags = ["math", "constant"]
 
 python = '''
 import math
@@ -367,7 +350,6 @@ pub fn get_e() -> f64 {
 [[test]]
 name = "math_copysign"
 description = "math.copysign() function"
-tags = ["math", "sign"]
 
 python = '''
 import math
@@ -386,7 +368,6 @@ pub fn copy_sign(x: f64, y: f64) -> f64 {
 [[test]]
 name = "math_hypot"
 description = "math.hypot() function"
-tags = ["math", "geometry"]
 
 python = '''
 import math
@@ -405,7 +386,6 @@ pub fn hypotenuse(x: f64, y: f64) -> f64 {
 [[test]]
 name = "math_isnan"
 description = "math.isnan() check"
-tags = ["math", "check"]
 
 python = '''
 import math
@@ -433,7 +413,6 @@ mod tests {
 [[test]]
 name = "math_isinf"
 description = "math.isinf() check"
-tags = ["math", "check"]
 
 python = '''
 import math
@@ -461,7 +440,6 @@ mod tests {
 [[test]]
 name = "max_two_args"
 description = "max() with two arguments"
-tags = ["math", "minmax"]
 
 python = '''
 def max_two(a: int, b: int) -> int:
@@ -488,7 +466,6 @@ mod tests {
 [[test]]
 name = "min_two_args"
 description = "min() with two arguments"
-tags = ["math", "minmax"]
 
 python = '''
 def min_two(a: int, b: int) -> int:
@@ -515,7 +492,6 @@ mod tests {
 [[test]]
 name = "max_two_floats"
 description = "max() with float arguments"
-tags = ["math", "minmax"]
 
 python = '''
 def max_two_f(a: float, b: float) -> float:
@@ -531,7 +507,6 @@ pub fn max_two_f(a: f64, b: f64) -> f64 {
 [[test]]
 name = "min_two_floats"
 description = "min() with float arguments"
-tags = ["math", "minmax"]
 
 python = '''
 def min_two_f(a: float, b: float) -> float:
@@ -547,7 +522,6 @@ pub fn min_two_f(a: f64, b: f64) -> f64 {
 [[test]]
 name = "max_three_args"
 description = "max() with three arguments"
-tags = ["math", "minmax"]
 
 python = '''
 def max_three() -> int:
@@ -572,7 +546,6 @@ mod tests {
 [[test]]
 name = "max_list"
 description = "max() on list"
-tags = ["math", "minmax"]
 
 python = '''
 def max_list(items: list[int]) -> int:
@@ -599,7 +572,6 @@ mod tests {
 [[test]]
 name = "min_list"
 description = "min() on list"
-tags = ["math", "minmax"]
 
 python = '''
 def min_list(items: list[int]) -> int:
@@ -626,7 +598,6 @@ mod tests {
 [[test]]
 name = "pow_builtin_literals"
 description = "pow() with literal arguments"
-tags = ["math", "power"]
 
 python = '''
 def pow_literal() -> int:
@@ -651,7 +622,6 @@ mod tests {
 [[test]]
 name = "power_operator"
 description = "** power operator"
-tags = ["math", "power"]
 
 python = '''
 def power_op() -> int:
@@ -676,7 +646,6 @@ mod tests {
 [[test]]
 name = "pow_float"
 description = "pow() with float arguments"
-tags = ["math", "power"]
 
 python = '''
 def pow_float(base: float, exp: float) -> float:
@@ -692,7 +661,6 @@ pub fn pow_float(base: f64, exp: f64) -> f64 {
 [[test]]
 name = "mixed_float_int_multiplication"
 description = "Float * int should cast int to f64"
-tags = ["math", "arithmetic"]
 
 python = '''
 def multiply(x: float) -> float:
@@ -708,7 +676,6 @@ pub fn multiply(x: f64) -> f64 {
 [[test]]
 name = "int_float_multiplication"
 description = "Int * float should cast int to f64"
-tags = ["math", "arithmetic"]
 
 python = '''
 def multiply(n: int) -> float:
@@ -724,7 +691,6 @@ pub fn multiply(n: i32) -> f64 {
 [[test]]
 name = "arithmetic_no_format"
 description = "Arithmetic should not use format! for concatenation"
-tags = ["math", "arithmetic"]
 
 python = '''
 def compute(a: int, b: int) -> int:
@@ -754,7 +720,6 @@ mod tests {
 [[test]]
 name = "comparison_less_than"
 description = "Less than comparison"
-tags = ["math", "comparison"]
 
 python = '''
 def is_small(x: int) -> bool:
@@ -779,7 +744,6 @@ mod tests {
 [[test]]
 name = "comparison_greater_than"
 description = "Greater than comparison"
-tags = ["math", "comparison"]
 
 python = '''
 def is_large(x: int) -> bool:
@@ -804,7 +768,6 @@ mod tests {
 [[test]]
 name = "comparison_equality"
 description = "Equality comparison"
-tags = ["math", "comparison"]
 
 python = '''
 def is_one(x: int) -> bool:
@@ -829,7 +792,6 @@ mod tests {
 [[test]]
 name = "comparison_not_equal"
 description = "Not equal comparison"
-tags = ["math", "comparison"]
 
 python = '''
 def is_not_one(x: int) -> bool:
@@ -854,7 +816,6 @@ mod tests {
 [[test]]
 name = "math_gcd"
 description = "math.gcd() greatest common divisor"
-tags = ["math", "arithmetic"]
 
 python = '''
 import math
@@ -893,7 +854,6 @@ mod tests {
 [[test]]
 name = "math_lcm"
 description = "math.lcm() least common multiple"
-tags = ["math", "arithmetic"]
 
 python = '''
 import math
@@ -939,7 +899,6 @@ mod tests {
 [[test]]
 name = "math_fmod"
 description = "math.fmod() floating point modulo"
-tags = ["math", "arithmetic"]
 
 python = '''
 import math
@@ -958,7 +917,6 @@ pub fn fmod_func(x: f64, y: f64) -> f64 {
 [[test]]
 name = "builtin_divmod"
 description = "divmod() quotient and remainder"
-tags = ["builtin", "math"]
 
 python = '''
 def div_and_mod(a: int, b: int) -> tuple:
@@ -974,7 +932,6 @@ pub fn div_and_mod(a: i32, b: i32) -> () {
 [[test]]
 name = "floor_division_with_constant"
 description = "Floor division operation with module-level constant"
-tags = ["math", "operators", "floor-division"]
 
 python = '''
 VALUE = 23.34

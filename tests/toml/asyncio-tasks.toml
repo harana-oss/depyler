@@ -9,161 +9,835 @@ category = "async"
 # Creating Tasks
 # =============================================================================
 
-# TODO: Test asyncio.create_task
-# [[test]]
-# name = "create_task"
-# description = "task = asyncio.create_task(coro())"
+[[test]]
+name = "create_task"
+description = "task = asyncio.create_task(coro())"
 
-# TODO: Test task name
-# [[test]]
-# name = "task_name"
-# description = "asyncio.create_task(coro(), name='my_task')"
+python = '''
+import asyncio
 
-# TODO: Test ensure_future
-# [[test]]
-# name = "ensure_future"
-# description = "asyncio.ensure_future(awaitable)"
+async def my_coro() -> int:
+    return 42
+
+async def test_create_task() -> int:
+    task = asyncio.create_task(my_coro())
+    return await task
+'''
+
+rust = '''
+use tokio::task;
+
+async fn my_coro() -> i32 {
+    42
+}
+
+pub async fn test_create_task() -> i32 {
+    let task = task::spawn(my_coro());
+    task.await.unwrap()
+}
+'''
+
+
+[[test]]
+name = "task_name"
+description = "asyncio.create_task(coro(), name='my_task')"
+
+python = '''
+import asyncio
+
+async def my_coro() -> int:
+    return 42
+
+async def test_task_name() -> str:
+    task = asyncio.create_task(my_coro(), name='my_task')
+    await task
+    return task.get_name()
+'''
+
+rust = '''
+use tokio::task;
+
+async fn my_coro() -> i32 {
+    42
+}
+
+pub async fn test_task_name() -> String {
+    let task = task::Builder::new().name("my_task").spawn(my_coro()).unwrap();
+    task.await.unwrap();
+    "my_task".to_string()
+}
+'''
+
+
+[[test]]
+name = "ensure_future"
+description = "asyncio.ensure_future(awaitable)"
+
+python = '''
+import asyncio
+
+async def my_coro() -> int:
+    return 42
+
+async def test_ensure_future() -> int:
+    future = asyncio.ensure_future(my_coro())
+    return await future
+'''
+
+rust = '''
+use tokio::task;
+
+async fn my_coro() -> i32 {
+    42
+}
+
+pub async fn test_ensure_future() -> i32 {
+    let future = task::spawn(my_coro());
+    future.await.unwrap()
+}
+'''
+
 
 # =============================================================================
 # Task Management
 # =============================================================================
 
-# TODO: Test task.cancel()
-# [[test]]
-# name = "task_cancel"
-# description = "Cancel a running task"
+[[test]]
+name = "task_cancel"
+description = "Cancel a running task"
 
-# TODO: Test task.done()
-# [[test]]
-# name = "task_done"
-# description = "Check if task completed"
+python = '''
+import asyncio
 
-# TODO: Test task.result()
-# [[test]]
-# name = "task_result"
-# description = "Get task result after completion"
+async def long_task() -> int:
+    await asyncio.sleep(10)
+    return 42
 
-# TODO: Test task.exception()
-# [[test]]
-# name = "task_exception"
-# description = "Get exception from failed task"
+async def test_task_cancel() -> bool:
+    task = asyncio.create_task(long_task())
+    task.cancel()
+    return task.cancelled()
+'''
+
+rust = '''
+use tokio::time::{sleep, Duration};
+use tokio::task;
+
+async fn long_task() -> i32 {
+    sleep(Duration::from_secs(10)).await;
+    42
+}
+
+pub async fn test_task_cancel() -> bool {
+    let task = task::spawn(long_task());
+    task.abort();
+    task.await.is_err()
+}
+'''
+
+
+[[test]]
+name = "task_done"
+description = "Check if task completed"
+
+python = '''
+import asyncio
+
+async def my_coro() -> int:
+    return 42
+
+async def test_task_done() -> bool:
+    task = asyncio.create_task(my_coro())
+    await task
+    return task.done()
+'''
+
+rust = '''
+use tokio::task;
+
+async fn my_coro() -> i32 {
+    42
+}
+
+pub async fn test_task_done() -> bool {
+    let task = task::spawn(my_coro());
+    task.await.is_ok()
+}
+'''
+
+
+[[test]]
+name = "task_result"
+description = "Get task result after completion"
+
+python = '''
+import asyncio
+
+async def my_coro() -> int:
+    return 42
+
+async def test_task_result() -> int:
+    task = asyncio.create_task(my_coro())
+    await task
+    return task.result()
+'''
+
+rust = '''
+use tokio::task;
+
+async fn my_coro() -> i32 {
+    42
+}
+
+pub async fn test_task_result() -> i32 {
+    let task = task::spawn(my_coro());
+    task.await.unwrap()
+}
+'''
+
+
+[[test]]
+name = "task_exception"
+description = "Get exception from failed task"
+
+python = '''
+import asyncio
+
+async def failing_coro() -> int:
+    raise ValueError("Task failed")
+
+async def test_task_exception() -> bool:
+    task = asyncio.create_task(failing_coro())
+    try:
+        await task
+        return False
+    except ValueError:
+        return task.exception() is not None
+'''
+
+rust = '''
+use tokio::task;
+
+async fn failing_coro() -> Result<i32, String> {
+    Err("Task failed".to_string())
+}
+
+pub async fn test_task_exception() -> bool {
+    let task = task::spawn(failing_coro());
+    task.await.unwrap().is_err()
+}
+'''
+
 
 # =============================================================================
 # Gathering Tasks
 # =============================================================================
 
-# TODO: Test asyncio.gather
-# [[test]]
-# name = "gather_basic"
-# description = "results = await asyncio.gather(*coros)"
+[[test]]
+name = "gather_basic"
+description = "results = await asyncio.gather(*coros)"
 
-# TODO: Test gather with return_exceptions
-# [[test]]
-# name = "gather_exceptions"
-# description = "gather(return_exceptions=True)"
+python = '''
+import asyncio
 
-# TODO: Test gather cancellation
-# [[test]]
-# name = "gather_cancel"
-# description = "Cancelling gathered tasks"
+async def coro1() -> int:
+    return 1
+
+async def coro2() -> int:
+    return 2
+
+async def test_gather_basic() -> list:
+    results = await asyncio.gather(coro1(), coro2())
+    return list(results)
+'''
+
+rust = '''
+use tokio::join;
+
+async fn coro1() -> i32 {
+    1
+}
+
+async fn coro2() -> i32 {
+    2
+}
+
+pub async fn test_gather_basic() -> Vec<i32> {
+    let (r1, r2) = join!(coro1(), coro2());
+    vec![r1, r2]
+}
+'''
+
+
+[[test]]
+name = "gather_exceptions"
+description = "gather(return_exceptions=True)"
+
+python = '''
+import asyncio
+
+async def success_coro() -> int:
+    return 1
+
+async def failing_coro() -> int:
+    raise ValueError("Failed")
+
+async def test_gather_exceptions() -> int:
+    results = await asyncio.gather(success_coro(), failing_coro(), return_exceptions=True)
+    return len(results)
+'''
+
+rust = '''
+use tokio::join;
+
+async fn success_coro() -> Result<i32, String> {
+    Ok(1)
+}
+
+async fn failing_coro() -> Result<i32, String> {
+    Err("Failed".to_string())
+}
+
+pub async fn test_gather_exceptions() -> usize {
+    let (r1, r2) = join!(success_coro(), failing_coro());
+    vec![r1, r2].len()
+}
+'''
+
+
+[[test]]
+name = "gather_cancel"
+description = "Cancelling gathered tasks"
+
+python = '''
+import asyncio
+
+async def long_coro() -> int:
+    await asyncio.sleep(10)
+    return 1
+
+async def test_gather_cancel() -> bool:
+    task = asyncio.create_task(asyncio.gather(long_coro(), long_coro()))
+    task.cancel()
+    try:
+        await task
+        return False
+    except asyncio.CancelledError:
+        return True
+'''
+
+rust = '''
+use tokio::time::{sleep, Duration};
+use tokio::task;
+
+async fn long_coro() -> i32 {
+    sleep(Duration::from_secs(10)).await;
+    1
+}
+
+pub async fn test_gather_cancel() -> bool {
+    let task = task::spawn(async {
+        tokio::join!(long_coro(), long_coro());
+    });
+    task.abort();
+    task.await.is_err()
+}
+'''
+
 
 # =============================================================================
 # Waiting for Tasks
 # =============================================================================
 
-# TODO: Test asyncio.wait
-# [[test]]
-# name = "wait_basic"
-# description = "done, pending = await asyncio.wait(tasks)"
+[[test]]
+name = "wait_basic"
+description = "done, pending = await asyncio.wait(tasks)"
 
-# TODO: Test wait with timeout
-# [[test]]
-# name = "wait_timeout"
-# description = "asyncio.wait(tasks, timeout=1.0)"
+python = '''
+import asyncio
 
-# TODO: Test wait with return_when
-# [[test]]
-# name = "wait_return_when"
-# description = "FIRST_COMPLETED, FIRST_EXCEPTION, ALL_COMPLETED"
+async def my_coro(n: int) -> int:
+    return n
 
-# TODO: Test asyncio.wait_for
-# [[test]]
-# name = "wait_for"
-# description = "await asyncio.wait_for(coro, timeout=1.0)"
+async def test_wait_basic() -> int:
+    task1 = asyncio.create_task(my_coro(1))
+    task2 = asyncio.create_task(my_coro(2))
+    done, pending = await asyncio.wait([task1, task2])
+    return len(done)
+'''
+
+rust = '''
+use tokio::task::{self, JoinSet};
+
+async fn my_coro(n: i32) -> i32 {
+    n
+}
+
+pub async fn test_wait_basic() -> usize {
+    let mut set = JoinSet::new();
+    set.spawn(my_coro(1));
+    set.spawn(my_coro(2));
+    
+    let mut count = 0;
+    while let Some(_) = set.join_next().await {
+        count += 1;
+    }
+    count
+}
+'''
+
+
+[[test]]
+name = "wait_timeout"
+description = "asyncio.wait(tasks, timeout=1.0)"
+
+python = '''
+import asyncio
+
+async def long_coro() -> int:
+    await asyncio.sleep(10)
+    return 1
+
+async def test_wait_timeout() -> bool:
+    task = asyncio.create_task(long_coro())
+    done, pending = await asyncio.wait([task], timeout=0.1)
+    return len(pending) > 0
+'''
+
+rust = '''
+use tokio::time::{sleep, Duration, timeout};
+
+async fn long_coro() -> i32 {
+    sleep(Duration::from_secs(10)).await;
+    1
+}
+
+pub async fn test_wait_timeout() -> bool {
+    let result = timeout(Duration::from_millis(100), long_coro()).await;
+    result.is_err()
+}
+'''
+
+
+[[test]]
+name = "wait_return_when"
+description = "FIRST_COMPLETED, FIRST_EXCEPTION, ALL_COMPLETED"
+
+python = '''
+import asyncio
+
+async def fast_coro() -> int:
+    await asyncio.sleep(0.01)
+    return 1
+
+async def slow_coro() -> int:
+    await asyncio.sleep(10)
+    return 2
+
+async def test_wait_return_when() -> int:
+    task1 = asyncio.create_task(fast_coro())
+    task2 = asyncio.create_task(slow_coro())
+    done, pending = await asyncio.wait([task1, task2], return_when=asyncio.FIRST_COMPLETED)
+    return len(done)
+'''
+
+rust = '''
+use tokio::time::{sleep, Duration};
+use tokio::select;
+
+async fn fast_coro() -> i32 {
+    sleep(Duration::from_millis(10)).await;
+    1
+}
+
+async fn slow_coro() -> i32 {
+    sleep(Duration::from_secs(10)).await;
+    2
+}
+
+pub async fn test_wait_return_when() -> usize {
+    let f1 = fast_coro();
+    let f2 = slow_coro();
+    
+    select! {
+        _ = f1 => 1,
+        _ = f2 => 1,
+    }
+}
+'''
+
+
+[[test]]
+name = "wait_for"
+description = "await asyncio.wait_for(coro, timeout=1.0)"
+
+python = '''
+import asyncio
+
+async def quick_coro() -> int:
+    await asyncio.sleep(0.01)
+    return 42
+
+async def test_wait_for() -> int:
+    result = await asyncio.wait_for(quick_coro(), timeout=1.0)
+    return result
+'''
+
+rust = '''
+use tokio::time::{sleep, Duration, timeout};
+
+async fn quick_coro() -> i32 {
+    sleep(Duration::from_millis(10)).await;
+    42
+}
+
+pub async fn test_wait_for() -> i32 {
+    timeout(Duration::from_secs(1), quick_coro()).await.unwrap()
+}
+'''
+
 
 # =============================================================================
 # Task Groups (Python 3.11+)
 # =============================================================================
 
-# TODO: Test TaskGroup
-# [[test]]
-# name = "task_group"
-# description = "async with asyncio.TaskGroup() as tg: tg.create_task()"
+[[test]]
+name = "task_group"
+description = "async with asyncio.TaskGroup() as tg: tg.create_task()"
 
-# TODO: Test TaskGroup exception handling
-# [[test]]
-# name = "task_group_exception"
-# description = "TaskGroup cancels all on first exception"
+python = '''
+import asyncio
+
+async def my_coro(n: int) -> int:
+    return n
+
+async def test_task_group() -> int:
+    async with asyncio.TaskGroup() as tg:
+        task1 = tg.create_task(my_coro(1))
+        task2 = tg.create_task(my_coro(2))
+    return task1.result() + task2.result()
+'''
+
+rust = '''
+use tokio::task::JoinSet;
+
+async fn my_coro(n: i32) -> i32 {
+    n
+}
+
+pub async fn test_task_group() -> i32 {
+    let mut set = JoinSet::new();
+    set.spawn(my_coro(1));
+    set.spawn(my_coro(2));
+    
+    let mut sum = 0;
+    while let Some(result) = set.join_next().await {
+        sum += result.unwrap();
+    }
+    sum
+}
+'''
+
+
+[[test]]
+name = "task_group_exception"
+description = "TaskGroup cancels all on first exception"
+
+python = '''
+import asyncio
+
+async def failing_coro() -> int:
+    raise ValueError("Failed")
+
+async def test_task_group_exception() -> bool:
+    try:
+        async with asyncio.TaskGroup() as tg:
+            tg.create_task(failing_coro())
+        return False
+    except ValueError:
+        return True
+'''
+
+rust = '''
+use tokio::task::JoinSet;
+
+async fn failing_coro() -> Result<i32, String> {
+    Err("Failed".to_string())
+}
+
+pub async fn test_task_group_exception() -> bool {
+    let mut set = JoinSet::new();
+    set.spawn(failing_coro());
+    
+    while let Some(result) = set.join_next().await {
+        if result.unwrap().is_err() {
+            return true;
+        }
+    }
+    false
+}
+'''
+
 
 # =============================================================================
 # Running Tasks
 # =============================================================================
 
-# TODO: Test asyncio.run
-# [[test]]
-# name = "asyncio_run"
-# description = "asyncio.run(main())"
+[[test]]
+name = "asyncio_run"
+description = "asyncio.run(main())"
 
-# TODO: Test event loop
-# [[test]]
-# name = "event_loop"
-# description = "asyncio.get_event_loop()"
+python = '''
+import asyncio
 
-# TODO: Test asyncio.sleep
-# [[test]]
-# name = "asyncio_sleep"
-# description = "await asyncio.sleep(1.0)"
+async def main() -> int:
+    return 42
+
+def test_asyncio_run() -> int:
+    return asyncio.run(main())
+'''
+
+rust = '''
+async fn main_impl() -> i32 {
+    42
+}
+
+pub fn test_asyncio_run() -> i32 {
+    tokio::runtime::Runtime::new().unwrap().block_on(main_impl())
+}
+'''
+
+
+[[test]]
+name = "event_loop"
+description = "asyncio.get_event_loop()"
+
+python = '''
+import asyncio
+
+def test_event_loop() -> bool:
+    loop = asyncio.get_event_loop()
+    return loop is not None
+'''
+
+rust = '''
+pub fn test_event_loop() -> bool {
+    tokio::runtime::Handle::try_current().is_ok()
+}
+'''
+
+
+[[test]]
+name = "asyncio_sleep"
+description = "await asyncio.sleep(1.0)"
+
+python = '''
+import asyncio
+
+async def test_asyncio_sleep() -> bool:
+    await asyncio.sleep(0.01)
+    return True
+'''
+
+rust = '''
+use tokio::time::{sleep, Duration};
+
+pub async fn test_asyncio_sleep() -> bool {
+    sleep(Duration::from_millis(10)).await;
+    true
+}
+'''
+
 
 # =============================================================================
 # Synchronization
 # =============================================================================
 
-# TODO: Test asyncio.Lock
-# [[test]]
-# name = "asyncio_lock"
-# description = "async with asyncio.Lock(): ..."
+[[test]]
+name = "asyncio_lock"
+description = "async with asyncio.Lock(): ..."
 
-# TODO: Test asyncio.Event
-# [[test]]
-# name = "asyncio_event"
-# description = "event.set(), await event.wait()"
+python = '''
+import asyncio
 
-# TODO: Test asyncio.Semaphore
-# [[test]]
-# name = "asyncio_semaphore"
-# description = "Limit concurrent operations"
+async def test_asyncio_lock() -> int:
+    lock = asyncio.Lock()
+    async with lock:
+        return 42
+'''
 
-# TODO: Test asyncio.Queue
-# [[test]]
-# name = "asyncio_queue"
-# description = "Async producer-consumer queue"
+rust = '''
+use tokio::sync::Mutex;
+
+pub async fn test_asyncio_lock() -> i32 {
+    let mutex = Mutex::new(42);
+    let guard = mutex.lock().await;
+    *guard
+}
+'''
+
+
+[[test]]
+name = "asyncio_event"
+description = "event.set(), await event.wait()"
+
+python = '''
+import asyncio
+
+async def test_asyncio_event() -> bool:
+    event = asyncio.Event()
+    event.set()
+    await event.wait()
+    return event.is_set()
+'''
+
+rust = '''
+use tokio::sync::Notify;
+use std::sync::Arc;
+
+pub async fn test_asyncio_event() -> bool {
+    let notify = Arc::new(Notify::new());
+    notify.notify_one();
+    notify.notified().await;
+    true
+}
+'''
+
+
+[[test]]
+name = "asyncio_semaphore"
+description = "Limit concurrent operations"
+
+python = '''
+import asyncio
+
+async def test_asyncio_semaphore() -> int:
+    sem = asyncio.Semaphore(2)
+    async with sem:
+        return 1
+'''
+
+rust = '''
+use tokio::sync::Semaphore;
+
+pub async fn test_asyncio_semaphore() -> i32 {
+    let sem = Semaphore::new(2);
+    let _permit = sem.acquire().await.unwrap();
+    1
+}
+'''
+
+
+[[test]]
+name = "asyncio_queue"
+description = "Async producer-consumer queue"
+
+python = '''
+import asyncio
+
+async def test_asyncio_queue() -> int:
+    queue = asyncio.Queue()
+    await queue.put(42)
+    return await queue.get()
+'''
+
+rust = '''
+use tokio::sync::mpsc;
+
+pub async fn test_asyncio_queue() -> i32 {
+    let (tx, mut rx) = mpsc::channel(10);
+    tx.send(42).await.unwrap();
+    rx.recv().await.unwrap()
+}
+'''
+
 
 # =============================================================================
 # Edge Cases
 # =============================================================================
 
-# TODO: Test orphaned task
-# [[test]]
-# name = "orphaned_task"
-# description = "Task created but not awaited"
+[[test]]
+name = "orphaned_task"
+description = "Task created but not awaited"
 
-# TODO: Test task in different loop
-# [[test]]
-# name = "task_different_loop"
-# description = "Task running in different event loop"
-# skip = true
+python = '''
+import asyncio
 
-# TODO: Test shielding from cancellation
-# [[test]]
-# name = "shield"
-# description = "asyncio.shield(coro)"
+async def background_coro() -> int:
+    return 42
+
+async def test_orphaned_task() -> bool:
+    task = asyncio.create_task(background_coro())
+    return not task.done()
+'''
+
+rust = '''
+use tokio::task;
+
+async fn background_coro() -> i32 {
+    42
+}
+
+pub async fn test_orphaned_task() -> bool {
+    let _task = task::spawn(background_coro());
+    true
+}
+'''
+
+
+[[test]]
+name = "task_different_loop"
+description = "Task running in different event loop"
+skip = true
+
+python = '''
+import asyncio
+
+async def my_coro() -> int:
+    return 42
+
+def test_task_different_loop() -> bool:
+    loop1 = asyncio.new_event_loop()
+    loop2 = asyncio.new_event_loop()
+    return loop1 is not loop2
+'''
+
+rust = '''
+pub fn test_task_different_loop() -> bool {
+    let rt1 = tokio::runtime::Runtime::new().unwrap();
+    let rt2 = tokio::runtime::Runtime::new().unwrap();
+    true
+}
+'''
+
+
+[[test]]
+name = "shield"
+description = "asyncio.shield(coro)"
+
+python = '''
+import asyncio
+
+async def my_coro() -> int:
+    await asyncio.sleep(0.1)
+    return 42
+
+async def test_shield() -> int:
+    shielded = asyncio.shield(my_coro())
+    return await shielded
+'''
+
+rust = '''
+use tokio::time::{sleep, Duration};
+
+async fn my_coro() -> i32 {
+    sleep(Duration::from_millis(100)).await;
+    42
+}
+
+pub async fn test_shield() -> i32 {
+    my_coro().await
+}
+'''
+
+

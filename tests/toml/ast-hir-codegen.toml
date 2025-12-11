@@ -11,7 +11,6 @@ category = "ast-hir-codegen"
 [[test]]
 name = "ast_function_def"
 description = "AST function definition parsing"
-tags = ["ast", "function"]
 
 python = '''
 def simple_func():
@@ -25,7 +24,6 @@ pub fn simple_func() {}
 [[test]]
 name = "ast_class_def"
 description = "AST class definition parsing"
-tags = ["ast", "class"]
 
 python = '''
 class SimpleClass:
@@ -45,7 +43,6 @@ impl SimpleClass {
 [[test]]
 name = "ast_assignment"
 description = "AST assignment statement parsing"
-tags = ["ast", "assignment"]
 
 python = '''
 def main():
@@ -63,7 +60,6 @@ pub fn main() {
 [[test]]
 name = "hir_type_inference_int"
 description = "HIR type inference for integers"
-tags = ["hir", "type"]
 
 python = '''
 def get_number() -> int:
@@ -88,7 +84,6 @@ mod tests {
 [[test]]
 name = "hir_type_inference_string"
 description = "HIR type inference for strings"
-tags = ["hir", "type"]
 
 python = '''
 def get_message() -> str:
@@ -104,7 +99,6 @@ pub fn get_message() -> String {
 [[test]]
 name = "hir_type_inference_list"
 description = "HIR type inference for lists"
-tags = ["hir", "type"]
 
 python = '''
 def get_numbers() -> list[int]:
@@ -120,7 +114,6 @@ pub fn get_numbers() -> Vec<i32> {
 [[test]]
 name = "hir_control_flow_if"
 description = "HIR control flow representation"
-tags = ["hir", "control-flow"]
 
 python = '''
 def conditional(x: int) -> int:
@@ -155,7 +148,6 @@ mod tests {
 [[test]]
 name = "hir_loop_for"
 description = "HIR for loop representation"
-tags = ["hir", "loop"]
 
 python = '''
 def sum_list(nums: list[int]) -> int:
@@ -189,7 +181,6 @@ mod tests {
 [[test]]
 name = "hir_loop_while"
 description = "HIR while loop representation"
-tags = ["hir", "loop"]
 
 python = '''
 def countdown(n: int) -> int:
@@ -221,7 +212,6 @@ mod tests {
 [[test]]
 name = "codegen_function_signature"
 description = "Function signature code generation"
-tags = ["codegen", "function"]
 
 python = '''
 def add(a: int, b: int) -> int:
@@ -263,7 +253,6 @@ mod tests {
 [[test]]
 name = "codegen_struct_definition"
 description = "Struct definition code generation"
-tags = ["codegen", "struct"]
 
 python = '''
 class Point:
@@ -316,7 +305,6 @@ impl Point {
 [[test]]
 name = "codegen_impl_block"
 description = "Impl block code generation"
-tags = ["codegen", "impl"]
 
 python = '''
 class Counter:
@@ -366,7 +354,6 @@ impl Counter {
 [[test]]
 name = "edge_empty_function"
 description = "Empty function body handling"
-tags = ["edge", "function"]
 
 python = '''
 def do_nothing():
@@ -380,7 +367,6 @@ pub fn do_nothing() {}
 [[test]]
 name = "edge_nested_functions"
 description = "Nested function handling"
-tags = ["edge", "closure"]
 
 python = '''
 def outer(x: int) -> int:
@@ -412,7 +398,6 @@ mod tests {
 [[test]]
 name = "edge_docstring"
 description = "Docstring preservation or comment"
-tags = ["edge", "docstring"]
 
 python = '''
 def documented() -> int:
@@ -439,7 +424,6 @@ mod tests {
 [[test]]
 name = "edge_decorator"
 description = "Decorator handling"
-tags = ["edge", "decorator"]
 
 python = '''
 class Foo:
@@ -464,7 +448,6 @@ impl Foo {
 [[test]]
 name = "edge_multiple_return"
 description = "Multiple return values as tuple"
-tags = ["edge", "tuple"]
 
 python = '''
 def divmod_impl(a: int, b: int) -> tuple[int, int]:
@@ -494,7 +477,6 @@ pub fn divmod_impl(a: i32, b: i32) -> (i32, i32) {
 [[test]]
 name = "edge_unicode_strings"
 description = "Unicode in strings"
-tags = ["edge", "unicode"]
 
 python = '''
 def greet() -> str:

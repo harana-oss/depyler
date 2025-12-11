@@ -12,7 +12,6 @@ category = "data-structures"
 [[test]]
 name = "bytes_literal"
 description = "b'hello'"
-tags = ["bytes", "literal"]
 
 python = '''
 result = b'hello'
@@ -25,7 +24,6 @@ let result = b"hello";
 [[test]]
 name = "bytes_escapes"
 description = "b'\\x00\\xff\\n'"
-tags = ["bytes", "escapes"]
 
 python = '''
 result = b'\x00\xff\n'
@@ -38,7 +36,6 @@ let result = b"\x00\xff\n";
 [[test]]
 name = "bytes_raw"
 description = "rb'\\n' vs b'\\n'"
-tags = ["bytes", "raw"]
 
 python = '''
 raw = rb'\n'
@@ -59,7 +56,6 @@ let result = (raw.len(), escaped.len());
 [[test]]
 name = "bytes_from_int"
 description = "bytes(10) - zero bytes"
-tags = ["bytes", "constructor"]
 
 python = '''
 result = bytes(10)
@@ -74,7 +70,6 @@ let length = result.len();
 [[test]]
 name = "bytes_from_iterable"
 description = "bytes([65, 66, 67])"
-tags = ["bytes", "constructor"]
 
 python = '''
 result = bytes([65, 66, 67])
@@ -87,7 +82,6 @@ let result: Vec<u8> = vec![65, 66, 67];
 [[test]]
 name = "bytes_from_string"
 description = "'hello'.encode('utf-8')"
-tags = ["bytes", "encode"]
 
 python = '''
 result = 'hello'.encode('utf-8')
@@ -104,7 +98,6 @@ let result = "hello".as_bytes().to_vec();
 [[test]]
 name = "bytearray_mutable"
 description = "ba = bytearray(b'hi'); ba[0] = 72"
-tags = ["bytearray", "mutable"]
 
 python = '''
 ba = bytearray(b'hi')
@@ -121,7 +114,6 @@ let result = ba;
 [[test]]
 name = "bytearray_methods"
 description = "append, extend, pop"
-tags = ["bytearray", "methods"]
 
 python = '''
 ba = bytearray(b'ab')
@@ -142,7 +134,6 @@ let result = ba;
 [[test]]
 name = "bytearray_to_bytes"
 description = "bytes(ba)"
-tags = ["bytearray", "conversion"]
 
 python = '''
 ba = bytearray(b'hello')
@@ -161,7 +152,6 @@ let result = ba;
 [[test]]
 name = "bytes_find"
 description = "b'hello'.find(b'l')"
-tags = ["bytes", "methods"]
 
 python = '''
 result = b'hello'.find(b'l')
@@ -179,7 +169,6 @@ let result = haystack.windows(needle.len())
 [[test]]
 name = "bytes_split"
 description = "b'a,b,c'.split(b',')"
-tags = ["bytes", "split"]
 
 python = '''
 result = b'a,b,c'.split(b',')
@@ -195,7 +184,6 @@ let result: Vec<Vec<u8>> = b"a,b,c"
 [[test]]
 name = "bytes_startswith"
 description = "b'hello'.startswith(b'he')"
-tags = ["bytes", "startswith"]
 
 python = '''
 starts = b'hello'.startswith(b'he')
@@ -213,7 +201,6 @@ let result = (starts, ends);
 [[test]]
 name = "bytes_replace"
 description = "b'hello'.replace(b'l', b'L')"
-tags = ["bytes", "replace"]
 
 python = '''
 result = b'hello'.replace(b'l', b'L')
@@ -229,7 +216,6 @@ let result = b"hello"
 [[test]]
 name = "bytes_case"
 description = "b'Hello'.lower()"
-tags = ["bytes", "case"]
 
 python = '''
 lower = b'Hello'.lower()
@@ -250,7 +236,6 @@ let result = (lower, upper);
 [[test]]
 name = "bytes_decode"
 description = "b'hello'.decode('utf-8')"
-tags = ["bytes", "decode"]
 
 python = '''
 result = b'hello'.decode('utf-8')
@@ -263,7 +248,6 @@ let result = String::from_utf8(b"hello".to_vec()).unwrap();
 [[test]]
 name = "bytes_encode"
 description = "'hello'.encode('utf-8')"
-tags = ["bytes", "encode"]
 
 python = '''
 result = 'hello'.encode('utf-8')
@@ -276,7 +260,6 @@ let result = "hello".as_bytes().to_vec();
 [[test]]
 name = "bytes_encoding_errors"
 description = "errors='ignore', 'replace', 'strict'"
-tags = ["bytes", "encoding", "errors"]
 skip = true
 
 python = '''
@@ -299,7 +282,6 @@ let result_ignore = String::from_utf8_lossy(&invalid);
 [[test]]
 name = "bytes_concat"
 description = "b'a' + b'b'"
-tags = ["bytes", "operations"]
 
 python = '''
 result = b'a' + b'b'
@@ -313,7 +295,6 @@ result.extend_from_slice(b"b");
 [[test]]
 name = "bytes_repeat"
 description = "b'ab' * 3"
-tags = ["bytes", "repeat"]
 
 python = '''
 result = b'ab' * 3
@@ -326,7 +307,6 @@ let result = b"ab".repeat(3);
 [[test]]
 name = "bytes_contains"
 description = "b'l' in b'hello'"
-tags = ["bytes", "contains"]
 
 python = '''
 result = b'l' in b'hello'
@@ -339,7 +319,6 @@ let result = b"hello".contains(&b'l');
 [[test]]
 name = "bytes_index"
 description = "b'hello'[0] returns int"
-tags = ["bytes", "indexing"]
 
 python = '''
 result = b'hello'[0]
@@ -354,7 +333,6 @@ let is_int = true;  // result is u8
 [[test]]
 name = "bytes_slice"
 description = "b'hello'[1:3]"
-tags = ["bytes", "slicing"]
 
 python = '''
 result = b'hello'[1:3]
@@ -371,7 +349,6 @@ let result = &b"hello"[1..3];
 [[test]]
 name = "bytes_empty"
 description = "b'' and bytes()"
-tags = ["bytes", "empty"]
 
 python = '''
 empty1 = b''
@@ -388,7 +365,6 @@ let result = (empty1.len(), empty2.len());
 [[test]]
 name = "bytes_vs_str"
 description = "Different types, comparison"
-tags = ["bytes", "comparison"]
 
 python = '''
 b = b'hello'
@@ -407,7 +383,6 @@ let result = are_equal;
 [[test]]
 name = "bytes_hex"
 description = "b'\\xde\\xad'.hex() and bytes.fromhex('dead')"
-tags = ["bytes", "hex"]
 
 python = '''
 data = b'\xde\xad'
