@@ -9,8 +9,8 @@ use crate::rust_gen::context::{CodeGenContext, ToRustExpr};
 use crate::rust_gen::return_type_expects_float;
 use crate::rust_gen::type_gen::convert_binop;
 use crate::string_optimization::{StringContext, StringOptimizer};
-use anyhow::{Result, bail};
-use quote::{ToTokens, format_ident, quote};
+use anyhow::{bail, Result};
+use quote::{format_ident, quote, ToTokens};
 use syn::{self, parse_quote};
 
 struct ExpressionConverter<'a, 'b> {
@@ -227,7 +227,8 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                             .collect::<Result<Vec<_>>>()?;
 
                         // Check if left side is a String that needs .as_str()
-                        let left_is_string_literal = matches!(left, HirExpr::Literal(Literal::String(_)));
+                        let left_is_string_literal =
+                            matches!(left, HirExpr::Literal(Literal::String(_)));
                         if left_is_string_literal {
                             // String literal is already &str, just use it directly
                             return Ok(parse_quote! { [#(#elem_exprs),*].contains(&#left_expr) });
@@ -247,7 +248,9 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                                 left_expr.clone()
                             };
                             // Convert String to &str for comparison with &str array
-                            return Ok(parse_quote! { [#(#elem_exprs),*].contains(&#left_expr_no_clone.as_str()) });
+                            return Ok(
+                                parse_quote! { [#(#elem_exprs),*].contains(&#left_expr_no_clone.as_str()) },
+                            );
                         }
                         return Ok(parse_quote! { [#(#elem_exprs),*].contains(&#left_expr) });
                     }
@@ -337,7 +340,8 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
 
                     if all_string_literals {
                         // Check if left side is a String that needs .as_str()
-                        let left_is_string_literal = matches!(left, HirExpr::Literal(Literal::String(_)));
+                        let left_is_string_literal =
+                            matches!(left, HirExpr::Literal(Literal::String(_)));
                         if left_is_string_literal {
                             return Ok(parse_quote! { ![#(#elem_exprs),*].contains(&#left_expr) });
                         }
@@ -353,7 +357,9 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                             } else {
                                 left_expr.clone()
                             };
-                            return Ok(parse_quote! { ![#(#elem_exprs),*].contains(&#left_expr_no_clone.as_str()) });
+                            return Ok(
+                                parse_quote! { ![#(#elem_exprs),*].contains(&#left_expr_no_clone.as_str()) },
+                            );
                         }
                     }
                     return Ok(parse_quote! { ![#(#elem_exprs),*].contains(&#left_expr) });
@@ -409,7 +415,8 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 };
 
                 // Slices produce Vec via .to_vec(), so slice + slice needs extend pattern
-                let is_slice_concat = matches!(left, HirExpr::Slice { .. }) || matches!(right, HirExpr::Slice { .. });
+                let is_slice_concat =
+                    matches!(left, HirExpr::Slice { .. }) || matches!(right, HirExpr::Slice { .. });
 
                 // Check if we're dealing with strings (literals, type-inferred, or heuristic)
                 let is_definitely_string = matches!(left, HirExpr::Literal(Literal::String(_)))
@@ -565,7 +572,9 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 })
             }
             // Set operators - check if both operands are sets
-            BinOp::BitAnd | BinOp::BitOr | BinOp::BitXor if self.is_set_expr(left) && self.is_set_expr(right) => {
+            BinOp::BitAnd | BinOp::BitOr | BinOp::BitXor
+                if self.is_set_expr(left) && self.is_set_expr(right) =>
+            {
                 self.convert_set_operation(op, left_expr, right_expr)
             }
             BinOp::Sub if self.is_set_expr(left) && self.is_set_expr(right) => {
@@ -588,8 +597,10 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 // Check if we have string * integer or integer * string
                 let left_is_string = self.is_string_base(left);
                 let right_is_string = self.is_string_base(right);
-                let left_is_int = matches!(left, HirExpr::Literal(Literal::Int(_)) | HirExpr::Var(_));
-                let right_is_int = matches!(right, HirExpr::Literal(Literal::Int(_)) | HirExpr::Var(_));
+                let left_is_int =
+                    matches!(left, HirExpr::Literal(Literal::Int(_)) | HirExpr::Var(_));
+                let right_is_int =
+                    matches!(right, HirExpr::Literal(Literal::Int(_)) | HirExpr::Var(_));
 
                 if left_is_string && right_is_int {
                     // Pattern: s * n (string * integer)
@@ -606,7 +617,8 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                         if elts.len() == 1 && *size > 0 && *size <= 32 =>
                     {
                         let elem = elts[0].to_rust_expr(self.ctx)?;
-                        let size_lit = syn::LitInt::new(&size.to_string(), proc_macro2::Span::call_site());
+                        let size_lit =
+                            syn::LitInt::new(&size.to_string(), proc_macro2::Span::call_site());
                         // Check if element is a variable referring to a non-Copy type (Vec, String, etc.)
                         let needs_clone = self.element_needs_clone(&elts[0]);
                         if needs_clone {
@@ -616,9 +628,12 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                             Ok(parse_quote! { [#elem; #size_lit] })
                         }
                     }
-                    (HirExpr::List(elts), HirExpr::Literal(Literal::Int(size))) if elts.len() == 1 && *size > 32 => {
+                    (HirExpr::List(elts), HirExpr::Literal(Literal::Int(size)))
+                        if elts.len() == 1 && *size > 32 =>
+                    {
                         let elem = elts[0].to_rust_expr(self.ctx)?;
-                        let size_lit = syn::LitInt::new(&size.to_string(), proc_macro2::Span::call_site());
+                        let size_lit =
+                            syn::LitInt::new(&size.to_string(), proc_macro2::Span::call_site());
                         // Non-Copy types need clone
                         let needs_clone = self.element_needs_clone(&elts[0]);
                         if needs_clone {
@@ -632,7 +647,8 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                         if elts.len() == 1 && *size > 0 && *size <= 32 =>
                     {
                         let elem = elts[0].to_rust_expr(self.ctx)?;
-                        let size_lit = syn::LitInt::new(&size.to_string(), proc_macro2::Span::call_site());
+                        let size_lit =
+                            syn::LitInt::new(&size.to_string(), proc_macro2::Span::call_site());
                         let needs_clone = self.element_needs_clone(&elts[0]);
                         if needs_clone {
                             Ok(parse_quote! { vec![#elem.clone(); #size_lit] })
@@ -640,9 +656,12 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                             Ok(parse_quote! { [#elem; #size_lit] })
                         }
                     }
-                    (HirExpr::Literal(Literal::Int(size)), HirExpr::List(elts)) if elts.len() == 1 && *size > 32 => {
+                    (HirExpr::Literal(Literal::Int(size)), HirExpr::List(elts))
+                        if elts.len() == 1 && *size > 32 =>
+                    {
                         let elem = elts[0].to_rust_expr(self.ctx)?;
-                        let size_lit = syn::LitInt::new(&size.to_string(), proc_macro2::Span::call_site());
+                        let size_lit =
+                            syn::LitInt::new(&size.to_string(), proc_macro2::Span::call_site());
                         let needs_clone = self.element_needs_clone(&elts[0]);
                         if needs_clone {
                             Ok(parse_quote! { vec![#elem.clone(); #size_lit] })
@@ -726,8 +745,10 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                             // Extract the integer value to create a typed literal
                             if let HirExpr::Literal(Literal::Int(base_val)) = left {
                                 let base_str = base_val.to_string();
-                                let typed_base =
-                                    syn::LitInt::new(&format!("{}_i32", base_str), proc_macro2::Span::call_site());
+                                let typed_base = syn::LitInt::new(
+                                    &format!("{}_i32", base_str),
+                                    proc_macro2::Span::call_site(),
+                                );
                                 Ok(parse_quote! {
                                     #typed_base.pow(#right_expr as u32)
                                 })
@@ -750,7 +771,10 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     // Integer literal base with variable exponent - need type suffix
                     (HirExpr::Literal(Literal::Int(base_val)), _) => {
                         let base_str = base_val.to_string();
-                        let typed_base = syn::LitInt::new(&format!("{}_i32", base_str), proc_macro2::Span::call_site());
+                        let typed_base = syn::LitInt::new(
+                            &format!("{}_i32", base_str),
+                            proc_macro2::Span::call_site(),
+                        );
                         Ok(parse_quote! {
                             #typed_base.checked_pow(#right_expr as u32).expect("Power operation overflowed")
                         })
@@ -791,7 +815,8 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             BinOp::And => {
                 // Apply truthiness conversion to both operands
                 let left_converted = Self::apply_truthiness_conversion(left, left_expr, self.ctx);
-                let right_converted = Self::apply_truthiness_conversion(right, right_expr, self.ctx);
+                let right_converted =
+                    Self::apply_truthiness_conversion(right, right_expr, self.ctx);
 
                 Ok(parse_quote! { (#left_converted) && (#right_converted) })
             }
@@ -815,7 +840,8 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     }
 
                     // For string default values, ensure proper conversion
-                    let right_is_string_literal = matches!(right, HirExpr::Literal(Literal::String(_)));
+                    let right_is_string_literal =
+                        matches!(right, HirExpr::Literal(Literal::String(_)));
 
                     // Optional[String] with string literal default - add .to_string()
                     if matches!(inner_type, Type::String) && right_is_string_literal {
@@ -842,7 +868,8 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 {
                     if self.ctx.get_optional_inner_type(inner_left).is_some() {
                         // This is a chained or expression ending with a non-Optional default
-                        let right_is_string_literal = matches!(right, HirExpr::Literal(Literal::String(_)));
+                        let right_is_string_literal =
+                            matches!(right, HirExpr::Literal(Literal::String(_)));
                         let right_expr = right.to_rust_expr(self.ctx)?;
 
                         if right_is_string_literal {
@@ -858,7 +885,8 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
 
                 // Non-Optional: use boolean or with truthiness conversion
                 let left_converted = Self::apply_truthiness_conversion(left, left_expr, self.ctx);
-                let right_converted = Self::apply_truthiness_conversion(right, right_expr, self.ctx);
+                let right_converted =
+                    Self::apply_truthiness_conversion(right, right_expr, self.ctx);
 
                 Ok(parse_quote! { (#left_converted) || (#right_converted) })
             }
@@ -922,7 +950,10 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 // because Rust doesn't allow ! operator on non-bool types
                 let is_collection = if let HirExpr::Var(var_name) = operand {
                     if let Some(var_type) = self.ctx.var_types.get(var_name) {
-                        matches!(var_type, Type::List(_) | Type::Dict(_, _) | Type::Set(_) | Type::String)
+                        matches!(
+                            var_type,
+                            Type::List(_) | Type::Dict(_, _) | Type::Set(_) | Type::String
+                        )
                     } else {
                         false
                     }
@@ -967,7 +998,10 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             UnaryOp::Neg => {
                 // Only wrap in parentheses for complex operands to avoid `x < -1` becoming `x<-1`
                 // Simple literals like `-1` don't need parentheses
-                let is_simple_literal = matches!(operand, HirExpr::Literal(Literal::Int(_) | Literal::Float(_)));
+                let is_simple_literal = matches!(
+                    operand,
+                    HirExpr::Literal(Literal::Int(_) | Literal::Float(_))
+                );
                 if is_simple_literal {
                     Ok(parse_quote! { -#unwrapped_expr })
                 } else {
@@ -979,7 +1013,12 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         }
     }
 
-    fn convert_call(&mut self, func: &str, args: &[HirExpr], kwargs: &[(String, HirExpr)]) -> Result<syn::Expr> {
+    fn convert_call(
+        &mut self,
+        func: &str,
+        args: &[HirExpr],
+        kwargs: &[(String, HirExpr)],
+    ) -> Result<syn::Expr> {
         if func == "__os_path_join_starred" {
             if args.len() != 1 {
                 bail!("__os_path_join_starred expects exactly 1 argument");
@@ -1127,7 +1166,10 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         // Need turbofish type annotation to help Rust's type inference
         // Ranges in Rust (0..n) are already iterators - don't call .iter() on them
         if func == "sum" && args.len() == 1 {
-            if let HirExpr::Call { func: range_func, .. } = &args[0] {
+            if let HirExpr::Call {
+                func: range_func, ..
+            } = &args[0]
+            {
                 if range_func == "range" {
                     let range_expr = args[0].to_rust_expr(self.ctx)?;
 
@@ -1166,11 +1208,13 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                         if let HirExpr::Var(var_name) = object.as_ref() {
                             if let Some(var_type) = self.ctx.var_types.get(var_name) {
                                 match var_type {
-                                    Type::Dict(_key_type, value_type) => match value_type.as_ref() {
-                                        Type::Int => Some(quote! { i32 }),
-                                        Type::Float => Some(quote! { f64 }),
-                                        _ => None,
-                                    },
+                                    Type::Dict(_key_type, value_type) => {
+                                        match value_type.as_ref() {
+                                            Type::Int => Some(quote! { i32 }),
+                                            Type::Float => Some(quote! { f64 }),
+                                            _ => None,
+                                        }
+                                    }
                                     _ => None,
                                 }
                             } else {
@@ -1198,7 +1242,9 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             let iter_expr = args[0].to_rust_expr(self.ctx)?;
 
             // Infer the target type from the argument's type (element type of list)
-            let target_type = self.infer_sum_element_type(&args[0]).unwrap_or_else(|| quote! { i32 });
+            let target_type = self
+                .infer_sum_element_type(&args[0])
+                .unwrap_or_else(|| quote! { i32 });
 
             return Ok(parse_quote! { #iter_expr.iter().sum::<#target_type>() });
         }
@@ -1450,7 +1496,9 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         // Clone the item to get owned value from reference
         if func == "enumerate" && args.len() == 1 {
             let items_expr = args[0].to_rust_expr(self.ctx)?;
-            return Ok(parse_quote! { #items_expr.iter().enumerate().map(|(i, x)| (i as i32, x.clone())) });
+            return Ok(
+                parse_quote! { #items_expr.iter().enumerate().map(|(i, x)| (i as i32, x.clone())) },
+            );
         }
 
         // Handle zip(a, b, ...) → a.into_iter().zip(b.into_iter())...
@@ -1528,15 +1576,19 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 let mut reordered_hir_args: Vec<HirExpr> = Vec::with_capacity(param_names.len());
 
                 // Create a map from kwarg name to its value for quick lookup
-                let kwarg_map: std::collections::HashMap<&str, &HirExpr> =
-                    kwargs.iter().map(|(name, value)| (name.as_str(), value)).collect();
+                let kwarg_map: std::collections::HashMap<&str, &HirExpr> = kwargs
+                    .iter()
+                    .map(|(name, value)| (name.as_str(), value))
+                    .collect();
 
                 for (idx, param_name) in param_names.iter().enumerate() {
                     if idx < args.len() {
                         // This position is filled by a positional argument
                         reordered_hir_args.push(args[idx].clone());
                         let expr = args[idx].to_rust_expr(self.ctx)?;
-                        if is_user_class && matches!(&args[idx], HirExpr::Literal(Literal::String(_))) {
+                        if is_user_class
+                            && matches!(&args[idx], HirExpr::Literal(Literal::String(_)))
+                        {
                             reordered_args.push(parse_quote! { #expr.to_string() });
                         } else {
                             reordered_args.push(expr);
@@ -1597,7 +1649,9 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             // Other built-in functions
             "len" => self.convert_len_call(&all_hir_args, &arg_exprs),
             "range" => self.convert_range_call(&arg_exprs),
-            "zeros" | "ones" | "full" => self.convert_array_init_call(func, &all_hir_args, &arg_exprs),
+            "zeros" | "ones" | "full" => {
+                self.convert_array_init_call(func, &all_hir_args, &arg_exprs)
+            }
             "set" => self.convert_set_constructor(&arg_exprs),
             "frozenset" => self.convert_frozenset_constructor(&arg_exprs),
             "Counter" if !is_user_class => self.convert_counter_builtin(&arg_exprs),
@@ -1843,7 +1897,11 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         Ok(parse_quote! { (#arg) as f64 })
     }
 
-    fn convert_str_conversion(&self, hir_args: &[HirExpr], args: &[syn::Expr]) -> Result<syn::Expr> {
+    fn convert_str_conversion(
+        &self,
+        hir_args: &[HirExpr],
+        args: &[syn::Expr],
+    ) -> Result<syn::Expr> {
         if args.len() != 1 {
             bail!("str() requires exactly one argument");
         }
@@ -1885,9 +1943,15 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         }
     }
 
-    fn convert_range_with_step(&self, start: &syn::Expr, end: &syn::Expr, step: &syn::Expr) -> Result<syn::Expr> {
+    fn convert_range_with_step(
+        &self,
+        start: &syn::Expr,
+        end: &syn::Expr,
+        step: &syn::Expr,
+    ) -> Result<syn::Expr> {
         // Check if step is negative by looking at the expression
-        let is_negative_step = matches!(step, syn::Expr::Unary(unary) if matches!(unary.op, syn::UnOp::Neg(_)));
+        let is_negative_step =
+            matches!(step, syn::Expr::Unary(unary) if matches!(unary.op, syn::UnOp::Neg(_)));
 
         if is_negative_step {
             self.convert_range_negative_step(start, end, step)
@@ -1896,7 +1960,12 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         }
     }
 
-    fn convert_range_negative_step(&self, start: &syn::Expr, end: &syn::Expr, step: &syn::Expr) -> Result<syn::Expr> {
+    fn convert_range_negative_step(
+        &self,
+        start: &syn::Expr,
+        end: &syn::Expr,
+        step: &syn::Expr,
+    ) -> Result<syn::Expr> {
         // For negative steps, we need to reverse the range
         // Python: range(10, 0, -1) → Rust: (0..10).rev()
         Ok(parse_quote! {
@@ -1913,7 +1982,12 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         })
     }
 
-    fn convert_range_positive_step(&self, start: &syn::Expr, end: &syn::Expr, step: &syn::Expr) -> Result<syn::Expr> {
+    fn convert_range_positive_step(
+        &self,
+        start: &syn::Expr,
+        end: &syn::Expr,
+        step: &syn::Expr,
+    ) -> Result<syn::Expr> {
         // Positive step - check for zero
         Ok(parse_quote! {
             {
@@ -1926,7 +2000,12 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         })
     }
 
-    fn convert_array_init_call(&mut self, func: &str, args: &[HirExpr], _arg_exprs: &[syn::Expr]) -> Result<syn::Expr> {
+    fn convert_array_init_call(
+        &mut self,
+        func: &str,
+        args: &[HirExpr],
+        _arg_exprs: &[syn::Expr],
+    ) -> Result<syn::Expr> {
         // Handle zeros(n), ones(n), full(n, value) patterns
         if args.is_empty() {
             bail!("{} requires at least one argument", func);
@@ -1944,7 +2023,12 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         }
     }
 
-    fn convert_array_small_literal(&mut self, func: &str, args: &[HirExpr], size: i64) -> Result<syn::Expr> {
+    fn convert_array_small_literal(
+        &mut self,
+        func: &str,
+        args: &[HirExpr],
+        size: i64,
+    ) -> Result<syn::Expr> {
         let size_lit = syn::LitInt::new(&size.to_string(), proc_macro2::Span::call_site());
         match func {
             "zeros" => Ok(parse_quote! { [0; #size_lit] }),
@@ -2025,7 +2109,10 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 std::sync::Arc::new(#arg.into_iter().collect::<HashSet<_>>())
             })
         } else {
-            bail!("frozenset() takes at most 1 argument ({} given)", args.len())
+            bail!(
+                "frozenset() takes at most 1 argument ({} given)",
+                args.len()
+            )
         }
     }
 
@@ -2153,7 +2240,9 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         let iterable = &args[0];
         if args.len() == 2 {
             let start = &args[1];
-            Ok(parse_quote! { #iterable.into_iter().enumerate().map(|(i, x)| ((i + #start as usize) as i32, x)) })
+            Ok(
+                parse_quote! { #iterable.into_iter().enumerate().map(|(i, x)| ((i + #start as usize) as i32, x)) },
+            )
         } else {
             Ok(parse_quote! { #iterable.into_iter().enumerate().map(|(i, x)| (i as i32, x)) })
         }
@@ -2169,7 +2258,8 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             Ok(parse_quote! { #first.into_iter().zip(#second.into_iter()) })
         } else {
             // For 3+ iterables, chain zip calls
-            let mut zip_expr: syn::Expr = parse_quote! { #first.into_iter().zip(#second.into_iter()) };
+            let mut zip_expr: syn::Expr =
+                parse_quote! { #first.into_iter().zip(#second.into_iter()) };
             for iter in &args[2..] {
                 zip_expr = parse_quote! { #zip_expr.zip(#iter.into_iter()) };
             }
@@ -2200,7 +2290,11 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         })
     }
 
-    fn convert_filter_builtin(&mut self, hir_args: &[HirExpr], args: &[syn::Expr]) -> Result<syn::Expr> {
+    fn convert_filter_builtin(
+        &mut self,
+        hir_args: &[HirExpr],
+        args: &[syn::Expr],
+    ) -> Result<syn::Expr> {
         if args.len() != 2 {
             bail!("filter() requires exactly 2 arguments");
         }
@@ -2671,7 +2765,12 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         false
     }
 
-    fn convert_generic_call(&self, func: &str, hir_args: &[HirExpr], args: &[syn::Expr]) -> Result<syn::Expr> {
+    fn convert_generic_call(
+        &self,
+        func: &str,
+        hir_args: &[HirExpr],
+        args: &[syn::Expr],
+    ) -> Result<syn::Expr> {
         // Special case: Python print() → Rust println!()
         if func == "print" {
             return if args.is_empty() {
@@ -2756,7 +2855,11 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                             } => self.is_list_expr(left) || self.is_list_expr(right),
                             _ => false,
                         };
-                        if needs_debug { "{:?}" } else { "{}" }
+                        if needs_debug {
+                            "{:?}"
+                        } else {
+                            "{}"
+                        }
                     })
                     .collect();
                 let format_str = format_specs.join(" ");
@@ -2785,7 +2888,12 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         }
 
         // Check if this might be a constructor call (capitalized name)
-        if func.chars().next().map(|c| c.is_uppercase()).unwrap_or(false) {
+        if func
+            .chars()
+            .next()
+            .map(|c| c.is_uppercase())
+            .unwrap_or(false)
+        {
             // Treat as constructor call - ClassName::new(args)
             let class_ident = syn::Ident::new(func, proc_macro2::Span::call_site());
             if args.is_empty() {
@@ -2826,12 +2934,17 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 .map(|(param_idx, (hir_arg, arg_expr))| {
                     // If so, always pass by reference (&args)
                     if let HirExpr::Var(var_name) = hir_arg {
-                        let is_argparse_args = self.ctx.argparser_tracker.parsers.values().any(|parser_info| {
-                            parser_info
-                                .args_var
-                                .as_ref()
-                                .is_some_and(|args_var| args_var == var_name)
-                        });
+                        let is_argparse_args =
+                            self.ctx
+                                .argparser_tracker
+                                .parsers
+                                .values()
+                                .any(|parser_info| {
+                                    parser_info
+                                        .args_var
+                                        .as_ref()
+                                        .is_some_and(|args_var| args_var == var_name)
+                                });
 
                         if is_argparse_args {
                             return parse_quote! { &#arg_expr };
@@ -2854,7 +2967,10 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                         HirExpr::Var(var_name) => {
                             // Check if variable has List, Dict, Set, or String type
                             if let Some(var_type) = self.ctx.var_types.get(var_name) {
-                                if matches!(var_type, Type::List(_) | Type::Dict(_, _) | Type::Set(_)) {
+                                if matches!(
+                                    var_type,
+                                    Type::List(_) | Type::Dict(_, _) | Type::Set(_)
+                                ) {
                                     // Check if function param expects a borrow
                                     self.ctx
                                         .function_param_borrows
@@ -2929,12 +3045,16 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                             // Check if this is string concatenation by checking if operands are string-like
                             let is_string_concat = matches!(
                                 (&**left, &**right),
-                                (HirExpr::Var(_), HirExpr::Literal(crate::hir::Literal::String(_)))
-                                    | (HirExpr::Literal(crate::hir::Literal::String(_)), HirExpr::Var(_))
-                                    | (
-                                        HirExpr::Literal(crate::hir::Literal::String(_)),
-                                        HirExpr::Literal(crate::hir::Literal::String(_))
-                                    )
+                                (
+                                    HirExpr::Var(_),
+                                    HirExpr::Literal(crate::hir::Literal::String(_))
+                                ) | (
+                                    HirExpr::Literal(crate::hir::Literal::String(_)),
+                                    HirExpr::Var(_)
+                                ) | (
+                                    HirExpr::Literal(crate::hir::Literal::String(_)),
+                                    HirExpr::Literal(crate::hir::Literal::String(_))
+                                )
                             );
 
                             if is_string_concat {
@@ -2961,6 +3081,36 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                                     .and_then(|borrows| borrows.get(param_idx))
                                     .copied()
                                     .unwrap_or(false)
+                        }
+                        // Handle function calls that return owned values (Vec, HashMap, etc.)
+                        // When passed to parameters expecting borrowed references (&Vec, &HashMap, etc.)
+                        HirExpr::Call { func: called_func, .. } => {
+                            // Check return type of called function
+                            let return_type = self.ctx.function_return_types.get(called_func.as_str());
+                            
+                            // Check if parameter expects a borrow
+                            let param_expects_borrow = self
+                                .ctx
+                                .function_param_borrows
+                                .get(func)
+                                .and_then(|borrows| borrows.get(param_idx))
+                                .copied()
+                                .unwrap_or(false);
+                            
+                            // If function returns Vec/HashMap/HashSet and param expects borrow, add &
+                            if param_expects_borrow {
+                                if let Some(ret_type) = return_type {
+                                    matches!(
+                                        ret_type,
+                                        Type::List(_) | Type::Dict(_, _) | Type::Set(_)
+                                    )
+                                } else {
+                                    // Unknown return type, check if param expects borrow
+                                    true
+                                }
+                            } else {
+                                false
+                            }
                         }
                         _ => {
                             // Fallback: check if expression creates a Vec via .to_vec()
@@ -3009,7 +3159,9 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                             .cloned();
 
                         // Need unwrap if: arg is Optional<T> AND param is T (not Optional)
-                        if let (Some(_inner_ty), Some(param_ty)) = (&arg_optional_inner, &param_type) {
+                        if let (Some(_inner_ty), Some(param_ty)) =
+                            (&arg_optional_inner, &param_type)
+                        {
                             !matches!(param_ty, Type::Optional(_))
                         } else {
                             false
@@ -3050,7 +3202,8 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                                 }
                                 let base_expr = build_attribute_expr(value);
                                 let attr_ident = format_ident!("{}", attr);
-                                let result: syn::Expr = parse_quote! { &mut #base_expr.#attr_ident };
+                                let result: syn::Expr =
+                                    parse_quote! { &mut #base_expr.#attr_ident };
                                 if needs_optional_unwrap {
                                     parse_quote! { #result.unwrap() }
                                 } else {
@@ -3176,7 +3329,11 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     }
 
     /// Only supports format codes 'i' (signed 32-bit int) and 'ii' (two ints)
-    fn try_convert_struct_method(&mut self, method: &str, args: &[HirExpr]) -> Result<Option<syn::Expr>> {
+    fn try_convert_struct_method(
+        &mut self,
+        method: &str,
+        args: &[HirExpr],
+    ) -> Result<Option<syn::Expr>> {
         match method {
             "pack" => {
                 if args.is_empty() {
@@ -3301,7 +3458,11 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     /// Try to convert json module method calls
     ///
     #[inline]
-    fn try_convert_json_method(&mut self, method: &str, args: &[HirExpr]) -> Result<Option<syn::Expr>> {
+    fn try_convert_json_method(
+        &mut self,
+        method: &str,
+        args: &[HirExpr],
+    ) -> Result<Option<syn::Expr>> {
         // Convert arguments first
         let arg_exprs: Vec<syn::Expr> = args
             .iter()
@@ -3383,7 +3544,11 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     /// # Complexity
     /// 10 (match with 10 branches)
     #[inline]
-    fn try_convert_re_method(&mut self, method: &str, args: &[HirExpr]) -> Result<Option<syn::Expr>> {
+    fn try_convert_re_method(
+        &mut self,
+        method: &str,
+        args: &[HirExpr],
+    ) -> Result<Option<syn::Expr>> {
         // Convert arguments first
         let arg_exprs: Vec<syn::Expr> = args
             .iter()
@@ -3587,7 +3752,11 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     /// # Complexity
     /// 2 (match with 2 branches)
     #[inline]
-    fn try_convert_string_method(&mut self, method: &str, args: &[HirExpr]) -> Result<Option<syn::Expr>> {
+    fn try_convert_string_method(
+        &mut self,
+        method: &str,
+        args: &[HirExpr],
+    ) -> Result<Option<syn::Expr>> {
         // Convert arguments first
         let arg_exprs: Vec<syn::Expr> = args
             .iter()
@@ -3646,7 +3815,11 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     /// # Complexity
     /// 7 (match with 7+ branches)
     #[inline]
-    fn try_convert_time_method(&mut self, method: &str, args: &[HirExpr]) -> Result<Option<syn::Expr>> {
+    fn try_convert_time_method(
+        &mut self,
+        method: &str,
+        args: &[HirExpr],
+    ) -> Result<Option<syn::Expr>> {
         // Convert arguments first
         let arg_exprs: Vec<syn::Expr> = args
             .iter()
@@ -3931,7 +4104,11 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     /// # Complexity
     /// ≤10 (match with few branches)
     #[inline]
-    fn try_convert_os_method(&mut self, method: &str, args: &[HirExpr]) -> Result<Option<syn::Expr>> {
+    fn try_convert_os_method(
+        &mut self,
+        method: &str,
+        args: &[HirExpr],
+    ) -> Result<Option<syn::Expr>> {
         // Convert arguments first
         let arg_exprs: Vec<syn::Expr> = args
             .iter()
@@ -3978,7 +4155,11 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     /// # Complexity
     /// ≤10 (match with few branches)
     #[inline]
-    fn try_convert_os_environ_method(&mut self, method: &str, args: &[HirExpr]) -> Result<Option<syn::Expr>> {
+    fn try_convert_os_environ_method(
+        &mut self,
+        method: &str,
+        args: &[HirExpr],
+    ) -> Result<Option<syn::Expr>> {
         // Convert arguments first
         let arg_exprs: Vec<syn::Expr> = args
             .iter()
@@ -4027,7 +4208,11 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     /// # Complexity
     /// ≤10 (linear processing of kwargs)
     #[inline]
-    fn convert_subprocess_run(&mut self, args: &[HirExpr], kwargs: &[(Symbol, HirExpr)]) -> Result<syn::Expr> {
+    fn convert_subprocess_run(
+        &mut self,
+        args: &[HirExpr],
+        kwargs: &[(Symbol, HirExpr)],
+    ) -> Result<syn::Expr> {
         if args.is_empty() {
             bail!("subprocess.run() requires at least 1 argument (command list)");
         }
@@ -4180,7 +4365,11 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     /// # Complexity
     /// 10 (match with 10 primary branches - split into helper methods as needed)
     #[inline]
-    fn try_convert_os_path_method(&mut self, method: &str, args: &[HirExpr]) -> Result<Option<syn::Expr>> {
+    fn try_convert_os_path_method(
+        &mut self,
+        method: &str,
+        args: &[HirExpr],
+    ) -> Result<Option<syn::Expr>> {
         // Convert arguments first
         let arg_exprs: Vec<syn::Expr> = args
             .iter()
@@ -4502,7 +4691,11 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     /// # Complexity
     /// 10 (match with 10 branches for different encodings)
     #[inline]
-    fn try_convert_base64_method(&mut self, method: &str, args: &[HirExpr]) -> Result<Option<syn::Expr>> {
+    fn try_convert_base64_method(
+        &mut self,
+        method: &str,
+        args: &[HirExpr],
+    ) -> Result<Option<syn::Expr>> {
         // Convert arguments first
         let arg_exprs: Vec<syn::Expr> = args
             .iter()
@@ -4566,7 +4759,10 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             // Base32 (note: base64 crate doesn't support base32, would need data-encoding crate)
             "b32encode" | "b32decode" => {
                 // Simplified: note that full implementation needs data-encoding crate
-                bail!("base64.{} requires data-encoding crate (not yet integrated)", method);
+                bail!(
+                    "base64.{} requires data-encoding crate (not yet integrated)",
+                    method
+                );
             }
 
             // Base16 (Hex)
@@ -4597,7 +4793,10 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             // Base85 (also needs additional crate)
             "b85encode" | "b85decode" => {
                 // Simplified: note that full implementation needs additional crate
-                bail!("base64.{} requires base85 encoding crate (not yet integrated)", method);
+                bail!(
+                    "base64.{} requires base85 encoding crate (not yet integrated)",
+                    method
+                );
             }
 
             _ => {
@@ -4618,7 +4817,11 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     /// # Complexity
     /// 5 (match with 5 branches)
     #[inline]
-    fn try_convert_secrets_method(&mut self, method: &str, args: &[HirExpr]) -> Result<Option<syn::Expr>> {
+    fn try_convert_secrets_method(
+        &mut self,
+        method: &str,
+        args: &[HirExpr],
+    ) -> Result<Option<syn::Expr>> {
         // Convert arguments first
         let arg_exprs: Vec<syn::Expr> = args
             .iter()
@@ -4721,7 +4924,11 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     /// # Complexity
     /// Cyclomatic: 9 (match with 8 algorithms + default)
     #[inline]
-    fn try_convert_hashlib_method(&mut self, method: &str, args: &[HirExpr]) -> Result<Option<syn::Expr>> {
+    fn try_convert_hashlib_method(
+        &mut self,
+        method: &str,
+        args: &[HirExpr],
+    ) -> Result<Option<syn::Expr>> {
         // Convert arguments first
         let arg_exprs: Vec<syn::Expr> = args
             .iter()
@@ -4919,7 +5126,11 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     /// # Complexity
     /// Cyclomatic: 3 (match with 2 functions + default)
     #[inline]
-    fn try_convert_uuid_method(&mut self, method: &str, args: &[HirExpr]) -> Result<Option<syn::Expr>> {
+    fn try_convert_uuid_method(
+        &mut self,
+        method: &str,
+        args: &[HirExpr],
+    ) -> Result<Option<syn::Expr>> {
         // Convert arguments first
         let arg_exprs: Vec<syn::Expr> = args
             .iter()
@@ -4980,7 +5191,11 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     /// # Complexity
     /// Cyclomatic: 3 (match with 2 functions + default)
     #[inline]
-    fn try_convert_hmac_method(&mut self, method: &str, args: &[HirExpr]) -> Result<Option<syn::Expr>> {
+    fn try_convert_hmac_method(
+        &mut self,
+        method: &str,
+        args: &[HirExpr],
+    ) -> Result<Option<syn::Expr>> {
         // Convert arguments first
         let arg_exprs: Vec<syn::Expr> = args
             .iter()
@@ -5036,7 +5251,10 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             }
 
             _ => {
-                bail!("hmac.{} not implemented yet (try: new, compare_digest)", method);
+                bail!(
+                    "hmac.{} not implemented yet (try: new, compare_digest)",
+                    method
+                );
             }
         };
 
@@ -5053,7 +5271,11 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     /// # Complexity
     /// ≤10 (simple match with few branches)
     #[inline]
-    fn try_convert_platform_method(&mut self, method: &str, _args: &[HirExpr]) -> Result<Option<syn::Expr>> {
+    fn try_convert_platform_method(
+        &mut self,
+        method: &str,
+        _args: &[HirExpr],
+    ) -> Result<Option<syn::Expr>> {
         let result = match method {
             "system" => {
                 // platform.system() → std::env::consts::OS
@@ -5099,7 +5321,11 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     /// # Complexity
     /// Cyclomatic: 8 (match with 7 functions + default)
     #[inline]
-    fn try_convert_binascii_method(&mut self, method: &str, args: &[HirExpr]) -> Result<Option<syn::Expr>> {
+    fn try_convert_binascii_method(
+        &mut self,
+        method: &str,
+        args: &[HirExpr],
+    ) -> Result<Option<syn::Expr>> {
         // Convert arguments first
         let arg_exprs: Vec<syn::Expr> = args
             .iter()
@@ -5337,7 +5563,11 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     /// # Complexity
     /// Cyclomatic: 7 (match with 6 functions + default)
     #[inline]
-    fn try_convert_urllib_parse_method(&mut self, method: &str, args: &[HirExpr]) -> Result<Option<syn::Expr>> {
+    fn try_convert_urllib_parse_method(
+        &mut self,
+        method: &str,
+        args: &[HirExpr],
+    ) -> Result<Option<syn::Expr>> {
         // Convert arguments first
         let arg_exprs: Vec<syn::Expr> = args
             .iter()
@@ -5482,7 +5712,11 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     /// # Complexity
     /// Cyclomatic: 5 (match with 4 functions + default)
     #[inline]
-    fn try_convert_fnmatch_method(&mut self, method: &str, args: &[HirExpr]) -> Result<Option<syn::Expr>> {
+    fn try_convert_fnmatch_method(
+        &mut self,
+        method: &str,
+        args: &[HirExpr],
+    ) -> Result<Option<syn::Expr>> {
         // Convert arguments first
         let arg_exprs: Vec<syn::Expr> = args
             .iter()
@@ -5591,7 +5825,11 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     /// # Complexity
     /// Cyclomatic: 4 (match with 3 functions + default)
     #[inline]
-    fn try_convert_shlex_method(&mut self, method: &str, args: &[HirExpr]) -> Result<Option<syn::Expr>> {
+    fn try_convert_shlex_method(
+        &mut self,
+        method: &str,
+        args: &[HirExpr],
+    ) -> Result<Option<syn::Expr>> {
         // Convert arguments first
         let arg_exprs: Vec<syn::Expr> = args
             .iter()
@@ -5707,7 +5945,10 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             }
 
             _ => {
-                bail!("shlex.{} not implemented yet (available: split, quote, join)", method);
+                bail!(
+                    "shlex.{} not implemented yet (available: split, quote, join)",
+                    method
+                );
             }
         };
 
@@ -5723,7 +5964,11 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     /// # Complexity
     /// Cyclomatic: 6 (match with 5 functions + default)
     #[inline]
-    fn try_convert_textwrap_method(&mut self, method: &str, args: &[HirExpr]) -> Result<Option<syn::Expr>> {
+    fn try_convert_textwrap_method(
+        &mut self,
+        method: &str,
+        args: &[HirExpr],
+    ) -> Result<Option<syn::Expr>> {
         // Convert arguments first
         let arg_exprs: Vec<syn::Expr> = args
             .iter()
@@ -5916,7 +6161,11 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     /// # Complexity
     /// Cyclomatic: 5 (match with 4 functions + default)
     #[inline]
-    fn try_convert_bisect_method(&mut self, method: &str, args: &[HirExpr]) -> Result<Option<syn::Expr>> {
+    fn try_convert_bisect_method(
+        &mut self,
+        method: &str,
+        args: &[HirExpr],
+    ) -> Result<Option<syn::Expr>> {
         // Convert arguments first
         let arg_exprs: Vec<syn::Expr> = args
             .iter()
@@ -6048,7 +6297,11 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     /// # Complexity
     /// Cyclomatic: 6 (match with 5 functions + default)
     #[inline]
-    fn try_convert_heapq_method(&mut self, method: &str, args: &[HirExpr]) -> Result<Option<syn::Expr>> {
+    fn try_convert_heapq_method(
+        &mut self,
+        method: &str,
+        args: &[HirExpr],
+    ) -> Result<Option<syn::Expr>> {
         // Convert arguments first
         let arg_exprs: Vec<syn::Expr> = args
             .iter()
@@ -6228,7 +6481,11 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     /// # Complexity
     /// Cyclomatic: 3 (match with 2 functions + default)
     #[inline]
-    fn try_convert_copy_method(&mut self, method: &str, args: &[HirExpr]) -> Result<Option<syn::Expr>> {
+    fn try_convert_copy_method(
+        &mut self,
+        method: &str,
+        args: &[HirExpr],
+    ) -> Result<Option<syn::Expr>> {
         // Convert arguments first
         let arg_exprs: Vec<syn::Expr> = args
             .iter()
@@ -6261,7 +6518,10 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             }
 
             _ => {
-                bail!("copy.{} not implemented yet (available: copy, deepcopy)", method);
+                bail!(
+                    "copy.{} not implemented yet (available: copy, deepcopy)",
+                    method
+                );
             }
         };
 
@@ -6277,7 +6537,11 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     /// # Complexity
     /// Cyclomatic: 7 (match with 6 functions + default)
     #[inline]
-    fn try_convert_itertools_method(&mut self, method: &str, args: &[HirExpr]) -> Result<Option<syn::Expr>> {
+    fn try_convert_itertools_method(
+        &mut self,
+        method: &str,
+        args: &[HirExpr],
+    ) -> Result<Option<syn::Expr>> {
         // Convert arguments first
         let arg_exprs: Vec<syn::Expr> = args
             .iter()
@@ -6511,7 +6775,11 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     /// # Complexity
     /// Cyclomatic: 2 (match with 1 function + default)
     #[inline]
-    fn try_convert_functools_method(&mut self, method: &str, args: &[HirExpr]) -> Result<Option<syn::Expr>> {
+    fn try_convert_functools_method(
+        &mut self,
+        method: &str,
+        args: &[HirExpr],
+    ) -> Result<Option<syn::Expr>> {
         // Convert arguments first
         let arg_exprs: Vec<syn::Expr> = args
             .iter()
@@ -6552,7 +6820,10 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             }
 
             _ => {
-                bail!("functools.{} not implemented yet (available: reduce)", method);
+                bail!(
+                    "functools.{} not implemented yet (available: reduce)",
+                    method
+                );
             }
         };
 
@@ -6568,7 +6839,11 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     /// # Complexity
     /// Cyclomatic: 2 (match with 1 function + default)
     #[inline]
-    fn try_convert_warnings_method(&mut self, method: &str, args: &[HirExpr]) -> Result<Option<syn::Expr>> {
+    fn try_convert_warnings_method(
+        &mut self,
+        method: &str,
+        args: &[HirExpr],
+    ) -> Result<Option<syn::Expr>> {
         // Convert arguments first
         let arg_exprs: Vec<syn::Expr> = args
             .iter()
@@ -6604,7 +6879,11 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     /// # Complexity
     /// Cyclomatic: 2 (match with 1 function + default)
     #[inline]
-    fn try_convert_sys_method(&mut self, method: &str, args: &[HirExpr]) -> Result<Option<syn::Expr>> {
+    fn try_convert_sys_method(
+        &mut self,
+        method: &str,
+        args: &[HirExpr],
+    ) -> Result<Option<syn::Expr>> {
         // Convert arguments first
         let arg_exprs: Vec<syn::Expr> = args
             .iter()
@@ -6641,7 +6920,11 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     /// # Complexity
     /// Cyclomatic: 3 (match with 2 functions + default)
     #[inline]
-    fn try_convert_pickle_method(&mut self, method: &str, args: &[HirExpr]) -> Result<Option<syn::Expr>> {
+    fn try_convert_pickle_method(
+        &mut self,
+        method: &str,
+        args: &[HirExpr],
+    ) -> Result<Option<syn::Expr>> {
         // Convert arguments first
         let arg_exprs: Vec<syn::Expr> = args
             .iter()
@@ -6680,7 +6963,10 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             }
 
             _ => {
-                bail!("pickle.{} not implemented yet (available: dumps, loads)", method);
+                bail!(
+                    "pickle.{} not implemented yet (available: dumps, loads)",
+                    method
+                );
             }
         };
 
@@ -6696,7 +6982,11 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     /// # Complexity
     /// Cyclomatic: 2 (match with 1 function + default)
     #[inline]
-    fn try_convert_pprint_method(&mut self, method: &str, args: &[HirExpr]) -> Result<Option<syn::Expr>> {
+    fn try_convert_pprint_method(
+        &mut self,
+        method: &str,
+        args: &[HirExpr],
+    ) -> Result<Option<syn::Expr>> {
         // Convert arguments first
         let arg_exprs: Vec<syn::Expr> = args
             .iter()
@@ -6726,7 +7016,11 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     /// Try to convert fractions module method calls
     ///
     #[inline]
-    fn try_convert_fractions_method(&mut self, method: &str, args: &[HirExpr]) -> Result<Option<syn::Expr>> {
+    fn try_convert_fractions_method(
+        &mut self,
+        method: &str,
+        args: &[HirExpr],
+    ) -> Result<Option<syn::Expr>> {
         // Mark that we need the num-rational crate
         self.ctx.needs_num_rational = true;
 
@@ -6776,7 +7070,11 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     /// Try to convert pathlib module method calls
     ///
     #[inline]
-    fn try_convert_pathlib_method(&mut self, method: &str, args: &[HirExpr]) -> Result<Option<syn::Expr>> {
+    fn try_convert_pathlib_method(
+        &mut self,
+        method: &str,
+        args: &[HirExpr],
+    ) -> Result<Option<syn::Expr>> {
         // Convert arguments first
         let arg_exprs: Vec<syn::Expr> = args
             .iter()
@@ -6953,7 +7251,11 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     /// Try to convert datetime module method calls
     ///
     #[inline]
-    fn try_convert_datetime_method(&mut self, method: &str, args: &[HirExpr]) -> Result<Option<syn::Expr>> {
+    fn try_convert_datetime_method(
+        &mut self,
+        method: &str,
+        args: &[HirExpr],
+    ) -> Result<Option<syn::Expr>> {
         // Mark that we need the chrono crate
         self.ctx.needs_chrono = true;
 
@@ -7110,7 +7412,11 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     /// Try to convert statistics module method calls
     ///
     #[inline]
-    fn try_convert_decimal_method(&mut self, method: &str, args: &[HirExpr]) -> Result<Option<syn::Expr>> {
+    fn try_convert_decimal_method(
+        &mut self,
+        method: &str,
+        args: &[HirExpr],
+    ) -> Result<Option<syn::Expr>> {
         // Mark that we need the rust_decimal crate
         self.ctx.needs_rust_decimal = true;
 
@@ -7258,7 +7564,11 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         Ok(Some(result))
     }
 
-    fn try_convert_statistics_method(&mut self, method: &str, args: &[HirExpr]) -> Result<Option<syn::Expr>> {
+    fn try_convert_statistics_method(
+        &mut self,
+        method: &str,
+        args: &[HirExpr],
+    ) -> Result<Option<syn::Expr>> {
         // Convert arguments first
         let arg_exprs: Vec<syn::Expr> = args
             .iter()
@@ -7485,7 +7795,11 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     /// Try to convert random module method calls
     ///
     #[inline]
-    fn try_convert_random_method(&mut self, method: &str, args: &[HirExpr]) -> Result<Option<syn::Expr>> {
+    fn try_convert_random_method(
+        &mut self,
+        method: &str,
+        args: &[HirExpr],
+    ) -> Result<Option<syn::Expr>> {
         // Convert arguments first
         let arg_exprs: Vec<syn::Expr> = args
             .iter()
@@ -7768,7 +8082,11 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     /// Try to convert math module method calls
     ///
     #[inline]
-    fn try_convert_math_method(&mut self, method: &str, args: &[HirExpr]) -> Result<Option<syn::Expr>> {
+    fn try_convert_math_method(
+        &mut self,
+        method: &str,
+        args: &[HirExpr],
+    ) -> Result<Option<syn::Expr>> {
         // Convert arguments first
         let arg_exprs: Vec<syn::Expr> = args
             .iter()
@@ -8143,7 +8461,11 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     bail!("math.perm() requires 1 or 2 arguments");
                 }
                 let n = &arg_exprs[0];
-                let k = if arg_exprs.len() == 2 { &arg_exprs[1] } else { n };
+                let k = if arg_exprs.len() == 2 {
+                    &arg_exprs[1]
+                } else {
+                    n
+                };
                 parse_quote! {
                     {
                         let n = #n as i64;
@@ -8397,12 +8719,16 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 return self.try_convert_pprint_method(method, args);
             }
 
-            let module_info = self.ctx.imported_modules.get(module_name).and_then(|mapping| {
-                mapping
-                    .item_map
-                    .get(method)
-                    .map(|rust_name| (mapping.rust_path.clone(), rust_name.clone()))
-            });
+            let module_info = self
+                .ctx
+                .imported_modules
+                .get(module_name)
+                .and_then(|mapping| {
+                    mapping
+                        .item_map
+                        .get(method)
+                        .map(|rust_name| (mapping.rust_path.clone(), rust_name.clone()))
+                });
 
             if let Some((rust_path, rust_name)) = module_info {
                 // Convert args
@@ -8422,7 +8748,8 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 let path_parts: Vec<&str> = rust_name.split("::").collect();
 
                 // Start with the module's rust_path instead of hardcoded "std"
-                let base_path: syn::Path = syn::parse_str(&rust_path).unwrap_or_else(|_| parse_quote! { std });
+                let base_path: syn::Path =
+                    syn::parse_str(&rust_path).unwrap_or_else(|_| parse_quote! { std });
                 let mut path = quote! { #base_path };
 
                 for part in path_parts {
@@ -8502,7 +8829,8 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 // 5. ROOT CAUSE: Missing .to_string() for literals in Vec<String>
                 let needs_to_string = if !hir_args.is_empty() {
                     // Check if argument is a string literal
-                    let is_str_literal = matches!(&hir_args[0], HirExpr::Literal(Literal::String(_)));
+                    let is_str_literal =
+                        matches!(&hir_args[0], HirExpr::Literal(Literal::String(_)));
 
                     // Check if object is a Vec<String> by examining variable or field type
                     let is_vec_string = match object {
@@ -8591,9 +8919,13 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                             HirExpr::Literal(crate::hir::Literal::String(_)) | HirExpr::Var(_)
                         );
                     if needs_ref {
-                        Ok(parse_quote! { #object_expr.remove(&#key).expect("KeyError: key not found") })
+                        Ok(
+                            parse_quote! { #object_expr.remove(&#key).expect("KeyError: key not found") },
+                        )
                     } else {
-                        Ok(parse_quote! { #object_expr.remove(#key).expect("KeyError: key not found") })
+                        Ok(
+                            parse_quote! { #object_expr.remove(#key).expect("KeyError: key not found") },
+                        )
                     }
                 } else if arg_exprs.is_empty() {
                     // List.pop() with no arguments - remove last element
@@ -8610,8 +8942,8 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     let is_dict = self.is_dict_expr(object);
 
                     // Heuristic 3: Integer argument suggests list index
-                    let arg_is_int =
-                        !hir_args.is_empty() && matches!(hir_args[0], HirExpr::Literal(crate::hir::Literal::Int(_)));
+                    let arg_is_int = !hir_args.is_empty()
+                        && matches!(hir_args[0], HirExpr::Literal(crate::hir::Literal::Int(_)));
 
                     if is_list || (!is_dict && arg_is_int) {
                         // List.pop(index) - use Vec::remove() which takes usize by value
@@ -8624,9 +8956,13 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                                 HirExpr::Literal(crate::hir::Literal::String(_)) | HirExpr::Var(_)
                             );
                         if needs_ref {
-                            Ok(parse_quote! { #object_expr.remove(&#arg).expect("KeyError: key not found") })
+                            Ok(
+                                parse_quote! { #object_expr.remove(&#arg).expect("KeyError: key not found") },
+                            )
                         } else {
-                            Ok(parse_quote! { #object_expr.remove(#arg).expect("KeyError: key not found") })
+                            Ok(
+                                parse_quote! { #object_expr.remove(#arg).expect("KeyError: key not found") },
+                            )
                         }
                     }
                 }
@@ -8747,7 +9083,9 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     (Some(key_expr), true) => {
                         // list.sort(key=func, reverse=True) → list.sort_by_key(|x| std::cmp::Reverse(func(x)))
                         let key_rust = key_expr.to_rust_expr(self.ctx)?;
-                        Ok(parse_quote! { #object_expr.sort_by_key(|x| std::cmp::Reverse(#key_rust(x))) })
+                        Ok(
+                            parse_quote! { #object_expr.sort_by_key(|x| std::cmp::Reverse(#key_rust(x))) },
+                        )
                     }
                     (None, false) => {
                         // list.sort() → list.sort()
@@ -8822,7 +9160,9 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 if !arg_exprs.is_empty() {
                     bail!("items() takes no arguments");
                 }
-                Ok(parse_quote! { #object_expr.iter().map(|(k, v)| (k.clone(), v.clone())).collect::<Vec<_>>() })
+                Ok(
+                    parse_quote! { #object_expr.iter().map(|(k, v)| (k.clone(), v.clone())).collect::<Vec<_>>() },
+                )
             }
             "update" => {
                 if arg_exprs.len() != 1 {
@@ -8966,7 +9306,9 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             }
             "split" => {
                 if arg_exprs.is_empty() {
-                    Ok(parse_quote! { #object_expr.split_whitespace().map(|s| s.to_string()).collect::<Vec<String>>() })
+                    Ok(
+                        parse_quote! { #object_expr.split_whitespace().map(|s| s.to_string()).collect::<Vec<String>>() },
+                    )
                 } else if arg_exprs.len() == 1 {
                     // For variables, add & to satisfy Pattern trait bound
                     let sep: syn::Expr = match &hir_args[0] {
@@ -8976,7 +9318,9 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                             parse_quote! { &#arg }
                         }
                     };
-                    Ok(parse_quote! { #object_expr.split(#sep).map(|s| s.to_string()).collect::<Vec<String>>() })
+                    Ok(
+                        parse_quote! { #object_expr.split(#sep).map(|s| s.to_string()).collect::<Vec<String>>() },
+                    )
                 } else {
                     bail!("split() with maxsplit not supported in V1");
                 }
@@ -9590,7 +9934,9 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                         Ok(parse_quote! { #object_expr.as_str() })
                     } else {
                         // Non-zero group: needs captures API
-                        bail!("match.group(n) for n>0 requires .captures() API (not yet implemented)")
+                        bail!(
+                            "match.group(n) for n>0 requires .captures() API (not yet implemented)"
+                        )
                     }
                 }
             }
@@ -9652,7 +9998,12 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     /// sys.stdin.read() → { let mut s = String::new(); std::io::stdin().read_to_string(&mut s).unwrap(); s }
     /// sys.stdout.flush() → std::io::stdout().flush().unwrap()
     #[inline]
-    fn convert_sys_io_method(&self, stream: &str, method: &str, arg_exprs: &[syn::Expr]) -> Result<syn::Expr> {
+    fn convert_sys_io_method(
+        &self,
+        stream: &str,
+        method: &str,
+        arg_exprs: &[syn::Expr],
+    ) -> Result<syn::Expr> {
         let stream_fn = match stream {
             "stdin" => quote! { std::io::stdin() },
             "stdout" => quote! { std::io::stdout() },
@@ -9901,8 +10252,10 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
 
                 if let Some(param_names) = maybe_param_names {
                     // Build reordered argument list
-                    let kwarg_map: std::collections::HashMap<&str, &HirExpr> =
-                        kwargs.iter().map(|(name, value)| (name.as_str(), value)).collect();
+                    let kwarg_map: std::collections::HashMap<&str, &HirExpr> = kwargs
+                        .iter()
+                        .map(|(name, value)| (name.as_str(), value))
+                        .collect();
 
                     let mut reordered: Vec<syn::Expr> = Vec::with_capacity(param_names.len());
                     // NOTE: 'self' is already excluded from HirMethod.params,
@@ -9977,7 +10330,8 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         // Fallback to method name dispatch
         match method {
             // List methods
-            "append" | "extend" | "pop" | "insert" | "remove" | "index" | "copy" | "clear" | "reverse" | "sort" => {
+            "append" | "extend" | "pop" | "insert" | "remove" | "index" | "copy" | "clear"
+            | "reverse" | "sort" => {
                 self.convert_list_method(&object_expr, object, method, arg_exprs, hir_args, kwargs)
             }
 
@@ -9989,7 +10343,14 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     self.convert_string_method(object, &object_expr, method, arg_exprs, hir_args)
                 } else {
                     // List: use list.count() → .iter().filter().count()
-                    self.convert_list_method(&object_expr, object, method, arg_exprs, hir_args, kwargs)
+                    self.convert_list_method(
+                        &object_expr,
+                        object,
+                        method,
+                        arg_exprs,
+                        hir_args,
+                        kwargs,
+                    )
                 }
             }
 
@@ -10030,9 +10391,10 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             // String methods
             // Note: "count" handled separately above with disambiguation logic
             // Note: "index" handled in list methods above (lists take precedence)
-            "upper" | "lower" | "strip" | "lstrip" | "rstrip" | "startswith" | "endswith" | "split" | "splitlines"
-            | "join" | "replace" | "find" | "rfind" | "rindex" | "isdigit" | "isalpha" | "isalnum" | "title"
-            | "center" | "ljust" | "rjust" | "zfill" => {
+            "upper" | "lower" | "strip" | "lstrip" | "rstrip" | "startswith" | "endswith"
+            | "split" | "splitlines" | "join" | "replace" | "find" | "rfind" | "rindex"
+            | "isdigit" | "isalpha" | "isalnum" | "title" | "center" | "ljust" | "rjust"
+            | "zfill" => {
                 self.convert_string_method(object, &object_expr, method, arg_exprs, hir_args)
             }
 
@@ -10056,14 +10418,18 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             // Match object: group, groups, start, end, span, as_str
             // NOTE: Only route to regex handler if object is actually a regex type
             // Otherwise, fall through to default case which will escape keywords
-            "findall" | "search" | "groups" | "start" | "end" | "span" | "as_str" if self.is_regex_expr(object) => {
+            "findall" | "search" | "groups" | "start" | "end" | "span" | "as_str"
+                if self.is_regex_expr(object) =>
+            {
                 self.convert_regex_method(&object_expr, method, arg_exprs)
             }
 
             // "match" is a Rust keyword AND a regex method, so we need to:
             // 1. Check if object is a regex type → route to convert_regex_method
             // 2. Otherwise → escape as keyword in default case
-            "match" if self.is_regex_expr(object) => self.convert_regex_method(&object_expr, method, arg_exprs),
+            "match" if self.is_regex_expr(object) => {
+                self.convert_regex_method(&object_expr, method, arg_exprs)
+            }
 
             // Path instance methods
             "read_text" => {
@@ -10139,7 +10505,11 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         // Convert to ClassName::method(args) for static method calls
         // But NOT for module-level constants (lazy_static), which should use regular method calls
         if let HirExpr::Var(class_name) = object {
-            if class_name.chars().next().map(|c| c.is_uppercase()).unwrap_or(false)
+            if class_name
+                .chars()
+                .next()
+                .map(|c| c.is_uppercase())
+                .unwrap_or(false)
                 && !self.ctx.lazy_static_constants.contains(class_name)
             {
                 // This is likely a static method call - convert to ClassName::method(args)
@@ -10183,10 +10553,14 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         );
 
         // Methods that check or read state don't need clone either
-        let is_reference_method = matches!(method, "is_none" | "is_some" | "as_ref" | "len" | "is_empty");
+        let is_reference_method = matches!(
+            method,
+            "is_none" | "is_some" | "as_ref" | "len" | "is_empty"
+        );
 
         // For mutating/reference methods on field accesses, don't add .clone()
-        let object_expr = if (is_mutating_method || is_reference_method) && matches!(object, HirExpr::Attribute { .. })
+        let object_expr = if (is_mutating_method || is_reference_method)
+            && matches!(object, HirExpr::Attribute { .. })
         {
             self.convert_attribute_without_clone(object)?
         } else {
@@ -10225,15 +10599,20 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 let mut reordered_args: Vec<syn::Expr> = Vec::with_capacity(param_names.len());
 
                 // Create a map from kwarg name to its value for quick lookup
-                let kwarg_map: std::collections::HashMap<&str, &HirExpr> =
-                    kwargs.iter().map(|(name, value)| (name.as_str(), value)).collect();
+                let kwarg_map: std::collections::HashMap<&str, &HirExpr> = kwargs
+                    .iter()
+                    .map(|(name, value)| (name.as_str(), value))
+                    .collect();
 
                 for (idx, param_name) in param_names.iter().enumerate() {
                     if idx < args.len() {
                         // This position is filled by a positional argument
                         let expr = args[idx].to_rust_expr(self.ctx)?;
                         // STRING_INTEROP: For string literals, add .to_string()
-                        let expr = if matches!(&args[idx], HirExpr::Literal(crate::hir::Literal::String(_))) {
+                        let expr = if matches!(
+                            &args[idx],
+                            HirExpr::Literal(crate::hir::Literal::String(_))
+                        ) {
                             parse_quote! { #expr.to_string() }
                         } else {
                             expr
@@ -10243,11 +10622,12 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                         // This position is filled by a keyword argument
                         let expr = value.to_rust_expr(self.ctx)?;
                         // STRING_INTEROP: For string literals, add .to_string()
-                        let expr = if matches!(value, HirExpr::Literal(crate::hir::Literal::String(_))) {
-                            parse_quote! { #expr.to_string() }
-                        } else {
-                            expr
-                        };
+                        let expr =
+                            if matches!(value, HirExpr::Literal(crate::hir::Literal::String(_))) {
+                                parse_quote! { #expr.to_string() }
+                            } else {
+                                expr
+                            };
                         reordered_args.push(expr);
                     }
                     // If neither positional nor kwarg fills this position,
@@ -10333,7 +10713,8 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     }
 
     fn convert_type_params_to_tokens(&self, type_params: &[Type]) -> proc_macro2::TokenStream {
-        let type_tokens: Vec<proc_macro2::TokenStream> = type_params.iter().map(|t| self.type_to_tokens(t)).collect();
+        let type_tokens: Vec<proc_macro2::TokenStream> =
+            type_params.iter().map(|t| self.type_to_tokens(t)).collect();
         quote! { #(#type_tokens),* }
     }
 
@@ -10357,7 +10738,8 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 quote! { HashSet<#inner_tokens> }
             }
             Type::Tuple(types) => {
-                let type_tokens: Vec<proc_macro2::TokenStream> = types.iter().map(|t| self.type_to_tokens(t)).collect();
+                let type_tokens: Vec<proc_macro2::TokenStream> =
+                    types.iter().map(|t| self.type_to_tokens(t)).collect();
                 quote! { (#(#type_tokens),*) }
             }
             Type::Optional(inner) => {
@@ -10417,9 +10799,15 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                         matches!(var_type, Type::Tuple(_))
                     } else {
                         // Fallback heuristic: variable names suggesting tuple iteration
-                        matches!(var_name.as_str(), "pair" | "entry" | "item" | "elem" | "tuple" | "row")
+                        matches!(
+                            var_name.as_str(),
+                            "pair" | "entry" | "item" | "elem" | "tuple" | "row"
+                        )
                     }
-                } else if let HirExpr::Index { base: inner_base, .. } = base {
+                } else if let HirExpr::Index {
+                    base: inner_base, ..
+                } = base
+                {
                     // Check if we're indexing into a List[Tuple]
                     if let HirExpr::Var(var_name) = &**inner_base {
                         if let Some(Type::List(element_type)) = self.ctx.var_types.get(var_name) {
@@ -10576,7 +10964,10 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
 
             // Only use "dict" or "map" which are more specific to HashMap variables
             let name = sym.as_str();
-            if (name.contains("dict") || name.contains("map") || name.contains("config") || name.contains("value"))
+            if (name.contains("dict")
+                || name.contains("map")
+                || name.contains("config")
+                || name.contains("value"))
                 && !self.is_numeric_index(index)
             {
                 return Ok(true);
@@ -10647,7 +11038,9 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     if let Some(obj_type) = self.ctx.var_types.get(obj_name) {
                         if let Type::Custom(class_name) = obj_type {
                             if let Some(field_types) = self.ctx.class_field_types.get(class_name) {
-                                return field_types.get(attr).map_or(false, |t| matches!(t, Type::String));
+                                return field_types
+                                    .get(attr)
+                                    .map_or(false, |t| matches!(t, Type::String));
                             }
                         }
                     }
@@ -10666,7 +11059,15 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             }
             HirExpr::MethodCall { object, method, .. } => {
                 // Methods that return strings
-                let string_methods = ["clone", "to_string", "trim", "strip", "upper", "lower", "title"];
+                let string_methods = [
+                    "clone",
+                    "to_string",
+                    "trim",
+                    "strip",
+                    "upper",
+                    "lower",
+                    "title",
+                ];
                 if string_methods.contains(&method.as_str()) {
                     return self.is_string_type_from_context(object) || self.is_string_base(object);
                 }
@@ -10710,7 +11111,11 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     // Vec, String, HashMap, HashSet are not Copy
                     matches!(
                         ty,
-                        Type::List(_) | Type::String | Type::Dict(_, _) | Type::Set(_) | Type::Custom(_)
+                        Type::List(_)
+                            | Type::String
+                            | Type::Dict(_, _)
+                            | Type::Set(_)
+                            | Type::Custom(_)
                     )
                 } else {
                     // If we don't know the type, assume it needs clone to be safe
@@ -10747,7 +11152,10 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             // Calls might return non-Copy types
             HirExpr::Call { func, .. } => {
                 // Common functions that return Copy types
-                !matches!(func.as_str(), "len" | "int" | "float" | "bool" | "ord" | "abs" | "hash")
+                !matches!(
+                    func.as_str(),
+                    "len" | "int" | "float" | "bool" | "ord" | "abs" | "hash"
+                )
             }
             // Method calls often return non-Copy
             HirExpr::MethodCall { .. } => true,
@@ -11360,10 +11768,15 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         }
 
         // Count how many distinct literal types we have
-        let distinct_types = [has_bool_literal, has_int_literal, has_float_literal, has_string_literal]
-            .iter()
-            .filter(|&&b| b)
-            .count();
+        let distinct_types = [
+            has_bool_literal,
+            has_int_literal,
+            has_float_literal,
+            has_string_literal,
+        ]
+        .iter()
+        .filter(|&&b| b)
+        .count();
 
         // Only use json! if we have 2+ distinct literal types
         // This avoids false positives from dicts with uniform types but variable values
@@ -11372,7 +11785,8 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
 
     fn convert_tuple(&mut self, elts: &[HirExpr]) -> Result<syn::Expr> {
         // Track variable names to detect duplicates that need cloning
-        let mut var_occurrences: std::collections::HashMap<String, Vec<usize>> = std::collections::HashMap::new();
+        let mut var_occurrences: std::collections::HashMap<String, Vec<usize>> =
+            std::collections::HashMap::new();
         for (idx, elt) in elts.iter().enumerate() {
             if let HirExpr::Var(name) = elt {
                 var_occurrences.entry(name.clone()).or_default().push(idx);
@@ -11465,7 +11879,9 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         if let HirExpr::Var(var_name) = value {
             // Check if var_name is an args parameter
             // (heuristic: variable ending in "args" or exactly "args")
-            if (var_name == "args" || var_name.ends_with("args")) && self.ctx.argparser_tracker.has_subcommands() {
+            if (var_name == "args" || var_name.ends_with("args"))
+                && self.ctx.argparser_tracker.has_subcommands()
+            {
                 // Check if this field belongs to any subcommand
                 let mut is_subcommand_field = false;
                 for subcommand in self.ctx.argparser_tracker.subcommands.values() {
@@ -11586,7 +12002,11 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                         let platform = "darwin";
                         #[cfg(target_os = "windows")]
                         let platform = "win32";
-                        #[cfg(not(any(target_os = "linux", target_os = "macos", target_os = "windows")))]
+                        #[cfg(not(any(
+                            target_os = "linux",
+                            target_os = "macos",
+                            target_os = "windows"
+                        )))]
                         let platform = "unknown";
                         parse_quote! { #platform.to_string() }
                     }
@@ -11607,18 +12027,23 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 return Ok(result);
             }
 
-            let module_info = self.ctx.imported_modules.get(module_name).and_then(|mapping| {
-                mapping
-                    .item_map
-                    .get(attr)
-                    .map(|rust_name| (mapping.rust_path.clone(), rust_name.clone()))
-            });
+            let module_info = self
+                .ctx
+                .imported_modules
+                .get(module_name)
+                .and_then(|mapping| {
+                    mapping
+                        .item_map
+                        .get(attr)
+                        .map(|rust_name| (mapping.rust_path.clone(), rust_name.clone()))
+                });
 
             if let Some((rust_path, rust_name)) = module_info {
                 // Map to the Rust equivalent
                 let path_parts: Vec<&str> = rust_name.split("::").collect();
                 if path_parts.len() > 1 {
-                    let base_path: syn::Path = syn::parse_str(&rust_path).unwrap_or_else(|_| parse_quote! { std });
+                    let base_path: syn::Path =
+                        syn::parse_str(&rust_path).unwrap_or_else(|_| parse_quote! { std });
                     let mut path = quote! { #base_path };
                     for part in path_parts {
                         let part_ident = syn::Ident::new(part, proc_macro2::Span::call_site());
@@ -11722,7 +12147,9 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
 
             "microseconds" => {
                 // td.microseconds → (td.num_microseconds() % 1_000_000)
-                return Ok(parse_quote! { (#value_expr.num_microseconds().unwrap() % 1_000_000) as i32 });
+                return Ok(
+                    parse_quote! { (#value_expr.num_microseconds().unwrap() % 1_000_000) as i32 },
+                );
             }
 
             _ => {
@@ -11733,7 +12160,8 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         // Try common CSV patterns (heuristic-based for now)
         if let Some(mapping) = self.ctx.stdlib_mappings.lookup("csv", "DictReader", attr) {
             // Found a CSV DictReader mapping - apply it
-            let rust_code = mapping.generate_rust_code(&value_expr.to_token_stream().to_string(), &[]);
+            let rust_code =
+                mapping.generate_rust_code(&value_expr.to_token_stream().to_string(), &[]);
             if let Ok(expr) = syn::parse_str::<syn::Expr>(&rust_code) {
                 return Ok(expr);
             }
@@ -11741,7 +12169,8 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
 
         // Also try generic Reader patterns
         if let Some(mapping) = self.ctx.stdlib_mappings.lookup("csv", "Reader", attr) {
-            let rust_code = mapping.generate_rust_code(&value_expr.to_token_stream().to_string(), &[]);
+            let rust_code =
+                mapping.generate_rust_code(&value_expr.to_token_stream().to_string(), &[]);
             if let Ok(expr) = syn::parse_str::<syn::Expr>(&rust_code) {
                 return Ok(expr);
             }
@@ -11758,8 +12187,9 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         // When accessing a String field through a reference, we need .clone() to get an owned String
         // Skip clone for assignment targets - we need mutable access, not a copy
         // Skip clone when function returns a reference - the return type already handles it
-        let needs_clone =
-            !self.ctx.is_assignment_target && !self.ctx.returns_reference && self.field_needs_clone(value, attr);
+        let needs_clone = !self.ctx.is_assignment_target
+            && !self.ctx.returns_reference
+            && self.field_needs_clone(value, attr);
 
         if needs_clone {
             Ok(parse_quote! { #value_expr.#attr_ident.clone() })
@@ -11941,13 +12371,17 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             // Copy types - don't need clone
             Type::Int | Type::Float | Type::Bool | Type::None => false,
             // Non-Copy types - need clone
-            Type::String | Type::List(_) | Type::Dict(_, _) | Type::Set(_) | Type::Custom(_) => true,
+            Type::String | Type::List(_) | Type::Dict(_, _) | Type::Set(_) | Type::Custom(_) => {
+                true
+            }
             // Optional needs clone if inner type needs clone
             Type::Optional(inner) => Self::type_needs_clone(inner),
             // Tuple needs clone if any element needs clone
             Type::Tuple(types) => types.iter().any(Self::type_needs_clone),
             // Arrays, Generics, Functions, etc. - assume need clone for safety
-            Type::Array { .. } | Type::Generic { .. } | Type::Function { .. } | Type::Union(_) => true,
+            Type::Array { .. } | Type::Generic { .. } | Type::Function { .. } | Type::Union(_) => {
+                true
+            }
             // TypeVar and Unknown - assume need clone
             Type::TypeVar(_) | Type::Unknown => true,
             // Final wraps another type
@@ -12210,14 +12644,18 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                         let left_is_attribute = matches!(left.as_ref(), HirExpr::Attribute { .. });
 
                         return match op {
-                            BinOp::In if all_string_literals && left_is_attribute => {
-                                Ok(parse_quote! { [#(#elem_exprs),*].contains(&#left_expr.as_str()) })
+                            BinOp::In if all_string_literals && left_is_attribute => Ok(
+                                parse_quote! { [#(#elem_exprs),*].contains(&#left_expr.as_str()) },
+                            ),
+                            BinOp::In => {
+                                Ok(parse_quote! { [#(#elem_exprs),*].contains(&#left_expr) })
                             }
-                            BinOp::In => Ok(parse_quote! { [#(#elem_exprs),*].contains(&#left_expr) }),
-                            BinOp::NotIn if all_string_literals && left_is_attribute => {
-                                Ok(parse_quote! { ![#(#elem_exprs),*].contains(&#left_expr.as_str()) })
+                            BinOp::NotIn if all_string_literals && left_is_attribute => Ok(
+                                parse_quote! { ![#(#elem_exprs),*].contains(&#left_expr.as_str()) },
+                            ),
+                            BinOp::NotIn => {
+                                Ok(parse_quote! { ![#(#elem_exprs),*].contains(&#left_expr) })
                             }
-                            BinOp::NotIn => Ok(parse_quote! { ![#(#elem_exprs),*].contains(&#left_expr) }),
                             _ => unreachable!(),
                         };
                     }
@@ -12487,7 +12925,9 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     || self.involves_arithmetic_op(right)
             }
             // Unary negation indicates numeric
-            HirExpr::Unary { op: UnaryOp::Neg, .. } => true,
+            HirExpr::Unary {
+                op: UnaryOp::Neg, ..
+            } => true,
             // Parenthesized expression - check inside
             HirExpr::Borrow { expr, .. } => self.involves_arithmetic_op(expr),
             _ => false,
@@ -12642,12 +13082,19 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             // Boolean literals
             HirExpr::Literal(Literal::Bool(_)) => Some(true),
             // Logical operations
-            HirExpr::Unary { op: UnaryOp::Not, .. } => Some(true),
+            HirExpr::Unary {
+                op: UnaryOp::Not, ..
+            } => Some(true),
             _ => None,
         }
     }
 
-    fn convert_set_operation(&self, op: BinOp, left: syn::Expr, right: syn::Expr) -> Result<syn::Expr> {
+    fn convert_set_operation(
+        &self,
+        op: BinOp,
+        left: syn::Expr,
+        right: syn::Expr,
+    ) -> Result<syn::Expr> {
         match op {
             BinOp::BitAnd => Ok(parse_quote! {
                 #left.intersection(&#right).cloned().collect::<std::collections::HashSet<_>>()
@@ -12895,36 +13342,41 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                         || match expr.as_ref() {
                             HirExpr::Attribute { value, attr } => {
                                 if let HirExpr::Var(obj_name) = value.as_ref() {
-                                    let is_args_var = self.ctx.argparser_tracker.parsers.values().any(|parser_info| {
-                                        parser_info
-                                            .args_var
-                                            .as_ref()
-                                            .is_some_and(|args_var| args_var == obj_name)
-                                    });
+                                    let is_args_var =
+                                        self.ctx.argparser_tracker.parsers.values().any(
+                                            |parser_info| {
+                                                parser_info
+                                                    .args_var
+                                                    .as_ref()
+                                                    .is_some_and(|args_var| args_var == obj_name)
+                                            },
+                                        );
 
                                     if is_args_var {
                                         // Check if this argument is optional (Option<T> type, not boolean)
-                                        self.ctx.argparser_tracker.parsers.values().any(|parser_info| {
-                                            parser_info.arguments.iter().any(|arg| {
-                                                let field_name = arg.rust_field_name();
-                                                if field_name != *attr {
-                                                    return false;
-                                                }
+                                        self.ctx.argparser_tracker.parsers.values().any(
+                                            |parser_info| {
+                                                parser_info.arguments.iter().any(|arg| {
+                                                    let field_name = arg.rust_field_name();
+                                                    if field_name != *attr {
+                                                        return false;
+                                                    }
 
-                                                // Argument is NOT an Option if it has action="store_true" or "store_false"
-                                                if matches!(
-                                                    arg.action.as_deref(),
-                                                    Some("store_true") | Some("store_false")
-                                                ) {
-                                                    return false;
-                                                }
+                                                    // Argument is NOT an Option if it has action="store_true" or "store_false"
+                                                    if matches!(
+                                                        arg.action.as_deref(),
+                                                        Some("store_true") | Some("store_false")
+                                                    ) {
+                                                        return false;
+                                                    }
 
-                                                // Argument is an Option<T> if: not required AND no default value AND not positional
-                                                !arg.is_positional
-                                                    && !arg.required.unwrap_or(false)
-                                                    && arg.default.is_none()
-                                            })
-                                        })
+                                                    // Argument is an Option<T> if: not required AND no default value AND not positional
+                                                    !arg.is_positional
+                                                        && !arg.required.unwrap_or(false)
+                                                        && arg.default.is_none()
+                                                })
+                                            },
+                                        )
                                     } else {
                                         false
                                     }
@@ -12950,35 +13402,49 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                             // Check if this is accessing a field from argparse Args struct
                             if let HirExpr::Var(obj_name) = value.as_ref() {
                                 // Check if obj_name is the args variable from ArgumentParser
-                                let is_args_var = self.ctx.argparser_tracker.parsers.values().any(|parser_info| {
-                                    parser_info
-                                        .args_var
-                                        .as_ref()
-                                        .is_some_and(|args_var| args_var == obj_name)
-                                });
+                                let is_args_var = self.ctx.argparser_tracker.parsers.values().any(
+                                    |parser_info| {
+                                        parser_info
+                                            .args_var
+                                            .as_ref()
+                                            .is_some_and(|args_var| args_var == obj_name)
+                                    },
+                                );
 
                                 if is_args_var {
                                     // Look up the field type in argparse arguments
-                                    self.ctx.argparser_tracker.parsers.values().any(|parser_info| {
-                                        parser_info.arguments.iter().any(|arg| {
-                                            // Match field name (normalized from Python argument name)
-                                            let field_name = arg.rust_field_name();
-                                            if field_name == *attr {
-                                                // Check if this field is a collection type
-                                                // Either explicit type annotation OR inferred from nargs
-                                                let is_vec_from_nargs =
-                                                    matches!(arg.nargs.as_deref(), Some("+") | Some("*"));
-                                                let is_collection_type = if let Some(ref arg_type) = arg.arg_type {
-                                                    matches!(arg_type, Type::List(_) | Type::Dict(_, _) | Type::Set(_))
+                                    self.ctx
+                                        .argparser_tracker
+                                        .parsers
+                                        .values()
+                                        .any(|parser_info| {
+                                            parser_info.arguments.iter().any(|arg| {
+                                                // Match field name (normalized from Python argument name)
+                                                let field_name = arg.rust_field_name();
+                                                if field_name == *attr {
+                                                    // Check if this field is a collection type
+                                                    // Either explicit type annotation OR inferred from nargs
+                                                    let is_vec_from_nargs = matches!(
+                                                        arg.nargs.as_deref(),
+                                                        Some("+") | Some("*")
+                                                    );
+                                                    let is_collection_type =
+                                                        if let Some(ref arg_type) = arg.arg_type {
+                                                            matches!(
+                                                                arg_type,
+                                                                Type::List(_)
+                                                                    | Type::Dict(_, _)
+                                                                    | Type::Set(_)
+                                                            )
+                                                        } else {
+                                                            false
+                                                        };
+                                                    is_vec_from_nargs || is_collection_type
                                                 } else {
                                                     false
-                                                };
-                                                is_vec_from_nargs || is_collection_type
-                                            } else {
-                                                false
-                                            }
+                                                }
+                                            })
                                         })
-                                    })
                                 } else {
                                     false
                                 }
@@ -13027,7 +13493,12 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         }
     }
 
-    fn convert_ifexpr(&mut self, test: &HirExpr, body: &HirExpr, orelse: &HirExpr) -> Result<syn::Expr> {
+    fn convert_ifexpr(
+        &mut self,
+        test: &HirExpr,
+        body: &HirExpr,
+        orelse: &HirExpr,
+    ) -> Result<syn::Expr> {
         // Python: `args.include if args.include else []` (check if list is non-empty)
         // Rust: Just `args.include` (clap initializes Vec to empty, so redundant check)
         // This pattern is common with argparse + Vec/Option fields
@@ -13088,7 +13559,11 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     /// Apply Python truthiness conversion to non-boolean conditions
     /// Python: `if val:` where val is String/List/Dict/Set/Optional/Int/Float
     /// Rust: `if !val.is_empty()` / `if val.is_some()` / `if val != 0`
-    fn apply_truthiness_conversion(condition: &HirExpr, cond_expr: syn::Expr, ctx: &CodeGenContext) -> syn::Expr {
+    fn apply_truthiness_conversion(
+        condition: &HirExpr,
+        cond_expr: syn::Expr,
+        ctx: &CodeGenContext,
+    ) -> syn::Expr {
         // First, try using get_optional_inner_type which handles more cases
         if ctx.get_optional_inner_type(condition).is_some() {
             return parse_quote! { #cond_expr.is_some() };
@@ -13139,7 +13614,8 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         let iter_expr = iterable.to_rust_expr(self.ctx)?;
 
         // If so, use simple .sort() instead of .sort_by_key()
-        let is_identity = key_params.len() == 1 && matches!(key_body, HirExpr::Var(v) if v == &key_params[0]);
+        let is_identity =
+            key_params.len() == 1 && matches!(key_body, HirExpr::Var(v) if v == &key_params[0]);
 
         if is_identity {
             // Identity function: just sort() + optional reverse()
@@ -13243,7 +13719,8 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             };
 
             // Check if the iterator is an enumerate call (already returns an iterator)
-            let is_enumerate = matches!(&*gen.iter, HirExpr::Call { func, .. } if func == "enumerate");
+            let is_enumerate =
+                matches!(&*gen.iter, HirExpr::Call { func, .. } if func == "enumerate");
 
             // When the iterator is a variable (likely a borrowed parameter like &Vec<i32>),
             // use .iter().copied() for Copy types or .iter().cloned() for non-Copy types
@@ -13428,7 +13905,13 @@ impl ToRustExpr for HirExpr {
                     }
                 }
 
-                converter.convert_method_call_with_type_params(object, method, args, kwargs, type_params)
+                converter.convert_method_call_with_type_params(
+                    object,
+                    method,
+                    args,
+                    kwargs,
+                    type_params,
+                )
             }
             HirExpr::Index { base, index } => converter.convert_index(base, index),
             HirExpr::Slice {
@@ -13474,10 +13957,13 @@ impl ToRustExpr for HirExpr {
                 key_body,
                 reverse,
             } => converter.convert_sort_by_key(iterable, key_params, key_body, *reverse),
-            HirExpr::GeneratorExp { element, generators } => {
-                converter.convert_generator_expression(element, generators)
+            HirExpr::GeneratorExp {
+                element,
+                generators,
+            } => converter.convert_generator_expression(element, generators),
+            HirExpr::Uninitialized => {
+                bail!("Uninitialized expression cannot be converted to a Rust expression")
             }
-            HirExpr::Uninitialized => bail!("Uninitialized expression cannot be converted to a Rust expression"),
         }
     }
 }
