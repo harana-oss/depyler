@@ -3084,10 +3084,13 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                         }
                         // Handle function calls that return owned values (Vec, HashMap, etc.)
                         // When passed to parameters expecting borrowed references (&Vec, &HashMap, etc.)
-                        HirExpr::Call { func: called_func, .. } => {
+                        HirExpr::Call {
+                            func: called_func, ..
+                        } => {
                             // Check return type of called function
-                            let return_type = self.ctx.function_return_types.get(called_func.as_str());
-                            
+                            let return_type =
+                                self.ctx.function_return_types.get(called_func.as_str());
+
                             // Check if parameter expects a borrow
                             let param_expects_borrow = self
                                 .ctx
@@ -3096,7 +3099,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                                 .and_then(|borrows| borrows.get(param_idx))
                                 .copied()
                                 .unwrap_or(false);
-                            
+
                             // If function returns Vec/HashMap/HashSet and param expects borrow, add &
                             if param_expects_borrow {
                                 if let Some(ret_type) = return_type {
@@ -3219,6 +3222,27 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                             }
                         } else if is_already_ref {
                             // Variable is already &T, just pass it directly without adding &
+                            // Need to generate expression without .clone() since arg_expr
+                            // may have .clone() added by to_rust_expr for non-Copy types
+                            if let HirExpr::Var(var_name) = hir_arg {
+                                let ident = format_ident!("{}", var_name);
+                                let result: syn::Expr = parse_quote! { #ident };
+                                if needs_optional_unwrap {
+                                    parse_quote! { #result.unwrap() }
+                                } else {
+                                    result
+                                }
+                            } else {
+                                if needs_optional_unwrap {
+                                    parse_quote! { #arg_expr.unwrap() }
+                                } else {
+                                    arg_expr.clone()
+                                }
+                            }
+                        } else if is_already_mut_ref {
+                            // Variable is already &mut T, just pass it directly without adding &
+                            // This handles the case where should_borrow is true but param_expects_mut_ref is false
+                            // and the variable is a mutable reference (e.g., state: &mut State)
                             // Need to generate expression without .clone() since arg_expr
                             // may have .clone() added by to_rust_expr for non-Copy types
                             if let HirExpr::Var(var_name) = hir_arg {
