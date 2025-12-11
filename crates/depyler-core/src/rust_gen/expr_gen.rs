@@ -9771,7 +9771,9 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 }
                 let arg = &arg_exprs[0];
                 // If adding a string literal to a set, convert &str to String
-                let insert_expr = if !hir_args.is_empty() && matches!(hir_args[0], HirExpr::Literal(Literal::String(_))) {
+                let insert_expr = if !hir_args.is_empty()
+                    && matches!(hir_args[0], HirExpr::Literal(Literal::String(_)))
+                {
                     parse_quote! { #object_expr.insert(#arg.to_string()) }
                 } else {
                     parse_quote! { #object_expr.insert(#arg) }
@@ -10573,9 +10575,10 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         }
 
         // Check if this is a mutating method that should not clone the object
-        // List/Vec mutating methods: push, extend, clear, insert, remove, reverse, sort, pop
+        // List/Vec mutating methods: append, extend, clear, insert, remove, reverse, sort, pop
         // Dict/HashMap mutating methods: insert, remove, clear
         // Set/HashSet mutating methods: insert, remove, clear, add, discard
+        // Note: Python's set.add() becomes Rust's HashSet.insert()
         let is_mutating_method = matches!(
             method,
             "append"
