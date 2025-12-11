@@ -2838,16 +2838,18 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                         }
                     }
 
-                    // Check if the parameter in the called function needs &mut
-                    let needs_mut = self
-                        .ctx
-                        .function_param_muts
-                        .get(func)
-                        .and_then(|muts| muts.get(param_idx))
-                        .copied()
-                        .unwrap_or(false);
+                    // Check if the parameter in the called function is declared as &mut reference
+                    // Note: function_param_muts tracks if parameter has `mut` keyword (e.g., `mut x: Vec<T>`)
+                    // but this does NOT mean we should pass `&mut` at call site - only if it's declared as `&mut Vec<T>`
+                    // We need to check current_func_mut_ref_params which tracks parameters declared as &mut references
+                    let param_expects_mut_ref = if let HirExpr::Var(var_name) = hir_arg {
+                        // Check if the called function has this parameter as &mut reference
+                        // This information is stored when the function signature is generated
+                        false // For now, don't automatically add &mut based on function_param_muts
+                    } else {
+                        false
+                    };
 
-                    // Check if this param should be borrowed by looking up function signature
                     let should_borrow = match hir_arg {
                         HirExpr::Var(var_name) => {
                             // Check if variable has List, Dict, Set, or String type
@@ -2872,7 +2874,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                                 } else {
                                     // For user-defined types passed to functions,
                                     // check if the parameter needs &mut or just &
-                                    needs_mut
+                                    param_expects_mut_ref
                                         || self
                                             .ctx
                                             .function_param_borrows
@@ -2882,8 +2884,8 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                                             .unwrap_or(false)
                                 }
                             } else {
-                                // Unknown type - check if it needs mutation or borrow
-                                needs_mut
+                                // Unknown type - check if it needs borrow
+                                param_expects_mut_ref
                                     || self
                                         .ctx
                                         .function_param_borrows
@@ -3014,8 +3016,8 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                         }
                     };
 
-                    if should_borrow || needs_mut {
-                        if needs_mut {
+                    if should_borrow || param_expects_mut_ref {
+                        if param_expects_mut_ref {
                             if is_already_mut_ref {
                                 // Variable is already &mut T, just pass it directly
                                 // Need to generate expression without .clone() since arg_expr
@@ -10498,21 +10500,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             {
                 if let HirExpr::Literal(Literal::Int(n)) = **operand {
                     let offset = n as usize;
-                    
-                    // Assignment targets need direct indexing, not .get().cloned()
-                    if self.ctx.is_assignment_target {
-                        // For negative indices in assignment, we need to compute the actual index
-                        // Special case for -1
-                        if offset == 1 {
-                            return Ok(parse_quote! {
-                                #base_expr[#base_expr.len() - 1]
-                            });
-                        }
-                        return Ok(parse_quote! {
-                            #base_expr[#base_expr.len().saturating_sub(#offset)]
-                        });
-                    }
-                    
                     // Special case for -1: use .last().cloned()
                     // Works for both Copy and non-Copy types (like String, Vec)
                     if offset == 1 {
@@ -10529,34 +10516,18 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             // This avoids unnecessary temporary variables and runtime checks
             if let HirExpr::Literal(Literal::Int(n)) = index {
                 let idx_value = *n as usize;
-                // Check if we're generating an assignment target
-                if self.ctx.is_assignment_target {
-                    // Assignment target: use direct mutable indexing
-                    return Ok(parse_quote! {
-                        #base_expr[#idx_value]
-                    });
-                } else {
-                    // Use consistent .get().cloned().unwrap() for all indices
-                    // This works for both Copy and non-Copy types (like String)
-                    return Ok(parse_quote! {
-                        #base_expr.get(#idx_value).cloned().unwrap()
-                    });
-                }
+                // Use consistent .get().cloned().unwrap() for all indices
+                // This works for both Copy and non-Copy types (like String)
+                return Ok(parse_quote! {
+                    #base_expr.get(#idx_value).cloned().unwrap()
+                });
             }
 
             // Simple variables in for loops like `for i in range(len(arr))` are guaranteed >= 0
             // For these, we can use simpler inline code that works in range contexts
             let is_simple_var = matches!(index, HirExpr::Var(_));
 
-            // Check if we're generating an assignment target (LHS of assignment)
-            // In that case, we need mutable access via direct indexing, not .get().cloned()
-            if self.ctx.is_assignment_target {
-                // Assignment target: use direct mutable indexing
-                // This allows mutation of the indexed element
-                Ok(parse_quote! {
-                    #base_expr[#index_expr as usize]
-                })
-            } else if is_simple_var {
+            if is_simple_var {
                 // Simple variable index - use inline expression (works in range contexts)
                 // This avoids block expressions that break in `for j in 0..matrix[i].len()`
                 Ok(parse_quote! {
