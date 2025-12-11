@@ -3073,7 +3073,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                         // Check for attribute access (e.g., state.numbers)
                         HirExpr::Attribute { .. } => {
                             // Attribute access on user types needs borrowing if param expects it
-                            needs_mut
+                            param_expects_mut_ref
                                 || self
                                     .ctx
                                     .function_param_borrows
