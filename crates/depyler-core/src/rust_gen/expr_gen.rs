@@ -9754,6 +9754,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         object_expr: &syn::Expr,
         method: &str,
         arg_exprs: &[syn::Expr],
+        hir_args: &[HirExpr],
     ) -> Result<syn::Expr> {
         match method {
             "add" => {
@@ -9761,7 +9762,13 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     bail!("add() requires exactly one argument");
                 }
                 let arg = &arg_exprs[0];
-                Ok(parse_quote! { #object_expr.insert(#arg) })
+                // If adding a string literal to a set, convert &str to String
+                let insert_expr = if !hir_args.is_empty() && matches!(hir_args[0], HirExpr::Literal(Literal::String(_))) {
+                    parse_quote! { #object_expr.insert(#arg.to_string()) }
+                } else {
+                    parse_quote! { #object_expr.insert(#arg) }
+                };
+                Ok(insert_expr)
             }
             "remove" => {
                 if arg_exprs.len() != 1 {
@@ -10335,7 +10342,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 | "issubset"
                 | "issuperset"
                 | "isdisjoint" => {
-                    return self.convert_set_method(&object_expr, method, arg_exprs);
+                    return self.convert_set_method(&object_expr, method, arg_exprs, hir_args);
                 }
                 _ => {}
             }
@@ -10382,7 +10389,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 // Check if argument is a set or dict literal
                 if !hir_args.is_empty() && self.is_set_expr(&hir_args[0]) {
                     // numbers.update({3, 4}) - set update
-                    self.convert_set_method(&object_expr, method, arg_exprs)
+                    self.convert_set_method(&object_expr, method, arg_exprs, hir_args)
                 } else {
                     // data.update({"b": 2}) - dict update (default for variables)
                     self.convert_dict_method(&object_expr, method, arg_exprs, hir_args)
@@ -10436,7 +10443,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             | "symmetric_difference"
             | "issubset"
             | "issuperset"
-            | "isdisjoint" => self.convert_set_method(&object_expr, method, arg_exprs),
+            | "isdisjoint" => self.convert_set_method(&object_expr, method, arg_exprs, hir_args),
 
             // Compiled Regex: findall, match, search (note: "find" conflicts with string.find())
             // Match object: group, groups, start, end, span, as_str
@@ -13604,14 +13611,16 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     object.as_ref() == body
                 }
                 // Pattern: `x if x is not None else default` (original Python, before HIR transformation)
-                HirExpr::Binary { op, left, right } 
-                    if matches!(op, BinOp::IsNot) && matches!(right.as_ref(), HirExpr::Literal(Literal::None)) => {
+                HirExpr::Binary { op, left, right }
+                    if matches!(op, BinOp::IsNot)
+                        && matches!(right.as_ref(), HirExpr::Literal(Literal::None)) =>
+                {
                     left.as_ref() == body
                 }
                 // Pattern: `x if x else default` (direct truthiness check on Optional)
                 _ => test == body,
             };
-            
+
             if test_checks_body {
                 // Unwrap the Optional body since we know it's Some
                 body_expr = parse_quote! { #body_expr.unwrap() };
