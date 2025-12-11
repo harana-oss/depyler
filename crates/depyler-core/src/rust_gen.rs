@@ -1221,9 +1221,23 @@ fn analyze_mutable_vars(stmts: &[HirStmt], ctx: &mut CodeGenContext, params: &[H
 fn convert_classes_to_rust(
     classes: &[HirClass],
     type_mapper: &crate::type_mapper::TypeMapper,
+    ctx: &mut CodeGenContext,
 ) -> Result<Vec<proc_macro2::TokenStream>> {
     let mut class_items = Vec::new();
     for class in classes {
+        // Check if class uses HashMap or HashSet types and update context
+        for field in &class.fields {
+            match &field.field_type {
+                Type::Dict(_, _) => {
+                    ctx.needs_hashmap = true;
+                }
+                Type::Set(_) => {
+                    ctx.needs_hashset = true;
+                }
+                _ => {}
+            }
+        }
+        
         let items = crate::direct_rules::convert_class_to_struct(class, type_mapper)?;
         for item in items {
             let tokens = item.to_token_stream();
@@ -1702,7 +1716,7 @@ pub fn generate_rust_file(
     pre_analyze_parameter_borrowing(&mut ctx, &module.functions);
 
     // Convert classes first (they might be used by functions)
-    let classes = convert_classes_to_rust(&module.classes, ctx.type_mapper)?;
+    let classes = convert_classes_to_rust(&module.classes, ctx.type_mapper, &mut ctx)?;
 
     // Convert all functions to detect what imports we need
     let functions = convert_functions_to_rust(&module.functions, &mut ctx)?;

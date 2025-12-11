@@ -10883,34 +10883,8 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         // Discriminate between HashMap and Vec access based on base type or index type
         let is_string_key = self.is_string_index(base, index)?;
 
-        // Check if we're generating code for an assignment target (LHS)
-        // If so, use direct indexing instead of .get().cloned() to allow mutation
-        if self.ctx.is_assignment_target {
-            let index_expr = index.to_rust_expr(self.ctx)?;
-            
-            if is_string_key {
-                // For assignment to HashMap: use get_mut or indexing
-                // Direct indexing with [] will panic if key doesn't exist, but for assignment
-                // targets we typically want to insert/update, so we use the [] operator
-                match index {
-                    HirExpr::Literal(Literal::String(s)) => {
-                        Ok(parse_quote! { #base_expr[#s] })
-                    }
-                    _ => {
-                        Ok(parse_quote! { #base_expr[&#index_expr] })
-                    }
-                }
-            } else {
-                // For assignment to Vec/List: use direct indexing
-                if let HirExpr::Literal(Literal::Int(n)) = index {
-                    let idx_value = *n as usize;
-                    Ok(parse_quote! { #base_expr[#idx_value] })
-                } else {
-                    Ok(parse_quote! { #base_expr[#index_expr as usize] })
-                }
-            }
-        } else if is_string_key {
-            // HashMap/Dict access with string keys (reading)
+        if is_string_key {
+            // HashMap/Dict access with string keys
             match index {
                 HirExpr::Literal(Literal::String(s)) => {
                     // String literal - use it directly without .to_string()

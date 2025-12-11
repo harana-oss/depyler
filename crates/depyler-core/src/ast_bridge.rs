@@ -627,12 +627,26 @@ impl AstBridge {
                         let field_name = target.id.to_string();
                         let field_type = TypeExtractor::extract_type(&ann_assign.annotation)?;
 
-                        // If there's a default value, it's a class attribute (constant/static)
-                        // If there's no value, it's an instance attribute declaration
+                        // Determine if this is a class variable or instance field
                         let (is_class_var, default_value) = if let Some(value) = &ann_assign.value {
+                            // Check if this is a field() call (dataclass field with metadata)
+                            let is_field_call = matches!(value.as_ref(), 
+                                ast::Expr::Call(call) if matches!(call.func.as_ref(), 
+                                    ast::Expr::Name(n) if n.id.as_str() == "field"
+                                )
+                            );
+
+                            // For dataclasses:
+                            // - field() calls with default_factory are instance fields
+                            // - Regular default values are also instance fields (unless ClassVar)
+                            // For non-dataclasses:
+                            // - Default values make it a class constant
+                            let is_instance_field = is_dataclass && (is_field_call || true);
+                            
                             // Convert the default value expression
                             let converted_value = ExprConverter::convert(value.as_ref().clone())?;
-                            (true, Some(converted_value))
+                            
+                            (!is_instance_field, Some(converted_value))
                         } else {
                             // Instance attribute - no default value
                             (false, None)

@@ -156,6 +156,132 @@ let result = c.obj.value == 42;
 '''
 
 
+[[test]]
+name = "field_default_factory_set"
+description = "field(default_factory=set)"
+
+python = '''
+from dataclasses import dataclass, field
+from typing import Set
+
+@dataclass
+class State:
+    executed_events: Set[str] = field(default_factory=set)
+
+s1 = State()
+s2 = State()
+s1.executed_events.add("event1")
+result = len(s1.executed_events) == 1 and len(s2.executed_events) == 0
+'''
+
+rust = '''
+use std::collections::HashSet;
+#[derive(Debug)]
+struct State {
+    executed_events: HashSet<String>,
+}
+
+impl State {
+    fn new() -> Self {
+        State { executed_events: HashSet::new() }
+    }
+}
+
+let mut s1 = State::new();
+let s2 = State::new();
+s1.executed_events.insert("event1".to_string());
+let result = s1.executed_events.len() == 1 && s2.executed_events.len() == 0;
+'''
+
+
+[[test]]
+name = "field_default_factory_dict"
+description = "field(default_factory=dict)"
+
+python = '''
+from dataclasses import dataclass, field
+from typing import Dict
+
+@dataclass
+class Config:
+    settings: Dict[str, int] = field(default_factory=dict)
+
+c1 = Config()
+c2 = Config()
+c1.settings["key"] = 42
+result = len(c1.settings) == 1 and len(c2.settings) == 0
+'''
+
+rust = '''
+use std::collections::HashMap;
+#[derive(Debug)]
+struct Config {
+    settings: HashMap<String, i32>,
+}
+
+impl Config {
+    fn new() -> Self {
+        Config { settings: HashMap::new() }
+    }
+}
+
+let mut c1 = Config::new();
+let c2 = Config::new();
+c1.settings.insert("key".to_string(), 42);
+let result = c1.settings.len() == 1 && c2.settings.len() == 0;
+'''
+
+
+[[test]]
+name = "field_default_factory_mixed"
+description = "Multiple fields with different default_factory types"
+
+python = '''
+from dataclasses import dataclass, field
+from typing import Set, List, Dict
+
+@dataclass
+class ComplexState:
+    events: Set[str] = field(default_factory=set)
+    items: List[int] = field(default_factory=list)
+    metadata: Dict[str, int] = field(default_factory=dict)
+    count: int = field(default=0)
+    name: str = field(default="unknown")
+
+c = ComplexState()
+result = (len(c.events) == 0 and len(c.items) == 0 and 
+          len(c.metadata) == 0 and c.count == 0 and c.name == "unknown")
+'''
+
+rust = '''
+use std::collections::{HashMap, HashSet};
+#[derive(Debug)]
+struct ComplexState {
+    events: HashSet<String>,
+    items: Vec<i32>,
+    metadata: HashMap<String, i32>,
+    count: i32,
+    name: String,
+}
+
+impl ComplexState {
+    fn new() -> Self {
+        ComplexState {
+            events: HashSet::new(),
+            items: Vec::new(),
+            metadata: HashMap::new(),
+            count: 0,
+            name: "unknown".to_string(),
+        }
+    }
+}
+
+let c = ComplexState::new();
+let result = c.events.len() == 0 && c.items.len() == 0 && 
+             c.metadata.len() == 0 && c.count == 0 && c.name == "unknown";
+'''
+
+
 # =============================================================================
 # Field Options
 # =============================================================================

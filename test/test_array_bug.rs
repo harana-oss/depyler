@@ -5072,18 +5072,34 @@ pub fn add_conversion(state: &mut State) {
     } else {
         state.away_statistics.clone()
     };
-    let _cse_temp_4 = team_stats.period_statistics[period_idx as usize]
+    let _cse_temp_4 = team_stats
+        .period_statistics
+        .get(period_idx as usize)
+        .cloned()
+        .unwrap()
         .scores
         .conversions
         + 1;
-    team_stats.period_statistics[period_idx as usize]
+    team_stats
+        .period_statistics
+        .get(period_idx as usize)
+        .cloned()
+        .unwrap()
         .scores
         .conversions = _cse_temp_4;
-    let _cse_temp_5 = team_stats.period_statistics[period_idx as usize]
+    let _cse_temp_5 = team_stats
+        .period_statistics
+        .get(period_idx as usize)
+        .cloned()
+        .unwrap()
         .scores
         .total
         + CONVERSION_POINTS;
-    team_stats.period_statistics[period_idx as usize]
+    team_stats
+        .period_statistics
+        .get(period_idx as usize)
+        .cloned()
+        .unwrap()
         .scores
         .total = _cse_temp_5;
     team_stats.total_statistics.scores.conversions = _cse_temp_4;
@@ -5096,10 +5112,20 @@ pub fn add_conversion(state: &mut State) {
         };
         player.total_statistics.scores.conversions = _cse_temp_4;
         player.total_statistics.scores.total = _cse_temp_5;
-        player.period_statistics[period_idx as usize]
+        player
+            .period_statistics
+            .get(period_idx as usize)
+            .cloned()
+            .unwrap()
             .scores
             .conversions = _cse_temp_4;
-        player.period_statistics[period_idx as usize].scores.total = _cse_temp_5;
+        player
+            .period_statistics
+            .get(period_idx as usize)
+            .cloned()
+            .unwrap()
+            .scores
+            .total = _cse_temp_5;
     }
 }
 #[doc = "Distance from centre of the field from the perspective of the team in possession."]
@@ -5145,18 +5171,34 @@ pub fn add_field_goal(state: &mut State, is_two_pointer: bool) {
     } else {
         state.away_statistics.clone()
     };
-    let _cse_temp_4 = team_stats.period_statistics[period_idx as usize]
+    let _cse_temp_4 = team_stats
+        .period_statistics
+        .get(period_idx as usize)
+        .cloned()
+        .unwrap()
         .scores
         .field_goals
         + 1;
-    team_stats.period_statistics[period_idx as usize]
+    team_stats
+        .period_statistics
+        .get(period_idx as usize)
+        .cloned()
+        .unwrap()
         .scores
         .field_goals = _cse_temp_4;
-    let _cse_temp_5 = team_stats.period_statistics[period_idx as usize]
+    let _cse_temp_5 = team_stats
+        .period_statistics
+        .get(period_idx as usize)
+        .cloned()
+        .unwrap()
         .scores
         .total
         + points;
-    team_stats.period_statistics[period_idx as usize]
+    team_stats
+        .period_statistics
+        .get(period_idx as usize)
+        .cloned()
+        .unwrap()
         .scores
         .total = _cse_temp_5;
     team_stats.total_statistics.scores.field_goals = _cse_temp_4;
@@ -5167,7 +5209,13 @@ pub fn add_field_goal(state: &mut State, is_two_pointer: bool) {
         } else {
             state.away_player_selected_for_points_market.clone()
         };
-        player.period_statistics[period_idx as usize].scores.total = _cse_temp_5;
+        player
+            .period_statistics
+            .get(period_idx as usize)
+            .cloned()
+            .unwrap()
+            .scores
+            .total = _cse_temp_5;
         player.total_statistics.scores.total = _cse_temp_5;
     }
 }
@@ -5459,10 +5507,18 @@ pub fn add_penalty(state: &mut State) {
     team_stats.total_statistics.scores.penalties = _cse_temp_4;
     let _cse_temp_5 = team_stats.total_statistics.scores.total + PENALTY_POINTS;
     team_stats.total_statistics.scores.total = _cse_temp_5;
-    team_stats.period_statistics[period_idx as usize]
+    team_stats
+        .period_statistics
+        .get(period_idx as usize)
+        .cloned()
+        .unwrap()
         .scores
         .penalties = _cse_temp_4;
-    team_stats.period_statistics[period_idx as usize]
+    team_stats
+        .period_statistics
+        .get(period_idx as usize)
+        .cloned()
+        .unwrap()
         .scores
         .total = _cse_temp_5;
     if state.include_players {
@@ -5473,10 +5529,20 @@ pub fn add_penalty(state: &mut State) {
         };
         player.total_statistics.scores.conversions = _cse_temp_4;
         player.total_statistics.scores.total = _cse_temp_5;
-        player.period_statistics[period_idx as usize]
+        player
+            .period_statistics
+            .get(period_idx as usize)
+            .cloned()
+            .unwrap()
             .scores
             .conversions = _cse_temp_4;
-        player.period_statistics[period_idx as usize].scores.total = _cse_temp_5;
+        player
+            .period_statistics
+            .get(period_idx as usize)
+            .cloned()
+            .unwrap()
+            .scores
+            .total = _cse_temp_5;
     }
 }
 #[function]
@@ -5769,8 +5835,8 @@ pub fn convert_field_position(state: &State, grid_result: String, team: String) 
     };
     let x_position = _cse_temp_1;
     let _cse_temp_2 = team == "Home".to_string();
-    let x_range;
     let y_range;
+    let x_range;
     if _cse_temp_2 {
         x_range = X_VALUES.clone().get(x_position as usize).cloned().unwrap();
         y_range = Y_VALUES.clone().get(y_position as usize).cloned().unwrap();
@@ -5793,8 +5859,8 @@ pub fn convert_field_position(state: &State, grid_result: String, team: String) 
 }
 pub fn derive_grid_coordinate(position: &FieldPosition, team: String) -> i32 {
     let _cse_temp_0 = team.contains(&"Away");
-    let y_ranges;
     let x_ranges;
+    let y_ranges;
     if _cse_temp_0 {
         x_ranges = X_VALUES_AWAY.clone();
         y_ranges = Y_VALUES_AWAY.clone();
@@ -6064,14 +6130,29 @@ pub fn add_try(state: &mut State) {
     if _cse_temp_1 {
         let _cse_temp_2 = state.home_match_score + TRY_POINTS;
         state.home_match_score = _cse_temp_2;
-        let _cse_temp_3 = state.home_statistics.period_statistics[period_idx as usize]
+        let _cse_temp_3 = state
+            .home_statistics
+            .period_statistics
+            .get(period_idx as usize)
+            .cloned()
+            .unwrap()
             .scores
             .tries
             + 1;
-        state.home_statistics.period_statistics[period_idx as usize]
+        state
+            .home_statistics
+            .period_statistics
+            .get(period_idx as usize)
+            .cloned()
+            .unwrap()
             .scores
             .tries = _cse_temp_3;
-        state.home_statistics.period_statistics[period_idx as usize]
+        state
+            .home_statistics
+            .period_statistics
+            .get(period_idx as usize)
+            .cloned()
+            .unwrap()
             .scores
             .total = _cse_temp_2;
         state.home_statistics.total_statistics.scores.tries = _cse_temp_3;
@@ -6079,14 +6160,29 @@ pub fn add_try(state: &mut State) {
     } else {
         let _cse_temp_4 = state.away_match_score + TRY_POINTS;
         state.away_match_score = _cse_temp_4;
-        let _cse_temp_5 = state.away_statistics.period_statistics[period_idx as usize]
+        let _cse_temp_5 = state
+            .away_statistics
+            .period_statistics
+            .get(period_idx as usize)
+            .cloned()
+            .unwrap()
             .scores
             .tries
             + 1;
-        state.away_statistics.period_statistics[period_idx as usize]
+        state
+            .away_statistics
+            .period_statistics
+            .get(period_idx as usize)
+            .cloned()
+            .unwrap()
             .scores
             .tries = _cse_temp_5;
-        state.away_statistics.period_statistics[period_idx as usize]
+        state
+            .away_statistics
+            .period_statistics
+            .get(period_idx as usize)
+            .cloned()
+            .unwrap()
             .scores
             .total = _cse_temp_4;
         state.away_statistics.total_statistics.scores.tries = _cse_temp_5;
@@ -6137,10 +6233,36 @@ pub fn assign_try(state: &mut State, player_index: i32, team: String) {
             .push(player_list_idx);
         state.away_total_try_scorers.push(player_list_idx);
     }
-    let _cse_temp_2 = player.period_statistics[period_idx as usize].scores.tries + 1;
-    player.period_statistics[period_idx as usize].scores.tries = _cse_temp_2;
-    let _cse_temp_3 = player.period_statistics[period_idx as usize].scores.total + TRY_POINTS;
-    player.period_statistics[period_idx as usize].scores.total = _cse_temp_3;
+    let _cse_temp_2 = player
+        .period_statistics
+        .get(period_idx as usize)
+        .cloned()
+        .unwrap()
+        .scores
+        .tries
+        + 1;
+    player
+        .period_statistics
+        .get(period_idx as usize)
+        .cloned()
+        .unwrap()
+        .scores
+        .tries = _cse_temp_2;
+    let _cse_temp_3 = player
+        .period_statistics
+        .get(period_idx as usize)
+        .cloned()
+        .unwrap()
+        .scores
+        .total
+        + TRY_POINTS;
+    player
+        .period_statistics
+        .get(period_idx as usize)
+        .cloned()
+        .unwrap()
+        .scores
+        .total = _cse_temp_3;
     player.total_statistics.scores.tries = _cse_temp_2;
     player.total_statistics.scores.total = _cse_temp_3;
     let mut team_stats = if team == "Home".to_string() {
@@ -6148,10 +6270,18 @@ pub fn assign_try(state: &mut State, player_index: i32, team: String) {
     } else {
         state.away_statistics.clone()
     };
-    team_stats.player_statistics[player_list_idx as usize]
+    team_stats
+        .player_statistics
+        .get(player_list_idx as usize)
+        .cloned()
+        .unwrap()
         .scores
         .tries = _cse_temp_2;
-    team_stats.player_statistics[player_list_idx as usize]
+    team_stats
+        .player_statistics
+        .get(player_list_idx as usize)
+        .cloned()
+        .unwrap()
         .scores
         .total = _cse_temp_3;
 }

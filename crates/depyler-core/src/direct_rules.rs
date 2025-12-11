@@ -143,7 +143,7 @@ pub fn apply_rules(module: &HirModule, type_mapper: &TypeMapper) -> Result<syn::
 
     // Add standard imports
     items.push(parse_quote! {
-        use std::collections::HashMap;
+        use std::collections::{HashMap, HashSet};
     });
 
     // Generate type aliases
@@ -497,8 +497,34 @@ fn generate_dataclass_new(
         .filter(|f| !f.is_class_var) // Skip class constants
         .map(|field| {
             let field_ident = syn::Ident::new(&field.name, proc_macro2::Span::call_site());
-            if field.default_value.is_some() {
-                // Use default value - for now just use Default::default() or 0 for int
+            if let Some(default_value) = &field.default_value {
+                // Check if this is a field() call with default_factory
+                if let HirExpr::Call { func, kwargs, .. } = default_value {
+                    // Check if it's a call to field()
+                    if func == "field" {
+                        // Look for default_factory keyword argument
+                        if let Some((_, factory_expr)) = kwargs.iter().find(|(k, _)| k == "default_factory") {
+                            // Generate appropriate initialization based on factory
+                            if let HirExpr::Var(factory_name) = factory_expr {
+                                match factory_name.as_str() {
+                                    "set" => return quote! { #field_ident: HashSet::new() },
+                                    "list" => return quote! { #field_ident: Vec::new() },
+                                    "dict" => return quote! { #field_ident: HashMap::new() },
+                                    _ => {}
+                                }
+                            }
+                        } else if let Some((_, default_val)) = kwargs.iter().find(|(k, _)| k == "default") {
+                            // Handle field(default=value)
+                            if let Ok(expr) = convert_expr(default_val, type_mapper) {
+                                return quote! { #field_ident: #expr };
+                            }
+                        }
+                        // No default_factory or default, use Default::default()
+                        return quote! { #field_ident: Default::default() };
+                    }
+                }
+                
+                // Not a field() call or other default value expression
                 if field.field_type == Type::Int {
                     quote! { #field_ident: 0 }
                 } else {
