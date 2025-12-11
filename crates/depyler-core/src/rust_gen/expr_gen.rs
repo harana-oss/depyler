@@ -13532,6 +13532,29 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             return body.to_rust_expr(self.ctx);
         }
 
+        // Pattern: `x if x is not None else default` → `x.unwrap_or(default)`
+        // This handles Optional types correctly by unwrapping the Some value
+        if let HirExpr::Binary { op, left, right } = test {
+            if matches!(op, BinOp::IsNot) && matches!(right.as_ref(), HirExpr::Literal(Literal::None)) {
+                // Test is `x is not None`
+                if left.as_ref() == body {
+                    // Body is the same variable being tested
+                    let var_expr = body.to_rust_expr(self.ctx)?;
+                    let default_egit stxpr = orelse.to_rust_expr(self.ctx)?;
+                    return Ok(parse_quote! { #var_expr.unwrap_or(#default_expr) });
+                }
+            } else if matches!(op, BinOp::Is) && matches!(right.as_ref(), HirExpr::Literal(Literal::None)) {
+                // Test is `x is None` - inverted logic
+                if left.as_ref() == body {
+                    // Pattern: `x if x is None else default` → `x.unwrap_or(default)`
+                    // This is unusual but handle it for completeness
+                    let var_expr = body.to_rust_expr(self.ctx)?;
+                    let default_expr = orelse.to_rust_expr(self.ctx)?;
+                    return Ok(parse_quote! { #var_expr.unwrap_or(#default_expr) });
+                }
+            }
+        }
+
         let mut test_expr = test.to_rust_expr(self.ctx)?;
         let mut body_expr = body.to_rust_expr(self.ctx)?;
         let mut orelse_expr = orelse.to_rust_expr(self.ctx)?;
