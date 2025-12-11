@@ -3821,27 +3821,13 @@ impl XyOutputs {
         }
     }
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn debug(state: &State) {
-    let away_running_score: i32 = 0;
-    let home_running_score: i32 = 0;
     let race_to_targets: Vec<i32> = Vec::new();
     let remaining_targets: Vec<i32> = Vec::new();
     let target_index: i32 = 0;
-    if state.is_over {
-        println!("{}", "[Debug] Log");
-        println!(
-            "{}",
-            format!(
-                "State is over, home score = {}, away score = {}",
-                state.home_match_score, state.away_match_score
-            )
-        );
-    }
+    if state.is_over {}
     return;
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn anytime_output_event(state: &State) {
     let mut away_extra_time_stats: Option<Statistics> = None;
     let mut away_second_half_stats: Option<Statistics> = None;
@@ -3851,10 +3837,16 @@ pub fn anytime_output_event(state: &State) {
     let mut home_second_half_stats: Option<Statistics> = None;
     let mut team_a_second_half_points: i32 = 0;
     let mut team_b_second_half_points: i32 = 0;
-    if false {
-        println!(
-            "{}",
-            "[Anytime Output Event] Get period and match statistics"
+    let _cse_temp_0 = !["UnknownStatus", "NotStarted"].contains(&state.game_status.as_str());
+    if _cse_temp_0 {
+        away_second_half_stats = Some(
+            state
+                .away_statistics
+                .period_statistics
+                .clone()
+                .get(SECOND_HALF_INDEX as usize)
+                .cloned()
+                .unwrap(),
         );
         away_extra_time_stats = Some(
             state
@@ -3862,15 +3854,6 @@ pub fn anytime_output_event(state: &State) {
                 .period_statistics
                 .clone()
                 .get(EXTRA_TIME_INDEX as usize)
-                .cloned()
-                .unwrap(),
-        );
-        away_second_half_stats = Some(
-            state
-                .away_statistics
-                .period_statistics
-                .clone()
-                .get(SECOND_HALF_INDEX as usize)
                 .cloned()
                 .unwrap(),
         );
@@ -3892,19 +3875,15 @@ pub fn anytime_output_event(state: &State) {
                 .cloned()
                 .unwrap(),
         );
-        println!("{}", "[Anytime Output Event] Calculate status flags");
-        let _cse_temp_0 = state.period.number > 1;
-        ended_half_1 = _cse_temp_0;
         ended_match = state.is_over;
-        team_a_second_half_points = home_second_half_stats.as_ref().unwrap().scores.total;
         team_b_second_half_points = away_second_half_stats.as_ref().unwrap().scores.total;
-        println!("{}", "[Anytime Output Event] Output match status");
+        let _cse_temp_1 = state.period.number > 1;
+        ended_half_1 = _cse_temp_1;
+        team_a_second_half_points = home_second_half_stats.as_ref().unwrap().scores.total;
         record_bool("EndedHalf1".to_string(), ended_half_1);
         record_bool("EndedMatch".to_string(), ended_match);
-        println!("{}", "[Anytime Output Event] Output second half points");
         record_int("PointsHalf2A".to_string(), team_a_second_half_points);
         record_int("PointsHalf2B".to_string(), team_b_second_half_points);
-        println!("{}", "[Anytime Output Event] Output match tries");
         record_int(
             "TriesMatchA".to_string(),
             state.home_statistics.total_statistics.scores.tries,
@@ -3913,7 +3892,6 @@ pub fn anytime_output_event(state: &State) {
             "TriesMatchB".to_string(),
             state.away_statistics.total_statistics.scores.tries,
         );
-        println!("{}", "[Anytime Output Event] Output extra time tries");
         record_int(
             "TriesExtraTimeA".to_string(),
             home_extra_time_stats.as_ref().unwrap().scores.tries,
@@ -3925,7 +3903,6 @@ pub fn anytime_output_event(state: &State) {
     }
     return;
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn end_of_game_output_event(state: &State) {
     let mut away_extra_time_points: i32 = 0;
     let mut away_extra_time_stats: Option<Statistics> = None;
@@ -3943,31 +3920,12 @@ pub fn end_of_game_output_event(state: &State) {
     let mut team_b_won_second_half_and_et: bool = false;
     let _cse_temp_0 = state.game_status.clone() == "ENDED";
     if _cse_temp_0 {
-        println!("{}", "[End Of Game Output Event] Get period statistics");
         away_extra_time_stats = Some(
             state
                 .away_statistics
                 .period_statistics
                 .clone()
                 .get(EXTRA_TIME_INDEX as usize)
-                .cloned()
-                .unwrap(),
-        );
-        home_second_half_stats = Some(
-            state
-                .home_statistics
-                .period_statistics
-                .clone()
-                .get(SECOND_HALF_INDEX as usize)
-                .cloned()
-                .unwrap(),
-        );
-        home_first_half_stats = Some(
-            state
-                .home_statistics
-                .period_statistics
-                .clone()
-                .get(FIRST_HALF_INDEX as usize)
                 .cloned()
                 .unwrap(),
         );
@@ -3989,80 +3947,6 @@ pub fn end_of_game_output_event(state: &State) {
                 .cloned()
                 .unwrap(),
         );
-        away_second_half_stats = Some(
-            state
-                .away_statistics
-                .period_statistics
-                .clone()
-                .get(SECOND_HALF_INDEX as usize)
-                .cloned()
-                .unwrap(),
-        );
-        println!(
-            "{}",
-            "[End Of Game Output Event] Calculate extra time and combined scores"
-        );
-        home_extra_time_points = home_extra_time_stats.as_ref().unwrap().scores.total;
-        let _cse_temp_1 = home_second_half_stats.as_ref().unwrap().scores.total
-            + home_extra_time_stats.as_ref().unwrap().scores.total;
-        home_second_half_with_et = _cse_temp_1;
-        away_second_half_with_et = _cse_temp_1;
-        away_extra_time_points = away_extra_time_stats.as_ref().unwrap().scores.total;
-        println!(
-            "{}",
-            "[End Of Game Output Event] Determine second half and extra time winner"
-        );
-        let _cse_temp_2 = home_second_half_with_et > away_second_half_with_et;
-        team_a_won_second_half_and_et = _cse_temp_2;
-        let _cse_temp_3 = home_second_half_with_et < away_second_half_with_et;
-        team_b_won_second_half_and_et = _cse_temp_3;
-        println!("{}", "[End Of Game Output Event] Determine match results");
-        let _cse_temp_4 = state.home_match_score > state.away_match_score;
-        team_a_won_match = _cse_temp_4;
-        let _cse_temp_5 = state.home_match_score == state.away_match_score;
-        draw_match = _cse_temp_5;
-        let team_b_won_match = _cse_temp_4;
-        println!("{}", "[End Of Game Output Event] Output match totals");
-        record_int("PointsMatchA".to_string(), state.home_match_score);
-        record_int("PointsMatchB".to_string(), state.away_match_score);
-        println!("{}", "[End Of Game Output Event] Output extra time points");
-        record_int("PointsExtraTimeA".to_string(), home_extra_time_points);
-        record_int("PointsExtraTimeB".to_string(), away_extra_time_points);
-        println!(
-            "{}",
-            "[End Of Game Output Event] Output second half and extra time results"
-        );
-        record_bool(
-            "WinHalf2AndExtraTimeA".to_string(),
-            team_a_won_second_half_and_et,
-        );
-        record_bool(
-            "WinHalf2AndExtraTimeB".to_string(),
-            team_b_won_second_half_and_et,
-        );
-        println!("{}", "[End Of Game Output Event] Output match results");
-        record_bool("DrawMatch".to_string(), draw_match);
-        record_bool("WinMatchA".to_string(), team_a_won_match);
-        record_bool("WinMatchB".to_string(), team_b_won_match);
-    }
-    return;
-}
-#[doc = " Depyler: proven to terminate"]
-pub fn first_half_output_event(state: &State) {
-    let mut away_first_half_stats: Option<Statistics> = None;
-    let mut away_first_half_total: i32 = 0;
-    let mut away_first_half_tries: i32 = 0;
-    let mut draw_first_half: bool = false;
-    let mut home_first_half_stats: Option<Statistics> = None;
-    let mut home_first_half_total: i32 = 0;
-    let mut home_first_half_tries: i32 = 0;
-    let mut team_a_won_first_half: bool = false;
-    let mut team_b_won_first_half: bool = false;
-    if false {
-        println!(
-            "{}",
-            "[First Half Output Event] Get first half period statistics"
-        );
         home_first_half_stats = Some(
             state
                 .home_statistics
@@ -4072,86 +3956,12 @@ pub fn first_half_output_event(state: &State) {
                 .cloned()
                 .unwrap(),
         );
-        away_first_half_stats = Some(
-            state
-                .away_statistics
-                .period_statistics
-                .clone()
-                .get(FIRST_HALF_INDEX as usize)
-                .cloned()
-                .unwrap(),
-        );
-        println!(
-            "{}",
-            "[First Half Output Event] Calculate first half scores"
-        );
-        home_first_half_tries = home_first_half_stats.as_ref().unwrap().scores.tries;
-        away_first_half_tries = away_first_half_stats.as_ref().unwrap().scores.tries;
-        away_first_half_total = away_first_half_stats.as_ref().unwrap().scores.total;
-        home_first_half_total = home_first_half_stats.as_ref().unwrap().scores.total;
-        println!(
-            "{}",
-            "[First Half Output Event] Determine first half results"
-        );
-        let _cse_temp_0 = home_first_half_total > away_first_half_total;
-        team_a_won_first_half = _cse_temp_0;
-        let _cse_temp_1 = away_first_half_total > home_first_half_total;
-        team_b_won_first_half = _cse_temp_1;
-        let _cse_temp_2 = home_first_half_total == away_first_half_total;
-        draw_first_half = _cse_temp_2;
-        println!("{}", "[First Half Output Event] Output first half points");
-        record_int("PointsHalf1A".to_string(), home_first_half_total);
-        record_int("PointsHalf1B".to_string(), away_first_half_total);
-        println!(
-            "{}",
-            "[First Half Output Event] Output first half win/draw results"
-        );
-        record_bool("WinHalf1A".to_string(), team_a_won_first_half);
-        record_bool("WinHalf1B".to_string(), team_b_won_first_half);
-        record_bool("DrawHalf1".to_string(), draw_first_half);
-        println!("{}", "[First Half Output Event] Output first half tries");
-        record_int("TriesHalf1A".to_string(), home_first_half_tries);
-        record_int("TriesHalf1B".to_string(), away_first_half_tries);
-    }
-    return;
-}
-#[doc = " Depyler: proven to terminate"]
-pub fn normal_time_output_event(state: &State) {
-    let mut away_first_half_stats: Option<Statistics> = None;
-    let mut away_normal_time_score: i32 = 0;
-    let mut away_second_half_stats: Option<Statistics> = None;
-    let mut extra_time_occurred: bool = false;
-    let mut home_first_half_stats: Option<Statistics> = None;
-    let mut home_normal_time_score: i32 = 0;
-    let mut home_second_half_stats: Option<Statistics> = None;
-    if false {
-        println!("{}", "[Normal Time Output Event] Get period statistics");
-        away_first_half_stats = Some(
-            state
-                .away_statistics
-                .period_statistics
-                .clone()
-                .get(FIRST_HALF_INDEX as usize)
-                .cloned()
-                .unwrap(),
-        );
-        away_normal_time_score = 0;
         away_second_half_stats = Some(
             state
                 .away_statistics
                 .period_statistics
                 .clone()
                 .get(SECOND_HALF_INDEX as usize)
-                .cloned()
-                .unwrap(),
-        );
-        home_normal_time_score = 0;
-        home_first_half_stats = Some(
-            state
-                .home_statistics
-                .period_statistics
-                .clone()
-                .get(FIRST_HALF_INDEX as usize)
                 .cloned()
                 .unwrap(),
         );
@@ -4164,24 +3974,152 @@ pub fn normal_time_output_event(state: &State) {
                 .cloned()
                 .unwrap(),
         );
-        println!(
-            "{}",
-            "[Normal Time Output Event] Calculate normal time scores"
+        let _cse_temp_1 = away_second_half_stats.as_ref().unwrap().scores.total
+            + away_extra_time_stats.as_ref().unwrap().scores.total;
+        away_second_half_with_et = _cse_temp_1;
+        home_extra_time_points = home_extra_time_stats.as_ref().unwrap().scores.total;
+        away_extra_time_points = away_extra_time_stats.as_ref().unwrap().scores.total;
+        home_second_half_with_et = _cse_temp_1;
+        let _cse_temp_2 = home_second_half_with_et > away_second_half_with_et;
+        team_a_won_second_half_and_et = _cse_temp_2;
+        let _cse_temp_3 = home_second_half_with_et < away_second_half_with_et;
+        team_b_won_second_half_and_et = _cse_temp_3;
+        let _cse_temp_4 = state.home_match_score > state.away_match_score;
+        team_a_won_match = _cse_temp_4;
+        let team_b_won_match = _cse_temp_4;
+        let _cse_temp_5 = state.home_match_score == state.away_match_score;
+        draw_match = _cse_temp_5;
+        record_int("PointsMatchA".to_string(), state.home_match_score);
+        record_int("PointsMatchB".to_string(), state.away_match_score);
+        record_int("PointsExtraTimeA".to_string(), home_extra_time_points);
+        record_int("PointsExtraTimeB".to_string(), away_extra_time_points);
+        record_bool(
+            "WinHalf2AndExtraTimeA".to_string(),
+            team_a_won_second_half_and_et,
         );
-        let _cse_temp_0 = away_first_half_stats.as_ref().unwrap().scores.total
-            + away_second_half_stats.as_ref().unwrap().scores.total;
-        away_normal_time_score = _cse_temp_0;
-        home_normal_time_score = _cse_temp_0;
-        println!(
-            "{}",
-            "[Normal Time Output Event] Determine extra time occurrence"
+        record_bool(
+            "WinHalf2AndExtraTimeB".to_string(),
+            team_b_won_second_half_and_et,
         );
-        let _cse_temp_1 = home_normal_time_score == away_normal_time_score;
-        extra_time_occurred = _cse_temp_1;
-        println!(
-            "{}",
-            "[Normal Time Output Event] Output normal time results"
+        record_bool("DrawMatch".to_string(), draw_match);
+        record_bool("WinMatchA".to_string(), team_a_won_match);
+        record_bool("WinMatchB".to_string(), team_b_won_match);
+    }
+    return;
+}
+pub fn first_half_output_event(state: &State) {
+    let mut away_first_half_stats: Option<Statistics> = None;
+    let mut away_first_half_total: i32 = 0;
+    let mut away_first_half_tries: i32 = 0;
+    let mut draw_first_half: bool = false;
+    let mut home_first_half_stats: Option<Statistics> = None;
+    let mut home_first_half_total: i32 = 0;
+    let mut home_first_half_tries: i32 = 0;
+    let mut team_a_won_first_half: bool = false;
+    let mut team_b_won_first_half: bool = false;
+    let _cse_temp_0 = [
+        "HalfTime",
+        "Period2",
+        "AwaitingExtraTime",
+        "ExtraTime",
+        "Ended",
+    ]
+    .contains(&state.game_status.as_str());
+    let _cse_temp_1 = (_cse_temp_0) || (state.is_over);
+    if _cse_temp_1 {
+        away_first_half_stats = Some(
+            state
+                .away_statistics
+                .period_statistics
+                .clone()
+                .get(FIRST_HALF_INDEX as usize)
+                .cloned()
+                .unwrap(),
         );
+        home_first_half_stats = Some(
+            state
+                .home_statistics
+                .period_statistics
+                .clone()
+                .get(FIRST_HALF_INDEX as usize)
+                .cloned()
+                .unwrap(),
+        );
+        home_first_half_tries = home_first_half_stats.as_ref().unwrap().scores.tries;
+        away_first_half_tries = away_first_half_stats.as_ref().unwrap().scores.tries;
+        away_first_half_total = away_first_half_stats.as_ref().unwrap().scores.total;
+        home_first_half_total = home_first_half_stats.as_ref().unwrap().scores.total;
+        let _cse_temp_2 = away_first_half_total > home_first_half_total;
+        team_b_won_first_half = _cse_temp_2;
+        let _cse_temp_3 = home_first_half_total == away_first_half_total;
+        draw_first_half = _cse_temp_3;
+        let _cse_temp_4 = home_first_half_total > away_first_half_total;
+        team_a_won_first_half = _cse_temp_4;
+        record_int("PointsHalf1A".to_string(), home_first_half_total);
+        record_int("PointsHalf1B".to_string(), away_first_half_total);
+        record_bool("WinHalf1A".to_string(), team_a_won_first_half);
+        record_bool("WinHalf1B".to_string(), team_b_won_first_half);
+        record_bool("DrawHalf1".to_string(), draw_first_half);
+        record_int("TriesHalf1A".to_string(), home_first_half_tries);
+        record_int("TriesHalf1B".to_string(), away_first_half_tries);
+    }
+    return;
+}
+pub fn normal_time_output_event(state: &State) {
+    let mut away_first_half_stats: Option<Statistics> = None;
+    let mut away_normal_time_score: i32 = 0;
+    let mut away_second_half_stats: Option<Statistics> = None;
+    let mut extra_time_occurred: bool = false;
+    let mut home_first_half_stats: Option<Statistics> = None;
+    let mut home_normal_time_score: i32 = 0;
+    let mut home_second_half_stats: Option<Statistics> = None;
+    let _cse_temp_0 =
+        ["AwaitingExtraTime", "ExtraTime", "Ended"].contains(&state.game_status.as_str());
+    if _cse_temp_0 {
+        away_second_half_stats = Some(
+            state
+                .away_statistics
+                .period_statistics
+                .clone()
+                .get(SECOND_HALF_INDEX as usize)
+                .cloned()
+                .unwrap(),
+        );
+        away_first_half_stats = Some(
+            state
+                .away_statistics
+                .period_statistics
+                .clone()
+                .get(FIRST_HALF_INDEX as usize)
+                .cloned()
+                .unwrap(),
+        );
+        away_normal_time_score = 0;
+        home_first_half_stats = Some(
+            state
+                .home_statistics
+                .period_statistics
+                .clone()
+                .get(FIRST_HALF_INDEX as usize)
+                .cloned()
+                .unwrap(),
+        );
+        home_normal_time_score = 0;
+        home_second_half_stats = Some(
+            state
+                .home_statistics
+                .period_statistics
+                .clone()
+                .get(SECOND_HALF_INDEX as usize)
+                .cloned()
+                .unwrap(),
+        );
+        let _cse_temp_1 = home_first_half_stats.as_ref().unwrap().scores.total
+            + home_second_half_stats.as_ref().unwrap().scores.total;
+        home_normal_time_score = _cse_temp_1;
+        away_normal_time_score = _cse_temp_1;
+        let _cse_temp_2 = home_normal_time_score == away_normal_time_score;
+        extra_time_occurred = _cse_temp_2;
         record_bool("ExtraTimeOccurredMatch".to_string(), extra_time_occurred);
         record_int("PointsNormalTimeA".to_string(), home_normal_time_score);
         record_int("PointsNormalTimeB".to_string(), away_normal_time_score);
@@ -4193,7 +4131,6 @@ pub fn normal_time_output_event(state: &State) {
             "WinNormalTimeB".to_string(),
             away_normal_time_score > home_normal_time_score,
         );
-        println!("{}", "[Normal Time Output Event] Output second half tries");
         record_int(
             "TriesHalf2A".to_string(),
             home_second_half_stats.as_ref().unwrap().scores.tries,
@@ -4205,32 +4142,19 @@ pub fn normal_time_output_event(state: &State) {
     }
     return;
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn player_void_output_event(state: &State) {
     let mut away_trader_players: Vec<Player> = Vec::new();
     let mut home_trader_players: Vec<Player> = Vec::new();
-    if true {
-        println!("{}", "[Player Void Output Event] Bind trader state players");
+    if state.include_players {
         home_trader_players = state.home_players.clone();
         away_trader_players = state.away_players.clone();
-        println!(
-            "{}",
-            "[Player Void Output Event] Output home player void status"
-        );
         for player in home_trader_players.iter().cloned() {
-            println!("{}", "[Player Void Output Event] record");
             record_bool(
                 format!("Player_Voided_{}", player.player_index),
                 player.is_voided,
             );
         }
-        println!(
-            "{}",
-            "[Player Void Output Event] Output away player void status"
-        );
         for player in away_trader_players.iter().cloned() {
-            println!("{}", "[Player Void Output Event] record");
             record_bool(
                 format!("Player_Voided_{}", player.player_index),
                 player.is_voided,
@@ -4239,7 +4163,6 @@ pub fn player_void_output_event(state: &State) {
     }
     return;
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn period_first_last_score_helper(state: &State) {
     let mut away_first_try_time: i32 = 0;
     let mut first_score_team: String = "".to_string();
@@ -4249,10 +4172,6 @@ pub fn period_first_last_score_helper(state: &State) {
     let period_filter: bool = false;
     let period_name: String = "".to_string();
     if false {
-        println!(
-            "{}",
-            "[Period First Last Score Helper] Find first try in period"
-        );
         first_try_team = state
             .incidents
             .clone()
@@ -4269,10 +4188,6 @@ pub fn period_first_last_score_helper(state: &State) {
             .cloned()
             .unwrap()
             .points_scored_team;
-        println!(
-            "{}",
-            "[Period First Last Score Helper] Find first score in period"
-        );
         first_score_team = state
             .incidents
             .clone()
@@ -4285,10 +4200,6 @@ pub fn period_first_last_score_helper(state: &State) {
             .cloned()
             .unwrap()
             .points_scored_team;
-        println!(
-            "{}",
-            "[Period First Last Score Helper] Calculate first try times"
-        );
         let _cse_temp_0 = {
             let a = state
                 .incidents
@@ -4299,7 +4210,6 @@ pub fn period_first_last_score_helper(state: &State) {
                     period_filter
                         && incident.has_points_confirmed
                         && incident.points_confirmed_score_type == "Try"
-                        && incident.points_scored_team == "Away"
                 })
                 .map(|incident| incident)
                 .collect::<Vec<_>>()
@@ -4321,13 +4231,9 @@ pub fn period_first_last_score_helper(state: &State) {
                 q
             }
         };
-        away_first_try_time = _cse_temp_0 + 1;
         first_try_time = _cse_temp_0 + 1;
+        away_first_try_time = _cse_temp_0 + 1;
         home_first_try_time = _cse_temp_0 + 1;
-        println!(
-            "{}",
-            "[Period First Last Score Helper] Output first try results"
-        );
         record_bool(
             format!("FirstTry{}A", period_name),
             first_try_team.clone() == "Home".to_string(),
@@ -4335,10 +4241,6 @@ pub fn period_first_last_score_helper(state: &State) {
         record_bool(
             format!("FirstTry{}B", period_name),
             first_try_team == "Away".to_string(),
-        );
-        println!(
-            "{}",
-            "[Period First Last Score Helper] Output first to score results"
         );
         record_bool(
             format!("FirstToScore{}A", period_name),
@@ -4348,18 +4250,12 @@ pub fn period_first_last_score_helper(state: &State) {
             format!("FirstToScore{}B", period_name),
             first_score_team == "Away".to_string(),
         );
-        println!(
-            "{}",
-            "[Period First Last Score Helper] Output first try time results"
-        );
         record_int(format!("FirstTryTime{}", period_name), first_try_time);
         record_int(format!("FirstTryTime{}A", period_name), home_first_try_time);
         record_int(format!("FirstTryTime{}B", period_name), away_first_try_time);
     }
     return;
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn first_to_score_tracking_event(state: &State) {
     let mut away_first_try_incident: Option<Incident> = None;
     let mut away_first_try_time: Option<i32> = None;
@@ -4381,10 +4277,6 @@ pub fn first_to_score_tracking_event(state: &State) {
     let _cse_temp_1 = _cse_temp_0 > 0;
     let _cse_temp_2 = (_cse_temp_1) || (state.is_over);
     if _cse_temp_2 {
-        println!(
-            "{}",
-            "[First To Score Tracking Event] Collect confirmed scoring incidents"
-        );
         points_confirmed_incidents = state
             .incidents
             .clone()
@@ -4396,10 +4288,6 @@ pub fn first_to_score_tracking_event(state: &State) {
             })
             .map(|incident| incident)
             .collect::<Vec<_>>();
-        println!(
-            "{}",
-            "[First To Score Tracking Event] Collect confirmed try incidents"
-        );
         try_incidents = points_confirmed_incidents
             .clone()
             .clone()
@@ -4407,10 +4295,6 @@ pub fn first_to_score_tracking_event(state: &State) {
             .filter(|incident| incident.points_confirmed_score_type == "Try")
             .map(|incident| incident)
             .collect::<Vec<_>>();
-        println!(
-            "{}",
-            "[First To Score Tracking Event] Resolve key incidents across periods"
-        );
         match_first_score_incident = if !points_confirmed_incidents.clone().is_empty() {
             Some(
                 points_confirmed_incidents
@@ -4422,12 +4306,25 @@ pub fn first_to_score_tracking_event(state: &State) {
         } else {
             None
         };
-        match_first_try_incident = if !try_incidents.clone().is_empty() {
-            Some(try_incidents.clone().get(0usize).cloned().unwrap())
+        half2_et_first_score_incident = points_confirmed_incidents
+            .clone()
+            .iter()
+            .cloned()
+            .filter(|incident| (incident.period.number) as i32 - 1 >= SECOND_HALF_INDEX)
+            .map(|incident| incident)
+            .next();
+        extra_time_first_score_incident = points_confirmed_incidents
+            .iter()
+            .cloned()
+            .filter(|incident| (incident.period.number) as i32 - 1 == EXTRA_TIME_INDEX)
+            .map(|incident| incident)
+            .next();
+        last_score_incident = if !points_confirmed_incidents.is_empty() {
+            Some(points_confirmed_incidents.last().cloned().unwrap())
         } else {
             None
         };
-        half2_et_first_score_incident = points_confirmed_incidents
+        half2_et_first_try_incident = try_incidents
             .clone()
             .iter()
             .cloned()
@@ -4441,10 +4338,11 @@ pub fn first_to_score_tracking_event(state: &State) {
             .filter(|incident| incident.points_scored_team == "Away")
             .map(|incident| incident)
             .next();
-        half2_et_first_try_incident = try_incidents
+        extra_time_first_try_incident = try_incidents
+            .clone()
             .iter()
             .cloned()
-            .filter(|incident| (incident.period.number) as i32 - 1 >= SECOND_HALF_INDEX)
+            .filter(|incident| (incident.period.number) as i32 - 1 == EXTRA_TIME_INDEX)
             .map(|incident| incident)
             .next();
         home_first_try_incident = try_incidents
@@ -4453,31 +4351,13 @@ pub fn first_to_score_tracking_event(state: &State) {
             .filter(|incident| incident.points_scored_team == "Home")
             .map(|incident| incident)
             .next();
-        last_score_incident = if !points_confirmed_incidents.is_empty() {
-            Some(points_confirmed_incidents.last().cloned().unwrap())
+        match_first_try_incident = if !try_incidents.is_empty() {
+            Some(try_incidents.get(0usize).cloned().unwrap())
         } else {
             None
         };
-        extra_time_first_try_incident = try_incidents
-            .iter()
-            .cloned()
-            .filter(|incident| (incident.period.number) as i32 - 1 == EXTRA_TIME_INDEX)
-            .map(|incident| incident)
-            .next();
-        extra_time_first_score_incident = points_confirmed_incidents
-            .iter()
-            .cloned()
-            .filter(|incident| (incident.period.number) as i32 - 1 == EXTRA_TIME_INDEX)
-            .map(|incident| incident)
-            .next();
         last_try_incident = if !try_incidents.is_empty() {
             Some(try_incidents.last().cloned().unwrap())
-        } else {
-            None
-        };
-        println!("{}", "[First To Score Tracking Event] Compute try timings");
-        last_try_time = if last_try_incident.is_some() {
-            Some((last_try_incident.as_ref().unwrap().time_elapsed / 60) as i32 + 1)
         } else {
             None
         };
@@ -4486,20 +4366,240 @@ pub fn first_to_score_tracking_event(state: &State) {
         } else {
             None
         };
-        home_first_try_time = if home_first_try_incident.is_some() {
-            Some((home_first_try_incident.as_ref().unwrap().time_elapsed / 60) as i32 + 1)
-        } else {
-            None
-        };
         match_first_try_time = if match_first_try_incident.is_some() {
             Some((match_first_try_incident.as_ref().unwrap().time_elapsed / 60) as i32 + 1)
         } else {
             None
         };
+        last_try_time = if last_try_incident.is_some() {
+            Some((last_try_incident.as_ref().unwrap().time_elapsed / 60) as i32 + 1)
+        } else {
+            None
+        };
+        home_first_try_time = if home_first_try_incident.is_some() {
+            Some((home_first_try_incident.as_ref().unwrap().time_elapsed / 60) as i32 + 1)
+        } else {
+            None
+        };
+        record_bool(
+            "FirstToScore_Match_A".to_string(),
+            match_first_score_incident
+                .as_ref()
+                .unwrap()
+                .points_scored_team
+                == "Home",
+        );
+        record_bool(
+            "FirstToScore_Match_B".to_string(),
+            match_first_score_incident
+                .as_ref()
+                .unwrap()
+                .points_scored_team
+                == "Away",
+        );
+        record_bool(
+            "FirstTry_Match_A".to_string(),
+            match_first_try_incident
+                .as_ref()
+                .unwrap()
+                .points_scored_team
+                == "Home",
+        );
+        record_bool(
+            "FirstTry_Match_B".to_string(),
+            match_first_try_incident
+                .as_ref()
+                .unwrap()
+                .points_scored_team
+                == "Away",
+        );
+        record_bool(
+            "FirstToScore_Half2AndExtraTime_A".to_string(),
+            half2_et_first_score_incident
+                .as_ref()
+                .unwrap()
+                .points_scored_team
+                == "Home",
+        );
+        record_bool(
+            "FirstToScore_Half2AndExtraTime_B".to_string(),
+            half2_et_first_score_incident
+                .as_ref()
+                .unwrap()
+                .points_scored_team
+                == "Away",
+        );
+        record_bool(
+            "FirstTry_Half2AndExtraTime_A".to_string(),
+            half2_et_first_try_incident
+                .as_ref()
+                .unwrap()
+                .points_scored_team
+                == "Home",
+        );
+        record_bool(
+            "FirstTry_Half2AndExtraTime_B".to_string(),
+            half2_et_first_try_incident
+                .as_ref()
+                .unwrap()
+                .points_scored_team
+                == "Away",
+        );
+        record_bool(
+            "FirstToScore_ExtraTime_A".to_string(),
+            extra_time_first_score_incident
+                .as_ref()
+                .unwrap()
+                .points_scored_team
+                == "Home",
+        );
+        record_bool(
+            "FirstToScore_ExtraTime_B".to_string(),
+            extra_time_first_score_incident
+                .as_ref()
+                .unwrap()
+                .points_scored_team
+                == "Away",
+        );
+        record_bool(
+            "FirstTry_ExtraTime_A".to_string(),
+            extra_time_first_try_incident
+                .as_ref()
+                .unwrap()
+                .points_scored_team
+                == "Home",
+        );
+        record_bool(
+            "FirstTry_ExtraTime_B".to_string(),
+            extra_time_first_try_incident
+                .as_ref()
+                .unwrap()
+                .points_scored_team
+                == "Away",
+        );
+        record_int(
+            "FirstTryTime_Half2AndExtraTime".to_string(),
+            (half2_et_first_try_incident.as_ref().unwrap().time_elapsed / 60) as i32 + 1,
+        );
+        record_int(
+            "FirstTryTime_Half2AndExtraTime_A".to_string(),
+            if (half2_et_first_try_incident.is_some())
+                && (half2_et_first_try_incident
+                    .as_ref()
+                    .unwrap()
+                    .points_scored_team
+                    == "Home")
+            {
+                (half2_et_first_try_incident.as_ref().unwrap().time_elapsed / 60) as i32 + 1
+            } else {
+                0
+            },
+        );
+        record_int(
+            "FirstTryTime_Half2AndExtraTime_B".to_string(),
+            if (half2_et_first_try_incident.is_some())
+                && (half2_et_first_try_incident
+                    .as_ref()
+                    .unwrap()
+                    .points_scored_team
+                    == "Away")
+            {
+                (half2_et_first_try_incident.as_ref().unwrap().time_elapsed / 60) as i32 + 1
+            } else {
+                0
+            },
+        );
+        record_int(
+            "FirstTryTime_ExtraTime".to_string(),
+            if extra_time_first_try_incident.is_some() {
+                (extra_time_first_try_incident.as_ref().unwrap().time_elapsed / 60) as i32 + 1
+            } else {
+                0
+            },
+        );
+        record_int(
+            "FirstTryTime_ExtraTime_A".to_string(),
+            if (extra_time_first_try_incident.is_some())
+                && (extra_time_first_try_incident
+                    .as_ref()
+                    .unwrap()
+                    .points_scored_team
+                    == "Home")
+            {
+                (extra_time_first_try_incident.as_ref().unwrap().time_elapsed / 60) as i32 + 1
+            } else {
+                0
+            },
+        );
+        record_int(
+            "FirstTryTime_ExtraTime_B".to_string(),
+            if (extra_time_first_try_incident.is_some())
+                && (extra_time_first_try_incident
+                    .as_ref()
+                    .unwrap()
+                    .points_scored_team
+                    == "Away")
+            {
+                (extra_time_first_try_incident.as_ref().unwrap().time_elapsed / 60) as i32 + 1
+            } else {
+                0
+            },
+        );
+        record_int(
+            "FirstTryTime_Match".to_string(),
+            if match_first_try_time.is_some() {
+                match_first_try_time
+            } else {
+                0
+            },
+        );
+        record_int(
+            "FirstTryTime_Match_A".to_string(),
+            if home_first_try_time.is_some() {
+                home_first_try_time
+            } else {
+                0
+            },
+        );
+        record_int(
+            "FirstTryTime_Match_B".to_string(),
+            if away_first_try_time.is_some() {
+                away_first_try_time
+            } else {
+                0
+            },
+        );
+        record_bool(
+            "LastTry_Match_A".to_string(),
+            (last_try_incident.is_some())
+                && (last_try_incident.as_ref().unwrap().points_scored_team == "Home"),
+        );
+        record_bool(
+            "LastTry_Match_B".to_string(),
+            (last_try_incident.is_some())
+                && (last_try_incident.as_ref().unwrap().points_scored_team == "Away"),
+        );
+        record_bool(
+            "LastToScore_Match_A".to_string(),
+            (last_score_incident.is_some())
+                && (last_score_incident.as_ref().unwrap().points_scored_team == "Home"),
+        );
+        record_bool(
+            "LastToScore_Match_B".to_string(),
+            (last_score_incident.is_some())
+                && (last_score_incident.as_ref().unwrap().points_scored_team == "Away"),
+        );
+        record_int(
+            "LastTryTime_Match".to_string(),
+            if last_try_time.is_some() {
+                last_try_time
+            } else {
+                0
+            },
+        );
     }
     return;
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn minute_winner_tracking_event(state: &State) {
     let mut final_minute: i32 = 0;
     let mut minute_intervals: Vec<i32> = Vec::new();
@@ -4507,39 +4607,12 @@ pub fn minute_winner_tracking_event(state: &State) {
     let _cse_temp_1 = _cse_temp_0 > 0;
     let _cse_temp_2 = (_cse_temp_1) || (state.is_over);
     if _cse_temp_2 {
-        println!(
-            "{}",
-            "[Minute Winner Tracking Event] Initialize interval context"
-        );
         minute_intervals = vec![10, 20, 30, 50, 60];
         let _cse_temp_3 = state.time_elapsed / 60;
         let _cse_temp_4 = (_cse_temp_3) as i32;
         final_minute = _cse_temp_4;
-        println!(
-            "{}",
-            "[Minute Winner Tracking Event] Track winner at each minute interval"
-        );
         for minute in minute_intervals.iter().cloned() {
-            println!(
-                "{}",
-                "[Minute Winner Tracking Event] Record minute winners when interval elapsed"
-            );
             if final_minute > minute {
-                println!(
-                    "{}",
-                    "[Minute Winner Tracking Event] Calculate scores through interval"
-                );
-                let home_points_at_minute = state
-                    .incidents
-                    .clone()
-                    .clone()
-                    .into_iter()
-                    .filter(|incident| {
-                        ((incident.has_points_confirmed) && (incident.points_scored_team == "Home"))
-                            && (incident.time_elapsed <= minute * 60)
-                    })
-                    .map(|incident| incident.points_scored_points)
-                    .sum::<i32>();
                 let away_points_at_minute = state
                     .incidents
                     .clone()
@@ -4551,10 +4624,17 @@ pub fn minute_winner_tracking_event(state: &State) {
                     })
                     .map(|incident| incident.points_scored_points)
                     .sum::<i32>();
-                println!(
-                    "{}",
-                    "[Minute Winner Tracking Event] Output minute winner results"
-                );
+                let home_points_at_minute = state
+                    .incidents
+                    .clone()
+                    .clone()
+                    .into_iter()
+                    .filter(|incident| {
+                        ((incident.has_points_confirmed) && (incident.points_scored_team == "Home"))
+                            && (incident.time_elapsed <= minute * 60)
+                    })
+                    .map(|incident| incident.points_scored_points)
+                    .sum::<i32>();
                 record_bool(
                     format!("WinMinute{}MatchA", minute),
                     home_points_at_minute > away_points_at_minute,
@@ -4568,7 +4648,6 @@ pub fn minute_winner_tracking_event(state: &State) {
     }
     return;
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn player_score_tracking_event(state: &State) {
     let mut away_first_try_jersey: i32 = 0;
     let mut away_try_scorer_indices: Vec<i32> = Vec::new();
@@ -4579,13 +4658,7 @@ pub fn player_score_tracking_event(state: &State) {
     let three_unanswered_tries_team: String = "".to_string();
     let mut try_scorer_indices: Vec<i32> = Vec::new();
     let mut try_teams: Vec<String> = Vec::new();
-    let _cse_temp_0 = state.incidents.clone().len() as i32;
-    let _cse_temp_1 = _cse_temp_0 > 0;
-    if _cse_temp_1 {
-        println!(
-            "{}",
-            "[Player Score Tracking Event] Collect try scorer information"
-        );
+    if state.include_players {
         try_scorer_indices = state
             .incidents
             .clone()
@@ -4593,6 +4666,18 @@ pub fn player_score_tracking_event(state: &State) {
             .into_iter()
             .filter(|incident| {
                 incident.has_points_confirmed && incident.points_confirmed_score_type == "Try"
+            })
+            .map(|incident| incident.points_confirmed_player_index)
+            .collect::<Vec<_>>();
+        away_try_scorer_indices = state
+            .incidents
+            .clone()
+            .clone()
+            .into_iter()
+            .filter(|incident| {
+                incident.has_points_confirmed
+                    && incident.points_confirmed_score_type == "Try"
+                    && incident.points_scored_team == "Away"
             })
             .map(|incident| incident.points_confirmed_player_index)
             .collect::<Vec<_>>();
@@ -4618,36 +4703,9 @@ pub fn player_score_tracking_event(state: &State) {
             })
             .map(|incident| incident.points_confirmed_player_index)
             .collect::<Vec<_>>();
-        away_try_scorer_indices = state
-            .incidents
-            .clone()
-            .clone()
-            .into_iter()
-            .filter(|incident| {
-                incident.has_points_confirmed
-                    && incident.points_confirmed_score_type == "Try"
-                    && incident.points_scored_team == "Away"
-            })
-            .map(|incident| incident.points_confirmed_player_index)
-            .collect::<Vec<_>>();
-        println!(
-            "{}",
-            "[Player Score Tracking Event] Find jersey numbers for first and last try scorers"
-        );
-        first_try_jersey = {
-            let base = &state.all_players.clone();
-            let idx: i32 = try_scorer_indices.clone().get(0usize).cloned().unwrap();
-            let actual_idx = if idx < 0 {
-                base.len().saturating_sub(idx.abs() as usize)
-            } else {
-                idx as usize
-            };
-            base.get(actual_idx).cloned().unwrap()
-        }
-        .jersey_number;
-        home_first_try_jersey = {
-            let base = &state.home_players.clone();
-            let idx: i32 = home_try_scorer_indices
+        away_first_try_jersey = {
+            let base = &state.away_players.clone();
+            let idx: i32 = away_try_scorer_indices
                 .clone()
                 .get(0usize)
                 .cloned()
@@ -4680,9 +4738,20 @@ pub fn player_score_tracking_event(state: &State) {
             base.get(actual_idx).cloned().unwrap()
         }
         .jersey_number;
-        away_first_try_jersey = {
-            let base = &state.away_players.clone();
-            let idx: i32 = away_try_scorer_indices
+        first_try_jersey = {
+            let base = &state.all_players.clone();
+            let idx: i32 = try_scorer_indices.clone().get(0usize).cloned().unwrap();
+            let actual_idx = if idx < 0 {
+                base.len().saturating_sub(idx.abs() as usize)
+            } else {
+                idx as usize
+            };
+            base.get(actual_idx).cloned().unwrap()
+        }
+        .jersey_number;
+        home_first_try_jersey = {
+            let base = &state.home_players.clone();
+            let idx: i32 = home_try_scorer_indices
                 .clone()
                 .get(0usize)
                 .cloned()
@@ -4695,12 +4764,7 @@ pub fn player_score_tracking_event(state: &State) {
             base.get(actual_idx).cloned().unwrap()
         }
         .jersey_number;
-        println!(
-            "{}",
-            "[Player Score Tracking Event] Output try scorer sequence(up to 15 tries)"
-        );
         for index in 1..std::cmp::min(15, try_scorer_indices.clone().len() as i32) {
-            println!("{}", "[Player Score Tracking Event] record");
             record_int(format!("{}thTryScorer_Match", index), {
                 let base = &try_scorer_indices.clone();
                 let idx: i32 = index - 1;
@@ -4712,12 +4776,7 @@ pub fn player_score_tracking_event(state: &State) {
                 base.get(actual_idx).cloned().unwrap()
             });
         }
-        println!(
-            "{}",
-            "[Player Score Tracking Event] Output try team sequence"
-        );
         for index in 1..try_teams.clone().len() as i32 {
-            println!("{}", "[Player Score Tracking Event] record");
             record_bool(
                 format!("{}thTry_Match_A", index),
                 {
@@ -4745,15 +4804,7 @@ pub fn player_score_tracking_event(state: &State) {
                 } == "Away",
             );
         }
-        println!(
-            "{}",
-            "[Player Score Tracking Event] Output first try scorer information"
-        );
         record_int("FirstTryScorerJerseyMatch".to_string(), first_try_jersey);
-        println!(
-            "{}",
-            "[Player Score Tracking Event] Output home team first try scorer"
-        );
         record_int(
             "HomeFirstTryScorerMatch".to_string(),
             home_try_scorer_indices
@@ -4765,10 +4816,6 @@ pub fn player_score_tracking_event(state: &State) {
         record_int(
             "HomeFirstTryScorerJerseyMatch".to_string(),
             home_first_try_jersey,
-        );
-        println!(
-            "{}",
-            "[Player Score Tracking Event] Output away team first try scorer"
         );
         record_int(
             "AwayFirstTryScorerMatch".to_string(),
@@ -4782,15 +4829,7 @@ pub fn player_score_tracking_event(state: &State) {
             "AwayFirstTryScorerJerseyMatch".to_string(),
             away_first_try_jersey,
         );
-        println!(
-            "{}",
-            "[Player Score Tracking Event] Output three unanswered tries"
-        );
         record_bool("ThreeUnansweredTries".to_string(), true);
-        println!(
-            "{}",
-            "[Player Score Tracking Event] Output last try scorer(end of match only)"
-        );
         record_int("LastTryScorerMatch".to_string(), {
             let base = &try_scorer_indices.clone();
             let idx: i32 = (try_scorer_indices.len() as i32).saturating_sub(1);
@@ -4822,13 +4861,8 @@ pub fn player_score_tracking_event(state: &State) {
             };
             base.get(actual_idx).cloned().unwrap()
         });
-        println!(
-            "{}",
-            "[Player Score Tracking Event] Output player statistics from trader state"
-        );
         for player in &state.home_players {
             let player = player.clone();
-            println!("{}", "[Player Score Tracking Event] record");
             record_bool(
                 format!("Player_{}_AnytimeTryScorer", player.player_index),
                 player.total_statistics.scores.tries > 0,
@@ -4842,13 +4876,8 @@ pub fn player_score_tracking_event(state: &State) {
                 player.total_statistics.scores.tries >= 3,
             );
         }
-        println!(
-            "{}",
-            "[Player Score Tracking Event] Output away player statistics from trader state"
-        );
         for player in &state.away_players {
             let player = player.clone();
-            println!("{}", "[Player Score Tracking Event] record");
             record_bool(
                 format!("Player_{}_AnytimeTryScorer", player.player_index),
                 player.total_statistics.scores.tries > 0,
@@ -4865,7 +4894,6 @@ pub fn player_score_tracking_event(state: &State) {
     }
     return;
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn race_to_points_tracking_event(state: &State) {
     let mut away_running_score: i32 = 0;
     let mut home_running_score: i32 = 0;
@@ -4876,54 +4904,29 @@ pub fn race_to_points_tracking_event(state: &State) {
     let _cse_temp_1 = _cse_temp_0 > 0;
     let _cse_temp_2 = (_cse_temp_1) || (state.is_over);
     if _cse_temp_2 {
-        println!(
-            "{}",
-            "[Race To Points Tracking Event] Initialize race to context"
-        );
         target_index = 0;
-        home_running_score = 0;
-        away_running_score = 0;
         race_to_targets = vec![10, 15, 20, 25, 30, 35, 40];
-        println!(
-            "{}",
-            "[Race To Points Tracking Event] Process scoring incidents for race targets"
-        );
+        away_running_score = 0;
+        home_running_score = 0;
         for incident in &state.incidents {
             let incident = incident.clone();
-            println!(
-                "{}",
-                "[Race To Points Tracking Event] Apply confirmed score to running totals"
-            );
             if ((incident.has_points_confirmed)
                 && (["Home", "Away"].contains(&incident.points_scored_team.as_str())))
                 && (target_index < race_to_targets.clone().len() as i32)
             {
-                println!("{}", "[Race To Points Tracking Event] Update team totals");
                 if incident.points_scored_team == "Home" {
-                    println!("{}", "[Race To Points Tracking Event] Set variables");
                     home_running_score = home_running_score + incident.points_scored_points;
                 } else {
-                    println!("{}", "[Race To Points Tracking Event] Set variables");
                     away_running_score = away_running_score + incident.points_scored_points;
                 }
-                println!(
-                    "{}",
-                    "[Race To Points Tracking Event] Set current race target"
-                );
                 let current_target = race_to_targets
                     .clone()
                     .get(target_index as usize)
                     .cloned()
                     .unwrap();
-                println!(
-                    "{}",
-                    "[Race To Points Tracking Event] Check target completion"
-                );
                 let home_reached_target = home_running_score >= current_target;
                 let away_reached_target = away_running_score >= current_target;
-                println!("{}", "[Race To Points Tracking Event] Record race winner when exactly one team reaches target");
                 if home_reached_target != away_reached_target {
-                    println!("{}", "[Race To Points Tracking Event] Record");
                     record_bool(
                         format!("FirstToPoints{}A", current_target),
                         home_reached_target,
@@ -4932,15 +4935,10 @@ pub fn race_to_points_tracking_event(state: &State) {
                         format!("FirstToPoints{}B", current_target),
                         away_reached_target,
                     );
-                    println!("{}", "[Race To Points Tracking Event] Set variables");
                     target_index = target_index + 1;
                 }
             }
         }
-        println!(
-            "{}",
-            "[Race To Points Tracking Event] Capture remaining targets as false"
-        );
         remaining_targets = {
             let base = &race_to_targets;
             let start = (target_index).max(0) as usize;
@@ -4950,20 +4948,13 @@ pub fn race_to_points_tracking_event(state: &State) {
                 Vec::new()
             }
         };
-        println!(
-            "{}",
-            "[Race To Points Tracking Event] Record unresolved race targets"
-        );
         for pending_target in remaining_targets.iter().cloned() {
-            println!("{}", "[Race To Points Tracking Event] Record");
             record_bool(format!("FirstToPoints{}A", pending_target), false);
             record_bool(format!("FirstToPoints{}B", pending_target), false);
         }
     }
     return;
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 #[function]
 pub fn add_conversion(state: &mut State) {
     let team = state.team_in_possession.clone();
@@ -4995,7 +4986,11 @@ pub fn add_conversion(state: &mut State) {
         .scores
         .conversions
         + 1;
-    team_stats.period_statistics[period_idx as usize]
+    team_stats
+        .period_statistics
+        .get(period_idx as usize)
+        .cloned()
+        .unwrap()
         .scores
         .conversions = _cse_temp_4;
     let _cse_temp_5 = team_stats
@@ -5006,7 +5001,11 @@ pub fn add_conversion(state: &mut State) {
         .scores
         .total
         + CONVERSION_POINTS;
-    team_stats.period_statistics[period_idx as usize]
+    team_stats
+        .period_statistics
+        .get(period_idx as usize)
+        .cloned()
+        .unwrap()
         .scores
         .total = _cse_temp_5;
     team_stats.total_statistics.scores.conversions = _cse_temp_4;
@@ -5019,15 +5018,23 @@ pub fn add_conversion(state: &mut State) {
         };
         player.total_statistics.scores.conversions = _cse_temp_4;
         player.total_statistics.scores.total = _cse_temp_5;
-        player.period_statistics[period_idx as usize]
+        player
+            .period_statistics
+            .get(period_idx as usize)
+            .cloned()
+            .unwrap()
             .scores
             .conversions = _cse_temp_4;
-        player.period_statistics[period_idx as usize].scores.total = _cse_temp_5;
+        player
+            .period_statistics
+            .get(period_idx as usize)
+            .cloned()
+            .unwrap()
+            .scores
+            .total = _cse_temp_5;
     }
 }
 #[doc = "Distance from centre of the field from the perspective of the team in possession."]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 #[function]
 pub fn calculate_dist_from_centre(state: &State) -> i32 {
     let _cse_temp_0 = state.team_in_possession.clone() == "Home";
@@ -5039,8 +5046,6 @@ pub fn calculate_dist_from_centre(state: &State) -> i32 {
     }
 }
 #[doc = "Distance to the try line from the perspective of the team in possession."]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn calculate_dist_to_try_line(state: &State) -> i32 {
     let _cse_temp_0 = state.team_in_possession.clone() == "Home";
     if _cse_temp_0 {
@@ -5049,8 +5054,6 @@ pub fn calculate_dist_to_try_line(state: &State) -> i32 {
         return state.ball_location.x;
     }
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 #[function]
 pub fn add_field_goal(state: &mut State, is_two_pointer: bool) {
     let team = state.team_in_possession.clone();
@@ -5061,11 +5064,6 @@ pub fn add_field_goal(state: &mut State, is_two_pointer: bool) {
     } else {
         FIELD_GOAL_POINTS
     };
-    println!(
-        "{} {}",
-        ">>>>>>>>>>>>>>>>Adding field goal for team:",
-        state.team_in_possession.clone()
-    );
     let _cse_temp_1 = team.clone() == "Home".to_string();
     if _cse_temp_1 {
         let _cse_temp_2 = state.home_match_score + points;
@@ -5087,7 +5085,11 @@ pub fn add_field_goal(state: &mut State, is_two_pointer: bool) {
         .scores
         .field_goals
         + 1;
-    team_stats.period_statistics[period_idx as usize]
+    team_stats
+        .period_statistics
+        .get(period_idx as usize)
+        .cloned()
+        .unwrap()
         .scores
         .field_goals = _cse_temp_4;
     let _cse_temp_5 = team_stats
@@ -5098,21 +5100,31 @@ pub fn add_field_goal(state: &mut State, is_two_pointer: bool) {
         .scores
         .total
         + points;
-    team_stats.period_statistics[period_idx as usize]
+    team_stats
+        .period_statistics
+        .get(period_idx as usize)
+        .cloned()
+        .unwrap()
         .scores
         .total = _cse_temp_5;
     team_stats.total_statistics.scores.field_goals = _cse_temp_4;
     team_stats.total_statistics.scores.total = _cse_temp_5;
-    let mut player = if team == "Home".to_string() {
-        state.home_player_selected_for_points_market.clone()
-    } else {
-        state.away_player_selected_for_points_market.clone()
-    };
-    player.period_statistics[period_idx as usize].scores.total = _cse_temp_5;
-    player.total_statistics.scores.total = _cse_temp_5;
+    if state.include_players {
+        let mut player = if team == "Home".to_string() {
+            state.home_player_selected_for_points_market.clone()
+        } else {
+            state.away_player_selected_for_points_market.clone()
+        };
+        player
+            .period_statistics
+            .get(period_idx as usize)
+            .cloned()
+            .unwrap()
+            .scores
+            .total = _cse_temp_5;
+        player.total_statistics.scores.total = _cse_temp_5;
+    }
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 #[function]
 pub fn get_time_on_field_for_position(state: &State, team: String, position: String) -> f64 {
     let players = _team_players(state, team);
@@ -5125,15 +5137,11 @@ pub fn get_time_on_field_for_position(state: &State, team: String, position: Str
         .expect("StopIteration: iterator is empty");
     return (candidate.total_statistics.time_on_field) as f64;
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn get_interchanges_used(state: &State, team: String) -> f64 {
     let remaining = _get_remaining_interchanges(state, team);
     let used = MAX_INTERCHANGES - remaining;
     return (std::cmp::max(0, used)) as f64;
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn get_team_margin(state: &State, team: String) -> f64 {
     let home_score = state.home_match_score;
     let away_score = state.away_match_score;
@@ -5143,16 +5151,12 @@ pub fn get_team_margin(state: &State, team: String) -> f64 {
         (away_score - home_score) as f64
     };
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn decrement_remaining_interchanges(state: &mut State, team: String) {
-    let current = _get_remaining_interchanges(&state, team.clone());
+    let current = _get_remaining_interchanges(state, team.clone());
     let _cse_temp_0 = std::cmp::max(0, current - 1);
     let remaining = _cse_temp_0;
     _set_remaining_interchanges(state, team, remaining);
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn _select_bench_player_index(players: &Vec<Player>, starters: i32) -> i32 {
     let available = (starters..players.clone().len() as i32)
         .filter(|&idx| !players.get(idx as usize).cloned().unwrap().is_injured)
@@ -5160,8 +5164,6 @@ pub fn _select_bench_player_index(players: &Vec<Player>, starters: i32) -> i32 {
         .collect::<Vec<_>>();
     return *available.choose(&mut rand::thread_rng()).unwrap();
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn _swap_team_statistics(state: &State, team: String, off_slot: i32, bench_slot: i32) {
     let mut stats = _team_statistic(state, team);
     {
@@ -5201,8 +5203,6 @@ pub fn _swap_team_statistics(state: &State, team: String, off_slot: i32, bench_s
         stats.sin_bin_players.clone()[bench_slot as usize] = _swap_tmp1;
     }
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn _swap_game_statistics(state: &State, team: String, off_slot: i32, bench_slot: i32) {
     let mut mirrored = if team.clone() == "Home".to_string() {
         state.home_statistics.clone()
@@ -5247,18 +5247,14 @@ pub fn _swap_game_statistics(state: &State, team: String, off_slot: i32, bench_s
         mirrored.sin_bin_players[bench_slot as usize] = _swap_tmp1;
     }
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn _refresh_all_players(state: &mut State) {
     let mut combined = vec![];
     for team in ["Home", "Away"] {
-        combined.extend(_team_players(&state, team.to_string()).iter().cloned());
+        combined.extend(_team_players(state, team.to_string()).iter().cloned());
     }
     state.all_players.clear();
     state.all_players.extend(combined);
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn _team_players(state: &State, team: String) -> Vec<Player> {
     return if team == "Home".to_string() {
         state.home_players.clone()
@@ -5266,8 +5262,6 @@ pub fn _team_players(state: &State, team: String) -> Vec<Player> {
         state.away_players.clone()
     };
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn _team_statistic(state: &State, team: String) -> TeamStatistics {
     return if team == "Home".to_string() {
         state.home_statistics.clone()
@@ -5275,8 +5269,6 @@ pub fn _team_statistic(state: &State, team: String) -> TeamStatistics {
         state.away_statistics.clone()
     };
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn _get_remaining_interchanges(state: &State, team: String) -> i32 {
     return if team == "Home".to_string() {
         state.home_remaining_interchanges
@@ -5284,8 +5276,6 @@ pub fn _get_remaining_interchanges(state: &State, team: String) -> i32 {
         state.away_remaining_interchanges
     };
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn _set_remaining_interchanges(state: &mut State, team: String, value: i32) {
     let _cse_temp_0 = team == "Home".to_string();
     if _cse_temp_0 {
@@ -5295,8 +5285,6 @@ pub fn _set_remaining_interchanges(state: &mut State, team: String, value: i32) 
     }
 }
 #[doc = "Margin from the perspective of the penalty-awarded team(matches C# processors)."]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 #[function]
 pub fn calculate_foul_team_margin(state: &State) -> i32 {
     let _cse_temp_0 = state.current_play_type.clone() == "WonPenalty";
@@ -5318,8 +5306,6 @@ pub fn calculate_foul_team_margin(state: &State) -> i32 {
     }
 }
 #[doc = "Margin from the perspective of the team in possession."]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn calculate_margin(state: &State) -> i32 {
     let _cse_temp_0 = state.team_in_possession.clone() == "Home";
     if _cse_temp_0 {
@@ -5328,15 +5314,11 @@ pub fn calculate_margin(state: &State) -> i32 {
         return state.away_match_score - state.home_match_score;
     }
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 #[function]
 pub fn btf(value: bool) -> f64 {
     return if value { 1.0 } else { 0.0 };
 }
 #[doc = "Sample from a discrete distribution using inverse transform sampling."]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn sample(distribution: &Vec<f64>, k: f64) -> i32 {
     let mut cumulative = 0.0;
     for (i, p) in distribution
@@ -5354,8 +5336,6 @@ pub fn sample(distribution: &Vec<f64>, k: f64) -> i32 {
     return (distribution.len() as i32).saturating_sub(1) as i32;
 }
 #[doc = "Sample from an unnormalized distribution, scaling k by the sum."]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn sample_scaled(distribution: &Vec<f64>, distribution_sum: f64, k: f64) -> i32 {
     let _cse_temp_0 = k * distribution_sum;
     let threshold = _cse_temp_0;
@@ -5375,8 +5355,6 @@ pub fn sample_scaled(distribution: &Vec<f64>, distribution_sum: f64, k: f64) -> 
     return (distribution.len() as i32).saturating_sub(1) as i32;
 }
 #[doc = "Apply softmax transformation, returning a new list."]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn softmax(logits: Vec<f64>) -> Vec<f64> {
     let _cse_temp_0 = logits
         .clone()
@@ -5397,8 +5375,6 @@ pub fn softmax(logits: Vec<f64>) -> Vec<f64> {
         .collect::<Vec<_>>();
 }
 #[doc = "Normalize values to sum to 1, returning a new list."]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn normalize(values: Vec<f64>) -> Vec<f64> {
     let _cse_temp_0 = values.clone().iter().sum::<f64>();
     let total = _cse_temp_0;
@@ -5408,18 +5384,18 @@ pub fn normalize(values: Vec<f64>) -> Vec<f64> {
         .map(|v| (v as f64) / (total as f64))
         .collect::<Vec<_>>();
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
+pub fn distribution(mut values: Vec<f64>) -> Vec<f64> {
+    let _cse_temp_0 = values.clone().get(1usize).cloned().unwrap() * 0.9;
+    values.clone().insert((1) as usize, _cse_temp_0);
+    let _cse_temp_1 = 1.0 - values.get(1usize).cloned().unwrap();
+    values.insert((0) as usize, _cse_temp_1);
+    return values;
+}
 #[function]
 pub fn add_penalty(state: &mut State) {
     let team = state.team_in_possession.clone();
     let _cse_temp_0 = state.period.number - 1;
     let period_idx = _cse_temp_0;
-    println!(
-        "{} {}",
-        ">>>>>>>>>>>>>>>>Adding penalty for team:",
-        state.team_in_possession.clone()
-    );
     let _cse_temp_1 = team.clone() == "Home".to_string();
     if _cse_temp_1 {
         let _cse_temp_2 = state.home_match_score + PENALTY_POINTS;
@@ -5437,26 +5413,44 @@ pub fn add_penalty(state: &mut State) {
     team_stats.total_statistics.scores.penalties = _cse_temp_4;
     let _cse_temp_5 = team_stats.total_statistics.scores.total + PENALTY_POINTS;
     team_stats.total_statistics.scores.total = _cse_temp_5;
-    team_stats.period_statistics[period_idx as usize]
+    team_stats
+        .period_statistics
+        .get(period_idx as usize)
+        .cloned()
+        .unwrap()
         .scores
         .penalties = _cse_temp_4;
-    team_stats.period_statistics[period_idx as usize]
+    team_stats
+        .period_statistics
+        .get(period_idx as usize)
+        .cloned()
+        .unwrap()
         .scores
         .total = _cse_temp_5;
-    let mut player = if team == "Home".to_string() {
-        state.home_player_selected_for_points_market.clone()
-    } else {
-        state.away_player_selected_for_points_market.clone()
-    };
-    player.total_statistics.scores.conversions = _cse_temp_4;
-    player.total_statistics.scores.total = _cse_temp_5;
-    player.period_statistics[period_idx as usize]
-        .scores
-        .conversions = _cse_temp_4;
-    player.period_statistics[period_idx as usize].scores.total = _cse_temp_5;
+    if state.include_players {
+        let mut player = if team == "Home".to_string() {
+            state.home_player_selected_for_points_market.clone()
+        } else {
+            state.away_player_selected_for_points_market.clone()
+        };
+        player.total_statistics.scores.conversions = _cse_temp_4;
+        player.total_statistics.scores.total = _cse_temp_5;
+        player
+            .period_statistics
+            .get(period_idx as usize)
+            .cloned()
+            .unwrap()
+            .scores
+            .conversions = _cse_temp_4;
+        player
+            .period_statistics
+            .get(period_idx as usize)
+            .cloned()
+            .unwrap()
+            .scores
+            .total = _cse_temp_5;
+    }
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 #[function]
 pub fn calculate_player_of_match_distributions(state: &State) -> Vec<f64> {
     let players = state.all_players.clone();
@@ -5470,8 +5464,6 @@ pub fn calculate_player_of_match_distributions(state: &State) -> Vec<f64> {
         .map(|player| _calculate_percentage_chance(&player, margin, total_points))
         .collect::<Vec<_>>();
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn _calculate_percentage_chance(player: &Player, margin: i32, total_points: i32) -> f64 {
     let margin_factor = _calculate_margin_factor(player.delta_strength.clone(), margin);
     let match_stats = player.total_statistics.clone();
@@ -5489,7 +5481,6 @@ pub fn _calculate_percentage_chance(player: &Player, margin: i32, total_points: 
     let total_factor = _calculate_total_factor(player.total_strength.clone(), total_points);
     return margin_factor * pom_factor * total_factor + 0.5 * pom_percentage;
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn _calculate_margin_factor(strength: String, margin: i32) -> f64 {
     let _cse_temp_0 = margin.abs();
     let abs_margin = _cse_temp_0;
@@ -5503,8 +5494,6 @@ pub fn _calculate_margin_factor(strength: String, margin: i32) -> f64 {
     }
     return 1.0;
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn _calculate_total_factor(strength: String, total_points: i32) -> f64 {
     let _cse_temp_0 = strength.clone() == "LOW".to_string();
     if _cse_temp_0 {
@@ -5519,8 +5508,6 @@ pub fn _calculate_total_factor(strength: String, total_points: i32) -> f64 {
     }
     return 1.0;
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn _calculate_pom_chance(
     tries_strength: String,
     match_tries: i32,
@@ -5541,7 +5528,6 @@ pub fn _calculate_pom_chance(
     let pom_weight = _cse_temp_5;
     return f64::max(pom_weight, MIN_POM_WEIGHT);
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn _calculate_try_factor(strength: String, tries: i32) -> f64 {
     let coefficient = {
         let mut map = HashMap::new();
@@ -5559,8 +5545,6 @@ pub fn _calculate_try_factor(strength: String, tries: i32) -> f64 {
     }
     return (coefficient * (tries as f64).powf(4.5 as f64) as f64) / 2.0;
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn _team_won(player: &Player, margin: i32) -> bool {
     let is_home = player.is_home_team;
     let _cse_temp_0 = margin == 0;
@@ -5569,7 +5553,6 @@ pub fn _team_won(player: &Player, margin: i32) -> bool {
     }
     return if is_home { margin > 0 } else { margin < 0 };
 }
-#[doc = " Depyler: proven to terminate"]
 #[function]
 pub fn _goal_line_bucket(grid_coordinate: i32, k: f64) -> i32 {
     let _cse_temp_0 = grid_coordinate < GOAL_LINE_GRID_START_INDEX;
@@ -5585,7 +5568,6 @@ pub fn _goal_line_bucket(grid_coordinate: i32, k: f64) -> i32 {
         .unwrap();
     return sample(&weights, k);
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn compute_conversion_location_from_grid(grid_coordinate: i32, k: f64) -> i32 {
     let bucket = _goal_line_bucket(grid_coordinate, k);
     let _cse_temp_0 = bucket < 0;
@@ -5681,7 +5663,6 @@ pub fn compute_conversion_location_from_grid(grid_coordinate: i32, k: f64) -> i3
         .unwrap();
     return conversion_location;
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn goal_line_position(goal_line_index: i32, grid_index: i32) -> FieldPosition {
     let _cse_temp_0 = goal_line_index % 5;
     let _cse_temp_1 = _cse_temp_0 * GOAL_LINE_X_WIDTH;
@@ -5728,28 +5709,22 @@ pub fn goal_line_position(goal_line_index: i32, grid_index: i32) -> FieldPositio
     y = y + _cse_temp_9;
     return FieldPosition::new(x, y);
 }
-#[doc = " Depyler: proven to terminate"]
-pub fn convert_field_position(
-    state: &State,
-    kickoff_result: String,
-    team: String,
-) -> FieldPosition {
-    let grid_result = GRID_RESULT
+pub fn convert_field_position(state: &State, grid_result: String, team: String) -> FieldPosition {
+    let _cse_temp_0 = GRID_RESULT
         .clone()
         .iter()
-        .position(|x| {
-            x == &KICKOFF_TO_GRID_RESULT
-                .clone()
-                .get(&kickoff_result)
-                .cloned()
-                .unwrap()
-        })
+        .position(|x| x == &grid_result.clone())
         .map(|i| i as i32)
-        .expect("ValueError: value is not in list");
-    let _cse_temp_0 = grid_result % 6;
+        .expect("ValueError: value is not in list")
+        % 6;
     let y_position = _cse_temp_0;
     let _cse_temp_1 = {
-        let a = grid_result;
+        let a = GRID_RESULT
+            .clone()
+            .iter()
+            .position(|x| x == &grid_result)
+            .map(|i| i as i32)
+            .expect("ValueError: value is not in list");
         let b = 6;
         let q = a / b;
         let r = a % b;
@@ -5766,8 +5741,8 @@ pub fn convert_field_position(
     };
     let x_position = _cse_temp_1;
     let _cse_temp_2 = team == "Home".to_string();
-    let x_range;
     let y_range;
+    let x_range;
     if _cse_temp_2 {
         x_range = X_VALUES.clone().get(x_position as usize).cloned().unwrap();
         y_range = Y_VALUES.clone().get(y_position as usize).cloned().unwrap();
@@ -5788,8 +5763,6 @@ pub fn convert_field_position(
         rand::thread_rng().gen_range(y_range.0..=y_range.1 - 1),
     );
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn derive_grid_coordinate(position: &FieldPosition, team: String) -> i32 {
     let _cse_temp_0 = team.contains(&"Away");
     let y_ranges;
@@ -5811,7 +5784,6 @@ pub fn derive_grid_coordinate(position: &FieldPosition, team: String) -> i32 {
     }
     return x_index * 6 + y_index;
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn get_goal_line_coordinate(state: &State) -> i32 {
     let grid_coordinate = derive_grid_coordinate(
         &state.ball_location.clone(),
@@ -5823,8 +5795,6 @@ pub fn get_goal_line_coordinate(state: &State) -> i32 {
     }
     return 65 + grid_coordinate % 6;
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn _resolve_index(coordinate: i32, ranges: Vec<(i32, i32)>) -> i32 {
     for (index, range_bounds) in ranges
         .iter()
@@ -5839,8 +5809,6 @@ pub fn _resolve_index(coordinate: i32, ranges: Vec<(i32, i32)>) -> i32 {
     }
     return -1;
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 #[function]
 pub fn record_player_sin_bin(state: &State, player_index: i32, team: String, sin_bin_type: String) {
     let players = if team.clone() == "Home".to_string() {
@@ -5895,7 +5863,6 @@ pub fn _resolve_player(players: &Vec<Player>, candidate_index: i32) -> Option<Pl
     }
     return None;
 }
-#[doc = " Depyler: verified panic-free"]
 pub fn rebuild_sin_bin_players(state: &State, team: String) {
     let team_names = if !team.clone().is_empty() {
         vec![team]
@@ -5922,8 +5889,6 @@ pub fn rebuild_sin_bin_players(state: &State, team: String) {
         team_stats.sin_bin_players = sin_bin_players;
     }
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 #[function]
 pub fn record_tackle(state: &State) {
     println!("{:?}", state);
@@ -5946,19 +5911,13 @@ pub fn record_tackle(state: &State) {
     team_stats.period_statistics[period_idx as usize].tackles = _cse_temp_1;
     team_stats.total_statistics.tackles = _cse_temp_1;
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 #[function]
 pub fn _create_scores() -> Scores {
     return Scores::new(0, 0, 0, 0, 0);
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn _create_statistics() -> Statistics {
     return Statistics::new(0, 0, _create_scores(), 0, 0);
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn _create_player_statistics(player: &Player) -> PlayerStatistics {
     let period_breakdown = (0..NUM_PERIODS)
         .map(|_| _create_statistics())
@@ -5974,8 +5933,6 @@ pub fn _create_player_statistics(player: &Player) -> PlayerStatistics {
         _create_statistics(),
     );
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn _create_team_statistics() -> TeamStatistics {
     return TeamStatistics::new(
         (0..NUM_PERIODS)
@@ -5986,8 +5943,6 @@ pub fn _create_team_statistics() -> TeamStatistics {
         _create_statistics(),
     );
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn get_team_handicap(state: &State) -> f64 {
     let _cse_temp_0 = state.team_in_possession.clone() == "Home";
     if _cse_temp_0 {
@@ -5995,8 +5950,6 @@ pub fn get_team_handicap(state: &State) -> f64 {
     }
     return state.simulation_invariants.away_handicap;
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn swap_possession(state: &mut State) {
     let _cse_temp_0 = state.set + 1;
     state.set = _cse_temp_0;
@@ -6007,16 +5960,14 @@ pub fn swap_possession(state: &mut State) {
     };
     state.tackles = STARTING_TACKLE;
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn setup_statistics(state: &mut State) {
     state.home_statistics = _create_team_statistics();
     state.away_statistics = _create_team_statistics();
     state.home_sin_bin = vec![];
     state.away_sin_bin = vec![];
     for team in ["Home", "Away"] {
-        let players = _get_players(&state, team.clone().to_string());
-        let mut team_stats = _get_team_stats(&state, team.clone().to_string());
+        let players = _get_players(state, team.clone().to_string());
+        let mut team_stats = _get_team_stats(state, team.clone().to_string());
         team_stats.player_statistics = vec![];
         for mut player in players.iter().cloned() {
             player.period_statistics = (0..NUM_PERIODS)
@@ -6026,16 +5977,12 @@ pub fn setup_statistics(state: &mut State) {
             player.total_statistics = total_statistics.clone();
             team_stats.player_statistics.push(total_statistics);
         }
-        rebuild_sin_bin_players(&state, team.to_string());
+        rebuild_sin_bin_players(state, team.to_string());
     }
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn log_state(state: &State) {
     println!("{:?}", state);
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn get_team_try_distributions(state: &State) -> Vec<f64> {
     let players = _get_players(state, state.team_in_possession.clone());
     return players
@@ -6044,7 +5991,6 @@ pub fn get_team_try_distributions(state: &State) -> Vec<f64> {
         .map(|p| p.tries_percentage)
         .collect::<Vec<_>>();
 }
-#[doc = " Depyler: verified panic-free"]
 pub fn apply_time_on_ground(state: &State, team: String, seconds: f64) {
     let players = _get_players(state, team.clone().to_string());
     let _cse_temp_0 = state.period.number - 1;
@@ -6072,8 +6018,6 @@ pub fn apply_time_on_ground(state: &State, team: String, seconds: f64) {
         s.time_on_field = s.time_on_field + seconds;
     }
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn _get_team_stats(state: &State, team: String) -> TeamStatistics {
     return if team == "Home".to_string() {
         state.home_statistics.clone()
@@ -6081,8 +6025,6 @@ pub fn _get_team_stats(state: &State, team: String) -> TeamStatistics {
         state.away_statistics.clone()
     };
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn _get_players(state: &State, team: String) -> Vec<Player> {
     return if team == "Home".to_string() {
         state.home_players.clone()
@@ -6090,17 +6032,10 @@ pub fn _get_players(state: &State, team: String) -> Vec<Player> {
         state.away_players.clone()
     };
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 #[function]
 pub fn add_try(state: &mut State) {
     let _cse_temp_0 = state.period.number - 1;
     let period_idx = _cse_temp_0;
-    println!(
-        "{} {}",
-        ">>>>>>>>>>>>>>>>Adding try for team:",
-        state.team_in_possession.clone()
-    );
     let _cse_temp_1 = state.team_in_possession.clone() == "Home";
     if _cse_temp_1 {
         let _cse_temp_2 = state.home_match_score + TRY_POINTS;
@@ -6115,10 +6050,20 @@ pub fn add_try(state: &mut State) {
             .scores
             .tries
             + 1;
-        state.home_statistics.period_statistics[period_idx as usize]
+        state
+            .home_statistics
+            .period_statistics
+            .get(period_idx as usize)
+            .cloned()
+            .unwrap()
             .scores
             .tries = _cse_temp_3;
-        state.home_statistics.period_statistics[period_idx as usize]
+        state
+            .home_statistics
+            .period_statistics
+            .get(period_idx as usize)
+            .cloned()
+            .unwrap()
             .scores
             .total = _cse_temp_2;
         state.home_statistics.total_statistics.scores.tries = _cse_temp_3;
@@ -6136,19 +6081,26 @@ pub fn add_try(state: &mut State) {
             .scores
             .tries
             + 1;
-        state.away_statistics.period_statistics[period_idx as usize]
+        state
+            .away_statistics
+            .period_statistics
+            .get(period_idx as usize)
+            .cloned()
+            .unwrap()
             .scores
             .tries = _cse_temp_5;
-        state.away_statistics.period_statistics[period_idx as usize]
+        state
+            .away_statistics
+            .period_statistics
+            .get(period_idx as usize)
+            .cloned()
+            .unwrap()
             .scores
             .total = _cse_temp_4;
         state.away_statistics.total_statistics.scores.tries = _cse_temp_5;
         state.away_statistics.total_statistics.scores.total = _cse_temp_4;
     }
-    println!("{:?}", state);
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn assign_try(state: &mut State, player_index: i32, team: String) {
     let _cse_temp_0 = state.period.number - 1;
     let period_idx = _cse_temp_0;
@@ -6202,7 +6154,13 @@ pub fn assign_try(state: &mut State, player_index: i32, team: String) {
         .scores
         .tries
         + 1;
-    player.period_statistics[period_idx as usize].scores.tries = _cse_temp_2;
+    player
+        .period_statistics
+        .get(period_idx as usize)
+        .cloned()
+        .unwrap()
+        .scores
+        .tries = _cse_temp_2;
     let _cse_temp_3 = player
         .period_statistics
         .clone()
@@ -6212,7 +6170,13 @@ pub fn assign_try(state: &mut State, player_index: i32, team: String) {
         .scores
         .total
         + TRY_POINTS;
-    player.period_statistics[period_idx as usize].scores.total = _cse_temp_3;
+    player
+        .period_statistics
+        .get(period_idx as usize)
+        .cloned()
+        .unwrap()
+        .scores
+        .total = _cse_temp_3;
     player.total_statistics.scores.tries = _cse_temp_2;
     player.total_statistics.scores.total = _cse_temp_3;
     let mut team_stats = if team == "Home".to_string() {
@@ -6220,10 +6184,18 @@ pub fn assign_try(state: &mut State, player_index: i32, team: String) {
     } else {
         state.away_statistics.clone()
     };
-    team_stats.player_statistics[player_list_idx as usize]
+    team_stats
+        .player_statistics
+        .get(player_list_idx as usize)
+        .cloned()
+        .unwrap()
         .scores
         .tries = _cse_temp_2;
-    team_stats.player_statistics[player_list_idx as usize]
+    team_stats
+        .player_statistics
+        .get(player_list_idx as usize)
+        .cloned()
+        .unwrap()
         .scores
         .total = _cse_temp_3;
 }
@@ -6232,137 +6204,103 @@ pub fn nrl(state: &mut State) {
     let mut field_goal_attempt_result: i32 = 0;
     let mut minute_delta: i32 = 0;
     let mut previous_minute: i32 = 0;
-    println!("{}", "[NRL] Setup Statistics");
     setup_statistics(state);
-    execute_events(&state);
-    println!("{}", "[NRL] Setup State");
+    execute_events(state);
+    state.period.number = 1;
     state.include_players = false;
     state.period.name = "FirstHalf".to_string();
-    state.period.number = 1;
-    execute_events(&state);
-    println!("{}", "[NRL] Log State");
-    log_state(&state);
-    execute_events(&state);
-    println!("{}", "[NRL] Game Loop");
+    execute_events(state);
+    log_state(state);
+    execute_events(state);
     while true {
-        println!("{}", "[NRL] Store previous state");
         state.previous_ball_location = state.clone().ball_location.clone();
         state.previous_play_type = state.clone().current_play_type.clone();
-        execute_events(&state);
-        println!("{}", "[NRL] Evaluate field goal");
-        let field_goal_decision: FieldGoalDecisionOutputs = field_goal_decision(&state);
-        execute_events(&state);
-        println!(
-            "{}",
-            "[NRL] Run field goal attempt model only if gating passes"
-        );
+        execute_events(state);
+        let field_goal_decision: FieldGoalDecisionOutputs = field_goal_decision(state);
+        execute_events(state);
         if field_goal_decision.attempt {
-            println!("{}", "[NRL] Run field_goal_attempt");
-            let field_goal_attempt_outcome: FieldGoalAttemptOutputs = field_goal_attempt(&state);
-            execute_events(&state);
-            println!("{}", "[NRL] Set variables");
+            let field_goal_attempt_outcome: FieldGoalAttemptOutputs = field_goal_attempt(state);
+            execute_events(state);
             field_goal_attempt_result = (field_goal_attempt_outcome.attempt) as i32;
-            execute_events(&state);
+            execute_events(state);
         } else {
-            println!("{}", "[NRL] Set variables");
             field_goal_attempt_result = 0;
-            execute_events(&state);
+            execute_events(state);
         }
-        execute_events(&state);
-        println!("{}", "[NRL] Branch on field goal attempt vs normal play");
+        execute_events(state);
         if field_goal_attempt_result == 1 {
-            println!("{}", "[NRL] Run field_goal");
             field_goal(state);
-            execute_events(&state);
+            execute_events(state);
         } else {
-            println!("{}", "[NRL] Get next play type");
-            let next_play_result: NextPlayOutputs = next_play(&state);
-            execute_events(&state);
-            println!("{}", "[NRL] Set current play type");
+            let next_play_result: NextPlayOutputs = next_play(state);
+            execute_events(state);
             state.current_play_type = next_play_result.play_type.clone().to_string();
-            execute_events(&state);
-            println!("{}", "[NRL] Line Dropout");
+            execute_events(state);
             if state.clone().current_play_type.clone() == "LineDropout" {
-                println!("{}", "[NRL] Run swap_possession");
                 swap_possession(state);
-                execute_events(&state);
-                println!("{}", "[NRL] Run kickoff");
+                execute_events(state);
                 kickoff(state, true, true);
-                execute_events(&state);
+                execute_events(state);
             } else {
-                println!("{}", "[NRL] Get XY model result");
-                let xy_result: XyOutputs = xy(&state);
-                execute_events(&state);
-                println!("{}", "[NRL] Set ball location");
+                let xy_result: XyOutputs = xy(state);
+                execute_events(state);
                 state.ball_location = xy_result.field_position.clone();
-                execute_events(&state);
-                println!("{}", "[NRL] Process play type");
-                if state.clone().current_play_type.clone() == "KickTurnover" {
-                    println!("{}", "[NRL] Run swap_possession");
-                    swap_possession(state);
-                    execute_events(&state);
+                execute_events(state);
+                if state.clone().current_play_type.clone() == "WonPenalty" {
+                    process_penalty(state);
+                    execute_events(state);
                 } else {
-                    if state.clone().current_play_type.clone() == "Run" {
+                    if state.clone().current_play_type.clone() == "KickRetain" {
                     } else {
-                        if state.clone().current_play_type.clone() == "ConcededPenalty" {
-                            println!("{}", "[NRL] Run process_penalty");
-                            process_penalty(state);
-                            execute_events(&state);
+                        if state.clone().current_play_type.clone() == "KickRetainTry" {
+                            process_try(state);
+                            execute_events(state);
                         } else {
-                            if state.clone().current_play_type.clone() == "ErrorAttack" {
-                                println!("{}", "[NRL] Run swap_possession");
+                            if state.clone().current_play_type.clone() == "KickTurnover" {
                                 swap_possession(state);
-                                execute_events(&state);
+                                execute_events(state);
                             } else {
                                 if state.clone().current_play_type.clone() == "ErrorDefence" {
-                                    println!("{}", "[NRL] Set variables");
                                     state.tackles = STARTING_TACKLE;
-                                    execute_events(&state);
+                                    execute_events(state);
                                 } else {
                                     if state.clone().current_play_type.clone() == "RunTry" {
-                                        println!("{}", "[NRL] Run process_try");
                                         process_try(state);
-                                        execute_events(&state);
+                                        execute_events(state);
                                     } else {
-                                        if state.clone().current_play_type.clone() == "WonPenalty" {
-                                            println!("{}", "[NRL] Run process_penalty");
-                                            process_penalty(state);
-                                            execute_events(&state);
+                                        if state.clone().current_play_type.clone()
+                                            == "KickRetainTackle"
+                                        {
+                                            process_tackle(state);
+                                            execute_events(state);
                                         } else {
                                             if state.clone().current_play_type.clone()
-                                                == "KickRetain"
+                                                == "ConcededPenalty"
                                             {
+                                                process_penalty(state);
+                                                execute_events(state);
                                             } else {
-                                                if state.clone().current_play_type.clone()
-                                                    == "KickRetainTry"
+                                                if state.clone().current_play_type.clone() == "Pass"
                                                 {
-                                                    println!("{}", "[NRL] Run process_try");
-                                                    process_try(state);
-                                                    execute_events(&state);
                                                 } else {
                                                     if state.clone().current_play_type.clone()
-                                                        == "KickRetainTackle"
+                                                        == "ErrorAttack"
                                                     {
-                                                        println!("{}", "[NRL] Run process_tackle");
-                                                        process_tackle(state);
-                                                        execute_events(&state);
+                                                        swap_possession(state);
+                                                        execute_events(state);
                                                     } else {
                                                         if state.clone().current_play_type.clone()
-                                                            == "RunTackle"
+                                                            == "Run"
                                                         {
-                                                            println!(
-                                                                "{}",
-                                                                "[NRL] Run process_tackle"
-                                                            );
-                                                            process_tackle(state);
-                                                            execute_events(&state);
                                                         } else {
                                                             if state
                                                                 .clone()
                                                                 .current_play_type
                                                                 .clone()
-                                                                == "Pass"
+                                                                == "RunTackle"
                                                             {
+                                                                process_tackle(state);
+                                                                execute_events(state);
                                                             }
                                                         }
                                                     }
@@ -6375,125 +6313,95 @@ pub fn nrl(state: &mut State) {
                         }
                     }
                 }
-                execute_events(&state);
+                execute_events(state);
             }
-            execute_events(&state);
+            execute_events(state);
         }
-        execute_events(&state);
-        println!("{}", "[NRL] Snapshot elapsed minute before clock");
+        execute_events(state);
         previous_minute = (state.time_elapsed / 60) as i32;
-        execute_events(&state);
-        println!("{}", "[NRL] Advance clock");
+        execute_events(state);
         clock(state);
-        execute_events(&state);
-        println!("{}", "[NRL] Compute elapsed minute after clock");
+        execute_events(state);
         current_minute = (state.time_elapsed / 60) as i32;
-        execute_events(&state);
-        println!("{}", "[NRL] Compute minute delta");
+        execute_events(state);
         minute_delta = current_minute - previous_minute;
-        execute_events(&state);
-        println!("{}", "[NRL] Process interchanges when minute advances");
+        execute_events(state);
         if (state.include_players) && (minute_delta > 0) {
-            println!("{}", "[NRL] Run apply_time_on_ground");
-            apply_time_on_ground(&state, "Home".to_string(), (minute_delta * 60) as f64);
-            execute_events(&state);
-            println!("{}", "[NRL] Run apply_time_on_ground");
-            apply_time_on_ground(&state, "Away".to_string(), (minute_delta * 60) as f64);
-            execute_events(&state);
-            println!("{}", "[NRL] Run interchange");
+            apply_time_on_ground(state, "Home".to_string(), (minute_delta * 60) as f64);
+            execute_events(state);
+            apply_time_on_ground(state, "Away".to_string(), (minute_delta * 60) as f64);
+            execute_events(state);
             interchange(state);
-            execute_events(&state);
+            execute_events(state);
         }
-        execute_events(&state);
-        println!("{}", "[NRL] Check game status and period transitions");
+        execute_events(state);
         check_game_status(state);
-        execute_events(&state);
-        println!("{}", "[NRL] Stop if complete");
+        execute_events(state);
         if state.is_over {
-            println!("{}", "[NRL] Exit");
             break;
-            execute_events(&state);
+            execute_events(state);
         }
-        execute_events(&state);
+        execute_events(state);
     }
-    execute_events(&state);
+    execute_events(state);
     return;
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn unnamed(state: &State) {
     return;
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn check_game_status(state: &mut State) {
-    println!(
-        "{}",
-        "[CheckGameStatus] Check if normal time half is complete"
-    );
     let _cse_temp_0 = state.clone().time_elapsed > HALF_LENGTH_IN_SECONDS;
     let _cse_temp_1 = state.clone().period.name.clone() != "ExtraTime";
     let _cse_temp_2 = (_cse_temp_0) && (_cse_temp_1);
     if _cse_temp_2 {
-        println!("{}", "[CheckGameStatus] Handle end of first half");
         let _cse_temp_3 = state.clone().period.name.clone() == "FirstHalf";
         if _cse_temp_3 {
-            println!("{}", "[CheckGameStatus] Transition to second half");
+            state.period.name = "SecondHalf".to_string();
             state.game_status = "Period2".to_string();
             state.period.number = 2;
-            state.period.name = "SecondHalf".to_string();
-            execute_events(&state);
+            execute_events(state);
         } else {
-            println!("{}", "[CheckGameStatus] Check if normal time is complete");
             let _cse_temp_4 = state.clone().time_elapsed >= GAME_LENGTH_IN_SECONDS;
             if _cse_temp_4 {
-                println!("{}", "[CheckGameStatus] Check for extra time or game end");
                 let _cse_temp_5 = state.clone().home_match_score == state.clone().away_match_score;
                 if _cse_temp_5 {
-                    println!("{}", "[CheckGameStatus] Enter extra time");
+                    state.is_extratime = true;
                     state.period.name = "ExtraTime".to_string();
                     state.game_status = "ExtraTime".to_string();
                     state.period.number = 3;
-                    state.is_extratime = true;
-                    execute_events(&state);
+                    execute_events(state);
                 } else {
-                    println!("{}", "[CheckGameStatus] End game");
                     state.game_status = "Ended".to_string();
                     state.is_over = true;
-                    execute_events(&state);
+                    execute_events(state);
                 }
-                execute_events(&state);
+                execute_events(state);
             }
-            execute_events(&state);
+            execute_events(state);
         }
-        execute_events(&state);
+        execute_events(state);
     }
-    execute_events(&state);
-    println!("{}", "[CheckGameStatus] Check extra time conditions");
+    execute_events(state);
     let _cse_temp_6 = state.period.name.clone() == "ExtraTime";
     if _cse_temp_6 {
-        println!("{}", "[CheckGameStatus] Check if extra time should end");
         let _cse_temp_7 =
             state.time_elapsed >= GAME_LENGTH_IN_SECONDS + EXTRA_TIME_LENGTH_IN_SECONDS;
         let _cse_temp_8 = state.home_match_score != state.away_match_score;
         let _cse_temp_9 = (_cse_temp_7) || (_cse_temp_8);
         if _cse_temp_9 {
-            println!("{}", "[CheckGameStatus] End game");
             state.is_over = true;
             state.game_status = "Ended".to_string();
-            execute_events(&state);
+            execute_events(state);
         }
-        execute_events(&state);
+        execute_events(state);
     }
-    execute_events(&state);
+    execute_events(state);
     return;
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn clock(state: &mut State) -> ClockOutputs {
     let mut seconds_to_add: f64 = 0.0;
     let mut seconds_to_add_initial: f64 = 0.0;
     let mut time_adjustment: f64 = 0.0;
-    println!("{}", "[Clock] Run clock model");
     let model: ClockInferOutputs0 = infer::<ClockInferOutputs0>(
         "clock".to_string(),
         vec![
@@ -6539,73 +6447,52 @@ pub fn clock(state: &mut State) -> ClockOutputs {
             }) as f64,
         ],
     );
-    execute_events(&state);
-    println!("{}", "[Clock] Round to 1 decimal place");
+    execute_events(state);
     let _cse_temp_0 = (model.variable.get(0usize).cloned().unwrap()) as f64;
     let _cse_temp_1 = {
         let multiplier = (10.0_f64).powi(1 as i32);
         (_cse_temp_0 * multiplier).round() / multiplier
     };
     seconds_to_add_initial = _cse_temp_1;
-    execute_events(&state);
-    println!("{}", "[Clock] Cap non-try increments at 20 seconds");
+    execute_events(state);
     let _cse_temp_2 = !["RunTry", "KickRetainTry"].contains(&state.current_play_type.as_str());
     if _cse_temp_2 {
         let _cse_temp_3 = f64::max(seconds_to_add_initial, 20.0);
         seconds_to_add_initial = _cse_temp_3;
     }
-    execute_events(&state);
-    println!("{}", "[Clock] Default time adjustment");
+    execute_events(state);
     time_adjustment = 1.0;
-    execute_events(&state);
-    println!("{}", "[Clock] Apply period-specific time adjustment");
+    execute_events(state);
     let _cse_temp_4 = state.period.name.clone() == "FIRST_HALF";
     if _cse_temp_4 {
-        println!("{}", "[Clock] Set variables");
         time_adjustment = 0.86;
-        execute_events(&state);
+        execute_events(state);
     }
-    execute_events(&state);
-    println!("{}", "[Clock] Calculate final seconds to add");
+    execute_events(state);
     let _cse_temp_5 = seconds_to_add_initial * time_adjustment;
     seconds_to_add = _cse_temp_5;
-    execute_events(&state);
-    println!("{}", "[Clock] Update game state");
+    execute_events(state);
     let _cse_temp_6 = (seconds_to_add) as i32;
     let _cse_temp_7 = state.time_elapsed + _cse_temp_6;
     state.time_elapsed = _cse_temp_7;
-    execute_events(&state);
-    println!("{}", "[Clock] Log");
-    println!("{}", format!("current_play_type: {}, seconds_to_add: {}, seconds_to_add_initial: {}, adjustment: {}, elapsed: {}.", state.current_play_type.clone(), seconds_to_add, seconds_to_add_initial, time_adjustment, state.time_elapsed));
-    execute_events(&state);
-    println!("{}", "[Clock] Return seconds added");
+    execute_events(state);
+    execute_events(state);
     return ClockOutputs::new(seconds_to_add);
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn conversion(state: &mut State) {
-    println!("{}", "[Conversion] Run conversion model");
-    let conversion_result: GetConversionModelResultOutputs = get_conversion_model_result(&state);
-    execute_events(&state);
-    println!("{}", "[Conversion] Add conversion points if scored");
+    let conversion_result: GetConversionModelResultOutputs = get_conversion_model_result(state);
+    execute_events(state);
     if conversion_result.scored {
-        println!("{}", "[Conversion] Run add_conversion");
         add_conversion(state);
-        execute_events(&state);
+        execute_events(state);
     }
-    execute_events(&state);
-    println!("{}", "[Conversion] Swap possession");
+    execute_events(state);
     swap_possession(state);
-    execute_events(&state);
-    println!(
-        "{}",
-        "[Conversion] Process kickoff with force possession change"
-    );
+    execute_events(state);
     kickoff(state, true, false);
-    execute_events(&state);
+    execute_events(state);
     return;
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn end_zone(state: &mut State) {
     let mut grid_coordinate: i32 = 0;
     let mut is_end_zone: bool = false;
@@ -6613,28 +6500,22 @@ pub fn end_zone(state: &mut State) {
     let mut is_zj_zone: bool = false;
     let mut zone_division: i32 = 0;
     let zone_type: String = "".to_string();
-    println!("{}", "[EndZone] Derive grid coordinate from ball location");
     grid_coordinate = derive_grid_coordinate(
         &state.clone().ball_location.clone(),
         state.clone().team_in_possession.clone().clone(),
     );
-    execute_events(&state);
-    println!(
-        "{}",
-        "[EndZone] Calculate end zone classification from grid coordinate"
-    );
+    execute_events(state);
     let _cse_temp_0 = grid_coordinate / 6;
     zone_division = _cse_temp_0;
-    execute_events(&state);
-    println!("{}", "[EndZone] Calculate zone type booleans");
-    let _cse_temp_1 = zone_division == 11;
-    is_zj_zone = _cse_temp_1;
-    let _cse_temp_2 = zone_division == 10;
-    let _cse_temp_3 = (_cse_temp_2) || (_cse_temp_1);
+    execute_events(state);
+    let _cse_temp_1 = zone_division == 10;
+    let _cse_temp_2 = zone_division == 11;
+    let _cse_temp_3 = (_cse_temp_1) || (_cse_temp_2);
     is_end_zone = _cse_temp_3;
-    is_za_zone = _cse_temp_2;
-    execute_events(&state);
-    println!("{}", "[EndZone] Update game state");
+    is_za_zone = _cse_temp_1;
+    is_zj_zone = _cse_temp_2;
+    execute_events(state);
+    state.is_in_end_zone = is_end_zone;
     state.end_zone_type = if is_za_zone {
         "za".to_string()
     } else {
@@ -6644,72 +6525,53 @@ pub fn end_zone(state: &mut State) {
             "none".to_string()
         }
     };
-    state.is_in_end_zone = is_end_zone;
-    execute_events(&state);
+    execute_events(state);
     return;
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn field_goal(state: &mut State) {
     let mut adjusted_x: i32 = 0;
     let mut is_two_pointer: bool = false;
-    println!("{}", "[FieldGoal] Run field goal model");
-    let field_goal_result: GetFieldGoalModelResultOutputs = get_field_goal_model_result(&state);
-    execute_events(&state);
-    println!("{}", "[FieldGoal] Handle scored field goal");
+    let field_goal_result: GetFieldGoalModelResultOutputs = get_field_goal_model_result(state);
+    execute_events(state);
     if field_goal_result.scored {
-        println!("{}", "[FieldGoal] Compute adjusted x for two-pointer check");
         let _cse_temp_0 = state.clone().team_in_possession.clone() == "Home";
         if _cse_temp_0 {
-            println!("{}", "[FieldGoal] Set variables");
             adjusted_x = state.clone().ball_location.x;
-            execute_events(&state);
+            execute_events(state);
         } else {
-            println!("{}", "[FieldGoal] Set variables");
             let _cse_temp_1 = PLAYING_FIELD_WIDTH - state.clone().ball_location.x;
             adjusted_x = _cse_temp_1;
-            execute_events(&state);
+            execute_events(state);
         }
-        execute_events(&state);
-        println!("{}", "[FieldGoal] Determine if two-pointer");
+        execute_events(state);
         let _cse_temp_2 = adjusted_x < PLAYING_FIELD_WIDTH - TWO_POINT_FIELD_GOAL_DISTANCE;
         is_two_pointer = _cse_temp_2;
-        execute_events(&state);
-        println!("{}", "[FieldGoal] Add field goal points");
+        execute_events(state);
         add_field_goal(state, is_two_pointer);
-        execute_events(&state);
-        println!("{}", "[FieldGoal] Process kickoff");
+        execute_events(state);
         kickoff(state, false, false);
-        execute_events(&state);
+        execute_events(state);
     }
-    execute_events(&state);
-    println!("{}", "[FieldGoal] Handle missed field goal");
+    execute_events(state);
     if !field_goal_result.scored {
-        println!("{}", "[FieldGoal] Swap possession");
         swap_possession(state);
-        execute_events(&state);
-        println!("{}", "[FieldGoal] Set ball location for missed field goal");
+        execute_events(state);
         let _cse_temp_3 = state.team_in_possession.clone() == "Home";
         if _cse_temp_3 {
-            println!("{}", "[FieldGoal] Set variables");
             state.ball_location.y = CENTRE_OF_THE_FIELD_Y;
             state.ball_location.x = MISSED_FIELD_GOAL_RESTART_X;
-            execute_events(&state);
+            execute_events(state);
         } else {
-            println!("{}", "[FieldGoal] Set variables");
             state.ball_location.x = PLAYING_FIELD_WIDTH - MISSED_FIELD_GOAL_RESTART_X;
             state.ball_location.y = CENTRE_OF_THE_FIELD_Y;
-            execute_events(&state);
+            execute_events(state);
         }
-        execute_events(&state);
+        execute_events(state);
     }
-    execute_events(&state);
+    execute_events(state);
     return;
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn field_goal_attempt(state: &State) -> FieldGoalAttemptOutputs {
-    println!("{}", "[FieldGoalAttempt] Run field goal attempt model");
     let model: FieldGoalAttemptInferOutputs0 = infer::<FieldGoalAttemptInferOutputs0>(
         "field_goal_attempt".to_string(),
         vec![
@@ -6737,11 +6599,8 @@ pub fn field_goal_attempt(state: &State) -> FieldGoalAttemptOutputs {
         ],
     );
     execute_events(state);
-    println!("{}", "[FieldGoalAttempt] Return result");
     return FieldGoalAttemptOutputs::new(sample(&model.probabilities, rand::random::<f64>()));
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn field_goal_decision(state: &State) -> FieldGoalDecisionOutputs {
     const FIELD_GOAL_MAX_ABSOLUTE: i32 = 900;
     const FIELD_GOAL_MAX_TIME_FIRST: i32 = 2400;
@@ -6753,38 +6612,34 @@ pub fn field_goal_decision(state: &State) -> FieldGoalDecisionOutputs {
     let mut in_bounds: bool = false;
     let mut in_direction: bool = false;
     let mut in_time: bool = false;
-    println!("{}", "[FieldGoalDecision] Evaluate spatial bounds");
-    let _cse_temp_0 = state.ball_location.x > FIELD_GOAL_MIN_ABSOLUTE;
-    let _cse_temp_1 = state.ball_location.x < FIELD_GOAL_MAX_ABSOLUTE;
+    let _cse_temp_0 = state.time_elapsed >= FIELD_GOAL_MIN_TIME_FIRST;
+    let _cse_temp_1 = state.time_elapsed <= FIELD_GOAL_MAX_TIME_FIRST;
     let _cse_temp_2 = (_cse_temp_0) && (_cse_temp_1);
-    in_bounds = _cse_temp_2;
-    let _cse_temp_3 = state.team_in_possession.clone() == "Away";
-    let _cse_temp_4 = state.ball_location.x < FIELD_GOAL_MIN_AWAY;
-    let _cse_temp_5 = (_cse_temp_3) && (_cse_temp_4);
-    let _cse_temp_6 = state.team_in_possession.clone() == "Home";
-    let _cse_temp_7 = state.ball_location.x > FIELD_GOAL_MIN_HOME;
-    let _cse_temp_8 = (_cse_temp_6) && (_cse_temp_7);
-    let _cse_temp_9 = (_cse_temp_5) || (_cse_temp_8);
-    in_direction = _cse_temp_9;
-    let _cse_temp_10 = state.time_elapsed >= FIELD_GOAL_MIN_TIME_FIRST;
-    let _cse_temp_11 = state.time_elapsed <= FIELD_GOAL_MAX_TIME_FIRST;
-    let _cse_temp_12 = (_cse_temp_10) && (_cse_temp_11);
-    let _cse_temp_13 = state.time_elapsed >= FIELD_GOAL_MIN_TIME_SECOND;
-    let _cse_temp_14 = (_cse_temp_12) || (_cse_temp_13);
-    in_time = _cse_temp_14;
+    let _cse_temp_3 = state.time_elapsed >= FIELD_GOAL_MIN_TIME_SECOND;
+    let _cse_temp_4 = (_cse_temp_2) || (_cse_temp_3);
+    in_time = _cse_temp_4;
+    let _cse_temp_5 = state.ball_location.x > FIELD_GOAL_MIN_ABSOLUTE;
+    let _cse_temp_6 = state.ball_location.x < FIELD_GOAL_MAX_ABSOLUTE;
+    let _cse_temp_7 = (_cse_temp_5) && (_cse_temp_6);
+    in_bounds = _cse_temp_7;
+    let _cse_temp_8 = state.team_in_possession.clone() == "Away";
+    let _cse_temp_9 = state.ball_location.x < FIELD_GOAL_MIN_AWAY;
+    let _cse_temp_10 = (_cse_temp_8) && (_cse_temp_9);
+    let _cse_temp_11 = state.team_in_possession.clone() == "Home";
+    let _cse_temp_12 = state.ball_location.x > FIELD_GOAL_MIN_HOME;
+    let _cse_temp_13 = (_cse_temp_11) && (_cse_temp_12);
+    let _cse_temp_14 = (_cse_temp_10) || (_cse_temp_13);
+    in_direction = _cse_temp_14;
     execute_events(state);
-    println!("{}", "[FieldGoalDecision] Return decision");
     return FieldGoalDecisionOutputs::new(((in_bounds) && (in_time)) && (in_direction));
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn get_conversion_model_result(state: &State) -> GetConversionModelResultOutputs {
     let mut conversion_k: f64 = 0.0;
     let mut is_extra_time: bool = false;
     let mut player_advantage: i32 = 0;
-    println!("{}", "[GetConversionModelResult] Set variables");
     let _cse_temp_0 = state.clone().period.name.clone() == "ExtraTime";
     is_extra_time = _cse_temp_0;
+    conversion_k = rand::random::<f64>();
     let _cse_temp_1 = (if state.clone().team_in_possession.clone() == "Home" {
         (state.clone().away_sin_bin.clone().len() as i32)
             .saturating_sub(state.clone().home_sin_bin.clone().len() as i32)
@@ -6793,12 +6648,7 @@ pub fn get_conversion_model_result(state: &State) -> GetConversionModelResultOut
             .saturating_sub(state.away_sin_bin.clone().len() as i32)
     }) as i32;
     player_advantage = _cse_temp_1;
-    conversion_k = rand::random::<f64>();
     execute_events(state);
-    println!(
-        "{}",
-        "[GetConversionModelResult] Run xy model to determine goal line grid"
-    );
     let xy_model: GetConversionModelResultInferOutputs0 =
         infer::<GetConversionModelResultInferOutputs0>(
             "xy".to_string(),
@@ -6834,7 +6684,6 @@ pub fn get_conversion_model_result(state: &State) -> GetConversionModelResultOut
             ],
         );
     execute_events(state);
-    println!("{}", "[GetConversionModelResult] Run conversion model");
     let conversion_model: GetConversionModelResultInferOutputs1 =
         infer::<GetConversionModelResultInferOutputs1>(
             "conversion".to_string(),
@@ -6847,15 +6696,11 @@ pub fn get_conversion_model_result(state: &State) -> GetConversionModelResultOut
             ],
         );
     execute_events(state);
-    println!("{}", "[GetConversionModelResult] Return result");
     return GetConversionModelResultOutputs::new(
-        sample(&conversion_model.probabilities, conversion_k) == 1,
+        sample(&distribution(conversion_model.probabilities), conversion_k) == 1,
     );
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn get_field_goal_model_result(state: &State) -> GetFieldGoalModelResultOutputs {
-    println!("{}", "[GetFieldGoalModelResult] Run field goal model");
     let model: GetFieldGoalModelResultInferOutputs0 = infer::<GetFieldGoalModelResultInferOutputs0>(
         "field_goal".to_string(),
         vec![
@@ -6864,14 +6709,11 @@ pub fn get_field_goal_model_result(state: &State) -> GetFieldGoalModelResultOutp
         ],
     );
     execute_events(state);
-    println!("{}", "[GetFieldGoalModelResult] Return result");
     return GetFieldGoalModelResultOutputs::new(
         sample(&model.probabilities, rand::random::<f64>()) == 1,
     );
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn get_kickoff_model_result(state: &State) -> GetKickoffModelResultOutputs {
-    println!("{}", "[GetKickoffModelResult] Run kickoff model");
     let model: GetKickoffModelResultInferOutputs0 = infer::<GetKickoffModelResultInferOutputs0>(
         "kickoff".to_string(),
         vec![
@@ -6889,7 +6731,6 @@ pub fn get_kickoff_model_result(state: &State) -> GetKickoffModelResultOutputs {
         ],
     );
     execute_events(state);
-    println!("{}", "[GetKickoffModelResult] Get kickoff result");
     let kickoff_result = {
         let base = &KICKOFF_RESULTS.clone();
         let idx: i32 = (sample(&model.probabilities, rand::random::<f64>())) as i32;
@@ -6901,15 +6742,17 @@ pub fn get_kickoff_model_result(state: &State) -> GetKickoffModelResultOutputs {
         base.get(actual_idx).cloned().unwrap()
     };
     execute_events(state);
-    println!("{}", "[GetKickoffModelResult] Return result");
     return GetKickoffModelResultOutputs::new(
         !KICKOFF_RETAIN_RESULTS
             .clone()
             .contains(&kickoff_result.clone()),
-        kickoff_result.to_string(),
+        KICKOFF_TO_GRID_RESULT
+            .clone()
+            .get(&kickoff_result.to_string())
+            .cloned()
+            .unwrap(),
     );
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn interchange(state: &mut State) {
     let mut away_interchange_executed: bool = false;
     let mut away_off_player_index: Option<i32> = None;
@@ -6919,76 +6762,60 @@ pub fn interchange(state: &mut State) {
     let mut home_off_player_index: Option<i32> = None;
     let mut home_on_player_index: Option<i32> = None;
     let mut home_should_interchange: bool = false;
-    println!("{}", "[Interchange] Reset interchange context");
-    home_interchange_executed = false;
-    home_should_interchange = false;
-    away_interchange_executed = false;
-    away_off_player_index = None;
-    away_on_player_index = None;
+    home_on_player_index = None;
     home_off_player_index = None;
     away_should_interchange = false;
-    home_on_player_index = None;
-    execute_events(&state);
-    println!("{}", "[Interchange] Sample home interchange decision");
+    home_should_interchange = false;
+    home_interchange_executed = false;
+    away_off_player_index = None;
+    away_interchange_executed = false;
+    away_on_player_index = None;
+    execute_events(state);
     let _cse_temp_0 = state.clone().home_remaining_interchanges > 0;
     if _cse_temp_0 {
-        println!("{}", "[Interchange] Infer home interchange model");
         let home_interchange_model: InterchangeInferOutputs0 = infer::<InterchangeInferOutputs0>(
             "interchange".to_string(),
             vec![
                 ((state.clone().time_elapsed / 60) as i32) as f64,
-                (get_time_on_field_for_position(&state, "Home".to_string(), "FullBack".to_string()))
+                (get_time_on_field_for_position(state, "Home".to_string(), "FullBack".to_string()))
+                    as f64,
+                (get_time_on_field_for_position(state, "Home".to_string(), "WingerOne".to_string()))
+                    as f64,
+                (get_time_on_field_for_position(state, "Home".to_string(), "CentreOne".to_string()))
+                    as f64,
+                (get_time_on_field_for_position(state, "Home".to_string(), "CentreTwo".to_string()))
+                    as f64,
+                (get_time_on_field_for_position(state, "Home".to_string(), "WingerTwo".to_string()))
                     as f64,
                 (get_time_on_field_for_position(
-                    &state,
-                    "Home".to_string(),
-                    "WingerOne".to_string(),
-                )) as f64,
-                (get_time_on_field_for_position(
-                    &state,
-                    "Home".to_string(),
-                    "CentreOne".to_string(),
-                )) as f64,
-                (get_time_on_field_for_position(
-                    &state,
-                    "Home".to_string(),
-                    "CentreTwo".to_string(),
-                )) as f64,
-                (get_time_on_field_for_position(
-                    &state,
-                    "Home".to_string(),
-                    "WingerTwo".to_string(),
-                )) as f64,
-                (get_time_on_field_for_position(
-                    &state,
+                    state,
                     "Home".to_string(),
                     "FiveEighth".to_string(),
                 )) as f64,
-                (get_time_on_field_for_position(&state, "Home".to_string(), "HalfBack".to_string()))
+                (get_time_on_field_for_position(state, "Home".to_string(), "HalfBack".to_string()))
                     as f64,
-                (get_time_on_field_for_position(&state, "Home".to_string(), "PropOne".to_string()))
+                (get_time_on_field_for_position(state, "Home".to_string(), "PropOne".to_string()))
                     as f64,
-                (get_time_on_field_for_position(&state, "Home".to_string(), "Hooker".to_string()))
+                (get_time_on_field_for_position(state, "Home".to_string(), "Hooker".to_string()))
                     as f64,
-                (get_time_on_field_for_position(&state, "Home".to_string(), "PropTwo".to_string()))
+                (get_time_on_field_for_position(state, "Home".to_string(), "PropTwo".to_string()))
                     as f64,
                 (get_time_on_field_for_position(
-                    &state,
+                    state,
                     "Home".to_string(),
                     "SecondRowOne".to_string(),
                 )) as f64,
                 (get_time_on_field_for_position(
-                    &state,
+                    state,
                     "Home".to_string(),
                     "SecondRowTwo".to_string(),
                 )) as f64,
-                (get_time_on_field_for_position(&state, "Home".to_string(), "Lock".to_string()))
+                (get_time_on_field_for_position(state, "Home".to_string(), "Lock".to_string()))
                     as f64,
-                (get_interchanges_used(&state, "Home".to_string())) as f64,
+                (get_interchanges_used(state, "Home".to_string())) as f64,
             ],
         );
-        execute_events(&state);
-        println!("{}", "[Interchange] Decide home interchange outcome");
+        execute_events(state);
         let _cse_temp_1 = (home_interchange_model
             .probabilities
             .get(0usize)
@@ -6996,88 +6823,69 @@ pub fn interchange(state: &mut State) {
             .unwrap()) as i32;
         let _cse_temp_2 = _cse_temp_1 == 1;
         home_should_interchange = _cse_temp_2;
-        execute_events(&state);
+        execute_events(state);
     }
-    execute_events(&state);
-    println!("{}", "[Interchange] Sample home player selection");
+    execute_events(state);
     if home_should_interchange {
-        println!("{}", "[Interchange] Infer home player selection");
         let home_execution: PlayerInterchangeOutputs =
-            player_interchange(&state, "Home".to_string());
-        execute_events(&state);
-        println!("{}", "[Interchange] Finalise home interchange");
+            player_interchange(state, "Home".to_string());
+        execute_events(state);
         if home_execution.executed {
-            home_on_player_index = Some(home_execution.on_player_index);
             home_interchange_executed = true;
+            home_on_player_index = Some(home_execution.on_player_index);
             home_off_player_index = Some(home_execution.off_player_index);
         }
-        execute_events(&state);
+        execute_events(state);
     }
-    execute_events(&state);
-    println!("{}", "[Interchange] Reduce home interchange counter");
+    execute_events(state);
     if home_interchange_executed {
         decrement_remaining_interchanges(state, "Home".to_string());
     }
-    execute_events(&state);
-    println!("{}", "[Interchange] Sample away interchange decision");
+    execute_events(state);
     if _cse_temp_0 {
-        println!("{}", "[Interchange] Infer away interchange model");
         let away_interchange_model: InterchangeInferOutputs1 = infer::<InterchangeInferOutputs1>(
             "Interchange".to_string(),
             vec![
                 ((state.clone().time_elapsed / 60) as i32) as f64,
-                (get_time_on_field_for_position(&state, "Away".to_string(), "FullBack".to_string()))
+                (get_time_on_field_for_position(state, "Away".to_string(), "FullBack".to_string()))
+                    as f64,
+                (get_time_on_field_for_position(state, "Away".to_string(), "WingerOne".to_string()))
+                    as f64,
+                (get_time_on_field_for_position(state, "Away".to_string(), "CentreOne".to_string()))
+                    as f64,
+                (get_time_on_field_for_position(state, "Away".to_string(), "CentreTwo".to_string()))
+                    as f64,
+                (get_time_on_field_for_position(state, "Away".to_string(), "WingerTwo".to_string()))
                     as f64,
                 (get_time_on_field_for_position(
-                    &state,
-                    "Away".to_string(),
-                    "WingerOne".to_string(),
-                )) as f64,
-                (get_time_on_field_for_position(
-                    &state,
-                    "Away".to_string(),
-                    "CentreOne".to_string(),
-                )) as f64,
-                (get_time_on_field_for_position(
-                    &state,
-                    "Away".to_string(),
-                    "CentreTwo".to_string(),
-                )) as f64,
-                (get_time_on_field_for_position(
-                    &state,
-                    "Away".to_string(),
-                    "WingerTwo".to_string(),
-                )) as f64,
-                (get_time_on_field_for_position(
-                    &state,
+                    state,
                     "Away".to_string(),
                     "FiveEighth".to_string(),
                 )) as f64,
-                (get_time_on_field_for_position(&state, "Away".to_string(), "HalfBack".to_string()))
+                (get_time_on_field_for_position(state, "Away".to_string(), "HalfBack".to_string()))
                     as f64,
-                (get_time_on_field_for_position(&state, "Away".to_string(), "PropOne".to_string()))
+                (get_time_on_field_for_position(state, "Away".to_string(), "PropOne".to_string()))
                     as f64,
-                (get_time_on_field_for_position(&state, "Away".to_string(), "Hooker".to_string()))
+                (get_time_on_field_for_position(state, "Away".to_string(), "Hooker".to_string()))
                     as f64,
-                (get_time_on_field_for_position(&state, "Away".to_string(), "PropTwo".to_string()))
+                (get_time_on_field_for_position(state, "Away".to_string(), "PropTwo".to_string()))
                     as f64,
                 (get_time_on_field_for_position(
-                    &state,
+                    state,
                     "Away".to_string(),
                     "SecondRowOne".to_string(),
                 )) as f64,
                 (get_time_on_field_for_position(
-                    &state,
+                    state,
                     "Away".to_string(),
                     "SecondRowTwo".to_string(),
                 )) as f64,
-                (get_time_on_field_for_position(&state, "Away".to_string(), "Lock".to_string()))
+                (get_time_on_field_for_position(state, "Away".to_string(), "Lock".to_string()))
                     as f64,
-                (get_interchanges_used(&state, "Away".to_string())) as f64,
+                (get_interchanges_used(state, "Away".to_string())) as f64,
             ],
         );
-        execute_events(&state);
-        println!("{}", "[Interchange] Decide away interchange outcome");
+        execute_events(state);
         let _cse_temp_3 = (away_interchange_model
             .probabilities
             .get(0usize)
@@ -7085,146 +6893,127 @@ pub fn interchange(state: &mut State) {
             .unwrap()) as i32;
         let _cse_temp_4 = _cse_temp_3 == 1;
         away_should_interchange = _cse_temp_4;
-        execute_events(&state);
+        execute_events(state);
     }
-    execute_events(&state);
-    println!("{}", "[Interchange] Sample away player selection");
+    execute_events(state);
     if away_should_interchange {
-        println!("{}", "[Interchange] Infer away player selection");
         let away_execution: PlayerInterchangeOutputs =
-            player_interchange(&state, "Away".to_string());
-        execute_events(&state);
-        println!("{}", "[Interchange] Finalise away interchange");
+            player_interchange(state, "Away".to_string());
+        execute_events(state);
         if away_execution.executed {
+            away_off_player_index = Some(away_execution.off_player_index);
             away_on_player_index = Some(away_execution.on_player_index);
             away_interchange_executed = true;
-            away_off_player_index = Some(away_execution.off_player_index);
         }
-        execute_events(&state);
+        execute_events(state);
     }
-    execute_events(&state);
-    println!("{}", "[Interchange] Reduce away interchange counter");
+    execute_events(state);
     if away_interchange_executed {
         decrement_remaining_interchanges(state, "Away".to_string());
     }
-    execute_events(&state);
-    println!("{}", "[Interchange] Update game state after interchanges");
+    execute_events(state);
     let _cse_temp_5 = (home_interchange_executed) || (away_interchange_executed);
     if _cse_temp_5 {
-        let home_executed = home_interchange_executed;
-        let home_off_index = home_off_player_index;
-        let home_on_index = home_on_player_index;
-        let away_executed = away_interchange_executed;
         let last_event = "INTERCHANGE".to_string();
         let away_off_index = away_off_player_index;
+        let home_executed = home_interchange_executed;
+        let home_off_index = home_off_player_index;
+        let away_executed = away_interchange_executed;
+        let home_on_index = home_on_player_index;
         let away_on_index = away_on_player_index;
     }
-    execute_events(&state);
+    execute_events(state);
     return;
 }
-#[doc = " Depyler: verified panic-free"]
 pub fn kickoff(state: &mut State, force_possession_change: bool, is_line_dropout: bool) {
     let mut field_position: FieldPosition = FieldPosition::new(0, 0);
     let mut new_team_in_possession: String = "".to_string();
     let mut valid: bool = false;
-    println!("{}", "[Kickoff] Ensure team in possession is initialised");
     let _cse_temp_0 = state.clone().team_in_possession.clone() == "NotSet";
     if _cse_temp_0 {
-        println!("{}", "[Kickoff] If statement");
         let _cse_temp_1 = rand::random::<f64>() > 0.5;
         if _cse_temp_1 {
-            println!("{}", "[Kickoff] Set variables");
             state.team_in_possession = "Away".to_string();
-            execute_events(&state);
+            execute_events(state);
         } else {
-            println!("{}", "[Kickoff] Set variables");
             state.team_in_possession = "Home".to_string();
-            execute_events(&state);
+            execute_events(state);
         }
-        execute_events(&state);
+        execute_events(state);
     }
-    execute_events(&state);
-    println!("{}", "[Kickoff] Seed kickoff possession");
+    execute_events(state);
     new_team_in_possession = state.clone().team_in_possession.clone();
-    execute_events(&state);
-    println!("{}", "[Kickoff] Loop until valid kickoff position is found");
+    execute_events(state);
     while true {
-        println!("{}", "[Kickoff] Run kickoff model");
-        let kickoff: GetKickoffModelResultOutputs = get_kickoff_model_result(&state);
-        execute_events(&state);
-        println!("{}", "[Kickoff] Swap team if possession changed");
+        let kickoff: GetKickoffModelResultOutputs = get_kickoff_model_result(state);
+        execute_events(state);
         if kickoff.change_possession {
-            swap_possession(state);
-        }
-        execute_events(&state);
-        println!("{}", "[Kickoff] Convert to field position");
-        if !is_line_dropout {
-            println!("{}", "[Kickoff] If statement");
-            if state.clone().team_in_possession.clone() == "Home" {
-                println!("{}", "[Kickoff] Set variables");
-                field_position =
-                    convert_field_position(&state, kickoff.grid_result.clone(), "Away".to_string());
-                execute_events(&state);
+            if new_team_in_possession.clone() == "Home".to_string() {
+                new_team_in_possession = "Away".to_string();
+                execute_events(state);
             } else {
-                println!("{}", "[Kickoff] Set variables");
-                field_position =
-                    convert_field_position(&state, kickoff.grid_result.clone(), "Home".to_string());
-                execute_events(&state);
+                new_team_in_possession = "Home".to_string();
+                execute_events(state);
             }
-            execute_events(&state);
-        } else {
-            println!("{}", "[Kickoff] Set variables");
-            field_position = convert_field_position(
-                &state,
-                kickoff.grid_result.clone(),
-                state.clone().team_in_possession.clone().clone(),
-            );
-            execute_events(&state);
+            execute_events(state);
         }
-        execute_events(&state);
-        println!("{}", "[Kickoff] Validate position constraints");
+        execute_events(state);
+        if !is_line_dropout {
+            if new_team_in_possession.clone() == "Home".to_string() {
+                field_position =
+                    convert_field_position(state, kickoff.grid_result.clone(), "Away".to_string());
+                execute_events(state);
+            } else {
+                field_position =
+                    convert_field_position(state, kickoff.grid_result.clone(), "Home".to_string());
+                execute_events(state);
+            }
+            execute_events(state);
+        } else {
+            field_position = convert_field_position(
+                state,
+                kickoff.grid_result.clone(),
+                new_team_in_possession.clone(),
+            );
+            execute_events(state);
+        }
+        execute_events(state);
         valid = ((((is_line_dropout)
             && ((field_position.x >= DROPOUT_X) && (field_position.x <= PLAYING_FIELD_WIDTH)))
             || (((!is_line_dropout) && (new_team_in_possession.clone() == "Home".to_string()))
                 && (field_position.x <= KICKOFF_X)))
-            || (((!is_line_dropout) && (new_team_in_possession == "Away".to_string()))
+            || (((!is_line_dropout) && (new_team_in_possession.clone() == "Away".to_string()))
                 && (field_position.x >= KICKOFF_X)))
             && ((!force_possession_change) || (kickoff.change_possession));
-        execute_events(&state);
-        println!("{}", "[Kickoff] Exit loop if valid");
+        execute_events(state);
         if valid {
-            println!("{}", "[Kickoff] Exit");
             break;
-            execute_events(&state);
+            execute_events(state);
         }
-        execute_events(&state);
+        execute_events(state);
     }
-    execute_events(&state);
-    println!("{}", "[Kickoff] Update game state");
+    execute_events(state);
     state.ball_location = field_position;
-    execute_events(&state);
+    state.team_in_possession = new_team_in_possession;
+    execute_events(state);
     return;
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn next_play(state: &State) -> NextPlayOutputs {
     let mut distance_to_try_line: i32 = 0;
     let mut player_advantage: i32 = 0;
     let mut possessing_team_margin: f64 = 0.0;
-    println!("{}", "[NextPlay] Set variables");
+    let _cse_temp_0 = (calculate_margin(state)) as f64;
+    possessing_team_margin = _cse_temp_0;
     distance_to_try_line = calculate_dist_to_try_line(state);
-    let _cse_temp_0 = (if state.clone().team_in_possession.clone() == "Home" {
+    let _cse_temp_1 = (if state.clone().team_in_possession.clone() == "Home" {
         (state.clone().away_sin_bin.clone().len() as i32)
             .saturating_sub(state.clone().home_sin_bin.clone().len() as i32)
     } else {
-        (state.clone().home_sin_bin.clone().len() as i32)
+        (state.home_sin_bin.clone().len() as i32)
             .saturating_sub(state.away_sin_bin.clone().len() as i32)
     }) as i32;
-    player_advantage = _cse_temp_0;
-    let _cse_temp_1 = (calculate_margin(state)) as f64;
-    possessing_team_margin = _cse_temp_1;
+    player_advantage = _cse_temp_1;
     execute_events(state);
-    println!("{}", "[NextPlay] Run next play model");
     let model: NextPlayInferOutputs0 = infer::<NextPlayInferOutputs0>(
         "next_play".to_string(),
         vec![
@@ -7233,7 +7022,7 @@ pub fn next_play(state: &State) -> NextPlayOutputs {
             (calculate_dist_from_centre(state)) as f64,
             (get_team_handicap(state)) as f64,
             (state.simulation_invariants.total_points) as f64,
-            (std::cmp::min(state.home_match_score + state.away_match_score, 100)) as f64,
+            (state.home_match_score + state.away_match_score) as f64,
             (f64::max(f64::min(possessing_team_margin / 2.0, 10.0), -10.0)) as f64,
             btf(player_advantage == 1),
             btf(player_advantage > 1),
@@ -7251,7 +7040,6 @@ pub fn next_play(state: &State) -> NextPlayOutputs {
         ],
     );
     execute_events(state);
-    println!("{}", "[NextPlay] Return next play");
     return NextPlayOutputs::new({
         let base = &NEXT_PLAY_TYPES.clone();
         let idx: i32 = (sample(&model.probabilities, rand::random::<f64>())) as i32;
@@ -7263,18 +7051,12 @@ pub fn next_play(state: &State) -> NextPlayOutputs {
         base.get(actual_idx).cloned().unwrap()
     });
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn penalty(state: &mut State) {
-    println!("{}", "[Penalty] Execute penalty flow");
     process_penalty(state);
-    execute_events(&state);
+    execute_events(state);
     return;
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn penalty_type(state: &State) -> PenaltyTypeOutputs {
-    println!("{}", "[PenaltyType] Run penalty type model");
     let model: PenaltyTypeInferOutputs0 = infer::<PenaltyTypeInferOutputs0>(
         "penalty_type".to_string(),
         vec![
@@ -7300,16 +7082,12 @@ pub fn penalty_type(state: &State) -> PenaltyTypeOutputs {
         ],
     );
     execute_events(state);
-    println!("{}", "[PenaltyType] Return penalty type");
     return PenaltyTypeOutputs::new(
         sample(&model.probabilities, rand::random::<f64>()),
         sample(&model.probabilities, rand::random::<f64>()),
     );
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn player_interchange(state: &State, team: String) -> PlayerInterchangeOutputs {
-    println!("{}", "[PlayerInterchange] Run player interchange model");
     let model: PlayerInterchangeInferOutputs0 = infer::<PlayerInterchangeInferOutputs0>(
         "player_interchange".to_string(),
         vec![
@@ -7372,75 +7150,53 @@ pub fn player_interchange(state: &State, team: String) -> PlayerInterchangeOutpu
         ],
     );
     execute_events(state);
-    println!("{}", "[PlayerInterchange] Return interchange position");
     return PlayerInterchangeOutputs::new(true, -1, -1, team);
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn player_meters(state: &State) -> PlayerMetersOutputs {
-    println!("{}", "[PlayerMeters] Run player meters model");
     let model: PlayerMetersInferOutputs0 =
         infer::<PlayerMetersInferOutputs0>("player_meters".to_string(), vec![]);
     execute_events(state);
-    println!("{}", "[PlayerMeters] Return sampled player");
     return PlayerMetersOutputs::new(sample(&model.probabilities, rand::random::<f64>()));
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn player_of_the_match(state: &mut State, enabled: bool) -> PlayerOfTheMatchOutputs {
     let mut distribution_sum: f64 = 0.0;
     let mut player_distributions: Vec<f64> = Vec::new();
     let mut pom_player_index: i32 = 0;
     let mut sample_index: i32 = 0;
-    println!(
-        "{}",
-        "[PlayerOfTheMatch] Skip processing when feature disabled"
-    );
     if !enabled {
-        println!("{}", "[PlayerOfTheMatch] Return");
         return PlayerOfTheMatchOutputs::new(state.clone().player_of_the_match);
-        execute_events(&state);
+        execute_events(state);
     }
-    execute_events(&state);
-    println!(
-        "{}",
-        "[PlayerOfTheMatch] Calculate player of the match distributions"
-    );
-    player_distributions = calculate_player_of_match_distributions(&state);
-    execute_events(&state);
-    println!("{}", "[PlayerOfTheMatch] Aggregate distribution sum");
+    execute_events(state);
+    player_distributions = calculate_player_of_match_distributions(state);
+    execute_events(state);
     let _cse_temp_0 = player_distributions.clone().iter().sum::<f64>();
     let _cse_temp_1 = (_cse_temp_0) as f64;
     distribution_sum = _cse_temp_1;
-    execute_events(&state);
-    println!("{}", "[PlayerOfTheMatch] Sample player index");
+    execute_events(state);
     let _cse_temp_2 = distribution_sum > 0.0;
     if _cse_temp_2 {
-        println!("{}", "[PlayerOfTheMatch] Set variables");
         sample_index = sample_scaled(
             &player_distributions,
             distribution_sum,
             rand::random::<f64>(),
         );
-        execute_events(&state);
+        execute_events(state);
     } else {
-        println!("{}", "[PlayerOfTheMatch] Set variables");
         let _cse_temp_3 = player_distributions.clone().len() as i32;
         let _cse_temp_4 = (_cse_temp_3) as f64;
         let _cse_temp_5 = rand::random::<f64>() * _cse_temp_4;
         let _cse_temp_6 = (_cse_temp_5) as i32;
         sample_index = _cse_temp_6;
-        execute_events(&state);
+        execute_events(state);
     }
-    execute_events(&state);
-    println!("{}", "[PlayerOfTheMatch] Clamp sampled index to bounds");
+    execute_events(state);
     let _cse_temp_7 = (sample_index) as i32;
     let _cse_temp_8 = std::cmp::max(_cse_temp_7, 0);
     let _cse_temp_9 = player_distributions.len() as i32;
     let _cse_temp_10 = std::cmp::min(_cse_temp_8, _cse_temp_9 - 1);
     sample_index = _cse_temp_10;
-    execute_events(&state);
-    println!("{}", "[PlayerOfTheMatch] Resolve player index from state");
+    execute_events(state);
     pom_player_index = state
         .all_players
         .clone()
@@ -7448,30 +7204,20 @@ pub fn player_of_the_match(state: &mut State, enabled: bool) -> PlayerOfTheMatch
         .cloned()
         .unwrap()
         .player_index;
-    execute_events(&state);
-    println!(
-        "{}",
-        "[PlayerOfTheMatch] Persist player of the match on state"
-    );
+    execute_events(state);
     state.player_of_the_match = pom_player_index;
-    execute_events(&state);
-    println!("{}", "[PlayerOfTheMatch] Return");
+    execute_events(state);
     return PlayerOfTheMatchOutputs::new(pom_player_index);
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn player_sin_bin(state: &State, sin_bin_team_is_home: bool) {
     let mut is_home: f64 = 0.0;
     let mut penalty_team_is_home: bool = false;
     let mut sin_bin_player_index: i32 = 0;
     let mut sin_bin_team: String = "".to_string();
-    println!("{}", "[PlayerSinBin] Determine penalty team side");
     penalty_team_is_home = sin_bin_team_is_home;
     execute_events(state);
-    println!("{}", "[PlayerSinBin] Set is_home variable");
     is_home = if penalty_team_is_home { 1.0 } else { 0.0 };
     execute_events(state);
-    println!("{}", "[PlayerSinBin] Sample player sin bin model");
     let model: PlayerSinBinInferOutputs0 = infer::<PlayerSinBinInferOutputs0>(
         "player_sin_bin".to_string(),
         vec![
@@ -7490,7 +7236,6 @@ pub fn player_sin_bin(state: &State, sin_bin_team_is_home: bool) {
         ],
     );
     execute_events(state);
-    println!("{}", "[PlayerSinBin] Persist sin bin selection");
     sin_bin_player_index = sample(&model.probabilities, rand::random::<f64>());
     sin_bin_team = if penalty_team_is_home {
         "Home".to_string()
@@ -7498,7 +7243,6 @@ pub fn player_sin_bin(state: &State, sin_bin_team_is_home: bool) {
         "Away".to_string()
     };
     execute_events(state);
-    println!("{}", "[PlayerSinBin] Record player sin bin event");
     let _cse_temp_0 = sin_bin_player_index >= 0;
     if _cse_temp_0 {
         record_player_sin_bin(
@@ -7509,26 +7253,18 @@ pub fn player_sin_bin(state: &State, sin_bin_team_is_home: bool) {
         );
     }
     execute_events(state);
-    println!(
-        "{}",
-        "[PlayerSinBin] Update state markers for sin bin event"
-    );
     if _cse_temp_0 {
-        let last_sin_bin_player_index = sin_bin_player_index;
         let last_sin_bin_team = sin_bin_team;
         let last_event = "PLAYER_SIN_BIN".to_string();
+        let last_sin_bin_player_index = sin_bin_player_index;
     }
     execute_events(state);
     return;
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn player_tries(state: &State, team: String) -> PlayerTriesOutputs {
     let player_index: i32 = 0;
-    println!("{}", "[PlayerTries] Calculate player try distributions");
     let percentage: Vec<f64> = get_team_try_distributions(state);
     execute_events(state);
-    println!("{}", "[PlayerTries] Run player tries model");
     let model: PlayerTriesInferOutputs0 = infer::<PlayerTriesInferOutputs0>(
         "player_tries".to_string(),
         vec![
@@ -7548,64 +7284,41 @@ pub fn player_tries(state: &State, team: String) -> PlayerTriesOutputs {
         ],
     );
     execute_events(state);
-    println!("{}", "[PlayerTries] Return sampled player context");
     return PlayerTriesOutputs::new(sample(&model.probabilities, rand::random::<f64>()), team);
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn process_penalty(state: &mut State) {
-    println!(
-        "{}",
-        "[ProcessPenalty] Swap possession if penalty was conceded before sampling"
-    );
     let _cse_temp_0 = state.clone().current_play_type.clone() == "ConcededPenalty";
     if _cse_temp_0 {
         swap_possession(state);
     }
-    execute_events(&state);
-    println!("{}", "[ProcessPenalty] Get penalty type outcome");
-    let penalty_outcome_result: PenaltyTypeOutputs = penalty_type(&state);
-    execute_events(&state);
-    println!("{}", "[ProcessPenalty] Handle penalty shot");
+    execute_events(state);
+    let penalty_outcome_result: PenaltyTypeOutputs = penalty_type(state);
+    execute_events(state);
     let _cse_temp_1 = penalty_outcome_result.result_index == 0;
     if _cse_temp_1 {
-        println!(
-            "{}",
-            "[ProcessPenalty] Run conversion model for penalty shot"
-        );
-        let conversion_result: GetConversionModelResultOutputs =
-            get_conversion_model_result(&state);
-        execute_events(&state);
-        println!("{}", "[ProcessPenalty] Add penalty points if scored");
+        let conversion_result: GetConversionModelResultOutputs = get_conversion_model_result(state);
+        execute_events(state);
         if conversion_result.scored {
-            println!("{}", "[ProcessPenalty] Run add_penalty");
             add_penalty(state);
-            execute_events(&state);
+            execute_events(state);
         }
-        execute_events(&state);
-        println!("{}", "[ProcessPenalty] Process kickoff after penalty shot");
+        execute_events(state);
         kickoff(state, false, false);
-        execute_events(&state);
+        execute_events(state);
     }
-    execute_events(&state);
-    println!("{}", "[ProcessPenalty] Handle scrum lost");
+    execute_events(state);
     let _cse_temp_2 = penalty_outcome_result.result_index == 2;
     if _cse_temp_2 {
         swap_possession(state);
     }
-    execute_events(&state);
-    println!("{}", "[ProcessPenalty] Always check sin bin after penalty");
-    process_sin_bin_check(&state);
-    execute_events(&state);
+    execute_events(state);
+    process_sin_bin_check(state);
+    execute_events(state);
     return;
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn process_sin_bin_check(state: &State) {
-    println!("{}", "[ProcessSinBinCheck] Run sin bin model");
     let send_off_result: SinBinOutputs = sin_bin(state);
     execute_events(state);
-    println!("{}", "[ProcessSinBinCheck] Run player sin bin model");
     if send_off_result.sent_off {
         player_sin_bin(
             state,
@@ -7618,58 +7331,40 @@ pub fn process_sin_bin_check(state: &State) {
     execute_events(state);
     return;
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn process_tackle(state: &mut State) {
     const TACKLES_PER_SET: i32 = 6;
-    println!("{}", "[ProcessTackle] Record tackle statistics");
-    record_tackle(&state);
-    execute_events(&state);
-    println!("{}", "[ProcessTackle] Add tackle");
+    record_tackle(state);
+    execute_events(state);
     let _cse_temp_0 = state.clone().tackles + 1;
     state.tackles = _cse_temp_0;
-    execute_events(&state);
-    println!("{}", "[ProcessTackle] Check if tackle limit exceeded");
+    execute_events(state);
     let _cse_temp_1 = state.tackles > TACKLES_PER_SET;
     if _cse_temp_1 {
         swap_possession(state);
     }
-    execute_events(&state);
+    execute_events(state);
     return;
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn process_try(state: &mut State) {
-    println!("{}", "[ProcessTry] Add try points for team in possession");
     add_try(state);
-    execute_events(&state);
-    println!(
-        "{}",
-        "[ProcessTry] Player try assignment if players enabled"
-    );
+    execute_events(state);
     if state.include_players {
-        println!("{}", "[ProcessTry] Get player tries model result");
         let try_selection: PlayerTriesOutputs =
-            player_tries(&state, state.clone().team_in_possession.clone().clone());
-        execute_events(&state);
-        println!("{}", "[ProcessTry] Assign try to selected player");
+            player_tries(state, state.clone().team_in_possession.clone().clone());
+        execute_events(state);
         assign_try(
             state,
             try_selection.player_index,
             try_selection.team.clone(),
         );
-        execute_events(&state);
+        execute_events(state);
     }
-    execute_events(&state);
-    println!("{}", "[ProcessTry] Process conversion");
+    execute_events(state);
     conversion(state);
-    execute_events(&state);
+    execute_events(state);
     return;
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn sin_bin(state: &State) -> SinBinOutputs {
-    println!("{}", "[SinBin] Run sin bin model");
     let model: SinBinInferOutputs0 = infer::<SinBinInferOutputs0>(
         "sin_bin".to_string(),
         vec![
@@ -7679,26 +7374,22 @@ pub fn sin_bin(state: &State) -> SinBinOutputs {
         ],
     );
     execute_events(state);
-    println!("{}", "[SinBin] Record event");
     return SinBinOutputs::new(sample(&model.probabilities, rand::random::<f64>()) == 1);
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn xy(state: &State) -> XyOutputs {
     let mut is_extra_time: bool = false;
     let mut player_advantage: i32 = 0;
-    println!("{}", "[Xy] Set variables");
-    let _cse_temp_0 = state.clone().period.name.clone() == "ExtraTime";
-    is_extra_time = _cse_temp_0;
-    let _cse_temp_1 = (if state.clone().team_in_possession.clone() == "Home" {
+    let _cse_temp_0 = (if state.clone().team_in_possession.clone() == "Home" {
         (state.clone().away_sin_bin.clone().len() as i32)
             .saturating_sub(state.clone().home_sin_bin.clone().len() as i32)
     } else {
         (state.clone().home_sin_bin.clone().len() as i32)
-            .saturating_sub(state.away_sin_bin.clone().len() as i32)
+            .saturating_sub(state.clone().away_sin_bin.clone().len() as i32)
     }) as i32;
-    player_advantage = _cse_temp_1;
+    player_advantage = _cse_temp_0;
+    let _cse_temp_1 = state.period.name.clone() == "ExtraTime";
+    is_extra_time = _cse_temp_1;
     execute_events(state);
-    println!("{}", "[Xy] Run xy model");
     let model: XyInferOutputs0 = infer::<XyInferOutputs0>(
         "xy".to_string(),
         vec![
@@ -7733,26 +7424,24 @@ pub fn xy(state: &State) -> XyOutputs {
         ],
     );
     execute_events(state);
-    println!("{}", "[Xy] Get grid result");
-    let grid_result = sample(&model.probabilities, rand::random::<f64>());
+    let grid_result = {
+        let base = &GRID_RESULT.clone();
+        let idx: i32 = (sample(&model.probabilities, rand::random::<f64>())) as i32;
+        let actual_idx = if idx < 0 {
+            base.len().saturating_sub(idx.abs() as usize)
+        } else {
+            idx as usize
+        };
+        base.get(actual_idx).cloned().unwrap()
+    };
     execute_events(state);
-    println!("{}", "[Xy] Goal line position");
-    let _cse_temp_2 = sample(&model.probabilities, rand::random::<f64>()) % 6;
-    let _cse_temp_3 = GRID_RESULT
-        .clone()
-        .iter()
-        .position(|x| x == &"ZJ1")
-        .map(|i| i as i32)
-        .expect("ValueError: value is not in list")
-        + _cse_temp_2;
-    let position = _cse_temp_3;
-    execute_events(state);
-    println!("{}", "[Xy] Convert grid to field position");
-    return XyOutputs::new(FieldPosition::new(0, 0));
+    return XyOutputs::new(convert_field_position(
+        state,
+        grid_result,
+        state.team_in_possession.clone(),
+    ));
 }
 #[doc = "Execute all registered event functions."]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn execute_events(state: &State) {
     period_first_last_score_helper(state);
     first_half_output_event(state);
@@ -7791,5 +7480,10 @@ mod tests {
     fn test_normalize_examples() {
         assert_eq!(normalize(vec![]), vec![]);
         assert_eq!(normalize(vec![1]), vec![1]);
+    }
+    #[test]
+    fn test_distribution_examples() {
+        assert_eq!(distribution(vec![]), vec![]);
+        assert_eq!(distribution(vec![1]), vec![1]);
     }
 }

@@ -1,0 +1,12 @@
+[package]
+name = "test_array_bug"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "test_array_bug"
+path = "test_array_bug.rs"
+
+[dependencies]
+rand = "0.8"
+lazy_static = "1.4"

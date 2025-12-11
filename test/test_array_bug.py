@@ -86,22 +86,9 @@ YELLOW_CARD_SECONDS = 600
 Y_VALUES = [(0, 118), (118, 234), (234, 351), (351, 468), (468, 584), (584, 700)]
 Y_VALUES_AWAY = [(584, 700), (468, 584), (351, 468), (234, 351), (118, 234), (0, 118)]
 
-# From: event_debug.py
-# @depyler: custom_attribute_ignore = "event"
-def debug(state: State) -> None:
-    race_to_targets: list[int] = list()
-    remaining_targets: list[int] = list()
-    target_index: int = 0
-
-    if state.is_over:
-        # Log
-        pass#print(f"State is over, home score = {state.home_match_score}, away score = {state.away_match_score}")
-
-    return None
-
 # From: event_output-anytime.py
 # @depyler: custom_attribute_ignore = "event"
-def anytime_output_event(state: State) -> None:
+def anytime_output_event(state: State) -> bool:
     away_extra_time_stats: Statistics | None = None
     away_second_half_stats: Statistics | None = None
     ended_half_1: bool = False
@@ -114,15 +101,15 @@ def anytime_output_event(state: State) -> None:
     if state.game_status not in ('UnknownStatus', 'NotStarted'):
         # Get period and match statistics
         away_second_half_stats = state.away_statistics.period_statistics[SECOND_HALF_INDEX]
-        away_extra_time_stats = state.away_statistics.period_statistics[EXTRA_TIME_INDEX]
         home_second_half_stats = state.home_statistics.period_statistics[SECOND_HALF_INDEX]
         home_extra_time_stats = state.home_statistics.period_statistics[EXTRA_TIME_INDEX]
+        away_extra_time_stats = state.away_statistics.period_statistics[EXTRA_TIME_INDEX]
 
         # Calculate status flags
         ended_match = state.is_over
-        team_b_second_half_points = away_second_half_stats.scores.total
-        ended_half_1 = (state.period.number > 1)
         team_a_second_half_points = home_second_half_stats.scores.total
+        ended_half_1 = (state.period.number > 1)
+        team_b_second_half_points = away_second_half_stats.scores.total
 
         # Output match status
         record_bool("EndedHalf1", ended_half_1)
@@ -140,11 +127,12 @@ def anytime_output_event(state: State) -> None:
         record_int("TriesExtraTimeA", home_extra_time_stats.scores.tries)
         record_int("TriesExtraTimeB", away_extra_time_stats.scores.tries)
 
-    return None
+        return True
+    return False
 
 # From: event_output-end-of-game.py
 # @depyler: custom_attribute_ignore = "event"
-def end_of_game_output_event(state: State) -> None:
+def end_of_game_output_event(state: State) -> bool:
     away_extra_time_points: int = 0
     away_extra_time_stats: Statistics | None = None
     away_first_half_stats: Statistics | None = None
@@ -160,29 +148,32 @@ def end_of_game_output_event(state: State) -> None:
     team_a_won_second_half_and_et: bool = False
     team_b_won_second_half_and_et: bool = False
 
-    if state.game_status == 'ENDED':
+    if state.game_status == 'Ended' or state.is_over:
+        # Log
+        print("Game is over !")
+
         # Get period statistics
-        away_extra_time_stats = state.away_statistics.period_statistics[EXTRA_TIME_INDEX]
         away_first_half_stats = state.away_statistics.period_statistics[FIRST_HALF_INDEX]
-        home_extra_time_stats = state.home_statistics.period_statistics[EXTRA_TIME_INDEX]
-        home_first_half_stats = state.home_statistics.period_statistics[FIRST_HALF_INDEX]
         away_second_half_stats = state.away_statistics.period_statistics[SECOND_HALF_INDEX]
+        away_extra_time_stats = state.away_statistics.period_statistics[EXTRA_TIME_INDEX]
+        home_first_half_stats = state.home_statistics.period_statistics[FIRST_HALF_INDEX]
+        home_extra_time_stats = state.home_statistics.period_statistics[EXTRA_TIME_INDEX]
         home_second_half_stats = state.home_statistics.period_statistics[SECOND_HALF_INDEX]
 
         # Calculate extra time and combined scores
-        away_second_half_with_et = away_second_half_stats.scores.total + away_extra_time_stats.scores.total
         home_extra_time_points = home_extra_time_stats.scores.total
-        away_extra_time_points = away_extra_time_stats.scores.total
         home_second_half_with_et = home_second_half_stats.scores.total + home_extra_time_stats.scores.total
+        away_second_half_with_et = away_second_half_stats.scores.total + away_extra_time_stats.scores.total
+        away_extra_time_points = away_extra_time_stats.scores.total
 
         # Determine second half and extra time winner
-        team_a_won_second_half_and_et = (home_second_half_with_et > away_second_half_with_et)
         team_b_won_second_half_and_et = (home_second_half_with_et < away_second_half_with_et)
+        team_a_won_second_half_and_et = (home_second_half_with_et > away_second_half_with_et)
 
         # Determine match results
+        draw_match = (state.home_match_score == state.away_match_score)
         team_a_won_match = (state.home_match_score > state.away_match_score)
         team_b_won_match = (state.away_match_score > state.home_match_score)
-        draw_match = (state.home_match_score == state.away_match_score)
 
         # Output match totals
         record_int("PointsMatchA", state.home_match_score)
@@ -201,11 +192,12 @@ def end_of_game_output_event(state: State) -> None:
         record_bool("WinMatchA", team_a_won_match)
         record_bool("WinMatchB", team_b_won_match)
 
-    return None
+        return True
+    return False
 
 # From: event_output-first-half.py
 # @depyler: custom_attribute_ignore = "event"
-def first_half_output_event(state: State) -> None:
+def first_half_output_event(state: State) -> bool:
     away_first_half_stats: Statistics | None = None
     away_first_half_total: int = 0
     away_first_half_tries: int = 0
@@ -218,19 +210,19 @@ def first_half_output_event(state: State) -> None:
 
     if state.game_status in ('HalfTime', 'Period2', 'AwaitingExtraTime', 'ExtraTime', 'Ended') or state.is_over:
         # Get first half period statistics
-        away_first_half_stats = state.away_statistics.period_statistics[FIRST_HALF_INDEX]
         home_first_half_stats = state.home_statistics.period_statistics[FIRST_HALF_INDEX]
+        away_first_half_stats = state.away_statistics.period_statistics[FIRST_HALF_INDEX]
 
         # Calculate first half scores
-        home_first_half_tries = home_first_half_stats.scores.tries
+        home_first_half_total = home_first_half_stats.scores.total
         away_first_half_tries = away_first_half_stats.scores.tries
         away_first_half_total = away_first_half_stats.scores.total
-        home_first_half_total = home_first_half_stats.scores.total
+        home_first_half_tries = home_first_half_stats.scores.tries
 
         # Determine first half results
+        team_a_won_first_half = (home_first_half_total > away_first_half_total)
         team_b_won_first_half = (away_first_half_total > home_first_half_total)
         draw_first_half = (home_first_half_total == away_first_half_total)
-        team_a_won_first_half = (home_first_half_total > away_first_half_total)
 
         # Output first half points
         record_int("PointsHalf1A", home_first_half_total)
@@ -245,11 +237,12 @@ def first_half_output_event(state: State) -> None:
         record_int("TriesHalf1A", home_first_half_tries)
         record_int("TriesHalf1B", away_first_half_tries)
 
-    return None
+        return True
+    return False
 
 # From: event_output-normal-time.py
 # @depyler: custom_attribute_ignore = "event"
-def normal_time_output_event(state: State) -> None:
+def normal_time_output_event(state: State) -> bool:
     away_first_half_stats: Statistics | None = None
     away_normal_time_score: int = 0
     away_second_half_stats: Statistics | None = None
@@ -260,16 +253,14 @@ def normal_time_output_event(state: State) -> None:
 
     if state.game_status in ('AwaitingExtraTime', 'ExtraTime', 'Ended'):
         # Get period statistics
+        home_first_half_stats = state.home_statistics.period_statistics[FIRST_HALF_INDEX]
+        home_second_half_stats = state.home_statistics.period_statistics[SECOND_HALF_INDEX]
         away_second_half_stats = state.away_statistics.period_statistics[SECOND_HALF_INDEX]
         away_first_half_stats = state.away_statistics.period_statistics[FIRST_HALF_INDEX]
-        away_normal_time_score = 0
-        home_first_half_stats = state.home_statistics.period_statistics[FIRST_HALF_INDEX]
-        home_normal_time_score = 0
-        home_second_half_stats = state.home_statistics.period_statistics[SECOND_HALF_INDEX]
 
         # Calculate normal time scores
-        home_normal_time_score = home_first_half_stats.scores.total + home_second_half_stats.scores.total
         away_normal_time_score = away_first_half_stats.scores.total + away_second_half_stats.scores.total
+        home_normal_time_score = home_first_half_stats.scores.total + home_second_half_stats.scores.total
 
         # Determine extra time occurrence
         extra_time_occurred = (home_normal_time_score == away_normal_time_score)
@@ -285,18 +276,19 @@ def normal_time_output_event(state: State) -> None:
         record_int("TriesHalf2A", home_second_half_stats.scores.tries)
         record_int("TriesHalf2B", away_second_half_stats.scores.tries)
 
-    return None
+        return True
+    return False
 
 # From: event_output-player-void.py
 # @depyler: custom_attribute_ignore = "event"
-def player_void_output_event(state: State) -> None:
+def player_void_output_event(state: State) -> bool:
     away_trader_players: list[Player] = list()
     home_trader_players: list[Player] = list()
 
     if state.include_players:
         # Bind trader state players
-        home_trader_players = state.home_players
         away_trader_players = state.away_players
+        home_trader_players = state.home_players
 
         # Output home player void status
         for player in home_trader_players:
@@ -308,11 +300,12 @@ def player_void_output_event(state: State) -> None:
             # record
             record_bool(f"Player_Voided_{player.player_index}", player.is_voided)
 
-    return None
+        return True
+    return False
 
 # From: event_period-first-last-score.py
 # @depyler: custom_attribute_ignore = "event"
-def period_first_last_score_helper(state: State) -> None:
+def period_first_last_score_helper(state: State) -> bool:
     away_first_try_time: int = 0
     first_score_team: str = ""
     first_try_team: str = ""
@@ -329,8 +322,8 @@ def period_first_last_score_helper(state: State) -> None:
         first_score_team = ([incident for incident in state.incidents if period_filter and incident.has_points_confirmed][0].points_scored_team)
 
         # Calculate first try times
-        first_try_time = (([incident for incident in state.incidents if period_filter and incident.has_points_confirmed and incident.points_confirmed_score_type == 'Try'][0].time_elapsed // 60 + 1))
         away_first_try_time = (([incident for incident in state.incidents if period_filter and incident.has_points_confirmed and incident.points_confirmed_score_type == 'Try' and incident.points_scored_team == "Away"][0].time_elapsed // 60 + 1))
+        first_try_time = (([incident for incident in state.incidents if period_filter and incident.has_points_confirmed and incident.points_confirmed_score_type == 'Try'][0].time_elapsed // 60 + 1))
         home_first_try_time = (([incident for incident in state.incidents if period_filter and incident.has_points_confirmed and incident.points_confirmed_score_type == 'Try' and incident.points_scored_team == "Home"][0].time_elapsed // 60 + 1))
 
         # Output first try results
@@ -346,11 +339,12 @@ def period_first_last_score_helper(state: State) -> None:
         record_int(f"FirstTryTime{period_name}A", home_first_try_time)
         record_int(f"FirstTryTime{period_name}B", away_first_try_time)
 
-    return None
+        return True
+    return False
 
 # From: event_track-first-to-score.py
 # @depyler: custom_attribute_ignore = "event"
-def first_to_score_tracking_event(state: State) -> None:
+def first_to_score_tracking_event(state: State) -> bool:
     away_first_try_incident: Optional[Incident] = None
     away_first_try_time: Optional[int] = None
     extra_time_first_score_incident: Optional[Incident] = None
@@ -376,75 +370,90 @@ def first_to_score_tracking_event(state: State) -> None:
         try_incidents = (([incident for incident in points_confirmed_incidents if incident.points_confirmed_score_type == 'Try']))
 
         # Resolve key incidents across periods
-        match_first_score_incident = (points_confirmed_incidents[0] if points_confirmed_incidents else None)
+        away_first_try_incident = ((next((incident for incident in try_incidents if incident.points_scored_team == "Away"), None)))
+        match_first_try_incident = (try_incidents[0] if try_incidents else None)
+        half2_et_first_try_incident = ((next((incident for incident in try_incidents if (int(incident.period.number) - 1) >= SECOND_HALF_INDEX), None)))
         half2_et_first_score_incident = ((next((incident for incident in points_confirmed_incidents if (int(incident.period.number) - 1) >= SECOND_HALF_INDEX), None)))
         extra_time_first_score_incident = ((next((incident for incident in points_confirmed_incidents if (int(incident.period.number) - 1) == EXTRA_TIME_INDEX), None)))
         last_score_incident = (points_confirmed_incidents[-1] if points_confirmed_incidents else None)
-        half2_et_first_try_incident = ((next((incident for incident in try_incidents if (int(incident.period.number) - 1) >= SECOND_HALF_INDEX), None)))
-        away_first_try_incident = ((next((incident for incident in try_incidents if incident.points_scored_team == "Away"), None)))
         extra_time_first_try_incident = ((next((incident for incident in try_incidents if (int(incident.period.number) - 1) == EXTRA_TIME_INDEX), None)))
+        match_first_score_incident = (points_confirmed_incidents[0] if points_confirmed_incidents else None)
         home_first_try_incident = ((next((incident for incident in try_incidents if incident.points_scored_team == "Home"), None)))
-        match_first_try_incident = (try_incidents[0] if try_incidents else None)
         last_try_incident = (try_incidents[-1] if try_incidents else None)
 
         # Compute try timings
         away_first_try_time = ((int(away_first_try_incident.time_elapsed / 60) + 1) if away_first_try_incident is not None else None)
         match_first_try_time = ((int(match_first_try_incident.time_elapsed / 60) + 1) if match_first_try_incident is not None else None)
-        last_try_time = ((int(last_try_incident.time_elapsed / 60) + 1) if last_try_incident else None)
         home_first_try_time = ((int(home_first_try_incident.time_elapsed / 60) + 1) if home_first_try_incident is not None else None)
+        last_try_time = ((int(last_try_incident.time_elapsed / 60) + 1) if last_try_incident else None)
 
         # Record match first scores
-        record_bool("FirstToScore_Match_A", match_first_score_incident.points_scored_team == "Home")
-        record_bool("FirstToScore_Match_B", match_first_score_incident.points_scored_team == "Away")
-        record_bool("FirstTry_Match_A", match_first_try_incident.points_scored_team == "Home")
-        record_bool("FirstTry_Match_B", match_first_try_incident.points_scored_team == "Away")
+        if match_first_score_incident is not None:
+            # Record match first scores
+            record_bool("FirstToScore_Match_A", match_first_score_incident.points_scored_team == "Home")
+            record_bool("FirstToScore_Match_B", match_first_score_incident.points_scored_team == "Away")
+            record_bool("FirstTry_Match_A", match_first_try_incident.points_scored_team == "Home")
+            record_bool("FirstTry_Match_B", match_first_try_incident.points_scored_team == "Away")
 
         # Record Half 2 and Extra Time first scores
-        record_bool("FirstToScore_Half2AndExtraTime_A", half2_et_first_score_incident.points_scored_team == "Home")
-        record_bool("FirstToScore_Half2AndExtraTime_B", half2_et_first_score_incident.points_scored_team == "Away")
-        record_bool("FirstTry_Half2AndExtraTime_A", half2_et_first_try_incident.points_scored_team == "Home")
-        record_bool("FirstTry_Half2AndExtraTime_B", half2_et_first_try_incident.points_scored_team == "Away")
+        if half2_et_first_score_incident is not None:
+            # Record Half 2 and Extra Time first scores
+            record_bool("FirstToScore_Half2AndExtraTime_A", half2_et_first_score_incident.points_scored_team == "Home")
+            record_bool("FirstToScore_Half2AndExtraTime_B", half2_et_first_score_incident.points_scored_team == "Away")
+            record_bool("FirstTry_Half2AndExtraTime_A", half2_et_first_try_incident.points_scored_team == "Home")
+            record_bool("FirstTry_Half2AndExtraTime_B", half2_et_first_try_incident.points_scored_team == "Away")
 
         # Record Extra Time first scores
-        record_bool("FirstToScore_ExtraTime_A", extra_time_first_score_incident.points_scored_team == "Home")
-        record_bool("FirstToScore_ExtraTime_B", extra_time_first_score_incident.points_scored_team == "Away")
-        record_bool("FirstTry_ExtraTime_A", extra_time_first_try_incident.points_scored_team == "Home")
-        record_bool("FirstTry_ExtraTime_B", extra_time_first_try_incident.points_scored_team == "Away")
+        if extra_time_first_score_incident is not None:
+            # Record Extra Time first scores
+            record_bool("FirstToScore_ExtraTime_A", extra_time_first_score_incident.points_scored_team == "Home")
+            record_bool("FirstToScore_ExtraTime_B", extra_time_first_score_incident.points_scored_team == "Away")
+            record_bool("FirstTry_ExtraTime_A", extra_time_first_try_incident.points_scored_team == "Home")
+            record_bool("FirstTry_ExtraTime_B", extra_time_first_try_incident.points_scored_team == "Away")
 
         # Record Half 2 and Extra Time try timings
-        record_int("FirstTryTime_Half2AndExtraTime", int(half2_et_first_try_incident.time_elapsed / 60) + 1)
-        record_int("FirstTryTime_Half2AndExtraTime_A", (int(half2_et_first_try_incident.time_elapsed / 60) + 1) if half2_et_first_try_incident is not None and half2_et_first_try_incident.points_scored_team == "Home" else 0)
-        record_int("FirstTryTime_Half2AndExtraTime_B", (int(half2_et_first_try_incident.time_elapsed / 60) + 1) if half2_et_first_try_incident is not None and half2_et_first_try_incident.points_scored_team == "Away" else 0)
+        if half2_et_first_try_incident is not None:
+            # Record Half 2 and Extra Time try timings
+            record_int("FirstTryTime_Half2AndExtraTime", int(half2_et_first_try_incident.time_elapsed / 60) + 1)
+            record_int("FirstTryTime_Half2AndExtraTime_A", (int(half2_et_first_try_incident.time_elapsed / 60) + 1) if half2_et_first_try_incident is not None and half2_et_first_try_incident.points_scored_team == "Home" else 0)
+            record_int("FirstTryTime_Half2AndExtraTime_B", (int(half2_et_first_try_incident.time_elapsed / 60) + 1) if half2_et_first_try_incident is not None and half2_et_first_try_incident.points_scored_team == "Away" else 0)
 
         # Record Extra Time try timings
-        record_int("FirstTryTime_ExtraTime", (int(extra_time_first_try_incident.time_elapsed / 60) + 1) if extra_time_first_try_incident is not None else 0)
-        record_int("FirstTryTime_ExtraTime_A", (int(extra_time_first_try_incident.time_elapsed / 60) + 1) if extra_time_first_try_incident is not None and extra_time_first_try_incident.points_scored_team == "Home" else 0)
-        record_int("FirstTryTime_ExtraTime_B", (int(extra_time_first_try_incident.time_elapsed / 60) + 1) if extra_time_first_try_incident is not None and extra_time_first_try_incident.points_scored_team == "Away" else 0)
+        if extra_time_first_try_incident is not None:
+            # Record Extra Time try timings
+            record_int("FirstTryTime_ExtraTime", (int(extra_time_first_try_incident.time_elapsed / 60) + 1) if extra_time_first_try_incident is not None else 0)
+            record_int("FirstTryTime_ExtraTime_A", (int(extra_time_first_try_incident.time_elapsed / 60) + 1) if extra_time_first_try_incident is not None and extra_time_first_try_incident.points_scored_team == "Home" else 0)
+            record_int("FirstTryTime_ExtraTime_B", (int(extra_time_first_try_incident.time_elapsed / 60) + 1) if extra_time_first_try_incident is not None and extra_time_first_try_incident.points_scored_team == "Away" else 0)
 
         # Record match first try timings
-        record_int("FirstTryTime_Match", match_first_try_time if match_first_try_time is not None else 0)
-        record_int("FirstTryTime_Match_A", home_first_try_time if home_first_try_time is not None else 0)
-        record_int("FirstTryTime_Match_B", away_first_try_time if away_first_try_time is not None else 0)
+        if match_first_try_incident is not None:
+            # Record match first try timings
+            record_int("FirstTryTime_Match", match_first_try_time if match_first_try_time is not None else 0)
+            record_int("FirstTryTime_Match_A", home_first_try_time if home_first_try_time is not None else 0)
+            record_int("FirstTryTime_Match_B", away_first_try_time if away_first_try_time is not None else 0)
 
         # Record last scoring outputs when match ended
-        record_bool("LastTry_Match_A", last_try_incident is not None and last_try_incident.points_scored_team == "Home")
-        record_bool("LastTry_Match_B", last_try_incident is not None and last_try_incident.points_scored_team == "Away")
-        record_bool("LastToScore_Match_A", last_score_incident is not None and last_score_incident.points_scored_team == "Home")
-        record_bool("LastToScore_Match_B", last_score_incident is not None and last_score_incident.points_scored_team == "Away")
-        record_int("LastTryTime_Match", last_try_time if last_try_time is not None else 0)
+        if state.is_over:
+            # Record last scoring outputs when match ended
+            record_bool("LastTry_Match_A", last_try_incident is not None and last_try_incident.points_scored_team == "Home")
+            record_bool("LastTry_Match_B", last_try_incident is not None and last_try_incident.points_scored_team == "Away")
+            record_bool("LastToScore_Match_A", last_score_incident is not None and last_score_incident.points_scored_team == "Home")
+            record_bool("LastToScore_Match_B", last_score_incident is not None and last_score_incident.points_scored_team == "Away")
+            record_int("LastTryTime_Match", last_try_time if last_try_time is not None else 0)
 
-    return None
+        return True
+    return False
 
 # From: event_track-minute-winner.py
 # @depyler: custom_attribute_ignore = "event"
-def minute_winner_tracking_event(state: State) -> None:
+def minute_winner_tracking_event(state: State) -> bool:
     final_minute: int = 0
     minute_intervals: list[int] = list()
 
     if len(state.incidents) > 0 or state.is_over:
         # Initialize interval context
-        minute_intervals = [10, 20, 30, 50, 60]
         final_minute = int(state.time_elapsed / 60)
+        minute_intervals = [10, 20, 30, 50, 60]
 
         # Track winner at each minute interval
         for minute in minute_intervals:
@@ -458,11 +467,12 @@ def minute_winner_tracking_event(state: State) -> None:
                 record_bool(f"WinMinute{minute}MatchA", home_points_at_minute > away_points_at_minute)
                 record_bool(f"WinMinute{minute}MatchB", away_points_at_minute > home_points_at_minute)
 
-    return None
+        return True
+    return False
 
 # From: event_track-player-scores.py
 # @depyler: custom_attribute_ignore = "event"
-def player_score_tracking_event(state: State) -> None:
+def player_score_tracking_event(state: State) -> bool:
     away_first_try_jersey: int = 0
     away_try_scorer_indices: list[int] = list()
     first_try_jersey: int = 0
@@ -475,16 +485,16 @@ def player_score_tracking_event(state: State) -> None:
 
     if state.include_players:
         # Collect try scorer information
-        try_scorer_indices = ([incident.points_confirmed_player_index for incident in state.incidents if incident.has_points_confirmed and incident.points_confirmed_score_type == 'Try'])
         away_try_scorer_indices = ([incident.points_confirmed_player_index for incident in state.incidents if incident.has_points_confirmed and incident.points_confirmed_score_type == 'Try' and incident.points_scored_team == "Away"])
         try_teams = ([incident.points_scored_team for incident in state.incidents if incident.has_points_confirmed and incident.points_confirmed_score_type == 'Try'])
         home_try_scorer_indices = ([incident.points_confirmed_player_index for incident in state.incidents if incident.has_points_confirmed and incident.points_confirmed_score_type == 'Try' and incident.points_scored_team == "Home"])
+        try_scorer_indices = ([incident.points_confirmed_player_index for incident in state.incidents if incident.has_points_confirmed and incident.points_confirmed_score_type == 'Try'])
 
         # Find jersey numbers for first and last try scorers
-        away_first_try_jersey = state.away_players[away_try_scorer_indices[0]].jersey_number
-        last_try_jersey = state.all_players[try_scorer_indices[len(try_scorer_indices) - 1]].jersey_number
-        first_try_jersey = state.all_players[try_scorer_indices[0]].jersey_number
         home_first_try_jersey = state.home_players[home_try_scorer_indices[0]].jersey_number
+        last_try_jersey = state.all_players[try_scorer_indices[len(try_scorer_indices) - 1]].jersey_number
+        away_first_try_jersey = state.away_players[away_try_scorer_indices[0]].jersey_number
+        first_try_jersey = state.all_players[try_scorer_indices[0]].jersey_number
 
         # Output try scorer sequence (up to 15 tries)
         for index in range(1, min(15, len(try_scorer_indices))):
@@ -498,24 +508,34 @@ def player_score_tracking_event(state: State) -> None:
             record_bool(f"{index}thTry_Match_B", try_teams[index - 1] == "Away")
 
         # Output first try scorer information
-        record_int("FirstTryScorerJerseyMatch", first_try_jersey)
+        if len(try_scorer_indices) > 0:
+            # Output first try scorer information
+            record_int("FirstTryScorerJerseyMatch", first_try_jersey)
 
         # Output home team first try scorer
-        record_int("HomeFirstTryScorerMatch", home_try_scorer_indices[0])
-        record_int("HomeFirstTryScorerJerseyMatch", home_first_try_jersey)
+        if len(home_try_scorer_indices) > 0:
+            # Output home team first try scorer
+            record_int("HomeFirstTryScorerMatch", home_try_scorer_indices[0])
+            record_int("HomeFirstTryScorerJerseyMatch", home_first_try_jersey)
 
         # Output away team first try scorer
-        record_int("AwayFirstTryScorerMatch", away_try_scorer_indices[0])
-        record_int("AwayFirstTryScorerJerseyMatch", away_first_try_jersey)
+        if len(away_try_scorer_indices) > 0:
+            # Output away team first try scorer
+            record_int("AwayFirstTryScorerMatch", away_try_scorer_indices[0])
+            record_int("AwayFirstTryScorerJerseyMatch", away_first_try_jersey)
 
         # Output three unanswered tries
-        record_bool("ThreeUnansweredTries", True)
+        if state.three_unanswered_tries_team != 'NotSet':
+            # Output three unanswered tries
+            record_bool("ThreeUnansweredTries", True)
 
         # Output last try scorer (end of match only)
-        record_int("LastTryScorerMatch", try_scorer_indices[len(try_scorer_indices) - 1])
-        record_int("LastTryScorerJerseyMatch", last_try_jersey)
-        record_int("HomeLastTryScorerMatch", home_try_scorer_indices[len(home_try_scorer_indices) - 1])
-        record_int("AwayLastTryScorerMatch", away_try_scorer_indices[len(away_try_scorer_indices) - 1])
+        if state.is_over and len(try_scorer_indices) > 0:
+            # Output last try scorer (end of match only)
+            record_int("LastTryScorerMatch", try_scorer_indices[len(try_scorer_indices) - 1])
+            record_int("LastTryScorerJerseyMatch", last_try_jersey)
+            record_int("HomeLastTryScorerMatch", home_try_scorer_indices[len(home_try_scorer_indices) - 1])
+            record_int("AwayLastTryScorerMatch", away_try_scorer_indices[len(away_try_scorer_indices) - 1])
 
         # Output player statistics from trader state
         for player in state.home_players:
@@ -531,23 +551,24 @@ def player_score_tracking_event(state: State) -> None:
             record_bool(f"Player_{player.player_index}_2PlusTryScorer", player.total_statistics.scores.tries >= 2)
             record_bool(f"Player_{player.player_index}_3PlusTryScorer", player.total_statistics.scores.tries >= 3)
 
-    return None
+        return True
+    return False
 
 # From: event_track-race-to-points.py
 # @depyler: custom_attribute_ignore = "event"
-def race_to_points_tracking_event(state: State) -> None:
+def race_to_points_tracking_event(state: State) -> bool:
     away_running_score: int = 0
     home_running_score: int = 0
     race_to_targets: list[int] = list()
     remaining_targets: list[int] = list()
     target_index: int = 0
 
-    if len(state.incidents) > 0 or state.is_over:
+    if len(state.incidents) > 0 and state.is_over:
         # Initialize race to context
         target_index = 0
+        home_running_score = 0
         race_to_targets = [10, 15, 20, 25, 30, 35, 40]
         away_running_score = 0
-        home_running_score = 0
 
         # Process scoring incidents for race targets
         for incident in state.incidents:
@@ -586,15 +607,52 @@ def race_to_points_tracking_event(state: State) -> None:
             record_bool(f"FirstToPoints{pending_target}A", False)
             record_bool(f"FirstToPoints{pending_target}B", False)
 
-    return None
+        return True
+    return False
+
+# From: event_update-game-status.py
+# @depyler: custom_attribute_ignore = "event"
+def update_game_status(state: State) -> bool:
+    if True:
+        # Check if normal time half is complete
+        if state.time_elapsed > HALF_LENGTH_IN_SECONDS and state.period.name != 'ExtraTime':
+            # Handle end of first half
+            if state.period.name == 'FirstHalf':
+                # Transition to second half
+                state.game_status = "Period2"
+                state.period.number = 2
+                state.period.name = "SecondHalf"
+            else:
+                # Check if normal time is complete
+                if state.time_elapsed >= GAME_LENGTH_IN_SECONDS:
+                    # Check for extra time or game end
+                    if state.home_match_score == state.away_match_score:
+                        # Enter extra time
+                        state.period.name = "ExtraTime"
+                        state.period.number = 3
+                        state.is_extratime = True
+                        state.game_status = "ExtraTime"
+                    else:
+                        # End game
+                        state.is_over = True
+                        state.game_status = "Ended"
+
+        # Check extra time conditions
+        if state.period.name == 'ExtraTime':
+            # Check if extra time should end
+            if state.time_elapsed >= GAME_LENGTH_IN_SECONDS + EXTRA_TIME_LENGTH_IN_SECONDS or state.home_match_score != state.away_match_score:
+                # End game
+                state.is_over = True
+                state.game_status = "Ended"
+
+        return True
+    return False
 
 # From: fn_conversion.py
 # @depyler: custom_attribute = "function"
 def add_conversion(state: State) -> None:
     team = state.team_in_possession
     period_idx = state.period.number - 1
-
-    print(">>>>>>>>>>>>>>>> Adding conversion for team:", state.team_in_possession)
 
     if team == "Home":
       state.home_match_score += CONVERSION_POINTS
@@ -1064,8 +1122,6 @@ def rebuild_sin_bin_players(state: State, team: str) -> None:
 # From: fn_tackle.py
 # @depyler: custom_attribute = "function"
 def record_tackle(state: State) -> None:
-    print(state)
-
     team = state.team_in_possession
     period_idx = state.period.number - 1
 
@@ -1156,10 +1212,6 @@ def setup_statistics(state: State) -> None:
         rebuild_sin_bin_players(state, team)
 
 
-def log_state(state: State) -> None:
-    print(state)
-
-
 def get_team_try_distributions(state: State) -> list[float]:
     players = _get_players(state, state.team_in_possession)
     return [p.tries_percentage for p in players]
@@ -1244,14 +1296,9 @@ def nrl(state: State) -> None:
     execute_events(state)
 
     # Setup State
-    state.period.number = 1
-    state.include_players = False
     state.period.name = "FirstHalf"
-
-    execute_events(state)
-
-    # Log State
-    log_state(state)
+    state.include_players = False
+    state.period.number = 1
 
     execute_events(state)
 
@@ -1312,7 +1359,7 @@ def nrl(state: State) -> None:
                 execute_events(state)
 
                 # Run kickoff
-                kickoff(state, force_possession_change=True, is_line_dropout=True)
+                kickoff(state, is_line_dropout=True, force_possession_change=True)
 
                 execute_events(state)
             else:
@@ -1327,23 +1374,20 @@ def nrl(state: State) -> None:
                 execute_events(state)
 
                 # Process play type
-                if state.current_play_type == "WonPenalty":
-                    # Run process_penalty
-                    process_penalty(state)
+                if state.current_play_type == "ErrorAttack":
+                    # Run swap_possession
+                    swap_possession(state)
 
                     execute_events(state)
-                elif state.current_play_type == "KickRetain":
+                elif state.current_play_type == "Pass":
                     pass
-                elif state.current_play_type == "KickRetainTry":
-                    # Run process_try
-                    process_try(state)
-
-                    execute_events(state)
                 elif state.current_play_type == "KickTurnover":
                     # Run swap_possession
                     swap_possession(state)
 
                     execute_events(state)
+                elif state.current_play_type == "Run":
+                    pass
                 elif state.current_play_type == "ErrorDefence":
                     # Set variables
                     state.tackles = STARTING_TACKLE
@@ -1354,7 +1398,19 @@ def nrl(state: State) -> None:
                     process_try(state)
 
                     execute_events(state)
+                elif state.current_play_type == "WonPenalty":
+                    # Run process_penalty
+                    process_penalty(state)
+
+                    execute_events(state)
                 elif state.current_play_type == "KickRetainTackle":
+                    # Run process_tackle
+                    process_tackle(state)
+
+                    execute_events(state)
+                elif state.current_play_type == "KickRetain":
+                    pass
+                elif state.current_play_type == "RunTackle":
                     # Run process_tackle
                     process_tackle(state)
 
@@ -1364,18 +1420,9 @@ def nrl(state: State) -> None:
                     process_penalty(state)
 
                     execute_events(state)
-                elif state.current_play_type == "Pass":
-                    pass
-                elif state.current_play_type == "ErrorAttack":
-                    # Run swap_possession
-                    swap_possession(state)
-
-                    execute_events(state)
-                elif state.current_play_type == "Run":
-                    pass
-                elif state.current_play_type == "RunTackle":
-                    # Run process_tackle
-                    process_tackle(state)
+                elif state.current_play_type == "KickRetainTry":
+                    # Run process_try
+                    process_try(state)
 
                     execute_events(state)
 
@@ -1413,7 +1460,7 @@ def nrl(state: State) -> None:
             execute_events(state)
 
             # Run apply_time_on_ground
-            apply_time_on_ground(state, seconds=float(minute_delta * 60), team="Away")
+            apply_time_on_ground(state, team="Away", seconds=float(minute_delta * 60))
 
             execute_events(state)
 
@@ -1421,11 +1468,6 @@ def nrl(state: State) -> None:
             interchange(state)
 
             execute_events(state)
-
-        execute_events(state)
-
-        # Check game status and period transitions
-        check_game_status(state)
 
         execute_events(state)
 
@@ -1467,6 +1509,7 @@ class State:
     ball_location: FieldPosition
     current_play_type: str
     end_zone_type: str
+    executed_events: set[str]
     has_started: bool
     is_extratime: bool
     game_status: str
@@ -1493,6 +1536,7 @@ class State:
     simulation_invariants: SimulationInvariants
     tackles: int
     team_in_possession: str
+    three_unanswered_tries_team: str
     time_elapsed: int
     total_match_score: int
     total_period: str
@@ -1626,62 +1670,6 @@ class PlayerTraderState:
     tries_percentage_in_use: bool
     tries_percentage: float
 
-# From: step_check_game_status.py
-# @depyler: custom_attribute_ignore = "step"
-def check_game_status(state: State) -> None:
-    # Check if normal time half is complete
-    if state.time_elapsed > HALF_LENGTH_IN_SECONDS and state.period.name != 'ExtraTime':
-        # Handle end of first half
-        if state.period.name == 'FirstHalf':
-            # Transition to second half
-            state.period.name = "SecondHalf"
-            state.game_status = "Period2"
-            state.period.number = 2
-
-            execute_events(state)
-        else:
-            # Check if normal time is complete
-            if state.time_elapsed >= GAME_LENGTH_IN_SECONDS:
-                # Check for extra time or game end
-                if state.home_match_score == state.away_match_score:
-                    # Enter extra time
-                    state.is_extratime = True
-                    state.period.name = "ExtraTime"
-                    state.game_status = "ExtraTime"
-                    state.period.number = 3
-
-                    execute_events(state)
-                else:
-                    # End game
-                    state.game_status = "Ended"
-                    state.is_over = True
-
-                    execute_events(state)
-
-                execute_events(state)
-
-            execute_events(state)
-
-        execute_events(state)
-
-    execute_events(state)
-
-    # Check extra time conditions
-    if state.period.name == 'ExtraTime':
-        # Check if extra time should end
-        if state.time_elapsed >= GAME_LENGTH_IN_SECONDS + EXTRA_TIME_LENGTH_IN_SECONDS or state.home_match_score != state.away_match_score:
-            # End game
-            state.is_over = True
-            state.game_status = "Ended"
-
-            execute_events(state)
-
-        execute_events(state)
-
-    execute_events(state)
-
-    return None
-
 # From: step_clock.py
 from typing import Any
 
@@ -1743,11 +1731,6 @@ def clock(state: State) -> ClockOutputs:
 
     execute_events(state)
 
-    # Log
-    pass#print(f"current_play_type: {state.current_play_type}, seconds_to_add: {seconds_to_add}, seconds_to_add_initial: {seconds_to_add_initial}, adjustment: {time_adjustment}, elapsed: {state.time_elapsed}.")
-
-    execute_events(state)
-
     # Return seconds added
     return ClockOutputs(
         seconds_to_add=seconds_to_add
@@ -1805,9 +1788,9 @@ def end_zone(state: State) -> None:
     execute_events(state)
 
     # Calculate zone type booleans
+    is_zj_zone = (zone_division == 11)
     is_end_zone = (zone_division == 10 or zone_division == 11)
     is_za_zone = (zone_division == 10)
-    is_zj_zone = (zone_division == 11)
 
     execute_events(state)
 
@@ -1857,7 +1840,7 @@ def field_goal(state: State) -> None:
         execute_events(state)
 
         # Process kickoff
-        kickoff(state, force_possession_change=False, is_line_dropout=False)
+        kickoff(state, is_line_dropout=False, force_possession_change=False)
 
         execute_events(state)
 
@@ -1873,8 +1856,8 @@ def field_goal(state: State) -> None:
         # Set ball location for missed field goal
         if state.team_in_possession == "Home":
             # Set variables
-            state.ball_location.y = CENTRE_OF_THE_FIELD_Y
             state.ball_location.x = MISSED_FIELD_GOAL_RESTART_X
+            state.ball_location.y = CENTRE_OF_THE_FIELD_Y
 
             execute_events(state)
         else:
@@ -1944,8 +1927,8 @@ def field_goal_decision(state: State) -> FieldGoalDecisionOutputs:
 
     # Evaluate spatial bounds
     in_time = ((state.time_elapsed >= FIELD_GOAL_MIN_TIME_FIRST and state.time_elapsed <= FIELD_GOAL_MAX_TIME_FIRST) or (state.time_elapsed >= FIELD_GOAL_MIN_TIME_SECOND))
-    in_bounds = (state.ball_location.x > FIELD_GOAL_MIN_ABSOLUTE and state.ball_location.x < FIELD_GOAL_MAX_ABSOLUTE)
     in_direction = ((state.team_in_possession == "Away" and state.ball_location.x < FIELD_GOAL_MIN_AWAY) or (state.team_in_possession == "Home" and state.ball_location.x > FIELD_GOAL_MIN_HOME))
+    in_bounds = (state.ball_location.x > FIELD_GOAL_MIN_ABSOLUTE and state.ball_location.x < FIELD_GOAL_MAX_ABSOLUTE)
 
     execute_events(state)
 
@@ -1985,8 +1968,8 @@ def get_conversion_model_result(state: State) -> GetConversionModelResultOutputs
 
     # Set variables
     is_extra_time = (state.period.name == 'ExtraTime')
-    conversion_k = random.random()
     player_advantage = (int((len(state.away_sin_bin) - len(state.home_sin_bin)) if state.team_in_possession == "Home" else (len(state.home_sin_bin) - len(state.away_sin_bin))))
+    conversion_k = random.random()
 
     execute_events(state)
 
@@ -2101,14 +2084,14 @@ def interchange(state: State) -> None:
     home_should_interchange: bool = False
 
     # Reset interchange context
-    home_on_player_index = None
-    home_off_player_index = None
-    away_should_interchange = False
-    home_should_interchange = False
-    home_interchange_executed = False
     away_off_player_index = None
-    away_interchange_executed = False
+    home_interchange_executed = False
+    away_should_interchange = False
+    home_on_player_index = None
     away_on_player_index = None
+    home_off_player_index = None
+    home_should_interchange = False
+    away_interchange_executed = False
 
     execute_events(state)
 
@@ -2129,7 +2112,7 @@ def interchange(state: State) -> None:
     # Sample home player selection
     if home_should_interchange:
         # Infer home player selection
-        home_execution: PlayerInterchangeOutputs = player_interchange(state, position_index=home_selection.position_index, team="Home")
+        home_execution: PlayerInterchangeOutputs = player_interchange(state, team="Home", position_index=home_selection.position_index)
 
         execute_events(state)
 
@@ -2168,16 +2151,16 @@ def interchange(state: State) -> None:
     # Sample away player selection
     if away_should_interchange:
         # Infer away player selection
-        away_execution: PlayerInterchangeOutputs = player_interchange(state, position_index=away_selection.position_index, team="Away")
+        away_execution: PlayerInterchangeOutputs = player_interchange(state, team="Away", position_index=away_selection.position_index)
 
         execute_events(state)
 
         # Finalise away interchange
         if away_execution.executed:
             # Finalise away interchange
-            away_off_player_index = away_execution.off_player_index
             away_on_player_index = away_execution.on_player_index
             away_interchange_executed = True
+            away_off_player_index = away_execution.off_player_index
 
         execute_events(state)
 
@@ -2193,13 +2176,13 @@ def interchange(state: State) -> None:
     # Update game state after interchanges
     if home_interchange_executed or away_interchange_executed:
         # Update game state after interchanges
-        last_event = "INTERCHANGE"
-        away_off_index = away_off_player_index
-        home_executed = home_interchange_executed
-        home_off_index = home_off_player_index
-        away_executed = away_interchange_executed
         home_on_index = home_on_player_index
         away_on_index = away_on_player_index
+        away_off_index = away_off_player_index
+        last_event = "INTERCHANGE"
+        home_executed = home_interchange_executed
+        away_executed = away_interchange_executed
+        home_off_index = home_off_player_index
 
     execute_events(state)
 
@@ -2333,9 +2316,9 @@ def next_play(state: State) -> NextPlayOutputs:
     possessing_team_margin: float = 0.0
 
     # Set variables
+    player_advantage = (int((len(state.away_sin_bin) - len(state.home_sin_bin)) if state.team_in_possession == "Home" else (len(state.home_sin_bin) - len(state.away_sin_bin))))
     possessing_team_margin = float(calculate_margin(state))
     distance_to_try_line = calculate_dist_to_try_line(state)
-    player_advantage = (int((len(state.away_sin_bin) - len(state.home_sin_bin)) if state.team_in_possession == "Home" else (len(state.home_sin_bin) - len(state.away_sin_bin))))
 
     execute_events(state)
 
@@ -2571,7 +2554,7 @@ def player_sin_bin(state: State, sin_bin_team_is_home: bool) -> None:
     # Record player sin bin event
     if sin_bin_player_index >= 0:
         # Record player sin bin event
-        record_player_sin_bin(state, team=sin_bin_team, player_index=sin_bin_player_index, sin_bin_type="YellowCard")
+        record_player_sin_bin(state, team=sin_bin_team, sin_bin_type="YellowCard", player_index=sin_bin_player_index)
 
     execute_events(state)
 
@@ -2579,8 +2562,8 @@ def player_sin_bin(state: State, sin_bin_team_is_home: bool) -> None:
     if sin_bin_player_index >= 0:
         # Update state markers for sin bin event
         last_sin_bin_team = sin_bin_team
-        last_event = "PLAYER_SIN_BIN"
         last_sin_bin_player_index = sin_bin_player_index
+        last_event = "PLAYER_SIN_BIN"
 
     execute_events(state)
 
@@ -2735,7 +2718,7 @@ def process_try(state: State) -> None:
         execute_events(state)
 
         # Assign try to selected player
-        assign_try(state, team=try_selection.team, player_index=try_selection.player_index)
+        assign_try(state, player_index=try_selection.player_index, team=try_selection.team)
 
         execute_events(state)
 
@@ -2798,8 +2781,8 @@ def xy(state: State) -> XyOutputs:
     player_advantage: int = 0
 
     # Set variables
-    player_advantage = (int((len(state.away_sin_bin) - len(state.home_sin_bin)) if state.team_in_possession == "Home" else (len(state.home_sin_bin) - len(state.away_sin_bin))))
     is_extra_time = (state.period.name == 'ExtraTime')
+    player_advantage = (int((len(state.away_sin_bin) - len(state.home_sin_bin)) if state.team_in_possession == "Home" else (len(state.home_sin_bin) - len(state.away_sin_bin))))
 
     execute_events(state)
 
@@ -2823,15 +2806,45 @@ def xy(state: State) -> XyOutputs:
 # Auto-generated event execution function
 def execute_events(state: State) -> None:
     """Execute all registered event functions."""
-    period_first_last_score_helper(state)
-    first_half_output_event(state)
-    normal_time_output_event(state)
-    player_score_tracking_event(state)
-    minute_winner_tracking_event(state)
-    debug(state)
-    player_void_output_event(state)
-    end_of_game_output_event(state)
-    first_to_score_tracking_event(state)
-    race_to_points_tracking_event(state)
-    anytime_output_event(state)
+    if "period_first_last_score_helper" not in state.executed_events:
+        success = period_first_last_score_helper(state)
+        if success:
+            state.executed_events.add("period_first_last_score_helper")
+    if "first_half_output_event" not in state.executed_events:
+        success = first_half_output_event(state)
+        if success:
+            state.executed_events.add("first_half_output_event")
+    if "normal_time_output_event" not in state.executed_events:
+        success = normal_time_output_event(state)
+        if success:
+            state.executed_events.add("normal_time_output_event")
+    if "player_score_tracking_event" not in state.executed_events:
+        success = player_score_tracking_event(state)
+        if success:
+            state.executed_events.add("player_score_tracking_event")
+    if "minute_winner_tracking_event" not in state.executed_events:
+        success = minute_winner_tracking_event(state)
+        if success:
+            state.executed_events.add("minute_winner_tracking_event")
+    if "player_void_output_event" not in state.executed_events:
+        success = player_void_output_event(state)
+        if success:
+            state.executed_events.add("player_void_output_event")
+    if "end_of_game_output_event" not in state.executed_events:
+        success = end_of_game_output_event(state)
+        if success:
+            state.executed_events.add("end_of_game_output_event")
+    update_game_status(state)
+    if "first_to_score_tracking_event" not in state.executed_events:
+        success = first_to_score_tracking_event(state)
+        if success:
+            state.executed_events.add("first_to_score_tracking_event")
+    if "race_to_points_tracking_event" not in state.executed_events:
+        success = race_to_points_tracking_event(state)
+        if success:
+            state.executed_events.add("race_to_points_tracking_event")
+    if "anytime_output_event" not in state.executed_events:
+        success = anytime_output_event(state)
+        if success:
+            state.executed_events.add("anytime_output_event")
 
