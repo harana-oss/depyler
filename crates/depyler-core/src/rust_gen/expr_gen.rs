@@ -13539,7 +13539,12 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 && matches!(right.as_ref(), HirExpr::Literal(Literal::None))
             {
                 // Test is `x is not None`
-                if left.as_ref() == body {
+                let vars_match = match (left.as_ref(), body) {
+                    (HirExpr::Var(test_var), HirExpr::Var(body_var)) => test_var == body_var,
+                    _ => left.as_ref() == body,
+                };
+                
+                if vars_match {
                     // Body is the same variable being tested
                     let var_expr = body.to_rust_expr(self.ctx)?;
                     let default_expr = orelse.to_rust_expr(self.ctx)?;
@@ -13549,7 +13554,12 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 && matches!(right.as_ref(), HirExpr::Literal(Literal::None))
             {
                 // Test is `x is None` - inverted logic
-                if left.as_ref() == body {
+                let vars_match = match (left.as_ref(), body) {
+                    (HirExpr::Var(test_var), HirExpr::Var(body_var)) => test_var == body_var,
+                    _ => left.as_ref() == body,
+                };
+                
+                if vars_match {
                     // Pattern: `x if x is None else default` → `x.unwrap_or(default)`
                     // This is unusual but handle it for completeness
                     let var_expr = body.to_rust_expr(self.ctx)?;
@@ -13589,17 +13599,35 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         test_expr = Self::apply_truthiness_conversion(test, test_expr, self.ctx);
 
         // Check if body is an Optional that needs unwrapping when test checks .is_some()
-        // Pattern: `x if x is not None else 0` where pattern detection failed
-        // This occurs when test becomes `x.is_some()` and body is still the Option<T> value
+        // Pattern: `x if x is not None else 0` where x is Option<T>
+        // The test has already been converted to `x.is_some()` by apply_truthiness_conversion
+        // But the body is still `x` (Option<T>), which needs to be unwrapped to T
         let body_is_optional = self.ctx.get_optional_inner_type(body).is_some();
         if body_is_optional {
-            // If test is checking the same variable for is_some(), we need to unwrap the body
-            // Test: `x is not None` → `x.is_some()`, Body: `x` (Option<T>) → `x.unwrap()`
-            if let HirExpr::Binary { op, left, .. } = test {
-                if matches!(op, BinOp::IsNot) && left.as_ref() == body {
-                    // Body is Option<T>, unwrap it to get T
-                    body_expr = parse_quote! { #body_expr.unwrap() };
+            // If test is checking a variable for None, and body is that same variable
+            // we need to unwrap the body to match the type of the else branch
+            let should_unwrap = if let HirExpr::Binary { op, left, right } = test {
+                // Check if test is `x is not None` or `x is None`
+                let is_none_check = matches!(op, BinOp::Is | BinOp::IsNot)
+                    && matches!(right.as_ref(), HirExpr::Literal(Literal::None));
+                
+                if is_none_check {
+                    // Check if both test and body refer to the same variable by name
+                    // This is more robust than checking expression equality
+                    match (left.as_ref(), body) {
+                        (HirExpr::Var(test_var), HirExpr::Var(body_var)) => test_var == body_var,
+                        _ => left.as_ref() == body,  // Fallback to equality check for other cases
+                    }
+                } else {
+                    false
                 }
+            } else {
+                false
+            };
+            
+            if should_unwrap {
+                // Body is Option<T>, unwrap it to get T
+                body_expr = parse_quote! { #body_expr.unwrap() };
             }
         }
 
