@@ -13540,7 +13540,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 if left.as_ref() == body {
                     // Body is the same variable being tested
                     let var_expr = body.to_rust_expr(self.ctx)?;
-                    let default_egit stxpr = orelse.to_rust_expr(self.ctx)?;
+                    let default_expr = orelse.to_rust_expr(self.ctx)?;
                     return Ok(parse_quote! { #var_expr.unwrap_or(#default_expr) });
                 }
             } else if matches!(op, BinOp::Is) && matches!(right.as_ref(), HirExpr::Literal(Literal::None)) {
