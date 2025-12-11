@@ -274,6 +274,9 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 // Check if right side is a dict/HashMap
                 let is_dict = self.is_dict_expr(right);
 
+                // Check if left side is a string literal
+                let left_is_string_literal = matches!(left, HirExpr::Literal(Literal::String(_)));
+
                 // - String: .contains() method
                 // - Set: .contains() method
                 // - List/Array: .contains() method
@@ -290,7 +293,8 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 // distinguish between owned String and borrowed &str, so we can't reliably
                 // detect when to skip the borrow. Since most cases (iterators with .cloned(),
                 // owned variables) need the borrow, we default to always borrowing.
-                let needs_borrow = true;
+                // However, for HashSet<String>, string literals are already &str, so don't add extra &
+                let needs_borrow = !left_is_string_literal || !is_set;
 
                 if is_dict {
                     // HashMap: use .get().is_some() because:
@@ -376,9 +380,13 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 // Check if right side is a dict/HashMap
                 let is_dict = self.is_dict_expr(right);
 
+                // Check if left side is a string literal
+                let left_is_string_literal = matches!(left, HirExpr::Literal(Literal::String(_)));
+
                 // Same logic as BinOp::In, but negated
                 // For string contains, always need &sub because str::contains takes &str/Pattern
-                let needs_borrow = true;
+                // However, for HashSet<String>, string literals are already &str, so don't add extra &
+                let needs_borrow = !left_is_string_literal || !is_set;
 
                 if is_dict {
                     // HashMap: use !.get().is_some() because:
