@@ -540,13 +540,13 @@ struct ClassCM {
 
 impl Drop for ClassCM {
     fn drop(&mut self) {
-        println!("exit");
+        log::info!("exit");
     }
 }
 
 impl ClassCM {
     fn new() -> Self {
-        println!("enter");
+        log::info!("enter");
         ClassCM { value: 42 }
     }
 }

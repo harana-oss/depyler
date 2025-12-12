@@ -21,7 +21,7 @@ rust = """
   fn main() {
       let mut x = 10;
       x += 5;
-      println!("{}", x);
+      log::info!("{}", x);
   }
 """
 
@@ -37,7 +37,7 @@ rust = """
 fn main() {
     let mut x = 10;
     x -= 3;
-    println!("{}", x);
+    log::info!("{}", x);
 }
 """
 
@@ -53,7 +53,7 @@ rust = """
 fn main() {
     let mut x = 5;
     x *= 4;
-    println!("{}", x);
+    log::info!("{}", x);
 }
 """
 
@@ -69,7 +69,7 @@ rust = """
 fn main() {
     let mut x = 10.0;
     x /= 4.0;
-    println!("{}", x);
+    log::info!("{}", x);
 }
 """
 
@@ -85,7 +85,7 @@ rust = """
 fn main() {
     let mut x = 10;
     x /= 3;  // Integer division in Rust
-    println!("{}", x);
+    log::info!("{}", x);
 }
 """
 
@@ -101,7 +101,7 @@ rust = """
 fn main() {
     let mut x = 10;
     x %= 3;
-    println!("{}", x);
+    log::info!("{}", x);
 }
 """
 
@@ -117,7 +117,7 @@ rust = """
 fn main() {
     let mut x = 2_i32;
     x = x.pow(3);
-    println!("{}", x);
+    log::info!("{}", x);
 }
 """
 
@@ -137,7 +137,7 @@ rust = """
 fn main() {
     let mut x = 12;  // 1100
     x &= 10;  // 1010
-    println!("{}", x);  // 1000 = 8
+    log::info!("{}", x);  // 1000 = 8
 }
 """
 
@@ -153,7 +153,7 @@ rust = """
 fn main() {
     let mut x = 12;  // 1100
     x |= 10;  // 1010
-    println!("{}", x);  // 1110 = 14
+    log::info!("{}", x);  // 1110 = 14
 }
 """
 
@@ -169,7 +169,7 @@ rust = """
 fn main() {
     let mut x = 12;  // 1100
     x ^= 10;  // 1010
-    println!("{}", x);  // 0110 = 6
+    log::info!("{}", x);  // 0110 = 6
 }
 """
 
@@ -185,7 +185,7 @@ rust = """
 fn main() {
     let mut x = 16;
     x >>= 2;
-    println!("{}", x);
+    log::info!("{}", x);
 }
 """
 
@@ -201,7 +201,7 @@ rust = """
 fn main() {
     let mut x = 4;
     x <<= 2;
-    println!("{}", x);
+    log::info!("{}", x);
 }
 """
 
@@ -221,7 +221,7 @@ rust = """
 fn main() {
     let mut lst = vec![1, 2, 3];
     lst.extend(vec![4, 5]);
-    println!("{:?}", lst);
+    log::info!("{:?}", lst);
 }
 """
 
@@ -237,7 +237,7 @@ rust = """
 fn main() {
     let mut s = String::from("hello");
     s += " world";
-    println!("{}", s);
+    log::info!("{}", s);
 }
 """
 
@@ -253,7 +253,7 @@ rust = """
 fn main() {
     let lst = vec![1, 2];
     let result: Vec<i32> = lst.repeat(3).into_iter().flatten().collect();
-    println!("{:?}", result);
+    log::info!("{:?}", result);
 }
 """
 
@@ -273,7 +273,7 @@ rust = """
 fn main() {
     let mut lst = vec![10, 20, 30];
     lst[0] += 5;
-    println!("{:?}", lst);
+    log::info!("{:?}", lst);
 }
 """
 
@@ -290,7 +290,7 @@ use std::collections::HashMap;
 fn main() {
     let mut d: HashMap<&str, i32> = [("a", 10), ("b", 20)].iter().cloned().collect();
     *d.get_mut("a").unwrap() += 5;
-    println!("{}", d.get("a").unwrap());
+    log::info!("{}", d.get("a").unwrap());
 }
 """
 
@@ -324,7 +324,7 @@ impl Counter {
 fn main() {
     let mut obj = Counter::new();
     obj.count += 5;
-    println!("{}", obj.count);
+    log::info!("{}", obj.count);
 }
 """
 
@@ -345,7 +345,7 @@ rust = """
 fn main() {
     let mut original_list = vec![1, 2, 3];
     original_list.extend(vec![4]);
-    println!("true {:?}", original_list);
+    log::info!("true {:?}", original_list);
 }
 """
 
@@ -397,7 +397,7 @@ impl std::fmt::Display for Counter {
 fn main() {
     let mut c = Counter::new(10);
     c += 5;
-    println!("{}", c);
+    log::info!("{}", c);
 }
 """
 expected_output = "Counter(15)"

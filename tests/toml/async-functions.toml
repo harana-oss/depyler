@@ -105,7 +105,7 @@ fn main() {
     // f() returns a Future (Rust's equivalent to coroutine)
     let coro = f();
     // In practice, would use a runtime like tokio
-    println!("Async function returns Future type");
+    log::info!("Async function returns Future type");
     let result = true;
 }
 '''
@@ -141,7 +141,7 @@ fn main() {
     // Type checking is done at compile time
     let _coro = f();
     let result = true; // Type is verified by compiler
-    println!("Is coroutine (Future): {}", result);
+    log::info!("Is coroutine (Future): {}", result);
 }
 '''
 
@@ -170,7 +170,7 @@ fn main() {
     // In Rust, async functions are identified at compile time
     // No runtime inspection needed
     let result = true; // Function signature includes async
-    println!("Is coroutine function: {}", result);
+    log::info!("Is coroutine function: {}", result);
 }
 '''
 
@@ -305,7 +305,7 @@ async fn f() -> i32 {
 async fn main_async() -> i32 {
     // Return value obtained via await
     let result = f().await;
-    println!("Awaited result: {}", result);
+    log::info!("Awaited result: {}", result);
     result
 }
 
@@ -411,7 +411,7 @@ async fn outer() -> i32 {
     }
     
     let result = inner_impl(x).await;
-    println!("Closure result: {}", result);
+    log::info!("Closure result: {}", result);
     result
 }
 
@@ -499,7 +499,7 @@ rust = '''
 // Rust also doesn't have async closures (stable), but has async blocks
 // async || { } syntax is not yet stable
 let result = true;
-println!("No async lambda support in Python");
+log::info!("No async lambda support in Python");
 '''
 
 
@@ -558,7 +558,7 @@ results
     let urls = vec! ["http://api.example.com".to_string(), "http://api2.example.com".to_string()];
     let mut results = process_urls(& urls).await;
     for result in results.iter().cloned() {
-    println!("{}", result);
+    log::info!("{}", result);
    
 }
 } #[cfg(test)] mod tests {

@@ -817,7 +817,7 @@ pub fn monte_carlo_simulation(
 #[doc = " Depyler: verified panic-free"]
 #[doc = " Depyler: proven to terminate"]
 pub fn analyze_dataset() -> Result<(), Box<dyn std::error::Error>> {
-    println!("{}", "=== Comprehensive Data Analysis Demo ===");
+    log::info!("{}", "=== Comprehensive Data Analysis Demo ===");
     {
         let _seed = 42;
         ()
@@ -825,7 +825,7 @@ pub fn analyze_dataset() -> Result<(), Box<dyn std::error::Error>> {
     let sample_size: i32 = 100;
     let dataset: Vec<f64> = generate_sample_data(sample_size, 50.0, 10.0);
     let mut stats: HashMap<String, f64> = calculate_statistics(&dataset)?;
-    println!(
+    log::info!(
         "{}",
         format!(
             "Mean: {:?}, StdDev: {:?}",
@@ -834,7 +834,7 @@ pub fn analyze_dataset() -> Result<(), Box<dyn std::error::Error>> {
         )
     );
     let mut percentiles: HashMap<String, f64> = calculate_percentiles(&dataset)?;
-    println!(
+    log::info!(
         "{}",
         format!(
             "Q1: {:?}, Median: {:?}, Q3: {:?}",
@@ -844,15 +844,15 @@ pub fn analyze_dataset() -> Result<(), Box<dyn std::error::Error>> {
         )
     );
     let mut outliers: Vec<f64> = detect_outliers(dataset)?;
-    println!("{}", format!("Outliers found: {:?}", outliers.len() as i32));
+    log::info!("{}", format!("Outliers found: {:?}", outliers.len() as i32));
     let histogram: HashMap<i32, i32> = bin_data(&dataset, 10)?;
-    println!(
+    log::info!(
         "{}",
         format!("Histogram bins created: {:?}", histogram.len() as i32)
     );
     let mut normalized: Vec<f64> = normalize_data(dataset)?;
     let normalized_stats: HashMap<String, f64> = calculate_statistics(&normalized)?;
-    println!(
+    log::info!(
         "{}",
         format!(
             "Normalized mean: {:?}",
@@ -861,22 +861,22 @@ pub fn analyze_dataset() -> Result<(), Box<dyn std::error::Error>> {
     );
     let dataset2: Vec<f64> = generate_sample_data(sample_size, 60.0, 12.0);
     let corr: f64 = calculate_correlation(&dataset, &dataset2)?;
-    println!("{}", format!("Correlation: {:?}", corr));
+    log::info!("{}", format!("Correlation: {:?}", corr));
     let ranges: Vec<(f64, f64)> = vec![(0.0, 25.0), (25.0, 50.0), (50.0, 75.0), (75.0, 100.0)];
     let mut groups: HashMap<String, Vec<f64>> = group_by_range(&dataset, &ranges)?;
-    println!(
+    log::info!(
         "{}",
         format!("Range groups created: {:?}", groups.len() as i32)
     );
     let mc_stats: HashMap<String, f64> = monte_carlo_simulation(1000)?;
-    println!(
+    log::info!(
         "{}",
         format!(
             "Monte Carlo mean: {:?}",
             mc_stats.get("mean").cloned().unwrap_or_default()
         )
     );
-    println!("{}", "=== Analysis Complete ===");
+    log::info!("{}", "=== Analysis Complete ===");
     Ok(())
 }
 #[cfg(test)]

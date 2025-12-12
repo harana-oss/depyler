@@ -671,7 +671,7 @@ pub fn cleanup_operation(x: i32) -> i32 {
     {
         let result = x * 2;
         return result;
-        println!("{}", "cleanup");
+        log::info!("{}", "cleanup");
     }
 }
 #[cfg(test)]
@@ -749,7 +749,7 @@ pub fn safe_divide(a: i32, b: i32) -> i32 {
                 if needs_adjustment { q - 1 } else { q }
             };
         }
-        println!("{}", "operation complete");
+        log::info!("{}", "operation complete");
     }
 }
 #[cfg(test)]
@@ -855,7 +855,7 @@ pub fn handle_with_cleanup(data: String) -> i32 {
         return result;
         result = -1;
         return result;
-        println!("{}", "cleanup executed");
+        log::info!("{}", "cleanup executed");
     }
 }
 #[cfg(test)]
@@ -958,7 +958,7 @@ pub fn complete_pattern(x: i32) -> i32 {
     {
         let mut result = x * 2;
         let mut result = -1;
-        println!("{}", "done");
+        log::info!("{}", "done");
     }
     return result;
 }
@@ -1014,9 +1014,9 @@ pub fn log_errors(x: i32) -> i32 {
     {
         let result = x * 2;
         return result;
-        println!("{}", "ValueError occurred");
+        log::info!("{}", "ValueError occurred");
         return 0;
-        println!("{}", "TypeError occurred");
+        log::info!("{}", "TypeError occurred");
         return -1;
     }
 }

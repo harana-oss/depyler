@@ -41,7 +41,7 @@ impl Person {
 
 fn main() {
     let p = Person::new("Alice");
-    println!("Name: {}", p.name());
+    log::info!("Name: {}", p.name());
 }
 """
 
@@ -87,9 +87,9 @@ impl Person {
 
 fn main() {
     let mut p = Person::new("Alice");
-    println!("Before: {}", p.name());
+    log::info!("Before: {}", p.name());
     p.set_name("Bob");
-    println!("After: {}", p.name());
+    log::info!("After: {}", p.name());
 }
 """
 
@@ -135,9 +135,9 @@ impl Person {
 
 fn main() {
     let mut p = Person::new("Alice");
-    println!("Has name: {}", p.has_name());
+    log::info!("Has name: {}", p.has_name());
     p.delete_name();
-    println!("Has name after delete: {}", p.has_name());
+    log::info!("Has name after delete: {}", p.has_name());
 }
 """
 
@@ -184,10 +184,10 @@ impl Circle {
 
 fn main() {
     let c = Circle::new(5.0);
-    println!("Area: {:.2}", c.area());
+    log::info!("Area: {:.2}", c.area());
     
     // In Rust, there's no setter so this is enforced at compile time
-    println!("Cannot set read-only property");
+    log::info!("Cannot set read-only property");
 }
 """
 
@@ -234,8 +234,8 @@ impl Rectangle {
 
 fn main() {
     let r = Rectangle::new(5, 3);
-    println!("Area: {}", r.area());
-    println!("Perimeter: {}", r.perimeter());
+    log::info!("Area: {}", r.area());
+    log::info!("Perimeter: {}", r.perimeter());
 }
 """
 
@@ -295,12 +295,12 @@ impl Person {
 
 fn main() {
     let mut p = Person::new(25).unwrap();
-    println!("Age: {}", p.age());
+    log::info!("Age: {}", p.age());
     p.set_age(30).unwrap();
-    println!("New age: {}", p.age());
+    log::info!("New age: {}", p.age());
     
     if let Err(e) = p.set_age(200) {
-        println!("Error: {}", e);
+        log::info!("Error: {}", e);
     }
 }
 """
@@ -350,9 +350,9 @@ impl Config {
 
 fn main() {
     let mut c = Config::new("8080").unwrap();
-    println!("Port: {}, type: i32", c.port());
+    log::info!("Port: {}, type: i32", c.port());
     c.set_port("9000").unwrap();
-    println!("New port: {}, type: i32", c.port());
+    log::info!("New port: {}, type: i32", c.port());
 }
 """
 
@@ -406,9 +406,9 @@ impl Person {
 
 fn main() {
     let mut p = Person::new("Alice");
-    println!("Name: {}", p.name());
+    log::info!("Name: {}", p.name());
     p.set_name("Bob");
-    println!("Changed: {}", p.name());
+    log::info!("Changed: {}", p.name());
 }
 """
 
@@ -449,7 +449,7 @@ impl Point {
 
 fn main() {
     let p = Point::new(10, 20);
-    println!("Point: ({}, {})", p.x(), p.y());
+    log::info!("Point: ({}, {})", p.x(), p.y());
 }
 """
 
@@ -499,8 +499,8 @@ impl HasValue for Derived {
 fn main() {
     let b = Base;
     let d = Derived;
-    println!("Base: {}", b.value());
-    println!("Derived: {}", d.value());
+    log::info!("Base: {}", b.value());
+    log::info!("Derived: {}", d.value());
 }
 """
 
@@ -581,12 +581,12 @@ impl Derived {
 
 fn main() {
     let mut d = Derived::new();
-    println!("Initial: {}", d.value());
+    log::info!("Initial: {}", d.value());
     d.set_value(10).unwrap();
-    println!("After set: {}", d.value());
+    log::info!("After set: {}", d.value());
     
     if let Err(e) = d.set_value(-5) {
-        println!("Error: {}", e);
+        log::info!("Error: {}", e);
     }
 }
 """
@@ -612,9 +612,9 @@ print(f"Has __delete__: {hasattr(MyClass.value, '__delete__')}")
 rust = """
 // Rust doesn't have descriptors, but methods work similarly
 fn main() {
-    println!("Has __get__: true");
-    println!("Has __set__: true");
-    println!("Has __delete__: true");
+    log::info!("Has __get__: true");
+    log::info!("Has __set__: true");
+    log::info!("Has __delete__: true");
 }
 """
 
@@ -639,8 +639,8 @@ rust = """
 // In Rust, methods are accessed differently
 // This demonstrates the conceptual difference
 fn main() {
-    println!("Type: property");
-    println!("Value: 42");
+    log::info!("Type: property");
+    log::info!("Value: 42");
 }
 """
 
@@ -673,7 +673,7 @@ impl MyClass {
 }
 
 fn main() {
-    println!("Docstring: This is the value property");
+    log::info!("Docstring: This is the value property");
 }
 """
 
@@ -694,7 +694,7 @@ class MyClass:
 rust = """
 // In Rust, associated functions are separate from instance methods
 fn main() {
-    println!("Cannot combine property and classmethod");
+    log::info!("Cannot combine property and classmethod");
 }
 """
 
@@ -739,8 +739,8 @@ impl MyClass {
 
 fn main() {
     let obj = MyClass::new(42);
-    println!("Value: {}", obj.value());
-    println!("Backing: {}", obj._value);
+    log::info!("Value: {}", obj.value());
+    log::info!("Backing: {}", obj._value);
 }
 """
 
@@ -797,7 +797,7 @@ impl ExpensiveCalculation {
 
 fn main() {
     let obj = ExpensiveCalculation::new();
-    println!("First call: {}, call_count: {}", obj.expensive(), obj.call_count());
-    println!("Second call: {}, call_count: {}", obj.expensive(), obj.call_count());
+    log::info!("First call: {}, call_count: {}", obj.expensive(), obj.call_count());
+    log::info!("Second call: {}, call_count: {}", obj.expensive(), obj.call_count());
 }
 """

@@ -905,7 +905,7 @@ pub fn test_all_array_queue_features() {
     let priority_result: Vec<String> = test_priority_queue();
     let circular: Vec<i32> = test_circular_buffer(3);
     let deque_result: Vec<i32> = test_deque_simulation();
-    println!(
+    log::info!(
         "{}",
         "All array and queue module tests completed successfully"
     );

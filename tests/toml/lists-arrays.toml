@@ -518,7 +518,7 @@ rust = '''
 pub fn print_indexed(items: Vec<String>) {
     for (i, item) in items.iter().enumerate().map(|(i, x)| (i as i32, x.clone())) {
         let i = i as i32;
-        println!("{}", format!("{}: {}", i, item));
+        log::info!("{}", format!("{}: {}", i, item));
     }
 }
 '''

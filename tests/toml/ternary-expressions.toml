@@ -25,9 +25,9 @@ fn main() {
     let x = 10;
     let y = 20;
     let result = if true { x } else { y };
-    println!("{}", result);
+    log::info!("{}", result);
     let result2 = if false { x } else { y };
-    println!("{}", result2);
+    log::info!("{}", result2);
 }
 """
 
@@ -45,7 +45,7 @@ fn main() {
     let a = 5;
     let b = 3;
     let max_val = if a > b { a } else { b };
-    println!("{}", max_val);
+    log::info!("{}", max_val);
 }
 """
 
@@ -61,7 +61,7 @@ rust = """
 fn main() {
     let flag = true;
     let result = if flag { "yes" } else { "no" };
-    println!("{}", result);
+    log::info!("{}", result);
 }
 """
 
@@ -83,7 +83,7 @@ fn main() {
     let x = false;
     let y = true;
     let result = if x { "a" } else if y { "b" } else { "c" };
-    println!("{}", result);
+    log::info!("{}", result);
 }
 """
 
@@ -99,7 +99,7 @@ rust = """
 fn main() {
     let score = 75;
     let grade = if score >= 90 { "A" } else if score >= 80 { "B" } else if score >= 70 { "C" } else { "F" };
-    println!("{}", grade);
+    log::info!("{}", grade);
 }
 """
 
@@ -121,7 +121,7 @@ fn f() -> &'static str { "f" }
 fn g() -> &'static str { "g" }
 fn main() {
     let result = if true { f() } else { g() };
-    println!("{}", result);
+    log::info!("{}", result);
 }
 """
 
@@ -145,7 +145,7 @@ impl Obj {
 fn main() {
     let obj = Obj;
     let result = if false { obj.method1() } else { obj.method2() };
-    println!("{}", result);
+    log::info!("{}", result);
 }
 """
 
@@ -161,7 +161,7 @@ rust = """
 fn main() {
     let items = vec![-2, 1, -1, 3];
     let result: Vec<i32> = items.into_iter().map(|x| if x > 0 { x } else { 0 }).collect();
-    println!("{:?}", result);
+    log::info!("{:?}", result);
 }
 """
 
@@ -183,7 +183,7 @@ fn main() {
     let value = 42;
     let valid = true;
     let result = if valid { value } else { 0 };
-    println!("{}", result);
+    log::info!("{}", result);
 }
 """
 
@@ -201,7 +201,7 @@ fn main() {
     let mut x = 10;
     let cond = true;
     x += if cond { 1 } else { 0 };
-    println!("{}", x);
+    log::info!("{}", x);
 }
 """
 
@@ -224,7 +224,7 @@ fn func(val: i32) -> i32 {
 }
 fn main() {
     let result = func(if true { 10 } else { 5 });
-    println!("{}", result);
+    log::info!("{}", result);
 }
 """
 
@@ -247,7 +247,7 @@ fn main() {
     let x = true;
     let y = false;
     let result = func(if x { 10 } else { 20 }, if y { 30 } else { 40 });
-    println!("{}", result);
+    log::info!("{}", result);
 }
 """
 
@@ -270,10 +270,10 @@ rust = """
 fn main() {
     let value: Option<&str> = None;
     let result = value.unwrap_or("default");
-    println!("{}", result);
+    log::info!("{}", result);
     let value: Option<&str> = Some("actual");
     let result = value.unwrap_or("default");
-    println!("{}", result);
+    log::info!("{}", result);
 }
 """
 
@@ -289,7 +289,7 @@ rust = """
 fn main() {
     let x = 10;
     let result = if x > 5 { true } else { false };
-    println!("{}", result);
+    log::info!("{}", result);
 }
 """
 
@@ -305,7 +305,7 @@ rust = """
 fn main() {
     let cond = true;
     let result = if cond { "yes" } else { "no" };
-    println!("str {}", result);
+    log::info!("str {}", result);
 }
 """
 
@@ -321,7 +321,7 @@ rust = """
 fn main() {
     let cond = false;
     let result: f64 = if cond { 1.0 } else { 1.0 };
-    println!("{} float", result);
+    log::info!("{} float", result);
 }
 """
 
@@ -342,18 +342,18 @@ print(result)
 """
 rust = """
 fn side_effect_true() -> i32 {
-    println!("true branch");
+    log::info!("true branch");
     1
 }
 
 fn side_effect_false() -> i32 {
-    println!("false branch");
+    log::info!("false branch");
     2
 }
 
 fn main() {
     let result = if true { side_effect_true() } else { side_effect_false() };
-    println!("{}", result);
+    log::info!("{}", result);
 }
 """
 not_

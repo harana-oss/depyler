@@ -29,7 +29,7 @@ fn greet(args: GreetArgs) -> String {
 
 fn main() {
     let args = GreetArgs { name: "Alice".to_string() };
-    println!("{}", greet(args));
+    log::info!("{}", greet(args));
 }
 """
 
@@ -59,7 +59,7 @@ fn main() {
         port: 8080,
         debug: true,
     };
-    println!("{}", configure(args));
+    log::info!("{}", configure(args));
 }
 """
 
@@ -91,9 +91,9 @@ fn point(args: PointArgs) -> String {
 }
 
 fn main() {
-    println!("{}", point(PointArgs::default()));
-    println!("{}", point(PointArgs { x: 5, ..Default::default() }));
-    println!("{}", point(PointArgs { x: 3, y: 4 }));
+    log::info!("{}", point(PointArgs::default()));
+    log::info!("{}", point(PointArgs { x: 5, ..Default::default() }));
+    log::info!("{}", point(PointArgs { x: 3, y: 4 }));
 }
 """
 
@@ -116,7 +116,7 @@ fn mixed(a: i32, b: i32, c: i32, d: i32) -> String {
 }
 
 fn main() {
-    println!("{}", mixed(1, 2, 3, 4));
+    log::info!("{}", mixed(1, 2, 3, 4));
 }
 """
 
@@ -136,7 +136,7 @@ fn varargs_kwonly(args: &[i32], x: i32, y: i32) -> String {
 
 fn main() {
     let args = vec![1, 2, 3];
-    println!("{}", varargs_kwonly(&args, 10, 20));
+    log::info!("{}", varargs_kwonly(&args, 10, 20));
 }
 """
 
@@ -155,9 +155,9 @@ rust = """
 use std::collections::HashMap;
 
 fn kwonly_kwargs(x: i32, kwargs: &HashMap<&str, i32>) {
-    println!("x={}", x);
+    log::info!("x={}", x);
     for (k, v) in kwargs {
-        println!("{}={}", k, v);
+        log::info!("{}={}", k, v);
     }
 }
 
@@ -199,7 +199,7 @@ fn main() {
         username: "alice".to_string(),
         email: "alice@example.com".to_string(),
     };
-    println!("{}", create_user(args));
+    log::info!("{}", create_user(args));
 }
 """
 
@@ -240,7 +240,7 @@ fn main() {
         recursive: false,
         backup: true,
     };
-    println!("{}", process_files(args));
+    log::info!("{}", process_files(args));
 }
 """
 
@@ -272,7 +272,7 @@ fn main() {
         height: 600,
         maintain_aspect: false,
     };
-    println!("{}", resize_image(args));
+    log::info!("{}", resize_image(args));
 }
 """
 
@@ -302,7 +302,7 @@ fn main() {
     let args = LoginArgs {
         username: "admin".to_string(),
     };
-    println!("{}", login(args));
+    log::info!("{}", login(args));
 }
 """
 
@@ -332,8 +332,8 @@ fn connect(args: ConnectArgs) -> String {
 }
 
 fn main() {
-    println!("{}", connect(ConnectArgs::default()));
-    println!("{}", connect(ConnectArgs { timeout: 60 }));
+    log::info!("{}", connect(ConnectArgs::default()));
+    log::info!("{}", connect(ConnectArgs { timeout: 60 }));
 }
 """
 
@@ -364,8 +364,8 @@ fn setup(args: SetupArgs) -> String {
 }
 
 fn main() {
-    println!("{}", setup(SetupArgs::new("localhost".to_string())));
-    println!("{}", setup(SetupArgs {
+    log::info!("{}", setup(SetupArgs::new("localhost".to_string())));
+    log::info!("{}", setup(SetupArgs {
         host: "example.com".to_string(),
         port: 9000,
     }));
@@ -406,8 +406,8 @@ fn typed_func(args: TypedFuncArgs) -> String {
 }
 
 fn main() {
-    println!("{}", typed_func(TypedFuncArgs::new(42)));
-    println!("{}", typed_func(TypedFuncArgs {
+    log::info!("{}", typed_func(TypedFuncArgs::new(42)));
+    log::info!("{}", typed_func(TypedFuncArgs {
         count: 5,
         message: "Items".to_string(),
     }));
@@ -445,7 +445,7 @@ impl Calculator {
 
 fn main() {
     let calc = Calculator::new();
-    println!("{}", calc.add(5));
+    log::info!("{}", calc.add(5));
 }
 """
 
@@ -470,7 +470,7 @@ impl Factory {
 }
 
 fn main() {
-    println!("{}", Factory::create("item", 42));
+    log::info!("{}", Factory::create("item", 42));
 }
 """
 

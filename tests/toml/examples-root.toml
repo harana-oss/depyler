@@ -52,10 +52,10 @@ pub fn test_annotated_assignments() {
     name = "test".to_string();
     is_valid = true;
     score = 3.14;
-    println!("{}", counter);
-    println!("{}", name);
-    println!("{}", is_valid);
-    println!("{}", score);
+    log::info!("{}", counter);
+    log::info!("{}", name);
+    log::info!("{}", is_valid);
+    log::info!("{}", score);
 }
 '''
 

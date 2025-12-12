@@ -137,7 +137,7 @@ rust = '''
 // There's no equivalent to Python's star import
 // All exports are explicit via pub keyword
 let result = true;
-println!("Rust requires explicit pub exports");
+log::info!("Rust requires explicit pub exports");
 '''
 
 
@@ -159,7 +159,7 @@ rust = '''
 // No star imports; visibility is explicit
 // Private items cannot be accessed outside module
 let result = true;
-println!("Rust uses pub keyword for visibility");
+log::info!("Rust uses pub keyword for visibility");
 '''
 
 
@@ -236,7 +236,7 @@ rust = '''
 // Example: pub use internal_module::Item;
 // This makes Item available at current module level
 let result = true;
-println!("Rust uses 'pub use' for re-exports");
+log::info!("Rust uses 'pub use' for re-exports");
 '''
 
 
@@ -339,7 +339,7 @@ rust = '''
 // Or import entire module: use module;
 // This enforces clarity and prevents namespace pollution
 let result = true;
-println!("Rust enforces explicit imports");
+log::info!("Rust enforces explicit imports");
 '''
 
 

@@ -39,8 +39,8 @@ impl MyClass {
 }
 
 fn main() {
-    println!("{}", MyClass::increment());
-    println!("{}", MyClass::increment());
+    log::info!("{}", MyClass::increment());
+    log::info!("{}", MyClass::increment());
 }
 """
 expected_output = """1
@@ -67,7 +67,7 @@ impl Calculator {
 }
 
 fn main() {
-    println!("{}", Calculator::add(5, 3));
+    log::info!("{}", Calculator::add(5, 3));
 }
 """
 expected_output = "8"
@@ -122,7 +122,7 @@ impl std::fmt::Display for Date {
 
 fn main() {
     let d = Date::from_string("2023-12-25");
-    println!("{}", d);
+    log::info!("{}", d);
 }
 """
 expected_output = "2023-12-25"
@@ -155,8 +155,8 @@ impl MyClass {
 
 fn main() {
     let _obj = MyClass;
-    println!("{}", MyClass::get_value());
-    println!("{}", MyClass::get_value());
+    log::info!("{}", MyClass::get_value());
+    log::info!("{}", MyClass::get_value());
 }
 """
 expected_output = """100
@@ -194,8 +194,8 @@ impl Child {
 }
 
 fn main() {
-    println!("{}", Parent::who_am_i());
-    println!("{}", Child::who_am_i());
+    log::info!("{}", Parent::who_am_i());
+    log::info!("{}", Child::who_am_i());
 }
 """
 expected_output = """Parent
@@ -226,7 +226,7 @@ impl Math {
 }
 
 fn main() {
-    println!("{}", Math::pi());
+    log::info!("{}", Math::pi());
 }
 """
 expected_output = "3.14159"
@@ -252,7 +252,7 @@ impl Math {
 }
 
 fn main() {
-    println!("{}", Math::add(10, 20));
+    log::info!("{}", Math::add(10, 20));
 }
 """
 expected_output = "30"
@@ -281,8 +281,8 @@ impl StringUtils {
 }
 
 fn main() {
-    println!("{}", StringUtils::is_palindrome("racecar"));
-    println!("{}", StringUtils::is_palindrome("hello"));
+    log::info!("{}", StringUtils::is_palindrome("racecar"));
+    log::info!("{}", StringUtils::is_palindrome("hello"));
 }
 """
 expected_output = """True
@@ -312,8 +312,8 @@ impl Math {
 
 fn main() {
     let _obj = Math;
-    println!("{}", Math::multiply(3, 4));
-    println!("{}", Math::multiply(3, 4));
+    log::info!("{}", Math::multiply(3, 4));
+    log::info!("{}", Math::multiply(3, 4));
 }
 """
 expected_output = """12
@@ -370,7 +370,7 @@ impl Person {
 
 fn main() {
     let _p = Person::from_birth_year("Alice", 1990);
-    println!("{}", Person::get_species());
+    log::info!("{}", Person::get_species());
 }
 """
 expected_output = "Homo sapiens"
@@ -405,8 +405,8 @@ impl Validator {
 }
 
 fn main() {
-    println!("{}", Validator::is_valid_email("test@example.com"));
-    println!("{}", Validator::is_valid_phone("1234567890"));
+    log::info!("{}", Validator::is_valid_email("test@example.com"));
+    log::info!("{}", Validator::is_valid_phone("1234567890"));
 }
 """
 expected_output = """True
@@ -447,7 +447,7 @@ impl MyClass {
 }
 
 fn main() {
-    println!("{}", MyClass::greet());
+    log::info!("{}", MyClass::greet());
 }
 """
 expected_output = "HELLO"
@@ -481,7 +481,7 @@ impl Math {
 }
 
 fn main() {
-    println!("{}", Math::add_five(10));
+    log::info!("{}", Math::add_five(10));
 }
 """
 expected_output = "30"
@@ -519,7 +519,7 @@ impl Calculator {
 }
 
 fn main() {
-    println!("{}", Calculator::add_and_double(5, 3));
+    log::info!("{}", Calculator::add_and_double(5, 3));
 }
 """
 expected_output = "16"
@@ -559,7 +559,7 @@ impl MyClass {
 }
 
 fn main() {
-    println!("{}", MyClass::class_method());
+    log::info!("{}", MyClass::class_method());
 }
 """
 expected_output = "instance"
@@ -588,7 +588,7 @@ impl Utils {
 
 fn main() {
     let func = Utils::add;
-    println!("{}", func(5, 10));
+    log::info!("{}", func(5, 10));
 }
 """
 expected_output = "15"
@@ -621,8 +621,8 @@ impl MyClass {
 }
 
 fn main() {
-    println!("classmethod");
-    println!("{}", MyClass::method());
+    log::info!("classmethod");
+    log::info!("{}", MyClass::method());
 }
 """
 expected_output = """classmethod

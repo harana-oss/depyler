@@ -53,7 +53,7 @@ impl fmt::Display for Number {
 fn main() {
     let n = Number { value: 5 };
     let result = 10 + n;
-    println!("{}", result);
+    log::info!("{}", result);
 }
 """
 
@@ -101,7 +101,7 @@ impl fmt::Display for Number {
 fn main() {
     let n = Number { value: 3 };
     let result = 10 - n;
-    println!("{}", result);
+    log::info!("{}", result);
 }
 """
 
@@ -151,7 +151,7 @@ impl fmt::Display for Vector {
 fn main() {
     let v = Vector { x: 3, y: 4 };
     let result = 2 * v;
-    println!("{}", result);
+    log::info!("{}", result);
 }
 """
 
@@ -199,7 +199,7 @@ impl fmt::Display for Number {
 fn main() {
     let n = Number { value: 2.0 };
     let result = 10 / n;
-    println!("{}", result);
+    log::info!("{}", result);
 }
 """
 
@@ -247,7 +247,7 @@ impl fmt::Display for Number {
 fn main() {
     let n = Number { value: 3 };
     let result = 10 / n;
-    println!("{}", result);
+    log::info!("{}", result);
 }
 """
 
@@ -295,7 +295,7 @@ impl fmt::Display for Number {
 fn main() {
     let n = Number { value: 3 };
     let result = 10 % n;
-    println!("{}", result);
+    log::info!("{}", result);
 }
 """
 
@@ -338,7 +338,7 @@ impl fmt::Display for Number {
 fn main() {
     let n = Number { value: 3 };
     let result = pow(2, n);
-    println!("{}", result);
+    log::info!("{}", result);
 }
 """
 
@@ -390,7 +390,7 @@ impl fmt::Display for Bits {
 fn main() {
     let b = Bits { value: 0b1100 };
     let result = 0b1010 & b;
-    println!("{}", result);
+    log::info!("{}", result);
 }
 """
 
@@ -438,7 +438,7 @@ impl fmt::Display for Bits {
 fn main() {
     let b = Bits { value: 0b1100 };
     let result = 0b1010 | b;
-    println!("{}", result);
+    log::info!("{}", result);
 }
 """
 
@@ -486,7 +486,7 @@ impl fmt::Display for Bits {
 fn main() {
     let b = Bits { value: 0b1100 };
     let result = 0b1010 ^ b;
-    println!("{}", result);
+    log::info!("{}", result);
 }
 """
 
@@ -523,7 +523,7 @@ impl Shl<Shift> for i32 {
 fn main() {
     let s = Shift { amount: 2 };
     let result = 5 << s;
-    println!("{}", result);
+    log::info!("{}", result);
 }
 """
 
@@ -560,7 +560,7 @@ impl Shr<Shift> for i32 {
 fn main() {
     let s = Shift { amount: 2 };
     let result = 20 >> s;
-    println!("{}", result);
+    log::info!("{}", result);
 }
 """
 
@@ -607,7 +607,7 @@ fn matmul(left: &str, right: Matrix) -> Matrix {
 fn main() {
     let m = Matrix { data: "B".to_string() };
     let result = matmul("A", m);
-    println!("{}", result);
+    log::info!("{}", result);
 }
 """
 
@@ -634,7 +634,7 @@ fn divmod(dividend: i32, divisor: i32) -> (i32, i32) {
 
 fn main() {
     let result = divmod(10, 3);
-    println!("{:?}", result);
+    log::info!("{:?}", result);
 }
 """
 
@@ -675,7 +675,7 @@ impl Add<Custom> for i32 {
 fn main() {
     let obj = Custom { value: 5 };
     let result = 1 + obj;
-    println!("{}", result);
+    log::info!("{}", result);
 }
 """
 
@@ -726,7 +726,7 @@ impl Addable for Derived {
 fn main() {
     let obj = Derived { value: 10 };
     let result = obj.radd(5);
-    println!("{}", result);
+    log::info!("{}", result);
 }
 """
 
@@ -749,7 +749,7 @@ except TypeError as e:
 rust = """
 fn main() {
     // Rust's type system prevents this at compile time
-    println!("TypeError: unsupported operand types");
+    log::info!("TypeError: unsupported operand types");
 }
 """
 
@@ -803,7 +803,7 @@ impl fmt::Display for Vector {
 fn main() {
     let v = Vector { x: 1, y: 2 };
     let result = 2 * v;
-    println!("{}", result);
+    log::info!("{}", result);
 }
 """
 
@@ -838,7 +838,7 @@ impl fmt::Display for Person {
 fn main() {
     let p = Person { name: "Alice".to_string() };
     let result = format!("Hello, {}!", p);
-    println!("{}", result);
+    log::info!("{}", result);
 }
 """
 
@@ -899,7 +899,7 @@ fn main() {
     let a = Number { value: 5 };
     let b = Number { value: 3 };
     let result = a + b;
-    println!("{}", result);
+    log::info!("{}", result);
 }
 """
 

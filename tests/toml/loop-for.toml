@@ -691,7 +691,7 @@ rust = '''
 pub fn shadowing_test() -> i32 {
     let x = 10;
     for x in vec![1, 2, 3] {
-        println!("{}", x);
+        log::info!("{}", x);
     }
     return x;
 }

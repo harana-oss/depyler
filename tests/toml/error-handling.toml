@@ -1983,7 +1983,7 @@ pub fn cleanup_example() -> i32 {
     let mut x = 0;
     {
         x = 42;
-        println!("{}", "cleanup");
+        log::info!("{}", "cleanup");
     }
     return x;
 }
@@ -2089,7 +2089,7 @@ pub fn multi_stmt_except(x: i32) -> i32 {
         }
         return x;
         let result = 0;
-        println!("{}", "error");
+        log::info!("{}", "error");
         return result;
     }
 }
@@ -2127,9 +2127,9 @@ pub fn multi_stmt_finally() -> i32 {
     let mut x = 0;
     {
         x = 42;
-        println!("{}", "cleanup 1");
-        println!("{}", "cleanup 2");
-        println!("{}", "done");
+        log::info!("{}", "cleanup 1");
+        log::info!("{}", "cleanup 2");
+        log::info!("{}", "done");
     }
     return x;
 }
@@ -2214,7 +2214,7 @@ rust = '''
 pub fn return_in_finally() -> i32 {
     {
         return 42;
-        println!("{}", "cleanup");
+        log::info!("{}", "cleanup");
     }
 }
 #[cfg(test)]
@@ -2333,7 +2333,7 @@ pub fn complex_exception_handling(items: &Vec<i32>) -> i32 {
             total = total + item;
         }
         return -1;
-        println!("{}", "done processing");
+        log::info!("{}", "done processing");
     }
     return total;
 }

@@ -64,7 +64,7 @@ def error_handler(msg: str) -> None:
 rust = '''
 #[cold]
 pub fn error_handler(msg: String) {
-    println!("{}", msg);
+    log::info!("{}", msg);
 }
 '''
 

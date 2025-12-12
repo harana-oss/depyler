@@ -40,7 +40,7 @@ impl Callable {
 
 fn main() {
     let obj = Callable::new(42);
-    println!("{}", obj.call());
+    log::info!("{}", obj.call());
 }
 """
 
@@ -67,8 +67,8 @@ impl Adder {
 
 fn main() {
     let add = Adder;
-    println!("{}", add.call(3, 4));
-    println!("{}", add.call(10, 20));
+    log::info!("{}", add.call(3, 4));
+    log::info!("{}", add.call(10, 20));
 }
 """
 
@@ -101,7 +101,7 @@ fn main() {
     let mut kwargs = HashMap::new();
     kwargs.insert("a".to_string(), 1);
     kwargs.insert("b".to_string(), 2);
-    println!("{}", handler.call(kwargs));
+    log::info!("{}", handler.call(kwargs));
 }
 """
 
@@ -132,7 +132,7 @@ fn main() {
     let args = vec![1, 2];
     let mut kwargs = HashMap::new();
     kwargs.insert("x".to_string(), 3);
-    println!("{}", flex.call(args, kwargs));
+    log::info!("{}", flex.call(args, kwargs));
 }
 """
 
@@ -165,8 +165,8 @@ impl MyCallable {
 
 fn main() {
     let obj = MyCallable;
-    println!("true");  // Would be callable in Python
-    println!("{}", obj.call());
+    log::info!("true");  // Would be callable in Python
+    log::info!("{}", obj.call());
 }
 """
 
@@ -186,8 +186,8 @@ struct NotCallable;
 
 fn main() {
     let _obj = NotCallable;
-    println!("false");  // No __call__ method
-    println!("false");  // Integers aren't callable
+    log::info!("false");  // No __call__ method
+    log::info!("false");  // Integers aren't callable
 }
 """
 
@@ -207,8 +207,8 @@ fn my_function() -> &'static str {
 }
 
 fn main() {
-    println!("true");  // Functions are callable
-    println!("true");  // Closures are callable
+    log::info!("true");  // Functions are callable
+    log::info!("true");  // Closures are callable
 }
 """
 
@@ -250,8 +250,8 @@ impl Multiplier {
 fn main() {
     let times_two = Multiplier::new(2);
     let times_three = Multiplier::new(3);
-    println!("{}", times_two.call(5));
-    println!("{}", times_three.call(5));
+    log::info!("{}", times_two.call(5));
+    log::info!("{}", times_three.call(5));
 }
 """
 
@@ -290,9 +290,9 @@ impl Counter {
 
 fn main() {
     let mut counter = Counter::new();
-    println!("{}", counter.call());
-    println!("{}", counter.call());
-    println!("{}", counter.call());
+    log::info!("{}", counter.call());
+    log::info!("{}", counter.call());
+    log::info!("{}", counter.call());
 }
 """
 
@@ -335,7 +335,7 @@ where
 fn main() {
     let add_five = |x: i32| x + 5;
     let decorated = TimesTwo::new(add_five);
-    println!("{}", decorated.call(3));
+    log::info!("{}", decorated.call(3));
 }
 """
 
@@ -377,7 +377,7 @@ fn make_adder(n: i32) -> Adder {
 
 fn main() {
     let add_10 = make_adder(10);
-    println!("{}", add_10.call(5));
+    log::info!("{}", add_10.call(5));
 }
 """
 
@@ -414,7 +414,7 @@ impl Memoize {
     
     fn call(&mut self, x: i32) -> i32 {
         if !self.cache.contains_key(&x) {
-            println!("Computing {}", x);
+            log::info!("Computing {}", x);
             self.cache.insert(x, x * x);
         }
         *self.cache.get(&x).unwrap()
@@ -423,9 +423,9 @@ impl Memoize {
 
 fn main() {
     let mut memo = Memoize::new();
-    println!("{}", memo.call(5));
-    println!("{}", memo.call(5));
-    println!("{}", memo.call(3));
+    log::info!("{}", memo.call(5));
+    log::info!("{}", memo.call(5));
+    log::info!("{}", memo.call(3));
 }
 """
 
@@ -462,7 +462,7 @@ impl Processor {
 
 fn main() {
     let proc = Processor;
-    println!("{}", proc.call(5));
+    log::info!("{}", proc.call(5));
 }
 """
 
@@ -501,9 +501,9 @@ impl Accumulator {
 
 fn main() {
     let mut acc = Accumulator::new();
-    println!("{}", acc.call(10));
-    println!("{}", acc.call(5));
-    println!("{}", acc.call(3));
+    log::info!("{}", acc.call(10));
+    log::info!("{}", acc.call(5));
+    log::info!("{}", acc.call(3));
 }
 """
 
@@ -530,7 +530,7 @@ struct Logger;
 
 impl Logger {
     fn call(&self, message: &str) {
-        println!("LOG: {}", message);
+        log::info!("LOG: {}", message);
     }
 }
 
@@ -574,7 +574,7 @@ fn main() {
         .iter()
         .map(|&x| square.call(x))
         .collect();
-    println!("{:?}", result);
+    log::info!("{:?}", result);
 }
 """
 
@@ -599,14 +599,14 @@ struct SideEffect;
 
 impl SideEffect {
     fn call(&self) {
-        println!("Side effect");
+        log::info!("Side effect");
     }
 }
 
 fn main() {
     let obj = SideEffect;
     obj.call();
-    println!("Result: None");
+    log::info!("Result: None");
 }
 """
 
@@ -645,7 +645,7 @@ impl Inner {
 fn main() {
     let obj = Outer;
     let result = obj.call().call(5);
-    println!("{}", result);
+    log::info!("{}", result);
 }
 """
 
@@ -671,7 +671,7 @@ impl TypedCallable {
 
 fn main() {
     let obj = TypedCallable;
-    println!("{}", obj.call(3, 4));
+    log::info!("{}", obj.call(3, 4));
 }
 """
 
@@ -712,6 +712,6 @@ impl Callable for Derived {
 
 fn main() {
     let obj = Derived;
-    println!("{}", obj.call(5));
+    log::info!("{}", obj.call(5));
 }
 """

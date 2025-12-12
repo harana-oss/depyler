@@ -568,7 +568,7 @@ def do_something():
 
 rust = '''
 pub fn do_something() {
-    println!("{}", "Hello");
+    log::info!("{}", "Hello");
     return;
 }
 '''

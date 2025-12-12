@@ -2689,11 +2689,11 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     }
 
     fn convert_generic_call(&self, func: &str, hir_args: &[HirExpr], args: &[syn::Expr]) -> Result<syn::Expr> {
-        // Special case: Python print() → Rust println!()
+        // Special case: Python print() → Rust log::info!()
         if func == "print" {
             return if args.is_empty() {
-                // print() with no arguments → println!()
-                Ok(parse_quote! { println!() })
+                // print() with no arguments → log::info!()
+                Ok(parse_quote! { log::info!("") })
             } else if args.len() == 1 {
                 // Check if arg needs {:?} format (collections, tuples, or custom types)
                 let needs_debug = if let Some(hir_arg) = hir_args.first() {
@@ -2736,12 +2736,12 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
 
                 let arg = &args[0];
                 if needs_debug {
-                    Ok(parse_quote! { println!("{:?}", #arg) })
+                    Ok(parse_quote! { log::info!("{:?}", #arg) })
                 } else {
-                    Ok(parse_quote! { println!("{}", #arg) })
+                    Ok(parse_quote! { log::info!("{}", #arg) })
                 }
             } else {
-                // print(a, b, c) → println!("{} {} {}", a, b, c) or with {:?} for non-Display types
+                // print(a, b, c) → log::info!("{} {} {}", a, b, c) or with {:?} for non-Display types
                 let format_specs: Vec<&str> = hir_args
                     .iter()
                     .map(|hir_arg| {
@@ -2777,7 +2777,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     })
                     .collect();
                 let format_str = format_specs.join(" ");
-                Ok(parse_quote! { println!(#format_str, #(#args),*) })
+                Ok(parse_quote! { log::info!(#format_str, #(#args),*) })
             };
         }
 

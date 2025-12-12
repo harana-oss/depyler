@@ -35,9 +35,9 @@ fn modify() {
 }
 
 fn main() {
-    println!("Before: {}", X.with(|x| x.get()));
+    log::info!("Before: {}", X.with(|x| x.get()));
     modify();
-    println!("After: {}", X.with(|x| x.get()));
+    log::info!("After: {}", X.with(|x| x.get()));
 }
 """
 
@@ -62,7 +62,7 @@ fn read_global() -> i32 {
 
 fn main() {
     let result = read_global();
-    println!("Global value: {}", result);
+    log::info!("Global value: {}", result);
 }
 """
 
@@ -91,10 +91,10 @@ fn increment() {
 }
 
 fn main() {
-    println!("Initial: {}", COUNTER.load(Ordering::SeqCst));
+    log::info!("Initial: {}", COUNTER.load(Ordering::SeqCst));
     increment();
     increment();
-    println!("After increments: {}", COUNTER.load(Ordering::SeqCst));
+    log::info!("After increments: {}", COUNTER.load(Ordering::SeqCst));
 }
 """
 
@@ -130,12 +130,12 @@ fn modify_all() {
 }
 
 fn main() {
-    println!("Before: {}, {}, {}", 
+    log::info!("Before: {}, {}, {}", 
         A.with(|a| a.get()), 
         B.with(|b| b.get()), 
         C.with(|c| c.get()));
     modify_all();
-    println!("After: {}, {}, {}", 
+    log::info!("After: {}, {}, {}", 
         A.with(|a| a.get()), 
         B.with(|b| b.get()), 
         C.with(|c| c.get()));
@@ -176,12 +176,12 @@ fn outer() {
     }
     
     inner();
-    println!("Outer's x: {}", x);
+    log::info!("Outer's x: {}", x);
 }
 
 fn main() {
     outer();
-    println!("Global x: {}", X.with(|x| x.get()));
+    log::info!("Global x: {}", X.with(|x| x.get()));
 }
 """
 
@@ -216,9 +216,9 @@ fn outer() {
         x.set(20);
     };
     
-    println!("Before: {}", x.get());
+    log::info!("Before: {}", x.get());
     inner();
-    println!("After: {}", x.get());
+    log::info!("After: {}", x.get());
 }
 
 fn main() {
@@ -250,7 +250,7 @@ fn outer() {
     };
     
     let result = inner();
-    println!("Value: {}", result);
+    log::info!("Value: {}", result);
 }
 
 fn main() {
@@ -288,9 +288,9 @@ fn counter() {
         new_count
     };
     
-    println!("Count 1: {}", increment());
-    println!("Count 2: {}", increment());
-    println!("Count 3: {}", increment());
+    log::info!("Count 1: {}", increment());
+    log::info!("Count 2: {}", increment());
+    log::info!("Count 3: {}", increment());
 }
 
 fn main() {
@@ -331,9 +331,9 @@ fn outer() {
         c.set(30);
     };
     
-    println!("Before: {}, {}, {}", a.get(), b.get(), c.get());
+    log::info!("Before: {}, {}, {}", a.get(), b.get(), c.get());
     inner();
-    println!("After: {}, {}, {}", a.get(), b.get(), c.get());
+    log::info!("After: {}, {}, {}", a.get(), b.get(), c.get());
 }
 
 fn main() {
@@ -378,11 +378,11 @@ fn level1() {
         };
         
         level3();
-        println!("Level 2 sees: {}", x.get());
+        log::info!("Level 2 sees: {}", x.get());
     };
     
     level2();
-    println!("Level 1 sees: {}", x.get());
+    log::info!("Level 1 sees: {}", x.get());
 }
 
 fn main() {
@@ -428,9 +428,9 @@ fn make_counter() -> impl FnMut() -> i32 {
 
 fn main() {
     let mut counter = make_counter();
-    println!("Call 1: {}", counter());
-    println!("Call 2: {}", counter());
-    println!("Call 3: {}", counter());
+    log::info!("Call 1: {}", counter());
+    log::info!("Call 2: {}", counter());
+    log::info!("Call 3: {}", counter());
 }
 """
 
@@ -458,8 +458,8 @@ fn main() {
     let add5 = make_adder(5);
     let add10 = make_adder(10);
     
-    println!("add5(3) = {}", add5(3));
-    println!("add10(3) = {}", add10(3));
+    log::info!("add5(3) = {}", add5(3));
+    log::info!("add10(3) = {}", add10(3));
 }
 """
 
@@ -512,9 +512,9 @@ fn make_account(initial: i32) -> (impl FnMut(i32) -> i32, impl FnMut(i32) -> i32
 
 fn main() {
     let (mut deposit, mut withdraw) = make_account(100);
-    println!("Initial balance after deposit(50): {}", deposit(50));
-    println!("Balance after withdraw(30): {}", withdraw(30));
-    println!("Balance after deposit(20): {}", deposit(20));
+    log::info!("Initial balance after deposit(50): {}", deposit(50));
+    log::info!("Balance after withdraw(30): {}", withdraw(30));
+    log::info!("Balance after deposit(20): {}", deposit(20));
 }
 """
 
@@ -538,7 +538,7 @@ rust = """
 static X: i32 = 42;
 
 fn read_only() {
-    println!("Value: {}", X);
+    log::info!("Value: {}", X);
 }
 
 fn main() {
@@ -564,12 +564,12 @@ const GLOBAL_X: i32 = 100;
 
 fn shadow() {
     let x = 50;  // Local variable
-    println!("Local x: {}", x);
+    log::info!("Local x: {}", x);
 }
 
 fn main() {
     shadow();
-    println!("Global x: {}", GLOBAL_X);
+    log::info!("Global x: {}", GLOBAL_X);
 }
 """
 
@@ -605,10 +605,10 @@ impl MyClass {
 
 fn main() {
     let obj = MyClass;
-    println!("Before: {}", COUNTER.load(Ordering::SeqCst));
+    log::info!("Before: {}", COUNTER.load(Ordering::SeqCst));
     obj.increment();
     obj.increment();
-    println!("After: {}", COUNTER.load(Ordering::SeqCst));
+    log::info!("After: {}", COUNTER.load(Ordering::SeqCst));
 }
 """
 
@@ -631,7 +631,7 @@ except SyntaxError:
 rust = """
 // In Rust, this would be a compile-time error
 fn main() {
-    println!("SyntaxError: nonlocal binding not found");
+    log::info!("SyntaxError: nonlocal binding not found");
 }
 """
 
@@ -676,18 +676,18 @@ fn outer() {
         GLOBAL_VAR.fetch_add(1, Ordering::SeqCst);
         enclosing_var.set(enclosing_var.get() + 1);
         
-        println!("Global: {}, Enclosing: {}", 
+        log::info!("Global: {}, Enclosing: {}", 
             GLOBAL_VAR.load(Ordering::SeqCst), 
             enclosing_var.get());
     };
     
     inner();
-    println!("After inner, enclosing: {}", enclosing_var.get());
+    log::info!("After inner, enclosing: {}", enclosing_var.get());
 }
 
 fn main() {
     outer();
-    println!("After outer, global: {}", GLOBAL_VAR.load(Ordering::SeqCst));
+    log::info!("After outer, global: {}", GLOBAL_VAR.load(Ordering::SeqCst));
 }
 """
 
@@ -740,22 +740,22 @@ fn level1() {
             local1.set(local1.get() + 1);
             local2.set(local2.get() + 1);
             
-            println!("Level 3 - Global: {}, L1: {}, L2: {}", 
+            log::info!("Level 3 - Global: {}, L1: {}, L2: {}", 
                 GLOBAL_COUNT.load(Ordering::SeqCst),
                 local1.get(),
                 local2.get());
         };
         
         level3();
-        println!("Level 2 - L1: {}, L2: {}", local1.get(), local2.get());
+        log::info!("Level 2 - L1: {}, L2: {}", local1.get(), local2.get());
     };
     
     level2();
-    println!("Level 1 - L1: {}", local1.get());
+    log::info!("Level 1 - L1: {}", local1.get());
 }
 
 fn main() {
     level1();
-    println!("Global count: {}", GLOBAL_COUNT.load(Ordering::SeqCst));
+    log::info!("Global count: {}", GLOBAL_COUNT.load(Ordering::SeqCst));
 }
 """

@@ -744,7 +744,7 @@ pub fn process_csv(path: String) {
     let reader = csv::ReaderBuilder::new().has_headers(true).from_reader(f);
     for result in reader.deserialize::<HashMap<String, String>>() {
         let row = result?;
-        println!("{}", row.get("name").cloned().unwrap());
+        log::info!("{}", row.get("name").cloned().unwrap());
     }
 }
 '''

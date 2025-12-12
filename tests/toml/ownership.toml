@@ -361,7 +361,7 @@ def print_greeting(name: str) -> None:
 
 rust = '''
 pub fn print_greeting(name: String) {
-    println!("{}", format!("Hello, {}!", name));
+    log::info!("{}", format!("Hello, {}!", name));
 }
 '''
 
@@ -1011,7 +1011,6 @@ pub fn find_away_incident(try_incidents: &Vec<Incident>) -> Option<Incident> {
         .iter()
         .cloned()
         .filter(|incident| incident.points_scored_team == "Away")
-        .map(|incident| incident)
         .next();
 }
 '''
@@ -1065,7 +1064,6 @@ pub fn main(items: &mut Vec<Item>) {
         .enumerate()
         .map(|(i, x)| (i as i32, x.clone()))
         .filter(|(x, y)| y.val == items.get(0usize).cloned().unwrap().val)
-        .map(|(x, y)| (x, y))
         .next()
         .expect("StopIteration: iterator is empty");
     items[0usize].val = idx;

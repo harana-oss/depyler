@@ -45,7 +45,7 @@ impl AddAssign for Counter {
 fn main() {
     let mut a = Counter { x: 5 };
     a += Counter { x: 3 };
-    println!("Counter({})", a.x);
+    log::info!("Counter({})", a.x);
 }
 """
 
@@ -85,7 +85,7 @@ impl SubAssign for Counter {
 fn main() {
     let mut a = Counter { x: 10 };
     a -= Counter { x: 3 };
-    println!("Counter({})", a.x);
+    log::info!("Counter({})", a.x);
 }
 """
 
@@ -125,7 +125,7 @@ impl MulAssign for Counter {
 fn main() {
     let mut a = Counter { x: 5 };
     a *= Counter { x: 3 };
-    println!("Counter({})", a.x);
+    log::info!("Counter({})", a.x);
 }
 """
 
@@ -165,7 +165,7 @@ impl DivAssign for Counter {
 fn main() {
     let mut a = Counter { x: 10.0 };
     a /= Counter { x: 2.0 };
-    println!("Counter({})", a.x);
+    log::info!("Counter({})", a.x);
 }
 """
 
@@ -206,7 +206,7 @@ impl DivAssign for Counter {
 fn main() {
     let mut a = Counter { x: 10 };
     a /= Counter { x: 3 };
-    println!("Counter({})", a.x);
+    log::info!("Counter({})", a.x);
 }
 """
 
@@ -246,7 +246,7 @@ impl RemAssign for Counter {
 fn main() {
     let mut a = Counter { x: 10 };
     a %= Counter { x: 3 };
-    println!("Counter({})", a.x);
+    log::info!("Counter({})", a.x);
 }
 """
 
@@ -285,7 +285,7 @@ impl Counter {
 fn main() {
     let mut a = Counter { x: 2 };
     a.pow_assign(Counter { x: 3 });
-    println!("Counter({})", a.x);
+    log::info!("Counter({})", a.x);
 }
 """
 
@@ -329,7 +329,7 @@ impl BitAndAssign for Flags {
 fn main() {
     let mut a = Flags { x: 0b1100 };
     a &= Flags { x: 0b1010 };
-    println!("Flags({})", a.x);
+    log::info!("Flags({})", a.x);
 }
 """
 
@@ -369,7 +369,7 @@ impl BitOrAssign for Flags {
 fn main() {
     let mut a = Flags { x: 0b1100 };
     a |= Flags { x: 0b1010 };
-    println!("Flags({})", a.x);
+    log::info!("Flags({})", a.x);
 }
 """
 
@@ -409,7 +409,7 @@ impl BitXorAssign for Flags {
 fn main() {
     let mut a = Flags { x: 0b1100 };
     a ^= Flags { x: 0b1010 };
-    println!("Flags({})", a.x);
+    log::info!("Flags({})", a.x);
 }
 """
 
@@ -449,7 +449,7 @@ impl ShlAssign<Shifter> for Shifter {
 fn main() {
     let mut a = Shifter { x: 5 };
     a <<= Shifter { x: 2 };
-    println!("Shifter({})", a.x);
+    log::info!("Shifter({})", a.x);
 }
 """
 
@@ -489,7 +489,7 @@ impl ShrAssign<Shifter> for Shifter {
 fn main() {
     let mut a = Shifter { x: 20 };
     a >>= Shifter { x: 2 };
-    println!("Shifter({})", a.x);
+    log::info!("Shifter({})", a.x);
 }
 """
 
@@ -549,7 +549,7 @@ fn main() {
     let mut a = Matrix { data: vec![vec![1, 2], vec![3, 4]] };
     let b = Matrix { data: vec![vec![2, 0], vec![1, 2]] };
     a.matmul_assign(&b);
-    println!("Matrix({:?})", a.data);
+    log::info!("Matrix({:?})", a.data);
 }
 """
 
@@ -600,8 +600,8 @@ fn main() {
     let a = NoInPlace { x: 5 };
     let a = a + NoInPlace { x: 3 };  // No in-place in Rust without mut + AddAssign
     
-    println!("NoInPlace({})", a.x);
-    println!("Object changed: true");
+    log::info!("NoInPlace({})", a.x);
+    log::info!("Object changed: true");
 }
 """
 
@@ -647,8 +647,8 @@ fn main() {
     let mut a = Accumulator { x: 5 };
     a += Accumulator { x: 3 };
     
-    println!("Accumulator({})", a.x);
-    println!("Same object: true");
+    log::info!("Accumulator({})", a.x);
+    log::info!("Same object: true");
 }
 """
 
@@ -675,8 +675,8 @@ fn main() {
     
     original.extend_from_slice(&[4, 5]);
     
-    println!("List: {:?}", original);
-    println!("Same object: true");
+    log::info!("List: {:?}", original);
+    log::info!("Same object: true");
 }
 """
 
@@ -699,8 +699,8 @@ fn main() {
     
     x += 1;  // In Rust, integers are always copied
     
-    println!("Value: {}", x);
-    println!("Different object: true");
+    log::info!("Value: {}", x);
+    log::info!("Different object: true");
 }
 """
 
@@ -723,7 +723,7 @@ fn main() {
     let tuple = [4, 5];  // Rust doesn't have true tuples for this, use array
     my_list.extend_from_slice(&tuple);
     
-    println!("List: {:?}", my_list);
+    log::info!("List: {:?}", my_list);
 }
 """
 
@@ -772,8 +772,8 @@ fn main() {
     let a = Weird { x: 5 };
     let a = a + Weird { x: 3 };
     
-    println!("Weird({})", a.x);
-    println!("Different object: true");
+    log::info!("Weird({})", a.x);
+    log::info!("Different object: true");
 }
 """
 
@@ -801,7 +801,7 @@ fn main() {
     b += c;
     a += b;
     
-    println!("a: {}, b: {}, c: {}", a, b, c);
+    log::info!("a: {}, b: {}, c: {}", a, b, c);
 }
 """
 # skip = true

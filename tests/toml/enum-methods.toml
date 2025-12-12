@@ -41,8 +41,8 @@ impl Status {
 }
 
 fn main() {
-    println!("{}", Status::Pending.describe());
-    println!("{}", Status::Active.describe());
+    log::info!("{}", Status::Pending.describe());
+    log::info!("{}", Status::Active.describe());
 }
 """
 expected_output = """PENDING: 1
@@ -80,8 +80,8 @@ impl Priority {
 }
 
 fn main() {
-    println!("{}", Priority::Low.is_high());
-    println!("{}", Priority::High.is_high());
+    log::info!("{}", Priority::Low.is_high());
+    log::info!("{}", Priority::High.is_high());
 }
 """
 expected_output = """False
@@ -119,8 +119,8 @@ impl Color {
 }
 
 fn main() {
-    println!("{}", Color::Red.display_name());
-    println!("{}", Color::Blue.display_name());
+    log::info!("{}", Color::Red.display_name());
+    log::info!("{}", Color::Blue.display_name());
 }
 """
 expected_output = """Red
@@ -171,8 +171,8 @@ impl HttpMethod {
 }
 
 fn main() {
-    println!("{:?}", HttpMethod::all_methods());
-    println!("{}", HttpMethod::Get.value());
+    log::info!("{:?}", HttpMethod::all_methods());
+    log::info!("{}", HttpMethod::Get.value());
 }
 """
 expected_output = """['GET', 'POST', 'PUT', 'DELETE']
@@ -223,10 +223,10 @@ fn main() {
     let d = Day::from_string("monday");
     match d {
         Some(day) => {
-            println!("{:?}", format!("{:?}", day).to_uppercase());
-            println!("{}", day as i32);
+            log::info!("{:?}", format!("{:?}", day).to_uppercase());
+            log::info!("{}", day as i32);
         }
-        None => println!("None"),
+        None => log::info!("None"),
     }
 }
 """
@@ -295,8 +295,8 @@ impl fmt::Display for Currency {
 }
 
 fn main() {
-    println!("{}", Currency::Usd);
-    println!("Price: {}100", Currency::Eur);
+    log::info!("{}", Currency::Usd);
+    log::info!("Price: {}100", Currency::Eur);
 }
 """
 expected_output = """$
@@ -335,7 +335,7 @@ impl fmt::Display for State {
 }
 
 fn main() {
-    println!("{}", State::Running);
+    log::info!("{}", State::Running);
 }
 """
 expected_output = "<State.Running>"
@@ -384,8 +384,8 @@ impl Size {
 
 fn main() {
     let s = Size::Medium;
-    println!("{}", s.format_spec(""));
-    println!("{}", s.format_spec("short"));
+    log::info!("{}", s.format_spec(""));
+    log::info!("{}", s.format_spec("short"));
 }
 """
 expected_output = """MEDIUM
@@ -425,11 +425,11 @@ impl Toggle {
 
 fn main() {
     if Toggle::On.to_bool() {
-        println!("Toggle is ON");
+        log::info!("Toggle is ON");
     }
     
     if !Toggle::Off.to_bool() {
-        println!("Toggle is OFF");
+        log::info!("Toggle is OFF");
     }
 }
 """
@@ -475,8 +475,8 @@ impl Level {
 }
 
 fn main() {
-    println!("{}", Level::Info.label());
-    println!("{}", Level::Error.label());
+    log::info!("{}", Level::Info.label());
+    log::info!("{}", Level::Error.label());
 }
 """
 expected_output = """[INFO]
@@ -515,8 +515,8 @@ impl Temperature {
 }
 
 fn main() {
-    println!("{}", Temperature::Cold.fahrenheit());
-    println!("{}", Temperature::Hot.fahrenheit());
+    log::info!("{}", Temperature::Cold.fahrenheit());
+    log::info!("{}", Temperature::Hot.fahrenheit());
 }
 """
 expected_output = """32.0

@@ -470,7 +470,7 @@ def count_to_five():
 rust = '''
 pub fn count_to_five() {
     for i in 0..5 {
-        println!("{}", i);
+        log::info!("{}", i);
     }
 }
 '''
@@ -488,7 +488,7 @@ def count_from_two():
 rust = '''
 pub fn count_from_two() {
     for i in 2..8 {
-        println!("{}", i);
+        log::info!("{}", i);
     }
 }
 '''
@@ -512,7 +512,7 @@ pub fn count_by_twos() {
         }
         (0..10).step_by(step)
     } {
-        println!("{}", i);
+        log::info!("{}", i);
     }
 }
 '''
@@ -536,7 +536,7 @@ pub fn count_down() {
         }
         (0..10).rev().step_by(step.max(1))
     } {
-        println!("{}", i);
+        log::info!("{}", i);
     }
 }
 '''
@@ -583,7 +583,7 @@ def negative_range():
 rust = '''
 pub fn negative_range() {
     for i in -5..5 {
-        println!("{}", i);
+        log::info!("{}", i);
     }
 }
 '''

@@ -58,7 +58,7 @@ use clap::Parser;
 struct Args {}
 pub fn run() -> i32 {
     let args = Args::parse();
-    println!("{}", args);
+    log::info!("{}", args);
     return 0;
 }
 '''
@@ -89,7 +89,7 @@ struct Args {
 }
 pub fn run() -> i32 {
     let args = Args::parse();
-    println!("{}", args);
+    log::info!("{}", args);
     return 0;
 }
 '''
@@ -170,7 +170,7 @@ pub fn main() {
 }
 pub fn handle_command(args: &Args) {
     if args.verbose {
-        println!("{}", "Verbose mode");
+        log::info!("{}", "Verbose mode");
     }
 }
 '''
@@ -223,7 +223,7 @@ pub fn main() {
 }
 pub fn handle_clone(args: &Args) {
     if let Commands::Clone { url } = &args.command {
-        println!("{}", url);
+        log::info!("{}", url);
     }
 }
 '''
@@ -267,12 +267,12 @@ pub fn main() {
 }
 pub fn handler_one(args: &Args) {
     if args.debug {
-        println!("{}", "Handler one");
+        log::info!("{}", "Handler one");
     }
 }
 pub fn handler_two(args: &Args) {
     if args.debug {
-        println!("{}", "Handler two");
+        log::info!("{}", "Handler two");
     }
 }
 '''
@@ -306,7 +306,7 @@ pub fn main() {
     process(&parsed_args);
 }
 pub fn process(parsed_args: &Args) {
-    println!("{}", parsed_args.flag);
+    log::info!("{}", parsed_args.flag);
 }
 '''
 
@@ -535,7 +535,7 @@ pub fn run() -> i32 {
         let filepath = filepath.clone();
         let stats = count_file(&filepath);
         if args.lines {
-            println!("{}", format!("{} {}", stats.lines, stats.filename.clone()));
+            log::info!("{}", format!("{} {}", stats.lines, stats.filename.clone()));
         }
     }
     return 0;
@@ -1364,7 +1364,7 @@ pub fn main() {
 }
 pub fn handle_clone(args: &Args) {
     if let Commands::Clone { url } = &args.command {
-        println!("{}", format!("Clone: {}", url));
+        log::info!("{}", format!("Clone: {}", url));
     }
 }
 '''
@@ -1417,7 +1417,7 @@ pub fn main() {
 }
 pub fn handle_clone(args: &Args) {
     if let Commands::Clone { branch, url } = &args.command {
-        println!("{}", format!("Clone {}(branch: {})", url, branch));
+        log::info!("{}", format!("Clone {}(branch: {})", url, branch));
     }
 }
 '''
@@ -1471,7 +1471,7 @@ pub fn main() {
 pub fn handle_clone(args: &Args) {
     if let Commands::Clone { url } = &args.command {
         if args.verbose {
-            println!("{}", format!("Verbose: Clone {}", url));
+            log::info!("{}", format!("Verbose: Clone {}", url));
         }
     }
 }
@@ -1533,12 +1533,12 @@ pub fn main() {
 }
 pub fn handle_clone(args: &Args) {
     if let Commands::Clone { url } = &args.command {
-        println!("{}", format!("Clone: {}", url));
+        log::info!("{}", format!("Clone: {}", url));
     }
 }
 pub fn handle_push(args: &Args) {
     if let Commands::Push { remote } = &args.command {
-        println!("{}", format!("Push to: {}", remote));
+        log::info!("{}", format!("Push to: {}", remote));
     }
 }
 '''

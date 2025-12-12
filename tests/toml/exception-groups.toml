@@ -43,8 +43,8 @@ fn main() {
         "type error".to_string(),
     ];
     let eg = MultiError::new("Multiple errors", errors);
-    println!("Message: {}", eg.message);
-    println!("Count: {}", eg.errors.len());
+    log::info!("Message: {}", eg.message);
+    log::info!("Count: {}", eg.errors.len());
 }
 """
 expected_output = """Message: Multiple errors
@@ -95,10 +95,10 @@ fn validate(values: &[i32]) -> Result<&'static str, ValidationError> {
 fn main() {
     match validate(&[-1, -2]) {
         Err(eg) => {
-            println!("Caught: {}", eg.message);
-            println!("Errors: {}", eg.errors.len());
+            log::info!("Caught: {}", eg.message);
+            log::info!("Errors: {}", eg.errors.len());
         }
-        Ok(msg) => println!("{}", msg),
+        Ok(msg) => log::info!("{}", msg),
     }
 }
 """
@@ -148,8 +148,8 @@ fn main() {
         ],
     };
     
-    println!("Outer: {}", outer_group.errors.len());
-    println!("Has nested: {}", matches!(outer_group.errors[1], ErrorItem::Group(_)));
+    log::info!("Outer: {}", outer_group.errors.len());
+    log::info!("Has nested: {}", matches!(outer_group.errors[1], ErrorItem::Group(_)));
 }
 """
 expected_output = """Outer: 2
@@ -209,12 +209,12 @@ fn main() {
     
     let value_errs = eg.filter_value_errors();
     if !value_errs.is_empty() {
-        println!("Caught ValueError group: {}", value_errs.len());
+        log::info!("Caught ValueError group: {}", value_errs.len());
     }
     
     let type_errs = eg.filter_type_errors();
     if !type_errs.is_empty() {
-        println!("Caught TypeError group: {}", type_errs.len());
+        log::info!("Caught TypeError group: {}", type_errs.len());
     }
 }
 """
@@ -267,10 +267,10 @@ fn main() {
     };
     
     if eg.has_value_errors() {
-        println!("Handling ValueErrors");
+        log::info!("Handling ValueErrors");
     }
     if eg.has_type_errors() {
-        println!("Handling TypeErrors");
+        log::info!("Handling TypeErrors");
     }
 }
 """
@@ -327,11 +327,11 @@ fn main() {
     
     let val_type_errs = eg.filter_val_or_type();
     if !val_type_errs.is_empty() {
-        println!("Caught val/type errors: {}", val_type_errs.len());
+        log::info!("Caught val/type errors: {}", val_type_errs.len());
     }
     
     if eg.has_runtime_error() {
-        println!("Caught RuntimeError");
+        log::info!("Caught RuntimeError");
     }
 }
 """
@@ -374,14 +374,14 @@ fn main() {
     // Handle ValueError
     for err in &errors {
         if matches!(err, Error::ValueError(_)) {
-            println!("Handled ValueError");
+            log::info!("Handled ValueError");
         }
     }
     
     // TypeError propagates
     for err in &errors {
         if matches!(err, Error::TypeError(_)) {
-            println!("Caught propagated TypeError");
+            log::info!("Caught propagated TypeError");
         }
     }
 }
@@ -445,7 +445,7 @@ fn main() {
     };
     
     if let Some(value_errors) = eg.subgroup_value_errors() {
-        println!("ValueErrors: {}", value_errors.errors.len());
+        log::info!("ValueErrors: {}", value_errors.errors.len());
     }
 }
 """
@@ -514,8 +514,8 @@ fn main() {
     };
     
     let (matching, rest) = eg.split_value_errors();
-    println!("Matching: {}", matching.map_or(0, |g| g.errors.len()));
-    println!("Rest: {}", rest.map_or(0, |g| g.errors.len()));
+    log::info!("Matching: {}", matching.map_or(0, |g| g.errors.len()));
+    log::info!("Rest: {}", rest.map_or(0, |g| g.errors.len()));
 }
 """
 expected_output = """Matching: 2
@@ -560,7 +560,7 @@ fn main() {
             SystemError::Interrupt,
         ],
     };
-    println!("Base group: {}", eg.errors.len());
+    log::info!("Base group: {}", eg.errors.len());
 }
 """
 expected_output = "Base group: 2"
@@ -612,9 +612,9 @@ fn main() {
     };
     
     let derived = original.derive(vec![Error::ValueError("v2".to_string())]);
-    println!("Original message: {}", original.message);
-    println!("Derived message: {}", derived.message);
-    println!("Derived count: {}", derived.errors.len());
+    log::info!("Original message: {}", original.message);
+    log::info!("Derived message: {}", derived.message);
+    log::info!("Derived count: {}", derived.errors.len());
 }
 """
 expected_output = """Original message: errors
@@ -675,7 +675,7 @@ fn main() {
     }
     
     if !errors.is_empty() {
-        println!("Processing errors: {:?}", errors);
+        log::info!("Processing errors: {:?}", errors);
     }
 }
 """
@@ -728,8 +728,8 @@ fn validate_user(name: &str, age: i32, email: &str) -> Result<(), Vec<Validation
 
 fn main() {
     match validate_user("Al", 16, "invalid") {
-        Err(errors) => println!("Validation errors: {}", errors.len()),
-        Ok(_) => println!("Valid"),
+        Err(errors) => log::info!("Validation errors: {}", errors.len()),
+        Ok(_) => log::info!("Valid"),
     }
 }
 """
@@ -805,7 +805,7 @@ fn main() {
     }
     
     if !errors.is_empty() {
-        println!("Cleanup errors: {}", errors.len());
+        log::info!("Cleanup errors: {}", errors.len());
     }
 }
 """
@@ -838,7 +838,7 @@ fn main() {
     let error = Error::ValueError("single error".to_string());
     // Treat as single-item group for consistency
     let errors = vec![error];
-    println!("Caught: {}", errors.len());
+    log::info!("Caught: {}", errors.len());
 }
 """
 expected_output = "Caught: 1"
@@ -900,9 +900,9 @@ fn main() {
         ],
     };
     
-    println!("Message: {}", eg.message);
-    println!("Exception count: {}", eg.exceptions.len());
-    println!("First exception type: {}", eg.exceptions[0].type_name());
+    log::info!("Message: {}", eg.message);
+    log::info!("Exception count: {}", eg.exceptions.len());
+    log::info!("First exception type: {}", eg.exceptions[0].type_name());
 }
 """
 expected_output = """Message: Test errors
@@ -953,9 +953,9 @@ fn main() {
         ],
     };
     
-    println!("ExceptionGroup: {}", eg.message);
+    log::info!("ExceptionGroup: {}", eg.message);
     for (i, exc) in eg.exceptions.iter().enumerate() {
-        println!("  [{}] {}", i, exc);
+        log::info!("  [{}] {}", i, exc);
     }
 }
 """

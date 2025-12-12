@@ -37,7 +37,7 @@ impl Point {
 
 fn main() {
     let p = Point::new(1, 2);
-    println!("{} {}", p.x, p.y);
+    log::info!("{} {}", p.x, p.y);
 }
 """
 
@@ -69,7 +69,7 @@ impl Point {
 
 fn main() {
     let p = Point::new(3, 4);
-    println!("{} {}", p.x, p.y);
+    log::info!("{} {}", p.x, p.y);
 }
 """
 
@@ -88,7 +88,7 @@ struct NoAttributes;
 
 fn main() {
     let _obj = NoAttributes;
-    println!("created");
+    log::info!("created");
 }
 """
 
@@ -118,7 +118,7 @@ impl Single {
 
 fn main() {
     let s = Single::new(42);
-    println!("{}", s.x);
+    log::info!("{}", s.x);
 }
 """
 
@@ -153,7 +153,7 @@ struct Point {
 
 fn main() {
     let _p = Point { x: 1, y: 2 };
-    println!("no __dict__");
+    log::info!("no __dict__");
 }
 """
 
@@ -182,10 +182,10 @@ struct Point {
 
 fn main() {
     let mut p = Point { x: 1, y: 2 };
-    println!("{} {}", p.x, p.y);
+    log::info!("{} {}", p.x, p.y);
     p.x = 10;
     p.y = 20;
-    println!("{} {}", p.x, p.y);
+    log::info!("{} {}", p.x, p.y);
 }
 """
 
@@ -217,7 +217,7 @@ struct Point {
 fn main() {
     let _p = Point { x: 1, y: 2 };
     // p.z = 3;  // Would not compile
-    println!("AttributeError");
+    log::info!("AttributeError");
 }
 """
 
@@ -254,9 +254,9 @@ struct WithSlots {
 
 fn main() {
     let s = WithSlots { x: 1, y: 2 };
-    println!("With slots: {}", size_of_val(&s));
-    println!("Without slots: {}", size_of_val(&s));
-    println!("Slots saves memory: true");
+    log::info!("With slots: {}", size_of_val(&s));
+    log::info!("Without slots: {}", size_of_val(&s));
+    log::info!("Slots saves memory: true");
 }
 """
 
@@ -294,7 +294,7 @@ struct Derived {
 
 fn main() {
     let d = Derived { base: Base { x: 1 }, y: 2 };
-    println!("{} {}", d.base.x, d.y);
+    log::info!("{} {}", d.base.x, d.y);
 }
 """
 
@@ -330,7 +330,7 @@ struct Point3D {
 
 fn main() {
     let p = Point3D { point2d: Point2D { x: 1, y: 2 }, z: 3 };
-    println!("{} {} {}", p.point2d.x, p.point2d.y, p.z);
+    log::info!("{} {} {}", p.point2d.x, p.point2d.y, p.z);
 }
 """
 
@@ -360,7 +360,7 @@ struct Derived {
 
 fn main() {
     let d = Derived { base: Base { x: 10 } };
-    println!("{}", d.base.x);
+    log::info!("{}", d.base.x);
 }
 """
 
@@ -393,7 +393,7 @@ struct Slotted {
 
 fn main() {
     let s = Slotted { regular: Regular { a: 1 }, b: 2 };
-    println!("{} {}", s.regular.a, s.b);
+    log::info!("{} {}", s.regular.a, s.b);
 }
 """
 
@@ -426,7 +426,7 @@ struct Hybrid {
 fn main() {
     let mut h = Hybrid { x: 10, dict: HashMap::new() };
     h.dict.insert("y".to_string(), 20);
-    println!("{} {}", h.x, h.dict.get("y").unwrap());
+    log::info!("{} {}", h.x, h.dict.get("y").unwrap());
 }
 """
 
@@ -457,7 +457,7 @@ fn main() {
     let obj = Rc::new(Referable { x: 42 });
     let weak: Weak<Referable> = Rc::downgrade(&obj);
     if let Some(r) = weak.upgrade() {
-        println!("{}", r.x);
+        log::info!("{}", r.x);
     }
 }
 """
@@ -507,8 +507,8 @@ impl Conflict {
 
 fn main() {
     let c = Conflict::new(20);
-    println!("{}", c.x);
-    println!("{}", Conflict::CLASS_X);
+    log::info!("{}", c.x);
+    log::info!("{}", Conflict::CLASS_X);
 }
 """
 
@@ -561,7 +561,7 @@ impl Validated {
 
 fn main() {
     let v = Validated::new(10);
-    println!("{}", v.get_x());
+    log::info!("{}", v.get_x());
 }
 """
 
@@ -596,6 +596,6 @@ impl NoDefaults {
 
 fn main() {
     let n = NoDefaults::new(None, None);
-    println!("{} {}", n.x, n.y);
+    log::info!("{} {}", n.x, n.y);
 }
 """

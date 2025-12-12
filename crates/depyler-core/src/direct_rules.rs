@@ -2331,19 +2331,19 @@ impl<'a> ExprConverter<'a> {
     }
 
     fn convert_generic_call(&self, func: &str, args: &[syn::Expr]) -> Result<syn::Expr> {
-        // Special case: Python print() → Rust println!()
+        // Special case: Python print() → Rust log::info!()
         if func == "print" {
             return if args.is_empty() {
-                // print() with no arguments → println!()
-                Ok(parse_quote! { println!() })
+                // print() with no arguments → log::info!()
+                Ok(parse_quote! { log::info!("") })
             } else if args.len() == 1 {
-                // print(x) → println!("{}", x)
+                // print(x) → log::info!("{}", x)
                 let arg = &args[0];
-                Ok(parse_quote! { println!("{}", #arg) })
+                Ok(parse_quote! { log::info!("{}", #arg) })
             } else {
-                // print(a, b, c) → println!("{} {} {}", a, b, c)
+                // print(a, b, c) → log::info!("{} {} {}", a, b, c)
                 let format_str = vec!["{}"; args.len()].join(" ");
-                Ok(parse_quote! { println!(#format_str, #(#args),*) })
+                Ok(parse_quote! { log::info!(#format_str, #(#args),*) })
             };
         }
 

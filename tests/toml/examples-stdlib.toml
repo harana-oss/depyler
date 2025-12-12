@@ -221,7 +221,7 @@ pub fn test_base64_encode_basic() {
     let data = b"Hello, World!";
     let encoded = base64::engine::general_purpose::STANDARD.encode(data);
     assert!(encoded == b"SGVsbG8sIFdvcmxkIQ==");
-    println!("{}", "PASS: test_base64_encode_basic");
+    log::info!("{}", "PASS: test_base64_encode_basic");
 }
 #[doc = "Test basic base64 decoding."]
 #[doc = " Depyler: verified panic-free"]
@@ -232,7 +232,7 @@ pub fn test_base64_decode_basic() {
         .decode(encoded)
         .unwrap();
     assert!(decoded == b"Hello, World!");
-    println!("{}", "PASS: test_base64_decode_basic");
+    log::info!("{}", "PASS: test_base64_decode_basic");
 }
 #[doc = "Test encode-decode round trip."]
 #[doc = " Depyler: verified panic-free"]
@@ -244,7 +244,7 @@ pub fn test_base64_roundtrip() {
         .decode(encoded)
         .unwrap();
     assert!(decoded == original);
-    println!("{}", "PASS: test_base64_roundtrip");
+    log::info!("{}", "PASS: test_base64_roundtrip");
 }
 #[doc = "Test encoding/decoding empty data."]
 #[doc = " Depyler: verified panic-free"]
@@ -257,7 +257,7 @@ pub fn test_base64_empty() {
         .decode(b"")
         .unwrap();
     assert!(decoded == b"");
-    println!("{}", "PASS: test_base64_empty");
+    log::info!("{}", "PASS: test_base64_empty");
 }
 #[doc = "Test encoding binary data."]
 #[doc = " Depyler: verified panic-free"]
@@ -269,7 +269,7 @@ pub fn test_base64_binary_data() {
         .decode(encoded)
         .unwrap();
     assert!(decoded == data);
-    println!("{}", "PASS: test_base64_binary_data");
+    log::info!("{}", "PASS: test_base64_binary_data");
 }
 #[doc = "Test URL-safe base64 encoding."]
 #[doc = " Depyler: verified panic-free"]
@@ -279,7 +279,7 @@ pub fn test_base64_urlsafe_encode() {
     let encoded = base64::engine::general_purpose::URL_SAFE.encode(data);
     assert!(!encoded.contains_key(&b"+"));
     assert!(!encoded.contains_key(&b"/"));
-    println!("{}", "PASS: test_base64_urlsafe_encode");
+    log::info!("{}", "PASS: test_base64_urlsafe_encode");
 }
 #[doc = "Test URL-safe base64 decoding."]
 #[doc = " Depyler: verified panic-free"]
@@ -291,7 +291,7 @@ pub fn test_base64_urlsafe_decode() {
         .decode(encoded)
         .unwrap();
     assert!(decoded == data);
-    println!("{}", "PASS: test_base64_urlsafe_decode");
+    log::info!("{}", "PASS: test_base64_urlsafe_decode");
 }
 #[doc = "Test base64 padding handling."]
 #[doc = " Depyler: verified panic-free"]
@@ -306,7 +306,7 @@ pub fn test_base64_padding() {
     let data3 = b"abc";
     let encoded3 = base64::engine::general_purpose::STANDARD.encode(data3);
     assert!(encoded3 == b"YWJj");
-    println!("{}", "PASS: test_base64_padding");
+    log::info!("{}", "PASS: test_base64_padding");
 }
 #[doc = "Test encoding larger data."]
 #[doc = " Depyler: verified panic-free"]
@@ -319,7 +319,7 @@ pub fn test_base64_multiline() {
         .decode(encoded)
         .unwrap();
     assert!(decoded == data);
-    println!("{}", "PASS: test_base64_multiline");
+    log::info!("{}", "PASS: test_base64_multiline");
 }
 #[doc = "Test encoding Unicode text."]
 #[doc = " Depyler: verified panic-free"]
@@ -333,15 +333,15 @@ pub fn test_base64_unicode() {
         .unwrap();
     let result = decoded.decode("utf-8".to_string());
     assert!(result == text);
-    println!("{}", "PASS: test_base64_unicode");
+    log::info!("{}", "PASS: test_base64_unicode");
 }
 #[doc = "Run all base64 tests."]
 #[doc = " Depyler: verified panic-free"]
 #[doc = " Depyler: proven to terminate"]
 pub fn main() {
-    println!("{}", STR__.repeat(60 as usize));
-    println!("{}", "BASE64 MODULE TESTS");
-    println!("{}", STR__.repeat(60 as usize));
+    log::info!("{}", STR__.repeat(60 as usize));
+    log::info!("{}", "BASE64 MODULE TESTS");
+    log::info!("{}", STR__.repeat(60 as usize));
     test_base64_encode_basic();
     test_base64_decode_basic();
     test_base64_roundtrip();
@@ -352,10 +352,10 @@ pub fn main() {
     test_base64_padding();
     test_base64_multiline();
     test_base64_unicode();
-    println!("{}", STR__.repeat(60 as usize));
-    println!("{}", "ALL BASE64 TESTS PASSED!");
-    println!("{}", "Total tests: 10");
-    println!("{}", STR__.repeat(60 as usize));
+    log::info!("{}", STR__.repeat(60 as usize));
+    log::info!("{}", "ALL BASE64 TESTS PASSED!");
+    log::info!("{}", "Total tests: 10");
+    log::info!("{}", STR__.repeat(60 as usize));
 }
 '''
 
@@ -1183,7 +1183,7 @@ pub fn test_all_bisect_features() -> Result<(), Box<dyn std::error::Error>> {
     let insert_pos: i32 = find_insertion_point(vec![1, 3, 5, 7], 4)?;
     let edge_results: () = test_bisect_edge_cases()?;
     let floor_ceil: () = find_floor_ceiling(vec![1, 3, 5, 7, 9], 4)?;
-    println!("{}", "All bisect module tests completed successfully");
+    log::info!("{}", "All bisect module tests completed successfully");
     Ok(())
 }
 #[cfg(test)]
@@ -2130,7 +2130,7 @@ pub fn test_all_collections_features() -> Result<(), Box<dyn std::error::Error>>
     let stack_result: Vec<i32> = test_deque_as_stack();
     let queue_result: Vec<i32> = test_deque_as_queue();
     let lru_result: Vec<i32> = test_lru_cache_manual(3);
-    println!("{}", "All collections module tests completed successfully");
+    log::info!("{}", "All collections module tests completed successfully");
     Ok(())
 }
 '''
@@ -2568,7 +2568,7 @@ pub fn test_configparser_basic_read() {
             .unwrap_or_default()
             == "50022".to_string()
     );
-    println!("{}", "PASS: test_configparser_basic_read");
+    log::info!("{}", "PASS: test_configparser_basic_read");
 }
 #[doc = "Test DEFAULT section values."]
 #[doc = " Depyler: verified panic-free"]
@@ -2608,7 +2608,7 @@ pub fn test_configparser_defaults() {
             .unwrap_or_default()
             == "john".to_string()
     );
-    println!("{}", "PASS: test_configparser_defaults");
+    log::info!("{}", "PASS: test_configparser_defaults");
 }
 #[doc = "Test type-converting get methods."]
 #[doc = " Depyler: verified panic-free"]
@@ -2627,7 +2627,7 @@ pub fn test_configparser_get_methods() {
     assert!(config.getint("settings".to_string(), "port".to_string()) == 8080);
     assert!(config.getboolean("settings".to_string(), "debug".to_string()) == true);
     assert!(config.getfloat("settings".to_string(), "timeout".to_string()) == 30.5);
-    println!("{}", "PASS: test_configparser_get_methods");
+    log::info!("{}", "PASS: test_configparser_get_methods");
 }
 #[doc = "Test listing sections."]
 #[doc = " Depyler: verified panic-free"]
@@ -2642,7 +2642,7 @@ pub fn test_configparser_sections() {
     assert!(sections.contains_key(&"section1".to_string()));
     assert!(sections.contains_key(&"section2".to_string()));
     assert!(sections.contains_key(&"section3".to_string()));
-    println!("{}", "PASS: test_configparser_sections");
+    log::info!("{}", "PASS: test_configparser_sections");
 }
 #[doc = "Test listing options in a section."]
 #[doc = " Depyler: verified panic-free"]
@@ -2657,7 +2657,7 @@ pub fn test_configparser_options() {
     assert!(options.contains_key(&"port".to_string()));
     assert!(options.contains_key(&"user".to_string()));
     assert!(options.contains_key(&"password".to_string()));
-    println!("{}", "PASS: test_configparser_options");
+    log::info!("{}", "PASS: test_configparser_options");
 }
 #[doc = "Test setting configuration values programmatically."]
 #[doc = " Depyler: verified panic-free"]
@@ -2695,7 +2695,7 @@ pub fn test_configparser_set_values() {
             .unwrap_or_default()
             == "value2".to_string()
     );
-    println!("{}", "PASS: test_configparser_set_values");
+    log::info!("{}", "PASS: test_configparser_set_values");
 }
 #[doc = "Test checking for section existence."]
 #[doc = " Depyler: verified panic-free"]
@@ -2706,7 +2706,7 @@ pub fn test_configparser_has_section() {
     config.read_string(config_string);
     assert!(config.has_section("existing".to_string()) == true);
     assert!(config.has_section("nonexistent".to_string()) == false);
-    println!("{}", "PASS: test_configparser_has_section");
+    log::info!("{}", "PASS: test_configparser_has_section");
 }
 #[doc = "Test checking for option existence."]
 #[doc = " Depyler: verified panic-free"]
@@ -2717,7 +2717,7 @@ pub fn test_configparser_has_option() {
     config.read_string(config_string);
     assert!(config.has_option("section".to_string(), "existing_option".to_string()) == true);
     assert!(config.has_option("section".to_string(), "missing_option".to_string()) == false);
-    println!("{}", "PASS: test_configparser_has_option");
+    log::info!("{}", "PASS: test_configparser_has_option");
 }
 #[doc = "Test removing sections and options."]
 #[doc = " Depyler: verified panic-free"]
@@ -2732,15 +2732,15 @@ pub fn test_configparser_remove() {
     assert!(config.has_option("section1".to_string(), "option2".to_string()));
     config.remove_section("section2".to_string());
     assert!(!config.has_section("section2".to_string()));
-    println!("{}", "PASS: test_configparser_remove");
+    log::info!("{}", "PASS: test_configparser_remove");
 }
 #[doc = "Run all configparser tests."]
 #[doc = " Depyler: verified panic-free"]
 #[doc = " Depyler: proven to terminate"]
 pub fn main() {
-    println!("{}", STR__.repeat(60 as usize));
-    println!("{}", "CONFIGPARSER MODULE TESTS");
-    println!("{}", STR__.repeat(60 as usize));
+    log::info!("{}", STR__.repeat(60 as usize));
+    log::info!("{}", "CONFIGPARSER MODULE TESTS");
+    log::info!("{}", STR__.repeat(60 as usize));
     test_configparser_basic_read();
     test_configparser_defaults();
     test_configparser_get_methods();
@@ -2750,10 +2750,10 @@ pub fn main() {
     test_configparser_has_section();
     test_configparser_has_option();
     test_configparser_remove();
-    println!("{}", STR__.repeat(60 as usize));
-    println!("{}", "ALL CONFIGPARSER TESTS PASSED!");
-    println!("{}", "Total tests: 9");
-    println!("{}", STR__.repeat(60 as usize));
+    log::info!("{}", STR__.repeat(60 as usize));
+    log::info!("{}", "ALL CONFIGPARSER TESTS PASSED!");
+    log::info!("{}", "Total tests: 9");
+    log::info!("{}", STR__.repeat(60 as usize));
 }
 '''
 
@@ -3339,7 +3339,7 @@ pub fn test_all_copy_features() -> Result<(), Box<dyn std::error::Error>> {
     let mut merged: HashMap<String, i32> = merge_copied_dicts(&d1, &d2)?;
     let empty_sizes: () = test_copy_empty_collections();
     let single_values: () = test_copy_single_element();
-    println!("{}", "All copy module tests completed successfully");
+    log::info!("{}", "All copy module tests completed successfully");
     Ok(())
 }
 #[cfg(test)]
@@ -4223,7 +4223,7 @@ pub fn test_all_datetime_features() -> Result<(), Box<dyn std::error::Error>> {
     let date_list: Vec<date> = test_date_range(range_start, range_end);
     let meeting_end: i32 = test_time_arithmetic()?;
     let q: i32 = quarter_of_year(today);
-    println!("{}", "All datetime module tests completed successfully");
+    log::info!("{}", "All datetime module tests completed successfully");
     Ok(())
 }
 #[cfg(test)]
@@ -4876,7 +4876,7 @@ pub fn test_all_enum_features() {
     let has_perms: bool = test_enum_flags();
     let dir_range: Vec<i32> = test_enum_range();
     let is_valid: bool = validate_enum_value(2, 0, 3);
-    println!("{}", "All enum module tests completed successfully");
+    log::info!("{}", "All enum module tests completed successfully");
 }
 #[cfg(test)]
 mod tests {
@@ -5634,7 +5634,7 @@ pub fn test_all_functools_features() -> Result<(), Box<dyn std::error::Error>> {
         "square".to_string(),
     ];
     let piped: i32 = pipeline(3, &ops);
-    println!("{}", "All functools module tests completed successfully");
+    log::info!("{}", "All functools module tests completed successfully");
     Ok(())
 }
 #[cfg(test)]
@@ -5922,7 +5922,7 @@ pub fn test_gzip_compress_decompress() {
     let compressed = gzip.compress(data);
     let decompressed = gzip.decompress(compressed);
     assert!(decompressed == data);
-    println!("{}", "PASS: test_gzip_compress_decompress");
+    log::info!("{}", "PASS: test_gzip_compress_decompress");
 }
 #[doc = "Test compressing text data."]
 #[doc = " Depyler: verified panic-free"]
@@ -5934,7 +5934,7 @@ pub fn test_gzip_compress_text() {
     let compressed = gzip.compress(data);
     let decompressed = gzip.decompress(compressed);
     assert!(decompressed.decode("utf-8".to_string()) == text);
-    println!("{}", "PASS: test_gzip_compress_text");
+    log::info!("{}", "PASS: test_gzip_compress_text");
 }
 #[doc = "Test compressing empty data."]
 #[doc = " Depyler: verified panic-free"]
@@ -5944,7 +5944,7 @@ pub fn test_gzip_compress_empty() {
     let compressed = gzip.compress(data);
     let decompressed = gzip.decompress(compressed);
     assert!(decompressed == b"");
-    println!("{}", "PASS: test_gzip_compress_empty");
+    log::info!("{}", "PASS: test_gzip_compress_empty");
 }
 #[doc = "Test different compression levels."]
 #[doc = " Depyler: verified panic-free"]
@@ -5959,7 +5959,7 @@ pub fn test_gzip_compress_levels() {
     let decompressed_9 = gzip.decompress(compressed_9);
     assert!(decompressed_9 == data);
     assert!(compressed_9.len() as i32 <= compressed_1.len() as i32);
-    println!("{}", "PASS: test_gzip_compress_levels");
+    log::info!("{}", "PASS: test_gzip_compress_levels");
 }
 #[doc = "Test compressing larger data."]
 #[doc = " Depyler: verified panic-free"]
@@ -5971,7 +5971,7 @@ pub fn test_gzip_large_data() {
     let decompressed = gzip.decompress(compressed);
     assert!(decompressed == data);
     assert!((compressed.len() as i32) < data.len() as i32 / 2);
-    println!("{}", "PASS: test_gzip_large_data");
+    log::info!("{}", "PASS: test_gzip_large_data");
 }
 #[doc = "Test compressing binary data."]
 #[doc = " Depyler: verified panic-free"]
@@ -5981,7 +5981,7 @@ pub fn test_gzip_binary_data() {
     let compressed = gzip.compress(data);
     let decompressed = gzip.decompress(compressed);
     assert!(decompressed == data);
-    println!("{}", "PASS: test_gzip_binary_data");
+    log::info!("{}", "PASS: test_gzip_binary_data");
 }
 #[doc = "Test compressing Unicode text."]
 #[doc = " Depyler: verified panic-free"]
@@ -5992,7 +5992,7 @@ pub fn test_gzip_unicode_text() {
     let compressed = gzip.compress(data);
     let decompressed = gzip.decompress(compressed);
     assert!(decompressed.decode("utf-8".to_string()) == text);
-    println!("{}", "PASS: test_gzip_unicode_text");
+    log::info!("{}", "PASS: test_gzip_unicode_text");
 }
 #[doc = "Test compressing already compressed data."]
 #[doc = " Depyler: verified panic-free"]
@@ -6004,15 +6004,15 @@ pub fn test_gzip_multiple_compress() {
     let decompressed_once = gzip.decompress(compressed_twice);
     let decompressed_twice = gzip.decompress(decompressed_once);
     assert!(decompressed_twice == data);
-    println!("{}", "PASS: test_gzip_multiple_compress");
+    log::info!("{}", "PASS: test_gzip_multiple_compress");
 }
 #[doc = "Run all gzip tests."]
 #[doc = " Depyler: verified panic-free"]
 #[doc = " Depyler: proven to terminate"]
 pub fn main() {
-    println!("{}", STR__.repeat(60 as usize));
-    println!("{}", "GZIP MODULE TESTS");
-    println!("{}", STR__.repeat(60 as usize));
+    log::info!("{}", STR__.repeat(60 as usize));
+    log::info!("{}", "GZIP MODULE TESTS");
+    log::info!("{}", STR__.repeat(60 as usize));
     test_gzip_compress_decompress();
     test_gzip_compress_text();
     test_gzip_compress_empty();
@@ -6021,10 +6021,10 @@ pub fn main() {
     test_gzip_binary_data();
     test_gzip_unicode_text();
     test_gzip_multiple_compress();
-    println!("{}", STR__.repeat(60 as usize));
-    println!("{}", "ALL GZIP TESTS PASSED!");
-    println!("{}", "Total tests: 8");
-    println!("{}", STR__.repeat(60 as usize));
+    log::info!("{}", STR__.repeat(60 as usize));
+    log::info!("{}", "ALL GZIP TESTS PASSED!");
+    log::info!("{}", "Total tests: 8");
+    log::info!("{}", STR__.repeat(60 as usize));
 }
 '''
 
@@ -6264,7 +6264,7 @@ pub fn test_sha256_basic() {
     let result = hash_obj.hexdigest();
     let expected = "dffd6021bb2bd5b0af676290809ec3a53191dd81c7f70a4b28688a362182986f";
     assert!(result == expected);
-    println!("{}", "PASS: test_sha256_basic");
+    log::info!("{}", "PASS: test_sha256_basic");
 }
 #[doc = "Test SHA256 of empty data."]
 #[doc = " Depyler: verified panic-free"]
@@ -6280,7 +6280,7 @@ pub fn test_sha256_empty() {
     let result = hash_obj.hexdigest();
     let expected = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855";
     assert!(result == expected);
-    println!("{}", "PASS: test_sha256_empty");
+    log::info!("{}", "PASS: test_sha256_empty");
 }
 #[doc = "Test SHA256 with multiple updates."]
 #[doc = " Depyler: verified panic-free"]
@@ -6300,7 +6300,7 @@ pub fn test_sha256_update() {
     let result = hash_obj.hexdigest();
     let expected = "dffd6021bb2bd5b0af676290809ec3a53191dd81c7f70a4b28688a362182986f";
     assert!(result == expected);
-    println!("{}", "PASS: test_sha256_update");
+    log::info!("{}", "PASS: test_sha256_update");
 }
 #[doc = "Test basic SHA1 hashing."]
 #[doc = " Depyler: verified panic-free"]
@@ -6316,7 +6316,7 @@ pub fn test_sha1_basic() {
     let result = hash_obj.hexdigest();
     let expected = "f48dd853820860816c75d54d0f584dc863327a7c";
     assert!(result == expected);
-    println!("{}", "PASS: test_sha1_basic");
+    log::info!("{}", "PASS: test_sha1_basic");
 }
 #[doc = "Test basic MD5 hashing."]
 #[doc = " Depyler: verified panic-free"]
@@ -6332,7 +6332,7 @@ pub fn test_md5_basic() {
     let result = hash_obj.hexdigest();
     let expected = "098f6bcd4621d373cade4e832627b4f6";
     assert!(result == expected);
-    println!("{}", "PASS: test_md5_basic");
+    log::info!("{}", "PASS: test_md5_basic");
 }
 #[doc = "Test hashing binary data."]
 #[doc = " Depyler: verified panic-free"]
@@ -6352,7 +6352,7 @@ pub fn test_sha256_binary_data() {
         .copied()
         .map(|c| "0123456789abcdef".to_string().contains(&c))
         .all(|x| x));
-    println!("{}", "PASS: test_sha256_binary_data");
+    log::info!("{}", "PASS: test_sha256_binary_data");
 }
 #[doc = "Test hashing larger data."]
 #[doc = " Depyler: verified panic-free"]
@@ -6373,7 +6373,7 @@ pub fn test_sha256_large_data() {
         .copied()
         .map(|c| "0123456789abcdef".to_string().contains(&c))
         .all(|x| x));
-    println!("{}", "PASS: test_sha256_large_data");
+    log::info!("{}", "PASS: test_sha256_large_data");
 }
 #[doc = "Test that different data produces different hashes."]
 #[doc = " Depyler: verified panic-free"]
@@ -6394,7 +6394,7 @@ pub fn test_hash_different_data() {
     }
     .hexdigest();
     assert!(hash1 != hash2);
-    println!("{}", "PASS: test_hash_different_data");
+    log::info!("{}", "PASS: test_hash_different_data");
 }
 #[doc = "Test that same data produces same hash."]
 #[doc = " Depyler: verified panic-free"]
@@ -6416,7 +6416,7 @@ pub fn test_hash_deterministic() {
     }
     .hexdigest();
     assert!(hash1 == hash2);
-    println!("{}", "PASS: test_hash_deterministic");
+    log::info!("{}", "PASS: test_hash_deterministic");
 }
 #[doc = "Test hashing text(encoded to bytes)."]
 #[doc = " Depyler: verified panic-free"]
@@ -6437,15 +6437,15 @@ pub fn test_sha256_text() {
         .copied()
         .map(|c| "0123456789abcdef".to_string().contains(&c))
         .all(|x| x));
-    println!("{}", "PASS: test_sha256_text");
+    log::info!("{}", "PASS: test_sha256_text");
 }
 #[doc = "Run all hashlib tests."]
 #[doc = " Depyler: verified panic-free"]
 #[doc = " Depyler: proven to terminate"]
 pub fn main() {
-    println!("{}", STR__.repeat(60 as usize));
-    println!("{}", "HASHLIB MODULE TESTS");
-    println!("{}", STR__.repeat(60 as usize));
+    log::info!("{}", STR__.repeat(60 as usize));
+    log::info!("{}", "HASHLIB MODULE TESTS");
+    log::info!("{}", STR__.repeat(60 as usize));
     test_sha256_basic();
     test_sha256_empty();
     test_sha256_update();
@@ -6456,10 +6456,10 @@ pub fn main() {
     test_hash_different_data();
     test_hash_deterministic();
     test_sha256_text();
-    println!("{}", STR__.repeat(60 as usize));
-    println!("{}", "ALL HASHLIB TESTS PASSED!");
-    println!("{}", "Total tests: 10");
-    println!("{}", STR__.repeat(60 as usize));
+    log::info!("{}", STR__.repeat(60 as usize));
+    log::info!("{}", "ALL HASHLIB TESTS PASSED!");
+    log::info!("{}", "Total tests: 10");
+    log::info!("{}", STR__.repeat(60 as usize));
 }
 '''
 
@@ -7254,7 +7254,7 @@ pub fn test_all_heapq_features() -> Result<(), IndexError> {
     let kth: i32 = find_kth_smallest(&sample, 3)?;
     let median_data: Vec<i32> = vec![1, 2, 3, 4, 5];
     let mut median: f64 = find_median_using_heaps(&median_data)?;
-    println!("{}", "All heapq module tests completed successfully");
+    log::info!("{}", "All heapq module tests completed successfully");
     Ok(())
 }
 #[cfg(test)]
@@ -8325,7 +8325,7 @@ pub fn test_all_itertools_features() -> Result<(), Box<dyn std::error::Error>> {
     let all_same: bool = test_all_equal(&vec![5, 5, 5, 5])?;
     let not_same: bool = test_all_equal(&vec![1, 2, 3])?;
     let above_threshold: i32 = test_quantify(&vec![1, 5, 10, 3, 8, 2, 15], 5);
-    println!("{}", "All itertools tests completed successfully");
+    log::info!("{}", "All itertools tests completed successfully");
     Ok(())
 }
 #[cfg(test)]
@@ -9053,7 +9053,7 @@ pub fn test_all_math_features() -> Result<(), Box<dyn std::error::Error>> {
     let sign_result: f64 = test_sign_and_copysign();
     let remainder_result: f64 = test_remainder_operations();
     let int_result: i32 = test_integer_operations()?;
-    println!("{}", "All math module tests completed successfully");
+    log::info!("{}", "All math module tests completed successfully");
     Ok(())
 }
 #[cfg(test)]
@@ -9886,7 +9886,7 @@ pub fn test_all_operator_features() -> Result<(), Box<dyn std::error::Error>> {
     let truth: bool = test_truthiness();
     let identity: bool = test_identity();
     let chained: bool = chain_comparisons(5, 1, 10);
-    println!("{}", "All operator module tests completed successfully");
+    log::info!("{}", "All operator module tests completed successfully");
     Ok(())
 }
 #[cfg(test)]
@@ -10766,7 +10766,7 @@ pub fn test_all_os_sys_features() -> Result<(), Box<dyn std::error::Error>> {
     let file_counts: HashMap<String, i32> = count_files_by_extension(&files)?;
     let mut depth: i32 = test_path_traversal("/home/user/docs", 5);
     let safe_name: String = sanitize_filename("file<>name.txt");
-    println!("{}", "All os/sys module tests completed successfully");
+    log::info!("{}", "All os/sys module tests completed successfully");
     Ok(())
 }
 #[cfg(test)]
@@ -11207,7 +11207,7 @@ pub fn test_pickle_basic_types() {
     pickled = { format!("{:?}", data).into_bytes() };
     unpickled = { String::from_utf8_lossy(pickled).to_string() };
     assert!(unpickled == 3.14159);
-    println!("{}", "PASS: test_pickle_basic_types");
+    log::info!("{}", "PASS: test_pickle_basic_types");
 }
 #[doc = "Test pickling lists."]
 #[doc = " Depyler: verified panic-free"]
@@ -11218,7 +11218,7 @@ pub fn test_pickle_list() {
     let mut unpickled = { String::from_utf8_lossy(pickled).to_string() };
     assert!(unpickled == vec![1, 2, 3, 4, 5]);
     assert!(unpickled.len() as i32 == 5);
-    println!("{}", "PASS: test_pickle_list");
+    log::info!("{}", "PASS: test_pickle_list");
 }
 #[doc = "Test pickling dictionaries."]
 #[doc = " Depyler: verified panic-free"]
@@ -11229,7 +11229,7 @@ pub fn test_pickle_dict() {
     let mut unpickled = { String::from_utf8_lossy(pickled).to_string() };
     assert!(unpickled == serde_json::json!({ "name": "Alice", "age": 30, "city": "NYC" }));
     assert!(unpickled.get("name").cloned().unwrap_or_default() == "Alice");
-    println!("{}", "PASS: test_pickle_dict");
+    log::info!("{}", "PASS: test_pickle_dict");
 }
 #[doc = "Test pickling nested data structures."]
 #[doc = " Depyler: verified panic-free"]
@@ -11289,7 +11289,7 @@ pub fn test_pickle_nested_structure() {
             .unwrap_or_default()
             == 91
     );
-    println!("{}", "PASS: test_pickle_nested_structure");
+    log::info!("{}", "PASS: test_pickle_nested_structure");
 }
 #[doc = "Test pickling tuples."]
 #[doc = " Depyler: verified panic-free"]
@@ -11300,7 +11300,7 @@ pub fn test_pickle_tuple() {
     let mut unpickled = { String::from_utf8_lossy(pickled).to_string() };
     assert!(unpickled = = (1, "hello", 3.14, true));
     assert!(unpickled.get(1usize).cloned().unwrap_or_default() == "hello");
-    println!("{}", "PASS: test_pickle_tuple");
+    log::info!("{}", "PASS: test_pickle_tuple");
 }
 #[doc = "Test pickling sets."]
 #[doc = " Depyler: verified panic-free"]
@@ -11329,7 +11329,7 @@ pub fn test_pickle_set() {
         }
     );
     assert!(unpickled.contains_key(&3));
-    println!("{}", "PASS: test_pickle_set");
+    log::info!("{}", "PASS: test_pickle_set");
 }
 #[doc = "Test pickling None."]
 #[doc = " Depyler: verified panic-free"]
@@ -11339,7 +11339,7 @@ pub fn test_pickle_none() {
     let mut pickled = { format!("{:?}", data).into_bytes() };
     let mut unpickled = { String::from_utf8_lossy(pickled).to_string() };
     assert!(unpickled == None);
-    println!("{}", "PASS: test_pickle_none");
+    log::info!("{}", "PASS: test_pickle_none");
 }
 #[doc = "Test pickling booleans."]
 #[doc = " Depyler: verified panic-free"]
@@ -11353,7 +11353,7 @@ pub fn test_pickle_boolean() {
     let pickled_false = { format!("{:?}", data_false).into_bytes() };
     let unpickled_false = { String::from_utf8_lossy(pickled_false).to_string() };
     assert!(unpickled_false == false);
-    println!("{}", "PASS: test_pickle_boolean");
+    log::info!("{}", "PASS: test_pickle_boolean");
 }
 #[doc = "Test pickling bytes."]
 #[doc = " Depyler: verified panic-free"]
@@ -11363,7 +11363,7 @@ pub fn test_pickle_bytes() {
     let mut pickled = { format!("{:?}", data).into_bytes() };
     let mut unpickled = { String::from_utf8_lossy(pickled).to_string() };
     assert!(unpickled == b"hello bytes");
-    println!("{}", "PASS: test_pickle_bytes");
+    log::info!("{}", "PASS: test_pickle_bytes");
 }
 #[doc = "Test pickling mixed type collections."]
 #[doc = " Depyler: verified panic-free"]
@@ -11387,15 +11387,15 @@ pub fn test_pickle_mixed_types() {
             .unwrap_or_default()
             == "value"
     );
-    println!("{}", "PASS: test_pickle_mixed_types");
+    log::info!("{}", "PASS: test_pickle_mixed_types");
 }
 #[doc = "Run all pickle tests."]
 #[doc = " Depyler: verified panic-free"]
 #[doc = " Depyler: proven to terminate"]
 pub fn main() {
-    println!("{}", STR__.repeat(60 as usize));
-    println!("{}", "PICKLE MODULE TESTS");
-    println!("{}", STR__.repeat(60 as usize));
+    log::info!("{}", STR__.repeat(60 as usize));
+    log::info!("{}", "PICKLE MODULE TESTS");
+    log::info!("{}", STR__.repeat(60 as usize));
     test_pickle_basic_types();
     test_pickle_list();
     test_pickle_dict();
@@ -11406,10 +11406,10 @@ pub fn main() {
     test_pickle_boolean();
     test_pickle_bytes();
     test_pickle_mixed_types();
-    println!("{}", STR__.repeat(60 as usize));
-    println!("{}", "ALL PICKLE TESTS PASSED!");
-    println!("{}", "Total tests: 10");
-    println!("{}", STR__.repeat(60 as usize));
+    log::info!("{}", STR__.repeat(60 as usize));
+    log::info!("{}", "ALL PICKLE TESTS PASSED!");
+    log::info!("{}", "Total tests: 10");
+    log::info!("{}", STR__.repeat(60 as usize));
 }
 '''
 
@@ -12058,7 +12058,7 @@ pub fn test_all_random_features() -> Result<(), Box<dyn std::error::Error>> {
     let mut deck: Vec<String> = shuffle_deck();
     let gauss_result: f64 = test_gauss_distribution();
     let tri_result: f64 = test_triangular_distribution();
-    println!("{}", "All random module tests completed successfully");
+    log::info!("{}", "All random module tests completed successfully");
     Ok(())
 }
 #[cfg(test)]
@@ -12942,7 +12942,7 @@ pub fn test_all_re_features() -> Result<(), Box<dyn std::error::Error>> {
     let nums: Vec<i32> = extract_numbers_from_text(mixed);
     let wildcard1: bool = wildcard_match_simple("hello.txt", "*.txt")?;
     let wildcard2: bool = wildcard_match_simple("test_file.py", "test_*")?;
-    println!("{}", "All regex module tests completed successfully");
+    log::info!("{}", "All regex module tests completed successfully");
     Ok(())
 }
 #[cfg(test)]
@@ -13987,7 +13987,7 @@ pub fn test_all_statistics_features() -> Result<(), Box<dyn std::error::Error>> 
     let y_data: Vec<f64> = vec![2.0, 4.0, 6.0, 8.0, 10.0];
     let cov: f64 = calculate_covariance(&x_data, &y_data)?;
     let corr: f64 = calculate_correlation(x_data, y_data)?;
-    println!("{}", "All statistics module tests completed successfully");
+    log::info!("{}", "All statistics module tests completed successfully");
     Ok(())
 }
 #[cfg(test)]
@@ -16206,7 +16206,7 @@ pub fn test_all_string_features() -> Result<(), Box<dyn std::error::Error>> {
     let is_palin: bool = is_palindrome("A man a plan a canal Panama")?;
     let vowel_count: i32 = count_vowels("hello world");
     let consonant_count: i32 = count_consonants("hello world");
-    println!("{}", "All string module tests completed successfully");
+    log::info!("{}", "All string module tests completed successfully");
     Ok(())
 }
 #[cfg(test)]
@@ -16577,7 +16577,7 @@ pub fn test_base64_encode_basic() {
     let data = b"Hello, World!";
     let encoded = base64::engine::general_purpose::STANDARD.encode(data);
     assert!(encoded == b"SGVsbG8sIFdvcmxkIQ==");
-    println!("{}", "PASS: test_base64_encode_basic");
+    log::info!("{}", "PASS: test_base64_encode_basic");
 }
 #[doc = "Test basic base64 decoding."]
 #[doc = " Depyler: verified panic-free"]
@@ -16588,7 +16588,7 @@ pub fn test_base64_decode_basic() {
         .decode(encoded)
         .unwrap();
     assert!(decoded == b"Hello, World!");
-    println!("{}", "PASS: test_base64_decode_basic");
+    log::info!("{}", "PASS: test_base64_decode_basic");
 }
 #[doc = "Test encode-decode round trip."]
 #[doc = " Depyler: verified panic-free"]
@@ -16600,7 +16600,7 @@ pub fn test_base64_roundtrip() {
         .decode(encoded)
         .unwrap();
     assert!(decoded == original);
-    println!("{}", "PASS: test_base64_roundtrip");
+    log::info!("{}", "PASS: test_base64_roundtrip");
 }
 #[doc = "Test encoding/decoding empty data."]
 #[doc = " Depyler: verified panic-free"]
@@ -16613,7 +16613,7 @@ pub fn test_base64_empty() {
         .decode(b"")
         .unwrap();
     assert!(decoded == b"");
-    println!("{}", "PASS: test_base64_empty");
+    log::info!("{}", "PASS: test_base64_empty");
 }
 #[doc = "Test encoding binary data."]
 #[doc = " Depyler: verified panic-free"]
@@ -16625,7 +16625,7 @@ pub fn test_base64_binary_data() {
         .decode(encoded)
         .unwrap();
     assert!(decoded == data);
-    println!("{}", "PASS: test_base64_binary_data");
+    log::info!("{}", "PASS: test_base64_binary_data");
 }
 #[doc = "Test URL-safe base64 encoding."]
 #[doc = " Depyler: verified panic-free"]
@@ -16635,7 +16635,7 @@ pub fn test_base64_urlsafe_encode() {
     let encoded = base64::engine::general_purpose::URL_SAFE.encode(data);
     assert!(!encoded.contains_key(&b"+"));
     assert!(!encoded.contains_key(&b"/"));
-    println!("{}", "PASS: test_base64_urlsafe_encode");
+    log::info!("{}", "PASS: test_base64_urlsafe_encode");
 }
 #[doc = "Test URL-safe base64 decoding."]
 #[doc = " Depyler: verified panic-free"]
@@ -16647,7 +16647,7 @@ pub fn test_base64_urlsafe_decode() {
         .decode(encoded)
         .unwrap();
     assert!(decoded == data);
-    println!("{}", "PASS: test_base64_urlsafe_decode");
+    log::info!("{}", "PASS: test_base64_urlsafe_decode");
 }
 #[doc = "Test base64 padding handling."]
 #[doc = " Depyler: verified panic-free"]
@@ -16662,7 +16662,7 @@ pub fn test_base64_padding() {
     let data3 = b"abc";
     let encoded3 = base64::engine::general_purpose::STANDARD.encode(data3);
     assert!(encoded3 == b"YWJj");
-    println!("{}", "PASS: test_base64_padding");
+    log::info!("{}", "PASS: test_base64_padding");
 }
 #[doc = "Test encoding larger data."]
 #[doc = " Depyler: verified panic-free"]
@@ -16675,7 +16675,7 @@ pub fn test_base64_multiline() {
         .decode(encoded)
         .unwrap();
     assert!(decoded == data);
-    println!("{}", "PASS: test_base64_multiline");
+    log::info!("{}", "PASS: test_base64_multiline");
 }
 #[doc = "Test encoding Unicode text."]
 #[doc = " Depyler: verified panic-free"]
@@ -16689,15 +16689,15 @@ pub fn test_base64_unicode() {
         .unwrap();
     let result = decoded.decode("utf-8".to_string());
     assert!(result == text);
-    println!("{}", "PASS: test_base64_unicode");
+    log::info!("{}", "PASS: test_base64_unicode");
 }
 #[doc = "Run all base64 tests."]
 #[doc = " Depyler: verified panic-free"]
 #[doc = " Depyler: proven to terminate"]
 pub fn main() {
-    println!("{}", STR__.repeat(60 as usize));
-    println!("{}", "BASE64 MODULE TESTS");
-    println!("{}", STR__.repeat(60 as usize));
+    log::info!("{}", STR__.repeat(60 as usize));
+    log::info!("{}", "BASE64 MODULE TESTS");
+    log::info!("{}", STR__.repeat(60 as usize));
     test_base64_encode_basic();
     test_base64_decode_basic();
     test_base64_roundtrip();
@@ -16708,10 +16708,10 @@ pub fn main() {
     test_base64_padding();
     test_base64_multiline();
     test_base64_unicode();
-    println!("{}", STR__.repeat(60 as usize));
-    println!("{}", "ALL BASE64 TESTS PASSED!");
-    println!("{}", "Total tests: 10");
-    println!("{}", STR__.repeat(60 as usize));
+    log::info!("{}", STR__.repeat(60 as usize));
+    log::info!("{}", "ALL BASE64 TESTS PASSED!");
+    log::info!("{}", "Total tests: 10");
+    log::info!("{}", STR__.repeat(60 as usize));
 }
 '''
 
@@ -17539,7 +17539,7 @@ pub fn test_all_bisect_features() -> Result<(), Box<dyn std::error::Error>> {
     let insert_pos: i32 = find_insertion_point(vec![1, 3, 5, 7], 4)?;
     let edge_results: () = test_bisect_edge_cases()?;
     let floor_ceil: () = find_floor_ceiling(vec![1, 3, 5, 7, 9], 4)?;
-    println!("{}", "All bisect module tests completed successfully");
+    log::info!("{}", "All bisect module tests completed successfully");
     Ok(())
 }
 #[cfg(test)]
@@ -18486,7 +18486,7 @@ pub fn test_all_collections_features() -> Result<(), Box<dyn std::error::Error>>
     let stack_result: Vec<i32> = test_deque_as_stack();
     let queue_result: Vec<i32> = test_deque_as_queue();
     let lru_result: Vec<i32> = test_lru_cache_manual(3);
-    println!("{}", "All collections module tests completed successfully");
+    log::info!("{}", "All collections module tests completed successfully");
     Ok(())
 }
 '''
@@ -18924,7 +18924,7 @@ pub fn test_configparser_basic_read() {
             .unwrap_or_default()
             == "50022".to_string()
     );
-    println!("{}", "PASS: test_configparser_basic_read");
+    log::info!("{}", "PASS: test_configparser_basic_read");
 }
 #[doc = "Test DEFAULT section values."]
 #[doc = " Depyler: verified panic-free"]
@@ -18964,7 +18964,7 @@ pub fn test_configparser_defaults() {
             .unwrap_or_default()
             == "john".to_string()
     );
-    println!("{}", "PASS: test_configparser_defaults");
+    log::info!("{}", "PASS: test_configparser_defaults");
 }
 #[doc = "Test type-converting get methods."]
 #[doc = " Depyler: verified panic-free"]
@@ -18983,7 +18983,7 @@ pub fn test_configparser_get_methods() {
     assert!(config.getint("settings".to_string(), "port".to_string()) == 8080);
     assert!(config.getboolean("settings".to_string(), "debug".to_string()) == true);
     assert!(config.getfloat("settings".to_string(), "timeout".to_string()) == 30.5);
-    println!("{}", "PASS: test_configparser_get_methods");
+    log::info!("{}", "PASS: test_configparser_get_methods");
 }
 #[doc = "Test listing sections."]
 #[doc = " Depyler: verified panic-free"]
@@ -18998,7 +18998,7 @@ pub fn test_configparser_sections() {
     assert!(sections.contains_key(&"section1".to_string()));
     assert!(sections.contains_key(&"section2".to_string()));
     assert!(sections.contains_key(&"section3".to_string()));
-    println!("{}", "PASS: test_configparser_sections");
+    log::info!("{}", "PASS: test_configparser_sections");
 }
 #[doc = "Test listing options in a section."]
 #[doc = " Depyler: verified panic-free"]
@@ -19013,7 +19013,7 @@ pub fn test_configparser_options() {
     assert!(options.contains_key(&"port".to_string()));
     assert!(options.contains_key(&"user".to_string()));
     assert!(options.contains_key(&"password".to_string()));
-    println!("{}", "PASS: test_configparser_options");
+    log::info!("{}", "PASS: test_configparser_options");
 }
 #[doc = "Test setting configuration values programmatically."]
 #[doc = " Depyler: verified panic-free"]
@@ -19051,7 +19051,7 @@ pub fn test_configparser_set_values() {
             .unwrap_or_default()
             == "value2".to_string()
     );
-    println!("{}", "PASS: test_configparser_set_values");
+    log::info!("{}", "PASS: test_configparser_set_values");
 }
 #[doc = "Test checking for section existence."]
 #[doc = " Depyler: verified panic-free"]
@@ -19062,7 +19062,7 @@ pub fn test_configparser_has_section() {
     config.read_string(config_string);
     assert!(config.has_section("existing".to_string()) == true);
     assert!(config.has_section("nonexistent".to_string()) == false);
-    println!("{}", "PASS: test_configparser_has_section");
+    log::info!("{}", "PASS: test_configparser_has_section");
 }
 #[doc = "Test checking for option existence."]
 #[doc = " Depyler: verified panic-free"]
@@ -19073,7 +19073,7 @@ pub fn test_configparser_has_option() {
     config.read_string(config_string);
     assert!(config.has_option("section".to_string(), "existing_option".to_string()) == true);
     assert!(config.has_option("section".to_string(), "missing_option".to_string()) == false);
-    println!("{}", "PASS: test_configparser_has_option");
+    log::info!("{}", "PASS: test_configparser_has_option");
 }
 #[doc = "Test removing sections and options."]
 #[doc = " Depyler: verified panic-free"]
@@ -19088,15 +19088,15 @@ pub fn test_configparser_remove() {
     assert!(config.has_option("section1".to_string(), "option2".to_string()));
     config.remove_section("section2".to_string());
     assert!(!config.has_section("section2".to_string()));
-    println!("{}", "PASS: test_configparser_remove");
+    log::info!("{}", "PASS: test_configparser_remove");
 }
 #[doc = "Run all configparser tests."]
 #[doc = " Depyler: verified panic-free"]
 #[doc = " Depyler: proven to terminate"]
 pub fn main() {
-    println!("{}", STR__.repeat(60 as usize));
-    println!("{}", "CONFIGPARSER MODULE TESTS");
-    println!("{}", STR__.repeat(60 as usize));
+    log::info!("{}", STR__.repeat(60 as usize));
+    log::info!("{}", "CONFIGPARSER MODULE TESTS");
+    log::info!("{}", STR__.repeat(60 as usize));
     test_configparser_basic_read();
     test_configparser_defaults();
     test_configparser_get_methods();
@@ -19106,10 +19106,10 @@ pub fn main() {
     test_configparser_has_section();
     test_configparser_has_option();
     test_configparser_remove();
-    println!("{}", STR__.repeat(60 as usize));
-    println!("{}", "ALL CONFIGPARSER TESTS PASSED!");
-    println!("{}", "Total tests: 9");
-    println!("{}", STR__.repeat(60 as usize));
+    log::info!("{}", STR__.repeat(60 as usize));
+    log::info!("{}", "ALL CONFIGPARSER TESTS PASSED!");
+    log::info!("{}", "Total tests: 9");
+    log::info!("{}", STR__.repeat(60 as usize));
 }
 '''
 
@@ -19695,7 +19695,7 @@ pub fn test_all_copy_features() -> Result<(), Box<dyn std::error::Error>> {
     let mut merged: HashMap<String, i32> = merge_copied_dicts(&d1, &d2)?;
     let empty_sizes: () = test_copy_empty_collections();
     let single_values: () = test_copy_single_element();
-    println!("{}", "All copy module tests completed successfully");
+    log::info!("{}", "All copy module tests completed successfully");
     Ok(())
 }
 #[cfg(test)]
@@ -20579,7 +20579,7 @@ pub fn test_all_datetime_features() -> Result<(), Box<dyn std::error::Error>> {
     let date_list: Vec<date> = test_date_range(range_start, range_end);
     let meeting_end: i32 = test_time_arithmetic()?;
     let q: i32 = quarter_of_year(today);
-    println!("{}", "All datetime module tests completed successfully");
+    log::info!("{}", "All datetime module tests completed successfully");
     Ok(())
 }
 #[cfg(test)]
@@ -21232,7 +21232,7 @@ pub fn test_all_enum_features() {
     let has_perms: bool = test_enum_flags();
     let dir_range: Vec<i32> = test_enum_range();
     let is_valid: bool = validate_enum_value(2, 0, 3);
-    println!("{}", "All enum module tests completed successfully");
+    log::info!("{}", "All enum module tests completed successfully");
 }
 #[cfg(test)]
 mod tests {
@@ -21990,7 +21990,7 @@ pub fn test_all_functools_features() -> Result<(), Box<dyn std::error::Error>> {
         "square".to_string(),
     ];
     let piped: i32 = pipeline(3, &ops);
-    println!("{}", "All functools module tests completed successfully");
+    log::info!("{}", "All functools module tests completed successfully");
     Ok(())
 }
 #[cfg(test)]
@@ -22278,7 +22278,7 @@ pub fn test_gzip_compress_decompress() {
     let compressed = gzip.compress(data);
     let decompressed = gzip.decompress(compressed);
     assert!(decompressed == data);
-    println!("{}", "PASS: test_gzip_compress_decompress");
+    log::info!("{}", "PASS: test_gzip_compress_decompress");
 }
 #[doc = "Test compressing text data."]
 #[doc = " Depyler: verified panic-free"]
@@ -22290,7 +22290,7 @@ pub fn test_gzip_compress_text() {
     let compressed = gzip.compress(data);
     let decompressed = gzip.decompress(compressed);
     assert!(decompressed.decode("utf-8".to_string()) == text);
-    println!("{}", "PASS: test_gzip_compress_text");
+    log::info!("{}", "PASS: test_gzip_compress_text");
 }
 #[doc = "Test compressing empty data."]
 #[doc = " Depyler: verified panic-free"]
@@ -22300,7 +22300,7 @@ pub fn test_gzip_compress_empty() {
     let compressed = gzip.compress(data);
     let decompressed = gzip.decompress(compressed);
     assert!(decompressed == b"");
-    println!("{}", "PASS: test_gzip_compress_empty");
+    log::info!("{}", "PASS: test_gzip_compress_empty");
 }
 #[doc = "Test different compression levels."]
 #[doc = " Depyler: verified panic-free"]
@@ -22315,7 +22315,7 @@ pub fn test_gzip_compress_levels() {
     let decompressed_9 = gzip.decompress(compressed_9);
     assert!(decompressed_9 == data);
     assert!(compressed_9.len() as i32 <= compressed_1.len() as i32);
-    println!("{}", "PASS: test_gzip_compress_levels");
+    log::info!("{}", "PASS: test_gzip_compress_levels");
 }
 #[doc = "Test compressing larger data."]
 #[doc = " Depyler: verified panic-free"]
@@ -22327,7 +22327,7 @@ pub fn test_gzip_large_data() {
     let decompressed = gzip.decompress(compressed);
     assert!(decompressed == data);
     assert!((compressed.len() as i32) < data.len() as i32 / 2);
-    println!("{}", "PASS: test_gzip_large_data");
+    log::info!("{}", "PASS: test_gzip_large_data");
 }
 #[doc = "Test compressing binary data."]
 #[doc = " Depyler: verified panic-free"]
@@ -22337,7 +22337,7 @@ pub fn test_gzip_binary_data() {
     let compressed = gzip.compress(data);
     let decompressed = gzip.decompress(compressed);
     assert!(decompressed == data);
-    println!("{}", "PASS: test_gzip_binary_data");
+    log::info!("{}", "PASS: test_gzip_binary_data");
 }
 #[doc = "Test compressing Unicode text."]
 #[doc = " Depyler: verified panic-free"]
@@ -22348,7 +22348,7 @@ pub fn test_gzip_unicode_text() {
     let compressed = gzip.compress(data);
     let decompressed = gzip.decompress(compressed);
     assert!(decompressed.decode("utf-8".to_string()) == text);
-    println!("{}", "PASS: test_gzip_unicode_text");
+    log::info!("{}", "PASS: test_gzip_unicode_text");
 }
 #[doc = "Test compressing already compressed data."]
 #[doc = " Depyler: verified panic-free"]
@@ -22360,15 +22360,15 @@ pub fn test_gzip_multiple_compress() {
     let decompressed_once = gzip.decompress(compressed_twice);
     let decompressed_twice = gzip.decompress(decompressed_once);
     assert!(decompressed_twice == data);
-    println!("{}", "PASS: test_gzip_multiple_compress");
+    log::info!("{}", "PASS: test_gzip_multiple_compress");
 }
 #[doc = "Run all gzip tests."]
 #[doc = " Depyler: verified panic-free"]
 #[doc = " Depyler: proven to terminate"]
 pub fn main() {
-    println!("{}", STR__.repeat(60 as usize));
-    println!("{}", "GZIP MODULE TESTS");
-    println!("{}", STR__.repeat(60 as usize));
+    log::info!("{}", STR__.repeat(60 as usize));
+    log::info!("{}", "GZIP MODULE TESTS");
+    log::info!("{}", STR__.repeat(60 as usize));
     test_gzip_compress_decompress();
     test_gzip_compress_text();
     test_gzip_compress_empty();
@@ -22377,10 +22377,10 @@ pub fn main() {
     test_gzip_binary_data();
     test_gzip_unicode_text();
     test_gzip_multiple_compress();
-    println!("{}", STR__.repeat(60 as usize));
-    println!("{}", "ALL GZIP TESTS PASSED!");
-    println!("{}", "Total tests: 8");
-    println!("{}", STR__.repeat(60 as usize));
+    log::info!("{}", STR__.repeat(60 as usize));
+    log::info!("{}", "ALL GZIP TESTS PASSED!");
+    log::info!("{}", "Total tests: 8");
+    log::info!("{}", STR__.repeat(60 as usize));
 }
 '''
 
@@ -22620,7 +22620,7 @@ pub fn test_sha256_basic() {
     let result = hash_obj.hexdigest();
     let expected = "dffd6021bb2bd5b0af676290809ec3a53191dd81c7f70a4b28688a362182986f";
     assert!(result == expected);
-    println!("{}", "PASS: test_sha256_basic");
+    log::info!("{}", "PASS: test_sha256_basic");
 }
 #[doc = "Test SHA256 of empty data."]
 #[doc = " Depyler: verified panic-free"]
@@ -22636,7 +22636,7 @@ pub fn test_sha256_empty() {
     let result = hash_obj.hexdigest();
     let expected = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855";
     assert!(result == expected);
-    println!("{}", "PASS: test_sha256_empty");
+    log::info!("{}", "PASS: test_sha256_empty");
 }
 #[doc = "Test SHA256 with multiple updates."]
 #[doc = " Depyler: verified panic-free"]
@@ -22656,7 +22656,7 @@ pub fn test_sha256_update() {
     let result = hash_obj.hexdigest();
     let expected = "dffd6021bb2bd5b0af676290809ec3a53191dd81c7f70a4b28688a362182986f";
     assert!(result == expected);
-    println!("{}", "PASS: test_sha256_update");
+    log::info!("{}", "PASS: test_sha256_update");
 }
 #[doc = "Test basic SHA1 hashing."]
 #[doc = " Depyler: verified panic-free"]
@@ -22672,7 +22672,7 @@ pub fn test_sha1_basic() {
     let result = hash_obj.hexdigest();
     let expected = "f48dd853820860816c75d54d0f584dc863327a7c";
     assert!(result == expected);
-    println!("{}", "PASS: test_sha1_basic");
+    log::info!("{}", "PASS: test_sha1_basic");
 }
 #[doc = "Test basic MD5 hashing."]
 #[doc = " Depyler: verified panic-free"]
@@ -22688,7 +22688,7 @@ pub fn test_md5_basic() {
     let result = hash_obj.hexdigest();
     let expected = "098f6bcd4621d373cade4e832627b4f6";
     assert!(result == expected);
-    println!("{}", "PASS: test_md5_basic");
+    log::info!("{}", "PASS: test_md5_basic");
 }
 #[doc = "Test hashing binary data."]
 #[doc = " Depyler: verified panic-free"]
@@ -22708,7 +22708,7 @@ pub fn test_sha256_binary_data() {
         .copied()
         .map(|c| "0123456789abcdef".to_string().contains(&c))
         .all(|x| x));
-    println!("{}", "PASS: test_sha256_binary_data");
+    log::info!("{}", "PASS: test_sha256_binary_data");
 }
 #[doc = "Test hashing larger data."]
 #[doc = " Depyler: verified panic-free"]
@@ -22729,7 +22729,7 @@ pub fn test_sha256_large_data() {
         .copied()
         .map(|c| "0123456789abcdef".to_string().contains(&c))
         .all(|x| x));
-    println!("{}", "PASS: test_sha256_large_data");
+    log::info!("{}", "PASS: test_sha256_large_data");
 }
 #[doc = "Test that different data produces different hashes."]
 #[doc = " Depyler: verified panic-free"]
@@ -22750,7 +22750,7 @@ pub fn test_hash_different_data() {
     }
     .hexdigest();
     assert!(hash1 != hash2);
-    println!("{}", "PASS: test_hash_different_data");
+    log::info!("{}", "PASS: test_hash_different_data");
 }
 #[doc = "Test that same data produces same hash."]
 #[doc = " Depyler: verified panic-free"]
@@ -22772,7 +22772,7 @@ pub fn test_hash_deterministic() {
     }
     .hexdigest();
     assert!(hash1 == hash2);
-    println!("{}", "PASS: test_hash_deterministic");
+    log::info!("{}", "PASS: test_hash_deterministic");
 }
 #[doc = "Test hashing text(encoded to bytes)."]
 #[doc = " Depyler: verified panic-free"]
@@ -22793,15 +22793,15 @@ pub fn test_sha256_text() {
         .copied()
         .map(|c| "0123456789abcdef".to_string().contains(&c))
         .all(|x| x));
-    println!("{}", "PASS: test_sha256_text");
+    log::info!("{}", "PASS: test_sha256_text");
 }
 #[doc = "Run all hashlib tests."]
 #[doc = " Depyler: verified panic-free"]
 #[doc = " Depyler: proven to terminate"]
 pub fn main() {
-    println!("{}", STR__.repeat(60 as usize));
-    println!("{}", "HASHLIB MODULE TESTS");
-    println!("{}", STR__.repeat(60 as usize));
+    log::info!("{}", STR__.repeat(60 as usize));
+    log::info!("{}", "HASHLIB MODULE TESTS");
+    log::info!("{}", STR__.repeat(60 as usize));
     test_sha256_basic();
     test_sha256_empty();
     test_sha256_update();
@@ -22812,10 +22812,10 @@ pub fn main() {
     test_hash_different_data();
     test_hash_deterministic();
     test_sha256_text();
-    println!("{}", STR__.repeat(60 as usize));
-    println!("{}", "ALL HASHLIB TESTS PASSED!");
-    println!("{}", "Total tests: 10");
-    println!("{}", STR__.repeat(60 as usize));
+    log::info!("{}", STR__.repeat(60 as usize));
+    log::info!("{}", "ALL HASHLIB TESTS PASSED!");
+    log::info!("{}", "Total tests: 10");
+    log::info!("{}", STR__.repeat(60 as usize));
 }
 '''
 
@@ -23610,7 +23610,7 @@ pub fn test_all_heapq_features() -> Result<(), IndexError> {
     let kth: i32 = find_kth_smallest(&sample, 3)?;
     let median_data: Vec<i32> = vec![1, 2, 3, 4, 5];
     let mut median: f64 = find_median_using_heaps(&median_data)?;
-    println!("{}", "All heapq module tests completed successfully");
+    log::info!("{}", "All heapq module tests completed successfully");
     Ok(())
 }
 #[cfg(test)]
@@ -24681,7 +24681,7 @@ pub fn test_all_itertools_features() -> Result<(), Box<dyn std::error::Error>> {
     let all_same: bool = test_all_equal(&vec![5, 5, 5, 5])?;
     let not_same: bool = test_all_equal(&vec![1, 2, 3])?;
     let above_threshold: i32 = test_quantify(&vec![1, 5, 10, 3, 8, 2, 15], 5);
-    println!("{}", "All itertools tests completed successfully");
+    log::info!("{}", "All itertools tests completed successfully");
     Ok(())
 }
 #[cfg(test)]
@@ -25409,7 +25409,7 @@ pub fn test_all_math_features() -> Result<(), Box<dyn std::error::Error>> {
     let sign_result: f64 = test_sign_and_copysign();
     let remainder_result: f64 = test_remainder_operations();
     let int_result: i32 = test_integer_operations()?;
-    println!("{}", "All math module tests completed successfully");
+    log::info!("{}", "All math module tests completed successfully");
     Ok(())
 }
 #[cfg(test)]
@@ -26242,7 +26242,7 @@ pub fn test_all_operator_features() -> Result<(), Box<dyn std::error::Error>> {
     let truth: bool = test_truthiness();
     let identity: bool = test_identity();
     let chained: bool = chain_comparisons(5, 1, 10);
-    println!("{}", "All operator module tests completed successfully");
+    log::info!("{}", "All operator module tests completed successfully");
     Ok(())
 }
 #[cfg(test)]
@@ -27122,7 +27122,7 @@ pub fn test_all_os_sys_features() -> Result<(), Box<dyn std::error::Error>> {
     let file_counts: HashMap<String, i32> = count_files_by_extension(&files)?;
     let mut depth: i32 = test_path_traversal("/home/user/docs", 5);
     let safe_name: String = sanitize_filename("file<>name.txt");
-    println!("{}", "All os/sys module tests completed successfully");
+    log::info!("{}", "All os/sys module tests completed successfully");
     Ok(())
 }
 #[cfg(test)]
@@ -27563,7 +27563,7 @@ pub fn test_pickle_basic_types() {
     pickled = { format!("{:?}", data).into_bytes() };
     unpickled = { String::from_utf8_lossy(pickled).to_string() };
     assert!(unpickled == 3.14159);
-    println!("{}", "PASS: test_pickle_basic_types");
+    log::info!("{}", "PASS: test_pickle_basic_types");
 }
 #[doc = "Test pickling lists."]
 #[doc = " Depyler: verified panic-free"]
@@ -27574,7 +27574,7 @@ pub fn test_pickle_list() {
     let mut unpickled = { String::from_utf8_lossy(pickled).to_string() };
     assert!(unpickled == vec![1, 2, 3, 4, 5]);
     assert!(unpickled.len() as i32 == 5);
-    println!("{}", "PASS: test_pickle_list");
+    log::info!("{}", "PASS: test_pickle_list");
 }
 #[doc = "Test pickling dictionaries."]
 #[doc = " Depyler: verified panic-free"]
@@ -27585,7 +27585,7 @@ pub fn test_pickle_dict() {
     let mut unpickled = { String::from_utf8_lossy(pickled).to_string() };
     assert!(unpickled == serde_json::json!({ "name": "Alice", "age": 30, "city": "NYC" }));
     assert!(unpickled.get("name").cloned().unwrap_or_default() == "Alice");
-    println!("{}", "PASS: test_pickle_dict");
+    log::info!("{}", "PASS: test_pickle_dict");
 }
 #[doc = "Test pickling nested data structures."]
 #[doc = " Depyler: verified panic-free"]
@@ -27645,7 +27645,7 @@ pub fn test_pickle_nested_structure() {
             .unwrap_or_default()
             == 91
     );
-    println!("{}", "PASS: test_pickle_nested_structure");
+    log::info!("{}", "PASS: test_pickle_nested_structure");
 }
 #[doc = "Test pickling tuples."]
 #[doc = " Depyler: verified panic-free"]
@@ -27656,7 +27656,7 @@ pub fn test_pickle_tuple() {
     let mut unpickled = { String::from_utf8_lossy(pickled).to_string() };
     assert!(unpickled = = (1, "hello", 3.14, true));
     assert!(unpickled.get(1usize).cloned().unwrap_or_default() == "hello");
-    println!("{}", "PASS: test_pickle_tuple");
+    log::info!("{}", "PASS: test_pickle_tuple");
 }
 #[doc = "Test pickling sets."]
 #[doc = " Depyler: verified panic-free"]
@@ -27685,7 +27685,7 @@ pub fn test_pickle_set() {
         }
     );
     assert!(unpickled.contains_key(&3));
-    println!("{}", "PASS: test_pickle_set");
+    log::info!("{}", "PASS: test_pickle_set");
 }
 #[doc = "Test pickling None."]
 #[doc = " Depyler: verified panic-free"]
@@ -27695,7 +27695,7 @@ pub fn test_pickle_none() {
     let mut pickled = { format!("{:?}", data).into_bytes() };
     let mut unpickled = { String::from_utf8_lossy(pickled).to_string() };
     assert!(unpickled == None);
-    println!("{}", "PASS: test_pickle_none");
+    log::info!("{}", "PASS: test_pickle_none");
 }
 #[doc = "Test pickling booleans."]
 #[doc = " Depyler: verified panic-free"]
@@ -27709,7 +27709,7 @@ pub fn test_pickle_boolean() {
     let pickled_false = { format!("{:?}", data_false).into_bytes() };
     let unpickled_false = { String::from_utf8_lossy(pickled_false).to_string() };
     assert!(unpickled_false == false);
-    println!("{}", "PASS: test_pickle_boolean");
+    log::info!("{}", "PASS: test_pickle_boolean");
 }
 #[doc = "Test pickling bytes."]
 #[doc = " Depyler: verified panic-free"]
@@ -27719,7 +27719,7 @@ pub fn test_pickle_bytes() {
     let mut pickled = { format!("{:?}", data).into_bytes() };
     let mut unpickled = { String::from_utf8_lossy(pickled).to_string() };
     assert!(unpickled == b"hello bytes");
-    println!("{}", "PASS: test_pickle_bytes");
+    log::info!("{}", "PASS: test_pickle_bytes");
 }
 #[doc = "Test pickling mixed type collections."]
 #[doc = " Depyler: verified panic-free"]
@@ -27743,15 +27743,15 @@ pub fn test_pickle_mixed_types() {
             .unwrap_or_default()
             == "value"
     );
-    println!("{}", "PASS: test_pickle_mixed_types");
+    log::info!("{}", "PASS: test_pickle_mixed_types");
 }
 #[doc = "Run all pickle tests."]
 #[doc = " Depyler: verified panic-free"]
 #[doc = " Depyler: proven to terminate"]
 pub fn main() {
-    println!("{}", STR__.repeat(60 as usize));
-    println!("{}", "PICKLE MODULE TESTS");
-    println!("{}", STR__.repeat(60 as usize));
+    log::info!("{}", STR__.repeat(60 as usize));
+    log::info!("{}", "PICKLE MODULE TESTS");
+    log::info!("{}", STR__.repeat(60 as usize));
     test_pickle_basic_types();
     test_pickle_list();
     test_pickle_dict();
@@ -27762,10 +27762,10 @@ pub fn main() {
     test_pickle_boolean();
     test_pickle_bytes();
     test_pickle_mixed_types();
-    println!("{}", STR__.repeat(60 as usize));
-    println!("{}", "ALL PICKLE TESTS PASSED!");
-    println!("{}", "Total tests: 10");
-    println!("{}", STR__.repeat(60 as usize));
+    log::info!("{}", STR__.repeat(60 as usize));
+    log::info!("{}", "ALL PICKLE TESTS PASSED!");
+    log::info!("{}", "Total tests: 10");
+    log::info!("{}", STR__.repeat(60 as usize));
 }
 '''
 
@@ -28414,7 +28414,7 @@ pub fn test_all_random_features() -> Result<(), Box<dyn std::error::Error>> {
     let mut deck: Vec<String> = shuffle_deck();
     let gauss_result: f64 = test_gauss_distribution();
     let tri_result: f64 = test_triangular_distribution();
-    println!("{}", "All random module tests completed successfully");
+    log::info!("{}", "All random module tests completed successfully");
     Ok(())
 }
 #[cfg(test)]
@@ -29298,7 +29298,7 @@ pub fn test_all_re_features() -> Result<(), Box<dyn std::error::Error>> {
     let nums: Vec<i32> = extract_numbers_from_text(mixed);
     let wildcard1: bool = wildcard_match_simple("hello.txt", "*.txt")?;
     let wildcard2: bool = wildcard_match_simple("test_file.py", "test_*")?;
-    println!("{}", "All regex module tests completed successfully");
+    log::info!("{}", "All regex module tests completed successfully");
     Ok(())
 }
 #[cfg(test)]
@@ -30343,7 +30343,7 @@ pub fn test_all_statistics_features() -> Result<(), Box<dyn std::error::Error>> 
     let y_data: Vec<f64> = vec![2.0, 4.0, 6.0, 8.0, 10.0];
     let cov: f64 = calculate_covariance(&x_data, &y_data)?;
     let corr: f64 = calculate_correlation(x_data, y_data)?;
-    println!("{}", "All statistics module tests completed successfully");
+    log::info!("{}", "All statistics module tests completed successfully");
     Ok(())
 }
 #[cfg(test)]
@@ -31272,7 +31272,7 @@ pub fn test_all_string_features() -> Result<(), Box<dyn std::error::Error>> {
     let is_palin: bool = is_palindrome("A man a plan a canal Panama")?;
     let vowel_count: i32 = count_vowels("hello world");
     let consonant_count: i32 = count_consonants("hello world");
-    println!("{}", "All string module tests completed successfully");
+    log::info!("{}", "All string module tests completed successfully");
     Ok(())
 }
 #[cfg(test)]
@@ -32010,7 +32010,7 @@ pub fn test_urlparse_basic() {
     assert!(result.scheme == "https".to_string());
     assert!(result.netloc == "example.com".to_string());
     assert!(result.path == "/path/page.html".to_string());
-    println!("{}", "PASS: test_urlparse_basic");
+    log::info!("{}", "PASS: test_urlparse_basic");
 }
 #[doc = "Test URL parsing with query string."]
 #[doc = " Depyler: verified panic-free"]
@@ -32022,7 +32022,7 @@ pub fn test_urlparse_with_query() {
     assert!(result.netloc == "example.com".to_string());
     assert!(result.path == "/search".to_string());
     assert!(result.query == "q=python&lang=en".to_string());
-    println!("{}", "PASS: test_urlparse_with_query");
+    log::info!("{}", "PASS: test_urlparse_with_query");
 }
 #[doc = "Test URL parsing with fragment."]
 #[doc = " Depyler: verified panic-free"]
@@ -32033,7 +32033,7 @@ pub fn test_urlparse_with_fragment() {
     assert!(result.scheme == "https".to_string());
     assert!(result.path == "/page".to_string());
     assert!(result.fragment == "section1".to_string());
-    println!("{}", "PASS: test_urlparse_with_fragment");
+    log::info!("{}", "PASS: test_urlparse_with_fragment");
 }
 #[doc = "Test full URL parsing with all components."]
 #[doc = " Depyler: verified panic-free"]
@@ -32046,7 +32046,7 @@ pub fn test_urlparse_full() {
     assert!(result.path == "/path".to_string());
     assert!(result.query == "query=value".to_string());
     assert!(result.fragment == "fragment".to_string());
-    println!("{}", "PASS: test_urlparse_full");
+    log::info!("{}", "PASS: test_urlparse_full");
 }
 #[doc = "Test query string parsing."]
 #[doc = " Depyler: verified panic-free"]
@@ -32059,7 +32059,7 @@ pub fn test_parse_qs_basic() {
     );
     assert!(result.get("age").cloned().unwrap_or_default() == vec!["30".to_string()]);
     assert!(result.get("city").cloned().unwrap_or_default() == vec!["NYC".to_string().to_string()]);
-    println!("{}", "PASS: test_parse_qs_basic");
+    log::info!("{}", "PASS: test_parse_qs_basic");
 }
 #[doc = "Test query string with multiple values."]
 #[doc = " Depyler: verified panic-free"]
@@ -32078,7 +32078,7 @@ pub fn test_parse_qs_multiple_values() {
         .cloned()
         .unwrap_or_default()
         .contains_key(&"rust".to_string()));
-    println!("{}", "PASS: test_parse_qs_multiple_values");
+    log::info!("{}", "PASS: test_parse_qs_multiple_values");
 }
 #[doc = "Test query string parsing as list of tuples."]
 #[doc = " Depyler: verified panic-free"]
@@ -32090,7 +32090,7 @@ pub fn test_parse_qsl_tuples() {
     assert!(result.contains_key(&("a".to_string(), "1".to_string())));
     assert!(result.contains_key(&("b".to_string(), "2".to_string())));
     assert!(result.contains_key(&("c".to_string(), "3".to_string())));
-    println!("{}", "PASS: test_parse_qsl_tuples");
+    log::info!("{}", "PASS: test_parse_qsl_tuples");
 }
 #[doc = "Test URL encoding from dict."]
 #[doc = " Depyler: verified panic-free"]
@@ -32108,7 +32108,7 @@ pub fn test_urlencode_basic() {
             || (result.contains_key(&"name=John%20Doe".to_string()))
     );
     assert!(result.contains_key(&"age=30".to_string()));
-    println!("{}", "PASS: test_urlencode_basic");
+    log::info!("{}", "PASS: test_urlencode_basic");
 }
 #[doc = "Test URL quoting/encoding."]
 #[doc = " Depyler: verified panic-free"]
@@ -32117,7 +32117,7 @@ pub fn test_quote_string() {
     let text = "Hello World!";
     let result = url::percent_encoding::percent_encode(text);
     assert!(result == "Hello%20World%21");
-    println!("{}", "PASS: test_quote_string");
+    log::info!("{}", "PASS: test_quote_string");
 }
 #[doc = "Test URL unquoting/decoding."]
 #[doc = " Depyler: verified panic-free"]
@@ -32126,7 +32126,7 @@ pub fn test_unquote_string() {
     let encoded = "Hello%20World%21";
     let result = url::percent_encoding::percent_decode(encoded);
     assert!(result == "Hello World!");
-    println!("{}", "PASS: test_unquote_string");
+    log::info!("{}", "PASS: test_unquote_string");
 }
 #[doc = "Test URL quoting with safe characters."]
 #[doc = " Depyler: verified panic-free"]
@@ -32135,7 +32135,7 @@ pub fn test_quote_safe_chars() {
     let path = "/path/to/file";
     let result = url::percent_encoding::percent_encode(path);
     assert!(result == "/path/to/file");
-    println!("{}", "PASS: test_quote_safe_chars");
+    log::info!("{}", "PASS: test_quote_safe_chars");
 }
 #[doc = "Test joining URLs."]
 #[doc = " Depyler: verified panic-free"]
@@ -32145,7 +32145,7 @@ pub fn test_urljoin_basic() {
     let relative = "page.html";
     let result = url::Url::join(base, relative);
     assert!(result == "https://example.com/dir/page.html".to_string());
-    println!("{}", "PASS: test_urljoin_basic");
+    log::info!("{}", "PASS: test_urljoin_basic");
 }
 #[doc = "Test joining with absolute URL."]
 #[doc = " Depyler: verified panic-free"]
@@ -32155,7 +32155,7 @@ pub fn test_urljoin_absolute() {
     let absolute = "https://other.com/page.html";
     let result = url::Url::join(base, absolute);
     assert!(result == "https://other.com/page.html");
-    println!("{}", "PASS: test_urljoin_absolute");
+    log::info!("{}", "PASS: test_urljoin_absolute");
 }
 #[doc = "Test URL splitting(similar to urlparse)."]
 #[doc = " Depyler: verified panic-free"]
@@ -32168,15 +32168,15 @@ pub fn test_urlsplit_basic() {
     assert!(result.path == "/path".to_string());
     assert!(result.query == "query=value".to_string());
     assert!(result.fragment == "fragment".to_string());
-    println!("{}", "PASS: test_urlsplit_basic");
+    log::info!("{}", "PASS: test_urlsplit_basic");
 }
 #[doc = "Run all urllib.parse tests."]
 #[doc = " Depyler: verified panic-free"]
 #[doc = " Depyler: proven to terminate"]
 pub fn main() {
-    println!("{}", STR__.repeat(60 as usize));
-    println!("{}", "URLLIB.PARSE MODULE TESTS");
-    println!("{}", STR__.repeat(60 as usize));
+    log::info!("{}", STR__.repeat(60 as usize));
+    log::info!("{}", "URLLIB.PARSE MODULE TESTS");
+    log::info!("{}", STR__.repeat(60 as usize));
     test_urlparse_basic();
     test_urlparse_with_query();
     test_urlparse_with_fragment();
@@ -32191,10 +32191,10 @@ pub fn main() {
     test_urljoin_basic();
     test_urljoin_absolute();
     test_urlsplit_basic();
-    println!("{}", STR__.repeat(60 as usize));
-    println!("{}", "ALL URLLIB.PARSE TESTS PASSED!");
-    println!("{}", "Total tests: 14");
-    println!("{}", STR__.repeat(60 as usize));
+    log::info!("{}", STR__.repeat(60 as usize));
+    log::info!("{}", "ALL URLLIB.PARSE TESTS PASSED!");
+    log::info!("{}", "Total tests: 14");
+    log::info!("{}", STR__.repeat(60 as usize));
 }
 '''
 
@@ -32453,7 +32453,7 @@ pub fn test_xml_parse_from_string() {
     let root = ET::fromstring(xml_string);
     assert!(root.tag == "root".to_string());
     assert!(root.find("child").map(|i| i as i32).unwrap_or(-1).text == "Hello".to_string());
-    println!("{}", "PASS: test_xml_parse_from_string");
+    log::info!("{}", "PASS: test_xml_parse_from_string");
 }
 #[doc = "Test creating an XML element programmatically."]
 #[doc = " Depyler: verified panic-free"]
@@ -32462,7 +32462,7 @@ pub fn test_xml_create_element() {
     let root = ET::Element("root".to_string());
     assert!(root.tag == "root".to_string());
     assert!(root.text.is_none());
-    println!("{}", "PASS: test_xml_create_element");
+    log::info!("{}", "PASS: test_xml_create_element");
 }
 #[doc = "Test creating child elements."]
 #[doc = " Depyler: verified panic-free"]
@@ -32474,7 +32474,7 @@ pub fn test_xml_create_subelement() {
     assert!(root.len() as i32 == 1);
     assert!(root.get(0usize).cloned().unwrap_or_default().tag == "child".to_string());
     assert!(root.get(0usize).cloned().unwrap_or_default().text == "Test");
-    println!("{}", "PASS: test_xml_create_subelement");
+    log::info!("{}", "PASS: test_xml_create_subelement");
 }
 #[doc = "Test reading and writing element attributes."]
 #[doc = " Depyler: verified panic-free"]
@@ -32490,7 +32490,7 @@ pub fn test_xml_element_attributes() {
             .unwrap_or("default".to_string())
             == "default".to_string()
     );
-    println!("{}", "PASS: test_xml_element_attributes");
+    log::info!("{}", "PASS: test_xml_element_attributes");
 }
 #[doc = "Test setting attributes programmatically."]
 #[doc = " Depyler: verified panic-free"]
@@ -32501,7 +32501,7 @@ pub fn test_xml_set_attribute() {
     root.set("type".to_string(), "test".to_string());
     assert!(root.get(&"id".to_string()).cloned() == "456".to_string());
     assert!(root.get(&"type".to_string()).cloned() == "test".to_string());
-    println!("{}", "PASS: test_xml_set_attribute");
+    log::info!("{}", "PASS: test_xml_set_attribute");
 }
 #[doc = "Test finding elements by tag name."]
 #[doc = " Depyler: verified panic-free"]
@@ -32512,7 +32512,7 @@ pub fn test_xml_find_element() {
     let person = root.find("person").map(|i| i as i32).unwrap_or(-1);
     assert!(person.is_some());
     assert!(person.find("name").map(|i| i as i32).unwrap_or(-1).text == "Alice".to_string());
-    println!("{}", "PASS: test_xml_find_element");
+    log::info!("{}", "PASS: test_xml_find_element");
 }
 #[doc = "Test finding all elements with a tag name."]
 #[doc = " Depyler: verified panic-free"]
@@ -32528,7 +32528,7 @@ pub fn test_xml_findall_elements() {
     assert!(items.get(0usize).cloned().unwrap_or_default().text == "First".to_string());
     assert!(items.get(1usize).cloned().unwrap_or_default().text == "Second".to_string());
     assert!(items.get(2usize).cloned().unwrap_or_default().text == "Third".to_string());
-    println!("{}", "PASS: test_xml_findall_elements");
+    log::info!("{}", "PASS: test_xml_findall_elements");
 }
 #[doc = "Test converting XML tree to string."]
 #[doc = " Depyler: verified panic-free"]
@@ -32540,7 +32540,7 @@ pub fn test_xml_to_string() {
     let xml_bytes = ET::tostring(root);
     assert!(xml_bytes.contains_key(&"<root>".to_string()));
     assert!(xml_bytes.contains_key(&"<child>Content</child>".to_string()));
-    println!("{}", "PASS: test_xml_to_string");
+    log::info!("{}", "PASS: test_xml_to_string");
 }
 #[doc = "Test working with deeply nested XML structures."]
 #[doc = " Depyler: verified panic-free"]
@@ -32556,7 +32556,7 @@ pub fn test_xml_nested_structure() {
     assert!(
         author.find("email").map(|i| i as i32).unwrap_or(-1).text == "john@example.com".to_string()
     );
-    println!("{}", "PASS: test_xml_nested_structure");
+    log::info!("{}", "PASS: test_xml_nested_structure");
 }
 #[doc = "Test iterating over child elements."]
 #[doc = " Depyler: verified panic-free"]
@@ -32585,7 +32585,7 @@ pub fn test_xml_iterate_children() {
                 "3".to_string().to_string()
             ]
     );
-    println!("{}", "PASS: test_xml_iterate_children");
+    log::info!("{}", "PASS: test_xml_iterate_children");
 }
 #[doc = "Test building a complete XML tree from scratch."]
 #[doc = " Depyler: verified panic-free"]
@@ -32617,7 +32617,7 @@ pub fn test_xml_build_tree() {
             .cloned()
             == "Bob".to_string()
     );
-    println!("{}", "PASS: test_xml_build_tree");
+    log::info!("{}", "PASS: test_xml_build_tree");
 }
 #[doc = "Test handling empty XML elements."]
 #[doc = " Depyler: verified panic-free"]
@@ -32629,7 +32629,7 @@ pub fn test_xml_empty_elements() {
     let notempty = root.find("notempty").map(|i| i as i32).unwrap_or(-1);
     assert!(empty.text.is_none());
     assert!(notempty.text == "text".to_string());
-    println!("{}", "PASS: test_xml_empty_elements");
+    log::info!("{}", "PASS: test_xml_empty_elements");
 }
 #[doc = "Test elements with text content."]
 #[doc = " Depyler: verified panic-free"]
@@ -32641,15 +32641,15 @@ pub fn test_xml_text_content() {
     let mut child = ET::SubElement(root, "child".to_string());
     child.text = "Child text";
     assert!(child.text == "Child text");
-    println!("{}", "PASS: test_xml_text_content");
+    log::info!("{}", "PASS: test_xml_text_content");
 }
 #[doc = "Run all xml.etree.ElementTree tests."]
 #[doc = " Depyler: verified panic-free"]
 #[doc = " Depyler: proven to terminate"]
 pub fn main() {
-    println!("{}", STR__.repeat(60 as usize));
-    println!("{}", "XML.ETREE.ELEMENTTREE MODULE TESTS");
-    println!("{}", STR__.repeat(60 as usize));
+    log::info!("{}", STR__.repeat(60 as usize));
+    log::info!("{}", "XML.ETREE.ELEMENTTREE MODULE TESTS");
+    log::info!("{}", STR__.repeat(60 as usize));
     test_xml_parse_from_string();
     test_xml_create_element();
     test_xml_create_subelement();
@@ -32663,10 +32663,10 @@ pub fn main() {
     test_xml_build_tree();
     test_xml_empty_elements();
     test_xml_text_content();
-    println!("{}", STR__.repeat(60 as usize));
-    println!("{}", "ALL XML.ETREE.ELEMENTTREE TESTS PASSED!");
-    println!("{}", "Total tests: 13");
-    println!("{}", STR__.repeat(60 as usize));
+    log::info!("{}", STR__.repeat(60 as usize));
+    log::info!("{}", "ALL XML.ETREE.ELEMENTTREE TESTS PASSED!");
+    log::info!("{}", "Total tests: 13");
+    log::info!("{}", STR__.repeat(60 as usize));
 }
 '''
 
@@ -32872,7 +32872,7 @@ pub fn test_zipfile_create_and_read() {
     let zf = _context.__enter__();
     let content = zf.read("test.txt".to_string());
     assert!(content == b"Hello, ZIP!");
-    println!("{}", "PASS: test_zipfile_create_and_read");
+    log::info!("{}", "PASS: test_zipfile_create_and_read");
 }
 #[doc = "Test ZIP with multiple files."]
 #[doc = " Depyler: verified panic-free"]
@@ -32892,7 +32892,7 @@ pub fn test_zipfile_multiple_files() {
     assert!(zf.namelist().contains_key(&"file2.txt".to_string()));
     assert!(zf.namelist().contains_key(&"file3.txt".to_string()));
     assert!(zf.read("file2.txt".to_string()) == b"Content 2");
-    println!("{}", "PASS: test_zipfile_multiple_files");
+    log::info!("{}", "PASS: test_zipfile_multiple_files");
 }
 #[doc = "Test listing files in ZIP archive."]
 #[doc = " Depyler: verified panic-free"]
@@ -32912,7 +32912,7 @@ pub fn test_zipfile_namelist() {
     assert!(names.contains_key(&"alpha.txt".to_string()));
     assert!(names.contains_key(&"beta.txt".to_string()));
     assert!(names.contains_key(&"gamma.txt".to_string()));
-    println!("{}", "PASS: test_zipfile_namelist");
+    log::info!("{}", "PASS: test_zipfile_namelist");
 }
 #[doc = "Test getting file info from ZIP."]
 #[doc = " Depyler: verified panic-free"]
@@ -32928,7 +32928,7 @@ pub fn test_zipfile_getinfo() {
     let info = zf.getinfo("data.txt".to_string());
     assert!(info.filename == "data.txt".to_string());
     assert!(info.file_size == "Test data content".to_string().len() as i32);
-    println!("{}", "PASS: test_zipfile_getinfo");
+    log::info!("{}", "PASS: test_zipfile_getinfo");
 }
 #[doc = "Test ZIP with compression."]
 #[doc = " Depyler: verified panic-free"]
@@ -32947,7 +32947,7 @@ pub fn test_zipfile_compression() {
         .read("compressed.txt".to_string())
         .decode("utf-8".to_string());
     assert!(content == data);
-    println!("{}", "PASS: test_zipfile_compression");
+    log::info!("{}", "PASS: test_zipfile_compression");
 }
 #[doc = "Test ZIP with binary data."]
 #[doc = " Depyler: verified panic-free"]
@@ -32963,7 +32963,7 @@ pub fn test_zipfile_binary_data() {
     let zf = _context.__enter__();
     let content = zf.read("binary.dat".to_string());
     assert!(content == binary_data);
-    println!("{}", "PASS: test_zipfile_binary_data");
+    log::info!("{}", "PASS: test_zipfile_binary_data");
 }
 #[doc = "Test creating empty ZIP archive."]
 #[doc = " Depyler: verified panic-free"]
@@ -32976,7 +32976,7 @@ pub fn test_zipfile_empty() {
     let _context = zipfile.ZipFile(buffer, "r".to_string());
     let zf = _context.__enter__();
     assert!(zf.namelist().len() as i32 == 0);
-    println!("{}", "PASS: test_zipfile_empty");
+    log::info!("{}", "PASS: test_zipfile_empty");
 }
 #[doc = "Test reading from existing ZIP."]
 #[doc = " Depyler: verified panic-free"]
@@ -32991,15 +32991,15 @@ pub fn test_zipfile_read_mode() {
     let zf = _context.__enter__();
     let content = zf.read("readonly.txt".to_string());
     assert!(content == b"Read-only content");
-    println!("{}", "PASS: test_zipfile_read_mode");
+    log::info!("{}", "PASS: test_zipfile_read_mode");
 }
 #[doc = "Run all zipfile tests."]
 #[doc = " Depyler: verified panic-free"]
 #[doc = " Depyler: proven to terminate"]
 pub fn main() {
-    println!("{}", STR__.repeat(60 as usize));
-    println!("{}", "ZIPFILE MODULE TESTS");
-    println!("{}", STR__.repeat(60 as usize));
+    log::info!("{}", STR__.repeat(60 as usize));
+    log::info!("{}", "ZIPFILE MODULE TESTS");
+    log::info!("{}", STR__.repeat(60 as usize));
     test_zipfile_create_and_read();
     test_zipfile_multiple_files();
     test_zipfile_namelist();
@@ -33008,10 +33008,10 @@ pub fn main() {
     test_zipfile_binary_data();
     test_zipfile_empty();
     test_zipfile_read_mode();
-    println!("{}", STR__.repeat(60 as usize));
-    println!("{}", "ALL ZIPFILE TESTS PASSED!");
-    println!("{}", "Total tests: 8");
-    println!("{}", STR__.repeat(60 as usize));
+    log::info!("{}", STR__.repeat(60 as usize));
+    log::info!("{}", "ALL ZIPFILE TESTS PASSED!");
+    log::info!("{}", "Total tests: 8");
+    log::info!("{}", STR__.repeat(60 as usize));
 }
 '''
 
@@ -33594,7 +33594,7 @@ pub fn test_urlparse_basic() {
     assert!(result.scheme == "https".to_string());
     assert!(result.netloc == "example.com".to_string());
     assert!(result.path == "/path/page.html".to_string());
-    println!("{}", "PASS: test_urlparse_basic");
+    log::info!("{}", "PASS: test_urlparse_basic");
 }
 #[doc = "Test URL parsing with query string."]
 #[doc = " Depyler: verified panic-free"]
@@ -33606,7 +33606,7 @@ pub fn test_urlparse_with_query() {
     assert!(result.netloc == "example.com".to_string());
     assert!(result.path == "/search".to_string());
     assert!(result.query == "q=python&lang=en".to_string());
-    println!("{}", "PASS: test_urlparse_with_query");
+    log::info!("{}", "PASS: test_urlparse_with_query");
 }
 #[doc = "Test URL parsing with fragment."]
 #[doc = " Depyler: verified panic-free"]
@@ -33617,7 +33617,7 @@ pub fn test_urlparse_with_fragment() {
     assert!(result.scheme == "https".to_string());
     assert!(result.path == "/page".to_string());
     assert!(result.fragment == "section1".to_string());
-    println!("{}", "PASS: test_urlparse_with_fragment");
+    log::info!("{}", "PASS: test_urlparse_with_fragment");
 }
 #[doc = "Test full URL parsing with all components."]
 #[doc = " Depyler: verified panic-free"]
@@ -33630,7 +33630,7 @@ pub fn test_urlparse_full() {
     assert!(result.path == "/path".to_string());
     assert!(result.query == "query=value".to_string());
     assert!(result.fragment == "fragment".to_string());
-    println!("{}", "PASS: test_urlparse_full");
+    log::info!("{}", "PASS: test_urlparse_full");
 }
 #[doc = "Test query string parsing."]
 #[doc = " Depyler: verified panic-free"]
@@ -33643,7 +33643,7 @@ pub fn test_parse_qs_basic() {
     );
     assert!(result.get("age").cloned().unwrap_or_default() == vec!["30".to_string()]);
     assert!(result.get("city").cloned().unwrap_or_default() == vec!["NYC".to_string().to_string()]);
-    println!("{}", "PASS: test_parse_qs_basic");
+    log::info!("{}", "PASS: test_parse_qs_basic");
 }
 #[doc = "Test query string with multiple values."]
 #[doc = " Depyler: verified panic-free"]
@@ -33662,7 +33662,7 @@ pub fn test_parse_qs_multiple_values() {
         .cloned()
         .unwrap_or_default()
         .contains_key(&"rust".to_string()));
-    println!("{}", "PASS: test_parse_qs_multiple_values");
+    log::info!("{}", "PASS: test_parse_qs_multiple_values");
 }
 #[doc = "Test query string parsing as list of tuples."]
 #[doc = " Depyler: verified panic-free"]
@@ -33674,7 +33674,7 @@ pub fn test_parse_qsl_tuples() {
     assert!(result.contains_key(&("a".to_string(), "1".to_string())));
     assert!(result.contains_key(&("b".to_string(), "2".to_string())));
     assert!(result.contains_key(&("c".to_string(), "3".to_string())));
-    println!("{}", "PASS: test_parse_qsl_tuples");
+    log::info!("{}", "PASS: test_parse_qsl_tuples");
 }
 #[doc = "Test URL encoding from dict."]
 #[doc = " Depyler: verified panic-free"]
@@ -33692,7 +33692,7 @@ pub fn test_urlencode_basic() {
             || (result.contains_key(&"name=John%20Doe".to_string()))
     );
     assert!(result.contains_key(&"age=30".to_string()));
-    println!("{}", "PASS: test_urlencode_basic");
+    log::info!("{}", "PASS: test_urlencode_basic");
 }
 #[doc = "Test URL quoting/encoding."]
 #[doc = " Depyler: verified panic-free"]
@@ -33701,7 +33701,7 @@ pub fn test_quote_string() {
     let text = "Hello World!";
     let result = url::percent_encoding::percent_encode(text);
     assert!(result == "Hello%20World%21");
-    println!("{}", "PASS: test_quote_string");
+    log::info!("{}", "PASS: test_quote_string");
 }
 #[doc = "Test URL unquoting/decoding."]
 #[doc = " Depyler: verified panic-free"]
@@ -33710,7 +33710,7 @@ pub fn test_unquote_string() {
     let encoded = "Hello%20World%21";
     let result = url::percent_encoding::percent_decode(encoded);
     assert!(result == "Hello World!");
-    println!("{}", "PASS: test_unquote_string");
+    log::info!("{}", "PASS: test_unquote_string");
 }
 #[doc = "Test URL quoting with safe characters."]
 #[doc = " Depyler: verified panic-free"]
@@ -33719,7 +33719,7 @@ pub fn test_quote_safe_chars() {
     let path = "/path/to/file";
     let result = url::percent_encoding::percent_encode(path);
     assert!(result == "/path/to/file");
-    println!("{}", "PASS: test_quote_safe_chars");
+    log::info!("{}", "PASS: test_quote_safe_chars");
 }
 #[doc = "Test joining URLs."]
 #[doc = " Depyler: verified panic-free"]
@@ -33729,7 +33729,7 @@ pub fn test_urljoin_basic() {
     let relative = "page.html";
     let result = url::Url::join(base, relative);
     assert!(result == "https://example.com/dir/page.html".to_string());
-    println!("{}", "PASS: test_urljoin_basic");
+    log::info!("{}", "PASS: test_urljoin_basic");
 }
 #[doc = "Test joining with absolute URL."]
 #[doc = " Depyler: verified panic-free"]
@@ -33739,7 +33739,7 @@ pub fn test_urljoin_absolute() {
     let absolute = "https://other.com/page.html";
     let result = url::Url::join(base, absolute);
     assert!(result == "https://other.com/page.html");
-    println!("{}", "PASS: test_urljoin_absolute");
+    log::info!("{}", "PASS: test_urljoin_absolute");
 }
 #[doc = "Test URL splitting(similar to urlparse)."]
 #[doc = " Depyler: verified panic-free"]
@@ -33752,15 +33752,15 @@ pub fn test_urlsplit_basic() {
     assert!(result.path == "/path".to_string());
     assert!(result.query == "query=value".to_string());
     assert!(result.fragment == "fragment".to_string());
-    println!("{}", "PASS: test_urlsplit_basic");
+    log::info!("{}", "PASS: test_urlsplit_basic");
 }
 #[doc = "Run all urllib.parse tests."]
 #[doc = " Depyler: verified panic-free"]
 #[doc = " Depyler: proven to terminate"]
 pub fn main() {
-    println!("{}", STR__.repeat(60 as usize));
-    println!("{}", "URLLIB.PARSE MODULE TESTS");
-    println!("{}", STR__.repeat(60 as usize));
+    log::info!("{}", STR__.repeat(60 as usize));
+    log::info!("{}", "URLLIB.PARSE MODULE TESTS");
+    log::info!("{}", STR__.repeat(60 as usize));
     test_urlparse_basic();
     test_urlparse_with_query();
     test_urlparse_with_fragment();
@@ -33775,10 +33775,10 @@ pub fn main() {
     test_urljoin_basic();
     test_urljoin_absolute();
     test_urlsplit_basic();
-    println!("{}", STR__.repeat(60 as usize));
-    println!("{}", "ALL URLLIB.PARSE TESTS PASSED!");
-    println!("{}", "Total tests: 14");
-    println!("{}", STR__.repeat(60 as usize));
+    log::info!("{}", STR__.repeat(60 as usize));
+    log::info!("{}", "ALL URLLIB.PARSE TESTS PASSED!");
+    log::info!("{}", "Total tests: 14");
+    log::info!("{}", STR__.repeat(60 as usize));
 }
 '''
 
@@ -34037,7 +34037,7 @@ pub fn test_xml_parse_from_string() {
     let root = ET::fromstring(xml_string);
     assert!(root.tag == "root".to_string());
     assert!(root.find("child").map(|i| i as i32).unwrap_or(-1).text == "Hello".to_string());
-    println!("{}", "PASS: test_xml_parse_from_string");
+    log::info!("{}", "PASS: test_xml_parse_from_string");
 }
 #[doc = "Test creating an XML element programmatically."]
 #[doc = " Depyler: verified panic-free"]
@@ -34046,7 +34046,7 @@ pub fn test_xml_create_element() {
     let root = ET::Element("root".to_string());
     assert!(root.tag == "root".to_string());
     assert!(root.text.is_none());
-    println!("{}", "PASS: test_xml_create_element");
+    log::info!("{}", "PASS: test_xml_create_element");
 }
 #[doc = "Test creating child elements."]
 #[doc = " Depyler: verified panic-free"]
@@ -34058,7 +34058,7 @@ pub fn test_xml_create_subelement() {
     assert!(root.len() as i32 == 1);
     assert!(root.get(0usize).cloned().unwrap_or_default().tag == "child".to_string());
     assert!(root.get(0usize).cloned().unwrap_or_default().text == "Test");
-    println!("{}", "PASS: test_xml_create_subelement");
+    log::info!("{}", "PASS: test_xml_create_subelement");
 }
 #[doc = "Test reading and writing element attributes."]
 #[doc = " Depyler: verified panic-free"]
@@ -34074,7 +34074,7 @@ pub fn test_xml_element_attributes() {
             .unwrap_or("default".to_string())
             == "default".to_string()
     );
-    println!("{}", "PASS: test_xml_element_attributes");
+    log::info!("{}", "PASS: test_xml_element_attributes");
 }
 #[doc = "Test setting attributes programmatically."]
 #[doc = " Depyler: verified panic-free"]
@@ -34085,7 +34085,7 @@ pub fn test_xml_set_attribute() {
     root.set("type".to_string(), "test".to_string());
     assert!(root.get(&"id".to_string()).cloned() == "456".to_string());
     assert!(root.get(&"type".to_string()).cloned() == "test".to_string());
-    println!("{}", "PASS: test_xml_set_attribute");
+    log::info!("{}", "PASS: test_xml_set_attribute");
 }
 #[doc = "Test finding elements by tag name."]
 #[doc = " Depyler: verified panic-free"]
@@ -34096,7 +34096,7 @@ pub fn test_xml_find_element() {
     let person = root.find("person").map(|i| i as i32).unwrap_or(-1);
     assert!(person.is_some());
     assert!(person.find("name").map(|i| i as i32).unwrap_or(-1).text == "Alice".to_string());
-    println!("{}", "PASS: test_xml_find_element");
+    log::info!("{}", "PASS: test_xml_find_element");
 }
 #[doc = "Test finding all elements with a tag name."]
 #[doc = " Depyler: verified panic-free"]
@@ -34112,7 +34112,7 @@ pub fn test_xml_findall_elements() {
     assert!(items.get(0usize).cloned().unwrap_or_default().text == "First".to_string());
     assert!(items.get(1usize).cloned().unwrap_or_default().text == "Second".to_string());
     assert!(items.get(2usize).cloned().unwrap_or_default().text == "Third".to_string());
-    println!("{}", "PASS: test_xml_findall_elements");
+    log::info!("{}", "PASS: test_xml_findall_elements");
 }
 #[doc = "Test converting XML tree to string."]
 #[doc = " Depyler: verified panic-free"]
@@ -34124,7 +34124,7 @@ pub fn test_xml_to_string() {
     let xml_bytes = ET::tostring(root);
     assert!(xml_bytes.contains_key(&"<root>".to_string()));
     assert!(xml_bytes.contains_key(&"<child>Content</child>".to_string()));
-    println!("{}", "PASS: test_xml_to_string");
+    log::info!("{}", "PASS: test_xml_to_string");
 }
 #[doc = "Test working with deeply nested XML structures."]
 #[doc = " Depyler: verified panic-free"]
@@ -34140,7 +34140,7 @@ pub fn test_xml_nested_structure() {
     assert!(
         author.find("email").map(|i| i as i32).unwrap_or(-1).text == "john@example.com".to_string()
     );
-    println!("{}", "PASS: test_xml_nested_structure");
+    log::info!("{}", "PASS: test_xml_nested_structure");
 }
 #[doc = "Test iterating over child elements."]
 #[doc = " Depyler: verified panic-free"]
@@ -34169,7 +34169,7 @@ pub fn test_xml_iterate_children() {
                 "3".to_string().to_string()
             ]
     );
-    println!("{}", "PASS: test_xml_iterate_children");
+    log::info!("{}", "PASS: test_xml_iterate_children");
 }
 #[doc = "Test building a complete XML tree from scratch."]
 #[doc = " Depyler: verified panic-free"]
@@ -34201,7 +34201,7 @@ pub fn test_xml_build_tree() {
             .cloned()
             == "Bob".to_string()
     );
-    println!("{}", "PASS: test_xml_build_tree");
+    log::info!("{}", "PASS: test_xml_build_tree");
 }
 #[doc = "Test handling empty XML elements."]
 #[doc = " Depyler: verified panic-free"]
@@ -34213,7 +34213,7 @@ pub fn test_xml_empty_elements() {
     let notempty = root.find("notempty").map(|i| i as i32).unwrap_or(-1);
     assert!(empty.text.is_none());
     assert!(notempty.text == "text".to_string());
-    println!("{}", "PASS: test_xml_empty_elements");
+    log::info!("{}", "PASS: test_xml_empty_elements");
 }
 #[doc = "Test elements with text content."]
 #[doc = " Depyler: verified panic-free"]
@@ -34225,15 +34225,15 @@ pub fn test_xml_text_content() {
     let mut child = ET::SubElement(root, "child".to_string());
     child.text = "Child text";
     assert!(child.text == "Child text");
-    println!("{}", "PASS: test_xml_text_content");
+    log::info!("{}", "PASS: test_xml_text_content");
 }
 #[doc = "Run all xml.etree.ElementTree tests."]
 #[doc = " Depyler: verified panic-free"]
 #[doc = " Depyler: proven to terminate"]
 pub fn main() {
-    println!("{}", STR__.repeat(60 as usize));
-    println!("{}", "XML.ETREE.ELEMENTTREE MODULE TESTS");
-    println!("{}", STR__.repeat(60 as usize));
+    log::info!("{}", STR__.repeat(60 as usize));
+    log::info!("{}", "XML.ETREE.ELEMENTTREE MODULE TESTS");
+    log::info!("{}", STR__.repeat(60 as usize));
     test_xml_parse_from_string();
     test_xml_create_element();
     test_xml_create_subelement();
@@ -34247,10 +34247,10 @@ pub fn main() {
     test_xml_build_tree();
     test_xml_empty_elements();
     test_xml_text_content();
-    println!("{}", STR__.repeat(60 as usize));
-    println!("{}", "ALL XML.ETREE.ELEMENTTREE TESTS PASSED!");
-    println!("{}", "Total tests: 13");
-    println!("{}", STR__.repeat(60 as usize));
+    log::info!("{}", STR__.repeat(60 as usize));
+    log::info!("{}", "ALL XML.ETREE.ELEMENTTREE TESTS PASSED!");
+    log::info!("{}", "Total tests: 13");
+    log::info!("{}", STR__.repeat(60 as usize));
 }
 '''
 
@@ -34456,7 +34456,7 @@ pub fn test_zipfile_create_and_read() {
     let zf = _context.__enter__();
     let content = zf.read("test.txt".to_string());
     assert!(content == b"Hello, ZIP!");
-    println!("{}", "PASS: test_zipfile_create_and_read");
+    log::info!("{}", "PASS: test_zipfile_create_and_read");
 }
 #[doc = "Test ZIP with multiple files."]
 #[doc = " Depyler: verified panic-free"]
@@ -34476,7 +34476,7 @@ pub fn test_zipfile_multiple_files() {
     assert!(zf.namelist().contains_key(&"file2.txt".to_string()));
     assert!(zf.namelist().contains_key(&"file3.txt".to_string()));
     assert!(zf.read("file2.txt".to_string()) == b"Content 2");
-    println!("{}", "PASS: test_zipfile_multiple_files");
+    log::info!("{}", "PASS: test_zipfile_multiple_files");
 }
 #[doc = "Test listing files in ZIP archive."]
 #[doc = " Depyler: verified panic-free"]
@@ -34496,7 +34496,7 @@ pub fn test_zipfile_namelist() {
     assert!(names.contains_key(&"alpha.txt".to_string()));
     assert!(names.contains_key(&"beta.txt".to_string()));
     assert!(names.contains_key(&"gamma.txt".to_string()));
-    println!("{}", "PASS: test_zipfile_namelist");
+    log::info!("{}", "PASS: test_zipfile_namelist");
 }
 #[doc = "Test getting file info from ZIP."]
 #[doc = " Depyler: verified panic-free"]
@@ -34512,7 +34512,7 @@ pub fn test_zipfile_getinfo() {
     let info = zf.getinfo("data.txt".to_string());
     assert!(info.filename == "data.txt".to_string());
     assert!(info.file_size == "Test data content".to_string().len() as i32);
-    println!("{}", "PASS: test_zipfile_getinfo");
+    log::info!("{}", "PASS: test_zipfile_getinfo");
 }
 #[doc = "Test ZIP with compression."]
 #[doc = " Depyler: verified panic-free"]
@@ -34531,7 +34531,7 @@ pub fn test_zipfile_compression() {
         .read("compressed.txt".to_string())
         .decode("utf-8".to_string());
     assert!(content == data);
-    println!("{}", "PASS: test_zipfile_compression");
+    log::info!("{}", "PASS: test_zipfile_compression");
 }
 #[doc = "Test ZIP with binary data."]
 #[doc = " Depyler: verified panic-free"]
@@ -34547,7 +34547,7 @@ pub fn test_zipfile_binary_data() {
     let zf = _context.__enter__();
     let content = zf.read("binary.dat".to_string());
     assert!(content == binary_data);
-    println!("{}", "PASS: test_zipfile_binary_data");
+    log::info!("{}", "PASS: test_zipfile_binary_data");
 }
 #[doc = "Test creating empty ZIP archive."]
 #[doc = " Depyler: verified panic-free"]
@@ -34560,7 +34560,7 @@ pub fn test_zipfile_empty() {
     let _context = zipfile.ZipFile(buffer, "r".to_string());
     let zf = _context.__enter__();
     assert!(zf.namelist().len() as i32 == 0);
-    println!("{}", "PASS: test_zipfile_empty");
+    log::info!("{}", "PASS: test_zipfile_empty");
 }
 #[doc = "Test reading from existing ZIP."]
 #[doc = " Depyler: verified panic-free"]
@@ -34575,15 +34575,15 @@ pub fn test_zipfile_read_mode() {
     let zf = _context.__enter__();
     let content = zf.read("readonly.txt".to_string());
     assert!(content == b"Read-only content");
-    println!("{}", "PASS: test_zipfile_read_mode");
+    log::info!("{}", "PASS: test_zipfile_read_mode");
 }
 #[doc = "Run all zipfile tests."]
 #[doc = " Depyler: verified panic-free"]
 #[doc = " Depyler: proven to terminate"]
 pub fn main() {
-    println!("{}", STR__.repeat(60 as usize));
-    println!("{}", "ZIPFILE MODULE TESTS");
-    println!("{}", STR__.repeat(60 as usize));
+    log::info!("{}", STR__.repeat(60 as usize));
+    log::info!("{}", "ZIPFILE MODULE TESTS");
+    log::info!("{}", STR__.repeat(60 as usize));
     test_zipfile_create_and_read();
     test_zipfile_multiple_files();
     test_zipfile_namelist();
@@ -34592,9 +34592,9 @@ pub fn main() {
     test_zipfile_binary_data();
     test_zipfile_empty();
     test_zipfile_read_mode();
-    println!("{}", STR__.repeat(60 as usize));
-    println!("{}", "ALL ZIPFILE TESTS PASSED!");
-    println!("{}", "Total tests: 8");
-    println!("{}", STR__.repeat(60 as usize));
+    log::info!("{}", STR__.repeat(60 as usize));
+    log::info!("{}", "ALL ZIPFILE TESTS PASSED!");
+    log::info!("{}", "Total tests: 8");
+    log::info!("{}", STR__.repeat(60 as usize));
 }
 '''

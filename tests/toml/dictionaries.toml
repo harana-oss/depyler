@@ -333,7 +333,7 @@ use serde_json;
 use std::collections::HashMap;
 pub fn print_keys(d: &HashMap<serde_json::Value, serde_json::Value>) {
     for key in d.iter().cloned() {
-        println!("{}", key);
+        log::info!("{}", key);
     }
 }
 '''
@@ -353,7 +353,7 @@ use serde_json;
 use std::collections::HashMap;
 pub fn print_items(d: &HashMap<serde_json::Value, serde_json::Value>) {
     for (key, value) in d.iter().map(|(k, v)| (k.clone(), v.clone())).collect::<Vec<_>>() {
-        println!("{}", format!("{}: {}", key, value));
+        log::info!("{}", format!("{}: {}", key, value));
     }
 }
 '''
@@ -932,7 +932,7 @@ pub fn sum_dict(d: &HashMap<String, i32>) -> i32 {
     let mut total = 0;
     for (k, v) in d.iter().map(|(k, v)| (k.clone(), v.clone())).collect::<Vec<_>>() {
         total = total + v;
-        println!("{}", k);
+        log::info!("{}", k);
     }
     return total;
 }
@@ -1071,7 +1071,7 @@ pub fn dict_ops(d: &mut HashMap<String, i32>) {
     d.remove("old_key").unwrap_or(None);
     let _cse_temp_0 = d.get(&"check_key").is_some();
     if _cse_temp_0 {
-        println!("{}", d.get("check_key").cloned().unwrap());
+        log::info!("{}", d.get("check_key").cloned().unwrap());
     }
 }
 '''
@@ -1357,7 +1357,7 @@ use serde_json;
 #[doc = " Depyler: proven to terminate"]
 pub fn main() {
     let data = serde_json::json!({ "name": "test", "count": 42, "enabled": true, "rate": 3.14, "items": vec! [1, 2, 3] });
-    println!("{}", serde_json::to_string(&data).unwrap());
+    log::info!("{}", serde_json::to_string(&data).unwrap());
 }
 '''
 

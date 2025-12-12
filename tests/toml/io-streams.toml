@@ -26,7 +26,7 @@ use std as sys;
 pub fn process_stdin() {
     for line in &sys.stdin.lines().map(|l| l.unwrap_or_default()) {
         let line = line.clone();
-        println!("{}", line.trim_end());
+        log::info!("{}", line.trim_end());
     }
 }
 '''
@@ -45,7 +45,7 @@ def log_error(msg: str):
 rust = '''
 use std as sys;
 pub fn log_error(msg: String) {
-    println!("{} {}", format!("Error: {}", msg), std::io::stderr());
+    log::info!("{} {}", format!("Error: {}", msg), std::io::stderr());
 }
 '''
 
@@ -170,7 +170,7 @@ rust = '''
 use clap::Parser;
 pub fn process(verbose: bool) {
     if verbose {
-        println!("{}", "Verbose mode enabled");
+        log::info!("{}", "Verbose mode enabled");
     }
 }
 '''
@@ -194,7 +194,7 @@ use std as sys;
 pub fn read_stdin() {
     for line in &sys.stdin.lines().map(|l| l.unwrap_or_default()) {
         let line = line.clone();
-        println!("{}", line.trim_end());
+        log::info!("{}", line.trim_end());
     }
 }
 '''

@@ -48,7 +48,7 @@ fn main() {
     let a = MyClass { x: 0b1100 };
     let b = MyClass { x: 0b1010 };
     let result = a & b;
-    println!("MyClass({})", result.x);
+    log::info!("MyClass({})", result.x);
 }
 """
 
@@ -91,7 +91,7 @@ fn main() {
     let a = MyClass { x: 0b1100 };
     let b = MyClass { x: 0b1010 };
     let result = a | b;
-    println!("MyClass({})", result.x);
+    log::info!("MyClass({})", result.x);
 }
 """
 
@@ -134,7 +134,7 @@ fn main() {
     let a = MyClass { x: 0b1100 };
     let b = MyClass { x: 0b1010 };
     let result = a ^ b;
-    println!("MyClass({})", result.x);
+    log::info!("MyClass({})", result.x);
 }
 """
 
@@ -179,7 +179,7 @@ impl Shl<i32> for MyClass {
 fn main() {
     let a = MyClass { x: 5 };
     let result = a << 2;
-    println!("MyClass({})", result.x);
+    log::info!("MyClass({})", result.x);
 }
 """
 
@@ -220,7 +220,7 @@ impl Shr<i32> for MyClass {
 fn main() {
     let a = MyClass { x: 20 };
     let result = a >> 2;
-    println!("MyClass({})", result.x);
+    log::info!("MyClass({})", result.x);
 }
 """
 
@@ -267,7 +267,7 @@ impl BitAnd<i32> for CustomFlags {
 fn main() {
     let flags = CustomFlags { value: 0xFF00 };
     let result = flags & 0xFF;
-    println!("CustomFlags({:#x})", result.value);
+    log::info!("CustomFlags({:#x})", result.value);
 }
 """
 
@@ -308,7 +308,7 @@ impl BitAnd<CustomFlags> for i32 {
 fn main() {
     let flags = CustomFlags { value: 0xFF00 };
     let result = 0xFF & flags;
-    println!("CustomFlags({:#x})", result.value);
+    log::info!("CustomFlags({:#x})", result.value);
 }
 """
 
@@ -336,9 +336,9 @@ const EXECUTE: i32 = 4;
 
 fn main() {
     let permissions = READ | WRITE;
-    println!("Permissions: {}", permissions);
-    println!("Has read: {}", (permissions & READ) != 0);
-    println!("Has execute: {}", (permissions & EXECUTE) != 0);
+    log::info!("Permissions: {}", permissions);
+    log::info!("Has read: {}", (permissions & READ) != 0);
+    log::info!("Has execute: {}", (permissions & EXECUTE) != 0);
 }
 """
 
@@ -365,8 +365,8 @@ fn main() {
     let has_read = (permissions & READ) != 0;
     let has_write = (permissions & WRITE) != 0;
     
-    println!("Has read: {}", has_read);
-    println!("Has write: {}", has_write);
+    log::info!("Has read: {}", has_read);
+    log::info!("Has write: {}", has_write);
 }
 """
 
@@ -392,13 +392,13 @@ const WRITE: i32 = 2;
 
 fn main() {
     let mut flags = READ;
-    println!("Initial: {}", flags);
+    log::info!("Initial: {}", flags);
     
     flags = flags ^ WRITE;  // Add WRITE
-    println!("After adding WRITE: {}", flags);
+    log::info!("After adding WRITE: {}", flags);
     
     flags = flags ^ WRITE;  // Remove WRITE
-    println!("After removing WRITE: {}", flags);
+    log::info!("After removing WRITE: {}", flags);
 }
 """
 
@@ -417,7 +417,7 @@ print(f"Bitmasks: {masks}")
 rust = """
 fn main() {
     let masks: Vec<i32> = (0..5).map(|i| 1 << i).collect();
-    println!("Bitmasks: {:?}", masks);
+    log::info!("Bitmasks: {:?}", masks);
 }
 """
 
@@ -444,7 +444,7 @@ fn main() {
     let byte2 = (value >> 16) & 0xFF;
     let byte3 = (value >> 24) & 0xFF;
     
-    println!("Bytes: {:#x}, {:#x}, {:#x}, {:#x}", byte0, byte1, byte2, byte3);
+    log::info!("Bytes: {:#x}, {:#x}, {:#x}, {:#x}", byte0, byte1, byte2, byte3);
 }
 """
 
@@ -470,7 +470,7 @@ fn main() {
     let result: Vec<_> = set1.intersection(&set2).copied().collect();
     let mut sorted = result;
     sorted.sort();
-    println!("{:?}", sorted);
+    log::info!("{:?}", sorted);
 }
 """
 
@@ -492,7 +492,7 @@ fn main() {
     let result: Vec<_> = set1.union(&set2).copied().collect();
     let mut sorted = result;
     sorted.sort();
-    println!("{:?}", sorted);
+    log::info!("{:?}", sorted);
 }
 """
 
@@ -514,7 +514,7 @@ fn main() {
     let result: Vec<_> = set1.symmetric_difference(&set2).copied().collect();
     let mut sorted = result;
     sorted.sort();
-    println!("{:?}", sorted);
+    log::info!("{:?}", sorted);
 }
 """
 
@@ -537,7 +537,7 @@ rust = """
 // In Rust, negative shifts panic in debug mode
 fn main() {
     // This would panic, so we simulate the error
-    println!("ValueError: negative shift count");
+    log::info!("ValueError: negative shift count");
 }
 """
 
@@ -555,7 +555,7 @@ use num_traits::One;
 fn main() {
     let x = BigInt::one() << 100;
     let digits = x.to_string().len();
-    println!("Large shift result has {} digits", digits);
+    log::info!("Large shift result has {} digits", digits);
 }
 """
 
@@ -577,8 +577,8 @@ fn main() {
     let result2 = true | false;
     let result3 = true ^ false;
     
-    println!("True & False = {}", result1);
-    println!("True | False = {}", result2);
-    println!("True ^ False = {}", result3);
+    log::info!("True & False = {}", result1);
+    log::info!("True | False = {}", result2);
+    log::info!("True ^ False = {}", result3);
 }
 """

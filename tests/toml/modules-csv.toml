@@ -75,7 +75,7 @@ pub fn print_rows(filepath: String) {
     let reader = csv::ReaderBuilder::new().has_headers(true).from_reader(f);
     for result in reader.deserialize::<HashMap<String, String>>() {
         let row = result?;
-        println!("{}", row);
+        log::info!("{}", row);
     }
 }
 '''
@@ -118,7 +118,7 @@ pub fn get_column(filepath: String, column_name: String) {
     let reader = csv::ReaderBuilder::new().has_headers(true).from_reader(f);
     for result in reader.deserialize::<HashMap<String, String>>() {
         let row = result?;
-        println!("{}", row.get(&column_name).cloned().unwrap());
+        log::info!("{}", row.get(&column_name).cloned().unwrap());
     }
 }
 '''

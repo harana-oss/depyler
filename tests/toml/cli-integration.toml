@@ -584,7 +584,7 @@ pub fn count_file(filepath: &Path) -> Stats {
             .len() as i32;
         let chars = content.len() as i32;
         return Stats::new(lines, words, chars, filepath.to_string());
-        println!("{}", format!("Error reading {:?}: {:?}", filepath, e));
+        log::info!("{}", format!("Error reading {:?}: {:?}", filepath, e));
         return Stats::new(0, 0, 0, filepath.to_string());
     }
 }
@@ -631,15 +631,15 @@ pub fn main() -> i32 {
         total_words = total_words + stats.words;
         total_chars = total_chars + stats.chars;
         if args.lines {
-            println!("{}", format!("{:?} {:?}", stats.lines, stats.filename));
+            log::info!("{}", format!("{:?} {:?}", stats.lines, stats.filename));
         } else {
             if args.words {
-                println!("{}", format!("{:?} {:?}", stats.words, stats.filename));
+                log::info!("{}", format!("{:?} {:?}", stats.words, stats.filename));
             } else {
                 if args.chars {
-                    println!("{}", format!("{:?} {:?}", stats.chars, stats.filename));
+                    log::info!("{}", format!("{:?} {:?}", stats.chars, stats.filename));
                 } else {
-                    println!("{}", format_stats(stats));
+                    log::info!("{}", format_stats(stats));
                 }
             }
         }
@@ -648,7 +648,7 @@ pub fn main() -> i32 {
     let _cse_temp_1 = _cse_temp_0 > 1;
     if _cse_temp_1 {
         let total_stats = Stats::new(total_lines, total_words, total_chars, "total".to_string());
-        println!("{}", format_stats(total_stats));
+        log::info!("{}", format_stats(total_stats));
     }
     0
 }
@@ -699,7 +699,7 @@ pub fn main() -> i32 {
         name: String,
     }
     let args = Args::parse();
-    println!("{}", format!("Hello, {:?}!", args.name));
+    log::info!("{}", format!("Hello, {:?}!", args.name));
     0
 }
 '''
@@ -737,7 +737,7 @@ pub fn main() -> i32 {
         files: Vec<String>,
     }
     let args = Args::parse();
-    println!("{}", format!("Files: {:?}", args.files));
+    log::info!("{}", format!("Files: {:?}", args.files));
     0
 }
 '''
@@ -1416,7 +1416,7 @@ pub fn main() {
         map.insert("speed".to_string(), args.speed);
         map
     };
-    println!("{}", serde_json::to_string(&result).unwrap());
+    log::info!("{}", serde_json::to_string(&result).unwrap());
 }
 '''
 

@@ -1650,9 +1650,9 @@ use std as os;
 pub fn check_config() {
     let config_file = std::env::var("CONFIG_FILE").ok();
     if config_file.is_some() {
-        println!("{}", "Config set");
+        log::info!("{}", "Config set");
     } else {
-        println!("{}", "No config");
+        log::info!("{}", "No config");
     }
 }
 '''
@@ -1928,8 +1928,8 @@ pub fn get_config() -> Option<Config> {
 pub fn print_config() {
     let config = get_config();
     if config.is_some() {
-        println!("{}", config.as_ref().unwrap().timeout);
-        println!("{}", config.as_ref().unwrap().retries);
+        log::info!("{}", config.as_ref().unwrap().timeout);
+        log::info!("{}", config.as_ref().unwrap().retries);
     }
 }
 '''
@@ -2488,7 +2488,7 @@ pub fn test_function(state: &State) {
     let mut extra_time_stats: Option<PeriodStatistic> = None;
     if state.is_some() {
         extra_time_stats = Some(state.period_statistics.clone().get(2usize).cloned().unwrap());
-        println!("{}", extra_time_stats.as_ref().unwrap().scores.tries);
+        log::info!("{}", extra_time_stats.as_ref().unwrap().scores.tries);
     }
 }
 '''

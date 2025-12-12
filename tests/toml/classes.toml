@@ -1723,7 +1723,7 @@ pub fn format_message(name: String, value: i32) -> String {
     return format!("Hello {}, value is {}", name, value);
 }
 pub fn log_error(message: String) {
-    println!("{}", format!("ERROR: {}", message));
+    log::info!("{}", format!("ERROR: {}", message));
 }
 '''
 
