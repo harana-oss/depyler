@@ -1303,6 +1303,22 @@ pub fn use_dict() -> HashMap<String, String> {
 '''
 
 [[test]]
+name = "dict_get_string_default"
+description = "dict.get() with string default value needs .to_string()"
+
+python = '''
+def lookup_with_default(data: dict[str, str], key: str) -> str:
+    return data.get(key, "unknown")
+'''
+
+rust = '''
+use std::collections::HashMap;
+pub fn lookup_with_default(data: &HashMap<String, String>, key: String) -> String {
+    return data.get(&key).cloned().unwrap_or("unknown".to_string());
+}
+'''
+
+[[test]]
 name = "conditional_import_hashset"
 description = "Using set imports HashSet"
 

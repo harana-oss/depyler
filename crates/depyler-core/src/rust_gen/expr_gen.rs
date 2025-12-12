@@ -8862,7 +8862,14 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                         HirExpr::Literal(Literal::String(_)) => parse_quote! { #key },
                         _ => parse_quote! { &#key },
                     };
-                    Ok(parse_quote! { #object_expr.get(#key_expr).cloned().unwrap_or(#default) })
+                    // String literal defaults need .to_string() since HashMap<K, String> returns String
+                    let default_expr: syn::Expr = match &hir_args[1] {
+                        HirExpr::Literal(Literal::String(_)) => {
+                            parse_quote! { #default.to_string() }
+                        }
+                        _ => parse_quote! { #default },
+                    };
+                    Ok(parse_quote! { #object_expr.get(#key_expr).cloned().unwrap_or(#default_expr) })
                 } else {
                     bail!("get() requires 1 or 2 arguments");
                 }

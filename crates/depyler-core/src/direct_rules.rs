@@ -523,7 +523,7 @@ fn generate_dataclass_new(
                         return quote! { #field_ident: Default::default() };
                     }
                 }
-                
+
                 // Not a field() call or other default value expression
                 if field.field_type == Type::Int {
                     quote! { #field_ident: 0 }
