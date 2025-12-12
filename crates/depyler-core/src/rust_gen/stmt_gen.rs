@@ -2533,6 +2533,16 @@ pub(crate) fn codegen_assign_stmt(
                         }
                     }
                 }
+                // Track next() builtin: with default (2 args) returns Option<T>, without default (1 arg) returns T
+                else if func == "next" {
+                    if args.len() == 2 {
+                        // next(iter, default) returns Option<T> which unwraps to default if None
+                        ctx.var_types
+                            .insert(var_name.clone(), Type::Optional(Box::new(Type::Unknown)));
+                        ctx.optional_vars.insert(var_name.clone());
+                    }
+                    // next(iter) without default uses .expect() and returns T directly (not Optional)
+                }
             }
             HirExpr::List(elements) => {
                 // When v = [1, 2], mark v as List(Int) so it gets borrowed when calling f(&v)
@@ -2617,6 +2627,12 @@ pub(crate) fn codegen_assign_stmt(
                 else if matches!(method.as_str(), "find" | "search" | "match") {
                     // Check if this is a regex method call (on compiled regex object)
                     // We don't have a specific regex type, so use Optional as a marker
+                    ctx.var_types
+                        .insert(var_name.clone(), Type::Optional(Box::new(Type::Unknown)));
+                    ctx.optional_vars.insert(var_name.clone());
+                }
+                // Track .next() as Optional since it returns Option<T>
+                else if method == "next" {
                     ctx.var_types
                         .insert(var_name.clone(), Type::Optional(Box::new(Type::Unknown)));
                     ctx.optional_vars.insert(var_name.clone());
@@ -3175,8 +3191,9 @@ pub(crate) fn codegen_assign_index(
     if indices.is_empty() {
         // Simple assignment: d[k] = v OR list[i] = x
         if is_numeric_index {
-            // Wrap in parentheses to ensure correct operator precedence
-            Ok(quote! { #base_expr.insert((#final_index) as usize, #value_expr); })
+            // For Vec/List: use direct indexing to replace the element
+            // Note: Vec::insert() INSERTS a new element, we want to REPLACE
+            Ok(quote! { #base_expr[#final_index as usize] = #value_expr; })
         } else if needs_as_object_mut {
             Ok(quote! { #base_expr.as_object_mut().unwrap().insert(#final_index, #value_expr); })
         } else {
@@ -3203,8 +3220,9 @@ pub(crate) fn codegen_assign_index(
         }
 
         if is_numeric_index {
-            // Wrap in parentheses to ensure correct operator precedence
-            Ok(quote! { #chain.insert((#final_index) as usize, #value_expr); })
+            // For Vec/List: use direct indexing to replace the element
+            // Note: Vec::insert() INSERTS a new element, we want to REPLACE
+            Ok(quote! { #chain[#final_index as usize] = #value_expr; })
         } else if needs_as_object_mut {
             Ok(quote! { #chain.as_object_mut().unwrap().insert(#final_index, #value_expr); })
         } else {
@@ -3269,15 +3287,12 @@ pub(crate) fn codegen_assign_attribute(
     // Restore flag
     ctx.is_assignment_target = was_assignment_target;
 
-    // If the base is a variable with Optional type, unwrap it before accessing the field
-    // This handles type narrowing scenarios like:
-    //   player: Optional[Player] = _resolve_player(...)
-    //   if player is not None:
-    //       player.field = value  # Need to unwrap here
-    // Check var_types (not optional_vars) to correctly handle loop variables
-    // which have their element type set, not Optional type
+    // Handle Optional variable unwrapping for assignment targets.
+    // When the base is an Optional<T> variable (e.g., player: Option<Player>),
+    // we need to unwrap it to access the inner type's fields.
+    // Example: player.sin_bin_status = x → player.as_mut().unwrap().sin_bin_status = x
     if let HirExpr::Var(var_name) = base {
-        if matches!(ctx.var_types.get(var_name), Some(Type::Optional(_))) {
+        if let Some(Type::Optional(_)) = ctx.var_types.get(var_name) {
             base_expr = parse_quote! { #base_expr.as_mut().unwrap() };
         }
     }

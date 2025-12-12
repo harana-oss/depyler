@@ -1,0 +1,466 @@
+# Common Subexpression Elimination (CSE) Optimization Tests
+# Tests for improved CSE behavior - avoiding unnecessary temp variables
+
+[metadata]
+name = "CSE Optimization Tests"
+category = "optimizer"
+
+# =============================================================================
+# Simple Comparisons - Should NOT create temp variables
+# =============================================================================
+
+[[test]]
+name = "simple_equality_comparison"
+description = "Simple equality comparison should not create CSE temp"
+
+python = '''
+def check_status(name: str) -> bool:
+    if name == "Active":
+        return True
+    return False
+'''
+
+rust = '''
+pub fn check_status(name: &str) -> bool {
+    if name == "Active" {
+        return true;
+    }
+    return false;
+}
+'''
+
+[[test]]
+name = "simple_inequality_comparison"
+description = "Simple inequality comparison should not create CSE temp"
+
+python = '''
+def check_not_done(status: str) -> bool:
+    if status != "Done":
+        return True
+    return False
+'''
+
+rust = '''
+pub fn check_not_done(status: &str) -> bool {
+    if status != "Done" {
+        return true;
+    }
+    return false;
+}
+'''
+
+[[test]]
+name = "simple_numeric_comparison"
+description = "Simple numeric comparison should not create CSE temp"
+
+python = '''
+def is_positive(x: int) -> bool:
+    if x > 0:
+        return True
+    return False
+'''
+
+rust = '''
+pub fn is_positive(x: i64) -> bool {
+    if x > 0 {
+        return true;
+    }
+    return false;
+}
+'''
+
+[[test]]
+name = "simple_less_than_comparison"
+description = "Simple less-than comparison should not create CSE temp"
+
+python = '''
+def is_negative(x: int) -> bool:
+    if x < 0:
+        return True
+    return False
+'''
+
+rust = '''
+pub fn is_negative(x: i64) -> bool {
+    if x < 0 {
+        return true;
+    }
+    return false;
+}
+'''
+
+[[test]]
+name = "variable_to_variable_comparison"
+description = "Variable to variable comparison should not create CSE temp"
+
+python = '''
+def are_equal(a: int, b: int) -> bool:
+    if a == b:
+        return True
+    return False
+'''
+
+rust = '''
+pub fn are_equal(a: i64, b: i64) -> bool {
+    if a == b {
+        return true;
+    }
+    return false;
+}
+'''
+
+# =============================================================================
+# Boolean Operations with Simple Operands - Should NOT create temps
+# =============================================================================
+
+[[test]]
+name = "simple_and_with_comparisons"
+description = "AND of simple comparisons should be inline"
+
+python = '''
+def in_range(x: int, low: int, high: int) -> bool:
+    if x >= low and x <= high:
+        return True
+    return False
+'''
+
+rust = '''
+pub fn in_range(x: i64, low: i64, high: i64) -> bool {
+    if x >= low && x <= high {
+        return true;
+    }
+    return false;
+}
+'''
+
+[[test]]
+name = "simple_or_with_comparisons"
+description = "OR of simple comparisons should be inline"
+
+python = '''
+def is_boundary(x: int, low: int, high: int) -> bool:
+    if x == low or x == high:
+        return True
+    return False
+'''
+
+rust = '''
+pub fn is_boundary(x: i64, low: i64, high: i64) -> bool {
+    if x == low || x == high {
+        return true;
+    }
+    return false;
+}
+'''
+
+# =============================================================================
+# Nested Binary Operations - SHOULD create CSE temps when reused
+# =============================================================================
+
+[[test]]
+name = "nested_arithmetic_reused"
+description = "Nested arithmetic expression used multiple times should use CSE"
+
+python = '''
+def calculate(a: int, b: int, c: int) -> int:
+    x = (a + b) * c
+    y = (a + b) * c + 1
+    return x + y
+'''
+
+rust = '''
+pub fn calculate(a: i64, b: i64, c: i64) -> i64 {
+    let _cse_temp_0 = (a + b) * c;
+    let x = _cse_temp_0;
+    let y = _cse_temp_0 + 1;
+    return x + y;
+}
+'''
+
+[[test]]
+name = "function_call_in_expression"
+description = "Function call results should be cached"
+
+python = '''
+def use_abs_twice(x: int) -> int:
+    if abs(x) > 10:
+        return abs(x)
+    return 0
+'''
+
+rust = '''
+pub fn use_abs_twice(x: i64) -> i64 {
+    let _cse_temp_0 = x.abs();
+    if _cse_temp_0 > 10 {
+        return _cse_temp_0;
+    }
+    return 0;
+}
+'''
+
+# =============================================================================
+# Attribute Access with Comparison - Should NOT create unnecessary temps
+# =============================================================================
+
+[[test]]
+name = "attribute_comparison_simple"
+description = "Simple attribute comparison should not create CSE temp"
+
+python = '''
+class State:
+    name: str
+
+def check_state(state: State) -> bool:
+    if state.name == "Active":
+        return True
+    return False
+'''
+
+rust = '''
+pub struct State {
+    pub name: String,
+}
+
+pub fn check_state(state: &State) -> bool {
+    if state.name == "Active" {
+        return true;
+    }
+    return false;
+}
+'''
+
+[[test]]
+name = "nested_attribute_comparison"
+description = "Nested attribute comparison should not create CSE temp"
+
+python = '''
+class Period:
+    name: str
+
+class State:
+    period: Period
+
+def is_extra_time(state: State) -> bool:
+    if state.period.name != "ExtraTime":
+        return True
+    return False
+'''
+
+rust = '''
+pub struct Period {
+    pub name: String,
+}
+
+pub struct State {
+    pub period: Period,
+}
+
+pub fn is_extra_time(state: &State) -> bool {
+    if state.period.name != "ExtraTime" {
+        return true;
+    }
+    return false;
+}
+'''
+
+# =============================================================================
+# Complex Expressions That SHOULD Use CSE
+# =============================================================================
+
+[[test]]
+name = "repeated_complex_expression"
+description = "Same complex expression used twice should use CSE"
+
+python = '''
+def compute(a: int, b: int) -> int:
+    x = a * b + a * b
+    return x
+'''
+
+rust = '''
+pub fn compute(a: i64, b: i64) -> i64 {
+    let _cse_temp_0 = a * b;
+    let x = _cse_temp_0 + _cse_temp_0;
+    return x;
+}
+'''
+
+[[test]]
+name = "expression_with_function_call"
+description = "Expression containing function call should use CSE"
+
+python = '''
+def safe_divide(a: int, b: int) -> int:
+    if abs(b) > 0:
+        return a // abs(b)
+    return 0
+'''
+
+rust = '''
+pub fn safe_divide(a: i64, b: i64) -> i64 {
+    let _cse_temp_0 = b.abs();
+    if _cse_temp_0 > 0 {
+        return a / _cse_temp_0;
+    }
+    return 0;
+}
+'''
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+[[test]]
+name = "single_use_arithmetic"
+description = "Single-use arithmetic should not create CSE temp"
+
+python = '''
+def add(a: int, b: int) -> int:
+    return a + b
+'''
+
+rust = '''
+pub fn add(a: i64, b: i64) -> i64 {
+    return a + b;
+}
+'''
+
+[[test]]
+name = "single_use_multiplication"
+description = "Single-use multiplication should not create CSE temp"
+
+python = '''
+def multiply(a: int, b: int) -> int:
+    return a * b
+'''
+
+rust = '''
+pub fn multiply(a: i64, b: i64) -> i64 {
+    return a * b;
+}
+'''
+
+[[test]]
+name = "chained_comparisons_and"
+description = "Chained AND comparisons inline"
+
+python = '''
+def validate(x: int) -> bool:
+    return x > 0 and x < 100 and x != 50
+'''
+
+rust = '''
+pub fn validate(x: i64) -> bool {
+    return x > 0 && x < 100 && x != 50;
+}
+'''
+
+[[test]]
+name = "mixed_comparison_and_arithmetic"
+description = "Comparison with arithmetic operand"
+
+python = '''
+def check_sum(a: int, b: int, target: int) -> bool:
+    if a + b == target:
+        return True
+    return False
+'''
+
+rust = '''
+pub fn check_sum(a: i64, b: i64, target: i64) -> bool {
+    if a + b == target {
+        return true;
+    }
+    return false;
+}
+'''
+
+# =============================================================================
+# Real-World Game State Example (from test_array_bug.rs)
+# =============================================================================
+
+[[test]]
+name = "game_state_period_check"
+description = "Game state period check should not create unnecessary temps"
+
+python = '''
+class Period:
+    name: str
+    number: int
+
+class State:
+    period: Period
+    time_elapsed: int
+    game_status: str
+
+HALF_LENGTH = 2700
+
+def check_half_complete(state: State) -> bool:
+    if state.time_elapsed > HALF_LENGTH and state.period.name != "ExtraTime":
+        return True
+    return False
+'''
+
+rust = '''
+pub struct Period {
+    pub name: String,
+    pub number: i64,
+}
+
+pub struct State {
+    pub period: Period,
+    pub time_elapsed: i64,
+    pub game_status: String,
+}
+
+const HALF_LENGTH: i64 = 2700;
+
+pub fn check_half_complete(state: &State) -> bool {
+    if state.time_elapsed > HALF_LENGTH && state.period.name != "ExtraTime" {
+        return true;
+    }
+    return false;
+}
+'''
+
+[[test]]
+name = "multiple_period_checks"
+description = "Multiple period checks with same expression should use CSE"
+
+python = '''
+class Period:
+    name: str
+
+class State:
+    period: Period
+
+def handle_period(state: State) -> str:
+    if state.period.name == "FirstHalf":
+        return "first"
+    elif state.period.name == "SecondHalf":
+        return "second"
+    elif state.period.name == "ExtraTime":
+        return "extra"
+    return "unknown"
+'''
+
+rust = '''
+pub struct Period {
+    pub name: String,
+}
+
+pub struct State {
+    pub period: Period,
+}
+
+pub fn handle_period(state: &State) -> String {
+    if state.period.name == "FirstHalf" {
+        return "first".to_string();
+    } else if state.period.name == "SecondHalf" {
+        return "second".to_string();
+    } else if state.period.name == "ExtraTime" {
+        return "extra".to_string();
+    }
+    return "unknown".to_string();
+}
+'''

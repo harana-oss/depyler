@@ -801,14 +801,24 @@ impl Optimizer {
     fn is_complex_expr(&self, expr: &HirExpr) -> bool {
         match expr {
             HirExpr::Binary { op, left, right } => {
-                // Consider non-trivial operations or non-literal operands
-                !matches!(op, BinOp::Add | BinOp::Sub)
-                    || !matches!(left.as_ref(), HirExpr::Var(_) | HirExpr::Literal(_))
-                    || !matches!(right.as_ref(), HirExpr::Var(_) | HirExpr::Literal(_))
+                // Only consider expressions with nested binary operations as complex enough for CSE.
+                // Simple comparisons like `x != "string"` or `a > b` should not create temp variables.
+                let has_nested_binary =
+                    matches!(left.as_ref(), HirExpr::Binary { .. }) || matches!(right.as_ref(), HirExpr::Binary { .. });
+
+                // Arithmetic operations with nested operands are worth CSE'ing
+                let is_arithmetic = matches!(op, BinOp::Add | BinOp::Sub | BinOp::Mul | BinOp::Div | BinOp::Mod);
+
+                has_nested_binary || (is_arithmetic && self.has_expensive_operand(left, right))
             }
             HirExpr::Call { .. } => true,
             _ => false,
         }
+    }
+
+    fn has_expensive_operand(&self, left: &HirExpr, right: &HirExpr) -> bool {
+        let is_expensive = |e: &HirExpr| matches!(e, HirExpr::Call { .. } | HirExpr::MethodCall { .. });
+        is_expensive(left) || is_expensive(right)
     }
 
     /// without creating a CSE temporary variable.
@@ -1156,5 +1166,145 @@ mod tests {
         // At minimum, the return statement should exist
         let has_return = func.body.iter().any(|stmt| matches!(stmt, HirStmt::Return(_)));
         assert!(has_return, "Return statement should be preserved");
+    }
+
+    #[test]
+    fn test_cse_simple_comparison_no_temp() {
+        let optimizer = Optimizer::new(OptimizerConfig::default());
+
+        // Simple comparison: x != "string" should NOT be considered complex
+        let expr = HirExpr::Binary {
+            op: BinOp::NotEq,
+            left: Box::new(HirExpr::Var("x".to_string())),
+            right: Box::new(HirExpr::Literal(Literal::String("test".to_string()))),
+        };
+
+        assert!(!optimizer.is_complex_expr(&expr));
+    }
+
+    #[test]
+    fn test_cse_simple_arithmetic_no_temp() {
+        let optimizer = Optimizer::new(OptimizerConfig::default());
+
+        // Simple arithmetic: a + b with simple operands should NOT be considered complex
+        let expr = HirExpr::Binary {
+            op: BinOp::Add,
+            left: Box::new(HirExpr::Var("a".to_string())),
+            right: Box::new(HirExpr::Var("b".to_string())),
+        };
+
+        assert!(!optimizer.is_complex_expr(&expr));
+    }
+
+    #[test]
+    fn test_cse_nested_binary_is_complex() {
+        let optimizer = Optimizer::new(OptimizerConfig::default());
+
+        // Nested binary: (a + b) * c should be considered complex
+        let expr = HirExpr::Binary {
+            op: BinOp::Mul,
+            left: Box::new(HirExpr::Binary {
+                op: BinOp::Add,
+                left: Box::new(HirExpr::Var("a".to_string())),
+                right: Box::new(HirExpr::Var("b".to_string())),
+            }),
+            right: Box::new(HirExpr::Var("c".to_string())),
+        };
+
+        assert!(optimizer.is_complex_expr(&expr));
+    }
+
+    #[test]
+    fn test_cse_arithmetic_with_call_is_complex() {
+        let optimizer = Optimizer::new(OptimizerConfig::default());
+
+        // Arithmetic with function call: len(x) + 1 should be considered complex
+        let expr = HirExpr::Binary {
+            op: BinOp::Add,
+            left: Box::new(HirExpr::Call {
+                func: "len".to_string(),
+                args: vec![HirExpr::Var("x".to_string())],
+                kwargs: vec![],
+                type_params: vec![],
+            }),
+            right: Box::new(HirExpr::Literal(Literal::Int(1))),
+        };
+
+        assert!(optimizer.is_complex_expr(&expr));
+    }
+
+    #[test]
+    fn test_cse_call_is_complex() {
+        let optimizer = Optimizer::new(OptimizerConfig::default());
+
+        let expr = HirExpr::Call {
+            func: "compute".to_string(),
+            args: vec![HirExpr::Var("x".to_string())],
+            kwargs: vec![],
+            type_params: vec![],
+        };
+
+        assert!(optimizer.is_complex_expr(&expr));
+    }
+
+    #[test]
+    fn test_cse_comparison_ops_not_complex() {
+        let optimizer = Optimizer::new(OptimizerConfig::default());
+
+        let ops = [BinOp::Eq, BinOp::NotEq, BinOp::Lt, BinOp::LtEq, BinOp::Gt, BinOp::GtEq];
+
+        for op in ops {
+            let expr = HirExpr::Binary {
+                op,
+                left: Box::new(HirExpr::Var("a".to_string())),
+                right: Box::new(HirExpr::Var("b".to_string())),
+            };
+
+            assert!(
+                !optimizer.is_complex_expr(&expr),
+                "Comparison {:?} should not be complex",
+                op
+            );
+        }
+    }
+
+    #[test]
+    fn test_cse_arithmetic_with_method_call_is_complex() {
+        let optimizer = Optimizer::new(OptimizerConfig::default());
+
+        // Arithmetic with method call: x.len() + 1 should be considered complex
+        let expr = HirExpr::Binary {
+            op: BinOp::Add,
+            left: Box::new(HirExpr::MethodCall {
+                object: Box::new(HirExpr::Var("x".to_string())),
+                method: "len".to_string(),
+                args: vec![],
+                kwargs: vec![],
+                type_params: vec![],
+            }),
+            right: Box::new(HirExpr::Literal(Literal::Int(1))),
+        };
+
+        assert!(optimizer.is_complex_expr(&expr));
+    }
+
+    #[test]
+    fn test_cse_comparison_not_complex_even_with_expensive_operand() {
+        let optimizer = Optimizer::new(OptimizerConfig::default());
+
+        // Comparison with function call: len(x) > 0 should NOT be complex
+        // because comparisons are not arithmetic operations
+        let expr = HirExpr::Binary {
+            op: BinOp::Gt,
+            left: Box::new(HirExpr::Call {
+                func: "len".to_string(),
+                args: vec![HirExpr::Var("x".to_string())],
+                kwargs: vec![],
+                type_params: vec![],
+            }),
+            right: Box::new(HirExpr::Literal(Literal::Int(0))),
+        };
+
+        assert!(!optimizer.is_complex_expr(&expr));
     }
 }
