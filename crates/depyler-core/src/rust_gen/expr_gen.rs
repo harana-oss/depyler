@@ -11731,6 +11731,16 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 return Ok(parse_quote! { Self::#attr_ident });
             }
 
+            // Check if this is a bitflags constant access (e.g., NEXT_PLAY_TYPES.PASS)
+            // The Python constant name maps to a PascalCase struct name
+            if let Some(bitflags_struct_name) = self.ctx.bitflags_name_map.get(var_name) {
+                let type_ident = syn::Ident::new(bitflags_struct_name, proc_macro2::Span::call_site());
+                // Normalize the attribute to SCREAMING_CASE (as generated in bitflags)
+                let attr_upper = crate::string_set_detection::normalize_to_rust_identifier(attr);
+                let attr_ident = syn::Ident::new(&attr_upper, proc_macro2::Span::call_site());
+                return Ok(parse_quote! { #type_ident::#attr_ident });
+            }
+
             // TypeName.CONSTANT → TypeName::CONSTANT
             // Five-Whys Root Cause:
             // 1. Why: E0423 - expected value, found struct 'Color'
