@@ -1,0 +1,367 @@
+# String Set to Bitflags Optimization Tests
+# Tests for detecting immutable string sets/lists and converting them to bitflags
+
+[metadata]
+name = "String Set to Bitflags Tests"
+category = "optimization"
+
+# =============================================================================
+# Basic String Set Detection
+# =============================================================================
+
+[[test]]
+name = "immutable_string_set_constant"
+description = "Immutable string set should become bitflags"
+
+python = '''
+PERMISSIONS = {"read", "write", "execute"}
+
+def has_permission(perm: str) -> bool:
+    return perm in PERMISSIONS
+'''
+
+rust = '''
+bitflags::bitflags! {
+    #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+    pub struct Permissions: u8 {
+        const READ = 1;
+        const WRITE = 2;
+        const EXECUTE = 4;
+    }
+}
+
+impl Permissions {
+    pub fn from_str(s: &str) -> Option<Self> {
+        match s {
+            "read" => Some(Self::READ),
+            "write" => Some(Self::WRITE),
+            "execute" => Some(Self::EXECUTE),
+            _ => None,
+        }
+    }
+
+    pub fn as_str(&self) -> &'static str {
+        match *self {
+            Self::READ => "read",
+            Self::WRITE => "write",
+            Self::EXECUTE => "execute",
+            _ => "",
+        }
+    }
+}
+
+pub fn has_permission(perm: &str) -> bool {
+    Permissions::from_str(perm).is_some()
+}
+'''
+
+[[test]]
+name = "immutable_string_list_constant"
+description = "Immutable string list should become bitflags"
+
+python = '''
+STATUS_CODES = ["pending", "active", "completed", "archived"]
+
+def is_valid_status(status: str) -> bool:
+    return status in STATUS_CODES
+'''
+
+rust = '''
+bitflags::bitflags! {
+    #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+    pub struct StatusCodes: u8 {
+        const PENDING = 1;
+        const ACTIVE = 2;
+        const COMPLETED = 4;
+        const ARCHIVED = 8;
+    }
+}
+'''
+
+[[test]]
+name = "frozenset_constant"
+description = "Frozenset should become bitflags (inherently immutable)"
+
+python = '''
+MODES = frozenset(["read", "write", "append"])
+'''
+
+rust = '''
+bitflags::bitflags! {
+    #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+    pub struct Modes: u8 {
+        const READ = 1;
+        const WRITE = 2;
+        const APPEND = 4;
+    }
+}
+'''
+
+# =============================================================================
+# Mutable Sets Should NOT Become Bitflags
+# =============================================================================
+
+[[test]]
+name = "mutable_set_add"
+description = "Set with .add() should NOT become bitflags"
+
+python = '''
+COLORS = {"red", "green", "blue"}
+COLORS.add("yellow")
+'''
+
+rust = '''
+lazy_static! {
+    pub static ref COLORS: HashSet<String> = {
+        let mut set = HashSet::new();
+        set.insert("red".to_string());
+        set.insert("green".to_string());
+        set.insert("blue".to_string());
+        set
+    };
+}
+'''
+
+[[test]]
+name = "mutable_set_remove"
+description = "Set with .remove() should NOT become bitflags"
+
+python = '''
+ITEMS = {"a", "b", "c"}
+ITEMS.remove("a")
+'''
+
+rust = '''
+lazy_static! {
+    pub static ref ITEMS: HashSet<String> = {
+        let mut set = HashSet::new();
+        set.insert("a".to_string());
+        set.insert("b".to_string());
+        set.insert("c".to_string());
+        set
+    };
+}
+'''
+
+[[test]]
+name = "mutable_list_append"
+description = "List with .append() should NOT become bitflags"
+
+python = '''
+NAMES = ["alice", "bob"]
+NAMES.append("charlie")
+'''
+
+rust = '''
+lazy_static! {
+    pub static ref NAMES: Vec<String> = vec![
+        "alice".to_string(),
+        "bob".to_string(),
+    ];
+}
+'''
+
+[[test]]
+name = "mutable_set_augmented_assignment"
+description = "Set with |= should NOT become bitflags"
+
+python = '''
+FLAGS = {"a", "b"}
+FLAGS |= {"c"}
+'''
+
+rust = '''
+lazy_static! {
+    pub static ref FLAGS: HashSet<String> = {
+        let mut set = HashSet::new();
+        set.insert("a".to_string());
+        set.insert("b".to_string());
+        set
+    };
+}
+'''
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+[[test]]
+name = "empty_set"
+description = "Empty set should NOT become bitflags"
+
+python = '''
+EMPTY = set()
+'''
+
+rust = '''
+lazy_static! {
+    pub static ref EMPTY: HashSet<String> = HashSet::new();
+}
+'''
+
+[[test]]
+name = "single_element_set"
+description = "Single element set should become bitflags"
+
+python = '''
+SINGLETON = {"only"}
+'''
+
+rust = '''
+bitflags::bitflags! {
+    #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+    pub struct Singleton: u8 {
+        const ONLY = 1;
+    }
+}
+'''
+
+[[test]]
+name = "non_string_set"
+description = "Non-string set should NOT become bitflags"
+
+python = '''
+NUMBERS = {1, 2, 3}
+'''
+
+rust = '''
+lazy_static! {
+    pub static ref NUMBERS: HashSet<i32> = {
+        let mut set = HashSet::new();
+        set.insert(1);
+        set.insert(2);
+        set.insert(3);
+        set
+    };
+}
+'''
+
+[[test]]
+name = "mixed_type_list"
+description = "Mixed type list should NOT become bitflags"
+
+python = '''
+MIXED = ["a", 1, "b"]
+'''
+
+rust = '''
+lazy_static! {
+    pub static ref MIXED: Vec<serde_json::Value> = vec![
+        serde_json::json!("a"),
+        serde_json::json!(1),
+        serde_json::json!("b"),
+    ];
+}
+'''
+
+# =============================================================================
+# String Normalization
+# =============================================================================
+
+[[test]]
+name = "strings_with_dashes"
+description = "Strings with dashes should be normalized"
+
+python = '''
+HTTP_METHODS = ["get-request", "post-request"]
+'''
+
+rust = '''
+bitflags::bitflags! {
+    #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+    pub struct HttpMethods: u8 {
+        const GET_REQUEST = 1;
+        const POST_REQUEST = 2;
+    }
+}
+'''
+
+[[test]]
+name = "strings_with_spaces"
+description = "Strings with spaces should be normalized"
+
+python = '''
+LABELS = ["first item", "second item"]
+'''
+
+rust = '''
+bitflags::bitflags! {
+    #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+    pub struct Labels: u8 {
+        const FIRST_ITEM = 1;
+        const SECOND_ITEM = 2;
+    }
+}
+'''
+
+[[test]]
+name = "numeric_prefix_strings"
+description = "Strings starting with numbers should be normalized"
+
+python = '''
+CODES = ["1xx", "2xx", "3xx"]
+'''
+
+rust = '''
+bitflags::bitflags! {
+    #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+    pub struct Codes: u8 {
+        const _1XX = 1;
+        const _2XX = 2;
+        const _3XX = 4;
+    }
+}
+'''
+
+# =============================================================================
+# Target Type Selection
+# =============================================================================
+
+[[test]]
+name = "up_to_8_values_uses_u8"
+description = "Up to 8 values should use u8"
+
+python = '''
+SMALL = ["a", "b", "c", "d", "e", "f", "g", "h"]
+'''
+
+rust = '''
+bitflags::bitflags! {
+    #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+    pub struct Small: u8 {
+        const A = 1;
+        const B = 2;
+        const C = 4;
+        const D = 8;
+        const E = 16;
+        const F = 32;
+        const G = 64;
+        const H = 128;
+    }
+}
+'''
+
+[[test]]
+name = "9_to_16_values_uses_u16"
+description = "9-16 values should use u16"
+
+python = '''
+MEDIUM = ["v1", "v2", "v3", "v4", "v5", "v6", "v7", "v8", "v9"]
+'''
+
+rust = '''
+bitflags::bitflags! {
+    #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+    pub struct Medium: u16 {
+        const V1 = 1;
+        const V2 = 2;
+        const V3 = 4;
+        const V4 = 8;
+        const V5 = 16;
+        const V6 = 32;
+        const V7 = 64;
+        const V8 = 128;
+        const V9 = 256;
+    }
+}
+'''

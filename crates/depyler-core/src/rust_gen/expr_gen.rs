@@ -97,6 +97,12 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             );
         }
 
+        // Check if this is a bitflags constant - use the PascalCase struct name
+        if let Some(bitflags_struct_name) = self.ctx.bitflags_name_map.get(name) {
+            let ident = syn::Ident::new(bitflags_struct_name, proc_macro2::Span::call_site());
+            return Ok(parse_quote! { #ident });
+        }
+
         // Inside generators, check if variable is a state variable
         if self.ctx.in_generator && self.ctx.generator_state_vars.contains(name) {
             // Generate self.field for state variables
@@ -1729,14 +1735,16 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         }
     }
 
-    fn convert_len_call(&self, hir_args: &[HirExpr], args: &[syn::Expr]) -> Result<syn::Expr> {
-        if args.len() != 1 {
+    fn convert_len_call(&mut self, hir_args: &[HirExpr], _args: &[syn::Expr]) -> Result<syn::Expr> {
+        if hir_args.len() != 1 {
             bail!("len() requires exactly one argument");
         }
-        let arg = &args[0];
+
+        // Generate expression without clone - .len() only borrows and doesn't need ownership
+        let arg = self.convert_expr_without_clone(&hir_args[0])?;
 
         // Check if argument is Optional - if so, unwrap before calling .len()
-        let is_optional = !hir_args.is_empty() && self.expr_is_optional(&hir_args[0]);
+        let is_optional = self.expr_is_optional(&hir_args[0]);
 
         // Python's len() returns int (maps to i32)
         // Rust's .len() returns usize, so we cast to i32
@@ -2443,28 +2451,88 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         Ok(parse_quote! { format!("{:?}", #value) })
     }
 
-    //
-    fn convert_next_builtin(&self, hir_args: &[HirExpr], args: &[syn::Expr]) -> Result<syn::Expr> {
-        if args.is_empty() || args.len() > 2 {
+    /// Convert next() builtin to Rust.
+    /// Optimizes `next((x for x in items if cond), None)` to `items.iter().find(|x| cond).cloned()`
+    fn convert_next_builtin(&mut self, hir_args: &[HirExpr], args: &[syn::Expr]) -> Result<syn::Expr> {
+        if hir_args.is_empty() || hir_args.len() > 2 {
             bail!("next() requires 1 or 2 arguments (iterator, optional default)");
         }
+
+        // Optimize: next((x for x in items if cond), None) → items.iter().find(|x| cond).cloned()
+        if let HirExpr::GeneratorExp { element, generators } = &hir_args[0] {
+            if generators.len() == 1 {
+                let gen = &generators[0];
+                let is_identity = matches!(&**element, HirExpr::Var(name) if name == &gen.target);
+
+                if is_identity && !gen.conditions.is_empty() {
+                    // This is a findable pattern: next((x for x in items if cond), default)
+                    let iter_expr = gen.iter.to_rust_expr(self.ctx)?;
+                    let target_pat = self.parse_target_pattern(&gen.target)?;
+
+                    // Build combined condition from all conditions
+                    let conditions: Vec<syn::Expr> = gen
+                        .conditions
+                        .iter()
+                        .map(|c| c.to_rust_expr(self.ctx))
+                        .collect::<Result<Vec<_>>>()?;
+
+                    let combined_condition: syn::Expr = if conditions.len() == 1 {
+                        conditions.into_iter().next().unwrap()
+                    } else {
+                        conditions
+                            .into_iter()
+                            .reduce(|acc, c| parse_quote! { #acc && #c })
+                            .unwrap()
+                    };
+
+                    // Determine if the element type needs cloned() based on collection type
+                    let needs_cloned = if let HirExpr::Var(var_name) = &*gen.iter {
+                        if let Some(var_type) = self.ctx.var_types.get(var_name) {
+                            match var_type {
+                                crate::hir::Type::List(elem_type) | crate::hir::Type::Set(elem_type) => {
+                                    Self::type_needs_clone(elem_type)
+                                }
+                                _ => true,
+                            }
+                        } else {
+                            true
+                        }
+                    } else {
+                        true
+                    };
+
+                    let find_expr: syn::Expr = if needs_cloned {
+                        parse_quote! { #iter_expr.iter().find(|#target_pat| #combined_condition).cloned() }
+                    } else {
+                        parse_quote! { #iter_expr.iter().find(|#target_pat| #combined_condition).copied() }
+                    };
+
+                    // Handle default value
+                    if hir_args.len() == 2 {
+                        if matches!(&hir_args[1], HirExpr::Literal(crate::hir::Literal::None)) {
+                            return Ok(find_expr);
+                        } else {
+                            let default = args[1].clone();
+                            return Ok(parse_quote! { #find_expr.unwrap_or(#default) });
+                        }
+                    } else {
+                        return Ok(parse_quote! { #find_expr.expect("StopIteration: iterator is empty") });
+                    }
+                }
+            }
+        }
+
+        // Fallback: use generic iterator.next() pattern
         let iterator = &args[0];
-        if args.len() == 2 {
-            // Check if default is None - in that case, just return the Option directly
+        if hir_args.len() == 2 {
             if matches!(&hir_args[1], HirExpr::Literal(crate::hir::Literal::None)) {
-                Ok(parse_quote! {
-                    #iterator.next()
-                })
+                Ok(parse_quote! { #iterator.next() })
             } else {
                 let default = &args[1];
-                Ok(parse_quote! {
-                    #iterator.next().unwrap_or(#default)
-                })
+                Ok(parse_quote! { #iterator.next().unwrap_or(#default) })
             }
         } else {
-            Ok(parse_quote! {
-                #iterator.next().expect("StopIteration: iterator is empty")
-            })
+            Ok(parse_quote! { #iterator.next().expect("StopIteration: iterator is empty") })
         }
     }
 
@@ -10459,6 +10527,20 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     }
 
     fn convert_index(&mut self, base: &HirExpr, index: &HirExpr) -> Result<syn::Expr> {
+        // Optimization: [x for x in iter if cond][0] → iter.find(|x| cond).unwrap()
+        // When indexing [0] into a filtered list comprehension, use find() instead of collect().get(0)
+        if let HirExpr::Literal(Literal::Int(0)) = index {
+            if let HirExpr::ListComp {
+                element,
+                target,
+                iter,
+                condition: Some(condition),
+            } = base
+            {
+                return self.convert_list_comp_first_element(element, target, iter, condition);
+            }
+        }
+
         // Must check this before evaluating base_expr to avoid trying to convert os.environ
         if let HirExpr::Attribute { value, attr } = base {
             if let HirExpr::Var(module_name) = &**value {
@@ -10640,11 +10722,14 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 }
             }
 
-            // Simple variables in for loops like `for i in range(len(arr))` are guaranteed >= 0
-            // For these, we can use simpler inline code that works in range contexts
-            let is_simple_var = matches!(index, HirExpr::Var(_));
+            // Simple expressions that are guaranteed non-negative and don't need
+            // Python negative index handling:
+            // - Variables in for loops like `for i in range(len(arr))`
+            // - Function calls like `sample(distribution, k)` which return indices
+            // - Cast expressions like `int(sample(...))` which convert to int
+            let is_simple_expr = matches!(index, HirExpr::Var(_) | HirExpr::Call { .. });
 
-            if is_simple_var {
+            if is_simple_expr {
                 // Simple variable index - use inline expression (works in range contexts)
                 // This avoids block expressions that break in `for j in 0..matrix[i].len()`
                 if is_lhs {
@@ -10677,7 +10762,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                             let base = &#base_expr;
                             let idx: i32 = #index_expr;
                             let actual_idx = if idx < 0 {
-                                // Use .abs() instead of negation to avoid "Neg not implemented for usize" error
                                 base.len().saturating_sub(idx.abs() as usize)
                             } else {
                                 idx as usize
@@ -11405,8 +11489,14 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             })
             .collect::<Result<Vec<_>>>()?;
 
-        // Always use vec! for now to ensure mutability works
-        // In the future, we should analyze if the list is mutated before deciding
+        // // Use smallvec! for small list literals (≤8 elements) to avoid heap allocation
+        // // SmallVec stores elements inline on the stack, improving cache locality
+        // if elts.len() <= 8 {
+        //     self.ctx.needs_smallvec = true;
+        //     Ok(parse_quote! { smallvec::smallvec![#(#elt_exprs),*] })
+        // } else {
+        //     Ok(parse_quote! { vec![#(#elt_exprs),*] })
+        // }
         Ok(parse_quote! { vec![#(#elt_exprs),*] })
     }
 
@@ -11775,10 +11865,18 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         // In chrono, properties are accessed as methods: dt.year → dt.year()
         // This handles properties for fractions, pathlib, datetime, date, time, and timedelta instances
         // For nested attribute access (e.g., o.inner.value), don't add .clone() to intermediate fields
+        // Also for simple variable access (e.g., state.field), don't clone the base - only clone the field if needed
         let mut value_expr = if matches!(value, HirExpr::Attribute { .. }) {
             self.convert_attribute_without_clone(value)?
         } else {
-            value.to_rust_expr(self.ctx)?
+            // Set prevent_clone temporarily to avoid cloning the base variable
+            // We only want to clone the field value if needed, not the base
+            // Note: We don't set is_assignment_target here as that would affect get() vs get_mut()
+            let was_prevent_clone = self.ctx.prevent_clone;
+            self.ctx.prevent_clone = true;
+            let expr = value.to_rust_expr(self.ctx)?;
+            self.ctx.prevent_clone = was_prevent_clone;
+            expr
         };
 
         // For chained access (o.inner.value), if the intermediate field is Optional, unwrap it
@@ -11906,8 +12004,13 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         // When accessing a String field through a reference, we need .clone() to get an owned String
         // Skip clone for assignment targets - we need mutable access, not a copy
         // Skip clone when function returns a reference - the return type already handles it
-        let needs_clone =
-            !self.ctx.is_assignment_target && !self.ctx.returns_reference && self.field_needs_clone(value, attr);
+        // Skip clone when generate_borrow is set - we'll add a reference in stmt_gen instead
+        // Skip clone when prevent_clone is set - the caller explicitly wants to avoid cloning
+        let needs_clone = !self.ctx.is_assignment_target
+            && !self.ctx.prevent_clone
+            && !self.ctx.returns_reference
+            && !self.ctx.generate_borrow
+            && self.field_needs_clone(value, attr);
 
         if needs_clone {
             Ok(parse_quote! { #value_expr.#attr_ident.clone() })
@@ -11925,11 +12028,11 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             let mut value_expr = if matches!(value.as_ref(), HirExpr::Attribute { .. }) {
                 self.convert_attribute_without_clone(value)?
             } else {
-                // Set is_assignment_target to prevent cloning the base variable
-                let was_assignment_target = self.ctx.is_assignment_target;
-                self.ctx.is_assignment_target = true;
+                // Set prevent_clone to avoid cloning the base variable
+                let was_prevent_clone = self.ctx.prevent_clone;
+                self.ctx.prevent_clone = true;
                 let expr = value.to_rust_expr(self.ctx)?;
-                self.ctx.is_assignment_target = was_assignment_target;
+                self.ctx.prevent_clone = was_prevent_clone;
                 expr
             };
 
@@ -11984,11 +12087,11 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 self.convert_attribute_without_clone(expr)
             }
             HirExpr::Var(name) => {
-                // For variables, temporarily disable cloning by using is_assignment_target
-                let was_assignment_target = self.ctx.is_assignment_target;
-                self.ctx.is_assignment_target = true;
+                // For variables, temporarily disable cloning by using prevent_clone
+                let was_prevent_clone = self.ctx.prevent_clone;
+                self.ctx.prevent_clone = true;
                 let result = expr.to_rust_expr(self.ctx);
-                self.ctx.is_assignment_target = was_assignment_target;
+                self.ctx.prevent_clone = was_prevent_clone;
                 result
             }
             _ => {
@@ -12234,6 +12337,10 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         let target_ident = syn::Ident::new(target, proc_macro2::Span::call_site());
         let element_expr = element.to_rust_expr(self.ctx)?;
 
+        // Check if this is an identity map (element is just the target variable)
+        // Skip .map(|x| x) which is a no-op
+        let is_identity_map = matches!(element, HirExpr::Var(var_name) if var_name == target);
+
         // Check if the iterator is an Optional type (e.g., Optional[List[int]])
         let iter_is_optional = self.expr_is_optional(iter);
 
@@ -12272,7 +12379,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         };
 
         if let Some(cond) = condition {
-            // Filter closures receive &T even after .clone().into_iter()
+            // Filter closures receive owned T after .iter().cloned()
             // So we need to generate *x for variable uses in the condition
             let cond_with_deref = self.add_deref_to_var_uses(cond, target)?;
 
@@ -12280,88 +12387,213 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 // Ranges are already iterators, don't call .iter()
                 // Range items are owned (i32, etc.), filter receives &i32
                 // Use pattern matching |&x| to dereference for the condition
-                Ok(parse_quote! {
-                    (#iter_expr)
-                        .filter(|&#target_ident| #cond_with_deref)
-                        .map(|#target_ident| #element_expr)
-                        .collect::<Vec<_>>()
-                })
+                if is_identity_map {
+                    Ok(parse_quote! {
+                        (#iter_expr)
+                            .filter(|&#target_ident| #cond_with_deref)
+                            .collect::<Vec<_>>()
+                    })
+                } else {
+                    Ok(parse_quote! {
+                        (#iter_expr)
+                            .filter(|&#target_ident| #cond_with_deref)
+                            .map(|#target_ident| #element_expr)
+                            .collect::<Vec<_>>()
+                    })
+                }
             } else if is_csv_reader {
                 // Use .deserialize() instead of .into_iter()
                 // CSV DictReader yields HashMap<String, String>
                 self.ctx.needs_csv = true;
                 let cond_expr = cond.to_rust_expr(self.ctx)?;
-                Ok(parse_quote! {
-                    #iter_expr
-                        .deserialize::<std::collections::HashMap<String, String>>()
-                        .filter_map(|result| result.ok())
-                        .filter(|#target_ident| #cond_expr)
-                        .map(|#target_ident| #element_expr)
-                        .collect::<Vec<_>>()
-                })
+                if is_identity_map {
+                    Ok(parse_quote! {
+                        #iter_expr
+                            .deserialize::<std::collections::HashMap<String, String>>()
+                            .filter_map(|result| result.ok())
+                            .filter(|#target_ident| #cond_expr)
+                            .collect::<Vec<_>>()
+                    })
+                } else {
+                    Ok(parse_quote! {
+                        #iter_expr
+                            .deserialize::<std::collections::HashMap<String, String>>()
+                            .filter_map(|result| result.ok())
+                            .filter(|#target_ident| #cond_expr)
+                            .map(|#target_ident| #element_expr)
+                            .collect::<Vec<_>>()
+                    })
+                }
             } else if iter_is_optional {
                 // For Optional collections, .as_ref().unwrap() returns &Vec<T>
                 // Use .iter().cloned() to iterate and get owned values
-                Ok(parse_quote! {
-                    #iter_expr
-                        .iter()
-                        .cloned()
-                        .filter(|#target_ident| #cond_with_deref)
-                        .map(|#target_ident| #element_expr)
-                        .collect::<Vec<_>>()
-                })
+                if is_identity_map {
+                    Ok(parse_quote! {
+                        #iter_expr
+                            .iter()
+                            .cloned()
+                            .filter(|#target_ident| #cond_with_deref)
+                            .collect::<Vec<_>>()
+                    })
+                } else {
+                    Ok(parse_quote! {
+                        #iter_expr
+                            .iter()
+                            .cloned()
+                            .filter(|#target_ident| #cond_with_deref)
+                            .map(|#target_ident| #element_expr)
+                            .collect::<Vec<_>>()
+                    })
+                }
             } else {
                 // Filter closures still receive &T, so we deref in the condition
-                Ok(parse_quote! {
-                    #iter_expr
-                        .clone()
-                        .into_iter()
-                        .filter(|#target_ident| #cond_with_deref)
-                        .map(|#target_ident| #element_expr)
-                        .collect::<Vec<_>>()
-                })
+                if is_identity_map {
+                    Ok(parse_quote! {
+                        #iter_expr
+                            .iter()
+                            .cloned()
+                            .filter(|#target_ident| #cond_with_deref)
+                            .collect::<Vec<_>>()
+                    })
+                } else {
+                    Ok(parse_quote! {
+                        #iter_expr
+                            .iter()
+                            .cloned()
+                            .filter(|#target_ident| #cond_with_deref)
+                            .map(|#target_ident| #element_expr)
+                            .collect::<Vec<_>>()
+                    })
+                }
             }
         } else {
             // Without condition: map-only comprehensions
             if is_range {
                 // Ranges are already iterators, don't call .iter()
-                Ok(parse_quote! {
-                    (#iter_expr)
-                        .map(|#target_ident| #element_expr)
-                        .collect::<Vec<_>>()
-                })
+                if is_identity_map {
+                    Ok(parse_quote! {
+                        (#iter_expr).collect::<Vec<_>>()
+                    })
+                } else {
+                    Ok(parse_quote! {
+                        (#iter_expr)
+                            .map(|#target_ident| #element_expr)
+                            .collect::<Vec<_>>()
+                    })
+                }
             } else if is_csv_reader {
                 // Use .deserialize() instead of .into_iter()
                 // CSV DictReader yields HashMap<String, String>
                 self.ctx.needs_csv = true;
-                Ok(parse_quote! {
-                    #iter_expr
-                        .deserialize::<std::collections::HashMap<String, String>>()
-                        .filter_map(|result| result.ok())
-                        .map(|#target_ident| #element_expr)
-                        .collect::<Vec<_>>()
-                })
+                if is_identity_map {
+                    Ok(parse_quote! {
+                        #iter_expr
+                            .deserialize::<std::collections::HashMap<String, String>>()
+                            .filter_map(|result| result.ok())
+                            .collect::<Vec<_>>()
+                    })
+                } else {
+                    Ok(parse_quote! {
+                        #iter_expr
+                            .deserialize::<std::collections::HashMap<String, String>>()
+                            .filter_map(|result| result.ok())
+                            .map(|#target_ident| #element_expr)
+                            .collect::<Vec<_>>()
+                    })
+                }
             } else if iter_is_optional {
                 // For Optional collections, .as_ref().unwrap() returns &Vec<T>
                 // Use .iter().cloned() to iterate and get owned values
-                Ok(parse_quote! {
-                    #iter_expr
-                        .iter()
-                        .cloned()
-                        .map(|#target_ident| #element_expr)
-                        .collect::<Vec<_>>()
-                })
+                if is_identity_map {
+                    Ok(parse_quote! {
+                        #iter_expr
+                            .iter()
+                            .cloned()
+                            .collect::<Vec<_>>()
+                    })
+                } else {
+                    Ok(parse_quote! {
+                        #iter_expr
+                            .iter()
+                            .cloned()
+                            .map(|#target_ident| #element_expr)
+                            .collect::<Vec<_>>()
+                    })
+                }
             } else {
                 // Same fix needed for map-only comprehensions (no filter)
-                // .into_iter() on &Vec<T> yields &T, causing issues in map closures
-                Ok(parse_quote! {
-                    #iter_expr
-                        .clone()
-                        .into_iter()
-                        .map(|#target_ident| #element_expr)
-                        .collect::<Vec<_>>()
-                })
+                // Use .iter().cloned() to borrow and then clone elements
+                if is_identity_map {
+                    Ok(parse_quote! {
+                        #iter_expr
+                            .iter()
+                            .cloned()
+                            .collect::<Vec<_>>()
+                    })
+                } else {
+                    Ok(parse_quote! {
+                        #iter_expr
+                            .iter()
+                            .cloned()
+                            .map(|#target_ident| #element_expr)
+                            .collect::<Vec<_>>()
+                    })
+                }
             }
+        }
+    }
+
+    /// Optimize `[x for x in iter if cond][0]` to use `.find()` instead of `.collect().get(0)`
+    /// Python: `[x for x in items if x.valid][0]` → Rust: `items.iter().find(|x| x.valid).unwrap()`
+    fn convert_list_comp_first_element(
+        &mut self,
+        element: &HirExpr,
+        target: &str,
+        iter: &HirExpr,
+        condition: &HirExpr,
+    ) -> Result<syn::Expr> {
+        let target_ident = syn::Ident::new(target, proc_macro2::Span::call_site());
+
+        // Check if the iterator is an Optional type
+        let iter_is_optional = self.expr_is_optional(iter);
+
+        let iter_expr = if iter_is_optional {
+            let base_expr = if matches!(iter, HirExpr::Attribute { .. }) {
+                self.convert_attribute_without_clone(iter)?
+            } else {
+                iter.to_rust_expr(self.ctx)?
+            };
+            parse_quote! { #base_expr.as_ref().unwrap() }
+        } else if matches!(iter, HirExpr::Attribute { .. }) {
+            self.convert_attribute_without_clone(iter)?
+        } else {
+            iter.to_rust_expr(self.ctx)?
+        };
+
+        let cond_with_deref = self.add_deref_to_var_uses(condition, target)?;
+
+        // Check if element is just the target variable (identity mapping)
+        let is_identity_map = matches!(element, HirExpr::Var(var) if var == target);
+
+        if is_identity_map {
+            // Simple case: [x for x in iter if cond][0] → iter.iter().find(|x| cond).cloned().unwrap()
+            Ok(parse_quote! {
+                #iter_expr
+                    .iter()
+                    .find(|#target_ident| #cond_with_deref)
+                    .cloned()
+                    .unwrap()
+            })
+        } else {
+            // Mapped case: [f(x) for x in iter if cond][0] → iter.iter().find(|x| cond).map(|x| f(x)).unwrap()
+            let element_expr = element.to_rust_expr(self.ctx)?;
+            Ok(parse_quote! {
+                #iter_expr
+                    .iter()
+                    .find(|#target_ident| #cond_with_deref)
+                    .map(|#target_ident| #element_expr)
+                    .unwrap()
+            })
         }
     }
 
@@ -12549,6 +12781,14 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 } else {
                     // Fallback to heuristic for cases without type info
                     self.is_string_base(expr)
+                }
+            }
+            HirExpr::Attribute { value, attr } => {
+                // Check if the field type is String
+                if let Some(field_type) = self.get_field_type(value, attr) {
+                    matches!(field_type, Type::String)
+                } else {
+                    false
                 }
             }
             _ => false,
@@ -12895,33 +13135,67 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
 
         let is_range = self.is_range_expr(&iter_expr);
 
+        // Check if this is an identity map (element is just the target variable)
+        let is_identity_map = matches!(element, HirExpr::Var(var_name) if var_name == target);
+
         if let Some(cond) = condition {
             let cond_expr = cond.to_rust_expr(self.ctx)?;
             if is_range {
                 // Ranges are already iterators, don't call .iter()
                 // Range items are owned (i32, etc.), so no dereference needed
-                Ok(parse_quote! {
-                    (#iter_expr)
-                        .filter(|#target_ident| #cond_expr)
-                        .map(|#target_ident| #element_expr)
-                        .collect::<HashSet<_>>()
-                })
+                if is_identity_map {
+                    Ok(parse_quote! {
+                        (#iter_expr)
+                            .filter(|#target_ident| #cond_expr)
+                            .collect::<HashSet<_>>()
+                    })
+                } else {
+                    Ok(parse_quote! {
+                        (#iter_expr)
+                            .filter(|#target_ident| #cond_expr)
+                            .map(|#target_ident| #element_expr)
+                            .collect::<HashSet<_>>()
+                    })
+                }
             } else {
                 // Collections need .iter().filter().cloned().map()
                 // Use |&target| pattern to automatically dereference in filter closure
+                if is_identity_map {
+                    Ok(parse_quote! {
+                        #iter_expr
+                            .iter()
+                            .filter(|&#target_ident| #cond_expr)
+                            .cloned()
+                            .collect::<HashSet<_>>()
+                    })
+                } else {
+                    Ok(parse_quote! {
+                        #iter_expr
+                            .iter()
+                            .filter(|&#target_ident| #cond_expr)
+                            .cloned()
+                            .map(|#target_ident| #element_expr)
+                            .collect::<HashSet<_>>()
+                    })
+                }
+            }
+        } else if is_range {
+            if is_identity_map {
                 Ok(parse_quote! {
-                    #iter_expr
-                        .iter()
-                        .filter(|&#target_ident| #cond_expr)
-                        .cloned()
+                    (#iter_expr).collect::<HashSet<_>>()
+                })
+            } else {
+                Ok(parse_quote! {
+                    (#iter_expr)
                         .map(|#target_ident| #element_expr)
                         .collect::<HashSet<_>>()
                 })
             }
-        } else if is_range {
+        } else if is_identity_map {
             Ok(parse_quote! {
-                (#iter_expr)
-                    .map(|#target_ident| #element_expr)
+                #iter_expr
+                    .iter()
+                    .cloned()
                     .collect::<HashSet<_>>()
             })
         } else {
@@ -13291,14 +13565,14 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
 
         // Only skip cloning if both branches are attributes AND the base is not a reference parameter
         let skip_clone = both_attrs && !base_is_ref_param;
-        let was_assignment_target = self.ctx.is_assignment_target;
+        let was_prevent_clone = self.ctx.prevent_clone;
         if skip_clone {
-            self.ctx.is_assignment_target = true;
+            self.ctx.prevent_clone = true;
         }
         let mut body_expr = body.to_rust_expr(self.ctx)?;
         let mut orelse_expr = orelse.to_rust_expr(self.ctx)?;
         if skip_clone {
-            self.ctx.is_assignment_target = was_assignment_target;
+            self.ctx.prevent_clone = was_prevent_clone;
         }
 
         // When function returns a reference, wrap each branch in & to borrow the field
@@ -13552,8 +13826,8 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 // Ranges and enumerate() already return iterators, don't need clone
                 parse_quote! { #iter_expr }
             } else {
-                // Field access, method calls, etc. - clone before consuming
-                parse_quote! { #iter_expr.clone().into_iter() }
+                // Field access, method calls, etc. - use iter().cloned() to borrow and clone
+                parse_quote! { #iter_expr.iter().cloned() }
             };
 
             // Add filters for each condition

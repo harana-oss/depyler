@@ -345,3 +345,22 @@ pub fn nested_comp() -> Vec<Vec<serde_json::Value>> {
         .collect::<Vec<_>>();
 }
 '''
+
+# =============================================================================
+# List Comprehension with Index Access Optimization
+# =============================================================================
+
+[[test]]
+name = "list_comp_first_element_find_optimization"
+description = "List comprehension [0] index optimized to use find()"
+
+python = '''
+def first_even(numbers: list[int]) -> int:
+    return [x for x in numbers if x % 2 == 0][0]
+'''
+
+rust = '''
+pub fn first_even(numbers: &Vec<i32>) -> i32 {
+    return numbers.iter().find(|x| **x % 2 == 0).cloned().unwrap();
+}
+'''

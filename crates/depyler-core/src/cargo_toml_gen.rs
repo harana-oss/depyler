@@ -131,6 +131,10 @@ pub fn extract_dependencies(ctx: &CodeGenContext) -> Vec<Dependency> {
         deps.push(Dependency::new("lazy_static", "1.4"));
     }
 
+    if ctx.needs_smallvec {
+        deps.push(Dependency::new("smallvec", "1.0"));
+    }
+
     deps
 }
 
@@ -303,6 +307,7 @@ mod tests {
             needs_arc: false,
             needs_rc: false,
             needs_cow: false,
+            needs_smallvec: false,
             needs_rand: true,
             needs_slice_random: false,
             needs_serde_json: true,
@@ -322,6 +327,7 @@ mod tests {
             needs_crc32: false,
             needs_url_encoding: false,
             needs_lazy_static: false,
+            needs_bitflags: false,
             needs_clap: true,
             declared_vars: vec![std::collections::HashSet::new()],
             current_function_can_fail: false,
@@ -365,7 +371,11 @@ mod tests {
             optional_vars: std::collections::HashSet::new(),
             lazy_static_constants: std::collections::HashSet::new(),
             is_assignment_target: false,
+            prevent_clone: false,
             returns_reference: false,
+            borrowable_vars: std::collections::HashSet::new(),
+            generate_borrow: false,
+            bitflags_name_map: std::collections::HashMap::new(),
         };
 
         // Property: Calling extract_dependencies multiple times returns same result
@@ -404,6 +414,7 @@ mod tests {
             needs_arc: false,
             needs_rc: false,
             needs_cow: false,
+            needs_smallvec: false,
             needs_rand: true,
             needs_slice_random: false,
             needs_serde_json: true,
@@ -423,6 +434,7 @@ mod tests {
             needs_crc32: true,
             needs_url_encoding: true,
             needs_lazy_static: false,
+            needs_bitflags: false,
             needs_clap: true,
             declared_vars: vec![HashSet::new()],
             current_function_can_fail: false,
@@ -466,7 +478,11 @@ mod tests {
             optional_vars: HashSet::new(),
             lazy_static_constants: HashSet::new(),
             is_assignment_target: false,
+            prevent_clone: false,
             returns_reference: false,
+            borrowable_vars: HashSet::new(),
+            generate_borrow: false,
+            bitflags_name_map: std::collections::HashMap::new(),
         };
 
         let deps = extract_dependencies(&ctx);
@@ -502,6 +518,7 @@ mod tests {
             needs_arc: false,
             needs_rc: false,
             needs_cow: false,
+            needs_smallvec: false,
             needs_rand: false,
             needs_slice_random: false,
             needs_serde_json: true, // Enable serde_json
@@ -521,6 +538,7 @@ mod tests {
             needs_crc32: false,
             needs_url_encoding: false,
             needs_lazy_static: false,
+            needs_bitflags: false,
             needs_clap: false,
             declared_vars: vec![HashSet::new()],
             current_function_can_fail: false,
@@ -564,7 +582,11 @@ mod tests {
             optional_vars: HashSet::new(),
             lazy_static_constants: HashSet::new(),
             is_assignment_target: false,
+            prevent_clone: false,
             returns_reference: false,
+            borrowable_vars: HashSet::new(),
+            generate_borrow: false,
+            bitflags_name_map: std::collections::HashMap::new(),
         };
 
         let deps = extract_dependencies(&ctx);
@@ -608,6 +630,7 @@ mod tests {
             needs_arc: false,
             needs_rc: false,
             needs_cow: false,
+            needs_smallvec: false,
             needs_rand: false,
             needs_slice_random: false,
             needs_serde_json: false,
@@ -627,6 +650,7 @@ mod tests {
             needs_crc32: false,
             needs_url_encoding: false,
             needs_lazy_static: false,
+            needs_bitflags: false,
             needs_clap: true, // Enable clap
             declared_vars: vec![HashSet::new()],
             current_function_can_fail: false,
@@ -670,7 +694,11 @@ mod tests {
             optional_vars: HashSet::new(),
             lazy_static_constants: HashSet::new(),
             is_assignment_target: false,
+            prevent_clone: false,
             returns_reference: false,
+            borrowable_vars: HashSet::new(),
+            generate_borrow: false,
+            bitflags_name_map: std::collections::HashMap::new(),
         };
 
         let deps = extract_dependencies(&ctx);

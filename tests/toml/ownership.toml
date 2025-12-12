@@ -1099,3 +1099,206 @@ pub fn process_string(s: String) -> String {
     return s.trim().to_uppercase();
 }
 '''
+
+# =============================================================================
+# No Double Clone Tests - Field Access
+# =============================================================================
+
+[[test]]
+name = "field_access_no_double_clone_string"
+description = "Accessing string field should not clone the base struct"
+
+python = '''
+@dataclass
+class GameState:
+    team_in_possession: str
+
+def get_team(state: GameState) -> str:
+    return state.team_in_possession
+'''
+
+rust = '''
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct GameState {
+    pub team_in_possession: String,
+}
+impl GameState {
+    pub fn new(team_in_possession: String) -> Self {
+        Self { team_in_possession }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "team_in_possession" => Some(Box::new(self.team_in_possession.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "team_in_possession" => {
+                if let Some(v) = value.downcast_ref::<String>() {
+                    self.team_in_possession = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+pub fn get_team(state: &GameState) -> String {
+    return state.team_in_possession.clone();
+}
+'''
+
+[[test]]
+name = "field_access_string_comparison_no_clone"
+description = "String field comparison should not clone base struct"
+
+python = '''
+@dataclass
+class GameState:
+    team_in_possession: str
+
+def is_home_team(state: GameState) -> bool:
+    return state.team_in_possession == "Home"
+'''
+
+rust = '''
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct GameState {
+    pub team_in_possession: String,
+}
+impl GameState {
+    pub fn new(team_in_possession: String) -> Self {
+        Self { team_in_possession }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "team_in_possession" => Some(Box::new(self.team_in_possession.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "team_in_possession" => {
+                if let Some(v) = value.downcast_ref::<String>() {
+                    self.team_in_possession = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+pub fn is_home_team(state: &GameState) -> bool {
+    return state.team_in_possession == "Home";
+}
+'''
+
+[[test]]
+name = "field_access_vec_no_double_clone"
+description = "Accessing Vec field should not clone the base struct"
+
+python = '''
+@dataclass
+class GameState:
+    home_players: list[str]
+
+def get_players(state: GameState) -> list[str]:
+    return state.home_players
+'''
+
+rust = '''
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct GameState {
+    pub home_players: Vec<String>,
+}
+impl GameState {
+    pub fn new(home_players: Vec<String>) -> Self {
+        Self { home_players }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "home_players" => Some(Box::new(self.home_players.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "home_players" => {
+                if let Some(v) = value.downcast_ref::<Vec<String>>() {
+                    self.home_players = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+pub fn get_players(state: &GameState) -> Vec<String> {
+    return state.home_players.clone();
+}
+'''
+
+[[test]]
+name = "field_access_int_no_clone"
+description = "Accessing int field should not clone anything"
+
+python = '''
+@dataclass
+class Point:
+    x: int
+    y: int
+
+def get_x(p: Point) -> int:
+    return p.x
+'''
+
+rust = '''
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Point {
+    pub x: i32,
+    pub y: i32,
+}
+impl Point {
+    pub fn new(x: i32, y: i32) -> Self {
+        Self { x, y }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "x" => Some(Box::new(self.x.clone()) as Box<dyn std::any::Any>),
+            "y" => Some(Box::new(self.y.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "x" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.x = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "y" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.y = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+pub fn get_x(p: &Point) -> i32 {
+    return p.x;
+}
+'''

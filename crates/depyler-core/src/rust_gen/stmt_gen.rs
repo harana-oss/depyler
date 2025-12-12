@@ -2758,10 +2758,26 @@ pub(crate) fn codegen_assign_stmt(
         }
     }
 
+    // Check if this is a field access assignment that can use borrowing
+    // Pattern: `let players = state.all_players` where players is only used for iteration
+    // Don't borrow Copy types (primitives like i32, f64, bool) - they should be copied directly
+    let should_borrow = if let (AssignTarget::Symbol(var_name), HirExpr::Attribute { value, attr }) = (target, value) {
+        ctx.should_borrow_var(var_name) && !ctx.is_attribute_copy_type(value, attr)
+    } else {
+        false
+    };
+
     // Convert the value expression unless it's an Uninitialized marker
     let mut value_expr = if is_uninitialized {
         // Placeholder; won't be used when is_uninitialized is true
         parse_quote! { () }
+    } else if should_borrow {
+        // Generate a borrow instead of clone for field access
+        ctx.set_generate_borrow(true);
+        let expr = value.to_rust_expr(ctx)?;
+        ctx.set_generate_borrow(false);
+        // Wrap the expression in a reference
+        parse_quote! { &#expr }
     } else {
         value.to_rust_expr(ctx)?
     };
