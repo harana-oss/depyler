@@ -121,8 +121,14 @@ impl BitflagsGenerator {
 
         let mut flags = String::new();
         for (i, ident) in rust_idents.iter().enumerate() {
-            let bit_value = 1u64 << i;
-            flags.push_str(&format!("        const {} = {:#x};\n", ident, bit_value));
+            // Generate bit value with correct type suffix to match struct type
+            let bit_value_str = match decision.target_type {
+                BitflagsTargetType::U8 => format!("{:#x}u8", 1u8 << i),
+                BitflagsTargetType::U16 => format!("{:#x}u16", 1u16 << i),
+                BitflagsTargetType::U32 => format!("{:#x}u32", 1u32 << i),
+                BitflagsTargetType::U64 => format!("{:#x}u64", 1u64 << i),
+            };
+            flags.push_str(&format!("        const {} = {};\n", ident, bit_value_str));
         }
 
         format!(
@@ -144,6 +150,12 @@ impl {} {{
 {}            _ => "",
         }}
     }}
+
+    pub fn get(value: {}) -> Option<Self> {{
+        match value {{
+{}            _ => None,
+        }}
+    }}
 }}
 "#,
             struct_name,
@@ -152,6 +164,8 @@ impl {} {{
             struct_name,
             self.generate_from_str_arms(&decision.candidate.values, &rust_idents, &struct_name),
             self.generate_as_str_arms(&decision.candidate.values, &rust_idents, &struct_name),
+            target_type,
+            self.generate_get_arms(&rust_idents, decision.target_type),
         )
     }
 
@@ -167,6 +181,20 @@ impl {} {{
         let mut arms = String::new();
         for (value, ident) in values.iter().zip(idents.iter()) {
             arms.push_str(&format!("            Self::{} => \"{}\",\n", ident, value));
+        }
+        arms
+    }
+
+    fn generate_get_arms(&self, idents: &[String], target_type: BitflagsTargetType) -> String {
+        let mut arms = String::new();
+        for (i, ident) in idents.iter().enumerate() {
+            let bit_value_str = match target_type {
+                BitflagsTargetType::U8 => format!("{:#x}u8", 1u8 << i),
+                BitflagsTargetType::U16 => format!("{:#x}u16", 1u16 << i),
+                BitflagsTargetType::U32 => format!("{:#x}u32", 1u32 << i),
+                BitflagsTargetType::U64 => format!("{:#x}u64", 1u64 << i),
+            };
+            arms.push_str(&format!("            {} => Some(Self::{}),\n", bit_value_str, ident));
         }
         arms
     }
@@ -320,10 +348,12 @@ mod tests {
         let output = generator.generate_bitflags_struct(&decision);
 
         assert!(output.contains("pub struct Permissions: u8"));
-        assert!(output.contains("const READ = 0x1"));
-        assert!(output.contains("const WRITE = 0x2"));
+        assert!(output.contains("const READ = 0x1u8"));
+        assert!(output.contains("const WRITE = 0x2u8"));
         assert!(output.contains("fn from_str(s: &str)"));
         assert!(output.contains("fn as_str(&self)"));
+        assert!(output.contains("fn get(value: u8)"));
+        assert!(output.contains("0x1u8 => Some(Self::READ)"));
     }
 
     #[test]

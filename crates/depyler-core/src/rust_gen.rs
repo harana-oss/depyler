@@ -1560,15 +1560,53 @@ fn generate_bitflags_for_constant(constant: &HirConstant) -> Option<proc_macro2:
     let mut flag_defs = Vec::new();
     let mut from_str_arms = Vec::new();
     let mut as_str_arms = Vec::new();
+    let mut get_arms = Vec::new();
 
     for (i, value) in values.iter().enumerate() {
         let rust_ident = normalize_to_rust_identifier(value);
         let flag_ident = syn::Ident::new(&rust_ident, proc_macro2::Span::call_site());
-        let bit_value: u64 = 1 << i;
 
-        flag_defs.push(quote! {
-            const #flag_ident = #bit_value;
-        });
+        // Generate bit value with correct type suffix to match struct type
+        let flag_def = match target_type {
+            BitflagsTargetType::U8 => {
+                let bit_value = 1u8 << i;
+                quote! { const #flag_ident = #bit_value; }
+            }
+            BitflagsTargetType::U16 => {
+                let bit_value = 1u16 << i;
+                quote! { const #flag_ident = #bit_value; }
+            }
+            BitflagsTargetType::U32 => {
+                let bit_value = 1u32 << i;
+                quote! { const #flag_ident = #bit_value; }
+            }
+            BitflagsTargetType::U64 => {
+                let bit_value = 1u64 << i;
+                quote! { const #flag_ident = #bit_value; }
+            }
+        };
+        flag_defs.push(flag_def);
+
+        // Generate get() arm for this flag
+        let get_arm = match target_type {
+            BitflagsTargetType::U8 => {
+                let bit_value = 1u8 << i;
+                quote! { #bit_value => Some(Self::#flag_ident), }
+            }
+            BitflagsTargetType::U16 => {
+                let bit_value = 1u16 << i;
+                quote! { #bit_value => Some(Self::#flag_ident), }
+            }
+            BitflagsTargetType::U32 => {
+                let bit_value = 1u32 << i;
+                quote! { #bit_value => Some(Self::#flag_ident), }
+            }
+            BitflagsTargetType::U64 => {
+                let bit_value = 1u64 << i;
+                quote! { #bit_value => Some(Self::#flag_ident), }
+            }
+        };
+        get_arms.push(get_arm);
 
         from_str_arms.push(quote! {
             #value => Some(Self::#flag_ident),
@@ -1599,6 +1637,13 @@ fn generate_bitflags_for_constant(constant: &HirConstant) -> Option<proc_macro2:
                 match *self {
                     #(#as_str_arms)*
                     _ => "",
+                }
+            }
+
+            pub fn get(value: #type_ident) -> Option<Self> {
+                match value {
+                    #(#get_arms)*
+                    _ => None,
                 }
             }
         }
