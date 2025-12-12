@@ -286,6 +286,33 @@ pub fn rust_type_to_syn(rust_type: &crate::type_mapper::RustType) -> Result<syn:
     })
 }
 
+/// Convert RustType to syn::Type with bitflags name mapping
+///
+/// Similar to `rust_type_to_syn` but applies bitflags PascalCase name mapping
+/// from the CodeGenContext when converting Custom types.
+pub fn rust_type_to_syn_with_ctx(
+    rust_type: &crate::type_mapper::RustType,
+    ctx: &CodeGenContext,
+) -> Result<syn::Type> {
+    use crate::type_mapper::RustType;
+
+    // Try collection types first (these don't need bitflags mapping)
+    if let Some(ty) = collection_type_to_syn(rust_type)? {
+        return Ok(ty);
+    }
+
+    Ok(match rust_type {
+        RustType::Custom(name) => {
+            // Check if this is a bitflags type that needs PascalCase conversion
+            let actual_name = ctx.bitflags_name_map.get(name).cloned().unwrap_or_else(|| name.clone());
+            let ty: syn::Type = syn::parse_str(&actual_name)?;
+            ty
+        }
+        // For other types, delegate to the standard conversion
+        _ => rust_type_to_syn(rust_type)?,
+    })
+}
+
 /// Updates import needs for custom type names
 ///
 /// Detects specific custom types (FnvHashMap, AHashMap, Arc, Rc, HashMap)

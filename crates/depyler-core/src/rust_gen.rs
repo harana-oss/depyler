@@ -38,7 +38,7 @@ use stmt_gen::{
 // Public re-exports for external modules (union_enum_gen, etc.)
 pub use argparse_transform::ArgParserTracker; // Export for testing
 pub use context::{CodeGenContext, RustCodeGen, ToRustExpr};
-pub use type_gen::rust_type_to_syn;
+pub use type_gen::{rust_type_to_syn, rust_type_to_syn_with_ctx};
 
 // Internal re-exports for cross-module access
 pub(crate) use func_gen::return_type_expects_float;
