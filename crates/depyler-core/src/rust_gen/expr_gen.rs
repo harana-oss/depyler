@@ -202,6 +202,14 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 // - HashMap/dict: container.contains_key(&x)
                 // - Tuple: convert to array and use .contains()
 
+                // Handle bitflags: x in BITFLAGS_SET → BitflagsType::from_str(&x).is_some()
+                if let HirExpr::Var(var_name) = right {
+                    if let Some(bitflags_struct_name) = self.ctx.bitflags_name_map.get(var_name).cloned() {
+                        let struct_ident = syn::Ident::new(&bitflags_struct_name, proc_macro2::Span::call_site());
+                        return Ok(parse_quote! { #struct_ident::from_str(&#left_expr.to_string()).is_some() });
+                    }
+                }
+
                 // os.environ in Python is like a dict, but in Rust we check with std::env::var().is_ok()
                 if let HirExpr::Attribute { value, attr } = right {
                     if let HirExpr::Var(module_name) = &**value {
@@ -321,6 +329,14 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             }
             BinOp::NotIn => {
                 // Convert "x not in container" to !container.method(&x)
+
+                // Handle bitflags: x not in BITFLAGS_SET → BitflagsType::from_str(&x).is_none()
+                if let HirExpr::Var(var_name) = right {
+                    if let Some(bitflags_struct_name) = self.ctx.bitflags_name_map.get(var_name).cloned() {
+                        let struct_ident = syn::Ident::new(&bitflags_struct_name, proc_macro2::Span::call_site());
+                        return Ok(parse_quote! { #struct_ident::from_str(&#left_expr.to_string()).is_none() });
+                    }
+                }
 
                 // os.environ in Python is like a dict, but in Rust we check with !std::env::var().is_ok()
                 if let HirExpr::Attribute { value, attr } = right {
@@ -10241,6 +10257,48 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         args: &[HirExpr],
         kwargs: &[(String, HirExpr)],
     ) -> Result<syn::Expr> {
+        // Handle bitflags method calls specially
+        // Python: KICKOFF_RETAIN_RESULTS.contains(x) → Rust: KickoffRetainResults::from_str(&x).is_some()
+        // Python: PLAYER_MODEL_POSITIONS.get(i) → Rust: PlayerModelPositions::get(i)
+        if let HirExpr::Var(var_name) = object {
+            if let Some(bitflags_struct_name) = self.ctx.bitflags_name_map.get(var_name).cloned() {
+                let struct_ident = syn::Ident::new(&bitflags_struct_name, proc_macro2::Span::call_site());
+                
+                match method {
+                    // Python set.contains(x) → check if string maps to a flag
+                    // Use from_str to convert string to flag, then check if Some
+                    "__contains__" | "contains" => {
+                        if let Some(arg) = args.first() {
+                            let arg_expr = arg.to_rust_expr(self.ctx)?;
+                            // Convert argument to string and check via from_str
+                            return Ok(parse_quote! { #struct_ident::from_str(&#arg_expr.to_string()).is_some() });
+                        }
+                    }
+                    // Python list.get(i) or list[i] → use our generated get() method
+                    "get" => {
+                        if let Some(arg) = args.first() {
+                            let arg_expr = arg.to_rust_expr(self.ctx)?;
+                            // Use the generated get() method that takes the underlying type
+                            return Ok(parse_quote! { #struct_ident::get(#arg_expr) });
+                        }
+                    }
+                    // For iteration, return all flags
+                    "__iter__" | "iter" => {
+                        return Ok(parse_quote! { #struct_ident::all().iter() });
+                    }
+                    _ => {
+                        // For other methods, generate static method call
+                        let method_ident = syn::Ident::new(method, proc_macro2::Span::call_site());
+                        let arg_exprs: Vec<syn::Expr> = args
+                            .iter()
+                            .map(|arg| arg.to_rust_expr(self.ctx))
+                            .collect::<Result<Vec<_>>>()?;
+                        return Ok(parse_quote! { #struct_ident::#method_ident(#(#arg_exprs),*) });
+                    }
+                }
+            }
+        }
+
         // This ensures string methods like upper/lower are converted even when
         // inside class methods where parameters might be mistyped as class instances
         if matches!(
