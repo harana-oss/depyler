@@ -12876,8 +12876,8 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         }
     }
 
-    /// Check if expr is a reference parameter being compared to an enum variant.
-    /// When comparing &Enum with Enum::Variant, we need to dereference the reference.
+    /// Check if expr is a reference parameter being compared to a value type.
+    /// When comparing &T with T (enum variant or field access), we need to dereference the reference.
     fn is_ref_param_compared_to_enum_variant(&self, expr: &HirExpr, other: &HirExpr) -> bool {
         // Check if expr is a variable that's a reference parameter
         // but NOT shadowed by a local variable (e.g., for-loop variable)
@@ -12892,7 +12892,22 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         }
 
         // Check if the other side is an enum variant (Enum.Variant or known enum type)
-        self.is_enum_variant_expr(other)
+        if self.is_enum_variant_expr(other) {
+            return true;
+        }
+
+        // Check if the other side is a field access on a non-reference base
+        // e.g., p.position where p is a lambda parameter (not a ref param)
+        // In this case, p.position returns a value T, but expr is &T
+        if let HirExpr::Attribute { value, .. } = other {
+            // The base of the attribute access should NOT be a reference parameter
+            // If it's a local variable (like lambda param), the field access returns T
+            if !self.is_ref_param_base(value) {
+                return true;
+            }
+        }
+
+        false
     }
 
     /// Check if an expression is an enum variant access (e.g., Team.Home, Color.RED)
