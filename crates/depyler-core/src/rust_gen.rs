@@ -1884,16 +1884,26 @@ pub fn generate_rust_file(
     // This populates function_param_borrows so call sites know whether to add & or .to_string()
     pre_analyze_parameter_borrowing(&mut ctx, &module.functions);
 
+    // Detect bitflags candidates (immutable string lists/sets) BEFORE function conversion
+    // This populates bitflags_name_map so expressions can use PascalCase struct names
+    let mut detector = StringSetDetector::new();
+    let candidates = detector.analyze_module(module);
+    let bitflags_candidates: HashSet<String> = candidates.iter().map(|c| c.name.clone()).collect();
+
+    // Pre-populate bitflags_name_map before function conversion
+    // This ensures expressions like KICKOFF_RETAIN_RESULTS.contains() use KickoffRetainResults
+    for constant in &module.constants {
+        if bitflags_candidates.contains(&constant.name) {
+            let struct_name = to_pascal_case(&constant.name);
+            ctx.bitflags_name_map.insert(constant.name.clone(), struct_name);
+        }
+    }
+
     // Convert classes first (they might be used by functions)
     let classes = convert_classes_to_rust(&module.classes, ctx.type_mapper, &mut ctx)?;
 
     // Convert all functions to detect what imports we need
     let functions = convert_functions_to_rust(&module.functions, &mut ctx)?;
-
-    // Detect bitflags candidates (immutable string lists/sets)
-    let mut detector = StringSetDetector::new();
-    let candidates = detector.analyze_module(module);
-    let bitflags_candidates: HashSet<String> = candidates.iter().map(|c| c.name.clone()).collect();
 
     // Build items list with all generated code
     let mut items = Vec::new();
@@ -1903,6 +1913,7 @@ pub fn generate_rust_file(
     items.extend(generate_import_tokens(&module.imports, &import_mapper));
 
     // Add module-level constants (with bitflags optimization)
+    // Note: bitflags_name_map is already populated above
     items.extend(generate_constant_tokens(
         &module.constants,
         &mut ctx,
