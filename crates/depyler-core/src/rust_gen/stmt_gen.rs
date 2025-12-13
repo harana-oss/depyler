@@ -1705,7 +1705,15 @@ pub(crate) fn codegen_for_stmt(
         // For field accesses being iterated, generate without .clone() since we'll borrow
         generate_field_access_without_clone(iter, ctx)?
     } else {
-        iter.to_rust_expr(ctx)?
+        // For simple variables that will get .iter().cloned(), prevent initial clone
+        // to avoid redundant `var.clone().iter().cloned()` pattern
+        let saved_prevent_clone = ctx.prevent_clone;
+        if matches!(iter, HirExpr::Var(_)) {
+            ctx.prevent_clone = true;
+        }
+        let expr = iter.to_rust_expr(ctx)?;
+        ctx.prevent_clone = saved_prevent_clone;
+        expr
     };
 
     // Check if the iterator is an Optional type (e.g., Optional[List[int]])

@@ -2512,7 +2512,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                         if let Some(var_type) = self.ctx.var_types.get(var_name) {
                             match var_type {
                                 crate::hir::Type::List(elem_type) | crate::hir::Type::Set(elem_type) => {
-                                    Self::type_needs_clone(elem_type)
+                                    self.type_needs_clone(elem_type)
                                 }
                                 _ => true,
                             }
@@ -2957,7 +2957,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             // BORROW CONFLICT DETECTION:
             // Collect variables that are passed as &mut to avoid borrow conflicts.
             // If `state` is passed as &mut, then `state.field` in another arg creates a conflict.
-            // 
+            //
             // A variable needs to be in mut_borrowed_vars if:
             // 1. The callee function expects &mut for that parameter position, OR
             // 2. The variable is already a &mut reference in the current function
@@ -2975,10 +2975,10 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                             .and_then(|muts| muts.get(idx))
                             .copied()
                             .unwrap_or(false);
-                        
+
                         // Check if this variable is already a &mut ref in current function
                         let is_already_mut_ref = self.ctx.current_func_mut_ref_params.contains(var_name);
-                        
+
                         // Either condition means we have a mutable borrow happening
                         if callee_expects_mut || is_already_mut_ref {
                             return Some(var_name.clone());
@@ -3359,7 +3359,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                                                 let attr_ident = format_ident!("{}", attr);
                                                 parse_quote! { #base.#attr_ident }
                                             }
-                                            _ => parse_quote! { () }
+                                            _ => parse_quote! { () },
                                         }
                                     }
                                     let base_expr = build_attr_clone(value);
@@ -3435,7 +3435,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                         } else {
                             parse_quote! { #arg_expr.clone() }
                         };
-                        
+
                         // If the original was a borrow (&state.field), we cloned the inner part
                         // but may need to re-add & if the callee expects a reference
                         let result: syn::Expr = if is_borrowed_attribute {
@@ -3445,7 +3445,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                         } else {
                             cloned_expr
                         };
-                        
+
                         if needs_optional_unwrap {
                             parse_quote! { #result.unwrap() }
                         } else {
@@ -11827,7 +11827,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             if indices.len() > 1 {
                 // Check if the variable type is Copy
                 let var_type = self.ctx.var_types.get(var_name);
-                let is_copy = var_type.is_some_and(|t| !Self::type_needs_clone(t));
+                let is_copy = var_type.is_some_and(|t| !self.type_needs_clone(t));
                 if !is_copy {
                     // Clone all but the last occurrence for non-Copy types
                     for &idx in &indices[..indices.len() - 1] {
@@ -12340,7 +12340,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     // Look up which class has this field
                     for (cls_name, fields) in &self.ctx.class_field_types {
                         if fields.contains_key(attr) {
-                            return Self::type_needs_clone(fields.get(attr).unwrap());
+                            return self.type_needs_clone(fields.get(attr).unwrap());
                         }
                     }
                     return false;
@@ -12372,7 +12372,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             if let Some(field_types) = self.ctx.class_field_types.get(&class_name) {
                 if let Some(field_type) = field_types.get(attr) {
                     // Clone all non-Copy types when accessing through a borrowed reference
-                    return Self::type_needs_clone(field_type);
+                    return self.type_needs_clone(field_type);
                 }
             }
         }
@@ -12446,22 +12446,24 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     }
 
     /// Check if a type needs .clone() (i.e., is not Copy)
-    fn type_needs_clone(ty: &Type) -> bool {
+    fn type_needs_clone(&self, ty: &Type) -> bool {
         match ty {
             // Copy types - don't need clone
             Type::Int | Type::Float | Type::Bool | Type::None => false,
             // Non-Copy types - need clone
-            Type::String | Type::List(_) | Type::Dict(_, _) | Type::Set(_) | Type::Custom(_) => true,
+            Type::String | Type::List(_) | Type::Dict(_, _) | Type::Set(_) => true,
+            // Custom types: enums derive Copy, structs don't
+            Type::Custom(name) => !self.ctx.enum_names.contains(name),
             // Optional needs clone if inner type needs clone
-            Type::Optional(inner) => Self::type_needs_clone(inner),
+            Type::Optional(inner) => self.type_needs_clone(inner),
             // Tuple needs clone if any element needs clone
-            Type::Tuple(types) => types.iter().any(Self::type_needs_clone),
+            Type::Tuple(types) => types.iter().any(|t| self.type_needs_clone(t)),
             // Arrays, Generics, Functions, etc. - assume need clone for safety
             Type::Array { .. } | Type::Generic { .. } | Type::Function { .. } | Type::Union(_) => true,
             // TypeVar and Unknown - assume need clone
             Type::TypeVar(_) | Type::Unknown => true,
             // Final wraps another type
-            Type::Final(inner) => Self::type_needs_clone(inner),
+            Type::Final(inner) => self.type_needs_clone(inner),
         }
     }
 
@@ -14073,8 +14075,8 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             let element_needs_clone = if let HirExpr::Var(var_name) = &*gen.iter {
                 if let Some(var_type) = self.ctx.var_types.get(var_name) {
                     match var_type {
-                        Type::List(elem_type) => Self::type_needs_clone(elem_type),
-                        Type::Set(elem_type) => Self::type_needs_clone(elem_type),
+                        Type::List(elem_type) => self.type_needs_clone(elem_type),
+                        Type::Set(elem_type) => self.type_needs_clone(elem_type),
                         _ => true, // Default to clone for unknown types
                     }
                 } else {

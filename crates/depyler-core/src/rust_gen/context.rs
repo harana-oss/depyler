@@ -215,7 +215,7 @@ impl<'a> CodeGenContext<'a> {
     /// For unknown types, returns true to avoid incorrect borrowing of primitives.
     pub fn is_attribute_copy_type(&self, value: &Box<crate::hir::HirExpr>, attr: &str) -> bool {
         if let Some(field_type) = self.get_attribute_field_type(value, attr) {
-            !Self::type_needs_clone(&field_type)
+            !self.type_needs_clone(&field_type)
         } else {
             // Unknown type - assume Copy to avoid incorrectly borrowing primitives
             // like nested field access (e.g., state.ball_location.x)
@@ -531,8 +531,8 @@ impl<'a> CodeGenContext<'a> {
         }
 
         // Check if the variable type is non-Copy
-        let var_type = self.var_types.get(var_name);
-        let is_non_copy = var_type.is_some_and(|t| Self::type_needs_clone(t));
+        let var_type = self.var_types.get(var_name).cloned();
+        let is_non_copy = var_type.as_ref().is_some_and(|t| self.type_needs_clone(t));
 
         if !is_non_copy {
             return false;
@@ -543,22 +543,24 @@ impl<'a> CodeGenContext<'a> {
     }
 
     /// Check if a type needs clone (is not Copy)
-    fn type_needs_clone(ty: &Type) -> bool {
+    fn type_needs_clone(&self, ty: &Type) -> bool {
         match ty {
             // Copy types - don't need clone
             Type::Int | Type::Float | Type::Bool | Type::None => false,
             // Non-Copy types - need clone
-            Type::String | Type::List(_) | Type::Dict(_, _) | Type::Set(_) | Type::Custom(_) => true,
+            Type::String | Type::List(_) | Type::Dict(_, _) | Type::Set(_) => true,
+            // Custom types: enums derive Copy, structs don't
+            Type::Custom(name) => !self.enum_names.contains(name),
             // Optional needs clone if inner type needs clone
-            Type::Optional(inner) => Self::type_needs_clone(inner),
+            Type::Optional(inner) => self.type_needs_clone(inner),
             // Tuple needs clone if any element needs clone
-            Type::Tuple(types) => types.iter().any(Self::type_needs_clone),
+            Type::Tuple(types) => types.iter().any(|t| self.type_needs_clone(t)),
             // Arrays, Generics, Functions, etc. - assume need clone for safety
             Type::Array { .. } | Type::Generic { .. } | Type::Function { .. } | Type::Union(_) => true,
             // TypeVar and Unknown - assume need clone
             Type::TypeVar(_) | Type::Unknown => true,
             // Final wraps another type
-            Type::Final(inner) => Self::type_needs_clone(inner),
+            Type::Final(inner) => self.type_needs_clone(inner),
         }
     }
 

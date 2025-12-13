@@ -2618,4 +2618,35 @@ mod tests {
             code
         );
     }
+
+    #[test]
+    fn test_enum_type_is_copy_no_clone_needed() {
+        // Enums derive Copy, so they shouldn't need .clone()
+        let mut ctx = create_test_context();
+        ctx.enum_names.insert("Team".to_string());
+        ctx.var_types
+            .insert("team".to_string(), crate::hir::Type::Custom("Team".to_string()));
+
+        // var_needs_clone should return false for enum types
+        assert!(
+            !ctx.var_needs_clone("team"),
+            "Enum types implement Copy, so var_needs_clone should return false"
+        );
+    }
+
+    #[test]
+    fn test_struct_type_needs_clone() {
+        // Structs don't derive Copy, so they need .clone()
+        let mut ctx = create_test_context();
+        ctx.var_types
+            .insert("player".to_string(), crate::hir::Type::Custom("Player".to_string()));
+        // Simulate multiple uses to trigger clone
+        ctx.var_usage_counts.insert("player".to_string(), 2);
+
+        // var_needs_clone should return true for struct types
+        assert!(
+            ctx.var_needs_clone("player"),
+            "Struct types don't implement Copy, so var_needs_clone should return true"
+        );
+    }
 }
