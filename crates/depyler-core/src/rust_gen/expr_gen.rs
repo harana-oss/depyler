@@ -14264,7 +14264,9 @@ impl ToRustExpr for HirExpr {
             HirExpr::Var(name) => {
                 let base_expr = converter.convert_variable(name)?;
                 // lazy_static constants have unique wrapper types - clone to get actual type
-                if ctx.lazy_static_constants.contains(name) {
+                // BUT: skip clone if prevent_clone is set (e.g., when used as base for .get())
+                // because .get().cloned() already handles element cloning
+                if ctx.lazy_static_constants.contains(name) && !ctx.prevent_clone {
                     ctx.clone_already_applied = true;
                     Ok(parse_quote! { #base_expr.clone() })
                 } else if ctx.is_assignment_target || ctx.prevent_clone || ctx.clone_already_applied {
