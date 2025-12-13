@@ -3341,9 +3341,45 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                                 }
                             }
                         } else {
-                            // Borrowing a variable - generate expression without .clone()
-                            // since arg_expr may have .clone() added by to_rust_expr
-                            if let HirExpr::Var(var_name) = hir_arg {
+                            // Borrowing immutably - but check for borrow conflict first!
+                            // If this field access conflicts with a &mut borrow in the same call,
+                            // we need to clone before borrowing
+                            if needs_clone_for_borrow_conflict {
+                                // Clone the field to avoid simultaneous borrow conflict
+                                // Generate: &field.clone() or &state.field.clone()
+                                if let HirExpr::Attribute { value, attr } = hir_arg {
+                                    fn build_attr_clone(expr: &HirExpr) -> syn::Expr {
+                                        match expr {
+                                            HirExpr::Var(name) => {
+                                                let ident = format_ident!("{}", name);
+                                                parse_quote! { #ident }
+                                            }
+                                            HirExpr::Attribute { value, attr } => {
+                                                let base = build_attr_clone(value);
+                                                let attr_ident = format_ident!("{}", attr);
+                                                parse_quote! { #base.#attr_ident }
+                                            }
+                                            _ => parse_quote! { () }
+                                        }
+                                    }
+                                    let base_expr = build_attr_clone(value);
+                                    let attr_ident = format_ident!("{}", attr);
+                                    let result: syn::Expr = parse_quote! { &#base_expr.#attr_ident.clone() };
+                                    if needs_optional_unwrap {
+                                        parse_quote! { #result.unwrap() }
+                                    } else {
+                                        result
+                                    }
+                                } else {
+                                    let result: syn::Expr = parse_quote! { &#arg_expr.clone() };
+                                    if needs_optional_unwrap {
+                                        parse_quote! { #result.unwrap() }
+                                    } else {
+                                        result
+                                    }
+                                }
+                            } else if let HirExpr::Var(var_name) = hir_arg {
+                                // No conflict - simple variable borrow
                                 let ident = format_ident!("{}", var_name);
                                 let result: syn::Expr = parse_quote! { &#ident };
                                 if needs_optional_unwrap {
