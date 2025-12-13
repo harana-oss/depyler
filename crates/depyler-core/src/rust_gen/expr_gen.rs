@@ -12,6 +12,7 @@ use crate::rust_gen::type_gen::convert_binop;
 use crate::string_optimization::{StringContext, StringOptimizer};
 use anyhow::{Result, bail};
 use quote::{ToTokens, format_ident, quote};
+use std::collections::HashSet;
 use syn::{self, parse_quote};
 
 struct ExpressionConverter<'a, 'b> {
@@ -2952,6 +2953,31 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             // 2. Only borrow if: (a) arg is List/Dict/Set AND (b) function expects borrow
             // 3. Check if param needs &mut (mutated in callee) or just &
             // 4. Otherwise pass as-is (either owned or primitive)
+
+            // BORROW CONFLICT DETECTION:
+            // Collect variables that are passed as &mut to avoid borrow conflicts.
+            // If `state` is passed as &mut, then `state.field` in another arg creates a conflict.
+            let mut_borrowed_vars: HashSet<String> = hir_args
+                .iter()
+                .enumerate()
+                .filter_map(|(idx, arg)| {
+                    if let HirExpr::Var(var_name) = arg {
+                        // Check if this param expects &mut
+                        let expects_mut = self
+                            .ctx
+                            .function_param_muts
+                            .get(func)
+                            .and_then(|muts| muts.get(idx))
+                            .copied()
+                            .unwrap_or(false);
+                        if expects_mut {
+                            return Some(var_name.clone());
+                        }
+                    }
+                    None
+                })
+                .collect();
+
             let borrowed_args: Vec<syn::Expr> = hir_args
                 .iter()
                 .zip(args.iter())
@@ -3157,6 +3183,27 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                         false
                     };
 
+                    // BORROW CONFLICT: Check if this argument accesses a field on a variable
+                    // that is also being passed as &mut in this same function call.
+                    // e.g., fn(state, state.field) where state is &mut → need to clone state.field
+                    let needs_clone_for_borrow_conflict = if let HirExpr::Attribute { value, .. } = hir_arg {
+                        // Get the base variable of the attribute access
+                        fn get_base_var(expr: &HirExpr) -> Option<&str> {
+                            match expr {
+                                HirExpr::Var(name) => Some(name.as_str()),
+                                HirExpr::Attribute { value, .. } => get_base_var(value),
+                                _ => None,
+                            }
+                        }
+                        if let Some(base_var) = get_base_var(value) {
+                            mut_borrowed_vars.contains(base_var)
+                        } else {
+                            false
+                        }
+                    } else {
+                        false
+                    };
+
                     // Check if argument is Optional and needs unwrapping
                     // This happens when Optional field/variable is passed to non-Optional parameter
                     let needs_optional_unwrap = {
@@ -3284,8 +3331,8 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                                 }
                             }
                         }
-                    } else if needs_clone_for_move {
-                        // Field access on &mut ref - must clone to get owned value
+                    } else if needs_clone_for_move || needs_clone_for_borrow_conflict {
+                        // Field access on &mut ref, or borrow conflict with another arg - must clone
                         let result: syn::Expr = parse_quote! { #arg_expr.clone() };
                         if needs_optional_unwrap {
                             parse_quote! { #result.unwrap() }
