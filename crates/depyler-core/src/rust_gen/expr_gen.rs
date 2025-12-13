@@ -10599,6 +10599,18 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             }
         }
 
+        // Handle bitflags indexing: BITFLAGS_SET[i] → BitflagsSet::get(i)
+        // Bitflags types are not instances, so we use the static get() method
+        if let HirExpr::Var(var_name) = base {
+            if let Some(bitflags_struct_name) = self.ctx.bitflags_name_map.get(var_name).cloned() {
+                let struct_ident =
+                    syn::Ident::new(&bitflags_struct_name, proc_macro2::Span::call_site());
+                let index_expr = index.to_rust_expr(self.ctx)?;
+                // Use the generated get() method that takes the underlying type
+                return Ok(parse_quote! { #struct_ident::get(#index_expr as u64) });
+            }
+        }
+
         // Must check this before evaluating base_expr to avoid trying to convert os.environ
         if let HirExpr::Attribute { value, attr } = base {
             if let HirExpr::Var(module_name) = &**value {
