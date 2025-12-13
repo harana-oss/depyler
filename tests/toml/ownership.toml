@@ -1302,3 +1302,153 @@ pub fn get_x(p: &Point) -> i32 {
     return p.x;
 }
 '''
+
+# =============================================================================
+# Simultaneous Borrow Conflict Detection (Option 1: Clone Before Call)
+# =============================================================================
+
+[[test]]
+name = "borrow_conflict_mut_state_and_field_read"
+description = "When passing &mut state and state.field to same function, clone the field"
+
+python = '''
+@dataclass
+class Team:
+    name: str
+
+@dataclass
+class State:
+    score: int
+    team_in_possession: Team
+
+def assign_try(state: State, player_index: int, team: Team) -> None:
+    state.score = state.score + 5
+
+def process_play(state: State, player_index: int) -> None:
+    assign_try(state, player_index, state.team_in_possession)
+'''
+
+rust = '''
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Team {
+    pub name: String,
+}
+impl Team {
+    pub fn new(name: String) -> Self {
+        Self { name }
+    }
+}
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct State {
+    pub score: i32,
+    pub team_in_possession: Team,
+}
+impl State {
+    pub fn new(score: i32, team_in_possession: Team) -> Self {
+        Self { score, team_in_possession }
+    }
+}
+pub fn assign_try(state: &mut State, player_index: i32, team: &Team) {
+    state.score = state.score + 5;
+}
+pub fn process_play(state: &mut State, player_index: i32) {
+    let team = state.team_in_possession.clone();
+    assign_try(state, player_index, &team);
+}
+'''
+
+[[test]]
+name = "borrow_conflict_mut_state_and_nested_field"
+description = "Nested field access with &mut state should also clone"
+
+python = '''
+@dataclass
+class Inner:
+    value: int
+
+@dataclass
+class Outer:
+    inner: Inner
+
+def use_both(outer: Outer, val: int) -> None:
+    outer.inner.value = val
+
+def caller(outer: Outer) -> None:
+    use_both(outer, outer.inner.value)
+'''
+
+rust = '''
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Inner {
+    pub value: i32,
+}
+impl Inner {
+    pub fn new(value: i32) -> Self {
+        Self { value }
+    }
+}
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Outer {
+    pub inner: Inner,
+}
+impl Outer {
+    pub fn new(inner: Inner) -> Self {
+        Self { inner }
+    }
+}
+pub fn use_both(outer: &mut Outer, val: i32) {
+    outer.inner.value = val;
+}
+pub fn caller(outer: &mut Outer) {
+    let val = outer.inner.value;
+    use_both(outer, val);
+}
+'''
+
+[[test]]
+name = "borrow_conflict_mut_state_with_explicit_borrow"
+description = "When &state.field is explicit in source, clone inner and reference"
+
+python = '''
+@dataclass
+class Config:
+    setting: str
+
+@dataclass  
+class App:
+    config: Config
+
+def apply_config(app: App, cfg: Config) -> None:
+    app.config = cfg
+
+def update_app(app: App) -> None:
+    apply_config(app, app.config)
+'''
+
+rust = '''
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Config {
+    pub setting: String,
+}
+impl Config {
+    pub fn new(setting: String) -> Self {
+        Self { setting }
+    }
+}
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct App {
+    pub config: Config,
+}
+impl App {
+    pub fn new(config: Config) -> Self {
+        Self { config }
+    }
+}
+pub fn apply_config(app: &mut App, cfg: Config) {
+    app.config = cfg;
+}
+pub fn update_app(app: &mut App) {
+    let cfg = app.config.clone();
+    apply_config(app, cfg);
+}
+'''

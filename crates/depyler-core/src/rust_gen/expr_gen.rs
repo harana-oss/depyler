@@ -2957,20 +2957,30 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             // BORROW CONFLICT DETECTION:
             // Collect variables that are passed as &mut to avoid borrow conflicts.
             // If `state` is passed as &mut, then `state.field` in another arg creates a conflict.
+            // 
+            // A variable needs to be in mut_borrowed_vars if:
+            // 1. The callee function expects &mut for that parameter position, OR
+            // 2. The variable is already a &mut reference in the current function
+            //    (from current_func_mut_ref_params) and is being passed to a function
             let mut_borrowed_vars: HashSet<String> = hir_args
                 .iter()
                 .enumerate()
                 .filter_map(|(idx, arg)| {
                     if let HirExpr::Var(var_name) = arg {
-                        // Check if this param expects &mut
-                        let expects_mut = self
+                        // Check if this param expects &mut in the callee
+                        let callee_expects_mut = self
                             .ctx
                             .function_param_muts
                             .get(func)
                             .and_then(|muts| muts.get(idx))
                             .copied()
                             .unwrap_or(false);
-                        if expects_mut {
+                        
+                        // Check if this variable is already a &mut ref in current function
+                        let is_already_mut_ref = self.ctx.current_func_mut_ref_params.contains(var_name);
+                        
+                        // Either condition means we have a mutable borrow happening
+                        if callee_expects_mut || is_already_mut_ref {
                             return Some(var_name.clone());
                         }
                     }
@@ -3191,27 +3201,34 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                         match expr {
                             HirExpr::Var(name) => Some(name.as_str()),
                             HirExpr::Attribute { value, .. } => get_base_var(value),
+                            HirExpr::Index { base, .. } => get_base_var(base),
+                            HirExpr::Borrow { expr, .. } => get_base_var(expr),
                             _ => None,
                         }
                     }
 
                     // Check for attribute access (direct or through borrow)
+                    // Also check for index access like state.items[0]
                     let (needs_clone_for_borrow_conflict, is_borrowed_attribute) =
-                        if let HirExpr::Attribute { value, .. } = hir_arg {
-                            let has_conflict = get_base_var(value)
+                        if let HirExpr::Attribute { .. } = hir_arg {
+                            // For state.field, get_base_var returns "state"
+                            let has_conflict = get_base_var(hir_arg)
+                                .map(|base_var| mut_borrowed_vars.contains(base_var))
+                                .unwrap_or(false);
+                            (has_conflict, false)
+                        } else if let HirExpr::Index { .. } = hir_arg {
+                            // For state.items[0], get_base_var returns "state"
+                            let has_conflict = get_base_var(hir_arg)
                                 .map(|base_var| mut_borrowed_vars.contains(base_var))
                                 .unwrap_or(false);
                             (has_conflict, false)
                         } else if let HirExpr::Borrow { expr, .. } = hir_arg {
-                            // Handle &state.field pattern - check if inner expr is attribute with conflict
-                            if let HirExpr::Attribute { value, .. } = &**expr {
-                                let has_conflict = get_base_var(value)
-                                    .map(|base_var| mut_borrowed_vars.contains(base_var))
-                                    .unwrap_or(false);
-                                (has_conflict, true)
-                            } else {
-                                (false, false)
-                            }
+                            // Handle &state.field pattern - check if inner expr has conflict
+                            let has_conflict = get_base_var(expr)
+                                .map(|base_var| mut_borrowed_vars.contains(base_var))
+                                .unwrap_or(false);
+                            let is_attr = matches!(&**expr, HirExpr::Attribute { .. });
+                            (has_conflict, is_attr)
                         } else {
                             (false, false)
                         };
@@ -3347,7 +3364,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                         // Field access on &mut ref, or borrow conflict with another arg - must clone
                         // For borrowed attributes (&state.field), we need to clone the inner attribute
                         // to avoid the simultaneous borrow conflict with &mut state
-                        let result: syn::Expr = if is_borrowed_attribute {
+                        let cloned_expr: syn::Expr = if is_borrowed_attribute {
                             // Extract inner attribute from Borrow and clone it
                             // &state.field with conflict → state.field.clone()
                             if let HirExpr::Borrow { expr, .. } = hir_arg {
@@ -3363,6 +3380,11 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                                             let attr_ident = format_ident!("{}", attr);
                                             parse_quote! { #base.#attr_ident }
                                         }
+                                        HirExpr::Index { base, index } => {
+                                            let base_expr = build_expr_for_clone(base);
+                                            let idx_expr = build_expr_for_clone(index);
+                                            parse_quote! { #base_expr[#idx_expr] }
+                                        }
                                         _ => {
                                             // Fallback for other cases
                                             parse_quote! { () }
@@ -3377,6 +3399,17 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                         } else {
                             parse_quote! { #arg_expr.clone() }
                         };
+                        
+                        // If the original was a borrow (&state.field), we cloned the inner part
+                        // but may need to re-add & if the callee expects a reference
+                        let result: syn::Expr = if is_borrowed_attribute {
+                            // Original was &state.field, now we have state.field.clone()
+                            // Add & back since callee expects a reference
+                            parse_quote! { &#cloned_expr }
+                        } else {
+                            cloned_expr
+                        };
+                        
                         if needs_optional_unwrap {
                             parse_quote! { #result.unwrap() }
                         } else {
