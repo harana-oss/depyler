@@ -1530,8 +1530,9 @@ pub fn generate_rust_file(
     // Process imports to populate the context
     let (imported_modules, imported_items) = process_module_imports(&module.imports, &module_mapper);
 
-    // Extract class names from module
+    // Extract class names and enum names from module
     let class_names: HashSet<String> = module.classes.iter().map(|class| class.name.clone()).collect();
+    let enum_names: HashSet<String> = module.classes.iter().filter(|c| c.is_enum).map(|c| c.name.clone()).collect();
 
     // Extract class field types for ownership analysis
     let mut class_field_types: std::collections::HashMap<String, std::collections::HashMap<String, crate::hir::Type>> =
@@ -1606,6 +1607,7 @@ pub fn generate_rust_file(
         generator_state_vars: HashSet::new(),
         var_types: std::collections::HashMap::new(),
         class_names,
+        enum_names,
         class_field_types,
         mutating_methods,
         function_return_types: std::collections::HashMap::new(), // Track function return types
@@ -1856,6 +1858,7 @@ mod tests {
             generator_state_vars: HashSet::new(),
             var_types: std::collections::HashMap::new(),
             class_names: HashSet::new(),
+            enum_names: HashSet::new(),
             class_field_types: std::collections::HashMap::new(),
             mutating_methods: std::collections::HashMap::new(),
             function_return_types: std::collections::HashMap::new(), // Track function return types

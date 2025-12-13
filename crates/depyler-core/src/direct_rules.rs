@@ -463,49 +463,84 @@ pub fn convert_class_to_struct(class: &HirClass, type_mapper: &TypeMapper) -> Re
 pub fn convert_class_to_enum(class: &HirClass) -> Result<Vec<syn::Item>> {
     let enum_name = syn::Ident::new(&class.name, proc_macro2::Span::call_site());
 
-    let variants: Vec<syn::Variant> = class
+    let variant_info: Vec<(syn::Ident, i64)> = class
         .fields
         .iter()
         .filter(|f| f.is_class_var && f.default_value.is_some())
-        .map(|field| {
+        .filter_map(|field| {
             let variant_name = to_pascal_case(&field.name);
             let variant_ident = syn::Ident::new(&variant_name, proc_macro2::Span::call_site());
+            if let Some(HirExpr::Literal(Literal::Int(value))) = &field.default_value {
+                Some((variant_ident, *value))
+            } else {
+                None
+            }
+        })
+        .collect();
 
-            let discriminant = field.default_value.as_ref().and_then(|expr| {
-                if let HirExpr::Literal(Literal::Int(value)) = expr {
-                    let lit = syn::LitInt::new(&value.to_string(), proc_macro2::Span::call_site());
-                    Some((
-                        syn::Token![=](proc_macro2::Span::call_site()),
-                        syn::Expr::Lit(syn::ExprLit {
-                            attrs: vec![],
-                            lit: syn::Lit::Int(lit),
-                        }),
-                    ))
-                } else {
-                    None
-                }
-            });
-
+    let variants: Vec<syn::Variant> = variant_info
+        .iter()
+        .enumerate()
+        .map(|(idx, (ident, value))| {
+            let lit = syn::LitInt::new(&value.to_string(), proc_macro2::Span::call_site());
+            let attrs = if idx == 0 {
+                vec![parse_quote! { #[default] }]
+            } else {
+                vec![]
+            };
             syn::Variant {
-                attrs: vec![],
-                ident: variant_ident,
+                attrs,
+                ident: ident.clone(),
                 fields: syn::Fields::Unit,
-                discriminant,
+                discriminant: Some((
+                    syn::Token![=](proc_macro2::Span::call_site()),
+                    syn::Expr::Lit(syn::ExprLit {
+                        attrs: vec![],
+                        lit: syn::Lit::Int(lit),
+                    }),
+                )),
             }
         })
         .collect();
 
     let enum_item = syn::Item::Enum(syn::ItemEnum {
-        attrs: vec![parse_quote! { #[derive(Debug, Clone, Copy, PartialEq, Eq)] }],
+        attrs: vec![parse_quote! { #[derive(Debug, Default, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)] }],
         vis: syn::Visibility::Public(syn::Token![pub](proc_macro2::Span::call_site())),
         enum_token: syn::Token![enum](proc_macro2::Span::call_site()),
-        ident: enum_name,
+        ident: enum_name.clone(),
         generics: syn::Generics::default(),
         brace_token: syn::token::Brace::default(),
         variants: variants.into_iter().collect(),
     });
 
-    Ok(vec![enum_item])
+    // Generate match arms for from_i32
+    let match_arms: Vec<syn::Arm> = variant_info
+        .iter()
+        .map(|(ident, value)| {
+            let lit = syn::LitInt::new(&value.to_string(), proc_macro2::Span::call_site());
+            parse_quote! { #lit => Some(Self::#ident), }
+        })
+        .collect();
+
+    let first_variant = variant_info.first().map(|(ident, _)| ident.clone());
+    let default_variant = first_variant.unwrap_or_else(|| syn::Ident::new("Unknown", proc_macro2::Span::call_site()));
+
+    let impl_item: syn::Item = parse_quote! {
+        impl #enum_name {
+            pub fn from_i32(value: i32) -> Option<Self> {
+                match value {
+                    #(#match_arms)*
+                    _ => None,
+                }
+            }
+
+            pub fn from_i32_or_default(value: i32) -> Self {
+                Self::from_i32(value).unwrap_or(Self::#default_variant)
+            }
+        }
+    };
+
+    Ok(vec![enum_item, impl_item])
 }
 
 pub fn to_pascal_case(s: &str) -> String {

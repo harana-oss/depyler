@@ -2866,16 +2866,22 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
 
         // Check if this might be a constructor call (capitalized name)
         if func.chars().next().map(|c| c.is_uppercase()).unwrap_or(false) {
-            // Treat as constructor call - ClassName::new(args)
             let class_ident = syn::Ident::new(func, proc_macro2::Span::call_site());
-            if args.is_empty() {
-                // User-defined classes should always generate ClassName::new() with no args
-                let is_user_class = self.ctx.class_names.contains(func);
 
-                // Note: Constructor default parameter handling uses simple heuristics.
-                // Ideally this would be context-aware and know the actual default values
-                // for each class constructor, but currently uses hardcoded patterns.
-                // This is a known limitation - constructors may require explicit arguments.
+            // Check if this is an enum - use from_i32_or_default instead of new
+            if self.ctx.enum_names.contains(func) {
+                if args.len() == 1 {
+                    let arg = &args[0];
+                    return Ok(parse_quote! { #class_ident::from_i32_or_default(#arg) });
+                } else if args.is_empty() {
+                    // No args - can't create enum from nothing, return first variant as default
+                    return Ok(parse_quote! { #class_ident::from_i32_or_default(0) });
+                }
+            }
+
+            // Regular class constructor - ClassName::new(args)
+            if args.is_empty() {
+                let is_user_class = self.ctx.class_names.contains(func);
                 if !is_user_class && func == "Counter" {
                     return Ok(parse_quote! { #class_ident::new(0) });
                 }

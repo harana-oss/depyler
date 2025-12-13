@@ -88,6 +88,7 @@ pub struct CodeGenContext<'a> {
     pub generator_state_vars: HashSet<String>,
     pub var_types: HashMap<String, Type>,
     pub class_names: HashSet<String>,
+    pub enum_names: HashSet<String>,
     /// Map from class name to map of field name to field type
     pub class_field_types: HashMap<String, HashMap<String, Type>>,
     pub mutating_methods: HashMap<String, HashSet<String>>,
