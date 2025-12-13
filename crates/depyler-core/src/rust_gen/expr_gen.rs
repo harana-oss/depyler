@@ -3351,7 +3351,8 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                             // Extract inner attribute from Borrow and clone it
                             // &state.field with conflict → state.field.clone()
                             if let HirExpr::Borrow { expr, .. } = hir_arg {
-                                let inner_expr = expr.to_rust_expr(self.ctx)?;
+                                // Use unwrap_or to handle Result since we're in a closure
+                                let inner_expr = expr.to_rust_expr(self.ctx).unwrap_or_else(|_| arg_expr.clone());
                                 parse_quote! { #inner_expr.clone() }
                             } else {
                                 parse_quote! { #arg_expr.clone() }
