@@ -10761,7 +10761,20 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         // Check if base is Optional - if so, we need to unwrap it before indexing
         let base_is_optional = self.ctx.get_optional_inner_type(base).is_some();
 
-        let mut base_expr = base.to_rust_expr(self.ctx)?;
+        // When the base is an attribute expression (e.g., state.field.list), don't add .clone()
+        // to the entire collection. The .get().cloned() pattern handles element cloning.
+        // This avoids generating redundant code like: vec.clone().get(i).cloned().unwrap()
+        let mut base_expr = if matches!(base, HirExpr::Attribute { .. }) {
+            self.convert_attribute_without_clone(base)?
+        } else {
+            // For other base types, preserve original behavior but set prevent_clone
+            // to avoid unnecessary cloning of the collection itself
+            let was_prevent_clone = self.ctx.prevent_clone;
+            self.ctx.prevent_clone = true;
+            let expr = base.to_rust_expr(self.ctx)?;
+            self.ctx.prevent_clone = was_prevent_clone;
+            expr
+        };
 
         // If base is Optional, unwrap the Option before indexing
         // Use as_mut() for assignment targets to allow mutation
