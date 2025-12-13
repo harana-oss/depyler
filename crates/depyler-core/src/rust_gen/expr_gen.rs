@@ -3186,23 +3186,35 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     // BORROW CONFLICT: Check if this argument accesses a field on a variable
                     // that is also being passed as &mut in this same function call.
                     // e.g., fn(state, state.field) where state is &mut → need to clone state.field
-                    let needs_clone_for_borrow_conflict = if let HirExpr::Attribute { value, .. } = hir_arg {
-                        // Get the base variable of the attribute access
-                        fn get_base_var(expr: &HirExpr) -> Option<&str> {
-                            match expr {
-                                HirExpr::Var(name) => Some(name.as_str()),
-                                HirExpr::Attribute { value, .. } => get_base_var(value),
-                                _ => None,
+                    // Also handles: fn(state, &state.field) where the borrow wraps an attribute
+                    fn get_base_var(expr: &HirExpr) -> Option<&str> {
+                        match expr {
+                            HirExpr::Var(name) => Some(name.as_str()),
+                            HirExpr::Attribute { value, .. } => get_base_var(value),
+                            _ => None,
+                        }
+                    }
+
+                    // Check for attribute access (direct or through borrow)
+                    let (needs_clone_for_borrow_conflict, is_borrowed_attribute) =
+                        if let HirExpr::Attribute { value, .. } = hir_arg {
+                            let has_conflict = get_base_var(value)
+                                .map(|base_var| mut_borrowed_vars.contains(base_var))
+                                .unwrap_or(false);
+                            (has_conflict, false)
+                        } else if let HirExpr::Borrow { expr, .. } = hir_arg {
+                            // Handle &state.field pattern - check if inner expr is attribute with conflict
+                            if let HirExpr::Attribute { value, .. } = &**expr {
+                                let has_conflict = get_base_var(value)
+                                    .map(|base_var| mut_borrowed_vars.contains(base_var))
+                                    .unwrap_or(false);
+                                (has_conflict, true)
+                            } else {
+                                (false, false)
                             }
-                        }
-                        if let Some(base_var) = get_base_var(value) {
-                            mut_borrowed_vars.contains(base_var)
                         } else {
-                            false
-                        }
-                    } else {
-                        false
-                    };
+                            (false, false)
+                        };
 
                     // Check if argument is Optional and needs unwrapping
                     // This happens when Optional field/variable is passed to non-Optional parameter
@@ -3333,7 +3345,20 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                         }
                     } else if needs_clone_for_move || needs_clone_for_borrow_conflict {
                         // Field access on &mut ref, or borrow conflict with another arg - must clone
-                        let result: syn::Expr = parse_quote! { #arg_expr.clone() };
+                        // For borrowed attributes (&state.field), we need to clone the inner attribute
+                        // to avoid the simultaneous borrow conflict with &mut state
+                        let result: syn::Expr = if is_borrowed_attribute {
+                            // Extract inner attribute from Borrow and clone it
+                            // &state.field with conflict → state.field.clone()
+                            if let HirExpr::Borrow { expr, .. } = hir_arg {
+                                let inner_expr = expr.to_rust_expr(self.ctx)?;
+                                parse_quote! { #inner_expr.clone() }
+                            } else {
+                                parse_quote! { #arg_expr.clone() }
+                            }
+                        } else {
+                            parse_quote! { #arg_expr.clone() }
+                        };
                         if needs_optional_unwrap {
                             parse_quote! { #result.unwrap() }
                         } else {
