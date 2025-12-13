@@ -72,7 +72,6 @@ pub struct CodeGenContext<'a> {
     pub needs_crc32: bool,
     pub needs_url_encoding: bool,
     pub needs_lazy_static: bool,
-    pub needs_bitflags: bool,
     pub declared_vars: Vec<HashSet<String>>,
     pub current_function_can_fail: bool,
     pub current_return_type: Option<Type>,
@@ -150,10 +149,6 @@ pub struct CodeGenContext<'a> {
 
     /// Flag to indicate we should generate a borrow instead of clone for the current expression
     pub generate_borrow: bool,
-
-    /// Map from original Python constant name to Rust bitflags struct name
-    /// e.g., "NEXT_PLAY_TYPES" -> "NextPlayTypes"
-    pub bitflags_name_map: HashMap<String, String>,
 }
 
 impl<'a> CodeGenContext<'a> {

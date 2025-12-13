@@ -7,7 +7,7 @@ use crate::hir::*;
 use crate::lifetime_analysis::LifetimeInference;
 use crate::rust_gen::context::{CodeGenContext, RustCodeGen};
 use crate::rust_gen::generator_gen::codegen_generator_function;
-use crate::rust_gen::type_gen::{rust_type_to_syn, rust_type_to_syn_with_ctx, update_import_needs};
+use crate::rust_gen::type_gen::{rust_type_to_syn, update_import_needs};
 use anyhow::Result;
 use quote::quote;
 use syn::{self, parse_quote};
@@ -386,7 +386,7 @@ fn codegen_single_param(
             .annotation_aware_mapper
             .map_type_with_annotations(&param.ty, &func.annotations);
         update_import_needs(ctx, &rust_type);
-        let ty = rust_type_to_syn_with_ctx(&rust_type, ctx)?;
+        let ty = rust_type_to_syn(&rust_type)?;
         // Always use String for string parameters (not &str) to match Python semantics
         if force_borrow_from_call_chain {
             // Track this parameter as already being &mut so we don't add &mut again at call sites
@@ -408,7 +408,7 @@ fn apply_param_borrowing_strategy(
     lifetime_result: &crate::lifetime_analysis::LifetimeResult,
     ctx: &mut CodeGenContext,
 ) -> Result<syn::Type> {
-    let ty = rust_type_to_syn_with_ctx(rust_type, ctx)?;
+    let ty = rust_type_to_syn(rust_type)?;
 
     // String parameters should always be owned String, never borrowed
     if matches!(rust_type, crate::type_mapper::RustType::String) {
@@ -1291,7 +1291,7 @@ pub(crate) fn codegen_return_type(
             quote! {}
         }
     } else {
-        let mut ty = rust_type_to_syn_with_ctx(&rust_ret_type, ctx)?;
+        let mut ty = rust_type_to_syn(&rust_ret_type)?;
 
         // When a borrowed param's field escapes through return, return a reference instead of cloning
         // e.g., `return state.home_players` where state: &State → return &Vec<Player> instead of Vec<Player>

@@ -328,6 +328,7 @@ fn build_derive_attributes(class: &HirClass) -> Vec<syn::Attribute> {
 ///     ],
 ///     methods: vec![],
 ///     is_dataclass: true,
+///     is_enum: false,
 ///     docstring: Some("A 2D point".to_string()),
 ///     annotations: TranspilationAnnotations::default(),
 /// };
@@ -456,6 +457,67 @@ pub fn convert_class_to_struct(class: &HirClass, type_mapper: &TypeMapper) -> Re
     }
 
     Ok(items)
+}
+
+/// Convert a Python Enum/IntEnum class to a Rust enum with integer discriminants.
+pub fn convert_class_to_enum(class: &HirClass) -> Result<Vec<syn::Item>> {
+    let enum_name = syn::Ident::new(&class.name, proc_macro2::Span::call_site());
+
+    let variants: Vec<syn::Variant> = class
+        .fields
+        .iter()
+        .filter(|f| f.is_class_var && f.default_value.is_some())
+        .map(|field| {
+            let variant_name = to_pascal_case(&field.name);
+            let variant_ident = syn::Ident::new(&variant_name, proc_macro2::Span::call_site());
+
+            let discriminant = field.default_value.as_ref().and_then(|expr| {
+                if let HirExpr::Literal(Literal::Int(value)) = expr {
+                    let lit = syn::LitInt::new(&value.to_string(), proc_macro2::Span::call_site());
+                    Some((
+                        syn::Token![=](proc_macro2::Span::call_site()),
+                        syn::Expr::Lit(syn::ExprLit {
+                            attrs: vec![],
+                            lit: syn::Lit::Int(lit),
+                        }),
+                    ))
+                } else {
+                    None
+                }
+            });
+
+            syn::Variant {
+                attrs: vec![],
+                ident: variant_ident,
+                fields: syn::Fields::Unit,
+                discriminant,
+            }
+        })
+        .collect();
+
+    let enum_item = syn::Item::Enum(syn::ItemEnum {
+        attrs: vec![parse_quote! { #[derive(Debug, Clone, Copy, PartialEq, Eq)] }],
+        vis: syn::Visibility::Public(syn::Token![pub](proc_macro2::Span::call_site())),
+        enum_token: syn::Token![enum](proc_macro2::Span::call_site()),
+        ident: enum_name,
+        generics: syn::Generics::default(),
+        brace_token: syn::token::Brace::default(),
+        variants: variants.into_iter().collect(),
+    });
+
+    Ok(vec![enum_item])
+}
+
+pub fn to_pascal_case(s: &str) -> String {
+    s.split('_')
+        .map(|word| {
+            let mut chars = word.chars();
+            match chars.next() {
+                None => String::new(),
+                Some(first) => first.to_uppercase().chain(chars.flat_map(|c| c.to_lowercase())).collect(),
+            }
+        })
+        .collect()
 }
 
 fn generate_dataclass_new(

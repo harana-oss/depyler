@@ -1,10 +1,8 @@
 use crate::annotation_aware_type_mapper::AnnotationAwareTypeMapper;
-use crate::bitflags_gen::BitflagsTargetType;
 use crate::cargo_toml_gen; // Cargo.toml generation
 use crate::expr_utils::extract_root_var;
 use crate::hir::*;
 use crate::string_optimization::StringOptimizer;
-use crate::string_set_detection::StringSetDetector;
 use anyhow::Result;
 use quote::{ToTokens, quote};
 use std::collections::{HashMap, HashSet};
@@ -38,7 +36,7 @@ use stmt_gen::{
 // Public re-exports for external modules (union_enum_gen, etc.)
 pub use argparse_transform::ArgParserTracker; // Export for testing
 pub use context::{CodeGenContext, RustCodeGen, ToRustExpr};
-pub use type_gen::{rust_type_to_syn, rust_type_to_syn_with_ctx};
+pub use type_gen::rust_type_to_syn;
 
 // Internal re-exports for cross-module access
 pub(crate) use func_gen::return_type_expects_float;
@@ -1217,9 +1215,7 @@ fn analyze_mutable_vars(stmts: &[HirStmt], ctx: &mut CodeGenContext, params: &[H
     }
 }
 
-/// Convert Python classes to Rust structs
-///
-/// Processes all classes and generates token streams.
+/// Convert Python classes to Rust structs or enums
 fn convert_classes_to_rust(
     classes: &[HirClass],
     type_mapper: &crate::type_mapper::TypeMapper,
@@ -1227,7 +1223,6 @@ fn convert_classes_to_rust(
 ) -> Result<Vec<proc_macro2::TokenStream>> {
     let mut class_items = Vec::new();
     for class in classes {
-        // Check if class uses HashMap or HashSet types and update context
         for field in &class.fields {
             match &field.field_type {
                 Type::Dict(_, _) => {
@@ -1240,7 +1235,11 @@ fn convert_classes_to_rust(
             }
         }
 
-        let items = crate::direct_rules::convert_class_to_struct(class, type_mapper)?;
+        let items = if class.is_enum {
+            crate::direct_rules::convert_class_to_enum(class)?
+        } else {
+            crate::direct_rules::convert_class_to_struct(class, type_mapper)?
+        };
         for item in items {
             let tokens = item.to_token_stream();
             class_items.push(tokens);
@@ -1463,32 +1462,17 @@ fn requires_lazy_static(ty: &Type) -> bool {
 ///
 /// Generates `pub const` declarations for simple constants.
 /// For heap-allocated types (Vec, HashMap, etc.), uses lazy_static!.
-/// For immutable string sets/lists, generates bitflags.
 fn generate_constant_tokens(
     constants: &[HirConstant],
     ctx: &mut CodeGenContext,
-    bitflags_candidates: &HashSet<String>,
 ) -> Result<Vec<proc_macro2::TokenStream>> {
     use crate::rust_gen::context::ToRustExpr;
 
     let mut const_items = Vec::new();
     let mut lazy_static_items = Vec::new();
-    let mut bitflags_items = Vec::new();
 
     for constant in constants {
         let name_ident = syn::Ident::new(&constant.name, proc_macro2::Span::call_site());
-
-        // Check if this constant should be a bitflags
-        if bitflags_candidates.contains(&constant.name) {
-            if let Some(bitflags_code) = generate_bitflags_for_constant(constant) {
-                ctx.needs_bitflags = true;
-                // Track the name mapping: original Python name -> Rust struct name
-                let struct_name = to_pascal_case(&constant.name);
-                ctx.bitflags_name_map.insert(constant.name.clone(), struct_name);
-                bitflags_items.push(bitflags_code);
-                continue;
-            }
-        }
 
         // Generate the value expression
         let value_expr = constant.value.to_rust_expr(ctx)?;
@@ -1523,9 +1507,8 @@ fn generate_constant_tokens(
         }
     }
 
-    // Combine results: bitflags first, const items, then lazy_static block
-    let mut items = bitflags_items;
-    items.extend(const_items);
+    // Combine results: const items, then lazy_static block
+    let mut items = const_items;
     if !lazy_static_items.is_empty() {
         items.push(quote! {
             lazy_static! {
@@ -1535,151 +1518,6 @@ fn generate_constant_tokens(
     }
 
     Ok(items)
-}
-
-/// Generate bitflags for a constant containing a string list/set
-fn generate_bitflags_for_constant(constant: &HirConstant) -> Option<proc_macro2::TokenStream> {
-    use crate::string_set_detection::normalize_to_rust_identifier;
-
-    let values = extract_string_values(&constant.value)?;
-    if values.is_empty() || values.len() > 64 {
-        return None;
-    }
-
-    let struct_name = to_pascal_case(&constant.name);
-    let struct_ident = syn::Ident::new(&struct_name, proc_macro2::Span::call_site());
-
-    let target_type = BitflagsTargetType::from_count(values.len())?;
-    let type_ident: syn::Type = match target_type {
-        BitflagsTargetType::U8 => syn::parse_quote! { u8 },
-        BitflagsTargetType::U16 => syn::parse_quote! { u16 },
-        BitflagsTargetType::U32 => syn::parse_quote! { u32 },
-        BitflagsTargetType::U64 => syn::parse_quote! { u64 },
-    };
-
-    let mut flag_defs = Vec::new();
-    let mut from_str_arms = Vec::new();
-    let mut as_str_arms = Vec::new();
-    let mut get_arms = Vec::new();
-
-    for (i, value) in values.iter().enumerate() {
-        let rust_ident = normalize_to_rust_identifier(value);
-        let flag_ident = syn::Ident::new(&rust_ident, proc_macro2::Span::call_site());
-
-        // Generate bit value with correct type suffix to match struct type
-        let flag_def = match target_type {
-            BitflagsTargetType::U8 => {
-                let bit_value = 1u8 << i;
-                quote! { const #flag_ident = #bit_value; }
-            }
-            BitflagsTargetType::U16 => {
-                let bit_value = 1u16 << i;
-                quote! { const #flag_ident = #bit_value; }
-            }
-            BitflagsTargetType::U32 => {
-                let bit_value = 1u32 << i;
-                quote! { const #flag_ident = #bit_value; }
-            }
-            BitflagsTargetType::U64 => {
-                let bit_value = 1u64 << i;
-                quote! { const #flag_ident = #bit_value; }
-            }
-        };
-        flag_defs.push(flag_def);
-
-        // Generate get() arm for this flag
-        let get_arm = match target_type {
-            BitflagsTargetType::U8 => {
-                let bit_value = 1u8 << i;
-                quote! { #bit_value => Some(Self::#flag_ident), }
-            }
-            BitflagsTargetType::U16 => {
-                let bit_value = 1u16 << i;
-                quote! { #bit_value => Some(Self::#flag_ident), }
-            }
-            BitflagsTargetType::U32 => {
-                let bit_value = 1u32 << i;
-                quote! { #bit_value => Some(Self::#flag_ident), }
-            }
-            BitflagsTargetType::U64 => {
-                let bit_value = 1u64 << i;
-                quote! { #bit_value => Some(Self::#flag_ident), }
-            }
-        };
-        get_arms.push(get_arm);
-
-        from_str_arms.push(quote! {
-            #value => Some(Self::#flag_ident),
-        });
-
-        as_str_arms.push(quote! {
-            Self::#flag_ident => #value,
-        });
-    }
-
-    Some(quote! {
-        bitflags::bitflags! {
-            #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-            pub struct #struct_ident: #type_ident {
-                #(#flag_defs)*
-            }
-        }
-
-        impl #struct_ident {
-            pub fn from_str(s: &str) -> Option<Self> {
-                match s {
-                    #(#from_str_arms)*
-                    _ => None,
-                }
-            }
-
-            pub fn as_str(&self) -> &'static str {
-                match *self {
-                    #(#as_str_arms)*
-                    _ => "",
-                }
-            }
-
-            pub fn get(value: #type_ident) -> Option<Self> {
-                match value {
-                    #(#get_arms)*
-                    _ => None,
-                }
-            }
-        }
-    })
-}
-
-/// Extract string values from a HirExpr (set, frozenset, or list)
-fn extract_string_values(expr: &HirExpr) -> Option<Vec<String>> {
-    match expr {
-        HirExpr::Set(items) | HirExpr::FrozenSet(items) | HirExpr::List(items) => {
-            let mut values = Vec::new();
-            for item in items {
-                if let HirExpr::Literal(Literal::String(s)) = item {
-                    values.push(s.clone());
-                } else {
-                    return None;
-                }
-            }
-            Some(values)
-        }
-        _ => None,
-    }
-}
-
-/// Convert snake_case or SCREAMING_CASE to PascalCase
-fn to_pascal_case(s: &str) -> String {
-    s.split('_')
-        .filter(|part| !part.is_empty())
-        .map(|part| {
-            let mut chars = part.chars();
-            match chars.next() {
-                None => String::new(),
-                Some(first) => first.to_uppercase().collect::<String>() + &chars.as_str().to_lowercase(),
-            }
-        })
-        .collect()
 }
 
 /// Generate a complete Rust file from HIR module
@@ -1752,7 +1590,6 @@ pub fn generate_rust_file(
         needs_crc32: false,
         needs_url_encoding: false,
         needs_lazy_static: false,
-        needs_bitflags: false,
         declared_vars: vec![HashSet::new()],
         current_function_can_fail: false,
         current_return_type: None,
@@ -1799,7 +1636,6 @@ pub fn generate_rust_file(
         returns_reference: false,        // Flag for reference return type
         borrowable_vars: HashSet::new(), // Track variables that can be borrowed
         generate_borrow: false,          // Flag for generating borrow instead of clone
-        bitflags_name_map: std::collections::HashMap::new(), // Map Python constant names to bitflag struct names
     };
 
     // Must run BEFORE function conversion so validator parameter types are correct
@@ -1884,21 +1720,6 @@ pub fn generate_rust_file(
     // This populates function_param_borrows so call sites know whether to add & or .to_string()
     pre_analyze_parameter_borrowing(&mut ctx, &module.functions);
 
-    // Detect bitflags candidates (immutable string lists/sets) BEFORE function conversion
-    // This populates bitflags_name_map so expressions can use PascalCase struct names
-    let mut detector = StringSetDetector::new();
-    let candidates = detector.analyze_module(module);
-    let bitflags_candidates: HashSet<String> = candidates.iter().map(|c| c.name.clone()).collect();
-
-    // Pre-populate bitflags_name_map before function conversion
-    // This ensures expressions like KICKOFF_RETAIN_RESULTS.contains() use KickoffRetainResults
-    for constant in &module.constants {
-        if bitflags_candidates.contains(&constant.name) {
-            let struct_name = to_pascal_case(&constant.name);
-            ctx.bitflags_name_map.insert(constant.name.clone(), struct_name);
-        }
-    }
-
     // Convert classes first (they might be used by functions)
     let classes = convert_classes_to_rust(&module.classes, ctx.type_mapper, &mut ctx)?;
 
@@ -1912,13 +1733,8 @@ pub fn generate_rust_file(
     let import_mapper = crate::module_mapper::ModuleMapper::new();
     items.extend(generate_import_tokens(&module.imports, &import_mapper));
 
-    // Add module-level constants (with bitflags optimization)
-    // Note: bitflags_name_map is already populated above
-    items.extend(generate_constant_tokens(
-        &module.constants,
-        &mut ctx,
-        &bitflags_candidates,
-    )?);
+    // Add module-level constants
+    items.extend(generate_constant_tokens(&module.constants, &mut ctx)?);
 
     // Add collection imports if needed
     items.extend(generate_conditional_imports(&ctx));
@@ -2024,7 +1840,6 @@ mod tests {
             needs_crc32: false,
             needs_url_encoding: false,
             needs_lazy_static: false,
-            needs_bitflags: false,
             declared_vars: vec![HashSet::new()],
             current_function_can_fail: false,
             current_return_type: None,
@@ -2071,7 +1886,6 @@ mod tests {
             returns_reference: false,                    // Flag for reference return type
             borrowable_vars: HashSet::new(),             // Track variables that can be borrowed
             generate_borrow: false,                      // Flag for generating borrow instead of clone
-            bitflags_name_map: std::collections::HashMap::new(), // Map Python constant names to bitflag struct names
         }
     }
 

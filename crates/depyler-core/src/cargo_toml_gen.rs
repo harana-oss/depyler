@@ -327,7 +327,6 @@ mod tests {
             needs_crc32: false,
             needs_url_encoding: false,
             needs_lazy_static: false,
-            needs_bitflags: false,
             needs_clap: true,
             declared_vars: vec![std::collections::HashSet::new()],
             current_function_can_fail: false,
@@ -375,7 +374,6 @@ mod tests {
             returns_reference: false,
             borrowable_vars: std::collections::HashSet::new(),
             generate_borrow: false,
-            bitflags_name_map: std::collections::HashMap::new(),
         };
 
         // Property: Calling extract_dependencies multiple times returns same result
@@ -434,7 +432,6 @@ mod tests {
             needs_crc32: true,
             needs_url_encoding: true,
             needs_lazy_static: false,
-            needs_bitflags: false,
             needs_clap: true,
             declared_vars: vec![HashSet::new()],
             current_function_can_fail: false,
@@ -482,7 +479,6 @@ mod tests {
             returns_reference: false,
             borrowable_vars: HashSet::new(),
             generate_borrow: false,
-            bitflags_name_map: std::collections::HashMap::new(),
         };
 
         let deps = extract_dependencies(&ctx);
@@ -538,7 +534,6 @@ mod tests {
             needs_crc32: false,
             needs_url_encoding: false,
             needs_lazy_static: false,
-            needs_bitflags: false,
             needs_clap: false,
             declared_vars: vec![HashSet::new()],
             current_function_can_fail: false,
@@ -586,7 +581,6 @@ mod tests {
             returns_reference: false,
             borrowable_vars: HashSet::new(),
             generate_borrow: false,
-            bitflags_name_map: std::collections::HashMap::new(),
         };
 
         let deps = extract_dependencies(&ctx);
@@ -650,7 +644,6 @@ mod tests {
             needs_crc32: false,
             needs_url_encoding: false,
             needs_lazy_static: false,
-            needs_bitflags: false,
             needs_clap: true, // Enable clap
             declared_vars: vec![HashSet::new()],
             current_function_can_fail: false,
@@ -698,7 +691,6 @@ mod tests {
             returns_reference: false,
             borrowable_vars: HashSet::new(),
             generate_borrow: false,
-            bitflags_name_map: std::collections::HashMap::new(),
         };
 
         let deps = extract_dependencies(&ctx);

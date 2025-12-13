@@ -600,6 +600,8 @@ impl AstBridge {
             })
             .collect();
 
+        let is_enum = base_classes.iter().any(|b| b == "IntEnum" || b == "Enum");
+
         // Convert methods and fields
         let mut methods = Vec::new();
         let mut fields = Vec::new();
@@ -660,42 +662,26 @@ impl AstBridge {
                         });
                     }
                 }
-                // Five-Whys Root Cause:
-                // 1. Why: No constants generated for IntEnum classes
-                // 2. Why: IntEnum members like RED = 1 aren't being extracted
-                // 3. Why: Code only handles AnnAssign, not Assign
-                // 4. Why: IntEnum uses simple assignments without type annotations
-                // 5. ROOT CAUSE: Missing ast::Stmt::Assign handling for enum classes
                 ast::Stmt::Assign(assign) => {
-                    // Check if this class inherits from IntEnum or Enum
-                    let is_enum_class = base_classes.iter().any(|b| b == "IntEnum" || b == "Enum");
-
-                    if is_enum_class {
+                    if is_enum {
                         // Extract enum members from simple assignments
                         for target in &assign.targets {
                             if let ast::Expr::Name(name) = target {
                                 let field_name = name.id.to_string();
-
-                                // IntEnum members are always integers
-                                // (Int for IntEnum, but we default to Int for all enums)
                                 let field_type = Type::Int;
-
-                                // Convert the value expression
                                 let converted_value = ExprConverter::convert(assign.value.as_ref().clone())?;
 
                                 fields.push(HirField {
                                     name: field_name,
                                     field_type,
                                     default_value: Some(converted_value),
-                                    is_class_var: true, // Enum members are class constants
+                                    is_class_var: true,
                                 });
                             }
                         }
                     }
-                    // For non-enum classes, skip simple assignments (they're usually local to methods)
                 }
                 _ => {
-                    // Skip other statements for now
                 }
             }
         }
@@ -718,6 +704,7 @@ impl AstBridge {
             methods,
             fields,
             is_dataclass,
+            is_enum,
             docstring,
             annotations,
         }))

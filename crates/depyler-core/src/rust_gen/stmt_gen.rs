@@ -7,7 +7,7 @@ use crate::hir::*;
 use crate::rust_gen::context::{CodeGenContext, RustCodeGen, ToRustExpr};
 use crate::rust_gen::func_gen::infer_expr_type_with_env;
 use crate::rust_gen::keywords::safe_ident; // Keyword escaping
-use crate::rust_gen::type_gen::{rust_type_to_syn, rust_type_to_syn_with_ctx};
+use crate::rust_gen::type_gen::rust_type_to_syn;
 use anyhow::{Result, bail};
 use quote::{ToTokens, format_ident, quote};
 use syn::{self, parse_quote};
@@ -1273,7 +1273,7 @@ pub(crate) fn codegen_if_stmt(
 
         if let Some(ty) = var_type {
             let rust_type = ctx.type_mapper.map_type(&ty);
-            let syn_type = rust_type_to_syn_with_ctx(&rust_type, ctx)?;
+            let syn_type = rust_type_to_syn(&rust_type)?;
             if needs_mut {
                 hoisted_decls.push(quote! { let mut #var_ident: #syn_type; });
             } else {
@@ -2815,7 +2815,7 @@ pub(crate) fn codegen_assign_stmt(
         };
 
         let target_rust_type = ctx.type_mapper.map_type(actual_type);
-        let target_syn_type = rust_type_to_syn_with_ctx(&target_rust_type, ctx)?;
+        let target_syn_type = rust_type_to_syn(&target_rust_type)?;
 
         // Auto-unwrap Optional values when assigning to non-Optional annotated variables
         let value_is_optional = expr_is_optional(value, ctx);
