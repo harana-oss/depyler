@@ -1532,7 +1532,12 @@ pub fn generate_rust_file(
 
     // Extract class names and enum names from module
     let class_names: HashSet<String> = module.classes.iter().map(|class| class.name.clone()).collect();
-    let enum_names: HashSet<String> = module.classes.iter().filter(|c| c.is_enum).map(|c| c.name.clone()).collect();
+    let enum_names: HashSet<String> = module
+        .classes
+        .iter()
+        .filter(|c| c.is_enum)
+        .map(|c| c.name.clone())
+        .collect();
 
     // Extract class field types for ownership analysis
     let mut class_field_types: std::collections::HashMap<String, std::collections::HashMap<String, crate::hir::Type>> =

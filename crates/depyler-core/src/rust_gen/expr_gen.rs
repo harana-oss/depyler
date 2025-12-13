@@ -11740,16 +11740,23 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             // 4. Why: No detection for type constant access vs field access
             // 5. ROOT CAUSE: Need to use :: for type-level constants
 
-            // Heuristic: If name starts with uppercase and attr is ALL_CAPS, it's likely an enum variant
+            // Check if var_name is a known enum type - if so, use :: syntax
+            if self.ctx.enum_names.contains(var_name) {
+                let type_ident = syn::Ident::new(var_name, proc_macro2::Span::call_site());
+                // Preserve original casing from Python
+                let attr_ident = syn::Ident::new(attr, proc_macro2::Span::call_site());
+                return Ok(parse_quote! { #type_ident::#attr_ident });
+            }
+
+            // Heuristic fallback: If name starts with uppercase and attr is ALL_CAPS, it's likely an enum variant
             let first_char = var_name.chars().next().unwrap_or('a');
             let is_type_name = first_char.is_uppercase();
             let is_constant = attr.chars().all(|c| c.is_uppercase() || c == '_');
 
             if is_type_name && is_constant {
                 let type_ident = syn::Ident::new(var_name, proc_macro2::Span::call_site());
-                // Convert ALL_CAPS to PascalCase for enum variants
-                let pascal_attr = to_pascal_case(attr);
-                let attr_ident = syn::Ident::new(&pascal_attr, proc_macro2::Span::call_site());
+                // Preserve original casing from Python
+                let attr_ident = syn::Ident::new(attr, proc_macro2::Span::call_site());
                 return Ok(parse_quote! { #type_ident::#attr_ident });
             }
         }

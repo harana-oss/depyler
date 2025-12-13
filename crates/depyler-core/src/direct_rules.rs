@@ -468,8 +468,8 @@ pub fn convert_class_to_enum(class: &HirClass) -> Result<Vec<syn::Item>> {
         .iter()
         .filter(|f| f.is_class_var && f.default_value.is_some())
         .filter_map(|field| {
-            let variant_name = to_pascal_case(&field.name);
-            let variant_ident = syn::Ident::new(&variant_name, proc_macro2::Span::call_site());
+            // Preserve original casing from Python
+            let variant_ident = syn::Ident::new(&field.name, proc_macro2::Span::call_site());
             if let Some(HirExpr::Literal(Literal::Int(value))) = &field.default_value {
                 Some((variant_ident, *value))
             } else {
@@ -549,7 +549,10 @@ pub fn to_pascal_case(s: &str) -> String {
             let mut chars = word.chars();
             match chars.next() {
                 None => String::new(),
-                Some(first) => first.to_uppercase().chain(chars.flat_map(|c| c.to_lowercase())).collect(),
+                Some(first) => first
+                    .to_uppercase()
+                    .chain(chars.flat_map(|c| c.to_lowercase()))
+                    .collect(),
             }
         })
         .collect()
