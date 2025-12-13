@@ -117,6 +117,9 @@ pub struct CodeGenContext<'a> {
     /// Track parameters in the current function that are & references (immutable)
     pub current_func_ref_params: HashSet<String>,
 
+    /// Track variables that shadow ref params (e.g., for-loop variables with same name)
+    pub shadowed_ref_params: HashSet<String>,
+
     pub function_param_names: HashMap<String, Vec<String>>,
 
     /// Track function parameter types for Optional unwrap analysis
@@ -150,6 +153,11 @@ pub struct CodeGenContext<'a> {
 
     /// Flag to indicate we should generate a borrow instead of clone for the current expression
     pub generate_borrow: bool,
+
+    /// Flag to indicate that a .clone() has already been added to the current expression.
+    /// This prevents duplicate .clone() calls when multiple code paths try to add cloning.
+    /// Reset to false at the start of each new expression conversion.
+    pub clone_already_applied: bool,
 }
 
 impl<'a> CodeGenContext<'a> {

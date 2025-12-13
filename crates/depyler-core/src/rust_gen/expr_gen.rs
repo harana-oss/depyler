@@ -174,11 +174,23 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
 
         // Convert operands, unwrapping Optional fields automatically
         // Python allows direct access to Optional fields - operations on None fail at runtime
-        let left_expr = self.convert_with_optional_unwrap(left)?;
+        // Track whether clone was applied during conversion (needed for ref param comparison)
+        self.ctx.clone_already_applied = false;
+        // For 'in' and 'not in' operators with Optional left operand, use .as_ref().unwrap()
+        // to borrow instead of move. This allows the Optional to be used again later.
+        let left_is_optional = self.expr_is_optional(left);
+        let left_expr = if left_is_optional && matches!(op, BinOp::In | BinOp::NotIn) {
+            let base_expr = self.convert_attribute_without_clone(left)?;
+            parse_quote! { #base_expr.as_ref().unwrap() }
+        } else {
+            self.convert_with_optional_unwrap(left)?
+        };
+        let left_was_cloned = self.ctx.clone_already_applied;
 
         // For 'in' and 'not in' operators, we need special handling for Optional collections:
         // Use .as_ref().unwrap() to avoid moving the collection out of the struct
         let right_is_optional = self.expr_is_optional(right);
+        self.ctx.clone_already_applied = false;
         let right_expr = if right_is_optional && matches!(op, BinOp::In | BinOp::NotIn) {
             // For Optional collections, use .as_ref().unwrap() to borrow instead of clone
             // convert_attribute_without_clone handles intermediate fields, but we need to also
@@ -188,6 +200,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         } else {
             self.convert_with_optional_unwrap(right)?
         };
+        let right_was_cloned = self.ctx.clone_already_applied;
 
         match op {
             BinOp::In => {
@@ -872,6 +885,13 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 Ok(parse_quote! { (#left_converted) || (#right_converted) })
             }
             BinOp::Eq | BinOp::NotEq => {
+                // Handle reference parameter compared to enum variant:
+                // &Team == Team::Home needs to become *team == Team::Home
+                // BUT: if .clone() was already applied, the ref is already dereferenced
+                // since &T.clone() returns T, not &T
+                let left_needs_deref = !left_was_cloned && self.is_ref_param_compared_to_enum_variant(left, right);
+                let right_needs_deref = !right_was_cloned && self.is_ref_param_compared_to_enum_variant(right, left);
+
                 // String comparison optimization: String implements PartialEq<&str>
                 // so we can compare `my_string == "literal"` directly without cloning
                 // or converting the literal to String.
@@ -881,7 +901,10 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 let right_is_literal = matches!(right, HirExpr::Literal(Literal::String(_)));
 
                 // For string vs literal comparisons, avoid unnecessary clone and .to_string()
-                let final_left = if !left_is_literal && left_is_string && right_is_literal {
+                let final_left = if left_needs_deref {
+                    // Dereference the reference parameter for enum comparison
+                    parse_quote! { *#left_expr }
+                } else if !left_is_literal && left_is_string && right_is_literal {
                     // Left is a String variable/expr, right is a literal
                     // Convert without clone since comparison only borrows
                     self.convert_expr_without_clone(left)?
@@ -892,7 +915,10 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     left_expr
                 };
 
-                let final_right = if !right_is_literal && right_is_string && left_is_literal {
+                let final_right = if right_needs_deref {
+                    // Dereference the reference parameter for enum comparison
+                    parse_quote! { *#right_expr }
+                } else if !right_is_literal && right_is_string && left_is_literal {
                     // Right is a String variable/expr, left is a literal
                     // Convert without clone since comparison only borrows
                     self.convert_expr_without_clone(right)?
@@ -2887,7 +2913,28 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 }
                 Ok(parse_quote! { #class_ident::new() })
             } else {
-                Ok(parse_quote! { #class_ident::new(#(#args),*) })
+                // When passing reference parameters to constructors, clone them since
+                // constructors typically expect owned values
+                let cloned_args: Vec<syn::Expr> = hir_args
+                    .iter()
+                    .zip(args.iter())
+                    .map(|(hir_arg, arg_expr)| {
+                        if let HirExpr::Var(var_name) = hir_arg {
+                            // Check if this variable is a reference parameter in the current function
+                            if self.ctx.current_func_ref_params.contains(var_name)
+                                || self.ctx.current_func_mut_ref_params.contains(var_name)
+                            {
+                                // Clone reference parameters when passing to constructors
+                                parse_quote! { #arg_expr.clone() }
+                            } else {
+                                arg_expr.clone()
+                            }
+                        } else {
+                            arg_expr.clone()
+                        }
+                    })
+                    .collect();
+                Ok(parse_quote! { #class_ident::new(#(#cloned_args),*) })
             }
         } else {
             // Regular function call - use raw identifier if function name is a Rust keyword
@@ -12016,13 +12063,16 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         // Skip clone when function returns a reference - the return type already handles it
         // Skip clone when generate_borrow is set - we'll add a reference in stmt_gen instead
         // Skip clone when prevent_clone is set - the caller explicitly wants to avoid cloning
+        // Skip clone when clone_already_applied is set - we've already added .clone() upstream
         let needs_clone = !self.ctx.is_assignment_target
             && !self.ctx.prevent_clone
             && !self.ctx.returns_reference
             && !self.ctx.generate_borrow
+            && !self.ctx.clone_already_applied
             && self.field_needs_clone(value, attr);
 
         if needs_clone {
+            self.ctx.clone_already_applied = true;
             Ok(parse_quote! { #value_expr.#attr_ident.clone() })
         } else {
             Ok(parse_quote! { #value_expr.#attr_ident })
@@ -12206,7 +12256,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     /// Convert an expression, unwrapping if it's an Optional field access or variable.
     /// Python allows direct access to Optional fields/variables - operations on None fail at runtime.
     /// This mimics Python behavior by adding .unwrap() when Optional fields/variables are used in operations.
-    /// We use .clone().unwrap() for variables to avoid move errors when the variable is used multiple times.
+    /// Note: to_rust_expr already adds .clone() if needed, so we only add .unwrap() here.
     fn convert_with_optional_unwrap(&mut self, expr: &HirExpr) -> Result<syn::Expr> {
         // Check if this is an Optional field access
         if let HirExpr::Attribute { value, attr } = expr {
@@ -12219,10 +12269,11 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         // Check if this is an Optional variable
         if let HirExpr::Var(name) = expr {
             if let Some(Type::Optional(_)) = self.ctx.var_types.get(name) {
-                // Convert the expression and add .clone().unwrap() to avoid move errors
-                // Python doesn't have ownership semantics, so cloning is the safe default
+                // Convert the expression and add .unwrap()
+                // Note: to_rust_expr already adds .clone() if needed for non-Copy types,
+                // so we don't add another .clone() here to avoid duplicate clones
                 let rust_expr = expr.to_rust_expr(self.ctx)?;
-                return Ok(parse_quote! { #rust_expr.clone().unwrap() });
+                return Ok(parse_quote! { #rust_expr.unwrap() });
             }
         }
         // Not an Optional field or variable, convert normally
@@ -12823,6 +12874,43 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             }
             _ => false,
         }
+    }
+
+    /// Check if expr is a reference parameter being compared to an enum variant.
+    /// When comparing &Enum with Enum::Variant, we need to dereference the reference.
+    fn is_ref_param_compared_to_enum_variant(&self, expr: &HirExpr, other: &HirExpr) -> bool {
+        // Check if expr is a variable that's a reference parameter
+        // but NOT shadowed by a local variable (e.g., for-loop variable)
+        let is_ref_param = if let HirExpr::Var(name) = expr {
+            self.ctx.current_func_ref_params.contains(name) && !self.ctx.shadowed_ref_params.contains(name)
+        } else {
+            false
+        };
+
+        if !is_ref_param {
+            return false;
+        }
+
+        // Check if the other side is an enum variant (Enum.Variant or known enum type)
+        self.is_enum_variant_expr(other)
+    }
+
+    /// Check if an expression is an enum variant access (e.g., Team.Home, Color.RED)
+    fn is_enum_variant_expr(&self, expr: &HirExpr) -> bool {
+        if let HirExpr::Attribute { value, .. } = expr {
+            if let HirExpr::Var(type_name) = &**value {
+                // Check if it's a known enum type
+                if self.ctx.enum_names.contains(type_name) {
+                    return true;
+                }
+                // Heuristic: PascalCase name with UPPER_CASE or PascalCase attribute
+                let first_char = type_name.chars().next().unwrap_or('a');
+                if first_char.is_uppercase() {
+                    return true;
+                }
+            }
+        }
+        false
     }
 
     /// Check if the base of an attribute access is a reference parameter.
@@ -13576,11 +13664,16 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         // Only skip cloning if both branches are attributes AND the base is not a reference parameter
         let skip_clone = both_attrs && !base_is_ref_param;
         let was_prevent_clone = self.ctx.prevent_clone;
+        let was_clone_already_applied = self.ctx.clone_already_applied;
         if skip_clone {
             self.ctx.prevent_clone = true;
         }
+        // Reset clone_already_applied before each branch to ensure consistent cloning
+        self.ctx.clone_already_applied = false;
         let mut body_expr = body.to_rust_expr(self.ctx)?;
+        self.ctx.clone_already_applied = false;
         let mut orelse_expr = orelse.to_rust_expr(self.ctx)?;
+        self.ctx.clone_already_applied = was_clone_already_applied;
         if skip_clone {
             self.ctx.prevent_clone = was_prevent_clone;
         }
@@ -13983,14 +14076,16 @@ impl ToRustExpr for HirExpr {
                 let base_expr = converter.convert_variable(name)?;
                 // lazy_static constants have unique wrapper types - clone to get actual type
                 if ctx.lazy_static_constants.contains(name) {
+                    ctx.clone_already_applied = true;
                     Ok(parse_quote! { #base_expr.clone() })
-                } else if ctx.is_assignment_target {
-                    // When used as assignment target (LHS), never clone
+                } else if ctx.is_assignment_target || ctx.prevent_clone || ctx.clone_already_applied {
+                    // When used as assignment target (LHS), prevent_clone is set, or clone was already applied, don't clone
                     // NOTE: Optional unwrapping for variables is handled in convert_attribute
                     // when accessing fields on Optional types - don't add it here to avoid double unwrap
                     Ok(base_expr)
                 } else if ctx.var_needs_clone(name) {
                     // Check if we need to clone this variable (non-Copy type with multiple uses)
+                    ctx.clone_already_applied = true;
                     Ok(parse_quote! { #base_expr.clone() })
                 } else {
                     Ok(base_expr)

@@ -2407,3 +2407,96 @@ pub fn test_counter() -> i32 {
     c.count
 }
 '''
+
+[[test]]
+name = "ref_param_to_constructor"
+description = "Reference parameter passed to constructor should be cloned"
+compile_check = true
+
+python = '''
+class Team:
+    def __init__(self, name: str):
+        self.name = name
+
+class PlayerOutputs:
+    def __init__(self, executed: bool, team: Team):
+        self.executed = executed
+        self.team = team
+
+def process_team(team: Team) -> PlayerOutputs:
+    """Function takes team by reference but constructor needs owned."""
+    return PlayerOutputs(True, team)
+'''
+
+rust = '''
+#[derive(Debug, Clone)]
+pub struct Team {
+    pub name: String,
+}
+impl Team {
+    pub fn new(name: String) -> Self {
+        Self { name }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "name" => Some(Box::new(self.name.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "name" => {
+                if let Some(v) = value.downcast_ref::<String>() {
+                    self.name = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+#[derive(Debug, Clone)]
+pub struct PlayerOutputs {
+    pub executed: bool,
+    pub team: Team,
+}
+impl PlayerOutputs {
+    pub fn new(executed: bool, team: Team) -> Self {
+        Self { executed, team }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "executed" => Some(Box::new(self.executed.clone()) as Box<dyn std::any::Any>),
+            "team" => Some(Box::new(self.team.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "executed" => {
+                if let Some(v) = value.downcast_ref::<bool>() {
+                    self.executed = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "team" => {
+                if let Some(v) = value.downcast_ref::<Team>() {
+                    self.team = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+#[doc = "Function takes team by reference but constructor needs owned."]
+pub fn process_team(team: &Team) -> PlayerOutputs {
+    return PlayerOutputs::new(true, team.clone());
+}
+'''

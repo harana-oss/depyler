@@ -365,6 +365,7 @@ mod tests {
             stdlib_mappings: crate::stdlib_mappings::StdlibMappings::new(),
             current_func_mut_ref_params: std::collections::HashSet::new(),
             current_func_ref_params: std::collections::HashSet::new(),
+            shadowed_ref_params: std::collections::HashSet::new(),
             function_param_names: std::collections::HashMap::new(),
             var_usage_counts: std::collections::HashMap::new(),
             var_usage_current: std::collections::HashMap::new(),
@@ -375,6 +376,7 @@ mod tests {
             returns_reference: false,
             borrowable_vars: std::collections::HashSet::new(),
             generate_borrow: false,
+            clone_already_applied: false,
         };
 
         // Property: Calling extract_dependencies multiple times returns same result
@@ -471,6 +473,7 @@ mod tests {
             stdlib_mappings: crate::stdlib_mappings::StdlibMappings::new(),
             current_func_mut_ref_params: HashSet::new(),
             current_func_ref_params: HashSet::new(),
+            shadowed_ref_params: HashSet::new(),
             function_param_names: std::collections::HashMap::new(),
             var_usage_counts: std::collections::HashMap::new(),
             var_usage_current: std::collections::HashMap::new(),
@@ -481,6 +484,7 @@ mod tests {
             returns_reference: false,
             borrowable_vars: HashSet::new(),
             generate_borrow: false,
+            clone_already_applied: false,
         };
 
         let deps = extract_dependencies(&ctx);
@@ -574,6 +578,7 @@ mod tests {
             stdlib_mappings: crate::stdlib_mappings::StdlibMappings::new(),
             current_func_mut_ref_params: HashSet::new(),
             current_func_ref_params: HashSet::new(),
+            shadowed_ref_params: HashSet::new(),
             function_param_names: std::collections::HashMap::new(),
             var_usage_counts: std::collections::HashMap::new(),
             var_usage_current: std::collections::HashMap::new(),
@@ -584,6 +589,7 @@ mod tests {
             returns_reference: false,
             borrowable_vars: HashSet::new(),
             generate_borrow: false,
+            clone_already_applied: false,
         };
 
         let deps = extract_dependencies(&ctx);
@@ -685,6 +691,7 @@ mod tests {
             stdlib_mappings: crate::stdlib_mappings::StdlibMappings::new(),
             current_func_mut_ref_params: HashSet::new(),
             current_func_ref_params: HashSet::new(),
+            shadowed_ref_params: HashSet::new(),
             function_param_names: std::collections::HashMap::new(),
             var_usage_counts: std::collections::HashMap::new(),
             var_usage_current: std::collections::HashMap::new(),
@@ -695,6 +702,7 @@ mod tests {
             returns_reference: false,
             borrowable_vars: HashSet::new(),
             generate_borrow: false,
+            clone_already_applied: false,
         };
 
         let deps = extract_dependencies(&ctx);

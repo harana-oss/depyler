@@ -1898,13 +1898,22 @@ pub(crate) fn codegen_for_stmt(
     };
 
     // Declare all variables from the target pattern and set their types
+    // Also track if they shadow ref params (for proper dereference handling)
     match (target, element_type) {
         (AssignTarget::Symbol(name), Some(elem_type)) => {
             ctx.declare_var(name);
             ctx.var_types.insert(name.clone(), elem_type);
+            // Track if this for-loop variable shadows a ref param
+            if ctx.current_func_ref_params.contains(name) {
+                ctx.shadowed_ref_params.insert(name.clone());
+            }
         }
         (AssignTarget::Symbol(name), None) => {
             ctx.declare_var(name);
+            // Track if this for-loop variable shadows a ref param
+            if ctx.current_func_ref_params.contains(name) {
+                ctx.shadowed_ref_params.insert(name.clone());
+            }
         }
         (AssignTarget::Tuple(targets), Some(Type::Tuple(elem_types))) if targets.len() == elem_types.len() => {
             // Tuple unpacking with type info: (i, val) from enumerate
@@ -1912,6 +1921,10 @@ pub(crate) fn codegen_for_stmt(
                 if let AssignTarget::Symbol(s) = t {
                     ctx.declare_var(s);
                     ctx.var_types.insert(s.clone(), typ.clone());
+                    // Track if this for-loop variable shadows a ref param
+                    if ctx.current_func_ref_params.contains(s) {
+                        ctx.shadowed_ref_params.insert(s.clone());
+                    }
                 }
             }
         }
@@ -1920,13 +1933,45 @@ pub(crate) fn codegen_for_stmt(
             for t in targets {
                 if let AssignTarget::Symbol(s) = t {
                     ctx.declare_var(s);
+                    // Track if this for-loop variable shadows a ref param
+                    if ctx.current_func_ref_params.contains(s) {
+                        ctx.shadowed_ref_params.insert(s.clone());
+                    }
                 }
             }
         }
         _ => {}
     }
+
+    // Collect variables we added to shadowed_ref_params so we can remove them after scope exit
+    let shadowed_in_this_scope: Vec<String> = match target {
+        AssignTarget::Symbol(name) if ctx.current_func_ref_params.contains(name) => {
+            vec![name.clone()]
+        }
+        AssignTarget::Tuple(targets) => targets
+            .iter()
+            .filter_map(|t| {
+                if let AssignTarget::Symbol(s) = t {
+                    if ctx.current_func_ref_params.contains(s) {
+                        Some(s.clone())
+                    } else {
+                        None
+                    }
+                } else {
+                    None
+                }
+            })
+            .collect(),
+        _ => vec![],
+    };
+
     let body_stmts: Vec<_> = body.iter().map(|s| s.to_rust_tokens(ctx)).collect::<Result<Vec<_>>>()?;
     ctx.exit_scope();
+
+    // Remove shadowed variables when exiting scope
+    for var in &shadowed_in_this_scope {
+        ctx.shadowed_ref_params.remove(var);
+    }
 
     ctx.is_final_statement = saved_is_final;
 
@@ -2887,6 +2932,22 @@ pub(crate) fn codegen_assign_stmt(
         // Wrap non-None values in Some() when assigning to Optional field
         if target_is_optional && !value_is_optional && !matches!(value, HirExpr::Literal(Literal::None)) {
             value_expr = parse_quote! { Some(#value_expr) };
+        }
+
+        // Unwrap Optional values when assigning to non-Optional field
+        // This handles cases like: state.field = optional_var.clone()
+        // where state.field: T but optional_var: Option<T>
+        if !target_is_optional && value_is_optional {
+            value_expr = parse_quote! { #value_expr.unwrap() };
+        }
+
+        // Clone reference parameters when assigning to struct fields.
+        // When assigning `&T` to a field expecting `T`, we need to clone.
+        // Example: player.sin_bin_status = sin_bin_status where sin_bin_status: &SinBinStatus
+        if let HirExpr::Var(var_name) = value {
+            if ctx.current_func_ref_params.contains(var_name) && !ctx.shadowed_ref_params.contains(var_name) {
+                value_expr = parse_quote! { #value_expr.clone() };
+            }
         }
     }
 
@@ -4195,6 +4256,9 @@ fn to_pascal_case_subcommand(s: &str) -> String {
 
 impl RustCodeGen for HirStmt {
     fn to_rust_tokens(&self, ctx: &mut CodeGenContext) -> Result<proc_macro2::TokenStream> {
+        // Reset clone_already_applied at the start of each statement to ensure
+        // proper clone detection for variables used multiple times across statements
+        ctx.clone_already_applied = false;
         match self {
             HirStmt::Assign {
                 target,

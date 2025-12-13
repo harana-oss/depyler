@@ -1632,6 +1632,7 @@ pub fn generate_rust_file(
         stdlib_mappings: crate::stdlib_mappings::StdlibMappings::new(), // Stdlib API mappings
         current_func_mut_ref_params: HashSet::new(),             // Track &mut ref params in current function
         current_func_ref_params: HashSet::new(),                 // Track & ref params in current function
+        shadowed_ref_params: HashSet::new(),                     // Track vars that shadow ref params
         function_param_names: std::collections::HashMap::new(),  // Track function parameter names
         function_param_types: std::collections::HashMap::new(),  // Track function parameter types
         var_usage_counts: std::collections::HashMap::new(),      // Variable usage counts for clone analysis
@@ -1643,6 +1644,7 @@ pub fn generate_rust_file(
         returns_reference: false,        // Flag for reference return type
         borrowable_vars: HashSet::new(), // Track variables that can be borrowed
         generate_borrow: false,          // Flag for generating borrow instead of clone
+        clone_already_applied: false,    // Flag to prevent duplicate .clone() calls
     };
 
     // Must run BEFORE function conversion so validator parameter types are correct
@@ -1769,13 +1771,6 @@ pub fn generate_rust_file(
     // Add all functions
     items.extend(functions);
 
-    // Generate tests for all functions in a single test module
-    // instead of one per function, which caused "the name `tests` is defined multiple times" errors
-    let test_gen = crate::test_generation::TestGenerator::new(Default::default());
-    if let Some(test_module) = test_gen.generate_tests_module(&module.functions)? {
-        items.push(test_module);
-    }
-
     let file = quote! {
         #(#items)*
     };
@@ -1883,6 +1878,7 @@ mod tests {
             stdlib_mappings: crate::stdlib_mappings::StdlibMappings::new(),
             current_func_mut_ref_params: HashSet::new(), // Track &mut ref params in current function
             current_func_ref_params: HashSet::new(),     // Track & ref params in current function
+            shadowed_ref_params: HashSet::new(),         // Track vars that shadow ref params
             function_param_names: std::collections::HashMap::new(), // Track function parameter names
             function_param_types: std::collections::HashMap::new(), // Track function parameter types
             var_usage_counts: std::collections::HashMap::new(), // Variable usage counts for clone analysis
@@ -1894,6 +1890,7 @@ mod tests {
             returns_reference: false,                    // Flag for reference return type
             borrowable_vars: HashSet::new(),             // Track variables that can be borrowed
             generate_borrow: false,                      // Flag for generating borrow instead of clone
+            clone_already_applied: false,                // Flag to prevent duplicate .clone() calls
         }
     }
 
