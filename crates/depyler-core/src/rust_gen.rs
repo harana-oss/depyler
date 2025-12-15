@@ -1309,6 +1309,8 @@ fn generate_conditional_imports(ctx: &CodeGenContext) -> Vec<proc_macro2::TokenS
         (ctx.needs_lazy_static, quote! { use lazy_static::lazy_static; }),
         (ctx.needs_rand, quote! { use rand::Rng; }),
         (ctx.needs_rand, quote! { use rand::prelude::*; }),
+        (ctx.needs_small_rng, quote! { use rand::rngs::SmallRng; }),
+        (ctx.needs_small_rng, quote! { use rand::SeedableRng; }),
         (ctx.needs_slice_random, quote! { use rand::seq::SliceRandom; }),
     ];
 
@@ -1317,6 +1319,16 @@ fn generate_conditional_imports(ctx: &CodeGenContext) -> Vec<proc_macro2::TokenS
         if needed {
             imports.push(import_tokens);
         }
+    }
+
+    // Add module-level thread_local RNG when SmallRng is needed
+    // This ensures the RNG is initialized once per thread and shared across all random calls
+    if ctx.needs_small_rng {
+        imports.push(quote! {
+            thread_local! {
+                static DEPYLER_RNG: std::cell::RefCell<SmallRng> = std::cell::RefCell::new(SmallRng::from_entropy());
+            }
+        });
     }
 
     imports
@@ -1577,6 +1589,7 @@ pub fn generate_rust_file(
         needs_cow: false,
         needs_smallvec: false,
         needs_rand: false,
+        needs_small_rng: false,
         needs_slice_random: false,
         needs_serde_json: false,
         needs_regex: false,
@@ -1823,6 +1836,7 @@ mod tests {
             needs_cow: false,
             needs_smallvec: false,
             needs_rand: false,
+            needs_small_rng: false,
             needs_slice_random: false,
             needs_serde_json: false,
             needs_regex: false,

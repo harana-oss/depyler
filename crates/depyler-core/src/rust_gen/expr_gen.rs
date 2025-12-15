@@ -7823,7 +7823,8 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     }
 
     /// Try to convert random module method calls
-    ///
+    /// Uses SmallRng with thread-local initialization for performance.
+    /// RNG is initialized once per module via DEPYLER_RNG thread_local static.
     #[inline]
     fn try_convert_random_method(&mut self, method: &str, args: &[HirExpr]) -> Result<Option<syn::Expr>> {
         // Convert arguments first
@@ -7832,17 +7833,45 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             .map(|arg| arg.to_rust_expr(self.ctx))
             .collect::<Result<Vec<_>>>()?;
 
-        // Mark that we need rand crate
+        // Mark that we need rand crate and SmallRng
+        // The module-level DEPYLER_RNG thread_local will be generated in generate_conditional_imports
         self.ctx.needs_rand = true;
+        self.ctx.needs_small_rng = true;
+
+        // All random operations use the module-level DEPYLER_RNG thread_local
+        // which is initialized once per thread when first accessed
 
         let result = match method {
+            // Random class constructor: random.Random(seed) → SmallRng::seed_from_u64(seed)
+            "Random" => {
+                if arg_exprs.is_empty() {
+                    // No seed - use entropy
+                    parse_quote! { SmallRng::from_entropy() }
+                } else if arg_exprs.len() == 1 {
+                    let seed = &arg_exprs[0];
+                    parse_quote! { SmallRng::seed_from_u64(#seed as u64) }
+                } else {
+                    bail!("random.Random() takes 0 or 1 argument");
+                }
+            }
+
+            // SystemRandom class constructor: random.SystemRandom() → OsRng
+            "SystemRandom" => {
+                if !arg_exprs.is_empty() {
+                    bail!("random.SystemRandom() takes no arguments");
+                }
+                parse_quote! { rand::rngs::OsRng }
+            }
+
             // Basic random generation
             "random" => {
                 if !arg_exprs.is_empty() {
                     bail!("random.random() takes no arguments");
                 }
-                // random.random() → rand::random::<f64>()
-                parse_quote! { rand::random::<f64>() }
+                // random.random() → use module-level SmallRng
+                parse_quote! {
+                    DEPYLER_RNG.with(|rng| rng.borrow_mut().gen::<f64>())
+                }
             }
 
             // Integer range functions
@@ -7852,9 +7881,11 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 }
                 let a = &arg_exprs[0];
                 let b = &arg_exprs[1];
-                // random.randint(a, b) → rand::thread_rng().gen_range(a..=b)
+                // random.randint(a, b) → SmallRng.gen_range(a..=b)
                 // Python's randint is inclusive on both ends
-                parse_quote! { rand::thread_rng().gen_range(#a..=#b) }
+                parse_quote! {
+                    DEPYLER_RNG.with(|rng| rng.borrow_mut().gen_range(#a..=#b))
+                }
             }
 
             "randrange" => {
@@ -7866,14 +7897,18 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 if arg_exprs.len() == 1 {
                     // randrange(stop) → gen_range(0..stop)
                     let stop = &arg_exprs[0];
-                    parse_quote! { rand::thread_rng().gen_range(0..#stop) }
+                    parse_quote! {
+                        DEPYLER_RNG.with(|rng| rng.borrow_mut().gen_range(0..#stop))
+                    }
                 } else if arg_exprs.len() == 2 {
                     // randrange(start, stop) → gen_range(start..stop)
                     let start = &arg_exprs[0];
                     let stop = &arg_exprs[1];
-                    parse_quote! { rand::thread_rng().gen_range(#start..#stop) }
+                    parse_quote! {
+                        DEPYLER_RNG.with(|rng| rng.borrow_mut().gen_range(#start..#stop))
+                    }
                 } else {
-                    // randrange(start, stop, step) - complex, need to generate stepped range
+                    // randrange(start, stop, step) - stepped range selection
                     let start = &arg_exprs[0];
                     let stop = &arg_exprs[1];
                     let step = &arg_exprs[2];
@@ -7883,7 +7918,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                             let stop = #stop;
                             let step = #step;
                             let num_steps = ((stop - start) / step).max(0);
-                            let offset = rand::thread_rng().gen_range(0..num_steps);
+                            let offset = DEPYLER_RNG.with(|rng| rng.borrow_mut().gen_range(0..num_steps));
                             start + offset * step
                         }
                     }
@@ -7897,8 +7932,9 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 }
                 let a = &arg_exprs[0];
                 let b = &arg_exprs[1];
-                // random.uniform(a, b) → rand::thread_rng().gen_range(a..b)
-                parse_quote! { rand::thread_rng().gen_range((#a as f64)..=(#b as f64)) }
+                parse_quote! {
+                    DEPYLER_RNG.with(|rng| rng.borrow_mut().gen_range((#a as f64)..=(#b as f64)))
+                }
             }
 
             // Sequence functions
@@ -7908,8 +7944,9 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 }
                 let seq = &arg_exprs[0];
                 self.ctx.needs_slice_random = true;
-                // random.choice(seq) → *seq.choose(&mut rand::thread_rng()).unwrap()
-                parse_quote! { *#seq.choose(&mut rand::thread_rng()).unwrap() }
+                parse_quote! {
+                    DEPYLER_RNG.with(|rng| *#seq.choose(&mut *rng.borrow_mut()).unwrap())
+                }
             }
 
             "shuffle" => {
@@ -7918,9 +7955,9 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 }
                 let seq = &arg_exprs[0];
                 self.ctx.needs_slice_random = true;
-                // random.shuffle(seq) → seq.shuffle(&mut rand::thread_rng())
-                // Note: This mutates in place like Python
-                parse_quote! { #seq.shuffle(&mut rand::thread_rng()) }
+                parse_quote! {
+                    DEPYLER_RNG.with(|rng| #seq.shuffle(&mut *rng.borrow_mut()))
+                }
             }
 
             "sample" => {
@@ -7930,11 +7967,12 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 let seq = &arg_exprs[0];
                 let k = &arg_exprs[1];
                 self.ctx.needs_slice_random = true;
-                // random.sample(seq, k) → seq.choose_multiple(&mut rand::thread_rng(), k).cloned().collect()
                 parse_quote! {
-                    #seq.choose_multiple(&mut rand::thread_rng(), #k as usize)
-                        .cloned()
-                        .collect::<Vec<_>>()
+                    DEPYLER_RNG.with(|rng| {
+                        #seq.choose_multiple(&mut *rng.borrow_mut(), #k as usize)
+                            .cloned()
+                            .collect::<Vec<_>>()
+                    })
                 }
             }
 
@@ -7946,18 +7984,16 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 let k = if arg_exprs.len() > 1 {
                     &arg_exprs[1]
                 } else {
-                    // Default k=1 if not provided
                     &parse_quote! { 1 }
                 };
                 self.ctx.needs_slice_random = true;
-                // random.choices(seq, k=k) → (0..k).map(|_| seq.choose(&mut rng).cloned()).collect()
                 parse_quote! {
-                    {
-                        let mut rng = rand::thread_rng();
+                    DEPYLER_RNG.with(|rng| {
+                        let mut rng = rng.borrow_mut();
                         (0..#k)
-                            .map(|_| #seq.choose(&mut rng).cloned().unwrap())
+                            .map(|_| #seq.choose(&mut *rng).cloned().unwrap())
                             .collect::<Vec<_>>()
-                    }
+                    })
                 }
             }
 
@@ -7968,12 +8004,11 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 }
                 let mu = &arg_exprs[0];
                 let sigma = &arg_exprs[1];
-                // Use rand_distr::Normal
                 parse_quote! {
                     {
                         use rand::distributions::Distribution;
                         let normal = rand_distr::Normal::new(#mu as f64, #sigma as f64).unwrap();
-                        normal.sample(&mut rand::thread_rng())
+                        DEPYLER_RNG.with(|rng| normal.sample(&mut *rng.borrow_mut()))
                     }
                 }
             }
@@ -7983,12 +8018,11 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     bail!("random.expovariate() requires exactly 1 argument");
                 }
                 let lambd = &arg_exprs[0];
-                // Use rand_distr::Exp
                 parse_quote! {
                     {
                         use rand::distributions::Distribution;
                         let exp = rand_distr::Exp::new(#lambd as f64).unwrap();
-                        exp.sample(&mut rand::thread_rng())
+                        DEPYLER_RNG.with(|rng| exp.sample(&mut *rng.borrow_mut()))
                     }
                 }
             }
@@ -8003,7 +8037,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     {
                         use rand::distributions::Distribution;
                         let beta_dist = rand_distr::Beta::new(#alpha as f64, #beta as f64).unwrap();
-                        beta_dist.sample(&mut rand::thread_rng())
+                        DEPYLER_RNG.with(|rng| beta_dist.sample(&mut *rng.borrow_mut()))
                     }
                 }
             }
@@ -8018,29 +8052,25 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     {
                         use rand::distributions::Distribution;
                         let gamma = rand_distr::Gamma::new(#alpha as f64, #beta as f64).unwrap();
-                        gamma.sample(&mut rand::thread_rng())
+                        DEPYLER_RNG.with(|rng| gamma.sample(&mut *rng.borrow_mut()))
                     }
                 }
             }
 
-            // Seed function
+            // Seed function - resets the module-level RNG
             "seed" => {
                 if arg_exprs.len() > 1 {
                     bail!("random.seed() requires 0 or 1 argument");
                 }
                 if arg_exprs.is_empty() {
                     // seed() with no args - use system entropy
-                    parse_quote! { /* No-op: thread_rng is already seeded */ () }
+                    parse_quote! {
+                        DEPYLER_RNG.with(|rng| *rng.borrow_mut() = SmallRng::from_entropy())
+                    }
                 } else {
                     let seed_val = &arg_exprs[0];
-                    // Note: thread_rng() cannot be seeded. We'd need to use StdRng::seed_from_u64()
-                    // For now, we'll generate a comment
                     parse_quote! {
-                        {
-                            // Note: Seeding not fully implemented - use StdRng instead of thread_rng
-                            let _seed = #seed_val;
-                            ()
-                        }
+                        DEPYLER_RNG.with(|rng| *rng.borrow_mut() = SmallRng::seed_from_u64(#seed_val as u64))
                     }
                 }
             }
@@ -8053,7 +8083,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 bail!("random.setstate() not supported - Rust RNG state management differs from Python");
             }
 
-            //
             "triangular" => {
                 if arg_exprs.len() < 2 || arg_exprs.len() > 3 {
                     bail!("random.triangular() requires 2 or 3 arguments");
@@ -8063,7 +8092,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 let mode = if arg_exprs.len() == 3 {
                     &arg_exprs[2]
                 } else {
-                    // Default mode is midpoint
                     &parse_quote! { ((#low + #high) / 2.0) }
                 };
 
@@ -8075,12 +8103,11 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                             #high as f64,
                             #mode as f64
                         ).unwrap();
-                        triangular.sample(&mut rand::thread_rng())
+                        DEPYLER_RNG.with(|rng| triangular.sample(&mut *rng.borrow_mut()))
                     }
                 }
             }
 
-            //
             "randbytes" => {
                 if arg_exprs.len() != 1 {
                     bail!("random.randbytes() requires exactly 1 argument");
@@ -8089,10 +8116,11 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
 
                 parse_quote! {
                     {
-                        use rand::Rng;
                         let n = #n as usize;
-                        let mut rng = rand::thread_rng();
-                        (0..n).map(|_| rng.gen::<u8>()).collect::<Vec<u8>>()
+                        DEPYLER_RNG.with(|rng| {
+                            let mut rng = rng.borrow_mut();
+                            (0..n).map(|_| rng.gen::<u8>()).collect::<Vec<u8>>()
+                        })
                     }
                 }
             }
