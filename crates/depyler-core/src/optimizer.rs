@@ -794,6 +794,50 @@ impl Optimizer {
                     (HirExpr::Var(temp_name), extra_stmts)
                 }
             }
+            HirExpr::MethodCall {
+                object,
+                method,
+                args,
+                kwargs,
+                type_params,
+            } if self.is_pure_method(method) => {
+                // Process object and arguments
+                let (new_object, object_stmts) = self.process_expr_for_cse(object, cse_map, temp_counter);
+                extra_stmts.extend(object_stmts);
+
+                let mut new_args = Vec::new();
+                for arg in args {
+                    let (new_arg, arg_stmts) = self.process_expr_for_cse(arg, cse_map, temp_counter);
+                    extra_stmts.extend(arg_stmts);
+                    new_args.push(new_arg);
+                }
+
+                let new_expr = HirExpr::MethodCall {
+                    object: Box::new(new_object),
+                    method: method.clone(),
+                    args: new_args,
+                    kwargs: kwargs.clone(),
+                    type_params: type_params.clone(),
+                };
+
+                let hash = self.hash_expr(&new_expr);
+
+                if let Some((_, var_name)) = cse_map.get(&hash) {
+                    (HirExpr::Var(var_name.clone()), extra_stmts)
+                } else {
+                    let temp_name = format!("_cse_temp_{}", temp_counter);
+                    *temp_counter += 1;
+
+                    extra_stmts.push(HirStmt::Assign {
+                        target: AssignTarget::Symbol(temp_name.clone()),
+                        value: new_expr.clone(),
+                        type_annotation: None,
+                    });
+
+                    cse_map.insert(hash, (new_expr, temp_name.clone()));
+                    (HirExpr::Var(temp_name), extra_stmts)
+                }
+            }
             _ => (expr.clone(), extra_stmts),
         }
     }
@@ -844,6 +888,37 @@ impl Optimizer {
         pure_functions.contains(&func)
     }
 
+    fn is_pure_method(&self, method: &str) -> bool {
+        // Methods that are deterministic and have no side effects
+        let pure_methods = [
+            "index",
+            "count",
+            "find",
+            "rfind",
+            "startswith",
+            "endswith",
+            "isalpha",
+            "isdigit",
+            "isalnum",
+            "isspace",
+            "isupper",
+            "islower",
+            "upper",
+            "lower",
+            "strip",
+            "lstrip",
+            "rstrip",
+            "split",
+            "join",
+            "replace",
+            "get",
+            "keys",
+            "values",
+            "items",
+        ];
+        pure_methods.contains(&method)
+    }
+
     fn hash_expr(&self, expr: &HirExpr) -> u64 {
         use std::collections::hash_map::DefaultHasher;
 
@@ -883,6 +958,16 @@ fn hash_expr_recursive_inner<H: Hasher>(expr: &HirExpr, hasher: &mut H) {
         HirExpr::Call { func, args, .. } => {
             "call".hash(hasher);
             func.hash(hasher);
+            for arg in args {
+                hash_expr_recursive_inner(arg, hasher);
+            }
+        }
+        HirExpr::MethodCall {
+            object, method, args, ..
+        } => {
+            "method_call".hash(hasher);
+            hash_expr_recursive_inner(object, hasher);
+            method.hash(hasher);
             for arg in args {
                 hash_expr_recursive_inner(arg, hasher);
             }
@@ -1306,5 +1391,43 @@ mod tests {
         };
 
         assert!(!optimizer.is_complex_expr(&expr));
+    }
+
+    #[test]
+    fn test_cse_method_call_index() {
+        let optimizer = Optimizer::new(OptimizerConfig::default());
+        let mut cse_map = HashMap::new();
+        let mut temp_counter = 0;
+
+        // list.index(value) should be CSE'd
+        let expr = HirExpr::MethodCall {
+            object: Box::new(HirExpr::Var("items".to_string())),
+            method: "index".to_string(),
+            args: vec![HirExpr::Var("value".to_string())],
+            kwargs: vec![],
+            type_params: vec![],
+        };
+
+        let (result1, stmts1) = optimizer.process_expr_for_cse(&expr, &mut cse_map, &mut temp_counter);
+        assert_eq!(stmts1.len(), 1, "First call should create temp variable");
+        assert!(matches!(result1, HirExpr::Var(name) if name == "_cse_temp_0"));
+
+        // Second call with same expression should reuse
+        let (result2, stmts2) = optimizer.process_expr_for_cse(&expr, &mut cse_map, &mut temp_counter);
+        assert!(stmts2.is_empty(), "Second call should not create new temp");
+        assert!(matches!(result2, HirExpr::Var(name) if name == "_cse_temp_0"));
+    }
+
+    #[test]
+    fn test_cse_pure_methods() {
+        let optimizer = Optimizer::new(OptimizerConfig::default());
+
+        assert!(optimizer.is_pure_method("index"));
+        assert!(optimizer.is_pure_method("count"));
+        assert!(optimizer.is_pure_method("find"));
+        assert!(optimizer.is_pure_method("get"));
+        assert!(!optimizer.is_pure_method("append"));
+        assert!(!optimizer.is_pure_method("pop"));
+        assert!(!optimizer.is_pure_method("remove"));
     }
 }

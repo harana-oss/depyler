@@ -10564,13 +10564,25 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 | "update"
         );
 
-        // Methods that check or read state don't need clone either
-        let is_reference_method = matches!(method, "is_none" | "is_some" | "as_ref" | "len" | "is_empty");
+        // Methods that only need to borrow the object (use .iter() internally)
+        // These don't need clone because they only take &self
+        let is_reference_method = matches!(
+            method,
+            "is_none" | "is_some" | "as_ref" | "len" | "is_empty" | "index" | "count"
+        );
 
-        // For mutating/reference methods on field accesses, don't add .clone()
-        let object_expr = if (is_mutating_method || is_reference_method) && matches!(object, HirExpr::Attribute { .. })
-        {
-            self.convert_attribute_without_clone(object)?
+        // For mutating/reference methods, don't add .clone()
+        let object_expr = if is_mutating_method || is_reference_method {
+            if matches!(object, HirExpr::Attribute { .. }) {
+                self.convert_attribute_without_clone(object)?
+            } else {
+                // For variables/other expressions, set prevent_clone temporarily
+                let was_prevent_clone = self.ctx.prevent_clone;
+                self.ctx.prevent_clone = true;
+                let expr = object.to_rust_expr(self.ctx)?;
+                self.ctx.prevent_clone = was_prevent_clone;
+                expr
+            }
         } else {
             object.to_rust_expr(self.ctx)?
         };

@@ -335,10 +335,7 @@ mod tests {
     fn test_max_mixed_int_float_casts_int_to_f64() {
         let mut ctx = create_test_context();
         // max(0, 1.5) should cast the integer 0 to f64
-        let args = vec![
-            HirExpr::Literal(Literal::Int(0)),
-            HirExpr::Literal(Literal::Float(1.5)),
-        ];
+        let args = vec![HirExpr::Literal(Literal::Int(0)), HirExpr::Literal(Literal::Float(1.5))];
         let result = handle_max(&args, &mut ctx).unwrap();
         let code = quote::quote!(#result).to_string();
         assert!(code.contains("f64 :: max"), "Expected f64::max, got: {}", code);
@@ -349,10 +346,7 @@ mod tests {
     fn test_min_mixed_int_float_casts_int_to_f64() {
         let mut ctx = create_test_context();
         // min(0, 1.5) should cast the integer 0 to f64
-        let args = vec![
-            HirExpr::Literal(Literal::Int(0)),
-            HirExpr::Literal(Literal::Float(1.5)),
-        ];
+        let args = vec![HirExpr::Literal(Literal::Int(0)), HirExpr::Literal(Literal::Float(1.5))];
         let result = handle_min(&args, &mut ctx).unwrap();
         let code = quote::quote!(#result).to_string();
         assert!(code.contains("f64 :: min"), "Expected f64::min, got: {}", code);
@@ -379,13 +373,14 @@ mod tests {
     fn test_min_two_integers_uses_cmp() {
         let mut ctx = create_test_context();
         // min(1, 2) should use std::cmp::min
-        let args = vec![
-            HirExpr::Literal(Literal::Int(1)),
-            HirExpr::Literal(Literal::Int(2)),
-        ];
+        let args = vec![HirExpr::Literal(Literal::Int(1)), HirExpr::Literal(Literal::Int(2))];
         let result = handle_min(&args, &mut ctx).unwrap();
         let code = quote::quote!(#result).to_string();
-        assert!(code.contains("std :: cmp :: min"), "Expected std::cmp::min, got: {}", code);
+        assert!(
+            code.contains("std :: cmp :: min"),
+            "Expected std::cmp::min, got: {}",
+            code
+        );
     }
 
     #[test]
