@@ -426,7 +426,7 @@ use rand::SeedableRng;
 pub fn get_random_below(n: i32) -> i32 {
     return {
         thread_local! {
-            static RNG: std::cell::RefCell<SmallRng> = std::cell::RefCell::new(SmallRng::from_entropy());
+            static RNG: std::cell::RefCell<SmallRng> = std::cell::RefCell::new(SmallRng::from_os_rng());
         }
         RNG.with(|rng| rng.borrow_mut().gen_range(0..n))
     };
@@ -453,7 +453,7 @@ use rand::SeedableRng;
 pub fn get_random_range(start: i32, stop: i32) -> i32 {
     return {
         thread_local! {
-            static RNG: std::cell::RefCell<SmallRng> = std::cell::RefCell::new(SmallRng::from_entropy());
+            static RNG: std::cell::RefCell<SmallRng> = std::cell::RefCell::new(SmallRng::from_os_rng());
         }
         RNG.with(|rng| rng.borrow_mut().gen_range(start..stop))
     };
@@ -480,7 +480,7 @@ use rand::SeedableRng;
 pub fn get_random_stepped(start: i32, stop: i32, step: i32) -> i32 {
     return {
         thread_local! {
-            static RNG: std::cell::RefCell<SmallRng> = std::cell::RefCell::new(SmallRng::from_entropy());
+            static RNG: std::cell::RefCell<SmallRng> = std::cell::RefCell::new(SmallRng::from_os_rng());
         }
         let start = start;
         let stop = stop;
@@ -539,7 +539,7 @@ use rand::prelude::*;
 use rand::rngs::SmallRng;
 use rand::SeedableRng;
 pub fn create_random_rng() -> i32 {
-    let rng = SmallRng::from_entropy();
+    let rng = SmallRng::from_os_rng();
     return 0;
 }
 '''
@@ -597,13 +597,13 @@ use rand::SeedableRng;
 pub fn set_seed_and_get(seed: i32) -> i32 {
     {
         thread_local! {
-            static RNG: std::cell::RefCell<SmallRng> = std::cell::RefCell::new(SmallRng::from_entropy());
+            static RNG: std::cell::RefCell<SmallRng> = std::cell::RefCell::new(SmallRng::from_os_rng());
         }
         RNG.with(|rng| *rng.borrow_mut() = SmallRng::seed_from_u64(seed as u64));
     };
     return {
         thread_local! {
-            static RNG: std::cell::RefCell<SmallRng> = std::cell::RefCell::new(SmallRng::from_entropy());
+            static RNG: std::cell::RefCell<SmallRng> = std::cell::RefCell::new(SmallRng::from_os_rng());
         }
         RNG.with(|rng| rng.borrow_mut().gen_range(0..100))
     };
