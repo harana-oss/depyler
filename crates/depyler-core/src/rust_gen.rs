@@ -1466,7 +1466,7 @@ fn infer_constant_type(expr: &HirExpr) -> Type {
             }
         }
         // Handle type conversion function calls
-        HirExpr::Call { func, .. } => match func.as_str() {
+        HirExpr::Call { func, args, .. } => match func.as_str() {
             "int" => Type::Int,
             "float" => Type::Float,
             "str" => Type::String,
@@ -1475,6 +1475,14 @@ fn infer_constant_type(expr: &HirExpr) -> Type {
             "dict" => Type::Dict(Box::new(Type::Unknown), Box::new(Type::Unknown)),
             "set" => Type::Set(Box::new(Type::Unknown)),
             "tuple" => Type::Tuple(vec![]),
+            // Type-preserving functions: if any arg is float, result is float
+            "min" | "max" | "abs" | "sum" => {
+                if args.iter().any(|arg| matches!(infer_constant_type(arg), Type::Float)) {
+                    Type::Float
+                } else {
+                    Type::Int
+                }
+            }
             _ => Type::Unknown,
         },
         HirExpr::List(elems) => {
