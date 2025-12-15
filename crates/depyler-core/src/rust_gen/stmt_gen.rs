@@ -2586,6 +2586,19 @@ pub(crate) fn codegen_assign_stmt(
                         }
                     }
                 }
+                // Track min() and max() - return Float if any argument is Float, else Int
+                else if matches!(func.as_str(), "min" | "max") {
+                    if !args.is_empty() {
+                        let has_float = args
+                            .iter()
+                            .any(|arg| matches!(infer_expr_type_with_env(arg, &ctx.var_types), Type::Float));
+                        if has_float {
+                            ctx.var_types.insert(var_name.clone(), Type::Float);
+                        } else {
+                            ctx.var_types.insert(var_name.clone(), Type::Int);
+                        }
+                    }
+                }
                 // Track next() builtin: with default (2 args) returns Option<T>, without default (1 arg) returns T
                 else if func == "next" {
                     if args.len() == 2 {
