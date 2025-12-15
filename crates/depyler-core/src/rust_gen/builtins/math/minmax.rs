@@ -49,36 +49,60 @@ pub fn handle_min(args: &[HirExpr], ctx: &mut CodeGenContext) -> Result<syn::Exp
 }
 
 fn handle_max_two(args: &[HirExpr], ctx: &mut CodeGenContext) -> Result<syn::Expr> {
-    let arg1 = args[0].to_rust_expr(ctx)?;
-    let arg2 = args[1].to_rust_expr(ctx)?;
+    let arg1_expr = args[0].to_rust_expr(ctx)?;
+    let arg2_expr = args[1].to_rust_expr(ctx)?;
 
     // Check if arguments are floats (which don't implement Ord)
-    let is_float = ctx.is_expr_float_type(&args[0]) || ctx.is_expr_float_type(&args[1]);
+    let arg1_is_float = ctx.is_expr_float_type(&args[0]);
+    let arg2_is_float = ctx.is_expr_float_type(&args[1]);
+    let is_float = arg1_is_float || arg2_is_float;
 
     if is_float {
         // Use f64::max function syntax to avoid operator precedence issues
-        // e.g., max(2.5 - x, 0.5) should become f64::max(2.5 - x, 0.5), not 2.5 - x.max(0.5)
+        // Cast non-float arguments to f64 for type compatibility
+        let arg1: syn::Expr = if arg1_is_float {
+            arg1_expr
+        } else {
+            parse_quote! { (#arg1_expr) as f64 }
+        };
+        let arg2: syn::Expr = if arg2_is_float {
+            arg2_expr
+        } else {
+            parse_quote! { (#arg2_expr) as f64 }
+        };
         Ok(parse_quote! { f64::max(#arg1, #arg2) })
     } else {
         // Use std::cmp::max for types implementing Ord
-        Ok(parse_quote! { std::cmp::max(#arg1, #arg2) })
+        Ok(parse_quote! { std::cmp::max(#arg1_expr, #arg2_expr) })
     }
 }
 
 fn handle_min_two(args: &[HirExpr], ctx: &mut CodeGenContext) -> Result<syn::Expr> {
-    let arg1 = args[0].to_rust_expr(ctx)?;
-    let arg2 = args[1].to_rust_expr(ctx)?;
+    let arg1_expr = args[0].to_rust_expr(ctx)?;
+    let arg2_expr = args[1].to_rust_expr(ctx)?;
 
     // Check if arguments are floats (which don't implement Ord)
-    let is_float = ctx.is_expr_float_type(&args[0]) || ctx.is_expr_float_type(&args[1]);
+    let arg1_is_float = ctx.is_expr_float_type(&args[0]);
+    let arg2_is_float = ctx.is_expr_float_type(&args[1]);
+    let is_float = arg1_is_float || arg2_is_float;
 
     if is_float {
         // Use f64::min function syntax to avoid operator precedence issues
-        // e.g., min(x / 2.0, 10.0) should become f64::min(x / 2.0, 10.0), not x / 2.0.min(10.0)
+        // Cast non-float arguments to f64 for type compatibility
+        let arg1: syn::Expr = if arg1_is_float {
+            arg1_expr
+        } else {
+            parse_quote! { (#arg1_expr) as f64 }
+        };
+        let arg2: syn::Expr = if arg2_is_float {
+            arg2_expr
+        } else {
+            parse_quote! { (#arg2_expr) as f64 }
+        };
         Ok(parse_quote! { f64::min(#arg1, #arg2) })
     } else {
         // Use std::cmp::min for types implementing Ord
-        Ok(parse_quote! { std::cmp::min(#arg1, #arg2) })
+        Ok(parse_quote! { std::cmp::min(#arg1_expr, #arg2_expr) })
     }
 }
 
@@ -88,11 +112,24 @@ fn handle_max_multiple(args: &[HirExpr], ctx: &mut CodeGenContext) -> Result<syn
 
     if is_float {
         // Chain f64::max calls: f64::max(f64::max(a, b), c)
-        let mut result = args[0].to_rust_expr(ctx)?;
+        // Cast non-float arguments to f64
+        let first_is_float = ctx.is_expr_float_type(&args[0]);
+        let first_expr = args[0].to_rust_expr(ctx)?;
+        let mut result: syn::Expr = if first_is_float {
+            first_expr
+        } else {
+            parse_quote! { (#first_expr) as f64 }
+        };
 
         for arg in &args[1..] {
+            let arg_is_float = ctx.is_expr_float_type(arg);
             let arg_expr = arg.to_rust_expr(ctx)?;
-            result = parse_quote! { f64::max(#result, #arg_expr) };
+            let cast_arg: syn::Expr = if arg_is_float {
+                arg_expr
+            } else {
+                parse_quote! { (#arg_expr) as f64 }
+            };
+            result = parse_quote! { f64::max(#result, #cast_arg) };
         }
         Ok(result)
     } else {
@@ -112,11 +149,24 @@ fn handle_min_multiple(args: &[HirExpr], ctx: &mut CodeGenContext) -> Result<syn
 
     if is_float {
         // Chain f64::min calls: f64::min(f64::min(a, b), c)
-        let mut result = args[0].to_rust_expr(ctx)?;
+        // Cast non-float arguments to f64
+        let first_is_float = ctx.is_expr_float_type(&args[0]);
+        let first_expr = args[0].to_rust_expr(ctx)?;
+        let mut result: syn::Expr = if first_is_float {
+            first_expr
+        } else {
+            parse_quote! { (#first_expr) as f64 }
+        };
 
         for arg in &args[1..] {
+            let arg_is_float = ctx.is_expr_float_type(arg);
             let arg_expr = arg.to_rust_expr(ctx)?;
-            result = parse_quote! { f64::min(#result, #arg_expr) };
+            let cast_arg: syn::Expr = if arg_is_float {
+                arg_expr
+            } else {
+                parse_quote! { (#arg_expr) as f64 }
+            };
+            result = parse_quote! { f64::min(#result, #cast_arg) };
         }
         Ok(result)
     } else {

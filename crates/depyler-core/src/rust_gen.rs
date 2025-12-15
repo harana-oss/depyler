@@ -1439,8 +1439,16 @@ fn infer_constant_type(expr: &HirExpr) -> Type {
                 // Floor division produces int
                 BinOp::FloorDiv => Type::Int,
                 // Comparison operators produce bool
-                BinOp::Eq | BinOp::NotEq | BinOp::Lt | BinOp::LtEq | BinOp::Gt | BinOp::GtEq
-                | BinOp::In | BinOp::NotIn | BinOp::Is | BinOp::IsNot => Type::Bool,
+                BinOp::Eq
+                | BinOp::NotEq
+                | BinOp::Lt
+                | BinOp::LtEq
+                | BinOp::Gt
+                | BinOp::GtEq
+                | BinOp::In
+                | BinOp::NotIn
+                | BinOp::Is
+                | BinOp::IsNot => Type::Bool,
                 // Logical operators produce bool
                 BinOp::And | BinOp::Or => Type::Bool,
                 // Arithmetic operators: if either operand is float, result is float
@@ -1458,19 +1466,17 @@ fn infer_constant_type(expr: &HirExpr) -> Type {
             }
         }
         // Handle type conversion function calls
-        HirExpr::Call { func, .. } => {
-            match func.as_str() {
-                "int" => Type::Int,
-                "float" => Type::Float,
-                "str" => Type::String,
-                "bool" => Type::Bool,
-                "list" => Type::List(Box::new(Type::Unknown)),
-                "dict" => Type::Dict(Box::new(Type::Unknown), Box::new(Type::Unknown)),
-                "set" => Type::Set(Box::new(Type::Unknown)),
-                "tuple" => Type::Tuple(vec![]),
-                _ => Type::Unknown,
-            }
-        }
+        HirExpr::Call { func, .. } => match func.as_str() {
+            "int" => Type::Int,
+            "float" => Type::Float,
+            "str" => Type::String,
+            "bool" => Type::Bool,
+            "list" => Type::List(Box::new(Type::Unknown)),
+            "dict" => Type::Dict(Box::new(Type::Unknown), Box::new(Type::Unknown)),
+            "set" => Type::Set(Box::new(Type::Unknown)),
+            "tuple" => Type::Tuple(vec![]),
+            _ => Type::Unknown,
+        },
         HirExpr::List(elems) => {
             if elems.is_empty() {
                 Type::List(Box::new(Type::Unknown))
@@ -2474,15 +2480,14 @@ mod tests {
         // Should produce something like: ((5 * A) as f64 + (A as f64) / (2 as f64)) as i32
         // The key check: the division operand `2` should be cast to f64, not just used as int
         assert!(
-            code.contains("2 as f64") || code.contains("2.0") || code.contains("2i32 as f64") || code.contains("2_i32 as f64"),
+            code.contains("2 as f64")
+                || code.contains("2.0")
+                || code.contains("2i32 as f64")
+                || code.contains("2_i32 as f64"),
             "Division right operand should be cast to f64 for Python's / operator, got: {}",
             code
         );
-        assert!(
-            code.contains("as i32"),
-            "Should cast result to i32, got: {}",
-            code
-        );
+        assert!(code.contains("as i32"), "Should cast result to i32, got: {}", code);
     }
 
     #[test]
