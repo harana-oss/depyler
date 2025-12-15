@@ -1430,6 +1430,47 @@ fn infer_constant_type(expr: &HirExpr) -> Type {
                 UnaryOp::BitNot => infer_constant_type(operand),
             }
         }
+        // Handle binary operations - infer type from operands and operator
+        HirExpr::Binary { op, left, right } => {
+            use crate::hir::BinOp;
+            match op {
+                // Python's / always produces float
+                BinOp::Div => Type::Float,
+                // Floor division produces int
+                BinOp::FloorDiv => Type::Int,
+                // Comparison operators produce bool
+                BinOp::Eq | BinOp::NotEq | BinOp::Lt | BinOp::LtEq | BinOp::Gt | BinOp::GtEq
+                | BinOp::In | BinOp::NotIn | BinOp::Is | BinOp::IsNot => Type::Bool,
+                // Logical operators produce bool
+                BinOp::And | BinOp::Or => Type::Bool,
+                // Arithmetic operators: if either operand is float, result is float
+                BinOp::Add | BinOp::Sub | BinOp::Mul | BinOp::Mod | BinOp::Pow => {
+                    let left_type = infer_constant_type(left);
+                    let right_type = infer_constant_type(right);
+                    if matches!(left_type, Type::Float) || matches!(right_type, Type::Float) {
+                        Type::Float
+                    } else {
+                        Type::Int
+                    }
+                }
+                // Bitwise operators produce int
+                BinOp::BitAnd | BinOp::BitOr | BinOp::BitXor | BinOp::LShift | BinOp::RShift => Type::Int,
+            }
+        }
+        // Handle type conversion function calls
+        HirExpr::Call { func, .. } => {
+            match func.as_str() {
+                "int" => Type::Int,
+                "float" => Type::Float,
+                "str" => Type::String,
+                "bool" => Type::Bool,
+                "list" => Type::List(Box::new(Type::Unknown)),
+                "dict" => Type::Dict(Box::new(Type::Unknown), Box::new(Type::Unknown)),
+                "set" => Type::Set(Box::new(Type::Unknown)),
+                "tuple" => Type::Tuple(vec![]),
+                _ => Type::Unknown,
+            }
+        }
         HirExpr::List(elems) => {
             if elems.is_empty() {
                 Type::List(Box::new(Type::Unknown))
@@ -2389,6 +2430,84 @@ mod tests {
         assert!(code.contains("low"), "Expected 'low' variable, got: {}", code);
         assert!(code.contains("high"), "Expected 'high' variable, got: {}", code);
         assert!(code.contains("as i32"), "Should contain 'as i32' cast, got: {}", code);
+    }
+
+    #[test]
+    fn test_int_cast_with_division_uses_float_semantics() {
+        // Python: int(5 * A + (A / 2)) where A=5 gives 27 (5*5 + 2.5 = 27.5 → 27)
+        // Bug: A / 2 was being treated as integer division
+        // Fix: Python's / operator always produces float, so A / 2 → (A as f64 / 2.0)
+
+        // Build: int(5 * A + (A / 2))
+        let a_var = HirExpr::Var("A".to_string());
+        let a_div_2 = HirExpr::Binary {
+            op: BinOp::Div,
+            left: Box::new(a_var.clone()),
+            right: Box::new(HirExpr::Literal(Literal::Int(2))),
+        };
+        let five_times_a = HirExpr::Binary {
+            op: BinOp::Mul,
+            left: Box::new(HirExpr::Literal(Literal::Int(5))),
+            right: Box::new(a_var.clone()),
+        };
+        let sum = HirExpr::Binary {
+            op: BinOp::Add,
+            left: Box::new(five_times_a),
+            right: Box::new(a_div_2),
+        };
+
+        let call_expr = HirExpr::Call {
+            func: "int".to_string(),
+            args: vec![sum],
+            kwargs: vec![],
+            type_params: vec![],
+        };
+
+        let mut ctx = create_test_context();
+        // Set A as an integer constant
+        ctx.var_types.insert("A".to_string(), Type::Int);
+
+        let result = call_expr.to_rust_expr(&mut ctx).unwrap();
+        let code = quote! { #result }.to_string();
+
+        // The division A / 2 should use float semantics - both operands need f64 cast
+        // Should produce something like: ((5 * A) as f64 + (A as f64) / (2 as f64)) as i32
+        // The key check: the division operand `2` should be cast to f64, not just used as int
+        assert!(
+            code.contains("2 as f64") || code.contains("2.0") || code.contains("2i32 as f64") || code.contains("2_i32 as f64"),
+            "Division right operand should be cast to f64 for Python's / operator, got: {}",
+            code
+        );
+        assert!(
+            code.contains("as i32"),
+            "Should cast result to i32, got: {}",
+            code
+        );
+    }
+
+    #[test]
+    fn test_python_division_always_produces_float() {
+        // Python's / operator ALWAYS produces float, even with integer operands
+        // This is different from // (floor division)
+        let a_div_b = HirExpr::Binary {
+            op: BinOp::Div,
+            left: Box::new(HirExpr::Var("a".to_string())),
+            right: Box::new(HirExpr::Var("b".to_string())),
+        };
+
+        let mut ctx = create_test_context();
+        ctx.var_types.insert("a".to_string(), Type::Int);
+        ctx.var_types.insert("b".to_string(), Type::Int);
+
+        let result = a_div_b.to_rust_expr(&mut ctx).unwrap();
+        let code = quote! { #result }.to_string();
+
+        // Should produce: (a as f64) / (b as f64) or similar
+        assert!(
+            code.contains("as f64") || code.contains("f64"),
+            "Python / operator should produce float division for int/int, got: {}",
+            code
+        );
     }
 
     #[test]

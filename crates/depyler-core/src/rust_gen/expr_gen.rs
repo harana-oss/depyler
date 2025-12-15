@@ -483,10 +483,13 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                         Ok(parse_quote! { #left_expr #rust_op #right_expr })
                     } else if left_is_float && right_is_int_type {
                         // float + int: cast int to f64
-                        Ok(parse_quote! { #left_expr + (#right_expr as f64) })
+                        // Wrap right_expr in parentheses to handle precedence with `as`
+                        Ok(parse_quote! { #left_expr + ((#right_expr) as f64) })
                     } else if left_is_int_type && right_is_float {
                         // int + float: cast int to f64
-                        Ok(parse_quote! { (#left_expr as f64) + #right_expr })
+                        // Wrap left_expr in parentheses to handle precedence with `as`
+                        // e.g., 5 * A as f64 would be 5 * (A as f64), we want (5 * A) as f64
+                        Ok(parse_quote! { ((#left_expr) as f64) + #right_expr })
                     } else if left_is_int_type && right_is_int_type {
                         // Both are int - normal addition
                         let rust_op = convert_binop(op)?;
@@ -681,12 +684,13 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                         let right_is_int_type = self.ctx.is_expr_int_type(right);
 
                         // Mixed float/int multiplication needs cast
+                        // Wrap expressions in parentheses to handle `as` precedence
                         if left_is_float && right_is_int_type {
                             // float * int: cast int to f64
-                            Ok(parse_quote! { #left_expr * (#right_expr as f64) })
+                            Ok(parse_quote! { #left_expr * ((#right_expr) as f64) })
                         } else if left_is_int_type && right_is_float {
                             // int * float: cast int to f64
-                            Ok(parse_quote! { (#left_expr as f64) * #right_expr })
+                            Ok(parse_quote! { ((#left_expr) as f64) * #right_expr })
                         } else {
                             let rust_op = convert_binop(op)?;
                             Ok(parse_quote! { #left_expr #rust_op #right_expr })
@@ -695,21 +699,15 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 }
             }
             BinOp::Div => {
-                // v3.16.0 Phase 2: Python's `/` always returns float
-                // Rust's `/` does integer division when both operands are integers
-                // Check if we need to cast to float based on return type context
+                // Python's `/` operator ALWAYS returns float, even with integer operands
+                // This is different from `//` (floor division) which returns int
+                // Rust's `/` does integer division when both operands are integers,
+                // so we must cast to f64 when both operands are integers.
                 let left_is_float = self.ctx.is_expr_float_type(left);
                 let right_is_float = self.ctx.is_expr_float_type(right);
-                let needs_float_division = self
-                    .ctx
-                    .current_return_type
-                    .as_ref()
-                    .map(return_type_expects_float)
-                    .unwrap_or(false);
 
-                if needs_float_division && !left_is_float && !right_is_float {
-                    // Cast both operands to f64 for Python float division semantics
-                    // Only cast if operands are not already floats
+                if !left_is_float && !right_is_float {
+                    // Both operands are integers: cast both to f64 for Python's true division
                     Ok(parse_quote! { (#left_expr as f64) / (#right_expr as f64) })
                 } else if !left_is_float && right_is_float {
                     // Mixed types: int / float - cast int to f64
@@ -718,7 +716,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     // Mixed types: float / int - cast int to f64
                     Ok(parse_quote! { #left_expr / (#right_expr as f64) })
                 } else {
-                    // Regular division (int/int → int, float/float → float)
+                    // Both are floats: regular float division
                     let rust_op = convert_binop(op)?;
                     Ok(syn::Expr::Binary(syn::ExprBinary {
                         attrs: vec![],
