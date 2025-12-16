@@ -293,6 +293,7 @@ pub struct HirClass {
     pub fields: Vec<HirField>,
     pub is_dataclass: bool,
     pub is_enum: bool,
+    pub is_intflag: bool,
     pub docstring: Option<String>,
     pub annotations: TranspilationAnnotations,
 }

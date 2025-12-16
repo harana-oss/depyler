@@ -1476,3 +1476,63 @@ pub fn nested_div(a: i32, b: i32, c: i32) -> f64 {
     return ((a as f64) / (b as f64)) / (c as f64);
 }
 '''
+
+[[test]]
+name = "not_bitwise_and_integer"
+description = "Negating bitwise AND result on integers"
+
+python = '''
+def check_flag(flags: int, mask: int) -> bool:
+    if not (flags & mask):
+        return True
+    return False
+'''
+
+rust = '''
+pub fn check_flag(flags: i32, mask: i32) -> bool {
+    if (flags & mask) == 0 {
+        return true;
+    }
+    return false;
+}
+'''
+
+[[test]]
+name = "not_bitwise_or_integer"
+description = "Negating bitwise OR result on integers"
+
+python = '''
+def check_any_flag(a: int, b: int) -> bool:
+    if not (a | b):
+        return True
+    return False
+'''
+
+rust = '''
+pub fn check_any_flag(a: i32, b: i32) -> bool {
+    if (a | b) == 0 {
+        return true;
+    }
+    return false;
+}
+'''
+
+[[test]]
+name = "not_bitwise_xor_integer"
+description = "Negating bitwise XOR result on integers"
+
+python = '''
+def check_same(a: int, b: int) -> bool:
+    if not (a ^ b):
+        return True
+    return False
+'''
+
+rust = '''
+pub fn check_same(a: i32, b: i32) -> bool {
+    if (a ^ b) == 0 {
+        return true;
+    }
+    return false;
+}
+'''

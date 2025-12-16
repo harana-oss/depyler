@@ -600,7 +600,10 @@ impl AstBridge {
             })
             .collect();
 
-        let is_enum = base_classes.iter().any(|b| b == "IntEnum" || b == "Enum");
+        let is_enum = base_classes
+            .iter()
+            .any(|b| b == "IntEnum" || b == "Enum" || b == "IntFlag");
+        let is_intflag = base_classes.iter().any(|b| b == "IntFlag");
 
         // Convert methods and fields
         let mut methods = Vec::new();
@@ -705,6 +708,7 @@ impl AstBridge {
             fields,
             is_dataclass,
             is_enum,
+            is_intflag,
             docstring,
             annotations,
         }))

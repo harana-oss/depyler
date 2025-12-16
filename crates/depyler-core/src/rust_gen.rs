@@ -1235,7 +1235,9 @@ fn convert_classes_to_rust(
             }
         }
 
-        let items = if class.is_enum {
+        let items = if class.is_intflag {
+            crate::direct_rules::convert_class_to_intflag(class)?
+        } else if class.is_enum {
             crate::direct_rules::convert_class_to_enum(class)?
         } else {
             crate::direct_rules::convert_class_to_struct(class, type_mapper)?

@@ -329,6 +329,7 @@ fn build_derive_attributes(class: &HirClass) -> Vec<syn::Attribute> {
 ///     methods: vec![],
 ///     is_dataclass: true,
 ///     is_enum: false,
+///     is_intflag: false,
 ///     docstring: Some("A 2D point".to_string()),
 ///     annotations: TranspilationAnnotations::default(),
 /// };
@@ -541,6 +542,68 @@ pub fn convert_class_to_enum(class: &HirClass) -> Result<Vec<syn::Item>> {
     };
 
     Ok(vec![enum_item, impl_item])
+}
+
+/// Convert a Python IntFlag class to a unit struct with i32 associated constants.
+pub fn convert_class_to_intflag(class: &HirClass) -> Result<Vec<syn::Item>> {
+    let struct_name = syn::Ident::new(&class.name, proc_macro2::Span::call_site());
+
+    // Collect constant info: (name, value)
+    let const_info: Vec<(syn::Ident, i64)> = class
+        .fields
+        .iter()
+        .filter(|f| f.is_class_var && f.default_value.is_some())
+        .filter_map(|field| {
+            let const_ident = syn::Ident::new(&field.name, proc_macro2::Span::call_site());
+            // Handle both literal ints and binary shift expressions
+            if let Some(value) = evaluate_intflag_value(&field.default_value) {
+                Some((const_ident, value))
+            } else {
+                None
+            }
+        })
+        .collect();
+
+    // Generate associated constants as i32
+    let const_decls: Vec<proc_macro2::TokenStream> = const_info
+        .iter()
+        .map(|(ident, value)| {
+            let lit = syn::LitInt::new(&value.to_string(), proc_macro2::Span::call_site());
+            quote::quote! {
+                pub const #ident: i32 = #lit;
+            }
+        })
+        .collect();
+
+    // Create a unit struct to hold the constants as associated items
+    let struct_item: syn::Item = parse_quote! {
+        pub struct #struct_name;
+    };
+
+    let impl_consts: syn::Item = parse_quote! {
+        impl #struct_name {
+            #(#const_decls)*
+        }
+    };
+
+    Ok(vec![struct_item, impl_consts])
+}
+
+/// Evaluate an IntFlag constant value, handling both literals and shift expressions.
+fn evaluate_intflag_value(expr: &Option<HirExpr>) -> Option<i64> {
+    match expr {
+        Some(HirExpr::Literal(Literal::Int(value))) => Some(*value),
+        Some(HirExpr::Binary { op, left, right }) => {
+            if matches!(op, BinOp::LShift) {
+                let left_val = evaluate_intflag_value(&Some(*left.clone()))?;
+                let right_val = evaluate_intflag_value(&Some(*right.clone()))?;
+                Some(left_val << right_val)
+            } else {
+                None
+            }
+        }
+        _ => None,
+    }
 }
 
 pub fn to_pascal_case(s: &str) -> String {

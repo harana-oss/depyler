@@ -998,11 +998,24 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     false
                 };
 
+                // Python: `not (x & y)` where x, y are integers
+                // Rust: Cannot use ! on integers, need `(x & y) == 0`
+                let is_integer_bitwise_op = matches!(
+                    operand,
+                    HirExpr::Binary {
+                        op: BinOp::BitAnd | BinOp::BitOr | BinOp::BitXor,
+                        ..
+                    }
+                );
+
                 if is_collection {
                     Ok(parse_quote! { #operand_expr.is_empty() })
                 } else if is_option_returning_call {
                     // For Option-returning methods, use .is_none() instead of !
                     Ok(parse_quote! { #operand_expr.is_none() })
+                } else if is_integer_bitwise_op {
+                    // For bitwise operations on integers, compare result to 0
+                    Ok(parse_quote! { (#operand_expr) == 0 })
                 } else {
                     Ok(parse_quote! { !#unwrapped_expr })
                 }
