@@ -19,7 +19,7 @@ print(f"a={a}, b={b}")
 rust = """
 fn main() {
     let (a, b) = (1, 2);
-    println!("a={}, b={}", a, b);
+    log::info!("a={}, b={}", a, b);
 }
 """
 
@@ -36,7 +36,7 @@ fn main() {
     let a = data[0];
     let b = data[1];
     let c = data[2];
-    println!("a={}, b={}, c={}", a, b, c);
+    log::info!("a={}, b={}, c={}", a, b, c);
 }
 """
 
@@ -56,7 +56,7 @@ fn main() {
     let data = vec![1, 2, 3, 4];
     let a = data[0];
     let rest: Vec<i32> = data[1..].to_vec();
-    println!("a={}, rest={:?}", a, rest);
+    log::info!("a={}, rest={:?}", a, rest);
 }
 """
 
@@ -72,7 +72,7 @@ fn main() {
     let data = vec![1, 2, 3, 4];
     let last = data[data.len() - 1];
     let rest: Vec<i32> = data[..data.len() - 1].to_vec();
-    println!("rest={:?}, last={}", rest, last);
+    log::info!("rest={:?}, last={}", rest, last);
 }
 """
 
@@ -89,7 +89,7 @@ fn main() {
     let first = data[0];
     let last = data[data.len() - 1];
     let middle: Vec<i32> = data[1..data.len() - 1].to_vec();
-    println!("first={}, middle={:?}, last={}", first, middle, last);
+    log::info!("first={}, middle={:?}, last={}", first, middle, last);
 }
 """
 
@@ -105,7 +105,7 @@ fn main() {
     let data = vec![1];
     let a = data[0];
     let rest: Vec<i32> = if data.len() > 1 { data[1..].to_vec() } else { vec![] };
-    println!("a={}, rest={:?}", a, rest);
+    log::info!("a={}, rest={:?}", a, rest);
 }
 """
 
@@ -123,7 +123,7 @@ print(f"a={a}, b={b}, c={c}")
 rust = """
 fn main() {
     let ((a, b), c) = ((1, 2), 3);
-    println!("a={}, b={}, c={}", a, b, c);
+    log::info!("a={}, b={}, c={}", a, b, c);
 }
 """
 
@@ -137,7 +137,7 @@ print(f"a={a}, b={b}, c={c}, d={d}")
 rust = """
 fn main() {
     let (a, (b, (c, d))) = (1, (2, (3, 4)));
-    println!("a={}, b={}, c={}, d={}", a, b, c, d);
+    log::info!("a={}, b={}, c={}, d={}", a, b, c, d);
 }
 """
 
@@ -157,7 +157,7 @@ print_values(*numbers)
 """
 rust = """
 fn print_values(args: &[i32]) {
-    println!("Values: {:?}", args);
+    log::info!("Values: {:?}", args);
 }
 
 fn main() {
@@ -182,7 +182,7 @@ use std::collections::HashMap;
 
 fn print_kwargs(kwargs: &HashMap<&str, i32>) {
     for (key, value) in kwargs {
-        println!("{}={}", key, value);
+        log::info!("{}={}", key, value);
     }
 }
 
@@ -210,8 +210,8 @@ rust = """
 use std::collections::HashMap;
 
 fn combined_func(args: &[i32], kwargs: &HashMap<&str, i32>) {
-    println!("args: {:?}", args);
-    println!("kwargs: {:?}", kwargs);
+    log::info!("args: {:?}", args);
+    log::info!("kwargs: {:?}", kwargs);
 }
 
 fn main() {
@@ -239,7 +239,7 @@ rust = """
 fn main() {
     let pairs = vec![(1, 2), (3, 4), (5, 6)];
     for (a, b) in pairs {
-        println!("a={}, b={}", a, b);
+        log::info!("a={}, b={}", a, b);
     }
 }
 """
@@ -256,7 +256,7 @@ rust = """
 fn main() {
     let data = vec![((1, 2), 3), ((4, 5), 6)];
     for ((a, b), c) in data {
-        println!("a={}, b={}, c={}", a, b, c);
+        log::info!("a={}, b={}, c={}", a, b, c);
     }
 }
 """
@@ -279,7 +279,7 @@ rust = """
 fn main() {
     let data: (i32, i32) = (10, 20);
     let (x, y): (i32, i32) = data;
-    println!("x={}, y={}", x, y);
+    log::info!("x={}, y={}", x, y);
 }
 """
 
@@ -297,7 +297,7 @@ fn main() {
     let a = chars[0];
     let b = chars[1];
     let c = chars[2];
-    println!("a={}, b={}, c={}", a, b, c);
+    log::info!("a={}, b={}, c={}", a, b, c);
 }
 """
 
@@ -314,6 +314,6 @@ fn main() {
     let a = range[0];
     let b = range[1];
     let c = range[2];
-    println!("a={}, b={}, c={}", a, b, c);
+    log::info!("a={}, b={}, c={}", a, b, c);
 }
 """

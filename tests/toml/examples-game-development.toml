@@ -723,31 +723,31 @@ pub fn analyze_population_trend(
 #[doc = " Depyler: verified panic-free"]
 #[doc = " Depyler: proven to terminate"]
 pub fn run_simulations() -> Result<(), Box<dyn std::error::Error>> {
-    println!("{}", "=== Comprehensive Simulation Demo ===");
+    log::info!("{}", "=== Comprehensive Simulation Demo ===");
     {
         let _seed = 42;
         ()
     };
-    println!("{}", "\n1. Dice Rolling Simulation");
+    log::info!("{}", "\n1. Dice Rolling Simulation");
     let dice_results: HashMap<i32, i32> = simulate_dice_rolls(2, 6, 1000)?;
-    println!("{}", format!("   Simulated {:?} rolls of 2d6", 1000));
-    println!(
+    log::info!("{}", format!("   Simulated {:?} rolls of 2d6", 1000));
+    log::info!(
         "{}",
         format!("   Unique outcomes: {:?}", dice_results.len() as i32)
     );
-    println!("{}", "\n2. Coin Flip Sequence");
+    log::info!("{}", "\n2. Coin Flip Sequence");
     let mut flips: Vec<String> = coin_flip_sequence(100);
     let streaks: HashMap<String, i32> = count_streaks(&flips)?;
-    println!(
+    log::info!(
         "{}",
         format!(
             "   100 flips, max heads streak: {:?}",
             streaks.get("max_heads").cloned().unwrap_or_default()
         )
     );
-    println!("{}", "\n3. Monte Carlo Pi Estimation");
+    log::info!("{}", "\n3. Monte Carlo Pi Estimation");
     let pi_result: (f64, f64) = monte_carlo_pi_estimation(10000)?;
-    println!(
+    log::info!(
         "{}",
         format!(
             "   Pi estimate: {:?}, Error: {:?}",
@@ -755,10 +755,10 @@ pub fn run_simulations() -> Result<(), Box<dyn std::error::Error>> {
             pi_result.get(1usize).cloned().unwrap_or_default()
         )
     );
-    println!("{}", "\n4. Random Walk Simulation");
+    log::info!("{}", "\n4. Random Walk Simulation");
     let final_pos: (i32, i32) = simulate_random_walk(1000);
     let distance: f64 = calculate_walk_distance(final_pos)?;
-    println!(
+    log::info!(
         "{}",
         format!(
             "   Final position:({:?}, {:?}), Distance: {:?}",
@@ -767,19 +767,19 @@ pub fn run_simulations() -> Result<(), Box<dyn std::error::Error>> {
             distance
         )
     );
-    println!("{}", "\n5. Queue System Simulation");
+    log::info!("{}", "\n5. Queue System Simulation");
     let queue_stats: HashMap<String, f64> = simulate_queue_system(100, (1, 5));
-    println!(
+    log::info!(
         "{}",
         format!(
             "   Avg wait time: {:?}",
             queue_stats.get("avg_wait").cloned().unwrap_or_default()
         )
     );
-    println!("{}", "\n6. Card Game Simulation");
+    log::info!("{}", "\n6. Card Game Simulation");
     let game_results: HashMap<String, i32> = simulate_card_game(1000)?;
     let win_rate: f64 = calculate_win_rate(&game_results)?;
-    println!(
+    log::info!(
         "{}",
         format!(
             "   Win rate: {:?}, Wins: {:?}",
@@ -787,10 +787,10 @@ pub fn run_simulations() -> Result<(), Box<dyn std::error::Error>> {
             game_results.get("wins").cloned().unwrap_or_default()
         )
     );
-    println!("{}", "\n7. Population Growth Simulation");
+    log::info!("{}", "\n7. Population Growth Simulation");
     let mut populations: Vec<i32> = simulate_population_growth(100, 0.1, 20);
     let pop_analysis: HashMap<String, f64> = analyze_population_trend(&populations)?;
-    println!(
+    log::info!(
         "{}",
         format!(
             "   Final population: {:?}",
@@ -800,7 +800,7 @@ pub fn run_simulations() -> Result<(), Box<dyn std::error::Error>> {
                 .unwrap_or_default()
         )
     );
-    println!("{}", "\n=== All Simulations Complete ===");
+    log::info!("{}", "\n=== All Simulations Complete ===");
     Ok(())
 }
 #[cfg(test)]

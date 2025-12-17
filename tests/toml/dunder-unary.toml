@@ -304,7 +304,7 @@ fn main() {
     let v = Vector { x: 3, y: 4 };
     let neg_v = -v;
     let result = neg_v.x == -3 && neg_v.y == -4;
-    println!("Negated vector: {:?}, result: {}", neg_v, result);
+    log::info!("Negated vector: {:?}, result: {}", neg_v, result);
 }
 '''
 
@@ -348,7 +348,7 @@ fn main() {
     let c = Complex { real: 3.0, imag: 4.0 };
     let magnitude = c.abs();
     let result = (magnitude - 5.0).abs() < 1e-10;
-    println!("Complex(3, 4) magnitude: {}, result: {}", magnitude, result);
+    log::info!("Complex(3, 4) magnitude: {}, result: {}", magnitude, result);
 }
 '''
 
@@ -397,7 +397,7 @@ fn main() {
     let mask = BitMask { value: 5 };
     let inverted = !mask;
     let result = inverted.value == !5;
-    println!("Original: 5, Inverted: {}, result: {}", inverted.value, result);
+    log::info!("Original: 5, Inverted: {}, result: {}", inverted.value, result);
 }
 '''
 
@@ -440,7 +440,7 @@ fn main() {
     // In Rust, "+" would just clone
     let pos_v = v.clone();
     let result = pos_v.x == 42 && v.x == 42;
-    println!("Original: {}, Cloned: {}, result: {}", v.x, pos_v.x, result);
+    log::info!("Original: {}, Cloned: {}, result: {}", v.x, pos_v.x, result);
 }
 '''
 

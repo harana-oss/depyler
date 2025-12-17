@@ -825,7 +825,7 @@ pub fn calculate(a: i32, b: i32, operation: String, verbose: bool) -> i32 {
         result = a - b;
     }
     if verbose {
-        println!("{}", format!("Result: {}", result));
+        log::info!("{}", format!("Result: {}", result));
     }
     return result;
 }
@@ -1015,7 +1015,7 @@ def main():
 rust = '''
 #[doc = "Entry point without return type."]
 pub fn main() {
-    println!("{}", "Hello world");
+    log::info!("{}", "Hello world");
 }
 '''
 
@@ -1032,7 +1032,7 @@ def main() -> None:
 rust = '''
 #[doc = "Entry point with explicit None return."]
 pub fn main() {
-    println!("{}", "Hello world");
+    log::info!("{}", "Hello world");
 }
 '''
 
@@ -1053,7 +1053,7 @@ def main() -> None:
 rust = '''
 #[doc = "Helper function without return type."]
 pub fn helper() {
-    println!("{}", "Helping");
+    log::info!("{}", "Helping");
 }
 #[doc = "Call the helper."]
 pub fn main() {
@@ -1080,7 +1080,7 @@ rust = '''
 #[doc = "Process something without returning."]
 pub fn process() {
     let value = 42;
-    println!("{}", value);
+    log::info!("{}", value);
 }
 #[doc = "Entry point."]
 pub fn main() {
@@ -1120,11 +1120,11 @@ pub fn get_value() -> i32 {
 #[doc = "Processes without returning."]
 pub fn process() {
     let value = get_value();
-    println!("{}", value);
+    log::info!("{}", value);
 }
 #[doc = "Helper without return type."]
 pub fn helper() {
-    println!("{}", "Helping");
+    log::info!("{}", "Helping");
 }
 #[doc = "Entry point."]
 pub fn main() {
@@ -1159,10 +1159,10 @@ rust = '''
 #[doc = "Main with early return."]
 pub fn main() {
     if true {
-        println!("{}", "Early exit");
+        log::info!("{}", "Early exit");
         return;
     }
-    println!("{}", "Normal exit");
+    log::info!("{}", "Normal exit");
 }
 '''
 
@@ -1212,7 +1212,7 @@ pub fn main() {
     let limits = vec![25, 30, 35];
     for limit in limits.iter().cloned() {
         let result = fibonacci_iterative(limit);
-        println!("{}", result);
+        log::info!("{}", result);
     }
 }
 #[cfg(test)]
@@ -1253,7 +1253,7 @@ pub fn process(data: &Vec<i32>) -> i32 {
 pub fn main() {
     let nums = vec![1, 2, 3];
     let result = process(&nums);
-    println!("{}", result);
+    log::info!("{}", result);
 }
 #[cfg(test)]
 mod tests {
@@ -1295,7 +1295,7 @@ pub fn main() {
     let a = vec![1, 2];
     let b = vec![3, 4];
     let result = merge(&a, &b);
-    println!("{:?}", result);
+    log::info!("{:?}", result);
 }
 #[cfg(test)]
 mod tests {
@@ -1341,7 +1341,7 @@ pub fn process_text(text: String) -> i32 {
 pub fn main() {
     let message = "hello world".to_string();
     let length = process_text(message);
-    println!("{}", length);
+    log::info!("{}", length);
 }
 #[cfg(test)]
 mod tests {
@@ -1388,7 +1388,7 @@ pub fn main() {
         map
     };
     let count = count_keys(&info);
-    println!("{}", count);
+    log::info!("{}", count);
 }
 '''
 
@@ -1535,7 +1535,7 @@ pub fn print_all() {
         for item in items {
             print!("{} ", item);
         }
-        println!();
+        log::info!();
     };
 }
 '''

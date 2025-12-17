@@ -28,6 +28,7 @@
 
 pub mod metrics;
 pub mod quality;
+pub mod usage_analysis;
 pub mod verify;
 
 /// Prelude for convenient imports
@@ -49,6 +50,9 @@ pub mod prelude {
 
     // From verify
     pub use crate::verify::{PropertyStatus, PropertyVerifier, TestCase, VerificationMethod, VerificationResult};
+
+    // From usage_analysis
+    pub use crate::usage_analysis::{UsageAnalyzer, UsageContext, VariableUsage, get_borrowable_field_vars};
 }
 
 // Re-export main types at crate root for convenience
@@ -58,4 +62,5 @@ pub use quality::{
     ComplexityMetrics, CoverageMetrics, PmatMetrics, QualityAnalyzer, QualityError, QualityGate, QualityGateResult,
     QualityReport, QualityRequirement, QualityStatus, Severity,
 };
+pub use usage_analysis::{UsageAnalyzer, UsageContext, VariableUsage, get_borrowable_field_vars};
 pub use verify::{PropertyStatus, PropertyVerifier, VerificationResult};

@@ -361,7 +361,7 @@ def print_greeting(name: str) -> None:
 
 rust = '''
 pub fn print_greeting(name: String) {
-    println!("{}", format!("Hello, {}!", name));
+    log::info!("{}", format!("Hello, {}!", name));
 }
 '''
 
@@ -1011,7 +1011,6 @@ pub fn find_away_incident(try_incidents: &Vec<Incident>) -> Option<Incident> {
         .iter()
         .cloned()
         .filter(|incident| incident.points_scored_team == "Away")
-        .map(|incident| incident)
         .next();
 }
 '''
@@ -1065,7 +1064,6 @@ pub fn main(items: &mut Vec<Item>) {
         .enumerate()
         .map(|(i, x)| (i as i32, x.clone()))
         .filter(|(x, y)| y.val == items.get(0usize).cloned().unwrap().val)
-        .map(|(x, y)| (x, y))
         .next()
         .expect("StopIteration: iterator is empty");
     items[0usize].val = idx;
@@ -1099,5 +1097,358 @@ def process_string(s: str) -> str:
 rust = '''
 pub fn process_string(s: String) -> String {
     return s.trim().to_uppercase();
+}
+'''
+
+# =============================================================================
+# No Double Clone Tests - Field Access
+# =============================================================================
+
+[[test]]
+name = "field_access_no_double_clone_string"
+description = "Accessing string field should not clone the base struct"
+
+python = '''
+@dataclass
+class GameState:
+    team_in_possession: str
+
+def get_team(state: GameState) -> str:
+    return state.team_in_possession
+'''
+
+rust = '''
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct GameState {
+    pub team_in_possession: String,
+}
+impl GameState {
+    pub fn new(team_in_possession: String) -> Self {
+        Self { team_in_possession }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "team_in_possession" => Some(Box::new(self.team_in_possession.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "team_in_possession" => {
+                if let Some(v) = value.downcast_ref::<String>() {
+                    self.team_in_possession = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+pub fn get_team(state: &GameState) -> String {
+    return state.team_in_possession.clone();
+}
+'''
+
+[[test]]
+name = "field_access_string_comparison_no_clone"
+description = "String field comparison should not clone base struct"
+
+python = '''
+@dataclass
+class GameState:
+    team_in_possession: str
+
+def is_home_team(state: GameState) -> bool:
+    return state.team_in_possession == "Home"
+'''
+
+rust = '''
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct GameState {
+    pub team_in_possession: String,
+}
+impl GameState {
+    pub fn new(team_in_possession: String) -> Self {
+        Self { team_in_possession }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "team_in_possession" => Some(Box::new(self.team_in_possession.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "team_in_possession" => {
+                if let Some(v) = value.downcast_ref::<String>() {
+                    self.team_in_possession = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+pub fn is_home_team(state: &GameState) -> bool {
+    return state.team_in_possession == "Home";
+}
+'''
+
+[[test]]
+name = "field_access_vec_no_double_clone"
+description = "Accessing Vec field should not clone the base struct"
+
+python = '''
+@dataclass
+class GameState:
+    home_players: list[str]
+
+def get_players(state: GameState) -> list[str]:
+    return state.home_players
+'''
+
+rust = '''
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct GameState {
+    pub home_players: Vec<String>,
+}
+impl GameState {
+    pub fn new(home_players: Vec<String>) -> Self {
+        Self { home_players }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "home_players" => Some(Box::new(self.home_players.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "home_players" => {
+                if let Some(v) = value.downcast_ref::<Vec<String>>() {
+                    self.home_players = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+pub fn get_players(state: &GameState) -> Vec<String> {
+    return state.home_players.clone();
+}
+'''
+
+[[test]]
+name = "field_access_int_no_clone"
+description = "Accessing int field should not clone anything"
+
+python = '''
+@dataclass
+class Point:
+    x: int
+    y: int
+
+def get_x(p: Point) -> int:
+    return p.x
+'''
+
+rust = '''
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Point {
+    pub x: i32,
+    pub y: i32,
+}
+impl Point {
+    pub fn new(x: i32, y: i32) -> Self {
+        Self { x, y }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "x" => Some(Box::new(self.x.clone()) as Box<dyn std::any::Any>),
+            "y" => Some(Box::new(self.y.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "x" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.x = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "y" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.y = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+pub fn get_x(p: &Point) -> i32 {
+    return p.x;
+}
+'''
+
+# =============================================================================
+# Simultaneous Borrow Conflict Detection (Option 1: Clone Before Call)
+# =============================================================================
+
+[[test]]
+name = "borrow_conflict_mut_state_and_field_read"
+description = "When passing &mut state and state.field to same function, clone the field"
+
+python = '''
+@dataclass
+class Team:
+    name: str
+
+@dataclass
+class State:
+    score: int
+    team_in_possession: Team
+
+def assign_try(state: State, player_index: int, team: Team) -> None:
+    state.score = state.score + 5
+
+def process_play(state: State, player_index: int) -> None:
+    assign_try(state, player_index, state.team_in_possession)
+'''
+
+rust = '''
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Team {
+    pub name: String,
+}
+impl Team {
+    pub fn new(name: String) -> Self {
+        Self { name }
+    }
+}
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct State {
+    pub score: i32,
+    pub team_in_possession: Team,
+}
+impl State {
+    pub fn new(score: i32, team_in_possession: Team) -> Self {
+        Self { score, team_in_possession }
+    }
+}
+pub fn assign_try(state: &mut State, player_index: i32, team: &Team) {
+    state.score = state.score + 5;
+}
+pub fn process_play(state: &mut State, player_index: i32) {
+    let team = state.team_in_possession.clone();
+    assign_try(state, player_index, &team);
+}
+'''
+
+[[test]]
+name = "borrow_conflict_mut_state_and_nested_field"
+description = "Nested field access with &mut state should also clone"
+
+python = '''
+@dataclass
+class Inner:
+    value: int
+
+@dataclass
+class Outer:
+    inner: Inner
+
+def use_both(outer: Outer, val: int) -> None:
+    outer.inner.value = val
+
+def caller(outer: Outer) -> None:
+    use_both(outer, outer.inner.value)
+'''
+
+rust = '''
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Inner {
+    pub value: i32,
+}
+impl Inner {
+    pub fn new(value: i32) -> Self {
+        Self { value }
+    }
+}
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Outer {
+    pub inner: Inner,
+}
+impl Outer {
+    pub fn new(inner: Inner) -> Self {
+        Self { inner }
+    }
+}
+pub fn use_both(outer: &mut Outer, val: i32) {
+    outer.inner.value = val;
+}
+pub fn caller(outer: &mut Outer) {
+    let val = outer.inner.value;
+    use_both(outer, val);
+}
+'''
+
+[[test]]
+name = "borrow_conflict_mut_state_with_explicit_borrow"
+description = "When &state.field is explicit in source, clone inner and reference"
+
+python = '''
+@dataclass
+class Config:
+    setting: str
+
+@dataclass  
+class App:
+    config: Config
+
+def apply_config(app: App, cfg: Config) -> None:
+    app.config = cfg
+
+def update_app(app: App) -> None:
+    apply_config(app, app.config)
+'''
+
+rust = '''
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Config {
+    pub setting: String,
+}
+impl Config {
+    pub fn new(setting: String) -> Self {
+        Self { setting }
+    }
+}
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct App {
+    pub config: Config,
+}
+impl App {
+    pub fn new(config: Config) -> Self {
+        Self { config }
+    }
+}
+pub fn apply_config(app: &mut App, cfg: Config) {
+    app.config = cfg;
+}
+pub fn update_app(app: &mut App) {
+    let cfg = app.config.clone();
+    apply_config(app, cfg);
 }
 '''

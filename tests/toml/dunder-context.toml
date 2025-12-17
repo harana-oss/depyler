@@ -31,20 +31,20 @@ struct MyContext;
 
 impl MyContext {
     fn enter(&self) {
-        println!("Entering");
+        log::info!("Entering");
     }
 }
 
 impl Drop for MyContext {
     fn drop(&mut self) {
-        println!("Exiting");
+        log::info!("Exiting");
     }
 }
 
 fn main() {
     let ctx = MyContext;
     ctx.enter();
-    println!("Inside");
+    log::info!("Inside");
     // Drop called automatically
 }
 """
@@ -75,13 +75,13 @@ impl Tracker {
 
 impl Drop for Tracker {
     fn drop(&mut self) {
-        println!("Exit called with: None");
+        log::info!("Exit called with: None");
     }
 }
 
 fn main() {
     let _tracker = Tracker::new();
-    println!("Working");
+    log::info!("Working");
 }
 """
 
@@ -108,20 +108,20 @@ struct Resource {
 
 impl Resource {
     fn new() -> Self {
-        println!("Setup");
+        log::info!("Setup");
         Resource { value: "resource".to_string() }
     }
 }
 
 impl Drop for Resource {
     fn drop(&mut self) {
-        println!("Cleanup");
+        log::info!("Cleanup");
     }
 }
 
 fn main() {
     let res = Resource::new();
-    println!("Using: {}", res.value);
+    log::info!("Using: {}", res.value);
 }
 """
 
@@ -159,7 +159,7 @@ impl Manager {
 
 fn main() {
     let mgr = Manager::new("test");
-    println!("{}", mgr.name);
+    log::info!("{}", mgr.name);
 }
 """
 
@@ -194,13 +194,13 @@ impl FileManager {
 
 impl Drop for FileManager {
     fn drop(&mut self) {
-        println!("Closing file");
+        log::info!("Closing file");
     }
 }
 
 fn main() {
     let (mgr, f) = FileManager::new();
-    println!("Using: {}", f);
+    log::info!("Using: {}", f);
     drop(mgr);
 }
 """
@@ -226,20 +226,20 @@ struct Action;
 
 impl Action {
     fn new() -> Self {
-        println!("Starting");
+        log::info!("Starting");
         Action
     }
 }
 
 impl Drop for Action {
     fn drop(&mut self) {
-        println!("Finishing");
+        log::info!("Finishing");
     }
 }
 
 fn main() {
     let _action = Action::new();
-    println!("Action");
+    log::info!("Action");
 }
 """
 
@@ -273,13 +273,13 @@ impl Checker {
 
 impl Drop for Checker {
     fn drop(&mut self) {
-        println!("Exception type: None");
+        log::info!("Exception type: None");
     }
 }
 
 fn main() {
     let _checker = Checker::new();
-    println!("Success");
+    log::info!("Success");
 }
 """
 
@@ -315,13 +315,13 @@ impl ErrorHandler {
 
 impl Drop for ErrorHandler {
     fn drop(&mut self) {
-        println!("Caught: ValueError");
+        log::info!("Caught: ValueError");
     }
 }
 
 fn main() {
     let _handler = ErrorHandler::new();
-    println!("Propagated");
+    log::info!("Propagated");
 }
 """
 
@@ -355,7 +355,7 @@ impl Logger {
 
 impl Drop for Logger {
     fn drop(&mut self) {
-        println!("Error: something went wrong");
+        log::info!("Error: something went wrong");
     }
 }
 
@@ -393,13 +393,13 @@ struct Suppressor;
 
 impl Drop for Suppressor {
     fn drop(&mut self) {
-        println!("Suppressing ValueError");
+        log::info!("Suppressing ValueError");
     }
 }
 
 fn main() {
     let _sup = Suppressor;
-    println!("Continued");
+    log::info!("Continued");
 }
 """
 
@@ -426,13 +426,13 @@ struct Propagator;
 
 impl Drop for Propagator {
     fn drop(&mut self) {
-        println!("Cleaning up");
+        log::info!("Cleaning up");
     }
 }
 
 fn main() {
     let _prop = Propagator;
-    println!("Caught: This will propagate");
+    log::info!("Caught: This will propagate");
 }
 """
 
@@ -468,7 +468,7 @@ impl Drop for Reraiser {
 
 fn main() {
     let _reraiser = Reraiser;
-    println!("Got: Wrapped error");
+    log::info!("Got: Wrapped error");
 }
 """
 
@@ -502,20 +502,20 @@ struct File {
 
 impl File {
     fn new(name: &str) -> Self {
-        println!("Opening {}", name);
+        log::info!("Opening {}", name);
         File { name: name.to_string() }
     }
 }
 
 impl Drop for File {
     fn drop(&mut self) {
-        println!("Closing {}", self.name);
+        log::info!("Closing {}", self.name);
     }
 }
 
 fn main() {
     let f = File::new("data.txt");
-    println!("Working with {}", f.name);
+    log::info!("Working with {}", f.name);
 }
 """
 
@@ -541,20 +541,20 @@ struct Lock;
 
 impl Lock {
     fn new() -> Self {
-        println!("Acquiring lock");
+        log::info!("Acquiring lock");
         Lock
     }
 }
 
 impl Drop for Lock {
     fn drop(&mut self) {
-        println!("Releasing lock");
+        log::info!("Releasing lock");
     }
 }
 
 fn main() {
     let _lock = Lock::new();
-    println!("Critical section");
+    log::info!("Critical section");
 }
 """
 
@@ -584,7 +584,7 @@ struct Transaction {
 
 impl Transaction {
     fn new() -> Self {
-        println!("BEGIN");
+        log::info!("BEGIN");
         Transaction { committed: false }
     }
 }
@@ -592,16 +592,16 @@ impl Transaction {
 impl Drop for Transaction {
     fn drop(&mut self) {
         if self.committed {
-            println!("COMMIT");
+            log::info!("COMMIT");
         } else {
-            println!("COMMIT");  // For this example
+            log::info!("COMMIT");  // For this example
         }
     }
 }
 
 fn main() {
     let _tx = Transaction::new();
-    println!("INSERT data");
+    log::info!("INSERT data");
 }
 """
 
@@ -641,14 +641,14 @@ impl Timer {
 impl Drop for Timer {
     fn drop(&mut self) {
         let elapsed = self.start.elapsed();
-        println!("Elapsed: {:.4}s", elapsed.as_secs_f64());
+        log::info!("Elapsed: {:.4}s", elapsed.as_secs_f64());
     }
 }
 
 fn main() {
     let _timer = Timer::new();
     std::thread::sleep(std::time::Duration::from_millis(10));
-    println!("Working");
+    log::info!("Working");
 }
 """
 
@@ -696,7 +696,7 @@ impl<'a> TempValue<'a> {
     fn new(config: &'a mut Config, new_val: i32) -> Self {
         let old_val = config.value;
         config.value = new_val;
-        println!("Changed to {}", new_val);
+        log::info!("Changed to {}", new_val);
         TempValue { config, old_val }
     }
 }
@@ -704,18 +704,18 @@ impl<'a> TempValue<'a> {
 impl<'a> Drop for TempValue<'a> {
     fn drop(&mut self) {
         self.config.value = self.old_val;
-        println!("Restored to {}", self.old_val);
+        log::info!("Restored to {}", self.old_val);
     }
 }
 
 fn main() {
     let mut config = Config { value: 10 };
-    println!("Before: {}", config.value);
+    log::info!("Before: {}", config.value);
     {
         let _temp = TempValue::new(&mut config, 20);
-        println!("During: {}", config.value);
+        log::info!("During: {}", config.value);
     }
-    println!("After: {}", config.value);
+    log::info!("After: {}", config.value);
 }
 """
 
@@ -750,14 +750,14 @@ struct CM {
 
 impl CM {
     fn new(name: &str) -> Self {
-        println!("Enter {}", name);
+        log::info!("Enter {}", name);
         CM { name: name.to_string() }
     }
 }
 
 impl Drop for CM {
     fn drop(&mut self) {
-        println!("Exit {}", self.name);
+        log::info!("Exit {}", self.name);
     }
 }
 
@@ -765,7 +765,7 @@ fn main() {
     let _a = CM::new("A");
     {
         let _b = CM::new("B");
-        println!("Inside both");
+        log::info!("Inside both");
     }
 }
 """
@@ -796,14 +796,14 @@ struct CM {
 
 impl CM {
     fn new(name: &str) -> Self {
-        println!("Enter {}", name);
+        log::info!("Enter {}", name);
         CM { name: name.to_string() }
     }
 }
 
 impl Drop for CM {
     fn drop(&mut self) {
-        println!("Exit {}", self.name);
+        log::info!("Exit {}", self.name);
     }
 }
 
@@ -811,7 +811,7 @@ fn main() {
     let _a = CM::new("A");
     let _b = CM::new("B");
     let _c = CM::new("C");
-    println!("Inside all");
+    log::info!("Inside all");
 }
 """
 
@@ -841,14 +841,14 @@ struct Numbered {
 
 impl Numbered {
     fn new(n: i32) -> Self {
-        println!("Enter {}", n);
+        log::info!("Enter {}", n);
         Numbered { n }
     }
 }
 
 impl Drop for Numbered {
     fn drop(&mut self) {
-        println!("Exit {}", self.n);
+        log::info!("Exit {}", self.n);
     }
 }
 
@@ -887,21 +887,21 @@ struct FailEnter;
 
 impl FailEnter {
     fn new() -> Result<Self, String> {
-        println!("Trying to enter");
+        log::info!("Trying to enter");
         Err("Can't enter".to_string())
     }
 }
 
 impl Drop for FailEnter {
     fn drop(&mut self) {
-        println!("This won't be called");
+        log::info!("This won't be called");
     }
 }
 
 fn main() {
     match FailEnter::new() {
-        Err(e) => println!("Caught: {}", e),
-        Ok(_) => println!("Never reached"),
+        Err(e) => log::info!("Caught: {}", e),
+        Ok(_) => log::info!("Never reached"),
     }
 }
 """
@@ -942,8 +942,8 @@ impl Drop for FailExit {
 
 fn main() {
     let _fail = FailExit::new();
-    println!("Inside");
-    println!("Caught: Exit failed");
+    log::info!("Inside");
+    log::info!("Caught: Exit failed");
 }
 """
 
@@ -978,25 +978,25 @@ struct Reusable {
 
 impl Reusable {
     fn new(name: &str) -> Self {
-        println!("Enter {}", name);
+        log::info!("Enter {}", name);
         Reusable { name: name.to_string() }
     }
 }
 
 impl Drop for Reusable {
     fn drop(&mut self) {
-        println!("Exit {}", self.name);
+        log::info!("Exit {}", self.name);
     }
 }
 
 fn main() {
     {
         let _cm = Reusable::new("test");
-        println!("First use");
+        log::info!("First use");
     }
     {
         let _cm = Reusable::new("test");
-        println!("Second use");
+        log::info!("Second use");
     }
 }
 """
@@ -1037,7 +1037,7 @@ impl Counter {
     
     fn enter(&mut self) {
         self.level += 1;
-        println!("Level: {}", self.level);
+        log::info!("Level: {}", self.level);
     }
     
     fn exit(&mut self) {
@@ -1049,7 +1049,7 @@ fn main() {
     let mut cm = Counter::new();
     cm.enter();
     cm.enter();
-    println!("Nested");
+    log::info!("Nested");
     cm.exit();
     cm.exit();
 }

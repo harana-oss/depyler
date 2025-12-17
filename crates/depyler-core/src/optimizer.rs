@@ -794,6 +794,50 @@ impl Optimizer {
                     (HirExpr::Var(temp_name), extra_stmts)
                 }
             }
+            HirExpr::MethodCall {
+                object,
+                method,
+                args,
+                kwargs,
+                type_params,
+            } if self.is_pure_method(method) => {
+                // Process object and arguments
+                let (new_object, object_stmts) = self.process_expr_for_cse(object, cse_map, temp_counter);
+                extra_stmts.extend(object_stmts);
+
+                let mut new_args = Vec::new();
+                for arg in args {
+                    let (new_arg, arg_stmts) = self.process_expr_for_cse(arg, cse_map, temp_counter);
+                    extra_stmts.extend(arg_stmts);
+                    new_args.push(new_arg);
+                }
+
+                let new_expr = HirExpr::MethodCall {
+                    object: Box::new(new_object),
+                    method: method.clone(),
+                    args: new_args,
+                    kwargs: kwargs.clone(),
+                    type_params: type_params.clone(),
+                };
+
+                let hash = self.hash_expr(&new_expr);
+
+                if let Some((_, var_name)) = cse_map.get(&hash) {
+                    (HirExpr::Var(var_name.clone()), extra_stmts)
+                } else {
+                    let temp_name = format!("_cse_temp_{}", temp_counter);
+                    *temp_counter += 1;
+
+                    extra_stmts.push(HirStmt::Assign {
+                        target: AssignTarget::Symbol(temp_name.clone()),
+                        value: new_expr.clone(),
+                        type_annotation: None,
+                    });
+
+                    cse_map.insert(hash, (new_expr, temp_name.clone()));
+                    (HirExpr::Var(temp_name), extra_stmts)
+                }
+            }
             _ => (expr.clone(), extra_stmts),
         }
     }
@@ -801,14 +845,24 @@ impl Optimizer {
     fn is_complex_expr(&self, expr: &HirExpr) -> bool {
         match expr {
             HirExpr::Binary { op, left, right } => {
-                // Consider non-trivial operations or non-literal operands
-                !matches!(op, BinOp::Add | BinOp::Sub)
-                    || !matches!(left.as_ref(), HirExpr::Var(_) | HirExpr::Literal(_))
-                    || !matches!(right.as_ref(), HirExpr::Var(_) | HirExpr::Literal(_))
+                // Only consider expressions with nested binary operations as complex enough for CSE.
+                // Simple comparisons like `x != "string"` or `a > b` should not create temp variables.
+                let has_nested_binary =
+                    matches!(left.as_ref(), HirExpr::Binary { .. }) || matches!(right.as_ref(), HirExpr::Binary { .. });
+
+                // Arithmetic operations with nested operands are worth CSE'ing
+                let is_arithmetic = matches!(op, BinOp::Add | BinOp::Sub | BinOp::Mul | BinOp::Div | BinOp::Mod);
+
+                has_nested_binary || (is_arithmetic && self.has_expensive_operand(left, right))
             }
             HirExpr::Call { .. } => true,
             _ => false,
         }
+    }
+
+    fn has_expensive_operand(&self, left: &HirExpr, right: &HirExpr) -> bool {
+        let is_expensive = |e: &HirExpr| matches!(e, HirExpr::Call { .. } | HirExpr::MethodCall { .. });
+        is_expensive(left) || is_expensive(right)
     }
 
     /// without creating a CSE temporary variable.
@@ -832,6 +886,37 @@ impl Optimizer {
             "abs", "len", "min", "max", "sum", "str", "int", "float", "bool", "round", "pow", "sqrt",
         ];
         pure_functions.contains(&func)
+    }
+
+    fn is_pure_method(&self, method: &str) -> bool {
+        // Methods that are deterministic and have no side effects
+        let pure_methods = [
+            "index",
+            "count",
+            "find",
+            "rfind",
+            "startswith",
+            "endswith",
+            "isalpha",
+            "isdigit",
+            "isalnum",
+            "isspace",
+            "isupper",
+            "islower",
+            "upper",
+            "lower",
+            "strip",
+            "lstrip",
+            "rstrip",
+            "split",
+            "join",
+            "replace",
+            "get",
+            "keys",
+            "values",
+            "items",
+        ];
+        pure_methods.contains(&method)
     }
 
     fn hash_expr(&self, expr: &HirExpr) -> u64 {
@@ -873,6 +958,16 @@ fn hash_expr_recursive_inner<H: Hasher>(expr: &HirExpr, hasher: &mut H) {
         HirExpr::Call { func, args, .. } => {
             "call".hash(hasher);
             func.hash(hasher);
+            for arg in args {
+                hash_expr_recursive_inner(arg, hasher);
+            }
+        }
+        HirExpr::MethodCall {
+            object, method, args, ..
+        } => {
+            "method_call".hash(hasher);
+            hash_expr_recursive_inner(object, hasher);
+            method.hash(hasher);
             for arg in args {
                 hash_expr_recursive_inner(arg, hasher);
             }
@@ -1156,5 +1251,183 @@ mod tests {
         // At minimum, the return statement should exist
         let has_return = func.body.iter().any(|stmt| matches!(stmt, HirStmt::Return(_)));
         assert!(has_return, "Return statement should be preserved");
+    }
+
+    #[test]
+    fn test_cse_simple_comparison_no_temp() {
+        let optimizer = Optimizer::new(OptimizerConfig::default());
+
+        // Simple comparison: x != "string" should NOT be considered complex
+        let expr = HirExpr::Binary {
+            op: BinOp::NotEq,
+            left: Box::new(HirExpr::Var("x".to_string())),
+            right: Box::new(HirExpr::Literal(Literal::String("test".to_string()))),
+        };
+
+        assert!(!optimizer.is_complex_expr(&expr));
+    }
+
+    #[test]
+    fn test_cse_simple_arithmetic_no_temp() {
+        let optimizer = Optimizer::new(OptimizerConfig::default());
+
+        // Simple arithmetic: a + b with simple operands should NOT be considered complex
+        let expr = HirExpr::Binary {
+            op: BinOp::Add,
+            left: Box::new(HirExpr::Var("a".to_string())),
+            right: Box::new(HirExpr::Var("b".to_string())),
+        };
+
+        assert!(!optimizer.is_complex_expr(&expr));
+    }
+
+    #[test]
+    fn test_cse_nested_binary_is_complex() {
+        let optimizer = Optimizer::new(OptimizerConfig::default());
+
+        // Nested binary: (a + b) * c should be considered complex
+        let expr = HirExpr::Binary {
+            op: BinOp::Mul,
+            left: Box::new(HirExpr::Binary {
+                op: BinOp::Add,
+                left: Box::new(HirExpr::Var("a".to_string())),
+                right: Box::new(HirExpr::Var("b".to_string())),
+            }),
+            right: Box::new(HirExpr::Var("c".to_string())),
+        };
+
+        assert!(optimizer.is_complex_expr(&expr));
+    }
+
+    #[test]
+    fn test_cse_arithmetic_with_call_is_complex() {
+        let optimizer = Optimizer::new(OptimizerConfig::default());
+
+        // Arithmetic with function call: len(x) + 1 should be considered complex
+        let expr = HirExpr::Binary {
+            op: BinOp::Add,
+            left: Box::new(HirExpr::Call {
+                func: "len".to_string(),
+                args: vec![HirExpr::Var("x".to_string())],
+                kwargs: vec![],
+                type_params: vec![],
+            }),
+            right: Box::new(HirExpr::Literal(Literal::Int(1))),
+        };
+
+        assert!(optimizer.is_complex_expr(&expr));
+    }
+
+    #[test]
+    fn test_cse_call_is_complex() {
+        let optimizer = Optimizer::new(OptimizerConfig::default());
+
+        let expr = HirExpr::Call {
+            func: "compute".to_string(),
+            args: vec![HirExpr::Var("x".to_string())],
+            kwargs: vec![],
+            type_params: vec![],
+        };
+
+        assert!(optimizer.is_complex_expr(&expr));
+    }
+
+    #[test]
+    fn test_cse_comparison_ops_not_complex() {
+        let optimizer = Optimizer::new(OptimizerConfig::default());
+
+        let ops = [BinOp::Eq, BinOp::NotEq, BinOp::Lt, BinOp::LtEq, BinOp::Gt, BinOp::GtEq];
+
+        for op in ops {
+            let expr = HirExpr::Binary {
+                op,
+                left: Box::new(HirExpr::Var("a".to_string())),
+                right: Box::new(HirExpr::Var("b".to_string())),
+            };
+
+            assert!(
+                !optimizer.is_complex_expr(&expr),
+                "Comparison {:?} should not be complex",
+                op
+            );
+        }
+    }
+
+    #[test]
+    fn test_cse_arithmetic_with_method_call_is_complex() {
+        let optimizer = Optimizer::new(OptimizerConfig::default());
+
+        // Arithmetic with method call: x.len() + 1 should be considered complex
+        let expr = HirExpr::Binary {
+            op: BinOp::Add,
+            left: Box::new(HirExpr::MethodCall {
+                object: Box::new(HirExpr::Var("x".to_string())),
+                method: "len".to_string(),
+                args: vec![],
+                kwargs: vec![],
+                type_params: vec![],
+            }),
+            right: Box::new(HirExpr::Literal(Literal::Int(1))),
+        };
+
+        assert!(optimizer.is_complex_expr(&expr));
+    }
+
+    #[test]
+    fn test_cse_comparison_not_complex_even_with_expensive_operand() {
+        let optimizer = Optimizer::new(OptimizerConfig::default());
+
+        // Comparison with function call: len(x) > 0 should NOT be complex
+        // because comparisons are not arithmetic operations
+        let expr = HirExpr::Binary {
+            op: BinOp::Gt,
+            left: Box::new(HirExpr::Call {
+                func: "len".to_string(),
+                args: vec![HirExpr::Var("x".to_string())],
+                kwargs: vec![],
+                type_params: vec![],
+            }),
+            right: Box::new(HirExpr::Literal(Literal::Int(0))),
+        };
+
+        assert!(!optimizer.is_complex_expr(&expr));
+    }
+
+    #[test]
+    fn test_cse_method_call_index() {
+        let optimizer = Optimizer::new(OptimizerConfig::default());
+        let mut cse_map = HashMap::new();
+        let mut temp_counter = 0;
+
+        // list.index(value) should be CSE'd
+        let expr = HirExpr::MethodCall {
+            object: Box::new(HirExpr::Var("items".to_string())),
+            method: "index".to_string(),
+            args: vec![HirExpr::Var("value".to_string())],
+            kwargs: vec![],
+            type_params: vec![],
+        };
+
+        let (result1, stmts1) = optimizer.process_expr_for_cse(&expr, &mut cse_map, &mut temp_counter);
+        assert_eq!(stmts1.len(), 1, "First call should create temp variable");
+        assert!(matches!(result1, HirExpr::Var(name) if name == "_cse_temp_0"));
+
+        // Second call with same expression should reuse
+        let (result2, stmts2) = optimizer.process_expr_for_cse(&expr, &mut cse_map, &mut temp_counter);
+        assert!(stmts2.is_empty(), "Second call should not create new temp");
+        assert!(matches!(result2, HirExpr::Var(name) if name == "_cse_temp_0"));
+    }
+
+    #[test]
+    fn test_cse_pure_methods() {
+        let optimizer = Optimizer::new(OptimizerConfig::default());
+
+        assert!(optimizer.is_pure_method("index"));
+        assert!(optimizer.is_pure_method("count"));
+        assert!(optimizer.is_pure_method("find"));
+        assert!(optimizer.is_pure_method("get"));
+        assert!(!optimizer.is_pure_method("append"));
+        assert!(!optimizer.is_pure_method("pop"));
+        assert!(!optimizer.is_pure_method("remove"));
     }
 }

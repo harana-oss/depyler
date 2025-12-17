@@ -28,7 +28,7 @@ fn add(a: i32, b: i32) -> i32 {
 
 fn main() {
     let add5 = |b| add(5, b);
-    println!("{}", add5(3));
+    log::info!("{}", add5(3));
 }
 """
 expected_output = "8"
@@ -52,7 +52,7 @@ fn add(a: i32, b: i32) -> i32 {
 
 fn main() {
     let add5 = |b| add(5, b);
-    println!("{}", add5(3) == add(5, 3));
+    log::info!("{}", add5(3) == add(5, 3));
 }
 """
 expected_output = "True"
@@ -76,7 +76,7 @@ fn greet(name: &str, greeting: &str) -> String {
 
 fn main() {
     let greet_hi = |name| greet(name, "Hi");
-    println!("{}", greet_hi("Alice"));
+    log::info!("{}", greet_hi("Alice"));
 }
 """
 expected_output = "Hi, Alice!"
@@ -104,7 +104,7 @@ fn multiply(a: i32, b: i32, c: i32) -> i32 {
 
 fn main() {
     let double_and = |c| multiply(2, 2, c);
-    println!("{}", double_and(5));
+    log::info!("{}", double_and(5));
 }
 """
 expected_output = "20"
@@ -128,7 +128,7 @@ fn compute(a: i32, b: i32, c: i32) -> i32 {
 
 fn main() {
     let add_with_5 = |b| compute(5, b, 2);
-    println!("{}", add_with_5(3));
+    log::info!("{}", add_with_5(3));
 }
 """
 expected_output = "11"
@@ -152,7 +152,7 @@ fn sum_three(a: i32, b: i32, c: i32) -> i32 {
 
 fn main() {
     let add_10 = |b, c| sum_three(10, b, c);
-    println!("{}", add_10(20, 30));
+    log::info!("{}", add_10(20, 30));
 }
 """
 expected_output = "60"
@@ -183,7 +183,7 @@ fn add(a: i32, b: i32) -> i32 {
 fn main() {
     // In Rust, we would use a struct to hold both function and args
     let add5 = |b| add(5, b);
-    println!("True");  // Simulated
+    log::info!("True");  // Simulated
 }
 """
 expected_output = "True"
@@ -205,7 +205,7 @@ rust = """
 // This is a Python-specific feature
 fn main() {
     let args = ("Hello",);
-    println!("('Hello',)");
+    log::info!("('Hello',)");
 }
 """
 expected_output = "('Hello',)"
@@ -226,7 +226,7 @@ rust = """
 // Rust doesn't have keyword arguments like Python
 // This demonstrates the concept with a comment
 fn main() {
-    println!("{{'greeting': 'Good evening'}}");
+    log::info!("{{'greeting': 'Good evening'}}");
 }
 """
 expected_output = "{'greeting': 'Good evening'}"
@@ -265,7 +265,7 @@ impl Calculator {
 
 fn main() {
     let calc = Calculator;
-    println!("{}", calc.add_five(3));
+    log::info!("{}", calc.add_five(3));
 }
 """
 expected_output = "8"
@@ -300,7 +300,7 @@ impl Greeter {
 
 fn main() {
     let g = Greeter;
-    println!("{}", g.say_hello("Alice"));
+    log::info!("{}", g.say_hello("Alice"));
 }
 """
 expected_output = "Hello, Alice!"
@@ -347,8 +347,8 @@ impl Counter {
 
 fn main() {
     let mut c = Counter::new();
-    println!("{}", c.add_one());
-    println!("{}", c.add_one());
+    log::info!("{}", c.add_one());
+    log::info!("{}", c.add_one());
 }
 """
 expected_output = """1
@@ -377,7 +377,7 @@ fn handle_click(button_id: &str, event: &str) -> String {
 
 fn main() {
     let button_handler = |event| handle_click("submit", event);
-    println!("{}", button_handler("click"));
+    log::info!("{}", button_handler("click"));
 }
 """
 expected_output = "Button submit clicked with event click"
@@ -404,8 +404,8 @@ fn power(base: i32, exponent: i32) -> i32 {
 fn main() {
     let square = |base| power(base, 2);
     let cube = |base| power(base, 3);
-    println!("{}", square(4));
-    println!("{}", cube(4));
+    log::info!("{}", square(4));
+    log::info!("{}", cube(4));
 }
 """
 expected_output = """16
@@ -433,8 +433,8 @@ fn log(level: &str, message: &str) -> String {
 fn main() {
     let info = |msg| log("INFO", msg);
     let error = |msg| log("ERROR", msg);
-    println!("{}", info("Application started"));
-    println!("{}", error("Something went wrong"));
+    log::info!("{}", info("Application started"));
+    log::info!("{}", error("Something went wrong"));
 }
 """
 expected_output = """[INFO] Application started
@@ -463,7 +463,7 @@ fn main() {
     let square = |base| power(base, 2);
     let numbers = vec![1, 2, 3, 4];
     let result: Vec<i32> = numbers.iter().map(|&n| square(n)).collect();
-    println!("{:?}", result);
+    log::info!("{:?}", result);
 }
 """
 expected_output = "[1, 4, 9, 16]"
@@ -502,8 +502,8 @@ fn main() {
     // Using lambda-style closure
     let add5_lambda = |b| add(5, b);
     
-    println!("{}", add5_closure(3));
-    println!("{}", add5_lambda(3));
+    log::info!("{}", add5_closure(3));
+    log::info!("{}", add5_lambda(3));
 }
 """
 expected_output = """8
@@ -532,9 +532,9 @@ fn multiply(a: i32, b: i32) -> i32 {
 
 fn main() {
     let double = |b| multiply(2, b);
-    println!("Function name: multiply");
-    println!("Frozen args: (2,)");
-    println!("Result: {}", double(5));
+    log::info!("Function name: multiply");
+    log::info!("Frozen args: (2,)");
+    log::info!("Result: {}", double(5));
 }
 """
 expected_output = """Function name: multiply
@@ -566,7 +566,7 @@ fn add_three(a: i32, b: i32, c: i32) -> i32 {
 fn main() {
     let add_10 = |b, c| add_three(10, b, c);
     let add_10_20 = |c| add_10(20, c);
-    println!("{}", add_10_20(30));
+    log::info!("{}", add_10_20(30));
 }
 """
 expected_output = "60"
@@ -594,7 +594,7 @@ fn main() {
         all_args.extend_from_slice(rest);
         sum_all(&all_args)
     };
-    println!("{}", add_to_10(&[20, 30]));
+    log::info!("{}", add_to_10(&[20, 30]));
 }
 """
 expected_output = "60"
@@ -627,7 +627,7 @@ fn main() {
     let mut args = HashMap::new();
     args.insert("b", 20);
     args.insert("c", 30);
-    println!("{}", with_a(args));
+    log::info!("{}", with_a(args));
 }
 """
 expected_output = "60"
@@ -656,7 +656,7 @@ fn main() {
     let hello_greeter = |name, greeting_override: Option<&str>| {
         greet(name, greeting_override.unwrap_or("Hello"))
     };
-    println!("{}", hello_greeter("Alice", Some("Hi")));
+    log::info!("{}", hello_greeter("Alice", Some("Hi")));
 }
 """
 expected_output = "Hi, Alice!"

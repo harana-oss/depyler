@@ -116,9 +116,9 @@ pub fn test_binary_search() {
         (vec![42], 42, 0),
         (vec![42], 41, -1),
     ];
-    println!("{}", "Testing binary_search...");
+    log::info!("{}", "Testing binary_search...");
     for (_arr, _target, _expected) in test_cases.iter().cloned() {
-        println!(
+        log::info!(
             "{}",
             format!(
                 "  ✓ binary_search({:?}, {:?}) = {:?}",
@@ -137,9 +137,9 @@ pub fn test_calculate_sum() {
         (vec![42], 42),
         (vec![-1, -2, -3], -6),
     ];
-    println!("{}", "\nTesting calculate_sum...");
+    log::info!("{}", "\nTesting calculate_sum...");
     for (_numbers, _expected) in test_cases.iter().cloned() {
-        println!(
+        log::info!(
             "{}",
             format!("  ✓ calculate_sum({:?}) = {:?}", numbers, expected)
         );
@@ -182,9 +182,9 @@ pub fn test_process_config() {
             "false",
         ),
     ];
-    println!("{}", "\nTesting process_config...");
+    log::info!("{}", "\nTesting process_config...");
     for (_config, _expected) in test_cases.iter().cloned() {
-        println!(
+        log::info!(
             "{}",
             format!("  ✓ process_config({:?}) = {:?}", config, expected)
         );
@@ -200,9 +200,9 @@ pub fn test_classify_number() {
         (1, "positive"),
         (-1, "negative"),
     ];
-    println!("{}", "\nTesting classify_number...");
+    log::info!("{}", "\nTesting classify_number...");
     for (_n, _expected) in test_cases.iter().cloned() {
-        println!(
+        log::info!(
             "{}",
             format!("  ✓ classify_number({:?}) = {:?}", n, expected)
         );
@@ -662,30 +662,30 @@ pub fn fibonacci(n: i32) -> i32 {
 #[doc = " Depyler: verified panic-free"]
 #[doc = " Depyler: proven to terminate"]
 pub fn main() {
-    println!("{}", "=== Verification Demo ===");
+    log::info!("{}", "=== Verification Demo ===");
     let mut result = add(5, 3);
-    println!("{}", format!("Pure add: {:?}", result));
+    log::info!("{}", format!("Pure add: {:?}", result));
     let items = vec![10, 20, 30];
-    println!("{}", format!("Safe access: {:?}", safe_access(&items, 1)));
-    println!(
+    log::info!("{}", format!("Safe access: {:?}", safe_access(&items, 1)));
+    log::info!(
         "{}",
         format!("Safe access OOB: {:?}", safe_access(&items, 10))
     );
-    println!(
+    log::info!(
         "{}",
         format!("Concurrent: {:?}", concurrent_counter(100, 5))
     );
-    println!("{}", format!("Factorial(5): {:?}", factorial(5)));
-    println!("{}", format!("Safe divide: {:?}", safe_divide(10, 2)));
-    println!(
+    log::info!("{}", format!("Factorial(5): {:?}", factorial(5)));
+    log::info!("{}", format!("Safe divide: {:?}", safe_divide(10, 2)));
+    log::info!(
         "{}",
         format!("Safe divide by zero: {:?}", safe_divide(10, 0))
     );
     let stack = VerifiedStack::new(3);
     stack.push(1);
     stack.push(2);
-    println!("{}", format!("Stack size: {:?}", stack.size()));
-    println!("{}", format!("Stack pop: {:?}", stack.pop()));
+    log::info!("{}", format!("Stack size: {:?}", stack.size()));
+    log::info!("{}", format!("Stack pop: {:?}", stack.pop()));
 }
 #[cfg(test)]
 mod tests {

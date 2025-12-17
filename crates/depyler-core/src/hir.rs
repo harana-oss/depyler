@@ -288,10 +288,12 @@ pub struct ProtocolMethod {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct HirClass {
     pub name: String,
-    pub base_classes: Vec<String>, // For inheritance, empty for now
+    pub base_classes: Vec<String>,
     pub methods: Vec<HirMethod>,
     pub fields: Vec<HirField>,
     pub is_dataclass: bool,
+    pub is_enum: bool,
+    pub is_intflag: bool,
     pub docstring: Option<String>,
     pub annotations: TranspilationAnnotations,
 }

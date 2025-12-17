@@ -38,8 +38,8 @@ impl DynamicAttrs {
 
 fn main() {
     let obj = DynamicAttrs { attrs: HashMap::new() };
-    println!("{}", obj.get_attr("anything"));
-    println!("{}", obj.get_attr("foo"));
+    log::info!("{}", obj.get_attr("anything"));
+    log::info!("{}", obj.get_attr("foo"));
 }
 """
 
@@ -78,8 +78,8 @@ impl Obj {
 
 fn main() {
     let obj = Obj::new();
-    println!("{}", obj.real);
-    println!("{}", obj.get_attr("missing"));
+    log::info!("{}", obj.real);
+    log::info!("{}", obj.get_attr("missing"));
 }
 """
 
@@ -112,8 +112,8 @@ impl LazyAttrs {
 
 fn main() {
     let obj = LazyAttrs;
-    println!("{}", obj.get_attr("compute_something").unwrap());
-    println!("{}", obj.get_attr("compute_x").unwrap());
+    log::info!("{}", obj.get_attr("compute_something").unwrap());
+    log::info!("{}", obj.get_attr("compute_x").unwrap());
 }
 """
 
@@ -148,9 +148,9 @@ impl StrictAttrs {
 
 fn main() {
     let obj = StrictAttrs;
-    println!("{}", obj.get_attr("allowed").unwrap());
+    log::info!("{}", obj.get_attr("allowed").unwrap());
     match obj.get_attr("forbidden") {
-        Err(e) => println!("Error: {}", e),
+        Err(e) => log::info!("Error: {}", e),
         Ok(_) => {},
     }
 }
@@ -187,7 +187,7 @@ impl TrackedAttrs {
     }
     
     fn get_attribute(&self, name: &str) -> Option<i32> {
-        println!("Getting: {}", name);
+        log::info!("Getting: {}", name);
         match name {
             "value" => Some(self.value),
             _ => None,
@@ -197,7 +197,7 @@ impl TrackedAttrs {
 
 fn main() {
     let obj = TrackedAttrs::new();
-    println!("{}", obj.get_attribute("value").unwrap());
+    log::info!("{}", obj.get_attribute("value").unwrap());
 }
 """
 
@@ -226,7 +226,7 @@ impl AllAccess {
     }
     
     fn get_attribute(&self, name: &str) -> Option<&str> {
-        println!("Access: {}", name);
+        log::info!("Access: {}", name);
         match name {
             "existing" => Some(self.existing),
             _ => None,
@@ -267,7 +267,7 @@ impl Safe {
 
 fn main() {
     let obj = Safe::new();
-    println!("{}", obj.value);
+    log::info!("{}", obj.value);
 }
 """
 
@@ -315,8 +315,8 @@ impl Both {
 
 fn main() {
     let obj = Both::new();
-    println!("{}", obj.get_attribute("real"));
-    println!("{}", obj.get_attribute("missing"));
+    log::info!("{}", obj.get_attribute("real"));
+    log::info!("{}", obj.get_attribute("missing"));
 }
 """
 
@@ -351,7 +351,7 @@ impl TrackedSets {
     }
     
     fn set_attribute(&mut self, name: &str, value: i32) {
-        println!("Setting {} = {}", name, value);
+        log::info!("Setting {} = {}", name, value);
         match name {
             "x" => self.x = Some(value),
             "y" => self.y = Some(value),
@@ -364,7 +364,7 @@ fn main() {
     let mut obj = TrackedSets::new();
     obj.set_attribute("x", 10);
     obj.set_attribute("y", 20);
-    println!("{} {}", obj.x.unwrap(), obj.y.unwrap());
+    log::info!("{} {}", obj.x.unwrap(), obj.y.unwrap());
 }
 """
 
@@ -393,7 +393,7 @@ impl AllSets {
     }
     
     fn set(&mut self, name: &str, value: i32) {
-        println!("Set: {}", name);
+        log::info!("Set: {}", name);
         match name {
             "a" => self.a = Some(value),
             "b" => self.b = Some(value),
@@ -440,7 +440,7 @@ impl Safe {
 fn main() {
     let mut obj = Safe::new();
     obj.set_value(42);
-    println!("{}", obj.value);
+    log::info!("{}", obj.value);
 }
 """
 
@@ -484,9 +484,9 @@ impl Validated {
 fn main() {
     let mut obj = Validated::new();
     obj.set_age(25).unwrap();
-    println!("{}", obj.age);
+    log::info!("{}", obj.age);
     match obj.set_age(-5) {
-        Err(e) => println!("Error: {}", e),
+        Err(e) => log::info!("Error: {}", e),
         Ok(_) => {},
     }
 }
@@ -531,7 +531,7 @@ impl TrackedDel {
     }
     
     fn delete_attr(&mut self, name: &str) {
-        println!("Deleting {}", name);
+        log::info!("Deleting {}", name);
         self.attrs.remove(name);
     }
     
@@ -542,10 +542,10 @@ impl TrackedDel {
 
 fn main() {
     let mut obj = TrackedDel::new();
-    println!("{}", obj.get_attr("x").unwrap());
+    log::info!("{}", obj.get_attr("x").unwrap());
     obj.delete_attr("x");
     if obj.get_attr("x").is_none() {
-        println!("x was deleted");
+        log::info!("x was deleted");
     }
 }
 """
@@ -580,7 +580,7 @@ impl MyClass {
     }
     
     fn del_attr(&mut self, name: &str) {
-        println!("Removing: {}", name);
+        log::info!("Removing: {}", name);
         self.attrs.remove(name);
     }
 }
@@ -619,7 +619,7 @@ impl Resource {
     
     fn delete_file(&mut self) {
         if self.file.is_some() {
-            println!("Closing file");
+            log::info!("Closing file");
             self.file = None;
         }
     }
@@ -668,7 +668,7 @@ fn main() {
     let obj = Custom::new();
     let mut attrs = obj.dir();
     attrs.sort();
-    println!("{:?}", attrs);
+    log::info!("{:?}", attrs);
 }
 """
 
@@ -706,7 +706,7 @@ impl Obj {
 fn main() {
     let obj = Obj::new();
     let attrs = obj.dir();
-    println!("{}", attrs.contains(&"custom"));
+    log::info!("{}", attrs.contains(&"custom"));
 }
 """
 
@@ -747,7 +747,7 @@ fn main() {
     let api = API::new();
     let mut methods = api.dir();
     methods.sort();
-    println!("Available methods: {:?}", methods);
+    log::info!("Available methods: {:?}", methods);
 }
 """
 
@@ -801,7 +801,7 @@ impl Deref for Wrapper {
 fn main() {
     let inner = Inner { value: 42 };
     let wrapper = Wrapper::new(inner);
-    println!("{}", wrapper.value);
+    log::info!("{}", wrapper.value);
 }
 """
 
@@ -836,8 +836,8 @@ impl Computed {
 
 fn main() {
     let obj = Computed;
-    println!("{}", obj.get_attr("double_5").unwrap());
-    println!("{}", obj.get_attr("double_10").unwrap());
+    log::info!("{}", obj.get_attr("double_5").unwrap());
+    log::info!("{}", obj.get_attr("double_10").unwrap());
 }
 """
 
@@ -873,12 +873,12 @@ impl Logged {
     }
     
     fn get_value(&self) -> i32 {
-        println!("Get: value");
+        log::info!("Get: value");
         self.value
     }
     
     fn set_value(&mut self, value: i32) {
-        println!("Set: value = {}", value);
+        log::info!("Set: value = {}", value);
         self.value = value;
     }
 }
@@ -886,7 +886,7 @@ impl Logged {
 fn main() {
     let mut obj = Logged::new();
     obj.set_value(10);
-    println!("{}", obj.get_value());
+    log::info!("{}", obj.get_value());
 }
 """
 
@@ -926,7 +926,7 @@ impl Validated {
 fn main() {
     let mut obj = Validated::new();
     obj.set_positive(10).unwrap();
-    println!("{}", obj.positive);
+    log::info!("{}", obj.positive);
 }
 """
 
@@ -972,8 +972,8 @@ impl Slotted {
 
 fn main() {
     let obj = Slotted::new();
-    println!("{}", obj.x);
-    println!("{}", obj.get_attr("missing"));
+    log::info!("{}", obj.x);
+    log::info!("{}", obj.get_attr("missing"));
 }
 """
 
@@ -1001,7 +1001,7 @@ struct Special;
 
 impl Special {
     fn get_attribute(&self, name: &str) {
-        println!("Getting: {}", name);
+        log::info!("Getting: {}", name);
     }
 }
 
@@ -1014,7 +1014,7 @@ impl fmt::Display for Special {
 fn main() {
     let obj = Special;
     let result = obj.to_string();
-    println!("{}", result);
+    log::info!("{}", result);
 }
 """
 
@@ -1062,6 +1062,6 @@ impl Container {
 fn main() {
     let obj = Container;
     let desc = obj.get_attr("desc").unwrap();
-    println!("Descriptor");
+    log::info!("Descriptor");
 }
 """

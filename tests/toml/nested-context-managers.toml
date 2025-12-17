@@ -334,7 +334,7 @@ impl Resource {
         return self;
     }
     pub fn __exit__(&self, exc_type: serde_json::Value, exc_val: serde_json::Value, exc_tb: serde_json::Value) -> bool {
-        println!("{}", "cleanup".to_string());
+        log::info!("{}", "cleanup".to_string());
         return false;
     }
 }
@@ -345,7 +345,7 @@ pub fn use_resources(count: i32) {
     for r in resources.iter().cloned() {
         stack.enter_context(r);
     }
-    println!("{}", "Using resources");
+    log::info!("{}", "Using resources");
 }
 '''
 
@@ -449,7 +449,7 @@ pub fn conditional_context(use_real: bool) {
         nullcontext()
     };
     let _context = cm;
-    println!("{}", "Body executes either way");
+    log::info!("{}", "Body executes either way");
 }
 '''
 

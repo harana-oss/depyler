@@ -401,3 +401,211 @@ pub fn triangular_random(low: f64, high: f64, mode: f64) -> f64 {
     };
 }
 '''
+
+# =============================================================================
+# Randrange Variants
+# =============================================================================
+
+[[test]]
+name = "random_randrange_stop_only"
+description = "random.randrange(stop) - single argument"
+
+python = '''
+import random
+
+def get_random_below(n: int) -> int:
+    return random.randrange(n)
+'''
+
+rust = '''
+use rand as random;
+use rand::Rng;
+use rand::prelude::*;
+use rand::rngs::SmallRng;
+use rand::SeedableRng;
+pub fn get_random_below(n: i32) -> i32 {
+    return {
+        thread_local! {
+            static RNG: std::cell::RefCell<SmallRng> = std::cell::RefCell::new(SmallRng::from_os_rng());
+        }
+        RNG.with(|rng| rng.borrow_mut().gen_range(0..n))
+    };
+}
+'''
+
+[[test]]
+name = "random_randrange_start_stop"
+description = "random.randrange(start, stop) - two arguments"
+
+python = '''
+import random
+
+def get_random_range(start: int, stop: int) -> int:
+    return random.randrange(start, stop)
+'''
+
+rust = '''
+use rand as random;
+use rand::Rng;
+use rand::prelude::*;
+use rand::rngs::SmallRng;
+use rand::SeedableRng;
+pub fn get_random_range(start: i32, stop: i32) -> i32 {
+    return {
+        thread_local! {
+            static RNG: std::cell::RefCell<SmallRng> = std::cell::RefCell::new(SmallRng::from_os_rng());
+        }
+        RNG.with(|rng| rng.borrow_mut().gen_range(start..stop))
+    };
+}
+'''
+
+[[test]]
+name = "random_randrange_step"
+description = "random.randrange(start, stop, step) - with step"
+
+python = '''
+import random
+
+def get_random_stepped(start: int, stop: int, step: int) -> int:
+    return random.randrange(start, stop, step)
+'''
+
+rust = '''
+use rand as random;
+use rand::Rng;
+use rand::prelude::*;
+use rand::rngs::SmallRng;
+use rand::SeedableRng;
+pub fn get_random_stepped(start: i32, stop: i32, step: i32) -> i32 {
+    return {
+        thread_local! {
+            static RNG: std::cell::RefCell<SmallRng> = std::cell::RefCell::new(SmallRng::from_os_rng());
+        }
+        let start = start;
+        let stop = stop;
+        let step = step;
+        let num_steps = ((stop - start) / step).max(0);
+        let offset = RNG.with(|rng| rng.borrow_mut().gen_range(0..num_steps));
+        start + offset * step
+    };
+}
+'''
+
+# =============================================================================
+# Random Class Instance
+# =============================================================================
+
+[[test]]
+name = "random_class_seeded"
+description = "random.Random(seed) class instantiation"
+
+python = '''
+import random
+
+def create_seeded_rng(seed: int) -> int:
+    rng = random.Random(seed)
+    return 0
+'''
+
+rust = '''
+use rand as random;
+use rand::Rng;
+use rand::prelude::*;
+use rand::rngs::SmallRng;
+use rand::SeedableRng;
+pub fn create_seeded_rng(seed: i32) -> i32 {
+    let rng = SmallRng::seed_from_u64(seed as u64);
+    return 0;
+}
+'''
+
+[[test]]
+name = "random_class_no_seed"
+description = "random.Random() without seed"
+
+python = '''
+import random
+
+def create_random_rng() -> int:
+    rng = random.Random()
+    return 0
+'''
+
+rust = '''
+use rand as random;
+use rand::Rng;
+use rand::prelude::*;
+use rand::rngs::SmallRng;
+use rand::SeedableRng;
+pub fn create_random_rng() -> i32 {
+    let rng = SmallRng::from_os_rng();
+    return 0;
+}
+'''
+
+# =============================================================================
+# SystemRandom for Cryptographic Use
+# =============================================================================
+
+[[test]]
+name = "random_system_random"
+description = "random.SystemRandom() for cryptographic use"
+
+python = '''
+import random
+
+def create_secure_rng() -> int:
+    secure_rng = random.SystemRandom()
+    return 0
+'''
+
+rust = '''
+use rand as random;
+use rand::Rng;
+use rand::prelude::*;
+use rand::rngs::SmallRng;
+use rand::SeedableRng;
+pub fn create_secure_rng() -> i32 {
+    let secure_rng = rand::rngs::OsRng;
+    return 0;
+}
+'''
+
+# =============================================================================
+# Seed for Reproducibility
+# =============================================================================
+
+[[test]]
+name = "random_seed_value"
+description = "random.seed(value) for reproducibility"
+
+python = '''
+import random
+
+def set_seed_and_get(seed: int) -> int:
+    random.seed(seed)
+    return random.randrange(100)
+'''
+
+rust = '''
+use rand as random;
+use rand::Rng;
+use rand::prelude::*;
+use rand::rngs::SmallRng;
+use rand::SeedableRng;
+pub fn set_seed_and_get(seed: i32) -> i32 {
+    {
+        thread_local! {
+            static RNG: std::cell::RefCell<SmallRng> = std::cell::RefCell::new(SmallRng::from_os_rng());
+        }
+        RNG.with(|rng| *rng.borrow_mut() = SmallRng::seed_from_u64(seed as u64));
+    };
+    return {
+        thread_local! {
+            static RNG: std::cell::RefCell<SmallRng> = std::cell::RefCell::new(SmallRng::from_os_rng());
+        }
+        RNG.with(|rng| rng.borrow_mut().gen_range(0..100))
+    };
+}
+'''

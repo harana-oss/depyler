@@ -51,7 +51,7 @@ rust = '''
 // Code at module level runs when module is loaded
 const VERSION: &str = "1.0.0";
 let result = true;
-println!("Rust module initialization happens on first use");
+log::info!("Rust module initialization happens on first use");
 '''
 
 
@@ -140,7 +140,7 @@ rust = '''
 // In lib.rs: mod submodule;  // Explicitly declares module
 // Submodules are not automatically included
 let result = true;
-println!("Rust modules must be explicitly declared");
+log::info!("Rust modules must be explicitly declared");
 '''
 
 
@@ -244,7 +244,7 @@ rust = '''
 // }
 // use pkg::sub;
 let result = true;
-println!("Rust uses 'use pkg::sub' for imports");
+log::info!("Rust uses 'use pkg::sub' for imports");
 '''
 
 
@@ -269,7 +269,7 @@ rust = '''
 // use std::collections::HashMap;
 // let map = HashMap::new();  // No std::collections:: prefix needed
 let result = true;
-println!("Rust uses 'use pkg::sub::item' for specific imports");
+log::info!("Rust uses 'use pkg::sub::item' for specific imports");
 '''
 
 

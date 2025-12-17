@@ -131,6 +131,10 @@ pub fn extract_dependencies(ctx: &CodeGenContext) -> Vec<Dependency> {
         deps.push(Dependency::new("lazy_static", "1.4"));
     }
 
+    if ctx.needs_smallvec {
+        deps.push(Dependency::new("smallvec", "1.0"));
+    }
+
     deps
 }
 
@@ -303,7 +307,9 @@ mod tests {
             needs_arc: false,
             needs_rc: false,
             needs_cow: false,
+            needs_smallvec: false,
             needs_rand: true,
+            needs_small_rng: false,
             needs_slice_random: false,
             needs_serde_json: true,
             needs_regex: false,
@@ -339,6 +345,7 @@ mod tests {
             generator_state_vars: std::collections::HashSet::new(),
             var_types: std::collections::HashMap::new(),
             class_names: std::collections::HashSet::new(),
+            enum_names: std::collections::HashSet::new(),
             class_field_types: std::collections::HashMap::new(),
             mutating_methods: std::collections::HashMap::new(),
             function_return_types: std::collections::HashMap::new(),
@@ -359,13 +366,18 @@ mod tests {
             stdlib_mappings: crate::stdlib_mappings::StdlibMappings::new(),
             current_func_mut_ref_params: std::collections::HashSet::new(),
             current_func_ref_params: std::collections::HashSet::new(),
+            shadowed_ref_params: std::collections::HashSet::new(),
             function_param_names: std::collections::HashMap::new(),
             var_usage_counts: std::collections::HashMap::new(),
             var_usage_current: std::collections::HashMap::new(),
             optional_vars: std::collections::HashSet::new(),
             lazy_static_constants: std::collections::HashSet::new(),
             is_assignment_target: false,
+            prevent_clone: false,
             returns_reference: false,
+            borrowable_vars: std::collections::HashSet::new(),
+            generate_borrow: false,
+            clone_already_applied: false,
         };
 
         // Property: Calling extract_dependencies multiple times returns same result
@@ -404,7 +416,9 @@ mod tests {
             needs_arc: false,
             needs_rc: false,
             needs_cow: false,
+            needs_smallvec: false,
             needs_rand: true,
+            needs_small_rng: false,
             needs_slice_random: false,
             needs_serde_json: true,
             needs_regex: true,
@@ -440,6 +454,7 @@ mod tests {
             generator_state_vars: HashSet::new(),
             var_types: std::collections::HashMap::new(),
             class_names: HashSet::new(),
+            enum_names: HashSet::new(),
             class_field_types: std::collections::HashMap::new(),
             mutating_methods: std::collections::HashMap::new(),
             function_return_types: std::collections::HashMap::new(),
@@ -460,13 +475,18 @@ mod tests {
             stdlib_mappings: crate::stdlib_mappings::StdlibMappings::new(),
             current_func_mut_ref_params: HashSet::new(),
             current_func_ref_params: HashSet::new(),
+            shadowed_ref_params: HashSet::new(),
             function_param_names: std::collections::HashMap::new(),
             var_usage_counts: std::collections::HashMap::new(),
             var_usage_current: std::collections::HashMap::new(),
             optional_vars: HashSet::new(),
             lazy_static_constants: HashSet::new(),
             is_assignment_target: false,
+            prevent_clone: false,
             returns_reference: false,
+            borrowable_vars: HashSet::new(),
+            generate_borrow: false,
+            clone_already_applied: false,
         };
 
         let deps = extract_dependencies(&ctx);
@@ -502,7 +522,9 @@ mod tests {
             needs_arc: false,
             needs_rc: false,
             needs_cow: false,
+            needs_smallvec: false,
             needs_rand: false,
+            needs_small_rng: false,
             needs_slice_random: false,
             needs_serde_json: true, // Enable serde_json
             needs_regex: false,
@@ -538,6 +560,7 @@ mod tests {
             generator_state_vars: HashSet::new(),
             var_types: std::collections::HashMap::new(),
             class_names: HashSet::new(),
+            enum_names: HashSet::new(),
             class_field_types: std::collections::HashMap::new(),
             mutating_methods: std::collections::HashMap::new(),
             function_return_types: std::collections::HashMap::new(),
@@ -558,13 +581,18 @@ mod tests {
             stdlib_mappings: crate::stdlib_mappings::StdlibMappings::new(),
             current_func_mut_ref_params: HashSet::new(),
             current_func_ref_params: HashSet::new(),
+            shadowed_ref_params: HashSet::new(),
             function_param_names: std::collections::HashMap::new(),
             var_usage_counts: std::collections::HashMap::new(),
             var_usage_current: std::collections::HashMap::new(),
             optional_vars: HashSet::new(),
             lazy_static_constants: HashSet::new(),
             is_assignment_target: false,
+            prevent_clone: false,
             returns_reference: false,
+            borrowable_vars: HashSet::new(),
+            generate_borrow: false,
+            clone_already_applied: false,
         };
 
         let deps = extract_dependencies(&ctx);
@@ -608,7 +636,9 @@ mod tests {
             needs_arc: false,
             needs_rc: false,
             needs_cow: false,
+            needs_smallvec: false,
             needs_rand: false,
+            needs_small_rng: false,
             needs_slice_random: false,
             needs_serde_json: false,
             needs_regex: false,
@@ -644,6 +674,7 @@ mod tests {
             generator_state_vars: HashSet::new(),
             var_types: std::collections::HashMap::new(),
             class_names: HashSet::new(),
+            enum_names: HashSet::new(),
             class_field_types: std::collections::HashMap::new(),
             mutating_methods: std::collections::HashMap::new(),
             function_return_types: std::collections::HashMap::new(),
@@ -664,13 +695,18 @@ mod tests {
             stdlib_mappings: crate::stdlib_mappings::StdlibMappings::new(),
             current_func_mut_ref_params: HashSet::new(),
             current_func_ref_params: HashSet::new(),
+            shadowed_ref_params: HashSet::new(),
             function_param_names: std::collections::HashMap::new(),
             var_usage_counts: std::collections::HashMap::new(),
             var_usage_current: std::collections::HashMap::new(),
             optional_vars: HashSet::new(),
             lazy_static_constants: HashSet::new(),
             is_assignment_target: false,
+            prevent_clone: false,
             returns_reference: false,
+            borrowable_vars: HashSet::new(),
+            generate_borrow: false,
+            clone_already_applied: false,
         };
 
         let deps = extract_dependencies(&ctx);

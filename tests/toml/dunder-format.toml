@@ -52,11 +52,11 @@ impl fmt::Display for Point {
 
 fn main() {
     let p = Point::new(3.0, 4.0);
-    println!("{}", p);
+    log::info!("{}", p);
     // Polar format would require custom implementation
     let r = (p.x.powi(2) + p.y.powi(2)).sqrt();
     let theta = p.y.atan2(p.x);
-    println!("({:.2}, {:.2})", r, theta);
+    log::info!("({:.2}, {:.2})", r, theta);
 }
 """
 expected_output = """(3, 4)
@@ -105,9 +105,9 @@ impl Temperature {
 
 fn main() {
     let temp = Temperature::new(25.0);
-    println!("{}", temp.format_spec(""));
-    println!("{}", temp.format_spec("F"));
-    println!("{}", temp.format_spec("K"));
+    log::info!("{}", temp.format_spec(""));
+    log::info!("{}", temp.format_spec("F"));
+    log::info!("{}", temp.format_spec("K"));
 }
 """
 expected_output = """25.0°C
@@ -155,9 +155,9 @@ impl Money {
 
 fn main() {
     let m = Money::new(42.5);
-    println!("{}", m.format_spec(""));
-    println!("{}", m.format_spec("USD"));
-    println!("{}", m.format_spec("EUR"));
+    log::info!("{}", m.format_spec(""));
+    log::info!("{}", m.format_spec("USD"));
+    log::info!("{}", m.format_spec("EUR"));
 }
 """
 expected_output = """42.50
@@ -202,8 +202,8 @@ impl Person {
 
 fn main() {
     let p = Person::new("Alice");
-    println!("{}", p.format_spec(""));
-    println!("{}", p.format_spec("full"));
+    log::info!("{}", p.format_spec(""));
+    log::info!("{}", p.format_spec("full"));
 }
 """
 expected_output = """Alice
@@ -258,9 +258,9 @@ impl Color {
 
 fn main() {
     let c = Color::new(255, 128, 64);
-    println!("{}", c.format_spec(""));
-    println!("{}", c.format_spec("hex"));
-    println!("{}", c.format_spec("rgb"));
+    log::info!("{}", c.format_spec(""));
+    log::info!("{}", c.format_spec("hex"));
+    log::info!("{}", c.format_spec("rgb"));
 }
 """
 expected_output = """Color(255, 128, 64)
@@ -299,9 +299,9 @@ impl Item {
 
 fn main() {
     let item = Item::new(42);
-    println!("'{:>10}'", item.value);
-    println!("'{:<10}'", item.value);
-    println!("'{:^10}'", item.value);
+    log::info!("'{:>10}'", item.value);
+    log::info!("'{:<10}'", item.value);
+    log::info!("'{:^10}'", item.value);
 }
 """
 expected_output = """'        42'
@@ -338,13 +338,13 @@ fn main() {
     // Center with *
     let left = padding / 2;
     let right = padding - left;
-    println!("{}{}{}", "*".repeat(left), label, "*".repeat(right));
+    log::info!("{}{}{}", "*".repeat(left), label, "*".repeat(right));
     
     // Right align with =
-    println!("{}{}", "=".repeat(padding), label);
+    log::info!("{}{}", "=".repeat(padding), label);
     
     // Left align with -
-    println!("{}{}", label, "-".repeat(padding));
+    log::info!("{}{}", label, "-".repeat(padding));
 }
 """
 expected_output = """****Hi****
@@ -389,8 +389,8 @@ impl Message {
 fn main() {
     let msg = Message::new("Hello");
     let b = msg.to_bytes();
-    println!("{:?}", b);
-    println!("Vec");
+    log::info!("{:?}", b);
+    log::info!("Vec");
 }
 """
 expected_output = """b'Hello'
@@ -429,8 +429,8 @@ impl Data {
 fn main() {
     let data = Data::new(vec![72, 101, 108, 108, 111]);
     let b = data.to_bytes();
-    println!("{:?}", b);
-    println!("{}", String::from_utf8(b.clone()).unwrap());
+    log::info!("{:?}", b);
+    log::info!("{}", String::from_utf8(b.clone()).unwrap());
 }
 """
 expected_output = """b'Hello'
@@ -480,8 +480,8 @@ impl Packet {
 fn main() {
     let packet = Packet::new(1, "test");
     let b = packet.to_bytes();
-    println!("{:?}", b);
-    println!("{}", b.len());
+    log::info!("{:?}", b);
+    log::info!("{}", b.len());
 }
 """
 expected_output = """b'\\x01\\x00\\x04test'
@@ -525,8 +525,8 @@ impl Container {
 fn main() {
     let c1 = Container::new(vec![1, 2, 3]);
     let c2 = Container::new(vec![]);
-    println!("{}", c1.to_bool());
-    println!("{}", c2.to_bool());
+    log::info!("{}", c1.to_bool());
+    log::info!("{}", c2.to_bool());
 }
 """
 expected_output = """True
@@ -566,8 +566,8 @@ impl Status {
 fn main() {
     let active = Status::new(true);
     let inactive = Status::new(false);
-    println!("{}", active.to_bool());
-    println!("{}", inactive.to_bool());
+    log::info!("{}", active.to_bool());
+    log::info!("{}", inactive.to_bool());
 }
 """
 expected_output = """True
@@ -610,16 +610,16 @@ impl Gate {
 fn main() {
     let gate = Gate::new(true);
     if gate.is_open {
-        println!("Gate is open");
+        log::info!("Gate is open");
     } else {
-        println!("Gate is closed");
+        log::info!("Gate is closed");
     }
     
     let gate2 = Gate::new(false);
     if gate2.is_open {
-        println!("Gate is open");
+        log::info!("Gate is open");
     } else {
-        println!("Gate is closed");
+        log::info!("Gate is closed");
     }
 }
 """
@@ -665,8 +665,8 @@ impl Queue {
 fn main() {
     let q1 = Queue::new(vec![1, 2, 3]);
     let q2 = Queue::new(vec![]);
-    println!("{}", q1.to_bool());
-    println!("{}", q2.to_bool());
+    log::info!("{}", q1.to_bool());
+    log::info!("{}", q2.to_bool());
 }
 """
 expected_output = """True
@@ -702,10 +702,10 @@ fn main() {
     let thing = Thing::new(42);
     // In Rust, we need to explicitly define what "truthy" means
     // Python objects without __bool__ or __len__ are always True
-    println!("True");
+    log::info!("True");
     
     let thing2 = Thing::new(0);
-    println!("True");
+    log::info!("True");
 }
 """
 expected_output = """True
@@ -799,9 +799,9 @@ impl Fraction {
 
 fn main() {
     let f = Fraction::new(3, 4);
-    println!("{}", f.format_spec(""));
-    println!("{}", f.format_spec("dec"));
-    println!("{}", f.format_spec("perc"));
+    log::info!("{}", f.format_spec(""));
+    log::info!("{}", f.format_spec("dec"));
+    log::info!("{}", f.format_spec("perc"));
 }
 """
 expected_output = """3/4
@@ -868,11 +868,11 @@ fn main() {
     let result_fail = Result::new(false, None);
     
     if result_ok.success {
-        println!("Success!");
+        log::info!("Success!");
     }
     
     if !result_fail.success {
-        println!("Failed!");
+        log::info!("Failed!");
     }
 }
 """
@@ -974,10 +974,10 @@ impl Styled {
 
 fn main() {
     let s = Styled::new("hello world");
-    println!("{}", s.format_spec(""));
-    println!("{}", s.format_spec("u"));
-    println!("{}", s.format_spec("l"));
-    println!("{}", s.format_spec("t"));
+    log::info!("{}", s.format_spec(""));
+    log::info!("{}", s.format_spec("u"));
+    log::info!("{}", s.format_spec("l"));
+    log::info!("{}", s.format_spec("t"));
 }
 """
 expected_output = """hello world

@@ -3140,19 +3140,19 @@ pub fn analyze_vowel_consonant_ratio(
 #[doc = " Depyler: verified panic-free"]
 #[doc = " Depyler: proven to terminate"]
 pub fn process_text_pipeline() -> Result<(), Box<dyn std::error::Error>> {
-    println!("{}", "=== Comprehensive Text Processing Demo ===");
+    log::info!("{}", "=== Comprehensive Text Processing Demo ===");
     let sample_text: String = "\n    The quick brown fox jumps over the lazy dog. This is a sample text\n    for demonstrating text processing capabilities. Python is amazing!\n    We can analyze words, count frequencies, and find patterns easily.\n    ".to_string();
     let words: Vec<String> = tokenize_text(sample_text);
-    println!("{}", format!("Total words: {:?}", words.len() as i32));
+    log::info!("{}", format!("Total words: {:?}", words.len() as i32));
     let mut frequencies: HashMap<String, i32> = count_word_frequencies(&words)?;
-    println!(
+    log::info!(
         "{}",
         format!("Unique words: {:?}", frequencies.len() as i32)
     );
     let top_words: Vec<(String, i32)> = get_most_common_words(&frequencies, 5)?;
-    println!("{}", format!("Top 5 words: {:?}", top_words.len() as i32));
+    log::info!("{}", format!("Top 5 words: {:?}", top_words.len() as i32));
     let char_dist: HashMap<String, i32> = analyze_character_distribution(sample_text)?;
-    println!(
+    log::info!(
         "{}",
         format!(
             "Letters: {:?}, Digits: {:?}",
@@ -3161,9 +3161,9 @@ pub fn process_text_pipeline() -> Result<(), Box<dyn std::error::Error>> {
         )
     );
     let mut sentences: Vec<String> = extract_sentences(sample_text);
-    println!("{}", format!("Sentences: {:?}", sentences.len() as i32));
+    log::info!("{}", format!("Sentences: {:?}", sentences.len() as i32));
     let mut metrics: HashMap<String, f64> = calculate_readability_metrics(sample_text)?;
-    println!(
+    log::info!(
         "{}",
         format!(
             "Avg word length: {:?}",
@@ -3171,12 +3171,12 @@ pub fn process_text_pipeline() -> Result<(), Box<dyn std::error::Error>> {
         )
     );
     let length_groups: HashMap<i32, Vec<String>> = group_words_by_length(&words);
-    println!(
+    log::info!(
         "{}",
         format!("Length groups: {:?}", length_groups.len() as i32)
     );
     let patterns: HashMap<String, Vec<String>> = find_word_patterns(&words)?;
-    println!(
+    log::info!(
         "{}",
         format!(
             "Words starting with 'a': {:?}",
@@ -3188,23 +3188,23 @@ pub fn process_text_pipeline() -> Result<(), Box<dyn std::error::Error>> {
         )
     );
     let bigrams: Vec<String> = create_ngrams(&words, 2);
-    println!("{}", format!("Bigrams created: {:?}", bigrams.len() as i32));
+    log::info!("{}", format!("Bigrams created: {:?}", bigrams.len() as i32));
     let diversity: f64 = calculate_word_diversity(&words)?;
-    println!("{}", format!("Lexical diversity: {:?}", diversity));
+    log::info!("{}", format!("Lexical diversity: {:?}", diversity));
     let mut palindromes: Vec<String> = find_palindromes(&words)?;
-    println!(
+    log::info!(
         "{}",
         format!("Palindromes found: {:?}", palindromes.len() as i32)
     );
     let ratios: HashMap<String, f64> = analyze_vowel_consonant_ratio(sample_text)?;
-    println!(
+    log::info!(
         "{}",
         format!(
             "Vowel ratio: {:?}",
             ratios.get("vowel_ratio").cloned().unwrap_or_default()
         )
     );
-    println!("{}", "=== Processing Complete ===");
+    log::info!("{}", "=== Processing Complete ===");
     Ok(())
 }
 #[cfg(test)]

@@ -329,7 +329,7 @@ def print_items(items: list[int]) -> None:
 rust = '''
 pub fn print_items(items: &Vec<i32>) {
     for item in items.iter().cloned() {
-        println!("{}", item);
+        log::info!("{}", item);
     }
 }
 '''
@@ -1280,7 +1280,7 @@ impl Player {
 }
 pub fn print_player_names(players: &Vec<Player>) {
     for p in players.iter().cloned() {
-        println!("{}", p.name);
+        log::info!("{}", p.name);
     }
 }
 '''

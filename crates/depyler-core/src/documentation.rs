@@ -606,6 +606,8 @@ mod tests {
             }],
             base_classes: vec![],
             is_dataclass: false,
+            is_enum: false,
+            is_intflag: false,
             docstring: Some("A test class.".to_string()),
             annotations: TranspilationAnnotations::default(),
         };

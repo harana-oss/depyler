@@ -385,7 +385,7 @@ pub fn calculate_checksum(data: &Vec<i32>) -> i32 {
 #[doc = " Depyler: proven to terminate"]
 #[cold]
 pub fn handle_panic(message: String) {
-    println!("{}", format!("PANIC: {}", message));
+    log::info!("{}", format!("PANIC: {}", message));
 }
 #[doc = "Hash function with multiple attributes."]
 #[inline]
@@ -614,10 +614,10 @@ pub fn find_max(numbers: &Vec<serde_json::Value>) -> Result<i32, IndexError> {
 #[doc = " Depyler: verified panic-free"]
 #[doc = " Depyler: proven to terminate"]
 pub fn main() {
-    println!("{}", format!("Fibonacci(10) = {:?}", fibonacci(10)));
-    println!("{}", format!("Factorial(5) = {:?}", factorial(5)));
+    log::info!("{}", format!("Fibonacci(10) = {:?}", fibonacci(10)));
+    log::info!("{}", format!("Factorial(5) = {:?}", factorial(5)));
     let numbers = vec![3, 7, 2, 9, 1, 5];
-    println!(
+    log::info!(
         "{}",
         format!("Max of {:?} = {:?}", numbers, find_max(&numbers))
     );
@@ -1273,7 +1273,7 @@ class DepylerMCPClient:
 }
 
 fn main() {
-    println!("{}", add_numbers(5, 3));
+    log::info!("{}", add_numbers(5, 3));
 }""",
                 "compilation_command": "rustc --edition 2021 output.rs",
                 "metrics": {
@@ -2023,7 +2023,7 @@ pub fn string_concat_example(values: &serde_json::Value) -> String {
 #[doc = " Depyler: proven to terminate"]
 pub fn enumerate_example(data: &serde_json::Value) -> Result<(), IndexError> {
     for i in 0..data.len() as i32 {
-        println!(
+        log::info!(
             "{} {}",
             i,
             data.get(i as usize).cloned().unwrap_or_default()
@@ -2451,12 +2451,12 @@ pub fn binary_search(arr: &Vec<i32>, target: i32) -> Result<i32, Box<dyn std::er
 #[doc = " Depyler: proven to terminate"]
 pub fn test_functions() -> Result<(), Box<dyn std::error::Error>> {
     let result = fibonacci(10);
-    println!("{}", format!("Fibonacci(10) = {:?}", result));
+    log::info!("{}", format!("Fibonacci(10) = {:?}", result));
     let mut factors = find_prime_factors(60)?;
-    println!("{}", format!("Prime factors of 60: {:?}", factors));
+    log::info!("{}", format!("Prime factors of 60: {:?}", factors));
     let test_array = vec![1, 3, 5, 7, 9, 11, 13, 15, 17, 19];
     let index = binary_search(&test_array, 7)?;
-    println!("{}", format!("Index of 7: {:?}", index));
+    log::info!("{}", format!("Index of 7: {:?}", index));
 }
 #[cfg(test)]
 mod tests {
@@ -3342,7 +3342,7 @@ pub fn inefficient_string_building(items: &serde_json::Value) -> String {
 #[doc = " Depyler: proven to terminate"]
 pub fn enumerate_pattern(items: &serde_json::Value) {
     for _i in 0..items.len() as i32 {
-        println!(
+        log::info!(
             "{}",
             format!(
                 "{:?}: {:?}",

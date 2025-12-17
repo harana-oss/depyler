@@ -931,4 +931,31 @@ def create_map() -> Dict[str, int]:
         // Verify hash strategy was extracted
         assert_eq!(func.annotations.hash_strategy, depyler_annotations::HashStrategy::Fnv);
     }
+
+    #[test]
+    fn test_method_call_cse_list_index() {
+        let pipeline = DepylerPipeline::new();
+        let python_code = r#"
+GRID_RESULT = ["one", "two", "three"]
+def convert_field_position(grid_result: str) -> tuple[int, int]:
+    y_position = GRID_RESULT.index(grid_result) % 6
+    x_position = GRID_RESULT.index(grid_result) // 6
+    return (y_position, x_position)
+"#;
+
+        let rust_code = pipeline.transpile(python_code).unwrap();
+
+        // Should have CSE temp variable for the index call
+        assert!(
+            rust_code.contains("_cse_temp_"),
+            "Should create CSE temp for repeated method call.\nGenerated:\n{rust_code}"
+        );
+
+        // Count occurrences of position() to ensure it's not duplicated
+        let position_count = rust_code.matches(".position(").count() + rust_code.matches("iter().position(").count();
+        assert!(
+            position_count <= 1,
+            "list.index() should only be computed once, found {position_count} occurrences.\nGenerated:\n{rust_code}"
+        );
+    }
 }

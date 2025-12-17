@@ -1215,9 +1215,7 @@ fn analyze_mutable_vars(stmts: &[HirStmt], ctx: &mut CodeGenContext, params: &[H
     }
 }
 
-/// Convert Python classes to Rust structs
-///
-/// Processes all classes and generates token streams.
+/// Convert Python classes to Rust structs or enums
 fn convert_classes_to_rust(
     classes: &[HirClass],
     type_mapper: &crate::type_mapper::TypeMapper,
@@ -1225,7 +1223,6 @@ fn convert_classes_to_rust(
 ) -> Result<Vec<proc_macro2::TokenStream>> {
     let mut class_items = Vec::new();
     for class in classes {
-        // Check if class uses HashMap or HashSet types and update context
         for field in &class.fields {
             match &field.field_type {
                 Type::Dict(_, _) => {
@@ -1237,8 +1234,14 @@ fn convert_classes_to_rust(
                 _ => {}
             }
         }
-        
-        let items = crate::direct_rules::convert_class_to_struct(class, type_mapper)?;
+
+        let items = if class.is_intflag {
+            crate::direct_rules::convert_class_to_intflag(class)?
+        } else if class.is_enum {
+            crate::direct_rules::convert_class_to_enum(class)?
+        } else {
+            crate::direct_rules::convert_class_to_struct(class, type_mapper)?
+        };
         for item in items {
             let tokens = item.to_token_stream();
             class_items.push(tokens);
@@ -1308,6 +1311,8 @@ fn generate_conditional_imports(ctx: &CodeGenContext) -> Vec<proc_macro2::TokenS
         (ctx.needs_lazy_static, quote! { use lazy_static::lazy_static; }),
         (ctx.needs_rand, quote! { use rand::Rng; }),
         (ctx.needs_rand, quote! { use rand::prelude::*; }),
+        (ctx.needs_small_rng, quote! { use rand::rngs::SmallRng; }),
+        (ctx.needs_small_rng, quote! { use rand::SeedableRng; }),
         (ctx.needs_slice_random, quote! { use rand::seq::SliceRandom; }),
     ];
 
@@ -1316,6 +1321,16 @@ fn generate_conditional_imports(ctx: &CodeGenContext) -> Vec<proc_macro2::TokenS
         if needed {
             imports.push(import_tokens);
         }
+    }
+
+    // Add module-level thread_local RNG when SmallRng is needed
+    // This ensures the RNG is initialized once per thread and shared across all random calls
+    if ctx.needs_small_rng {
+        imports.push(quote! {
+            thread_local! {
+                static DEPYLER_RNG: std::cell::RefCell<SmallRng> = std::cell::RefCell::new(SmallRng::from_os_rng());
+            }
+        });
     }
 
     imports
@@ -1417,6 +1432,61 @@ fn infer_constant_type(expr: &HirExpr) -> Type {
                 UnaryOp::BitNot => infer_constant_type(operand),
             }
         }
+        // Handle binary operations - infer type from operands and operator
+        HirExpr::Binary { op, left, right } => {
+            use crate::hir::BinOp;
+            match op {
+                // Python's / always produces float
+                BinOp::Div => Type::Float,
+                // Floor division produces int
+                BinOp::FloorDiv => Type::Int,
+                // Comparison operators produce bool
+                BinOp::Eq
+                | BinOp::NotEq
+                | BinOp::Lt
+                | BinOp::LtEq
+                | BinOp::Gt
+                | BinOp::GtEq
+                | BinOp::In
+                | BinOp::NotIn
+                | BinOp::Is
+                | BinOp::IsNot => Type::Bool,
+                // Logical operators produce bool
+                BinOp::And | BinOp::Or => Type::Bool,
+                // Arithmetic operators: if either operand is float, result is float
+                BinOp::Add | BinOp::Sub | BinOp::Mul | BinOp::Mod | BinOp::Pow => {
+                    let left_type = infer_constant_type(left);
+                    let right_type = infer_constant_type(right);
+                    if matches!(left_type, Type::Float) || matches!(right_type, Type::Float) {
+                        Type::Float
+                    } else {
+                        Type::Int
+                    }
+                }
+                // Bitwise operators produce int
+                BinOp::BitAnd | BinOp::BitOr | BinOp::BitXor | BinOp::LShift | BinOp::RShift => Type::Int,
+            }
+        }
+        // Handle type conversion function calls
+        HirExpr::Call { func, args, .. } => match func.as_str() {
+            "int" => Type::Int,
+            "float" => Type::Float,
+            "str" => Type::String,
+            "bool" => Type::Bool,
+            "list" => Type::List(Box::new(Type::Unknown)),
+            "dict" => Type::Dict(Box::new(Type::Unknown), Box::new(Type::Unknown)),
+            "set" => Type::Set(Box::new(Type::Unknown)),
+            "tuple" => Type::Tuple(vec![]),
+            // Type-preserving functions: if any arg is float, result is float
+            "min" | "max" | "abs" | "sum" => {
+                if args.iter().any(|arg| matches!(infer_constant_type(arg), Type::Float)) {
+                    Type::Float
+                } else {
+                    Type::Int
+                }
+            }
+            _ => Type::Unknown,
+        },
         HirExpr::List(elems) => {
             if elems.is_empty() {
                 Type::List(Box::new(Type::Unknown))
@@ -1506,7 +1576,7 @@ fn generate_constant_tokens(
         }
     }
 
-    // Combine results: const items first, then lazy_static block if needed
+    // Combine results: const items, then lazy_static block
     let mut items = const_items;
     if !lazy_static_items.is_empty() {
         items.push(quote! {
@@ -1529,8 +1599,14 @@ pub fn generate_rust_file(
     // Process imports to populate the context
     let (imported_modules, imported_items) = process_module_imports(&module.imports, &module_mapper);
 
-    // Extract class names from module
+    // Extract class names and enum names from module
     let class_names: HashSet<String> = module.classes.iter().map(|class| class.name.clone()).collect();
+    let enum_names: HashSet<String> = module
+        .classes
+        .iter()
+        .filter(|c| c.is_enum)
+        .map(|c| c.name.clone())
+        .collect();
 
     // Extract class field types for ownership analysis
     let mut class_field_types: std::collections::HashMap<String, std::collections::HashMap<String, crate::hir::Type>> =
@@ -1568,7 +1644,9 @@ pub fn generate_rust_file(
         needs_arc: false,
         needs_rc: false,
         needs_cow: false,
+        needs_smallvec: false,
         needs_rand: false,
+        needs_small_rng: false,
         needs_slice_random: false,
         needs_serde_json: false,
         needs_regex: false,
@@ -1604,6 +1682,7 @@ pub fn generate_rust_file(
         generator_state_vars: HashSet::new(),
         var_types: std::collections::HashMap::new(),
         class_names,
+        enum_names,
         class_field_types,
         mutating_methods,
         function_return_types: std::collections::HashMap::new(), // Track function return types
@@ -1623,6 +1702,7 @@ pub fn generate_rust_file(
         stdlib_mappings: crate::stdlib_mappings::StdlibMappings::new(), // Stdlib API mappings
         current_func_mut_ref_params: HashSet::new(),             // Track &mut ref params in current function
         current_func_ref_params: HashSet::new(),                 // Track & ref params in current function
+        shadowed_ref_params: HashSet::new(),                     // Track vars that shadow ref params
         function_param_names: std::collections::HashMap::new(),  // Track function parameter names
         function_param_types: std::collections::HashMap::new(),  // Track function parameter types
         var_usage_counts: std::collections::HashMap::new(),      // Variable usage counts for clone analysis
@@ -1630,7 +1710,11 @@ pub fn generate_rust_file(
         optional_vars: HashSet::new(),                           // Track vars declared as Option<T>
         lazy_static_constants: HashSet::new(),                   // Track lazy_static constants (need deref)
         is_assignment_target: false,                             // Flag for assignment target context
-        returns_reference: false,                                // Flag for reference return type
+        prevent_clone: false,            // Flag to prevent cloning without affecting get/get_mut
+        returns_reference: false,        // Flag for reference return type
+        borrowable_vars: HashSet::new(), // Track variables that can be borrowed
+        generate_borrow: false,          // Flag for generating borrow instead of clone
+        clone_already_applied: false,    // Flag to prevent duplicate .clone() calls
     };
 
     // Must run BEFORE function conversion so validator parameter types are correct
@@ -1757,13 +1841,6 @@ pub fn generate_rust_file(
     // Add all functions
     items.extend(functions);
 
-    // Generate tests for all functions in a single test module
-    // instead of one per function, which caused "the name `tests` is defined multiple times" errors
-    let test_gen = crate::test_generation::TestGenerator::new(Default::default());
-    if let Some(test_module) = test_gen.generate_tests_module(&module.functions)? {
-        items.push(test_module);
-    }
-
     let file = quote! {
         #(#items)*
     };
@@ -1814,7 +1891,9 @@ mod tests {
             needs_arc: false,
             needs_rc: false,
             needs_cow: false,
+            needs_smallvec: false,
             needs_rand: false,
+            needs_small_rng: false,
             needs_slice_random: false,
             needs_serde_json: false,
             needs_regex: false,
@@ -1850,6 +1929,7 @@ mod tests {
             generator_state_vars: HashSet::new(),
             var_types: std::collections::HashMap::new(),
             class_names: HashSet::new(),
+            enum_names: HashSet::new(),
             class_field_types: std::collections::HashMap::new(),
             mutating_methods: std::collections::HashMap::new(),
             function_return_types: std::collections::HashMap::new(), // Track function return types
@@ -1869,6 +1949,7 @@ mod tests {
             stdlib_mappings: crate::stdlib_mappings::StdlibMappings::new(),
             current_func_mut_ref_params: HashSet::new(), // Track &mut ref params in current function
             current_func_ref_params: HashSet::new(),     // Track & ref params in current function
+            shadowed_ref_params: HashSet::new(),         // Track vars that shadow ref params
             function_param_names: std::collections::HashMap::new(), // Track function parameter names
             function_param_types: std::collections::HashMap::new(), // Track function parameter types
             var_usage_counts: std::collections::HashMap::new(), // Variable usage counts for clone analysis
@@ -1876,7 +1957,11 @@ mod tests {
             optional_vars: HashSet::new(),               // Track vars declared as Option<T>
             lazy_static_constants: HashSet::new(),       // Track lazy_static constants (need deref)
             is_assignment_target: false,                 // Flag for assignment target context
+            prevent_clone: false,                        // Flag to prevent cloning without affecting get/get_mut
             returns_reference: false,                    // Flag for reference return type
+            borrowable_vars: HashSet::new(),             // Track variables that can be borrowed
+            generate_borrow: false,                      // Flag for generating borrow instead of clone
+            clone_already_applied: false,                // Flag to prevent duplicate .clone() calls
         }
     }
 
@@ -2364,6 +2449,83 @@ mod tests {
     }
 
     #[test]
+    fn test_int_cast_with_division_uses_float_semantics() {
+        // Python: int(5 * A + (A / 2)) where A=5 gives 27 (5*5 + 2.5 = 27.5 → 27)
+        // Bug: A / 2 was being treated as integer division
+        // Fix: Python's / operator always produces float, so A / 2 → (A as f64 / 2.0)
+
+        // Build: int(5 * A + (A / 2))
+        let a_var = HirExpr::Var("A".to_string());
+        let a_div_2 = HirExpr::Binary {
+            op: BinOp::Div,
+            left: Box::new(a_var.clone()),
+            right: Box::new(HirExpr::Literal(Literal::Int(2))),
+        };
+        let five_times_a = HirExpr::Binary {
+            op: BinOp::Mul,
+            left: Box::new(HirExpr::Literal(Literal::Int(5))),
+            right: Box::new(a_var.clone()),
+        };
+        let sum = HirExpr::Binary {
+            op: BinOp::Add,
+            left: Box::new(five_times_a),
+            right: Box::new(a_div_2),
+        };
+
+        let call_expr = HirExpr::Call {
+            func: "int".to_string(),
+            args: vec![sum],
+            kwargs: vec![],
+            type_params: vec![],
+        };
+
+        let mut ctx = create_test_context();
+        // Set A as an integer constant
+        ctx.var_types.insert("A".to_string(), Type::Int);
+
+        let result = call_expr.to_rust_expr(&mut ctx).unwrap();
+        let code = quote! { #result }.to_string();
+
+        // The division A / 2 should use float semantics - both operands need f64 cast
+        // Should produce something like: ((5 * A) as f64 + (A as f64) / (2 as f64)) as i32
+        // The key check: the division operand `2` should be cast to f64, not just used as int
+        assert!(
+            code.contains("2 as f64")
+                || code.contains("2.0")
+                || code.contains("2i32 as f64")
+                || code.contains("2_i32 as f64"),
+            "Division right operand should be cast to f64 for Python's / operator, got: {}",
+            code
+        );
+        assert!(code.contains("as i32"), "Should cast result to i32, got: {}", code);
+    }
+
+    #[test]
+    fn test_python_division_always_produces_float() {
+        // Python's / operator ALWAYS produces float, even with integer operands
+        // This is different from // (floor division)
+        let a_div_b = HirExpr::Binary {
+            op: BinOp::Div,
+            left: Box::new(HirExpr::Var("a".to_string())),
+            right: Box::new(HirExpr::Var("b".to_string())),
+        };
+
+        let mut ctx = create_test_context();
+        ctx.var_types.insert("a".to_string(), Type::Int);
+        ctx.var_types.insert("b".to_string(), Type::Int);
+
+        let result = a_div_b.to_rust_expr(&mut ctx).unwrap();
+        let code = quote! { #result }.to_string();
+
+        // Should produce: (a as f64) / (b as f64) or similar
+        assert!(
+            code.contains("as f64") || code.contains("f64"),
+            "Python / operator should produce float division for int/int, got: {}",
+            code
+        );
+    }
+
+    #[test]
     fn test_float_literal_decimal_point() {
         // Regression test for
         // Bug: f64::to_string() for 0.0 produces "0" (no decimal), parsed as integer
@@ -2602,6 +2764,37 @@ mod tests {
             code.contains("-> f64") || code.contains("-> f32"),
             "Expected float return type, got: {}",
             code
+        );
+    }
+
+    #[test]
+    fn test_enum_type_is_copy_no_clone_needed() {
+        // Enums derive Copy, so they shouldn't need .clone()
+        let mut ctx = create_test_context();
+        ctx.enum_names.insert("Team".to_string());
+        ctx.var_types
+            .insert("team".to_string(), crate::hir::Type::Custom("Team".to_string()));
+
+        // var_needs_clone should return false for enum types
+        assert!(
+            !ctx.var_needs_clone("team"),
+            "Enum types implement Copy, so var_needs_clone should return false"
+        );
+    }
+
+    #[test]
+    fn test_struct_type_needs_clone() {
+        // Structs don't derive Copy, so they need .clone()
+        let mut ctx = create_test_context();
+        ctx.var_types
+            .insert("player".to_string(), crate::hir::Type::Custom("Player".to_string()));
+        // Simulate multiple uses to trigger clone
+        ctx.var_usage_counts.insert("player".to_string(), 2);
+
+        // var_needs_clone should return true for struct types
+        assert!(
+            ctx.var_needs_clone("player"),
+            "Struct types don't implement Copy, so var_needs_clone should return true"
         );
     }
 }

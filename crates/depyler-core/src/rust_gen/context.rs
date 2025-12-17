@@ -51,7 +51,9 @@ pub struct CodeGenContext<'a> {
     pub needs_arc: bool,
     pub needs_rc: bool,
     pub needs_cow: bool,
+    pub needs_smallvec: bool,
     pub needs_rand: bool,
+    pub needs_small_rng: bool,
     pub needs_slice_random: bool,
     pub needs_serde_json: bool,
     pub needs_regex: bool,
@@ -87,6 +89,7 @@ pub struct CodeGenContext<'a> {
     pub generator_state_vars: HashSet<String>,
     pub var_types: HashMap<String, Type>,
     pub class_names: HashSet<String>,
+    pub enum_names: HashSet<String>,
     /// Map from class name to map of field name to field type
     pub class_field_types: HashMap<String, HashMap<String, Type>>,
     pub mutating_methods: HashMap<String, HashSet<String>>,
@@ -115,6 +118,9 @@ pub struct CodeGenContext<'a> {
     /// Track parameters in the current function that are & references (immutable)
     pub current_func_ref_params: HashSet<String>,
 
+    /// Track variables that shadow ref params (e.g., for-loop variables with same name)
+    pub shadowed_ref_params: HashSet<String>,
+
     pub function_param_names: HashMap<String, Vec<String>>,
 
     /// Track function parameter types for Optional unwrap analysis
@@ -132,11 +138,27 @@ pub struct CodeGenContext<'a> {
     pub lazy_static_constants: HashSet<String>,
 
     /// Flag to indicate we're generating code for an assignment target (LHS)
-    /// When true, variables should not be cloned even if they have multiple uses
+    /// When true, use get_mut() for array access and as_mut() for Optional access
     pub is_assignment_target: bool,
+
+    /// Flag to temporarily prevent cloning during expression generation
+    /// Unlike is_assignment_target, this does NOT affect get() vs get_mut() choice
+    pub prevent_clone: bool,
 
     /// Flag to indicate the current function returns a reference (to avoid cloning in return expressions)
     pub returns_reference: bool,
+
+    /// Variables that can be borrowed instead of cloned (from usage analysis)
+    /// Key: variable name, Value: true if the variable should be borrowed
+    pub borrowable_vars: HashSet<String>,
+
+    /// Flag to indicate we should generate a borrow instead of clone for the current expression
+    pub generate_borrow: bool,
+
+    /// Flag to indicate that a .clone() has already been added to the current expression.
+    /// This prevents duplicate .clone() calls when multiple code paths try to add cloning.
+    /// Reset to false at the start of each new expression conversion.
+    pub clone_already_applied: bool,
 }
 
 impl<'a> CodeGenContext<'a> {
@@ -171,6 +193,34 @@ impl<'a> CodeGenContext<'a> {
     pub fn declare_var(&mut self, var_name: &str) {
         if let Some(current_scope) = self.declared_vars.last_mut() {
             current_scope.insert(var_name.to_string());
+        }
+    }
+
+    /// Set the generate_borrow flag
+    pub fn set_generate_borrow(&mut self, value: bool) {
+        self.generate_borrow = value;
+    }
+
+    /// Check if a variable should be borrowed instead of cloned
+    pub fn should_borrow_var(&self, var_name: &str) -> bool {
+        self.borrowable_vars.contains(var_name)
+    }
+
+    /// Mark a variable as borrowable
+    pub fn mark_as_borrowable(&mut self, var_name: &str) {
+        self.borrowable_vars.insert(var_name.to_string());
+    }
+
+    /// Check if an attribute field is a Copy type (doesn't need borrowing or cloning)
+    /// Returns true if the field is definitely a Copy type, false otherwise.
+    /// For unknown types, returns true to avoid incorrect borrowing of primitives.
+    pub fn is_attribute_copy_type(&self, value: &Box<crate::hir::HirExpr>, attr: &str) -> bool {
+        if let Some(field_type) = self.get_attribute_field_type(value, attr) {
+            !self.type_needs_clone(&field_type)
+        } else {
+            // Unknown type - assume Copy to avoid incorrectly borrowing primitives
+            // like nested field access (e.g., state.ball_location.x)
+            true
         }
     }
 
@@ -475,9 +525,15 @@ impl<'a> CodeGenContext<'a> {
 
     /// Check if a variable needs cloning (non-Copy type with multiple uses)
     pub fn var_needs_clone(&mut self, var_name: &str) -> bool {
+        // Variables from tuple iteration over string literals are &str (Copy type)
+        // They don't need .clone() - .to_string() will be added when needed
+        if self.tuple_iter_vars.contains(var_name) {
+            return false;
+        }
+
         // Check if the variable type is non-Copy
-        let var_type = self.var_types.get(var_name);
-        let is_non_copy = var_type.is_some_and(|t| Self::type_needs_clone(t));
+        let var_type = self.var_types.get(var_name).cloned();
+        let is_non_copy = var_type.as_ref().is_some_and(|t| self.type_needs_clone(t));
 
         if !is_non_copy {
             return false;
@@ -488,30 +544,483 @@ impl<'a> CodeGenContext<'a> {
     }
 
     /// Check if a type needs clone (is not Copy)
-    fn type_needs_clone(ty: &Type) -> bool {
+    fn type_needs_clone(&self, ty: &Type) -> bool {
         match ty {
             // Copy types - don't need clone
             Type::Int | Type::Float | Type::Bool | Type::None => false,
             // Non-Copy types - need clone
-            Type::String | Type::List(_) | Type::Dict(_, _) | Type::Set(_) | Type::Custom(_) => true,
+            Type::String | Type::List(_) | Type::Dict(_, _) | Type::Set(_) => true,
+            // Custom types: enums derive Copy, structs don't
+            Type::Custom(name) => !self.enum_names.contains(name),
             // Optional needs clone if inner type needs clone
-            Type::Optional(inner) => Self::type_needs_clone(inner),
+            Type::Optional(inner) => self.type_needs_clone(inner),
             // Tuple needs clone if any element needs clone
-            Type::Tuple(types) => types.iter().any(Self::type_needs_clone),
+            Type::Tuple(types) => types.iter().any(|t| self.type_needs_clone(t)),
             // Arrays, Generics, Functions, etc. - assume need clone for safety
             Type::Array { .. } | Type::Generic { .. } | Type::Function { .. } | Type::Union(_) => true,
             // TypeVar and Unknown - assume need clone
             Type::TypeVar(_) | Type::Unknown => true,
             // Final wraps another type
-            Type::Final(inner) => Self::type_needs_clone(inner),
+            Type::Final(inner) => self.type_needs_clone(inner),
         }
     }
 
     /// Analyze variable usage in function body before code generation
     pub fn analyze_var_usage(&mut self, stmts: &[crate::hir::HirStmt]) {
         self.reset_var_usage();
+        self.borrowable_vars.clear();
+
+        // First pass: identify field-source variables and count all uses
+        let field_source_vars = self.collect_field_source_vars(stmts);
         for stmt in stmts {
             self.count_var_uses_in_stmt(stmt);
+        }
+
+        // Second pass: analyze if field-source variables can be borrowed
+        for var_name in field_source_vars {
+            if self.can_var_borrow(stmts, &var_name) {
+                self.borrowable_vars.insert(var_name);
+            }
+        }
+    }
+
+    /// Collect variable names that are assigned from field access (e.g., `players = state.all_players`)
+    fn collect_field_source_vars(&self, stmts: &[crate::hir::HirStmt]) -> Vec<String> {
+        let mut result = Vec::new();
+        for stmt in stmts {
+            self.collect_field_source_vars_in_stmt(stmt, &mut result);
+        }
+        result
+    }
+
+    fn collect_field_source_vars_in_stmt(&self, stmt: &crate::hir::HirStmt, result: &mut Vec<String>) {
+        use crate::hir::{AssignTarget, HirExpr, HirStmt};
+        match stmt {
+            HirStmt::Assign { target, value, .. } => {
+                if let AssignTarget::Symbol(var_name) = target {
+                    if matches!(value, HirExpr::Attribute { .. }) {
+                        result.push(var_name.clone());
+                    }
+                }
+            }
+            HirStmt::If {
+                then_body, else_body, ..
+            } => {
+                for s in then_body {
+                    self.collect_field_source_vars_in_stmt(s, result);
+                }
+                if let Some(else_stmts) = else_body {
+                    for s in else_stmts {
+                        self.collect_field_source_vars_in_stmt(s, result);
+                    }
+                }
+            }
+            HirStmt::While { body, .. } | HirStmt::For { body, .. } => {
+                for s in body {
+                    self.collect_field_source_vars_in_stmt(s, result);
+                }
+            }
+            HirStmt::Try {
+                body,
+                handlers,
+                orelse,
+                finalbody,
+            } => {
+                for s in body {
+                    self.collect_field_source_vars_in_stmt(s, result);
+                }
+                for handler in handlers {
+                    for s in &handler.body {
+                        self.collect_field_source_vars_in_stmt(s, result);
+                    }
+                }
+                if let Some(els) = orelse {
+                    for s in els {
+                        self.collect_field_source_vars_in_stmt(s, result);
+                    }
+                }
+                if let Some(fin) = finalbody {
+                    for s in fin {
+                        self.collect_field_source_vars_in_stmt(s, result);
+                    }
+                }
+            }
+            HirStmt::With { body, .. } => {
+                for s in body {
+                    self.collect_field_source_vars_in_stmt(s, result);
+                }
+            }
+            HirStmt::FunctionDef { body, .. } => {
+                for s in body {
+                    self.collect_field_source_vars_in_stmt(s, result);
+                }
+            }
+            _ => {}
+        }
+    }
+
+    /// Check if a variable can be borrowed instead of cloned
+    fn can_var_borrow(&self, stmts: &[crate::hir::HirStmt], var_name: &str) -> bool {
+        !self.var_has_move_use(stmts, var_name)
+            && !self.var_has_mut_use(stmts, var_name)
+            && !self.var_captured_in_closure(stmts, var_name)
+            && !self.var_has_non_attribute_assignment(stmts, var_name)
+    }
+
+    /// Check if variable is assigned from a non-attribute expression anywhere.
+    /// If a var is assigned both from attributes and non-attributes in different branches,
+    /// we cannot borrow consistently (types would mismatch: &T vs T).
+    fn var_has_non_attribute_assignment(&self, stmts: &[crate::hir::HirStmt], var_name: &str) -> bool {
+        for stmt in stmts {
+            if self.stmt_has_non_attribute_assignment(stmt, var_name) {
+                return true;
+            }
+        }
+        false
+    }
+
+    fn stmt_has_non_attribute_assignment(&self, stmt: &crate::hir::HirStmt, var_name: &str) -> bool {
+        use crate::hir::{AssignTarget, HirExpr, HirStmt};
+        match stmt {
+            HirStmt::Assign { target, value, .. } => {
+                if let AssignTarget::Symbol(name) = target {
+                    if name == var_name && !matches!(value, HirExpr::Attribute { .. }) {
+                        return true;
+                    }
+                }
+                false
+            }
+            HirStmt::If {
+                then_body, else_body, ..
+            } => {
+                self.var_has_non_attribute_assignment(then_body, var_name)
+                    || else_body
+                        .as_ref()
+                        .is_some_and(|e| self.var_has_non_attribute_assignment(e, var_name))
+            }
+            HirStmt::While { body, .. } | HirStmt::For { body, .. } => {
+                self.var_has_non_attribute_assignment(body, var_name)
+            }
+            HirStmt::Try {
+                body,
+                handlers,
+                orelse,
+                finalbody,
+            } => {
+                self.var_has_non_attribute_assignment(body, var_name)
+                    || handlers
+                        .iter()
+                        .any(|h| self.var_has_non_attribute_assignment(&h.body, var_name))
+                    || orelse
+                        .as_ref()
+                        .is_some_and(|e| self.var_has_non_attribute_assignment(e, var_name))
+                    || finalbody
+                        .as_ref()
+                        .is_some_and(|e| self.var_has_non_attribute_assignment(e, var_name))
+            }
+            HirStmt::With { body, .. } => self.var_has_non_attribute_assignment(body, var_name),
+            _ => false,
+        }
+    }
+
+    /// Check if variable is moved (returned, passed to ownership-taking function)
+    fn var_has_move_use(&self, stmts: &[crate::hir::HirStmt], var_name: &str) -> bool {
+        for stmt in stmts {
+            if self.stmt_has_move_use(stmt, var_name) {
+                return true;
+            }
+        }
+        false
+    }
+
+    fn stmt_has_move_use(&self, stmt: &crate::hir::HirStmt, var_name: &str) -> bool {
+        use crate::hir::HirStmt;
+        match stmt {
+            HirStmt::Return(Some(expr)) => self.expr_is_var_move(expr, var_name),
+            HirStmt::Assign { value, .. } => {
+                // Check if variable is passed as argument (potentially moved)
+                self.expr_has_var_as_call_arg(value, var_name)
+            }
+            HirStmt::Expr(expr) => self.expr_has_var_as_call_arg(expr, var_name),
+            HirStmt::If {
+                then_body, else_body, ..
+            } => {
+                self.var_has_move_use(then_body, var_name)
+                    || else_body
+                        .as_ref()
+                        .map(|e| self.var_has_move_use(e, var_name))
+                        .unwrap_or(false)
+            }
+            HirStmt::While { body, .. } | HirStmt::For { body, .. } => self.var_has_move_use(body, var_name),
+            HirStmt::Raise { exception, .. } => exception
+                .as_ref()
+                .map(|e| self.expr_is_var_move(e, var_name))
+                .unwrap_or(false),
+            HirStmt::Try {
+                body,
+                handlers,
+                orelse,
+                finalbody,
+            } => {
+                self.var_has_move_use(body, var_name)
+                    || handlers.iter().any(|h| self.var_has_move_use(&h.body, var_name))
+                    || orelse
+                        .as_ref()
+                        .map(|e| self.var_has_move_use(e, var_name))
+                        .unwrap_or(false)
+                    || finalbody
+                        .as_ref()
+                        .map(|e| self.var_has_move_use(e, var_name))
+                        .unwrap_or(false)
+            }
+            HirStmt::With { body, .. } => self.var_has_move_use(body, var_name),
+            _ => false,
+        }
+    }
+
+    fn expr_is_var_move(&self, expr: &crate::hir::HirExpr, var_name: &str) -> bool {
+        use crate::hir::HirExpr;
+        match expr {
+            HirExpr::Var(name) => name == var_name,
+            HirExpr::IfExpr { body, orelse, .. } => {
+                self.expr_is_var_move(body, var_name) || self.expr_is_var_move(orelse, var_name)
+            }
+            _ => false,
+        }
+    }
+
+    fn expr_has_var_as_call_arg(&self, expr: &crate::hir::HirExpr, var_name: &str) -> bool {
+        use crate::hir::HirExpr;
+        match expr {
+            HirExpr::Call { args, kwargs, .. } => {
+                args.iter().any(|a| self.expr_is_var_move(a, var_name))
+                    || kwargs.iter().any(|(_, v)| self.expr_is_var_move(v, var_name))
+            }
+            HirExpr::MethodCall { args, kwargs, .. } => {
+                args.iter().any(|a| self.expr_is_var_move(a, var_name))
+                    || kwargs.iter().any(|(_, v)| self.expr_is_var_move(v, var_name))
+            }
+            _ => false,
+        }
+    }
+
+    /// Check if variable is mutated
+    fn var_has_mut_use(&self, stmts: &[crate::hir::HirStmt], var_name: &str) -> bool {
+        for stmt in stmts {
+            if self.stmt_has_mut_use(stmt, var_name) {
+                return true;
+            }
+        }
+        false
+    }
+
+    fn stmt_has_mut_use(&self, stmt: &crate::hir::HirStmt, var_name: &str) -> bool {
+        use crate::hir::HirStmt;
+        match stmt {
+            HirStmt::Expr(expr) => self.expr_is_mutating_method_call(expr, var_name),
+            HirStmt::If {
+                then_body, else_body, ..
+            } => {
+                self.var_has_mut_use(then_body, var_name)
+                    || else_body
+                        .as_ref()
+                        .map(|e| self.var_has_mut_use(e, var_name))
+                        .unwrap_or(false)
+            }
+            HirStmt::While { body, .. } | HirStmt::For { body, .. } => self.var_has_mut_use(body, var_name),
+            HirStmt::Try {
+                body,
+                handlers,
+                orelse,
+                finalbody,
+            } => {
+                self.var_has_mut_use(body, var_name)
+                    || handlers.iter().any(|h| self.var_has_mut_use(&h.body, var_name))
+                    || orelse
+                        .as_ref()
+                        .map(|e| self.var_has_mut_use(e, var_name))
+                        .unwrap_or(false)
+                    || finalbody
+                        .as_ref()
+                        .map(|e| self.var_has_mut_use(e, var_name))
+                        .unwrap_or(false)
+            }
+            HirStmt::With { body, .. } => self.var_has_mut_use(body, var_name),
+            _ => false,
+        }
+    }
+
+    fn expr_is_mutating_method_call(&self, expr: &crate::hir::HirExpr, var_name: &str) -> bool {
+        use crate::hir::HirExpr;
+        if let HirExpr::MethodCall { object, method, .. } = expr {
+            if let HirExpr::Var(name) = object.as_ref() {
+                if name == var_name && self.is_mutating_method(method) {
+                    return true;
+                }
+            }
+        }
+        false
+    }
+
+    fn is_mutating_method(&self, method: &str) -> bool {
+        matches!(
+            method,
+            "append"
+                | "extend"
+                | "insert"
+                | "remove"
+                | "pop"
+                | "clear"
+                | "sort"
+                | "reverse"
+                | "update"
+                | "add"
+                | "discard"
+                | "push"
+                | "push_back"
+                | "push_front"
+                | "pop_back"
+                | "pop_front"
+        )
+    }
+
+    /// Check if variable is captured in a closure (lambda)
+    fn var_captured_in_closure(&self, stmts: &[crate::hir::HirStmt], var_name: &str) -> bool {
+        for stmt in stmts {
+            if self.stmt_has_closure_capture(stmt, var_name) {
+                return true;
+            }
+        }
+        false
+    }
+
+    fn stmt_has_closure_capture(&self, stmt: &crate::hir::HirStmt, var_name: &str) -> bool {
+        use crate::hir::HirStmt;
+        match stmt {
+            HirStmt::Assign { value, .. } => self.expr_has_closure_capture(value, var_name),
+            HirStmt::Expr(expr) => self.expr_has_closure_capture(expr, var_name),
+            HirStmt::Return(Some(expr)) => self.expr_has_closure_capture(expr, var_name),
+            HirStmt::If {
+                condition,
+                then_body,
+                else_body,
+            } => {
+                self.expr_has_closure_capture(condition, var_name)
+                    || self.var_captured_in_closure(then_body, var_name)
+                    || else_body
+                        .as_ref()
+                        .map(|e| self.var_captured_in_closure(e, var_name))
+                        .unwrap_or(false)
+            }
+            HirStmt::While { condition, body } => {
+                self.expr_has_closure_capture(condition, var_name) || self.var_captured_in_closure(body, var_name)
+            }
+            HirStmt::For { iter, body, .. } => {
+                self.expr_has_closure_capture(iter, var_name) || self.var_captured_in_closure(body, var_name)
+            }
+            HirStmt::Try {
+                body,
+                handlers,
+                orelse,
+                finalbody,
+            } => {
+                self.var_captured_in_closure(body, var_name)
+                    || handlers.iter().any(|h| self.var_captured_in_closure(&h.body, var_name))
+                    || orelse
+                        .as_ref()
+                        .map(|e| self.var_captured_in_closure(e, var_name))
+                        .unwrap_or(false)
+                    || finalbody
+                        .as_ref()
+                        .map(|e| self.var_captured_in_closure(e, var_name))
+                        .unwrap_or(false)
+            }
+            HirStmt::With { context, body, .. } => {
+                self.expr_has_closure_capture(context, var_name) || self.var_captured_in_closure(body, var_name)
+            }
+            _ => false,
+        }
+    }
+
+    fn expr_has_closure_capture(&self, expr: &crate::hir::HirExpr, var_name: &str) -> bool {
+        use crate::hir::HirExpr;
+        match expr {
+            HirExpr::Lambda { body, params } => {
+                // Check if var_name is captured (used but not a param)
+                !params.contains(&var_name.to_string()) && self.expr_references_var(body, var_name)
+            }
+            HirExpr::ListComp {
+                element,
+                iter,
+                condition,
+                ..
+            }
+            | HirExpr::SetComp {
+                element,
+                iter,
+                condition,
+                ..
+            } => {
+                self.expr_has_closure_capture(element, var_name)
+                    || self.expr_has_closure_capture(iter, var_name)
+                    || condition
+                        .as_ref()
+                        .map(|c| self.expr_has_closure_capture(c, var_name))
+                        .unwrap_or(false)
+            }
+            HirExpr::Binary { left, right, .. } => {
+                self.expr_has_closure_capture(left, var_name) || self.expr_has_closure_capture(right, var_name)
+            }
+            HirExpr::Call { args, kwargs, .. } => {
+                args.iter().any(|a| self.expr_has_closure_capture(a, var_name))
+                    || kwargs.iter().any(|(_, v)| self.expr_has_closure_capture(v, var_name))
+            }
+            HirExpr::MethodCall {
+                object, args, kwargs, ..
+            } => {
+                self.expr_has_closure_capture(object, var_name)
+                    || args.iter().any(|a| self.expr_has_closure_capture(a, var_name))
+                    || kwargs.iter().any(|(_, v)| self.expr_has_closure_capture(v, var_name))
+            }
+            _ => false,
+        }
+    }
+
+    fn expr_references_var(&self, expr: &crate::hir::HirExpr, var_name: &str) -> bool {
+        use crate::hir::HirExpr;
+        match expr {
+            HirExpr::Var(name) => name == var_name,
+            HirExpr::Binary { left, right, .. } => {
+                self.expr_references_var(left, var_name) || self.expr_references_var(right, var_name)
+            }
+            HirExpr::Unary { operand, .. } => self.expr_references_var(operand, var_name),
+            HirExpr::Call { args, kwargs, .. } => {
+                args.iter().any(|a| self.expr_references_var(a, var_name))
+                    || kwargs.iter().any(|(_, v)| self.expr_references_var(v, var_name))
+            }
+            HirExpr::MethodCall {
+                object, args, kwargs, ..
+            } => {
+                self.expr_references_var(object, var_name)
+                    || args.iter().any(|a| self.expr_references_var(a, var_name))
+                    || kwargs.iter().any(|(_, v)| self.expr_references_var(v, var_name))
+            }
+            HirExpr::Attribute { value, .. } => self.expr_references_var(value, var_name),
+            HirExpr::Index { base, index } => {
+                self.expr_references_var(base, var_name) || self.expr_references_var(index, var_name)
+            }
+            HirExpr::List(elts) | HirExpr::Tuple(elts) | HirExpr::Set(elts) => {
+                elts.iter().any(|e| self.expr_references_var(e, var_name))
+            }
+            HirExpr::Dict(pairs) => pairs
+                .iter()
+                .any(|(k, v)| self.expr_references_var(k, var_name) || self.expr_references_var(v, var_name)),
+            HirExpr::IfExpr { test, body, orelse } => {
+                self.expr_references_var(test, var_name)
+                    || self.expr_references_var(body, var_name)
+                    || self.expr_references_var(orelse, var_name)
+            }
+            _ => false,
         }
     }
 

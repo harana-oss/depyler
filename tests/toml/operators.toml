@@ -1361,3 +1361,178 @@ pub fn test_ops(
     return a.union(&b).cloned().collect::<std::collections::HashSet<_>>() & c;
 }
 '''
+
+# =============================================================================
+# Python Division Semantics (/ always returns float)
+# =============================================================================
+
+[[test]]
+name = "division_int_returns_float"
+description = "Python / operator with integers returns float"
+
+python = '''
+def divide_ints(a: int, b: int) -> float:
+    return a / b
+'''
+
+rust = '''
+#[derive(Debug, Clone)]
+pub struct ZeroDivisionError {
+    message: String,
+}
+impl std::fmt::Display for ZeroDivisionError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "division by zero: {}", self.message)
+    }
+}
+impl std::error::Error for ZeroDivisionError {}
+impl ZeroDivisionError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+pub fn divide_ints(a: i32, b: i32) -> f64 {
+    return (a as f64) / (b as f64);
+}
+'''
+
+[[test]]
+name = "int_cast_with_division"
+description = "int() cast with expression containing division"
+
+python = '''
+def compute(a: int) -> int:
+    return int(5 * a + (a / 2))
+'''
+
+rust = '''
+pub fn compute(a: i32) -> i32 {
+    return (((5 * a) as f64) + ((a as f64) / (2 as f64))) as i32;
+}
+'''
+
+[[test]]
+name = "division_in_complex_expression"
+description = "Division in mixed arithmetic expression returns float"
+
+python = '''
+def mixed_calc(x: int, y: int) -> float:
+    return x * 2 + y / 3
+'''
+
+rust = '''
+#[derive(Debug, Clone)]
+pub struct ZeroDivisionError {
+    message: String,
+}
+impl std::fmt::Display for ZeroDivisionError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "division by zero: {}", self.message)
+    }
+}
+impl std::error::Error for ZeroDivisionError {}
+impl ZeroDivisionError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+pub fn mixed_calc(x: i32, y: i32) -> f64 {
+    return ((x * 2) as f64) + ((y as f64) / (3 as f64));
+}
+'''
+
+[[test]]
+name = "nested_division"
+description = "Nested division with integer operands"
+
+python = '''
+def nested_div(a: int, b: int, c: int) -> float:
+    return a / b / c
+'''
+
+rust = '''
+#[derive(Debug, Clone)]
+pub struct ZeroDivisionError {
+    message: String,
+}
+impl std::fmt::Display for ZeroDivisionError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "division by zero: {}", self.message)
+    }
+}
+impl std::error::Error for ZeroDivisionError {}
+impl ZeroDivisionError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+pub fn nested_div(a: i32, b: i32, c: i32) -> f64 {
+    return ((a as f64) / (b as f64)) / (c as f64);
+}
+'''
+
+[[test]]
+name = "not_bitwise_and_integer"
+description = "Negating bitwise AND result on integers"
+
+python = '''
+def check_flag(flags: int, mask: int) -> bool:
+    if not (flags & mask):
+        return True
+    return False
+'''
+
+rust = '''
+pub fn check_flag(flags: i32, mask: i32) -> bool {
+    if (flags & mask) == 0 {
+        return true;
+    }
+    return false;
+}
+'''
+
+[[test]]
+name = "not_bitwise_or_integer"
+description = "Negating bitwise OR result on integers"
+
+python = '''
+def check_any_flag(a: int, b: int) -> bool:
+    if not (a | b):
+        return True
+    return False
+'''
+
+rust = '''
+pub fn check_any_flag(a: i32, b: i32) -> bool {
+    if (a | b) == 0 {
+        return true;
+    }
+    return false;
+}
+'''
+
+[[test]]
+name = "not_bitwise_xor_integer"
+description = "Negating bitwise XOR result on integers"
+
+python = '''
+def check_same(a: int, b: int) -> bool:
+    if not (a ^ b):
+        return True
+    return False
+'''
+
+rust = '''
+pub fn check_same(a: i32, b: i32) -> bool {
+    if (a ^ b) == 0 {
+        return true;
+    }
+    return false;
+}
+'''

@@ -46,8 +46,8 @@ fn main() {
     let p1 = Point::new(1, 2);
     let p2 = Point::new(1, 2);
     let p3 = Point::new(2, 3);
-    println!("{}", p1 == p2);
-    println!("{}", p1 == p3);
+    log::info!("{}", p1 == p2);
+    log::info!("{}", p1 == p3);
 }
 """
 expected_output = """True
@@ -89,8 +89,8 @@ fn main() {
     let v1 = Value::new(5);
     let v2 = Value::new(5);
     let v3 = Value::new(10);
-    println!("{}", v1 != v2);
-    println!("{}", v1 != v3);
+    log::info!("{}", v1 != v2);
+    log::info!("{}", v1 != v3);
 }
 """
 expected_output = """False
@@ -130,8 +130,8 @@ fn main() {
     let s1 = Simple::new(5);
     let s2 = Simple::new(5);
     let s3 = Simple::new(10);
-    println!("{}", s1 == s2);
-    println!("{}", s1 != s3);
+    log::info!("{}", s1 == s2);
+    log::info!("{}", s1 != s3);
 }
 """
 expected_output = """True
@@ -172,8 +172,8 @@ impl Number {
 fn main() {
     let n1 = Number::new(5);
     let n2 = Number::new(10);
-    println!("{}", n1 < n2);
-    println!("{}", n2 < n1);
+    log::info!("{}", n1 < n2);
+    log::info!("{}", n2 < n1);
 }
 """
 expected_output = """True
@@ -213,9 +213,9 @@ fn main() {
     let n1 = Number::new(5);
     let n2 = Number::new(5);
     let n3 = Number::new(10);
-    println!("{}", n1 <= n2);
-    println!("{}", n1 <= n3);
-    println!("{}", n3 <= n1);
+    log::info!("{}", n1 <= n2);
+    log::info!("{}", n1 <= n3);
+    log::info!("{}", n3 <= n1);
 }
 """
 expected_output = """True
@@ -253,8 +253,8 @@ impl Number {
 fn main() {
     let n1 = Number::new(10);
     let n2 = Number::new(5);
-    println!("{}", n1 > n2);
-    println!("{}", n2 > n1);
+    log::info!("{}", n1 > n2);
+    log::info!("{}", n2 > n1);
 }
 """
 expected_output = """True
@@ -294,9 +294,9 @@ fn main() {
     let n1 = Number::new(10);
     let n2 = Number::new(10);
     let n3 = Number::new(5);
-    println!("{}", n1 >= n2);
-    println!("{}", n1 >= n3);
-    println!("{}", n3 >= n1);
+    log::info!("{}", n1 >= n2);
+    log::info!("{}", n1 >= n3);
+    log::info!("{}", n3 >= n1);
 }
 """
 expected_output = """True
@@ -351,10 +351,10 @@ impl Student {
 fn main() {
     let s1 = Student::new("Alice", 85);
     let s2 = Student::new("Bob", 90);
-    println!("{}", s1 < s2);
-    println!("{}", s1 <= s2);
-    println!("{}", s1 > s2);
-    println!("{}", s1 >= s2);
+    log::info!("{}", s1 < s2);
+    log::info!("{}", s1 <= s2);
+    log::info!("{}", s1 > s2);
+    log::info!("{}", s1 >= s2);
 }
 """
 expected_output = """True
@@ -410,7 +410,7 @@ fn calculate_hash<T: Hash>(t: &T) -> u64 {
 fn main() {
     let p1 = Point::new(1, 2);
     let p2 = Point::new(1, 2);
-    println!("{}", calculate_hash(&p1) == calculate_hash(&p2));
+    log::info!("{}", calculate_hash(&p1) == calculate_hash(&p2));
 }
 """
 expected_output = "True"
@@ -458,8 +458,8 @@ fn calculate_hash<T: Hash>(t: &T) -> u64 {
 fn main() {
     let v1 = HashableValue::new(42);
     let v2 = HashableValue::new(42);
-    println!("{}", v1 == v2);
-    println!("{}", calculate_hash(&v1) == calculate_hash(&v2));
+    log::info!("{}", v1 == v2);
+    log::info!("{}", calculate_hash(&v1) == calculate_hash(&v2));
 }
 """
 expected_output = """True
@@ -498,7 +498,7 @@ impl Unhashable {
 fn main() {
     let _obj = Unhashable::new(5);
     // In Rust, trying to hash would be a compile-time error
-    println!("TypeError: unhashable type");
+    log::info!("TypeError: unhashable type");
 }
 """
 expected_output = "TypeError: unhashable type"
@@ -544,7 +544,7 @@ fn main() {
     d.insert(obj1, "first");
     d.insert(obj2, "second");
     let key = Hashable::new(1);
-    println!("{}", d.get(&key).unwrap());
+    log::info!("{}", d.get(&key).unwrap());
 }
 """
 expected_output = "first"
@@ -591,7 +591,7 @@ fn main() {
     s.insert(obj1);
     s.insert(obj2);
     s.insert(obj3);
-    println!("{}", s.len());
+    log::info!("{}", s.len());
 }
 """
 expected_output = "2"
@@ -637,9 +637,9 @@ impl PartialEq for Value {
 fn main() {
     let v = Value::new(5);
     let v2 = Value::new(5);
-    println!("{}", v == v2);
+    log::info!("{}", v == v2);
     // Rust is statically typed, can't compare Value with i32
-    println!("False");
+    log::info!("False");
 }
 """
 expected_output = """True
@@ -680,7 +680,7 @@ impl Value {
 fn main() {
     let _v = Value::new(5);
     // v < "string" would not compile in Rust
-    println!("TypeError");
+    log::info!("TypeError");
 }
 """
 expected_output = "TypeError"
@@ -744,8 +744,8 @@ impl B {
 fn main() {
     let a = A::new(5);
     let b = B::new(5);
-    println!("{}", a.eq_b(&b));
-    println!("{}", b.eq_a(&a));
+    log::info!("{}", a.eq_b(&b));
+    log::info!("{}", b.eq_a(&a));
 }
 """
 expected_output = """True
@@ -788,8 +788,8 @@ fn main() {
     let a = Number::new(1);
     let b = Number::new(2);
     let c = Number::new(3);
-    println!("{}", a < b && b < c);
-    println!("{}", c < b && b < a);
+    log::info!("{}", a < b && b < c);
+    log::info!("{}", c < b && b < a);
 }
 """
 expected_output = """True
@@ -840,8 +840,8 @@ fn main() {
     let s1 = Special::new(5);
     let s2 = Special::new(5);
     let s3 = Special::new(10);
-    println!("{}", s1.eq_str(&s2));
-    println!("{}", s1.eq_str(&s3));
+    log::info!("{}", s1.eq_str(&s2));
+    log::info!("{}", s1.eq_str(&s3));
 }
 """
 expected_output = """equal
@@ -892,7 +892,7 @@ impl PartialEq for MutablePoint {
 fn main() {
     let _p = MutablePoint::new(1, 2);
     // Attempting to hash would fail at compile time without Hash trait
-    println!("TypeError: unhashable type");
+    log::info!("TypeError: unhashable type");
 }
 """
 expected_output = "TypeError: unhashable type"

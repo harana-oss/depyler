@@ -1705,7 +1705,15 @@ pub(crate) fn codegen_for_stmt(
         // For field accesses being iterated, generate without .clone() since we'll borrow
         generate_field_access_without_clone(iter, ctx)?
     } else {
-        iter.to_rust_expr(ctx)?
+        // For simple variables that will get .iter().cloned(), prevent initial clone
+        // to avoid redundant `var.clone().iter().cloned()` pattern
+        let saved_prevent_clone = ctx.prevent_clone;
+        if matches!(iter, HirExpr::Var(_)) {
+            ctx.prevent_clone = true;
+        }
+        let expr = iter.to_rust_expr(ctx)?;
+        ctx.prevent_clone = saved_prevent_clone;
+        expr
     };
 
     // Check if the iterator is an Optional type (e.g., Optional[List[int]])
@@ -1898,13 +1906,22 @@ pub(crate) fn codegen_for_stmt(
     };
 
     // Declare all variables from the target pattern and set their types
+    // Also track if they shadow ref params (for proper dereference handling)
     match (target, element_type) {
         (AssignTarget::Symbol(name), Some(elem_type)) => {
             ctx.declare_var(name);
             ctx.var_types.insert(name.clone(), elem_type);
+            // Track if this for-loop variable shadows a ref param
+            if ctx.current_func_ref_params.contains(name) {
+                ctx.shadowed_ref_params.insert(name.clone());
+            }
         }
         (AssignTarget::Symbol(name), None) => {
             ctx.declare_var(name);
+            // Track if this for-loop variable shadows a ref param
+            if ctx.current_func_ref_params.contains(name) {
+                ctx.shadowed_ref_params.insert(name.clone());
+            }
         }
         (AssignTarget::Tuple(targets), Some(Type::Tuple(elem_types))) if targets.len() == elem_types.len() => {
             // Tuple unpacking with type info: (i, val) from enumerate
@@ -1912,6 +1929,10 @@ pub(crate) fn codegen_for_stmt(
                 if let AssignTarget::Symbol(s) = t {
                     ctx.declare_var(s);
                     ctx.var_types.insert(s.clone(), typ.clone());
+                    // Track if this for-loop variable shadows a ref param
+                    if ctx.current_func_ref_params.contains(s) {
+                        ctx.shadowed_ref_params.insert(s.clone());
+                    }
                 }
             }
         }
@@ -1920,13 +1941,45 @@ pub(crate) fn codegen_for_stmt(
             for t in targets {
                 if let AssignTarget::Symbol(s) = t {
                     ctx.declare_var(s);
+                    // Track if this for-loop variable shadows a ref param
+                    if ctx.current_func_ref_params.contains(s) {
+                        ctx.shadowed_ref_params.insert(s.clone());
+                    }
                 }
             }
         }
         _ => {}
     }
+
+    // Collect variables we added to shadowed_ref_params so we can remove them after scope exit
+    let shadowed_in_this_scope: Vec<String> = match target {
+        AssignTarget::Symbol(name) if ctx.current_func_ref_params.contains(name) => {
+            vec![name.clone()]
+        }
+        AssignTarget::Tuple(targets) => targets
+            .iter()
+            .filter_map(|t| {
+                if let AssignTarget::Symbol(s) = t {
+                    if ctx.current_func_ref_params.contains(s) {
+                        Some(s.clone())
+                    } else {
+                        None
+                    }
+                } else {
+                    None
+                }
+            })
+            .collect(),
+        _ => vec![],
+    };
+
     let body_stmts: Vec<_> = body.iter().map(|s| s.to_rust_tokens(ctx)).collect::<Result<Vec<_>>>()?;
     ctx.exit_scope();
+
+    // Remove shadowed variables when exiting scope
+    for var in &shadowed_in_this_scope {
+        ctx.shadowed_ref_params.remove(var);
+    }
 
     ctx.is_final_statement = saved_is_final;
 
@@ -2533,6 +2586,29 @@ pub(crate) fn codegen_assign_stmt(
                         }
                     }
                 }
+                // Track min() and max() - return Float if any argument is Float, else Int
+                else if matches!(func.as_str(), "min" | "max") {
+                    if !args.is_empty() {
+                        let has_float = args
+                            .iter()
+                            .any(|arg| matches!(infer_expr_type_with_env(arg, &ctx.var_types), Type::Float));
+                        if has_float {
+                            ctx.var_types.insert(var_name.clone(), Type::Float);
+                        } else {
+                            ctx.var_types.insert(var_name.clone(), Type::Int);
+                        }
+                    }
+                }
+                // Track next() builtin: with default (2 args) returns Option<T>, without default (1 arg) returns T
+                else if func == "next" {
+                    if args.len() == 2 {
+                        // next(iter, default) returns Option<T> which unwraps to default if None
+                        ctx.var_types
+                            .insert(var_name.clone(), Type::Optional(Box::new(Type::Unknown)));
+                        ctx.optional_vars.insert(var_name.clone());
+                    }
+                    // next(iter) without default uses .expect() and returns T directly (not Optional)
+                }
             }
             HirExpr::List(elements) => {
                 // When v = [1, 2], mark v as List(Int) so it gets borrowed when calling f(&v)
@@ -2617,6 +2693,12 @@ pub(crate) fn codegen_assign_stmt(
                 else if matches!(method.as_str(), "find" | "search" | "match") {
                     // Check if this is a regex method call (on compiled regex object)
                     // We don't have a specific regex type, so use Optional as a marker
+                    ctx.var_types
+                        .insert(var_name.clone(), Type::Optional(Box::new(Type::Unknown)));
+                    ctx.optional_vars.insert(var_name.clone());
+                }
+                // Track .next() as Optional since it returns Option<T>
+                else if method == "next" {
                     ctx.var_types
                         .insert(var_name.clone(), Type::Optional(Box::new(Type::Unknown)));
                     ctx.optional_vars.insert(var_name.clone());
@@ -2742,10 +2824,26 @@ pub(crate) fn codegen_assign_stmt(
         }
     }
 
+    // Check if this is a field access assignment that can use borrowing
+    // Pattern: `let players = state.all_players` where players is only used for iteration
+    // Don't borrow Copy types (primitives like i32, f64, bool) - they should be copied directly
+    let should_borrow = if let (AssignTarget::Symbol(var_name), HirExpr::Attribute { value, attr }) = (target, value) {
+        ctx.should_borrow_var(var_name) && !ctx.is_attribute_copy_type(value, attr)
+    } else {
+        false
+    };
+
     // Convert the value expression unless it's an Uninitialized marker
     let mut value_expr = if is_uninitialized {
         // Placeholder; won't be used when is_uninitialized is true
         parse_quote! { () }
+    } else if should_borrow {
+        // Generate a borrow instead of clone for field access
+        ctx.set_generate_borrow(true);
+        let expr = value.to_rust_expr(ctx)?;
+        ctx.set_generate_borrow(false);
+        // Wrap the expression in a reference
+        parse_quote! { &#expr }
     } else {
         value.to_rust_expr(ctx)?
     };
@@ -2855,6 +2953,22 @@ pub(crate) fn codegen_assign_stmt(
         // Wrap non-None values in Some() when assigning to Optional field
         if target_is_optional && !value_is_optional && !matches!(value, HirExpr::Literal(Literal::None)) {
             value_expr = parse_quote! { Some(#value_expr) };
+        }
+
+        // Unwrap Optional values when assigning to non-Optional field
+        // This handles cases like: state.field = optional_var.clone()
+        // where state.field: T but optional_var: Option<T>
+        if !target_is_optional && value_is_optional {
+            value_expr = parse_quote! { #value_expr.unwrap() };
+        }
+
+        // Clone reference parameters when assigning to struct fields.
+        // When assigning `&T` to a field expecting `T`, we need to clone.
+        // Example: player.sin_bin_status = sin_bin_status where sin_bin_status: &SinBinStatus
+        if let HirExpr::Var(var_name) = value {
+            if ctx.current_func_ref_params.contains(var_name) && !ctx.shadowed_ref_params.contains(var_name) {
+                value_expr = parse_quote! { #value_expr.clone() };
+            }
         }
     }
 
@@ -3175,8 +3289,9 @@ pub(crate) fn codegen_assign_index(
     if indices.is_empty() {
         // Simple assignment: d[k] = v OR list[i] = x
         if is_numeric_index {
-            // Wrap in parentheses to ensure correct operator precedence
-            Ok(quote! { #base_expr.insert((#final_index) as usize, #value_expr); })
+            // For Vec/List: use direct indexing to replace the element
+            // Note: Vec::insert() INSERTS a new element, we want to REPLACE
+            Ok(quote! { #base_expr[#final_index as usize] = #value_expr; })
         } else if needs_as_object_mut {
             Ok(quote! { #base_expr.as_object_mut().unwrap().insert(#final_index, #value_expr); })
         } else {
@@ -3203,8 +3318,9 @@ pub(crate) fn codegen_assign_index(
         }
 
         if is_numeric_index {
-            // Wrap in parentheses to ensure correct operator precedence
-            Ok(quote! { #chain.insert((#final_index) as usize, #value_expr); })
+            // For Vec/List: use direct indexing to replace the element
+            // Note: Vec::insert() INSERTS a new element, we want to REPLACE
+            Ok(quote! { #chain[#final_index as usize] = #value_expr; })
         } else if needs_as_object_mut {
             Ok(quote! { #chain.as_object_mut().unwrap().insert(#final_index, #value_expr); })
         } else {
@@ -3269,15 +3385,12 @@ pub(crate) fn codegen_assign_attribute(
     // Restore flag
     ctx.is_assignment_target = was_assignment_target;
 
-    // If the base is a variable with Optional type, unwrap it before accessing the field
-    // This handles type narrowing scenarios like:
-    //   player: Optional[Player] = _resolve_player(...)
-    //   if player is not None:
-    //       player.field = value  # Need to unwrap here
-    // Check var_types (not optional_vars) to correctly handle loop variables
-    // which have their element type set, not Optional type
+    // Handle Optional variable unwrapping for assignment targets.
+    // When the base is an Optional<T> variable (e.g., player: Option<Player>),
+    // we need to unwrap it to access the inner type's fields.
+    // Example: player.sin_bin_status = x → player.as_mut().unwrap().sin_bin_status = x
     if let HirExpr::Var(var_name) = base {
-        if matches!(ctx.var_types.get(var_name), Some(Type::Optional(_))) {
+        if let Some(Type::Optional(_)) = ctx.var_types.get(var_name) {
             base_expr = parse_quote! { #base_expr.as_mut().unwrap() };
         }
     }
@@ -4164,6 +4277,9 @@ fn to_pascal_case_subcommand(s: &str) -> String {
 
 impl RustCodeGen for HirStmt {
     fn to_rust_tokens(&self, ctx: &mut CodeGenContext) -> Result<proc_macro2::TokenStream> {
+        // Reset clone_already_applied at the start of each statement to ensure
+        // proper clone detection for variables used multiple times across statements
+        ctx.clone_already_applied = false;
         match self {
             HirStmt::Assign {
                 target,

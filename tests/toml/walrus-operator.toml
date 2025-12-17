@@ -22,7 +22,7 @@ fn main() {
     let items = vec![1, 2, 3, 4, 5];
     let n = items.len();
     if n > 3 {
-        println!("List has {} items, which is more than 3", n);
+        log::info!("List has {} items, which is more than 3", n);
     }
 }
 """
@@ -43,7 +43,7 @@ fn main() {
     let mut index = 0;
     while index < data.len() {
         let item = data[index];
-        println!("Item: {}", item);
+        log::info!("Item: {}", item);
         index += 1;
     }
 }
@@ -71,7 +71,7 @@ fn main() {
         .map(|&x| expensive_func(x))
         .filter(|&y| y > 5)
         .collect();
-    println!("{:?}", results);
+    log::info!("{:?}", results);
 }
 """
 
@@ -95,7 +95,7 @@ fn main() {
     let pattern = Regex::new(r"\\d+").unwrap();
     
     if let Some(match_) = pattern.find(text) {
-        println!("Found: {}", match_.as_str());
+        log::info!("Found: {}", match_.as_str());
     }
 }
 """
@@ -116,7 +116,7 @@ fn main() {
     let a = x * 2;
     let b = y * 2;
     if a > 5 && b > 15 {
-        println!("a={}, b={}", a, b);
+        log::info!("a={}, b={}", a, b);
     }
 }
 """
@@ -136,7 +136,7 @@ fn main() {
         .map(|&x| x * 2)
         .filter(|&y| y > 5)
         .collect();
-    println!("{:?}", gen);
+    log::info!("{:?}", gen);
 }
 """
 
@@ -158,6 +158,6 @@ fn main() {
         // pass
     }
     
-    println!("Result: {}", result);
+    log::info!("Result: {}", result);
 }
 """

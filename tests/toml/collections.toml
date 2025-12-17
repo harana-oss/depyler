@@ -675,10 +675,10 @@ pub fn iterate_collections() -> i32 {
         map
     };
     for name in scores.iter().cloned() {
-        println!("{}", name.clone());
+        log::info!("{}", name.clone());
     }
     for (name, score) in scores.iter().map(|(k, v)| (k.clone(), v.clone())).collect::<Vec<_>>() {
-        println!("{} {}", name, score);
+        log::info!("{} {}", name, score);
     }
     return total;
 }
@@ -1258,7 +1258,7 @@ pub fn test_dict() {
         map
     };
     for (k, v) in d.iter().map(|(k, v)| (k.clone(), v.clone())).collect::<Vec<_>>() {
-        println!("{} {}", k, v);
+        log::info!("{} {}", k, v);
     }
 }
 '''
@@ -1299,6 +1299,22 @@ pub fn use_dict() -> HashMap<String, String> {
         map.insert("key".to_string(), "value".to_string());
         map
     };
+}
+'''
+
+[[test]]
+name = "dict_get_string_default"
+description = "dict.get() with string default value needs .to_string()"
+
+python = '''
+def lookup_with_default(data: dict[str, str], key: str) -> str:
+    return data.get(key, "unknown")
+'''
+
+rust = '''
+use std::collections::HashMap;
+pub fn lookup_with_default(data: &HashMap<String, String>, key: String) -> String {
+    return data.get(&key).cloned().unwrap_or("unknown".to_string());
 }
 '''
 
@@ -1356,5 +1372,131 @@ mod tests {
     fn test_find_index_examples() {
         let _ = find_index();
     }
+}
+'''
+
+# =============================================================================
+# NEXT() WITH GENERATOR EXPRESSIONS - TYPE INFERENCE TESTS
+# =============================================================================
+
+[[test]]
+name = "next_generator_no_default"
+description = "next() on generator without default returns T directly (not Optional), no identity map"
+
+python = '''
+def find_first_positive(items: list[int]) -> int:
+    return next(x for x in items if x > 0)
+'''
+
+rust = '''
+pub fn find_first_positive(items: &Vec<i32>) -> i32 {
+    return items
+        .iter()
+        .copied()
+        .filter(|x| *x > 0)
+        .next()
+        .expect("StopIteration: iterator is empty");
+}
+'''
+
+[[test]]
+name = "next_generator_with_none_default"
+description = "next() on generator with None default returns Option<T>"
+
+python = '''
+def find_first_positive_or_none(items: list[int]) -> int | None:
+    return next((x for x in items if x > 0), None)
+'''
+
+rust = '''
+pub fn find_first_positive_or_none(items: &Vec<i32>) -> Option<i32> {
+    return items.iter().copied().filter(|x| *x > 0).next();
+}
+'''
+
+[[test]]
+name = "next_generator_dataclass_no_default_no_unwrap"
+description = "next() on generator returning dataclass - result should not have as_ref().unwrap()"
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass
+class Player:
+    name: str
+    score: int
+
+def find_high_scorer(players: list[Player]) -> int:
+    candidate = next(p for p in players if p.score > 100)
+    return candidate.score
+'''
+
+rust = '''
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Player {
+    pub name: String,
+    pub score: i32,
+}
+impl Player {
+    pub fn new(name: String, score: i32) -> Self {
+        Self { name, score }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "name" => Some(Box::new(self.name.clone()) as Box<dyn std::any::Any>),
+            "score" => Some(Box::new(self.score.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "name" => {
+                if let Some(v) = value.downcast_ref::<String>() {
+                    self.name = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "score" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.score = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+pub fn find_high_scorer(players: &Vec<Player>) -> i32 {
+    let candidate = players
+        .iter()
+        .cloned()
+        .filter(|p| p.score > 100)
+        .next()
+        .expect("StopIteration: iterator is empty");
+    return candidate.score;
+}
+'''
+
+[[test]]
+name = "generator_with_transformation_keeps_map"
+description = "Generator with element transformation should keep .map()"
+
+python = '''
+def get_doubled(items: list[int]) -> list[int]:
+    return list(x * 2 for x in items if x > 0)
+'''
+
+rust = '''
+pub fn get_doubled(items: &Vec<i32>) -> Vec<i32> {
+    return items
+        .iter()
+        .copied()
+        .filter(|x| *x > 0)
+        .map(|x| x * 2)
+        .collect::<Vec<_>>();
 }
 '''

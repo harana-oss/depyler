@@ -48,8 +48,8 @@ impl Counter {
 fn main() {
     let c1 = Counter::new();
     let c2 = Counter::new();
-    println!("{}", c1.id);
-    println!("{}", c2.id);
+    log::info!("{}", c1.id);
+    log::info!("{}", c2.id);
 }
 """
 expected_output = """1
@@ -89,7 +89,7 @@ impl Validated {
 
 fn main() {
     let v = Validated::new(10).unwrap();
-    println!("{}", v.value);
+    log::info!("{}", v.value);
 }
 """
 expected_output = "10"
@@ -125,8 +125,8 @@ impl Point {
 
 fn main() {
     let p = Point::new();
-    println!("{}", p.x);
-    println!("{}", p.y);
+    log::info!("{}", p.x);
+    log::info!("{}", p.y);
 }
 """
 expected_output = """0
@@ -167,9 +167,9 @@ impl Rectangle {
 
 fn main() {
     let r = Rectangle::new(5, 3);
-    println!("{}", r.width);
-    println!("{}", r.height);
-    println!("{}", r.area());
+    log::info!("{}", r.width);
+    log::info!("{}", r.height);
+    log::info!("{}", r.area());
 }
 """
 expected_output = """5
@@ -218,9 +218,9 @@ fn main() {
     let c2 = Config::with_timeout(60);
     let c3 = Config::with_both(45, 5);
     
-    println!("{}, {}", c1.timeout, c1.retries);
-    println!("{}, {}", c2.timeout, c2.retries);
-    println!("{}, {}", c3.timeout, c3.retries);
+    log::info!("{}, {}", c1.timeout, c1.retries);
+    log::info!("{}, {}", c2.timeout, c2.retries);
+    log::info!("{}, {}", c3.timeout, c3.retries);
 }
 """
 expected_output = """30, 3
@@ -255,22 +255,22 @@ struct Resource {
 
 impl Resource {
     fn new(name: &str) -> Self {
-        println!("Acquired {}", name);
+        log::info!("Acquired {}", name);
         Resource { name: name.to_string() }
     }
 }
 
 impl Drop for Resource {
     fn drop(&mut self) {
-        println!("Released {}", self.name);
+        log::info!("Released {}", self.name);
     }
 }
 
 fn main() {
     let r = Resource::new("file.txt");
-    println!("Using resource");
+    log::info!("Using resource");
     drop(r);
-    println!("Done");
+    log::info!("Done");
 }
 """
 expected_output = """Acquired file.txt
@@ -310,19 +310,19 @@ impl Temp {
 
 impl Drop for Temp {
     fn drop(&mut self) {
-        println!("Deleting Temp {}", self.id);
+        log::info!("Deleting Temp {}", self.id);
     }
 }
 
 fn create_temp() {
     let t = Temp::new(1);
-    println!("Inside function");
+    log::info!("Inside function");
     // t goes out of scope here
 }
 
 fn main() {
     create_temp();
-    println!("After function");
+    log::info!("After function");
 }
 """
 expected_output = """Inside function
@@ -403,8 +403,8 @@ impl fmt::Display for Point {
 
 fn main() {
     let p = Point::new(3, 4);
-    println!("{}", p);
-    println!("{}", p);
+    log::info!("{}", p);
+    log::info!("{}", p);
 }
 """
 expected_output = """Point(3, 4)
@@ -447,11 +447,11 @@ impl std::fmt::Display for Circle {
 
 fn main() {
     let c1 = Circle::new(5);
-    println!("{}", c1);
+    log::info!("{}", c1);
     
     // Rust doesn't have eval, but the concept is that repr should be clear
     let c2 = Circle::new(5);  // Simulating recreation
-    println!("{}", c2.radius);
+    log::info!("{}", c2.radius);
 }
 """
 expected_output = """Circle(5)
@@ -495,7 +495,7 @@ impl std::fmt::Display for Book {
 
 fn main() {
     let b = Book::new("1984", "Orwell");
-    println!("{}", b);
+    log::info!("{}", b);
 }
 """
 expected_output = "Book(title='1984', author='Orwell')"
@@ -551,8 +551,8 @@ impl fmt::Debug for Person {
 
 fn main() {
     let p = Person::new("Alice", 30);
-    println!("{}", p);
-    println!("{:?}", p);
+    log::info!("{}", p);
+    log::info!("{:?}", p);
 }
 """
 expected_output = """Alice, 30 years old
@@ -601,8 +601,8 @@ impl fmt::Debug for Widget {
 
 fn main() {
     let w = Widget::new(42);
-    println!("{}", w);
-    println!("{:?}", w);
+    log::info!("{}", w);
+    log::info!("{:?}", w);
 }
 """
 expected_output = """Widget(42)
@@ -645,7 +645,7 @@ impl fmt::Display for Status {
 
 fn main() {
     let s = Status::new(200, "OK");
-    println!("{}", s);
+    log::info!("{}", s);
 }
 """
 expected_output = "[200] OK"
@@ -688,7 +688,7 @@ impl fmt::Display for Message {
 
 fn main() {
     let m = Message::new("Hello");
-    println!("{}", m);
+    log::info!("{}", m);
 }
 """
 expected_output = "Message: Hello"
@@ -726,23 +726,23 @@ struct Tracked {
 
 impl Tracked {
     fn new(value: i32) -> Self {
-        println!("__new__ called");
-        println!("__init__ called");
+        log::info!("__new__ called");
+        log::info!("__init__ called");
         Tracked { value }
     }
 }
 
 impl Drop for Tracked {
     fn drop(&mut self) {
-        println!("__del__ called");
+        log::info!("__del__ called");
     }
 }
 
 fn main() {
     let t = Tracked::new(42);
-    println!("Value: {}", t.value);
+    log::info!("Value: {}", t.value);
     drop(t);
-    println!("End");
+    log::info!("End");
 }
 """
 expected_output = """__new__ called
@@ -798,8 +798,8 @@ impl fmt::Debug for Product {
 
 fn main() {
     let p = Product::new("Laptop", 999.99);
-    println!("For users: {}", p);
-    println!("For developers: {:?}", p);
+    log::info!("For users: {}", p);
+    log::info!("For developers: {:?}", p);
 }
 """
 expected_output = """For users: Laptop - $999.99
@@ -887,7 +887,7 @@ impl fmt::Debug for Node {
 fn main() {
     let n = Node::new(1);
     n.borrow_mut().children.push(Rc::clone(&n));
-    println!("{:?}", n.borrow());
+    log::info!("{:?}", n.borrow());
 }
 """
 expected_output = "Node(1, [...])"

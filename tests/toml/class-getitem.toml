@@ -107,7 +107,7 @@ fn main() {
     let mut int_stack: Stack<i32> = Stack::new();
     int_stack.push(1);
     int_stack.push(2);
-    println!("{}", int_stack.pop().unwrap());
+    log::info!("{}", int_stack.pop().unwrap());
 }
 """
 expected_output = "2"
@@ -158,8 +158,8 @@ impl<K, V> Pair<K, V> {
 
 fn main() {
     let p = Pair::new("name", 42);
-    println!("{}", p.get_key());
-    println!("{}", p.get_value());
+    log::info!("{}", p.get_key());
+    log::info!("{}", p.get_value());
 }
 """
 expected_output = """name
@@ -241,8 +241,8 @@ fn main() {
     let mut q: Queue<i32> = Queue::new();
     q.enqueue(1);
     q.enqueue(2);
-    println!("{}", q.dequeue().unwrap());
-    println!("{}", q.dequeue().unwrap());
+    log::info!("{}", q.dequeue().unwrap());
+    log::info!("{}", q.dequeue().unwrap());
 }
 """
 expected_output = """1
@@ -302,8 +302,8 @@ impl<T> Container<T> {
 
 fn main() {
     let c = Container::new(42);
-    println!("{}", c.value);
-    println!("i32");  // Type is known at compile time
+    log::info!("{}", c.value);
+    log::info!("i32");  // Type is known at compile time
 }
 """
 expected_output = """42

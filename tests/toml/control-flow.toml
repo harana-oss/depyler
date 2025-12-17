@@ -1030,7 +1030,7 @@ pub fn loop_with_continue() {
         if i == 2 {
             continue;
         }
-        println!("{}", i);
+        log::info!("{}", i);
     }
 }
 '''
@@ -2930,7 +2930,7 @@ rust = '''
 pub fn test() -> i32 {
     {
         let x = 1;
-        println!("{}", "cleanup");
+        log::info!("{}", "cleanup");
     }
     return x;
 }
@@ -3353,7 +3353,7 @@ pub fn validate(x: i32) {
     if _cse_temp_0 {
         return;
     }
-    println!("{}", x);
+    log::info!("{}", x);
 }
 '''
 
@@ -3928,7 +3928,7 @@ def test_for():
 rust = '''
 pub fn test_for() {
     for i in 0..10 {
-        println!("{}", i);
+        log::info!("{}", i);
     }
 }
 '''
@@ -4116,7 +4116,7 @@ pub fn test_simple_break() {
         if i == 5 {
             break;
         }
-        println!("{}", i);
+        log::info!("{}", i);
     }
 }
 #[doc = "Test basic continue statement"]
@@ -4126,7 +4126,7 @@ pub fn test_simple_continue() -> Result<(), ZeroDivisionError> {
         if i % 2 == 0 {
             continue;
         }
-        println!("{}", i);
+        log::info!("{}", i);
     }
 }
 #[doc = "Test break in nested loops"]
@@ -4138,7 +4138,7 @@ pub fn test_nested_break() {
             if (i == 1) && (j == 1) {
                 break;
             }
-            println!("{} {}", i, j);
+            log::info!("{} {}", i, j);
         }
     }
 }
@@ -4150,7 +4150,7 @@ pub fn test_while_break() {
         if i >= 5 {
             break;
         }
-        println!("{}", i);
+        log::info!("{}", i);
         i = i + 1;
     }
 }
@@ -4162,7 +4162,7 @@ pub fn test_while_continue() -> Result<(), ZeroDivisionError> {
         if i % 2 == 0 {
             continue;
         }
-        println!("{}", i);
+        log::info!("{}", i);
     }
 }
 '''
@@ -4505,7 +4505,7 @@ pub fn test_simple_continue() {
         if i == 2 {
             continue;
         }
-        println!("{}", i);
+        log::info!("{}", i);
     }
 }
 '''
