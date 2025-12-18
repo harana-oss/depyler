@@ -238,14 +238,16 @@ mod tests {
     use crate::hir::Literal;
 
     fn create_test_context() -> CodeGenContext<'static> {
-        static TYPE_MAPPER: std::sync::OnceLock<crate::type_mapper::TypeMapper> = std::sync::OnceLock::new();
+        static TYPE_MAPPER: std::sync::OnceLock<crate::type_mapper::TypeMapper> =
+            std::sync::OnceLock::new();
         let type_mapper = TYPE_MAPPER.get_or_init(crate::type_mapper::TypeMapper::default);
 
         CodeGenContext {
             type_mapper,
-            annotation_aware_mapper: crate::annotation_aware_type_mapper::AnnotationAwareTypeMapper::with_base_mapper(
-                type_mapper.clone(),
-            ),
+            annotation_aware_mapper:
+                crate::annotation_aware_type_mapper::AnnotationAwareTypeMapper::with_base_mapper(
+                    type_mapper.clone(),
+                ),
             string_optimizer: crate::string_optimization::StringOptimizer::new(),
             union_enum_generator: crate::union_enum_gen::UnionEnumGenerator::new(),
             generated_enums: Vec::new(),
@@ -326,7 +328,9 @@ mod tests {
             prevent_clone: false,
             returns_reference: false,
             borrowable_vars: std::collections::HashSet::new(),
+            mut_borrowable_vars: std::collections::HashSet::new(),
             generate_borrow: false,
+            generate_mut_borrow: false,
             clone_already_applied: false,
         }
     }
@@ -335,22 +339,44 @@ mod tests {
     fn test_max_mixed_int_float_casts_int_to_f64() {
         let mut ctx = create_test_context();
         // max(0, 1.5) should cast the integer 0 to f64
-        let args = vec![HirExpr::Literal(Literal::Int(0)), HirExpr::Literal(Literal::Float(1.5))];
+        let args = vec![
+            HirExpr::Literal(Literal::Int(0)),
+            HirExpr::Literal(Literal::Float(1.5)),
+        ];
         let result = handle_max(&args, &mut ctx).unwrap();
         let code = quote::quote!(#result).to_string();
-        assert!(code.contains("f64 :: max"), "Expected f64::max, got: {}", code);
-        assert!(code.contains("as f64"), "Expected cast to f64, got: {}", code);
+        assert!(
+            code.contains("f64 :: max"),
+            "Expected f64::max, got: {}",
+            code
+        );
+        assert!(
+            code.contains("as f64"),
+            "Expected cast to f64, got: {}",
+            code
+        );
     }
 
     #[test]
     fn test_min_mixed_int_float_casts_int_to_f64() {
         let mut ctx = create_test_context();
         // min(0, 1.5) should cast the integer 0 to f64
-        let args = vec![HirExpr::Literal(Literal::Int(0)), HirExpr::Literal(Literal::Float(1.5))];
+        let args = vec![
+            HirExpr::Literal(Literal::Int(0)),
+            HirExpr::Literal(Literal::Float(1.5)),
+        ];
         let result = handle_min(&args, &mut ctx).unwrap();
         let code = quote::quote!(#result).to_string();
-        assert!(code.contains("f64 :: min"), "Expected f64::min, got: {}", code);
-        assert!(code.contains("as f64"), "Expected cast to f64, got: {}", code);
+        assert!(
+            code.contains("f64 :: min"),
+            "Expected f64::min, got: {}",
+            code
+        );
+        assert!(
+            code.contains("as f64"),
+            "Expected cast to f64, got: {}",
+            code
+        );
     }
 
     #[test]
@@ -363,17 +389,28 @@ mod tests {
         ];
         let result = handle_max(&args, &mut ctx).unwrap();
         let code = quote::quote!(#result).to_string();
-        assert!(code.contains("f64 :: max"), "Expected f64::max, got: {}", code);
+        assert!(
+            code.contains("f64 :: max"),
+            "Expected f64::max, got: {}",
+            code
+        );
         // Should have exactly two occurrences (the literals), no extra casts
         let cast_count = code.matches("as f64").count();
-        assert_eq!(cast_count, 0, "Expected no casts for two floats, got: {}", code);
+        assert_eq!(
+            cast_count, 0,
+            "Expected no casts for two floats, got: {}",
+            code
+        );
     }
 
     #[test]
     fn test_min_two_integers_uses_cmp() {
         let mut ctx = create_test_context();
         // min(1, 2) should use std::cmp::min
-        let args = vec![HirExpr::Literal(Literal::Int(1)), HirExpr::Literal(Literal::Int(2))];
+        let args = vec![
+            HirExpr::Literal(Literal::Int(1)),
+            HirExpr::Literal(Literal::Int(2)),
+        ];
         let result = handle_min(&args, &mut ctx).unwrap();
         let code = quote::quote!(#result).to_string();
         assert!(
@@ -394,9 +431,17 @@ mod tests {
         ];
         let result = handle_max(&args, &mut ctx).unwrap();
         let code = quote::quote!(#result).to_string();
-        assert!(code.contains("f64 :: max"), "Expected f64::max, got: {}", code);
+        assert!(
+            code.contains("f64 :: max"),
+            "Expected f64::max, got: {}",
+            code
+        );
         // Should have two casts (for the two integers)
         let cast_count = code.matches("as f64").count();
-        assert_eq!(cast_count, 2, "Expected two casts for mixed types, got: {}", code);
+        assert_eq!(
+            cast_count, 2,
+            "Expected two casts for mixed types, got: {}",
+            code
+        );
     }
 }

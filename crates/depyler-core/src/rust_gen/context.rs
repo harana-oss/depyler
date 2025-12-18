@@ -152,8 +152,15 @@ pub struct CodeGenContext<'a> {
     /// Key: variable name, Value: true if the variable should be borrowed
     pub borrowable_vars: HashSet<String>,
 
+    /// Variables that need mutable borrowing (from usage analysis)
+    /// These are field-source variables that are mutated and whose source is &mut T
+    pub mut_borrowable_vars: HashSet<String>,
+
     /// Flag to indicate we should generate a borrow instead of clone for the current expression
     pub generate_borrow: bool,
+
+    /// Flag to indicate we should generate a mutable borrow (&mut) instead of immutable (&)
+    pub generate_mut_borrow: bool,
 
     /// Flag to indicate that a .clone() has already been added to the current expression.
     /// This prevents duplicate .clone() calls when multiple code paths try to add cloning.
@@ -183,7 +190,9 @@ impl<'a> CodeGenContext<'a> {
     /// # Complexity
     /// 2 (iterator + any)
     pub fn is_declared(&self, var_name: &str) -> bool {
-        self.declared_vars.iter().any(|scope| scope.contains(var_name))
+        self.declared_vars
+            .iter()
+            .any(|scope| scope.contains(var_name))
     }
 
     /// Declare a variable in the current scope
@@ -201,9 +210,19 @@ impl<'a> CodeGenContext<'a> {
         self.generate_borrow = value;
     }
 
+    /// Set the generate_mut_borrow flag
+    pub fn set_generate_mut_borrow(&mut self, value: bool) {
+        self.generate_mut_borrow = value;
+    }
+
     /// Check if a variable should be borrowed instead of cloned
     pub fn should_borrow_var(&self, var_name: &str) -> bool {
         self.borrowable_vars.contains(var_name)
+    }
+
+    /// Check if a variable should be mutably borrowed instead of cloned
+    pub fn should_mut_borrow_var(&self, var_name: &str) -> bool {
+        self.mut_borrowable_vars.contains(var_name)
     }
 
     /// Mark a variable as borrowable
@@ -249,7 +268,9 @@ impl<'a> CodeGenContext<'a> {
     /// # Complexity
     /// 2 (last + unwrap_or)
     pub fn current_exception_scope(&self) -> &ExceptionScope {
-        self.exception_scopes.last().unwrap_or(&ExceptionScope::Unhandled)
+        self.exception_scopes
+            .last()
+            .unwrap_or(&ExceptionScope::Unhandled)
     }
 
     /// Check if currently inside a try block
@@ -257,7 +278,10 @@ impl<'a> CodeGenContext<'a> {
     /// # Complexity
     /// 2 (current_exception_scope + matches)
     pub fn is_in_try_block(&self) -> bool {
-        matches!(self.current_exception_scope(), ExceptionScope::TryCaught { .. })
+        matches!(
+            self.current_exception_scope(),
+            ExceptionScope::TryCaught { .. }
+        )
     }
 
     /// Check if a specific exception type is handled by current try block
@@ -282,7 +306,8 @@ impl<'a> CodeGenContext<'a> {
     /// # Complexity
     /// 1 (simple push)
     pub fn enter_try_scope(&mut self, handled_types: Vec<String>) {
-        self.exception_scopes.push(ExceptionScope::TryCaught { handled_types });
+        self.exception_scopes
+            .push(ExceptionScope::TryCaught { handled_types });
     }
 
     /// Enter an exception handler scope
@@ -311,11 +336,15 @@ impl<'a> CodeGenContext<'a> {
                 matches!(self.var_types.get(var_name), Some(Type::Float))
             }
             HirExpr::Literal(Literal::Float(_)) => true,
-            HirExpr::Attribute { value, attr } => self.get_attribute_field_type(value, attr) == Some(Type::Float),
+            HirExpr::Attribute { value, attr } => {
+                self.get_attribute_field_type(value, attr) == Some(Type::Float)
+            }
             HirExpr::Unary { operand, .. } => self.is_expr_float_type(operand),
             HirExpr::Binary { op, left, right } => {
                 // Division always produces float, or if either operand is float
-                matches!(op, BinOp::Div) || self.is_expr_float_type(left) || self.is_expr_float_type(right)
+                matches!(op, BinOp::Div)
+                    || self.is_expr_float_type(left)
+                    || self.is_expr_float_type(right)
             }
             HirExpr::Call { func, args, .. } => {
                 // Check if function has a known float return type
@@ -333,7 +362,9 @@ impl<'a> CodeGenContext<'a> {
                 }
                 false
             }
-            HirExpr::IfExpr { body, orelse, .. } => self.is_expr_float_type(body) || self.is_expr_float_type(orelse),
+            HirExpr::IfExpr { body, orelse, .. } => {
+                self.is_expr_float_type(body) || self.is_expr_float_type(orelse)
+            }
             _ => false,
         }
     }
@@ -348,7 +379,9 @@ impl<'a> CodeGenContext<'a> {
                 matches!(self.var_types.get(var_name), Some(Type::Int))
             }
             HirExpr::Literal(Literal::Int(_)) => true,
-            HirExpr::Attribute { value, attr } => self.get_attribute_field_type(value, attr) == Some(Type::Int),
+            HirExpr::Attribute { value, attr } => {
+                self.get_attribute_field_type(value, attr) == Some(Type::Int)
+            }
             HirExpr::Unary { operand, .. } => self.is_expr_int_type(operand),
             // Binary operations are int type if:
             // - Division (/) always produces float, so exclude
@@ -376,7 +409,9 @@ impl<'a> CodeGenContext<'a> {
                 }
                 false
             }
-            HirExpr::IfExpr { body, orelse, .. } => self.is_expr_int_type(body) && self.is_expr_int_type(orelse),
+            HirExpr::IfExpr { body, orelse, .. } => {
+                self.is_expr_int_type(body) && self.is_expr_int_type(orelse)
+            }
             _ => false,
         }
     }
@@ -391,7 +426,9 @@ impl<'a> CodeGenContext<'a> {
                 matches!(self.var_types.get(var_name), Some(Type::String))
             }
             HirExpr::Literal(Literal::String(_)) => true,
-            HirExpr::Attribute { value, attr } => self.get_attribute_field_type(value, attr) == Some(Type::String),
+            HirExpr::Attribute { value, attr } => {
+                self.get_attribute_field_type(value, attr) == Some(Type::String)
+            }
             HirExpr::Call { func, .. } => {
                 if matches!(self.function_return_types.get(func), Some(Type::String)) {
                     return true;
@@ -399,7 +436,9 @@ impl<'a> CodeGenContext<'a> {
                 // Built-in functions that return string
                 matches!(func.as_str(), "str" | "repr" | "chr" | "format")
             }
-            HirExpr::IfExpr { body, orelse, .. } => self.is_expr_string_type(body) && self.is_expr_string_type(orelse),
+            HirExpr::IfExpr { body, orelse, .. } => {
+                self.is_expr_string_type(body) && self.is_expr_string_type(orelse)
+            }
             HirExpr::FString { .. } => true,
             _ => false,
         }
@@ -415,7 +454,9 @@ impl<'a> CodeGenContext<'a> {
                 matches!(self.var_types.get(var_name), Some(Type::Bool))
             }
             HirExpr::Literal(Literal::Bool(_)) => true,
-            HirExpr::Attribute { value, attr } => self.get_attribute_field_type(value, attr) == Some(Type::Bool),
+            HirExpr::Attribute { value, attr } => {
+                self.get_attribute_field_type(value, attr) == Some(Type::Bool)
+            }
             // Comparison operations always return bool
             HirExpr::Binary { op, .. } => {
                 matches!(
@@ -444,13 +485,19 @@ impl<'a> CodeGenContext<'a> {
                     "bool" | "isinstance" | "issubclass" | "callable" | "hasattr"
                 )
             }
-            HirExpr::IfExpr { body, orelse, .. } => self.is_expr_bool_type(body) && self.is_expr_bool_type(orelse),
+            HirExpr::IfExpr { body, orelse, .. } => {
+                self.is_expr_bool_type(body) && self.is_expr_bool_type(orelse)
+            }
             _ => false,
         }
     }
 
     /// Get the type of a field access expression (e.g., state.val1)
-    pub fn get_attribute_field_type(&self, value: &Box<crate::hir::HirExpr>, attr: &str) -> Option<Type> {
+    pub fn get_attribute_field_type(
+        &self,
+        value: &Box<crate::hir::HirExpr>,
+        attr: &str,
+    ) -> Option<Type> {
         // Get the class name from the value expression
         let class_name = match value.as_ref() {
             crate::hir::HirExpr::Var(var_name) => {
@@ -512,13 +559,19 @@ impl<'a> CodeGenContext<'a> {
 
     /// Increment usage count for a variable during analysis
     pub fn count_var_use(&mut self, var_name: &str) {
-        *self.var_usage_counts.entry(var_name.to_string()).or_insert(0) += 1;
+        *self
+            .var_usage_counts
+            .entry(var_name.to_string())
+            .or_insert(0) += 1;
     }
 
     /// Check if this is the last use of a variable (can move instead of clone)
     pub fn is_last_var_use(&mut self, var_name: &str) -> bool {
         let total = self.var_usage_counts.get(var_name).copied().unwrap_or(1);
-        let current = self.var_usage_current.entry(var_name.to_string()).or_insert(0);
+        let current = self
+            .var_usage_current
+            .entry(var_name.to_string())
+            .or_insert(0);
         *current += 1;
         *current >= total
     }
@@ -557,7 +610,9 @@ impl<'a> CodeGenContext<'a> {
             // Tuple needs clone if any element needs clone
             Type::Tuple(types) => types.iter().any(|t| self.type_needs_clone(t)),
             // Arrays, Generics, Functions, etc. - assume need clone for safety
-            Type::Array { .. } | Type::Generic { .. } | Type::Function { .. } | Type::Union(_) => true,
+            Type::Array { .. } | Type::Generic { .. } | Type::Function { .. } | Type::Union(_) => {
+                true
+            }
             // TypeVar and Unknown - assume need clone
             Type::TypeVar(_) | Type::Unknown => true,
             // Final wraps another type
@@ -569,6 +624,7 @@ impl<'a> CodeGenContext<'a> {
     pub fn analyze_var_usage(&mut self, stmts: &[crate::hir::HirStmt]) {
         self.reset_var_usage();
         self.borrowable_vars.clear();
+        self.mut_borrowable_vars.clear();
 
         // First pass: identify field-source variables and count all uses
         let field_source_vars = self.collect_field_source_vars(stmts);
@@ -577,9 +633,12 @@ impl<'a> CodeGenContext<'a> {
         }
 
         // Second pass: analyze if field-source variables can be borrowed
-        for var_name in field_source_vars {
-            if self.can_var_borrow(stmts, &var_name) {
-                self.borrowable_vars.insert(var_name);
+        for var_name in &field_source_vars {
+            // Check for mutable borrowing first (requires &mut source AND mutation)
+            if self.can_var_mut_borrow(stmts, var_name) {
+                self.mut_borrowable_vars.insert(var_name.clone());
+            } else if self.can_var_borrow(stmts, var_name) {
+                self.borrowable_vars.insert(var_name.clone());
             }
         }
     }
@@ -593,18 +652,24 @@ impl<'a> CodeGenContext<'a> {
         result
     }
 
-    fn collect_field_source_vars_in_stmt(&self, stmt: &crate::hir::HirStmt, result: &mut Vec<String>) {
-        use crate::hir::{AssignTarget, HirExpr, HirStmt};
+    fn collect_field_source_vars_in_stmt(
+        &self,
+        stmt: &crate::hir::HirStmt,
+        result: &mut Vec<String>,
+    ) {
+        use crate::hir::{AssignTarget, HirStmt};
         match stmt {
             HirStmt::Assign { target, value, .. } => {
                 if let AssignTarget::Symbol(var_name) = target {
-                    if matches!(value, HirExpr::Attribute { .. }) {
+                    if self.is_attribute_sourced(value) {
                         result.push(var_name.clone());
                     }
                 }
             }
             HirStmt::If {
-                then_body, else_body, ..
+                then_body,
+                else_body,
+                ..
             } => {
                 for s in then_body {
                     self.collect_field_source_vars_in_stmt(s, result);
@@ -659,18 +724,199 @@ impl<'a> CodeGenContext<'a> {
         }
     }
 
-    /// Check if a variable can be borrowed instead of cloned
-    fn can_var_borrow(&self, stmts: &[crate::hir::HirStmt], var_name: &str) -> bool {
+    /// Check if an expression is "attribute-sourced" - either a direct attribute access
+    /// or a conditional expression where both branches are attribute-sourced.
+    fn is_attribute_sourced(&self, expr: &crate::hir::HirExpr) -> bool {
+        use crate::hir::HirExpr;
+        match expr {
+            HirExpr::Attribute { .. } => true,
+            HirExpr::IfExpr { body, orelse, .. } => {
+                self.is_attribute_sourced(body) && self.is_attribute_sourced(orelse)
+            }
+            _ => false,
+        }
+    }
+
+    /// Check if an expression is an empty collection initialization.
+    /// These should not block borrowability since they're just placeholder values.
+    fn is_empty_collection_init(expr: &crate::hir::HirExpr) -> bool {
+        use crate::hir::HirExpr;
+        match expr {
+            // Empty list literal: []
+            HirExpr::List(items) => items.is_empty(),
+            // Empty dict literal: {}
+            HirExpr::Dict(pairs) => pairs.is_empty(),
+            // Empty set literal: set()
+            HirExpr::Set(items) => items.is_empty(),
+            // Built-in constructors: list(), dict(), set(), Vec::new(), etc.
+            HirExpr::Call { func, args, .. } => {
+                let is_empty_constructor = matches!(
+                    func.as_str(),
+                    "list" | "dict" | "set" | "Vec" | "HashMap" | "HashSet"
+                );
+                is_empty_constructor && args.is_empty()
+            }
+            // Default values that are common placeholder initializations
+            HirExpr::Literal(lit) => {
+                use crate::hir::Literal;
+                match lit {
+                    Literal::Int(0) => true,
+                    Literal::Float(f) => *f == 0.0,
+                    Literal::String(s) => s.is_empty(),
+                    Literal::Bool(false) | Literal::None => true,
+                    _ => false,
+                }
+            }
+            _ => false,
+        }
+    }
+
+    /// Check if an expression is sourced from a &mut T parameter's field.
+    fn is_mut_ref_attribute_sourced(&self, expr: &crate::hir::HirExpr) -> bool {
+        use crate::hir::HirExpr;
+        match expr {
+            HirExpr::Attribute { value, .. } => self.is_mut_ref_base(value),
+            HirExpr::IfExpr { body, orelse, .. } => {
+                self.is_mut_ref_attribute_sourced(body) && self.is_mut_ref_attribute_sourced(orelse)
+            }
+            _ => false,
+        }
+    }
+
+    /// Check if the base of an attribute access chain is a &mut T parameter.
+    fn is_mut_ref_base(&self, expr: &crate::hir::HirExpr) -> bool {
+        use crate::hir::HirExpr;
+        match expr {
+            HirExpr::Var(name) => self.current_func_mut_ref_params.contains(name),
+            HirExpr::Attribute { value, .. } => self.is_mut_ref_base(value),
+            _ => false,
+        }
+    }
+
+    /// Check if a variable can be mutably borrowed instead of cloned.
+    /// Requires: source is &mut T, variable is mutated, no moves/captures.
+    fn can_var_mut_borrow(&self, stmts: &[crate::hir::HirStmt], var_name: &str) -> bool {
+        // Must have mutation use
+        if !self.var_has_mut_use(stmts, var_name) {
+            return false;
+        }
+        // Must be assigned from a &mut T source
+        if !self.var_has_mut_ref_source(stmts, var_name) {
+            return false;
+        }
+        // No move uses or closure captures
         !self.var_has_move_use(stmts, var_name)
+            && !self.var_captured_in_closure(stmts, var_name)
+            && !self.var_has_non_attribute_assignment(stmts, var_name)
+    }
+
+    /// Check if variable is assigned from a &mut T source (field of mutable reference param)
+    fn var_has_mut_ref_source(&self, stmts: &[crate::hir::HirStmt], var_name: &str) -> bool {
+        for stmt in stmts {
+            if self.stmt_has_mut_ref_source(stmt, var_name) {
+                return true;
+            }
+        }
+        false
+    }
+
+    fn stmt_has_mut_ref_source(&self, stmt: &crate::hir::HirStmt, var_name: &str) -> bool {
+        use crate::hir::{AssignTarget, HirStmt};
+        match stmt {
+            HirStmt::Assign { target, value, .. } => {
+                if let AssignTarget::Symbol(name) = target {
+                    if name == var_name && self.is_mut_ref_attribute_sourced(value) {
+                        return true;
+                    }
+                }
+                false
+            }
+            HirStmt::If {
+                then_body,
+                else_body,
+                ..
+            } => {
+                self.var_has_mut_ref_source(then_body, var_name)
+                    || else_body
+                        .as_ref()
+                        .is_some_and(|e| self.var_has_mut_ref_source(e, var_name))
+            }
+            HirStmt::While { body, .. } | HirStmt::For { body, .. } => {
+                self.var_has_mut_ref_source(body, var_name)
+            }
+            _ => false,
+        }
+    }
+
+    /// Check if a variable can be borrowed instead of cloned.
+    /// Field-source variables (List/Dict/Set from attribute access) are passed by reference
+    /// when used as function arguments, so function calls are NOT move uses.
+    fn can_var_borrow(&self, stmts: &[crate::hir::HirStmt], var_name: &str) -> bool {
+        // Only check for actual moves (returns), not function calls (passed by reference)
+        !self.var_has_return_move(stmts, var_name)
             && !self.var_has_mut_use(stmts, var_name)
             && !self.var_captured_in_closure(stmts, var_name)
             && !self.var_has_non_attribute_assignment(stmts, var_name)
     }
 
+    /// Check if variable is returned (actual move), not including function call args
+    /// which are passed by reference for List/Dict/Set types.
+    fn var_has_return_move(&self, stmts: &[crate::hir::HirStmt], var_name: &str) -> bool {
+        for stmt in stmts {
+            if self.stmt_has_return_move(stmt, var_name) {
+                return true;
+            }
+        }
+        false
+    }
+
+    fn stmt_has_return_move(&self, stmt: &crate::hir::HirStmt, var_name: &str) -> bool {
+        use crate::hir::HirStmt;
+        match stmt {
+            HirStmt::Return(Some(expr)) => self.expr_is_var_move(expr, var_name),
+            HirStmt::If {
+                then_body,
+                else_body,
+                ..
+            } => {
+                self.var_has_return_move(then_body, var_name)
+                    || else_body
+                        .as_ref()
+                        .is_some_and(|e| self.var_has_return_move(e, var_name))
+            }
+            HirStmt::While { body, .. } | HirStmt::For { body, .. } => {
+                self.var_has_return_move(body, var_name)
+            }
+            HirStmt::Try {
+                body,
+                handlers,
+                orelse,
+                finalbody,
+            } => {
+                self.var_has_return_move(body, var_name)
+                    || handlers
+                        .iter()
+                        .any(|h| self.var_has_return_move(&h.body, var_name))
+                    || orelse
+                        .as_ref()
+                        .is_some_and(|e| self.var_has_return_move(e, var_name))
+                    || finalbody
+                        .as_ref()
+                        .is_some_and(|e| self.var_has_return_move(e, var_name))
+            }
+            HirStmt::With { body, .. } => self.var_has_return_move(body, var_name),
+            _ => false,
+        }
+    }
+
     /// Check if variable is assigned from a non-attribute expression anywhere.
     /// If a var is assigned both from attributes and non-attributes in different branches,
     /// we cannot borrow consistently (types would mismatch: &T vs T).
-    fn var_has_non_attribute_assignment(&self, stmts: &[crate::hir::HirStmt], var_name: &str) -> bool {
+    fn var_has_non_attribute_assignment(
+        &self,
+        stmts: &[crate::hir::HirStmt],
+        var_name: &str,
+    ) -> bool {
         for stmt in stmts {
             if self.stmt_has_non_attribute_assignment(stmt, var_name) {
                 return true;
@@ -679,19 +925,38 @@ impl<'a> CodeGenContext<'a> {
         false
     }
 
-    fn stmt_has_non_attribute_assignment(&self, stmt: &crate::hir::HirStmt, var_name: &str) -> bool {
-        use crate::hir::{AssignTarget, HirExpr, HirStmt};
+    fn stmt_has_non_attribute_assignment(
+        &self,
+        stmt: &crate::hir::HirStmt,
+        var_name: &str,
+    ) -> bool {
+        use crate::hir::{AssignTarget, HirStmt};
         match stmt {
-            HirStmt::Assign { target, value, .. } => {
+            HirStmt::Assign {
+                target,
+                value,
+                type_annotation,
+            } => {
                 if let AssignTarget::Symbol(name) = target {
-                    if name == var_name && !matches!(value, HirExpr::Attribute { .. }) {
+                    // Skip empty collection initializations WITHOUT type annotations
+                    // Pattern: `players = list()` followed by `players = state.home_players`
+                    // But DON'T skip if there's a type annotation like `players: list[Player] = list()`
+                    // because that fixes the type and we can't later assign a reference
+                    let is_empty_init_without_annotation =
+                        Self::is_empty_collection_init(value) && type_annotation.is_none();
+                    if name == var_name
+                        && !self.is_attribute_sourced(value)
+                        && !is_empty_init_without_annotation
+                    {
                         return true;
                     }
                 }
                 false
             }
             HirStmt::If {
-                then_body, else_body, ..
+                then_body,
+                else_body,
+                ..
             } => {
                 self.var_has_non_attribute_assignment(then_body, var_name)
                     || else_body
@@ -743,7 +1008,9 @@ impl<'a> CodeGenContext<'a> {
             }
             HirStmt::Expr(expr) => self.expr_has_var_as_call_arg(expr, var_name),
             HirStmt::If {
-                then_body, else_body, ..
+                then_body,
+                else_body,
+                ..
             } => {
                 self.var_has_move_use(then_body, var_name)
                     || else_body
@@ -751,7 +1018,9 @@ impl<'a> CodeGenContext<'a> {
                         .map(|e| self.var_has_move_use(e, var_name))
                         .unwrap_or(false)
             }
-            HirStmt::While { body, .. } | HirStmt::For { body, .. } => self.var_has_move_use(body, var_name),
+            HirStmt::While { body, .. } | HirStmt::For { body, .. } => {
+                self.var_has_move_use(body, var_name)
+            }
             HirStmt::Raise { exception, .. } => exception
                 .as_ref()
                 .map(|e| self.expr_is_var_move(e, var_name))
@@ -763,7 +1032,9 @@ impl<'a> CodeGenContext<'a> {
                 finalbody,
             } => {
                 self.var_has_move_use(body, var_name)
-                    || handlers.iter().any(|h| self.var_has_move_use(&h.body, var_name))
+                    || handlers
+                        .iter()
+                        .any(|h| self.var_has_move_use(&h.body, var_name))
                     || orelse
                         .as_ref()
                         .map(|e| self.var_has_move_use(e, var_name))
@@ -794,11 +1065,15 @@ impl<'a> CodeGenContext<'a> {
         match expr {
             HirExpr::Call { args, kwargs, .. } => {
                 args.iter().any(|a| self.expr_is_var_move(a, var_name))
-                    || kwargs.iter().any(|(_, v)| self.expr_is_var_move(v, var_name))
+                    || kwargs
+                        .iter()
+                        .any(|(_, v)| self.expr_is_var_move(v, var_name))
             }
             HirExpr::MethodCall { args, kwargs, .. } => {
                 args.iter().any(|a| self.expr_is_var_move(a, var_name))
-                    || kwargs.iter().any(|(_, v)| self.expr_is_var_move(v, var_name))
+                    || kwargs
+                        .iter()
+                        .any(|(_, v)| self.expr_is_var_move(v, var_name))
             }
             _ => false,
         }
@@ -815,11 +1090,17 @@ impl<'a> CodeGenContext<'a> {
     }
 
     fn stmt_has_mut_use(&self, stmt: &crate::hir::HirStmt, var_name: &str) -> bool {
-        use crate::hir::HirStmt;
+        use crate::hir::{AssignTarget, HirStmt};
         match stmt {
             HirStmt::Expr(expr) => self.expr_is_mutating_method_call(expr, var_name),
+            HirStmt::Assign { target, .. } => {
+                // Check if assignment target mutates our variable through attribute/index access
+                self.assign_target_mutates_var(target, var_name)
+            }
             HirStmt::If {
-                then_body, else_body, ..
+                then_body,
+                else_body,
+                ..
             } => {
                 self.var_has_mut_use(then_body, var_name)
                     || else_body
@@ -827,7 +1108,9 @@ impl<'a> CodeGenContext<'a> {
                         .map(|e| self.var_has_mut_use(e, var_name))
                         .unwrap_or(false)
             }
-            HirStmt::While { body, .. } | HirStmt::For { body, .. } => self.var_has_mut_use(body, var_name),
+            HirStmt::While { body, .. } | HirStmt::For { body, .. } => {
+                self.var_has_mut_use(body, var_name)
+            }
             HirStmt::Try {
                 body,
                 handlers,
@@ -835,7 +1118,9 @@ impl<'a> CodeGenContext<'a> {
                 finalbody,
             } => {
                 self.var_has_mut_use(body, var_name)
-                    || handlers.iter().any(|h| self.var_has_mut_use(&h.body, var_name))
+                    || handlers
+                        .iter()
+                        .any(|h| self.var_has_mut_use(&h.body, var_name))
                     || orelse
                         .as_ref()
                         .map(|e| self.var_has_mut_use(e, var_name))
@@ -846,6 +1131,31 @@ impl<'a> CodeGenContext<'a> {
                         .unwrap_or(false)
             }
             HirStmt::With { body, .. } => self.var_has_mut_use(body, var_name),
+            _ => false,
+        }
+    }
+
+    /// Check if an assignment target mutates a variable (attribute or index assignment)
+    fn assign_target_mutates_var(&self, target: &crate::hir::AssignTarget, var_name: &str) -> bool {
+        use crate::hir::AssignTarget;
+        match target {
+            AssignTarget::Symbol(_) => false, // Direct assignment doesn't mutate the var
+            AssignTarget::Attribute { value, .. } => self.expr_is_or_contains_var(value, var_name),
+            AssignTarget::Index { base, .. } => self.expr_is_or_contains_var(base, var_name),
+            AssignTarget::Slice { base, .. } => self.expr_is_or_contains_var(base, var_name),
+            AssignTarget::Tuple(targets) => targets
+                .iter()
+                .any(|t| self.assign_target_mutates_var(t, var_name)),
+        }
+    }
+
+    /// Check if an expression is or contains a specific variable
+    fn expr_is_or_contains_var(&self, expr: &crate::hir::HirExpr, var_name: &str) -> bool {
+        use crate::hir::HirExpr;
+        match expr {
+            HirExpr::Var(name) => name == var_name,
+            HirExpr::Attribute { value, .. } => self.expr_is_or_contains_var(value, var_name),
+            HirExpr::Index { base, .. } => self.expr_is_or_contains_var(base, var_name),
             _ => false,
         }
     }
@@ -913,10 +1223,12 @@ impl<'a> CodeGenContext<'a> {
                         .unwrap_or(false)
             }
             HirStmt::While { condition, body } => {
-                self.expr_has_closure_capture(condition, var_name) || self.var_captured_in_closure(body, var_name)
+                self.expr_has_closure_capture(condition, var_name)
+                    || self.var_captured_in_closure(body, var_name)
             }
             HirStmt::For { iter, body, .. } => {
-                self.expr_has_closure_capture(iter, var_name) || self.var_captured_in_closure(body, var_name)
+                self.expr_has_closure_capture(iter, var_name)
+                    || self.var_captured_in_closure(body, var_name)
             }
             HirStmt::Try {
                 body,
@@ -925,7 +1237,9 @@ impl<'a> CodeGenContext<'a> {
                 finalbody,
             } => {
                 self.var_captured_in_closure(body, var_name)
-                    || handlers.iter().any(|h| self.var_captured_in_closure(&h.body, var_name))
+                    || handlers
+                        .iter()
+                        .any(|h| self.var_captured_in_closure(&h.body, var_name))
                     || orelse
                         .as_ref()
                         .map(|e| self.var_captured_in_closure(e, var_name))
@@ -936,7 +1250,8 @@ impl<'a> CodeGenContext<'a> {
                         .unwrap_or(false)
             }
             HirStmt::With { context, body, .. } => {
-                self.expr_has_closure_capture(context, var_name) || self.var_captured_in_closure(body, var_name)
+                self.expr_has_closure_capture(context, var_name)
+                    || self.var_captured_in_closure(body, var_name)
             }
             _ => false,
         }
@@ -969,18 +1284,29 @@ impl<'a> CodeGenContext<'a> {
                         .unwrap_or(false)
             }
             HirExpr::Binary { left, right, .. } => {
-                self.expr_has_closure_capture(left, var_name) || self.expr_has_closure_capture(right, var_name)
+                self.expr_has_closure_capture(left, var_name)
+                    || self.expr_has_closure_capture(right, var_name)
             }
             HirExpr::Call { args, kwargs, .. } => {
-                args.iter().any(|a| self.expr_has_closure_capture(a, var_name))
-                    || kwargs.iter().any(|(_, v)| self.expr_has_closure_capture(v, var_name))
+                args.iter()
+                    .any(|a| self.expr_has_closure_capture(a, var_name))
+                    || kwargs
+                        .iter()
+                        .any(|(_, v)| self.expr_has_closure_capture(v, var_name))
             }
             HirExpr::MethodCall {
-                object, args, kwargs, ..
+                object,
+                args,
+                kwargs,
+                ..
             } => {
                 self.expr_has_closure_capture(object, var_name)
-                    || args.iter().any(|a| self.expr_has_closure_capture(a, var_name))
-                    || kwargs.iter().any(|(_, v)| self.expr_has_closure_capture(v, var_name))
+                    || args
+                        .iter()
+                        .any(|a| self.expr_has_closure_capture(a, var_name))
+                    || kwargs
+                        .iter()
+                        .any(|(_, v)| self.expr_has_closure_capture(v, var_name))
             }
             _ => false,
         }
@@ -991,30 +1317,39 @@ impl<'a> CodeGenContext<'a> {
         match expr {
             HirExpr::Var(name) => name == var_name,
             HirExpr::Binary { left, right, .. } => {
-                self.expr_references_var(left, var_name) || self.expr_references_var(right, var_name)
+                self.expr_references_var(left, var_name)
+                    || self.expr_references_var(right, var_name)
             }
             HirExpr::Unary { operand, .. } => self.expr_references_var(operand, var_name),
             HirExpr::Call { args, kwargs, .. } => {
                 args.iter().any(|a| self.expr_references_var(a, var_name))
-                    || kwargs.iter().any(|(_, v)| self.expr_references_var(v, var_name))
+                    || kwargs
+                        .iter()
+                        .any(|(_, v)| self.expr_references_var(v, var_name))
             }
             HirExpr::MethodCall {
-                object, args, kwargs, ..
+                object,
+                args,
+                kwargs,
+                ..
             } => {
                 self.expr_references_var(object, var_name)
                     || args.iter().any(|a| self.expr_references_var(a, var_name))
-                    || kwargs.iter().any(|(_, v)| self.expr_references_var(v, var_name))
+                    || kwargs
+                        .iter()
+                        .any(|(_, v)| self.expr_references_var(v, var_name))
             }
             HirExpr::Attribute { value, .. } => self.expr_references_var(value, var_name),
             HirExpr::Index { base, index } => {
-                self.expr_references_var(base, var_name) || self.expr_references_var(index, var_name)
+                self.expr_references_var(base, var_name)
+                    || self.expr_references_var(index, var_name)
             }
             HirExpr::List(elts) | HirExpr::Tuple(elts) | HirExpr::Set(elts) => {
                 elts.iter().any(|e| self.expr_references_var(e, var_name))
             }
-            HirExpr::Dict(pairs) => pairs
-                .iter()
-                .any(|(k, v)| self.expr_references_var(k, var_name) || self.expr_references_var(v, var_name)),
+            HirExpr::Dict(pairs) => pairs.iter().any(|(k, v)| {
+                self.expr_references_var(k, var_name) || self.expr_references_var(v, var_name)
+            }),
             HirExpr::IfExpr { test, body, orelse } => {
                 self.expr_references_var(test, var_name)
                     || self.expr_references_var(body, var_name)
@@ -1131,7 +1466,10 @@ impl<'a> CodeGenContext<'a> {
                 }
             }
             HirExpr::MethodCall {
-                object, args, kwargs, ..
+                object,
+                args,
+                kwargs,
+                ..
             } => {
                 // Method calls borrow the receiver, so if the object is just a variable,
                 // don't count it as a consuming use. Only count nested expressions.

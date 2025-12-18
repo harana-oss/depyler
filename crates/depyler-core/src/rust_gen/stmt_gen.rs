@@ -8,13 +8,16 @@ use crate::rust_gen::context::{CodeGenContext, RustCodeGen, ToRustExpr};
 use crate::rust_gen::func_gen::infer_expr_type_with_env;
 use crate::rust_gen::keywords::safe_ident; // Keyword escaping
 use crate::rust_gen::type_gen::rust_type_to_syn;
-use anyhow::{Result, bail};
-use quote::{ToTokens, format_ident, quote};
+use anyhow::{bail, Result};
+use quote::{format_ident, quote, ToTokens};
 use syn::{self, parse_quote};
 
 /// Helper to build nested dictionary access for assignment
 /// Returns (base_expr, access_chain) where access_chain is a vec of index expressions
-fn extract_nested_indices_tokens(expr: &HirExpr, ctx: &mut CodeGenContext) -> Result<(syn::Expr, Vec<syn::Expr>)> {
+fn extract_nested_indices_tokens(
+    expr: &HirExpr,
+    ctx: &mut CodeGenContext,
+) -> Result<(syn::Expr, Vec<syn::Expr>)> {
     let mut indices = Vec::new();
     let mut current = expr;
 
@@ -90,6 +93,78 @@ fn build_expr_no_clone(expr: &HirExpr) -> syn::Expr {
     }
 }
 
+/// Check if an expression is "attribute-sourced" - either a direct attribute access
+/// or a conditional expression where both branches are attribute-sourced.
+fn is_attribute_sourced_expr(expr: &HirExpr) -> bool {
+    match expr {
+        HirExpr::Attribute { .. } => true,
+        HirExpr::IfExpr { body, orelse, .. } => {
+            is_attribute_sourced_expr(body) && is_attribute_sourced_expr(orelse)
+        }
+        _ => false,
+    }
+}
+
+/// Check if an expression is an empty collection initialization.
+/// These are placeholder values that will be reassigned later.
+fn is_empty_collection_init_expr(expr: &HirExpr) -> bool {
+    use crate::hir::Literal;
+    match expr {
+        // Empty list literal: []
+        HirExpr::List(items) => items.is_empty(),
+        // Empty dict literal: {}
+        HirExpr::Dict(pairs) => pairs.is_empty(),
+        // Empty set literal: set()
+        HirExpr::Set(items) => items.is_empty(),
+        // Built-in constructors: list(), dict(), set(), Vec::new(), etc.
+        HirExpr::Call { func, args, .. } => {
+            let is_empty_constructor = matches!(
+                func.as_str(),
+                "list" | "dict" | "set" | "Vec" | "HashMap" | "HashSet"
+            );
+            is_empty_constructor && args.is_empty()
+        }
+        // Default values that are common placeholder initializations
+        HirExpr::Literal(lit) => match lit {
+            Literal::Int(0) => true,
+            Literal::Float(f) => *f == 0.0,
+            Literal::String(s) => s.is_empty(),
+            Literal::Bool(false) | Literal::None => true,
+            _ => false,
+        },
+        _ => false,
+    }
+}
+
+/// Check if an expression is an enum variant (e.g., Team.Home, Play.WonPenalty).
+/// Enum variants are Copy types and should not be borrowed.
+fn is_enum_variant_expr(expr: &HirExpr, ctx: &CodeGenContext) -> bool {
+    match expr {
+        HirExpr::Attribute { value, .. } => {
+            if let HirExpr::Var(type_name) = value.as_ref() {
+                // Check if it's a known enum type
+                if ctx.enum_names.contains(type_name) {
+                    return true;
+                }
+                // Heuristic: PascalCase name that's not a known struct parameter
+                let first_char = type_name.chars().next().unwrap_or('a');
+                if first_char.is_uppercase()
+                    && !ctx.current_func_ref_params.contains(type_name)
+                    && !ctx.current_func_mut_ref_params.contains(type_name)
+                {
+                    return true;
+                }
+            }
+            false
+        }
+        HirExpr::IfExpr { body, orelse, .. } => {
+            // Both branches must be enum variants
+            is_enum_variant_expr(body, ctx) && is_enum_variant_expr(orelse, ctx)
+        }
+        _ => false,
+    }
+}
+
 /// Check if an HIR expression returns usize (needs cast to i32)
 ///
 /// This prevents unnecessary casts like `(a: i32) as i32`.
@@ -104,7 +179,9 @@ fn expr_returns_usize(expr: &HirExpr) -> bool {
             matches!(func.as_str(), "len" | "range")
         }
         // Binary operations might contain usize expressions
-        HirExpr::Binary { left, right, .. } => expr_returns_usize(left) || expr_returns_usize(right),
+        HirExpr::Binary { left, right, .. } => {
+            expr_returns_usize(left) || expr_returns_usize(right)
+        }
         // All other expressions (Var, Literal, etc.) don't return usize in our HIR
         _ => false,
     }
@@ -128,7 +205,14 @@ fn needs_type_conversion(target_type: &Type, expr: &HirExpr) -> bool {
             // Methods that return &str need .to_string() when String is expected
             if let HirExpr::MethodCall { method, .. } = expr {
                 // These methods return &str in Rust
-                let str_ref_methods = ["strip", "trim", "trim_start", "trim_end", "lstrip", "rstrip"];
+                let str_ref_methods = [
+                    "strip",
+                    "trim",
+                    "trim_start",
+                    "trim_end",
+                    "lstrip",
+                    "rstrip",
+                ];
                 if str_ref_methods.contains(&method.as_str()) {
                     return true;
                 }
@@ -160,7 +244,12 @@ fn apply_type_conversion(value_expr: syn::Expr, target_type: &Type) -> syn::Expr
 /// Infer the result type of a binary expression.
 ///
 /// Used to track variable types for expressions like `c = a - b * 4`.
-fn infer_binary_expr_type(ctx: &CodeGenContext, op: &BinOp, left: &HirExpr, right: &HirExpr) -> Type {
+fn infer_binary_expr_type(
+    ctx: &CodeGenContext,
+    op: &BinOp,
+    left: &HirExpr,
+    right: &HirExpr,
+) -> Type {
     // For arithmetic ops, if either operand is float, result is float
     match op {
         BinOp::Add | BinOp::Sub | BinOp::Mul | BinOp::Mod => {
@@ -211,7 +300,10 @@ fn is_expr_float(ctx: &CodeGenContext, expr: &HirExpr) -> bool {
         }
         HirExpr::Call { func, .. } => {
             // Common float-returning functions
-            matches!(func.as_str(), "float" | "sqrt" | "sin" | "cos" | "tan" | "log" | "exp")
+            matches!(
+                func.as_str(),
+                "float" | "sqrt" | "sin" | "cos" | "tan" | "log" | "exp"
+            )
         }
         _ => false,
     }
@@ -293,7 +385,8 @@ pub(crate) fn codegen_assert_stmt(
 #[inline]
 pub(crate) fn codegen_break_stmt(label: &Option<String>) -> Result<proc_macro2::TokenStream> {
     if let Some(label_name) = label {
-        let label_ident = syn::Lifetime::new(&format!("'{}", label_name), proc_macro2::Span::call_site());
+        let label_ident =
+            syn::Lifetime::new(&format!("'{}", label_name), proc_macro2::Span::call_site());
         Ok(quote! { break #label_ident; })
     } else {
         Ok(quote! { break; })
@@ -304,7 +397,8 @@ pub(crate) fn codegen_break_stmt(label: &Option<String>) -> Result<proc_macro2::
 #[inline]
 pub(crate) fn codegen_continue_stmt(label: &Option<String>) -> Result<proc_macro2::TokenStream> {
     if let Some(label_name) = label {
-        let label_ident = syn::Lifetime::new(&format!("'{}", label_name), proc_macro2::Span::call_site());
+        let label_ident =
+            syn::Lifetime::new(&format!("'{}", label_name), proc_macro2::Span::call_site());
         Ok(quote! { continue #label_ident; })
     } else {
         Ok(quote! { continue; })
@@ -313,7 +407,10 @@ pub(crate) fn codegen_continue_stmt(label: &Option<String>) -> Result<proc_macro
 
 /// Generate code for expression statement
 #[inline]
-pub(crate) fn codegen_expr_stmt(expr: &HirExpr, ctx: &mut CodeGenContext) -> Result<proc_macro2::TokenStream> {
+pub(crate) fn codegen_expr_stmt(
+    expr: &HirExpr,
+    ctx: &mut CodeGenContext,
+) -> Result<proc_macro2::TokenStream> {
     // Pattern: parser.add_argument("files", nargs="+", type=Path, action="store_true", help="...")
     if let HirExpr::MethodCall {
         object,
@@ -333,11 +430,17 @@ pub(crate) fn codegen_expr_stmt(expr: &HirExpr, ctx: &mut CodeGenContext) -> Res
                 // This is a subcommand parser - route add_argument to subcommand
                 if method == "add_argument" {
                     // Extract argument details (same as main parser)
-                    if let Some(HirExpr::Literal(crate::hir::Literal::String(first_arg))) = args.first() {
-                        let mut arg = crate::rust_gen::argparse_transform::ArgParserArgument::new(first_arg.clone());
+                    if let Some(HirExpr::Literal(crate::hir::Literal::String(first_arg))) =
+                        args.first()
+                    {
+                        let mut arg = crate::rust_gen::argparse_transform::ArgParserArgument::new(
+                            first_arg.clone(),
+                        );
 
                         // Check for second argument (long flag)
-                        if let Some(HirExpr::Literal(crate::hir::Literal::String(second_arg))) = args.get(1) {
+                        if let Some(HirExpr::Literal(crate::hir::Literal::String(second_arg))) =
+                            args.get(1)
+                        {
                             if second_arg.starts_with("--") {
                                 arg.long = Some(second_arg.clone());
                             }
@@ -347,7 +450,9 @@ pub(crate) fn codegen_expr_stmt(expr: &HirExpr, ctx: &mut CodeGenContext) -> Res
                         for (kw_name, kw_value) in kwargs {
                             match kw_name.as_str() {
                                 "help" => {
-                                    if let HirExpr::Literal(crate::hir::Literal::String(help_val)) = kw_value {
+                                    if let HirExpr::Literal(crate::hir::Literal::String(help_val)) =
+                                        kw_value
+                                    {
                                         arg.help = Some(help_val.clone());
                                     }
                                 }
@@ -358,7 +463,9 @@ pub(crate) fn codegen_expr_stmt(expr: &HirExpr, ctx: &mut CodeGenContext) -> Res
                                             "int" => arg.arg_type = Some(crate::hir::Type::Int),
                                             "float" => arg.arg_type = Some(crate::hir::Type::Float),
                                             "Path" => {
-                                                arg.arg_type = Some(crate::hir::Type::Custom("PathBuf".to_string()))
+                                                arg.arg_type = Some(crate::hir::Type::Custom(
+                                                    "PathBuf".to_string(),
+                                                ))
                                             }
                                             _ => {
                                                 // e.g., type=email_address → track "email_address"
@@ -368,12 +475,17 @@ pub(crate) fn codegen_expr_stmt(expr: &HirExpr, ctx: &mut CodeGenContext) -> Res
                                     }
                                 }
                                 "action" => {
-                                    if let HirExpr::Literal(crate::hir::Literal::String(action_val)) = kw_value {
+                                    if let HirExpr::Literal(crate::hir::Literal::String(
+                                        action_val,
+                                    )) = kw_value
+                                    {
                                         arg.action = Some(action_val.clone());
                                     }
                                 }
                                 "required" => {
-                                    if let HirExpr::Literal(crate::hir::Literal::Bool(req)) = kw_value {
+                                    if let HirExpr::Literal(crate::hir::Literal::Bool(req)) =
+                                        kw_value
+                                    {
                                         arg.required = Some(*req);
                                     }
                                 }
@@ -390,7 +502,8 @@ pub(crate) fn codegen_expr_stmt(expr: &HirExpr, ctx: &mut CodeGenContext) -> Res
             // If it's a group, resolve to the parent parser (recursively for nested groups)
             let parser_var = if ctx.argparser_tracker.get_parser(var_name).is_some() {
                 var_name.clone()
-            } else if let Some(parent_parser) = ctx.argparser_tracker.get_parser_for_group(var_name) {
+            } else if let Some(parent_parser) = ctx.argparser_tracker.get_parser_for_group(var_name)
+            {
                 parent_parser // Already returns owned String
             } else {
                 // Not a parser, group, or subcommand - fall through to normal code generation
@@ -403,14 +516,23 @@ pub(crate) fn codegen_expr_stmt(expr: &HirExpr, ctx: &mut CodeGenContext) -> Res
                 match method.as_str() {
                     "add_argument" => {
                         // Process add_argument to extract argument details
-                        if let Some(_parser_info) = ctx.argparser_tracker.get_parser_mut(&parser_var) {
+                        if let Some(_parser_info) =
+                            ctx.argparser_tracker.get_parser_mut(&parser_var)
+                        {
                             // First arg is required, second is optional (for dual short+long flags)
-                            if let Some(HirExpr::Literal(crate::hir::Literal::String(first_arg))) = args.first() {
+                            if let Some(HirExpr::Literal(crate::hir::Literal::String(first_arg))) =
+                                args.first()
+                            {
                                 let mut arg =
-                                    crate::rust_gen::argparse_transform::ArgParserArgument::new(first_arg.clone());
+                                    crate::rust_gen::argparse_transform::ArgParserArgument::new(
+                                        first_arg.clone(),
+                                    );
 
                                 // Check for second argument (long flag name in dual short+long pattern)
-                                if let Some(HirExpr::Literal(crate::hir::Literal::String(second_arg))) = args.get(1) {
+                                if let Some(HirExpr::Literal(crate::hir::Literal::String(
+                                    second_arg,
+                                ))) = args.get(1)
+                                {
                                     // Pattern: add_argument("-o", "--output")
                                     // First is short, second is long
                                     if second_arg.starts_with("--") {
@@ -421,7 +543,9 @@ pub(crate) fn codegen_expr_stmt(expr: &HirExpr, ctx: &mut CodeGenContext) -> Res
                                 for (kw_name, kw_value) in kwargs {
                                     match kw_name.as_str() {
                                         "nargs" => match kw_value {
-                                            HirExpr::Literal(crate::hir::Literal::String(nargs_val)) => {
+                                            HirExpr::Literal(crate::hir::Literal::String(
+                                                nargs_val,
+                                            )) => {
                                                 arg.nargs = Some(nargs_val.clone());
                                             }
                                             HirExpr::Literal(crate::hir::Literal::Int(n)) => {
@@ -432,29 +556,44 @@ pub(crate) fn codegen_expr_stmt(expr: &HirExpr, ctx: &mut CodeGenContext) -> Res
                                         "type" => {
                                             if let HirExpr::Var(type_name) = kw_value {
                                                 match type_name.as_str() {
-                                                    "str" => arg.arg_type = Some(crate::hir::Type::String),
-                                                    "int" => arg.arg_type = Some(crate::hir::Type::Int),
-                                                    "float" => arg.arg_type = Some(crate::hir::Type::Float),
+                                                    "str" => {
+                                                        arg.arg_type =
+                                                            Some(crate::hir::Type::String)
+                                                    }
+                                                    "int" => {
+                                                        arg.arg_type = Some(crate::hir::Type::Int)
+                                                    }
+                                                    "float" => {
+                                                        arg.arg_type = Some(crate::hir::Type::Float)
+                                                    }
                                                     "Path" => {
                                                         // Path needs to map to PathBuf
                                                         arg.arg_type =
-                                                            Some(crate::hir::Type::Custom("PathBuf".to_string()));
+                                                            Some(crate::hir::Type::Custom(
+                                                                "PathBuf".to_string(),
+                                                            ));
                                                     }
                                                     _ => {
                                                         // e.g., type=email_address → track "email_address"
-                                                        ctx.validator_functions.insert(type_name.clone());
+                                                        ctx.validator_functions
+                                                            .insert(type_name.clone());
                                                     }
                                                 }
                                             }
                                         }
                                         "action" => {
-                                            if let HirExpr::Literal(crate::hir::Literal::String(action_val)) = kw_value
+                                            if let HirExpr::Literal(crate::hir::Literal::String(
+                                                action_val,
+                                            )) = kw_value
                                             {
                                                 arg.action = Some(action_val.clone());
                                             }
                                         }
                                         "help" => {
-                                            if let HirExpr::Literal(crate::hir::Literal::String(help_val)) = kw_value {
+                                            if let HirExpr::Literal(crate::hir::Literal::String(
+                                                help_val,
+                                            )) = kw_value
+                                            {
                                                 arg.help = Some(help_val.clone());
                                             }
                                         }
@@ -462,18 +601,25 @@ pub(crate) fn codegen_expr_stmt(expr: &HirExpr, ctx: &mut CodeGenContext) -> Res
                                             arg.default = Some(kw_value.clone());
                                         }
                                         "required" => {
-                                            if let HirExpr::Literal(crate::hir::Literal::Bool(req)) = kw_value {
+                                            if let HirExpr::Literal(crate::hir::Literal::Bool(
+                                                req,
+                                            )) = kw_value
+                                            {
                                                 arg.required = Some(*req);
                                             }
                                         }
                                         "dest" => {
-                                            if let HirExpr::Literal(crate::hir::Literal::String(dest_name)) = kw_value {
+                                            if let HirExpr::Literal(crate::hir::Literal::String(
+                                                dest_name,
+                                            )) = kw_value
+                                            {
                                                 arg.dest = Some(dest_name.clone());
                                             }
                                         }
                                         "metavar" => {
-                                            if let HirExpr::Literal(crate::hir::Literal::String(metavar_name)) =
-                                                kw_value
+                                            if let HirExpr::Literal(crate::hir::Literal::String(
+                                                metavar_name,
+                                            )) = kw_value
                                             {
                                                 arg.metavar = Some(metavar_name.clone());
                                             }
@@ -482,7 +628,10 @@ pub(crate) fn codegen_expr_stmt(expr: &HirExpr, ctx: &mut CodeGenContext) -> Res
                                             if let HirExpr::List(items) = kw_value {
                                                 let mut choices = Vec::new();
                                                 for item in items {
-                                                    if let HirExpr::Literal(crate::hir::Literal::String(s)) = item {
+                                                    if let HirExpr::Literal(
+                                                        crate::hir::Literal::String(s),
+                                                    ) = item
+                                                    {
                                                         choices.push(s.clone());
                                                     }
                                                 }
@@ -559,7 +708,8 @@ pub(crate) fn codegen_return_stmt(
         }
 
         // Check if return type is Optional and wrap value in Some()
-        let is_optional_return = matches!(ctx.current_return_type.as_ref(), Some(Type::Optional(_)));
+        let is_optional_return =
+            matches!(ctx.current_return_type.as_ref(), Some(Type::Optional(_)));
 
         // Original logic: Unwrap Option-typed variables when returning from non-Optional function
         // Problem: Can't distinguish between:
@@ -687,7 +837,8 @@ pub(crate) fn codegen_return_stmt(
         }
     } else if ctx.current_function_can_fail {
         // No expression - check if return type is Optional
-        let is_optional_return = matches!(ctx.current_return_type.as_ref(), Some(Type::Optional(_)));
+        let is_optional_return =
+            matches!(ctx.current_return_type.as_ref(), Some(Type::Optional(_)));
         // Always use explicit return keyword
         let use_return_keyword = true;
 
@@ -732,7 +883,10 @@ pub(crate) fn codegen_while_stmt(
     ctx.is_final_statement = false;
 
     ctx.enter_scope();
-    let body_stmts: Vec<_> = body.iter().map(|s| s.to_rust_tokens(ctx)).collect::<Result<Vec<_>>>()?;
+    let body_stmts: Vec<_> = body
+        .iter()
+        .map(|s| s.to_rust_tokens(ctx))
+        .collect::<Result<Vec<_>>>()?;
     ctx.exit_scope();
 
     ctx.is_final_statement = saved_is_final;
@@ -761,7 +915,10 @@ pub(crate) fn codegen_raise_stmt(
         let exc_expr = match exc {
             // Pattern 1: argparse.ArgumentTypeError(msg)
             HirExpr::MethodCall {
-                object, method, args, ..
+                object,
+                method,
+                args,
+                ..
             } if matches!(object.as_ref(), HirExpr::Var(v) if v == "argparse")
                 && method == "ArgumentTypeError"
                 && !args.is_empty() =>
@@ -932,19 +1089,27 @@ fn extract_none_check(condition: &HirExpr) -> Option<(String, bool)> {
     if let HirExpr::Binary { op, left, right } = condition {
         // Check for: var is not None  OR  None is not var
         if *op == BinOp::IsNot {
-            if let (HirExpr::Var(var_name), HirExpr::Literal(Literal::None)) = (left.as_ref(), right.as_ref()) {
+            if let (HirExpr::Var(var_name), HirExpr::Literal(Literal::None)) =
+                (left.as_ref(), right.as_ref())
+            {
                 return Some((var_name.clone(), true));
             }
-            if let (HirExpr::Literal(Literal::None), HirExpr::Var(var_name)) = (left.as_ref(), right.as_ref()) {
+            if let (HirExpr::Literal(Literal::None), HirExpr::Var(var_name)) =
+                (left.as_ref(), right.as_ref())
+            {
                 return Some((var_name.clone(), true));
             }
         }
         // Check for: var is None  OR  None is var
         if *op == BinOp::Is {
-            if let (HirExpr::Var(var_name), HirExpr::Literal(Literal::None)) = (left.as_ref(), right.as_ref()) {
+            if let (HirExpr::Var(var_name), HirExpr::Literal(Literal::None)) =
+                (left.as_ref(), right.as_ref())
+            {
                 return Some((var_name.clone(), false));
             }
-            if let (HirExpr::Literal(Literal::None), HirExpr::Var(var_name)) = (left.as_ref(), right.as_ref()) {
+            if let (HirExpr::Literal(Literal::None), HirExpr::Var(var_name)) =
+                (left.as_ref(), right.as_ref())
+            {
                 return Some((var_name.clone(), false));
             }
         }
@@ -1045,7 +1210,11 @@ fn apply_optional_truthiness(field_type: &Type, cond_expr: syn::Expr) -> syn::Ex
 ///
 /// #
 /// Fixes: `if val` where `val: String` failing to compile
-fn apply_truthiness_conversion(condition: &HirExpr, cond_expr: syn::Expr, ctx: &CodeGenContext) -> syn::Expr {
+fn apply_truthiness_conversion(
+    condition: &HirExpr,
+    cond_expr: syn::Expr,
+    ctx: &CodeGenContext,
+) -> syn::Expr {
     // `x is None` and `x is not None` are already converted to `.is_none()`/`.is_some()`
     // in convert_binary, so we don't need to apply truthiness conversion to them
     if let HirExpr::Binary { op, left, right } = condition {
@@ -1103,13 +1272,18 @@ fn apply_truthiness_conversion(condition: &HirExpr, cond_expr: syn::Expr, ctx: &
                         }
 
                         // Argument is NOT an Option if it has action="store_true" or "store_false"
-                        if matches!(arg.action.as_deref(), Some("store_true") | Some("store_false")) {
+                        if matches!(
+                            arg.action.as_deref(),
+                            Some("store_true") | Some("store_false")
+                        ) {
                             return false;
                         }
 
                         // Argument is an Option<T> if: not required AND no default value AND not positional
                         // Positional arguments are always required (Vec for nargs)
-                        !arg.is_positional && !arg.required.unwrap_or(false) && arg.default.is_none()
+                        !arg.is_positional
+                            && !arg.required.unwrap_or(false)
+                            && arg.default.is_none()
                     })
                 });
 
@@ -1173,7 +1347,9 @@ fn extract_assigned_symbols(stmts: &[HirStmt]) -> std::collections::HashSet<Stri
             }
             // Recursively check nested if/else, while, for, try blocks
             HirStmt::If {
-                then_body, else_body, ..
+                then_body,
+                else_body,
+                ..
             } => {
                 symbols.extend(extract_assigned_symbols(then_body));
                 if let Some(else_stmts) = else_body {
@@ -1217,7 +1393,9 @@ pub(crate) fn codegen_if_stmt(
     use std::collections::HashSet;
 
     if ctx.argparser_tracker.has_subcommands() {
-        if let Some(match_stmt) = try_generate_subcommand_match(condition, then_body, else_body, ctx)? {
+        if let Some(match_stmt) =
+            try_generate_subcommand_match(condition, then_body, else_body, ctx)?
+        {
             return Ok(match_stmt);
         }
     }
@@ -1354,15 +1532,21 @@ fn is_var_used_in_expr(var_name: &str, expr: &HirExpr) -> bool {
             is_var_used_in_expr(var_name, left) || is_var_used_in_expr(var_name, right)
         }
         HirExpr::Unary { operand, .. } => is_var_used_in_expr(var_name, operand),
-        HirExpr::Call { func: _, args, .. } => args.iter().any(|arg| is_var_used_in_expr(var_name, arg)),
+        HirExpr::Call { func: _, args, .. } => {
+            args.iter().any(|arg| is_var_used_in_expr(var_name, arg))
+        }
         HirExpr::MethodCall { object, args, .. } => {
-            is_var_used_in_expr(var_name, object) || args.iter().any(|arg| is_var_used_in_expr(var_name, arg))
+            is_var_used_in_expr(var_name, object)
+                || args.iter().any(|arg| is_var_used_in_expr(var_name, arg))
         }
-        HirExpr::Index { base, index } => is_var_used_in_expr(var_name, base) || is_var_used_in_expr(var_name, index),
+        HirExpr::Index { base, index } => {
+            is_var_used_in_expr(var_name, base) || is_var_used_in_expr(var_name, index)
+        }
         HirExpr::Attribute { value, .. } => is_var_used_in_expr(var_name, value),
-        HirExpr::List(elements) | HirExpr::Tuple(elements) | HirExpr::Set(elements) | HirExpr::FrozenSet(elements) => {
-            elements.iter().any(|e| is_var_used_in_expr(var_name, e))
-        }
+        HirExpr::List(elements)
+        | HirExpr::Tuple(elements)
+        | HirExpr::Set(elements)
+        | HirExpr::FrozenSet(elements) => elements.iter().any(|e| is_var_used_in_expr(var_name, e)),
         HirExpr::Dict(pairs) => pairs
             .iter()
             .any(|(k, v)| is_var_used_in_expr(var_name, k) || is_var_used_in_expr(var_name, v)),
@@ -1379,9 +1563,15 @@ fn is_var_used_in_expr(var_name: &str, expr: &HirExpr) -> bool {
             step,
         } => {
             is_var_used_in_expr(var_name, base)
-                || start.as_ref().is_some_and(|s| is_var_used_in_expr(var_name, s))
-                || stop.as_ref().is_some_and(|s| is_var_used_in_expr(var_name, s))
-                || step.as_ref().is_some_and(|s| is_var_used_in_expr(var_name, s))
+                || start
+                    .as_ref()
+                    .is_some_and(|s| is_var_used_in_expr(var_name, s))
+                || stop
+                    .as_ref()
+                    .is_some_and(|s| is_var_used_in_expr(var_name, s))
+                || step
+                    .as_ref()
+                    .is_some_and(|s| is_var_used_in_expr(var_name, s))
         }
         HirExpr::FString { parts } => parts.iter().any(|part| match part {
             crate::hir::FStringPart::Expr(expr) => is_var_used_in_expr(var_name, expr),
@@ -1423,12 +1613,18 @@ fn is_var_used_in_expr(var_name: &str, expr: &HirExpr) -> bool {
                     .as_ref()
                     .is_some_and(|cond| is_var_used_in_expr(var_name, cond))
         }
-        HirExpr::GeneratorExp { element, generators } => {
+        HirExpr::GeneratorExp {
+            element,
+            generators,
+        } => {
             // Check element and all generators
             is_var_used_in_expr(var_name, element)
                 || generators.iter().any(|gen| {
                     is_var_used_in_expr(var_name, &gen.iter)
-                        || gen.conditions.iter().any(|cond| is_var_used_in_expr(var_name, cond))
+                        || gen
+                            .conditions
+                            .iter()
+                            .any(|cond| is_var_used_in_expr(var_name, cond))
                 })
         }
         _ => false, // Literals and other expressions don't reference variables
@@ -1449,12 +1645,20 @@ fn is_var_used_in_assign_target(var_name: &str, target: &AssignTarget) -> bool {
             step,
         } => {
             is_var_used_in_expr(var_name, base)
-                || start.as_ref().is_some_and(|s| is_var_used_in_expr(var_name, s))
-                || stop.as_ref().is_some_and(|s| is_var_used_in_expr(var_name, s))
-                || step.as_ref().is_some_and(|s| is_var_used_in_expr(var_name, s))
+                || start
+                    .as_ref()
+                    .is_some_and(|s| is_var_used_in_expr(var_name, s))
+                || stop
+                    .as_ref()
+                    .is_some_and(|s| is_var_used_in_expr(var_name, s))
+                || step
+                    .as_ref()
+                    .is_some_and(|s| is_var_used_in_expr(var_name, s))
         }
         AssignTarget::Attribute { value, .. } => is_var_used_in_expr(var_name, value),
-        AssignTarget::Tuple(targets) => targets.iter().any(|t| is_var_used_in_assign_target(var_name, t)),
+        AssignTarget::Tuple(targets) => targets
+            .iter()
+            .any(|t| is_var_used_in_assign_target(var_name, t)),
     }
 }
 
@@ -1477,16 +1681,23 @@ fn is_var_used_in_stmt(var_name: &str, stmt: &HirStmt) -> bool {
                     .is_some_and(|body| body.iter().any(|s| is_var_used_in_stmt(var_name, s)))
         }
         HirStmt::While { condition, body } => {
-            is_var_used_in_expr(var_name, condition) || body.iter().any(|s| is_var_used_in_stmt(var_name, s))
+            is_var_used_in_expr(var_name, condition)
+                || body.iter().any(|s| is_var_used_in_stmt(var_name, s))
         }
         HirStmt::For { iter, body, .. } => {
-            is_var_used_in_expr(var_name, iter) || body.iter().any(|s| is_var_used_in_stmt(var_name, s))
+            is_var_used_in_expr(var_name, iter)
+                || body.iter().any(|s| is_var_used_in_stmt(var_name, s))
         }
         HirStmt::Return(Some(expr)) => is_var_used_in_expr(var_name, expr),
         HirStmt::Expr(expr) => is_var_used_in_expr(var_name, expr),
-        HirStmt::Raise { exception, .. } => exception.as_ref().is_some_and(|e| is_var_used_in_expr(var_name, e)),
+        HirStmt::Raise { exception, .. } => exception
+            .as_ref()
+            .is_some_and(|e| is_var_used_in_expr(var_name, e)),
         HirStmt::Assert { test, msg, .. } => {
-            is_var_used_in_expr(var_name, test) || msg.as_ref().is_some_and(|m| is_var_used_in_expr(var_name, m))
+            is_var_used_in_expr(var_name, test)
+                || msg
+                    .as_ref()
+                    .is_some_and(|m| is_var_used_in_expr(var_name, m))
         }
         _ => false,
     }
@@ -1494,7 +1705,10 @@ fn is_var_used_in_stmt(var_name: &str, stmt: &HirStmt) -> bool {
 
 /// Generate field access expression without adding .clone()
 /// Used for iteration contexts where we want to borrow, not clone
-fn generate_field_access_without_clone(iter: &HirExpr, ctx: &mut CodeGenContext) -> Result<syn::Expr> {
+fn generate_field_access_without_clone(
+    iter: &HirExpr,
+    ctx: &mut CodeGenContext,
+) -> Result<syn::Expr> {
     match iter {
         HirExpr::Attribute { value, attr } => {
             let value_expr = generate_field_access_without_clone(value, ctx)?;
@@ -1535,7 +1749,9 @@ fn is_field_access_iter(iter: &HirExpr) -> Option<(String, bool)> {
             }
         }
         // enumerate(state.items) or reversed(state.items)
-        HirExpr::Call { func, args, .. } if (func == "enumerate" || func == "reversed") && !args.is_empty() => {
+        HirExpr::Call { func, args, .. }
+            if (func == "enumerate" || func == "reversed") && !args.is_empty() =>
+        {
             if let HirExpr::Attribute { value, .. } = &args[0] {
                 if let Some(root_var) = crate::expr_utils::extract_root_var(value) {
                     Some((root_var, true))
@@ -1599,7 +1815,9 @@ fn is_loop_var_mutated(var_name: &str, stmt: &HirStmt) -> bool {
         }
         // Check nested statements
         HirStmt::If {
-            then_body, else_body, ..
+            then_body,
+            else_body,
+            ..
         } => {
             then_body.iter().any(|s| is_loop_var_mutated(var_name, s))
                 || else_body
@@ -1633,7 +1851,11 @@ pub(crate) fn codegen_for_stmt(
             let is_used = body.iter().any(|stmt| is_var_used_in_stmt(name, stmt));
 
             // If unused, prefix with underscore
-            let var_name = if is_used { name.clone() } else { format!("_{}", name) };
+            let var_name = if is_used {
+                name.clone()
+            } else {
+                format!("_{}", name)
+            };
 
             let ident = safe_ident(&var_name);
             if needs_mut_pattern {
@@ -1650,7 +1872,11 @@ pub(crate) fn codegen_for_stmt(
                     AssignTarget::Symbol(s) => {
                         // Check if this specific tuple element is used
                         let is_used = body.iter().any(|stmt| is_var_used_in_stmt(s, stmt));
-                        let var_name = if is_used { s.clone() } else { format!("_{}", s) };
+                        let var_name = if is_used {
+                            s.clone()
+                        } else {
+                            format!("_{}", s)
+                        };
                         safe_ident(&var_name)
                     }
                     _ => panic!("Nested tuple unpacking not supported in for loops"),
@@ -1669,7 +1895,9 @@ pub(crate) fn codegen_for_stmt(
     // When iterating over field accesses (e.g., state.items), we MUST use borrows
     // because Rust doesn't allow moving out of struct fields.
     // Determine whether to use & or &mut based on loop body mutations.
-    let (needs_field_borrow, is_special_call) = if let Some((_root_var, is_field)) = is_field_access_iter(iter) {
+    let (needs_field_borrow, is_special_call) = if let Some((_root_var, is_field)) =
+        is_field_access_iter(iter)
+    {
         if is_field {
             // This is a field access - we need borrowing
             // Determine if we need mutable or immutable borrow
@@ -1699,7 +1927,10 @@ pub(crate) fn codegen_for_stmt(
                 ctx.tuple_iter_vars.insert(var_name.clone());
             }
         }
-        let elt_exprs: Vec<syn::Expr> = elts.iter().map(|e| e.to_rust_expr(ctx)).collect::<Result<Vec<_>>>()?;
+        let elt_exprs: Vec<syn::Expr> = elts
+            .iter()
+            .map(|e| e.to_rust_expr(ctx))
+            .collect::<Result<Vec<_>>>()?;
         parse_quote! { [#(#elt_exprs),*] }
     } else if needs_field_borrow.is_some() {
         // For field accesses being iterated, generate without .clone() since we'll borrow
@@ -1775,13 +2006,20 @@ pub(crate) fn codegen_for_stmt(
         // Try to apply CSV iteration mapping from stdlib_mappings
         // This transforms: for row in reader
         // Into: for result in reader.deserialize::<HashMap<String, String>>()
-        if let Some(pattern) = ctx.stdlib_mappings.get_iteration_pattern("csv", "DictReader") {
+        if let Some(pattern) = ctx
+            .stdlib_mappings
+            .get_iteration_pattern("csv", "DictReader")
+        {
             // Check if pattern yields Results
-            if let crate::stdlib_mappings::RustPattern::IterationPattern { yields_results, .. } = pattern {
+            if let crate::stdlib_mappings::RustPattern::IterationPattern {
+                yields_results, ..
+            } = pattern
+            {
                 csv_yields_results = *yields_results;
             }
 
-            let rust_code = pattern.generate_rust_code(&iter_expr.to_token_stream().to_string(), &[]);
+            let rust_code =
+                pattern.generate_rust_code(&iter_expr.to_token_stream().to_string(), &[]);
             if let Ok(expr) = syn::parse_str::<syn::Expr>(&rust_code) {
                 // Set needs_csv flag
                 ctx.needs_csv = true;
@@ -1836,10 +2074,18 @@ pub(crate) fn codegen_for_stmt(
     // we need to add .iter() to properly iterate over it
     // Skip this for stdin/file/csv iterators which are already properly wrapped
     // Also skip for field access iterators that we just added borrows to
-    if !is_stdin_iter && !is_file_iter && !is_csv_reader && needs_field_borrow.is_none() && !is_special_call {
+    if !is_stdin_iter
+        && !is_file_iter
+        && !is_csv_reader
+        && needs_field_borrow.is_none()
+        && !is_special_call
+    {
         if let HirExpr::Var(var_name) = iter {
             // This is more reliable than name heuristics
-            let is_string_type = ctx.var_types.get(var_name).is_some_and(|t| matches!(t, Type::String));
+            let is_string_type = ctx
+                .var_types
+                .get(var_name)
+                .is_some_and(|t| matches!(t, Type::String));
 
             // Strings use .chars() instead of .iter().cloned()
             let is_string_name = {
@@ -1923,7 +2169,9 @@ pub(crate) fn codegen_for_stmt(
                 ctx.shadowed_ref_params.insert(name.clone());
             }
         }
-        (AssignTarget::Tuple(targets), Some(Type::Tuple(elem_types))) if targets.len() == elem_types.len() => {
+        (AssignTarget::Tuple(targets), Some(Type::Tuple(elem_types)))
+            if targets.len() == elem_types.len() =>
+        {
             // Tuple unpacking with type info: (i, val) from enumerate
             for (t, typ) in targets.iter().zip(elem_types.iter()) {
                 if let AssignTarget::Symbol(s) = t {
@@ -1973,7 +2221,10 @@ pub(crate) fn codegen_for_stmt(
         _ => vec![],
     };
 
-    let body_stmts: Vec<_> = body.iter().map(|s| s.to_rust_tokens(ctx)).collect::<Result<Vec<_>>>()?;
+    let body_stmts: Vec<_> = body
+        .iter()
+        .map(|s| s.to_rust_tokens(ctx))
+        .collect::<Result<Vec<_>>>()?;
     ctx.exit_scope();
 
     // Remove shadowed variables when exiting scope
@@ -2019,7 +2270,8 @@ pub(crate) fn codegen_for_stmt(
                 // Use .clone() instead of * because it works for both Copy and non-Copy types
                 let value_deref_stmt = if needs_deref && targets.len() >= 2 {
                     if let Some(AssignTarget::Symbol(value_var)) = targets.get(1) {
-                        let is_value_used = body.iter().any(|stmt| is_var_used_in_stmt(value_var, stmt));
+                        let is_value_used =
+                            body.iter().any(|stmt| is_var_used_in_stmt(value_var, stmt));
                         if is_value_used {
                             let value_ident = safe_ident(value_var);
                             Some(quote! { let #value_ident = #value_ident.clone(); })
@@ -2186,7 +2438,11 @@ fn is_dict_augassign_pattern(target: &AssignTarget, value: &HirExpr) -> bool {
 
 /// Check if this is an augmented assignment on an Optional field (obj.field op= value)
 /// Returns true if target is an Attribute and value is Binary with left being same Attribute
-fn is_optional_attr_augassign_pattern(target: &AssignTarget, value: &HirExpr, ctx: &CodeGenContext) -> bool {
+fn is_optional_attr_augassign_pattern(
+    target: &AssignTarget,
+    value: &HirExpr,
+    ctx: &CodeGenContext,
+) -> bool {
     if let AssignTarget::Attribute {
         value: target_base,
         attr: target_attr,
@@ -2201,7 +2457,9 @@ fn is_optional_attr_augassign_pattern(target: &AssignTarget, value: &HirExpr, ct
                 // Check if target and left refer to the same attribute
                 if target_attr == left_attr {
                     // Check if the bases refer to the same variable
-                    if let (HirExpr::Var(t_var), HirExpr::Var(l_var)) = (target_base.as_ref(), left_base.as_ref()) {
+                    if let (HirExpr::Var(t_var), HirExpr::Var(l_var)) =
+                        (target_base.as_ref(), left_base.as_ref())
+                    {
                         if t_var == l_var {
                             // Now check if this attribute is Optional
                             return expr_is_optional(left.as_ref(), ctx);
@@ -2216,7 +2474,11 @@ fn is_optional_attr_augassign_pattern(target: &AssignTarget, value: &HirExpr, ct
 
 /// Check if this is an augmented assignment on an Optional variable (var op= value)
 /// Returns true if target is a Symbol and value is Binary with left being same variable and target is Optional
-fn is_optional_var_augassign_pattern(target: &AssignTarget, value: &HirExpr, ctx: &CodeGenContext) -> bool {
+fn is_optional_var_augassign_pattern(
+    target: &AssignTarget,
+    value: &HirExpr,
+    ctx: &CodeGenContext,
+) -> bool {
     if let AssignTarget::Symbol(target_var) = target {
         if let HirExpr::Binary { left, .. } = value {
             if let HirExpr::Var(left_var) = left.as_ref() {
@@ -2273,22 +2535,27 @@ pub(crate) fn codegen_assign_stmt(
                 if let HirExpr::Var(module_name) = object.as_ref() {
                     if module_name == "argparse" {
                         // Register this as an ArgumentParser instance
-                        let mut info = crate::rust_gen::argparse_transform::ArgParserInfo::new(var_name.clone());
+                        let mut info = crate::rust_gen::argparse_transform::ArgParserInfo::new(
+                            var_name.clone(),
+                        );
 
                         // Extract description and epilog from kwargs
                         for (key, value_expr) in kwargs {
                             if key == "description" {
-                                if let HirExpr::Literal(crate::hir::Literal::String(s)) = value_expr {
+                                if let HirExpr::Literal(crate::hir::Literal::String(s)) = value_expr
+                                {
                                     info.description = Some(s.clone());
                                 }
                             } else if key == "epilog" {
-                                if let HirExpr::Literal(crate::hir::Literal::String(s)) = value_expr {
+                                if let HirExpr::Literal(crate::hir::Literal::String(s)) = value_expr
+                                {
                                     info.epilog = Some(s.clone());
                                 }
                             }
                         }
 
-                        ctx.argparser_tracker.register_parser(var_name.clone(), info);
+                        ctx.argparser_tracker
+                            .register_parser(var_name.clone(), info);
 
                         // Skip generating this statement - it will be replaced by Args struct
                         return Ok(quote! {});
@@ -2323,7 +2590,10 @@ pub(crate) fn codegen_assign_stmt(
                 if let HirExpr::Var(parent_var) = object.as_ref() {
                     // Check if parent_var is a parser OR a group
                     let is_parser_or_group = ctx.argparser_tracker.get_parser(parent_var).is_some()
-                        || ctx.argparser_tracker.get_parser_for_group(parent_var).is_some();
+                        || ctx
+                            .argparser_tracker
+                            .get_parser_for_group(parent_var)
+                            .is_some();
 
                     if is_parser_or_group {
                         // add_argument() calls on it later (e.g., input_group.add_argument())
@@ -2345,7 +2615,8 @@ pub(crate) fn codegen_assign_stmt(
                 if let HirExpr::Var(parser_var) = object.as_ref() {
                     if ctx.argparser_tracker.get_parser(parser_var).is_some() {
                         // Extract dest and required from kwargs
-                        let dest_field = extract_kwarg_string(kwargs, "dest").unwrap_or_else(|| "command".to_string());
+                        let dest_field = extract_kwarg_string(kwargs, "dest")
+                            .unwrap_or_else(|| "command".to_string());
                         let required = extract_kwarg_bool(kwargs, "required").unwrap_or(false);
                         let help = extract_kwarg_string(kwargs, "help");
 
@@ -2369,7 +2640,11 @@ pub(crate) fn codegen_assign_stmt(
 
             if method == "add_parser" {
                 if let HirExpr::Var(subparsers_var) = object.as_ref() {
-                    if ctx.argparser_tracker.get_subparsers(subparsers_var).is_some() {
+                    if ctx
+                        .argparser_tracker
+                        .get_subparsers(subparsers_var)
+                        .is_some()
+                    {
                         // Extract command name from first positional arg
                         if !args.is_empty() {
                             let command_name = extract_string_literal(&args[0]);
@@ -2521,7 +2796,8 @@ pub(crate) fn codegen_assign_stmt(
             HirExpr::Call { func, args, .. } => {
                 // Check if this is a user-defined class constructor
                 if ctx.class_names.contains(func) {
-                    ctx.var_types.insert(var_name.clone(), Type::Custom(func.clone()));
+                    ctx.var_types
+                        .insert(var_name.clone(), Type::Custom(func.clone()));
                 }
                 // This enables correct HashSet.contains() vs HashMap.contains_key() selection
                 else if func == "set" {
@@ -2531,7 +2807,8 @@ pub(crate) fn codegen_assign_stmt(
                     } else {
                         Type::Int // Default for untyped sets
                     };
-                    ctx.var_types.insert(var_name.clone(), Type::Set(Box::new(elem_type)));
+                    ctx.var_types
+                        .insert(var_name.clone(), Type::Set(Box::new(elem_type)));
                 }
                 // Lookup function return type and track it for type inference
                 // Enables: result = merge(&a, &b) where merge returns list[int]
@@ -2589,9 +2866,9 @@ pub(crate) fn codegen_assign_stmt(
                 // Track min() and max() - return Float if any argument is Float, else Int
                 else if matches!(func.as_str(), "min" | "max") {
                     if !args.is_empty() {
-                        let has_float = args
-                            .iter()
-                            .any(|arg| matches!(infer_expr_type_with_env(arg, &ctx.var_types), Type::Float));
+                        let has_float = args.iter().any(|arg| {
+                            matches!(infer_expr_type_with_env(arg, &ctx.var_types), Type::Float)
+                        });
                         if has_float {
                             ctx.var_types.insert(var_name.clone(), Type::Float);
                         } else {
@@ -2621,7 +2898,8 @@ pub(crate) fn codegen_assign_stmt(
                 } else {
                     Type::Unknown
                 };
-                ctx.var_types.insert(var_name.clone(), Type::List(Box::new(elem_type)));
+                ctx.var_types
+                    .insert(var_name.clone(), Type::List(Box::new(elem_type)));
             }
             HirExpr::Dict(items) => {
                 // When info = {"a": 1}, mark info as Dict(String, Int) so it gets borrowed
@@ -2634,8 +2912,10 @@ pub(crate) fn codegen_assign_stmt(
                 } else {
                     (Type::Unknown, Type::Unknown)
                 };
-                ctx.var_types
-                    .insert(var_name.clone(), Type::Dict(Box::new(key_type), Box::new(val_type)));
+                ctx.var_types.insert(
+                    var_name.clone(),
+                    Type::Dict(Box::new(key_type), Box::new(val_type)),
+                );
             }
             HirExpr::Set(elements) | HirExpr::FrozenSet(elements) => {
                 // Track set type from literal for proper method dispatch
@@ -2649,7 +2929,8 @@ pub(crate) fn codegen_assign_stmt(
                 } else {
                     Type::Unknown
                 };
-                ctx.var_types.insert(var_name.clone(), Type::Set(Box::new(elem_type)));
+                ctx.var_types
+                    .insert(var_name.clone(), Type::Set(Box::new(elem_type)));
             }
             HirExpr::Slice { base, .. } => {
                 // When rest = numbers[1:], mark rest as List(Int) so it gets borrowed on call
@@ -2663,7 +2944,8 @@ pub(crate) fn codegen_assign_stmt(
                 } else {
                     Type::Int // Default to Int
                 };
-                ctx.var_types.insert(var_name.clone(), Type::List(Box::new(elem_type)));
+                ctx.var_types
+                    .insert(var_name.clone(), Type::List(Box::new(elem_type)));
             }
             // E.g., value_str = data.get(...) where data: Vec<String> → value_str: String
             HirExpr::MethodCall { object, method, .. } => {
@@ -2673,7 +2955,8 @@ pub(crate) fn codegen_assign_stmt(
                         if let Some(Type::List(elem_type)) = ctx.var_types.get(obj_var) {
                             // .get() returns Option<&T>, but after .cloned().unwrap_or_default()
                             // it becomes T, so track the element type
-                            ctx.var_types.insert(var_name.clone(), elem_type.as_ref().clone());
+                            ctx.var_types
+                                .insert(var_name.clone(), elem_type.as_ref().clone());
                         }
                     }
                 }
@@ -2685,7 +2968,14 @@ pub(crate) fn codegen_assign_stmt(
                 // String methods that return String
                 else if matches!(
                     method.as_str(),
-                    "upper" | "lower" | "strip" | "lstrip" | "rstrip" | "title" | "replace" | "format"
+                    "upper"
+                        | "lower"
+                        | "strip"
+                        | "lstrip"
+                        | "rstrip"
+                        | "title"
+                        | "replace"
+                        | "format"
                 ) {
                     ctx.var_types.insert(var_name.clone(), Type::String);
                 }
@@ -2739,21 +3029,27 @@ pub(crate) fn codegen_assign_stmt(
             // Track list comprehensions: exps = [math.exp(x) for x in logits]
             HirExpr::ListComp { element, .. } => {
                 let elem_type = infer_expr_type_with_env(element, &ctx.var_types);
-                ctx.var_types.insert(var_name.clone(), Type::List(Box::new(elem_type)));
+                ctx.var_types
+                    .insert(var_name.clone(), Type::List(Box::new(elem_type)));
             }
             // Track set comprehensions: unique = {x.lower() for x in words}
             HirExpr::SetComp { element, .. } => {
                 let elem_type = infer_expr_type_with_env(element, &ctx.var_types);
-                ctx.var_types.insert(var_name.clone(), Type::Set(Box::new(elem_type)));
+                ctx.var_types
+                    .insert(var_name.clone(), Type::Set(Box::new(elem_type)));
             }
             // Track dict comprehensions: counts = {k: v * 2 for k, v in items}
             HirExpr::DictComp {
-                key, value: val_expr, ..
+                key,
+                value: val_expr,
+                ..
             } => {
                 let key_type = infer_expr_type_with_env(key, &ctx.var_types);
                 let val_type = infer_expr_type_with_env(val_expr, &ctx.var_types);
-                ctx.var_types
-                    .insert(var_name.clone(), Type::Dict(Box::new(key_type), Box::new(val_type)));
+                ctx.var_types.insert(
+                    var_name.clone(),
+                    Type::Dict(Box::new(key_type), Box::new(val_type)),
+                );
             }
             // Track ternary expressions: win_factor = 500 if team_won else 0
             HirExpr::IfExpr { body, orelse, .. } => {
@@ -2826,24 +3122,73 @@ pub(crate) fn codegen_assign_stmt(
 
     // Check if this is a field access assignment that can use borrowing
     // Pattern: `let players = state.all_players` where players is only used for iteration
+    // Also handles: `let team_stats = (state.home_stats if cond else state.away_stats)`
     // Don't borrow Copy types (primitives like i32, f64, bool) - they should be copied directly
-    let should_borrow = if let (AssignTarget::Symbol(var_name), HirExpr::Attribute { value, attr }) = (target, value) {
-        ctx.should_borrow_var(var_name) && !ctx.is_attribute_copy_type(value, attr)
+    // Don't borrow enum variants - they are Copy types
+    let (should_borrow, should_mut_borrow) = if let AssignTarget::Symbol(var_name) = target {
+        let is_attribute_sourced = is_attribute_sourced_expr(value);
+        let is_copy_type = if let HirExpr::Attribute { value: base, attr } = value {
+            ctx.is_attribute_copy_type(base, attr)
+        } else {
+            false
+        };
+        // Check if the value (or both branches of an IfExpr) are enum variants
+        let is_enum_variant = is_enum_variant_expr(value, ctx);
+
+        // Check if this is an empty collection initialization for a variable that will be
+        // later assigned from an attribute source. In this case, we need to declare it
+        // with a reference type even though the current value isn't attribute-sourced.
+        let is_empty_init_for_borrowable = is_empty_collection_init_expr(value)
+            && (ctx.should_borrow_var(var_name) || ctx.should_mut_borrow_var(var_name));
+
+        if is_attribute_sourced && !is_copy_type && !is_enum_variant {
+            if ctx.should_mut_borrow_var(var_name) {
+                (false, true)
+            } else if ctx.should_borrow_var(var_name) {
+                (true, false)
+            } else {
+                (false, false)
+            }
+        } else {
+            (false, false)
+        }
     } else {
-        false
+        (false, false)
     };
+
+    // For type annotations, use the same borrow flags as for values
+    let (type_should_borrow, type_should_mut_borrow) = (should_borrow, should_mut_borrow);
 
     // Convert the value expression unless it's an Uninitialized marker
     let mut value_expr = if is_uninitialized {
         // Placeholder; won't be used when is_uninitialized is true
         parse_quote! { () }
+    } else if should_mut_borrow {
+        // Generate a mutable borrow for field access from &mut T source
+        ctx.set_generate_borrow(true);
+        ctx.set_generate_mut_borrow(true);
+        let expr = value.to_rust_expr(ctx)?;
+        ctx.set_generate_mut_borrow(false);
+        ctx.set_generate_borrow(false);
+        // For conditional expressions (IfExpr), the &mut is added inside each branch
+        // For direct attribute access, wrap in &mut
+        if matches!(value, HirExpr::IfExpr { .. }) {
+            expr
+        } else {
+            parse_quote! { &mut #expr }
+        }
     } else if should_borrow {
-        // Generate a borrow instead of clone for field access
+        // Generate an immutable borrow instead of clone for field access
         ctx.set_generate_borrow(true);
         let expr = value.to_rust_expr(ctx)?;
         ctx.set_generate_borrow(false);
-        // Wrap the expression in a reference
-        parse_quote! { &#expr }
+        // For conditional expressions (IfExpr), the & is added inside each branch
+        // For direct attribute access, wrap in &
+        if matches!(value, HirExpr::IfExpr { .. }) {
+            expr
+        } else {
+            parse_quote! { &#expr }
+        }
     } else {
         value.to_rust_expr(ctx)?
     };
@@ -2883,6 +3228,16 @@ pub(crate) fn codegen_assign_stmt(
         let target_rust_type = ctx.type_mapper.map_type(actual_type);
         let target_syn_type = rust_type_to_syn(&target_rust_type)?;
 
+        // When borrowing, wrap the type in a reference
+        // Use type_should_borrow which accounts for empty collection inits
+        let final_syn_type: syn::Type = if type_should_borrow {
+            parse_quote! { &#target_syn_type }
+        } else if type_should_mut_borrow {
+            parse_quote! { &mut #target_syn_type }
+        } else {
+            target_syn_type
+        };
+
         // Auto-unwrap Optional values when assigning to non-Optional annotated variables
         let value_is_optional = expr_is_optional(value, ctx);
         let target_is_optional = matches!(actual_type, Type::Optional(_));
@@ -2896,7 +3251,7 @@ pub(crate) fn codegen_assign_stmt(
             value_expr = apply_type_conversion(value_expr, actual_type);
         }
 
-        (Some(quote! { : #target_syn_type }), is_const)
+        (Some(quote! { : #final_syn_type }), is_const)
     } else {
         // No explicit type annotation, but we may still need conversions
         // When assigning string literals without type annotation,
@@ -2927,7 +3282,10 @@ pub(crate) fn codegen_assign_stmt(
         let value_is_optional = expr_is_optional(value, ctx);
 
         // Wrap non-None values in Some() when assigning to Option<T>, unless the value is already Optional
-        if is_optional_type && !value_is_optional && !matches!(value, HirExpr::Literal(Literal::None)) {
+        if is_optional_type
+            && !value_is_optional
+            && !matches!(value, HirExpr::Literal(Literal::None))
+        {
             value_expr = parse_quote! { Some(#value_expr) };
         }
     }
@@ -2951,7 +3309,10 @@ pub(crate) fn codegen_assign_stmt(
         let value_is_optional = expr_is_optional(value, ctx);
 
         // Wrap non-None values in Some() when assigning to Optional field
-        if target_is_optional && !value_is_optional && !matches!(value, HirExpr::Literal(Literal::None)) {
+        if target_is_optional
+            && !value_is_optional
+            && !matches!(value, HirExpr::Literal(Literal::None))
+        {
             value_expr = parse_quote! { Some(#value_expr) };
         }
 
@@ -2966,7 +3327,9 @@ pub(crate) fn codegen_assign_stmt(
         // When assigning `&T` to a field expecting `T`, we need to clone.
         // Example: player.sin_bin_status = sin_bin_status where sin_bin_status: &SinBinStatus
         if let HirExpr::Var(var_name) = value {
-            if ctx.current_func_ref_params.contains(var_name) && !ctx.shadowed_ref_params.contains(var_name) {
+            if ctx.current_func_ref_params.contains(var_name)
+                && !ctx.shadowed_ref_params.contains(var_name)
+            {
                 value_expr = parse_quote! { #value_expr.clone() };
             }
         }
@@ -3013,8 +3376,12 @@ pub(crate) fn codegen_assign_stmt(
         }
         AssignTarget::Index { base, index } => codegen_assign_index(base, index, value_expr, ctx),
         AssignTarget::Slice { base, .. } => codegen_assign_slice(base, value_expr, ctx),
-        AssignTarget::Attribute { value, attr } => codegen_assign_attribute(value, attr, value_expr, ctx),
-        AssignTarget::Tuple(targets) => codegen_assign_tuple(targets, value_expr, type_annotation_tokens, ctx),
+        AssignTarget::Attribute { value, attr } => {
+            codegen_assign_attribute(value, attr, value_expr, ctx)
+        }
+        AssignTarget::Tuple(targets) => {
+            codegen_assign_tuple(targets, value_expr, type_annotation_tokens, ctx)
+        }
     }
 }
 
@@ -3104,7 +3471,9 @@ pub(crate) fn codegen_assign_index(
                                 true
                             }
                         }
-                        HirExpr::Binary { .. } | HirExpr::Literal(crate::hir::Literal::Int(_)) => true,
+                        HirExpr::Binary { .. } | HirExpr::Literal(crate::hir::Literal::Int(_)) => {
+                            true
+                        }
                         _ => false,
                     }
                 }
@@ -3177,7 +3546,9 @@ pub(crate) fn codegen_assign_index(
     // Check if the base (or its root for nested Index) is a field access
     let base_is_field_access = match base {
         HirExpr::Attribute { .. } => true,
-        HirExpr::Index { base: inner_base, .. } => {
+        HirExpr::Index {
+            base: inner_base, ..
+        } => {
             // For nested subscripts like matrix[0][1], check if the root is an attribute
             fn has_attribute_root(expr: &HirExpr) -> bool {
                 match expr {
@@ -3203,7 +3574,9 @@ pub(crate) fn codegen_assign_index(
         // Get the base variable name to look up its type
         let base_name = match base {
             HirExpr::Var(name) => Some(name.as_str()),
-            HirExpr::Index { base: inner_base, .. } => {
+            HirExpr::Index {
+                base: inner_base, ..
+            } => {
                 // For nested subscripts, get the root variable
                 fn get_root_var(expr: &HirExpr) -> Option<&str> {
                     match expr {
@@ -3240,7 +3613,8 @@ pub(crate) fn codegen_assign_index(
         };
 
         // Check if value_expr is a string literal
-        let is_string_literal = matches!(&value_expr, syn::Expr::Lit(lit) if matches!(&lit.lit, syn::Lit::Str(_)));
+        let is_string_literal =
+            matches!(&value_expr, syn::Expr::Lit(lit) if matches!(&lit.lit, syn::Lit::Str(_)));
 
         if needs_string_conversion && is_string_literal {
             parse_quote! { #value_expr.to_string() }
@@ -3512,47 +3886,52 @@ pub(crate) fn codegen_try_stmt(
     // Pattern: try { return int(str_var) } except ValueError { return literal }
     // We can optimize this to: s.parse::<i32>().unwrap_or(literal)
     // Those need proper match with Err(e) binding
-    let simple_pattern_info =
-        if body.len() == 1 && handlers.len() == 1 && handlers[0].body.len() == 1 && handlers[0].name.is_none()
-        // No exception variable binding
-        {
-            // Check if handler body is a Return statement with a simple value
-            match &handlers[0].body[0] {
-                // Direct literal: return 42, return "error", etc.
-                HirStmt::Return(Some(HirExpr::Literal(lit))) => Some((
-                    (match lit {
-                        Literal::Int(n) => n.to_string(),
-                        Literal::Float(f) => f.to_string(),
-                        Literal::String(s) => format!("\"{}\"", s),
-                        Literal::Bool(b) => b.to_string(),
-                        _ => "Default::default()".to_string(),
-                    })
-                    .to_string(),
-                    handlers[0].exception_type.clone(),
-                )),
-                // Unary negation: return -1, return -42, etc.
-                HirStmt::Return(Some(HirExpr::Unary { op, operand })) => {
-                    if let HirExpr::Literal(lit) = &**operand {
-                        match (op, lit) {
-                            (crate::hir::UnaryOp::Neg, Literal::Int(n)) => {
-                                Some((format!("-{}", n), handlers[0].exception_type.clone()))
-                            }
-                            (crate::hir::UnaryOp::Neg, Literal::Float(f)) => {
-                                Some((format!("-{}", f), handlers[0].exception_type.clone()))
-                            }
-                            _ => None,
+    let simple_pattern_info = if body.len() == 1
+        && handlers.len() == 1
+        && handlers[0].body.len() == 1
+        && handlers[0].name.is_none()
+    // No exception variable binding
+    {
+        // Check if handler body is a Return statement with a simple value
+        match &handlers[0].body[0] {
+            // Direct literal: return 42, return "error", etc.
+            HirStmt::Return(Some(HirExpr::Literal(lit))) => Some((
+                (match lit {
+                    Literal::Int(n) => n.to_string(),
+                    Literal::Float(f) => f.to_string(),
+                    Literal::String(s) => format!("\"{}\"", s),
+                    Literal::Bool(b) => b.to_string(),
+                    _ => "Default::default()".to_string(),
+                })
+                .to_string(),
+                handlers[0].exception_type.clone(),
+            )),
+            // Unary negation: return -1, return -42, etc.
+            HirStmt::Return(Some(HirExpr::Unary { op, operand })) => {
+                if let HirExpr::Literal(lit) = &**operand {
+                    match (op, lit) {
+                        (crate::hir::UnaryOp::Neg, Literal::Int(n)) => {
+                            Some((format!("-{}", n), handlers[0].exception_type.clone()))
                         }
-                    } else {
-                        None
+                        (crate::hir::UnaryOp::Neg, Literal::Float(f)) => {
+                            Some((format!("-{}", f), handlers[0].exception_type.clone()))
+                        }
+                        _ => None,
                     }
+                } else {
+                    None
                 }
-                _ => None,
             }
-        } else {
-            None
-        };
+            _ => None,
+        }
+    } else {
+        None
+    };
 
-    let handled_types: Vec<String> = handlers.iter().filter_map(|h| h.exception_type.clone()).collect();
+    let handled_types: Vec<String> = handlers
+        .iter()
+        .filter_map(|h| h.exception_type.clone())
+        .collect();
 
     // Empty list means bare except (catches all exceptions)
     ctx.enter_try_scope(handled_types.clone());
@@ -3630,7 +4009,10 @@ pub(crate) fn codegen_try_stmt(
     ctx.is_final_statement = false;
 
     ctx.enter_scope();
-    let try_stmts: Vec<_> = body.iter().map(|s| s.to_rust_tokens(ctx)).collect::<Result<Vec<_>>>()?;
+    let try_stmts: Vec<_> = body
+        .iter()
+        .map(|s| s.to_rust_tokens(ctx))
+        .collect::<Result<Vec<_>>>()?;
     ctx.exit_scope();
 
     // Restore is_final_statement flag
@@ -3696,7 +4078,9 @@ pub(crate) fn codegen_try_stmt(
     } else {
         // Check if try_stmts contains a .parse() call that we can convert to match
         if handlers.len() == 1 {
-            if let Some((var_name, parse_expr_str, remaining_stmts)) = extract_parse_from_tokens(&try_stmts) {
+            if let Some((var_name, parse_expr_str, remaining_stmts)) =
+                extract_parse_from_tokens(&try_stmts)
+            {
                 // Parse the expression string back to token stream
                 let parse_expr: proc_macro2::TokenStream = parse_expr_str.parse().unwrap();
                 let ok_var = safe_ident(&var_name);
@@ -3751,8 +4135,14 @@ pub(crate) fn codegen_try_stmt(
                 // Parse the try code and replace unwrap_or_default with unwrap_or(value)
                 // Handle both "unwrap_or_default ()" and "unwrap_or_default()"
                 let fixed_code = try_str
-                    .replace("unwrap_or_default ()", &format!("unwrap_or ({})", exception_value_str))
-                    .replace("unwrap_or_default()", &format!("unwrap_or({})", exception_value_str));
+                    .replace(
+                        "unwrap_or_default ()",
+                        &format!("unwrap_or ({})", exception_value_str),
+                    )
+                    .replace(
+                        "unwrap_or_default()",
+                        &format!("unwrap_or({})", exception_value_str),
+                    );
 
                 // Parse back to token stream
                 let fixed_tokens: proc_macro2::TokenStream = fixed_code.parse().unwrap_or(try_code);
@@ -3904,7 +4294,8 @@ pub(crate) fn codegen_try_stmt(
                             if has_exception_binding && handlers.len() == 1 {
                                 // Single handler with exception binding - use match with Err(e)
                                 let handler_body = &handler_tokens[0];
-                                let err_var = handlers[0].name.as_ref().map(|s| safe_ident(s)).unwrap();
+                                let err_var =
+                                    handlers[0].name.as_ref().map(|s| safe_ident(s)).unwrap();
 
                                 if let Some(finally_code) = finally_stmts {
                                     return Ok(quote! {
@@ -3965,8 +4356,8 @@ pub(crate) fn codegen_try_stmt(
 
                 // In that case, don't concatenate handler tokens as it creates invalid syntax
                 let try_code_str = quote! { #(#try_stmts)* }.to_string();
-                let has_error_handling =
-                    try_code_str.contains("unwrap_or_default") || try_code_str.contains("unwrap_or(");
+                let has_error_handling = try_code_str.contains("unwrap_or_default")
+                    || try_code_str.contains("unwrap_or(");
 
                 if has_error_handling {
                     // Try block has built-in error handling, don't add handlers
@@ -4030,11 +4421,12 @@ fn extract_parse_from_tokens(
                 if let Some(eq_start) = first_stmt.find(" = ") {
                     if let Some(unwrap_pos) = first_stmt.find("unwrap_or_default") {
                         // Go back from unwrap_pos to skip ". " before it
-                        let parse_end = if unwrap_pos >= 2 && &first_stmt[unwrap_pos - 2..unwrap_pos] == ". " {
-                            unwrap_pos - 2
-                        } else {
-                            unwrap_pos
-                        };
+                        let parse_end =
+                            if unwrap_pos >= 2 && &first_stmt[unwrap_pos - 2..unwrap_pos] == ". " {
+                                unwrap_pos - 2
+                            } else {
+                                unwrap_pos
+                            };
 
                         let parse_expr = first_stmt[eq_start + 3..parse_end].trim().to_string();
 
@@ -4054,12 +4446,17 @@ fn extract_parse_from_tokens(
 fn contains_floor_div(expr: &HirExpr) -> bool {
     match expr {
         HirExpr::Binary {
-            op: BinOp::FloorDiv, ..
+            op: BinOp::FloorDiv,
+            ..
         } => true,
-        HirExpr::Binary { left, right, .. } => contains_floor_div(left) || contains_floor_div(right),
+        HirExpr::Binary { left, right, .. } => {
+            contains_floor_div(left) || contains_floor_div(right)
+        }
         HirExpr::Unary { operand, .. } => contains_floor_div(operand),
         HirExpr::Call { args, .. } => args.iter().any(contains_floor_div),
-        HirExpr::MethodCall { object, args, .. } => contains_floor_div(object) || args.iter().any(contains_floor_div),
+        HirExpr::MethodCall { object, args, .. } => {
+            contains_floor_div(object) || args.iter().any(contains_floor_div)
+        }
         HirExpr::Index { base, index } => contains_floor_div(base) || contains_floor_div(index),
         HirExpr::List(elements) | HirExpr::Tuple(elements) | HirExpr::Set(elements) => {
             elements.iter().any(contains_floor_div)
@@ -4104,21 +4501,27 @@ fn extract_string_literal(expr: &HirExpr) -> String {
 /// # Complexity
 /// 4 (iterator + filter + match)
 fn extract_kwarg_string(kwargs: &[(String, HirExpr)], key: &str) -> Option<String> {
-    kwargs.iter().find(|(k, _)| k == key).and_then(|(_, v)| match v {
-        HirExpr::Literal(Literal::String(s)) => Some(s.clone()),
-        _ => None,
-    })
+    kwargs
+        .iter()
+        .find(|(k, _)| k == key)
+        .and_then(|(_, v)| match v {
+            HirExpr::Literal(Literal::String(s)) => Some(s.clone()),
+            _ => None,
+        })
 }
 
 ///
 /// # Complexity
 /// 4 (iterator + filter + match)
 fn extract_kwarg_bool(kwargs: &[(String, HirExpr)], key: &str) -> Option<bool> {
-    kwargs.iter().find(|(k, _)| k == key).and_then(|(_, v)| match v {
-        HirExpr::Var(s) if s == "True" => Some(true),
-        HirExpr::Var(s) if s == "False" => Some(false),
-        _ => None,
-    })
+    kwargs
+        .iter()
+        .find(|(k, _)| k == key)
+        .and_then(|(_, v)| match v {
+            HirExpr::Var(s) if s == "True" => Some(true),
+            HirExpr::Var(s) if s == "False" => Some(false),
+            _ => None,
+        })
 }
 
 ///
@@ -4295,10 +4698,17 @@ impl RustCodeGen for HirStmt {
             HirStmt::While { condition, body } => codegen_while_stmt(condition, body, ctx),
             HirStmt::For { target, iter, body } => codegen_for_stmt(target, iter, body, ctx),
             HirStmt::Expr(expr) => codegen_expr_stmt(expr, ctx),
-            HirStmt::Raise { exception, cause: _ } => codegen_raise_stmt(exception, ctx),
+            HirStmt::Raise {
+                exception,
+                cause: _,
+            } => codegen_raise_stmt(exception, ctx),
             HirStmt::Break { label } => codegen_break_stmt(label),
             HirStmt::Continue { label } => codegen_continue_stmt(label),
-            HirStmt::With { context, target, body } => codegen_with_stmt(context, target, body, ctx),
+            HirStmt::With {
+                context,
+                target,
+                body,
+            } => codegen_with_stmt(context, target, body, ctx),
             HirStmt::Try {
                 body,
                 handlers,

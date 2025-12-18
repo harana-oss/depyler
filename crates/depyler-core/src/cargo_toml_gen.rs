@@ -135,13 +135,20 @@ pub fn extract_dependencies(ctx: &CodeGenContext) -> Vec<Dependency> {
         deps.push(Dependency::new("smallvec", "1.0"));
     }
 
+    deps.push(Dependency::new("bevy_reflect", "0.17"));
+    deps.push(Dependency::new("log", "0.4"));
+
     deps
 }
 
 /// Generate complete Cargo.toml content
 ///
 /// are complete and can be built by Cargo without manual editing.
-pub fn generate_cargo_toml(package_name: &str, source_file_path: &str, dependencies: &[Dependency]) -> String {
+pub fn generate_cargo_toml(
+    package_name: &str,
+    source_file_path: &str,
+    dependencies: &[Dependency],
+) -> String {
     let mut toml = String::new();
 
     // Package section
@@ -222,11 +229,15 @@ mod tests {
             (vec![], "empty"),
             (vec![Dependency::new("serde", "1.0")], "single"),
             (
-                vec![Dependency::new("serde", "1.0"), Dependency::new("tokio", "1.0")],
+                vec![
+                    Dependency::new("serde", "1.0"),
+                    Dependency::new("tokio", "1.0"),
+                ],
                 "multiple",
             ),
             (
-                vec![Dependency::new("clap", "4.5").with_features(vec!["derive".to_string(), "cargo".to_string()])],
+                vec![Dependency::new("clap", "4.5")
+                    .with_features(vec!["derive".to_string(), "cargo".to_string()])],
                 "features",
             ),
         ];
@@ -252,7 +263,10 @@ mod tests {
 
         // Property: Package name appears exactly twice (once in [package], once in [[bin]])
         let count = toml.matches("name = \"my_app\"").count();
-        assert_eq!(count, 2, "Package name must appear in [package] and [[bin]] sections");
+        assert_eq!(
+            count, 2,
+            "Package name must appear in [package] and [[bin]] sections"
+        );
 
         // Property: Required sections exist
         assert!(toml.contains("[package]"), "Must have [package] section");
@@ -262,7 +276,10 @@ mod tests {
     /// Property Test: All dependencies must be in [dependencies] section
     #[test]
     fn test_property_dependencies_in_correct_section() {
-        let deps = vec![Dependency::new("serde", "1.0"), Dependency::new("tokio", "1.0")];
+        let deps = vec![
+            Dependency::new("serde", "1.0"),
+            Dependency::new("tokio", "1.0"),
+        ];
         let toml = generate_cargo_toml("test", "test.rs", &deps);
 
         // Property: [dependencies] appears before any dependency
@@ -293,9 +310,10 @@ mod tests {
         let type_mapper: &'static TypeMapper = Box::leak(Box::new(TypeMapper::default()));
         let ctx = CodeGenContext {
             type_mapper,
-            annotation_aware_mapper: crate::annotation_aware_type_mapper::AnnotationAwareTypeMapper::with_base_mapper(
-                type_mapper.clone(),
-            ),
+            annotation_aware_mapper:
+                crate::annotation_aware_type_mapper::AnnotationAwareTypeMapper::with_base_mapper(
+                    type_mapper.clone(),
+                ),
             string_optimizer: crate::string_optimization::StringOptimizer::new(),
             union_enum_generator: crate::union_enum_gen::UnionEnumGenerator::new(),
             generated_enums: Vec::new(),
@@ -376,7 +394,9 @@ mod tests {
             prevent_clone: false,
             returns_reference: false,
             borrowable_vars: std::collections::HashSet::new(),
+            mut_borrowable_vars: std::collections::HashSet::new(),
             generate_borrow: false,
+            generate_mut_borrow: false,
             clone_already_applied: false,
         };
 
@@ -384,7 +404,11 @@ mod tests {
         let deps1 = extract_dependencies(&ctx);
         let deps2 = extract_dependencies(&ctx);
 
-        assert_eq!(deps1.len(), deps2.len(), "Must return same number of dependencies");
+        assert_eq!(
+            deps1.len(),
+            deps2.len(),
+            "Must return same number of dependencies"
+        );
         for (d1, d2) in deps1.iter().zip(deps2.iter()) {
             assert_eq!(d1.crate_name, d2.crate_name);
             assert_eq!(d1.version, d2.version);
@@ -402,9 +426,10 @@ mod tests {
         let type_mapper: &'static TypeMapper = Box::leak(Box::new(TypeMapper::default()));
         let ctx = CodeGenContext {
             type_mapper,
-            annotation_aware_mapper: crate::annotation_aware_type_mapper::AnnotationAwareTypeMapper::with_base_mapper(
-                type_mapper.clone(),
-            ),
+            annotation_aware_mapper:
+                crate::annotation_aware_type_mapper::AnnotationAwareTypeMapper::with_base_mapper(
+                    type_mapper.clone(),
+                ),
             string_optimizer: crate::string_optimization::StringOptimizer::new(),
             union_enum_generator: crate::union_enum_gen::UnionEnumGenerator::new(),
             generated_enums: Vec::new(),
@@ -485,7 +510,9 @@ mod tests {
             prevent_clone: false,
             returns_reference: false,
             borrowable_vars: HashSet::new(),
+            mut_borrowable_vars: HashSet::new(),
             generate_borrow: false,
+            generate_mut_borrow: false,
             clone_already_applied: false,
         };
 
@@ -494,7 +521,11 @@ mod tests {
         // Property: No duplicate crate names
         let mut seen = HashSet::new();
         for dep in &deps {
-            assert!(seen.insert(&dep.crate_name), "Duplicate dependency: {}", dep.crate_name);
+            assert!(
+                seen.insert(&dep.crate_name),
+                "Duplicate dependency: {}",
+                dep.crate_name
+            );
         }
     }
 
@@ -508,9 +539,10 @@ mod tests {
         let type_mapper: &'static TypeMapper = Box::leak(Box::new(TypeMapper::default()));
         let ctx = CodeGenContext {
             type_mapper,
-            annotation_aware_mapper: crate::annotation_aware_type_mapper::AnnotationAwareTypeMapper::with_base_mapper(
-                type_mapper.clone(),
-            ),
+            annotation_aware_mapper:
+                crate::annotation_aware_type_mapper::AnnotationAwareTypeMapper::with_base_mapper(
+                    type_mapper.clone(),
+                ),
             string_optimizer: crate::string_optimization::StringOptimizer::new(),
             union_enum_generator: crate::union_enum_gen::UnionEnumGenerator::new(),
             generated_enums: Vec::new(),
@@ -591,7 +623,9 @@ mod tests {
             prevent_clone: false,
             returns_reference: false,
             borrowable_vars: HashSet::new(),
+            mut_borrowable_vars: HashSet::new(),
             generate_borrow: false,
+            generate_mut_borrow: false,
             clone_already_applied: false,
         };
 
@@ -600,7 +634,6 @@ mod tests {
         // Invariant: serde_json requires serde
         let has_serde_json = deps.iter().any(|d| d.crate_name == "serde_json");
         let has_serde = deps.iter().any(|d| d.crate_name == "serde");
-
         assert!(has_serde_json, "Should have serde_json");
         assert!(has_serde, "serde_json requires serde");
 
@@ -622,9 +655,10 @@ mod tests {
         let type_mapper: &'static TypeMapper = Box::leak(Box::new(TypeMapper::default()));
         let ctx = CodeGenContext {
             type_mapper,
-            annotation_aware_mapper: crate::annotation_aware_type_mapper::AnnotationAwareTypeMapper::with_base_mapper(
-                type_mapper.clone(),
-            ),
+            annotation_aware_mapper:
+                crate::annotation_aware_type_mapper::AnnotationAwareTypeMapper::with_base_mapper(
+                    type_mapper.clone(),
+                ),
             string_optimizer: crate::string_optimization::StringOptimizer::new(),
             union_enum_generator: crate::union_enum_gen::UnionEnumGenerator::new(),
             generated_enums: Vec::new(),
@@ -705,7 +739,9 @@ mod tests {
             prevent_clone: false,
             returns_reference: false,
             borrowable_vars: HashSet::new(),
+            mut_borrowable_vars: HashSet::new(),
             generate_borrow: false,
+            generate_mut_borrow: false,
             clone_already_applied: false,
         };
 
