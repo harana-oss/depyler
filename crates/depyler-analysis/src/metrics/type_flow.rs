@@ -219,6 +219,18 @@ impl TypeInferencer {
             HirStmt::FunctionDef { body, .. } => {
                 self.infer_body(body)?;
             }
+            // Global and Nonlocal are declaration markers, no type inference
+            HirStmt::Global { .. } | HirStmt::Nonlocal { .. } => {}
+            // AsyncFor - analyze iterator and body
+            HirStmt::AsyncFor { iter, body, .. } => {
+                self.infer_expr(iter)?;
+                self.infer_body(body)?;
+            }
+            // AsyncWith - analyze context and body
+            HirStmt::AsyncWith { context, body, .. } => {
+                self.infer_expr(context)?;
+                self.infer_body(body)?;
+            }
         }
         Ok(())
     }

@@ -31,16 +31,13 @@ pub struct TestMetadata {
 pub struct TomlTest {
     pub name: String,
     pub description: Option<String>,
-    pub python: TestPython,
+    pub python: String,
+    pub rust: Option<String>,
+    #[serde(default)]
     pub assertions: TestAssertions,
 }
 
-#[derive(Debug, Clone, Deserialize)]
-pub struct TestPython {
-    pub code: String,
-}
-
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Default, Deserialize)]
 pub struct TestAssertions {
     #[serde(default)]
     pub contains: Vec<String>,
@@ -432,7 +429,7 @@ fn run_single_test(
 ) -> TestResult {
     let start = Instant::now();
     let test_name = test.name.clone();
-    let python_code = test.python.code.clone();
+    let python_code = test.python.clone();
     let assertions = test.assertions.clone();
     let file = file_name.to_string();
 

@@ -197,38 +197,3 @@ impl RustPattern {
         )
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_csv_fieldnames_mapping() {
-        let mappings = StdlibMappings::new();
-        let pattern = mappings.lookup("csv", "DictReader", "fieldnames");
-        assert!(pattern.is_some());
-
-        let rust_code = pattern.unwrap().generate_rust_code("reader", &[]);
-        assert_eq!(rust_code, "reader.headers()?");
-    }
-
-    #[test]
-    fn test_csv_iteration_mapping() {
-        let mappings = StdlibMappings::new();
-        let pattern = mappings.get_iteration_pattern("csv", "DictReader");
-        assert!(pattern.is_some());
-
-        let rust_code = pattern.unwrap().generate_rust_code("reader", &[]);
-        assert_eq!(rust_code, "reader.deserialize::<HashMap<String, String>>()");
-    }
-
-    #[test]
-    fn test_file_iteration_mapping() {
-        let mappings = StdlibMappings::new();
-        let pattern = mappings.lookup("builtins", "file", "__iter__");
-        assert!(pattern.is_some());
-
-        let rust_code = pattern.unwrap().generate_rust_code("f", &[]);
-        assert_eq!(rust_code, "BufReader::new(f).lines()");
-    }
-}

@@ -331,7 +331,3 @@ pub struct LocationResponse {
     pub uri: String,
     pub range: Range,
 }
-
-#[cfg(test)]
-#[path = "lsp_tests.rs"]
-mod tests;

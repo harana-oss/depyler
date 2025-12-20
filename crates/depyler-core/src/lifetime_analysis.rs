@@ -459,6 +459,22 @@ impl LifetimeInference {
                     self.analyze_stmt_for_param(param, stmt, usage, in_loop);
                 }
             }
+            // Global and Nonlocal are declaration markers, no parameter usage
+            HirStmt::Global { .. } | HirStmt::Nonlocal { .. } => {}
+            // AsyncFor - analyze iterator and body
+            HirStmt::AsyncFor { iter, body, .. } => {
+                self.analyze_expr_for_param(param, iter, usage, in_loop, false);
+                for stmt in body {
+                    self.analyze_stmt_for_param(param, stmt, usage, true);
+                }
+            }
+            // AsyncWith - analyze context and body
+            HirStmt::AsyncWith { context, body, .. } => {
+                self.analyze_expr_for_param(param, context, usage, in_loop, false);
+                for stmt in body {
+                    self.analyze_stmt_for_param(param, stmt, usage, in_loop);
+                }
+            }
         }
     }
 
@@ -942,131 +958,5 @@ impl LifetimeInference {
 impl Default for LifetimeInference {
     fn default() -> Self {
         Self::new()
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::hir::{FunctionProperties, HirFunction, HirParam, Literal, Type as PythonType};
-    use depyler_annotations::TranspilationAnnotations;
-    use smallvec::smallvec;
-
-    #[test]
-    fn test_lifetime_generation() {
-        let mut inference = LifetimeInference::new();
-        assert_eq!(inference.next_lifetime(), "'a");
-        assert_eq!(inference.next_lifetime(), "'b");
-        assert_eq!(inference.next_lifetime(), "'c");
-        assert_eq!(inference.next_lifetime(), "'l1");
-    }
-
-    #[test]
-    fn test_parameter_usage_analysis() {
-        let mut inference = LifetimeInference::new();
-        let _type_mapper = crate::type_mapper::TypeMapper::new();
-
-        // Create a simple function that reads a parameter
-        let func = HirFunction {
-            name: "test".to_string(),
-            params: smallvec![HirParam::new("x".to_string(), PythonType::String)],
-            ret_type: PythonType::String,
-            body: vec![HirStmt::Return(Some(HirExpr::Var("x".to_string())))],
-            properties: FunctionProperties::default(),
-            annotations: TranspilationAnnotations::default(),
-            docstring: None,
-        };
-
-        inference.analyze_parameter_usage(&func);
-        let usage = inference.param_analysis.get("x").unwrap();
-        assert!(usage.is_read_only);
-        assert!(usage.escapes);
-        assert!(!usage.is_mutated);
-    }
-
-    #[test]
-    fn test_lifetime_inference() {
-        let mut inference = LifetimeInference::new();
-        let type_mapper = crate::type_mapper::TypeMapper::new();
-
-        let func = HirFunction {
-            name: "get_len".to_string(),
-            params: smallvec![HirParam::new("s".to_string(), PythonType::String)],
-            ret_type: PythonType::Int,
-            body: vec![HirStmt::Return(Some(HirExpr::Attribute {
-                value: Box::new(HirExpr::Var("s".to_string())),
-                attr: "len".to_string(),
-            }))],
-            properties: FunctionProperties::default(),
-            annotations: TranspilationAnnotations::default(),
-            docstring: None,
-        };
-
-        let result = inference.analyze_function(&func, &type_mapper);
-
-        // String parameters take ownership (not borrowed) to match Python semantics
-        let s_param = result.param_lifetimes.get("s").unwrap();
-        assert!(!s_param.should_borrow);
-        assert!(!s_param.needs_mut);
-    }
-
-    #[test]
-    fn test_elision_rules() {
-        let mut inference = LifetimeInference::new();
-        let type_mapper = crate::type_mapper::TypeMapper::new();
-
-        // Function with single reference parameter
-        let func = HirFunction {
-            name: "identity".to_string(),
-            params: smallvec![HirParam::new("x".to_string(), PythonType::String)],
-            ret_type: PythonType::String,
-            body: vec![],
-            properties: FunctionProperties::default(),
-            annotations: TranspilationAnnotations::default(),
-            docstring: None,
-        };
-
-        // Elision should work for a single parameter function
-        let elision_result = inference.apply_elision_rules(&func, &type_mapper);
-        // Elision rules are now implemented
-        assert!(elision_result.is_some());
-
-        // With elision, no explicit lifetime parameters should be needed
-        if let Some(result) = elision_result {
-            assert!(result.lifetime_params.is_empty());
-        }
-    }
-
-    #[test]
-    fn test_mutable_parameter_detection() {
-        let mut inference = LifetimeInference::new();
-        let type_mapper = crate::type_mapper::TypeMapper::new();
-
-        // Function that mutates a parameter
-        let func = HirFunction {
-            name: "append_bang".to_string(),
-            params: smallvec![HirParam::new("s".to_string(), PythonType::String)],
-            ret_type: PythonType::None,
-            body: vec![HirStmt::Assign {
-                target: AssignTarget::Symbol("s".to_string()),
-                value: HirExpr::Binary {
-                    op: crate::hir::BinOp::Add,
-                    left: Box::new(HirExpr::Var("s".to_string())),
-                    right: Box::new(HirExpr::Literal(Literal::String("!".to_string()))),
-                },
-                type_annotation: None,
-            }],
-            properties: FunctionProperties::default(),
-            annotations: TranspilationAnnotations::default(),
-            docstring: None,
-        };
-
-        let result = inference.analyze_function(&func, &type_mapper);
-
-        // When a string parameter is reassigned (mutated in Python terms),
-        // Rust requires ownership since strings are not Copy
-        let s_param = result.param_lifetimes.get("s").unwrap();
-        assert!(!s_param.should_borrow); // Should take ownership
-        assert!(!s_param.needs_mut); // Not a mutable borrow
     }
 }

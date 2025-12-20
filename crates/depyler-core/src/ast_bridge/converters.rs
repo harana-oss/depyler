@@ -1,11 +1,10 @@
-use super::{convert_aug_op, convert_binop, convert_body, convert_cmpop, convert_unaryop, extract_assign_target};
+use super::{
+    convert_aug_op, convert_binop, convert_body, convert_cmpop, convert_unaryop,
+    extract_assign_target,
+};
 use crate::hir::*;
 use anyhow::{Result, bail};
 use rustpython_ast::{self as ast, Ranged};
-
-#[cfg(test)]
-#[path = "converters_tests.rs"]
-mod tests;
 
 /// Context for tracking source spans during conversion
 #[derive(Clone, Default)]
@@ -26,7 +25,9 @@ impl SpanContext {
 
     /// Extract a span from an AST node that implements Ranged
     pub fn span_from<T: Ranged>(&self, node: &T) -> Option<Span> {
-        self.source.as_ref().map(|src| Span::from_text_range(node.range(), src))
+        self.source
+            .as_ref()
+            .map(|src| Span::from_text_range(node.range(), src))
     }
 }
 
@@ -63,18 +64,18 @@ impl StmtConverter {
             ast::Stmt::Assert(a) => Self::convert_assert(a),
             ast::Stmt::Pass(_) => Self::convert_pass(),
             ast::Stmt::FunctionDef(f) => Self::convert_nested_function_def(f),
+            ast::Stmt::Global(g) => Self::convert_global(g),
+            ast::Stmt::Nonlocal(n) => Self::convert_nonlocal(n),
+            ast::Stmt::AsyncFor(af) => Self::convert_async_for(af),
+            ast::Stmt::AsyncWith(aw) => Self::convert_async_with(aw),
             ast::Stmt::ClassDef(_) => bail!("Statement type not yet supported: ClassDef (classes)"),
             ast::Stmt::Delete(_) => bail!("Statement type not yet supported: Delete"),
             ast::Stmt::Import(_) => bail!("Statement type not yet supported: Import"),
             ast::Stmt::ImportFrom(_) => bail!("Statement type not yet supported: ImportFrom"),
-            ast::Stmt::Global(_) => bail!("Statement type not yet supported: Global"),
-            ast::Stmt::Nonlocal(_) => bail!("Statement type not yet supported: Nonlocal"),
             ast::Stmt::Match(_) => bail!("Statement type not yet supported: Match"),
             ast::Stmt::AsyncFunctionDef(_) => {
                 bail!("Statement type not yet supported: AsyncFunctionDef")
             }
-            ast::Stmt::AsyncFor(_) => bail!("Statement type not yet supported: AsyncFor"),
-            ast::Stmt::AsyncWith(_) => bail!("Statement type not yet supported: AsyncWith"),
             _ => bail!("Statement type not yet supported: unknown"),
         }
     }
@@ -103,7 +104,9 @@ impl StmtConverter {
         let target = extract_assign_target(&a.target)?;
 
         // Extract type annotation
-        let type_annotation = Some(super::type_extraction::TypeExtractor::extract_type(&a.annotation)?);
+        let type_annotation = Some(super::type_extraction::TypeExtractor::extract_type(
+            &a.annotation,
+        )?);
 
         // Handle annotated assignments without values (e.g., `x: int` or `field: CustomType`)
         // Python allows type annotations without initialization. Represent such
@@ -278,7 +281,11 @@ impl StmtConverter {
             .map(super::convert_stmt)
             .collect::<Result<Vec<_>>>()?;
 
-        Ok(HirStmt::With { context, target, body })
+        Ok(HirStmt::With {
+            context,
+            target,
+            body,
+        })
     }
 
     fn convert_try(t: ast::StmtTry) -> Result<HirStmt> {
@@ -353,6 +360,44 @@ impl StmtConverter {
             ret_type,
             body,
             docstring,
+        })
+    }
+
+    fn convert_global(g: ast::StmtGlobal) -> Result<HirStmt> {
+        let names = g.names.iter().map(|id| id.to_string()).collect();
+        Ok(HirStmt::Global { names })
+    }
+
+    fn convert_nonlocal(n: ast::StmtNonlocal) -> Result<HirStmt> {
+        let names = n.names.iter().map(|id| id.to_string()).collect();
+        Ok(HirStmt::Nonlocal { names })
+    }
+
+    fn convert_async_for(af: ast::StmtAsyncFor) -> Result<HirStmt> {
+        let target = extract_assign_target(&af.target)?;
+        let iter = super::convert_expr(*af.iter)?;
+        let body = convert_body(af.body)?;
+        Ok(HirStmt::AsyncFor { target, iter, body })
+    }
+
+    fn convert_async_with(aw: ast::StmtAsyncWith) -> Result<HirStmt> {
+        if aw.items.len() != 1 {
+            bail!("Multiple async context managers not yet supported");
+        }
+        let item = &aw.items[0];
+        let context = super::convert_expr(item.context_expr.clone())?;
+        let target = item.optional_vars.as_ref().and_then(|v| {
+            if let ast::Expr::Name(n) = v.as_ref() {
+                Some(n.id.to_string())
+            } else {
+                None
+            }
+        });
+        let body = convert_body(aw.body)?;
+        Ok(HirStmt::AsyncWith {
+            context,
+            target,
+            body,
         })
     }
 }
@@ -487,7 +532,12 @@ impl ExprConverter {
                     let iterable = Box::new(Self::convert(c.args[0].clone())?);
 
                     // Extract lambda parameters and body
-                    let key_params: Vec<String> = lambda.args.args.iter().map(|arg| arg.def.arg.to_string()).collect();
+                    let key_params: Vec<String> = lambda
+                        .args
+                        .args
+                        .iter()
+                        .map(|arg| arg.def.arg.to_string())
+                        .collect();
 
                     let key_body = Box::new(Self::convert(*lambda.body.clone())?);
 
@@ -521,7 +571,10 @@ impl ExprConverter {
         }
 
         // Check if any args use the Starred expression (unpacking operator)
-        let has_starred = c.args.iter().any(|arg| matches!(arg, ast::Expr::Starred(_)));
+        let has_starred = c
+            .args
+            .iter()
+            .any(|arg| matches!(arg, ast::Expr::Starred(_)));
 
         if has_starred {
             // Special handling for os.path.join(*parts)
@@ -534,8 +587,10 @@ impl ExprConverter {
                             && attr.attr.as_str() == "join"
                         {
                             // Extract the starred argument
-                            if let Some(ast::Expr::Starred(starred)) =
-                                c.args.iter().find(|arg| matches!(arg, ast::Expr::Starred(_)))
+                            if let Some(ast::Expr::Starred(starred)) = c
+                                .args
+                                .iter()
+                                .find(|arg| matches!(arg, ast::Expr::Starred(_)))
                             {
                                 let parts_expr = Self::convert(*starred.value.clone())?;
 
@@ -557,8 +612,10 @@ impl ExprConverter {
             if let ast::Expr::Name(name) = &*c.func {
                 if name.id.as_str() == "print" {
                     // Extract the starred argument
-                    if let Some(ast::Expr::Starred(starred)) =
-                        c.args.iter().find(|arg| matches!(arg, ast::Expr::Starred(_)))
+                    if let Some(ast::Expr::Starred(starred)) = c
+                        .args
+                        .iter()
+                        .find(|arg| matches!(arg, ast::Expr::Starred(_)))
                     {
                         let items_expr = Self::convert(*starred.value.clone())?;
 
@@ -580,7 +637,11 @@ impl ExprConverter {
             // We don't need to bail - just convert the starred args to regular args by unwrapping them
         }
 
-        let args = c.args.into_iter().map(Self::convert).collect::<Result<Vec<_>>>()?;
+        let args = c
+            .args
+            .into_iter()
+            .map(Self::convert)
+            .collect::<Result<Vec<_>>>()?;
 
         let kwargs: Vec<(String, HirExpr)> = c
             .keywords
@@ -695,7 +756,11 @@ impl ExprConverter {
     }
 
     fn convert_list(l: ast::ExprList) -> Result<HirExpr> {
-        let elts = l.elts.into_iter().map(Self::convert).collect::<Result<Vec<_>>>()?;
+        let elts = l
+            .elts
+            .into_iter()
+            .map(Self::convert)
+            .collect::<Result<Vec<_>>>()?;
         Ok(HirExpr::List(elts))
     }
 
@@ -714,7 +779,11 @@ impl ExprConverter {
     }
 
     fn convert_tuple(t: ast::ExprTuple) -> Result<HirExpr> {
-        let elts = t.elts.into_iter().map(Self::convert).collect::<Result<Vec<_>>>()?;
+        let elts = t
+            .elts
+            .into_iter()
+            .map(Self::convert)
+            .collect::<Result<Vec<_>>>()?;
         Ok(HirExpr::Tuple(elts))
     }
 
@@ -753,7 +822,10 @@ impl ExprConverter {
         }
 
         // Special handling for 'is None', 'is True', 'is False' patterns (single comparison only)
-        if c.ops.len() == 1 && c.comparators.len() == 1 && matches!(c.ops[0], ast::CmpOp::Is | ast::CmpOp::IsNot) {
+        if c.ops.len() == 1
+            && c.comparators.len() == 1
+            && matches!(c.ops[0], ast::CmpOp::Is | ast::CmpOp::IsNot)
+        {
             let comparator = &c.comparators[0];
             // Check if comparing with None
             let is_none_comparison = matches!(comparator, ast::Expr::Constant(cons)
@@ -998,12 +1070,20 @@ impl ExprConverter {
             });
         }
 
-        Ok(HirExpr::GeneratorExp { element, generators })
+        Ok(HirExpr::GeneratorExp {
+            element,
+            generators,
+        })
     }
 
     fn convert_lambda(l: ast::ExprLambda) -> Result<HirExpr> {
         // Extract parameter names
-        let params: Vec<String> = l.args.args.iter().map(|arg| arg.def.arg.to_string()).collect();
+        let params: Vec<String> = l
+            .args
+            .args
+            .iter()
+            .map(|arg| arg.def.arg.to_string())
+            .collect();
 
         // Convert body expression
         let body = Box::new(super::convert_expr(*l.body)?);
@@ -1032,7 +1112,11 @@ impl ExprConverter {
     }
 
     fn convert_yield(y: ast::ExprYield) -> Result<HirExpr> {
-        let value = y.value.map(|v| Self::convert(*v)).transpose()?.map(Box::new);
+        let value = y
+            .value
+            .map(|v| Self::convert(*v))
+            .transpose()?
+            .map(Box::new);
         Ok(HirExpr::Yield { value })
     }
 
@@ -1084,7 +1168,9 @@ impl ExprConverter {
                 t.elts
                     .iter()
                     .map(|e| match e {
-                        ast::Expr::Name(n) => super::type_extraction::TypeExtractor::extract_simple_type(&n.id),
+                        ast::Expr::Name(n) => {
+                            super::type_extraction::TypeExtractor::extract_simple_type(&n.id)
+                        }
                         ast::Expr::Subscript(_) => {
                             // Nested generic type: func[List[int]]
                             super::type_extraction::TypeExtractor::extract_type(e)

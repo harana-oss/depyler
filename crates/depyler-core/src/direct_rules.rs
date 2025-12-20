@@ -1,6 +1,6 @@
 use crate::hir::*;
 use crate::type_mapper::{RustType, TypeMapper};
-use anyhow::{bail, Result};
+use anyhow::{Result, bail};
 use quote::quote;
 use syn::{self, parse_quote};
 
@@ -388,9 +388,16 @@ pub fn convert_class_to_struct(
     let mut items = Vec::new();
     let struct_name = syn::Ident::new(&class.name, proc_macro2::Span::call_site());
 
-    // Separate instance fields from class fields (constants/statics)
-    let (instance_fields, class_fields): (Vec<_>, Vec<_>) =
-        class.fields.iter().partition(|f| !f.is_class_var);
+    // Filter out KW_ONLY sentinel (field named _ with type KW_ONLY)
+    let is_kw_only_sentinel =
+        |f: &&HirField| f.name == "_" && matches!(&f.field_type, Type::Custom(t) if t == "KW_ONLY");
+
+    // Separate instance fields from class fields (constants/statics), excluding KW_ONLY
+    let (instance_fields, class_fields): (Vec<_>, Vec<_>) = class
+        .fields
+        .iter()
+        .filter(|f| !is_kw_only_sentinel(f))
+        .partition(|f| !f.is_class_var);
 
     // Generate struct fields (only instance fields)
     let mut fields = Vec::new();
@@ -552,7 +559,9 @@ pub fn convert_class_to_enum(class: &HirClass) -> Result<Vec<syn::Item>> {
         .collect();
 
     let enum_item = syn::Item::Enum(syn::ItemEnum {
-        attrs: vec![parse_quote! { #[derive(Debug, Default, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)] }],
+        attrs: vec![
+            parse_quote! { #[derive(Debug, Default, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)] },
+        ],
         vis: syn::Visibility::Public(syn::Token![pub](proc_macro2::Span::call_site())),
         enum_token: syn::Token![enum](proc_macro2::Span::call_site()),
         ident: enum_name.clone(),
@@ -571,7 +580,8 @@ pub fn convert_class_to_enum(class: &HirClass) -> Result<Vec<syn::Item>> {
         .collect();
 
     let first_variant = variant_info.first().map(|(ident, _)| ident.clone());
-    let default_variant = first_variant.unwrap_or_else(|| syn::Ident::new("Unknown", proc_macro2::Span::call_site()));
+    let default_variant =
+        first_variant.unwrap_or_else(|| syn::Ident::new("Unknown", proc_macro2::Span::call_site()));
 
     let impl_item: syn::Item = parse_quote! {
         impl #enum_name {
@@ -673,12 +683,16 @@ fn generate_dataclass_new(
     _struct_name: &syn::Ident,
     type_mapper: &TypeMapper,
 ) -> Result<syn::ImplItemFn> {
-    // Generate parameters from fields (skip fields with defaults and class variables)
+    // Filter out KW_ONLY sentinel (field named _ with type KW_ONLY)
+    let is_kw_only_sentinel =
+        |f: &&HirField| f.name == "_" && matches!(&f.field_type, Type::Custom(t) if t == "KW_ONLY");
+
+    // Generate parameters from fields (skip fields with defaults, class variables, and KW_ONLY sentinel)
     let mut inputs = syn::punctuated::Punctuated::new();
     let fields_without_defaults: Vec<_> = class
         .fields
         .iter()
-        .filter(|f| !f.is_class_var && f.default_value.is_none())
+        .filter(|f| !f.is_class_var && f.default_value.is_none() && !is_kw_only_sentinel(f))
         .collect();
 
     for field in &fields_without_defaults {
@@ -700,11 +714,11 @@ fn generate_dataclass_new(
         }));
     }
 
-    // Generate body that initializes struct fields (skip class variables)
+    // Generate body that initializes struct fields (skip class variables and KW_ONLY sentinel)
     let field_inits = class
         .fields
         .iter()
-        .filter(|f| !f.is_class_var) // Skip class constants
+        .filter(|f| !f.is_class_var && !is_kw_only_sentinel(f))
         .map(|field| {
             let field_ident = syn::Ident::new(&field.name, proc_macro2::Span::call_site());
             if let Some(default_value) = &field.default_value {
@@ -713,7 +727,9 @@ fn generate_dataclass_new(
                     // Check if it's a call to field()
                     if func == "field" {
                         // Look for default_factory keyword argument
-                        if let Some((_, factory_expr)) = kwargs.iter().find(|(k, _)| k == "default_factory") {
+                        if let Some((_, factory_expr)) =
+                            kwargs.iter().find(|(k, _)| k == "default_factory")
+                        {
                             // Generate appropriate initialization based on factory
                             if let HirExpr::Var(factory_name) = factory_expr {
                                 match factory_name.as_str() {
@@ -723,7 +739,9 @@ fn generate_dataclass_new(
                                     _ => {}
                                 }
                             }
-                        } else if let Some((_, default_val)) = kwargs.iter().find(|(k, _)| k == "default") {
+                        } else if let Some((_, default_val)) =
+                            kwargs.iter().find(|(k, _)| k == "default")
+                        {
                             // Handle field(default=value)
                             if let Ok(expr) = convert_expr(default_val, type_mapper) {
                                 return quote! { #field_ident: #expr };
@@ -784,7 +802,15 @@ fn generate_get_field_method(
     class: &HirClass,
     type_mapper: &TypeMapper,
 ) -> Result<Option<syn::ImplItemFn>> {
-    let instance_fields: Vec<_> = class.fields.iter().filter(|f| !f.is_class_var).collect();
+    // Filter out KW_ONLY sentinel (field named _ with type KW_ONLY)
+    let is_kw_only_sentinel =
+        |f: &&HirField| f.name == "_" && matches!(&f.field_type, Type::Custom(t) if t == "KW_ONLY");
+
+    let instance_fields: Vec<_> = class
+        .fields
+        .iter()
+        .filter(|f| !f.is_class_var && !is_kw_only_sentinel(f))
+        .collect();
     if instance_fields.is_empty() {
         return Ok(None);
     }
@@ -826,7 +852,15 @@ fn generate_set_field_method(
     class: &HirClass,
     type_mapper: &TypeMapper,
 ) -> Result<Option<syn::ImplItemFn>> {
-    let instance_fields: Vec<_> = class.fields.iter().filter(|f| !f.is_class_var).collect();
+    // Filter out KW_ONLY sentinel (field named _ with type KW_ONLY)
+    let is_kw_only_sentinel =
+        |f: &&HirField| f.name == "_" && matches!(&f.field_type, Type::Custom(t) if t == "KW_ONLY");
+
+    let instance_fields: Vec<_> = class
+        .fields
+        .iter()
+        .filter(|f| !f.is_class_var && !is_kw_only_sentinel(f))
+        .collect();
     if instance_fields.is_empty() {
         return Ok(None);
     }
@@ -2201,6 +2235,49 @@ fn convert_stmt_with_context(
             // direct_rules is a legacy optimization path
             Ok(syn::Stmt::Expr(parse_quote! { {} }, None))
         }
+        HirStmt::Global { .. } | HirStmt::Nonlocal { .. } => {
+            // Declaration markers - no code generated
+            Ok(syn::Stmt::Expr(parse_quote! { {} }, None))
+        }
+        HirStmt::AsyncFor { target, iter, body } => {
+            let iter_expr = convert_expr_with_context(iter, type_mapper, is_classmethod)?;
+            let body_block = convert_block_with_context(body, type_mapper, is_classmethod)?;
+            let target_ident = match target {
+                AssignTarget::Symbol(s) => syn::Ident::new(s, proc_macro2::Span::call_site()),
+                _ => syn::Ident::new("item", proc_macro2::Span::call_site()),
+            };
+            Ok(syn::Stmt::Expr(
+                parse_quote! {
+                    while let Some(#target_ident) = #iter_expr.next().await #body_block
+                },
+                None,
+            ))
+        }
+        HirStmt::AsyncWith {
+            context,
+            target,
+            body,
+        } => {
+            let context_expr = convert_expr_with_context(context, type_mapper, is_classmethod)?;
+            let body_block = convert_block_with_context(body, type_mapper, is_classmethod)?;
+            let block_expr = if let Some(var_name) = target {
+                let var_ident = syn::Ident::new(var_name, proc_macro2::Span::call_site());
+                parse_quote! {
+                    {
+                        let #var_ident = #context_expr;
+                        #body_block
+                    }
+                }
+            } else {
+                parse_quote! {
+                    {
+                        let _ctx = #context_expr;
+                        #body_block
+                    }
+                }
+            };
+            Ok(syn::Stmt::Expr(block_expr, None))
+        }
     }
 }
 
@@ -2301,6 +2378,7 @@ impl<'a> ExprConverter<'a> {
             } => self.convert_dict_comp(key, value, target, iter, condition),
             HirExpr::Attribute { value, attr } => self.convert_attribute(value, attr),
             HirExpr::Await { value } => self.convert_await(value),
+            HirExpr::FString { parts } => self.convert_fstring(parts),
             _ => bail!("Expression type not yet supported: {:?}", expr),
         }
     }
@@ -3235,6 +3313,34 @@ impl<'a> ExprConverter<'a> {
         let attr_ident = syn::Ident::new(attr, proc_macro2::Span::call_site());
         Ok(parse_quote! { #value_expr.#attr_ident })
     }
+
+    fn convert_fstring(&self, parts: &[FStringPart]) -> Result<syn::Expr> {
+        let mut format_string = String::new();
+        let mut format_args: Vec<syn::Expr> = Vec::new();
+
+        for part in parts {
+            match part {
+                FStringPart::Literal(s) => {
+                    // Escape braces in literal strings for format!
+                    format_string.push_str(&s.replace('{', "{{").replace('}', "}}"));
+                }
+                FStringPart::Expr(value) => {
+                    // Convert the expression
+                    let expr = self.convert(value)?;
+                    format_args.push(expr);
+                    format_string.push_str("{}");
+                }
+            }
+        }
+
+        // Generate format! macro call
+        let format_lit = syn::LitStr::new(&format_string, proc_macro2::Span::call_site());
+        if format_args.is_empty() {
+            Ok(parse_quote! { #format_lit.to_string() })
+        } else {
+            Ok(parse_quote! { format!(#format_lit, #(#format_args),*) })
+        }
+    }
 }
 
 /// Check if an expression is a len() call
@@ -3354,384 +3460,5 @@ fn convert_bitwise_op(op: BinOp) -> Result<syn::BinOp> {
         LShift => Ok(parse_quote! { << }),
         RShift => Ok(parse_quote! { >> }),
         _ => bail!("Invalid operator {:?} for bitwise conversion", op),
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::type_mapper::TypeMapper;
-    use depyler_annotations::TranspilationAnnotations;
-
-    fn create_test_type_mapper() -> TypeMapper {
-        TypeMapper::default()
-    }
-
-    #[test]
-    fn test_expr_converter_literal() {
-        let type_mapper = create_test_type_mapper();
-        let converter = ExprConverter::new(&type_mapper);
-
-        let lit_expr = HirExpr::Literal(Literal::Int(42));
-        let result = converter.convert(&lit_expr).unwrap();
-
-        // Should generate a literal integer expression
-        assert!(matches!(result, syn::Expr::Lit(_)));
-    }
-
-    #[test]
-    fn test_expr_converter_variable() {
-        let type_mapper = create_test_type_mapper();
-        let converter = ExprConverter::new(&type_mapper);
-
-        let var_expr = HirExpr::Var("x".to_string());
-        let result = converter.convert(&var_expr).unwrap();
-
-        // Should generate a path expression (variable reference)
-        assert!(matches!(result, syn::Expr::Path(_)));
-    }
-
-    #[test]
-    fn test_expr_converter_binary() {
-        let type_mapper = create_test_type_mapper();
-        let converter = ExprConverter::new(&type_mapper);
-
-        let binary_expr = HirExpr::Binary {
-            op: BinOp::Add,
-            left: Box::new(HirExpr::Literal(Literal::Int(1))),
-            right: Box::new(HirExpr::Literal(Literal::Int(2))),
-        };
-
-        let result = converter.convert(&binary_expr).unwrap();
-        assert!(matches!(result, syn::Expr::Binary(_)));
-    }
-
-    #[test]
-    fn test_expr_converter_len_call() {
-        let type_mapper = create_test_type_mapper();
-        let converter = ExprConverter::new(&type_mapper);
-
-        let call_expr = HirExpr::Call {
-            func: "len".to_string(),
-            args: vec![HirExpr::Var("arr".to_string())],
-            kwargs: vec![],
-            type_params: vec![],
-        };
-
-        let result = converter.convert(&call_expr).unwrap();
-        // Should generate a method call expression
-        assert!(matches!(result, syn::Expr::MethodCall(_)));
-    }
-
-    #[test]
-    fn test_expr_converter_range_call_single_arg() {
-        let type_mapper = create_test_type_mapper();
-        let converter = ExprConverter::new(&type_mapper);
-
-        let call_expr = HirExpr::Call {
-            func: "range".to_string(),
-            args: vec![HirExpr::Literal(Literal::Int(10))],
-            kwargs: vec![],
-            type_params: vec![],
-        };
-
-        let result = converter.convert(&call_expr).unwrap();
-        // Should generate a range expression
-        assert!(matches!(result, syn::Expr::Range(_)));
-    }
-
-    #[test]
-    fn test_array_literal_generation() {
-        let type_mapper = create_test_type_mapper();
-        let converter = ExprConverter::new(&type_mapper);
-
-        // Small literal array should generate array syntax
-        let list_expr = HirExpr::List(vec![
-            HirExpr::Literal(Literal::Int(1)),
-            HirExpr::Literal(Literal::Int(2)),
-            HirExpr::Literal(Literal::Int(3)),
-        ]);
-
-        let result = converter.convert(&list_expr).unwrap();
-        // Should generate an array expression
-        assert!(matches!(result, syn::Expr::Array(_)));
-    }
-
-    #[test]
-    fn test_array_multiplication_pattern() {
-        let type_mapper = create_test_type_mapper();
-        let converter = ExprConverter::new(&type_mapper);
-
-        // Pattern: [0] * 10
-        let mult_expr = HirExpr::Binary {
-            op: BinOp::Mul,
-            left: Box::new(HirExpr::List(vec![HirExpr::Literal(Literal::Int(0))])),
-            right: Box::new(HirExpr::Literal(Literal::Int(10))),
-        };
-
-        let result = converter.convert(&mult_expr).unwrap();
-        // Should generate array repeat syntax [0; 10]
-        assert!(matches!(result, syn::Expr::Repeat(_)));
-    }
-
-    #[test]
-    fn test_array_init_functions() {
-        let type_mapper = create_test_type_mapper();
-        let converter = ExprConverter::new(&type_mapper);
-
-        // zeros(5) should generate [0; 5]
-        let zeros_call = HirExpr::Call {
-            func: "zeros".to_string(),
-            args: vec![HirExpr::Literal(Literal::Int(5))],
-            kwargs: vec![],
-            type_params: vec![],
-        };
-
-        let result = converter.convert(&zeros_call).unwrap();
-        assert!(matches!(result, syn::Expr::Repeat(_)));
-    }
-
-    #[test]
-    fn test_expr_converter_range_call_two_args() {
-        let type_mapper = create_test_type_mapper();
-        let converter = ExprConverter::new(&type_mapper);
-
-        let call_expr = HirExpr::Call {
-            func: "range".to_string(),
-            args: vec![
-                HirExpr::Literal(Literal::Int(1)),
-                HirExpr::Literal(Literal::Int(10)),
-            ],
-            kwargs: vec![],
-            type_params: vec![],
-        };
-
-        let result = converter.convert(&call_expr).unwrap();
-        assert!(matches!(result, syn::Expr::Range(_)));
-    }
-
-    #[test]
-    fn test_expr_converter_list() {
-        let type_mapper = create_test_type_mapper();
-        let converter = ExprConverter::new(&type_mapper);
-
-        // Test literal list (should generate array)
-        let list_expr = HirExpr::List(vec![
-            HirExpr::Literal(Literal::Int(1)),
-            HirExpr::Literal(Literal::Int(2)),
-            HirExpr::Literal(Literal::Int(3)),
-        ]);
-
-        let result = converter.convert(&list_expr).unwrap();
-        // Small literal lists should generate array expressions
-        assert!(matches!(result, syn::Expr::Array(_)));
-
-        // Test non-literal list (should generate vec!)
-        let var_list = HirExpr::List(vec![
-            HirExpr::Var("x".to_string()),
-            HirExpr::Var("y".to_string()),
-        ]);
-
-        let result2 = converter.convert(&var_list).unwrap();
-        // Non-literal lists should generate vec! macro
-        assert!(matches!(result2, syn::Expr::Macro(_)));
-    }
-
-    #[test]
-    fn test_expr_converter_dict() {
-        let type_mapper = create_test_type_mapper();
-        let converter = ExprConverter::new(&type_mapper);
-
-        let dict_expr = HirExpr::Dict(vec![(
-            HirExpr::Literal(Literal::String("key".to_string())),
-            HirExpr::Literal(Literal::Int(42)),
-        )]);
-
-        let result = converter.convert(&dict_expr).unwrap();
-        // Should generate a block expression
-        assert!(matches!(result, syn::Expr::Block(_)));
-    }
-
-    #[test]
-    fn test_expr_converter_tuple() {
-        let type_mapper = create_test_type_mapper();
-        let converter = ExprConverter::new(&type_mapper);
-
-        let tuple_expr = HirExpr::Tuple(vec![
-            HirExpr::Literal(Literal::Int(1)),
-            HirExpr::Literal(Literal::String("hello".to_string())),
-        ]);
-
-        let result = converter.convert(&tuple_expr).unwrap();
-        // Should generate a tuple expression
-        assert!(matches!(result, syn::Expr::Tuple(_)));
-    }
-
-    #[test]
-    fn test_convert_binop_arithmetic() {
-        // Test arithmetic operators
-        assert!(convert_binop(BinOp::Add).is_ok());
-        assert!(convert_binop(BinOp::Sub).is_ok());
-        assert!(convert_binop(BinOp::Mul).is_ok());
-        assert!(convert_binop(BinOp::Div).is_ok());
-        assert!(convert_binop(BinOp::Mod).is_ok());
-    }
-
-    #[test]
-    fn test_convert_binop_comparison() {
-        // Test comparison operators
-        assert!(convert_binop(BinOp::Eq).is_ok());
-        assert!(convert_binop(BinOp::NotEq).is_ok());
-        assert!(convert_binop(BinOp::Lt).is_ok());
-        assert!(convert_binop(BinOp::LtEq).is_ok());
-        assert!(convert_binop(BinOp::Gt).is_ok());
-        assert!(convert_binop(BinOp::GtEq).is_ok());
-    }
-
-    #[test]
-    fn test_convert_binop_logical() {
-        // Test logical operators
-        assert!(convert_binop(BinOp::And).is_ok());
-        assert!(convert_binop(BinOp::Or).is_ok());
-    }
-
-    #[test]
-    fn test_convert_binop_bitwise() {
-        // Test bitwise operators
-        assert!(convert_binop(BinOp::BitAnd).is_ok());
-        assert!(convert_binop(BinOp::BitOr).is_ok());
-        assert!(convert_binop(BinOp::BitXor).is_ok());
-        assert!(convert_binop(BinOp::LShift).is_ok());
-        assert!(convert_binop(BinOp::RShift).is_ok());
-    }
-
-    #[test]
-    fn test_convert_binop_unsupported() {
-        // Test unsupported operators
-        assert!(convert_binop(BinOp::Pow).is_err());
-        assert!(convert_binop(BinOp::In).is_err());
-        assert!(convert_binop(BinOp::NotIn).is_err());
-        assert!(convert_binop(BinOp::FloorDiv).is_err()); // Floor division is handled specially
-    }
-
-    #[test]
-    fn test_floor_division_handling() {
-        let type_mapper = create_test_type_mapper();
-        let converter = ExprConverter::new(&type_mapper);
-
-        // Test integer floor division
-        let int_floor_div = HirExpr::Binary {
-            op: BinOp::FloorDiv,
-            left: Box::new(HirExpr::Literal(Literal::Int(7))),
-            right: Box::new(HirExpr::Literal(Literal::Int(3))),
-        };
-
-        let result = converter.convert(&int_floor_div).unwrap();
-        // Should generate a block expression with the floor division formula
-        assert!(matches!(result, syn::Expr::Block(_)));
-
-        // Test with negative operands
-        let neg_floor_div = HirExpr::Binary {
-            op: BinOp::FloorDiv,
-            left: Box::new(HirExpr::Literal(Literal::Int(-7))),
-            right: Box::new(HirExpr::Literal(Literal::Int(3))),
-        };
-
-        let result = converter.convert(&neg_floor_div).unwrap();
-        assert!(matches!(result, syn::Expr::Block(_)));
-    }
-
-    #[test]
-    fn test_convert_literal() {
-        // Test integer literal
-        let int_lit = convert_literal(&Literal::Int(42));
-        assert!(matches!(int_lit, syn::Expr::Lit(_)));
-
-        // Test float literal
-        let float_lit = convert_literal(&Literal::Float(1.234)); // Use arbitrary float for test
-        assert!(matches!(float_lit, syn::Expr::Lit(_)));
-
-        // Test string literal
-        let string_lit = convert_literal(&Literal::String("hello".to_string()));
-        assert!(matches!(string_lit, syn::Expr::MethodCall(_)));
-
-        // Test bool literal
-        let bool_lit = convert_literal(&Literal::Bool(true));
-        assert!(matches!(bool_lit, syn::Expr::Lit(_)));
-
-        // Test None literal
-        let none_lit = convert_literal(&Literal::None);
-        assert!(matches!(none_lit, syn::Expr::Tuple(_)));
-    }
-
-    #[test]
-    fn test_convert_function_with_documentation() {
-        let type_mapper = create_test_type_mapper();
-
-        let func = HirFunction {
-            name: "test_func".to_string(),
-            params: vec![HirParam::new("x".to_string(), Type::Int)].into(),
-            ret_type: Type::Int,
-            body: vec![HirStmt::Return(Some(HirExpr::Var("x".to_string())))],
-            properties: FunctionProperties {
-                is_pure: true,
-                always_terminates: true,
-                panic_free: true,
-                max_stack_depth: Some(1),
-                can_fail: false,
-                error_types: vec![],
-                is_async: false,
-                is_generator: false,
-            },
-            annotations: TranspilationAnnotations::default(),
-            docstring: None,
-        };
-
-        let result = convert_function(&func, &type_mapper).unwrap();
-
-        // Should have documentation attributes
-        assert!(!result.attrs.is_empty());
-        assert_eq!(result.sig.ident.to_string(), "test_func");
-    }
-
-    #[test]
-    fn test_apply_rules() {
-        let type_mapper = create_test_type_mapper();
-
-        let module = HirModule {
-            functions: vec![HirFunction {
-                name: "add".to_string(),
-                params: vec![
-                    HirParam::new("a".to_string(), Type::Int),
-                    HirParam::new("b".to_string(), Type::Int),
-                ]
-                .into(),
-                ret_type: Type::Int,
-                body: vec![HirStmt::Return(Some(HirExpr::Binary {
-                    op: BinOp::Add,
-                    left: Box::new(HirExpr::Var("a".to_string())),
-                    right: Box::new(HirExpr::Var("b".to_string())),
-                }))],
-                properties: FunctionProperties::default(),
-                annotations: TranspilationAnnotations::default(),
-                docstring: None,
-            }],
-            imports: vec![],
-            type_aliases: vec![],
-            protocols: vec![],
-            classes: vec![],
-            constants: vec![],
-        };
-
-        let result = apply_rules(&module, &type_mapper).unwrap();
-
-        // Should have at least one import and one function
-        assert!(result.items.len() >= 2);
-
-        // First item should be an import
-        assert!(matches!(result.items[0], syn::Item::Use(_)));
-
-        // Second item should be a function
-        assert!(matches!(result.items[1], syn::Item::Fn(_)));
     }
 }

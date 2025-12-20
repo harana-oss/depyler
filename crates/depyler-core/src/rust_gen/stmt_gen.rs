@@ -4784,6 +4784,16 @@ impl RustCodeGen for HirStmt {
                 body,
                 docstring: _,
             } => codegen_nested_function_def(name, params, ret_type, body, ctx),
+            HirStmt::Global { names } => codegen_global_stmt(names),
+            HirStmt::Nonlocal { names } => codegen_nonlocal_stmt(names),
+            HirStmt::AsyncFor { target, iter, body } => {
+                codegen_async_for_stmt(target, iter, body, ctx)
+            }
+            HirStmt::AsyncWith {
+                context,
+                target,
+                body,
+            } => codegen_async_with_stmt(context, target, body, ctx),
         }
     }
 }
@@ -4889,4 +4899,97 @@ fn codegen_nested_function_def(
             #(#body_tokens)*
         }
     })
+}
+
+/// Generate Rust code for global statement.
+/// In Rust, global is typically a no-op as variable scoping is different.
+/// The actual variable needs to be declared as static at module level.
+fn codegen_global_stmt(_names: &[String]) -> Result<proc_macro2::TokenStream> {
+    // Global statement is a declaration marker in Python, not executable code.
+    // The actual semantics depend on how the variable is used later.
+    // For now, emit a comment noting the global declaration.
+    Ok(quote! {})
+}
+
+/// Generate Rust code for nonlocal statement.
+/// In Rust, nonlocal is typically handled via closure captures with Rc<RefCell<T>>.
+fn codegen_nonlocal_stmt(_names: &[String]) -> Result<proc_macro2::TokenStream> {
+    // Nonlocal statement is a declaration marker in Python, not executable code.
+    // The actual semantics require tracking captured variables in closures.
+    // For now, emit nothing as the closure capture handles this.
+    Ok(quote! {})
+}
+
+/// Generate Rust code for async for statement.
+/// Python's `async for x in stream:` becomes `while let Some(x) = stream.next().await`
+fn codegen_async_for_stmt(
+    target: &AssignTarget,
+    iter: &HirExpr,
+    body: &[HirStmt],
+    ctx: &mut CodeGenContext,
+) -> Result<proc_macro2::TokenStream> {
+    let iter_expr = iter.to_rust_expr(ctx)?;
+    let target_pattern = convert_assign_target_to_pattern(target)?;
+
+    let body_stmts: Vec<_> = body
+        .iter()
+        .map(|s| s.to_rust_tokens(ctx))
+        .collect::<Result<Vec<_>>>()?;
+
+    Ok(quote! {
+        while let Some(#target_pattern) = #iter_expr.next().await {
+            #(#body_stmts)*
+        }
+    })
+}
+
+/// Generate Rust code for async with statement.
+/// Python's `async with ctx as var:` becomes an async block with the resource
+fn codegen_async_with_stmt(
+    context: &HirExpr,
+    target: &Option<Symbol>,
+    body: &[HirStmt],
+    ctx: &mut CodeGenContext,
+) -> Result<proc_macro2::TokenStream> {
+    let context_expr = context.to_rust_expr(ctx)?;
+
+    let body_stmts: Vec<_> = body
+        .iter()
+        .map(|s| s.to_rust_tokens(ctx))
+        .collect::<Result<Vec<_>>>()?;
+
+    if let Some(var_name) = target {
+        let var_ident = safe_ident(var_name);
+        Ok(quote! {
+            {
+                let #var_ident = #context_expr;
+                #(#body_stmts)*
+            }
+        })
+    } else {
+        Ok(quote! {
+            {
+                let _ctx = #context_expr;
+                #(#body_stmts)*
+            }
+        })
+    }
+}
+
+/// Convert an AssignTarget to a syn::Pat for pattern matching
+fn convert_assign_target_to_pattern(target: &AssignTarget) -> Result<syn::Pat> {
+    match target {
+        AssignTarget::Symbol(name) => {
+            let ident = safe_ident(name);
+            Ok(parse_quote! { #ident })
+        }
+        AssignTarget::Tuple(targets) => {
+            let patterns: Vec<syn::Pat> = targets
+                .iter()
+                .map(convert_assign_target_to_pattern)
+                .collect::<Result<Vec<_>>>()?;
+            Ok(parse_quote! { (#(#patterns),*) })
+        }
+        _ => bail!("Unsupported pattern in async for target"),
+    }
 }

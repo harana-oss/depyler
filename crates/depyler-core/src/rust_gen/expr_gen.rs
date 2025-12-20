@@ -10,8 +10,8 @@ use crate::rust_gen::context::{CodeGenContext, ToRustExpr};
 use crate::rust_gen::return_type_expects_float;
 use crate::rust_gen::type_gen::convert_binop;
 use crate::string_optimization::{StringContext, StringOptimizer};
-use anyhow::{bail, Result};
-use quote::{format_ident, quote, ToTokens};
+use anyhow::{Result, bail};
+use quote::{ToTokens, format_ident, quote};
 use std::collections::HashSet;
 use syn::{self, parse_quote};
 
@@ -978,6 +978,106 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         }
     }
 
+    /// Convert functools.partial() to Rust closure
+    /// partial(func, arg1, arg2, kwarg1=val1) → move |remaining...| func(arg1, arg2, remaining..., kwarg1=val1)
+    fn convert_partial_call(
+        &mut self,
+        args: &[HirExpr],
+        kwargs: &[(String, HirExpr)],
+    ) -> Result<syn::Expr> {
+        if args.is_empty() {
+            bail!("functools.partial() requires at least one argument (the function)");
+        }
+
+        let target_func = &args[0];
+        let bound_args = &args[1..];
+
+        // Get the function name or expression
+        let func_expr = target_func.to_rust_expr(self.ctx)?;
+
+        // Generate bound argument expressions
+        let bound_arg_exprs: Vec<syn::Expr> = bound_args
+            .iter()
+            .map(|arg| arg.to_rust_expr(self.ctx))
+            .collect::<Result<Vec<_>>>()?;
+
+        // Generate keyword argument expressions
+        let kwarg_exprs: Vec<syn::Expr> = kwargs
+            .iter()
+            .map(|(_, v)| v.to_rust_expr(self.ctx))
+            .collect::<Result<Vec<_>>>()?;
+
+        // Generate closure parameter names for remaining arguments
+        // Use generic names since we don't know the function signature
+        let remaining_param_count =
+            self.infer_partial_remaining_params(target_func, bound_args.len());
+        let param_names: Vec<syn::Ident> = (0..remaining_param_count)
+            .map(|i| syn::Ident::new(&format!("__arg{}", i), proc_macro2::Span::call_site()))
+            .collect();
+
+        // Build the closure
+        if param_names.is_empty() {
+            // No remaining parameters - return a nullary closure
+            if kwarg_exprs.is_empty() {
+                Ok(parse_quote! { move || #func_expr(#(#bound_arg_exprs),*) })
+            } else {
+                // With kwargs - append them
+                Ok(parse_quote! { move || #func_expr(#(#bound_arg_exprs,)* #(#kwarg_exprs),*) })
+            }
+        } else if param_names.len() == 1 {
+            let param = &param_names[0];
+            if kwarg_exprs.is_empty() {
+                if bound_arg_exprs.is_empty() {
+                    Ok(parse_quote! { move |#param| #func_expr(#param) })
+                } else {
+                    Ok(parse_quote! { move |#param| #func_expr(#(#bound_arg_exprs,)* #param) })
+                }
+            } else {
+                if bound_arg_exprs.is_empty() {
+                    Ok(parse_quote! { move |#param| #func_expr(#param, #(#kwarg_exprs),*) })
+                } else {
+                    Ok(
+                        parse_quote! { move |#param| #func_expr(#(#bound_arg_exprs,)* #param, #(#kwarg_exprs),*) },
+                    )
+                }
+            }
+        } else {
+            // Multiple remaining parameters
+            if kwarg_exprs.is_empty() {
+                if bound_arg_exprs.is_empty() {
+                    Ok(parse_quote! { move |#(#param_names),*| #func_expr(#(#param_names),*) })
+                } else {
+                    Ok(
+                        parse_quote! { move |#(#param_names),*| #func_expr(#(#bound_arg_exprs,)* #(#param_names),*) },
+                    )
+                }
+            } else {
+                if bound_arg_exprs.is_empty() {
+                    Ok(
+                        parse_quote! { move |#(#param_names),*| #func_expr(#(#param_names,)* #(#kwarg_exprs),*) },
+                    )
+                } else {
+                    Ok(
+                        parse_quote! { move |#(#param_names),*| #func_expr(#(#bound_arg_exprs,)* #(#param_names,)* #(#kwarg_exprs),*) },
+                    )
+                }
+            }
+        }
+    }
+
+    /// Infer how many remaining parameters a partial function needs
+    fn infer_partial_remaining_params(&self, target_func: &HirExpr, bound_count: usize) -> usize {
+        // Try to determine the total parameter count from function info
+        if let HirExpr::Var(func_name) = target_func {
+            if let Some(param_names) = self.ctx.function_param_names.get(func_name) {
+                let total_params = param_names.len();
+                return total_params.saturating_sub(bound_count);
+            }
+        }
+        // Default: assume one remaining parameter
+        1
+    }
+
     fn convert_unary(&mut self, op: &UnaryOp, operand: &HirExpr) -> Result<syn::Expr> {
         let is_optional = self.expr_is_optional(operand);
         let operand_expr = operand.to_rust_expr(self.ctx)?;
@@ -1077,6 +1177,12 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         args: &[HirExpr],
         kwargs: &[(String, HirExpr)],
     ) -> Result<syn::Expr> {
+        // Handle functools.partial - convert to closure
+        // partial(func, arg1, arg2, ...) → |remaining_args...| func(arg1, arg2, ..., remaining_args...)
+        if func == "partial" {
+            return self.convert_partial_call(args, kwargs);
+        }
+
         if func == "__os_path_join_starred" {
             if args.len() != 1 {
                 bail!("__os_path_join_starred expects exactly 1 argument");
@@ -1989,9 +2095,10 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         let is_optional = !hir_args.is_empty() && self.expr_is_optional(&hir_args[0]);
 
         if is_optional {
-            Ok(parse_quote! { #arg.as_ref().unwrap().to_string() })
+            Ok(parse_quote! { (#arg).as_ref().unwrap().to_string() })
         } else {
-            Ok(parse_quote! { #arg.to_string() })
+            // Wrap in parens to handle cast expressions like `(x as i32).to_string()`
+            Ok(parse_quote! { (#arg).to_string() })
         }
     }
 
@@ -2626,7 +2733,8 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     return Ok(position_expr);
                 }
 
-                let is_identity = matches!(&**element, HirExpr::Var(name) if name == &generator.target);
+                let is_identity =
+                    matches!(&**element, HirExpr::Var(name) if name == &generator.target);
 
                 if is_identity && !generator.conditions.is_empty() {
                     // This is a findable pattern: next((x for x in items if cond), default)
@@ -2713,17 +2821,18 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         args: &[syn::Expr],
     ) -> Result<Option<syn::Expr>> {
         // Check if the target is a tuple pattern "(idx_var, elem_var)"
-        let (idx_var, elem_var) = if comprehension.target.starts_with('(') && comprehension.target.ends_with(')') {
-            let inner = &comprehension.target[1..comprehension.target.len() - 1];
-            let parts: Vec<&str> = inner.split(',').map(|s| s.trim()).collect();
-            if parts.len() == 2 {
-                (parts[0].to_string(), parts[1].to_string())
+        let (idx_var, elem_var) =
+            if comprehension.target.starts_with('(') && comprehension.target.ends_with(')') {
+                let inner = &comprehension.target[1..comprehension.target.len() - 1];
+                let parts: Vec<&str> = inner.split(',').map(|s| s.trim()).collect();
+                if parts.len() == 2 {
+                    (parts[0].to_string(), parts[1].to_string())
+                } else {
+                    return Ok(None);
+                }
             } else {
                 return Ok(None);
-            }
-        } else {
-            return Ok(None);
-        };
+            };
 
         // Check if element is just the index variable
         let element_is_index = matches!(element, HirExpr::Var(name) if name == &idx_var);
@@ -3102,11 +3211,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                             } => self.is_list_expr(left) || self.is_list_expr(right),
                             _ => false,
                         };
-                        if needs_debug {
-                            "{:?}"
-                        } else {
-                            "{}"
-                        }
+                        if needs_debug { "{:?}" } else { "{}" }
                     })
                     .collect();
                 let format_str = format_specs.join(" ");
@@ -3841,7 +3946,9 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                         }))
                     }
                 } else {
-                    bail!("struct.pack() requires string literal format (dynamic formats not supported)");
+                    bail!(
+                        "struct.pack() requires string literal format (dynamic formats not supported)"
+                    );
                 }
             }
             "unpack" => {
@@ -3882,7 +3989,9 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                         );
                     }
                 } else {
-                    bail!("struct.unpack() requires string literal format (dynamic formats not supported)");
+                    bail!(
+                        "struct.unpack() requires string literal format (dynamic formats not supported)"
+                    );
                 }
             }
             "calcsize" => {
@@ -3904,7 +4013,9 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     let size = (count * 4) as i32;
                     Ok(Some(parse_quote! { #size }))
                 } else {
-                    bail!("struct.calcsize() requires string literal format (dynamic formats not supported)");
+                    bail!(
+                        "struct.calcsize() requires string literal format (dynamic formats not supported)"
+                    );
                 }
             }
             _ => {
@@ -7492,7 +7603,9 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             // Fraction methods
             "limit_denominator" => {
                 if arg_exprs.len() != 2 {
-                    bail!("Fraction.limit_denominator() requires exactly 2 arguments (self, max_denominator)");
+                    bail!(
+                        "Fraction.limit_denominator() requires exactly 2 arguments (self, max_denominator)"
+                    );
                 }
                 let frac = &arg_exprs[0];
                 let max_denom = &arg_exprs[1];
@@ -8509,10 +8622,14 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
 
             // Get/Set state (complex, simplified implementation)
             "getstate" => {
-                bail!("random.getstate() not supported - Rust RNG state management differs from Python");
+                bail!(
+                    "random.getstate() not supported - Rust RNG state management differs from Python"
+                );
             }
             "setstate" => {
-                bail!("random.setstate() not supported - Rust RNG state management differs from Python");
+                bail!(
+                    "random.setstate() not supported - Rust RNG state management differs from Python"
+                );
             }
 
             "triangular" => {
@@ -9749,6 +9866,32 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         hir_args: &[HirExpr],
     ) -> Result<syn::Expr> {
         match method {
+            "format" => {
+                // Python: "{} {}".format(a, b) -> Rust: format!("{} {}", a, b)
+                // Extract the format string from the object
+                let format_string = match hir_object {
+                    HirExpr::Literal(Literal::String(s)) => s.clone(),
+                    _ => {
+                        // For non-literal format strings, fall back to a simple runtime approach
+                        // This is a simplification - complex runtime format strings need more work
+                        return Ok(parse_quote! {
+                            format!("{}", #object_expr)
+                        });
+                    }
+                };
+
+                // Convert Python format spec to Rust format spec
+                let rust_format = self.convert_python_format_to_rust(&format_string);
+
+                if arg_exprs.is_empty() {
+                    // No arguments - just use the format string as-is (may have no placeholders)
+                    Ok(parse_quote! { format!(#rust_format) })
+                } else {
+                    // Generate format! macro with arguments
+                    let args = arg_exprs;
+                    Ok(parse_quote! { format!(#rust_format, #(#args),*) })
+                }
+            }
             "upper" => {
                 if !arg_exprs.is_empty() {
                     bail!("upper() takes no arguments");
@@ -10216,6 +10359,72 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
 
             _ => bail!("Unknown string method: {}", method),
         }
+    }
+
+    /// Convert Python format string to Rust format string
+    /// Python uses {} or {:spec} placeholders, Rust uses similar but with some differences
+    fn convert_python_format_to_rust(&self, format_str: &str) -> String {
+        // Simple conversion: Python format specs are largely compatible with Rust
+        // Key differences:
+        // - Python {:d} for decimal -> Rust {:} or no format spec needed
+        // - Python {:s} for string -> Rust {:} or no format spec needed
+        // - Python {:.2f} for float precision -> Rust {:.2} (same)
+        // - Python {:>10} for alignment -> Rust {:>10} (same)
+        // - Python {0} positional -> Rust {0} (same)
+        // - Python {name} named -> Rust {name} (same)
+
+        let mut result = String::with_capacity(format_str.len());
+        let mut chars = format_str.chars().peekable();
+
+        while let Some(c) = chars.next() {
+            if c == '{' {
+                if chars.peek() == Some(&'{') {
+                    // {{ is an escaped brace in Python, same in Rust
+                    result.push('{');
+                    result.push('{');
+                    chars.next();
+                } else {
+                    // Start of a format placeholder
+                    result.push('{');
+                    // Copy until we find the closing brace
+                    let mut in_spec = false;
+                    while let Some(&inner) = chars.peek() {
+                        chars.next();
+                        if inner == '}' {
+                            result.push('}');
+                            break;
+                        }
+                        if inner == ':' {
+                            in_spec = true;
+                        }
+                        // Convert Python-specific format specs
+                        if in_spec {
+                            // Skip 'd' and 's' type specifiers as Rust infers them
+                            if inner == 'd' || inner == 's' {
+                                // Check if this is at the end (before })
+                                if chars.peek() == Some(&'}') {
+                                    continue;
+                                }
+                            }
+                        }
+                        result.push(inner);
+                    }
+                }
+            } else if c == '}' {
+                if chars.peek() == Some(&'}') {
+                    // }} is an escaped brace
+                    result.push('}');
+                    result.push('}');
+                    chars.next();
+                } else {
+                    result.push(c);
+                }
+            } else {
+                result.push(c);
+            }
+        }
+
+        result
     }
 
     /// Handle set methods (add, discard, clear)
@@ -13158,7 +13367,12 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         iter: &HirExpr,
         condition: &Option<Box<HirExpr>>,
     ) -> Result<syn::Expr> {
-        let target_ident = syn::Ident::new(target, proc_macro2::Span::call_site());
+        // Use raw identifier if target is a Rust keyword (e.g., `fn`)
+        let target_ident = if Self::is_rust_keyword(target) {
+            syn::Ident::new_raw(target, proc_macro2::Span::call_site())
+        } else {
+            syn::Ident::new(target, proc_macro2::Span::call_site())
+        };
         let element_expr = element.to_rust_expr(self.ctx)?;
 
         // Check if this is an identity map (element is just the target variable)
@@ -13376,7 +13590,12 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         iter: &HirExpr,
         condition: &HirExpr,
     ) -> Result<syn::Expr> {
-        let target_ident = syn::Ident::new(target, proc_macro2::Span::call_site());
+        // Use raw identifier if target is a Rust keyword
+        let target_ident = if Self::is_rust_keyword(target) {
+            syn::Ident::new_raw(target, proc_macro2::Span::call_site())
+        } else {
+            syn::Ident::new(target, proc_macro2::Span::call_site())
+        };
 
         // Check if the iterator is an Optional type
         let iter_is_optional = self.expr_is_optional(iter);
@@ -14226,7 +14445,12 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         // and then .cloned() converts to T for the next stage.
 
         self.ctx.needs_hashset = true;
-        let target_ident = syn::Ident::new(target, proc_macro2::Span::call_site());
+        // Use raw identifier if target is a Rust keyword
+        let target_ident = if Self::is_rust_keyword(target) {
+            syn::Ident::new_raw(target, proc_macro2::Span::call_site())
+        } else {
+            syn::Ident::new(target, proc_macro2::Span::call_site())
+        };
         let iter_expr = iter.to_rust_expr(self.ctx)?;
         let element_expr = element.to_rust_expr(self.ctx)?;
 
@@ -14325,7 +14549,12 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         // and then .cloned() converts to T for the next stage.
 
         self.ctx.needs_hashmap = true;
-        let target_ident = syn::Ident::new(target, proc_macro2::Span::call_site());
+        // Use raw identifier if target is a Rust keyword
+        let target_ident = if Self::is_rust_keyword(target) {
+            syn::Ident::new_raw(target, proc_macro2::Span::call_site())
+        } else {
+            syn::Ident::new(target, proc_macro2::Span::call_site())
+        };
         let iter_expr = iter.to_rust_expr(self.ctx)?;
         let key_expr = key.to_rust_expr(self.ctx)?;
         let value_expr = value.to_rust_expr(self.ctx)?;
@@ -14983,7 +15212,8 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             };
 
             // Check if it's a range expression
-            let is_range = matches!(&*generator.iter, HirExpr::Call { func, .. } if func == "range");
+            let is_range =
+                matches!(&*generator.iter, HirExpr::Call { func, .. } if func == "range");
 
             // Determine if the element type needs clone (non-Copy) or can use copy
             // Default to true (use .cloned()) because .cloned() works for both Copy and Clone types,
@@ -15137,12 +15367,22 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             let parts: Vec<&str> = inner.split(',').map(|s| s.trim()).collect();
             let idents: Vec<syn::Ident> = parts
                 .iter()
-                .map(|s| syn::Ident::new(s, proc_macro2::Span::call_site()))
+                .map(|s| {
+                    if Self::is_rust_keyword(s) {
+                        syn::Ident::new_raw(s, proc_macro2::Span::call_site())
+                    } else {
+                        syn::Ident::new(s, proc_macro2::Span::call_site())
+                    }
+                })
                 .collect();
             Ok(parse_quote! { ( #(#idents),* ) })
         } else {
-            // Simple variable
-            let ident = syn::Ident::new(target, proc_macro2::Span::call_site());
+            // Simple variable - use raw identifier if it's a Rust keyword
+            let ident = if Self::is_rust_keyword(target) {
+                syn::Ident::new_raw(target, proc_macro2::Span::call_site())
+            } else {
+                syn::Ident::new(target, proc_macro2::Span::call_site())
+            };
             Ok(parse_quote! { #ident })
         }
     }

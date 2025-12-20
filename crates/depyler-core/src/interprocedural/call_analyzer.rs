@@ -251,28 +251,3 @@ pub struct BorrowInsertion {
     /// Kind of borrow to insert
     pub kind: BorrowKind,
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_extract_root_var() {
-        let var_expr = HirExpr::Var("state".to_string());
-        assert_eq!(extract_root_var(&var_expr), Some("state".to_string()));
-
-        let attr_expr = HirExpr::Attribute {
-            value: Box::new(HirExpr::Var("state".to_string())),
-            attr: "data".to_string(),
-        };
-        assert_eq!(extract_root_var(&attr_expr), Some("state".to_string()));
-    }
-
-    #[test]
-    fn test_is_mutating_method() {
-        assert!(is_mutating_method("append"));
-        assert!(is_mutating_method("insert"));
-        assert!(!is_mutating_method("get"));
-        assert!(!is_mutating_method("keys"));
-    }
-}

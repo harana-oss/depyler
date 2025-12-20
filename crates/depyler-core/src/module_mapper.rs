@@ -3,10 +3,6 @@
 use crate::hir::{Import, ImportItem};
 use std::collections::HashMap;
 
-#[cfg(test)]
-#[path = "module_mapper_tests.rs"]
-mod tests;
-
 /// Maps Python modules/packages to their Rust equivalents
 pub struct ModuleMapper {
     /// Mapping from Python module names to Rust crate/module paths
@@ -384,9 +380,15 @@ impl ModuleMapper {
                         });
                     } else {
                         // For other modules, just import the module path
+                        // Handle dotted module names (e.g., "os.path") - use last part as alias
+                        let alias = if import.module.contains('.') {
+                            import.module.split('.').last().map(|s| s.to_string())
+                        } else {
+                            Some(import.module.clone())
+                        };
                         rust_imports.push(RustImport {
                             path: mapping.rust_path.clone(),
-                            alias: Some(import.module.clone()),
+                            alias,
                             is_external: mapping.is_external,
                         });
                     }

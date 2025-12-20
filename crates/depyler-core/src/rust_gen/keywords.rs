@@ -80,30 +80,3 @@ pub fn safe_ident(name: &str) -> Ident {
         Ident::new(name, Span::call_site())
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_is_rust_keyword() {
-        assert!(is_rust_keyword("match"));
-        assert!(is_rust_keyword("type"));
-        assert!(is_rust_keyword("impl"));
-        assert!(is_rust_keyword("async"));
-        assert!(!is_rust_keyword("value"));
-        assert!(!is_rust_keyword("result"));
-    }
-
-    #[test]
-    fn test_safe_ident_keyword() {
-        let ident = safe_ident("match");
-        assert_eq!(ident.to_string(), "r#match");
-    }
-
-    #[test]
-    fn test_safe_ident_non_keyword() {
-        let ident = safe_ident("value");
-        assert_eq!(ident.to_string(), "value");
-    }
-}

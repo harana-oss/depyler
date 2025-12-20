@@ -168,6 +168,18 @@ impl UsageAnalyzer {
                 // Nested functions - analyze but be conservative about captures
                 self.analyze_stmts(body);
             }
+            // Global and Nonlocal are declaration markers
+            HirStmt::Global { .. } | HirStmt::Nonlocal { .. } => {}
+            // AsyncFor - analyze iterator and body
+            HirStmt::AsyncFor { iter, body, .. } => {
+                self.analyze_expr(iter, UsageContext::Iteration);
+                self.analyze_stmts(body);
+            }
+            // AsyncWith - analyze context and body
+            HirStmt::AsyncWith { context, body, .. } => {
+                self.analyze_expr(context, UsageContext::Move);
+                self.analyze_stmts(body);
+            }
         }
     }
 

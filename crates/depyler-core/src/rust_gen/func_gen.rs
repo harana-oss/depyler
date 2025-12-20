@@ -247,6 +247,17 @@ fn is_var_used_in_stmt(var_name: &str, stmt: &HirStmt) -> bool {
         }
         HirStmt::Break { .. } | HirStmt::Continue { .. } | HirStmt::Pass => false,
         HirStmt::FunctionDef { body, .. } => body.iter().any(|s| is_var_used_in_stmt(var_name, s)),
+        HirStmt::Global { names } | HirStmt::Nonlocal { names } => {
+            names.iter().any(|n| n == var_name)
+        }
+        HirStmt::AsyncFor { iter, body, .. } => {
+            is_var_used_in_expr(var_name, iter)
+                || body.iter().any(|s| is_var_used_in_stmt(var_name, s))
+        }
+        HirStmt::AsyncWith { context, body, .. } => {
+            is_var_used_in_expr(var_name, context)
+                || body.iter().any(|s| is_var_used_in_stmt(var_name, s))
+        }
     }
 }
 

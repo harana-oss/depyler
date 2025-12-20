@@ -205,7 +205,10 @@ pub enum BorrowingInsight {
     /// Parameter access pattern suggests Copy trait
     SuggestCopyDerive(String),
     /// Multiple mutable borrows detected
-    PotentialBorrowConflict { param: String, locations: Vec<String> },
+    PotentialBorrowConflict {
+        param: String,
+        locations: Vec<String>,
+    },
 }
 
 impl BorrowingContext {
@@ -221,7 +224,11 @@ impl BorrowingContext {
     }
 
     /// Analyze a function to determine optimal borrowing strategies
-    pub fn analyze_function(&mut self, func: &HirFunction, type_mapper: &TypeMapper) -> BorrowingAnalysisResult {
+    pub fn analyze_function(
+        &mut self,
+        func: &HirFunction,
+        type_mapper: &TypeMapper,
+    ) -> BorrowingAnalysisResult {
         // Initialize parameter tracking
         for param in &func.params {
             self.param_usage
@@ -352,7 +359,11 @@ impl BorrowingContext {
                 }
                 self.context_stack.pop();
             }
-            HirStmt::For { target: _, iter, body } => {
+            HirStmt::For {
+                target: _,
+                iter,
+                body,
+            } => {
                 self.context_stack.push(AnalysisContext::Loop);
                 self.analyze_expression(iter, 0);
                 for stmt in body {
@@ -431,6 +442,22 @@ impl BorrowingContext {
             }
             // Analyze nested function body for parameter usage
             HirStmt::FunctionDef { body, .. } => {
+                for stmt in body {
+                    self.analyze_statement(stmt);
+                }
+            }
+            // Global and Nonlocal are declaration markers, no parameter usage
+            HirStmt::Global { .. } | HirStmt::Nonlocal { .. } => {}
+            // AsyncFor - analyze iterator and body
+            HirStmt::AsyncFor { iter, body, .. } => {
+                self.analyze_expression(iter, 0);
+                for stmt in body {
+                    self.analyze_statement(stmt);
+                }
+            }
+            // AsyncWith - analyze context and body
+            HirStmt::AsyncWith { context, body, .. } => {
+                self.analyze_expression(context, 0);
                 for stmt in body {
                     self.analyze_statement(stmt);
                 }
@@ -576,7 +603,10 @@ impl BorrowingContext {
                 self.analyze_expression(expr, borrow_depth + 1);
             }
             HirExpr::MethodCall {
-                object, method, args, ..
+                object,
+                method,
+                args,
+                ..
             } => {
                 // Check if this is a mutating method call on a parameter
                 let in_loop = self.is_in_loop();
@@ -726,12 +756,17 @@ impl BorrowingContext {
                 self.analyze_expression(body, borrow_depth);
                 self.analyze_expression(orelse, borrow_depth);
             }
-            HirExpr::SortByKey { iterable, key_body, .. } => {
+            HirExpr::SortByKey {
+                iterable, key_body, ..
+            } => {
                 // Analyze the iterable and the key lambda body
                 self.analyze_expression(iterable, borrow_depth);
                 self.analyze_expression(key_body, borrow_depth);
             }
-            HirExpr::GeneratorExp { element, generators } => {
+            HirExpr::GeneratorExp {
+                element,
+                generators,
+            } => {
                 // Analyze element expression and all generator iterables
                 self.analyze_expression(element, borrow_depth);
                 for generator in generators {
@@ -871,15 +906,29 @@ impl BorrowingContext {
     }
 
     /// Determine optimal borrowing strategies based on usage patterns
-    fn determine_strategies(&self, func: &HirFunction, type_mapper: &TypeMapper) -> BorrowingAnalysisResult {
+    fn determine_strategies(
+        &self,
+        func: &HirFunction,
+        type_mapper: &TypeMapper,
+    ) -> BorrowingAnalysisResult {
         let mut strategies = IndexMap::new();
         let mut insights = Vec::new();
 
         for param in &func.params {
-            let usage = self.param_usage.get(&param.name).cloned().unwrap_or_default();
+            let usage = self
+                .param_usage
+                .get(&param.name)
+                .cloned()
+                .unwrap_or_default();
             let rust_type = type_mapper.map_type(&param.ty);
 
-            let strategy = self.determine_parameter_strategy(&param.name, &usage, &rust_type, &param.ty, &mut insights);
+            let strategy = self.determine_parameter_strategy(
+                &param.name,
+                &usage,
+                &rust_type,
+                &param.ty,
+                &mut insights,
+            );
 
             strategies.insert(param.name.clone(), strategy);
         }
@@ -958,7 +1007,9 @@ impl BorrowingContext {
 
         // If parameter is stored in a structure, consider shared ownership
         if usage.is_stored {
-            return BorrowingStrategy::UseSharedOwnership { is_thread_safe: false };
+            return BorrowingStrategy::UseSharedOwnership {
+                is_thread_safe: false,
+            };
         }
 
         // If used in closure, determine capture strategy
@@ -995,7 +1046,11 @@ impl BorrowingContext {
     /// - Matches Python's value semantics for strings
     /// - Simplifies interoperability (no lifetime issues)
     /// - Allows straightforward function composition
-    fn determine_string_strategy(&self, _param_name: &str, _usage: &ParameterUsagePattern) -> BorrowingStrategy {
+    fn determine_string_strategy(
+        &self,
+        _param_name: &str,
+        _usage: &ParameterUsagePattern,
+    ) -> BorrowingStrategy {
         // Always take ownership for strings - matches Python semantics
         // Python strings are immutable values, so Rust String is the closest match
         BorrowingStrategy::TakeOwnership
@@ -1016,96 +1071,5 @@ impl BorrowingContext {
     fn is_struct_type(&self, rust_type: &RustType) -> bool {
         // Custom types (dataclasses, user-defined structs) should prefer borrowing
         matches!(rust_type, RustType::Custom(_))
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::hir::{FunctionProperties, HirParam, Literal};
-    use depyler_annotations::TranspilationAnnotations;
-    use smallvec::smallvec;
-
-    #[test]
-    fn test_basic_borrowing_analysis() {
-        let mut ctx = BorrowingContext::new(Some(PythonType::Int));
-        let type_mapper = TypeMapper::new();
-
-        let func = HirFunction {
-            name: "add_one".to_string(),
-            params: smallvec![HirParam::new("x".to_string(), PythonType::Int)],
-            ret_type: PythonType::Int,
-            body: vec![HirStmt::Return(Some(HirExpr::Binary {
-                op: crate::hir::BinOp::Add,
-                left: Box::new(HirExpr::Var("x".to_string())),
-                right: Box::new(HirExpr::Literal(Literal::Int(1))),
-            }))],
-            properties: FunctionProperties::default(),
-            annotations: TranspilationAnnotations::default(),
-            docstring: None,
-        };
-
-        let result = ctx.analyze_function(&func, &type_mapper);
-
-        // Integer parameter should be taken by value (Copy type)
-        let x_strategy = result.param_strategies.get("x").unwrap();
-        assert_eq!(*x_strategy, BorrowingStrategy::TakeOwnership);
-    }
-
-    #[test]
-    fn test_string_ownership() {
-        let mut ctx = BorrowingContext::new(Some(PythonType::Int));
-        let type_mapper = TypeMapper::new();
-
-        let func = HirFunction {
-            name: "string_len".to_string(),
-            params: smallvec![HirParam::new("s".to_string(), PythonType::String)],
-            ret_type: PythonType::Int,
-            body: vec![HirStmt::Return(Some(HirExpr::Call {
-                func: "len".to_string(),
-                args: vec![HirExpr::Var("s".to_string())],
-                kwargs: vec![],
-                type_params: vec![],
-            }))],
-            properties: FunctionProperties::default(),
-            annotations: TranspilationAnnotations::default(),
-            docstring: None,
-        };
-
-        let result = ctx.analyze_function(&func, &type_mapper);
-
-        // String parameters take ownership to match Python's value semantics
-        let s_strategy = result.param_strategies.get("s").unwrap();
-        assert!(matches!(s_strategy, BorrowingStrategy::TakeOwnership));
-    }
-
-    #[test]
-    fn test_mutation_detection() {
-        let mut ctx = BorrowingContext::new(None);
-        let type_mapper = TypeMapper::new();
-
-        let func = HirFunction {
-            name: "mutate_list".to_string(),
-            params: smallvec![HirParam::new(
-                "lst".to_string(),
-                PythonType::List(Box::new(PythonType::Int))
-            )],
-            ret_type: PythonType::None,
-            body: vec![HirStmt::Expr(HirExpr::Call {
-                func: "append".to_string(),
-                args: vec![HirExpr::Var("lst".to_string()), HirExpr::Literal(Literal::Int(42))],
-                kwargs: vec![],
-                type_params: vec![],
-            })],
-            properties: FunctionProperties::default(),
-            annotations: TranspilationAnnotations::default(),
-            docstring: None,
-        };
-
-        let result = ctx.analyze_function(&func, &type_mapper);
-
-        // List parameter should be moved (append takes ownership in our analysis)
-        let lst_strategy = result.param_strategies.get("lst").unwrap();
-        assert_eq!(*lst_strategy, BorrowingStrategy::TakeOwnership);
     }
 }

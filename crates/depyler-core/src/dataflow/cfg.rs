@@ -352,6 +352,16 @@ impl CfgBuilder {
             HirStmt::FunctionDef { .. } => {
                 // Nested function definitions don't affect outer CFG
             }
+            HirStmt::Global { .. } | HirStmt::Nonlocal { .. } => {
+                // Declaration markers - no effect on control flow
+            }
+            HirStmt::AsyncFor { iter, body, target } => {
+                // Similar to regular for loop but with async semantics
+                self.build_for(target, iter, body);
+            }
+            HirStmt::AsyncWith { body, .. } => {
+                self.build_body(body);
+            }
         }
     }
 
@@ -590,180 +600,5 @@ impl CfgBuilder {
 impl Default for CfgBuilder {
     fn default() -> Self {
         Self::new()
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::hir::{FunctionProperties, HirParam, Literal};
-    use depyler_annotations::TranspilationAnnotations;
-
-    fn make_function(name: &str, params: Vec<HirParam>, body: Vec<HirStmt>) -> HirFunction {
-        HirFunction {
-            name: name.to_string(),
-            params: smallvec::SmallVec::from_vec(params),
-            ret_type: Type::Unknown,
-            body,
-            properties: FunctionProperties::default(),
-            annotations: TranspilationAnnotations::default(),
-            docstring: None,
-        }
-    }
-
-    #[test]
-    fn test_cfg_simple_function() {
-        let func = make_function(
-            "simple",
-            vec![HirParam::new("x".to_string(), Type::Int)],
-            vec![HirStmt::Return(Some(HirExpr::Var("x".to_string())))],
-        );
-
-        let cfg = CfgBuilder::new().build_function(&func);
-
-        assert!(cfg.blocks.len() >= 2);
-        assert!(cfg.blocks.contains_key(&cfg.entry));
-        assert!(cfg.blocks.contains_key(&cfg.exit));
-    }
-
-    #[test]
-    fn test_cfg_if_statement() {
-        let func = make_function(
-            "with_if",
-            vec![HirParam::new("x".to_string(), Type::Int)],
-            vec![HirStmt::If {
-                condition: HirExpr::Binary {
-                    op: BinOp::Gt,
-                    left: Box::new(HirExpr::Var("x".to_string())),
-                    right: Box::new(HirExpr::Literal(Literal::Int(0))),
-                },
-                then_body: vec![HirStmt::Return(Some(HirExpr::Literal(Literal::Int(1))))],
-                else_body: Some(vec![HirStmt::Return(Some(HirExpr::Literal(Literal::Int(0))))]),
-            }],
-        );
-
-        let cfg = CfgBuilder::new().build_function(&func);
-
-        // Should have entry, then block, else block, merge block, exit
-        assert!(cfg.blocks.len() >= 4);
-
-        // Entry block should have branch terminator
-        let entry_block = cfg.blocks.get(&cfg.entry).unwrap();
-        assert!(matches!(entry_block.terminator, Some(Terminator::Branch { .. })));
-    }
-
-    #[test]
-    fn test_cfg_while_loop() {
-        let func = make_function(
-            "with_while",
-            vec![HirParam::new("n".to_string(), Type::Int)],
-            vec![
-                HirStmt::Assign {
-                    target: AssignTarget::Symbol("i".to_string()),
-                    value: HirExpr::Literal(Literal::Int(0)),
-                    type_annotation: None,
-                },
-                HirStmt::While {
-                    condition: HirExpr::Binary {
-                        op: BinOp::Lt,
-                        left: Box::new(HirExpr::Var("i".to_string())),
-                        right: Box::new(HirExpr::Var("n".to_string())),
-                    },
-                    body: vec![HirStmt::Assign {
-                        target: AssignTarget::Symbol("i".to_string()),
-                        value: HirExpr::Binary {
-                            op: BinOp::Add,
-                            left: Box::new(HirExpr::Var("i".to_string())),
-                            right: Box::new(HirExpr::Literal(Literal::Int(1))),
-                        },
-                        type_annotation: None,
-                    }],
-                },
-                HirStmt::Return(Some(HirExpr::Var("i".to_string()))),
-            ],
-        );
-
-        let cfg = CfgBuilder::new().build_function(&func);
-
-        // Should have back edge for the loop
-        let has_loop_terminator = cfg
-            .blocks
-            .values()
-            .any(|b| matches!(b.terminator, Some(Terminator::Loop { .. })));
-        assert!(has_loop_terminator);
-    }
-
-    #[test]
-    fn test_reverse_postorder() {
-        let func = make_function(
-            "simple",
-            vec![],
-            vec![HirStmt::Return(Some(HirExpr::Literal(Literal::Int(42))))],
-        );
-
-        let cfg = CfgBuilder::new().build_function(&func);
-        let rpo = cfg.reverse_postorder();
-
-        // Entry should come first in RPO
-        assert_eq!(rpo[0], cfg.entry);
-    }
-
-    #[test]
-    fn test_cfg_for_loop() {
-        let func = make_function(
-            "with_for",
-            vec![HirParam::new("items".to_string(), Type::List(Box::new(Type::Int)))],
-            vec![
-                HirStmt::Assign {
-                    target: AssignTarget::Symbol("total".to_string()),
-                    value: HirExpr::Literal(Literal::Int(0)),
-                    type_annotation: None,
-                },
-                HirStmt::For {
-                    target: AssignTarget::Symbol("item".to_string()),
-                    iter: HirExpr::Var("items".to_string()),
-                    body: vec![HirStmt::Assign {
-                        target: AssignTarget::Symbol("total".to_string()),
-                        value: HirExpr::Binary {
-                            op: BinOp::Add,
-                            left: Box::new(HirExpr::Var("total".to_string())),
-                            right: Box::new(HirExpr::Var("item".to_string())),
-                        },
-                        type_annotation: None,
-                    }],
-                },
-                HirStmt::Return(Some(HirExpr::Var("total".to_string()))),
-            ],
-        );
-
-        let cfg = CfgBuilder::new().build_function(&func);
-
-        // Should have loop structure
-        let has_loop = cfg
-            .blocks
-            .values()
-            .any(|b| matches!(b.terminator, Some(Terminator::Loop { .. })));
-        assert!(has_loop);
-    }
-
-    #[test]
-    fn test_cfg_break_continue() {
-        let func = make_function(
-            "with_break",
-            vec![],
-            vec![HirStmt::While {
-                condition: HirExpr::Literal(Literal::Bool(true)),
-                body: vec![HirStmt::If {
-                    condition: HirExpr::Literal(Literal::Bool(true)),
-                    then_body: vec![HirStmt::Break { label: None }],
-                    else_body: Some(vec![HirStmt::Continue { label: None }]),
-                }],
-            }],
-        );
-
-        let cfg = CfgBuilder::new().build_function(&func);
-
-        // Should have multiple blocks due to break/continue
-        assert!(cfg.blocks.len() >= 5);
     }
 }

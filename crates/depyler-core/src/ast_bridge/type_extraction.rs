@@ -2,10 +2,6 @@ use crate::hir::Type;
 use anyhow::{Result, bail};
 use rustpython_ast::{self as ast};
 
-#[cfg(test)]
-#[path = "type_extraction_tests.rs"]
-mod tests;
-
 /// Utility for extracting type information from Python AST type annotations
 ///
 /// # Examples

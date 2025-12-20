@@ -43,8 +43,12 @@ fn process_import_item(
     imported_items: &mut std::collections::HashMap<String, String>,
 ) {
     if let Some(rust_name) = mapping.item_map.get(item_name) {
+        // Skip items with empty rust_name - these need special handling (e.g., functools.partial)
+        if rust_name.is_empty() {
+            return;
+        }
         // Special handling for typing module
-        if import_module == "typing" && !rust_name.is_empty() {
+        if import_module == "typing" {
             // Types from typing module don't need full paths
             imported_items.insert(import_key.to_string(), rust_name.clone());
         } else if !mapping.rust_path.is_empty() {

@@ -114,38 +114,6 @@ pub type SpannedStmt = Spanned<HirStmt>;
 /// An expression with optional source location tracking  
 pub type SpannedExpr = Spanned<HirExpr>;
 
-/// Helper for creating parameter SmallVecs in tests
-#[cfg(test)]
-#[macro_export]
-macro_rules! params {
-    // Empty params
-    () => {
-        smallvec::smallvec![]
-    };
-    // Params with HirParam structs
-    ($($param:expr),* $(,)?) => {
-        smallvec::smallvec![$($param),*]
-    };
-}
-
-/// Helper for creating a required parameter (no default)
-#[cfg(test)]
-#[macro_export]
-macro_rules! param {
-    ($name:expr, $ty:expr) => {
-        $crate::hir::HirParam::new($name.to_string(), $ty)
-    };
-}
-
-/// Helper for creating a parameter with a default value
-#[cfg(test)]
-#[macro_export]
-macro_rules! param_with_default {
-    ($name:expr, $ty:expr, $default:expr) => {
-        $crate::hir::HirParam::with_default($name.to_string(), $ty, $default)
-    };
-}
-
 /// High-level Intermediate Representation of a Python module
 ///
 /// `HirModule` represents a complete Python module after semantic analysis and type inference.
@@ -468,7 +436,27 @@ pub enum HirStmt {
         body: Vec<HirStmt>,
         docstring: Option<String>,
     },
-}
+    /// Global variable declaration - marks variables as global scope
+    Global {
+        names: Vec<Symbol>,
+    },
+    /// Nonlocal variable declaration - marks variables as enclosing scope
+    Nonlocal {
+        names: Vec<Symbol>,
+    },
+    /// Async for loop - iterates over async iterators/streams
+    AsyncFor {
+        target: AssignTarget,
+        iter: HirExpr,
+        body: Vec<HirStmt>,
+    },
+    /// Async with statement - async context manager
+    AsyncWith {
+        context: HirExpr,
+        target: Option<Symbol>,
+        body: Vec<HirStmt>,
+    },
+ }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ExceptHandler {

@@ -139,15 +139,17 @@ mod tests {
 
     #[test]
     fn test_from_env_stdio() {
-        std::env::set_var("DEPYLER_MCP_TRANSPORT", "stdio");
+        // SAFETY: Test runs single-threaded, no other code accesses this env var
+        unsafe { std::env::set_var("DEPYLER_MCP_TRANSPORT", "stdio") };
         let transport_type = TransportFactory::from_env().unwrap();
         assert!(matches!(transport_type, TransportType::Stdio));
-        std::env::remove_var("DEPYLER_MCP_TRANSPORT");
+        unsafe { std::env::remove_var("DEPYLER_MCP_TRANSPORT") };
     }
 
     #[test]
     fn test_from_env_default_when_not_set() {
-        std::env::remove_var("DEPYLER_MCP_TRANSPORT");
+        // SAFETY: Test runs single-threaded, no other code accesses this env var
+        unsafe { std::env::remove_var("DEPYLER_MCP_TRANSPORT") };
         let transport_type = TransportFactory::from_env().unwrap();
         assert!(matches!(transport_type, TransportType::Stdio));
     }
