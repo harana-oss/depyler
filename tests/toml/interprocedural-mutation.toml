@@ -587,6 +587,5 @@ pub fn get_larger(pair: &Pair) -> i32 {
         get_left(pair)
     } else {
         get_right(pair)
-    };
-}
+    }
 '''

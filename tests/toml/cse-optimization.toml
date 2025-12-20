@@ -464,3 +464,116 @@ pub fn handle_period(state: &State) -> String {
     return "unknown".to_string();
 }
 '''
+
+# =============================================================================
+# Method Call CSE - Should create temp variables
+# =============================================================================
+
+[[test]]
+name = "method_call_list_index"
+description = "list.index() call should be cached with CSE"
+
+python = '''
+def find_twice(items: list[int], value: int) -> int:
+    idx = items.index(value)
+    return idx + items.index(value)
+'''
+
+rust = '''
+pub fn find_twice(items: Vec<i32>, value: i32) -> i32 {
+    let _cse_temp_0 = items.iter().position(|x| *x == value).map(|i| i as i32).unwrap_or(-1);
+    let idx = _cse_temp_0;
+    return idx + _cse_temp_0;
+}
+'''
+
+[[test]]
+name = "method_call_str_find"
+description = "str.find() call should be cached with CSE"
+
+python = '''
+def check_position(text: str, char: str) -> bool:
+    if text.find(char) >= 0:
+        return text.find(char) < 10
+    return False
+'''
+
+rust = '''
+pub fn check_position(text: &str, char: &str) -> bool {
+    let _cse_temp_0 = text.find(char).map(|i| i as i32).unwrap_or(-1);
+    if _cse_temp_0 >= 0 {
+        return _cse_temp_0 < 10;
+    }
+    return false;
+}
+'''
+
+# =============================================================================
+# Arithmetic with Function Calls - Should use CSE
+# =============================================================================
+
+[[test]]
+name = "len_function_cached"
+description = "len() function call should be cached"
+
+python = '''
+def use_len_twice(items: list[int]) -> int:
+    return len(items) + len(items)
+'''
+
+rust = '''
+pub fn use_len_twice(items: Vec<i32>) -> i32 {
+    let _cse_temp_0 = items.len() as i32;
+    return _cse_temp_0 + _cse_temp_0;
+}
+'''
+
+[[test]]
+name = "arithmetic_with_function_call"
+description = "Arithmetic expression with function call should use CSE"
+
+python = '''
+def calculate_with_len(items: list[int], x: int) -> int:
+    return len(items) + x + len(items) * 2
+'''
+
+rust = '''
+pub fn calculate_with_len(items: Vec<i32>, x: i32) -> i32 {
+    let _cse_temp_0 = items.len() as i32;
+    return _cse_temp_0 + x + _cse_temp_0 * 2;
+}
+'''
+
+# =============================================================================
+# Simple Arithmetic - Should NOT create unnecessary temps
+# =============================================================================
+
+[[test]]
+name = "simple_addition_no_cse"
+description = "Simple addition with variables should not create CSE temp"
+
+python = '''
+def add_values(a: int, b: int) -> int:
+    return a + b
+'''
+
+rust = '''
+pub fn add_values(a: i64, b: i64) -> i64 {
+    return a + b;
+}
+'''
+
+[[test]]
+name = "simple_multiplication_no_cse"
+description = "Simple multiplication should not create CSE temp"
+
+python = '''
+def multiply(a: int, b: int) -> int:
+    return a * b
+'''
+
+rust = '''
+pub fn multiply(a: i64, b: i64) -> i64 {
+    return a * b;
+}
+'''

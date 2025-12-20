@@ -4,23 +4,25 @@ A comprehensive guide to simplifying and co-locating code in the depyler transpi
 
 ## Implementation Progress
 
-> **Status**: Phase 3 (Crate Consolidation) - In Progress
-> **Last Updated**: 2025-11-25
+> **Status**: Phase 3 (Crate Consolidation) - Complete
+> **Last Updated**: 2025-12-20
 
 ### Completed
 - [x] **Phase 1.1**: `.gitignore` already has entries for `.gdb`, `.lldb`, `.rlib` files
+- [x] **Phase 1.2**: Backup files removed (`.phase5.backup`, `.phase6.backup`, `.phase7.backup`, `Makefile.backup`)
 - [x] **Phase 3**: Created `depyler-analysis` crate consolidating:
   - `depyler-analyzer` → `metrics/` module
   - `depyler-quality` → `quality/` module  
   - `depyler-verify` → `verify/` module
-  - All 56 tests passing
+  - Added `usage_analysis` module
+  - All tests passing
 
-### In Progress
-- [ ] Mark old crates (`depyler-analyzer`, `depyler-quality`, `depyler-verify`) as deprecated
-- [ ] Update dependent crates to use `depyler-analysis`
+### Remaining Cleanup
+- [ ] Remove remaining `.gdb` files in `crates/depyler/` (e.g., `my_script.gdb`, `test.gdb`)
+- [ ] Complete migration of dependent crates to use `depyler-analysis` exclusively
+- [ ] Remove legacy crates once migration is complete
 
 ### Next Steps
-- [ ] Phase 1.2: Remove backup files
 - [ ] Phase 2: Core restructuring (domain-grouped modules)
 - [ ] Phase 4: Test reorganization
 - [ ] Phase 5: Documentation cleanup
@@ -41,48 +43,47 @@ The current crate structure has grown organically and can be dramatically simpli
 
 ### 1.1 Remove Generated Artifacts from Version Control
 
-The `crates/depyler/` directory contains thousands of `.gdb` and `.lldb` debugger files that should not be tracked:
+The `crates/depyler/` directory contains debugger files that should not be tracked:
 
 ```bash
-# Add to .gitignore
+# Already in .gitignore
 *.gdb
 *.lldb
 *.rlib
 
-# Clean up existing files
-cd crates/depyler && rm -rf *.gdb *.lldb
+# Remaining files to clean up:
+# - crates/depyler/my_script.gdb
+# - crates/depyler/test.gdb
 ```
 
-**Impact**: Significantly reduces repository size and noise.
+**Status**: Mostly complete. A few `.gdb` files remain in `crates/depyler/`.
 
 ### 1.2 Remove Backup Files
 
-Several backup files exist in the codebase:
-- `crates/depyler-core/src/rust_gen.rs.phase5.backup`
-- `crates/depyler-core/src/rust_gen.rs.phase6.backup`
-- `crates/depyler-core/src/rust_gen.rs.phase7.backup`
-- `Makefile.backup`
-
-**Action**: Delete these or move to a dedicated `archive/` branch.
+**Status**: ✅ Complete - All backup files have been removed:
+- ~~`crates/depyler-core/src/rust_gen.rs.phase5.backup`~~
+- ~~`crates/depyler-core/src/rust_gen.rs.phase6.backup`~~
+- ~~`crates/depyler-core/src/rust_gen.rs.phase7.backup`~~
+- ~~`Makefile.backup`~~
 
 ---
 
 ## 2. Crate Consolidation Strategy
 
-### Current Structure (10 crates)
+### Current Structure (11 crates)
 ```
 crates/
 ├── depyler/           # CLI and main binary
 ├── depyler-agent/     # AI agent integration
-├── depyler-analyzer/  # Metrics & analysis      ← DEPRECATED (use depyler-analysis)
+├── depyler-analysis/  # NEW: Unified analysis crate (metrics + quality + verify)
+├── depyler-analyzer/  # Metrics & analysis      ← LEGACY (migrating to depyler-analysis)
 ├── depyler-annotations/ # Type annotations
 ├── depyler-core/      # Transpilation engine (massive)
 ├── depyler-mcp/       # MCP server
-├── depyler-quality/   # Quality gates           ← DEPRECATED (use depyler-analysis)
+├── depyler-quality/   # Quality gates           ← LEGACY (migrating to depyler-analysis)
 ├── depyler-ruchy/     # Ruchy target
-├── depyler-verify/    # Verification            ← DEPRECATED (use depyler-analysis)
-├── depyler-wasm/      # WASM bindings
-└── depyler-analysis/  # NEW: Unified analysis crate
+├── depyler-verify/    # Verification            ← LEGACY (migrating to depyler-analysis)
+└── depyler-wasm/      # WASM bindings
 ```
 
 ### Proposed Structure (5 crates)
@@ -111,11 +112,16 @@ src/
 ├── backend.rs
 ├── borrowing.rs
 ├── borrowing_context.rs
+├── cargo_toml_gen.rs
 ├── codegen.rs
 ├── const_generic_inference.rs
+├── dataflow/
+├── debug.rs
 ├── direct_rules.rs
+├── documentation.rs
 ├── error.rs
 ├── error_reporting.rs
+├── expr_utils.rs
 ├── generator_state.rs
 ├── generator_yield_analysis.rs
 ├── generic_inference.rs
@@ -124,20 +130,28 @@ src/
 ├── inlining.rs
 ├── interprocedural/
 ├── lambda_*.rs (6 files)
+├── lib.rs
 ├── lifetime_analysis.rs
 ├── lsp.rs
+├── lsp_tests.rs
 ├── migration_suggestions.rs
+├── migration_suggestions_tests.rs
 ├── module_mapper.rs
+├── module_mapper_tests.rs
 ├── optimization.rs
 ├── optimizer.rs
+├── performance_warnings.rs
+├── profiling.rs
 ├── rust_gen/
 ├── rust_gen.rs
 ├── simplified_hir.rs
 ├── stdlib_mappings.rs
 ├── string_optimization.rs
+├── test_generation.rs
 ├── type_hints.rs
 ├── type_mapper.rs
-└── ... (20+ more)
+├── union_enum_gen.rs
+└── ... (50+ modules total)
 ```
 
 ### Proposed Structure (Domain-Grouped)
@@ -227,13 +241,13 @@ src/
 
 ---
 
-## 4. Analysis Crate Consolidation ✅ IMPLEMENTED
+## 4. Analysis Crate Consolidation ✅ COMPLETE
 
 ### Merge depyler-analyzer + depyler-quality + depyler-verify
 
-> **Status**: Complete - 56 tests passing
+> **Status**: Complete - `depyler-analysis` crate created and functional
 
-These three crates all analyze generated code and are now unified in `crates/depyler-analysis/`:
+These three crates have been unified in `crates/depyler-analysis/`:
 
 ```
 crates/depyler-analysis/
@@ -249,6 +263,8 @@ crates/depyler-analysis/
     ├── quality/              # From depyler-quality
     │   └── mod.rs            # QualityAnalyzer, QualityGate, QualityReport
     │
+    ├── usage_analysis.rs     # NEW: Usage analysis module
+    │
     └── verify/               # From depyler-verify
         ├── mod.rs            # PropertyVerifier, VerificationResult
         ├── contracts.rs      # Contract, Condition, ContractChecker
@@ -263,7 +279,11 @@ crates/depyler-analysis/
 - Single import for all analysis: `use depyler_analysis::prelude::*`
 - Shared types between metrics/quality/verification
 - Cleaner dependency graph
-- All 56 tests pass
+
+**Migration status**:
+- `depyler-analysis` crate is complete
+- Legacy crates (`depyler-analyzer`, `depyler-quality`, `depyler-verify`) still exist for backward compatibility
+- Gradual migration of consumers in progress
 
 **Migration path**:
 ```rust
@@ -449,29 +469,30 @@ depyler          ← all
 
 ## 9. Implementation Phases
 
-### Phase 1: Cleanup (1-2 days)
-- [ ] Remove `.gdb`/`.lldb` files
-- [ ] Remove backup files
-- [ ] Add proper `.gitignore` entries
-- [ ] Clean up `target/` artifacts
+### Phase 1: Cleanup (1-2 days) ✅ MOSTLY COMPLETE
+- [x] Remove `.gdb`/`.lldb` files (mostly done, a few remain)
+- [x] Remove backup files
+- [x] Add proper `.gitignore` entries
+- [ ] Clean up remaining `target/` artifacts
 
-### Phase 2: Core Restructuring (1 week)
+### Phase 2: Core Restructuring (1 week) - NOT STARTED
 - [ ] Create new directory structure in `depyler-core`
 - [ ] Move modules to feature groups
 - [ ] Update imports
 - [ ] Run tests to verify
 
-### Phase 3: Crate Consolidation (3-5 days)
-- [ ] Merge analyzer + quality + verify → depyler-analysis
-- [ ] Update Cargo.toml dependencies
-- [ ] Update all imports in CLI and tests
+### Phase 3: Crate Consolidation (3-5 days) ✅ COMPLETE
+- [x] Create `depyler-analysis` (merged analyzer + quality + verify)
+- [x] Update Cargo.toml dependencies
+- [ ] Complete migration of all imports in CLI and tests
+- [ ] Remove legacy crates after migration complete
 
-### Phase 4: Test Reorganization (2-3 days)
+### Phase 4: Test Reorganization (2-3 days) - NOT STARTED
 - [ ] Reorganize integration tests by feature
 - [ ] Ensure fixture sharing works
 - [ ] Verify CI passes
 
-### Phase 5: Documentation & Cleanup (1-2 days)
+### Phase 5: Documentation & Cleanup (1-2 days) - NOT STARTED
 - [ ] Update module-level documentation
 - [ ] Add prelude modules
 - [ ] Update README with new structure
@@ -500,13 +521,15 @@ When making these changes, follow this pattern:
 
 After refactoring, measure:
 
-| Metric | Current | Target |
-|--------|---------|--------|
-| Number of crates | 10 | 5 |
-| Max module depth | 3 | 4 (but organized) |
-| Avg file size (LOC) | ~300 | ~200 |
-| Import lines per file | 5-15 | 2-5 |
-| Test file to source ratio | Scattered | 1:1 in same dir |
+| Metric | Original | Current | Target |
+|--------|----------|---------|--------|
+| Number of crates | 10 | 11* | 5 |
+| Max module depth | 3 | 3 | 4 (but organized) |
+| Avg file size (LOC) | ~300 | ~300 | ~200 |
+| Import lines per file | 5-15 | 5-15 | 2-5 |
+| Test file to source ratio | Scattered | Scattered | 1:1 in same dir |
+
+*Note: Currently 11 crates because `depyler-analysis` exists alongside the legacy crates during migration. Target is 5 after legacy crates are removed.
 
 ---
 

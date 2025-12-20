@@ -80,9 +80,14 @@ pub fn decode_urlsafe(data: &bytes) -> bytes {
 }
 '''
 
+# =============================================================================
+# Base32 Encoding Tests (from expr_gen.rs:5217-5253)
+# Note: base64 crate doesn't support base32, would need data-encoding crate
+# =============================================================================
+
 [[test]]
 name = "base64_b32encode"
-description = "base64.b32encode() base32 encoding"
+description = "base64.b32encode() base32 encoding (NOTE: requires data-encoding crate)"
 
 python = '''
 import base64
@@ -92,7 +97,22 @@ def encode_base32(data: bytes) -> bytes:
 '''
 
 rust = '''
-// Transpilation failed
+// Transpilation failed - base32 requires data-encoding crate
+'''
+
+[[test]]
+name = "base64_b32decode"
+description = "base64.b32decode() base32 decoding (NOTE: requires data-encoding crate)"
+
+python = '''
+import base64
+
+def decode_base32(data: bytes) -> bytes:
+    return base64.b32decode(data)
+'''
+
+rust = '''
+// Transpilation failed - base32 requires data-encoding crate
 '''
 
 [[test]]
@@ -346,6 +366,48 @@ pub fn create_hmac_sha1(key: &bytes, msg: &bytes) -> String {
         hex::encode(mac.finalize().into_bytes())
     }
     .hexdigest();
+}
+'''
+
+[[test]]
+name = "hmac_compare_digest"
+description = "hmac.compare_digest() timing-safe comparison"
+
+python = '''
+import hmac
+
+def safe_compare(a: bytes, b: bytes) -> bool:
+    return hmac.compare_digest(a, b)
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'hmac'()"]
+pub fn safe_compare(a: &bytes, b: &bytes) -> bool {
+    return {
+        use subtle::ConstantTimeEq;
+        a.ct_eq(b).into()
+    };
+}
+'''
+
+[[test]]
+name = "hmac_compare_digest_strings"
+description = "hmac.compare_digest() with strings"
+
+python = '''
+import hmac
+
+def safe_compare_strings(a: str, b: str) -> bool:
+    return hmac.compare_digest(a, b)
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'hmac'()"]
+pub fn safe_compare_strings(a: String, b: String) -> bool {
+    return {
+        use subtle::ConstantTimeEq;
+        a.as_bytes().ct_eq(b.as_bytes()).into()
+    };
 }
 '''
 

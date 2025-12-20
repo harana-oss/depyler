@@ -74,15 +74,7 @@ def is_empty(value: Optional[str]) -> bool:
 rust = '''
 pub fn is_empty(value: &Option<String>) -> bool {
     return value.is_none();
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_is_empty_examples() {
-        let _ = is_empty(Default::default());
-    }
+};
 }
 '''
 
@@ -100,15 +92,7 @@ def has_value(value: Optional[str]) -> bool:
 rust = '''
 pub fn has_value(value: &Option<String>) -> bool {
     return value.is_some();
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_has_value_examples() {
-        let _ = has_value(Default::default());
-    }
+};
 }
 '''
 
@@ -231,16 +215,7 @@ pub fn filter_none(items: &Vec<Option<i32>>) -> Vec<i32> {
         .filter(|x| x.is_some())
         .map(|x| x)
         .collect::<Vec<_>>();
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_filter_none_examples() {
-        assert_eq!(filter_none(vec![]), vec![]);
-        assert_eq!(filter_none(vec![1]), vec![1]);
-    }
+};
 }
 '''
 
@@ -613,15 +588,7 @@ impl Person {
 }
 pub fn is_missing(p: &Person) -> bool {
     return p.age.is_none();
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_is_missing_examples() {
-        let _ = is_missing(Default::default());
-    }
+};
 }
 '''
 
@@ -673,15 +640,7 @@ impl Person {
 }
 pub fn has_age(p: &Person) -> bool {
     return p.age.is_some();
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_has_age_examples() {
-        let _ = has_age(Default::default());
-    }
+};
 }
 '''
 
@@ -699,15 +658,7 @@ def check_none(x: Optional[int]) -> bool:
 rust = '''
 pub fn check_none(x: &Option<i32>) -> bool {
     return x.is_none();
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_check_none_examples() {
-        let _ = check_none(Default::default());
-    }
+};
 }
 '''
 
@@ -725,15 +676,7 @@ def check_not_none(x: Optional[int]) -> bool:
 rust = '''
 pub fn check_not_none(x: &Option<i32>) -> bool {
     return x.is_some();
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_check_not_none_examples() {
-        let _ = check_not_none(Default::default());
-    }
+};
 }
 '''
 
@@ -790,15 +733,7 @@ pub fn check_name(p: &Person) -> bool {
         return true;
     }
     return false;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_check_name_examples() {
-        let _ = check_name(Default::default());
-    }
+};
 }
 '''
 
@@ -857,15 +792,7 @@ pub fn is_adult(p: &Person) -> bool {
         return true;
     }
     return false;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_is_adult_examples() {
-        let _ = is_adult(Default::default());
-    }
+};
 }
 '''
 
@@ -1124,15 +1051,7 @@ impl Flags {
 }
 pub fn invert(f: &Flags) -> bool {
     return !f.active.unwrap();
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_invert_examples() {
-        let _ = invert(Default::default());
-    }
+};
 }
 '''
 
@@ -1967,17 +1886,7 @@ pub fn double_parsed(s: String) -> i32 {
         return result.clone().unwrap() * 2;
     }
     return 0;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_double_parsed_examples() {
-        assert_eq!(double_parsed(""), 0);
-        assert_eq!(double_parsed("a"), 1);
-        assert_eq!(double_parsed("abc"), 3);
-    }
+};
 }
 '''
 
@@ -2112,15 +2021,7 @@ pub fn check_membership(ids: &Vec<i32>) -> bool {
         return ids.contains(&id.clone().unwrap());
     }
     return false;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_check_membership_examples() {
-        let _ = check_membership(Default::default());
-    }
+};
 }
 '''
 
@@ -2229,16 +2130,7 @@ pub fn collect_items(names: &Vec<String>) -> Vec<Item> {
         }
     }
     return items;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_collect_items_examples() {
-        assert_eq!(collect_items(vec![]), vec![]);
-        assert_eq!(collect_items(vec![1]), vec![1]);
-    }
+};
 }
 '''
 
@@ -2490,5 +2382,166 @@ pub fn test_function(state: &State) {
         extra_time_stats = Some(state.period_statistics.clone().get(2usize).cloned().unwrap());
         log::info!("{}", extra_time_stats.as_ref().unwrap().scores.tries);
     }
+}
+'''
+
+# =============================================================================
+# Optional Type Unwrapping in Binary Operations
+# Python allows direct access to Optional fields - operations on None fail at runtime.
+# Rust needs explicit unwrapping at compile time.
+# =============================================================================
+
+[[test]]
+name = "optional_in_binary_addition"
+description = "Optional value in addition operation generates unwrap"
+
+python = '''
+from typing import Optional
+
+def add_to_optional(value: Optional[int], amount: int) -> int:
+    return value + amount
+'''
+
+rust = '''
+pub fn add_to_optional(value: &Option<i32>, amount: i32) -> i32 {
+    return value.unwrap() + amount;
+}
+'''
+
+[[test]]
+name = "optional_field_method_call"
+description = "Method call on Optional field generates unwrap or ?"
+
+python = '''
+from typing import Optional
+
+def get_length(text: Optional[str]) -> int:
+    return len(text)
+'''
+
+rust = '''
+pub fn get_length(text: &Option<String>) -> i32 {
+    return text.as_ref().unwrap().len() as i32;
+}
+'''
+
+[[test]]
+name = "optional_in_collection_lookup"
+description = "x in Optional collection handles Optional lookup"
+
+python = '''
+from typing import Optional
+
+def contains_item(items: Optional[list], target: int) -> bool:
+    return target in items
+'''
+
+rust = '''
+pub fn contains_item(items: &Option<Vec<i32>>, target: i32) -> bool {
+    return items.as_ref().unwrap().contains(&target);
+}
+'''
+
+[[test]]
+name = "optional_chain_access"
+description = "Optional chain a.b.c where b is Optional needs proper unwrapping"
+
+python = '''
+from typing import Optional
+
+class Inner:
+    value: int
+
+class Outer:
+    inner: Optional[Inner]
+
+def get_value(obj: Outer) -> int:
+    return obj.inner.value
+'''
+
+rust = '''
+#[derive(Debug, Clone)]
+pub struct Inner {
+    pub value: i32,
+}
+#[derive(Debug, Clone)]
+pub struct Outer {
+    pub inner: Option<Inner>,
+}
+pub fn get_value(obj: &Outer) -> i32 {
+    return obj.inner.as_ref().unwrap().value;
+}
+'''
+
+[[test]]
+name = "optional_none_check_before_operation"
+description = "None check before operation allows direct access"
+
+python = '''
+from typing import Optional
+
+def safe_add(value: Optional[int]) -> int:
+    if value is not None:
+        return value + 1
+    return 0
+'''
+
+rust = '''
+pub fn safe_add(value: &Option<i32>) -> i32 {
+    if value.is_some() {
+        return value.unwrap() + 1;
+    }
+    return 0;
+}
+'''
+
+[[test]]
+name = "optional_comparison_operation"
+description = "Optional value in comparison operation"
+
+python = '''
+from typing import Optional
+
+def is_greater(value: Optional[int], threshold: int) -> bool:
+    return value > threshold
+'''
+
+rust = '''
+pub fn is_greater(value: &Option<i32>, threshold: i32) -> bool {
+    return value.unwrap() > threshold;
+}
+'''
+
+[[test]]
+name = "optional_string_concatenation"
+description = "Optional string in concatenation operation"
+
+python = '''
+from typing import Optional
+
+def greet(name: Optional[str]) -> str:
+    return "Hello, " + name + "!"
+'''
+
+rust = '''
+pub fn greet(name: &Option<String>) -> String {
+    return format!("Hello, {}!", name.as_ref().unwrap());
+}
+'''
+
+[[test]]
+name = "optional_multiplication"
+description = "Optional value in multiplication"
+
+python = '''
+from typing import Optional
+
+def double_optional(value: Optional[float]) -> float:
+    return value * 2.0
+'''
+
+rust = '''
+pub fn double_optional(value: &Option<f64>) -> f64 {
+    return value.unwrap() * 2.0;
 }
 '''

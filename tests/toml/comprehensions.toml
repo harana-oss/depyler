@@ -69,16 +69,7 @@ pub fn uppercase_words(words: &Vec<String>) -> Vec<String> {
         .into_iter()
         .map(|word| word.to_uppercase())
         .collect::<Vec<_>>();
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_uppercase_words_examples() {
-        assert_eq!(uppercase_words(vec![]), vec![]);
-        assert_eq!(uppercase_words(vec![1]), vec![1]);
-    }
+};
 }
 '''
 
@@ -99,16 +90,7 @@ pub fn long_words(words: &Vec<String>) -> Vec<String> {
         .filter(|word| word.len() as i32 > 4)
         .map(|word| word)
         .collect::<Vec<_>>();
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_long_words_examples() {
-        assert_eq!(long_words(vec![]), vec![]);
-        assert_eq!(long_words(vec![1]), vec![1]);
-    }
+};
 }
 '''
 
@@ -218,17 +200,7 @@ def sum_squares(n: int) -> int:
 rust = '''
 pub fn sum_squares(n: i32) -> i32 {
     return 0..n.map(|x| x * x).sum::<i32>();
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_sum_squares_examples() {
-        assert_eq!(sum_squares(0), 0);
-        assert_eq!(sum_squares(1), 1);
-        assert_eq!(sum_squares(-1), -1);
-    }
+};
 }
 '''
 
@@ -244,15 +216,7 @@ def has_positive(items: list[int]) -> bool:
 rust = '''
 pub fn has_positive(items: &Vec<i32>) -> bool {
     return items.iter().copied().map(|x| x > 0).any(|x| x);
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_has_positive_examples() {
-        let _ = has_positive(Default::default());
-    }
+};
 }
 '''
 
@@ -268,15 +232,7 @@ def all_positive(items: list[int]) -> bool:
 rust = '''
 pub fn all_positive(items: &Vec<i32>) -> bool {
     return items.iter().copied().map(|x| x > 0).all(|x| x);
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_all_positive_examples() {
-        let _ = all_positive(Default::default());
-    }
+};
 }
 '''
 

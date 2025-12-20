@@ -1,0 +1,268 @@
+# Parameter Attribute Access Detection Tests
+# Tests for is_param_attribute_access() functionality
+
+[metadata]
+name = "Parameter Attribute Access Detection Tests"
+category = "ownership-mutability"
+description = "Tests for detecting attribute access on specific parameters"
+
+[[test]]
+name = "direct_attribute_access"
+description = "Direct attribute access state.data with param state returns true"
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass
+class State:
+    data: int
+
+def get_data(state: State) -> int:
+    return state.data
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+use serde_json;
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct State {
+    pub data: i32,
+}
+impl State {
+    pub fn new(data: i32) -> Self {
+        Self { data }
+    }
+}
+pub fn get_data(state: &State) -> i32 {
+    return state.data;
+}
+'''
+
+[[test]]
+name = "nested_attribute_access"
+description = "Nested attribute access state.data.items detects state as param"
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass
+class Inner:
+    value: int
+
+@dataclass
+class State:
+    inner: Inner
+
+def get_nested(state: State) -> int:
+    return state.inner.value
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+use serde_json;
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Inner {
+    pub value: i32,
+}
+impl Inner {
+    pub fn new(value: i32) -> Self {
+        Self { value }
+    }
+}
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct State {
+    pub inner: Inner,
+}
+impl State {
+    pub fn new(inner: Inner) -> Self {
+        Self { inner }
+    }
+}
+pub fn get_nested(state: &State) -> i32 {
+    return state.inner.value;
+}
+'''
+
+[[test]]
+name = "non_matching_param"
+description = "Attribute access other.data does not match param state"
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass
+class Data:
+    value: int
+
+def process(state: Data, other: Data) -> int:
+    return other.value
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+use serde_json;
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Data {
+    pub value: i32,
+}
+impl Data {
+    pub fn new(value: i32) -> Self {
+        Self { value }
+    }
+}
+pub fn process(state: &Data, other: &Data) -> i32 {
+    return other.value;
+}
+'''
+
+[[test]]
+name = "variable_not_attribute"
+description = "Plain variable reference is not attribute access"
+
+python = '''
+def identity(state: int) -> int:
+    return state
+'''
+
+rust = '''
+pub fn identity(state: i32) -> i32 {
+    return state;
+}
+'''
+
+[[test]]
+name = "method_call_on_param"
+description = "Method call on param attribute handles correctly"
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass
+class State:
+    items: list[int]
+
+def get_length(state: State) -> int:
+    return len(state.items)
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+use serde_json;
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct State {
+    pub items: Vec<i32>,
+}
+impl State {
+    pub fn new(items: Vec<i32>) -> Self {
+        Self { items }
+    }
+}
+pub fn get_length(state: &State) -> i32 {
+    return state.items.len() as i32;
+}
+'''
+
+[[test]]
+name = "deeply_nested_attribute_access"
+description = "Deeply nested attribute access a.b.c.d detects a as param"
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass
+class D:
+    value: int
+
+@dataclass
+class C:
+    d: D
+
+@dataclass
+class B:
+    c: C
+
+@dataclass
+class A:
+    b: B
+
+def get_deep(a: A) -> int:
+    return a.b.c.d.value
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+use serde_json;
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct D {
+    pub value: i32,
+}
+impl D {
+    pub fn new(value: i32) -> Self {
+        Self { value }
+    }
+}
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct C {
+    pub d: D,
+}
+impl C {
+    pub fn new(d: D) -> Self {
+        Self { d }
+    }
+}
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct B {
+    pub c: C,
+}
+impl B {
+    pub fn new(c: C) -> Self {
+        Self { c }
+    }
+}
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct A {
+    pub b: B,
+}
+impl A {
+    pub fn new(b: B) -> Self {
+        Self { b }
+    }
+}
+pub fn get_deep(a: &A) -> i32 {
+    return a.b.c.d.value;
+}
+'''
+
+[[test]]
+name = "multiple_params_attribute_access"
+description = "Multiple params with attribute access on each"
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass
+class Point:
+    x: int
+    y: int
+
+def add_coords(p1: Point, p2: Point) -> int:
+    return p1.x + p2.y
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+use serde_json;
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Point {
+    pub x: i32,
+    pub y: i32,
+}
+impl Point {
+    pub fn new(x: i32, y: i32) -> Self {
+        Self { x, y }
+    }
+}
+pub fn add_coords(p1: &Point, p2: &Point) -> i32 {
+    return p1.x + p2.y;
+}
+'''

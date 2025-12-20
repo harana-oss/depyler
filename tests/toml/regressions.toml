@@ -26,15 +26,7 @@ rust = '''
 pub fn get_field_goal() -> i32 {
     const FIELD_GOAL: i32 = 600;
     return FIELD_GOAL;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_get_field_goal_examples() {
-        let _ = get_field_goal();
-    }
+};
 }
 '''
 
@@ -57,17 +49,7 @@ pub fn factorial(n: i32) -> i32 {
         result = result * i;
     }
     return result;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_factorial_examples() {
-        assert_eq!(factorial(0), 0);
-        assert_eq!(factorial(1), 1);
-        assert_eq!(factorial(-1), -1);
-    }
+};
 }
 '''
 
@@ -171,17 +153,7 @@ rust = '''
 #[doc = "Add two numbers"]
 pub fn add(a: i32, b: i32) -> i32 {
     return a + b;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn quickcheck_add() {
-        fn prop(a: i32, b: i32) -> TestResult {
-            if (a > 0 && b > i32::MAX - a) || (a < 0 && b < i32::MIN - a) {
-                return TestResult::discard();
-            }
+};
             let result1 = add(a.clone(), b.clone());
             let result2 = add(b.clone(), a.clone());
             if result1 != result2 {
@@ -190,12 +162,6 @@ mod tests {
             TestResult::passed()
         }
         quickcheck(prop as fn(i32, i32) -> TestResult);
-    }
-    #[test]
-    fn test_add_examples() {
-        assert_eq!(add(0, 0), 0);
-        assert_eq!(add(1, 2), 3);
-        assert_eq!(add(-1, 1), 0);
     }
 }
 '''
@@ -214,17 +180,7 @@ rust = '''
 #[doc = "This is a docstring that should become a comment"]
 pub fn example_function(x: i32) -> i32 {
     return x * 2;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_example_function_examples() {
-        assert_eq!(example_function(0), 0);
-        assert_eq!(example_function(1), 1);
-        assert_eq!(example_function(-1), -1);
-    }
+};
 }
 '''
 
@@ -269,17 +225,7 @@ pub fn divide(a: i32, b: i32) -> i32 {
         let needs_adjustment = r_nonzero && signs_differ;
         if needs_adjustment { q - 1 } else { q }
     };
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_divide_examples() {
-        assert_eq!(divide(0, 0), 0);
-        assert_eq!(divide(1, 2), 3);
-        assert_eq!(divide(-1, 1), 0);
-    }
+};
 }
 '''
 
@@ -324,17 +270,7 @@ pub fn floor_divide(a: i32, b: i32) -> i32 {
         let needs_adjustment = r_nonzero && signs_differ;
         if needs_adjustment { q - 1 } else { q }
     };
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_floor_divide_examples() {
-        assert_eq!(floor_divide(0, 0), 0);
-        assert_eq!(floor_divide(1, 2), 3);
-        assert_eq!(floor_divide(-1, 1), 0);
-    }
+};
 }
 '''
 
@@ -373,16 +309,7 @@ pub fn process_data(data: &Vec<serde_json::Value>) -> Vec<serde_json::Value> {
         result.push(item * 2);
     }
     return result;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_process_data_examples() {
-        assert_eq!(process_data(vec![]), vec![]);
-        assert_eq!(process_data(vec![1]), vec![1]);
-    }
+};
 }
 '''
 
@@ -399,26 +326,10 @@ rust = '''
 use serde_json;
 pub fn process_items(items: Vec<serde_json::Value>) -> Vec<serde_json::Value> {
     return items;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn quickcheck_process_items() {
-        fn prop(items: Vec<()>) -> TestResult {
-            let result = process_items(&items);
-            if result != items {
-                return TestResult::failed();
-            }
+};
             TestResult::passed()
         }
         quickcheck(prop as fn(Vec<()>) -> TestResult);
-    }
-    #[test]
-    fn test_process_items_examples() {
-        assert_eq!(process_items(vec![]), vec![]);
-        assert_eq!(process_items(vec![1]), vec![1]);
     }
 }
 '''
@@ -559,17 +470,7 @@ rust = '''
 use serde_json;
 pub fn get_length(arr: &Vec<serde_json::Value>) -> i32 {
     return arr.len() as i32 as i32;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_get_length_examples() {
-        assert_eq!(get_length(vec![]), 0);
-        assert_eq!(get_length(vec![1]), 1);
-        assert_eq!(get_length(vec![1, 2, 3]), 3);
-    }
+};
 }
 '''
 
@@ -594,15 +495,7 @@ pub fn test_shallow_copy() -> i32 {
     let mut copied = (original.clone()).clone();
     copied.push(4);
     return original.len() as i32 as i32;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_test_shallow_copy_examples() {
-        let _ = test_shallow_copy();
-    }
+};
 }
 '''
 
@@ -633,15 +526,7 @@ pub fn test_dict_copy() -> i32 {
     let mut copied = (original.clone()).clone();
     copied.insert("c".to_string(), 3);
     return original.len() as i32 as i32;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_test_dict_copy_examples() {
-        let _ = test_dict_copy();
-    }
+};
 }
 '''
 
@@ -684,15 +569,7 @@ pub fn test_deep_copy() -> i32 {
     let mut copied = (original.clone()).clone();
     copied.get(0usize).cloned().unwrap().push(5);
     return original.get(0usize).cloned().unwrap().len() as i32 as i32;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_test_deep_copy_examples() {
-        let _ = test_deep_copy();
-    }
+};
 }
 '''
 
@@ -716,17 +593,7 @@ pub fn sum_list(numbers: &Vec<serde_json::Value>) -> i32 {
         total = total + num;
     }
     return total;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_sum_list_examples() {
-        assert_eq!(sum_list(vec![]), 0);
-        assert_eq!(sum_list(vec![1]), 1);
-        assert_eq!(sum_list(vec![1, 2, 3]), 6);
-    }
+};
 }
 '''
 
@@ -770,17 +637,7 @@ pub fn calculate_sum(numbers: &Vec<i32>) -> i32 {
         total = total + n;
     }
     return total;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_calculate_sum_examples() {
-        assert_eq!(calculate_sum(vec![]), 0);
-        assert_eq!(calculate_sum(vec![1]), 1);
-        assert_eq!(calculate_sum(vec![1, 2, 3]), 6);
-    }
+};
 }
 '''
 
@@ -987,17 +844,7 @@ pub fn large_func(x: i32) -> i32 {
         result = result + 5;
     }
     return result;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_large_func_examples() {
-        assert_eq!(large_func(0), 0);
-        assert_eq!(large_func(1), 1);
-        assert_eq!(large_func(-1), -1);
-    }
+};
 }
 '''
 

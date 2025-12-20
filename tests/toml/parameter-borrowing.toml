@@ -1,0 +1,141 @@
+# Parameter Borrowing Analysis Tests
+# Tests for parameter borrowing analysis
+
+[metadata]
+name = "Parameter Borrowing Analysis Tests"
+category = "ownership-mutability"
+description = "Tests for parameter borrowing and reference return detection"
+
+[[test]]
+name = "string_parameter_owned"
+description = "String parameters are owned String, not &str"
+
+python = '''
+def process_text(text: str) -> str:
+    return text.upper()
+'''
+
+rust = '''
+pub fn process_text(text: String) -> String {
+    return text.to_uppercase();
+};
+}
+'''
+
+[[test]]
+name = "list_parameter_borrowed"
+description = "List parameters can be borrowed based on usage"
+
+python = '''
+def sum_items(items: list[int]) -> int:
+    total = 0
+    for item in items:
+        total = total + item
+    return total
+'''
+
+rust = '''
+pub fn sum_items(items: &Vec<i32>) -> i32 {
+    let mut total = 0;
+    for item in items.iter().cloned() {
+        total = total + item;
+    }
+    return total;
+};
+}
+'''
+
+[[test]]
+name = "struct_parameter_borrowed_read_only"
+description = "Struct parameter borrowed for read-only access"
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass
+class Person:
+    name: str
+    age: int
+
+def get_age(person: Person) -> int:
+    return person.age
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+use serde_json;
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Person {
+    pub name: String,
+    pub age: i32,
+}
+impl Person {
+    pub fn new(name: String, age: i32) -> Self {
+        Self { name, age }
+    }
+}
+pub fn get_age(person: &Person) -> i32 {
+    return person.age;
+}
+'''
+
+[[test]]
+name = "function_returning_field_reference"
+description = "Functions returning refs tracked in functions_returning_refs"
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass
+class Team:
+    players: list[str]
+
+@dataclass
+class Game:
+    home: Team
+
+def get_players(game: Game) -> list[str]:
+    return game.home.players
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+use serde_json;
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Team {
+    pub players: Vec<String>,
+}
+impl Team {
+    pub fn new(players: Vec<String>) -> Self {
+        Self { players }
+    }
+}
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Game {
+    pub home: Team,
+}
+impl Game {
+    pub fn new(home: Team) -> Self {
+        Self { home }
+    }
+}
+pub fn get_players(game: &Game) -> Vec<String> {
+    return game.home.players.clone();
+}
+'''
+
+[[test]]
+name = "multiple_string_params_owned"
+description = "Multiple string parameters all owned"
+
+python = '''
+def join_strings(a: str, b: str, sep: str) -> str:
+    return a + sep + b
+'''
+
+rust = '''
+pub fn join_strings(a: String, b: String, sep: String) -> String {
+    return a + &sep + &b;
+};
+}
+'''

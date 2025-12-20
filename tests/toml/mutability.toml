@@ -26,15 +26,7 @@ pub fn counter() -> i32 {
     x = 1;
     x = 2;
     return x;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_counter_examples() {
-        let _ = counter();
-    }
+};
 }
 '''
 
@@ -52,15 +44,7 @@ rust = '''
 pub fn constant() -> i32 {
     let x = 42;
     return x;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_constant_examples() {
-        let _ = constant();
-    }
+};
 }
 '''
 
@@ -83,17 +67,7 @@ pub fn accumulate(items: &Vec<i32>) -> i32 {
         total = total + item;
     }
     return total;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_accumulate_examples() {
-        assert_eq!(accumulate(vec![]), 0);
-        assert_eq!(accumulate(vec![1]), 1);
-        assert_eq!(accumulate(vec![1, 2, 3]), 3);
-    }
+};
 }
 '''
 
@@ -158,19 +132,7 @@ rust = '''
 pub fn sort_in_place(mut items: Vec<i32>) -> Vec<i32> {
     items.sort();
     return items;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn quickcheck_sort_in_place() {
-        fn prop(items: Vec<i32>) -> TestResult {
-            let input_len = items.len();
-            let result = sort_in_place(&items);
-            if result.len() != input_len {
-                return TestResult::failed();
-            }
+};
             let result = sort_in_place(&items);
             for i in 1..result.len() {
                 if result[i - 1] > result[i] {
@@ -188,11 +150,6 @@ mod tests {
         }
         quickcheck(prop as fn(Vec<i32>) -> TestResult);
     }
-    #[test]
-    fn test_sort_in_place_examples() {
-        assert_eq!(sort_in_place(vec![]), vec![]);
-        assert_eq!(sort_in_place(vec![1]), vec![1]);
-    }
 }
 '''
 
@@ -208,17 +165,7 @@ def sum_list(items: list[int]) -> int:
 rust = '''
 pub fn sum_list(items: Vec<i32>) -> i32 {
     return items.iter().sum::<i32>();
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_sum_list_examples() {
-        assert_eq!(sum_list(vec![]), 0);
-        assert_eq!(sum_list(vec![1]), 1);
-        assert_eq!(sum_list(vec![1, 2, 3]), 6);
-    }
+};
 }
 '''
 
@@ -253,19 +200,7 @@ pub fn sorted_copy(items: Vec<i32>) -> Vec<i32> {
         __sorted_result.sort();
         __sorted_result
     };
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn quickcheck_sorted_copy() {
-        fn prop(items: Vec<i32>) -> TestResult {
-            let input_len = items.len();
-            let result = sorted_copy(&items);
-            if result.len() != input_len {
-                return TestResult::failed();
-            }
+};
             let result = sorted_copy(&items);
             for i in 1..result.len() {
                 if result[i - 1] > result[i] {
@@ -283,11 +218,6 @@ mod tests {
         }
         quickcheck(prop as fn(Vec<i32>) -> TestResult);
     }
-    #[test]
-    fn test_sorted_copy_examples() {
-        assert_eq!(sorted_copy(vec![]), vec![]);
-        assert_eq!(sorted_copy(vec![1]), vec![1]);
-    }
 }
 '''
 
@@ -303,16 +233,7 @@ def copy_list(items: list[int]) -> list[int]:
 rust = '''
 pub fn copy_list(items: Vec<i32>) -> Vec<i32> {
     return items.into_iter().collect::<Vec<_>>();
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_copy_list_examples() {
-        assert_eq!(copy_list(vec![]), vec![]);
-        assert_eq!(copy_list(vec![1]), vec![1]);
-    }
+};
 }
 '''
 
@@ -355,16 +276,7 @@ pub fn double_items(items: &Vec<i32>) -> Vec<i32> {
         result.push(doubled);
     }
     return result;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_double_items_examples() {
-        assert_eq!(double_items(vec![]), vec![]);
-        assert_eq!(double_items(vec![1]), vec![1]);
-    }
+};
 }
 '''
 
@@ -785,17 +697,7 @@ pub fn gcd(mut a: i32, mut b: i32) -> i32 {
         b = temp;
     }
     return a;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_gcd_examples() {
-        assert_eq!(gcd(0, 0), 0);
-        assert_eq!(gcd(1, 2), 3);
-        assert_eq!(gcd(-1, 1), 0);
-    }
+};
 }
 '''
 
@@ -879,17 +781,7 @@ pub fn count_up(limit: i32) -> i32 {
         counter = counter + 1;
     }
     return counter;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_count_up_examples() {
-        assert_eq!(count_up(0), 0);
-        assert_eq!(count_up(1), 1);
-        assert_eq!(count_up(-1), -1);
-    }
+};
 }
 '''
 

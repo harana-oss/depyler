@@ -773,3 +773,97 @@ rust = '''
 pub const result: serde_json::Value = "a\tb".expandtabs(4);
 use serde_json;
 '''
+
+# =============================================================================
+# String Method Return Types Regression Tests
+# =============================================================================
+
+[[test]]
+name = "upper_returns_string"
+description = ".upper() returns owned String, not &str"
+
+python = '''
+def to_upper(s: str) -> str:
+    return s.upper()
+'''
+
+rust = '''
+pub fn to_upper(s: String) -> String {
+    return s.to_uppercase();
+}
+'''
+
+[[test]]
+name = "lower_returns_string"
+description = ".lower() returns owned String, not &str"
+
+python = '''
+def to_lower(s: str) -> str:
+    return s.lower()
+'''
+
+rust = '''
+pub fn to_lower(s: String) -> String {
+    return s.to_lowercase();
+}
+'''
+
+[[test]]
+name = "strip_returns_string"
+description = ".strip() returns owned String, not &str"
+
+python = '''
+def strip_string(s: str) -> str:
+    return s.strip()
+'''
+
+rust = '''
+pub fn strip_string(s: String) -> String {
+    return s.trim().to_string();
+}
+'''
+
+[[test]]
+name = "replace_returns_string"
+description = ".replace() returns owned String"
+
+python = '''
+def replace_chars(s: str) -> str:
+    return s.replace("a", "b")
+'''
+
+rust = '''
+pub fn replace_chars(s: String) -> String {
+    return s.replace("a", "b");
+}
+'''
+
+[[test]]
+name = "chained_string_methods_compile"
+description = "s.upper().strip() chained methods work"
+
+python = '''
+def chain_methods(s: str) -> str:
+    return s.upper().strip()
+'''
+
+rust = '''
+pub fn chain_methods(s: String) -> String {
+    return s.to_uppercase().trim().to_string();
+}
+'''
+
+[[test]]
+name = "string_method_on_literal"
+description = "String method on literal"
+
+python = '''
+def literal_upper() -> str:
+    return "hello".upper()
+'''
+
+rust = '''
+pub fn literal_upper() -> String {
+    return "hello".to_uppercase();
+}
+'''

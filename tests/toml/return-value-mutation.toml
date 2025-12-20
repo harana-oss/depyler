@@ -1,0 +1,206 @@
+# Return Value Mutation Analysis Tests
+# Tests for detecting when function return values are mutated
+
+[metadata]
+name = "Return Value Mutation Analysis Tests"
+category = "ownership-mutability"
+description = "Tests for return value mutation detection and interprocedural analysis"
+
+[[test]]
+name = "return_value_mutated_at_call_site"
+description = "Return value mutation detection"
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass
+class Stats:
+    value: int
+
+@dataclass
+class State:
+    statistics: Stats
+
+def get_stats(state: State) -> Stats:
+    return state.statistics
+
+def caller(s: State) -> None:
+    stats = get_stats(s)
+    stats.value = 10
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+use serde_json;
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Stats {
+    pub value: i32,
+}
+impl Stats {
+    pub fn new(value: i32) -> Self {
+        Self { value }
+    }
+}
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct State {
+    pub statistics: Stats,
+}
+impl State {
+    pub fn new(statistics: Stats) -> Self {
+        Self { statistics }
+    }
+}
+pub fn get_stats<'a>(state: &'a mut State) -> &'a mut Stats {
+    return &mut state.statistics;
+}
+pub fn caller(s: &mut State) {
+    let mut stats = get_stats(s).clone();
+    stats.value = 10;
+}
+'''
+
+[[test]]
+name = "return_value_not_mutated"
+description = "Return value NOT mutated at call site"
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass
+class Data:
+    count: int
+
+@dataclass
+class State:
+    data: Data
+
+def get_count(state: State) -> int:
+    return state.data.count
+
+def read_only(s: State) -> int:
+    val = get_count(s)
+    return val
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+use serde_json;
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Data {
+    pub count: i32,
+}
+impl Data {
+    pub fn new(count: i32) -> Self {
+        Self { count }
+    }
+}
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct State {
+    pub data: Data,
+}
+impl State {
+    pub fn new(data: Data) -> Self {
+        Self { data }
+    }
+}
+pub fn get_count(state: &State) -> i32 {
+    return state.data.count;
+}
+pub fn read_only(s: &State) -> i32 {
+    let val = get_count(s);
+    return val;
+}
+'''
+
+[[test]]
+name = "return_value_method_mutation"
+description = "Return value mutated via method call"
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass
+class Container:
+    items: list[int]
+
+def get_items(c: Container) -> list[int]:
+    return c.items
+
+def add_item(c: Container, value: int) -> None:
+    items = get_items(c)
+    items.append(value)
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+use serde_json;
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Container {
+    pub items: Vec<i32>,
+}
+impl Container {
+    pub fn new(items: Vec<i32>) -> Self {
+        Self { items }
+    }
+}
+pub fn get_items<'a>(c: &'a mut Container) -> &'a mut Vec<i32> {
+    return &mut c.items;
+}
+pub fn add_item(c: &mut Container, value: i32) {
+    let mut items = get_items(c).clone();
+    items.push(value);
+}
+'''
+
+[[test]]
+name = "nested_return_value_access"
+description = "Nested access to return value without mutation"
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass
+class Inner:
+    value: int
+
+@dataclass
+class Outer:
+    inner: Inner
+
+def get_inner(o: Outer) -> Inner:
+    return o.inner
+
+def read_inner_value(o: Outer) -> int:
+    inner = get_inner(o)
+    return inner.value
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+use serde_json;
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Inner {
+    pub value: i32,
+}
+impl Inner {
+    pub fn new(value: i32) -> Self {
+        Self { value }
+    }
+}
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Outer {
+    pub inner: Inner,
+}
+impl Outer {
+    pub fn new(inner: Inner) -> Self {
+        Self { inner }
+    }
+}
+pub fn get_inner(o: &Outer) -> Inner {
+    return o.inner.clone();
+}
+pub fn read_inner_value(o: &Outer) -> i32 {
+    let inner = get_inner(o);
+    return inner.value;
+}
+'''

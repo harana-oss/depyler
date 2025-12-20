@@ -530,14 +530,103 @@ pub fn test(key: String) -> bool {
     let _cse_temp_0 = std::env::var(key).is_ok();
     let exists: bool = _cse_temp_0;
     return exists;
+};
 }
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_test_examples() {
-        let _ = test(Default::default());
-    }
+'''
+
+# =============================================================================
+# Subprocess Module Tests (from expr_gen.rs:4662)
+# =============================================================================
+
+[[test]]
+name = "subprocess_run_basic"
+description = "subprocess.run() basic execution"
+
+python = '''
+import subprocess
+
+def run_command(cmd: list[str]) -> int:
+    result = subprocess.run(cmd)
+    return result.returncode
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'subprocess'()"]
+pub fn run_command(cmd: &Vec<String>) -> i32 {
+    let result = std::process::Command::new(&cmd[0])
+        .args(&cmd[1..])
+        .status()
+        .expect("Failed to execute command");
+    return result.code().unwrap_or(-1);
+}
+'''
+
+[[test]]
+name = "subprocess_run_capture_output"
+description = "subprocess.run() with capture_output=True"
+
+python = '''
+import subprocess
+
+def run_with_output(cmd: list[str]) -> str:
+    result = subprocess.run(cmd, capture_output=True, text=True)
+    return result.stdout
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'subprocess'()"]
+pub fn run_with_output(cmd: &Vec<String>) -> String {
+    let result = std::process::Command::new(&cmd[0])
+        .args(&cmd[1..])
+        .output()
+        .expect("Failed to execute command");
+    return String::from_utf8_lossy(&result.stdout).to_string();
+}
+'''
+
+[[test]]
+name = "subprocess_run_with_cwd"
+description = "subprocess.run() with cwd parameter"
+
+python = '''
+import subprocess
+
+def run_in_dir(cmd: list[str], directory: str) -> int:
+    result = subprocess.run(cmd, cwd=directory)
+    return result.returncode
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'subprocess'()"]
+pub fn run_in_dir(cmd: &Vec<String>, directory: String) -> i32 {
+    let result = std::process::Command::new(&cmd[0])
+        .args(&cmd[1..])
+        .current_dir(directory)
+        .status()
+        .expect("Failed to execute command");
+    return result.code().unwrap_or(-1);
+}
+'''
+
+[[test]]
+name = "subprocess_run_check"
+description = "subprocess.run() with check=True should verify exit status"
+
+python = '''
+import subprocess
+
+def run_checked(cmd: list[str]) -> int:
+    result = subprocess.run(cmd, check=True)
+    return result.returncode
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'subprocess'()"]
+pub fn run_checked(cmd: &Vec<String>) -> i32 {
+    let result = std::process::Command::new(&cmd[0])
+        .args(&cmd[1..])
+        .status()
+        .expect("Failed to execute command");
+    return result.code().unwrap_or(-1);
 }
 '''

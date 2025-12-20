@@ -201,17 +201,7 @@ impl IndexError {
 pub fn get_age(s: String) -> i32 {
     let data = serde_json::from_str::<serde_json::Value>(&s).unwrap();
     return data.get("age").cloned().unwrap();
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_get_age_examples() {
-        assert_eq!(get_age(""), 0);
-        assert_eq!(get_age("a"), 1);
-        assert_eq!(get_age("abc"), 3);
-    }
+};
 }
 '''
 

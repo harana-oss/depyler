@@ -1,0 +1,194 @@
+# Constant Type Inference Tests
+# Tests for infer_constant_type
+
+[metadata]
+name = "Constant Type Inference Tests"
+category = "type-system"
+description = "Tests for inferring types of constant expressions"
+
+[[test]]
+name = "literal_int_type"
+description = "Literal Int infers to Type::Int"
+
+python = '''
+def get_int() -> int:
+    return 42
+'''
+
+rust = '''
+pub fn get_int() -> i32 {
+    return 42;
+};
+}
+'''
+
+[[test]]
+name = "literal_float_type"
+description = "Literal Float infers to Type::Float"
+
+python = '''
+def get_float() -> float:
+    return 3.14
+'''
+
+rust = '''
+pub fn get_float() -> f64 {
+    return 3.14;
+};
+}
+'''
+
+[[test]]
+name = "literal_string_type"
+description = "Literal String infers to Type::String"
+
+python = '''
+def get_string() -> str:
+    return "hello"
+'''
+
+rust = '''
+pub fn get_string() -> String {
+    return "hello".to_string();
+};
+}
+'''
+
+[[test]]
+name = "literal_bool_type"
+description = "Literal Bool infers to Type::Bool"
+
+python = '''
+def get_bool() -> bool:
+    return True
+'''
+
+rust = '''
+pub fn get_bool() -> bool {
+    return true;
+};
+}
+'''
+
+[[test]]
+name = "unary_minus_int_type"
+description = "Unary minus on Int infers to Type::Int"
+
+python = '''
+def get_negative() -> int:
+    return -42
+'''
+
+rust = '''
+pub fn get_negative() -> i32 {
+    return -42;
+};
+}
+'''
+
+[[test]]
+name = "binary_add_int_type"
+description = "Binary Add with Ints infers to Type::Int"
+
+python = '''
+def add_ints() -> int:
+    return 1 + 2
+'''
+
+rust = '''
+pub fn add_ints() -> i32 {
+    return 1 + 2;
+};
+}
+'''
+
+[[test]]
+name = "binary_div_float_type"
+description = "Binary Div with Ints infers to Type::Float (Python semantics)"
+
+python = '''
+def divide_ints() -> float:
+    return 5 / 2
+'''
+
+rust = '''
+pub fn divide_ints() -> f64 {
+    return 5 as f64 / 2 as f64;
+};
+}
+'''
+
+[[test]]
+name = "binary_floordiv_int_type"
+description = "Binary FloorDiv with Ints infers to Type::Int"
+
+python = '''
+def floor_divide() -> int:
+    return 5 // 2
+'''
+
+rust = '''
+pub fn floor_divide() -> i32 {
+    return {
+        let a = 5;
+        let b = 2;
+        let q = a / b;
+        let r = a % b;
+        let r_negative = r < 0;
+        let b_negative = b < 0;
+        let r_nonzero = r != 0;
+        let signs_differ = r_negative != b_negative;
+        let needs_adjustment = r_nonzero && signs_differ;
+        if needs_adjustment { q - 1 } else { q }
+    };
+};
+}
+'''
+
+[[test]]
+name = "int_builtin_call_type"
+description = "int() call infers to Type::Int"
+
+python = '''
+def cast_to_int(x: float) -> int:
+    return int(x)
+'''
+
+rust = '''
+pub fn cast_to_int(x: f64) -> i32 {
+    return x as i32;
+};
+}
+'''
+
+[[test]]
+name = "float_builtin_call_type"
+description = "float() call infers to Type::Float"
+
+python = '''
+def cast_to_float(x: int) -> float:
+    return float(x)
+'''
+
+rust = '''
+pub fn cast_to_float(x: i32) -> f64 {
+    return x as f64;
+};
+}
+'''
+
+[[test]]
+name = "str_builtin_call_type"
+description = "str() call infers to Type::String"
+
+python = '''
+def int_to_str(x: int) -> str:
+    return str(x)
+'''
+
+rust = '''
+pub fn int_to_str(x: i32) -> String {
+    return x.to_string();
+};
+}
+'''

@@ -50,6 +50,105 @@ pub fn generate_uuid4() -> String {
 }
 '''
 
+# =============================================================================
+# UUID Implementation Tests
+# Documents that uuid.uuid1() currently uses v4 as placeholder.
+# =============================================================================
+
+[[test]]
+name = "uuid1_uses_v4_placeholder"
+description = "uuid.uuid1() currently implemented as v4 (time-based not authentic)"
+
+python = '''
+import uuid
+
+def generate_time_uuid() -> str:
+    id = uuid.uuid1()
+    return str(id)
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'uuid'()"]
+pub fn generate_time_uuid() -> String {
+    let id = {
+        use uuid::Uuid;
+        Uuid::new_v4().to_string()
+    };
+    return id.to_string();
+}
+'''
+
+[[test]]
+name = "uuid4_random_generation"
+description = "uuid.uuid4() generates random UUID correctly"
+
+python = '''
+import uuid
+
+def create_random_uuid() -> str:
+    return str(uuid.uuid4())
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'uuid'()"]
+pub fn create_random_uuid() -> String {
+    return {
+        use uuid::Uuid;
+        Uuid::new_v4().to_string()
+    }.to_string();
+}
+'''
+
+[[test]]
+name = "uuid_multiple_calls"
+description = "Multiple UUID calls should generate different UUIDs"
+
+python = '''
+import uuid
+
+def generate_two_uuids() -> tuple:
+    id1 = uuid.uuid4()
+    id2 = uuid.uuid4()
+    return (str(id1), str(id2))
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'uuid'()"]
+pub fn generate_two_uuids() -> (String, String) {
+    let id1 = {
+        use uuid::Uuid;
+        Uuid::new_v4().to_string()
+    };
+    let id2 = {
+        use uuid::Uuid;
+        Uuid::new_v4().to_string()
+    };
+    return (id1.to_string(), id2.to_string());
+}
+'''
+
+[[test]]
+name = "uuid_in_data_structure"
+description = "UUID as value in dict"
+
+python = '''
+import uuid
+
+def create_item_with_id() -> dict:
+    return {"id": str(uuid.uuid4()), "name": "item"}
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'uuid'()"]
+use std::collections::HashMap;
+pub fn create_item_with_id() -> HashMap<String, String> {
+    return HashMap::from([("id".to_string(), {
+        use uuid::Uuid;
+        Uuid::new_v4().to_string()
+    }.to_string()), ("name".to_string(), "item".to_string())]);
+}
+'''
+
 [[test]]
 name = "uuid_uuid3"
 description = "uuid.uuid3() MD5 hash UUID"
@@ -207,17 +306,7 @@ pub fn calculate_mode(data: &Vec<i32>) -> i32 {
         }
         *counts.iter().max_by_key(|(_, &count)| count).unwrap().0
     };
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_calculate_mode_examples() {
-        assert_eq!(calculate_mode(vec![]), 0);
-        assert_eq!(calculate_mode(vec![1]), 1);
-        assert_eq!(calculate_mode(vec![1, 2, 3]), 3);
-    }
+};
 }
 '''
 
@@ -301,15 +390,7 @@ pub fn test_shallow_copy() -> i32 {
     let mut copied = (original.clone()).clone();
     copied.push(4);
     return original.len() as i32 as i32;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_test_shallow_copy_examples() {
-        let _ = test_shallow_copy();
-    }
+};
 }
 '''
 
@@ -340,15 +421,7 @@ pub fn test_dict_copy() -> i32 {
     let mut copied = (original.clone()).clone();
     copied.insert("c".to_string(), 3);
     return original.len() as i32 as i32;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_test_dict_copy_examples() {
-        let _ = test_dict_copy();
-    }
+};
 }
 '''
 
@@ -391,14 +464,6 @@ pub fn test_deep_copy() -> i32 {
     let mut copied = (original.clone()).clone();
     copied.get(0usize).cloned().unwrap().push(5);
     return original.get(0usize).cloned().unwrap().len() as i32 as i32;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_test_deep_copy_examples() {
-        let _ = test_deep_copy();
-    }
+};
 }
 '''

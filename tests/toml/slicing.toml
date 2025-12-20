@@ -86,16 +86,7 @@ def copy_list(items: list[int]) -> list[int]:
 rust = '''
 pub fn copy_list(items: &Vec<i32>) -> Vec<i32> {
     return items.clone();
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_copy_list_examples() {
-        assert_eq!(copy_list(vec![]), vec![]);
-        assert_eq!(copy_list(vec![1]), vec![1]);
-    }
+};
 }
 '''
 
@@ -129,17 +120,7 @@ impl IndexError {
 #[doc = " Depyler: proven to terminate"]
 pub fn get_last(items: &Vec<i32>) -> i32 {
     return items.last().cloned().unwrap();
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_get_last_examples() {
-        assert_eq!(get_last(vec![]), 0);
-        assert_eq!(get_last(vec![1]), 1);
-        assert_eq!(get_last(vec![1, 2, 3]), 3);
-    }
+};
 }
 '''
 
@@ -283,16 +264,7 @@ pub fn reverse_list(items: &Vec<i32>) -> Vec<i32> {
             base.iter().rev().step_by(abs_step).cloned().collect::<Vec<_>>()
         }
     };
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_reverse_list_examples() {
-        assert_eq!(reverse_list(vec![]), vec![]);
-        assert_eq!(reverse_list(vec![1]), vec![1]);
-    }
+};
 }
 '''
 

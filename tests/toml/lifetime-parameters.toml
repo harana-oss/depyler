@@ -1,0 +1,128 @@
+# Lifetime Parameters Tests
+# Tests for parameter lifetime analysis
+
+[metadata]
+name = "Lifetime Parameters Tests"
+category = "lifetimes"
+description = "Tests for proper lifetime inference and no 'static on parameters"
+
+[[test]]
+name = "function_parameters_no_static_lifetime"
+description = "Verify function parameters don't have 'static lifetime"
+
+python = '''
+def concat_strings(a: str, b: str) -> str:
+    return a + b
+'''
+
+rust = '''
+pub fn concat_strings(a: String, b: String) -> String {
+    return a + &b;
+};
+}
+'''
+
+[[test]]
+name = "borrowed_list_parameter"
+description = "Borrowed parameters get proper lifetime"
+
+python = '''
+def sum_list(items: list[int]) -> int:
+    total = 0
+    for item in items:
+        total = total + item
+    return total
+'''
+
+rust = '''
+pub fn sum_list(items: &Vec<i32>) -> i32 {
+    let mut total = 0;
+    for item in items.iter().cloned() {
+        total = total + item;
+    }
+    return total;
+};
+}
+'''
+
+[[test]]
+name = "multiple_parameters_lifetime_inference"
+description = "Multiple parameters with lifetimes - lifetime inference works"
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass
+class Config:
+    value: int
+
+def compare_configs(a: Config, b: Config) -> bool:
+    return a.value == b.value
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+use serde_json;
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Config {
+    pub value: i32,
+}
+impl Config {
+    pub fn new(value: i32) -> Self {
+        Self { value }
+    }
+}
+pub fn compare_configs(a: &Config, b: &Config) -> bool {
+    return a.value == b.value;
+}
+'''
+
+[[test]]
+name = "string_parameter_owned"
+description = "String parameters are owned String, not &str"
+
+python = '''
+def to_uppercase(s: str) -> str:
+    return s.upper()
+'''
+
+rust = '''
+pub fn to_uppercase(s: String) -> String {
+    return s.to_uppercase();
+};
+}
+'''
+
+[[test]]
+name = "struct_field_access_borrowed"
+description = "Struct parameter borrowed for field access"
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass
+class Point:
+    x: int
+    y: int
+
+def get_x(p: Point) -> int:
+    return p.x
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+use serde_json;
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Point {
+    pub x: i32,
+    pub y: i32,
+}
+impl Point {
+    pub fn new(x: i32, y: i32) -> Self {
+        Self { x, y }
+    }
+}
+pub fn get_x(p: &Point) -> i32 {
+    return p.x;
+}
+'''

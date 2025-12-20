@@ -26,15 +26,6 @@ use clap::Parser;
 pub fn run() -> i32 {
     return 0;
 }
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_run_examples() {
-        let _ = run();
-    }
-}
 '''
 
 [[test]]
@@ -125,15 +116,6 @@ struct Args {
 pub fn run() -> i32 {
     let args = Args::parse();
     return 0;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_run_examples() {
-        let _ = run();
-    }
 }
 '''
 
@@ -345,17 +327,6 @@ pub fn count_lines(text: String) -> i32 {
     let lines = text.lines().map(|s| s.to_string()).collect::<Vec<String>>();
     return lines.len() as i32 as i32;
 }
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_count_lines_examples() {
-        assert_eq!(count_lines(""), 0);
-        assert_eq!(count_lines("a"), 1);
-        assert_eq!(count_lines("abc"), 3);
-    }
-}
 '''
 
 [[test]]
@@ -372,17 +343,6 @@ rust = '''
 pub fn count_words(text: String) -> i32 {
     let words = text.split_whitespace().map(|s| s.to_string()).collect::<Vec<String>>();
     return words.len() as i32 as i32;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_count_words_examples() {
-        assert_eq!(count_words(""), 0);
-        assert_eq!(count_words("a"), 1);
-        assert_eq!(count_words("abc"), 3);
-    }
 }
 '''
 
@@ -1601,17 +1561,6 @@ pub fn validate_int(value: String) -> i32 {
         panic!("{}", format!("Must be integer, got {}", value));
     }
 }
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_validate_int_examples() {
-        assert_eq!(validate_int(""), 0);
-        assert_eq!(validate_int("a"), 1);
-        assert_eq!(validate_int("abc"), 3);
-    }
-}
 '''
 
 [[test]]
@@ -1656,5 +1605,249 @@ pub fn email_address(value: String) -> String {
         panic!("{}", format!("Invalid email: {}", value));
     }
     return value;
+}
+'''
+
+# =============================================================================
+# Full Argparse Tests
+# Current implementation may need verification for complex patterns.
+# =============================================================================
+
+[[test]]
+name = "argparse_subcommand_basic"
+description = "argparse with basic subcommand structure"
+
+python = '''
+import argparse
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description="Tool with subcommands")
+    subparsers = parser.add_subparsers(dest="command")
+    
+    sub_add = subparsers.add_parser("add", help="Add item")
+    sub_add.add_argument("name", help="Item name")
+    
+    sub_remove = subparsers.add_parser("remove", help="Remove item")
+    sub_remove.add_argument("id", type=int, help="Item ID")
+    
+    args = parser.parse_args()
+    return 0
+'''
+
+rust = '''
+use clap::Parser;
+#[derive(clap::Subcommand)]
+enum Commands {
+    #[doc = "Add item"]
+    Add {
+        #[doc = "Item name"]
+        name: String,
+    },
+    #[doc = "Remove item"]
+    Remove {
+        #[doc = "Item ID"]
+        id: i32,
+    },
+}
+#[derive(Debug, clap::Parser)]
+#[command(about = "Tool with subcommands")]
+struct Args {
+    #[command(subcommand)]
+    command: Commands,
+}
+pub fn main() -> i32 {
+    let args = Args::parse();
+    return 0;
+}
+'''
+
+[[test]]
+name = "argparse_mutually_exclusive_basic"
+description = "argparse with mutually exclusive group"
+
+python = '''
+import argparse
+
+def main() -> int:
+    parser = argparse.ArgumentParser()
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument("--verbose", action="store_true")
+    group.add_argument("--quiet", action="store_true")
+    args = parser.parse_args()
+    return 0
+'''
+
+rust = '''
+use clap::Parser;
+#[derive(Debug, clap::Parser)]
+struct Args {
+    #[arg(long, group = "verbosity")]
+    #[arg(action = clap::ArgAction::SetTrue)]
+    verbose: bool,
+    #[arg(long, group = "verbosity")]
+    #[arg(action = clap::ArgAction::SetTrue)]
+    quiet: bool,
+}
+pub fn main() -> i32 {
+    let args = Args::parse();
+    return 0;
+}
+'''
+
+[[test]]
+name = "argparse_nargs_patterns"
+description = "argparse with various nargs patterns"
+
+python = '''
+import argparse
+
+def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("files", nargs="+", help="One or more files")
+    parser.add_argument("--optional", nargs="?", help="Optional argument")
+    parser.add_argument("--multiple", nargs="*", help="Zero or more")
+    args = parser.parse_args()
+    return 0
+'''
+
+rust = '''
+use clap::Parser;
+#[derive(Debug, clap::Parser)]
+struct Args {
+    #[doc = "One or more files"]
+    files: Vec<String>,
+    #[arg(long)]
+    #[doc = "Optional argument"]
+    optional: Option<String>,
+    #[arg(long)]
+    #[doc = "Zero or more"]
+    multiple: Vec<String>,
+}
+pub fn main() -> i32 {
+    let args = Args::parse();
+    return 0;
+}
+'''
+
+[[test]]
+name = "argparse_type_choices"
+description = "argparse with choices constraint"
+
+python = '''
+import argparse
+
+def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--format", choices=["json", "xml", "csv"], default="json")
+    parser.add_argument("--level", type=int, choices=[1, 2, 3])
+    args = parser.parse_args()
+    return 0
+'''
+
+rust = '''
+use clap::Parser;
+#[derive(Debug, clap::Parser)]
+struct Args {
+    #[arg(long, value_parser = ["json", "xml", "csv"])]
+    #[arg(default_value = "json")]
+    format: String,
+    #[arg(long, value_parser = clap::value_parser!(i32).range(1..=3))]
+    level: Option<i32>,
+}
+pub fn main() -> i32 {
+    let args = Args::parse();
+    return 0;
+}
+'''
+
+[[test]]
+name = "argparse_nested_subcommands"
+description = "argparse with nested subcommand structure"
+
+python = '''
+import argparse
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description="Git-like CLI")
+    parser.add_argument("--version", action="store_true")
+    
+    subparsers = parser.add_subparsers(dest="command")
+    
+    remote_parser = subparsers.add_parser("remote")
+    remote_sub = remote_parser.add_subparsers(dest="remote_cmd")
+    remote_sub.add_parser("add")
+    remote_sub.add_parser("remove")
+    
+    args = parser.parse_args()
+    return 0
+'''
+
+rust = '''
+use clap::Parser;
+#[derive(clap::Subcommand)]
+enum RemoteCommands {
+    Add,
+    Remove,
+}
+#[derive(clap::Subcommand)]
+enum Commands {
+    Remote {
+        #[command(subcommand)]
+        remote_cmd: RemoteCommands,
+    },
+}
+#[derive(Debug, clap::Parser)]
+#[command(about = "Git-like CLI")]
+struct Args {
+    #[arg(long)]
+    #[arg(action = clap::ArgAction::SetTrue)]
+    version: bool,
+    #[command(subcommand)]
+    command: Option<Commands>,
+}
+pub fn main() -> i32 {
+    let args = Args::parse();
+    return 0;
+}
+'''
+
+[[test]]
+name = "argparse_argument_groups"
+description = "argparse with argument groups for organization"
+
+python = '''
+import argparse
+
+def main() -> int:
+    parser = argparse.ArgumentParser()
+    
+    input_group = parser.add_argument_group("input options")
+    input_group.add_argument("--input", "-i", help="Input file")
+    input_group.add_argument("--format", help="Input format")
+    
+    output_group = parser.add_argument_group("output options")
+    output_group.add_argument("--output", "-o", help="Output file")
+    
+    args = parser.parse_args()
+    return 0
+'''
+
+rust = '''
+use clap::Parser;
+#[derive(Debug, clap::Parser)]
+struct Args {
+    #[arg(short = 'i', long)]
+    #[doc = "Input file"]
+    input: Option<String>,
+    #[arg(long)]
+    #[doc = "Input format"]
+    format: Option<String>,
+    #[arg(short = 'o', long)]
+    #[doc = "Output file"]
+    output: Option<String>,
+}
+pub fn main() -> i32 {
+    let args = Args::parse();
+    return 0;
 }
 '''

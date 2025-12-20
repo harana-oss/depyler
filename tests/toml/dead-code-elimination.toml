@@ -1,0 +1,171 @@
+# Dead Code Elimination Tests
+# Tests for DCE with side effects preserved
+
+[metadata]
+name = "Dead Code Elimination Tests"
+category = "optimization"
+description = "Tests for dead code elimination that preserves side effects"
+
+[[test]]
+name = "unused_assignment_eliminated"
+description = "Unused assignment is eliminated"
+
+python = '''
+def use_only_y(x: int, y: int) -> int:
+    unused = x * 2
+    return y
+'''
+
+rust = '''
+pub fn use_only_y(x: i32, y: i32) -> i32 {
+    return y;
+};
+}
+'''
+
+[[test]]
+name = "indexing_side_effect_preserved"
+description = "Assignment with indexing side effect preserved"
+
+python = '''
+def set_first(items: list[int], value: int) -> None:
+    items[0] = value
+'''
+
+rust = '''
+pub fn set_first(items: &mut Vec<i32>, value: i32) {
+    items[0] = value;
+}
+'''
+
+[[test]]
+name = "method_call_side_effect_preserved"
+description = "Assignment with method call preserved"
+
+python = '''
+def add_item(items: list[int], value: int) -> None:
+    items.append(value)
+'''
+
+rust = '''
+pub fn add_item(items: &mut Vec<i32>, value: i32) {
+    items.push(value);
+}
+'''
+
+[[test]]
+name = "property_write_preserved"
+description = "Assignment with property write preserved"
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass
+class Box:
+    size: int
+
+def resize(b: Box, new_size: int) -> None:
+    b.size = new_size
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+use serde_json;
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Box {
+    pub size: i32,
+}
+impl Box {
+    pub fn new(size: i32) -> Self {
+        Self { size }
+    }
+}
+pub fn resize(b: &mut Box, new_size: i32) {
+    b.size = new_size;
+}
+'''
+
+[[test]]
+name = "chained_assignments_only_used_preserved"
+description = "Chained assignments - only used ones preserved"
+
+python = '''
+def compute_final(x: int) -> int:
+    a = x + 1
+    b = a * 2
+    c = 999
+    d = b + 10
+    return d
+'''
+
+rust = '''
+pub fn compute_final(x: i32) -> i32 {
+    let a = x + 1;
+    let b = a * 2;
+    let d = b + 10;
+    return d;
+};
+}
+'''
+
+[[test]]
+name = "multiple_unused_eliminated"
+description = "Multiple unused assignments are eliminated"
+
+python = '''
+def only_uses_c(a: int, b: int, c: int) -> int:
+    x = a + 1
+    y = b * 2
+    z = c - 1
+    unused1 = x * y
+    unused2 = y + x
+    return z
+'''
+
+rust = '''
+pub fn only_uses_c(a: i32, b: i32, c: i32) -> i32 {
+    let z = c - 1;
+    return z;
+};
+}
+'''
+
+[[test]]
+name = "loop_body_mutation_preserved"
+description = "Loop body with mutations is preserved"
+
+python = '''
+def fill_list(items: list[int], count: int) -> None:
+    i = 0
+    while i < count:
+        items.append(i)
+        i = i + 1
+'''
+
+rust = '''
+pub fn fill_list(items: &mut Vec<i32>, count: i32) {
+    let mut i = 0;
+    while i < count {
+        items.push(i);
+        i = i + 1;
+    }
+}
+'''
+
+[[test]]
+name = "conditional_side_effect_preserved"
+description = "Conditional with side effects is preserved"
+
+python = '''
+def conditional_set(items: list[int], cond: bool, value: int) -> None:
+    if cond:
+        items.append(value)
+'''
+
+rust = '''
+pub fn conditional_set(items: &mut Vec<i32>, cond: bool, value: i32) {
+    if cond {
+        items.push(value);
+    }
+}
+'''

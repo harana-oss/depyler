@@ -20,17 +20,7 @@ def add(a: int, b: int) -> int:
 rust = '''
 pub fn add(a: i32, b: i32) -> i32 {
     return a + b;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn quickcheck_add() {
-        fn prop(a: i32, b: i32) -> TestResult {
-            if (a > 0 && b > i32::MAX - a) || (a < 0 && b < i32::MIN - a) {
-                return TestResult::discard();
-            }
+};
             let result1 = add(a.clone(), b.clone());
             let result2 = add(b.clone(), a.clone());
             if result1 != result2 {
@@ -39,12 +29,6 @@ mod tests {
             TestResult::passed()
         }
         quickcheck(prop as fn(i32, i32) -> TestResult);
-    }
-    #[test]
-    fn test_add_examples() {
-        assert_eq!(add(0, 0), 0);
-        assert_eq!(add(1, 2), 3);
-        assert_eq!(add(-1, 1), 0);
     }
 }
 '''
@@ -61,17 +45,7 @@ def subtract(a: int, b: int) -> int:
 rust = '''
 pub fn subtract(a: i32, b: i32) -> i32 {
     return a - b;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_subtract_examples() {
-        assert_eq!(subtract(0, 0), 0);
-        assert_eq!(subtract(1, 2), 3);
-        assert_eq!(subtract(-1, 1), 0);
-    }
+};
 }
 '''
 
@@ -87,17 +61,7 @@ def multiply(a: int, b: int) -> int:
 rust = '''
 pub fn multiply(a: i32, b: i32) -> i32 {
     return a * b;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn quickcheck_multiply() {
-        fn prop(a: i32, b: i32) -> TestResult {
-            if (a > 0 && b > i32::MAX - a) || (a < 0 && b < i32::MIN - a) {
-                return TestResult::discard();
-            }
+};
             let result1 = multiply(a.clone(), b.clone());
             let result2 = multiply(b.clone(), a.clone());
             if result1 != result2 {
@@ -106,12 +70,6 @@ mod tests {
             TestResult::passed()
         }
         quickcheck(prop as fn(i32, i32) -> TestResult);
-    }
-    #[test]
-    fn test_multiply_examples() {
-        assert_eq!(multiply(0, 0), 0);
-        assert_eq!(multiply(1, 2), 3);
-        assert_eq!(multiply(-1, 1), 0);
     }
 }
 '''
@@ -190,17 +148,56 @@ pub fn floor_div(a: i32, b: i32) -> i32 {
         let needs_adjustment = r_nonzero && signs_differ;
         if needs_adjustment { q - 1 } else { q }
     };
+};
 }
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_floor_div_examples() {
-        assert_eq!(floor_div(0, 0), 0);
-        assert_eq!(floor_div(1, 2), 3);
-        assert_eq!(floor_div(-1, 1), 0);
-    }
+'''
+
+# =============================================================================
+# Integer Division Returns Float (Bug fix test from rust_gen.rs:2920-2921)
+# =============================================================================
+
+[[test]]
+name = "int_div_int_returns_float"
+description = "Python int / int always returns float"
+
+python = '''
+def divide_ints(a: int, b: int) -> float:
+    return a / b
+'''
+
+rust = '''
+pub fn divide_ints(a: i32, b: i32) -> f64 {
+    return (a as f64) / (b as f64);
+}
+'''
+
+[[test]]
+name = "mixed_int_float_division"
+description = "Mixed int/float division"
+
+python = '''
+def mixed_division(a: int, b: float) -> float:
+    return a / b
+'''
+
+rust = '''
+pub fn mixed_division(a: i32, b: f64) -> f64 {
+    return (a as f64) / b;
+}
+'''
+
+[[test]]
+name = "expression_division_returns_float"
+description = "Division in expressions like (a + b) / 2 returns float"
+
+python = '''
+def average(a: int, b: int) -> float:
+    return (a + b) / 2
+'''
+
+rust = '''
+pub fn average(a: i32, b: i32) -> f64 {
+    return ((a + b) as f64) / (2 as f64);
 }
 '''
 
@@ -234,17 +231,7 @@ impl ZeroDivisionError {
 #[doc = " Depyler: proven to terminate"]
 pub fn modulo(a: i32, b: i32) -> i32 {
     return a % b;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_modulo_examples() {
-        assert_eq!(modulo(0, 0), 0);
-        assert_eq!(modulo(1, 2), 3);
-        assert_eq!(modulo(-1, 1), 0);
-    }
+};
 }
 '''
 
@@ -260,15 +247,7 @@ def power_literal() -> int:
 rust = '''
 pub fn power_literal() -> i32 {
     return 2_i32.pow(8 as u32);
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_power_literal_examples() {
-        let _ = power_literal();
-    }
+};
 }
 '''
 
@@ -284,17 +263,7 @@ def power_var(base: int, exp: int) -> int:
 rust = '''
 pub fn power_var(base: i32, exp: i32) -> i32 {
     return base.checked_pow(exp as u32).expect("Power operation overflowed");
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_power_var_examples() {
-        assert_eq!(power_var(0, 0), 0);
-        assert_eq!(power_var(1, 2), 3);
-        assert_eq!(power_var(-1, 1), 0);
-    }
+};
 }
 '''
 
@@ -310,17 +279,7 @@ def pow_call(base: int, exp: int) -> int:
 rust = '''
 pub fn pow_call(base: i32, exp: i32) -> i32 {
     return base.checked_pow(exp as u32).expect("Power operation overflowed");
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_pow_call_examples() {
-        assert_eq!(pow_call(0, 0), 0);
-        assert_eq!(pow_call(1, 2), 3);
-        assert_eq!(pow_call(-1, 1), 0);
-    }
+};
 }
 '''
 
@@ -456,15 +415,7 @@ def logical_not(a: bool) -> bool:
 rust = '''
 pub fn logical_not(a: bool) -> bool {
     return !a;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_logical_not_examples() {
-        let _ = logical_not(Default::default());
-    }
+};
 }
 '''
 
@@ -480,17 +431,7 @@ def bitwise_and(a: int, b: int) -> int:
 rust = '''
 pub fn bitwise_and(a: i32, b: i32) -> i32 {
     return a & b;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn quickcheck_bitwise_and() {
-        fn prop(a: i32, b: i32) -> TestResult {
-            if (a > 0 && b > i32::MAX - a) || (a < 0 && b < i32::MIN - a) {
-                return TestResult::discard();
-            }
+};
             let result1 = bitwise_and(a.clone(), b.clone());
             let result2 = bitwise_and(b.clone(), a.clone());
             if result1 != result2 {
@@ -499,12 +440,6 @@ mod tests {
             TestResult::passed()
         }
         quickcheck(prop as fn(i32, i32) -> TestResult);
-    }
-    #[test]
-    fn test_bitwise_and_examples() {
-        assert_eq!(bitwise_and(0, 0), 0);
-        assert_eq!(bitwise_and(1, 2), 3);
-        assert_eq!(bitwise_and(-1, 1), 0);
     }
 }
 '''
@@ -521,17 +456,7 @@ def bitwise_or(a: int, b: int) -> int:
 rust = '''
 pub fn bitwise_or(a: i32, b: i32) -> i32 {
     return a | b;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn quickcheck_bitwise_or() {
-        fn prop(a: i32, b: i32) -> TestResult {
-            if (a > 0 && b > i32::MAX - a) || (a < 0 && b < i32::MIN - a) {
-                return TestResult::discard();
-            }
+};
             let result1 = bitwise_or(a.clone(), b.clone());
             let result2 = bitwise_or(b.clone(), a.clone());
             if result1 != result2 {
@@ -540,12 +465,6 @@ mod tests {
             TestResult::passed()
         }
         quickcheck(prop as fn(i32, i32) -> TestResult);
-    }
-    #[test]
-    fn test_bitwise_or_examples() {
-        assert_eq!(bitwise_or(0, 0), 0);
-        assert_eq!(bitwise_or(1, 2), 3);
-        assert_eq!(bitwise_or(-1, 1), 0);
     }
 }
 '''
@@ -562,17 +481,7 @@ def bitwise_xor(a: int, b: int) -> int:
 rust = '''
 pub fn bitwise_xor(a: i32, b: i32) -> i32 {
     return a ^ b;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn quickcheck_bitwise_xor() {
-        fn prop(a: i32, b: i32) -> TestResult {
-            if (a > 0 && b > i32::MAX - a) || (a < 0 && b < i32::MIN - a) {
-                return TestResult::discard();
-            }
+};
             let result1 = bitwise_xor(a.clone(), b.clone());
             let result2 = bitwise_xor(b.clone(), a.clone());
             if result1 != result2 {
@@ -581,12 +490,6 @@ mod tests {
             TestResult::passed()
         }
         quickcheck(prop as fn(i32, i32) -> TestResult);
-    }
-    #[test]
-    fn test_bitwise_xor_examples() {
-        assert_eq!(bitwise_xor(0, 0), 0);
-        assert_eq!(bitwise_xor(1, 2), 3);
-        assert_eq!(bitwise_xor(-1, 1), 0);
     }
 }
 '''
@@ -603,17 +506,7 @@ def left_shift(a: int, n: int) -> int:
 rust = '''
 pub fn left_shift(a: i32, n: i32) -> i32 {
     return a << n;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_left_shift_examples() {
-        assert_eq!(left_shift(0, 0), 0);
-        assert_eq!(left_shift(1, 2), 3);
-        assert_eq!(left_shift(-1, 1), 0);
-    }
+};
 }
 '''
 
@@ -629,17 +522,7 @@ def right_shift(a: int, n: int) -> int:
 rust = '''
 pub fn right_shift(a: i32, n: i32) -> i32 {
     return a >> n;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_right_shift_examples() {
-        assert_eq!(right_shift(0, 0), 0);
-        assert_eq!(right_shift(1, 2), 3);
-        assert_eq!(right_shift(-1, 1), 0);
-    }
+};
 }
 '''
 
@@ -655,17 +538,7 @@ def negate(x: int) -> int:
 rust = '''
 pub fn negate(x: i32) -> i32 {
     return (-x);
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_negate_examples() {
-        assert_eq!(negate(0), 0);
-        assert_eq!(negate(1), 1);
-        assert_eq!(negate(-1), -1);
-    }
+};
 }
 '''
 
@@ -681,17 +554,7 @@ def identity(x: int) -> int:
 rust = '''
 pub fn identity(x: i32) -> i32 {
     return x;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_identity_examples() {
-        assert_eq!(identity(0), 0);
-        assert_eq!(identity(1), 1);
-        assert_eq!(identity(-1), -1);
-    }
+};
 }
 '''
 
@@ -707,17 +570,7 @@ def bitwise_not(x: int) -> int:
 rust = '''
 pub fn bitwise_not(x: i32) -> i32 {
     return !x;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_bitwise_not_examples() {
-        assert_eq!(bitwise_not(0), 0);
-        assert_eq!(bitwise_not(1), 1);
-        assert_eq!(bitwise_not(-1), -1);
-    }
+};
 }
 '''
 
@@ -733,17 +586,7 @@ def test_pow(a: int, b: int) -> int:
 rust = '''
 pub fn test_pow(a: i32, b: i32) -> i32 {
     return a.checked_pow(b as u32).expect("Power operation overflowed");
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_test_pow_examples() {
-        assert_eq!(test_pow(0, 0), 0);
-        assert_eq!(test_pow(1, 2), 3);
-        assert_eq!(test_pow(-1, 1), 0);
-    }
+};
 }
 '''
 
@@ -804,17 +647,7 @@ def test_pow(a: int) -> int:
 rust = '''
 pub fn test_pow(a: i32) -> i32 {
     return a.pow(0 as u32);
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_test_pow_examples() {
-        assert_eq!(test_pow(0), 0);
-        assert_eq!(test_pow(1), 1);
-        assert_eq!(test_pow(-1), -1);
-    }
+};
 }
 '''
 
@@ -908,17 +741,7 @@ def compute_power(base: int, exp: int) -> int:
 rust = '''
 pub fn compute_power(base: i32, exp: i32) -> i32 {
     return base.checked_pow(exp as u32).expect("Power operation overflowed");
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_compute_power_examples() {
-        assert_eq!(compute_power(0, 0), 0);
-        assert_eq!(compute_power(1, 2), 3);
-        assert_eq!(compute_power(-1, 1), 0);
-    }
+};
 }
 '''
 
@@ -988,17 +811,7 @@ pub fn test_floordiv(a: i32, b: i32) -> i32 {
         let needs_adjustment = r_nonzero && signs_differ;
         if needs_adjustment { q - 1 } else { q }
     };
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_test_floordiv_examples() {
-        assert_eq!(test_floordiv(0, 0), 0);
-        assert_eq!(test_floordiv(1, 2), 3);
-        assert_eq!(test_floordiv(-1, 1), 0);
-    }
+};
 }
 '''
 
@@ -1043,15 +856,7 @@ pub fn test_floordiv() -> i32 {
         let needs_adjustment = r_nonzero && signs_differ;
         if needs_adjustment { q - 1 } else { q }
     };
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_test_floordiv_examples() {
-        let _ = test_floordiv();
-    }
+};
 }
 '''
 
@@ -1096,15 +901,7 @@ pub fn test_floordiv() -> i32 {
         let needs_adjustment = r_nonzero && signs_differ;
         if needs_adjustment { q - 1 } else { q }
     };
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_test_floordiv_examples() {
-        let _ = test_floordiv();
-    }
+};
 }
 '''
 
@@ -1149,15 +946,7 @@ pub fn test_floordiv() -> i32 {
         let needs_adjustment = r_nonzero && signs_differ;
         if needs_adjustment { q - 1 } else { q }
     };
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_test_floordiv_examples() {
-        let _ = test_floordiv();
-    }
+};
 }
 '''
 
@@ -1202,17 +991,7 @@ pub fn test_floordiv(a: i32, b: i32) -> i32 {
         let needs_adjustment = r_nonzero && signs_differ;
         if needs_adjustment { q - 1 } else { q }
     };
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_test_floordiv_examples() {
-        assert_eq!(test_floordiv(0, 0), 0);
-        assert_eq!(test_floordiv(1, 2), 3);
-        assert_eq!(test_floordiv(-1, 1), 0);
-    }
+};
 }
 '''
 
@@ -1230,19 +1009,7 @@ use serde_json;
 use std::collections::HashSet;
 pub fn test_union(a: &HashSet<serde_json::Value>, b: &HashSet<serde_json::Value>) -> HashSet<serde_json::Value> {
     return a.union(&b).cloned().collect::<std::collections::HashSet<_>>();
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn quickcheck_test_union() {
-        fn prop(a: (), b: ()) -> TestResult {
-            let result1 = test_union(a.clone(), b.clone());
-            let result2 = test_union(b.clone(), a.clone());
-            if result1 != result2 {
-                return TestResult::failed();
-            }
+};
             TestResult::passed()
         }
         quickcheck(prop as fn((), ()) -> TestResult);
@@ -1264,19 +1031,7 @@ use serde_json;
 use std::collections::HashSet;
 pub fn test_intersection(a: &HashSet<serde_json::Value>, b: &HashSet<serde_json::Value>) -> HashSet<serde_json::Value> {
     return a.intersection(&b).cloned().collect::<std::collections::HashSet<_>>();
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn quickcheck_test_intersection() {
-        fn prop(a: (), b: ()) -> TestResult {
-            let result1 = test_intersection(a.clone(), b.clone());
-            let result2 = test_intersection(b.clone(), a.clone());
-            if result1 != result2 {
-                return TestResult::failed();
-            }
+};
             TestResult::passed()
         }
         quickcheck(prop as fn((), ()) -> TestResult);
@@ -1321,19 +1076,7 @@ pub fn test_symmetric_diff(
         .symmetric_difference(&b)
         .cloned()
         .collect::<std::collections::HashSet<_>>();
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn quickcheck_test_symmetric_diff() {
-        fn prop(a: (), b: ()) -> TestResult {
-            let result1 = test_symmetric_diff(a.clone(), b.clone());
-            let result2 = test_symmetric_diff(b.clone(), a.clone());
-            if result1 != result2 {
-                return TestResult::failed();
-            }
+};
             TestResult::passed()
         }
         quickcheck(prop as fn((), ()) -> TestResult);
@@ -1534,5 +1277,84 @@ pub fn check_same(a: i32, b: i32) -> bool {
         return true;
     }
     return false;
+}
+'''
+
+# =============================================================================
+# Power Operator Type Handling
+# =============================================================================
+
+[[test]]
+name = "power_int_literal_exponent"
+description = "x ** 2 with int x uses .pow(2)"
+
+python = '''
+def square(x: int) -> int:
+    return x ** 2
+'''
+
+rust = '''
+pub fn square(x: i32) -> i32 {
+    return x.pow(2 as u32);
+}
+'''
+
+[[test]]
+name = "power_float_exponent"
+description = "x ** 2.0 with float uses .powf(2.0)"
+
+python = '''
+def power_float(x: float) -> float:
+    return x ** 2.0
+'''
+
+rust = '''
+pub fn power_float(x: f64) -> f64 {
+    return x.powf(2.0);
+}
+'''
+
+[[test]]
+name = "power_variable_exponent"
+description = "2 ** n with variable n uses checked_pow"
+
+python = '''
+def power_of_two(n: int) -> int:
+    return 2 ** n
+'''
+
+rust = '''
+pub fn power_of_two(n: i32) -> i32 {
+    return 2_i32.checked_pow(n as u32).expect("Power operation overflowed");
+}
+'''
+
+[[test]]
+name = "power_both_variables"
+description = "base ** exp with both variables"
+
+python = '''
+def power_both(base: int, exp: int) -> int:
+    return base ** exp
+'''
+
+rust = '''
+pub fn power_both(base: i32, exp: i32) -> i32 {
+    return base.checked_pow(exp as u32).expect("Power operation overflowed");
+}
+'''
+
+[[test]]
+name = "pow_builtin_same_as_operator"
+description = "pow(base, exp) uses same rules as ** operator"
+
+python = '''
+def pow_builtin(base: int, exp: int) -> int:
+    return pow(base, exp)
+'''
+
+rust = '''
+pub fn pow_builtin(base: i32, exp: i32) -> i32 {
+    return base.checked_pow(exp as u32).expect("Power operation overflowed");
 }
 '''

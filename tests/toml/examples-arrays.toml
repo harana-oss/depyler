@@ -909,27 +909,7 @@ pub fn test_all_array_queue_features() {
         "{}",
         "All array and queue module tests completed successfully"
     );
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{quickcheck, TestResult};
-    #[test]
-    fn test_test_array_index_examples() {
-        let _ = test_array_index();
-    }
-    #[test]
-    fn test_test_array_count_examples() {
-        let _ = test_array_count();
-    }
-    #[test]
-    fn test_test_queue_size_examples() {
-        let _ = test_queue_size();
-    }
-    #[test]
-    fn test_test_stack_peek_examples() {
-        let _ = test_stack_peek();
-    }
+};
 }
 '''
 

@@ -1,0 +1,159 @@
+# Enum Copy Semantics Tests
+# Tests for enum Copy vs struct Clone
+
+[metadata]
+name = "Enum Copy Semantics Tests"
+category = "type-system"
+description = "Tests for enum Copy semantics vs struct Clone requirements"
+
+[[test]]
+name = "enum_type_no_clone"
+description = "Enum type does NOT need clone when used multiple times"
+
+python = '''
+from enum import Enum
+
+class Color(Enum):
+    RED = 1
+    GREEN = 2
+    BLUE = 3
+
+def process_color(c: Color) -> int:
+    if c == Color.RED:
+        return 1
+    return 0
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'enum'()"]
+use serde_json;
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum Color {
+    RED = 1,
+    GREEN = 2,
+    BLUE = 3,
+}
+pub fn process_color(c: Color) -> i32 {
+    if c == Color::RED {
+        return 1;
+    }
+    return 0;
+}
+'''
+
+[[test]]
+name = "enum_multiple_uses_no_clone"
+description = "Enum used multiple times still no clone needed"
+
+python = '''
+from enum import Enum
+
+class Status(Enum):
+    ACTIVE = 1
+    INACTIVE = 0
+
+def check_status(s: Status) -> bool:
+    is_active = s == Status.ACTIVE
+    is_valid = s == Status.ACTIVE or s == Status.INACTIVE
+    return is_active and is_valid
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'enum'()"]
+use serde_json;
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum Status {
+    ACTIVE = 1,
+    INACTIVE = 0,
+}
+pub fn check_status(s: Status) -> bool {
+    let is_active = s == Status::ACTIVE;
+    let is_valid = s == Status::ACTIVE || s == Status::INACTIVE;
+    return is_active && is_valid;
+}
+'''
+
+[[test]]
+name = "struct_needs_clone"
+description = "Struct type DOES need clone when used multiple times"
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass
+class Point:
+    x: int
+    y: int
+
+def use_point_twice(p: Point) -> int:
+    sum1 = p.x + p.y
+    sum2 = p.x + p.y
+    return sum1 + sum2
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+use serde_json;
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Point {
+    pub x: i32,
+    pub y: i32,
+}
+impl Point {
+    pub fn new(x: i32, y: i32) -> Self {
+        Self { x, y }
+    }
+}
+pub fn use_point_twice(p: &Point) -> i32 {
+    let sum1 = p.x + p.y;
+    let sum2 = p.x + p.y;
+    return sum1 + sum2;
+}
+'''
+
+[[test]]
+name = "enum_in_match"
+description = "Enum in match expression uses Copy"
+
+python = '''
+from enum import Enum
+
+class Direction(Enum):
+    UP = 1
+    DOWN = 2
+    LEFT = 3
+    RIGHT = 4
+
+def get_delta(d: Direction) -> tuple[int, int]:
+    if d == Direction.UP:
+        return (0, 1)
+    elif d == Direction.DOWN:
+        return (0, -1)
+    elif d == Direction.LEFT:
+        return (-1, 0)
+    else:
+        return (1, 0)
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'enum'()"]
+use serde_json;
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum Direction {
+    UP = 1,
+    DOWN = 2,
+    LEFT = 3,
+    RIGHT = 4,
+}
+pub fn get_delta(d: Direction) -> (i32, i32) {
+    if d == Direction::UP {
+        return (0, 1);
+    } else if d == Direction::DOWN {
+        return (0, -1);
+    } else if d == Direction::LEFT {
+        return (-1, 0);
+    } else {
+        return (1, 0);
+    }
+}
+'''

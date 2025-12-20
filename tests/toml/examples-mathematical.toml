@@ -190,39 +190,7 @@ pub fn power(mut base: i32, mut exponent: i32) -> Result<i32, ZeroDivisionError>
         };
     }
     Ok(result)
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{quickcheck, TestResult};
-    #[test]
-    fn test_factorial_examples() {
-        assert_eq!(factorial(0), 0);
-        assert_eq!(factorial(1), 1);
-        assert_eq!(factorial(-1), -1);
-    }
-    #[test]
-    fn test_gcd_examples() {
-        assert_eq!(gcd(0, 0), 0);
-        assert_eq!(gcd(1, 2), 3);
-        assert_eq!(gcd(-1, 1), 0);
-    }
-    #[test]
-    fn test_is_prime_examples() {
-        let _ = is_prime(Default::default());
-    }
-    #[test]
-    fn test_sum_of_squares_examples() {
-        assert_eq!(sum_of_squares(&vec![]), 0);
-        assert_eq!(sum_of_squares(&vec![1]), 1);
-        assert_eq!(sum_of_squares(&vec![1, 2, 3]), 6);
-    }
-    #[test]
-    fn test_power_examples() {
-        assert_eq!(power(0, 0), 0);
-        assert_eq!(power(1, 2), 3);
-        assert_eq!(power(-1, 1), 0);
-    }
+};
 }
 '''
 
@@ -868,35 +836,7 @@ pub fn mathematical_sequence(n: i32) -> Result<i32, ZeroDivisionError> {
         i = i + 1;
     }
     Ok(total)
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{quickcheck, TestResult};
-    #[test]
-    fn test_power_examples_examples() {
-        assert_eq!(power_examples(0, 0), 0);
-        assert_eq!(power_examples(1, 2), 3);
-        assert_eq!(power_examples(-1, 1), 0);
-    }
-    #[test]
-    fn test_floor_division_examples_examples() {
-        assert_eq!(floor_division_examples(0, 0), 0);
-        assert_eq!(floor_division_examples(1, 2), 3);
-        assert_eq!(floor_division_examples(-1, 1), 0);
-    }
-    #[test]
-    fn test_combined_operations_examples() {
-        assert_eq!(combined_operations(0, 0), 0);
-        assert_eq!(combined_operations(1, 2), 3);
-        assert_eq!(combined_operations(-1, 1), 0);
-    }
-    #[test]
-    fn test_mathematical_sequence_examples() {
-        assert_eq!(mathematical_sequence(0), 0);
-        assert_eq!(mathematical_sequence(1), 1);
-        assert_eq!(mathematical_sequence(-1), -1);
-    }
+};
 }
 '''
 
@@ -1085,17 +1025,7 @@ pub fn compute_power(base: i32, exp: i32) -> i32 {
             (base as f64).powf(exp as f64) as i32
         }
     }
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{quickcheck, TestResult};
-    #[test]
-    fn test_compute_power_examples() {
-        assert_eq!(compute_power(0, 0), 0);
-        assert_eq!(compute_power(1, 2), 3);
-        assert_eq!(compute_power(-1, 1), 0);
-    }
+};
 }
 '''
 
@@ -1160,23 +1090,7 @@ pub fn test_floor_div(x: i32, y: i32) -> Result<i32, ZeroDivisionError> {
             q
         }
     })
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{quickcheck, TestResult};
-    #[test]
-    fn test_test_power_examples() {
-        assert_eq!(test_power(0), 0);
-        assert_eq!(test_power(1), 1);
-        assert_eq!(test_power(-1), -1);
-    }
-    #[test]
-    fn test_test_floor_div_examples() {
-        assert_eq!(test_floor_div(0, 0), 0);
-        assert_eq!(test_floor_div(1, 2), 3);
-        assert_eq!(test_floor_div(-1, 1), 0);
-    }
+};
 }
 '''
 

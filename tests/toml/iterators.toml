@@ -21,16 +21,6 @@ rust = '''
 pub fn double_all(items: Vec<i32>) -> Vec<i32> {
     return items.iter().map(|x| x * 2).collect::<Vec<_>>();
 }
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_double_all_examples() {
-        assert_eq!(double_all(vec![]), vec![]);
-        assert_eq!(double_all(vec![1]), vec![1]);
-    }
-}
 '''
 
 [[test]]
@@ -45,16 +35,6 @@ def positives(items: list[int]) -> list[int]:
 rust = '''
 pub fn positives(items: Vec<i32>) -> Vec<i32> {
     return items.into_iter().filter(|x| x > 0).collect::<Vec<_>>();
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_positives_examples() {
-        assert_eq!(positives(vec![]), vec![]);
-        assert_eq!(positives(vec![1]), vec![1]);
-    }
 }
 '''
 
@@ -90,16 +70,6 @@ pub fn with_index(items: Vec<String>) -> Vec<()> {
         .map(|(i, x)| (i as i32, x.clone()))
         .collect::<Vec<_>>();
 }
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_with_index_examples() {
-        assert_eq!(with_index(vec![]), vec![]);
-        assert_eq!(with_index(vec![1]), vec![1]);
-    }
-}
 '''
 
 [[test]]
@@ -121,16 +91,6 @@ pub fn reverse_list(items: Vec<i32>) -> Vec<i32> {
     .into_iter()
     .collect::<Vec<_>>();
 }
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_reverse_list_examples() {
-        assert_eq!(reverse_list(vec![]), vec![]);
-        assert_eq!(reverse_list(vec![1]), vec![1]);
-    }
-}
 '''
 
 [[test]]
@@ -145,17 +105,6 @@ def total(items: list[int]) -> int:
 rust = '''
 pub fn total(items: Vec<i32>) -> i32 {
     return items.iter().sum::<i32>();
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_total_examples() {
-        assert_eq!(total(vec![]), 0);
-        assert_eq!(total(vec![1]), 1);
-        assert_eq!(total(vec![1, 2, 3]), 3);
-    }
 }
 '''
 
@@ -172,17 +121,6 @@ rust = '''
 pub fn minimum(items: Vec<i32>) -> i32 {
     return *items.iter().min().unwrap();
 }
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_minimum_examples() {
-        assert_eq!(minimum(vec![]), 0);
-        assert_eq!(minimum(vec![1]), 1);
-        assert_eq!(minimum(vec![1, 2, 3]), 3);
-    }
-}
 '''
 
 [[test]]
@@ -197,17 +135,6 @@ def maximum(items: list[int]) -> int:
 rust = '''
 pub fn maximum(items: Vec<i32>) -> i32 {
     return *items.iter().max().unwrap();
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_maximum_examples() {
-        assert_eq!(maximum(vec![]), 0);
-        assert_eq!(maximum(vec![1]), 1);
-        assert_eq!(maximum(vec![1, 2, 3]), 3);
-    }
 }
 '''
 
@@ -224,15 +151,6 @@ rust = '''
 pub fn has_positive(items: &Vec<i32>) -> bool {
     return items.iter().copied().map(|x| x > 0).any(|x| x);
 }
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_has_positive_examples() {
-        let _ = has_positive(Default::default());
-    }
-}
 '''
 
 [[test]]
@@ -247,15 +165,6 @@ def all_positive(items: list[int]) -> bool:
 rust = '''
 pub fn all_positive(items: &Vec<i32>) -> bool {
     return items.iter().copied().map(|x| x > 0).all(|x| x);
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_all_positive_examples() {
-        let _ = all_positive(Default::default());
-    }
 }
 '''
 
@@ -276,16 +185,6 @@ pub fn process(items: Vec<i32>) -> Vec<i32> {
         .iter()
         .map(|x| x * 2)
         .collect::<Vec<_>>();
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_process_examples() {
-        assert_eq!(process(vec![]), vec![]);
-        assert_eq!(process(vec![1]), vec![1]);
-    }
 }
 '''
 
@@ -336,8 +235,7 @@ pub fn after_n(items: &Vec<i32>, n: i32) -> Vec<i32> {
         } else {
             Vec::new()
         }
-    };
-}
+    }
 '''
 
 [[test]]
@@ -361,17 +259,6 @@ pub fn find_first_positive(items: &Vec<i32>) -> i32 {
         }
     }
     return 0;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_find_first_positive_examples() {
-        assert_eq!(find_first_positive(vec![]), 0);
-        assert_eq!(find_first_positive(vec![1]), 1);
-        assert_eq!(find_first_positive(vec![1, 2, 3]), 3);
-    }
 }
 '''
 
@@ -418,17 +305,6 @@ pub fn count_positive(items: &Vec<i32>) -> i32 {
         .collect::<Vec<_>>()
         .len() as i32 as i32;
 }
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_count_positive_examples() {
-        assert_eq!(count_positive(vec![]), 0);
-        assert_eq!(count_positive(vec![1]), 1);
-        assert_eq!(count_positive(vec![1, 2, 3]), 3);
-    }
-}
 '''
 
 [[test]]
@@ -443,17 +319,6 @@ def length(items: list[int]) -> int:
 rust = '''
 pub fn length(items: &Vec<i32>) -> i32 {
     return items.len() as i32 as i32;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_length_examples() {
-        assert_eq!(length(vec![]), 0);
-        assert_eq!(length(vec![1]), 1);
-        assert_eq!(length(vec![1, 2, 3]), 3);
-    }
 }
 '''
 
@@ -726,15 +591,109 @@ rust = '''
 pub fn sum_list(nums: Vec<i32>) -> i32 {
     return nums.iter().sum::<i32>();
 }
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_sum_list_examples() {
-        assert_eq!(sum_list(vec![]), 0);
-        assert_eq!(sum_list(vec![1]), 1);
-        assert_eq!(sum_list(vec![1, 2, 3]), 6);
+'''
+
+# =============================================================================
+# Iterator Type Handling - Clone and Ownership
+# =============================================================================
+
+[[test]]
+name = "for_in_list_iteration"
+description = "For loop over list with correct iterator type"
+
+python = '''
+def process_items(items: list[int]) -> int:
+    total = 0
+    for x in items:
+        total = total + x
+    return total
+'''
+
+rust = '''
+pub fn process_items(items: Vec<i32>) -> i32 {
+    let mut total = 0;
+    for x in items {
+        total = total + x;
     }
+    return total;
+}
+'''
+
+[[test]]
+name = "for_enumerate_with_value_access"
+description = "enumerate() with proper tuple handling"
+
+python = '''
+def indexed_sum(items: list[int]) -> int:
+    total = 0
+    for i, x in enumerate(items):
+        total = total + i + x
+    return total
+'''
+
+rust = '''
+pub fn indexed_sum(items: Vec<i32>) -> i32 {
+    let mut total = 0;
+    for (i, x) in items.iter().enumerate().map(|(i, x)| (i as i32, x.clone())) {
+        total = total + i + x;
+    }
+    return total;
+}
+'''
+
+[[test]]
+name = "hashmap_values_iteration"
+description = "Iteration over HashMap values()"
+
+python = '''
+def sum_values(d: dict[str, int]) -> int:
+    total = 0
+    for v in d.values():
+        total = total + v
+    return total
+'''
+
+rust = '''
+use std::collections::HashMap;
+pub fn sum_values(d: &HashMap<String, i32>) -> i32 {
+    let mut total = 0;
+    for v in d.values() {
+        total = total + v;
+    }
+    return total;
+}
+'''
+
+[[test]]
+name = "zip_into_iter_consumption"
+description = "zip() with proper iterator consumption"
+
+python = '''
+def pair_sum(a: list[int], b: list[int]) -> list[int]:
+    return [x + y for x, y in zip(a, b)]
+'''
+
+rust = '''
+pub fn pair_sum(a: Vec<i32>, b: Vec<i32>) -> Vec<i32> {
+    return a.into_iter().zip(b.into_iter()).map(|(x, y)| x + y).collect::<Vec<_>>();
+}
+'''
+
+[[test]]
+name = "iter_vs_into_iter_choice"
+description = "Correct choice between iter() and into_iter()"
+
+python = '''
+def use_list_twice(items: list[int]) -> int:
+    first = sum(items)
+    second = sum(items)
+    return first + second
+'''
+
+rust = '''
+pub fn use_list_twice(items: Vec<i32>) -> i32 {
+    let first = items.iter().sum::<i32>();
+    let second = items.iter().sum::<i32>();
+    return first + second;
 }
 '''

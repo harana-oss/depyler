@@ -244,16 +244,6 @@ rust = '''
 }
 results
 }
-#[cfg(test)] mod tests {
-    use super::*;
-    use quickcheck::{
-    quickcheck, TestResult };
-    #[test] fn test_process_batch_examples() {
-    assert_eq!(process_batch(vec! []), vec! []);
-    assert_eq!(process_batch(vec! [1]), vec! [1]);
-   
-}
-}
 '''
 
 [[test]]
@@ -686,17 +676,7 @@ pub fn main() {
     stack.push(2);
     log::info!("{}", format!("Stack size: {:?}", stack.size()));
     log::info!("{}", format!("Stack pop: {:?}", stack.pop()));
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{quickcheck, TestResult};
-    #[test]
-    fn quickcheck_add() {
-        fn prop(a: i32, b: i32) -> TestResult {
-            if (a > 0 && b > i32::MAX - a) || (a < 0 && b < i32::MIN - a) {
-                return TestResult::discard();
-            }
+};
             let result1 = add(a.clone(), b.clone());
             let result2 = add(b.clone(), a.clone());
             if result1 != result2 {
@@ -706,20 +686,6 @@ mod tests {
         }
         quickcheck(prop as fn(i32, i32) -> TestResult);
     }
-    #[test]
-    fn test_add_examples() {
-        assert_eq!(add(0, 0), 0);
-        assert_eq!(add(1, 2), 3);
-        assert_eq!(add(-1, 1), 0);
-    }
-    #[test]
-    fn quickcheck_concurrent_counter() {
-        fn prop(current: i32, increment: i32) -> TestResult {
-            if (current > 0 && increment > i32::MAX - current)
-                || (current < 0 && increment < i32::MIN - current)
-            {
-                return TestResult::discard();
-            }
             let result1 = concurrent_counter(current.clone(), increment.clone());
             let result2 = concurrent_counter(increment.clone(), current.clone());
             if result1 != result2 {
@@ -728,24 +694,6 @@ mod tests {
             TestResult::passed()
         }
         quickcheck(prop as fn(i32, i32) -> TestResult);
-    }
-    #[test]
-    fn test_concurrent_counter_examples() {
-        assert_eq!(concurrent_counter(0, 0), 0);
-        assert_eq!(concurrent_counter(1, 2), 3);
-        assert_eq!(concurrent_counter(-1, 1), 0);
-    }
-    #[test]
-    fn test_factorial_examples() {
-        assert_eq!(factorial(0), 0);
-        assert_eq!(factorial(1), 1);
-        assert_eq!(factorial(-1), -1);
-    }
-    #[test]
-    fn test_fibonacci_examples() {
-        assert_eq!(fibonacci(0), 0);
-        assert_eq!(fibonacci(1), 1);
-        assert_eq!(fibonacci(-1), -1);
     }
 }
 '''

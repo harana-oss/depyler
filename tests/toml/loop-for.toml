@@ -28,17 +28,7 @@ pub fn count_items(items: &Vec<i32>) -> i32 {
         count = count + 1;
     }
     return count;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_count_items_examples() {
-        assert_eq!(count_items(vec![]), 0);
-        assert_eq!(count_items(vec![1]), 1);
-        assert_eq!(count_items(vec![1, 2, 3]), 3);
-    }
+};
 }
 '''
 
@@ -61,17 +51,7 @@ pub fn sum_items(items: &Vec<i32>) -> i32 {
         total = total + item;
     }
     return total;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_sum_items_examples() {
-        assert_eq!(sum_items(vec![]), 0);
-        assert_eq!(sum_items(vec![1]), 1);
-        assert_eq!(sum_items(vec![1, 2, 3]), 6);
-    }
+};
 }
 '''
 
@@ -94,17 +74,7 @@ pub fn process_pairs(pairs: &Vec<(i32, i32)>) -> i32 {
         total = total + a + b;
     }
     return total;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_process_pairs_examples() {
-        assert_eq!(process_pairs(vec![]), 0);
-        assert_eq!(process_pairs(vec![1]), 1);
-        assert_eq!(process_pairs(vec![1, 2, 3]), 3);
-    }
+};
 }
 '''
 
@@ -149,17 +119,7 @@ pub fn count_by_index(items: &Vec<(i32, String)>) -> i32 {
         total = total + idx;
     }
     return total;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_count_by_index_examples() {
-        assert_eq!(count_by_index(vec![]), 0);
-        assert_eq!(count_by_index(vec![1]), 1);
-        assert_eq!(count_by_index(vec![1, 2, 3]), 3);
-    }
+};
 }
 '''
 
@@ -182,17 +142,7 @@ pub fn count_pairs(pairs: &Vec<(i32, i32)>) -> i32 {
         count = count + 1;
     }
     return count;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_count_pairs_examples() {
-        assert_eq!(count_pairs(vec![]), 0);
-        assert_eq!(count_pairs(vec![1]), 1);
-        assert_eq!(count_pairs(vec![1, 2, 3]), 3);
-    }
+};
 }
 '''
 
@@ -216,17 +166,7 @@ pub fn count_chars(s: String) -> i32 {
         count = count + 1;
     }
     return count;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_count_chars_examples() {
-        assert_eq!(count_chars(""), 0);
-        assert_eq!(count_chars("a"), 1);
-        assert_eq!(count_chars("abc"), 3);
-    }
+};
 }
 '''
 
@@ -250,17 +190,7 @@ pub fn process_string(string: String) -> i32 {
         total = total + 1;
     }
     return total;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_process_string_examples() {
-        assert_eq!(process_string(""), 0);
-        assert_eq!(process_string("a"), 1);
-        assert_eq!(process_string("abc"), 3);
-    }
+};
 }
 '''
 
@@ -284,17 +214,7 @@ pub fn process_str_data(str_input: String) -> i32 {
         count = count + 1;
     }
     return count;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_process_str_data_examples() {
-        assert_eq!(process_str_data(""), 0);
-        assert_eq!(process_str_data("a"), 1);
-        assert_eq!(process_str_data("abc"), 3);
-    }
+};
 }
 '''
 
@@ -318,17 +238,7 @@ pub fn process_input(input_str: String) -> i32 {
         length = length + 1;
     }
     return length;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_process_input_examples() {
-        assert_eq!(process_input(""), 0);
-        assert_eq!(process_input("a"), 1);
-        assert_eq!(process_input("abc"), 3);
-    }
+};
 }
 '''
 
@@ -352,17 +262,7 @@ pub fn analyze_text(text: String) -> i32 {
         vowels = vowels + 1;
     }
     return vowels;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_analyze_text_examples() {
-        assert_eq!(analyze_text(""), 0);
-        assert_eq!(analyze_text("a"), 1);
-        assert_eq!(analyze_text("abc"), 3);
-    }
+};
 }
 '''
 
@@ -386,17 +286,7 @@ pub fn count_letters(word: String) -> i32 {
         count = count + 1;
     }
     return count;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_count_letters_examples() {
-        assert_eq!(count_letters(""), 0);
-        assert_eq!(count_letters("a"), 1);
-        assert_eq!(count_letters("abc"), 3);
-    }
+};
 }
 '''
 
@@ -419,17 +309,7 @@ pub fn sum_numbers(numbers: &Vec<i32>) -> i32 {
         total = total + num;
     }
     return total;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_sum_numbers_examples() {
-        assert_eq!(sum_numbers(vec![]), 0);
-        assert_eq!(sum_numbers(vec![1]), 1);
-        assert_eq!(sum_numbers(vec![1, 2, 3]), 6);
-    }
+};
 }
 '''
 
@@ -452,17 +332,7 @@ pub fn process_strings(strings: &Vec<String>) -> i32 {
         count = count + 1;
     }
     return count;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_process_strings_examples() {
-        assert_eq!(process_strings(vec![]), 0);
-        assert_eq!(process_strings(vec![1]), 1);
-        assert_eq!(process_strings(vec![1, 2, 3]), 3);
-    }
+};
 }
 '''
 
@@ -486,17 +356,7 @@ pub fn indexed_sum(items: Vec<i32>) -> i32 {
         total = total + i + val;
     }
     return total;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_indexed_sum_examples() {
-        assert_eq!(indexed_sum(vec![]), 0);
-        assert_eq!(indexed_sum(vec![1]), 1);
-        assert_eq!(indexed_sum(vec![1, 2, 3]), 6);
-    }
+};
 }
 '''
 
@@ -520,17 +380,7 @@ pub fn count_items(items: Vec<i32>) -> i32 {
         count = count + i;
     }
     return count;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_count_items_examples() {
-        assert_eq!(count_items(vec![]), 0);
-        assert_eq!(count_items(vec![1]), 1);
-        assert_eq!(count_items(vec![1, 2, 3]), 3);
-    }
+};
 }
 '''
 
@@ -608,17 +458,7 @@ pub fn sum_range(n: i32) -> i32 {
         total = total + i;
     }
     return total;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_sum_range_examples() {
-        assert_eq!(sum_range(0), 0);
-        assert_eq!(sum_range(1), 1);
-        assert_eq!(sum_range(-1), -1);
-    }
+};
 }
 '''
 
@@ -644,17 +484,7 @@ pub fn nested_sum(matrix: &Vec<Vec<i32>>) -> i32 {
         }
     }
     return total;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_nested_sum_examples() {
-        assert_eq!(nested_sum(vec![]), 0);
-        assert_eq!(nested_sum(vec![1]), 1);
-        assert_eq!(nested_sum(vec![1, 2, 3]), 6);
-    }
+};
 }
 '''
 
@@ -774,17 +604,7 @@ pub fn find_min(numbers: &Vec<i32>) -> i32 {
         }
     }
     return min_val;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_find_min_examples() {
-        assert_eq!(find_min(vec![]), 0);
-        assert_eq!(find_min(vec![1]), 1);
-        assert_eq!(find_min(vec![1, 2, 3]), 3);
-    }
+};
 }
 '''
 
@@ -809,17 +629,7 @@ pub fn sum_list(numbers: &Vec<i32>) -> i32 {
         total = total + num;
     }
     return total;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_sum_list_examples() {
-        assert_eq!(sum_list(vec![]), 0);
-        assert_eq!(sum_list(vec![1]), 1);
-        assert_eq!(sum_list(vec![1, 2, 3]), 6);
-    }
+};
 }
 '''
 
@@ -868,17 +678,7 @@ pub fn find_max(numbers: &Vec<i32>) -> i32 {
         }
     }
     return max_val;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_find_max_examples() {
-        assert_eq!(find_max(vec![]), 0);
-        assert_eq!(find_max(vec![1]), 1);
-        assert_eq!(find_max(vec![1, 2, 3]), 3);
-    }
+};
 }
 '''
 
@@ -964,17 +764,7 @@ pub fn fibonacci(n: i32) -> i32 {
         b = c;
     }
     return b;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_fibonacci_examples() {
-        assert_eq!(fibonacci(0), 0);
-        assert_eq!(fibonacci(1), 1);
-        assert_eq!(fibonacci(-1), -1);
-    }
+};
 }
 '''
 
@@ -1005,17 +795,7 @@ pub fn repeat_operations(n: i32) -> i32 {
         result = result * 2;
     }
     return result;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_repeat_operations_examples() {
-        assert_eq!(repeat_operations(0), 0);
-        assert_eq!(repeat_operations(1), 1);
-        assert_eq!(repeat_operations(-1), -1);
-    }
+};
 }
 '''
 
@@ -1073,16 +853,6 @@ pub fn process_values(items: Vec<String>) -> i32 {
         }
     }
     return count;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_process_values_examples() {
-        assert_eq!(process_values(vec![]), 0);
-        assert_eq!(process_values(vec![1]), 1);
-        assert_eq!(process_values(vec![1, 2, 3]), 3);
-    }
+};
 }
 '''

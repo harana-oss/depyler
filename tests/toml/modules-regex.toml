@@ -24,15 +24,6 @@ use regex as re;
 pub fn starts_with_hello(s: String) -> bool {
     return regex::Regex::new("^hello").unwrap().find(s).is_some();
 }
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_starts_with_hello_examples() {
-        let _ = starts_with_hello(Default::default());
-    }
-}
 '''
 
 [[test]]
@@ -50,15 +41,6 @@ rust = '''
 use regex as re;
 pub fn contains_number(s: String) -> bool {
     return regex::Regex::new("\\d+").unwrap().find(s).is_some();
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_contains_number_examples() {
-        let _ = contains_number(Default::default());
-    }
 }
 '''
 
@@ -199,8 +181,7 @@ pub fn extract_name_value(s: String) -> HashMap<String, String> {
     return {
         let map = HashMap::new();
         map
-    };
-}
+    }
 '''
 
 [[test]]
@@ -346,8 +327,7 @@ pub fn matches_pattern(filename: String, pattern: String) -> bool {
         let regex =
             regex::Regex::new(&format!("^{}$", regex_pattern)).unwrap_or_else(|_| regex::Regex::new("^$").unwrap());
         regex.is_match(filename)
-    };
-}
+    }
 '''
 
 [[test]]
@@ -379,14 +359,76 @@ pub fn filter_py_files(files: &Vec<String>) -> Vec<String> {
             .collect::<Vec<_>>()
     };
 }
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_filter_py_files_examples() {
-        assert_eq!(filter_py_files(vec![]), vec![]);
-        assert_eq!(filter_py_files(vec![1]), vec![1]);
+'''
+
+# =============================================================================
+# Regex Groups Tests (Tracking TODO from expr_gen.rs:10456)
+# =============================================================================
+
+[[test]]
+name = "re_match_groups"
+description = "match.groups() returns tuple of captured groups (currently returns empty Vec)"
+
+python = '''
+import re
+
+def get_groups(pattern: str, text: str) -> list[str]:
+    m = re.match(pattern, text)
+    if m:
+        return m.groups()
+    return []
+'''
+
+rust = '''
+use regex as re;
+pub fn get_groups(pattern: String, text: String) -> Vec<String> {
+    let m = regex::Regex::new(pattern).unwrap().find(text);
+    if m.is_some() {
+        return vec![] as Vec<String>;
     }
+    return vec![];
+}
+'''
+
+[[test]]
+name = "re_search_groups"
+description = "search().groups() returns captured groups"
+
+python = '''
+import re
+
+def extract_groups(text: str) -> list[str]:
+    m = re.search(r"(\d+)-(\d+)", text)
+    if m:
+        return m.groups()
+    return []
+'''
+
+rust = '''
+use regex as re;
+pub fn extract_groups(text: String) -> Vec<String> {
+    let m = regex::Regex::new("(\\d+)-(\\d+)").unwrap().find(text);
+    if m.is_some() {
+        return vec![] as Vec<String>;
+    }
+    return vec![];
+}
+'''
+
+[[test]]
+name = "re_match_vs_search_start"
+description = "re.match() should only match at start of string (NOTE: currently uses find like search)"
+
+python = '''
+import re
+
+def match_at_start(pattern: str, text: str) -> bool:
+    return re.match(pattern, text) is not None
+'''
+
+rust = '''
+use regex as re;
+pub fn match_at_start(pattern: String, text: String) -> bool {
+    return regex::Regex::new(pattern).unwrap().find(text).is_some();
 }
 '''

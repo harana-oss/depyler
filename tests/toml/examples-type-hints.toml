@@ -604,26 +604,10 @@ pub fn string_checker(s: &str) -> bool {
 pub fn list_operations(items: &mut serde_json::Value) -> i32 {
     items.push(42);
     items.len() as i32
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{quickcheck, TestResult};
-    #[test]
-    fn quickcheck_add_numbers() {
-        fn prop(a: (), b: ()) -> TestResult {
-            let result1 = add_numbers(a.clone(), b.clone());
-            let result2 = add_numbers(b.clone(), a.clone());
-            if result1 != result2 {
-                return TestResult::failed();
-            }
+};
             TestResult::passed()
         }
         quickcheck(prop as fn((), ()) -> TestResult);
-    }
-    #[test]
-    fn test_string_checker_examples() {
-        let _ = string_checker(Default::default());
     }
 }
 '''

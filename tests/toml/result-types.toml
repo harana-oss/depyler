@@ -20,17 +20,7 @@ def parse_int(s: str) -> int:
 rust = '''
 pub fn parse_int(s: String) -> i32 {
     return s.parse::<i32>().unwrap();
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_parse_int_examples() {
-        assert_eq!(parse_int(""), 0);
-        assert_eq!(parse_int("a"), 1);
-        assert_eq!(parse_int("abc"), 3);
-    }
+};
 }
 '''
 
@@ -70,17 +60,7 @@ pub fn validate_positive(x: i32) -> i32 {
         panic!("{}", "must be positive");
     }
     return x;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_validate_positive_examples() {
-        assert_eq!(validate_positive(0), 0);
-        assert_eq!(validate_positive(1), 1);
-        assert_eq!(validate_positive(-1), -1);
-    }
+};
 }
 '''
 
@@ -96,27 +76,10 @@ def success(value: int) -> int:
 rust = '''
 pub fn success(value: i32) -> i32 {
     return value;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn quickcheck_success() {
-        fn prop(value: i32) -> TestResult {
-            let result = success(value.clone());
-            if result != value {
-                return TestResult::failed();
-            }
+};
             TestResult::passed()
         }
         quickcheck(prop as fn(i32) -> TestResult);
-    }
-    #[test]
-    fn test_success_examples() {
-        assert_eq!(success(0), 0);
-        assert_eq!(success(1), 1);
-        assert_eq!(success(-1), -1);
     }
 }
 '''
@@ -149,17 +112,7 @@ def read_and_parse(content: str) -> int:
 rust = '''
 pub fn read_and_parse(content: String) -> i32 {
     return content.trim().parse::<i32>().unwrap();
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_read_and_parse_examples() {
-        assert_eq!(read_and_parse(""), 0);
-        assert_eq!(read_and_parse("a"), 1);
-        assert_eq!(read_and_parse("abc"), 3);
-    }
+};
 }
 '''
 
@@ -175,17 +128,7 @@ def force_parse(s: str) -> int:
 rust = '''
 pub fn force_parse(s: String) -> i32 {
     return s.parse::<i32>().unwrap();
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_force_parse_examples() {
-        assert_eq!(force_parse(""), 0);
-        assert_eq!(force_parse("a"), 1);
-        assert_eq!(force_parse("abc"), 3);
-    }
+};
 }
 '''
 
@@ -224,17 +167,7 @@ pub fn safe_parse(s: String) -> i32 {
         return s.parse::<i32>().unwrap();
         return 0;
     }
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_safe_parse_examples() {
-        assert_eq!(safe_parse(""), 0);
-        assert_eq!(safe_parse("a"), 1);
-        assert_eq!(safe_parse("abc"), 3);
-    }
+};
 }
 '''
 
@@ -328,17 +261,7 @@ def parse_and_double(s: str) -> int:
 rust = '''
 pub fn parse_and_double(s: String) -> i32 {
     return s.parse::<i32>().unwrap() * 2;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_parse_and_double_examples() {
-        assert_eq!(parse_and_double(""), 0);
-        assert_eq!(parse_and_double("a"), 1);
-        assert_eq!(parse_and_double("abc"), 3);
-    }
+};
 }
 '''
 
@@ -377,17 +300,7 @@ pub fn parse_with_context(s: String) -> i32 {
         return s.parse::<i32>().unwrap();
         panic!("{}", format!("Failed to parse: {}", s));
     }
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_parse_with_context_examples() {
-        assert_eq!(parse_with_context(""), 0);
-        assert_eq!(parse_with_context("a"), 1);
-        assert_eq!(parse_with_context("abc"), 3);
-    }
+};
 }
 '''
 
@@ -430,17 +343,7 @@ pub fn parse_and_validate(s: String) -> i32 {
         panic!("{}", "negative");
     }
     return value;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_parse_and_validate_examples() {
-        assert_eq!(parse_and_validate(""), 0);
-        assert_eq!(parse_and_validate("a"), 1);
-        assert_eq!(parse_and_validate("abc"), 3);
-    }
+};
 }
 '''
 
@@ -491,17 +394,7 @@ pub fn divide(a: i32, b: i32) -> i32 {
         let needs_adjustment = r_nonzero && signs_differ;
         if needs_adjustment { q - 1 } else { q }
     };
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_divide_examples() {
-        assert_eq!(divide(0, 0), 0);
-        assert_eq!(divide(1, 2), 3);
-        assert_eq!(divide(-1, 1), 0);
-    }
+};
 }
 '''
 
@@ -579,17 +472,7 @@ pub fn get_count(items: &Vec<i32>) -> i32 {
         return items.len() as i32 as i32;
         panic!("{}", "Invalid items");
     }
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_get_count_examples() {
-        assert_eq!(get_count(vec![]), 0);
-        assert_eq!(get_count(vec![1]), 1);
-        assert_eq!(get_count(vec![1, 2, 3]), 3);
-    }
+};
 }
 '''
 
@@ -681,17 +564,7 @@ pub fn safe_divide(a: i32, b: i32) -> i32 {
         return result;
         panic!("{}", "Division by zero");
     }
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_safe_divide_examples() {
-        assert_eq!(safe_divide(0, 0), 0);
-        assert_eq!(safe_divide(1, 2), 3);
-        assert_eq!(safe_divide(-1, 1), 0);
-    }
+};
 }
 '''
 

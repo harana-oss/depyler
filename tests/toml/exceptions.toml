@@ -55,17 +55,7 @@ pub fn safe_divide(a: i32, b: i32) -> i32 {
         };
         return 0;
     }
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_safe_divide_examples() {
-        assert_eq!(safe_divide(0, 0), 0);
-        assert_eq!(safe_divide(1, 2), 3);
-        assert_eq!(safe_divide(-1, 1), 0);
-    }
+};
 }
 '''
 
@@ -106,17 +96,7 @@ pub fn parse_number(s: String) -> i32 {
             return -1;
         }
     }
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_parse_number_examples() {
-        assert_eq!(parse_number(""), 0);
-        assert_eq!(parse_number("a"), 1);
-        assert_eq!(parse_number("abc"), 3);
-    }
+};
 }
 '''
 
@@ -229,17 +209,7 @@ pub fn nested_operation(x: i32, y: i32) -> i32 {
         }
         return 0;
     }
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_nested_operation_examples() {
-        assert_eq!(nested_operation(0, 0), 0);
-        assert_eq!(nested_operation(1, 2), 3);
-        assert_eq!(nested_operation(-1, 1), 0);
-    }
+};
 }
 '''
 
@@ -278,17 +248,7 @@ pub fn convert_to_int(s: String) -> i32 {
         return s.parse::<i32>().unwrap();
         return 0;
     }
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_convert_to_int_examples() {
-        assert_eq!(convert_to_int(""), 0);
-        assert_eq!(convert_to_int("a"), 1);
-        assert_eq!(convert_to_int("abc"), 3);
-    }
+};
 }
 '''
 
@@ -313,17 +273,7 @@ pub fn ignore_errors(x: i32) -> i32 {
         return result;
     }
     return 0;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_ignore_errors_examples() {
-        assert_eq!(ignore_errors(0), 0);
-        assert_eq!(ignore_errors(1), 1);
-        assert_eq!(ignore_errors(-1), -1);
-    }
+};
 }
 '''
 
@@ -408,17 +358,7 @@ pub fn parse_data(data: String) -> i32 {
             return -2;
         }
     }
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_parse_data_examples() {
-        assert_eq!(parse_data(""), 0);
-        assert_eq!(parse_data("a"), 1);
-        assert_eq!(parse_data("abc"), 3);
-    }
+};
 }
 '''
 
@@ -482,17 +422,7 @@ pub fn safe_operation(x: i32) -> i32 {
         return -2;
         return -3;
     }
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_safe_operation_examples() {
-        assert_eq!(safe_operation(0), 0);
-        assert_eq!(safe_operation(1), 1);
-        assert_eq!(safe_operation(-1), -1);
-    }
+};
 }
 '''
 
@@ -555,17 +485,7 @@ pub fn process(data: String) -> i32 {
         return data.parse::<i32>().unwrap();
         return 0;
     }
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_process_examples() {
-        assert_eq!(process(""), 0);
-        assert_eq!(process("a"), 1);
-        assert_eq!(process("abc"), 3);
-    }
+};
 }
 '''
 
@@ -673,28 +593,10 @@ pub fn cleanup_operation(x: i32) -> i32 {
         return result;
         log::info!("{}", "cleanup");
     }
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn quickcheck_cleanup_operation() {
-        fn prop(x: i32) -> TestResult {
-            let once = cleanup_operation(x.clone());
-            let twice = cleanup_operation(once.clone());
-            if once != twice {
-                return TestResult::failed();
-            }
+};
             TestResult::passed()
         }
         quickcheck(prop as fn(i32) -> TestResult);
-    }
-    #[test]
-    fn test_cleanup_operation_examples() {
-        assert_eq!(cleanup_operation(0), 0);
-        assert_eq!(cleanup_operation(1), 1);
-        assert_eq!(cleanup_operation(-1), -1);
     }
 }
 '''
@@ -751,17 +653,7 @@ pub fn safe_divide(a: i32, b: i32) -> i32 {
         }
         log::info!("{}", "operation complete");
     }
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_safe_divide_examples() {
-        assert_eq!(safe_divide(0, 0), 0);
-        assert_eq!(safe_divide(1, 2), 3);
-        assert_eq!(safe_divide(-1, 1), 0);
-    }
+};
 }
 '''
 
@@ -787,28 +679,10 @@ pub fn process_with_cleanup(x: i32) -> i32 {
         return count;
         count = count + 1;
     }
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn quickcheck_process_with_cleanup() {
-        fn prop(x: i32) -> TestResult {
-            let once = process_with_cleanup(x.clone());
-            let twice = process_with_cleanup(once.clone());
-            if once != twice {
-                return TestResult::failed();
-            }
+};
             TestResult::passed()
         }
         quickcheck(prop as fn(i32) -> TestResult);
-    }
-    #[test]
-    fn test_process_with_cleanup_examples() {
-        assert_eq!(process_with_cleanup(0), 0);
-        assert_eq!(process_with_cleanup(1), 1);
-        assert_eq!(process_with_cleanup(-1), -1);
     }
 }
 '''
@@ -857,28 +731,10 @@ pub fn handle_with_cleanup(data: String) -> i32 {
         return result;
         log::info!("{}", "cleanup executed");
     }
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn quickcheck_handle_with_cleanup() {
-        fn prop(data: String) -> TestResult {
-            let once = handle_with_cleanup((&*data).into());
-            let twice = handle_with_cleanup(once.clone());
-            if once != twice {
-                return TestResult::failed();
-            }
+};
             TestResult::passed()
         }
         quickcheck(prop as fn(String) -> TestResult);
-    }
-    #[test]
-    fn test_handle_with_cleanup_examples() {
-        assert_eq!(handle_with_cleanup(""), 0);
-        assert_eq!(handle_with_cleanup("a"), 1);
-        assert_eq!(handle_with_cleanup("abc"), 3);
     }
 }
 '''
@@ -905,17 +761,7 @@ pub fn track_execution(x: i32) -> i32 {
         return result;
         executed = true;
     }
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_track_execution_examples() {
-        assert_eq!(track_execution(0), 0);
-        assert_eq!(track_execution(1), 1);
-        assert_eq!(track_execution(-1), -1);
-    }
+};
 }
 '''
 
@@ -961,17 +807,7 @@ pub fn complete_pattern(x: i32) -> i32 {
         log::info!("{}", "done");
     }
     return result;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_complete_pattern_examples() {
-        assert_eq!(complete_pattern(0), 0);
-        assert_eq!(complete_pattern(1), 1);
-        assert_eq!(complete_pattern(-1), -1);
-    }
+};
 }
 '''
 
@@ -1019,17 +855,7 @@ pub fn log_errors(x: i32) -> i32 {
         log::info!("{}", "TypeError occurred");
         return -1;
     }
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_log_errors_examples() {
-        assert_eq!(log_errors(0), 0);
-        assert_eq!(log_errors(1), 1);
-        assert_eq!(log_errors(-1), -1);
-    }
+};
 }
 '''
 
@@ -1095,17 +921,7 @@ pub fn chained_handling(data: &Vec<serde_json::Value>) -> i32 {
         }
         return -2;
     }
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_chained_handling_examples() {
-        assert_eq!(chained_handling(vec![]), 0);
-        assert_eq!(chained_handling(vec![1]), 1);
-        assert_eq!(chained_handling(vec![1, 2, 3]), 3);
-    }
+};
 }
 '''
 

@@ -250,13 +250,4 @@ pub fn balanced_parentheses(expression: &str) -> Result<bool, IndexError> {
     }
     Ok(stack.is_empty())
 }
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{quickcheck, TestResult};
-    #[test]
-    fn test_balanced_parentheses_examples() {
-        let _ = balanced_parentheses(Default::default());
-    }
-}
 '''

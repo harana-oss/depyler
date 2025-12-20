@@ -263,3 +263,128 @@ pub fn create_writer(f: &serde_json::Value, fields: &serde_json::Value) {
     let writer = csv::Writer::from_writer(f);
 }
 '''
+
+# =============================================================================
+# CSV DictWriter Fieldnames Tests
+# Current implementation creates writer without full column mapping.
+# =============================================================================
+
+[[test]]
+name = "csv_dictwriter_writerow_dict"
+description = "csv.DictWriter().writerow(dict) writes row from dictionary"
+
+python = '''
+import csv
+
+def write_single_row(filename: str) -> None:
+    with open(filename, 'w') as f:
+        writer = csv.DictWriter(f, fieldnames=['name', 'age'])
+        writer.writerow({'name': 'Alice', 'age': '30'})
+'''
+
+rust = '''
+use csv;
+pub fn write_single_row(filename: String) {
+    let mut f = std::fs::File::create(filename)?;
+    let writer = csv::Writer::from_writer(f);
+    writer.writerow(HashMap::from([("name".to_string(), "Alice".to_string()), ("age".to_string(), "30".to_string())]));
+}
+'''
+
+[[test]]
+name = "csv_dictwriter_writeheader"
+description = "csv.DictWriter().writeheader() outputs column headers"
+
+python = '''
+import csv
+
+def write_with_header(filename: str) -> None:
+    with open(filename, 'w') as f:
+        writer = csv.DictWriter(f, fieldnames=['id', 'name', 'email'])
+        writer.writeheader()
+        writer.writerow({'id': '1', 'name': 'Bob', 'email': 'bob@test.com'})
+'''
+
+rust = '''
+use csv;
+pub fn write_with_header(filename: String) {
+    let mut f = std::fs::File::create(filename)?;
+    let writer = csv::Writer::from_writer(f);
+    writer.writeheader();
+    writer.writerow(HashMap::from([("id".to_string(), "1".to_string()), ("name".to_string(), "Bob".to_string()), ("email".to_string(), "bob@test.com".to_string())]));
+}
+'''
+
+[[test]]
+name = "csv_dictwriter_fieldnames_positional"
+description = "csv.DictWriter fieldnames as positional argument"
+
+python = '''
+import csv
+
+def create_with_positional_fieldnames(f) -> None:
+    fields = ['col1', 'col2', 'col3']
+    writer = csv.DictWriter(f, fields)
+'''
+
+rust = '''
+use csv;
+use serde_json;
+pub fn create_with_positional_fieldnames(f: &serde_json::Value) {
+    let fields = vec!["col1".to_string(), "col2".to_string(), "col3".to_string()];
+    let writer = csv::Writer::from_writer(f);
+}
+'''
+
+[[test]]
+name = "csv_dictwriter_multiple_rows"
+description = "csv.DictWriter writing multiple rows"
+
+python = '''
+import csv
+
+def write_multiple_rows(filename: str, data: list) -> None:
+    with open(filename, 'w') as f:
+        writer = csv.DictWriter(f, fieldnames=['name', 'score'])
+        writer.writeheader()
+        for row in data:
+            writer.writerow(row)
+'''
+
+rust = '''
+use csv;
+use serde_json;
+pub fn write_multiple_rows(filename: String, data: &Vec<serde_json::Value>) {
+    let mut f = std::fs::File::create(filename)?;
+    let writer = csv::Writer::from_writer(f);
+    writer.writeheader();
+    for row in data.iter().cloned() {
+        writer.writerow(row);
+    }
+}
+'''
+
+[[test]]
+name = "csv_dictwriter_writerows_batch"
+description = "csv.DictWriter().writerows() writes multiple rows at once"
+
+python = '''
+import csv
+
+def write_batch(filename: str, rows: list) -> None:
+    with open(filename, 'w') as f:
+        writer = csv.DictWriter(f, fieldnames=['x', 'y'])
+        writer.writeheader()
+        writer.writerows(rows)
+'''
+
+rust = '''
+use csv;
+use serde_json;
+pub fn write_batch(filename: String, rows: &Vec<serde_json::Value>) {
+    let mut f = std::fs::File::create(filename)?;
+    let writer = csv::Writer::from_writer(f);
+    writer.writeheader();
+    writer.writerows(rows);
+}
+'''

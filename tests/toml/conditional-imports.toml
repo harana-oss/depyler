@@ -1,0 +1,140 @@
+# Conditional Imports Tests
+# Tests for conditional import generation
+
+[metadata]
+name = "Conditional Imports Tests"
+category = "codegen"
+description = "Tests for generating imports based on type usage"
+
+[[test]]
+name = "hashmap_usage_generates_import"
+description = "HashMap usage generates HashMap import"
+
+python = '''
+def create_map() -> dict[str, int]:
+    return {"a": 1, "b": 2}
+'''
+
+rust = '''
+use std::collections::HashMap;
+pub fn create_map() -> HashMap<String, i32> {
+    return [("a".to_string(), 1), ("b".to_string(), 2)].into_iter().collect();
+}
+'''
+
+[[test]]
+name = "hashset_usage_generates_import"
+description = "HashSet usage generates HashSet import"
+
+python = '''
+def create_set() -> set[int]:
+    return {1, 2, 3}
+'''
+
+rust = '''
+use std::collections::HashSet;
+pub fn create_set() -> HashSet<i32> {
+    return [1, 2, 3].into_iter().collect();
+}
+'''
+
+[[test]]
+name = "vecdeque_usage_generates_import"
+description = "VecDeque usage generates VecDeque import"
+
+python = '''
+from collections import deque
+
+def create_deque() -> deque:
+    d = deque()
+    d.append(1)
+    return d
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'collections'()"]
+use std::collections::VecDeque;
+pub fn create_deque() -> VecDeque<i32> {
+    let mut d: VecDeque<i32> = VecDeque::new();
+    d.push_back(1);
+    return d;
+}
+'''
+
+[[test]]
+name = "random_usage_generates_import"
+description = "Random usage generates rand imports"
+
+python = '''
+import random
+
+def get_random() -> int:
+    return random.randint(1, 100)
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'random'()"]
+use rand::Rng;
+use rand::prelude::*;
+pub fn get_random() -> i32 {
+    return rand::rng().random_range(1..=100);
+}
+'''
+
+[[test]]
+name = "json_usage_generates_import"
+description = "JSON usage generates serde_json import"
+
+python = '''
+import json
+
+def parse_json(s: str) -> dict[str, int]:
+    return json.loads(s)
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'json'()"]
+use serde_json;
+use std::collections::HashMap;
+pub fn parse_json(s: String) -> HashMap<String, i32> {
+    return serde_json::from_str(&s).unwrap();
+}
+'''
+
+[[test]]
+name = "no_special_types_no_imports"
+description = "No special types generates no extra imports"
+
+python = '''
+def add_numbers(a: int, b: int) -> int:
+    return a + b
+'''
+
+rust = '''
+pub fn add_numbers(a: i32, b: i32) -> i32 {
+    return a + b;
+};
+}
+'''
+
+[[test]]
+name = "multiple_types_multiple_imports"
+description = "Multiple type usage generates all imports"
+
+python = '''
+def complex_function() -> int:
+    m = {"key": 1}
+    s = {1, 2}
+    return m["key"] + len(s)
+'''
+
+rust = '''
+use std::collections::HashMap;
+use std::collections::HashSet;
+pub fn complex_function() -> i32 {
+    let m: HashMap<String, i32> = [("key".to_string(), 1)].into_iter().collect();
+    let s: HashSet<i32> = [1, 2].into_iter().collect();
+    return m[&"key".to_string()].clone() + s.len() as i32;
+};
+}
+'''

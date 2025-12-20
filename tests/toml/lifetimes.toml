@@ -93,17 +93,7 @@ def process_string(s: str) -> int:
 rust = '''
 pub fn process_string(s: String) -> i32 {
     return s.len() as i32 as i32;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_process_string_examples() {
-        assert_eq!(process_string(""), 0);
-        assert_eq!(process_string("a"), 1);
-        assert_eq!(process_string("abc"), 3);
-    }
+};
 }
 '''
 
@@ -119,18 +109,7 @@ def identity(s: str) -> str:
 rust = '''
 pub fn identity(s: String) -> String {
     return s;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn quickcheck_identity() {
-        fn prop(s: String) -> TestResult {
-            let result = identity((&*s).into());
-            if result != s {
-                return TestResult::failed();
-            }
+};
             TestResult::passed()
         }
         quickcheck(prop as fn(String) -> TestResult);
@@ -338,18 +317,7 @@ pub fn outer(s: String) -> String {
 }
 pub fn inner(s: String) -> String {
     return s;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn quickcheck_inner() {
-        fn prop(s: String) -> TestResult {
-            let result = inner((&*s).into());
-            if result != s {
-                return TestResult::failed();
-            }
+};
             TestResult::passed()
         }
         quickcheck(prop as fn(String) -> TestResult);

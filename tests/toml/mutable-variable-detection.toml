@@ -1,0 +1,172 @@
+# Mutable Variable Detection Tests
+# Tests for analyze_mutable_vars
+
+[metadata]
+name = "Mutable Variable Detection Tests"
+category = "ownership-mutability"
+description = "Tests for detecting which variables need mut keyword"
+
+[[test]]
+name = "reassignment_marks_variable_mutable"
+description = "Reassignment marks variable as mutable"
+
+python = '''
+def reassign() -> int:
+    x = 1
+    x = 2
+    return x
+'''
+
+rust = '''
+pub fn reassign() -> i32 {
+    let mut x = 1;
+    x = 2;
+    return x;
+};
+}
+'''
+
+[[test]]
+name = "first_assignment_not_mutable"
+description = "First and only assignment is NOT mutable"
+
+python = '''
+def single_assign() -> int:
+    x = 42
+    return x
+'''
+
+rust = '''
+pub fn single_assign() -> i32 {
+    let x = 42;
+    return x;
+};
+}
+'''
+
+[[test]]
+name = "mutating_method_call_marks_mutable"
+description = "Mutating method call marks variable as mutable"
+
+python = '''
+def build_list() -> list[int]:
+    items = []
+    items.append(1)
+    items.append(2)
+    return items
+'''
+
+rust = '''
+pub fn build_list() -> Vec<i32> {
+    let mut items = vec![];
+    items.push(1);
+    items.push(2);
+    return items;
+};
+}
+'''
+
+[[test]]
+name = "augmented_assignment_marks_mutable"
+description = "Augmented assignment marks variable as mutable"
+
+python = '''
+def accumulate(n: int) -> int:
+    total = 0
+    i = 0
+    while i < n:
+        total += i
+        i += 1
+    return total
+'''
+
+rust = '''
+pub fn accumulate(n: i32) -> i32 {
+    let mut total = 0;
+    let mut i = 0;
+    while i < n {
+        total = total + i;
+        i = i + 1;
+    }
+    return total;
+};
+}
+'''
+
+[[test]]
+name = "function_parameter_reassignment"
+description = "Function parameters reassigned need mut"
+
+python = '''
+def countdown(n: int) -> int:
+    count = 0
+    while n > 0:
+        n = n - 1
+        count = count + 1
+    return count
+'''
+
+rust = '''
+pub fn countdown(mut n: i32) -> i32 {
+    let mut count = 0;
+    while n > 0 {
+        n = n - 1;
+        count = count + 1;
+    }
+    return count;
+};
+}
+'''
+
+[[test]]
+name = "deferred_initialization_not_mutable"
+description = "Deferred initialization in if/else is NOT mutable"
+
+python = '''
+def choose(cond: bool) -> int:
+    if cond:
+        x = 1
+    else:
+        x = 2
+    return x
+'''
+
+rust = '''
+pub fn choose(cond: bool) -> i32 {
+    let x;
+    if cond {
+        x = 1;
+    } else {
+        x = 2;
+    }
+    return x;
+};
+}
+'''
+
+[[test]]
+name = "loop_variable_mutable"
+description = "Loop variable is mutable when modified in loop"
+
+python = '''
+def sum_range(start: int, end: int) -> int:
+    total = 0
+    i = start
+    while i < end:
+        total = total + i
+        i = i + 1
+    return total
+'''
+
+rust = '''
+pub fn sum_range(start: i32, end: i32) -> i32 {
+    let mut total = 0;
+    let mut i = start;
+    while i < end {
+        total = total + i;
+        i = i + 1;
+    }
+    return total;
+};
+}
+'''

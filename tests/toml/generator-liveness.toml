@@ -1,0 +1,300 @@
+# Generator Liveness Analysis Tests
+# Tests for generator variable capture and state preservation
+
+[metadata]
+name = "Generator Liveness Analysis Tests"
+category = "generators"
+description = "Tests for generator captures, unused variables, and state preservation"
+
+[[test]]
+name = "generator_captures_used_variables"
+description = "Verify state struct includes needed variables"
+
+python = '''
+def count_with_step(start: int, step: int):
+    current = start
+    while current < 10:
+        yield current
+        current = current + step
+'''
+
+rust = '''
+#[doc = " Generator state struct"]
+#[derive(Debug)]
+struct CountWithStepState {
+    current: i32,
+    step: i32,
+    state: usize,
+}
+#[doc = " Generator function - returns Iterator"]
+pub fn count_with_step(start: i32, step: i32) -> impl Iterator<Item = i32> {
+    let current = start;
+    CountWithStepState {
+        current,
+        step,
+        state: 0,
+    }
+}
+impl Iterator for CountWithStepState {
+    type Item = i32;
+    fn next(&mut self) -> Option<Self::Item> {
+        match self.state {
+            0 => {
+                self.state = 1usize;
+            }
+            _ => {}
+        }
+        loop {
+            if self.current < 10 {
+                let result = self.current;
+                self.current = self.current + self.step;
+                return Some(result);
+            } else {
+                return None;
+            }
+        }
+    }
+}
+'''
+
+[[test]]
+name = "generator_variables_modified_between_yields"
+description = "Ensure proper state preservation when variables change between yields"
+
+python = '''
+def accumulator(limit: int):
+    total = 0
+    i = 0
+    while i < limit:
+        total = total + i
+        yield total
+        i = i + 1
+'''
+
+rust = '''
+#[doc = " Generator state struct"]
+#[derive(Debug)]
+struct AccumulatorState {
+    total: i32,
+    i: i32,
+    limit: i32,
+    state: usize,
+}
+#[doc = " Generator function - returns Iterator"]
+pub fn accumulator(limit: i32) -> impl Iterator<Item = i32> {
+    let total = 0;
+    let i = 0;
+    AccumulatorState {
+        total,
+        i,
+        limit,
+        state: 0,
+    }
+}
+impl Iterator for AccumulatorState {
+    type Item = i32;
+    fn next(&mut self) -> Option<Self::Item> {
+        match self.state {
+            0 => {
+                self.state = 1usize;
+            }
+            _ => {}
+        }
+        loop {
+            if self.i < self.limit {
+                self.total = self.total + self.i;
+                let result = self.total;
+                self.i = self.i + 1;
+                return Some(result);
+            } else {
+                return None;
+            }
+        }
+    }
+}
+'''
+
+[[test]]
+name = "generator_nested_loops_with_yields"
+description = "Verify complex control flow state tracking"
+
+python = '''
+def matrix_elements(rows: int, cols: int):
+    i = 0
+    while i < rows:
+        j = 0
+        while j < cols:
+            yield i * cols + j
+            j = j + 1
+        i = i + 1
+'''
+
+rust = '''
+#[doc = " Generator state struct"]
+#[derive(Debug)]
+struct MatrixElementsState {
+    i: i32,
+    j: i32,
+    rows: i32,
+    cols: i32,
+    state: usize,
+}
+#[doc = " Generator function - returns Iterator"]
+pub fn matrix_elements(rows: i32, cols: i32) -> impl Iterator<Item = i32> {
+    let i = 0;
+    MatrixElementsState {
+        i,
+        j: 0,
+        rows,
+        cols,
+        state: 0,
+    }
+}
+impl Iterator for MatrixElementsState {
+    type Item = i32;
+    fn next(&mut self) -> Option<Self::Item> {
+        match self.state {
+            0 => {
+                self.state = 1usize;
+            }
+            _ => {}
+        }
+        loop {
+            if self.i < self.rows {
+                if self.state == 1usize {
+                    self.j = 0;
+                    self.state = 2usize;
+                }
+                loop {
+                    if self.j < self.cols {
+                        let result = self.i * self.cols + self.j;
+                        self.j = self.j + 1;
+                        return Some(result);
+                    } else {
+                        break;
+                    }
+                }
+                self.i = self.i + 1;
+                self.state = 1usize;
+            } else {
+                return None;
+            }
+        }
+    }
+}
+'''
+
+[[test]]
+name = "generator_with_local_scope_variables"
+description = "Verify scope-aware capture for local variables"
+
+python = '''
+def alternating(n: int):
+    i = 0
+    while i < n:
+        if i % 2 == 0:
+            val = i
+        else:
+            val = -i
+        yield val
+        i = i + 1
+'''
+
+rust = '''
+#[doc = " Generator state struct"]
+#[derive(Debug)]
+struct AlternatingState {
+    i: i32,
+    val: i32,
+    n: i32,
+    state: usize,
+}
+#[doc = " Generator function - returns Iterator"]
+pub fn alternating(n: i32) -> impl Iterator<Item = i32> {
+    let i = 0;
+    AlternatingState {
+        i,
+        val: 0,
+        n,
+        state: 0,
+    }
+}
+impl Iterator for AlternatingState {
+    type Item = i32;
+    fn next(&mut self) -> Option<Self::Item> {
+        match self.state {
+            0 => {
+                self.state = 1usize;
+            }
+            _ => {}
+        }
+        loop {
+            if self.i < self.n {
+                if self.i % 2 == 0 {
+                    self.val = self.i;
+                } else {
+                    self.val = -self.i;
+                }
+                let result = self.val;
+                self.i = self.i + 1;
+                return Some(result);
+            } else {
+                return None;
+            }
+        }
+    }
+}
+'''
+
+[[test]]
+name = "generator_with_parameter_state"
+description = "Verify state struct includes parameters used after yield"
+
+python = '''
+def repeat_value(value: int, times: int):
+    count = 0
+    while count < times:
+        yield value
+        count = count + 1
+'''
+
+rust = '''
+#[doc = " Generator state struct"]
+#[derive(Debug)]
+struct RepeatValueState {
+    count: i32,
+    value: i32,
+    times: i32,
+    state: usize,
+}
+#[doc = " Generator function - returns Iterator"]
+pub fn repeat_value(value: i32, times: i32) -> impl Iterator<Item = i32> {
+    let count = 0;
+    RepeatValueState {
+        count,
+        value,
+        times,
+        state: 0,
+    }
+}
+impl Iterator for RepeatValueState {
+    type Item = i32;
+    fn next(&mut self) -> Option<Self::Item> {
+        match self.state {
+            0 => {
+                self.state = 1usize;
+            }
+            _ => {}
+        }
+        loop {
+            if self.count < self.times {
+                let result = self.value;
+                self.count = self.count + 1;
+                return Some(result);
+            } else {
+                return None;
+            }
+        }
+    }
+}
+'''

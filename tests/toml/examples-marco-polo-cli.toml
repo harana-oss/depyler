@@ -707,28 +707,6 @@ pub fn play_simple_round(target: i32, max_attempts: i32) -> i32 {
         }
     }
     return attempts;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_generate_number_examples() {
-        assert_eq!(generate_number(0, 0), 0);
-        assert_eq!(generate_number(1, 2), 3);
-        assert_eq!(generate_number(-1, 1), 0);
-    }
-    #[test]
-    fn test_calculate_score_examples() {
-        assert_eq!(calculate_score(0, 0), 0);
-        assert_eq!(calculate_score(1, 2), 3);
-        assert_eq!(calculate_score(-1, 1), 0);
-    }
-    #[test]
-    fn test_play_simple_round_examples() {
-        assert_eq!(play_simple_round(0, 0), 0);
-        assert_eq!(play_simple_round(1, 2), 3);
-        assert_eq!(play_simple_round(-1, 1), 0);
-    }
+};
 }
 '''

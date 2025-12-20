@@ -24,15 +24,6 @@ pub fn assign_int() -> i32 {
     let x = 42;
     return x;
 }
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_assign_int_examples() {
-        let _ = assign_int();
-    }
-}
 '''
 
 [[test]]
@@ -106,17 +97,6 @@ pub fn add_assign(mut x: i32) -> i32 {
     x = x + 10;
     return x;
 }
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_add_assign_examples() {
-        assert_eq!(add_assign(0), 0);
-        assert_eq!(add_assign(1), 1);
-        assert_eq!(add_assign(-1), -1);
-    }
-}
 '''
 
 [[test]]
@@ -133,17 +113,6 @@ rust = '''
 pub fn sub_assign(mut x: i32) -> i32 {
     x = x - 5;
     return x;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_sub_assign_examples() {
-        assert_eq!(sub_assign(0), 0);
-        assert_eq!(sub_assign(1), 1);
-        assert_eq!(sub_assign(-1), -1);
-    }
 }
 '''
 
@@ -162,17 +131,6 @@ pub fn mul_assign(mut x: i32) -> i32 {
     let _cse_temp_0 = x * 2;
     x = _cse_temp_0;
     return x;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_mul_assign_examples() {
-        assert_eq!(mul_assign(0), 0);
-        assert_eq!(mul_assign(1), 1);
-        assert_eq!(mul_assign(-1), -1);
-    }
 }
 '''
 
@@ -246,17 +204,6 @@ pub fn mod_assign(mut x: i32) -> i32 {
     x = _cse_temp_0;
     return x;
 }
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_mod_assign_examples() {
-        assert_eq!(mod_assign(0), 0);
-        assert_eq!(mod_assign(1), 1);
-        assert_eq!(mod_assign(-1), -1);
-    }
-}
 '''
 
 [[test]]
@@ -317,15 +264,6 @@ pub fn process_bounds() -> i32 {
     }
     return total;
 }
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_process_bounds_examples() {
-        let _ = process_bounds();
-    }
-}
 '''
 
 [[test]]
@@ -367,15 +305,6 @@ pub fn access_bounds() -> i32 {
         total = total + bounds.0 + bounds.1;
     }
     return total;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_access_bounds_examples() {
-        let _ = access_bounds();
-    }
 }
 '''
 
@@ -491,15 +420,6 @@ pub fn reassign() -> i32 {
     x = 3;
     return x;
 }
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_reassign_examples() {
-        let _ = reassign();
-    }
-}
 '''
 
 [[test]]
@@ -516,15 +436,6 @@ rust = '''
 pub fn no_reassign() -> i32 {
     let x = 42;
     return x;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_no_reassign_examples() {
-        let _ = no_reassign();
-    }
 }
 '''
 
@@ -560,15 +471,6 @@ pub fn process() -> i32 {
     let mut count: i32;
     count = 5;
     return count;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_process_examples() {
-        let _ = process();
-    }
 }
 '''
 
@@ -736,15 +638,6 @@ rust = '''
 pub fn process() -> i32 {
     let count: i32 = 42;
     return count;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_process_examples() {
-        let _ = process();
-    }
 }
 '''
 
@@ -1205,16 +1098,6 @@ pub fn slice_list(items: &Vec<i32>) -> Vec<i32> {
     };
     return subset;
 }
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_slice_list_examples() {
-        assert_eq!(slice_list(vec![]), vec![]);
-        assert_eq!(slice_list(vec![1]), vec![1]);
-    }
-}
 '''
 
 [[test]]
@@ -1237,17 +1120,6 @@ pub fn accumulate(items: &Vec<i32>) -> i32 {
     }
     return total;
 }
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_accumulate_examples() {
-        assert_eq!(accumulate(vec![]), 0);
-        assert_eq!(accumulate(vec![1]), 1);
-        assert_eq!(accumulate(vec![1, 2, 3]), 3);
-    }
-}
 '''
 
 [[test]]
@@ -1264,16 +1136,6 @@ rust = '''
 pub fn update_list(mut items: Vec<i32>) -> Vec<i32> {
     items.insert((0) as usize, 42);
     return items;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_update_list_examples() {
-        assert_eq!(update_list(vec![]), vec![]);
-        assert_eq!(update_list(vec![1]), vec![1]);
-    }
 }
 '''
 
@@ -1422,16 +1284,6 @@ pub fn update_matrix(mut matrix: Vec<Vec<i32>>) -> Vec<Vec<i32>> {
     matrix.get_mut(0 as usize).unwrap().insert((1) as usize, 99);
     return matrix;
 }
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_update_matrix_examples() {
-        assert_eq!(update_matrix(vec![]), vec![]);
-        assert_eq!(update_matrix(vec![1]), vec![1]);
-    }
-}
 '''
 
 [[test]]
@@ -1488,16 +1340,6 @@ pub fn update_multiple(mut items: Vec<i32>) -> Vec<i32> {
     items.insert((1) as usize, 2);
     items.insert((2) as usize, 3);
     return items;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_update_multiple_examples() {
-        assert_eq!(update_multiple(vec![]), vec![]);
-        assert_eq!(update_multiple(vec![1]), vec![1]);
-    }
 }
 '''
 
@@ -1580,16 +1422,6 @@ pub fn double_values(mut items: Vec<i32>) -> Vec<i32> {
         }
     }
     return items;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_double_values_examples() {
-        assert_eq!(double_values(vec![]), vec![]);
-        assert_eq!(double_values(vec![1]), vec![1]);
-    }
 }
 '''
 

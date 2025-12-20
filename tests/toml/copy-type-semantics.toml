@@ -1,0 +1,125 @@
+# Copy Type Semantics Tests
+# Tests for is_copy_type classification
+
+[metadata]
+name = "Copy Type Semantics Tests"
+category = "type-system"
+description = "Tests for Copy type classification affecting &mut vs mut"
+
+[[test]]
+name = "primitive_int_is_copy"
+description = "Primitive int type is Copy"
+
+python = '''
+def increment(x: int) -> int:
+    x = x + 1
+    return x
+'''
+
+rust = '''
+pub fn increment(mut x: i32) -> i32 {
+    x = x + 1;
+    return x;
+};
+}
+'''
+
+[[test]]
+name = "primitive_float_is_copy"
+description = "Primitive float type is Copy"
+
+python = '''
+def scale(x: float, factor: float) -> float:
+    x = x * factor
+    return x
+'''
+
+rust = '''
+pub fn scale(mut x: f64, factor: f64) -> f64 {
+    x = x * factor;
+    return x;
+};
+}
+'''
+
+[[test]]
+name = "primitive_bool_is_copy"
+description = "Primitive bool type is Copy"
+
+python = '''
+def toggle(flag: bool) -> bool:
+    flag = not flag
+    return flag
+'''
+
+rust = '''
+pub fn toggle(mut flag: bool) -> bool {
+    flag = !flag;
+    return flag;
+};
+}
+'''
+
+[[test]]
+name = "string_is_not_copy"
+description = "String type is NOT Copy"
+
+python = '''
+def process_string(s: str) -> str:
+    return s.upper()
+'''
+
+rust = '''
+pub fn process_string(s: String) -> String {
+    return s.to_uppercase();
+};
+}
+'''
+
+[[test]]
+name = "list_is_not_copy"
+description = "List type is NOT Copy"
+
+python = '''
+def get_first(items: list[int]) -> int:
+    return items[0]
+'''
+
+rust = '''
+pub fn get_first(items: &Vec<i32>) -> i32 {
+    return items[0].clone();
+};
+}
+'''
+
+[[test]]
+name = "dict_is_not_copy"
+description = "Dict type is NOT Copy"
+
+python = '''
+def get_value(d: dict[str, int], key: str) -> int:
+    return d[key]
+'''
+
+rust = '''
+use std::collections::HashMap;
+pub fn get_value(d: &HashMap<String, i32>, key: String) -> i32 {
+    return d[&key].clone();
+}
+'''
+
+[[test]]
+name = "tuple_of_copy_types"
+description = "Tuple of all Copy types behavior"
+
+python = '''
+def swap_tuple(pair: tuple[int, int]) -> tuple[int, int]:
+    return (pair[1], pair[0])
+'''
+
+rust = '''
+pub fn swap_tuple(pair: (i32, i32)) -> (i32, i32) {
+    return (pair.1, pair.0);
+};
+}
+'''

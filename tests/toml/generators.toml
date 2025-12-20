@@ -350,17 +350,6 @@ rust = '''
 pub fn sum_squares(n: i32) -> i32 {
     return 0..n.map(|x| x * x).sum::<i32>();
 }
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_sum_squares_examples() {
-        assert_eq!(sum_squares(0), 0);
-        assert_eq!(sum_squares(1), 1);
-        assert_eq!(sum_squares(-1), -1);
-    }
-}
 '''
 
 [[test]]
@@ -375,17 +364,6 @@ def sum_even_squares(n: int) -> int:
 rust = '''
 pub fn sum_even_squares(n: i32) -> i32 {
     return 0..n.filter(|x| x % 2 == 0).map(|x| x * x).sum::<i32>();
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_sum_even_squares_examples() {
-        assert_eq!(sum_even_squares(0), 0);
-        assert_eq!(sum_even_squares(1), 1);
-        assert_eq!(sum_even_squares(-1), -1);
-    }
 }
 '''
 
@@ -528,15 +506,212 @@ pub fn sum_generated(n: i32) -> i32 {
     }
     return total;
 }
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_sum_generated_examples() {
-        assert_eq!(sum_generated(0), 0);
-        assert_eq!(sum_generated(1), 1);
-        assert_eq!(sum_generated(-1), -1);
+'''
+
+# =============================================================================
+# Generator State Struct Naming - PascalCase conversion
+# =============================================================================
+
+[[test]]
+name = "generator_state_snake_case_to_pascal"
+description = "snake_case function generates PascalCase state struct"
+
+python = '''
+def count_up():
+    yield 1
+'''
+
+rust = '''
+#[doc = " Generator state struct"]
+#[derive(Debug)]
+struct CountUpState {
+    state: usize,
+}
+#[doc = " Generator function - returns Iterator"]
+pub fn count_up() -> impl Iterator<Item = i32> {
+    CountUpState { state: 0 }
+}
+impl Iterator for CountUpState {
+    type Item = i32;
+    fn next(&mut self) -> Option<Self::Item> {
+        match self.state {
+            0 => {
+                self.state = 1usize;
+                return Some(1);
+            }
+            1usize => {
+                self.state = 1usize + 1;
+                None
+            }
+            _ => None,
+        }
+    }
+}
+'''
+
+[[test]]
+name = "generator_state_multiple_underscores"
+description = "Multiple underscores become PascalCase"
+
+python = '''
+def my_count_up():
+    yield 1
+'''
+
+rust = '''
+#[doc = " Generator state struct"]
+#[derive(Debug)]
+struct MyCountUpState {
+    state: usize,
+}
+#[doc = " Generator function - returns Iterator"]
+pub fn my_count_up() -> impl Iterator<Item = i32> {
+    MyCountUpState { state: 0 }
+}
+impl Iterator for MyCountUpState {
+    type Item = i32;
+    fn next(&mut self) -> Option<Self::Item> {
+        match self.state {
+            0 => {
+                self.state = 1usize;
+                return Some(1);
+            }
+            1usize => {
+                self.state = 1usize + 1;
+                None
+            }
+            _ => None,
+        }
+    }
+}
+'''
+
+[[test]]
+name = "generator_state_single_word"
+description = "Single word function generates proper state struct name"
+
+python = '''
+def generator():
+    yield 1
+'''
+
+rust = '''
+#[doc = " Generator state struct"]
+#[derive(Debug)]
+struct GeneratorState {
+    state: usize,
+}
+#[doc = " Generator function - returns Iterator"]
+pub fn generator() -> impl Iterator<Item = i32> {
+    GeneratorState { state: 0 }
+}
+impl Iterator for GeneratorState {
+    type Item = i32;
+    fn next(&mut self) -> Option<Self::Item> {
+        match self.state {
+            0 => {
+                self.state = 1usize;
+                return Some(1);
+            }
+            1usize => {
+                self.state = 1usize + 1;
+                None
+            }
+            _ => None,
+        }
+    }
+}
+'''
+
+# =============================================================================
+# Generator Type Inference for State Variables
+# =============================================================================
+
+[[test]]
+name = "generator_state_type_from_assignment"
+description = "State variable type inferred from integer assignment"
+
+python = '''
+def counter():
+    x = 1
+    yield x
+'''
+
+rust = '''
+#[doc = " Generator state struct"]
+#[derive(Debug)]
+struct CounterState {
+    state: usize,
+    x: i32,
+}
+#[doc = " Generator function - returns Iterator"]
+pub fn counter() -> impl Iterator<Item = i32> {
+    CounterState { state: 0, x: 0 }
+}
+impl Iterator for CounterState {
+    type Item = i32;
+    fn next(&mut self) -> Option<Self::Item> {
+        match self.state {
+            0 => {
+                self.x = 1;
+                self.state = 1usize;
+                return Some(self.x);
+            }
+            1usize => {
+                self.state = 1usize + 1;
+                None
+            }
+            _ => None,
+        }
+    }
+}
+'''
+
+[[test]]
+name = "generator_state_type_from_param"
+description = "State variable type inferred from function parameter"
+
+python = '''
+def range_from(n: int):
+    i = n
+    while i > 0:
+        yield i
+        i = i - 1
+'''
+
+rust = '''
+#[doc = " Generator state struct"]
+#[derive(Debug)]
+struct RangeFromState {
+    state: usize,
+    i: i32,
+    n: i32,
+}
+#[doc = " Generator function - returns Iterator"]
+pub fn range_from(n: i32) -> impl Iterator<Item = i32> {
+    RangeFromState { state: 0, i: 0, n: n }
+}
+impl Iterator for RangeFromState {
+    type Item = i32;
+    fn next(&mut self) -> Option<Self::Item> {
+        match self.state {
+            0 => {
+                self.i = self.n;
+                self.state = 1;
+                self.next()
+            }
+            1 => {
+                if self.i > 0 {
+                    let result = self.i;
+                    self.i = self.i - 1;
+                    return Some(result);
+                } else {
+                    self.state = 2;
+                    None
+                }
+            }
+            _ => None,
+        }
     }
 }
 '''

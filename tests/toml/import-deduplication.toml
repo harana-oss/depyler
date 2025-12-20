@@ -1,0 +1,72 @@
+# Import Deduplication Tests
+# Tests for use statement deduplication
+
+[metadata]
+name = "Import Deduplication Tests"
+category = "codegen"
+description = "Tests for deduplicating use statements in generated Rust code"
+
+[[test]]
+name = "duplicate_hashmap_import_deduplicated"
+description = "Duplicate HashMap imports are deduplicated"
+
+python = '''
+def use_two_maps() -> dict[str, int]:
+    a = {"x": 1}
+    b = {"y": 2}
+    return a
+'''
+
+rust = '''
+use std::collections::HashMap;
+pub fn use_two_maps() -> HashMap<String, i32> {
+    let a: HashMap<String, i32> = [("x".to_string(), 1)].into_iter().collect();
+    let b: HashMap<String, i32> = [("y".to_string(), 2)].into_iter().collect();
+    return a;
+}
+'''
+
+[[test]]
+name = "different_imports_both_kept"
+description = "Different use statements are both kept"
+
+python = '''
+def use_set_and_map() -> int:
+    s = {1, 2, 3}
+    d = {"a": 1}
+    return len(s) + len(d)
+'''
+
+rust = '''
+use std::collections::HashMap;
+use std::collections::HashSet;
+pub fn use_set_and_map() -> i32 {
+    let s: HashSet<i32> = [1, 2, 3].into_iter().collect();
+    let d: HashMap<String, i32> = [("a".to_string(), 1)].into_iter().collect();
+    return s.len() as i32 + d.len() as i32;
+};
+}
+'''
+
+[[test]]
+name = "function_definitions_preserved"
+description = "Non-use items are preserved alongside deduplication"
+
+python = '''
+def helper(x: int) -> int:
+    return x + 1
+
+def main_func(items: dict[str, int]) -> int:
+    return helper(len(items))
+'''
+
+rust = '''
+use std::collections::HashMap;
+pub fn helper(x: i32) -> i32 {
+    return x + 1;
+}
+pub fn main_func(items: &HashMap<String, i32>) -> i32 {
+    return helper(items.len() as i32);
+};
+}
+'''

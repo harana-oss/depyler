@@ -1,0 +1,125 @@
+# Lazy Static Detection Tests
+# Tests for requires_lazy_static
+
+[metadata]
+name = "Lazy Static Detection Tests"
+category = "codegen"
+description = "Tests for detecting when lazy_static is required for module-level constants"
+
+[[test]]
+name = "vec_constant_requires_lazy_static"
+description = "Vec requires lazy_static for module-level constant"
+
+python = '''
+ITEMS = [1, 2, 3]
+
+def get_first() -> int:
+    return ITEMS[0]
+'''
+
+rust = '''
+use lazy_static::lazy_static;
+lazy_static! {
+    static ref ITEMS: Vec<i32> = vec![1, 2, 3];
+}
+pub fn get_first() -> i32 {
+    return ITEMS[0].clone();
+}
+'''
+
+[[test]]
+name = "hashmap_constant_requires_lazy_static"
+description = "HashMap requires lazy_static for module-level constant"
+
+python = '''
+CONFIG = {"key": 42}
+
+def get_config_value() -> int:
+    return CONFIG["key"]
+'''
+
+rust = '''
+use lazy_static::lazy_static;
+use std::collections::HashMap;
+lazy_static! {
+    static ref CONFIG: HashMap<String, i32> = [("key".to_string(), 42)].into_iter().collect();
+}
+pub fn get_config_value() -> i32 {
+    return CONFIG[&"key".to_string()].clone();
+}
+'''
+
+[[test]]
+name = "string_constant_requires_lazy_static"
+description = "String requires lazy_static for module-level constant"
+
+python = '''
+MESSAGE = "hello world"
+
+def get_message() -> str:
+    return MESSAGE
+'''
+
+rust = '''
+use lazy_static::lazy_static;
+lazy_static! {
+    static ref MESSAGE: String = "hello world".to_string();
+}
+pub fn get_message() -> String {
+    return MESSAGE.clone();
+}
+'''
+
+[[test]]
+name = "int_constant_no_lazy_static"
+description = "Int does NOT require lazy_static"
+
+python = '''
+MAX_VALUE = 100
+
+def get_max() -> int:
+    return MAX_VALUE
+'''
+
+rust = '''
+const MAX_VALUE: i32 = 100;
+pub fn get_max() -> i32 {
+    return MAX_VALUE;
+}
+'''
+
+[[test]]
+name = "float_constant_no_lazy_static"
+description = "Float does NOT require lazy_static"
+
+python = '''
+PI = 3.14159
+
+def get_pi() -> float:
+    return PI
+'''
+
+rust = '''
+const PI: f64 = 3.14159;
+pub fn get_pi() -> f64 {
+    return PI;
+}
+'''
+
+[[test]]
+name = "bool_constant_no_lazy_static"
+description = "Bool does NOT require lazy_static"
+
+python = '''
+ENABLED = True
+
+def is_enabled() -> bool:
+    return ENABLED
+'''
+
+rust = '''
+const ENABLED: bool = true;
+pub fn is_enabled() -> bool {
+    return ENABLED;
+}
+'''

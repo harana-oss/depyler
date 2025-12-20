@@ -28,15 +28,6 @@ pub fn check_positive(x: i32) -> bool {
     }
     return false;
 }
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_check_positive_examples() {
-        let _ = check_positive(Default::default());
-    }
-}
 '''
 
 [[test]]
@@ -104,28 +95,10 @@ def abs_value(x: int) -> int:
 rust = '''
 pub fn abs_value(x: i32) -> i32 {
     return if x >= 0 { x } else { (-x) };
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn quickcheck_abs_value() {
-        fn prop(x: i32) -> TestResult {
-            let result = abs_value(x.clone());
-            if result < 0 {
-                return TestResult::failed();
-            }
+};
             TestResult::passed()
         }
         quickcheck(prop as fn(i32) -> TestResult);
-    }
-    #[test]
-    fn test_abs_value_examples() {
-        assert_eq!(abs_value(0), 0);
-        assert_eq!(abs_value(1), 1);
-        assert_eq!(abs_value(-1), 1);
-        assert_eq!(abs_value(i32::MIN + 1), i32::MAX);
     }
 }
 '''
@@ -149,8 +122,7 @@ pub fn classify(x: i32) -> String {
         } else {
             "negative".to_string()
         }
-    };
-}
+    }
 '''
 
 [[test]]
@@ -173,17 +145,6 @@ pub fn sum_to_n(n: i32) -> i32 {
     }
     return total;
 }
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_sum_to_n_examples() {
-        assert_eq!(sum_to_n(0), 0);
-        assert_eq!(sum_to_n(1), 1);
-        assert_eq!(sum_to_n(-1), -1);
-    }
-}
 '''
 
 [[test]]
@@ -205,17 +166,6 @@ pub fn sum_range(start: i32, stop: i32) -> i32 {
         total = total + i;
     }
     return total;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_sum_range_examples() {
-        assert_eq!(sum_range(0, 0), 0);
-        assert_eq!(sum_range(1, 2), 3);
-        assert_eq!(sum_range(-1, 1), 0);
-    }
 }
 '''
 
@@ -245,17 +195,6 @@ pub fn sum_evens(n: i32) -> i32 {
     }
     return total;
 }
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_sum_evens_examples() {
-        assert_eq!(sum_evens(0), 0);
-        assert_eq!(sum_evens(1), 1);
-        assert_eq!(sum_evens(-1), -1);
-    }
-}
 '''
 
 [[test]]
@@ -278,17 +217,6 @@ pub fn sum_list(items: &Vec<i32>) -> i32 {
         total = total + item;
     }
     return total;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_sum_list_examples() {
-        assert_eq!(sum_list(vec![]), 0);
-        assert_eq!(sum_list(vec![1]), 1);
-        assert_eq!(sum_list(vec![1, 2, 3]), 6);
-    }
 }
 '''
 
@@ -313,16 +241,6 @@ pub fn indexed_items(items: Vec<String>) -> Vec<String> {
     }
     return result;
 }
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_indexed_items_examples() {
-        assert_eq!(indexed_items(vec![]), vec![]);
-        assert_eq!(indexed_items(vec![1]), vec![1]);
-    }
-}
 '''
 
 [[test]]
@@ -345,17 +263,6 @@ pub fn count_down(n: i32) -> i32 {
         count = count - 1;
     }
     return count;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_count_down_examples() {
-        assert_eq!(count_down(0), 0);
-        assert_eq!(count_down(1), 1);
-        assert_eq!(count_down(-1), -1);
-    }
 }
 '''
 
@@ -451,17 +358,6 @@ pub fn sum_positive(items: &Vec<i32>) -> i32 {
     }
     return total;
 }
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_sum_positive_examples() {
-        assert_eq!(sum_positive(vec![]), 0);
-        assert_eq!(sum_positive(vec![1]), 1);
-        assert_eq!(sum_positive(vec![1, 2, 3]), 6);
-    }
-}
 '''
 
 [[test]]
@@ -512,17 +408,6 @@ pub fn safe_divide(a: i32, b: i32) -> i32 {
         };
     }
 }
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_safe_divide_examples() {
-        assert_eq!(safe_divide(0, 0), 0);
-        assert_eq!(safe_divide(1, 2), 3);
-        assert_eq!(safe_divide(-1, 1), 0);
-    }
-}
 '''
 
 [[test]]
@@ -550,17 +435,6 @@ pub fn shadow_test(x: i32) -> i32 {
     }
     return result;
 }
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_shadow_test_examples() {
-        assert_eq!(shadow_test(0), 0);
-        assert_eq!(shadow_test(1), 1);
-        assert_eq!(shadow_test(-1), -1);
-    }
-}
 '''
 
 [[test]]
@@ -578,8 +452,7 @@ pub fn check_sign(x: i32) -> String {
         "positive".to_string()
     } else {
         "non-positive".to_string()
-    };
-}
+    }
 '''
 
 [[test]]
@@ -594,17 +467,6 @@ def max_value(a: int, b: int) -> int:
 rust = '''
 pub fn max_value(a: i32, b: i32) -> i32 {
     return if a > b { a } else { b };
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_max_value_examples() {
-        assert_eq!(max_value(0, 0), 0);
-        assert_eq!(max_value(1, 2), 3);
-        assert_eq!(max_value(-1, 1), 0);
-    }
 }
 '''
 
@@ -642,15 +504,6 @@ rust = '''
 pub fn check_range(x: i32) -> bool {
     return if (x >= 0) && (x <= 100) { true } else { false };
 }
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_check_range_examples() {
-        let _ = check_range(Default::default());
-    }
-}
 '''
 
 [[test]]
@@ -665,17 +518,6 @@ def compute(x: int, y: int) -> int:
 rust = '''
 pub fn compute(x: i32, y: i32) -> i32 {
     return if x > 0 { x + y } else { x - y };
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_compute_examples() {
-        assert_eq!(compute(0, 0), 0);
-        assert_eq!(compute(1, 2), 3);
-        assert_eq!(compute(-1, 1), 0);
-    }
 }
 '''
 
@@ -905,15 +747,6 @@ pub fn with_finally() -> i32 {
         return x;
     }
 }
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_with_finally_examples() {
-        let _ = with_finally();
-    }
-}
 '''
 
 [[test]]
@@ -953,15 +786,6 @@ pub fn complex_exception() -> i32 {
         let mut x = 10 / 2;
         let mut x = 0;
         return x;
-    }
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_complex_exception_examples() {
-        let _ = complex_exception();
     }
 }
 '''
@@ -1243,15 +1067,6 @@ pub fn iterate_items() -> i32 {
     }
     return total;
 }
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_iterate_items_examples() {
-        let _ = iterate_items();
-    }
-}
 '''
 
 [[test]]
@@ -1272,17 +1087,6 @@ pub fn count_down(mut n: i32) -> i32 {
         n = n - 1;
     }
     return n;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_count_down_examples() {
-        assert_eq!(count_down(0), 0);
-        assert_eq!(count_down(1), 1);
-        assert_eq!(count_down(-1), -1);
-    }
 }
 '''
 
@@ -1306,28 +1110,10 @@ pub fn abs_value(x: i32) -> i32 {
     } else {
         return x;
     }
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn quickcheck_abs_value() {
-        fn prop(x: i32) -> TestResult {
-            let result = abs_value(x.clone());
-            if result < 0 {
-                return TestResult::failed();
-            }
+};
             TestResult::passed()
         }
         quickcheck(prop as fn(i32) -> TestResult);
-    }
-    #[test]
-    fn test_abs_value_examples() {
-        assert_eq!(abs_value(0), 0);
-        assert_eq!(abs_value(1), 1);
-        assert_eq!(abs_value(-1), 1);
-        assert_eq!(abs_value(i32::MIN + 1), i32::MAX);
     }
 }
 '''
@@ -1398,17 +1184,6 @@ pub fn complex_statements(x: i32) -> i32 {
         return total;
     }
     return 0;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_complex_statements_examples() {
-        assert_eq!(complex_statements(0), 0);
-        assert_eq!(complex_statements(1), 1);
-        assert_eq!(complex_statements(-1), -1);
-    }
 }
 '''
 
@@ -1534,17 +1309,6 @@ pub fn complex_logic(items: &Vec<serde_json::Value>) -> i32 {
         return -1;
     }
 }
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_complex_logic_examples() {
-        assert_eq!(complex_logic(vec![]), 0);
-        assert_eq!(complex_logic(vec![1]), 1);
-        assert_eq!(complex_logic(vec![1, 2, 3]), 3);
-    }
-}
 '''
 
 [[test]]
@@ -1569,15 +1333,6 @@ pub fn outer() -> i32 {
     }
     return x;
 }
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_outer_examples() {
-        let _ = outer();
-    }
-}
 '''
 
 [[test]]
@@ -1601,15 +1356,6 @@ pub fn shadow_test() -> i32 {
         let y = x + 1;
     }
     return x;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_shadow_test_examples() {
-        let _ = shadow_test();
-    }
 }
 '''
 
@@ -1670,15 +1416,6 @@ pub fn loop_scope() -> i32 {
     }
     return total;
 }
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_loop_scope_examples() {
-        let _ = loop_scope();
-    }
-}
 '''
 
 [[test]]
@@ -1695,17 +1432,6 @@ rust = '''
 pub fn with_params(x: i32, y: i32) -> i32 {
     let result = x + y;
     return result;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_with_params_examples() {
-        assert_eq!(with_params(0, 0), 0);
-        assert_eq!(with_params(1, 2), 3);
-        assert_eq!(with_params(-1, 1), 0);
-    }
 }
 '''
 
@@ -1748,15 +1474,6 @@ rust = '''
 pub fn simple() -> i32 {
     return 42;
 }
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_simple_examples() {
-        let _ = simple();
-    }
-}
 '''
 
 [[test]]
@@ -1777,15 +1494,6 @@ pub fn mutable_tracking() -> i32 {
     x = x + 1;
     x = x + 2;
     return x;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_mutable_tracking_examples() {
-        let _ = mutable_tracking();
-    }
 }
 '''
 
@@ -1827,15 +1535,6 @@ pub fn try_bare_except() -> i32 {
     }
     return x;
 }
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_try_bare_except_examples() {
-        let _ = try_bare_except();
-    }
-}
 '''
 
 [[test]]
@@ -1875,15 +1574,6 @@ pub fn try_specific() -> i32 {
         let mut x = 0;
     }
     return x;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_try_specific_examples() {
-        let _ = try_specific();
-    }
 }
 '''
 
@@ -1943,15 +1633,6 @@ pub fn try_multiple() -> i32 {
         let mut x = 0;
     }
     return x;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_try_multiple_examples() {
-        let _ = try_multiple();
-    }
 }
 '''
 
@@ -2063,15 +1744,6 @@ pub fn try_finally() -> i32 {
     }
     return x;
 }
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_try_finally_examples() {
-        let _ = try_finally();
-    }
-}
 '''
 
 [[test]]
@@ -2114,15 +1786,6 @@ pub fn try_else() -> i32 {
     }
     return x;
 }
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_try_else_examples() {
-        let _ = try_else();
-    }
-}
 '''
 
 [[test]]
@@ -2164,17 +1827,6 @@ pub fn raise_in_try(x: i32) -> i32 {
         }
         return x;
         return 0;
-    }
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_raise_in_try_examples() {
-        assert_eq!(raise_in_try(0), 0);
-        assert_eq!(raise_in_try(1), 1);
-        assert_eq!(raise_in_try(-1), -1);
     }
 }
 '''
@@ -2284,17 +1936,6 @@ pub fn return_in_except(x: i32) -> i32 {
     }
     return result;
 }
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_return_in_except_examples() {
-        assert_eq!(return_in_except(0), 0);
-        assert_eq!(return_in_except(1), 1);
-        assert_eq!(return_in_except(-1), -1);
-    }
-}
 '''
 
 [[test]]
@@ -2340,15 +1981,6 @@ pub fn try_in_loop() -> i32 {
     }
     return result;
 }
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_try_in_loop_examples() {
-        let _ = try_in_loop();
-    }
-}
 '''
 
 [[test]]
@@ -2387,15 +2019,6 @@ pub fn empty_except() -> i32 {
         let x = 1 / 0;
     }
     return 0;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_empty_except_examples() {
-        let _ = empty_except();
-    }
 }
 '''
 
@@ -2459,15 +2082,6 @@ pub fn multiple_except() -> i32 {
         let mut x = 3;
     }
     return x;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_multiple_except_examples() {
-        let _ = multiple_except();
-    }
 }
 '''
 
@@ -2538,15 +2152,6 @@ pub fn nested_scopes() -> i32 {
     }
     return x;
 }
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_nested_scopes_examples() {
-        let _ = nested_scopes();
-    }
-}
 '''
 
 [[test]]
@@ -2607,15 +2212,6 @@ pub fn bare_catches_all() -> i32 {
         return 0;
     }
     return 1;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_bare_catches_all_examples() {
-        let _ = bare_catches_all();
-    }
 }
 '''
 
@@ -2691,17 +2287,6 @@ pub fn complex_exceptions(values: &Vec<i32>) -> i32 {
     }
     return total;
 }
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_complex_exceptions_examples() {
-        assert_eq!(complex_exceptions(vec![]), 0);
-        assert_eq!(complex_exceptions(vec![1]), 1);
-        assert_eq!(complex_exceptions(vec![1, 2, 3]), 3);
-    }
-}
 '''
 
 [[test]]
@@ -2720,17 +2305,6 @@ pub fn noop_if(x: i32) -> i32 {
     let _cse_temp_0 = x > 0;
     if _cse_temp_0 {}
     return x;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_noop_if_examples() {
-        assert_eq!(noop_if(0), 0);
-        assert_eq!(noop_if(1), 1);
-        assert_eq!(noop_if(-1), -1);
-    }
 }
 '''
 
@@ -2758,17 +2332,6 @@ pub fn noop_else(x: i32) -> i32 {
     } else {
     }
     return result;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_noop_else_examples() {
-        assert_eq!(noop_else(0), 0);
-        assert_eq!(noop_else(1), 1);
-        assert_eq!(noop_else(-1), -1);
-    }
 }
 '''
 
@@ -2814,15 +2377,6 @@ pub fn check_even(x: i32) -> String {
         return "even".to_string();
     } else {
         return "odd".to_string();
-    }
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_is_even_examples() {
-        let _ = is_even(Default::default());
     }
 }
 '''
@@ -2934,15 +2488,6 @@ pub fn test() -> i32 {
     }
     return x;
 }
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_test_examples() {
-        let _ = test();
-    }
-}
 '''
 
 [[test]]
@@ -3032,15 +2577,6 @@ pub fn test() -> i32 {
     x = _cse_temp_0;
     return x;
 }
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_test_examples() {
-        let _ = test();
-    }
-}
 '''
 
 [[test]]
@@ -3071,15 +2607,6 @@ pub fn test() -> i32 {
         }
     }
     return i;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_test_examples() {
-        let _ = test();
-    }
 }
 '''
 
@@ -3135,15 +2662,6 @@ pub fn test() -> i32 {
         count = count + 100;
     }
     return count;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_test_examples() {
-        let _ = test();
-    }
 }
 '''
 
@@ -3228,21 +2746,6 @@ pub fn test(x: i32) -> i32 {
     }
     return 0;
 }
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_is_even_examples() {
-        let _ = is_even(Default::default());
-    }
-    #[test]
-    fn test_test_examples() {
-        assert_eq!(test(0), 0);
-        assert_eq!(test(1), 1);
-        assert_eq!(test(-1), -1);
-    }
-}
 '''
 
 [[test]]
@@ -3257,17 +2760,6 @@ def get_length(items: list[int]) -> int:
 rust = '''
 pub fn get_length(items: &Vec<i32>) -> i32 {
     return items.len() as i32 as i32;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_get_length_examples() {
-        assert_eq!(get_length(vec![]), 0);
-        assert_eq!(get_length(vec![1]), 1);
-        assert_eq!(get_length(vec![1, 2, 3]), 3);
-    }
 }
 '''
 
@@ -3385,17 +2877,6 @@ rust = '''
 pub fn get_size(items: &Vec<i32>) -> i32 {
     return items.len() as i32 as i32;
 }
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_get_size_examples() {
-        assert_eq!(get_size(vec![]), 0);
-        assert_eq!(get_size(vec![1]), 1);
-        assert_eq!(get_size(vec![1, 2, 3]), 3);
-    }
-}
 '''
 
 [[test]]
@@ -3440,28 +2921,10 @@ def abs_value(x: int) -> int:
 rust = '''
 pub fn abs_value(x: i32) -> i32 {
     return if x > 0 { x } else { (-x) };
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn quickcheck_abs_value() {
-        fn prop(x: i32) -> TestResult {
-            let result = abs_value(x.clone());
-            if result < 0 {
-                return TestResult::failed();
-            }
+};
             TestResult::passed()
         }
         quickcheck(prop as fn(i32) -> TestResult);
-    }
-    #[test]
-    fn test_abs_value_examples() {
-        assert_eq!(abs_value(0), 0);
-        assert_eq!(abs_value(1), 1);
-        assert_eq!(abs_value(-1), 1);
-        assert_eq!(abs_value(i32::MIN + 1), i32::MAX);
     }
 }
 '''
@@ -3486,8 +2949,7 @@ pub fn get_window(data: &Vec<i32>, start: i32, size: i32) -> Vec<i32> {
         } else {
             Vec::new()
         }
-    };
-}
+    }
 '''
 
 [[test]]
@@ -3508,8 +2970,7 @@ pub fn create_set(x: i32) -> HashSet<i32> {
         set.insert(x + 1);
         set.insert(x + 2);
         set
-    };
-}
+    }
 '''
 
 [[test]]
@@ -3812,19 +3273,7 @@ pub fn merge(a: &Vec<i32>, b: &Vec<i32>) -> Vec<i32> {
 pub fn test() -> i32 {
     let result = merge(vec![1], vec![2]);
     return result.len() as i32;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn quickcheck_merge() {
-        fn prop(a: Vec<i32>, b: Vec<i32>) -> TestResult {
-            let result1 = merge(&a, &b);
-            let result2 = merge(&b, &a);
-            if result1 != result2 {
-                return TestResult::failed();
-            }
+};
             TestResult::passed()
         }
         quickcheck(prop as fn(Vec<i32>, Vec<i32>) -> TestResult);
@@ -3872,15 +3321,6 @@ pub fn test_if() -> i32 {
         return 0;
     }
 }
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_test_if_examples() {
-        let _ = test_if();
-    }
-}
 '''
 
 [[test]]
@@ -3903,15 +3343,6 @@ pub fn test_while() -> i32 {
         x = x - 1;
     }
     return x;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_test_while_examples() {
-        let _ = test_while();
-    }
 }
 '''
 
@@ -3981,15 +3412,6 @@ def test_return():
 rust = '''
 pub fn test_return() -> i32 {
     return 42;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_test_return_examples() {
-        let _ = test_return();
-    }
 }
 '''
 
@@ -4186,15 +3608,6 @@ pub fn get_field_goal() -> i32 {
     const FIELD_GOAL: i32 = 600;
     FIELD_GOAL
 }
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{quickcheck, TestResult};
-    #[test]
-    fn test_get_field_goal_examples() {
-        let _ = get_field_goal();
-    }
-}
 '''
 
 [[test]]
@@ -4316,27 +3729,6 @@ impl Iterator for FibonacciGeneratorState {
 pub fn test_generator() -> i32 {
     42
 }
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{quickcheck, TestResult};
-    #[test]
-    fn test_simple_generator_examples() {
-        assert_eq!(simple_generator(0), 0);
-        assert_eq!(simple_generator(1), 1);
-        assert_eq!(simple_generator(-1), -1);
-    }
-    #[test]
-    fn test_fibonacci_generator_examples() {
-        assert_eq!(fibonacci_generator(0), 0);
-        assert_eq!(fibonacci_generator(1), 1);
-        assert_eq!(fibonacci_generator(-1), -1);
-    }
-    #[test]
-    fn test_test_generator_examples() {
-        let _ = test_generator();
-    }
-}
 '''
 
 [[test]]
@@ -4442,19 +3834,6 @@ pub fn test_for_with_iterator() -> i32 {
         total = total + i;
     }
     total
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{quickcheck, TestResult};
-    #[test]
-    fn test_test_custom_iterator_examples() {
-        let _ = test_custom_iterator();
-    }
-    #[test]
-    fn test_test_for_with_iterator_examples() {
-        let _ = test_for_with_iterator();
-    }
 }
 '''
 
@@ -4601,14 +3980,5 @@ pub fn test_with_builtin() -> i32 {
     let f = std::fs::File::create("test.txt".to_string())?;
     f.write("Hello, World!".to_string());
     1
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{quickcheck, TestResult};
-    #[test]
-    fn test_test_with_builtin_examples() {
-        let _ = test_with_builtin();
-    }
 }
 '''

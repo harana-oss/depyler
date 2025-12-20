@@ -108,19 +108,7 @@ rust = '''
 use serde_json;
 pub fn sort_list(lst: &mut Vec<serde_json::Value>) {
     lst.sort();
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn quickcheck_sort_list() {
-        fn prop(lst: Vec<()>) -> TestResult {
-            let result = sort_list(&lst);
-            for i in 1..result.len() {
-                if result[i - 1] > result[i] {
-                    return TestResult::failed();
-                }
+};
             }
             let mut input_sorted = lst.clone();
             input_sorted.sort();
@@ -219,19 +207,7 @@ rust = '''
 #[doc = "Concatenate two lists."]
 pub fn concat_lists(list1: &Vec<i32>, list2: &Vec<i32>) -> Vec<i32> {
     return list1.iter().chain(list2.iter()).cloned().collect::<Vec<_>>();
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn quickcheck_concat_lists() {
-        fn prop(list1: Vec<i32>, list2: Vec<i32>) -> TestResult {
-            let result1 = concat_lists(&list1, &list2);
-            let result2 = concat_lists(&list2, &list1);
-            if result1 != result2 {
-                return TestResult::failed();
-            }
+};
             TestResult::passed()
         }
         quickcheck(prop as fn(Vec<i32>, Vec<i32>) -> TestResult);
@@ -760,17 +736,7 @@ use serde_json;
 use std::iter::Iterator::fold;
 pub fn sum_reduce(items: Vec<serde_json::Value>) -> i32 {
     return std::iter::Iterator::fold(|x, y| x + y, items);
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_sum_reduce_examples() {
-        assert_eq!(sum_reduce(vec![]), 0);
-        assert_eq!(sum_reduce(vec![1]), 1);
-        assert_eq!(sum_reduce(vec![1, 2, 3]), 6);
-    }
+};
 }
 '''
 
@@ -925,17 +891,7 @@ use serde_json;
 pub fn get_next(items: Vec<serde_json::Value>) -> i32 {
     let it = items.into_iter();
     return it.next().expect("StopIteration: iterator is empty");
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_get_next_examples() {
-        assert_eq!(get_next(vec![]), 0);
-        assert_eq!(get_next(vec![1]), 1);
-        assert_eq!(get_next(vec![1, 2, 3]), 3);
-    }
+};
 }
 '''
 
@@ -952,15 +908,7 @@ rust = '''
 use serde_json;
 pub fn is_callable(obj: &serde_json::Value) -> bool {
     return callable(obj);
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_is_callable_examples() {
-        let _ = is_callable(Default::default());
-    }
+};
 }
 '''
 
@@ -1363,15 +1311,7 @@ pub fn find_index() -> i32 {
         .position(|x| x == &"4")
         .map(|i| i as i32)
         .expect("ValueError: value is not in list");
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_find_index_examples() {
-        let _ = find_index();
-    }
+};
 }
 '''
 

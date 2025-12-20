@@ -561,16 +561,7 @@ results
     log::info!("{}", result);
    
 }
-} #[cfg(test)] mod tests {
-    use super::*;
-    use quickcheck::{
-    quickcheck, TestResult };
-    #[test] fn test_process_urls_examples() {
-    assert_eq!(process_urls(vec! []), vec! []);
-    assert_eq!(process_urls(vec! [1]), vec! [1]);
-   
-}
-}
+} 
 '''
 
 [[test]]
@@ -671,18 +662,5 @@ rust = '''
 #[doc = " Depyler: verified panic-free"] #[doc = " Depyler: proven to terminate"] pub async fn call_async() -> i32 {
     let result = simple_async().await;
     result
-}
-#[cfg(test)] mod tests {
-    use super::*;
-    use quickcheck::{
-    quickcheck, TestResult };
-    #[test] fn test_simple_async_examples() {
-    let _ = simple_async();
-   
-}
-#[test] fn test_call_async_examples() {
-    let _ = call_async();
-   
-}
 }
 '''

@@ -400,17 +400,7 @@ pub fn compute_hash(text: &str) -> Result<i32, ZeroDivisionError> {
                 .expect("Power operation overflowed");
     }
     Ok(hash_val)
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{quickcheck, TestResult};
-    #[test]
-    fn quickcheck_add_numbers() {
-        fn prop(a: i32, b: i32) -> TestResult {
-            if (a > 0 && b > i32::MAX - a) || (a < 0 && b < i32::MIN - a) {
-                return TestResult::discard();
-            }
+};
             let result1 = add_numbers(a.clone(), b.clone());
             let result2 = add_numbers(b.clone(), a.clone());
             if result1 != result2 {
@@ -420,18 +410,6 @@ mod tests {
         }
         quickcheck(prop as fn(i32, i32) -> TestResult);
     }
-    #[test]
-    fn test_add_numbers_examples() {
-        assert_eq!(add_numbers(0, 0), 0);
-        assert_eq!(add_numbers(1, 2), 3);
-        assert_eq!(add_numbers(-1, 1), 0);
-    }
-    #[test]
-    fn quickcheck_multiply_fast() {
-        fn prop(x: i32, y: i32) -> TestResult {
-            if (x > 0 && y > i32::MAX - x) || (x < 0 && y < i32::MIN - x) {
-                return TestResult::discard();
-            }
             let result1 = multiply_fast(x.clone(), y.clone());
             let result2 = multiply_fast(y.clone(), x.clone());
             if result1 != result2 {
@@ -440,24 +418,6 @@ mod tests {
             TestResult::passed()
         }
         quickcheck(prop as fn(i32, i32) -> TestResult);
-    }
-    #[test]
-    fn test_multiply_fast_examples() {
-        assert_eq!(multiply_fast(0, 0), 0);
-        assert_eq!(multiply_fast(1, 2), 3);
-        assert_eq!(multiply_fast(-1, 1), 0);
-    }
-    #[test]
-    fn test_calculate_checksum_examples() {
-        assert_eq!(calculate_checksum(&vec![]), 0);
-        assert_eq!(calculate_checksum(&vec![1]), 1);
-        assert_eq!(calculate_checksum(&vec![1, 2, 3]), 6);
-    }
-    #[test]
-    fn test_compute_hash_examples() {
-        assert_eq!(compute_hash(""), 0);
-        assert_eq!(compute_hash("a"), 1);
-        assert_eq!(compute_hash("abc"), 3);
     }
 }
 '''
@@ -621,29 +581,7 @@ pub fn main() {
         "{}",
         format!("Max of {:?} = {:?}", numbers, find_max(&numbers))
     );
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{quickcheck, TestResult};
-    #[test]
-    fn test_fibonacci_examples() {
-        assert_eq!(fibonacci(0), 0);
-        assert_eq!(fibonacci(1), 1);
-        assert_eq!(fibonacci(-1), -1);
-    }
-    #[test]
-    fn test_factorial_examples() {
-        assert_eq!(factorial(0), 0);
-        assert_eq!(factorial(1), 1);
-        assert_eq!(factorial(-1), -1);
-    }
-    #[test]
-    fn test_find_max_examples() {
-        assert_eq!(find_max(&vec![]), 0);
-        assert_eq!(find_max(&vec![1]), 1);
-        assert_eq!(find_max(&vec![1, 2, 3]), 3);
-    }
+};
 }
 '''
 
@@ -2041,15 +1979,7 @@ pub fn while_true_example() -> i32 {
         }
     }
     count
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{quickcheck, TestResult};
-    #[test]
-    fn test_while_true_example_examples() {
-        let _ = while_true_example();
-    }
+};
 }
 '''
 
@@ -2237,29 +2167,7 @@ pub fn loop_invariant_expressions(items: &Vec<serde_json::Value>) -> i32 {
         total = total + item + x + y * 2;
     }
     total
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{quickcheck, TestResult};
-    #[test]
-    fn test_repeated_function_calls_examples() {
-        assert_eq!(repeated_function_calls(0), 0);
-        assert_eq!(repeated_function_calls(1), 1);
-        assert_eq!(repeated_function_calls(-1), -1);
-    }
-    #[test]
-    fn test_nested_expressions_examples() {
-        assert_eq!(nested_expressions(0, 0), 0);
-        assert_eq!(nested_expressions(1, 2), 3);
-        assert_eq!(nested_expressions(-1, 1), 0);
-    }
-    #[test]
-    fn test_loop_invariant_expressions_examples() {
-        assert_eq!(loop_invariant_expressions(&vec![]), 0);
-        assert_eq!(loop_invariant_expressions(&vec![1]), 1);
-        assert_eq!(loop_invariant_expressions(&vec![1, 2, 3]), 3);
-    }
+};
 }
 '''
 
@@ -2457,17 +2365,7 @@ pub fn test_functions() -> Result<(), Box<dyn std::error::Error>> {
     let test_array = vec![1, 3, 5, 7, 9, 11, 13, 15, 17, 19];
     let index = binary_search(&test_array, 7)?;
     log::info!("{}", format!("Index of 7: {:?}", index));
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{quickcheck, TestResult};
-    #[test]
-    fn test_fibonacci_examples() {
-        assert_eq!(fibonacci(0), 0);
-        assert_eq!(fibonacci(1), 1);
-        assert_eq!(fibonacci(-1), -1);
-    }
+};
 }
 '''
 
@@ -2564,23 +2462,7 @@ pub fn process_data(data: Vec<i32>) -> HashMap<String, i32> {
         map
     };
     result
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{quickcheck, TestResult};
-    #[test]
-    fn test_calculate_sum_examples() {
-        assert_eq!(calculate_sum(&vec![]), 0);
-        assert_eq!(calculate_sum(&vec![1]), 1);
-        assert_eq!(calculate_sum(&vec![1, 2, 3]), 6);
-    }
-    #[test]
-    fn test_find_max_examples() {
-        assert_eq!(find_max(&vec![]), 0);
-        assert_eq!(find_max(&vec![1]), 1);
-        assert_eq!(find_max(&vec![1, 2, 3]), 3);
-    }
+};
 }
 '''
 
@@ -2718,17 +2600,7 @@ pub fn process_data(items: Vec<i32>) -> Result<HashMap<String, i32>, IndexError>
         }
     }
     Ok(stats)
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{quickcheck, TestResult};
-    #[test]
-    fn test_calculate_fibonacci_examples() {
-        assert_eq!(calculate_fibonacci(0), 0);
-        assert_eq!(calculate_fibonacci(1), 1);
-        assert_eq!(calculate_fibonacci(-1), -1);
-    }
+};
 }
 '''
 
@@ -2904,47 +2776,7 @@ pub fn large_function(x: i32, y: i32, z: i32) -> i32 {
     let _cse_temp_6 = m + n + o;
     let result = _cse_temp_6;
     result
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{quickcheck, TestResult};
-    #[test]
-    fn test_square_examples() {
-        assert_eq!(square(0), 0);
-        assert_eq!(square(1), 1);
-        assert_eq!(square(-1), -1);
-    }
-    #[test]
-    fn test_add_one_examples() {
-        assert_eq!(add_one(0), 0);
-        assert_eq!(add_one(1), 1);
-        assert_eq!(add_one(-1), -1);
-    }
-    #[test]
-    fn test_process_single_use_examples() {
-        assert_eq!(process_single_use(0), 0);
-        assert_eq!(process_single_use(1), 1);
-        assert_eq!(process_single_use(-1), -1);
-    }
-    #[test]
-    fn test_main_computation_examples() {
-        assert_eq!(main_computation(0, 0), 0);
-        assert_eq!(main_computation(1, 2), 3);
-        assert_eq!(main_computation(-1, 1), 0);
-    }
-    #[test]
-    fn test_recursive_factorial_examples() {
-        assert_eq!(recursive_factorial(0), 0);
-        assert_eq!(recursive_factorial(1), 1);
-        assert_eq!(recursive_factorial(-1), -1);
-    }
-    #[test]
-    fn test_has_loop_examples() {
-        assert_eq!(has_loop(&vec![]), 0);
-        assert_eq!(has_loop(&vec![1]), 1);
-        assert_eq!(has_loop(&vec![1, 2, 3]), 3);
-    }
+};
 }
 '''
 
@@ -3098,17 +2930,7 @@ pub fn lookup_values<'b, 'a>(data: &'a HashMap<String, i32>, keys: &'b Vec<Strin
         }
     }
     results
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{quickcheck, TestResult};
-    #[test]
-    fn test_compute_sum_examples() {
-        assert_eq!(compute_sum(&vec![]), 0);
-        assert_eq!(compute_sum(&vec![1]), 1);
-        assert_eq!(compute_sum(&vec![1, 2, 3]), 6);
-    }
+};
 }
 '''
 
@@ -3143,17 +2965,7 @@ pub fn multiply(x: i32, y: i32) -> i32 {
     let _cse_temp_0 = x * y;
     let result = _cse_temp_0;
     result
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{quickcheck, TestResult};
-    #[test]
-    fn quickcheck_add_numbers() {
-        fn prop(a: i32, b: i32) -> TestResult {
-            if (a > 0 && b > i32::MAX - a) || (a < 0 && b < i32::MIN - a) {
-                return TestResult::discard();
-            }
+};
             let result1 = add_numbers(a.clone(), b.clone());
             let result2 = add_numbers(b.clone(), a.clone());
             if result1 != result2 {
@@ -3162,18 +2974,6 @@ mod tests {
             TestResult::passed()
         }
         quickcheck(prop as fn(i32, i32) -> TestResult);
-    }
-    #[test]
-    fn test_add_numbers_examples() {
-        assert_eq!(add_numbers(0, 0), 0);
-        assert_eq!(add_numbers(1, 2), 3);
-        assert_eq!(add_numbers(-1, 1), 0);
-    }
-    #[test]
-    fn test_multiply_examples() {
-        assert_eq!(multiply(0, 0), 0);
-        assert_eq!(multiply(1, 2), 3);
-        assert_eq!(multiply(-1, 1), 0);
     }
 }
 '''
@@ -3404,29 +3204,10 @@ pub fn process(x: serde_json::Value) -> i32 {
 #[doc = " Depyler: proven to terminate"]
 pub fn default_value() -> i32 {
     0
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{quickcheck, TestResult};
-    #[test]
-    fn test_while_true_pattern_examples() {
-        let _ = while_true_pattern();
-    }
-    #[test]
-    fn quickcheck_process() {
-        fn prop(x: ()) -> TestResult {
-            let result = process(x.clone());
-            if result != x {
-                return TestResult::failed();
-            }
+};
             TestResult::passed()
         }
         quickcheck(prop as fn(()) -> TestResult);
-    }
-    #[test]
-    fn test_default_value_examples() {
-        let _ = default_value();
     }
 }
 '''
@@ -3510,21 +3291,7 @@ pub fn simple_math() -> Result<f64, ZeroDivisionError> {
     let _cse_temp_1 = (c as f64) / (2.0 as f64);
     let d = _cse_temp_1;
     Ok(d)
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{quickcheck, TestResult};
-    #[test]
-    fn test_compute_constants_examples() {
-        let _ = compute_constants();
-    }
-    #[test]
-    fn test_fibonacci_examples() {
-        assert_eq!(fibonacci(0), 0);
-        assert_eq!(fibonacci(1), 1);
-        assert_eq!(fibonacci(-1), -1);
-    }
+};
 }
 '''
 
@@ -4113,41 +3880,7 @@ pub fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mat_b = vec![vec![5.0, 6.0], vec![7.0, 8.0]];
     matrix_multiply(&mat_a, &mat_b);
     simple_function(10, 20);
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{quickcheck, TestResult};
-    #[test]
-    fn test_fibonacci_recursive_examples() {
-        assert_eq!(fibonacci_recursive(0), 0);
-        assert_eq!(fibonacci_recursive(1), 1);
-        assert_eq!(fibonacci_recursive(-1), -1);
-    }
-    #[test]
-    fn test_fibonacci_iterative_examples() {
-        assert_eq!(fibonacci_iterative(0), 0);
-        assert_eq!(fibonacci_iterative(1), 1);
-        assert_eq!(fibonacci_iterative(-1), -1);
-    }
-    #[test]
-    fn test_process_list_examples() {
-        assert_eq!(process_list(&vec![]), 0);
-        assert_eq!(process_list(&vec![1]), 1);
-        assert_eq!(process_list(&vec![1, 2, 3]), 3);
-    }
-    #[test]
-    fn test_type_check_heavy_examples() {
-        assert_eq!(type_check_heavy(&vec![]), 0);
-        assert_eq!(type_check_heavy(&vec![1]), 1);
-        assert_eq!(type_check_heavy(&vec![1, 2, 3]), 3);
-    }
-    #[test]
-    fn quickcheck_simple_function() {
-        fn prop(x: i32, y: i32) -> TestResult {
-            if (x > 0 && y > i32::MAX - x) || (x < 0 && y < i32::MIN - x) {
-                return TestResult::discard();
-            }
+};
             let result1 = simple_function(x.clone(), y.clone());
             let result2 = simple_function(y.clone(), x.clone());
             if result1 != result2 {
@@ -4156,12 +3889,6 @@ mod tests {
             TestResult::passed()
         }
         quickcheck(prop as fn(i32, i32) -> TestResult);
-    }
-    #[test]
-    fn test_simple_function_examples() {
-        assert_eq!(simple_function(0, 0), 0);
-        assert_eq!(simple_function(1, 2), 3);
-        assert_eq!(simple_function(-1, 1), 0);
     }
 }
 '''
@@ -4298,35 +4025,7 @@ pub fn hot_loop() -> i32 {
         }
     }
     total
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{quickcheck, TestResult};
-    #[test]
-    fn test_fibonacci_recursive_examples() {
-        assert_eq!(fibonacci_recursive(0), 0);
-        assert_eq!(fibonacci_recursive(1), 1);
-        assert_eq!(fibonacci_recursive(-1), -1);
-    }
-    #[test]
-    fn test_process_list_examples() {
-        assert_eq!(process_list(&vec![]), 0);
-        assert_eq!(process_list(&vec![1]), 1);
-        assert_eq!(process_list(&vec![1, 2, 3]), 3);
-    }
-    #[test]
-    fn test_type_check_heavy_examples() {
-        assert_eq!(type_check_heavy(&vec![]), 0);
-        assert_eq!(type_check_heavy(&vec![1]), 1);
-        assert_eq!(type_check_heavy(&vec![1, 2, 3]), 3);
-    }
-    #[test]
-    fn quickcheck_simple_function() {
-        fn prop(x: i32, y: i32) -> TestResult {
-            if (x > 0 && y > i32::MAX - x) || (x < 0 && y < i32::MIN - x) {
-                return TestResult::discard();
-            }
+};
             let result1 = simple_function(x.clone(), y.clone());
             let result2 = simple_function(y.clone(), x.clone());
             if result1 != result2 {
@@ -4335,16 +4034,6 @@ mod tests {
             TestResult::passed()
         }
         quickcheck(prop as fn(i32, i32) -> TestResult);
-    }
-    #[test]
-    fn test_simple_function_examples() {
-        assert_eq!(simple_function(0, 0), 0);
-        assert_eq!(simple_function(1, 2), 3);
-        assert_eq!(simple_function(-1, 1), 0);
-    }
-    #[test]
-    fn test_hot_loop_examples() {
-        let _ = hot_loop();
     }
 }
 '''

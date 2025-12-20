@@ -22,17 +22,7 @@ rust = '''
 #[inline]
 pub fn add(a: i32, b: i32) -> i32 {
     return a + b;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn quickcheck_add() {
-        fn prop(a: i32, b: i32) -> TestResult {
-            if (a > 0 && b > i32::MAX - a) || (a < 0 && b < i32::MIN - a) {
-                return TestResult::discard();
-            }
+};
             let result1 = add(a.clone(), b.clone());
             let result2 = add(b.clone(), a.clone());
             if result1 != result2 {
@@ -41,12 +31,6 @@ mod tests {
             TestResult::passed()
         }
         quickcheck(prop as fn(i32, i32) -> TestResult);
-    }
-    #[test]
-    fn test_add_examples() {
-        assert_eq!(add(0, 0), 0);
-        assert_eq!(add(1, 2), 3);
-        assert_eq!(add(-1, 1), 0);
     }
 }
 '''
@@ -82,15 +66,7 @@ rust = '''
 #[repr(C)]
 pub fn get_layout() -> i32 {
     return 42;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_get_layout_examples() {
-        let _ = get_layout();
-    }
+};
 }
 '''
 
@@ -110,17 +86,7 @@ rust = '''
 #[must_use]
 pub fn calculate(x: i32) -> i32 {
     return x * 2;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_calculate_examples() {
-        assert_eq!(calculate(0), 0);
-        assert_eq!(calculate(1), 1);
-        assert_eq!(calculate(-1), -1);
-    }
+};
 }
 '''
 
@@ -138,17 +104,7 @@ rust = '''
 #[inline(always)]
 pub fn fast_function(n: i32) -> i32 {
     return n + 1;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_fast_function_examples() {
-        assert_eq!(fast_function(0), 0);
-        assert_eq!(fast_function(1), 1);
-        assert_eq!(fast_function(-1), -1);
-    }
+};
 }
 '''
 
@@ -178,17 +134,7 @@ pub fn hot_path(items: &Vec<i32>) -> i32 {
         total = total + item;
     }
     return total;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_hot_path_examples() {
-        assert_eq!(hot_path(vec![]), 0);
-        assert_eq!(hot_path(vec![1]), 1);
-        assert_eq!(hot_path(vec![1, 2, 3]), 3);
-    }
+};
 }
 '''
 
@@ -204,17 +150,7 @@ def normal_function(x: int) -> int:
 rust = '''
 pub fn normal_function(x: i32) -> i32 {
     return x * 2;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_normal_function_examples() {
-        assert_eq!(normal_function(0), 0);
-        assert_eq!(normal_function(1), 1);
-        assert_eq!(normal_function(-1), -1);
-    }
+};
 }
 '''
 
@@ -240,23 +176,7 @@ pub fn fast_func(x: i32) -> i32 {
 #[cold]
 pub fn slow_func(x: i32) -> i32 {
     return x - 1;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_fast_func_examples() {
-        assert_eq!(fast_func(0), 0);
-        assert_eq!(fast_func(1), 1);
-        assert_eq!(fast_func(-1), -1);
-    }
-    #[test]
-    fn test_slow_func_examples() {
-        assert_eq!(slow_func(0), 0);
-        assert_eq!(slow_func(1), 1);
-        assert_eq!(slow_func(-1), -1);
-    }
+};
 }
 '''
 
@@ -276,16 +196,6 @@ rust = '''
 #[inline]
 pub fn documented_function(x: i32) -> i32 {
     return x * 2;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_documented_function_examples() {
-        assert_eq!(documented_function(0), 0);
-        assert_eq!(documented_function(1), 1);
-        assert_eq!(documented_function(-1), -1);
-    }
+};
 }
 '''

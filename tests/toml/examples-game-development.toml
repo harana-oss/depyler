@@ -803,17 +803,6 @@ pub fn run_simulations() -> Result<(), Box<dyn std::error::Error>> {
     log::info!("{}", "\n=== All Simulations Complete ===");
     Ok(())
 }
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{quickcheck, TestResult};
-    #[test]
-    fn test_roll_dice_examples() {
-        assert_eq!(roll_dice(0, 0), 0);
-        assert_eq!(roll_dice(1, 2), 3);
-        assert_eq!(roll_dice(-1, 1), 0);
-    }
-}
 '''
 
 [[test]]

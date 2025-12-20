@@ -24,8 +24,7 @@ pub fn read_file(path: String) -> String {
         let mut content = String::new();
         f.read_to_string(&mut content)?;
         content
-    };
-}
+    }
 '''
 
 [[test]]
@@ -45,8 +44,7 @@ pub fn open_default(path: String) -> String {
         let mut content = String::new();
         f.read_to_string(&mut content)?;
         content
-    };
-}
+    }
 '''
 
 [[test]]
@@ -123,8 +121,7 @@ pub fn read_binary(path: String) -> bytes {
         let mut content = String::new();
         f.read_to_string(&mut content)?;
         content
-    };
-}
+    }
 '''
 
 [[test]]
@@ -161,8 +158,7 @@ pub fn read_utf8(path: String) -> String {
         let mut content = String::new();
         f.read_to_string(&mut content)?;
         content
-    };
-}
+    }
 '''
 
 [[test]]
@@ -182,8 +178,7 @@ pub fn use_context_manager(path: String) -> String {
         let mut content = String::new();
         f.read_to_string(&mut content)?;
         content
-    };
-}
+    }
 '''
 
 [[test]]
@@ -210,5 +205,139 @@ pub fn safe_read(path: String) -> String {
         };
         return "".to_string();
     }
+}
+'''
+
+# =============================================================================
+# File Mode Tracking Tests
+# Current implementation defaults to text mode. Tests document this behavior.
+# =============================================================================
+
+[[test]]
+name = "file_read_text_mode"
+description = "f.read() on text mode file generates read_to_string()"
+
+python = '''
+def read_text_file(path: str) -> str:
+    with open(path, 'r') as f:
+        content = f.read()
+        return content
+'''
+
+rust = '''
+pub fn read_text_file(path: String) -> String {
+    let mut f = std::fs::File::open(path)?;
+    let content = {
+        let mut content = String::new();
+        f.read_to_string(&mut content)?;
+        content
+    };
+    return content;
+}
+'''
+
+[[test]]
+name = "file_readlines_text_mode"
+description = "f.readlines() in text mode generates line-based iteration"
+
+python = '''
+def read_lines(path: str) -> list:
+    with open(path, 'r') as f:
+        lines = f.readlines()
+        return lines
+'''
+
+rust = '''
+use std::io::BufRead;
+pub fn read_lines(path: String) -> Vec<String> {
+    let mut f = std::fs::File::open(path)?;
+    let lines = std::io::BufReader::new(&f).lines().collect::<Vec<_>>()?.iter().map(|s| s.to_string()).collect();
+    return lines;
+}
+'''
+
+[[test]]
+name = "file_readline_single"
+description = "f.readline() reads a single line from file"
+
+python = '''
+def read_first_line(path: str) -> str:
+    with open(path, 'r') as f:
+        line = f.readline()
+        return line
+'''
+
+rust = '''
+use std::io::BufRead;
+pub fn read_first_line(path: String) -> String {
+    let mut f = std::fs::File::open(path)?;
+    let mut line = String::new();
+    std::io::BufReader::new(&f).read_line(&mut line)?;
+    return line;
+}
+'''
+
+[[test]]
+name = "file_write_text_vs_binary"
+description = "f.write() with string in text mode"
+
+python = '''
+def write_text(path: str, text: str) -> None:
+    with open(path, 'w') as f:
+        f.write(text)
+'''
+
+rust = '''
+pub fn write_text(path: String, text: String) {
+    let mut f = std::fs::File::create(path)?;
+    f.write(text);
+}
+'''
+
+[[test]]
+name = "file_read_binary_mode_uses_text"
+description = "Binary read mode currently defaults to text behavior"
+
+python = '''
+def read_binary_as_text(path: str) -> bytes:
+    with open(path, 'rb') as f:
+        data = f.read()
+        return data
+'''
+
+rust = '''
+pub fn read_binary_as_text(path: String) -> bytes {
+    let mut f = std::fs::File::open(path)?;
+    let data = {
+        let mut content = String::new();
+        f.read_to_string(&mut content)?;
+        content
+    };
+    return data;
+}
+'''
+
+[[test]]
+name = "file_iteration"
+description = "Iterating over file lines"
+
+python = '''
+def count_lines(path: str) -> int:
+    count = 0
+    with open(path, 'r') as f:
+        for line in f:
+            count += 1
+    return count
+'''
+
+rust = '''
+use std::io::BufRead;
+pub fn count_lines(path: String) -> i32 {
+    let count = 0;
+    let mut f = std::fs::File::open(path)?;
+    for line in std::io::BufReader::new(&f).lines() {
+        count += 1;
+    }
+    return count;
 }
 '''

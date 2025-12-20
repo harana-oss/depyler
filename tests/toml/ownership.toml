@@ -43,16 +43,7 @@ rust = '''
 pub fn copy_list(items: Vec<i32>) -> Vec<i32> {
     let copy = items.into_iter().collect::<Vec<_>>();
     return copy;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_copy_list_examples() {
-        assert_eq!(copy_list(vec![]), vec![]);
-        assert_eq!(copy_list(vec![1]), vec![1]);
-    }
+};
 }
 '''
 
@@ -68,17 +59,7 @@ def read_only(items: list[int]) -> int:
 rust = '''
 pub fn read_only(items: Vec<i32>) -> i32 {
     return items.iter().sum::<i32>();
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_read_only_examples() {
-        assert_eq!(read_only(vec![]), 0);
-        assert_eq!(read_only(vec![1]), 1);
-        assert_eq!(read_only(vec![1, 2, 3]), 3);
-    }
+};
 }
 '''
 
@@ -406,17 +387,7 @@ pub fn sum_items(items: &Vec<i32>) -> i32 {
         total = total + item;
     }
     return total;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_sum_items_examples() {
-        assert_eq!(sum_items(vec![]), 0);
-        assert_eq!(sum_items(vec![1]), 1);
-        assert_eq!(sum_items(vec![1, 2, 3]), 6);
-    }
+};
 }
 '''
 
@@ -571,26 +542,10 @@ def identity(items: list[int]) -> list[int]:
 rust = '''
 pub fn identity(items: Vec<i32>) -> Vec<i32> {
     return items;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn quickcheck_identity() {
-        fn prop(items: Vec<i32>) -> TestResult {
-            let result = identity(&items);
-            if result != items {
-                return TestResult::failed();
-            }
+};
             TestResult::passed()
         }
         quickcheck(prop as fn(Vec<i32>) -> TestResult);
-    }
-    #[test]
-    fn test_identity_examples() {
-        assert_eq!(identity(vec![]), vec![]);
-        assert_eq!(identity(vec![1]), vec![1]);
     }
 }
 '''

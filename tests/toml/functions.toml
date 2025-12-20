@@ -28,18 +28,7 @@ pub const T: serde_json::Value = TypeVar::new("T");
 use serde_json;
 pub fn identity<T: Clone>(value: T) -> T {
     return value;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn quickcheck_identity() {
-        fn prop(value: ()) -> TestResult {
-            let result = identity(value.clone());
-            if result != value {
-                return TestResult::failed();
-            }
+};
             TestResult::passed()
         }
         quickcheck(prop as fn(()) -> TestResult);
@@ -60,17 +49,7 @@ rust = '''
 #[doc = "This is a documented function."]
 pub fn documented_function(x: i32) -> i32 {
     return x * 2;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_documented_function_examples() {
-        assert_eq!(documented_function(0), 0);
-        assert_eq!(documented_function(1), 1);
-        assert_eq!(documented_function(-1), -1);
-    }
+};
 }
 '''
 
@@ -87,17 +66,7 @@ rust = '''
 pub fn increment(mut x: i32) -> i32 {
     x = x + 1;
     return x;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_increment_examples() {
-        assert_eq!(increment(0), 0);
-        assert_eq!(increment(1), 1);
-        assert_eq!(increment(-1), -1);
-    }
+};
 }
 '''
 
@@ -265,15 +234,7 @@ def starts_with_hello(s: str) -> bool:
 rust = '''
 pub fn starts_with_hello(s: String) -> bool {
     return s.starts_with("hello");
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_starts_with_hello_examples() {
-        let _ = starts_with_hello(Default::default());
-    }
+};
 }
 '''
 
@@ -395,17 +356,7 @@ def add_ten(x: int, unused: int) -> int:
 rust = '''
 pub fn add_ten(x: i32, unused: i32) -> i32 {
     return x + 10;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_add_ten_examples() {
-        assert_eq!(add_ten(0, 0), 0);
-        assert_eq!(add_ten(1, 2), 3);
-        assert_eq!(add_ten(-1, 1), 0);
-    }
+};
 }
 '''
 
@@ -512,43 +463,15 @@ pub fn clean_left(text: String) -> String {
 }
 pub fn clean_right(text: String) -> String {
     return text.trim_end().to_string();
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn quickcheck_clean_text() {
-        fn prop(text: String) -> TestResult {
-            let once = clean_text((&*text).into());
-            let twice = clean_text(once.clone());
-            if once != twice {
-                return TestResult::failed();
-            }
+};
             TestResult::passed()
         }
         quickcheck(prop as fn(String) -> TestResult);
     }
-    #[test]
-    fn quickcheck_clean_left() {
-        fn prop(text: String) -> TestResult {
-            let once = clean_left((&*text).into());
-            let twice = clean_left(once.clone());
-            if once != twice {
-                return TestResult::failed();
-            }
             TestResult::passed()
         }
         quickcheck(prop as fn(String) -> TestResult);
     }
-    #[test]
-    fn quickcheck_clean_right() {
-        fn prop(text: String) -> TestResult {
-            let once = clean_right((&*text).into());
-            let twice = clean_right(once.clone());
-            if once != twice {
-                return TestResult::failed();
-            }
             TestResult::passed()
         }
         quickcheck(prop as fn(String) -> TestResult);
@@ -603,19 +526,7 @@ pub fn starts_with_test(text: String) -> bool {
 }
 pub fn ends_with_test(text: String) -> bool {
     return text.ends_with("world");
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_starts_with_test_examples() {
-        let _ = starts_with_test(Default::default());
-    }
-    #[test]
-    fn test_ends_with_test_examples() {
-        let _ = ends_with_test(Default::default());
-    }
+};
 }
 '''
 
@@ -831,15 +742,7 @@ pub fn calculate(a: i32, b: i32, operation: String, verbose: bool) -> i32 {
 }
 pub fn test() -> i32 {
     return calculate(10, 20, "add".to_string(), true);
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_test_examples() {
-        let _ = test();
-    }
+};
 }
 '''
 
@@ -866,17 +769,7 @@ pub fn outer(inner_result: i32, scale: f64, offset: i32) -> i32 {
 }
 pub fn test() -> i32 {
     return outer(inner(10, 20), 2.0, inner(5, 5));
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn quickcheck_inner() {
-        fn prop(x: i32, y: i32) -> TestResult {
-            if (x > 0 && y > i32::MAX - x) || (x < 0 && y < i32::MIN - x) {
-                return TestResult::discard();
-            }
+};
             let result1 = inner(x.clone(), y.clone());
             let result2 = inner(y.clone(), x.clone());
             if result1 != result2 {
@@ -885,16 +778,6 @@ mod tests {
             TestResult::passed()
         }
         quickcheck(prop as fn(i32, i32) -> TestResult);
-    }
-    #[test]
-    fn test_inner_examples() {
-        assert_eq!(inner(0, 0), 0);
-        assert_eq!(inner(1, 2), 3);
-        assert_eq!(inner(-1, 1), 0);
-    }
-    #[test]
-    fn test_test_examples() {
-        let _ = test();
     }
 }
 '''
@@ -916,17 +799,7 @@ pub fn add(a: i32, b: i32) -> i32 {
 }
 pub fn test() -> i32 {
     return add(5, 3);
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn quickcheck_add() {
-        fn prop(a: i32, b: i32) -> TestResult {
-            if (a > 0 && b > i32::MAX - a) || (a < 0 && b < i32::MIN - a) {
-                return TestResult::discard();
-            }
+};
             let result1 = add(a.clone(), b.clone());
             let result2 = add(b.clone(), a.clone());
             if result1 != result2 {
@@ -935,16 +808,6 @@ mod tests {
             TestResult::passed()
         }
         quickcheck(prop as fn(i32, i32) -> TestResult);
-    }
-    #[test]
-    fn test_add_examples() {
-        assert_eq!(add(0, 0), 0);
-        assert_eq!(add(1, 2), 3);
-        assert_eq!(add(-1, 1), 0);
-    }
-    #[test]
-    fn test_test_examples() {
-        let _ = test();
     }
 }
 '''
@@ -966,19 +829,7 @@ pub fn no_params() -> i32 {
 }
 pub fn test() -> i32 {
     return no_params();
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_no_params_examples() {
-        let _ = no_params();
-    }
-    #[test]
-    fn test_test_examples() {
-        let _ = test();
-    }
+};
 }
 '''
 
@@ -1130,15 +981,7 @@ pub fn helper() {
 pub fn main() {
     helper();
     process();
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_get_value_examples() {
-        let _ = get_value();
-    }
+};
 }
 '''
 
@@ -1214,17 +1057,7 @@ pub fn main() {
         let result = fibonacci_iterative(limit);
         log::info!("{}", result);
     }
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_fibonacci_iterative_examples() {
-        assert_eq!(fibonacci_iterative(0), 0);
-        assert_eq!(fibonacci_iterative(1), 1);
-        assert_eq!(fibonacci_iterative(-1), -1);
-    }
+};
 }
 '''
 
@@ -1254,17 +1087,7 @@ pub fn main() {
     let nums = vec![1, 2, 3];
     let result = process(&nums);
     log::info!("{}", result);
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_process_examples() {
-        assert_eq!(process(vec![]), 0);
-        assert_eq!(process(vec![1]), 1);
-        assert_eq!(process(vec![1, 2, 3]), 3);
-    }
+};
 }
 '''
 
@@ -1296,19 +1119,7 @@ pub fn main() {
     let b = vec![3, 4];
     let result = merge(&a, &b);
     log::info!("{:?}", result);
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn quickcheck_merge() {
-        fn prop(list1: Vec<i32>, list2: Vec<i32>) -> TestResult {
-            let result1 = merge(&list1, &list2);
-            let result2 = merge(&list2, &list1);
-            if result1 != result2 {
-                return TestResult::failed();
-            }
+};
             TestResult::passed()
         }
         quickcheck(prop as fn(Vec<i32>, Vec<i32>) -> TestResult);
@@ -1342,17 +1153,7 @@ pub fn main() {
     let message = "hello world".to_string();
     let length = process_text(message);
     log::info!("{}", length);
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_process_text_examples() {
-        assert_eq!(process_text(""), 0);
-        assert_eq!(process_text("a"), 1);
-        assert_eq!(process_text("abc"), 3);
-    }
+};
 }
 '''
 
@@ -1412,17 +1213,7 @@ pub fn f(x: &Vec<String>) -> i32 {
 pub fn main() {
     let v = vec!["a".to_string(), "b".to_string()];
     f(&v);
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_f_examples() {
-        assert_eq!(f(vec![]), 0);
-        assert_eq!(f(vec![1]), 1);
-        assert_eq!(f(vec![1, 2, 3]), 3);
-    }
+};
 }
 '''
 
@@ -1552,17 +1343,7 @@ def add(a: int, b: int) -> int:
 rust = '''
 pub fn add(a: i32, b: i32) -> i32 {
     a + b
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn quickcheck_add() {
-        fn prop(a: i32, b: i32) -> TestResult {
-            if (a > 0 && b > i32::MAX - a) || (a < 0 && b < i32::MIN - a) {
-                return TestResult::discard();
-            }
+};
             let result1 = add(a.clone(), b.clone());
             let result2 = add(b.clone(), a.clone());
             if result1 != result2 {
@@ -1571,12 +1352,6 @@ mod tests {
             TestResult::passed()
         }
         quickcheck(prop as fn(i32, i32) -> TestResult);
-    }
-    #[test]
-    fn test_add_examples() {
-        assert_eq!(add(0, 0), 0);
-        assert_eq!(add(1, 2), 3);
-        assert_eq!(add(-1, 1), 0);
     }
 }
 '''
@@ -1599,17 +1374,7 @@ pub fn max_value(a: i32, b: i32) -> i32 {
         return a;
     }
     return b;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_max_value_examples() {
-        assert_eq!(max_value(0, 0), 0);
-        assert_eq!(max_value(1, 2), 3);
-        assert_eq!(max_value(-1, 1), 0);
-    }
+};
 }
 '''
 
@@ -1625,15 +1390,7 @@ def check_positive(x: int) -> bool:
 rust = '''
 pub fn check_positive(x: i32) -> bool {
     x > 0
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_check_positive_examples() {
-        let _ = check_positive(Default::default());
-    }
+};
 }
 '''
 
@@ -1650,17 +1407,7 @@ def add(a: int, b: int) -> int:
 rust = '''
 pub fn add(a: i32, b: i32) -> i32 {
     return a + b;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn quickcheck_add() {
-        fn prop(a: i32, b: i32) -> TestResult {
-            if (a > 0 && b > i32::MAX - a) || (a < 0 && b < i32::MIN - a) {
-                return TestResult::discard();
-            }
+};
             let result1 = add(a.clone(), b.clone());
             let result2 = add(b.clone(), a.clone());
             if result1 != result2 {
@@ -1669,12 +1416,6 @@ mod tests {
             TestResult::passed()
         }
         quickcheck(prop as fn(i32, i32) -> TestResult);
-    }
-    #[test]
-    fn test_add_examples() {
-        assert_eq!(add(0, 0), 0);
-        assert_eq!(add(1, 2), 3);
-        assert_eq!(add(-1, 1), 0);
     }
 }
 '''
@@ -1749,19 +1490,7 @@ pub fn bubble_sort(mut arr: Vec<i32>) -> Vec<i32> {
         }
     }
     return arr;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn quickcheck_bubble_sort() {
-        fn prop(arr: Vec<i32>) -> TestResult {
-            let input_len = arr.len();
-            let result = bubble_sort(&arr);
-            if result.len() != input_len {
-                return TestResult::failed();
-            }
+};
             let result = bubble_sort(&arr);
             for i in 1..result.len() {
                 if result[i - 1] > result[i] {
@@ -1778,11 +1507,6 @@ mod tests {
             TestResult::passed()
         }
         quickcheck(prop as fn(Vec<i32>) -> TestResult);
-    }
-    #[test]
-    fn test_bubble_sort_examples() {
-        assert_eq!(bubble_sort(vec![]), vec![]);
-        assert_eq!(bubble_sort(vec![1]), vec![1]);
     }
 }
 '''
@@ -1806,28 +1530,10 @@ pub fn abs_value(x: i32) -> i32 {
         return (-x);
     }
     return x;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn quickcheck_abs_value() {
-        fn prop(x: i32) -> TestResult {
-            let result = abs_value(x.clone());
-            if result < 0 {
-                return TestResult::failed();
-            }
+};
             TestResult::passed()
         }
         quickcheck(prop as fn(i32) -> TestResult);
-    }
-    #[test]
-    fn test_abs_value_examples() {
-        assert_eq!(abs_value(0), 0);
-        assert_eq!(abs_value(1), 1);
-        assert_eq!(abs_value(-1), 1);
-        assert_eq!(abs_value(i32::MIN + 1), i32::MAX);
     }
 }
 '''
@@ -1880,17 +1586,7 @@ pub fn safe_divide(a: i32, b: i32) -> i32 {
         let needs_adjustment = r_nonzero && signs_differ;
         if needs_adjustment { q - 1 } else { q }
     };
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_safe_divide_examples() {
-        assert_eq!(safe_divide(0, 0), 0);
-        assert_eq!(safe_divide(1, 2), 3);
-        assert_eq!(safe_divide(-1, 1), 0);
-    }
+};
 }
 '''
 
@@ -1924,19 +1620,7 @@ pub fn normalize_path(mut path: String) -> String {
         };
     }
     return path;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn quickcheck_normalize_path() {
-        fn prop(path: String) -> TestResult {
-            let once = normalize_path((&*path).into());
-            let twice = normalize_path(once.clone());
-            if once != twice {
-                return TestResult::failed();
-            }
+};
             TestResult::passed()
         }
         quickcheck(prop as fn(String) -> TestResult);
@@ -1994,15 +1678,7 @@ pub fn is_valid_email(email: String) -> bool {
     let local = parts.clone().get(0usize).cloned().unwrap();
     let domain = parts.get(1usize).cloned().unwrap();
     return ((local.len() as i32 > 0) && (domain.clone().len() as i32 > 0)) && (domain.contains(&"."));
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_is_valid_email_examples() {
-        let _ = is_valid_email(Default::default());
-    }
+};
 }
 '''
 
@@ -2053,17 +1729,7 @@ pub fn find_max(arr: &Vec<i32>) -> i32 {
         }
     }
     return max_val;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_find_max_examples() {
-        assert_eq!(find_max(vec![]), 0);
-        assert_eq!(find_max(vec![1]), 1);
-        assert_eq!(find_max(vec![1, 2, 3]), 3);
-    }
+};
 }
 '''
 
@@ -2080,17 +1746,7 @@ def add_numbers(a: int, b: int) -> int:
 rust = '''
 pub fn add_numbers(a: i32, b: i32) -> i32 {
     return a + b;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn quickcheck_add_numbers() {
-        fn prop(a: i32, b: i32) -> TestResult {
-            if (a > 0 && b > i32::MAX - a) || (a < 0 && b < i32::MIN - a) {
-                return TestResult::discard();
-            }
+};
             let result1 = add_numbers(a.clone(), b.clone());
             let result2 = add_numbers(b.clone(), a.clone());
             if result1 != result2 {
@@ -2099,12 +1755,6 @@ mod tests {
             TestResult::passed()
         }
         quickcheck(prop as fn(i32, i32) -> TestResult);
-    }
-    #[test]
-    fn test_add_numbers_examples() {
-        assert_eq!(add_numbers(0, 0), 0);
-        assert_eq!(add_numbers(1, 2), 3);
-        assert_eq!(add_numbers(-1, 1), 0);
     }
 }
 '''
@@ -2131,17 +1781,7 @@ pub fn sum_list(numbers: &Vec<i32>) -> i32 {
         total = total + n;
     }
     return total;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_sum_list_examples() {
-        assert_eq!(sum_list(vec![]), 0);
-        assert_eq!(sum_list(vec![1]), 1);
-        assert_eq!(sum_list(vec![1, 2, 3]), 6);
-    }
+};
 }
 '''
 
@@ -2173,5 +1813,107 @@ pub fn classify_number(n: i32) -> String {
             return "zero".to_string();
         }
     }
+}
+'''
+
+# =============================================================================
+# Function Parameter Kwargs Tests
+# Current implementation treats kwargs as positional arguments.
+# =============================================================================
+
+[[test]]
+name = "function_keyword_arguments"
+description = "Function call with keyword arguments are appended as positional"
+
+python = '''
+def greet(name: str, greeting: str) -> str:
+    return greeting + " " + name
+
+def use_kwargs() -> str:
+    return greet(name="World", greeting="Hello")
+'''
+
+rust = '''
+pub fn greet(name: String, greeting: String) -> String {
+    return format!("{} {}", greeting, name);
+}
+pub fn use_kwargs() -> String {
+    return greet("World".to_string(), "Hello".to_string());
+}
+'''
+
+[[test]]
+name = "function_mixed_positional_kwargs"
+description = "Function call with mixed positional and keyword arguments"
+
+python = '''
+def calculate(a: int, b: int, c: int) -> int:
+    return a + b * c
+
+def mixed_call() -> int:
+    return calculate(1, c=3, b=2)
+'''
+
+rust = '''
+pub fn calculate(a: i32, b: i32, c: i32) -> i32 {
+    return a + b * c;
+}
+pub fn mixed_call() -> i32 {
+    return calculate(1, 3, 2);
+}
+'''
+
+[[test]]
+name = "function_default_parameter_values"
+description = "Function with default parameter values generates Option<T>"
+
+python = '''
+def greet_with_default(name: str, greeting: str = "Hello") -> str:
+    return greeting + " " + name
+'''
+
+rust = '''
+pub fn greet_with_default(name: String, greeting: Option<String>) -> String {
+    let greeting = greeting.unwrap_or("Hello".to_string());
+    return format!("{} {}", greeting, name);
+}
+'''
+
+[[test]]
+name = "function_kwargs_method_call"
+description = "Method call with keyword arguments"
+
+python = '''
+def format_string() -> str:
+    template = "{name} is {age}"
+    return template.format(name="Alice", age=30)
+'''
+
+rust = '''
+pub fn format_string() -> String {
+    let template = "{name} is {age}";
+    return template.replace("{name}", "Alice").replace("{age}", "30");
+}
+'''
+
+[[test]]
+name = "function_multiple_defaults"
+description = "Function with multiple default parameters"
+
+python = '''
+def create_user(name: str, age: int = 0, active: bool = True) -> str:
+    if active:
+        return name + " is active"
+    return name + " is inactive"
+'''
+
+rust = '''
+pub fn create_user(name: String, age: Option<i32>, active: Option<bool>) -> String {
+    let age = age.unwrap_or(0);
+    let active = active.unwrap_or(true);
+    if active {
+        return format!("{} is active", name);
+    }
+    return format!("{} is inactive", name);
 }
 '''

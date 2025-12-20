@@ -1395,15 +1395,7 @@ pub fn test_set_pop() -> i32 {
         })
         .expect("pop from empty set");
     value
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{quickcheck, TestResult};
-    #[test]
-    fn test_test_set_pop_examples() {
-        let _ = test_set_pop();
-    }
+};
 }
 '''
 

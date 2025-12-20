@@ -67,23 +67,6 @@ pub fn second() -> i32 {
 pub fn combined() -> i32 {
     return first() + second();
 }
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_first_examples() {
-        let _ = first();
-    }
-    #[test]
-    fn test_second_examples() {
-        let _ = second();
-    }
-    #[test]
-    fn test_combined_examples() {
-        let _ = combined();
-    }
-}
 '''
 
 [[test]]
@@ -142,17 +125,6 @@ pub fn fully_typed(x: i32, y: i32) -> i32 {
     let z: i32 = x + y;
     return z;
 }
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_fully_typed_examples() {
-        assert_eq!(fully_typed(0, 0), 0);
-        assert_eq!(fully_typed(1, 2), 3);
-        assert_eq!(fully_typed(-1, 1), 0);
-    }
-}
 '''
 
 [[test]]
@@ -209,17 +181,6 @@ def efficient_sum(nums: list[int]) -> int:
 rust = '''
 pub fn efficient_sum(nums: Vec<i32>) -> i32 {
     return nums.iter().sum::<i32>();
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_efficient_sum_examples() {
-        assert_eq!(efficient_sum(vec![]), 0);
-        assert_eq!(efficient_sum(vec![1]), 1);
-        assert_eq!(efficient_sum(vec![1, 2, 3]), 6);
-    }
 }
 '''
 
@@ -337,16 +298,6 @@ rust = '''
 pub fn double_all(nums: &Vec<i32>) -> Vec<i32> {
     return nums.clone().into_iter().map(|n| n * 2).collect::<Vec<_>>();
 }
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_double_all_examples() {
-        assert_eq!(double_all(vec![]), vec![]);
-        assert_eq!(double_all(vec![1]), vec![1]);
-    }
-}
 '''
 
 [[test]]
@@ -437,17 +388,6 @@ pub fn safe_divide(a: i32, b: i32) -> i32 {
         let needs_adjustment = r_nonzero && signs_differ;
         if needs_adjustment { q - 1 } else { q }
     };
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_safe_divide_examples() {
-        assert_eq!(safe_divide(0, 0), 0);
-        assert_eq!(safe_divide(1, 2), 3);
-        assert_eq!(safe_divide(-1, 1), 0);
-    }
 }
 '''
 
@@ -2118,28 +2058,5 @@ pub fn play_simple_round(target: i32, max_attempts: i32) -> i32 {
         }
     }
     attempts
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_generate_number_examples() {
-        assert_eq!(generate_number(0, 0), 0);
-        assert_eq!(generate_number(1, 2), 3);
-        assert_eq!(generate_number(-1, 1), 0);
-    }
-    #[test]
-    fn test_calculate_score_examples() {
-        assert_eq!(calculate_score(0, 0), 0);
-        assert_eq!(calculate_score(1, 2), 3);
-        assert_eq!(calculate_score(-1, 1), 0);
-    }
-    #[test]
-    fn test_play_simple_round_examples() {
-        assert_eq!(play_simple_round(0, 0), 0);
-        assert_eq!(play_simple_round(1, 2), 3);
-        assert_eq!(play_simple_round(-1, 1), 0);
-    }
 }
 '''

@@ -878,32 +878,10 @@ pub fn analyze_dataset() -> Result<(), Box<dyn std::error::Error>> {
     );
     log::info!("{}", "=== Analysis Complete ===");
     Ok(())
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{quickcheck, TestResult};
-    #[test]
-    fn test_detect_outliers_examples() {
-        assert_eq!(detect_outliers(vec![]), vec![]);
-        assert_eq!(detect_outliers(vec![1]), vec![1]);
-    }
-    #[test]
-    fn quickcheck_normalize_data() {
-        fn prop(data: Vec<f64>) -> TestResult {
-            let once = normalize_data(&data);
-            let twice = normalize_data(once.clone());
-            if once != twice {
-                return TestResult::failed();
-            }
+};
             TestResult::passed()
         }
         quickcheck(prop as fn(Vec<f64>) -> TestResult);
-    }
-    #[test]
-    fn test_normalize_data_examples() {
-        assert_eq!(normalize_data(vec![]), vec![]);
-        assert_eq!(normalize_data(vec![1]), vec![1]);
     }
 }
 '''
@@ -1128,29 +1106,7 @@ pub fn rotate_list_left(
         result.push(numbers.get(i as usize).cloned().unwrap_or_default());
     }
     Ok(result)
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{quickcheck, TestResult};
-    #[test]
-    fn test_filter_even_numbers_examples() {
-        assert_eq!(filter_even_numbers(vec![]), vec![]);
-        assert_eq!(filter_even_numbers(vec![1]), vec![1]);
-    }
-    #[test]
-    fn test_find_duplicates_examples() {
-        assert_eq!(find_duplicates(vec![]), vec![]);
-        assert_eq!(find_duplicates(vec![1]), vec![1]);
-    }
-    #[test]
-    fn quickcheck_merge_sorted_lists() {
-        fn prop(list1: Vec<i32>, list2: Vec<i32>) -> TestResult {
-            let result = merge_sorted_lists(&list1, &list2);
-            for i in 1..result.len() {
-                if result[i - 1] > result[i] {
-                    return TestResult::failed();
-                }
+};
             }
             let mut input_sorted = list1.clone();
             input_sorted.sort();
@@ -1162,11 +1118,6 @@ mod tests {
             TestResult::passed()
         }
         quickcheck(prop as fn(Vec<i32>, Vec<i32>) -> TestResult);
-    }
-    #[test]
-    fn test_calculate_running_sum_examples() {
-        assert_eq!(calculate_running_sum(vec![]), vec![]);
-        assert_eq!(calculate_running_sum(vec![1]), vec![1]);
     }
 }
 '''

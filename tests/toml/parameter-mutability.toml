@@ -1,0 +1,187 @@
+# Parameter Mutability Analysis Tests
+# Tests for detecting direct mutations and propagating through call chains
+
+[metadata]
+name = "Parameter Mutability Analysis Tests"
+category = "ownership-mutability"
+description = "Tests for parameter mutability detection and &mut requirements"
+
+[[test]]
+name = "copy_type_reassignment_mut_not_ref_mut"
+description = "Copy type with simple reassignment needs mut, not &mut"
+
+python = '''
+def swap_values(a: int, b: int) -> tuple[int, int]:
+    temp = a
+    a = b
+    b = temp
+    return (a, b)
+'''
+
+rust = '''
+pub fn swap_values(mut a: i32, mut b: i32) -> (i32, i32) {
+    let temp = a;
+    a = b;
+    b = temp;
+    return (a, b);
+};
+}
+'''
+
+[[test]]
+name = "non_copy_type_mutation_needs_ref_mut"
+description = "Non-Copy type with any mutation needs &mut"
+
+python = '''
+def add_item(items: list[int], value: int) -> None:
+    items.append(value)
+'''
+
+rust = '''
+pub fn add_item(items: &mut Vec<i32>, value: i32) {
+    items.push(value);
+}
+'''
+
+[[test]]
+name = "attribute_mutation_needs_ref_mut"
+description = "Attribute mutation on parameter needs &mut"
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass
+class Point:
+    x: int
+    y: int
+
+def set_x(point: Point, value: int) -> None:
+    point.x = value
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+use serde_json;
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Point {
+    pub x: i32,
+    pub y: i32,
+}
+impl Point {
+    pub fn new(x: i32, y: i32) -> Self {
+        Self { x, y }
+    }
+}
+pub fn set_x(point: &mut Point, value: i32) {
+    point.x = value;
+}
+'''
+
+[[test]]
+name = "nested_field_mutation_needs_ref_mut"
+description = "Nested field mutation needs &mut on parameter"
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass
+class Inner:
+    value: int
+
+@dataclass
+class Outer:
+    inner: Inner
+
+def set_inner_value(outer: Outer, value: int) -> None:
+    outer.inner.value = value
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+use serde_json;
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Inner {
+    pub value: i32,
+}
+impl Inner {
+    pub fn new(value: i32) -> Self {
+        Self { value }
+    }
+}
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Outer {
+    pub inner: Inner,
+}
+impl Outer {
+    pub fn new(inner: Inner) -> Self {
+        Self { inner }
+    }
+}
+pub fn set_inner_value(outer: &mut Outer, value: i32) {
+    outer.inner.value = value;
+}
+'''
+
+[[test]]
+name = "no_mutation_no_ref_mut"
+description = "No mutation means no &mut needed"
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass
+class Data:
+    value: int
+
+def read_value(data: Data) -> int:
+    return data.value
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+use serde_json;
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Data {
+    pub value: i32,
+}
+impl Data {
+    pub fn new(value: i32) -> Self {
+        Self { value }
+    }
+}
+pub fn read_value(data: &Data) -> i32 {
+    return data.value;
+}
+'''
+
+[[test]]
+name = "method_mutation_on_param_field"
+description = "Method mutation on parameter field needs &mut"
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass
+class Container:
+    items: list[int]
+
+def add_to_container(c: Container, value: int) -> None:
+    c.items.append(value)
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+use serde_json;
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Container {
+    pub items: Vec<i32>,
+}
+impl Container {
+    pub fn new(items: Vec<i32>) -> Self {
+        Self { items }
+    }
+}
+pub fn add_to_container(c: &mut Container, value: i32) {
+    c.items.push(value);
+}
+'''

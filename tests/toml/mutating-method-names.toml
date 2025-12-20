@@ -1,0 +1,178 @@
+# Mutating Method Names Tests
+# Tests for is_mutating_method_name classification
+
+[metadata]
+name = "Mutating Method Names Tests"
+category = "ownership-mutability"
+description = "Tests for classifying mutating vs non-mutating methods"
+
+[[test]]
+name = "list_append_is_mutating"
+description = "List append method is mutating"
+
+python = '''
+def add_to_list(items: list[int], value: int) -> None:
+    items.append(value)
+'''
+
+rust = '''
+pub fn add_to_list(items: &mut Vec<i32>, value: i32) {
+    items.push(value);
+}
+'''
+
+[[test]]
+name = "list_extend_is_mutating"
+description = "List extend method is mutating"
+
+python = '''
+def extend_list(items: list[int], more: list[int]) -> None:
+    items.extend(more)
+'''
+
+rust = '''
+pub fn extend_list(items: &mut Vec<i32>, more: &Vec<i32>) {
+    items.extend(more.iter().cloned());
+}
+'''
+
+[[test]]
+name = "list_pop_is_mutating"
+description = "List pop method is mutating"
+
+python = '''
+def pop_last(items: list[int]) -> int:
+    return items.pop()
+'''
+
+rust = '''
+pub fn pop_last(items: &mut Vec<i32>) -> i32 {
+    return items.pop().unwrap();
+}
+'''
+
+[[test]]
+name = "list_clear_is_mutating"
+description = "List clear method is mutating"
+
+python = '''
+def clear_list(items: list[int]) -> None:
+    items.clear()
+'''
+
+rust = '''
+pub fn clear_list(items: &mut Vec<i32>) {
+    items.clear();
+}
+'''
+
+[[test]]
+name = "list_sort_is_mutating"
+description = "List sort method is mutating"
+
+python = '''
+def sort_list(items: list[int]) -> None:
+    items.sort()
+'''
+
+rust = '''
+pub fn sort_list(items: &mut Vec<i32>) {
+    items.sort();
+}
+'''
+
+[[test]]
+name = "list_reverse_is_mutating"
+description = "List reverse method is mutating"
+
+python = '''
+def reverse_list(items: list[int]) -> None:
+    items.reverse()
+'''
+
+rust = '''
+pub fn reverse_list(items: &mut Vec<i32>) {
+    items.reverse();
+}
+'''
+
+[[test]]
+name = "dict_update_is_mutating"
+description = "Dict update method is mutating"
+
+python = '''
+def merge_dicts(d: dict[str, int], other: dict[str, int]) -> None:
+    d.update(other)
+'''
+
+rust = '''
+use std::collections::HashMap;
+pub fn merge_dicts(d: &mut HashMap<String, i32>, other: &HashMap<String, i32>) {
+    d.extend(other.iter().map(|(k, v)| (k.clone(), v.clone())));
+}
+'''
+
+[[test]]
+name = "set_add_is_mutating"
+description = "Set add method is mutating"
+
+python = '''
+def add_to_set(s: set[int], value: int) -> None:
+    s.add(value)
+'''
+
+rust = '''
+use std::collections::HashSet;
+pub fn add_to_set(s: &mut HashSet<i32>, value: i32) {
+    s.insert(value);
+}
+'''
+
+[[test]]
+name = "len_is_not_mutating"
+description = "len method is not mutating"
+
+python = '''
+def get_length(items: list[int]) -> int:
+    return len(items)
+'''
+
+rust = '''
+pub fn get_length(items: &Vec<i32>) -> i32 {
+    return items.len() as i32;
+};
+}
+'''
+
+[[test]]
+name = "get_is_not_mutating"
+description = "get method is not mutating"
+
+python = '''
+def get_or_default(d: dict[str, int], key: str, default: int) -> int:
+    return d.get(key, default)
+'''
+
+rust = '''
+use std::collections::HashMap;
+pub fn get_or_default(d: &HashMap<String, i32>, key: String, default: i32) -> i32 {
+    return d.get(&key).copied().unwrap_or(default);
+}
+'''
+
+[[test]]
+name = "keys_is_not_mutating"
+description = "keys method is not mutating"
+
+python = '''
+def count_keys(d: dict[str, int]) -> int:
+    return len(list(d.keys()))
+'''
+
+rust = '''
+use std::collections::HashMap;
+pub fn count_keys(d: &HashMap<String, i32>) -> i32 {
+    return d.keys().collect::<Vec<_>>().len() as i32;
+};
+}
+'''

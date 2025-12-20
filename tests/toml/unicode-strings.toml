@@ -84,19 +84,7 @@ rust = '''
 #[doc = "// NOTE: Map Python module 'unicodedata'()"]
 pub fn normalize_nfc(s: String) -> String {
     return unicodedata.normalize("NFC", s);
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn quickcheck_normalize_nfc() {
-        fn prop(s: String) -> TestResult {
-            let once = normalize_nfc((&*s).into());
-            let twice = normalize_nfc(once.clone());
-            if once != twice {
-                return TestResult::failed();
-            }
+};
             TestResult::passed()
         }
         quickcheck(prop as fn(String) -> TestResult);
@@ -119,19 +107,7 @@ rust = '''
 #[doc = "// NOTE: Map Python module 'unicodedata'()"]
 pub fn normalize_nfd(s: String) -> String {
     return unicodedata.normalize("NFD", s);
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn quickcheck_normalize_nfd() {
-        fn prop(s: String) -> TestResult {
-            let once = normalize_nfd((&*s).into());
-            let twice = normalize_nfd(once.clone());
-            if once != twice {
-                return TestResult::failed();
-            }
+};
             TestResult::passed()
         }
         quickcheck(prop as fn(String) -> TestResult);
@@ -154,19 +130,7 @@ rust = '''
 #[doc = "// NOTE: Map Python module 'unicodedata'()"]
 pub fn normalize_nfkc(s: String) -> String {
     return unicodedata.normalize("NFKC", s);
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn quickcheck_normalize_nfkc() {
-        fn prop(s: String) -> TestResult {
-            let once = normalize_nfkc((&*s).into());
-            let twice = normalize_nfkc(once.clone());
-            if once != twice {
-                return TestResult::failed();
-            }
+};
             TestResult::passed()
         }
         quickcheck(prop as fn(String) -> TestResult);
@@ -189,19 +153,7 @@ rust = '''
 #[doc = "// NOTE: Map Python module 'unicodedata'()"]
 pub fn normalize_nfkd(s: String) -> String {
     return unicodedata.normalize("NFKD", s);
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn quickcheck_normalize_nfkd() {
-        fn prop(s: String) -> TestResult {
-            let once = normalize_nfkd((&*s).into());
-            let twice = normalize_nfkd(once.clone());
-            if once != twice {
-                return TestResult::failed();
-            }
+};
             TestResult::passed()
         }
         quickcheck(prop as fn(String) -> TestResult);
@@ -321,15 +273,6 @@ rust = '''
 pub fn is_alpha(s: String) -> bool {
     return s.chars().all(|c| c.is_alphabetic());
 }
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_is_alpha_examples() {
-        let _ = is_alpha(Default::default());
-    }
-}
 '''
 
 [[test]]
@@ -344,15 +287,6 @@ def is_numeric(s: str) -> bool:
 rust = '''
 pub fn is_numeric(s: String) -> bool {
     return s.isnumeric();
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_is_numeric_examples() {
-        let _ = is_numeric(Default::default());
-    }
 }
 '''
 
@@ -384,17 +318,6 @@ rust = '''
 pub fn string_length(s: String) -> i32 {
     return s.len() as i32 as i32;
 }
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_string_length_examples() {
-        assert_eq!(string_length(""), 0);
-        assert_eq!(string_length("a"), 1);
-        assert_eq!(string_length("abc"), 3);
-    }
-}
 '''
 
 [[test]]
@@ -409,15 +332,6 @@ def emoji_length() -> int:
 rust = '''
 pub fn emoji_length() -> i32 {
     return "😀".len() as i32 as i32;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_emoji_length_examples() {
-        let _ = emoji_length();
-    }
 }
 '''
 
@@ -455,19 +369,7 @@ rust = '''
 #[doc = "// NOTE: Map Python module 'unicodedata'()"]
 pub fn compare_normalized(s1: String, s2: String) -> bool {
     return unicodedata.normalize("NFC", s1) == unicodedata.normalize("NFC", s2);
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn quickcheck_compare_normalized() {
-        fn prop(s1: String, s2: String) -> TestResult {
-            let once = compare_normalized((&*s1).into(), (&*s2).into());
-            let twice = compare_normalized(once.clone());
-            if once != twice {
-                return TestResult::failed();
-            }
+};
             TestResult::passed()
         }
         quickcheck(prop as fn(String, String) -> TestResult);
@@ -522,15 +424,6 @@ def has_bom(s: str) -> bool:
 rust = '''
 pub fn has_bom(s: String) -> bool {
     return s.starts_with("\u{feff}");
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_has_bom_examples() {
-        let _ = has_bom(Default::default());
-    }
 }
 '''
 

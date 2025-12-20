@@ -69,15 +69,7 @@ def get_number() -> int:
 rust = '''
 pub fn get_number() -> i32 {
     return 42;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_get_number_examples() {
-        let _ = get_number();
-    }
+};
 }
 '''
 
@@ -131,17 +123,7 @@ pub fn conditional(x: i32) -> i32 {
     } else {
         return -1;
     }
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_conditional_examples() {
-        assert_eq!(conditional(0), 0);
-        assert_eq!(conditional(1), 1);
-        assert_eq!(conditional(-1), -1);
-    }
+};
 }
 '''
 
@@ -164,17 +146,7 @@ pub fn sum_list(nums: &Vec<i32>) -> i32 {
         total = total + n;
     }
     return total;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_sum_list_examples() {
-        assert_eq!(sum_list(vec![]), 0);
-        assert_eq!(sum_list(vec![1]), 1);
-        assert_eq!(sum_list(vec![1, 2, 3]), 6);
-    }
+};
 }
 '''
 
@@ -195,17 +167,7 @@ pub fn countdown(mut n: i32) -> i32 {
         n = n - 1;
     }
     return n;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_countdown_examples() {
-        assert_eq!(countdown(0), 0);
-        assert_eq!(countdown(1), 1);
-        assert_eq!(countdown(-1), -1);
-    }
+};
 }
 '''
 
@@ -221,17 +183,7 @@ def add(a: int, b: int) -> int:
 rust = '''
 pub fn add(a: i32, b: i32) -> i32 {
     return a + b;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn quickcheck_add() {
-        fn prop(a: i32, b: i32) -> TestResult {
-            if (a > 0 && b > i32::MAX - a) || (a < 0 && b < i32::MIN - a) {
-                return TestResult::discard();
-            }
+};
             let result1 = add(a.clone(), b.clone());
             let result2 = add(b.clone(), a.clone());
             if result1 != result2 {
@@ -240,12 +192,6 @@ mod tests {
             TestResult::passed()
         }
         quickcheck(prop as fn(i32, i32) -> TestResult);
-    }
-    #[test]
-    fn test_add_examples() {
-        assert_eq!(add(0, 0), 0);
-        assert_eq!(add(1, 2), 3);
-        assert_eq!(add(-1, 1), 0);
     }
 }
 '''
@@ -381,17 +327,7 @@ pub fn outer(x: i32) -> i32 {
         return y * 2;
     }
     return inner(x);
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_outer_examples() {
-        assert_eq!(outer(0), 0);
-        assert_eq!(outer(1), 1);
-        assert_eq!(outer(-1), -1);
-    }
+};
 }
 '''
 
@@ -409,15 +345,7 @@ rust = '''
 #[doc = "This function returns 42."]
 pub fn documented() -> i32 {
     return 42;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_documented_examples() {
-        let _ = documented();
-    }
+};
 }
 '''
 

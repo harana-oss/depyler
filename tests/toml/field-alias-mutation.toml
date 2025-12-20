@@ -1,0 +1,192 @@
+# Field Alias Mutation Detection Tests
+# Tests for detecting mutations through field aliases
+
+[metadata]
+name = "Field Alias Mutation Detection Tests"
+category = "ownership-mutability"
+description = "Tests for field alias mutations marking parameters as mutated"
+
+[[test]]
+name = "field_alias_attribute_mutation"
+description = "Field alias attribute mutation marks param as mutated"
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass
+class Stats:
+    score: int
+
+@dataclass
+class State:
+    home_statistics: Stats
+
+def update_stats(state: State) -> None:
+    team_stats = state.home_statistics
+    team_stats.score = 10
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+use serde_json;
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Stats {
+    pub score: i32,
+}
+impl Stats {
+    pub fn new(score: i32) -> Self {
+        Self { score }
+    }
+}
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct State {
+    pub home_statistics: Stats,
+}
+impl State {
+    pub fn new(home_statistics: Stats) -> Self {
+        Self { home_statistics }
+    }
+}
+pub fn update_stats(state: &mut State) {
+    let mut team_stats = state.home_statistics.clone();
+    team_stats.score = 10;
+}
+'''
+
+[[test]]
+name = "field_alias_index_mutation"
+description = "Field alias index mutation marks param as mutated"
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass
+class State:
+    data: list[int]
+
+def update_list(state: State) -> None:
+    items = state.data
+    items[0] = 42
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+use serde_json;
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct State {
+    pub data: Vec<i32>,
+}
+impl State {
+    pub fn new(data: Vec<i32>) -> Self {
+        Self { data }
+    }
+}
+pub fn update_list(state: &mut State) {
+    let mut items = state.data.clone();
+    items[0] = 42;
+}
+'''
+
+[[test]]
+name = "field_alias_method_mutation"
+description = "Field alias method mutation marks param as mutated"
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass
+class State:
+    items: list[int]
+
+def add_to_list(state: State) -> None:
+    items = state.items
+    items.append(1)
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+use serde_json;
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct State {
+    pub items: Vec<i32>,
+}
+impl State {
+    pub fn new(items: Vec<i32>) -> Self {
+        Self { items }
+    }
+}
+pub fn add_to_list(state: &mut State) {
+    let mut items = state.items.clone();
+    items.push(1);
+}
+'''
+
+[[test]]
+name = "value_copy_does_not_mark_param_mutated"
+description = "Non-alias (value copy) does NOT mark param as mutated"
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass
+class State:
+    count: int
+
+def copy_value(state: State) -> int:
+    x = state.count
+    x = 10
+    return x
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+use serde_json;
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct State {
+    pub count: i32,
+}
+impl State {
+    pub fn new(count: i32) -> Self {
+        Self { count }
+    }
+}
+pub fn copy_value(state: &State) -> i32 {
+    let mut x = state.count;
+    x = 10;
+    return x;
+}
+'''
+
+[[test]]
+name = "direct_param_field_access_no_alias"
+description = "Direct parameter field access without aliasing"
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass
+class Config:
+    enabled: bool
+    value: int
+
+def toggle_config(config: Config) -> None:
+    config.enabled = not config.enabled
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+use serde_json;
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Config {
+    pub enabled: bool,
+    pub value: i32,
+}
+impl Config {
+    pub fn new(enabled: bool, value: i32) -> Self {
+        Self { enabled, value }
+    }
+}
+pub fn toggle_config(config: &mut Config) {
+    config.enabled = !config.enabled;
+}
+'''

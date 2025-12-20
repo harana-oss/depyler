@@ -459,17 +459,7 @@ pub fn pop_min(heap: &Vec<serde_json::Value>) -> i32 {
         }
         result
     };
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_pop_min_examples() {
-        assert_eq!(pop_min(vec![]), 0);
-        assert_eq!(pop_min(vec![1]), 1);
-        assert_eq!(pop_min(vec![1, 2, 3]), 3);
-    }
+};
 }
 '''
 

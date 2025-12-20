@@ -230,3 +230,97 @@ pub fn add_days(dt: &datetime, days: i32) -> datetime {
     return dt + chrono::Duration::zero();
 }
 '''
+
+# =============================================================================
+# Timedelta Tests (from expr_gen.rs:1530)
+# =============================================================================
+
+[[test]]
+name = "timedelta_days"
+description = "timedelta(days=n) creates duration"
+
+python = '''
+from datetime import timedelta
+
+def one_day() -> timedelta:
+    return timedelta(days=1)
+'''
+
+rust = '''
+use chrono::Duration;
+pub fn one_day() -> chrono::Duration {
+    return chrono::Duration::days(1);
+}
+'''
+
+[[test]]
+name = "timedelta_hours_minutes"
+description = "timedelta with hours and minutes"
+
+python = '''
+from datetime import timedelta
+
+def two_hours_thirty_minutes() -> timedelta:
+    return timedelta(hours=2, minutes=30)
+'''
+
+rust = '''
+use chrono::Duration;
+pub fn two_hours_thirty_minutes() -> chrono::Duration {
+    return chrono::Duration::hours(2) + chrono::Duration::minutes(30);
+}
+'''
+
+[[test]]
+name = "timedelta_seconds"
+description = "timedelta with seconds"
+
+python = '''
+from datetime import timedelta
+
+def ninety_seconds() -> timedelta:
+    return timedelta(seconds=90)
+'''
+
+rust = '''
+use chrono::Duration;
+pub fn ninety_seconds() -> chrono::Duration {
+    return chrono::Duration::seconds(90);
+}
+'''
+
+[[test]]
+name = "timedelta_positional"
+description = "timedelta with positional args (days, seconds, microseconds)"
+
+python = '''
+from datetime import timedelta
+
+def complex_delta() -> timedelta:
+    return timedelta(1, 3600, 0)
+'''
+
+rust = '''
+use chrono::Duration;
+pub fn complex_delta() -> chrono::Duration {
+    return chrono::Duration::days(1) + chrono::Duration::seconds(3600);
+}
+'''
+
+[[test]]
+name = "timedelta_arithmetic"
+description = "timedelta addition"
+
+python = '''
+from datetime import timedelta
+
+def add_deltas(a: timedelta, b: timedelta) -> timedelta:
+    return a + b
+'''
+
+rust = '''
+use chrono::Duration;
+pub fn add_deltas(a: &chrono::Duration, b: &chrono::Duration) -> chrono::Duration {
+    return *a + *b;
+}
+'''

@@ -151,19 +151,7 @@ rust = '''
 #[doc = "// NOTE: Map Python module 'decimal'()"]
 pub fn add_decimals(a: &Decimal, b: &Decimal) -> Decimal {
     return a + b;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn quickcheck_add_decimals() {
-        fn prop(a: (), b: ()) -> TestResult {
-            let result1 = add_decimals(a.clone(), b.clone());
-            let result2 = add_decimals(b.clone(), a.clone());
-            if result1 != result2 {
-                return TestResult::failed();
-            }
+};
             TestResult::passed()
         }
         quickcheck(prop as fn((), ()) -> TestResult);
@@ -186,19 +174,7 @@ rust = '''
 #[doc = "// NOTE: Map Python module 'decimal'()"]
 pub fn multiply_decimals(a: &Decimal, b: &Decimal) -> Decimal {
     return a * b;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn quickcheck_multiply_decimals() {
-        fn prop(a: (), b: ()) -> TestResult {
-            let result1 = multiply_decimals(a.clone(), b.clone());
-            let result2 = multiply_decimals(b.clone(), a.clone());
-            if result1 != result2 {
-                return TestResult::failed();
-            }
+};
             TestResult::passed()
         }
         quickcheck(prop as fn((), ()) -> TestResult);
@@ -257,19 +233,7 @@ rust = '''
 #[doc = "// NOTE: Map Python module 'fractions'()"]
 pub fn add_fractions(a: &Fraction, b: &Fraction) -> Fraction {
     return a + b;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn quickcheck_add_fractions() {
-        fn prop(a: (), b: ()) -> TestResult {
-            let result1 = add_fractions(a.clone(), b.clone());
-            let result2 = add_fractions(b.clone(), a.clone());
-            if result1 != result2 {
-                return TestResult::failed();
-            }
+};
             TestResult::passed()
         }
         quickcheck(prop as fn((), ()) -> TestResult);
@@ -292,19 +256,7 @@ rust = '''
 #[doc = "// NOTE: Map Python module 'fractions'()"]
 pub fn multiply_fractions(a: &Fraction, b: &Fraction) -> Fraction {
     return a * b;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn quickcheck_multiply_fractions() {
-        fn prop(a: (), b: ()) -> TestResult {
-            let result1 = multiply_fractions(a.clone(), b.clone());
-            let result2 = multiply_fractions(b.clone(), a.clone());
-            if result1 != result2 {
-                return TestResult::failed();
-            }
+};
             TestResult::passed()
         }
         quickcheck(prop as fn((), ()) -> TestResult);

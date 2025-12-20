@@ -117,17 +117,6 @@ pub fn count_lines(filepath: String) -> i32 {
     }
     return count;
 }
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_count_lines_examples() {
-        assert_eq!(count_lines(""), 0);
-        assert_eq!(count_lines("a"), 1);
-        assert_eq!(count_lines("abc"), 3);
-    }
-}
 '''
 
 [[test]]
@@ -150,8 +139,7 @@ pub fn process_file(filepath: String) -> String {
         let mut content = String::new();
         f.read_to_string(&mut content)?;
         content
-    };
-}
+    }
 '''
 
 [[test]]

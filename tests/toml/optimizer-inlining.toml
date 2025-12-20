@@ -1,0 +1,136 @@
+# Optimizer Inlining Tests
+# Tests for inlining logic and dead code elimination interaction
+
+[metadata]
+name = "Optimizer Inlining Tests"
+category = "optimization"
+description = "Tests for inlining disabled behavior and DCE interaction"
+
+[[test]]
+name = "inlining_disabled_trivial_function_preserved"
+description = "Verify trivial functions work when inlining is disabled"
+
+python = '''
+def add_one(x: int) -> int:
+    return x + 1
+
+def use_add_one(n: int) -> int:
+    result = add_one(n)
+    return result
+'''
+
+rust = '''
+pub fn add_one(x: i32) -> i32 {
+    return x + 1;
+}
+pub fn use_add_one(n: i32) -> i32 {
+    let result = add_one(n);
+    return result;
+};
+}
+'''
+
+[[test]]
+name = "dead_code_elimination_preserves_used_assignments"
+description = "DCE should not remove used assignments"
+
+python = '''
+def compute(x: int, y: int) -> int:
+    a = x + 1
+    b = y * 2
+    c = a + b
+    return c
+'''
+
+rust = '''
+pub fn compute(x: i32, y: i32) -> i32 {
+    let a = x + 1;
+    let b = y * 2;
+    let c = a + b;
+    return c;
+};
+}
+'''
+
+[[test]]
+name = "inline_threshold_simple_function"
+description = "Simple function respects inline threshold"
+
+python = '''
+def identity(x: int) -> int:
+    return x
+
+def double_identity(x: int) -> int:
+    return identity(identity(x))
+'''
+
+rust = '''
+pub fn identity(x: i32) -> i32 {
+    return x;
+}
+pub fn double_identity(x: i32) -> i32 {
+    return identity(identity(x));
+};
+}
+'''
+
+[[test]]
+name = "function_chain_no_inline"
+description = "Function chain compiles correctly without inlining"
+
+python = '''
+def step1(x: int) -> int:
+    return x + 1
+
+def step2(x: int) -> int:
+    return x * 2
+
+def step3(x: int) -> int:
+    return x - 3
+
+def chain(x: int) -> int:
+    a = step1(x)
+    b = step2(a)
+    c = step3(b)
+    return c
+'''
+
+rust = '''
+pub fn step1(x: i32) -> i32 {
+    return x + 1;
+}
+pub fn step2(x: i32) -> i32 {
+    return x * 2;
+}
+pub fn step3(x: i32) -> i32 {
+    return x - 3;
+}
+pub fn chain(x: i32) -> i32 {
+    let a = step1(x);
+    let b = step2(a);
+    let c = step3(b);
+    return c;
+};
+}
+'''
+
+[[test]]
+name = "dce_preserves_intermediate_variables"
+description = "Dead code elimination preserves variables used later"
+
+python = '''
+def process(n: int) -> int:
+    temp = n * 2
+    unused = 100
+    result = temp + 5
+    return result
+'''
+
+rust = '''
+pub fn process(n: i32) -> i32 {
+    let temp = n * 2;
+    let result = temp + 5;
+    return result;
+};
+}
+'''

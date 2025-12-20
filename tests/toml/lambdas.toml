@@ -21,16 +21,6 @@ rust = '''
 pub fn double_numbers(numbers: Vec<i32>) -> Vec<i32> {
     return numbers.iter().map(|x| x * 2).collect::<Vec<_>>();
 }
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_double_numbers_examples() {
-        assert_eq!(double_numbers(vec![]), vec![]);
-        assert_eq!(double_numbers(vec![1]), vec![1]);
-    }
-}
 '''
 
 [[test]]
@@ -45,27 +35,10 @@ def identity_map(items: list[int]) -> list[int]:
 rust = '''
 pub fn identity_map(items: Vec<i32>) -> Vec<i32> {
     return items.iter().map(|x| x).collect::<Vec<_>>();
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn quickcheck_identity_map() {
-        fn prop(items: Vec<i32>) -> TestResult {
-            let input_len = items.len();
-            let result = identity_map(&items);
-            if result.len() != input_len {
-                return TestResult::failed();
-            }
+};
             TestResult::passed()
         }
         quickcheck(prop as fn(Vec<i32>) -> TestResult);
-    }
-    #[test]
-    fn test_identity_map_examples() {
-        assert_eq!(identity_map(vec![]), vec![]);
-        assert_eq!(identity_map(vec![1]), vec![1]);
     }
 }
 '''
@@ -82,16 +55,6 @@ def filter_positive(numbers: list[int]) -> list[int]:
 rust = '''
 pub fn filter_positive(numbers: Vec<i32>) -> Vec<i32> {
     return numbers.into_iter().filter(|x| x > 0).collect::<Vec<_>>();
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_filter_positive_examples() {
-        assert_eq!(filter_positive(vec![]), vec![]);
-        assert_eq!(filter_positive(vec![1]), vec![1]);
-    }
 }
 '''
 
@@ -129,19 +92,7 @@ pub fn sort_by_length(words: &Vec<String>) -> Vec<String> {
         __sorted_result.sort_by_key(|x| x.len() as i32);
         __sorted_result
     };
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn quickcheck_sort_by_length() {
-        fn prop(words: Vec<String>) -> TestResult {
-            let input_len = words.len();
-            let result = sort_by_length(&words);
-            if result.len() != input_len {
-                return TestResult::failed();
-            }
+};
             let result = sort_by_length(&words);
             for i in 1..result.len() {
                 if result[i - 1] > result[i] {
@@ -158,11 +109,6 @@ mod tests {
             TestResult::passed()
         }
         quickcheck(prop as fn(Vec<String>) -> TestResult);
-    }
-    #[test]
-    fn test_sort_by_length_examples() {
-        assert_eq!(sort_by_length(vec![]), vec![]);
-        assert_eq!(sort_by_length(vec![1]), vec![1]);
     }
 }
 '''
@@ -183,19 +129,7 @@ pub fn sort_descending(numbers: &Vec<i32>) -> Vec<i32> {
         __sorted_result.sort_by_key(|x| (-x));
         __sorted_result
     };
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn quickcheck_sort_descending() {
-        fn prop(numbers: Vec<i32>) -> TestResult {
-            let input_len = numbers.len();
-            let result = sort_descending(&numbers);
-            if result.len() != input_len {
-                return TestResult::failed();
-            }
+};
             let result = sort_descending(&numbers);
             for i in 1..result.len() {
                 if result[i - 1] > result[i] {
@@ -212,11 +146,6 @@ mod tests {
             TestResult::passed()
         }
         quickcheck(prop as fn(Vec<i32>) -> TestResult);
-    }
-    #[test]
-    fn test_sort_descending_examples() {
-        assert_eq!(sort_descending(vec![]), vec![]);
-        assert_eq!(sort_descending(vec![1]), vec![1]);
     }
 }
 '''
@@ -250,17 +179,6 @@ use std::iter::Iterator::fold;
 pub fn sum_all(numbers: Vec<i32>) -> i32 {
     return std::iter::Iterator::fold(|acc, x| acc + x, numbers, 0);
 }
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_sum_all_examples() {
-        assert_eq!(sum_all(vec![]), 0);
-        assert_eq!(sum_all(vec![1]), 1);
-        assert_eq!(sum_all(vec![1, 2, 3]), 6);
-    }
-}
 '''
 
 [[test]]
@@ -278,17 +196,6 @@ rust = '''
 use std::iter::Iterator::fold;
 pub fn product_all(numbers: Vec<i32>) -> i32 {
     return std::iter::Iterator::fold(|acc, x| acc * x, numbers, 1);
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_product_all_examples() {
-        assert_eq!(product_all(vec![]), 0);
-        assert_eq!(product_all(vec![1]), 1);
-        assert_eq!(product_all(vec![1, 2, 3]), 3);
-    }
 }
 '''
 
@@ -314,16 +221,6 @@ pub fn classify(numbers: Vec<i32>) -> Vec<String> {
         })
         .collect::<Vec<_>>();
 }
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_classify_examples() {
-        assert_eq!(classify(vec![]), vec![]);
-        assert_eq!(classify(vec![1]), vec![1]);
-    }
-}
 '''
 
 [[test]]
@@ -338,16 +235,6 @@ def transform(numbers: list[int]) -> list[int]:
 rust = '''
 pub fn transform(numbers: Vec<i32>) -> Vec<i32> {
     return numbers.iter().map(|x| x * 2 + 1).collect::<Vec<_>>();
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_transform_examples() {
-        assert_eq!(transform(vec![]), vec![]);
-        assert_eq!(transform(vec![1]), vec![1]);
-    }
 }
 '''
 
@@ -398,16 +285,6 @@ pub fn nested_transform(matrix: Vec<serde_json::Value>) -> Vec<serde_json::Value
         .map(|row| row.iter().map(|x| x * 2).collect::<Vec<_>>())
         .collect::<Vec<_>>();
 }
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_nested_transform_examples() {
-        assert_eq!(nested_transform(vec![]), vec![]);
-        assert_eq!(nested_transform(vec![1]), vec![1]);
-    }
-}
 '''
 
 [[test]]
@@ -430,16 +307,6 @@ pub fn process_items(items: &Vec<serde_json::Value>) -> Vec<serde_json::Value> {
         .map(|item| transform(item))
         .collect::<Vec<_>>();
 }
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_process_items_examples() {
-        assert_eq!(process_items(vec![]), vec![]);
-        assert_eq!(process_items(vec![1]), vec![1]);
-    }
-}
 '''
 
 [[test]]
@@ -461,16 +328,6 @@ pub fn calculate_distances(points: Vec<serde_json::Value>) -> Vec<serde_json::Va
                 .powf(0.5 as f64)
         })
         .collect::<Vec<_>>();
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_calculate_distances_examples() {
-        assert_eq!(calculate_distances(vec![]), vec![]);
-        assert_eq!(calculate_distances(vec![1]), vec![1]);
-    }
 }
 '''
 # =============================================================================
@@ -1429,73 +1286,7 @@ pub fn demonstrate_functional_patterns() -> Result<(), Box<dyn std::error::Error
     );
     log::info!("{}", "\n=== All Patterns Demonstrated ===");
     Ok(())
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{quickcheck, TestResult};
-    #[test]
-    fn test_reduce_sum_examples() {
-        assert_eq!(reduce_sum(&vec![]), 0);
-        assert_eq!(reduce_sum(&vec![1]), 1);
-        assert_eq!(reduce_sum(&vec![1, 2, 3]), 6);
-    }
-    #[test]
-    fn test_reduce_product_examples() {
-        assert_eq!(reduce_product(&vec![]), 0);
-        assert_eq!(reduce_product(&vec![1]), 1);
-        assert_eq!(reduce_product(&vec![1, 2, 3]), 3);
-    }
-    #[test]
-    fn test_chain_operations_examples() {
-        assert_eq!(chain_operations(&vec![]), 0);
-        assert_eq!(chain_operations(&vec![1]), 1);
-        assert_eq!(chain_operations(&vec![1, 2, 3]), 3);
-    }
-    #[test]
-    fn test_enumerate_list_examples() {
-        assert_eq!(enumerate_list(vec![]), vec![]);
-        assert_eq!(enumerate_list(vec![1]), vec![1]);
-    }
-    #[test]
-    fn test_accumulate_running_sum_examples() {
-        assert_eq!(accumulate_running_sum(vec![]), vec![]);
-        assert_eq!(accumulate_running_sum(vec![1]), vec![1]);
-    }
-    #[test]
-    fn test_flatten_nested_list_examples() {
-        assert_eq!(flatten_nested_list(vec![]), vec![]);
-        assert_eq!(flatten_nested_list(vec![1]), vec![1]);
-    }
-    #[test]
-    fn test_pairwise_iteration_examples() {
-        assert_eq!(pairwise_iteration(vec![]), vec![]);
-        assert_eq!(pairwise_iteration(vec![1]), vec![1]);
-    }
-    #[test]
-    fn test_compose_two_functions_examples() {
-        assert_eq!(compose_two_functions(vec![]), vec![]);
-        assert_eq!(compose_two_functions(vec![1]), vec![1]);
-    }
-    #[test]
-    fn test_map_reduce_pattern_examples() {
-        assert_eq!(map_reduce_pattern(&vec![]), 0);
-        assert_eq!(map_reduce_pattern(&vec![1]), 1);
-        assert_eq!(map_reduce_pattern(&vec![1, 2, 3]), 3);
-    }
-    #[test]
-    fn test_unique_elements_examples() {
-        assert_eq!(unique_elements(vec![]), vec![]);
-        assert_eq!(unique_elements(vec![1]), vec![1]);
-    }
-    #[test]
-    fn quickcheck_sorted_by_key() {
-        fn prop(items: Vec<()>) -> TestResult {
-            let input_len = items.len();
-            let result = sorted_by_key(&items);
-            if result.len() != input_len {
-                return TestResult::failed();
-            }
+};
             let result = sorted_by_key(&items);
             for i in 1..result.len() {
                 if result[i - 1] > result[i] {
@@ -1512,11 +1303,6 @@ mod tests {
             TestResult::passed()
         }
         quickcheck(prop as fn(Vec<()>) -> TestResult);
-    }
-    #[test]
-    fn test_sorted_by_key_examples() {
-        assert_eq!(sorted_by_key(vec![]), vec![]);
-        assert_eq!(sorted_by_key(vec![1]), vec![1]);
     }
 }
 '''
@@ -2230,17 +2016,7 @@ pub fn inner(x: i32, y: i32) -> i32 {
 #[doc = " Depyler: proven to terminate"]
 pub fn get_height() -> i32 {
     600
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{quickcheck, TestResult};
-    #[test]
-    fn quickcheck_inner() {
-        fn prop(x: i32, y: i32) -> TestResult {
-            if (x > 0 && y > i32::MAX - x) || (x < 0 && y < i32::MIN - x) {
-                return TestResult::discard();
-            }
+};
             let result1 = inner(x.clone(), y.clone());
             let result2 = inner(y.clone(), x.clone());
             if result1 != result2 {
@@ -2249,16 +2025,6 @@ mod tests {
             TestResult::passed()
         }
         quickcheck(prop as fn(i32, i32) -> TestResult);
-    }
-    #[test]
-    fn test_inner_examples() {
-        assert_eq!(inner(0, 0), 0);
-        assert_eq!(inner(1, 2), 3);
-        assert_eq!(inner(-1, 1), 0);
-    }
-    #[test]
-    fn test_get_height_examples() {
-        let _ = get_height();
     }
 }
 '''

@@ -45,15 +45,7 @@ use rand::Rng;
 use rand::prelude::*;
 pub fn roll_dice() -> i32 {
     return rand::thread_rng().gen_range(1..=6);
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_roll_dice_examples() {
-        let _ = roll_dice();
-    }
+};
 }
 '''
 
@@ -81,17 +73,7 @@ pub fn random_even(max_val: i32) -> i32 {
         let offset = rand::thread_rng().gen_range(0..num_steps);
         start + offset * step
     };
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_random_even_examples() {
-        assert_eq!(random_even(0), 0);
-        assert_eq!(random_even(1), 1);
-        assert_eq!(random_even(-1), -1);
-    }
+};
 }
 '''
 
@@ -316,17 +298,7 @@ use rand::Rng;
 use rand::prelude::*;
 pub fn secure_int(exclusive_max: i32) -> i32 {
     return rand::thread_rng().gen_range(0..exclusive_max);
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_secure_int_examples() {
-        assert_eq!(secure_int(0), 0);
-        assert_eq!(secure_int(1), 1);
-        assert_eq!(secure_int(-1), -1);
-    }
+};
 }
 '''
 

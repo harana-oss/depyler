@@ -146,17 +146,7 @@ pub fn find_maximum(arr: &Vec<i32>) -> Result<i32, IndexError> {
         }
     }
     Ok(max_val)
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{quickcheck, TestResult};
-    #[test]
-    fn test_find_maximum_examples() {
-        assert_eq!(find_maximum(&vec![]), 0);
-        assert_eq!(find_maximum(&vec![1]), 1);
-        assert_eq!(find_maximum(&vec![1, 2, 3]), 3);
-    }
+};
 }
 '''
 
@@ -269,23 +259,7 @@ pub fn fibonacci_iterative(n: i32) -> i32 {
         (a, b) = (b, a + b);
     }
     b
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{quickcheck, TestResult};
-    #[test]
-    fn test_fibonacci_recursive_examples() {
-        assert_eq!(fibonacci_recursive(0), 0);
-        assert_eq!(fibonacci_recursive(1), 1);
-        assert_eq!(fibonacci_recursive(-1), -1);
-    }
-    #[test]
-    fn test_fibonacci_iterative_examples() {
-        assert_eq!(fibonacci_iterative(0), 0);
-        assert_eq!(fibonacci_iterative(1), 1);
-        assert_eq!(fibonacci_iterative(-1), -1);
-    }
+};
 }
 '''
 

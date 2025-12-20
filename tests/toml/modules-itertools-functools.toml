@@ -41,16 +41,7 @@ rust = '''
 use itertools::combinations;
 pub fn all_pairs(items: Vec<i32>) -> Vec<(i32, i32)> {
     return itertools::combinations(items, 2).into_iter().collect::<Vec<_>>();
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_all_pairs_examples() {
-        assert_eq!(all_pairs(vec![]), vec![]);
-        assert_eq!(all_pairs(vec![1]), vec![1]);
-    }
+};
 }
 '''
 
@@ -84,16 +75,7 @@ rust = '''
 use itertools::take_while;
 pub fn take_positives(nums: Vec<i32>) -> Vec<i32> {
     return itertools::take_while(|x| x > 0, nums).into_iter().collect::<Vec<_>>();
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_take_positives_examples() {
-        assert_eq!(take_positives(vec![]), vec![]);
-        assert_eq!(take_positives(vec![1]), vec![1]);
-    }
+};
 }
 '''
 
@@ -112,16 +94,7 @@ rust = '''
 use itertools::drop_while;
 pub fn skip_zeros(nums: Vec<i32>) -> Vec<i32> {
     return itertools::drop_while(|x| x == 0, nums).into_iter().collect::<Vec<_>>();
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_skip_zeros_examples() {
-        assert_eq!(skip_zeros(vec![]), vec![]);
-        assert_eq!(skip_zeros(vec![1]), vec![1]);
-    }
+};
 }
 '''
 
@@ -140,16 +113,7 @@ rust = '''
 use itertools::filterfalse;
 pub fn get_odd(nums: Vec<i32>) -> Vec<i32> {
     return filterfalse(|x| x % 2 == 0, &nums).into_iter().collect::<Vec<_>>();
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_get_odd_examples() {
-        assert_eq!(get_odd(vec![]), vec![]);
-        assert_eq!(get_odd(vec![1]), vec![1]);
-    }
+};
 }
 '''
 
@@ -205,16 +169,7 @@ rust = '''
 use itertools::scan;
 pub fn running_sum(nums: Vec<i32>) -> Vec<i32> {
     return itertools::scan(nums).into_iter().collect::<Vec<_>>();
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_running_sum_examples() {
-        assert_eq!(running_sum(vec![]), vec![]);
-        assert_eq!(running_sum(vec![1]), vec![1]);
-    }
+};
 }
 '''
 
@@ -289,17 +244,7 @@ rust = '''
 use std::iter::Iterator::fold;
 pub fn sum_all(nums: Vec<i32>) -> i32 {
     return std::iter::Iterator::fold(|a, b| a + b, nums, 0);
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_sum_all_examples() {
-        assert_eq!(sum_all(vec![]), 0);
-        assert_eq!(sum_all(vec![1]), 1);
-        assert_eq!(sum_all(vec![1, 2, 3]), 6);
-    }
+};
 }
 '''
 
@@ -318,17 +263,7 @@ rust = '''
 use std::iter::Iterator::fold;
 pub fn product(nums: Vec<i32>) -> i32 {
     return std::iter::Iterator::fold(|a, b| a * b, nums, 1);
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_product_examples() {
-        assert_eq!(product(vec![]), 0);
-        assert_eq!(product(vec![1]), 1);
-        assert_eq!(product(vec![1, 2, 3]), 3);
-    }
+};
 }
 '''
 
@@ -369,17 +304,7 @@ pub fn fib(n: i32) -> i32 {
         return n;
     }
     return fib(n - 1) + fib(n - 2);
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_fib_examples() {
-        assert_eq!(fib(0), 0);
-        assert_eq!(fib(1), 1);
-        assert_eq!(fib(-1), -1);
-    }
+};
 }
 '''
 
@@ -395,16 +320,7 @@ def double_all(nums: list[int]) -> list[int]:
 rust = '''
 pub fn double_all(nums: Vec<i32>) -> Vec<i32> {
     return nums.iter().map(|x| x * 2).collect::<Vec<_>>();
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_double_all_examples() {
-        assert_eq!(double_all(vec![]), vec![]);
-        assert_eq!(double_all(vec![1]), vec![1]);
-    }
+};
 }
 '''
 
@@ -420,16 +336,7 @@ def evens_only(nums: list[int]) -> list[int]:
 rust = '''
 pub fn evens_only(nums: Vec<i32>) -> Vec<i32> {
     return nums.into_iter().filter(|x| x % 2 == 0).collect::<Vec<_>>();
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_evens_only_examples() {
-        assert_eq!(evens_only(vec![]), vec![]);
-        assert_eq!(evens_only(vec![1]), vec![1]);
-    }
+};
 }
 '''
 
@@ -462,15 +369,6 @@ pub fn with_indices(items: Vec<String>) -> Vec<(i32, String)> {
         .enumerate()
         .map(|(i, x)| (i as i32, x.clone()))
         .collect::<Vec<_>>();
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_with_indices_examples() {
-        assert_eq!(with_indices(vec![]), vec![]);
-        assert_eq!(with_indices(vec![1]), vec![1]);
-    }
+};
 }
 '''

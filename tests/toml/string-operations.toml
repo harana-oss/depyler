@@ -96,15 +96,7 @@ def is_alphanumeric(s: str) -> bool:
 rust = '''
 pub fn is_alphanumeric(s: String) -> bool {
     return s.chars().all(|c| c.is_alphanumeric());
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_is_alphanumeric_examples() {
-        let _ = is_alphanumeric(Default::default());
-    }
+};
 }
 '''
 
@@ -120,15 +112,7 @@ def is_numeric(s: str) -> bool:
 rust = '''
 pub fn is_numeric(s: String) -> bool {
     return s.chars().all(|c| c.is_numeric());
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_is_numeric_examples() {
-        let _ = is_numeric(Default::default());
-    }
+};
 }
 '''
 
@@ -291,17 +275,7 @@ def string_length(s: str) -> int:
 rust = '''
 pub fn string_length(s: String) -> i32 {
     return s.len() as i32 as i32;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_string_length_examples() {
-        assert_eq!(string_length(""), 0);
-        assert_eq!(string_length("a"), 1);
-        assert_eq!(string_length("abc"), 3);
-    }
+};
 }
 '''
 
@@ -362,19 +336,7 @@ def repeat_string(s: str, n: int) -> str:
 rust = '''
 pub fn repeat_string(s: String, n: i32) -> String {
     return s.repeat(n as usize);
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn quickcheck_repeat_string() {
-        fn prop(s: String, n: i32) -> TestResult {
-            let result1 = repeat_string((&*s).into(), n.clone());
-            let result2 = repeat_string(n.clone(), (&*s).into());
-            if result1 != result2 {
-                return TestResult::failed();
-            }
+};
             TestResult::passed()
         }
         quickcheck(prop as fn(String, i32) -> TestResult);
@@ -394,15 +356,7 @@ def is_alpha(s: str) -> bool:
 rust = '''
 pub fn is_alpha(s: String) -> bool {
     return s.chars().all(|c| c.is_alphabetic());
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_is_alpha_examples() {
-        let _ = is_alpha(Default::default());
-    }
+};
 }
 '''
 
@@ -418,15 +372,7 @@ def is_upper(s: str) -> bool:
 rust = '''
 pub fn is_upper(s: String) -> bool {
     return s.isupper();
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_is_upper_examples() {
-        let _ = is_upper(Default::default());
-    }
+};
 }
 '''
 
@@ -442,15 +388,7 @@ def is_lower(s: str) -> bool:
 rust = '''
 pub fn is_lower(s: String) -> bool {
     return s.islower();
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_is_lower_examples() {
-        let _ = is_lower(Default::default());
-    }
+};
 }
 '''
 
@@ -715,18 +653,7 @@ pub fn helper(s: String) -> String {
 }
 pub fn test(name: String) -> String {
     return helper(format!("Hello {}", name));
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn quickcheck_helper() {
-        fn prop(s: String) -> TestResult {
-            let result = helper((&*s).into());
-            if result != s {
-                return TestResult::failed();
-            }
+};
             TestResult::passed()
         }
         quickcheck(prop as fn(String) -> TestResult);
@@ -903,18 +830,7 @@ def expand_tabs(s: str) -> str:
 rust = '''
 pub fn expand_tabs(s: String) -> String {
     return s.expandtabs();
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn quickcheck_expand_tabs() {
-        fn prop(s: String) -> TestResult {
-            let result = expand_tabs((&*s).into());
-            if result < 0 {
-                return TestResult::failed();
-            }
+};
             TestResult::passed()
         }
         quickcheck(prop as fn(String) -> TestResult);
@@ -979,15 +895,7 @@ def is_printable(s: str) -> bool:
 rust = '''
 pub fn is_printable(s: String) -> bool {
     return s.isprintable();
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_is_printable_examples() {
-        let _ = is_printable(Default::default());
-    }
+};
 }
 '''
 
@@ -1063,15 +971,7 @@ def is_ascii(s: str) -> bool:
 rust = '''
 pub fn is_ascii(s: String) -> bool {
     return s.isascii();
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_is_ascii_examples() {
-        let _ = is_ascii(Default::default());
-    }
+};
 }
 '''
 
@@ -1087,15 +987,7 @@ def is_identifier(s: str) -> bool:
 rust = '''
 pub fn is_identifier(s: String) -> bool {
     return s.isidentifier();
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_is_identifier_examples() {
-        let _ = is_identifier(Default::default());
-    }
+};
 }
 '''
 
@@ -1111,15 +1003,7 @@ def is_space(s: str) -> bool:
 rust = '''
 pub fn is_space(s: String) -> bool {
     return s.isspace();
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_is_space_examples() {
-        let _ = is_space(Default::default());
-    }
+};
 }
 '''
 
@@ -1135,15 +1019,7 @@ def is_decimal(s: str) -> bool:
 rust = '''
 pub fn is_decimal(s: String) -> bool {
     return s.isdecimal();
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_is_decimal_examples() {
-        let _ = is_decimal(Default::default());
-    }
+};
 }
 '''
 
@@ -1159,18 +1035,7 @@ def greet(name: str) -> str:
 rust = '''
 pub fn greet(name: String) -> String {
     return name;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn quickcheck_greet() {
-        fn prop(name: String) -> TestResult {
-            let result = greet((&*name).into());
-            if result != name {
-                return TestResult::failed();
-            }
+};
             TestResult::passed()
         }
         quickcheck(prop as fn(String) -> TestResult);
@@ -1374,19 +1239,7 @@ def repeat_string(s: str, n: int) -> str:
 rust = '''
 pub fn repeat_string(s: String, n: i32) -> String {
     return s.repeat(n as usize);
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn quickcheck_repeat_string() {
-        fn prop(s: String, n: i32) -> TestResult {
-            let result1 = repeat_string((&*s).into(), n.clone());
-            let result2 = repeat_string(n.clone(), (&*s).into());
-            if result1 != result2 {
-                return TestResult::failed();
-            }
+};
             TestResult::passed()
         }
         quickcheck(prop as fn(String, i32) -> TestResult);
@@ -1421,17 +1274,7 @@ def parse_int(s: str) -> int:
 rust = '''
 pub fn parse_int(s: String) -> i32 {
     return s.parse::<i32>().unwrap();
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_parse_int_examples() {
-        assert_eq!(parse_int(""), 0);
-        assert_eq!(parse_int("a"), 1);
-        assert_eq!(parse_int("abc"), 3);
-    }
+};
 }
 '''
 
@@ -1462,26 +1305,10 @@ def process_names(names: list[str]) -> list[str]:
 rust = '''
 pub fn process_names(names: Vec<String>) -> Vec<String> {
     return names;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn quickcheck_process_names() {
-        fn prop(names: Vec<String>) -> TestResult {
-            let result = process_names(&names);
-            if result != names {
-                return TestResult::failed();
-            }
+};
             TestResult::passed()
         }
         quickcheck(prop as fn(Vec<String>) -> TestResult);
-    }
-    #[test]
-    fn test_process_names_examples() {
-        assert_eq!(process_names(vec![]), vec![]);
-        assert_eq!(process_names(vec![1]), vec![1]);
     }
 }
 '''
@@ -1532,19 +1359,7 @@ def normalize(s: str) -> str:
 rust = '''
 pub fn normalize(s: String) -> String {
     return s.trim().to_lowercase();
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn quickcheck_normalize() {
-        fn prop(s: String) -> TestResult {
-            let once = normalize((&*s).into());
-            let twice = normalize(once.clone());
-            if once != twice {
-                return TestResult::failed();
-            }
+};
             TestResult::passed()
         }
         quickcheck(prop as fn(String) -> TestResult);
@@ -1713,15 +1528,7 @@ def validate_string(s: str) -> bool:
 rust = '''
 pub fn validate_string(s: String) -> bool {
     return s.len() as i32 > 0;
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{TestResult, quickcheck};
-    #[test]
-    fn test_validate_string_examples() {
-        let _ = validate_string(Default::default());
-    }
+};
 }
 '''
 
@@ -1989,27 +1796,7 @@ pub fn capitalize_words(text: &str) -> String {
         }
     }
     result_words.join(" ")
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{quickcheck, TestResult};
-    #[test]
-    fn test_count_vowels_examples() {
-        assert_eq!(count_vowels(""), 0);
-        assert_eq!(count_vowels("a"), 1);
-        assert_eq!(count_vowels("abc"), 3);
-    }
-    #[test]
-    fn test_is_palindrome_simple_examples() {
-        let _ = is_palindrome_simple(Default::default());
-    }
-    #[test]
-    fn test_count_words_examples() {
-        assert_eq!(count_words(""), 0);
-        assert_eq!(count_words("a"), 1);
-        assert_eq!(count_words("abc"), 3);
-    }
+};
 }
 '''
 
@@ -2326,20 +2113,7 @@ pub fn is_palindrome(s: &str) -> Result<bool, Box<dyn std::error::Error>> {
         }
     }
     Ok(true)
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{quickcheck, TestResult};
-    #[test]
-    fn test_find_anagrams_examples() {
-        assert_eq!(find_anagrams(vec![]), vec![]);
-        assert_eq!(find_anagrams(vec![1]), vec![1]);
-    }
-    #[test]
-    fn test_is_palindrome_examples() {
-        let _ = is_palindrome(Default::default());
-    }
+};
 }
 '''
 
@@ -3206,15 +2980,143 @@ pub fn process_text_pipeline() -> Result<(), Box<dyn std::error::Error>> {
     );
     log::info!("{}", "=== Processing Complete ===");
     Ok(())
+};
 }
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quickcheck::{quickcheck, TestResult};
-    #[test]
-    fn test_find_palindromes_examples() {
-        assert_eq!(find_palindromes(vec![]), vec![]);
-        assert_eq!(find_palindromes(vec![1]), vec![1]);
-    }
+'''
+
+# =============================================================================
+# String Concatenation in Function Arguments
+# format!() returns String, so if param expects &str, we need to borrow it.
+# =============================================================================
+
+[[test]]
+name = "string_concat_in_function_arg"
+description = "String concatenation (a + b) as function argument generates format!()"
+
+python = '''
+def greet(message: str) -> str:
+    return message
+
+def use_concat() -> str:
+    first = "Hello"
+    second = "World"
+    return greet(first + " " + second)
+'''
+
+rust = '''
+pub fn greet(message: String) -> String {
+    return message;
+}
+pub fn use_concat() -> String {
+    let first = "Hello".to_string();
+    let second = "World".to_string();
+    return greet(format!("{} {}", first, second));
+}
+'''
+
+[[test]]
+name = "string_concat_str_param"
+description = "String concat passed to &str param adds borrow"
+
+python = '''
+def process(text: str) -> int:
+    return len(text)
+
+def call_with_concat(a: str, b: str) -> int:
+    return process(a + b)
+'''
+
+rust = '''
+pub fn process(text: String) -> i32 {
+    return text.len() as i32;
+}
+pub fn call_with_concat(a: String, b: String) -> i32 {
+    return process(format!("{}{}", a, b));
+}
+'''
+
+[[test]]
+name = "string_concat_nested_expression"
+description = "Nested string operations as function arguments"
+
+python = '''
+def log_message(msg: str) -> None:
+    print(msg)
+
+def log_formatted(prefix: str, value: int, suffix: str) -> None:
+    log_message(prefix + str(value) + suffix)
+'''
+
+rust = '''
+pub fn log_message(msg: String) {
+    log::info!("{}", msg);
+}
+pub fn log_formatted(prefix: String, value: i32, suffix: String) {
+    log_message(format!("{}{}{}", prefix, value.to_string(), suffix));
+}
+'''
+
+[[test]]
+name = "string_literal_plus_variable"
+description = "Literal + variable concatenation as argument"
+
+python = '''
+def display(text: str) -> str:
+    return text
+
+def show_greeting(name: str) -> str:
+    return display("Hello, " + name + "!")
+'''
+
+rust = '''
+pub fn display(text: String) -> String {
+    return text;
+}
+pub fn show_greeting(name: String) -> String {
+    return display(format!("Hello, {}!", name));
+}
+'''
+
+[[test]]
+name = "string_concat_chained_calls"
+description = "String concatenation in chained method calls"
+
+python = '''
+def get_prefix() -> str:
+    return "Result: "
+
+def format_output(value: int) -> str:
+    prefix = get_prefix()
+    return (prefix + str(value)).upper()
+'''
+
+rust = '''
+pub fn get_prefix() -> String {
+    return "Result: ".to_string();
+}
+pub fn format_output(value: i32) -> String {
+    let prefix = get_prefix();
+    return format!("{}{}", prefix, value.to_string()).to_uppercase();
+}
+'''
+
+[[test]]
+name = "string_concat_multiple_args"
+description = "Multiple string concatenations as separate arguments"
+
+python = '''
+def combine(a: str, b: str) -> str:
+    return a + b
+
+def multi_concat(x: str, y: str, z: str) -> str:
+    return combine(x + y, y + z)
+'''
+
+rust = '''
+pub fn combine(a: String, b: String) -> String {
+    return format!("{}{}", a, b);
+}
+pub fn multi_concat(x: String, y: String, z: String) -> String {
+    return combine(format!("{}{}", x, y), format!("{}{}", y, z));
 }
 '''
