@@ -1,6 +1,3 @@
-# Dunder Comparison Tests - Comparison magic methods
-# Rust Mapping: PartialEq, Eq, PartialOrd, Ord, Hash traits
-
 [metadata]
 name = "Dunder Comparison Tests"
 category = "dunder-methods"

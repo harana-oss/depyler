@@ -1,6 +1,3 @@
-# Namespace Packages Tests - PEP 420 namespace packages
-# Rust Mapping: Workspaces, path dependencies
-
 [metadata]
 name = "Namespace Packages Tests"
 category = "imports"

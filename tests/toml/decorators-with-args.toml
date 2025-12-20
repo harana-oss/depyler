@@ -1,6 +1,3 @@
-# Decorators with Arguments Tests - Parameterized decorators
-# Rust Mapping: Macro with parameters
-
 [metadata]
 name = "Decorators with Arguments Tests"
 category = "decorators-closures"

@@ -1,5 +1,3 @@
-# Mutability Tests - Migrated from test_mutability.rs, test_clone.rs, test_mutationing.rs
-
 [metadata]
 name = "Mutability Tests"
 category = "mutability"

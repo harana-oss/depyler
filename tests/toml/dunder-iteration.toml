@@ -1,6 +1,3 @@
-# Dunder Iteration Tests - Iteration magic methods
-# Rust Mapping: Iterator, IntoIterator traits
-
 [metadata]
 name = "Dunder Iteration Tests"
 category = "dunder-methods"

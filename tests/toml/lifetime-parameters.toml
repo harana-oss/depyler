@@ -1,6 +1,3 @@
-# Lifetime Parameters Tests
-# Tests for parameter lifetime analysis
-
 [metadata]
 name = "Lifetime Parameters Tests"
 category = "lifetimes"

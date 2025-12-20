@@ -226,7 +226,7 @@ impl FunctionAnalyzer {
                 }
 
                 // Collect error types from finally block
-                let finally_errors = if let Some(ref finally_body) = finalbody {
+                let finally_errors = if let Some(finally_body) = finalbody {
                     let (_, f_errors) = Self::check_can_fail(finally_body);
                     f_errors
                 } else {

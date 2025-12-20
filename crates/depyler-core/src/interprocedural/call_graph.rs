@@ -81,7 +81,7 @@ impl CallGraph {
         // Find functions that don't call anything (leaves in call graph)
         let mut queue: VecDeque<String> = in_degree
             .iter()
-            .filter(|(_, &degree)| degree == 0)
+            .filter(|&(_, &degree)| degree == 0)
             .map(|(func, _)| func.clone())
             .collect();
 

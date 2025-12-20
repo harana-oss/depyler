@@ -77,7 +77,7 @@ fn scan_stmts_for_validators(stmts: &[HirStmt], ctx: &mut CodeGenContext) {
                 ..
             } => {
                 scan_stmts_for_validators(then_body, ctx);
-                if let Some(ref else_stmts) = else_body {
+                if let Some(else_stmts) = else_body {
                     scan_stmts_for_validators(else_stmts, ctx);
                 }
             }
@@ -97,10 +97,10 @@ fn scan_stmts_for_validators(stmts: &[HirStmt], ctx: &mut CodeGenContext) {
                 for handler in handlers {
                     scan_stmts_for_validators(&handler.body, ctx);
                 }
-                if let Some(ref else_stmts) = orelse {
+                if let Some(else_stmts) = orelse {
                     scan_stmts_for_validators(else_stmts, ctx);
                 }
-                if let Some(ref final_stmts) = finalbody {
+                if let Some(final_stmts) = finalbody {
                     scan_stmts_for_validators(final_stmts, ctx);
                 }
             }
@@ -1715,11 +1715,7 @@ fn generate_import_tokens(
     for import in imports {
         let rust_imports = module_mapper.map_import(import);
         for rust_import in rust_imports {
-            if rust_import.path.starts_with("//") {
-                // Comment for unmapped imports
-                let comment = &rust_import.path;
-                items.push(quote! { #[doc = #comment] });
-            } else if rust_import.is_external {
+            if rust_import.is_external {
                 external_imports.push(rust_import);
             } else {
                 std_imports.push(rust_import);

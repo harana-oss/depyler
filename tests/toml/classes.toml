@@ -1,5 +1,3 @@
-# Class Tests - Migrated from test_classs.rs, test_property.rs, test_converters_propertys.rs, test_setattr.rs
-
 [metadata]
 name = "Class Tests"
 category = "classes"

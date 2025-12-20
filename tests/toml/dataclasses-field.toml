@@ -1,6 +1,3 @@
-# Dataclasses Field Tests - field() function details
-# Rust Mapping: Struct field attributes
-
 [metadata]
 name = "Dataclasses Field Tests"
 category = "data-structures"

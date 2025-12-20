@@ -1,6 +1,3 @@
-# Global and Nonlocal Tests - Variable scope modifiers
-# Rust Mapping: Rc<RefCell<T>>, closures with captured references
-
 [metadata]
 name = "Global and Nonlocal Tests"
 category = "core-language"

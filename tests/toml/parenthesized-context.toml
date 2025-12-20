@@ -1,6 +1,3 @@
-# Parenthesized Context Managers Tests - Python 3.10+ multi-line syntax
-# Rust Mapping: Multiple let bindings
-
 [metadata]
 name = "Parenthesized Context Managers Tests"
 category = "context-managers"

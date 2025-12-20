@@ -1,6 +1,3 @@
-# String Operations Tests - Migrated from test_strings.rs, test_string_interoperability.rs,
-# test_string_literals_os_module.rs, test_string_optimizations.rs, test_string_unit.rs
-
 [metadata]
 name = "String Operations Tests"
 category = "strings"

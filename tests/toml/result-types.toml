@@ -1,5 +1,3 @@
-# Result Type Tests - Migrated from test_result_return_wrapping.rs, test_result_unwrapping.rs
-
 [metadata]
 name = "Result Type Tests"
 category = "result-types"

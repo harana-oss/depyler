@@ -1,6 +1,3 @@
-# Dataclasses Basic Tests - @dataclass decorator basics
-# Rust Mapping: #[derive] structs
-
 [metadata]
 name = "Dataclasses Basic Tests"
 category = "data-structures"

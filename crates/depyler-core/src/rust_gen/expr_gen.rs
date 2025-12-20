@@ -2617,24 +2617,24 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         } = &hir_args[0]
         {
             if generators.len() == 1 {
-                let gen = &generators[0];
+                let generator = &generators[0];
 
                 // Check for enumerate pattern: target is "(i, x)" and iter is "enumerate(items)"
                 if let Some(position_expr) =
-                    self.try_optimize_enumerate_position(element, gen, hir_args, args)?
+                    self.try_optimize_enumerate_position(element, generator, hir_args, args)?
                 {
                     return Ok(position_expr);
                 }
 
-                let is_identity = matches!(&**element, HirExpr::Var(name) if name == &gen.target);
+                let is_identity = matches!(&**element, HirExpr::Var(name) if name == &generator.target);
 
-                if is_identity && !gen.conditions.is_empty() {
+                if is_identity && !generator.conditions.is_empty() {
                     // This is a findable pattern: next((x for x in items if cond), default)
-                    let iter_expr = gen.iter.to_rust_expr(self.ctx)?;
-                    let target_pat = self.parse_target_pattern(&gen.target)?;
+                    let iter_expr = generator.iter.to_rust_expr(self.ctx)?;
+                    let target_pat = self.parse_target_pattern(&generator.target)?;
 
                     // Build combined condition from all conditions
-                    let conditions: Vec<syn::Expr> = gen
+                    let conditions: Vec<syn::Expr> = generator
                         .conditions
                         .iter()
                         .map(|c| c.to_rust_expr(self.ctx))
@@ -2650,7 +2650,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     };
 
                     // Determine if the element type needs cloned() based on collection type
-                    let needs_cloned = if let HirExpr::Var(var_name) = &*gen.iter {
+                    let needs_cloned = if let HirExpr::Var(var_name) = &*generator.iter {
                         if let Some(var_type) = self.ctx.var_types.get(var_name) {
                             match var_type {
                                 crate::hir::Type::List(elem_type)
@@ -2708,13 +2708,13 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     fn try_optimize_enumerate_position(
         &mut self,
         element: &HirExpr,
-        gen: &crate::hir::HirComprehension,
+        comprehension: &crate::hir::HirComprehension,
         hir_args: &[HirExpr],
         args: &[syn::Expr],
     ) -> Result<Option<syn::Expr>> {
         // Check if the target is a tuple pattern "(idx_var, elem_var)"
-        let (idx_var, elem_var) = if gen.target.starts_with('(') && gen.target.ends_with(')') {
-            let inner = &gen.target[1..gen.target.len() - 1];
+        let (idx_var, elem_var) = if comprehension.target.starts_with('(') && comprehension.target.ends_with(')') {
+            let inner = &comprehension.target[1..comprehension.target.len() - 1];
             let parts: Vec<&str> = inner.split(',').map(|s| s.trim()).collect();
             if parts.len() == 2 {
                 (parts[0].to_string(), parts[1].to_string())
@@ -2736,7 +2736,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             func,
             args: call_args,
             ..
-        } = &*gen.iter
+        } = &*comprehension.iter
         {
             if func == "enumerate" && call_args.len() == 1 {
                 call_args[0].to_rust_expr(self.ctx)?
@@ -2748,14 +2748,14 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         };
 
         // Must have at least one condition
-        if gen.conditions.is_empty() {
+        if comprehension.conditions.is_empty() {
             return Ok(None);
         }
 
         // Build the condition, using elem_var as the closure parameter
         let elem_ident = syn::Ident::new(&elem_var, proc_macro2::Span::call_site());
 
-        let conditions: Vec<syn::Expr> = gen
+        let conditions: Vec<syn::Expr> = comprehension
             .conditions
             .iter()
             .map(|c| c.to_rust_expr(self.ctx))
@@ -14962,18 +14962,18 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
 
         // Single generator case (simple iterator chain)
         if generators.len() == 1 {
-            let gen = &generators[0];
+            let generator = &generators[0];
             // For attribute expressions, use convert_attribute_without_clone to avoid double .clone()
             // since we add .clone() when needed in the generated code
-            let iter_expr = if matches!(&*gen.iter, HirExpr::Attribute { .. }) {
-                self.convert_attribute_without_clone(&gen.iter)?
+            let iter_expr = if matches!(&*generator.iter, HirExpr::Attribute { .. }) {
+                self.convert_attribute_without_clone(&generator.iter)?
             } else {
-                gen.iter.to_rust_expr(self.ctx)?
+                generator.iter.to_rust_expr(self.ctx)?
             };
             let element_expr = element.to_rust_expr(self.ctx)?;
-            let target_pat = self.parse_target_pattern(&gen.target)?;
+            let target_pat = self.parse_target_pattern(&generator.target)?;
 
-            let is_csv_reader = if let HirExpr::Var(var_name) = &*gen.iter {
+            let is_csv_reader = if let HirExpr::Var(var_name) = &*generator.iter {
                 var_name == "reader"
                     || var_name.contains("csv")
                     || var_name.ends_with("_reader")
@@ -14983,12 +14983,12 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             };
 
             // Check if it's a range expression
-            let is_range = matches!(&*gen.iter, HirExpr::Call { func, .. } if func == "range");
+            let is_range = matches!(&*generator.iter, HirExpr::Call { func, .. } if func == "range");
 
             // Determine if the element type needs clone (non-Copy) or can use copy
             // Default to true (use .cloned()) because .cloned() works for both Copy and Clone types,
             // while .copied() only works for Copy types. This is safe for custom structs like Player.
-            let element_needs_clone = if let HirExpr::Var(var_name) = &*gen.iter {
+            let element_needs_clone = if let HirExpr::Var(var_name) = &*generator.iter {
                 if let Some(var_type) = self.ctx.var_types.get(var_name) {
                     match var_type {
                         Type::List(elem_type) => self.type_needs_clone(elem_type),
@@ -15004,7 +15004,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
 
             // Check if the iterator is an enumerate call (already returns an iterator)
             let is_enumerate =
-                matches!(&*gen.iter, HirExpr::Call { func, .. } if func == "enumerate");
+                matches!(&*generator.iter, HirExpr::Call { func, .. } if func == "enumerate");
 
             // When the iterator is a variable (likely a borrowed parameter like &Vec<i32>),
             // use .iter().copied() for Copy types or .iter().cloned() for non-Copy types
@@ -15012,7 +15012,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             let mut chain: syn::Expr = if is_csv_reader {
                 self.ctx.needs_csv = true;
                 parse_quote! { #iter_expr.deserialize::<std::collections::HashMap<String, String>>().filter_map(|result| result.ok()) }
-            } else if matches!(&*gen.iter, HirExpr::Var(_)) {
+            } else if matches!(&*generator.iter, HirExpr::Var(_)) {
                 if element_needs_clone {
                     parse_quote! { #iter_expr.iter().cloned() }
                 } else {
@@ -15027,7 +15027,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             };
 
             // Add filters for each condition
-            for cond in &gen.conditions {
+            for cond in &generator.conditions {
                 let cond_expr = cond.to_rust_expr(self.ctx)?;
                 chain = parse_quote! { #chain.filter(|#target_pat| #cond_expr) };
             }
@@ -15035,7 +15035,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             // Add the map transformation only if it's not an identity map (element != target)
             // Skip .map(|x| x) which is a no-op
             let is_identity_map =
-                matches!(element, HirExpr::Var(var_name) if var_name == &gen.target);
+                matches!(element, HirExpr::Var(var_name) if var_name == &generator.target);
             if !is_identity_map {
                 chain = parse_quote! { #chain.map(|#target_pat| #element_expr) };
             }
@@ -15095,14 +15095,14 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             return Ok(element_expr);
         }
 
-        let gen = &generators[depth];
+        let generator = &generators[depth];
         // For attribute expressions, use convert_attribute_without_clone to avoid double .clone()
-        let iter_expr = if matches!(&*gen.iter, HirExpr::Attribute { .. }) {
-            self.convert_attribute_without_clone(&gen.iter)?
+        let iter_expr = if matches!(&*generator.iter, HirExpr::Attribute { .. }) {
+            self.convert_attribute_without_clone(&generator.iter)?
         } else {
-            gen.iter.to_rust_expr(self.ctx)?
+            generator.iter.to_rust_expr(self.ctx)?
         };
-        let target_pat = self.parse_target_pattern(&gen.target)?;
+        let target_pat = self.parse_target_pattern(&generator.target)?;
 
         // Build the inner expression (recursive)
         let inner_expr = self.build_nested_chain(element, generators, depth + 1)?;
@@ -15111,7 +15111,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         let mut chain: syn::Expr = parse_quote! { #iter_expr.into_iter() };
 
         // Add filters for this generator's conditions
-        for cond in &gen.conditions {
+        for cond in &generator.conditions {
             let cond_expr = cond.to_rust_expr(self.ctx)?;
             chain = parse_quote! { #chain.filter(|#target_pat| #cond_expr) };
         }

@@ -1,6 +1,3 @@
-# Parameter Attribute Access Detection Tests
-# Tests for is_param_attribute_access() functionality
-
 [metadata]
 name = "Parameter Attribute Access Detection Tests"
 category = "ownership-mutability"

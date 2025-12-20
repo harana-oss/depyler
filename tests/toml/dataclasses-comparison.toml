@@ -1,6 +1,3 @@
-# Dataclasses Comparison Tests - Comparison operations
-# Rust Mapping: PartialEq, Ord derives
-
 [metadata]
 name = "Dataclasses Comparison Tests"
 category = "data-structures"

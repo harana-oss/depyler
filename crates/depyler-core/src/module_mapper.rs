@@ -436,17 +436,8 @@ impl ModuleMapper {
                     }
                 }
             }
-        } else {
-            // Unknown module - create a placeholder or warning
-            rust_imports.push(RustImport {
-                path: format!(
-                    "// NOTE: Map Python module '{}' ()",
-                    import.module
-                ),
-                alias: None,
-                is_external: false,
-            });
         }
+        // Unknown modules are silently skipped (no placeholder comment)
 
         rust_imports
     }

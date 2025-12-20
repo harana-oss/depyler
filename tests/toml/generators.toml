@@ -1,5 +1,3 @@
-# Generator Tests - Migrated from test_generators.rs, test_generator_compilations.rs, test_generator_yield_analysis_coverage.rs
-
 [metadata]
 name = "Generator Tests"
 category = "generators"

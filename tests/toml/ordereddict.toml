@@ -1,6 +1,3 @@
-# OrderedDict Tests - Dictionary that remembers insertion order
-# Rust Mapping: IndexMap
-
 [metadata]
 name = "OrderedDict Tests"
 category = "data-structures"

@@ -168,34 +168,6 @@ jobs:
         cache-from: type=gha
         cache-to: type=gha,mode=max
 
-  # Build WASM package
-  wasm:
-    name: Build WASM Package
-    needs: quality-gate
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v4
-    
-    - name: Install Rust
-      uses: dtolnay/rust-toolchain@stable
-      with:
-        targets: wasm32-unknown-unknown
-    
-    - name: Install wasm-pack
-      run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
-    
-    - name: Build WASM
-      run: |
-        cd crates/depyler-wasm
-        wasm-pack build --target web --out-dir pkg
-        wasm-pack pack
-    
-    - name: Upload WASM package
-      uses: actions/upload-artifact@v4
-      with:
-        name: wasm-package
-        path: crates/depyler-wasm/pkg/*.tgz
-
   # Publish to crates.io
   publish-cargo:
     name: Publish to crates.io
@@ -235,12 +207,9 @@ jobs:
         # Publish in dependency order
         publish_crate depyler-annotations
         publish_crate depyler-core
-        publish_crate depyler-analyzer
+        publish_crate depyler-analysis
         publish_crate depyler-verify
-        publish_crate depyler-quality
         publish_crate depyler-mcp
-        publish_crate depyler-ruchy
-        publish_crate depyler-wasm
         publish_crate depyler
 
   # Generate distribution packages

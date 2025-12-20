@@ -1,6 +1,3 @@
-# F-Strings Debug Tests - Debug specifier (Python 3.8+)
-# Rust Mapping: dbg! macro
-
 [metadata]
 name = "F-Strings Debug Tests"
 category = "strings"

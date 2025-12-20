@@ -1,6 +1,3 @@
-# Dunder Container Tests - Container magic methods
-# Rust Mapping: Index, IndexMut, iterator traits
-
 [metadata]
 name = "Dunder Container Tests"
 category = "dunder-methods"

@@ -1,6 +1,3 @@
-# Dunder Callable Tests - Making objects callable
-# Rust Mapping: Fn, FnMut, FnOnce traits
-
 [metadata]
 name = "Dunder Callable Tests"
 category = "dunder-methods"

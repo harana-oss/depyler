@@ -1,6 +1,3 @@
-# F-Strings Tests - Formatted string literals
-# Rust Mapping: format! macro
-
 [metadata]
 name = "F-Strings Tests"
 category = "strings"

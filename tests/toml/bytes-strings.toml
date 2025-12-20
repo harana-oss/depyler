@@ -1,6 +1,3 @@
-# Bytes Strings Tests - Bytes literals and operations
-# Rust Mapping: Vec<u8>, &[u8]
-
 [metadata]
 name = "Bytes Strings Tests"
 category = "strings"

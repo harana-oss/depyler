@@ -1,6 +1,3 @@
-# ChainMap Tests - Multiple mapping views
-# Rust Mapping: Custom chain type
-
 [metadata]
 name = "ChainMap Tests"
 category = "data-structures"

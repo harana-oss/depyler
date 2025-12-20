@@ -1,6 +1,3 @@
-# Match Class Patterns Tests - Structural pattern matching for classes
-# Rust Mapping: Struct patterns in match
-
 [metadata]
 name = "Match Class Patterns Tests"
 category = "modern-python"

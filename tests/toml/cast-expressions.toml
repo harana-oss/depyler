@@ -1,6 +1,3 @@
-# Cast Expressions Tests
-# Tests for cast expressions without references
-
 [metadata]
 name = "Cast Expressions Tests"
 category = "codegen"

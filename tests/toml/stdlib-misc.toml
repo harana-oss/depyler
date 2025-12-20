@@ -1,5 +1,3 @@
-# Miscellaneous Standard Library Tests - uuid, urllib, statistics, shlex, textwrap
-
 [metadata]
 name = "Miscellaneous Stdlib Tests"
 category = "stdlib-misc"

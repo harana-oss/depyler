@@ -1,6 +1,3 @@
-# Dunder Lifecycle Tests - Object lifecycle magic methods
-# Rust Mapping: new(), Drop trait, Debug trait, Display trait
-
 [metadata]
 name = "Dunder Lifecycle Tests"
 category = "dunder-methods"

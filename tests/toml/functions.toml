@@ -1,8 +1,3 @@
-# Function Transpilation Tests
-# Migrated from: test_func_gens.rs, test_nested_functions.rs, test_default_arguments.rs,
-#                test_main_return_type.rs, test_function_borrowing.rs, test_star_args_unpacking.rs
-# Note: test_default_parameters.rs contains HIR-level unit tests, not transpilation tests
-
 [metadata]
 name = "Function Tests"
 category = "functions"

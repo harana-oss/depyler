@@ -1,6 +1,3 @@
-# DefaultDict Tests - Dict with default factory
-# Rust Mapping: HashMap with entry API
-
 [metadata]
 name = "DefaultDict Tests"
 category = "data-structures"

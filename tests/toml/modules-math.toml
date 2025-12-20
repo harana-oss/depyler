@@ -1,5 +1,3 @@
-# Math Module Tests - Migrated from test_math_unit.rs, test_maths.rs, test_math_additional_unit.rs
-
 [metadata]
 name = "Math Module Tests"
 category = "stdlib-math"

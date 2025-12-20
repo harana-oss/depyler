@@ -1,6 +1,3 @@
-# Dataclasses Advanced Tests - Advanced dataclass features
-# Rust Mapping: Complex struct patterns
-
 [metadata]
 name = "Dataclasses Advanced Tests"
 category = "data-structures"

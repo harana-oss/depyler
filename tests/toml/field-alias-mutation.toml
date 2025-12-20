@@ -1,6 +1,3 @@
-# Field Alias Mutation Detection Tests
-# Tests for detecting mutations through field aliases
-
 [metadata]
 name = "Field Alias Mutation Detection Tests"
 category = "ownership-mutability"

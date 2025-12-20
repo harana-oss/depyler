@@ -527,7 +527,7 @@ async fn {{function_name}}(
 const CARGO_TOML_TEMPLATE: &str = r#"[package]
 name = "{{package_name}}"
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
 
 [[bin]]
 name = "bootstrap"

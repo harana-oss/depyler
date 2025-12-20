@@ -16,9 +16,7 @@ path = "lib.rs"
 depyler = { path = "../crates/depyler" }
 depyler-core = { path = "../crates/depyler-core" }
 depyler-analysis = { path = "../crates/depyler-analysis" }
-depyler-analyzer = { path = "../crates/depyler-analyzer" }
 depyler-annotations = { path = "../crates/depyler-annotations" }
-depyler-quality = { path = "../crates/depyler-quality" }
 depyler-verify = { path = "../crates/depyler-verify" }
 
 toml = "0.8"

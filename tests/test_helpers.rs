@@ -1,4 +1,4 @@
-use depyler_core::{DepylerPipeline, hir::HirModule};
+use depyler_core::{hir::HirModule, DepylerPipeline};
 use std::fs;
 use std::process::Command;
 use tempfile::TempDir;
@@ -36,7 +36,10 @@ pub fn parse_to_hir(python_source: &str) -> HirModule {
 ///
 /// # Returns
 /// The transpile/compile result on success, or panics with detailed error info.
-pub fn transpile_and_compile(python_source: &str, expected_patterns: &[&str]) -> TranspileCompileResult {
+pub fn transpile_and_compile(
+    python_source: &str,
+    expected_patterns: &[&str],
+) -> TranspileCompileResult {
     let pipeline = DepylerPipeline::new();
     let result = pipeline.transpile(python_source);
 
@@ -123,7 +126,7 @@ pub fn compile_rust_code(rust_code: &str) -> TranspileCompileResult {
     let cargo_toml = r#"[package]
 name = "depyler_test"
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
 
 [dependencies]
 lazy_static = "1"

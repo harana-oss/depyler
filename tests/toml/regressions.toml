@@ -1,7 +1,3 @@
-# Bug Regression Tests
-# Migrated from: test_bug_regressions.rs
-# These tests verify that previously fixed bugs remain fixed
-
 [metadata]
 name = "Bug Regression Tests"
 category = "regressions"

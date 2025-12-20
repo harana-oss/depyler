@@ -1,6 +1,3 @@
-# Parameter Borrowing Analysis Tests
-# Tests for parameter borrowing analysis
-
 [metadata]
 name = "Parameter Borrowing Analysis Tests"
 category = "ownership-mutability"

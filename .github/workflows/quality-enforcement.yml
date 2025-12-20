@@ -32,9 +32,6 @@ jobs:
           target
         key: ${{ runner.os }}-cargo-quality-${{ hashFiles('**/Cargo.lock') }}
     
-    - name: Build quality tools
-      run: cargo build --bin depyler-quality --release
-    
     - name: Check PMAT metrics
       run: |
         echo "=== PMAT Quality Check ==="

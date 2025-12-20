@@ -1,6 +1,3 @@
-# functools Cache Tests - Memoization decorators
-# Rust Mapping: cached crate
-
 [metadata]
 name = "functools Cache Tests"
 category = "decorators-closures"

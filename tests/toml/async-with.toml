@@ -1,6 +1,3 @@
-# Async With Tests - Asynchronous context managers
-# Rust Mapping: async RAII patterns
-
 [metadata]
 name = "Async With Tests"
 category = "async"

@@ -151,8 +151,8 @@ fn test_map_unknown_module() {
     };
 
     let rust_imports = mapper.map_import(&import);
-    assert_eq!(rust_imports.len(), 1);
-    assert!(rust_imports[0].path.contains("NOTE: Map Python module"));
+    // Unknown modules are silently skipped (no imports generated)
+    assert!(rust_imports.is_empty());
 }
 
 #[test]

@@ -1,6 +1,3 @@
-# Positional-Only Arguments Tests - Python 3.8+ / syntax
-# Rust Mapping: N/A (Rust args are positional by default)
-
 [metadata]
 name = "Positional-Only Arguments Tests"
 category = "modern-python"

@@ -1,5 +1,3 @@
-# Collections Module Tests - Migrated from test_collections_unit.rs, test_counter_unit.rs, test_defaultdict_unit.rs, test_deque_unit.rs
-
 [metadata]
 name = "Collections Module Tests"
 category = "stdlib-collections"

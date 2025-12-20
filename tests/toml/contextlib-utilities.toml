@@ -1,6 +1,3 @@
-# contextlib Utilities Tests - Helper context managers
-# Rust Mapping: Various stdlib equivalents
-
 [metadata]
 name = "contextlib Utilities Tests"
 category = "context-managers"

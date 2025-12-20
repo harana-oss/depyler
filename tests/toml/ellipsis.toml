@@ -1,6 +1,3 @@
-# Ellipsis Tests - The ... literal and its uses
-# Rust Mapping: Unit type, slice markers, placeholder
-
 [metadata]
 name = "Ellipsis Tests"
 category = "core-language"

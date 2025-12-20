@@ -1,6 +1,3 @@
-# Dunder Bitwise Tests - Bitwise operation magic methods
-# Rust Mapping: BitAnd, BitOr, BitXor, Shl, Shr traits
-
 [metadata]
 name = "Dunder Bitwise Tests"
 category = "dunder-methods"

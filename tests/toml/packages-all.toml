@@ -1,6 +1,3 @@
-# Package __all__ Tests - Controlling star imports
-# Rust Mapping: pub use re-exports
-
 [metadata]
 name = "Package __all__ Tests"
 category = "imports"

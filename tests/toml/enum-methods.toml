@@ -1,6 +1,3 @@
-# Enum Methods Tests - Custom enum methods
-# Rust Mapping: impl block for enum
-
 [metadata]
 name = "Enum Methods Tests"
 category = "data-structures"

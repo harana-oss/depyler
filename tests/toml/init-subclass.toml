@@ -1,6 +1,3 @@
-# __init_subclass__ Tests - Hook for subclass creation
-# Rust Mapping: Trait implementations, derive macros
-
 [metadata]
 name = "__init_subclass__ Tests"
 category = "advanced-oop"

@@ -1,5 +1,3 @@
-# AST, HIR, and Code Generation Tests - Migrated from test_ast_bridge.rs, test_hir.rs, test_codegen.rs, test_codegen_edge_cases.rs, test_transpile_edge_cases.rs
-
 [metadata]
 name = "AST, HIR, and Code Generation Tests"
 category = "ast-hir-codegen"

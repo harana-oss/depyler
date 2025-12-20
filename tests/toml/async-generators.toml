@@ -1,6 +1,3 @@
-# Async Generators Tests - Combining async and yield
-# Rust Mapping: async_stream crate
-
 [metadata]
 name = "Async Generators Tests"
 category = "async"

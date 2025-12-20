@@ -115,7 +115,10 @@ impl QualityAnalyzer {
         let gates = vec![
             QualityGate {
                 name: "PMAT TDG Range".to_string(),
-                requirements: vec![QualityRequirement::MinPmatTdg(1.0), QualityRequirement::MaxPmatTdg(2.0)],
+                requirements: vec![
+                    QualityRequirement::MinPmatTdg(1.0),
+                    QualityRequirement::MaxPmatTdg(2.0),
+                ],
                 severity: Severity::Error,
             },
             QualityGate {
@@ -156,7 +159,10 @@ impl QualityAnalyzer {
         }
     }
 
-    pub fn analyze_quality(&self, functions: &[HirFunction]) -> Result<QualityReport, QualityError> {
+    pub fn analyze_quality(
+        &self,
+        functions: &[HirFunction],
+    ) -> Result<QualityReport, QualityError> {
         let pmat_metrics = self.calculate_pmat_metrics(functions)?;
         let complexity_metrics = self.calculate_complexity_metrics(functions);
         let coverage_metrics = self.calculate_coverage_metrics()?;
@@ -165,7 +171,8 @@ impl QualityAnalyzer {
         let mut gates_failed = Vec::new();
 
         for gate in &self.gates {
-            let results = self.evaluate_gate(gate, &pmat_metrics, &complexity_metrics, &coverage_metrics);
+            let results =
+                self.evaluate_gate(gate, &pmat_metrics, &complexity_metrics, &coverage_metrics);
 
             let mut gate_passed = true;
             for result in results {
@@ -182,7 +189,10 @@ impl QualityAnalyzer {
 
         let overall_status = if gates_failed.is_empty() {
             QualityStatus::Passed
-        } else if gates_failed.iter().any(|r| matches!(r.severity, Severity::Error)) {
+        } else if gates_failed
+            .iter()
+            .any(|r| matches!(r.severity, Severity::Error))
+        {
             QualityStatus::Failed
         } else {
             QualityStatus::Warning
@@ -198,7 +208,10 @@ impl QualityAnalyzer {
         })
     }
 
-    fn calculate_pmat_metrics(&self, functions: &[HirFunction]) -> Result<PmatMetrics, QualityError> {
+    fn calculate_pmat_metrics(
+        &self,
+        functions: &[HirFunction],
+    ) -> Result<PmatMetrics, QualityError> {
         // Calculate productivity (based on transpilation speed/complexity)
         let avg_complexity = if functions.is_empty() {
             0.0
@@ -232,7 +245,10 @@ impl QualityAnalyzer {
         let testability_score = if avg_complexity <= 10.0 { 90.0 } else { 70.0 };
 
         // Calculate TDG (Time, Defects, Gaps) score
-        let tdg = (productivity_score + maintainability_score + accessibility_score + testability_score) / 400.0 * 2.0;
+        let tdg =
+            (productivity_score + maintainability_score + accessibility_score + testability_score)
+                / 400.0
+                * 2.0;
 
         Ok(PmatMetrics {
             productivity_score,
@@ -300,8 +316,12 @@ impl QualityAnalyzer {
                     complexity.cyclomatic_complexity <= *max,
                     complexity.cyclomatic_complexity.to_string(),
                 ),
-                QualityRequirement::MinPmatTdg(min) => (pmat.tdg >= *min, format!("{:.2}", pmat.tdg)),
-                QualityRequirement::MaxPmatTdg(max) => (pmat.tdg <= *max, format!("{:.2}", pmat.tdg)),
+                QualityRequirement::MinPmatTdg(min) => {
+                    (pmat.tdg >= *min, format!("{:.2}", pmat.tdg))
+                }
+                QualityRequirement::MaxPmatTdg(max) => {
+                    (pmat.tdg <= *max, format!("{:.2}", pmat.tdg))
+                }
                 QualityRequirement::CompilationSuccess => {
                     // For now, assume compilation succeeds
                     (true, "PASS".to_string())
@@ -350,24 +370,54 @@ impl QualityAnalyzer {
         println!();
 
         println!("PMAT Metrics:");
-        println!("  Productivity: {:.1}", report.pmat_metrics.productivity_score);
-        println!("  Maintainability: {:.1}", report.pmat_metrics.maintainability_score);
-        println!("  Accessibility: {:.1}", report.pmat_metrics.accessibility_score);
-        println!("  Testability: {:.1}", report.pmat_metrics.testability_score);
+        println!(
+            "  Productivity: {:.1}",
+            report.pmat_metrics.productivity_score
+        );
+        println!(
+            "  Maintainability: {:.1}",
+            report.pmat_metrics.maintainability_score
+        );
+        println!(
+            "  Accessibility: {:.1}",
+            report.pmat_metrics.accessibility_score
+        );
+        println!(
+            "  Testability: {:.1}",
+            report.pmat_metrics.testability_score
+        );
         println!("  TDG Score: {:.2}", report.pmat_metrics.tdg);
         println!();
 
         println!("Complexity Metrics:");
-        println!("  Cyclomatic: {}", report.complexity_metrics.cyclomatic_complexity);
-        println!("  Cognitive: {}", report.complexity_metrics.cognitive_complexity);
+        println!(
+            "  Cyclomatic: {}",
+            report.complexity_metrics.cyclomatic_complexity
+        );
+        println!(
+            "  Cognitive: {}",
+            report.complexity_metrics.cognitive_complexity
+        );
         println!("  Max Nesting: {}", report.complexity_metrics.max_nesting);
-        println!("  Statements: {}", report.complexity_metrics.statement_count);
+        println!(
+            "  Statements: {}",
+            report.complexity_metrics.statement_count
+        );
         println!();
 
         println!("Coverage Metrics:");
-        println!("  Line: {:.1}%", report.coverage_metrics.line_coverage * 100.0);
-        println!("  Branch: {:.1}%", report.coverage_metrics.branch_coverage * 100.0);
-        println!("  Function: {:.1}%", report.coverage_metrics.function_coverage * 100.0);
+        println!(
+            "  Line: {:.1}%",
+            report.coverage_metrics.line_coverage * 100.0
+        );
+        println!(
+            "  Branch: {:.1}%",
+            report.coverage_metrics.branch_coverage * 100.0
+        );
+        println!(
+            "  Function: {:.1}%",
+            report.coverage_metrics.function_coverage * 100.0
+        );
         println!();
 
         println!("Quality Gates:");
@@ -380,7 +430,10 @@ impl QualityAnalyzer {
                 Severity::Warning => "⚠️",
                 Severity::Info => "ℹ️",
             };
-            println!("  {icon} {} ({})", gate_result.gate_name, gate_result.actual_value);
+            println!(
+                "  {icon} {} ({})",
+                gate_result.gate_name, gate_result.actual_value
+            );
         }
         println!();
 
@@ -389,7 +442,10 @@ impl QualityAnalyzer {
             QualityStatus::Failed => "❌",
             QualityStatus::Warning => "⚠️",
         };
-        println!("Overall Status: {} {:?}", status_icon, report.overall_status);
+        println!(
+            "Overall Status: {} {:?}",
+            status_icon, report.overall_status
+        );
     }
 
     pub fn verify_rustc_compilation(&self, rust_code: &str) -> Result<bool, QualityError> {
@@ -434,17 +490,21 @@ impl QualityAnalyzer {
         let cargo_toml = r#"[package]
 name = "depyler_quality_check"
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
 
 [dependencies]
 "#;
-        fs::write(project_dir.join("Cargo.toml"), cargo_toml).map_err(|_| QualityError::MetricCalculationFailed {
-            metric: "clippy setup".to_string(),
+        fs::write(project_dir.join("Cargo.toml"), cargo_toml).map_err(|_| {
+            QualityError::MetricCalculationFailed {
+                metric: "clippy setup".to_string(),
+            }
         })?;
 
         // Write the Rust code to lib.rs
-        fs::write(src_dir.join("lib.rs"), rust_code).map_err(|_| QualityError::MetricCalculationFailed {
-            metric: "clippy setup".to_string(),
+        fs::write(src_dir.join("lib.rs"), rust_code).map_err(|_| {
+            QualityError::MetricCalculationFailed {
+                metric: "clippy setup".to_string(),
+            }
         })?;
 
         // Run clippy
@@ -501,7 +561,9 @@ mod tests {
         for i in 0..complexity.saturating_sub(1) {
             body.push(HirStmt::If {
                 condition: HirExpr::Literal(Literal::Bool(true)),
-                then_body: vec![HirStmt::Return(Some(HirExpr::Literal(Literal::Int(i as i64))))],
+                then_body: vec![HirStmt::Return(Some(HirExpr::Literal(Literal::Int(
+                    i as i64,
+                ))))],
                 else_body: None,
             });
         }

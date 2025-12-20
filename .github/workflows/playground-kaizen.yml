@@ -4,13 +4,9 @@ on:
   push:
     paths:
       - 'playground/**'
-      - 'crates/depyler-wasm/**'
-      - 'crates/depyler-quality/**'
   pull_request:
     paths:
       - 'playground/**'
-      - 'crates/depyler-wasm/**'
-      - 'crates/depyler-quality/**'
   schedule:
     - cron: '0 2 * * *' # Daily quality check
 
@@ -55,54 +51,8 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-cargo-
       
-      - name: Run PMAT Analysis
-        run: |
-          cargo run -p depyler-quality -- \
-            analyze playground/ \
-            --format sarif \
-            --output playground-quality.sarif
-      
-      - name: Check Quality Gates
-        run: |
-          cargo run -p depyler-quality -- \
-            enforce playground/ \
-            --max-tdg 2.0 \
-            --min-coverage 85.0 \
-            --max-complexity 15
-      
-      - name: Run Clippy on WASM Crate
-        run: |
-          cargo clippy --manifest-path crates/depyler-wasm/Cargo.toml --target wasm32-unknown-unknown -- -D warnings
-      
       - name: Check Formatting
         run: cargo fmt --all -- --check
-      
-      - name: Build WASM Module
-        run: |
-          cd crates/depyler-wasm
-          wasm-pack build --target web --out-dir ../../playground/public/wasm
-      
-      - name: Measure WASM Size
-        run: |
-          cd playground/public/wasm
-          wasm-opt -Oz --enable-bulk-memory -o optimized.wasm depyler_wasm_bg.wasm
-          gzip -9 < optimized.wasm > bundle.wasm.gz
-          
-          SIZE_KB=$(du -k bundle.wasm.gz | cut -f1)
-          echo "WASM_SIZE_KB=$SIZE_KB" >> $GITHUB_ENV
-          echo "WASM size: ${SIZE_KB}KB"
-          
-          if [ $SIZE_KB -gt 1500 ]; then
-            echo "::error::WASM size ${SIZE_KB}KB exceeds 1500KB budget"
-            exit 1
-          fi
-      
-      - name: Upload WASM Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: wasm-bundle
-          path: playground/public/wasm/
-          retention-days: 7
 
   frontend-build:
     runs-on: ubuntu-latest
@@ -114,12 +64,6 @@ jobs:
         uses: denoland/setup-deno@v1
         with:
           deno-version: v2.x
-      
-      - name: Download WASM Artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: wasm-bundle
-          path: playground/public/wasm/
       
       - name: Cache Deno dependencies
         uses: actions/cache@v4

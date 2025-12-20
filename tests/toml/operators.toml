@@ -1,5 +1,3 @@
-# Operator Tests - Migrated from test_operators.rs, test_power_operator.rs, test_floor_div_zero_handler.rs
-
 [metadata]
 name = "Operator Tests"
 category = "operators"

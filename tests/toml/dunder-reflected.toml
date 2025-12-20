@@ -1,6 +1,3 @@
-# Dunder Reflected Tests - Right-hand operation magic methods
-# Rust Mapping: Trait impls with type parameters (for reverse ops)
-
 [metadata]
 name = "Dunder Reflected Tests"
 category = "dunder-methods"

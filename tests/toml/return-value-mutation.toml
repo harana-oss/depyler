@@ -1,6 +1,3 @@
-# Return Value Mutation Analysis Tests
-# Tests for detecting when function return values are mutated
-
 [metadata]
 name = "Return Value Mutation Analysis Tests"
 category = "ownership-mutability"

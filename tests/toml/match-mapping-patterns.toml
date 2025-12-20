@@ -1,6 +1,3 @@
-# Match Mapping Patterns Tests - Dictionary pattern matching
-# Rust Mapping: HashMap destructuring (not directly supported)
-
 [metadata]
 name = "Match Mapping Patterns Tests"
 category = "modern-python"

@@ -1,5 +1,3 @@
-# Iterator Tests - Migrated from test_iterator_deref.rs
-
 [metadata]
 name = "Iterator Tests"
 category = "iterators"

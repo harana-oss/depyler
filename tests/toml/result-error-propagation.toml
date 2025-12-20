@@ -1,6 +1,3 @@
-# Result Error Propagation Tests
-# Tests for ? operator usage with Result vs plain types
-
 [metadata]
 name = "Result Error Propagation Tests"
 category = "error-propagation"

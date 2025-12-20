@@ -1,6 +1,3 @@
-# Optimizer Inlining Tests
-# Tests for inlining logic and dead code elimination interaction
-
 [metadata]
 name = "Optimizer Inlining Tests"
 category = "optimization"

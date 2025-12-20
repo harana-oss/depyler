@@ -1,6 +1,3 @@
-# Keyword-Only Arguments Tests - Python 3.0+ * syntax
-# Rust Mapping: Builder pattern, named parameters via struct
-
 [metadata]
 name = "Keyword-Only Arguments Tests"
 category = "modern-python"

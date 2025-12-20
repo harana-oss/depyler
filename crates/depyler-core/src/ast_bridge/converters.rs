@@ -756,7 +756,7 @@ impl ExprConverter {
         if c.ops.len() == 1 && c.comparators.len() == 1 && matches!(c.ops[0], ast::CmpOp::Is | ast::CmpOp::IsNot) {
             let comparator = &c.comparators[0];
             // Check if comparing with None
-            let is_none_comparison = matches!(comparator, ast::Expr::Constant(ref cons)
+            let is_none_comparison = matches!(comparator, ast::Expr::Constant(cons)
                     if matches!(cons.value, ast::Constant::None));
 
             if is_none_comparison {
@@ -777,7 +777,7 @@ impl ExprConverter {
             }
 
             // Check if comparing with True or False
-            let is_bool_comparison = matches!(comparator, ast::Expr::Constant(ref cons)
+            let is_bool_comparison = matches!(comparator, ast::Expr::Constant(cons)
                     if matches!(cons.value, ast::Constant::Bool(_)));
 
             if is_bool_comparison {
@@ -954,9 +954,9 @@ impl ExprConverter {
 
         // Convert all generators (support nested)
         let mut generators = Vec::new();
-        for gen in ge.generators {
+        for generator in ge.generators {
             // Extract target variable(s)
-            let target = match &gen.target {
+            let target = match &generator.target {
                 ast::Expr::Name(n) => n.id.to_string(),
                 ast::Expr::Tuple(t) => {
                     // For tuple unpacking like: (x, y) in zip(a, b)
@@ -982,10 +982,10 @@ impl ExprConverter {
             };
 
             // Convert iterator expression
-            let iter = Box::new(Self::convert(gen.iter.clone())?);
+            let iter = Box::new(Self::convert(generator.iter.clone())?);
 
             // Convert all conditions
-            let conditions: Vec<crate::hir::HirExpr> = gen
+            let conditions: Vec<crate::hir::HirExpr> = generator
                 .ifs
                 .iter()
                 .map(|if_expr| Self::convert(if_expr.clone()))

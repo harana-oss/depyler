@@ -1,5 +1,3 @@
-# Pattern Matching Module Tests - fnmatch module
-
 [metadata]
 name = "Pattern Matching Module Tests"
 category = "stdlib-patterns"

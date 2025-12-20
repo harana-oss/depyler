@@ -1,6 +1,3 @@
-# Parameter Mutability Analysis Tests
-# Tests for detecting direct mutations and propagating through call chains
-
 [metadata]
 name = "Parameter Mutability Analysis Tests"
 category = "ownership-mutability"

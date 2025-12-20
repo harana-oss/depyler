@@ -1,6 +1,3 @@
-# Bytes Tests - Binary data type
-# Rust Mapping: Vec<u8>, &[u8]
-
 [metadata]
 name = "Bytes Tests"
 category = "data-structures"

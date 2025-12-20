@@ -1,6 +1,3 @@
-# Dataclasses Frozen Tests - Immutable dataclasses
-# Rust Mapping: Structs (immutable by default)
-
 [metadata]
 name = "Dataclasses Frozen Tests"
 category = "data-structures"

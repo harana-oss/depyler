@@ -1,6 +1,3 @@
-# Deque Tests - Double-ended queue
-# Rust Mapping: VecDeque
-
 [metadata]
 name = "Deque Tests"
 category = "data-structures"

@@ -1,6 +1,3 @@
-# From Imports Tests - from ... import ...
-# Rust Mapping: use path::item
-
 [metadata]
 name = "From Imports Tests"
 category = "imports"

@@ -34,7 +34,7 @@ echo
 echo "Checking PMAT quality metrics..."
 
 FAILED=0
-for module in crates/depyler-core crates/depyler-analyzer crates/depyler-verify; do
+for module in crates/depyler-core crates/depyler-analysis crates/depyler-verify; do
     echo -n "  $module: "
     
     # Find a representative source file

@@ -1,6 +1,3 @@
-# Dunder Unary Tests - Unary operation magic methods
-# Rust Mapping: Neg, Not, custom traits
-
 [metadata]
 name = "Dunder Unary Tests"
 category = "dunder-methods"

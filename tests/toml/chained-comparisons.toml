@@ -1,6 +1,3 @@
-# Chained Comparison Tests - Python's unique comparison chaining
-# Rust Mapping: Expanded boolean chains (a < b && b < c)
-
 [metadata]
 name = "Chained Comparison Tests"
 category = "core-language"

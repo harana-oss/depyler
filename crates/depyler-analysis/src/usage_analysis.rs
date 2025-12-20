@@ -368,8 +368,8 @@ impl UsageAnalyzer {
                 self.analyze_expr(key_body, UsageContext::ReadOnly);
             }
             HirExpr::GeneratorExp { element, generators } => {
-                for gen in generators.iter() {
-                    self.analyze_comprehension(gen);
+                for generator in generators.iter() {
+                    self.analyze_comprehension(generator);
                 }
                 self.analyze_expr(element, UsageContext::Move);
             }

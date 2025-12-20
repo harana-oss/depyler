@@ -1,5 +1,3 @@
-# Root Test Files - Migrated from depyler/*.py and depyler/*.rs
-
 [metadata]
 name = "Root Test Files"
 category = "regression"

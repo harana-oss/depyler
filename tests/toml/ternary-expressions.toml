@@ -1,6 +1,3 @@
-# Ternary Expression Tests - Conditional expressions (x if cond else y)
-# Rust Mapping: if/else expressions
-
 [metadata]
 name = "Ternary Expression Tests"
 category = "core-language"

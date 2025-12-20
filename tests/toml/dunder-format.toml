@@ -1,6 +1,3 @@
-# Dunder Format Tests - String formatting magic methods
-# Rust Mapping: Display trait, Into<Vec<u8>>, bool conversion
-
 [metadata]
 name = "Dunder Format Tests"
 category = "dunder-methods"

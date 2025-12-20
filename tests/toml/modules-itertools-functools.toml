@@ -1,5 +1,3 @@
-# Itertools and Functools Module Tests - Migrated from test_itertools_unit.rs, test_functools_unit.rs, test_functionals.rs
-
 [metadata]
 name = "Itertools and Functools Module Tests"
 category = "stdlib-itertools-functools"

@@ -1,6 +1,3 @@
-# Package __init__.py Tests - Package initialization
-# Rust Mapping: mod.rs, lib.rs
-
 [metadata]
 name = "Package __init__.py Tests"
 category = "imports"

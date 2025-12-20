@@ -1,6 +1,3 @@
-# Conditional Imports Tests
-# Tests for conditional import generation
-
 [metadata]
 name = "Conditional Imports Tests"
 category = "codegen"

@@ -1,6 +1,3 @@
-# Generator Liveness Analysis Tests
-# Tests for generator variable capture and state preservation
-
 [metadata]
 name = "Generator Liveness Analysis Tests"
 category = "generators"

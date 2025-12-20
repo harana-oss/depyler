@@ -1,6 +1,3 @@
-# Unpacking Tests - Extended iterable unpacking in Python
-# Rust Mapping: Pattern matching, Vec splitting
-
 [metadata]
 name = "Unpacking Tests"
 category = "core-language"

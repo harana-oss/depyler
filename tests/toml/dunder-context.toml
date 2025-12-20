@@ -1,6 +1,3 @@
-# Dunder Context Manager Tests - Context manager magic methods
-# Rust Mapping: Drop trait, RAII pattern
-
 [metadata]
 name = "Dunder Context Manager Tests"
 category = "dunder-methods"

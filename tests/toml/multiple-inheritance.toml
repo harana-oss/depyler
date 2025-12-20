@@ -1,6 +1,3 @@
-# Multiple Inheritance Tests - MRO and diamond problem
-# Rust Mapping: Trait composition
-
 [metadata]
 name = "Multiple Inheritance Tests"
 category = "advanced-oop"

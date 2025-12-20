@@ -1,6 +1,3 @@
-# Closures Tests - Functions capturing free variables
-# Rust Mapping: Move/borrow closures
-
 [metadata]
 name = "Closures Tests"
 category = "decorators-closures"

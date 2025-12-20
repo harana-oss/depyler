@@ -1,6 +1,3 @@
-# Async Functions Tests - Coroutines with async def
-# Rust Mapping: async fn
-
 [metadata]
 name = "Async Functions Tests"
 category = "async"

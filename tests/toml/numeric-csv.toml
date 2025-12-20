@@ -1,5 +1,3 @@
-# Numeric and CSV Module Tests - decimal, fractions, csv
-
 [metadata]
 name = "Numeric and CSV Module Tests"
 category = "stdlib-numeric"

@@ -1,6 +1,3 @@
-# I/O Streams and File Handling Tests
-# Migrated from test_stream_handling.rs
-
 [metadata]
 name = "I/O Streams Tests"
 category = "io-streams"

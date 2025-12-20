@@ -1,6 +1,3 @@
-# Raw Strings Tests - Raw string literals
-# Rust Mapping: r"..." raw strings
-
 [metadata]
 name = "Raw Strings Tests"
 category = "strings"

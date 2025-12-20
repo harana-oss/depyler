@@ -122,17 +122,34 @@ pub fn run_toml_tests(
         if result.passed {
             passed_tests += 1;
             if verbose {
-                println!("  {} {} ({:.2}ms)", "✓".green(), result.name, result.duration_ms);
+                println!(
+                    "  {} {} ({:.2}ms)",
+                    "✓".green(),
+                    result.name,
+                    result.duration_ms
+                );
             }
-        } else if result.error.as_ref().map_or(false, |e| e.contains("skipped")) {
+        } else if result
+            .error
+            .as_ref()
+            .map_or(false, |e| e.contains("skipped"))
+        {
             skipped_tests += 1;
             if verbose {
                 println!("  {} {} (skipped)", "○".yellow(), result.name);
             }
         } else {
             failed_tests += 1;
-            let err = result.error.clone().unwrap_or_else(|| "Unknown error".to_string());
-            println!("  {} {} ({:.2}ms)", "✗".red(), result.name.red(), result.duration_ms);
+            let err = result
+                .error
+                .clone()
+                .unwrap_or_else(|| "Unknown error".to_string());
+            println!(
+                "  {} {} ({:.2}ms)",
+                "✗".red(),
+                result.name.red(),
+                result.duration_ms
+            );
             if verbose {
                 println!("    {}", err.dimmed());
             }
@@ -155,7 +172,10 @@ pub fn run_toml_tests(
         skipped_tests.to_string().yellow()
     );
     if !parse_errors.is_empty() {
-        println!("Files: {} parse error(s)", parse_errors.len().to_string().yellow());
+        println!(
+            "Files: {} parse error(s)",
+            parse_errors.len().to_string().yellow()
+        );
     }
     println!("Time:  {:.2}s", duration.as_secs_f64());
     println!("{}", "═".repeat(60));
@@ -320,8 +340,14 @@ fn collect_toml_files(dir: &Path) -> Result<Vec<PathBuf>> {
 }
 
 /// Run tests from a single TOML file
-fn run_tests_from_file(path: &Path, filter: Option<&str>, verbose: bool, compile: bool) -> Result<Vec<TestResult>> {
-    let content = fs::read_to_string(path).with_context(|| format!("Failed to read {}", path.display()))?;
+fn run_tests_from_file(
+    path: &Path,
+    filter: Option<&str>,
+    verbose: bool,
+    compile: bool,
+) -> Result<Vec<TestResult>> {
+    let content =
+        fs::read_to_string(path).with_context(|| format!("Failed to read {}", path.display()))?;
 
     let test_file: TomlTestFile =
         toml::from_str(&content).with_context(|| format!("Failed to parse {}", path.display()))?;
@@ -366,11 +392,12 @@ fn compile_rust_code(rust_code: &str) -> Result<()> {
     let cargo_toml = r#"[package]
 name = "depyler_test"
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
 
 [dependencies]
 "#;
-    fs::write(temp_dir.path().join("Cargo.toml"), cargo_toml).context("Failed to write Cargo.toml")?;
+    fs::write(temp_dir.path().join("Cargo.toml"), cargo_toml)
+        .context("Failed to write Cargo.toml")?;
 
     // Wrap code in main function if it doesn't have one
     let full_code = if rust_code.contains("fn main()") {
@@ -397,7 +424,12 @@ edition = "2021"
 }
 
 /// Run a single test case
-fn run_single_test(pipeline: &DepylerPipeline, test: &TomlTest, file_name: &str, compile: bool) -> TestResult {
+fn run_single_test(
+    pipeline: &DepylerPipeline,
+    test: &TomlTest,
+    file_name: &str,
+    compile: bool,
+) -> TestResult {
     let start = Instant::now();
     let test_name = test.name.clone();
     let python_code = test.python.code.clone();
@@ -405,7 +437,9 @@ fn run_single_test(pipeline: &DepylerPipeline, test: &TomlTest, file_name: &str,
     let file = file_name.to_string();
 
     // Catch panics during transpilation
-    let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| pipeline.transpile(&python_code)));
+    let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+        pipeline.transpile(&python_code)
+    }));
     let duration_ms = start.elapsed().as_millis();
 
     match result {
@@ -416,7 +450,10 @@ fn run_single_test(pipeline: &DepylerPipeline, test: &TomlTest, file_name: &str,
                     name: test_name,
                     file,
                     passed: false,
-                    error: Some(format!("Assertion failed: {}\n\nGenerated:\n{}", e, rust_code)),
+                    error: Some(format!(
+                        "Assertion failed: {}\n\nGenerated:\n{}",
+                        e, rust_code
+                    )),
                     duration_ms,
                 };
             }
@@ -428,7 +465,10 @@ fn run_single_test(pipeline: &DepylerPipeline, test: &TomlTest, file_name: &str,
                         name: test_name,
                         file,
                         passed: false,
-                        error: Some(format!("Compilation failed: {}\n\nGenerated:\n{}", e, rust_code)),
+                        error: Some(format!(
+                            "Compilation failed: {}\n\nGenerated:\n{}",
+                            e, rust_code
+                        )),
                         duration_ms,
                     };
                 }
@@ -506,5 +546,11 @@ pub struct TestArgs {
 
 /// Handle the test command
 pub fn handle_test_command(args: TestArgs) -> Result<()> {
-    run_toml_tests(args.path, args.filter, args.verbose, args.parallel, args.compile)
+    run_toml_tests(
+        args.path,
+        args.filter,
+        args.verbose,
+        args.parallel,
+        args.compile,
+    )
 }

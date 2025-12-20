@@ -1,6 +1,3 @@
-# Enum Copy Semantics Tests
-# Tests for enum Copy vs struct Clone
-
 [metadata]
 name = "Enum Copy Semantics Tests"
 category = "type-system"

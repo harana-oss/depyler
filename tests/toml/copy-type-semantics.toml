@@ -1,6 +1,3 @@
-# Copy Type Semantics Tests
-# Tests for is_copy_type classification
-
 [metadata]
 name = "Copy Type Semantics Tests"
 category = "type-system"

@@ -1,6 +1,3 @@
-# Dead Code Elimination Tests
-# Tests for DCE with side effects preserved
-
 [metadata]
 name = "Dead Code Elimination Tests"
 category = "optimization"

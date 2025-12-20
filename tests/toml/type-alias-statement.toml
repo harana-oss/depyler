@@ -1,6 +1,3 @@
-# Type Alias Statement Tests - Python 3.12+ type keyword
-# Rust Mapping: type aliases
-
 [metadata]
 name = "Type Alias Statement Tests"
 category = "modern-python"

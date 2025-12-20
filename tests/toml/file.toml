@@ -1,6 +1,3 @@
-# Open Builtin Tests
-# Migrated from test_open_builtin.rs
-
 [metadata]
 name = "open-builtin"
 description = "Tests for Python open() builtin function"

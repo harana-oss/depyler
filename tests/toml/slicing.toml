@@ -1,5 +1,3 @@
-# Slicing Tests - Migrated from test_slice_operations.rs, test_slice_assignment_mutability.rs, test_indexings.rs
-
 [metadata]
 name = "Slicing Tests"
 category = "slicing"

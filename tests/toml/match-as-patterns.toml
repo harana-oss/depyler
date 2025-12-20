@@ -1,6 +1,3 @@
-# Match AS Patterns Tests - Binding matched values with as
-# Rust Mapping: @ pattern binding
-
 [metadata]
 name = "Match AS Patterns Tests"
 category = "modern-python"

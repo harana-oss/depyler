@@ -1,6 +1,3 @@
-# Async Comprehensions Tests - Async syntax in comprehensions
-# Rust Mapping: stream.map().collect()
-
 [metadata]
 name = "Async Comprehensions Tests"
 category = "async"

@@ -1,6 +1,3 @@
-# Boundary Values Tests
-# Migrated from test_boundary_values.rs
-
 [metadata]
 name = "boundary-values"
 description = "Tests for boundary conditions and edge cases"

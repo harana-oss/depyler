@@ -1,9 +1,3 @@
-# CLI Integration Tests - Migrated from test_cli.rs, test_cli_edge_cases.rs, test_depyler.rs
-
-# NOTE: Many CLI tests require subprocess execution and file I/O,
-# so they remain as Rust integration tests. This file contains
-# the transpilation verification tests that can be expressed in TOML.
-
 [metadata]
 name = "CLI Integration Tests"
 category = "cli-integration"

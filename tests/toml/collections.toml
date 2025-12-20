@@ -1,7 +1,3 @@
-# Collections Tests
-# Merged from builtins-collections, collection-operations, and python-collections
-# Tests for Python collection types, operations, and related builtins
-
 [metadata]
 name = "collections"
 description = "Tests for Python collection types, operations, builtins, and functional programming"

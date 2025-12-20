@@ -1,6 +1,3 @@
-# For Loop Iterator Mutation Detection Tests
-# Tests for for loop iterator mutation detection
-
 [metadata]
 name = "For Loop Iterator Mutation Detection Tests"
 category = "ownership-mutability"

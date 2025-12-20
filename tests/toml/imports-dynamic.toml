@@ -1,6 +1,3 @@
-# Dynamic Imports Tests - Runtime import mechanisms
-# Rust Mapping: Dynamic loading, dlopen
-
 [metadata]
 name = "Dynamic Imports Tests"
 category = "imports"

@@ -1,6 +1,3 @@
-# Asyncio Tasks Tests - Task management with asyncio
-# Rust Mapping: tokio::spawn, join!, select!
-
 [metadata]
 name = "Asyncio Tasks Tests"
 category = "async"

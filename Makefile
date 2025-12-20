@@ -33,7 +33,6 @@ playground-quickstart: ## Quick start the playground
 	@$(MAKE) playground-run
 playground-fast: ## Start playground quickly (skip builds if possible)
 	@echo "🎮 Starting Depyler Playground (fast mode)"
-	@if [ ! -d "playground/public/wasm" ]; then echo "WASM not found, building..."; cd crates/depyler-wasm && wasm-pack build --target web --out-dir ../../playground/public/wasm; else echo "✓ Using existing WASM build"; fi
 	@if [ ! -d "playground/node_modules" ]; then echo "Installing dependencies..."; cd playground && npm install; else echo "✓ Dependencies already installed"; fi
 	@if [ ! -d "playground/dist" ]; then echo "Building frontend..."; cd playground && npm run build; else echo "✓ Using existing frontend build"; fi
 	@echo "✅ Playground ready! Starting server..."
@@ -67,16 +66,12 @@ clean: ## Clean build artifacts
 	$(CARGO) clean
 # #@ Playground
 playground: playground-build playground-run ## Build and run the playground
-playground-build: ## Build WASM module and frontend
-	@echo "Building WASM module..."
-	cd crates/depyler-wasm && wasm-pack build --target web --out-dir ../../playground/public/wasm
+playground-build: ## Build frontend
 	@echo "Installing playground dependencies..."
 	cd playground && npm install
 	@echo "Building playground frontend..."
 	cd playground && npm run build
 playground-dev: ## Run playground in development mode
-	@echo "Building WASM module..."
-	cd crates/depyler-wasm && wasm-pack build --target web --out-dir ../../playground/public/wasm --dev
 	@echo "Starting playground dev server..."
 	cd playground && npm run dev
 playground-run: ## Run the playground
@@ -91,7 +86,6 @@ playground-clean: ## Clean playground build artifacts
 	rm -rf playground/dist
 	rm -rf playground/public/wasm
 	rm -rf playground/node_modules
-	rm -rf crates/depyler-wasm/target
 # #@ Testing
 # Fast tests for development iteration
 # Comprehensive test suite (NASA-grade)
@@ -622,11 +616,6 @@ deploy-chocolatey: ## Prepare Chocolatey package
 	@mkdir -p chocolatey
 	@./scripts/generate-nuspec.sh > chocolatey/depyler.nuspec
 	@echo "NuSpec generated at chocolatey/depyler.nuspec"
-deploy-wasm: ## Build and deploy WASM package
-	@echo "🌐 Building WASM package..."
-	cd crates/depyler-wasm && wasm-pack build --target web --out-dir pkg
-	cd crates/depyler-wasm && wasm-pack pack
-	@echo "WASM package built. To publish: wasm-pack publish"
 deploy-github: ## Create GitHub release with binaries
 	@echo "📦 Creating GitHub release..."
 	@VERSION=$$(grep version Cargo.toml | head -1 | cut -d'"' -f2); echo "Building release binaries for v$$VERSION..."; ./scripts/build-all-targets.sh; echo "Creating GitHub release..."; gh release create v$$VERSION --title "Depyler v$$VERSION" --notes-file CHANGELOG.md --draft target/releases/*.tar.gz

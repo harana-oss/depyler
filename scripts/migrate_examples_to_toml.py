@@ -130,7 +130,6 @@ def process_category(category: str, category_path: Path) -> Tuple[str, List[Path
         category_title = category.replace('_', ' ').title()
         content = f'''# {category_title} Examples
 # Migrated from examples/{category}/
-
 [metadata]
 name = "{category_title} Examples"
 category = "{category}"
@@ -187,7 +186,6 @@ def process_root_examples() -> List[Path]:
     
     content = '''# Root Examples
 # Miscellaneous examples from examples/ root
-
 [metadata]
 name = "Root Examples"
 category = "examples"

@@ -1,6 +1,3 @@
-# Memoryview Tests - Memory views for buffer protocol
-# Rust Mapping: Slices (&[u8])
-
 [metadata]
 name = "Memoryview Tests"
 category = "data-structures"

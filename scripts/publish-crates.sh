@@ -48,11 +48,9 @@ fi
 # Publish in dependency order
 publish_crate depyler-annotations
 publish_crate depyler-core
-publish_crate depyler-analyzer
+publish_crate depyler-analysis
 publish_crate depyler-verify
-publish_crate depyler-quality
 publish_crate depyler-mcp
-publish_crate depyler-wasm
 publish_crate depyler
 
 echo -e "\n${GREEN}✨ All crates published successfully!${NC}"

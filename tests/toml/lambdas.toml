@@ -1,5 +1,3 @@
-# Lambda Tests - Migrated from test_lambdas.rs, test_lambda_integration.rs
-
 [metadata]
 name = "Lambda Tests"
 category = "lambdas"

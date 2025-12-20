@@ -1,6 +1,3 @@
-# Interprocedural Mutation Propagation Tests
-# Tests for detecting &mut requirements across function boundaries
-
 [metadata]
 name = "Interprocedural Mutation Tests"
 category = "ownership-mutability"

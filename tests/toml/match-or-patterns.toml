@@ -1,6 +1,3 @@
-# Match OR Patterns Tests - Alternative patterns with |
-# Rust Mapping: | in match patterns
-
 [metadata]
 name = "Match OR Patterns Tests"
 category = "modern-python"

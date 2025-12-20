@@ -1,6 +1,3 @@
-# Import Deduplication Tests
-# Tests for use statement deduplication
-
 [metadata]
 name = "Import Deduplication Tests"
 category = "codegen"

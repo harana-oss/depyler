@@ -1,6 +1,3 @@
-# Common Subexpression Elimination (CSE) Optimization Tests
-# Tests for improved CSE behavior - avoiding unnecessary temp variables
-
 [metadata]
 name = "CSE Optimization Tests"
 category = "optimizer"

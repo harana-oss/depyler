@@ -1,6 +1,3 @@
-# Relative Imports Tests - Relative import syntax
-# Rust Mapping: use super::, use crate::
-
 [metadata]
 name = "Relative Imports Tests"
 category = "imports"

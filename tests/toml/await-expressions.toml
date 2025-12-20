@@ -1,6 +1,3 @@
-# Await Expressions Tests - Awaiting coroutines
-# Rust Mapping: .await
-
 [metadata]
 name = "Await Expressions Tests"
 category = "async"

@@ -1,5 +1,3 @@
-# Dictionary Tests - Migrated from test_dicts.rs, test_dict_advanced_unit.rs, test_dict_value_operations.rs
-
 [metadata]
 name = "Dictionary Tests"
 category = "dictionaries"

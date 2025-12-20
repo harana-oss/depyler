@@ -1,5 +1,3 @@
-# Comprehension Tests - Migrated from test_list_comprehension.rs
-
 [metadata]
 name = "Comprehension Tests"
 category = "comprehensions"

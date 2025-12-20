@@ -1,5 +1,3 @@
-# Lifetime and COW Type Tests - Migrated from test_lifetimes.rs
-
 [metadata]
 name = "Lifetime Tests"
 category = "ownership-lifetimes"

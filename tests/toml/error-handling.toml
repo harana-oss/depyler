@@ -1,6 +1,3 @@
-# Error Handling Tests - Migrated from test_error_handlings.rs, test_exception_handlings.rs, 
-# test_exception_scope.rs, test_valueerror.rs
-
 [metadata]
 name = "Error Handling Tests"
 category = "error-handling"

@@ -1,6 +1,3 @@
-# F-Strings Nested Tests - Nested f-strings (Python 3.12+)
-# Rust Mapping: Nested format! macros
-
 [metadata]
 name = "F-Strings Nested Tests"
 category = "strings"

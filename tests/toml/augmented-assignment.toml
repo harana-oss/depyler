@@ -1,6 +1,3 @@
-# Augmented Assignment Tests - Compound assignment operators
-# Rust Mapping: Direct operator equivalents (+=, -=, etc.)
-
 [metadata]
 name = "Augmented Assignment Tests"
 category = "core-language"

@@ -1,6 +1,3 @@
-# Counter Tests - Counting hashable objects
-# Rust Mapping: HashMap<T, usize>
-
 [metadata]
 name = "Counter Tests"
 category = "data-structures"

@@ -1,6 +1,3 @@
-# Mutating Method Names Tests
-# Tests for is_mutating_method_name classification
-
 [metadata]
 name = "Mutating Method Names Tests"
 category = "ownership-mutability"

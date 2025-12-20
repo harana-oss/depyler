@@ -1,6 +1,3 @@
-# functools.wraps Tests - Preserving function metadata
-# Rust Mapping: Proc macro attributes
-
 [metadata]
 name = "functools.wraps Tests"
 category = "decorators-closures"

@@ -675,9 +675,9 @@ impl LifetimeInference {
             } => {
                 // Analyze element and all generator components
                 self.analyze_expr_for_param(param, element, usage, in_loop, in_return);
-                for gen in generators {
-                    self.analyze_expr_for_param(param, &gen.iter, usage, in_loop, in_return);
-                    for cond in &gen.conditions {
+                for generator in generators {
+                    self.analyze_expr_for_param(param, &generator.iter, usage, in_loop, in_return);
+                    for cond in &generator.conditions {
                         self.analyze_expr_for_param(param, cond, usage, in_loop, in_return);
                     }
                 }

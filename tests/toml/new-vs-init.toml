@@ -1,6 +1,3 @@
-# __new__ vs __init__ Tests - Object creation and initialization
-# Rust Mapping: new() constructors, Default trait
-
 [metadata]
 name = "__new__ vs __init__ Tests"
 category = "advanced-oop"

@@ -1,5 +1,3 @@
-# OS and Sys Module Tests - Migrated from test_os_unit.rs, test_os_additional_unit.rs, test_sys_unit.rs
-
 [metadata]
 name = "OS and Sys Module Tests"
 category = "stdlib-os-sys"

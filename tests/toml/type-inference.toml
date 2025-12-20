@@ -1,6 +1,3 @@
-# Type Inference Tests - Migrated from test_type_inference.rs, test_type_system.rs, 
-# test_type_mapper_coverage.rs, test_type_annotation.rs
-
 [metadata]
 name = "Type Inference Tests"
 category = "type-inference"

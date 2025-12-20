@@ -1,6 +1,3 @@
-# Lazy Static Detection Tests
-# Tests for requires_lazy_static
-
 [metadata]
 name = "Lazy Static Detection Tests"
 category = "codegen"

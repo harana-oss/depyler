@@ -1,5 +1,3 @@
-# Regex Module Tests - Migrated from test_re_unit.rs, test_fnmatch_unit.rs, test_glob_unit.rs
-
 [metadata]
 name = "Regex Module Tests"
 category = "stdlib-regex"

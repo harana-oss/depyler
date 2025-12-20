@@ -1,7 +1,3 @@
-# Return Statement Coverage Tests
-# Migrated from test_stmt_gen_return_coverage.rs
-# Focus: Optional wrapping, Result wrapping, type conversion, final vs early returns
-
 [metadata]
 name = "return-statements"
 description = "Tests for return statement code generation semantics"

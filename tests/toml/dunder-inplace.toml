@@ -1,6 +1,3 @@
-# Dunder In-Place Tests - In-place operation magic methods
-# Rust Mapping: AddAssign, SubAssign, MulAssign, etc.
-
 [metadata]
 name = "Dunder In-Place Tests"
 category = "dunder-methods"

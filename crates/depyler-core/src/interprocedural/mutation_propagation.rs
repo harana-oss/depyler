@@ -765,9 +765,9 @@ impl<'a> MutationPropagator<'a> {
                 generators,
             } => {
                 changed |= self.propagate_calls_in_expr(element, new_mutations, param_names);
-                for gen in generators {
-                    changed |= self.propagate_calls_in_expr(&gen.iter, new_mutations, param_names);
-                    for cond in &gen.conditions {
+                for generator in generators {
+                    changed |= self.propagate_calls_in_expr(&generator.iter, new_mutations, param_names);
+                    for cond in &generator.conditions {
                         changed |= self.propagate_calls_in_expr(cond, new_mutations, param_names);
                     }
                 }

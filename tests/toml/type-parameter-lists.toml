@@ -1,6 +1,3 @@
-# Type Parameter Lists Tests - Python 3.12+ generic syntax
-# Rust Mapping: Generic functions and types
-
 [metadata]
 name = "Type Parameter Lists Tests"
 category = "modern-python"

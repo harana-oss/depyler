@@ -1,6 +1,3 @@
-# Enum Basic Tests - Basic enumeration types
-# Rust Mapping: enum
-
 [metadata]
 name = "Enum Basic Tests"
 category = "data-structures"

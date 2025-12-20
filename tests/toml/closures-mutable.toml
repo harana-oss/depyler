@@ -1,6 +1,3 @@
-# Mutable Closures Tests - Closures with nonlocal mutation
-# Rust Mapping: FnMut, RefCell patterns
-
 [metadata]
 name = "Mutable Closures Tests"
 category = "decorators-closures"

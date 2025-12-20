@@ -1,6 +1,3 @@
-# Constant Type Inference Tests
-# Tests for infer_constant_type
-
 [metadata]
 name = "Constant Type Inference Tests"
 category = "type-system"

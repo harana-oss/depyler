@@ -1,6 +1,3 @@
-# Nested Context Managers Tests - Multiple with targets
-# Rust Mapping: Nested scopes with Drop
-
 [metadata]
 name = "Nested Context Managers Tests"
 category = "context-managers"

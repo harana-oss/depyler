@@ -1,6 +1,3 @@
-# Descriptor Tests - The descriptor protocol
-# Rust Mapping: Custom Deref/DerefMut implementations
-
 [metadata]
 name = "Descriptor Tests"
 category = "advanced-oop"

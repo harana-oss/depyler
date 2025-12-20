@@ -1,6 +1,3 @@
-# Statement Generator For Loop Coverage Tests
-# Migrated from test_stmt_gen_for_coverage.rs
-
 [metadata]
 name = "for-loop"
 description = "Tests for for-loop code generation including variable usage detection"

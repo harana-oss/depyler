@@ -1,6 +1,3 @@
-# Set Operations Tests - Set mathematical operations
-# Rust Mapping: HashSet operations
-
 [metadata]
 name = "Set Operations Tests"
 category = "data-structures"

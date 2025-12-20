@@ -1,5 +1,3 @@
-# Optional Type Tests - Migrated from test_optional_*.rs files
-
 [metadata]
 name = "Optional Type Tests"
 category = "optional-types"

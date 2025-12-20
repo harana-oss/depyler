@@ -1,6 +1,3 @@
-# Dunder Arithmetic Tests - Arithmetic magic methods
-# Rust Mapping: Add, Sub, Mul, Div, Rem traits
-
 [metadata]
 name = "Dunder Arithmetic Tests"
 category = "dunder-methods"

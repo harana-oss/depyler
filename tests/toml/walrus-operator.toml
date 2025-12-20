@@ -1,6 +1,3 @@
-# Walrus Operator Tests - Assignment expressions (:=) in Python
-# Rust Mapping: `let` bindings in expressions
-
 [metadata]
 name = "Walrus Operator Tests"
 category = "core-language"

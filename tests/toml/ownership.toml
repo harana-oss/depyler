@@ -1,7 +1,5 @@
-# Ownership and Borrowing Tests - Migrated from test_ownership_patterns.rs, test_function_borrowing.rs,
  # Ownership and Borrowing Tests - Migrated from test_ownership_patterns.rs, test_function_borrowing.rs,
 # test_method_ownership.rs, test_lifetimes.rs
-
 [metadata]
 name = "Ownership Tests"
 category = "ownership"

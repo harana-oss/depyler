@@ -1,6 +1,3 @@
-# @contextmanager Decorator Tests - Generator-based context managers
-# Rust Mapping: Custom wrapper implementation
-
 [metadata]
 name = "@contextmanager Decorator Tests"
 category = "context-managers"

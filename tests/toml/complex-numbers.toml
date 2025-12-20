@@ -1,6 +1,3 @@
-# Complex Number Tests - Python complex literals and arithmetic
-# Rust Mapping: num::Complex crate
-
 [metadata]
 name = "Complex Number Tests"
 category = "core-language"

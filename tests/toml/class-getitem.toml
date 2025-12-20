@@ -1,6 +1,3 @@
-# __class_getitem__ Tests - Making classes subscriptable
-# Rust Mapping: Generics
-
 [metadata]
 name = "__class_getitem__ Tests"
 category = "advanced-oop"

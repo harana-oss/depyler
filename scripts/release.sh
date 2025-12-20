@@ -43,11 +43,9 @@ sed -i "s/^version = \".*\"/version = \"${VERSION}\"/" Cargo.toml
 find crates -name "Cargo.toml" -exec sed -i \
     -e "s/depyler-annotations = { version = \".*\"/depyler-annotations = { version = \"=${VERSION}\"/" \
     -e "s/depyler-core = { version = \".*\"/depyler-core = { version = \"=${VERSION}\"/" \
-    -e "s/depyler-analyzer = { version = \".*\"/depyler-analyzer = { version = \"=${VERSION}\"/" \
+    -e "s/depyler-analysis = { version = \".*\"/depyler-analysis = { version = \"=${VERSION}\"/" \
     -e "s/depyler-verify = { version = \".*\"/depyler-verify = { version = \"=${VERSION}\"/" \
-    -e "s/depyler-quality = { version = \".*\"/depyler-quality = { version = \"=${VERSION}\"/" \
     -e "s/depyler-mcp = { version = \".*\"/depyler-mcp = { version = \"=${VERSION}\"/" \
-    -e "s/depyler-wasm = { version = \".*\"/depyler-wasm = { version = \"=${VERSION}\"/" \
     {} \;
 
 # Update Cargo.lock

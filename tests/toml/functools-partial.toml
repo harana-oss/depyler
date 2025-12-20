@@ -1,6 +1,3 @@
-# functools.partial Tests - Partial function application
-# Rust Mapping: Closures capturing arguments
-
 [metadata]
 name = "functools.partial Tests"
 category = "decorators-closures"

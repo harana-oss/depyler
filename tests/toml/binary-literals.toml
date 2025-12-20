@@ -1,6 +1,3 @@
-# Binary Literals Tests - Number literals in various bases
-# Rust Mapping: Direct literal translation (0b, 0o, 0x)
-
 [metadata]
 name = "Binary Literals Tests"
 category = "core-language"

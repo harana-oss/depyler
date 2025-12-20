@@ -1,6 +1,3 @@
-# Assert Statement Tests - Runtime assertions
-# Rust Mapping: assert!, debug_assert!
-
 [metadata]
 name = "Assert Statement Tests"
 category = "core-language"

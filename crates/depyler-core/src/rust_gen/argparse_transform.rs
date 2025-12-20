@@ -946,15 +946,15 @@ pub fn analyze_subcommand_field_access(
             }
             HirExpr::GeneratorExp { element, generators } => {
                 walk_expr(element, args_param, field_to_variant, accessed_fields, detected_variant);
-                for gen in generators {
+                for generator in generators {
                     walk_expr(
-                        &gen.iter,
+                        &generator.iter,
                         args_param,
                         field_to_variant,
                         accessed_fields,
                         detected_variant,
                     );
-                    for cond in &gen.conditions {
+                    for cond in &generator.conditions {
                         walk_expr(cond, args_param, field_to_variant, accessed_fields, detected_variant);
                     }
                 }

@@ -1,6 +1,3 @@
-# Dunder Attribute Tests - Attribute access magic methods
-# Rust Mapping: Custom accessor methods, Deref
-
 [metadata]
 name = "Dunder Attribute Tests"
 category = "dunder-methods"

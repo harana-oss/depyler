@@ -1,6 +1,3 @@
-# Del Statement Tests - Deleting variables, items, and attributes
-# Rust Mapping: drop(), remove(), Option::take()
-
 [metadata]
 name = "Del Statement Tests"
 category = "core-language"

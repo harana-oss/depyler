@@ -1,6 +1,3 @@
-# Assignment Tests - Migrated from test_assignment.rs, test_stmt_gen_assign_coverage.rs,
-# test_stmt_gen_assign_index_coverage.rs, test_stmt_gen_assign_symbol_coverage.rs
-
 [metadata]
 name = "Assignment Tests"
 category = "assignment"

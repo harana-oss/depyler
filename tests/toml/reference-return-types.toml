@@ -1,6 +1,3 @@
-# Reference Return Type Tests
-# Tests for constructor return types without spurious &
-
 [metadata]
 name = "Reference Return Type Tests"
 category = "codegen"

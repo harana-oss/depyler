@@ -734,9 +734,9 @@ impl BorrowingContext {
             HirExpr::GeneratorExp { element, generators } => {
                 // Analyze element expression and all generator iterables
                 self.analyze_expression(element, borrow_depth);
-                for gen in generators {
-                    self.analyze_expression(&gen.iter, borrow_depth);
-                    for cond in &gen.conditions {
+                for generator in generators {
+                    self.analyze_expression(&generator.iter, borrow_depth);
+                    for cond in &generator.conditions {
                         self.analyze_expression(cond, borrow_depth);
                     }
                 }

@@ -1662,9 +1662,9 @@ fn is_var_used_in_expr(var_name: &str, expr: &HirExpr) -> bool {
         } => {
             // Check element and all generators
             is_var_used_in_expr(var_name, element)
-                || generators.iter().any(|gen| {
-                    is_var_used_in_expr(var_name, &gen.iter)
-                        || gen
+                || generators.iter().any(|generator| {
+                    is_var_used_in_expr(var_name, &generator.iter)
+                        || generator
                             .conditions
                             .iter()
                             .any(|cond| is_var_used_in_expr(var_name, cond))

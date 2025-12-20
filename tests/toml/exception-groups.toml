@@ -1,6 +1,3 @@
-# Exception Groups Tests - Python 3.11+ exception handling
-# Rust Mapping: Result composition, error aggregation
-
 [metadata]
 name = "Exception Groups Tests"
 category = "modern-python"

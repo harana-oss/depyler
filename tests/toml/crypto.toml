@@ -1,5 +1,3 @@
-# Encoding and Crypto Module Tests - base64, hashlib, binascii, hmac
-
 [metadata]
 name = "Encoding and Crypto Module Tests"
 category = "stdlib-encoding"

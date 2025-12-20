@@ -1,6 +1,3 @@
-# IntEnum Tests - Integer-compatible enumerations
-# Rust Mapping: enum with #[repr(i32)]
-
 [metadata]
 name = "IntEnum Tests"
 category = "data-structures"

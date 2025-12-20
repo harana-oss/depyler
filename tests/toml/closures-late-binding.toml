@@ -1,6 +1,3 @@
-# Late Binding Closures Tests - Understanding Python's late binding
-# Rust Mapping: Explicit capture (Rust avoids this issue)
-
 [metadata]
 name = "Late Binding Closures Tests"
 category = "decorators-closures"

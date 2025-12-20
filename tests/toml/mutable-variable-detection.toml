@@ -1,6 +1,3 @@
-# Mutable Variable Detection Tests
-# Tests for analyze_mutable_vars
-
 [metadata]
 name = "Mutable Variable Detection Tests"
 category = "ownership-mutability"

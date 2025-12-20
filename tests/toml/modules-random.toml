@@ -1,5 +1,3 @@
-# Random Module Tests - Migrated from test_random_unit.rs, test_secrets_unit.rs
-
 [metadata]
 name = "Random Module Tests"
 category = "stdlib-random"

@@ -1,6 +1,3 @@
-# Property Tests - The @property decorator
-# Rust Mapping: Methods, builder pattern, getter/setter methods
-
 [metadata]
 name = "Property Tests"
 category = "advanced-oop"

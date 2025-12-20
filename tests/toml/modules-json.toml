@@ -1,5 +1,3 @@
-# JSON Module Tests - Migrated from test_json_unit.rs, test_json_basics_unit.rs
-
 [metadata]
 name = "JSON Module Tests"
 category = "stdlib-json"

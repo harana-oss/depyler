@@ -1,6 +1,3 @@
-# Async For Tests - Asynchronous iteration
-# Rust Mapping: Stream trait
-
 [metadata]
 name = "Async For Tests"
 category = "async"

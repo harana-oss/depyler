@@ -1,6 +1,3 @@
-# Metaclass Tests - Custom type creation
-# Rust Mapping: Traits, proc macros (limited support)
-
 [metadata]
 name = "Metaclass Tests"
 category = "advanced-oop"

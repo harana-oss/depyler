@@ -37,30 +37,39 @@ pub mod prelude {
     pub use crate::metrics::complexity::{
         calculate_cognitive, calculate_cyclomatic, calculate_max_nesting, count_statements,
     };
+    pub use crate::metrics::type_flow::{FunctionSignature, TypeEnvironment, TypeInferencer};
     pub use crate::metrics::{
-        AnalysisResult, Analyzer, ComplexityDistribution, FunctionMetrics, ModuleMetrics, PerformanceProfile,
-        QualityMetrics as MetricsQualityMetrics, TranspilationMetrics, TypeCoverage,
+        AnalysisResult, Analyzer, ComplexityDistribution, FunctionMetrics, ModuleMetrics,
+        PerformanceProfile, QualityMetrics as MetricsQualityMetrics, TranspilationMetrics,
+        TypeCoverage,
     };
 
     // From quality
     pub use crate::quality::{
-        ComplexityMetrics, CoverageMetrics, PmatMetrics, QualityAnalyzer, QualityError, QualityGate, QualityGateResult,
-        QualityReport, QualityRequirement, QualityStatus, Severity,
+        ComplexityMetrics, CoverageMetrics, PmatMetrics, QualityAnalyzer, QualityError,
+        QualityGate, QualityGateResult, QualityReport, QualityRequirement, QualityStatus, Severity,
     };
 
     // From verify
-    pub use crate::verify::{PropertyStatus, PropertyVerifier, TestCase, VerificationMethod, VerificationResult};
+    pub use crate::verify::{
+        PropertyStatus, PropertyVerifier, TestCase, VerificationMethod, VerificationResult,
+    };
 
     // From usage_analysis
-    pub use crate::usage_analysis::{UsageAnalyzer, UsageContext, VariableUsage, get_borrowable_field_vars};
+    pub use crate::usage_analysis::{
+        get_borrowable_field_vars, UsageAnalyzer, UsageContext, VariableUsage,
+    };
 }
 
 // Re-export main types at crate root for convenience
-pub use metrics::complexity::{calculate_cognitive, calculate_cyclomatic, calculate_max_nesting, count_statements};
+pub use metrics::complexity::{
+    calculate_cognitive, calculate_cyclomatic, calculate_max_nesting, count_statements,
+};
+pub use metrics::type_flow::{FunctionSignature, TypeEnvironment, TypeInferencer};
 pub use metrics::{AnalysisResult, Analyzer, FunctionMetrics, ModuleMetrics, TypeCoverage};
 pub use quality::{
-    ComplexityMetrics, CoverageMetrics, PmatMetrics, QualityAnalyzer, QualityError, QualityGate, QualityGateResult,
-    QualityReport, QualityRequirement, QualityStatus, Severity,
+    ComplexityMetrics, CoverageMetrics, PmatMetrics, QualityAnalyzer, QualityError, QualityGate,
+    QualityGateResult, QualityReport, QualityRequirement, QualityStatus, Severity,
 };
-pub use usage_analysis::{UsageAnalyzer, UsageContext, VariableUsage, get_borrowable_field_vars};
+pub use usage_analysis::{get_borrowable_field_vars, UsageAnalyzer, UsageContext, VariableUsage};
 pub use verify::{PropertyStatus, PropertyVerifier, VerificationResult};

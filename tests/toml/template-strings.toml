@@ -1,6 +1,3 @@
-# Template Strings Tests - string.Template
-# Rust Mapping: Custom templating
-
 [metadata]
 name = "Template Strings Tests"
 category = "strings"

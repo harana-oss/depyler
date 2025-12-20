@@ -1,6 +1,3 @@
-# Exception Handling Tests
-# Migrated from test_exception_handlings.rs
-
 [metadata]
 name = "exception-handling"
 description = "Tests for Python try/except/finally error handling"

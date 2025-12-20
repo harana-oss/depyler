@@ -1,6 +1,3 @@
-# Lists and Arrays Tests - Migrated from test_array_generation.rs, test_array_literal_regression.rs,
-# test_array_unit.rs, test_list_methods_unit.rs, test_collection_operations.rs
-
 [metadata]
 name = "Lists and Arrays Tests"
 category = "lists"

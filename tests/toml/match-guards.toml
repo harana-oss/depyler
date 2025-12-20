@@ -1,6 +1,3 @@
-# Match Guards Tests - Conditional pattern matching
-# Rust Mapping: Match guards (if conditions in match arms)
-
 [metadata]
 name = "Match Guards Tests"
 category = "modern-python"

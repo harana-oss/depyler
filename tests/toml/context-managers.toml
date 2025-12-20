@@ -1,6 +1,3 @@
-# Context Managers Tests - The with statement and protocols
-# Rust Mapping: RAII pattern, Drop trait
-
 [metadata]
 name = "Context Managers Tests"
 category = "context-managers"
