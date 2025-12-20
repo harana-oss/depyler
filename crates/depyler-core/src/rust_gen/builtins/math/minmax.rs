@@ -327,11 +327,16 @@ mod tests {
             is_assignment_target: false,
             prevent_clone: false,
             returns_reference: false,
+            returns_mutable_reference: false,
             borrowable_vars: std::collections::HashSet::new(),
             mut_borrowable_vars: std::collections::HashSet::new(),
             generate_borrow: false,
             generate_mut_borrow: false,
             clone_already_applied: false,
+            in_primitive_cast: false,
+            functions_with_mutated_return: std::collections::HashSet::new(),
+            functions_returning_refs: std::collections::HashSet::new(),
+            vars_needing_clone_at_assign: std::collections::HashSet::new(),
         }
     }
 

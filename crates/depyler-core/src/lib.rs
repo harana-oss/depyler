@@ -96,7 +96,9 @@ use serde::{Deserialize, Serialize};
 // Re-export backend traits and types
 pub use backend::{TranspilationBackend, TranspilationTarget, ValidationError};
 pub use error::TranspileError;
-pub use simplified_hir::{Hir, HirBinaryOp, HirExpr, HirLiteral, HirParam, HirStatement, HirType, HirUnaryOp};
+pub use simplified_hir::{
+    Hir, HirBinaryOp, HirExpr, HirLiteral, HirParam, HirStatement, HirType, HirUnaryOp,
+};
 
 /// The main transpilation pipeline for converting Python code to multiple targets
 ///
@@ -397,11 +399,16 @@ impl DepylerPipeline {
                                 if hint_param == &param.name
                                     && matches!(
                                         hint.confidence,
-                                        type_hints::Confidence::High | type_hints::Confidence::Certain
+                                        type_hints::Confidence::High
+                                            | type_hints::Confidence::Certain
                                     )
                                 {
                                     param.ty = hint.suggested_type.clone();
-                                    log::debug!("Applied type hint: {} -> {:?}", param.name, param.ty);
+                                    log::debug!(
+                                        "Applied type hint: {} -> {:?}",
+                                        param.name,
+                                        param.ty
+                                    );
                                     break;
                                 }
                             }
@@ -445,8 +452,9 @@ impl DepylerPipeline {
 
         // Run migration suggestions analysis
         if self.analyzer.metrics_enabled {
-            let mut migration_analyzer =
-                migration_suggestions::MigrationAnalyzer::new(migration_suggestions::MigrationConfig::default());
+            let mut migration_analyzer = migration_suggestions::MigrationAnalyzer::new(
+                migration_suggestions::MigrationConfig::default(),
+            );
             let suggestions = migration_analyzer.analyze_program(&hir_program);
             if !suggestions.is_empty() {
                 eprintln!("{}", migration_analyzer.format_suggestions(&suggestions));
@@ -455,8 +463,9 @@ impl DepylerPipeline {
 
         // Run performance warnings analysis
         if self.analyzer.metrics_enabled {
-            let mut perf_analyzer =
-                performance_warnings::PerformanceAnalyzer::new(performance_warnings::PerformanceConfig::default());
+            let mut perf_analyzer = performance_warnings::PerformanceAnalyzer::new(
+                performance_warnings::PerformanceConfig::default(),
+            );
             let warnings = perf_analyzer.analyze_program(&hir_program);
             if !warnings.is_empty() {
                 eprintln!("{}", perf_analyzer.format_warnings(&warnings));
@@ -528,11 +537,16 @@ impl DepylerPipeline {
                                 if hint_param == &param.name
                                     && matches!(
                                         hint.confidence,
-                                        type_hints::Confidence::High | type_hints::Confidence::Certain
+                                        type_hints::Confidence::High
+                                            | type_hints::Confidence::Certain
                                     )
                                 {
                                     param.ty = hint.suggested_type.clone();
-                                    log::debug!("Applied type hint: {} -> {:?}", param.name, param.ty);
+                                    log::debug!(
+                                        "Applied type hint: {} -> {:?}",
+                                        param.name,
+                                        param.ty
+                                    );
                                     break;
                                 }
                             }
@@ -576,8 +590,9 @@ impl DepylerPipeline {
 
         // Run migration suggestions analysis
         if self.analyzer.metrics_enabled {
-            let mut migration_analyzer =
-                migration_suggestions::MigrationAnalyzer::new(migration_suggestions::MigrationConfig::default());
+            let mut migration_analyzer = migration_suggestions::MigrationAnalyzer::new(
+                migration_suggestions::MigrationConfig::default(),
+            );
             let suggestions = migration_analyzer.analyze_program(&hir_program);
             if !suggestions.is_empty() {
                 eprintln!("{}", migration_analyzer.format_suggestions(&suggestions));
@@ -586,8 +601,9 @@ impl DepylerPipeline {
 
         // Run performance warnings analysis
         if self.analyzer.metrics_enabled {
-            let mut perf_analyzer =
-                performance_warnings::PerformanceAnalyzer::new(performance_warnings::PerformanceConfig::default());
+            let mut perf_analyzer = performance_warnings::PerformanceAnalyzer::new(
+                performance_warnings::PerformanceConfig::default(),
+            );
             let warnings = perf_analyzer.analyze_program(&hir_program);
             if !warnings.is_empty() {
                 eprintln!("{}", perf_analyzer.format_warnings(&warnings));
@@ -614,7 +630,8 @@ impl DepylerPipeline {
         };
 
         // Generate Rust code using the unified generation system
-        let (rust_code, _dependencies) = rust_gen::generate_rust_file(&optimized_hir, &self.transpiler.type_mapper)?;
+        let (rust_code, _dependencies) =
+            rust_gen::generate_rust_file(&optimized_hir, &self.transpiler.type_mapper)?;
 
         Ok(rust_code)
     }
@@ -655,7 +672,8 @@ impl DepylerPipeline {
         use rustpython_ast::Suite;
         use rustpython_parser::Parse;
 
-        let statements = Suite::parse(source, "<input>").map_err(|e| anyhow::anyhow!("Python parse error: {}", e))?;
+        let statements = Suite::parse(source, "<input>")
+            .map_err(|e| anyhow::anyhow!("Python parse error: {}", e))?;
 
         Ok(rustpython_ast::Mod::Module(rustpython_ast::ModModule {
             body: statements,
@@ -846,8 +864,14 @@ def process_list(items: List[str]) -> Optional[str]:
         let hir = pipeline.parse_to_hir(python_code).unwrap();
         assert_eq!(hir.functions.len(), 1);
         let func = &hir.functions[0];
-        assert_eq!(func.params[0].ty, hir::Type::List(Box::new(hir::Type::String)));
-        assert_eq!(func.ret_type, hir::Type::Optional(Box::new(hir::Type::String)));
+        assert_eq!(
+            func.params[0].ty,
+            hir::Type::List(Box::new(hir::Type::String))
+        );
+        assert_eq!(
+            func.ret_type,
+            hir::Type::Optional(Box::new(hir::Type::String))
+        );
     }
 
     #[test]
@@ -929,7 +953,10 @@ def create_map() -> Dict[str, int]:
         let func = &hir.functions[0];
 
         // Verify hash strategy was extracted
-        assert_eq!(func.annotations.hash_strategy, depyler_annotations::HashStrategy::Fnv);
+        assert_eq!(
+            func.annotations.hash_strategy,
+            depyler_annotations::HashStrategy::Fnv
+        );
     }
 
     #[test]
@@ -952,10 +979,40 @@ def convert_field_position(grid_result: str) -> tuple[int, int]:
         );
 
         // Count occurrences of position() to ensure it's not duplicated
-        let position_count = rust_code.matches(".position(").count() + rust_code.matches("iter().position(").count();
+        let position_count =
+            rust_code.matches(".position(").count() + rust_code.matches("iter().position(").count();
         assert!(
             position_count <= 1,
             "list.index() should only be computed once, found {position_count} occurrences.\nGenerated:\n{rust_code}"
+        );
+    }
+
+    #[test]
+    fn test_enum_conditional_no_reference() {
+        let pipeline = DepylerPipeline::new();
+        let python_code = r#"
+from enum import IntEnum
+
+class Team(IntEnum):
+    HOME = 1
+    AWAY = 2
+
+def get_team(is_home: bool) -> Team:
+    return Team.HOME if is_home else Team.AWAY
+"#;
+
+        let rust_code = pipeline.transpile(python_code).unwrap();
+
+        // Enum variants should NOT have & references - they are Copy types
+        assert!(
+            !rust_code.contains("&Team::"),
+            "Enum variants should not be borrowed with &.\nGenerated:\n{rust_code}"
+        );
+
+        // Should contain the enum variants directly
+        assert!(
+            rust_code.contains("Team::HOME") && rust_code.contains("Team::AWAY"),
+            "Should have Team::HOME and Team::AWAY variants.\nGenerated:\n{rust_code}"
         );
     }
 }

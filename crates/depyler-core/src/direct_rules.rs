@@ -259,21 +259,55 @@ fn convert_protocol_to_trait(protocol: &Protocol, type_mapper: &TypeMapper) -> R
     }))
 }
 
+/// Check if a type can implement Copy trait.
+fn is_copy_type(ty: &Type) -> bool {
+    match ty {
+        Type::Int | Type::Float | Type::Bool | Type::None => true,
+        Type::Optional(inner) | Type::Final(inner) => is_copy_type(inner),
+        Type::Tuple(elements) => elements.iter().all(is_copy_type),
+        Type::Array { element_type, .. } => is_copy_type(element_type),
+        // These types are not Copy in Rust
+        Type::String
+        | Type::List(_)
+        | Type::Dict(_, _)
+        | Type::Set(_)
+        | Type::Function { .. }
+        | Type::Custom(_)
+        | Type::TypeVar(_)
+        | Type::Generic { .. }
+        | Type::Union(_)
+        | Type::Unknown => false,
+    }
+}
+
 /// Build derive attributes for a struct, combining default derives with additional derives from annotations.
 fn build_derive_attributes(class: &HirClass) -> Vec<syn::Attribute> {
     // Check if the struct has no instance fields (only class constants)
     let has_instance_fields = class.fields.iter().any(|f| !f.is_class_var);
 
+    // Check if all instance fields are Copy-able
+    let all_fields_copyable = class
+        .fields
+        .iter()
+        .filter(|f| !f.is_class_var)
+        .all(|f| is_copy_type(&f.field_type));
+
     // Start with base derives depending on whether it's a dataclass
     let mut derives: Vec<String> = if class.is_dataclass {
-        vec![
+        let mut d = vec![
             "Debug".to_string(),
             "Clone".to_string(),
             "PartialEq".to_string(),
             "Default".to_string(),
-        ]
+        ];
+        if all_fields_copyable {
+            d.insert(1, "Copy".to_string()); // Insert after Debug, before Clone
+        }
+        d
     } else if !has_instance_fields {
         // Empty struct (only class constants like IntEnum) can implement Copy
+        vec!["Debug".to_string(), "Copy".to_string(), "Clone".to_string()]
+    } else if all_fields_copyable {
         vec!["Debug".to_string(), "Copy".to_string(), "Clone".to_string()]
     } else {
         vec!["Debug".to_string(), "Clone".to_string()]

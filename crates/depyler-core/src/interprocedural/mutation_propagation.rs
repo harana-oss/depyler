@@ -51,7 +51,7 @@
 //! - `LifetimeInference` - generates `&mut` instead of `&` for mutated parameters
 
 use crate::expr_utils::extract_root_var;
-use crate::hir::{AssignTarget, HirExpr, HirFunction, HirModule, HirStmt};
+use crate::hir::{AssignTarget, FStringPart, HirExpr, HirFunction, HirModule, HirStmt};
 use crate::interprocedural::call_graph::CallGraph;
 use crate::interprocedural::signature_registry::FunctionSignatureRegistry;
 use std::collections::{HashMap, HashSet};
@@ -65,6 +65,8 @@ pub struct MutationInfo {
     pub borrowed_params: HashSet<String>,
     /// Local variables that are mutated
     pub mutated_locals: HashSet<String>,
+    /// Functions whose return values are assigned to variables that are then mutated
+    pub functions_with_mutated_return: HashSet<String>,
 }
 
 impl MutationInfo {
@@ -74,14 +76,20 @@ impl MutationInfo {
             mutated_params: HashSet::new(),
             borrowed_params: HashSet::new(),
             mutated_locals: HashSet::new(),
+            functions_with_mutated_return: HashSet::new(),
         }
     }
 
     /// Merge another mutation info into this one
     pub fn merge(&mut self, other: &MutationInfo) {
-        self.mutated_params.extend(other.mutated_params.iter().cloned());
-        self.borrowed_params.extend(other.borrowed_params.iter().cloned());
-        self.mutated_locals.extend(other.mutated_locals.iter().cloned());
+        self.mutated_params
+            .extend(other.mutated_params.iter().cloned());
+        self.borrowed_params
+            .extend(other.borrowed_params.iter().cloned());
+        self.mutated_locals
+            .extend(other.mutated_locals.iter().cloned());
+        self.functions_with_mutated_return
+            .extend(other.functions_with_mutated_return.iter().cloned());
     }
 }
 
@@ -173,16 +181,62 @@ impl<'a> MutationPropagator<'a> {
                 mutation_info.borrowed_params.insert(param.name.clone());
             }
 
-            // Analyze function body for mutations
+            // Phase 1: Track which variables are assigned from function call results
+            let mut vars_from_calls: HashMap<String, String> = HashMap::new();
+            for stmt in &func.body {
+                self.collect_vars_from_calls(stmt, &mut vars_from_calls);
+            }
+
+            // Phase 2: Analyze function body for mutations
             for stmt in &func.body {
                 self.analyze_stmt_for_mutations(
                     stmt,
                     &mut mutation_info,
                     &func.params.iter().map(|p| p.name.clone()).collect(),
+                    &vars_from_calls,
                 );
             }
 
             self.mutations.insert(func_name.to_string(), mutation_info);
+        }
+    }
+
+    /// Collect variables that are assigned from function call results
+    fn collect_vars_from_calls(
+        &self,
+        stmt: &HirStmt,
+        vars_from_calls: &mut HashMap<String, String>,
+    ) {
+        match stmt {
+            HirStmt::Assign { target, value, .. } => {
+                // Check if the value is a function call
+                if let AssignTarget::Symbol(var_name) = target {
+                    if let HirExpr::Call { func, .. } = value {
+                        vars_from_calls.insert(var_name.clone(), func.clone());
+                    }
+                }
+                // Recurse into nested statements if any
+            }
+            HirStmt::If {
+                then_body,
+                else_body,
+                ..
+            } => {
+                for stmt in then_body {
+                    self.collect_vars_from_calls(stmt, vars_from_calls);
+                }
+                if let Some(else_body) = else_body {
+                    for stmt in else_body {
+                        self.collect_vars_from_calls(stmt, vars_from_calls);
+                    }
+                }
+            }
+            HirStmt::While { body, .. } | HirStmt::For { body, .. } => {
+                for stmt in body {
+                    self.collect_vars_from_calls(stmt, vars_from_calls);
+                }
+            }
+            _ => {}
         }
     }
 
@@ -192,6 +246,7 @@ impl<'a> MutationPropagator<'a> {
         stmt: &HirStmt,
         mutation_info: &mut MutationInfo,
         param_names: &HashSet<String>,
+        vars_from_calls: &HashMap<String, String>,
     ) {
         match stmt {
             HirStmt::Assign { target, value, .. } => {
@@ -208,9 +263,15 @@ impl<'a> MutationPropagator<'a> {
                         // Indexing mutates the base
                         if let Some(root_var) = extract_root_var(base) {
                             if param_names.contains(&root_var) {
-                                mutation_info.mutated_params.insert(root_var);
+                                mutation_info.mutated_params.insert(root_var.clone());
                             } else {
-                                mutation_info.mutated_locals.insert(root_var);
+                                mutation_info.mutated_locals.insert(root_var.clone());
+                            }
+                            // Check if this variable was assigned from a function call
+                            if let Some(func_name) = vars_from_calls.get(&root_var) {
+                                mutation_info
+                                    .functions_with_mutated_return
+                                    .insert(func_name.clone());
                             }
                         }
                     }
@@ -218,9 +279,15 @@ impl<'a> MutationPropagator<'a> {
                         // Slice assignment mutates the base
                         if let Some(root_var) = extract_root_var(base) {
                             if param_names.contains(&root_var) {
-                                mutation_info.mutated_params.insert(root_var);
+                                mutation_info.mutated_params.insert(root_var.clone());
                             } else {
-                                mutation_info.mutated_locals.insert(root_var);
+                                mutation_info.mutated_locals.insert(root_var.clone());
+                            }
+                            // Check if this variable was assigned from a function call
+                            if let Some(func_name) = vars_from_calls.get(&root_var) {
+                                mutation_info
+                                    .functions_with_mutated_return
+                                    .insert(func_name.clone());
                             }
                         }
                     }
@@ -228,9 +295,15 @@ impl<'a> MutationPropagator<'a> {
                         // Attribute assignment mutates the object
                         if let Some(root_var) = extract_root_var(value) {
                             if param_names.contains(&root_var) {
-                                mutation_info.mutated_params.insert(root_var);
+                                mutation_info.mutated_params.insert(root_var.clone());
                             } else {
-                                mutation_info.mutated_locals.insert(root_var);
+                                mutation_info.mutated_locals.insert(root_var.clone());
+                            }
+                            // Check if this variable was assigned from a function call
+                            if let Some(func_name) = vars_from_calls.get(&root_var) {
+                                mutation_info
+                                    .functions_with_mutated_return
+                                    .insert(func_name.clone());
                             }
                         }
                     }
@@ -248,18 +321,28 @@ impl<'a> MutationPropagator<'a> {
                                 AssignTarget::Index { base, .. } => {
                                     if let Some(root_var) = extract_root_var(base) {
                                         if param_names.contains(&root_var) {
-                                            mutation_info.mutated_params.insert(root_var);
+                                            mutation_info.mutated_params.insert(root_var.clone());
                                         } else {
-                                            mutation_info.mutated_locals.insert(root_var);
+                                            mutation_info.mutated_locals.insert(root_var.clone());
+                                        }
+                                        if let Some(func_name) = vars_from_calls.get(&root_var) {
+                                            mutation_info
+                                                .functions_with_mutated_return
+                                                .insert(func_name.clone());
                                         }
                                     }
                                 }
                                 AssignTarget::Attribute { value, .. } => {
                                     if let Some(root_var) = extract_root_var(value) {
                                         if param_names.contains(&root_var) {
-                                            mutation_info.mutated_params.insert(root_var);
+                                            mutation_info.mutated_params.insert(root_var.clone());
                                         } else {
-                                            mutation_info.mutated_locals.insert(root_var);
+                                            mutation_info.mutated_locals.insert(root_var.clone());
+                                        }
+                                        if let Some(func_name) = vars_from_calls.get(&root_var) {
+                                            mutation_info
+                                                .functions_with_mutated_return
+                                                .insert(func_name.clone());
                                         }
                                     }
                                 }
@@ -270,40 +353,70 @@ impl<'a> MutationPropagator<'a> {
                 }
 
                 // Also analyze the value expression for method calls
-                self.analyze_expr_for_mutations(value, mutation_info, param_names);
+                self.analyze_expr_for_mutations(value, mutation_info, param_names, vars_from_calls);
             }
             HirStmt::Expr(expr) => {
-                self.analyze_expr_for_mutations(expr, mutation_info, param_names);
+                self.analyze_expr_for_mutations(expr, mutation_info, param_names, vars_from_calls);
             }
             HirStmt::If {
                 condition,
                 then_body,
                 else_body,
             } => {
-                self.analyze_expr_for_mutations(condition, mutation_info, param_names);
+                self.analyze_expr_for_mutations(
+                    condition,
+                    mutation_info,
+                    param_names,
+                    vars_from_calls,
+                );
                 for stmt in then_body {
-                    self.analyze_stmt_for_mutations(stmt, mutation_info, param_names);
+                    self.analyze_stmt_for_mutations(
+                        stmt,
+                        mutation_info,
+                        param_names,
+                        vars_from_calls,
+                    );
                 }
                 if let Some(else_body) = else_body {
                     for stmt in else_body {
-                        self.analyze_stmt_for_mutations(stmt, mutation_info, param_names);
+                        self.analyze_stmt_for_mutations(
+                            stmt,
+                            mutation_info,
+                            param_names,
+                            vars_from_calls,
+                        );
                     }
                 }
             }
             HirStmt::While { condition, body } => {
-                self.analyze_expr_for_mutations(condition, mutation_info, param_names);
+                self.analyze_expr_for_mutations(
+                    condition,
+                    mutation_info,
+                    param_names,
+                    vars_from_calls,
+                );
                 for stmt in body {
-                    self.analyze_stmt_for_mutations(stmt, mutation_info, param_names);
+                    self.analyze_stmt_for_mutations(
+                        stmt,
+                        mutation_info,
+                        param_names,
+                        vars_from_calls,
+                    );
                 }
             }
             HirStmt::For { iter, body, .. } => {
-                self.analyze_expr_for_mutations(iter, mutation_info, param_names);
+                self.analyze_expr_for_mutations(iter, mutation_info, param_names, vars_from_calls);
                 for stmt in body {
-                    self.analyze_stmt_for_mutations(stmt, mutation_info, param_names);
+                    self.analyze_stmt_for_mutations(
+                        stmt,
+                        mutation_info,
+                        param_names,
+                        vars_from_calls,
+                    );
                 }
             }
             HirStmt::Return(Some(expr)) => {
-                self.analyze_expr_for_mutations(expr, mutation_info, param_names);
+                self.analyze_expr_for_mutations(expr, mutation_info, param_names, vars_from_calls);
             }
             _ => {}
         }
@@ -315,46 +428,76 @@ impl<'a> MutationPropagator<'a> {
         expr: &HirExpr,
         mutation_info: &mut MutationInfo,
         param_names: &HashSet<String>,
+        vars_from_calls: &HashMap<String, String>,
     ) {
         match expr {
             HirExpr::MethodCall {
-                object, method, args, ..
+                object,
+                method,
+                args,
+                ..
             } => {
                 // Check if method is mutating
                 if is_mutating_method(method) {
                     if let Some(root_var) = extract_root_var(object) {
                         if param_names.contains(&root_var) {
-                            mutation_info.mutated_params.insert(root_var);
+                            mutation_info.mutated_params.insert(root_var.clone());
                         } else {
-                            mutation_info.mutated_locals.insert(root_var);
+                            mutation_info.mutated_locals.insert(root_var.clone());
+                        }
+                        // Check if this variable was assigned from a function call
+                        if let Some(func_name) = vars_from_calls.get(&root_var) {
+                            mutation_info
+                                .functions_with_mutated_return
+                                .insert(func_name.clone());
                         }
                     }
                 }
 
                 // Recurse into object and args
-                self.analyze_expr_for_mutations(object, mutation_info, param_names);
+                self.analyze_expr_for_mutations(
+                    object,
+                    mutation_info,
+                    param_names,
+                    vars_from_calls,
+                );
                 for arg in args {
-                    self.analyze_expr_for_mutations(arg, mutation_info, param_names);
+                    self.analyze_expr_for_mutations(
+                        arg,
+                        mutation_info,
+                        param_names,
+                        vars_from_calls,
+                    );
                 }
             }
             HirExpr::Call { args, .. } => {
                 for arg in args {
-                    self.analyze_expr_for_mutations(arg, mutation_info, param_names);
+                    self.analyze_expr_for_mutations(
+                        arg,
+                        mutation_info,
+                        param_names,
+                        vars_from_calls,
+                    );
                 }
             }
             HirExpr::Binary { left, right, .. } => {
-                self.analyze_expr_for_mutations(left, mutation_info, param_names);
-                self.analyze_expr_for_mutations(right, mutation_info, param_names);
+                self.analyze_expr_for_mutations(left, mutation_info, param_names, vars_from_calls);
+                self.analyze_expr_for_mutations(right, mutation_info, param_names, vars_from_calls);
             }
             HirExpr::Unary { operand, .. } => {
-                self.analyze_expr_for_mutations(operand, mutation_info, param_names);
+                self.analyze_expr_for_mutations(
+                    operand,
+                    mutation_info,
+                    param_names,
+                    vars_from_calls,
+                );
             }
             HirExpr::Attribute { value, .. } => {
-                self.analyze_expr_for_mutations(value, mutation_info, param_names);
+                self.analyze_expr_for_mutations(value, mutation_info, param_names, vars_from_calls);
             }
             HirExpr::Index { base, index } => {
-                self.analyze_expr_for_mutations(base, mutation_info, param_names);
-                self.analyze_expr_for_mutations(index, mutation_info, param_names);
+                self.analyze_expr_for_mutations(base, mutation_info, param_names, vars_from_calls);
+                self.analyze_expr_for_mutations(index, mutation_info, param_names, vars_from_calls);
             }
             _ => {}
         }
@@ -445,8 +588,11 @@ impl<'a> MutationPropagator<'a> {
                 }
             }
             HirStmt::If {
-                then_body, else_body, ..
+                condition,
+                then_body,
+                else_body,
             } => {
+                changed |= self.propagate_calls_in_expr(condition, new_mutations, param_names);
                 for stmt in then_body {
                     changed |= self.propagate_calls_in_stmt(stmt, new_mutations, param_names);
                 }
@@ -456,12 +602,185 @@ impl<'a> MutationPropagator<'a> {
                     }
                 }
             }
-            HirStmt::While { body, .. } | HirStmt::For { body, .. } => {
+            HirStmt::While { condition, body } => {
+                changed |= self.propagate_calls_in_expr(condition, new_mutations, param_names);
+                for stmt in body {
+                    changed |= self.propagate_calls_in_stmt(stmt, new_mutations, param_names);
+                }
+            }
+            HirStmt::For { iter, body, .. } => {
+                changed |= self.propagate_calls_in_expr(iter, new_mutations, param_names);
                 for stmt in body {
                     changed |= self.propagate_calls_in_stmt(stmt, new_mutations, param_names);
                 }
             }
             _ => {}
+        }
+
+        changed
+    }
+
+    /// Propagate mutations through calls in an expression
+    fn propagate_calls_in_expr(
+        &self,
+        expr: &HirExpr,
+        new_mutations: &mut MutationInfo,
+        param_names: &HashSet<String>,
+    ) -> bool {
+        let mut changed = false;
+
+        match expr {
+            HirExpr::Call { func, args, .. } => {
+                if let Some(callee_sig) = self.registry.get(func) {
+                    if let Some(callee_mutations) = self.mutations.get(func) {
+                        for (arg, param) in args.iter().zip(&callee_sig.params) {
+                            if callee_mutations.mutated_params.contains(&param.name) {
+                                if let Some(root_var) = extract_root_var(arg) {
+                                    if param_names.contains(&root_var)
+                                        && !new_mutations.mutated_params.contains(&root_var)
+                                    {
+                                        new_mutations.mutated_params.insert(root_var);
+                                        changed = true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                // Recurse into arguments
+                for arg in args {
+                    changed |= self.propagate_calls_in_expr(arg, new_mutations, param_names);
+                }
+            }
+            HirExpr::MethodCall { object, args, .. } => {
+                changed |= self.propagate_calls_in_expr(object, new_mutations, param_names);
+                for arg in args {
+                    changed |= self.propagate_calls_in_expr(arg, new_mutations, param_names);
+                }
+            }
+            HirExpr::Attribute { value, .. } => {
+                changed |= self.propagate_calls_in_expr(value, new_mutations, param_names);
+            }
+            HirExpr::Index { base, index } => {
+                changed |= self.propagate_calls_in_expr(base, new_mutations, param_names);
+                changed |= self.propagate_calls_in_expr(index, new_mutations, param_names);
+            }
+            HirExpr::Slice {
+                base,
+                start,
+                stop,
+                step,
+            } => {
+                changed |= self.propagate_calls_in_expr(base, new_mutations, param_names);
+                if let Some(start) = start {
+                    changed |= self.propagate_calls_in_expr(start, new_mutations, param_names);
+                }
+                if let Some(stop) = stop {
+                    changed |= self.propagate_calls_in_expr(stop, new_mutations, param_names);
+                }
+                if let Some(step) = step {
+                    changed |= self.propagate_calls_in_expr(step, new_mutations, param_names);
+                }
+            }
+            HirExpr::Binary { left, right, .. } => {
+                changed |= self.propagate_calls_in_expr(left, new_mutations, param_names);
+                changed |= self.propagate_calls_in_expr(right, new_mutations, param_names);
+            }
+            HirExpr::Unary { operand, .. } => {
+                changed |= self.propagate_calls_in_expr(operand, new_mutations, param_names);
+            }
+            HirExpr::IfExpr { test, body, orelse } => {
+                changed |= self.propagate_calls_in_expr(test, new_mutations, param_names);
+                changed |= self.propagate_calls_in_expr(body, new_mutations, param_names);
+                changed |= self.propagate_calls_in_expr(orelse, new_mutations, param_names);
+            }
+            HirExpr::List(items)
+            | HirExpr::Tuple(items)
+            | HirExpr::Set(items)
+            | HirExpr::FrozenSet(items) => {
+                for item in items {
+                    changed |= self.propagate_calls_in_expr(item, new_mutations, param_names);
+                }
+            }
+            HirExpr::Dict(entries) => {
+                for (key, value) in entries {
+                    changed |= self.propagate_calls_in_expr(key, new_mutations, param_names);
+                    changed |= self.propagate_calls_in_expr(value, new_mutations, param_names);
+                }
+            }
+            HirExpr::ListComp {
+                element,
+                iter,
+                condition,
+                ..
+            }
+            | HirExpr::SetComp {
+                element,
+                iter,
+                condition,
+                ..
+            } => {
+                changed |= self.propagate_calls_in_expr(element, new_mutations, param_names);
+                changed |= self.propagate_calls_in_expr(iter, new_mutations, param_names);
+                if let Some(cond) = condition {
+                    changed |= self.propagate_calls_in_expr(cond, new_mutations, param_names);
+                }
+            }
+            HirExpr::DictComp {
+                key,
+                value,
+                iter,
+                condition,
+                ..
+            } => {
+                changed |= self.propagate_calls_in_expr(key, new_mutations, param_names);
+                changed |= self.propagate_calls_in_expr(value, new_mutations, param_names);
+                changed |= self.propagate_calls_in_expr(iter, new_mutations, param_names);
+                if let Some(cond) = condition {
+                    changed |= self.propagate_calls_in_expr(cond, new_mutations, param_names);
+                }
+            }
+            HirExpr::Lambda { body, .. } => {
+                changed |= self.propagate_calls_in_expr(body, new_mutations, param_names);
+            }
+            HirExpr::Borrow { expr, .. } => {
+                changed |= self.propagate_calls_in_expr(expr, new_mutations, param_names);
+            }
+            HirExpr::Await { value } => {
+                changed |= self.propagate_calls_in_expr(value, new_mutations, param_names);
+            }
+            HirExpr::Yield { value } => {
+                if let Some(value) = value {
+                    changed |= self.propagate_calls_in_expr(value, new_mutations, param_names);
+                }
+            }
+            HirExpr::SortByKey {
+                iterable, key_body, ..
+            } => {
+                changed |= self.propagate_calls_in_expr(iterable, new_mutations, param_names);
+                changed |= self.propagate_calls_in_expr(key_body, new_mutations, param_names);
+            }
+            HirExpr::GeneratorExp {
+                element,
+                generators,
+            } => {
+                changed |= self.propagate_calls_in_expr(element, new_mutations, param_names);
+                for gen in generators {
+                    changed |= self.propagate_calls_in_expr(&gen.iter, new_mutations, param_names);
+                    for cond in &gen.conditions {
+                        changed |= self.propagate_calls_in_expr(cond, new_mutations, param_names);
+                    }
+                }
+            }
+            HirExpr::FString { parts } => {
+                for part in parts {
+                    if let FStringPart::Expr(expr) = part {
+                        changed |= self.propagate_calls_in_expr(expr, new_mutations, param_names);
+                    }
+                }
+            }
+            // Leaf expressions - no recursion needed
+            HirExpr::Literal(_) | HirExpr::Var(_) | HirExpr::Uninitialized => {}
         }
 
         changed
@@ -500,5 +819,33 @@ mod tests {
 
         assert!(info1.mutated_params.contains("x"));
         assert!(info1.mutated_params.contains("y"));
+    }
+
+    #[test]
+    fn test_functions_with_mutated_return_tracking() {
+        let mut info = MutationInfo::new();
+        info.functions_with_mutated_return
+            .insert("_get_team_stats".to_string());
+        assert!(info
+            .functions_with_mutated_return
+            .contains("_get_team_stats"));
+    }
+
+    #[test]
+    fn test_mutation_info_merge_with_mutated_return() {
+        let mut info1 = MutationInfo::new();
+        info1
+            .functions_with_mutated_return
+            .insert("func1".to_string());
+
+        let mut info2 = MutationInfo::new();
+        info2
+            .functions_with_mutated_return
+            .insert("func2".to_string());
+
+        info1.merge(&info2);
+
+        assert!(info1.functions_with_mutated_return.contains("func1"));
+        assert!(info1.functions_with_mutated_return.contains("func2"));
     }
 }

@@ -1,0 +1,592 @@
+# Interprocedural Mutation Propagation Tests
+# Tests for detecting &mut requirements across function boundaries
+
+[metadata]
+name = "Interprocedural Mutation Tests"
+category = "ownership-mutability"
+description = "Tests for mutation propagation through function calls in various contexts"
+
+# =============================================================================
+# For-loop Iterator with Mutating Function Call
+# =============================================================================
+
+[[test]]
+name = "for_loop_iter_calls_mutating_function"
+description = "For loop iterates over result of function that needs &mut"
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass
+class Stats:
+    value: int
+
+@dataclass
+class Container:
+    stats: Stats
+
+def get_stats(container: Container) -> Stats:
+    return container.stats
+
+def update_via_loop(container: Container) -> None:
+    for s in [get_stats(container)]:
+        s.value = s.value + 1
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+use serde_json;
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Stats {
+    pub value: i32,
+}
+impl Stats {
+    pub fn new(value: i32) -> Self {
+        Self { value }
+    }
+}
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Container {
+    pub stats: Stats,
+}
+impl Container {
+    pub fn new(stats: Stats) -> Self {
+        Self { stats }
+    }
+}
+pub fn get_stats<'a>(container: &'a mut Container) -> &'a mut Stats {
+    return &mut container.stats;
+}
+pub fn update_via_loop(container: &mut Container) {
+    for mut s in vec![get_stats(container).clone()] {
+        s.value = s.value + 1;
+    }
+}
+'''
+
+[[test]]
+name = "for_loop_iter_with_slice_and_mutating_call"
+description = "For loop with slice on result of function needing &mut"
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass
+class Item:
+    score: float
+
+@dataclass
+class Data:
+    items: list[Item]
+
+def get_items(data: Data) -> list[Item]:
+    return data.items
+
+def process_first_three(data: Data) -> None:
+    for item in get_items(data)[:3]:
+        item.score = item.score + 1.0
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+use serde_json;
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Item {
+    pub score: f64,
+}
+impl Item {
+    pub fn new(score: f64) -> Self {
+        Self { score }
+    }
+}
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Data {
+    pub items: Vec<Item>,
+}
+impl Data {
+    pub fn new(items: Vec<Item>) -> Self {
+        Self { items }
+    }
+}
+pub fn get_items<'a>(data: &'a mut Data) -> &'a mut Vec<Item> {
+    return &mut data.items;
+}
+pub fn process_first_three(data: &mut Data) {
+    for mut item in {
+        let base = &get_items(data);
+        let stop = (3).max(0) as usize;
+        base[..stop.min(base.len())].to_vec()
+    } {
+        item.score = item.score + 1.0;
+    }
+}
+'''
+
+[[test]]
+name = "for_loop_iter_attribute_on_mutating_call"
+description = "For loop iterates over attribute of mutating function result"
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass 
+class PlayerStats:
+    time_on_field: float
+
+@dataclass
+class TeamStats:
+    player_statistics: list[PlayerStats]
+
+@dataclass
+class State:
+    home_stats: TeamStats
+    away_stats: TeamStats
+
+def get_team_stats(state: State, is_home: bool) -> TeamStats:
+    if is_home:
+        return state.home_stats
+    else:
+        return state.away_stats
+
+def apply_time(state: State, is_home: bool, seconds: float) -> None:
+    for s in get_team_stats(state, is_home).player_statistics[:13]:
+        s.time_on_field = s.time_on_field + seconds
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+use serde_json;
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct PlayerStats {
+    pub time_on_field: f64,
+}
+impl PlayerStats {
+    pub fn new(time_on_field: f64) -> Self {
+        Self { time_on_field }
+    }
+}
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct TeamStats {
+    pub player_statistics: Vec<PlayerStats>,
+}
+impl TeamStats {
+    pub fn new(player_statistics: Vec<PlayerStats>) -> Self {
+        Self { player_statistics }
+    }
+}
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct State {
+    pub home_stats: TeamStats,
+    pub away_stats: TeamStats,
+}
+impl State {
+    pub fn new(home_stats: TeamStats, away_stats: TeamStats) -> Self {
+        Self { home_stats, away_stats }
+    }
+}
+pub fn get_team_stats<'a>(state: &'a mut State, is_home: bool) -> &'a mut TeamStats {
+    if is_home {
+        return &mut state.home_stats;
+    } else {
+        return &mut state.away_stats;
+    }
+}
+pub fn apply_time(state: &mut State, is_home: bool, seconds: f64) {
+    for mut s in {
+        let base = &get_team_stats(state, is_home).player_statistics;
+        let stop = (13).max(0) as usize;
+        base[..stop.min(base.len())].to_vec()
+    } {
+        s.time_on_field = s.time_on_field + seconds;
+    }
+}
+'''
+
+# =============================================================================
+# Return Value Mutation Detection
+# =============================================================================
+
+[[test]]
+name = "return_value_mutated_needs_mut_param"
+description = "Function returning field reference where return is mutated needs &mut param"
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass
+class Inner:
+    value: int
+
+@dataclass
+class Outer:
+    inner: Inner
+
+def get_inner(outer: Outer) -> Inner:
+    return outer.inner
+
+def modify_inner(outer: Outer) -> None:
+    inner = get_inner(outer)
+    inner.value = 42
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+use serde_json;
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Inner {
+    pub value: i32,
+}
+impl Inner {
+    pub fn new(value: i32) -> Self {
+        Self { value }
+    }
+}
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Outer {
+    pub inner: Inner,
+}
+impl Outer {
+    pub fn new(inner: Inner) -> Self {
+        Self { inner }
+    }
+}
+pub fn get_inner<'a>(outer: &'a mut Outer) -> &'a mut Inner {
+    return &mut outer.inner;
+}
+pub fn modify_inner(outer: &mut Outer) {
+    let inner = get_inner(outer);
+    inner.value = 42;
+}
+'''
+
+# =============================================================================
+# Nested Expression Mutation Propagation
+# =============================================================================
+
+[[test]]
+name = "nested_attribute_access_mutation"
+description = "Mutation propagates through nested attribute access"
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass
+class Level3:
+    value: int
+
+@dataclass
+class Level2:
+    level3: Level3
+
+@dataclass
+class Level1:
+    level2: Level2
+
+def get_level2(l1: Level1) -> Level2:
+    return l1.level2
+
+def deep_update(l1: Level1) -> None:
+    get_level2(l1).level3.value = 100
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+use serde_json;
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Level3 {
+    pub value: i32,
+}
+impl Level3 {
+    pub fn new(value: i32) -> Self {
+        Self { value }
+    }
+}
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Level2 {
+    pub level3: Level3,
+}
+impl Level2 {
+    pub fn new(level3: Level3) -> Self {
+        Self { level3 }
+    }
+}
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Level1 {
+    pub level2: Level2,
+}
+impl Level1 {
+    pub fn new(level2: Level2) -> Self {
+        Self { level2 }
+    }
+}
+pub fn get_level2<'a>(l1: &'a mut Level1) -> &'a mut Level2 {
+    return &mut l1.level2;
+}
+pub fn deep_update(l1: &mut Level1) {
+    get_level2(l1).level3.value = 100;
+}
+'''
+
+[[test]]
+name = "index_expression_mutation"
+description = "Mutation propagates through index expression"
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass
+class Record:
+    values: list[int]
+
+def get_values(record: Record) -> list[int]:
+    return record.values
+
+def update_first(record: Record) -> None:
+    get_values(record)[0] = 999
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+use serde_json;
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Record {
+    pub values: Vec<i32>,
+}
+impl Record {
+    pub fn new(values: Vec<i32>) -> Self {
+        Self { values }
+    }
+}
+pub fn get_values<'a>(record: &'a mut Record) -> &'a mut Vec<i32> {
+    return &mut record.values;
+}
+pub fn update_first(record: &mut Record) {
+    get_values(record)[0] = 999;
+}
+'''
+
+# =============================================================================
+# While Loop Condition with Mutating Call
+# =============================================================================
+
+[[test]]
+name = "while_condition_with_mutating_call"
+description = "While loop condition contains call to mutating function"
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass
+class Counter:
+    count: int
+    max_count: int
+
+def get_count(counter: Counter) -> int:
+    return counter.count
+
+def get_max(counter: Counter) -> int:
+    return counter.max_count
+
+def increment_until_max(counter: Counter) -> None:
+    while get_count(counter) < get_max(counter):
+        counter.count = counter.count + 1
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+use serde_json;
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Counter {
+    pub count: i32,
+    pub max_count: i32,
+}
+impl Counter {
+    pub fn new(count: i32, max_count: i32) -> Self {
+        Self { count, max_count }
+    }
+}
+pub fn get_count(counter: &Counter) -> i32 {
+    return counter.count;
+}
+pub fn get_max(counter: &Counter) -> i32 {
+    return counter.max_count;
+}
+pub fn increment_until_max(counter: &mut Counter) {
+    while get_count(counter) < get_max(counter) {
+        counter.count = counter.count + 1;
+    }
+}
+'''
+
+# =============================================================================
+# If Condition with Mutating Call
+# =============================================================================
+
+[[test]]
+name = "if_condition_with_mutating_call"
+description = "If condition contains call that requires mutation propagation"
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass
+class State:
+    active: bool
+    data: list[int]
+
+def is_active(state: State) -> bool:
+    return state.active
+
+def get_data(state: State) -> list[int]:
+    return state.data
+
+def conditional_update(state: State) -> None:
+    if is_active(state):
+        get_data(state).append(42)
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+use serde_json;
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct State {
+    pub active: bool,
+    pub data: Vec<i32>,
+}
+impl State {
+    pub fn new(active: bool, data: Vec<i32>) -> Self {
+        Self { active, data }
+    }
+}
+pub fn is_active(state: &State) -> bool {
+    return state.active;
+}
+pub fn get_data<'a>(state: &'a mut State) -> &'a mut Vec<i32> {
+    return &mut state.data;
+}
+pub fn conditional_update(state: &mut State) {
+    if is_active(state) {
+        get_data(state).push(42);
+    }
+}
+'''
+
+# =============================================================================
+# Multiple Callers of Same Mutating Function
+# =============================================================================
+
+[[test]]
+name = "multiple_callers_inherit_mut"
+description = "Multiple functions calling same mutating helper all need &mut"
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass
+class Settings:
+    volume: int
+    brightness: int
+
+def get_volume(settings: Settings) -> int:
+    return settings.volume
+
+def set_volume(settings: Settings, v: int) -> None:
+    settings.volume = v
+
+def increase_volume(settings: Settings) -> None:
+    current = get_volume(settings)
+    set_volume(settings, current + 10)
+
+def decrease_volume(settings: Settings) -> None:
+    current = get_volume(settings)
+    set_volume(settings, current - 10)
+
+def mute(settings: Settings) -> None:
+    set_volume(settings, 0)
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+use serde_json;
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Settings {
+    pub volume: i32,
+    pub brightness: i32,
+}
+impl Settings {
+    pub fn new(volume: i32, brightness: i32) -> Self {
+        Self { volume, brightness }
+    }
+}
+pub fn get_volume(settings: &Settings) -> i32 {
+    return settings.volume;
+}
+pub fn set_volume(settings: &mut Settings, v: i32) {
+    settings.volume = v;
+}
+pub fn increase_volume(settings: &mut Settings) {
+    let current = get_volume(settings);
+    set_volume(settings, current + 10);
+}
+pub fn decrease_volume(settings: &mut Settings) {
+    let current = get_volume(settings);
+    set_volume(settings, current - 10);
+}
+pub fn mute(settings: &mut Settings) {
+    set_volume(settings, 0);
+}
+'''
+
+# =============================================================================
+# Ternary/Conditional Expression
+# =============================================================================
+
+[[test]]
+name = "ternary_expr_with_mutating_calls"
+description = "Ternary expression branches call mutating functions"
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass
+class Pair:
+    left: int
+    right: int
+
+def get_left(pair: Pair) -> int:
+    return pair.left
+
+def get_right(pair: Pair) -> int:
+    return pair.right
+
+def get_larger(pair: Pair) -> int:
+    return get_left(pair) if get_left(pair) > get_right(pair) else get_right(pair)
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+use serde_json;
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Pair {
+    pub left: i32,
+    pub right: i32,
+}
+impl Pair {
+    pub fn new(left: i32, right: i32) -> Self {
+        Self { left, right }
+    }
+}
+pub fn get_left(pair: &Pair) -> i32 {
+    return pair.left;
+}
+pub fn get_right(pair: &Pair) -> i32 {
+    return pair.right;
+}
+pub fn get_larger(pair: &Pair) -> i32 {
+    return if get_left(pair) > get_right(pair) {
+        get_left(pair)
+    } else {
+        get_right(pair)
+    };
+}
+'''

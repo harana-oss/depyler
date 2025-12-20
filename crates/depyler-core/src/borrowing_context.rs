@@ -107,6 +107,8 @@ pub struct ParameterUsagePattern {
     pub used_after_function_call: bool,
     /// Parameter escapes through return
     pub escapes_through_return: bool,
+    /// A field of this parameter escapes through return (e.g., `return state.players`)
+    pub field_escapes_through_return: bool,
     /// Parameter is stored in a struct/container
     pub is_stored: bool,
     /// Parameter is used in a closure
@@ -172,6 +174,8 @@ enum AnalysisContext {
 pub struct BorrowingAnalysisResult {
     /// Recommended borrowing strategy for each parameter
     pub param_strategies: IndexMap<String, BorrowingStrategy>,
+    /// Parameter usage patterns (for field escape analysis etc.)
+    pub param_usage: HashMap<String, ParameterUsagePattern>,
     /// Additional insights
     pub insights: Vec<BorrowingInsight>,
 }
@@ -759,6 +763,28 @@ impl BorrowingContext {
                     });
                 }
             }
+            HirExpr::Attribute { value, .. } => {
+                // Returning a field from a parameter (e.g., state.players)
+                // The parameter's field escapes through return
+                if let Some(root_var) = extract_root_var(value) {
+                    if let Some(usage) = self.param_usage.get_mut(&root_var) {
+                        usage.escapes_through_return = true;
+                        usage.field_escapes_through_return = true;
+                        usage.usage_sites.push(UsageSite {
+                            usage_type: UsageType::Return,
+                            in_loop: false,
+                            in_conditional: false,
+                            borrow_depth: 1,
+                        });
+                    }
+                }
+            }
+            HirExpr::IfExpr { test, body, orelse } => {
+                // Ternary expression: propagate return context to both branches
+                self.analyze_expression(test, 0);
+                self.analyze_expression_for_return(body);
+                self.analyze_expression_for_return(orelse);
+            }
             HirExpr::Binary { left, right, .. } => {
                 // Binary operations (comparisons, arithmetic, etc.) produce NEW values
                 // Parameters are used but don't escape - just analyze normally
@@ -860,6 +886,7 @@ impl BorrowingContext {
 
         BorrowingAnalysisResult {
             param_strategies: strategies,
+            param_usage: self.param_usage.clone(),
             insights,
         }
     }

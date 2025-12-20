@@ -90,7 +90,8 @@ impl<'a> InterproceduralAnalyzer<'a> {
     /// Run the complete interprocedural analysis
     pub fn analyze(&mut self) -> InterproceduralAnalysis {
         // Phase 3: Propagate mutations
-        let mut propagator = MutationPropagator::new(&self.registry, &self.call_graph).with_module(self.module);
+        let mut propagator =
+            MutationPropagator::new(&self.registry, &self.call_graph).with_module(self.module);
 
         let result = propagator.propagate();
         self.mutations = result.mutations.clone();
@@ -109,12 +110,24 @@ impl<'a> InterproceduralAnalyzer<'a> {
 
     /// Update the signature registry with propagated mutation information
     fn update_registry_with_mutations(&mut self) {
+        // First, collect functions whose return values are mutated (from callers)
+        let mut functions_with_mutated_return: std::collections::HashSet<String> =
+            std::collections::HashSet::new();
+        for mutation_info in self.mutations.values() {
+            functions_with_mutated_return
+                .extend(mutation_info.functions_with_mutated_return.iter().cloned());
+        }
+
         for (func_name, mutation_info) in &self.mutations {
             if let Some(sig) = self.registry.signatures.get_mut(func_name) {
                 for param in &mut sig.params {
                     if mutation_info.mutated_params.contains(&param.name) {
                         param.set_mutated(true);
                     }
+                }
+                // Mark if this function's return value is mutated at any call site
+                if functions_with_mutated_return.contains(func_name) {
+                    sig.return_value_mutated = true;
                 }
             }
         }
@@ -170,6 +183,15 @@ impl<'a> InterproceduralAnalysis<'a> {
     pub fn is_param_mutated(&self, func_name: &str, param_name: &str) -> bool {
         if let Some(mutation_info) = self.mutations.get(func_name) {
             mutation_info.mutated_params.contains(param_name)
+        } else {
+            false
+        }
+    }
+
+    /// Check if a function's return value is mutated at any call site
+    pub fn is_return_value_mutated(&self, func_name: &str) -> bool {
+        if let Some(sig) = self.registry.get(func_name) {
+            sig.return_value_mutated
         } else {
             false
         }

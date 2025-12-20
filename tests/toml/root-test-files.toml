@@ -1,0 +1,598 @@
+# Root Test Files - Migrated from depyler/*.py and depyler/*.rs
+
+[metadata]
+name = "Root Test Files"
+category = "regression"
+
+# =============================================================================
+# Simple Mutation Test
+# =============================================================================
+
+[[test]]
+name = "simple_mutation"
+description = "Test case for attribute assignment bug with nested class structures"
+
+python = '''
+#!/usr/bin/env python3
+"""Simple test case for the attribute assignment bug"""
+
+class Scores:
+    def __init__(self):
+        self.tries = 0
+        self.total = 0
+
+class Statistics:
+    def __init__(self):
+        self.scores = Scores()
+
+class TeamStatistics:
+    def __init__(self):
+        self.period_statistics = [Statistics()]
+
+class State:
+    def __init__(self):
+        self.home_statistics = TeamStatistics()
+
+def add_try(state: State) -> None:
+    """Test function that should generate correct mutation code"""
+    period_idx = 0
+    
+    # This should generate direct indexing, not .get().cloned().unwrap()
+    state.home_statistics.period_statistics[period_idx].scores.tries = 5
+    state.home_statistics.period_statistics[period_idx].scores.total = 25
+'''
+
+# =============================================================================
+# Field Alias Mutation Test
+# =============================================================================
+
+[[test]]
+name = "field_alias_mutation"
+description = "Test field alias mutation with sin bin players"
+
+python = '''
+from dataclasses import dataclass
+from enum import IntEnum
+from typing import List
+
+class Team(IntEnum):
+    Home = 0
+    Away = 1
+
+class SinBinStatus(IntEnum):
+    NotSet = 0
+    Active = 1
+
+@dataclass
+class Player:
+    sin_bin_status: SinBinStatus
+
+@dataclass
+class TeamStatistics:
+    sin_bin_players: List[Player]
+
+@dataclass
+class State:
+    home_sin_bin: List[Player]
+    away_sin_bin: List[Player]
+    home_statistics: TeamStatistics
+    away_statistics: TeamStatistics
+
+def rebuild_sin_bin_players(state: State, team: Team) -> None:
+    for team in [Team.Home, Team.Away]:
+        sin_bin_collection = state.home_sin_bin if team == Team.Home else state.away_sin_bin
+        sin_bin_players = [player for player in sin_bin_collection if player.sin_bin_status != SinBinStatus.NotSet]
+
+        team_stats = state.home_statistics if team == Team.Home else state.away_statistics
+        team_stats.sin_bin_players = sin_bin_players
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+#[doc = "// NOTE: Map Python module 'enum'()"]
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub enum Team {
+    #[default]
+    Home = 0,
+    Away = 1,
+}
+impl Team {
+    pub fn from_i32(value: i32) -> Option<Self> {
+        match value {
+            0 => Some(Self::Home),
+            1 => Some(Self::Away),
+            _ => None,
+        }
+    }
+    pub fn from_i32_or_default(value: i32) -> Self {
+        Self::from_i32(value).unwrap_or(Self::Home)
+    }
+}
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub enum SinBinStatus {
+    #[default]
+    NotSet = 0,
+    Active = 1,
+}
+impl SinBinStatus {
+    pub fn from_i32(value: i32) -> Option<Self> {
+        match value {
+            0 => Some(Self::NotSet),
+            1 => Some(Self::Active),
+            _ => None,
+        }
+    }
+    pub fn from_i32_or_default(value: i32) -> Self {
+        Self::from_i32(value).unwrap_or(Self::NotSet)
+    }
+}
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Player {
+    pub sin_bin_status: SinBinStatus,
+}
+impl Player {
+    pub fn new(sin_bin_status: SinBinStatus) -> Self {
+        Self { sin_bin_status }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "sin_bin_status" => {
+                Some(Box::new(self.sin_bin_status.clone()) as Box<dyn std::any::Any>)
+            }
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "sin_bin_status" => {
+                if let Some(v) = value.downcast_ref::<SinBinStatus>() {
+                    self.sin_bin_status = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct TeamStatistics {
+    pub sin_bin_players: Vec<Player>,
+}
+impl TeamStatistics {
+    pub fn new(sin_bin_players: Vec<Player>) -> Self {
+        Self { sin_bin_players }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "sin_bin_players" => {
+                Some(Box::new(self.sin_bin_players.clone()) as Box<dyn std::any::Any>)
+            }
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "sin_bin_players" => {
+                if let Some(v) = value.downcast_ref::<Vec<Player>>() {
+                    self.sin_bin_players = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct State {
+    pub home_sin_bin: Vec<Player>,
+    pub away_sin_bin: Vec<Player>,
+    pub home_statistics: TeamStatistics,
+    pub away_statistics: TeamStatistics,
+}
+impl State {
+    pub fn new(
+        home_sin_bin: Vec<Player>,
+        away_sin_bin: Vec<Player>,
+        home_statistics: TeamStatistics,
+        away_statistics: TeamStatistics,
+    ) -> Self {
+        Self {
+            home_sin_bin,
+            away_sin_bin,
+            home_statistics,
+            away_statistics,
+        }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "home_sin_bin" => Some(Box::new(self.home_sin_bin.clone()) as Box<dyn std::any::Any>),
+            "away_sin_bin" => Some(Box::new(self.away_sin_bin.clone()) as Box<dyn std::any::Any>),
+            "home_statistics" => {
+                Some(Box::new(self.home_statistics.clone()) as Box<dyn std::any::Any>)
+            }
+            "away_statistics" => {
+                Some(Box::new(self.away_statistics.clone()) as Box<dyn std::any::Any>)
+            }
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "home_sin_bin" => {
+                if let Some(v) = value.downcast_ref::<Vec<Player>>() {
+                    self.home_sin_bin = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "away_sin_bin" => {
+                if let Some(v) = value.downcast_ref::<Vec<Player>>() {
+                    self.away_sin_bin = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "home_statistics" => {
+                if let Some(v) = value.downcast_ref::<TeamStatistics>() {
+                    self.home_statistics = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "away_statistics" => {
+                if let Some(v) = value.downcast_ref::<TeamStatistics>() {
+                    self.away_statistics = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+pub fn rebuild_sin_bin_players(state: &mut State, team: &Team) {
+    for team in vec![Team::Home, Team::Away] {
+        let sin_bin_collection = if team == Team::Home {
+            &state.home_sin_bin
+        } else {
+            &state.away_sin_bin
+        };
+        let sin_bin_players = sin_bin_collection
+            .iter()
+            .cloned()
+            .filter(|player| player.sin_bin_status != SinBinStatus::NotSet)
+            .collect::<Vec<_>>();
+        let mut team_stats = if team == Team::Home {
+            &mut state.home_statistics
+        } else {
+            &mut state.away_statistics
+        };
+        team_stats.sin_bin_players = sin_bin_players;
+    }
+}
+'''
+
+# =============================================================================
+# Dataclass Field Factory Test
+# =============================================================================
+
+[[test]]
+name = "dataclass_field_factory"
+description = "Test dataclass field with default_factory"
+
+python = '''
+from dataclasses import dataclass, field
+from typing import Set
+
+@dataclass
+class State:
+    executed_events: Set[str] = field(default_factory=set)
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+use std::collections::HashSet;
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct State {
+    pub executed_events: HashSet<String>,
+}
+impl State {
+    pub fn new() -> Self {
+        Self {
+            executed_events: HashSet::new(),
+        }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "executed_events" => {
+                Some(Box::new(self.executed_events.clone()) as Box<dyn std::any::Any>)
+            }
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "executed_events" => {
+                if let Some(v) = value.downcast_ref::<HashSet<String>>() {
+                    self.executed_events = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+'''
+
+# =============================================================================
+# Optional Unwrap Test
+# =============================================================================
+
+[[test]]
+name = "optional_unwrap"
+description = "Test optional unwrap pattern"
+
+python = '''
+from typing import Optional
+
+def test_optional_unwrap(value: Optional[int]) -> int:
+    # This pattern should unwrap the optional
+    return value if value is not None else 0
+'''
+
+rust = '''
+pub fn test_optional_unwrap(value: &Option<i32>) -> i32 {
+    return if value.is_some() { value.unwrap() } else { 0 };
+}
+'''
+
+# =============================================================================
+# Borrow Conflict Test
+# =============================================================================
+
+[[test]]
+name = "borrow_conflict"
+description = "Test borrow conflict detection with state and team"
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass
+class Team:
+    name: str
+
+@dataclass
+class State:
+    score: int
+    team_in_possession: Team
+
+def assign_try(state: State, player_index: int, team: Team) -> None:
+    state.score = state.score + 5
+
+def process_play(state: State, player_index: int) -> None:
+    # This should trigger borrow conflict detection:
+    # state is passed as &mut (first arg)
+    # state.team_in_possession accesses a field on state (third arg)
+    assign_try(state, player_index, state.team_in_possession)
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Team {
+    pub name: String,
+}
+impl Team {
+    pub fn new(name: String) -> Self {
+        Self { name }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "name" => Some(Box::new(self.name.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "name" => {
+                if let Some(v) = value.downcast_ref::<String>() {
+                    self.name = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct State {
+    pub score: i32,
+    pub team_in_possession: Team,
+}
+impl State {
+    pub fn new(score: i32, team_in_possession: Team) -> Self {
+        Self {
+            score,
+            team_in_possession,
+        }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "score" => Some(Box::new(self.score.clone()) as Box<dyn std::any::Any>),
+            "team_in_possession" => Some(Box::new(self.team_in_possession.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "score" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.score = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "team_in_possession" => {
+                if let Some(v) = value.downcast_ref::<Team>() {
+                    self.team_in_possession = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+pub fn assign_try(state: &mut State, player_index: i32, team: &Team) {
+    state.score = state.score + 5;
+}
+pub fn process_play(state: &mut State, player_index: i32) {
+    assign_try(state, player_index, &state.team_in_possession.clone());
+}
+'''
+
+# =============================================================================
+# Complex Dataclass Test
+# =============================================================================
+
+[[test]]
+name = "complex_dataclass"
+description = "Test different dataclass field types and defaults"
+
+python = '''
+from dataclasses import dataclass, field
+from typing import Set, List, Dict
+
+@dataclass
+class ComplexState:
+    # Test different default_factory types
+    events: Set[str] = field(default_factory=set)
+    items: List[int] = field(default_factory=list)
+    metadata: Dict[str, int] = field(default_factory=dict)
+    
+    # Test field(default=value)
+    count: int = field(default=0)
+    name: str = field(default="unknown")
+    
+    # Test regular default (not using field())
+    enabled: bool = True
+    
+    # Test no default
+    id: int
+'''
+
+rust = '''
+#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+use std::collections::HashMap;
+use std::collections::HashSet;
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct ComplexState {
+    pub events: HashSet<String>,
+    pub items: Vec<i32>,
+    pub metadata: HashMap<String, i32>,
+    pub count: i32,
+    pub name: String,
+    pub enabled: bool,
+    pub id: i32,
+}
+impl ComplexState {
+    pub fn new(id: i32) -> Self {
+        Self {
+            events: HashSet::new(),
+            items: Vec::new(),
+            metadata: HashMap::new(),
+            count: 0,
+            name: "unknown".to_string(),
+            enabled: Default::default(),
+            id,
+        }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "events" => Some(Box::new(self.events.clone()) as Box<dyn std::any::Any>),
+            "items" => Some(Box::new(self.items.clone()) as Box<dyn std::any::Any>),
+            "metadata" => Some(Box::new(self.metadata.clone()) as Box<dyn std::any::Any>),
+            "count" => Some(Box::new(self.count.clone()) as Box<dyn std::any::Any>),
+            "name" => Some(Box::new(self.name.clone()) as Box<dyn std::any::Any>),
+            "enabled" => Some(Box::new(self.enabled.clone()) as Box<dyn std::any::Any>),
+            "id" => Some(Box::new(self.id.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "events" => {
+                if let Some(v) = value.downcast_ref::<HashSet<String>>() {
+                    self.events = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "items" => {
+                if let Some(v) = value.downcast_ref::<Vec<i32>>() {
+                    self.items = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "metadata" => {
+                if let Some(v) = value.downcast_ref::<HashMap<String, i32>>() {
+                    self.metadata = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "count" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.count = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "name" => {
+                if let Some(v) = value.downcast_ref::<String>() {
+                    self.name = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "enabled" => {
+                if let Some(v) = value.downcast_ref::<bool>() {
+                    self.enabled = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "id" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.id = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+'''

@@ -208,6 +208,98 @@ fn pre_analyze_parameter_mutability(ctx: &mut CodeGenContext, functions: &[HirFu
     }
 }
 
+/// Pre-analyze return value mutations using interprocedural analysis.
+/// This detects when a function's return value is assigned to a variable
+/// that is then mutated (e.g., `team_stats = _get_team_stats(...); team_stats.x = ...`).
+/// Such functions need to return `&mut T` instead of `&T`.
+fn pre_analyze_return_value_mutations(ctx: &mut CodeGenContext, module: &HirModule) {
+    use crate::interprocedural::InterproceduralAnalyzer;
+
+    let mut analyzer = InterproceduralAnalyzer::new(module);
+    let analysis = analyzer.analyze();
+
+    // Populate the context with functions that have mutated return values
+    for func in &module.functions {
+        if analysis.is_return_value_mutated(&func.name) {
+            ctx.functions_with_mutated_return.insert(func.name.clone());
+        }
+    }
+}
+
+/// Update function_param_muts for functions whose return value is mutated.
+/// If a function's return value is mutated at call sites, and a parameter's field
+/// escapes through the return, that parameter needs &mut.
+/// This must run AFTER pre_analyze_return_value_mutations and AFTER pre_analyze_parameter_borrowing.
+fn update_param_muts_for_return_value_mutations(
+    ctx: &mut CodeGenContext,
+    functions: &[HirFunction],
+) {
+    use crate::lifetime_analysis::LifetimeInference;
+
+    for func in functions {
+        if ctx.functions_with_mutated_return.contains(&func.name) {
+            let mut lifetime_inference = LifetimeInference::new();
+            let lifetime_result = lifetime_inference.analyze_function(func, ctx.type_mapper);
+
+            // For each parameter whose field escapes through return, mark as needing mut
+            for (param_idx, param) in func.params.iter().enumerate() {
+                if lifetime_result
+                    .params_with_field_return
+                    .contains(&param.name)
+                {
+                    if let Some(muts) = ctx.function_param_muts.get_mut(&func.name) {
+                        if let Some(m) = muts.get_mut(param_idx) {
+                            if !*m {
+                                *m = true;
+                                log::debug!(
+                                    "Marking {}[{}] ({}) as needing &mut due to return value mutation",
+                                    func.name,
+                                    param_idx,
+                                    param.name
+                                );
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Re-run propagation pass now that we have more complete information
+    let mut changed = true;
+    while changed {
+        changed = false;
+        for func in functions {
+            for (param_idx, param) in func.params.iter().enumerate() {
+                // Skip if already marked as needing mut
+                if ctx
+                    .function_param_muts
+                    .get(&func.name)
+                    .and_then(|v| v.get(param_idx))
+                    .copied()
+                    .unwrap_or(false)
+                {
+                    continue;
+                }
+
+                // Check if any call passes param.field to a function that mutates it
+                if param_attr_passed_to_mutating_func(
+                    &param.name,
+                    &func.body,
+                    &ctx.function_param_muts,
+                ) {
+                    if let Some(muts) = ctx.function_param_muts.get_mut(&func.name) {
+                        if let Some(m) = muts.get_mut(param_idx) {
+                            *m = true;
+                            changed = true;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
 /// Pre-analyze all functions to determine which parameters should be borrowed vs owned.
 /// This must run AFTER pre_analyze_parameter_mutability and BEFORE function code generation
 /// so that call sites know whether to add & or .to_string() for arguments.
@@ -239,6 +331,12 @@ fn pre_analyze_parameter_borrowing(ctx: &mut CodeGenContext, functions: &[HirFun
 
         ctx.function_param_borrows
             .insert(func.name.clone(), param_borrows);
+
+        // Track functions that return references (have params_with_field_return non-empty)
+        // These are functions like _get_players that return &Vec<T> borrowing from a param
+        if !lifetime_result.params_with_field_return.is_empty() {
+            ctx.functions_returning_refs.insert(func.name.clone());
+        }
     }
 }
 
@@ -380,8 +478,9 @@ fn stmt_passes_param_attr_to_mutating_func(
             expr_passes_param_attr_to_mutating_func(param_name, condition, function_param_muts)
                 || body_passes_param_attr_to_mutating_func(param_name, body, function_param_muts)
         }
-        HirStmt::For { body, .. } => {
-            body_passes_param_attr_to_mutating_func(param_name, body, function_param_muts)
+        HirStmt::For { body, iter, .. } => {
+            expr_passes_param_attr_to_mutating_func(param_name, iter, function_param_muts)
+                || body_passes_param_attr_to_mutating_func(param_name, body, function_param_muts)
         }
         HirStmt::Return(Some(expr)) => {
             expr_passes_param_attr_to_mutating_func(param_name, expr, function_param_muts)
@@ -451,15 +550,50 @@ fn expr_passes_param_attr_to_mutating_func(
                 expr_passes_param_attr_to_mutating_func(param_name, v, function_param_muts)
             })
         }
-        HirExpr::MethodCall { args, .. } => args
-            .iter()
-            .any(|a| expr_passes_param_attr_to_mutating_func(param_name, a, function_param_muts)),
+        HirExpr::MethodCall { object, args, .. } => {
+            expr_passes_param_attr_to_mutating_func(param_name, object, function_param_muts)
+                || args.iter().any(|a| {
+                    expr_passes_param_attr_to_mutating_func(param_name, a, function_param_muts)
+                })
+        }
         HirExpr::Binary { left, right, .. } => {
             expr_passes_param_attr_to_mutating_func(param_name, left, function_param_muts)
                 || expr_passes_param_attr_to_mutating_func(param_name, right, function_param_muts)
         }
         HirExpr::Unary { operand, .. } => {
             expr_passes_param_attr_to_mutating_func(param_name, operand, function_param_muts)
+        }
+        HirExpr::Attribute { value, .. } => {
+            expr_passes_param_attr_to_mutating_func(param_name, value, function_param_muts)
+        }
+        HirExpr::Index { base, index } => {
+            expr_passes_param_attr_to_mutating_func(param_name, base, function_param_muts)
+                || expr_passes_param_attr_to_mutating_func(param_name, index, function_param_muts)
+        }
+        HirExpr::Slice {
+            base,
+            start,
+            stop,
+            step,
+        } => {
+            expr_passes_param_attr_to_mutating_func(param_name, base, function_param_muts)
+                || start.as_ref().is_some_and(|e| {
+                    expr_passes_param_attr_to_mutating_func(param_name, e, function_param_muts)
+                })
+                || stop.as_ref().is_some_and(|e| {
+                    expr_passes_param_attr_to_mutating_func(param_name, e, function_param_muts)
+                })
+                || step.as_ref().is_some_and(|e| {
+                    expr_passes_param_attr_to_mutating_func(param_name, e, function_param_muts)
+                })
+        }
+        HirExpr::List(items) | HirExpr::Tuple(items) | HirExpr::Set(items) => items
+            .iter()
+            .any(|i| expr_passes_param_attr_to_mutating_func(param_name, i, function_param_muts)),
+        HirExpr::IfExpr { test, body, orelse } => {
+            expr_passes_param_attr_to_mutating_func(param_name, test, function_param_muts)
+                || expr_passes_param_attr_to_mutating_func(param_name, body, function_param_muts)
+                || expr_passes_param_attr_to_mutating_func(param_name, orelse, function_param_muts)
         }
         _ => false,
     }
@@ -1934,7 +2068,9 @@ pub fn generate_rust_file(
         function_return_types: std::collections::HashMap::new(), // Track function return types
         function_param_borrows: std::collections::HashMap::new(), // Track parameter borrowing
         function_param_muts: std::collections::HashMap::new(),   // Track parameters needing &mut
-        tuple_iter_vars: HashSet::new(),                         // Track tuple iteration variables
+        functions_with_mutated_return: HashSet::new(), // Track functions with mutated returns
+        functions_returning_refs: HashSet::new(),      // Track functions that return references
+        tuple_iter_vars: HashSet::new(),               // Track tuple iteration variables
         is_final_statement: false, // Track final statement for expression-based returns
         result_bool_functions: HashSet::new(), // Track functions returning Result<bool>
         result_returning_functions: HashSet::new(), // Track ALL Result-returning functions
@@ -1958,11 +2094,14 @@ pub fn generate_rust_file(
         is_assignment_target: false,           // Flag for assignment target context
         prevent_clone: false, // Flag to prevent cloning without affecting get/get_mut
         returns_reference: false, // Flag for reference return type
+        returns_mutable_reference: false, // Flag for mutable reference return type
         borrowable_vars: HashSet::new(), // Track variables that can be borrowed
         mut_borrowable_vars: HashSet::new(), // Track variables that need mutable borrowing
         generate_borrow: false, // Flag for generating borrow instead of clone
         generate_mut_borrow: false, // Flag for generating mutable borrow
         clone_already_applied: false, // Flag to prevent duplicate .clone() calls
+        in_primitive_cast: false, // Flag for primitive cast context
+        vars_needing_clone_at_assign: HashSet::new(), // Track vars that need cloning at assign to avoid borrow conflicts
     };
 
     // Must run BEFORE function conversion so validator parameter types are correct
@@ -2050,9 +2189,17 @@ pub fn generate_rust_file(
     // This populates function_param_muts so call sites know whether to use &mut
     pre_analyze_parameter_mutability(&mut ctx, &module.functions);
 
+    // Pre-analyze all functions for return value mutations using interprocedural analysis
+    // This populates functions_with_mutated_return so return types can use &mut
+    pre_analyze_return_value_mutations(&mut ctx, module);
+
     // Pre-analyze all functions for parameter borrowing
     // This populates function_param_borrows so call sites know whether to add & or .to_string()
     pre_analyze_parameter_borrowing(&mut ctx, &module.functions);
+
+    // Update function_param_muts for return value mutations and re-propagate
+    // This must run after both pre_analyze_return_value_mutations and pre_analyze_parameter_borrowing
+    update_param_muts_for_return_value_mutations(&mut ctx, &module.functions);
 
     // Convert classes first (they might be used by functions)
     let classes = convert_classes_to_rust(&module.classes, ctx.type_mapper, &mut ctx)?;
@@ -2195,12 +2342,14 @@ mod tests {
             function_return_types: std::collections::HashMap::new(), // Track function return types
             function_param_borrows: std::collections::HashMap::new(), // Track parameter borrowing
             function_param_muts: std::collections::HashMap::new(), // Track parameters needing &mut
-            tuple_iter_vars: HashSet::new(), // Track tuple iteration variables
-            is_final_statement: false,       // Track final statement for expression-based returns
+            functions_with_mutated_return: HashSet::new(), // Track functions with mutated returns
+            functions_returning_refs: HashSet::new(),      // Track functions returning refs
+            tuple_iter_vars: HashSet::new(),               // Track tuple iteration variables
+            is_final_statement: false, // Track final statement for expression-based returns
             result_bool_functions: HashSet::new(), // Track functions returning Result<bool>
             result_returning_functions: HashSet::new(), // Track ALL Result-returning functions
-            current_error_type: None,        // Track error type for raise statement wrapping
-            exception_scopes: Vec::new(),    // Exception scope tracking stack
+            current_error_type: None,  // Track error type for raise statement wrapping
+            exception_scopes: Vec::new(), // Exception scope tracking stack
             argparser_tracker: argparse_transform::ArgParserTracker::new(), // Track ArgumentParser patterns
             generated_args_struct: None, // Args struct (hoisted to module level)
             generated_commands_enum: None, // Commands enum (hoisted to module level)
@@ -2219,11 +2368,14 @@ mod tests {
             is_assignment_target: false,           // Flag for assignment target context
             prevent_clone: false, // Flag to prevent cloning without affecting get/get_mut
             returns_reference: false, // Flag for reference return type
+            returns_mutable_reference: false, // Flag for mutable reference return type
             borrowable_vars: HashSet::new(), // Track variables that can be borrowed
             mut_borrowable_vars: HashSet::new(), // Track variables that need mutable borrowing
             generate_borrow: false, // Flag for generating borrow instead of clone
             generate_mut_borrow: false, // Flag for generating mutable borrow
             clone_already_applied: false, // Flag to prevent duplicate .clone() calls
+            in_primitive_cast: false, // Flag for primitive cast context
+            vars_needing_clone_at_assign: HashSet::new(), // Track vars needing clone at assign
         }
     }
 
@@ -3117,6 +3269,150 @@ mod tests {
         assert!(
             ctx.var_needs_clone("player"),
             "Struct types don't implement Copy, so var_needs_clone should return true"
+        );
+    }
+
+    #[test]
+    fn test_float_cast_with_ifexpr_no_references() {
+        // Python: float(state.x if cond else state.y)
+        // Should NOT produce references inside the if-expression
+        // INCORRECT: (if cond { &state.x } else { &state.y }) as f64
+        // CORRECT: (if cond { state.x } else { state.y }) as f64
+        let call_expr = HirExpr::Call {
+            func: "float".to_string(),
+            args: vec![HirExpr::IfExpr {
+                test: Box::new(HirExpr::Var("cond".to_string())),
+                body: Box::new(HirExpr::Attribute {
+                    value: Box::new(HirExpr::Var("state".to_string())),
+                    attr: "x".to_string(),
+                }),
+                orelse: Box::new(HirExpr::Attribute {
+                    value: Box::new(HirExpr::Var("state".to_string())),
+                    attr: "y".to_string(),
+                }),
+            }],
+            kwargs: vec![],
+            type_params: vec![],
+        };
+
+        let mut ctx = create_test_context();
+        ctx.returns_reference = true; // This would normally trigger references in ifexpr
+        let result = call_expr.to_rust_expr(&mut ctx).unwrap();
+        let code = quote! { #result }.to_string();
+
+        assert!(
+            !code.contains("& state"),
+            "Should NOT contain references in if-expr inside float cast, got: {}",
+            code
+        );
+        assert!(
+            code.contains("as f64"),
+            "Should contain 'as f64' cast, got: {}",
+            code
+        );
+    }
+
+    #[test]
+    fn test_int_cast_with_ifexpr_no_references() {
+        // Python: int(state.a if cond else state.b)
+        // Should NOT produce references inside the if-expression
+        let call_expr = HirExpr::Call {
+            func: "int".to_string(),
+            args: vec![HirExpr::IfExpr {
+                test: Box::new(HirExpr::Var("cond".to_string())),
+                body: Box::new(HirExpr::Attribute {
+                    value: Box::new(HirExpr::Var("state".to_string())),
+                    attr: "a".to_string(),
+                }),
+                orelse: Box::new(HirExpr::Attribute {
+                    value: Box::new(HirExpr::Var("state".to_string())),
+                    attr: "b".to_string(),
+                }),
+            }],
+            kwargs: vec![],
+            type_params: vec![],
+        };
+
+        let mut ctx = create_test_context();
+        ctx.returns_reference = true;
+        let result = call_expr.to_rust_expr(&mut ctx).unwrap();
+        let code = quote! { #result }.to_string();
+
+        assert!(
+            !code.contains("& state"),
+            "Should NOT contain references in if-expr inside int cast, got: {}",
+            code
+        );
+        assert!(
+            code.contains("as i32"),
+            "Should contain 'as i32' cast, got: {}",
+            code
+        );
+    }
+
+    #[test]
+    fn test_ifexpr_outside_cast_still_adds_references() {
+        // When NOT inside a cast, if-expressions should still get references
+        // when returns_reference is true
+        let ifexpr = HirExpr::IfExpr {
+            test: Box::new(HirExpr::Var("cond".to_string())),
+            body: Box::new(HirExpr::Attribute {
+                value: Box::new(HirExpr::Var("state".to_string())),
+                attr: "home_list".to_string(),
+            }),
+            orelse: Box::new(HirExpr::Attribute {
+                value: Box::new(HirExpr::Var("state".to_string())),
+                attr: "away_list".to_string(),
+            }),
+        };
+
+        let mut ctx = create_test_context();
+        ctx.returns_reference = true;
+        ctx.current_func_ref_params.insert("state".to_string()); // Make it a reference parameter
+        let result = ifexpr.to_rust_expr(&mut ctx).unwrap();
+        let code = quote! { #result }.to_string();
+
+        // When returns_reference is true and base is ref param, should add references
+        assert!(
+            code.contains("& state"),
+            "Should contain references when returns_reference is true outside cast, got: {}",
+            code
+        );
+    }
+
+    #[test]
+    fn test_return_constructor_no_reference() {
+        // When returns_reference is true BUT the expression is a constructor call,
+        // we should NOT add & because constructors return owned values.
+        // Bug: `return &FieldPosition::new(...)` instead of `return FieldPosition::new(...)`
+
+        let constructor_return = HirStmt::Return(Some(HirExpr::Call {
+            func: "FieldPosition".to_string(),
+            args: vec![
+                HirExpr::Literal(Literal::Int(10)),
+                HirExpr::Literal(Literal::Int(20)),
+            ],
+            kwargs: vec![],
+            type_params: vec![],
+        }));
+
+        let mut ctx = create_test_context();
+        ctx.returns_reference = true; // This flag is set when function returns reference
+        ctx.current_return_type = Some(crate::hir::Type::Custom("FieldPosition".to_string()));
+
+        let result = constructor_return.to_rust_tokens(&mut ctx).unwrap();
+        let code = result.to_string();
+
+        // Should NOT have & before the constructor
+        assert!(
+            !code.contains("& FieldPosition"),
+            "Should NOT add & before constructor call, got: {}",
+            code
+        );
+        assert!(
+            code.contains("FieldPosition"),
+            "Should contain constructor call, got: {}",
+            code
         );
     }
 }

@@ -81,6 +81,8 @@ pub struct FunctionSignature {
     pub return_type: PythonType,
     /// Whether function can fail
     pub can_fail: bool,
+    /// Whether the return value is mutated at call sites (set by interprocedural analysis)
+    pub return_value_mutated: bool,
 }
 
 impl FunctionSignature {
@@ -97,6 +99,7 @@ impl FunctionSignature {
             params,
             return_type: func.ret_type.clone(),
             can_fail: func.properties.can_fail,
+            return_value_mutated: false,
         }
     }
 

@@ -588,3 +588,70 @@ pub fn take_ownership_and_return_field(container: &Container) -> Vec<i32> {
     return container.items.clone();
 }
 '''
+
+[[test]]
+name = "return_mutable_field_ternary_from_borrowed_param"
+description = "Return field via ternary from borrowed mutable param should use &mut reference"
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass
+class TeamStatistics:
+    score: int
+
+@dataclass
+class State:
+    home_statistics: TeamStatistics
+    away_statistics: TeamStatistics
+
+class Team:
+    HOME = "home"
+    AWAY = "away"
+
+def _get_team_stats(state: State, team: str) -> TeamStatistics:
+    return state.home_statistics if team == Team.HOME else state.away_statistics
+
+def update_score(state: State, team: str, points: int) -> None:
+    stats = _get_team_stats(state, team)
+    stats.score = stats.score + points
+'''
+
+rust = '''
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct TeamStatistics {
+    pub score: i32,
+}
+impl TeamStatistics {
+    pub fn new(score: i32) -> Self {
+        Self { score }
+    }
+}
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct State {
+    pub home_statistics: TeamStatistics,
+    pub away_statistics: TeamStatistics,
+}
+impl State {
+    pub fn new(home_statistics: TeamStatistics, away_statistics: TeamStatistics) -> Self {
+        Self { home_statistics, away_statistics }
+    }
+}
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Team;
+impl Team {
+    pub const HOME: &'static str = "home";
+    pub const AWAY: &'static str = "away";
+}
+pub fn _get_team_stats<'a>(state: &'a mut State, team: &str) -> &'a mut TeamStatistics {
+    return if team == Team::HOME {
+        &mut state.home_statistics
+    } else {
+        &mut state.away_statistics
+    };
+}
+pub fn update_score(state: &mut State, team: &str, points: i32) {
+    let stats = _get_team_stats(state, team);
+    stats.score = stats.score + points;
+}
+'''

@@ -716,3 +716,34 @@ let result = match value {
 };
 '''
 
+
+[[test]]
+name = "enum_conditional_assignment"
+description = "Team.Home if condition else Team.Away - enum variants should not be borrowed"
+
+python = '''
+from enum import IntEnum
+
+class Team(IntEnum):
+    HOME = 1
+    AWAY = 2
+
+def get_team(is_home: bool) -> Team:
+    return Team.HOME if is_home else Team.AWAY
+
+result = get_team(True) == Team.HOME
+'''
+
+rust = '''
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum Team {
+    Home = 1,
+    Away = 2,
+}
+
+fn get_team(is_home: bool) -> Team {
+    if is_home { Team::Home } else { Team::Away }
+}
+
+let result = get_team(true) == Team::Home;
+'''

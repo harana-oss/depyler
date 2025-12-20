@@ -1601,6 +1601,14 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
 
         let is_user_class = self.ctx.class_names.contains(func);
 
+        // Set in_primitive_cast flag for int/float/bool casts to prevent adding
+        // references to if-expression branches inside cast arguments
+        let is_primitive_cast = matches!(func, "int" | "float" | "bool");
+        let was_in_primitive_cast = self.ctx.in_primitive_cast;
+        if is_primitive_cast {
+            self.ctx.in_primitive_cast = true;
+        }
+
         // This fixes "expected String, found &str" errors when calling constructors
         let arg_exprs: Vec<syn::Expr> = if is_user_class {
             args.iter()
@@ -1619,6 +1627,9 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 .map(|arg| arg.to_rust_expr(self.ctx))
                 .collect::<Result<Vec<_>>>()?
         };
+
+        // Restore the previous in_primitive_cast state
+        self.ctx.in_primitive_cast = was_in_primitive_cast;
 
         // based on the function's parameter order from function_param_names.
         // Python: format_message(country="USA", name="Alice", city="New York", age=30)
@@ -11841,7 +11852,8 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         stop: &Option<Box<HirExpr>>,
         step: &Option<Box<HirExpr>>,
     ) -> Result<syn::Expr> {
-        let base_expr = base.to_rust_expr(self.ctx)?;
+        // Use convert_expr_without_clone since we borrow the base immediately with `let base = &...`
+        let base_expr = self.convert_expr_without_clone(base)?;
 
         let is_string = self.is_string_base(base);
 
@@ -13684,6 +13696,212 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         false
     }
 
+    /// Check if an expression produces a Copy type (primitives like i32, f64, bool).
+    /// Copy types should never be wrapped in references when returning.
+    fn is_copy_type_expr(&self, expr: &HirExpr) -> bool {
+        use crate::hir::{BinOp, Literal};
+
+        match expr {
+            // Literals of primitive types are Copy
+            HirExpr::Literal(lit) => {
+                matches!(lit, Literal::Int(_) | Literal::Float(_) | Literal::Bool(_))
+            }
+
+            // Binary operations that produce primitives are Copy
+            HirExpr::Binary { op, .. } => matches!(
+                op,
+                BinOp::Add
+                    | BinOp::Sub
+                    | BinOp::Mul
+                    | BinOp::Div
+                    | BinOp::FloorDiv
+                    | BinOp::Mod
+                    | BinOp::Pow
+                    | BinOp::BitAnd
+                    | BinOp::BitOr
+                    | BinOp::BitXor
+                    | BinOp::LShift
+                    | BinOp::RShift
+                    | BinOp::Lt
+                    | BinOp::LtEq
+                    | BinOp::Gt
+                    | BinOp::GtEq
+                    | BinOp::Eq
+                    | BinOp::NotEq
+                    | BinOp::And
+                    | BinOp::Or
+                    | BinOp::Is
+                    | BinOp::IsNot
+                    | BinOp::In
+                    | BinOp::NotIn
+            ),
+
+            // Unary operations that produce primitives are Copy
+            HirExpr::Unary { op, .. } => {
+                use crate::hir::UnaryOp;
+                matches!(
+                    op,
+                    UnaryOp::Not | UnaryOp::Neg | UnaryOp::Pos | UnaryOp::BitNot
+                )
+            }
+
+            // Method calls that return primitives are Copy
+            HirExpr::MethodCall { method, .. } => {
+                // Common methods that return primitives
+                matches!(
+                    method.as_str(),
+                    "len"
+                        | "count"
+                        | "abs"
+                        | "is_empty"
+                        | "is_some"
+                        | "is_none"
+                        | "is_ok"
+                        | "is_err"
+                        | "saturating_sub"
+                        | "saturating_add"
+                        | "saturating_mul"
+                        | "checked_add"
+                        | "checked_sub"
+                        | "checked_mul"
+                        | "checked_div"
+                        | "wrapping_add"
+                        | "wrapping_sub"
+                        | "wrapping_mul"
+                )
+            }
+
+            // Builtin calls that return primitives
+            HirExpr::Call { func, .. } => {
+                matches!(
+                    func.as_str(),
+                    "len"
+                        | "int"
+                        | "float"
+                        | "bool"
+                        | "abs"
+                        | "min"
+                        | "max"
+                        | "round"
+                        | "floor"
+                        | "ceil"
+                        | "ord"
+                        | "hash"
+                )
+            }
+
+            // Variables - check their type
+            HirExpr::Var(name) => {
+                if let Some(ty) = self.ctx.var_types.get(name) {
+                    matches!(ty, Type::Int | Type::Float | Type::Bool)
+                } else {
+                    false
+                }
+            }
+
+            // Attribute access - check if the field type is a Copy type
+            // e.g., state.ball_location.y where y is i32
+            HirExpr::Attribute { value, attr } => {
+                // Try to get the field type from context
+                if let Some(ty) = self.ctx.get_attribute_field_type(value, attr) {
+                    matches!(ty, Type::Int | Type::Float | Type::Bool)
+                } else {
+                    // Heuristic: check if the field name suggests a primitive type
+                    let attr_str = attr.as_str();
+
+                    // Exact matches for common primitive field names
+                    let is_exact_match = matches!(
+                        attr_str,
+                        "x" | "y"
+                            | "z"
+                            | "w"
+                            | "width"
+                            | "height"
+                            | "len"
+                            | "length"
+                            | "count"
+                            | "size"
+                            | "index"
+                            | "id"
+                            | "number"
+                            | "num"
+                            | "score"
+                            | "points"
+                            | "value"
+                            | "amount"
+                            | "total"
+                            | "min"
+                            | "max"
+                            | "sum"
+                            | "avg"
+                            | "mean"
+                            | "price"
+                            | "cost"
+                            | "rate"
+                            | "ratio"
+                            | "percentage"
+                            | "percent"
+                            | "time"
+                            | "duration"
+                            | "elapsed"
+                            | "remaining"
+                            | "offset"
+                            | "delta"
+                            | "margin"
+                            | "handicap"
+                            | "weight"
+                            | "probability"
+                            | "chance"
+                    );
+
+                    // Suffix patterns that suggest primitives
+                    let has_primitive_suffix = attr_str.ends_with("_count")
+                        || attr_str.ends_with("_size")
+                        || attr_str.ends_with("_len")
+                        || attr_str.ends_with("_length")
+                        || attr_str.ends_with("_index")
+                        || attr_str.ends_with("_id")
+                        || attr_str.ends_with("_num")
+                        || attr_str.ends_with("_number")
+                        || attr_str.ends_with("_score")
+                        || attr_str.ends_with("_points")
+                        || attr_str.ends_with("_total")
+                        || attr_str.ends_with("_sum")
+                        || attr_str.ends_with("_min")
+                        || attr_str.ends_with("_max")
+                        || attr_str.ends_with("_avg")
+                        || attr_str.ends_with("_mean")
+                        || attr_str.ends_with("_price")
+                        || attr_str.ends_with("_cost")
+                        || attr_str.ends_with("_rate")
+                        || attr_str.ends_with("_ratio")
+                        || attr_str.ends_with("_time")
+                        || attr_str.ends_with("_duration")
+                        || attr_str.ends_with("_elapsed")
+                        || attr_str.ends_with("_remaining")
+                        || attr_str.ends_with("_offset")
+                        || attr_str.ends_with("_delta")
+                        || attr_str.ends_with("_margin")
+                        || attr_str.ends_with("_handicap")
+                        || attr_str.ends_with("_weight")
+                        || attr_str.ends_with("_probability")
+                        || attr_str.ends_with("_percentage")
+                        || attr_str.ends_with("_chance");
+
+                    is_exact_match || has_primitive_suffix
+                }
+            }
+
+            // IfExpr - check both branches
+            HirExpr::IfExpr { body, orelse, .. } => {
+                self.is_copy_type_expr(body) && self.is_copy_type_expr(orelse)
+            }
+
+            // Default: not a known Copy type
+            _ => false,
+        }
+    }
+
     /// Check if the base of an attribute access is a reference parameter.
     /// This is used to determine if cloning is needed when accessing fields.
     fn is_ref_param_base(&self, expr: &HirExpr) -> bool {
@@ -14455,6 +14673,16 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         // EXCEPTION: If generate_borrow is set, the caller has determined borrowing is safe.
         let both_attrs = matches!(body, HirExpr::Attribute { .. })
             && matches!(orelse, HirExpr::Attribute { .. });
+
+        // Check if both branches are enum variants (e.g., Team.Home if ... else Team.Away)
+        // Enum variants are Copy types and should never be borrowed.
+        let both_enum_variants =
+            self.is_enum_variant_expr(body) && self.is_enum_variant_expr(orelse);
+
+        // Check if both branches produce Copy types (primitives like i32, f64, bool).
+        // Copy types should never be wrapped in references.
+        let both_copy_types = self.is_copy_type_expr(body) && self.is_copy_type_expr(orelse);
+
         let base_is_ref_param = if both_attrs {
             // Check if the base of either attribute is a reference parameter
             let body_base_is_ref = if let HirExpr::Attribute { value, .. } = body {
@@ -14494,21 +14722,50 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         // When generate_mut_borrow is set, wrap each branch in &mut for mutable field access
         // This handles: `team_stats = state.home_stats if cond else state.away_stats`
         // → `if cond { &mut state.home_stats } else { &mut state.away_stats }`
-        if self.ctx.generate_mut_borrow && both_attrs {
+        // Skip for enum variants, Copy types, and primitive cast contexts - they should not be borrowed.
+        if self.ctx.generate_mut_borrow
+            && both_attrs
+            && !both_enum_variants
+            && !both_copy_types
+            && !self.ctx.in_primitive_cast
+        {
             body_expr = parse_quote! { &mut #body_expr };
             orelse_expr = parse_quote! { &mut #orelse_expr };
         }
         // When generate_borrow is set, wrap each branch in & for immutable borrow
         // This handles: `players = state.home_players if cond else state.away_players`
         // → `if cond { &state.home_players } else { &state.away_players }`
-        else if self.ctx.generate_borrow && both_attrs {
+        // Skip for enum variants, Copy types, and primitive cast contexts - they should not be borrowed.
+        else if self.ctx.generate_borrow
+            && both_attrs
+            && !both_enum_variants
+            && !both_copy_types
+            && !self.ctx.in_primitive_cast
+        {
             body_expr = parse_quote! { &#body_expr };
             orelse_expr = parse_quote! { &#orelse_expr };
         }
-        // When function returns a reference, wrap each branch in & to borrow the field
+        // When function returns a mutable reference, wrap each branch in &mut
+        // This handles: `return state.home_stats if ... else state.away_stats`
+        // → `if ... { &mut state.home_stats } else { &mut state.away_stats }`
+        // Skip for enum variants, Copy types, and primitive cast contexts.
+        else if self.ctx.returns_mutable_reference
+            && !both_enum_variants
+            && !both_copy_types
+            && !self.ctx.in_primitive_cast
+        {
+            body_expr = parse_quote! { &mut #body_expr };
+            orelse_expr = parse_quote! { &mut #orelse_expr };
+        }
+        // When function returns an immutable reference, wrap each branch in &
         // This handles: `return state.home_players if ... else state.away_players`
         // → `if ... { &state.home_players } else { &state.away_players }`
-        else if self.ctx.returns_reference {
+        // Skip for enum variants, Copy types, and primitive cast contexts.
+        else if self.ctx.returns_reference
+            && !both_enum_variants
+            && !both_copy_types
+            && !self.ctx.in_primitive_cast
+        {
             body_expr = parse_quote! { &#body_expr };
             orelse_expr = parse_quote! { &#orelse_expr };
         }

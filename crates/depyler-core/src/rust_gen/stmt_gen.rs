@@ -679,6 +679,44 @@ pub(crate) fn codegen_expr_stmt(
 // Medium-complexity handlers extracted from HirStmt::to_rust_tokens
 // ============================================================================
 
+/// Check if an expression creates an owned value (constructor call, struct literal, etc.)
+/// These expressions should NOT have `&` prepended when returning.
+fn expr_creates_owned_value(expr: &HirExpr) -> bool {
+    match expr {
+        // Constructor calls: ClassName(...) or Type::new(...)
+        HirExpr::Call { func, .. } => {
+            // Check if func is a type name (starts with uppercase) - likely a constructor
+            if let Some(first_char) = func.chars().next() {
+                if first_char.is_uppercase() {
+                    return true;
+                }
+            }
+            // Common owned-value-creating functions
+            matches!(
+                func.as_str(),
+                "list" | "dict" | "set" | "str" | "Vec" | "HashMap" | "HashSet" | "String"
+            )
+        }
+        // Method calls like Type::new(...) or Type::from(...)
+        HirExpr::MethodCall { method, .. } => {
+            matches!(method.as_str(), "new" | "from" | "default" | "clone")
+        }
+        // List, Dict, Set literals create owned values
+        HirExpr::List(_) | HirExpr::Dict(_) | HirExpr::Set(_) | HirExpr::Tuple(_) => true,
+        // Literals (except None) create owned values
+        HirExpr::Literal(lit) => !matches!(lit, Literal::None),
+        // Binary operations create new values
+        HirExpr::Binary { .. } => true,
+        // Unary operations create new values
+        HirExpr::Unary { .. } => true,
+        // Format strings create owned strings
+        HirExpr::FString { .. } => true,
+        // Comprehensions create owned collections
+        HirExpr::ListComp { .. } | HirExpr::SetComp { .. } | HirExpr::DictComp { .. } => true,
+        _ => false,
+    }
+}
+
 /// Generate code for Return statement with optional expression
 #[inline]
 pub(crate) fn codegen_return_stmt(
@@ -690,8 +728,13 @@ pub(crate) fn codegen_return_stmt(
 
         // When function returns a reference, wrap the expression in &
         // This handles cases like: return state.home_players → return &state.home_players
+        // BUT: Skip wrapping for expressions that create owned values (constructors, literals, etc.)
+        // These already return owned values, so adding & would create a type mismatch.
         // NOTE: IfExpr handles its own & wrapping for each branch, so skip it here
-        if ctx.returns_reference && !matches!(e, HirExpr::IfExpr { .. }) {
+        if ctx.returns_reference
+            && !matches!(e, HirExpr::IfExpr { .. })
+            && !expr_creates_owned_value(e)
+        {
             expr_tokens = parse_quote! { &#expr_tokens };
         }
 
@@ -3192,6 +3235,23 @@ pub(crate) fn codegen_assign_stmt(
     } else {
         value.to_rust_expr(ctx)?
     };
+
+    // BORROW CONFLICT RESOLUTION:
+    // If this variable is in vars_needing_clone_at_assign, it holds a reference
+    // that would conflict with a later mutable borrow. Clone/to_vec to release
+    // the borrow immediately.
+    // Pattern detected: var1 = f(&state) returns &T, var2 = g(&mut state), use(var1)
+    if let AssignTarget::Symbol(var_name) = target {
+        if ctx.vars_needing_clone_at_assign.contains(var_name) {
+            // Check if the value is a function call that likely returns &Vec<T>
+            if let HirExpr::Call { .. } = value {
+                // Use .to_vec() for Vec references, .clone() for others
+                // Heuristic: if function name contains "get_players" or similar list getters
+                // Actually, safer to use .clone() which works for both Vec and other types
+                value_expr = parse_quote! { #value_expr.clone() };
+            }
+        }
+    }
 
     // When assigning from a function that returns Result<T, E> in a non-Result context,
     // we need to unwrap it.

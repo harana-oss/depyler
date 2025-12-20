@@ -222,7 +222,8 @@ impl LifetimeInference {
     ) -> LifetimeResult {
         // Use enhanced borrowing context for comprehensive analysis
         let mut borrowing_ctx = BorrowingContext::new(Some(func.ret_type.clone()));
-        let borrowing_result = borrowing_ctx.analyze_function_with_interprocedural(func, type_mapper, interprocedural);
+        let borrowing_result =
+            borrowing_ctx.analyze_function_with_interprocedural(func, type_mapper, interprocedural);
 
         // Convert borrowing strategies to lifetime information
         let mut param_lifetimes = IndexMap::new();
@@ -288,9 +289,9 @@ impl LifetimeInference {
         // Compute lifetime bounds from the constraint graph
         let lifetime_bounds = self.compute_lifetime_bounds();
 
-        // Collect params whose fields escape through return
-        let params_with_field_return: Vec<String> = self
-            .param_analysis
+        // Collect params whose fields escape through return from borrowing analysis
+        let params_with_field_return: Vec<String> = borrowing_result
+            .param_usage
             .iter()
             .filter(|(_, usage)| usage.field_escapes_through_return)
             .map(|(name, _)| name.clone())
@@ -320,7 +321,13 @@ impl LifetimeInference {
 
     /// Recursively analyze statements for parameter usage
     #[allow(dead_code)]
-    fn analyze_stmt_for_param(&self, param: &str, stmt: &HirStmt, usage: &mut ParamUsage, in_loop: bool) {
+    fn analyze_stmt_for_param(
+        &self,
+        param: &str,
+        stmt: &HirStmt,
+        usage: &mut ParamUsage,
+        in_loop: bool,
+    ) {
         match stmt {
             HirStmt::Expr(expr) => self.analyze_expr_for_param(param, expr, usage, in_loop, false),
             HirStmt::Assign { target, value, .. } => {
@@ -528,7 +535,10 @@ impl LifetimeInference {
             }
             HirExpr::Literal(_) => {}
             HirExpr::MethodCall {
-                object, method, args, ..
+                object,
+                method,
+                args,
+                ..
             } => {
                 // Check if this is a mutating method call on our parameter
                 if is_mutating_method(method) {
@@ -652,12 +662,17 @@ impl LifetimeInference {
                 self.analyze_expr_for_param(param, body, usage, in_loop, in_return);
                 self.analyze_expr_for_param(param, orelse, usage, in_loop, in_return);
             }
-            HirExpr::SortByKey { iterable, key_body, .. } => {
+            HirExpr::SortByKey {
+                iterable, key_body, ..
+            } => {
                 // Analyze the iterable and key lambda body
                 self.analyze_expr_for_param(param, iterable, usage, in_loop, in_return);
                 self.analyze_expr_for_param(param, key_body, usage, in_loop, in_return);
             }
-            HirExpr::GeneratorExp { element, generators } => {
+            HirExpr::GeneratorExp {
+                element,
+                generators,
+            } => {
                 // Analyze element and all generator components
                 self.analyze_expr_for_param(param, element, usage, in_loop, in_return);
                 for gen in generators {
@@ -683,13 +698,19 @@ impl LifetimeInference {
         let mut result = IndexMap::new();
 
         for param in &func.params {
-            let usage = self.param_analysis.get(&param.name).cloned().unwrap_or_default();
+            let usage = self
+                .param_analysis
+                .get(&param.name)
+                .cloned()
+                .unwrap_or_default();
             let rust_type = type_mapper.map_type(&param.ty);
 
             // Determine if we should borrow or take ownership
             // If parameter escapes (returned) and it's the same type as return, it should be moved
-            let escapes_as_self = usage.escapes && rust_type == type_mapper.map_return_type(&func.ret_type);
-            let should_borrow = !usage.is_moved && !escapes_as_self && (usage.is_read_only || usage.is_mutated);
+            let escapes_as_self =
+                usage.escapes && rust_type == type_mapper.map_return_type(&func.ret_type);
+            let should_borrow =
+                !usage.is_moved && !escapes_as_self && (usage.is_read_only || usage.is_mutated);
             let needs_mut = usage.is_mutated;
 
             let lifetime = if should_borrow {
@@ -762,8 +783,12 @@ impl LifetimeInference {
             RustType::Str { .. } => true,
             RustType::Reference { .. } => true,
             RustType::Cow { .. } => true,
-            RustType::Vec(inner) | RustType::Option(inner) => self.return_type_needs_lifetime(inner),
-            RustType::Result(ok, err) => self.return_type_needs_lifetime(ok) || self.return_type_needs_lifetime(err),
+            RustType::Vec(inner) | RustType::Option(inner) => {
+                self.return_type_needs_lifetime(inner)
+            }
+            RustType::Result(ok, err) => {
+                self.return_type_needs_lifetime(ok) || self.return_type_needs_lifetime(err)
+            }
             RustType::Tuple(types) => types.iter().any(|t| self.return_type_needs_lifetime(t)),
             _ => false,
         }
@@ -802,7 +827,8 @@ impl LifetimeInference {
         interprocedural: Option<&crate::interprocedural::InterproceduralAnalysis>,
     ) -> Option<LifetimeResult> {
         // First, do the full analysis WITH interprocedural context
-        let full_result = self.analyze_function_with_interprocedural(func, type_mapper, interprocedural);
+        let full_result =
+            self.analyze_function_with_interprocedural(func, type_mapper, interprocedural);
 
         // Count reference parameters
         let ref_params: Vec<_> = full_result
@@ -842,7 +868,10 @@ impl LifetimeInference {
         // Rule for multiple borrowed parameters with no return borrowing:
         // If the function doesn't return a borrowed value (returns (), non-reference, etc.),
         // then borrowed parameters don't need explicit lifetimes - they're independent
-        if !return_needs_lifetime {
+        // EXCEPT: when a param's field escapes through return, we'll add & to the return type,
+        // so we DO need explicit lifetimes in that case
+        let has_field_escape = !full_result.params_with_field_return.is_empty();
+        if !return_needs_lifetime && !has_field_escape {
             return Some(LifetimeResult {
                 param_lifetimes: full_result.param_lifetimes,
                 return_lifetime: None,
@@ -851,6 +880,35 @@ impl LifetimeInference {
                 borrowing_strategies: full_result.borrowing_strategies,
                 params_with_field_return: full_result.params_with_field_return,
             });
+        }
+
+        // When a field escapes through return with multiple borrowed params,
+        // we need explicit lifetimes to tie the return to the correct param
+        if has_field_escape && ref_params.len() > 1 {
+            // Find the escaping param and use its lifetime for the return
+            if let Some(escaping_param) = full_result.params_with_field_return.first() {
+                let escaping_lifetime = "'a".to_string();
+
+                // Update param lifetimes: escaping param gets 'a, others get elided (None)
+                let mut updated_param_lifetimes = full_result.param_lifetimes.clone();
+                for (name, inf) in updated_param_lifetimes.iter_mut() {
+                    if name == escaping_param {
+                        inf.lifetime = Some(escaping_lifetime.clone());
+                    } else {
+                        // Non-escaping borrowed params don't need explicit lifetime
+                        inf.lifetime = None;
+                    }
+                }
+
+                return Some(LifetimeResult {
+                    param_lifetimes: updated_param_lifetimes,
+                    return_lifetime: Some(escaping_lifetime.clone()),
+                    lifetime_params: vec![escaping_lifetime],
+                    lifetime_bounds: vec![],
+                    borrowing_strategies: full_result.borrowing_strategies,
+                    params_with_field_return: full_result.params_with_field_return,
+                });
+            }
         }
 
         // Rule 3: If there's a &self or &mut self parameter, use its lifetime for outputs

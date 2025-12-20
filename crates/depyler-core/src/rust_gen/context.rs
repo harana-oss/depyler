@@ -97,6 +97,11 @@ pub struct CodeGenContext<'a> {
     pub function_param_borrows: HashMap<String, Vec<bool>>,
     /// Track function parameters that need mutable borrows (&mut T)
     pub function_param_muts: HashMap<String, Vec<bool>>,
+    /// Track functions whose return values are mutated at call sites (need &mut return type)
+    pub functions_with_mutated_return: HashSet<String>,
+    /// Track functions that return references (have params_with_field_return non-empty)
+    /// These are functions like _get_players that return &Vec<T> borrowing from a param
+    pub functions_returning_refs: HashSet<String>,
     pub tuple_iter_vars: HashSet<String>,
     pub is_final_statement: bool,
     pub result_bool_functions: HashSet<String>,
@@ -128,6 +133,7 @@ pub struct CodeGenContext<'a> {
 
     /// Track how many times each variable is used in the current function (for clone analysis)
     pub var_usage_counts: HashMap<String, usize>,
+
     /// Track how many times we've seen each variable during code generation
     pub var_usage_current: HashMap<String, usize>,
 
@@ -148,6 +154,9 @@ pub struct CodeGenContext<'a> {
     /// Flag to indicate the current function returns a reference (to avoid cloning in return expressions)
     pub returns_reference: bool,
 
+    /// Flag to indicate the current function returns a mutable reference (&mut T)
+    pub returns_mutable_reference: bool,
+
     /// Variables that can be borrowed instead of cloned (from usage analysis)
     /// Key: variable name, Value: true if the variable should be borrowed
     pub borrowable_vars: HashSet<String>,
@@ -166,6 +175,16 @@ pub struct CodeGenContext<'a> {
     /// This prevents duplicate .clone() calls when multiple code paths try to add cloning.
     /// Reset to false at the start of each new expression conversion.
     pub clone_already_applied: bool,
+
+    /// Flag to indicate we're converting an expression inside a primitive cast (int(), float()).
+    /// When true, prevents adding references to if-expression branches.
+    pub in_primitive_cast: bool,
+
+    /// Variables that need to be cloned at assignment to avoid borrow conflicts.
+    /// Pattern: var1 = f(&state) returns &T, then var2 = g(&mut state), then var1 used later.
+    /// The immutable borrow in var1 would conflict with the mutable borrow for var2.
+    /// Solution: clone var1 at assignment so the borrow ends immediately.
+    pub vars_needing_clone_at_assign: HashSet<String>,
 }
 
 impl<'a> CodeGenContext<'a> {

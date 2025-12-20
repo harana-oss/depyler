@@ -356,4 +356,107 @@ fn main() {
     log::info!("{}", result);
 }
 """
-not_
+
+# =============================================================================
+# Primitive Casts with Ternary (DEPYLER-0350)
+# =============================================================================
+
+[[test]]
+name = "ternary_float_cast_no_reference"
+description = "float(x if cond else y) should not add references"
+python = """
+class State:
+    def __init__(self):
+        self.x = 10
+        self.y = 20
+
+state = State()
+cond = True
+result = float(state.x if cond else state.y)
+print(result)
+"""
+rust = """
+struct State {
+    x: i32,
+    y: i32,
+}
+
+impl State {
+    fn new() -> Self {
+        Self { x: 10, y: 20 }
+    }
+}
+
+fn main() {
+    let state = State::new();
+    let cond = true;
+    let result = (if cond { state.x } else { state.y }) as f64;
+    log::info!("{}", result);
+}
+"""
+
+[[test]]
+name = "ternary_int_cast_no_reference"
+description = "int(a if cond else b) should not add references"
+python = """
+class Data:
+    def __init__(self):
+        self.a = 3.14
+        self.b = 2.71
+
+data = Data()
+cond = False
+result = int(data.a if cond else data.b)
+print(result)
+"""
+rust = """
+struct Data {
+    a: f64,
+    b: f64,
+}
+
+impl Data {
+    fn new() -> Self {
+        Self { a: 3.14, b: 2.71 }
+    }
+}
+
+fn main() {
+    let data = Data::new();
+    let cond = false;
+    let result = (if cond { data.a } else { data.b }) as i32;
+    log::info!("{}", result);
+}
+"""
+
+[[test]]
+name = "ternary_float_cast_with_expression"
+description = "float(expr if cond else expr) with arithmetic expressions"
+python = """
+class State:
+    def __init__(self):
+        self.ball_location_y = 100
+
+state = State()
+is_home = True
+result = float(state.ball_location_y if is_home else (700 - state.ball_location_y))
+print(result)
+"""
+rust = """
+struct State {
+    ball_location_y: i32,
+}
+
+impl State {
+    fn new() -> Self {
+        Self { ball_location_y: 100 }
+    }
+}
+
+fn main() {
+    let state = State::new();
+    let is_home = true;
+    let result = (if is_home { state.ball_location_y } else { 700 - state.ball_location_y }) as f64;
+    log::info!("{}", result);
+}
+"""
