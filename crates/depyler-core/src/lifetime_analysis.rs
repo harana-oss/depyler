@@ -461,6 +461,8 @@ impl LifetimeInference {
             }
             // Global and Nonlocal are declaration markers, no parameter usage
             HirStmt::Global { .. } | HirStmt::Nonlocal { .. } => {}
+            // Import and ImportFrom are declaration markers, no parameter usage
+            HirStmt::Import { .. } | HirStmt::ImportFrom { .. } => {}
             // AsyncFor - analyze iterator and body
             HirStmt::AsyncFor { iter, body, .. } => {
                 self.analyze_expr_for_param(param, iter, usage, in_loop, false);
@@ -471,6 +473,22 @@ impl LifetimeInference {
             // AsyncWith - analyze context and body
             HirStmt::AsyncWith { context, body, .. } => {
                 self.analyze_expr_for_param(param, context, usage, in_loop, false);
+                for stmt in body {
+                    self.analyze_stmt_for_param(param, stmt, usage, in_loop);
+                }
+            }
+            // Delete - targets may be mutated (removed)
+            HirStmt::Delete { targets } => {
+                for target in targets {
+                    if let AssignTarget::Symbol(name) = target {
+                        if name == param {
+                            usage.is_read_only = false;
+                        }
+                    }
+                }
+            }
+            // AsyncFunctionDef - analyze body for parameter captures
+            HirStmt::AsyncFunctionDef { body, .. } => {
                 for stmt in body {
                     self.analyze_stmt_for_param(param, stmt, usage, in_loop);
                 }
@@ -609,6 +627,19 @@ impl LifetimeInference {
                 // If target shadows param, we don't analyze element/condition
                 // since they would refer to the comprehension variable, not the parameter
             }
+            HirExpr::FlattenedListComp { element, generators } => {
+                // Check if any generator target shadows the parameter
+                let shadows_param = generators.iter().any(|g| g.target == param);
+                if !shadows_param {
+                    for generator in generators {
+                        self.analyze_expr_for_param(param, &generator.iter, usage, true, false);
+                        for cond in &generator.conditions {
+                            self.analyze_expr_for_param(param, cond, usage, true, false);
+                        }
+                    }
+                    self.analyze_expr_for_param(param, element, usage, true, in_return);
+                }
+            }
             HirExpr::Lambda { params: _, body } => {
                 // Lambda functions can capture parameters by reference
                 // Analyze the body for parameter usage
@@ -697,6 +728,10 @@ impl LifetimeInference {
                         self.analyze_expr_for_param(param, cond, usage, in_loop, in_return);
                     }
                 }
+            }
+            HirExpr::NamedExpr { value, .. } => {
+                // Analyze the value expression
+                self.analyze_expr_for_param(param, value, usage, in_loop, in_return);
             }
             HirExpr::Uninitialized => {
                 // nothing to do

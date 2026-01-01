@@ -103,6 +103,8 @@ impl StateAnalyzer {
                 crate::hir::Literal::Bytes(_) => Type::Custom("bytes".to_string()),
                 crate::hir::Literal::Bool(_) => Type::Bool,
                 crate::hir::Literal::None => Type::None,
+                crate::hir::Literal::Ellipsis => Type::None,
+                crate::hir::Literal::Complex(_, _) => Type::Custom("num::Complex<f64>".to_string()),
             },
             HirExpr::List(items) => {
                 let elem_type = items

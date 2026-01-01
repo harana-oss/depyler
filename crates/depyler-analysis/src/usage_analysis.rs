@@ -88,7 +88,8 @@ impl UsageAnalyzer {
                 // Track variables assigned from field access
                 if let AssignTarget::Symbol(var_name) = target {
                     if matches!(value, HirExpr::Attribute { .. }) {
-                        self.field_source_vars.insert(var_name.clone(), var_name.clone());
+                        self.field_source_vars
+                            .insert(var_name.clone(), var_name.clone());
                         let usage = self.usages.entry(var_name.clone()).or_default();
                         usage.is_field_source = true;
                     }
@@ -170,6 +171,8 @@ impl UsageAnalyzer {
             }
             // Global and Nonlocal are declaration markers
             HirStmt::Global { .. } | HirStmt::Nonlocal { .. } => {}
+            // Import and ImportFrom are declaration markers
+            HirStmt::Import { .. } | HirStmt::ImportFrom { .. } => {}
             // AsyncFor - analyze iterator and body
             HirStmt::AsyncFor { iter, body, .. } => {
                 self.analyze_expr(iter, UsageContext::Iteration);
@@ -178,6 +181,16 @@ impl UsageAnalyzer {
             // AsyncWith - analyze context and body
             HirStmt::AsyncWith { context, body, .. } => {
                 self.analyze_expr(context, UsageContext::Move);
+                self.analyze_stmts(body);
+            }
+            // Delete - targets are mutated (removed)
+            HirStmt::Delete { targets } => {
+                for target in targets {
+                    self.analyze_assign_target(target);
+                }
+            }
+            // AsyncFunctionDef - analyze body for captures
+            HirStmt::AsyncFunctionDef { body, .. } => {
                 self.analyze_stmts(body);
             }
         }
@@ -324,6 +337,15 @@ impl UsageAnalyzer {
                     self.analyze_expr(c, UsageContext::ReadOnly);
                 }
             }
+            HirExpr::FlattenedListComp { element, generators } => {
+                for generator in generators {
+                    self.analyze_expr(&generator.iter, UsageContext::Iteration);
+                    for c in &generator.conditions {
+                        self.analyze_expr(c, UsageContext::ReadOnly);
+                    }
+                }
+                self.analyze_expr(element, UsageContext::Move);
+            }
             HirExpr::SetComp {
                 element,
                 iter,
@@ -375,15 +397,26 @@ impl UsageAnalyzer {
                 self.analyze_expr(body, context);
                 self.analyze_expr(orelse, context);
             }
-            HirExpr::SortByKey { iterable, key_body, .. } => {
+            HirExpr::SortByKey {
+                iterable, key_body, ..
+            } => {
                 self.analyze_expr(iterable, UsageContext::Iteration);
                 self.analyze_expr(key_body, UsageContext::ReadOnly);
             }
-            HirExpr::GeneratorExp { element, generators } => {
+            HirExpr::GeneratorExp {
+                element,
+                generators,
+            } => {
                 for generator in generators.iter() {
                     self.analyze_comprehension(generator);
                 }
                 self.analyze_expr(element, UsageContext::Move);
+            }
+            HirExpr::NamedExpr { target, value } => {
+                // Named expression defines a new variable and returns the value
+                let usage = self.usages.entry(target.clone()).or_default();
+                usage.move_uses += 1; // The value is moved into the named variable
+                self.analyze_expr(value, UsageContext::Move);
             }
         }
     }
@@ -418,7 +451,10 @@ impl UsageAnalyzer {
                 }
             }
             HirExpr::MethodCall {
-                object, args, kwargs, ..
+                object,
+                args,
+                kwargs,
+                ..
             } => {
                 self.mark_closure_captures(object);
                 for arg in args {

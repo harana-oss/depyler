@@ -95,7 +95,10 @@ def encode_base32(data: bytes) -> bytes:
 '''
 
 rust = '''
-// Transpilation failed - base32 requires data-encoding crate
+use data_encoding;
+pub fn encode_base32(data: &[u8]) -> Vec<u8> {
+    return data_encoding::BASE32.encode(data).into_bytes();
+}
 '''
 
 [[test]]
@@ -110,7 +113,10 @@ def decode_base32(data: bytes) -> bytes:
 '''
 
 rust = '''
-// Transpilation failed - base32 requires data-encoding crate
+use data_encoding;
+pub fn decode_base32(data: &[u8]) -> Vec<u8> {
+    return data_encoding::BASE32.decode(data).unwrap();
+}
 '''
 
 [[test]]

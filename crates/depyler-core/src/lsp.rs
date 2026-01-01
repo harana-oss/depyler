@@ -3,7 +3,7 @@
 //! Provides LSP server functionality for IDE integration.
 
 use crate::ide::{DiagnosticSeverity, IdeIntegration};
-use crate::{hir, DepylerPipeline};
+use crate::{DepylerPipeline, hir};
 use rustpython_parser::text_size::TextSize;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;

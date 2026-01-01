@@ -943,6 +943,12 @@ fn hash_expr_recursive_inner<H: Hasher>(expr: &HirExpr, hasher: &mut H) {
                 Literal::Bytes(b) => b.hash(hasher),
                 Literal::Bool(b) => b.hash(hasher),
                 Literal::None => "none".hash(hasher),
+                Literal::Ellipsis => "ellipsis".hash(hasher),
+                Literal::Complex(r, i) => {
+                    "complex".hash(hasher);
+                    r.to_bits().hash(hasher);
+                    i.to_bits().hash(hasher);
+                }
             }
         }
         HirExpr::Var(name) => {

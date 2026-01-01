@@ -911,7 +911,13 @@ fn convert_init_to_new(
     let mut inputs = syn::punctuated::Punctuated::new();
 
     for param in &init_method.params {
-        let param_ident = syn::Ident::new(&param.name, proc_macro2::Span::call_site());
+        // Rename 'self' to 'self_param' since 'self' is a Rust keyword
+        let param_name = if param.name == "self" {
+            "self_param"
+        } else {
+            &param.name
+        };
+        let param_ident = syn::Ident::new(param_name, proc_macro2::Span::call_site());
         let rust_type = type_mapper.map_type(&param.ty);
         let param_syn_type = rust_type_to_syn_type(&rust_type)?;
 
@@ -1095,6 +1101,8 @@ fn infer_expr_type(expr: &HirExpr) -> Type {
             Literal::Bool(_) => Type::Bool,
             Literal::None => Type::None,
             Literal::Bytes(_) => Type::Unknown,
+            Literal::Ellipsis => Type::None,
+            Literal::Complex(_, _) => Type::Custom("num::Complex<f64>".to_string()),
         },
         HirExpr::Binary { op, left, right } => {
             // Comparison operators return bool
@@ -1177,7 +1185,13 @@ fn convert_method_to_impl_item(
 
     // Add other parameters
     for param in &method.params {
-        let param_ident = syn::Ident::new(&param.name, proc_macro2::Span::call_site());
+        // Rename 'self' to 'self_param' since 'self' is a Rust keyword
+        let param_name = if param.name == "self" {
+            "self_param"
+        } else {
+            &param.name
+        };
+        let param_ident = syn::Ident::new(param_name, proc_macro2::Span::call_site());
         let rust_type = type_mapper.map_type(&param.ty);
         let param_syn_type = rust_type_to_syn_type(&rust_type)?;
 
@@ -1279,7 +1293,13 @@ fn convert_protocol_method_to_trait_method(
 
     // Add remaining parameters
     for param in method_params {
-        let param_ident = syn::Ident::new(&param.name, proc_macro2::Span::call_site());
+        // Rename 'self' to 'self_param' since 'self' is a Rust keyword
+        let param_name = if param.name == "self" {
+            "self_param"
+        } else {
+            &param.name
+        };
+        let param_ident = syn::Ident::new(param_name, proc_macro2::Span::call_site());
         let rust_type = type_mapper.map_type(&param.ty);
         let param_syn_type = rust_type_to_syn_type(&rust_type)?;
 
@@ -1551,11 +1571,17 @@ fn convert_function(func: &HirFunction, type_mapper: &TypeMapper) -> Result<syn:
     for param in &func.params {
         let rust_type = type_mapper.map_type(&param.ty);
         let ty = rust_type_to_syn(&rust_type)?;
+        // Rename 'self' to 'self_param' since 'self' is a Rust keyword
+        let param_name = if param.name == "self" {
+            "self_param"
+        } else {
+            &param.name
+        };
         let pat = syn::Pat::Ident(syn::PatIdent {
             attrs: vec![],
             by_ref: None,
             mutability: None,
-            ident: syn::Ident::new(&param.name, proc_macro2::Span::call_site()),
+            ident: syn::Ident::new(param_name, proc_macro2::Span::call_site()),
             subpat: None,
         });
 
@@ -2239,6 +2265,10 @@ fn convert_stmt_with_context(
             // Declaration markers - no code generated
             Ok(syn::Stmt::Expr(parse_quote! { {} }, None))
         }
+        HirStmt::Import { .. } | HirStmt::ImportFrom { .. } => {
+            // Import statements inside functions are no-ops in Rust
+            Ok(syn::Stmt::Expr(parse_quote! { {} }, None))
+        }
         HirStmt::AsyncFor { target, iter, body } => {
             let iter_expr = convert_expr_with_context(iter, type_mapper, is_classmethod)?;
             let body_block = convert_block_with_context(body, type_mapper, is_classmethod)?;
@@ -2277,6 +2307,37 @@ fn convert_stmt_with_context(
                 }
             };
             Ok(syn::Stmt::Expr(block_expr, None))
+        }
+        HirStmt::Delete { targets } => {
+            let delete_stmts: Vec<syn::Stmt> = targets
+                .iter()
+                .filter_map(|target| match target {
+                    AssignTarget::Symbol(name) => {
+                        let ident = syn::Ident::new(name, proc_macro2::Span::call_site());
+                        Some(parse_quote! { drop(#ident); })
+                    }
+                    AssignTarget::Index { base, index } => {
+                        let base_expr =
+                            convert_expr_with_context(base, type_mapper, is_classmethod).ok()?;
+                        let index_expr =
+                            convert_expr_with_context(index, type_mapper, is_classmethod).ok()?;
+                        Some(parse_quote! { #base_expr.remove(&#index_expr); })
+                    }
+                    _ => None,
+                })
+                .collect();
+            if delete_stmts.is_empty() {
+                Ok(syn::Stmt::Expr(parse_quote! { {} }, None))
+            } else {
+                Ok(syn::Stmt::Expr(
+                    parse_quote! { { #(#delete_stmts)* } },
+                    None,
+                ))
+            }
+        }
+        HirStmt::AsyncFunctionDef { .. } => {
+            // Async nested functions handled by the main rust_gen module
+            Ok(syn::Stmt::Expr(parse_quote! { {} }, None))
         }
     }
 }
@@ -2379,6 +2440,14 @@ impl<'a> ExprConverter<'a> {
             HirExpr::Attribute { value, attr } => self.convert_attribute(value, attr),
             HirExpr::Await { value } => self.convert_await(value),
             HirExpr::FString { parts } => self.convert_fstring(parts),
+            HirExpr::IfExpr { test, body, orelse } => self.convert_if_expr(test, body, orelse),
+            HirExpr::Yield { value } => self.convert_yield(value),
+            HirExpr::Slice {
+                base,
+                start,
+                stop,
+                step,
+            } => self.convert_slice(base, start, stop, step),
             _ => bail!("Expression type not yet supported: {:?}", expr),
         }
     }
@@ -2538,6 +2607,11 @@ impl<'a> ExprConverter<'a> {
                         })
                     }
                 }
+            }
+            BinOp::MatMul => {
+                // Matrix multiplication operator @ in Python
+                // Rust doesn't have a built-in @ operator, so we emit a matmul function call
+                Ok(parse_quote! { matmul(#left_expr, #right_expr) })
             }
             _ => {
                 let rust_op = convert_binop(op)?;
@@ -2933,6 +3007,17 @@ impl<'a> ExprConverter<'a> {
         method: &str,
         args: &[HirExpr],
     ) -> Result<syn::Expr> {
+        // Handle chained function calls: outer()() becomes outer().__call__()
+        // Convert __call__ to direct invocation of the closure
+        if method == "__call__" {
+            let callable_expr = self.convert(object)?;
+            let arg_exprs: Vec<syn::Expr> = args
+                .iter()
+                .map(|arg| self.convert(arg))
+                .collect::<Result<Vec<_>>>()?;
+            return Ok(parse_quote! { (#callable_expr)(#(#arg_exprs),*) });
+        }
+
         // Handle classmethod cls.method() → Self::method()
         if let HirExpr::Var(var_name) = object {
             if var_name == "cls" && self.is_classmethod {
@@ -3005,11 +3090,8 @@ impl<'a> ExprConverter<'a> {
                 }
             }
 
-            // Set methods
-            "add" => {
-                if arg_exprs.len() != 1 {
-                    bail!("add() requires exactly one argument");
-                }
+            // Set methods - only route to set add if 1 argument
+            "add" if arg_exprs.len() == 1 => {
                 let arg = &arg_exprs[0];
                 Ok(parse_quote! { #object_expr.insert(#arg) })
             }
@@ -3103,8 +3185,16 @@ impl<'a> ExprConverter<'a> {
                 } else if arg_exprs.len() == 1 {
                     let sep = &arg_exprs[0];
                     Ok(parse_quote! { #object_expr.split(#sep).map(|s| s.to_string()).collect() })
+                } else if arg_exprs.len() == 2 {
+                    // split with maxsplit: str.split(sep, maxsplit) -> splitn(maxsplit+1, sep)
+                    let sep = &arg_exprs[0];
+                    let maxsplit = &arg_exprs[1];
+                    // Python's maxsplit is the max number of splits, Rust's splitn is the max number of parts
+                    Ok(
+                        parse_quote! { #object_expr.splitn((#maxsplit + 1) as usize, #sep).map(|s| s.to_string()).collect::<Vec<_>>() },
+                    )
                 } else {
-                    bail!("split() with maxsplit not supported");
+                    bail!("split() takes at most 2 arguments");
                 }
             }
             "join" => {
@@ -3295,9 +3385,233 @@ impl<'a> ExprConverter<'a> {
         }
     }
 
+    fn convert_slice(
+        &self,
+        base: &HirExpr,
+        start: &Option<Box<HirExpr>>,
+        stop: &Option<Box<HirExpr>>,
+        step: &Option<Box<HirExpr>>,
+    ) -> Result<syn::Expr> {
+        let base_expr = self.convert(base)?;
+
+        // Convert slice parameters
+        let start_expr = if let Some(s) = start {
+            Some(self.convert(s)?)
+        } else {
+            None
+        };
+
+        let stop_expr = if let Some(s) = stop {
+            Some(self.convert(s)?)
+        } else {
+            None
+        };
+
+        let step_expr = if let Some(s) = step {
+            Some(self.convert(s)?)
+        } else {
+            None
+        };
+
+        // Generate slice code based on the parameters
+        match (start_expr, stop_expr, step_expr) {
+            // Full slice with step: base[::step]
+            (None, None, Some(step)) => {
+                Ok(parse_quote! {
+                    {
+                        let base = &#base_expr;
+                        let step: i64 = #step;
+                        if step == 1 {
+                            base.clone()
+                        } else if step > 0 {
+                            base.iter().step_by(step as usize).cloned().collect::<Vec<_>>()
+                        } else if step == -1 {
+                            base.iter().rev().cloned().collect::<Vec<_>>()
+                        } else {
+                            // Negative step with abs value
+                            let abs_step = (-step) as usize;
+                            base.iter().rev().step_by(abs_step).cloned().collect::<Vec<_>>()
+                        }
+                    }
+                })
+            }
+
+            // Start and stop: base[start:stop]
+            (Some(start), Some(stop), None) => Ok(parse_quote! {
+                {
+                    let base = &#base_expr;
+                    let start = (#start).max(0) as usize;
+                    let stop = (#stop).max(0) as usize;
+                    if start < base.len() {
+                        base[start..stop.min(base.len())].to_vec()
+                    } else {
+                        Vec::new()
+                    }
+                }
+            }),
+
+            // Start only: base[start:]
+            (Some(start), None, None) => Ok(parse_quote! {
+                {
+                    let base = &#base_expr;
+                    let start = (#start).max(0) as usize;
+                    if start < base.len() {
+                        base[start..].to_vec()
+                    } else {
+                        Vec::new()
+                    }
+                }
+            }),
+
+            // Stop only: base[:stop]
+            (None, Some(stop), None) => Ok(parse_quote! {
+                {
+                    let base = &#base_expr;
+                    let stop = (#stop).max(0) as usize;
+                    base[..stop.min(base.len())].to_vec()
+                }
+            }),
+
+            // Full slice: base[:]
+            (None, None, None) => Ok(parse_quote! { #base_expr.clone() }),
+
+            // Start, stop, and step: base[start:stop:step]
+            (Some(start), Some(stop), Some(step)) => {
+                Ok(parse_quote! {
+                    {
+                        let base = &#base_expr;
+                        let start = (#start).max(0) as usize;
+                        let stop = (#stop).max(0) as usize;
+                        let step: i64 = #step;
+
+                        if step == 1 {
+                            if start < base.len() {
+                                base[start..stop.min(base.len())].to_vec()
+                            } else {
+                                Vec::new()
+                            }
+                        } else if step > 0 {
+                            base[start..stop.min(base.len())]
+                                .iter()
+                                .step_by(step as usize)
+                                .cloned()
+                                .collect::<Vec<_>>()
+                        } else {
+                            // Negative step - slice in reverse
+                            let abs_step = (-step) as usize;
+                            if start < base.len() {
+                                base[start..stop.min(base.len())]
+                                    .iter()
+                                    .rev()
+                                    .step_by(abs_step)
+                                    .cloned()
+                                    .collect::<Vec<_>>()
+                            } else {
+                                Vec::new()
+                            }
+                        }
+                    }
+                })
+            }
+
+            // Start and step: base[start::step]
+            (Some(start), None, Some(step)) => Ok(parse_quote! {
+                {
+                    let base = &#base_expr;
+                    let start = (#start).max(0) as usize;
+                    let step: i64 = #step;
+
+                    if start < base.len() {
+                        if step == 1 {
+                            base[start..].to_vec()
+                        } else if step > 0 {
+                            base[start..]
+                                .iter()
+                                .step_by(step as usize)
+                                .cloned()
+                                .collect::<Vec<_>>()
+                        } else if step == -1 {
+                            base[start..]
+                                .iter()
+                                .rev()
+                                .cloned()
+                                .collect::<Vec<_>>()
+                        } else {
+                            let abs_step = (-step) as usize;
+                            base[start..]
+                                .iter()
+                                .rev()
+                                .step_by(abs_step)
+                                .cloned()
+                                .collect::<Vec<_>>()
+                        }
+                    } else {
+                        Vec::new()
+                    }
+                }
+            }),
+
+            // Stop and step: base[:stop:step]
+            (None, Some(stop), Some(step)) => Ok(parse_quote! {
+                {
+                    let base = &#base_expr;
+                    let stop = (#stop).max(0) as usize;
+                    let step: i64 = #step;
+
+                    if step == 1 {
+                        base[..stop.min(base.len())].to_vec()
+                    } else if step > 0 {
+                        base[..stop.min(base.len())]
+                            .iter()
+                            .step_by(step as usize)
+                            .cloned()
+                            .collect::<Vec<_>>()
+                    } else if step == -1 {
+                        base[..stop.min(base.len())]
+                            .iter()
+                            .rev()
+                            .cloned()
+                            .collect::<Vec<_>>()
+                    } else {
+                        let abs_step = (-step) as usize;
+                        base[..stop.min(base.len())]
+                            .iter()
+                            .rev()
+                            .step_by(abs_step)
+                            .cloned()
+                            .collect::<Vec<_>>()
+                    }
+                }
+            }),
+        }
+    }
+
     fn convert_await(&self, value: &HirExpr) -> Result<syn::Expr> {
         let value_expr = self.convert(value)?;
         Ok(parse_quote! { #value_expr.await })
+    }
+
+    fn convert_if_expr(
+        &self,
+        test: &HirExpr,
+        body: &HirExpr,
+        orelse: &HirExpr,
+    ) -> Result<syn::Expr> {
+        let test_expr = self.convert(test)?;
+        let body_expr = self.convert(body)?;
+        let orelse_expr = self.convert(orelse)?;
+        Ok(parse_quote! { if #test_expr { #body_expr } else { #orelse_expr } })
+    }
+
+    fn convert_yield(&self, value: &Option<Box<HirExpr>>) -> Result<syn::Expr> {
+        // Generators are typically converted to Iterator trait implementations
+        // Yield becomes return Some(value) in the next() method
+        if let Some(v) = value {
+            let value_expr = self.convert(v)?;
+            Ok(parse_quote! { return Some(#value_expr) })
+        } else {
+            Ok(parse_quote! { return None })
+        }
     }
 
     fn convert_attribute(&self, value: &HirExpr, attr: &str) -> Result<syn::Expr> {
@@ -3371,6 +3685,12 @@ fn convert_literal(lit: &Literal) -> syn::Expr {
             parse_quote! { #lit }
         }
         Literal::None => parse_quote! { () },
+        Literal::Ellipsis => parse_quote! { () },
+        Literal::Complex(real, imag) => {
+            let real_lit = syn::LitFloat::new(&real.to_string(), proc_macro2::Span::call_site());
+            let imag_lit = syn::LitFloat::new(&imag.to_string(), proc_macro2::Span::call_site());
+            parse_quote! { Complex::new(#real_lit, #imag_lit) }
+        }
     }
 }
 
@@ -3385,6 +3705,11 @@ fn convert_binop(op: BinOp) -> Result<syn::BinOp> {
         | BinOp::Mod
         | BinOp::FloorDiv
         | BinOp::Pow => convert_arithmetic_op(op),
+
+        // Matrix multiplication - no direct Rust operator
+        BinOp::MatMul => {
+            bail!("@ operator should be handled by convert_binary as matmul() call")
+        }
 
         // Comparison operators (include identity)
         BinOp::Eq
@@ -3438,6 +3763,9 @@ fn convert_comparison_op(op: BinOp) -> Result<syn::BinOp> {
         LtEq => Ok(parse_quote! { <= }),
         Gt => Ok(parse_quote! { > }),
         GtEq => Ok(parse_quote! { >= }),
+        // Identity operators (is/is not) translate to equality in Rust
+        Is => Ok(parse_quote! { == }),
+        IsNot => Ok(parse_quote! { != }),
         _ => bail!("Invalid operator {:?} for comparison conversion", op),
     }
 }

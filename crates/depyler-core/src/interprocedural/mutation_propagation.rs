@@ -726,6 +726,15 @@ impl<'a> MutationPropagator<'a> {
                     changed |= self.propagate_calls_in_expr(cond, new_mutations, param_names);
                 }
             }
+            HirExpr::FlattenedListComp { element, generators } => {
+                changed |= self.propagate_calls_in_expr(element, new_mutations, param_names);
+                for generator in generators {
+                    changed |= self.propagate_calls_in_expr(&generator.iter, new_mutations, param_names);
+                    for cond in &generator.conditions {
+                        changed |= self.propagate_calls_in_expr(cond, new_mutations, param_names);
+                    }
+                }
+            }
             HirExpr::DictComp {
                 key,
                 value,
@@ -766,7 +775,8 @@ impl<'a> MutationPropagator<'a> {
             } => {
                 changed |= self.propagate_calls_in_expr(element, new_mutations, param_names);
                 for generator in generators {
-                    changed |= self.propagate_calls_in_expr(&generator.iter, new_mutations, param_names);
+                    changed |=
+                        self.propagate_calls_in_expr(&generator.iter, new_mutations, param_names);
                     for cond in &generator.conditions {
                         changed |= self.propagate_calls_in_expr(cond, new_mutations, param_names);
                     }
@@ -778,6 +788,9 @@ impl<'a> MutationPropagator<'a> {
                         changed |= self.propagate_calls_in_expr(expr, new_mutations, param_names);
                     }
                 }
+            }
+            HirExpr::NamedExpr { value, .. } => {
+                changed |= self.propagate_calls_in_expr(value, new_mutations, param_names);
             }
             // Leaf expressions - no recursion needed
             HirExpr::Literal(_) | HirExpr::Var(_) | HirExpr::Uninitialized => {}

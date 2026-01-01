@@ -8,8 +8,8 @@ use crate::rust_gen::context::{CodeGenContext, RustCodeGen, ToRustExpr};
 use crate::rust_gen::func_gen::infer_expr_type_with_env;
 use crate::rust_gen::keywords::safe_ident; // Keyword escaping
 use crate::rust_gen::type_gen::rust_type_to_syn;
-use anyhow::{bail, Result};
-use quote::{format_ident, quote, ToTokens};
+use anyhow::{Result, bail};
+use quote::{ToTokens, format_ident, quote};
 use syn::{self, parse_quote};
 
 /// Helper to build nested dictionary access for assignment
@@ -267,6 +267,8 @@ fn infer_binary_expr_type(
         BinOp::FloorDiv => Type::Int,
         // Power can return either, but default to float for safety
         BinOp::Pow => Type::Float,
+        // Matrix multiplication - result depends on operands
+        BinOp::MatMul => Type::Unknown,
         // Comparison operators return bool
         BinOp::Eq
         | BinOp::NotEq
@@ -4794,6 +4796,16 @@ impl RustCodeGen for HirStmt {
                 target,
                 body,
             } => codegen_async_with_stmt(context, target, body, ctx),
+            HirStmt::Delete { targets } => codegen_delete_stmt(targets, ctx),
+            HirStmt::Import { .. } => codegen_import_stmt(),
+            HirStmt::ImportFrom { .. } => codegen_import_from_stmt(),
+            HirStmt::AsyncFunctionDef {
+                name,
+                params,
+                ret_type,
+                body,
+                docstring: _,
+            } => codegen_async_nested_function_def(name, params, ret_type, body, ctx),
         }
     }
 }
@@ -4901,6 +4913,41 @@ fn codegen_nested_function_def(
     })
 }
 
+/// Generate Rust code for async nested function definition.
+fn codegen_async_nested_function_def(
+    name: &str,
+    params: &[HirParam],
+    ret_type: &Type,
+    body: &[HirStmt],
+    ctx: &mut CodeGenContext,
+) -> Result<proc_macro2::TokenStream> {
+    use quote::quote;
+
+    let fn_name = syn::Ident::new(name, proc_macro2::Span::call_site());
+
+    let param_tokens: Vec<proc_macro2::TokenStream> = params
+        .iter()
+        .map(|p| {
+            let param_name = syn::Ident::new(&p.name, proc_macro2::Span::call_site());
+            let param_type = hir_type_to_tokens(&p.ty, ctx);
+            quote! { #param_name: #param_type }
+        })
+        .collect();
+
+    let return_type = hir_type_to_tokens(ret_type, ctx);
+
+    let body_tokens: Vec<proc_macro2::TokenStream> = body
+        .iter()
+        .map(|stmt| stmt.to_rust_tokens(ctx))
+        .collect::<Result<Vec<_>>>()?;
+
+    Ok(quote! {
+        async fn #fn_name(#(#param_tokens),*) -> #return_type {
+            #(#body_tokens)*
+        }
+    })
+}
+
 /// Generate Rust code for global statement.
 /// In Rust, global is typically a no-op as variable scoping is different.
 /// The actual variable needs to be declared as static at module level.
@@ -4917,6 +4964,22 @@ fn codegen_nonlocal_stmt(_names: &[String]) -> Result<proc_macro2::TokenStream> 
     // Nonlocal statement is a declaration marker in Python, not executable code.
     // The actual semantics require tracking captured variables in closures.
     // For now, emit nothing as the closure capture handles this.
+    Ok(quote! {})
+}
+
+/// Generate Rust code for import statement inside function.
+/// In Rust, use statements are typically at module level. Local imports are no-ops.
+fn codegen_import_stmt() -> Result<proc_macro2::TokenStream> {
+    // Import statement inside a function is a no-op in Rust.
+    // The module imports are handled at the module level.
+    Ok(quote! {})
+}
+
+/// Generate Rust code for import-from statement inside function.
+/// In Rust, use statements are typically at module level. Local imports are no-ops.
+fn codegen_import_from_stmt() -> Result<proc_macro2::TokenStream> {
+    // Import-from statement inside a function is a no-op in Rust.
+    // The module imports are handled at the module level.
     Ok(quote! {})
 }
 
@@ -4992,4 +5055,33 @@ fn convert_assign_target_to_pattern(target: &AssignTarget) -> Result<syn::Pat> {
         }
         _ => bail!("Unsupported pattern in async for target"),
     }
+}
+
+/// Generate Rust code for delete statement.
+/// In Rust, `del x` becomes `drop(x)`, `del d[k]` becomes `d.remove(&k)`.
+fn codegen_delete_stmt(
+    targets: &[AssignTarget],
+    ctx: &mut CodeGenContext,
+) -> Result<proc_macro2::TokenStream> {
+    let delete_stmts: Vec<proc_macro2::TokenStream> = targets
+        .iter()
+        .map(|target| match target {
+            AssignTarget::Symbol(name) => {
+                let ident = safe_ident(name);
+                Ok(quote! { drop(#ident); })
+            }
+            AssignTarget::Index { base, index } => {
+                let base_expr = base.to_rust_expr(ctx)?;
+                let index_expr = index.to_rust_expr(ctx)?;
+                Ok(quote! { #base_expr.remove(&#index_expr); })
+            }
+            AssignTarget::Attribute { value, attr } => {
+                let value_expr = value.to_rust_expr(ctx)?;
+                let attr_ident = safe_ident(attr);
+                Ok(quote! { drop(#value_expr.#attr_ident); })
+            }
+            _ => Ok(quote! {}),
+        })
+        .collect::<Result<Vec<_>>>()?;
+    Ok(quote! { #(#delete_stmts)* })
 }

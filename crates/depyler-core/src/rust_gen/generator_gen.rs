@@ -95,8 +95,10 @@ fn infer_yield_type(expr: &HirExpr) -> Type {
             Literal::Bytes(_) => Type::Custom("bytes".to_string()),
             Literal::Bool(_) => Type::Bool,
             Literal::None => Type::None,
+            Literal::Ellipsis => Type::None,
+            Literal::Complex(_, _) => Type::Custom("num::Complex<f64>".to_string()),
         },
-        HirExpr::Var(_) => Type::Int, // Default to Int for variables without type info
+        HirExpr::Var(_) => Type::Int,
         _ => Type::Unknown,
     }
 }

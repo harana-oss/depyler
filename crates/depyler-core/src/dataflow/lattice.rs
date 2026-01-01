@@ -265,6 +265,8 @@ impl TypeLattice {
             crate::hir::Literal::Bytes(_) => Type::Custom("bytes".to_string()),
             crate::hir::Literal::Bool(_) => Type::Bool,
             crate::hir::Literal::None => Type::None,
+            crate::hir::Literal::Ellipsis => Type::None,
+            crate::hir::Literal::Complex(_, _) => Type::Custom("num::Complex<f64>".to_string()),
         }
     }
 
@@ -288,6 +290,8 @@ impl TypeLattice {
                 (Type::Int, Type::Int) => Type::Int,
                 _ => Type::Unknown,
             },
+            // Matrix multiplication - result depends on operand types
+            BinOp::MatMul => Type::Unknown,
             // Comparison - always bool (include identity checks)
             BinOp::Eq | BinOp::NotEq | BinOp::Lt | BinOp::LtEq | BinOp::Gt | BinOp::GtEq | BinOp::Is | BinOp::IsNot => {
                 Type::Bool

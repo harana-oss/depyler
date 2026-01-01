@@ -250,6 +250,7 @@ fn is_var_used_in_stmt(var_name: &str, stmt: &HirStmt) -> bool {
         HirStmt::Global { names } | HirStmt::Nonlocal { names } => {
             names.iter().any(|n| n == var_name)
         }
+        HirStmt::Import { .. } | HirStmt::ImportFrom { .. } => false,
         HirStmt::AsyncFor { iter, body, .. } => {
             is_var_used_in_expr(var_name, iter)
                 || body.iter().any(|s| is_var_used_in_stmt(var_name, s))
@@ -257,6 +258,13 @@ fn is_var_used_in_stmt(var_name: &str, stmt: &HirStmt) -> bool {
         HirStmt::AsyncWith { context, body, .. } => {
             is_var_used_in_expr(var_name, context)
                 || body.iter().any(|s| is_var_used_in_stmt(var_name, s))
+        }
+        HirStmt::Delete { targets } => targets.iter().any(|t| match t {
+            AssignTarget::Symbol(name) => name == var_name,
+            _ => false,
+        }),
+        HirStmt::AsyncFunctionDef { body, .. } => {
+            body.iter().any(|s| is_var_used_in_stmt(var_name, s))
         }
     }
 }
@@ -335,6 +343,15 @@ fn is_var_used_in_expr(var_name: &str, expr: &HirExpr) -> bool {
                     .as_ref()
                     .is_some_and(|c| is_var_used_in_expr(var_name, c))
         }
+        HirExpr::FlattenedListComp { element, generators } => {
+            is_var_used_in_expr(var_name, element)
+                || generators.iter().any(|g| {
+                    is_var_used_in_expr(var_name, &g.iter)
+                        || g.conditions
+                            .iter()
+                            .any(|c| is_var_used_in_expr(var_name, c))
+                })
+        }
         HirExpr::DictComp {
             key,
             value,
@@ -369,6 +386,9 @@ fn is_var_used_in_expr(var_name: &str, expr: &HirExpr) -> bool {
         HirExpr::SortByKey {
             iterable, key_body, ..
         } => is_var_used_in_expr(var_name, iterable) || is_var_used_in_expr(var_name, key_body),
+        HirExpr::NamedExpr { target, value } => {
+            target == var_name || is_var_used_in_expr(var_name, value)
+        }
         HirExpr::Literal(_) | HirExpr::FString { .. } | HirExpr::Uninitialized => false,
     }
 }
@@ -632,7 +652,12 @@ fn codegen_single_param(
 ) -> Result<proc_macro2::TokenStream> {
     // Use parameter name directly to ensure signature matches body references
     // Parameter names in signature must match exactly how they're referenced in function body
-    let param_name = param.name.clone();
+    // Rename 'self' to 'self_param' since 'self' is a Rust keyword
+    let param_name = if param.name == "self" {
+        "self_param".to_string()
+    } else {
+        param.name.clone()
+    };
     let param_ident = syn::Ident::new(&param_name, proc_macro2::Span::call_site());
 
     // If so, type it as &Args instead of default type mapping
@@ -947,6 +972,7 @@ fn contains_owned_string_method(expr: &HirExpr) -> bool {
         | HirExpr::Attribute { .. }
         | HirExpr::Borrow { .. }
         | HirExpr::ListComp { .. }
+        | HirExpr::FlattenedListComp { .. }
         | HirExpr::SetComp { .. }
         | HirExpr::DictComp { .. }
         | HirExpr::Lambda { .. }
@@ -954,7 +980,8 @@ fn contains_owned_string_method(expr: &HirExpr) -> bool {
         | HirExpr::FString { .. }
         | HirExpr::Yield { .. }
         | HirExpr::SortByKey { .. }
-        | HirExpr::GeneratorExp { .. } => false,
+        | HirExpr::GeneratorExp { .. }
+        | HirExpr::NamedExpr { .. } => false,
         HirExpr::Uninitialized => false,
     }
 }
@@ -1568,7 +1595,9 @@ fn literal_to_type(lit: &Literal) -> Type {
         Literal::String(_) => Type::String,
         Literal::Bool(_) => Type::Bool,
         Literal::None => Type::None,
-        Literal::Bytes(_) => Type::Unknown, // No direct Bytes type in Type enum
+        Literal::Bytes(_) => Type::Unknown,
+        Literal::Ellipsis => Type::None,
+        Literal::Complex(_, _) => Type::Custom("num::Complex<f64>".to_string()),
     }
 }
 

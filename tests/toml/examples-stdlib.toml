@@ -30976,7 +30976,7 @@ def test_xml_set_attribute():
 
 def test_xml_find_element():
     """Test finding elements by tag name."""
-    xml_string = '''
+    xml_string = """
     <root>
         <person>
             <name>Alice</name>
@@ -30987,7 +30987,7 @@ def test_xml_find_element():
             <age>25</age>
         </person>
     </root>
-    '''
+    """
     root = ET.fromstring(xml_string)
     person = root.find('person')
     assert person is not None
@@ -30997,13 +30997,13 @@ def test_xml_find_element():
 
 def test_xml_findall_elements():
     """Test finding all elements with a tag name."""
-    xml_string = '''
+    xml_string = """
     <root>
         <item>First</item>
         <item>Second</item>
         <item>Third</item>
     </root>
-    '''
+    """
     root = ET.fromstring(xml_string)
     items = root.findall('item')
     assert len(items) == 3
@@ -31026,7 +31026,7 @@ def test_xml_to_string():
 
 def test_xml_nested_structure():
     """Test working with deeply nested XML structures."""
-    xml_string = '''
+    xml_string = """
     <catalog>
         <book id="1">
             <title>Python Guide</title>
@@ -31037,7 +31037,7 @@ def test_xml_nested_structure():
             <price>29.99</price>
         </book>
     </catalog>
-    '''
+    """
     root = ET.fromstring(xml_string)
     book = root.find('book')
     assert book.get('id') == '1'
@@ -31050,13 +31050,13 @@ def test_xml_nested_structure():
 
 def test_xml_iterate_children():
     """Test iterating over child elements."""
-    xml_string = '''
+    xml_string = """
     <root>
         <a>1</a>
         <b>2</b>
         <c>3</c>
     </root>
-    '''
+    """
     root = ET.fromstring(xml_string)
     tags = []
     texts = []
@@ -32560,7 +32560,7 @@ def test_xml_set_attribute():
 
 def test_xml_find_element():
     """Test finding elements by tag name."""
-    xml_string = '''
+    xml_string = """
     <root>
         <person>
             <name>Alice</name>
@@ -32571,7 +32571,7 @@ def test_xml_find_element():
             <age>25</age>
         </person>
     </root>
-    '''
+    """
     root = ET.fromstring(xml_string)
     person = root.find('person')
     assert person is not None
@@ -32581,13 +32581,13 @@ def test_xml_find_element():
 
 def test_xml_findall_elements():
     """Test finding all elements with a tag name."""
-    xml_string = '''
+    xml_string = """
     <root>
         <item>First</item>
         <item>Second</item>
         <item>Third</item>
     </root>
-    '''
+    """
     root = ET.fromstring(xml_string)
     items = root.findall('item')
     assert len(items) == 3
@@ -32610,7 +32610,7 @@ def test_xml_to_string():
 
 def test_xml_nested_structure():
     """Test working with deeply nested XML structures."""
-    xml_string = '''
+    xml_string = """
     <catalog>
         <book id="1">
             <title>Python Guide</title>
@@ -32621,7 +32621,7 @@ def test_xml_nested_structure():
             <price>29.99</price>
         </book>
     </catalog>
-    '''
+    """
     root = ET.fromstring(xml_string)
     book = root.find('book')
     assert book.get('id') == '1'
@@ -32634,13 +32634,13 @@ def test_xml_nested_structure():
 
 def test_xml_iterate_children():
     """Test iterating over child elements."""
-    xml_string = '''
+    xml_string = """
     <root>
         <a>1</a>
         <b>2</b>
         <c>3</c>
     </root>
-    '''
+    """
     root = ET.fromstring(xml_string)
     tags = []
     texts = []

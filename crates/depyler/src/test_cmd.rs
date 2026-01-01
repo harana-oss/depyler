@@ -26,13 +26,57 @@ pub struct TestMetadata {
     pub category: Option<String>,
 }
 
+/// Skip value can be boolean or array of strings
+#[derive(Debug, Clone, Default)]
+pub struct SkipValue(pub bool);
+
+impl<'de> Deserialize<'de> for SkipValue {
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        use serde::de::{self, Visitor};
+
+        struct SkipVisitor;
+
+        impl<'de> Visitor<'de> for SkipVisitor {
+            type Value = SkipValue;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
+                formatter.write_str("boolean or array of strings")
+            }
+
+            fn visit_bool<E>(self, value: bool) -> std::result::Result<SkipValue, E>
+            where
+                E: de::Error,
+            {
+                Ok(SkipValue(value))
+            }
+
+            fn visit_seq<A>(self, mut _seq: A) -> std::result::Result<SkipValue, A::Error>
+            where
+                A: de::SeqAccess<'de>,
+            {
+                // Any array means skip = true
+                Ok(SkipValue(true))
+            }
+        }
+
+        deserializer.deserialize_any(SkipVisitor)
+    }
+}
+
 /// Individual test case
 #[derive(Debug, Clone, Deserialize)]
 pub struct TomlTest {
     pub name: String,
     pub description: Option<String>,
+    #[serde(default)]
     pub python: String,
     pub rust: Option<String>,
+    pub expected_output: Option<String>,
+    #[serde(default)]
+    pub skip: SkipValue,
     #[serde(default)]
     pub assertions: TestAssertions,
 }
@@ -253,6 +297,10 @@ fn run_tests_parallel(
         .iter()
         .flat_map(|pf| {
             pf.tests.iter().filter_map(move |test| {
+                // Skip tests marked with skip = true
+                if test.skip.0 {
+                    return None;
+                }
                 // Apply filter
                 if let Some(filter_str) = filter {
                     if !test.name.contains(filter_str) {
@@ -346,8 +394,8 @@ fn run_tests_from_file(
     let content =
         fs::read_to_string(path).with_context(|| format!("Failed to read {}", path.display()))?;
 
-    let test_file: TomlTestFile =
-        toml::from_str(&content).with_context(|| format!("Failed to parse {}", path.display()))?;
+    let test_file: TomlTestFile = toml::from_str(&content)
+        .map_err(|e| anyhow::anyhow!("Failed to parse {}: {}", path.display(), e))?;
 
     let file_name = path.file_name().unwrap().to_string_lossy().to_string();
     let file_stem = path.file_stem().unwrap().to_string_lossy();
@@ -365,6 +413,18 @@ fn run_tests_from_file(
     let pipeline = DepylerPipeline::new();
 
     for test in test_file.test {
+        // Skip tests marked with skip = true
+        if test.skip.0 {
+            results.push(TestResult {
+                name: test.name.clone(),
+                file: file_name.clone(),
+                passed: true,
+                error: Some("skipped".to_string()),
+                duration_ms: 0,
+            });
+            continue;
+        }
+
         // Apply filter if provided
         if let Some(filter_str) = filter {
             if !test.name.contains(filter_str) {

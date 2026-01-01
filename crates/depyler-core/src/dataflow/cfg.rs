@@ -246,7 +246,8 @@ impl CfgBuilder {
             .get(&self.current_block)
             .is_some_and(|b| b.terminator.is_none())
         {
-            self.cfg.set_terminator(self.current_block, Terminator::Return(None));
+            self.cfg
+                .set_terminator(self.current_block, Terminator::Return(None));
             self.cfg.add_edge(self.current_block, self.cfg.exit);
         }
 
@@ -289,7 +290,8 @@ impl CfgBuilder {
                 self.build_for(target, iter, body);
             }
             HirStmt::Expr(expr) => {
-                self.cfg.add_stmt(self.current_block, CfgStmt::Expr(expr.clone()));
+                self.cfg
+                    .add_stmt(self.current_block, CfgStmt::Expr(expr.clone()));
             }
             HirStmt::Break { .. } => {
                 if let Some(ctx) = self.loop_stack.last() {
@@ -321,7 +323,8 @@ impl CfgBuilder {
             }
             HirStmt::Raise { .. } => {
                 // Raise terminates control flow similar to return
-                self.cfg.set_terminator(self.current_block, Terminator::Unreachable);
+                self.cfg
+                    .set_terminator(self.current_block, Terminator::Unreachable);
                 self.current_block = self.cfg.new_block();
             }
             HirStmt::Try {
@@ -355,6 +358,9 @@ impl CfgBuilder {
             HirStmt::Global { .. } | HirStmt::Nonlocal { .. } => {
                 // Declaration markers - no effect on control flow
             }
+            HirStmt::Import { .. } | HirStmt::ImportFrom { .. } => {
+                // Import statements - no effect on control flow
+            }
             HirStmt::AsyncFor { iter, body, target } => {
                 // Similar to regular for loop but with async semantics
                 self.build_for(target, iter, body);
@@ -362,10 +368,23 @@ impl CfgBuilder {
             HirStmt::AsyncWith { body, .. } => {
                 self.build_body(body);
             }
+            HirStmt::Delete { .. } => {
+                // Delete statements don't affect control flow
+            }
+            HirStmt::AsyncFunctionDef { body, .. } => {
+                // Async nested function definitions don't affect outer CFG
+                // but we might want to analyze their body separately
+                self.build_body(body);
+            }
         }
     }
 
-    fn build_assign(&mut self, target: &AssignTarget, value: &HirExpr, type_annotation: Option<Type>) {
+    fn build_assign(
+        &mut self,
+        target: &AssignTarget,
+        value: &HirExpr,
+        type_annotation: Option<Type>,
+    ) {
         match target {
             AssignTarget::Symbol(name) => {
                 self.cfg.add_stmt(
@@ -418,7 +437,12 @@ impl CfgBuilder {
         }
     }
 
-    fn build_if(&mut self, condition: &HirExpr, then_body: &[HirStmt], else_body: &Option<Vec<HirStmt>>) {
+    fn build_if(
+        &mut self,
+        condition: &HirExpr,
+        then_body: &[HirStmt],
+        else_body: &Option<Vec<HirStmt>>,
+    ) {
         let then_block = self.cfg.new_block();
         let else_block = self.cfg.new_block();
         let merge_block = self.cfg.new_block();

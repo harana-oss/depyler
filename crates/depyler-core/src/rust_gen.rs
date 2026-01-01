@@ -4,7 +4,7 @@ use crate::expr_utils::extract_root_var;
 use crate::hir::*;
 use crate::string_optimization::StringOptimizer;
 use anyhow::Result;
-use quote::{quote, ToTokens};
+use quote::{ToTokens, quote};
 use std::collections::{HashMap, HashSet};
 use syn::{self, parse_quote};
 
@@ -1670,6 +1670,7 @@ fn generate_conditional_imports(ctx: &CodeGenContext) -> Vec<proc_macro2::TokenS
             ctx.needs_slice_random,
             quote! { use rand::seq::SliceRandom; },
         ),
+        (ctx.needs_complex, quote! { use num::Complex; }),
     ];
 
     // Add imports where needed
@@ -1772,6 +1773,8 @@ fn infer_constant_type(expr: &HirExpr) -> Type {
             Literal::Bool(_) => Type::Bool,
             Literal::None => Type::None,
             Literal::Bytes(_) => Type::Unknown,
+            Literal::Ellipsis => Type::None,
+            Literal::Complex(_, _) => Type::Custom("num::Complex<f64>".to_string()),
         },
         // Handle unary operations like -1 or +2
         HirExpr::Unary { op, operand } => {
@@ -1816,6 +1819,8 @@ fn infer_constant_type(expr: &HirExpr) -> Type {
                         Type::Int
                     }
                 }
+                // Matrix multiplication - result type depends on operands
+                BinOp::MatMul => Type::Unknown,
                 // Bitwise operators produce int
                 BinOp::BitAnd | BinOp::BitOr | BinOp::BitXor | BinOp::LShift | BinOp::RShift => {
                     Type::Int
@@ -2035,6 +2040,7 @@ pub fn generate_rust_file(
         needs_crc32: false,
         needs_url_encoding: false,
         needs_lazy_static: false,
+        needs_complex: false,
         declared_vars: vec![HashSet::new()],
         current_function_can_fail: false,
         current_return_type: None,

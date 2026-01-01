@@ -84,10 +84,19 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     /// Check if a keyword cannot be used as a raw identifier
     /// These special keywords (self, Self, super, crate) cannot use r# syntax
     fn is_non_raw_keyword(name: &str) -> bool {
-        matches!(name, "self" | "Self" | "super" | "crate")
+        matches!(name, "Self" | "super" | "crate")
+    }
+
+    /// Sanitize a variable name for use in Rust
+    /// Renames self -> self_param since `self` is a special keyword in Rust
+    fn sanitize_var_name(name: &str) -> &str {
+        if name == "self" { "self_param" } else { name }
     }
 
     fn convert_variable(&self, name: &str) -> Result<syn::Expr> {
+        // Sanitize the name - rename self to self_param
+        let name = Self::sanitize_var_name(name);
+
         // Check for special keywords that cannot be raw identifiers
         if Self::is_non_raw_keyword(name) {
             bail!(
@@ -830,6 +839,11 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                         }
                     }
                 }
+            }
+            BinOp::MatMul => {
+                // Matrix multiplication operator @ in Python
+                // Rust doesn't have a built-in @ operator, so we emit a matmul function call
+                Ok(parse_quote! { matmul(#left_expr, #right_expr) })
             }
             // Python: `if a and b:` where a, b are strings/lists/etc.
             // Rust: `if (!a.is_empty()) && (!b.is_empty())`
@@ -4166,6 +4180,20 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 parse_quote! { regex::Regex::new(#pattern).unwrap().find(#text) }
             }
 
+            "fullmatch" => {
+                if arg_exprs.len() < 2 {
+                    bail!("re.fullmatch() requires at least 2 arguments (pattern, string)");
+                }
+                let pattern = &arg_exprs[0];
+                let text = &arg_exprs[1];
+
+                // re.fullmatch(pattern, text) → matches entire string
+                // In Rust regex, we use is_match with anchors or capture the whole string
+                parse_quote! {
+                    regex::Regex::new(#pattern).unwrap().find(#text).filter(|m| m.start() == 0 && m.end() == #text.len())
+                }
+            }
+
             "findall" => {
                 if arg_exprs.len() < 2 {
                     bail!("re.findall() requires at least 2 arguments (pattern, string)");
@@ -5325,13 +5353,29 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 }
             }
 
-            // Base32 (note: base64 crate doesn't support base32, would need data-encoding crate)
-            "b32encode" | "b32decode" => {
-                // Simplified: note that full implementation needs data-encoding crate
-                bail!(
-                    "base64.{} requires data-encoding crate (not yet integrated)",
-                    method
-                );
+            // Base32 using data-encoding crate
+            "b32encode" => {
+                if arg_exprs.is_empty() || arg_exprs.len() > 1 {
+                    bail!("base64.b32encode() requires exactly 1 argument");
+                }
+                let data = &arg_exprs[0];
+
+                // base64.b32encode(data) → data_encoding::BASE32.encode(data).into_bytes()
+                parse_quote! {
+                    data_encoding::BASE32.encode(#data).into_bytes()
+                }
+            }
+
+            "b32decode" => {
+                if arg_exprs.is_empty() || arg_exprs.len() > 1 {
+                    bail!("base64.b32decode() requires exactly 1 argument");
+                }
+                let data = &arg_exprs[0];
+
+                // base64.b32decode(data) → data_encoding::BASE32.decode(data).unwrap()
+                parse_quote! {
+                    data_encoding::BASE32.decode(#data).unwrap()
+                }
             }
 
             // Base16 (Hex)
@@ -5487,7 +5531,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     /// Try to convert hashlib module method calls
     ///
     ///
-    /// Supports: md5, sha1, sha224, sha256, sha384, sha512, blake2b, blake2s
+    /// Supports: md5, sha1, sha224, sha256, sha384, sha512, sha3_256, blake2b, blake2s
     /// Returns hex digest directly (one-shot hashing pattern)
     ///
     /// # Complexity
@@ -5605,36 +5649,56 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
 
             // SHA-384 hash
             "sha384" => {
-                if arg_exprs.len() != 1 {
-                    bail!("hashlib.sha384() requires exactly 1 argument");
+                if arg_exprs.len() > 1 {
+                    bail!("hashlib.sha384() accepts 0 or 1 arguments");
                 }
                 self.ctx.needs_sha2 = true;
-                let data = &arg_exprs[0];
 
-                parse_quote! {
-                    {
-                        use sha2::Digest;
-                        let mut hasher = sha2::Sha384::new();
-                        hasher.update(#data);
-                        hex::encode(hasher.finalize())
+                if arg_exprs.is_empty() {
+                    parse_quote! {
+                        {
+                            use sha2::Digest;
+                            let mut hasher = sha2::Sha384::new();
+                            hex::encode(hasher.finalize())
+                        }
+                    }
+                } else {
+                    let data = &arg_exprs[0];
+                    parse_quote! {
+                        {
+                            use sha2::Digest;
+                            let mut hasher = sha2::Sha384::new();
+                            hasher.update(#data);
+                            hex::encode(hasher.finalize())
+                        }
                     }
                 }
             }
 
             // SHA-512 hash
             "sha512" => {
-                if arg_exprs.len() != 1 {
-                    bail!("hashlib.sha512() requires exactly 1 argument");
+                if arg_exprs.len() > 1 {
+                    bail!("hashlib.sha512() accepts 0 or 1 arguments");
                 }
                 self.ctx.needs_sha2 = true;
-                let data = &arg_exprs[0];
 
-                parse_quote! {
-                    {
-                        use sha2::Digest;
-                        let mut hasher = sha2::Sha512::new();
-                        hasher.update(#data);
-                        hex::encode(hasher.finalize())
+                if arg_exprs.is_empty() {
+                    parse_quote! {
+                        {
+                            use sha2::Digest;
+                            let mut hasher = sha2::Sha512::new();
+                            hex::encode(hasher.finalize())
+                        }
+                    }
+                } else {
+                    let data = &arg_exprs[0];
+                    parse_quote! {
+                        {
+                            use sha2::Digest;
+                            let mut hasher = sha2::Sha512::new();
+                            hasher.update(#data);
+                            hex::encode(hasher.finalize())
+                        }
                     }
                 }
             }
@@ -5675,9 +5739,27 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 }
             }
 
+            // SHA3-256 hash
+            "sha3_256" => {
+                if arg_exprs.len() != 1 {
+                    bail!("hashlib.sha3_256() requires exactly 1 argument");
+                }
+                self.ctx.needs_sha3 = true;
+                let data = &arg_exprs[0];
+
+                parse_quote! {
+                    {
+                        use sha3::Digest;
+                        let mut hasher = sha3::Sha3_256::new();
+                        hasher.update(#data);
+                        hex::encode(hasher.finalize())
+                    }
+                }
+            }
+
             _ => {
                 bail!(
-                    "hashlib.{} not implemented yet (try: md5, sha1, sha224, sha256, sha384, sha512, blake2b, blake2s)",
+                    "hashlib.{} not implemented yet (try: md5, sha1, sha224, sha256, sha384, sha512, sha3_256, blake2b, blake2s)",
                     method
                 );
             }
@@ -5689,11 +5771,11 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     /// Try to convert uuid module method calls
     ///
     ///
-    /// Supports: uuid1 (time-based), uuid4 (random)
+    /// Supports: uuid1 (time-based), uuid3 (MD5), uuid4 (random), uuid5 (SHA1)
     /// Returns string representation of UUID
     ///
     /// # Complexity
-    /// Cyclomatic: 3 (match with 2 functions + default)
+    /// Cyclomatic: 5 (match with 4 functions + default)
     #[inline]
     fn try_convert_uuid_method(
         &mut self,
@@ -5728,6 +5810,23 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 }
             }
 
+            // UUID v3 - MD5 hash-based
+            "uuid3" => {
+                if arg_exprs.len() != 2 {
+                    bail!("uuid.uuid3() requires exactly 2 arguments (namespace, name)");
+                }
+                let namespace = &arg_exprs[0];
+                let name = &arg_exprs[1];
+
+                // uuid.uuid3(namespace, name) → Uuid::new_v3(&namespace, name.as_bytes()).to_string()
+                parse_quote! {
+                    {
+                        use uuid::Uuid;
+                        Uuid::new_v3(&#namespace, #name.as_bytes()).to_string()
+                    }
+                }
+            }
+
             // UUID v4 - random (most common)
             "uuid4" => {
                 if !arg_exprs.is_empty() {
@@ -5743,8 +5842,28 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 }
             }
 
+            // UUID v5 - SHA1 hash-based
+            "uuid5" => {
+                if arg_exprs.len() != 2 {
+                    bail!("uuid.uuid5() requires exactly 2 arguments (namespace, name)");
+                }
+                let namespace = &arg_exprs[0];
+                let name = &arg_exprs[1];
+
+                // uuid.uuid5(namespace, name) → Uuid::new_v5(&namespace, name.as_bytes()).to_string()
+                parse_quote! {
+                    {
+                        use uuid::Uuid;
+                        Uuid::new_v5(&#namespace, #name.as_bytes()).to_string()
+                    }
+                }
+            }
+
             _ => {
-                bail!("uuid.{} not implemented yet (try: uuid1, uuid4)", method);
+                bail!(
+                    "uuid.{} not implemented yet (try: uuid1, uuid3, uuid4, uuid5)",
+                    method
+                );
             }
         };
 
@@ -5779,25 +5898,38 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         let result = match method {
             // HMAC creation - simplified to SHA256
             "new" => {
-                if arg_exprs.len() < 2 {
-                    bail!("hmac.new() requires at least 2 arguments (key, message)");
+                if arg_exprs.is_empty() {
+                    bail!("hmac.new() requires at least 1 argument (key)");
                 }
                 let key = &arg_exprs[0];
-                let msg = &arg_exprs[1];
 
-                // NOTE: Parse digestmod argument (arg_exprs[2]) to support multiple HMAC algorithms ()
-                // For now, hardcode SHA256 as most common
+                // Check if we have a message (2nd positional arg) or just key + digestmod
+                // hmac.new(key, msg, digestmod) or hmac.new(key, digestmod=hashlib.sha256)
+                if arg_exprs.len() >= 2 {
+                    let msg = &arg_exprs[1];
+                    // hmac.new(key, msg, hashlib.sha256) → HMAC-SHA256 hex digest
+                    parse_quote! {
+                        {
+                            use hmac::{Hmac, Mac};
+                            use sha2::Sha256;
 
-                // hmac.new(key, msg, hashlib.sha256) → HMAC-SHA256 hex digest
-                parse_quote! {
-                    {
-                        use hmac::{Hmac, Mac};
-                        use sha2::Sha256;
+                            type HmacSha256 = Hmac<Sha256>;
+                            let mut mac = HmacSha256::new_from_slice(#key).expect("HMAC key error");
+                            mac.update(#msg);
+                            hex::encode(mac.finalize().into_bytes())
+                        }
+                    }
+                } else {
+                    // hmac.new(key, digestmod=...) - returns HMAC object for incremental updates
+                    // We'll return a tuple of (mac_type, key) that can be used with .update()
+                    parse_quote! {
+                        {
+                            use hmac::{Hmac, Mac};
+                            use sha2::Sha256;
 
-                        type HmacSha256 = Hmac<Sha256>;
-                        let mut mac = HmacSha256::new_from_slice(#key).expect("HMAC key error");
-                        mac.update(#msg);
-                        hex::encode(mac.finalize().into_bytes())
+                            type HmacSha256 = Hmac<Sha256>;
+                            HmacSha256::new_from_slice(#key).expect("HMAC key error")
+                        }
                     }
                 }
             }
@@ -7110,6 +7242,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         &mut self,
         method: &str,
         args: &[HirExpr],
+        kwargs: &[(String, HirExpr)],
     ) -> Result<Option<syn::Expr>> {
         // Convert arguments first
         let arg_exprs: Vec<syn::Expr> = args
@@ -7324,9 +7457,72 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 }
             }
 
+            // Combinations - generate k-length combinations from iterable
+            "combinations" => {
+                if arg_exprs.len() < 2 {
+                    bail!("itertools.combinations() requires 2 arguments (iterable, r)");
+                }
+                let iterable = &arg_exprs[0];
+                let r = &arg_exprs[1];
+
+                parse_quote! {
+                    {
+                        use itertools::Itertools;
+                        let items: Vec<_> = #iterable.into_iter().collect();
+                        items.into_iter().combinations(#r as usize)
+                    }
+                }
+            }
+
+            // Permutations - generate k-length permutations from iterable
+            "permutations" => {
+                if arg_exprs.len() < 2 {
+                    bail!("itertools.permutations() requires 2 arguments (iterable, r)");
+                }
+                let iterable = &arg_exprs[0];
+                let r = &arg_exprs[1];
+
+                parse_quote! {
+                    {
+                        use itertools::Itertools;
+                        let items: Vec<_> = #iterable.into_iter().collect();
+                        items.into_iter().permutations(#r as usize)
+                    }
+                }
+            }
+
+            // Groupby - group consecutive elements by key function
+            "groupby" => {
+                // First arg is the iterable
+                if arg_exprs.is_empty() {
+                    bail!("itertools.groupby() requires at least 1 argument (iterable)");
+                }
+                let iterable = &arg_exprs[0];
+
+                // Try to find key in kwargs
+                let key_func_expr =
+                    if let Some((_, key_expr)) = kwargs.iter().find(|(k, _)| k == "key") {
+                        key_expr.to_rust_expr(self.ctx)?
+                    } else if arg_exprs.len() >= 2 {
+                        arg_exprs[1].clone()
+                    } else {
+                        // Default key: identity function
+                        parse_quote! { |x| x }
+                    };
+
+                parse_quote! {
+                    {
+                        use itertools::Itertools;
+                        let items = #iterable;
+                        let key_fn = #key_func_expr;
+                        items.into_iter().group_by(key_fn)
+                    }
+                }
+            }
+
             _ => {
                 bail!(
-                    "itertools.{} not implemented yet (available: count, cycle, repeat, chain, islice, takewhile, dropwhile, accumulate, compress)",
+                    "itertools.{} not implemented yet (available: count, cycle, repeat, chain, islice, takewhile, dropwhile, accumulate, compress, combinations, permutations, groupby)",
                     method
                 );
             }
@@ -9294,7 +9490,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
 
             //
             if module_name == "itertools" {
-                return self.try_convert_itertools_method(method, args);
+                return self.try_convert_itertools_method(method, args, kwargs);
             }
 
             //
@@ -9905,12 +10101,19 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 Ok(parse_quote! { #object_expr.to_lowercase() })
             }
             "strip" => {
-                if !arg_exprs.is_empty() {
-                    bail!("strip() with arguments not supported in V1");
+                if arg_exprs.is_empty() {
+                    // Just use trim() - if chained with methods like to_lowercase(), they return String
+                    // If used standalone where String is needed, the caller handles conversion
+                    Ok(parse_quote! { #object_expr.trim() })
+                } else if arg_exprs.len() == 1 {
+                    // strip(chars) - remove chars from both ends
+                    // Python: 'xxhelloxx'.strip('x') -> 'hello'
+                    // Rust: use trim_matches with char pattern
+                    let chars = &arg_exprs[0];
+                    Ok(parse_quote! { #object_expr.trim_matches(|c: char| #chars.contains(c)) })
+                } else {
+                    bail!("strip() takes at most 1 argument");
                 }
-                // Just use trim() - if chained with methods like to_lowercase(), they return String
-                // If used standalone where String is needed, the caller handles conversion
-                Ok(parse_quote! { #object_expr.trim() })
             }
             "startswith" => {
                 if hir_args.len() != 1 {
@@ -9959,8 +10162,23 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     Ok(
                         parse_quote! { #object_expr.split(#sep).map(|s| s.to_string()).collect::<Vec<String>>() },
                     )
+                } else if arg_exprs.len() == 2 {
+                    // split(sep, maxsplit) - Rust's splitn takes count as n+1
+                    // Python: 'a,b,c'.split(',', 1) -> ['a', 'b,c']
+                    // Rust: .splitn(2, ',')
+                    let sep: syn::Expr = match &hir_args[0] {
+                        HirExpr::Literal(Literal::String(s)) => parse_quote! { #s },
+                        _ => {
+                            let arg = &arg_exprs[0];
+                            parse_quote! { &#arg }
+                        }
+                    };
+                    let maxsplit = &arg_exprs[1];
+                    Ok(
+                        parse_quote! { #object_expr.splitn((#maxsplit + 1) as usize, #sep).map(|s| s.to_string()).collect::<Vec<String>>() },
+                    )
                 } else {
-                    bail!("split() with maxsplit not supported in V1");
+                    bail!("split() takes at most 2 arguments");
                 }
             }
             "join" => {
@@ -10907,6 +11125,18 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
 
         // String methods like upper/lower should be converted even for method parameters
         // that might be typed as class instances (due to how we track types)
+        // BUT: check for module calls first (e.g., os.path.join should NOT be treated as string join)
+        if let HirExpr::Attribute { value, attr } = object {
+            if let HirExpr::Var(module_name) = &**value {
+                // Check for os.path module methods before falling through to string methods
+                if module_name == "os" && attr == "path" {
+                    if let Some(result) = self.try_convert_os_path_method(method, hir_args)? {
+                        return Ok(result);
+                    }
+                }
+            }
+        }
+
         if matches!(
             method,
             "upper"
@@ -11114,8 +11344,11 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             // Set methods (for variables without type info)
             // Note: "update" handled separately above with disambiguation logic
             // Note: "remove" is ambiguous (list vs set) - keep in list fallback for now
-            "add"
-            | "discard"
+            // Note: "add" with != 1 arg is not a set add (could be user-defined method)
+            "add" if arg_exprs.len() == 1 => {
+                self.convert_set_method(&object_expr, method, arg_exprs, hir_args)
+            }
+            "discard"
             | "intersection_update"
             | "difference_update"
             | "symmetric_difference_update"
@@ -11172,6 +11405,28 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         args: &[HirExpr],
         kwargs: &[(String, HirExpr)],
     ) -> Result<syn::Expr> {
+        // Handle chained function calls: outer()() becomes outer().__call__()
+        // Convert __call__ to direct invocation of the closure
+        if method == "__call__" {
+            let callable_expr = object.to_rust_expr(self.ctx)?;
+            let arg_exprs: Vec<syn::Expr> = args
+                .iter()
+                .map(|arg| arg.to_rust_expr(self.ctx))
+                .collect::<Result<Vec<_>>>()?;
+            return Ok(parse_quote! { (#callable_expr)(#(#arg_exprs),*) });
+        }
+
+        // Check for module method calls first (e.g., os.path.join should NOT be treated as string join)
+        if let HirExpr::Attribute { value, attr } = object {
+            if let HirExpr::Var(module_name) = &**value {
+                if module_name == "os" && attr == "path" {
+                    if let Some(result) = self.try_convert_os_path_method(method, args)? {
+                        return Ok(result);
+                    }
+                }
+            }
+        }
+
         // This ensures string methods like upper/lower are converted even when
         // inside class methods where parameters might be mistyped as class instances
         if matches!(
@@ -12844,6 +13099,11 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                         // Return a compile-time constant tuple matching Python 3.11
                         parse_quote! { (3, 11) }
                     }
+                    // sys.modules is Python's runtime module registry
+                    // Rust modules are resolved at compile time, so we return an empty/mock HashMap
+                    "modules" => {
+                        parse_quote! { std::collections::HashMap::<String, ()>::new() }
+                    }
                     _ => {
                         bail!("sys.{} is not a recognized attribute", attr);
                     }
@@ -13367,16 +13627,12 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         iter: &HirExpr,
         condition: &Option<Box<HirExpr>>,
     ) -> Result<syn::Expr> {
-        // Use raw identifier if target is a Rust keyword (e.g., `fn`)
-        let target_ident = if Self::is_rust_keyword(target) {
-            syn::Ident::new_raw(target, proc_macro2::Span::call_site())
-        } else {
-            syn::Ident::new(target, proc_macro2::Span::call_site())
-        };
+        // Parse target as pattern (supports both simple variables and tuple unpacking)
+        let target_pat = self.parse_target_pattern(target)?;
         let element_expr = element.to_rust_expr(self.ctx)?;
 
         // Check if this is an identity map (element is just the target variable)
-        // Skip .map(|x| x) which is a no-op
+        // Skip .map(|x| x) which is a no-op (only for simple targets)
         let is_identity_map = matches!(element, HirExpr::Var(var_name) if var_name == target);
 
         // Check if the iterator is an Optional type (e.g., Optional[List[int]])
@@ -13416,10 +13672,18 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             false
         };
 
+        // Check if target is a tuple pattern (for enumerate() style iteration)
+        let is_tuple_target = target.starts_with('(');
+
         if let Some(cond) = condition {
             // Filter closures receive owned T after .iter().cloned()
             // So we need to generate *x for variable uses in the condition
-            let cond_with_deref = self.add_deref_to_var_uses(cond, target)?;
+            // Skip deref for tuple patterns as the unpacking handles it
+            let cond_with_deref = if is_tuple_target {
+                cond.to_rust_expr(self.ctx)?
+            } else {
+                self.add_deref_to_var_uses(cond, target)?
+            };
 
             if is_range {
                 // Ranges are already iterators, don't call .iter()
@@ -13428,14 +13692,14 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 if is_identity_map {
                     Ok(parse_quote! {
                         (#iter_expr)
-                            .filter(|&#target_ident| #cond_with_deref)
+                            .filter(|&#target_pat| #cond_with_deref)
                             .collect::<Vec<_>>()
                     })
                 } else {
                     Ok(parse_quote! {
                         (#iter_expr)
-                            .filter(|&#target_ident| #cond_with_deref)
-                            .map(|#target_ident| #element_expr)
+                            .filter(|&#target_pat| #cond_with_deref)
+                            .map(|#target_pat| #element_expr)
                             .collect::<Vec<_>>()
                     })
                 }
@@ -13449,7 +13713,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                         #iter_expr
                             .deserialize::<std::collections::HashMap<String, String>>()
                             .filter_map(|result| result.ok())
-                            .filter(|#target_ident| #cond_expr)
+                            .filter(|#target_pat| #cond_expr)
                             .collect::<Vec<_>>()
                     })
                 } else {
@@ -13457,8 +13721,8 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                         #iter_expr
                             .deserialize::<std::collections::HashMap<String, String>>()
                             .filter_map(|result| result.ok())
-                            .filter(|#target_ident| #cond_expr)
-                            .map(|#target_ident| #element_expr)
+                            .filter(|#target_pat| #cond_expr)
+                            .map(|#target_pat| #element_expr)
                             .collect::<Vec<_>>()
                     })
                 }
@@ -13470,7 +13734,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                         #iter_expr
                             .iter()
                             .cloned()
-                            .filter(|#target_ident| #cond_with_deref)
+                            .filter(|#target_pat| #cond_with_deref)
                             .collect::<Vec<_>>()
                     })
                 } else {
@@ -13478,8 +13742,8 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                         #iter_expr
                             .iter()
                             .cloned()
-                            .filter(|#target_ident| #cond_with_deref)
-                            .map(|#target_ident| #element_expr)
+                            .filter(|#target_pat| #cond_with_deref)
+                            .map(|#target_pat| #element_expr)
                             .collect::<Vec<_>>()
                     })
                 }
@@ -13490,7 +13754,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                         #iter_expr
                             .iter()
                             .cloned()
-                            .filter(|#target_ident| #cond_with_deref)
+                            .filter(|#target_pat| #cond_with_deref)
                             .collect::<Vec<_>>()
                     })
                 } else {
@@ -13498,8 +13762,8 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                         #iter_expr
                             .iter()
                             .cloned()
-                            .filter(|#target_ident| #cond_with_deref)
-                            .map(|#target_ident| #element_expr)
+                            .filter(|#target_pat| #cond_with_deref)
+                            .map(|#target_pat| #element_expr)
                             .collect::<Vec<_>>()
                     })
                 }
@@ -13515,7 +13779,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 } else {
                     Ok(parse_quote! {
                         (#iter_expr)
-                            .map(|#target_ident| #element_expr)
+                            .map(|#target_pat| #element_expr)
                             .collect::<Vec<_>>()
                     })
                 }
@@ -13535,7 +13799,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                         #iter_expr
                             .deserialize::<std::collections::HashMap<String, String>>()
                             .filter_map(|result| result.ok())
-                            .map(|#target_ident| #element_expr)
+                            .map(|#target_pat| #element_expr)
                             .collect::<Vec<_>>()
                     })
                 }
@@ -13554,7 +13818,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                         #iter_expr
                             .iter()
                             .cloned()
-                            .map(|#target_ident| #element_expr)
+                            .map(|#target_pat| #element_expr)
                             .collect::<Vec<_>>()
                     })
                 }
@@ -13573,7 +13837,113 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                         #iter_expr
                             .iter()
                             .cloned()
-                            .map(|#target_ident| #element_expr)
+                            .map(|#target_pat| #element_expr)
+                            .collect::<Vec<_>>()
+                    })
+                }
+            }
+        }
+    }
+
+    /// Convert flattened list comprehension with multiple generators
+    /// Python: [item for row in matrix for item in row]
+    /// Rust: matrix.iter().flat_map(|row| row.iter().cloned()).collect::<Vec<_>>()
+    fn convert_flattened_list_comp(
+        &mut self,
+        element: &HirExpr,
+        generators: &[HirComprehension],
+    ) -> Result<syn::Expr> {
+        // We need at least 2 generators for a flattened comprehension
+        if generators.len() < 2 {
+            bail!("FlattenedListComp requires at least 2 generators");
+        }
+
+        // Start with the outer iterator
+        let outer_gen = &generators[0];
+        let outer_target = self.parse_target_pattern(&outer_gen.target)?;
+        let outer_iter = outer_gen.iter.to_rust_expr(self.ctx)?;
+        let is_outer_range = self.is_range_expr(&outer_iter);
+
+        // Build the inner expression (which is another iterator chain)
+        // For [item for row in matrix for item in row], inner is `row.iter()`
+        let inner_gen = &generators[1];
+        let inner_target = self.parse_target_pattern(&inner_gen.target)?;
+        let inner_iter = inner_gen.iter.to_rust_expr(self.ctx)?;
+        let is_inner_range = self.is_range_expr(&inner_iter);
+
+        // The element expression
+        let element_expr = element.to_rust_expr(self.ctx)?;
+
+        // Check if element is just the inner target variable (identity mapping)
+        let is_identity_map = matches!(element, HirExpr::Var(var) if var == &inner_gen.target);
+
+        // Build the result
+        if is_outer_range {
+            // Outer is a range, inner needs special handling
+            if is_inner_range {
+                // Both are ranges - direct flat_map
+                if is_identity_map {
+                    Ok(parse_quote! {
+                        (#outer_iter)
+                            .flat_map(|#outer_target| #inner_iter)
+                            .collect::<Vec<_>>()
+                    })
+                } else {
+                    Ok(parse_quote! {
+                        (#outer_iter)
+                            .flat_map(|#outer_target| (#inner_iter).map(|#inner_target| #element_expr))
+                            .collect::<Vec<_>>()
+                    })
+                }
+            } else {
+                // Inner is a collection
+                if is_identity_map {
+                    Ok(parse_quote! {
+                        (#outer_iter)
+                            .flat_map(|#outer_target| #inner_iter.iter().cloned())
+                            .collect::<Vec<_>>()
+                    })
+                } else {
+                    Ok(parse_quote! {
+                        (#outer_iter)
+                            .flat_map(|#outer_target| #inner_iter.iter().cloned().map(|#inner_target| #element_expr))
+                            .collect::<Vec<_>>()
+                    })
+                }
+            }
+        } else {
+            // Outer is a collection
+            if is_inner_range {
+                // Inner is a range
+                if is_identity_map {
+                    Ok(parse_quote! {
+                        #outer_iter
+                            .iter()
+                            .flat_map(|#outer_target| #inner_iter)
+                            .collect::<Vec<_>>()
+                    })
+                } else {
+                    Ok(parse_quote! {
+                        #outer_iter
+                            .iter()
+                            .flat_map(|#outer_target| (#inner_iter).map(|#inner_target| #element_expr))
+                            .collect::<Vec<_>>()
+                    })
+                }
+            } else {
+                // Both are collections
+                if is_identity_map {
+                    Ok(parse_quote! {
+                        #outer_iter
+                            .iter()
+                            .flat_map(|#outer_target| #inner_iter.iter().cloned())
+                            .collect::<Vec<_>>()
+                    })
+                } else {
+                    Ok(parse_quote! {
+                        #outer_iter
+                            .iter()
+                            .flat_map(|#outer_target| #inner_iter.iter().cloned().map(|#inner_target| #element_expr))
                             .collect::<Vec<_>>()
                     })
                 }
@@ -13703,6 +14073,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     BinOp::FloorDiv => parse_quote! { #left_expr / #right_expr },
                     BinOp::Mod => parse_quote! { #left_expr % #right_expr },
                     BinOp::Pow => parse_quote! { #left_expr.pow(#right_expr as u32) },
+                    BinOp::MatMul => parse_quote! { matmul(#left_expr, #right_expr) },
                     BinOp::Eq => parse_quote! { #left_expr == #right_expr },
                     BinOp::NotEq => parse_quote! { #left_expr != #right_expr },
                     BinOp::Lt => parse_quote! { #left_expr < #right_expr },
@@ -14445,12 +14816,8 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         // and then .cloned() converts to T for the next stage.
 
         self.ctx.needs_hashset = true;
-        // Use raw identifier if target is a Rust keyword
-        let target_ident = if Self::is_rust_keyword(target) {
-            syn::Ident::new_raw(target, proc_macro2::Span::call_site())
-        } else {
-            syn::Ident::new(target, proc_macro2::Span::call_site())
-        };
+        // Parse target as pattern (supports both simple variables and tuple unpacking)
+        let target_pat = self.parse_target_pattern(target)?;
         let iter_expr = iter.to_rust_expr(self.ctx)?;
         let element_expr = element.to_rust_expr(self.ctx)?;
 
@@ -14467,14 +14834,14 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 if is_identity_map {
                     Ok(parse_quote! {
                         (#iter_expr)
-                            .filter(|#target_ident| #cond_expr)
+                            .filter(|#target_pat| #cond_expr)
                             .collect::<HashSet<_>>()
                     })
                 } else {
                     Ok(parse_quote! {
                         (#iter_expr)
-                            .filter(|#target_ident| #cond_expr)
-                            .map(|#target_ident| #element_expr)
+                            .filter(|#target_pat| #cond_expr)
+                            .map(|#target_pat| #element_expr)
                             .collect::<HashSet<_>>()
                     })
                 }
@@ -14485,7 +14852,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     Ok(parse_quote! {
                         #iter_expr
                             .iter()
-                            .filter(|&#target_ident| #cond_expr)
+                            .filter(|&#target_pat| #cond_expr)
                             .cloned()
                             .collect::<HashSet<_>>()
                     })
@@ -14493,9 +14860,9 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     Ok(parse_quote! {
                         #iter_expr
                             .iter()
-                            .filter(|&#target_ident| #cond_expr)
+                            .filter(|&#target_pat| #cond_expr)
                             .cloned()
-                            .map(|#target_ident| #element_expr)
+                            .map(|#target_pat| #element_expr)
                             .collect::<HashSet<_>>()
                     })
                 }
@@ -14508,7 +14875,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             } else {
                 Ok(parse_quote! {
                     (#iter_expr)
-                        .map(|#target_ident| #element_expr)
+                        .map(|#target_pat| #element_expr)
                         .collect::<HashSet<_>>()
                 })
             }
@@ -14524,7 +14891,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 #iter_expr
                     .iter()
                     .cloned()
-                    .map(|#target_ident| #element_expr)
+                    .map(|#target_pat| #element_expr)
                     .collect::<HashSet<_>>()
             })
         }
@@ -14549,12 +14916,8 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         // and then .cloned() converts to T for the next stage.
 
         self.ctx.needs_hashmap = true;
-        // Use raw identifier if target is a Rust keyword
-        let target_ident = if Self::is_rust_keyword(target) {
-            syn::Ident::new_raw(target, proc_macro2::Span::call_site())
-        } else {
-            syn::Ident::new(target, proc_macro2::Span::call_site())
-        };
+        // Parse target as pattern (supports both simple variables and tuple unpacking)
+        let target_pat = self.parse_target_pattern(target)?;
         let iter_expr = iter.to_rust_expr(self.ctx)?;
         let key_expr = key.to_rust_expr(self.ctx)?;
         let value_expr = value.to_rust_expr(self.ctx)?;
@@ -14568,8 +14931,8 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 // Range items are owned (i32, etc.), so no dereference needed
                 Ok(parse_quote! {
                     (#iter_expr)
-                        .filter(|#target_ident| #cond_expr)
-                        .map(|#target_ident| (#key_expr, #value_expr))
+                        .filter(|#target_pat| #cond_expr)
+                        .map(|#target_pat| (#key_expr, #value_expr))
                         .collect::<HashMap<_, _>>()
                 })
             } else {
@@ -14578,16 +14941,16 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 Ok(parse_quote! {
                     #iter_expr
                         .iter()
-                        .filter(|&#target_ident| #cond_expr)
+                        .filter(|&#target_pat| #cond_expr)
                         .cloned()
-                        .map(|#target_ident| (#key_expr, #value_expr))
+                        .map(|#target_pat| (#key_expr, #value_expr))
                         .collect::<HashMap<_, _>>()
                 })
             }
         } else if is_range {
             Ok(parse_quote! {
                 (#iter_expr)
-                    .map(|#target_ident| (#key_expr, #value_expr))
+                    .map(|#target_pat| (#key_expr, #value_expr))
                     .collect::<HashMap<_, _>>()
             })
         } else {
@@ -14595,7 +14958,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 #iter_expr
                     .iter()
                     .cloned()
-                    .map(|#target_ident| (#key_expr, #value_expr))
+                    .map(|#target_pat| (#key_expr, #value_expr))
                     .collect::<HashMap<_, _>>()
             })
         }
@@ -15386,6 +15749,26 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             Ok(parse_quote! { #ident })
         }
     }
+
+    /// Convert a named expression (walrus operator): (x := expr)
+    /// Python: (x := expensive_func(a)) or in comprehension: [y for x in data if (y := f(x)) > 5]
+    /// When used in a comprehension condition, this is handled specially by the comprehension code.
+    /// In other contexts, we emit a block: { let x = expr; x }
+    fn convert_named_expr(&mut self, target: &str, value: &HirExpr) -> Result<syn::Expr> {
+        let value_expr = value.to_rust_expr(self.ctx)?;
+        let ident = if Self::is_rust_keyword(target) {
+            syn::Ident::new_raw(target, proc_macro2::Span::call_site())
+        } else {
+            syn::Ident::new(target, proc_macro2::Span::call_site())
+        };
+        // Emit: { let x = expr; x }
+        Ok(parse_quote! {
+            {
+                let #ident = #value_expr;
+                #ident
+            }
+        })
+    }
 }
 
 impl ToRustExpr for HirExpr {
@@ -15394,7 +15777,7 @@ impl ToRustExpr for HirExpr {
 
         match self {
             HirExpr::Literal(lit) => {
-                let expr = literal_to_rust_expr(lit, &ctx.string_optimizer, &ctx.needs_cow, ctx);
+                let expr = literal_to_rust_expr(lit, ctx);
                 if let Literal::String(s) = lit {
                     let context = StringContext::Literal(s.clone());
                     if matches!(
@@ -15479,6 +15862,10 @@ impl ToRustExpr for HirExpr {
                 iter,
                 condition,
             } => converter.convert_list_comp(element, target, iter, condition),
+            HirExpr::FlattenedListComp {
+                element,
+                generators,
+            } => converter.convert_flattened_list_comp(element, generators),
             HirExpr::Lambda { params, body } => converter.convert_lambda(params, body),
             HirExpr::SetComp {
                 element,
@@ -15507,6 +15894,7 @@ impl ToRustExpr for HirExpr {
                 element,
                 generators,
             } => converter.convert_generator_expression(element, generators),
+            HirExpr::NamedExpr { target, value } => converter.convert_named_expr(target, value),
             HirExpr::Uninitialized => {
                 bail!("Uninitialized expression cannot be converted to a Rust expression")
             }
@@ -15514,12 +15902,7 @@ impl ToRustExpr for HirExpr {
     }
 }
 
-fn literal_to_rust_expr(
-    lit: &Literal,
-    _string_optimizer: &StringOptimizer,
-    _needs_cow: &bool,
-    ctx: &CodeGenContext,
-) -> syn::Expr {
+fn literal_to_rust_expr(lit: &Literal, ctx: &mut CodeGenContext) -> syn::Expr {
     match lit {
         Literal::Int(n) => {
             let lit = syn::LitInt::new(&n.to_string(), proc_macro2::Span::call_site());
@@ -15557,6 +15940,31 @@ fn literal_to_rust_expr(
             // When Python code uses None explicitly (e.g., in ternary expressions),
             // it should become Rust's None, not ()
             parse_quote! { None }
+        }
+        Literal::Ellipsis => {
+            // Python's ... (Ellipsis) becomes () in Rust as a placeholder
+            parse_quote! { () }
+        }
+        Literal::Complex(real, imag) => {
+            // Python complex numbers become num::Complex<f64>
+            ctx.mark_complex_used();
+            let real_lit = syn::LitFloat::new(
+                &if real.to_string().contains('.') || real.to_string().contains('e') {
+                    real.to_string()
+                } else {
+                    format!("{}.0", real)
+                },
+                proc_macro2::Span::call_site(),
+            );
+            let imag_lit = syn::LitFloat::new(
+                &if imag.to_string().contains('.') || imag.to_string().contains('e') {
+                    imag.to_string()
+                } else {
+                    format!("{}.0", imag)
+                },
+                proc_macro2::Span::call_site(),
+            );
+            parse_quote! { Complex::new(#real_lit, #imag_lit) }
         }
     }
 }

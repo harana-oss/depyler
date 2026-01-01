@@ -221,6 +221,8 @@ impl TypeInferencer {
             }
             // Global and Nonlocal are declaration markers, no type inference
             HirStmt::Global { .. } | HirStmt::Nonlocal { .. } => {}
+            // Import and ImportFrom are declaration markers, no type inference
+            HirStmt::Import { .. } | HirStmt::ImportFrom { .. } => {}
             // AsyncFor - analyze iterator and body
             HirStmt::AsyncFor { iter, body, .. } => {
                 self.infer_expr(iter)?;
@@ -229,6 +231,12 @@ impl TypeInferencer {
             // AsyncWith - analyze context and body
             HirStmt::AsyncWith { context, body, .. } => {
                 self.infer_expr(context)?;
+                self.infer_body(body)?;
+            }
+            // Delete - no type inference needed
+            HirStmt::Delete { .. } => {}
+            // AsyncFunctionDef - analyze body for type inference
+            HirStmt::AsyncFunctionDef { body, .. } => {
                 self.infer_body(body)?;
             }
         }
@@ -264,6 +272,10 @@ impl TypeInferencer {
             depyler_core::hir::Literal::Bytes(_) => Type::Custom("bytes".to_string()),
             depyler_core::hir::Literal::Bool(_) => Type::Bool,
             depyler_core::hir::Literal::None => Type::None,
+            depyler_core::hir::Literal::Ellipsis => Type::None,
+            depyler_core::hir::Literal::Complex(_, _) => {
+                Type::Custom("num::Complex<f64>".to_string())
+            }
         }
     }
 

@@ -448,6 +448,8 @@ impl BorrowingContext {
             }
             // Global and Nonlocal are declaration markers, no parameter usage
             HirStmt::Global { .. } | HirStmt::Nonlocal { .. } => {}
+            // Import and ImportFrom are declaration markers, no parameter usage
+            HirStmt::Import { .. } | HirStmt::ImportFrom { .. } => {}
             // AsyncFor - analyze iterator and body
             HirStmt::AsyncFor { iter, body, .. } => {
                 self.analyze_expression(iter, 0);
@@ -458,6 +460,22 @@ impl BorrowingContext {
             // AsyncWith - analyze context and body
             HirStmt::AsyncWith { context, body, .. } => {
                 self.analyze_expression(context, 0);
+                for stmt in body {
+                    self.analyze_statement(stmt);
+                }
+            }
+            // Delete - targets may be mutated (removed)
+            HirStmt::Delete { targets } => {
+                for target in targets {
+                    if let AssignTarget::Symbol(name) = target {
+                        if let Some(usage) = self.param_usage.get_mut(name) {
+                            usage.is_mutated = true;
+                        }
+                    }
+                }
+            }
+            // AsyncFunctionDef - analyze body for nested parameter captures
+            HirStmt::AsyncFunctionDef { body, .. } => {
                 for stmt in body {
                     self.analyze_statement(stmt);
                 }
@@ -675,6 +693,20 @@ impl BorrowingContext {
 
                 self.context_stack.pop();
             }
+            HirExpr::FlattenedListComp {
+                element,
+                generators,
+            } => {
+                self.context_stack.push(AnalysisContext::Loop);
+                for generator in generators {
+                    self.analyze_expression(&generator.iter, borrow_depth);
+                    for cond in &generator.conditions {
+                        self.analyze_expression(cond, borrow_depth);
+                    }
+                }
+                self.analyze_expression(element, borrow_depth);
+                self.context_stack.pop();
+            }
             HirExpr::FString { .. } => {
                 // FString support not yet implemented for borrowing analysis
             }
@@ -775,6 +807,10 @@ impl BorrowingContext {
                         self.analyze_expression(cond, borrow_depth);
                     }
                 }
+            }
+            HirExpr::NamedExpr { value, .. } => {
+                // Named expression (walrus operator) - analyze the value
+                self.analyze_expression(value, borrow_depth);
             }
             HirExpr::Uninitialized => {
                 // Nothing to analyze for uninitialized marker

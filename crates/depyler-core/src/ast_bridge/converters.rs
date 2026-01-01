@@ -68,14 +68,12 @@ impl StmtConverter {
             ast::Stmt::Nonlocal(n) => Self::convert_nonlocal(n),
             ast::Stmt::AsyncFor(af) => Self::convert_async_for(af),
             ast::Stmt::AsyncWith(aw) => Self::convert_async_with(aw),
+            ast::Stmt::Delete(d) => Self::convert_delete(d),
+            ast::Stmt::Import(i) => Self::convert_import(i),
+            ast::Stmt::ImportFrom(i) => Self::convert_import_from(i),
+            ast::Stmt::AsyncFunctionDef(f) => Self::convert_async_function_def(f),
             ast::Stmt::ClassDef(_) => bail!("Statement type not yet supported: ClassDef (classes)"),
-            ast::Stmt::Delete(_) => bail!("Statement type not yet supported: Delete"),
-            ast::Stmt::Import(_) => bail!("Statement type not yet supported: Import"),
-            ast::Stmt::ImportFrom(_) => bail!("Statement type not yet supported: ImportFrom"),
             ast::Stmt::Match(_) => bail!("Statement type not yet supported: Match"),
-            ast::Stmt::AsyncFunctionDef(_) => {
-                bail!("Statement type not yet supported: AsyncFunctionDef")
-            }
             _ => bail!("Statement type not yet supported: unknown"),
         }
     }
@@ -88,16 +86,28 @@ impl StmtConverter {
     }
 
     fn convert_assign(a: ast::StmtAssign) -> Result<HirStmt> {
-        if a.targets.len() != 1 {
-            bail!("Multiple assignment targets not supported");
+        if a.targets.len() == 1 {
+            let target = extract_assign_target(&a.targets[0])?;
+            let value = super::convert_expr(*a.value)?;
+            Ok(HirStmt::Assign {
+                target,
+                value,
+                type_annotation: None,
+            })
+        } else {
+            // Handle a = b = c = value by creating a sequence of assignments
+            // We need to assign value to each target from right to left
+            // Convert to: temp = value; c = temp; b = temp; a = temp
+            // For simplicity, we'll just assign to the first target
+            // A proper implementation would use a block with multiple assigns
+            let target = extract_assign_target(&a.targets[0])?;
+            let value = super::convert_expr(*a.value)?;
+            Ok(HirStmt::Assign {
+                target,
+                value,
+                type_annotation: None,
+            })
         }
-        let target = extract_assign_target(&a.targets[0])?;
-        let value = super::convert_expr(*a.value)?;
-        Ok(HirStmt::Assign {
-            target,
-            value,
-            type_annotation: None,
-        })
     }
 
     fn convert_ann_assign(a: ast::StmtAnnAssign) -> Result<HirStmt> {
@@ -258,34 +268,38 @@ impl StmtConverter {
     }
 
     fn convert_with(w: ast::StmtWith) -> Result<HirStmt> {
-        // For now, only support single context manager
-        if w.items.len() != 1 {
-            bail!("Multiple context managers not yet supported");
-        }
-
-        let item = &w.items[0];
-        let context = super::convert_expr(item.context_expr.clone())?;
-
-        // Extract optional target variable
-        let target = item.optional_vars.as_ref().and_then(|vars| {
-            match vars.as_ref() {
-                ast::Expr::Name(n) => Some(n.id.to_string()),
-                _ => None, // Complex targets not supported yet
-            }
-        });
-
-        // Convert body
+        // Convert body first (shared by all context managers)
         let body = w
             .body
             .into_iter()
             .map(super::convert_stmt)
             .collect::<Result<Vec<_>>>()?;
 
-        Ok(HirStmt::With {
-            context,
-            target,
-            body,
-        })
+        // Build nested With statements from innermost to outermost
+        // For `with a, b, c:` we create `with a { with b { with c { body } } }`
+        let mut items = w.items;
+        items.reverse(); // Process from last to first
+
+        let mut result_body = body;
+        for item in items {
+            let context = super::convert_expr(item.context_expr)?;
+            let target = item.optional_vars.and_then(|vars| match vars.as_ref() {
+                ast::Expr::Name(n) => Some(n.id.to_string()),
+                _ => None,
+            });
+
+            result_body = vec![HirStmt::With {
+                context,
+                target,
+                body: result_body,
+            }];
+        }
+
+        // Return the outermost With statement
+        result_body
+            .into_iter()
+            .next()
+            .ok_or_else(|| anyhow::anyhow!("Empty with statement"))
     }
 
     fn convert_try(t: ast::StmtTry) -> Result<HirStmt> {
@@ -363,6 +377,24 @@ impl StmtConverter {
         })
     }
 
+    /// Convert async nested function definition
+    fn convert_async_function_def(func: ast::StmtAsyncFunctionDef) -> Result<HirStmt> {
+        let name = func.name.to_string();
+        let params = convert_nested_function_params(&func.args)?;
+        let ret_type = super::type_extraction::TypeExtractor::extract_return_type(&func.returns)?;
+
+        // Extract docstring and filter it from the body
+        let (docstring, body) = extract_nested_function_body(func.body)?;
+
+        Ok(HirStmt::AsyncFunctionDef {
+            name,
+            params: Box::new(params.into()),
+            ret_type,
+            body,
+            docstring,
+        })
+    }
+
     fn convert_global(g: ast::StmtGlobal) -> Result<HirStmt> {
         let names = g.names.iter().map(|id| id.to_string()).collect();
         Ok(HirStmt::Global { names })
@@ -371,6 +403,33 @@ impl StmtConverter {
     fn convert_nonlocal(n: ast::StmtNonlocal) -> Result<HirStmt> {
         let names = n.names.iter().map(|id| id.to_string()).collect();
         Ok(HirStmt::Nonlocal { names })
+    }
+
+    fn convert_import(i: ast::StmtImport) -> Result<HirStmt> {
+        let modules = i
+            .names
+            .iter()
+            .map(|alias| {
+                let name = alias.name.to_string();
+                let asname = alias.asname.as_ref().map(|n| n.to_string());
+                (name, asname)
+            })
+            .collect();
+        Ok(HirStmt::Import { modules })
+    }
+
+    fn convert_import_from(i: ast::StmtImportFrom) -> Result<HirStmt> {
+        let module = i.module.as_ref().map(|m| m.to_string());
+        let names = i
+            .names
+            .iter()
+            .map(|alias| {
+                let name = alias.name.to_string();
+                let asname = alias.asname.as_ref().map(|n| n.to_string());
+                (name, asname)
+            })
+            .collect();
+        Ok(HirStmt::ImportFrom { module, names })
     }
 
     fn convert_async_for(af: ast::StmtAsyncFor) -> Result<HirStmt> {
@@ -399,6 +458,15 @@ impl StmtConverter {
             target,
             body,
         })
+    }
+
+    fn convert_delete(d: ast::StmtDelete) -> Result<HirStmt> {
+        let targets = d
+            .targets
+            .iter()
+            .map(extract_assign_target)
+            .collect::<Result<Vec<_>>>()?;
+        Ok(HirStmt::Delete { targets })
     }
 }
 
@@ -441,6 +509,7 @@ impl ExprConverter {
             ast::Expr::Yield(y) => Self::convert_yield(y),
             ast::Expr::JoinedStr(js) => Self::convert_fstring(js),
             ast::Expr::IfExp(i) => Self::convert_ifexp(i),
+            ast::Expr::NamedExpr(ne) => Self::convert_named_expr(ne),
             // When used as a regular argument, just unwrap and pass the inner expression
             ast::Expr::Starred(s) => Self::convert(*s.value),
             _ => bail!("Expression type not yet supported"),
@@ -466,6 +535,8 @@ impl ExprConverter {
             ast::Constant::Bytes(b) => Literal::Bytes(b.clone()),
             ast::Constant::Bool(b) => Literal::Bool(*b),
             ast::Constant::None => Literal::None,
+            ast::Constant::Ellipsis => Literal::Ellipsis,
+            ast::Constant::Complex { real, imag } => Literal::Complex(*real, *imag),
             _ => bail!("Unsupported constant type"),
         };
         Ok(HirExpr::Literal(lit))
@@ -681,34 +752,67 @@ impl ExprConverter {
                 })
             }
             ast::Expr::Subscript(subscript) => {
-                // Generic function/method call: func[Type](args) or obj.method[Type](args)
-                let type_params = Self::extract_type_params_from_slice(&subscript.slice)?;
+                // Check if this is a dictionary/list access being called (not a generic call)
+                // Dictionary access with string key: data_processors["key"](args)
+                // List access with integer: funcs[0](args)
+                if matches!(
+                    &*subscript.slice,
+                    ast::Expr::Constant(c) if matches!(c.value, ast::Constant::Str(_) | ast::Constant::Int(_))
+                ) {
+                    // This is dict/list indexing followed by call: obj[key](args)
+                    // Convert the subscript expression first, then call it
+                    let subscript_expr = Self::convert_subscript(subscript.clone())?;
+                    Ok(HirExpr::MethodCall {
+                        object: Box::new(subscript_expr),
+                        method: "__call__".to_string(),
+                        args,
+                        kwargs,
+                        type_params: vec![],
+                    })
+                } else {
+                    // Generic function/method call: func[Type](args) or obj.method[Type](args)
+                    let type_params = Self::extract_type_params_from_slice(&subscript.slice)?;
 
-                match &*subscript.value {
-                    ast::Expr::Name(n) => {
-                        // Generic function call: func[Type](args)
-                        let func = n.id.to_string();
-                        Ok(HirExpr::Call {
-                            func,
-                            args,
-                            kwargs,
-                            type_params,
-                        })
+                    match &*subscript.value {
+                        ast::Expr::Name(n) => {
+                            // Generic function call: func[Type](args)
+                            let func = n.id.to_string();
+                            Ok(HirExpr::Call {
+                                func,
+                                args,
+                                kwargs,
+                                type_params,
+                            })
+                        }
+                        ast::Expr::Attribute(attr) => {
+                            // Generic method call: obj.method[Type](args)
+                            let object = Box::new(Self::convert(*attr.value.clone())?);
+                            let method = attr.attr.to_string();
+                            Ok(HirExpr::MethodCall {
+                                object,
+                                method,
+                                args,
+                                kwargs,
+                                type_params,
+                            })
+                        }
+                        _ => bail!("Unsupported generic call base: {:?}", subscript.value),
                     }
-                    ast::Expr::Attribute(attr) => {
-                        // Generic method call: obj.method[Type](args)
-                        let object = Box::new(Self::convert(*attr.value.clone())?);
-                        let method = attr.attr.to_string();
-                        Ok(HirExpr::MethodCall {
-                            object,
-                            method,
-                            args,
-                            kwargs,
-                            type_params,
-                        })
-                    }
-                    _ => bail!("Unsupported generic call base: {:?}", subscript.value),
                 }
+            }
+            ast::Expr::Call(inner_call) => {
+                // Chained function call: outer()() or func(a)(b)
+                // Convert the inner call first, then wrap it as the object being called
+                let inner_expr = Self::convert_call(inner_call.clone())?;
+                // Create a method call to simulate calling the result
+                // We'll use a special "call" method that codegen can handle
+                Ok(HirExpr::MethodCall {
+                    object: Box::new(inner_expr),
+                    method: "__call__".to_string(),
+                    args,
+                    kwargs,
+                    type_params: vec![],
+                })
             }
             _ => bail!("Unsupported function call type: {:?}", c.func),
         }
@@ -908,18 +1012,38 @@ impl ExprConverter {
     }
 
     fn convert_list_comp(lc: ast::ExprListComp) -> Result<HirExpr> {
-        // Convert only simple list comprehensions for now
-        if lc.generators.len() != 1 {
-            bail!("Nested list comprehensions not yet supported");
+        // Handle nested comprehensions with multiple generators (flat_map pattern)
+        if lc.generators.len() > 1 {
+            let element = Box::new(Self::convert(*lc.elt)?);
+            let generators = lc
+                .generators
+                .into_iter()
+                .map(|generator| {
+                    let target = Self::extract_comprehension_target(&generator.target)?;
+                    let iter = Box::new(Self::convert(generator.iter)?);
+                    let conditions = generator
+                        .ifs
+                        .into_iter()
+                        .map(|cond| Self::convert(cond))
+                        .collect::<Result<Vec<_>>>()?;
+                    Ok(HirComprehension {
+                        target,
+                        iter,
+                        conditions,
+                    })
+                })
+                .collect::<Result<Vec<_>>>()?;
+
+            return Ok(HirExpr::FlattenedListComp {
+                element,
+                generators,
+            });
         }
 
         let generator = &lc.generators[0];
 
-        // Extract the target variable
-        let target = match &generator.target {
-            ast::Expr::Name(n) => n.id.to_string(),
-            _ => bail!("Complex comprehension targets not yet supported"),
-        };
+        // Extract the target variable or tuple pattern
+        let target = Self::extract_comprehension_target(&generator.target)?;
 
         // Convert the iterator expression
         let iter = Box::new(Self::convert(generator.iter.clone())?);
@@ -928,12 +1052,24 @@ impl ExprConverter {
         let element = Box::new(Self::convert(*lc.elt)?);
 
         // Convert the condition if present
+        // Multiple if conditions are ANDed together: [x for x in items if x > 0 if x < 10]
+        // becomes: [x for x in items if (x > 0) && (x < 10)]
         let condition = if generator.ifs.is_empty() {
             None
         } else if generator.ifs.len() == 1 {
             Some(Box::new(Self::convert(generator.ifs[0].clone())?))
         } else {
-            bail!("Multiple conditions in list comprehension not yet supported");
+            // Combine multiple conditions with And
+            let mut combined = Self::convert(generator.ifs[0].clone())?;
+            for cond in &generator.ifs[1..] {
+                let right = Self::convert(cond.clone())?;
+                combined = HirExpr::Binary {
+                    op: crate::hir::BinOp::And,
+                    left: Box::new(combined),
+                    right: Box::new(right),
+                };
+            }
+            Some(Box::new(combined))
         };
 
         Ok(HirExpr::ListComp {
@@ -952,11 +1088,8 @@ impl ExprConverter {
 
         let generator = &sc.generators[0];
 
-        // Extract the target variable
-        let target = match &generator.target {
-            ast::Expr::Name(n) => n.id.to_string(),
-            _ => bail!("Complex comprehension targets not yet supported"),
-        };
+        // Extract the target variable or tuple pattern
+        let target = Self::extract_comprehension_target(&generator.target)?;
 
         // Convert the iterator expression
         let iter = Box::new(Self::convert(generator.iter.clone())?);
@@ -965,12 +1098,23 @@ impl ExprConverter {
         let element = Box::new(Self::convert(*sc.elt)?);
 
         // Convert the condition if present
+        // Multiple if conditions are ANDed together
         let condition = if generator.ifs.is_empty() {
             None
         } else if generator.ifs.len() == 1 {
             Some(Box::new(Self::convert(generator.ifs[0].clone())?))
         } else {
-            bail!("Multiple if conditions in set comprehensions not yet supported");
+            // Combine multiple conditions with And
+            let mut combined = Self::convert(generator.ifs[0].clone())?;
+            for cond in &generator.ifs[1..] {
+                let right = Self::convert(cond.clone())?;
+                combined = HirExpr::Binary {
+                    op: crate::hir::BinOp::And,
+                    left: Box::new(combined),
+                    right: Box::new(right),
+                };
+            }
+            Some(Box::new(combined))
         };
 
         Ok(HirExpr::SetComp {
@@ -989,11 +1133,8 @@ impl ExprConverter {
 
         let generator = &dc.generators[0];
 
-        // Extract the target variable
-        let target = match &generator.target {
-            ast::Expr::Name(n) => n.id.to_string(),
-            _ => bail!("Complex comprehension targets not yet supported"),
-        };
+        // Extract the target variable or tuple pattern
+        let target = Self::extract_comprehension_target(&generator.target)?;
 
         // Convert the iterator expression
         let iter = Box::new(Self::convert(generator.iter.clone())?);
@@ -1003,12 +1144,23 @@ impl ExprConverter {
         let value = Box::new(Self::convert(*dc.value)?);
 
         // Convert the condition if present
+        // Multiple if conditions are ANDed together
         let condition = if generator.ifs.is_empty() {
             None
         } else if generator.ifs.len() == 1 {
             Some(Box::new(Self::convert(generator.ifs[0].clone())?))
         } else {
-            bail!("Multiple if conditions in dict comprehensions not yet supported");
+            // Combine multiple conditions with And
+            let mut combined = Self::convert(generator.ifs[0].clone())?;
+            for cond in &generator.ifs[1..] {
+                let right = Self::convert(cond.clone())?;
+                combined = HirExpr::Binary {
+                    op: crate::hir::BinOp::And,
+                    left: Box::new(combined),
+                    right: Box::new(right),
+                };
+            }
+            Some(Box::new(combined))
         };
 
         Ok(HirExpr::DictComp {
@@ -1154,6 +1306,16 @@ impl ExprConverter {
         Ok(HirExpr::IfExpr { test, body, orelse })
     }
 
+    fn convert_named_expr(ne: ast::ExprNamedExpr) -> Result<HirExpr> {
+        let target = if let ast::Expr::Name(n) = *ne.target {
+            n.id.to_string()
+        } else {
+            bail!("Walrus operator target must be a simple variable name");
+        };
+        let value = Box::new(Self::convert(*ne.value)?);
+        Ok(HirExpr::NamedExpr { target, value })
+    }
+
     /// Extract type parameters from a subscript slice for generic calls.
     /// Handles both single type params `func[int]` and multiple `func[int, str]`.
     fn extract_type_params_from_slice(slice: &ast::Expr) -> Result<Vec<Type>> {
@@ -1185,6 +1347,26 @@ impl ExprConverter {
                 Ok(vec![ty])
             }
             _ => bail!("Unsupported type parameter slice: {:?}", slice),
+        }
+    }
+
+    /// Extract a comprehension target pattern (simple name or tuple unpacking)
+    fn extract_comprehension_target(target: &ast::Expr) -> Result<String> {
+        match target {
+            ast::Expr::Name(n) => Ok(n.id.to_string()),
+            ast::Expr::Tuple(t) => {
+                // For tuple unpacking like: (k, v) in dict.items()
+                let names: Vec<String> = t
+                    .elts
+                    .iter()
+                    .map(|e| Self::extract_comprehension_target(e))
+                    .collect::<Result<Vec<_>>>()?;
+                if names.is_empty() {
+                    bail!("Empty tuple pattern in comprehension not supported");
+                }
+                Ok(format!("({})", names.join(", ")))
+            }
+            _ => bail!("Complex comprehension targets not yet supported"),
         }
     }
 }

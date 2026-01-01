@@ -395,7 +395,18 @@ impl AstBridge {
                 }
             }
             // Generic alias: UserId = Optional[int]
-            ast::Expr::Subscript(_) => (TypeExtractor::extract_type(&assign.value)?, false),
+            // Only treat as type alias if the subscript base is a type name
+            ast::Expr::Subscript(sub) => {
+                if let ast::Expr::Name(n) = sub.value.as_ref() {
+                    if self.is_type_name(n.id.as_str()) {
+                        (TypeExtractor::extract_type(&assign.value)?, false)
+                    } else {
+                        return Ok(None); // Not a type subscript (e.g., dict["key"])
+                    }
+                } else {
+                    return Ok(None); // Complex subscript (e.g., obj.attr["key"])
+                }
+            }
             // NewType pattern: UserId = NewType('UserId', int)
             ast::Expr::Call(call) => {
                 if let ast::Expr::Name(func_name) = call.func.as_ref() {
@@ -1435,6 +1446,7 @@ pub(crate) fn convert_binop(op: &ast::Operator) -> Result<BinOp> {
         ast::Operator::FloorDiv => BinOp::FloorDiv,
         ast::Operator::Mod => BinOp::Mod,
         ast::Operator::Pow => BinOp::Pow,
+        ast::Operator::MatMult => BinOp::MatMul,
         ast::Operator::BitAnd => BinOp::BitAnd,
         ast::Operator::BitOr => BinOp::BitOr,
         ast::Operator::BitXor => BinOp::BitXor,

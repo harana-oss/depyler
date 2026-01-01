@@ -39,9 +39,58 @@ impl TypeExtractor {
             ast::Expr::Subscript(s) => Self::extract_generic_type(s),
             // Handle None constant (used in -> None return annotations)
             ast::Expr::Constant(c) if matches!(c.value, ast::Constant::None) => Ok(Type::None),
-            ast::Expr::BinOp(b) if matches!(b.op, ast::Operator::BitOr) => Self::extract_union_from_binop(b),
+            // Handle string literal forward references like "MyClass"
+            ast::Expr::Constant(c) if matches!(c.value, ast::Constant::Str(_)) => {
+                if let ast::Constant::Str(s) = &c.value {
+                    Self::extract_simple_type(s.as_str())
+                } else {
+                    unreachable!()
+                }
+            }
+            // Handle Ellipsis in type annotations (Callable[..., T], Tuple[int, ...])
+            ast::Expr::Constant(c) if matches!(c.value, ast::Constant::Ellipsis) => {
+                Ok(Type::Unknown) // Treat ... as unknown/any type
+            }
+            // Handle integer constants in type annotations (literal types)
+            ast::Expr::Constant(c) if matches!(c.value, ast::Constant::Int(_)) => {
+                Ok(Type::Int) // Treat literal int as Int type
+            }
+            // Handle qualified type names like uuid.UUID, argparse.Namespace
+            ast::Expr::Attribute(a) => Self::extract_qualified_type(a),
+            // Handle list literals in type annotations (rare but possible)
+            ast::Expr::List(_) => Ok(Type::Unknown),
+            ast::Expr::BinOp(b) if matches!(b.op, ast::Operator::BitOr) => {
+                Self::extract_union_from_binop(b)
+            }
             _ => bail!("Unsupported type annotation: {:?}", expr),
         }
+    }
+
+    fn extract_qualified_type(attr: &ast::ExprAttribute) -> Result<Type> {
+        // Extract the full qualified name (e.g., "uuid.UUID", "argparse.Namespace")
+        let qualified_name = Self::build_qualified_name(attr);
+        // Map Python qualified type names to Rust equivalents
+        let mapped_name = Self::map_qualified_type_name(&qualified_name);
+        // Use the final component as the type name
+        Ok(Type::Custom(mapped_name))
+    }
+
+    /// Map Python qualified type names to their Rust equivalents
+    fn map_qualified_type_name(name: &str) -> String {
+        match name {
+            // Python uuid.UUID → Rust uuid::Uuid (case difference)
+            "uuid::UUID" => "uuid::Uuid".to_string(),
+            _ => name.to_string(),
+        }
+    }
+
+    fn build_qualified_name(attr: &ast::ExprAttribute) -> String {
+        let prefix = match attr.value.as_ref() {
+            ast::Expr::Name(n) => n.id.to_string(),
+            ast::Expr::Attribute(nested) => Self::build_qualified_name(nested),
+            _ => "Unknown".to_string(),
+        };
+        format!("{}::{}", prefix, attr.attr)
     }
 
     pub fn extract_simple_type(name: &str) -> Result<Type> {
@@ -156,7 +205,11 @@ impl TypeExtractor {
     fn extract_tuple_type(s: &ast::ExprSubscript) -> Result<Type> {
         match s.slice.as_ref() {
             ast::Expr::Tuple(t) => {
-                let types = t.elts.iter().map(Self::extract_type).collect::<Result<Vec<_>>>()?;
+                let types = t
+                    .elts
+                    .iter()
+                    .map(Self::extract_type)
+                    .collect::<Result<Vec<_>>>()?;
                 Ok(Type::Tuple(types))
             }
             // Single type in tuple[T] case - make it a 1-tuple
@@ -180,7 +233,11 @@ impl TypeExtractor {
     fn extract_union_type(s: &ast::ExprSubscript) -> Result<Type> {
         match s.slice.as_ref() {
             ast::Expr::Tuple(t) => {
-                let types = t.elts.iter().map(Self::extract_type).collect::<Result<Vec<_>>>()?;
+                let types = t
+                    .elts
+                    .iter()
+                    .map(Self::extract_type)
+                    .collect::<Result<Vec<_>>>()?;
                 Ok(Type::Union(types))
             }
             // Single type in Union[T] case

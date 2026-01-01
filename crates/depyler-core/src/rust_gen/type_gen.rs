@@ -71,6 +71,7 @@ pub fn convert_binop(op: BinOp) -> Result<syn::BinOp> {
             bail!("Floor division handled by convert_binary with Python semantics")
         }
         Pow => bail!("Power operator handled by convert_binary with type-specific logic"),
+        MatMul => bail!("Matrix multiplication handled by convert_binary as matmul() call"),
 
     // Comparison operators (include identity checks)
     Eq => Ok(parse_quote! { == }),

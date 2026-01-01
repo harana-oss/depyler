@@ -73,6 +73,7 @@ pub struct CodeGenContext<'a> {
     pub needs_crc32: bool,
     pub needs_url_encoding: bool,
     pub needs_lazy_static: bool,
+    pub needs_complex: bool,
     pub declared_vars: Vec<HashSet<String>>,
     pub current_function_can_fail: bool,
     pub current_return_type: Option<Type>,
@@ -232,6 +233,11 @@ impl<'a> CodeGenContext<'a> {
     /// Set the generate_mut_borrow flag
     pub fn set_generate_mut_borrow(&mut self, value: bool) {
         self.generate_mut_borrow = value;
+    }
+
+    /// Mark that complex numbers are used (triggers num-complex import)
+    pub fn mark_complex_used(&mut self) {
+        self.needs_complex = true;
     }
 
     /// Check if a variable should be borrowed instead of cloned
@@ -556,6 +562,8 @@ impl<'a> CodeGenContext<'a> {
                 crate::hir::Literal::Bool(_) => Type::Bool,
                 crate::hir::Literal::None => Type::None,
                 crate::hir::Literal::Bytes(_) => Type::List(Box::new(Type::Int)),
+                crate::hir::Literal::Ellipsis => Type::None,
+                crate::hir::Literal::Complex(_, _) => Type::Custom("num::Complex<f64>".to_string()),
             }),
             _ => None,
         }

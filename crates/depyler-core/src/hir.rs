@@ -76,7 +76,10 @@ impl<T> Spanned<T> {
     }
 
     pub fn with_span(node: T, span: Span) -> Self {
-        Self { node, span: Some(span) }
+        Self {
+            node,
+            span: Some(span),
+        }
     }
 
     /// Get the inner node
@@ -364,7 +367,10 @@ pub enum AssignTarget {
     /// Simple variable assignment: x = value
     Symbol(Symbol),
     /// Subscript assignment: x[key] = value
-    Index { base: Box<HirExpr>, index: Box<HirExpr> },
+    Index {
+        base: Box<HirExpr>,
+        index: Box<HirExpr>,
+    },
     /// Slice assignment: x[:] = value or x[start:stop] = value
     Slice {
         base: Box<HirExpr>,
@@ -456,7 +462,28 @@ pub enum HirStmt {
         target: Option<Symbol>,
         body: Vec<HirStmt>,
     },
- }
+    /// Delete statement - removes variables or collection items
+    Delete {
+        targets: Vec<AssignTarget>,
+    },
+    /// Import statement - local import inside function
+    Import {
+        modules: Vec<(Symbol, Option<Symbol>)>, // (module_name, alias)
+    },
+    /// Import-from statement - from x import y
+    ImportFrom {
+        module: Option<Symbol>,
+        names: Vec<(Symbol, Option<Symbol>)>, // (name, alias)
+    },
+    /// Async nested function definition
+    AsyncFunctionDef {
+        name: Symbol,
+        params: Box<SmallVec<[HirParam; 4]>>,
+        ret_type: Type,
+        body: Vec<HirStmt>,
+        docstring: Option<String>,
+    },
+}
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ExceptHandler {
@@ -481,8 +508,6 @@ pub enum HirExpr {
     Call {
         func: Symbol,
         args: Vec<HirExpr>,
-        /// Format: Vec<(arg_name, value_expr)>
-        /// Empty for calls without kwargs
         kwargs: Vec<(Symbol, HirExpr)>,
         /// Explicit type parameters for generic calls like `func[int]()`
         #[serde(default, skip_serializing_if = "Vec::is_empty")]
@@ -529,6 +554,12 @@ pub enum HirExpr {
         target: Symbol,
         iter: Box<HirExpr>,
         condition: Option<Box<HirExpr>>,
+    },
+    // Flattened list comprehension with multiple generators
+    // [item for row in matrix for item in row]
+    FlattenedListComp {
+        element: Box<HirExpr>,
+        generators: Vec<HirComprehension>,
     },
     // Set comprehension
     SetComp {
@@ -586,6 +617,11 @@ pub enum HirExpr {
         element: Box<HirExpr>,
         generators: Vec<HirComprehension>,
     },
+    // Named expression / walrus operator (Python: (x := expr))
+    NamedExpr {
+        target: Symbol,
+        value: Box<HirExpr>,
+    },
 }
 
 /// Comprehension generator (used in list/set/dict/generator comprehensions)
@@ -613,6 +649,8 @@ pub enum Literal {
     Bytes(Vec<u8>),
     Bool(bool),
     None,
+    Ellipsis,
+    Complex(f64, f64),
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -624,6 +662,7 @@ pub enum BinOp {
     FloorDiv,
     Mod,
     Pow,
+    MatMul,
     Eq,
     NotEq,
     Lt,

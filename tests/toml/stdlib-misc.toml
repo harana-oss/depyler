@@ -159,7 +159,14 @@ def generate_uuid3(namespace: uuid.UUID, name: str) -> str:
 '''
 
 rust = '''
-// Transpilation failed
+use uuid;
+pub fn generate_uuid3(namespace: &uuid::Uuid, name: String) -> String {
+    return ({
+        use uuid::Uuid;
+        Uuid::new_v3(&namespace, name.as_bytes()).to_string()
+    })
+    .to_string();
+}
 '''
 
 [[test]]
@@ -174,7 +181,14 @@ def generate_uuid5(namespace: uuid.UUID, name: str) -> str:
 '''
 
 rust = '''
-// Transpilation failed
+use uuid;
+pub fn generate_uuid5(namespace: &uuid::Uuid, name: String) -> String {
+    return ({
+        use uuid::Uuid;
+        Uuid::new_v5(&namespace, name.as_bytes()).to_string()
+    })
+    .to_string();
+}
 '''
 
 [[test]]
