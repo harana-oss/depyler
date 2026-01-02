@@ -1891,6 +1891,17 @@ fn infer_constant_type(expr: &HirExpr, ctx: &CodeGenContext) -> Type {
                 )
             }
         }
+        // Handle ternary expressions - unify the types of both branches with numeric promotion
+        HirExpr::IfExpr { body, orelse, .. } => {
+            let body_type = infer_constant_type(body, ctx);
+            let orelse_type = infer_constant_type(orelse, ctx);
+            // Apply numeric promotion: Int + Float -> Float
+            match (&body_type, &orelse_type) {
+                (Type::Int, Type::Float) | (Type::Float, Type::Int) => Type::Float,
+                (Type::Unknown, other) | (other, Type::Unknown) => other.clone(),
+                _ => body_type, // Return body_type if they match or can't be unified
+            }
+        }
         _ => Type::Unknown,
     }
 }

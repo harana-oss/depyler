@@ -15379,6 +15379,37 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             }
         }
 
+        // Ensure numeric type consistency: promote int to float when branches have mixed types
+        // Python: `1 if cond else 1.0` → Rust: `if cond { 1.0 } else { 1.0 }`
+        let body_is_int_lit = matches!(body, HirExpr::Literal(Literal::Int(_)));
+        let body_is_float_lit = matches!(body, HirExpr::Literal(Literal::Float(_)));
+        let orelse_is_int_lit = matches!(orelse, HirExpr::Literal(Literal::Int(_)));
+        let orelse_is_float_lit = matches!(orelse, HirExpr::Literal(Literal::Float(_)));
+
+        if body_is_int_lit && orelse_is_float_lit {
+            // Promote body (int) to float with proper decimal format
+            if let HirExpr::Literal(Literal::Int(i)) = body {
+                let float_str = format!("{}.0", i);
+                let float_lit: syn::LitFloat =
+                    syn::LitFloat::new(&float_str, proc_macro2::Span::call_site());
+                body_expr = syn::Expr::Lit(syn::ExprLit {
+                    attrs: vec![],
+                    lit: syn::Lit::Float(float_lit),
+                });
+            }
+        } else if body_is_float_lit && orelse_is_int_lit {
+            // Promote orelse (int) to float with proper decimal format
+            if let HirExpr::Literal(Literal::Int(i)) = orelse {
+                let float_str = format!("{}.0", i);
+                let float_lit: syn::LitFloat =
+                    syn::LitFloat::new(&float_str, proc_macro2::Span::call_site());
+                orelse_expr = syn::Expr::Lit(syn::ExprLit {
+                    attrs: vec![],
+                    lit: syn::Lit::Float(float_lit),
+                });
+            }
+        }
+
         // Python: `val if val else default` where val is String/List/Dict/Set/Optional/Int/Float
         // Without conversion: `if val` fails (expected bool, found Vec/String/etc)
         // With conversion: `if !val.is_empty()` / `if val.is_some()` / `if val != 0`

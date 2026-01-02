@@ -209,7 +209,12 @@ Each issue is categorized as:
 #### 10.2 Type Coercion in Ternary
 - **Files Affected**: ternary-expressions.toml
 - **Issue**: `if cond { 1 } else { 1.0 }` has mismatched types
-- **Classification**: **🔧 TRANSPILER** - Both branches must have same type. Apply numeric promotion.
+- **Classification**: ~~**🔧 TRANSPILER**~~ **✅ FIXED (2026-01-03)** - Both branches now have same type via numeric promotion.
+- **Status**: ✅ FIXED - Integer literals are promoted to float when the other branch is a float literal.
+- **Solution**:
+  - Added numeric promotion in `depyler-core/src/rust_gen/expr_gen.rs::convert_ifexpr()` to detect int/float literal mismatch
+  - Integer literals are converted to float literals with proper `.0` suffix (e.g., `1` → `1.0`)
+  - Added `IfExpr` handling in `infer_constant_type()` to properly infer `f64` as the unified type
 
 ### 11. **Unpacking Issues**
 
@@ -258,16 +263,16 @@ Each issue is categorized as:
 
 ## Summary: Fix Classification
 
-### 🔧 TRANSPILER Fixes Required (9 issues - 1 fixed)
+### 🔧 TRANSPILER Fixes Required (9 issues - 4 fixed)
 1. ~~Extra semicolons after functions (2.2)~~ → Reclassified as 📝 TEST (transpiler is correct)
 2. ~~Set operation type inference (3.1)~~ → ✅ FIXED (2026-01-02)
 3. HashMap dict.get() translation (4.1)
 4. Missing HashMap import (4.3)
 5. ~~Spurious QuickCheck generation (5.1)~~ → ✅ NOT A BUG (verified 2026-01-02)
 6. TypeVar as runtime constant (5.2)
-7. Type alias statement generation (8.1)
+7. ~~Type alias statement generation (8.1)~~ → ✅ FIXED (2026-01-02)
 8. TypeGuard return type (9.2)
-9. Ternary type coercion (10.2)
+9. ~~Ternary type coercion (10.2)~~ → ✅ FIXED (2026-01-03)
 10. Unpacking translation (11.1)
 11. Walrus operator translation (12.1)
 12. unicodedata module mapping (14.1)
@@ -299,11 +304,11 @@ Each issue is categorized as:
 1. ~~**🔧** Extra semicolons after functions~~ → ✅ NOT A BUG (test expectations were wrong)
 2. ~~**🔧** Spurious QuickCheck generation~~ → ✅ NOT A BUG (verified not occurring)
 3. ~~**🔧** Set operation type inference~~ → ✅ FIXED (2026-01-02)
-4. **🔧** Ternary type coercion
+4. ~~**🔧** Ternary type coercion~~ → ✅ FIXED (2026-01-03)
 5. **🔧** TypeGuard return type
 
 ### Medium Priority (Feature gaps)
-1. **🔧** Type alias statement generation
+1. ~~**🔧** Type alias statement generation~~ → ✅ FIXED (2026-01-02)
 2. **🔧** Unpacking translation
 3. **🔧** Walrus operator translation
 4. **🔧** TypeVar handling
@@ -317,6 +322,14 @@ Each issue is categorized as:
 ---
 
 ## Progress Log
+
+### 2026-01-03
+- ✅ **Fixed ternary type coercion (Issue 10.2)**:
+  - Added numeric promotion logic to `depyler-core/src/rust_gen/expr_gen.rs::convert_ifexpr()`
+  - When one branch is an integer literal and the other is a float literal, the integer is promoted to float
+  - Updated `depyler-core/src/rust_gen.rs::infer_constant_type()` to handle `HirExpr::IfExpr` for proper type inference
+  - **Result**: Python `1 if cond else 1.0` now correctly generates `if cond { 1.0 } else { 1.0 }` with type `f64`
+  - Updated test expectation in `ternary-expressions.toml::ternary_numeric_promotion` to expect module-level code
 
 ### 2026-01-02
 - ✅ Fixed `slicing.toml::slice_full_copy` - removed invalid `};` from test expectation
@@ -349,10 +362,9 @@ The following are confirmed transpiler bugs that need code changes:
 3. **TypeVar handling (5.2)** - Generated as runtime constant instead of Rust generic
 4. ~~**Type alias statement (8.1)**~~ - ✅ FIXED (2026-01-02)
 5. **TypeGuard return type (9.2)** - Should map to `bool`, not `TypeGuard<T>`
-6. **Ternary type coercion (10.2)** - Mismatched branch types not being unified
+6. ~~**Ternary type coercion (10.2)**~~ - ✅ FIXED (2026-01-03)
 7. **Unpacking translation (11.1)** - Tuple/list unpacking incomplete
 8. **Walrus operator (12.1)** - `:=` operator needs implementation
-9. **unicodedata module (14.1)** - Needs mapping to unicode-normalization crate
 9. **unicodedata module (14.1)** - Needs mapping to unicode-normalization crate
 
 #### Test Expectation Updates Needed
