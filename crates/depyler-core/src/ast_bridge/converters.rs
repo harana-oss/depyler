@@ -473,10 +473,7 @@ impl StmtConverter {
 
     fn convert_match_case(case: ast::MatchCase) -> Result<MatchCase> {
         let pattern = Self::convert_pattern(case.pattern)?;
-        let guard = case
-            .guard
-            .map(|g| super::convert_expr(*g))
-            .transpose()?;
+        let guard = case.guard.map(|g| super::convert_expr(*g)).transpose()?;
         let body = convert_body(case.body)?;
         Ok(MatchCase {
             pattern,

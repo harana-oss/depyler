@@ -5107,7 +5107,10 @@ fn codegen_match_stmt(
     })
 }
 
-fn codegen_match_arm(case: &MatchCase, ctx: &mut CodeGenContext) -> Result<proc_macro2::TokenStream> {
+fn codegen_match_arm(
+    case: &MatchCase,
+    ctx: &mut CodeGenContext,
+) -> Result<proc_macro2::TokenStream> {
     let pattern = codegen_pattern(&case.pattern)?;
     let body_stmts: Vec<proc_macro2::TokenStream> = case
         .body
@@ -5137,14 +5140,12 @@ fn codegen_pattern(pattern: &HirPattern) -> Result<proc_macro2::TokenStream> {
             let lit = expr_to_pattern_literal(expr)?;
             Ok(lit)
         }
-        HirPattern::Singleton(lit) => {
-            match lit {
-                Literal::None => Ok(quote! { None }),
-                Literal::Bool(true) => Ok(quote! { true }),
-                Literal::Bool(false) => Ok(quote! { false }),
-                _ => bail!("Unsupported singleton literal in pattern"),
-            }
-        }
+        HirPattern::Singleton(lit) => match lit {
+            Literal::None => Ok(quote! { None }),
+            Literal::Bool(true) => Ok(quote! { true }),
+            Literal::Bool(false) => Ok(quote! { false }),
+            _ => bail!("Unsupported singleton literal in pattern"),
+        },
         HirPattern::Sequence(patterns) => {
             let inner: Vec<proc_macro2::TokenStream> = patterns
                 .iter()
@@ -5152,14 +5153,23 @@ fn codegen_pattern(pattern: &HirPattern) -> Result<proc_macro2::TokenStream> {
                 .collect::<Result<Vec<_>>>()?;
             Ok(quote! { [#(#inner),*] })
         }
-        HirPattern::Mapping { keys, patterns, rest } => {
+        HirPattern::Mapping {
+            keys,
+            patterns,
+            rest,
+        } => {
             // Rust doesn't have built-in destructuring for HashMaps
             // Generate a guard-based approach or use custom extractors
             // For now, just match on the whole structure
             let _ = (keys, patterns, rest);
             bail!("Map pattern matching requires custom implementation")
         }
-        HirPattern::Class { cls, patterns, kwd_attrs, kwd_patterns } => {
+        HirPattern::Class {
+            cls,
+            patterns,
+            kwd_attrs,
+            kwd_patterns,
+        } => {
             let cls_ident = format_ident!("{}", cls);
             if patterns.is_empty() && kwd_attrs.is_empty() {
                 // Simple struct match: case Point():
@@ -5234,7 +5244,10 @@ fn expr_to_pattern_literal(expr: &HirExpr) -> Result<proc_macro2::TokenStream> {
                 Literal::Int(i) => Ok(quote! { #i }),
                 Literal::Float(f) => {
                     // Floats can't be matched directly in Rust, need guard
-                    bail!("Float patterns require guard-based matching: use 'x if x == {}'", f)
+                    bail!(
+                        "Float patterns require guard-based matching: use 'x if x == {}'",
+                        f
+                    )
                 }
                 Literal::String(s) => Ok(quote! { #s }),
                 Literal::Bool(b) => Ok(quote! { #b }),

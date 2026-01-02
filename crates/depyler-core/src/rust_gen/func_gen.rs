@@ -352,7 +352,10 @@ fn is_var_used_in_expr(var_name: &str, expr: &HirExpr) -> bool {
                     .as_ref()
                     .is_some_and(|c| is_var_used_in_expr(var_name, c))
         }
-        HirExpr::FlattenedListComp { element, generators } => {
+        HirExpr::FlattenedListComp {
+            element,
+            generators,
+        } => {
             is_var_used_in_expr(var_name, element)
                 || generators.iter().any(|g| {
                     is_var_used_in_expr(var_name, &g.iter)

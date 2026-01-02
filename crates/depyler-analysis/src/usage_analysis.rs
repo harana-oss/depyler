@@ -347,7 +347,10 @@ impl UsageAnalyzer {
                     self.analyze_expr(c, UsageContext::ReadOnly);
                 }
             }
-            HirExpr::FlattenedListComp { element, generators } => {
+            HirExpr::FlattenedListComp {
+                element,
+                generators,
+            } => {
                 for generator in generators {
                     self.analyze_expr(&generator.iter, UsageContext::Iteration);
                     for c in &generator.conditions {

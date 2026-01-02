@@ -639,7 +639,10 @@ impl LifetimeInference {
                 // If target shadows param, we don't analyze element/condition
                 // since they would refer to the comprehension variable, not the parameter
             }
-            HirExpr::FlattenedListComp { element, generators } => {
+            HirExpr::FlattenedListComp {
+                element,
+                generators,
+            } => {
                 // Check if any generator target shadows the parameter
                 let shadows_param = generators.iter().any(|g| g.target == param);
                 if !shadows_param {

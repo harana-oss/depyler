@@ -2345,12 +2345,11 @@ fn convert_stmt_with_context(
                 .iter()
                 .filter_map(|case| {
                     let pattern = convert_pattern_to_syn(&case.pattern).ok()?;
-                    let body = convert_block_with_context(&case.body, type_mapper, is_classmethod)
-                        .ok()?;
-                    let guard = case
-                        .guard
-                        .as_ref()
-                        .and_then(|g| convert_expr_with_context(g, type_mapper, is_classmethod).ok());
+                    let body =
+                        convert_block_with_context(&case.body, type_mapper, is_classmethod).ok()?;
+                    let guard = case.guard.as_ref().and_then(|g| {
+                        convert_expr_with_context(g, type_mapper, is_classmethod).ok()
+                    });
                     Some(syn::Arm {
                         attrs: vec![],
                         pat: pattern,
