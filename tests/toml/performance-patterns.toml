@@ -1,0 +1,389 @@
+[metadata]
+name = "Performance Patterns Tests"
+category = "optimization"
+
+# =============================================================================
+# Loop Invariant Hoisting
+# =============================================================================
+
+[[test]]
+name = "loop_invariant_hoisting"
+description = "Loop invariant code motion"
+
+python = '''
+def sum_with_factor(items: list[int], factor: int) -> int:
+    total = 0
+    for item in items:
+        total += item * factor
+    return total
+'''
+
+rust = '''
+pub fn sum_with_factor(items: Vec<i32>, factor: i32) -> i32 {
+    let mut total = 0;
+    for item in items {
+        total += item * factor;
+    }
+    return total;
+}
+'''
+
+[[test]]
+name = "loop_invariant_len"
+description = "Hoist length calculation"
+
+python = '''
+def process_all(items: list[int]) -> int:
+    n = len(items)
+    total = 0
+    for i in range(n):
+        total += items[i]
+    return total
+'''
+
+rust = '''
+pub fn process_all(items: Vec<i32>) -> i32 {
+    let n = items.len();
+    let mut total = 0;
+    for i in 0..n {
+        total += items[i];
+    }
+    return total;
+}
+'''
+
+[[test]]
+name = "loop_invariant_expression"
+description = "Hoist invariant expression"
+
+python = '''
+def compute_with_constant(items: list[int], a: int, b: int) -> int:
+    multiplier = a + b
+    total = 0
+    for item in items:
+        total += item * multiplier
+    return total
+'''
+
+rust = '''
+pub fn compute_with_constant(items: Vec<i32>, a: i32, b: i32) -> i32 {
+    let multiplier = a + b;
+    let mut total = 0;
+    for item in items {
+        total += item * multiplier;
+    }
+    return total;
+}
+'''
+
+# =============================================================================
+# Strength Reduction
+# =============================================================================
+
+[[test]]
+name = "strength_reduction"
+description = "Strength reduction optimizations"
+
+python = '''
+def power_of_two(n: int) -> int:
+    return n * 2
+'''
+
+rust = '''
+pub fn power_of_two(n: i32) -> i32 {
+    return n << 1;
+}
+'''
+
+[[test]]
+name = "strength_reduction_div"
+description = "Division strength reduction"
+
+python = '''
+def half(n: int) -> int:
+    return n // 2
+'''
+
+rust = '''
+pub fn half(n: i32) -> i32 {
+    return n >> 1;
+}
+'''
+
+[[test]]
+name = "strength_reduction_mod"
+description = "Modulo strength reduction"
+
+python = '''
+def is_even(n: int) -> bool:
+    return n % 2 == 0
+'''
+
+rust = '''
+pub fn is_even(n: i32) -> bool {
+    return (n & 1) == 0;
+}
+'''
+
+[[test]]
+name = "strength_reduction_mult"
+description = "Multiply by constant"
+
+python = '''
+def times_three(n: int) -> int:
+    return n * 3
+'''
+
+rust = '''
+pub fn times_three(n: i32) -> i32 {
+    return n * 3;
+}
+'''
+
+# =============================================================================
+# Tail Call Optimization
+# =============================================================================
+
+[[test]]
+name = "tail_call_optimization"
+description = "Tail call optimization detection"
+
+python = '''
+def factorial_iter(n: int) -> int:
+    result = 1
+    for i in range(1, n + 1):
+        result *= i
+    return result
+'''
+
+rust = '''
+pub fn factorial_iter(n: i32) -> i32 {
+    let mut result = 1;
+    for i in 1..=n {
+        result *= i;
+    }
+    return result;
+}
+'''
+
+[[test]]
+name = "tail_recursion_converted"
+description = "Tail recursion to iteration"
+
+python = '''
+def sum_to_iter(n: int) -> int:
+    total = 0
+    for i in range(1, n + 1):
+        total += i
+    return total
+'''
+
+rust = '''
+pub fn sum_to_iter(n: i32) -> i32 {
+    let mut total = 0;
+    for i in 1..=n {
+        total += i;
+    }
+    return total;
+}
+'''
+
+[[test]]
+name = "accumulator_pattern"
+description = "Accumulator pattern optimization"
+
+python = '''
+def list_sum(items: list[int]) -> int:
+    acc = 0
+    for item in items:
+        acc += item
+    return acc
+'''
+
+rust = '''
+pub fn list_sum(items: Vec<i32>) -> i32 {
+    let mut acc = 0;
+    for item in items {
+        acc += item;
+    }
+    return acc;
+}
+'''
+
+# =============================================================================
+# Inlining Heuristics
+# =============================================================================
+
+[[test]]
+name = "inlining_heuristics"
+description = "Function inlining decisions"
+
+python = '''
+def square(x: int) -> int:
+    return x * x
+
+def sum_of_squares(a: int, b: int) -> int:
+    return square(a) + square(b)
+'''
+
+rust = '''
+#[inline]
+pub fn square(x: i32) -> i32 {
+    return x * x;
+}
+
+pub fn sum_of_squares(a: i32, b: i32) -> i32 {
+    return square(a) + square(b);
+}
+'''
+
+[[test]]
+name = "inline_simple_accessor"
+description = "Inline simple accessor"
+
+python = '''
+class Point:
+    def __init__(self, x: int, y: int):
+        self.x = x
+        self.y = y
+    
+    def get_x(self) -> int:
+        return self.x
+    
+    def get_y(self) -> int:
+        return self.y
+'''
+
+rust = '''
+pub struct Point {
+    pub x: i32,
+    pub y: i32,
+}
+
+impl Point {
+    pub fn new(x: i32, y: i32) -> Self {
+        Self { x, y }
+    }
+    
+    #[inline]
+    pub fn get_x(&self) -> i32 {
+        return self.x;
+    }
+    
+    #[inline]
+    pub fn get_y(&self) -> i32 {
+        return self.y;
+    }
+}
+'''
+
+[[test]]
+name = "inline_wrapper"
+description = "Inline wrapper functions"
+
+python = '''
+def add(a: int, b: int) -> int:
+    return a + b
+
+def increment(x: int) -> int:
+    return add(x, 1)
+'''
+
+rust = '''
+#[inline]
+pub fn add(a: i32, b: i32) -> i32 {
+    return a + b;
+}
+
+pub fn increment(x: i32) -> i32 {
+    return add(x, 1);
+}
+'''
+
+# =============================================================================
+# Bounds Check Elimination
+# =============================================================================
+
+[[test]]
+name = "bounds_check_elimination"
+description = "Bounds check elimination"
+
+python = '''
+def safe_access(items: list[int], idx: int) -> int:
+    if 0 <= idx < len(items):
+        return items[idx]
+    return 0
+'''
+
+rust = '''
+pub fn safe_access(items: &Vec<i32>, idx: i32) -> i32 {
+    if 0 <= idx && (idx as usize) < items.len() {
+        return items[idx as usize];
+    }
+    return 0;
+}
+'''
+
+[[test]]
+name = "bounds_checked_loop"
+description = "Loop with bounds already checked"
+
+python = '''
+def sum_array(items: list[int]) -> int:
+    total = 0
+    for i in range(len(items)):
+        total += items[i]
+    return total
+'''
+
+rust = '''
+pub fn sum_array(items: Vec<i32>) -> i32 {
+    let mut total = 0;
+    for i in 0..items.len() {
+        total += items[i];
+    }
+    return total;
+}
+'''
+
+[[test]]
+name = "iterator_no_bounds"
+description = "Iterator pattern avoids bounds"
+
+python = '''
+def sum_iter(items: list[int]) -> int:
+    total = 0
+    for item in items:
+        total += item
+    return total
+'''
+
+rust = '''
+pub fn sum_iter(items: Vec<i32>) -> i32 {
+    let mut total = 0;
+    for item in items {
+        total += item;
+    }
+    return total;
+}
+'''
+
+[[test]]
+name = "get_unchecked_pattern"
+description = "Unsafe unchecked access when safe"
+
+python = '''
+def first_element(items: list[int]) -> int:
+    if len(items) > 0:
+        return items[0]
+    return 0
+'''
+
+rust = '''
+pub fn first_element(items: &Vec<i32>) -> i32 {
+    if items.len() > 0 {
+        return items[0];
+    }
+    return 0;
+}
+'''

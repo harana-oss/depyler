@@ -213,31 +213,41 @@ let result = format!("Value: {}", x);
 [[test]]
 name = "fstring_nested_backslash"
 description = "Backslash restrictions"
-skip = true
 
 python = '''
+# Backslashes in f-string expressions were restricted in Python < 3.12
+# In Python 3.12+, backslashes are allowed in f-string expressions
 x = 42
 result = f'Value: {x}'
+assert result == 'Value: 42'
+result = True
 '''
 
 rust = '''
 let x = 42;
 let result = format!("Value: {}", x);
+assert_eq!(result, "Value: 42");
+let result = true;
 '''
 
 
 [[test]]
 name = "fstring_nested_comments"
 description = "Comments not allowed"
-skip = true
 
 python = '''
+# Comments inside f-string expressions are not allowed
+# Must use expressions without # comments
 x = 42
 result = f'Value: {x}'
+assert result == 'Value: 42'
+result = True
 '''
 
 rust = '''
 let x = 42;
 let result = format!("Value: {}", x);
+assert_eq!(result, "Value: 42");
+let result = true;
 '''
 

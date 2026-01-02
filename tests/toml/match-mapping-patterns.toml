@@ -569,7 +569,6 @@ let result = if data.is_empty() || !data.is_empty() {
 [[test]]
 name = "mapping_duplicate_keys"
 description = "case {'a': x, 'a': y}: syntax error"
-skip = true
 
 python = '''
 # case {'a': x, 'a': y}: syntax error

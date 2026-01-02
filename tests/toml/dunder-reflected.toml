@@ -903,7 +903,6 @@ fn main() {
 [[test]]
 name = "reflected_none"
 description = "Reflected operation with None"
-skip = true
 python = """
 class Custom:
     def __radd__(self, other):

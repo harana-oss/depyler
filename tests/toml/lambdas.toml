@@ -158,7 +158,13 @@ def add_pairs(pairs: list[tuple[int, int]]) -> list[int]:
 '''
 
 rust = '''
-// Transpilation failed
+pub fn add_pairs(pairs: &Vec<(i32, i32)>) -> Vec<i32> {
+    return pairs
+        .iter()
+        .cloned()
+        .map(|(x, y)| x + y)
+        .collect::<Vec<_>>();
+}
 '''
 
 [[test]]

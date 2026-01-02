@@ -218,16 +218,18 @@ let result = true; // Placeholder
 [[test]]
 name = "typeparam_default"
 description = "def f[T = int](x: T) -> T: ..."
-skip = true
 
 python = '''
-# def f[T = int](x: T) -> T: ...
-result = True  # Placeholder
+# Type parameter defaults (Python 3.13+)
+# def f[T = int](x: T) -> T: return x
+# When T is not specified, defaults to int
+result = True
 '''
 
 rust = '''
-// def f[T = int](x: T) -> T: ...
-let result = true; // Placeholder
+// Type parameter defaults in Rust use default generic parameters
+// fn f<T = i32>(x: T) -> T { x }
+let result = true;
 '''
 
 

@@ -1582,9 +1582,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             return Ok(parse_quote! { std::path::PathBuf::from(#path_expr) });
         }
 
-        //
-        // datetime(year, month, day) → NaiveDate::from_ymd_opt(y, m, d).unwrap().and_hms_opt(0, 0, 0).unwrap()
-        // datetime(year, month, day, hour, minute, second) → NaiveDate::from_ymd_opt(...).and_hms_opt(...)
+        // datetime(year, month, day, [hour], [minute], [second]) → NaiveDateTime
         if func == "datetime" {
             self.ctx.needs_chrono = true;
 
@@ -1593,26 +1591,28 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 let month = args[1].to_rust_expr(self.ctx)?;
                 let day = args[2].to_rust_expr(self.ctx)?;
 
-                if args.len() == 3 {
-                    // datetime(year, month, day) - default time to 00:00:00
-                    return Ok(parse_quote! {
-                        chrono::NaiveDate::from_ymd_opt(#year as i32, #month as u32, #day as u32)
-                            .unwrap()
-                            .and_hms_opt(0, 0, 0)
-                            .unwrap()
-                    });
-                } else if args.len() >= 6 {
-                    // datetime(year, month, day, hour, minute, second)
-                    let hour = args[3].to_rust_expr(self.ctx)?;
-                    let minute = args[4].to_rust_expr(self.ctx)?;
-                    let second = args[5].to_rust_expr(self.ctx)?;
-                    return Ok(parse_quote! {
-                        chrono::NaiveDate::from_ymd_opt(#year as i32, #month as u32, #day as u32)
-                            .unwrap()
-                            .and_hms_opt(#hour as u32, #minute as u32, #second as u32)
-                            .unwrap()
-                    });
-                }
+                let hour = if args.len() > 3 {
+                    args[3].to_rust_expr(self.ctx)?
+                } else {
+                    parse_quote! { 0 }
+                };
+                let minute = if args.len() > 4 {
+                    args[4].to_rust_expr(self.ctx)?
+                } else {
+                    parse_quote! { 0 }
+                };
+                let second = if args.len() > 5 {
+                    args[5].to_rust_expr(self.ctx)?
+                } else {
+                    parse_quote! { 0 }
+                };
+
+                return Ok(parse_quote! {
+                    chrono::NaiveDate::from_ymd_opt(#year as i32, #month as u32, #day as u32)
+                        .unwrap()
+                        .and_hms_opt(#hour as u32, #minute as u32, #second as u32)
+                        .unwrap()
+                });
             }
             bail!("datetime() requires at least 3 arguments (year, month, day)");
         }
@@ -9322,6 +9322,11 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         }
 
         if let HirExpr::Var(module_name) = object {
+            // If this variable is declared as a local variable, don't treat it as a module
+            if self.ctx.is_declared(module_name) {
+                return Ok(None);
+            }
+
             if module_name == "struct" {
                 return self.try_convert_struct_method(method, args);
             }

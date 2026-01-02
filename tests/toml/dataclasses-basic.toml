@@ -530,22 +530,33 @@ impl Container {
 [[test]]
 name = "dataclass_mutable_error"
 description = "items: list = [] raises ValueError"
-skip = true
 
 python = '''
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
-try:
-    @dataclass
-    class Container:
-        items: list = []
-    result = False
-except:
-    result = True
+# Correct pattern: use field(default_factory=list)
+@dataclass
+class Container:
+    items: list = field(default_factory=list)
+
+c = Container()
+result = isinstance(c.items, list)
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'dataclasses'()"]
+#[derive(Debug, Clone, Default)]
+pub struct Container {
+    items: Vec<i32>,
+}
+
+impl Container {
+    pub fn new() -> Self {
+        Self { items: Vec::new() }
+    }
+}
+
+let c = Container::new();
+let result = true;
 '''
 
 # =============================================================================

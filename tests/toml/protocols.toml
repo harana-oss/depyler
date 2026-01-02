@@ -1,0 +1,598 @@
+[metadata]
+name = "Protocols Tests"
+category = "type-system"
+
+# =============================================================================
+# Basic Protocol
+# =============================================================================
+
+[[test]]
+name = "protocol_basic"
+description = "typing.Protocol to Rust trait"
+
+python = '''
+from typing import Protocol
+
+class Drawable(Protocol):
+    def draw(self) -> str:
+        ...
+
+class Circle:
+    def __init__(self, radius: int):
+        self.radius = radius
+    
+    def draw(self) -> str:
+        return f"Circle with radius {self.radius}"
+
+def render(shape: Drawable) -> str:
+    return shape.draw()
+'''
+
+rust = '''
+pub trait Drawable {
+    fn draw(&self) -> String;
+}
+
+pub struct Circle {
+    pub radius: i32,
+}
+
+impl Circle {
+    pub fn new(radius: i32) -> Self {
+        Self { radius }
+    }
+}
+
+impl Drawable for Circle {
+    fn draw(&self) -> String {
+        return format!("Circle with radius {}", self.radius);
+    }
+}
+
+pub fn render(shape: &impl Drawable) -> String {
+    return shape.draw();
+}
+'''
+
+[[test]]
+name = "protocol_multiple_methods"
+description = "Protocol with multiple methods"
+
+python = '''
+from typing import Protocol
+
+class Comparable(Protocol):
+    def less_than(self, other: int) -> bool:
+        ...
+    
+    def equal_to(self, other: int) -> bool:
+        ...
+
+class Number:
+    def __init__(self, value: int):
+        self.value = value
+    
+    def less_than(self, other: int) -> bool:
+        return self.value < other
+    
+    def equal_to(self, other: int) -> bool:
+        return self.value == other
+'''
+
+rust = '''
+pub trait Comparable {
+    fn less_than(&self, other: i32) -> bool;
+    fn equal_to(&self, other: i32) -> bool;
+}
+
+pub struct Number {
+    pub value: i32,
+}
+
+impl Number {
+    pub fn new(value: i32) -> Self {
+        Self { value }
+    }
+}
+
+impl Comparable for Number {
+    fn less_than(&self, other: i32) -> bool {
+        return self.value < other;
+    }
+    
+    fn equal_to(&self, other: i32) -> bool {
+        return self.value == other;
+    }
+}
+'''
+
+[[test]]
+name = "protocol_with_property"
+description = "Protocol with property-like accessor"
+
+python = '''
+from typing import Protocol
+
+class Named(Protocol):
+    def get_name(self) -> str:
+        ...
+
+class Person:
+    def __init__(self, name: str):
+        self._name = name
+    
+    def get_name(self) -> str:
+        return self._name
+'''
+
+rust = '''
+pub trait Named {
+    fn get_name(&self) -> String;
+}
+
+pub struct Person {
+    _name: String,
+}
+
+impl Person {
+    pub fn new(name: String) -> Self {
+        Self { _name: name }
+    }
+}
+
+impl Named for Person {
+    fn get_name(&self) -> String {
+        return self._name.clone();
+    }
+}
+'''
+
+# =============================================================================
+# Runtime Checkable Protocol
+# =============================================================================
+
+[[test]]
+name = "protocol_runtime_checkable"
+description = "@runtime_checkable Protocol handling"
+
+python = '''
+from typing import Protocol, runtime_checkable
+
+@runtime_checkable
+class Sized(Protocol):
+    def size(self) -> int:
+        ...
+
+class Collection:
+    def __init__(self):
+        self.items = []
+    
+    def size(self) -> int:
+        return len(self.items)
+
+def get_size(obj: Sized) -> int:
+    return obj.size()
+'''
+
+rust = '''
+pub trait Sized {
+    fn size(&self) -> i32;
+}
+
+pub struct Collection {
+    pub items: Vec<i32>,
+}
+
+impl Collection {
+    pub fn new() -> Self {
+        Self { items: vec![] }
+    }
+}
+
+impl Sized for Collection {
+    fn size(&self) -> i32 {
+        return self.items.len() as i32;
+    }
+}
+
+pub fn get_size(obj: &impl Sized) -> i32 {
+    return obj.size();
+}
+'''
+
+[[test]]
+name = "protocol_isinstance_check"
+description = "isinstance with Protocol"
+
+python = '''
+from typing import Protocol
+
+class Iterable(Protocol):
+    def iter_items(self) -> list[int]:
+        ...
+
+class Range:
+    def __init__(self, start: int, end: int):
+        self.start = start
+        self.end = end
+    
+    def iter_items(self) -> list[int]:
+        result = []
+        for i in range(self.start, self.end):
+            result.append(i)
+        return result
+'''
+
+rust = '''
+pub trait Iterable {
+    fn iter_items(&self) -> Vec<i32>;
+}
+
+pub struct Range {
+    pub start: i32,
+    pub end: i32,
+}
+
+impl Range {
+    pub fn new(start: i32, end: i32) -> Self {
+        Self { start, end }
+    }
+}
+
+impl Iterable for Range {
+    fn iter_items(&self) -> Vec<i32> {
+        let mut result = vec![];
+        for i in self.start..self.end {
+            result.push(i);
+        }
+        return result;
+    }
+}
+'''
+
+# =============================================================================
+# Generic Protocol
+# =============================================================================
+
+[[test]]
+name = "protocol_generic"
+description = "Generic Protocol[T] transpilation"
+
+python = '''
+from typing import Protocol, TypeVar
+
+T = TypeVar('T')
+
+class Container(Protocol[T]):
+    def get(self) -> T:
+        ...
+    
+    def set(self, value: T) -> None:
+        ...
+
+class Box:
+    def __init__(self, value: int):
+        self._value = value
+    
+    def get(self) -> int:
+        return self._value
+    
+    def set(self, value: int) -> None:
+        self._value = value
+'''
+
+rust = '''
+pub trait Container<T> {
+    fn get(&self) -> T;
+    fn set(&mut self, value: T);
+}
+
+pub struct Box {
+    _value: i32,
+}
+
+impl Box {
+    pub fn new(value: i32) -> Self {
+        Self { _value: value }
+    }
+}
+
+impl Container<i32> for Box {
+    fn get(&self) -> i32 {
+        return self._value;
+    }
+    
+    fn set(&mut self, value: i32) {
+        self._value = value;
+    }
+}
+'''
+
+[[test]]
+name = "protocol_generic_bounded"
+description = "Generic Protocol with bounds"
+
+python = '''
+from typing import Protocol, TypeVar
+
+T = TypeVar('T', bound=int)
+
+class Summable(Protocol[T]):
+    def sum_values(self) -> T:
+        ...
+
+class IntList:
+    def __init__(self):
+        self.values = []
+    
+    def add(self, value: int) -> None:
+        self.values.append(value)
+    
+    def sum_values(self) -> int:
+        return sum(self.values)
+'''
+
+rust = '''
+pub trait Summable {
+    fn sum_values(&self) -> i32;
+}
+
+pub struct IntList {
+    pub values: Vec<i32>,
+}
+
+impl IntList {
+    pub fn new() -> Self {
+        Self { values: vec![] }
+    }
+    
+    pub fn add(&mut self, value: i32) {
+        self.values.push(value);
+    }
+}
+
+impl Summable for IntList {
+    fn sum_values(&self) -> i32 {
+        return self.values.iter().sum::<i32>();
+    }
+}
+'''
+
+# =============================================================================
+# Structural Subtyping
+# =============================================================================
+
+[[test]]
+name = "structural_subtyping"
+description = "Duck typing to trait bounds"
+
+python = '''
+def quack(duck) -> str:
+    return duck.speak()
+
+class Duck:
+    def speak(self) -> str:
+        return "Quack!"
+
+class Dog:
+    def speak(self) -> str:
+        return "Woof!"
+'''
+
+rust = '''
+pub trait Speaker {
+    fn speak(&self) -> String;
+}
+
+pub fn quack(duck: &impl Speaker) -> String {
+    return duck.speak();
+}
+
+pub struct Duck;
+
+impl Duck {
+    pub fn new() -> Self {
+        Self
+    }
+}
+
+impl Speaker for Duck {
+    fn speak(&self) -> String {
+        return "Quack!".to_string();
+    }
+}
+
+pub struct Dog;
+
+impl Dog {
+    pub fn new() -> Self {
+        Self
+    }
+}
+
+impl Speaker for Dog {
+    fn speak(&self) -> String {
+        return "Woof!".to_string();
+    }
+}
+'''
+
+[[test]]
+name = "structural_subtyping_method"
+description = "Method-based structural typing"
+
+python = '''
+class Readable:
+    def read(self) -> str:
+        return ""
+
+class File:
+    def __init__(self, content: str):
+        self.content = content
+    
+    def read(self) -> str:
+        return self.content
+
+class StringBuffer:
+    def __init__(self, data: str):
+        self.data = data
+    
+    def read(self) -> str:
+        return self.data
+
+def read_all(source) -> str:
+    return source.read()
+'''
+
+rust = '''
+pub trait Readable {
+    fn read(&self) -> String;
+}
+
+pub struct File {
+    pub content: String,
+}
+
+impl File {
+    pub fn new(content: String) -> Self {
+        Self { content }
+    }
+}
+
+impl Readable for File {
+    fn read(&self) -> String {
+        return self.content.clone();
+    }
+}
+
+pub struct StringBuffer {
+    pub data: String,
+}
+
+impl StringBuffer {
+    pub fn new(data: String) -> Self {
+        Self { data }
+    }
+}
+
+impl Readable for StringBuffer {
+    fn read(&self) -> String {
+        return self.data.clone();
+    }
+}
+
+pub fn read_all(source: &impl Readable) -> String {
+    return source.read();
+}
+'''
+
+[[test]]
+name = "structural_subtyping_multiple"
+description = "Multiple structural type requirements"
+
+python = '''
+from typing import Protocol
+
+class Readable(Protocol):
+    def read(self) -> str:
+        ...
+
+class Writable(Protocol):
+    def write(self, data: str) -> None:
+        ...
+
+class ReadWriteBuffer:
+    def __init__(self):
+        self.buffer = ""
+    
+    def read(self) -> str:
+        return self.buffer
+    
+    def write(self, data: str) -> None:
+        self.buffer = data
+'''
+
+rust = '''
+pub trait Readable {
+    fn read(&self) -> String;
+}
+
+pub trait Writable {
+    fn write(&mut self, data: String);
+}
+
+pub struct ReadWriteBuffer {
+    pub buffer: String,
+}
+
+impl ReadWriteBuffer {
+    pub fn new() -> Self {
+        Self { buffer: String::new() }
+    }
+}
+
+impl Readable for ReadWriteBuffer {
+    fn read(&self) -> String {
+        return self.buffer.clone();
+    }
+}
+
+impl Writable for ReadWriteBuffer {
+    fn write(&mut self, data: String) {
+        self.buffer = data;
+    }
+}
+'''
+
+[[test]]
+name = "structural_subtyping_inheritance"
+description = "Protocol inheritance structural typing"
+
+python = '''
+from typing import Protocol
+
+class Base(Protocol):
+    def base_method(self) -> int:
+        ...
+
+class Extended(Base, Protocol):
+    def extended_method(self) -> str:
+        ...
+
+class Implementation:
+    def base_method(self) -> int:
+        return 42
+    
+    def extended_method(self) -> str:
+        return "extended"
+'''
+
+rust = '''
+pub trait Base {
+    fn base_method(&self) -> i32;
+}
+
+pub trait Extended: Base {
+    fn extended_method(&self) -> String;
+}
+
+pub struct Implementation;
+
+impl Implementation {
+    pub fn new() -> Self {
+        Self
+    }
+}
+
+impl Base for Implementation {
+    fn base_method(&self) -> i32 {
+        return 42;
+    }
+}
+
+impl Extended for Implementation {
+    fn extended_method(&self) -> String {
+        return "extended".to_string();
+    }
+}
+'''

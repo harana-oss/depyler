@@ -1,0 +1,320 @@
+[metadata]
+name = "Numeric Arrays Tests"
+category = "numeric"
+
+# =============================================================================
+# Array Module Basic
+# =============================================================================
+
+[[test]]
+name = "array_module_basic"
+description = "array.array type mapping"
+
+python = '''
+def create_int_array() -> list[int]:
+    arr = [1, 2, 3, 4, 5]
+    return arr
+'''
+
+rust = '''
+pub fn create_int_array() -> Vec<i32> {
+    let arr = vec![1, 2, 3, 4, 5];
+    return arr;
+}
+'''
+
+[[test]]
+name = "array_append"
+description = "Array append operation"
+
+python = '''
+def append_to_array(arr: list[int], value: int) -> list[int]:
+    arr.append(value)
+    return arr
+'''
+
+rust = '''
+pub fn append_to_array(mut arr: Vec<i32>, value: i32) -> Vec<i32> {
+    arr.push(value);
+    return arr;
+}
+'''
+
+[[test]]
+name = "array_extend"
+description = "Array extend operation"
+
+python = '''
+def extend_array(arr: list[int], values: list[int]) -> list[int]:
+    arr.extend(values)
+    return arr
+'''
+
+rust = '''
+pub fn extend_array(mut arr: Vec<i32>, values: Vec<i32>) -> Vec<i32> {
+    arr.extend(values);
+    return arr;
+}
+'''
+
+[[test]]
+name = "array_slice"
+description = "Array slice operation"
+
+python = '''
+def slice_array(arr: list[int], start: int, end: int) -> list[int]:
+    return arr[start:end]
+'''
+
+rust = '''
+pub fn slice_array(arr: Vec<i32>, start: i32, end: i32) -> Vec<i32> {
+    return arr[(start as usize)..(end as usize)].to_vec();
+}
+'''
+
+# =============================================================================
+# Struct Pack/Unpack
+# =============================================================================
+
+[[test]]
+name = "struct_pack_unpack"
+description = "struct.pack/unpack operations"
+
+python = '''
+def pack_int(value: int) -> list[int]:
+    b0 = value & 0xFF
+    b1 = (value >> 8) & 0xFF
+    b2 = (value >> 16) & 0xFF
+    b3 = (value >> 24) & 0xFF
+    return [b0, b1, b2, b3]
+'''
+
+rust = '''
+pub fn pack_int(value: i32) -> Vec<i32> {
+    let b0 = value & 0xFF;
+    let b1 = (value >> 8) & 0xFF;
+    let b2 = (value >> 16) & 0xFF;
+    let b3 = (value >> 24) & 0xFF;
+    return vec![b0, b1, b2, b3];
+}
+'''
+
+[[test]]
+name = "struct_unpack_int"
+description = "Unpack bytes to int"
+
+python = '''
+def unpack_int(b0: int, b1: int, b2: int, b3: int) -> int:
+    return b0 | (b1 << 8) | (b2 << 16) | (b3 << 24)
+'''
+
+rust = '''
+pub fn unpack_int(b0: i32, b1: i32, b2: i32, b3: i32) -> i32 {
+    return b0 | (b1 << 8) | (b2 << 16) | (b3 << 24);
+}
+'''
+
+[[test]]
+name = "struct_size"
+description = "Calculate struct size"
+
+python = '''
+def int_size() -> int:
+    return 4
+
+def short_size() -> int:
+    return 2
+
+def byte_size() -> int:
+    return 1
+'''
+
+rust = '''
+pub fn int_size() -> i32 {
+    return 4;
+}
+
+pub fn short_size() -> i32 {
+    return 2;
+}
+
+pub fn byte_size() -> i32 {
+    return 1;
+}
+'''
+
+# =============================================================================
+# Memoryview Advanced
+# =============================================================================
+
+[[test]]
+name = "memoryview_advanced"
+description = "Advanced memoryview operations"
+
+python = '''
+def view_sum(data: list[int]) -> int:
+    total = 0
+    for value in data:
+        total += value
+    return total
+'''
+
+rust = '''
+pub fn view_sum(data: &[i32]) -> i32 {
+    let mut total = 0;
+    for value in data {
+        total += value;
+    }
+    return total;
+}
+'''
+
+[[test]]
+name = "memoryview_slice"
+description = "Memoryview slicing"
+
+python = '''
+def view_slice(data: list[int], start: int, end: int) -> list[int]:
+    return list(data[start:end])
+'''
+
+rust = '''
+pub fn view_slice(data: &[i32], start: i32, end: i32) -> Vec<i32> {
+    return data[(start as usize)..(end as usize)].to_vec();
+}
+'''
+
+[[test]]
+name = "memoryview_readonly"
+description = "Readonly memoryview"
+
+python = '''
+def readonly_access(data: list[int], idx: int) -> int:
+    return data[idx]
+'''
+
+rust = '''
+pub fn readonly_access(data: &[i32], idx: i32) -> i32 {
+    return data[idx as usize];
+}
+'''
+
+[[test]]
+name = "memoryview_cast"
+description = "Memoryview type cast"
+
+python = '''
+def to_bytes(value: int) -> list[int]:
+    return [(value >> (i * 8)) & 0xFF for i in range(4)]
+'''
+
+rust = '''
+pub fn to_bytes(value: i32) -> Vec<i32> {
+    return (0..4).map(|i| (value >> (i * 8)) & 0xFF).collect();
+}
+'''
+
+# =============================================================================
+# Buffer Protocol
+# =============================================================================
+
+[[test]]
+name = "buffer_protocol"
+description = "Buffer protocol handling"
+
+python = '''
+class Buffer:
+    def __init__(self, size: int):
+        self.data = [0] * size
+    
+    def get(self, idx: int) -> int:
+        return self.data[idx]
+    
+    def set(self, idx: int, value: int) -> None:
+        self.data[idx] = value
+    
+    def size(self) -> int:
+        return len(self.data)
+'''
+
+rust = '''
+pub struct Buffer {
+    pub data: Vec<i32>,
+}
+
+impl Buffer {
+    pub fn new(size: i32) -> Self {
+        Self { data: vec![0; size as usize] }
+    }
+    
+    pub fn get(&self, idx: i32) -> i32 {
+        return self.data[idx as usize];
+    }
+    
+    pub fn set(&mut self, idx: i32, value: i32) {
+        self.data[idx as usize] = value;
+    }
+    
+    pub fn size(&self) -> i32 {
+        return self.data.len() as i32;
+    }
+}
+'''
+
+[[test]]
+name = "buffer_copy"
+description = "Buffer copy operation"
+
+python = '''
+def copy_buffer(src: list[int]) -> list[int]:
+    return list(src)
+'''
+
+rust = '''
+pub fn copy_buffer(src: Vec<i32>) -> Vec<i32> {
+    return src.clone();
+}
+'''
+
+[[test]]
+name = "buffer_fill"
+description = "Fill buffer with value"
+
+python = '''
+def fill_buffer(size: int, value: int) -> list[int]:
+    return [value] * size
+'''
+
+rust = '''
+pub fn fill_buffer(size: i32, value: i32) -> Vec<i32> {
+    return vec![value; size as usize];
+}
+'''
+
+[[test]]
+name = "buffer_compare"
+description = "Compare two buffers"
+
+python = '''
+def buffers_equal(a: list[int], b: list[int]) -> bool:
+    if len(a) != len(b):
+        return False
+    for i in range(len(a)):
+        if a[i] != b[i]:
+            return False
+    return True
+'''
+
+rust = '''
+pub fn buffers_equal(a: &Vec<i32>, b: &Vec<i32>) -> bool {
+    if a.len() != b.len() {
+        return false;
+    }
+    for i in 0..a.len() {
+        if a[i] != b[i] {
+            return false;
+        }
+    }
+    return true;
+}
+'''

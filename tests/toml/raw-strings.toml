@@ -215,7 +215,6 @@ let result = s == "test\\n";
 [[test]]
 name = "raw_trailing_backslash"
 description = "r'text\\' - odd backslashes at end"
-skip = true
 
 python = '''
 # This is actually invalid syntax in Python
@@ -231,7 +230,6 @@ let result = true;
 [[test]]
 name = "raw_quote_escape"
 description = "r'\\'' invalid"
-skip = true
 
 python = '''
 # Cannot escape quotes in raw strings

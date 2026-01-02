@@ -1,0 +1,187 @@
+# Python Version-Gated Behavior Tests
+# Migrated from tests/python/version_gates/test_version_features.py
+# Tests deliberately encode changes in 3.11/3.12/3.13 semantics.
+# Each test documents the targeted Python version and expected behavior.
+
+[metadata]
+name = "Version Features Tests"
+category = "version-gates"
+
+# =============================================================================
+# Python 3.11 Features
+# =============================================================================
+
+[[test]]
+name = "exception_groups_311"
+description = "Exception groups (PEP 654) - Python 3.11+"
+min_python_version = "3.11"
+python = '''
+import sys
+if sys.version_info >= (3, 11):
+    try:
+        raise ExceptionGroup(
+            "multiple errors", [ValueError("error 1"), TypeError("error 2")]
+        )
+    except* ValueError as e:
+        assert len(e.exceptions) == 1
+    except* TypeError as e:
+        assert len(e.exceptions) == 1
+'''
+
+[[test]]
+name = "exception_notes_311"
+description = "Exception notes (PEP 678) - Python 3.11+"
+min_python_version = "3.11"
+python = '''
+import sys
+if sys.version_info >= (3, 11):
+    exc = ValueError("original error")
+    exc.add_note("Additional context")
+    exc.add_note("More info")
+    assert exc.__notes__ == ["Additional context", "More info"]
+'''
+
+[[test]]
+name = "tomllib_311"
+description = "Built-in tomllib module - Python 3.11+"
+min_python_version = "3.11"
+python = '''
+import sys
+if sys.version_info >= (3, 11):
+    import tomllib
+    data = tomllib.loads('[section]\\nkey = "value"')
+    assert data["section"]["key"] == "value"
+'''
+
+[[test]]
+name = "self_type_311"
+description = "Self type from typing module - Python 3.11+"
+min_python_version = "3.11"
+python = '''
+import sys
+if sys.version_info >= (3, 11):
+    from typing import Self
+
+    class Builder:
+        def method(self) -> Self:
+            return self
+
+    b = Builder()
+    assert isinstance(b.method(), Builder)
+'''
+
+# =============================================================================
+# Python 3.12 Features
+# =============================================================================
+
+[[test]]
+name = "fstring_arbitrary_expressions_312"
+description = "F-strings allow any expression (PEP 701) - Python 3.12+"
+min_python_version = "3.12"
+python = '''
+import sys
+if sys.version_info >= (3, 12):
+    inner = "world"
+    result = f"hello {f'{inner}'}"
+    assert result == "hello world"
+'''
+
+[[test]]
+name = "comprehension_scope_312"
+description = "Comprehension scoping behavior - Python 3.12+"
+min_python_version = "3.12"
+python = '''
+import sys
+if sys.version_info >= (3, 12):
+    x = "outer"
+    result = [x for x in range(3)]
+    assert result == [0, 1, 2]
+    assert x == "outer"
+'''
+
+# =============================================================================
+# Version-Independent Behavior
+# =============================================================================
+
+[[test]]
+name = "dict_insertion_order"
+description = "Dict preserves insertion order (since 3.7)"
+python = '''
+d = {}
+d["a"] = 1
+d["b"] = 2
+d["c"] = 3
+assert list(d.keys()) == ["a", "b", "c"]
+'''
+
+[[test]]
+name = "walrus_operator"
+description = "Walrus operator (since 3.8)"
+python = '''
+if (n := len("hello")) > 3:
+    result = n
+assert result == 5
+'''
+
+[[test]]
+name = "positional_only_params"
+description = "Positional-only parameters (since 3.8)"
+python = '''
+def func(a, b, /, c, d):
+    return a + b + c + d
+
+assert func(1, 2, 3, d=4) == 10
+'''
+
+[[test]]
+name = "union_type_syntax"
+description = "Union type X | Y syntax (since 3.10)"
+python = '''
+import sys
+if sys.version_info >= (3, 10):
+    hint = int | str
+    assert isinstance(1, hint)
+    assert isinstance("x", hint)
+'''
+
+# =============================================================================
+# Deprecation Changes
+# =============================================================================
+
+[[test]]
+name = "distutils_removed_312"
+description = "distutils removed in 3.12+"
+min_python_version = "3.12"
+python = '''
+import sys
+if sys.version_info >= (3, 12):
+    try:
+        import distutils
+        assert False, "distutils should not exist in 3.12+"
+    except ModuleNotFoundError:
+        pass  # Expected
+'''
+
+# =============================================================================
+# Import System
+# =============================================================================
+
+[[test]]
+name = "importlib_resources_files"
+description = "importlib.resources API"
+python = '''
+import importlib.resources
+assert hasattr(importlib.resources, "files")
+'''
+
+[[test]]
+name = "importlib_resources_files_311"
+description = "importlib.resources.files() preferred (Python 3.11+)"
+min_python_version = "3.11"
+python = '''
+import sys
+if sys.version_info >= (3, 11):
+    from importlib.resources import files
+    result = files("os")
+    assert result is not None
+'''

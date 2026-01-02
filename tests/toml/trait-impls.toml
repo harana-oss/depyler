@@ -1,0 +1,668 @@
+[metadata]
+name = "Trait Implementation Tests"
+category = "type-system"
+
+# =============================================================================
+# Eq/PartialEq Implementation
+# =============================================================================
+
+[[test]]
+name = "eq_impl_correctness"
+description = "Correct Eq/PartialEq implementation"
+
+python = '''
+class Point:
+    def __init__(self, x: int, y: int):
+        self.x = x
+        self.y = y
+    
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, Point):
+            return self.x == other.x and self.y == other.y
+        return False
+'''
+
+rust = '''
+#[derive(Clone)]
+pub struct Point {
+    pub x: i32,
+    pub y: i32,
+}
+
+impl Point {
+    pub fn new(x: i32, y: i32) -> Self {
+        Self { x, y }
+    }
+}
+
+impl PartialEq for Point {
+    fn eq(&self, other: &Self) -> bool {
+        return self.x == other.x && self.y == other.y;
+    }
+}
+
+impl Eq for Point {}
+'''
+
+[[test]]
+name = "eq_impl_derived"
+description = "Derived Eq for simple struct"
+
+python = '''
+class Color:
+    def __init__(self, r: int, g: int, b: int):
+        self.r = r
+        self.g = g
+        self.b = b
+    
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, Color):
+            return self.r == other.r and self.g == other.g and self.b == other.b
+        return False
+'''
+
+rust = '''
+#[derive(Clone, PartialEq, Eq)]
+pub struct Color {
+    pub r: i32,
+    pub g: i32,
+    pub b: i32,
+}
+
+impl Color {
+    pub fn new(r: i32, g: i32, b: i32) -> Self {
+        Self { r, g, b }
+    }
+}
+'''
+
+[[test]]
+name = "eq_impl_ne"
+description = "Not equal implementation"
+
+python = '''
+class Value:
+    def __init__(self, n: int):
+        self.n = n
+    
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, Value):
+            return self.n == other.n
+        return False
+    
+    def __ne__(self, other: object) -> bool:
+        return not self.__eq__(other)
+'''
+
+rust = '''
+#[derive(Clone)]
+pub struct Value {
+    pub n: i32,
+}
+
+impl Value {
+    pub fn new(n: i32) -> Self {
+        Self { n }
+    }
+}
+
+impl PartialEq for Value {
+    fn eq(&self, other: &Self) -> bool {
+        return self.n == other.n;
+    }
+}
+
+impl Eq for Value {}
+'''
+
+# =============================================================================
+# Ord/PartialOrd Implementation
+# =============================================================================
+
+[[test]]
+name = "ord_impl_correctness"
+description = "Correct Ord/PartialOrd implementation"
+
+python = '''
+class Score:
+    def __init__(self, value: int):
+        self.value = value
+    
+    def __lt__(self, other: 'Score') -> bool:
+        return self.value < other.value
+    
+    def __le__(self, other: 'Score') -> bool:
+        return self.value <= other.value
+    
+    def __gt__(self, other: 'Score') -> bool:
+        return self.value > other.value
+    
+    def __ge__(self, other: 'Score') -> bool:
+        return self.value >= other.value
+'''
+
+rust = '''
+#[derive(Clone, PartialEq, Eq)]
+pub struct Score {
+    pub value: i32,
+}
+
+impl Score {
+    pub fn new(value: i32) -> Self {
+        Self { value }
+    }
+}
+
+impl PartialOrd for Score {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        return Some(self.cmp(other));
+    }
+}
+
+impl Ord for Score {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        return self.value.cmp(&other.value);
+    }
+}
+'''
+
+[[test]]
+name = "ord_impl_derived"
+description = "Derived Ord for simple struct"
+
+python = '''
+class Priority:
+    def __init__(self, level: int):
+        self.level = level
+    
+    def __lt__(self, other: 'Priority') -> bool:
+        return self.level < other.level
+'''
+
+rust = '''
+#[derive(Clone, PartialEq, Eq, PartialOrd, Ord)]
+pub struct Priority {
+    pub level: i32,
+}
+
+impl Priority {
+    pub fn new(level: i32) -> Self {
+        Self { level }
+    }
+}
+'''
+
+[[test]]
+name = "ord_impl_multi_field"
+description = "Ordering with multiple fields"
+
+python = '''
+class Version:
+    def __init__(self, major: int, minor: int, patch: int):
+        self.major = major
+        self.minor = minor
+        self.patch = patch
+    
+    def __lt__(self, other: 'Version') -> bool:
+        if self.major != other.major:
+            return self.major < other.major
+        if self.minor != other.minor:
+            return self.minor < other.minor
+        return self.patch < other.patch
+'''
+
+rust = '''
+#[derive(Clone, PartialEq, Eq)]
+pub struct Version {
+    pub major: i32,
+    pub minor: i32,
+    pub patch: i32,
+}
+
+impl Version {
+    pub fn new(major: i32, minor: i32, patch: i32) -> Self {
+        Self { major, minor, patch }
+    }
+}
+
+impl PartialOrd for Version {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        return Some(self.cmp(other));
+    }
+}
+
+impl Ord for Version {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        match self.major.cmp(&other.major) {
+            std::cmp::Ordering::Equal => {}
+            ord => return ord,
+        }
+        match self.minor.cmp(&other.minor) {
+            std::cmp::Ordering::Equal => {}
+            ord => return ord,
+        }
+        return self.patch.cmp(&other.patch);
+    }
+}
+'''
+
+# =============================================================================
+# Hash Implementation
+# =============================================================================
+
+[[test]]
+name = "hash_impl_correctness"
+description = "Hash consistency with Eq"
+
+python = '''
+class Key:
+    def __init__(self, id: int, name: str):
+        self.id = id
+        self.name = name
+    
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, Key):
+            return self.id == other.id and self.name == other.name
+        return False
+    
+    def __hash__(self) -> int:
+        return hash((self.id, self.name))
+'''
+
+rust = '''
+use std::hash::{Hash, Hasher};
+
+#[derive(Clone, PartialEq, Eq)]
+pub struct Key {
+    pub id: i32,
+    pub name: String,
+}
+
+impl Key {
+    pub fn new(id: i32, name: String) -> Self {
+        Self { id, name }
+    }
+}
+
+impl Hash for Key {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.id.hash(state);
+        self.name.hash(state);
+    }
+}
+'''
+
+[[test]]
+name = "hash_impl_derived"
+description = "Derived Hash implementation"
+
+python = '''
+class Tag:
+    def __init__(self, label: str):
+        self.label = label
+    
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, Tag):
+            return self.label == other.label
+        return False
+    
+    def __hash__(self) -> int:
+        return hash(self.label)
+'''
+
+rust = '''
+#[derive(Clone, PartialEq, Eq, Hash)]
+pub struct Tag {
+    pub label: String,
+}
+
+impl Tag {
+    pub fn new(label: String) -> Self {
+        Self { label }
+    }
+}
+'''
+
+# =============================================================================
+# Display Trait
+# =============================================================================
+
+[[test]]
+name = "display_impl"
+description = "__str__ to Display trait"
+
+python = '''
+class Person:
+    def __init__(self, name: str, age: int):
+        self.name = name
+        self.age = age
+    
+    def __str__(self) -> str:
+        return f"{self.name} ({self.age})"
+'''
+
+rust = '''
+use std::fmt;
+
+pub struct Person {
+    pub name: String,
+    pub age: i32,
+}
+
+impl Person {
+    pub fn new(name: String, age: i32) -> Self {
+        Self { name, age }
+    }
+}
+
+impl fmt::Display for Person {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{} ({})", self.name, self.age)
+    }
+}
+'''
+
+[[test]]
+name = "display_impl_custom"
+description = "Custom display format"
+
+python = '''
+class Money:
+    def __init__(self, amount: int, currency: str):
+        self.amount = amount
+        self.currency = currency
+    
+    def __str__(self) -> str:
+        return f"{self.currency}{self.amount}"
+'''
+
+rust = '''
+use std::fmt;
+
+pub struct Money {
+    pub amount: i32,
+    pub currency: String,
+}
+
+impl Money {
+    pub fn new(amount: i32, currency: String) -> Self {
+        Self { amount, currency }
+    }
+}
+
+impl fmt::Display for Money {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}{}", self.currency, self.amount)
+    }
+}
+'''
+
+# =============================================================================
+# Debug Trait
+# =============================================================================
+
+[[test]]
+name = "debug_impl"
+description = "__repr__ to Debug trait"
+
+python = '''
+class Config:
+    def __init__(self, key: str, value: int):
+        self.key = key
+        self.value = value
+    
+    def __repr__(self) -> str:
+        return f"Config(key={self.key!r}, value={self.value})"
+'''
+
+rust = '''
+use std::fmt;
+
+pub struct Config {
+    pub key: String,
+    pub value: i32,
+}
+
+impl Config {
+    pub fn new(key: String, value: i32) -> Self {
+        Self { key, value }
+    }
+}
+
+impl fmt::Debug for Config {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("Config")
+            .field("key", &self.key)
+            .field("value", &self.value)
+            .finish()
+    }
+}
+'''
+
+[[test]]
+name = "debug_impl_derived"
+description = "Derived Debug implementation"
+
+python = '''
+class Record:
+    def __init__(self, id: int, data: str):
+        self.id = id
+        self.data = data
+'''
+
+rust = '''
+#[derive(Debug)]
+pub struct Record {
+    pub id: i32,
+    pub data: String,
+}
+
+impl Record {
+    pub fn new(id: i32, data: String) -> Self {
+        Self { id, data }
+    }
+}
+'''
+
+# =============================================================================
+# Default Trait
+# =============================================================================
+
+[[test]]
+name = "default_impl"
+description = "Default value generation"
+
+python = '''
+class Settings:
+    def __init__(self, timeout: int = 30, retries: int = 3):
+        self.timeout = timeout
+        self.retries = retries
+'''
+
+rust = '''
+pub struct Settings {
+    pub timeout: i32,
+    pub retries: i32,
+}
+
+impl Settings {
+    pub fn new(timeout: i32, retries: i32) -> Self {
+        Self { timeout, retries }
+    }
+}
+
+impl Default for Settings {
+    fn default() -> Self {
+        Self { timeout: 30, retries: 3 }
+    }
+}
+'''
+
+[[test]]
+name = "default_impl_derived"
+description = "Derived Default with default values"
+
+python = '''
+class Counter:
+    def __init__(self, count: int = 0):
+        self.count = count
+'''
+
+rust = '''
+#[derive(Default)]
+pub struct Counter {
+    pub count: i32,
+}
+
+impl Counter {
+    pub fn new(count: i32) -> Self {
+        Self { count }
+    }
+}
+'''
+
+[[test]]
+name = "default_impl_complex"
+description = "Default with complex types"
+
+python = '''
+class State:
+    def __init__(self):
+        self.items = []
+        self.active = False
+        self.name = ""
+'''
+
+rust = '''
+pub struct State {
+    pub items: Vec<i32>,
+    pub active: bool,
+    pub name: String,
+}
+
+impl State {
+    pub fn new() -> Self {
+        Self::default()
+    }
+}
+
+impl Default for State {
+    fn default() -> Self {
+        Self {
+            items: vec![],
+            active: false,
+            name: String::new(),
+        }
+    }
+}
+'''
+
+# =============================================================================
+# Clone vs Copy
+# =============================================================================
+
+[[test]]
+name = "clone_vs_copy"
+description = "Correct Clone vs Copy derivation"
+
+python = '''
+class Coordinate:
+    def __init__(self, x: int, y: int):
+        self.x = x
+        self.y = y
+'''
+
+rust = '''
+#[derive(Clone, Copy)]
+pub struct Coordinate {
+    pub x: i32,
+    pub y: i32,
+}
+
+impl Coordinate {
+    pub fn new(x: i32, y: i32) -> Self {
+        Self { x, y }
+    }
+}
+'''
+
+[[test]]
+name = "clone_only_heap"
+description = "Clone only for heap-allocated data"
+
+python = '''
+class Document:
+    def __init__(self, content: str):
+        self.content = content
+    
+    def copy(self) -> 'Document':
+        return Document(self.content)
+'''
+
+rust = '''
+#[derive(Clone)]
+pub struct Document {
+    pub content: String,
+}
+
+impl Document {
+    pub fn new(content: String) -> Self {
+        Self { content }
+    }
+    
+    pub fn copy(&self) -> Document {
+        return Document::new(self.content.clone());
+    }
+}
+'''
+
+[[test]]
+name = "copy_primitive_wrapper"
+description = "Copy for primitive wrapper types"
+
+python = '''
+class Percent:
+    def __init__(self, value: float):
+        self.value = value
+'''
+
+rust = '''
+#[derive(Clone, Copy)]
+pub struct Percent {
+    pub value: f64,
+}
+
+impl Percent {
+    pub fn new(value: f64) -> Self {
+        Self { value }
+    }
+}
+'''
+
+[[test]]
+name = "clone_explicit"
+description = "Explicit clone call"
+
+python = '''
+class Buffer:
+    def __init__(self):
+        self.data = []
+    
+    def clone(self) -> 'Buffer':
+        new = Buffer()
+        new.data = list(self.data)
+        return new
+'''
+
+rust = '''
+#[derive(Clone)]
+pub struct Buffer {
+    pub data: Vec<i32>,
+}
+
+impl Buffer {
+    pub fn new() -> Self {
+        Self { data: vec![] }
+    }
+}
+'''

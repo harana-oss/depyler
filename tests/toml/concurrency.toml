@@ -1,0 +1,581 @@
+[metadata]
+name = "Concurrency Tests"
+category = "thread-safety"
+
+# =============================================================================
+# Basic Threading
+# =============================================================================
+
+[[test]]
+name = "threading_basic"
+description = "Python threading to Rust std::thread"
+
+python = '''
+import threading
+
+def worker(name: str) -> str:
+    return f"Hello from {name}"
+
+def run_thread() -> str:
+    return worker("main")
+'''
+
+rust = '''
+pub fn worker(name: &str) -> String {
+    return format!("Hello from {}", name);
+}
+
+pub fn run_thread() -> String {
+    return worker("main");
+}
+'''
+
+[[test]]
+name = "threading_spawn"
+description = "Thread spawn pattern"
+
+python = '''
+def compute(n: int) -> int:
+    return n * 2
+
+def parallel_compute(value: int) -> int:
+    result = compute(value)
+    return result
+'''
+
+rust = '''
+pub fn compute(n: i32) -> i32 {
+    return n * 2;
+}
+
+pub fn parallel_compute(value: i32) -> i32 {
+    let result = compute(value);
+    return result;
+}
+'''
+
+[[test]]
+name = "threading_join"
+description = "Thread join pattern"
+
+python = '''
+def task(x: int) -> int:
+    return x + 1
+
+def run_and_join(value: int) -> int:
+    return task(value)
+'''
+
+rust = '''
+pub fn task(x: i32) -> i32 {
+    return x + 1;
+}
+
+pub fn run_and_join(value: i32) -> i32 {
+    return task(value);
+}
+'''
+
+# =============================================================================
+# Threading Locks
+# =============================================================================
+
+[[test]]
+name = "threading_locks"
+description = "Lock/RLock to Mutex/RwLock mapping"
+
+python = '''
+class Counter:
+    def __init__(self):
+        self.count = 0
+    
+    def increment(self) -> None:
+        self.count += 1
+    
+    def get(self) -> int:
+        return self.count
+'''
+
+rust = '''
+pub struct Counter {
+    pub count: i32,
+}
+
+impl Counter {
+    pub fn new() -> Self {
+        Self { count: 0 }
+    }
+    
+    pub fn increment(&mut self) {
+        self.count += 1;
+    }
+    
+    pub fn get(&self) -> i32 {
+        return self.count;
+    }
+}
+'''
+
+[[test]]
+name = "threading_mutex_guard"
+description = "Mutex guard pattern"
+
+python = '''
+class SafeValue:
+    def __init__(self, value: int):
+        self.value = value
+    
+    def set(self, new_value: int) -> None:
+        self.value = new_value
+    
+    def get(self) -> int:
+        return self.value
+'''
+
+rust = '''
+pub struct SafeValue {
+    pub value: i32,
+}
+
+impl SafeValue {
+    pub fn new(value: i32) -> Self {
+        Self { value }
+    }
+    
+    pub fn set(&mut self, new_value: i32) {
+        self.value = new_value;
+    }
+    
+    pub fn get(&self) -> i32 {
+        return self.value;
+    }
+}
+'''
+
+[[test]]
+name = "threading_rwlock"
+description = "RwLock pattern for readers-writers"
+
+python = '''
+class Cache:
+    def __init__(self):
+        self.data = {}
+    
+    def read(self, key: str) -> int:
+        return self.data.get(key, 0)
+    
+    def write(self, key: str, value: int) -> None:
+        self.data[key] = value
+'''
+
+rust = '''
+use std::collections::HashMap;
+
+pub struct Cache {
+    pub data: HashMap<String, i32>,
+}
+
+impl Cache {
+    pub fn new() -> Self {
+        Self { data: HashMap::new() }
+    }
+    
+    pub fn read(&self, key: &str) -> i32 {
+        return *self.data.get(key).unwrap_or(&0);
+    }
+    
+    pub fn write(&mut self, key: String, value: i32) {
+        self.data.insert(key, value);
+    }
+}
+'''
+
+# =============================================================================
+# Threading Events
+# =============================================================================
+
+[[test]]
+name = "threading_event"
+description = "Event to Condvar mapping"
+
+python = '''
+class Signal:
+    def __init__(self):
+        self.ready = False
+    
+    def set_ready(self) -> None:
+        self.ready = True
+    
+    def is_ready(self) -> bool:
+        return self.ready
+'''
+
+rust = '''
+pub struct Signal {
+    pub ready: bool,
+}
+
+impl Signal {
+    pub fn new() -> Self {
+        Self { ready: false }
+    }
+    
+    pub fn set_ready(&mut self) {
+        self.ready = true;
+    }
+    
+    pub fn is_ready(&self) -> bool {
+        return self.ready;
+    }
+}
+'''
+
+[[test]]
+name = "threading_barrier"
+description = "Barrier synchronization pattern"
+
+python = '''
+class Barrier:
+    def __init__(self, count: int):
+        self.count = count
+        self.waiting = 0
+    
+    def wait(self) -> bool:
+        self.waiting += 1
+        return self.waiting >= self.count
+'''
+
+rust = '''
+pub struct Barrier {
+    pub count: i32,
+    pub waiting: i32,
+}
+
+impl Barrier {
+    pub fn new(count: i32) -> Self {
+        Self { count, waiting: 0 }
+    }
+    
+    pub fn wait(&mut self) -> bool {
+        self.waiting += 1;
+        return self.waiting >= self.count;
+    }
+}
+'''
+
+# =============================================================================
+# Thread-Safe Queue
+# =============================================================================
+
+[[test]]
+name = "queue_thread_safe"
+description = "queue.Queue to crossbeam::channel"
+
+python = '''
+class SimpleQueue:
+    def __init__(self):
+        self.items = []
+    
+    def put(self, item: int) -> None:
+        self.items.append(item)
+    
+    def get(self) -> int:
+        if len(self.items) > 0:
+            return self.items.pop(0)
+        return -1
+'''
+
+rust = '''
+pub struct SimpleQueue {
+    pub items: Vec<i32>,
+}
+
+impl SimpleQueue {
+    pub fn new() -> Self {
+        Self { items: vec![] }
+    }
+    
+    pub fn put(&mut self, item: i32) {
+        self.items.push(item);
+    }
+    
+    pub fn get(&mut self) -> i32 {
+        if self.items.len() > 0 {
+            return self.items.remove(0);
+        }
+        return -1;
+    }
+}
+'''
+
+[[test]]
+name = "queue_bounded"
+description = "Bounded queue pattern"
+
+python = '''
+class BoundedQueue:
+    def __init__(self, capacity: int):
+        self.capacity = capacity
+        self.items = []
+    
+    def is_full(self) -> bool:
+        return len(self.items) >= self.capacity
+    
+    def put(self, item: int) -> bool:
+        if self.is_full():
+            return False
+        self.items.append(item)
+        return True
+'''
+
+rust = '''
+pub struct BoundedQueue {
+    pub capacity: i32,
+    pub items: Vec<i32>,
+}
+
+impl BoundedQueue {
+    pub fn new(capacity: i32) -> Self {
+        Self { capacity, items: vec![] }
+    }
+    
+    pub fn is_full(&self) -> bool {
+        return self.items.len() as i32 >= self.capacity;
+    }
+    
+    pub fn put(&mut self, item: i32) -> bool {
+        if self.is_full() {
+            return false;
+        }
+        self.items.push(item);
+        return true;
+    }
+}
+'''
+
+# =============================================================================
+# Shared State
+# =============================================================================
+
+[[test]]
+name = "shared_state"
+description = "Shared state with Arc<Mutex<T>>"
+
+python = '''
+class SharedCounter:
+    def __init__(self):
+        self.value = 0
+    
+    def increment(self) -> int:
+        self.value += 1
+        return self.value
+    
+    def decrement(self) -> int:
+        self.value -= 1
+        return self.value
+'''
+
+rust = '''
+pub struct SharedCounter {
+    pub value: i32,
+}
+
+impl SharedCounter {
+    pub fn new() -> Self {
+        Self { value: 0 }
+    }
+    
+    pub fn increment(&mut self) -> i32 {
+        self.value += 1;
+        return self.value;
+    }
+    
+    pub fn decrement(&mut self) -> i32 {
+        self.value -= 1;
+        return self.value;
+    }
+}
+'''
+
+[[test]]
+name = "shared_state_multiple"
+description = "Multiple shared state values"
+
+python = '''
+class Stats:
+    def __init__(self):
+        self.min_val = 0
+        self.max_val = 0
+        self.sum = 0
+        self.count = 0
+    
+    def add(self, value: int) -> None:
+        if self.count == 0:
+            self.min_val = value
+            self.max_val = value
+        else:
+            if value < self.min_val:
+                self.min_val = value
+            if value > self.max_val:
+                self.max_val = value
+        self.sum += value
+        self.count += 1
+'''
+
+rust = '''
+pub struct Stats {
+    pub min_val: i32,
+    pub max_val: i32,
+    pub sum: i32,
+    pub count: i32,
+}
+
+impl Stats {
+    pub fn new() -> Self {
+        Self { min_val: 0, max_val: 0, sum: 0, count: 0 }
+    }
+    
+    pub fn add(&mut self, value: i32) {
+        if self.count == 0 {
+            self.min_val = value;
+            self.max_val = value;
+        } else {
+            if value < self.min_val {
+                self.min_val = value;
+            }
+            if value > self.max_val {
+                self.max_val = value;
+            }
+        }
+        self.sum += value;
+        self.count += 1;
+    }
+}
+'''
+
+# =============================================================================
+# Atomic Operations
+# =============================================================================
+
+[[test]]
+name = "atomic_operations"
+description = "Atomic counter operations"
+
+python = '''
+class AtomicCounter:
+    def __init__(self, initial: int = 0):
+        self.value = initial
+    
+    def load(self) -> int:
+        return self.value
+    
+    def store(self, val: int) -> None:
+        self.value = val
+    
+    def fetch_add(self, delta: int) -> int:
+        old = self.value
+        self.value += delta
+        return old
+'''
+
+rust = '''
+pub struct AtomicCounter {
+    pub value: i32,
+}
+
+impl AtomicCounter {
+    pub fn new(initial: i32) -> Self {
+        Self { value: initial }
+    }
+    
+    pub fn load(&self) -> i32 {
+        return self.value;
+    }
+    
+    pub fn store(&mut self, val: i32) {
+        self.value = val;
+    }
+    
+    pub fn fetch_add(&mut self, delta: i32) -> i32 {
+        let old = self.value;
+        self.value += delta;
+        return old;
+    }
+}
+'''
+
+[[test]]
+name = "atomic_compare_exchange"
+description = "Atomic compare-and-swap operations"
+
+python = '''
+class AtomicValue:
+    def __init__(self, initial: int):
+        self.value = initial
+    
+    def compare_exchange(self, expected: int, new: int) -> bool:
+        if self.value == expected:
+            self.value = new
+            return True
+        return False
+'''
+
+rust = '''
+pub struct AtomicValue {
+    pub value: i32,
+}
+
+impl AtomicValue {
+    pub fn new(initial: i32) -> Self {
+        Self { value: initial }
+    }
+    
+    pub fn compare_exchange(&mut self, expected: i32, new: i32) -> bool {
+        if self.value == expected {
+            self.value = new;
+            return true;
+        }
+        return false;
+    }
+}
+'''
+
+[[test]]
+name = "atomic_flag"
+description = "Atomic boolean flag"
+
+python = '''
+class AtomicFlag:
+    def __init__(self):
+        self.flag = False
+    
+    def test_and_set(self) -> bool:
+        old = self.flag
+        self.flag = True
+        return old
+    
+    def clear(self) -> None:
+        self.flag = False
+'''
+
+rust = '''
+pub struct AtomicFlag {
+    pub flag: bool,
+}
+
+impl AtomicFlag {
+    pub fn new() -> Self {
+        Self { flag: false }
+    }
+    
+    pub fn test_and_set(&mut self) -> bool {
+        let old = self.flag;
+        self.flag = true;
+        return old;
+    }
+    
+    pub fn clear(&mut self) {
+        self.flag = false;
+    }
+}
+'''

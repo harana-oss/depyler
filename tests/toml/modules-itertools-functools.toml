@@ -54,9 +54,8 @@ def all_orderings(items: list[int]) -> list[tuple[int, ...]]:
     return list(permutations(items))
 '''
 
-rust = '''
-// Transpilation failed
-'''
+[test.assertions]
+contains = ["permutations", "items"]
 
 [[test]]
 name = "itertools_takewhile"
@@ -276,9 +275,8 @@ def make_adder(n: int):
     return partial(lambda a, b: a + b, n)
 '''
 
-rust = '''
-// Transpilation failed
-'''
+[test.assertions]
+contains = ["move", "a + b", "n"]
 
 [[test]]
 name = "functools_lru_cache"
@@ -347,9 +345,8 @@ def add_pairwise(a: list[int], b: list[int]) -> list[int]:
     return [x + y for x, y in zip(a, b)]
 '''
 
-rust = '''
-// Transpilation failed
-'''
+[test.assertions]
+contains = ["zip", "x + y"]
 
 [[test]]
 name = "enumerate_iteration"

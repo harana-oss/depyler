@@ -1,0 +1,294 @@
+# Stdlib datetime Conformance Tests
+# Migrated from tests/python/stdlib/test_datetime.py
+# Tests datetime module semantics for numeric exactness and comparisons.
+# These verify the reference semantics that the transpiler must emulate.
+
+[metadata]
+name = "Datetime Conformance Tests"
+category = "stdlib"
+
+# =============================================================================
+# Date Arithmetic
+# =============================================================================
+
+[[test]]
+name = "date_subtraction_returns_timedelta"
+description = "Subtracting dates returns timedelta"
+python = '''
+from datetime import date, timedelta
+
+d1 = date(2024, 1, 15)
+d2 = date(2024, 1, 10)
+delta = d1 - d2
+assert isinstance(delta, timedelta)
+assert delta.days == 5
+'''
+
+[[test]]
+name = "date_plus_timedelta"
+description = "Adding timedelta to date returns date"
+python = '''
+from datetime import date, timedelta
+
+d = date(2024, 1, 10)
+delta = timedelta(days=5)
+result = d + delta
+assert result == date(2024, 1, 15)
+'''
+
+[[test]]
+name = "date_minus_timedelta"
+description = "Subtracting timedelta from date returns date"
+python = '''
+from datetime import date, timedelta
+
+d = date(2024, 1, 15)
+delta = timedelta(days=5)
+result = d - delta
+assert result == date(2024, 1, 10)
+'''
+
+[[test]]
+name = "month_boundary_arithmetic"
+description = "Arithmetic across month boundaries"
+python = '''
+from datetime import date, timedelta
+
+d = date(2024, 1, 31)
+result = d + timedelta(days=1)
+assert result == date(2024, 2, 1)
+'''
+
+# =============================================================================
+# Timedelta Semantics
+# =============================================================================
+
+[[test]]
+name = "timedelta_components"
+description = "Timedelta stores days, seconds, microseconds"
+python = '''
+from datetime import timedelta
+
+td = timedelta(days=1, hours=2, minutes=3, seconds=4, microseconds=5)
+assert td.days == 1
+assert td.seconds == 2 * 3600 + 3 * 60 + 4
+assert td.microseconds == 5
+'''
+
+[[test]]
+name = "timedelta_total_seconds"
+description = "total_seconds() returns float"
+python = '''
+from datetime import timedelta
+
+td = timedelta(hours=1, minutes=30)
+assert td.total_seconds() == 5400.0
+'''
+
+[[test]]
+name = "timedelta_normalization"
+description = "Timedelta normalizes components"
+python = '''
+from datetime import timedelta
+
+td = timedelta(seconds=90)
+assert td.seconds == 90
+assert td.days == 0
+
+td = timedelta(seconds=86400 + 90)
+assert td.days == 1
+assert td.seconds == 90
+'''
+
+[[test]]
+name = "negative_timedelta"
+description = "Negative timedelta representation"
+python = '''
+from datetime import timedelta
+
+td = timedelta(days=-1)
+assert td.days == -1
+assert td.seconds == 0
+
+td = timedelta(seconds=-1)
+assert td.days == -1
+assert td.seconds == 86399
+'''
+
+# =============================================================================
+# Datetime Comparison
+# =============================================================================
+
+[[test]]
+name = "naive_datetime_comparison"
+description = "Naive datetimes compare chronologically"
+python = '''
+from datetime import datetime
+
+dt1 = datetime(2024, 1, 1, 12, 0)
+dt2 = datetime(2024, 1, 1, 13, 0)
+assert dt1 < dt2
+assert dt2 > dt1
+'''
+rust = '''
+let dt1 = chrono::NaiveDate::from_ymd_opt(2024, 1, 1)
+    .unwrap()
+    .and_hms_opt(12, 0, 0)
+    .unwrap();
+let dt2 = chrono::NaiveDate::from_ymd_opt(2024, 1, 1)
+    .unwrap()
+    .and_hms_opt(13, 0, 0)
+    .unwrap();
+assert!(dt1 < dt2);
+assert!(dt2 > dt1);
+'''
+
+[[test]]
+name = "aware_datetime_comparison"
+description = "Aware datetimes compare by UTC time"
+python = '''
+from datetime import datetime, timezone, timedelta
+
+utc = timezone.utc
+plus5 = timezone(timedelta(hours=5))
+
+dt1 = datetime(2024, 1, 1, 12, 0, tzinfo=utc)
+dt2 = datetime(2024, 1, 1, 17, 0, tzinfo=plus5)
+
+assert dt1 == dt2
+'''
+rust = '''
+use chrono::{TimeZone, FixedOffset, Utc};
+
+let dt1 = Utc.with_ymd_and_hms(2024, 1, 1, 12, 0, 0).unwrap();
+let plus5 = FixedOffset::east_opt(5 * 3600).unwrap();
+let dt2 = plus5.with_ymd_and_hms(2024, 1, 1, 17, 0, 0).unwrap();
+
+assert!(dt1 == dt2);
+'''
+
+[[test]]
+name = "naive_aware_comparison_fails"
+description = "Cannot compare naive and aware datetimes"
+python = '''
+from datetime import datetime, timezone
+
+naive = datetime(2024, 1, 1)
+aware = datetime(2024, 1, 1, tzinfo=timezone.utc)
+
+try:
+    naive < aware
+    assert False, "Should have raised TypeError"
+except TypeError:
+    pass
+'''
+
+# =============================================================================
+# Time Semantics
+# =============================================================================
+
+[[test]]
+name = "time_comparison"
+description = "Time objects compare correctly"
+python = '''
+from datetime import time
+
+t1 = time(12, 0)
+t2 = time(13, 0)
+assert t1 < t2
+'''
+
+[[test]]
+name = "time_microsecond_precision"
+description = "Time supports microsecond precision"
+python = '''
+from datetime import time
+
+t = time(12, 30, 45, 123456)
+assert t.hour == 12
+assert t.minute == 30
+assert t.second == 45
+assert t.microsecond == 123456
+'''
+
+# =============================================================================
+# ISO Format
+# =============================================================================
+
+[[test]]
+name = "date_isoformat"
+description = "Date isoformat output"
+python = '''
+from datetime import date
+
+d = date(2024, 1, 15)
+assert d.isoformat() == "2024-01-15"
+'''
+
+[[test]]
+name = "datetime_isoformat"
+description = "Datetime isoformat output"
+python = '''
+from datetime import datetime
+
+dt = datetime(2024, 1, 15, 12, 30, 45)
+assert dt.isoformat() == "2024-01-15T12:30:45"
+'''
+
+[[test]]
+name = "datetime_fromisoformat"
+description = "Datetime.fromisoformat parsing"
+python = '''
+from datetime import datetime
+
+dt = datetime.fromisoformat("2024-01-15T12:30:45")
+assert dt.year == 2024
+assert dt.month == 1
+assert dt.day == 15
+assert dt.hour == 12
+'''
+
+# =============================================================================
+# Leap Year Handling
+# =============================================================================
+
+[[test]]
+name = "leap_year_feb_29"
+description = "Leap year allows Feb 29"
+python = '''
+from datetime import date
+
+d = date(2024, 2, 29)
+assert d.month == 2
+assert d.day == 29
+'''
+
+[[test]]
+name = "non_leap_year_feb_29_fails"
+description = "Non-leap year rejects Feb 29"
+python = '''
+from datetime import date
+
+try:
+    date(2023, 2, 29)
+    assert False, "Should have raised ValueError"
+except ValueError:
+    pass
+'''
+
+[[test]]
+name = "century_leap_year_rules"
+description = "Century leap year rules"
+python = '''
+from datetime import date
+
+# 2000 is a leap year (divisible by 400)
+date(2000, 2, 29)
+
+# 1900 is not a leap year (divisible by 100 but not 400)
+try:
+    date(1900, 2, 29)
+    assert False, "Should have raised ValueError"
+except ValueError:
+    pass
+'''

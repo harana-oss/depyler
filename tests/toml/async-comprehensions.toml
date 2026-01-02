@@ -409,7 +409,6 @@ async fn main() {
 [[test]]
 name = "async_comp_context"
 description = "async comprehension only in async function"
-skip = true
 python = """
 # This would be a syntax error:
 # result = [x async for x in async_iter()]
@@ -419,7 +418,6 @@ python = """
 [[test]]
 name = "await_comp_sync"
 description = "[await x for ...] in sync function is error"
-skip = true
 python = """
 # This would be a syntax error:
 # def sync_function():

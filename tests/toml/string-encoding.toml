@@ -1,0 +1,299 @@
+[metadata]
+name = "String Encoding Tests"
+category = "strings"
+
+# =============================================================================
+# UTF-8 Validation
+# =============================================================================
+
+[[test]]
+name = "utf8_validation"
+description = "UTF-8 encoding validation"
+
+python = '''
+def is_valid_utf8(s: str) -> bool:
+    try:
+        s.encode('utf-8')
+        return True
+    except UnicodeEncodeError:
+        return False
+'''
+
+rust = '''
+pub fn is_valid_utf8(s: &str) -> bool {
+    return true;
+}
+'''
+
+[[test]]
+name = "utf8_length"
+description = "UTF-8 string length"
+
+python = '''
+def string_length(s: str) -> int:
+    return len(s)
+'''
+
+rust = '''
+pub fn string_length(s: &str) -> i32 {
+    return s.chars().count() as i32;
+}
+'''
+
+[[test]]
+name = "utf8_bytes"
+description = "UTF-8 byte count"
+
+python = '''
+def byte_length(s: str) -> int:
+    return len(s.encode('utf-8'))
+'''
+
+rust = '''
+pub fn byte_length(s: &str) -> i32 {
+    return s.len() as i32;
+}
+'''
+
+# =============================================================================
+# Surrogate Pairs
+# =============================================================================
+
+[[test]]
+name = "surrogate_pairs"
+description = "Surrogate pair handling"
+
+python = '''
+def has_high_codepoint(s: str) -> bool:
+    for c in s:
+        if ord(c) > 0xFFFF:
+            return True
+    return False
+'''
+
+rust = '''
+pub fn has_high_codepoint(s: &str) -> bool {
+    for c in s.chars() {
+        if c as u32 > 0xFFFF {
+            return true;
+        }
+    }
+    return false;
+}
+'''
+
+[[test]]
+name = "codepoint_count"
+description = "Count Unicode codepoints"
+
+python = '''
+def count_codepoints(s: str) -> int:
+    return len(s)
+'''
+
+rust = '''
+pub fn count_codepoints(s: &str) -> i32 {
+    return s.chars().count() as i32;
+}
+'''
+
+# =============================================================================
+# String Indexing Unicode
+# =============================================================================
+
+[[test]]
+name = "string_indexing_unicode"
+description = "Unicode character indexing"
+
+python = '''
+def get_char(s: str, idx: int) -> str:
+    if 0 <= idx < len(s):
+        return s[idx]
+    return ""
+'''
+
+rust = '''
+pub fn get_char(s: &str, idx: i32) -> String {
+    if idx >= 0 {
+        if let Some(c) = s.chars().nth(idx as usize) {
+            return c.to_string();
+        }
+    }
+    return String::new();
+}
+'''
+
+[[test]]
+name = "string_slice_unicode"
+description = "Unicode string slicing"
+
+python = '''
+def substring(s: str, start: int, end: int) -> str:
+    return s[start:end]
+'''
+
+rust = '''
+pub fn substring(s: &str, start: i32, end: i32) -> String {
+    return s.chars()
+        .skip(start as usize)
+        .take((end - start) as usize)
+        .collect();
+}
+'''
+
+[[test]]
+name = "char_iteration"
+description = "Iterate over Unicode characters"
+
+python = '''
+def list_chars(s: str) -> list[str]:
+    return list(s)
+'''
+
+rust = '''
+pub fn list_chars(s: &str) -> Vec<String> {
+    return s.chars().map(|c| c.to_string()).collect();
+}
+'''
+
+# =============================================================================
+# Grapheme Clusters
+# =============================================================================
+
+[[test]]
+name = "grapheme_clusters"
+description = "Grapheme cluster handling"
+
+python = '''
+def count_display_chars(s: str) -> int:
+    return len(s)
+'''
+
+rust = '''
+pub fn count_display_chars(s: &str) -> i32 {
+    return s.chars().count() as i32;
+}
+'''
+
+[[test]]
+name = "grapheme_split"
+description = "Split by grapheme clusters"
+
+python = '''
+def split_graphemes(s: str) -> list[str]:
+    return list(s)
+'''
+
+rust = '''
+pub fn split_graphemes(s: &str) -> Vec<String> {
+    return s.chars().map(|c| c.to_string()).collect();
+}
+'''
+
+# =============================================================================
+# String Normalization
+# =============================================================================
+
+[[test]]
+name = "string_normalization"
+description = "Unicode normalization (NFC/NFD)"
+
+python = '''
+def normalize_string(s: str) -> str:
+    import unicodedata
+    return unicodedata.normalize('NFC', s)
+'''
+
+rust = '''
+pub fn normalize_string(s: &str) -> String {
+    return s.to_string();
+}
+'''
+
+[[test]]
+name = "case_folding"
+description = "Unicode case folding"
+
+python = '''
+def lowercase(s: str) -> str:
+    return s.lower()
+'''
+
+rust = '''
+pub fn lowercase(s: &str) -> String {
+    return s.to_lowercase();
+}
+'''
+
+[[test]]
+name = "uppercase"
+description = "Unicode uppercase"
+
+python = '''
+def uppercase(s: str) -> str:
+    return s.upper()
+'''
+
+rust = '''
+pub fn uppercase(s: &str) -> String {
+    return s.to_uppercase();
+}
+'''
+
+[[test]]
+name = "title_case"
+description = "Unicode title case"
+
+python = '''
+def titlecase(s: str) -> str:
+    return s.title()
+'''
+
+rust = '''
+pub fn titlecase(s: &str) -> String {
+    let mut result = String::new();
+    let mut capitalize_next = true;
+    for c in s.chars() {
+        if c.is_whitespace() {
+            result.push(c);
+            capitalize_next = true;
+        } else if capitalize_next {
+            result.extend(c.to_uppercase());
+            capitalize_next = false;
+        } else {
+            result.extend(c.to_lowercase());
+        }
+    }
+    return result;
+}
+'''
+
+[[test]]
+name = "string_comparison"
+description = "Unicode string comparison"
+
+python = '''
+def strings_equal(a: str, b: str) -> bool:
+    return a == b
+'''
+
+rust = '''
+pub fn strings_equal(a: &str, b: &str) -> bool {
+    return a == b;
+}
+'''
+
+[[test]]
+name = "string_contains"
+description = "Unicode substring search"
+
+python = '''
+def contains_substring(haystack: str, needle: str) -> bool:
+    return needle in haystack
+'''
+
+rust = '''
+pub fn contains_substring(haystack: &str, needle: &str) -> bool {
+    return haystack.contains(needle);
+}
+'''

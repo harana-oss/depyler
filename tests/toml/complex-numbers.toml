@@ -407,7 +407,28 @@ expected_output = "4.0+4.0j"
 [[test]]
 name = "complex_comparison"
 description = "Complex numbers cannot be compared with < > <= >="
-skip = true
+python = """
+# Complex numbers don't support ordering comparisons
+# Only equality is supported
+x = 3+4j
+y = 2+5j
+print(x == y)
+print(x != y)
+"""
+rust = """
+use num::Complex;
+
+fn main() {
+    // Complex numbers in Rust don't implement Ord
+    // Only PartialEq for equality
+    let x = Complex::new(3.0, 4.0);
+    let y = Complex::new(2.0, 5.0);
+    log::info!("{}", x == y);
+    log::info!("{}", x != y);
+}
+"""
+expected_output = """False
+True"""
 
 [[test]]
 name = "complex_equality"

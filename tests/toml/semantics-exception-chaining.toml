@@ -1,0 +1,173 @@
+# CPython Exception Chaining Tests
+# Migrated from tests/python/semantics/test_exception_chaining.py
+# Tests raise X from Y, __context__, __cause__, __suppress_context__.
+# These verify the reference semantics that the transpiler must emulate.
+
+[metadata]
+name = "Exception Chaining Semantics Tests"
+category = "semantics"
+
+# =============================================================================
+# Explicit Chaining with 'raise ... from ...'
+# =============================================================================
+
+[[test]]
+name = "raise_from_sets_cause"
+description = "'raise X from Y' sets __cause__ to Y"
+python = '''
+try:
+    try:
+        raise ValueError("original")
+    except ValueError as e:
+        raise RuntimeError("wrapper") from e
+except RuntimeError as e:
+    assert str(e.__cause__) == "original"
+    assert isinstance(e.__cause__, ValueError)
+'''
+
+[[test]]
+name = "raise_from_none_suppresses_context"
+description = "'raise X from None' suppresses implicit context"
+python = '''
+try:
+    try:
+        raise ValueError("original")
+    except ValueError:
+        raise RuntimeError("new") from None
+except RuntimeError as e:
+    assert e.__cause__ is None
+    assert e.__suppress_context__ == True
+'''
+
+[[test]]
+name = "raise_from_sets_suppress_context"
+description = "'raise X from Y' sets __suppress_context__ to True"
+python = '''
+try:
+    try:
+        raise ValueError("original")
+    except ValueError as e:
+        raise RuntimeError("wrapper") from e
+except RuntimeError as e:
+    assert e.__suppress_context__ == True
+'''
+
+# =============================================================================
+# Implicit Chaining via __context__
+# =============================================================================
+
+[[test]]
+name = "implicit_context_set"
+description = "Re-raising in except block sets __context__"
+python = '''
+try:
+    try:
+        raise ValueError("first")
+    except ValueError:
+        raise RuntimeError("second")
+except RuntimeError as e:
+    assert isinstance(e.__context__, ValueError)
+    assert str(e.__context__) == "first"
+    assert e.__suppress_context__ == False
+'''
+
+[[test]]
+name = "context_chain"
+description = "Multiple exceptions form a chain via __context__"
+python = '''
+try:
+    try:
+        try:
+            raise ValueError("first")
+        except ValueError:
+            raise TypeError("second")
+    except TypeError:
+        raise RuntimeError("third")
+except RuntimeError as e:
+    assert isinstance(e.__context__, TypeError)
+    assert isinstance(e.__context__.__context__, ValueError)
+'''
+
+# =============================================================================
+# __cause__ vs __context__ Precedence
+# =============================================================================
+
+[[test]]
+name = "cause_takes_precedence"
+description = "__cause__ takes precedence over __context__ in display"
+python = '''
+try:
+    try:
+        raise ValueError("original")
+    except ValueError as orig:
+        try:
+            raise TypeError("intermediate")
+        except TypeError:
+            raise RuntimeError("final") from orig
+except RuntimeError as e:
+    assert isinstance(e.__cause__, ValueError)
+    assert isinstance(e.__context__, TypeError)
+    assert e.__suppress_context__ == True
+'''
+
+# =============================================================================
+# Exception Attribute Manipulation
+# =============================================================================
+
+[[test]]
+name = "cause_can_be_set_directly"
+description = "__cause__ can be set directly on exception"
+python = '''
+e = RuntimeError("error")
+cause = ValueError("cause")
+e.__cause__ = cause
+assert e.__cause__ is cause
+'''
+
+[[test]]
+name = "context_can_be_set_directly"
+description = "__context__ can be set directly on exception"
+python = '''
+e = RuntimeError("error")
+context = ValueError("context")
+e.__context__ = context
+assert e.__context__ is context
+'''
+
+[[test]]
+name = "suppress_context_default_false"
+description = "__suppress_context__ defaults to False"
+python = '''
+e = RuntimeError("error")
+assert e.__suppress_context__ == False
+'''
+
+# =============================================================================
+# Exception Chain Breaking
+# =============================================================================
+
+[[test]]
+name = "none_cause_with_context"
+description = "Setting __cause__ to None but __suppress_context__ False shows context"
+python = '''
+e = RuntimeError("error")
+e.__cause__ = None
+e.__suppress_context__ = False
+e.__context__ = ValueError("context")
+assert e.__cause__ is None
+assert e.__context__ is not None
+'''
+
+[[test]]
+name = "reraise_preserves_chain"
+description = "Plain 'raise' preserves the exception chain"
+python = '''
+try:
+    try:
+        raise ValueError("original")
+    except ValueError as e:
+        e.__cause__ = TypeError("explicit_cause")
+        raise
+except ValueError as e:
+    assert isinstance(e.__cause__, TypeError)
+'''

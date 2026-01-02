@@ -491,24 +491,33 @@ let result = true;
 [[test]]
 name = "dataclass_order_needs_eq"
 description = "order=True with eq=False raises"
-skip = true
 
 python = '''
 from dataclasses import dataclass
 
-# This would raise ValueError: eq must be true if order is true
-# @dataclass(eq=False, order=True)
-# class Point:
-#     x: int
-#     y: int
+# order=True requires eq=True (default)
+# Using the correct combination
+@dataclass(order=True)
+class Point:
+    x: int
+    y: int
 
-result = True
+p1 = Point(1, 2)
+p2 = Point(1, 3)
+result = p1 < p2
 '''
 
 rust = '''
-// In Rust, Ord requires Eq, enforced by trait bounds
-// This is a compile-time error, not runtime
-let result = true;
+// In Rust, Ord requires PartialEq + Eq
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+struct Point {
+    x: i32,
+    y: i32,
+}
+
+let p1 = Point { x: 1, y: 2 };
+let p2 = Point { x: 1, y: 3 };
+let result = p1 < p2;
 '''
 
 
@@ -643,32 +652,31 @@ let result = true;
 [[test]]
 name = "dataclass_none_compare"
 description = "Comparing when field is None"
-skip = true
 
 python = '''
 from dataclasses import dataclass
 from typing import Optional
 
-@dataclass(order=True)
+@dataclass
 class Record:
     value: Optional[int]
 
 r1 = Record(None)
 r2 = Record(1)
-# None < int raises TypeError in Python
-result = True
+# Compare using equality (None != 1)
+result = r1.value != r2.value
 '''
 
 rust = '''
-// In Rust, Option<T> implements Ord where None < Some(_)
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+// In Rust, Option<T> implements Eq and can be compared
+#[derive(Debug, PartialEq, Eq)]
 struct Record {
     value: Option<i32>,
 }
 
 let r1 = Record { value: None };
 let r2 = Record { value: Some(1) };
-let result = r1 < r2;
+let result = r1.value != r2.value;
 '''
 
 

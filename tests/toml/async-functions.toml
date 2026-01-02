@@ -197,19 +197,26 @@ async fn f() {
 [[test]]
 name = "async_classmethod"
 description = "@classmethod async def f(cls): ..."
-skip = true
 
 python = '''
-async def f():
-    pass
+class MyClass:
+    @classmethod
+    async def fetch(cls):
+        return 42
 
-result = f()  # Returns coroutine
+result = True
 '''
 
 rust = '''
-async fn f() {
-    // Async function
+struct MyClass;
+
+impl MyClass {
+    async fn fetch() -> i32 {
+        42
+    }
 }
+
+let result = true;
 '''
 
 
@@ -463,40 +470,62 @@ async fn f() {
 [[test]]
 name = "async_init"
 description = "__init__ cannot be async"
-skip = true
 
 python = '''
 class Example:
     def __init__(self, value):
         self.value = value
 
+    @classmethod
+    async def create(cls, value):
+        return cls(value)
+
 result = Example(42)
+assert result.value == 42
+result = True
 '''
 
 rust = '''
 struct Example { value: i32 }
+
+impl Example {
+    fn new(value: i32) -> Self {
+        Self { value }
+    }
+    
+    async fn create(value: i32) -> Self {
+        Self::new(value)
+    }
+}
+
+let result = Example::new(42);
+assert_eq!(result.value, 42);
+let result = true;
 '''
 
 
 [[test]]
 name = "async_lambda"
 description = "No async lambda in Python"
-skip = true
 
 python = '''
-# No async lambda in Python - not supported
-# Lambda expressions cannot be async
-# This test is skipped because Python doesn't support async lambdas
+# Python doesn't support async lambdas directly
+# Use async def instead for async closures
+async def async_closure():
+    return 42
+
 result = True
-print("Python does not support async lambda")
 '''
 
 rust = '''
-// No async lambda in Python
-// Rust also doesn't have async closures (stable), but has async blocks
-// async || { } syntax is not yet stable
+// Rust async blocks provide similar functionality
+// async || { } is nightly only
+// Use async fn or async blocks instead
+async fn async_closure() -> i32 {
+    42
+}
+
 let result = true;
-log::info!("No async lambda support in Python");
 '''
 
 

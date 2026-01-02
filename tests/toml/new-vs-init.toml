@@ -615,7 +615,6 @@ pub fn check() -> String {
 [[test]]
 name = "new_return_none"
 description = "__new__ returning None (edge case)"
-skip = true  # Invalid Python behavior
 
 python = '''
 class NoneClass:
@@ -694,6 +693,5 @@ def create_both() -> tuple:
     return (a, b)
 '''
 
-rust = '''
-// Transpilation failed
-'''
+[test.assertions]
+contains = ["WithFactory", "WithNew", "value"]

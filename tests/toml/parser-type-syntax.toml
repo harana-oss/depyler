@@ -1,0 +1,269 @@
+# Type Syntax Tests
+# Migrated from tests/python/parser/test_type_syntax.py
+# Tests PEP 604 unions (X | Y), typing.Annotated, type statements (3.12+).
+# These verify the parser accepts modern syntax and preserves semantics.
+
+[metadata]
+name = "Type Syntax Tests"
+category = "parser"
+
+# =============================================================================
+# PEP 604 Union Syntax (X | Y)
+# =============================================================================
+
+[[test]]
+name = "union_type_hint"
+description = "X | Y in type hints"
+python = '''
+from typing import get_type_hints
+
+def func(x: int | str) -> int | str:
+    return x
+
+hints = get_type_hints(func)
+assert hints["x"] == int | str
+assert hints["return"] == int | str
+'''
+
+[[test]]
+name = "union_with_none"
+description = "X | None is equivalent to Optional[X]"
+python = '''
+from typing import get_type_hints
+
+def func(x: int | None) -> int | None:
+    return x
+
+hints = get_type_hints(func)
+assert hints["x"] == int | None
+'''
+
+[[test]]
+name = "union_multiple"
+description = "Multiple types in union"
+python = '''
+from typing import get_type_hints
+
+def func(x: int | str | float | None) -> int | str | float | None:
+    return x
+
+hints = get_type_hints(func)
+assert hints["x"] == int | str | float | None
+'''
+
+[[test]]
+name = "union_isinstance"
+description = "isinstance with union type"
+python = '''
+assert isinstance(42, int | str)
+assert isinstance("hello", int | str)
+assert not isinstance(3.14, int | str)
+'''
+
+# =============================================================================
+# typing.Annotated
+# =============================================================================
+
+[[test]]
+name = "annotated_basic"
+description = "Annotated preserves base type"
+python = '''
+from typing import Annotated, get_type_hints
+
+def func(x: Annotated[int, "positive"]) -> int:
+    return x
+
+hints = get_type_hints(func)
+assert hints["x"] == int
+'''
+
+[[test]]
+name = "annotated_metadata"
+description = "Annotated metadata access"
+python = '''
+from typing import Annotated, get_type_hints
+
+def func(x: Annotated[int, "metadata1", "metadata2"]) -> int:
+    return x
+
+hints = get_type_hints(func, include_extras=True)
+ann = hints["x"]
+if hasattr(ann, "__origin__") and ann.__origin__ is not int:
+    assert ann.__origin__ is Annotated
+    assert ann.__metadata__ == ("metadata1", "metadata2")
+'''
+
+# =============================================================================
+# Generic Syntax
+# =============================================================================
+
+[[test]]
+name = "list_generic"
+description = "list[int] syntax"
+python = '''
+from typing import get_type_hints
+
+def func(x: list[int]) -> list[int]:
+    return x
+
+hints = get_type_hints(func)
+assert hints["x"] == list[int]
+'''
+
+[[test]]
+name = "dict_generic"
+description = "dict[K, V] syntax"
+python = '''
+from typing import get_type_hints
+
+def func(x: dict[str, int]) -> dict[str, int]:
+    return x
+
+hints = get_type_hints(func)
+assert hints["x"] == dict[str, int]
+'''
+
+[[test]]
+name = "nested_generic"
+description = "Nested generic types"
+python = '''
+from typing import get_type_hints
+
+def func(x: list[dict[str, list[int]]]) -> None:
+    pass
+
+hints = get_type_hints(func)
+assert hints["x"] == list[dict[str, list[int]]]
+'''
+
+[[test]]
+name = "tuple_generic"
+description = "tuple[...] syntax"
+python = '''
+from typing import get_type_hints
+
+def func(x: tuple[int, str, float]) -> tuple[int, ...]:
+    return (1,)
+
+hints = get_type_hints(func)
+assert hints["x"] == tuple[int, str, float]
+assert hints["return"] == tuple[int, ...]
+'''
+
+# =============================================================================
+# Callable
+# =============================================================================
+
+[[test]]
+name = "callable_syntax"
+description = "collections.abc.Callable syntax"
+python = '''
+from collections.abc import Callable
+from typing import get_type_hints
+
+def func(f: Callable[[int], str]) -> None:
+    pass
+
+hints = get_type_hints(func)
+assert hints["f"] == Callable[[int], str]
+'''
+
+# =============================================================================
+# Type Aliases
+# =============================================================================
+
+[[test]]
+name = "simple_alias"
+description = "Simple type alias"
+python = '''
+from typing import get_type_hints
+
+Vector = list[float]
+
+def scale(v: Vector, factor: float) -> Vector:
+    return [x * factor for x in v]
+
+hints = get_type_hints(scale)
+assert hints["v"] == list[float]
+'''
+
+# =============================================================================
+# Self Type (PEP 673)
+# =============================================================================
+
+[[test]]
+name = "self_in_method"
+description = "Self type in method return"
+python = '''
+from typing import Self
+
+class Builder:
+    def add(self, x: int) -> Self:
+        return self
+
+b = Builder()
+result = b.add(1)
+assert isinstance(result, Builder)
+'''
+
+# =============================================================================
+# TypeGuard (PEP 647)
+# =============================================================================
+
+[[test]]
+name = "typeguard_basic"
+description = "TypeGuard narrows type"
+python = '''
+from typing import TypeGuard
+
+def is_str_list(val: list[object]) -> TypeGuard[list[str]]:
+    return all(isinstance(x, str) for x in val)
+
+data: list[object] = ["a", "b", "c"]
+if is_str_list(data):
+    result = data[0].upper()
+    assert result == "A"
+'''
+
+# =============================================================================
+# Literal Type
+# =============================================================================
+
+[[test]]
+name = "literal_string"
+description = "Literal with strings"
+python = '''
+from typing import Literal
+
+def process(mode: Literal["read", "write"]) -> str:
+    return mode
+
+assert process("read") == "read"
+'''
+
+[[test]]
+name = "literal_int"
+description = "Literal with integers"
+python = '''
+from typing import Literal
+
+def get_priority(level: Literal[1, 2, 3]) -> str:
+    return ["low", "medium", "high"][level - 1]
+
+assert get_priority(1) == "low"
+'''
+
+# =============================================================================
+# Final Type
+# =============================================================================
+
+[[test]]
+name = "final_annotation"
+description = "Final marks constant"
+python = '''
+from typing import Final
+
+MAX_SIZE: Final[int] = 100
+
+assert MAX_SIZE == 100
+'''

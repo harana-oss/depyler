@@ -1,0 +1,332 @@
+# Stdlib Decimal and Fractions Conformance Tests
+# Migrated from tests/python/stdlib/test_decimal_fractions.py
+# Tests numeric exactness and comparisons for arbitrary precision types.
+# These verify the reference semantics that the transpiler must emulate.
+
+[metadata]
+name = "Decimal Fractions Conformance Tests"
+category = "stdlib"
+
+# =============================================================================
+# Basic Decimal Operations
+# =============================================================================
+
+[[test]]
+name = "decimal_from_string"
+description = "Decimal from string is exact"
+python = '''
+from decimal import Decimal
+
+d = Decimal("0.1")
+assert str(d) == "0.1"
+'''
+
+[[test]]
+name = "decimal_from_float_inexact"
+description = "Decimal from float may be inexact"
+python = '''
+from decimal import Decimal
+
+d = Decimal(0.1)
+assert str(d) != "0.1"  # Float has representation error
+'''
+
+[[test]]
+name = "decimal_arithmetic_exact"
+description = "Decimal arithmetic is exact"
+python = '''
+from decimal import Decimal
+
+d1 = Decimal("0.1")
+d2 = Decimal("0.2")
+assert d1 + d2 == Decimal("0.3")
+'''
+
+[[test]]
+name = "decimal_comparison"
+description = "Decimal comparison works correctly"
+python = '''
+from decimal import Decimal
+
+assert Decimal("0.1") < Decimal("0.2")
+assert Decimal("1.0") == Decimal("1")
+'''
+
+# =============================================================================
+# Decimal Rounding
+# =============================================================================
+
+[[test]]
+name = "quantize_round_half_up"
+description = "quantize with ROUND_HALF_UP"
+python = '''
+from decimal import Decimal, ROUND_HALF_UP
+
+d = Decimal("2.5")
+result = d.quantize(Decimal("1"), rounding=ROUND_HALF_UP)
+assert result == Decimal("3")
+'''
+
+[[test]]
+name = "quantize_round_down"
+description = "quantize with ROUND_DOWN"
+python = '''
+from decimal import Decimal, ROUND_DOWN
+
+d = Decimal("2.9")
+result = d.quantize(Decimal("1"), rounding=ROUND_DOWN)
+assert result == Decimal("2")
+'''
+
+[[test]]
+name = "round_builtin_decimal"
+description = "round() uses Decimal's rounding"
+python = '''
+from decimal import Decimal
+
+d = Decimal("2.5")
+# Python's round uses banker's rounding for Decimal
+assert round(d) == Decimal("2")
+'''
+
+# =============================================================================
+# Decimal Special Values
+# =============================================================================
+
+[[test]]
+name = "decimal_infinity"
+description = "Decimal infinity"
+python = '''
+from decimal import Decimal
+
+inf = Decimal("Infinity")
+assert inf.is_infinite()
+assert not inf.is_nan()
+'''
+
+[[test]]
+name = "decimal_nan"
+description = "Decimal NaN"
+python = '''
+from decimal import Decimal
+
+nan = Decimal("NaN")
+assert nan.is_nan()
+assert nan != nan  # NaN is not equal to itself
+'''
+
+[[test]]
+name = "decimal_negative_zero"
+description = "Decimal negative zero"
+python = '''
+from decimal import Decimal
+
+neg_zero = Decimal("-0")
+pos_zero = Decimal("0")
+assert neg_zero == pos_zero
+assert neg_zero.is_signed()
+'''
+
+# =============================================================================
+# Basic Fraction Operations
+# =============================================================================
+
+[[test]]
+name = "fraction_from_integers"
+description = "Fraction from integers"
+python = '''
+from fractions import Fraction
+
+f = Fraction(1, 3)
+assert f.numerator == 1
+assert f.denominator == 3
+'''
+
+[[test]]
+name = "fraction_auto_reduction"
+description = "Fractions are automatically reduced"
+python = '''
+from fractions import Fraction
+
+f = Fraction(4, 8)
+assert f.numerator == 1
+assert f.denominator == 2
+'''
+
+[[test]]
+name = "fraction_from_float"
+description = "Fraction from float"
+python = '''
+from fractions import Fraction
+
+f = Fraction(0.5)
+assert f == Fraction(1, 2)
+'''
+
+[[test]]
+name = "fraction_from_decimal"
+description = "Fraction from Decimal"
+python = '''
+from fractions import Fraction
+from decimal import Decimal
+
+f = Fraction(Decimal("0.5"))
+assert f == Fraction(1, 2)
+'''
+
+[[test]]
+name = "fraction_from_string"
+description = "Fraction from string"
+python = '''
+from fractions import Fraction
+
+f = Fraction("3/4")
+assert f == Fraction(3, 4)
+'''
+
+# =============================================================================
+# Fraction Arithmetic
+# =============================================================================
+
+[[test]]
+name = "fraction_addition"
+description = "Fraction addition"
+python = '''
+from fractions import Fraction
+
+assert Fraction(1, 4) + Fraction(1, 4) == Fraction(1, 2)
+assert Fraction(1, 3) + Fraction(1, 6) == Fraction(1, 2)
+'''
+
+[[test]]
+name = "fraction_subtraction"
+description = "Fraction subtraction"
+python = '''
+from fractions import Fraction
+
+assert Fraction(1, 2) - Fraction(1, 4) == Fraction(1, 4)
+'''
+
+[[test]]
+name = "fraction_multiplication"
+description = "Fraction multiplication"
+python = '''
+from fractions import Fraction
+
+assert Fraction(1, 2) * Fraction(2, 3) == Fraction(1, 3)
+'''
+
+[[test]]
+name = "fraction_division"
+description = "Fraction division"
+python = '''
+from fractions import Fraction
+
+assert Fraction(1, 2) / Fraction(1, 4) == Fraction(2, 1)
+'''
+
+[[test]]
+name = "fraction_power"
+description = "Fraction power"
+python = '''
+from fractions import Fraction
+
+assert Fraction(2, 3) ** 2 == Fraction(4, 9)
+'''
+
+# =============================================================================
+# Fraction Comparison
+# =============================================================================
+
+[[test]]
+name = "fraction_comparison"
+description = "Fraction comparison operators"
+python = '''
+from fractions import Fraction
+
+assert Fraction(1, 3) < Fraction(1, 2)
+assert Fraction(2, 4) == Fraction(1, 2)
+assert Fraction(2, 3) > Fraction(1, 2)
+'''
+
+[[test]]
+name = "fraction_with_int"
+description = "Fraction comparison with int"
+python = '''
+from fractions import Fraction
+
+assert Fraction(3, 2) > 1
+assert Fraction(1, 2) < 1
+assert Fraction(2, 1) == 2
+'''
+
+[[test]]
+name = "fraction_with_float"
+description = "Fraction comparison with float"
+python = '''
+from fractions import Fraction
+
+assert Fraction(1, 2) == 0.5
+assert Fraction(1, 3) < 0.34
+'''
+
+# =============================================================================
+# Fraction Conversion
+# =============================================================================
+
+[[test]]
+name = "fraction_to_float"
+description = "Fraction to float"
+python = '''
+from fractions import Fraction
+
+f = Fraction(1, 4)
+assert float(f) == 0.25
+'''
+
+[[test]]
+name = "fraction_to_int_truncates"
+description = "Fraction to int truncates"
+python = '''
+from fractions import Fraction
+
+assert int(Fraction(7, 3)) == 2
+assert int(Fraction(-7, 3)) == -2
+'''
+
+[[test]]
+name = "fraction_limit_denominator"
+description = "Fraction.limit_denominator approximates"
+python = '''
+from fractions import Fraction
+
+f = Fraction("3.14159265358979")
+approx = f.limit_denominator(100)
+assert approx == Fraction(311, 99)
+'''
+
+# =============================================================================
+# Mixed Precision Arithmetic
+# =============================================================================
+
+[[test]]
+name = "decimal_fraction_comparison"
+description = "Decimal and Fraction comparison"
+python = '''
+from decimal import Decimal
+from fractions import Fraction
+
+d = Decimal("0.5")
+f = Fraction(1, 2)
+assert d == f
+'''
+
+[[test]]
+name = "fraction_int_arithmetic"
+description = "Fraction and int arithmetic"
+python = '''
+from fractions import Fraction
+
+assert Fraction(1, 2) + 1 == Fraction(3, 2)
+assert 2 * Fraction(1, 3) == Fraction(2, 3)
+'''

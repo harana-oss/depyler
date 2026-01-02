@@ -665,7 +665,6 @@ let result = person.greet();
 [[test]]
 name = "decorator_return_none"
 description = "Decorator not returning function"
-skip = true
 
 python = '''
 def bad_decorator(f):
@@ -718,7 +717,6 @@ let result = greet();
 [[test]]
 name = "decorator_lambda"
 description = "@decorator applied to lambda"
-skip = true
 
 python = '''
 def add_one(f):

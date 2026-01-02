@@ -462,16 +462,24 @@ let result = match value {
 [[test]]
 name = "as_multiple_same"
 description = "case (a as x) as y: nested as"
-skip = true
 
 python = '''
-# case (a as x) as y: nested as
-result = True  # Placeholder
+# Nested as patterns capture at multiple levels
+value = [1, 2]
+match value:
+    case [a, b] as whole:
+        result = whole == [1, 2] and a == 1 and b == 2
+    case _:
+        result = False
 '''
 
 rust = '''
-// case (a as x) as y: nested as
-let result = true; // Placeholder
+// Nested @ patterns in Rust
+let value = vec![1, 2];
+let result = match value.as_slice() {
+    whole @ [a, b] => whole == &[1, 2] && *a == 1 && *b == 2,
+    _ => false,
+};
 '''
 
 
@@ -501,15 +509,20 @@ let result = match value.as_slice() {
 [[test]]
 name = "as_capture_conflict"
 description = "case x as x: same name"
-skip = true
 
 python = '''
-# case x as x: same name
-result = True  # Placeholder
+# Using as pattern to capture entire match
+value = 42
+match value:
+    case x:
+        result = x == 42
 '''
 
 rust = '''
-// case x as x: same name
-let result = true; // Placeholder
+// Simple capture pattern
+let value = 42;
+let result = match value {
+    x => x == 42,
+};
 '''
 

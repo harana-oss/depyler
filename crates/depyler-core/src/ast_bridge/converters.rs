@@ -95,18 +95,10 @@ impl StmtConverter {
                 type_annotation: None,
             })
         } else {
-            // Handle a = b = c = value by creating a sequence of assignments
-            // We need to assign value to each target from right to left
-            // Convert to: temp = value; c = temp; b = temp; a = temp
-            // For simplicity, we'll just assign to the first target
-            // A proper implementation would use a block with multiple assigns
-            let target = extract_assign_target(&a.targets[0])?;
-            let value = super::convert_expr(*a.value)?;
-            Ok(HirStmt::Assign {
-                target,
-                value,
-                type_annotation: None,
-            })
+            // Chained assignment like a = b = c = value is not supported
+            anyhow::bail!(
+                "Chained assignment (a = b = c = value) is not supported. Use separate assignments instead."
+            )
         }
     }
 

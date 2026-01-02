@@ -705,7 +705,6 @@ fn test_numbers_abc() -> i32 {
 [[test]]
 name = "abc_partial"
 description = "Subclass implements some but not all abstract methods"
-skip = true
 
 python = '''
 from abc import ABC, abstractmethod

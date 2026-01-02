@@ -343,7 +343,6 @@ let result = match x {
 [[test]]
 name = "or_guard_capture"
 description = "case x | y if x > 0: ..."
-skip = true
 
 python = '''
 # Invalid: OR patterns can't use different variable names

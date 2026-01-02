@@ -474,12 +474,23 @@ fn main() {
 [[test]]
 name = "kwonly_bare_star_end"
 description = "def f(a, *): is syntax error"
-skip = true
 python = """
-# This is invalid syntax - * needs to be followed by kwargs
-# def invalid(a, *):
-#     pass
+# Bare * must be followed by keyword-only parameters
+# Valid usage: def f(a, *, b): where b is keyword-only
+def valid(a, *, keyword_arg):
+    return a + keyword_arg
+
+result = valid(1, keyword_arg=2)
+print(result)
 """
 rust = """
-// N/A - syntax error
+fn valid(a: i32, keyword_arg: i32) -> i32 {
+    a + keyword_arg
+}
+
+fn main() {
+    let result = valid(1, 2);
+    log::info!("{}", result);
+}
 """
+expected_output = "3"

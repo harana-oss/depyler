@@ -57,7 +57,6 @@ impl<'de> Deserialize<'de> for SkipValue {
             where
                 A: de::SeqAccess<'de>,
             {
-                // Any array means skip = true
                 Ok(SkipValue(true))
             }
         }
@@ -77,6 +76,7 @@ pub struct TomlTest {
     pub expected_output: Option<String>,
     #[serde(default)]
     pub skip: SkipValue,
+    pub skip_reason: Option<String>,
     #[serde(default)]
     pub assertions: TestAssertions,
 }
@@ -297,8 +297,7 @@ fn run_tests_parallel(
         .iter()
         .flat_map(|pf| {
             pf.tests.iter().filter_map(move |test| {
-                // Skip tests marked with skip = true
-                if test.skip.0 {
+                if test.skip.0 || test.skip_reason.is_some() {
                     return None;
                 }
                 // Apply filter
@@ -413,8 +412,7 @@ fn run_tests_from_file(
     let pipeline = DepylerPipeline::new();
 
     for test in test_file.test {
-        // Skip tests marked with skip = true
-        if test.skip.0 {
+        if test.skip.0 || test.skip_reason.is_some() {
             results.push(TestResult {
                 name: test.name.clone(),
                 file: file_name.clone(),
@@ -492,6 +490,11 @@ fn run_single_test(
     let python_code = test.python.clone();
     let assertions = test.assertions.clone();
     let file = file_name.to_string();
+    let expects_failure = test
+        .rust
+        .as_ref()
+        .map(|r| r.trim().starts_with("// Transpilation failed"))
+        .unwrap_or(false);
 
     // Catch panics during transpilation
     let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
@@ -501,6 +504,20 @@ fn run_single_test(
 
     match result {
         Ok(Ok(rust_code)) => {
+            // If test expects failure but succeeded, that's a failure
+            if expects_failure {
+                return TestResult {
+                    name: test_name,
+                    file,
+                    passed: false,
+                    error: Some(format!(
+                        "Expected transpilation to fail, but it succeeded:\n{}",
+                        rust_code
+                    )),
+                    duration_ms,
+                };
+            }
+
             // Check assertions
             if let Err(e) = check_assertions(&rust_code, &assertions) {
                 return TestResult {
@@ -539,13 +556,25 @@ fn run_single_test(
                 duration_ms,
             }
         }
-        Ok(Err(e)) => TestResult {
-            name: test_name,
-            file,
-            passed: false,
-            error: Some(format!("Transpilation failed: {}", e)),
-            duration_ms,
-        },
+        Ok(Err(e)) => {
+            // If test expects failure and it failed, that's a pass
+            if expects_failure {
+                return TestResult {
+                    name: test_name,
+                    file,
+                    passed: true,
+                    error: None,
+                    duration_ms,
+                };
+            }
+            TestResult {
+                name: test_name,
+                file,
+                passed: false,
+                error: Some(format!("Transpilation failed: {}", e)),
+                duration_ms,
+            }
+        }
         Err(panic_info) => {
             let panic_msg = if let Some(s) = panic_info.downcast_ref::<&str>() {
                 s.to_string()
@@ -554,6 +583,7 @@ fn run_single_test(
             } else {
                 "Unknown panic".to_string()
             };
+            // Panics are still failures even for expected failure tests
             TestResult {
                 name: test_name,
                 file,

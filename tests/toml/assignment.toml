@@ -386,7 +386,6 @@ pub fn set_key(d: &mut HashMap<serde_json::Value, serde_json::Value>, key: Strin
 [[test]]
 name = "multi_assign_same_value"
 description = "Multiple variables same value (not yet supported)"
-skip = true
 
 python = '''
 def multi_assign():

@@ -1,0 +1,400 @@
+[metadata]
+name = "Numeric Precision Tests"
+category = "numeric"
+
+# =============================================================================
+# Integer Overflow Behavior
+# =============================================================================
+
+[[test]]
+name = "int_overflow_behavior"
+description = "Python arbitrary precision int handling"
+
+python = '''
+def large_multiply(a: int, b: int) -> int:
+    return a * b
+'''
+
+rust = '''
+pub fn large_multiply(a: i32, b: i32) -> i32 {
+    return a * b;
+}
+'''
+
+[[test]]
+name = "int_overflow_add"
+description = "Addition overflow handling"
+
+python = '''
+def safe_add(a: int, b: int) -> int:
+    return a + b
+'''
+
+rust = '''
+pub fn safe_add(a: i32, b: i32) -> i32 {
+    return a + b;
+}
+'''
+
+[[test]]
+name = "int_overflow_subtract"
+description = "Subtraction overflow handling"
+
+python = '''
+def safe_subtract(a: int, b: int) -> int:
+    return a - b
+'''
+
+rust = '''
+pub fn safe_subtract(a: i32, b: i32) -> i32 {
+    return a - b;
+}
+'''
+
+[[test]]
+name = "int_overflow_power"
+description = "Power operation overflow"
+
+python = '''
+def power(base: int, exp: int) -> int:
+    result = 1
+    for _ in range(exp):
+        result *= base
+    return result
+'''
+
+rust = '''
+pub fn power(base: i32, exp: i32) -> i32 {
+    let mut result = 1;
+    for _ in 0..exp {
+        result *= base;
+    }
+    return result;
+}
+'''
+
+# =============================================================================
+# Float Precision
+# =============================================================================
+
+[[test]]
+name = "float_precision_loss"
+description = "Float precision edge cases"
+
+python = '''
+def float_add(a: float, b: float) -> float:
+    return a + b
+'''
+
+rust = '''
+pub fn float_add(a: f64, b: f64) -> f64 {
+    return a + b;
+}
+'''
+
+[[test]]
+name = "float_comparison"
+description = "Float comparison with epsilon"
+
+python = '''
+def floats_equal(a: float, b: float, epsilon: float) -> bool:
+    return abs(a - b) < epsilon
+'''
+
+rust = '''
+pub fn floats_equal(a: f64, b: f64, epsilon: f64) -> bool {
+    return (a - b).abs() < epsilon;
+}
+'''
+
+[[test]]
+name = "float_division"
+description = "Float division precision"
+
+python = '''
+def safe_div(a: float, b: float) -> float:
+    if b == 0.0:
+        return 0.0
+    return a / b
+'''
+
+rust = '''
+pub fn safe_div(a: f64, b: f64) -> f64 {
+    if b == 0.0 {
+        return 0.0;
+    }
+    return a / b;
+}
+'''
+
+# =============================================================================
+# Decimal Module
+# =============================================================================
+
+[[test]]
+name = "decimal_module"
+description = "decimal.Decimal to rust_decimal"
+
+python = '''
+def decimal_add(a: float, b: float) -> float:
+    return a + b
+'''
+
+rust = '''
+pub fn decimal_add(a: f64, b: f64) -> f64 {
+    return a + b;
+}
+'''
+
+[[test]]
+name = "decimal_multiply"
+description = "Decimal multiplication"
+
+python = '''
+def decimal_multiply(a: float, b: float) -> float:
+    return a * b
+'''
+
+rust = '''
+pub fn decimal_multiply(a: f64, b: f64) -> f64 {
+    return a * b;
+}
+'''
+
+[[test]]
+name = "decimal_round"
+description = "Decimal rounding"
+
+python = '''
+def round_to_places(value: float, places: int) -> float:
+    factor = 10.0 ** places
+    return round(value * factor) / factor
+'''
+
+rust = '''
+pub fn round_to_places(value: f64, places: i32) -> f64 {
+    let factor = 10.0_f64.powi(places);
+    return (value * factor).round() / factor;
+}
+'''
+
+# =============================================================================
+# Fractions Module
+# =============================================================================
+
+[[test]]
+name = "fractions_module"
+description = "fractions.Fraction handling"
+
+python = '''
+def fraction_add(num1: int, den1: int, num2: int, den2: int) -> tuple[int, int]:
+    num = num1 * den2 + num2 * den1
+    den = den1 * den2
+    return (num, den)
+'''
+
+rust = '''
+pub fn fraction_add(num1: i32, den1: i32, num2: i32, den2: i32) -> (i32, i32) {
+    let num = num1 * den2 + num2 * den1;
+    let den = den1 * den2;
+    return (num, den);
+}
+'''
+
+[[test]]
+name = "fractions_simplify"
+description = "Fraction simplification"
+
+python = '''
+def gcd(a: int, b: int) -> int:
+    while b != 0:
+        a, b = b, a % b
+    return a
+
+def simplify(num: int, den: int) -> tuple[int, int]:
+    g = gcd(abs(num), abs(den))
+    return (num // g, den // g)
+'''
+
+rust = '''
+pub fn gcd(mut a: i32, mut b: i32) -> i32 {
+    while b != 0 {
+        let temp = b;
+        b = a % b;
+        a = temp;
+    }
+    return a;
+}
+
+pub fn simplify(num: i32, den: i32) -> (i32, i32) {
+    let g = gcd(num.abs(), den.abs());
+    return (num / g, den / g);
+}
+'''
+
+# =============================================================================
+# NaN and Inf Handling
+# =============================================================================
+
+[[test]]
+name = "nan_inf_handling"
+description = "NaN and Inf propagation"
+
+python = '''
+def is_finite(value: float) -> bool:
+    import math
+    return not math.isinf(value) and not math.isnan(value)
+'''
+
+rust = '''
+pub fn is_finite(value: f64) -> bool {
+    return !value.is_infinite() && !value.is_nan();
+}
+'''
+
+[[test]]
+name = "nan_check"
+description = "NaN detection"
+
+python = '''
+def is_nan(value: float) -> bool:
+    return value != value
+'''
+
+rust = '''
+pub fn is_nan(value: f64) -> bool {
+    return value.is_nan();
+}
+'''
+
+[[test]]
+name = "inf_check"
+description = "Infinity detection"
+
+python = '''
+def is_positive_inf(value: float) -> bool:
+    import math
+    return math.isinf(value) and value > 0
+'''
+
+rust = '''
+pub fn is_positive_inf(value: f64) -> bool {
+    return value.is_infinite() && value > 0.0;
+}
+'''
+
+[[test]]
+name = "nan_propagation"
+description = "NaN propagation in operations"
+
+python = '''
+def propagate_nan(a: float, b: float) -> float:
+    return a + b
+'''
+
+rust = '''
+pub fn propagate_nan(a: f64, b: f64) -> f64 {
+    return a + b;
+}
+'''
+
+# =============================================================================
+# Floor Division Negative
+# =============================================================================
+
+[[test]]
+name = "floor_division_negative"
+description = "// operator with negative numbers"
+
+python = '''
+def floor_div(a: int, b: int) -> int:
+    return a // b
+'''
+
+rust = '''
+pub fn floor_div(a: i32, b: i32) -> i32 {
+    return {
+        let a = a;
+        let b = b;
+        let q = a / b;
+        let r = a % b;
+        let r_negative = r < 0;
+        let b_negative = b < 0;
+        let r_nonzero = r != 0;
+        let signs_differ = r_negative != b_negative;
+        let needs_adjustment = r_nonzero && signs_differ;
+        if needs_adjustment { q - 1 } else { q }
+    };
+}
+'''
+
+[[test]]
+name = "floor_division_positive"
+description = "// operator with positive numbers"
+
+python = '''
+def floor_div_positive(a: int, b: int) -> int:
+    return a // b
+'''
+
+rust = '''
+pub fn floor_div_positive(a: i32, b: i32) -> i32 {
+    return {
+        let a = a;
+        let b = b;
+        let q = a / b;
+        let r = a % b;
+        let r_negative = r < 0;
+        let b_negative = b < 0;
+        let r_nonzero = r != 0;
+        let signs_differ = r_negative != b_negative;
+        let needs_adjustment = r_nonzero && signs_differ;
+        if needs_adjustment { q - 1 } else { q }
+    };
+}
+'''
+
+[[test]]
+name = "modulo_negative"
+description = "Modulo with negative numbers"
+
+python = '''
+def python_mod(a: int, b: int) -> int:
+    return a % b
+'''
+
+rust = '''
+pub fn python_mod(a: i32, b: i32) -> i32 {
+    return ((a % b) + b) % b;
+}
+'''
+
+[[test]]
+name = "divmod_negative"
+description = "divmod with negative numbers"
+
+python = '''
+def python_divmod(a: int, b: int) -> tuple[int, int]:
+    q = a // b
+    r = a % b
+    return (q, r)
+'''
+
+rust = '''
+pub fn python_divmod(a: i32, b: i32) -> (i32, i32) {
+    let q = {
+        let a = a;
+        let b = b;
+        let q = a / b;
+        let r = a % b;
+        let r_negative = r < 0;
+        let b_negative = b < 0;
+        let r_nonzero = r != 0;
+        let signs_differ = r_negative != b_negative;
+        let needs_adjustment = r_nonzero && signs_differ;
+        if needs_adjustment { q - 1 } else { q }
+    };
+    let r = ((a % b) + b) % b;
+    return (q, r);
+}
+'''

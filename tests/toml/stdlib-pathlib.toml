@@ -1,0 +1,297 @@
+# Stdlib pathlib and os.path Conformance Tests
+# Migrated from tests/python/stdlib/test_pathlib.py
+# Tests path semantics and environment interactions.
+# These verify the reference semantics that the transpiler must emulate.
+
+[metadata]
+name = "Pathlib Conformance Tests"
+category = "stdlib"
+
+# =============================================================================
+# Pure Path Operations
+# =============================================================================
+
+[[test]]
+name = "path_parts"
+description = "Path parts decomposition"
+python = '''
+from pathlib import PurePosixPath
+
+p = PurePosixPath("/usr/local/bin")
+assert p.parts == ("/", "usr", "local", "bin")
+'''
+
+[[test]]
+name = "path_parent"
+description = "Path parent access"
+python = '''
+from pathlib import PurePosixPath
+
+p = PurePosixPath("/usr/local/bin")
+assert p.parent == PurePosixPath("/usr/local")
+'''
+
+[[test]]
+name = "path_parents"
+description = "Path parents sequence"
+python = '''
+from pathlib import PurePosixPath
+
+p = PurePosixPath("/usr/local/bin")
+parents = list(p.parents)
+assert parents == [
+    PurePosixPath("/usr/local"),
+    PurePosixPath("/usr"),
+    PurePosixPath("/"),
+]
+'''
+
+[[test]]
+name = "path_name"
+description = "Path name (final component)"
+python = '''
+from pathlib import PurePosixPath
+
+p = PurePosixPath("/usr/local/bin/python")
+assert p.name == "python"
+'''
+
+[[test]]
+name = "path_suffix"
+description = "Path suffix (extension)"
+python = '''
+from pathlib import PurePosixPath
+
+p = PurePosixPath("/home/user/file.tar.gz")
+assert p.suffix == ".gz"
+assert p.suffixes == [".tar", ".gz"]
+'''
+
+[[test]]
+name = "path_stem"
+description = "Path stem (name without suffix)"
+python = '''
+from pathlib import PurePosixPath
+
+p = PurePosixPath("/home/user/file.txt")
+assert p.stem == "file"
+'''
+
+# =============================================================================
+# Path Joining
+# =============================================================================
+
+[[test]]
+name = "path_slash_operator"
+description = "Path / operator joins paths"
+python = '''
+from pathlib import PurePosixPath
+
+p = PurePosixPath("/usr") / "local" / "bin"
+assert str(p) == "/usr/local/bin"
+'''
+
+[[test]]
+name = "path_joinpath"
+description = "Path.joinpath() joins paths"
+python = '''
+from pathlib import PurePosixPath
+
+p = PurePosixPath("/usr").joinpath("local", "bin")
+assert str(p) == "/usr/local/bin"
+'''
+
+[[test]]
+name = "absolute_path_overrides"
+description = "Joining absolute path overrides base"
+python = '''
+from pathlib import PurePosixPath
+
+p = PurePosixPath("/usr") / "/etc"
+assert str(p) == "/etc"
+'''
+
+# =============================================================================
+# Path Pattern Matching
+# =============================================================================
+
+[[test]]
+name = "path_match_pattern"
+description = "Path.match() tests pattern matching"
+python = '''
+from pathlib import PurePosixPath
+
+p = PurePosixPath("/home/user/file.py")
+assert p.match("*.py")
+assert p.match("user/*.py")
+assert not p.match("*.txt")
+'''
+
+[[test]]
+name = "path_relative_to"
+description = "Path.relative_to() makes path relative"
+python = '''
+from pathlib import PurePosixPath
+
+p = PurePosixPath("/usr/local/bin")
+rel = p.relative_to("/usr")
+assert rel == PurePosixPath("local/bin")
+'''
+
+[[test]]
+name = "path_relative_to_fails_if_not_subpath"
+description = "relative_to raises ValueError if not subpath"
+python = '''
+from pathlib import PurePosixPath
+
+p = PurePosixPath("/usr/local")
+try:
+    p.relative_to("/etc")
+    assert False, "Should have raised ValueError"
+except ValueError:
+    pass
+'''
+
+# =============================================================================
+# Path Modification
+# =============================================================================
+
+[[test]]
+name = "path_with_name"
+description = "Path.with_name() replaces name"
+python = '''
+from pathlib import PurePosixPath
+
+p = PurePosixPath("/home/user/file.txt")
+assert p.with_name("other.txt") == PurePosixPath("/home/user/other.txt")
+'''
+
+[[test]]
+name = "path_with_suffix"
+description = "Path.with_suffix() replaces suffix"
+python = '''
+from pathlib import PurePosixPath
+
+p = PurePosixPath("/home/user/file.txt")
+assert p.with_suffix(".py") == PurePosixPath("/home/user/file.py")
+'''
+
+[[test]]
+name = "path_with_stem"
+description = "Path.with_stem() replaces stem (Python 3.9+)"
+python = '''
+from pathlib import PurePosixPath
+
+p = PurePosixPath("/home/user/file.txt")
+assert p.with_stem("other") == PurePosixPath("/home/user/other.txt")
+'''
+
+# =============================================================================
+# Windows Paths
+# =============================================================================
+
+[[test]]
+name = "windows_drive"
+description = "Windows paths have drive component"
+python = '''
+from pathlib import PureWindowsPath
+
+p = PureWindowsPath("C:/Users/name")
+assert p.drive == "C:"
+assert p.root == "\\\\"
+'''
+
+[[test]]
+name = "windows_case_insensitive"
+description = "Windows paths are case-insensitive"
+python = '''
+from pathlib import PureWindowsPath
+
+p1 = PureWindowsPath("C:/Users")
+p2 = PureWindowsPath("c:/users")
+assert p1 == p2
+'''
+
+# =============================================================================
+# os.path Functions
+# =============================================================================
+
+[[test]]
+name = "os_path_basename"
+description = "os.path.basename extracts filename"
+python = '''
+import os.path
+
+assert os.path.basename("/usr/local/bin") == "bin"
+'''
+
+[[test]]
+name = "os_path_dirname"
+description = "os.path.dirname extracts directory"
+python = '''
+import os.path
+
+assert os.path.dirname("/usr/local/bin") == "/usr/local"
+'''
+
+[[test]]
+name = "os_path_split"
+description = "os.path.split returns (head, tail)"
+python = '''
+import os.path
+
+assert os.path.split("/usr/local/bin") == ("/usr/local", "bin")
+'''
+
+[[test]]
+name = "os_path_splitext"
+description = "os.path.splitext splits extension"
+python = '''
+import os.path
+
+assert os.path.splitext("/home/file.txt") == ("/home/file", ".txt")
+assert os.path.splitext("/home/file.tar.gz") == ("/home/file.tar", ".gz")
+'''
+
+[[test]]
+name = "os_path_join"
+description = "os.path.join joins path components"
+python = '''
+import os.path
+
+assert os.path.join("/usr", "local", "bin") == "/usr/local/bin"
+'''
+
+[[test]]
+name = "os_path_normpath"
+description = "os.path.normpath normalizes path"
+python = '''
+import os.path
+
+assert os.path.normpath("/usr/local/../bin") == "/usr/bin"
+assert os.path.normpath("/usr//local") == "/usr/local"
+'''
+
+# =============================================================================
+# Absolute/Relative Detection
+# =============================================================================
+
+[[test]]
+name = "path_is_absolute"
+description = "Path.is_absolute() detection"
+python = '''
+from pathlib import PurePosixPath
+
+assert PurePosixPath("/usr").is_absolute()
+assert not PurePosixPath("usr").is_absolute()
+'''
+
+[[test]]
+name = "os_path_isabs"
+description = "os.path.isabs detection"
+python = '''
+import os.path
+
+assert os.path.isabs("/usr")
+assert not os.path.isabs("usr")
+'''

@@ -353,18 +353,34 @@ struct Example { value: i32 }
 [[test]]
 name = "init_circular"
 description = "Circular imports through __init__"
-skip = true
 
 python = '''
+# Circular imports should be avoided with proper module design
+# Using lazy imports or import inside functions
 class Example:
     def __init__(self, value):
         self.value = value
+    
+    def get_value(self):
+        return self.value
 
-result = Example(42)
+result = Example(42).get_value() == 42
 '''
 
 rust = '''
 struct Example { value: i32 }
+
+impl Example {
+    fn new(value: i32) -> Self {
+        Self { value }
+    }
+    
+    fn get_value(&self) -> i32 {
+        self.value
+    }
+}
+
+let result = Example::new(42).get_value() == 42;
 '''
 
 

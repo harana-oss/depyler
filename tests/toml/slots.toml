@@ -466,7 +466,6 @@ fn main() {
 [[test]]
 name = "slots_duplicate"
 description = "Duplicate names in __slots__"
-skip = true
 python = """
 # Python allows this but it's redundant
 class Duplicate:

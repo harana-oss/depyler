@@ -1,0 +1,360 @@
+[metadata]
+name = "Multi-Module Tests"
+category = "modules"
+
+# =============================================================================
+# Circular Import
+# =============================================================================
+
+[[test]]
+name = "circular_import"
+description = "Circular import handling"
+
+python = '''
+def process_a(x: int) -> int:
+    return x + 1
+
+def process_b(x: int) -> int:
+    return process_a(x) * 2
+'''
+
+rust = '''
+pub fn process_a(x: i32) -> i32 {
+    return x + 1;
+}
+
+pub fn process_b(x: i32) -> i32 {
+    return process_a(x) * 2;
+}
+'''
+
+[[test]]
+name = "mutual_reference"
+description = "Mutual function references"
+
+python = '''
+def is_even(n: int) -> bool:
+    if n == 0:
+        return True
+    return is_odd(n - 1)
+
+def is_odd(n: int) -> bool:
+    if n == 0:
+        return False
+    return is_even(n - 1)
+'''
+
+rust = '''
+pub fn is_even(n: i32) -> bool {
+    if n == 0 {
+        return true;
+    }
+    return is_odd(n - 1);
+}
+
+pub fn is_odd(n: i32) -> bool {
+    if n == 0 {
+        return false;
+    }
+    return is_even(n - 1);
+}
+'''
+
+# =============================================================================
+# Re-export
+# =============================================================================
+
+[[test]]
+name = "re_export"
+description = "Re-export from __init__.py"
+
+python = '''
+def public_function(x: int) -> int:
+    return x * 2
+
+def internal_helper(x: int) -> int:
+    return x + 1
+'''
+
+rust = '''
+pub fn public_function(x: i32) -> i32 {
+    return x * 2;
+}
+
+fn internal_helper(x: i32) -> i32 {
+    return x + 1;
+}
+'''
+
+[[test]]
+name = "re_export_alias"
+description = "Re-export with alias"
+
+python = '''
+def original_name(x: int) -> int:
+    return x
+
+def alias_user(x: int) -> int:
+    return original_name(x)
+'''
+
+rust = '''
+pub fn original_name(x: i32) -> i32 {
+    return x;
+}
+
+pub fn alias_user(x: i32) -> i32 {
+    return original_name(x);
+}
+'''
+
+# =============================================================================
+# Wildcard Import Scope
+# =============================================================================
+
+[[test]]
+name = "wildcard_import_scope"
+description = "__all__ wildcard import"
+
+python = '''
+PUBLIC_CONST = 42
+
+def public_func() -> int:
+    return PUBLIC_CONST
+
+def _private_func() -> int:
+    return 0
+'''
+
+rust = '''
+pub const PUBLIC_CONST: i32 = 42;
+
+pub fn public_func() -> i32 {
+    return PUBLIC_CONST;
+}
+
+fn _private_func() -> i32 {
+    return 0;
+}
+'''
+
+[[test]]
+name = "all_export_list"
+description = "__all__ export list pattern"
+
+python = '''
+EXPORTED = 1
+NOT_EXPORTED = 2
+
+def exported_func() -> int:
+    return EXPORTED
+
+def _hidden_func() -> int:
+    return NOT_EXPORTED
+'''
+
+rust = '''
+pub const EXPORTED: i32 = 1;
+const NOT_EXPORTED: i32 = 2;
+
+pub fn exported_func() -> i32 {
+    return EXPORTED;
+}
+
+fn _hidden_func() -> i32 {
+    return NOT_EXPORTED;
+}
+'''
+
+# =============================================================================
+# Relative Import Resolution
+# =============================================================================
+
+[[test]]
+name = "relative_import_resolution"
+description = "Complex relative imports"
+
+python = '''
+def sibling_module_func(x: int) -> int:
+    return x + 1
+
+def parent_module_func(x: int) -> int:
+    return sibling_module_func(x) * 2
+'''
+
+rust = '''
+pub fn sibling_module_func(x: i32) -> i32 {
+    return x + 1;
+}
+
+pub fn parent_module_func(x: i32) -> i32 {
+    return sibling_module_func(x) * 2;
+}
+'''
+
+[[test]]
+name = "nested_relative_import"
+description = "Nested relative imports"
+
+python = '''
+def level_one(x: int) -> int:
+    return x
+
+def level_two(x: int) -> int:
+    return level_one(x) + 1
+
+def level_three(x: int) -> int:
+    return level_two(x) + 1
+'''
+
+rust = '''
+pub fn level_one(x: i32) -> i32 {
+    return x;
+}
+
+pub fn level_two(x: i32) -> i32 {
+    return level_one(x) + 1;
+}
+
+pub fn level_three(x: i32) -> i32 {
+    return level_two(x) + 1;
+}
+'''
+
+# =============================================================================
+# Module Attribute Access
+# =============================================================================
+
+[[test]]
+name = "module_attribute_access"
+description = "Module-level attribute access"
+
+python = '''
+VERSION = "1.0.0"
+BUILD = 123
+
+def get_version() -> str:
+    return VERSION
+
+def get_build() -> int:
+    return BUILD
+'''
+
+rust = '''
+lazy_static! {
+    pub static ref VERSION: String = "1.0.0";
+}
+use lazy_static::lazy_static;
+pub const BUILD: i32 = 123;
+
+pub fn get_version() -> String {
+    return VERSION.clone();
+}
+
+pub fn get_build() -> i32 {
+    return BUILD;
+}
+'''
+
+[[test]]
+name = "module_constant_usage"
+description = "Module constants in functions"
+
+python = '''
+MAX_SIZE = 100
+MIN_SIZE = 0
+
+def clamp_size(size: int) -> int:
+    if size > MAX_SIZE:
+        return MAX_SIZE
+    if size < MIN_SIZE:
+        return MIN_SIZE
+    return size
+'''
+
+rust = '''
+pub const MAX_SIZE: i32 = 100;
+pub const MIN_SIZE: i32 = 0;
+
+pub fn clamp_size(size: i32) -> i32 {
+    if size > MAX_SIZE {
+        return MAX_SIZE;
+    }
+    if size < MIN_SIZE {
+        return MIN_SIZE;
+    }
+    return size;
+}
+'''
+
+[[test]]
+name = "module_class_access"
+description = "Module-level class access"
+
+python = '''
+class Config:
+    def __init__(self, name: str):
+        self.name = name
+    
+    def get_name(self) -> str:
+        return self.name
+
+def create_config(name: str) -> Config:
+    return Config(name)
+'''
+
+rust = '''
+pub struct Config {
+    pub name: String,
+}
+
+impl Config {
+    pub fn new(name: String) -> Self {
+        Self { name }
+    }
+    
+    pub fn get_name(&self) -> String {
+        return self.name.clone();
+    }
+}
+
+pub fn create_config(name: String) -> Config {
+    return Config::new(name);
+}
+'''
+
+[[test]]
+name = "module_function_chain"
+description = "Chain module functions"
+
+python = '''
+def step_one(x: int) -> int:
+    return x + 1
+
+def step_two(x: int) -> int:
+    return x * 2
+
+def step_three(x: int) -> int:
+    return x - 1
+
+def pipeline(x: int) -> int:
+    return step_three(step_two(step_one(x)))
+'''
+
+rust = '''
+pub fn step_one(x: i32) -> i32 {
+    return x + 1;
+}
+
+pub fn step_two(x: i32) -> i32 {
+    return x * 2;
+}
+
+pub fn step_three(x: i32) -> i32 {
+    return x - 1;
+}
+
+pub fn pipeline(x: i32) -> i32 {
+    return step_three(step_two(step_one(x)));
+}
+'''

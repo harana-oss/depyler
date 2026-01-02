@@ -2434,7 +2434,6 @@ pub fn complex_check(x: i32, y: i32) -> String {
 [[test]]
 name = "for_loop_dict_subscript_target"
 description = "For loop with dict subscript as target (edge case)"
-skip = true
 
 python = '''
 def test():
@@ -2451,7 +2450,6 @@ rust = '''
 [[test]]
 name = "nested_tuple_unpacking"
 description = "Complex nested tuple unpacking (limited support)"
-skip = true
 
 python = '''
 def test():

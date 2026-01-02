@@ -1,0 +1,382 @@
+[metadata]
+name = "FFI and ctypes Tests"
+category = "ffi"
+
+# =============================================================================
+# ctypes Basic
+# =============================================================================
+
+[[test]]
+name = "ctypes_basic"
+description = "ctypes basic type mappings"
+
+python = '''
+def c_int_to_int(value: int) -> int:
+    return value
+
+def c_float_to_float(value: float) -> float:
+    return value
+
+def c_bool_to_bool(value: bool) -> bool:
+    return value
+'''
+
+rust = '''
+pub fn c_int_to_int(value: i32) -> i32 {
+    return value;
+}
+
+pub fn c_float_to_float(value: f32) -> f32 {
+    return value;
+}
+
+pub fn c_bool_to_bool(value: bool) -> bool {
+    return value;
+}
+'''
+
+[[test]]
+name = "ctypes_sizes"
+description = "ctypes size types"
+
+python = '''
+def size_of_int() -> int:
+    return 4
+
+def size_of_float() -> int:
+    return 4
+
+def size_of_double() -> int:
+    return 8
+'''
+
+rust = '''
+pub fn size_of_int() -> i32 {
+    return std::mem::size_of::<i32>() as i32;
+}
+
+pub fn size_of_float() -> i32 {
+    return std::mem::size_of::<f32>() as i32;
+}
+
+pub fn size_of_double() -> i32 {
+    return std::mem::size_of::<f64>() as i32;
+}
+'''
+
+[[test]]
+name = "ctypes_char"
+description = "ctypes char type"
+
+python = '''
+def char_to_int(c: str) -> int:
+    return ord(c[0]) if len(c) > 0 else 0
+
+def int_to_char(n: int) -> str:
+    return chr(n)
+'''
+
+rust = '''
+pub fn char_to_int(c: &str) -> i32 {
+    if let Some(ch) = c.chars().next() {
+        return ch as i32;
+    }
+    return 0;
+}
+
+pub fn int_to_char(n: i32) -> String {
+    return char::from_u32(n as u32).unwrap_or('\0').to_string();
+}
+'''
+
+# =============================================================================
+# ctypes Struct
+# =============================================================================
+
+[[test]]
+name = "ctypes_struct"
+description = "ctypes.Structure to #[repr(C)] struct"
+
+python = '''
+class Point:
+    def __init__(self, x: int, y: int):
+        self.x = x
+        self.y = y
+
+def create_point(x: int, y: int) -> Point:
+    return Point(x, y)
+
+def point_sum(p: Point) -> int:
+    return p.x + p.y
+'''
+
+rust = '''
+#[repr(C)]
+pub struct Point {
+    pub x: i32,
+    pub y: i32,
+}
+
+impl Point {
+    pub fn new(x: i32, y: i32) -> Self {
+        Self { x, y }
+    }
+}
+
+pub fn create_point(x: i32, y: i32) -> Point {
+    return Point::new(x, y);
+}
+
+pub fn point_sum(p: &Point) -> i32 {
+    return p.x + p.y;
+}
+'''
+
+[[test]]
+name = "ctypes_struct_nested"
+description = "Nested ctypes struct"
+
+python = '''
+class Inner:
+    def __init__(self, value: int):
+        self.value = value
+
+class Outer:
+    def __init__(self, inner_value: int):
+        self.inner = Inner(inner_value)
+
+def get_inner_value(outer: Outer) -> int:
+    return outer.inner.value
+'''
+
+rust = '''
+#[repr(C)]
+pub struct Inner {
+    pub value: i32,
+}
+
+impl Inner {
+    pub fn new(value: i32) -> Self {
+        Self { value }
+    }
+}
+
+#[repr(C)]
+pub struct Outer {
+    pub inner: Inner,
+}
+
+impl Outer {
+    pub fn new(inner_value: i32) -> Self {
+        Self { inner: Inner::new(inner_value) }
+    }
+}
+
+pub fn get_inner_value(outer: &Outer) -> i32 {
+    return outer.inner.value;
+}
+'''
+
+[[test]]
+name = "ctypes_struct_array"
+description = "Struct with array field"
+
+python = '''
+class Buffer:
+    def __init__(self, size: int):
+        self.data = [0] * size
+        self.size = size
+
+def buffer_get(buf: Buffer, idx: int) -> int:
+    if 0 <= idx < buf.size:
+        return buf.data[idx]
+    return 0
+'''
+
+rust = '''
+#[repr(C)]
+pub struct Buffer {
+    pub data: Vec<i32>,
+    pub size: i32,
+}
+
+impl Buffer {
+    pub fn new(size: i32) -> Self {
+        Self { data: vec![0; size as usize], size }
+    }
+}
+
+pub fn buffer_get(buf: &Buffer, idx: i32) -> i32 {
+    if 0 <= idx && idx < buf.size {
+        return buf.data[idx as usize];
+    }
+    return 0;
+}
+'''
+
+# =============================================================================
+# ctypes Callback
+# =============================================================================
+
+[[test]]
+name = "ctypes_callback"
+description = "ctypes callback functions"
+
+python = '''
+def apply_callback(value: int, callback) -> int:
+    return callback(value)
+
+def double_it(x: int) -> int:
+    return x * 2
+
+def triple_it(x: int) -> int:
+    return x * 3
+'''
+
+rust = '''
+pub fn apply_callback<F>(value: i32, callback: F) -> i32 
+where 
+    F: Fn(i32) -> i32 
+{
+    return callback(value);
+}
+
+pub fn double_it(x: i32) -> i32 {
+    return x * 2;
+}
+
+pub fn triple_it(x: i32) -> i32 {
+    return x * 3;
+}
+'''
+
+[[test]]
+name = "ctypes_callback_void"
+description = "Void callback"
+
+python = '''
+class State:
+    def __init__(self):
+        self.value = 0
+
+def modify_state(state: State, modifier) -> None:
+    modifier(state)
+
+def increment_state(state: State) -> None:
+    state.value += 1
+'''
+
+rust = '''
+pub struct State {
+    pub value: i32,
+}
+
+impl State {
+    pub fn new() -> Self {
+        Self { value: 0 }
+    }
+}
+
+pub fn modify_state<F>(state: &mut State, modifier: F) 
+where 
+    F: Fn(&mut State) 
+{
+    modifier(state);
+}
+
+pub fn increment_state(state: &mut State) {
+    state.value += 1;
+}
+'''
+
+# =============================================================================
+# ctypes Pointer
+# =============================================================================
+
+[[test]]
+name = "ctypes_pointer"
+description = "ctypes pointer operations"
+
+python = '''
+class IntRef:
+    def __init__(self, value: int):
+        self.value = value
+
+def read_ref(ref: IntRef) -> int:
+    return ref.value
+
+def write_ref(ref: IntRef, value: int) -> None:
+    ref.value = value
+'''
+
+rust = '''
+pub struct IntRef {
+    pub value: i32,
+}
+
+impl IntRef {
+    pub fn new(value: i32) -> Self {
+        Self { value }
+    }
+}
+
+pub fn read_ref(ref_: &IntRef) -> i32 {
+    return ref_.value;
+}
+
+pub fn write_ref(ref_: &mut IntRef, value: i32) {
+    ref_.value = value;
+}
+'''
+
+[[test]]
+name = "ctypes_pointer_null"
+description = "Null pointer handling"
+
+python = '''
+from typing import Optional
+
+def safe_read(ref: Optional[int]) -> int:
+    if ref is not None:
+        return ref
+    return 0
+'''
+
+rust = '''
+pub fn safe_read(ref_: Option<i32>) -> i32 {
+    if let Some(value) = ref_ {
+        return value;
+    }
+    return 0;
+}
+'''
+
+[[test]]
+name = "ctypes_pointer_array"
+description = "Pointer to array"
+
+python = '''
+def array_element(arr: list[int], idx: int) -> int:
+    if 0 <= idx < len(arr):
+        return arr[idx]
+    return 0
+
+def array_set(arr: list[int], idx: int, value: int) -> None:
+    if 0 <= idx < len(arr):
+        arr[idx] = value
+'''
+
+rust = '''
+pub fn array_element(arr: &[i32], idx: i32) -> i32 {
+    if 0 <= idx && (idx as usize) < arr.len() {
+        return arr[idx as usize];
+    }
+    return 0;
+}
+
+pub fn array_set(arr: &mut [i32], idx: i32, value: i32) {
+    if 0 <= idx && (idx as usize) < arr.len() {
+        arr[idx as usize] = value;
+    }
+}
+'''

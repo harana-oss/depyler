@@ -17,7 +17,11 @@ def process_files():
 '''
 
 rust = '''
-// Transpilation failed
+pub fn process_files() {
+    let _context = std::fs::File::open("a.txt")?;
+    let _context = std::fs::File::open("b.txt")?;
+    let _context = std::fs::File::open("c.txt")?;
+}
 '''
 
 [[test]]
@@ -33,7 +37,21 @@ def read_files():
 '''
 
 rust = '''
-// Transpilation failed
+pub fn read_files() {
+    let mut f1 = std::fs::File::open("a.txt")?;
+    let mut f2 = std::fs::File::open("b.txt")?;
+    let content1 = {
+        let mut content = String::new();
+        f1.read_to_string(&mut content)?;
+        content
+    };
+    let content2 = {
+        let mut content = String::new();
+        f2.read_to_string(&mut content)?;
+        content
+    };
+    return content1 + content2;
+}
 '''
 
 [[test]]
@@ -47,7 +65,20 @@ def mixed_files():
 '''
 
 rust = '''
-// Transpilation failed
+pub fn mixed_files() {
+    let mut f1 = std::fs::File::open("a.txt")?;
+    let _context = std::fs::File::open("b.txt")?;
+    let mut f3 = std::fs::File::open("c.txt")?;
+    return {
+        let mut content = String::new();
+        f1.read_to_string(&mut content)?;
+        content
+    } + {
+        let mut content = String::new();
+        f3.read_to_string(&mut content)?;
+        content
+    };
+}
 '''
 
 [[test]]
@@ -130,9 +161,8 @@ def test_order():
         pass
 '''
 
-rust = '''
-// Transpilation failed
-'''
+[test.assertions]
+contains = ["TrackedContext", "__enter__", "__exit__"]
 
 [[test]]
 name = "multi_exit_order"
@@ -155,9 +185,8 @@ def test_exit_order():
         print("body")
 '''
 
-rust = '''
-// Transpilation failed
-'''
+[test.assertions]
+contains = ["Logger", "__enter__", "__exit__"]
 
 [[test]]
 name = "multi_enter_fail"
@@ -185,9 +214,8 @@ def test_enter_fail():
         pass
 '''
 
-rust = '''
-// Transpilation failed
-'''
+[test.assertions]
+contains = ["FailingContext", "__enter__", "__exit__"]
 
 [[test]]
 name = "multi_body_exception"
@@ -210,9 +238,8 @@ def test_body_exception():
         pass
 '''
 
-rust = '''
-// Transpilation failed
-'''
+[test.assertions]
+contains = ["CleanupContext", "__enter__", "__exit__"]
 
 [[test]]
 name = "multi_one_suppresses"
@@ -232,9 +259,8 @@ def test_suppress():
     print("Continues normally")
 '''
 
-rust = '''
-// Transpilation failed
-'''
+[test.assertions]
+contains = ["SuppressingContext", "__enter__", "__exit__"]
 
 [[test]]
 name = "multi_exit_exception"
@@ -291,9 +317,8 @@ def open_many_files(filenames: list):
         return [f.read() for f in files]
 '''
 
-rust = '''
-// Transpilation failed
-'''
+[test.assertions]
+contains = ["ExitStack", "__enter__"]
 
 [[test]]
 name = "multi_from_list"
@@ -357,9 +382,8 @@ def merge_files():
         out.write(f2.read())
 '''
 
-rust = '''
-// Transpilation failed
-'''
+[test.assertions]
+contains = ["File::open", "write"]
 
 [[test]]
 name = "multi_locks"
@@ -374,9 +398,8 @@ def transfer(lock1: Lock, lock2: Lock):
         print("Transfer in progress")
 '''
 
-rust = '''
-// Transpilation failed
-'''
+[test.assertions]
+contains = ["lock1", "lock2", "Transfer in progress"]
 
 [[test]]
 name = "multi_db_file"
@@ -402,9 +425,8 @@ def save_to_db_and_log():
         log.write("Operation completed\n")
 '''
 
-rust = '''
-// Transpilation failed
-'''
+[test.assertions]
+contains = ["Transaction", "__enter__", "__exit__", "log.txt"]
 
 [[test]]
 name = "multi_same_cm"
@@ -420,9 +442,8 @@ def reentrant_lock():
         print("Holding lock twice")
 '''
 
-rust = '''
-// Transpilation failed
-'''
+[test.assertions]
+contains = ["lock", "Holding lock twice"]
 
 [[test]]
 name = "multi_with_null"
@@ -463,6 +484,5 @@ def many_contexts():
         print("All files open")
 '''
 
-rust = '''
-// Transpilation failed
-'''
+[test.assertions]
+contains = ["File::open", "All files open"]

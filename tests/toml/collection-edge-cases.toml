@@ -1,0 +1,370 @@
+[metadata]
+name = "Collection Edge Cases Tests"
+category = "collections"
+
+# =============================================================================
+# Empty Collection Operations
+# =============================================================================
+
+[[test]]
+name = "empty_collection_operations"
+description = "Operations on empty collections"
+
+python = '''
+def sum_empty() -> int:
+    items: list[int] = []
+    return sum(items)
+'''
+
+rust = '''
+pub fn sum_empty() -> i32 {
+    let items: Vec<i32> = vec![];
+    return items.iter().sum::<i32>();
+}
+'''
+
+[[test]]
+name = "empty_list_append"
+description = "Append to empty list"
+
+python = '''
+def append_to_empty() -> list[int]:
+    items: list[int] = []
+    items.append(1)
+    return items
+'''
+
+rust = '''
+pub fn append_to_empty() -> Vec<i32> {
+    let mut items: Vec<i32> = vec![];
+    items.push(1);
+    return items;
+}
+'''
+
+[[test]]
+name = "empty_dict_access"
+description = "Access empty dict with default"
+
+python = '''
+def get_or_default(key: str) -> int:
+    d: dict[str, int] = {}
+    return d.get(key, 0)
+'''
+
+rust = '''
+use std::collections::HashMap;
+
+pub fn get_or_default(key: &str) -> i32 {
+    let d: HashMap<String, i32> = HashMap::new();
+    return *d.get(key).unwrap_or(&0);
+}
+'''
+
+[[test]]
+name = "empty_set_membership"
+description = "Membership test on empty set"
+
+python = '''
+def in_empty_set(item: int) -> bool:
+    s: set[int] = set()
+    return item in s
+'''
+
+rust = '''
+use std::collections::HashSet;
+
+pub fn in_empty_set(item: i32) -> bool {
+    let s: HashSet<i32> = HashSet::new();
+    return s.contains(&item);
+}
+'''
+
+# =============================================================================
+# Collection Modification During Iteration
+# =============================================================================
+
+[[test]]
+name = "collection_modification_during_iteration"
+description = "Detect mutation during iteration"
+
+python = '''
+def safe_filter(items: list[int]) -> list[int]:
+    result = []
+    for item in items:
+        if item > 0:
+            result.append(item)
+    return result
+'''
+
+rust = '''
+pub fn safe_filter(items: Vec<i32>) -> Vec<i32> {
+    let mut result = vec![];
+    for item in items {
+        if item > 0 {
+            result.push(item);
+        }
+    }
+    return result;
+}
+'''
+
+[[test]]
+name = "collect_then_modify"
+description = "Collect results then modify"
+
+python = '''
+def double_positives(items: list[int]) -> list[int]:
+    result = []
+    for item in items:
+        if item > 0:
+            result.append(item * 2)
+    return result
+'''
+
+rust = '''
+pub fn double_positives(items: Vec<i32>) -> Vec<i32> {
+    let mut result = vec![];
+    for item in items {
+        if item > 0 {
+            result.push(item * 2);
+        }
+    }
+    return result;
+}
+'''
+
+[[test]]
+name = "iter_with_index"
+description = "Iterate with index safely"
+
+python = '''
+def enumerate_items(items: list[str]) -> list[tuple[int, str]]:
+    result = []
+    for i, item in enumerate(items):
+        result.append((i, item))
+    return result
+'''
+
+rust = '''
+pub fn enumerate_items(items: Vec<String>) -> Vec<(i32, String)> {
+    let mut result = vec![];
+    for (i, item) in items.into_iter().enumerate() {
+        result.push((i as i32, item));
+    }
+    return result;
+}
+'''
+
+# =============================================================================
+# Nested Collection Mutation
+# =============================================================================
+
+[[test]]
+name = "nested_collection_mutation"
+description = "Deep mutation in nested structures"
+
+python = '''
+def append_nested(outer: list[list[int]], inner_idx: int, value: int) -> None:
+    if inner_idx < len(outer):
+        outer[inner_idx].append(value)
+'''
+
+rust = '''
+pub fn append_nested(outer: &mut Vec<Vec<i32>>, inner_idx: i32, value: i32) {
+    if (inner_idx as usize) < outer.len() {
+        outer[inner_idx as usize].push(value);
+    }
+}
+'''
+
+[[test]]
+name = "nested_dict_update"
+description = "Update nested dict"
+
+python = '''
+def update_nested(data: dict[str, dict[str, int]], key1: str, key2: str, value: int) -> None:
+    if key1 in data:
+        data[key1][key2] = value
+'''
+
+rust = '''
+use std::collections::HashMap;
+
+pub fn update_nested(data: &mut HashMap<String, HashMap<String, i32>>, key1: &str, key2: String, value: i32) {
+    if let Some(inner) = data.get_mut(key1) {
+        inner.insert(key2, value);
+    }
+}
+'''
+
+[[test]]
+name = "nested_list_creation"
+description = "Create nested list structure"
+
+python = '''
+def create_matrix(rows: int, cols: int) -> list[list[int]]:
+    result = []
+    for i in range(rows):
+        row = []
+        for j in range(cols):
+            row.append(i * cols + j)
+        result.append(row)
+    return result
+'''
+
+rust = '''
+pub fn create_matrix(rows: i32, cols: i32) -> Vec<Vec<i32>> {
+    let mut result = vec![];
+    for i in 0..rows {
+        let mut row = vec![];
+        for j in 0..cols {
+            row.push(i * cols + j);
+        }
+        result.push(row);
+    }
+    return result;
+}
+'''
+
+# =============================================================================
+# Collection View Invalidation
+# =============================================================================
+
+[[test]]
+name = "collection_view_invalidation"
+description = "Iterator invalidation patterns"
+
+python = '''
+def safe_iter(items: list[int]) -> list[int]:
+    result = []
+    for item in items:
+        result.append(item)
+    return result
+'''
+
+rust = '''
+pub fn safe_iter(items: Vec<i32>) -> Vec<i32> {
+    let mut result = vec![];
+    for item in items {
+        result.push(item);
+    }
+    return result;
+}
+'''
+
+[[test]]
+name = "copy_before_modify"
+description = "Copy collection before modification"
+
+python = '''
+def modify_copy(items: list[int]) -> list[int]:
+    copy = list(items)
+    copy.append(99)
+    return copy
+'''
+
+rust = '''
+pub fn modify_copy(items: Vec<i32>) -> Vec<i32> {
+    let mut copy = items.clone();
+    copy.push(99);
+    return copy;
+}
+'''
+
+[[test]]
+name = "iter_slice"
+description = "Iterate over slice safely"
+
+python = '''
+def sum_range(items: list[int], start: int, end: int) -> int:
+    total = 0
+    for i in range(start, min(end, len(items))):
+        total += items[i]
+    return total
+'''
+
+rust = '''
+pub fn sum_range(items: &Vec<i32>, start: i32, end: i32) -> i32 {
+    let mut total = 0;
+    let end = std::cmp::min(end as usize, items.len());
+    for i in (start as usize)..end {
+        total += items[i];
+    }
+    return total;
+}
+'''
+
+# =============================================================================
+# Dict Key Ordering
+# =============================================================================
+
+[[test]]
+name = "dict_key_ordering"
+description = "Dict insertion order preservation"
+
+python = '''
+def ordered_keys() -> list[str]:
+    d = {"c": 3, "a": 1, "b": 2}
+    return list(d.keys())
+'''
+
+rust = '''
+use indexmap::IndexMap;
+
+pub fn ordered_keys() -> Vec<String> {
+    let mut d = IndexMap::new();
+    d.insert("c".to_string(), 3);
+    d.insert("a".to_string(), 1);
+    d.insert("b".to_string(), 2);
+    return d.keys().cloned().collect();
+}
+'''
+
+[[test]]
+name = "dict_iteration_order"
+description = "Dict iteration preserves order"
+
+python = '''
+def iter_dict() -> list[tuple[str, int]]:
+    d = {"first": 1, "second": 2, "third": 3}
+    result = []
+    for k, v in d.items():
+        result.append((k, v))
+    return result
+'''
+
+rust = '''
+use indexmap::IndexMap;
+
+pub fn iter_dict() -> Vec<(String, i32)> {
+    let mut d = IndexMap::new();
+    d.insert("first".to_string(), 1);
+    d.insert("second".to_string(), 2);
+    d.insert("third".to_string(), 3);
+    let mut result = vec![];
+    for (k, v) in d {
+        result.push((k, v));
+    }
+    return result;
+}
+'''
+
+[[test]]
+name = "dict_update_ordering"
+description = "Dict update maintains order"
+
+python = '''
+def update_dict(d: dict[str, int], key: str, value: int) -> dict[str, int]:
+    d[key] = value
+    return d
+'''
+
+rust = '''
+use std::collections::HashMap;
+
+pub fn update_dict(mut d: HashMap<String, i32>, key: String, value: i32) -> HashMap<String, i32> {
+    d.insert(key, value);
+    return d;
+}
+'''

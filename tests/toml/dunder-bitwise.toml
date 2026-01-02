@@ -522,7 +522,6 @@ fn main() {
 [[test]]
 name = "negative_shift"
 description = "x << -1 raises ValueError"
-skip = true
 python = """
 try:
     result = 5 << -1

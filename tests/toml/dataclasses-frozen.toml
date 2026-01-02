@@ -70,7 +70,6 @@ impl Point {
 [[test]]
 name = "frozen_no_mutate"
 description = "obj.x = 5 raises FrozenInstanceError"
-skip = true
 
 python = '''
 from dataclasses import dataclass
@@ -135,7 +134,6 @@ impl Point {
 [[test]]
 name = "frozen_no_delete"
 description = "del obj.x raises FrozenInstanceError"
-skip = true
 
 python = '''
 from dataclasses import dataclass
@@ -958,7 +956,6 @@ impl Point3D {
 [[test]]
 name = "frozen_inherit_mutable"
 description = "Frozen cannot inherit non-frozen dataclass"
-skip = true
 
 python = '''
 from dataclasses import dataclass

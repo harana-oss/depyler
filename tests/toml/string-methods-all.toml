@@ -288,7 +288,8 @@ result = 'xxhelloxx'.strip('x')
 '''
 
 rust = '''
-// Transpilation failed
+pub const result: serde_json::Value = "xxhelloxx".trim_matches(|c: char| "x".contains(c));
+use serde_json;
 '''
 
 # =============================================================================
@@ -316,9 +317,8 @@ python = '''
 result = 'a,b,c'.split(',', 1)
 '''
 
-rust = '''
-// Transpilation failed
-'''
+[test.assertions]
+contains = ["splitn", "a,b,c"]
 
 [[test]]
 name = "str_rsplit"
@@ -700,9 +700,8 @@ python = '''
 result = '{} {}'.format('hello', 'world')
 '''
 
-rust = '''
-// Transpilation failed
-'''
+[test.assertions]
+contains = ["format!", "hello", "world"]
 
 [[test]]
 name = "str_format_map"

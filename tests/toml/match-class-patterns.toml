@@ -604,7 +604,6 @@ let result = match value {
 [[test]]
 name = "class_no_match_args"
 description = "Positional patterns require __match_args__"
-skip = true
 
 python = '''
 value = 1

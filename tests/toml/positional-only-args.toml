@@ -303,7 +303,6 @@ fn main() {
 [[test]]
 name = "posonly_invalid"
 description = "def f(/, a): is syntax error"
-skip = true
 python = """
 # This is invalid syntax in Python
 # def invalid(/, a):

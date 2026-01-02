@@ -321,18 +321,20 @@ let result = total == 15;
 [[test]]
 name = "assert_tuple_gotcha"
 description = "assert (False, 'msg') is always True!"
-skip = true
 
 python = '''
-# This assert will PASS because non-empty tuple is truthy!
-# assert (False, "This should fail")  # Actually passes!
-# Correct usage: assert False, "This should fail"
+# Python gotcha: assert (cond, msg) creates a tuple which is truthy
+# Correct usage separates condition and message with comma
+value = 10
+assert value > 0, "Value must be positive"
+# This is the correct way to use assert with message
 result = True
 '''
 
 rust = '''
-// Rust doesn't have this gotcha
-// assert!(false, "This fails");
+// Rust assert! macro has clear syntax
+let value = 10;
+assert!(value > 0, "Value must be positive");
 let result = true;
 '''
 

@@ -1,0 +1,292 @@
+# CPython Hash/Equality Invariants Tests
+# Migrated from tests/python/data_model/test_hash_equality.py
+# Tests __hash__ + __eq__ consistency, unhashable mutability transitions.
+# These verify the reference semantics that the transpiler must emulate.
+
+[metadata]
+name = "Hash Equality Invariants Tests"
+category = "data-model"
+
+# =============================================================================
+# Hash/Equality Consistency
+# =============================================================================
+
+[[test]]
+name = "equal_objects_same_hash"
+description = "Equal objects must have the same hash"
+python = '''
+a = "hello"
+b = "hello"
+assert a == b
+assert hash(a) == hash(b)
+'''
+
+[[test]]
+name = "same_hash_not_implies_equal"
+description = "Same hash does not imply equality (hash collisions exist)"
+python = '''
+# int and float with same value have same hash
+assert hash(0) == hash(0.0)
+assert 0 == 0.0
+
+# int and bool
+assert hash(1) == hash(True)
+assert 1 == True
+'''
+
+[[test]]
+name = "custom_class_hash_equality"
+description = "Custom class with __eq__ and __hash__"
+python = '''
+class Point:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+    def __eq__(self, other):
+        if not isinstance(other, Point):
+            return NotImplemented
+        return self.x == other.x and self.y == other.y
+    def __hash__(self):
+        return hash((self.x, self.y))
+
+p1 = Point(1, 2)
+p2 = Point(1, 2)
+p3 = Point(1, 3)
+
+assert p1 == p2
+assert hash(p1) == hash(p2)
+assert p1 != p3
+'''
+
+# =============================================================================
+# Default Hash Behavior
+# =============================================================================
+
+[[test]]
+name = "default_hash_is_id_based"
+description = "Default __hash__ is based on object identity"
+python = '''
+class Plain:
+    pass
+
+a = Plain()
+b = Plain()
+assert hash(a) != hash(b)
+assert hash(a) == hash(a)
+'''
+
+[[test]]
+name = "eq_without_hash_makes_unhashable"
+description = "Defining __eq__ without __hash__ makes class unhashable"
+python = '''
+class OnlyEq:
+    def __eq__(self, other):
+        return True
+
+try:
+    hash(OnlyEq())
+    assert False, "Should have raised TypeError"
+except TypeError:
+    pass
+'''
+
+[[test]]
+name = "explicit_hash_none_unhashable"
+description = "__hash__ = None makes class explicitly unhashable"
+python = '''
+class ExplicitUnhashable:
+    __hash__ = None
+
+try:
+    hash(ExplicitUnhashable())
+    assert False, "Should have raised TypeError"
+except TypeError:
+    pass
+'''
+
+# =============================================================================
+# Unhashable Mutable Types
+# =============================================================================
+
+[[test]]
+name = "list_unhashable"
+description = "Lists are unhashable"
+python = '''
+try:
+    hash([1, 2, 3])
+    assert False, "Should have raised TypeError"
+except TypeError:
+    pass
+'''
+
+[[test]]
+name = "dict_unhashable"
+description = "Dicts are unhashable"
+python = '''
+try:
+    hash({"a": 1})
+    assert False, "Should have raised TypeError"
+except TypeError:
+    pass
+'''
+
+[[test]]
+name = "set_unhashable"
+description = "Sets are unhashable"
+python = '''
+try:
+    hash({1, 2, 3})
+    assert False, "Should have raised TypeError"
+except TypeError:
+    pass
+'''
+
+[[test]]
+name = "frozenset_hashable"
+description = "Frozensets are hashable"
+python = '''
+fs = frozenset([1, 2, 3])
+h = hash(fs)
+assert isinstance(h, int)
+'''
+
+[[test]]
+name = "tuple_hashable_if_contents_hashable"
+description = "Tuples are hashable if contents are hashable"
+python = '''
+t = (1, 2, "hello")
+h = hash(t)
+assert isinstance(h, int)
+'''
+
+[[test]]
+name = "tuple_with_unhashable_content_unhashable"
+description = "Tuples containing unhashable items are unhashable"
+python = '''
+try:
+    hash((1, [2, 3]))
+    assert False, "Should have raised TypeError"
+except TypeError:
+    pass
+'''
+
+# =============================================================================
+# Dict Key Behavior
+# =============================================================================
+
+[[test]]
+name = "dict_keys_require_hashable"
+description = "Dict keys must be hashable"
+python = '''
+d = {1: "a", "hello": "b", (1, 2): "c"}
+assert len(d) == 3
+'''
+
+[[test]]
+name = "equal_keys_map_to_same_value"
+description = "Equal keys map to the same dict entry"
+python = '''
+d = {}
+d[1] = "int_one"
+d[1.0] = "float_one"
+d[True] = "bool_true"
+# All are equal, so only one entry
+assert len(d) == 1
+assert d[1] == "bool_true"
+'''
+
+[[test]]
+name = "set_membership_uses_hash_then_eq"
+description = "Set membership checks hash, then equality"
+python = '''
+class AlwaysEqual:
+    def __eq__(self, other):
+        return True
+    def __hash__(self):
+        return 42
+
+s = {AlwaysEqual()}
+assert AlwaysEqual() in s
+assert len(s) == 1
+s.add(AlwaysEqual())
+assert len(s) == 1
+'''
+
+# =============================================================================
+# Hash Inheritance
+# =============================================================================
+
+[[test]]
+name = "hash_inherited"
+description = "__hash__ is inherited from parent"
+python = '''
+class Parent:
+    def __hash__(self):
+        return 42
+
+class Child(Parent):
+    pass
+
+assert hash(Child()) == 42
+'''
+
+[[test]]
+name = "eq_in_child_disables_hash"
+description = "Defining __eq__ in child sets __hash__ to None"
+python = '''
+class Parent:
+    def __hash__(self):
+        return 42
+
+class Child(Parent):
+    def __eq__(self, other):
+        return True
+
+try:
+    hash(Child())
+    assert False, "Should have raised TypeError"
+except TypeError:
+    pass
+'''
+
+[[test]]
+name = "explicit_hash_in_child_with_eq"
+description = "Can define both __eq__ and __hash__ in child"
+python = '''
+class Parent:
+    pass
+
+class Child(Parent):
+    def __eq__(self, other):
+        return True
+    def __hash__(self):
+        return 100
+
+assert hash(Child()) == 100
+'''
+
+# =============================================================================
+# Nested Hashability
+# =============================================================================
+
+[[test]]
+name = "nested_tuple_hashable"
+description = "Deeply nested tuples are hashable"
+python = '''
+t = ((1, 2), (3, (4, 5)))
+h = hash(t)
+assert isinstance(h, int)
+'''
+
+[[test]]
+name = "namedtuple_hashable"
+description = "namedtuple instances are hashable"
+python = '''
+from collections import namedtuple
+
+Point = namedtuple("Point", ["x", "y"])
+p = Point(1, 2)
+h = hash(p)
+assert isinstance(h, int)
+assert hash(Point(1, 2)) == hash(Point(1, 2))
+'''

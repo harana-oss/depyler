@@ -54,7 +54,13 @@ def make_path(directory: str, filename: str) -> str:
 '''
 
 rust = '''
-// Transpilation failed
+use std::path;
+pub fn make_path(directory: String, filename: String) -> String {
+    return std::path::PathBuf::from(directory)
+        .join(filename)
+        .to_string_lossy()
+        .to_string();
+}
 '''
 
 [[test]]
@@ -69,7 +75,10 @@ def file_exists(path: str) -> bool:
 '''
 
 rust = '''
-// Transpilation failed
+use std::path;
+pub fn file_exists(path: String) -> bool {
+    return std::path::Path::new(path).exists();
+}
 '''
 
 [[test]]
@@ -84,7 +93,10 @@ def is_regular_file(path: str) -> bool:
 '''
 
 rust = '''
-// Transpilation failed
+use std::path;
+pub fn is_regular_file(path: String) -> bool {
+    return std::path::Path::new(path).is_file();
+}
 '''
 
 [[test]]
@@ -99,7 +111,10 @@ def is_directory(path: str) -> bool:
 '''
 
 rust = '''
-// Transpilation failed
+use std::path;
+pub fn is_directory(path: String) -> bool {
+    return std::path::Path::new(path).is_dir();
+}
 '''
 
 [[test]]
@@ -114,7 +129,13 @@ def get_filename(path: str) -> str:
 '''
 
 rust = '''
-// Transpilation failed
+use std::path;
+pub fn get_filename(path: String) -> String {
+    return std::path::Path::new(&path)
+        .file_name()
+        .map(|s| s.to_string_lossy().to_string())
+        .unwrap_or_default();
+}
 '''
 
 [[test]]
@@ -129,7 +150,13 @@ def get_directory(path: str) -> str:
 '''
 
 rust = '''
-// Transpilation failed
+use std::path;
+pub fn get_directory(path: String) -> String {
+    return std::path::Path::new(&path)
+        .parent()
+        .map(|p| p.to_string_lossy().to_string())
+        .unwrap_or_default();
+}
 '''
 
 [[test]]
@@ -281,7 +308,17 @@ def relative_path(path: str, start: str) -> str:
 '''
 
 rust = '''
-// Transpilation failed
+use std::path;
+pub fn relative_path(path: String, start: String) -> String {
+    return {
+        let path_obj = std::path::Path::new(path);
+        let start_obj = std::path::Path::new(start);
+        path_obj
+            .strip_prefix(start_obj)
+            .map(|p| p.to_string_lossy().to_string())
+            .unwrap_or_else(|_| path.to_string())
+    };
+}
 '''
 
 [[test]]

@@ -320,7 +320,6 @@ assert!(result);
 [[test]]
 name = "import_not_found"
 description = "import nonexistent"
-skip = true
 
 python = '''
 # Importing non-existent module raises ModuleNotFoundError
@@ -342,7 +341,6 @@ let result = true;
 [[test]]
 name = "import_error"
 description = "Import failure"
-skip = true
 
 python = '''
 # Import can fail if module has errors

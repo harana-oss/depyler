@@ -1662,9 +1662,8 @@ def higher_order(func: Callable[[int], str]) -> str:
     return func(42)
 '''
 
-rust = '''
-// Transpilation failed
-'''
+[test.assertions]
+contains = ["func", "42"]
 
 [[test]]
 name = "type_mapper_generic_with_multiple_params"

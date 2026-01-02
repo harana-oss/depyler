@@ -1,0 +1,435 @@
+[metadata]
+name = "Resource Management Tests"
+category = "resources"
+
+# =============================================================================
+# File Handle Cleanup
+# =============================================================================
+
+[[test]]
+name = "file_handle_cleanup"
+description = "File handle automatic cleanup"
+
+python = '''
+def read_file_safe(path: str) -> str:
+    with open(path, 'r') as f:
+        return f.read()
+'''
+
+rust = '''
+use std::fs;
+
+pub fn read_file_safe(path: &str) -> String {
+    return fs::read_to_string(path).unwrap_or_default();
+}
+'''
+
+[[test]]
+name = "file_write_cleanup"
+description = "File write with cleanup"
+
+python = '''
+def write_file_safe(path: str, content: str) -> bool:
+    try:
+        with open(path, 'w') as f:
+            f.write(content)
+        return True
+    except IOError:
+        return False
+'''
+
+rust = '''
+use std::fs;
+
+pub fn write_file_safe(path: &str, content: &str) -> bool {
+    match fs::write(path, content) {
+        Ok(_) => return true,
+        Err(_) => return false,
+    }
+}
+'''
+
+[[test]]
+name = "file_lines_cleanup"
+description = "Read file lines with cleanup"
+
+python = '''
+def count_lines(path: str) -> int:
+    count = 0
+    with open(path, 'r') as f:
+        for _ in f:
+            count += 1
+    return count
+'''
+
+rust = '''
+use std::fs;
+
+pub fn count_lines(path: &str) -> i32 {
+    match fs::read_to_string(path) {
+        Ok(content) => return content.lines().count() as i32,
+        Err(_) => return 0,
+    }
+}
+'''
+
+# =============================================================================
+# Socket Cleanup
+# =============================================================================
+
+[[test]]
+name = "socket_cleanup"
+description = "Socket resource cleanup"
+
+python = '''
+class Connection:
+    def __init__(self, host: str, port: int):
+        self.host = host
+        self.port = port
+        self.connected = False
+    
+    def connect(self) -> bool:
+        self.connected = True
+        return True
+    
+    def disconnect(self) -> None:
+        self.connected = False
+'''
+
+rust = '''
+pub struct Connection {
+    pub host: String,
+    pub port: i32,
+    pub connected: bool,
+}
+
+impl Connection {
+    pub fn new(host: String, port: i32) -> Self {
+        Self { host, port, connected: false }
+    }
+    
+    pub fn connect(&mut self) -> bool {
+        self.connected = true;
+        return true;
+    }
+    
+    pub fn disconnect(&mut self) {
+        self.connected = false;
+    }
+}
+'''
+
+[[test]]
+name = "socket_auto_close"
+description = "Socket auto-close pattern"
+
+python = '''
+class AutoCloser:
+    def __init__(self):
+        self.open = True
+    
+    def close(self) -> None:
+        self.open = False
+    
+    def is_open(self) -> bool:
+        return self.open
+'''
+
+rust = '''
+pub struct AutoCloser {
+    pub open: bool,
+}
+
+impl AutoCloser {
+    pub fn new() -> Self {
+        Self { open: true }
+    }
+    
+    pub fn close(&mut self) {
+        self.open = false;
+    }
+    
+    pub fn is_open(&self) -> bool {
+        return self.open;
+    }
+}
+
+impl Drop for AutoCloser {
+    fn drop(&mut self) {
+        self.close();
+    }
+}
+'''
+
+# =============================================================================
+# Tempfile Cleanup
+# =============================================================================
+
+[[test]]
+name = "tempfile_cleanup"
+description = "Temporary file cleanup"
+
+python = '''
+class TempFile:
+    def __init__(self, name: str):
+        self.name = name
+        self.exists = True
+    
+    def delete(self) -> None:
+        self.exists = False
+    
+    def is_valid(self) -> bool:
+        return self.exists
+'''
+
+rust = '''
+pub struct TempFile {
+    pub name: String,
+    pub exists: bool,
+}
+
+impl TempFile {
+    pub fn new(name: String) -> Self {
+        Self { name, exists: true }
+    }
+    
+    pub fn delete(&mut self) {
+        self.exists = false;
+    }
+    
+    pub fn is_valid(&self) -> bool {
+        return self.exists;
+    }
+}
+'''
+
+[[test]]
+name = "tempfile_scope"
+description = "Tempfile scoped cleanup"
+
+python = '''
+def use_temp_resource() -> int:
+    result = 0
+    result += 1
+    return result
+'''
+
+rust = '''
+pub fn use_temp_resource() -> i32 {
+    let mut result = 0;
+    result += 1;
+    return result;
+}
+'''
+
+# =============================================================================
+# Nested Resource Cleanup
+# =============================================================================
+
+[[test]]
+name = "nested_resource_cleanup"
+description = "Nested resource cleanup order"
+
+python = '''
+class Outer:
+    def __init__(self):
+        self.inner = None
+        self.closed = False
+    
+    def set_inner(self, inner) -> None:
+        self.inner = inner
+    
+    def close(self) -> None:
+        if self.inner:
+            self.inner.close()
+        self.closed = True
+
+class Inner:
+    def __init__(self):
+        self.closed = False
+    
+    def close(self) -> None:
+        self.closed = True
+'''
+
+rust = '''
+pub struct Inner {
+    pub closed: bool,
+}
+
+impl Inner {
+    pub fn new() -> Self {
+        Self { closed: false }
+    }
+    
+    pub fn close(&mut self) {
+        self.closed = true;
+    }
+}
+
+pub struct Outer {
+    pub inner: Option<Inner>,
+    pub closed: bool,
+}
+
+impl Outer {
+    pub fn new() -> Self {
+        Self { inner: None, closed: false }
+    }
+    
+    pub fn set_inner(&mut self, inner: Inner) {
+        self.inner = Some(inner);
+    }
+    
+    pub fn close(&mut self) {
+        if let Some(ref mut inner) = self.inner {
+            inner.close();
+        }
+        self.closed = true;
+    }
+}
+'''
+
+[[test]]
+name = "resource_stack"
+description = "Stack of resources cleanup"
+
+python = '''
+class ResourceStack:
+    def __init__(self):
+        self.resources = []
+    
+    def push(self, name: str) -> None:
+        self.resources.append(name)
+    
+    def pop(self) -> str:
+        if len(self.resources) > 0:
+            return self.resources.pop()
+        return ""
+    
+    def cleanup_all(self) -> None:
+        while len(self.resources) > 0:
+            self.resources.pop()
+'''
+
+rust = '''
+pub struct ResourceStack {
+    pub resources: Vec<String>,
+}
+
+impl ResourceStack {
+    pub fn new() -> Self {
+        Self { resources: vec![] }
+    }
+    
+    pub fn push(&mut self, name: String) {
+        self.resources.push(name);
+    }
+    
+    pub fn pop(&mut self) -> String {
+        if self.resources.len() > 0 {
+            return self.resources.pop().unwrap();
+        }
+        return String::new();
+    }
+    
+    pub fn cleanup_all(&mut self) {
+        while self.resources.len() > 0 {
+            self.resources.pop();
+        }
+    }
+}
+'''
+
+# =============================================================================
+# Exception During Cleanup
+# =============================================================================
+
+[[test]]
+name = "exception_during_cleanup"
+description = "Exception handling during cleanup"
+
+python = '''
+class SafeResource:
+    def __init__(self):
+        self.acquired = True
+    
+    def release(self) -> bool:
+        if self.acquired:
+            self.acquired = False
+            return True
+        return False
+    
+    def is_acquired(self) -> bool:
+        return self.acquired
+'''
+
+rust = '''
+pub struct SafeResource {
+    pub acquired: bool,
+}
+
+impl SafeResource {
+    pub fn new() -> Self {
+        Self { acquired: true }
+    }
+    
+    pub fn release(&mut self) -> bool {
+        if self.acquired {
+            self.acquired = false;
+            return true;
+        }
+        return false;
+    }
+    
+    pub fn is_acquired(&self) -> bool {
+        return self.acquired;
+    }
+}
+'''
+
+[[test]]
+name = "cleanup_error_handling"
+description = "Handle errors during cleanup"
+
+python = '''
+def cleanup_with_error(should_fail: bool) -> bool:
+    try:
+        if should_fail:
+            raise ValueError("cleanup failed")
+        return True
+    except ValueError:
+        return False
+'''
+
+rust = '''
+pub fn cleanup_with_error(should_fail: bool) -> bool {
+    if should_fail {
+        return false;
+    }
+    return true;
+}
+'''
+
+[[test]]
+name = "finally_cleanup"
+description = "Finally block cleanup"
+
+python = '''
+def always_cleanup() -> int:
+    result = 0
+    try:
+        result = 1
+    finally:
+        result += 1
+    return result
+'''
+
+rust = '''
+pub fn always_cleanup() -> i32 {
+    let mut result = 0;
+    result = 1;
+    result += 1;
+    return result;
+}
+'''

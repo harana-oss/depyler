@@ -1,0 +1,265 @@
+# CPython Numeric Protocol Matrix Tests
+# Migrated from tests/python/data_model/test_numeric_protocol.py
+# Tests __add__/__radd__/__iadd__ fallbacks and type coercion.
+# These verify the reference semantics that the transpiler must emulate.
+
+[metadata]
+name = "Numeric Protocol Tests"
+category = "data-model"
+
+# =============================================================================
+# Forward and Reflected Operator Fallbacks
+# =============================================================================
+
+[[test]]
+name = "add_notimplemented_triggers_radd"
+description = "When __add__ returns NotImplemented, __radd__ is tried"
+python = '''
+class A:
+    def __add__(self, other):
+        return NotImplemented
+    def __radd__(self, other):
+        return "A.__radd__"
+
+class B:
+    def __add__(self, other):
+        return NotImplemented
+
+result = B() + A()
+assert result == "A.__radd__"
+'''
+
+[[test]]
+name = "radd_not_called_if_add_succeeds"
+description = "__radd__ not called if __add__ succeeds"
+python = '''
+class A:
+    def __add__(self, other):
+        return "A.__add__"
+
+class B:
+    def __radd__(self, other):
+        return "B.__radd__"
+
+result = A() + B()
+assert result == "A.__add__"
+'''
+
+[[test]]
+name = "subclass_radd_called_first"
+description = "Subclass __radd__ is checked before parent __add__"
+python = '''
+class Parent:
+    def __add__(self, other):
+        return "Parent.__add__"
+
+class Child(Parent):
+    def __radd__(self, other):
+        return "Child.__radd__"
+
+result = Parent() + Child()
+assert result == "Child.__radd__"
+'''
+
+# =============================================================================
+# In-place Operators
+# =============================================================================
+
+[[test]]
+name = "iadd_modifies_in_place"
+description = "__iadd__ modifies and returns self for mutable types"
+python = '''
+lst = [1, 2]
+original_id = id(lst)
+lst += [3]
+assert lst == [1, 2, 3]
+assert id(lst) == original_id
+'''
+
+[[test]]
+name = "iadd_fallback_to_add"
+description = "If __iadd__ not defined, falls back to __add__"
+python = '''
+class Number:
+    def __init__(self, value):
+        self.value = value
+    def __add__(self, other):
+        return Number(self.value + other.value)
+
+n = Number(5)
+original_id = id(n)
+n += Number(3)
+assert n.value == 8
+assert id(n) != original_id
+'''
+
+[[test]]
+name = "iadd_returns_different_object"
+description = "__iadd__ can return a different object"
+python = '''
+class Counter:
+    def __init__(self, value):
+        self.value = value
+    def __iadd__(self, other):
+        return Counter(self.value + other)
+
+c = Counter(5)
+original_id = id(c)
+c += 3
+assert c.value == 8
+assert id(c) != original_id
+'''
+
+# =============================================================================
+# Type Coercion Rules
+# =============================================================================
+
+[[test]]
+name = "int_float_coercion"
+description = "int + float produces float"
+python = '''
+result = 5 + 2.5
+assert isinstance(result, float)
+assert result == 7.5
+'''
+
+[[test]]
+name = "float_int_coercion"
+description = "float + int produces float"
+python = '''
+result = 2.5 + 5
+assert isinstance(result, float)
+assert result == 7.5
+'''
+
+[[test]]
+name = "int_complex_coercion"
+description = "int + complex produces complex"
+python = '''
+result = 5 + 2j
+assert isinstance(result, complex)
+assert result == 5 + 2j
+'''
+
+[[test]]
+name = "custom_type_coercion"
+description = "Custom types can control coercion via NotImplemented"
+python = '''
+class MyInt:
+    def __init__(self, value):
+        self.value = value
+    def __add__(self, other):
+        if isinstance(other, int):
+            return MyInt(self.value + other)
+        return NotImplemented
+    def __radd__(self, other):
+        if isinstance(other, int):
+            return MyInt(other + self.value)
+        return NotImplemented
+
+result = MyInt(5) + 3
+assert result.value == 8
+result = 3 + MyInt(5)
+assert result.value == 8
+'''
+
+# =============================================================================
+# All Binary Numeric Operators
+# =============================================================================
+
+[[test]]
+name = "all_binary_operators"
+description = "Test all binary numeric operators"
+python = '''
+class All:
+    def __init__(self, value):
+        self.value = value
+    def __add__(self, other):
+        return All(self.value + other.value)
+    def __sub__(self, other):
+        return All(self.value - other.value)
+    def __mul__(self, other):
+        return All(self.value * other.value)
+    def __truediv__(self, other):
+        return All(self.value / other.value)
+    def __floordiv__(self, other):
+        return All(self.value // other.value)
+    def __mod__(self, other):
+        return All(self.value % other.value)
+    def __pow__(self, other):
+        return All(self.value ** other.value)
+
+a = All(10)
+b = All(3)
+assert (a + b).value == 13
+assert (a - b).value == 7
+assert (a * b).value == 30
+assert abs((a / b).value - 3.333333) < 0.0001
+assert (a // b).value == 3
+assert (a % b).value == 1
+assert (a ** b).value == 1000
+'''
+
+# =============================================================================
+# Unary Operators
+# =============================================================================
+
+[[test]]
+name = "unary_operators"
+description = "Test unary operators"
+python = '''
+class Num:
+    def __init__(self, value):
+        self.value = value
+    def __neg__(self):
+        return Num(-self.value)
+    def __pos__(self):
+        return Num(+self.value)
+    def __abs__(self):
+        return Num(abs(self.value))
+    def __invert__(self):
+        return Num(~self.value)
+
+n = Num(-5)
+assert (-n).value == 5
+assert (+n).value == -5
+assert abs(n).value == 5
+assert (~Num(5)).value == -6
+'''
+
+# =============================================================================
+# Division Semantics
+# =============================================================================
+
+[[test]]
+name = "true_division_always_float"
+description = "True division (/) always returns float"
+python = '''
+assert isinstance(10 / 2, float)
+assert 10 / 2 == 5.0
+'''
+
+[[test]]
+name = "floor_division_int_operands"
+description = "Floor division (//) with ints returns int"
+python = '''
+assert isinstance(10 // 3, int)
+assert 10 // 3 == 3
+'''
+
+[[test]]
+name = "floor_division_float_operands"
+description = "Floor division (//) with float returns float"
+python = '''
+assert isinstance(10.0 // 3, float)
+assert 10.0 // 3 == 3.0
+'''
+
+[[test]]
+name = "floor_division_negative"
+description = "Floor division rounds toward negative infinity"
+python = '''
+assert -7 // 2 == -4
+assert 7 // -2 == -4
+assert -7 // -2 == 3
+'''

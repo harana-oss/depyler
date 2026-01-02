@@ -748,7 +748,6 @@ let result = test_mixin_order();
 [[test]]
 name = "mro_inconsistent"
 description = "Invalid inheritance that breaks C3"
-skip = true
 
 python = '''
 # Invalid inheritance that breaks C3

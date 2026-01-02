@@ -1,0 +1,201 @@
+# CPython super() Resolution Tests
+# Migrated from tests/python/semantics/test_super_resolution.py
+# Tests super() behavior in diamond inheritance including __mro_entries__.
+# These verify the reference semantics that the transpiler must emulate.
+
+[metadata]
+name = "Super Resolution Semantics Tests"
+category = "semantics"
+
+# =============================================================================
+# Basic super() Functionality
+# =============================================================================
+
+[[test]]
+name = "super_calls_parent_method"
+description = "super() calls the parent class method"
+python = '''
+class Parent:
+    def method(self):
+        return "parent"
+
+class Child(Parent):
+    def method(self):
+        return f"child+{super().method()}"
+
+assert Child().method() == "child+parent"
+'''
+
+[[test]]
+name = "super_with_explicit_args"
+description = "super(cls, obj) works explicitly"
+python = '''
+class Parent:
+    def method(self):
+        return "parent"
+
+class Child(Parent):
+    def method(self):
+        return f"child+{super(Child, self).method()}"
+
+assert Child().method() == "child+parent"
+'''
+
+# =============================================================================
+# Diamond Inheritance
+# =============================================================================
+
+[[test]]
+name = "diamond_mro_order"
+description = "Diamond inheritance follows C3 linearization"
+python = '''
+class A:
+    def method(self):
+        return ["A"]
+
+class B(A):
+    def method(self):
+        return ["B"] + super().method()
+
+class C(A):
+    def method(self):
+        return ["C"] + super().method()
+
+class D(B, C):
+    def method(self):
+        return ["D"] + super().method()
+
+assert D().method() == ["D", "B", "C", "A"]
+assert D.__mro__ == (D, B, C, A, object)
+'''
+
+[[test]]
+name = "super_cooperative"
+description = "All classes in hierarchy use super() cooperatively"
+python = '''
+call_order = []
+
+class A:
+    def method(self):
+        call_order.append("A")
+
+class B(A):
+    def method(self):
+        call_order.append("B")
+        super().method()
+
+class C(A):
+    def method(self):
+        call_order.append("C")
+        super().method()
+
+class D(B, C):
+    def method(self):
+        call_order.append("D")
+        super().method()
+
+D().method()
+assert call_order == ["D", "B", "C", "A"]
+'''
+
+# =============================================================================
+# super().__init__ Patterns
+# =============================================================================
+
+[[test]]
+name = "multiple_init_cooperative"
+description = "Multiple __init__ methods called via super()"
+python = '''
+init_calls = []
+
+class A:
+    def __init__(self):
+        init_calls.append("A")
+
+class B(A):
+    def __init__(self):
+        init_calls.append("B")
+        super().__init__()
+
+class C(A):
+    def __init__(self):
+        init_calls.append("C")
+        super().__init__()
+
+class D(B, C):
+    def __init__(self):
+        init_calls.append("D")
+        super().__init__()
+
+D()
+assert init_calls == ["D", "B", "C", "A"]
+'''
+
+[[test]]
+name = "super_in_classmethod"
+description = "super() works in classmethod"
+python = '''
+class Parent:
+    @classmethod
+    def create(cls):
+        return "parent_create"
+
+class Child(Parent):
+    @classmethod
+    def create(cls):
+        return f"child+{super().create()}"
+
+assert Child.create() == "child+parent_create"
+'''
+
+[[test]]
+name = "super_in_staticmethod"
+description = "super() in staticmethod requires explicit arguments"
+python = '''
+class Parent:
+    @staticmethod
+    def method():
+        return "parent"
+
+class Child(Parent):
+    @staticmethod
+    def method():
+        return "child"
+
+assert Child.method() == "child"
+'''
+
+# =============================================================================
+# super() Edge Cases
+# =============================================================================
+
+[[test]]
+name = "super_two_argument_unbound"
+description = "super(cls, cls) returns unbound super object"
+python = '''
+class A:
+    def method(self):
+        return "A"
+
+class B(A):
+    pass
+
+assert super(B, B).method(B()) == "A"
+'''
+
+[[test]]
+name = "super_skips_class"
+description = "super() skips the current class in MRO"
+python = '''
+class A:
+    x = 1
+
+class B(A):
+    x = 2
+
+class C(B):
+    def get_parent_x(self):
+        return super().x
+
+assert C().get_parent_x() == 2
+'''

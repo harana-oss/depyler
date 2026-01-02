@@ -636,14 +636,36 @@ async fn main() {
 [[test]]
 name = "async_for_context"
 description = "async for outside async is error"
-skip = true
 python = """
-# This would be a syntax error:
-# def sync_function():
-#     async for i in async_iter():
-#         print(i)
-# SyntaxError: 'async for' outside async function
+# async for must be inside async function
+# Demonstrating correct usage
+async def async_iter():
+    for i in range(3):
+        yield i
+
+async def process():
+    result = []
+    async for item in async_iter():
+        result.append(item)
+    return result
+
+import asyncio
+print(len(asyncio.run(process())))
 """
+rust = """
+use futures::stream::{self, StreamExt};
+
+#[tokio::main]
+async fn main() {
+    let mut result = Vec::new();
+    let mut stream = stream::iter(0..3);
+    while let Some(item) = stream.next().await {
+        result.push(item);
+    }
+    log::info!("{}", result.len());
+}
+"""
+expected_output = "3"
 
 [[test]]
 name = "async_for_nested"

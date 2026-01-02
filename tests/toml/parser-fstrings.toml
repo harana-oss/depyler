@@ -1,0 +1,264 @@
+# F-string Edge Cases Tests
+# Migrated from tests/python/parser/test_fstring_edge_cases.py
+# Tests nested formatting, debug `=`, raw/f-string combos, escapes.
+# These verify the parser accepts modern syntax and preserves semantics.
+
+[metadata]
+name = "F-string Edge Cases Tests"
+category = "parser"
+
+# =============================================================================
+# Basic F-Strings
+# =============================================================================
+
+[[test]]
+name = "fstring_simple_interpolation"
+description = "Simple variable interpolation"
+python = '''
+name = "World"
+assert f"Hello, {name}!" == "Hello, World!"
+'''
+
+[[test]]
+name = "fstring_expression_interpolation"
+description = "Expression evaluation in f-string"
+python = '''
+x = 10
+assert f"x + 5 = {x + 5}" == "x + 5 = 15"
+'''
+
+[[test]]
+name = "fstring_method_call"
+description = "Method call in f-string"
+python = '''
+s = "hello"
+assert f"{s.upper()}" == "HELLO"
+'''
+
+# =============================================================================
+# Format Specifications
+# =============================================================================
+
+[[test]]
+name = "fstring_width_alignment"
+description = "Width and alignment formatting"
+python = '''
+assert f"{'hello':10}" == "hello     "
+assert f"{'hello':>10}" == "     hello"
+assert f"{'hello':^10}" == "  hello   "
+'''
+
+[[test]]
+name = "fstring_numeric_formatting"
+description = "Numeric formatting"
+python = '''
+pi = 3.14159
+assert f"{pi:.2f}" == "3.14"
+assert f"{1000000:,}" == "1,000,000"
+'''
+
+[[test]]
+name = "fstring_type_conversion"
+description = "Type conversion flags"
+python = '''
+obj = [1, 2]
+assert f"{obj!r}" == "[1, 2]"
+assert f"{obj!s}" == "[1, 2]"
+assert f"{65!a}" == "65"
+'''
+
+# =============================================================================
+# Debug Feature (=)
+# =============================================================================
+
+[[test]]
+name = "fstring_debug_equals"
+description = "Debug = shows expression and value"
+python = '''
+x = 42
+assert f"{x=}" == "x=42"
+'''
+
+[[test]]
+name = "fstring_debug_with_spaces"
+description = "Debug preserves surrounding spaces"
+python = '''
+x = 42
+assert f"{x = }" == "x = 42"
+'''
+
+[[test]]
+name = "fstring_debug_with_expression"
+description = "Debug with complex expression"
+python = '''
+x = 10
+y = 20
+assert f"{x + y=}" == "x + y=30"
+'''
+
+[[test]]
+name = "fstring_debug_with_format_spec"
+description = "Debug combined with format spec"
+python = '''
+pi = 3.14159
+assert f"{pi=:.2f}" == "pi=3.14"
+'''
+
+# =============================================================================
+# Nested F-Strings
+# =============================================================================
+
+[[test]]
+name = "fstring_nested_braces"
+description = "Nested braces for dict access"
+python = '''
+d = {"key": "value"}
+assert f"{d['key']}" == "value"
+'''
+
+[[test]]
+name = "fstring_format_spec_variable"
+description = "Format spec from variable"
+python = '''
+width = 10
+assert f"{'hi':{width}}" == "hi        "
+'''
+
+[[test]]
+name = "fstring_nested"
+description = "F-string inside f-string (Python 3.12+)"
+python = '''
+inner = "world"
+result = f"Hello, {f'{inner.upper()}'}"
+assert result == "Hello, WORLD"
+'''
+
+[[test]]
+name = "fstring_deeply_nested"
+description = "Deeply nested expressions"
+python = '''
+d = {"a": {"b": {"c": 42}}}
+assert f"{d['a']['b']['c']}" == "42"
+'''
+
+# =============================================================================
+# Escape Sequences
+# =============================================================================
+
+[[test]]
+name = "fstring_brace_escape"
+description = "Double braces produce literal braces"
+python = '''
+assert f"{{hello}}" == "{hello}"
+'''
+
+[[test]]
+name = "fstring_backslash_outside"
+description = "Backslash escapes outside expressions"
+python = '''
+assert f"line1\\nline2" == "line1\\nline2"
+'''
+
+[[test]]
+name = "fstring_quotes_in_expression"
+description = "Quotes inside expression"
+python = '''
+assert f'{"hello"}' == "hello"
+assert f"{'hello'}" == "hello"
+'''
+
+# =============================================================================
+# Raw F-Strings
+# =============================================================================
+
+[[test]]
+name = "fstring_rf_string"
+description = "rf\"...\" raw f-string"
+python = '''
+path = "folder"
+result = rf"C:\\{path}\\file"
+assert result == r"C:\\folder\\file"
+'''
+
+[[test]]
+name = "fstring_fr_string"
+description = "fr\"...\" is equivalent to rf\"...\""
+python = '''
+x = 5
+result = fr"\\n{x}"
+assert result == r"\\n5"
+'''
+
+[[test]]
+name = "fstring_raw_preserves_backslash"
+description = "Raw strings preserve backslashes"
+python = '''
+name = "test"
+assert rf"\\{name}" == r"\\test"
+'''
+
+# =============================================================================
+# Multiline F-Strings
+# =============================================================================
+
+[[test]]
+name = "fstring_triple_quoted"
+description = "Triple-quoted f-string"
+python = """
+name = "World"
+result = f'''Hello,
+{name}!'''
+assert result == "Hello,\\nWorld!"
+"""
+
+[[test]]
+name = "fstring_implicit_concatenation"
+description = "Implicit string concatenation with f-strings"
+python = '''
+x = 1
+y = 2
+result = f"x={x} " f"y={y}"
+assert result == "x=1 y=2"
+'''
+
+# =============================================================================
+# Edge Cases
+# =============================================================================
+
+[[test]]
+name = "fstring_empty_string"
+description = "Empty braces are syntax error, but empty string is fine"
+python = '''
+assert f"{''}" == ""
+'''
+
+[[test]]
+name = "fstring_lambda"
+description = "Lambda requires parentheses in f-string"
+python = '''
+assert f"{(lambda x: x * 2)(5)}" == "10"
+'''
+
+[[test]]
+name = "fstring_walrus"
+description = "Walrus operator in f-string"
+python = '''
+result = f"{(x := 10)}"
+assert result == "10"
+assert x == 10
+'''
+
+[[test]]
+name = "fstring_conditional"
+description = "Conditional expression in f-string"
+python = '''
+flag = True
+assert f"{'yes' if flag else 'no'}" == "yes"
+'''
+
+[[test]]
+name = "fstring_comprehension"
+description = "Comprehension in f-string"
+python = '''
+assert f"{[x*2 for x in range(3)]}" == "[0, 2, 4]"
+'''

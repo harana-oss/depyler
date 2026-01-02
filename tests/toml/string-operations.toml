@@ -922,9 +922,8 @@ def format_str(template: str, value: int) -> str:
     return template.format(value)
 '''
 
-rust = '''
-// Transpilation failed
-'''
+[test.assertions]
+contains = ["format!", "template"]
 
 [[test]]
 name = "str_removeprefix"

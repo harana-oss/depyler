@@ -1,0 +1,288 @@
+# CPython Iterable/Iterator Protocol Tests
+# Migrated from tests/python/data_model/test_iterable_protocol.py
+# Tests iterator reuse, StopIteration.value, PEP 479 behavior.
+# These verify the reference semantics that the transpiler must emulate.
+
+[metadata]
+name = "Iterable Protocol Tests"
+category = "data-model"
+
+# =============================================================================
+# Basic Iterator Protocol
+# =============================================================================
+
+[[test]]
+name = "iter_returns_iterator"
+description = "iter() on iterable returns iterator"
+python = '''
+lst = [1, 2, 3]
+it = iter(lst)
+assert hasattr(it, "__next__")
+'''
+
+[[test]]
+name = "next_advances_iterator"
+description = "next() advances iterator and returns value"
+python = '''
+it = iter([1, 2, 3])
+assert next(it) == 1
+assert next(it) == 2
+assert next(it) == 3
+'''
+
+[[test]]
+name = "exhausted_iterator_raises_stopiteration"
+description = "Exhausted iterator raises StopIteration"
+python = '''
+it = iter([1])
+next(it)
+try:
+    next(it)
+    assert False, "Should have raised StopIteration"
+except StopIteration:
+    pass
+'''
+
+[[test]]
+name = "next_with_default"
+description = "next() with default returns default on exhaustion"
+python = '''
+it = iter([])
+result = next(it, "default")
+assert result == "default"
+'''
+
+# =============================================================================
+# Iterator Exhaustion and Non-Reusability
+# =============================================================================
+
+[[test]]
+name = "iterator_exhausted_once"
+description = "Iterator can only be consumed once"
+python = '''
+it = iter([1, 2, 3])
+assert list(it) == [1, 2, 3]
+assert list(it) == []
+'''
+
+[[test]]
+name = "iterable_can_create_new_iterators"
+description = "Iterable can create fresh iterators"
+python = '''
+lst = [1, 2, 3]
+assert list(lst) == [1, 2, 3]
+assert list(lst) == [1, 2, 3]
+'''
+
+[[test]]
+name = "iterator_is_its_own_iterator"
+description = "iter(iterator) returns the same iterator"
+python = '''
+lst = [1, 2, 3]
+it = iter(lst)
+assert iter(it) is it
+'''
+
+# =============================================================================
+# StopIteration.value Behavior
+# =============================================================================
+
+[[test]]
+name = "stopiteration_with_value"
+description = "StopIteration can carry a value"
+python = '''
+exc = StopIteration("result")
+assert exc.value == "result"
+'''
+
+[[test]]
+name = "generator_return_becomes_stopiteration_value"
+description = "Generator return value becomes StopIteration.value"
+python = '''
+def gen():
+    yield 1
+    yield 2
+    return "final"
+
+g = gen()
+assert next(g) == 1
+assert next(g) == 2
+try:
+    next(g)
+except StopIteration as e:
+    assert e.value == "final"
+'''
+
+[[test]]
+name = "default_stopiteration_value_is_none"
+description = "Default StopIteration.value is None"
+python = '''
+exc = StopIteration()
+assert exc.value is None
+'''
+
+# =============================================================================
+# PEP 479: StopIteration in Generator
+# =============================================================================
+
+[[test]]
+name = "stopiteration_in_generator_raises_runtimeerror"
+description = "StopIteration raised inside generator becomes RuntimeError"
+python = '''
+def bad_gen():
+    raise StopIteration()
+    yield
+
+try:
+    list(bad_gen())
+    assert False, "Should have raised RuntimeError"
+except RuntimeError:
+    pass
+'''
+
+[[test]]
+name = "next_exhausting_iterator_in_generator"
+description = "next() exhausting iterator in generator raises RuntimeError"
+python = '''
+def outer_gen():
+    inner = iter([1])
+    yield next(inner)
+    yield next(inner)
+
+g = outer_gen()
+assert next(g) == 1
+try:
+    next(g)
+    assert False, "Should have raised RuntimeError"
+except RuntimeError:
+    pass
+'''
+
+[[test]]
+name = "next_with_default_avoids_runtimeerror"
+description = "next() with default avoids RuntimeError"
+python = '''
+def safe_gen():
+    inner = iter([1])
+    yield next(inner)
+    yield next(inner, "default")
+
+g = safe_gen()
+assert next(g) == 1
+assert next(g) == "default"
+'''
+
+# =============================================================================
+# Custom Iterator Implementation
+# =============================================================================
+
+[[test]]
+name = "iterator_class"
+description = "Custom iterator class with __iter__ and __next__"
+python = '''
+class Counter:
+    def __init__(self, limit):
+        self.limit = limit
+        self.current = 0
+    def __iter__(self):
+        return self
+    def __next__(self):
+        if self.current >= self.limit:
+            raise StopIteration
+        self.current += 1
+        return self.current
+
+assert list(Counter(3)) == [1, 2, 3]
+'''
+
+[[test]]
+name = "separate_iterator_class"
+description = "Iterable with separate iterator class"
+python = '''
+class MyIterator:
+    def __init__(self, data):
+        self.data = data
+        self.index = 0
+    def __iter__(self):
+        return self
+    def __next__(self):
+        if self.index >= len(self.data):
+            raise StopIteration
+        value = self.data[self.index]
+        self.index += 1
+        return value
+
+class MyIterable:
+    def __init__(self, data):
+        self.data = data
+    def __iter__(self):
+        return MyIterator(self.data)
+
+it = MyIterable([1, 2, 3])
+assert list(it) == [1, 2, 3]
+assert list(it) == [1, 2, 3]  # Can iterate again
+'''
+
+# =============================================================================
+# Generator as Iterator
+# =============================================================================
+
+[[test]]
+name = "generator_is_iterator"
+description = "Generator function returns iterator"
+python = '''
+def gen():
+    yield 1
+    yield 2
+
+g = gen()
+assert hasattr(g, "__next__")
+assert iter(g) is g
+'''
+
+[[test]]
+name = "generator_send"
+description = "Generator send() method"
+python = '''
+def echo():
+    while True:
+        received = yield
+        yield received
+
+g = echo()
+next(g)
+assert g.send("hello") == "hello"
+'''
+
+[[test]]
+name = "generator_throw"
+description = "Generator throw() method"
+python = '''
+def gen():
+    try:
+        yield 1
+    except ValueError:
+        yield "caught"
+
+g = gen()
+assert next(g) == 1
+assert g.throw(ValueError) == "caught"
+'''
+
+[[test]]
+name = "generator_close"
+description = "Generator close() method"
+python = '''
+closed = [False]
+
+def gen():
+    try:
+        yield 1
+    finally:
+        closed[0] = True
+
+g = gen()
+next(g)
+g.close()
+assert closed[0] == True
+'''

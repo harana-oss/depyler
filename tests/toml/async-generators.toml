@@ -608,7 +608,6 @@ async fn test_async_gen_break_cleanup() -> usize {
 [[test]]
 name = "async_gen_yield_from"
 description = "yield from not allowed in async generator"
-skip = true
 
 python = '''
 async def gen():

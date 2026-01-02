@@ -1,0 +1,244 @@
+# CPython Container Protocol Tests
+# Migrated from tests/python/data_model/test_container_protocol.py
+# Tests __contains__ vs iteration, truthiness (__bool__/__len__).
+# These verify the reference semantics that the transpiler must emulate.
+
+[metadata]
+name = "Container Protocol Tests"
+category = "data-model"
+
+# =============================================================================
+# __contains__ Behavior
+# =============================================================================
+
+[[test]]
+name = "contains_used_for_in_operator"
+description = "__contains__ is used for 'in' operator"
+python = '''
+class Container:
+    def __contains__(self, item):
+        return item == "magic"
+
+c = Container()
+assert "magic" in c
+assert "other" not in c
+'''
+
+[[test]]
+name = "fallback_to_iteration"
+description = "Without __contains__, 'in' falls back to iteration"
+python = '''
+class IterableContainer:
+    def __iter__(self):
+        return iter([1, 2, 3])
+
+c = IterableContainer()
+assert 2 in c
+assert 4 not in c
+'''
+
+[[test]]
+name = "contains_precedence_over_iter"
+description = "__contains__ takes precedence over __iter__"
+python = '''
+class Both:
+    def __contains__(self, item):
+        return item == "contains"
+    def __iter__(self):
+        return iter(["iter"])
+
+b = Both()
+assert "contains" in b
+assert "iter" not in b
+'''
+
+[[test]]
+name = "contains_can_return_truthy"
+description = "__contains__ result is converted to bool"
+python = '''
+class TruthyContains:
+    def __contains__(self, item):
+        return "truthy_string"
+
+assert "anything" in TruthyContains()
+'''
+
+# =============================================================================
+# Truthiness (__bool__ and __len__)
+# =============================================================================
+
+[[test]]
+name = "bool_takes_precedence"
+description = "__bool__ takes precedence over __len__"
+python = '''
+class BoolAndLen:
+    def __bool__(self):
+        return False
+    def __len__(self):
+        return 10
+
+assert bool(BoolAndLen()) == False
+'''
+
+[[test]]
+name = "len_fallback_for_truthiness"
+description = "If no __bool__, __len__ == 0 is falsy"
+python = '''
+class LenOnly:
+    def __init__(self, length):
+        self._len = length
+    def __len__(self):
+        return self._len
+
+assert bool(LenOnly(0)) == False
+assert bool(LenOnly(1)) == True
+assert bool(LenOnly(100)) == True
+'''
+
+[[test]]
+name = "default_truthiness"
+description = "Objects without __bool__ or __len__ are truthy"
+python = '''
+class Plain:
+    pass
+
+assert bool(Plain()) == True
+'''
+
+[[test]]
+name = "bool_must_return_bool"
+description = "__bool__ must return bool, not truthy value"
+python = '''
+class BadBool:
+    def __bool__(self):
+        return 1
+
+try:
+    bool(BadBool())
+    assert False, "Should have raised TypeError"
+except TypeError:
+    pass
+'''
+
+# =============================================================================
+# Sequence Protocol (__getitem__, __len__)
+# =============================================================================
+
+[[test]]
+name = "getitem_for_indexing"
+description = "__getitem__ enables indexing"
+python = '''
+class Seq:
+    def __getitem__(self, index):
+        return index * 2
+
+s = Seq()
+assert s[5] == 10
+assert s[0] == 0
+'''
+
+[[test]]
+name = "getitem_enables_iteration"
+description = "__getitem__ with integers enables iteration"
+python = '''
+class IndexIterable:
+    def __init__(self, data):
+        self._data = data
+    def __getitem__(self, index):
+        return self._data[index]
+
+result = list(IndexIterable([1, 2, 3]))
+assert result == [1, 2, 3]
+'''
+
+[[test]]
+name = "getitem_slicing"
+description = "__getitem__ receives slice object for slicing"
+python = '''
+class SliceAware:
+    def __getitem__(self, key):
+        if isinstance(key, slice):
+            return f"slice({key.start}, {key.stop}, {key.step})"
+        return f"index({key})"
+
+s = SliceAware()
+assert s[5] == "index(5)"
+assert s[1:10:2] == "slice(1, 10, 2)"
+'''
+
+# =============================================================================
+# Mapping Protocol
+# =============================================================================
+
+[[test]]
+name = "mapping_keys_values_items"
+description = "Mappings provide keys(), values(), items()"
+python = '''
+class SimpleMapping:
+    def __init__(self):
+        self._data = {"a": 1, "b": 2}
+    def keys(self):
+        return self._data.keys()
+    def values(self):
+        return self._data.values()
+    def items(self):
+        return self._data.items()
+    def __getitem__(self, key):
+        return self._data[key]
+
+m = SimpleMapping()
+assert list(m.keys()) == ["a", "b"]
+assert list(m.values()) == [1, 2]
+assert list(m.items()) == [("a", 1), ("b", 2)]
+'''
+
+[[test]]
+name = "mapping_get_with_default"
+description = "Mapping.get() returns default for missing keys"
+python = '''
+class MappingWithGet:
+    def __init__(self):
+        self._data = {"a": 1}
+    def get(self, key, default=None):
+        return self._data.get(key, default)
+
+m = MappingWithGet()
+assert m.get("a") == 1
+assert m.get("missing") is None
+assert m.get("missing", "default") == "default"
+'''
+
+# =============================================================================
+# Set Protocol
+# =============================================================================
+
+[[test]]
+name = "set_operations_builtin"
+description = "Set operations use magic methods"
+python = '''
+s1 = {1, 2, 3}
+s2 = {2, 3, 4}
+
+assert s1 | s2 == {1, 2, 3, 4}
+assert s1 & s2 == {2, 3}
+assert s1 - s2 == {1}
+assert s1 ^ s2 == {1, 4}
+'''
+
+[[test]]
+name = "custom_set_operations"
+description = "Custom types can implement set operations"
+python = '''
+class MySet:
+    def __init__(self, items):
+        self._items = set(items)
+    def __or__(self, other):
+        return MySet(self._items | other._items)
+    def __and__(self, other):
+        return MySet(self._items & other._items)
+
+s1 = MySet([1, 2])
+s2 = MySet([2, 3])
+assert (s1 | s2)._items == {1, 2, 3}
+assert (s1 & s2)._items == {2}
+'''

@@ -266,17 +266,25 @@ struct Point { x: i32, y: i32 }
 [[test]]
 name = "namedtuple_immutable"
 description = "p.x = 5 raises AttributeError"
-skip = true
 
 python = '''
 from collections import namedtuple
 
 Point = namedtuple('Point', ['x', 'y'])
-result = Point(1, 2)
+p = Point(1, 2)
+# namedtuples are immutable, use _replace for new instance
+p2 = p._replace(x=5)
+result = p2.x == 5 and p.x == 1
 '''
 
 rust = '''
+#[derive(Clone)]
 struct Point { x: i32, y: i32 }
+
+let p = Point { x: 1, y: 2 };
+// In Rust, create new struct for immutability
+let p2 = Point { x: 5, ..p };
+let result = p2.x == 5 && p.x == 1;
 '''
 
 

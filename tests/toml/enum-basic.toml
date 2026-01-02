@@ -604,7 +604,6 @@ struct Example { value: i32 }
 [[test]]
 name = "enum_immutable"
 description = "Cannot add or modify members"
-skip = true
 
 python = '''
 from enum import Enum

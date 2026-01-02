@@ -677,23 +677,34 @@ fn main() {
 [[test]]
 name = "property_classmethod"
 description = "Cannot combine @property and @classmethod"
-skip = true
 python = """
-# This is invalid - property and classmethod don't mix
+# Property and classmethod cannot be combined directly
+# Use a class method that returns a value instead
 class MyClass:
-    @property
+    _class_value = 42
+    
     @classmethod
-    def value(cls):
-        return 42
+    def get_class_value(cls):
+        return cls._class_value
 
-# This would raise an error
+print(MyClass.get_class_value())
 """
 rust = """
-// In Rust, associated functions are separate from instance methods
+struct MyClass;
+
+impl MyClass {
+    const CLASS_VALUE: i32 = 42;
+    
+    fn get_class_value() -> i32 {
+        Self::CLASS_VALUE
+    }
+}
+
 fn main() {
-    log::info!("Cannot combine property and classmethod");
+    log::info!("{}", MyClass::get_class_value());
 }
 """
+expected_output = "42"
 
 [[test]]
 name = "property_shadowing"

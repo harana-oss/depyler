@@ -461,7 +461,6 @@ struct Example { value: i32 }
 [[test]]
 name = "format_datetime"
 description = "'{:%Y-%m-%d}'.format(date)"
-skip = true
 
 python = '''
 from datetime import date

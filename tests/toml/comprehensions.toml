@@ -119,7 +119,12 @@ def flatten(matrix: list[list[int]]) -> list[int]:
 '''
 
 rust = '''
-// Transpilation failed
+pub fn flatten(matrix: &Vec<Vec<i32>>) -> Vec<i32> {
+    return matrix
+        .iter()
+        .flat_map(|row| row.iter().cloned())
+        .collect::<Vec<_>>();
+}
 '''
 
 [[test]]
@@ -167,7 +172,17 @@ def index_dict(items: list[str]) -> dict[int, str]:
 '''
 
 rust = '''
-// Transpilation failed
+use std::collections::HashMap;
+pub fn index_dict(items: Vec<String>) -> HashMap<i32, String> {
+    return items
+        .iter()
+        .enumerate()
+        .map(|(i, x)| (i as i32, x.clone()))
+        .iter()
+        .cloned()
+        .map(|(i, item)| (i, item))
+        .collect::<HashMap<_, _>>();
+}
 '''
 
 [[test]]

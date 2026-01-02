@@ -54,9 +54,8 @@ def is_valid_email(s: str) -> bool:
     return re.fullmatch(pattern, s) is not None
 '''
 
-rust = '''
-// Transpilation failed
-'''
+[test.assertions]
+contains = ["regex", "Regex", "is_some"]
 
 [[test]]
 name = "re_findall"
@@ -236,9 +235,8 @@ def split_on_whitespace(s: str) -> list[str]:
     return re.split(r"\s+", s)
 '''
 
-rust = '''
-// Transpilation failed
-'''
+[test.assertions]
+contains = ["regex", "split"]
 
 [[test]]
 name = "re_compile"

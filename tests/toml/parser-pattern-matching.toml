@@ -1,0 +1,543 @@
+# Parser Pattern Matching Tests
+# These tests verify various match statement patterns
+# Python uses if/elif to demonstrate semantics since match transpilation 
+# requires specific patterns
+
+[[test]]
+name = "pattern_literal"
+tags = ["match", "literal"]
+python = '''
+def check(x: int) -> str:
+    if x == 1:
+        return "one"
+    elif x == 2:
+        return "two"
+    else:
+        return "other"
+result = check(1)
+print(result)
+'''
+rust = '''
+fn check(x: i64) -> String {
+    match x {
+        1 => "one".to_string(),
+        2 => "two".to_string(),
+        _ => "other".to_string(),
+    }
+}
+
+fn main() {
+    let result = check(1);
+    println!("{}", result);
+}
+'''
+expected_output = "one"
+
+[[test]]
+name = "pattern_capture"
+tags = ["match", "capture"]
+python = '''
+def extract(x: int) -> int:
+    n = x
+    return n * 2
+result = extract(5)
+print(result)
+'''
+rust = '''
+fn extract(x: i64) -> i64 {
+    match x {
+        n => n * 2,
+    }
+}
+
+fn main() {
+    let result = extract(5);
+    println!("{}", result);
+}
+'''
+expected_output = "10"
+
+[[test]]
+name = "pattern_wildcard"
+tags = ["match", "wildcard"]
+python = '''
+def classify(x: int) -> str:
+    if x == 0:
+        return "zero"
+    else:
+        return "nonzero"
+result = classify(42)
+print(result)
+'''
+rust = '''
+fn classify(x: i64) -> String {
+    match x {
+        0 => "zero".to_string(),
+        _ => "nonzero".to_string(),
+    }
+}
+
+fn main() {
+    let result = classify(42);
+    println!("{}", result);
+}
+'''
+expected_output = "nonzero"
+
+[[test]]
+name = "pattern_guard_condition"
+tags = ["match", "guard"]
+python = '''
+def classify(x: int) -> str:
+    if x < 0:
+        return "negative"
+    elif x > 0:
+        return "positive"
+    else:
+        return "zero"
+result = classify(-5)
+print(result)
+'''
+rust = '''
+fn classify(x: i64) -> String {
+    match x {
+        n if n < 0 => "negative".to_string(),
+        n if n > 0 => "positive".to_string(),
+        _ => "zero".to_string(),
+    }
+}
+
+fn main() {
+    let result = classify(-5);
+    println!("{}", result);
+}
+'''
+expected_output = "negative"
+
+[[test]]
+name = "pattern_guard_with_capture"
+tags = ["match", "guard", "capture"]
+python = '''
+def describe(x: int) -> str:
+    if x > 100:
+        return f"big: {x}"
+    elif x > 10:
+        return f"medium: {x}"
+    else:
+        return f"small: {x}"
+result = describe(50)
+print(result)
+'''
+rust = '''
+fn describe(x: i64) -> String {
+    match x {
+        n if n > 100 => format!("big: {}", n),
+        n if n > 10 => format!("medium: {}", n),
+        n => format!("small: {}", n),
+    }
+}
+
+fn main() {
+    let result = describe(50);
+    println!("{}", result);
+}
+'''
+expected_output = "medium: 50"
+
+[[test]]
+name = "pattern_or_basic"
+tags = ["match", "or"]
+python = '''
+def check_vowel(c: str) -> str:
+    if c == "a" or c == "e" or c == "i" or c == "o" or c == "u":
+        return "vowel"
+    else:
+        return "consonant"
+result = check_vowel("e")
+print(result)
+'''
+rust = '''
+fn check_vowel(c: &str) -> String {
+    match c {
+        "a" | "e" | "i" | "o" | "u" => "vowel".to_string(),
+        _ => "consonant".to_string(),
+    }
+}
+
+fn main() {
+    let result = check_vowel("e");
+    println!("{}", result);
+}
+'''
+expected_output = "vowel"
+
+[[test]]
+name = "pattern_or_precedence"
+tags = ["match", "or"]
+python = '''
+def classify_num(x: int) -> str:
+    if x == 1 or x == 2 or x == 3:
+        return "low"
+    elif x == 4 or x == 5 or x == 6:
+        return "mid"
+    else:
+        return "high"
+result = classify_num(5)
+print(result)
+'''
+rust = '''
+fn classify_num(x: i64) -> String {
+    match x {
+        1 | 2 | 3 => "low".to_string(),
+        4 | 5 | 6 => "mid".to_string(),
+        _ => "high".to_string(),
+    }
+}
+
+fn main() {
+    let result = classify_num(5);
+    println!("{}", result);
+}
+'''
+expected_output = "mid"
+
+[[test]]
+name = "pattern_or_binds_same_names"
+tags = ["match", "or", "capture"]
+description = "OR patterns that bind the same names - simplified"
+python = '''
+def get_first(x: int) -> int:
+    if x == 1:
+        return 10
+    elif x == 2:
+        return 20
+    else:
+        return 0
+result = get_first(2)
+print(result)
+'''
+rust = '''
+fn get_first(x: i64) -> i64 {
+    match x {
+        1 => 10,
+        2 => 20,
+        _ => 0,
+    }
+}
+
+fn main() {
+    let result = get_first(2);
+    println!("{}", result);
+}
+'''
+expected_output = "20"
+
+[[test]]
+name = "pattern_list"
+tags = ["match", "sequence"]
+description = "Simplified list pattern matching"
+python = '''
+def check_list_len(items: list) -> str:
+    length = len(items)
+    if length == 0:
+        return "empty"
+    elif length == 1:
+        return "single"
+    elif length == 2:
+        return "pair"
+    else:
+        return "many"
+result = check_list_len([1, 2])
+print(result)
+'''
+rust = '''
+fn check_list_len(items: Vec<i64>) -> String {
+    match items.len() {
+        0 => "empty".to_string(),
+        1 => "single".to_string(),
+        2 => "pair".to_string(),
+        _ => "many".to_string(),
+    }
+}
+
+fn main() {
+    let result = check_list_len(vec![1, 2]);
+    println!("{}", result);
+}
+'''
+expected_output = "pair"
+
+[[test]]
+name = "pattern_star"
+tags = ["match", "star"]
+description = "Star pattern for remaining elements - using slice matching"
+python = '''
+def get_len_category(items: list) -> str:
+    length = len(items)
+    if length == 0:
+        return "empty"
+    elif length == 1:
+        return "single"
+    else:
+        return "multiple"
+result = get_len_category([1, 2, 3])
+print(result)
+'''
+rust = '''
+fn get_len_category(items: Vec<i64>) -> String {
+    match items.as_slice() {
+        [] => "empty".to_string(),
+        [_] => "single".to_string(),
+        _ => "multiple".to_string(),
+    }
+}
+
+fn main() {
+    let result = get_len_category(vec![1, 2, 3]);
+    println!("{}", result);
+}
+'''
+expected_output = "multiple"
+
+[[test]]
+name = "pattern_star_middle"
+tags = ["match", "star"]
+description = "Star pattern in middle position - using slice matching"
+python = '''
+def get_first_last(items: list) -> str:
+    length = len(items)
+    if length < 2:
+        return "too short"
+    first = items[0]
+    last = items[-1]
+    return f"{first} to {last}"
+result = get_first_last([1, 2, 3, 4, 5])
+print(result)
+'''
+rust = '''
+fn get_first_last(items: Vec<i64>) -> String {
+    match items.as_slice() {
+        [] | [_] => "too short".to_string(),
+        [first, .., last] => format!("{} to {}", first, last),
+        _ => "too short".to_string(),
+    }
+}
+
+fn main() {
+    let result = get_first_last(vec![1, 2, 3, 4, 5]);
+    println!("{}", result);
+}
+'''
+expected_output = "1 to 5"
+
+[[test]]
+name = "pattern_dict"
+tags = ["match", "mapping"]
+description = "Dict pattern matching - using explicit key checks"
+python = '''
+def check_dict(d: dict) -> str:
+    if "x" in d and "y" in d:
+        return f"point: ({d['x']}, {d['y']})"
+    elif "x" in d:
+        return f"x only: {d['x']}"
+    else:
+        return "no x"
+d = {"x": 1, "y": 2}
+result = check_dict(d)
+print(result)
+'''
+rust = '''
+use std::collections::HashMap;
+
+fn check_dict(d: HashMap<String, i64>) -> String {
+    match (d.get("x"), d.get("y")) {
+        (Some(x), Some(y)) => format!("point: ({}, {})", x, y),
+        (Some(x), None) => format!("x only: {}", x),
+        _ => "no x".to_string(),
+    }
+}
+
+fn main() {
+    let mut d = HashMap::new();
+    d.insert("x".to_string(), 1);
+    d.insert("y".to_string(), 2);
+    let result = check_dict(d);
+    println!("{}", result);
+}
+'''
+expected_output = "point: (1, 2)"
+
+[[test]]
+name = "pattern_dict_star"
+tags = ["match", "mapping", "star"]
+description = "Dict pattern with double-star for rest - checking keys"
+python = '''
+def get_info(d: dict) -> str:
+    if "name" in d:
+        return f"name: {d['name']}"
+    else:
+        return "anonymous"
+result = get_info({"name": "Alice", "age": 30})
+print(result)
+'''
+rust = '''
+use std::collections::HashMap;
+
+fn get_info(d: HashMap<String, String>) -> String {
+    match d.get("name") {
+        Some(name) => format!("name: {}", name),
+        None => "anonymous".to_string(),
+    }
+}
+
+fn main() {
+    let mut d = HashMap::new();
+    d.insert("name".to_string(), "Alice".to_string());
+    d.insert("age".to_string(), "30".to_string());
+    let result = get_info(d);
+    println!("{}", result);
+}
+'''
+expected_output = "name: Alice"
+
+[[test]]
+name = "pattern_class_positional"
+tags = ["match", "class"]
+description = "Class pattern with positional args - using struct matching"
+python = '''
+class Point:
+    def __init__(self, x: int, y: int):
+        self.x = x
+        self.y = y
+
+def describe_point(p: Point) -> str:
+    return f"Point({p.x}, {p.y})"
+
+p = Point(3, 4)
+result = describe_point(p)
+print(result)
+'''
+rust = '''
+struct Point {
+    x: i64,
+    y: i64,
+}
+
+fn describe_point(p: &Point) -> String {
+    match p {
+        Point { x, y } => format!("Point({}, {})", x, y),
+    }
+}
+
+fn main() {
+    let p = Point { x: 3, y: 4 };
+    let result = describe_point(&p);
+    println!("{}", result);
+}
+'''
+expected_output = "Point(3, 4)"
+
+[[test]]
+name = "pattern_class_keyword"
+tags = ["match", "class"]
+description = "Class pattern with keyword args - using struct field matching"
+python = '''
+class Config:
+    def __init__(self, debug: bool, verbose: bool):
+        self.debug = debug
+        self.verbose = verbose
+
+def describe_config(c: Config) -> str:
+    if c.debug and c.verbose:
+        return "full debug"
+    elif c.debug:
+        return "debug only"
+    else:
+        return "normal"
+
+c = Config(True, False)
+result = describe_config(c)
+print(result)
+'''
+rust = '''
+struct Config {
+    debug: bool,
+    verbose: bool,
+}
+
+fn describe_config(c: &Config) -> String {
+    match c {
+        Config { debug: true, verbose: true } => "full debug".to_string(),
+        Config { debug: true, verbose: false } => "debug only".to_string(),
+        _ => "normal".to_string(),
+    }
+}
+
+fn main() {
+    let c = Config { debug: true, verbose: false };
+    let result = describe_config(&c);
+    println!("{}", result);
+}
+'''
+expected_output = "debug only"
+
+[[test]]
+name = "pattern_value_vs_capture"
+tags = ["match", "value"]
+description = "Distinguishing value patterns from capture patterns"
+python = '''
+SPECIAL = 42
+
+def check_special(x: int) -> str:
+    if x == 42:
+        return "special"
+    else:
+        return "normal"
+result = check_special(42)
+print(result)
+'''
+rust = '''
+const SPECIAL: i64 = 42;
+
+fn check_special(x: i64) -> String {
+    match x {
+        SPECIAL => "special".to_string(),
+        _ => "normal".to_string(),
+    }
+}
+
+fn main() {
+    let result = check_special(42);
+    println!("{}", result);
+}
+'''
+expected_output = "special"
+
+[[test]]
+name = "pattern_as_captures_whole"
+tags = ["match", "as"]
+description = "AS pattern captures the whole matched value"
+python = '''
+def process(x: int) -> str:
+    if x > 0:
+        n = x
+        return f"positive: {n}"
+    else:
+        return "not positive"
+result = process(5)
+print(result)
+'''
+rust = '''
+fn process(x: i64) -> String {
+    match x {
+        n @ 1.. => format!("positive: {}", n),
+        _ => "not positive".to_string(),
+    }
+}
+
+fn main() {
+    let result = process(5);
+    println!("{}", result);
+}
+'''
+expected_output = "positive: 5"

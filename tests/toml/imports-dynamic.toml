@@ -1,7 +1,6 @@
 [metadata]
 name = "Dynamic Imports Tests"
 category = "imports"
-skip = true  # Dynamic imports not transpilable
 
 # =============================================================================
 # __import__ Function

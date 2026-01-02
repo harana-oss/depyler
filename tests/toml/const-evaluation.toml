@@ -1,0 +1,338 @@
+[metadata]
+name = "Const Evaluation Tests"
+category = "optimization"
+
+# =============================================================================
+# Const Arithmetic
+# =============================================================================
+
+[[test]]
+name = "const_arithmetic"
+description = "Compile-time constant folding"
+
+python = '''
+RESULT = 2 + 3 * 4
+'''
+
+rust = '''
+pub const RESULT: i32 = 2 + 3 * 4;
+'''
+
+[[test]]
+name = "const_arithmetic_complex"
+description = "Complex constant arithmetic"
+
+python = '''
+A = 10
+B = 20
+C = A + B
+D = C * 2
+'''
+
+rust = '''
+pub const A: i32 = 10;
+pub const B: i32 = 20;
+pub const C: i32 = A + B;
+pub const D: i32 = C * 2;
+'''
+
+[[test]]
+name = "const_arithmetic_division"
+description = "Constant division"
+
+python = '''
+TOTAL = 100
+PARTS = 4
+EACH = TOTAL // PARTS
+'''
+
+rust = '''
+pub const TOTAL: i32 = 100;
+pub const PARTS: i32 = 4;
+pub const EACH: i32 = TOTAL / PARTS;
+'''
+
+[[test]]
+name = "const_arithmetic_negative"
+description = "Negative constant arithmetic"
+
+python = '''
+NEG = -10
+POS = 5
+SUM = NEG + POS
+'''
+
+rust = '''
+pub const NEG: i32 = -10;
+pub const POS: i32 = 5;
+pub const SUM: i32 = NEG + POS;
+'''
+
+# =============================================================================
+# Const String Concat
+# =============================================================================
+
+[[test]]
+name = "const_string_concat"
+description = "Compile-time string concatenation"
+
+python = '''
+GREETING = "Hello"
+NAME = "World"
+'''
+
+rust = '''
+lazy_static! {
+    pub static ref GREETING: String = "Hello";
+    pub static ref NAME: String = "World";
+}
+use lazy_static::lazy_static;
+'''
+
+[[test]]
+name = "const_string_simple"
+description = "Simple string constant"
+
+python = '''
+MESSAGE = "Hello, World!"
+'''
+
+rust = '''
+lazy_static! {
+    pub static ref MESSAGE: String = "Hello, World!";
+}
+use lazy_static::lazy_static;
+'''
+
+[[test]]
+name = "const_string_multiline"
+description = "Multiline string constant"
+
+python = '''
+TEXT = """Line 1
+Line 2
+Line 3"""
+'''
+
+rust = '''
+lazy_static! {
+    pub static ref TEXT: String = "Line 1\nLine 2\nLine 3";
+}
+use lazy_static::lazy_static;
+'''
+
+# =============================================================================
+# Const List Literals
+# =============================================================================
+
+[[test]]
+name = "const_list_literals"
+description = "Static array from list literals"
+
+python = '''
+NUMBERS = [1, 2, 3, 4, 5]
+'''
+
+rust = '''
+lazy_static! {
+    pub static ref NUMBERS: Vec<i32> = vec![1, 2, 3, 4, 5];
+}
+use lazy_static::lazy_static;
+'''
+
+[[test]]
+name = "const_list_empty"
+description = "Empty list constant"
+
+python = '''
+EMPTY: list[int] = []
+'''
+
+rust = '''
+lazy_static! {
+    pub static ref EMPTY: Vec<i32> = vec![];
+}
+use lazy_static::lazy_static;
+'''
+
+[[test]]
+name = "const_list_strings"
+description = "String list constant"
+
+python = '''
+NAMES = ["Alice", "Bob", "Charlie"]
+'''
+
+rust = '''
+lazy_static! {
+    pub static ref NAMES: Vec<String> = vec!["Alice".to_string(), "Bob".to_string(), "Charlie".to_string()];
+}
+use lazy_static::lazy_static;
+'''
+
+[[test]]
+name = "const_tuple_literals"
+description = "Tuple constant"
+
+python = '''
+POINT = (10, 20)
+'''
+
+rust = '''
+pub const POINT: (i32, i32) = (10, 20);
+'''
+
+# =============================================================================
+# Const Dict Literals
+# =============================================================================
+
+[[test]]
+name = "const_dict_literals"
+description = "Compile-time dict to phf_map"
+
+python = '''
+CONFIG = {"debug": 1, "verbose": 0}
+'''
+
+rust = '''
+use std::collections::HashMap;
+lazy_static! {
+    pub static ref CONFIG: HashMap<String, i32> = {
+        let mut m = HashMap::new();
+        m.insert("debug".to_string(), 1);
+        m.insert("verbose".to_string(), 0);
+        m
+    };
+}
+use lazy_static::lazy_static;
+'''
+
+[[test]]
+name = "const_dict_simple"
+description = "Simple dict constant"
+
+python = '''
+CODES = {"a": 1, "b": 2}
+'''
+
+rust = '''
+use std::collections::HashMap;
+lazy_static! {
+    pub static ref CODES: HashMap<String, i32> = {
+        let mut m = HashMap::new();
+        m.insert("a".to_string(), 1);
+        m.insert("b".to_string(), 2);
+        m
+    };
+}
+use lazy_static::lazy_static;
+'''
+
+[[test]]
+name = "const_dict_empty"
+description = "Empty dict constant"
+
+python = '''
+EMPTY_DICT: dict[str, int] = {}
+'''
+
+rust = '''
+use std::collections::HashMap;
+lazy_static! {
+    pub static ref EMPTY_DICT: HashMap<String, i32> = HashMap::new();
+}
+use lazy_static::lazy_static;
+'''
+
+# =============================================================================
+# Const Frozen Dataclass
+# =============================================================================
+
+[[test]]
+name = "const_frozen_dataclass"
+description = "Frozen dataclass as const"
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass(frozen=True)
+class Point:
+    x: int
+    y: int
+
+ORIGIN = Point(0, 0)
+'''
+
+rust = '''
+#[derive(Clone, PartialEq, Eq, Hash)]
+pub struct Point {
+    pub x: i32,
+    pub y: i32,
+}
+
+impl Point {
+    pub fn new(x: i32, y: i32) -> Self {
+        Self { x, y }
+    }
+}
+
+lazy_static! {
+    pub static ref ORIGIN: Point = Point::new(0, 0);
+}
+use lazy_static::lazy_static;
+'''
+
+[[test]]
+name = "const_frozen_dataclass_default"
+description = "Frozen dataclass with defaults"
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass(frozen=True)
+class Config:
+    name: str
+    value: int
+'''
+
+rust = '''
+#[derive(Clone, PartialEq, Eq, Hash)]
+pub struct Config {
+    pub name: String,
+    pub value: i32,
+}
+
+impl Config {
+    pub fn new(name: String, value: i32) -> Self {
+        Self { name, value }
+    }
+}
+'''
+
+[[test]]
+name = "const_bool_literals"
+description = "Boolean constants"
+
+python = '''
+ENABLED = True
+DISABLED = False
+'''
+
+rust = '''
+pub const ENABLED: bool = true;
+pub const DISABLED: bool = false;
+'''
+
+[[test]]
+name = "const_float_literals"
+description = "Float constants"
+
+python = '''
+PI = 3.14159
+E = 2.71828
+'''
+
+rust = '''
+pub const PI: f64 = 3.14159;
+pub const E: f64 = 2.71828;
+'''

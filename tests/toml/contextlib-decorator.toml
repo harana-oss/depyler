@@ -348,7 +348,6 @@ let result = elapsed.borrow().len() == 1;
 [[test]]
 name = "contextmanager_chdir"
 description = "Change and restore cwd"
-skip = true
 
 python = '''
 from contextlib import contextmanager
@@ -387,7 +386,6 @@ let result = "chdir implemented";
 [[test]]
 name = "contextmanager_environ"
 description = "Set and restore env var"
-skip = true
 
 python = '''
 from contextlib import contextmanager
@@ -434,7 +432,6 @@ let result = "environ implemented";
 [[test]]
 name = "contextmanager_single_yield"
 description = "Must yield exactly once"
-skip = true
 
 python = '''
 from contextlib import contextmanager
@@ -452,7 +449,6 @@ let result = "must yield once";
 [[test]]
 name = "contextmanager_no_yield"
 description = "RuntimeError if no yield"
-skip = true
 
 python = '''
 from contextlib import contextmanager
@@ -476,7 +472,6 @@ let result = "error caught";
 [[test]]
 name = "contextmanager_multi_yield"
 description = "RuntimeError if multiple yields"
-skip = true
 
 python = '''
 from contextlib import contextmanager

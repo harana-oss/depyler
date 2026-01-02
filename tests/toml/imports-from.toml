@@ -397,7 +397,6 @@ assert!(result);
 [[test]]
 name = "from_import_not_found"
 description = "from os import nonexistent"
-skip = true
 
 python = '''
 # Importing non-existent name raises ImportError
@@ -419,7 +418,6 @@ let result = true;
 [[test]]
 name = "from_import_circular"
 description = "Circular from imports"
-skip = true
 
 python = '''
 # Circular from imports

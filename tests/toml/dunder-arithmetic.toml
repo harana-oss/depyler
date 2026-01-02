@@ -408,7 +408,6 @@ struct Example { value: i32 }
 [[test]]
 name = "arithmetic_none"
 description = "Handling None in arithmetic"
-skip = true
 
 python = '''
 # Arithmetic with None typically raises TypeError

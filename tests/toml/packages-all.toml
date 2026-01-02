@@ -381,7 +381,6 @@ struct Example { value: i32 }
 [[test]]
 name = "all_nonexistent"
 description = "__all__ = ['nonexistent'] raises"
-skip = true
 
 python = '''
 class Example:

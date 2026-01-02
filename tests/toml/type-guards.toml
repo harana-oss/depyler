@@ -1,0 +1,442 @@
+[metadata]
+name = "Type Guards Tests"
+category = "type-narrowing"
+
+# =============================================================================
+# isinstance Narrowing
+# =============================================================================
+
+[[test]]
+name = "isinstance_narrowing"
+description = "isinstance() type narrowing"
+
+python = '''
+def process(value: object) -> int:
+    if isinstance(value, int):
+        return value * 2
+    return 0
+'''
+
+rust = '''
+pub fn process(value: i32) -> i32 {
+    return value * 2;
+}
+'''
+
+[[test]]
+name = "isinstance_narrowing_str"
+description = "isinstance narrowing for strings"
+
+python = '''
+def get_length(value: object) -> int:
+    if isinstance(value, str):
+        return len(value)
+    return 0
+'''
+
+rust = '''
+pub fn get_length(value: &str) -> i32 {
+    return value.len() as i32;
+}
+'''
+
+[[test]]
+name = "isinstance_narrowing_list"
+description = "isinstance narrowing for lists"
+
+python = '''
+def sum_if_list(value: object) -> int:
+    if isinstance(value, list):
+        return sum(value)
+    return 0
+'''
+
+rust = '''
+pub fn sum_if_list(value: Vec<i32>) -> i32 {
+    return value.iter().sum::<i32>();
+}
+'''
+
+[[test]]
+name = "isinstance_narrowing_custom"
+description = "isinstance narrowing for custom class"
+
+python = '''
+class Box:
+    def __init__(self, value: int):
+        self.value = value
+
+def unbox(obj: object) -> int:
+    if isinstance(obj, Box):
+        return obj.value
+    return 0
+'''
+
+rust = '''
+pub struct Box {
+    pub value: i32,
+}
+
+impl Box {
+    pub fn new(value: i32) -> Self {
+        Self { value }
+    }
+}
+
+pub fn unbox(obj: &Box) -> i32 {
+    return obj.value;
+}
+'''
+
+[[test]]
+name = "isinstance_multiple_types"
+description = "isinstance with multiple types"
+
+python = '''
+def to_int(value: object) -> int:
+    if isinstance(value, (int, float)):
+        return int(value)
+    return 0
+'''
+
+rust = '''
+pub fn to_int(value: f64) -> i32 {
+    return value as i32;
+}
+'''
+
+# =============================================================================
+# TypeGuard Function
+# =============================================================================
+
+[[test]]
+name = "typeguard_function"
+description = "TypeGuard function support"
+
+python = '''
+from typing import TypeGuard
+
+def is_int_list(value: list) -> TypeGuard[list[int]]:
+    return all(isinstance(x, int) for x in value)
+
+def process_ints(items: list) -> int:
+    if is_int_list(items):
+        return sum(items)
+    return 0
+'''
+
+rust = '''
+pub fn is_int_list(value: &Vec<i32>) -> bool {
+    return true;
+}
+
+pub fn process_ints(items: Vec<i32>) -> i32 {
+    if is_int_list(&items) {
+        return items.iter().sum::<i32>();
+    }
+    return 0;
+}
+'''
+
+[[test]]
+name = "typeguard_custom"
+description = "Custom TypeGuard implementation"
+
+python = '''
+from typing import TypeGuard
+
+class ValidData:
+    def __init__(self, value: int):
+        self.value = value
+
+def is_valid(data: object) -> TypeGuard[ValidData]:
+    return isinstance(data, ValidData) and data.value >= 0
+
+def process_valid(data: object) -> int:
+    if is_valid(data):
+        return data.value
+    return -1
+'''
+
+rust = '''
+pub struct ValidData {
+    pub value: i32,
+}
+
+impl ValidData {
+    pub fn new(value: i32) -> Self {
+        Self { value }
+    }
+}
+
+pub fn is_valid(data: &ValidData) -> bool {
+    return data.value >= 0;
+}
+
+pub fn process_valid(data: &ValidData) -> i32 {
+    if is_valid(data) {
+        return data.value;
+    }
+    return -1;
+}
+'''
+
+# =============================================================================
+# assert_type Support
+# =============================================================================
+
+[[test]]
+name = "assert_type"
+description = "assert_type() support"
+
+python = '''
+from typing import assert_type
+
+def ensure_int(value: int) -> int:
+    assert_type(value, int)
+    return value * 2
+'''
+
+rust = '''
+pub fn ensure_int(value: i32) -> i32 {
+    return value * 2;
+}
+'''
+
+[[test]]
+name = "assert_type_complex"
+description = "assert_type with complex types"
+
+python = '''
+from typing import assert_type
+
+def ensure_list(items: list[int]) -> list[int]:
+    assert_type(items, list[int])
+    return items
+'''
+
+rust = '''
+pub fn ensure_list(items: Vec<i32>) -> Vec<i32> {
+    return items;
+}
+'''
+
+# =============================================================================
+# Union Narrowing
+# =============================================================================
+
+[[test]]
+name = "union_narrowing"
+description = "Union type narrowing"
+
+python = '''
+from typing import Union
+
+def process_union(value: Union[int, str]) -> str:
+    if isinstance(value, int):
+        return str(value)
+    return value
+'''
+
+rust = '''
+pub enum IntOrStr {
+    Int(i32),
+    Str(String),
+}
+
+pub fn process_union(value: IntOrStr) -> String {
+    match value {
+        IntOrStr::Int(i) => return i.to_string(),
+        IntOrStr::Str(s) => return s,
+    }
+}
+'''
+
+[[test]]
+name = "union_narrowing_exhaustive"
+description = "Exhaustive union narrowing"
+
+python = '''
+from typing import Union
+
+def describe(value: Union[int, str, float]) -> str:
+    if isinstance(value, int):
+        return "integer"
+    elif isinstance(value, str):
+        return "string"
+    else:
+        return "float"
+'''
+
+rust = '''
+pub enum Value {
+    Int(i32),
+    Str(String),
+    Float(f64),
+}
+
+pub fn describe(value: Value) -> String {
+    match value {
+        Value::Int(_) => return "integer".to_string(),
+        Value::Str(_) => return "string".to_string(),
+        Value::Float(_) => return "float".to_string(),
+    }
+}
+'''
+
+[[test]]
+name = "union_narrowing_match"
+description = "Union narrowing with match-like pattern"
+
+python = '''
+from typing import Union
+
+def handle(result: Union[int, str]) -> int:
+    if isinstance(result, int):
+        return result
+    return len(result)
+'''
+
+rust = '''
+pub enum IntOrStr {
+    Int(i32),
+    Str(String),
+}
+
+pub fn handle(result: IntOrStr) -> i32 {
+    match result {
+        IntOrStr::Int(i) => return i,
+        IntOrStr::Str(s) => return s.len() as i32,
+    }
+}
+'''
+
+# =============================================================================
+# Optional Narrowing
+# =============================================================================
+
+[[test]]
+name = "optional_narrowing"
+description = "Optional[T] to T narrowing"
+
+python = '''
+from typing import Optional
+
+def unwrap_or(value: Optional[int], default: int) -> int:
+    if value is not None:
+        return value
+    return default
+'''
+
+rust = '''
+pub fn unwrap_or(value: Option<i32>, default: i32) -> i32 {
+    if let Some(v) = value {
+        return v;
+    }
+    return default;
+}
+'''
+
+[[test]]
+name = "optional_narrowing_early_return"
+description = "Optional narrowing with early return"
+
+python = '''
+from typing import Optional
+
+def process_optional(value: Optional[int]) -> int:
+    if value is None:
+        return 0
+    return value * 2
+'''
+
+rust = '''
+pub fn process_optional(value: Option<i32>) -> i32 {
+    if value.is_none() {
+        return 0;
+    }
+    return value.unwrap() * 2;
+}
+'''
+
+[[test]]
+name = "optional_narrowing_nested"
+description = "Nested optional narrowing"
+
+python = '''
+from typing import Optional
+
+class Container:
+    def __init__(self, value: Optional[int]):
+        self.value = value
+
+def get_value(c: Optional[Container]) -> int:
+    if c is not None and c.value is not None:
+        return c.value
+    return 0
+'''
+
+rust = '''
+pub struct Container {
+    pub value: Option<i32>,
+}
+
+impl Container {
+    pub fn new(value: Option<i32>) -> Self {
+        Self { value }
+    }
+}
+
+pub fn get_value(c: Option<&Container>) -> i32 {
+    if let Some(container) = c {
+        if let Some(v) = container.value {
+            return v;
+        }
+    }
+    return 0;
+}
+'''
+
+[[test]]
+name = "optional_narrowing_method_chain"
+description = "Optional narrowing in method chain"
+
+python = '''
+from typing import Optional
+
+def safe_len(s: Optional[str]) -> int:
+    if s is not None:
+        return len(s)
+    return 0
+'''
+
+rust = '''
+pub fn safe_len(s: Option<&str>) -> i32 {
+    if let Some(string) = s {
+        return string.len() as i32;
+    }
+    return 0;
+}
+'''
+
+[[test]]
+name = "optional_narrowing_truthiness"
+description = "Optional narrowing via truthiness"
+
+python = '''
+from typing import Optional
+
+def value_or_zero(x: Optional[int]) -> int:
+    if x:
+        return x
+    return 0
+'''
+
+rust = '''
+pub fn value_or_zero(x: Option<i32>) -> i32 {
+    match x {
+        Some(v) if v != 0 => return v,
+        _ => return 0,
+    }
+}
+'''

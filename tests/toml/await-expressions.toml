@@ -370,7 +370,6 @@ async fn test_await_subscript() -> i32 {
 [[test]]
 name = "await_context"
 description = "await outside async is SyntaxError"
-skip = true
 
 python = '''
 # This would be a SyntaxError:
@@ -623,7 +622,6 @@ async fn test_await_sequential() -> Vec<i32> {
 [[test]]
 name = "await_non_awaitable"
 description = "TypeError: object cannot be awaited"
-skip = true
 
 python = '''
 async def test_await_non_awaitable() -> bool:

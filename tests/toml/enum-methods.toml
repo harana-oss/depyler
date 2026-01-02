@@ -233,8 +233,6 @@ expected_output = """MONDAY
 [[test]]
 name = "enum_classmethod_members"
 description = "cls.__members__ in classmethod"
-skip = true
-skip_reason = "Python's __members__ dict is runtime-specific"
 python = """
 from enum import Enum
 
@@ -250,6 +248,29 @@ class Suit(Enum):
 
 print(Suit.count())
 """
+rust = """
+// In Rust, we use strum or implement manually
+#[derive(Debug, Clone, Copy)]
+enum Suit {
+    Hearts = 1,
+    Diamonds = 2,
+    Clubs = 3,
+    Spades = 4,
+}
+
+impl Suit {
+    const ALL: [Suit; 4] = [Suit::Hearts, Suit::Diamonds, Suit::Clubs, Suit::Spades];
+    
+    fn count() -> usize {
+        Self::ALL.len()
+    }
+}
+
+fn main() {
+    log::info!("{}", Suit::count());
+}
+"""
+expected_output = "4"
 
 # =============================================================================
 # Dunder Methods
@@ -526,8 +547,6 @@ expected_output = """32.0
 [[test]]
 name = "enum_generate_next"
 description = "Customize auto() behavior"
-skip = true
-skip_reason = "Python's auto() mechanism is not available in Rust"
 python = """
 from enum import Enum, auto
 
@@ -543,12 +562,29 @@ print(Power.FIRST.value)
 print(Power.SECOND.value)
 print(Power.THIRD.value)
 """
+rust = """
+// In Rust, we define enum values explicitly
+// We can use a const fn for power-of-2 generation
+#[derive(Debug, Clone, Copy)]
+enum Power {
+    First = 1,   // 2^0
+    Second = 2,  // 2^1
+    Third = 4,   // 2^2
+}
+
+fn main() {
+    log::info!("{}", Power::First as i32);
+    log::info!("{}", Power::Second as i32);
+    log::info!("{}", Power::Third as i32);
+}
+"""
+expected_output = """1
+2
+4"""
 
 [[test]]
 name = "enum_custom_auto"
 description = "auto() returns custom values"
-skip = true
-skip_reason = "Python's auto() mechanism is not available in Rust"
 python = """
 from enum import Enum, auto
 
@@ -562,6 +598,30 @@ class Id(Enum):
 print(Id.FIRST.value)
 print(Id.SECOND.value)
 """
+rust = """
+// In Rust, we use string values explicitly or via const fn
+#[derive(Debug, Clone, Copy)]
+enum Id {
+    First,
+    Second,
+}
+
+impl Id {
+    fn value(&self) -> &'static str {
+        match self {
+            Id::First => "ID_000",
+            Id::Second => "ID_001",
+        }
+    }
+}
+
+fn main() {
+    log::info!("{}", Id::First.value());
+    log::info!("{}", Id::Second.value());
+}
+"""
+expected_output = """ID_000
+ID_001"""
 
 # =============================================================================
 # _missing_
@@ -570,8 +630,6 @@ print(Id.SECOND.value)
 [[test]]
 name = "enum_missing"
 description = "Handle unknown values"
-skip = true
-skip_reason = "_missing_ is Python-specific enum fallback mechanism"
 python = """
 from enum import Enum
 
@@ -587,12 +645,36 @@ class ErrorCode(Enum):
 print(ErrorCode(0).name)
 print(ErrorCode(100).name)  # Returns UNKNOWN
 """
+rust = """
+// In Rust, we implement a from_value method with fallback
+#[derive(Debug, Clone, Copy)]
+enum ErrorCode {
+    Success = 0,
+    Error = 1,
+    Unknown = 999,
+}
+
+impl ErrorCode {
+    fn from_value(value: i32) -> Self {
+        match value {
+            0 => ErrorCode::Success,
+            1 => ErrorCode::Error,
+            _ => ErrorCode::Unknown,
+        }
+    }
+}
+
+fn main() {
+    log::info!("{:?}", ErrorCode::from_value(0));
+    log::info!("{:?}", ErrorCode::from_value(100));
+}
+"""
+expected_output = """Success
+Unknown"""
 
 [[test]]
 name = "enum_fallback"
 description = "_missing_ returns default member"
-skip = true
-skip_reason = "_missing_ is Python-specific enum fallback mechanism"
 python = """
 from enum import Enum
 
@@ -615,6 +697,37 @@ class Grade(Enum):
 print(Grade(95).name)
 print(Grade(85).name)
 """
+rust = """
+// In Rust, we implement the fallback logic in a from_value method
+#[derive(Debug, Clone, Copy)]
+enum Grade {
+    A,
+    B,
+    C,
+    F,
+}
+
+impl Grade {
+    fn from_score(value: i32) -> Self {
+        if value >= 90 {
+            Grade::A
+        } else if value >= 80 {
+            Grade::B
+        } else if value >= 70 {
+            Grade::C
+        } else {
+            Grade::F
+        }
+    }
+}
+
+fn main() {
+    log::info!("{:?}", Grade::from_score(95));
+    log::info!("{:?}", Grade::from_score(85));
+}
+"""
+expected_output = """A
+B"""
 
 # =============================================================================
 # _ignore_
@@ -623,8 +736,6 @@ print(Grade(85).name)
 [[test]]
 name = "enum_ignore"
 description = "_ignore_ = ['helper'] excludes names"
-skip = true
-skip_reason = "_ignore_ is Python-specific enum directive"
 python = """
 from enum import Enum
 
@@ -641,6 +752,29 @@ class Animal(Enum):
 print(list(Animal.__members__.keys()))
 print(Animal.helper())
 """
+rust = """
+// In Rust, non-variant items are naturally separate from enum variants
+#[derive(Debug, Clone, Copy)]
+enum Animal {
+    Cat = 1,
+    Dog = 2,
+}
+
+impl Animal {
+    const MEMBERS: [&'static str; 2] = ["Cat", "Dog"];
+    
+    fn helper() -> &'static str {
+        "Helper method"
+    }
+}
+
+fn main() {
+    log::info!("{:?}", Animal::MEMBERS.to_vec());
+    log::info!("{}", Animal::helper());
+}
+"""
+expected_output = """["Cat", "Dog"]
+Helper method"""
 
 # =============================================================================
 # Mixin Classes
@@ -649,8 +783,6 @@ print(Animal.helper())
 [[test]]
 name = "enum_mixin"
 description = "class Color(Mixin, Enum): ..."
-skip = true
-skip_reason = "Enum mixins are complex Python patterns"
 python = """
 from enum import Enum
 
@@ -664,12 +796,42 @@ class Status(JsonMixin, Enum):
 
 print(Status.PENDING.to_json())
 """
+rust = """
+// In Rust, we use traits instead of mixins
+use std::collections::HashMap;
+
+trait ToJson {
+    fn to_json(&self) -> HashMap<String, String>;
+}
+
+#[derive(Debug, Clone, Copy)]
+enum Status {
+    Pending = 1,
+    Active = 2,
+}
+
+impl ToJson for Status {
+    fn to_json(&self) -> HashMap<String, String> {
+        let mut map = HashMap::new();
+        map.insert("name".to_string(), format!("{:?}", self));
+        map.insert("value".to_string(), (*self as i32).to_string());
+        map
+    }
+}
+
+fn main() {
+    let json = Status::Pending.to_json();
+    log::info!("{{{}: {}, {}: {}}}", 
+        "'name'", format!("'{}'", json.get("name").unwrap()),
+        "'value'", json.get("value").unwrap()
+    );
+}
+"""
+expected_output = "{'name': 'Pending', 'value': 1}"
 
 [[test]]
 name = "enum_ordered"
 description = "Mixin providing ordering"
-skip = true
-skip_reason = "Ordered enum mixins are Python-specific"
 python = """
 from enum import Enum
 
@@ -687,6 +849,24 @@ class Priority(OrderedEnum):
 print(Priority.LOW < Priority.HIGH)
 print(sorted([Priority.HIGH, Priority.LOW, Priority.MEDIUM]))
 """
+rust = """
+// In Rust, we derive Ord and PartialOrd
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+enum Priority {
+    Low = 1,
+    Medium = 2,
+    High = 3,
+}
+
+fn main() {
+    log::info!("{}", Priority::Low < Priority::High);
+    let mut priorities = vec![Priority::High, Priority::Low, Priority::Medium];
+    priorities.sort();
+    log::info!("{:?}", priorities);
+}
+"""
+expected_output = """true
+[Low, Medium, High]"""
 
 # =============================================================================
 # Edge Cases
@@ -695,8 +875,6 @@ print(sorted([Priority.HIGH, Priority.LOW, Priority.MEDIUM]))
 [[test]]
 name = "enum_new"
 description = "__new__ for complex members"
-skip = true
-skip_reason = "Custom __new__ in enums is Python-specific"
 python = """
 from enum import Enum
 
@@ -714,12 +892,29 @@ class Planet(Enum):
 print(Planet.EARTH.mass)
 print(Planet.EARTH.radius)
 """
+rust = """
+// In Rust, we use a struct-like enum or associated constants
+struct Planet {
+    mass: f64,
+    radius: i32,
+}
+
+impl Planet {
+    const EARTH: Planet = Planet { mass: 5.97e24, radius: 6371 };
+    const MARS: Planet = Planet { mass: 6.39e23, radius: 3390 };
+}
+
+fn main() {
+    log::info!("{}", Planet::EARTH.mass);
+    log::info!("{}", Planet::EARTH.radius);
+}
+"""
+expected_output = """5970000000000000000000000
+6371"""
 
 [[test]]
 name = "enum_multi_value"
 description = "MEMBER = (value, extra)"
-skip = true
-skip_reason = "Multi-value enum members require custom __init__"
 python = """
 from enum import Enum
 
@@ -735,12 +930,31 @@ class Month(Enum):
 print(Month.JANUARY.number)
 print(Month.JANUARY.days)
 """
+rust = """
+// In Rust, we use a struct variant or associated data
+#[derive(Debug, Clone, Copy)]
+struct Month {
+    number: i32,
+    days: i32,
+}
+
+impl Month {
+    const JANUARY: Month = Month { number: 1, days: 31 };
+    const FEBRUARY: Month = Month { number: 2, days: 28 };
+    const MARCH: Month = Month { number: 3, days: 31 };
+}
+
+fn main() {
+    log::info!("{}", Month::JANUARY.number);
+    log::info!("{}", Month::JANUARY.days);
+}
+"""
+expected_output = """1
+31"""
 
 [[test]]
 name = "enum_init_args"
 description = "__init__(self, val, desc): ..."
-skip = true
-skip_reason = "Custom __init__ in enums requires special handling"
 python = """
 from enum import Enum
 
@@ -755,3 +969,22 @@ class HttpStatus(Enum):
 print(HttpStatus.OK.code)
 print(HttpStatus.OK.description)
 """
+rust = """
+// In Rust, use struct-based enum variants or associated data
+struct HttpStatus {
+    code: i32,
+    description: &'static str,
+}
+
+impl HttpStatus {
+    const OK: HttpStatus = HttpStatus { code: 200, description: "Request succeeded" };
+    const NOT_FOUND: HttpStatus = HttpStatus { code: 404, description: "Resource not found" };
+}
+
+fn main() {
+    log::info!("{}", HttpStatus::OK.code);
+    log::info!("{}", HttpStatus::OK.description);
+}
+"""
+expected_output = """200
+Request succeeded"""

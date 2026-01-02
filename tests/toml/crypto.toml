@@ -263,9 +263,8 @@ def hash_sha3_256(data: bytes) -> str:
     return hashlib.sha3_256(data).hexdigest()
 '''
 
-rust = '''
-// Transpilation failed
-'''
+[test.assertions]
+contains = ["sha3", "256", "hex"]
 
 [[test]]
 name = "hashlib_blake2b"
@@ -430,9 +429,8 @@ def incremental_hmac(key: bytes, msg1: bytes, msg2: bytes) -> str:
     return h.hexdigest()
 '''
 
-rust = '''
-// Transpilation failed
-'''
+[test.assertions]
+contains = ["hmac", "insert", "hex"]
 
 [[test]]
 name = "binascii_hexlify"

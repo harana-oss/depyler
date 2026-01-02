@@ -45,9 +45,8 @@ def format_msg(name: str, count: int) -> str:
     return "{} has {}".format(name, count)
 '''
 
-rust = '''
-// Transpilation failed
-'''
+[test.assertions]
+contains = ["format!", "name", "count"]
 
 [[test]]
 name = "multiple_concat_returns_string"

@@ -334,7 +334,6 @@ struct Example { value: i32 }
 [[test]]
 name = "async_with_context"
 description = "async with outside async is error"
-skip = true
 
 python = '''
 # async with outside async is error

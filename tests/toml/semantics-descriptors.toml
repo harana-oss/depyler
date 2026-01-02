@@ -1,0 +1,165 @@
+# CPython Descriptor Protocol Semantics Tests
+# Migrated from tests/python/semantics/test_descriptors.py
+# Tests descriptor precedence and __getattribute__ / __getattr__ interaction.
+# These verify the reference semantics that the transpiler must emulate.
+
+[metadata]
+name = "Descriptor Semantics Tests"
+category = "semantics"
+
+# =============================================================================
+# Descriptor Precedence
+# =============================================================================
+
+[[test]]
+name = "data_descriptor_over_instance_dict"
+description = "Data descriptor takes precedence over instance __dict__"
+python = '''
+class DataDescriptor:
+    def __init__(self):
+        self.value = None
+    def __get__(self, obj, objtype=None):
+        if obj is None:
+            return self
+        return f"data_desc:{self.value}"
+    def __set__(self, obj, value):
+        self.value = value
+
+class C:
+    attr = DataDescriptor()
+
+obj = C()
+obj.__dict__["attr"] = "instance_value"
+obj.attr = "set_via_desc"
+assert obj.attr == "data_desc:set_via_desc"
+'''
+
+[[test]]
+name = "instance_dict_over_nondata_descriptor"
+description = "Instance __dict__ takes precedence over non-data descriptor"
+python = '''
+class NonDataDescriptor:
+    def __init__(self, name):
+        self.name = name
+    def __get__(self, obj, objtype=None):
+        if obj is None:
+            return self
+        return f"nondata_desc:{self.name}"
+
+class C:
+    attr = NonDataDescriptor("attr")
+
+obj = C()
+obj.__dict__["attr"] = "instance_value"
+assert obj.attr == "instance_value"
+'''
+
+[[test]]
+name = "nondata_descriptor_when_no_instance_attr"
+description = "Non-data descriptor is used when no instance attribute exists"
+python = '''
+class NonDataDescriptor:
+    def __init__(self, name):
+        self.name = name
+    def __get__(self, obj, objtype=None):
+        if obj is None:
+            return self
+        return f"nondata_desc:{self.name}"
+
+class C:
+    attr = NonDataDescriptor("attr")
+
+obj = C()
+assert obj.attr == "nondata_desc:attr"
+'''
+
+[[test]]
+name = "class_attribute_access_descriptor"
+description = "Accessing descriptor on class returns descriptor itself"
+python = '''
+class DataDescriptor:
+    def __init__(self):
+        self.value = None
+    def __get__(self, obj, objtype=None):
+        if obj is None:
+            return self
+        return f"data_desc:{self.value}"
+    def __set__(self, obj, value):
+        self.value = value
+
+class C:
+    attr = DataDescriptor()
+
+# Accessing on class returns the descriptor itself
+desc = C.attr
+assert hasattr(desc, '__get__')
+'''
+
+# =============================================================================
+# __getattribute__ and __getattr__ Interaction
+# =============================================================================
+
+[[test]]
+name = "getattr_fallback"
+description = "__getattr__ is called only when attribute not found"
+python = '''
+class C:
+    def __init__(self):
+        self.existing = "exists"
+    def __getattr__(self, name):
+        return f"fallback:{name}"
+
+obj = C()
+assert obj.existing == "exists"
+assert obj.missing == "fallback:missing"
+'''
+
+[[test]]
+name = "getattribute_intercepts_all"
+description = "__getattribute__ intercepts all attribute access"
+python = '''
+class C:
+    def __init__(self):
+        object.__setattr__(self, "value", 42)
+    def __getattribute__(self, name):
+        if name == "intercept":
+            return "intercepted"
+        return object.__getattribute__(self, name)
+
+obj = C()
+assert obj.intercept == "intercepted"
+assert obj.value == 42
+'''
+
+[[test]]
+name = "getattribute_attributeerror_triggers_getattr"
+description = "AttributeError in __getattribute__ triggers __getattr__"
+python = '''
+class C:
+    def __getattribute__(self, name):
+        if name == "trigger_fallback":
+            raise AttributeError(name)
+        return object.__getattribute__(self, name)
+    def __getattr__(self, name):
+        return f"getattr:{name}"
+
+obj = C()
+assert obj.trigger_fallback == "getattr:trigger_fallback"
+'''
+
+# =============================================================================
+# Descriptors with __slots__
+# =============================================================================
+
+[[test]]
+name = "slot_acts_as_data_descriptor"
+description = "__slots__ creates member descriptors (data descriptors)"
+python = '''
+class C:
+    __slots__ = ["x"]
+
+obj = C()
+obj.x = 42
+assert obj.x == 42
+assert not hasattr(obj, "__dict__")
+'''

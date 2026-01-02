@@ -1,0 +1,314 @@
+# Stdlib re (regex) Conformance Tests
+# Migrated from tests/python/stdlib/test_regex.py
+# Tests match object semantics, group behavior, flags.
+# These verify the reference semantics that the transpiler must emulate.
+
+[metadata]
+name = "Regex Conformance Tests"
+category = "stdlib"
+
+# =============================================================================
+# Match Object Behavior
+# =============================================================================
+
+[[test]]
+name = "match_group_0"
+description = "group(0) returns entire match"
+python = '''
+import re
+
+m = re.search(r"\\d+", "abc123def")
+assert m.group(0) == "123"
+'''
+
+[[test]]
+name = "match_group_numbered"
+description = "Numbered groups"
+python = '''
+import re
+
+m = re.search(r"(\\d+)-(\\d+)", "123-456")
+assert m.group(1) == "123"
+assert m.group(2) == "456"
+'''
+
+[[test]]
+name = "match_group_named"
+description = "Named groups"
+python = '''
+import re
+
+m = re.search(r"(?P<first>\\d+)-(?P<second>\\d+)", "123-456")
+assert m.group("first") == "123"
+assert m.group("second") == "456"
+'''
+
+[[test]]
+name = "match_groups"
+description = "groups() returns tuple of groups"
+python = '''
+import re
+
+m = re.search(r"(\\d+)-(\\d+)", "123-456")
+assert m.groups() == ("123", "456")
+'''
+
+[[test]]
+name = "match_groupdict"
+description = "groupdict() returns dict of named groups"
+python = '''
+import re
+
+m = re.search(r"(?P<a>\\d+)-(?P<b>\\d+)", "123-456")
+assert m.groupdict() == {"a": "123", "b": "456"}
+'''
+
+[[test]]
+name = "match_span"
+description = "span() returns start and end positions"
+python = '''
+import re
+
+m = re.search(r"\\d+", "abc123def")
+assert m.span() == (3, 6)
+assert m.start() == 3
+assert m.end() == 6
+'''
+
+# =============================================================================
+# match() vs search() Behavior
+# =============================================================================
+
+[[test]]
+name = "match_anchors_at_start"
+description = "match() only matches at string start"
+python = '''
+import re
+
+assert re.match(r"\\d+", "abc123") is None
+assert re.match(r"\\d+", "123abc") is not None
+'''
+
+[[test]]
+name = "search_anywhere"
+description = "search() finds pattern anywhere"
+python = '''
+import re
+
+assert re.search(r"\\d+", "abc123") is not None
+assert re.search(r"\\d+", "123abc") is not None
+'''
+
+# =============================================================================
+# findall Behavior
+# =============================================================================
+
+[[test]]
+name = "findall_no_groups"
+description = "findall without groups returns list of matches"
+python = '''
+import re
+
+result = re.findall(r"\\d+", "a1b22c333")
+assert result == ["1", "22", "333"]
+'''
+
+[[test]]
+name = "findall_one_group"
+description = "findall with one group returns list of group contents"
+python = '''
+import re
+
+result = re.findall(r"(\\d+)", "a1b22c333")
+assert result == ["1", "22", "333"]
+'''
+
+[[test]]
+name = "findall_multiple_groups"
+description = "findall with multiple groups returns list of tuples"
+python = '''
+import re
+
+result = re.findall(r"(\\d+)-(\\d+)", "1-2 3-4")
+assert result == [("1", "2"), ("3", "4")]
+'''
+
+# =============================================================================
+# finditer Behavior
+# =============================================================================
+
+[[test]]
+name = "finditer_returns_iterator"
+description = "finditer returns iterator of match objects"
+python = '''
+import re
+
+matches = list(re.finditer(r"\\d+", "a1b22c333"))
+assert len(matches) == 3
+assert matches[0].group() == "1"
+assert matches[1].group() == "22"
+'''
+
+# =============================================================================
+# Substitution
+# =============================================================================
+
+[[test]]
+name = "sub_basic"
+description = "sub replaces pattern matches"
+python = '''
+import re
+
+result = re.sub(r"\\d+", "X", "a1b22c333")
+assert result == "aXbXcX"
+'''
+
+[[test]]
+name = "sub_count"
+description = "sub with count limits replacements"
+python = '''
+import re
+
+result = re.sub(r"\\d+", "X", "a1b22c333", count=2)
+assert result == "aXbXc333"
+'''
+
+[[test]]
+name = "sub_backreference"
+description = "sub with backreference"
+python = '''
+import re
+
+result = re.sub(r"(\\w+) (\\w+)", r"\\2 \\1", "hello world")
+assert result == "world hello"
+'''
+
+[[test]]
+name = "sub_callable"
+description = "sub with callable replacement"
+python = '''
+import re
+
+result = re.sub(r"\\d+", lambda m: str(int(m.group()) * 2), "a1b22")
+assert result == "a2b44"
+'''
+
+[[test]]
+name = "subn_returns_count"
+description = "subn returns (result, count) tuple"
+python = '''
+import re
+
+result, count = re.subn(r"\\d+", "X", "a1b22c333")
+assert result == "aXbXcX"
+assert count == 3
+'''
+
+# =============================================================================
+# Flags
+# =============================================================================
+
+[[test]]
+name = "flag_ignorecase"
+description = "re.IGNORECASE makes pattern case-insensitive"
+python = '''
+import re
+
+assert re.search(r"hello", "HELLO", re.IGNORECASE) is not None
+assert re.search(r"hello", "HELLO") is None
+'''
+
+[[test]]
+name = "flag_multiline"
+description = "re.MULTILINE makes ^ and $ match line boundaries"
+python = '''
+import re
+
+text = "line1\\nline2"
+assert re.search(r"^line2", text, re.MULTILINE) is not None
+assert re.search(r"^line2", text) is None
+'''
+
+[[test]]
+name = "flag_dotall"
+description = "re.DOTALL makes . match newlines"
+python = '''
+import re
+
+assert re.search(r"a.b", "a\\nb", re.DOTALL) is not None
+assert re.search(r"a.b", "a\\nb") is None
+'''
+
+[[test]]
+name = "flag_verbose"
+description = "re.VERBOSE allows whitespace and comments"
+python = '''
+import re
+
+pattern = r"""
+    \\d+  # digits
+    -    # separator
+    \\d+  # more digits
+"""
+assert re.search(pattern, "123-456", re.VERBOSE) is not None
+'''
+
+# =============================================================================
+# Split
+# =============================================================================
+
+[[test]]
+name = "split_basic"
+description = "split divides string at pattern matches"
+python = '''
+import re
+
+result = re.split(r"\\s+", "a  b   c")
+assert result == ["a", "b", "c"]
+'''
+
+[[test]]
+name = "split_with_groups"
+description = "split with capturing groups includes separators"
+python = '''
+import re
+
+result = re.split(r"(\\s+)", "a  b")
+assert result == ["a", "  ", "b"]
+'''
+
+[[test]]
+name = "split_maxsplit"
+description = "split with maxsplit limits splits"
+python = '''
+import re
+
+result = re.split(r"\\s+", "a b c d", maxsplit=2)
+assert result == ["a", "b", "c d"]
+'''
+
+# =============================================================================
+# Compiled Patterns
+# =============================================================================
+
+[[test]]
+name = "compiled_pattern_reuse"
+description = "Compiled patterns can be reused"
+python = '''
+import re
+
+pattern = re.compile(r"\\d+")
+assert pattern.findall("a1b2") == ["1", "2"]
+assert pattern.findall("x9y8") == ["9", "8"]
+'''
+
+[[test]]
+name = "compiled_pattern_attributes"
+description = "Compiled patterns have pattern and flags attributes"
+python = '''
+import re
+
+pattern = re.compile(r"\\d+", re.IGNORECASE)
+assert pattern.pattern == r"\\d+"
+assert pattern.flags & re.IGNORECASE
+'''

@@ -1,0 +1,272 @@
+# CPython Finally Semantics Tests
+# Migrated from tests/python/semantics/test_finally_semantics.py
+# Tests return/raise interaction, suppression, and loop control flow in finally.
+# These verify the reference semantics that the transpiler must emulate.
+
+[metadata]
+name = "Finally Semantics Tests"
+category = "semantics"
+
+# =============================================================================
+# Basic Finally Execution
+# =============================================================================
+
+[[test]]
+name = "finally_always_runs"
+description = "finally block always executes"
+python = '''
+executed = []
+try:
+    executed.append("try")
+finally:
+    executed.append("finally")
+assert executed == ["try", "finally"]
+'''
+
+[[test]]
+name = "finally_runs_on_exception"
+description = "finally executes even when exception raised"
+python = '''
+executed = []
+try:
+    try:
+        executed.append("try")
+        raise ValueError("error")
+    finally:
+        executed.append("finally")
+except ValueError:
+    executed.append("except")
+assert executed == ["try", "finally", "except"]
+'''
+
+[[test]]
+name = "finally_runs_on_return"
+description = "finally executes even when return in try"
+python = '''
+def func():
+    result = []
+    try:
+        result.append("try")
+        return result
+    finally:
+        result.append("finally")
+
+assert func() == ["try", "finally"]
+'''
+
+# =============================================================================
+# Return/Finally Interaction
+# =============================================================================
+
+[[test]]
+name = "return_in_finally_overrides_try_return"
+description = "return in finally overrides return in try"
+python = '''
+def func():
+    try:
+        return "try"
+    finally:
+        return "finally"
+
+assert func() == "finally"
+'''
+
+[[test]]
+name = "return_in_finally_overrides_except_return"
+description = "return in finally overrides return in except"
+python = '''
+def func():
+    try:
+        raise ValueError()
+    except ValueError:
+        return "except"
+    finally:
+        return "finally"
+
+assert func() == "finally"
+'''
+
+[[test]]
+name = "return_in_try_with_noop_finally"
+description = "return in try with no-op finally returns try value"
+python = '''
+def func():
+    try:
+        return "try"
+    finally:
+        pass
+
+assert func() == "try"
+'''
+
+# =============================================================================
+# Exception/Finally Interaction
+# =============================================================================
+
+[[test]]
+name = "exception_in_finally_replaces_try_exception"
+description = "Exception in finally replaces exception from try"
+python = '''
+try:
+    try:
+        raise ValueError("try_error")
+    finally:
+        raise TypeError("finally_error")
+except TypeError as e:
+    assert str(e) == "finally_error"
+'''
+
+[[test]]
+name = "exception_in_finally_replaces_return"
+description = "Exception in finally overrides return in try"
+python = '''
+def func():
+    try:
+        return "try"
+    finally:
+        raise ValueError("finally_error")
+
+try:
+    func()
+    assert False, "Should have raised"
+except ValueError as e:
+    assert str(e) == "finally_error"
+'''
+
+[[test]]
+name = "return_in_finally_suppresses_exception"
+description = "return in finally suppresses exception from try"
+python = '''
+def func():
+    try:
+        raise ValueError("error")
+    finally:
+        return "finally"
+
+assert func() == "finally"
+'''
+
+# =============================================================================
+# Loop Control Flow with Finally
+# =============================================================================
+
+[[test]]
+name = "break_in_finally_during_loop"
+description = "break in finally exits loop"
+python = '''
+result = []
+for i in range(5):
+    try:
+        result.append(f"try{i}")
+    finally:
+        if i == 2:
+            break
+        result.append(f"finally{i}")
+assert result == ["try0", "finally0", "try1", "finally1", "try2"]
+'''
+
+[[test]]
+name = "continue_in_finally"
+description = "continue in finally continues to next iteration"
+python = '''
+result = []
+for i in range(3):
+    try:
+        result.append(f"try{i}")
+    finally:
+        if i == 1:
+            result.append("skip")
+            continue
+        result.append(f"finally{i}")
+assert result == ["try0", "finally0", "try1", "skip", "try2", "finally2"]
+'''
+
+[[test]]
+name = "finally_break_suppresses_return"
+description = "break in finally inside loop suppresses return from try"
+python = '''
+def func():
+    for _ in range(1):
+        try:
+            return "try"
+        finally:
+            break
+    return "after_loop"
+
+assert func() == "after_loop"
+'''
+
+# =============================================================================
+# Nested try/finally
+# =============================================================================
+
+[[test]]
+name = "nested_finally_order"
+description = "Nested finally blocks execute inner-to-outer"
+python = '''
+executed = []
+try:
+    try:
+        executed.append("inner_try")
+    finally:
+        executed.append("inner_finally")
+finally:
+    executed.append("outer_finally")
+assert executed == ["inner_try", "inner_finally", "outer_finally"]
+'''
+
+[[test]]
+name = "nested_finally_with_exception"
+description = "Nested finally all execute on exception"
+python = '''
+executed = []
+try:
+    try:
+        try:
+            executed.append("try")
+            raise ValueError("error")
+        finally:
+            executed.append("finally1")
+    finally:
+        executed.append("finally2")
+except ValueError:
+    executed.append("except")
+assert executed == ["try", "finally1", "finally2", "except"]
+'''
+
+# =============================================================================
+# try/except/else/finally Combinations
+# =============================================================================
+
+[[test]]
+name = "else_and_finally_on_success"
+description = "else and finally both execute on success"
+python = '''
+executed = []
+try:
+    executed.append("try")
+except ValueError:
+    executed.append("except")
+else:
+    executed.append("else")
+finally:
+    executed.append("finally")
+assert executed == ["try", "else", "finally"]
+'''
+
+[[test]]
+name = "except_and_finally_on_error"
+description = "except and finally execute on error, not else"
+python = '''
+executed = []
+try:
+    executed.append("try")
+    raise ValueError()
+except ValueError:
+    executed.append("except")
+else:
+    executed.append("else")
+finally:
+    executed.append("finally")
+assert executed == ["try", "except", "finally"]
+'''

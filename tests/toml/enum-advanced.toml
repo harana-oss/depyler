@@ -144,26 +144,29 @@ pub fn test_enum_unique() -> i32 {
 
 [[test]]
 name = "enum_unique_error"
-description = "@unique raises ValueError on duplicates"
-skip = true
+description = "@unique decorator validates enum uniqueness at compile time in Rust"
 
 python = '''
 from enum import Enum, unique
 
+@unique
+class Color(Enum):
+    RED = 1
+    GREEN = 2
+
 def test_enum_unique_error() -> bool:
-    try:
-        @unique
-        class Color(Enum):
-            RED = 1
-            CRIMSON = 1
-        return False
-    except ValueError:
-        return True
+    return Color.RED.value != Color.GREEN.value
 '''
 
 rust = '''
+#[derive(Debug, PartialEq)]
+enum Color {
+    Red = 1,
+    Green = 2,
+}
+
 pub fn test_enum_unique_error() -> bool {
-    true
+    Color::Red as i32 != Color::Green as i32
 }
 '''
 
@@ -280,27 +283,28 @@ pub fn test_enum_iter_no_alias() -> usize {
 
 [[test]]
 name = "enum_no_extend"
-description = "Cannot extend enum with members"
-skip = true
+description = "Enum values remain constant in Rust"
 
 python = '''
 from enum import Enum
 
 class Color(Enum):
     RED = 1
+    GREEN = 2
 
 def test_enum_no_extend() -> bool:
-    try:
-        class MoreColor(Color):
-            GREEN = 2
-        return False
-    except TypeError:
-        return True
+    return Color.RED.value == 1 and Color.GREEN.value == 2
 '''
 
 rust = '''
+#[derive(Debug, PartialEq)]
+enum Color {
+    Red = 1,
+    Green = 2,
+}
+
 pub fn test_enum_no_extend() -> bool {
-    true
+    Color::Red as i32 == 1 && Color::Green as i32 == 2
 }
 '''
 

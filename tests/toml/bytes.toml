@@ -257,7 +257,6 @@ let result = "hello".as_bytes().to_vec();
 [[test]]
 name = "bytes_encoding_errors"
 description = "errors='ignore', 'replace', 'strict'"
-skip = true
 
 python = '''
 # Invalid UTF-8 sequence

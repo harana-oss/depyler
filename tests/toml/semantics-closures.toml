@@ -1,0 +1,241 @@
+# CPython Closure Semantics Tests
+# Migrated from tests/python/semantics/test_closures.py
+# Tests cell rebinding, nonlocal, and late binding in comprehensions.
+# These verify the reference semantics that the transpiler must emulate.
+
+[metadata]
+name = "Closure Semantics Tests"
+category = "semantics"
+
+# =============================================================================
+# Closure Capture Semantics
+# =============================================================================
+
+[[test]]
+name = "closure_captures_by_reference"
+description = "Closures capture variables by reference, not by value"
+python = '''
+def outer():
+    x = 10
+    def inner():
+        return x
+    return inner
+
+result = outer()()
+assert result == 10
+'''
+
+[[test]]
+name = "closure_sees_modifications"
+description = "Closures see modifications to captured variables"
+python = '''
+def outer():
+    x = 10
+    def inner():
+        return x
+    x = 20
+    return inner
+
+result = outer()()
+assert result == 20
+'''
+
+[[test]]
+name = "late_binding_in_loop"
+description = "Classic late binding issue in loops - all lambdas see final value"
+python = '''
+funcs = []
+for i in range(3):
+    funcs.append(lambda: i)
+
+# All see the final value of i
+assert funcs[0]() == 2
+assert funcs[1]() == 2
+assert funcs[2]() == 2
+'''
+
+[[test]]
+name = "early_binding_with_default"
+description = "Use default argument for early binding"
+python = '''
+funcs = []
+for i in range(3):
+    funcs.append(lambda x=i: x)
+
+# Each captures its own value via default
+assert funcs[0]() == 0
+assert funcs[1]() == 1
+assert funcs[2]() == 2
+'''
+
+# =============================================================================
+# Nonlocal Statement
+# =============================================================================
+
+[[test]]
+name = "nonlocal_modification"
+description = "nonlocal allows modification of enclosing scope variable"
+python = '''
+def outer():
+    x = 10
+    def inner():
+        nonlocal x
+        x = 20
+    inner()
+    return x
+
+result = outer()
+assert result == 20
+'''
+
+[[test]]
+name = "nonlocal_nested"
+description = "nonlocal works through multiple nesting levels"
+python = '''
+def level1():
+    x = 1
+    def level2():
+        def level3():
+            nonlocal x
+            x = 3
+        level3()
+    level2()
+    return x
+
+result = level1()
+assert result == 3
+'''
+
+[[test]]
+name = "nonlocal_multiple_vars"
+description = "nonlocal can declare multiple variables"
+python = '''
+def outer():
+    a, b = 1, 2
+    def inner():
+        nonlocal a, b
+        a, b = b, a
+    inner()
+    return a, b
+
+result = outer()
+assert result == (2, 1)
+'''
+
+# =============================================================================
+# Cell Rebinding
+# =============================================================================
+
+[[test]]
+name = "cell_rebinding_counter"
+description = "Cell rebinding through assignment in counter pattern"
+python = '''
+def make_counter():
+    count = 0
+    def increment():
+        nonlocal count
+        count += 1
+        return count
+    return increment
+
+counter = make_counter()
+assert counter() == 1
+assert counter() == 2
+assert counter() == 3
+'''
+
+[[test]]
+name = "multiple_closures_share_cell"
+description = "Multiple closures share the same cell"
+python = '''
+def make_pair():
+    value = 0
+    def get():
+        return value
+    def set_(v):
+        nonlocal value
+        value = v
+    return get, set_
+
+get, set_ = make_pair()
+assert get() == 0
+set_(42)
+assert get() == 42
+'''
+
+# =============================================================================
+# Comprehension Scoping
+# =============================================================================
+
+[[test]]
+name = "list_comp_has_own_scope"
+description = "List comprehension has its own scope (Python 3)"
+python = '''
+x = 10
+result = [x for x in range(3)]
+assert result == [0, 1, 2]
+assert x == 10  # x unchanged in outer scope
+'''
+
+[[test]]
+name = "generator_expr_has_own_scope"
+description = "Generator expression has its own scope"
+python = '''
+x = 10
+gen = (x for x in range(3))
+assert list(gen) == [0, 1, 2]
+assert x == 10  # x unchanged in outer scope
+'''
+
+[[test]]
+name = "dict_comp_has_own_scope"
+description = "Dict comprehension has its own scope"
+python = '''
+k = "outer"
+result = {k: v for k, v in [("a", 1), ("b", 2)]}
+assert result == {"a": 1, "b": 2}
+assert k == "outer"  # k unchanged in outer scope
+'''
+
+[[test]]
+name = "nested_comprehension_late_binding"
+description = "Nested comprehensions and late binding"
+python = '''
+funcs = [lambda: x for x in range(3)]
+# All see final value of x
+assert funcs[0]() == 2
+assert funcs[2]() == 2
+'''
+
+# =============================================================================
+# Closure Edge Cases
+# =============================================================================
+
+[[test]]
+name = "closure_over_loop_variable_after_loop"
+description = "Closure captures final value after loop completes"
+python = '''
+def make_funcs():
+    funcs = []
+    for i in range(3):
+        def f():
+            return i
+        funcs.append(f)
+    return funcs
+
+funcs = make_funcs()
+results = [f() for f in funcs]
+assert results == [2, 2, 2]
+'''
+
+[[test]]
+name = "walrus_operator_scope_leak"
+description = "Walrus operator (:=) leaks to enclosing scope"
+python = '''
+if (n := 10) > 5:
+    pass
+assert n == 10
+
+result = [y := x for x in range(3)]
+assert y == 2  # y leaks to enclosing scope
+'''

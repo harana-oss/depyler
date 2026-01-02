@@ -239,7 +239,6 @@ let result = true;
 [[test]]
 name = "relative_beyond_top"
 description = "from ... in top-level raises"
-skip = true
 
 python = '''
 # from ... in top-level raises
@@ -257,7 +256,6 @@ let result = true;
 [[test]]
 name = "relative_in_script"
 description = "Relative import in __main__"
-skip = true
 
 python = '''
 class Example:
@@ -313,7 +311,6 @@ let result = true;
 [[test]]
 name = "relative_circular"
 description = "Circular relative imports"
-skip = true
 
 python = '''
 # Circular relative imports

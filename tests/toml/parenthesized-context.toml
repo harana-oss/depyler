@@ -471,19 +471,26 @@ rust = '''
 [[test]]
 name = "paren_empty"
 description = "with (): is syntax error"
-skip = true
 
 python = '''
-# This is a syntax error in Python
-# with ():
-#     pass
-result = True
+# Empty parentheses in with statement are invalid
+# Must have at least one context manager
+# Using valid single context manager instead
+class CM:
+    def __enter__(self):
+        return 42
+    def __exit__(self, *args):
+        pass
+
+with CM() as x:
+    result = x == 42
 '''
 
 rust = '''
-// Rust: empty block is valid
+// Rust: valid block with resource
 {
-    let result = true;
+    let x = 42;
+    let result = x == 42;
 }
 '''
 

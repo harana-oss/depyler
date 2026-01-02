@@ -1,0 +1,450 @@
+[metadata]
+name = "Decorator Expansion Tests"
+category = "decorators"
+
+# =============================================================================
+# Stacked Decorators Order
+# =============================================================================
+
+[[test]]
+name = "stacked_decorators_order"
+description = "Stacked decorator application order"
+
+python = '''
+def add_one(f):
+    def wrapper(x: int) -> int:
+        return f(x) + 1
+    return wrapper
+
+def double(f):
+    def wrapper(x: int) -> int:
+        return f(x) * 2
+    return wrapper
+
+def compute(x: int) -> int:
+    return x
+'''
+
+rust = '''
+pub fn add_one<F>(f: F) -> impl Fn(i32) -> i32 
+where 
+    F: Fn(i32) -> i32 
+{
+    move |x: i32| -> i32 {
+        return f(x) + 1;
+    }
+}
+
+pub fn double<F>(f: F) -> impl Fn(i32) -> i32 
+where 
+    F: Fn(i32) -> i32 
+{
+    move |x: i32| -> i32 {
+        return f(x) * 2;
+    }
+}
+
+pub fn compute(x: i32) -> i32 {
+    return x;
+}
+'''
+
+[[test]]
+name = "stacked_three_decorators"
+description = "Three stacked decorators"
+
+python = '''
+def inc(f):
+    def wrapper(x: int) -> int:
+        return f(x) + 1
+    return wrapper
+
+def triple(f):
+    def wrapper(x: int) -> int:
+        return f(x) * 3
+    return wrapper
+
+def negate(f):
+    def wrapper(x: int) -> int:
+        return -f(x)
+    return wrapper
+
+def identity(x: int) -> int:
+    return x
+'''
+
+rust = '''
+pub fn inc<F>(f: F) -> impl Fn(i32) -> i32 
+where 
+    F: Fn(i32) -> i32 
+{
+    move |x: i32| -> i32 {
+        return f(x) + 1;
+    }
+}
+
+pub fn triple<F>(f: F) -> impl Fn(i32) -> i32 
+where 
+    F: Fn(i32) -> i32 
+{
+    move |x: i32| -> i32 {
+        return f(x) * 3;
+    }
+}
+
+pub fn negate<F>(f: F) -> impl Fn(i32) -> i32 
+where 
+    F: Fn(i32) -> i32 
+{
+    move |x: i32| -> i32 {
+        return -f(x);
+    }
+}
+
+pub fn identity(x: i32) -> i32 {
+    return x;
+}
+'''
+
+# =============================================================================
+# Decorator Factory
+# =============================================================================
+
+[[test]]
+name = "decorator_factory"
+description = "Decorator factory patterns"
+
+python = '''
+def multiply_by(n: int):
+    def decorator(f):
+        def wrapper(x: int) -> int:
+            return f(x) * n
+        return wrapper
+    return decorator
+
+def base(x: int) -> int:
+    return x
+'''
+
+rust = '''
+pub fn multiply_by<F>(n: i32) -> impl Fn(F) -> Box<dyn Fn(i32) -> i32>
+where 
+    F: Fn(i32) -> i32 + 'static
+{
+    move |f: F| -> Box<dyn Fn(i32) -> i32> {
+        let n = n;
+        Box::new(move |x: i32| -> i32 {
+            return f(x) * n;
+        })
+    }
+}
+
+pub fn base(x: i32) -> i32 {
+    return x;
+}
+'''
+
+[[test]]
+name = "decorator_factory_string"
+description = "Decorator factory with string param"
+
+python = '''
+def prefix_with(s: str):
+    def decorator(f):
+        def wrapper() -> str:
+            return s + f()
+        return wrapper
+    return decorator
+
+def get_name() -> str:
+    return "World"
+'''
+
+rust = '''
+pub fn prefix_with<F>(s: String) -> impl Fn(F) -> Box<dyn Fn() -> String>
+where 
+    F: Fn() -> String + 'static
+{
+    move |f: F| -> Box<dyn Fn() -> String> {
+        let s = s.clone();
+        Box::new(move || -> String {
+            return format!("{}{}", s, f());
+        })
+    }
+}
+
+pub fn get_name() -> String {
+    return "World".to_string();
+}
+'''
+
+[[test]]
+name = "decorator_factory_multiple_params"
+description = "Decorator factory with multiple params"
+
+python = '''
+def bounds(min_val: int, max_val: int):
+    def decorator(f):
+        def wrapper(x: int) -> int:
+            result = f(x)
+            if result < min_val:
+                return min_val
+            if result > max_val:
+                return max_val
+            return result
+        return wrapper
+    return decorator
+
+def compute_value(x: int) -> int:
+    return x * 2
+'''
+
+rust = '''
+pub fn bounds<F>(min_val: i32, max_val: i32) -> impl Fn(F) -> Box<dyn Fn(i32) -> i32>
+where 
+    F: Fn(i32) -> i32 + 'static
+{
+    move |f: F| -> Box<dyn Fn(i32) -> i32> {
+        let min_val = min_val;
+        let max_val = max_val;
+        Box::new(move |x: i32| -> i32 {
+            let result = f(x);
+            if result < min_val {
+                return min_val;
+            }
+            if result > max_val {
+                return max_val;
+            }
+            return result;
+        })
+    }
+}
+
+pub fn compute_value(x: i32) -> i32 {
+    return x * 2;
+}
+'''
+
+# =============================================================================
+# Class Decorator Mutation
+# =============================================================================
+
+[[test]]
+name = "class_decorator_mutation"
+description = "Class decorator mutations"
+
+python = '''
+class Counter:
+    def __init__(self):
+        self.count = 0
+    
+    def increment(self) -> int:
+        self.count += 1
+        return self.count
+    
+    def get_count(self) -> int:
+        return self.count
+'''
+
+rust = '''
+pub struct Counter {
+    pub count: i32,
+}
+
+impl Counter {
+    pub fn new() -> Self {
+        Self { count: 0 }
+    }
+    
+    pub fn increment(&mut self) -> i32 {
+        self.count += 1;
+        return self.count;
+    }
+    
+    pub fn get_count(&self) -> i32 {
+        return self.count;
+    }
+}
+'''
+
+[[test]]
+name = "class_add_method"
+description = "Add method via decorator"
+
+python = '''
+class Point:
+    def __init__(self, x: int, y: int):
+        self.x = x
+        self.y = y
+    
+    def distance_from_origin(self) -> float:
+        return (self.x ** 2 + self.y ** 2) ** 0.5
+'''
+
+rust = '''
+pub struct Point {
+    pub x: i32,
+    pub y: i32,
+}
+
+impl Point {
+    pub fn new(x: i32, y: i32) -> Self {
+        Self { x, y }
+    }
+    
+    pub fn distance_from_origin(&self) -> f64 {
+        return ((self.x.pow(2) + self.y.pow(2)) as f64).sqrt();
+    }
+}
+'''
+
+# =============================================================================
+# Method Decorator Self
+# =============================================================================
+
+[[test]]
+name = "method_decorator_self"
+description = "Method decorator self handling"
+
+python = '''
+class Calculator:
+    def __init__(self, value: int):
+        self.value = value
+    
+    def add(self, n: int) -> int:
+        self.value += n
+        return self.value
+    
+    def multiply(self, n: int) -> int:
+        self.value *= n
+        return self.value
+    
+    def get(self) -> int:
+        return self.value
+'''
+
+rust = '''
+pub struct Calculator {
+    pub value: i32,
+}
+
+impl Calculator {
+    pub fn new(value: i32) -> Self {
+        Self { value }
+    }
+    
+    pub fn add(&mut self, n: i32) -> i32 {
+        self.value += n;
+        return self.value;
+    }
+    
+    pub fn multiply(&mut self, n: i32) -> i32 {
+        self.value *= n;
+        return self.value;
+    }
+    
+    pub fn get(&self) -> i32 {
+        return self.value;
+    }
+}
+'''
+
+[[test]]
+name = "method_chain"
+description = "Method chaining with self"
+
+python = '''
+class Builder:
+    def __init__(self):
+        self.parts = []
+    
+    def add_part(self, part: str):
+        self.parts.append(part)
+        return self
+    
+    def build(self) -> str:
+        return ", ".join(self.parts)
+'''
+
+rust = '''
+pub struct Builder {
+    pub parts: Vec<String>,
+}
+
+impl Builder {
+    pub fn new() -> Self {
+        Self { parts: vec![] }
+    }
+    
+    pub fn add_part(&mut self, part: String) -> &mut Self {
+        self.parts.push(part);
+        return self;
+    }
+    
+    pub fn build(&self) -> String {
+        return self.parts.join(", ");
+    }
+}
+'''
+
+[[test]]
+name = "static_method_decorator"
+description = "Static method decorator"
+
+python = '''
+class Math:
+    @staticmethod
+    def add(a: int, b: int) -> int:
+        return a + b
+    
+    @staticmethod
+    def multiply(a: int, b: int) -> int:
+        return a * b
+'''
+
+rust = '''
+pub struct Math;
+
+impl Math {
+    pub fn add(a: i32, b: i32) -> i32 {
+        return a + b;
+    }
+    
+    pub fn multiply(a: i32, b: i32) -> i32 {
+        return a * b;
+    }
+}
+'''
+
+[[test]]
+name = "classmethod_decorator"
+description = "Class method decorator"
+
+python = '''
+class Factory:
+    default_value = 0
+    
+    @classmethod
+    def create_default(cls) -> int:
+        return cls.default_value
+    
+    @classmethod
+    def create_with_value(cls, value: int) -> int:
+        return value
+'''
+
+rust = '''
+pub struct Factory;
+
+impl Factory {
+    pub const DEFAULT_VALUE: i32 = 0;
+    
+    pub fn create_default() -> i32 {
+        return Self::DEFAULT_VALUE;
+    }
+    
+    pub fn create_with_value(value: i32) -> i32 {
+        return value;
+    }
+}
+'''

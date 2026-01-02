@@ -408,7 +408,6 @@ let result = format!("Value: {}", x);
 [[test]]
 name = "fstring_backslash"
 description = "Backslash not allowed in expression"
-skip = true
 
 python = '''
 x = 42

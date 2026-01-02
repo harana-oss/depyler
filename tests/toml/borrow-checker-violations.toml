@@ -1,0 +1,307 @@
+[metadata]
+name = "Borrow Checker Violations Tests"
+category = "memory-safety"
+
+# =============================================================================
+# Use After Move Detection
+# =============================================================================
+
+[[test]]
+name = "use_after_move"
+description = "Detect use-after-move patterns"
+
+python = '''
+def use_after_move():
+    original = [1, 2, 3]
+    new_owner = original
+    # original is moved, using it should be detected
+    return len(new_owner)
+'''
+
+rust = '''
+pub fn use_after_move() -> i32 {
+    let original = vec![1, 2, 3];
+    let new_owner = original;
+    return new_owner.len() as i32;
+}
+'''
+
+[[test]]
+name = "use_after_move_in_function_call"
+description = "Detect use-after-move when passing to function"
+
+python = '''
+def consume(items: list[int]) -> int:
+    return sum(items)
+
+def caller():
+    data = [1, 2, 3]
+    result = consume(data)
+    return result
+'''
+
+rust = '''
+pub fn consume(items: Vec<i32>) -> i32 {
+    return items.iter().sum::<i32>();
+}
+
+pub fn caller() -> i32 {
+    let data = vec![1, 2, 3];
+    let result = consume(data);
+    return result;
+}
+'''
+
+[[test]]
+name = "use_after_move_conditional"
+description = "Detect move in one branch affecting other paths"
+
+python = '''
+def conditional_move(flag: bool):
+    items = [1, 2, 3]
+    if flag:
+        other = items
+        return other
+    return items
+'''
+
+rust = '''
+pub fn conditional_move(flag: bool) -> Vec<i32> {
+    let items = vec![1, 2, 3];
+    if flag {
+        let other = items;
+        return other;
+    }
+    return items;
+}
+'''
+
+# =============================================================================
+# Dangling Reference Prevention
+# =============================================================================
+
+[[test]]
+name = "dangling_reference"
+description = "Prevent dangling reference creation"
+
+python = '''
+def create_local() -> list[int]:
+    local = [1, 2, 3]
+    return local
+'''
+
+rust = '''
+pub fn create_local() -> Vec<i32> {
+    let local = vec![1, 2, 3];
+    return local;
+}
+'''
+
+[[test]]
+name = "dangling_reference_nested"
+description = "Prevent nested function dangling reference"
+
+python = '''
+def outer():
+    def inner() -> list[int]:
+        local = [1, 2, 3]
+        return local
+    return inner()
+'''
+
+rust = '''
+pub fn outer() -> Vec<i32> {
+    fn inner() -> Vec<i32> {
+        let local = vec![1, 2, 3];
+        return local;
+    }
+    return inner();
+}
+'''
+
+[[test]]
+name = "dangling_reference_loop"
+description = "Prevent reference escaping loop scope"
+
+python = '''
+def process_items(items: list[int]) -> int:
+    total = 0
+    for item in items:
+        total += item
+    return total
+'''
+
+rust = '''
+pub fn process_items(items: Vec<i32>) -> i32 {
+    let mut total = 0;
+    for item in items {
+        total += item;
+    }
+    return total;
+}
+'''
+
+# =============================================================================
+# Mutable Aliasing Detection
+# =============================================================================
+
+[[test]]
+name = "mutable_aliasing"
+description = "Detect invalid mutable aliasing"
+
+python = '''
+def no_aliasing(items: list[int]) -> None:
+    items.append(1)
+'''
+
+rust = '''
+pub fn no_aliasing(items: &mut Vec<i32>) {
+    items.push(1);
+}
+'''
+
+[[test]]
+name = "mutable_aliasing_split"
+description = "Allow splitting borrows on different fields"
+
+python = '''
+class Point:
+    def __init__(self, x: int, y: int):
+        self.x = x
+        self.y = y
+
+def swap_coords(p: Point) -> None:
+    temp = p.x
+    p.x = p.y
+    p.y = temp
+'''
+
+rust = '''
+pub struct Point {
+    pub x: i32,
+    pub y: i32,
+}
+
+impl Point {
+    pub fn new(x: i32, y: i32) -> Self {
+        Self { x, y }
+    }
+}
+
+pub fn swap_coords(p: &mut Point) {
+    let temp = p.x;
+    p.x = p.y;
+    p.y = temp;
+}
+'''
+
+[[test]]
+name = "mutable_aliasing_reborrow"
+description = "Allow sequential mutable reborrows"
+
+python = '''
+def modify_twice(items: list[int]) -> None:
+    items.append(1)
+    items.append(2)
+'''
+
+rust = '''
+pub fn modify_twice(items: &mut Vec<i32>) {
+    items.push(1);
+    items.push(2);
+}
+'''
+
+# =============================================================================
+# Lifetime Escape Prevention
+# =============================================================================
+
+[[test]]
+name = "lifetime_escape"
+description = "Prevent references outliving their data"
+
+python = '''
+def get_first(items: list[int]) -> int:
+    if len(items) > 0:
+        return items[0]
+    return 0
+'''
+
+rust = '''
+pub fn get_first(items: &Vec<i32>) -> i32 {
+    if items.len() > 0 {
+        return items[0];
+    }
+    return 0;
+}
+'''
+
+[[test]]
+name = "lifetime_escape_struct"
+description = "Prevent struct field outliving data"
+
+python = '''
+class Container:
+    def __init__(self, value: int):
+        self.value = value
+
+def create_container(value: int) -> Container:
+    return Container(value)
+'''
+
+rust = '''
+pub struct Container {
+    pub value: i32,
+}
+
+impl Container {
+    pub fn new(value: i32) -> Self {
+        Self { value }
+    }
+}
+
+pub fn create_container(value: i32) -> Container {
+    return Container::new(value);
+}
+'''
+
+[[test]]
+name = "lifetime_escape_closure"
+description = "Prevent closure capturing dangling reference"
+
+python = '''
+def make_adder(n: int):
+    def adder(x: int) -> int:
+        return x + n
+    return adder
+'''
+
+rust = '''
+pub fn make_adder(n: i32) -> impl Fn(i32) -> i32 {
+    move |x: i32| -> i32 {
+        return x + n;
+    }
+}
+'''
+
+[[test]]
+name = "lifetime_proper_return"
+description = "Allow returning owned data from function"
+
+python = '''
+def build_list(n: int) -> list[int]:
+    result = []
+    for i in range(n):
+        result.append(i)
+    return result
+'''
+
+rust = '''
+pub fn build_list(n: i32) -> Vec<i32> {
+    let mut result = vec![];
+    for i in 0..n {
+        result.push(i);
+    }
+    return result;
+}
+'''
