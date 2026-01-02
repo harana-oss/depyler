@@ -483,6 +483,11 @@ pub enum HirStmt {
         body: Vec<HirStmt>,
         docstring: Option<String>,
     },
+    /// Match statement (Python 3.10+)
+    Match {
+        subject: HirExpr,
+        cases: Vec<MatchCase>,
+    },
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -490,6 +495,47 @@ pub struct ExceptHandler {
     pub exception_type: Option<String>,
     pub name: Option<Symbol>,
     pub body: Vec<HirStmt>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct MatchCase {
+    pub pattern: HirPattern,
+    pub guard: Option<HirExpr>,
+    pub body: Vec<HirStmt>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub enum HirPattern {
+    /// Match a literal value: case 1:, case "hello":
+    Value(HirExpr),
+    /// Match singleton: case None:, case True:, case False:
+    Singleton(Literal),
+    /// Match a sequence: case [a, b, c]:
+    Sequence(Vec<HirPattern>),
+    /// Match a mapping: case {"key": value}:
+    Mapping {
+        keys: Vec<HirExpr>,
+        patterns: Vec<HirPattern>,
+        rest: Option<Symbol>,
+    },
+    /// Match a class: case Point(x, y):
+    Class {
+        cls: String,
+        patterns: Vec<HirPattern>,
+        kwd_attrs: Vec<Symbol>,
+        kwd_patterns: Vec<HirPattern>,
+    },
+    /// Star pattern in sequence: case [first, *rest]:
+    Star(Option<Symbol>),
+    /// As pattern: case _ as x: or case pattern as name:
+    As {
+        pattern: Option<Box<HirPattern>>,
+        name: Option<Symbol>,
+    },
+    /// Or pattern: case 1 | 2 | 3:
+    Or(Vec<HirPattern>),
+    /// Wildcard pattern: case _:
+    Wildcard,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

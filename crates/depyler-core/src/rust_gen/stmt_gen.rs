@@ -4806,6 +4806,7 @@ impl RustCodeGen for HirStmt {
                 body,
                 docstring: _,
             } => codegen_async_nested_function_def(name, params, ret_type, body, ctx),
+            HirStmt::Match { subject, cases } => codegen_match_stmt(subject, cases, ctx),
         }
     }
 }
@@ -5084,4 +5085,175 @@ fn codegen_delete_stmt(
         })
         .collect::<Result<Vec<_>>>()?;
     Ok(quote! { #(#delete_stmts)* })
+}
+
+/// Generate Rust code for match statements (Python 3.10+)
+fn codegen_match_stmt(
+    subject: &HirExpr,
+    cases: &[MatchCase],
+    ctx: &mut CodeGenContext,
+) -> Result<proc_macro2::TokenStream> {
+    let subject_expr = subject.to_rust_expr(ctx)?;
+
+    let arms: Vec<proc_macro2::TokenStream> = cases
+        .iter()
+        .map(|case| codegen_match_arm(case, ctx))
+        .collect::<Result<Vec<_>>>()?;
+
+    Ok(quote! {
+        match #subject_expr {
+            #(#arms)*
+        }
+    })
+}
+
+fn codegen_match_arm(case: &MatchCase, ctx: &mut CodeGenContext) -> Result<proc_macro2::TokenStream> {
+    let pattern = codegen_pattern(&case.pattern)?;
+    let body_stmts: Vec<proc_macro2::TokenStream> = case
+        .body
+        .iter()
+        .map(|stmt| stmt.to_rust_tokens(ctx))
+        .collect::<Result<Vec<_>>>()?;
+
+    if let Some(guard) = &case.guard {
+        let guard_expr = guard.to_rust_expr(ctx)?;
+        Ok(quote! {
+            #pattern if #guard_expr => {
+                #(#body_stmts)*
+            }
+        })
+    } else {
+        Ok(quote! {
+            #pattern => {
+                #(#body_stmts)*
+            }
+        })
+    }
+}
+
+fn codegen_pattern(pattern: &HirPattern) -> Result<proc_macro2::TokenStream> {
+    match pattern {
+        HirPattern::Value(expr) => {
+            let lit = expr_to_pattern_literal(expr)?;
+            Ok(lit)
+        }
+        HirPattern::Singleton(lit) => {
+            match lit {
+                Literal::None => Ok(quote! { None }),
+                Literal::Bool(true) => Ok(quote! { true }),
+                Literal::Bool(false) => Ok(quote! { false }),
+                _ => bail!("Unsupported singleton literal in pattern"),
+            }
+        }
+        HirPattern::Sequence(patterns) => {
+            let inner: Vec<proc_macro2::TokenStream> = patterns
+                .iter()
+                .map(codegen_pattern)
+                .collect::<Result<Vec<_>>>()?;
+            Ok(quote! { [#(#inner),*] })
+        }
+        HirPattern::Mapping { keys, patterns, rest } => {
+            // Rust doesn't have built-in destructuring for HashMaps
+            // Generate a guard-based approach or use custom extractors
+            // For now, just match on the whole structure
+            let _ = (keys, patterns, rest);
+            bail!("Map pattern matching requires custom implementation")
+        }
+        HirPattern::Class { cls, patterns, kwd_attrs, kwd_patterns } => {
+            let cls_ident = format_ident!("{}", cls);
+            if patterns.is_empty() && kwd_attrs.is_empty() {
+                // Simple struct match: case Point():
+                Ok(quote! { #cls_ident { .. } })
+            } else if !kwd_attrs.is_empty() {
+                // Named field match: case Point(x=x, y=y):
+                let field_patterns: Vec<proc_macro2::TokenStream> = kwd_attrs
+                    .iter()
+                    .zip(kwd_patterns.iter())
+                    .map(|(attr, pat)| {
+                        let attr_ident = format_ident!("{}", attr);
+                        let pat_tokens = codegen_pattern(pat)?;
+                        Ok(quote! { #attr_ident: #pat_tokens })
+                    })
+                    .collect::<Result<Vec<_>>>()?;
+                Ok(quote! { #cls_ident { #(#field_patterns),*, .. } })
+            } else {
+                // Positional match: case Point(x, y):
+                let pos_patterns: Vec<proc_macro2::TokenStream> = patterns
+                    .iter()
+                    .map(codegen_pattern)
+                    .collect::<Result<Vec<_>>>()?;
+                Ok(quote! { #cls_ident(#(#pos_patterns),*) })
+            }
+        }
+        HirPattern::Star(name) => {
+            if let Some(n) = name {
+                let ident = format_ident!("{}", n);
+                Ok(quote! { #ident @ .. })
+            } else {
+                Ok(quote! { .. })
+            }
+        }
+        HirPattern::As { pattern, name } => {
+            match (pattern, name) {
+                (Some(inner), Some(n)) => {
+                    let inner_pat = codegen_pattern(inner)?;
+                    let ident = format_ident!("{}", n);
+                    Ok(quote! { #inner_pat @ #ident })
+                }
+                (None, Some(n)) => {
+                    // Just a binding: case _ as x:
+                    let ident = format_ident!("{}", n);
+                    Ok(quote! { #ident })
+                }
+                (Some(inner), None) => {
+                    // Pattern without binding
+                    codegen_pattern(inner)
+                }
+                (None, None) => {
+                    // Wildcard
+                    Ok(quote! { _ })
+                }
+            }
+        }
+        HirPattern::Or(patterns) => {
+            let inner: Vec<proc_macro2::TokenStream> = patterns
+                .iter()
+                .map(codegen_pattern)
+                .collect::<Result<Vec<_>>>()?;
+            Ok(quote! { #(#inner)|* })
+        }
+        HirPattern::Wildcard => Ok(quote! { _ }),
+    }
+}
+
+/// Convert a HIR expression to a pattern literal for match arms
+fn expr_to_pattern_literal(expr: &HirExpr) -> Result<proc_macro2::TokenStream> {
+    match expr {
+        HirExpr::Literal(lit) => {
+            match lit {
+                Literal::Int(i) => Ok(quote! { #i }),
+                Literal::Float(f) => {
+                    // Floats can't be matched directly in Rust, need guard
+                    bail!("Float patterns require guard-based matching: use 'x if x == {}'", f)
+                }
+                Literal::String(s) => Ok(quote! { #s }),
+                Literal::Bool(b) => Ok(quote! { #b }),
+                Literal::None => Ok(quote! { None }),
+                _ => bail!("Unsupported literal type in pattern"),
+            }
+        }
+        HirExpr::Var(name) => {
+            // In Python patterns, a bare name is a binding, not a reference
+            let ident = format_ident!("{}", name);
+            Ok(quote! { #ident })
+        }
+        HirExpr::Tuple(elems) => {
+            let inner: Vec<proc_macro2::TokenStream> = elems
+                .iter()
+                .map(expr_to_pattern_literal)
+                .collect::<Result<Vec<_>>>()?;
+            Ok(quote! { (#(#inner),*) })
+        }
+        _ => bail!("Unsupported expression type in pattern"),
+    }
 }

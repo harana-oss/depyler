@@ -769,6 +769,123 @@ fn stmt_to_rust_tokens_with_scope(
                 }
             })
         }
+        HirStmt::Match { subject, cases } => {
+            let subject_tokens = expr_to_rust_tokens(subject)?;
+            let arms: Vec<proc_macro2::TokenStream> = cases
+                .iter()
+                .map(|case| {
+                    let pattern = pattern_to_rust_tokens(&case.pattern)?;
+                    let body_stmts: Vec<_> = case
+                        .body
+                        .iter()
+                        .map(|s| stmt_to_rust_tokens_with_scope(s, scope_tracker))
+                        .collect::<Result<Vec<_>>>()?;
+                    if let Some(guard) = &case.guard {
+                        let guard_tokens = expr_to_rust_tokens(guard)?;
+                        Ok(quote! { #pattern if #guard_tokens => { #(#body_stmts)* } })
+                    } else {
+                        Ok(quote! { #pattern => { #(#body_stmts)* } })
+                    }
+                })
+                .collect::<Result<Vec<_>>>()?;
+            Ok(quote! { match #subject_tokens { #(#arms)* } })
+        }
+    }
+}
+
+/// Convert a HIR pattern to Rust tokens for match arms
+fn pattern_to_rust_tokens(pattern: &HirPattern) -> Result<proc_macro2::TokenStream> {
+    match pattern {
+        HirPattern::Value(expr) => {
+            // For literal values in patterns
+            match expr {
+                HirExpr::Literal(lit) => match lit {
+                    Literal::Int(i) => Ok(quote! { #i }),
+                    Literal::String(s) => Ok(quote! { #s }),
+                    Literal::Bool(b) => Ok(quote! { #b }),
+                    Literal::None => Ok(quote! { None }),
+                    _ => bail!("Unsupported literal in pattern"),
+                },
+                HirExpr::Var(name) => {
+                    let ident = syn::Ident::new(name, proc_macro2::Span::call_site());
+                    Ok(quote! { #ident })
+                }
+                _ => bail!("Unsupported expression in pattern"),
+            }
+        }
+        HirPattern::Singleton(lit) => match lit {
+            Literal::None => Ok(quote! { None }),
+            Literal::Bool(true) => Ok(quote! { true }),
+            Literal::Bool(false) => Ok(quote! { false }),
+            _ => bail!("Unsupported singleton in pattern"),
+        },
+        HirPattern::Sequence(patterns) => {
+            let inner: Vec<proc_macro2::TokenStream> = patterns
+                .iter()
+                .map(pattern_to_rust_tokens)
+                .collect::<Result<Vec<_>>>()?;
+            Ok(quote! { [#(#inner),*] })
+        }
+        HirPattern::Mapping { .. } => {
+            bail!("Map pattern matching not supported in Rust")
+        }
+        HirPattern::Class {
+            cls,
+            patterns,
+            kwd_attrs,
+            kwd_patterns,
+        } => {
+            let cls_ident = syn::Ident::new(cls, proc_macro2::Span::call_site());
+            if patterns.is_empty() && kwd_attrs.is_empty() {
+                Ok(quote! { #cls_ident { .. } })
+            } else if !kwd_attrs.is_empty() {
+                let field_patterns: Vec<proc_macro2::TokenStream> = kwd_attrs
+                    .iter()
+                    .zip(kwd_patterns.iter())
+                    .map(|(attr, pat)| {
+                        let attr_ident = syn::Ident::new(attr, proc_macro2::Span::call_site());
+                        let pat_tokens = pattern_to_rust_tokens(pat)?;
+                        Ok(quote! { #attr_ident: #pat_tokens })
+                    })
+                    .collect::<Result<Vec<_>>>()?;
+                Ok(quote! { #cls_ident { #(#field_patterns),*, .. } })
+            } else {
+                let pos_patterns: Vec<proc_macro2::TokenStream> = patterns
+                    .iter()
+                    .map(pattern_to_rust_tokens)
+                    .collect::<Result<Vec<_>>>()?;
+                Ok(quote! { #cls_ident(#(#pos_patterns),*) })
+            }
+        }
+        HirPattern::Star(name) => {
+            if let Some(n) = name {
+                let ident = syn::Ident::new(n, proc_macro2::Span::call_site());
+                Ok(quote! { #ident @ .. })
+            } else {
+                Ok(quote! { .. })
+            }
+        }
+        HirPattern::As { pattern, name } => match (pattern, name) {
+            (Some(inner), Some(n)) => {
+                let inner_pat = pattern_to_rust_tokens(inner)?;
+                let ident = syn::Ident::new(n, proc_macro2::Span::call_site());
+                Ok(quote! { #inner_pat @ #ident })
+            }
+            (None, Some(n)) => {
+                let ident = syn::Ident::new(n, proc_macro2::Span::call_site());
+                Ok(quote! { #ident })
+            }
+            (Some(inner), None) => pattern_to_rust_tokens(inner),
+            (None, None) => Ok(quote! { _ }),
+        },
+        HirPattern::Or(patterns) => {
+            let inner: Vec<proc_macro2::TokenStream> = patterns
+                .iter()
+                .map(pattern_to_rust_tokens)
+                .collect::<Result<Vec<_>>>()?;
+            Ok(quote! { #(#inner)|* })
+        }
+        HirPattern::Wildcard => Ok(quote! { _ }),
     }
 }
 

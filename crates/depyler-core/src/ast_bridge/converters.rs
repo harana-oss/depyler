@@ -48,32 +48,32 @@ pub struct StmtConverter;
 impl StmtConverter {
     pub fn convert(stmt: ast::Stmt) -> Result<HirStmt> {
         match stmt {
-            ast::Stmt::Assign(a) => Self::convert_assign(a),
             ast::Stmt::AnnAssign(a) => Self::convert_ann_assign(a),
-            ast::Stmt::AugAssign(a) => Self::convert_aug_assign(a),
-            ast::Stmt::Return(r) => Self::convert_return(r),
-            ast::Stmt::If(i) => Self::convert_if(i),
-            ast::Stmt::While(w) => Self::convert_while(w),
-            ast::Stmt::For(f) => Self::convert_for(f),
-            ast::Stmt::Expr(e) => Self::convert_expr_stmt(e),
-            ast::Stmt::Raise(r) => Self::convert_raise(r),
-            ast::Stmt::Break(b) => Self::convert_break(b),
-            ast::Stmt::Continue(c) => Self::convert_continue(c),
-            ast::Stmt::With(w) => Self::convert_with(w),
-            ast::Stmt::Try(t) => Self::convert_try(t),
             ast::Stmt::Assert(a) => Self::convert_assert(a),
-            ast::Stmt::Pass(_) => Self::convert_pass(),
+            ast::Stmt::Assign(a) => Self::convert_assign(a),
+            ast::Stmt::AsyncFor(af) => Self::convert_async_for(af),
+            ast::Stmt::AsyncFunctionDef(f) => Self::convert_async_function_def(f),
+            ast::Stmt::AsyncWith(aw) => Self::convert_async_with(aw),
+            ast::Stmt::AugAssign(a) => Self::convert_aug_assign(a),
+            ast::Stmt::Break(b) => Self::convert_break(b),
+            ast::Stmt::ClassDef(_) => bail!("Statement type not yet supported: ClassDef (classes)"),
+            ast::Stmt::Continue(c) => Self::convert_continue(c),
+            ast::Stmt::Delete(d) => Self::convert_delete(d),
+            ast::Stmt::Expr(e) => Self::convert_expr_stmt(e),
+            ast::Stmt::For(f) => Self::convert_for(f),
             ast::Stmt::FunctionDef(f) => Self::convert_nested_function_def(f),
             ast::Stmt::Global(g) => Self::convert_global(g),
-            ast::Stmt::Nonlocal(n) => Self::convert_nonlocal(n),
-            ast::Stmt::AsyncFor(af) => Self::convert_async_for(af),
-            ast::Stmt::AsyncWith(aw) => Self::convert_async_with(aw),
-            ast::Stmt::Delete(d) => Self::convert_delete(d),
+            ast::Stmt::If(i) => Self::convert_if(i),
             ast::Stmt::Import(i) => Self::convert_import(i),
             ast::Stmt::ImportFrom(i) => Self::convert_import_from(i),
-            ast::Stmt::AsyncFunctionDef(f) => Self::convert_async_function_def(f),
-            ast::Stmt::ClassDef(_) => bail!("Statement type not yet supported: ClassDef (classes)"),
-            ast::Stmt::Match(_) => bail!("Statement type not yet supported: Match"),
+            ast::Stmt::Match(m) => Self::convert_match(m),
+            ast::Stmt::Nonlocal(n) => Self::convert_nonlocal(n),
+            ast::Stmt::Pass(_) => Self::convert_pass(),
+            ast::Stmt::Raise(r) => Self::convert_raise(r),
+            ast::Stmt::Return(r) => Self::convert_return(r),
+            ast::Stmt::Try(t) => Self::convert_try(t),
+            ast::Stmt::While(w) => Self::convert_while(w),
+            ast::Stmt::With(w) => Self::convert_with(w),
             _ => bail!("Statement type not yet supported: unknown"),
         }
     }
@@ -459,6 +459,126 @@ impl StmtConverter {
             .map(extract_assign_target)
             .collect::<Result<Vec<_>>>()?;
         Ok(HirStmt::Delete { targets })
+    }
+
+    fn convert_match(m: ast::StmtMatch) -> Result<HirStmt> {
+        let subject = super::convert_expr(*m.subject)?;
+        let cases = m
+            .cases
+            .into_iter()
+            .map(Self::convert_match_case)
+            .collect::<Result<Vec<_>>>()?;
+        Ok(HirStmt::Match { subject, cases })
+    }
+
+    fn convert_match_case(case: ast::MatchCase) -> Result<MatchCase> {
+        let pattern = Self::convert_pattern(case.pattern)?;
+        let guard = case
+            .guard
+            .map(|g| super::convert_expr(*g))
+            .transpose()?;
+        let body = convert_body(case.body)?;
+        Ok(MatchCase {
+            pattern,
+            guard,
+            body,
+        })
+    }
+
+    fn convert_pattern(pattern: ast::Pattern) -> Result<HirPattern> {
+        match pattern {
+            ast::Pattern::MatchValue(v) => {
+                let value = super::convert_expr(*v.value)?;
+                Ok(HirPattern::Value(value))
+            }
+            ast::Pattern::MatchSingleton(s) => {
+                let lit = match &s.value {
+                    ast::Constant::None => Literal::None,
+                    ast::Constant::Bool(b) => Literal::Bool(*b),
+                    ast::Constant::Ellipsis => Literal::Ellipsis,
+                    _ => bail!("Unsupported singleton constant in match pattern"),
+                };
+                Ok(HirPattern::Singleton(lit))
+            }
+            ast::Pattern::MatchSequence(seq) => {
+                let patterns = seq
+                    .patterns
+                    .into_iter()
+                    .map(Self::convert_pattern)
+                    .collect::<Result<Vec<_>>>()?;
+                Ok(HirPattern::Sequence(patterns))
+            }
+            ast::Pattern::MatchMapping(mapping) => {
+                let keys = mapping
+                    .keys
+                    .into_iter()
+                    .map(super::convert_expr)
+                    .collect::<Result<Vec<_>>>()?;
+                let patterns = mapping
+                    .patterns
+                    .into_iter()
+                    .map(Self::convert_pattern)
+                    .collect::<Result<Vec<_>>>()?;
+                let rest = mapping.rest.map(|id| id.to_string());
+                Ok(HirPattern::Mapping {
+                    keys,
+                    patterns,
+                    rest,
+                })
+            }
+            ast::Pattern::MatchClass(cls) => {
+                let cls_name = match *cls.cls {
+                    ast::Expr::Name(n) => n.id.to_string(),
+                    ast::Expr::Attribute(attr) => {
+                        let value = super::convert_expr(*attr.value)?;
+                        format!("{:?}.{}", value, attr.attr)
+                    }
+                    _ => bail!("Unsupported class expression in match pattern"),
+                };
+                let patterns = cls
+                    .patterns
+                    .into_iter()
+                    .map(Self::convert_pattern)
+                    .collect::<Result<Vec<_>>>()?;
+                let kwd_attrs = cls.kwd_attrs.iter().map(|id| id.to_string()).collect();
+                let kwd_patterns = cls
+                    .kwd_patterns
+                    .into_iter()
+                    .map(Self::convert_pattern)
+                    .collect::<Result<Vec<_>>>()?;
+                Ok(HirPattern::Class {
+                    cls: cls_name,
+                    patterns,
+                    kwd_attrs,
+                    kwd_patterns,
+                })
+            }
+            ast::Pattern::MatchStar(star) => {
+                let name = star.name.map(|id| id.to_string());
+                Ok(HirPattern::Star(name))
+            }
+            ast::Pattern::MatchAs(as_pat) => {
+                // Wildcard is represented as MatchAs with no pattern and no name
+                if as_pat.pattern.is_none() && as_pat.name.is_none() {
+                    return Ok(HirPattern::Wildcard);
+                }
+                let pattern = as_pat
+                    .pattern
+                    .map(|p| Self::convert_pattern(*p))
+                    .transpose()?
+                    .map(Box::new);
+                let name = as_pat.name.map(|id| id.to_string());
+                Ok(HirPattern::As { pattern, name })
+            }
+            ast::Pattern::MatchOr(or_pat) => {
+                let patterns = or_pat
+                    .patterns
+                    .into_iter()
+                    .map(Self::convert_pattern)
+                    .collect::<Result<Vec<_>>>()?;
+                Ok(HirPattern::Or(patterns))
+            }
+        }
     }
 }
 

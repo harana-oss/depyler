@@ -215,6 +215,11 @@ impl AstBridge {
                         }
                     }
                 }
+                ast::Stmt::TypeAlias(type_alias_stmt) => {
+                    if let Some(type_alias) = self.convert_type_alias_stmt(&type_alias_stmt)? {
+                        type_aliases.push(type_alias);
+                    }
+                }
                 _ => {
                     // Skip other statements for now
                 }
@@ -484,6 +489,27 @@ impl AstBridge {
         } else {
             Ok(None) // No value assigned
         }
+    }
+
+    fn convert_type_alias_stmt(
+        &self,
+        type_alias_stmt: &ast::StmtTypeAlias,
+    ) -> Result<Option<TypeAlias>> {
+        // Extract the name from the type alias statement
+        let name = match type_alias_stmt.name.as_ref() {
+            ast::Expr::Name(n) => n.id.as_str(),
+            _ => return Ok(None), // Complex names not supported yet
+        };
+
+        // Extract the target type from the value expression
+        let target_type = TypeExtractor::extract_type(&type_alias_stmt.value)?;
+
+        // Type alias statements are always simple aliases (not newtypes)
+        Ok(Some(TypeAlias {
+            name: name.to_string(),
+            target_type,
+            is_newtype: false,
+        }))
     }
 
     /// Try to convert a simple assignment to a module-level constant

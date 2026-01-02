@@ -376,6 +376,22 @@ impl CfgBuilder {
                 // but we might want to analyze their body separately
                 self.build_body(body);
             }
+            HirStmt::Match { subject, cases } => {
+                // Match creates a branch for each case
+                let after_block = self.cfg.new_block();
+                let _ = subject; // Subject is evaluated before branching
+
+                let start_block = self.current_block;
+                for case in cases {
+                    let case_block = self.cfg.new_block();
+                    self.cfg.add_edge(start_block, case_block);
+                    self.current_block = case_block;
+                    self.build_body(&case.body);
+                    self.cfg.add_edge(self.current_block, after_block);
+                }
+
+                self.current_block = after_block;
+            }
         }
     }
 

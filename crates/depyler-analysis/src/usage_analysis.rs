@@ -193,6 +193,16 @@ impl UsageAnalyzer {
             HirStmt::AsyncFunctionDef { body, .. } => {
                 self.analyze_stmts(body);
             }
+            // Match - analyze subject and all case bodies
+            HirStmt::Match { subject, cases } => {
+                self.analyze_expr(subject, UsageContext::ReadOnly);
+                for case in cases {
+                    if let Some(guard) = &case.guard {
+                        self.analyze_expr(guard, UsageContext::ReadOnly);
+                    }
+                    self.analyze_stmts(&case.body);
+                }
+            }
         }
     }
 

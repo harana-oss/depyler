@@ -493,6 +493,18 @@ impl LifetimeInference {
                     self.analyze_stmt_for_param(param, stmt, usage, in_loop);
                 }
             }
+            // Match - analyze subject and all case bodies
+            HirStmt::Match { subject, cases } => {
+                self.analyze_expr_for_param(param, subject, usage, in_loop, false);
+                for case in cases {
+                    if let Some(guard) = &case.guard {
+                        self.analyze_expr_for_param(param, guard, usage, in_loop, false);
+                    }
+                    for stmt in &case.body {
+                        self.analyze_stmt_for_param(param, stmt, usage, in_loop);
+                    }
+                }
+            }
         }
     }
 

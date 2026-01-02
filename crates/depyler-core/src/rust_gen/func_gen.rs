@@ -266,6 +266,15 @@ fn is_var_used_in_stmt(var_name: &str, stmt: &HirStmt) -> bool {
         HirStmt::AsyncFunctionDef { body, .. } => {
             body.iter().any(|s| is_var_used_in_stmt(var_name, s))
         }
+        HirStmt::Match { subject, cases } => {
+            is_var_used_in_expr(var_name, subject)
+                || cases.iter().any(|case| {
+                    case.guard
+                        .as_ref()
+                        .is_some_and(|g| is_var_used_in_expr(var_name, g))
+                        || case.body.iter().any(|s| is_var_used_in_stmt(var_name, s))
+                })
+        }
     }
 }
 

@@ -1764,7 +1764,9 @@ fn generate_import_tokens(
 }
 
 /// Infer type from a constant expression for type annotation generation
-fn infer_constant_type(expr: &HirExpr) -> Type {
+///
+/// This function now accepts a context to look up types of previously-defined constants.
+fn infer_constant_type(expr: &HirExpr, ctx: &CodeGenContext) -> Type {
     match expr {
         HirExpr::Literal(lit) => match lit {
             Literal::Int(_) => Type::Int,
@@ -1776,16 +1778,18 @@ fn infer_constant_type(expr: &HirExpr) -> Type {
             Literal::Ellipsis => Type::None,
             Literal::Complex(_, _) => Type::Custom("num::Complex<f64>".to_string()),
         },
+        // Look up variable types from context
+        HirExpr::Var(name) => ctx.var_types.get(name).cloned().unwrap_or(Type::Unknown),
         // Handle unary operations like -1 or +2
         HirExpr::Unary { op, operand } => {
             use crate::hir::UnaryOp;
             match op {
                 UnaryOp::Neg | UnaryOp::Pos => {
                     // Negation/positive preserves the numeric type
-                    infer_constant_type(operand)
+                    infer_constant_type(operand, ctx)
                 }
                 UnaryOp::Not => Type::Bool,
-                UnaryOp::BitNot => infer_constant_type(operand),
+                UnaryOp::BitNot => infer_constant_type(operand, ctx),
             }
         }
         // Handle binary operations - infer type from operands and operator
@@ -1811,8 +1815,8 @@ fn infer_constant_type(expr: &HirExpr) -> Type {
                 BinOp::And | BinOp::Or => Type::Bool,
                 // Arithmetic operators: if either operand is float, result is float
                 BinOp::Add | BinOp::Sub | BinOp::Mul | BinOp::Mod | BinOp::Pow => {
-                    let left_type = infer_constant_type(left);
-                    let right_type = infer_constant_type(right);
+                    let left_type = infer_constant_type(left, ctx);
+                    let right_type = infer_constant_type(right, ctx);
                     if matches!(left_type, Type::Float) || matches!(right_type, Type::Float) {
                         Type::Float
                     } else {
@@ -1821,10 +1825,18 @@ fn infer_constant_type(expr: &HirExpr) -> Type {
                 }
                 // Matrix multiplication - result type depends on operands
                 BinOp::MatMul => Type::Unknown,
-                // Bitwise operators produce int
-                BinOp::BitAnd | BinOp::BitOr | BinOp::BitXor | BinOp::LShift | BinOp::RShift => {
-                    Type::Int
+                // Bitwise operators (including set operations)
+                BinOp::BitAnd | BinOp::BitOr | BinOp::BitXor => {
+                    let left_type = infer_constant_type(left, ctx);
+                    let right_type = infer_constant_type(right, ctx);
+                    // Set operations: a | b (union), a & b (intersection), a ^ b (symmetric difference)
+                    if let (Type::Set(left_elem), Type::Set(_)) = (&left_type, &right_type) {
+                        Type::Set(left_elem.clone())
+                    } else {
+                        Type::Int
+                    }
                 }
+                BinOp::LShift | BinOp::RShift => Type::Int,
             }
         }
         // Handle type conversion function calls
@@ -1841,7 +1853,7 @@ fn infer_constant_type(expr: &HirExpr) -> Type {
             "min" | "max" | "abs" | "sum" => {
                 if args
                     .iter()
-                    .any(|arg| matches!(infer_constant_type(arg), Type::Float))
+                    .any(|arg| matches!(infer_constant_type(arg, ctx), Type::Float))
                 {
                     Type::Float
                 } else {
@@ -1854,18 +1866,18 @@ fn infer_constant_type(expr: &HirExpr) -> Type {
             if elems.is_empty() {
                 Type::List(Box::new(Type::Unknown))
             } else {
-                Type::List(Box::new(infer_constant_type(&elems[0])))
+                Type::List(Box::new(infer_constant_type(&elems[0], ctx)))
             }
         }
         HirExpr::Tuple(elems) => {
-            let elem_types: Vec<Type> = elems.iter().map(infer_constant_type).collect();
+            let elem_types: Vec<Type> = elems.iter().map(|e| infer_constant_type(e, ctx)).collect();
             Type::Tuple(elem_types)
         }
         HirExpr::Set(elems) => {
             if elems.is_empty() {
                 Type::Set(Box::new(Type::Unknown))
             } else {
-                Type::Set(Box::new(infer_constant_type(&elems[0])))
+                Type::Set(Box::new(infer_constant_type(&elems[0], ctx)))
             }
         }
         HirExpr::Dict(pairs) => {
@@ -1874,8 +1886,8 @@ fn infer_constant_type(expr: &HirExpr) -> Type {
             } else {
                 let (key, val) = &pairs[0];
                 Type::Dict(
-                    Box::new(infer_constant_type(key)),
-                    Box::new(infer_constant_type(val)),
+                    Box::new(infer_constant_type(key, ctx)),
+                    Box::new(infer_constant_type(val, ctx)),
                 )
             }
         }
@@ -1916,7 +1928,7 @@ fn generate_constant_tokens(
         let inferred_type = if let Some(ref ty) = constant.type_annotation {
             ty.clone()
         } else {
-            infer_constant_type(&constant.value)
+            infer_constant_type(&constant.value, ctx)
         };
 
         // Generate type annotation
@@ -1949,6 +1961,28 @@ fn generate_constant_tokens(
             lazy_static! {
                 #(#lazy_static_items)*
             }
+        });
+    }
+
+    Ok(items)
+}
+
+fn generate_type_alias_tokens(
+    type_aliases: &[TypeAlias],
+    ctx: &CodeGenContext,
+) -> Result<Vec<proc_macro2::TokenStream>> {
+    let mut items = Vec::new();
+
+    for type_alias in type_aliases {
+        let name_ident = syn::Ident::new(&type_alias.name, proc_macro2::Span::call_site());
+
+        // Map the target type to Rust
+        let rust_type = ctx.type_mapper.map_type(&type_alias.target_type);
+        let target_type_syn = type_gen::rust_type_to_syn(&rust_type)?;
+
+        // Generate the type alias
+        items.push(quote! {
+            pub type #name_ident = #target_type_syn;
         });
     }
 
@@ -2103,16 +2137,40 @@ pub fn generate_rust_file(
     analyze_validators(&mut ctx, &module.functions, &module.constants);
 
     // Add module-level constant types to var_types for type inference in expressions
-    // Also track which constants will use lazy_static (need dereferencing in expressions)
+    // Use a two-pass approach:
+    // 1. First pass: add constants with explicit type annotations or simple literals
+    // 2. Second pass: infer types for constants that reference other constants
+
+    // First pass: Add explicitly typed or simple literal constants
     for constant in &module.constants {
         let const_type = if let Some(ref ty) = constant.type_annotation {
             ty.clone()
         } else {
-            infer_constant_type(&constant.value)
+            // For the first pass, only infer simple types (literals, not expressions with variables)
+            match &constant.value {
+                HirExpr::Literal(_)
+                | HirExpr::List(_)
+                | HirExpr::Set(_)
+                | HirExpr::Dict(_)
+                | HirExpr::Tuple(_) => infer_constant_type(&constant.value, &ctx),
+                _ => continue, // Skip complex expressions for now
+            }
         };
         ctx.var_types
             .insert(constant.name.clone(), const_type.clone());
+        if requires_lazy_static(&const_type) {
+            ctx.lazy_static_constants.insert(constant.name.clone());
+        }
+    }
 
+    // Second pass: Infer types for constants with expressions (now that var_types is populated)
+    for constant in &module.constants {
+        if ctx.var_types.contains_key(&constant.name) {
+            continue; // Already processed in first pass
+        }
+        let const_type = infer_constant_type(&constant.value, &ctx);
+        ctx.var_types
+            .insert(constant.name.clone(), const_type.clone());
         // Track lazy_static constants so expressions can dereference them
         if requires_lazy_static(&const_type) {
             ctx.lazy_static_constants.insert(constant.name.clone());
@@ -2211,6 +2269,9 @@ pub fn generate_rust_file(
 
     // Add module-level constants
     items.extend(generate_constant_tokens(&module.constants, &mut ctx)?);
+
+    // Add type aliases
+    items.extend(generate_type_alias_tokens(&module.type_aliases, &ctx)?);
 
     // Add collection imports if needed
     items.extend(generate_conditional_imports(&ctx));

@@ -480,6 +480,18 @@ impl BorrowingContext {
                     self.analyze_statement(stmt);
                 }
             }
+            // Match - analyze subject and all case bodies
+            HirStmt::Match { subject, cases } => {
+                self.analyze_expression(subject, 0);
+                for case in cases {
+                    if let Some(guard) = &case.guard {
+                        self.analyze_expression(guard, 0);
+                    }
+                    for stmt in &case.body {
+                        self.analyze_statement(stmt);
+                    }
+                }
+            }
         }
     }
 

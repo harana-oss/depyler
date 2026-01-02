@@ -98,7 +98,9 @@ fn types_compatible(t1: &Type, t2: &Type) -> bool {
         (Type::Bool, Type::Bool) => true,
         (Type::None, Type::None) => true,
         (Type::List(e1), Type::List(e2)) => types_compatible(e1, e2),
-        (Type::Dict(k1, v1), Type::Dict(k2, v2)) => types_compatible(k1, k2) && types_compatible(v1, v2),
+        (Type::Dict(k1, v1), Type::Dict(k2, v2)) => {
+            types_compatible(k1, k2) && types_compatible(v1, v2)
+        }
         (Type::Tuple(ts1), Type::Tuple(ts2)) => {
             ts1.len() == ts2.len() && ts1.iter().zip(ts2).all(|(t1, t2)| types_compatible(t1, t2))
         }
@@ -109,7 +111,16 @@ fn types_compatible(t1: &Type, t2: &Type) -> bool {
         // None is compatible with any type (forms Optional)
         (Type::None, _) | (_, Type::None) => true,
         (Type::Custom(n1), Type::Custom(n2)) => n1 == n2,
-        (Type::Function { params: p1, ret: r1 }, Type::Function { params: p2, ret: r2 }) => {
+        (
+            Type::Function {
+                params: p1,
+                ret: r1,
+            },
+            Type::Function {
+                params: p2,
+                ret: r2,
+            },
+        ) => {
             p1.len() == p2.len()
                 && p1.iter().zip(p2).all(|(t1, t2)| types_compatible(t1, t2))
                 && types_compatible(r1, r2)
@@ -127,11 +138,16 @@ fn join_types(t1: &Type, t2: &Type) -> Type {
         (Type::Dict(k1, v1), Type::Dict(k2, v2)) => {
             Type::Dict(Box::new(join_types(k1, k2)), Box::new(join_types(v1, v2)))
         }
-        (Type::Tuple(ts1), Type::Tuple(ts2)) if ts1.len() == ts2.len() => {
-            Type::Tuple(ts1.iter().zip(ts2).map(|(t1, t2)| join_types(t1, t2)).collect())
-        }
+        (Type::Tuple(ts1), Type::Tuple(ts2)) if ts1.len() == ts2.len() => Type::Tuple(
+            ts1.iter()
+                .zip(ts2)
+                .map(|(t1, t2)| join_types(t1, t2))
+                .collect(),
+        ),
         (Type::Set(e1), Type::Set(e2)) => Type::Set(Box::new(join_types(e1, e2))),
-        (Type::Optional(inner1), Type::Optional(inner2)) => Type::Optional(Box::new(join_types(inner1, inner2))),
+        (Type::Optional(inner1), Type::Optional(inner2)) => {
+            Type::Optional(Box::new(join_types(inner1, inner2)))
+        }
         (Type::Optional(inner), other) => Type::Optional(Box::new(join_types(inner, other))),
         (other, Type::Optional(inner)) => Type::Optional(Box::new(join_types(other, inner))),
         (Type::None, t) | (t, Type::None) => Type::Optional(Box::new(t.clone())),
@@ -145,7 +161,9 @@ fn meet_types(t1: &Type, t2: &Type) -> Type {
         (Type::Unknown, t) | (t, Type::Unknown) => t.clone(),
         (Type::Int, Type::Float) | (Type::Float, Type::Int) => Type::Int,
         (Type::List(e1), Type::List(e2)) => Type::List(Box::new(meet_types(e1, e2))),
-        (Type::Optional(inner1), Type::Optional(inner2)) => Type::Optional(Box::new(meet_types(inner1, inner2))),
+        (Type::Optional(inner1), Type::Optional(inner2)) => {
+            Type::Optional(Box::new(meet_types(inner1, inner2)))
+        }
         (Type::Optional(inner), other) => meet_types(inner, other),
         (other, Type::Optional(inner)) => meet_types(other, inner),
         _ => t1.clone(),
@@ -172,7 +190,9 @@ pub struct TypeState {
 
 impl TypeState {
     pub fn new() -> Self {
-        Self { vars: HashMap::new() }
+        Self {
+            vars: HashMap::new(),
+        }
     }
 
     /// Create a bottom state (all variables undefined)
@@ -204,7 +224,8 @@ impl TypeState {
         let mut result = TypeState::new();
 
         // Join all variables from both states
-        let all_vars: std::collections::HashSet<_> = self.vars.keys().chain(other.vars.keys()).collect();
+        let all_vars: std::collections::HashSet<_> =
+            self.vars.keys().chain(other.vars.keys()).collect();
 
         for var in all_vars {
             let t1 = self.get(var);
@@ -293,13 +314,25 @@ impl TypeLattice {
             // Matrix multiplication - result depends on operand types
             BinOp::MatMul => Type::Unknown,
             // Comparison - always bool (include identity checks)
-            BinOp::Eq | BinOp::NotEq | BinOp::Lt | BinOp::LtEq | BinOp::Gt | BinOp::GtEq | BinOp::Is | BinOp::IsNot => {
-                Type::Bool
-            }
+            BinOp::Eq
+            | BinOp::NotEq
+            | BinOp::Lt
+            | BinOp::LtEq
+            | BinOp::Gt
+            | BinOp::GtEq
+            | BinOp::Is
+            | BinOp::IsNot => Type::Bool,
             // Logical - always bool
             BinOp::And | BinOp::Or => Type::Bool,
-            // Bitwise - int only
-            BinOp::BitAnd | BinOp::BitOr | BinOp::BitXor | BinOp::LShift | BinOp::RShift => Type::Int,
+            // Bitwise operators (including set operations)
+            BinOp::BitAnd | BinOp::BitOr | BinOp::BitXor => match (left, right) {
+                // Set operations: a | b (union), a & b (intersection), a ^ b (symmetric difference)
+                (Type::Set(left_elem), Type::Set(_)) => Type::Set(left_elem.clone()),
+                // Integer bitwise operations
+                (Type::Int, Type::Int) => Type::Int,
+                _ => Type::Unknown,
+            },
+            BinOp::LShift | BinOp::RShift => Type::Int,
             // Membership - always bool
             BinOp::In | BinOp::NotIn => Type::Bool,
         }

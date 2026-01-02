@@ -239,6 +239,16 @@ impl TypeInferencer {
             HirStmt::AsyncFunctionDef { body, .. } => {
                 self.infer_body(body)?;
             }
+            // Match - analyze subject and all case bodies
+            HirStmt::Match { subject, cases } => {
+                self.infer_expr(subject)?;
+                for case in cases {
+                    if let Some(guard) = &case.guard {
+                        self.infer_expr(guard)?;
+                    }
+                    self.infer_body(&case.body)?;
+                }
+            }
         }
         Ok(())
     }
@@ -370,8 +380,20 @@ impl TypeInferencer {
             }
             // Logical operators
             BinOp::And | BinOp::Or => Type::Bool,
-            // Bitwise operators
-            BinOp::BitAnd | BinOp::BitOr | BinOp::BitXor | BinOp::LShift | BinOp::RShift => {
+            // Bitwise operators (including set operations)
+            BinOp::BitAnd | BinOp::BitOr | BinOp::BitXor => {
+                // Set operations: a | b (union), a & b (intersection), a ^ b (symmetric difference)
+                if let (Type::Set(left_elem), Type::Set(right_elem)) = (left, right) {
+                    // For now, return the left set type. In a more sophisticated system,
+                    // we could unify left_elem and right_elem types
+                    Type::Set(left_elem.clone())
+                } else if matches!(left, Type::Int) && matches!(right, Type::Int) {
+                    Type::Int
+                } else {
+                    Type::Unknown
+                }
+            }
+            BinOp::LShift | BinOp::RShift => {
                 if matches!(left, Type::Int) && matches!(right, Type::Int) {
                     Type::Int
                 } else {

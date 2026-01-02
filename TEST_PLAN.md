@@ -113,7 +113,16 @@ Each issue is categorized as:
 #### 3.1 Incorrect Type Annotations for Set Operations
 - **Files Affected**: set-operations.toml
 - **Issue**: Set operations returning wrong types (e.g., `i32` instead of `HashSet`)
-- **Classification**: **🔧 TRANSPILER** - Type inference bug. Set union/intersection should return `HashSet<T>`.
+- **Classification**: ~~**🔧 TRANSPILER**~~ **✅ FIXED (2026-01-02)** - Type inference bug fixed.
+- **Status**: ✅ FIXED - Set union/intersection/difference now correctly infer `HashSet<T>` type.
+- **Solution**: Updated type inference in three places:
+  1. `depyler-analysis/src/metrics/type_flow.rs` - `infer_binary_op` function now handles Set types for BitOr/BitAnd/BitXor
+  2. `depyler-core/src/dataflow/lattice.rs` - `binary_op_type` function now returns Set types for set operations
+  3. `depyler-core/src/rust_gen.rs` - `infer_constant_type` function now:
+     - Accepts CodeGenContext to look up variable types
+     - Uses two-pass approach for constant type inference
+     - Correctly infers Set types from binary operations on Set variables
+- **Note**: Test expectations in set-operations.toml need updating - they expect `pub const result: serde_json::Value` but transpiler correctly generates `pub static ref result: HashSet<i32>` (using lazy_static for heap-allocated types).
 
 #### 3.2 Unnecessary `.clone()` Calls
 - **Files Affected**: set-operations.toml
@@ -170,7 +179,14 @@ Each issue is categorized as:
 #### 8.1 Missing Type Alias Declarations
 - **Files Affected**: type-alias-statement.toml
 - **Issue**: Missing `type Point = (i32, i32);` declaration
-- **Classification**: **🔧 TRANSPILER** - Python 3.12+ `type` statement should generate Rust `type` alias.
+- **Classification**: ~~**🔧 TRANSPILER**~~ **✅ FIXED (2026-01-02)** - Python 3.12+ `type` statement now generates Rust `type` alias.
+- **Status**: ✅ FIXED - Type alias statements are now correctly transpiled.
+- **Solution**: 
+  - Added handler for `ast::Stmt::TypeAlias` in `ast_bridge.rs::convert_module()`
+  - Implemented `convert_type_alias_stmt()` function to convert Python type alias statements to HIR `TypeAlias`
+  - Created `generate_type_alias_tokens()` in `rust_gen.rs` to generate Rust `pub type` declarations
+  - Type aliases are now emitted in the generated Rust code
+- **Note**: Test expectations may need updating - they expect `let result:` but transpiler correctly generates `pub const result:` for module-level constants.
 
 ### 9. **Type Guard Issues**
 
@@ -242,9 +258,9 @@ Each issue is categorized as:
 
 ## Summary: Fix Classification
 
-### 🔧 TRANSPILER Fixes Required (10 issues)
+### 🔧 TRANSPILER Fixes Required (9 issues - 1 fixed)
 1. ~~Extra semicolons after functions (2.2)~~ → Reclassified as 📝 TEST (transpiler is correct)
-2. Set operation type inference (3.1)
+2. ~~Set operation type inference (3.1)~~ → ✅ FIXED (2026-01-02)
 3. HashMap dict.get() translation (4.1)
 4. Missing HashMap import (4.3)
 5. ~~Spurious QuickCheck generation (5.1)~~ → ✅ NOT A BUG (verified 2026-01-02)
@@ -282,7 +298,7 @@ Each issue is categorized as:
 ### High Priority (Transpiler bugs blocking correctness)
 1. ~~**🔧** Extra semicolons after functions~~ → ✅ NOT A BUG (test expectations were wrong)
 2. ~~**🔧** Spurious QuickCheck generation~~ → ✅ NOT A BUG (verified not occurring)
-3. **🔧** Set operation type inference
+3. ~~**🔧** Set operation type inference~~ → ✅ FIXED (2026-01-02)
 4. **🔧** Ternary type coercion
 5. **🔧** TypeGuard return type
 
@@ -308,19 +324,35 @@ Each issue is categorized as:
 - ✅ Reclassified issue 2.2 from 🔧 TRANSPILER to 📝 TEST - test expectations had invalid syntax
 - ✅ Fixed `};\n}` pattern across 65 TOML test files using Perl find-and-replace
 - 📊 Test results improved: **1306 passed → 1462 passed** (+156 tests, 3358 → 3202 failed)
+- ✅ **Fixed set operation type inference (Issue 3.1)**:
+  - Updated `depyler-analysis/src/metrics/type_flow.rs::infer_binary_op()` to handle Set types for BitOr/BitAnd/BitXor operators
+  - Updated `depyler-core/src/dataflow/lattice.rs::binary_op_type()` to return Set types for set operations  
+  - Updated `depyler-core/src/rust_gen.rs::infer_constant_type()` to:
+    - Accept CodeGenContext parameter to look up variable types
+    - Implement two-pass approach for module-level constant type inference
+    - Correctly infer Set types from binary operations on Set variables
+  - **Result**: Set operations now correctly infer `HashSet<T>` instead of `i32`
+  - Example: `result = a | b` where `a` and `b` are `HashSet<i32>` now generates `pub static ref result: HashSet<i32>` instead of `pub const result: i32`
+- ✅ **Fixed type alias statement generation (Issue 8.1)**:
+  - Added handler for `ast::Stmt::TypeAlias` in `depyler-core/src/ast_bridge.rs::convert_module()`
+  - Implemented `convert_type_alias_stmt()` function to extract name and target type from Python 3.12+ `type` statements
+  - Created `generate_type_alias_tokens()` in `depyler-core/src/rust_gen.rs` to emit Rust `pub type` declarations
+  - **Result**: Python `type Point = tuple[int, int]` now correctly generates `pub type Point = (i32, i32);`
+  - Example test output shows type alias is now present in generated code
 
 ### Remaining Work
 
 #### Transpiler Fixes Needed
 The following are confirmed transpiler bugs that need code changes:
-1. **Set operation type inference (3.1)** - Set union/intersection returns `i32` instead of `HashSet<T>`
+1. ~~**Set operation type inference (3.1)**~~ - ✅ FIXED (2026-01-02)
 2. **HashMap dict.get() translation (4.1)** - Not mapping to Rust idiom properly
 3. **TypeVar handling (5.2)** - Generated as runtime constant instead of Rust generic
-4. **Type alias statement (8.1)** - Python 3.12+ `type` statement not generating Rust `type` alias
+4. ~~**Type alias statement (8.1)**~~ - ✅ FIXED (2026-01-02)
 5. **TypeGuard return type (9.2)** - Should map to `bool`, not `TypeGuard<T>`
 6. **Ternary type coercion (10.2)** - Mismatched branch types not being unified
 7. **Unpacking translation (11.1)** - Tuple/list unpacking incomplete
 8. **Walrus operator (12.1)** - `:=` operator needs implementation
+9. **unicodedata module (14.1)** - Needs mapping to unicode-normalization crate
 9. **unicodedata module (14.1)** - Needs mapping to unicode-normalization crate
 
 #### Test Expectation Updates Needed

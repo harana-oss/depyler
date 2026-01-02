@@ -2339,6 +2339,234 @@ fn convert_stmt_with_context(
             // Async nested functions handled by the main rust_gen module
             Ok(syn::Stmt::Expr(parse_quote! { {} }, None))
         }
+        HirStmt::Match { subject, cases } => {
+            let subject_expr = convert_expr_with_context(subject, type_mapper, is_classmethod)?;
+            let arms: Vec<syn::Arm> = cases
+                .iter()
+                .filter_map(|case| {
+                    let pattern = convert_pattern_to_syn(&case.pattern).ok()?;
+                    let body = convert_block_with_context(&case.body, type_mapper, is_classmethod)
+                        .ok()?;
+                    let guard = case
+                        .guard
+                        .as_ref()
+                        .and_then(|g| convert_expr_with_context(g, type_mapper, is_classmethod).ok());
+                    Some(syn::Arm {
+                        attrs: vec![],
+                        pat: pattern,
+                        guard: guard.map(|g| (Default::default(), Box::new(g))),
+                        fat_arrow_token: Default::default(),
+                        body: Box::new(syn::Expr::Block(syn::ExprBlock {
+                            attrs: vec![],
+                            label: None,
+                            block: body,
+                        })),
+                        comma: Some(Default::default()),
+                    })
+                })
+                .collect();
+            Ok(syn::Stmt::Expr(
+                syn::Expr::Match(syn::ExprMatch {
+                    attrs: vec![],
+                    match_token: Default::default(),
+                    expr: Box::new(subject_expr),
+                    brace_token: Default::default(),
+                    arms,
+                }),
+                Some(Default::default()),
+            ))
+        }
+    }
+}
+
+fn convert_pattern_to_syn(pattern: &HirPattern) -> Result<syn::Pat> {
+    match pattern {
+        HirPattern::Value(expr) => match expr {
+            HirExpr::Literal(lit) => match lit {
+                Literal::Int(i) => {
+                    let lit_int = syn::LitInt::new(&i.to_string(), proc_macro2::Span::call_site());
+                    Ok(syn::Pat::Lit(syn::ExprLit {
+                        attrs: vec![],
+                        lit: syn::Lit::Int(lit_int),
+                    }))
+                }
+                Literal::String(s) => {
+                    let lit_str = syn::LitStr::new(s, proc_macro2::Span::call_site());
+                    Ok(syn::Pat::Lit(syn::ExprLit {
+                        attrs: vec![],
+                        lit: syn::Lit::Str(lit_str),
+                    }))
+                }
+                Literal::Bool(b) => {
+                    let lit_bool = syn::LitBool::new(*b, proc_macro2::Span::call_site());
+                    Ok(syn::Pat::Lit(syn::ExprLit {
+                        attrs: vec![],
+                        lit: syn::Lit::Bool(lit_bool),
+                    }))
+                }
+                Literal::None => Ok(parse_quote! { None }),
+                _ => bail!("Unsupported literal type in pattern"),
+            },
+            HirExpr::Var(name) => {
+                let ident = syn::Ident::new(name, proc_macro2::Span::call_site());
+                Ok(syn::Pat::Ident(syn::PatIdent {
+                    attrs: vec![],
+                    by_ref: None,
+                    mutability: None,
+                    ident,
+                    subpat: None,
+                }))
+            }
+            _ => bail!("Unsupported expression type in pattern"),
+        },
+        HirPattern::Singleton(lit) => match lit {
+            Literal::None => Ok(parse_quote! { None }),
+            Literal::Bool(true) => Ok(parse_quote! { true }),
+            Literal::Bool(false) => Ok(parse_quote! { false }),
+            _ => bail!("Unsupported singleton in pattern"),
+        },
+        HirPattern::Wildcard => Ok(syn::Pat::Wild(syn::PatWild {
+            attrs: vec![],
+            underscore_token: Default::default(),
+        })),
+        HirPattern::Or(patterns) => {
+            let inner: Vec<syn::Pat> = patterns
+                .iter()
+                .map(convert_pattern_to_syn)
+                .collect::<Result<Vec<_>>>()?;
+            if inner.is_empty() {
+                bail!("Empty or pattern")
+            }
+            let mut result = inner.into_iter();
+            let first = result.next().unwrap();
+            Ok(result.fold(first, |acc, pat| {
+                syn::Pat::Or(syn::PatOr {
+                    attrs: vec![],
+                    leading_vert: None,
+                    cases: syn::punctuated::Punctuated::from_iter(vec![acc, pat]),
+                })
+            }))
+        }
+        HirPattern::As { pattern, name } => match (pattern, name) {
+            (Some(inner), Some(n)) => {
+                let inner_pat = convert_pattern_to_syn(inner)?;
+                let ident = syn::Ident::new(n, proc_macro2::Span::call_site());
+                Ok(syn::Pat::Ident(syn::PatIdent {
+                    attrs: vec![],
+                    by_ref: None,
+                    mutability: None,
+                    ident,
+                    subpat: Some((Default::default(), Box::new(inner_pat))),
+                }))
+            }
+            (None, Some(n)) => {
+                let ident = syn::Ident::new(n, proc_macro2::Span::call_site());
+                Ok(syn::Pat::Ident(syn::PatIdent {
+                    attrs: vec![],
+                    by_ref: None,
+                    mutability: None,
+                    ident,
+                    subpat: None,
+                }))
+            }
+            (Some(inner), None) => convert_pattern_to_syn(inner),
+            (None, None) => Ok(syn::Pat::Wild(syn::PatWild {
+                attrs: vec![],
+                underscore_token: Default::default(),
+            })),
+        },
+        HirPattern::Sequence(patterns) => {
+            let inner: Vec<syn::Pat> = patterns
+                .iter()
+                .map(convert_pattern_to_syn)
+                .collect::<Result<Vec<_>>>()?;
+            Ok(syn::Pat::Slice(syn::PatSlice {
+                attrs: vec![],
+                bracket_token: Default::default(),
+                elems: syn::punctuated::Punctuated::from_iter(inner),
+            }))
+        }
+        HirPattern::Class {
+            cls,
+            patterns,
+            kwd_attrs,
+            kwd_patterns,
+        } => {
+            let cls_path: syn::Path = syn::parse_str(cls)?;
+            if patterns.is_empty() && kwd_attrs.is_empty() {
+                Ok(syn::Pat::Struct(syn::PatStruct {
+                    attrs: vec![],
+                    qself: None,
+                    path: cls_path,
+                    brace_token: Default::default(),
+                    fields: Default::default(),
+                    rest: Some(syn::PatRest {
+                        attrs: vec![],
+                        dot2_token: Default::default(),
+                    }),
+                }))
+            } else if !kwd_attrs.is_empty() {
+                let fields: syn::punctuated::Punctuated<syn::FieldPat, syn::token::Comma> =
+                    kwd_attrs
+                        .iter()
+                        .zip(kwd_patterns.iter())
+                        .map(|(attr, pat)| {
+                            let member = syn::Member::Named(syn::Ident::new(
+                                attr,
+                                proc_macro2::Span::call_site(),
+                            ));
+                            let pat = convert_pattern_to_syn(pat)?;
+                            Ok(syn::FieldPat {
+                                attrs: vec![],
+                                member,
+                                colon_token: Some(Default::default()),
+                                pat: Box::new(pat),
+                            })
+                        })
+                        .collect::<Result<_>>()?;
+                Ok(syn::Pat::Struct(syn::PatStruct {
+                    attrs: vec![],
+                    qself: None,
+                    path: cls_path,
+                    brace_token: Default::default(),
+                    fields,
+                    rest: Some(syn::PatRest {
+                        attrs: vec![],
+                        dot2_token: Default::default(),
+                    }),
+                }))
+            } else {
+                let elems: syn::punctuated::Punctuated<syn::Pat, syn::token::Comma> = patterns
+                    .iter()
+                    .map(convert_pattern_to_syn)
+                    .collect::<Result<_>>()?;
+                Ok(syn::Pat::TupleStruct(syn::PatTupleStruct {
+                    attrs: vec![],
+                    qself: None,
+                    path: cls_path,
+                    paren_token: Default::default(),
+                    elems,
+                }))
+            }
+        }
+        HirPattern::Mapping { .. } => bail!("Map pattern matching not supported in Rust"),
+        HirPattern::Star(name) => {
+            if let Some(n) = name {
+                let ident = syn::Ident::new(n, proc_macro2::Span::call_site());
+                Ok(syn::Pat::Ident(syn::PatIdent {
+                    attrs: vec![],
+                    by_ref: None,
+                    mutability: None,
+                    ident,
+                    subpat: None,
+                }))
+            } else {
+                Ok(syn::Pat::Rest(syn::PatRest {
+                    attrs: vec![],
+                    dot2_token: Default::default(),
+                }))
+            }
+        }
     }
 }
 
