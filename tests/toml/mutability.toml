@@ -24,7 +24,6 @@ pub fn counter() -> i32 {
     x = 1;
     x = 2;
     return x;
-};
 }
 '''
 
@@ -42,7 +41,6 @@ rust = '''
 pub fn constant() -> i32 {
     let x = 42;
     return x;
-};
 }
 '''
 
@@ -65,7 +63,6 @@ pub fn accumulate(items: &Vec<i32>) -> i32 {
         total = total + item;
     }
     return total;
-};
 }
 '''
 
@@ -163,7 +160,6 @@ def sum_list(items: list[int]) -> int:
 rust = '''
 pub fn sum_list(items: Vec<i32>) -> i32 {
     return items.iter().sum::<i32>();
-};
 }
 '''
 
@@ -198,7 +194,6 @@ pub fn sorted_copy(items: Vec<i32>) -> Vec<i32> {
         __sorted_result.sort();
         __sorted_result
     };
-};
             let result = sorted_copy(&items);
             for i in 1..result.len() {
                 if result[i - 1] > result[i] {
@@ -231,7 +226,6 @@ def copy_list(items: list[int]) -> list[int]:
 rust = '''
 pub fn copy_list(items: Vec<i32>) -> Vec<i32> {
     return items.into_iter().collect::<Vec<_>>();
-};
 }
 '''
 
@@ -274,7 +268,6 @@ pub fn double_items(items: &Vec<i32>) -> Vec<i32> {
         result.push(doubled);
     }
     return result;
-};
 }
 '''
 
@@ -695,7 +688,6 @@ pub fn gcd(mut a: i32, mut b: i32) -> i32 {
         b = temp;
     }
     return a;
-};
 }
 '''
 
@@ -779,7 +771,6 @@ pub fn count_up(limit: i32) -> i32 {
         counter = counter + 1;
     }
     return counter;
-};
 }
 '''
 

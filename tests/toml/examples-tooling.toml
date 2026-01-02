@@ -578,7 +578,6 @@ pub fn main() {
         "{}",
         format!("Max of {:?} = {:?}", numbers, find_max(&numbers))
     );
-};
 }
 '''
 
@@ -1976,7 +1975,6 @@ pub fn while_true_example() -> i32 {
         }
     }
     count
-};
 }
 '''
 
@@ -2164,7 +2162,6 @@ pub fn loop_invariant_expressions(items: &Vec<serde_json::Value>) -> i32 {
         total = total + item + x + y * 2;
     }
     total
-};
 }
 '''
 
@@ -2362,7 +2359,6 @@ pub fn test_functions() -> Result<(), Box<dyn std::error::Error>> {
     let test_array = vec![1, 3, 5, 7, 9, 11, 13, 15, 17, 19];
     let index = binary_search(&test_array, 7)?;
     log::info!("{}", format!("Index of 7: {:?}", index));
-};
 }
 '''
 
@@ -2459,7 +2455,6 @@ pub fn process_data(data: Vec<i32>) -> HashMap<String, i32> {
         map
     };
     result
-};
 }
 '''
 
@@ -2597,7 +2592,6 @@ pub fn process_data(items: Vec<i32>) -> Result<HashMap<String, i32>, IndexError>
         }
     }
     Ok(stats)
-};
 }
 '''
 
@@ -2773,7 +2767,6 @@ pub fn large_function(x: i32, y: i32, z: i32) -> i32 {
     let _cse_temp_6 = m + n + o;
     let result = _cse_temp_6;
     result
-};
 }
 '''
 
@@ -2927,7 +2920,6 @@ pub fn lookup_values<'b, 'a>(data: &'a HashMap<String, i32>, keys: &'b Vec<Strin
         }
     }
     results
-};
 }
 '''
 
@@ -3288,7 +3280,6 @@ pub fn simple_math() -> Result<f64, ZeroDivisionError> {
     let _cse_temp_1 = (c as f64) / (2.0 as f64);
     let d = _cse_temp_1;
     Ok(d)
-};
 }
 '''
 

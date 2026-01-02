@@ -23,8 +23,7 @@ pub fn generate_uuid1() -> String {
     return {
         use uuid::Uuid;
         Uuid::new_v4().to_string()
-    };
-}
+    }
 '''
 
 [[test]]
@@ -44,8 +43,7 @@ pub fn generate_uuid4() -> String {
     return {
         use uuid::Uuid;
         Uuid::new_v4().to_string()
-    };
-}
+    }
 '''
 
 # =============================================================================
@@ -264,8 +262,7 @@ pub fn calculate_mean(data: &Vec<f64>) -> f64 {
     return {
         let data = data;
         data.iter().map(|&x| x as f64).sum::<f64>() / data.len() as f64
-    };
-}
+    }
 '''
 
 [[test]]
@@ -292,8 +289,7 @@ pub fn calculate_median(data: &Vec<f64>) -> f64 {
         } else {
             sorted[len / 2] as f64
         }
-    };
-}
+    }
 '''
 
 [[test]]
@@ -318,7 +314,6 @@ pub fn calculate_mode(data: &Vec<i32>) -> i32 {
         }
         *counts.iter().max_by_key(|(_, &count)| count).unwrap().0
     };
-};
 }
 '''
 
@@ -348,8 +343,7 @@ pub fn calculate_stdev(data: &Vec<f64>) -> f64 {
             .sum();
         let variance = sum_sq_diff / ((data.len() - 1) as f64);
         variance.sqrt()
-    };
-}
+    }
 '''
 
 [[test]]
@@ -377,8 +371,7 @@ pub fn calculate_variance(data: &Vec<f64>) -> f64 {
             })
             .sum();
         sum_sq_diff / ((data.len() - 1) as f64)
-    };
-}
+    }
 '''
 
 [[test]]
@@ -402,7 +395,6 @@ pub fn test_shallow_copy() -> i32 {
     let mut copied = (original.clone()).clone();
     copied.push(4);
     return original.len() as i32 as i32;
-};
 }
 '''
 
@@ -433,7 +425,6 @@ pub fn test_dict_copy() -> i32 {
     let mut copied = (original.clone()).clone();
     copied.insert("c".to_string(), 3);
     return original.len() as i32 as i32;
-};
 }
 '''
 
@@ -476,6 +467,5 @@ pub fn test_deep_copy() -> i32 {
     let mut copied = (original.clone()).clone();
     copied.get(0usize).cloned().unwrap().push(5);
     return original.get(0usize).cloned().unwrap().len() as i32 as i32;
-};
 }
 '''

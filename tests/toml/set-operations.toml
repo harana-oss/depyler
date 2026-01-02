@@ -22,8 +22,7 @@ lazy_static! {
         set.insert(2);
         set.insert(3);
         set
-    };
-}
+    }
 use lazy_static::lazy_static;
 use std::collections::HashSet;
 '''
@@ -63,8 +62,7 @@ lazy_static! {
     pub static ref empty_dict: HashMap<serde_json::Value, serde_json::Value> = {
         let map = HashMap::new();
         map
-    };
-}
+    }
 use lazy_static::lazy_static;
 use serde_json;
 use std::collections::HashMap;
@@ -119,8 +117,7 @@ lazy_static! {
         set.insert(4);
         set.insert(5);
         set
-    };
-}
+    }
 use lazy_static::lazy_static;
 use serde_json;
 use std::collections::HashSet;
@@ -156,8 +153,7 @@ lazy_static! {
         set.insert(3);
         set.insert(4);
         set
-    };
-}
+    }
 use lazy_static::lazy_static;
 use serde_json;
 use std::collections::HashSet;
@@ -193,8 +189,7 @@ lazy_static! {
         set.insert(3);
         set.insert(4);
         set
-    };
-}
+    }
 use lazy_static::lazy_static;
 use serde_json;
 use std::collections::HashSet;
@@ -230,8 +225,7 @@ lazy_static! {
         set.insert(4);
         set.insert(5);
         set
-    };
-}
+    }
 use lazy_static::lazy_static;
 use serde_json;
 use std::collections::HashSet;
@@ -271,8 +265,7 @@ lazy_static! {
         set.insert(4);
         set.insert(5);
         set
-    };
-}
+    }
 use lazy_static::lazy_static;
 use serde_json;
 use std::collections::HashSet;
@@ -308,8 +301,7 @@ lazy_static! {
         set.insert(3);
         set.insert(4);
         set
-    };
-}
+    }
 use lazy_static::lazy_static;
 use serde_json;
 use std::collections::HashSet;
@@ -345,8 +337,7 @@ lazy_static! {
         set.insert(3);
         set.insert(4);
         set
-    };
-}
+    }
 use lazy_static::lazy_static;
 use serde_json;
 use std::collections::HashSet;
@@ -382,8 +373,7 @@ lazy_static! {
         set.insert(4);
         set.insert(5);
         set
-    };
-}
+    }
 use lazy_static::lazy_static;
 use serde_json;
 use std::collections::HashSet;
@@ -418,8 +408,7 @@ lazy_static! {
         set.insert(2);
         set.insert(3);
         set
-    };
-}
+    }
 use lazy_static::lazy_static;
 use serde_json;
 use std::collections::HashSet;
@@ -450,8 +439,7 @@ lazy_static! {
         set.insert(2);
         set.insert(3);
         set
-    };
-}
+    }
 use lazy_static::lazy_static;
 use serde_json;
 use std::collections::HashSet;
@@ -482,8 +470,7 @@ lazy_static! {
         set.insert(1);
         set.insert(2);
         set
-    };
-}
+    }
 use lazy_static::lazy_static;
 use serde_json;
 use std::collections::HashSet;
@@ -513,8 +500,7 @@ lazy_static! {
         set.insert(3);
         set.insert(4);
         set
-    };
-}
+    }
 use lazy_static::lazy_static;
 use serde_json;
 use std::collections::HashSet;
@@ -542,8 +528,7 @@ lazy_static! {
         set.insert(1);
         set.insert(2);
         set
-    };
-}
+    }
 use lazy_static::lazy_static;
 use serde_json;
 use std::collections::HashSet;
@@ -568,8 +553,7 @@ lazy_static! {
         set.insert(2);
         set.insert(3);
         set
-    };
-}
+    }
 use lazy_static::lazy_static;
 use serde_json;
 use std::collections::HashSet;
@@ -595,8 +579,7 @@ lazy_static! {
         set.insert(2);
         set.insert(3);
         set
-    };
-}
+    }
 use lazy_static::lazy_static;
 use serde_json;
 use std::collections::HashSet;
@@ -629,8 +612,7 @@ lazy_static! {
         let mut set = HashSet::new();
         set.insert(1);
         set
-    };
-}
+    }
 use lazy_static::lazy_static;
 use serde_json;
 use std::collections::HashSet;
@@ -655,8 +637,7 @@ lazy_static! {
         set.insert(2);
         set.insert(3);
         set
-    };
-}
+    }
 use lazy_static::lazy_static;
 use serde_json;
 use std::collections::HashSet;
@@ -684,8 +665,7 @@ lazy_static! {
         set.insert(1);
         set.insert(2);
         set
-    };
-}
+    }
 use lazy_static::lazy_static;
 use serde_json;
 use std::collections::HashSet;
@@ -710,8 +690,7 @@ lazy_static! {
         set.insert(2);
         set.insert(3);
         set
-    };
-}
+    }
 use lazy_static::lazy_static;
 use serde_json;
 use std::collections::HashSet;
@@ -736,8 +715,7 @@ lazy_static! {
         set.insert(2);
         set.insert(3);
         set
-    };
-}
+    }
 use lazy_static::lazy_static;
 use serde_json;
 use std::collections::HashSet;
@@ -762,8 +740,7 @@ lazy_static! {
         set.insert(2);
         set.insert(3);
         set
-    };
-}
+    }
 use lazy_static::lazy_static;
 use serde_json;
 use std::collections::HashSet;
@@ -831,8 +808,7 @@ lazy_static! {
         set.insert(fs);
         set.insert(std::sync::Arc::new(vec![4, 5].into_iter().collect::<HashSet<_>>()));
         set
-    };
-}
+    }
 use lazy_static::lazy_static;
 use serde_json;
 use std::collections::HashMap;
@@ -859,8 +835,7 @@ lazy_static! {
         set.insert("a");
         set.insert((1, 2));
         set
-    };
-}
+    }
 use lazy_static::lazy_static;
 use std::collections::HashSet;
 '''
@@ -1394,7 +1369,6 @@ pub fn test_set_pop() -> i32 {
         })
         .expect("pop from empty set");
     value
-};
 }
 '''
 

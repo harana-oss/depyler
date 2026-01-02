@@ -16,7 +16,6 @@ def use_only_y(x: int, y: int) -> int:
 rust = '''
 pub fn use_only_y(x: i32, y: i32) -> i32 {
     return y;
-};
 }
 '''
 
@@ -101,7 +100,6 @@ pub fn compute_final(x: i32) -> i32 {
     let b = a * 2;
     let d = b + 10;
     return d;
-};
 }
 '''
 
@@ -123,7 +121,6 @@ rust = '''
 pub fn only_uses_c(a: i32, b: i32, c: i32) -> i32 {
     let z = c - 1;
     return z;
-};
 }
 '''
 

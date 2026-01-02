@@ -21,7 +21,6 @@ pub fn swap_values(mut a: i32, mut b: i32) -> (i32, i32) {
     a = b;
     b = temp;
     return (a, b);
-};
 }
 '''
 

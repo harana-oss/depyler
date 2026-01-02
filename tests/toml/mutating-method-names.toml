@@ -137,7 +137,6 @@ def get_length(items: list[int]) -> int:
 rust = '''
 pub fn get_length(items: &Vec<i32>) -> i32 {
     return items.len() as i32;
-};
 }
 '''
 
@@ -170,6 +169,5 @@ rust = '''
 use std::collections::HashMap;
 pub fn count_keys(d: &HashMap<String, i32>) -> i32 {
     return d.keys().collect::<Vec<_>>().len() as i32;
-};
 }
 '''

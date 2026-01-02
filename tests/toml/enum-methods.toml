@@ -901,8 +901,7 @@ struct Planet {
 
 impl Planet {
     const EARTH: Planet = Planet { mass: 5.97e24, radius: 6371 };
-    const MARS: Planet = Planet { mass: 6.39e23, radius: 3390 };
-}
+    const MARS: Planet = Planet { mass: 6.39e23, radius: 3390 }
 
 fn main() {
     log::info!("{}", Planet::EARTH.mass);
@@ -941,8 +940,7 @@ struct Month {
 impl Month {
     const JANUARY: Month = Month { number: 1, days: 31 };
     const FEBRUARY: Month = Month { number: 2, days: 28 };
-    const MARCH: Month = Month { number: 3, days: 31 };
-}
+    const MARCH: Month = Month { number: 3, days: 31 }
 
 fn main() {
     log::info!("{}", Month::JANUARY.number);
@@ -978,8 +976,7 @@ struct HttpStatus {
 
 impl HttpStatus {
     const OK: HttpStatus = HttpStatus { code: 200, description: "Request succeeded" };
-    const NOT_FOUND: HttpStatus = HttpStatus { code: 404, description: "Resource not found" };
-}
+    const NOT_FOUND: HttpStatus = HttpStatus { code: 404, description: "Resource not found" }
 
 fn main() {
     log::info!("{}", HttpStatus::OK.code);

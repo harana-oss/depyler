@@ -52,7 +52,6 @@ pub fn safe_divide(a: i32, b: i32) -> i32 {
         };
         return 0;
     }
-};
 }
 '''
 
@@ -93,7 +92,6 @@ pub fn parse_number(s: String) -> i32 {
             return -1;
         }
     }
-};
 }
 '''
 
@@ -206,7 +204,6 @@ pub fn nested_operation(x: i32, y: i32) -> i32 {
         }
         return 0;
     }
-};
 }
 '''
 
@@ -245,7 +242,6 @@ pub fn convert_to_int(s: String) -> i32 {
         return s.parse::<i32>().unwrap();
         return 0;
     }
-};
 }
 '''
 
@@ -270,7 +266,6 @@ pub fn ignore_errors(x: i32) -> i32 {
         return result;
     }
     return 0;
-};
 }
 '''
 
@@ -355,7 +350,6 @@ pub fn parse_data(data: String) -> i32 {
             return -2;
         }
     }
-};
 }
 '''
 
@@ -419,7 +413,6 @@ pub fn safe_operation(x: i32) -> i32 {
         return -2;
         return -3;
     }
-};
 }
 '''
 
@@ -482,7 +475,6 @@ pub fn process(data: String) -> i32 {
         return data.parse::<i32>().unwrap();
         return 0;
     }
-};
 }
 '''
 
@@ -650,7 +642,6 @@ pub fn safe_divide(a: i32, b: i32) -> i32 {
         }
         log::info!("{}", "operation complete");
     }
-};
 }
 '''
 
@@ -758,7 +749,6 @@ pub fn track_execution(x: i32) -> i32 {
         return result;
         executed = true;
     }
-};
 }
 '''
 
@@ -804,7 +794,6 @@ pub fn complete_pattern(x: i32) -> i32 {
         log::info!("{}", "done");
     }
     return result;
-};
 }
 '''
 
@@ -852,7 +841,6 @@ pub fn log_errors(x: i32) -> i32 {
         log::info!("{}", "TypeError occurred");
         return -1;
     }
-};
 }
 '''
 
@@ -918,7 +906,6 @@ pub fn chained_handling(data: &Vec<serde_json::Value>) -> i32 {
         }
         return -2;
     }
-};
 }
 '''
 

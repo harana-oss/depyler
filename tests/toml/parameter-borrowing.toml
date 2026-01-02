@@ -15,7 +15,6 @@ def process_text(text: str) -> str:
 rust = '''
 pub fn process_text(text: String) -> String {
     return text.to_uppercase();
-};
 }
 '''
 
@@ -38,7 +37,6 @@ pub fn sum_items(items: &Vec<i32>) -> i32 {
         total = total + item;
     }
     return total;
-};
 }
 '''
 
@@ -133,6 +131,5 @@ def join_strings(a: str, b: str, sep: str) -> str:
 rust = '''
 pub fn join_strings(a: String, b: String, sep: String) -> String {
     return a + &sep + &b;
-};
 }
 '''

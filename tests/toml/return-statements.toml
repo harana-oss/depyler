@@ -18,7 +18,6 @@ def get_value() -> int:
 rust = '''
 pub fn get_value() -> i32 {
     return 42;
-};
 }
 '''
 
@@ -40,7 +39,6 @@ pub fn check_value(x: i32) -> i32 {
         return 0;
     }
     return x;
-};
 }
 '''
 
@@ -62,7 +60,6 @@ pub fn max_value(a: i32, b: i32) -> i32 {
         return a;
     }
     return b;
-};
 }
 '''
 
@@ -240,7 +237,6 @@ pub fn divide(a: i32, b: i32) -> i32 {
         panic!("{}", "Division by zero");
     }
     return a / b;
-};
 }
 '''
 
@@ -303,7 +299,6 @@ pub fn safe_divide(a: i32, b: i32) -> i32 {
         return 0;
     }
     return a / b;
-};
 }
 '''
 
@@ -612,7 +607,6 @@ def count_items(items: list[int]) -> int:
 rust = '''
 pub fn count_items(items: &Vec<i32>) -> i32 {
     return items.len() as i32 as i32;
-};
 }
 '''
 

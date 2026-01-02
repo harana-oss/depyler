@@ -2213,7 +2213,6 @@ pub fn sliding_window(data: &Vec<i32>, window_size: i32) -> Vec<Vec<i32>> {
         windows.push(window.into_iter().collect::<Vec<_>>());
     }
     windows
-};
 }
 '''
 
@@ -3264,7 +3263,6 @@ pub fn test_all_copy_features() -> Result<(), Box<dyn std::error::Error>> {
     let single_values: () = test_copy_single_element();
     log::info!("{}", "All copy module tests completed successfully");
     Ok(())
-};
 }
 '''
 
@@ -4134,7 +4132,6 @@ pub fn test_all_datetime_features() -> Result<(), Box<dyn std::error::Error>> {
     let q: i32 = quarter_of_year(today);
     log::info!("{}", "All datetime module tests completed successfully");
     Ok(())
-};
 }
 '''
 
@@ -4764,7 +4761,6 @@ pub fn test_all_enum_features() {
     let dir_range: Vec<i32> = test_enum_range();
     let is_valid: bool = validate_enum_value(2, 0, 3);
     log::info!("{}", "All enum module tests completed successfully");
-};
 }
 '''
 
@@ -8034,7 +8030,6 @@ pub fn test_all_itertools_features() -> Result<(), Box<dyn std::error::Error>> {
     let above_threshold: i32 = test_quantify(&vec![1, 5, 10, 3, 8, 2, 15], 5);
     log::info!("{}", "All itertools tests completed successfully");
     Ok(())
-};
 }
 '''
 
@@ -8724,7 +8719,6 @@ pub fn test_all_math_features() -> Result<(), Box<dyn std::error::Error>> {
     let int_result: i32 = test_integer_operations()?;
     log::info!("{}", "All math module tests completed successfully");
     Ok(())
-};
 }
 '''
 
@@ -10579,7 +10573,6 @@ pub fn get_file_info(filepath: String) -> () {
 #[doc = " Depyler: proven to terminate"]
 pub fn check_path_exists(filepath: String) -> bool {
     std::path::PathBuf::from(filepath).exists()
-};
 }
 '''
 
@@ -11630,7 +11623,6 @@ pub fn test_all_random_features() -> Result<(), Box<dyn std::error::Error>> {
     let tri_result: f64 = test_triangular_distribution();
     log::info!("{}", "All random module tests completed successfully");
     Ok(())
-};
 }
 '''
 
@@ -14213,7 +14205,6 @@ pub fn test_set_update() -> i32 {
         numbers.insert(item);
     }
     numbers.len() as i32 as i32
-};
 }
 '''
 
@@ -14644,7 +14635,6 @@ pub fn test_str_special_chars() -> bool {
     let text = "hello-world_123";
     let result = text.starts_with("hello");
     result
-};
 }
 '''
 
@@ -15538,7 +15528,6 @@ pub fn test_all_string_features() -> Result<(), Box<dyn std::error::Error>> {
     let consonant_count: i32 = count_consonants("hello world");
     log::info!("{}", "All string module tests completed successfully");
     Ok(())
-};
 }
 '''
 
@@ -15616,8 +15605,7 @@ pub fn print_to_stdout(message: &str) {
     {
         use std::io::Write;
         std::io::stdout().flush().unwrap()
-    };
-}
+    }
 #[doc = "Read all input from stdin"]
 #[doc = " Depyler: verified panic-free"]
 #[doc = " Depyler: proven to terminate"]
@@ -17844,7 +17832,6 @@ pub fn sliding_window(data: &Vec<i32>, window_size: i32) -> Vec<Vec<i32>> {
         windows.push(window.into_iter().collect::<Vec<_>>());
     }
     windows
-};
 }
 '''
 
@@ -18895,7 +18882,6 @@ pub fn test_all_copy_features() -> Result<(), Box<dyn std::error::Error>> {
     let single_values: () = test_copy_single_element();
     log::info!("{}", "All copy module tests completed successfully");
     Ok(())
-};
 }
 '''
 
@@ -19765,7 +19751,6 @@ pub fn test_all_datetime_features() -> Result<(), Box<dyn std::error::Error>> {
     let q: i32 = quarter_of_year(today);
     log::info!("{}", "All datetime module tests completed successfully");
     Ok(())
-};
 }
 '''
 
@@ -20395,7 +20380,6 @@ pub fn test_all_enum_features() {
     let dir_range: Vec<i32> = test_enum_range();
     let is_valid: bool = validate_enum_value(2, 0, 3);
     log::info!("{}", "All enum module tests completed successfully");
-};
 }
 '''
 
@@ -23665,7 +23649,6 @@ pub fn test_all_itertools_features() -> Result<(), Box<dyn std::error::Error>> {
     let above_threshold: i32 = test_quantify(&vec![1, 5, 10, 3, 8, 2, 15], 5);
     log::info!("{}", "All itertools tests completed successfully");
     Ok(())
-};
 }
 '''
 
@@ -24355,7 +24338,6 @@ pub fn test_all_math_features() -> Result<(), Box<dyn std::error::Error>> {
     let int_result: i32 = test_integer_operations()?;
     log::info!("{}", "All math module tests completed successfully");
     Ok(())
-};
 }
 '''
 
@@ -26210,7 +26192,6 @@ pub fn get_file_info(filepath: String) -> () {
 #[doc = " Depyler: proven to terminate"]
 pub fn check_path_exists(filepath: String) -> bool {
     std::path::PathBuf::from(filepath).exists()
-};
 }
 '''
 
@@ -27261,7 +27242,6 @@ pub fn test_all_random_features() -> Result<(), Box<dyn std::error::Error>> {
     let tri_result: f64 = test_triangular_distribution();
     log::info!("{}", "All random module tests completed successfully");
     Ok(())
-};
 }
 '''
 
@@ -30039,7 +30019,6 @@ pub fn test_all_string_features() -> Result<(), Box<dyn std::error::Error>> {
     let consonant_count: i32 = count_consonants("hello world");
     log::info!("{}", "All string module tests completed successfully");
     Ok(())
-};
 }
 '''
 
@@ -30117,8 +30096,7 @@ pub fn print_to_stdout(message: &str) {
     {
         use std::io::Write;
         std::io::stdout().flush().unwrap()
-    };
-}
+    }
 #[doc = "Read all input from stdin"]
 #[doc = " Depyler: verified panic-free"]
 #[doc = " Depyler: proven to terminate"]

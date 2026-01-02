@@ -41,7 +41,6 @@ pub fn use_set_and_map() -> i32 {
     let s: HashSet<i32> = [1, 2, 3].into_iter().collect();
     let d: HashMap<String, i32> = [("a".to_string(), 1)].into_iter().collect();
     return s.len() as i32 + d.len() as i32;
-};
 }
 '''
 
@@ -64,6 +63,5 @@ pub fn helper(x: i32) -> i32 {
 }
 pub fn main_func(items: &HashMap<String, i32>) -> i32 {
     return helper(items.len() as i32);
-};
 }
 '''

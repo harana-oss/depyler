@@ -41,7 +41,6 @@ rust = '''
 pub fn copy_list(items: Vec<i32>) -> Vec<i32> {
     let copy = items.into_iter().collect::<Vec<_>>();
     return copy;
-};
 }
 '''
 
@@ -57,7 +56,6 @@ def read_only(items: list[int]) -> int:
 rust = '''
 pub fn read_only(items: Vec<i32>) -> i32 {
     return items.iter().sum::<i32>();
-};
 }
 '''
 
@@ -385,7 +383,6 @@ pub fn sum_items(items: &Vec<i32>) -> i32 {
         total = total + item;
     }
     return total;
-};
 }
 '''
 

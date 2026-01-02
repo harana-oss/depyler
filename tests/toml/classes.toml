@@ -768,8 +768,7 @@ impl Config {
 pub fn set_config_value(c: &mut Config) {
     {
         c.value = 42;
-    };
-}
+    }
 '''
 
 [[test]]
@@ -813,8 +812,7 @@ impl Person {
 pub fn set_name(p: &mut Person) {
     {
         p.name = "Alice".to_string();
-    };
-}
+    }
 '''
 
 [[test]]
@@ -861,8 +859,7 @@ impl Counter {
 pub fn set_count(c: &mut Counter, new_count: i32) {
     {
         c.count = new_count;
-    };
-}
+    }
 '''
 
 [[test]]
@@ -906,8 +903,7 @@ impl Person {
 pub fn set_name(p: &mut Person, new_name: String) {
     {
         p.name = new_name.clone();
-    };
-}
+    }
 '''
 
 [[test]]
@@ -1054,8 +1050,7 @@ impl State {
 pub fn update_state(s: &mut State) {
     {
         s.temp = s.result;
-    };
-}
+    }
 '''
 
 [[test]]

@@ -90,7 +90,6 @@ def process_string(s: str) -> int:
 rust = '''
 pub fn process_string(s: String) -> i32 {
     return s.len() as i32 as i32;
-};
 }
 '''
 
@@ -423,8 +422,7 @@ impl Team {
     }
 }
 pub fn get_team_players(team: &Team, is_home: bool) -> Vec<String> {
-    return if is_home { team.home.clone() } else { team.away.clone() };
-}
+    return if is_home { team.home.clone() } else { team.away.clone() }
 '''
 
 [[test]]
@@ -613,8 +611,7 @@ pub fn _get_team_stats<'a>(state: &'a mut State, team: &str) -> &'a mut TeamStat
         &mut state.home_statistics
     } else {
         &mut state.away_statistics
-    };
-}
+    }
 pub fn update_score(state: &mut State, team: &str, points: i32) {
     let stats = _get_team_stats(state, team);
     stats.score = stats.score + points;

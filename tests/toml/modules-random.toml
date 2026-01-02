@@ -43,7 +43,6 @@ use rand::Rng;
 use rand::prelude::*;
 pub fn roll_dice() -> i32 {
     return rand::thread_rng().gen_range(1..=6);
-};
 }
 '''
 
@@ -71,7 +70,6 @@ pub fn random_even(max_val: i32) -> i32 {
         let offset = rand::thread_rng().gen_range(0..num_steps);
         start + offset * step
     };
-};
 }
 '''
 
@@ -138,8 +136,7 @@ pub fn pick_many(items: &Vec<String>, k: i32) -> Vec<String> {
         (0..1)
             .map(|_| items.choose(&mut rng).cloned().unwrap())
             .collect::<Vec<_>>()
-    };
-}
+    }
 '''
 
 [[test]]
@@ -206,8 +203,7 @@ pub fn set_seed(seed: i32) {
     {
         let _seed = seed;
         ()
-    };
-}
+    }
 '''
 
 [[test]]
@@ -230,8 +226,7 @@ pub fn random_bytes(n: i32) -> bytes {
         let mut bytes = vec![0u8; n];
         rand::thread_rng().fill(&mut bytes[..]);
         bytes
-    };
-}
+    }
 '''
 
 [[test]]
@@ -254,8 +249,7 @@ pub fn random_hex(n: i32) -> String {
         let mut bytes = vec![0u8; n];
         rand::thread_rng().fill(&mut bytes[..]);
         hex::encode(&bytes)
-    };
-}
+    }
 '''
 
 [[test]]
@@ -296,7 +290,6 @@ use rand::Rng;
 use rand::prelude::*;
 pub fn secure_int(exclusive_max: i32) -> i32 {
     return rand::thread_rng().gen_range(0..exclusive_max);
-};
 }
 '''
 
@@ -320,8 +313,7 @@ pub fn normal_random(mu: f64, sigma: f64) -> f64 {
         use rand::distributions::Distribution;
         let normal = rand_distr::Normal::new(mu as f64, sigma as f64).unwrap();
         normal.sample(&mut rand::thread_rng())
-    };
-}
+    }
 '''
 
 [[test]]
@@ -344,8 +336,7 @@ pub fn exponential_random(rate: f64) -> f64 {
         use rand::distributions::Distribution;
         let exp = rand_distr::Exp::new(rate as f64).unwrap();
         exp.sample(&mut rand::thread_rng())
-    };
-}
+    }
 '''
 
 [[test]]
@@ -368,8 +359,7 @@ pub fn triangular_random(low: f64, high: f64, mode: f64) -> f64 {
         use rand::distributions::Distribution;
         let triangular = rand_distr::Triangular::new(low as f64, high as f64, mode as f64).unwrap();
         triangular.sample(&mut rand::thread_rng())
-    };
-}
+    }
 '''
 
 # =============================================================================
@@ -399,8 +389,7 @@ pub fn get_random_below(n: i32) -> i32 {
             static RNG: std::cell::RefCell<SmallRng> = std::cell::RefCell::new(SmallRng::from_os_rng());
         }
         RNG.with(|rng| rng.borrow_mut().gen_range(0..n))
-    };
-}
+    }
 '''
 
 [[test]]
@@ -426,8 +415,7 @@ pub fn get_random_range(start: i32, stop: i32) -> i32 {
             static RNG: std::cell::RefCell<SmallRng> = std::cell::RefCell::new(SmallRng::from_os_rng());
         }
         RNG.with(|rng| rng.borrow_mut().gen_range(start..stop))
-    };
-}
+    }
 '''
 
 [[test]]
@@ -458,8 +446,7 @@ pub fn get_random_stepped(start: i32, stop: i32, step: i32) -> i32 {
         let num_steps = ((stop - start) / step).max(0);
         let offset = RNG.with(|rng| rng.borrow_mut().gen_range(0..num_steps));
         start + offset * step
-    };
-}
+    }
 '''
 
 # =============================================================================
@@ -576,6 +563,5 @@ pub fn set_seed_and_get(seed: i32) -> i32 {
             static RNG: std::cell::RefCell<SmallRng> = std::cell::RefCell::new(SmallRng::from_os_rng());
         }
         RNG.with(|rng| rng.borrow_mut().gen_range(0..100))
-    };
-}
+    }
 '''

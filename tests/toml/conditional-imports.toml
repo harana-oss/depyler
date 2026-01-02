@@ -110,7 +110,6 @@ def add_numbers(a: int, b: int) -> int:
 rust = '''
 pub fn add_numbers(a: i32, b: i32) -> i32 {
     return a + b;
-};
 }
 '''
 
@@ -132,6 +131,5 @@ pub fn complex_function() -> i32 {
     let m: HashMap<String, i32> = [("key".to_string(), 1)].into_iter().collect();
     let s: HashSet<i32> = [1, 2].into_iter().collect();
     return m[&"key".to_string()].clone() + s.len() as i32;
-};
 }
 '''

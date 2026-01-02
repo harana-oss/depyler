@@ -213,8 +213,7 @@ pub fn delete_file(path: String) {
         os.remove(pos)
     } else {
         panic!("ValueError: list.remove(x): x not in list")
-    };
-}
+    }
 '''
 
 [[test]]
@@ -317,8 +316,7 @@ pub fn relative_path(path: String, start: String) -> String {
             .strip_prefix(start_obj)
             .map(|p| p.to_string_lossy().to_string())
             .unwrap_or_else(|_| path.to_string())
-    };
-}
+    }
 '''
 
 [[test]]
@@ -565,7 +563,6 @@ pub fn test(key: String) -> bool {
     let _cse_temp_0 = std::env::var(key).is_ok();
     let exists: bool = _cse_temp_0;
     return exists;
-};
 }
 '''
 

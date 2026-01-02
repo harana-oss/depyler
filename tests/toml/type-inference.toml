@@ -20,7 +20,6 @@ rust = '''
 pub fn get_number() -> i32 {
     let x = 42;
     return x;
-};
 }
 '''
 
@@ -182,7 +181,6 @@ def count(items: list[int]) -> int:
 rust = '''
 pub fn count(items: &Vec<i32>) -> i32 {
     return items.len() as i32 as i32;
-};
 }
 '''
 
@@ -255,7 +253,6 @@ rust = '''
 pub fn typed_var() -> i32 {
     let x: i32 = 42;
     return x;
-};
 }
 '''
 
@@ -289,7 +286,6 @@ impl IndexError {
 #[doc = " Depyler: proven to terminate"]
 pub fn first(items: &Vec<i32>) -> i32 {
     return items.get(0usize).cloned().unwrap();
-};
 }
 '''
 
@@ -419,7 +415,6 @@ def compute():
 rust = '''
 pub fn compute() -> i32 {
     return 42;
-};
 }
 '''
 
@@ -450,7 +445,6 @@ def check_int(x: int) -> bool:
 rust = '''
 pub fn check_int(x: i32) -> bool {
     return true;
-};
 }
 '''
 
@@ -466,7 +460,6 @@ def check_str(s: str) -> bool:
 rust = '''
 pub fn check_str(s: String) -> bool {
     return true;
-};
 }
 '''
 
@@ -482,7 +475,6 @@ def check_float(x: float) -> bool:
 rust = '''
 pub fn check_float(x: f64) -> bool {
     return true;
-};
 }
 '''
 
@@ -498,7 +490,6 @@ def check_list(items: list[int]) -> bool:
 rust = '''
 pub fn check_list(items: &Vec<i32>) -> bool {
     return true;
-};
 }
 '''
 
@@ -519,8 +510,7 @@ pub fn read_file(filepath: String) {
         let mut content = String::new();
         f.read_to_string(&mut content)?;
         content
-    };
-}
+    }
 '''
 
 [[test]]
@@ -557,7 +547,6 @@ pub fn sum_list(items: &Vec<i32>) -> i32 {
         total = total + item;
     }
     return total;
-};
 }
 '''
 
@@ -656,7 +645,6 @@ def get_length(text: str) -> int:
 rust = '''
 pub fn get_length(text: String) -> i32 {
     return text.len() as i32 as i32;
-};
 }
 '''
 
@@ -696,7 +684,6 @@ def parse_number(s: str) -> int:
 rust = '''
 pub fn parse_number(s: String) -> i32 {
     return s.parse::<i32>().unwrap();
-};
 }
 '''
 
@@ -733,7 +720,6 @@ def double_int(x: int) -> int:
 rust = '''
 pub fn double_int(x: i32) -> i32 {
     return (x) as i32 * 2;
-};
 }
 '''
 
@@ -779,7 +765,6 @@ def calculate(s: str) -> int:
 rust = '''
 pub fn calculate(s: String) -> i32 {
     return s.parse::<i32>().unwrap() * 2 + 10;
-};
 }
 '''
 
@@ -801,7 +786,6 @@ pub fn helper(x: i32) -> i32 {
 }
 pub fn parse_and_call(s: String) -> i32 {
     return helper(s.parse::<i32>().unwrap());
-};
 }
 '''
 
@@ -825,7 +809,6 @@ pub fn sum_list(numbers: &Vec<serde_json::Value>) -> i32 {
         total = total + num;
     }
     return total;
-};
 }
 '''
 
@@ -904,7 +887,6 @@ pub fn test() -> i32 {
     let _cse_temp_0 = arr.len() as i32;
     let right: i32 = _cse_temp_0 - 1;
     return right;
-};
 }
 '''
 
@@ -922,7 +904,6 @@ rust = '''
 pub fn test(val: i32) -> i32 {
     let x: i32 = val + 1;
     return x;
-};
 }
 '''
 
@@ -957,7 +938,6 @@ rust = '''
 pub fn test(n: i32) -> i32 {
     let x = n + 1;
     return x;
-};
 }
 '''
 
@@ -990,7 +970,6 @@ def get_count():
 rust = '''
 pub fn get_count() -> i32 {
     return 42;
-};
 }
 '''
 
@@ -1460,7 +1439,6 @@ def process_list(items: List[str]) -> int:
 rust = '''
 pub fn process_list(items: &Vec<String>) -> i32 {
     return items.len() as i32 as i32;
-};
 }
 '''
 
@@ -1587,7 +1565,6 @@ rust = '''
 pub fn mutate_list(mut items: Vec<i32>) -> Vec<i32> {
     items.push(42);
     return items;
-};
 }
 '''
 
@@ -1647,7 +1624,6 @@ pub fn may_fail(x: i32) -> i32 {
         panic!("{}", "negative value");
     }
     return x * 2;
-};
 }
 '''
 
@@ -1903,7 +1879,6 @@ def check_flag(enabled: bool) -> bool:
 rust = '''
 pub fn check_flag(enabled: bool) -> bool {
     return !enabled;
-};
 }
 '''
 
@@ -1954,7 +1929,6 @@ pub fn sum_list(numbers: &Vec<i32>) -> i32 {
         total = total + n;
     }
     return total;
-};
 }
 '''
 
@@ -2055,8 +2029,7 @@ pub fn process_dict() -> HashMap<String, serde_json::Value> {
     return {
         let map = HashMap::new();
         map
-    };
-}
+    }
 '''
 
 [[test]]
@@ -2133,7 +2106,6 @@ def process_matrix(matrix: list[list[int]]) -> int:
 rust = '''
 pub fn process_matrix(matrix: &Vec<Vec<i32>>) -> i32 {
     return matrix.len() as i32 as i32;
-};
 }
 '''
 
@@ -2275,7 +2247,6 @@ def nullable_items(items: list[Optional[int]]) -> int:
 rust = '''
 pub fn nullable_items(items: &Vec<Option<i32>>) -> i32 {
     return items.len() as i32 as i32;
-};
 }
 '''
 
@@ -2940,7 +2911,6 @@ rust = '''
 #[doc = "// NOTE: Map Python module 'unknown_module'()"]
 pub fn use_unknown() -> i32 {
     return 42;
-};
 }
 '''
 

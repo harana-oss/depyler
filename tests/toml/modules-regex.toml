@@ -353,8 +353,7 @@ pub fn filter_py_files(files: &Vec<String>) -> Vec<String> {
             .into_iter()
             .filter(|name| regex.is_match(&name.to_string()))
             .collect::<Vec<_>>()
-    };
-}
+    }
 '''
 
 # =============================================================================

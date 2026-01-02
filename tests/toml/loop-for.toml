@@ -25,7 +25,6 @@ pub fn count_items(items: &Vec<i32>) -> i32 {
         count = count + 1;
     }
     return count;
-};
 }
 '''
 
@@ -48,7 +47,6 @@ pub fn sum_items(items: &Vec<i32>) -> i32 {
         total = total + item;
     }
     return total;
-};
 }
 '''
 
@@ -71,7 +69,6 @@ pub fn process_pairs(pairs: &Vec<(i32, i32)>) -> i32 {
         total = total + a + b;
     }
     return total;
-};
 }
 '''
 
@@ -116,7 +113,6 @@ pub fn count_by_index(items: &Vec<(i32, String)>) -> i32 {
         total = total + idx;
     }
     return total;
-};
 }
 '''
 
@@ -139,7 +135,6 @@ pub fn count_pairs(pairs: &Vec<(i32, i32)>) -> i32 {
         count = count + 1;
     }
     return count;
-};
 }
 '''
 
@@ -163,7 +158,6 @@ pub fn count_chars(s: String) -> i32 {
         count = count + 1;
     }
     return count;
-};
 }
 '''
 
@@ -187,7 +181,6 @@ pub fn process_string(string: String) -> i32 {
         total = total + 1;
     }
     return total;
-};
 }
 '''
 
@@ -211,7 +204,6 @@ pub fn process_str_data(str_input: String) -> i32 {
         count = count + 1;
     }
     return count;
-};
 }
 '''
 
@@ -235,7 +227,6 @@ pub fn process_input(input_str: String) -> i32 {
         length = length + 1;
     }
     return length;
-};
 }
 '''
 
@@ -259,7 +250,6 @@ pub fn analyze_text(text: String) -> i32 {
         vowels = vowels + 1;
     }
     return vowels;
-};
 }
 '''
 
@@ -283,7 +273,6 @@ pub fn count_letters(word: String) -> i32 {
         count = count + 1;
     }
     return count;
-};
 }
 '''
 
@@ -306,7 +295,6 @@ pub fn sum_numbers(numbers: &Vec<i32>) -> i32 {
         total = total + num;
     }
     return total;
-};
 }
 '''
 
@@ -329,7 +317,6 @@ pub fn process_strings(strings: &Vec<String>) -> i32 {
         count = count + 1;
     }
     return count;
-};
 }
 '''
 
@@ -353,7 +340,6 @@ pub fn indexed_sum(items: Vec<i32>) -> i32 {
         total = total + i + val;
     }
     return total;
-};
 }
 '''
 
@@ -377,7 +363,6 @@ pub fn count_items(items: Vec<i32>) -> i32 {
         count = count + i;
     }
     return count;
-};
 }
 '''
 
@@ -455,7 +440,6 @@ pub fn sum_range(n: i32) -> i32 {
         total = total + i;
     }
     return total;
-};
 }
 '''
 
@@ -481,7 +465,6 @@ pub fn nested_sum(matrix: &Vec<Vec<i32>>) -> i32 {
         }
     }
     return total;
-};
 }
 '''
 
@@ -601,7 +584,6 @@ pub fn find_min(numbers: &Vec<i32>) -> i32 {
         }
     }
     return min_val;
-};
 }
 '''
 
@@ -626,7 +608,6 @@ pub fn sum_list(numbers: &Vec<i32>) -> i32 {
         total = total + num;
     }
     return total;
-};
 }
 '''
 
@@ -675,7 +656,6 @@ pub fn find_max(numbers: &Vec<i32>) -> i32 {
         }
     }
     return max_val;
-};
 }
 '''
 
@@ -761,7 +741,6 @@ pub fn fibonacci(n: i32) -> i32 {
         b = c;
     }
     return b;
-};
 }
 '''
 
@@ -792,7 +771,6 @@ pub fn repeat_operations(n: i32) -> i32 {
         result = result * 2;
     }
     return result;
-};
 }
 '''
 
@@ -850,6 +828,5 @@ pub fn process_values(items: Vec<String>) -> i32 {
         }
     }
     return count;
-};
 }
 '''

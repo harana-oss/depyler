@@ -51,7 +51,6 @@ def typed_list(items: List[int]) -> int:
 rust = '''
 pub fn typed_list(items: &Vec<i32>) -> i32 {
     return items.len() as i32 as i32;
-};
 }
 '''
 
@@ -112,7 +111,6 @@ def pop_last(items: list[int]) -> int:
 rust = '''
 pub fn pop_last(items: &mut Vec<i32>) -> i32 {
     return items.pop().unwrap();
-};
 }
 '''
 
@@ -201,7 +199,6 @@ def copy_list(items: list[int]) -> list[int]:
 rust = '''
 pub fn copy_list(items: &Vec<i32>) -> Vec<i32> {
     return items.clone();
-};
 }
 '''
 
@@ -268,7 +265,6 @@ impl IndexError {
 #[doc = " Depyler: proven to terminate"]
 pub fn get_last(items: &Vec<i32>) -> i32 {
     return items.last().cloned().unwrap();
-};
 }
 '''
 
@@ -436,7 +432,6 @@ pub fn sum_list(items: &Vec<i32>) -> i32 {
         total = total + item;
     }
     return total;
-};
 }
 '''
 
@@ -471,7 +466,6 @@ def list_size(items: list[int]) -> int:
 rust = '''
 pub fn list_size(items: &Vec<i32>) -> i32 {
     return items.len() as i32 as i32;
-};
 }
 '''
 
@@ -527,7 +521,6 @@ def total(items: list[int]) -> int:
 rust = '''
 pub fn total(items: Vec<i32>) -> i32 {
     return items.iter().sum::<i32>();
-};
 }
 '''
 
@@ -543,7 +536,6 @@ def minimum(items: list[int]) -> int:
 rust = '''
 pub fn minimum(items: Vec<i32>) -> i32 {
     return *items.iter().min().unwrap();
-};
 }
 '''
 
@@ -559,7 +551,6 @@ def maximum(items: list[int]) -> int:
 rust = '''
 pub fn maximum(items: Vec<i32>) -> i32 {
     return *items.iter().max().unwrap();
-};
 }
 '''
 
@@ -579,7 +570,6 @@ pub fn sort_copy(items: Vec<i32>) -> Vec<i32> {
         __sorted_result.sort();
         __sorted_result
     };
-};
             let result = sort_copy(&items);
             for i in 1..result.len() {
                 if result[i - 1] > result[i] {
@@ -796,7 +786,6 @@ def test_membership(variable: str) -> bool:
 rust = '''
 pub fn test_membership(variable: String) -> bool {
     return !["A", "B"].contains(&variable.as_str());
-};
 }
 '''
 

@@ -15,7 +15,6 @@ def concat_strings(a: str, b: str) -> str:
 rust = '''
 pub fn concat_strings(a: String, b: String) -> String {
     return a + &b;
-};
 }
 '''
 
@@ -38,7 +37,6 @@ pub fn sum_list(items: &Vec<i32>) -> i32 {
         total = total + item;
     }
     return total;
-};
 }
 '''
 
@@ -86,7 +84,6 @@ def to_uppercase(s: str) -> str:
 rust = '''
 pub fn to_uppercase(s: String) -> String {
     return s.to_uppercase();
-};
 }
 '''
 

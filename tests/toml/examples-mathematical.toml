@@ -187,7 +187,6 @@ pub fn power(mut base: i32, mut exponent: i32) -> Result<i32, ZeroDivisionError>
         };
     }
     Ok(result)
-};
 }
 '''
 
@@ -833,7 +832,6 @@ pub fn mathematical_sequence(n: i32) -> Result<i32, ZeroDivisionError> {
         i = i + 1;
     }
     Ok(total)
-};
 }
 '''
 
@@ -1022,7 +1020,6 @@ pub fn compute_power(base: i32, exp: i32) -> i32 {
             (base as f64).powf(exp as f64) as i32
         }
     }
-};
 }
 '''
 
@@ -1087,7 +1084,6 @@ pub fn test_floor_div(x: i32, y: i32) -> Result<i32, ZeroDivisionError> {
             q
         }
     })
-};
 }
 '''
 

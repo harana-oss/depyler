@@ -377,8 +377,7 @@ pub fn create_heap(items: &Vec<serde_json::Value>) {
                 }
             }
         }
-    };
-}
+    }
 '''
 
 [[test]]
@@ -409,8 +408,7 @@ pub fn push_item(heap: &Vec<serde_json::Value>, item: i32) {
             heap.swap(pos, parent);
             pos = parent;
         }
-    };
-}
+    }
 '''
 
 [[test]]
@@ -457,7 +455,6 @@ pub fn pop_min(heap: &Vec<serde_json::Value>) -> i32 {
         }
         result
     };
-};
 }
 '''
 
@@ -481,8 +478,7 @@ pub fn get_largest(n: i32, items: &Vec<serde_json::Value>) -> Vec<serde_json::Va
         let mut items = items;
         items.sort_by(|a, b| b.cmp(a));
         items.into_iter().take(n).collect::<Vec<_>>()
-    };
-}
+    }
 '''
 
 [[test]]
@@ -505,8 +501,7 @@ pub fn get_smallest(n: i32, items: &Vec<serde_json::Value>) -> Vec<serde_json::V
         let mut items = items;
         items.sort();
         items.into_iter().take(n).collect::<Vec<_>>()
-    };
-}
+    }
 '''
 
 [[test]]
@@ -536,8 +531,7 @@ pub fn find_insert_left(a: &Vec<serde_json::Value>, x: i32) -> i32 {
             }
             Err(pos) => pos,
         }
-    };
-}
+    }
 '''
 
 [[test]]
@@ -568,8 +562,7 @@ pub fn find_insert_right(a: &Vec<serde_json::Value>, x: i32) -> i32 {
             }
             Err(pos) => pos,
         }
-    };
-}
+    }
 '''
 
 [[test]]
@@ -600,8 +593,7 @@ pub fn insert_left(a: &Vec<serde_json::Value>, x: i32) {
             Err(pos) => pos,
         };
         arr.insert(pos, val);
-    };
-}
+    }
 '''
 
 [[test]]
@@ -633,6 +625,5 @@ pub fn insert_right(a: &Vec<serde_json::Value>, x: i32) {
             Err(pos) => pos,
         };
         arr.insert(pos, val);
-    };
-}
+    }
 '''

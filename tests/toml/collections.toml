@@ -184,8 +184,7 @@ pub fn remove_item(lst: &mut Vec<serde_json::Value>, value: i32) {
         lst.remove(pos)
     } else {
         panic!("ValueError: list.remove(x): x not in list")
-    };
-}
+    }
 '''
 
 [[test]]
@@ -474,8 +473,7 @@ use std::collections::HashSet;
 pub fn remove_item(s: &mut HashSet<serde_json::Value>, item: i32) {
     if !s.remove(&item) {
         panic!("KeyError: element not in set")
-    };
-}
+    }
 '''
 
 [[test]]
@@ -732,7 +730,6 @@ use serde_json;
 use std::iter::Iterator::fold;
 pub fn sum_reduce(items: Vec<serde_json::Value>) -> i32 {
     return std::iter::Iterator::fold(|x, y| x + y, items);
-};
 }
 '''
 
@@ -887,7 +884,6 @@ use serde_json;
 pub fn get_next(items: Vec<serde_json::Value>) -> i32 {
     let it = items.into_iter();
     return it.next().expect("StopIteration: iterator is empty");
-};
 }
 '''
 
@@ -904,7 +900,6 @@ rust = '''
 use serde_json;
 pub fn is_callable(obj: &serde_json::Value) -> bool {
     return callable(obj);
-};
 }
 '''
 
@@ -952,8 +947,7 @@ pub fn round_to_decimals(x: f64, n: i32) -> f64 {
     return {
         let multiplier = (10.0_f64).powi(n as i32);
         (x * multiplier).round() / multiplier
-    };
-}
+    }
 '''
 
 [[test]]
@@ -1242,8 +1236,7 @@ pub fn use_dict() -> HashMap<String, String> {
         let mut map = HashMap::new();
         map.insert("key".to_string(), "value".to_string());
         map
-    };
-}
+    }
 '''
 
 [[test]]
@@ -1280,8 +1273,7 @@ pub fn use_set() -> HashSet<i32> {
         set.insert(2);
         set.insert(3);
         set
-    };
-}
+    }
 '''
 
 [[test]]
@@ -1307,7 +1299,6 @@ pub fn find_index() -> i32 {
         .position(|x| x == &"4")
         .map(|i| i as i32)
         .expect("ValueError: value is not in list");
-};
 }
 '''
 

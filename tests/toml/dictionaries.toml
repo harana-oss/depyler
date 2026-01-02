@@ -647,8 +647,7 @@ pub fn pop_item(d: &mut HashMap<serde_json::Value, serde_json::Value>) -> () {
             .expect("KeyError: popitem(): dictionary is empty");
         let value = d.remove(&key).expect("KeyError: key disappeared");
         (key, value)
-    };
-}
+    }
 '''
 
 [[test]]
@@ -741,8 +740,7 @@ lazy_static! {
         let mut map = HashMap::new();
         map.insert("host".to_string(), "localhost".to_string());
         map
-    };
-}
+    }
 use lazy_static::lazy_static;
 use std::collections::HashMap;
 #[derive(Debug, Clone)]
@@ -1091,7 +1089,6 @@ pub fn merge_with_pipe(d1: &HashMap<String, i32>, d2: &HashMap<String, i32>) -> 
         __merge_result.extend(d2.iter().map(|(k, v)| (k.clone(), *v)));
         __merge_result
     };
-};
             TestResult::passed()
         }
         quickcheck(prop as fn((), ()) -> TestResult);

@@ -199,7 +199,6 @@ impl IndexError {
 pub fn get_age(s: String) -> i32 {
     let data = serde_json::from_str::<serde_json::Value>(&s).unwrap();
     return data.get("age").cloned().unwrap();
-};
 }
 '''
 

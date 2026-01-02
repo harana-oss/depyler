@@ -77,8 +77,7 @@ pub fn mixed_files() {
         let mut content = String::new();
         f3.read_to_string(&mut content)?;
         content
-    };
-}
+    }
 '''
 
 [[test]]
@@ -110,8 +109,7 @@ pub fn nested_contexts() {
         let mut content = String::new();
         f3.read_to_string(&mut content)?;
         content
-    };
-}
+    }
 '''
 
 [[test]]

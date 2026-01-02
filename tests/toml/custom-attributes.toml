@@ -64,7 +64,6 @@ rust = '''
 #[repr(C)]
 pub fn get_layout() -> i32 {
     return 42;
-};
 }
 '''
 
@@ -84,7 +83,6 @@ rust = '''
 #[must_use]
 pub fn calculate(x: i32) -> i32 {
     return x * 2;
-};
 }
 '''
 
@@ -102,7 +100,6 @@ rust = '''
 #[inline(always)]
 pub fn fast_function(n: i32) -> i32 {
     return n + 1;
-};
 }
 '''
 
@@ -132,7 +129,6 @@ pub fn hot_path(items: &Vec<i32>) -> i32 {
         total = total + item;
     }
     return total;
-};
 }
 '''
 
@@ -148,7 +144,6 @@ def normal_function(x: int) -> int:
 rust = '''
 pub fn normal_function(x: i32) -> i32 {
     return x * 2;
-};
 }
 '''
 
@@ -174,7 +169,6 @@ pub fn fast_func(x: i32) -> i32 {
 #[cold]
 pub fn slow_func(x: i32) -> i32 {
     return x - 1;
-};
 }
 '''
 
@@ -194,6 +188,5 @@ rust = '''
 #[inline]
 pub fn documented_function(x: i32) -> i32 {
     return x * 2;
-};
 }
 '''

@@ -23,7 +23,6 @@ pub fn double(x: i32) -> i32 {
 pub fn process_with_double(x: i32) -> i32 {
     let result = double(x);
     return result;
-};
 }
 '''
 
@@ -79,15 +78,13 @@ pub fn safe_divide(a: i32, b: i32) -> i32 {
         let signs_differ = r_negative != b_negative;
         let needs_adjustment = r_nonzero && signs_differ;
         if needs_adjustment { q - 1 } else { q }
-    };
-}
+    }
 pub fn divide_or_zero(a: i32, b: i32) -> i32 {
     if b == 0 {
         return 0;
     } else {
         return safe_divide(a, b);
     }
-};
 }
 '''
 
@@ -117,7 +114,6 @@ pub fn multiply(a: i32, b: i32) -> i32 {
 pub fn compound(x: i32, y: i32, z: i32) -> i32 {
     let sum_val = add(x, y);
     return multiply(sum_val, z);
-};
 }
 '''
 
@@ -145,7 +141,6 @@ pub fn step_b(x: i32) -> i32 {
 }
 pub fn pipeline(x: i32) -> i32 {
     return step_b(step_a(x));
-};
 }
 '''
 
@@ -185,6 +180,5 @@ pub fn validate_range(x: i32, min_val: i32, max_val: i32) -> i32 {
         panic!("{}", format!("value {} out of range [{}, {}]", x, min_val, max_val));
     }
     return x;
-};
 }
 '''

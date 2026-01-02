@@ -90,7 +90,6 @@ pub fn sort_by_length(words: &Vec<String>) -> Vec<String> {
         __sorted_result.sort_by_key(|x| x.len() as i32);
         __sorted_result
     };
-};
             let result = sort_by_length(&words);
             for i in 1..result.len() {
                 if result[i - 1] > result[i] {
@@ -127,7 +126,6 @@ pub fn sort_descending(numbers: &Vec<i32>) -> Vec<i32> {
         __sorted_result.sort_by_key(|x| (-x));
         __sorted_result
     };
-};
             let result = sort_descending(&numbers);
             for i in 1..result.len() {
                 if result[i - 1] > result[i] {

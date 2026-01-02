@@ -25,8 +25,7 @@ pub fn skip_first_n(items: &Vec<i32>, n: i32) -> Vec<i32> {
         } else {
             Vec::new()
         }
-    };
-}
+    }
 '''
 
 [[test]]
@@ -44,8 +43,7 @@ pub fn first_n(items: &Vec<i32>, n: i32) -> Vec<i32> {
         let base = &items;
         let stop = (n).max(0) as usize;
         base[..stop.min(base.len())].to_vec()
-    };
-}
+    }
 '''
 
 [[test]]
@@ -68,8 +66,7 @@ pub fn middle(items: &Vec<i32>, start: i32, end: i32) -> Vec<i32> {
         } else {
             Vec::new()
         }
-    };
-}
+    }
 '''
 
 [[test]]
@@ -84,7 +81,6 @@ def copy_list(items: list[int]) -> list[int]:
 rust = '''
 pub fn copy_list(items: &Vec<i32>) -> Vec<i32> {
     return items.clone();
-};
 }
 '''
 
@@ -118,7 +114,6 @@ impl IndexError {
 #[doc = " Depyler: proven to terminate"]
 pub fn get_last(items: &Vec<i32>) -> i32 {
     return items.last().cloned().unwrap();
-};
 }
 '''
 
@@ -141,8 +136,7 @@ pub fn last_n(items: &Vec<i32>, n: i32) -> Vec<i32> {
         } else {
             Vec::new()
         }
-    };
-}
+    }
 '''
 
 [[test]]
@@ -160,8 +154,7 @@ pub fn all_but_last_n(items: &Vec<i32>, n: i32) -> Vec<i32> {
         let base = &items;
         let stop = (-n).max(0) as usize;
         base[..stop.min(base.len())].to_vec()
-    };
-}
+    }
 '''
 
 [[test]]
@@ -188,8 +181,7 @@ pub fn every_nth(items: &Vec<i32>, n: i32) -> Vec<i32> {
             let abs_step = (-step) as usize;
             base.iter().rev().step_by(abs_step).cloned().collect::<Vec<_>>()
         }
-    };
-}
+    }
 '''
 
 [[test]]
@@ -233,8 +225,7 @@ pub fn range_step(items: &Vec<i32>, start: i32, end: i32, step: i32) -> Vec<i32>
                 Vec::new()
             }
         }
-    };
-}
+    }
 '''
 
 [[test]]
@@ -262,7 +253,6 @@ pub fn reverse_list(items: &Vec<i32>) -> Vec<i32> {
             base.iter().rev().step_by(abs_step).cloned().collect::<Vec<_>>()
         }
     };
-};
 }
 '''
 
@@ -287,8 +277,7 @@ pub fn skip_chars(s: String, n: i32) -> String {
             start_idx.min(len) as usize
         };
         base.chars().skip(actual_start).collect::<String>()
-    };
-}
+    }
 '''
 
 [[test]]
@@ -312,8 +301,7 @@ pub fn first_chars(s: String, n: i32) -> String {
             stop_idx.min(len) as usize
         };
         base.chars().take(actual_stop).collect::<String>()
-    };
-}
+    }
 '''
 
 [[test]]
@@ -358,8 +346,7 @@ pub fn slice_test() {
             let abs_step = (-step) as usize;
             base.iter().rev().step_by(abs_step).cloned().collect::<Vec<_>>()
         }
-    };
-}
+    }
 '''
 
 [[test]]
@@ -388,6 +375,5 @@ pub fn reverse_slice() {
             let abs_step = (-step) as usize;
             base.iter().rev().step_by(abs_step).cloned().collect::<Vec<_>>()
         }
-    };
-}
+    }
 '''

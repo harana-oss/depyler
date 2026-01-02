@@ -15,7 +15,6 @@ def get_int() -> int:
 rust = '''
 pub fn get_int() -> i32 {
     return 42;
-};
 }
 '''
 
@@ -31,7 +30,6 @@ def get_float() -> float:
 rust = '''
 pub fn get_float() -> f64 {
     return 3.14;
-};
 }
 '''
 
@@ -47,7 +45,6 @@ def get_string() -> str:
 rust = '''
 pub fn get_string() -> String {
     return "hello".to_string();
-};
 }
 '''
 
@@ -63,7 +60,6 @@ def get_bool() -> bool:
 rust = '''
 pub fn get_bool() -> bool {
     return true;
-};
 }
 '''
 
@@ -79,7 +75,6 @@ def get_negative() -> int:
 rust = '''
 pub fn get_negative() -> i32 {
     return -42;
-};
 }
 '''
 
@@ -95,7 +90,6 @@ def add_ints() -> int:
 rust = '''
 pub fn add_ints() -> i32 {
     return 1 + 2;
-};
 }
 '''
 
@@ -111,7 +105,6 @@ def divide_ints() -> float:
 rust = '''
 pub fn divide_ints() -> f64 {
     return 5 as f64 / 2 as f64;
-};
 }
 '''
 
@@ -138,7 +131,6 @@ pub fn floor_divide() -> i32 {
         let needs_adjustment = r_nonzero && signs_differ;
         if needs_adjustment { q - 1 } else { q }
     };
-};
 }
 '''
 
@@ -154,7 +146,6 @@ def cast_to_int(x: float) -> int:
 rust = '''
 pub fn cast_to_int(x: f64) -> i32 {
     return x as i32;
-};
 }
 '''
 
@@ -170,7 +161,6 @@ def cast_to_float(x: int) -> float:
 rust = '''
 pub fn cast_to_float(x: i32) -> f64 {
     return x as f64;
-};
 }
 '''
 
@@ -186,6 +176,5 @@ def int_to_str(x: int) -> str:
 rust = '''
 pub fn int_to_str(x: i32) -> String {
     return x.to_string();
-};
 }
 '''

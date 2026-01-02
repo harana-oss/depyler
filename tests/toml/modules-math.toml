@@ -367,7 +367,6 @@ rust = '''
 use std::f64 as math;
 pub fn check_nan(x: f64) -> bool {
     return (x as f64).is_nan();
-};
 }
 '''
 
@@ -386,7 +385,6 @@ rust = '''
 use std::f64 as math;
 pub fn check_inf(x: f64) -> bool {
     return (x as f64).is_infinite();
-};
 }
 '''
 
@@ -402,7 +400,6 @@ def max_two(a: int, b: int) -> int:
 rust = '''
 pub fn max_two(a: i32, b: i32) -> i32 {
     return std::cmp::max(a, b);
-};
 }
 '''
 
@@ -418,7 +415,6 @@ def min_two(a: int, b: int) -> int:
 rust = '''
 pub fn min_two(a: i32, b: i32) -> i32 {
     return std::cmp::min(a, b);
-};
 }
 '''
 
@@ -464,7 +460,6 @@ def max_three() -> int:
 rust = '''
 pub fn max_three() -> i32 {
     return std::cmp::max(std::cmp::max(10, 20), 5);
-};
 }
 '''
 
@@ -480,7 +475,6 @@ def max_list(items: list[int]) -> int:
 rust = '''
 pub fn max_list(items: Vec<i32>) -> i32 {
     return *items.iter().max().unwrap();
-};
 }
 '''
 
@@ -496,7 +490,6 @@ def min_list(items: list[int]) -> int:
 rust = '''
 pub fn min_list(items: Vec<i32>) -> i32 {
     return *items.iter().min().unwrap();
-};
 }
 '''
 
@@ -512,7 +505,6 @@ def pow_literal() -> int:
 rust = '''
 pub fn pow_literal() -> i32 {
     return 2_i32.pow(10 as u32);
-};
 }
 '''
 
@@ -528,7 +520,6 @@ def power_op() -> int:
 rust = '''
 pub fn power_op() -> i32 {
     return 2_i32.pow(8 as u32);
-};
 }
 '''
 
@@ -592,7 +583,6 @@ pub fn compute(a: i32, b: i32) -> i32 {
     let _cse_temp_0 = a * 10;
     let result = _cse_temp_0 + b;
     return result;
-};
 }
 '''
 
@@ -608,7 +598,6 @@ def is_small(x: int) -> bool:
 rust = '''
 pub fn is_small(x: i32) -> bool {
     return x < 1;
-};
 }
 '''
 
@@ -624,7 +613,6 @@ def is_large(x: int) -> bool:
 rust = '''
 pub fn is_large(x: i32) -> bool {
     return x > 1;
-};
 }
 '''
 
@@ -640,7 +628,6 @@ def is_one(x: int) -> bool:
 rust = '''
 pub fn is_one(x: i32) -> bool {
     return x == 1;
-};
 }
 '''
 
@@ -656,7 +643,6 @@ def is_not_one(x: int) -> bool:
 rust = '''
 pub fn is_not_one(x: i32) -> bool {
     return x != 1;
-};
 }
 '''
 
@@ -684,7 +670,6 @@ pub fn gcd_func(a: i32, b: i32) -> i32 {
         }
         a as i32
     };
-};
 }
 '''
 
@@ -719,7 +704,6 @@ pub fn lcm_func(a: i32, b: i32) -> i32 {
             ((a / gcd) * b) as i32
         }
     };
-};
 }
 '''
 

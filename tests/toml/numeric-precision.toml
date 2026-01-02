@@ -324,8 +324,7 @@ pub fn floor_div(a: i32, b: i32) -> i32 {
         let signs_differ = r_negative != b_negative;
         let needs_adjustment = r_nonzero && signs_differ;
         if needs_adjustment { q - 1 } else { q }
-    };
-}
+    }
 '''
 
 [[test]]
@@ -350,8 +349,7 @@ pub fn floor_div_positive(a: i32, b: i32) -> i32 {
         let signs_differ = r_negative != b_negative;
         let needs_adjustment = r_nonzero && signs_differ;
         if needs_adjustment { q - 1 } else { q }
-    };
-}
+    }
 '''
 
 [[test]]

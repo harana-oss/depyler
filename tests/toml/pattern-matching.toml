@@ -30,8 +30,7 @@ pub fn match_pattern(filename: String, pattern: String) -> bool {
         let regex =
             regex::Regex::new(&format!("^{}$", regex_pattern)).unwrap_or_else(|_| regex::Regex::new("^$").unwrap());
         regex.is_match(filename)
-    };
-}
+    }
 '''
 
 [[test]]
@@ -58,8 +57,7 @@ pub fn match_case_sensitive(filename: String, pattern: String) -> bool {
         let regex =
             regex::Regex::new(&format!("^{}$", regex_pattern)).unwrap_or_else(|_| regex::Regex::new("^$").unwrap());
         regex.is_match(filename)
-    };
-}
+    }
 '''
 
 [[test]]
@@ -90,8 +88,7 @@ pub fn filter_files(names: &Vec<serde_json::Value>, pattern: String) -> Vec<serd
             .into_iter()
             .filter(|name| regex.is_match(&name.to_string()))
             .collect::<Vec<_>>()
-    };
-}
+    }
 '''
 
 [[test]]
@@ -116,6 +113,5 @@ pub fn translate_pattern(pattern: String) -> String {
             .replace("?", ".")
             .replace("[!", "[^");
         format!("(?ms)^{}$", regex_pattern)
-    };
-}
+    }
 '''

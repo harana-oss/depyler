@@ -92,7 +92,6 @@ def abs_value(x: int) -> int:
 rust = '''
 pub fn abs_value(x: i32) -> i32 {
     return if x >= 0 { x } else { (-x) };
-};
             TestResult::passed()
         }
         quickcheck(prop as fn(i32) -> TestResult);
@@ -463,8 +462,7 @@ def max_value(a: int, b: int) -> int:
 
 rust = '''
 pub fn max_value(a: i32, b: i32) -> i32 {
-    return if a > b { a } else { b };
-}
+    return if a > b { a } else { b }
 '''
 
 [[test]]
@@ -499,8 +497,7 @@ def check_range(x: int) -> bool:
 
 rust = '''
 pub fn check_range(x: i32) -> bool {
-    return if (x >= 0) && (x <= 100) { true } else { false };
-}
+    return if (x >= 0) && (x <= 100) { true } else { false }
 '''
 
 [[test]]
@@ -514,8 +511,7 @@ def compute(x: int, y: int) -> int:
 
 rust = '''
 pub fn compute(x: i32, y: i32) -> i32 {
-    return if x > 0 { x + y } else { x - y };
-}
+    return if x > 0 { x + y } else { x - y }
 '''
 
 [[test]]
@@ -2916,7 +2912,6 @@ def abs_value(x: int) -> int:
 rust = '''
 pub fn abs_value(x: i32) -> i32 {
     return if x > 0 { x } else { (-x) };
-};
             TestResult::passed()
         }
         quickcheck(prop as fn(i32) -> TestResult);

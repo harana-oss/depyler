@@ -67,7 +67,6 @@ def get_number() -> int:
 rust = '''
 pub fn get_number() -> i32 {
     return 42;
-};
 }
 '''
 
@@ -121,7 +120,6 @@ pub fn conditional(x: i32) -> i32 {
     } else {
         return -1;
     }
-};
 }
 '''
 
@@ -144,7 +142,6 @@ pub fn sum_list(nums: &Vec<i32>) -> i32 {
         total = total + n;
     }
     return total;
-};
 }
 '''
 
@@ -165,7 +162,6 @@ pub fn countdown(mut n: i32) -> i32 {
         n = n - 1;
     }
     return n;
-};
 }
 '''
 
@@ -325,7 +321,6 @@ pub fn outer(x: i32) -> i32 {
         return y * 2;
     }
     return inner(x);
-};
 }
 '''
 
@@ -343,7 +338,6 @@ rust = '''
 #[doc = "This function returns 42."]
 pub fn documented() -> i32 {
     return 42;
-};
 }
 '''
 

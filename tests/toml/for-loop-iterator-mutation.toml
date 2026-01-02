@@ -124,7 +124,6 @@ pub fn sum_local() -> i32 {
         total = total + x;
     }
     return total;
-};
 }
 '''
 

@@ -156,8 +156,7 @@ pub fn hash_md5(data: &bytes) -> String {
         let mut hasher = md5::Md5::new();
         hasher.update(data);
         hex::encode(hasher.finalize())
-    };
-}
+    }
 '''
 
 [[test]]
@@ -179,8 +178,7 @@ pub fn hash_sha1(data: &bytes) -> String {
         let mut hasher = sha1::Sha1::new();
         hasher.update(data);
         hex::encode(hasher.finalize())
-    };
-}
+    }
 '''
 
 [[test]]
@@ -202,8 +200,7 @@ pub fn hash_sha256(data: &bytes) -> String {
         let mut hasher = sha2::Sha256::new();
         hasher.update(data);
         hex::encode(hasher.finalize())
-    };
-}
+    }
 '''
 
 [[test]]
@@ -225,8 +222,7 @@ pub fn hash_sha512(data: &bytes) -> String {
         let mut hasher = sha2::Sha512::new();
         hasher.update(data);
         hex::encode(hasher.finalize())
-    };
-}
+    }
 '''
 
 [[test]]
@@ -248,8 +244,7 @@ pub fn hash_sha224(data: &bytes) -> String {
         let mut hasher = sha2::Sha224::new();
         hasher.update(data);
         hex::encode(hasher.finalize())
-    };
-}
+    }
 '''
 
 [[test]]
@@ -285,8 +280,7 @@ pub fn hash_blake2b(data: &bytes) -> String {
         let mut hasher = blake2::Blake2b512::new();
         hasher.update(data);
         hex::encode(hasher.finalize())
-    };
-}
+    }
 '''
 
 [[test]]
@@ -312,8 +306,7 @@ pub fn create_hmac(key: &bytes, msg: &bytes) -> String {
         let mut mac = HmacSha256::new_from_slice(key).expect("HMAC key error");
         mac.update(msg);
         hex::encode(mac.finalize().into_bytes())
-    };
-}
+    }
 '''
 
 [[test]]
@@ -389,8 +382,7 @@ pub fn safe_compare(a: &bytes, b: &bytes) -> bool {
     return {
         use subtle::ConstantTimeEq;
         a.ct_eq(b).into()
-    };
-}
+    }
 '''
 
 [[test]]
@@ -410,8 +402,7 @@ pub fn safe_compare_strings(a: String, b: String) -> bool {
     return {
         use subtle::ConstantTimeEq;
         a.as_bytes().ct_eq(b.as_bytes()).into()
-    };
-}
+    }
 '''
 
 [[test]]
@@ -486,8 +477,7 @@ pub fn bytes_to_base64(data: &bytes) -> bytes {
         let mut result = base64::engine::general_purpose::STANDARD.encode(data);
         result.push('\n');
         result.into_bytes()
-    };
-}
+    }
 '''
 
 [[test]]
@@ -529,6 +519,5 @@ pub fn calculate_crc32(data: &bytes) -> i32 {
         let mut hasher = Hasher::new();
         hasher.update(data);
         hasher.finalize() as i32
-    };
-}
+    }
 '''

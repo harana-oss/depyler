@@ -46,6 +46,7 @@ pmcp.workspace = true
 async-trait.workspace = true
 notify = "8.0"
 tempfile.workspace = true
+similar = "2.6"
 
 [dev-dependencies]
 insta.workspace = true

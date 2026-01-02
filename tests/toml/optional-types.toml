@@ -72,7 +72,6 @@ def is_empty(value: Optional[str]) -> bool:
 rust = '''
 pub fn is_empty(value: &Option<String>) -> bool {
     return value.is_none();
-};
 }
 '''
 
@@ -90,7 +89,6 @@ def has_value(value: Optional[str]) -> bool:
 rust = '''
 pub fn has_value(value: &Option<String>) -> bool {
     return value.is_some();
-};
 }
 '''
 
@@ -107,8 +105,7 @@ def get_or_default(value: Optional[int]) -> int:
 
 rust = '''
 pub fn get_or_default(value: &Option<i32>) -> i32 {
-    return if value.is_some() { value } else { 0 };
-}
+    return if value.is_some() { value } else { 0 }
 '''
 
 [[test]]
@@ -124,8 +121,7 @@ def safe_string(value: Optional[str]) -> str:
 
 rust = '''
 pub fn safe_string(value: &Option<String>) -> String {
-    return if value.is_some() { value } else { "".to_string() };
-}
+    return if value.is_some() { value } else { "".to_string() }
 '''
 
 [[test]]
@@ -213,7 +209,6 @@ pub fn filter_none(items: &Vec<Option<i32>>) -> Vec<i32> {
         .filter(|x| x.is_some())
         .map(|x| x)
         .collect::<Vec<_>>();
-};
 }
 '''
 
@@ -586,7 +581,6 @@ impl Person {
 }
 pub fn is_missing(p: &Person) -> bool {
     return p.age.is_none();
-};
 }
 '''
 
@@ -638,7 +632,6 @@ impl Person {
 }
 pub fn has_age(p: &Person) -> bool {
     return p.age.is_some();
-};
 }
 '''
 
@@ -656,7 +649,6 @@ def check_none(x: Optional[int]) -> bool:
 rust = '''
 pub fn check_none(x: &Option<i32>) -> bool {
     return x.is_none();
-};
 }
 '''
 
@@ -674,7 +666,6 @@ def check_not_none(x: Optional[int]) -> bool:
 rust = '''
 pub fn check_not_none(x: &Option<i32>) -> bool {
     return x.is_some();
-};
 }
 '''
 
@@ -731,7 +722,6 @@ pub fn check_name(p: &Person) -> bool {
         return true;
     }
     return false;
-};
 }
 '''
 
@@ -790,7 +780,6 @@ pub fn is_adult(p: &Person) -> bool {
         return true;
     }
     return false;
-};
 }
 '''
 
@@ -1049,7 +1038,6 @@ impl Flags {
 }
 pub fn invert(f: &Flags) -> bool {
     return !f.active.unwrap();
-};
 }
 '''
 
@@ -1884,7 +1872,6 @@ pub fn double_parsed(s: String) -> i32 {
         return result.clone().unwrap() * 2;
     }
     return 0;
-};
 }
 '''
 
@@ -2019,7 +2006,6 @@ pub fn check_membership(ids: &Vec<i32>) -> bool {
         return ids.contains(&id.clone().unwrap());
     }
     return false;
-};
 }
 '''
 
@@ -2128,7 +2114,6 @@ pub fn collect_items(names: &Vec<String>) -> Vec<Item> {
         }
     }
     return items;
-};
 }
 '''
 

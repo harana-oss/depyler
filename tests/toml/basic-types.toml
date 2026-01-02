@@ -727,8 +727,7 @@ pub fn div_safe(a: i32, b: i32) -> i32 {
         }
     } else {
         0
-    };
-}
+    }
 '''
 
 [[test]]

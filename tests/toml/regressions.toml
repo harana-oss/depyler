@@ -22,7 +22,6 @@ rust = '''
 pub fn get_field_goal() -> i32 {
     const FIELD_GOAL: i32 = 600;
     return FIELD_GOAL;
-};
 }
 '''
 
@@ -45,7 +44,6 @@ pub fn factorial(n: i32) -> i32 {
         result = result * i;
     }
     return result;
-};
 }
 '''
 
@@ -176,7 +174,6 @@ rust = '''
 #[doc = "This is a docstring that should become a comment"]
 pub fn example_function(x: i32) -> i32 {
     return x * 2;
-};
 }
 '''
 
@@ -221,7 +218,6 @@ pub fn divide(a: i32, b: i32) -> i32 {
         let needs_adjustment = r_nonzero && signs_differ;
         if needs_adjustment { q - 1 } else { q }
     };
-};
 }
 '''
 
@@ -266,7 +262,6 @@ pub fn floor_divide(a: i32, b: i32) -> i32 {
         let needs_adjustment = r_nonzero && signs_differ;
         if needs_adjustment { q - 1 } else { q }
     };
-};
 }
 '''
 
@@ -305,7 +300,6 @@ pub fn process_data(data: &Vec<serde_json::Value>) -> Vec<serde_json::Value> {
         result.push(item * 2);
     }
     return result;
-};
 }
 '''
 
@@ -466,7 +460,6 @@ rust = '''
 use serde_json;
 pub fn get_length(arr: &Vec<serde_json::Value>) -> i32 {
     return arr.len() as i32 as i32;
-};
 }
 '''
 
@@ -491,7 +484,6 @@ pub fn test_shallow_copy() -> i32 {
     let mut copied = (original.clone()).clone();
     copied.push(4);
     return original.len() as i32 as i32;
-};
 }
 '''
 
@@ -522,7 +514,6 @@ pub fn test_dict_copy() -> i32 {
     let mut copied = (original.clone()).clone();
     copied.insert("c".to_string(), 3);
     return original.len() as i32 as i32;
-};
 }
 '''
 
@@ -565,7 +556,6 @@ pub fn test_deep_copy() -> i32 {
     let mut copied = (original.clone()).clone();
     copied.get(0usize).cloned().unwrap().push(5);
     return original.get(0usize).cloned().unwrap().len() as i32 as i32;
-};
 }
 '''
 
@@ -589,7 +579,6 @@ pub fn sum_list(numbers: &Vec<serde_json::Value>) -> i32 {
         total = total + num;
     }
     return total;
-};
 }
 '''
 
@@ -633,7 +622,6 @@ pub fn calculate_sum(numbers: &Vec<i32>) -> i32 {
         total = total + n;
     }
     return total;
-};
 }
 '''
 
@@ -840,7 +828,6 @@ pub fn large_func(x: i32) -> i32 {
         result = result + 5;
     }
     return result;
-};
 }
 '''
 
@@ -1924,8 +1911,7 @@ pub fn swap_possession(team_in_possession: String) -> String {
         "Away".to_string()
     } else {
         "Home".to_string()
-    };
-}
+    }
 pub fn process_tackle(mut tackles: i32, team_in_possession: String) -> (i32, String) {
     tackles = tackles + 1;
     let _cse_temp_0 = tackles > TACKLES_PER_SET;

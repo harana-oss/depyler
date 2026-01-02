@@ -67,7 +67,6 @@ pub fn uppercase_words(words: &Vec<String>) -> Vec<String> {
         .into_iter()
         .map(|word| word.to_uppercase())
         .collect::<Vec<_>>();
-};
 }
 '''
 
@@ -88,7 +87,6 @@ pub fn long_words(words: &Vec<String>) -> Vec<String> {
         .filter(|word| word.len() as i32 > 4)
         .map(|word| word)
         .collect::<Vec<_>>();
-};
 }
 '''
 
@@ -213,7 +211,6 @@ def sum_squares(n: int) -> int:
 rust = '''
 pub fn sum_squares(n: i32) -> i32 {
     return 0..n.map(|x| x * x).sum::<i32>();
-};
 }
 '''
 
@@ -229,7 +226,6 @@ def has_positive(items: list[int]) -> bool:
 rust = '''
 pub fn has_positive(items: &Vec<i32>) -> bool {
     return items.iter().copied().map(|x| x > 0).any(|x| x);
-};
 }
 '''
 
@@ -245,7 +241,6 @@ def all_positive(items: list[int]) -> bool:
 rust = '''
 pub fn all_positive(items: &Vec<i32>) -> bool {
     return items.iter().copied().map(|x| x > 0).all(|x| x);
-};
 }
 '''
 

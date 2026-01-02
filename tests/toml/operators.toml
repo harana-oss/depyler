@@ -43,7 +43,6 @@ def subtract(a: int, b: int) -> int:
 rust = '''
 pub fn subtract(a: i32, b: i32) -> i32 {
     return a - b;
-};
 }
 '''
 
@@ -146,7 +145,6 @@ pub fn floor_div(a: i32, b: i32) -> i32 {
         let needs_adjustment = r_nonzero && signs_differ;
         if needs_adjustment { q - 1 } else { q }
     };
-};
 }
 '''
 
@@ -229,7 +227,6 @@ impl ZeroDivisionError {
 #[doc = " Depyler: proven to terminate"]
 pub fn modulo(a: i32, b: i32) -> i32 {
     return a % b;
-};
 }
 '''
 
@@ -245,7 +242,6 @@ def power_literal() -> int:
 rust = '''
 pub fn power_literal() -> i32 {
     return 2_i32.pow(8 as u32);
-};
 }
 '''
 
@@ -261,7 +257,6 @@ def power_var(base: int, exp: int) -> int:
 rust = '''
 pub fn power_var(base: i32, exp: i32) -> i32 {
     return base.checked_pow(exp as u32).expect("Power operation overflowed");
-};
 }
 '''
 
@@ -277,7 +272,6 @@ def pow_call(base: int, exp: int) -> int:
 rust = '''
 pub fn pow_call(base: i32, exp: i32) -> i32 {
     return base.checked_pow(exp as u32).expect("Power operation overflowed");
-};
 }
 '''
 
@@ -413,7 +407,6 @@ def logical_not(a: bool) -> bool:
 rust = '''
 pub fn logical_not(a: bool) -> bool {
     return !a;
-};
 }
 '''
 
@@ -504,7 +497,6 @@ def left_shift(a: int, n: int) -> int:
 rust = '''
 pub fn left_shift(a: i32, n: i32) -> i32 {
     return a << n;
-};
 }
 '''
 
@@ -520,7 +512,6 @@ def right_shift(a: int, n: int) -> int:
 rust = '''
 pub fn right_shift(a: i32, n: i32) -> i32 {
     return a >> n;
-};
 }
 '''
 
@@ -536,7 +527,6 @@ def negate(x: int) -> int:
 rust = '''
 pub fn negate(x: i32) -> i32 {
     return (-x);
-};
 }
 '''
 
@@ -552,7 +542,6 @@ def identity(x: int) -> int:
 rust = '''
 pub fn identity(x: i32) -> i32 {
     return x;
-};
 }
 '''
 
@@ -568,7 +557,6 @@ def bitwise_not(x: int) -> int:
 rust = '''
 pub fn bitwise_not(x: i32) -> i32 {
     return !x;
-};
 }
 '''
 
@@ -584,7 +572,6 @@ def test_pow(a: int, b: int) -> int:
 rust = '''
 pub fn test_pow(a: i32, b: i32) -> i32 {
     return a.checked_pow(b as u32).expect("Power operation overflowed");
-};
 }
 '''
 
@@ -645,7 +632,6 @@ def test_pow(a: int) -> int:
 rust = '''
 pub fn test_pow(a: i32) -> i32 {
     return a.pow(0 as u32);
-};
 }
 '''
 
@@ -739,7 +725,6 @@ def compute_power(base: int, exp: int) -> int:
 rust = '''
 pub fn compute_power(base: i32, exp: i32) -> i32 {
     return base.checked_pow(exp as u32).expect("Power operation overflowed");
-};
 }
 '''
 
@@ -809,7 +794,6 @@ pub fn test_floordiv(a: i32, b: i32) -> i32 {
         let needs_adjustment = r_nonzero && signs_differ;
         if needs_adjustment { q - 1 } else { q }
     };
-};
 }
 '''
 
@@ -854,7 +838,6 @@ pub fn test_floordiv() -> i32 {
         let needs_adjustment = r_nonzero && signs_differ;
         if needs_adjustment { q - 1 } else { q }
     };
-};
 }
 '''
 
@@ -899,7 +882,6 @@ pub fn test_floordiv() -> i32 {
         let needs_adjustment = r_nonzero && signs_differ;
         if needs_adjustment { q - 1 } else { q }
     };
-};
 }
 '''
 
@@ -944,7 +926,6 @@ pub fn test_floordiv() -> i32 {
         let needs_adjustment = r_nonzero && signs_differ;
         if needs_adjustment { q - 1 } else { q }
     };
-};
 }
 '''
 
@@ -989,7 +970,6 @@ pub fn test_floordiv(a: i32, b: i32) -> i32 {
         let needs_adjustment = r_nonzero && signs_differ;
         if needs_adjustment { q - 1 } else { q }
     };
-};
 }
 '''
 

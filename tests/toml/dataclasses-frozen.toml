@@ -291,8 +291,7 @@ lazy_static! {
         let mut map = HashMap::new();
         map.insert(p, "value".to_string());
         map
-    };
-}
+    }
 use lazy_static::lazy_static;
 use serde_json;
 use std::collections::HashMap;
@@ -365,8 +364,7 @@ lazy_static! {
         set.insert(p1);
         set.insert(p2);
         set
-    };
-}
+    }
 use lazy_static::lazy_static;
 use serde_json;
 use std::collections::HashSet;

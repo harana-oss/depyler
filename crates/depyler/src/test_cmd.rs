@@ -5,6 +5,7 @@ use colored::Colorize;
 use depyler_core::DepylerPipeline;
 use rayon::prelude::*;
 use serde::Deserialize;
+use similar::{ChangeTag, TextDiff};
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::Command;
@@ -99,6 +100,34 @@ pub struct TestResult {
     pub passed: bool,
     pub error: Option<String>,
     pub duration_ms: u128,
+    pub diff: Option<String>,
+}
+
+/// Generate a colored diff between expected and actual output
+fn generate_colored_diff(expected: &str, actual: &str) -> String {
+    let diff = TextDiff::from_lines(expected, actual);
+    let mut output = String::new();
+
+    output.push_str(&format!("{}\n", "─".repeat(60).dimmed()));
+
+    for change in diff.iter_all_changes() {
+        let line = change.value();
+        let line_content = line.strip_suffix('\n').unwrap_or(line);
+        match change.tag() {
+            ChangeTag::Delete => {
+                output.push_str(&format!("{}\n", format!("− {}", line_content).red()));
+            }
+            ChangeTag::Insert => {
+                output.push_str(&format!("{}\n", format!("+ {}", line_content).green()));
+            }
+            ChangeTag::Equal => {
+                output.push_str(&format!("  {}\n", line_content.dimmed()));
+            }
+        }
+    }
+
+    output.push_str(&format!("{}", "─".repeat(60).dimmed()));
+    output
 }
 
 /// Parsed test file with its path
@@ -156,7 +185,7 @@ pub fn run_toml_tests(
     let mut passed_tests = 0;
     let mut failed_tests = 0;
     let mut skipped_tests = 0;
-    let mut failed_details: Vec<(String, String, String)> = Vec::new();
+    let mut failed_details: Vec<(String, String, String, Option<String>)> = Vec::new();
 
     for result in &results {
         total_tests += 1;
@@ -194,7 +223,12 @@ pub fn run_toml_tests(
             if verbose {
                 println!("    {}", err.dimmed());
             }
-            failed_details.push((result.file.clone(), result.name.clone(), err));
+            failed_details.push((
+                result.file.clone(),
+                result.name.clone(),
+                err,
+                result.diff.clone(),
+            ));
         }
     }
 
@@ -233,13 +267,17 @@ pub fn run_toml_tests(
 
     if !failed_details.is_empty() {
         println!("\n{}", "Failed Tests:".red().bold());
-        for (file, name, err) in &failed_details {
+        for (file, name, err, diff) in &failed_details {
             println!("\n  {} :: {}", file.yellow(), name.red());
             for line in err.lines().take(10) {
                 println!("    {}", line.dimmed());
             }
+            if let Some(diff_output) = diff {
+                println!();
+                print!("{}", diff_output);
+            }
         }
-        anyhow::bail!("{} test(s) failed", failed_tests);
+        std::process::exit(1);
     }
 
     Ok(())
@@ -419,6 +457,7 @@ fn run_tests_from_file(
                 passed: true,
                 error: Some("skipped".to_string()),
                 duration_ms: 0,
+                diff: None,
             });
             continue;
         }
@@ -489,9 +528,9 @@ fn run_single_test(
     let test_name = test.name.clone();
     let python_code = test.python.clone();
     let assertions = test.assertions.clone();
+    let expected_rust = test.rust.clone();
     let file = file_name.to_string();
-    let expects_failure = test
-        .rust
+    let expects_failure = expected_rust
         .as_ref()
         .map(|r| r.trim().starts_with("// Transpilation failed"))
         .unwrap_or(false);
@@ -515,7 +554,25 @@ fn run_single_test(
                         rust_code
                     )),
                     duration_ms,
+                    diff: None,
                 };
+            }
+
+            // Compare with expected rust output if provided
+            if let Some(expected) = &expected_rust {
+                let expected_trimmed = expected.trim();
+                let actual_trimmed = rust_code.trim();
+                if expected_trimmed != actual_trimmed {
+                    let diff = generate_colored_diff(expected_trimmed, actual_trimmed);
+                    return TestResult {
+                        name: test_name,
+                        file,
+                        passed: false,
+                        error: Some("Output mismatch".to_string()),
+                        duration_ms,
+                        diff: Some(diff),
+                    };
+                }
             }
 
             // Check assertions
@@ -529,6 +586,7 @@ fn run_single_test(
                         e, rust_code
                     )),
                     duration_ms,
+                    diff: None,
                 };
             }
 
@@ -544,6 +602,7 @@ fn run_single_test(
                             e, rust_code
                         )),
                         duration_ms,
+                        diff: None,
                     };
                 }
             }
@@ -554,6 +613,7 @@ fn run_single_test(
                 passed: true,
                 error: None,
                 duration_ms,
+                diff: None,
             }
         }
         Ok(Err(e)) => {
@@ -565,6 +625,7 @@ fn run_single_test(
                     passed: true,
                     error: None,
                     duration_ms,
+                    diff: None,
                 };
             }
             TestResult {
@@ -573,6 +634,7 @@ fn run_single_test(
                 passed: false,
                 error: Some(format!("Transpilation failed: {}", e)),
                 duration_ms,
+                diff: None,
             }
         }
         Err(panic_info) => {
@@ -590,6 +652,7 @@ fn run_single_test(
                 passed: false,
                 error: Some(format!("PANIC: {}", panic_msg)),
                 duration_ms,
+                diff: None,
             }
         }
     }
