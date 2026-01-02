@@ -162,6 +162,9 @@ pub struct HirModule {
     pub protocols: Vec<Protocol>,
     pub classes: Vec<HirClass>,
     pub constants: Vec<HirConstant>,
+    /// Module-level executable statements (e.g., unpacking, print calls)
+    /// These will be wrapped in a main() or module initialization function
+    pub statements: Vec<HirStmt>,
 }
 
 /// Module-level constant declaration

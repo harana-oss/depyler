@@ -157,6 +157,9 @@ impl TypeExtractor {
             "Union" => Self::extract_union_type(s),
             "Generic" => Self::extract_parameterized_generic(s),
             "Final" => Self::extract_final_type(s),
+            // TypeGuard[T] -> bool (PEP 647)
+            // TypeGuard is a special type hint that narrows types but returns bool
+            "TypeGuard" => Ok(Type::Bool),
             // Lowercase (PEP 585 - Python 3.9+ built-in generics)
             "list" => Self::extract_list_type(s),
             "dict" => Self::extract_dict_type(s),

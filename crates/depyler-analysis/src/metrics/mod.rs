@@ -15,7 +15,9 @@ use std::time::Duration;
 use depyler_annotations::TranspilationAnnotations;
 
 // Re-export complexity functions for easier use
-pub use complexity::{calculate_cognitive, calculate_cyclomatic, calculate_max_nesting, count_statements};
+pub use complexity::{
+    calculate_cognitive, calculate_cyclomatic, calculate_max_nesting, count_statements,
+};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AnalysisResult {
@@ -121,7 +123,8 @@ impl ComplexityDistribution {
             return 0.0;
         }
 
-        let weighted_sum = (self.low * 3) + (self.medium * 8) + (self.high * 15) + (self.very_high * 25);
+        let weighted_sum =
+            (self.low * 3) + (self.medium * 8) + (self.high * 15) + (self.very_high * 25);
         weighted_sum as f64 / total as f64
     }
 }
@@ -218,20 +221,36 @@ impl Analyzer {
         let total_lines: usize = functions.iter().map(|f| f.lines_of_code).sum();
 
         let avg_cyclomatic = if total_functions > 0 {
-            functions.iter().map(|f| f.cyclomatic_complexity as f64).sum::<f64>() / total_functions as f64
+            functions
+                .iter()
+                .map(|f| f.cyclomatic_complexity as f64)
+                .sum::<f64>()
+                / total_functions as f64
         } else {
             0.0
         };
 
-        let max_cyclomatic = functions.iter().map(|f| f.cyclomatic_complexity).max().unwrap_or(0);
+        let max_cyclomatic = functions
+            .iter()
+            .map(|f| f.cyclomatic_complexity)
+            .max()
+            .unwrap_or(0);
 
         let avg_cognitive = if total_functions > 0 {
-            functions.iter().map(|f| f.cognitive_complexity as f64).sum::<f64>() / total_functions as f64
+            functions
+                .iter()
+                .map(|f| f.cognitive_complexity as f64)
+                .sum::<f64>()
+                / total_functions as f64
         } else {
             0.0
         };
 
-        let max_cognitive = functions.iter().map(|f| f.cognitive_complexity).max().unwrap_or(0);
+        let max_cognitive = functions
+            .iter()
+            .map(|f| f.cognitive_complexity)
+            .max()
+            .unwrap_or(0);
 
         ModuleMetrics {
             total_functions,
@@ -333,6 +352,7 @@ mod tests {
             protocols: vec![],
             classes: vec![],
             constants: vec![],
+            statements: vec![],
         };
 
         let result = analyzer.analyze(&module).unwrap();
@@ -353,6 +373,7 @@ mod tests {
             protocols: vec![],
             classes: vec![],
             constants: vec![],
+            statements: vec![],
         };
 
         let result = analyzer.analyze(&module).unwrap();

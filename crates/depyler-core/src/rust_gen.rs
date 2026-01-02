@@ -1568,6 +1568,7 @@ fn convert_classes_to_rust(
 ) -> Result<Vec<proc_macro2::TokenStream>> {
     let mut class_items = Vec::new();
     for class in classes {
+        // Scan field types for import needs
         for field in &class.fields {
             match &field.field_type {
                 Type::Dict(_, _) => {
@@ -1577,6 +1578,19 @@ fn convert_classes_to_rust(
                     ctx.needs_hashset = true;
                 }
                 _ => {}
+            }
+        }
+
+        // Scan method parameter and return types for import needs
+        for method in &class.methods {
+            // Check return type
+            let rust_ret_type = type_mapper.map_type(&method.ret_type);
+            type_gen::update_import_needs(ctx, &rust_ret_type);
+
+            // Check parameter types
+            for param in &method.params {
+                let rust_param_type = type_mapper.map_type(&param.ty);
+                type_gen::update_import_needs(ctx, &rust_param_type);
             }
         }
 
@@ -2000,6 +2014,27 @@ fn generate_type_alias_tokens(
     Ok(items)
 }
 
+/// Generate a main() function wrapping module-level statements
+fn generate_main_function(
+    statements: &[HirStmt],
+    ctx: &mut CodeGenContext,
+) -> Result<proc_macro2::TokenStream> {
+    use context::RustCodeGen;
+
+    // Convert all statements to Rust
+    let mut stmt_tokens = Vec::new();
+    for stmt in statements {
+        let rust_stmt = stmt.to_rust_tokens(ctx)?;
+        stmt_tokens.push(rust_stmt);
+    }
+
+    Ok(quote! {
+        fn main() {
+            #(#stmt_tokens)*
+        }
+    })
+}
+
 /// Generate a complete Rust file from HIR module
 pub fn generate_rust_file(
     module: &HirModule,
@@ -2309,6 +2344,12 @@ pub fn generate_rust_file(
 
     // Add all functions
     items.extend(functions);
+
+    // Add module-level statements wrapped in a main() function if there are any
+    if !module.statements.is_empty() {
+        let main_fn = generate_main_function(&module.statements, &mut ctx)?;
+        items.push(main_fn);
+    }
 
     let file = quote! {
         #(#items)*

@@ -167,6 +167,7 @@ impl AstBridge {
         let mut protocols = Vec::new();
         let mut classes = Vec::new();
         let mut constants = Vec::new();
+        let mut statements = Vec::new();
 
         for stmt in module.body {
             match stmt {
@@ -197,22 +198,26 @@ impl AstBridge {
                     // Try to parse as type alias first
                     if let Some(type_alias) = self.try_convert_type_alias(&assign)? {
                         type_aliases.push(type_alias);
+                    } else if let Some(constant) = self.try_convert_constant(&assign)? {
+                        // Try to parse as module-level constant
+                        constants.push(constant);
                     } else {
-                        // Otherwise, treat as module-level constant
-                        if let Some(constant) = self.try_convert_constant(&assign)? {
-                            constants.push(constant);
-                        }
+                        // Otherwise, treat as executable statement (e.g., unpacking)
+                        statements.push(convert_stmt(ast::Stmt::Assign(assign))?);
                     }
                 }
                 ast::Stmt::AnnAssign(ann_assign) => {
                     // Try to parse annotated assignment as type alias first
                     if let Some(type_alias) = self.try_convert_annotated_type_alias(&ann_assign)? {
                         type_aliases.push(type_alias);
+                    } else if let Some(constant) =
+                        self.try_convert_annotated_constant(&ann_assign)?
+                    {
+                        // Try to parse as annotated module-level constant
+                        constants.push(constant);
                     } else {
-                        // Otherwise, treat as annotated module-level constant
-                        if let Some(constant) = self.try_convert_annotated_constant(&ann_assign)? {
-                            constants.push(constant);
-                        }
+                        // Otherwise, treat as executable statement
+                        statements.push(convert_stmt(ast::Stmt::AnnAssign(ann_assign))?);
                     }
                 }
                 ast::Stmt::TypeAlias(type_alias_stmt) => {
@@ -221,7 +226,8 @@ impl AstBridge {
                     }
                 }
                 _ => {
-                    // Skip other statements for now
+                    // Other statements (e.g., print, expression statements) are executable
+                    statements.push(convert_stmt(stmt)?);
                 }
             }
         }
@@ -236,6 +242,7 @@ impl AstBridge {
             protocols,
             classes,
             constants,
+            statements,
         })
     }
 
@@ -527,6 +534,13 @@ impl AstBridge {
         // Convert the value expression
         let value = convert_expr(*assign.value.clone())?;
 
+        // Skip TypeVar assignments - they're only used for generic type parameters
+        if let HirExpr::Call { func, .. } = &value {
+            if func == "TypeVar" {
+                return Ok(None);
+            }
+        }
+
         Ok(Some(HirConstant {
             name,
             value,
@@ -550,6 +564,13 @@ impl AstBridge {
         // Get the value (annotated assignments at module level should have values)
         if let Some(value_expr) = &ann_assign.value {
             let value = convert_expr(*value_expr.clone())?;
+
+            // Skip TypeVar assignments - they're only used for generic type parameters
+            if let HirExpr::Call { func, .. } = &value {
+                if func == "TypeVar" {
+                    return Ok(None);
+                }
+            }
 
             Ok(Some(HirConstant {
                 name,

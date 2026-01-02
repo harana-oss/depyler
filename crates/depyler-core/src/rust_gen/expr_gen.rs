@@ -9939,16 +9939,23 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                         HirExpr::Literal(Literal::String(_)) => parse_quote! { #key },
                         _ => parse_quote! { &#key },
                     };
-                    // String literal defaults need .to_string() since HashMap<K, String> returns String
-                    let default_expr: syn::Expr = match &hir_args[1] {
-                        HirExpr::Literal(Literal::String(_)) => {
-                            parse_quote! { #default.to_string() }
-                        }
-                        _ => parse_quote! { #default },
-                    };
-                    Ok(
-                        parse_quote! { #object_expr.get(#key_expr).cloned().unwrap_or(#default_expr) },
-                    )
+
+                    // Python: d.get("key", default) -> Rust: *d.get("key").unwrap_or(&default)
+                    // This is more efficient than .cloned().unwrap_or() as it avoids cloning
+                    // when the value is present, only dereferencing at the end.
+                    // For String values, we need special handling
+                    let is_string_default =
+                        matches!(&hir_args[1], HirExpr::Literal(Literal::String(_)));
+
+                    if is_string_default {
+                        // For HashMap<K, String>, we still need to_string() on the default
+                        Ok(
+                            parse_quote! { #object_expr.get(#key_expr).cloned().unwrap_or_else(|| #default.to_string()) },
+                        )
+                    } else {
+                        // For Copy types like i32, use the efficient *get().unwrap_or(&default) pattern
+                        Ok(parse_quote! { *#object_expr.get(#key_expr).unwrap_or(&#default) })
+                    }
                 } else {
                     bail!("get() requires 1 or 2 arguments");
                 }
@@ -11171,9 +11178,46 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             return self.convert_string_method(object, &object_expr, method, arg_exprs, hir_args);
         }
 
+        // Check for built-in collection method names BEFORE checking for user-defined classes
+        // This ensures that dict.get(), set.add(), list.append(), etc. are handled correctly
+        // even when the type information isn't available (e.g., for function parameters)
+        match method {
+            // Dict-specific methods that should always use dict handler
+            "get" if arg_exprs.len() <= 2 => {
+                return self.convert_dict_method(&object_expr, method, arg_exprs, hir_args);
+            }
+            "keys" | "values" | "items" | "setdefault" | "popitem" => {
+                return self.convert_dict_method(&object_expr, method, arg_exprs, hir_args);
+            }
+            // Set-specific methods
+            "add" if arg_exprs.len() == 1 => {
+                return self.convert_set_method(&object_expr, method, arg_exprs, hir_args);
+            }
+            "discard"
+            | "intersection_update"
+            | "difference_update"
+            | "symmetric_difference_update"
+            | "union"
+            | "intersection"
+            | "difference"
+            | "symmetric_difference"
+            | "issubset"
+            | "issuperset"
+            | "isdisjoint" => {
+                return self.convert_set_method(&object_expr, method, arg_exprs, hir_args);
+            }
+            _ => {}
+        }
+
         // User-defined classes can have methods with names like "add" that conflict with
-        // built-in collection methods. We must prioritize user-defined methods.
-        if self.is_class_instance(object) {
+        // built-in collection methods. However, we should NOT treat built-in collection types
+        // as user-defined classes. Check if this is NOT a built-in collection before routing
+        // to the class instance handler.
+        if self.is_class_instance(object)
+            && !self.is_dict_expr(object)
+            && !self.is_list_expr(object)
+            && !self.is_set_expr(object)
+        {
             // This is a user-defined class instance - use generic method call
             let method_ident = if Self::is_rust_keyword(method) {
                 syn::Ident::new_raw(method, proc_macro2::Span::call_site())
@@ -11239,40 +11283,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             };
 
             return Ok(parse_quote! { #object_expr.#method_ident(#(#final_args),*) });
-        }
-
-        // Both sets and dicts have update(), so we need to disambiguate
-
-        // Check for set-specific context first
-        if self.is_set_expr(object) {
-            match method {
-                "add"
-                | "remove"
-                | "discard"
-                | "update"
-                | "intersection_update"
-                | "difference_update"
-                | "union"
-                | "intersection"
-                | "difference"
-                | "symmetric_difference"
-                | "issubset"
-                | "issuperset"
-                | "isdisjoint" => {
-                    return self.convert_set_method(&object_expr, method, arg_exprs, hir_args);
-                }
-                _ => {}
-            }
-        }
-
-        // Check for dict-specific context
-        if self.is_dict_expr(object) {
-            match method {
-                "get" | "keys" | "values" | "items" | "update" => {
-                    return self.convert_dict_method(&object_expr, method, arg_exprs, hir_args);
-                }
-                _ => {}
-            }
         }
 
         // Fallback to method name dispatch

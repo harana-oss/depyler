@@ -3479,6 +3479,76 @@ impl<'a> ExprConverter<'a> {
                 )
             }
 
+            // Dict methods
+            "get" => {
+                if args.len() == 1 {
+                    // Python: d.get(key) → Rust: d.get(&key).cloned()
+                    // For string literal keys, use the raw string without .to_string()
+                    let key_expr: syn::Expr = match &args[0] {
+                        HirExpr::Literal(Literal::String(s)) => {
+                            let lit = syn::LitStr::new(s, proc_macro2::Span::call_site());
+                            parse_quote! { #lit }
+                        }
+                        _ => {
+                            let key = self.convert(&args[0])?;
+                            parse_quote! { &#key }
+                        }
+                    };
+                    Ok(parse_quote! { #object_expr.get(#key_expr).cloned() })
+                } else if args.len() == 2 {
+                    // Python: d.get(key, default) → Rust: *d.get(&key).unwrap_or(&default)
+                    // Same logic for key expression - avoid .to_string() on string literals
+                    let key_expr: syn::Expr = match &args[0] {
+                        HirExpr::Literal(Literal::String(s)) => {
+                            let lit = syn::LitStr::new(s, proc_macro2::Span::call_site());
+                            parse_quote! { #lit }
+                        }
+                        _ => {
+                            let key = self.convert(&args[0])?;
+                            parse_quote! { &#key }
+                        }
+                    };
+
+                    // Check if default is a string literal - need special handling
+                    let is_string_default =
+                        matches!(&args[1], HirExpr::Literal(Literal::String(_)));
+
+                    if is_string_default {
+                        // For String values, use .cloned().unwrap_or_else() to avoid unnecessary clones
+                        let default = &arg_exprs[1];
+                        Ok(
+                            parse_quote! { #object_expr.get(#key_expr).cloned().unwrap_or_else(|| #default.to_string()) },
+                        )
+                    } else {
+                        // For Copy types like i32, use the efficient *get().unwrap_or(&default) pattern
+                        let default = &arg_exprs[1];
+                        Ok(parse_quote! { *#object_expr.get(#key_expr).unwrap_or(&#default) })
+                    }
+                } else {
+                    bail!("get() requires 1 or 2 arguments");
+                }
+            }
+            "keys" => {
+                if !arg_exprs.is_empty() {
+                    bail!("keys() takes no arguments");
+                }
+                Ok(parse_quote! { #object_expr.keys().cloned().collect::<Vec<_>>() })
+            }
+            "values" => {
+                if !arg_exprs.is_empty() {
+                    bail!("values() takes no arguments");
+                }
+                Ok(parse_quote! { #object_expr.values().cloned().collect::<Vec<_>>() })
+            }
+            "items" => {
+                if !arg_exprs.is_empty() {
+                    bail!("items() takes no arguments");
+                }
+                Ok(
+                    parse_quote! { #object_expr.iter().map(|(k, v)| (k.clone(), v.clone())).collect::<Vec<_>>() },
+                )
+            }
+
             // Generic method call fallback
             _ => {
                 let method_ident = syn::Ident::new(method, proc_macro2::Span::call_site());

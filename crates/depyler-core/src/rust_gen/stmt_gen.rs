@@ -1425,6 +1425,96 @@ fn extract_assigned_symbols(stmts: &[HirStmt]) -> std::collections::HashSet<Stri
     symbols
 }
 
+/// Extract walrus operator (NamedExpr) assignments from an expression.
+/// Returns a vector of (variable_name, value_expr) pairs and a modified expression
+/// with NamedExpr replaced by simple variable references.
+fn extract_walrus_assignments(expr: &HirExpr) -> (Vec<(String, Box<HirExpr>)>, HirExpr) {
+    let mut assignments = Vec::new();
+    let modified = extract_walrus_recursive(expr, &mut assignments);
+    (assignments, modified)
+}
+
+/// Recursively extract walrus operators from an expression
+fn extract_walrus_recursive(
+    expr: &HirExpr,
+    assignments: &mut Vec<(String, Box<HirExpr>)>,
+) -> HirExpr {
+    match expr {
+        HirExpr::NamedExpr { target, value } => {
+            // Extract the assignment
+            let extracted_value = extract_walrus_recursive(value, assignments);
+            assignments.push((target.clone(), Box::new(extracted_value.clone())));
+            // Replace with just the variable reference
+            HirExpr::Var(target.clone())
+        }
+        HirExpr::Binary { op, left, right } => {
+            let new_left = Box::new(extract_walrus_recursive(left, assignments));
+            let new_right = Box::new(extract_walrus_recursive(right, assignments));
+            HirExpr::Binary {
+                op: *op,
+                left: new_left,
+                right: new_right,
+            }
+        }
+        HirExpr::Unary { op, operand } => {
+            let new_operand = Box::new(extract_walrus_recursive(operand, assignments));
+            HirExpr::Unary {
+                op: *op,
+                operand: new_operand,
+            }
+        }
+        HirExpr::Call {
+            func,
+            args,
+            type_params,
+            kwargs,
+        } => {
+            let new_args = args
+                .iter()
+                .map(|arg| extract_walrus_recursive(arg, assignments))
+                .collect();
+            HirExpr::Call {
+                func: func.clone(),
+                args: new_args,
+                type_params: type_params.clone(),
+                kwargs: kwargs.clone(),
+            }
+        }
+        HirExpr::MethodCall {
+            object,
+            method,
+            args,
+            kwargs,
+            type_params,
+        } => {
+            let new_object = Box::new(extract_walrus_recursive(object, assignments));
+            let new_args = args
+                .iter()
+                .map(|arg| extract_walrus_recursive(arg, assignments))
+                .collect();
+            HirExpr::MethodCall {
+                object: new_object,
+                method: method.clone(),
+                args: new_args,
+                kwargs: kwargs.clone(),
+                type_params: type_params.clone(),
+            }
+        }
+        HirExpr::IfExpr { test, body, orelse } => {
+            let new_test = Box::new(extract_walrus_recursive(test, assignments));
+            let new_body = Box::new(extract_walrus_recursive(body, assignments));
+            let new_orelse = Box::new(extract_walrus_recursive(orelse, assignments));
+            HirExpr::IfExpr {
+                test: new_test,
+                body: new_body,
+                orelse: new_orelse,
+            }
+        }
+        // For other expression types, just clone as-is (no walrus operators inside)
+        _ => expr.clone(),
+    }
+}
+
 /// Generate code for If statement with optional else clause
 ///
 /// Variables assigned in BOTH if and else branches are hoisted before the if statement.
@@ -1452,7 +1542,20 @@ pub(crate) fn codegen_if_stmt(
         }
     }
 
-    let mut cond = condition.to_rust_expr(ctx)?;
+    // Extract walrus operator (NamedExpr) assignments from condition
+    let (walrus_assignments, modified_condition) = extract_walrus_assignments(condition);
+
+    // Generate assignment statements for walrus operators before the if
+    let mut walrus_stmts = Vec::new();
+    for (var_name, value_expr) in &walrus_assignments {
+        let var_ident = safe_ident(var_name);
+        let value_tokens = value_expr.to_rust_expr(ctx)?;
+        walrus_stmts.push(quote! { let #var_ident = #value_tokens; });
+        // Mark the variable as declared so it's accessible in the if body
+        ctx.declare_var(var_name);
+    }
+
+    let mut cond = modified_condition.to_rust_expr(ctx)?;
 
     // When a function returns Result<bool, E> (like is_even with modulo),
     // we need to unwrap it for use in boolean context
@@ -1531,6 +1634,7 @@ pub(crate) fn codegen_if_stmt(
             .collect::<Result<Vec<_>>>()?;
         ctx.exit_scope();
         Ok(quote! {
+            #(#walrus_stmts)*
             #(#hoisted_decls)*
             if #cond {
                 #(#then_stmts)*
@@ -1540,6 +1644,7 @@ pub(crate) fn codegen_if_stmt(
         })
     } else {
         Ok(quote! {
+            #(#walrus_stmts)*
             if #cond {
                 #(#then_stmts)*
             }

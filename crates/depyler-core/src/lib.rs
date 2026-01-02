@@ -489,6 +489,7 @@ impl DepylerPipeline {
             protocols: hir.protocols,
             classes: optimized_program.classes,
             constants: hir.constants,
+            statements: hir.statements,
         };
 
         // Generate Rust code with dependencies
@@ -627,6 +628,7 @@ impl DepylerPipeline {
             protocols: hir.protocols,
             classes: optimized_program.classes,
             constants: hir.constants,
+            statements: hir.statements,
         };
 
         // Generate Rust code using the unified generation system
