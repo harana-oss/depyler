@@ -3845,11 +3845,7 @@ pub fn calculate_age<'b, 'a>(
         let r_nonzero = r != 0;
         let signs_differ = r_negative != b_negative;
         let needs_adjustment = r_nonzero && signs_differ;
-        if needs_adjustment {
-            q - 1
-        } else {
-            q
-        }
+        if needs_adjustment { q - 1 } else { q }
     };
     let age_in_years: i32 = _cse_temp_0;
     Ok(age_in_years)
@@ -3981,11 +3977,7 @@ pub fn working_days_between<'b, 'a>(
         let r_nonzero = r != 0;
         let signs_differ = r_negative != b_negative;
         let needs_adjustment = r_nonzero && signs_differ;
-        if needs_adjustment {
-            q - 1
-        } else {
-            q
-        }
+        if needs_adjustment { q - 1 } else { q }
     };
     let working_days: i32 = _cse_temp_2;
     Ok(working_days)
@@ -4004,11 +3996,7 @@ pub fn add_business_days(start_date: &date, num_days: i32) -> Result<date, ZeroD
         let r_nonzero = r != 0;
         let signs_differ = r_negative != b_negative;
         let needs_adjustment = r_nonzero && signs_differ;
-        if needs_adjustment {
-            q - 1
-        } else {
-            q
-        }
+        if needs_adjustment { q - 1 } else { q }
     };
     let calendar_days: i32 = _cse_temp_1;
     let _cse_temp_2 = start_date + chrono::Duration::zero();
@@ -4063,11 +4051,7 @@ pub fn test_time_arithmetic() -> Result<i32, ZeroDivisionError> {
         let r_nonzero = r != 0;
         let signs_differ = r_negative != b_negative;
         let needs_adjustment = r_nonzero && signs_differ;
-        if needs_adjustment {
-            q - 1
-        } else {
-            q
-        }
+        if needs_adjustment { q - 1 } else { q }
     };
     let end_hour: i32 = _cse_temp_2;
     Ok(end_hour)
@@ -4086,11 +4070,7 @@ pub fn quarter_of_year(d: &date) -> i32 {
             2
         } else {
             let _cse_temp_2 = month <= 9;
-            if _cse_temp_2 {
-                3
-            } else {
-                4
-            }
+            if _cse_temp_2 { 3 } else { 4 }
         }
     }
 }
@@ -4658,11 +4638,7 @@ pub fn color_to_rgb(color: i32) -> () {
         if _cse_temp_0 {
             (0, 255, 0)
         } else {
-            if _cse_temp_0 {
-                (0, 0, 255)
-            } else {
-                (0, 0, 0)
-            }
+            if _cse_temp_0 { (0, 0, 255) } else { (0, 0, 0) }
         }
     }
 }
@@ -4693,11 +4669,7 @@ pub fn process_by_status(mut status: i32, value: i32) -> i32 {
     if _cse_temp_0 {
         value * 2
     } else {
-        if _cse_temp_0 {
-            0
-        } else {
-            value
-        }
+        if _cse_temp_0 { 0 } else { value }
     }
 }
 #[doc = "Test enum as flags(bit operations)"]
@@ -5785,30 +5757,38 @@ def verify_integrity(data: str, expected_hash: str) -> bool:
 '''
 
 rust = '''
-#[doc = "// Python import: hashlib"] #[doc = "Hash a password using SHA256"] #[doc = " Depyler: verified panic-free"] #[doc = " Depyler: proven to terminate"] pub fn hash_password<'a>(password: & 'a str)  -> String {
+#[doc = "// Python import: hashlib"]
+#[doc = "Hash a password using SHA256"]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn hash_password<'a>(password: &'a str) -> String {
     let hasher = std::Sha256();
-    for(k, v) in password.encode("utf-8".to_string()) {
-    hasher.insert(k, v)
-};
+    for (k, v) in password.encode("utf-8".to_string()) {
+        hasher.insert(k, v)
+    }
     return hasher.hexdigest();
-   
 }
-#[doc = "Compute MD5 checksum of file data"] #[doc = " Depyler: verified panic-free"] #[doc = " Depyler: proven to terminate"] pub fn compute_file_checksum<'a>(data: & 'a bytes)  -> String {
+#[doc = "Compute MD5 checksum of file data"]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn compute_file_checksum<'a>(data: &'a bytes) -> String {
     let hasher = std::Md5();
-    for(k, v) in data {
-    hasher.insert(k, v)
-};
+    for (k, v) in data {
+        hasher.insert(k, v)
+    }
     return hasher.hexdigest();
-   
 }
-#[doc = "Verify data integrity using SHA512"] #[doc = " Depyler: verified panic-free"] #[doc = " Depyler: proven to terminate"] pub fn verify_integrity<'a, 'b>(data: & 'a str, expected_hash: & 'b str)  -> bool {
+#[doc = "Verify data integrity using SHA512"]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn verify_integrity<'a, 'b>(data: &'a str, expected_hash: &'b str) -> bool {
     let hasher = std::Sha512();
-    for(k, v) in data.encode("utf-8".to_string()) {
-    hasher.insert(k, v)
-};
+    for (k, v) in data.encode("utf-8".to_string()) {
+        hasher.insert(k, v)
+    }
     let actual_hash = hasher.hexdigest();
     let _cse_temp_0 = actual_hash == expected_hash;
-    return _cse_temp_0
+    return _cse_temp_0;
 }
 '''
 
@@ -6075,11 +6055,13 @@ pub fn test_sha256_binary_data() {
     };
     let result = hash_obj.hexdigest();
     assert!(result.len() as i32 == 64);
-    assert!(result
-        .iter()
-        .copied()
-        .map(|c| "0123456789abcdef".to_string().contains(&c))
-        .all(|x| x));
+    assert!(
+        result
+            .iter()
+            .copied()
+            .map(|c| "0123456789abcdef".to_string().contains(&c))
+            .all(|x| x)
+    );
     log::info!("{}", "PASS: test_sha256_binary_data");
 }
 #[doc = "Test hashing larger data."]
@@ -6096,11 +6078,13 @@ pub fn test_sha256_large_data() {
     };
     let result = hash_obj.hexdigest();
     assert!(result.len() as i32 == 64);
-    assert!(result
-        .iter()
-        .copied()
-        .map(|c| "0123456789abcdef".to_string().contains(&c))
-        .all(|x| x));
+    assert!(
+        result
+            .iter()
+            .copied()
+            .map(|c| "0123456789abcdef".to_string().contains(&c))
+            .all(|x| x)
+    );
     log::info!("{}", "PASS: test_sha256_large_data");
 }
 #[doc = "Test that different data produces different hashes."]
@@ -6160,11 +6144,13 @@ pub fn test_sha256_text() {
     };
     let result = hash_obj.hexdigest();
     assert!(result.len() as i32 == 64);
-    assert!(result
-        .iter()
-        .copied()
-        .map(|c| "0123456789abcdef".to_string().contains(&c))
-        .all(|x| x));
+    assert!(
+        result
+            .iter()
+            .copied()
+            .map(|c| "0123456789abcdef".to_string().contains(&c))
+            .all(|x| x)
+    );
     log::info!("{}", "PASS: test_sha256_text");
 }
 #[doc = "Run all hashlib tests."]
@@ -8687,11 +8673,7 @@ pub fn test_integer_operations() -> Result<i32, ZeroDivisionError> {
         let r_nonzero = r != 0;
         let signs_differ = r_negative != b_negative;
         let needs_adjustment = r_nonzero && signs_differ;
-        if needs_adjustment {
-            q - 1
-        } else {
-            q
-        }
+        if needs_adjustment { q - 1 } else { q }
     };
     let lcm: i32 = _cse_temp_2;
     Ok(fact + gcd1 + gcd2 + lcm)
@@ -19464,11 +19446,7 @@ pub fn calculate_age<'b, 'a>(
         let r_nonzero = r != 0;
         let signs_differ = r_negative != b_negative;
         let needs_adjustment = r_nonzero && signs_differ;
-        if needs_adjustment {
-            q - 1
-        } else {
-            q
-        }
+        if needs_adjustment { q - 1 } else { q }
     };
     let age_in_years: i32 = _cse_temp_0;
     Ok(age_in_years)
@@ -19600,11 +19578,7 @@ pub fn working_days_between<'b, 'a>(
         let r_nonzero = r != 0;
         let signs_differ = r_negative != b_negative;
         let needs_adjustment = r_nonzero && signs_differ;
-        if needs_adjustment {
-            q - 1
-        } else {
-            q
-        }
+        if needs_adjustment { q - 1 } else { q }
     };
     let working_days: i32 = _cse_temp_2;
     Ok(working_days)
@@ -19623,11 +19597,7 @@ pub fn add_business_days(start_date: &date, num_days: i32) -> Result<date, ZeroD
         let r_nonzero = r != 0;
         let signs_differ = r_negative != b_negative;
         let needs_adjustment = r_nonzero && signs_differ;
-        if needs_adjustment {
-            q - 1
-        } else {
-            q
-        }
+        if needs_adjustment { q - 1 } else { q }
     };
     let calendar_days: i32 = _cse_temp_1;
     let _cse_temp_2 = start_date + chrono::Duration::zero();
@@ -19682,11 +19652,7 @@ pub fn test_time_arithmetic() -> Result<i32, ZeroDivisionError> {
         let r_nonzero = r != 0;
         let signs_differ = r_negative != b_negative;
         let needs_adjustment = r_nonzero && signs_differ;
-        if needs_adjustment {
-            q - 1
-        } else {
-            q
-        }
+        if needs_adjustment { q - 1 } else { q }
     };
     let end_hour: i32 = _cse_temp_2;
     Ok(end_hour)
@@ -19705,11 +19671,7 @@ pub fn quarter_of_year(d: &date) -> i32 {
             2
         } else {
             let _cse_temp_2 = month <= 9;
-            if _cse_temp_2 {
-                3
-            } else {
-                4
-            }
+            if _cse_temp_2 { 3 } else { 4 }
         }
     }
 }
@@ -20277,11 +20239,7 @@ pub fn color_to_rgb(color: i32) -> () {
         if _cse_temp_0 {
             (0, 255, 0)
         } else {
-            if _cse_temp_0 {
-                (0, 0, 255)
-            } else {
-                (0, 0, 0)
-            }
+            if _cse_temp_0 { (0, 0, 255) } else { (0, 0, 0) }
         }
     }
 }
@@ -20312,11 +20270,7 @@ pub fn process_by_status(mut status: i32, value: i32) -> i32 {
     if _cse_temp_0 {
         value * 2
     } else {
-        if _cse_temp_0 {
-            0
-        } else {
-            value
-        }
+        if _cse_temp_0 { 0 } else { value }
     }
 }
 #[doc = "Test enum as flags(bit operations)"]
@@ -21404,30 +21358,38 @@ def verify_integrity(data: str, expected_hash: str) -> bool:
 '''
 
 rust = '''
-#[doc = "// Python import: hashlib"] #[doc = "Hash a password using SHA256"] #[doc = " Depyler: verified panic-free"] #[doc = " Depyler: proven to terminate"] pub fn hash_password<'a>(password: & 'a str)  -> String {
+#[doc = "// Python import: hashlib"]
+#[doc = "Hash a password using SHA256"]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn hash_password<'a>(password: &'a str) -> String {
     let hasher = std::Sha256();
-    for(k, v) in password.encode("utf-8".to_string()) {
-    hasher.insert(k, v)
-};
+    for (k, v) in password.encode("utf-8".to_string()) {
+        hasher.insert(k, v)
+    }
     return hasher.hexdigest();
-   
 }
-#[doc = "Compute MD5 checksum of file data"] #[doc = " Depyler: verified panic-free"] #[doc = " Depyler: proven to terminate"] pub fn compute_file_checksum<'a>(data: & 'a bytes)  -> String {
+#[doc = "Compute MD5 checksum of file data"]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn compute_file_checksum<'a>(data: &'a bytes) -> String {
     let hasher = std::Md5();
-    for(k, v) in data {
-    hasher.insert(k, v)
-};
+    for (k, v) in data {
+        hasher.insert(k, v)
+    }
     return hasher.hexdigest();
-   
 }
-#[doc = "Verify data integrity using SHA512"] #[doc = " Depyler: verified panic-free"] #[doc = " Depyler: proven to terminate"] pub fn verify_integrity<'a, 'b>(data: & 'a str, expected_hash: & 'b str)  -> bool {
+#[doc = "Verify data integrity using SHA512"]
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub fn verify_integrity<'a, 'b>(data: &'a str, expected_hash: &'b str) -> bool {
     let hasher = std::Sha512();
-    for(k, v) in data.encode("utf-8".to_string()) {
-    hasher.insert(k, v)
-};
+    for (k, v) in data.encode("utf-8".to_string()) {
+        hasher.insert(k, v)
+    }
     let actual_hash = hasher.hexdigest();
     let _cse_temp_0 = actual_hash == expected_hash;
-    return _cse_temp_0
+    return _cse_temp_0;
 }
 '''
 
@@ -21694,11 +21656,13 @@ pub fn test_sha256_binary_data() {
     };
     let result = hash_obj.hexdigest();
     assert!(result.len() as i32 == 64);
-    assert!(result
-        .iter()
-        .copied()
-        .map(|c| "0123456789abcdef".to_string().contains(&c))
-        .all(|x| x));
+    assert!(
+        result
+            .iter()
+            .copied()
+            .map(|c| "0123456789abcdef".to_string().contains(&c))
+            .all(|x| x)
+    );
     log::info!("{}", "PASS: test_sha256_binary_data");
 }
 #[doc = "Test hashing larger data."]
@@ -21715,11 +21679,13 @@ pub fn test_sha256_large_data() {
     };
     let result = hash_obj.hexdigest();
     assert!(result.len() as i32 == 64);
-    assert!(result
-        .iter()
-        .copied()
-        .map(|c| "0123456789abcdef".to_string().contains(&c))
-        .all(|x| x));
+    assert!(
+        result
+            .iter()
+            .copied()
+            .map(|c| "0123456789abcdef".to_string().contains(&c))
+            .all(|x| x)
+    );
     log::info!("{}", "PASS: test_sha256_large_data");
 }
 #[doc = "Test that different data produces different hashes."]
@@ -21779,11 +21745,13 @@ pub fn test_sha256_text() {
     };
     let result = hash_obj.hexdigest();
     assert!(result.len() as i32 == 64);
-    assert!(result
-        .iter()
-        .copied()
-        .map(|c| "0123456789abcdef".to_string().contains(&c))
-        .all(|x| x));
+    assert!(
+        result
+            .iter()
+            .copied()
+            .map(|c| "0123456789abcdef".to_string().contains(&c))
+            .all(|x| x)
+    );
     log::info!("{}", "PASS: test_sha256_text");
 }
 #[doc = "Run all hashlib tests."]
@@ -24306,11 +24274,7 @@ pub fn test_integer_operations() -> Result<i32, ZeroDivisionError> {
         let r_nonzero = r != 0;
         let signs_differ = r_negative != b_negative;
         let needs_adjustment = r_nonzero && signs_differ;
-        if needs_adjustment {
-            q - 1
-        } else {
-            q
-        }
+        if needs_adjustment { q - 1 } else { q }
     };
     let lcm: i32 = _cse_temp_2;
     Ok(fact + gcd1 + gcd2 + lcm)
@@ -30675,6 +30639,8 @@ if __name__ == "__main__":
 '''
 
 rust = '''
+use url::Url::join;
+use url::Url::parse;
 use url::parse_qs;
 use url::parse_qsl;
 use url::percent_encoding::percent_decode;
@@ -30682,8 +30648,6 @@ use url::percent_encoding::percent_encode;
 use url::urlencode;
 use url::urlsplit;
 use url::urlunparse;
-use url::Url::join;
-use url::Url::parse;
 const STR__: &'static str = "=";
 use std::collections::HashMap;
 #[doc = "Test basic URL parsing."]
@@ -30753,16 +30717,20 @@ pub fn test_parse_qs_multiple_values() {
     let query = "tag=python&tag=rust&tag=programming";
     let result = parse_qs(query);
     assert!(result.get("tag").cloned().unwrap_or_default().len() as i32 == 3);
-    assert!(result
-        .get("tag")
-        .cloned()
-        .unwrap_or_default()
-        .contains_key(&"python".to_string()));
-    assert!(result
-        .get("tag")
-        .cloned()
-        .unwrap_or_default()
-        .contains_key(&"rust".to_string()));
+    assert!(
+        result
+            .get("tag")
+            .cloned()
+            .unwrap_or_default()
+            .contains_key(&"python".to_string())
+    );
+    assert!(
+        result
+            .get("tag")
+            .cloned()
+            .unwrap_or_default()
+            .contains_key(&"rust".to_string())
+    );
     log::info!("{}", "PASS: test_parse_qs_multiple_values");
 }
 #[doc = "Test query string parsing as list of tuples."]
@@ -32259,6 +32227,8 @@ if __name__ == "__main__":
 '''
 
 rust = '''
+use url::Url::join;
+use url::Url::parse;
 use url::parse_qs;
 use url::parse_qsl;
 use url::percent_encoding::percent_decode;
@@ -32266,8 +32236,6 @@ use url::percent_encoding::percent_encode;
 use url::urlencode;
 use url::urlsplit;
 use url::urlunparse;
-use url::Url::join;
-use url::Url::parse;
 const STR__: &'static str = "=";
 use std::collections::HashMap;
 #[doc = "Test basic URL parsing."]
@@ -32337,16 +32305,20 @@ pub fn test_parse_qs_multiple_values() {
     let query = "tag=python&tag=rust&tag=programming";
     let result = parse_qs(query);
     assert!(result.get("tag").cloned().unwrap_or_default().len() as i32 == 3);
-    assert!(result
-        .get("tag")
-        .cloned()
-        .unwrap_or_default()
-        .contains_key(&"python".to_string()));
-    assert!(result
-        .get("tag")
-        .cloned()
-        .unwrap_or_default()
-        .contains_key(&"rust".to_string()));
+    assert!(
+        result
+            .get("tag")
+            .cloned()
+            .unwrap_or_default()
+            .contains_key(&"python".to_string())
+    );
+    assert!(
+        result
+            .get("tag")
+            .cloned()
+            .unwrap_or_default()
+            .contains_key(&"rust".to_string())
+    );
     log::info!("{}", "PASS: test_parse_qs_multiple_values");
 }
 #[doc = "Test query string parsing as list of tuples."]

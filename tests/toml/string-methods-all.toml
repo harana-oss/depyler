@@ -150,7 +150,10 @@ result = 'hello'.rindex('l')
 '''
 
 rust = '''
-pub const result: serde_json::Value = "hello".rfind("l").map(|i| i as i32).expect("substring not found");
+pub const result: serde_json::Value = "hello"
+    .rfind("l")
+    .map(|i| i as i32)
+    .expect("substring not found");
 use serde_json;
 '''
 
@@ -305,7 +308,10 @@ result = 'a,b,c'.split(',')
 '''
 
 rust = '''
-pub const result: serde_json::Value = "a,b,c".split(",").map(|s| s.to_string()).collect::<Vec<String>>();
+pub const result: serde_json::Value = "a,b,c"
+    .split(",")
+    .map(|s| s.to_string())
+    .collect::<Vec<String>>();
 use serde_json;
 '''
 
@@ -342,7 +348,10 @@ result = 'a\nb\nc'.splitlines()
 '''
 
 rust = '''
-pub const result: serde_json::Value = "a\nb\nc".lines().map(|s| s.to_string()).collect::<Vec<String>>();
+pub const result: serde_json::Value = "a\nb\nc"
+    .lines()
+    .map(|s| s.to_string())
+    .collect::<Vec<String>>();
 use serde_json;
 '''
 
@@ -385,7 +394,8 @@ result = ','.join(['a', 'b', 'c'])
 '''
 
 rust = '''
-pub const result: serde_json::Value = vec!["a".to_string(), "b".to_string(), "c".to_string()].join(",");
+pub const result: serde_json::Value =
+    vec!["a".to_string(), "b".to_string(), "c".to_string()].join(",");
 use serde_json;
 '''
 
@@ -438,7 +448,12 @@ pub const result: serde_json::Value = {
         let total_pad = width - s.len();
         let left_pad = total_pad / 2;
         let right_pad = total_pad - left_pad;
-        format!("{}{}{}", fillchar.repeat(left_pad), s, fillchar.repeat(right_pad))
+        format!(
+            "{}{}{}",
+            fillchar.repeat(left_pad),
+            s,
+            fillchar.repeat(right_pad)
+        )
     }
 };
 use serde_json;

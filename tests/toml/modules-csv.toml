@@ -25,7 +25,9 @@ use serde_json;
 pub fn read_csv(filepath: String) -> Vec<serde_json::Value> {
     let mut f = std::fs::File::open(filepath)?;
     let reader = csv::ReaderBuilder::new().has_headers(true).from_reader(f);
-    return reader.deserialize::<HashMap<String, String>>().collect::<Vec<_>>();
+    return reader
+        .deserialize::<HashMap<String, String>>()
+        .collect::<Vec<_>>();
 }
 '''
 
@@ -188,7 +190,11 @@ def filter_csv_generator(filepath: str, column: str, value: str) -> list:
 rust = '''
 use csv;
 use serde_json;
-pub fn filter_csv_generator(filepath: String, column: String, value: String) -> Vec<serde_json::Value> {
+pub fn filter_csv_generator(
+    filepath: String,
+    column: String,
+    value: String,
+) -> Vec<serde_json::Value> {
     let mut f = std::fs::File::open(filepath)?;
     let reader = csv::ReaderBuilder::new().has_headers(true).from_reader(f);
     let filtered = reader
@@ -284,7 +290,10 @@ use csv;
 pub fn write_single_row(filename: String) {
     let mut f = std::fs::File::create(filename)?;
     let writer = csv::Writer::from_writer(f);
-    writer.writerow(HashMap::from([("name".to_string(), "Alice".to_string()), ("age".to_string(), "30".to_string())]));
+    writer.writerow(HashMap::from([
+        ("name".to_string(), "Alice".to_string()),
+        ("age".to_string(), "30".to_string()),
+    ]));
 }
 '''
 
@@ -308,7 +317,11 @@ pub fn write_with_header(filename: String) {
     let mut f = std::fs::File::create(filename)?;
     let writer = csv::Writer::from_writer(f);
     writer.writeheader();
-    writer.writerow(HashMap::from([("id".to_string(), "1".to_string()), ("name".to_string(), "Bob".to_string()), ("email".to_string(), "bob@test.com".to_string())]));
+    writer.writerow(HashMap::from([
+        ("id".to_string(), "1".to_string()),
+        ("name".to_string(), "Bob".to_string()),
+        ("email".to_string(), "bob@test.com".to_string()),
+    ]));
 }
 '''
 

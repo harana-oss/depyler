@@ -291,7 +291,8 @@ def make_point(x: int, y: int) -> Point:
 
 rust = '''
 use std::collections::namedtuple;
-pub const Point: serde_json::Value = namedtuple("Point".to_string(), vec!["x".to_string(), "y".to_string()]);
+pub const Point: serde_json::Value =
+    namedtuple("Point".to_string(), vec!["x".to_string(), "y".to_string()]);
 use serde_json;
 pub fn make_point(x: i32, y: i32) -> Point {
     return Point::new(x, y);
@@ -313,7 +314,8 @@ def get_x(p: Point) -> int:
 
 rust = '''
 use std::collections::namedtuple;
-pub const Point: serde_json::Value = namedtuple("Point".to_string(), vec!["x".to_string(), "y".to_string()]);
+pub const Point: serde_json::Value =
+    namedtuple("Point".to_string(), vec!["x".to_string(), "y".to_string()]);
 use serde_json;
 pub fn get_x(p: &Point) -> i32 {
     return p.x;

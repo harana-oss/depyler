@@ -244,17 +244,19 @@ pub struct Buffer {
 
 impl Buffer {
     pub fn new(size: i32) -> Self {
-        Self { data: vec![0; size as usize] }
+        Self {
+            data: vec![0; size as usize],
+        }
     }
-    
+
     pub fn get(&self, idx: i32) -> i32 {
         return self.data[idx as usize];
     }
-    
+
     pub fn set(&mut self, idx: i32, value: i32) {
         self.data[idx as usize] = value;
     }
-    
+
     pub fn size(&self) -> i32 {
         return self.data.len() as i32;
     }

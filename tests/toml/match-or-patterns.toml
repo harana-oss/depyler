@@ -20,11 +20,11 @@ match x:
 '''
 
 rust = '''
-let x = 2;
-let result = match x {
-    1 | 2 | 3 => true,
-    _ => false,
-};
+    let x = 2;
+    let result = match x {
+        1 | 2 | 3 => true,
+        _ => false,
+    };
 '''
 
 
@@ -42,11 +42,11 @@ match s:
 '''
 
 rust = '''
-let s = "y";
-let result = match s {
-    "yes" | "y" | "true" => true,
-    _ => false,
-};
+    let s = "y";
+    let result = match s {
+        "yes" | "y" | "true" => true,
+        _ => false,
+    };
 '''
 
 
@@ -64,11 +64,11 @@ match x:
 '''
 
 rust = '''
-let x: Option<i32> = Some(0);
-let result = match x {
-    None | Some(0) => true,
-    _ => false,
-};
+    let x: Option<i32> = Some(0);
+    let result = match x {
+        None | Some(0) => true,
+        _ => false,
+    };
 '''
 
 
@@ -90,11 +90,11 @@ match point:
 '''
 
 rust = '''
-let point = (5, 0);
-let result = match point {
-    (x, 0) | (0, x) => x == 5,
-    _ => false,
-};
+    let point = (5, 0);
+    let result = match point {
+        (x, 0) | (0, x) => x == 5,
+        _ => false,
+    };
 '''
 
 
@@ -112,11 +112,11 @@ match value:
 '''
 
 rust = '''
-let value = (1, 2);
-let result = match value {
-    (x, y) | (y, x) => true,
-    _ => false,
-};
+    let value = (1, 2);
+    let result = match value {
+        (x, y) | (y, x) => true,
+        _ => false,
+    };
 '''
 
 
@@ -132,10 +132,10 @@ match x:
 '''
 
 rust = '''
-let x = 42;
-let result = match x {
-    _ | _ => true,
-};
+    let x = 42;
+    let result = match x {
+        _ | _ => true,
+    };
 '''
 
 
@@ -157,11 +157,11 @@ match lst:
 '''
 
 rust = '''
-let lst = vec![1];
-let result = match lst.len() {
-    0 | 1 => true,
-    _ => false,
-};
+    let lst = vec![1];
+    let result = match lst.len() {
+        0 | 1 => true,
+        _ => false,
+    };
 '''
 
 
@@ -179,11 +179,11 @@ match tup:
 '''
 
 rust = '''
-let tup = (1,);
-let result = match tup {
-    () | (_,) | (_, _) => true,
-    _ => false,
-};
+    let tup = (1,);
+    let result = match tup {
+        () | (_,) | (_, _) => true,
+        _ => false,
+    };
 '''
 
 
@@ -205,9 +205,9 @@ match x:
 '''
 
 rust = '''
-// case int() | float(): any number
-// Type checked at compile time
-let result = true;
+    // case int() | float(): any number
+    // Type checked at compile time
+    let result = true;
 '''
 
 
@@ -229,14 +229,14 @@ match x:
 '''
 
 rust = '''
-enum Result {
-    Success,
-    Failure,
-}
-let x = Result::Success;
-let result = match x {
-    Result::Success | Result::Failure => true,
-};
+    enum Result {
+        Success,
+        Failure,
+    }
+    let x = Result::Success;
+    let result = match x {
+        Result::Success | Result::Failure => true,
+    };
 '''
 
 
@@ -258,11 +258,11 @@ match pair:
 '''
 
 rust = '''
-let pair = ('a', 10);
-let result = match pair {
-    ('a' | 'b', x) => x == 10,
-    _ => false,
-};
+    let pair = ('a', 10);
+    let result = match pair {
+        ('a' | 'b', x) => x == 10,
+        _ => false,
+    };
 '''
 
 
@@ -280,11 +280,11 @@ match lst:
 '''
 
 rust = '''
-let lst = vec![1, 5];
-let result = match lst.as_slice() {
-    [1 | 2, x] => *x == 5,
-    _ => false,
-};
+    let lst = vec![1, 5];
+    let result = match lst.as_slice() {
+        [1 | 2, x] => *x == 5,
+        _ => false,
+    };
 '''
 
 
@@ -302,13 +302,13 @@ match data:
 '''
 
 rust = '''
-use std::collections::HashMap;
-let mut data = HashMap::new();
-data.insert("type", "a");
-let result = match data.get("type").map(|s| s.as_str()) {
-    Some("a" | "b") => true,
-    _ => false,
-};
+    use std::collections::HashMap;
+    let mut data = HashMap::new();
+    data.insert("type", "a");
+    let result = match data.get("type").map(|s| s.as_str()) {
+        Some("a" | "b") => true,
+        _ => false,
+    };
 '''
 
 
@@ -331,12 +331,12 @@ match x:
 '''
 
 rust = '''
-let x = 2;
-let condition = true;
-let result = match x {
-    1 | 2 | 3 if condition => true,
-    _ => false,
-};
+    let x = 2;
+    let condition = true;
+    let result = match x {
+        1 | 2 | 3 if condition => true,
+        _ => false,
+    };
 '''
 
 
@@ -351,9 +351,9 @@ result = True
 '''
 
 rust = '''
-// Invalid: OR patterns must bind same variables
-// This would be a compile error
-let result = true;
+    // Invalid: OR patterns must bind same variables
+    // This would be a compile error
+    let result = true;
 '''
 
 
@@ -375,11 +375,11 @@ match status:
 '''
 
 rust = '''
-let status = 201;
-let result = match status {
-    200 | 201 | 204 => true,
-    _ => false,
-};
+    let status = 201;
+    let result = match status {
+        200 | 201 | 204 => true,
+        _ => false,
+    };
 '''
 
 
@@ -397,11 +397,11 @@ match cmd:
 '''
 
 rust = '''
-let cmd = "q";
-let result = match cmd {
-    "quit" | "exit" | "q" => true,
-    _ => false,
-};
+    let cmd = "q";
+    let result = match cmd {
+        "quit" | "exit" | "q" => true,
+        _ => false,
+    };
 '''
 
 
@@ -419,12 +419,12 @@ match x:
 '''
 
 rust = '''
-// Different types can't be matched together in Rust
-let x = 0;
-let result = match x {
-    0 => true,
-    _ => false,
-};
+    // Different types can't be matched together in Rust
+    let x = 0;
+    let result = match x {
+        0 => true,
+        _ => false,
+    };
 '''
 
 
@@ -446,11 +446,11 @@ match x:
 '''
 
 rust = '''
-let x = (1, 2);
-let result = match x {
-    (1, 2) | (3, 4) => true,
-    _ => false,
-};
+    let x = (1, 2);
+    let result = match x {
+        (1, 2) | (3, 4) => true,
+        _ => false,
+    };
 '''
 
 
@@ -466,10 +466,10 @@ match x:
 '''
 
 rust = '''
-let x = 5;
-let result = match x {
-    1 | _ => true,
-};
+    let x = 5;
+    let result = match x {
+        1 | _ => true,
+    };
 '''
 
 
@@ -487,10 +487,10 @@ match value:
 '''
 
 rust = '''
-let value = 2;
-let result = match value {
-    x @ (1 | 2 | 3) => x == 2,
-    _ => false,
-};
+    let value = 2;
+    let result = match value {
+        x @ (1 | 2 | 3) => x == 2,
+        _ => false,
+    };
 '''
 

@@ -242,7 +242,7 @@ fn my_len<T>(obj: &[T]) -> usize {
 fn main() {
     let list = vec![1, 2, 3];
     log::info!("{}", my_len(&list));
-    
+
     let s = "hello";
     log::info!("{}", s.len());
 }

@@ -256,7 +256,9 @@ def power_var(base: int, exp: int) -> int:
 
 rust = '''
 pub fn power_var(base: i32, exp: i32) -> i32 {
-    return base.checked_pow(exp as u32).expect("Power operation overflowed");
+    return base
+        .checked_pow(exp as u32)
+        .expect("Power operation overflowed");
 }
 '''
 
@@ -271,7 +273,9 @@ def pow_call(base: int, exp: int) -> int:
 
 rust = '''
 pub fn pow_call(base: i32, exp: i32) -> i32 {
-    return base.checked_pow(exp as u32).expect("Power operation overflowed");
+    return base
+        .checked_pow(exp as u32)
+        .expect("Power operation overflowed");
 }
 '''
 
@@ -724,7 +728,9 @@ def compute_power(base: int, exp: int) -> int:
 
 rust = '''
 pub fn compute_power(base: i32, exp: i32) -> i32 {
-    return base.checked_pow(exp as u32).expect("Power operation overflowed");
+    return base
+        .checked_pow(exp as u32)
+        .expect("Power operation overflowed");
 }
 '''
 
@@ -1029,8 +1035,14 @@ def test_difference(a: set, b: set) -> set:
 rust = '''
 use serde_json;
 use std::collections::HashSet;
-pub fn test_difference(a: &HashSet<serde_json::Value>, b: &HashSet<serde_json::Value>) -> HashSet<serde_json::Value> {
-    return a.difference(&b).cloned().collect::<std::collections::HashSet<_>>();
+pub fn test_difference(
+    a: &HashSet<serde_json::Value>,
+    b: &HashSet<serde_json::Value>,
+) -> HashSet<serde_json::Value> {
+    return a
+        .difference(&b)
+        .cloned()
+        .collect::<std::collections::HashSet<_>>();
 }
 '''
 
@@ -1079,7 +1091,11 @@ pub fn test_ops(
     b: &HashSet<serde_json::Value>,
     c: &HashSet<serde_json::Value>,
 ) -> HashSet<serde_json::Value> {
-    return a.union(&b).cloned().collect::<std::collections::HashSet<_>>() & c;
+    return a
+        .union(&b)
+        .cloned()
+        .collect::<std::collections::HashSet<_>>()
+        & c;
 }
 '''
 
@@ -1303,7 +1319,9 @@ def power_of_two(n: int) -> int:
 
 rust = '''
 pub fn power_of_two(n: i32) -> i32 {
-    return 2_i32.checked_pow(n as u32).expect("Power operation overflowed");
+    return 2_i32
+        .checked_pow(n as u32)
+        .expect("Power operation overflowed");
 }
 '''
 
@@ -1318,7 +1336,9 @@ def power_both(base: int, exp: int) -> int:
 
 rust = '''
 pub fn power_both(base: i32, exp: i32) -> i32 {
-    return base.checked_pow(exp as u32).expect("Power operation overflowed");
+    return base
+        .checked_pow(exp as u32)
+        .expect("Power operation overflowed");
 }
 '''
 
@@ -1333,6 +1353,8 @@ def pow_builtin(base: int, exp: int) -> int:
 
 rust = '''
 pub fn pow_builtin(base: i32, exp: i32) -> i32 {
-    return base.checked_pow(exp as u32).expect("Power operation overflowed");
+    return base
+        .checked_pow(exp as u32)
+        .expect("Power operation overflowed");
 }
 '''

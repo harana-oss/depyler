@@ -59,7 +59,10 @@ async fn my_coro() -> i32 {
 }
 
 pub async fn test_task_name() -> String {
-    let task = task::Builder::new().name("my_task").spawn(my_coro()).unwrap();
+    let task = task::Builder::new()
+        .name("my_task")
+        .spawn(my_coro())
+        .unwrap();
     task.await.unwrap();
     "my_task".to_string()
 }
@@ -117,8 +120,8 @@ async def test_task_cancel() -> bool:
 '''
 
 rust = '''
-use tokio::time::{sleep, Duration};
 use tokio::task;
+use tokio::time::{Duration, sleep};
 
 async fn long_task() -> i32 {
     sleep(Duration::from_secs(10)).await;
@@ -324,8 +327,8 @@ async def test_gather_cancel() -> bool:
 '''
 
 rust = '''
-use tokio::time::{sleep, Duration};
 use tokio::task;
+use tokio::time::{Duration, sleep};
 
 async fn long_coro() -> i32 {
     sleep(Duration::from_secs(10)).await;
@@ -374,7 +377,7 @@ pub async fn test_wait_basic() -> usize {
     let mut set = JoinSet::new();
     set.spawn(my_coro(1));
     set.spawn(my_coro(2));
-    
+
     let mut count = 0;
     while let Some(_) = set.join_next().await {
         count += 1;
@@ -402,7 +405,7 @@ async def test_wait_timeout() -> bool:
 '''
 
 rust = '''
-use tokio::time::{sleep, Duration, timeout};
+use tokio::time::{Duration, sleep, timeout};
 
 async fn long_coro() -> i32 {
     sleep(Duration::from_secs(10)).await;
@@ -439,8 +442,8 @@ async def test_wait_return_when() -> int:
 '''
 
 rust = '''
-use tokio::time::{sleep, Duration};
 use tokio::select;
+use tokio::time::{Duration, sleep};
 
 async fn fast_coro() -> i32 {
     sleep(Duration::from_millis(10)).await;
@@ -455,7 +458,7 @@ async fn slow_coro() -> i32 {
 pub async fn test_wait_return_when() -> usize {
     let f1 = fast_coro();
     let f2 = slow_coro();
-    
+
     select! {
         _ = f1 => 1,
         _ = f2 => 1,
@@ -481,7 +484,7 @@ async def test_wait_for() -> int:
 '''
 
 rust = '''
-use tokio::time::{sleep, Duration, timeout};
+use tokio::time::{Duration, sleep, timeout};
 
 async fn quick_coro() -> i32 {
     sleep(Duration::from_millis(10)).await;
@@ -526,7 +529,7 @@ pub async fn test_task_group() -> i32 {
     let mut set = JoinSet::new();
     set.spawn(my_coro(1));
     set.spawn(my_coro(2));
-    
+
     let mut sum = 0;
     while let Some(result) = set.join_next().await {
         sum += result.unwrap();
@@ -565,7 +568,7 @@ async fn failing_coro() -> Result<i32, String> {
 pub async fn test_task_group_exception() -> bool {
     let mut set = JoinSet::new();
     set.spawn(failing_coro());
-    
+
     while let Some(result) = set.join_next().await {
         if result.unwrap().is_err() {
             return true;
@@ -600,7 +603,9 @@ async fn main_impl() -> i32 {
 }
 
 pub fn test_asyncio_run() -> i32 {
-    tokio::runtime::Runtime::new().unwrap().block_on(main_impl())
+    tokio::runtime::Runtime::new()
+        .unwrap()
+        .block_on(main_impl())
 }
 '''
 
@@ -637,7 +642,7 @@ async def test_asyncio_sleep() -> bool:
 '''
 
 rust = '''
-use tokio::time::{sleep, Duration};
+use tokio::time::{Duration, sleep};
 
 pub async fn test_asyncio_sleep() -> bool {
     sleep(Duration::from_millis(10)).await;
@@ -689,8 +694,8 @@ async def test_asyncio_event() -> bool:
 '''
 
 rust = '''
-use tokio::sync::Notify;
 use std::sync::Arc;
+use tokio::sync::Notify;
 
 pub async fn test_asyncio_event() -> bool {
     let notify = Arc::new(Notify::new());
@@ -833,7 +838,7 @@ async def test_shield() -> int:
 '''
 
 rust = '''
-use tokio::time::{sleep, Duration};
+use tokio::time::{Duration, sleep};
 
 async fn my_coro() -> i32 {
     sleep(Duration::from_millis(100)).await;

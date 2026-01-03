@@ -22,16 +22,19 @@ result = greet()
 '''
 
 rust = '''
-fn identity<F>(f: F) -> F where F: Fn() -> String {
-    f
-}
+    fn identity<F>(f: F) -> F
+    where
+        F: Fn() -> String,
+    {
+        f
+    }
 
-fn greet_impl() -> String {
-    "hello".to_string()
-}
+    fn greet_impl() -> String {
+        "hello".to_string()
+    }
 
-let greet = identity(greet_impl);
-let result = greet();
+    let greet = identity(greet_impl);
+    let result = greet();
 '''
 
 [[test]]
@@ -52,17 +55,19 @@ result = greet()
 '''
 
 rust = '''
-fn decorator<F>(f: F) -> impl Fn() -> String 
-where F: Fn() -> String {
-    move || f()
-}
+    fn decorator<F>(f: F) -> impl Fn() -> String
+    where
+        F: Fn() -> String,
+    {
+        move || f()
+    }
 
-fn greet_impl() -> String {
-    "hello".to_string()
-}
+    fn greet_impl() -> String {
+        "hello".to_string()
+    }
 
-let greet = decorator(greet_impl);
-let result = greet();
+    let greet = decorator(greet_impl);
+    let result = greet();
 '''
 
 [[test]]
@@ -83,17 +88,19 @@ result = message()
 '''
 
 rust = '''
-fn add_prefix<F>(f: F) -> impl Fn() -> String 
-where F: Fn() -> String {
-    move || format!("PREFIX: {}", f())
-}
+    fn add_prefix<F>(f: F) -> impl Fn() -> String
+    where
+        F: Fn() -> String,
+    {
+        move || format!("PREFIX: {}", f())
+    }
 
-fn message_impl() -> String {
-    "hello".to_string()
-}
+    fn message_impl() -> String {
+        "hello".to_string()
+    }
 
-let message = add_prefix(message_impl);
-let result = message();
+    let message = add_prefix(message_impl);
+    let result = message();
 '''
 
 # =============================================================================
@@ -130,27 +137,33 @@ result = func()
 '''
 
 rust = '''
-fn add_a<F>(f: F) -> impl Fn() -> String 
-where F: Fn() -> String {
-    move || format!("a({})", f())
-}
+    fn add_a<F>(f: F) -> impl Fn() -> String
+    where
+        F: Fn() -> String,
+    {
+        move || format!("a({})", f())
+    }
 
-fn add_b<F>(f: F) -> impl Fn() -> String 
-where F: Fn() -> String {
-    move || format!("b({})", f())
-}
+    fn add_b<F>(f: F) -> impl Fn() -> String
+    where
+        F: Fn() -> String,
+    {
+        move || format!("b({})", f())
+    }
 
-fn add_c<F>(f: F) -> impl Fn() -> String 
-where F: Fn() -> String {
-    move || format!("c({})", f())
-}
+    fn add_c<F>(f: F) -> impl Fn() -> String
+    where
+        F: Fn() -> String,
+    {
+        move || format!("c({})", f())
+    }
 
-fn func_impl() -> String {
-    "x".to_string()
-}
+    fn func_impl() -> String {
+        "x".to_string()
+    }
 
-let func = add_a(add_b(add_c(func_impl)));
-let result = func();
+    let func = add_a(add_b(add_c(func_impl)));
+    let result = func();
 '''
 
 [[test]]
@@ -177,22 +190,26 @@ result = message()
 '''
 
 rust = '''
-fn add_1<F>(f: F) -> impl Fn() -> String 
-where F: Fn() -> String {
-    move || format!("{} first", f())
-}
+    fn add_1<F>(f: F) -> impl Fn() -> String
+    where
+        F: Fn() -> String,
+    {
+        move || format!("{} first", f())
+    }
 
-fn add_2<F>(f: F) -> impl Fn() -> String 
-where F: Fn() -> String {
-    move || format!("{} second", f())
-}
+    fn add_2<F>(f: F) -> impl Fn() -> String
+    where
+        F: Fn() -> String,
+    {
+        move || format!("{} second", f())
+    }
 
-fn message_impl() -> String {
-    "hello".to_string()
-}
+    fn message_impl() -> String {
+        "hello".to_string()
+    }
 
-let message = add_2(add_1(message_impl));
-let result = message();
+    let message = add_2(add_1(message_impl));
+    let result = message();
 '''
 
 [[test]]
@@ -225,30 +242,36 @@ result = word()
 '''
 
 rust = '''
-fn upper<F>(f: F) -> impl Fn() -> String 
-where F: Fn() -> String {
-    move || f().to_uppercase()
-}
-
-fn exclaim<F>(f: F) -> impl Fn() -> String 
-where F: Fn() -> String {
-    move || format!("{}!", f())
-}
-
-fn repeat<F>(f: F) -> impl Fn() -> String 
-where F: Fn() -> String + Clone {
-    move || {
-        let val = f();
-        format!("{} {}", val, val)
+    fn upper<F>(f: F) -> impl Fn() -> String
+    where
+        F: Fn() -> String,
+    {
+        move || f().to_uppercase()
     }
-}
 
-fn word_impl() -> String {
-    "hi".to_string()
-}
+    fn exclaim<F>(f: F) -> impl Fn() -> String
+    where
+        F: Fn() -> String,
+    {
+        move || format!("{}!", f())
+    }
 
-let word = upper(exclaim(repeat(word_impl)));
-let result = word();
+    fn repeat<F>(f: F) -> impl Fn() -> String
+    where
+        F: Fn() -> String + Clone,
+    {
+        move || {
+            let val = f();
+            format!("{} {}", val, val)
+        }
+    }
+
+    fn word_impl() -> String {
+        "hi".to_string()
+    }
+
+    let word = upper(exclaim(repeat(word_impl)));
+    let result = word();
 '''
 
 # =============================================================================
@@ -279,28 +302,30 @@ log_result = log
 '''
 
 rust = '''
-use std::cell::RefCell;
-use std::rc::Rc;
+    use std::cell::RefCell;
+    use std::rc::Rc;
 
-fn logging_decorator<F>(f: F, log: Rc<RefCell<Vec<String>>>) -> impl Fn() -> i32 
-where F: Fn() -> i32 {
-    let log_clone = log.clone();
-    move || {
-        log_clone.borrow_mut().push(format!("Calling add"));
-        let result = f();
-        log_clone.borrow_mut().push(format!("Returned {}", result));
-        result
+    fn logging_decorator<F>(f: F, log: Rc<RefCell<Vec<String>>>) -> impl Fn() -> i32
+    where
+        F: Fn() -> i32,
+    {
+        let log_clone = log.clone();
+        move || {
+            log_clone.borrow_mut().push(format!("Calling add"));
+            let result = f();
+            log_clone.borrow_mut().push(format!("Returned {}", result));
+            result
+        }
     }
-}
 
-fn add_impl() -> i32 {
-    42
-}
+    fn add_impl() -> i32 {
+        42
+    }
 
-let log: Rc<RefCell<Vec<String>>> = Rc::new(RefCell::new(Vec::new()));
-let add = logging_decorator(add_impl, log.clone());
-let result = add();
-let log_result = log.borrow().clone();
+    let log: Rc<RefCell<Vec<String>>> = Rc::new(RefCell::new(Vec::new()));
+    let add = logging_decorator(add_impl, log.clone());
+    let result = add();
+    let log_result = log.borrow().clone();
 '''
 
 [[test]]
@@ -326,24 +351,26 @@ result = slow_function()
 '''
 
 rust = '''
-use std::time::Instant;
+    use std::time::Instant;
 
-fn timing_decorator<F>(f: F) -> impl Fn() -> String 
-where F: Fn() -> String {
-    move || {
-        let start = Instant::now();
-        let result = f();
-        let _elapsed = start.elapsed();
-        result
+    fn timing_decorator<F>(f: F) -> impl Fn() -> String
+    where
+        F: Fn() -> String,
+    {
+        move || {
+            let start = Instant::now();
+            let result = f();
+            let _elapsed = start.elapsed();
+            result
+        }
     }
-}
 
-fn slow_function_impl() -> String {
-    "done".to_string()
-}
+    fn slow_function_impl() -> String {
+        "done".to_string()
+    }
 
-let slow_function = timing_decorator(slow_function_impl);
-let result = slow_function();
+    let slow_function = timing_decorator(slow_function_impl);
+    let result = slow_function();
 '''
 
 [[test]]
@@ -366,23 +393,25 @@ result = square(5)
 '''
 
 rust = '''
-fn validate_positive<F>(f: F) -> impl Fn(i32) -> Result<i32, String> 
-where F: Fn(i32) -> i32 {
-    move |x| {
-        if x < 0 {
-            Err("Must be positive".to_string())
-        } else {
-            Ok(f(x))
+    fn validate_positive<F>(f: F) -> impl Fn(i32) -> Result<i32, String>
+    where
+        F: Fn(i32) -> i32,
+    {
+        move |x| {
+            if x < 0 {
+                Err("Must be positive".to_string())
+            } else {
+                Ok(f(x))
+            }
         }
     }
-}
 
-fn square_impl(x: i32) -> i32 {
-    x * x
-}
+    fn square_impl(x: i32) -> i32 {
+        x * x
+    }
 
-let square = validate_positive(square_impl);
-let result = square(5).unwrap();
+    let square = validate_positive(square_impl);
+    let result = square(5).unwrap();
 '''
 
 [[test]]
@@ -416,44 +445,50 @@ result = unreliable()
 '''
 
 rust = '''
-use std::cell::RefCell;
-use std::rc::Rc;
+    use std::cell::RefCell;
+    use std::rc::Rc;
 
-fn retry<F>(f: F, max_attempts: usize, attempts: Rc<RefCell<Vec<usize>>>) -> impl Fn() -> Result<String, String> 
-where F: Fn() -> Result<String, String> {
-    let attempts_clone = attempts.clone();
-    move || {
-        for i in 0..max_attempts {
-            attempts_clone.borrow_mut().push(i);
-            match f() {
-                Ok(val) => return Ok(val),
-                Err(e) => {
-                    if i == max_attempts - 1 {
-                        return Err(e);
+    fn retry<F>(
+        f: F,
+        max_attempts: usize,
+        attempts: Rc<RefCell<Vec<usize>>>,
+    ) -> impl Fn() -> Result<String, String>
+    where
+        F: Fn() -> Result<String, String>,
+    {
+        let attempts_clone = attempts.clone();
+        move || {
+            for i in 0..max_attempts {
+                attempts_clone.borrow_mut().push(i);
+                match f() {
+                    Ok(val) => return Ok(val),
+                    Err(e) => {
+                        if i == max_attempts - 1 {
+                            return Err(e);
+                        }
                     }
                 }
             }
+            Err("Max attempts reached".to_string())
         }
-        Err("Max attempts reached".to_string())
     }
-}
 
-let attempts: Rc<RefCell<Vec<usize>>> = Rc::new(RefCell::new(Vec::new()));
-let attempts_clone = attempts.clone();
+    let attempts: Rc<RefCell<Vec<usize>>> = Rc::new(RefCell::new(Vec::new()));
+    let attempts_clone = attempts.clone();
 
-let unreliable = retry(
-    move || {
-        if attempts_clone.borrow().len() < 2 {
-            Err("fail".to_string())
-        } else {
-            Ok("success".to_string())
-        }
-    },
-    2,
-    attempts.clone()
-);
+    let unreliable = retry(
+        move || {
+            if attempts_clone.borrow().len() < 2 {
+                Err("fail".to_string())
+            } else {
+                Ok("success".to_string())
+            }
+        },
+        2,
+        attempts.clone(),
+    );
 
-let result = unreliable().unwrap();
+    let result = unreliable().unwrap();
 '''
 
 # =============================================================================
@@ -478,17 +513,19 @@ result = add(3, 5)
 '''
 
 rust = '''
-fn passthrough<F>(f: F) -> impl Fn(i32, i32) -> i32 
-where F: Fn(i32, i32) -> i32 {
-    move |a, b| f(a, b)
-}
+    fn passthrough<F>(f: F) -> impl Fn(i32, i32) -> i32
+    where
+        F: Fn(i32, i32) -> i32,
+    {
+        move |a, b| f(a, b)
+    }
 
-fn add_impl(a: i32, b: i32) -> i32 {
-    a + b
-}
+    fn add_impl(a: i32, b: i32) -> i32 {
+        a + b
+    }
 
-let add = passthrough(add_impl);
-let result = add(3, 5);
+    let add = passthrough(add_impl);
+    let result = add(3, 5);
 '''
 
 [[test]]
@@ -510,20 +547,22 @@ result = get_value()
 '''
 
 rust = '''
-fn decorator<F>(f: F) -> impl Fn() -> i32 
-where F: Fn() -> i32 {
-    move || {
-        let result = f();
-        result
+    fn decorator<F>(f: F) -> impl Fn() -> i32
+    where
+        F: Fn() -> i32,
+    {
+        move || {
+            let result = f();
+            result
+        }
     }
-}
 
-fn get_value_impl() -> i32 {
-    42
-}
+    fn get_value_impl() -> i32 {
+        42
+    }
 
-let get_value = decorator(get_value_impl);
-let result = get_value();
+    let get_value = decorator(get_value_impl);
+    let result = get_value();
 '''
 
 [[test]]
@@ -547,20 +586,22 @@ except ValueError as e:
 '''
 
 rust = '''
-fn decorator<F>(f: F) -> impl Fn() -> Result<String, String> 
-where F: Fn() -> Result<String, String> {
-    move || f()
-}
+    fn decorator<F>(f: F) -> impl Fn() -> Result<String, String>
+    where
+        F: Fn() -> Result<String, String>,
+    {
+        move || f()
+    }
 
-fn failing_impl() -> Result<String, String> {
-    Err("error".to_string())
-}
+    fn failing_impl() -> Result<String, String> {
+        Err("error".to_string())
+    }
 
-let failing = decorator(failing_impl);
-let result = match failing() {
-    Ok(val) => val,
-    Err(e) => e,
-};
+    let failing = decorator(failing_impl);
+    let result = match failing() {
+        Ok(val) => val,
+        Err(e) => e,
+    };
 '''
 
 # =============================================================================
@@ -587,25 +628,27 @@ result = obj.greet()
 '''
 
 rust = '''
-fn add_prefix<F>(f: F) -> impl Fn(&MyClass) -> String 
-where F: Fn(&MyClass) -> String {
-    move |self_ref| format!("PREFIX: {}", f(self_ref))
-}
-
-struct MyClass;
-
-impl MyClass {
-    fn greet_impl(&self) -> String {
-        "hello".to_string()
+    fn add_prefix<F>(f: F) -> impl Fn(&MyClass) -> String
+    where
+        F: Fn(&MyClass) -> String,
+    {
+        move |self_ref| format!("PREFIX: {}", f(self_ref))
     }
-    
-    fn greet(&self) -> String {
-        add_prefix(Self::greet_impl)(self)
-    }
-}
 
-let obj = MyClass;
-let result = obj.greet();
+    struct MyClass;
+
+    impl MyClass {
+        fn greet_impl(&self) -> String {
+            "hello".to_string()
+        }
+
+        fn greet(&self) -> String {
+            add_prefix(Self::greet_impl)(self)
+        }
+    }
+
+    let obj = MyClass;
+    let result = obj.greet();
 '''
 
 [[test]]
@@ -631,31 +674,33 @@ result = person.greet()
 '''
 
 rust = '''
-fn add_name<F>(f: F) -> impl Fn(&Person) -> String 
-where F: Fn(&Person) -> String {
-    move |self_ref| format!("{} - {}", f(self_ref), self_ref.name)
-}
-
-struct Person {
-    name: String,
-}
-
-impl Person {
-    fn new(name: String) -> Self {
-        Person { name }
+    fn add_name<F>(f: F) -> impl Fn(&Person) -> String
+    where
+        F: Fn(&Person) -> String,
+    {
+        move |self_ref| format!("{} - {}", f(self_ref), self_ref.name)
     }
-    
-    fn greet_impl(&self) -> String {
-        "Hello".to_string()
-    }
-    
-    fn greet(&self) -> String {
-        add_name(Self::greet_impl)(self)
-    }
-}
 
-let person = Person::new("Alice".to_string());
-let result = person.greet();
+    struct Person {
+        name: String,
+    }
+
+    impl Person {
+        fn new(name: String) -> Self {
+            Person { name }
+        }
+
+        fn greet_impl(&self) -> String {
+            "Hello".to_string()
+        }
+
+        fn greet(&self) -> String {
+            add_name(Self::greet_impl)(self)
+        }
+    }
+
+    let person = Person::new("Alice".to_string());
+    let result = person.greet();
 '''
 
 # =============================================================================
@@ -702,16 +747,16 @@ result = greet()
 '''
 
 rust = '''
-fn no_op_decorator<F>(f: F) -> F {
-    f
-}
+    fn no_op_decorator<F>(f: F) -> F {
+        f
+    }
 
-fn greet_impl() -> String {
-    "hello".to_string()
-}
+    fn greet_impl() -> String {
+        "hello".to_string()
+    }
 
-let greet = no_op_decorator(greet_impl);
-let result = greet();
+    let greet = no_op_decorator(greet_impl);
+    let result = greet();
 '''
 
 [[test]]
@@ -730,13 +775,15 @@ result = add_two(5)
 '''
 
 rust = '''
-fn add_one<F>(f: F) -> impl Fn(i32) -> i32 
-where F: Fn(i32) -> i32 {
-    move |x| f(x) + 1
-}
+    fn add_one<F>(f: F) -> impl Fn(i32) -> i32
+    where
+        F: Fn(i32) -> i32,
+    {
+        move |x| f(x) + 1
+    }
 
-let add_two = add_one(|x| x + 1);
-let result = add_two(5);
+    let add_two = add_one(|x| x + 1);
+    let result = add_two(5);
 '''
 
 [[test]]
@@ -763,29 +810,27 @@ total_calls = len(call_count)
 '''
 
 rust = '''
-use std::cell::RefCell;
-use std::rc::Rc;
+    use std::cell::RefCell;
+    use std::rc::Rc;
 
-fn count_calls<F>(f: Rc<F>, call_count: Rc<RefCell<Vec<i32>>>) -> impl Fn(i32) -> i32 
-where F: Fn(i32) -> i32 {
-    let call_count_clone = call_count.clone();
-    move |n| {
-        call_count_clone.borrow_mut().push(1);
-        f(n)
+    fn count_calls<F>(f: Rc<F>, call_count: Rc<RefCell<Vec<i32>>>) -> impl Fn(i32) -> i32
+    where
+        F: Fn(i32) -> i32,
+    {
+        let call_count_clone = call_count.clone();
+        move |n| {
+            call_count_clone.borrow_mut().push(1);
+            f(n)
+        }
     }
-}
 
-fn factorial(n: i32) -> i32 {
-    if n <= 1 {
-        1
-    } else {
-        n * factorial(n - 1)
+    fn factorial(n: i32) -> i32 {
+        if n <= 1 { 1 } else { n * factorial(n - 1) }
     }
-}
 
-let call_count: Rc<RefCell<Vec<i32>>> = Rc::new(RefCell::new(Vec::new()));
-let result = factorial(5);
-let total_calls = call_count.borrow().len() as i32;
+    let call_count: Rc<RefCell<Vec<i32>>> = Rc::new(RefCell::new(Vec::new()));
+    let result = factorial(5);
+    let total_calls = call_count.borrow().len() as i32;
 '''
 
 # =============================================================================

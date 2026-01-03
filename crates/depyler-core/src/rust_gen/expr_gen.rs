@@ -3305,6 +3305,18 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 Ok(parse_quote! { #class_ident::new(#(#cloned_args),*) })
             }
         } else {
+            // Check for special keywords that cannot be raw identifiers
+            if Self::is_non_raw_keyword(func) {
+                bail!(
+                    "Python function '{}' conflicts with a special Rust keyword that cannot be escaped. \
+                     Please rename this function (e.g., '{}_func' or 'py_{}'). \
+                     Note: If this is 'super()', it should be handled as a method call, not a function call.",
+                    func,
+                    func,
+                    func
+                );
+            }
+            
             // Regular function call - use raw identifier if function name is a Rust keyword
             let func_ident = if Self::is_rust_keyword(func) {
                 syn::Ident::new_raw(func, proc_macro2::Span::call_site())
@@ -11303,6 +11315,18 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             && !self.is_list_expr(object)
             && !self.is_set_expr(object)
         {
+            // Check for special keywords that cannot be raw identifiers
+            if Self::is_non_raw_keyword(method) {
+                bail!(
+                    "Python method '{}' conflicts with a special Rust keyword that cannot be escaped. \
+                     Please rename this method (e.g., '{}_method' or 'py_{}'). \
+                     Note: If this is 'super()', it should be handled as a method call, not a function call.",
+                    method,
+                    method,
+                    method
+                );
+            }
+            
             // This is a user-defined class instance - use generic method call
             let method_ident = if Self::is_rust_keyword(method) {
                 syn::Ident::new_raw(method, proc_macro2::Span::call_site())
@@ -11488,6 +11512,18 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
 
             // Default: generic method call
             _ => {
+                // Check for special keywords that cannot be raw identifiers
+                if Self::is_non_raw_keyword(method) {
+                    bail!(
+                        "Python method '{}' conflicts with a special Rust keyword that cannot be escaped. \
+                         Please rename this method (e.g., '{}_method' or 'py_{}'). \
+                         Note: If this is 'super()', it should be handled differently.",
+                        method,
+                        method,
+                        method
+                    );
+                }
+                
                 let method_ident = if Self::is_rust_keyword(method) {
                     syn::Ident::new_raw(method, proc_macro2::Span::call_site())
                 } else {
@@ -13067,6 +13103,17 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 }
 
                 if is_subcommand_field {
+                    // Check for special keywords that cannot be raw identifiers
+                    if Self::is_non_raw_keyword(attr) {
+                        bail!(
+                            "Python attribute '{}' conflicts with a special Rust keyword that cannot be escaped. \
+                             Please rename this attribute (e.g., '{}_attr' or 'py_{}')",
+                            attr,
+                            attr,
+                            attr
+                        );
+                    }
+                    
                     // Generate just the field name (extracted via pattern matching in func wrapper)
                     let attr_ident = if Self::is_rust_keyword(attr) {
                         syn::Ident::new_raw(attr, proc_macro2::Span::call_site())
@@ -13081,6 +13128,17 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         // Handle classmethod cls.ATTR → Self::ATTR
         if let HirExpr::Var(var_name) = value {
             if var_name == "cls" && self.ctx.is_classmethod {
+                // Check for special keywords that cannot be raw identifiers
+                if Self::is_non_raw_keyword(attr) {
+                    bail!(
+                        "Python attribute '{}' conflicts with a special Rust keyword that cannot be escaped. \
+                         Please rename this attribute (e.g., '{}_attr' or 'py_{}')",
+                        attr,
+                        attr,
+                        attr
+                    );
+                }
+                
                 let attr_ident = if Self::is_rust_keyword(attr) {
                     syn::Ident::new_raw(attr, proc_macro2::Span::call_site())
                 } else {
@@ -13379,6 +13437,17 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         }
 
         // Default behavior for non-module attributes
+        // Check for special keywords that cannot be raw identifiers
+        if Self::is_non_raw_keyword(attr) {
+            bail!(
+                "Python attribute '{}' conflicts with a special Rust keyword that cannot be escaped. \
+                 Please rename this attribute (e.g., '{}_attr' or 'py_{}')",
+                attr,
+                attr,
+                attr
+            );
+        }
+        
         let attr_ident = if Self::is_rust_keyword(attr) {
             syn::Ident::new_raw(attr, proc_macro2::Span::call_site())
         } else {
@@ -13444,6 +13513,17 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                         value_expr = parse_quote! { #value_expr.as_ref().unwrap() };
                     }
                 }
+            }
+
+            // Check for special keywords that cannot be raw identifiers
+            if Self::is_non_raw_keyword(attr) {
+                bail!(
+                    "Python attribute '{}' conflicts with a special Rust keyword that cannot be escaped. \
+                     Please rename this attribute (e.g., '{}_attr' or 'py_{}')",
+                    attr,
+                    attr,
+                    attr
+                );
             }
 
             let attr_ident = if Self::is_rust_keyword(attr) {
@@ -14060,6 +14140,17 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         iter: &HirExpr,
         condition: &HirExpr,
     ) -> Result<syn::Expr> {
+        // Check for special keywords that cannot be raw identifiers
+        if Self::is_non_raw_keyword(target) {
+            bail!(
+                "Python variable '{}' conflicts with a special Rust keyword that cannot be escaped. \
+                 Please rename this variable (e.g., '{}_var' or 'py_{}')",
+                target,
+                target,
+                target
+            );
+        }
+        
         // Use raw identifier if target is a Rust keyword
         let target_ident = if Self::is_rust_keyword(target) {
             syn::Ident::new_raw(target, proc_macro2::Span::call_site())
@@ -15862,6 +15953,15 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             let idents: Vec<syn::Ident> = parts
                 .iter()
                 .map(|s| {
+                    // Check for special keywords that cannot be raw identifiers
+                    if Self::is_non_raw_keyword(s) {
+                        panic!(
+                            "Python variable '{}' conflicts with a special Rust keyword that cannot be escaped. \
+                             Please rename this variable (e.g., '{}_var' or 'py_{}')",
+                            s, s, s
+                        );
+                    }
+                    
                     if Self::is_rust_keyword(s) {
                         syn::Ident::new_raw(s, proc_macro2::Span::call_site())
                     } else {
@@ -15871,6 +15971,17 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 .collect();
             Ok(parse_quote! { ( #(#idents),* ) })
         } else {
+            // Check for special keywords that cannot be raw identifiers
+            if Self::is_non_raw_keyword(target) {
+                bail!(
+                    "Python variable '{}' conflicts with a special Rust keyword that cannot be escaped. \
+                     Please rename this variable (e.g., '{}_var' or 'py_{}')",
+                    target,
+                    target,
+                    target
+                );
+            }
+            
             // Simple variable - use raw identifier if it's a Rust keyword
             let ident = if Self::is_rust_keyword(target) {
                 syn::Ident::new_raw(target, proc_macro2::Span::call_site())

@@ -103,7 +103,9 @@ result = Example(42)
 '''
 
 rust = '''
-struct Example { value: i32 }
+struct Example {
+    value: i32,
+}
 '''
 
 
@@ -120,7 +122,9 @@ result = Example(42)
 '''
 
 rust = '''
-struct Example { value: i32 }
+struct Example {
+    value: i32,
+}
 '''
 
 
@@ -174,11 +178,7 @@ async fn condition() -> bool {
 }
 
 async fn test_await_in_if() -> i32 {
-    if condition().await {
-        1
-    } else {
-        0
-    }
+    if condition().await { 1 } else { 0 }
 }
 '''
 
@@ -496,7 +496,7 @@ async def test_await_cancel() -> bool:
 '''
 
 rust = '''
-use tokio::time::{sleep, Duration};
+use tokio::time::{Duration, sleep};
 
 async fn long_running() {
     sleep(Duration::from_secs(10)).await;
@@ -530,7 +530,7 @@ async def test_await_timeout() -> bool:
 '''
 
 rust = '''
-use tokio::time::{timeout, sleep, Duration};
+use tokio::time::{Duration, sleep, timeout};
 
 async fn slow_task() -> i32 {
     sleep(Duration::from_secs(10)).await;
@@ -538,7 +538,9 @@ async fn slow_task() -> i32 {
 }
 
 async fn test_await_timeout() -> bool {
-    timeout(Duration::from_millis(100), slow_task()).await.is_err()
+    timeout(Duration::from_millis(100), slow_task())
+        .await
+        .is_err()
 }
 '''
 
@@ -594,8 +596,8 @@ async def test_await_sequential() -> list:
 '''
 
 rust = '''
-use std::sync::Mutex;
 use lazy_static::lazy_static;
+use std::sync::Mutex;
 
 lazy_static! {
     static ref ORDER: Mutex<Vec<i32>> = Mutex::new(Vec::new());

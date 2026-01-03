@@ -178,7 +178,10 @@ pub struct State {
 }
 impl State {
     pub fn new(home_stats: TeamStats, away_stats: TeamStats) -> Self {
-        Self { home_stats, away_stats }
+        Self {
+            home_stats,
+            away_stats,
+        }
     }
 }
 pub fn get_team_stats<'a>(state: &'a mut State, is_home: bool) -> &'a mut TeamStats {

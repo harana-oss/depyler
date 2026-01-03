@@ -122,7 +122,9 @@ def extract_date_parts(s: str) -> tuple[str, str, str]:
 rust = '''
 use regex as re;
 pub fn extract_date_parts(s: String) -> (String, String, String) {
-    let m = regex::Regex::new("(\\d{4})-(\\d{2})-(\\d{2})").unwrap().find(s);
+    let m = regex::Regex::new("(\\d{4})-(\\d{2})-(\\d{2})")
+        .unwrap()
+        .find(s);
     if m.is_some() {
         return (
             m.as_ref().unwrap().get(1).map(|m| m.as_str()).unwrap_or(""),
@@ -195,7 +197,10 @@ def redact_numbers(s: str) -> str:
 rust = '''
 use regex as re;
 pub fn redact_numbers(s: String) -> String {
-    return regex::Regex::new("\\d+").unwrap().replace_all(s, "XXX").to_string();
+    return regex::Regex::new("\\d+")
+        .unwrap()
+        .replace_all(s, "XXX")
+        .to_string();
 }
 '''
 

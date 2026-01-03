@@ -468,9 +468,9 @@ def create_seeded_rng(seed: int) -> int:
 rust = '''
 use rand as random;
 use rand::Rng;
+use rand::SeedableRng;
 use rand::prelude::*;
 use rand::rngs::SmallRng;
-use rand::SeedableRng;
 pub fn create_seeded_rng(seed: i32) -> i32 {
     let rng = SmallRng::seed_from_u64(seed as u64);
     return 0;
@@ -492,9 +492,9 @@ def create_random_rng() -> int:
 rust = '''
 use rand as random;
 use rand::Rng;
+use rand::SeedableRng;
 use rand::prelude::*;
 use rand::rngs::SmallRng;
-use rand::SeedableRng;
 pub fn create_random_rng() -> i32 {
     let rng = SmallRng::from_os_rng();
     return 0;
@@ -520,9 +520,9 @@ def create_secure_rng() -> int:
 rust = '''
 use rand as random;
 use rand::Rng;
+use rand::SeedableRng;
 use rand::prelude::*;
 use rand::rngs::SmallRng;
-use rand::SeedableRng;
 pub fn create_secure_rng() -> i32 {
     let secure_rng = rand::rngs::OsRng;
     return 0;

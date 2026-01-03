@@ -245,8 +245,16 @@ impl Ord for Point {
 }
 
 pub fn test_dataclass_order_fields() -> bool {
-    let p1 = Point { x: 1, y: 2, label: "A".to_string() };
-    let p2 = Point { x: 1, y: 2, label: "B".to_string() };
+    let p1 = Point {
+        x: 1,
+        y: 2,
+        label: "A".to_string(),
+    };
+    let p2 = Point {
+        x: 1,
+        y: 2,
+        label: "B".to_string(),
+    };
     p1 == p2
 }
 '''
@@ -518,7 +526,7 @@ struct Point {
 }
 
 pub fn test_dataclass_fields() -> usize {
-    2  // x and y fields
+    2 // x and y fields
 }
 '''
 
@@ -788,7 +796,7 @@ struct Point {
 struct Regular {}
 
 pub fn test_dataclass_is() -> bool {
-    true  // Point is a dataclass-like struct, Regular is not
+    true // Point is a dataclass-like struct, Regular is not
 }
 '''
 
@@ -866,11 +874,11 @@ match value:
 '''
 
 rust = '''
-let value = 2;
-let result = match value {
-    1 | 2 | 3 => "small",
-    _ => "other",
-};
+    let value = 2;
+    let result = match value {
+        1 | 2 | 3 => "small",
+        _ => "other",
+    };
 '''
 
 

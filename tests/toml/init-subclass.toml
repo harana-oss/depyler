@@ -26,26 +26,30 @@ class Sub2(Base):
 assert Base.subclass_created == ["Sub1", "Sub2"]
 '''
 rust = '''
-// Rust doesn't have dynamic subclass hooks
-// Use declarative macros or compile-time code gen
-// Conceptual equivalent:
-trait Base {
-    fn name() -> &'static str;
-}
+    // Rust doesn't have dynamic subclass hooks
+    // Use declarative macros or compile-time code gen
+    // Conceptual equivalent:
+    trait Base {
+        fn name() -> &'static str;
+    }
 
-struct Sub1;
-impl Base for Sub1 {
-    fn name() -> &'static str { "Sub1" }
-}
+    struct Sub1;
+    impl Base for Sub1 {
+        fn name() -> &'static str {
+            "Sub1"
+        }
+    }
 
-struct Sub2;
-impl Base for Sub2 {
-    fn name() -> &'static str { "Sub2" }
-}
+    struct Sub2;
+    impl Base for Sub2 {
+        fn name() -> &'static str {
+            "Sub2"
+        }
+    }
 
-// Would need to manually register or use a macro
-let names = vec![Sub1::name(), Sub2::name()];
-assert_eq!(names, vec!["Sub1", "Sub2"]);
+    // Would need to manually register or use a macro
+    let names = vec![Sub1::name(), Sub2::name()];
+    assert_eq!(names, vec!["Sub1", "Sub2"]);
 '''
 
 [[test]]
@@ -103,12 +107,16 @@ trait Plugin {
 
 struct PluginA;
 impl Plugin for PluginA {
-    fn plugin_name() -> &'static str { "A" }
+    fn plugin_name() -> &'static str {
+        "A"
+    }
 }
 
 struct PluginB;
 impl Plugin for PluginB {
-    fn plugin_name() -> &'static str { "B" }
+    fn plugin_name() -> &'static str {
+        "B"
+    }
 }
 
 assert_eq!(PluginA::plugin_name(), "A");
@@ -142,30 +150,34 @@ assert "cache" in Plugin.registry
 assert Plugin.registry["db"] is DatabasePlugin
 '''
 rust = '''
-// Rust: use inventory crate or lazy_static for registration
-use std::collections::HashMap;
+    // Rust: use inventory crate or lazy_static for registration
+    use std::collections::HashMap;
 
-trait Plugin {
-    fn id() -> &'static str;
-}
+    trait Plugin {
+        fn id() -> &'static str;
+    }
 
-struct DatabasePlugin;
-impl Plugin for DatabasePlugin {
-    fn id() -> &'static str { "db" }
-}
+    struct DatabasePlugin;
+    impl Plugin for DatabasePlugin {
+        fn id() -> &'static str {
+            "db"
+        }
+    }
 
-struct CachePlugin;
-impl Plugin for CachePlugin {
-    fn id() -> &'static str { "cache" }
-}
+    struct CachePlugin;
+    impl Plugin for CachePlugin {
+        fn id() -> &'static str {
+            "cache"
+        }
+    }
 
-// Manually build registry (or use macro)
-let mut registry = HashMap::new();
-registry.insert(DatabasePlugin::id(), "DatabasePlugin");
-registry.insert(CachePlugin::id(), "CachePlugin");
+    // Manually build registry (or use macro)
+    let mut registry = HashMap::new();
+    registry.insert(DatabasePlugin::id(), "DatabasePlugin");
+    registry.insert(CachePlugin::id(), "CachePlugin");
 
-assert!(registry.contains_key("db"));
-assert!(registry.contains_key("cache"));
+    assert!(registry.contains_key("db"));
+    assert!(registry.contains_key("cache"));
 '''
 
 [[test]]
@@ -199,7 +211,9 @@ trait Base {
 
 struct GoodSub;
 impl Base for GoodSub {
-    fn required_attr() -> &'static str { "present" }
+    fn required_attr() -> &'static str {
+        "present"
+    }
 }
 
 assert_eq!(GoodSub::required_attr(), "present");
@@ -224,7 +238,9 @@ assert Sub.base_class is Base
 rust = '''
 // Rust: use trait with default implementations
 trait Base {
-    fn version() -> &'static str { "1.0" }
+    fn version() -> &'static str {
+        "1.0"
+    }
 }
 
 struct Sub;
@@ -257,7 +273,9 @@ trait Model {
 
 struct User;
 impl Model for User {
-    fn table_name() -> &'static str { "users" }
+    fn table_name() -> &'static str {
+        "users"
+    }
 }
 
 assert_eq!(User::table_name(), "users");
@@ -290,11 +308,15 @@ assert Leaf.from_middle == True
 rust = '''
 // Rust: trait composition
 trait Base {
-    fn from_base() -> bool { true }
+    fn from_base() -> bool {
+        true
+    }
 }
 
 trait Middle: Base {
-    fn from_middle() -> bool { true }
+    fn from_middle() -> bool {
+        true
+    }
 }
 
 struct Leaf;
@@ -329,28 +351,28 @@ assert 'A' in A.chain
 assert 'B' in A.chain
 '''
 rust = '''
-// Rust: trait methods are called explicitly
-trait A {
-    fn init() -> Vec<&'static str> {
-        vec!["A"]
+    // Rust: trait methods are called explicitly
+    trait A {
+        fn init() -> Vec<&'static str> {
+            vec!["A"]
+        }
     }
-}
 
-trait B: A {
-    fn init() -> Vec<&'static str> {
-        let mut chain = <Self as A>::init();
-        chain.push("B");
-        chain
+    trait B: A {
+        fn init() -> Vec<&'static str> {
+            let mut chain = <Self as A>::init();
+            chain.push("B");
+            chain
+        }
     }
-}
 
-struct C;
-impl A for C {}
-impl B for C {}
+    struct C;
+    impl A for C {}
+    impl B for C {}
 
-let chain = <C as B>::init();
-assert!(chain.contains(&"A"));
-assert!(chain.contains(&"B"));
+    let chain = <C as B>::init();
+    assert!(chain.contains(&"A"));
+    assert!(chain.contains(&"B"));
 '''
 
 # =============================================================================
@@ -374,29 +396,29 @@ assert 'custom_param' in Sub.extra_kwargs
 assert Sub.extra_kwargs['custom_param'] == "value"
 '''
 rust = '''
-// Rust: use builder pattern or attribute macros
-// Conceptual equivalent:
-trait Base {}
+    // Rust: use builder pattern or attribute macros
+    // Conceptual equivalent:
+    trait Base {}
 
-#[derive(Debug)]
-struct SubConfig {
-    custom_param: String,
-    another: i32,
-}
-
-struct Sub {
-    config: SubConfig,
-}
-
-impl Base for Sub {}
-
-let sub = Sub {
-    config: SubConfig {
-        custom_param: "value".to_string(),
-        another: 42,
+    #[derive(Debug)]
+    struct SubConfig {
+        custom_param: String,
+        another: i32,
     }
-};
-assert_eq!(sub.config.custom_param, "value");
+
+    struct Sub {
+        config: SubConfig,
+    }
+
+    impl Base for Sub {}
+
+    let sub = Sub {
+        config: SubConfig {
+            custom_param: "value".to_string(),
+            another: 42,
+        },
+    };
+    assert_eq!(sub.config.custom_param, "value");
 '''
 
 [[test]]
@@ -429,7 +451,9 @@ trait Base {
 
 struct GoodSub;
 impl Base for GoodSub {
-    fn required_param() -> &'static str { "value" }
+    fn required_param() -> &'static str {
+        "value"
+    }
 }
 
 assert_eq!(GoodSub::required_param(), "value");
@@ -456,7 +480,9 @@ assert SubWithCustom.version == "2.0"
 rust = '''
 // Rust: trait with default methods
 trait Base {
-    fn version() -> &'static str { "1.0" }
+    fn version() -> &'static str {
+        "1.0"
+    }
 }
 
 struct SubWithDefault;
@@ -464,7 +490,9 @@ impl Base for SubWithDefault {}
 
 struct SubWithCustom;
 impl Base for SubWithCustom {
-    fn version() -> &'static str { "2.0" }
+    fn version() -> &'static str {
+        "2.0"
+    }
 }
 
 assert_eq!(SubWithDefault::version(), "1.0");
@@ -501,23 +529,23 @@ obj = Concrete()
 assert obj.process() == "processed"
 '''
 rust = '''
-// Rust: combine trait with static registration
-trait Base {
-    fn process(&self) -> String;
-}
-
-struct Concrete;
-impl Base for Concrete {
-    fn process(&self) -> String {
-        "processed".to_string()
+    // Rust: combine trait with static registration
+    trait Base {
+        fn process(&self) -> String;
     }
-}
 
-// Registry would be built at compile-time or with lazy_static
-let registry = vec!["Concrete"];
-assert!(registry.contains(&"Concrete"));
-let obj = Concrete;
-assert_eq!(obj.process(), "processed");
+    struct Concrete;
+    impl Base for Concrete {
+        fn process(&self) -> String {
+            "processed".to_string()
+        }
+    }
+
+    // Registry would be built at compile-time or with lazy_static
+    let registry = vec!["Concrete"];
+    assert!(registry.contains(&"Concrete"));
+    let obj = Concrete;
+    assert_eq!(obj.process(), "processed");
 '''
 
 [[test]]
@@ -543,19 +571,27 @@ assert C.b_param == "from_b"
 rust = '''
 // Rust: multiple trait bounds
 trait A {
-    fn a_param() -> &'static str { "" }
+    fn a_param() -> &'static str {
+        ""
+    }
 }
 
 trait B: A {
-    fn b_param() -> &'static str { "" }
+    fn b_param() -> &'static str {
+        ""
+    }
 }
 
 struct C;
 impl A for C {
-    fn a_param() -> &'static str { "from_a" }
+    fn a_param() -> &'static str {
+        "from_a"
+    }
 }
 impl B for C {
-    fn b_param() -> &'static str { "from_b" }
+    fn b_param() -> &'static str {
+        "from_b"
+    }
 }
 
 assert_eq!(C::a_param(), "from_a");
@@ -587,11 +623,13 @@ rust = '''
 // Rust: use procedural macros for similar effect
 // Conceptual example showing both derive and trait
 
-#[derive(Debug)]  // Like metaclass
+#[derive(Debug)] // Like metaclass
 struct Sub;
 
 trait Base {
-    fn from_trait() -> bool { true }
+    fn from_trait() -> bool {
+        true
+    }
 }
 
 impl Base for Sub {}
@@ -627,7 +665,9 @@ trait Base {
 
 struct AllowedName;
 impl Base for AllowedName {
-    fn name() -> &'static str { "AllowedName" }
+    fn name() -> &'static str {
+        "AllowedName"
+    }
 }
 
 // Compile-time assertion could prevent forbidden names

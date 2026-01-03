@@ -196,7 +196,7 @@ struct Counter {
 
 impl DivAssign for Counter {
     fn div_assign(&mut self, other: Counter) {
-        self.x /= other.x;  // Integer division floors automatically
+        self.x /= other.x; // Integer division floors automatically
     }
 }
 
@@ -531,20 +531,24 @@ impl Matrix {
         let result = vec![
             vec![
                 self.data[0][0] * other.data[0][0] + self.data[0][1] * other.data[1][0],
-                self.data[0][0] * other.data[0][1] + self.data[0][1] * other.data[1][1]
+                self.data[0][0] * other.data[0][1] + self.data[0][1] * other.data[1][1],
             ],
             vec![
                 self.data[1][0] * other.data[0][0] + self.data[1][1] * other.data[1][0],
-                self.data[1][0] * other.data[0][1] + self.data[1][1] * other.data[1][1]
-            ]
+                self.data[1][0] * other.data[0][1] + self.data[1][1] * other.data[1][1],
+            ],
         ];
         self.data = result;
     }
 }
 
 fn main() {
-    let mut a = Matrix { data: vec![vec![1, 2], vec![3, 4]] };
-    let b = Matrix { data: vec![vec![2, 0], vec![1, 2]] };
+    let mut a = Matrix {
+        data: vec![vec![1, 2], vec![3, 4]],
+    };
+    let b = Matrix {
+        data: vec![vec![2, 0], vec![1, 2]],
+    };
     a.matmul_assign(&b);
     log::info!("Matrix({:?})", a.data);
 }
@@ -587,16 +591,18 @@ struct NoInPlace {
 
 impl Add for NoInPlace {
     type Output = NoInPlace;
-    
+
     fn add(self, other: NoInPlace) -> NoInPlace {
-        NoInPlace { x: self.x + other.x }
+        NoInPlace {
+            x: self.x + other.x,
+        }
     }
 }
 
 fn main() {
     let a = NoInPlace { x: 5 };
-    let a = a + NoInPlace { x: 3 };  // No in-place in Rust without mut + AddAssign
-    
+    let a = a + NoInPlace { x: 3 }; // No in-place in Rust without mut + AddAssign
+
     log::info!("NoInPlace({})", a.x);
     log::info!("Object changed: true");
 }
@@ -643,7 +649,7 @@ impl AddAssign for Accumulator {
 fn main() {
     let mut a = Accumulator { x: 5 };
     a += Accumulator { x: 3 };
-    
+
     log::info!("Accumulator({})", a.x);
     log::info!("Same object: true");
 }
@@ -669,9 +675,9 @@ print(f"Same object: {original_id == new_id}")
 rust = """
 fn main() {
     let mut original = vec![1, 2, 3];
-    
+
     original.extend_from_slice(&[4, 5]);
-    
+
     log::info!("List: {:?}", original);
     log::info!("Same object: true");
 }
@@ -693,9 +699,9 @@ print(f"Different object: {original_id != new_id}")
 rust = """
 fn main() {
     let mut x = 5;
-    
-    x += 1;  // In Rust, integers are always copied
-    
+
+    x += 1; // In Rust, integers are always copied
+
     log::info!("Value: {}", x);
     log::info!("Different object: true");
 }
@@ -717,9 +723,9 @@ print(f"List: {my_list}")
 rust = """
 fn main() {
     let mut my_list = vec![1, 2, 3];
-    let tuple = [4, 5];  // Rust doesn't have true tuples for this, use array
+    let tuple = [4, 5]; // Rust doesn't have true tuples for this, use array
     my_list.extend_from_slice(&tuple);
-    
+
     log::info!("List: {:?}", my_list);
 }
 """
@@ -759,16 +765,18 @@ struct Weird {
 
 impl Add for Weird {
     type Output = Weird;
-    
+
     fn add(self, other: Weird) -> Weird {
-        Weird { x: self.x + other.x }
+        Weird {
+            x: self.x + other.x,
+        }
     }
 }
 
 fn main() {
     let a = Weird { x: 5 };
     let a = a + Weird { x: 3 };
-    
+
     log::info!("Weird({})", a.x);
     log::info!("Different object: true");
 }
@@ -794,10 +802,10 @@ fn main() {
     let mut a = 5;
     let mut b = 10;
     let c = 3;
-    
+
     b += c;
     a += b;
-    
+
     log::info!("a: {}, b: {}, c: {}", a, b, c);
 }
 """

@@ -169,6 +169,23 @@ impl AstBridge {
         let mut constants = Vec::new();
         let mut statements = Vec::new();
 
+        // DEPYLER-0336: First pass - detect if there are any executable statements
+        // If we have mixed constants and executable statements, we'll treat all
+        // module-level assignments as executable code (local variables in main).
+        let has_executable_statements = module.body.iter().any(|stmt| {
+            !matches!(
+                stmt,
+                ast::Stmt::FunctionDef(_)
+                    | ast::Stmt::AsyncFunctionDef(_)
+                    | ast::Stmt::ClassDef(_)
+                    | ast::Stmt::Import(_)
+                    | ast::Stmt::ImportFrom(_)
+                    | ast::Stmt::Assign(_)
+                    | ast::Stmt::AnnAssign(_)
+                    | ast::Stmt::TypeAlias(_)
+            )
+        });
+
         for stmt in module.body {
             match stmt {
                 ast::Stmt::FunctionDef(f) => {
@@ -198,11 +215,16 @@ impl AstBridge {
                     // Try to parse as type alias first
                     if let Some(type_alias) = self.try_convert_type_alias(&assign)? {
                         type_aliases.push(type_alias);
-                    } else if let Some(constant) = self.try_convert_constant(&assign)? {
-                        // Try to parse as module-level constant
-                        constants.push(constant);
+                    } else if !has_executable_statements {
+                        // Only treat as constant if there are NO executable statements
+                        if let Some(constant) = self.try_convert_constant(&assign)? {
+                            constants.push(constant);
+                        } else {
+                            // Otherwise, treat as executable statement
+                            statements.push(convert_stmt(ast::Stmt::Assign(assign))?);
+                        }
                     } else {
-                        // Otherwise, treat as executable statement (e.g., unpacking)
+                        // If there are executable statements, treat ALL assignments as executable
                         statements.push(convert_stmt(ast::Stmt::Assign(assign))?);
                     }
                 }
@@ -210,13 +232,16 @@ impl AstBridge {
                     // Try to parse annotated assignment as type alias first
                     if let Some(type_alias) = self.try_convert_annotated_type_alias(&ann_assign)? {
                         type_aliases.push(type_alias);
-                    } else if let Some(constant) =
-                        self.try_convert_annotated_constant(&ann_assign)?
-                    {
-                        // Try to parse as annotated module-level constant
-                        constants.push(constant);
+                    } else if !has_executable_statements {
+                        // Only treat as constant if there are NO executable statements
+                        if let Some(constant) = self.try_convert_annotated_constant(&ann_assign)? {
+                            constants.push(constant);
+                        } else {
+                            // Otherwise, treat as executable statement
+                            statements.push(convert_stmt(ast::Stmt::AnnAssign(ann_assign))?);
+                        }
                     } else {
-                        // Otherwise, treat as executable statement
+                        // If there are executable statements, treat ALL assignments as executable
                         statements.push(convert_stmt(ast::Stmt::AnnAssign(ann_assign))?);
                     }
                 }
@@ -681,6 +706,18 @@ impl AstBridge {
             .any(|b| b == "IntEnum" || b == "Enum" || b == "IntFlag");
         let is_intflag = base_classes.iter().any(|b| b == "IntFlag");
 
+        // Check if this is an ABC (Abstract Base Class)
+        // A class is an ABC if it:
+        // 1. Inherits from ABC
+        // 2. Uses ABCMeta as metaclass
+        let is_abc = base_classes.iter().any(|b| b == "ABC")
+            || class.keywords.iter().any(|kw| {
+                kw.arg
+                    .as_ref()
+                    .map_or(false, |name| name.as_str() == "metaclass")
+                    && matches!(&kw.value, ast::Expr::Name(n) if n.id.as_str() == "ABCMeta")
+            });
+
         // Convert methods and fields
         let mut methods = Vec::new();
         let mut fields = Vec::new();
@@ -742,22 +779,31 @@ impl AstBridge {
                     }
                 }
                 ast::Stmt::Assign(assign) => {
-                    if is_enum {
-                        // Extract enum members from simple assignments
-                        for target in &assign.targets {
-                            if let ast::Expr::Name(name) = target {
-                                let field_name = name.id.to_string();
-                                let field_type = Type::Int;
-                                let converted_value =
-                                    ExprConverter::convert(assign.value.as_ref().clone())?;
+                    // Extract class variables from simple assignments
+                    // For enums, these are enum members
+                    // For regular classes, these are class-level variables (like static in Rust)
+                    for target in &assign.targets {
+                        if let ast::Expr::Name(name) = target {
+                            let field_name = name.id.to_string();
 
-                                fields.push(HirField {
-                                    name: field_name,
-                                    field_type,
-                                    default_value: Some(converted_value),
-                                    is_class_var: true,
-                                });
-                            }
+                            // For enums, use Int type; for regular classes, infer from value
+                            let field_type = if is_enum {
+                                Type::Int
+                            } else {
+                                // Try to infer type from the assignment value
+                                self.infer_type_from_expr(&assign.value)
+                                    .unwrap_or(Type::Unknown)
+                            };
+
+                            let converted_value =
+                                ExprConverter::convert(assign.value.as_ref().clone())?;
+
+                            fields.push(HirField {
+                                name: field_name,
+                                field_type,
+                                default_value: Some(converted_value),
+                                is_class_var: true, // All simple assignments in class body are class variables
+                            });
                         }
                     }
                 }
@@ -785,6 +831,7 @@ impl AstBridge {
             is_dataclass,
             is_enum,
             is_intflag,
+            is_abc,
             docstring,
             annotations,
         }))
@@ -826,6 +873,10 @@ impl AstBridge {
             .decorator_list
             .iter()
             .any(|d| matches!(d, ast::Expr::Name(n) if n.id.as_str() == "property"));
+        let is_abstract = method
+            .decorator_list
+            .iter()
+            .any(|d| matches!(d, ast::Expr::Name(n) if n.id.as_str() == "abstractmethod"));
 
         // Convert parameters (skip 'self' for regular methods, 'cls' for classmethods)
         let mut params = smallvec![];
@@ -900,6 +951,7 @@ impl AstBridge {
             is_classmethod,
             is_property,
             is_async,
+            is_abstract,
             docstring,
         }))
     }
@@ -947,6 +999,10 @@ impl AstBridge {
             .decorator_list
             .iter()
             .any(|d| matches!(d, ast::Expr::Name(n) if n.id.as_str() == "property"));
+        let is_abstract = method
+            .decorator_list
+            .iter()
+            .any(|d| matches!(d, ast::Expr::Name(n) if n.id.as_str() == "abstractmethod"));
 
         // Convert parameters
         let mut params = smallvec![];
@@ -1021,6 +1077,7 @@ impl AstBridge {
             is_classmethod,
             is_property,
             is_async: true,
+            is_abstract,
             docstring,
         }))
     }

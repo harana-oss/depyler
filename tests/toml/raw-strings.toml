@@ -16,8 +16,8 @@ result = s == '\\n'
 '''
 
 rust = '''
-let s = r"\n";
-let result = s == "\\n";
+    let s = r"\n";
+    let result = s == "\\n";
 '''
 
 [[test]]
@@ -30,8 +30,8 @@ result = path == 'C:\\Users\\name'
 '''
 
 rust = '''
-let path = r"C:\Users\name";
-let result = path == "C:\\Users\\name";
+    let path = r"C:\Users\name";
+    let result = path == "C:\\Users\\name";
 '''
 
 [[test]]
@@ -44,8 +44,8 @@ result = pattern == '\\d+\\.\\d+'
 '''
 
 rust = '''
-let pattern = r"\d+\.\d+";
-let result = pattern == "\\d+\\.\\d+";
+    let pattern = r"\d+\.\d+";
+    let result = pattern == "\\d+\\.\\d+";
 '''
 
 # =============================================================================
@@ -63,9 +63,9 @@ result = (len(raw) == 2 and len(normal) == 1)
 '''
 
 rust = '''
-let raw = r"\n";
-let normal = "\n";
-let result = (raw.len() == 2 && normal.len() == 1);
+    let raw = r"\n";
+    let normal = "\n";
+    let result = (raw.len() == 2 && normal.len() == 1);
 '''
 
 [[test]]
@@ -79,9 +79,9 @@ result = (len(raw) == 2 and len(normal) == 1)
 '''
 
 rust = '''
-let raw = r"\t";
-let normal = "\t";
-let result = (raw.len() == 2 && normal.len() == 1);
+    let raw = r"\t";
+    let normal = "\t";
+    let result = (raw.len() == 2 && normal.len() == 1);
 '''
 
 [[test]]
@@ -94,8 +94,8 @@ result = raw == '\\u0041'
 '''
 
 rust = '''
-let raw = r"\u0041";
-let result = raw == "\\u0041";
+    let raw = r"\u0041";
+    let result = raw == "\\u0041";
 '''
 
 [[test]]
@@ -108,8 +108,8 @@ result = raw == '\\x41'
 '''
 
 rust = '''
-let raw = r"\x41";
-let result = raw == "\\x41";
+    let raw = r"\x41";
+    let result = raw == "\\x41";
 '''
 
 # =============================================================================
@@ -126,8 +126,8 @@ result = s == 'text'
 '''
 
 rust = '''
-let s = r"text";
-let result = s == "text";
+    let s = r"text";
+    let result = s == "text";
 '''
 
 [[test]]
@@ -140,8 +140,8 @@ result = s == "text"
 '''
 
 rust = '''
-let s = r"text";
-let result = s == "text";
+    let s = r"text";
+    let result = s == "text";
 '''
 
 [[test]]
@@ -154,8 +154,8 @@ result = s == 'text'
 """
 
 rust = '''
-let s = r"text";
-let result = s == "text";
+    let s = r"text";
+    let result = s == "text";
 '''
 
 [[test]]
@@ -168,8 +168,8 @@ result = s == "text"
 '''
 
 rust = '''
-let s = r"text";
-let result = s == "text";
+    let s = r"text";
+    let result = s == "text";
 '''
 
 # =============================================================================
@@ -187,9 +187,9 @@ result = s == 'test\\n'
 '''
 
 rust = '''
-let var = "test";
-let s = format!(r"{}\n", var);
-let result = s == "test\\n";
+    let var = "test";
+    let s = format!(r"{}\n", var);
+    let result = s == "test\\n";
 '''
 
 [[test]]
@@ -203,9 +203,9 @@ result = s == 'test\\n'
 '''
 
 rust = '''
-let var = "test";
-let s = format!(r"{}\n", var);
-let result = s == "test\\n";
+    let var = "test";
+    let s = format!(r"{}\n", var);
+    let result = s == "test\\n";
 '''
 
 # =============================================================================
@@ -223,8 +223,8 @@ result = True
 '''
 
 rust = '''
-// Similar limitation in Rust
-let result = true;
+    // Similar limitation in Rust
+    let result = true;
 '''
 
 [[test]]
@@ -238,8 +238,8 @@ result = True
 '''
 
 rust = '''
-// Cannot escape quotes in raw strings
-let result = true;
+    // Cannot escape quotes in raw strings
+    let result = true;
 '''
 
 # =============================================================================
@@ -259,11 +259,11 @@ result = match is not None
 '''
 
 rust = '''
-use regex::Regex;
-let text = "123abc";
-let pattern = r"\d+";
-let re = Regex::new(pattern).unwrap();
-let result = re.is_match(text);
+    use regex::Regex;
+    let text = "123abc";
+    let pattern = r"\d+";
+    let re = Regex::new(pattern).unwrap();
+    let result = re.is_match(text);
 '''
 
 [[test]]
@@ -276,8 +276,8 @@ result = path == 'C:\\Program Files\\App'
 '''
 
 rust = '''
-let path = r"C:\Program Files\App";
-let result = path == "C:\\Program Files\\App";
+    let path = r"C:\Program Files\App";
+    let result = path == "C:\\Program Files\\App";
 '''
 
 [[test]]
@@ -290,8 +290,8 @@ result = latex == '\\frac{1}{2}'
 '''
 
 rust = '''
-let latex = r"\frac{1}{2}";
-let result = latex == "\\frac{1}{2}";
+    let latex = r"\frac{1}{2}";
+    let result = latex == "\\frac{1}{2}";
 '''
 
 # =============================================================================
@@ -308,8 +308,8 @@ result = s == ''
 '''
 
 rust = '''
-let s = r"";
-let result = s == "";
+    let s = r"";
+    let result = s == "";
 '''
 
 [[test]]
@@ -322,8 +322,8 @@ result = s == 'multi\\nline'
 """
 
 rust = '''
-let s = r"multi\nline";
-let result = s == "multi\\nline";
+    let s = r"multi\nline";
+    let result = s == "multi\\nline";
 '''
 
 [[test]]
@@ -337,7 +337,7 @@ result = (b1 == b'\\x00' and b2 == b'\\x00')
 '''
 
 rust = '''
-let b1 = br"\x00";
-let b2 = br"\x00";
-let result = (b1 == b"\\x00" && b2 == b"\\x00");
+    let b1 = br"\x00";
+    let b2 = br"\x00";
+    let result = (b1 == b"\\x00" && b2 == b"\\x00");
 '''

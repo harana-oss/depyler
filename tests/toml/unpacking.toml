@@ -101,7 +101,11 @@ rust = """
 fn main() {
     let data = vec![1];
     let a = data[0];
-    let rest: Vec<i32> = if data.len() > 1 { data[1..].to_vec() } else { vec![] };
+    let rest: Vec<i32> = if data.len() > 1 {
+        data[1..].to_vec()
+    } else {
+        vec![]
+    };
     log::info!("a={}, rest={:?}", a, rest);
 }
 """

@@ -391,7 +391,9 @@ pub fn range_boundary_test() -> i32 {
     }
     .into_iter()
     .collect::<Vec<_>>();
-    return empty_range.len() as i32 + single_range.len() as i32 + reverse_range.len() as i32 as i32;
+    return empty_range.len() as i32
+        + single_range.len() as i32
+        + reverse_range.len() as i32 as i32;
 }
 '''
 
@@ -462,7 +464,8 @@ pub fn comparison_boundary_test(a: i32, b: i32) -> bool {
     let greater_than = _cse_temp_4;
     let _cse_temp_5 = a >= b;
     let greater_equal = _cse_temp_5;
-    return (((((equal) || (not_equal)) || (less_than)) || (less_equal)) || (greater_than)) || (greater_equal);
+    return (((((equal) || (not_equal)) || (less_than)) || (less_equal)) || (greater_than))
+        || (greater_equal);
 }
 '''
 
@@ -549,7 +552,6 @@ description = "Empty Python source should transpile to empty output"
 python = ''
 
 rust = '''
-
 '''
 
 [[test]]
@@ -563,7 +565,6 @@ python = '''
 '''
 
 rust = '''
-
 '''
 
 [[test]]

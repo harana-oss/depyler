@@ -49,15 +49,15 @@ assert result == 3
 assert isinstance(result, int)
 '''
 rust = '''
-#[repr(i32)]
-#[derive(Debug, Clone, Copy)]
-enum Priority {
-    Low = 1,
-    High = 2,
-}
+    #[repr(i32)]
+    #[derive(Debug, Clone, Copy)]
+    enum Priority {
+        Low = 1,
+        High = 2,
+    }
 
-let result = (Priority::High as i32) + 1;
-assert_eq!(result, 3);
+    let result = (Priority::High as i32) + 1;
+    assert_eq!(result, 3);
 '''
 
 [[test]]
@@ -136,17 +136,17 @@ result2 = 5 + Priority.HIGH
 assert result2 == 7
 '''
 rust = '''
-#[repr(i32)]
-#[derive(Debug, Clone, Copy)]
-enum Priority {
-    Low = 1,
-    High = 2,
-}
+    #[repr(i32)]
+    #[derive(Debug, Clone, Copy)]
+    enum Priority {
+        Low = 1,
+        High = 2,
+    }
 
-let result = (Priority::Low as i32) + 1;
-assert_eq!(result, 2);
-let result2 = 5 + (Priority::High as i32);
-assert_eq!(result2, 7);
+    let result = (Priority::Low as i32) + 1;
+    assert_eq!(result, 2);
+    let result2 = 5 + (Priority::High as i32);
+    assert_eq!(result2, 7);
 '''
 
 [[test]]
@@ -165,17 +165,17 @@ result2 = 10 - Priority.HIGH
 assert result2 == 7
 '''
 rust = '''
-#[repr(i32)]
-#[derive(Debug, Clone, Copy)]
-enum Priority {
-    Low = 1,
-    High = 3,
-}
+    #[repr(i32)]
+    #[derive(Debug, Clone, Copy)]
+    enum Priority {
+        Low = 1,
+        High = 3,
+    }
 
-let result = (Priority::High as i32) - 1;
-assert_eq!(result, 2);
-let result2 = 10 - (Priority::High as i32);
-assert_eq!(result2, 7);
+    let result = (Priority::High as i32) - 1;
+    assert_eq!(result, 2);
+    let result2 = 10 - (Priority::High as i32);
+    assert_eq!(result2, 7);
 '''
 
 [[test]]
@@ -194,17 +194,17 @@ result2 = 3 * Priority.HIGH
 assert result2 == 15
 '''
 rust = '''
-#[repr(i32)]
-#[derive(Debug, Clone, Copy)]
-enum Priority {
-    Low = 2,
-    High = 5,
-}
+    #[repr(i32)]
+    #[derive(Debug, Clone, Copy)]
+    enum Priority {
+        Low = 2,
+        High = 5,
+    }
 
-let result = (Priority::Low as i32) * 2;
-assert_eq!(result, 4);
-let result2 = 3 * (Priority::High as i32);
-assert_eq!(result2, 15);
+    let result = (Priority::Low as i32) * 2;
+    assert_eq!(result, 4);
+    let result2 = 3 * (Priority::High as i32);
+    assert_eq!(result2, 15);
 '''
 
 # =============================================================================
@@ -227,7 +227,7 @@ assert Perm.W == 2
 assert Perm.X == 1
 '''
 rust = '''
-use std::ops::{BitOr, BitAnd};
+use std::ops::{BitAnd, BitOr};
 
 #[repr(i32)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -274,27 +274,27 @@ assert rw == 6
 assert isinstance(rw, Perm)
 '''
 rust = '''
-use std::ops::BitOr;
+    use std::ops::BitOr;
 
-#[repr(i32)]
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-struct Perm(i32);
+    #[repr(i32)]
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    struct Perm(i32);
 
-impl Perm {
-    const R: Perm = Perm(4);
-    const W: Perm = Perm(2);
-    const X: Perm = Perm(1);
-}
-
-impl BitOr for Perm {
-    type Output = Perm;
-    fn bitor(self, rhs: Self) -> Self::Output {
-        Perm(self.0 | rhs.0)
+    impl Perm {
+        const R: Perm = Perm(4);
+        const W: Perm = Perm(2);
+        const X: Perm = Perm(1);
     }
-}
 
-let rw = Perm::R | Perm::W;
-assert_eq!(rw.0, 6);
+    impl BitOr for Perm {
+        type Output = Perm;
+        fn bitor(self, rhs: Self) -> Self::Output {
+            Perm(self.0 | rhs.0)
+        }
+    }
+
+    let rw = Perm::R | Perm::W;
+    assert_eq!(rw.0, 6);
 '''
 
 [[test]]
@@ -315,37 +315,37 @@ assert has_read
 assert not has_execute
 '''
 rust = '''
-use std::ops::{BitOr, BitAnd};
+    use std::ops::{BitAnd, BitOr};
 
-#[repr(i32)]
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-struct Perm(i32);
+    #[repr(i32)]
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    struct Perm(i32);
 
-impl Perm {
-    const R: Perm = Perm(4);
-    const W: Perm = Perm(2);
-    const X: Perm = Perm(1);
-}
-
-impl BitOr for Perm {
-    type Output = Perm;
-    fn bitor(self, rhs: Self) -> Self::Output {
-        Perm(self.0 | rhs.0)
+    impl Perm {
+        const R: Perm = Perm(4);
+        const W: Perm = Perm(2);
+        const X: Perm = Perm(1);
     }
-}
 
-impl BitAnd for Perm {
-    type Output = Perm;
-    fn bitand(self, rhs: Self) -> Self::Output {
-        Perm(self.0 & rhs.0)
+    impl BitOr for Perm {
+        type Output = Perm;
+        fn bitor(self, rhs: Self) -> Self::Output {
+            Perm(self.0 | rhs.0)
+        }
     }
-}
 
-let rw = Perm::R | Perm::W;
-let has_read = (rw & Perm::R).0 == Perm::R.0;
-let has_execute = (rw & Perm::X).0 == Perm::X.0;
-assert!(has_read);
-assert!(!has_execute);
+    impl BitAnd for Perm {
+        type Output = Perm;
+        fn bitand(self, rhs: Self) -> Self::Output {
+            Perm(self.0 & rhs.0)
+        }
+    }
+
+    let rw = Perm::R | Perm::W;
+    let has_read = (rw & Perm::R).0 == Perm::R.0;
+    let has_execute = (rw & Perm::X).0 == Perm::X.0;
+    assert!(has_read);
+    assert!(!has_execute);
 '''
 
 [[test]]
@@ -365,33 +365,33 @@ assert Perm.W in rw
 assert Perm.X not in rw
 '''
 rust = '''
-use std::ops::{BitOr, BitAnd};
+    use std::ops::{BitAnd, BitOr};
 
-#[repr(i32)]
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-struct Perm(i32);
+    #[repr(i32)]
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    struct Perm(i32);
 
-impl Perm {
-    const R: Perm = Perm(4);
-    const W: Perm = Perm(2);
-    const X: Perm = Perm(1);
-    
-    fn contains(self, flag: Perm) -> bool {
-        (self.0 & flag.0) == flag.0
+    impl Perm {
+        const R: Perm = Perm(4);
+        const W: Perm = Perm(2);
+        const X: Perm = Perm(1);
+
+        fn contains(self, flag: Perm) -> bool {
+            (self.0 & flag.0) == flag.0
+        }
     }
-}
 
-impl BitOr for Perm {
-    type Output = Perm;
-    fn bitor(self, rhs: Self) -> Self::Output {
-        Perm(self.0 | rhs.0)
+    impl BitOr for Perm {
+        type Output = Perm;
+        fn bitor(self, rhs: Self) -> Self::Output {
+            Perm(self.0 | rhs.0)
+        }
     }
-}
 
-let rw = Perm::R | Perm::W;
-assert!(rw.contains(Perm::R));
-assert!(rw.contains(Perm::W));
-assert!(!rw.contains(Perm::X));
+    let rw = Perm::R | Perm::W;
+    assert!(rw.contains(Perm::R));
+    assert!(rw.contains(Perm::W));
+    assert!(!rw.contains(Perm::X));
 '''
 
 # =============================================================================
@@ -453,27 +453,27 @@ purple = Color.RED | Color.BLUE
 assert purple.value == 5
 '''
 rust = '''
-use std::ops::BitOr;
+    use std::ops::BitOr;
 
-#[repr(i32)]
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-struct Color(i32);
+    #[repr(i32)]
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    struct Color(i32);
 
-impl Color {
-    const RED: Color = Color(1);
-    const GREEN: Color = Color(2);
-    const BLUE: Color = Color(4);
-}
-
-impl BitOr for Color {
-    type Output = Color;
-    fn bitor(self, rhs: Self) -> Self::Output {
-        Color(self.0 | rhs.0)
+    impl Color {
+        const RED: Color = Color(1);
+        const GREEN: Color = Color(2);
+        const BLUE: Color = Color(4);
     }
-}
 
-let purple = Color::RED | Color::BLUE;
-assert_eq!(purple.0, 5);
+    impl BitOr for Color {
+        type Output = Color;
+        fn bitor(self, rhs: Self) -> Self::Output {
+            Color(self.0 | rhs.0)
+        }
+    }
+
+    let purple = Color::RED | Color::BLUE;
+    assert_eq!(purple.0, 5);
 '''
 
 [[test]]
@@ -495,44 +495,44 @@ assert Color.RED in flags
 assert Color.BLUE in flags
 '''
 rust = '''
-// Rust doesn't have built-in flag iteration
-// Would need custom implementation
-use std::ops::BitOr;
+    // Rust doesn't have built-in flag iteration
+    // Would need custom implementation
+    use std::ops::BitOr;
 
-#[repr(i32)]
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-struct Color(i32);
+    #[repr(i32)]
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    struct Color(i32);
 
-impl Color {
-    const RED: Color = Color(1);
-    const GREEN: Color = Color(2);
-    const BLUE: Color = Color(4);
-    
-    fn iter_flags(self) -> Vec<Color> {
-        let mut result = Vec::new();
-        if self.0 & Color::RED.0 != 0 {
-            result.push(Color::RED);
+    impl Color {
+        const RED: Color = Color(1);
+        const GREEN: Color = Color(2);
+        const BLUE: Color = Color(4);
+
+        fn iter_flags(self) -> Vec<Color> {
+            let mut result = Vec::new();
+            if self.0 & Color::RED.0 != 0 {
+                result.push(Color::RED);
+            }
+            if self.0 & Color::GREEN.0 != 0 {
+                result.push(Color::GREEN);
+            }
+            if self.0 & Color::BLUE.0 != 0 {
+                result.push(Color::BLUE);
+            }
+            result
         }
-        if self.0 & Color::GREEN.0 != 0 {
-            result.push(Color::GREEN);
-        }
-        if self.0 & Color::BLUE.0 != 0 {
-            result.push(Color::BLUE);
-        }
-        result
     }
-}
 
-impl BitOr for Color {
-    type Output = Color;
-    fn bitor(self, rhs: Self) -> Self::Output {
-        Color(self.0 | rhs.0)
+    impl BitOr for Color {
+        type Output = Color;
+        fn bitor(self, rhs: Self) -> Self::Output {
+            Color(self.0 | rhs.0)
+        }
     }
-}
 
-let purple = Color::RED | Color::BLUE;
-let flags = purple.iter_flags();
-assert_eq!(flags.len(), 2);
+    let purple = Color::RED | Color::BLUE;
+    let flags = purple.iter_flags();
+    assert_eq!(flags.len(), 2);
 '''
 
 # =============================================================================
@@ -658,15 +658,15 @@ values = list(range(Priority.LOW, Priority.HIGH))
 assert values == [1, 2, 3, 4]
 '''
 rust = '''
-#[repr(i32)]
-#[derive(Debug, Clone, Copy)]
-enum Priority {
-    Low = 1,
-    High = 5,
-}
+    #[repr(i32)]
+    #[derive(Debug, Clone, Copy)]
+    enum Priority {
+        Low = 1,
+        High = 5,
+    }
 
-let values: Vec<i32> = ((Priority::Low as i32)..(Priority::High as i32)).collect();
-assert_eq!(values, vec![1, 2, 3, 4]);
+    let values: Vec<i32> = ((Priority::Low as i32)..(Priority::High as i32)).collect();
+    assert_eq!(values, vec![1, 2, 3, 4]);
 '''
 
 [[test]]
@@ -684,16 +684,16 @@ total = sum([Priority.LOW, Priority.MEDIUM, Priority.HIGH])
 assert total == 6
 '''
 rust = '''
-#[repr(i32)]
-#[derive(Debug, Clone, Copy)]
-enum Priority {
-    Low = 1,
-    Medium = 2,
-    High = 3,
-}
+    #[repr(i32)]
+    #[derive(Debug, Clone, Copy)]
+    enum Priority {
+        Low = 1,
+        Medium = 2,
+        High = 3,
+    }
 
-let total = (Priority::Low as i32) + (Priority::Medium as i32) + (Priority::High as i32);
-assert_eq!(total, 6);
+    let total = (Priority::Low as i32) + (Priority::Medium as i32) + (Priority::High as i32);
+    assert_eq!(total, 6);
 '''
 
 # =============================================================================
@@ -716,17 +716,20 @@ sorted_values = sorted(values)
 assert sorted_values == [Priority.LOW, Priority.MEDIUM, Priority.HIGH]
 '''
 rust = '''
-#[repr(i32)]
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
-enum Priority {
-    Low = 1,
-    Medium = 2,
-    High = 3,
-}
+    #[repr(i32)]
+    #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+    enum Priority {
+        Low = 1,
+        Medium = 2,
+        High = 3,
+    }
 
-let mut values = vec![Priority::High, Priority::Low, Priority::Medium];
-values.sort();
-assert_eq!(values, vec![Priority::Low, Priority::Medium, Priority::High]);
+    let mut values = vec![Priority::High, Priority::Low, Priority::Medium];
+    values.sort();
+    assert_eq!(
+        values,
+        vec![Priority::Low, Priority::Medium, Priority::High]
+    );
 '''
 
 [[test]]
@@ -748,21 +751,21 @@ assert mapping[Priority.HIGH] == "important"
 assert mapping[2] == "important"  # Can use int value
 '''
 rust = '''
-use std::collections::HashMap;
+    use std::collections::HashMap;
 
-#[repr(i32)]
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-enum Priority {
-    Low = 1,
-    High = 2,
-}
+    #[repr(i32)]
+    #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+    enum Priority {
+        Low = 1,
+        High = 2,
+    }
 
-let mut mapping = HashMap::new();
-mapping.insert(Priority::High, "important");
-mapping.insert(Priority::Low, "can wait");
+    let mut mapping = HashMap::new();
+    mapping.insert(Priority::High, "important");
+    mapping.insert(Priority::Low, "can wait");
 
-assert_eq!(mapping[&Priority::High], "important");
-// Rust: can't mix enum and int as keys
+    assert_eq!(mapping[&Priority::High], "important");
+    // Rust: can't mix enum and int as keys
 '''
 
 [[test]]

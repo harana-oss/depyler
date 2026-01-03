@@ -101,12 +101,9 @@ impl Date {
     fn new(year: i32, month: i32, day: i32) -> Self {
         Date { year, month, day }
     }
-    
+
     fn from_string(date_string: &str) -> Self {
-        let parts: Vec<i32> = date_string
-            .split('-')
-            .map(|s| s.parse().unwrap())
-            .collect();
+        let parts: Vec<i32> = date_string.split('-').map(|s| s.parse().unwrap()).collect();
         Date::new(parts[0], parts[1], parts[2])
     }
 }
@@ -144,7 +141,7 @@ struct MyClass;
 
 impl MyClass {
     const VALUE: i32 = 100;
-    
+
     fn get_value() -> i32 {
         Self::VALUE
     }
@@ -349,17 +346,17 @@ struct Person {
 
 impl Person {
     const SPECIES: &'static str = "Homo sapiens";
-    
+
     fn new(name: &str) -> Self {
         Person {
             name: name.to_string(),
         }
     }
-    
+
     fn get_species() -> &'static str {
         Self::SPECIES
     }
-    
+
     fn from_birth_year(name: &str, _year: i32) -> Self {
         Self::new(name)
     }
@@ -395,7 +392,7 @@ impl Validator {
     fn is_valid_email(email: &str) -> bool {
         email.contains("@") && email.contains(".")
     }
-    
+
     fn is_valid_phone(phone: &str) -> bool {
         phone.len() == 10 && phone.chars().all(|c| c.is_digit(10))
     }
@@ -509,7 +506,7 @@ impl Calculator {
     fn add(a: i32, b: i32) -> i32 {
         a + b
     }
-    
+
     fn add_and_double(a: i32, b: i32) -> i32 {
         Self::add(a, b) * 2
     }
@@ -544,11 +541,11 @@ impl MyClass {
     fn new() -> Self {
         MyClass
     }
-    
+
     fn instance_method(&self) -> &'static str {
         "instance"
     }
-    
+
     fn class_method() -> &'static str {
         let obj = Self::new();
         obj.instance_method()

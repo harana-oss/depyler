@@ -35,10 +35,7 @@ impl MultiError {
 }
 
 fn main() {
-    let errors = vec![
-        "val error".to_string(),
-        "type error".to_string(),
-    ];
+    let errors = vec!["val error".to_string(), "type error".to_string()];
     let eg = MultiError::new("Multiple errors", errors);
     log::info!("Message: {}", eg.message);
     log::info!("Count: {}", eg.errors.len());
@@ -136,7 +133,7 @@ fn main() {
             ErrorItem::Single("inner2".to_string()),
         ],
     };
-    
+
     let outer_group = ErrorGroup {
         message: "Outer errors".to_string(),
         errors: vec![
@@ -144,9 +141,12 @@ fn main() {
             ErrorItem::Group(inner_group),
         ],
     };
-    
+
     log::info!("Outer: {}", outer_group.errors.len());
-    log::info!("Has nested: {}", matches!(outer_group.errors[1], ErrorItem::Group(_)));
+    log::info!(
+        "Has nested: {}",
+        matches!(outer_group.errors[1], ErrorItem::Group(_))
+    );
 }
 """
 expected_output = """Outer: 2
@@ -184,13 +184,15 @@ struct ErrorGroup {
 
 impl ErrorGroup {
     fn filter_value_errors(&self) -> Vec<&Error> {
-        self.errors.iter()
+        self.errors
+            .iter()
             .filter(|e| matches!(e, Error::ValueError(_)))
             .collect()
     }
-    
+
     fn filter_type_errors(&self) -> Vec<&Error> {
-        self.errors.iter()
+        self.errors
+            .iter()
             .filter(|e| matches!(e, Error::TypeError(_)))
             .collect()
     }
@@ -203,12 +205,12 @@ fn main() {
             Error::TypeError("type".to_string()),
         ],
     };
-    
+
     let value_errs = eg.filter_value_errors();
     if !value_errs.is_empty() {
         log::info!("Caught ValueError group: {}", value_errs.len());
     }
-    
+
     let type_errs = eg.filter_type_errors();
     if !type_errs.is_empty() {
         log::info!("Caught TypeError group: {}", type_errs.len());
@@ -246,9 +248,11 @@ struct ErrorGroup {
 
 impl ErrorGroup {
     fn has_value_errors(&self) -> bool {
-        self.errors.iter().any(|e| matches!(e, Error::ValueError(_)))
+        self.errors
+            .iter()
+            .any(|e| matches!(e, Error::ValueError(_)))
     }
-    
+
     fn has_type_errors(&self) -> bool {
         self.errors.iter().any(|e| matches!(e, Error::TypeError(_)))
     }
@@ -262,7 +266,7 @@ fn main() {
             Error::TypeError("t1".to_string()),
         ],
     };
-    
+
     if eg.has_value_errors() {
         log::info!("Handling ValueErrors");
     }
@@ -303,13 +307,16 @@ struct ErrorGroup {
 
 impl ErrorGroup {
     fn filter_val_or_type(&self) -> Vec<&Error> {
-        self.errors.iter()
+        self.errors
+            .iter()
             .filter(|e| matches!(e, Error::ValueError(_) | Error::TypeError(_)))
             .collect()
     }
-    
+
     fn has_runtime_error(&self) -> bool {
-        self.errors.iter().any(|e| matches!(e, Error::RuntimeError(_)))
+        self.errors
+            .iter()
+            .any(|e| matches!(e, Error::RuntimeError(_)))
     }
 }
 
@@ -321,12 +328,12 @@ fn main() {
             Error::RuntimeError("runtime".to_string()),
         ],
     };
-    
+
     let val_type_errs = eg.filter_val_or_type();
     if !val_type_errs.is_empty() {
         log::info!("Caught val/type errors: {}", val_type_errs.len());
     }
-    
+
     if eg.has_runtime_error() {
         log::info!("Caught RuntimeError");
     }
@@ -367,14 +374,14 @@ fn main() {
         Error::ValueError("val".to_string()),
         Error::TypeError("type".to_string()),
     ];
-    
+
     // Handle ValueError
     for err in &errors {
         if matches!(err, Error::ValueError(_)) {
             log::info!("Handled ValueError");
         }
     }
-    
+
     // TypeError propagates
     for err in &errors {
         if matches!(err, Error::TypeError(_)) {
@@ -415,11 +422,13 @@ struct ErrorGroup {
 
 impl ErrorGroup {
     fn subgroup_value_errors(&self) -> Option<ErrorGroup> {
-        let filtered: Vec<Error> = self.errors.iter()
+        let filtered: Vec<Error> = self
+            .errors
+            .iter()
             .filter(|e| matches!(e, Error::ValueError(_)))
             .cloned()
             .collect();
-        
+
         if filtered.is_empty() {
             None
         } else {
@@ -440,7 +449,7 @@ fn main() {
             Error::ValueError("v2".to_string()),
         ],
     };
-    
+
     if let Some(value_errors) = eg.subgroup_value_errors() {
         log::info!("ValueErrors: {}", value_errors.errors.len());
     }
@@ -475,28 +484,32 @@ struct ErrorGroup {
 
 impl ErrorGroup {
     fn split_value_errors(&self) -> (Option<ErrorGroup>, Option<ErrorGroup>) {
-        let matching: Vec<Error> = self.errors.iter()
+        let matching: Vec<Error> = self
+            .errors
+            .iter()
             .filter(|e| matches!(e, Error::ValueError(_)))
             .cloned()
             .collect();
-        
-        let rest: Vec<Error> = self.errors.iter()
+
+        let rest: Vec<Error> = self
+            .errors
+            .iter()
             .filter(|e| !matches!(e, Error::ValueError(_)))
             .cloned()
             .collect();
-        
+
         let matching_group = if matching.is_empty() {
             None
         } else {
             Some(ErrorGroup { errors: matching })
         };
-        
+
         let rest_group = if rest.is_empty() {
             None
         } else {
             Some(ErrorGroup { errors: rest })
         };
-        
+
         (matching_group, rest_group)
     }
 }
@@ -509,7 +522,7 @@ fn main() {
             Error::ValueError("v2".to_string()),
         ],
     };
-    
+
     let (matching, rest) = eg.split_value_errors();
     log::info!("Matching: {}", matching.map_or(0, |g| g.errors.len()));
     log::info!("Rest: {}", rest.map_or(0, |g| g.errors.len()));
@@ -552,10 +565,7 @@ struct BaseErrorGroup {
 fn main() {
     let eg = BaseErrorGroup {
         message: "system errors".to_string(),
-        errors: vec![
-            SystemError::Exit(1),
-            SystemError::Interrupt,
-        ],
+        errors: vec![SystemError::Exit(1), SystemError::Interrupt],
     };
     log::info!("Base group: {}", eg.errors.len());
 }
@@ -607,7 +617,7 @@ fn main() {
             Error::TypeError("t1".to_string()),
         ],
     };
-    
+
     let derived = original.derive(vec![Error::ValueError("v2".to_string())]);
     log::info!("Original message: {}", original.message);
     log::info!("Derived message: {}", derived.message);
@@ -664,13 +674,13 @@ fn process_item(item: i32) -> Result<i32, ProcessError> {
 fn main() {
     let items = vec![-1, 0, 5];
     let mut errors = Vec::new();
-    
+
     for item in items {
         if let Err(e) = process_item(item) {
             errors.push(e);
         }
     }
-    
+
     if !errors.is_empty() {
         log::info!("Processing errors: {:?}", errors);
     }
@@ -705,7 +715,7 @@ struct ValidationError(String);
 
 fn validate_user(name: &str, age: i32, email: &str) -> Result<(), Vec<ValidationError>> {
     let mut errors = Vec::new();
-    
+
     if name.len() < 3 {
         errors.push(ValidationError("Name too short".to_string()));
     }
@@ -715,7 +725,7 @@ fn validate_user(name: &str, age: i32, email: &str) -> Result<(), Vec<Validation
     if !email.contains('@') {
         errors.push(ValidationError("Invalid email".to_string()));
     }
-    
+
     if errors.is_empty() {
         Ok(())
     } else {
@@ -777,7 +787,7 @@ impl Resource {
             should_fail,
         }
     }
-    
+
     fn close(&self) -> Result<(), CloseError> {
         if self.should_fail {
             Err(CloseError(format!("Failed to close {}", self.name)))
@@ -793,14 +803,14 @@ fn main() {
         Resource::new("file", false),
         Resource::new("socket", true),
     ];
-    
+
     let mut errors = Vec::new();
     for res in &resources {
         if let Err(e) = res.close() {
             errors.push(e);
         }
     }
-    
+
     if !errors.is_empty() {
         log::info!("Cleanup errors: {}", errors.len());
     }
@@ -931,7 +941,7 @@ fn main() {
             Error::TypeError("error 2".to_string()),
         ],
     };
-    
+
     log::info!("Message: {}", eg.message);
     log::info!("Exception count: {}", eg.exceptions.len());
     log::info!("First exception type: {}", eg.exceptions[0].type_name());
@@ -984,7 +994,7 @@ fn main() {
             Error::TypeError("error 2".to_string()),
         ],
     };
-    
+
     log::info!("ExceptionGroup: {}", eg.message);
     for (i, exc) in eg.exceptions.iter().enumerate() {
         log::info!("  [{}] {}", i, exc);

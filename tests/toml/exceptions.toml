@@ -37,7 +37,9 @@ impl ZeroDivisionError {
     }
 }
 pub fn safe_divide(a: i32, b: i32) -> i32 {
-    {
+    if b == 0 {
+        return 0;
+    } else {
         return {
             let a = a;
             let b = b;
@@ -50,7 +52,6 @@ pub fn safe_divide(a: i32, b: i32) -> i32 {
             let needs_adjustment = r_nonzero && signs_differ;
             if needs_adjustment { q - 1 } else { q }
         };
-        return 0;
     }
 }
 '''

@@ -91,7 +91,8 @@ pub fn create_random_uuid() -> String {
     return {
         use uuid::Uuid;
         Uuid::new_v4().to_string()
-    }.to_string();
+    }
+    .to_string();
 }
 '''
 
@@ -138,10 +139,17 @@ rust = '''
 #[doc = "// NOTE: Map Python module 'uuid'()"]
 use std::collections::HashMap;
 pub fn create_item_with_id() -> HashMap<String, String> {
-    return HashMap::from([("id".to_string(), {
-        use uuid::Uuid;
-        Uuid::new_v4().to_string()
-    }.to_string()), ("name".to_string(), "item".to_string())]);
+    return HashMap::from([
+        (
+            "id".to_string(),
+            {
+                use uuid::Uuid;
+                Uuid::new_v4().to_string()
+            }
+            .to_string(),
+        ),
+        ("name".to_string(), "item".to_string()),
+    ]);
 }
 '''
 

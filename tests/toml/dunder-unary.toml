@@ -23,7 +23,9 @@ result = (-n).value
 
 rust = '''
 use std::ops::Neg;
-struct Number { value: i32 }
+struct Number {
+    value: i32,
+}
 impl Neg for Number {
     type Output = Number;
     fn neg(self) -> Number {
@@ -69,10 +71,14 @@ result = abs(n).value
 '''
 
 rust = '''
-struct Number { value: i32 }
+struct Number {
+    value: i32,
+}
 impl Number {
     fn abs(self) -> Number {
-        Number { value: self.value.abs() }
+        Number {
+            value: self.value.abs(),
+        }
     }
 }
 '''
@@ -99,7 +105,9 @@ result = (~m).value
 
 rust = '''
 use std::ops::Not;
-struct BitMask { value: i32 }
+struct BitMask {
+    value: i32,
+}
 impl Not for BitMask {
     type Output = BitMask;
     fn not(self) -> BitMask {
@@ -126,7 +134,9 @@ result = Example(42)
 '''
 
 rust = '''
-struct Example { value: i32 }
+struct Example {
+    value: i32,
+}
 '''
 
 
@@ -143,7 +153,9 @@ result = Example(42)
 '''
 
 rust = '''
-struct Example { value: i32 }
+struct Example {
+    value: i32,
+}
 '''
 
 
@@ -160,7 +172,9 @@ result = Example(42)
 '''
 
 rust = '''
-struct Example { value: i32 }
+struct Example {
+    value: i32,
+}
 '''
 
 
@@ -177,7 +191,9 @@ result = Example(42)
 '''
 
 rust = '''
-struct Example { value: i32 }
+struct Example {
+    value: i32,
+}
 '''
 
 
@@ -198,7 +214,9 @@ result = Example(42)
 '''
 
 rust = '''
-struct Example { value: i32 }
+struct Example {
+    value: i32,
+}
 '''
 
 
@@ -215,7 +233,9 @@ result = Example(42)
 '''
 
 rust = '''
-struct Example { value: i32 }
+struct Example {
+    value: i32,
+}
 '''
 
 
@@ -232,7 +252,9 @@ result = Example(42)
 '''
 
 rust = '''
-struct Example { value: i32 }
+struct Example {
+    value: i32,
+}
 '''
 
 
@@ -249,7 +271,9 @@ result = Example(42)
 '''
 
 rust = '''
-struct Example { value: i32 }
+struct Example {
+    value: i32,
+}
 '''
 
 
@@ -291,9 +315,12 @@ struct Vector {
 
 impl Neg for Vector {
     type Output = Vector;
-    
+
     fn neg(self) -> Vector {
-        Vector { x: -self.x, y: -self.y }
+        Vector {
+            x: -self.x,
+            y: -self.y,
+        }
     }
 }
 
@@ -342,7 +369,10 @@ impl Complex {
 }
 
 fn main() {
-    let c = Complex { real: 3.0, imag: 4.0 };
+    let c = Complex {
+        real: 3.0,
+        imag: 4.0,
+    };
     let magnitude = c.abs();
     let result = (magnitude - 5.0).abs() < 1e-10;
     log::info!("Complex(3, 4) magnitude: {}, result: {}", magnitude, result);
@@ -383,7 +413,7 @@ struct BitMask {
 
 impl Not for BitMask {
     type Output = BitMask;
-    
+
     fn not(self) -> BitMask {
         // Inverting a bitmask class (bitwise NOT)
         BitMask { value: !self.value }
@@ -394,7 +424,11 @@ fn main() {
     let mask = BitMask { value: 5 };
     let inverted = !mask;
     let result = inverted.value == !5;
-    log::info!("Original: 5, Inverted: {}, result: {}", inverted.value, result);
+    log::info!(
+        "Original: 5, Inverted: {}, result: {}",
+        inverted.value,
+        result
+    );
 }
 '''
 
@@ -455,7 +489,9 @@ result = Example(42)
 '''
 
 rust = '''
-struct Example { value: i32 }
+struct Example {
+    value: i32,
+}
 '''
 
 
@@ -472,6 +508,8 @@ result = Example(42)
 '''
 
 rust = '''
-struct Example { value: i32 }
+struct Example {
+    value: i32,
+}
 '''
 

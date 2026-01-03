@@ -2684,7 +2684,12 @@ impl ContextManager {
     pub fn __enter__(&self) -> &Self {
         return self;
     }
-    pub fn __exit__(&self, exc_type: serde_json::Value, exc_val: serde_json::Value, exc_tb: serde_json::Value) {
+    pub fn __exit__(
+        &self,
+        exc_type: serde_json::Value,
+        exc_val: serde_json::Value,
+        exc_tb: serde_json::Value,
+    ) {
         {}
     }
 }

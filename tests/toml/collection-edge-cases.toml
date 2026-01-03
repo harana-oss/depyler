@@ -191,7 +191,12 @@ def update_nested(data: dict[str, dict[str, int]], key1: str, key2: str, value: 
 rust = '''
 use std::collections::HashMap;
 
-pub fn update_nested(data: &mut HashMap<String, HashMap<String, i32>>, key1: &str, key2: String, value: i32) {
+pub fn update_nested(
+    data: &mut HashMap<String, HashMap<String, i32>>,
+    key1: &str,
+    key2: String,
+    value: i32,
+) {
     if let Some(inner) = data.get_mut(key1) {
         inner.insert(key2, value);
     }

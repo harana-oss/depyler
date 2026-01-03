@@ -428,7 +428,9 @@ impl State {
     pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
         match name {
             "score" => Some(Box::new(self.score.clone()) as Box<dyn std::any::Any>),
-            "team_in_possession" => Some(Box::new(self.team_in_possession.clone()) as Box<dyn std::any::Any>),
+            "team_in_possession" => {
+                Some(Box::new(self.team_in_possession.clone()) as Box<dyn std::any::Any>)
+            }
             _ => None,
         }
     }

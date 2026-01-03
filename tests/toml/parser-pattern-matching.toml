@@ -467,14 +467,23 @@ struct Config {
 
 fn describe_config(c: &Config) -> String {
     match c {
-        Config { debug: true, verbose: true } => "full debug".to_string(),
-        Config { debug: true, verbose: false } => "debug only".to_string(),
+        Config {
+            debug: true,
+            verbose: true,
+        } => "full debug".to_string(),
+        Config {
+            debug: true,
+            verbose: false,
+        } => "debug only".to_string(),
         _ => "normal".to_string(),
     }
 }
 
 fn main() {
-    let c = Config { debug: true, verbose: false };
+    let c = Config {
+        debug: true,
+        verbose: false,
+    };
     let result = describe_config(&c);
     println!("{}", result);
 }

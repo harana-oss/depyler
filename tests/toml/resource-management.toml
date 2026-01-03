@@ -105,14 +105,18 @@ pub struct Connection {
 
 impl Connection {
     pub fn new(host: String, port: i32) -> Self {
-        Self { host, port, connected: false }
+        Self {
+            host,
+            port,
+            connected: false,
+        }
     }
-    
+
     pub fn connect(&mut self) -> bool {
         self.connected = true;
         return true;
     }
-    
+
     pub fn disconnect(&mut self) {
         self.connected = false;
     }
@@ -144,11 +148,11 @@ impl AutoCloser {
     pub fn new() -> Self {
         Self { open: true }
     }
-    
+
     pub fn close(&mut self) {
         self.open = false;
     }
-    
+
     pub fn is_open(&self) -> bool {
         return self.open;
     }
@@ -192,11 +196,11 @@ impl TempFile {
     pub fn new(name: String) -> Self {
         Self { name, exists: true }
     }
-    
+
     pub fn delete(&mut self) {
         self.exists = false;
     }
-    
+
     pub fn is_valid(&self) -> bool {
         return self.exists;
     }
@@ -261,7 +265,7 @@ impl Inner {
     pub fn new() -> Self {
         Self { closed: false }
     }
-    
+
     pub fn close(&mut self) {
         self.closed = true;
     }
@@ -274,13 +278,16 @@ pub struct Outer {
 
 impl Outer {
     pub fn new() -> Self {
-        Self { inner: None, closed: false }
+        Self {
+            inner: None,
+            closed: false,
+        }
     }
-    
+
     pub fn set_inner(&mut self, inner: Inner) {
         self.inner = Some(inner);
     }
-    
+
     pub fn close(&mut self) {
         if let Some(ref mut inner) = self.inner {
             inner.close();
@@ -321,18 +328,18 @@ impl ResourceStack {
     pub fn new() -> Self {
         Self { resources: vec![] }
     }
-    
+
     pub fn push(&mut self, name: String) {
         self.resources.push(name);
     }
-    
+
     pub fn pop(&mut self) -> String {
         if self.resources.len() > 0 {
             return self.resources.pop().unwrap();
         }
         return String::new();
     }
-    
+
     pub fn cleanup_all(&mut self) {
         while self.resources.len() > 0 {
             self.resources.pop();
@@ -373,7 +380,7 @@ impl SafeResource {
     pub fn new() -> Self {
         Self { acquired: true }
     }
-    
+
     pub fn release(&mut self) -> bool {
         if self.acquired {
             self.acquired = false;
@@ -381,7 +388,7 @@ impl SafeResource {
         }
         return false;
     }
-    
+
     pub fn is_acquired(&self) -> bool {
         return self.acquired;
     }

@@ -514,6 +514,125 @@ pub fn convert_class_to_struct(
     Ok(items)
 }
 
+/// Convert a Python ABC (Abstract Base Class) to a Rust trait
+pub fn convert_class_to_trait(
+    class: &HirClass,
+    type_mapper: &TypeMapper,
+) -> Result<Vec<syn::Item>> {
+    let mut items = Vec::new();
+    let trait_name = syn::Ident::new(&class.name, proc_macro2::Span::call_site());
+
+    let mut trait_items = Vec::new();
+
+    for method in &class.methods {
+        // Skip __init__ for traits (traits don't have constructors)
+        if method.name == "__init__" {
+            continue;
+        }
+
+        let method_name = if is_rust_keyword(&method.name) {
+            syn::Ident::new_raw(&method.name, proc_macro2::Span::call_site())
+        } else {
+            syn::Ident::new(&method.name, proc_macro2::Span::call_site())
+        };
+
+        // Convert parameters (skip self)
+        let mut params: Vec<syn::FnArg> = Vec::new();
+
+        // Add self parameter for non-static, non-classmethod methods
+        if !method.is_static && !method.is_classmethod {
+            params.push(parse_quote! { &self });
+        }
+
+        for param in &method.params {
+            let param_name = syn::Ident::new(&param.name, proc_macro2::Span::call_site());
+            let rust_type = type_mapper.map_type(&param.ty);
+            let param_type = rust_type_to_syn_type(&rust_type)?;
+            params.push(parse_quote! { #param_name: #param_type });
+        }
+
+        // Convert return type
+        let return_type = if method.ret_type == Type::None {
+            parse_quote! { () }
+        } else {
+            let rust_ret_type = type_mapper.map_type(&method.ret_type);
+            rust_type_to_syn_type(&rust_ret_type)?
+        };
+
+        // Abstract methods with no body (just pass) should be required methods
+        // Check if body only contains Pass statements
+        let has_meaningful_body = method
+            .body
+            .iter()
+            .any(|stmt| !matches!(stmt, HirStmt::Pass));
+        let is_required = method.is_abstract && !has_meaningful_body;
+
+        if !is_required && has_meaningful_body {
+            // Generate trait method with default implementation
+            let body =
+                convert_block_with_context(&method.body, type_mapper, method.is_classmethod)?;
+
+            trait_items.push(syn::TraitItem::Fn(syn::TraitItemFn {
+                attrs: vec![],
+                sig: syn::Signature {
+                    constness: None,
+                    asyncness: None,
+                    unsafety: None,
+                    abi: None,
+                    fn_token: syn::Token![fn](proc_macro2::Span::call_site()),
+                    ident: method_name,
+                    generics: syn::Generics::default(),
+                    paren_token: syn::token::Paren::default(),
+                    inputs: params.into_iter().collect(),
+                    variadic: None,
+                    output: parse_quote! { -> #return_type },
+                },
+                default: Some(body),
+                semi_token: None,
+            }));
+        } else {
+            // Generate trait method without default implementation (required method)
+            trait_items.push(syn::TraitItem::Fn(syn::TraitItemFn {
+                attrs: vec![],
+                sig: syn::Signature {
+                    constness: None,
+                    asyncness: None,
+                    unsafety: None,
+                    abi: None,
+                    fn_token: syn::Token![fn](proc_macro2::Span::call_site()),
+                    ident: method_name,
+                    generics: syn::Generics::default(),
+                    paren_token: syn::token::Paren::default(),
+                    inputs: params.into_iter().collect(),
+                    variadic: None,
+                    output: parse_quote! { -> #return_type },
+                },
+                default: None,
+                semi_token: Some(syn::Token![;](proc_macro2::Span::call_site())),
+            }));
+        }
+    }
+
+    // Create the trait
+    let trait_item = syn::Item::Trait(syn::ItemTrait {
+        attrs: vec![],
+        vis: syn::Visibility::Inherited,
+        unsafety: None,
+        auto_token: None,
+        restriction: None,
+        trait_token: syn::Token![trait](proc_macro2::Span::call_site()),
+        ident: trait_name,
+        generics: syn::Generics::default(),
+        colon_token: None,
+        supertraits: syn::punctuated::Punctuated::new(),
+        brace_token: syn::token::Brace::default(),
+        items: trait_items,
+    });
+
+    items.push(trait_item);
+    Ok(items)
+}
+
 /// Convert a Python Enum/IntEnum class to a Rust enum with integer discriminants.
 pub fn convert_class_to_enum(class: &HirClass) -> Result<Vec<syn::Item>> {
     let enum_name = syn::Ident::new(&class.name, proc_macro2::Span::call_site());

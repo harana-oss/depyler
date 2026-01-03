@@ -57,7 +57,8 @@ result = (is_set, is_dict)
 rust = '''
 pub const result: serde_json::Value = HashSet::<i32>::new();
 pub const is_set: serde_json::Value = std::any::type_name_of_val(&result).__name__ == "set";
-pub const is_dict: serde_json::Value = std::any::type_name_of_val(&empty_dict.clone()).__name__ == "dict";
+pub const is_dict: serde_json::Value =
+    std::any::type_name_of_val(&empty_dict.clone()).__name__ == "dict";
 pub const result: (serde_json::Value, serde_json::Value) = (is_set, is_dict);
 lazy_static! {
     pub static ref empty_dict: HashMap<serde_json::Value, serde_json::Value> = {
@@ -782,7 +783,8 @@ result = frozenset([1, 2, 3])
 '''
 
 rust = '''
-pub const result: serde_json::Value = std::sync::Arc::new(vec![1, 2, 3].into_iter().collect::<HashSet<_>>());
+pub const result: serde_json::Value =
+    std::sync::Arc::new(vec![1, 2, 3].into_iter().collect::<HashSet<_>>());
 use serde_json;
 use std::collections::HashSet;
 '''
@@ -798,11 +800,11 @@ result = 1 in fs and len(fs) == 3
 '''
 
 rust = '''
-use std::collections::HashSet;
+    use std::collections::HashSet;
 
-let fs: HashSet<i32> = vec![1, 2, 3].into_iter().collect();
-// Rust HashSet with immutable binding is also immutable
-let result = fs.contains(&1) && fs.len() == 3;
+    let fs: HashSet<i32> = vec![1, 2, 3].into_iter().collect();
+    // Rust HashSet with immutable binding is also immutable
+    let result = fs.contains(&1) && fs.len() == 3;
 '''
 
 [[test]]
@@ -817,7 +819,8 @@ result = (d[fs], len(s))
 '''
 
 rust = '''
-pub const fs: serde_json::Value = std::sync::Arc::new(vec![1, 2, 3].into_iter().collect::<HashSet<_>>());
+pub const fs: serde_json::Value =
+    std::sync::Arc::new(vec![1, 2, 3].into_iter().collect::<HashSet<_>>());
 pub const result: (serde_json::Value, serde_json::Value) =
     (d.clone().get(&fs).cloned().unwrap(), s.clone().len() as i32);
 lazy_static! {
@@ -829,7 +832,9 @@ lazy_static! {
     pub static ref s: HashSet<serde_json::Value> = {
         let mut set = HashSet::new();
         set.insert(fs);
-        set.insert(std::sync::Arc::new(vec![4, 5].into_iter().collect::<HashSet<_>>()));
+        set.insert(std::sync::Arc::new(
+            vec![4, 5].into_iter().collect::<HashSet<_>>(),
+        ));
         set
     };
 }
@@ -878,12 +883,12 @@ result = True
 '''
 
 rust = '''
-use std::collections::HashSet;
+    use std::collections::HashSet;
 
-// Rust: Vec is not hashable, use tuples or arrays
-let result: HashSet<(i32, i32)> = vec![(1, 2), (3, 4)].into_iter().collect();
-assert_eq!(result.len(), 2);
-let result = true;
+    // Rust: Vec is not hashable, use tuples or arrays
+    let result: HashSet<(i32, i32)> = vec![(1, 2), (3, 4)].into_iter().collect();
+    assert_eq!(result.len(), 2);
+    let result = true;
 '''
 
 [[test]]

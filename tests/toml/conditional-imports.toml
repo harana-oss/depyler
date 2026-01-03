@@ -15,7 +15,9 @@ def create_map() -> dict[str, int]:
 rust = '''
 use std::collections::HashMap;
 pub fn create_map() -> HashMap<String, i32> {
-    return [("a".to_string(), 1), ("b".to_string(), 2)].into_iter().collect();
+    return [("a".to_string(), 1), ("b".to_string(), 2)]
+        .into_iter()
+        .collect();
 }
 '''
 

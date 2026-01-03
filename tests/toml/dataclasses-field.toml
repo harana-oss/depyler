@@ -22,19 +22,19 @@ result = c.value == 0
 '''
 
 rust = '''
-#[derive(Debug)]
-struct Counter {
-    value: i32,
-}
-
-impl Default for Counter {
-    fn default() -> Self {
-        Counter { value: 0 }
+    #[derive(Debug)]
+    struct Counter {
+        value: i32,
     }
-}
 
-let c = Counter::default();
-let result = c.value == 0;
+    impl Default for Counter {
+        fn default() -> Self {
+            Counter { value: 0 }
+        }
+    }
+
+    let c = Counter::default();
+    let result = c.value == 0;
 '''
 
 
@@ -56,21 +56,21 @@ result = len(c1.items) == 1 and len(c2.items) == 0
 '''
 
 rust = '''
-#[derive(Debug)]
-struct Collection {
-    items: Vec<i32>,
-}
-
-impl Default for Collection {
-    fn default() -> Self {
-        Collection { items: Vec::new() }
+    #[derive(Debug)]
+    struct Collection {
+        items: Vec<i32>,
     }
-}
 
-let mut c1 = Collection::default();
-let c2 = Collection::default();
-c1.items.push(1);
-let result = c1.items.len() == 1 && c2.items.len() == 0;
+    impl Default for Collection {
+        fn default() -> Self {
+            Collection { items: Vec::new() }
+        }
+    }
+
+    let mut c1 = Collection::default();
+    let c2 = Collection::default();
+    c1.items.push(1);
+    let result = c1.items.len() == 1 && c2.items.len() == 0;
 '''
 
 
@@ -90,19 +90,19 @@ result = n.values == [1, 2]
 '''
 
 rust = '''
-#[derive(Debug)]
-struct Numbers {
-    values: Vec<i32>,
-}
-
-impl Default for Numbers {
-    fn default() -> Self {
-        Numbers { values: vec![1, 2] }
+    #[derive(Debug)]
+    struct Numbers {
+        values: Vec<i32>,
     }
-}
 
-let n = Numbers::default();
-let result = n.values == vec![1, 2];
+    impl Default for Numbers {
+        fn default() -> Self {
+            Numbers { values: vec![1, 2] }
+        }
+    }
+
+    let n = Numbers::default();
+    let result = n.values == vec![1, 2];
 '''
 
 
@@ -126,30 +126,32 @@ result = c.obj.value == 42
 '''
 
 rust = '''
-#[derive(Debug)]
-struct MyClass {
-    value: i32,
-}
-
-impl Default for MyClass {
-    fn default() -> Self {
-        MyClass { value: 42 }
+    #[derive(Debug)]
+    struct MyClass {
+        value: i32,
     }
-}
 
-#[derive(Debug)]
-struct Container {
-    obj: MyClass,
-}
-
-impl Default for Container {
-    fn default() -> Self {
-        Container { obj: MyClass::default() }
+    impl Default for MyClass {
+        fn default() -> Self {
+            MyClass { value: 42 }
+        }
     }
-}
 
-let c = Container::default();
-let result = c.obj.value == 42;
+    #[derive(Debug)]
+    struct Container {
+        obj: MyClass,
+    }
+
+    impl Default for Container {
+        fn default() -> Self {
+            Container {
+                obj: MyClass::default(),
+            }
+        }
+    }
+
+    let c = Container::default();
+    let result = c.obj.value == 42;
 '''
 
 
@@ -172,22 +174,24 @@ result = len(s1.executed_events) == 1 and len(s2.executed_events) == 0
 '''
 
 rust = '''
-use std::collections::HashSet;
-#[derive(Debug)]
-struct State {
-    executed_events: HashSet<String>,
-}
-
-impl State {
-    fn new() -> Self {
-        State { executed_events: HashSet::new() }
+    use std::collections::HashSet;
+    #[derive(Debug)]
+    struct State {
+        executed_events: HashSet<String>,
     }
-}
 
-let mut s1 = State::new();
-let s2 = State::new();
-s1.executed_events.insert("event1".to_string());
-let result = s1.executed_events.len() == 1 && s2.executed_events.len() == 0;
+    impl State {
+        fn new() -> Self {
+            State {
+                executed_events: HashSet::new(),
+            }
+        }
+    }
+
+    let mut s1 = State::new();
+    let s2 = State::new();
+    s1.executed_events.insert("event1".to_string());
+    let result = s1.executed_events.len() == 1 && s2.executed_events.len() == 0;
 '''
 
 
@@ -210,22 +214,24 @@ result = len(c1.settings) == 1 and len(c2.settings) == 0
 '''
 
 rust = '''
-use std::collections::HashMap;
-#[derive(Debug)]
-struct Config {
-    settings: HashMap<String, i32>,
-}
-
-impl Config {
-    fn new() -> Self {
-        Config { settings: HashMap::new() }
+    use std::collections::HashMap;
+    #[derive(Debug)]
+    struct Config {
+        settings: HashMap<String, i32>,
     }
-}
 
-let mut c1 = Config::new();
-let c2 = Config::new();
-c1.settings.insert("key".to_string(), 42);
-let result = c1.settings.len() == 1 && c2.settings.len() == 0;
+    impl Config {
+        fn new() -> Self {
+            Config {
+                settings: HashMap::new(),
+            }
+        }
+    }
+
+    let mut c1 = Config::new();
+    let c2 = Config::new();
+    c1.settings.insert("key".to_string(), 42);
+    let result = c1.settings.len() == 1 && c2.settings.len() == 0;
 '''
 
 
@@ -251,31 +257,34 @@ result = (len(c.events) == 0 and len(c.items) == 0 and
 '''
 
 rust = '''
-use std::collections::{HashMap, HashSet};
-#[derive(Debug)]
-struct ComplexState {
-    events: HashSet<String>,
-    items: Vec<i32>,
-    metadata: HashMap<String, i32>,
-    count: i32,
-    name: String,
-}
+    use std::collections::{HashMap, HashSet};
+    #[derive(Debug)]
+    struct ComplexState {
+        events: HashSet<String>,
+        items: Vec<i32>,
+        metadata: HashMap<String, i32>,
+        count: i32,
+        name: String,
+    }
 
-impl ComplexState {
-    fn new() -> Self {
-        ComplexState {
-            events: HashSet::new(),
-            items: Vec::new(),
-            metadata: HashMap::new(),
-            count: 0,
-            name: "unknown".to_string(),
+    impl ComplexState {
+        fn new() -> Self {
+            ComplexState {
+                events: HashSet::new(),
+                items: Vec::new(),
+                metadata: HashMap::new(),
+                count: 0,
+                name: "unknown".to_string(),
+            }
         }
     }
-}
 
-let c = ComplexState::new();
-let result = c.events.len() == 0 && c.items.len() == 0 && 
-             c.metadata.len() == 0 && c.count == 0 && c.name == "unknown";
+    let c = ComplexState::new();
+    let result = c.events.len() == 0
+        && c.items.len() == 0
+        && c.metadata.len() == 0
+        && c.count == 0
+        && c.name == "unknown";
 '''
 
 
@@ -301,23 +310,26 @@ result = "alice" in repr_str and "secret123" not in repr_str
 '''
 
 rust = '''
-// In Rust, use custom Debug implementation to exclude fields
-#[derive(Debug)]
-struct User {
-    name: String,
-    #[allow(dead_code)]
-    password: String,
-}
-
-impl std::fmt::Display for User {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        write!(f, "User {{ name: {:?} }}", self.name)
+    // In Rust, use custom Debug implementation to exclude fields
+    #[derive(Debug)]
+    struct User {
+        name: String,
+        #[allow(dead_code)]
+        password: String,
     }
-}
 
-let u = User { name: "alice".to_string(), password: "secret123".to_string() };
-let repr_str = format!("{:?}", u);
-let result = repr_str.contains("alice");
+    impl std::fmt::Display for User {
+        fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+            write!(f, "User {{ name: {:?} }}", self.name)
+        }
+    }
+
+    let u = User {
+        name: "alice".to_string(),
+        password: "secret123".to_string(),
+    };
+    let repr_str = format!("{:?}", u);
+    let result = repr_str.contains("alice");
 '''
 
 
@@ -339,21 +351,27 @@ result = i1 == i2
 '''
 
 rust = '''
-#[derive(Debug)]
-struct Item {
-    id: i32,
-    metadata: String,
-}
-
-impl PartialEq for Item {
-    fn eq(&self, other: &Self) -> bool {
-        self.id == other.id
+    #[derive(Debug)]
+    struct Item {
+        id: i32,
+        metadata: String,
     }
-}
 
-let i1 = Item { id: 1, metadata: "meta1".to_string() };
-let i2 = Item { id: 1, metadata: "meta2".to_string() };
-let result = i1 == i2;
+    impl PartialEq for Item {
+        fn eq(&self, other: &Self) -> bool {
+            self.id == other.id
+        }
+    }
+
+    let i1 = Item {
+        id: 1,
+        metadata: "meta1".to_string(),
+    };
+    let i2 = Item {
+        id: 1,
+        metadata: "meta2".to_string(),
+    };
+    let result = i1 == i2;
 '''
 
 
@@ -375,31 +393,31 @@ result = hash(p1) == hash(p2)
 '''
 
 rust = '''
-use std::collections::hash_map::DefaultHasher;
-use std::hash::{Hash, Hasher};
+    use std::collections::hash_map::DefaultHasher;
+    use std::hash::{Hash, Hasher};
 
-#[derive(Debug)]
-struct Point {
-    x: i32,
-    y: i32,
-}
-
-impl Hash for Point {
-    fn hash<H: Hasher>(&self, state: &mut H) {
-        self.x.hash(state);
-        // y is excluded from hash
+    #[derive(Debug)]
+    struct Point {
+        x: i32,
+        y: i32,
     }
-}
 
-fn calculate_hash<T: Hash>(t: &T) -> u64 {
-    let mut s = DefaultHasher::new();
-    t.hash(&mut s);
-    s.finish()
-}
+    impl Hash for Point {
+        fn hash<H: Hasher>(&self, state: &mut H) {
+            self.x.hash(state);
+            // y is excluded from hash
+        }
+    }
 
-let p1 = Point { x: 1, y: 2 };
-let p2 = Point { x: 1, y: 3 };
-let result = calculate_hash(&p1) == calculate_hash(&p2);
+    fn calculate_hash<T: Hash>(t: &T) -> u64 {
+        let mut s = DefaultHasher::new();
+        t.hash(&mut s);
+        s.finish()
+    }
+
+    let p1 = Point { x: 1, y: 2 };
+    let p2 = Point { x: 1, y: 3 };
+    let result = calculate_hash(&p1) == calculate_hash(&p2);
 '''
 
 
@@ -416,7 +434,9 @@ result = Example(42)
 '''
 
 rust = '''
-struct Example { value: i32 }
+struct Example {
+    value: i32,
+}
 '''
 
 
@@ -441,16 +461,16 @@ result = field_info.metadata['unit'] == 'meters'
 '''
 
 rust = '''
-// Rust doesn't have built-in field metadata like Python dataclasses
-// This would typically be done with macros or documentation
-#[derive(Debug)]
-struct Distance {
-    value: f64,
-}
+    // Rust doesn't have built-in field metadata like Python dataclasses
+    // This would typically be done with macros or documentation
+    #[derive(Debug)]
+    struct Distance {
+        value: f64,
+    }
 
-let d = Distance { value: 100.0 };
-// Metadata would be compile-time only in Rust
-let result = true;
+    let d = Distance { value: 100.0 };
+    // Metadata would be compile-time only in Rust
+    let result = true;
 '''
 
 
@@ -471,14 +491,14 @@ result = meta['unit'] == 'seconds' and meta['min'] == 0
 '''
 
 rust = '''
-// Rust doesn't have runtime field metadata access
-#[derive(Debug)]
-struct Config {
-    timeout: i32,
-}
+    // Rust doesn't have runtime field metadata access
+    #[derive(Debug)]
+    struct Config {
+        timeout: i32,
+    }
 
-let c = Config { timeout: 30 };
-let result = true;
+    let c = Config { timeout: 30 };
+    let result = true;
 '''
 
 
@@ -499,8 +519,8 @@ result = isinstance(meta, MappingProxyType)
 '''
 
 rust = '''
-// Rust's metadata would be immutable by design at compile time
-let result = true;
+    // Rust's metadata would be immutable by design at compile time
+    let result = true;
 '''
 
 
@@ -520,13 +540,13 @@ result = meta['a'] == 1 and meta['b'] == 2
 '''
 
 rust = '''
-// Metadata in Rust would be attributes or const data
-#[derive(Debug)]
-struct Data {
-    x: i32,
-}
+    // Metadata in Rust would be attributes or const data
+    #[derive(Debug)]
+    struct Data {
+        x: i32,
+    }
 
-let result = true;
+    let result = true;
 '''
 
 
@@ -554,20 +574,20 @@ result = c.x == 50
 '''
 
 rust = '''
-// Rust uses builder pattern or constructor for similar functionality
-#[derive(Debug)]
-struct C {
-    x: i32,
-}
-
-impl C {
-    fn new(x: i32, init_value: i32) -> Self {
-        C { x: x * init_value }
+    // Rust uses builder pattern or constructor for similar functionality
+    #[derive(Debug)]
+    struct C {
+        x: i32,
     }
-}
 
-let c = C::new(5, 10);
-let result = c.x == 50;
+    impl C {
+        fn new(x: i32, init_value: i32) -> Self {
+            C { x: x * init_value }
+        }
+    }
+
+    let c = C::new(5, 10);
+    let result = c.x == 50;
 '''
 
 
@@ -611,20 +631,20 @@ result = not hasattr(c, 'multiplier')
 '''
 
 rust = '''
-// In Rust, constructor parameters don't become fields unless stored
-#[derive(Debug)]
-struct C {
-    x: i32,
-}
-
-impl C {
-    fn new(x: i32, multiplier: i32) -> Self {
-        C { x: x * multiplier }
+    // In Rust, constructor parameters don't become fields unless stored
+    #[derive(Debug)]
+    struct C {
+        x: i32,
     }
-}
 
-let c = C::new(5, 2);
-let result = true;  // multiplier is not stored
+    impl C {
+        fn new(x: i32, multiplier: i32) -> Self {
+            C { x: x * multiplier }
+        }
+    }
+
+    let c = C::new(5, 2);
+    let result = true; // multiplier is not stored
 '''
 
 
@@ -650,17 +670,17 @@ result = Counter.count == 1
 '''
 
 rust = '''
-// Rust uses associated constants or static variables
-#[derive(Debug)]
-struct Counter {
-    value: i32,
-}
+    // Rust uses associated constants or static variables
+    #[derive(Debug)]
+    struct Counter {
+        value: i32,
+    }
 
-impl Counter {
-    const COUNT: i32 = 0;
-}
+    impl Counter {
+        const COUNT: i32 = 0;
+    }
 
-let result = Counter::COUNT == 0;
+    let result = Counter::COUNT == 0;
 '''
 
 
@@ -677,7 +697,9 @@ result = Example(42)
 '''
 
 rust = '''
-struct Example { value: i32 }
+struct Example {
+    value: i32,
+}
 '''
 
 
@@ -701,19 +723,19 @@ result = Counter.count == 42
 '''
 
 rust = '''
-use std::sync::atomic::{AtomicI32, Ordering};
+    use std::sync::atomic::{AtomicI32, Ordering};
 
-static COUNT: AtomicI32 = AtomicI32::new(0);
+    static COUNT: AtomicI32 = AtomicI32::new(0);
 
-#[derive(Debug)]
-struct Counter {
-    id: i32,
-}
+    #[derive(Debug)]
+    struct Counter {
+        id: i32,
+    }
 
-let c1 = Counter { id: 1 };
-let c2 = Counter { id: 2 };
-COUNT.store(42, Ordering::Relaxed);
-let result = COUNT.load(Ordering::Relaxed) == 42;
+    let c1 = Counter { id: 1 };
+    let c2 = Counter { id: 2 };
+    COUNT.store(42, Ordering::Relaxed);
+    let result = COUNT.load(Ordering::Relaxed) == 42;
 '''
 
 
@@ -740,16 +762,16 @@ result = p.x == 1 and p.y == 2
 '''
 
 rust = '''
-// Rust doesn't distinguish positional vs keyword arguments
-// Use builder pattern for similar functionality
-#[derive(Debug)]
-struct Point {
-    x: i32,
-    y: i32,
-}
+    // Rust doesn't distinguish positional vs keyword arguments
+    // Use builder pattern for similar functionality
+    #[derive(Debug)]
+    struct Point {
+        x: i32,
+        y: i32,
+    }
 
-let p = Point { x: 1, y: 2 };
-let result = p.x == 1 && p.y == 2;
+    let p = Point { x: 1, y: 2 };
+    let result = p.x == 1 && p.y == 2;
 '''
 
 
@@ -770,15 +792,15 @@ result = p.x == 1 and p.y == 2
 '''
 
 rust = '''
-// Rust requires all struct fields to be named in initialization
-#[derive(Debug)]
-struct Point {
-    x: i32,
-    y: i32,
-}
+    // Rust requires all struct fields to be named in initialization
+    #[derive(Debug)]
+    struct Point {
+        x: i32,
+        y: i32,
+    }
 
-let p = Point { x: 1, y: 2 };
-let result = p.x == 1 && p.y == 2;
+    let p = Point { x: 1, y: 2 };
+    let result = p.x == 1 && p.y == 2;
 '''
 
 
@@ -804,25 +826,25 @@ result = p.name == "Alice" and p.age == 0 and p.city == "Unknown"
 '''
 
 rust = '''
-#[derive(Debug)]
-struct Person {
-    name: String,
-    age: i32,
-    city: String,
-}
+    #[derive(Debug)]
+    struct Person {
+        name: String,
+        age: i32,
+        city: String,
+    }
 
-impl Person {
-    fn new(name: String) -> Self {
-        Person {
-            name,
-            age: 0,
-            city: "Unknown".to_string(),
+    impl Person {
+        fn new(name: String) -> Self {
+            Person {
+                name,
+                age: 0,
+                city: "Unknown".to_string(),
+            }
         }
     }
-}
 
-let p = Person::new("Alice".to_string());
-let result = p.name == "Alice" && p.age == 0 && p.city == "Unknown";
+    let p = Person::new("Alice".to_string());
+    let result = p.name == "Alice" && p.age == 0 && p.city == "Unknown";
 '''
 
 
@@ -844,26 +866,26 @@ result = c.name == "app" and c.port == 8080 and c.host == "localhost"
 '''
 
 rust = '''
-// Rust builder pattern for flexible initialization
-#[derive(Debug)]
-struct Config {
-    name: String,
-    port: i32,
-    host: String,
-}
+    // Rust builder pattern for flexible initialization
+    #[derive(Debug)]
+    struct Config {
+        name: String,
+        port: i32,
+        host: String,
+    }
 
-impl Config {
-    fn new(name: String, host: String) -> Self {
-        Config {
-            name,
-            port: 8080,
-            host,
+    impl Config {
+        fn new(name: String, host: String) -> Self {
+            Config {
+                name,
+                port: 8080,
+                host,
+            }
         }
     }
-}
 
-let c = Config::new("app".to_string(), "localhost".to_string());
-let result = c.name == "app" && c.port == 8080 && c.host == "localhost";
+    let c = Config::new("app".to_string(), "localhost".to_string());
+    let result = c.name == "app" && c.port == 8080 && c.host == "localhost";
 '''
 
 
@@ -889,14 +911,14 @@ result = 'x' in field_names and 'y' not in field_names
 '''
 
 rust = '''
-// Rust requires all struct fields to be typed
-#[derive(Debug)]
-struct C {
-    x: i32,
-}
+    // Rust requires all struct fields to be typed
+    #[derive(Debug)]
+    struct C {
+        x: i32,
+    }
 
-let c = C { x: 1 };
-let result = true;
+    let c = C { x: 1 };
+    let result = true;
 '''
 
 
@@ -918,21 +940,21 @@ result = n.value == 1 and n.next.value == 2
 '''
 
 rust = '''
-// Rust uses Box for recursive types
-#[derive(Debug)]
-struct Node {
-    value: i32,
-    next: Option<Box<Node>>,
-}
+    // Rust uses Box for recursive types
+    #[derive(Debug)]
+    struct Node {
+        value: i32,
+        next: Option<Box<Node>>,
+    }
 
-let n = Node {
-    value: 1,
-    next: Some(Box::new(Node {
-        value: 2,
-        next: None,
-    })),
-};
-let result = n.value == 1 && n.next.as_ref().unwrap().value == 2;
+    let n = Node {
+        value: 1,
+        next: Some(Box::new(Node {
+            value: 2,
+            next: None,
+        })),
+    };
+    let result = n.value == 1 && n.next.as_ref().unwrap().value == 2;
 '''
 
 
@@ -953,18 +975,18 @@ result = c.timeout is None
 '''
 
 rust = '''
-#[derive(Debug)]
-struct Config {
-    timeout: Option<i32>,
-}
-
-impl Default for Config {
-    fn default() -> Self {
-        Config { timeout: None }
+    #[derive(Debug)]
+    struct Config {
+        timeout: Option<i32>,
     }
-}
 
-let c = Config::default();
-let result = c.timeout.is_none();
+    impl Default for Config {
+        fn default() -> Self {
+            Config { timeout: None }
+        }
+    }
+
+    let c = Config::default();
+    let result = c.timeout.is_none();
 '''
 

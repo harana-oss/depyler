@@ -89,9 +89,13 @@ pub struct PackageInfo {
 
 impl PackageInfo {
     pub fn new(name: String, version: String, authors: Vec<String>) -> Self {
-        Self { name, version, authors }
+        Self {
+            name,
+            version,
+            authors,
+        }
     }
-    
+
     pub fn author_string(&self) -> String {
         return self.authors.join(", ");
     }
@@ -205,7 +209,11 @@ def add_member(workspace: list[str], name: str) -> list[str]:
 
 rust = '''
 pub fn workspace_members() -> Vec<String> {
-    return vec!["crate-a".to_string(), "crate-b".to_string(), "crate-c".to_string()];
+    return vec![
+        "crate-a".to_string(),
+        "crate-b".to_string(),
+        "crate-c".to_string(),
+    ];
 }
 
 pub fn is_member(workspace: &[String], name: &str) -> bool {

@@ -19,7 +19,9 @@ result = Example(42)
 '''
 
 rust = '''
-struct Example { value: i32 }
+struct Example {
+    value: i32,
+}
 '''
 
 
@@ -36,7 +38,9 @@ result = Example(42)
 '''
 
 rust = '''
-struct Example { value: i32 }
+struct Example {
+    value: i32,
+}
 '''
 
 
@@ -53,7 +57,9 @@ result = Example(42)
 '''
 
 rust = '''
-struct Example { value: i32 }
+struct Example {
+    value: i32,
+}
 '''
 
 
@@ -70,7 +76,9 @@ result = Example(42)
 '''
 
 rust = '''
-struct Example { value: i32 }
+struct Example {
+    value: i32,
+}
 '''
 
 
@@ -87,7 +95,9 @@ result = Example(42)
 '''
 
 rust = '''
-struct Example { value: i32 }
+struct Example {
+    value: i32,
+}
 '''
 
 
@@ -104,7 +114,9 @@ result = Example(42)
 '''
 
 rust = '''
-struct Example { value: i32 }
+struct Example {
+    value: i32,
+}
 '''
 
 
@@ -121,7 +133,9 @@ result = Example(42)
 '''
 
 rust = '''
-struct Example { value: i32 }
+struct Example {
+    value: i32,
+}
 '''
 
 
@@ -138,7 +152,9 @@ result = Example(42)
 '''
 
 rust = '''
-struct Example { value: i32 }
+struct Example {
+    value: i32,
+}
 '''
 
 
@@ -159,7 +175,9 @@ result = Example(42)
 '''
 
 rust = '''
-struct Example { value: i32 }
+struct Example {
+    value: i32,
+}
 '''
 
 
@@ -176,7 +194,9 @@ result = Example(42)
 '''
 
 rust = '''
-struct Example { value: i32 }
+struct Example {
+    value: i32,
+}
 '''
 
 
@@ -197,7 +217,9 @@ result = Example(42)
 '''
 
 rust = '''
-struct Example { value: i32 }
+struct Example {
+    value: i32,
+}
 '''
 
 
@@ -214,7 +236,9 @@ result = Example(42)
 '''
 
 rust = '''
-struct Example { value: i32 }
+struct Example {
+    value: i32,
+}
 '''
 
 
@@ -237,17 +261,21 @@ assert result.value == 15
 '''
 
 rust = '''
-// Rust: explicit type conversion
-struct Number { value: i32 }
-impl std::ops::Add<i32> for Number {
-    type Output = Number;
-    fn add(self, other: i32) -> Number {
-        Number { value: self.value + other }
+    // Rust: explicit type conversion
+    struct Number {
+        value: i32,
     }
-}
-let n = Number { value: 10 };
-let result = n + 5;
-assert_eq!(result.value, 15);
+    impl std::ops::Add<i32> for Number {
+        type Output = Number;
+        fn add(self, other: i32) -> Number {
+            Number {
+                value: self.value + other,
+            }
+        }
+    }
+    let n = Number { value: 10 };
+    let result = n + 5;
+    assert_eq!(result.value, 15);
 '''
 
 
@@ -277,11 +305,13 @@ assert result == True
 '''
 
 rust = '''
-// Rust: type system prevents unsupported operations at compile time
-struct Number { value: i32 }
-// Number + String would not compile
-let result = true;
-assert!(result);
+    // Rust: type system prevents unsupported operations at compile time
+    struct Number {
+        value: i32,
+    }
+    // Number + String would not compile
+    let result = true;
+    assert!(result);
 '''
 
 
@@ -298,7 +328,9 @@ result = Example(42)
 '''
 
 rust = '''
-struct Example { value: i32 }
+struct Example {
+    value: i32,
+}
 '''
 
 
@@ -325,19 +357,23 @@ assert result.value == 6
 '''
 
 rust = '''
-// Rust: left-to-right evaluation
-struct Number { value: i32 }
-impl std::ops::Add for Number {
-    type Output = Number;
-    fn add(self, other: Number) -> Number {
-        Number { value: self.value + other.value }
+    // Rust: left-to-right evaluation
+    struct Number {
+        value: i32,
     }
-}
-let a = Number { value: 1 };
-let b = Number { value: 2 };
-let c = Number { value: 3 };
-let result = a + b + c;
-assert_eq!(result.value, 6);
+    impl std::ops::Add for Number {
+        type Output = Number;
+        fn add(self, other: Number) -> Number {
+            Number {
+                value: self.value + other.value,
+            }
+        }
+    }
+    let a = Number { value: 1 };
+    let b = Number { value: 2 };
+    let c = Number { value: 3 };
+    let result = a + b + c;
+    assert_eq!(result.value, 6);
 '''
 
 
@@ -362,25 +398,31 @@ assert result.value == 14  # 2 + (3 * 4)
 '''
 
 rust = '''
-// Rust: operator precedence
-struct Number { value: i32 }
-impl std::ops::Add for Number {
-    type Output = Number;
-    fn add(self, other: Number) -> Number {
-        Number { value: self.value + other.value }
+    // Rust: operator precedence
+    struct Number {
+        value: i32,
     }
-}
-impl std::ops::Mul for Number {
-    type Output = Number;
-    fn mul(self, other: Number) -> Number {
-        Number { value: self.value * other.value }
+    impl std::ops::Add for Number {
+        type Output = Number;
+        fn add(self, other: Number) -> Number {
+            Number {
+                value: self.value + other.value,
+            }
+        }
     }
-}
-let a = Number { value: 2 };
-let b = Number { value: 3 };
-let c = Number { value: 4 };
-let result = a + b * c;
-assert_eq!(result.value, 14);
+    impl std::ops::Mul for Number {
+        type Output = Number;
+        fn mul(self, other: Number) -> Number {
+            Number {
+                value: self.value * other.value,
+            }
+        }
+    }
+    let a = Number { value: 2 };
+    let b = Number { value: 3 };
+    let c = Number { value: 4 };
+    let result = a + b * c;
+    assert_eq!(result.value, 14);
 '''
 
 
@@ -401,7 +443,9 @@ result = Example(42)
 '''
 
 rust = '''
-struct Example { value: i32 }
+struct Example {
+    value: i32,
+}
 '''
 
 
@@ -419,11 +463,11 @@ assert result == True
 '''
 
 rust = '''
-// Rust: Option<T> requires explicit handling
-let x = Some(5);
-let y: Option<i32> = None;
-let result = x.unwrap_or(0) + y.unwrap_or(0);
-assert_eq!(result, 5);
+    // Rust: Option<T> requires explicit handling
+    let x = Some(5);
+    let y: Option<i32> = None;
+    let result = x.unwrap_or(0) + y.unwrap_or(0);
+    assert_eq!(result, 5);
 '''
 
 
@@ -449,24 +493,30 @@ assert result.value == 30
 '''
 
 rust = '''
-// Rust: implementing arithmetic traits
-#[derive(Clone, Copy)]
-struct Number { value: i32 }
-impl std::ops::Add for Number {
-    type Output = Number;
-    fn add(self, other: Number) -> Number {
-        Number { value: self.value + other.value }
+    // Rust: implementing arithmetic traits
+    #[derive(Clone, Copy)]
+    struct Number {
+        value: i32,
     }
-}
-impl std::ops::Mul for Number {
-    type Output = Number;
-    fn mul(self, other: Number) -> Number {
-        Number { value: self.value * other.value }
+    impl std::ops::Add for Number {
+        type Output = Number;
+        fn add(self, other: Number) -> Number {
+            Number {
+                value: self.value + other.value,
+            }
+        }
     }
-}
-let a = Number { value: 10 };
-let b = Number { value: 5 };
-let result = (a + b) * Number { value: 2 };
-assert_eq!(result.value, 30);
+    impl std::ops::Mul for Number {
+        type Output = Number;
+        fn mul(self, other: Number) -> Number {
+            Number {
+                value: self.value * other.value,
+            }
+        }
+    }
+    let a = Number { value: 10 };
+    let b = Number { value: 5 };
+    let result = (a + b) * Number { value: 2 };
+    assert_eq!(result.value, 30);
 '''
 

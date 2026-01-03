@@ -99,7 +99,7 @@ impl Comparable for Number {
     fn less_than(&self, other: i32) -> bool {
         return self.value < other;
     }
-    
+
     fn equal_to(&self, other: i32) -> bool {
         return self.value == other;
     }
@@ -301,7 +301,7 @@ impl Container<i32> for Box {
     fn get(&self) -> i32 {
         return self._value;
     }
-    
+
     fn set(&mut self, value: i32) {
         self._value = value;
     }
@@ -345,7 +345,7 @@ impl IntList {
     pub fn new() -> Self {
         Self { values: vec![] }
     }
-    
+
     pub fn add(&mut self, value: i32) {
         self.values.push(value);
     }
@@ -527,7 +527,9 @@ pub struct ReadWriteBuffer {
 
 impl ReadWriteBuffer {
     pub fn new() -> Self {
-        Self { buffer: String::new() }
+        Self {
+            buffer: String::new(),
+        }
     }
 }
 

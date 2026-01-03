@@ -34,13 +34,13 @@ impl Data {
     pub fn new(value: i32) -> Self {
         Self { value }
     }
-    
+
     pub fn to_dict(&self) -> HashMap<String, i32> {
         let mut m = HashMap::new();
         m.insert("value".to_string(), self.value);
         return m;
     }
-    
+
     pub fn from_dict(d: &HashMap<String, i32>) -> Data {
         return Data::new(*d.get("value").unwrap_or(&0));
     }
@@ -137,11 +137,11 @@ pub fn create_list_objects() -> Vec<HashMap<String, i32>> {
     let mut item1 = HashMap::new();
     item1.insert("id".to_string(), 1);
     item1.insert("value".to_string(), 10);
-    
+
     let mut item2 = HashMap::new();
     item2.insert("id".to_string(), 2);
     item2.insert("value".to_string(), 20);
-    
+
     return vec![item1, item2];
 }
 
@@ -188,19 +188,16 @@ impl Point {
     pub fn new(x: i32, y: i32) -> Self {
         Self { x, y }
     }
-    
+
     pub fn to_json(&self) -> HashMap<String, i32> {
         let mut m = HashMap::new();
         m.insert("x".to_string(), self.x);
         m.insert("y".to_string(), self.y);
         return m;
     }
-    
+
     pub fn from_json(data: &HashMap<String, i32>) -> Point {
-        return Point::new(
-            *data.get("x").unwrap_or(&0),
-            *data.get("y").unwrap_or(&0)
-        );
+        return Point::new(*data.get("x").unwrap_or(&0), *data.get("y").unwrap_or(&0));
     }
 }
 '''
@@ -236,17 +233,17 @@ impl Timestamp {
     pub fn new(year: i32, month: i32, day: i32) -> Self {
         Self { year, month, day }
     }
-    
+
     pub fn to_string(&self) -> String {
         return format!("{}-{:02}-{:02}", self.year, self.month, self.day);
     }
-    
+
     pub fn parse(s: &str) -> Timestamp {
         let parts: Vec<&str> = s.split('-').collect();
         return Timestamp::new(
             parts[0].parse().unwrap_or(0),
             parts[1].parse().unwrap_or(0),
-            parts[2].parse().unwrap_or(0)
+            parts[2].parse().unwrap_or(0),
         );
     }
 }
@@ -280,7 +277,7 @@ pub fn yaml_to_dict(yaml_str: &str) -> HashMap<String, String> {
     for line in yaml_str.lines() {
         if let Some(idx) = line.find(':') {
             let key = line[..idx].trim().to_string();
-            let value = line[idx+1..].trim().to_string();
+            let value = line[idx + 1..].trim().to_string();
             result.insert(key, value);
         }
     }
@@ -348,11 +345,11 @@ pub fn parse_toml_section(toml_str: &str, section: &str) -> HashMap<String, Stri
     for line in toml_str.lines() {
         let line = line.trim();
         if line.starts_with('[') && line.ends_with(']') {
-            in_section = &line[1..line.len()-1] == section;
+            in_section = &line[1..line.len() - 1] == section;
         } else if in_section {
             if let Some(idx) = line.find('=') {
                 let key = line[..idx].trim().to_string();
-                let value = line[idx+1..].trim().trim_matches('"').to_string();
+                let value = line[idx + 1..].trim().trim_matches('"').to_string();
                 result.insert(key, value);
             }
         }
@@ -379,7 +376,7 @@ rust = '''
 pub fn parse_toml_value(line: &str) -> (String, String) {
     if let Some(idx) = line.find('=') {
         let key = line[..idx].trim().to_string();
-        let value = line[idx+1..].trim().trim_matches('"').to_string();
+        let value = line[idx + 1..].trim().trim_matches('"').to_string();
         return (key, value);
     }
     return (String::new(), String::new());

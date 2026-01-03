@@ -32,37 +32,37 @@ with File("data.txt") as f:
 assert f.closed
 '''
 rust = '''
-struct File {
-    name: String,
-    closed: bool,
-}
+    struct File {
+        name: String,
+        closed: bool,
+    }
 
-impl File {
-    fn new(name: &str) -> Self {
-        File {
-            name: name.to_string(),
-            closed: false,
+    impl File {
+        fn new(name: &str) -> Self {
+            File {
+                name: name.to_string(),
+                closed: false,
+            }
+        }
+
+        fn read(&self) -> String {
+            "content".to_string()
         }
     }
-    
-    fn read(&self) -> String {
-        "content".to_string()
-    }
-}
 
-impl Drop for File {
-    fn drop(&mut self) {
-        self.closed = true;
+    impl Drop for File {
+        fn drop(&mut self) {
+            self.closed = true;
+        }
     }
-}
 
-{
-    let mut f = File::new("data.txt");
-    let content = f.read();
-    assert_eq!(content, "content");
-    assert!(!f.closed);
-} // Drop called here
-// assert!(f.closed); // f no longer in scope
+    {
+        let mut f = File::new("data.txt");
+        let content = f.read();
+        assert_eq!(content, "content");
+        assert!(!f.closed);
+    } // Drop called here
+    // assert!(f.closed); // f no longer in scope
 '''
 
 [[test]]
@@ -87,36 +87,36 @@ with lock:
 assert not lock.locked
 '''
 rust = '''
-struct Lock {
-    locked: bool,
-}
+    struct Lock {
+        locked: bool,
+    }
 
-impl Lock {
-    fn new() -> Self {
-        Lock { locked: false }
-    }
-    
-    fn acquire(&mut self) {
-        self.locked = true;
-    }
-    
-    fn release(&mut self) {
-        self.locked = false;
-    }
-}
+    impl Lock {
+        fn new() -> Self {
+            Lock { locked: false }
+        }
 
-impl Drop for Lock {
-    fn drop(&mut self) {
-        self.release();
-    }
-}
+        fn acquire(&mut self) {
+            self.locked = true;
+        }
 
-let mut lock = Lock::new();
-{
-    lock.acquire();
-    assert!(lock.locked);
-} // Drop called, releases lock
-assert!(!lock.locked);
+        fn release(&mut self) {
+            self.locked = false;
+        }
+    }
+
+    impl Drop for Lock {
+        fn drop(&mut self) {
+            self.release();
+        }
+    }
+
+    let mut lock = Lock::new();
+    {
+        lock.acquire();
+        assert!(lock.locked);
+    } // Drop called, releases lock
+    assert!(!lock.locked);
 '''
 
 [[test]]
@@ -145,41 +145,41 @@ with counter:
 assert counter.count == 0
 '''
 rust = '''
-use std::rc::Rc;
-use std::cell::RefCell;
+    use std::cell::RefCell;
+    use std::rc::Rc;
 
-struct Counter {
-    count: i32,
-}
+    struct Counter {
+        count: i32,
+    }
 
-impl Counter {
-    fn new() -> Self {
-        Counter { count: 0 }
-    }
-    
-    fn enter(&mut self) {
-        self.count += 1;
-    }
-    
-    fn exit(&mut self) {
-        self.count -= 1;
-    }
-}
+    impl Counter {
+        fn new() -> Self {
+            Counter { count: 0 }
+        }
 
-let counter = Rc::new(RefCell::new(Counter::new()));
-assert_eq!(counter.borrow().count, 0);
-{
-    counter.borrow_mut().enter();
-    assert_eq!(counter.borrow().count, 1);
+        fn enter(&mut self) {
+            self.count += 1;
+        }
+
+        fn exit(&mut self) {
+            self.count -= 1;
+        }
+    }
+
+    let counter = Rc::new(RefCell::new(Counter::new()));
+    assert_eq!(counter.borrow().count, 0);
     {
         counter.borrow_mut().enter();
-        assert_eq!(counter.borrow().count, 2);
+        assert_eq!(counter.borrow().count, 1);
+        {
+            counter.borrow_mut().enter();
+            assert_eq!(counter.borrow().count, 2);
+            counter.borrow_mut().exit();
+        }
+        assert_eq!(counter.borrow().count, 1);
         counter.borrow_mut().exit();
     }
-    assert_eq!(counter.borrow().count, 1);
-    counter.borrow_mut().exit();
-}
-assert_eq!(counter.borrow().count, 0);
+    assert_eq!(counter.borrow().count, 0);
 '''
 
 # =============================================================================
@@ -207,24 +207,26 @@ with r:
     assert r.setup_called
 '''
 rust = '''
-struct Resource {
-    setup_called: bool,
-}
-
-impl Resource {
-    fn new() -> Self {
-        Resource { setup_called: false }
+    struct Resource {
+        setup_called: bool,
     }
-    
-    fn setup(&mut self) {
-        self.setup_called = true;
-    }
-}
 
-let mut r = Resource::new();
-assert!(!r.setup_called);
-r.setup();
-assert!(r.setup_called);
+    impl Resource {
+        fn new() -> Self {
+            Resource {
+                setup_called: false,
+            }
+        }
+
+        fn setup(&mut self) {
+            self.setup_called = true;
+        }
+    }
+
+    let mut r = Resource::new();
+    assert!(!r.setup_called);
+    r.setup();
+    assert!(r.setup_called);
 '''
 
 [[test]]
@@ -249,28 +251,30 @@ with r:
 assert r.cleanup_called
 '''
 rust = '''
-struct Resource {
-    cleanup_called: bool,
-}
-
-impl Resource {
-    fn new() -> Self {
-        Resource { cleanup_called: false }
+    struct Resource {
+        cleanup_called: bool,
     }
-}
 
-impl Drop for Resource {
-    fn drop(&mut self) {
-        self.cleanup_called = true;
+    impl Resource {
+        fn new() -> Self {
+            Resource {
+                cleanup_called: false,
+            }
+        }
     }
-}
 
-let mut r = Resource::new();
-assert!(!r.cleanup_called);
-{
-    // Resource used here
-} // Drop called
-// assert!(r.cleanup_called); // r moved/dropped
+    impl Drop for Resource {
+        fn drop(&mut self) {
+            self.cleanup_called = true;
+        }
+    }
+
+    let mut r = Resource::new();
+    assert!(!r.cleanup_called);
+    {
+        // Resource used here
+    } // Drop called
+    // assert!(r.cleanup_called); // r moved/dropped
 '''
 
 [[test]]
@@ -288,17 +292,17 @@ with ResourceFactory() as handle:
     assert handle == "resource_handle"
 '''
 rust = '''
-struct ResourceFactory;
+    struct ResourceFactory;
 
-impl ResourceFactory {
-    fn acquire(&self) -> String {
-        "resource_handle".to_string()
+    impl ResourceFactory {
+        fn acquire(&self) -> String {
+            "resource_handle".to_string()
+        }
     }
-}
 
-let factory = ResourceFactory;
-let handle = factory.acquire();
-assert_eq!(handle, "resource_handle");
+    let factory = ResourceFactory;
+    let handle = factory.acquire();
+    assert_eq!(handle, "resource_handle");
 '''
 
 # =============================================================================
@@ -326,26 +330,26 @@ with obs:
 assert obs.exc_info == (None, None, None)
 '''
 rust = '''
-struct Observer {
-    success: bool,
-}
-
-impl Observer {
-    fn new() -> Self {
-        Observer { success: false }
+    struct Observer {
+        success: bool,
     }
-}
 
-impl Drop for Observer {
-    fn drop(&mut self) {
-        self.success = true;
+    impl Observer {
+        fn new() -> Self {
+            Observer { success: false }
+        }
     }
-}
 
-{
-    let mut obs = Observer::new();
-    let x = 1 + 1;
-} // Drop called on success
+    impl Drop for Observer {
+        fn drop(&mut self) {
+            self.success = true;
+        }
+    }
+
+    {
+        let mut obs = Observer::new();
+        let x = 1 + 1;
+    } // Drop called on success
 '''
 
 [[test]]
@@ -372,30 +376,30 @@ except ValueError:
 assert logger.exc_type == ValueError
 '''
 rust = '''
-// Rust uses Result for explicit error handling
-struct ExceptionLogger {
-    exc_occurred: bool,
-}
-
-impl ExceptionLogger {
-    fn new() -> Self {
-        ExceptionLogger { exc_occurred: false }
+    // Rust uses Result for explicit error handling
+    struct ExceptionLogger {
+        exc_occurred: bool,
     }
-    
-    fn log_error(&mut self) {
-        self.exc_occurred = true;
+
+    impl ExceptionLogger {
+        fn new() -> Self {
+            ExceptionLogger {
+                exc_occurred: false,
+            }
+        }
+
+        fn log_error(&mut self) {
+            self.exc_occurred = true;
+        }
     }
-}
 
-let mut logger = ExceptionLogger::new();
-let result: Result<(), String> = (|| {
-    Err("test".to_string())
-})();
+    let mut logger = ExceptionLogger::new();
+    let result: Result<(), String> = (|| Err("test".to_string()))();
 
-if result.is_err() {
-    logger.log_error();
-}
-assert!(logger.exc_occurred);
+    if result.is_err() {
+        logger.log_error();
+    }
+    assert!(logger.exc_occurred);
 '''
 
 [[test]]
@@ -447,17 +451,16 @@ except ValueError:
 assert caught
 '''
 rust = '''
-// Rust propagates errors explicitly with Result
-fn with_propagator<F>(f: F) -> Result<(), String>
-where F: FnOnce() -> Result<(), String>
-{
-    f() // Propagate error with ?
-}
+    // Rust propagates errors explicitly with Result
+    fn with_propagator<F>(f: F) -> Result<(), String>
+    where
+        F: FnOnce() -> Result<(), String>,
+    {
+        f() // Propagate error with ?
+    }
 
-let result = with_propagator(|| {
-    Err("This will propagate".to_string())
-});
-assert!(result.is_err());
+    let result = with_propagator(|| Err("This will propagate".to_string()));
+    assert!(result.is_err());
 '''
 
 # =============================================================================
@@ -493,44 +496,44 @@ with db:
 assert not db.connected
 '''
 rust = '''
-struct Database {
-    connected: bool,
-}
+    struct Database {
+        connected: bool,
+    }
 
-impl Database {
-    fn new() -> Self {
-        Database { connected: false }
-    }
-    
-    fn connect(&mut self) {
-        self.connected = true;
-    }
-    
-    fn disconnect(&mut self) {
-        self.connected = false;
-    }
-    
-    fn query(&self) -> String {
-        assert!(self.connected);
-        "result".to_string()
-    }
-}
+    impl Database {
+        fn new() -> Self {
+            Database { connected: false }
+        }
 
-impl Drop for Database {
-    fn drop(&mut self) {
-        self.disconnect();
-    }
-}
+        fn connect(&mut self) {
+            self.connected = true;
+        }
 
-let mut db = Database::new();
-assert!(!db.connected);
-{
-    db.connect();
-    assert!(db.connected);
-    let result = db.query();
-    assert_eq!(result, "result");
-} // Drop called
-assert!(!db.connected);
+        fn disconnect(&mut self) {
+            self.connected = false;
+        }
+
+        fn query(&self) -> String {
+            assert!(self.connected);
+            "result".to_string()
+        }
+    }
+
+    impl Drop for Database {
+        fn drop(&mut self) {
+            self.disconnect();
+        }
+    }
+
+    let mut db = Database::new();
+    assert!(!db.connected);
+    {
+        db.connect();
+        assert!(db.connected);
+        let result = db.query();
+        assert_eq!(result, "result");
+    } // Drop called
+    assert!(!db.connected);
 '''
 
 [[test]]
@@ -560,39 +563,39 @@ with conn:
 assert not conn.active
 '''
 rust = '''
-struct Connection {
-    active: bool,
-}
-
-impl Connection {
-    fn new() -> Self {
-        Connection { active: false }
+    struct Connection {
+        active: bool,
     }
-    
-    fn open(&mut self) {
-        self.active = true;
+
+    impl Connection {
+        fn new() -> Self {
+            Connection { active: false }
+        }
+
+        fn open(&mut self) {
+            self.active = true;
+        }
+
+        fn close(&mut self) {
+            self.active = false;
+        }
     }
-    
-    fn close(&mut self) {
-        self.active = false;
+
+    let mut conn = Connection::new();
+
+    {
+        conn.open();
+        assert!(conn.active);
+        conn.close();
     }
-}
+    assert!(!conn.active);
 
-let mut conn = Connection::new();
-
-{
-    conn.open();
-    assert!(conn.active);
-    conn.close();
-}
-assert!(!conn.active);
-
-{
-    conn.open();
-    assert!(conn.active);
-    conn.close();
-}
-assert!(!conn.active);
+    {
+        conn.open();
+        assert!(conn.active);
+        conn.close();
+    }
+    assert!(!conn.active);
 '''
 
 [[test]]
@@ -625,39 +628,42 @@ assert txn.depth == 0
 assert txn.committed
 '''
 rust = '''
-struct Transaction {
-    depth: i32,
-    committed: bool,
-}
+    struct Transaction {
+        depth: i32,
+        committed: bool,
+    }
 
-impl Transaction {
-    fn new() -> Self {
-        Transaction { depth: 0, committed: false }
-    }
-    
-    fn begin(&mut self) {
-        self.depth += 1;
-    }
-    
-    fn end(&mut self, success: bool) {
-        self.depth -= 1;
-        if self.depth == 0 && success {
-            self.committed = true;
+    impl Transaction {
+        fn new() -> Self {
+            Transaction {
+                depth: 0,
+                committed: false,
+            }
+        }
+
+        fn begin(&mut self) {
+            self.depth += 1;
+        }
+
+        fn end(&mut self, success: bool) {
+            self.depth -= 1;
+            if self.depth == 0 && success {
+                self.committed = true;
+            }
         }
     }
-}
 
-let mut txn = Transaction::new();
-assert_eq!(txn.depth, 0);
-txn.begin();
-assert_eq!(txn.depth, 1);
-txn.begin();
-assert_eq!(txn.depth, 2);
-txn.end(true);
-assert_eq!(txn.depth, 1);
-txn.end(true);
-assert_eq!(txn.depth, 0);
-assert!(txn.committed);
+    let mut txn = Transaction::new();
+    assert_eq!(txn.depth, 0);
+    txn.begin();
+    assert_eq!(txn.depth, 1);
+    txn.begin();
+    assert_eq!(txn.depth, 2);
+    txn.end(true);
+    assert_eq!(txn.depth, 1);
+    txn.end(true);
+    assert_eq!(txn.depth, 0);
+    assert!(txn.committed);
 '''
 
 # =============================================================================
@@ -691,40 +697,40 @@ with MockFile("output.txt") as f:
 assert f.closed
 '''
 rust = '''
-use std::fs::File;
-use std::io::Write;
+    use std::fs::File;
+    use std::io::Write;
 
-// In Rust, File implements Drop automatically
-// Conceptual example
-struct MockFile {
-    name: String,
-    closed: bool,
-}
+    // In Rust, File implements Drop automatically
+    // Conceptual example
+    struct MockFile {
+        name: String,
+        closed: bool,
+    }
 
-impl MockFile {
-    fn new(name: &str) -> Self {
-        MockFile {
-            name: name.to_string(),
-            closed: false,
+    impl MockFile {
+        fn new(name: &str) -> Self {
+            MockFile {
+                name: name.to_string(),
+                closed: false,
+            }
+        }
+
+        fn write(&mut self, data: &str) {
+            assert!(!self.closed);
         }
     }
-    
-    fn write(&mut self, data: &str) {
-        assert!(!self.closed);
-    }
-}
 
-impl Drop for MockFile {
-    fn drop(&mut self) {
-        self.closed = true;
+    impl Drop for MockFile {
+        fn drop(&mut self) {
+            self.closed = true;
+        }
     }
-}
 
-{
-    let mut f = MockFile::new("output.txt");
-    f.write("data");
-    assert!(!f.closed);
-} // Drop called
+    {
+        let mut f = MockFile::new("output.txt");
+        f.write("data");
+        assert!(!f.closed);
+    } // Drop called
 '''
 
 [[test]]
@@ -750,14 +756,14 @@ with lock:
 assert not lock.locked
 '''
 rust = '''
-use std::sync::Mutex;
+    use std::sync::Mutex;
 
-// Rust's Mutex guard is a context manager
-let data = Mutex::new(0);
-{
-    let mut guard = data.lock().unwrap();
-    *guard = 42;
-} // MutexGuard dropped, lock released
+    // Rust's Mutex guard is a context manager
+    let data = Mutex::new(0);
+    {
+        let mut guard = data.lock().unwrap();
+        *guard = 42;
+    } // MutexGuard dropped, lock released
 '''
 
 [[test]]
@@ -797,45 +803,45 @@ assert not txn2.committed
 assert txn2.rolled_back
 '''
 rust = '''
-struct Transaction {
-    committed: bool,
-    rolled_back: bool,
-}
+    struct Transaction {
+        committed: bool,
+        rolled_back: bool,
+    }
 
-impl Transaction {
-    fn new() -> Self {
-        Transaction {
-            committed: false,
-            rolled_back: false,
+    impl Transaction {
+        fn new() -> Self {
+            Transaction {
+                committed: false,
+                rolled_back: false,
+            }
+        }
+
+        fn commit(&mut self) {
+            self.committed = true;
+        }
+
+        fn rollback(&mut self) {
+            self.rolled_back = true;
         }
     }
-    
-    fn commit(&mut self) {
-        self.committed = true;
-    }
-    
-    fn rollback(&mut self) {
-        self.rolled_back = true;
-    }
-}
 
-// Success case
-let mut txn1 = Transaction::new();
-let result1: Result<(), ()> = Ok(());
-if result1.is_ok() {
-    txn1.commit();
-}
-assert!(txn1.committed);
-assert!(!txn1.rolled_back);
+    // Success case
+    let mut txn1 = Transaction::new();
+    let result1: Result<(), ()> = Ok(());
+    if result1.is_ok() {
+        txn1.commit();
+    }
+    assert!(txn1.committed);
+    assert!(!txn1.rolled_back);
 
-// Failure case
-let mut txn2 = Transaction::new();
-let result2: Result<(), String> = Err("error".to_string());
-if result2.is_err() {
-    txn2.rollback();
-}
-assert!(!txn2.committed);
-assert!(txn2.rolled_back);
+    // Failure case
+    let mut txn2 = Transaction::new();
+    let result2: Result<(), String> = Err("error".to_string());
+    if result2.is_err() {
+        txn2.rollback();
+    }
+    assert!(!txn2.committed);
+    assert!(txn2.rolled_back);
 '''
 
 [[test]]
@@ -863,33 +869,33 @@ with manager:
 assert manager.value == 10  # Restored
 '''
 rust = '''
-struct StateManager {
-    value: i32,
-}
+    struct StateManager {
+        value: i32,
+    }
 
-impl StateManager {
-    fn new() -> Self {
-        StateManager { value: 10 }
-    }
-    
-    fn save(&self) -> i32 {
-        self.value
-    }
-    
-    fn restore(&mut self, saved: i32) {
-        self.value = saved;
-    }
-}
+    impl StateManager {
+        fn new() -> Self {
+            StateManager { value: 10 }
+        }
 
-let mut manager = StateManager::new();
-assert_eq!(manager.value, 10);
-{
-    let saved = manager.save();
-    manager.value = 20;
-    assert_eq!(manager.value, 20);
-    manager.restore(saved);
-}
-assert_eq!(manager.value, 10);
+        fn save(&self) -> i32 {
+            self.value
+        }
+
+        fn restore(&mut self, saved: i32) {
+            self.value = saved;
+        }
+    }
+
+    let mut manager = StateManager::new();
+    assert_eq!(manager.value, 10);
+    {
+        let saved = manager.save();
+        manager.value = 20;
+        assert_eq!(manager.value, 20);
+        manager.restore(saved);
+    }
+    assert_eq!(manager.value, 10);
 '''
 
 # =============================================================================
@@ -920,26 +926,26 @@ except ValueError:
 assert not cm.exit_called  # __exit__ not called
 '''
 rust = '''
-// Rust: Drop not called if constructor fails
-struct Resource {
-    dropped: bool,
-}
-
-impl Resource {
-    fn new() -> Result<Self, String> {
-        Err("Constructor failed".to_string())
+    // Rust: Drop not called if constructor fails
+    struct Resource {
+        dropped: bool,
     }
-}
 
-impl Drop for Resource {
-    fn drop(&mut self) {
-        self.dropped = true;
+    impl Resource {
+        fn new() -> Result<Self, String> {
+            Err("Constructor failed".to_string())
+        }
     }
-}
 
-let result = Resource::new();
-assert!(result.is_err());
-// Drop not called because resource was never created
+    impl Drop for Resource {
+        fn drop(&mut self) {
+            self.dropped = true;
+        }
+    }
+
+    let result = Resource::new();
+    assert!(result.is_err());
+    // Drop not called because resource was never created
 '''
 
 [[test]]
@@ -962,19 +968,19 @@ except RuntimeError as e:
 assert str(caught) == "Exit error"  # Exit exception masks body exception
 '''
 rust = '''
-// Rust: panicking in Drop is problematic
-// This is a conceptual example showing error handling
+    // Rust: panicking in Drop is problematic
+    // This is a conceptual example showing error handling
 
-fn cleanup_that_fails() -> Result<(), String> {
-    Err("Cleanup failed".to_string())
-}
+    fn cleanup_that_fails() -> Result<(), String> {
+        Err("Cleanup failed".to_string())
+    }
 
-let body_error: Result<(), String> = Err("Body error".to_string());
-let cleanup_error = cleanup_that_fails();
+    let body_error: Result<(), String> = Err("Body error".to_string());
+    let cleanup_error = cleanup_that_fails();
 
-// In practice, handle both errors carefully
-// Cleanup error would typically be prioritized
-assert!(cleanup_error.is_err());
+    // In practice, handle both errors carefully
+    // Cleanup error would typically be prioritized
+    assert!(cleanup_error.is_err());
 '''
 
 [[test]]
@@ -1004,32 +1010,32 @@ assert result == "early"
 assert tracker.exit_called  # __exit__ still called
 '''
 rust = '''
-// Rust: Drop still called on early return
-struct Tracker {
-    exit_called: bool,
-}
-
-impl Tracker {
-    fn new() -> Self {
-        Tracker { exit_called: false }
+    // Rust: Drop still called on early return
+    struct Tracker {
+        exit_called: bool,
     }
-}
 
-impl Drop for Tracker {
-    fn drop(&mut self) {
-        // In real code, would use RefCell or similar to track
-        // Conceptual example
+    impl Tracker {
+        fn new() -> Self {
+            Tracker { exit_called: false }
+        }
     }
-}
 
-fn func() -> String {
-    let _tracker = Tracker::new();
-    return "early".to_string(); // Drop still called
-    // "late".to_string()
-}
+    impl Drop for Tracker {
+        fn drop(&mut self) {
+            // In real code, would use RefCell or similar to track
+            // Conceptual example
+        }
+    }
 
-let result = func();
-assert_eq!(result, "early");
+    fn func() -> String {
+        let _tracker = Tracker::new();
+        return "early".to_string(); // Drop still called
+        // "late".to_string()
+    }
+
+    let result = func();
+    assert_eq!(result, "early");
 '''
 
 [[test]]
@@ -1058,41 +1064,46 @@ assert counter.enter_count == 3  # Entered 0, 1, 2
 assert counter.exit_count == 3   # Exited all 3 times
 '''
 rust = '''
-// Rust: Drop called even with break
-struct Counter {
-    enter_count: i32,
-    exit_count: i32,
-}
-
-impl Counter {
-    fn new() -> Self {
-        Counter { enter_count: 0, exit_count: 0 }
+    // Rust: Drop called even with break
+    struct Counter {
+        enter_count: i32,
+        exit_count: i32,
     }
-    
-    fn enter(&mut self) {
-        self.enter_count += 1;
-    }
-}
 
-struct Guard<'a> {
-    counter: &'a mut Counter,
-}
+    impl Counter {
+        fn new() -> Self {
+            Counter {
+                enter_count: 0,
+                exit_count: 0,
+            }
+        }
 
-impl<'a> Drop for Guard<'a> {
-    fn drop(&mut self) {
-        self.counter.exit_count += 1;
+        fn enter(&mut self) {
+            self.enter_count += 1;
+        }
     }
-}
 
-let mut counter = Counter::new();
-for i in 0..5 {
-    counter.enter();
-    let _guard = Guard { counter: &mut counter };
-    if i == 2 {
-        break;
+    struct Guard<'a> {
+        counter: &'a mut Counter,
     }
-    // Guard dropped here in each iteration
-}
-assert_eq!(counter.enter_count, 3);
-assert_eq!(counter.exit_count, 3);
+
+    impl<'a> Drop for Guard<'a> {
+        fn drop(&mut self) {
+            self.counter.exit_count += 1;
+        }
+    }
+
+    let mut counter = Counter::new();
+    for i in 0..5 {
+        counter.enter();
+        let _guard = Guard {
+            counter: &mut counter,
+        };
+        if i == 2 {
+            break;
+        }
+        // Guard dropped here in each iteration
+    }
+    assert_eq!(counter.enter_count, 3);
+    assert_eq!(counter.exit_count, 3);
 '''

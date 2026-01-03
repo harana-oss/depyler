@@ -478,7 +478,11 @@ def find_twice(items: list[int], value: int) -> int:
 
 rust = '''
 pub fn find_twice(items: Vec<i32>, value: i32) -> i32 {
-    let _cse_temp_0 = items.iter().position(|x| *x == value).map(|i| i as i32).unwrap_or(-1);
+    let _cse_temp_0 = items
+        .iter()
+        .position(|x| *x == value)
+        .map(|i| i as i32)
+        .unwrap_or(-1);
     let idx = _cse_temp_0;
     return idx + _cse_temp_0;
 }

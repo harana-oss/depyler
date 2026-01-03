@@ -19,7 +19,9 @@ result = Example(42)
 '''
 
 rust = '''
-struct Example { value: i32 }
+struct Example {
+    value: i32,
+}
 '''
 
 
@@ -36,7 +38,9 @@ result = Example(42)
 '''
 
 rust = '''
-struct Example { value: i32 }
+struct Example {
+    value: i32,
+}
 '''
 
 
@@ -55,9 +59,9 @@ result = os_module is not None
 '''
 
 rust = '''
-// importlib.import_module('os')
-// Dynamic loading not directly supported in Rust
-let result = true;
+    // importlib.import_module('os')
+    // Dynamic loading not directly supported in Rust
+    let result = true;
 '''
 
 
@@ -72,9 +76,9 @@ result = True
 '''
 
 rust = '''
-// import_module('.sub', 'pkg')
-// Relative imports resolved at compile time in Rust
-let result = true;
+    // import_module('.sub', 'pkg')
+    // Relative imports resolved at compile time in Rust
+    let result = true;
 '''
 
 
@@ -90,9 +94,9 @@ result = True
 '''
 
 rust = '''
-// importlib.reload(mod)
-// Module reloading not supported in Rust
-let result = true;
+    // importlib.reload(mod)
+    // Module reloading not supported in Rust
+    let result = true;
 '''
 
 
@@ -111,9 +115,9 @@ result = True
 '''
 
 rust = '''
-// getattr(mod, 'func')
-// Dynamic attribute access not supported in Rust
-let result = true;
+    // getattr(mod, 'func')
+    // Dynamic attribute access not supported in Rust
+    let result = true;
 '''
 
 
@@ -128,9 +132,9 @@ result = True
 '''
 
 rust = '''
-// importlib.import_module(name).func()
-// Dynamic module loading and calling not supported
-let result = true;
+    // importlib.import_module(name).func()
+    // Dynamic module loading and calling not supported
+    let result = true;
 '''
 
 
@@ -149,9 +153,9 @@ result = True
 '''
 
 rust = '''
-// importlib.util.LazyLoader
-// Lazy evaluation with lazy_static or once_cell crates
-let result = true;
+    // importlib.util.LazyLoader
+    // Lazy evaluation with lazy_static or once_cell crates
+    let result = true;
 '''
 
 
@@ -166,9 +170,9 @@ result = True
 '''
 
 rust = '''
-// Module loaded on first access
-// Use lazy_static! or OnceCell for lazy initialization
-let result = true;
+    // Module loaded on first access
+    // Use lazy_static! or OnceCell for lazy initialization
+    let result = true;
 '''
 
 
@@ -187,9 +191,9 @@ result = True
 '''
 
 rust = '''
-// spec_from_file_location
-// Would use dlopen for dynamic library loading
-let result = true;
+    // spec_from_file_location
+    // Would use dlopen for dynamic library loading
+    let result = true;
 '''
 
 
@@ -205,9 +209,9 @@ result = True
 '''
 
 rust = '''
-// module_from_spec and loader.exec_module
-// Dynamic module execution not supported
-let result = true;
+    // module_from_spec and loader.exec_module
+    // Dynamic module execution not supported
+    let result = true;
 '''
 
 
@@ -226,9 +230,9 @@ result = spec is not None
 '''
 
 rust = '''
-// importlib.util.find_spec('os')
-// Module resolution happens at compile time
-let result = true;
+    // importlib.util.find_spec('os')
+    // Module resolution happens at compile time
+    let result = true;
 '''
 
 
@@ -243,9 +247,9 @@ result = spec.name == 'os' and spec.origin is not None
 '''
 
 rust = '''
-// spec.name, spec.origin
-// Module metadata available via Cargo.toml
-let result = true;
+    // spec.name, spec.origin
+    // Module metadata available via Cargo.toml
+    let result = true;
 '''
 
 
@@ -264,9 +268,9 @@ result = True
 '''
 
 rust = '''
-// Load plugins dynamically
-// Use dlopen or libloading crate for dynamic plugins
-let result = true;
+    // Load plugins dynamically
+    // Use dlopen or libloading crate for dynamic plugins
+    let result = true;
 '''
 
 
@@ -283,9 +287,9 @@ except ImportError:
 '''
 
 rust = '''
-// try: import x except: fallback
-// Use conditional compilation: #[cfg(feature = "optional")]
-let result = true;
+    // try: import x except: fallback
+    // Use conditional compilation: #[cfg(feature = "optional")]
+    let result = true;
 '''
 
 
@@ -307,9 +311,9 @@ except ModuleNotFoundError:
 '''
 
 rust = '''
-// ModuleNotFoundError
-// Compile-time error for missing modules
-let result = true;
+    // ModuleNotFoundError
+    // Compile-time error for missing modules
+    let result = true;
 '''
 
 
@@ -326,8 +330,8 @@ result = True
 '''
 
 rust = '''
-// try/except for imports
-// Import errors caught at compile time
-let result = true;
+    // try/except for imports
+    // Import errors caught at compile time
+    let result = true;
 '''
 

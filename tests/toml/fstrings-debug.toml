@@ -16,8 +16,8 @@ result = f'Value: {x}'
 '''
 
 rust = '''
-let x = 42;
-let result = format!("Value: {}", x);
+    let x = 42;
+    let result = format!("Value: {}", x);
 '''
 
 
@@ -31,8 +31,8 @@ result = f'Value: {x}'
 '''
 
 rust = '''
-let x = 42;
-let result = format!("Value: {}", x);
+    let x = 42;
+    let result = format!("Value: {}", x);
 '''
 
 
@@ -46,8 +46,8 @@ result = f'Value: {x}'
 '''
 
 rust = '''
-let x = 42;
-let result = format!("Value: {}", x);
+    let x = 42;
+    let result = format!("Value: {}", x);
 '''
 
 
@@ -65,8 +65,8 @@ result = f'Value: {x}'
 '''
 
 rust = '''
-let x = 42;
-let result = format!("Value: {}", x);
+    let x = 42;
+    let result = format!("Value: {}", x);
 '''
 
 
@@ -80,8 +80,8 @@ result = f'Value: {x}'
 '''
 
 rust = '''
-let x = 42;
-let result = format!("Value: {}", x);
+    let x = 42;
+    let result = format!("Value: {}", x);
 '''
 
 
@@ -95,8 +95,8 @@ result = f'Value: {x}'
 '''
 
 rust = '''
-let x = 42;
-let result = format!("Value: {}", x);
+    let x = 42;
+    let result = format!("Value: {}", x);
 '''
 
 
@@ -114,8 +114,8 @@ result = f'Value: {x}'
 '''
 
 rust = '''
-let x = 42;
-let result = format!("Value: {}", x);
+    let x = 42;
+    let result = format!("Value: {}", x);
 '''
 
 
@@ -129,8 +129,8 @@ result = f'Value: {x}'
 '''
 
 rust = '''
-let x = 42;
-let result = format!("Value: {}", x);
+    let x = 42;
+    let result = format!("Value: {}", x);
 '''
 
 
@@ -148,8 +148,8 @@ result = f'Value: {x}'
 '''
 
 rust = '''
-let x = 42;
-let result = format!("Value: {}", x);
+    let x = 42;
+    let result = format!("Value: {}", x);
 '''
 
 
@@ -163,8 +163,8 @@ result = f'Value: {x}'
 '''
 
 rust = '''
-let x = 42;
-let result = format!("Value: {}", x);
+    let x = 42;
+    let result = format!("Value: {}", x);
 '''
 
 
@@ -178,8 +178,8 @@ result = f'Value: {x}'
 '''
 
 rust = '''
-let x = 42;
-let result = format!("Value: {}", x);
+    let x = 42;
+    let result = format!("Value: {}", x);
 '''
 
 
@@ -197,8 +197,8 @@ result = f'Value: {x}'
 '''
 
 rust = '''
-let x = 42;
-let result = format!("Value: {}", x);
+    let x = 42;
+    let result = format!("Value: {}", x);
 '''
 
 
@@ -212,8 +212,8 @@ result = f'Value: {x}'
 '''
 
 rust = '''
-let x = 42;
-let result = format!("Value: {}", x);
+    let x = 42;
+    let result = format!("Value: {}", x);
 '''
 
 
@@ -231,8 +231,8 @@ result = f'Value: {x}'
 '''
 
 rust = '''
-let x = 42;
-let result = format!("Value: {}", x);
+    let x = 42;
+    let result = format!("Value: {}", x);
 '''
 
 
@@ -246,7 +246,7 @@ result = f'Value: {x}'
 '''
 
 rust = '''
-let x = 42;
-let result = format!("Value: {}", x);
+    let x = 42;
+    let result = format!("Value: {}", x);
 '''
 

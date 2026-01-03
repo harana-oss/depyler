@@ -290,7 +290,10 @@ struct Derived {
 }
 
 fn main() {
-    let d = Derived { base: Base { x: 1 }, y: 2 };
+    let d = Derived {
+        base: Base { x: 1 },
+        y: 2,
+    };
     log::info!("{} {}", d.base.x, d.y);
 }
 """
@@ -326,7 +329,10 @@ struct Point3D {
 }
 
 fn main() {
-    let p = Point3D { point2d: Point2D { x: 1, y: 2 }, z: 3 };
+    let p = Point3D {
+        point2d: Point2D { x: 1, y: 2 },
+        z: 3,
+    };
     log::info!("{} {} {}", p.point2d.x, p.point2d.y, p.z);
 }
 """
@@ -356,7 +362,9 @@ struct Derived {
 }
 
 fn main() {
-    let d = Derived { base: Base { x: 10 } };
+    let d = Derived {
+        base: Base { x: 10 },
+    };
     log::info!("{}", d.base.x);
 }
 """
@@ -389,7 +397,10 @@ struct Slotted {
 }
 
 fn main() {
-    let s = Slotted { regular: Regular { a: 1 }, b: 2 };
+    let s = Slotted {
+        regular: Regular { a: 1 },
+        b: 2,
+    };
     log::info!("{} {}", s.regular.a, s.b);
 }
 """
@@ -421,7 +432,10 @@ struct Hybrid {
 }
 
 fn main() {
-    let mut h = Hybrid { x: 10, dict: HashMap::new() };
+    let mut h = Hybrid {
+        x: 10,
+        dict: HashMap::new(),
+    };
     h.dict.insert("y".to_string(), 20);
     log::info!("{} {}", h.x, h.dict.get("y").unwrap());
 }
@@ -495,7 +509,7 @@ struct Conflict {
 
 impl Conflict {
     const CLASS_X: i32 = 10;
-    
+
     fn new(val: i32) -> Self {
         Conflict { x: val }
     }
@@ -540,11 +554,11 @@ impl Validated {
     fn new(x: i32) -> Self {
         Validated { x }
     }
-    
+
     fn get_x(&self) -> i32 {
         self.x
     }
-    
+
     fn set_x(&mut self, value: i32) -> Result<(), &str> {
         if value < 0 {
             Err("Must be positive")
@@ -583,9 +597,9 @@ struct NoDefaults {
 
 impl NoDefaults {
     fn new(x: Option<i32>, y: Option<i32>) -> Self {
-        NoDefaults { 
-            x: x.unwrap_or(0), 
-            y: y.unwrap_or(0) 
+        NoDefaults {
+            x: x.unwrap_or(0),
+            y: y.unwrap_or(0),
         }
     }
 }

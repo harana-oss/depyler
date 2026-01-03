@@ -673,7 +673,11 @@ def pair_sum(a: list[int], b: list[int]) -> list[int]:
 
 rust = '''
 pub fn pair_sum(a: Vec<i32>, b: Vec<i32>) -> Vec<i32> {
-    return a.into_iter().zip(b.into_iter()).map(|(x, y)| x + y).collect::<Vec<_>>();
+    return a
+        .into_iter()
+        .zip(b.into_iter())
+        .map(|(x, y)| x + y)
+        .collect::<Vec<_>>();
 }
 '''
 

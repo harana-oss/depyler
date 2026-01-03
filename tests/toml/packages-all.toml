@@ -19,7 +19,9 @@ result = Example(42)
 '''
 
 rust = '''
-struct Example { value: i32 }
+struct Example {
+    value: i32,
+}
 '''
 
 
@@ -36,7 +38,9 @@ result = Example(42)
 '''
 
 rust = '''
-struct Example { value: i32 }
+struct Example {
+    value: i32,
+}
 '''
 
 
@@ -53,7 +57,9 @@ result = Example(42)
 '''
 
 rust = '''
-struct Example { value: i32 }
+struct Example {
+    value: i32,
+}
 '''
 
 
@@ -74,7 +80,9 @@ result = Example(42)
 '''
 
 rust = '''
-struct Example { value: i32 }
+struct Example {
+    value: i32,
+}
 '''
 
 
@@ -91,7 +99,9 @@ result = Example(42)
 '''
 
 rust = '''
-struct Example { value: i32 }
+struct Example {
+    value: i32,
+}
 '''
 
 
@@ -108,7 +118,9 @@ result = Example(42)
 '''
 
 rust = '''
-struct Example { value: i32 }
+struct Example {
+    value: i32,
+}
 '''
 
 
@@ -130,11 +142,11 @@ print("Without __all__, star imports all non-underscore names")
 '''
 
 rust = '''
-// In Rust, all items must be explicitly exported with pub
-// There's no equivalent to Python's star import
-// All exports are explicit via pub keyword
-let result = true;
-log::info!("Rust requires explicit pub exports");
+    // In Rust, all items must be explicitly exported with pub
+    // There's no equivalent to Python's star import
+    // All exports are explicit via pub keyword
+    let result = true;
+    log::info!("Rust requires explicit pub exports");
 '''
 
 
@@ -152,11 +164,11 @@ print("Names starting with underscore are not star-imported")
 '''
 
 rust = '''
-// In Rust, items without pub are module-private
-// No star imports; visibility is explicit
-// Private items cannot be accessed outside module
-let result = true;
-log::info!("Rust uses pub keyword for visibility");
+    // In Rust, items without pub are module-private
+    // No star imports; visibility is explicit
+    // Private items cannot be accessed outside module
+    let result = true;
+    log::info!("Rust uses pub keyword for visibility");
 '''
 
 
@@ -173,7 +185,9 @@ result = Example(42)
 '''
 
 rust = '''
-struct Example { value: i32 }
+struct Example {
+    value: i32,
+}
 '''
 
 
@@ -194,7 +208,9 @@ result = Example(42)
 '''
 
 rust = '''
-struct Example { value: i32 }
+struct Example {
+    value: i32,
+}
 '''
 
 
@@ -211,7 +227,9 @@ result = Example(42)
 '''
 
 rust = '''
-struct Example { value: i32 }
+struct Example {
+    value: i32,
+}
 '''
 
 
@@ -229,11 +247,11 @@ print("__all__ controls package public API")
 '''
 
 rust = '''
-// In Rust, use pub use for re-exports
-// Example: pub use internal_module::Item;
-// This makes Item available at current module level
-let result = true;
-log::info!("Rust uses 'pub use' for re-exports");
+    // In Rust, use pub use for re-exports
+    // Example: pub use internal_module::Item;
+    // This makes Item available at current module level
+    let result = true;
+    log::info!("Rust uses 'pub use' for re-exports");
 '''
 
 
@@ -254,7 +272,9 @@ result = Example(42)
 '''
 
 rust = '''
-struct Example { value: i32 }
+struct Example {
+    value: i32,
+}
 '''
 
 
@@ -271,7 +291,9 @@ result = Example(42)
 '''
 
 rust = '''
-struct Example { value: i32 }
+struct Example {
+    value: i32,
+}
 '''
 
 
@@ -292,7 +314,9 @@ result = Example(42)
 '''
 
 rust = '''
-struct Example { value: i32 }
+struct Example {
+    value: i32,
+}
 '''
 
 
@@ -309,7 +333,9 @@ result = Example(42)
 '''
 
 rust = '''
-struct Example { value: i32 }
+struct Example {
+    value: i32,
+}
 '''
 
 
@@ -331,12 +357,12 @@ print("Explicit imports are better than star imports")
 '''
 
 rust = '''
-// Rust doesn't have star imports by default
-// Must explicitly list what to import: use module::{Item1, Item2};
-// Or import entire module: use module;
-// This enforces clarity and prevents namespace pollution
-let result = true;
-log::info!("Rust enforces explicit imports");
+    // Rust doesn't have star imports by default
+    // Must explicitly list what to import: use module::{Item1, Item2};
+    // Or import entire module: use module;
+    // This enforces clarity and prevents namespace pollution
+    let result = true;
+    log::info!("Rust enforces explicit imports");
 '''
 
 
@@ -353,7 +379,9 @@ result = Example(42)
 '''
 
 rust = '''
-struct Example { value: i32 }
+struct Example {
+    value: i32,
+}
 '''
 
 
@@ -374,7 +402,9 @@ result = Example(42)
 '''
 
 rust = '''
-struct Example { value: i32 }
+struct Example {
+    value: i32,
+}
 '''
 
 
@@ -391,7 +421,9 @@ result = Example(42)
 '''
 
 rust = '''
-struct Example { value: i32 }
+struct Example {
+    value: i32,
+}
 '''
 
 
@@ -408,6 +440,8 @@ result = Example(42)
 '''
 
 rust = '''
-struct Example { value: i32 }
+struct Example {
+    value: i32,
+}
 '''
 

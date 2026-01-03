@@ -22,13 +22,15 @@ with simple():
 '''
 
 rust = '''
-// Rust uses closures for context management
-fn simple<F, R>(f: F) -> R 
-where F: FnOnce() -> R {
-    f()
-}
+    // Rust uses closures for context management
+    fn simple<F, R>(f: F) -> R
+    where
+        F: FnOnce() -> R,
+    {
+        f()
+    }
 
-let result = simple(|| "success");
+    let result = simple(|| "success");
 '''
 
 [[test]]
@@ -50,19 +52,21 @@ with with_setup():
 '''
 
 rust = '''
-use std::cell::RefCell;
-use std::rc::Rc;
+    use std::cell::RefCell;
+    use std::rc::Rc;
 
-let setup_done: Rc<RefCell<Vec<bool>>> = Rc::new(RefCell::new(Vec::new()));
-let setup_clone = setup_done.clone();
+    let setup_done: Rc<RefCell<Vec<bool>>> = Rc::new(RefCell::new(Vec::new()));
+    let setup_clone = setup_done.clone();
 
-fn with_setup<F, R>(setup: Rc<RefCell<Vec<bool>>>, f: F) -> R 
-where F: FnOnce() -> R {
-    setup.borrow_mut().push(true);
-    f()
-}
+    fn with_setup<F, R>(setup: Rc<RefCell<Vec<bool>>>, f: F) -> R
+    where
+        F: FnOnce() -> R,
+    {
+        setup.borrow_mut().push(true);
+        f()
+    }
 
-let result = with_setup(setup_clone, || setup_done.borrow().len());
+    let result = with_setup(setup_clone, || setup_done.borrow().len());
 '''
 
 [[test]]
@@ -86,21 +90,23 @@ result = len(cleanup_done)
 '''
 
 rust = '''
-use std::cell::RefCell;
-use std::rc::Rc;
+    use std::cell::RefCell;
+    use std::rc::Rc;
 
-let cleanup_done: Rc<RefCell<Vec<bool>>> = Rc::new(RefCell::new(Vec::new()));
-let cleanup_clone = cleanup_done.clone();
+    let cleanup_done: Rc<RefCell<Vec<bool>>> = Rc::new(RefCell::new(Vec::new()));
+    let cleanup_clone = cleanup_done.clone();
 
-fn with_cleanup<F, R>(cleanup: Rc<RefCell<Vec<bool>>>, f: F) -> R 
-where F: FnOnce() -> R {
-    let result = f();
-    cleanup.borrow_mut().push(true);
-    result
-}
+    fn with_cleanup<F, R>(cleanup: Rc<RefCell<Vec<bool>>>, f: F) -> R
+    where
+        F: FnOnce() -> R,
+    {
+        let result = f();
+        cleanup.borrow_mut().push(true);
+        result
+    }
 
-with_cleanup(cleanup_clone, || ());
-let result = cleanup_done.borrow().len();
+    with_cleanup(cleanup_clone, || ());
+    let result = cleanup_done.borrow().len();
 '''
 
 [[test]]
@@ -119,12 +125,14 @@ with provide_value() as value:
 '''
 
 rust = '''
-fn provide_value<F, R>(f: F) -> R 
-where F: FnOnce(i32) -> R {
-    f(42)
-}
+    fn provide_value<F, R>(f: F) -> R
+    where
+        F: FnOnce(i32) -> R,
+    {
+        f(42)
+    }
 
-let result = provide_value(|value| value);
+    let result = provide_value(|value| value);
 '''
 
 # =============================================================================
@@ -155,25 +163,27 @@ result = log
 '''
 
 rust = '''
-use std::cell::RefCell;
-use std::rc::Rc;
+    use std::cell::RefCell;
+    use std::rc::Rc;
 
-let log: Rc<RefCell<Vec<&str>>> = Rc::new(RefCell::new(Vec::new()));
-let log_clone = log.clone();
+    let log: Rc<RefCell<Vec<&str>>> = Rc::new(RefCell::new(Vec::new()));
+    let log_clone = log.clone();
 
-fn with_finally<F, R>(log: Rc<RefCell<Vec<&'static str>>>, f: F) -> R 
-where F: FnOnce() -> R {
-    log.borrow_mut().push("enter");
-    let result = f();
-    log.borrow_mut().push("exit");
-    result
-}
+    fn with_finally<F, R>(log: Rc<RefCell<Vec<&'static str>>>, f: F) -> R
+    where
+        F: FnOnce() -> R,
+    {
+        log.borrow_mut().push("enter");
+        let result = f();
+        log.borrow_mut().push("exit");
+        result
+    }
 
-with_finally(log_clone, || {
-    log.borrow_mut().push("body");
-});
+    with_finally(log_clone, || {
+        log.borrow_mut().push("body");
+    });
 
-let result = log.borrow().clone();
+    let result = log.borrow().clone();
 '''
 
 [[test]]
@@ -200,24 +210,24 @@ except ValueError:
 '''
 
 rust = '''
-use std::cell::RefCell;
-use std::rc::Rc;
+    use std::cell::RefCell;
+    use std::rc::Rc;
 
-let log: Rc<RefCell<Vec<&str>>> = Rc::new(RefCell::new(Vec::new()));
-let log_clone = log.clone();
+    let log: Rc<RefCell<Vec<&str>>> = Rc::new(RefCell::new(Vec::new()));
+    let log_clone = log.clone();
 
-fn track_exception<F, R>(log: Rc<RefCell<Vec<&'static str>>>, f: F) -> Result<R, String> 
-where F: FnOnce() -> Result<R, String> {
-    let result = f();
-    log.borrow_mut().push("cleanup");
-    result
-}
+    fn track_exception<F, R>(log: Rc<RefCell<Vec<&'static str>>>, f: F) -> Result<R, String>
+    where
+        F: FnOnce() -> Result<R, String>,
+    {
+        let result = f();
+        log.borrow_mut().push("cleanup");
+        result
+    }
 
-let _ = track_exception(log_clone, || {
-    Err::<(), String>("error".to_string())
-});
+    let _ = track_exception(log_clone, || Err::<(), String>("error".to_string()));
 
-let result = log.borrow().clone();
+    let result = log.borrow().clone();
 '''
 
 [[test]]
@@ -284,23 +294,25 @@ result = (in_context, value)
 '''
 
 rust = '''
-use std::cell::RefCell;
-use std::rc::Rc;
+    use std::cell::RefCell;
+    use std::rc::Rc;
 
-let value: Rc<RefCell<i32>> = Rc::new(RefCell::new(10));
-let value_clone = value.clone();
+    let value: Rc<RefCell<i32>> = Rc::new(RefCell::new(10));
+    let value_clone = value.clone();
 
-fn temp_change<F, R>(value: Rc<RefCell<i32>>, new_val: i32, f: F) -> R 
-where F: FnOnce() -> R {
-    let old_val = *value.borrow();
-    *value.borrow_mut() = new_val;
-    let result = f();
-    *value.borrow_mut() = old_val;
-    result
-}
+    fn temp_change<F, R>(value: Rc<RefCell<i32>>, new_val: i32, f: F) -> R
+    where
+        F: FnOnce() -> R,
+    {
+        let old_val = *value.borrow();
+        *value.borrow_mut() = new_val;
+        let result = f();
+        *value.borrow_mut() = old_val;
+        result
+    }
 
-let in_context = temp_change(value_clone.clone(), 20, || *value.borrow());
-let result = (in_context, *value.borrow());
+    let in_context = temp_change(value_clone.clone(), 20, || *value.borrow());
+    let result = (in_context, *value.borrow());
 '''
 
 [[test]]
@@ -326,23 +338,25 @@ result = len(elapsed) == 1
 '''
 
 rust = '''
-use std::time::Instant;
-use std::cell::RefCell;
-use std::rc::Rc;
+    use std::cell::RefCell;
+    use std::rc::Rc;
+    use std::time::Instant;
 
-let elapsed: Rc<RefCell<Vec<f64>>> = Rc::new(RefCell::new(Vec::new()));
-let elapsed_clone = elapsed.clone();
+    let elapsed: Rc<RefCell<Vec<f64>>> = Rc::new(RefCell::new(Vec::new()));
+    let elapsed_clone = elapsed.clone();
 
-fn timer<F, R>(elapsed: Rc<RefCell<Vec<f64>>>, f: F) -> R 
-where F: FnOnce() -> R {
-    let start = Instant::now();
-    let result = f();
-    elapsed.borrow_mut().push(start.elapsed().as_secs_f64());
-    result
-}
+    fn timer<F, R>(elapsed: Rc<RefCell<Vec<f64>>>, f: F) -> R
+    where
+        F: FnOnce() -> R,
+    {
+        let start = Instant::now();
+        let result = f();
+        elapsed.borrow_mut().push(start.elapsed().as_secs_f64());
+        result
+    }
 
-timer(elapsed_clone, || ());
-let result = elapsed.borrow().len() == 1;
+    timer(elapsed_clone, || ());
+    let result = elapsed.borrow().len() == 1;
 '''
 
 [[test]]
@@ -367,20 +381,22 @@ result = "chdir implemented"
 '''
 
 rust = '''
-// Directory operations are OS-specific
-use std::env;
-use std::path::Path;
+    // Directory operations are OS-specific
+    use std::env;
+    use std::path::Path;
 
-fn chdir<F, R, P: AsRef<Path>>(path: P, f: F) -> std::io::Result<R> 
-where F: FnOnce() -> R {
-    let old_dir = env::current_dir()?;
-    env::set_current_dir(path)?;
-    let result = f();
-    env::set_current_dir(old_dir)?;
-    Ok(result)
-}
+    fn chdir<F, R, P: AsRef<Path>>(path: P, f: F) -> std::io::Result<R>
+    where
+        F: FnOnce() -> R,
+    {
+        let old_dir = env::current_dir()?;
+        env::set_current_dir(path)?;
+        let result = f();
+        env::set_current_dir(old_dir)?;
+        Ok(result)
+    }
 
-let result = "chdir implemented";
+    let result = "chdir implemented";
 '''
 
 [[test]]
@@ -408,21 +424,23 @@ result = "environ implemented"
 '''
 
 rust = '''
-use std::env;
+    use std::env;
 
-fn set_env<F, R>(key: &str, value: &str, f: F) -> R 
-where F: FnOnce() -> R {
-    let old_value = env::var(key).ok();
-    env::set_var(key, value);
-    let result = f();
-    match old_value {
-        Some(val) => env::set_var(key, val),
-        None => env::remove_var(key),
+    fn set_env<F, R>(key: &str, value: &str, f: F) -> R
+    where
+        F: FnOnce() -> R,
+    {
+        let old_value = env::var(key).ok();
+        env::set_var(key, value);
+        let result = f();
+        match old_value {
+            Some(val) => env::set_var(key, val),
+            None => env::remove_var(key),
+        }
+        result
     }
-    result
-}
 
-let result = "environ implemented";
+    let result = "environ implemented";
 '''
 
 # =============================================================================
@@ -442,8 +460,8 @@ result = "must yield once"
 '''
 
 rust = '''
-// Rust's type system enforces single invocation
-let result = "must yield once";
+    // Rust's type system enforces single invocation
+    let result = "must yield once";
 '''
 
 [[test]]
@@ -465,8 +483,8 @@ except RuntimeError:
 '''
 
 rust = '''
-// Rust type system prevents this at compile time
-let result = "error caught";
+    // Rust type system prevents this at compile time
+    let result = "error caught";
 '''
 
 [[test]]
@@ -489,8 +507,8 @@ except RuntimeError:
 '''
 
 rust = '''
-// Rust type system prevents this pattern
-let result = "error caught";
+    // Rust type system prevents this pattern
+    let result = "error caught";
 '''
 
 # =============================================================================
@@ -525,25 +543,25 @@ result = "both work the same"
 '''
 
 rust = '''
-// Rust uses RAII and Drop trait for cleanup
-struct ClassCM {
-    value: i32,
-}
-
-impl Drop for ClassCM {
-    fn drop(&mut self) {
-        log::info!("exit");
+    // Rust uses RAII and Drop trait for cleanup
+    struct ClassCM {
+        value: i32,
     }
-}
 
-impl ClassCM {
-    fn new() -> Self {
-        log::info!("enter");
-        ClassCM { value: 42 }
+    impl Drop for ClassCM {
+        fn drop(&mut self) {
+            log::info!("exit");
+        }
     }
-}
 
-let result = "both work the same";
+    impl ClassCM {
+        fn new() -> Self {
+            log::info!("enter");
+            ClassCM { value: 42 }
+        }
+    }
+
+    let result = "both work the same";
 '''
 
 [[test]]
@@ -567,12 +585,12 @@ result = "choose appropriate pattern"
 '''
 
 rust = '''
-// In Rust, choose between:
-// - Closures for simple cases
-// - Structs with Drop for complex state
-// - RAII patterns for resource management
+    // In Rust, choose between:
+    // - Closures for simple cases
+    // - Structs with Drop for complex state
+    // - RAII patterns for resource management
 
-let result = "choose appropriate pattern";
+    let result = "choose appropriate pattern";
 '''
 
 # =============================================================================
@@ -595,12 +613,14 @@ with with_params("start", "end") as value:
 '''
 
 rust = '''
-fn with_params<F, R>(prefix: &str, suffix: &str, f: F) -> R 
-where F: FnOnce(String) -> R {
-    f(format!("{}_value_{}", prefix, suffix))
-}
+    fn with_params<F, R>(prefix: &str, suffix: &str, f: F) -> R
+    where
+        F: FnOnce(String) -> R,
+    {
+        f(format!("{}_value_{}", prefix, suffix))
+    }
 
-let result = with_params("start", "end", |value| value);
+    let result = with_params("start", "end", |value| value);
 '''
 
 [[test]]
@@ -623,15 +643,17 @@ except ValueError as e:
 '''
 
 rust = '''
-fn fail_in_setup<F, R>(f: F) -> Result<R, String> 
-where F: FnOnce() -> R {
-    Err("setup failed".to_string())
-}
+    fn fail_in_setup<F, R>(f: F) -> Result<R, String>
+    where
+        F: FnOnce() -> R,
+    {
+        Err("setup failed".to_string())
+    }
 
-let result = match fail_in_setup(|| ()) {
-    Err(e) => e,
-    Ok(_) => String::new(),
-};
+    let result = match fail_in_setup(|| ()) {
+        Err(e) => e,
+        Ok(_) => String::new(),
+    };
 '''
 
 [[test]]
@@ -659,24 +681,26 @@ except ValueError:
 '''
 
 rust = '''
-use std::cell::RefCell;
-use std::rc::Rc;
+    use std::cell::RefCell;
+    use std::rc::Rc;
 
-let log: Rc<RefCell<Vec<&str>>> = Rc::new(RefCell::new(Vec::new()));
-let log_clone = log.clone();
+    let log: Rc<RefCell<Vec<&str>>> = Rc::new(RefCell::new(Vec::new()));
+    let log_clone = log.clone();
 
-fn fail_in_teardown<F, R>(log: Rc<RefCell<Vec<&'static str>>>, f: F) -> Result<R, String> 
-where F: FnOnce() -> R {
-    let result = f();
-    log.borrow_mut().push("cleanup attempted");
-    Err("teardown failed".to_string())
-}
+    fn fail_in_teardown<F, R>(log: Rc<RefCell<Vec<&'static str>>>, f: F) -> Result<R, String>
+    where
+        F: FnOnce() -> R,
+    {
+        let result = f();
+        log.borrow_mut().push("cleanup attempted");
+        Err("teardown failed".to_string())
+    }
 
-let _ = fail_in_teardown(log_clone, || {
-    log.borrow_mut().push("body executed");
-});
+    let _ = fail_in_teardown(log_clone, || {
+        log.borrow_mut().push("body executed");
+    });
 
-let result = log.borrow().clone();
+    let result = log.borrow().clone();
 '''
 
 [[test]]
@@ -703,19 +727,21 @@ result = (first, second)
 '''
 
 rust = '''
-use std::cell::RefCell;
-use std::rc::Rc;
+    use std::cell::RefCell;
+    use std::rc::Rc;
 
-let call_count: Rc<RefCell<Vec<i32>>> = Rc::new(RefCell::new(Vec::new()));
+    let call_count: Rc<RefCell<Vec<i32>>> = Rc::new(RefCell::new(Vec::new()));
 
-fn counting_cm<F, R>(call_count: Rc<RefCell<Vec<i32>>>, f: F) -> R 
-where F: FnOnce(usize) -> R {
-    call_count.borrow_mut().push(1);
-    f(call_count.borrow().len())
-}
+    fn counting_cm<F, R>(call_count: Rc<RefCell<Vec<i32>>>, f: F) -> R
+    where
+        F: FnOnce(usize) -> R,
+    {
+        call_count.borrow_mut().push(1);
+        f(call_count.borrow().len())
+    }
 
-let first = counting_cm(call_count.clone(), |count| count);
-let second = counting_cm(call_count.clone(), |count| count);
+    let first = counting_cm(call_count.clone(), |count| count);
+    let second = counting_cm(call_count.clone(), |count| count);
 
-let result = (first, second);
+    let result = (first, second);
 '''

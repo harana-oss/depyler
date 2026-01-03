@@ -46,13 +46,13 @@ result = Point(1, 2) == Point(1, 2)
 '''
 
 rust = '''
-#[derive(Debug, PartialEq)]
-struct Point {
-    x: i32,
-    y: i32,
-}
+    #[derive(Debug, PartialEq)]
+    struct Point {
+        x: i32,
+        y: i32,
+    }
 
-let result = Point { x: 1, y: 2 } == Point { x: 1, y: 2 };
+    let result = Point { x: 1, y: 2 } == Point { x: 1, y: 2 };
 '''
 
 
@@ -72,13 +72,13 @@ result = Point(1, 2) != Point(1, 3)
 '''
 
 rust = '''
-#[derive(Debug, PartialEq)]
-struct Point {
-    x: i32,
-    y: i32,
-}
+    #[derive(Debug, PartialEq)]
+    struct Point {
+        x: i32,
+        y: i32,
+    }
 
-let result = Point { x: 1, y: 2 } != Point { x: 1, y: 3 };
+    let result = Point { x: 1, y: 2 } != Point { x: 1, y: 3 };
 '''
 
 
@@ -98,14 +98,14 @@ result = Point(1, 2) != (1, 2)
 '''
 
 rust = '''
-#[derive(Debug, PartialEq)]
-struct Point {
-    x: i32,
-    y: i32,
-}
+    #[derive(Debug, PartialEq)]
+    struct Point {
+        x: i32,
+        y: i32,
+    }
 
-// Different types can't be compared in Rust
-let result = true;
+    // Different types can't be compared in Rust
+    let result = true;
 '''
 
 
@@ -153,13 +153,13 @@ result = Point(1, 2) < Point(1, 3)
 '''
 
 rust = '''
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
-struct Point {
-    x: i32,
-    y: i32,
-}
+    #[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+    struct Point {
+        x: i32,
+        y: i32,
+    }
 
-let result = Point { x: 1, y: 2 } < Point { x: 1, y: 3 };
+    let result = Point { x: 1, y: 2 } < Point { x: 1, y: 3 };
 '''
 
 
@@ -179,13 +179,13 @@ result = Point(2, 0) > Point(1, 9)
 '''
 
 rust = '''
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
-struct Point {
-    x: i32,
-    y: i32,
-}
+    #[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+    struct Point {
+        x: i32,
+        y: i32,
+    }
 
-let result = Point { x: 2, y: 0 } > Point { x: 1, y: 9 };
+    let result = Point { x: 2, y: 0 } > Point { x: 1, y: 9 };
 '''
 
 
@@ -205,13 +205,13 @@ result = Point(1, 2) <= Point(1, 2)
 '''
 
 rust = '''
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
-struct Point {
-    x: i32,
-    y: i32,
-}
+    #[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+    struct Point {
+        x: i32,
+        y: i32,
+    }
 
-let result = Point { x: 1, y: 2 } <= Point { x: 1, y: 2 };
+    let result = Point { x: 1, y: 2 } <= Point { x: 1, y: 2 };
 '''
 
 
@@ -231,13 +231,13 @@ result = Point(1, 2) >= Point(1, 1)
 '''
 
 rust = '''
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
-struct Point {
-    x: i32,
-    y: i32,
-}
+    #[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+    struct Point {
+        x: i32,
+        y: i32,
+    }
 
-let result = Point { x: 1, y: 2 } >= Point { x: 1, y: 1 };
+    let result = Point { x: 1, y: 2 } >= Point { x: 1, y: 1 };
 '''
 
 
@@ -262,13 +262,13 @@ result = Point(1, 3) < Point(2, 1)
 '''
 
 rust = '''
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
-struct Point {
-    x: i32,
-    y: i32,
-}
+    #[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+    struct Point {
+        x: i32,
+        y: i32,
+    }
 
-let result = Point { x: 1, y: 3 } < Point { x: 2, y: 1 };
+    let result = Point { x: 1, y: 3 } < Point { x: 2, y: 1 };
 '''
 
 
@@ -289,22 +289,22 @@ result = Person("Smith", "Alice", 30) < Person("Smith", "Bob", 25)
 '''
 
 rust = '''
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
-struct Person {
-    last_name: String,
-    first_name: String,
-    age: i32,
-}
+    #[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+    struct Person {
+        last_name: String,
+        first_name: String,
+        age: i32,
+    }
 
-let result = Person {
-    last_name: "Smith".to_string(),
-    first_name: "Alice".to_string(),
-    age: 30
-} < Person {
-    last_name: "Smith".to_string(),
-    first_name: "Bob".to_string(),
-    age: 25
-};
+    let result = Person {
+        last_name: "Smith".to_string(),
+        first_name: "Alice".to_string(),
+        age: 30,
+    } < Person {
+        last_name: "Smith".to_string(),
+        first_name: "Bob".to_string(),
+        age: 25,
+    };
 '''
 
 
@@ -328,20 +328,20 @@ result = Record(1, 100.0) == Record(1, 200.0)
 '''
 
 rust = '''
-// In Rust, manually implement PartialEq/Ord to exclude fields
-#[derive(Debug)]
-struct Record {
-    key: i32,
-    timestamp: f64,
-}
-
-impl PartialEq for Record {
-    fn eq(&self, other: &Self) -> bool {
-        self.key == other.key
+    // In Rust, manually implement PartialEq/Ord to exclude fields
+    #[derive(Debug)]
+    struct Record {
+        key: i32,
+        timestamp: f64,
     }
-}
 
-let result = true;
+    impl PartialEq for Record {
+        fn eq(&self, other: &Self) -> bool {
+            self.key == other.key
+        }
+    }
+
+    let result = true;
 '''
 
 
@@ -361,19 +361,19 @@ result = Item(1, "old") == Item(1, "new")
 '''
 
 rust = '''
-#[derive(Debug)]
-struct Item {
-    id: i32,
-    metadata: String,
-}
-
-impl PartialEq for Item {
-    fn eq(&self, other: &Self) -> bool {
-        self.id == other.id
+    #[derive(Debug)]
+    struct Item {
+        id: i32,
+        metadata: String,
     }
-}
 
-let result = true;
+    impl PartialEq for Item {
+        fn eq(&self, other: &Self) -> bool {
+            self.id == other.id
+        }
+    }
+
+    let result = true;
 '''
 
 
@@ -393,33 +393,39 @@ result = Record(1, 100.0) < Record(2, 200.0)
 '''
 
 rust = '''
-#[derive(Debug)]
-struct Record {
-    key: i32,
-    timestamp: f64,
-}
-
-impl PartialEq for Record {
-    fn eq(&self, other: &Self) -> bool {
-        self.key == other.key
+    #[derive(Debug)]
+    struct Record {
+        key: i32,
+        timestamp: f64,
     }
-}
 
-impl Eq for Record {}
-
-impl PartialOrd for Record {
-    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
-        self.key.partial_cmp(&other.key)
+    impl PartialEq for Record {
+        fn eq(&self, other: &Self) -> bool {
+            self.key == other.key
+        }
     }
-}
 
-impl Ord for Record {
-    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
-        self.key.cmp(&other.key)
+    impl Eq for Record {}
+
+    impl PartialOrd for Record {
+        fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+            self.key.partial_cmp(&other.key)
+        }
     }
-}
 
-let result = Record { key: 1, timestamp: 100.0 } < Record { key: 2, timestamp: 200.0 };
+    impl Ord for Record {
+        fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+            self.key.cmp(&other.key)
+        }
+    }
+
+    let result = Record {
+        key: 1,
+        timestamp: 100.0,
+    } < Record {
+        key: 2,
+        timestamp: 200.0,
+    };
 '''
 
 
@@ -469,18 +475,18 @@ result = p1 is not p2 and p1 != p2
 '''
 
 rust = '''
-// In Rust, without PartialEq, structs can't be compared with ==
-// This demonstrates identity (pointer equality)
-#[derive(Debug)]
-struct Point {
-    x: i32,
-    y: i32,
-}
+    // In Rust, without PartialEq, structs can't be compared with ==
+    // This demonstrates identity (pointer equality)
+    #[derive(Debug)]
+    struct Point {
+        x: i32,
+        y: i32,
+    }
 
-let p1 = Point { x: 1, y: 2 };
-let p2 = Point { x: 1, y: 2 };
-// Cannot use == without PartialEq
-let result = true;
+    let p1 = Point { x: 1, y: 2 };
+    let p2 = Point { x: 1, y: 2 };
+    // Cannot use == without PartialEq
+    let result = true;
 '''
 
 
@@ -508,16 +514,16 @@ result = p1 < p2
 '''
 
 rust = '''
-// In Rust, Ord requires PartialEq + Eq
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
-struct Point {
-    x: i32,
-    y: i32,
-}
+    // In Rust, Ord requires PartialEq + Eq
+    #[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+    struct Point {
+        x: i32,
+        y: i32,
+    }
 
-let p1 = Point { x: 1, y: 2 };
-let p2 = Point { x: 1, y: 3 };
-let result = p1 < p2;
+    let p1 = Point { x: 1, y: 2 };
+    let p2 = Point { x: 1, y: 3 };
+    let result = p1 < p2;
 '''
 
 
@@ -534,7 +540,9 @@ result = Example(42)
 '''
 
 rust = '''
-struct Example { value: i32 }
+struct Example {
+    value: i32,
+}
 '''
 
 
@@ -560,15 +568,15 @@ result = sorted_points[0].x == 1 and sorted_points[1].x == 2
 '''
 
 rust = '''
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
-struct Point {
-    x: i32,
-    y: i32,
-}
+    #[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+    struct Point {
+        x: i32,
+        y: i32,
+    }
 
-let mut points = vec![Point { x: 2, y: 1 }, Point { x: 1, y: 3 }];
-points.sort();
-let result = points[0].x == 1 && points[1].x == 2;
+    let mut points = vec![Point { x: 2, y: 1 }, Point { x: 1, y: 3 }];
+    points.sort();
+    let result = points[0].x == 1 && points[1].x == 2;
 '''
 
 
@@ -591,16 +599,20 @@ result = min_point.x == 1 and max_point.x == 3
 '''
 
 rust = '''
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone)]
-struct Point {
-    x: i32,
-    y: i32,
-}
+    #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone)]
+    struct Point {
+        x: i32,
+        y: i32,
+    }
 
-let points = vec![Point { x: 2, y: 1 }, Point { x: 1, y: 3 }, Point { x: 3, y: 0 }];
-let min_point = points.iter().min().unwrap();
-let max_point = points.iter().max().unwrap();
-let result = min_point.x == 1 && max_point.x == 3;
+    let points = vec![
+        Point { x: 2, y: 1 },
+        Point { x: 1, y: 3 },
+        Point { x: 3, y: 0 },
+    ];
+    let min_point = points.iter().min().unwrap();
+    let max_point = points.iter().max().unwrap();
+    let result = min_point.x == 1 && max_point.x == 3;
 '''
 
 
@@ -630,22 +642,22 @@ result = p != c
 '''
 
 rust = '''
-// Rust doesn't have inheritance, but we can show trait-based comparison
-#[derive(Debug, PartialEq)]
-struct Parent {
-    x: i32,
-}
+    // Rust doesn't have inheritance, but we can show trait-based comparison
+    #[derive(Debug, PartialEq)]
+    struct Parent {
+        x: i32,
+    }
 
-#[derive(Debug, PartialEq)]
-struct Child {
-    x: i32,
-    y: i32,
-}
+    #[derive(Debug, PartialEq)]
+    struct Child {
+        x: i32,
+        y: i32,
+    }
 
-let p = Parent { x: 1 };
-let c = Child { x: 1, y: 2 };
-// Different types can't be compared directly
-let result = true;
+    let p = Parent { x: 1 };
+    let c = Child { x: 1, y: 2 };
+    // Different types can't be compared directly
+    let result = true;
 '''
 
 
@@ -668,15 +680,15 @@ result = r1.value != r2.value
 '''
 
 rust = '''
-// In Rust, Option<T> implements Eq and can be compared
-#[derive(Debug, PartialEq, Eq)]
-struct Record {
-    value: Option<i32>,
-}
+    // In Rust, Option<T> implements Eq and can be compared
+    #[derive(Debug, PartialEq, Eq)]
+    struct Record {
+        value: Option<i32>,
+    }
 
-let r1 = Record { value: None };
-let r2 = Record { value: Some(1) };
-let result = r1.value != r2.value;
+    let r1 = Record { value: None };
+    let r2 = Record { value: Some(1) };
+    let result = r1.value != r2.value;
 '''
 
 
@@ -693,6 +705,8 @@ result = Example(42)
 '''
 
 rust = '''
-struct Example { value: i32 }
+struct Example {
+    value: i32,
+}
 '''
 

@@ -25,16 +25,16 @@ match value:
 '''
 
 rust = '''
-struct Point {
-    x: i32,
-    y: i32,
-}
+    struct Point {
+        x: i32,
+        y: i32,
+    }
 
-let value = Point { x: 3, y: 4 };
-let result = match value {
-    Point { .. } => "matched",
-    _ => "no match",
-};
+    let value = Point { x: 3, y: 4 };
+    let result = match value {
+        Point { .. } => "matched",
+        _ => "no match",
+    };
 '''
 
 
@@ -62,18 +62,18 @@ match value:
 '''
 
 rust = '''
-struct Point {
-    x: i32,
-    y: i32,
-}
+    struct Point {
+        x: i32,
+        y: i32,
+    }
 
-let value = Point { x: 0, y: 0 };
-let result = match value {
-    Point { x: 0, y: 0 } => "origin",
-    Point { x: 0, y } => "y-axis",
-    Point { x, y: 0 } => "x-axis",
-    _ => "elsewhere",
-};
+    let value = Point { x: 0, y: 0 };
+    let result = match value {
+        Point { x: 0, y: 0 } => "origin",
+        Point { x: 0, y } => "y-axis",
+        Point { x, y: 0 } => "x-axis",
+        _ => "elsewhere",
+    };
 '''
 
 
@@ -100,18 +100,18 @@ match value:
 '''
 
 rust = '''
-struct Point {
-    x: i32,
-    y: i32,
-}
+    struct Point {
+        x: i32,
+        y: i32,
+    }
 
-let value = Point { x: 0, y: 0 };
-let result = match value {
-    Point { x: 0, y: 0 } => "origin",
-    Point { x: 0, y } => format!("y-axis at {}", y),
-    Point { x, y: 0 } => format!("x-axis at {}", x),
-    _ => "elsewhere".to_string(),
-};
+    let value = Point { x: 0, y: 0 };
+    let result = match value {
+        Point { x: 0, y: 0 } => "origin",
+        Point { x: 0, y } => format!("y-axis at {}", y),
+        Point { x, y: 0 } => format!("x-axis at {}", x),
+        _ => "elsewhere".to_string(),
+    };
 '''
 
 
@@ -135,15 +135,15 @@ match value:
 '''
 
 rust = '''
-struct Point {
-    x: i32,
-    y: i32,
-}
+    struct Point {
+        x: i32,
+        y: i32,
+    }
 
-let value = Point { x: 3, y: 4 };
-let result = match value {
-    Point { x, y } => x + y,
-};
+    let value = Point { x: 3, y: 4 };
+    let result = match value {
+        Point { x, y } => x + y,
+    };
 '''
 
 
@@ -170,11 +170,14 @@ match value:
 '''
 
 rust = '''
-struct Point { x: i32, y: i32 }
-let value = Point { x: 1, y: 2 };
-let result = match value {
-    Point { x, y } => x + y,
-};
+    struct Point {
+        x: i32,
+        y: i32,
+    }
+    let value = Point { x: 1, y: 2 };
+    let result = match value {
+        Point { x, y } => x + y,
+    };
 '''
 
 
@@ -192,11 +195,11 @@ match value:
 '''
 
 rust = '''
-let value = 1;
-let result = match value {
-    1 => "one",
-    _ => "other",
-};
+    let value = 1;
+    let result = match value {
+        1 => "one",
+        _ => "other",
+    };
 '''
 
 
@@ -250,17 +253,17 @@ match value:
 '''
 
 rust = '''
-struct Point {
-    x: i32,
-    y: i32,
-}
+    struct Point {
+        x: i32,
+        y: i32,
+    }
 
-let value = Point { x: 0, y: 5 };
-let result = match value {
-    Point { x: 0, y } => format!("y-axis: {}", y),
-    Point { x, y: 0 } => format!("x-axis: {}", x),
-    _ => "elsewhere".to_string(),
-};
+    let value = Point { x: 0, y: 5 };
+    let result = match value {
+        Point { x: 0, y } => format!("y-axis: {}", y),
+        Point { x, y: 0 } => format!("x-axis: {}", x),
+        _ => "elsewhere".to_string(),
+    };
 '''
 
 
@@ -290,25 +293,26 @@ match value:
 '''
 
 rust = '''
-struct Point {
-    x: i32,
-    y: i32,
-}
-
-struct Line {
-    start: Point,
-    end: Point,
-}
-
-let value = Line {
-    start: Point { x: 0, y: 0 },
-    end: Point { x: 3, y: 4 },
-};
-let result = match value {
-    Line { start: Point { x: x1, y: y1 }, end: Point { x: x2, y: y2 } } => {
-        (((x2 - x1).pow(2) + (y2 - y1).pow(2)) as f64).sqrt()
+    struct Point {
+        x: i32,
+        y: i32,
     }
-};
+
+    struct Line {
+        start: Point,
+        end: Point,
+    }
+
+    let value = Line {
+        start: Point { x: 0, y: 0 },
+        end: Point { x: 3, y: 4 },
+    };
+    let result = match value {
+        Line {
+            start: Point { x: x1, y: y1 },
+            end: Point { x: x2, y: y2 },
+        } => (((x2 - x1).pow(2) + (y2 - y1).pow(2)) as f64).sqrt(),
+    };
 '''
 
 
@@ -336,18 +340,18 @@ match value:
 '''
 
 rust = '''
-struct Point {
-    x: i32,
-    y: i32,
-}
+    struct Point {
+        x: i32,
+        y: i32,
+    }
 
-let value = Point { x: 3, y: 4 };
-let result = match value {
-    Point { x, y } if x > 0 && y > 0 => "quadrant I",
-    Point { x, y } if x > 0 => "quadrant IV",
-    Point { x, y } if y > 0 => "quadrant II",
-    _ => "quadrant III",
-};
+    let value = Point { x: 3, y: 4 };
+    let result = match value {
+        Point { x, y } if x > 0 && y > 0 => "quadrant I",
+        Point { x, y } if x > 0 => "quadrant IV",
+        Point { x, y } if y > 0 => "quadrant II",
+        _ => "quadrant III",
+    };
 '''
 
 
@@ -371,16 +375,16 @@ match value:
 '''
 
 rust = '''
-use std::any::Any;
+    use std::any::Any;
 
-let value: Box<dyn Any> = Box::new(42i32);
-let result = if value.is::<i32>() {
-    "integer"
-} else if value.is::<String>() {
-    "string"
-} else {
-    "other"
-};
+    let value: Box<dyn Any> = Box::new(42i32);
+    let result = if value.is::<i32>() {
+        "integer"
+    } else if value.is::<String>() {
+        "string"
+    } else {
+        "other"
+    };
 '''
 
 
@@ -400,16 +404,16 @@ match value:
 '''
 
 rust = '''
-use std::any::Any;
+    use std::any::Any;
 
-let value: Box<dyn Any> = Box::new("hello".to_string());
-let result = if value.is::<String>() {
-    "string"
-} else if value.is::<i32>() {
-    "integer"
-} else {
-    "other"
-};
+    let value: Box<dyn Any> = Box::new("hello".to_string());
+    let result = if value.is::<String>() {
+        "string"
+    } else if value.is::<i32>() {
+        "integer"
+    } else {
+        "other"
+    };
 '''
 
 
@@ -429,16 +433,16 @@ match value:
 '''
 
 rust = '''
-use std::any::Any;
+    use std::any::Any;
 
-let value: Box<dyn Any> = Box::new(true);
-let result = if value.is::<bool>() {
-    "boolean"
-} else if value.is::<i32>() {
-    "integer"
-} else {
-    "other"
-};
+    let value: Box<dyn Any> = Box::new(true);
+    let result = if value.is::<bool>() {
+        "boolean"
+    } else if value.is::<i32>() {
+        "integer"
+    } else {
+        "other"
+    };
 '''
 
 
@@ -466,16 +470,16 @@ match value:
 '''
 
 rust = '''
-struct Point {
-    x: i32,
-    y: i32,
-}
+    struct Point {
+        x: i32,
+        y: i32,
+    }
 
-let value = Point { x: 3, y: 4 };
-let result = match value {
-    Point { y, .. } => y,
-    _ => 0,
-};
+    let value = Point { x: 3, y: 4 };
+    let result = match value {
+        Point { y, .. } => y,
+        _ => 0,
+    };
 '''
 
 
@@ -498,15 +502,15 @@ match value:
 '''
 
 rust = '''
-struct Point {
-    x: i32,
-    y: i32,
-}
+    struct Point {
+        x: i32,
+        y: i32,
+    }
 
-let value = Point { x: 3, y: 4 };
-let result = match value {
-    Point { x, .. } => x * 2,
-};
+    let value = Point { x: 3, y: 4 };
+    let result = match value {
+        Point { x, .. } => x * 2,
+    };
 '''
 
 
@@ -544,18 +548,18 @@ match value:
 '''
 
 rust = '''
-enum Shape {
-    Circle { radius: i32 },
-    Rectangle { width: i32, height: i32 },
-    Other,
-}
+    enum Shape {
+        Circle { radius: i32 },
+        Rectangle { width: i32, height: i32 },
+        Other,
+    }
 
-let value = Shape::Circle { radius: 5 };
-let result = match value {
-    Shape::Circle { .. } => "circle",
-    Shape::Rectangle { .. } => "rectangle",
-    Shape::Other => "shape",
-};
+    let value = Shape::Circle { radius: 5 };
+    let result = match value {
+        Shape::Circle { .. } => "circle",
+        Shape::Rectangle { .. } => "rectangle",
+        Shape::Other => "shape",
+    };
 '''
 
 
@@ -584,16 +588,19 @@ match value:
 '''
 
 rust = '''
-enum Shape {
-    Circle { radius: i32 },
-    Rectangle { width: i32, height: i32 },
-}
+    enum Shape {
+        Circle { radius: i32 },
+        Rectangle { width: i32, height: i32 },
+    }
 
-let value = Shape::Circle { radius: 5 };
-let result = match value {
-    Shape::Circle { radius: r } => format!("circle: {}", r),
-    Shape::Rectangle { width: w, height: h } => format!("rectangle: {}x{}", w, h),
-};
+    let value = Shape::Circle { radius: 5 };
+    let result = match value {
+        Shape::Circle { radius: r } => format!("circle: {}", r),
+        Shape::Rectangle {
+            width: w,
+            height: h,
+        } => format!("rectangle: {}x{}", w, h),
+    };
 '''
 
 
@@ -615,11 +622,11 @@ match value:
 '''
 
 rust = '''
-let value = 1;
-let result = match value {
-    1 => "one",
-    _ => "other",
-};
+    let value = 1;
+    let result = match value {
+        1 => "one",
+        _ => "other",
+    };
 '''
 
 
@@ -643,16 +650,16 @@ match value:
 '''
 
 rust = '''
-struct Point3D {
-    x: i32,
-    y: i32,
-    z: i32,
-}
+    struct Point3D {
+        x: i32,
+        y: i32,
+        z: i32,
+    }
 
-let value = Point3D { x: 1, y: 2, z: 3 };
-let result = match value {
-    Point3D { x, y, .. } => x + y,
-};
+    let value = Point3D { x: 1, y: 2, z: 3 };
+    let result = match value {
+        Point3D { x, y, .. } => x + y,
+    };
 '''
 
 
@@ -668,6 +675,9 @@ result = Point(1, 2)
 '''
 
 rust = '''
-struct Point { x: i32, y: i32 }
+struct Point {
+    x: i32,
+    y: i32,
+}
 '''
 

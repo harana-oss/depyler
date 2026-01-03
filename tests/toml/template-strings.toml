@@ -19,10 +19,10 @@ assert result == 'Hello World'
 '''
 
 rust = '''
-// Rust: simple string replacement
-let name = "World";
-let result = format!("Hello {}", name);
-assert_eq!(result, "Hello World");
+    // Rust: simple string replacement
+    let name = "World";
+    let result = format!("Hello {}", name);
+    assert_eq!(result, "Hello World");
 '''
 
 
@@ -39,10 +39,10 @@ assert result == 'Hello World!'
 '''
 
 rust = '''
-// Rust: braced format syntax
-let name = "World";
-let result = format!("Hello {}!", name);
-assert_eq!(result, "Hello World!");
+    // Rust: braced format syntax
+    let name = "World";
+    let result = format!("Hello {}!", name);
+    assert_eq!(result, "Hello World!");
 '''
 
 
@@ -59,11 +59,11 @@ assert result == '1 and 2'
 '''
 
 rust = '''
-// Rust: multiple format parameters
-let a = 1;
-let b = 2;
-let result = format!("{} and {}", a, b);
-assert_eq!(result, "1 and 2");
+    // Rust: multiple format parameters
+    let a = 1;
+    let b = 2;
+    let result = format!("{} and {}", a, b);
+    assert_eq!(result, "1 and 2");
 '''
 
 
@@ -85,12 +85,12 @@ result = True
 '''
 
 rust = '''
-// Rust format! is compile-time checked
-// Use safe_substitute equivalent pattern
-let name = "John";
-let result = format!("{} and $other", name);
-assert!(result.contains("John"));
-let result = true;
+    // Rust format! is compile-time checked
+    // Use safe_substitute equivalent pattern
+    let name = "John";
+    let result = format!("{} and $other", name);
+    assert!(result.contains("John"));
+    let result = true;
 '''
 
 
@@ -107,10 +107,10 @@ assert result == 'John and $missing'
 '''
 
 rust = '''
-// Rust: custom template with default handling
-let name = "John";
-let result = format!("{} and $missing", name);
-assert_eq!(result, "John and $missing");
+    // Rust: custom template with default handling
+    let name = "John";
+    let result = format!("{} and $missing", name);
+    assert_eq!(result, "John and $missing");
 '''
 
 
@@ -127,11 +127,11 @@ assert result == '1, $b, and 3'
 '''
 
 rust = '''
-// Rust: partial substitution with custom logic
-let a = 1;
-let c = 3;
-let result = format!("{}, $b, and {}", a, c);
-assert_eq!(result, "1, $b, and 3");
+    // Rust: partial substitution with custom logic
+    let a = 1;
+    let c = 3;
+    let result = format!("{}, $b, and {}", a, c);
+    assert_eq!(result, "1, $b, and 3");
 '''
 
 
@@ -152,9 +152,9 @@ assert result == 'Price: $10'
 '''
 
 rust = '''
-// Rust: literal dollar sign
-let result = String::from("Price: $10");
-assert_eq!(result, "Price: $10");
+    // Rust: literal dollar sign
+    let result = String::from("Price: $10");
+    assert_eq!(result, "Price: $10");
 '''
 
 
@@ -171,10 +171,10 @@ assert result == 'Cost: $9.99'
 '''
 
 rust = '''
-// Rust: mixing literal and formatted
-let price = "9.99";
-let result = format!("Cost: ${}", price);
-assert_eq!(result, "Cost: $9.99");
+    // Rust: mixing literal and formatted
+    let price = "9.99";
+    let result = format!("Cost: ${}", price);
+    assert_eq!(result, "Cost: $9.99");
 '''
 
 
@@ -195,12 +195,12 @@ assert result == 'Hello World'
 '''
 
 rust = '''
-// Rust: using HashMap for substitution
-use std::collections::HashMap;
-let mut values = HashMap::new();
-values.insert("name", "World");
-let result = format!("Hello {}", values["name"]);
-assert_eq!(result, "Hello World");
+    // Rust: using HashMap for substitution
+    use std::collections::HashMap;
+    let mut values = HashMap::new();
+    values.insert("name", "World");
+    let result = format!("Hello {}", values["name"]);
+    assert_eq!(result, "Hello World");
 '''
 
 
@@ -217,10 +217,10 @@ assert result == 'Hello World'
 '''
 
 rust = '''
-// Rust: direct variable substitution
-let name = "World";
-let result = format!("Hello {}", name);
-assert_eq!(result, "Hello World");
+    // Rust: direct variable substitution
+    let name = "World";
+    let result = format!("Hello {}", name);
+    assert_eq!(result, "Hello World");
 '''
 
 
@@ -237,11 +237,11 @@ assert result == '1 and 2'
 '''
 
 rust = '''
-// Rust: multiple sources combined
-let a = 1;
-let b = 2;
-let result = format!("{} and {}", a, b);
-assert_eq!(result, "1 and 2");
+    // Rust: multiple sources combined
+    let a = 1;
+    let b = 2;
+    let result = format!("{} and {}", a, b);
+    assert_eq!(result, "1 and 2");
 '''
 
 
@@ -262,11 +262,11 @@ assert result == 'under and digit'
 '''
 
 rust = '''
-// Rust: valid identifiers
-let _name = "under";
-let name1 = "digit";
-let result = format!("{} and {}", _name, name1);
-assert_eq!(result, "under and digit");
+    // Rust: valid identifiers
+    let _name = "under";
+    let name1 = "digit";
+    let result = format!("{} and {}", _name, name1);
+    assert_eq!(result, "under and digit");
 '''
 
 
@@ -283,10 +283,10 @@ assert result == 'Cats are great'
 '''
 
 rust = '''
-// Rust: format without spaces
-let name = "Cat";
-let result = format!("{}s are great", name);
-assert_eq!(result, "Cats are great");
+    // Rust: format without spaces
+    let name = "Cat";
+    let result = format!("{}s are great", name);
+    assert_eq!(result, "Cats are great");
 '''
 
 
@@ -310,11 +310,11 @@ assert result == 'Hello World'
 '''
 
 rust = '''
-// Rust: custom delimiter with string replacement
-let name = "World";
-let template = "Hello %name";
-let result = template.replace("%name", name);
-assert_eq!(result, "Hello World");
+    // Rust: custom delimiter with string replacement
+    let name = "World";
+    let template = "Hello %name";
+    let result = template.replace("%name", name);
+    assert_eq!(result, "Hello World");
 '''
 
 
@@ -334,9 +334,9 @@ assert result == 'lower $ABC'
 '''
 
 rust = '''
-// Rust: custom pattern matching with regex
-let result = "lower $ABC";
-assert_eq!(result, "lower $ABC");
+    // Rust: custom pattern matching with regex
+    let result = "lower $ABC";
+    assert_eq!(result, "lower $ABC");
 '''
 
 
@@ -357,11 +357,11 @@ assert result == 'host=localhost\nport=8080'
 '''
 
 rust = '''
-// Rust: config template
-let host = "localhost";
-let port = 8080;
-let result = format!("host={}\nport={}", host, port);
-assert_eq!(result, "host=localhost\nport=8080");
+    // Rust: config template
+    let host = "localhost";
+    let port = 8080;
+    let result = format!("host={}\nport={}", host, port);
+    assert_eq!(result, "host=localhost\nport=8080");
 '''
 
 
@@ -379,10 +379,10 @@ assert result == 'Hello $name!'
 '''
 
 rust = '''
-// Rust: safe user template
-let greeting = "Hello";
-let result = format!("{} $name!", greeting);
-assert_eq!(result, "Hello $name!");
+    // Rust: safe user template
+    let greeting = "Hello";
+    let result = format!("{} $name!", greeting);
+    assert_eq!(result, "Hello $name!");
 '''
 
 
@@ -405,12 +405,12 @@ assert result == 'User: Alice, ID: 42'
 '''
 
 rust = '''
-// Rust: runtime template
-let template_string = "User: {}, ID: {}";
-let user = "Alice";
-let id = 42;
-let result = format!(template_string, user, id);
-assert_eq!(result, "User: Alice, ID: 42");
+    // Rust: runtime template
+    let template_string = "User: {}, ID: {}";
+    let user = "Alice";
+    let id = 42;
+    let result = format!(template_string, user, id);
+    assert_eq!(result, "User: Alice, ID: 42");
 '''
 
 
@@ -429,10 +429,10 @@ assert result == 'Value: object'
 '''
 
 rust = '''
-// Rust: format is also just substitution
-let x = "object";
-let result = format!("Value: {}", x);
-assert_eq!(result, "Value: object");
+    // Rust: format is also just substitution
+    let x = "object";
+    let result = format!("Value: {}", x);
+    assert_eq!(result, "Value: object");
 '''
 
 
@@ -453,9 +453,9 @@ assert result == ''
 '''
 
 rust = '''
-// Rust: empty string
-let result = String::from("");
-assert_eq!(result, "");
+    // Rust: empty string
+    let result = String::from("");
+    assert_eq!(result, "");
 '''
 
 
@@ -472,9 +472,9 @@ assert result == 'plain text'
 '''
 
 rust = '''
-// Rust: plain string
-let result = String::from("plain text");
-assert_eq!(result, "plain text");
+    // Rust: plain string
+    let result = String::from("plain text");
+    assert_eq!(result, "plain text");
 '''
 
 
@@ -494,11 +494,11 @@ result = True
 '''
 
 rust = '''
-// Rust format! uses {} without spaces
-// Invalid patterns are preserved as literals
-let template = "${ name }";
-let result = template.contains("${ name }");
-assert!(result);
-let result = true;
+    // Rust format! uses {} without spaces
+    // Invalid patterns are preserved as literals
+    let template = "${ name }";
+    let result = template.contains("${ name }");
+    assert!(result);
+    let result = true;
 '''
 

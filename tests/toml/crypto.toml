@@ -38,7 +38,9 @@ def decode_base64(data: bytes) -> bytes:
 rust = '''
 use base64;
 pub fn decode_base64(data: &bytes) -> bytes {
-    return base64::engine::general_purpose::STANDARD.decode(data).unwrap();
+    return base64::engine::general_purpose::STANDARD
+        .decode(data)
+        .unwrap();
 }
 '''
 
@@ -74,7 +76,9 @@ def decode_urlsafe(data: bytes) -> bytes:
 rust = '''
 use base64;
 pub fn decode_urlsafe(data: &bytes) -> bytes {
-    return base64::engine::general_purpose::URL_SAFE.decode(data).unwrap();
+    return base64::engine::general_purpose::URL_SAFE
+        .decode(data)
+        .unwrap();
 }
 '''
 

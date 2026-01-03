@@ -105,8 +105,14 @@ use std::collections::HashMap;
 fn main() {
     let s = "aab";
     let mut c: HashMap<char, usize> = HashMap::new();
-    for ch in s.chars() { *c.entry(ch).or_insert(0) += 1; }
-    log::info!("{} {}", c.get(&'a').unwrap_or(&0), c.get(&'b').unwrap_or(&0));
+    for ch in s.chars() {
+        *c.entry(ch).or_insert(0) += 1;
+    }
+    log::info!(
+        "{} {}",
+        c.get(&'a').unwrap_or(&0),
+        c.get(&'b').unwrap_or(&0)
+    );
 }
 """
 
@@ -123,7 +129,9 @@ use std::collections::HashMap;
 fn main() {
     let s = "abc";
     let mut c: HashMap<char, usize> = HashMap::new();
-    for ch in s.chars() { *c.entry(ch).or_insert(0) += 1; }
+    for ch in s.chars() {
+        *c.entry(ch).or_insert(0) += 1;
+    }
     log::info!("{}", c.get(&'x').unwrap_or(&0));
 }
 """
@@ -141,8 +149,12 @@ rust = """
 use std::collections::HashMap;
 fn main() {
     let mut c: HashMap<char, usize> = HashMap::new();
-    for ch in "abc".chars() { *c.entry(ch).or_insert(0) += 1; }
-    for ch in "aaa".chars() { *c.entry(ch).or_insert(0) += 1; }
+    for ch in "abc".chars() {
+        *c.entry(ch).or_insert(0) += 1;
+    }
+    for ch in "aaa".chars() {
+        *c.entry(ch).or_insert(0) += 1;
+    }
     log::info!("{}", c.get(&'a').unwrap_or(&0));
 }
 """
@@ -161,10 +173,16 @@ rust = """
 use std::collections::HashMap;
 fn main() {
     let mut c1: HashMap<char, usize> = HashMap::new();
-    for ch in "abc".chars() { *c1.entry(ch).or_insert(0) += 1; }
+    for ch in "abc".chars() {
+        *c1.entry(ch).or_insert(0) += 1;
+    }
     let mut c2: HashMap<char, usize> = HashMap::new();
-    for ch in "aaa".chars() { *c2.entry(ch).or_insert(0) += 1; }
-    for (k, v) in c2 { *c1.entry(k).or_insert(0) += v; }
+    for ch in "aaa".chars() {
+        *c2.entry(ch).or_insert(0) += 1;
+    }
+    for (k, v) in c2 {
+        *c1.entry(k).or_insert(0) += v;
+    }
     log::info!("{}", c1.get(&'a').unwrap_or(&0));
 }
 """
@@ -185,7 +203,9 @@ rust = """
 use std::collections::HashMap;
 fn main() {
     let mut c: HashMap<char, usize> = HashMap::new();
-    for ch in "abracadabra".chars() { *c.entry(ch).or_insert(0) += 1; }
+    for ch in "abracadabra".chars() {
+        *c.entry(ch).or_insert(0) += 1;
+    }
     let mut items: Vec<_> = c.iter().collect();
     items.sort_by(|a, b| b.1.cmp(a.1).then(a.0.cmp(b.0)));
     log::info!("{:?}", items);
@@ -204,7 +224,9 @@ rust = """
 use std::collections::HashMap;
 fn main() {
     let mut c: HashMap<char, usize> = HashMap::new();
-    for ch in "abracadabra".chars() { *c.entry(ch).or_insert(0) += 1; }
+    for ch in "abracadabra".chars() {
+        *c.entry(ch).or_insert(0) += 1;
+    }
     let mut items: Vec<_> = c.iter().collect();
     items.sort_by(|a, b| b.1.cmp(a.1));
     log::info!("{:?}", &items[..3.min(items.len())]);
@@ -223,7 +245,9 @@ rust = """
 use std::collections::HashMap;
 fn main() {
     let mut c: HashMap<char, usize> = HashMap::new();
-    for ch in "abracadabra".chars() { *c.entry(ch).or_insert(0) += 1; }
+    for ch in "abracadabra".chars() {
+        *c.entry(ch).or_insert(0) += 1;
+    }
     let mut items: Vec<_> = c.iter().collect();
     items.sort_by(|a, b| a.1.cmp(b.1));
     log::info!("{:?}", &items[..2.min(items.len())]);
@@ -248,7 +272,9 @@ use std::collections::HashMap;
 fn main() {
     let mut c1: HashMap<char, i32> = [('a', 3), ('b', 1)].iter().cloned().collect();
     let c2: HashMap<char, i32> = [('a', 1), ('b', 2)].iter().cloned().collect();
-    for (k, v) in c2 { *c1.entry(k).or_insert(0) += v; }
+    for (k, v) in c2 {
+        *c1.entry(k).or_insert(0) += v;
+    }
     let mut items: Vec<_> = c1.iter().collect();
     items.sort_by_key(|&(k, _)| k);
     log::info!("{:?}", items);
@@ -269,10 +295,12 @@ use std::collections::HashMap;
 fn main() {
     let mut c1: HashMap<char, i32> = [('a', 4), ('b', 2)].iter().cloned().collect();
     let c2: HashMap<char, i32> = [('a', 1), ('b', 2)].iter().cloned().collect();
-    for (k, v) in c2 { 
-        if let Some(count) = c1.get_mut(&k) { 
-            *count = (*count - v).max(0); 
-            if *count == 0 { c1.remove(&k); }
+    for (k, v) in c2 {
+        if let Some(count) = c1.get_mut(&k) {
+            *count = (*count - v).max(0);
+            if *count == 0 {
+                c1.remove(&k);
+            }
         }
     }
     let mut items: Vec<_> = c1.iter().collect();
@@ -323,7 +351,10 @@ fn main() {
     let c2: HashMap<char, i32> = [('a', 1), ('b', 2)].iter().cloned().collect();
     let mut result = c1.clone();
     for (k, v2) in c2 {
-        result.entry(k).and_modify(|v1| *v1 = (*v1).max(v2)).or_insert(v2);
+        result
+            .entry(k)
+            .and_modify(|v1| *v1 = (*v1).max(v2))
+            .or_insert(v2);
     }
     let mut items: Vec<_> = result.iter().collect();
     items.sort_by_key(|&(k, _)| k);
@@ -411,7 +442,9 @@ use std::collections::HashMap;
 fn main() {
     let mut c: HashMap<char, i32> = [('a', 4), ('b', 2)].iter().cloned().collect();
     let other: HashMap<char, i32> = [('a', 1), ('b', 2), ('c', 3)].iter().cloned().collect();
-    for (k, v) in other { *c.entry(k).or_insert(0) -= v; }
+    for (k, v) in other {
+        *c.entry(k).or_insert(0) -= v;
+    }
     let mut items: Vec<_> = c.iter().collect();
     items.sort_by_key(|&(k, _)| k);
     log::info!("{:?}", items);
@@ -517,7 +550,9 @@ use std::collections::HashMap;
 fn main() {
     let text = "the quick brown fox jumps over the lazy dog";
     let mut c: HashMap<&str, usize> = HashMap::new();
-    for word in text.split_whitespace() { *c.entry(word).or_insert(0) += 1; }
+    for word in text.split_whitespace() {
+        *c.entry(word).or_insert(0) += 1;
+    }
     log::info!("{}", c.get("the").unwrap_or(&0));
 }
 """
@@ -536,7 +571,9 @@ use std::collections::HashMap;
 fn main() {
     let data = vec![1, 2, 2, 3, 3, 3];
     let mut c: HashMap<i32, usize> = HashMap::new();
-    for x in data { *c.entry(x).or_insert(0) += 1; }
+    for x in data {
+        *c.entry(x).or_insert(0) += 1;
+    }
     log::info!("{}", c.get(&3).unwrap_or(&0));
 }
 """

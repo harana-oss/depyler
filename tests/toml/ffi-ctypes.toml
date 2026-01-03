@@ -168,7 +168,9 @@ pub struct Outer {
 
 impl Outer {
     pub fn new(inner_value: i32) -> Self {
-        Self { inner: Inner::new(inner_value) }
+        Self {
+            inner: Inner::new(inner_value),
+        }
     }
 }
 
@@ -202,7 +204,10 @@ pub struct Buffer {
 
 impl Buffer {
     pub fn new(size: i32) -> Self {
-        Self { data: vec![0; size as usize], size }
+        Self {
+            data: vec![0; size as usize],
+            size,
+        }
     }
 }
 
@@ -234,9 +239,9 @@ def triple_it(x: int) -> int:
 '''
 
 rust = '''
-pub fn apply_callback<F>(value: i32, callback: F) -> i32 
-where 
-    F: Fn(i32) -> i32 
+pub fn apply_callback<F>(value: i32, callback: F) -> i32
+where
+    F: Fn(i32) -> i32,
 {
     return callback(value);
 }
@@ -277,9 +282,9 @@ impl State {
     }
 }
 
-pub fn modify_state<F>(state: &mut State, modifier: F) 
-where 
-    F: Fn(&mut State) 
+pub fn modify_state<F>(state: &mut State, modifier: F)
+where
+    F: Fn(&mut State),
 {
     modifier(state);
 }

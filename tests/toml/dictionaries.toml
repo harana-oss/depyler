@@ -170,7 +170,11 @@ def get_or_default(d: dict, key: str, default: str) -> str:
 rust = '''
 use serde_json;
 use std::collections::HashMap;
-pub fn get_or_default(d: &HashMap<serde_json::Value, serde_json::Value>, key: String, default: String) -> String {
+pub fn get_or_default(
+    d: &HashMap<serde_json::Value, serde_json::Value>,
+    key: String,
+    default: String,
+) -> String {
     return d.get(&key).cloned().unwrap_or(default).unwrap();
 }
 '''
@@ -222,7 +226,10 @@ rust = '''
 use serde_json;
 use std::collections::HashMap;
 pub fn get_items(d: &HashMap<serde_json::Value, serde_json::Value>) -> Vec<serde_json::Value> {
-    return d.iter().map(|(k, v)| (k.clone(), v.clone())).collect::<Vec<_>>();
+    return d
+        .iter()
+        .map(|(k, v)| (k.clone(), v.clone()))
+        .collect::<Vec<_>>();
 }
 '''
 
@@ -350,7 +357,11 @@ rust = '''
 use serde_json;
 use std::collections::HashMap;
 pub fn print_items(d: &HashMap<serde_json::Value, serde_json::Value>) {
-    for (key, value) in d.iter().map(|(k, v)| (k.clone(), v.clone())).collect::<Vec<_>>() {
+    for (key, value) in d
+        .iter()
+        .map(|(k, v)| (k.clone(), v.clone()))
+        .collect::<Vec<_>>()
+    {
         log::info!("{}", format!("{}: {}", key, value));
     }
 }
@@ -621,7 +632,11 @@ def pop_value(d: dict, key: str, default: str) -> str:
 rust = '''
 use serde_json;
 use std::collections::HashMap;
-pub fn pop_value(d: &mut HashMap<serde_json::Value, serde_json::Value>, key: String, default: String) -> String {
+pub fn pop_value(
+    d: &mut HashMap<serde_json::Value, serde_json::Value>,
+    key: String,
+    default: String,
+) -> String {
     return d.remove(key).unwrap_or(default);
 }
 '''
@@ -662,7 +677,10 @@ def dict_from_keys(keys: list, value: int) -> dict:
 rust = '''
 use serde_json;
 use std::collections::HashMap;
-pub fn dict_from_keys(keys: &Vec<serde_json::Value>, value: i32) -> HashMap<serde_json::Value, serde_json::Value> {
+pub fn dict_from_keys(
+    keys: &Vec<serde_json::Value>,
+    value: i32,
+) -> HashMap<serde_json::Value, serde_json::Value> {
     return dict.fromkeys(keys, value);
 }
 '''
@@ -679,7 +697,9 @@ def copy_dict(d: dict) -> dict:
 rust = '''
 use serde_json;
 use std::collections::HashMap;
-pub fn copy_dict(d: &HashMap<serde_json::Value, serde_json::Value>) -> HashMap<serde_json::Value, serde_json::Value> {
+pub fn copy_dict(
+    d: &HashMap<serde_json::Value, serde_json::Value>,
+) -> HashMap<serde_json::Value, serde_json::Value> {
     return d.clone();
 }
 '''
@@ -697,7 +717,8 @@ def has_host(config):
 
 rust = '''
 lazy_static! {
-    pub static ref config: HashMap<String, String> = serde_json::json!({ "host": "localhost", "port": 5432 });
+    pub static ref config: HashMap<String, String> =
+        serde_json::json!({ "host": "localhost", "port": 5432 });
 }
 use lazy_static::lazy_static;
 use serde_json;
@@ -838,7 +859,11 @@ def find_value(d: dict[str, int], search_key: str) -> int:
 rust = '''
 use std::collections::HashMap;
 pub fn find_value(d: &HashMap<String, i32>, search_key: String) -> i32 {
-    for (k, v) in d.iter().map(|(k, v)| (k.clone(), v.clone())).collect::<Vec<_>>() {
+    for (k, v) in d
+        .iter()
+        .map(|(k, v)| (k.clone(), v.clone()))
+        .collect::<Vec<_>>()
+    {
         if k == search_key {
             return v;
         }
@@ -926,7 +951,11 @@ rust = '''
 use std::collections::HashMap;
 pub fn sum_dict(d: &HashMap<String, i32>) -> i32 {
     let mut total = 0;
-    for (k, v) in d.iter().map(|(k, v)| (k.clone(), v.clone())).collect::<Vec<_>>() {
+    for (k, v) in d
+        .iter()
+        .map(|(k, v)| (k.clone(), v.clone()))
+        .collect::<Vec<_>>()
+    {
         total = total + v;
         log::info!("{}", k);
     }
@@ -947,7 +976,11 @@ def update_dict(d1: dict[str, int], d2: dict[str, int]) -> None:
 rust = '''
 use std::collections::HashMap;
 pub fn update_dict(d1: &mut HashMap<String, i32>, d2: &HashMap<String, i32>) {
-    for (k, v) in d2.iter().map(|(k, v)| (k.clone(), v.clone())).collect::<Vec<_>>() {
+    for (k, v) in d2
+        .iter()
+        .map(|(k, v)| (k.clone(), v.clone()))
+        .collect::<Vec<_>>()
+    {
         d1.insert(k, v);
     }
 }
@@ -969,7 +1002,11 @@ rust = '''
 use std::collections::HashMap;
 pub fn sum_values(d: &HashMap<String, i32>) -> i32 {
     let mut total = 0;
-    for (_k, v) in d.iter().map(|(k, v)| (k.clone(), v.clone())).collect::<Vec<_>>() {
+    for (_k, v) in d
+        .iter()
+        .map(|(k, v)| (k.clone(), v.clone()))
+        .collect::<Vec<_>>()
+    {
         total = total + v;
     }
     return total;
@@ -992,7 +1029,11 @@ rust = '''
 use std::collections::HashMap;
 pub fn copy_keys(d: &HashMap<String, i32>) -> Vec<String> {
     let mut keys = vec![];
-    for (k, _v) in d.iter().map(|(k, v)| (k.clone(), v.clone())).collect::<Vec<_>>() {
+    for (k, _v) in d
+        .iter()
+        .map(|(k, v)| (k.clone(), v.clone()))
+        .collect::<Vec<_>>()
+    {
         keys.push(k);
     }
     return keys;
@@ -1015,15 +1056,27 @@ def merge_and_get(d1: dict[str, int], d2: dict[str, int], key: str) -> int | Non
 
 rust = '''
 use std::collections::HashMap;
-pub fn merge_and_get(d1: &HashMap<String, i32>, d2: &HashMap<String, i32>, key: String) -> Option<i32> {
+pub fn merge_and_get(
+    d1: &HashMap<String, i32>,
+    d2: &HashMap<String, i32>,
+    key: String,
+) -> Option<i32> {
     let mut result = {
         let map = HashMap::new();
         map
     };
-    for (k, v) in d1.iter().map(|(k, v)| (k.clone(), v.clone())).collect::<Vec<_>>() {
+    for (k, v) in d1
+        .iter()
+        .map(|(k, v)| (k.clone(), v.clone()))
+        .collect::<Vec<_>>()
+    {
         result.insert(k, v);
     }
-    for (k, v) in d2.iter().map(|(k, v)| (k.clone(), v.clone())).collect::<Vec<_>>() {
+    for (k, v) in d2
+        .iter()
+        .map(|(k, v)| (k.clone(), v.clone()))
+        .collect::<Vec<_>>()
+    {
         result.insert(k, v);
     }
     return result.get(&key).cloned();

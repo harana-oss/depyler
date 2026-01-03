@@ -575,7 +575,7 @@ def test_abc_mixin() -> int:
 rust = '''
 trait Mixin {
     fn get_value(&self) -> i32;
-    
+
     fn double_value(&self) -> i32 {
         self.get_value() * 2
     }
@@ -622,7 +622,7 @@ struct MyIterable;
 impl IntoIterator for MyIterable {
     type Item = i32;
     type IntoIter = std::vec::IntoIter<i32>;
-    
+
     fn into_iter(self) -> Self::IntoIter {
         vec![1, 2, 3].into_iter()
     }
@@ -801,10 +801,14 @@ result = abs(n).value
 '''
 
 rust = '''
-struct Number { value: i32 }
+struct Number {
+    value: i32,
+}
 impl Number {
     fn abs(self) -> Number {
-        Number { value: self.value.abs() }
+        Number {
+            value: self.value.abs(),
+        }
     }
 }
 '''

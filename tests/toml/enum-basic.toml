@@ -21,13 +21,13 @@ result = Color.RED.value == 1 and Color.GREEN.value == 2
 '''
 
 rust = '''
-#[derive(Debug, PartialEq)]
-enum Color {
-    RED = 1,
-    GREEN = 2,
-}
+    #[derive(Debug, PartialEq)]
+    enum Color {
+        RED = 1,
+        GREEN = 2,
+    }
 
-let result = Color::RED as i32 == 1 && Color::GREEN as i32 == 2;
+    let result = Color::RED as i32 == 1 && Color::GREEN as i32 == 2;
 '''
 
 
@@ -47,14 +47,14 @@ result = red == Color.RED
 '''
 
 rust = '''
-#[derive(Debug, PartialEq)]
-enum Color {
-    RED = 1,
-    GREEN = 2,
-}
+    #[derive(Debug, PartialEq)]
+    enum Color {
+        RED = 1,
+        GREEN = 2,
+    }
 
-let red = Color::RED;
-let result = red == Color::RED;
+    let red = Color::RED;
+    let result = red == Color::RED;
 '''
 
 
@@ -73,13 +73,13 @@ result = Color.RED.value == 1
 '''
 
 rust = '''
-#[derive(Debug, PartialEq)]
-enum Color {
-    RED = 1,
-    GREEN = 2,
-}
+    #[derive(Debug, PartialEq)]
+    enum Color {
+        RED = 1,
+        GREEN = 2,
+    }
 
-let result = Color::RED as i32 == 1;
+    let result = Color::RED as i32 == 1;
 '''
 
 
@@ -98,15 +98,15 @@ result = Color.RED.name == 'RED'
 '''
 
 rust = '''
-// Rust enums don't have built-in name property, use Debug formatting
-#[derive(Debug, PartialEq)]
-enum Color {
-    RED = 1,
-    GREEN = 2,
-}
+    // Rust enums don't have built-in name property, use Debug formatting
+    #[derive(Debug, PartialEq)]
+    enum Color {
+        RED = 1,
+        GREEN = 2,
+    }
 
-let name = format!("{:?}", Color::RED);
-let result = name == "RED";
+    let name = format!("{:?}", Color::RED);
+    let result = name == "RED";
 '''
 
 
@@ -129,23 +129,23 @@ result = Color['RED'] == Color.RED
 '''
 
 rust = '''
-// Rust doesn't support runtime string-to-enum lookup natively
-// Would typically use match or a helper function
-#[derive(Debug, PartialEq)]
-enum Color {
-    RED = 1,
-    GREEN = 2,
-}
-
-fn from_name(name: &str) -> Option<Color> {
-    match name {
-        "RED" => Some(Color::RED),
-        "GREEN" => Some(Color::GREEN),
-        _ => None,
+    // Rust doesn't support runtime string-to-enum lookup natively
+    // Would typically use match or a helper function
+    #[derive(Debug, PartialEq)]
+    enum Color {
+        RED = 1,
+        GREEN = 2,
     }
-}
 
-let result = from_name("RED") == Some(Color::RED);
+    fn from_name(name: &str) -> Option<Color> {
+        match name {
+            "RED" => Some(Color::RED),
+            "GREEN" => Some(Color::GREEN),
+            _ => None,
+        }
+    }
+
+    let result = from_name("RED") == Some(Color::RED);
 '''
 
 
@@ -164,23 +164,23 @@ result = Color(1) == Color.RED
 '''
 
 rust = '''
-// Rust doesn't support value-to-enum conversion automatically
-// Use a helper function or match
-#[derive(Debug, PartialEq)]
-enum Color {
-    RED = 1,
-    GREEN = 2,
-}
-
-fn from_value(value: i32) -> Option<Color> {
-    match value {
-        1 => Some(Color::RED),
-        2 => Some(Color::GREEN),
-        _ => None,
+    // Rust doesn't support value-to-enum conversion automatically
+    // Use a helper function or match
+    #[derive(Debug, PartialEq)]
+    enum Color {
+        RED = 1,
+        GREEN = 2,
     }
-}
 
-let result = from_value(1) == Some(Color::RED);
+    fn from_value(value: i32) -> Option<Color> {
+        match value {
+            1 => Some(Color::RED),
+            2 => Some(Color::GREEN),
+            _ => None,
+        }
+    }
+
+    let result = from_value(1) == Some(Color::RED);
 '''
 
 
@@ -201,18 +201,18 @@ result = len(colors) == 3 and Color.RED in colors
 '''
 
 rust = '''
-// Rust enums can't be iterated automatically
-// Use a const array or macro for iteration
-#[derive(Debug, PartialEq, Clone, Copy)]
-enum Color {
-    RED = 1,
-    GREEN = 2,
-    BLUE = 3,
-}
+    // Rust enums can't be iterated automatically
+    // Use a const array or macro for iteration
+    #[derive(Debug, PartialEq, Clone, Copy)]
+    enum Color {
+        RED = 1,
+        GREEN = 2,
+        BLUE = 3,
+    }
 
-const ALL_COLORS: [Color; 3] = [Color::RED, Color::GREEN, Color::BLUE];
+    const ALL_COLORS: [Color; 3] = [Color::RED, Color::GREEN, Color::BLUE];
 
-let result = ALL_COLORS.len() == 3 && ALL_COLORS.contains(&Color::RED);
+    let result = ALL_COLORS.len() == 3 && ALL_COLORS.contains(&Color::RED);
 '''
 
 
@@ -235,15 +235,15 @@ result = Color.RED is Color.RED
 '''
 
 rust = '''
-// Rust enums are value types, not references
-// Use equality comparison instead
-#[derive(Debug, PartialEq)]
-enum Color {
-    RED = 1,
-    GREEN = 2,
-}
+    // Rust enums are value types, not references
+    // Use equality comparison instead
+    #[derive(Debug, PartialEq)]
+    enum Color {
+        RED = 1,
+        GREEN = 2,
+    }
 
-let result = Color::RED == Color::RED;
+    let result = Color::RED == Color::RED;
 '''
 
 
@@ -262,13 +262,13 @@ result = Color.RED == Color.RED
 '''
 
 rust = '''
-#[derive(Debug, PartialEq)]
-enum Color {
-    RED = 1,
-    GREEN = 2,
-}
+    #[derive(Debug, PartialEq)]
+    enum Color {
+        RED = 1,
+        GREEN = 2,
+    }
 
-let result = Color::RED == Color::RED;
+    let result = Color::RED == Color::RED;
 '''
 
 
@@ -287,13 +287,13 @@ result = Color.RED != Color.GREEN
 '''
 
 rust = '''
-#[derive(Debug, PartialEq)]
-enum Color {
-    RED = 1,
-    GREEN = 2,
-}
+    #[derive(Debug, PartialEq)]
+    enum Color {
+        RED = 1,
+        GREEN = 2,
+    }
 
-let result = Color::RED != Color::GREEN;
+    let result = Color::RED != Color::GREEN;
 '''
 
 
@@ -313,15 +313,15 @@ result = Color.RED != 1
 '''
 
 rust = '''
-// Rust enums are distinct types from their discriminants
-#[derive(Debug, PartialEq)]
-enum Color {
-    RED = 1,
-    GREEN = 2,
-}
+    // Rust enums are distinct types from their discriminants
+    #[derive(Debug, PartialEq)]
+    enum Color {
+        RED = 1,
+        GREEN = 2,
+    }
 
-// Cannot directly compare enum to integer in Rust (type safety)
-let result = true;
+    // Cannot directly compare enum to integer in Rust (type safety)
+    let result = true;
 '''
 
 
@@ -344,24 +344,24 @@ result = Status.OK.value == 'ok'
 '''
 
 rust = '''
-// Rust enums can't directly hold string literals as discriminants
-// Use associated constants or methods instead
-#[derive(Debug, PartialEq)]
-enum Status {
-    OK,
-    ERROR,
-}
+    // Rust enums can't directly hold string literals as discriminants
+    // Use associated constants or methods instead
+    #[derive(Debug, PartialEq)]
+    enum Status {
+        OK,
+        ERROR,
+    }
 
-impl Status {
-    fn value(&self) -> &str {
-        match self {
-            Status::OK => "ok",
-            Status::ERROR => "error",
+    impl Status {
+        fn value(&self) -> &str {
+            match self {
+                Status::OK => "ok",
+                Status::ERROR => "error",
+            }
         }
     }
-}
 
-let result = Status::OK.value() == "ok";
+    let result = Status::OK.value() == "ok";
 '''
 
 
@@ -383,23 +383,23 @@ result = Color.RED.value == 'red'
 '''
 
 rust = '''
-// Rust doesn't have auto(), define explicitly
-#[derive(Debug, PartialEq)]
-enum Color {
-    RED,
-    GREEN,
-}
+    // Rust doesn't have auto(), define explicitly
+    #[derive(Debug, PartialEq)]
+    enum Color {
+        RED,
+        GREEN,
+    }
 
-impl Color {
-    fn value(&self) -> &str {
-        match self {
-            Color::RED => "red",
-            Color::GREEN => "green",
+    impl Color {
+        fn value(&self) -> &str {
+            match self {
+                Color::RED => "red",
+                Color::GREEN => "green",
+            }
         }
     }
-}
 
-let result = Color::RED.value() == "red";
+    let result = Color::RED.value() == "red";
 '''
 
 
@@ -423,15 +423,15 @@ result = Color.RED.value == 1 and Color.GREEN.value == 2
 '''
 
 rust = '''
-// Rust doesn't have auto(), but discriminants auto-increment
-#[derive(Debug, PartialEq)]
-enum Color {
-    RED,     // 0
-    GREEN,   // 1
-    BLUE,    // 2
-}
+    // Rust doesn't have auto(), but discriminants auto-increment
+    #[derive(Debug, PartialEq)]
+    enum Color {
+        RED,   // 0
+        GREEN, // 1
+        BLUE,  // 2
+    }
 
-let result = Color::RED as i32 == 0 && Color::GREEN as i32 == 1;
+    let result = Color::RED as i32 == 0 && Color::GREEN as i32 == 1;
 '''
 
 
@@ -451,15 +451,16 @@ result = Priority.LOW.value == 1 and Priority.MEDIUM.value == 2 and Priority.HIG
 '''
 
 rust = '''
-// Rust discriminants start at 0 by default, but can be set
-#[derive(Debug, PartialEq)]
-enum Priority {
-    LOW = 1,
-    MEDIUM,  // 2
-    HIGH,    // 3
-}
+    // Rust discriminants start at 0 by default, but can be set
+    #[derive(Debug, PartialEq)]
+    enum Priority {
+        LOW = 1,
+        MEDIUM, // 2
+        HIGH,   // 3
+    }
 
-let result = Priority::LOW as i32 == 1 && Priority::MEDIUM as i32 == 2 && Priority::HIGH as i32 == 3;
+    let result =
+        Priority::LOW as i32 == 1 && Priority::MEDIUM as i32 == 2 && Priority::HIGH as i32 == 3;
 '''
 
 
@@ -479,14 +480,14 @@ result = Number.A.value == 1 and Number.B.value == 2 and Number.C.value == 3
 '''
 
 rust = '''
-#[derive(Debug, PartialEq)]
-enum Number {
-    A = 1,
-    B,  // 2
-    C,  // 3
-}
+    #[derive(Debug, PartialEq)]
+    enum Number {
+        A = 1,
+        B, // 2
+        C, // 3
+    }
 
-let result = Number::A as i32 == 1 && Number::B as i32 == 2 && Number::C as i32 == 3;
+    let result = Number::A as i32 == 1 && Number::B as i32 == 2 && Number::C as i32 == 3;
 '''
 
 
@@ -512,19 +513,19 @@ result = Color.RED.describe() == "Color: RED"
 '''
 
 rust = '''
-#[derive(Debug, PartialEq)]
-enum Color {
-    RED = 1,
-    GREEN = 2,
-}
-
-impl Color {
-    fn describe(&self) -> String {
-        format!("Color: {:?}", self)
+    #[derive(Debug, PartialEq)]
+    enum Color {
+        RED = 1,
+        GREEN = 2,
     }
-}
 
-let result = Color::RED.describe() == "Color: RED";
+    impl Color {
+        fn describe(&self) -> String {
+            format!("Color: {:?}", self)
+        }
+    }
+
+    let result = Color::RED.describe() == "Color: RED";
 '''
 
 
@@ -543,14 +544,14 @@ result = str(Color.RED) == "Color.RED"
 '''
 
 rust = '''
-#[derive(Debug, PartialEq)]
-enum Color {
-    RED = 1,
-    GREEN = 2,
-}
+    #[derive(Debug, PartialEq)]
+    enum Color {
+        RED = 1,
+        GREEN = 2,
+    }
 
-let s = format!("{:?}", Color::RED);
-let result = s == "RED";
+    let s = format!("{:?}", Color::RED);
+    let result = s == "RED";
 '''
 
 
@@ -569,14 +570,14 @@ result = repr(Color.RED) == "<Color.RED: 1>"
 '''
 
 rust = '''
-#[derive(Debug, PartialEq)]
-enum Color {
-    RED = 1,
-    GREEN = 2,
-}
+    #[derive(Debug, PartialEq)]
+    enum Color {
+        RED = 1,
+        GREEN = 2,
+    }
 
-let repr_str = format!("{:?}", Color::RED);
-let result = repr_str == "RED";
+    let repr_str = format!("{:?}", Color::RED);
+    let result = repr_str == "RED";
 '''
 
 
@@ -597,7 +598,9 @@ result = Example(42)
 '''
 
 rust = '''
-struct Example { value: i32 }
+struct Example {
+    value: i32,
+}
 '''
 
 
@@ -618,14 +621,14 @@ result = True
 '''
 
 rust = '''
-// Rust enums are immutable by definition at compile time
-#[derive(Debug, PartialEq)]
-enum Color {
-    RED = 1,
-    GREEN = 2,
-}
+    // Rust enums are immutable by definition at compile time
+    #[derive(Debug, PartialEq)]
+    enum Color {
+        RED = 1,
+        GREEN = 2,
+    }
 
-let result = true;
+    let result = true;
 '''
 
 
@@ -648,17 +651,17 @@ result = Color.RED is Color.CRIMSON
 '''
 
 rust = '''
-// Rust doesn't support enum aliases directly
-// All variants must have unique discriminants or be unit variants
-#[derive(Debug, PartialEq)]
-enum Color {
-    RED = 1,
-}
+    // Rust doesn't support enum aliases directly
+    // All variants must have unique discriminants or be unit variants
+    #[derive(Debug, PartialEq)]
+    enum Color {
+        RED = 1,
+    }
 
-// Type alias can refer to the same variant
-type Crimson = Color;
+    // Type alias can refer to the same variant
+    type Crimson = Color;
 
-let result = true;
+    let result = true;
 '''
 
 
@@ -679,15 +682,15 @@ result = Status.OK.value == 1 and Status.SUCCESS.value == 2
 '''
 
 rust = '''
-// Rust enforces unique discriminants by default
-#[derive(Debug, PartialEq)]
-enum Status {
-    OK = 1,
-    SUCCESS = 2,
-    // GOOD = 1,  // Compile error: discriminant value already used
-}
+    // Rust enforces unique discriminants by default
+    #[derive(Debug, PartialEq)]
+    enum Status {
+        OK = 1,
+        SUCCESS = 2,
+        // GOOD = 1,  // Compile error: discriminant value already used
+    }
 
-let result = Status::OK as i32 == 1 && Status::SUCCESS as i32 == 2;
+    let result = Status::OK as i32 == 1 && Status::SUCCESS as i32 == 2;
 '''
 
 
@@ -705,11 +708,11 @@ match value:
 '''
 
 rust = '''
-let value = 2;
-let result = match value {
-    1 | 2 | 3 => "small",
-    _ => "other",
-};
+    let value = 2;
+    let result = match value {
+        1 | 2 | 3 => "small",
+        _ => "other",
+    };
 '''
 
 
@@ -731,15 +734,15 @@ result = get_team(True) == Team.HOME
 '''
 
 rust = '''
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-enum Team {
-    Home = 1,
-    Away = 2,
-}
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    enum Team {
+        Home = 1,
+        Away = 2,
+    }
 
-fn get_team(is_home: bool) -> Team {
-    if is_home { Team::Home } else { Team::Away }
-}
+    fn get_team(is_home: bool) -> Team {
+        if is_home { Team::Home } else { Team::Away }
+    }
 
-let result = get_team(true) == Team::Home;
+    let result = get_team(true) == Team::Home;
 '''

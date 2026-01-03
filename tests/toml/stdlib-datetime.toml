@@ -131,16 +131,16 @@ assert dt1 < dt2
 assert dt2 > dt1
 '''
 rust = '''
-let dt1 = chrono::NaiveDate::from_ymd_opt(2024, 1, 1)
-    .unwrap()
-    .and_hms_opt(12, 0, 0)
-    .unwrap();
-let dt2 = chrono::NaiveDate::from_ymd_opt(2024, 1, 1)
-    .unwrap()
-    .and_hms_opt(13, 0, 0)
-    .unwrap();
-assert!(dt1 < dt2);
-assert!(dt2 > dt1);
+    let dt1 = chrono::NaiveDate::from_ymd_opt(2024, 1, 1)
+        .unwrap()
+        .and_hms_opt(12, 0, 0)
+        .unwrap();
+    let dt2 = chrono::NaiveDate::from_ymd_opt(2024, 1, 1)
+        .unwrap()
+        .and_hms_opt(13, 0, 0)
+        .unwrap();
+    assert!(dt1 < dt2);
+    assert!(dt2 > dt1);
 '''
 
 [[test]]
@@ -158,13 +158,13 @@ dt2 = datetime(2024, 1, 1, 17, 0, tzinfo=plus5)
 assert dt1 == dt2
 '''
 rust = '''
-use chrono::{TimeZone, FixedOffset, Utc};
+    use chrono::{FixedOffset, TimeZone, Utc};
 
-let dt1 = Utc.with_ymd_and_hms(2024, 1, 1, 12, 0, 0).unwrap();
-let plus5 = FixedOffset::east_opt(5 * 3600).unwrap();
-let dt2 = plus5.with_ymd_and_hms(2024, 1, 1, 17, 0, 0).unwrap();
+    let dt1 = Utc.with_ymd_and_hms(2024, 1, 1, 12, 0, 0).unwrap();
+    let plus5 = FixedOffset::east_opt(5 * 3600).unwrap();
+    let dt2 = plus5.with_ymd_and_hms(2024, 1, 1, 17, 0, 0).unwrap();
 
-assert!(dt1 == dt2);
+    assert!(dt1 == dt2);
 '''
 
 [[test]]

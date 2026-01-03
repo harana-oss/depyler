@@ -51,7 +51,7 @@ pub async fn test_async_generator_iterate() -> i32 {
         yield 2;
         yield 3;
     };
-    
+
     let mut total = 0;
     tokio::pin!(s);
     while let Some(x) = s.next().await {
@@ -97,7 +97,9 @@ result = Example(42)
 '''
 
 rust = '''
-struct Example { value: i32 }
+struct Example {
+    value: i32,
+}
 '''
 
 
@@ -362,22 +364,26 @@ async def test_async_gen_try_finally() -> int:
 
 rust = '''
 use async_stream::stream;
-use tokio_stream::StreamExt;
 use std::sync::atomic::{AtomicBool, Ordering};
+use tokio_stream::StreamExt;
 
 async fn test_async_gen_try_finally() -> usize {
     static CLEANUP_CALLED: AtomicBool = AtomicBool::new(false);
-    
+
     let g = stream! {
         yield 1;
         yield 2;
         CLEANUP_CALLED.store(true, Ordering::Relaxed);
     };
-    
+
     tokio::pin!(g);
     while g.next().await.is_some() {}
-    
-    if CLEANUP_CALLED.load(Ordering::Relaxed) { 1 } else { 0 }
+
+    if CLEANUP_CALLED.load(Ordering::Relaxed) {
+        1
+    } else {
+        0
+    }
 }
 '''
 
@@ -446,7 +452,7 @@ async fn test_async_gen_streaming() -> usize {
         yield b" ".to_vec();
         yield b"World".to_vec();
     };
-    
+
     let mut result = Vec::new();
     tokio::pin!(g);
     while let Some(chunk) = g.next().await {
@@ -590,7 +596,7 @@ async fn test_async_gen_break_cleanup() -> usize {
         yield 2;
         yield 3;
     };
-    
+
     while let Some(val) = g.next().await {
         if val == 2 {
             break;
@@ -651,7 +657,7 @@ async fn test_async_gen_expression() -> i32 {
             yield i;
         }
     };
-    
+
     let doubled: Vec<i32> = g.map(|x| x * 2).collect().await;
     doubled.iter().sum()
 }
@@ -687,14 +693,14 @@ async fn test_async_gen_nested() -> i32 {
         yield 1;
         yield 2;
     };
-    
+
     let outer = stream! {
         tokio::pin!(inner);
         while let Some(val) = inner.next().await {
             yield val * 10;
         }
     };
-    
+
     outer.fold(0, |acc, x| async move { acc + x }).await
 }
 '''

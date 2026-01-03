@@ -16,8 +16,8 @@ result = True  # Placeholder
 '''
 
 rust = '''
-// def f[T](x: T) -> T: return x
-let result = true; // Placeholder
+    // def f[T](x: T) -> T: return x
+    let result = true; // Placeholder
 '''
 
 
@@ -31,8 +31,8 @@ result = True  # Placeholder
 '''
 
 rust = '''
-// def f[K, V](key: K, value: V) -> tuple[K, V]: ...
-let result = true; // Placeholder
+    // def f[K, V](key: K, value: V) -> tuple[K, V]: ...
+    let result = true; // Placeholder
 '''
 
 
@@ -46,8 +46,8 @@ result = True  # Placeholder
 '''
 
 rust = '''
-// def f[T: int](x: T) -> T: ...
-let result = true; // Placeholder
+    // def f[T: int](x: T) -> T: ...
+    let result = true; // Placeholder
 '''
 
 
@@ -61,8 +61,8 @@ result = True  # Placeholder
 '''
 
 rust = '''
-// def f[T: (int, str)](x: T) -> T: ...
-let result = true; // Placeholder
+    // def f[T: (int, str)](x: T) -> T: ...
+    let result = true; // Placeholder
 '''
 
 
@@ -80,8 +80,8 @@ result = True  # Placeholder
 '''
 
 rust = '''
-// class Box[T]: ...
-let result = true; // Placeholder
+    // class Box[T]: ...
+    let result = true; // Placeholder
 '''
 
 
@@ -119,8 +119,8 @@ result = True  # Placeholder
 '''
 
 rust = '''
-// class Child[T](Parent[T]): ...
-let result = true; // Placeholder
+    // class Child[T](Parent[T]): ...
+    let result = true; // Placeholder
 '''
 
 
@@ -138,8 +138,8 @@ result = True  # Placeholder
 '''
 
 rust = '''
-// New syntax vs TypeVar('T')
-let result = true; // Placeholder
+    // New syntax vs TypeVar('T')
+    let result = true; // Placeholder
 '''
 
 
@@ -153,8 +153,8 @@ result = True  # Placeholder
 '''
 
 rust = '''
-// Type parameter scope limited to definition
-let result = true; // Placeholder
+    // Type parameter scope limited to definition
+    let result = true; // Placeholder
 '''
 
 
@@ -172,8 +172,8 @@ result = True  # Placeholder
 '''
 
 rust = '''
-// def decorator[**P, R](f: Callable[P, R]): ...
-let result = true; // Placeholder
+    // def decorator[**P, R](f: Callable[P, R]): ...
+    let result = true; // Placeholder
 '''
 
 
@@ -191,8 +191,8 @@ result = True  # Placeholder
 '''
 
 rust = '''
-// def f[*Ts](*args: *Ts) -> tuple[*Ts]: ...
-let result = true; // Placeholder
+    // def f[*Ts](*args: *Ts) -> tuple[*Ts]: ...
+    let result = true; // Placeholder
 '''
 
 
@@ -210,8 +210,8 @@ result = True  # Placeholder
 '''
 
 rust = '''
-// Generic function inside generic function
-let result = true; // Placeholder
+    // Generic function inside generic function
+    let result = true; // Placeholder
 '''
 
 
@@ -227,9 +227,9 @@ result = True
 '''
 
 rust = '''
-// Type parameter defaults in Rust use default generic parameters
-// fn f<T = i32>(x: T) -> T { x }
-let result = true;
+    // Type parameter defaults in Rust use default generic parameters
+    // fn f<T = i32>(x: T) -> T { x }
+    let result = true;
 '''
 
 
@@ -243,7 +243,7 @@ result = True  # Placeholder
 '''
 
 rust = '''
-// class C[T: covariant]: ...
-let result = true; // Placeholder
+    // class C[T: covariant]: ...
+    let result = true; // Placeholder
 '''
 

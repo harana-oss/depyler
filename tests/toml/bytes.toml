@@ -15,7 +15,7 @@ result = b'hello'
 '''
 
 rust = '''
-let result = b"hello";
+    let result = b"hello";
 '''
 
 [[test]]
@@ -27,7 +27,7 @@ result = b'\x00\xff\n'
 '''
 
 rust = '''
-let result = b"\x00\xff\n";
+    let result = b"\x00\xff\n";
 '''
 
 [[test]]
@@ -41,9 +41,9 @@ result = (len(raw), len(escaped))
 '''
 
 rust = '''
-let raw = br"\n";
-let escaped = b"\n";
-let result = (raw.len(), escaped.len());
+    let raw = br"\n";
+    let escaped = b"\n";
+    let result = (raw.len(), escaped.len());
 '''
 
 # =============================================================================
@@ -60,8 +60,8 @@ length = len(result)
 '''
 
 rust = '''
-let result = vec![0u8; 10];
-let length = result.len();
+    let result = vec![0u8; 10];
+    let length = result.len();
 '''
 
 [[test]]
@@ -73,7 +73,7 @@ result = bytes([65, 66, 67])
 '''
 
 rust = '''
-let result: Vec<u8> = vec![65, 66, 67];
+    let result: Vec<u8> = vec![65, 66, 67];
 '''
 
 [[test]]
@@ -85,7 +85,7 @@ result = 'hello'.encode('utf-8')
 '''
 
 rust = '''
-let result = "hello".as_bytes().to_vec();
+    let result = "hello".as_bytes().to_vec();
 '''
 
 # =============================================================================
@@ -103,9 +103,9 @@ result = bytes(ba)
 '''
 
 rust = '''
-let mut ba = b"hi".to_vec();
-ba[0] = 72;
-let result = ba;
+    let mut ba = b"hi".to_vec();
+    ba[0] = 72;
+    let result = ba;
 '''
 
 [[test]]
@@ -121,11 +121,11 @@ result = bytes(ba)
 '''
 
 rust = '''
-let mut ba = b"ab".to_vec();
-ba.push(99);
-ba.extend_from_slice(b"de");
-let last = ba.pop();
-let result = ba;
+    let mut ba = b"ab".to_vec();
+    ba.push(99);
+    ba.extend_from_slice(b"de");
+    let last = ba.pop();
+    let result = ba;
 '''
 
 [[test]]
@@ -138,8 +138,8 @@ result = bytes(ba)
 '''
 
 rust = '''
-let ba = b"hello".to_vec();
-let result = ba;
+    let ba = b"hello".to_vec();
+    let result = ba;
 '''
 
 # =============================================================================
@@ -155,12 +155,13 @@ result = b'hello'.find(b'l')
 '''
 
 rust = '''
-let haystack = b"hello";
-let needle = b"l";
-let result = haystack.windows(needle.len())
-    .position(|window| window == needle)
-    .map(|i| i as i32)
-    .unwrap_or(-1);
+    let haystack = b"hello";
+    let needle = b"l";
+    let result = haystack
+        .windows(needle.len())
+        .position(|window| window == needle)
+        .map(|i| i as i32)
+        .unwrap_or(-1);
 '''
 
 [[test]]
@@ -172,10 +173,7 @@ result = b'a,b,c'.split(b',')
 '''
 
 rust = '''
-let result: Vec<Vec<u8>> = b"a,b,c"
-    .split(|&b| b == b',')
-    .map(|s| s.to_vec())
-    .collect();
+    let result: Vec<Vec<u8>> = b"a,b,c".split(|&b| b == b',').map(|s| s.to_vec()).collect();
 '''
 
 [[test]]
@@ -189,10 +187,10 @@ result = (starts, ends)
 '''
 
 rust = '''
-let data = b"hello";
-let starts = data.starts_with(b"he");
-let ends = data.ends_with(b"lo");
-let result = (starts, ends);
+    let data = b"hello";
+    let starts = data.starts_with(b"he");
+    let ends = data.ends_with(b"lo");
+    let result = (starts, ends);
 '''
 
 [[test]]
@@ -204,10 +202,10 @@ result = b'hello'.replace(b'l', b'L')
 '''
 
 rust = '''
-let result = b"hello"
-    .iter()
-    .map(|&b| if b == b'l' { b'L' } else { b })
-    .collect::<Vec<u8>>();
+    let result = b"hello"
+        .iter()
+        .map(|&b| if b == b'l' { b'L' } else { b })
+        .collect::<Vec<u8>>();
 '''
 
 [[test]]
@@ -221,9 +219,9 @@ result = (lower, upper)
 '''
 
 rust = '''
-let lower = b"Hello".to_ascii_lowercase();
-let upper = b"hello".to_ascii_uppercase();
-let result = (lower, upper);
+    let lower = b"Hello".to_ascii_lowercase();
+    let upper = b"hello".to_ascii_uppercase();
+    let result = (lower, upper);
 '''
 
 # =============================================================================
@@ -239,7 +237,7 @@ result = b'hello'.decode('utf-8')
 '''
 
 rust = '''
-let result = String::from_utf8(b"hello".to_vec()).unwrap();
+    let result = String::from_utf8(b"hello".to_vec()).unwrap();
 '''
 
 [[test]]
@@ -251,7 +249,7 @@ result = 'hello'.encode('utf-8')
 '''
 
 rust = '''
-let result = "hello".as_bytes().to_vec();
+    let result = "hello".as_bytes().to_vec();
 '''
 
 [[test]]
@@ -266,9 +264,9 @@ result_replace = invalid.decode('utf-8', errors='replace')
 '''
 
 rust = '''
-// Rust handles encoding errors with Result types
-let invalid = vec![0xff, 0xfe];
-let result_ignore = String::from_utf8_lossy(&invalid);
+    // Rust handles encoding errors with Result types
+    let invalid = vec![0xff, 0xfe];
+    let result_ignore = String::from_utf8_lossy(&invalid);
 '''
 
 # =============================================================================
@@ -284,8 +282,8 @@ result = b'a' + b'b'
 '''
 
 rust = '''
-let mut result = b"a".to_vec();
-result.extend_from_slice(b"b");
+    let mut result = b"a".to_vec();
+    result.extend_from_slice(b"b");
 '''
 
 [[test]]
@@ -297,7 +295,7 @@ result = b'ab' * 3
 '''
 
 rust = '''
-let result = b"ab".repeat(3);
+    let result = b"ab".repeat(3);
 '''
 
 [[test]]
@@ -309,7 +307,7 @@ result = b'l' in b'hello'
 '''
 
 rust = '''
-let result = b"hello".contains(&b'l');
+    let result = b"hello".contains(&b'l');
 '''
 
 [[test]]
@@ -322,8 +320,8 @@ is_int = isinstance(result, int)
 '''
 
 rust = '''
-let result = b"hello"[0];
-let is_int = true;  // result is u8
+    let result = b"hello"[0];
+    let is_int = true; // result is u8
 '''
 
 [[test]]
@@ -335,7 +333,7 @@ result = b'hello'[1:3]
 '''
 
 rust = '''
-let result = &b"hello"[1..3];
+    let result = &b"hello"[1..3];
 '''
 
 # =============================================================================
@@ -353,9 +351,9 @@ result = (len(empty1), len(empty2))
 '''
 
 rust = '''
-let empty1 = b"";
-let empty2: Vec<u8> = Vec::new();
-let result = (empty1.len(), empty2.len());
+    let empty1 = b"";
+    let empty2: Vec<u8> = Vec::new();
+    let result = (empty1.len(), empty2.len());
 '''
 
 [[test]]
@@ -370,10 +368,10 @@ result = are_equal
 '''
 
 rust = '''
-let b = b"hello";
-let s = "hello";
-let are_equal = b == s.as_bytes();
-let result = are_equal;
+    let b = b"hello";
+    let s = "hello";
+    let are_equal = b == s.as_bytes();
+    let result = are_equal;
 '''
 
 [[test]]
@@ -388,8 +386,8 @@ result = (hex_str, from_hex)
 '''
 
 rust = '''
-let data = b"\xde\xad";
-let hex_str = hex::encode(data);
-let from_hex = hex::decode("dead").unwrap();
-let result = (hex_str, from_hex);
+    let data = b"\xde\xad";
+    let hex_str = hex::encode(data);
+    let from_hex = hex::decode("dead").unwrap();
+    let result = (hex_str, from_hex);
 '''

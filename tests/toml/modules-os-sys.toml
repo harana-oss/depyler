@@ -20,7 +20,9 @@ def get_env(key: str) -> str:
 rust = '''
 use std as os;
 pub fn get_env(key: String) -> String {
-    return std::env::var(key).unwrap_or_else(|_| "".to_string()).unwrap();
+    return std::env::var(key)
+        .unwrap_or_else(|_| "".to_string())
+        .unwrap();
 }
 '''
 
@@ -253,7 +255,11 @@ pub fn get_first_arg() -> String {
     let _cse_temp_0 = std::env::args().collect::<Vec<String>>().len() as i32;
     let _cse_temp_1 = _cse_temp_0 > 1;
     if _cse_temp_1 {
-        return std::env::args().collect::<Vec<String>>().get(1usize).cloned().unwrap();
+        return std::env::args()
+            .collect::<Vec<String>>()
+            .get(1usize)
+            .cloned()
+            .unwrap();
     }
     return "".to_string();
 }

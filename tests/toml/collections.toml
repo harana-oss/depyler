@@ -50,7 +50,11 @@ pub fn work_with_lists() -> i32 {
     let last = numbers.clone().last().cloned().unwrap();
     numbers.clone().push(6);
     numbers.extend(vec![7, 8].iter().cloned());
-    let squares = numbers.clone().into_iter().map(|x| x * x).collect::<Vec<_>>();
+    let squares = numbers
+        .clone()
+        .into_iter()
+        .map(|x| x * x)
+        .collect::<Vec<_>>();
     return numbers.len() as i32;
 }
 '''
@@ -249,7 +253,11 @@ def combine_and_extend(list1: list[int], list2: list[int], list3: list[int]) -> 
 rust = '''
 #[doc = "Combine lists using both concatenation and extend."]
 pub fn combine_and_extend(list1: &Vec<i32>, list2: &Vec<i32>, list3: &Vec<i32>) -> Vec<i32> {
-    let combined = list1.iter().chain(list2.iter()).cloned().collect::<Vec<_>>();
+    let combined = list1
+        .iter()
+        .chain(list2.iter())
+        .cloned()
+        .collect::<Vec<_>>();
     let mut result = combined.clone();
     result.extend(list3.iter().cloned());
     return result;
@@ -365,8 +373,14 @@ def union_sets(s1: set, s2: set) -> set:
 rust = '''
 use serde_json;
 use std::collections::HashSet;
-pub fn union_sets(s1: &HashSet<serde_json::Value>, s2: &HashSet<serde_json::Value>) -> HashSet<serde_json::Value> {
-    return s1.union(&s2).cloned().collect::<std::collections::HashSet<_>>();
+pub fn union_sets(
+    s1: &HashSet<serde_json::Value>,
+    s2: &HashSet<serde_json::Value>,
+) -> HashSet<serde_json::Value> {
+    return s1
+        .union(&s2)
+        .cloned()
+        .collect::<std::collections::HashSet<_>>();
 }
 '''
 
@@ -382,8 +396,14 @@ def intersect_sets(s1: set, s2: set) -> set:
 rust = '''
 use serde_json;
 use std::collections::HashSet;
-pub fn intersect_sets(s1: &HashSet<serde_json::Value>, s2: &HashSet<serde_json::Value>) -> HashSet<serde_json::Value> {
-    return s1.intersection(&s2).cloned().collect::<std::collections::HashSet<_>>();
+pub fn intersect_sets(
+    s1: &HashSet<serde_json::Value>,
+    s2: &HashSet<serde_json::Value>,
+) -> HashSet<serde_json::Value> {
+    return s1
+        .intersection(&s2)
+        .cloned()
+        .collect::<std::collections::HashSet<_>>();
 }
 '''
 
@@ -399,8 +419,14 @@ def diff_sets(s1: set, s2: set) -> set:
 rust = '''
 use serde_json;
 use std::collections::HashSet;
-pub fn diff_sets(s1: &HashSet<serde_json::Value>, s2: &HashSet<serde_json::Value>) -> HashSet<serde_json::Value> {
-    return s1.difference(&s2).cloned().collect::<std::collections::HashSet<_>>();
+pub fn diff_sets(
+    s1: &HashSet<serde_json::Value>,
+    s2: &HashSet<serde_json::Value>,
+) -> HashSet<serde_json::Value> {
+    return s1
+        .difference(&s2)
+        .cloned()
+        .collect::<std::collections::HashSet<_>>();
 }
 '''
 
@@ -416,7 +442,10 @@ def symmetric_diff(s1: set, s2: set) -> set:
 rust = '''
 use serde_json;
 use std::collections::HashSet;
-pub fn symmetric_diff(s1: &HashSet<serde_json::Value>, s2: &HashSet<serde_json::Value>) -> HashSet<serde_json::Value> {
+pub fn symmetric_diff(
+    s1: &HashSet<serde_json::Value>,
+    s2: &HashSet<serde_json::Value>,
+) -> HashSet<serde_json::Value> {
     return s1
         .symmetric_difference(&s2)
         .cloned()
@@ -508,8 +537,14 @@ pub fn work_with_nested() -> i32 {
     ];
     let groups = {
         let mut map = HashMap::new();
-        map.insert("admins".to_string(), vec!["alice".to_string(), "bob".to_string()]);
-        map.insert("users".to_string(), vec!["charlie".to_string(), "david".to_string()]);
+        map.insert(
+            "admins".to_string(),
+            vec!["alice".to_string(), "bob".to_string()],
+        );
+        map.insert(
+            "users".to_string(),
+            vec!["charlie".to_string(), "david".to_string()],
+        );
         map
     };
     return matrix.len() as i32;
@@ -647,7 +682,11 @@ pub fn iterate_collections() -> i32 {
     for name in scores.iter().cloned() {
         log::info!("{}", name.clone());
     }
-    for (name, score) in scores.iter().map(|(k, v)| (k.clone(), v.clone())).collect::<Vec<_>>() {
+    for (name, score) in scores
+        .iter()
+        .map(|(k, v)| (k.clone(), v.clone()))
+        .collect::<Vec<_>>()
+    {
         log::info!("{} {}", name, score);
     }
     return total;
@@ -983,7 +1022,9 @@ def convert_to_dict(mapping):
 rust = '''
 use serde_json;
 use std::collections::HashMap;
-pub fn convert_to_dict(mapping: &serde_json::Value) -> HashMap<serde_json::Value, serde_json::Value> {
+pub fn convert_to_dict(
+    mapping: &serde_json::Value,
+) -> HashMap<serde_json::Value, serde_json::Value> {
     return mapping.into_iter().collect::<HashMap<_, _>>();
 }
 '''
@@ -1195,7 +1236,11 @@ pub fn test_dict() {
         map.insert("b".to_string(), 2);
         map
     };
-    for (k, v) in d.iter().map(|(k, v)| (k.clone(), v.clone())).collect::<Vec<_>>() {
+    for (k, v) in d
+        .iter()
+        .map(|(k, v)| (k.clone(), v.clone()))
+        .collect::<Vec<_>>()
+    {
         log::info!("{} {}", k, v);
     }
 }
@@ -1289,7 +1334,12 @@ def find_index() -> int:
 
 rust = '''
 lazy_static! {
-    pub static ref VALUES: Vec<String> = vec!["1".to_string(), "2".to_string(), "3".to_string(), "4".to_string()];
+    pub static ref VALUES: Vec<String> = vec![
+        "1".to_string(),
+        "2".to_string(),
+        "3".to_string(),
+        "4".to_string()
+    ];
 }
 use lazy_static::lazy_static;
 pub fn find_index() -> i32 {

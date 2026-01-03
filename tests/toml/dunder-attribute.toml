@@ -34,7 +34,9 @@ impl DynamicAttrs {
 }
 
 fn main() {
-    let obj = DynamicAttrs { attrs: HashMap::new() };
+    let obj = DynamicAttrs {
+        attrs: HashMap::new(),
+    };
     log::info!("{}", obj.get_attr("anything"));
     log::info!("{}", obj.get_attr("foo"));
 }
@@ -62,9 +64,11 @@ struct Obj {
 
 impl Obj {
     fn new() -> Self {
-        Obj { real: "real value".to_string() }
+        Obj {
+            real: "real value".to_string(),
+        }
     }
-    
+
     fn get_attr(&self, name: &str) -> String {
         match name {
             "real" => self.real.clone(),
@@ -148,7 +152,7 @@ fn main() {
     log::info!("{}", obj.get_attr("allowed").unwrap());
     match obj.get_attr("forbidden") {
         Err(e) => log::info!("Error: {}", e),
-        Ok(_) => {},
+        Ok(_) => {}
     }
 }
 """
@@ -182,7 +186,7 @@ impl TrackedAttrs {
     fn new() -> Self {
         TrackedAttrs { value: 42 }
     }
-    
+
     fn get_attribute(&self, name: &str) -> Option<i32> {
         log::info!("Getting: {}", name);
         match name {
@@ -221,7 +225,7 @@ impl AllAccess {
     fn new() -> Self {
         AllAccess { existing: "exists" }
     }
-    
+
     fn get_attribute(&self, name: &str) -> Option<&str> {
         log::info!("Access: {}", name);
         match name {
@@ -297,14 +301,14 @@ impl Both {
     fn new() -> Self {
         Both { real: "real" }
     }
-    
+
     fn get_attribute(&self, name: &str) -> String {
         match name {
             "real" => self.real.to_string(),
             _ => self.get_attr(name),
         }
     }
-    
+
     fn get_attr(&self, name: &str) -> String {
         format!("fallback: {}", name)
     }
@@ -346,13 +350,13 @@ impl TrackedSets {
     fn new() -> Self {
         TrackedSets { x: None, y: None }
     }
-    
+
     fn set_attribute(&mut self, name: &str, value: i32) {
         log::info!("Setting {} = {}", name, value);
         match name {
             "x" => self.x = Some(value),
             "y" => self.y = Some(value),
-            _ => {},
+            _ => {}
         }
     }
 }
@@ -388,13 +392,13 @@ impl AllSets {
     fn new() -> Self {
         AllSets { a: None, b: None }
     }
-    
+
     fn set(&mut self, name: &str, value: i32) {
         log::info!("Set: {}", name);
         match name {
             "a" => self.a = Some(value),
             "b" => self.b = Some(value),
-            _ => {},
+            _ => {}
         }
     }
 }
@@ -428,7 +432,7 @@ impl Safe {
     fn new() -> Self {
         Safe { value: 0 }
     }
-    
+
     fn set_value(&mut self, value: i32) {
         self.value = value;
     }
@@ -468,7 +472,7 @@ impl Validated {
     fn new() -> Self {
         Validated { age: 0 }
     }
-    
+
     fn set_age(&mut self, age: i32) -> Result<(), String> {
         if age < 0 {
             return Err("Age cannot be negative".to_string());
@@ -484,7 +488,7 @@ fn main() {
     log::info!("{}", obj.age);
     match obj.set_age(-5) {
         Err(e) => log::info!("Error: {}", e),
-        Ok(_) => {},
+        Ok(_) => {}
     }
 }
 """
@@ -526,12 +530,12 @@ impl TrackedDel {
         attrs.insert("x".to_string(), 10);
         TrackedDel { attrs }
     }
-    
+
     fn delete_attr(&mut self, name: &str) {
         log::info!("Deleting {}", name);
         self.attrs.remove(name);
     }
-    
+
     fn get_attr(&self, name: &str) -> Option<&i32> {
         self.attrs.get(name)
     }
@@ -575,7 +579,7 @@ impl MyClass {
         attrs.insert("value".to_string(), 42);
         MyClass { attrs }
     }
-    
+
     fn del_attr(&mut self, name: &str) {
         log::info!("Removing: {}", name);
         self.attrs.remove(name);
@@ -611,9 +615,11 @@ struct Resource {
 
 impl Resource {
     fn new() -> Self {
-        Resource { file: Some("opened".to_string()) }
+        Resource {
+            file: Some("opened".to_string()),
+        }
     }
-    
+
     fn delete_file(&mut self) {
         if self.file.is_some() {
             log::info!("Closing file");
@@ -655,7 +661,7 @@ impl Custom {
     fn new() -> Self {
         Custom { x: 1 }
     }
-    
+
     fn dir(&self) -> Vec<&str> {
         vec!["custom", "x", "y", "z"]
     }
@@ -694,7 +700,7 @@ impl Obj {
     fn new() -> Self {
         Obj { a: 1, b: 2 }
     }
-    
+
     fn dir(&self) -> Vec<&str> {
         vec!["a", "b", "custom"]
     }
@@ -732,9 +738,11 @@ struct API {
 
 impl API {
     fn new() -> Self {
-        API { data: HashMap::new() }
+        API {
+            data: HashMap::new(),
+        }
     }
-    
+
     fn dir(&self) -> Vec<&str> {
         vec!["delete", "get", "list", "set"]
     }
@@ -789,7 +797,7 @@ use std::ops::Deref;
 
 impl Deref for Wrapper {
     type Target = Inner;
-    
+
     fn deref(&self) -> &Self::Target {
         &self.obj
     }
@@ -823,7 +831,9 @@ struct Computed;
 impl Computed {
     fn get_attr(&self, name: &str) -> Result<i32, String> {
         if name.starts_with("double_") {
-            let n: i32 = name[7..].parse().map_err(|_| "Invalid number".to_string())?;
+            let n: i32 = name[7..]
+                .parse()
+                .map_err(|_| "Invalid number".to_string())?;
             Ok(n * 2)
         } else {
             Err(name.to_string())
@@ -868,12 +878,12 @@ impl Logged {
     fn new() -> Self {
         Logged { value: 0 }
     }
-    
+
     fn get_value(&self) -> i32 {
         log::info!("Get: value");
         self.value
     }
-    
+
     fn set_value(&mut self, value: i32) {
         log::info!("Set: value = {}", value);
         self.value = value;
@@ -910,7 +920,7 @@ impl Validated {
     fn new() -> Self {
         Validated { positive: 0 }
     }
-    
+
     fn set_positive(&mut self, value: i32) -> Result<(), String> {
         if value < 0 {
             return Err("Must be positive".to_string());
@@ -958,7 +968,7 @@ impl Slotted {
     fn new() -> Self {
         Slotted { x: 10 }
     }
-    
+
     fn get_attr(&self, name: &str) -> String {
         match name {
             "x" => self.x.to_string(),

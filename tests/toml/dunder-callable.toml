@@ -29,7 +29,7 @@ impl Callable {
     fn new(value: i32) -> Self {
         Callable { value }
     }
-    
+
     fn call(&self) -> i32 {
         self.value
     }
@@ -162,7 +162,7 @@ impl MyCallable {
 
 fn main() {
     let obj = MyCallable;
-    log::info!("true");  // Would be callable in Python
+    log::info!("true"); // Would be callable in Python
     log::info!("{}", obj.call());
 }
 """
@@ -183,8 +183,8 @@ struct NotCallable;
 
 fn main() {
     let _obj = NotCallable;
-    log::info!("false");  // No __call__ method
-    log::info!("false");  // Integers aren't callable
+    log::info!("false"); // No __call__ method
+    log::info!("false"); // Integers aren't callable
 }
 """
 
@@ -204,8 +204,8 @@ fn my_function() -> &'static str {
 }
 
 fn main() {
-    log::info!("true");  // Functions are callable
-    log::info!("true");  // Closures are callable
+    log::info!("true"); // Functions are callable
+    log::info!("true"); // Closures are callable
 }
 """
 
@@ -238,7 +238,7 @@ impl Multiplier {
     fn new(factor: i32) -> Self {
         Multiplier { factor }
     }
-    
+
     fn call(&self, x: i32) -> i32 {
         x * self.factor
     }
@@ -278,7 +278,7 @@ impl Counter {
     fn new() -> Self {
         Counter { count: 0 }
     }
-    
+
     fn call(&mut self) -> i32 {
         self.count += 1;
         self.count
@@ -323,7 +323,7 @@ where
     fn new(func: F) -> Self {
         TimesTwo { func }
     }
-    
+
     fn call(&self, x: i32) -> i32 {
         (self.func)(x) * 2
     }
@@ -362,7 +362,7 @@ impl Adder {
     fn new(n: i32) -> Self {
         Adder { n }
     }
-    
+
     fn call(&self, x: i32) -> i32 {
         x + self.n
     }
@@ -406,9 +406,11 @@ struct Memoize {
 
 impl Memoize {
     fn new() -> Self {
-        Memoize { cache: HashMap::new() }
+        Memoize {
+            cache: HashMap::new(),
+        }
     }
-    
+
     fn call(&mut self, x: i32) -> i32 {
         if !self.cache.contains_key(&x) {
             log::info!("Computing {}", x);
@@ -451,7 +453,7 @@ impl Processor {
     fn process(&self, x: i32) -> i32 {
         x * 2
     }
-    
+
     fn call(&self, x: i32) -> i32 {
         self.process(x) + 1
     }
@@ -489,7 +491,7 @@ impl Accumulator {
     fn new() -> Self {
         Accumulator { total: 0 }
     }
-    
+
     fn call(&mut self, x: i32) -> i32 {
         self.total += x;
         self.total
@@ -567,10 +569,7 @@ impl Square {
 
 fn main() {
     let square = Square;
-    let result: Vec<i32> = vec![1, 2, 3, 4]
-        .iter()
-        .map(|&x| square.call(x))
-        .collect();
+    let result: Vec<i32> = vec![1, 2, 3, 4].iter().map(|&x| square.call(x)).collect();
     log::info!("{:?}", result);
 }
 """

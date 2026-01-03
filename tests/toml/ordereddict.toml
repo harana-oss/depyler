@@ -18,11 +18,11 @@ result = list(od.keys())
 '''
 
 rust = '''
-// Using indexmap crate for insertion-order preservation
-use indexmap::IndexMap;
-let mut od = IndexMap::new();
-od.insert("a", 1);
-od.insert("b", 2);
+    // Using indexmap crate for insertion-order preservation
+    use indexmap::IndexMap;
+    let mut od = IndexMap::new();
+    od.insert("a", 1);
+    od.insert("b", 2);
 '''
 
 
@@ -38,11 +38,11 @@ result = list(od.keys())
 '''
 
 rust = '''
-// Using indexmap crate for insertion-order preservation
-use indexmap::IndexMap;
-let mut od = IndexMap::new();
-od.insert("a", 1);
-od.insert("b", 2);
+    // Using indexmap crate for insertion-order preservation
+    use indexmap::IndexMap;
+    let mut od = IndexMap::new();
+    od.insert("a", 1);
+    od.insert("b", 2);
 '''
 
 
@@ -58,11 +58,11 @@ result = list(od.keys())
 '''
 
 rust = '''
-// Using indexmap crate for insertion-order preservation
-use indexmap::IndexMap;
-let mut od = IndexMap::new();
-od.insert("a", 1);
-od.insert("b", 2);
+    // Using indexmap crate for insertion-order preservation
+    use indexmap::IndexMap;
+    let mut od = IndexMap::new();
+    od.insert("a", 1);
+    od.insert("b", 2);
 '''
 
 
@@ -82,11 +82,11 @@ result = list(od.keys())
 '''
 
 rust = '''
-// Using indexmap crate for insertion-order preservation
-use indexmap::IndexMap;
-let mut od = IndexMap::new();
-od.insert("a", 1);
-od.insert("b", 2);
+    // Using indexmap crate for insertion-order preservation
+    use indexmap::IndexMap;
+    let mut od = IndexMap::new();
+    od.insert("a", 1);
+    od.insert("b", 2);
 '''
 
 
@@ -102,11 +102,11 @@ result = list(od.keys())
 '''
 
 rust = '''
-// Using indexmap crate for insertion-order preservation
-use indexmap::IndexMap;
-let mut od = IndexMap::new();
-od.insert("a", 1);
-od.insert("b", 2);
+    // Using indexmap crate for insertion-order preservation
+    use indexmap::IndexMap;
+    let mut od = IndexMap::new();
+    od.insert("a", 1);
+    od.insert("b", 2);
 '''
 
 
@@ -122,11 +122,11 @@ result = list(od.keys())
 '''
 
 rust = '''
-// Using indexmap crate for insertion-order preservation
-use indexmap::IndexMap;
-let mut od = IndexMap::new();
-od.insert("a", 1);
-od.insert("b", 2);
+    // Using indexmap crate for insertion-order preservation
+    use indexmap::IndexMap;
+    let mut od = IndexMap::new();
+    od.insert("a", 1);
+    od.insert("b", 2);
 '''
 
 
@@ -228,11 +228,11 @@ result = list(od.keys())
 '''
 
 rust = '''
-// Using indexmap crate for insertion-order preservation
-use indexmap::IndexMap;
-let mut od = IndexMap::new();
-od.insert("a", 1);
-od.insert("b", 2);
+    // Using indexmap crate for insertion-order preservation
+    use indexmap::IndexMap;
+    let mut od = IndexMap::new();
+    od.insert("a", 1);
+    od.insert("b", 2);
 '''
 
 
@@ -248,11 +248,11 @@ result = list(od.keys())
 '''
 
 rust = '''
-// Using indexmap crate for insertion-order preservation
-use indexmap::IndexMap;
-let mut od = IndexMap::new();
-od.insert("a", 1);
-od.insert("b", 2);
+    // Using indexmap crate for insertion-order preservation
+    use indexmap::IndexMap;
+    let mut od = IndexMap::new();
+    od.insert("a", 1);
+    od.insert("b", 2);
 '''
 
 
@@ -272,11 +272,11 @@ result = list(od.keys())
 '''
 
 rust = '''
-// Using indexmap crate for insertion-order preservation
-use indexmap::IndexMap;
-let mut od = IndexMap::new();
-od.insert("a", 1);
-od.insert("b", 2);
+    // Using indexmap crate for insertion-order preservation
+    use indexmap::IndexMap;
+    let mut od = IndexMap::new();
+    od.insert("a", 1);
+    od.insert("b", 2);
 '''
 
 
@@ -292,11 +292,11 @@ result = list(od.keys())
 '''
 
 rust = '''
-// Using indexmap crate for insertion-order preservation
-use indexmap::IndexMap;
-let mut od = IndexMap::new();
-od.insert("a", 1);
-od.insert("b", 2);
+    // Using indexmap crate for insertion-order preservation
+    use indexmap::IndexMap;
+    let mut od = IndexMap::new();
+    od.insert("a", 1);
+    od.insert("b", 2);
 '''
 
 
@@ -316,11 +316,11 @@ result = list(od.keys())
 '''
 
 rust = '''
-// Using indexmap crate for insertion-order preservation
-use indexmap::IndexMap;
-let mut od = IndexMap::new();
-od.insert("a", 1);
-od.insert("b", 2);
+    // Using indexmap crate for insertion-order preservation
+    use indexmap::IndexMap;
+    let mut od = IndexMap::new();
+    od.insert("a", 1);
+    od.insert("b", 2);
 '''
 
 
@@ -336,11 +336,11 @@ result = list(od.keys())
 '''
 
 rust = '''
-// Using indexmap crate for insertion-order preservation
-use indexmap::IndexMap;
-let mut od = IndexMap::new();
-od.insert("a", 1);
-od.insert("b", 2);
+    // Using indexmap crate for insertion-order preservation
+    use indexmap::IndexMap;
+    let mut od = IndexMap::new();
+    od.insert("a", 1);
+    od.insert("b", 2);
 '''
 
 
@@ -360,11 +360,11 @@ result = list(od.keys())
 '''
 
 rust = '''
-// Using indexmap crate for insertion-order preservation
-use indexmap::IndexMap;
-let mut od = IndexMap::new();
-od.insert("a", 1);
-od.insert("b", 2);
+    // Using indexmap crate for insertion-order preservation
+    use indexmap::IndexMap;
+    let mut od = IndexMap::new();
+    od.insert("a", 1);
+    od.insert("b", 2);
 '''
 
 
@@ -380,11 +380,11 @@ result = list(od.keys())
 '''
 
 rust = '''
-// Using indexmap crate for insertion-order preservation
-use indexmap::IndexMap;
-let mut od = IndexMap::new();
-od.insert("a", 1);
-od.insert("b", 2);
+    // Using indexmap crate for insertion-order preservation
+    use indexmap::IndexMap;
+    let mut od = IndexMap::new();
+    od.insert("a", 1);
+    od.insert("b", 2);
 '''
 
 
@@ -426,11 +426,11 @@ result = list(od.keys())
 '''
 
 rust = '''
-// Using indexmap crate for insertion-order preservation
-use indexmap::IndexMap;
-let mut od = IndexMap::new();
-od.insert("a", 1);
-od.insert("b", 2);
+    // Using indexmap crate for insertion-order preservation
+    use indexmap::IndexMap;
+    let mut od = IndexMap::new();
+    od.insert("a", 1);
+    od.insert("b", 2);
 '''
 
 
@@ -446,11 +446,11 @@ result = list(od.keys())
 '''
 
 rust = '''
-// Using indexmap crate for insertion-order preservation
-use indexmap::IndexMap;
-let mut od = IndexMap::new();
-od.insert("a", 1);
-od.insert("b", 2);
+    // Using indexmap crate for insertion-order preservation
+    use indexmap::IndexMap;
+    let mut od = IndexMap::new();
+    od.insert("a", 1);
+    od.insert("b", 2);
 '''
 
 
@@ -466,10 +466,10 @@ result = list(od.keys())
 '''
 
 rust = '''
-// Using indexmap crate for insertion-order preservation
-use indexmap::IndexMap;
-let mut od = IndexMap::new();
-od.insert("a", 1);
-od.insert("b", 2);
+    // Using indexmap crate for insertion-order preservation
+    use indexmap::IndexMap;
+    let mut od = IndexMap::new();
+    od.insert("a", 1);
+    od.insert("b", 2);
 '''
 

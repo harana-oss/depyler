@@ -7,8 +7,9 @@ use rayon::prelude::*;
 use serde::Deserialize;
 use similar::{ChangeTag, TextDiff};
 use std::fs;
+use std::io::Write;
 use std::path::{Path, PathBuf};
-use std::process::Command;
+use std::process::{Command, Stdio};
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::time::Instant;
 use tempfile::TempDir;
@@ -128,6 +129,34 @@ fn generate_colored_diff(expected: &str, actual: &str) -> String {
 
     output.push_str(&format!("{}", "─".repeat(60).dimmed()));
     output
+}
+
+/// Format Rust code using rustfmt
+/// 
+/// Returns the formatted code if rustfmt succeeds, otherwise returns the original code
+fn format_with_rustfmt(code: &str) -> String {
+    let mut child = match Command::new("rustfmt")
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()
+    {
+        Ok(child) => child,
+        Err(_) => return code.to_string(), // rustfmt not available, return as-is
+    };
+
+    // Write to stdin
+    if let Some(mut stdin) = child.stdin.take() {
+        let _ = stdin.write_all(code.as_bytes());
+        // stdin is dropped here
+    }
+
+    match child.wait_with_output() {
+        Ok(output) if output.status.success() => {
+            String::from_utf8_lossy(&output.stdout).to_string()
+        }
+        _ => code.to_string(), // rustfmt failed, return as-is
+    }
 }
 
 /// Parsed test file with its path
@@ -560,10 +589,12 @@ fn run_single_test(
 
             // Compare with expected rust output if provided
             if let Some(expected) = &expected_rust {
-                let expected_trimmed = expected.trim();
-                let actual_trimmed = rust_code.trim();
-                if expected_trimmed != actual_trimmed {
-                    let diff = generate_colored_diff(expected_trimmed, actual_trimmed);
+                // Format both expected and actual code with rustfmt for fair comparison
+                let expected_formatted = format_with_rustfmt(expected.trim());
+                let actual_formatted = format_with_rustfmt(rust_code.trim());
+                
+                if expected_formatted.trim() != actual_formatted.trim() {
+                    let diff = generate_colored_diff(&expected_formatted, &actual_formatted);
                     return TestResult {
                         name: test_name,
                         file,

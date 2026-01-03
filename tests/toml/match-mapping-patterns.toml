@@ -20,15 +20,15 @@ match data:
 '''
 
 rust = '''
-use std::collections::HashMap;
+    use std::collections::HashMap;
 
-let mut data = HashMap::new();
-data.insert("key", 42);
+    let mut data = HashMap::new();
+    data.insert("key", 42);
 
-let result = match data.get("key") {
-    Some(&value) => value,
-    None => 0,
-};
+    let result = match data.get("key") {
+        Some(&value) => value,
+        None => 0,
+    };
 '''
 
 
@@ -48,17 +48,17 @@ match data:
 '''
 
 rust = '''
-use std::collections::HashMap;
+    use std::collections::HashMap;
 
-let mut data = HashMap::new();
-data.insert("a", 10);
-data.insert("b", 20);
+    let mut data = HashMap::new();
+    data.insert("a", 10);
+    data.insert("b", 20);
 
-let result = match (data.get("a"), data.get("b")) {
-    (Some(&x), Some(&y)) => x + y,
-    (Some(&x), None) => x,
-    _ => 0,
-};
+    let result = match (data.get("a"), data.get("b")) {
+        (Some(&x), Some(&y)) => x + y,
+        (Some(&x), None) => x,
+        _ => 0,
+    };
 '''
 
 
@@ -78,17 +78,17 @@ match data:
 '''
 
 rust = '''
-use std::collections::HashMap;
+    use std::collections::HashMap;
 
-let mut data = HashMap::new();
-data.insert("type", "error");
-data.insert("message", "Failed");
+    let mut data = HashMap::new();
+    data.insert("type", "error");
+    data.insert("message", "Failed");
 
-let result = match (data.get("type"), data.get("message")) {
-    (Some(&"error"), Some(&msg)) => format!("Error: {}", msg),
-    (Some(&"warning"), Some(&msg)) => format!("Warning: {}", msg),
-    _ => "Unknown".to_string(),
-};
+    let result = match (data.get("type"), data.get("message")) {
+        (Some(&"error"), Some(&msg)) => format!("Error: {}", msg),
+        (Some(&"warning"), Some(&msg)) => format!("Warning: {}", msg),
+        _ => "Unknown".to_string(),
+    };
 '''
 
 
@@ -110,16 +110,16 @@ match data:
 '''
 
 rust = '''
-use std::collections::HashMap;
+    use std::collections::HashMap;
 
-let mut data = HashMap::new();
-data.insert("name", "Alice");
-data.insert("age", "30");
+    let mut data = HashMap::new();
+    data.insert("name", "Alice");
+    data.insert("age", "30");
 
-let result = match data.get("name") {
-    Some(&name) => format!("Hello, {}", name),
-    None => "Unknown".to_string(),
-};
+    let result = match data.get("name") {
+        Some(&name) => format!("Hello, {}", name),
+        None => "Unknown".to_string(),
+    };
 '''
 
 
@@ -139,17 +139,17 @@ match data:
 '''
 
 rust = '''
-use std::collections::HashMap;
+    use std::collections::HashMap;
 
-let mut data = HashMap::new();
-data.insert("type", "user");
-data.insert("id", 123);
+    let mut data = HashMap::new();
+    data.insert("type", "user");
+    data.insert("id", 123);
 
-let result = match (data.get("type"), data.get("id")) {
-    (Some(&"user"), Some(&id)) => format!("User ID: {}", id),
-    (Some(&"admin"), Some(&id)) => format!("Admin ID: {}", id),
-    _ => "Unknown".to_string(),
-};
+    let result = match (data.get("type"), data.get("id")) {
+        (Some(&"user"), Some(&id)) => format!("User ID: {}", id),
+        (Some(&"admin"), Some(&id)) => format!("Admin ID: {}", id),
+        _ => "Unknown".to_string(),
+    };
 '''
 
 
@@ -167,21 +167,21 @@ match data:
 '''
 
 rust = '''
-use std::collections::HashMap;
+    use std::collections::HashMap;
 
-let mut inner = HashMap::new();
-inner.insert("id", 456);
+    let mut inner = HashMap::new();
+    inner.insert("id", 456);
 
-let mut data = HashMap::new();
-data.insert("data", inner);
+    let mut data = HashMap::new();
+    data.insert("data", inner);
 
-let result = match data.get("data") {
-    Some(inner_map) => match inner_map.get("id") {
-        Some(&id) => format!("ID: {}", id),
+    let result = match data.get("data") {
+        Some(inner_map) => match inner_map.get("id") {
+            Some(&id) => format!("ID: {}", id),
+            None => "Unknown".to_string(),
+        },
         None => "Unknown".to_string(),
-    },
-    None => "Unknown".to_string(),
-};
+    };
 '''
 
 
@@ -203,20 +203,20 @@ match data:
 '''
 
 rust = '''
-use std::collections::HashMap;
+    use std::collections::HashMap;
 
-let mut data = HashMap::new();
-data.insert("key", 1);
-data.insert("a", 2);
-data.insert("b", 3);
+    let mut data = HashMap::new();
+    data.insert("key", 1);
+    data.insert("a", 2);
+    data.insert("b", 3);
 
-let result = match data.get("key") {
-    Some(&v) => {
-        let rest_count = data.len() - 1;
-        (v, rest_count)
-    },
-    None => (0, 0),
-};
+    let result = match data.get("key") {
+        Some(&v) => {
+            let rest_count = data.len() - 1;
+            (v, rest_count)
+        }
+        None => (0, 0),
+    };
 '''
 
 
@@ -234,15 +234,15 @@ match data:
 '''
 
 rust = '''
-use std::collections::HashMap;
+    use std::collections::HashMap;
 
-let mut data = HashMap::new();
-data.insert("key", 1);
+    let mut data = HashMap::new();
+    data.insert("key", 1);
 
-let result = match data.get("key") {
-    Some(&_v) => data.len() == 1,
-    None => false,
-};
+    let result = match data.get("key") {
+        Some(&_v) => data.len() == 1,
+        None => false,
+    };
 '''
 
 
@@ -260,16 +260,16 @@ match data:
 '''
 
 rust = '''
-use std::collections::HashMap;
+    use std::collections::HashMap;
 
-let mut data = HashMap::new();
-data.insert("key", 1);
-data.insert("extra", 2);
+    let mut data = HashMap::new();
+    data.insert("key", 1);
+    data.insert("extra", 2);
 
-let result = match data.get("key") {
-    Some(&v) => v * 2,
-    None => 0,
-};
+    let result = match data.get("key") {
+        Some(&v) => v * 2,
+        None => 0,
+    };
 '''
 
 
@@ -291,15 +291,15 @@ match data:
 '''
 
 rust = '''
-use std::collections::HashMap;
+    use std::collections::HashMap;
 
-let mut data = HashMap::new();
-data.insert("a", 10);
+    let mut data = HashMap::new();
+    data.insert("a", 10);
 
-let result = match data.get("a") {
-    Some(&x) => x,
-    None => 0,
-};
+    let result = match data.get("a") {
+        Some(&x) => x,
+        None => 0,
+    };
 '''
 
 
@@ -317,16 +317,16 @@ match data:
 '''
 
 rust = '''
-use std::collections::HashMap;
+    use std::collections::HashMap;
 
-let mut data = HashMap::new();
-data.insert(0, "a");
-data.insert(1, "b");
+    let mut data = HashMap::new();
+    data.insert(0, "a");
+    data.insert(1, "b");
 
-let result = match (data.get(&0), data.get(&1)) {
-    (Some(&first), Some(&second)) => format!("{}{}", first, second),
-    _ => "".to_string(),
-};
+    let result = match (data.get(&0), data.get(&1)) {
+        (Some(&first), Some(&second)) => format!("{}{}", first, second),
+        _ => "".to_string(),
+    };
 '''
 
 
@@ -352,24 +352,24 @@ match data:
 '''
 
 rust = '''
-use std::collections::HashMap;
+    use std::collections::HashMap;
 
-#[derive(Eq, Hash, PartialEq)]
-enum Status {
-    OK,
-    ERROR,
-}
+    #[derive(Eq, Hash, PartialEq)]
+    enum Status {
+        OK,
+        ERROR,
+    }
 
-let mut data = HashMap::new();
-data.insert(Status::OK, "success");
+    let mut data = HashMap::new();
+    data.insert(Status::OK, "success");
 
-let result = match data.get(&Status::OK) {
-    Some(&value) => value,
-    None => match data.get(&Status::ERROR) {
-        Some(&value) => format!("Error: {}", value).as_str(),
-        None => "unknown",
-    },
-};
+    let result = match data.get(&Status::OK) {
+        Some(&value) => value,
+        None => match data.get(&Status::ERROR) {
+            Some(&value) => format!("Error: {}", value).as_str(),
+            None => "unknown",
+        },
+    };
 '''
 
 
@@ -391,17 +391,17 @@ match data:
 '''
 
 rust = '''
-use std::collections::HashMap;
+    use std::collections::HashMap;
 
-let mut data = HashMap::new();
-data.insert("required", 1);
-data.insert("extra", 2);
-data.insert("other", 3);
+    let mut data = HashMap::new();
+    data.insert("required", 1);
+    data.insert("extra", 2);
+    data.insert("other", 3);
 
-let result = match data.get("required") {
-    Some(&v) => v,
-    None => 0,
-};
+    let result = match data.get("required") {
+        Some(&v) => v,
+        None => 0,
+    };
 '''
 
 
@@ -419,15 +419,15 @@ match data:
 '''
 
 rust = '''
-use std::collections::HashMap;
+    use std::collections::HashMap;
 
-let mut data = HashMap::new();
-data.insert("other", 1);
+    let mut data = HashMap::new();
+    data.insert("other", 1);
 
-let result = match data.get("required") {
-    Some(&v) => v,
-    None => 0,
-};
+    let result = match data.get("required") {
+        Some(&v) => v,
+        None => 0,
+    };
 '''
 
 
@@ -449,21 +449,21 @@ match data:
 '''
 
 rust = '''
-use std::collections::HashMap;
+    use std::collections::HashMap;
 
-let mut inner = HashMap::new();
-inner.insert("inner", 42);
+    let mut inner = HashMap::new();
+    inner.insert("inner", 42);
 
-let mut data = HashMap::new();
-data.insert("outer", inner);
+    let mut data = HashMap::new();
+    data.insert("outer", inner);
 
-let result = match data.get("outer") {
-    Some(inner_map) => match inner_map.get("inner") {
-        Some(&v) => v,
+    let result = match data.get("outer") {
+        Some(inner_map) => match inner_map.get("inner") {
+            Some(&v) => v,
+            None => 0,
+        },
         None => 0,
-    },
-    None => 0,
-};
+    };
 '''
 
 
@@ -481,19 +481,19 @@ match data:
 '''
 
 rust = '''
-use std::collections::HashMap;
+    use std::collections::HashMap;
 
-let mut data = HashMap::new();
-data.insert("items", vec![1, 2, 3, 4]);
+    let mut data = HashMap::new();
+    data.insert("items", vec![1, 2, 3, 4]);
 
-let result = match data.get("items") {
-    Some(items) if !items.is_empty() => {
-        let first = items[0];
-        let rest_len = items.len() - 1;
-        (first, rest_len)
-    },
-    _ => (0, 0),
-};
+    let result = match data.get("items") {
+        Some(items) if !items.is_empty() => {
+            let first = items[0];
+            let rest_len = items.len() - 1;
+            (first, rest_len)
+        }
+        _ => (0, 0),
+    };
 '''
 
 
@@ -517,20 +517,20 @@ match data:
 '''
 
 rust = '''
-use std::collections::HashMap;
+    use std::collections::HashMap;
 
-struct Point {
-    x: i32,
-    y: i32,
-}
+    struct Point {
+        x: i32,
+        y: i32,
+    }
 
-let mut data = HashMap::new();
-data.insert("point", Point { x: 3, y: 4 });
+    let mut data = HashMap::new();
+    data.insert("point", Point { x: 3, y: 4 });
 
-let result = match data.get("point") {
-    Some(Point { x, y }) => x + y,
-    None => 0,
-};
+    let result = match data.get("point") {
+        Some(Point { x, y }) => x + y,
+        None => 0,
+    };
 '''
 
 
@@ -552,17 +552,17 @@ match data:
 '''
 
 rust = '''
-use std::collections::HashMap;
+    use std::collections::HashMap;
 
-let mut data: HashMap<&str, i32> = HashMap::new();
-data.insert("a", 1);
-data.insert("b", 2);
+    let mut data: HashMap<&str, i32> = HashMap::new();
+    data.insert("a", 1);
+    data.insert("b", 2);
 
-let result = if data.is_empty() || !data.is_empty() {
-    "mapping"
-} else {
-    "other"
-};
+    let result = if data.is_empty() || !data.is_empty() {
+        "mapping"
+    } else {
+        "other"
+    };
 '''
 
 
@@ -576,8 +576,8 @@ result = True  # Placeholder
 '''
 
 rust = '''
-// case {'a': x, 'a': y}: syntax error
-let result = true; // Placeholder
+    // case {'a': x, 'a': y}: syntax error
+    let result = true; // Placeholder
 '''
 
 
@@ -598,20 +598,20 @@ match data:
 '''
 
 rust = '''
-use std::collections::HashMap;
+    use std::collections::HashMap;
 
-struct MyDict {
-    inner: HashMap<String, i32>,
-}
+    struct MyDict {
+        inner: HashMap<String, i32>,
+    }
 
-let mut inner = HashMap::new();
-inner.insert("key".to_string(), 42);
-let data = MyDict { inner };
+    let mut inner = HashMap::new();
+    inner.insert("key".to_string(), 42);
+    let data = MyDict { inner };
 
-let result = match data.inner.get("key") {
-    Some(&v) => v,
-    None => 0,
-};
+    let result = match data.inner.get("key") {
+        Some(&v) => v,
+        None => 0,
+    };
 '''
 
 
@@ -634,29 +634,29 @@ match data:
 '''
 
 rust = '''
-use std::collections::HashMap;
+    use std::collections::HashMap;
 
-trait Mapping {
-    fn get(&self, key: &str) -> Option<i32>;
-}
-
-struct MyMapping {
-    data: HashMap<String, i32>,
-}
-
-impl Mapping for MyMapping {
-    fn get(&self, key: &str) -> Option<i32> {
-        self.data.get(key).copied()
+    trait Mapping {
+        fn get(&self, key: &str) -> Option<i32>;
     }
-}
 
-let mut inner = HashMap::new();
-inner.insert("key".to_string(), 42);
-let data = MyMapping { data: inner };
+    struct MyMapping {
+        data: HashMap<String, i32>,
+    }
 
-let result = match data.get("key") {
-    Some(v) => v,
-    None => 0,
-};
+    impl Mapping for MyMapping {
+        fn get(&self, key: &str) -> Option<i32> {
+            self.data.get(key).copied()
+        }
+    }
+
+    let mut inner = HashMap::new();
+    inner.insert("key".to_string(), 42);
+    let data = MyMapping { data: inner };
+
+    let result = match data.get("key") {
+        Some(v) => v,
+        None => 0,
+    };
 '''
 

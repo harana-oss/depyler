@@ -112,7 +112,11 @@ struct CountUpState {
 }
 #[doc = " Generator function - returns Iterator"]
 pub fn count_up(n: i32) -> impl Iterator<Item = i32> {
-    CountUpState { state: 0, i: 0, n: n }
+    CountUpState {
+        state: 0,
+        i: 0,
+        n: n,
+    }
 }
 impl Iterator for CountUpState {
     type Item = i32;
@@ -687,7 +691,11 @@ struct RangeFromState {
 }
 #[doc = " Generator function - returns Iterator"]
 pub fn range_from(n: i32) -> impl Iterator<Item = i32> {
-    RangeFromState { state: 0, i: 0, n: n }
+    RangeFromState {
+        state: 0,
+        i: 0,
+        n: n,
+    }
 }
 impl Iterator for RangeFromState {
     type Item = i32;

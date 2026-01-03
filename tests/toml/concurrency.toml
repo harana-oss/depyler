@@ -105,11 +105,11 @@ impl Counter {
     pub fn new() -> Self {
         Self { count: 0 }
     }
-    
+
     pub fn increment(&mut self) {
         self.count += 1;
     }
-    
+
     pub fn get(&self) -> i32 {
         return self.count;
     }
@@ -141,11 +141,11 @@ impl SafeValue {
     pub fn new(value: i32) -> Self {
         Self { value }
     }
-    
+
     pub fn set(&mut self, new_value: i32) {
         self.value = new_value;
     }
-    
+
     pub fn get(&self) -> i32 {
         return self.value;
     }
@@ -177,13 +177,15 @@ pub struct Cache {
 
 impl Cache {
     pub fn new() -> Self {
-        Self { data: HashMap::new() }
+        Self {
+            data: HashMap::new(),
+        }
     }
-    
+
     pub fn read(&self, key: &str) -> i32 {
         return *self.data.get(key).unwrap_or(&0);
     }
-    
+
     pub fn write(&mut self, key: String, value: i32) {
         self.data.insert(key, value);
     }
@@ -219,11 +221,11 @@ impl Signal {
     pub fn new() -> Self {
         Self { ready: false }
     }
-    
+
     pub fn set_ready(&mut self) {
         self.ready = true;
     }
-    
+
     pub fn is_ready(&self) -> bool {
         return self.ready;
     }
@@ -255,7 +257,7 @@ impl Barrier {
     pub fn new(count: i32) -> Self {
         Self { count, waiting: 0 }
     }
-    
+
     pub fn wait(&mut self) -> bool {
         self.waiting += 1;
         return self.waiting >= self.count;
@@ -294,11 +296,11 @@ impl SimpleQueue {
     pub fn new() -> Self {
         Self { items: vec![] }
     }
-    
+
     pub fn put(&mut self, item: i32) {
         self.items.push(item);
     }
-    
+
     pub fn get(&mut self) -> i32 {
         if self.items.len() > 0 {
             return self.items.remove(0);
@@ -336,13 +338,16 @@ pub struct BoundedQueue {
 
 impl BoundedQueue {
     pub fn new(capacity: i32) -> Self {
-        Self { capacity, items: vec![] }
+        Self {
+            capacity,
+            items: vec![],
+        }
     }
-    
+
     pub fn is_full(&self) -> bool {
         return self.items.len() as i32 >= self.capacity;
     }
-    
+
     pub fn put(&mut self, item: i32) -> bool {
         if self.is_full() {
             return false;
@@ -384,12 +389,12 @@ impl SharedCounter {
     pub fn new() -> Self {
         Self { value: 0 }
     }
-    
+
     pub fn increment(&mut self) -> i32 {
         self.value += 1;
         return self.value;
     }
-    
+
     pub fn decrement(&mut self) -> i32 {
         self.value -= 1;
         return self.value;
@@ -432,9 +437,14 @@ pub struct Stats {
 
 impl Stats {
     pub fn new() -> Self {
-        Self { min_val: 0, max_val: 0, sum: 0, count: 0 }
+        Self {
+            min_val: 0,
+            max_val: 0,
+            sum: 0,
+            count: 0,
+        }
     }
-    
+
     pub fn add(&mut self, value: i32) {
         if self.count == 0 {
             self.min_val = value;
@@ -487,15 +497,15 @@ impl AtomicCounter {
     pub fn new(initial: i32) -> Self {
         Self { value: initial }
     }
-    
+
     pub fn load(&self) -> i32 {
         return self.value;
     }
-    
+
     pub fn store(&mut self, val: i32) {
         self.value = val;
     }
-    
+
     pub fn fetch_add(&mut self, delta: i32) -> i32 {
         let old = self.value;
         self.value += delta;
@@ -529,7 +539,7 @@ impl AtomicValue {
     pub fn new(initial: i32) -> Self {
         Self { value: initial }
     }
-    
+
     pub fn compare_exchange(&mut self, expected: i32, new: i32) -> bool {
         if self.value == expected {
             self.value = new;
@@ -567,13 +577,13 @@ impl AtomicFlag {
     pub fn new() -> Self {
         Self { flag: false }
     }
-    
+
     pub fn test_and_set(&mut self) -> bool {
         let old = self.flag;
         self.flag = true;
         return old;
     }
-    
+
     pub fn clear(&mut self) {
         self.flag = false;
     }

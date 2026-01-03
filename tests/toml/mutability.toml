@@ -573,7 +573,12 @@ pub struct State {
     pub away_score: i32,
 }
 impl State {
-    pub fn new(current_play_type: String, team_in_possession: String, home_score: i32, away_score: i32) -> Self {
+    pub fn new(
+        current_play_type: String,
+        team_in_possession: String,
+        home_score: i32,
+        away_score: i32,
+    ) -> Self {
         Self {
             current_play_type,
             team_in_possession,
@@ -583,8 +588,12 @@ impl State {
     }
     pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
         match name {
-            "current_play_type" => Some(Box::new(self.current_play_type.clone()) as Box<dyn std::any::Any>),
-            "team_in_possession" => Some(Box::new(self.team_in_possession.clone()) as Box<dyn std::any::Any>),
+            "current_play_type" => {
+                Some(Box::new(self.current_play_type.clone()) as Box<dyn std::any::Any>)
+            }
+            "team_in_possession" => {
+                Some(Box::new(self.team_in_possession.clone()) as Box<dyn std::any::Any>)
+            }
             "home_score" => Some(Box::new(self.home_score.clone()) as Box<dyn std::any::Any>),
             "away_score" => Some(Box::new(self.away_score.clone()) as Box<dyn std::any::Any>),
             _ => None,

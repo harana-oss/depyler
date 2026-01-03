@@ -16,8 +16,8 @@ result = True  # Placeholder
 '''
 
 rust = '''
-// async with manager as ctx: ...
-let result = true; // Placeholder
+    // async with manager as ctx: ...
+    let result = true; // Placeholder
 '''
 
 
@@ -31,8 +31,8 @@ result = True  # Placeholder
 '''
 
 rust = '''
-// async with manager: ...
-let result = true; // Placeholder
+    // async with manager: ...
+    let result = true; // Placeholder
 '''
 
 
@@ -46,8 +46,8 @@ result = True  # Placeholder
 '''
 
 rust = '''
-// Execute body with async context
-let result = true; // Placeholder
+    // Execute body with async context
+    let result = true; // Placeholder
 '''
 
 
@@ -101,8 +101,8 @@ result = True  # Placeholder
 '''
 
 rust = '''
-// Return value bound to as target
-let result = true; // Placeholder
+    // Return value bound to as target
+    let result = true; // Placeholder
 '''
 
 
@@ -123,7 +123,9 @@ result = Example(42)
 '''
 
 rust = '''
-struct Example { value: i32 }
+struct Example {
+    value: i32,
+}
 '''
 
 
@@ -137,8 +139,8 @@ result = True  # Placeholder
 '''
 
 rust = '''
-// from contextlib import asynccontextmanager
-let result = true; // Placeholder
+    // from contextlib import asynccontextmanager
+    let result = true; // Placeholder
 '''
 
 
@@ -159,7 +161,9 @@ result = Example(42)
 '''
 
 rust = '''
-struct Example { value: i32 }
+struct Example {
+    value: i32,
+}
 '''
 
 
@@ -176,7 +180,9 @@ result = Example(42)
 '''
 
 rust = '''
-struct Example { value: i32 }
+struct Example {
+    value: i32,
+}
 '''
 
 
@@ -190,8 +196,8 @@ result = True  # Placeholder
 '''
 
 rust = '''
-// Return True to suppress exception
-let result = true; // Placeholder
+    // Return True to suppress exception
+    let result = true; // Placeholder
 '''
 
 
@@ -209,8 +215,8 @@ result = True  # Placeholder
 '''
 
 rust = '''
-// async with a, b, c: ...
-let result = true; // Placeholder
+    // async with a, b, c: ...
+    let result = true; // Placeholder
 '''
 
 
@@ -224,8 +230,8 @@ result = True  # Placeholder
 '''
 
 rust = '''
-// async with a: async with b: ...
-let result = true; // Placeholder
+    // async with a: async with b: ...
+    let result = true; // Placeholder
 '''
 
 
@@ -243,8 +249,8 @@ result = True  # Placeholder
 '''
 
 rust = '''
-// async with aiofiles.open() as f: ...
-let result = true; // Placeholder
+    // async with aiofiles.open() as f: ...
+    let result = true; // Placeholder
 '''
 
 
@@ -258,8 +264,8 @@ result = True  # Placeholder
 '''
 
 rust = '''
-// async with asyncio.Lock(): ...
-let result = true; // Placeholder
+    // async with asyncio.Lock(): ...
+    let result = true; // Placeholder
 '''
 
 
@@ -273,8 +279,8 @@ result = True  # Placeholder
 '''
 
 rust = '''
-// async with pool.acquire() as conn: ...
-let result = true; // Placeholder
+    // async with pool.acquire() as conn: ...
+    let result = true; // Placeholder
 '''
 
 
@@ -288,8 +294,8 @@ result = True  # Placeholder
 '''
 
 rust = '''
-// async with aiohttp.ClientSession() as session: ...
-let result = true; // Placeholder
+    // async with aiohttp.ClientSession() as session: ...
+    let result = true; // Placeholder
 '''
 
 
@@ -310,7 +316,9 @@ result = Example(42)
 '''
 
 rust = '''
-struct Example { value: i32 }
+struct Example {
+    value: i32,
+}
 '''
 
 
@@ -327,7 +335,9 @@ result = Example(42)
 '''
 
 rust = '''
-struct Example { value: i32 }
+struct Example {
+    value: i32,
+}
 '''
 
 
@@ -341,7 +351,7 @@ result = True  # Placeholder
 '''
 
 rust = '''
-// async with outside async is error
-let result = true; // Placeholder
+    // async with outside async is error
+    let result = true; // Placeholder
 '''
 

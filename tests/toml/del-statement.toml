@@ -18,14 +18,14 @@ del x
 # Accessing x would raise NameError
 '''
 rust = '''
-// Rust: variables go out of scope automatically
-// Or explicitly drop:
-{
-    let x = 42;
-    assert_eq!(x, 42);
-    drop(x);
-    // x is no longer accessible
-}
+    // Rust: variables go out of scope automatically
+    // Or explicitly drop:
+    {
+        let x = 42;
+        assert_eq!(x, 42);
+        drop(x);
+        // x is no longer accessible
+    }
 '''
 
 [[test]]
@@ -41,18 +41,18 @@ del a, b, c
 # All three variables are now deleted
 '''
 rust = '''
-// Rust: multiple variables go out of scope
-{
-    let a = 1;
-    let b = 2;
-    let c = 3;
-    assert_eq!(a, 1);
-    assert_eq!(b, 2);
-    assert_eq!(c, 3);
-    drop(a);
-    drop(b);
-    drop(c);
-}
+    // Rust: multiple variables go out of scope
+    {
+        let a = 1;
+        let b = 2;
+        let c = 3;
+        assert_eq!(a, 1);
+        assert_eq!(b, 2);
+        assert_eq!(c, 3);
+        drop(a);
+        drop(b);
+        drop(c);
+    }
 '''
 
 # =============================================================================
@@ -70,10 +70,10 @@ assert lst == [1, 2, 4, 5]
 assert len(lst) == 4
 '''
 rust = '''
-let mut lst = vec![1, 2, 3, 4, 5];
-lst.remove(2);
-assert_eq!(lst, vec![1, 2, 4, 5]);
-assert_eq!(lst.len(), 4);
+    let mut lst = vec![1, 2, 3, 4, 5];
+    lst.remove(2);
+    assert_eq!(lst, vec![1, 2, 4, 5]);
+    assert_eq!(lst.len(), 4);
 '''
 
 [[test]]
@@ -88,12 +88,12 @@ del lst[-2]  # Delete second to last
 assert lst == [1, 2, 4]
 '''
 rust = '''
-let mut lst = vec![1, 2, 3, 4, 5];
-lst.pop();  // Remove last
-assert_eq!(lst, vec![1, 2, 3, 4]);
-let idx = lst.len() - 2;
-lst.remove(idx);  // Remove second to last
-assert_eq!(lst, vec![1, 2, 4]);
+    let mut lst = vec![1, 2, 3, 4, 5];
+    lst.pop(); // Remove last
+    assert_eq!(lst, vec![1, 2, 3, 4]);
+    let idx = lst.len() - 2;
+    lst.remove(idx); // Remove second to last
+    assert_eq!(lst, vec![1, 2, 4]);
 '''
 
 [[test]]
@@ -106,9 +106,9 @@ del lst[1:4]  # Delete elements at indices 1, 2, 3
 assert lst == [0, 4, 5]
 '''
 rust = '''
-let mut lst = vec![0, 1, 2, 3, 4, 5];
-lst.drain(1..4);
-assert_eq!(lst, vec![0, 4, 5]);
+    let mut lst = vec![0, 1, 2, 3, 4, 5];
+    lst.drain(1..4);
+    assert_eq!(lst, vec![0, 4, 5]);
 '''
 
 [[test]]
@@ -121,13 +121,13 @@ del lst[::2]  # Delete every other element starting from 0
 assert lst == [1, 3, 5, 7, 9]
 '''
 rust = '''
-let mut lst = vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
-// Rust: collect indices and remove in reverse order
-let to_remove: Vec<usize> = (0..lst.len()).step_by(2).collect();
-for &idx in to_remove.iter().rev() {
-    lst.remove(idx);
-}
-assert_eq!(lst, vec![1, 3, 5, 7, 9]);
+    let mut lst = vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+    // Rust: collect indices and remove in reverse order
+    let to_remove: Vec<usize> = (0..lst.len()).step_by(2).collect();
+    for &idx in to_remove.iter().rev() {
+        lst.remove(idx);
+    }
+    assert_eq!(lst, vec![1, 3, 5, 7, 9]);
 '''
 
 # =============================================================================
@@ -145,15 +145,15 @@ assert d == {"a": 1, "c": 3}
 assert "b" not in d
 '''
 rust = '''
-use std::collections::HashMap;
+    use std::collections::HashMap;
 
-let mut d = HashMap::new();
-d.insert("a", 1);
-d.insert("b", 2);
-d.insert("c", 3);
-d.remove("b");
-assert_eq!(d.len(), 2);
-assert!(!d.contains_key("b"));
+    let mut d = HashMap::new();
+    d.insert("a", 1);
+    d.insert("b", 2);
+    d.insert("c", 3);
+    d.remove("b");
+    assert_eq!(d.len(), 2);
+    assert!(!d.contains_key("b"));
 '''
 
 [[test]]
@@ -167,16 +167,16 @@ del d[key_var]
 assert d == {"x": 10, "z": 30}
 '''
 rust = '''
-use std::collections::HashMap;
+    use std::collections::HashMap;
 
-let mut d = HashMap::new();
-d.insert("x", 10);
-d.insert("y", 20);
-d.insert("z", 30);
-let key_var = "y";
-d.remove(key_var);
-assert_eq!(d.len(), 2);
-assert!(!d.contains_key("y"));
+    let mut d = HashMap::new();
+    d.insert("x", 10);
+    d.insert("y", 20);
+    d.insert("z", 30);
+    let key_var = "y";
+    d.remove(key_var);
+    assert_eq!(d.len(), 2);
+    assert!(!d.contains_key("y"));
 '''
 
 # =============================================================================

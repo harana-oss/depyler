@@ -16,8 +16,8 @@ result = x == 10
 '''
 
 rust = '''
-let x = 0b1010;
-let result = x == 10;
+    let x = 0b1010;
+    let result = x == 10;
 '''
 
 [[test]]
@@ -30,8 +30,8 @@ result = x == 10
 '''
 
 rust = '''
-let x = 0b1010;
-let result = x == 10;
+    let x = 0b1010;
+    let result = x == 10;
 '''
 
 [[test]]
@@ -44,8 +44,8 @@ result = x == 170
 '''
 
 rust = '''
-let x = 0b1010_1010;
-let result = x == 170;
+    let x = 0b1010_1010;
+    let result = x == 170;
 '''
 
 # =============================================================================
@@ -62,8 +62,8 @@ result = x == 511
 '''
 
 rust = '''
-let x = 0o777;
-let result = x == 511;
+    let x = 0o777;
+    let result = x == 511;
 '''
 
 [[test]]
@@ -76,8 +76,8 @@ result = x == 511
 '''
 
 rust = '''
-let x = 0o777;
-let result = x == 511;
+    let x = 0o777;
+    let result = x == 511;
 '''
 
 [[test]]
@@ -90,8 +90,8 @@ result = x == 511
 '''
 
 rust = '''
-let x = 0o7_7_7;
-let result = x == 511;
+    let x = 0o7_7_7;
+    let result = x == 511;
 '''
 
 # =============================================================================
@@ -108,8 +108,8 @@ result = x == 255
 '''
 
 rust = '''
-let x = 0xff;
-let result = x == 255;
+    let x = 0xff;
+    let result = x == 255;
 '''
 
 [[test]]
@@ -122,8 +122,8 @@ result = x == 255
 '''
 
 rust = '''
-let x = 0xFF;
-let result = x == 255;
+    let x = 0xFF;
+    let result = x == 255;
 '''
 
 [[test]]
@@ -136,8 +136,8 @@ result = x == 65535
 '''
 
 rust = '''
-let x = 0xFF_FF;
-let result = x == 65535;
+    let x = 0xFF_FF;
+    let result = x == 65535;
 '''
 
 [[test]]
@@ -150,8 +150,8 @@ result = x == 3735928559
 '''
 
 rust = '''
-let x = 0xDeAdBeEf;
-let result = x == 3735928559;
+    let x = 0xDeAdBeEf;
+    let result = x == 3735928559;
 '''
 
 # =============================================================================
@@ -168,8 +168,8 @@ result = x == 1000000
 '''
 
 rust = '''
-let x = 1_000_000;
-let result = x == 1000000;
+    let x = 1_000_000;
+    let result = x == 1000000;
 '''
 
 [[test]]
@@ -182,8 +182,8 @@ result = abs(x - 1000.000001) < 0.000001
 '''
 
 rust = '''
-let x = 1_000.000_001;
-let result = (x - 1000.000001).abs() < 0.000001;
+    let x = 1_000.000_001;
+    let result = (x - 1000.000001).abs() < 0.000001;
 '''
 
 # =============================================================================
@@ -199,7 +199,7 @@ result = (0b1010 + 0b0101) == 15
 '''
 
 rust = '''
-let result = (0b1010 + 0b0101) == 15;
+    let result = (0b1010 + 0b0101) == 15;
 '''
 
 [[test]]
@@ -211,7 +211,7 @@ result = (0xFF + 0o77 + 0b11) == 321
 '''
 
 rust = '''
-let result = (0xFF + 0o77 + 0b11) == 321;
+    let result = (0xFF + 0o77 + 0b11) == 321;
 '''
 
 [[test]]
@@ -223,7 +223,7 @@ result = (0b1010 & 0b1100) == 8
 '''
 
 rust = '''
-let result = (0b1010 & 0b1100) == 8;
+    let result = (0b1010 & 0b1100) == 8;
 '''
 
 # =============================================================================
@@ -239,10 +239,10 @@ result = bin(10) == '0b1010'
 '''
 
 rust = '''
-fn bin(n: i32) -> String {
-    format!("0b{:b}", n)
-}
-let result = bin(10) == "0b1010";
+    fn bin(n: i32) -> String {
+        format!("0b{:b}", n)
+    }
+    let result = bin(10) == "0b1010";
 '''
 
 [[test]]
@@ -254,10 +254,10 @@ result = oct(64) == '0o100'
 '''
 
 rust = '''
-fn oct(n: i32) -> String {
-    format!("0o{:o}", n)
-}
-let result = oct(64) == "0o100";
+    fn oct(n: i32) -> String {
+        format!("0o{:o}", n)
+    }
+    let result = oct(64) == "0o100";
 '''
 
 [[test]]
@@ -269,10 +269,10 @@ result = hex(255) == '0xff'
 '''
 
 rust = '''
-fn hex(n: i32) -> String {
-    format!("0x{:x}", n)
-}
-let result = hex(255) == "0xff";
+    fn hex(n: i32) -> String {
+        format!("0x{:x}", n)
+    }
+    let result = hex(255) == "0xff";
 '''
 
 [[test]]
@@ -284,7 +284,7 @@ result = int('ff', 16) == 255
 '''
 
 rust = '''
-let result = i32::from_str_radix("ff", 16).unwrap() == 255;
+    let result = i32::from_str_radix("ff", 16).unwrap() == 255;
 '''
 
 # =============================================================================
@@ -300,7 +300,7 @@ result = (0b0 == 0) and (0o0 == 0) and (0x0 == 0)
 '''
 
 rust = '''
-let result = (0b0 == 0) && (0o0 == 0) && (0x0 == 0);
+    let result = (0b0 == 0) && (0o0 == 0) && (0x0 == 0);
 '''
 
 [[test]]
@@ -312,7 +312,7 @@ result = -0xFF == -255
 '''
 
 rust = '''
-let result = -0xFF == -255;
+    let result = -0xFF == -255;
 '''
 
 [[test]]
@@ -325,6 +325,6 @@ result = x == 18446744073709551615
 '''
 
 rust = '''
-let x: u64 = 0xFFFF_FFFF_FFFF_FFFF;
-let result = x == 18446744073709551615;
+    let x: u64 = 0xFFFF_FFFF_FFFF_FFFF;
+    let result = x == 18446744073709551615;
 '''

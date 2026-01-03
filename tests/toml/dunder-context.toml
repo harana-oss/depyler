@@ -106,7 +106,9 @@ struct Resource {
 impl Resource {
     fn new() -> Self {
         log::info!("Setup");
-        Resource { value: "resource".to_string() }
+        Resource {
+            value: "resource".to_string(),
+        }
     }
 }
 
@@ -150,7 +152,9 @@ struct Manager {
 
 impl Manager {
     fn new(name: &str) -> Self {
-        Manager { name: name.to_string() }
+        Manager {
+            name: name.to_string(),
+        }
     }
 }
 
@@ -183,7 +187,9 @@ struct FileManager {
 
 impl FileManager {
     fn new() -> (Self, String) {
-        let mgr = FileManager { file: Some("file_handle".to_string()) };
+        let mgr = FileManager {
+            file: Some("file_handle".to_string()),
+        };
         let handle = "file_handle".to_string();
         (mgr, handle)
     }
@@ -500,7 +506,9 @@ struct File {
 impl File {
     fn new(name: &str) -> Self {
         log::info!("Opening {}", name);
-        File { name: name.to_string() }
+        File {
+            name: name.to_string(),
+        }
     }
 }
 
@@ -591,7 +599,7 @@ impl Drop for Transaction {
         if self.committed {
             log::info!("COMMIT");
         } else {
-            log::info!("COMMIT");  // For this example
+            log::info!("COMMIT"); // For this example
         }
     }
 }
@@ -631,7 +639,9 @@ struct Timer {
 
 impl Timer {
     fn new() -> Self {
-        Timer { start: Instant::now() }
+        Timer {
+            start: Instant::now(),
+        }
     }
 }
 
@@ -748,7 +758,9 @@ struct CM {
 impl CM {
     fn new(name: &str) -> Self {
         log::info!("Enter {}", name);
-        CM { name: name.to_string() }
+        CM {
+            name: name.to_string(),
+        }
     }
 }
 
@@ -794,7 +806,9 @@ struct CM {
 impl CM {
     fn new(name: &str) -> Self {
         log::info!("Enter {}", name);
-        CM { name: name.to_string() }
+        CM {
+            name: name.to_string(),
+        }
     }
 }
 
@@ -976,7 +990,9 @@ struct Reusable {
 impl Reusable {
     fn new(name: &str) -> Self {
         log::info!("Enter {}", name);
-        Reusable { name: name.to_string() }
+        Reusable {
+            name: name.to_string(),
+        }
     }
 }
 
@@ -1031,12 +1047,12 @@ impl Counter {
     fn new() -> Self {
         Counter { level: 0 }
     }
-    
+
     fn enter(&mut self) {
         self.level += 1;
         log::info!("Level: {}", self.level);
     }
-    
+
     fn exit(&mut self) {
         self.level -= 1;
     }

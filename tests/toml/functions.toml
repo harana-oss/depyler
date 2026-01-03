@@ -127,9 +127,11 @@ async def fetch_data(url: str) -> str:
 '''
 
 rust = '''
-#[doc = " Depyler: verified panic-free"] #[doc = " Depyler: proven to terminate"] pub async fn fetch_data(url: String) -> String {
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub async fn fetch_data(url: String) -> String {
     return "data".to_string();
-    }
+}
 '''
 
 [[test]]
@@ -407,7 +409,11 @@ def with_comprehension(items: list[int], multiplier: int) -> list[int]:
 
 rust = '''
 pub fn with_comprehension(items: &Vec<i32>, multiplier: i32) -> Vec<i32> {
-    return items.clone().into_iter().map(|x| x * multiplier).collect::<Vec<_>>();
+    return items
+        .clone()
+        .into_iter()
+        .map(|x| x * multiplier)
+        .collect::<Vec<_>>();
 }
 '''
 
@@ -836,7 +842,12 @@ pub fn format_message(name: String, age: i32, city: String, country: String) -> 
     return format!("{} is {} years old from {}, {}", name, age, city, country);
 }
 pub fn test() -> String {
-    return format_message("Alice".to_string(), 30, "New York".to_string(), "USA".to_string());
+    return format_message(
+        "Alice".to_string(),
+        30,
+        "New York".to_string(),
+        "USA".to_string(),
+    );
 }
 '''
 
@@ -1644,7 +1655,10 @@ pub fn is_valid_email(email: String) -> bool {
     if _cse_temp_0 {
         return false;
     }
-    let parts = email.split("@").map(|s| s.to_string()).collect::<Vec<String>>();
+    let parts = email
+        .split("@")
+        .map(|s| s.to_string())
+        .collect::<Vec<String>>();
     let _cse_temp_1 = parts.clone().len() as i32;
     let _cse_temp_2 = _cse_temp_1 != 2;
     if _cse_temp_2 {
@@ -1652,7 +1666,8 @@ pub fn is_valid_email(email: String) -> bool {
     }
     let local = parts.clone().get(0usize).cloned().unwrap();
     let domain = parts.get(1usize).cloned().unwrap();
-    return ((local.len() as i32 > 0) && (domain.clone().len() as i32 > 0)) && (domain.contains(&"."));
+    return ((local.len() as i32 > 0) && (domain.clone().len() as i32 > 0))
+        && (domain.contains(&"."));
 }
 '''
 

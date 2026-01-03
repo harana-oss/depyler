@@ -337,7 +337,10 @@ def count_words(text: str) -> int:
 
 rust = '''
 pub fn count_words(text: String) -> i32 {
-    let words = text.split_whitespace().map(|s| s.to_string()).collect::<Vec<String>>();
+    let words = text
+        .split_whitespace()
+        .map(|s| s.to_string())
+        .collect::<Vec<String>>();
     return words.len() as i32 as i32;
 }
 '''
@@ -476,7 +479,11 @@ struct Args {
 }
 pub fn count_file(filepath: &Path) -> Stats {
     let content = std::fs::read_to_string(filepath.clone()).unwrap();
-    let lines = content.lines().map(|s| s.to_string()).collect::<Vec<String>>().len() as i32;
+    let lines = content
+        .lines()
+        .map(|s| s.to_string())
+        .collect::<Vec<String>>()
+        .len() as i32;
     let words = content
         .split_whitespace()
         .map(|s| s.to_string())
@@ -754,7 +761,10 @@ pub fn port_number(value: String) -> i32 {
     {
         let port = value.parse::<i32>().unwrap();
         if (port < 1) || (port > 65535) {
-            panic!("{}", format!("Port must be between 1 and 65535, got {}", port));
+            panic!(
+                "{}",
+                format!("Port must be between 1 and 65535, got {}", port)
+            );
         }
         return port;
         panic!("{}", format!("Port must be an integer, got '{}'", value));
@@ -866,7 +876,11 @@ impl ArgumentTypeError {
 #[doc = " Depyler: proven to terminate"]
 pub fn email_address(value: serde_json::Value) {
     let pattern = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$".to_string();
-    if regex::Regex::new(pattern).unwrap().find(value.clone()).is_none() {
+    if regex::Regex::new(pattern)
+        .unwrap()
+        .find(value.clone())
+        .is_none()
+    {
         panic!("{}", format!("Invalid email address: '{}'", value));
     }
     return value;
@@ -1597,7 +1611,11 @@ impl ArgumentTypeError {
 #[doc = " Depyler: proven to terminate"]
 pub fn email_address(value: String) -> String {
     let pattern = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$".to_string();
-    if regex::Regex::new(pattern).unwrap().find(value.clone()).is_none() {
+    if regex::Regex::new(pattern)
+        .unwrap()
+        .find(value.clone())
+        .is_none()
+    {
         panic!("{}", format!("Invalid email: {}", value));
     }
     return value;

@@ -21,20 +21,20 @@ result = expensive(5) == 25
 '''
 
 rust = '''
-// @cache def f(x): return expensive(x)
-use std::collections::HashMap;
-use std::sync::Mutex;
+    // @cache def f(x): return expensive(x)
+    use std::collections::HashMap;
+    use std::sync::Mutex;
 
-lazy_static::lazy_static! {
-    static ref CACHE: Mutex<HashMap<i32, i32>> = Mutex::new(HashMap::new());
-}
+    lazy_static::lazy_static! {
+        static ref CACHE: Mutex<HashMap<i32, i32>> = Mutex::new(HashMap::new());
+    }
 
-fn expensive(x: i32) -> i32 {
-    let mut cache = CACHE.lock().unwrap();
-    *cache.entry(x).or_insert_with(|| x * x)
-}
+    fn expensive(x: i32) -> i32 {
+        let mut cache = CACHE.lock().unwrap();
+        *cache.entry(x).or_insert_with(|| x * x)
+    }
 
-let result = expensive(5) == 25;
+    let result = expensive(5) == 25;
 '''
 
 
@@ -145,25 +145,25 @@ result = func(3) == 9
 '''
 
 rust = '''
-// @lru_cache def f(x): ...
-use lru::LruCache;
-use std::sync::Mutex;
+    // @lru_cache def f(x): ...
+    use lru::LruCache;
+    use std::sync::Mutex;
 
-lazy_static::lazy_static! {
-    static ref CACHE: Mutex<LruCache<i32, i32>> = Mutex::new(LruCache::new(128.try_into().unwrap()));
-}
-
-fn func(x: i32) -> i32 {
-    let mut cache = CACHE.lock().unwrap();
-    if let Some(&val) = cache.get(&x) {
-        return val;
+    lazy_static::lazy_static! {
+        static ref CACHE: Mutex<LruCache<i32, i32>> = Mutex::new(LruCache::new(128.try_into().unwrap()));
     }
-    let val = x * x;
-    cache.put(x, val);
-    val
-}
 
-let result = func(3) == 9;
+    fn func(x: i32) -> i32 {
+        let mut cache = CACHE.lock().unwrap();
+        if let Some(&val) = cache.get(&x) {
+            return val;
+        }
+        let val = x * x;
+        cache.put(x, val);
+        val
+    }
+
+    let result = func(3) == 9;
 '''
 
 
@@ -182,25 +182,25 @@ result = func(3) == 9 and func.cache_info().maxsize == 128
 '''
 
 rust = '''
-// @lru_cache(maxsize=128)
-use lru::LruCache;
-use std::sync::Mutex;
+    // @lru_cache(maxsize=128)
+    use lru::LruCache;
+    use std::sync::Mutex;
 
-lazy_static::lazy_static! {
-    static ref CACHE: Mutex<LruCache<i32, i32>> = Mutex::new(LruCache::new(128.try_into().unwrap()));
-}
-
-fn func(x: i32) -> i32 {
-    let mut cache = CACHE.lock().unwrap();
-    if let Some(&val) = cache.get(&x) {
-        return val;
+    lazy_static::lazy_static! {
+        static ref CACHE: Mutex<LruCache<i32, i32>> = Mutex::new(LruCache::new(128.try_into().unwrap()));
     }
-    let val = x * x;
-    cache.put(x, val);
-    val
-}
 
-let result = func(3) == 9;
+    fn func(x: i32) -> i32 {
+        let mut cache = CACHE.lock().unwrap();
+        if let Some(&val) = cache.get(&x) {
+            return val;
+        }
+        let val = x * x;
+        cache.put(x, val);
+        val
+    }
+
+    let result = func(3) == 9;
 '''
 
 
@@ -219,20 +219,20 @@ result = func(3) == 9 and func.cache_info().maxsize is None
 '''
 
 rust = '''
-// @lru_cache(maxsize=None)
-use std::collections::HashMap;
-use std::sync::Mutex;
+    // @lru_cache(maxsize=None)
+    use std::collections::HashMap;
+    use std::sync::Mutex;
 
-lazy_static::lazy_static! {
-    static ref CACHE: Mutex<HashMap<i32, i32>> = Mutex::new(HashMap::new());
-}
+    lazy_static::lazy_static! {
+        static ref CACHE: Mutex<HashMap<i32, i32>> = Mutex::new(HashMap::new());
+    }
 
-fn func(x: i32) -> i32 {
-    let mut cache = CACHE.lock().unwrap();
-    *cache.entry(x).or_insert_with(|| x * x)
-}
+    fn func(x: i32) -> i32 {
+        let mut cache = CACHE.lock().unwrap();
+        *cache.entry(x).or_insert_with(|| x * x)
+    }
 
-let result = func(3) == 9;
+    let result = func(3) == 9;
 '''
 
 
@@ -257,21 +257,21 @@ result = call_count == 2
 '''
 
 rust = '''
-// @lru_cache(typed=True) distinguishes int/float
-use std::collections::HashMap;
-use std::sync::Mutex;
+    // @lru_cache(typed=True) distinguishes int/float
+    use std::collections::HashMap;
+    use std::sync::Mutex;
 
-#[derive(Hash, Eq, PartialEq)]
-enum TypedKey {
-    Int(i32),
-    Float(u64), // Using bits representation
-}
+    #[derive(Hash, Eq, PartialEq)]
+    enum TypedKey {
+        Int(i32),
+        Float(u64), // Using bits representation
+    }
 
-lazy_static::lazy_static! {
-    static ref CACHE: Mutex<HashMap<TypedKey, f64>> = Mutex::new(HashMap::new());
-}
+    lazy_static::lazy_static! {
+        static ref CACHE: Mutex<HashMap<TypedKey, f64>> = Mutex::new(HashMap::new());
+    }
 
-let result = true;
+    let result = true;
 '''
 
 
@@ -296,21 +296,21 @@ result = info.hits == 0 and info.misses == 1
 '''
 
 rust = '''
-// f.cache_info() returns CacheInfo
-struct CacheInfo {
-    hits: usize,
-    misses: usize,
-    maxsize: Option<usize>,
-    currsize: usize,
-}
+    // f.cache_info() returns CacheInfo
+    struct CacheInfo {
+        hits: usize,
+        misses: usize,
+        maxsize: Option<usize>,
+        currsize: usize,
+    }
 
-let info = CacheInfo {
-    hits: 0,
-    misses: 1,
-    maxsize: Some(128),
-    currsize: 1,
-};
-let result = info.hits == 0 && info.misses == 1;
+    let info = CacheInfo {
+        hits: 0,
+        misses: 1,
+        maxsize: Some(128),
+        currsize: 1,
+    };
+    let result = info.hits == 0 && info.misses == 1;
 '''
 
 
@@ -332,23 +332,23 @@ result = info.currsize == 0
 '''
 
 rust = '''
-// f.cache_clear() empties cache
-use lru::LruCache;
-use std::sync::Mutex;
+    // f.cache_clear() empties cache
+    use lru::LruCache;
+    use std::sync::Mutex;
 
-lazy_static::lazy_static! {
-    static ref CACHE: Mutex<LruCache<i32, i32>> = Mutex::new(LruCache::new(128.try_into().unwrap()));
-}
+    lazy_static::lazy_static! {
+        static ref CACHE: Mutex<LruCache<i32, i32>> = Mutex::new(LruCache::new(128.try_into().unwrap()));
+    }
 
-fn cache_clear() {
-    CACHE.lock().unwrap().clear();
-}
+    fn cache_clear() {
+        CACHE.lock().unwrap().clear();
+    }
 
-let mut cache = CACHE.lock().unwrap();
-cache.put(3, 9);
-drop(cache);
-cache_clear();
-let result = CACHE.lock().unwrap().len() == 0;
+    let mut cache = CACHE.lock().unwrap();
+    cache.put(3, 9);
+    drop(cache);
+    cache_clear();
+    let result = CACHE.lock().unwrap().len() == 0;
 '''
 
 
@@ -371,21 +371,21 @@ result = info.hits == 1 and info.misses == 2
 '''
 
 rust = '''
-// Track hits, misses, size, maxsize
-struct CacheStats {
-    hits: usize,
-    misses: usize,
-    size: usize,
-    maxsize: usize,
-}
+    // Track hits, misses, size, maxsize
+    struct CacheStats {
+        hits: usize,
+        misses: usize,
+        size: usize,
+        maxsize: usize,
+    }
 
-let stats = CacheStats {
-    hits: 1,
-    misses: 2,
-    size: 2,
-    maxsize: 2,
-};
-let result = stats.hits == 1 && stats.misses == 2;
+    let stats = CacheStats {
+        hits: 1,
+        misses: 2,
+        size: 2,
+        maxsize: 2,
+    };
+    let result = stats.hits == 1 && stats.misses == 2;
 '''
 
 
@@ -410,23 +410,23 @@ result = obj.expensive_prop == 42
 '''
 
 rust = '''
-// @cached_property def prop(self): ...
-use once_cell::sync::Lazy;
+    // @cached_property def prop(self): ...
+    use once_cell::sync::Lazy;
 
-struct MyClass {
-    expensive_prop: Lazy<i32>,
-}
+    struct MyClass {
+        expensive_prop: Lazy<i32>,
+    }
 
-impl MyClass {
-    fn new() -> Self {
-        Self {
-            expensive_prop: Lazy::new(|| 42),
+    impl MyClass {
+        fn new() -> Self {
+            Self {
+                expensive_prop: Lazy::new(|| 42),
+            }
         }
     }
-}
 
-let obj = MyClass::new();
-let result = *obj.expensive_prop == 42;
+    let obj = MyClass::new();
+    let result = *obj.expensive_prop == 42;
 '''
 
 
@@ -453,31 +453,31 @@ result = call_count == 1
 '''
 
 rust = '''
-// Property computed only on first access
-use once_cell::sync::Lazy;
-use std::sync::atomic::{AtomicUsize, Ordering};
+    // Property computed only on first access
+    use once_cell::sync::Lazy;
+    use std::sync::atomic::{AtomicUsize, Ordering};
 
-static CALL_COUNT: AtomicUsize = AtomicUsize::new(0);
+    static CALL_COUNT: AtomicUsize = AtomicUsize::new(0);
 
-struct MyClass {
-    prop: Lazy<i32>,
-}
+    struct MyClass {
+        prop: Lazy<i32>,
+    }
 
-impl MyClass {
-    fn new() -> Self {
-        Self {
-            prop: Lazy::new(|| {
-                CALL_COUNT.fetch_add(1, Ordering::SeqCst);
-                42
-            }),
+    impl MyClass {
+        fn new() -> Self {
+            Self {
+                prop: Lazy::new(|| {
+                    CALL_COUNT.fetch_add(1, Ordering::SeqCst);
+                    42
+                }),
+            }
         }
     }
-}
 
-let obj = MyClass::new();
-let _ = *obj.prop;
-let _ = *obj.prop;
-let result = CALL_COUNT.load(Ordering::SeqCst) == 1;
+    let obj = MyClass::new();
+    let _ = *obj.prop;
+    let _ = *obj.prop;
+    let result = CALL_COUNT.load(Ordering::SeqCst) == 1;
 '''
 
 
@@ -502,27 +502,27 @@ result = obj1.prop == 10 and obj2.prop == 20
 '''
 
 rust = '''
-// Each instance has own cached value
-use once_cell::sync::Lazy;
+    // Each instance has own cached value
+    use once_cell::sync::Lazy;
 
-struct MyClass {
-    value: i32,
-    prop: Lazy<i32>,
-}
+    struct MyClass {
+        value: i32,
+        prop: Lazy<i32>,
+    }
 
-impl MyClass {
-    fn new(value: i32) -> Self {
-        let val = value;
-        Self {
-            value,
-            prop: Lazy::new(move || val * 2),
+    impl MyClass {
+        fn new(value: i32) -> Self {
+            let val = value;
+            Self {
+                value,
+                prop: Lazy::new(move || val * 2),
+            }
         }
     }
-}
 
-let obj1 = MyClass::new(5);
-let obj2 = MyClass::new(10);
-let result = *obj1.prop == 10 && *obj2.prop == 20;
+    let obj1 = MyClass::new(5);
+    let obj2 = MyClass::new(10);
+    let result = *obj1.prop == 10 && *obj2.prop == 20;
 '''
 
 
@@ -545,16 +545,20 @@ result = func(5) == 10 and func("hello") == "hellohello"
 '''
 
 rust = '''
-// Args must be hashable for cache
-use std::collections::HashMap;
-use std::hash::Hash;
+    // Args must be hashable for cache
+    use std::collections::HashMap;
+    use std::hash::Hash;
 
-fn cached_func<T: Hash + Eq + Clone>(cache: &mut HashMap<T, T>, x: T, op: impl Fn(&T) -> T) -> T {
-    cache.entry(x.clone()).or_insert_with(|| op(&x)).clone()
-}
+    fn cached_func<T: Hash + Eq + Clone>(
+        cache: &mut HashMap<T, T>,
+        x: T,
+        op: impl Fn(&T) -> T,
+    ) -> T {
+        cache.entry(x.clone()).or_insert_with(|| op(&x)).clone()
+    }
 
-let mut cache = HashMap::new();
-let result = true;
+    let mut cache = HashMap::new();
+    let result = true;
 '''
 
 
@@ -577,10 +581,10 @@ except TypeError:
 '''
 
 rust = '''
-// TypeError with unhashable args
-// Rust enforces hashability at compile time
-// Cannot use non-Hash types as cache keys
-let result = true;
+    // TypeError with unhashable args
+    // Rust enforces hashability at compile time
+    // Cannot use non-Hash types as cache keys
+    let result = true;
 '''
 
 
@@ -599,15 +603,15 @@ result = func((1, 2, 3)) == 6
 '''
 
 rust = '''
-// Using wrapper to create hashable key
-use std::collections::HashMap;
+    // Using wrapper to create hashable key
+    use std::collections::HashMap;
 
-fn func(cache: &mut HashMap<Vec<i32>, i32>, x: Vec<i32>) -> i32 {
-    *cache.entry(x.clone()).or_insert_with(|| x.iter().sum())
-}
+    fn func(cache: &mut HashMap<Vec<i32>, i32>, x: Vec<i32>) -> i32 {
+        *cache.entry(x.clone()).or_insert_with(|| x.iter().sum())
+    }
 
-let mut cache = HashMap::new();
-let result = func(&mut cache, vec![1, 2, 3]) == 6;
+    let mut cache = HashMap::new();
+    let result = func(&mut cache, vec![1, 2, 3]) == 6;
 '''
 
 
@@ -632,23 +636,23 @@ result = fib(10) == 55
 '''
 
 rust = '''
-// Memoized Fibonacci
-use std::collections::HashMap;
+    // Memoized Fibonacci
+    use std::collections::HashMap;
 
-fn fib(n: i32, cache: &mut HashMap<i32, i32>) -> i32 {
-    if n < 2 {
-        return n;
+    fn fib(n: i32, cache: &mut HashMap<i32, i32>) -> i32 {
+        if n < 2 {
+            return n;
+        }
+        if let Some(&val) = cache.get(&n) {
+            return val;
+        }
+        let val = fib(n - 1, cache) + fib(n - 2, cache);
+        cache.insert(n, val);
+        val
     }
-    if let Some(&val) = cache.get(&n) {
-        return val;
-    }
-    let val = fib(n - 1, cache) + fib(n - 2, cache);
-    cache.insert(n, val);
-    val
-}
 
-let mut cache = HashMap::new();
-let result = fib(10, &mut cache) == 55;
+    let mut cache = HashMap::new();
+    let result = fib(10, &mut cache) == 55;
 '''
 
 
@@ -668,22 +672,23 @@ result = fetch_data("key123") == "data_for_key123"
 '''
 
 rust = '''
-// Cache expensive API calls
-use std::collections::HashMap;
-use std::sync::Mutex;
+    // Cache expensive API calls
+    use std::collections::HashMap;
+    use std::sync::Mutex;
 
-lazy_static::lazy_static! {
-    static ref CACHE: Mutex<HashMap<String, String>> = Mutex::new(HashMap::new());
-}
+    lazy_static::lazy_static! {
+        static ref CACHE: Mutex<HashMap<String, String>> = Mutex::new(HashMap::new());
+    }
 
-fn fetch_data(api_key: &str) -> String {
-    let mut cache = CACHE.lock().unwrap();
-    cache.entry(api_key.to_string())
-        .or_insert_with(|| format!("data_for_{}", api_key))
-        .clone()
-}
+    fn fetch_data(api_key: &str) -> String {
+        let mut cache = CACHE.lock().unwrap();
+        cache
+            .entry(api_key.to_string())
+            .or_insert_with(|| format!("data_for_{}", api_key))
+            .clone()
+    }
 
-let result = fetch_data("key123") == "data_for_key123";
+    let result = fetch_data("key123") == "data_for_key123";
 '''
 
 
@@ -707,28 +712,28 @@ result = analyzer.mean == 3.0
 '''
 
 rust = '''
-// Cache computed class attribute
-use once_cell::sync::Lazy;
+    // Cache computed class attribute
+    use once_cell::sync::Lazy;
 
-struct DataAnalyzer {
-    data: Vec<i32>,
-    mean: Lazy<f64>,
-}
+    struct DataAnalyzer {
+        data: Vec<i32>,
+        mean: Lazy<f64>,
+    }
 
-impl DataAnalyzer {
-    fn new(data: Vec<i32>) -> Self {
-        let data_clone = data.clone();
-        Self {
-            data,
-            mean: Lazy::new(move || {
-                data_clone.iter().sum::<i32>() as f64 / data_clone.len() as f64
-            }),
+    impl DataAnalyzer {
+        fn new(data: Vec<i32>) -> Self {
+            let data_clone = data.clone();
+            Self {
+                data,
+                mean: Lazy::new(move || {
+                    data_clone.iter().sum::<i32>() as f64 / data_clone.len() as f64
+                }),
+            }
         }
     }
-}
 
-let analyzer = DataAnalyzer::new(vec![1, 2, 3, 4, 5]);
-let result = *analyzer.mean == 3.0;
+    let analyzer = DataAnalyzer::new(vec![1, 2, 3, 4, 5]);
+    let result = *analyzer.mean == 3.0;
 '''
 
 
@@ -751,23 +756,23 @@ result = func(5) == 15 and func(5, y=20) == 25
 '''
 
 rust = '''
-// Keyword args in cache key
-use std::collections::HashMap;
+    // Keyword args in cache key
+    use std::collections::HashMap;
 
-#[derive(Hash, Eq, PartialEq)]
-struct CacheKey {
-    x: i32,
-    y: i32,
-}
+    #[derive(Hash, Eq, PartialEq)]
+    struct CacheKey {
+        x: i32,
+        y: i32,
+    }
 
-fn func(cache: &mut HashMap<CacheKey, i32>, x: i32, y: Option<i32>) -> i32 {
-    let y = y.unwrap_or(10);
-    let key = CacheKey { x, y };
-    *cache.entry(key).or_insert_with(|| x + y)
-}
+    fn func(cache: &mut HashMap<CacheKey, i32>, x: i32, y: Option<i32>) -> i32 {
+        let y = y.unwrap_or(10);
+        let key = CacheKey { x, y };
+        *cache.entry(key).or_insert_with(|| x + y)
+    }
 
-let mut cache = HashMap::new();
-let result = func(&mut cache, 5, None) == 15 && func(&mut cache, 5, Some(20)) == 25;
+    let mut cache = HashMap::new();
+    let result = func(&mut cache, 5, None) == 15 && func(&mut cache, 5, Some(20)) == 25;
 '''
 
 
@@ -790,14 +795,14 @@ result = info.currsize == 2
 '''
 
 rust = '''
-// LRU eviction when maxsize reached
-use lru::LruCache;
+    // LRU eviction when maxsize reached
+    use lru::LruCache;
 
-let mut cache: LruCache<i32, i32> = LruCache::new(2.try_into().unwrap());
-cache.put(1, 2);
-cache.put(2, 4);
-cache.put(3, 6);  // evicts 1
-let result = cache.len() == 2;
+    let mut cache: LruCache<i32, i32> = LruCache::new(2.try_into().unwrap());
+    cache.put(1, 2);
+    cache.put(2, 4);
+    cache.put(3, 6); // evicts 1
+    let result = cache.len() == 2;
 '''
 
 
@@ -821,35 +826,35 @@ result = obj.compute(3) == 15
 '''
 
 rust = '''
-// @lru_cache on instance method (use @cached_property or wrapper)
-use lru::LruCache;
-use std::sync::Mutex;
+    // @lru_cache on instance method (use @cached_property or wrapper)
+    use lru::LruCache;
+    use std::sync::Mutex;
 
-struct MyClass {
-    multiplier: i32,
-    cache: Mutex<LruCache<i32, i32>>,
-}
+    struct MyClass {
+        multiplier: i32,
+        cache: Mutex<LruCache<i32, i32>>,
+    }
 
-impl MyClass {
-    fn new(multiplier: i32) -> Self {
-        Self {
-            multiplier,
-            cache: Mutex::new(LruCache::new(128.try_into().unwrap())),
+    impl MyClass {
+        fn new(multiplier: i32) -> Self {
+            Self {
+                multiplier,
+                cache: Mutex::new(LruCache::new(128.try_into().unwrap())),
+            }
+        }
+
+        fn compute(&self, x: i32) -> i32 {
+            let mut cache = self.cache.lock().unwrap();
+            if let Some(&val) = cache.get(&x) {
+                return val;
+            }
+            let val = x * self.multiplier;
+            cache.put(x, val);
+            val
         }
     }
-    
-    fn compute(&self, x: i32) -> i32 {
-        let mut cache = self.cache.lock().unwrap();
-        if let Some(&val) = cache.get(&x) {
-            return val;
-        }
-        let val = x * self.multiplier;
-        cache.put(x, val);
-        val
-    }
-}
 
-let obj = MyClass::new(5);
-let result = obj.compute(3) == 15;
+    let obj = MyClass::new(5);
+    let result = obj.compute(3) == 15;
 '''
 

@@ -73,7 +73,10 @@ def append_file(path: str, content: str) -> None:
 
 rust = '''
 pub fn append_file(path: String, content: String) {
-    let mut f = std::fs::OpenOptions::new().append(true).create(true).open(path)?;
+    let mut f = std::fs::OpenOptions::new()
+        .append(true)
+        .create(true)
+        .open(path)?;
     f.write(content);
 }
 '''
@@ -248,7 +251,12 @@ rust = '''
 use std::io::BufRead;
 pub fn read_lines(path: String) -> Vec<String> {
     let mut f = std::fs::File::open(path)?;
-    let lines = std::io::BufReader::new(&f).lines().collect::<Vec<_>>()?.iter().map(|s| s.to_string()).collect();
+    let lines = std::io::BufReader::new(&f)
+        .lines()
+        .collect::<Vec<_>>()?
+        .iter()
+        .map(|s| s.to_string())
+        .collect();
     return lines;
 }
 '''

@@ -308,7 +308,11 @@ impl Person {
     }
 }
 pub fn get_name(p: &Person) -> String {
-    return p.name.clone().clone().unwrap_or_else(|| "Unknown".to_string());
+    return p
+        .name
+        .clone()
+        .clone()
+        .unwrap_or_else(|| "Unknown".to_string());
 }
 '''
 
@@ -529,7 +533,11 @@ impl Config {
     }
 }
 pub fn get_prefix(c: &Config) -> String {
-    return c.prefix.clone().clone().unwrap_or_else(|| "default_".to_string());
+    return c
+        .prefix
+        .clone()
+        .clone()
+        .unwrap_or_else(|| "default_".to_string());
 }
 '''
 
@@ -1276,7 +1284,14 @@ impl Container {
 }
 #[doc = " Depyler: proven to terminate"]
 pub fn get_first(c: &Container) -> i32 {
-    return c.items.clone().as_ref().unwrap().get(0usize).cloned().unwrap();
+    return c
+        .items
+        .clone()
+        .as_ref()
+        .unwrap()
+        .get(0usize)
+        .cloned()
+        .unwrap();
 }
 '''
 
@@ -1345,7 +1360,14 @@ impl Config {
 }
 #[doc = " Depyler: proven to terminate"]
 pub fn get_setting(c: &Config, key: String) -> i32 {
-    return c.settings.clone().as_ref().unwrap().get(&key).cloned().unwrap();
+    return c
+        .settings
+        .clone()
+        .as_ref()
+        .unwrap()
+        .get(&key)
+        .cloned()
+        .unwrap();
 }
 '''
 
@@ -2340,7 +2362,9 @@ pub struct State {
 impl State {
     pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
         match name {
-            "period_statistics" => Some(Box::new(self.period_statistics.clone()) as Box<dyn std::any::Any>),
+            "period_statistics" => {
+                Some(Box::new(self.period_statistics.clone()) as Box<dyn std::any::Any>)
+            }
             _ => None,
         }
     }
@@ -2362,7 +2386,14 @@ impl State {
 pub fn test_function(state: &State) {
     let mut extra_time_stats: Option<PeriodStatistic> = None;
     if state.is_some() {
-        extra_time_stats = Some(state.period_statistics.clone().get(2usize).cloned().unwrap());
+        extra_time_stats = Some(
+            state
+                .period_statistics
+                .clone()
+                .get(2usize)
+                .cloned()
+                .unwrap(),
+        );
         log::info!("{}", extra_time_stats.as_ref().unwrap().scores.tries);
     }
 }

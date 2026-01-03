@@ -81,7 +81,7 @@ print(x)
 rust = """
 fn main() {
     let mut x = 10;
-    x /= 3;  // Integer division in Rust
+    x /= 3; // Integer division in Rust
     log::info!("{}", x);
 }
 """
@@ -132,9 +132,9 @@ print(x)  # 1000 = 8
 """
 rust = """
 fn main() {
-    let mut x = 12;  // 1100
-    x &= 10;  // 1010
-    log::info!("{}", x);  // 1000 = 8
+    let mut x = 12; // 1100
+    x &= 10; // 1010
+    log::info!("{}", x); // 1000 = 8
 }
 """
 
@@ -148,9 +148,9 @@ print(x)  # 1110 = 14
 """
 rust = """
 fn main() {
-    let mut x = 12;  // 1100
-    x |= 10;  // 1010
-    log::info!("{}", x);  // 1110 = 14
+    let mut x = 12; // 1100
+    x |= 10; // 1010
+    log::info!("{}", x); // 1110 = 14
 }
 """
 
@@ -164,9 +164,9 @@ print(x)  # 0110 = 6
 """
 rust = """
 fn main() {
-    let mut x = 12;  // 1100
-    x ^= 10;  // 1010
-    log::info!("{}", x);  // 0110 = 6
+    let mut x = 12; // 1100
+    x ^= 10; // 1010
+    log::info!("{}", x); // 0110 = 6
 }
 """
 

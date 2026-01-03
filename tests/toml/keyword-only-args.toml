@@ -25,7 +25,9 @@ fn greet(args: GreetArgs) -> String {
 }
 
 fn main() {
-    let args = GreetArgs { name: "Alice".to_string() };
+    let args = GreetArgs {
+        name: "Alice".to_string(),
+    };
     log::info!("{}", greet(args));
 }
 """
@@ -47,7 +49,10 @@ struct ConfigArgs {
 }
 
 fn configure(args: ConfigArgs) -> String {
-    format!("Connecting to {}:{} (debug={})", args.host, args.port, args.debug)
+    format!(
+        "Connecting to {}:{} (debug={})",
+        args.host, args.port, args.debug
+    )
 }
 
 fn main() {
@@ -89,7 +94,13 @@ fn point(args: PointArgs) -> String {
 
 fn main() {
     log::info!("{}", point(PointArgs::default()));
-    log::info!("{}", point(PointArgs { x: 5, ..Default::default() }));
+    log::info!(
+        "{}",
+        point(PointArgs {
+            x: 5,
+            ..Default::default()
+        })
+    );
     log::info!("{}", point(PointArgs { x: 3, y: 4 }));
 }
 """
@@ -225,9 +236,15 @@ struct ProcessFilesArgs {
 
 fn process_files(args: ProcessFilesArgs) -> String {
     let mut flags = Vec::new();
-    if args.verbose { flags.push("verbose"); }
-    if args.recursive { flags.push("recursive"); }
-    if args.backup { flags.push("backup"); }
+    if args.verbose {
+        flags.push("verbose");
+    }
+    if args.recursive {
+        flags.push("recursive");
+    }
+    if args.backup {
+        flags.push("backup");
+    }
     format!("Processing with: {}", flags.join(", "))
 }
 
@@ -259,8 +276,10 @@ struct ResizeImageArgs {
 }
 
 fn resize_image(args: ResizeImageArgs) -> String {
-    format!("Resizing to {}x{} (maintain={})", 
-            args.width, args.height, args.maintain_aspect)
+    format!(
+        "Resizing to {}x{} (maintain={})",
+        args.width, args.height, args.maintain_aspect
+    )
 }
 
 fn main() {
@@ -362,10 +381,13 @@ fn setup(args: SetupArgs) -> String {
 
 fn main() {
     log::info!("{}", setup(SetupArgs::new("localhost".to_string())));
-    log::info!("{}", setup(SetupArgs {
-        host: "example.com".to_string(),
-        port: 9000,
-    }));
+    log::info!(
+        "{}",
+        setup(SetupArgs {
+            host: "example.com".to_string(),
+            port: 9000,
+        })
+    );
 }
 """
 
@@ -404,10 +426,13 @@ fn typed_func(args: TypedFuncArgs) -> String {
 
 fn main() {
     log::info!("{}", typed_func(TypedFuncArgs::new(42)));
-    log::info!("{}", typed_func(TypedFuncArgs {
-        count: 5,
-        message: "Items".to_string(),
-    }));
+    log::info!(
+        "{}",
+        typed_func(TypedFuncArgs {
+            count: 5,
+            message: "Items".to_string(),
+        })
+    );
 }
 """
 
@@ -434,7 +459,7 @@ impl Calculator {
     fn new() -> Self {
         Calculator { base: 10 }
     }
-    
+
     fn add(&self, value: i32) -> i32 {
         self.base + value
     }

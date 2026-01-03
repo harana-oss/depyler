@@ -36,13 +36,16 @@ struct Counter {
 
 impl Counter {
     fn new(max_val: i32) -> Self {
-        Counter { max_val, current: 0 }
+        Counter {
+            max_val,
+            current: 0,
+        }
     }
 }
 
 impl Iterator for Counter {
     type Item = i32;
-    
+
     fn next(&mut self) -> Option<Self::Item> {
         if self.current < self.max_val {
             self.current += 1;
@@ -93,7 +96,7 @@ impl NumberList {
 impl IntoIterator for NumberList {
     type Item = i32;
     type IntoIter = std::vec::IntoIter<i32>;
-    
+
     fn into_iter(self) -> Self::IntoIter {
         self.numbers.into_iter()
     }
@@ -193,7 +196,7 @@ impl MyList {
 impl IntoIterator for MyList {
     type Item = i32;
     type IntoIter = std::vec::IntoIter<i32>;
-    
+
     fn into_iter(self) -> Self::IntoIter {
         log::info!("__iter__ called");
         self.items.into_iter()
@@ -253,7 +256,7 @@ impl SimpleIterator {
 
 impl Iterator for SimpleIterator {
     type Item = i32;
-    
+
     fn next(&mut self) -> Option<Self::Item> {
         if self.index < self.data.len() {
             let result = self.data[self.index];
@@ -313,7 +316,7 @@ impl ThreeIterator {
 
 impl Iterator for ThreeIterator {
     type Item = i32;
-    
+
     fn next(&mut self) -> Option<Self::Item> {
         if self.count < 3 {
             self.count += 1;
@@ -374,7 +377,7 @@ impl MyIterator {
 
 impl Iterator for MyIterator {
     type Item = char;
-    
+
     fn next(&mut self) -> Option<Self::Item> {
         if self.index < self.items.len() {
             let result = self.items[self.index];
@@ -433,7 +436,7 @@ impl MyIterator {
 
 impl Iterator for MyIterator {
     type Item = i32;
-    
+
     fn next(&mut self) -> Option<Self::Item> {
         if self.index < self.items.len() {
             let result = self.items[self.index];
@@ -484,7 +487,7 @@ impl MyList {
     fn new(items: Vec<i32>) -> Self {
         MyList { items }
     }
-    
+
     fn reversed(&self) -> impl Iterator<Item = &i32> {
         self.items.iter().rev()
     }
@@ -527,7 +530,7 @@ impl MySequence {
     fn new(data: Vec<i32>) -> Self {
         MySequence { data }
     }
-    
+
     fn reversed(&self) -> impl Iterator<Item = &i32> {
         log::info!("__reversed__ called");
         self.data.iter().rev()
@@ -573,11 +576,11 @@ impl MySequence {
     fn new(data: Vec<i32>) -> Self {
         MySequence { data }
     }
-    
+
     fn len(&self) -> usize {
         self.data.len()
     }
-    
+
     fn get(&self, index: usize) -> Option<&i32> {
         self.data.get(index)
     }
@@ -631,7 +634,7 @@ impl Countdown {
 
 impl Iterator for Countdown {
     type Item = i32;
-    
+
     fn next(&mut self) -> Option<Self::Item> {
         if self.current <= 0 {
             None
@@ -692,7 +695,7 @@ impl PositionIterator {
 
 impl Iterator for PositionIterator {
     type Item = char;
-    
+
     fn next(&mut self) -> Option<Self::Item> {
         if self.position >= self.items.len() {
             None
@@ -755,7 +758,7 @@ impl TwoIterator {
 
 impl Iterator for TwoIterator {
     type Item = i32;
-    
+
     fn next(&mut self) -> Option<Self::Item> {
         if self.count < 2 {
             self.count += 1;
@@ -813,7 +816,7 @@ impl ReusableIterable {
 impl<'a> IntoIterator for &'a ReusableIterable {
     type Item = &'a i32;
     type IntoIter = std::slice::Iter<'a, i32>;
-    
+
     fn into_iter(self) -> Self::IntoIter {
         self.items.iter()
     }
@@ -897,7 +900,7 @@ impl RangeIterator {
 
 impl Iterator for RangeIterator {
     type Item = i32;
-    
+
     fn next(&mut self) -> Option<Self::Item> {
         if self.current < self.end {
             let result = self.current;
@@ -912,7 +915,7 @@ impl Iterator for RangeIterator {
 impl IntoIterator for CustomRange {
     type Item = i32;
     type IntoIter = RangeIterator;
-    
+
     fn into_iter(self) -> Self::IntoIter {
         RangeIterator::new(self.end)
     }
@@ -959,7 +962,7 @@ impl InfiniteCounter {
 
 impl Iterator for InfiniteCounter {
     type Item = i32;
-    
+
     fn next(&mut self) -> Option<Self::Item> {
         Some(1)
     }
@@ -1007,7 +1010,7 @@ impl Triple {
     fn new(a: i32, b: i32, c: i32) -> Self {
         Triple { items: [a, b, c] }
     }
-    
+
     fn unpack(&self) -> (i32, i32, i32) {
         (self.items[0], self.items[1], self.items[2])
     }
@@ -1063,7 +1066,7 @@ impl MyRange {
 
 impl Iterator for MyRange {
     type Item = i32;
-    
+
     fn next(&mut self) -> Option<Self::Item> {
         if self.current < self.end {
             let result = self.current;
@@ -1114,7 +1117,7 @@ impl LineReader {
 impl IntoIterator for LineReader {
     type Item = String;
     type IntoIter = std::vec::IntoIter<String>;
-    
+
     fn into_iter(self) -> Self::IntoIter {
         self.lines.into_iter()
     }
@@ -1168,7 +1171,7 @@ impl Repeater {
 
 impl Iterator for Repeater {
     type Item = i32;
-    
+
     fn next(&mut self) -> Option<Self::Item> {
         Some(self.value)
     }
@@ -1234,7 +1237,7 @@ impl OneTimeIterator {
 
 impl Iterator for OneTimeIterator {
     type Item = i32;
-    
+
     fn next(&mut self) -> Option<Self::Item> {
         if self.index < self.items.len() {
             let result = self.items[self.index];
@@ -1292,7 +1295,7 @@ impl Counter {
     fn new() -> Self {
         Counter { count: 0 }
     }
-    
+
     fn next(&mut self) -> i32 {
         self.count += 1;
         self.count
@@ -1351,7 +1354,7 @@ impl HintedIterator {
     fn new(items: Vec<i32>) -> Self {
         HintedIterator { items, index: 0 }
     }
-    
+
     fn length_hint(&self) -> usize {
         self.items.len() - self.index
     }
@@ -1359,7 +1362,7 @@ impl HintedIterator {
 
 impl Iterator for HintedIterator {
     type Item = i32;
-    
+
     fn next(&mut self) -> Option<Self::Item> {
         if self.index < self.items.len() {
             let result = self.items[self.index];
@@ -1369,7 +1372,7 @@ impl Iterator for HintedIterator {
             None
         }
     }
-    
+
     fn size_hint(&self) -> (usize, Option<usize>) {
         let remaining = self.items.len() - self.index;
         (remaining, Some(remaining))

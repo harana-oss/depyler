@@ -90,10 +90,10 @@ impl Temperature {
     fn new(celsius: f64) -> Self {
         Temperature { celsius }
     }
-    
+
     fn format_spec(&self, spec: &str) -> String {
         match spec {
-            "F" => format!("{:.1}°F", self.celsius * 9.0/5.0 + 32.0),
+            "F" => format!("{:.1}°F", self.celsius * 9.0 / 5.0 + 32.0),
             "K" => format!("{:.1}K", self.celsius + 273.15),
             _ => format!("{:.1}°C", self.celsius),
         }
@@ -140,7 +140,7 @@ impl Money {
     fn new(amount: f64) -> Self {
         Money { amount }
     }
-    
+
     fn format_spec(&self, spec: &str) -> String {
         match spec {
             "USD" => format!("${:.2}", self.amount),
@@ -185,9 +185,11 @@ struct Person {
 
 impl Person {
     fn new(name: &str) -> Self {
-        Person { name: name.to_string() }
+        Person {
+            name: name.to_string(),
+        }
     }
-    
+
     fn format_spec(&self, spec: &str) -> String {
         if spec.is_empty() {
             self.name.clone()
@@ -243,7 +245,7 @@ impl Color {
     fn new(r: u8, g: u8, b: u8) -> Self {
         Color { r, g, b }
     }
-    
+
     fn format_spec(&self, spec: &str) -> String {
         match spec {
             "hex" => format!("#{:02x}{:02x}{:02x}", self.r, self.g, self.b),
@@ -331,15 +333,15 @@ fn main() {
     let width = 10;
     let len = label.len();
     let padding = width.saturating_sub(len);
-    
+
     // Center with *
     let left = padding / 2;
     let right = padding - left;
     log::info!("{}{}{}", "*".repeat(left), label, "*".repeat(right));
-    
+
     // Right align with =
     log::info!("{}{}", "=".repeat(padding), label);
-    
+
     // Left align with -
     log::info!("{}{}", label, "-".repeat(padding));
 }
@@ -375,9 +377,11 @@ struct Message {
 
 impl Message {
     fn new(text: &str) -> Self {
-        Message { text: text.to_string() }
+        Message {
+            text: text.to_string(),
+        }
     }
-    
+
     fn to_bytes(&self) -> Vec<u8> {
         self.text.as_bytes().to_vec()
     }
@@ -417,7 +421,7 @@ impl Data {
     fn new(values: Vec<u8>) -> Self {
         Data { values }
     }
-    
+
     fn to_bytes(&self) -> Vec<u8> {
         self.values.clone()
     }
@@ -461,9 +465,12 @@ struct Packet {
 
 impl Packet {
     fn new(type_id: u8, data: &str) -> Self {
-        Packet { type_id, data: data.to_string() }
+        Packet {
+            type_id,
+            data: data.to_string(),
+        }
     }
-    
+
     fn to_bytes(&self) -> Vec<u8> {
         let data_bytes = self.data.as_bytes();
         let length = data_bytes.len() as u16;
@@ -513,7 +520,7 @@ impl Container {
     fn new(items: Vec<i32>) -> Self {
         Container { items }
     }
-    
+
     fn to_bool(&self) -> bool {
         !self.items.is_empty()
     }
@@ -554,7 +561,7 @@ impl Status {
     fn new(is_active: bool) -> Self {
         Status { is_active }
     }
-    
+
     fn to_bool(&self) -> bool {
         self.is_active
     }
@@ -611,7 +618,7 @@ fn main() {
     } else {
         log::info!("Gate is closed");
     }
-    
+
     let gate2 = Gate::new(false);
     if gate2.is_open {
         log::info!("Gate is open");
@@ -649,11 +656,11 @@ impl Queue {
     fn new(items: Vec<i32>) -> Self {
         Queue { items }
     }
-    
+
     fn len(&self) -> usize {
         self.items.len()
     }
-    
+
     fn to_bool(&self) -> bool {
         self.len() != 0
     }
@@ -700,7 +707,7 @@ fn main() {
     // In Rust, we need to explicitly define what "truthy" means
     // Python objects without __bool__ or __len__ are always True
     log::info!("True");
-    
+
     let thing2 = Thing::new(0);
     log::info!("True");
 }
@@ -738,7 +745,7 @@ impl CustomObject {
     fn new(data: Vec<i32>) -> Self {
         CustomObject { data }
     }
-    
+
     fn sizeof(&self) -> usize {
         std::mem::size_of::<Self>() + self.data.len() * std::mem::size_of::<i32>()
     }
@@ -775,9 +782,11 @@ struct Buffer {
 
 impl Buffer {
     fn new(size: usize) -> Self {
-        Buffer { data: vec![0; size] }
+        Buffer {
+            data: vec![0; size],
+        }
     }
-    
+
     fn sizeof(&self) -> usize {
         std::mem::size_of::<Self>() + self.data.len()
     }
@@ -825,7 +834,7 @@ impl Fraction {
     fn new(num: i32, den: i32) -> Self {
         Fraction { num, den }
     }
-    
+
     fn format_spec(&self, spec: &str) -> String {
         match spec {
             "dec" => format!("{:.2}", self.num as f64 / self.den as f64),
@@ -878,7 +887,7 @@ impl CustomDate {
             dt: NaiveDate::from_ymd_opt(year, month, day).unwrap(),
         }
     }
-    
+
     fn format_spec(&self, spec: &str) -> String {
         if spec.is_empty() {
             self.dt.to_string()
@@ -933,11 +942,11 @@ impl Result {
 fn main() {
     let result_ok = Result::new(true, Some(42));
     let result_fail = Result::new(false, None);
-    
+
     if result_ok.success {
         log::info!("Success!");
     }
-    
+
     if !result_fail.success {
         log::info!("Failed!");
     }
@@ -1026,9 +1035,11 @@ struct Styled {
 
 impl Styled {
     fn new(text: &str) -> Self {
-        Styled { text: text.to_string() }
+        Styled {
+            text: text.to_string(),
+        }
     }
-    
+
     fn format_spec(&self, spec: &str) -> String {
         if spec.contains('u') {
             self.text.to_uppercase()
@@ -1036,7 +1047,8 @@ impl Styled {
             self.text.to_lowercase()
         } else if spec.contains('t') {
             // Title case approximation
-            self.text.split_whitespace()
+            self.text
+                .split_whitespace()
                 .map(|word| {
                     let mut chars = word.chars();
                     match chars.next() {

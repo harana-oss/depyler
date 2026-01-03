@@ -722,7 +722,7 @@ impl A {
     fn new(x: i32) -> Self {
         A { x }
     }
-    
+
     fn eq_b(&self, other: &B) -> bool {
         self.x == other.y
     }
@@ -732,7 +732,7 @@ impl B {
     fn new(y: i32) -> Self {
         B { y }
     }
-    
+
     fn eq_a(&self, other: &A) -> bool {
         self.y == other.x
     }
@@ -823,7 +823,7 @@ impl Special {
     fn new(x: i32) -> Self {
         Special { x }
     }
-    
+
     fn eq_str(&self, other: &Special) -> &'static str {
         if self.x == other.x {
             "equal"

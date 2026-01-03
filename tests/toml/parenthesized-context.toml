@@ -23,12 +23,12 @@ assert result == "resource"
 '''
 
 rust = '''
-// Rust: RAII pattern with explicit scope
-{
-    let cm = String::from("resource");
-    let result = cm;
-    assert_eq!(result, "resource");
-}
+    // Rust: RAII pattern with explicit scope
+    {
+        let cm = String::from("resource");
+        let result = cm;
+        assert_eq!(result, "resource");
+    }
 '''
 
 
@@ -54,13 +54,13 @@ assert result == ("a", "b")
 '''
 
 rust = '''
-// Rust: multiple bindings in scope
-{
-    let a = String::from("a");
-    let b = String::from("b");
-    let result = (a.clone(), b.clone());
-    assert_eq!(result, (String::from("a"), String::from("b")));
-}
+    // Rust: multiple bindings in scope
+    {
+        let a = String::from("a");
+        let b = String::from("b");
+        let result = (a.clone(), b.clone());
+        assert_eq!(result, (String::from("a"), String::from("b")));
+    }
 '''
 
 
@@ -83,13 +83,13 @@ assert result == 3
 '''
 
 rust = '''
-// Rust: multiple bindings with trailing comma style
-{
-    let a = 1;
-    let b = 2;
-    let result = a + b;
-    assert_eq!(result, 3);
-}
+    // Rust: multiple bindings with trailing comma style
+    {
+        let a = 1;
+        let b = 2;
+        let result = a + b;
+        assert_eq!(result, 3);
+    }
 '''
 
 
@@ -116,19 +116,19 @@ assert result == ("content1", "content2")
 '''
 
 rust = '''
-// Rust: RAII file handles
-use std::io::Cursor;
-use std::io::Read;
+    // Rust: RAII file handles
+    use std::io::Cursor;
+    use std::io::Read;
 
-let mut file1 = Cursor::new(b"content1");
-let mut file2 = Cursor::new(b"content2");
-let mut buf1 = String::new();
-let mut buf2 = String::new();
-file1.read_to_string(&mut buf1).unwrap();
-file2.read_to_string(&mut buf2).unwrap();
-let result = (buf1, buf2);
-assert_eq!(result.0, "content1");
-assert_eq!(result.1, "content2");
+    let mut file1 = Cursor::new(b"content1");
+    let mut file2 = Cursor::new(b"content2");
+    let mut buf1 = String::new();
+    let mut buf2 = String::new();
+    file1.read_to_string(&mut buf1).unwrap();
+    file2.read_to_string(&mut buf2).unwrap();
+    let result = (buf1, buf2);
+    assert_eq!(result.0, "content1");
+    assert_eq!(result.1, "content2");
 '''
 
 
@@ -156,15 +156,15 @@ assert result == 10
 '''
 
 rust = '''
-// Rust: many bindings in scope
-{
-    let a = 1;
-    let b = 2;
-    let c = 3;
-    let d = 4;
-    let result = a + b + c + d;
-    assert_eq!(result, 10);
-}
+    // Rust: many bindings in scope
+    {
+        let a = 1;
+        let b = 2;
+        let c = 3;
+        let d = 4;
+        let result = a + b + c + d;
+        assert_eq!(result, 10);
+    }
 '''
 
 
@@ -191,15 +191,15 @@ assert result == ("a", "c")
 '''
 
 rust = '''
-// Rust: mixed binding pattern
-{
-    let x = String::from("a");
-    let _b = String::from("b");
-    let z = String::from("c");
-    let result = (x, z);
-    assert_eq!(result.0, "a");
-    assert_eq!(result.1, "c");
-}
+    // Rust: mixed binding pattern
+    {
+        let x = String::from("a");
+        let _b = String::from("b");
+        let z = String::from("c");
+        let result = (x, z);
+        assert_eq!(result.0, "a");
+        assert_eq!(result.1, "c");
+    }
 '''
 
 
@@ -229,13 +229,13 @@ assert result > 0
 '''
 
 rust = '''
-// Rust: long variable names formatted across lines
-{
-    let ctx1 = String::from("very_long_context_manager_name_1");
-    let ctx2 = String::from("very_long_context_manager_name_2");
-    let result = ctx1.len() + ctx2.len();
-    assert!(result > 0);
-}
+    // Rust: long variable names formatted across lines
+    {
+        let ctx1 = String::from("very_long_context_manager_name_1");
+        let ctx2 = String::from("very_long_context_manager_name_2");
+        let result = ctx1.len() + ctx2.len();
+        assert!(result > 0);
+    }
 '''
 
 
@@ -282,13 +282,13 @@ assert result == 3
 '''
 
 rust = '''
-// Rust: commented bindings
-{
-    let a = 1; // first
-    let b = 2; // second
-    let result = a + b;
-    assert_eq!(result, 3);
-}
+    // Rust: commented bindings
+    {
+        let a = 1; // first
+        let b = 2; // second
+        let result = a + b;
+        assert_eq!(result, 3);
+    }
 '''
 
 
@@ -316,13 +316,13 @@ assert result == 3
 '''
 
 rust = '''
-// Rust: line continuation not needed
-{
-    let a = 1;
-    let b = 2;
-    let result = a + b;
-    assert_eq!(result, 3);
-}
+    // Rust: line continuation not needed
+    {
+        let a = 1;
+        let b = 2;
+        let result = a + b;
+        assert_eq!(result, 3);
+    }
 '''
 
 
@@ -346,15 +346,15 @@ assert result == 3
 '''
 
 rust = '''
-// Rust: nested scopes
-{
-    let a = 1;
+    // Rust: nested scopes
     {
-        let b = 2;
-        let result = a + b;
-        assert_eq!(result, 3);
+        let a = 1;
+        {
+            let b = 2;
+            let result = a + b;
+            assert_eq!(result, 3);
+        }
     }
-}
 '''
 
 
@@ -380,12 +380,12 @@ assert result == 6
 '''
 
 rust = '''
-// Rust: Vec of resources
-{
-    let items: Vec<i32> = vec![1, 2, 3];
-    let result: i32 = items.iter().sum();
-    assert_eq!(result, 6);
-}
+    // Rust: Vec of resources
+    {
+        let items: Vec<i32> = vec![1, 2, 3];
+        let result: i32 = items.iter().sum();
+        assert_eq!(result, 6);
+    }
 '''
 
 
@@ -423,23 +423,23 @@ assert result == 142
 '''
 
 rust = '''
-// Rust: expressions in bindings
-fn get_cm() -> i32 {
-    42
-}
-
-struct Obj;
-impl Obj {
-    fn method(&self) -> i32 {
-        100
+    // Rust: expressions in bindings
+    fn get_cm() -> i32 {
+        42
     }
-}
 
-let obj = Obj;
-let x = get_cm();
-let y = obj.method();
-let result = x + y;
-assert_eq!(result, 142);
+    struct Obj;
+    impl Obj {
+        fn method(&self) -> i32 {
+            100
+        }
+    }
+
+    let obj = Obj;
+    let x = get_cm();
+    let y = obj.method();
+    let result = x + y;
+    assert_eq!(result, 142);
 '''
 
 
@@ -487,11 +487,11 @@ with CM() as x:
 '''
 
 rust = '''
-// Rust: valid block with resource
-{
-    let x = 42;
-    let result = x == 42;
-}
+    // Rust: valid block with resource
+    {
+        let x = 42;
+        let result = x == 42;
+    }
 '''
 
 
@@ -512,12 +512,12 @@ assert result == 99
 '''
 
 rust = '''
-// Rust: single binding
-{
-    let cm = 99;
-    let result = cm;
-    assert_eq!(result, 99);
-}
+    // Rust: single binding
+    {
+        let cm = 99;
+        let result = cm;
+        assert_eq!(result, 99);
+    }
 '''
 
 
@@ -538,12 +538,12 @@ assert result == 77
 '''
 
 rust = '''
-// Rust: nested parentheses
-{
-    let cm = 77;
-    let result = cm;
-    assert_eq!(result, 77);
-}
+    // Rust: nested parentheses
+    {
+        let cm = 77;
+        let result = cm;
+        assert_eq!(result, 77);
+    }
 '''
 
 
@@ -562,8 +562,8 @@ result = sys.version_info >= (3, 10)
 '''
 
 rust = '''
-// Rust: no version requirements for this pattern
-let result = true;
+    // Rust: no version requirements for this pattern
+    let result = true;
 '''
 
 
@@ -589,12 +589,12 @@ assert result == 30
 '''
 
 rust = '''
-// Rust: same pattern works at any version
-{
-    let a = 10;
-    let b = 20;
-    let result = a + b;
-    assert_eq!(result, 30);
-}
+    // Rust: same pattern works at any version
+    {
+        let a = 10;
+        let b = 20;
+        let result = a + b;
+        assert_eq!(result, 30);
+    }
 '''
 

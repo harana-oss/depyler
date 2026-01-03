@@ -28,10 +28,14 @@ result = Combined()
 rust = '''
 // Rust uses traits for composition
 trait Mixin1 {
-    fn method1(&self) -> i32 { 1 }
+    fn method1(&self) -> i32 {
+        1
+    }
 }
 trait Mixin2 {
-    fn method2(&self) -> i32 { 2 }
+    fn method2(&self) -> i32 {
+        2
+    }
 }
 '''
 
@@ -56,26 +60,30 @@ result = Child().shared_method() == "from_parent1"
 '''
 
 rust = '''
-// Method resolution picks first parent
-trait Parent1 {
-    fn shared_method(&self) -> &str { "from_parent1" }
-}
+    // Method resolution picks first parent
+    trait Parent1 {
+        fn shared_method(&self) -> &str {
+            "from_parent1"
+        }
+    }
 
-trait Parent2 {
-    fn shared_method(&self) -> &str { "from_parent2" }
-}
+    trait Parent2 {
+        fn shared_method(&self) -> &str {
+            "from_parent2"
+        }
+    }
 
-struct Child;
+    struct Child;
 
-impl Parent1 for Child {}
-impl Parent2 for Child {}
+    impl Parent1 for Child {}
+    impl Parent2 for Child {}
 
-pub fn test_method_first() -> bool {
-    let child = Child;
-    Parent1::shared_method(&child) == "from_parent1"
-}
+    pub fn test_method_first() -> bool {
+        let child = Child;
+        Parent1::shared_method(&child) == "from_parent1"
+    }
 
-let result = test_method_first();
+    let result = test_method_first();
 '''
 
 
@@ -99,26 +107,30 @@ result = Child().method2() == "parent2_method"
 '''
 
 rust = '''
-// Method from second parent when first doesn't have it
-trait Parent1 {
-    fn method1(&self) -> &str { "parent1_method" }
-}
+    // Method from second parent when first doesn't have it
+    trait Parent1 {
+        fn method1(&self) -> &str {
+            "parent1_method"
+        }
+    }
 
-trait Parent2 {
-    fn method2(&self) -> &str { "parent2_method" }
-}
+    trait Parent2 {
+        fn method2(&self) -> &str {
+            "parent2_method"
+        }
+    }
 
-struct Child;
+    struct Child;
 
-impl Parent1 for Child {}
-impl Parent2 for Child {}
+    impl Parent1 for Child {}
+    impl Parent2 for Child {}
 
-pub fn test_method_second() -> bool {
-    let child = Child;
-    child.method2() == "parent2_method"
-}
+    pub fn test_method_second() -> bool {
+        let child = Child;
+        child.method2() == "parent2_method"
+    }
 
-let result = test_method_second();
+    let result = test_method_second();
 '''
 
 
@@ -139,7 +151,9 @@ result = Example(42)
 '''
 
 rust = '''
-struct Example { value: i32 }
+struct Example {
+    value: i32,
+}
 '''
 
 
@@ -165,24 +179,24 @@ result = len(mro_list) > 0 and mro_list[0] == D
 '''
 
 rust = '''
-// Class.mro() returns list
-// Rust doesn't have runtime MRO, but we can verify trait bounds
-trait A {}
-trait B: A {}
-trait C: A {}
+    // Class.mro() returns list
+    // Rust doesn't have runtime MRO, but we can verify trait bounds
+    trait A {}
+    trait B: A {}
+    trait C: A {}
 
-struct D;
-impl A for D {}
-impl B for D {}
-impl C for D {}
+    struct D;
+    impl A for D {}
+    impl B for D {}
+    impl C for D {}
 
-pub fn test_mro() -> bool {
-    // Verify D implements all traits
-    let _d: &dyn A = &D;
-    true
-}
+    pub fn test_mro() -> bool {
+        // Verify D implements all traits
+        let _d: &dyn A = &D;
+        true
+    }
 
-let result = test_mro();
+    let result = test_mro();
 '''
 
 
@@ -218,28 +232,28 @@ result = mro.index(B) < mro.index(O) and mro.index(A) < mro.index(O)
 '''
 
 rust = '''
-// MRO follows C3 algorithm
-// Rust uses trait bounds for hierarchies
-trait O {}
-trait A: O {}
-trait B: O {}
-trait C: O {}
+    // MRO follows C3 algorithm
+    // Rust uses trait bounds for hierarchies
+    trait O {}
+    trait A: O {}
+    trait B: O {}
+    trait C: O {}
 
-struct F;
+    struct F;
 
-impl O for F {}
-impl A for F {}
-impl B for F {}
-impl C for F {}
+    impl O for F {}
+    impl A for F {}
+    impl B for F {}
+    impl C for F {}
 
-pub fn test_c3() -> bool {
-    // Verify F implements all traits in hierarchy
-    let f = F;
-    let _o: &dyn O = &f;
-    true
-}
+    pub fn test_c3() -> bool {
+        // Verify F implements all traits in hierarchy
+        let f = F;
+        let _o: &dyn O = &f;
+        true
+    }
 
-let result = test_c3();
+    let result = test_c3();
 '''
 
 
@@ -270,26 +284,28 @@ result = d.method() == "A"
 '''
 
 rust = '''
-// D inherits from B, C which both inherit from A
-trait A {
-    fn method(&self) -> &str { "A" }
-}
+    // D inherits from B, C which both inherit from A
+    trait A {
+        fn method(&self) -> &str {
+            "A"
+        }
+    }
 
-struct B;
-impl A for B {}
+    struct B;
+    impl A for B {}
 
-struct C;
-impl A for C {}
+    struct C;
+    impl A for C {}
 
-struct D;
-impl A for D {}
+    struct D;
+    impl A for D {}
 
-pub fn test_diamond_basic() -> bool {
-    let d = D;
-    d.method() == "A"
-}
+    pub fn test_diamond_basic() -> bool {
+        let d = D;
+        d.method() == "A"
+    }
 
-let result = test_diamond_basic();
+    let result = test_diamond_basic();
 '''
 
 
@@ -318,34 +334,42 @@ result = d.method() == "B"  # MRO picks first parent
 '''
 
 rust = '''
-// Which implementation is used in diamond
-trait A {
-    fn method(&self) -> &str { "A" }
-}
+    // Which implementation is used in diamond
+    trait A {
+        fn method(&self) -> &str {
+            "A"
+        }
+    }
 
-struct D;
+    struct D;
 
-trait B: A {
-    fn method_b(&self) -> &str { "B" }
-}
+    trait B: A {
+        fn method_b(&self) -> &str {
+            "B"
+        }
+    }
 
-trait C: A {
-    fn method_c(&self) -> &str { "C" }
-}
+    trait C: A {
+        fn method_c(&self) -> &str {
+            "C"
+        }
+    }
 
-impl A for D {
-    fn method(&self) -> &str { "B" }  // Explicit implementation
-}
+    impl A for D {
+        fn method(&self) -> &str {
+            "B"
+        } // Explicit implementation
+    }
 
-impl B for D {}
-impl C for D {}
+    impl B for D {}
+    impl C for D {}
 
-pub fn test_diamond_method() -> bool {
-    let d = D;
-    d.method() == "B"
-}
+    pub fn test_diamond_method() -> bool {
+        let d = D;
+        d.method() == "B"
+    }
 
-let result = test_diamond_method();
+    let result = test_diamond_method();
 '''
 
 
@@ -375,18 +399,26 @@ result = d.method() == "DBCA"  # super() follows MRO: D -> B -> C -> A
 '''
 
 rust = '''
-// super() in diamond follows MRO
-// Rust doesn't have super() but we can simulate the behavior
-pub fn test_diamond_super() -> bool {
-    fn method_a() -> String { "A".to_string() }
-    fn method_c() -> String { format!("C{}", method_a()) }
-    fn method_b() -> String { format!("B{}", method_c()) }
-    fn method_d() -> String { format!("D{}", method_b()) }
-    
-    method_d() == "DBCA"
-}
+    // super() in diamond follows MRO
+    // Rust doesn't have super() but we can simulate the behavior
+    pub fn test_diamond_super() -> bool {
+        fn method_a() -> String {
+            "A".to_string()
+        }
+        fn method_c() -> String {
+            format!("C{}", method_a())
+        }
+        fn method_b() -> String {
+            format!("B{}", method_c())
+        }
+        fn method_d() -> String {
+            format!("D{}", method_b())
+        }
 
-let result = test_diamond_super();
+        method_d() == "DBCA"
+    }
+
+    let result = test_diamond_super();
 '''
 
 
@@ -411,27 +443,29 @@ result = Child().method() == "parent_child"
 '''
 
 rust = '''
-// super().method() calls parent
-trait Parent {
-    fn method(&self) -> String { "parent".to_string() }
-}
-
-struct Child;
-
-impl Parent for Child {}
-
-impl Child {
-    fn method(&self) -> String {
-        format!("{}_child", Parent::method(self))
+    // super().method() calls parent
+    trait Parent {
+        fn method(&self) -> String {
+            "parent".to_string()
+        }
     }
-}
 
-pub fn test_super_basic() -> bool {
-    let child = Child;
-    child.method() == "parent_child"
-}
+    struct Child;
 
-let result = test_super_basic();
+    impl Parent for Child {}
+
+    impl Child {
+        fn method(&self) -> String {
+            format!("{}_child", Parent::method(self))
+        }
+    }
+
+    pub fn test_super_basic() -> bool {
+        let child = Child;
+        child.method() == "parent_child"
+    }
+
+    let result = test_super_basic();
 '''
 
 
@@ -456,30 +490,36 @@ result = C().method() == "B"
 '''
 
 rust = '''
-// super(Class, self).method()
-// Rust doesn't have super() with args, but we can explicitly call parent methods
-trait A {
-    fn method(&self) -> &str { "A" }
-}
+    // super(Class, self).method()
+    // Rust doesn't have super() with args, but we can explicitly call parent methods
+    trait A {
+        fn method(&self) -> &str {
+            "A"
+        }
+    }
 
-trait B: A {
-    fn method_b(&self) -> &str { "B" }
-}
+    trait B: A {
+        fn method_b(&self) -> &str {
+            "B"
+        }
+    }
 
-struct C;
+    struct C;
 
-impl A for C {
-    fn method(&self) -> &str { "B" }
-}
+    impl A for C {
+        fn method(&self) -> &str {
+            "B"
+        }
+    }
 
-impl B for C {}
+    impl B for C {}
 
-pub fn test_super_with_args() -> bool {
-    let c = C;
-    c.method() == "B"
-}
+    pub fn test_super_with_args() -> bool {
+        let c = C;
+        c.method() == "B"
+    }
 
-let result = test_super_with_args();
+    let result = test_super_with_args();
 '''
 
 
@@ -512,31 +552,31 @@ result = hasattr(d, 'a') and hasattr(d, 'b') and hasattr(d, 'c') and hasattr(d, 
 '''
 
 rust = '''
-// All classes in hierarchy use super()
-struct D {
-    a: String,
-    b: String,
-    c: String,
-    d: String,
-}
+    // All classes in hierarchy use super()
+    struct D {
+        a: String,
+        b: String,
+        c: String,
+        d: String,
+    }
 
-impl D {
-    fn new() -> Self {
-        D {
-            a: "A".to_string(),
-            b: "B".to_string(),
-            c: "C".to_string(),
-            d: "D".to_string(),
+    impl D {
+        fn new() -> Self {
+            D {
+                a: "A".to_string(),
+                b: "B".to_string(),
+                c: "C".to_string(),
+                d: "D".to_string(),
+            }
         }
     }
-}
 
-pub fn test_super_cooperative() -> bool {
-    let d = D::new();
-    !d.a.is_empty() && !d.b.is_empty() && !d.c.is_empty() && !d.d.is_empty()
-}
+    pub fn test_super_cooperative() -> bool {
+        let d = D::new();
+        !d.a.is_empty() && !d.b.is_empty() && !d.c.is_empty() && !d.d.is_empty()
+    }
 
-let result = test_super_cooperative();
+    let result = test_super_cooperative();
 '''
 
 
@@ -559,24 +599,24 @@ result = child.value == 10 and child.extra == 20
 '''
 
 rust = '''
-// Proper initialization with super()
-struct Child {
-    value: i32,
-    extra: i32,
-}
-
-impl Child {
-    fn new(value: i32, extra: i32) -> Self {
-        Child { value, extra }
+    // Proper initialization with super()
+    struct Child {
+        value: i32,
+        extra: i32,
     }
-}
 
-pub fn test_super_init() -> bool {
-    let child = Child::new(10, 20);
-    child.value == 10 && child.extra == 20
-}
+    impl Child {
+        fn new(value: i32, extra: i32) -> Self {
+            Child { value, extra }
+        }
+    }
 
-let result = test_super_init();
+    pub fn test_super_init() -> bool {
+        let child = Child::new(10, 20);
+        child.value == 10 && child.extra == 20
+    }
+
+    let result = test_super_init();
 '''
 
 
@@ -609,31 +649,37 @@ result = obj.feature1() == "feature1" and obj.feature2() == "feature2" and obj.b
 '''
 
 rust = '''
-// class MyClass(Mixin1, Mixin2, Base): ...
-trait Mixin1 {
-    fn feature1(&self) -> &str { "feature1" }
-}
+    // class MyClass(Mixin1, Mixin2, Base): ...
+    trait Mixin1 {
+        fn feature1(&self) -> &str {
+            "feature1"
+        }
+    }
 
-trait Mixin2 {
-    fn feature2(&self) -> &str { "feature2" }
-}
+    trait Mixin2 {
+        fn feature2(&self) -> &str {
+            "feature2"
+        }
+    }
 
-trait Base {
-    fn base_method(&self) -> &str { "base" }
-}
+    trait Base {
+        fn base_method(&self) -> &str {
+            "base"
+        }
+    }
 
-struct MyClass;
+    struct MyClass;
 
-impl Mixin1 for MyClass {}
-impl Mixin2 for MyClass {}
-impl Base for MyClass {}
+    impl Mixin1 for MyClass {}
+    impl Mixin2 for MyClass {}
+    impl Base for MyClass {}
 
-pub fn test_mixin_basic() -> bool {
-    let obj = MyClass;
-    obj.feature1() == "feature1" && obj.feature2() == "feature2" && obj.base_method() == "base"
-}
+    pub fn test_mixin_basic() -> bool {
+        let obj = MyClass;
+        obj.feature1() == "feature1" && obj.feature2() == "feature2" && obj.base_method() == "base"
+    }
 
-let result = test_mixin_basic();
+    let result = test_mixin_basic();
 '''
 
 
@@ -661,31 +707,31 @@ result = calc.add(2, 3) == 5 and calc.log("test") == "LOG: test"
 '''
 
 rust = '''
-// Mixin adds functionality to class
-trait LogMixin {
-    fn log(&self, message: &str) -> String {
-        format!("LOG: {}", message)
+    // Mixin adds functionality to class
+    trait LogMixin {
+        fn log(&self, message: &str) -> String {
+            format!("LOG: {}", message)
+        }
     }
-}
 
-struct LoggingCalculator;
+    struct LoggingCalculator;
 
-impl LogMixin for LoggingCalculator {}
+    impl LogMixin for LoggingCalculator {}
 
-impl LoggingCalculator {
-    fn add(&self, a: i32, b: i32) -> i32 {
-        let result = a + b;
-        self.log(&format!("Added {} + {} = {}", a, b, result));
-        result
+    impl LoggingCalculator {
+        fn add(&self, a: i32, b: i32) -> i32 {
+            let result = a + b;
+            self.log(&format!("Added {} + {} = {}", a, b, result));
+            result
+        }
     }
-}
 
-pub fn test_mixin_methods() -> bool {
-    let calc = LoggingCalculator;
-    calc.add(2, 3) == 5 && calc.log("test") == "LOG: test"
-}
+    pub fn test_mixin_methods() -> bool {
+        let calc = LoggingCalculator;
+        calc.add(2, 3) == 5 && calc.log("test") == "LOG: test"
+    }
 
-let result = test_mixin_methods();
+    let result = test_mixin_methods();
 '''
 
 
@@ -712,32 +758,38 @@ result = WithMixinFirst().method() == "mixin" and WithBaseFirst().method() == "b
 '''
 
 rust = '''
-// Mixin before base class in inheritance
-trait Base {
-    fn method(&self) -> &str { "base" }
-}
+    // Mixin before base class in inheritance
+    trait Base {
+        fn method(&self) -> &str {
+            "base"
+        }
+    }
 
-trait Mixin {
-    fn method_mixin(&self) -> &str { "mixin" }
-}
+    trait Mixin {
+        fn method_mixin(&self) -> &str {
+            "mixin"
+        }
+    }
 
-struct WithMixinFirst;
-impl Mixin for WithMixinFirst {}
-impl Base for WithMixinFirst {
-    fn method(&self) -> &str { "mixin" }
-}
+    struct WithMixinFirst;
+    impl Mixin for WithMixinFirst {}
+    impl Base for WithMixinFirst {
+        fn method(&self) -> &str {
+            "mixin"
+        }
+    }
 
-struct WithBaseFirst;
-impl Base for WithBaseFirst {}
-impl Mixin for WithBaseFirst {}
+    struct WithBaseFirst;
+    impl Base for WithBaseFirst {}
+    impl Mixin for WithBaseFirst {}
 
-pub fn test_mixin_order() -> bool {
-    let first = WithMixinFirst;
-    let second = WithBaseFirst;
-    first.method() == "mixin" && second.method() == "base"
-}
+    pub fn test_mixin_order() -> bool {
+        let first = WithMixinFirst;
+        let second = WithBaseFirst;
+        first.method() == "mixin" && second.method() == "base"
+    }
 
-let result = test_mixin_order();
+    let result = test_mixin_order();
 '''
 
 
@@ -755,8 +807,8 @@ result = True  # Placeholder
 '''
 
 rust = '''
-// Invalid inheritance that breaks C3
-let result = true; // Placeholder
+    // Invalid inheritance that breaks C3
+    let result = true; // Placeholder
 '''
 
 
@@ -773,7 +825,9 @@ result = Example(42)
 '''
 
 rust = '''
-struct Example { value: i32 }
+struct Example {
+    value: i32,
+}
 '''
 
 
@@ -798,23 +852,25 @@ result = Child().name == "parent1"
 '''
 
 rust = '''
-// Same attribute name in multiple parents
-struct Child {
-    name: String,
-}
-
-impl Child {
-    fn new() -> Self {
-        Child { name: "parent1".to_string() }
+    // Same attribute name in multiple parents
+    struct Child {
+        name: String,
     }
-}
 
-pub fn test_mi_attribute_conflict() -> bool {
-    let child = Child::new();
-    child.name == "parent1"
-}
+    impl Child {
+        fn new() -> Self {
+            Child {
+                name: "parent1".to_string(),
+            }
+        }
+    }
 
-let result = test_mi_attribute_conflict();
+    pub fn test_mi_attribute_conflict() -> bool {
+        let child = Child::new();
+        child.name == "parent1"
+    }
+
+    let result = test_mi_attribute_conflict();
 '''
 
 
@@ -837,23 +893,23 @@ result = isinstance(c, A) and isinstance(c, B) and isinstance(c, C)
 '''
 
 rust = '''
-// isinstance() checks all bases
-// Rust uses traits for type checking
-trait A {}
-trait B {}
+    // isinstance() checks all bases
+    // Rust uses traits for type checking
+    trait A {}
+    trait B {}
 
-struct C;
-impl A for C {}
-impl B for C {}
+    struct C;
+    impl A for C {}
+    impl B for C {}
 
-pub fn test_mi_isinstance() -> bool {
-    let c = C;
-    // Type checking at compile time
-    let _a: &dyn A = &c;
-    let _b: &dyn B = &c;
-    true
-}
+    pub fn test_mi_isinstance() -> bool {
+        let c = C;
+        // Type checking at compile time
+        let _a: &dyn A = &c;
+        let _b: &dyn B = &c;
+        true
+    }
 
-let result = test_mi_isinstance();
+    let result = test_mi_isinstance();
 '''
 

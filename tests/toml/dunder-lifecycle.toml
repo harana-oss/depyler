@@ -156,7 +156,7 @@ impl Rectangle {
     fn new(width: i32, height: i32) -> Self {
         Rectangle { width, height }
     }
-    
+
     fn area(&self) -> i32 {
         self.width * self.height
     }
@@ -198,13 +198,19 @@ struct Config {
 
 impl Config {
     fn new() -> Self {
-        Config { timeout: 30, retries: 3 }
+        Config {
+            timeout: 30,
+            retries: 3,
+        }
     }
-    
+
     fn with_timeout(timeout: i32) -> Self {
-        Config { timeout, retries: 3 }
+        Config {
+            timeout,
+            retries: 3,
+        }
     }
-    
+
     fn with_both(timeout: i32, retries: i32) -> Self {
         Config { timeout, retries }
     }
@@ -214,7 +220,7 @@ fn main() {
     let c1 = Config::new();
     let c2 = Config::with_timeout(60);
     let c3 = Config::with_both(45, 5);
-    
+
     log::info!("{}, {}", c1.timeout, c1.retries);
     log::info!("{}, {}", c2.timeout, c2.retries);
     log::info!("{}, {}", c3.timeout, c3.retries);
@@ -253,7 +259,9 @@ struct Resource {
 impl Resource {
     fn new(name: &str) -> Self {
         log::info!("Acquired {}", name);
-        Resource { name: name.to_string() }
+        Resource {
+            name: name.to_string(),
+        }
     }
 }
 
@@ -357,8 +365,8 @@ print("After gc.collect()")
 rust = """
 // Rust prevents circular references through its ownership model
 // For cyclic structures, we use Rc<RefCell<T>> or Weak references
-use std::rc::{Rc, Weak};
 use std::cell::RefCell;
+use std::rc::{Rc, Weak};
 
 struct Node {
     value: i32,
@@ -373,9 +381,15 @@ impl Drop for Node {
 
 fn main() {
     {
-        let n1 = Rc::new(RefCell::new(Node { value: 1, next: None }));
-        let n2 = Rc::new(RefCell::new(Node { value: 2, next: None }));
-        
+        let n1 = Rc::new(RefCell::new(Node {
+            value: 1,
+            next: None,
+        }));
+        let n2 = Rc::new(RefCell::new(Node {
+            value: 2,
+            next: None,
+        }));
+
         // Use Weak to avoid circular reference
         n1.borrow_mut().next = Some(Rc::downgrade(&n2));
         n2.borrow_mut().next = Some(Rc::downgrade(&n1));
@@ -476,9 +490,9 @@ impl std::fmt::Display for Circle {
 fn main() {
     let c1 = Circle::new(5);
     log::info!("{}", c1);
-    
+
     // Rust doesn't have eval, but the concept is that repr should be clear
-    let c2 = Circle::new(5);  // Simulating recreation
+    let c2 = Circle::new(5); // Simulating recreation
     log::info!("{}", c2.radius);
 }
 """
@@ -561,7 +575,10 @@ struct Person {
 
 impl Person {
     fn new(name: &str, age: i32) -> Self {
-        Person { name: name.to_string(), age }
+        Person {
+            name: name.to_string(),
+            age,
+        }
     }
 }
 
@@ -661,7 +678,10 @@ struct Status {
 
 impl Status {
     fn new(code: i32, message: &str) -> Self {
-        Status { code, message: message.to_string() }
+        Status {
+            code,
+            message: message.to_string(),
+        }
     }
 }
 
@@ -704,7 +724,9 @@ struct Message {
 
 impl Message {
     fn new(text: &str) -> Self {
-        Message { text: text.to_string() }
+        Message {
+            text: text.to_string(),
+        }
     }
 }
 
@@ -808,7 +830,10 @@ struct Product {
 
 impl Product {
     fn new(name: &str, price: f64) -> Self {
-        Product { name: name.to_string(), price }
+        Product {
+            name: name.to_string(),
+            price,
+        }
     }
 }
 
@@ -916,9 +941,9 @@ n.children.append(n)  # Circular reference
 print(repr(n))
 """
 rust = """
+use std::cell::RefCell;
 use std::fmt;
 use std::rc::Rc;
-use std::cell::RefCell;
 
 struct Node {
     value: i32,
@@ -927,7 +952,10 @@ struct Node {
 
 impl Node {
     fn new(value: i32) -> Rc<RefCell<Self>> {
-        Rc::new(RefCell::new(Node { value, children: vec![] }))
+        Rc::new(RefCell::new(Node {
+            value,
+            children: vec![],
+        }))
     }
 }
 

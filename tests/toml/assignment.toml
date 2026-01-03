@@ -255,7 +255,11 @@ rust = '''
 pub fn process_bounds() -> i32 {
     let values = vec![(1, 1), (2, 2), (3, 3)];
     let mut total = 0;
-    for (_index, bounds) in values.iter().enumerate().map(|(i, x)| (i as i32, x.clone())) {
+    for (_index, bounds) in values
+        .iter()
+        .enumerate()
+        .map(|(i, x)| (i as i32, x.clone()))
+    {
         let (lower, upper) = bounds;
         total = total + lower + upper;
     }
@@ -298,7 +302,11 @@ impl IndexError {
 pub fn access_bounds() -> i32 {
     let values = vec![(1, 1), (2, 2), (3, 3)];
     let mut total = 0;
-    for (_index, bounds) in values.iter().enumerate().map(|(i, x)| (i as i32, x.clone())) {
+    for (_index, bounds) in values
+        .iter()
+        .enumerate()
+        .map(|(i, x)| (i as i32, x.clone()))
+    {
         total = total + bounds.0 + bounds.1;
     }
     return total;
@@ -936,7 +944,9 @@ pub fn nested_update() -> HashMap<String, HashMap<String, i32>> {
         .cloned()
         .unwrap()
         + 1;
-    data.get_mut(&"stats").unwrap().insert("count".to_string(), _cse_temp_0);
+    data.get_mut(&"stats")
+        .unwrap()
+        .insert("count".to_string(), _cse_temp_0);
     return data;
 }
 '''
@@ -1199,7 +1209,11 @@ def update_with_key(d: dict[str, int], key: str, value: int) -> dict[str, int]:
 
 rust = '''
 use std::collections::HashMap;
-pub fn update_with_key(mut d: HashMap<String, i32>, key: String, value: i32) -> HashMap<String, i32> {
+pub fn update_with_key(
+    mut d: HashMap<String, i32>,
+    key: String,
+    value: i32,
+) -> HashMap<String, i32> {
     d.insert(key, value);
     return d;
 }
@@ -1294,7 +1308,9 @@ def update_nested_dict(d: dict[str, dict[str, int]]) -> dict[str, dict[str, int]
 
 rust = '''
 use std::collections::HashMap;
-pub fn update_nested_dict(mut d: HashMap<String, HashMap<String, i32>>) -> HashMap<String, HashMap<String, i32>> {
+pub fn update_nested_dict(
+    mut d: HashMap<String, HashMap<String, i32>>,
+) -> HashMap<String, HashMap<String, i32>> {
     d.get_mut(&"outer").unwrap().insert("inner".to_string(), 42);
     return d;
 }
@@ -1312,8 +1328,13 @@ def update_dict_of_lists(data: dict[str, list[int]], key: str) -> dict[str, list
 
 rust = '''
 use std::collections::HashMap;
-pub fn update_dict_of_lists(mut data: HashMap<String, Vec<i32>>, key: String) -> HashMap<String, Vec<i32>> {
-    data.get_mut(key as usize).unwrap().insert((0) as usize, 100);
+pub fn update_dict_of_lists(
+    mut data: HashMap<String, Vec<i32>>,
+    key: String,
+) -> HashMap<String, Vec<i32>> {
+    data.get_mut(key as usize)
+        .unwrap()
+        .insert((0) as usize, 100);
     return data;
 }
 '''
@@ -1491,8 +1512,13 @@ pub fn complex_updates(
     HashMap<String, HashMap<String, i32>>,
 ) {
     numbers.insert((0) as usize, 42);
-    data.get_mut("key" as usize).unwrap().insert((1) as usize, 100);
-    nested.get_mut(&"outer").unwrap().insert("inner".to_string(), 200);
+    data.get_mut("key" as usize)
+        .unwrap()
+        .insert((1) as usize, 100);
+    nested
+        .get_mut(&"outer")
+        .unwrap()
+        .insert("inner".to_string(), 200);
     return (numbers, data, nested);
 }
 '''

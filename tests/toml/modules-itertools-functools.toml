@@ -38,7 +38,9 @@ def all_pairs(items: list[int]) -> list[tuple[int, int]]:
 rust = '''
 use itertools::combinations;
 pub fn all_pairs(items: Vec<i32>) -> Vec<(i32, i32)> {
-    return itertools::combinations(items, 2).into_iter().collect::<Vec<_>>();
+    return itertools::combinations(items, 2)
+        .into_iter()
+        .collect::<Vec<_>>();
 }
 '''
 
@@ -70,7 +72,9 @@ def take_positives(nums: list[int]) -> list[int]:
 rust = '''
 use itertools::take_while;
 pub fn take_positives(nums: Vec<i32>) -> Vec<i32> {
-    return itertools::take_while(|x| x > 0, nums).into_iter().collect::<Vec<_>>();
+    return itertools::take_while(|x| x > 0, nums)
+        .into_iter()
+        .collect::<Vec<_>>();
 }
 '''
 
@@ -88,7 +92,9 @@ def skip_zeros(nums: list[int]) -> list[int]:
 rust = '''
 use itertools::drop_while;
 pub fn skip_zeros(nums: Vec<i32>) -> Vec<i32> {
-    return itertools::drop_while(|x| x == 0, nums).into_iter().collect::<Vec<_>>();
+    return itertools::drop_while(|x| x == 0, nums)
+        .into_iter()
+        .collect::<Vec<_>>();
 }
 '''
 
@@ -106,7 +112,9 @@ def get_odd(nums: list[int]) -> list[int]:
 rust = '''
 use itertools::filterfalse;
 pub fn get_odd(nums: Vec<i32>) -> Vec<i32> {
-    return filterfalse(|x| x % 2 == 0, &nums).into_iter().collect::<Vec<_>>();
+    return filterfalse(|x| x % 2 == 0, &nums)
+        .into_iter()
+        .collect::<Vec<_>>();
 }
 '''
 
@@ -199,7 +207,9 @@ rust = '''
 use itertools::cycle;
 use itertools::islice;
 pub fn repeat_pattern(items: Vec<i32>, n: i32) -> Vec<i32> {
-    return islice(itertools::cycle(items), n).into_iter().collect::<Vec<_>>();
+    return islice(itertools::cycle(items), n)
+        .into_iter()
+        .collect::<Vec<_>>();
 }
 '''
 
@@ -217,7 +227,9 @@ def make_n_copies(value: int, n: int) -> list[int]:
 rust = '''
 use itertools::repeat_n;
 pub fn make_n_copies(value: i32, n: i32) -> Vec<i32> {
-    return itertools::repeat_n(value, n).into_iter().collect::<Vec<_>>();
+    return itertools::repeat_n(value, n)
+        .into_iter()
+        .collect::<Vec<_>>();
 }
 '''
 

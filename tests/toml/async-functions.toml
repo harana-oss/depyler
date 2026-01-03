@@ -208,15 +208,15 @@ result = True
 '''
 
 rust = '''
-struct MyClass;
+    struct MyClass;
 
-impl MyClass {
-    async fn fetch() -> i32 {
-        42
+    impl MyClass {
+        async fn fetch() -> i32 {
+            42
+        }
     }
-}
 
-let result = true;
+    let result = true;
 '''
 
 
@@ -408,12 +408,12 @@ result = asyncio.run(outer())
 rust = '''
 async fn outer() -> i32 {
     let x = 10;
-    
+
     async fn inner_impl(x: i32) -> i32 {
         // async function with closure over variables
         x + 20
     }
-    
+
     let result = inner_impl(x).await;
     log::info!("Closure result: {}", result);
     result
@@ -486,21 +486,23 @@ result = True
 '''
 
 rust = '''
-struct Example { value: i32 }
-
-impl Example {
-    fn new(value: i32) -> Self {
-        Self { value }
+    struct Example {
+        value: i32,
     }
-    
-    async fn create(value: i32) -> Self {
-        Self::new(value)
-    }
-}
 
-let result = Example::new(42);
-assert_eq!(result.value, 42);
-let result = true;
+    impl Example {
+        fn new(value: i32) -> Self {
+            Self { value }
+        }
+
+        async fn create(value: i32) -> Self {
+            Self::new(value)
+        }
+    }
+
+    let result = Example::new(42);
+    assert_eq!(result.value, 42);
+    let result = true;
 '''
 
 
@@ -518,14 +520,14 @@ result = True
 '''
 
 rust = '''
-// Rust async blocks provide similar functionality
-// async || { } is nightly only
-// Use async fn or async blocks instead
-async fn async_closure() -> i32 {
-    42
-}
+    // Rust async blocks provide similar functionality
+    // async || { } is nightly only
+    // Use async fn or async blocks instead
+    async fn async_closure() -> i32 {
+        42
+    }
 
-let result = true;
+    let result = true;
 '''
 
 
@@ -564,30 +566,35 @@ async def main() -> None:
 '''
 
 rust = '''
-#[doc = " Depyler: verified panic-free"] #[doc = " Depyler: proven to terminate"] pub async fn fetch_data(url: String) -> String {
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub async fn fetch_data(url: String) -> String {
     async_sleep(1).await;
     format!("Data from {:?}", url)
 }
-#[doc = " Depyler: verified panic-free"] pub async fn process_urls(urls: & Vec<String>) -> Vec<String>{
-    let mut results = vec! [];
+#[doc = " Depyler: verified panic-free"]
+pub async fn process_urls(urls: &Vec<String>) -> Vec<String> {
+    let mut results = vec![];
     for _url in urls.iter().cloned() {
-    let data = fetch_data(url).await;
-    results.push(data);
-   
+        let data = fetch_data(url).await;
+        results.push(data);
+    }
+    results
 }
-results
-}
-#[doc = " Depyler: verified panic-free"] #[doc = " Depyler: proven to terminate"] pub async fn async_sleep(seconds: i32) {
-   
-}
-#[doc = " Depyler: verified panic-free"] pub async fn main () {
-    let urls = vec! ["http://api.example.com".to_string(), "http://api2.example.com".to_string()];
-    let mut results = process_urls(& urls).await;
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub async fn async_sleep(seconds: i32) {}
+#[doc = " Depyler: verified panic-free"]
+pub async fn main() {
+    let urls = vec![
+        "http://api.example.com".to_string(),
+        "http://api2.example.com".to_string(),
+    ];
+    let mut results = process_urls(&urls).await;
     for result in results.iter().cloned() {
-    log::info!("{}", result);
-   
+        log::info!("{}", result);
+    }
 }
-} 
 '''
 
 [[test]]
@@ -624,46 +631,40 @@ class AsyncDataProcessor:
 '''
 
 rust = '''
-#[derive(Debug, Clone)] pub struct AsyncCounter {
-    pub value: i32
+#[derive(Debug, Clone)]
+pub struct AsyncCounter {
+    pub value: i32,
 }
 impl AsyncCounter {
     pub fn new(start: i32) -> Self {
-    Self {
-    value: 0
+        Self { value: 0 }
+    }
+    pub async fn increment(&mut self) -> i32 {
+        self._simulate_delay().await;
+        self.value = self.value + 1;
+        return self.value;
+    }
+    pub async fn get_value(&self) -> i32 {
+        return self.value;
+    }
+    pub async fn _simulate_delay(&self) {
+        {}
+    }
 }
-} pub async fn increment(&mut self) -> i32 {
-    self._simulate_delay().await;
-    self.value = self.value + 1;
-    return self.value;
-   
-}
-pub async fn get_value(&self) -> i32 {
-    return self.value;
-   
-}
-pub async fn _simulate_delay(&self) {
-    {
-}
-}
-}
-#[derive(Debug, Clone)] pub struct AsyncDataProcessor {
-   
-}
+#[derive(Debug, Clone)]
+pub struct AsyncDataProcessor {}
 impl AsyncDataProcessor {
     pub fn new() -> Self {
-    Self {
-   
+        Self {}
+    }
+    pub async fn process(&self, data: String) -> String {
+        self._async_work().await;
+        return data.to_uppercase();
+    }
+    pub async fn _async_work(&self) {
+        {}
+    }
 }
-} pub async fn process(&self, data: String) -> String {
-    self._async_work().await;
-    return data.to_uppercase();
-   
-}
-pub async fn _async_work(&self) {
-    {
-}
-} }
 '''
 
 [[test]]
@@ -682,10 +683,14 @@ async def call_async() -> int:
 '''
 
 rust = '''
-#[doc = " Depyler: verified panic-free"] #[doc = " Depyler: proven to terminate"] pub async fn simple_async() -> i32 {
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub async fn simple_async() -> i32 {
     42
 }
-#[doc = " Depyler: verified panic-free"] #[doc = " Depyler: proven to terminate"] pub async fn call_async() -> i32 {
+#[doc = " Depyler: verified panic-free"]
+#[doc = " Depyler: proven to terminate"]
+pub async fn call_async() -> i32 {
     let result = simple_async().await;
     result
 }

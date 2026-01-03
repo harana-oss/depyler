@@ -2333,7 +2333,11 @@ pub fn complex_types(
 ) -> (i32, String) {
     let _cse_temp_0 = numbers.len() as i32;
     let count = _cse_temp_0;
-    let status = if flag { "ok".to_string() } else { "error".to_string() };
+    let status = if flag {
+        "ok".to_string()
+    } else {
+        "error".to_string()
+    };
     return (count, status);
 }
 '''

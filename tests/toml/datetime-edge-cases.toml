@@ -34,12 +34,20 @@ pub struct DateTime {
 
 impl DateTime {
     pub fn new(year: i32, month: i32, day: i32, hour: i32, minute: i32) -> Self {
-        Self { year, month, day, hour, minute }
+        Self {
+            year,
+            month,
+            day,
+            hour,
+            minute,
+        }
     }
-    
+
     pub fn to_string(&self) -> String {
-        return format!("{}-{:02}-{:02} {:02}:{:02}", 
-            self.year, self.month, self.day, self.hour, self.minute);
+        return format!(
+            "{}-{:02}-{:02} {:02}:{:02}",
+            self.year, self.month, self.day, self.hour, self.minute
+        );
     }
 }
 '''
@@ -217,13 +225,16 @@ pub struct Timestamp {
 
 impl Timestamp {
     pub fn new(seconds: i64, nanoseconds: i64) -> Self {
-        Self { seconds, nanoseconds }
+        Self {
+            seconds,
+            nanoseconds,
+        }
     }
-    
+
     pub fn total_nanos(&self) -> i64 {
         return self.seconds * 1000000000 + self.nanoseconds;
     }
-    
+
     pub fn to_millis(&self) -> i64 {
         return self.seconds * 1000 + self.nanoseconds / 1000000;
     }

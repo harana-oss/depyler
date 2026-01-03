@@ -120,7 +120,13 @@ impl IndexError {
 #[doc = " Depyler: proven to terminate"]
 pub fn get_nested_value(s: String, key1: String, key2: String) {
     let data = serde_json::from_str::<serde_json::Value>(&s).unwrap();
-    return data.get(&key1).cloned().unwrap().get(&key2).cloned().unwrap();
+    return data
+        .get(&key1)
+        .cloned()
+        .unwrap()
+        .get(&key2)
+        .cloned()
+        .unwrap();
 }
 '''
 

@@ -1077,8 +1077,12 @@ impl PeriodStatistic {
     }
     pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
         match name {
-            "conversions_missed" => Some(Box::new(self.conversions_missed.clone()) as Box<dyn std::any::Any>),
-            "penalties_awarded" => Some(Box::new(self.penalties_awarded.clone()) as Box<dyn std::any::Any>),
+            "conversions_missed" => {
+                Some(Box::new(self.conversions_missed.clone()) as Box<dyn std::any::Any>)
+            }
+            "penalties_awarded" => {
+                Some(Box::new(self.penalties_awarded.clone()) as Box<dyn std::any::Any>)
+            }
             "period" => Some(Box::new(self.period.clone()) as Box<dyn std::any::Any>),
             "scores" => Some(Box::new(self.scores.clone()) as Box<dyn std::any::Any>),
             "tackles" => Some(Box::new(self.tackles.clone()) as Box<dyn std::any::Any>),
@@ -1496,9 +1500,15 @@ impl TeamStatistic {
         match name {
             "match_scores" => Some(Box::new(self.match_scores.clone()) as Box<dyn std::any::Any>),
             "match_tackles" => Some(Box::new(self.match_tackles.clone()) as Box<dyn std::any::Any>),
-            "match_turnovers" => Some(Box::new(self.match_turnovers.clone()) as Box<dyn std::any::Any>),
-            "period_statistics" => Some(Box::new(self.period_statistics.clone()) as Box<dyn std::any::Any>),
-            "sin_bin_players" => Some(Box::new(self.sin_bin_players.clone()) as Box<dyn std::any::Any>),
+            "match_turnovers" => {
+                Some(Box::new(self.match_turnovers.clone()) as Box<dyn std::any::Any>)
+            }
+            "period_statistics" => {
+                Some(Box::new(self.period_statistics.clone()) as Box<dyn std::any::Any>)
+            }
+            "sin_bin_players" => {
+                Some(Box::new(self.sin_bin_players.clone()) as Box<dyn std::any::Any>)
+            }
             _ => None,
         }
     }
@@ -1558,7 +1568,9 @@ impl TryScorers {
     }
     pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
         match name {
-            "player_indices" => Some(Box::new(self.player_indices.clone()) as Box<dyn std::any::Any>),
+            "player_indices" => {
+                Some(Box::new(self.player_indices.clone()) as Box<dyn std::any::Any>)
+            }
             _ => None,
         }
     }
@@ -1684,21 +1696,37 @@ impl State {
     }
     pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
         match name {
-            "away_match_score" => Some(Box::new(self.away_match_score.clone()) as Box<dyn std::any::Any>),
+            "away_match_score" => {
+                Some(Box::new(self.away_match_score.clone()) as Box<dyn std::any::Any>)
+            }
             "away_players" => Some(Box::new(self.away_players.clone()) as Box<dyn std::any::Any>),
-            "away_statistics" => Some(Box::new(self.away_statistics.clone()) as Box<dyn std::any::Any>),
+            "away_statistics" => {
+                Some(Box::new(self.away_statistics.clone()) as Box<dyn std::any::Any>)
+            }
             "ball_location" => Some(Box::new(self.ball_location.clone()) as Box<dyn std::any::Any>),
-            "current_play_type" => Some(Box::new(self.current_play_type.clone()) as Box<dyn std::any::Any>),
-            "home_match_score" => Some(Box::new(self.home_match_score.clone()) as Box<dyn std::any::Any>),
+            "current_play_type" => {
+                Some(Box::new(self.current_play_type.clone()) as Box<dyn std::any::Any>)
+            }
+            "home_match_score" => {
+                Some(Box::new(self.home_match_score.clone()) as Box<dyn std::any::Any>)
+            }
             "home_players" => Some(Box::new(self.home_players.clone()) as Box<dyn std::any::Any>),
-            "home_statistics" => Some(Box::new(self.home_statistics.clone()) as Box<dyn std::any::Any>),
+            "home_statistics" => {
+                Some(Box::new(self.home_statistics.clone()) as Box<dyn std::any::Any>)
+            }
             "is_over" => Some(Box::new(self.is_over.clone()) as Box<dyn std::any::Any>),
             "period" => Some(Box::new(self.period.clone()) as Box<dyn std::any::Any>),
-            "seconds_elapsed" => Some(Box::new(self.seconds_elapsed.clone()) as Box<dyn std::any::Any>),
+            "seconds_elapsed" => {
+                Some(Box::new(self.seconds_elapsed.clone()) as Box<dyn std::any::Any>)
+            }
             "set" => Some(Box::new(self.set.clone()) as Box<dyn std::any::Any>),
-            "simulation_invariants" => Some(Box::new(self.simulation_invariants.clone()) as Box<dyn std::any::Any>),
+            "simulation_invariants" => {
+                Some(Box::new(self.simulation_invariants.clone()) as Box<dyn std::any::Any>)
+            }
             "tackles" => Some(Box::new(self.tackles.clone()) as Box<dyn std::any::Any>),
-            "team_in_possession" => Some(Box::new(self.team_in_possession.clone()) as Box<dyn std::any::Any>),
+            "team_in_possession" => {
+                Some(Box::new(self.team_in_possession.clone()) as Box<dyn std::any::Any>)
+            }
             _ => None,
         }
     }
@@ -2086,7 +2114,9 @@ impl TeamStatistics {
     }
     pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
         match name {
-            "period_statistics" => Some(Box::new(self.period_statistics.clone()) as Box<dyn std::any::Any>),
+            "period_statistics" => {
+                Some(Box::new(self.period_statistics.clone()) as Box<dyn std::any::Any>)
+            }
             "match_scores" => Some(Box::new(self.match_scores.clone()) as Box<dyn std::any::Any>),
             _ => None,
         }
@@ -2144,10 +2174,18 @@ impl State {
         match name {
             "game_status" => Some(Box::new(self.game_status.clone()) as Box<dyn std::any::Any>),
             "is_over" => Some(Box::new(self.is_over.clone()) as Box<dyn std::any::Any>),
-            "home_statistics" => Some(Box::new(self.home_statistics.clone()) as Box<dyn std::any::Any>),
-            "away_statistics" => Some(Box::new(self.away_statistics.clone()) as Box<dyn std::any::Any>),
-            "home_match_score" => Some(Box::new(self.home_match_score.clone()) as Box<dyn std::any::Any>),
-            "away_match_score" => Some(Box::new(self.away_match_score.clone()) as Box<dyn std::any::Any>),
+            "home_statistics" => {
+                Some(Box::new(self.home_statistics.clone()) as Box<dyn std::any::Any>)
+            }
+            "away_statistics" => {
+                Some(Box::new(self.away_statistics.clone()) as Box<dyn std::any::Any>)
+            }
+            "home_match_score" => {
+                Some(Box::new(self.home_match_score.clone()) as Box<dyn std::any::Any>)
+            }
+            "away_match_score" => {
+                Some(Box::new(self.away_match_score.clone()) as Box<dyn std::any::Any>)
+            }
             _ => None,
         }
     }

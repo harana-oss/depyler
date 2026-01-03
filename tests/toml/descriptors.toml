@@ -70,7 +70,7 @@ impl Descriptor {
     fn get_class() -> &'static str {
         "Accessed from class"
     }
-    
+
     fn get_instance(&self) -> &'static str {
         "Accessed from instance"
     }
@@ -161,13 +161,15 @@ struct Descriptor {
 
 impl Descriptor {
     fn new() -> Self {
-        Descriptor { value: Cell::new(0) }
+        Descriptor {
+            value: Cell::new(0),
+        }
     }
-    
+
     fn get(&self) -> i32 {
         self.value.get()
     }
-    
+
     fn set(&self, val: i32) {
         self.value.set(val * 2);
     }
@@ -178,7 +180,9 @@ struct MyClass {
 }
 
 fn main() {
-    let instance = MyClass { x: Descriptor::new() };
+    let instance = MyClass {
+        x: Descriptor::new(),
+    };
     instance.x.set(5);
     log::info!("{}", instance.x.get());
 }
@@ -222,17 +226,19 @@ struct Descriptor {
 
 impl Descriptor {
     fn new() -> Self {
-        Descriptor { value: RefCell::new("initial".to_string()) }
+        Descriptor {
+            value: RefCell::new("initial".to_string()),
+        }
     }
-    
+
     fn get(&self) -> String {
         self.value.borrow().clone()
     }
-    
+
     fn set(&self, val: String) {
         *self.value.borrow_mut() = val;
     }
-    
+
     fn delete(&self) {
         *self.value.borrow_mut() = "deleted".to_string();
     }
@@ -243,7 +249,9 @@ struct MyClass {
 }
 
 fn main() {
-    let instance = MyClass { x: Descriptor::new() };
+    let instance = MyClass {
+        x: Descriptor::new(),
+    };
     instance.x.set("new value".to_string());
     log::info!("{}", instance.x.get());
     instance.x.delete();
@@ -333,7 +341,7 @@ impl Descriptor {
     fn new(name: &'static str) -> Self {
         Descriptor { name }
     }
-    
+
     fn get(&self) -> String {
         format!("Descriptor named '{}'", self.name)
     }
@@ -396,11 +404,11 @@ impl NamedDescriptor {
             value: Cell::new(None),
         }
     }
-    
+
     fn get(&self) -> Option<i32> {
         self.value.get()
     }
-    
+
     fn set(&self, val: i32) {
         self.value.set(Some(val));
     }
@@ -468,11 +476,11 @@ impl TypedDescriptor {
     fn new() -> Self {
         TypedDescriptor { value: None }
     }
-    
+
     fn get(&self) -> Option<i32> {
         self.value
     }
-    
+
     fn set(&mut self, val: i32) {
         self.value = Some(val);
     }
@@ -535,9 +543,11 @@ struct LazyDescriptor {
 
 impl LazyDescriptor {
     fn new() -> Self {
-        LazyDescriptor { value: OnceCell::new() }
+        LazyDescriptor {
+            value: OnceCell::new(),
+        }
     }
-    
+
     fn get(&self) -> i32 {
         *self.value.get_or_init(|| {
             log::info!("Computing expensive value");
@@ -617,11 +627,11 @@ impl ValidatedDescriptor {
             value: None,
         }
     }
-    
+
     fn get(&self) -> Option<i32> {
         self.value
     }
-    
+
     fn set(&mut self, val: i32) -> Result<(), String> {
         if val < self.min_value {
             return Err(format!("score must be >= {}", self.min_value));
@@ -646,7 +656,7 @@ fn main() {
     log::info!("{}", instance.score.get().unwrap());
     match instance.score.set(150) {
         Err(e) => log::info!("Error: {}", e),
-        Ok(_) => {},
+        Ok(_) => {}
     }
 }
 """
@@ -702,7 +712,7 @@ impl MyClass {
             computed: OnceCell::new(),
         }
     }
-    
+
     fn computed(&self) -> i32 {
         *self.computed.get_or_init(|| {
             log::info!("Computing...");
@@ -874,11 +884,11 @@ impl Descriptor {
     fn new() -> Self {
         Descriptor { value: None }
     }
-    
+
     fn get(&self) -> Option<i32> {
         self.value
     }
-    
+
     fn set(&mut self, val: i32) {
         self.value = Some(val);
     }
@@ -889,7 +899,9 @@ struct MyClass {
 }
 
 fn main() {
-    let mut instance = MyClass { x: Descriptor::new() };
+    let mut instance = MyClass {
+        x: Descriptor::new(),
+    };
     instance.x.set(42);
     log::info!("{}", instance.x.get().unwrap());
 }
@@ -920,7 +932,7 @@ impl Descriptor {
     fn class_access() -> &'static str {
         "Class level access"
     }
-    
+
     fn instance_access(&self) -> &'static str {
         "Instance level access"
     }
@@ -981,11 +993,11 @@ impl Descriptor {
             value: None,
         }
     }
-    
+
     fn get(&self) -> String {
         format!("{}: {}", self.name, self.value.unwrap_or(0))
     }
-    
+
     fn set(&mut self, val: i32) {
         self.value = Some(val);
     }
@@ -1002,7 +1014,9 @@ struct Derived {
 
 fn main() {
     let mut instance = Derived {
-        base: Base { x: Descriptor::new("base_x") },
+        base: Base {
+            x: Descriptor::new("base_x"),
+        },
         y: Descriptor::new("derived_y"),
     };
     instance.base.x.set(10);

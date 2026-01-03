@@ -64,7 +64,8 @@ fn expensive_func(x: i32) -> i32 {
 
 fn main() {
     let data = vec![1, 2, 3, 4, 5];
-    let results: Vec<i32> = data.iter()
+    let results: Vec<i32> = data
+        .iter()
         .map(|&x| expensive_func(x))
         .filter(|&y| y > 5)
         .collect();
@@ -90,7 +91,7 @@ use regex::Regex;
 fn main() {
     let text = "The answer is 42";
     let pattern = Regex::new(r"\\d+").unwrap();
-    
+
     if let Some(match_) = pattern.find(text) {
         log::info!("Found: {}", match_.as_str());
     }
@@ -154,7 +155,7 @@ fn main() {
     if result > 25 {
         // pass
     }
-    
+
     log::info!("Result: {}", result);
 }
 """

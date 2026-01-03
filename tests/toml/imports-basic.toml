@@ -18,11 +18,11 @@ assert result == True
 '''
 
 rust = '''
-// Rust: use statement imports from crate/module
-use std::env;
-// Check that function is available
-let result = env::current_dir().is_ok();
-assert!(result);
+    // Rust: use statement imports from crate/module
+    use std::env;
+    // Check that function is available
+    let result = env::current_dir().is_ok();
+    assert!(result);
 '''
 
 
@@ -38,10 +38,10 @@ assert result == True
 '''
 
 rust = '''
-// Rust: nested module access
-use std::path::Path;
-let result = Path::new("/tmp").exists() || !Path::new("/tmp").exists();
-assert!(result);
+    // Rust: nested module access
+    use std::path::Path;
+    let result = Path::new("/tmp").exists() || !Path::new("/tmp").exists();
+    assert!(result);
 '''
 
 
@@ -58,11 +58,11 @@ assert result == True
 '''
 
 rust = '''
-// Rust: accessing function from std
-use std::env;
-let cwd = env::current_dir().unwrap();
-let result = cwd.to_str().is_some();
-assert!(result);
+    // Rust: accessing function from std
+    use std::env;
+    let cwd = env::current_dir().unwrap();
+    let result = cwd.to_str().is_some();
+    assert!(result);
 '''
 
 
@@ -82,10 +82,10 @@ assert result == True
 '''
 
 rust = '''
-// Rust: use with alias
-use std::collections::HashMap as HM;
-let result: HM<i32, i32> = HM::new();
-assert_eq!(result.len(), 0);
+    // Rust: use with alias
+    use std::collections::HashMap as HM;
+    let result: HM<i32, i32> = HM::new();
+    assert_eq!(result.len(), 0);
 '''
 
 
@@ -101,10 +101,10 @@ assert result == '[1, 2, 3]'
 '''
 
 rust = '''
-// Rust: using aliased type
-use std::vec::Vec as V;
-let result: V<i32> = V::from([1, 2, 3]);
-assert_eq!(result, vec![1, 2, 3]);
+    // Rust: using aliased type
+    use std::vec::Vec as V;
+    let result: V<i32> = V::from([1, 2, 3]);
+    assert_eq!(result, vec![1, 2, 3]);
 '''
 
 
@@ -120,11 +120,11 @@ assert result == True
 '''
 
 rust = '''
-// Rust: multiple use statements with aliases
-use std::env as e;
-use std::path::Path as P;
-let result = e::current_dir().is_ok();
-assert!(result);
+    // Rust: multiple use statements with aliases
+    use std::env as e;
+    use std::path::Path as P;
+    let result = e::current_dir().is_ok();
+    assert!(result);
 '''
 
 
@@ -148,12 +148,12 @@ assert result == True
 '''
 
 rust = '''
-// Rust: multiple use statements
-use std::env;
-use std::path;
-use std::collections;
-let result = true;
-assert!(result);
+    // Rust: multiple use statements
+    use std::collections;
+    use std::env;
+    use std::path;
+    let result = true;
+    assert!(result);
 '''
 
 
@@ -170,11 +170,11 @@ assert result == True
 '''
 
 rust = '''
-// Rust: separate use statements
-use std::env;
-use std::path;
-let result = true;
-assert!(result);
+    // Rust: separate use statements
+    use std::env;
+    use std::path;
+    let result = true;
+    assert!(result);
 '''
 
 
@@ -195,10 +195,10 @@ assert result == True
 '''
 
 rust = '''
-// Rust: no runtime module registry
-// Modules are resolved at compile time
-let result = true;
-assert!(result);
+    // Rust: no runtime module registry
+    // Modules are resolved at compile time
+    let result = true;
+    assert!(result);
 '''
 
 
@@ -217,12 +217,12 @@ assert result == True
 '''
 
 rust = '''
-// Rust: modules compiled once
-// Multiple use statements refer to same code
-use std::env;
-use std::env as e;
-let result = true;
-assert!(result);
+    // Rust: modules compiled once
+    // Multiple use statements refer to same code
+    use std::env;
+    use std::env as e;
+    let result = true;
+    assert!(result);
 '''
 
 
@@ -238,11 +238,11 @@ assert result == True
 '''
 
 rust = '''
-// Rust: use brings name into scope
-use std::env;
-// env is now available in this scope
-let result = env::current_dir().is_ok();
-assert!(result);
+    // Rust: use brings name into scope
+    use std::env;
+    // env is now available in this scope
+    let result = env::current_dir().is_ok();
+    assert!(result);
 '''
 
 
@@ -262,10 +262,10 @@ assert result == True
 '''
 
 rust = '''
-// Rust: math constants
-use std::f64::consts::PI;
-let result = PI > 3.14 && PI < 3.15;
-assert!(result);
+    // Rust: math constants
+    use std::f64::consts::PI;
+    let result = PI > 3.14 && PI < 3.15;
+    assert!(result);
 '''
 
 
@@ -282,12 +282,12 @@ assert result == '{"key": "value"}'
 '''
 
 rust = '''
-// Rust: JSON with serde (conceptual)
-use std::collections::HashMap;
-let mut data = HashMap::new();
-data.insert("key", "value");
-let result = data.get("key") == Some(&"value");
-assert!(result);
+    // Rust: JSON with serde (conceptual)
+    use std::collections::HashMap;
+    let mut data = HashMap::new();
+    data.insert("key", "value");
+    let result = data.get("key") == Some(&"value");
+    assert!(result);
 '''
 
 
@@ -304,12 +304,12 @@ assert result == 3
 '''
 
 rust = '''
-// Rust: std::collections
-use std::collections::HashMap;
-let mut map = HashMap::new();
-map.insert("key", 42);
-let result = map.get("key") == Some(&42);
-assert!(result);
+    // Rust: std::collections
+    use std::collections::HashMap;
+    let mut map = HashMap::new();
+    map.insert("key", 42);
+    let result = map.get("key") == Some(&42);
+    assert!(result);
 '''
 
 
@@ -332,9 +332,9 @@ assert result
 '''
 
 rust = '''
-// Rust: compile-time error for missing modules
-// use nonexistent_module; // Would not compile
-let result = true;
+    // Rust: compile-time error for missing modules
+    // use nonexistent_module; // Would not compile
+    let result = true;
 '''
 
 
@@ -349,8 +349,8 @@ result = True
 '''
 
 rust = '''
-// Rust: import errors caught at compile time
-let result = true;
+    // Rust: import errors caught at compile time
+    let result = true;
 '''
 
 
@@ -374,16 +374,16 @@ assert result == True
 '''
 
 rust = '''
-// Rust: use statements at module level only
-// Conditional logic uses the imported module conditionally
-use std::env;
-let cond = true;
-let result = if cond {
-    env::current_dir().is_ok()
-} else {
-    false
-};
-assert!(result);
+    // Rust: use statements at module level only
+    // Conditional logic uses the imported module conditionally
+    use std::env;
+    let cond = true;
+    let result = if cond {
+        env::current_dir().is_ok()
+    } else {
+        false
+    };
+    assert!(result);
 '''
 
 
@@ -402,14 +402,14 @@ assert result == True
 '''
 
 rust = '''
-// Rust: use statements typically at module level
-// But can access std functions anywhere
-fn f() -> bool {
-    use std::env;
-    env::current_dir().is_ok()
-}
-let result = f();
-assert!(result);
+    // Rust: use statements typically at module level
+    // But can access std functions anywhere
+    fn f() -> bool {
+        use std::env;
+        env::current_dir().is_ok()
+    }
+    let result = f();
+    assert!(result);
 '''
 
 
@@ -428,11 +428,11 @@ assert result == True
 '''
 
 rust = '''
-// Rust: multiple use statements are fine
-use std::env;
-use std::env as e;
-// Both refer to same module
-let result = true;
-assert!(result);
+    // Rust: multiple use statements are fine
+    use std::env;
+    use std::env as e;
+    // Both refer to same module
+    let result = true;
+    assert!(result);
 '''
 

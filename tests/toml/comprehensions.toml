@@ -32,7 +32,10 @@ def evens(n: int) -> list[int]:
 
 rust = '''
 pub fn evens(n: i32) -> Vec<i32> {
-    return (0..n).filter(|&x| *x % 2 == 0).map(|x| x).collect::<Vec<_>>();
+    return (0..n)
+        .filter(|&x| *x % 2 == 0)
+        .map(|x| x)
+        .collect::<Vec<_>>();
 }
 '''
 
@@ -47,7 +50,10 @@ def even_squares(n: int) -> list[int]:
 
 rust = '''
 pub fn even_squares(n: i32) -> Vec<i32> {
-    return (0..n).filter(|&x| *x % 2 == 0).map(|x| x * x).collect::<Vec<_>>();
+    return (0..n)
+        .filter(|&x| *x % 2 == 0)
+        .map(|x| x * x)
+        .collect::<Vec<_>>();
 }
 '''
 
@@ -255,7 +261,10 @@ def list_comp():
 
 rust = '''
 pub fn list_comp() -> Vec<i32> {
-    return (0..10).filter(|&x| *x > 5).map(|x| x * 2).collect::<Vec<_>>();
+    return (0..10)
+        .filter(|&x| *x > 5)
+        .map(|x| x * 2)
+        .collect::<Vec<_>>();
 }
 '''
 

@@ -81,7 +81,10 @@ struct ClosableWrapper {
 
 impl ClosableWrapper {
     fn new(data: Vec<u8>) -> Self {
-        Self { cursor: Cursor::new(data), closed: false }
+        Self {
+            cursor: Cursor::new(data),
+            closed: false,
+        }
     }
     fn close(&mut self) {
         self.closed = true;
@@ -177,9 +180,7 @@ def test_suppress_single() -> bool:
 
 rust = '''
 pub fn test_suppress_single() -> bool {
-    let result: Result<(), String> = (|| {
-        Err("ignored".to_string())
-    })();
+    let result: Result<(), String> = (|| Err("ignored".to_string()))();
     result.is_err();
     true
 }
@@ -234,11 +235,11 @@ match value:
 '''
 
 rust = '''
-let value = 1;
-let result = match value {
-    1 => "one",
-    _ => "other",
-};
+    let value = 1;
+    let result = match value {
+        1 => "one",
+        _ => "other",
+    };
 '''
 
 
@@ -345,9 +346,7 @@ def test_nullcontext_basic() -> bool:
 
 rust = '''
 pub fn test_nullcontext_basic() -> bool {
-    {
-        true
-    }
+    { true }
 }
 '''
 
@@ -367,9 +366,7 @@ def test_nullcontext_value() -> int:
 rust = '''
 pub fn test_nullcontext_value() -> i32 {
     let x = 42;
-    {
-        x
-    }
+    { x }
 }
 '''
 
@@ -420,9 +417,7 @@ def test_exitstack_basic() -> bool:
 rust = '''
 pub fn test_exitstack_basic() -> bool {
     let mut _cleanups: Vec<Box<dyn FnOnce()>> = Vec::new();
-    {
-        true
-    }
+    { true }
 }
 '''
 
@@ -601,9 +596,7 @@ async def test_async_exitstack() -> bool:
 rust = '''
 pub async fn test_async_exitstack() -> bool {
     let mut _cleanups: Vec<Box<dyn FnOnce()>> = Vec::new();
-    {
-        true
-    }
+    { true }
 }
 '''
 

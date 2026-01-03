@@ -31,7 +31,7 @@ impl ChainMap {
     pub fn new(maps: Vec<HashMap<String, i32>>) -> Self {
         Self { maps }
     }
-    
+
     pub fn get(&self, key: &str) -> Option<&i32> {
         for map in &self.maps {
             if let Some(value) = map.get(key) {
@@ -46,11 +46,11 @@ pub fn test_chainmap_create() -> ChainMap {
     let mut dict1 = HashMap::new();
     dict1.insert("a".to_string(), 1);
     dict1.insert("b".to_string(), 2);
-    
+
     let mut dict2 = HashMap::new();
     dict2.insert("b".to_string(), 3);
     dict2.insert("c".to_string(), 4);
-    
+
     return ChainMap::new(vec![dict1, dict2]);
 }
 '''
@@ -123,12 +123,12 @@ use std::collections::HashMap;
 pub fn test_chainmap_first() -> i32 {
     let mut dict1 = HashMap::new();
     dict1.insert("a".to_string(), 1);
-    
+
     let mut dict2 = HashMap::new();
     dict2.insert("a".to_string(), 2);
-    
+
     let maps = vec![dict1, dict2];
-    
+
     for map in &maps {
         if let Some(&value) = map.get("a") {
             return value;
@@ -159,12 +159,12 @@ use std::collections::HashMap;
 pub fn test_chainmap_fallback() -> i32 {
     let mut dict1 = HashMap::new();
     dict1.insert("a".to_string(), 1);
-    
+
     let mut dict2 = HashMap::new();
     dict2.insert("b".to_string(), 2);
-    
+
     let maps = vec![dict1, dict2];
-    
+
     for map in &maps {
         if let Some(&value) = map.get("b") {
             return value;
@@ -199,12 +199,12 @@ use std::collections::HashMap;
 pub fn test_chainmap_missing() -> bool {
     let mut dict1 = HashMap::new();
     dict1.insert("a".to_string(), 1);
-    
+
     let mut dict2 = HashMap::new();
     dict2.insert("b".to_string(), 2);
-    
+
     let maps = vec![dict1, dict2];
-    
+
     for map in &maps {
         if map.contains_key("z") {
             return false;
@@ -240,12 +240,12 @@ use std::collections::HashMap;
 pub fn test_chainmap_write() -> i32 {
     let mut dict1 = HashMap::new();
     dict1.insert("a".to_string(), 1);
-    
+
     let mut dict2 = HashMap::new();
     dict2.insert("b".to_string(), 2);
-    
+
     dict1.insert("x".to_string(), 10);
-    
+
     return *dict1.get("x").unwrap();
 }
 '''
@@ -273,12 +273,12 @@ pub fn test_chainmap_del() -> bool {
     let mut dict1 = HashMap::new();
     dict1.insert("a".to_string(), 1);
     dict1.insert("b".to_string(), 2);
-    
+
     let mut dict2 = HashMap::new();
     dict2.insert("c".to_string(), 3);
-    
+
     dict1.remove("a");
-    
+
     return !dict1.contains_key("a");
 }
 '''
@@ -304,12 +304,12 @@ use std::collections::HashMap;
 
 pub fn test_chainmap_shadow() -> (i32, i32) {
     let mut dict1 = HashMap::new();
-    
+
     let mut dict2 = HashMap::new();
     dict2.insert("a".to_string(), 2);
-    
+
     dict1.insert("a".to_string(), 10);
-    
+
     return (*dict1.get("a").unwrap(), *dict2.get("a").unwrap());
 }
 '''
@@ -339,12 +339,12 @@ use std::collections::HashMap;
 pub fn test_chainmap_maps() -> usize {
     let mut dict1 = HashMap::new();
     dict1.insert("a".to_string(), 1);
-    
+
     let mut dict2 = HashMap::new();
     dict2.insert("b".to_string(), 2);
-    
+
     let maps = vec![dict1, dict2];
-    
+
     return maps.len();
 }
 '''
@@ -371,13 +371,13 @@ use std::collections::HashMap;
 pub fn test_chainmap_modify_maps() -> i32 {
     let mut dict1 = HashMap::new();
     dict1.insert("a".to_string(), 1);
-    
+
     let mut dict2 = HashMap::new();
     dict2.insert("b".to_string(), 2);
-    
+
     let mut maps = vec![dict1, dict2];
     maps[0].insert("x".to_string(), 99);
-    
+
     return *maps[0].get("x").unwrap();
 }
 '''
@@ -407,11 +407,11 @@ use std::collections::HashMap;
 pub fn test_chainmap_new_child() -> usize {
     let mut dict1 = HashMap::new();
     dict1.insert("a".to_string(), 1);
-    
+
     let mut maps = vec![dict1];
     let new_map = HashMap::new();
     maps.insert(0, new_map);
-    
+
     return maps.len();
 }
 '''
@@ -437,12 +437,12 @@ use std::collections::HashMap;
 pub fn test_chainmap_new_child_map() -> String {
     let mut dict1 = HashMap::new();
     dict1.insert("a".to_string(), "1".to_string());
-    
+
     let mut maps = vec![dict1];
     let mut new_map = HashMap::new();
     new_map.insert("key".to_string(), "val".to_string());
     maps.insert(0, new_map);
-    
+
     for map in &maps {
         if let Some(value) = map.get("key") {
             return value.clone();
@@ -475,16 +475,16 @@ use std::collections::HashMap;
 pub fn test_chainmap_parents() -> usize {
     let mut dict1 = HashMap::new();
     dict1.insert("a".to_string(), 1);
-    
+
     let mut dict2 = HashMap::new();
     dict2.insert("b".to_string(), 2);
-    
+
     let mut dict3 = HashMap::new();
     dict3.insert("c".to_string(), 3);
-    
+
     let maps = vec![dict1, dict2, dict3];
     let parents = &maps[1..];
-    
+
     return parents.len();
 }
 '''
@@ -515,16 +515,16 @@ use std::collections::HashMap;
 pub fn test_chainmap_scopes() -> i32 {
     let mut global_vars = HashMap::new();
     global_vars.insert("x".to_string(), 1);
-    
+
     let mut enclosing_vars = HashMap::new();
     enclosing_vars.insert("x".to_string(), 2);
     enclosing_vars.insert("y".to_string(), 3);
-    
+
     let mut local_vars = HashMap::new();
     local_vars.insert("x".to_string(), 4);
-    
+
     let scopes = vec![local_vars, enclosing_vars, global_vars];
-    
+
     for map in &scopes {
         if let Some(&value) = map.get("x") {
             return value;
@@ -555,17 +555,17 @@ use std::collections::HashMap;
 pub fn test_chainmap_push() -> (i32, i32) {
     let mut outer = HashMap::new();
     outer.insert("x".to_string(), 1);
-    
+
     let mut maps1 = vec![outer.clone()];
-    
+
     let mut new_scope = HashMap::new();
     new_scope.insert("x".to_string(), 2);
     let mut maps2 = vec![new_scope];
     maps2.extend(maps1.clone());
-    
+
     let val2 = *maps2[0].get("x").unwrap();
     let val1 = *maps1[0].get("x").unwrap();
-    
+
     return (val2, val1);
 }
 '''
@@ -592,13 +592,13 @@ use std::collections::HashMap;
 pub fn test_chainmap_pop() -> i32 {
     let mut outer = HashMap::new();
     outer.insert("x".to_string(), 1);
-    
+
     let mut inner = HashMap::new();
     inner.insert("x".to_string(), 2);
-    
+
     let maps = vec![inner, outer];
     let parents = &maps[1..];
-    
+
     for map in parents {
         if let Some(&value) = map.get("x") {
             return value;
@@ -634,20 +634,20 @@ pub fn test_chainmap_keys() -> usize {
     let mut dict1 = HashMap::new();
     dict1.insert("a".to_string(), 1);
     dict1.insert("b".to_string(), 2);
-    
+
     let mut dict2 = HashMap::new();
     dict2.insert("b".to_string(), 3);
     dict2.insert("c".to_string(), 4);
-    
+
     let maps = vec![dict1, dict2];
-    
+
     let mut keys = HashSet::new();
     for map in &maps {
         for key in map.keys() {
             keys.insert(key.clone());
         }
     }
-    
+
     return keys.len();
 }
 '''
@@ -673,15 +673,15 @@ use std::collections::HashMap;
 pub fn test_chainmap_values() -> Vec<i32> {
     let mut dict1 = HashMap::new();
     dict1.insert("a".to_string(), 1);
-    
+
     let mut dict2 = HashMap::new();
     dict2.insert("b".to_string(), 2);
-    
+
     let maps = vec![dict1, dict2];
-    
+
     let mut values = Vec::new();
     let mut seen_keys = std::collections::HashSet::new();
-    
+
     for map in &maps {
         for (key, value) in map {
             if seen_keys.insert(key.clone()) {
@@ -689,7 +689,7 @@ pub fn test_chainmap_values() -> Vec<i32> {
             }
         }
     }
-    
+
     return values;
 }
 '''
@@ -715,15 +715,15 @@ use std::collections::HashMap;
 pub fn test_chainmap_items() -> Vec<(String, i32)> {
     let mut dict1 = HashMap::new();
     dict1.insert("a".to_string(), 1);
-    
+
     let mut dict2 = HashMap::new();
     dict2.insert("b".to_string(), 2);
-    
+
     let maps = vec![dict1, dict2];
-    
+
     let mut items = Vec::new();
     let mut seen_keys = std::collections::HashSet::new();
-    
+
     for map in &maps {
         for (key, value) in map {
             if seen_keys.insert(key.clone()) {
@@ -731,7 +731,7 @@ pub fn test_chainmap_items() -> Vec<(String, i32)> {
             }
         }
     }
-    
+
     return items;
 }
 '''
@@ -758,20 +758,20 @@ pub fn test_chainmap_len() -> usize {
     let mut dict1 = HashMap::new();
     dict1.insert("a".to_string(), 1);
     dict1.insert("b".to_string(), 2);
-    
+
     let mut dict2 = HashMap::new();
     dict2.insert("b".to_string(), 3);
     dict2.insert("c".to_string(), 4);
-    
+
     let maps = vec![dict1, dict2];
-    
+
     let mut keys = HashSet::new();
     for map in &maps {
         for key in map.keys() {
             keys.insert(key.clone());
         }
     }
-    
+
     return keys.len();
 }
 '''
@@ -797,15 +797,15 @@ use std::collections::HashMap;
 pub fn test_chainmap_contains() -> (bool, bool) {
     let mut dict1 = HashMap::new();
     dict1.insert("a".to_string(), 1);
-    
+
     let mut dict2 = HashMap::new();
     dict2.insert("b".to_string(), 2);
-    
+
     let maps = vec![dict1, dict2];
-    
+
     let mut contains_a = false;
     let mut contains_z = false;
-    
+
     for map in &maps {
         if map.contains_key("a") {
             contains_a = true;
@@ -814,7 +814,7 @@ pub fn test_chainmap_contains() -> (bool, bool) {
             contains_z = true;
         }
     }
-    
+
     return (contains_a, contains_z);
 }
 '''
@@ -845,15 +845,15 @@ pub fn test_chainmap_config() -> String {
     let mut default_config = HashMap::new();
     default_config.insert("host".to_string(), "localhost".to_string());
     default_config.insert("port".to_string(), "8080".to_string());
-    
+
     let mut user_config = HashMap::new();
     user_config.insert("port".to_string(), "3000".to_string());
-    
+
     let maps = vec![user_config, default_config];
-    
+
     let mut host = String::new();
     let mut port = String::new();
-    
+
     for map in &maps {
         if host.is_empty() {
             if let Some(h) = map.get("host") {
@@ -866,7 +866,7 @@ pub fn test_chainmap_config() -> String {
             }
         }
     }
-    
+
     return format!("{}:{}", host, port);
 }
 '''
@@ -892,15 +892,15 @@ use std::collections::HashMap;
 pub fn test_chainmap_template() -> String {
     let mut global_vars = HashMap::new();
     global_vars.insert("name".to_string(), "World".to_string());
-    
+
     let mut local_vars = HashMap::new();
     local_vars.insert("greeting".to_string(), "Hello".to_string());
-    
+
     let maps = vec![local_vars, global_vars];
-    
+
     let mut greeting = String::new();
     let mut name = String::new();
-    
+
     for map in &maps {
         if greeting.is_empty() {
             if let Some(g) = map.get("greeting") {
@@ -913,7 +913,7 @@ pub fn test_chainmap_template() -> String {
             }
         }
     }
-    
+
     return format!("{} {}", greeting, name);
 }
 '''
@@ -944,15 +944,15 @@ pub fn test_chainmap_copy() -> HashMap<String, i32> {
     let mut dict1 = HashMap::new();
     dict1.insert("a".to_string(), 1);
     dict1.insert("b".to_string(), 2);
-    
+
     let mut dict2 = HashMap::new();
     dict2.insert("c".to_string(), 3);
-    
+
     let maps = vec![dict1, dict2];
-    
+
     let mut result = HashMap::new();
     let mut seen_keys = std::collections::HashSet::new();
-    
+
     for map in &maps {
         for (key, value) in map {
             if seen_keys.insert(key.clone()) {
@@ -960,7 +960,7 @@ pub fn test_chainmap_copy() -> HashMap<String, i32> {
             }
         }
     }
-    
+
     return result;
 }
 '''
@@ -985,26 +985,26 @@ use std::collections::HashMap;
 pub fn test_chainmap_get() -> (i32, i32) {
     let mut dict1 = HashMap::new();
     dict1.insert("a".to_string(), 1);
-    
+
     let maps = vec![dict1];
-    
+
     let mut val_a = 999;
     let mut val_z = 999;
-    
+
     for map in &maps {
         if let Some(&v) = map.get("a") {
             val_a = v;
             break;
         }
     }
-    
+
     for map in &maps {
         if let Some(&v) = map.get("z") {
             val_z = v;
             break;
         }
     }
-    
+
     return (val_a, val_z);
 }
 '''
@@ -1031,23 +1031,23 @@ pub fn test_chainmap_iter() -> Vec<String> {
     let mut dict1 = HashMap::new();
     dict1.insert("a".to_string(), 1);
     dict1.insert("b".to_string(), 2);
-    
+
     let mut dict2 = HashMap::new();
     dict2.insert("b".to_string(), 3);
     dict2.insert("c".to_string(), 4);
-    
+
     let maps = vec![dict1, dict2];
-    
+
     let mut keys = HashSet::new();
     for map in &maps {
         for key in map.keys() {
             keys.insert(key.clone());
         }
     }
-    
+
     let mut result: Vec<String> = keys.into_iter().collect();
     result.sort();
-    
+
     return result;
 }
 '''

@@ -134,7 +134,8 @@ def substring(s: str, start: int, end: int) -> str:
 
 rust = '''
 pub fn substring(s: &str, start: i32, end: i32) -> String {
-    return s.chars()
+    return s
+        .chars()
         .skip(start as usize)
         .take((end - start) as usize)
         .collect();

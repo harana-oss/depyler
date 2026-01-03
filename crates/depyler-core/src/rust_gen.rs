@@ -1598,6 +1598,8 @@ fn convert_classes_to_rust(
             crate::direct_rules::convert_class_to_intflag(class)?
         } else if class.is_enum {
             crate::direct_rules::convert_class_to_enum(class)?
+        } else if class.is_abc {
+            crate::direct_rules::convert_class_to_trait(class, type_mapper)?
         } else {
             crate::direct_rules::convert_class_to_struct(class, type_mapper)?
         };

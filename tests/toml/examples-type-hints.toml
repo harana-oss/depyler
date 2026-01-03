@@ -230,11 +230,7 @@ pub fn boolean_logic<'b, 'c, 'a>(
         true
     } else {
         let _cse_temp_1 = (b) || (c);
-        if _cse_temp_1 {
-            false
-        } else {
-            !c
-        }
+        if _cse_temp_1 { false } else { !c }
     }
 }
 #[doc = "Dictionary method usage."]
@@ -850,10 +846,6 @@ pub fn work_with_list(data: &mut serde_json::Value) -> i32 {
 #[doc = " Depyler: verified panic-free"]
 #[doc = " Depyler: proven to terminate"]
 pub fn check_condition(flag: &serde_json::Value) -> i32 {
-    if flag {
-        1
-    } else {
-        0
-    }
+    if flag { 1 } else { 0 }
 }
 '''

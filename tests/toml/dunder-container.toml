@@ -19,7 +19,9 @@ result = Example(42)
 '''
 
 rust = '''
-struct Example { value: i32 }
+struct Example {
+    value: i32,
+}
 '''
 
 
@@ -36,7 +38,9 @@ result = Example(42)
 '''
 
 rust = '''
-struct Example { value: i32 }
+struct Example {
+    value: i32,
+}
 '''
 
 
@@ -53,7 +57,9 @@ result = Example(42)
 '''
 
 rust = '''
-struct Example { value: i32 }
+struct Example {
+    value: i32,
+}
 '''
 
 
@@ -74,7 +80,9 @@ result = Example(42)
 '''
 
 rust = '''
-struct Example { value: i32 }
+struct Example {
+    value: i32,
+}
 '''
 
 
@@ -91,7 +99,9 @@ result = Example(42)
 '''
 
 rust = '''
-struct Example { value: i32 }
+struct Example {
+    value: i32,
+}
 '''
 
 
@@ -108,7 +118,9 @@ result = Example(42)
 '''
 
 rust = '''
-struct Example { value: i32 }
+struct Example {
+    value: i32,
+}
 '''
 
 
@@ -129,7 +141,9 @@ result = (-n).value
 
 rust = '''
 use std::ops::Neg;
-struct Number { value: i32 }
+struct Number {
+    value: i32,
+}
 impl Neg for Number {
     type Output = Number;
     fn neg(self) -> Number {
@@ -156,7 +170,9 @@ result = Example(42)
 '''
 
 rust = '''
-struct Example { value: i32 }
+struct Example {
+    value: i32,
+}
 '''
 
 
@@ -173,7 +189,9 @@ result = Example(42)
 '''
 
 rust = '''
-struct Example { value: i32 }
+struct Example {
+    value: i32,
+}
 '''
 
 
@@ -194,7 +212,9 @@ result = Example(42)
 '''
 
 rust = '''
-struct Example { value: i32 }
+struct Example {
+    value: i32,
+}
 '''
 
 
@@ -211,7 +231,9 @@ result = Example(42)
 '''
 
 rust = '''
-struct Example { value: i32 }
+struct Example {
+    value: i32,
+}
 '''
 
 
@@ -232,7 +254,9 @@ result = Example(42)
 '''
 
 rust = '''
-struct Example { value: i32 }
+struct Example {
+    value: i32,
+}
 '''
 
 
@@ -249,7 +273,9 @@ result = Example(42)
 '''
 
 rust = '''
-struct Example { value: i32 }
+struct Example {
+    value: i32,
+}
 '''
 
 
@@ -284,10 +310,15 @@ impl Container {
 }
 
 fn main() {
-    let container = Container { items: vec![1, 2, 3, 4, 5] };
+    let container = Container {
+        items: vec![1, 2, 3, 4, 5],
+    };
     let result = container.contains(3) && !container.contains(6);
-    log::info!("3 in container: {}, 6 not in container: {}", 
-             container.contains(3), !container.contains(6));
+    log::info!(
+        "3 in container: {}, 6 not in container: {}",
+        container.contains(3),
+        !container.contains(6)
+    );
     log::info!("result: {}", result);
 }
 '''
@@ -306,7 +337,9 @@ result = Example(42)
 '''
 
 rust = '''
-struct Example { value: i32 }
+struct Example {
+    value: i32,
+}
 '''
 
 
@@ -327,7 +360,9 @@ result = Example(42)
 '''
 
 rust = '''
-struct Example { value: i32 }
+struct Example {
+    value: i32,
+}
 '''
 
 
@@ -344,7 +379,9 @@ result = Example(42)
 '''
 
 rust = '''
-struct Example { value: i32 }
+struct Example {
+    value: i32,
+}
 '''
 
 
@@ -365,7 +402,9 @@ result = Example(42)
 '''
 
 rust = '''
-struct Example { value: i32 }
+struct Example {
+    value: i32,
+}
 '''
 
 
@@ -382,7 +421,9 @@ result = Example(42)
 '''
 
 rust = '''
-struct Example { value: i32 }
+struct Example {
+    value: i32,
+}
 '''
 
 
@@ -427,14 +468,16 @@ struct CustomDict {
 
 impl CustomDict {
     fn new() -> Self {
-        CustomDict { data: HashMap::new() }
+        CustomDict {
+            data: HashMap::new(),
+        }
     }
-    
+
     fn get(&self, key: &str) -> Option<&i32> {
         // Returns None for missing key (Rust's safer equivalent)
         self.data.get(key)
     }
-    
+
     fn insert(&mut self, key: String, value: i32) {
         self.data.insert(key, value);
     }
@@ -443,7 +486,7 @@ impl CustomDict {
 fn main() {
     let mut d = CustomDict::new();
     d.insert("exists".to_string(), 42);
-    
+
     let result = d.get("missing").is_none();
     log::info!("Missing key returns None: {}", result);
 }
@@ -485,7 +528,7 @@ impl CustomList {
     fn new(items: Vec<i32>) -> Self {
         CustomList { items }
     }
-    
+
     fn get(&self, index: usize) -> Option<&i32> {
         // Returns None for out of range (Rust's safer equivalent)
         self.items.get(index)
@@ -494,7 +537,7 @@ impl CustomList {
 
 fn main() {
     let lst = CustomList::new(vec![10, 20, 30]);
-    
+
     let result = lst.get(5).is_none();
     log::info!("Out of range index returns None: {}", result);
 }
@@ -514,6 +557,8 @@ result = Example(42)
 '''
 
 rust = '''
-struct Example { value: i32 }
+struct Example {
+    value: i32,
+}
 '''
 

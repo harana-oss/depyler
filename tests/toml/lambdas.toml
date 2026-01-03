@@ -326,7 +326,8 @@ pub fn calculate_distances(points: Vec<serde_json::Value>) -> Vec<serde_json::Va
     return points
         .iter()
         .map(|p| {
-            (p.get(0usize).cloned().unwrap().pow(2 as u32) + p.get(1usize).cloned().unwrap().pow(2 as u32) as f64)
+            (p.get(0usize).cloned().unwrap().pow(2 as u32)
+                + p.get(1usize).cloned().unwrap().pow(2 as u32) as f64)
                 .powf(0.5 as f64)
         })
         .collect::<Vec<_>>();

@@ -388,7 +388,8 @@ rust = '''
 pub fn test_bytes_find() -> Option<usize> {
     let haystack = b"hello";
     let needle = b"l";
-    return haystack.windows(needle.len())
+    return haystack
+        .windows(needle.len())
         .position(|window| window == needle);
 }
 '''
@@ -406,9 +407,7 @@ def test_bytes_split() -> list:
 rust = '''
 pub fn test_bytes_split() -> Vec<Vec<u8>> {
     let bytes = b"a,b,c";
-    return bytes.split(|&b| b == b',')
-        .map(|s| s.to_vec())
-        .collect();
+    return bytes.split(|&b| b == b',').map(|s| s.to_vec()).collect();
 }
 '''
 
@@ -427,14 +426,14 @@ pub fn test_bytes_join() -> Vec<u8> {
     let parts: Vec<&[u8]> = vec![b"a", b"b"];
     let separator = b",";
     let mut result = Vec::new();
-    
+
     for (i, part) in parts.iter().enumerate() {
         if i > 0 {
             result.extend_from_slice(separator);
         }
         result.extend_from_slice(part);
     }
-    
+
     return result;
 }
 '''

@@ -142,11 +142,11 @@ impl<T> Stack<T> {
     fn new() -> Self {
         Stack { items: Vec::new() }
     }
-    
+
     fn push(&mut self, item: T) {
         self.items.push(item);
     }
-    
+
     fn pop(&mut self) -> Option<T> {
         self.items.pop()
     }
@@ -195,11 +195,11 @@ impl<K, V> Pair<K, V> {
     fn new(key: K, value: V) -> Self {
         Pair { key, value }
     }
-    
+
     fn get_key(&self) -> &K {
         &self.key
     }
-    
+
     fn get_value(&self) -> &V {
         &self.value
     }
@@ -307,11 +307,11 @@ impl<T> Queue<T> {
     fn new() -> Self {
         Queue { items: Vec::new() }
     }
-    
+
     fn enqueue(&mut self, item: T) {
         self.items.push(item);
     }
-    
+
     fn dequeue(&mut self) -> Option<T> {
         if self.items.is_empty() {
             None
@@ -409,7 +409,7 @@ impl<T> Container<T> {
 fn main() {
     let c = Container::new(42);
     log::info!("{}", c.value);
-    log::info!("i32");  // Type is known at compile time
+    log::info!("i32"); // Type is known at compile time
 }
 """
 expected_output = """42
@@ -568,7 +568,11 @@ impl<T: 'static, U: 'static> MyClass<T, U> {
         if std::any::type_name::<U>() == "()" {
             format!("Single param: {}", std::any::type_name::<T>())
         } else {
-            format!("Multiple params: ({}, {})", std::any::type_name::<T>(), std::any::type_name::<U>())
+            format!(
+                "Multiple params: ({}, {})",
+                std::any::type_name::<T>(),
+                std::any::type_name::<U>()
+            )
         }
     }
 }

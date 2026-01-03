@@ -719,6 +719,22 @@ fn expr_creates_owned_value(expr: &HirExpr) -> bool {
     }
 }
 
+/// Helper to check if expression is a block expression
+/// Block expressions don't need trailing semicolons after return
+fn is_block_expr(expr: &syn::Expr) -> bool {
+    matches!(
+        expr,
+        syn::Expr::Block(_)
+            | syn::Expr::If(_)
+            | syn::Expr::Match(_)
+            | syn::Expr::Loop(_)
+            | syn::Expr::ForLoop(_)
+            | syn::Expr::While(_)
+            | syn::Expr::Unsafe(_)
+            | syn::Expr::Async(_)
+    )
+}
+
 /// Generate code for Return statement with optional expression
 #[inline]
 pub(crate) fn codegen_return_stmt(
@@ -819,14 +835,22 @@ pub(crate) fn codegen_return_stmt(
                 if expr_already_optional {
                     // Expression is already Option<T>, don't wrap in Some()
                     if use_return_keyword {
-                        Ok(quote! { return Ok(#expr_tokens); })
+                        if is_block_expr(&expr_tokens) {
+                            Ok(quote! { return Ok(#expr_tokens) })
+                        } else {
+                            Ok(quote! { return Ok(#expr_tokens); })
+                        }
                     } else {
                         Ok(quote! { Ok(#expr_tokens) })
                     }
                 } else {
                     // Wrap value in Some() for Optional return types
                     if use_return_keyword {
-                        Ok(quote! { return Ok(Some(#expr_tokens)); })
+                        if is_block_expr(&expr_tokens) {
+                            Ok(quote! { return Ok(Some(#expr_tokens)) })
+                        } else {
+                            Ok(quote! { return Ok(Some(#expr_tokens)); })
+                        }
                     } else {
                         Ok(quote! { Ok(Some(#expr_tokens)) })
                     }
@@ -838,7 +862,11 @@ pub(crate) fn codegen_return_stmt(
                     Ok(quote! { Ok(None) })
                 }
             } else if use_return_keyword {
-                Ok(quote! { return Ok(#expr_tokens); })
+                if is_block_expr(&expr_tokens) {
+                    Ok(quote! { return Ok(#expr_tokens) })
+                } else {
+                    Ok(quote! { return Ok(#expr_tokens); })
+                }
             } else {
                 Ok(quote! { Ok(#expr_tokens) })
             }
@@ -857,14 +885,22 @@ pub(crate) fn codegen_return_stmt(
             if expr_already_optional {
                 // Expression is already Option<T>, don't wrap in Some()
                 if use_return_keyword {
-                    Ok(quote! { return #expr_tokens; })
+                    if is_block_expr(&expr_tokens) {
+                        Ok(quote! { return #expr_tokens })
+                    } else {
+                        Ok(quote! { return #expr_tokens; })
+                    }
                 } else {
                     Ok(quote! { #expr_tokens })
                 }
             } else {
                 // Wrap value in Some() for Optional return types
                 if use_return_keyword {
-                    Ok(quote! { return Some(#expr_tokens); })
+                    if is_block_expr(&expr_tokens) {
+                        Ok(quote! { return Some(#expr_tokens) })
+                    } else {
+                        Ok(quote! { return Some(#expr_tokens); })
+                    }
                 } else {
                     Ok(quote! { Some(#expr_tokens) })
                 }
@@ -876,9 +912,13 @@ pub(crate) fn codegen_return_stmt(
                 Ok(quote! { None })
             }
         } else if use_return_keyword {
-            Ok(quote! { return #expr_tokens; })
+            if is_block_expr(&expr_tokens) {
+                Ok(quote! { return #expr_tokens })
+            } else {
+                Ok(quote! { return #expr_tokens; })
+            }
         } else {
-            Ok(quote! { return #expr_tokens; })
+            Ok(quote! { #expr_tokens })
         }
     } else if ctx.current_function_can_fail {
         // No expression - check if return type is Optional
@@ -4276,21 +4316,32 @@ pub(crate) fn codegen_try_stmt(
     // Empty list means bare except (catches all exceptions)
     ctx.enter_try_scope(handled_types.clone());
 
-    let has_zero_div_handler = handlers
-        .iter()
-        .any(|h| h.exception_type.as_deref() == Some("ZeroDivisionError"));
+    // Check if handler catches ZeroDivisionError (either explicitly or via bare except:)
+    let has_zero_div_handler = handlers.iter().any(|h| {
+        h.exception_type.as_deref() == Some("ZeroDivisionError") || h.exception_type.is_none()
+    });
 
     if has_zero_div_handler && body.len() == 1 {
         if let HirStmt::Return(Some(expr)) = &body[0] {
-            if contains_floor_div(expr) {
-                // Extract divisor from floor division
-                let divisor_expr = extract_divisor_from_floor_div(expr)?;
+            // Check for both floor division and regular division
+            let (has_division, divisor_expr) = if contains_floor_div(expr) {
+                (true, extract_divisor_from_floor_div(expr)?)
+            } else if contains_div(expr) {
+                (true, extract_divisor_from_div(expr)?)
+            } else {
+                (false, &HirExpr::Literal(Literal::None))
+            };
+
+            if has_division {
                 let divisor_tokens = divisor_expr.to_rust_expr(ctx)?;
 
-                // Find ZeroDivisionError handler
+                // Find ZeroDivisionError handler (explicit or bare except:)
                 let zero_div_handler_idx = handlers
                     .iter()
-                    .position(|h| h.exception_type.as_deref() == Some("ZeroDivisionError"))
+                    .position(|h| {
+                        h.exception_type.as_deref() == Some("ZeroDivisionError")
+                            || h.exception_type.is_none()
+                    })
                     .unwrap();
 
                 // Generate handler body
@@ -4305,12 +4356,12 @@ pub(crate) fn codegen_try_stmt(
                 ctx.is_final_statement = old_is_final;
                 ctx.exit_scope();
 
-                // Generate try block expression (with params shadowing)
-                let floor_div_result = expr.to_rust_expr(ctx)?;
+                // Generate try block expression
+                let div_result = expr.to_rust_expr(ctx)?;
 
                 ctx.exit_exception_scope();
 
-                // Generate: if divisor == 0 { handler } else { floor_div_result }
+                // Generate: if divisor == 0 { handler } else { div_result }
                 if let Some(finalbody) = finalbody {
                     ctx.enter_scope();
                     let finally_stmts: Vec<_> = finalbody
@@ -4324,7 +4375,7 @@ pub(crate) fn codegen_try_stmt(
                             if #divisor_tokens == 0 {
                                 #(#handler_stmts)*
                             } else {
-                                return #floor_div_result;
+                                return #div_result;
                             }
                             #(#finally_stmts)*
                         }
@@ -4334,7 +4385,7 @@ pub(crate) fn codegen_try_stmt(
                         if #divisor_tokens == 0 {
                             #(#handler_stmts)*
                         } else {
-                            return #floor_div_result;
+                            return #div_result;
                         }
                     });
                 }
@@ -4852,6 +4903,23 @@ fn contains_floor_div(expr: &HirExpr) -> bool {
     }
 }
 
+fn contains_div(expr: &HirExpr) -> bool {
+    match expr {
+        HirExpr::Binary { op: BinOp::Div, .. } => true,
+        HirExpr::Binary { left, right, .. } => contains_div(left) || contains_div(right),
+        HirExpr::Unary { operand, .. } => contains_div(operand),
+        HirExpr::Call { args, .. } => args.iter().any(contains_div),
+        HirExpr::MethodCall { object, args, .. } => {
+            contains_div(object) || args.iter().any(contains_div)
+        }
+        HirExpr::Index { base, index } => contains_div(base) || contains_div(index),
+        HirExpr::List(elements) | HirExpr::Tuple(elements) | HirExpr::Set(elements) => {
+            elements.iter().any(contains_div)
+        }
+        _ => false,
+    }
+}
+
 fn extract_divisor_from_floor_div(expr: &HirExpr) -> Result<&HirExpr> {
     match expr {
         HirExpr::Binary {
@@ -4871,6 +4939,28 @@ fn extract_divisor_from_floor_div(expr: &HirExpr) -> Result<&HirExpr> {
         }
         HirExpr::Unary { operand, .. } => extract_divisor_from_floor_div(operand),
         _ => bail!("No floor division found in expression"),
+    }
+}
+
+fn extract_divisor_from_div(expr: &HirExpr) -> Result<&HirExpr> {
+    match expr {
+        HirExpr::Binary {
+            op: BinOp::Div,
+            right,
+            ..
+        } => Ok(right),
+        HirExpr::Binary { left, right, .. } => {
+            // Recursively search for division
+            if contains_div(left) {
+                extract_divisor_from_div(left)
+            } else if contains_div(right) {
+                extract_divisor_from_div(right)
+            } else {
+                bail!("No division found in expression")
+            }
+        }
+        HirExpr::Unary { operand, .. } => extract_divisor_from_div(operand),
+        _ => bail!("No division found in expression"),
     }
 }
 

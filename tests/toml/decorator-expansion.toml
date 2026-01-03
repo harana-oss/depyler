@@ -26,18 +26,18 @@ def compute(x: int) -> int:
 '''
 
 rust = '''
-pub fn add_one<F>(f: F) -> impl Fn(i32) -> i32 
-where 
-    F: Fn(i32) -> i32 
+pub fn add_one<F>(f: F) -> impl Fn(i32) -> i32
+where
+    F: Fn(i32) -> i32,
 {
     move |x: i32| -> i32 {
         return f(x) + 1;
     }
 }
 
-pub fn double<F>(f: F) -> impl Fn(i32) -> i32 
-where 
-    F: Fn(i32) -> i32 
+pub fn double<F>(f: F) -> impl Fn(i32) -> i32
+where
+    F: Fn(i32) -> i32,
 {
     move |x: i32| -> i32 {
         return f(x) * 2;
@@ -74,27 +74,27 @@ def identity(x: int) -> int:
 '''
 
 rust = '''
-pub fn inc<F>(f: F) -> impl Fn(i32) -> i32 
-where 
-    F: Fn(i32) -> i32 
+pub fn inc<F>(f: F) -> impl Fn(i32) -> i32
+where
+    F: Fn(i32) -> i32,
 {
     move |x: i32| -> i32 {
         return f(x) + 1;
     }
 }
 
-pub fn triple<F>(f: F) -> impl Fn(i32) -> i32 
-where 
-    F: Fn(i32) -> i32 
+pub fn triple<F>(f: F) -> impl Fn(i32) -> i32
+where
+    F: Fn(i32) -> i32,
 {
     move |x: i32| -> i32 {
         return f(x) * 3;
     }
 }
 
-pub fn negate<F>(f: F) -> impl Fn(i32) -> i32 
-where 
-    F: Fn(i32) -> i32 
+pub fn negate<F>(f: F) -> impl Fn(i32) -> i32
+where
+    F: Fn(i32) -> i32,
 {
     move |x: i32| -> i32 {
         return -f(x);
@@ -128,8 +128,8 @@ def base(x: int) -> int:
 
 rust = '''
 pub fn multiply_by<F>(n: i32) -> impl Fn(F) -> Box<dyn Fn(i32) -> i32>
-where 
-    F: Fn(i32) -> i32 + 'static
+where
+    F: Fn(i32) -> i32 + 'static,
 {
     move |f: F| -> Box<dyn Fn(i32) -> i32> {
         let n = n;
@@ -162,8 +162,8 @@ def get_name() -> str:
 
 rust = '''
 pub fn prefix_with<F>(s: String) -> impl Fn(F) -> Box<dyn Fn() -> String>
-where 
-    F: Fn() -> String + 'static
+where
+    F: Fn() -> String + 'static,
 {
     move |f: F| -> Box<dyn Fn() -> String> {
         let s = s.clone();
@@ -201,8 +201,8 @@ def compute_value(x: int) -> int:
 
 rust = '''
 pub fn bounds<F>(min_val: i32, max_val: i32) -> impl Fn(F) -> Box<dyn Fn(i32) -> i32>
-where 
-    F: Fn(i32) -> i32 + 'static
+where
+    F: Fn(i32) -> i32 + 'static,
 {
     move |f: F| -> Box<dyn Fn(i32) -> i32> {
         let min_val = min_val;
@@ -255,12 +255,12 @@ impl Counter {
     pub fn new() -> Self {
         Self { count: 0 }
     }
-    
+
     pub fn increment(&mut self) -> i32 {
         self.count += 1;
         return self.count;
     }
-    
+
     pub fn get_count(&self) -> i32 {
         return self.count;
     }
@@ -291,7 +291,7 @@ impl Point {
     pub fn new(x: i32, y: i32) -> Self {
         Self { x, y }
     }
-    
+
     pub fn distance_from_origin(&self) -> f64 {
         return ((self.x.pow(2) + self.y.pow(2)) as f64).sqrt();
     }
@@ -332,17 +332,17 @@ impl Calculator {
     pub fn new(value: i32) -> Self {
         Self { value }
     }
-    
+
     pub fn add(&mut self, n: i32) -> i32 {
         self.value += n;
         return self.value;
     }
-    
+
     pub fn multiply(&mut self, n: i32) -> i32 {
         self.value *= n;
         return self.value;
     }
-    
+
     pub fn get(&self) -> i32 {
         return self.value;
     }
@@ -375,12 +375,12 @@ impl Builder {
     pub fn new() -> Self {
         Self { parts: vec![] }
     }
-    
+
     pub fn add_part(&mut self, part: String) -> &mut Self {
         self.parts.push(part);
         return self;
     }
-    
+
     pub fn build(&self) -> String {
         return self.parts.join(", ");
     }
@@ -409,7 +409,7 @@ impl Math {
     pub fn add(a: i32, b: i32) -> i32 {
         return a + b;
     }
-    
+
     pub fn multiply(a: i32, b: i32) -> i32 {
         return a * b;
     }
@@ -438,11 +438,11 @@ pub struct Factory;
 
 impl Factory {
     pub const DEFAULT_VALUE: i32 = 0;
-    
+
     pub fn create_default() -> i32 {
         return Self::DEFAULT_VALUE;
     }
-    
+
     pub fn create_with_value(value: i32) -> i32 {
         return value;
     }

@@ -16,7 +16,7 @@ obj = MyClass()
 print(obj.x)
 print(obj.method())
 """
-rust = """// Transpilation failed
+rust = """
 // Dynamic type() creation is not supported in Rust
 // Use static struct definitions instead:
 //
@@ -56,7 +56,9 @@ struct MyClass {
 
 impl Default for MyClass {
     fn default() -> Self {
-        MyClass { added_by_meta: true }
+        MyClass {
+            added_by_meta: true,
+        }
     }
 }
 
@@ -93,7 +95,7 @@ rust = """
 struct MyClass;
 
 impl MyClass {
-    const X: i32 = 10;  // Uppercase by convention
+    const X: i32 = 10; // Uppercase by convention
 }
 
 fn main() {
@@ -299,7 +301,9 @@ struct Database {
 
 impl Database {
     fn get_instance() -> &'static Database {
-        DATABASE.get_or_init(|| Database { connection: "Connected" })
+        DATABASE.get_or_init(|| Database {
+            connection: "Connected",
+        })
     }
 }
 
@@ -351,7 +355,7 @@ fn register(name: &'static str, _factory: fn()) {
 fn main() {
     register("PluginA", || {});
     register("PluginB", || {});
-    
+
     let mut keys: Vec<_> = REGISTRY.lock().unwrap().keys().copied().collect();
     keys.sort();
     log::info!("{:?}", keys);
@@ -437,11 +441,11 @@ struct MyClass {
 
 impl MyClass {
     const CLASS_NAME: &'static str = "MyClass";
-    
+
     fn new(x: i32, y: i32) -> Self {
         MyClass { x, y }
     }
-    
+
     fn to_dict(&self) -> HashMap<String, i32> {
         let mut map = HashMap::new();
         map.insert("x".to_string(), self.x);
@@ -494,7 +498,7 @@ struct Derived;
 impl FromMeta for Derived {}
 
 fn main() {
-    log::info!("{}", true);  // hasattr equivalent
+    log::info!("{}", true); // hasattr equivalent
     log::info!("{}", Derived::FROM_META);
 }
 """
@@ -571,7 +575,9 @@ print(isinstance(obj, MyClass))
 rust = """
 // In Rust, we use traits for type checking
 trait HasSpecialAttr {
-    fn has_special_attr() -> bool { true }
+    fn has_special_attr() -> bool {
+        true
+    }
 }
 
 struct MyClass;

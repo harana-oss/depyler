@@ -48,8 +48,8 @@ result = f'Value: {x}'
 '''
 
 rust = '''
-let x = 42;
-let result = format!("Value: {}", x);
+    let x = 42;
+    let result = format!("Value: {}", x);
 '''
 
 
@@ -381,7 +381,13 @@ def format_int_types() -> tuple:
 rust = '''
 pub fn format_int_types() -> (String, String, String, String, String) {
     let n = 42;
-    return (format!("{}", n), format!("{:b}", n), format!("{:o}", n), format!("{:x}", n), format!("{:X}", n));
+    return (
+        format!("{}", n),
+        format!("{:b}", n),
+        format!("{:o}", n),
+        format!("{:x}", n),
+        format!("{:X}", n),
+    );
 }
 '''
 
@@ -454,7 +460,9 @@ result = Example(42)
 '''
 
 rust = '''
-struct Example { value: i32 }
+struct Example {
+    value: i32,
+}
 '''
 
 

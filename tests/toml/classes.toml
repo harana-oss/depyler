@@ -682,7 +682,11 @@ pub struct Rectangle {
 }
 impl Rectangle {
     pub fn new(origin: Point, width: i32, height: i32) -> Self {
-        Self { origin, width, height }
+        Self {
+            origin,
+            width,
+            height,
+        }
     }
     pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
         match name {
@@ -1609,7 +1613,10 @@ impl DataProcessor {
     }
     pub fn process(&self, value: i32) -> i32 {
         if value < self.threshold {
-            panic!("Exception: {}", CustomError::new("Value below threshold".to_string()));
+            panic!(
+                "Exception: {}",
+                CustomError::new("Value below threshold".to_string())
+            );
         };
         return value * 2;
     }

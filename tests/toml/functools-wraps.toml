@@ -27,13 +27,13 @@ result = hello.__name__ == "hello"
 '''
 
 rust = '''
-// @wraps(f) def wrapper(): ...
-// Rust uses proc macros for decoration, metadata preserved automatically
-fn hello() -> &'static str {
-    "Hello"
-}
+    // @wraps(f) def wrapper(): ...
+    // Rust uses proc macros for decoration, metadata preserved automatically
+    fn hello() -> &'static str {
+        "Hello"
+    }
 
-let result = true;
+    let result = true;
 '''
 
 
@@ -50,7 +50,9 @@ result = Example(42)
 '''
 
 rust = '''
-struct Example { value: i32 }
+struct Example {
+    value: i32,
+}
 '''
 
 
@@ -67,7 +69,9 @@ result = Example(42)
 '''
 
 rust = '''
-struct Example { value: i32 }
+struct Example {
+    value: i32,
+}
 '''
 
 
@@ -96,11 +100,11 @@ result = original_func.__name__ == "original_func"
 '''
 
 rust = '''
-// Function name preserved
-// Rust functions retain their names in metadata
-fn original_func() {}
+    // Function name preserved
+    // Rust functions retain their names in metadata
+    fn original_func() {}
 
-let result = true;
+    let result = true;
 '''
 
 
@@ -126,11 +130,11 @@ result = func.__doc__ == "This is the docstring"
 '''
 
 rust = '''
-// Docstring preserved
-/// This is the docstring
-fn func() {}
+    // Docstring preserved
+    /// This is the docstring
+    fn func() {}
 
-let result = true;
+    let result = true;
 '''
 
 
@@ -155,11 +159,11 @@ result = func.__module__ == "__main__"
 '''
 
 rust = '''
-// Module name preserved
-// Rust uses module paths: module_path!()
-fn func() {}
+    // Module name preserved
+    // Rust uses module paths: module_path!()
+    fn func() {}
 
-let result = module_path!().len() > 0;
+    let result = module_path!().len() > 0;
 '''
 
 
@@ -185,14 +189,14 @@ result = MyClass.method.__qualname__ == "MyClass.method"
 '''
 
 rust = '''
-// Qualified name preserved
-struct MyClass;
+    // Qualified name preserved
+    struct MyClass;
 
-impl MyClass {
-    fn method(&self) {}
-}
+    impl MyClass {
+        fn method(&self) {}
+    }
 
-let result = true;
+    let result = true;
 '''
 
 
@@ -217,13 +221,13 @@ result = func.__annotations__ == {'x': int, 'return': int}
 '''
 
 rust = '''
-// Type annotations preserved
-// Rust type annotations are part of function signature
-fn func(x: i32) -> i32 {
-    x * 2
-}
+    // Type annotations preserved
+    // Rust type annotations are part of function signature
+    fn func(x: i32) -> i32 {
+        x * 2
+    }
 
-let result = func(5) == 10;
+    let result = func(5) == 10;
 '''
 
 
@@ -249,12 +253,12 @@ result = hasattr(func, 'custom_attr')
 '''
 
 rust = '''
-// Custom attributes copied
-// Rust uses attributes for metadata
-#[allow(dead_code)]
-fn func() {}
+    // Custom attributes copied
+    // Rust uses attributes for metadata
+    #[allow(dead_code)]
+    fn func() {}
 
-let result = true;
+    let result = true;
 '''
 
 
@@ -287,13 +291,13 @@ result = greet.__name__ == "greet"
 '''
 
 rust = '''
-// @wraps in parameterized decorator
-// Rust proc macros can take parameters
-fn greet() -> &'static str {
-    "Hello"
-}
+    // @wraps in parameterized decorator
+    // Rust proc macros can take parameters
+    fn greet() -> &'static str {
+        "Hello"
+    }
 
-let result = true;
+    let result = true;
 '''
 
 
@@ -325,13 +329,13 @@ result = original.__name__ == "original"
 '''
 
 rust = '''
-// Multiple decorators all using @wraps
-// Rust can stack multiple attributes
-#[allow(dead_code)]
-#[inline]
-fn original() {}
+    // Multiple decorators all using @wraps
+    // Rust can stack multiple attributes
+    #[allow(dead_code)]
+    #[inline]
+    fn original() {}
 
-let result = true;
+    let result = true;
 '''
 
 
@@ -352,7 +356,9 @@ result = Example(42)
 '''
 
 rust = '''
-struct Example { value: i32 }
+struct Example {
+    value: i32,
+}
 '''
 
 
@@ -369,7 +375,9 @@ result = Example(42)
 '''
 
 rust = '''
-struct Example { value: i32 }
+struct Example {
+    value: i32,
+}
 '''
 
 
@@ -396,10 +404,10 @@ result = wrapper.__name__ == "original" and wrapper.__doc__ == "Original functio
 '''
 
 rust = '''
-// update_wrapper(wrapper, wrapped)
-// Rust doesn't have runtime wrapper updates
-// Metadata is compile-time
-let result = true;
+    // update_wrapper(wrapper, wrapped)
+    // Rust doesn't have runtime wrapper updates
+    // Metadata is compile-time
+    let result = true;
 '''
 
 
@@ -422,9 +430,9 @@ result = wrapper.__name__ == "original" and wrapper.__doc__ is None
 '''
 
 rust = '''
-// Customize which attributes to copy
-// Rust attributes are declarative
-let result = true;
+    // Customize which attributes to copy
+    // Rust attributes are declarative
+    let result = true;
 '''
 
 
@@ -447,9 +455,9 @@ result = wrapper.__dict__.get('custom') == 'value'
 '''
 
 rust = '''
-// Customize which dict attrs to update
-// Rust doesn't have mutable runtime __dict__
-let result = true;
+    // Customize which dict attrs to update
+    // Rust doesn't have mutable runtime __dict__
+    let result = true;
 '''
 
 
@@ -480,13 +488,13 @@ result = len(sig.parameters) == 2
 '''
 
 rust = '''
-// inspect.signature works correctly
-// Rust type information is compile-time
-fn func(x: i32, y: &str) -> String {
-    format!("{}: {}", x, y)
-}
+    // inspect.signature works correctly
+    // Rust type information is compile-time
+    fn func(x: i32, y: &str) -> String {
+        format!("{}: {}", x, y)
+    }
 
-let result = true;
+    let result = true;
 '''
 
 
@@ -512,11 +520,11 @@ result = func.__doc__ == "This function does something"
 '''
 
 rust = '''
-// help() shows original docs
-/// This function does something
-fn func() {}
+    // help() shows original docs
+    /// This function does something
+    fn func() {}
 
-let result = true;
+    let result = true;
 '''
 
 
@@ -541,10 +549,10 @@ result = original_name.__name__ == "original_name"
 '''
 
 rust = '''
-// Name shows original in tracebacks
-fn original_name() {}
+    // Name shows original in tracebacks
+    fn original_name() {}
 
-let result = true;
+    let result = true;
 '''
 
 
@@ -575,17 +583,17 @@ result = obj.method() == 42 and MyClass.method.__name__ == "method"
 '''
 
 rust = '''
-// @wraps on decorated method
-struct MyClass;
+    // @wraps on decorated method
+    struct MyClass;
 
-impl MyClass {
-    fn method(&self) -> i32 {
-        42
+    impl MyClass {
+        fn method(&self) -> i32 {
+            42
+        }
     }
-}
 
-let obj = MyClass;
-let result = obj.method() == 42;
+    let obj = MyClass;
+    let result = obj.method() == 42;
 '''
 
 
@@ -610,13 +618,13 @@ result = double(5) == 10
 '''
 
 rust = '''
-// @wraps with functools.partial
-fn multiply(x: i32, y: i32) -> i32 {
-    x * y
-}
+    // @wraps with functools.partial
+    fn multiply(x: i32, y: i32) -> i32 {
+        x * y
+    }
 
-let double = |y| multiply(2, y);
-let result = double(5) == 10;
+    let double = |y| multiply(2, y);
+    let result = double(5) == 10;
 '''
 
 
@@ -643,13 +651,13 @@ result = hasattr(decorated, '__wrapped__')
 '''
 
 rust = '''
-// Custom attributes on original function
-#[allow(dead_code)]
-#[derive(Debug)]
-struct Version;
+    // Custom attributes on original function
+    #[allow(dead_code)]
+    #[derive(Debug)]
+    struct Version;
 
-fn original() {}
+    fn original() {}
 
-let result = true;
+    let result = true;
 '''
 

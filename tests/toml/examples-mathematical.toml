@@ -179,11 +179,7 @@ pub fn power(mut base: i32, mut exponent: i32) -> Result<i32, ZeroDivisionError>
             let r_nonzero = r != 0;
             let signs_differ = r_negative != b_negative;
             let needs_adjustment = r_nonzero && signs_differ;
-            if needs_adjustment {
-                q - 1
-            } else {
-                q
-            }
+            if needs_adjustment { q - 1 } else { q }
         };
     }
     Ok(result)
@@ -276,11 +272,7 @@ pub fn test_floor_division_positive() -> Result<i32, ZeroDivisionError> {
         let r_nonzero = r != 0;
         let signs_differ = r_negative != b_negative;
         let needs_adjustment = r_nonzero && signs_differ;
-        if needs_adjustment {
-            q - 1
-        } else {
-            q
-        }
+        if needs_adjustment { q - 1 } else { q }
     };
     let result = _cse_temp_0;
     Ok(result)
@@ -300,11 +292,7 @@ pub fn test_floor_division_negative() -> Result<i32, ZeroDivisionError> {
         let r_nonzero = r != 0;
         let signs_differ = r_negative != b_negative;
         let needs_adjustment = r_nonzero && signs_differ;
-        if needs_adjustment {
-            q - 1
-        } else {
-            q
-        }
+        if needs_adjustment { q - 1 } else { q }
     };
     let result = _cse_temp_0;
     Ok(result)
@@ -324,11 +312,7 @@ pub fn test_floor_division_negative_divisor() -> Result<i32, ZeroDivisionError> 
         let r_nonzero = r != 0;
         let signs_differ = r_negative != b_negative;
         let needs_adjustment = r_nonzero && signs_differ;
-        if needs_adjustment {
-            q - 1
-        } else {
-            q
-        }
+        if needs_adjustment { q - 1 } else { q }
     };
     let result = _cse_temp_0;
     Ok(result)
@@ -348,11 +332,7 @@ pub fn test_floor_division_both_negative() -> Result<i32, ZeroDivisionError> {
         let r_nonzero = r != 0;
         let signs_differ = r_negative != b_negative;
         let needs_adjustment = r_nonzero && signs_differ;
-        if needs_adjustment {
-            q - 1
-        } else {
-            q
-        }
+        if needs_adjustment { q - 1 } else { q }
     };
     let result = _cse_temp_0;
     Ok(result)
@@ -372,11 +352,7 @@ pub fn test_floor_division_exact() -> Result<i32, ZeroDivisionError> {
         let r_nonzero = r != 0;
         let signs_differ = r_negative != b_negative;
         let needs_adjustment = r_nonzero && signs_differ;
-        if needs_adjustment {
-            q - 1
-        } else {
-            q
-        }
+        if needs_adjustment { q - 1 } else { q }
     };
     let result = _cse_temp_0;
     Ok(result)
@@ -396,11 +372,7 @@ pub fn test_floor_division_zero_remainder() -> Result<i32, ZeroDivisionError> {
         let r_nonzero = r != 0;
         let signs_differ = r_negative != b_negative;
         let needs_adjustment = r_nonzero && signs_differ;
-        if needs_adjustment {
-            q - 1
-        } else {
-            q
-        }
+        if needs_adjustment { q - 1 } else { q }
     };
     let result = _cse_temp_0;
     Ok(result)
@@ -662,11 +634,7 @@ pub fn floor_division_examples(dividend: i32, divisor: i32) -> Result<i32, ZeroD
         let r_nonzero = r != 0;
         let signs_differ = r_negative != b_negative;
         let needs_adjustment = r_nonzero && signs_differ;
-        if needs_adjustment {
-            q - 1
-        } else {
-            q
-        }
+        if needs_adjustment { q - 1 } else { q }
     };
     let result1 = _cse_temp_0;
     let _cse_temp_1 = {
@@ -679,11 +647,7 @@ pub fn floor_division_examples(dividend: i32, divisor: i32) -> Result<i32, ZeroD
         let r_nonzero = r != 0;
         let signs_differ = r_negative != b_negative;
         let needs_adjustment = r_nonzero && signs_differ;
-        if needs_adjustment {
-            q - 1
-        } else {
-            q
-        }
+        if needs_adjustment { q - 1 } else { q }
     };
     let result2 = _cse_temp_1;
     let _cse_temp_2 = {
@@ -696,11 +660,7 @@ pub fn floor_division_examples(dividend: i32, divisor: i32) -> Result<i32, ZeroD
         let r_nonzero = r != 0;
         let signs_differ = r_negative != b_negative;
         let needs_adjustment = r_nonzero && signs_differ;
-        if needs_adjustment {
-            q - 1
-        } else {
-            q
-        }
+        if needs_adjustment { q - 1 } else { q }
     };
     let result3 = _cse_temp_2;
     let _cse_temp_3 = {
@@ -713,11 +673,7 @@ pub fn floor_division_examples(dividend: i32, divisor: i32) -> Result<i32, ZeroD
         let r_nonzero = r != 0;
         let signs_differ = r_negative != b_negative;
         let needs_adjustment = r_nonzero && signs_differ;
-        if needs_adjustment {
-            q - 1
-        } else {
-            q
-        }
+        if needs_adjustment { q - 1 } else { q }
     };
     let result4 = _cse_temp_3;
     let _cse_temp_4 = {
@@ -730,11 +686,7 @@ pub fn floor_division_examples(dividend: i32, divisor: i32) -> Result<i32, ZeroD
         let r_nonzero = r != 0;
         let signs_differ = r_negative != b_negative;
         let needs_adjustment = r_nonzero && signs_differ;
-        if needs_adjustment {
-            q - 1
-        } else {
-            q
-        }
+        if needs_adjustment { q - 1 } else { q }
     };
     let result5 = _cse_temp_4;
     Ok(result1 + result2 + result3 + result4 + result5)
@@ -762,11 +714,7 @@ pub fn combined_operations(a: i32, b: i32) -> Result<i32, ZeroDivisionError> {
         let r_nonzero = r != 0;
         let signs_differ = r_negative != b_negative;
         let needs_adjustment = r_nonzero && signs_differ;
-        if needs_adjustment {
-            q - 1
-        } else {
-            q
-        }
+        if needs_adjustment { q - 1 } else { q }
     };
     let result1 = _cse_temp_1;
     let _cse_temp_2 = {
@@ -779,11 +727,7 @@ pub fn combined_operations(a: i32, b: i32) -> Result<i32, ZeroDivisionError> {
         let r_nonzero = r != 0;
         let signs_differ = r_negative != b_negative;
         let needs_adjustment = r_nonzero && signs_differ;
-        if needs_adjustment {
-            q - 1
-        } else {
-            q
-        }
+        if needs_adjustment { q - 1 } else { q }
     };
     let step2 = _cse_temp_2;
     let _cse_temp_3 = {
@@ -822,11 +766,7 @@ pub fn mathematical_sequence(n: i32) -> Result<i32, ZeroDivisionError> {
             let r_nonzero = r != 0;
             let signs_differ = r_negative != b_negative;
             let needs_adjustment = r_nonzero && signs_differ;
-            if needs_adjustment {
-                q - 1
-            } else {
-                q
-            }
+            if needs_adjustment { q - 1 } else { q }
         };
         total = total + contribution;
         i = i + 1;
@@ -1078,11 +1018,7 @@ pub fn test_floor_div(x: i32, y: i32) -> Result<i32, ZeroDivisionError> {
         let r_nonzero = r != 0;
         let signs_differ = r_negative != b_negative;
         let needs_adjustment = r_nonzero && signs_differ;
-        if needs_adjustment {
-            q - 1
-        } else {
-            q
-        }
+        if needs_adjustment { q - 1 } else { q }
     })
 }
 '''
@@ -1272,11 +1208,7 @@ pub fn median(numbers: Vec<f64>) -> Result<f64, Box<dyn std::error::Error>> {
                 let r_nonzero = r != 0;
                 let signs_differ = r_negative != b_negative;
                 let needs_adjustment = r_nonzero && signs_differ;
-                if needs_adjustment {
-                    q - 1
-                } else {
-                    q
-                }
+                if needs_adjustment { q - 1 } else { q }
             } - 1;
             let actual_idx = if idx < 0 {
                 base.len().saturating_sub(idx.abs() as usize)
@@ -1296,11 +1228,7 @@ pub fn median(numbers: Vec<f64>) -> Result<f64, Box<dyn std::error::Error>> {
                 let r_nonzero = r != 0;
                 let signs_differ = r_negative != b_negative;
                 let needs_adjustment = r_nonzero && signs_differ;
-                if needs_adjustment {
-                    q - 1
-                } else {
-                    q
-                }
+                if needs_adjustment { q - 1 } else { q }
             };
             let actual_idx = if idx < 0 {
                 base.len().saturating_sub(idx.abs() as usize)
@@ -1323,11 +1251,7 @@ pub fn median(numbers: Vec<f64>) -> Result<f64, Box<dyn std::error::Error>> {
                 let r_nonzero = r != 0;
                 let signs_differ = r_negative != b_negative;
                 let needs_adjustment = r_nonzero && signs_differ;
-                if needs_adjustment {
-                    q - 1
-                } else {
-                    q
-                }
+                if needs_adjustment { q - 1 } else { q }
             };
             let actual_idx = if idx < 0 {
                 base.len().saturating_sub(idx.abs() as usize)

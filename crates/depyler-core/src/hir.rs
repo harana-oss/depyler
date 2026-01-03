@@ -268,6 +268,7 @@ pub struct HirClass {
     pub is_dataclass: bool,
     pub is_enum: bool,
     pub is_intflag: bool,
+    pub is_abc: bool,
     pub docstring: Option<String>,
     pub annotations: TranspilationAnnotations,
 }
@@ -282,6 +283,7 @@ pub struct HirMethod {
     pub is_classmethod: bool,
     pub is_property: bool,
     pub is_async: bool,
+    pub is_abstract: bool,
     pub docstring: Option<String>,
 }
 

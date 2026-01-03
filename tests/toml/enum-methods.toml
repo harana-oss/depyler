@@ -157,7 +157,7 @@ impl HttpMethod {
     fn all_methods() -> Vec<&'static str> {
         vec!["GET", "POST", "PUT", "DELETE"]
     }
-    
+
     fn value(&self) -> &str {
         match self {
             HttpMethod::Get => "GET",
@@ -260,7 +260,7 @@ enum Suit {
 
 impl Suit {
     const ALL: [Suit; 4] = [Suit::Hearts, Suit::Diamonds, Suit::Clubs, Suit::Spades];
-    
+
     fn count() -> usize {
         Self::ALL.len()
     }
@@ -445,7 +445,7 @@ fn main() {
     if Toggle::On.to_bool() {
         log::info!("Toggle is ON");
     }
-    
+
     if !Toggle::Off.to_bool() {
         log::info!("Toggle is OFF");
     }
@@ -528,7 +528,7 @@ enum Temperature {
 
 impl Temperature {
     fn fahrenheit(&self) -> f64 {
-        (*self as i32 as f64) * 9.0/5.0 + 32.0
+        (*self as i32 as f64) * 9.0 / 5.0 + 32.0
     }
 }
 
@@ -567,9 +567,9 @@ rust = """
 // We can use a const fn for power-of-2 generation
 #[derive(Debug, Clone, Copy)]
 enum Power {
-    First = 1,   // 2^0
-    Second = 2,  // 2^1
-    Third = 4,   // 2^2
+    First = 1,  // 2^0
+    Second = 2, // 2^1
+    Third = 4,  // 2^2
 }
 
 fn main() {
@@ -762,7 +762,7 @@ enum Animal {
 
 impl Animal {
     const MEMBERS: [&'static str; 2] = ["Cat", "Dog"];
-    
+
     fn helper() -> &'static str {
         "Helper method"
     }
@@ -821,9 +821,12 @@ impl ToJson for Status {
 
 fn main() {
     let json = Status::Pending.to_json();
-    log::info!("{{{}: {}, {}: {}}}", 
-        "'name'", format!("'{}'", json.get("name").unwrap()),
-        "'value'", json.get("value").unwrap()
+    log::info!(
+        "{{{}: {}, {}: {}}}",
+        "'name'",
+        format!("'{}'", json.get("name").unwrap()),
+        "'value'",
+        json.get("value").unwrap()
     );
 }
 """

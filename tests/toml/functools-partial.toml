@@ -180,7 +180,7 @@ fn add(a: i32, b: i32) -> i32 {
 fn main() {
     // In Rust, we would use a struct to hold both function and args
     let add5 = |b| add(5, b);
-    log::info!("True");  // Simulated
+    log::info!("True"); // Simulated
 }
 """
 expected_output = "True"
@@ -254,7 +254,7 @@ impl Calculator {
     fn add(&self, a: i32, b: i32) -> i32 {
         a + b
     }
-    
+
     fn add_five(&self, b: i32) -> i32 {
         self.add(5, b)
     }
@@ -289,7 +289,7 @@ impl Greeter {
     fn greet(&self, greeting: &str, name: &str) -> String {
         format!("{}, {}!", greeting, name)
     }
-    
+
     fn say_hello(&self, name: &str) -> String {
         self.greet("Hello", name)
     }
@@ -331,12 +331,12 @@ impl Counter {
     fn new() -> Self {
         Counter { count: 0 }
     }
-    
+
     fn add(&mut self, x: i32) -> i32 {
         self.count += x;
         self.count
     }
-    
+
     fn add_one(&mut self) -> i32 {
         self.add(1)
     }
@@ -495,10 +495,10 @@ fn add(a: i32, b: i32) -> i32 {
 fn main() {
     // Using closure (similar to partial)
     let add5_closure = |b| add(5, b);
-    
+
     // Using lambda-style closure
     let add5_lambda = |b| add(5, b);
-    
+
     log::info!("{}", add5_closure(3));
     log::info!("{}", add5_lambda(3));
 }
@@ -650,9 +650,8 @@ fn greet(name: &str, greeting: &str) -> String {
 fn main() {
     // In Rust, we would need to design the API differently
     // to allow overriding captured values
-    let hello_greeter = |name, greeting_override: Option<&str>| {
-        greet(name, greeting_override.unwrap_or("Hello"))
-    };
+    let hello_greeter =
+        |name, greeting_override: Option<&str>| greet(name, greeting_override.unwrap_or("Hello"));
     log::info!("{}", hello_greeter("Alice", Some("Hi")));
 }
 """

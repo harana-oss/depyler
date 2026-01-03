@@ -35,9 +35,11 @@ struct MyClass {
 
 impl BitAnd for MyClass {
     type Output = MyClass;
-    
+
     fn bitand(self, other: MyClass) -> MyClass {
-        MyClass { x: self.x & other.x }
+        MyClass {
+            x: self.x & other.x,
+        }
     }
 }
 
@@ -78,9 +80,11 @@ struct MyClass {
 
 impl BitOr for MyClass {
     type Output = MyClass;
-    
+
     fn bitor(self, other: MyClass) -> MyClass {
-        MyClass { x: self.x | other.x }
+        MyClass {
+            x: self.x | other.x,
+        }
     }
 }
 
@@ -121,9 +125,11 @@ struct MyClass {
 
 impl BitXor for MyClass {
     type Output = MyClass;
-    
+
     fn bitxor(self, other: MyClass) -> MyClass {
-        MyClass { x: self.x ^ other.x }
+        MyClass {
+            x: self.x ^ other.x,
+        }
     }
 }
 
@@ -167,7 +173,7 @@ struct MyClass {
 
 impl Shl<i32> for MyClass {
     type Output = MyClass;
-    
+
     fn shl(self, other: i32) -> MyClass {
         MyClass { x: self.x << other }
     }
@@ -208,7 +214,7 @@ struct MyClass {
 
 impl Shr<i32> for MyClass {
     type Output = MyClass;
-    
+
     fn shr(self, other: i32) -> MyClass {
         MyClass { x: self.x >> other }
     }
@@ -255,9 +261,11 @@ struct CustomFlags {
 
 impl BitAnd<i32> for CustomFlags {
     type Output = CustomFlags;
-    
+
     fn bitand(self, other: i32) -> CustomFlags {
-        CustomFlags { value: self.value & other }
+        CustomFlags {
+            value: self.value & other,
+        }
     }
 }
 
@@ -296,9 +304,11 @@ struct CustomFlags {
 
 impl BitAnd<CustomFlags> for i32 {
     type Output = CustomFlags;
-    
+
     fn bitand(self, other: CustomFlags) -> CustomFlags {
-        CustomFlags { value: self & other.value }
+        CustomFlags {
+            value: self & other.value,
+        }
     }
 }
 
@@ -358,10 +368,10 @@ const READ: i32 = 1;
 const WRITE: i32 = 2;
 
 fn main() {
-    let permissions = 3;  // READ | WRITE
+    let permissions = 3; // READ | WRITE
     let has_read = (permissions & READ) != 0;
     let has_write = (permissions & WRITE) != 0;
-    
+
     log::info!("Has read: {}", has_read);
     log::info!("Has write: {}", has_write);
 }
@@ -390,11 +400,11 @@ const WRITE: i32 = 2;
 fn main() {
     let mut flags = READ;
     log::info!("Initial: {}", flags);
-    
-    flags = flags ^ WRITE;  // Add WRITE
+
+    flags = flags ^ WRITE; // Add WRITE
     log::info!("After adding WRITE: {}", flags);
-    
-    flags = flags ^ WRITE;  // Remove WRITE
+
+    flags = flags ^ WRITE; // Remove WRITE
     log::info!("After removing WRITE: {}", flags);
 }
 """
@@ -435,13 +445,19 @@ print(f"Bytes: {hex(byte0)}, {hex(byte1)}, {hex(byte2)}, {hex(byte3)}")
 rust = """
 fn main() {
     let value: u32 = 0x12345678;
-    
+
     let byte0 = value & 0xFF;
     let byte1 = (value >> 8) & 0xFF;
     let byte2 = (value >> 16) & 0xFF;
     let byte3 = (value >> 24) & 0xFF;
-    
-    log::info!("Bytes: {:#x}, {:#x}, {:#x}, {:#x}", byte0, byte1, byte2, byte3);
+
+    log::info!(
+        "Bytes: {:#x}, {:#x}, {:#x}, {:#x}",
+        byte0,
+        byte1,
+        byte2,
+        byte3
+    );
 }
 """
 
@@ -572,7 +588,7 @@ fn main() {
     let result1 = true & false;
     let result2 = true | false;
     let result3 = true ^ false;
-    
+
     log::info!("True & False = {}", result1);
     log::info!("True | False = {}", result2);
     log::info!("True ^ False = {}", result3);

@@ -109,7 +109,10 @@ rust = '''
 pub fn count_lines(filepath: String) -> i32 {
     let count = 0;
     let mut f = std::fs::File::open(filepath)?;
-    for _line in std::io::BufReader::new(f).lines().map(|l| l.unwrap_or_default()) {
+    for _line in std::io::BufReader::new(f)
+        .lines()
+        .map(|l| l.unwrap_or_default())
+    {
         count = count + 1;
     }
     return count;

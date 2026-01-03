@@ -17,9 +17,9 @@ result = len(mv)
 '''
 
 rust = '''
-let data = b"hello";
-let slice = &data[..];
-let result = slice.len();
+    let data = b"hello";
+    let slice = &data[..];
+    let result = slice.len();
 '''
 
 
@@ -34,9 +34,9 @@ result = len(mv)
 '''
 
 rust = '''
-let data = b"hello";
-let slice = &data[..];
-let result = slice.len();
+    let data = b"hello";
+    let slice = &data[..];
+    let result = slice.len();
 '''
 
 
@@ -51,9 +51,9 @@ result = len(mv)
 '''
 
 rust = '''
-let data = b"hello";
-let slice = &data[..];
-let result = slice.len();
+    let data = b"hello";
+    let slice = &data[..];
+    let result = slice.len();
 '''
 
 
@@ -68,9 +68,9 @@ result = len(mv)
 '''
 
 rust = '''
-let data = b"hello";
-let slice = &data[..];
-let result = slice.len();
+    let data = b"hello";
+    let slice = &data[..];
+    let result = slice.len();
 '''
 
 
@@ -89,8 +89,8 @@ result = bytes(mv[1:3])
 '''
 
 rust = '''
-let data = b"hello";
-let slice = &data[1..3];
+    let data = b"hello";
+    let slice = &data[1..3];
 '''
 
 
@@ -105,9 +105,9 @@ result = len(mv)
 '''
 
 rust = '''
-let data = b"hello";
-let slice = &data[..];
-let result = slice.len();
+    let data = b"hello";
+    let slice = &data[..];
+    let result = slice.len();
 '''
 
 
@@ -126,9 +126,9 @@ result = len(mv)
 '''
 
 rust = '''
-let data = b"hello";
-let slice = &data[..];
-let result = slice.len();
+    let data = b"hello";
+    let slice = &data[..];
+    let result = slice.len();
 '''
 
 
@@ -143,9 +143,9 @@ result = len(mv)
 '''
 
 rust = '''
-let data = b"hello";
-let slice = &data[..];
-let result = slice.len();
+    let data = b"hello";
+    let slice = &data[..];
+    let result = slice.len();
 '''
 
 
@@ -160,9 +160,9 @@ result = len(mv)
 '''
 
 rust = '''
-let data = b"hello";
-let slice = &data[..];
-let result = slice.len();
+    let data = b"hello";
+    let slice = &data[..];
+    let result = slice.len();
 '''
 
 
@@ -177,9 +177,9 @@ result = len(mv)
 '''
 
 rust = '''
-let data = b"hello";
-let slice = &data[..];
-let result = slice.len();
+    let data = b"hello";
+    let slice = &data[..];
+    let result = slice.len();
 '''
 
 
@@ -194,9 +194,9 @@ result = len(mv)
 '''
 
 rust = '''
-let data = b"hello";
-let slice = &data[..];
-let result = slice.len();
+    let data = b"hello";
+    let slice = &data[..];
+    let result = slice.len();
 '''
 
 
@@ -215,9 +215,9 @@ result = mv.tobytes()
 '''
 
 rust = '''
-let data = b"hello";
-let slice = &data[..];
-let result = slice.to_vec();
+    let data = b"hello";
+    let slice = &data[..];
+    let result = slice.to_vec();
 '''
 
 
@@ -232,9 +232,9 @@ result = len(mv)
 '''
 
 rust = '''
-let data = b"hello";
-let slice = &data[..];
-let result = slice.len();
+    let data = b"hello";
+    let slice = &data[..];
+    let result = slice.len();
 '''
 
 
@@ -249,9 +249,9 @@ result = len(mv)
 '''
 
 rust = '''
-let data = b"hello";
-let slice = &data[..];
-let result = slice.len();
+    let data = b"hello";
+    let slice = &data[..];
+    let result = slice.len();
 '''
 
 
@@ -266,9 +266,9 @@ result = len(mv)
 '''
 
 rust = '''
-let data = b"hello";
-let slice = &data[..];
-let result = slice.len();
+    let data = b"hello";
+    let slice = &data[..];
+    let result = slice.len();
 '''
 
 
@@ -287,9 +287,9 @@ result = len(mv)
 '''
 
 rust = '''
-let data = b"hello";
-let slice = &data[..];
-let result = slice.len();
+    let data = b"hello";
+    let slice = &data[..];
+    let result = slice.len();
 '''
 
 
@@ -308,9 +308,9 @@ result = len(mv)
 '''
 
 rust = '''
-let data = b"hello";
-let slice = &data[..];
-let result = slice.len();
+    let data = b"hello";
+    let slice = &data[..];
+    let result = slice.len();
 '''
 
 
@@ -325,8 +325,8 @@ result = bytes(mv[1:3])
 '''
 
 rust = '''
-let data = b"hello";
-let slice = &data[1..3];
+    let data = b"hello";
+    let slice = &data[1..3];
 '''
 
 
@@ -345,9 +345,9 @@ result = len(mv)
 '''
 
 rust = '''
-let data = b"hello";
-let slice = &data[..];
-let result = slice.len();
+    let data = b"hello";
+    let slice = &data[..];
+    let result = slice.len();
 '''
 
 
@@ -362,9 +362,9 @@ result = len(mv)
 '''
 
 rust = '''
-let data = b"hello";
-let slice = &data[..];
-let result = slice.len();
+    let data = b"hello";
+    let slice = &data[..];
+    let result = slice.len();
 '''
 
 
@@ -379,8 +379,8 @@ result = len(mv)
 '''
 
 rust = '''
-let data = b"hello";
-let slice = &data[..];
-let result = slice.len();
+    let data = b"hello";
+    let slice = &data[..];
+    let result = slice.len();
 '''
 

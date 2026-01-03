@@ -1730,28 +1730,19 @@ pub(crate) fn codegen_return_type(
         None
     };
 
-    // Check BOTH error_type_str (for functions that return Result) AND
-    // func.properties.error_types (for types used in try/except blocks)
-    if error_type_str.contains("ZeroDivisionError") {
-        ctx.needs_zerodivisionerror = true;
-    }
-    if error_type_str.contains("IndexError") {
-        ctx.needs_indexerror = true;
-    }
-    if error_type_str.contains("ValueError") {
-        ctx.needs_valueerror = true;
-    }
-
-    // Also check all error_types from properties (even if can_fail=false)
-    // This ensures types used in try/except blocks are generated
-    for err_type in &func.properties.error_types {
-        if err_type.contains("ZeroDivisionError") {
+    // Only generate error struct definitions when the function actually returns a Result
+    // with that error type. This avoids generating error structs for functions that
+    // merely contain operations that could fail (like indexing) but don't handle errors.
+    // Error structs for raise statements and try/except handlers are generated separately
+    // in stmt_gen.rs when those statements are encountered.
+    if can_fail {
+        if error_type_str.contains("ZeroDivisionError") {
             ctx.needs_zerodivisionerror = true;
         }
-        if err_type.contains("IndexError") {
+        if error_type_str.contains("IndexError") {
             ctx.needs_indexerror = true;
         }
-        if err_type.contains("ValueError") {
+        if error_type_str.contains("ValueError") {
             ctx.needs_valueerror = true;
         }
     }

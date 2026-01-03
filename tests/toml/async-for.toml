@@ -190,7 +190,7 @@ impl AsyncRange {
 
 impl Stream for AsyncRange {
     type Item = i32;
-    
+
     fn poll_next(mut self: Pin<&mut Self>, _cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
         if self.i >= self.n {
             Poll::Ready(None)
@@ -378,7 +378,7 @@ impl AsyncAccumulator {
 
 impl Stream for AsyncAccumulator {
     type Item = i32;
-    
+
     fn poll_next(mut self: Pin<&mut Self>, _cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
         if self.i >= self.n {
             Poll::Ready(None)
@@ -439,7 +439,7 @@ use futures::stream::{self, StreamExt};
 #[tokio::main]
 async fn main() {
     let result: Vec<i32> = stream::iter(0..3).collect().await;
-    let closed = true;  // Automatic cleanup
+    let closed = true; // Automatic cleanup
     log::info!("{:?} {}", result, closed);
 }
 """
@@ -773,14 +773,8 @@ use futures::stream::{self, StreamExt};
 #[tokio::main]
 async fn main() {
     let mut result = Vec::new();
-    let stream = stream::iter(0..5).map(|i| {
-        if i == 3 {
-            Err("Error at 3")
-        } else {
-            Ok(i)
-        }
-    });
-    
+    let stream = stream::iter(0..5).map(|i| if i == 3 { Err("Error at 3") } else { Ok(i) });
+
     futures::pin_mut!(stream);
     while let Some(item) = stream.next().await {
         match item {
