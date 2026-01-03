@@ -4112,6 +4112,85 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         Ok(Some(result))
     }
 
+    /// Try to convert unicodedata module method calls
+    ///
+    /// Maps Python unicodedata functions to Rust unicode-normalization crate:
+    /// - unicodedata.normalize("NFC", s) → s.nfc().collect::<String>()
+    /// - unicodedata.normalize("NFD", s) → s.nfd().collect::<String>()
+    /// - unicodedata.normalize("NFKC", s) → s.nfkc().collect::<String>()
+    /// - unicodedata.normalize("NFKD", s) → s.nfkd().collect::<String>()
+    ///
+    #[inline]
+    fn try_convert_unicodedata_method(
+        &mut self,
+        method: &str,
+        args: &[HirExpr],
+    ) -> Result<Option<syn::Expr>> {
+        // Convert arguments first
+        let arg_exprs: Vec<syn::Expr> = args
+            .iter()
+            .map(|arg| arg.to_rust_expr(self.ctx))
+            .collect::<Result<Vec<_>>>()?;
+
+        // Mark that we need unicode-normalization crate
+        self.ctx.needs_unicode_normalization = true;
+
+        let result = match method {
+            "normalize" => {
+                if arg_exprs.len() != 2 {
+                    bail!("unicodedata.normalize() requires exactly 2 arguments (form, string)");
+                }
+
+                // Extract the normalization form (should be a string literal like "NFC", "NFD", etc.)
+                let form_arg = &args[0];
+                let string_arg = &arg_exprs[1];
+
+                // Try to extract the string literal value for the form
+                let form = match form_arg {
+                    HirExpr::Literal(Literal::String(s)) => s.as_str(),
+                    _ => bail!("unicodedata.normalize() first argument must be a string literal"),
+                };
+
+                // Map to the appropriate unicode-normalization method
+                match form {
+                    "NFC" => {
+                        // unicodedata.normalize("NFC", s) → s.nfc().collect::<String>()
+                        // The UnicodeNormalization trait is imported at the top of the file
+                        parse_quote! { (#string_arg).nfc().collect::<String>() }
+                    }
+                    "NFD" => {
+                        parse_quote! { (#string_arg).nfd().collect::<String>() }
+                    }
+                    "NFKC" => {
+                        parse_quote! { (#string_arg).nfkc().collect::<String>() }
+                    }
+                    "NFKD" => {
+                        parse_quote! { (#string_arg).nfkd().collect::<String>() }
+                    }
+                    _ => bail!(
+                        "Unsupported normalization form: {}. Supported forms are NFC, NFD, NFKC, NFKD",
+                        form
+                    ),
+                }
+            }
+
+            "category" | "name" | "lookup" => {
+                // These functions don't have direct equivalents in unicode-normalization crate
+                // They would need a different crate like unicode-width or a custom implementation
+                bail!(
+                    "unicodedata.{} is not yet supported - no direct Rust equivalent in unicode-normalization crate",
+                    method
+                )
+            }
+
+            _ => {
+                bail!("unicodedata.{} not implemented yet", method);
+            }
+        };
+
+        Ok(Some(result))
+    }
+
     /// Try to convert re (regular expressions) module method calls
     ///
     ///
@@ -9387,6 +9466,12 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             // json.loads(s) → serde_json::from_str(&s)
             if module_name == "json" {
                 return self.try_convert_json_method(method, args);
+            }
+
+            //
+            // unicodedata.normalize("NFC", s) → s.nfc().collect::<String>()
+            if module_name == "unicodedata" {
+                return self.try_convert_unicodedata_method(method, args);
             }
 
             //

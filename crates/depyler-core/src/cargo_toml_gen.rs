@@ -67,6 +67,10 @@ pub fn extract_dependencies(ctx: &CodeGenContext) -> Vec<Dependency> {
         deps.push(Dependency::new("chrono", "0.4"));
     }
 
+    if ctx.needs_unicode_normalization {
+        deps.push(Dependency::new("unicode-normalization", "0.1"));
+    }
+
     if ctx.needs_csv {
         deps.push(Dependency::new("csv", "1.0"));
     }

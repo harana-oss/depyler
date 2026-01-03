@@ -918,29 +918,71 @@ pub(crate) fn codegen_while_stmt(
     body: &[HirStmt],
     ctx: &mut CodeGenContext,
 ) -> Result<proc_macro2::TokenStream> {
-    let mut cond = condition.to_rust_expr(ctx)?;
-
-    // Convert non-boolean expressions to boolean (e.g., `while queue` where queue: VecDeque)
-    cond = apply_truthiness_conversion(condition, cond, ctx);
+    // Extract walrus operators from the condition
+    let (walrus_assignments, modified_condition) = extract_walrus_assignments(condition);
 
     // Return statements inside loops must use explicit `return` keyword
     let saved_is_final = ctx.is_final_statement;
     ctx.is_final_statement = false;
 
     ctx.enter_scope();
-    let body_stmts: Vec<_> = body
-        .iter()
-        .map(|s| s.to_rust_tokens(ctx))
-        .collect::<Result<Vec<_>>>()?;
-    ctx.exit_scope();
 
-    ctx.is_final_statement = saved_is_final;
+    // If there are walrus operators, we need to use loop {} with assignments at the start
+    if !walrus_assignments.is_empty() {
+        // Generate assignment statements for walrus operators
+        let mut assignment_stmts = Vec::new();
+        for (var_name, value_expr) in &walrus_assignments {
+            let var_ident = quote::format_ident!("{}", var_name);
+            let value_tokens = value_expr.to_rust_expr(ctx)?;
 
-    Ok(quote! {
-        while #cond {
-            #(#body_stmts)*
+            // Mark variable as declared so it can be used in condition and body
+            ctx.declare_var(var_name);
+
+            assignment_stmts.push(quote! { let #var_ident = #value_tokens; });
         }
-    })
+
+        // Generate the condition check (with walrus operators replaced by variable references)
+        let mut cond = modified_condition.to_rust_expr(ctx)?;
+        cond = apply_truthiness_conversion(&modified_condition, cond, ctx);
+
+        // Generate body statements
+        let body_stmts: Vec<_> = body
+            .iter()
+            .map(|s| s.to_rust_tokens(ctx))
+            .collect::<Result<Vec<_>>>()?;
+
+        ctx.exit_scope();
+        ctx.is_final_statement = saved_is_final;
+
+        // Use loop {} pattern with assignments at start and conditional break
+        Ok(quote! {
+            loop {
+                #(#assignment_stmts)*
+                if !(#cond) {
+                    break;
+                }
+                #(#body_stmts)*
+            }
+        })
+    } else {
+        // No walrus operators - use standard while loop
+        let mut cond = condition.to_rust_expr(ctx)?;
+        cond = apply_truthiness_conversion(condition, cond, ctx);
+
+        let body_stmts: Vec<_> = body
+            .iter()
+            .map(|s| s.to_rust_tokens(ctx))
+            .collect::<Result<Vec<_>>>()?;
+
+        ctx.exit_scope();
+        ctx.is_final_statement = saved_is_final;
+
+        Ok(quote! {
+            while #cond {
+                #(#body_stmts)*
+            }
+        })
+    }
 }
 
 /// Generate code for Raise (exception) statement
@@ -2015,29 +2057,44 @@ pub(crate) fn codegen_for_stmt(
             }
         }
         AssignTarget::Tuple(targets) => {
-            // For tuple unpacking, check each variable individually
-            let idents: Vec<syn::Ident> = targets
-                .iter()
-                .map(|t| match t {
-                    AssignTarget::Symbol(s) => {
-                        // Check if this specific tuple element is used
-                        let is_used = body.iter().any(|stmt| is_var_used_in_stmt(s, stmt));
-                        let var_name = if is_used {
-                            s.clone()
-                        } else {
-                            format!("_{}", s)
-                        };
-                        safe_ident(&var_name)
-                    }
-                    _ => panic!("Nested tuple unpacking not supported in for loops"),
-                })
-                .collect();
-            if needs_mut_pattern {
-                // Add mut to each element of the tuple
-                parse_quote! { (mut #(#idents),*) }
-            } else {
+            // For tuple unpacking, recursively build pattern for nested tuples
+            fn build_for_loop_pattern(
+                targets: &[AssignTarget],
+                body: &[HirStmt],
+                needs_mut_pattern: bool,
+            ) -> syn::Pat {
+                let idents: Vec<syn::Pat> = targets
+                    .iter()
+                    .map(|t| match t {
+                        AssignTarget::Symbol(s) => {
+                            // Check if this specific element is used
+                            let is_used = body.iter().any(|stmt| is_var_used_in_stmt(s, stmt));
+                            let var_name = if is_used {
+                                s.clone()
+                            } else {
+                                format!("_{}", s)
+                            };
+                            let ident = safe_ident(&var_name);
+                            if needs_mut_pattern {
+                                parse_quote! { mut #ident }
+                            } else {
+                                parse_quote! { #ident }
+                            }
+                        }
+                        AssignTarget::Tuple(nested) => {
+                            // Recursively build nested tuple pattern
+                            build_for_loop_pattern(nested, body, needs_mut_pattern)
+                        }
+                        _ => {
+                            // For index/attribute/slice in for loop, we'd need more complex handling
+                            panic!("Complex assignment targets (index/attribute/slice) not supported in for loop unpacking")
+                        }
+                    })
+                    .collect();
                 parse_quote! { (#(#idents),*) }
             }
+
+            build_for_loop_pattern(targets, body, needs_mut_pattern)
         }
         _ => bail!("Unsupported for loop target type"),
     };
@@ -3948,7 +4005,16 @@ pub(crate) fn codegen_assign_tuple(
     _type_annotation_tokens: Option<proc_macro2::TokenStream>,
     ctx: &mut CodeGenContext,
 ) -> Result<proc_macro2::TokenStream> {
-    // Check if all targets are simple symbols
+    // Check if all targets are simple symbols or nested simple tuples
+    fn all_simple_symbols_or_tuples(targets: &[AssignTarget]) -> bool {
+        targets.iter().all(|t| match t {
+            AssignTarget::Symbol(_) => true,
+            AssignTarget::Tuple(nested) => all_simple_symbols_or_tuples(nested),
+            _ => false,
+        })
+    }
+
+    // Check if targets contain only symbols (no nested tuples)
     let all_symbols: Option<Vec<&str>> = targets
         .iter()
         .map(|t| match t {
@@ -3959,6 +4025,7 @@ pub(crate) fn codegen_assign_tuple(
 
     match all_symbols {
         Some(symbols) => {
+            // Simple case: all targets are symbols (no nested tuples)
             let all_declared = symbols.iter().all(|s| ctx.is_declared(s));
 
             if all_declared {
@@ -3983,37 +4050,82 @@ pub(crate) fn codegen_assign_tuple(
             }
         }
         None => {
-            // Handle complex tuple unpacking with index targets
-            // Pattern: a[0], a[2] = a[2], a[0] (swap pattern)
-            codegen_complex_tuple_unpack(targets, value_expr, ctx)
+            // Complex case: contains nested tuples, index targets, or attributes
+            if all_simple_symbols_or_tuples(targets) {
+                // All targets are symbols or nested tuples (no index/attribute access)
+                // We can use a clean let pattern without temporaries
+                let mut temp_counter = 0;
+                let (pattern, _) = build_unpack_pattern(targets, ctx, &mut temp_counter)?;
+                Ok(quote! { let (#pattern) = #value_expr; })
+            } else {
+                // Contains index/attribute targets - need temporaries for safe unpacking
+                codegen_complex_tuple_unpack(targets, value_expr, ctx)
+            }
         }
     }
 }
 
-/// Generate code for complex tuple unpacking (with index targets)
+/// Helper function to recursively build patterns for nested tuple unpacking
+fn build_unpack_pattern(
+    targets: &[AssignTarget],
+    ctx: &mut CodeGenContext,
+    temp_counter: &mut usize,
+) -> Result<(proc_macro2::TokenStream, Vec<(AssignTarget, syn::Ident)>)> {
+    let mut pattern_parts = Vec::new();
+    let mut target_temps = Vec::new();
+
+    for target in targets {
+        match target {
+            AssignTarget::Symbol(symbol) => {
+                let ident = safe_ident(symbol);
+                // Mark variable as declared
+                ctx.declare_var(symbol);
+                // Check if mutable
+                if ctx.mutable_vars.contains(symbol.as_str()) {
+                    pattern_parts.push(quote! { mut #ident });
+                } else {
+                    pattern_parts.push(quote! { #ident });
+                }
+            }
+            AssignTarget::Tuple(nested_targets) => {
+                // Recursively build pattern for nested tuple
+                let (nested_pattern, nested_temps) =
+                    build_unpack_pattern(nested_targets, ctx, temp_counter)?;
+                pattern_parts.push(quote! { (#nested_pattern) });
+                target_temps.extend(nested_temps);
+            }
+            _ => {
+                // For complex targets (index, attribute, slice), use temp variable
+                let temp_name = syn::Ident::new(
+                    &format!("_unpack_tmp{}", temp_counter),
+                    proc_macro2::Span::call_site(),
+                );
+                *temp_counter += 1;
+                pattern_parts.push(quote! { #temp_name });
+                target_temps.push((target.clone(), temp_name));
+            }
+        }
+    }
+
+    Ok((quote! { #(#pattern_parts),* }, target_temps))
+}
+
+/// Generate code for complex tuple unpacking (with index targets or nested tuples)
 fn codegen_complex_tuple_unpack(
     targets: &[AssignTarget],
     value_expr: syn::Expr,
     ctx: &mut CodeGenContext,
 ) -> Result<proc_macro2::TokenStream> {
-    // Generate temporary variables to capture RHS values first
-    let temp_names: Vec<syn::Ident> = (0..targets.len())
-        .map(|i| syn::Ident::new(&format!("_swap_tmp{}", i), proc_macro2::Span::call_site()))
-        .collect();
+    let mut temp_counter = 0;
+    let (pattern, target_temps) = build_unpack_pattern(targets, ctx, &mut temp_counter)?;
 
-    // Create tuple pattern for temporaries: let (_swap_tmp0, _swap_tmp1, ...) = value_expr;
-    let temp_pattern: Vec<_> = temp_names.iter().map(|name| quote! { #name }).collect();
-    let capture_stmt = quote! { let (#(#temp_pattern),*) = #value_expr; };
+    // Generate the let binding with the pattern
+    let capture_stmt = quote! { let (#pattern) = #value_expr; };
 
-    // Generate individual assignments from temporaries to targets
+    // Generate individual assignments from temporaries to complex targets
     let mut assignments = Vec::new();
-    for (i, target) in targets.iter().enumerate() {
-        let temp_name = &temp_names[i];
+    for (target, temp_name) in target_temps {
         let assign = match target {
-            AssignTarget::Symbol(symbol) => {
-                let ident = safe_ident(symbol);
-                quote! { #ident = #temp_name; }
-            }
             AssignTarget::Index { base, index } => {
                 let base_expr = base.to_rust_expr(ctx)?;
                 let index_expr = index.to_rust_expr(ctx)?;
@@ -4021,25 +4133,31 @@ fn codegen_complex_tuple_unpack(
             }
             AssignTarget::Attribute { value: base, attr } => {
                 let base_expr = base.to_rust_expr(ctx)?;
-                let attr_ident = syn::Ident::new(attr, proc_macro2::Span::call_site());
+                let attr_ident = syn::Ident::new(&attr, proc_macro2::Span::call_site());
                 quote! { #base_expr.#attr_ident = #temp_name; }
-            }
-            AssignTarget::Tuple(_) => {
-                bail!("Nested tuple unpacking not supported")
             }
             AssignTarget::Slice { .. } => {
                 bail!("Slice target in tuple unpacking not supported")
+            }
+            _ => {
+                // Should not happen since we only add non-symbol/non-tuple targets
+                bail!("Unexpected target type in complex unpacking")
             }
         };
         assignments.push(assign);
     }
 
-    Ok(quote! {
-        {
-            #capture_stmt
-            #(#assignments)*
-        }
-    })
+    if assignments.is_empty() {
+        // No complex assignments, just the let binding
+        Ok(quote! { #capture_stmt })
+    } else {
+        Ok(quote! {
+            {
+                #capture_stmt
+                #(#assignments)*
+            }
+        })
+    }
 }
 
 /// Generate code for Try/except/finally statement
@@ -4050,6 +4168,60 @@ pub(crate) fn codegen_try_stmt(
     finalbody: &Option<Vec<HirStmt>>,
     ctx: &mut CodeGenContext,
 ) -> Result<proc_macro2::TokenStream> {
+    // Special case: try { return int(str_var) } except ValueError { return literal }
+    // Generate: match str_var.parse::<i32>() { Ok(n) => Some(n), Err(_) => literal }
+    if body.len() == 1 && handlers.len() == 1 && handlers[0].name.is_none() && finalbody.is_none() {
+        if let HirStmt::Return(Some(HirExpr::Call { func, args, .. })) = &body[0] {
+            if func == "int" && args.len() == 1 {
+                // Check if handler returns a simple value
+                if let HirStmt::Return(handler_ret_expr) = &handlers[0].body[0] {
+                    // Generate the parse expression
+                    let arg_expr = args[0].to_rust_expr(ctx)?;
+
+                    // Generate the handler return value
+                    let handler_value_expr = if let Some(expr) = handler_ret_expr {
+                        expr
+                    } else {
+                        // return None - handler returns None literal
+                        return Ok(quote! {
+                            match #arg_expr.parse::<i32>() {
+                                Ok(__parsed_value) => Some(__parsed_value),
+                                Err(_) => None
+                            }
+                        });
+                    };
+
+                    // Check if handler value is already wrapped in Some() or is None
+                    let needs_wrapping = match handler_value_expr {
+                        HirExpr::Literal(Literal::None) => false, // None doesn't need wrapping
+                        HirExpr::Call { func, .. } if func == "Some" => false, // Already wrapped
+                        _ => true,                                // Need to wrap in Some()
+                    };
+
+                    let handler_value = handler_value_expr.to_rust_expr(ctx)?;
+
+                    if needs_wrapping {
+                        // Wrap both branches in Some()
+                        return Ok(quote! {
+                            match #arg_expr.parse::<i32>() {
+                                Ok(__parsed_value) => Some(__parsed_value),
+                                Err(_) => Some(#handler_value)
+                            }
+                        });
+                    } else {
+                        // Handler is None or already wrapped
+                        return Ok(quote! {
+                            match #arg_expr.parse::<i32>() {
+                                Ok(__parsed_value) => Some(__parsed_value),
+                                Err(_) => #handler_value
+                            }
+                        });
+                    }
+                }
+            }
+        }
+    }
+
     // Pattern: try { return int(str_var) } except ValueError { return literal }
     // We can optimize this to: s.parse::<i32>().unwrap_or(literal)
     // Those need proper match with Err(e) binding
@@ -4061,13 +4233,14 @@ pub(crate) fn codegen_try_stmt(
     {
         // Check if handler body is a Return statement with a simple value
         match &handlers[0].body[0] {
-            // Direct literal: return 42, return "error", etc.
+            // Direct literal: return 42, return "error", return None, etc.
             HirStmt::Return(Some(HirExpr::Literal(lit))) => Some((
                 (match lit {
                     Literal::Int(n) => n.to_string(),
                     Literal::Float(f) => f.to_string(),
                     Literal::String(s) => format!("\"{}\"", s),
                     Literal::Bool(b) => b.to_string(),
+                    Literal::None => "None".to_string(),
                     _ => "Default::default()".to_string(),
                 })
                 .to_string(),
@@ -4326,8 +4499,55 @@ pub(crate) fn codegen_try_stmt(
                 }
             } else {
                 // Pattern matched but no unwrap_or_default found
-                // This means it's not a parse operation, so fall through to normal concatenation
-                // to include the exception handler code
+                // Check if try block contains .parse().unwrap() that we can convert to match
+                let try_code_str = quote! { #(#try_stmts)* }.to_string();
+
+                if try_code_str.contains("parse") && try_code_str.contains("unwrap ()") {
+                    // Extract the parse call and convert to match statement
+                    // Pattern: return Some ( s . parse :: < i32 > () . unwrap () )
+                    if let Some(parse_start) = try_code_str.find(".parse") {
+                        if let Some(unwrap_end) = try_code_str.find("unwrap ()") {
+                            // Find the variable/expression being parsed (go backwards from .parse)
+                            let before_parse = &try_code_str[..parse_start];
+                            let words: Vec<&str> = before_parse.split_whitespace().collect();
+                            let var_or_expr = words.last().unwrap_or(&"value");
+
+                            // Extract the parse call with type
+                            let parse_section = &try_code_str[parse_start..unwrap_end + 9]; // include "unwrap ()"
+
+                            // Check if this is wrapped in Some()
+                            let is_option_some =
+                                try_code_str.contains("Some (") || try_code_str.contains("Some(");
+
+                            // Build the match expression
+                            let var_ident = safe_ident(var_or_expr);
+                            let handler_code = &handler_tokens[0];
+
+                            if is_option_some {
+                                // Pattern: return Some(x.parse().unwrap()) -> match x.parse() { Ok(n) => Some(n), Err(_) => handler }
+                                let match_expr = quote! {
+                                    match #var_ident.parse::<i32>() {
+                                        Ok(__parsed_value) => Some(__parsed_value),
+                                        Err(_) => { #handler_code }
+                                    }
+                                };
+
+                                if let Some(finally_code) = finally_stmts {
+                                    return Ok(quote! {
+                                        {
+                                            #match_expr
+                                            #finally_code
+                                        }
+                                    });
+                                } else {
+                                    return Ok(match_expr);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Fall back to concatenation (will create unreachable code warning, but preserves behavior)
                 let handler_code = &handler_tokens[0];
                 if let Some(finally_code) = finally_stmts {
                     Ok(quote! {

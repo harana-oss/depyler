@@ -324,6 +324,23 @@ impl ModuleMapper {
             },
         );
 
+        module_map.insert(
+            "unicodedata".to_string(),
+            ModuleMapping {
+                rust_path: "unicode_normalization".to_string(),
+                is_external: true,
+                version: Some("0.1".to_string()),
+                item_map: HashMap::from([
+                    // normalize() requires special handling in codegen
+                    ("normalize".to_string(), "UnicodeNormalization".to_string()),
+                    // Character properties - these need different crate (unicode-segmentation or unicode-width)
+                    ("category".to_string(), "".to_string()), // No direct equivalent
+                    ("name".to_string(), "".to_string()),     // No direct equivalent
+                    ("lookup".to_string(), "".to_string()),   // No direct equivalent
+                ]),
+            },
+        );
+
         // Note: This requires special handling in codegen for structural transformation
         module_map.insert(
             "argparse".to_string(),

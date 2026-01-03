@@ -1673,6 +1673,10 @@ fn generate_conditional_imports(ctx: &CodeGenContext) -> Vec<proc_macro2::TokenS
         (ctx.needs_cow, quote! { use std::borrow::Cow; }),
         (ctx.needs_serde_json, quote! { use serde_json; }),
         (
+            ctx.needs_unicode_normalization,
+            quote! { use unicode_normalization::UnicodeNormalization; },
+        ),
+        (
             ctx.needs_lazy_static,
             quote! { use lazy_static::lazy_static; },
         ),
@@ -2105,6 +2109,7 @@ pub fn generate_rust_file(
         needs_serde_json: false,
         needs_regex: false,
         needs_chrono: false,
+        needs_unicode_normalization: false,
         needs_clap: false,
         needs_csv: false,
         needs_rust_decimal: false,

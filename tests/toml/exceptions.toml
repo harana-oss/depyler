@@ -582,7 +582,7 @@ pub fn cleanup_operation(x: i32) -> i32 {
         return result;
         log::info!("{}", "cleanup");
     }
-};
+}
             TestResult::passed()
         }
         quickcheck(prop as fn(i32) -> TestResult);
@@ -667,7 +667,7 @@ pub fn process_with_cleanup(x: i32) -> i32 {
         return count;
         count = count + 1;
     }
-};
+}
             TestResult::passed()
         }
         quickcheck(prop as fn(i32) -> TestResult);
@@ -719,7 +719,7 @@ pub fn handle_with_cleanup(data: String) -> i32 {
         return result;
         log::info!("{}", "cleanup executed");
     }
-};
+}
             TestResult::passed()
         }
         quickcheck(prop as fn(String) -> TestResult);

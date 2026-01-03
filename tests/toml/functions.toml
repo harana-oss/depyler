@@ -23,7 +23,7 @@ pub const T: serde_json::Value = TypeVar::new("T");
 use serde_json;
 pub fn identity<T: Clone>(value: T) -> T {
     return value;
-};
+}
             TestResult::passed()
         }
         quickcheck(prop as fn(()) -> TestResult);
@@ -454,7 +454,7 @@ pub fn clean_left(text: String) -> String {
 }
 pub fn clean_right(text: String) -> String {
     return text.trim_end().to_string();
-};
+}
             TestResult::passed()
         }
         quickcheck(prop as fn(String) -> TestResult);
@@ -757,7 +757,7 @@ pub fn outer(inner_result: i32, scale: f64, offset: i32) -> i32 {
 }
 pub fn test() -> i32 {
     return outer(inner(10, 20), 2.0, inner(5, 5));
-};
+}
             let result1 = inner(x.clone(), y.clone());
             let result2 = inner(y.clone(), x.clone());
             if result1 != result2 {
@@ -787,7 +787,7 @@ pub fn add(a: i32, b: i32) -> i32 {
 }
 pub fn test() -> i32 {
     return add(5, 3);
-};
+}
             let result1 = add(a.clone(), b.clone());
             let result2 = add(b.clone(), a.clone());
             if result1 != result2 {
@@ -1103,7 +1103,7 @@ pub fn main() {
     let b = vec![3, 4];
     let result = merge(&a, &b);
     log::info!("{:?}", result);
-};
+}
             TestResult::passed()
         }
         quickcheck(prop as fn(Vec<i32>, Vec<i32>) -> TestResult);
@@ -1321,7 +1321,7 @@ def add(a: int, b: int) -> int:
 rust = '''
 pub fn add(a: i32, b: i32) -> i32 {
     a + b
-};
+}
             let result1 = add(a.clone(), b.clone());
             let result2 = add(b.clone(), a.clone());
             if result1 != result2 {
@@ -1383,7 +1383,7 @@ def add(a: int, b: int) -> int:
 rust = '''
 pub fn add(a: i32, b: i32) -> i32 {
     return a + b;
-};
+}
             let result1 = add(a.clone(), b.clone());
             let result2 = add(b.clone(), a.clone());
             if result1 != result2 {
@@ -1466,7 +1466,7 @@ pub fn bubble_sort(mut arr: Vec<i32>) -> Vec<i32> {
         }
     }
     return arr;
-};
+}
             let result = bubble_sort(&arr);
             for i in 1..result.len() {
                 if result[i - 1] > result[i] {
@@ -1506,7 +1506,7 @@ pub fn abs_value(x: i32) -> i32 {
         return (-x);
     }
     return x;
-};
+}
             TestResult::passed()
         }
         quickcheck(prop as fn(i32) -> TestResult);
@@ -1595,7 +1595,7 @@ pub fn normalize_path(mut path: String) -> String {
         };
     }
     return path;
-};
+}
             TestResult::passed()
         }
         quickcheck(prop as fn(String) -> TestResult);
@@ -1719,7 +1719,7 @@ def add_numbers(a: int, b: int) -> int:
 rust = '''
 pub fn add_numbers(a: i32, b: i32) -> i32 {
     return a + b;
-};
+}
             let result1 = add_numbers(a.clone(), b.clone());
             let result2 = add_numbers(b.clone(), a.clone());
             if result1 != result2 {
