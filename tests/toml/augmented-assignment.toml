@@ -398,3 +398,84 @@ fn main() {
 }
 """
 expected_output = "Counter(15)"
+
+[[test]]
+name = "augmented_class_with_list_and_dict"
+description = "Complex augmented assignment with class attributes, list elements, and dict values"
+python = """
+class Counter:
+    def __init__(self):
+        self.count = 0
+        self.values = [1, 2, 3, 4, 5]
+    
+    def increment(self):
+        self.count += 1
+    
+    def add_to_index(self, index: int, value: int):
+        self.values[index] += value
+
+def test_compound_ops():
+    c = Counter()
+    c.increment()
+    c.add_to_index(0, 10)
+    
+    # Test with dict
+    d = {"score": 100}
+    d["score"] += 50
+    
+    return c.count, c.values[0], d["score"]
+
+result = test_compound_ops()
+print(result[0])
+print(result[1])
+print(result[2])
+"""
+rust = """
+use std::collections::HashMap;
+
+#[derive(Debug, Clone)]
+pub struct Counter {
+    pub count: i32,
+    pub values: Vec<i32>,
+}
+
+impl Counter {
+    pub fn new() -> Self {
+        Self {
+            count: 0,
+            values: vec![1, 2, 3, 4, 5],
+        }
+    }
+    
+    pub fn increment(&mut self) {
+        self.count += 1;
+    }
+    
+    pub fn add_to_index(&mut self, index: usize, value: i32) {
+        self.values[index] += value;
+    }
+}
+
+pub fn test_compound_ops() -> (i32, i32, i32) {
+    let mut c = Counter::new();
+    c.increment();
+    c.add_to_index(0, 10);
+    
+    let mut d = HashMap::new();
+    d.insert("score".to_string(), 100);
+    *d.get_mut("score").unwrap() += 50;
+    
+    (c.count, c.values[0], *d.get("score").unwrap())
+}
+
+fn main() {
+    let result = test_compound_ops();
+    log::info!("{}", result.0);
+    log::info!("{}", result.1);
+    log::info!("{}", result.2);
+}
+"""
+expected_output = """1
+11
+150"""
+

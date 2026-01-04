@@ -1,6 +1,8 @@
 //! Optimization passes for generated Rust code
 
-use crate::hir::{AssignTarget, BinOp, HirExpr, HirFunction, HirProgram, HirStmt, Literal, UnaryOp};
+use crate::hir::{
+    AssignTarget, BinOp, HirExpr, HirFunction, HirProgram, HirStmt, Literal, UnaryOp,
+};
 use std::collections::{HashMap, HashSet};
 use std::hash::{Hash, Hasher};
 
@@ -81,7 +83,11 @@ impl Optimizer {
         program
     }
 
-    fn collect_mutated_vars_function(&self, func: &HirFunction, mutated_vars: &mut HashSet<String>) {
+    fn collect_mutated_vars_function(
+        &self,
+        func: &HirFunction,
+        mutated_vars: &mut HashSet<String>,
+    ) {
         let mut assignments = HashMap::new();
         self.count_assignments_stmt(&func.body, &mut assignments);
 
@@ -187,7 +193,11 @@ impl Optimizer {
         }
     }
 
-    fn count_assignments_in_single_stmt(&self, stmt: &HirStmt, assignments: &mut HashMap<String, usize>) {
+    fn count_assignments_in_single_stmt(
+        &self,
+        stmt: &HirStmt,
+        assignments: &mut HashMap<String, usize>,
+    ) {
         match stmt {
             HirStmt::Assign {
                 target: AssignTarget::Symbol(name),
@@ -196,7 +206,9 @@ impl Optimizer {
                 *assignments.entry(name.clone()).or_insert(0) += 1;
             }
             HirStmt::If {
-                then_body, else_body, ..
+                then_body,
+                else_body,
+                ..
             } => {
                 self.count_assignments_stmt(then_body, assignments);
                 if let Some(else_stmts) = else_body {
@@ -235,13 +247,18 @@ impl Optimizer {
                 value,
                 ..
             } => {
-                if !mutated_vars.contains(name) && !used_vars.contains(name) && self.is_constant_expr(value) {
+                if !mutated_vars.contains(name)
+                    && !used_vars.contains(name)
+                    && self.is_constant_expr(value)
+                {
                     constants.insert(name.clone(), value.clone());
                 }
             }
             HirStmt::Assign { .. } => {}
             HirStmt::If {
-                then_body, else_body, ..
+                then_body,
+                else_body,
+                ..
             } => {
                 for s in then_body {
                     self.collect_constants_stmt(s, constants, mutated_vars, used_vars);
@@ -265,7 +282,11 @@ impl Optimizer {
         is_constant_expr_inner(expr)
     }
 
-    fn propagate_constants_function(&self, func: &mut HirFunction, constants: &HashMap<String, HirExpr>) {
+    fn propagate_constants_function(
+        &self,
+        func: &mut HirFunction,
+        constants: &HashMap<String, HirExpr>,
+    ) {
         for stmt in &mut func.body {
             self.propagate_constants_stmt(stmt, constants);
         }
@@ -367,30 +388,46 @@ impl Optimizer {
     fn evaluate_constant_binop(&self, expr: &HirExpr) -> Option<HirExpr> {
         if let HirExpr::Binary { left, right, op } = expr {
             match (left.as_ref(), right.as_ref(), op) {
-                (HirExpr::Literal(Literal::Int(a)), HirExpr::Literal(Literal::Int(b)), BinOp::Add) => {
-                    Some(HirExpr::Literal(Literal::Int(a + b)))
-                }
-                (HirExpr::Literal(Literal::Int(a)), HirExpr::Literal(Literal::Int(b)), BinOp::Sub) => {
-                    Some(HirExpr::Literal(Literal::Int(a - b)))
-                }
-                (HirExpr::Literal(Literal::Int(a)), HirExpr::Literal(Literal::Int(b)), BinOp::Mul) => {
-                    Some(HirExpr::Literal(Literal::Int(a * b)))
-                }
-                (HirExpr::Literal(Literal::Int(a)), HirExpr::Literal(Literal::Int(b)), BinOp::Div) if *b != 0 => {
-                    Some(HirExpr::Literal(Literal::Int(a / b)))
-                }
-                (HirExpr::Literal(Literal::Float(a)), HirExpr::Literal(Literal::Float(b)), BinOp::Add) => {
-                    Some(HirExpr::Literal(Literal::Float(a + b)))
-                }
-                (HirExpr::Literal(Literal::Float(a)), HirExpr::Literal(Literal::Float(b)), BinOp::Sub) => {
-                    Some(HirExpr::Literal(Literal::Float(a - b)))
-                }
-                (HirExpr::Literal(Literal::Float(a)), HirExpr::Literal(Literal::Float(b)), BinOp::Mul) => {
-                    Some(HirExpr::Literal(Literal::Float(a * b)))
-                }
-                (HirExpr::Literal(Literal::Float(a)), HirExpr::Literal(Literal::Float(b)), BinOp::Div) if *b != 0.0 => {
-                    Some(HirExpr::Literal(Literal::Float(a / b)))
-                }
+                (
+                    HirExpr::Literal(Literal::Int(a)),
+                    HirExpr::Literal(Literal::Int(b)),
+                    BinOp::Add,
+                ) => Some(HirExpr::Literal(Literal::Int(a + b))),
+                (
+                    HirExpr::Literal(Literal::Int(a)),
+                    HirExpr::Literal(Literal::Int(b)),
+                    BinOp::Sub,
+                ) => Some(HirExpr::Literal(Literal::Int(a - b))),
+                (
+                    HirExpr::Literal(Literal::Int(a)),
+                    HirExpr::Literal(Literal::Int(b)),
+                    BinOp::Mul,
+                ) => Some(HirExpr::Literal(Literal::Int(a * b))),
+                (
+                    HirExpr::Literal(Literal::Int(a)),
+                    HirExpr::Literal(Literal::Int(b)),
+                    BinOp::Div,
+                ) if *b != 0 => Some(HirExpr::Literal(Literal::Int(a / b))),
+                (
+                    HirExpr::Literal(Literal::Float(a)),
+                    HirExpr::Literal(Literal::Float(b)),
+                    BinOp::Add,
+                ) => Some(HirExpr::Literal(Literal::Float(a + b))),
+                (
+                    HirExpr::Literal(Literal::Float(a)),
+                    HirExpr::Literal(Literal::Float(b)),
+                    BinOp::Sub,
+                ) => Some(HirExpr::Literal(Literal::Float(a - b))),
+                (
+                    HirExpr::Literal(Literal::Float(a)),
+                    HirExpr::Literal(Literal::Float(b)),
+                    BinOp::Mul,
+                ) => Some(HirExpr::Literal(Literal::Float(a * b))),
+                (
+                    HirExpr::Literal(Literal::Float(a)),
+                    HirExpr::Literal(Literal::Float(b)),
+                    BinOp::Div,
+                ) if *b != 0.0 => Some(HirExpr::Literal(Literal::Float(a / b))),
                 _ => None,
             }
         } else {
@@ -401,9 +438,15 @@ impl Optimizer {
     fn evaluate_constant_unaryop(&self, expr: &HirExpr) -> Option<HirExpr> {
         if let HirExpr::Unary { op, operand } = expr {
             match (operand.as_ref(), op) {
-                (HirExpr::Literal(Literal::Int(n)), UnaryOp::Neg) => Some(HirExpr::Literal(Literal::Int(-n))),
-                (HirExpr::Literal(Literal::Float(f)), UnaryOp::Neg) => Some(HirExpr::Literal(Literal::Float(-f))),
-                (HirExpr::Literal(Literal::Bool(b)), UnaryOp::Not) => Some(HirExpr::Literal(Literal::Bool(!b))),
+                (HirExpr::Literal(Literal::Int(n)), UnaryOp::Neg) => {
+                    Some(HirExpr::Literal(Literal::Int(-n)))
+                }
+                (HirExpr::Literal(Literal::Float(f)), UnaryOp::Neg) => {
+                    Some(HirExpr::Literal(Literal::Float(-f)))
+                }
+                (HirExpr::Literal(Literal::Bool(b)), UnaryOp::Not) => {
+                    Some(HirExpr::Literal(Literal::Bool(!b)))
+                }
                 _ => None,
             }
         } else {
@@ -460,7 +503,8 @@ impl Optimizer {
             } = stmt
             {
                 // Keep if: truly used OR has side effects (including renamed _varname)
-                used_vars.contains_key(name) || side_effect_vars.contains(name.trim_start_matches('_'))
+                used_vars.contains_key(name)
+                    || side_effect_vars.contains(name.trim_start_matches('_'))
             } else {
                 true
             }
@@ -523,10 +567,14 @@ impl Optimizer {
     fn expr_contains_index(expr: &HirExpr) -> bool {
         match expr {
             HirExpr::Index { .. } => true,
-            HirExpr::Binary { left, right, .. } => Self::expr_contains_index(left) || Self::expr_contains_index(right),
+            HirExpr::Binary { left, right, .. } => {
+                Self::expr_contains_index(left) || Self::expr_contains_index(right)
+            }
             HirExpr::Unary { operand, .. } => Self::expr_contains_index(operand),
             HirExpr::Call { args, .. } => args.iter().any(Self::expr_contains_index),
-            HirExpr::List(items) | HirExpr::Tuple(items) => items.iter().any(Self::expr_contains_index),
+            HirExpr::List(items) | HirExpr::Tuple(items) => {
+                items.iter().any(Self::expr_contains_index)
+            }
             HirExpr::Dict(pairs) => pairs
                 .iter()
                 .any(|(k, v)| Self::expr_contains_index(k) || Self::expr_contains_index(v)),
@@ -554,7 +602,11 @@ impl Optimizer {
         collect_used_vars_expr_inner(expr, used);
     }
 
-    fn collect_used_vars_assign_target(&self, target: &AssignTarget, used: &mut HashMap<String, bool>) {
+    fn collect_used_vars_assign_target(
+        &self,
+        target: &AssignTarget,
+        used: &mut HashMap<String, bool>,
+    ) {
         match target {
             AssignTarget::Symbol(_) => {
                 // Simple variable assignment - no variables used on LHS
@@ -593,6 +645,9 @@ impl Optimizer {
                 for t in targets {
                     self.collect_used_vars_assign_target(t, used);
                 }
+            }
+            AssignTarget::Starred(_) => {
+                // Starred target in unpacking - no variables used on LHS
             }
         }
     }
@@ -658,7 +713,8 @@ impl Optimizer {
                     value,
                     type_annotation,
                 } => {
-                    let (new_value, extra_stmts) = self.process_expr_for_cse(value, cse_map, temp_counter);
+                    let (new_value, extra_stmts) =
+                        self.process_expr_for_cse(value, cse_map, temp_counter);
                     new_body.extend(extra_stmts);
                     new_body.push(HirStmt::Assign {
                         target: target.clone(),
@@ -672,7 +728,8 @@ impl Optimizer {
                         // Don't create CSE temp for final simple returns
                         new_body.push(HirStmt::Return(Some(expr.clone())));
                     } else {
-                        let (new_expr, extra_stmts) = self.process_expr_for_cse(expr, cse_map, temp_counter);
+                        let (new_expr, extra_stmts) =
+                            self.process_expr_for_cse(expr, cse_map, temp_counter);
                         new_body.extend(extra_stmts);
                         new_body.push(HirStmt::Return(Some(new_expr)));
                     }
@@ -682,12 +739,20 @@ impl Optimizer {
                     then_body,
                     else_body,
                 } => {
-                    let (new_condition, extra_stmts) = self.process_expr_for_cse(condition, cse_map, temp_counter);
+                    // Don't extract simple if-conditions to CSE temps
+                    // Only extract if the condition is complex and worth caching
+                    let (new_condition, extra_stmts) = if self.should_extract_for_cse(condition) {
+                        self.process_expr_for_cse(condition, cse_map, temp_counter)
+                    } else {
+                        // Keep the condition inline for simple expressions
+                        (condition.clone(), Vec::new())
+                    };
                     new_body.extend(extra_stmts);
 
                     // CSE within branches (with separate scopes)
                     let mut then_cse = cse_map.clone();
-                    let new_then = self.eliminate_cse_in_body(then_body, &mut then_cse, temp_counter);
+                    let new_then =
+                        self.eliminate_cse_in_body(then_body, &mut then_cse, temp_counter);
 
                     let new_else = else_body.as_ref().map(|else_stmts| {
                         let mut else_cse = cse_map.clone();
@@ -720,7 +785,8 @@ impl Optimizer {
             HirExpr::Binary { left, right, op } => {
                 // Recursively process operands
                 let (new_left, left_stmts) = self.process_expr_for_cse(left, cse_map, temp_counter);
-                let (new_right, right_stmts) = self.process_expr_for_cse(right, cse_map, temp_counter);
+                let (new_right, right_stmts) =
+                    self.process_expr_for_cse(right, cse_map, temp_counter);
                 extra_stmts.extend(left_stmts);
                 extra_stmts.extend(right_stmts);
 
@@ -764,7 +830,8 @@ impl Optimizer {
                 // Process arguments
                 let mut new_args = Vec::new();
                 for arg in args {
-                    let (new_arg, arg_stmts) = self.process_expr_for_cse(arg, cse_map, temp_counter);
+                    let (new_arg, arg_stmts) =
+                        self.process_expr_for_cse(arg, cse_map, temp_counter);
                     extra_stmts.extend(arg_stmts);
                     new_args.push(new_arg);
                 }
@@ -778,20 +845,14 @@ impl Optimizer {
 
                 let hash = self.hash_expr(&new_expr);
 
+                // Only create CSE temp if this expression is reused (already in map)
+                // Don't extract on first occurrence to avoid unnecessary temps
                 if let Some((_, var_name)) = cse_map.get(&hash) {
                     (HirExpr::Var(var_name.clone()), extra_stmts)
                 } else {
-                    let temp_name = format!("_cse_temp_{}", temp_counter);
-                    *temp_counter += 1;
-
-                    extra_stmts.push(HirStmt::Assign {
-                        target: AssignTarget::Symbol(temp_name.clone()),
-                        value: new_expr.clone(),
-                        type_annotation: None,
-                    });
-
-                    cse_map.insert(hash, (new_expr, temp_name.clone()));
-                    (HirExpr::Var(temp_name), extra_stmts)
+                    // Add to map for potential future reuse, but don't create temp yet
+                    // This avoids creating temps for single-use expressions
+                    (new_expr, extra_stmts)
                 }
             }
             HirExpr::MethodCall {
@@ -802,12 +863,14 @@ impl Optimizer {
                 type_params,
             } if self.is_pure_method(method) => {
                 // Process object and arguments
-                let (new_object, object_stmts) = self.process_expr_for_cse(object, cse_map, temp_counter);
+                let (new_object, object_stmts) =
+                    self.process_expr_for_cse(object, cse_map, temp_counter);
                 extra_stmts.extend(object_stmts);
 
                 let mut new_args = Vec::new();
                 for arg in args {
-                    let (new_arg, arg_stmts) = self.process_expr_for_cse(arg, cse_map, temp_counter);
+                    let (new_arg, arg_stmts) =
+                        self.process_expr_for_cse(arg, cse_map, temp_counter);
                     extra_stmts.extend(arg_stmts);
                     new_args.push(new_arg);
                 }
@@ -820,23 +883,9 @@ impl Optimizer {
                     type_params: type_params.clone(),
                 };
 
-                let hash = self.hash_expr(&new_expr);
-
-                if let Some((_, var_name)) = cse_map.get(&hash) {
-                    (HirExpr::Var(var_name.clone()), extra_stmts)
-                } else {
-                    let temp_name = format!("_cse_temp_{}", temp_counter);
-                    *temp_counter += 1;
-
-                    extra_stmts.push(HirStmt::Assign {
-                        target: AssignTarget::Symbol(temp_name.clone()),
-                        value: new_expr.clone(),
-                        type_annotation: None,
-                    });
-
-                    cse_map.insert(hash, (new_expr, temp_name.clone()));
-                    (HirExpr::Var(temp_name), extra_stmts)
-                }
+                // Don't extract simple method calls - they're better inline
+                // CSE should focus on complex expressions that are actually reused
+                (new_expr, extra_stmts)
             }
             _ => (expr.clone(), extra_stmts),
         }
@@ -847,11 +896,14 @@ impl Optimizer {
             HirExpr::Binary { op, left, right } => {
                 // Only consider expressions with nested binary operations as complex enough for CSE.
                 // Simple comparisons like `x != "string"` or `a > b` should not create temp variables.
-                let has_nested_binary =
-                    matches!(left.as_ref(), HirExpr::Binary { .. }) || matches!(right.as_ref(), HirExpr::Binary { .. });
+                let has_nested_binary = matches!(left.as_ref(), HirExpr::Binary { .. })
+                    || matches!(right.as_ref(), HirExpr::Binary { .. });
 
                 // Arithmetic operations with nested operands are worth CSE'ing
-                let is_arithmetic = matches!(op, BinOp::Add | BinOp::Sub | BinOp::Mul | BinOp::Div | BinOp::Mod);
+                let is_arithmetic = matches!(
+                    op,
+                    BinOp::Add | BinOp::Sub | BinOp::Mul | BinOp::Div | BinOp::Mod
+                );
 
                 has_nested_binary || (is_arithmetic && self.has_expensive_operand(left, right))
             }
@@ -860,8 +912,50 @@ impl Optimizer {
         }
     }
 
+    /// Check if an expression should be extracted for CSE.
+    /// This is more conservative than is_complex_expr - only extract expressions that will
+    /// actually be reused or are truly expensive to compute.
+    fn should_extract_for_cse(&self, expr: &HirExpr) -> bool {
+        match expr {
+            // Don't extract simple comparisons, they're better inline
+            HirExpr::Binary { op, left, right } => {
+                // Only extract if it has nested binary ops or expensive calls
+                let has_nested = matches!(left.as_ref(), HirExpr::Binary { .. })
+                    || matches!(right.as_ref(), HirExpr::Binary { .. });
+                let has_calls = self.has_expensive_operand(left, right);
+
+                // Don't extract simple comparisons like `x < 0` or `a == b`
+                if matches!(
+                    op,
+                    BinOp::Eq
+                        | BinOp::NotEq
+                        | BinOp::Lt
+                        | BinOp::LtEq
+                        | BinOp::Gt
+                        | BinOp::GtEq
+                        | BinOp::And
+                        | BinOp::Or
+                ) && !has_nested
+                    && !has_calls
+                {
+                    return false;
+                }
+
+                has_nested || has_calls
+            }
+            // Don't extract simple literals, variables, or attribute accesses
+            HirExpr::Literal(_) | HirExpr::Var(_) | HirExpr::Attribute { .. } => false,
+            // Don't extract simple method calls - they're better inline in conditionals
+            HirExpr::MethodCall { .. } => false,
+            // Extract function calls only if they're known to be pure and expensive
+            HirExpr::Call { .. } => false,
+            _ => false,
+        }
+    }
+
     fn has_expensive_operand(&self, left: &HirExpr, right: &HirExpr) -> bool {
-        let is_expensive = |e: &HirExpr| matches!(e, HirExpr::Call { .. } | HirExpr::MethodCall { .. });
+        let is_expensive =
+            |e: &HirExpr| matches!(e, HirExpr::Call { .. } | HirExpr::MethodCall { .. });
         is_expensive(left) || is_expensive(right)
     }
 
@@ -883,7 +977,8 @@ impl Optimizer {
     fn is_pure_function(&self, func: &str) -> bool {
         // List of known pure functions
         let pure_functions = [
-            "abs", "len", "min", "max", "sum", "str", "int", "float", "bool", "round", "pow", "sqrt",
+            "abs", "len", "min", "max", "sum", "str", "int", "float", "bool", "round", "pow",
+            "sqrt",
         ];
         pure_functions.contains(&func)
     }
@@ -969,7 +1064,10 @@ fn hash_expr_recursive_inner<H: Hasher>(expr: &HirExpr, hasher: &mut H) {
             }
         }
         HirExpr::MethodCall {
-            object, method, args, ..
+            object,
+            method,
+            args,
+            ..
         } => {
             "method_call".hash(hasher);
             hash_expr_recursive_inner(object, hasher);
@@ -989,7 +1087,9 @@ fn is_constant_expr_inner(expr: &HirExpr) -> bool {
     match expr {
         HirExpr::Literal(_) => true,
         HirExpr::Unary { operand, .. } => is_constant_expr_inner(operand),
-        HirExpr::Binary { left, right, .. } => is_constant_expr_inner(left) && is_constant_expr_inner(right),
+        HirExpr::Binary { left, right, .. } => {
+            is_constant_expr_inner(left) && is_constant_expr_inner(right)
+        }
         _ => false,
     }
 }

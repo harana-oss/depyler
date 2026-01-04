@@ -1891,6 +1891,7 @@ fn is_var_used_in_assign_target(var_name: &str, target: &AssignTarget) -> bool {
         AssignTarget::Tuple(targets) => targets
             .iter()
             .any(|t| is_var_used_in_assign_target(var_name, t)),
+        AssignTarget::Starred(s) => s == var_name,
     }
 }
 
@@ -2740,6 +2741,65 @@ fn is_optional_var_augassign_pattern(
     false
 }
 
+/// Check if this is a general augmented assignment pattern (target op= value)
+/// Returns Some(op) if target matches the left side of a Binary expression
+fn is_augassign_pattern(target: &AssignTarget, value: &HirExpr) -> Option<BinOp> {
+    if let HirExpr::Binary { op, left, .. } = value {
+        // Check if the target and left side of the binary operation refer to the same location
+        match (target, left.as_ref()) {
+            // Simple variable: x += 1  becomes  x = x + 1
+            (AssignTarget::Symbol(target_var), HirExpr::Var(left_var))
+                if target_var == left_var =>
+            {
+                Some(*op)
+            }
+            // Attribute: obj.field += 1  becomes  obj.field = obj.field + 1
+            (
+                AssignTarget::Attribute {
+                    value: target_base,
+                    attr: target_attr,
+                },
+                HirExpr::Attribute {
+                    value: left_base,
+                    attr: left_attr,
+                },
+            ) if target_attr == left_attr => {
+                // Check if bases are the same (simple heuristic: both are Var with same name)
+                match (target_base.as_ref(), left_base.as_ref()) {
+                    (HirExpr::Var(t_var), HirExpr::Var(l_var)) if t_var == l_var => Some(*op),
+                    _ => None,
+                }
+            }
+            // Index: arr[i] += 1  becomes  arr[i] = arr[i] + 1
+            (
+                AssignTarget::Index {
+                    base: target_base,
+                    index: target_index,
+                },
+                HirExpr::Index {
+                    base: left_base,
+                    index: left_index,
+                },
+            ) => {
+                // Check if both base and index are the same (simple heuristic)
+                match (
+                    (target_base.as_ref(), left_base.as_ref()),
+                    (target_index.as_ref(), left_index.as_ref()),
+                ) {
+                    (
+                        (HirExpr::Var(t_base), HirExpr::Var(l_base)),
+                        (HirExpr::Var(t_idx), HirExpr::Var(l_idx)),
+                    ) if t_base == l_base && t_idx == l_idx => Some(*op),
+                    _ => None,
+                }
+            }
+            _ => None,
+        }
+    } else {
+        None
+    }
+}
+
 /// Generate code for Assign statement (variable/index/attribute/tuple assignment)
 #[inline]
 pub(crate) fn codegen_assign_stmt(
@@ -3016,6 +3076,66 @@ pub(crate) fn codegen_assign_stmt(
 
                 return Ok(quote! {
                     #var_ident = Some(#var_ident.unwrap() #op_token #right_expr);
+                });
+            }
+        }
+    }
+
+    // Handle general augmented assignment: target op= value
+    // This converts x = x + 1 to x += 1, obj.field = obj.field + 1 to obj.field += 1, etc.
+    // Only applies to simple cases where target and left side of binary expr are the same
+    if let Some(op) = is_augassign_pattern(target, value) {
+        if let HirExpr::Binary { right, .. } = value {
+            let target_expr = match target {
+                AssignTarget::Symbol(var_name) => {
+                    let ident = safe_ident(var_name);
+                    parse_quote! { #ident }
+                }
+                AssignTarget::Attribute { value, attr } => {
+                    let base_expr = value.to_rust_expr(ctx)?;
+                    let attr_ident = format_ident!("{}", attr);
+                    parse_quote! { #base_expr.#attr_ident }
+                }
+                AssignTarget::Index { base, index } => {
+                    let base_expr = base.to_rust_expr(ctx)?;
+                    let index_expr = index.to_rust_expr(ctx)?;
+                    parse_quote! { #base_expr[#index_expr] }
+                }
+                _ => {
+                    // For other target types, fall through to normal assignment
+                    // (tuple unpacking, slicing, etc. don't support augmented assignment)
+                    syn::Expr::Verbatim(quote! {})
+                }
+            };
+
+            // Only proceed if we successfully generated a target expression
+            if !matches!(target_expr, syn::Expr::Verbatim(_)) {
+                let right_expr = right.to_rust_expr(ctx)?;
+                let op_token = match op {
+                    BinOp::Add => quote! { += },
+                    BinOp::Sub => quote! { -= },
+                    BinOp::Mul => quote! { *= },
+                    BinOp::Div => quote! { /= },
+                    BinOp::FloorDiv => quote! { /= }, // Floor division maps to /= in Rust
+                    BinOp::Mod => quote! { %= },
+                    BinOp::BitAnd => quote! { &= },
+                    BinOp::BitOr => quote! { |= },
+                    BinOp::BitXor => quote! { ^= },
+                    BinOp::LShift => quote! { <<= },
+                    BinOp::RShift => quote! { >>= },
+                    BinOp::Pow => {
+                        // Power doesn't have a compound assignment in Rust
+                        // Fall through to normal assignment
+                        return Ok(quote! {}); // Will be handled by normal assignment path
+                    }
+                    _ => {
+                        // For unsupported operators, fall through to normal assignment
+                        return Ok(quote! {});
+                    }
+                };
+
+                return Ok(quote! {
+                    #target_expr #op_token #right_expr;
                 });
             }
         }
@@ -3646,6 +3766,9 @@ pub(crate) fn codegen_assign_stmt(
         AssignTarget::Tuple(targets) => {
             codegen_assign_tuple(targets, value_expr, type_annotation_tokens, ctx)
         }
+        AssignTarget::Starred(_) => {
+            bail!("Starred expression can only appear inside tuple unpacking")
+        }
     }
 }
 
@@ -4033,8 +4156,30 @@ pub(crate) fn codegen_assign_attribute(
         }
     }
 
+    // Check if target field is Option<T> and wrap value in Some() if needed
+    let final_value_expr = if let HirExpr::Var(var_name) = base {
+        // Check if this is a self.field assignment in a class
+        if var_name == "self" {
+            // Look up the field type in current class
+            if let Some(field_type) = ctx.get_self_field_type(attr) {
+                if matches!(field_type, Type::Optional(_)) {
+                    // Wrap value in Some()
+                    parse_quote! { Some(#value_expr) }
+                } else {
+                    value_expr
+                }
+            } else {
+                value_expr
+            }
+        } else {
+            value_expr
+        }
+    } else {
+        value_expr
+    };
+
     let attr_ident = syn::Ident::new(attr, proc_macro2::Span::call_site());
-    Ok(quote! { #base_expr.#attr_ident = #value_expr; })
+    Ok(quote! { #base_expr.#attr_ident = #final_value_expr; })
 }
 
 /// Generate code for tuple unpacking assignment
@@ -4045,6 +4190,16 @@ pub(crate) fn codegen_assign_tuple(
     _type_annotation_tokens: Option<proc_macro2::TokenStream>,
     ctx: &mut CodeGenContext,
 ) -> Result<proc_macro2::TokenStream> {
+    // Check if there's a starred expression in the targets
+    let has_starred = targets
+        .iter()
+        .any(|t| matches!(t, AssignTarget::Starred(_)));
+
+    if has_starred {
+        // Handle starred unpacking: a, *rest, b = data
+        return codegen_starred_unpack(targets, value_expr, ctx);
+    }
+
     // Check if all targets are simple symbols or nested simple tuples
     fn all_simple_symbols_or_tuples(targets: &[AssignTarget]) -> bool {
         targets.iter().all(|t| match t {
@@ -4198,6 +4353,95 @@ fn codegen_complex_tuple_unpack(
             }
         })
     }
+}
+
+/// Generate code for starred unpacking: a, *rest, b = data
+fn codegen_starred_unpack(
+    targets: &[AssignTarget],
+    value_expr: syn::Expr,
+    ctx: &mut CodeGenContext,
+) -> Result<proc_macro2::TokenStream> {
+    // Find the position of the starred expression
+    let star_pos = targets
+        .iter()
+        .position(|t| matches!(t, AssignTarget::Starred(_)))
+        .ok_or_else(|| anyhow::anyhow!("No starred expression found"))?;
+
+    // Count non-starred targets before and after the starred expression
+    let before_count = star_pos;
+    let after_count = targets.len() - star_pos - 1;
+
+    // Store data in temporary variable for slicing
+    let data_var = syn::Ident::new("_data", proc_macro2::Span::call_site());
+
+    let mut stmts = Vec::new();
+
+    // First, store the data
+    stmts.push(quote! { let #data_var = #value_expr; });
+
+    // Generate code for assignments before the starred expression
+    for (i, target) in targets.iter().take(before_count).enumerate() {
+        if let AssignTarget::Symbol(name) = target {
+            let ident = safe_ident(name);
+            let index = syn::Index::from(i);
+            ctx.declare_var(name);
+            if ctx.mutable_vars.contains(name.as_str()) {
+                stmts.push(quote! { let mut #ident = #data_var[#index]; });
+            } else {
+                stmts.push(quote! { let #ident = #data_var[#index]; });
+            }
+        } else {
+            bail!("Complex targets in starred unpacking not yet supported");
+        }
+    }
+
+    // Generate code for the starred expression
+    if let AssignTarget::Starred(star_name) = &targets[star_pos] {
+        let star_ident = safe_ident(star_name);
+        ctx.declare_var(star_name);
+
+        if after_count == 0 {
+            // *rest at end: data[before_count..]
+            stmts.push(quote! {
+                let #star_ident: Vec<_> = #data_var[#before_count..].to_vec();
+            });
+        } else if before_count == 0 {
+            // *rest at beginning: data[..data.len() - after_count]
+            stmts.push(quote! {
+                let #star_ident: Vec<_> = #data_var[..#data_var.len() - #after_count].to_vec();
+            });
+        } else {
+            // *rest in middle: data[before_count..data.len() - after_count]
+            stmts.push(quote! {
+                let #star_ident: Vec<_> = #data_var[#before_count..#data_var.len() - #after_count].to_vec();
+            });
+        }
+    }
+
+    // Generate code for assignments after the starred expression
+    for (i, target) in targets.iter().skip(star_pos + 1).enumerate() {
+        if let AssignTarget::Symbol(name) = target {
+            let ident = safe_ident(name);
+            ctx.declare_var(name);
+
+            // Index from end: data[data.len() - after_count + i]
+            let offset = after_count - i - 1;
+            if ctx.mutable_vars.contains(name.as_str()) {
+                stmts.push(quote! {
+                    let mut #ident = #data_var[#data_var.len() - #offset - 1];
+                });
+            } else {
+                stmts.push(quote! {
+                    let #ident = #data_var[#data_var.len() - #offset - 1];
+                });
+            }
+        } else {
+            bail!("Complex targets in starred unpacking not yet supported");
+        }
+    }
+
+    // Generate all statements sequentially (no block needed)
+    Ok(quote! { #(#stmts)* })
 }
 
 /// Generate code for Try/except/finally statement

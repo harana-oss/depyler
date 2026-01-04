@@ -1409,6 +1409,14 @@ fn analyze_mutable_vars(stmts: &[HirStmt], ctx: &mut CodeGenContext, params: &[H
                             mutable.insert(var_name);
                         }
                     }
+                    AssignTarget::Starred(name) => {
+                        // Starred target in unpacking - treat as variable assignment
+                        if declared.contains(name) {
+                            mutable.insert(name.clone());
+                        } else {
+                            declared.insert(name.clone());
+                        }
+                    }
                 }
             }
             HirStmt::Expr(expr) => {

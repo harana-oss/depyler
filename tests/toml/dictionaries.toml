@@ -118,24 +118,6 @@ def get_value(d: dict, key: str) -> int:
 rust = '''
 use serde_json;
 use std::collections::HashMap;
-#[derive(Debug, Clone)]
-pub struct IndexError {
-    message: String,
-}
-impl std::fmt::Display for IndexError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "index out of range: {}", self.message)
-    }
-}
-impl std::error::Error for IndexError {}
-impl IndexError {
-    pub fn new(message: impl Into<String>) -> Self {
-        Self {
-            message: message.into(),
-        }
-    }
-}
-#[doc = " Depyler: proven to terminate"]
 pub fn get_value(d: &HashMap<serde_json::Value, serde_json::Value>, key: String) -> i32 {
     return d.get(&key).cloned().unwrap();
 }
@@ -154,7 +136,7 @@ rust = '''
 use serde_json;
 use std::collections::HashMap;
 pub fn safe_get(d: &HashMap<serde_json::Value, serde_json::Value>, key: String) -> i32 {
-    return d.get(&key).cloned().unwrap_or(0).unwrap();
+    return *d.get(&key).unwrap_or(&0).unwrap();
 }
 '''
 
@@ -175,7 +157,7 @@ pub fn get_or_default(
     key: String,
     default: String,
 ) -> String {
-    return d.get(&key).cloned().unwrap_or(default).unwrap();
+    return *d.get(&key).unwrap_or(&default).unwrap();
 }
 '''
 
@@ -446,24 +428,6 @@ def get_value(data: Dict[str, int]) -> int:
 
 rust = '''
 use std::collections::HashMap;
-#[derive(Debug, Clone)]
-pub struct IndexError {
-    message: String,
-}
-impl std::fmt::Display for IndexError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "index out of range: {}", self.message)
-    }
-}
-impl std::error::Error for IndexError {}
-impl IndexError {
-    pub fn new(message: impl Into<String>) -> Self {
-        Self {
-            message: message.into(),
-        }
-    }
-}
-#[doc = " Depyler: proven to terminate"]
 pub fn get_value(data: &HashMap<String, i32>) -> i32 {
     return data.get("mykey").cloned().unwrap();
 }
@@ -517,7 +481,7 @@ def get_value(d: dict[str, int], key: str) -> int:
 rust = '''
 use std::collections::HashMap;
 pub fn get_value(d: &HashMap<String, i32>, key: String) -> i32 {
-    return d.get(&key).cloned().unwrap_or(0).unwrap();
+    return *d.get(&key).unwrap_or(&0).unwrap();
 }
 '''
 
@@ -569,8 +533,7 @@ rust = '''
 use std::collections::HashMap;
 pub fn modify_dict(mut d: HashMap<String, i32>, k1: String, k2: String) -> HashMap<String, i32> {
     d.clone().insert(k1, 10);
-    let _cse_temp_0 = d.get(&k2.clone()).is_some();
-    if _cse_temp_0 {
+    if d.get(&k2.clone()).is_some() {
         d.remove(k2).expect("KeyError: key not found");
     }
     return d;
@@ -591,8 +554,7 @@ def remove_if_exists(d: dict[str, int], key: str) -> dict[str, int]:
 rust = '''
 use std::collections::HashMap;
 pub fn remove_if_exists(mut d: HashMap<String, i32>, key: String) -> HashMap<String, i32> {
-    let _cse_temp_0 = d.clone().get(&key.clone()).is_some();
-    if _cse_temp_0 {
+    if d.clone().get(&key.clone()).is_some() {
         d.remove(key).expect("KeyError: key not found");
     }
     return d;
@@ -662,7 +624,8 @@ pub fn pop_item(d: &mut HashMap<serde_json::Value, serde_json::Value>) -> () {
             .expect("KeyError: popitem(): dictionary is empty");
         let value = d.remove(&key).expect("KeyError: key disappeared");
         (key, value)
-    }
+    };
+}
 '''
 
 [[test]]
@@ -761,29 +724,12 @@ lazy_static! {
         let mut map = HashMap::new();
         map.insert("host".to_string(), "localhost".to_string());
         map
-    }
+    };
+}
 use lazy_static::lazy_static;
 use std::collections::HashMap;
-#[derive(Debug, Clone)]
-pub struct IndexError {
-    message: String,
-}
-impl std::fmt::Display for IndexError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "index out of range: {}", self.message)
-    }
-}
-impl std::error::Error for IndexError {}
-impl IndexError {
-    pub fn new(message: impl Into<String>) -> Self {
-        Self {
-            message: message.into(),
-        }
-    }
-}
-#[doc = " Depyler: proven to terminate"]
 pub fn get_host(config: &serde_json::Value) {
-    return config.clone().get("host").cloned().unwrap();
+    return config.get("host").cloned().unwrap();
 }
 '''
 
@@ -800,28 +746,9 @@ def get_value(data, key):
 
 rust = '''
 use serde_json;
-#[derive(Debug, Clone)]
-pub struct IndexError {
-    message: String,
-}
-impl std::fmt::Display for IndexError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "index out of range: {}", self.message)
-    }
-}
-impl std::error::Error for IndexError {}
-impl IndexError {
-    pub fn new(message: impl Into<String>) -> Self {
-        Self {
-            message: message.into(),
-        }
-    }
-}
-#[doc = " Depyler: proven to terminate"]
 pub fn get_value(data: &serde_json::Value, key: &serde_json::Value) {
-    let _cse_temp_0 = data.clone().contains(&key.clone());
-    let _cse_temp_1 = (true) && (_cse_temp_0);
-    if _cse_temp_1 {
+    let _cse_temp_0 = (true) && (data.clone().contains(&key.clone()));
+    if _cse_temp_0 {
         return;
     }
     return;
@@ -907,7 +834,7 @@ def get_with_default(d: dict[str, int], key: str) -> int:
 rust = '''
 use std::collections::HashMap;
 pub fn get_with_default(d: &HashMap<String, i32>, key: String) -> i32 {
-    return d.get(&key).cloned().unwrap_or(0).unwrap();
+    return *d.get(&key).unwrap_or(&0).unwrap();
 }
 '''
 
@@ -956,7 +883,7 @@ pub fn sum_dict(d: &HashMap<String, i32>) -> i32 {
         .map(|(k, v)| (k.clone(), v.clone()))
         .collect::<Vec<_>>()
     {
-        total = total + v;
+        total += v;
         log::info!("{}", k);
     }
     return total;
@@ -1007,7 +934,7 @@ pub fn sum_values(d: &HashMap<String, i32>) -> i32 {
         .map(|(k, v)| (k.clone(), v.clone()))
         .collect::<Vec<_>>()
     {
-        total = total + v;
+        total += v;
     }
     return total;
 }
@@ -1097,29 +1024,10 @@ def dict_ops(d: dict[str, int]) -> None:
 
 rust = '''
 use std::collections::HashMap;
-#[derive(Debug, Clone)]
-pub struct IndexError {
-    message: String,
-}
-impl std::fmt::Display for IndexError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "index out of range: {}", self.message)
-    }
-}
-impl std::error::Error for IndexError {}
-impl IndexError {
-    pub fn new(message: impl Into<String>) -> Self {
-        Self {
-            message: message.into(),
-        }
-    }
-}
-#[doc = " Depyler: proven to terminate"]
 pub fn dict_ops(d: &mut HashMap<String, i32>) {
     d.clone().insert("new_key".to_string(), 42);
     d.remove("old_key").unwrap_or(None);
-    let _cse_temp_0 = d.get(&"check_key").is_some();
-    if _cse_temp_0 {
+    if d.get(&"check_key").is_some() {
         log::info!("{}", d.get("check_key").cloned().unwrap());
     }
 }
@@ -1136,16 +1044,15 @@ def merge_with_pipe(d1: dict[str, int], d2: dict[str, int]) -> dict[str, int]:
 
 rust = '''
 use std::collections::HashMap;
-pub fn merge_with_pipe(d1: &HashMap<String, i32>, d2: &HashMap<String, i32>) -> HashMap<String, i32> {
+pub fn merge_with_pipe(
+    d1: &HashMap<String, i32>,
+    d2: &HashMap<String, i32>,
+) -> HashMap<String, i32> {
     return {
         let mut __merge_result = d1.clone();
         __merge_result.extend(d2.iter().map(|(k, v)| (k.clone(), *v)));
         __merge_result
     };
-            TestResult::passed()
-        }
-        quickcheck(prop as fn((), ()) -> TestResult);
-    }
 }
 '''
 # =============================================================================
@@ -1174,8 +1081,6 @@ def test_deep_nested() -> Dict[str, Dict[str, Dict[str, str]]]:
 rust = '''
 use std::collections::HashMap;
 #[doc = "Test deeply nested dictionary assignment"]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn test_deep_nested() -> HashMap<String, HashMap<String, HashMap<String, String>>> {
     let mut d: HashMap<String, HashMap<String, HashMap<String, String>>> = {
         let map = HashMap::new();
@@ -1185,18 +1090,16 @@ pub fn test_deep_nested() -> HashMap<String, HashMap<String, HashMap<String, Str
         let map = HashMap::new();
         map
     });
-    d.get_mut(&"level1".to_string())
+    d.get_mut(&"level1").unwrap().insert("level2".to_string(), {
+        let map = HashMap::new();
+        map
+    });
+    d.get_mut(&"level1")
         .unwrap()
-        .insert("level2".to_string(), {
-            let map = HashMap::new();
-            map
-        });
-    d.get_mut(&"level1".to_string())
-        .unwrap()
-        .get_mut(&"level2".to_string())
+        .get_mut(&"level2")
         .unwrap()
         .insert("level3".to_string(), "deep value".to_string());
-    d
+    return d;
 }
 '''
 
@@ -1224,15 +1127,13 @@ rust = '''
 use serde_json;
 use std::collections::HashMap;
 #[doc = "Test dictionary subscript assignment"]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn test_dict_assignment() -> HashMap<serde_json::Value, serde_json::Value> {
     let mut d = {
         let map = HashMap::new();
         map
     };
-    d.insert("key".to_string(), "value");
-    d.insert(42, "number key");
+    d.insert("key".to_string(), "value".to_string());
+    d.insert(42, "number key".to_string());
     let mut nested = {
         let map = HashMap::new();
         map
@@ -1241,7 +1142,7 @@ pub fn test_dict_assignment() -> HashMap<serde_json::Value, serde_json::Value> {
         let map = HashMap::new();
         map
     });
-    d
+    return d;
 }
 '''
 
@@ -1277,8 +1178,6 @@ def test_nested_dict() -> Dict[str, Dict[str, str]]:
 rust = '''
 use std::collections::HashMap;
 #[doc = "Test dictionary assignment with string keys"]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn test_string_dict() -> HashMap<String, String> {
     let mut d: HashMap<String, String> = {
         let map = HashMap::new();
@@ -1286,11 +1185,9 @@ pub fn test_string_dict() -> HashMap<String, String> {
     };
     d.insert("key1".to_string(), "value1".to_string());
     d.insert("key2".to_string(), "value2".to_string());
-    d
+    return d;
 }
 #[doc = "Test dictionary assignment with integer keys"]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn test_int_dict() -> HashMap<i32, String> {
     let mut d: HashMap<i32, String> = {
         let map = HashMap::new();
@@ -1298,11 +1195,9 @@ pub fn test_int_dict() -> HashMap<i32, String> {
     };
     d.insert(42, "number key".to_string());
     d.insert(100, "another number".to_string());
-    d
+    return d;
 }
 #[doc = "Test nested dictionary(but not nested assignment yet)"]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn test_nested_dict() -> HashMap<String, HashMap<String, String>> {
     let mut d: HashMap<String, HashMap<String, String>> = {
         let map = HashMap::new();
@@ -1312,7 +1207,7 @@ pub fn test_nested_dict() -> HashMap<String, HashMap<String, String>> {
         let map = HashMap::new();
         map
     });
-    d
+    return d;
 }
 '''
 
@@ -1340,8 +1235,6 @@ def test_nested_assignment() -> Dict[str, Dict[str, str]]:
 rust = '''
 use std::collections::HashMap;
 #[doc = "Test nested dictionary assignment"]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn test_nested_assignment() -> HashMap<String, HashMap<String, String>> {
     let mut d: HashMap<String, HashMap<String, String>> = {
         let map = HashMap::new();
@@ -1351,13 +1244,13 @@ pub fn test_nested_assignment() -> HashMap<String, HashMap<String, String>> {
         let map = HashMap::new();
         map
     });
-    d.get_mut(&"outer".to_string())
+    d.get_mut(&"outer")
         .unwrap()
         .insert("inner".to_string(), "value".to_string());
-    d.get_mut(&"outer".to_string())
+    d.get_mut(&"outer")
         .unwrap()
         .insert("another".to_string(), "value2".to_string());
-    d
+    return d;
 }
 '''
 
@@ -1389,11 +1282,15 @@ if __name__ == "__main__":
 rust = '''
 use serde_json as json;
 use serde_json;
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn main() {
     let data = serde_json::json!({ "name": "test", "count": 42, "enabled": true, "rate": 3.14, "items": vec! [1, 2, 3] });
     log::info!("{}", serde_json::to_string(&data).unwrap());
+}
+fn main() {
+    "Test heterogeneous dict transpilation";
+    if __name__ == "__main__" {
+        main();
+    }
 }
 '''
 
@@ -1412,31 +1309,13 @@ def test_nested_access():
 
 rust = '''
 use std::collections::HashMap;
-#[derive(Debug, Clone)]
-pub struct IndexError {
-    message: String,
-}
-impl std::fmt::Display for IndexError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "index out of range: {}", self.message)
-    }
-}
-impl std::error::Error for IndexError {}
-impl IndexError {
-    pub fn new(message: impl Into<String>) -> Self {
-        Self {
-            message: message.into(),
-        }
-    }
-}
 #[doc = "Test reading nested dictionary values"]
-#[doc = " Depyler: proven to terminate"]
-pub fn test_nested_access() -> Result<i32, IndexError> {
+pub fn test_nested_access() -> String {
     let d = {
         let mut map = HashMap::new();
         map.insert("outer".to_string(), {
             let mut map = HashMap::new();
-            map.insert("inner".to_string(), "value");
+            map.insert("inner".to_string(), "value".to_string());
             map
         });
         map
@@ -1444,11 +1323,11 @@ pub fn test_nested_access() -> Result<i32, IndexError> {
     let val = d
         .get("outer")
         .cloned()
-        .unwrap_or_default()
+        .unwrap()
         .get("inner")
         .cloned()
-        .unwrap_or_default();
-    Ok(val)
+        .unwrap();
+    return val;
 }
 '''
 
@@ -1480,8 +1359,6 @@ def test_tuple_keys() -> Dict[Tuple[int, int], str]:
 rust = '''
 use std::collections::HashMap;
 #[doc = "Test dictionary with tuple keys"]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn test_tuple_keys() -> HashMap<(i32, i32), String> {
     let mut d: HashMap<(i32, i32), String> = {
         let map = HashMap::new();
@@ -1494,6 +1371,130 @@ pub fn test_tuple_keys() -> HashMap<(i32, i32), String> {
     let x = 2;
     let y = 3;
     d.insert((x, y), "dynamic".to_string());
-    d
+    return d;
 }
 '''
+
+[[test]]
+name = "dict_get_with_default"
+description = "Test dict.get() with default value"
+python = """
+def test_dict_get(d: dict[str, int]) -> int:
+    return d.get("key", 0)
+
+def test_dict_get_no_default(d: dict[str, int]):
+    return d.get("key")
+
+# Test cases
+d1 = {"key": 42}
+d2 = {"other": 100}
+
+print(test_dict_get(d1))
+print(test_dict_get(d2))
+print(test_dict_get_no_default(d1))
+print(test_dict_get_no_default(d2))
+"""
+rust = """
+use std::collections::HashMap;
+pub fn test_dict_get(d: &HashMap<String, i32>) -> i32 {
+    return *d.get("key").unwrap_or(&0).unwrap();
+}
+pub fn test_dict_get_no_default(d: &HashMap<String, i32>) {
+    return d.get("key").cloned().unwrap();
+}
+fn main() {
+    let d1 = {
+        let mut map = HashMap::new();
+        map.insert("key".to_string(), 42);
+        map
+    };
+    let d2 = {
+        let mut map = HashMap::new();
+        map.insert("other".to_string(), 100);
+        map
+    };
+    log::info!("{}", test_dict_get(&d1));
+    log::info!("{}", test_dict_get(&d2));
+    log::info!("{}", test_dict_get_no_default(&d1));
+    log::info!("{}", test_dict_get_no_default(&d2));
+}
+"""
+expected_output = """42
+0
+Some(42)
+None"""
+
+[[test]]
+name = "dict_get_in_class"
+description = "Using dict.get() in a class factory method"
+python = """
+class Data:
+    def __init__(self, value: int):
+        self.value = value
+    
+    @staticmethod
+    def from_dict(d: dict[str, int]) -> 'Data':
+        return Data(d.get("value", 0))
+
+d1 = {"value": 100}
+d2 = {"other": 50}
+
+obj1 = Data.from_dict(d1)
+obj2 = Data.from_dict(d2)
+
+print(obj1.value)
+print(obj2.value)
+"""
+rust = """
+use std::collections::HashMap;
+#[derive(Debug, Copy, Clone)]
+pub struct Data {
+    pub value: i32,
+}
+impl Data {
+    pub fn new(value: i32) -> Self {
+        Self { value }
+    }
+    pub fn from_dict(d: HashMap<String, i32>) -> Data {
+        return Data::new(*d.get("value").unwrap_or(&0));
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "value" => Some(Box::new(self.value.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "value" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.value = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+fn main() {
+    let d1 = {
+        let mut map = HashMap::new();
+        map.insert("value".to_string(), 100);
+        map
+    };
+    let d2 = {
+        let mut map = HashMap::new();
+        map.insert("other".to_string(), 50);
+        map
+    };
+    let obj1 = Data::from_dict(d1);
+    let obj2 = Data::from_dict(d2);
+    log::info!("{}", obj1.value);
+    log::info!("{}", obj2.value);
+}
+"""
+expected_output = """100
+0"""
+

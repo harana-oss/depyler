@@ -132,7 +132,7 @@ fn generate_colored_diff(expected: &str, actual: &str) -> String {
 }
 
 /// Format Rust code using rustfmt
-/// 
+///
 /// Returns the formatted code if rustfmt succeeds, otherwise returns the original code
 fn format_with_rustfmt(code: &str) -> String {
     let mut child = match Command::new("rustfmt")
@@ -592,7 +592,7 @@ fn run_single_test(
                 // Format both expected and actual code with rustfmt for fair comparison
                 let expected_formatted = format_with_rustfmt(expected.trim());
                 let actual_formatted = format_with_rustfmt(rust_code.trim());
-                
+
                 if expected_formatted.trim() != actual_formatted.trim() {
                     let diff = generate_colored_diff(&expected_formatted, &actual_formatted);
                     return TestResult {

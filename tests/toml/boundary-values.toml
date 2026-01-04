@@ -228,8 +228,7 @@ pub fn arithmetic_boundary_test() -> i32 {
     let large_negative = -1000000;
     let addition = large_positive + large_positive;
     let subtraction = large_positive - large_negative;
-    let _cse_temp_0 = large_positive * 2;
-    let multiplication = _cse_temp_0;
+    let multiplication = large_positive * 2;
     return addition + subtraction + multiplication;
 }
 '''
@@ -251,8 +250,7 @@ rust = '''
 pub fn string_boundary_test() -> i32 {
     let empty_string = "".to_string();
     let single_char = "a".to_string();
-    let _cse_temp_0 = "a".repeat(1000 as usize);
-    let long_string = _cse_temp_0;
+    let long_string = "a".repeat(1000 as usize);
     return empty_string.len() as i32 + single_char.len() as i32 + long_string.len() as i32 as i32;
 }
 '''
@@ -275,8 +273,7 @@ def test_recursion_depths() -> int:
 
 rust = '''
 pub fn factorial_recursive(n: i32) -> i32 {
-    let _cse_temp_0 = n <= 1;
-    if _cse_temp_0 {
+    if n <= 1 {
         return 1;
     }
     return n * factorial_recursive(n - 1);
@@ -309,13 +306,10 @@ rust = '''
 pub fn boolean_boundary_test() -> bool {
     let true_val = true;
     let false_val = false;
-    let _cse_temp_0 = 0 != 0;
-    let zero_truthy = _cse_temp_0;
-    let _cse_temp_1 = 1 != 0;
-    let one_truthy = _cse_temp_1;
-    let _cse_temp_2 = vec![] != 0;
-    let empty_list_truthy = _cse_temp_2;
-    let non_empty_list_truthy = _cse_temp_2;
+    let zero_truthy = 0 != 0;
+    let one_truthy = 1 != 0;
+    let empty_list_truthy = vec![] != 0;
+    let non_empty_list_truthy = vec![1] != 0;
     return (true_val) && (!false_val);
 }
 '''
@@ -355,12 +349,9 @@ impl ZeroDivisionError {
 #[doc = " Depyler: proven to terminate"]
 pub fn modulo_boundary_test(n: i32) -> i32 {
     let mod_one = if n != 0 { n % 1 } else { 0 };
-    let _cse_temp_0 = n % 2;
-    let mod_two = _cse_temp_0;
-    let _cse_temp_1 = n % 10;
-    let mod_ten = _cse_temp_1;
-    let _cse_temp_2 = n % 100;
-    let mod_hundred = _cse_temp_2;
+    let mod_two = n % 2;
+    let mod_ten = n % 10;
+    let mod_hundred = n % 100;
     return mod_two + mod_ten + mod_hundred;
 }
 '''
@@ -415,16 +406,13 @@ def conditional_boundary_test(x: int) -> int:
 
 rust = '''
 pub fn conditional_boundary_test(x: i32) -> i32 {
-    let _cse_temp_0 = x < 0;
-    if _cse_temp_0 {
+    if x < 0 {
         return -1;
     } else {
-        let _cse_temp_1 = x == 0;
-        if _cse_temp_1 {
+        if x == 0 {
             return 0;
         } else {
-            let _cse_temp_2 = x == 1;
-            if _cse_temp_2 {
+            if x == 1 {
                 return 1;
             } else {
                 return x;
@@ -452,18 +440,12 @@ def comparison_boundary_test(a: int, b: int) -> bool:
 
 rust = '''
 pub fn comparison_boundary_test(a: i32, b: i32) -> bool {
-    let _cse_temp_0 = a == b;
-    let equal = _cse_temp_0;
-    let _cse_temp_1 = a != b;
-    let not_equal = _cse_temp_1;
-    let _cse_temp_2 = a < b;
-    let less_than = _cse_temp_2;
-    let _cse_temp_3 = a <= b;
-    let less_equal = _cse_temp_3;
-    let _cse_temp_4 = a > b;
-    let greater_than = _cse_temp_4;
-    let _cse_temp_5 = a >= b;
-    let greater_equal = _cse_temp_5;
+    let equal = a == b;
+    let not_equal = a != b;
+    let less_than = a < b;
+    let less_equal = a <= b;
+    let greater_than = a > b;
+    let greater_equal = a >= b;
     return (((((equal) || (not_equal)) || (less_than)) || (less_equal)) || (greater_than))
         || (greater_equal);
 }
@@ -799,9 +781,8 @@ impl ZeroDivisionError {
 pub fn all_operators(a: i32, b: i32) -> bool {
     let add = a + b;
     let sub = a - b;
-    let _cse_temp_0 = a * b;
-    let mul = _cse_temp_0;
-    let _cse_temp_1 = {
+    let mul = a * b;
+    let div = {
         let a = a;
         let b = b;
         let q = a / b;
@@ -813,25 +794,15 @@ pub fn all_operators(a: i32, b: i32) -> bool {
         let needs_adjustment = r_nonzero && signs_differ;
         if needs_adjustment { q - 1 } else { q }
     };
-    let div = _cse_temp_1;
-    let _cse_temp_2 = a % b;
-    let r#mod = _cse_temp_2;
-    let _cse_temp_3 = a == b;
-    let eq = _cse_temp_3;
-    let _cse_temp_4 = a != b;
-    let ne = _cse_temp_4;
-    let _cse_temp_5 = a < b;
-    let lt = _cse_temp_5;
-    let _cse_temp_6 = a <= b;
-    let le = _cse_temp_6;
-    let _cse_temp_7 = a > b;
-    let gt = _cse_temp_7;
-    let _cse_temp_8 = a >= b;
-    let ge = _cse_temp_8;
-    let _cse_temp_9 = (a != 0) && (b != 0);
-    let and_op = _cse_temp_9;
-    let _cse_temp_10 = (a != 0) || (b != 0);
-    let or_op = _cse_temp_10;
+    let r#mod = a % b;
+    let eq = a == b;
+    let ne = a != b;
+    let lt = a < b;
+    let le = a <= b;
+    let gt = a > b;
+    let ge = a >= b;
+    let and_op = (a != 0) && (b != 0);
+    let or_op = (a != 0) || (b != 0);
     let not_op = !a;
     return (((((eq) || (ne)) || (lt)) || (le)) || (gt)) || (ge);
 }

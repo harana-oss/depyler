@@ -212,6 +212,11 @@ impl AstBridge {
                     }
                 }
                 ast::Stmt::Assign(assign) => {
+                    // Skip TypeVar assignments - they're only for generic type parameters
+                    if Self::is_typevar_assignment(&ast::Stmt::Assign(assign.clone())) {
+                        continue;
+                    }
+
                     // Try to parse as type alias first
                     if let Some(type_alias) = self.try_convert_type_alias(&assign)? {
                         type_aliases.push(type_alias);
@@ -229,6 +234,11 @@ impl AstBridge {
                     }
                 }
                 ast::Stmt::AnnAssign(ann_assign) => {
+                    // Skip TypeVar assignments - they're only for generic type parameters
+                    if Self::is_typevar_assignment(&ast::Stmt::AnnAssign(ann_assign.clone())) {
+                        continue;
+                    }
+
                     // Try to parse annotated assignment as type alias first
                     if let Some(type_alias) = self.try_convert_annotated_type_alias(&ann_assign)? {
                         type_aliases.push(type_alias);
@@ -259,6 +269,9 @@ impl AstBridge {
 
         // If a function calls another function that can fail, mark it as can_fail too
         propagate_can_fail_through_calls(&mut functions);
+
+        // Post-process: Infer parameter types from class names
+        infer_parameter_types_from_classes(&mut classes);
 
         Ok(HirModule {
             functions,
@@ -542,6 +555,31 @@ impl AstBridge {
             target_type,
             is_newtype: false,
         }))
+    }
+
+    /// Check if a statement is a TypeVar assignment that should be elided
+    fn is_typevar_assignment(stmt: &ast::Stmt) -> bool {
+        match stmt {
+            ast::Stmt::Assign(assign) => {
+                if let ast::Expr::Call(call) = assign.value.as_ref() {
+                    if let ast::Expr::Name(name) = call.func.as_ref() {
+                        return name.id.as_str() == "TypeVar";
+                    }
+                }
+                false
+            }
+            ast::Stmt::AnnAssign(ann_assign) => {
+                if let Some(value) = &ann_assign.value {
+                    if let ast::Expr::Call(call) = value.as_ref() {
+                        if let ast::Expr::Name(name) = call.func.as_ref() {
+                            return name.id.as_str() == "TypeVar";
+                        }
+                    }
+                }
+                false
+            }
+            _ => false,
+        }
     }
 
     /// Try to convert a simple assignment to a module-level constant
@@ -846,12 +884,12 @@ impl AstBridge {
 
         let name = method.name.to_string();
 
-        // Skip dunder methods except __init__, __iter__, __next__, __enter__, __exit__
+        // Skip dunder methods except __init__, __del__, __iter__, __next__, __enter__, __exit__
         if name.starts_with("__")
             && name.ends_with("__")
             && !matches!(
                 name.as_str(),
-                "__init__" | "__iter__" | "__next__" | "__enter__" | "__exit__"
+                "__init__" | "__del__" | "__iter__" | "__next__" | "__enter__" | "__exit__"
             )
         {
             return Ok(None);
@@ -964,12 +1002,13 @@ impl AstBridge {
 
         let name = method.name.to_string();
 
-        // Skip dunder methods except __init__, __iter__, __next__, __enter__, __exit__, __aenter__, __aexit__
+        // Skip dunder methods except __init__, __del__, __iter__, __next__, __enter__, __exit__, __aenter__, __aexit__
         if name.starts_with("__")
             && name.ends_with("__")
             && !matches!(
                 name.as_str(),
                 "__init__"
+                    | "__del__"
                     | "__iter__"
                     | "__next__"
                     | "__enter__"
@@ -1533,6 +1572,14 @@ pub(crate) fn extract_assign_target(expr: &ast::Expr) -> Result<AssignTarget> {
                 .collect::<Result<Vec<_>>>()?;
             Ok(AssignTarget::Tuple(targets))
         }
+        ast::Expr::Starred(s) => {
+            // Starred expression in unpacking: *rest = [1, 2, 3]
+            // The value inside should be a simple name
+            match s.value.as_ref() {
+                ast::Expr::Name(n) => Ok(AssignTarget::Starred(n.id.to_string())),
+                _ => bail!("Starred expression in assignment must be a simple name"),
+            }
+        }
         _ => bail!("Unsupported assignment target"),
     }
 }
@@ -1654,4 +1701,69 @@ fn extract_docstring_and_body(body: Vec<ast::Stmt>) -> Result<(Option<String>, V
         .collect::<Result<Vec<_>>>()?;
 
     Ok((docstring, filtered_body))
+}
+
+/// Infer parameter and field types from class names in the module.
+/// This handles the case where parameters or fields have no type annotation
+/// but their names suggest they should be of a class type.
+fn infer_parameter_types_from_classes(classes: &mut [HirClass]) {
+    use crate::hir::Type;
+
+    // Collect all class names
+    let class_names: Vec<String> = classes.iter().map(|c| c.name.clone()).collect();
+
+    // For each class, check method parameters and fields
+    for class in classes.iter_mut() {
+        // Check method parameters
+        for method in &mut class.methods {
+            for param in &mut method.params {
+                if matches!(param.ty, Type::Unknown) {
+                    // Check if parameter name matches a class name
+                    // Try exact match (case-sensitive)
+                    if let Some(matching_class) =
+                        class_names.iter().find(|cn| cn.as_str() == param.name)
+                    {
+                        param.ty = Type::Custom(matching_class.clone());
+                    } else {
+                        // Try capitalized version of parameter name
+                        let capitalized = capitalize_first(&param.name);
+                        if let Some(matching_class) =
+                            class_names.iter().find(|cn| cn.as_str() == capitalized)
+                        {
+                            param.ty = Type::Custom(matching_class.clone());
+                        }
+                    }
+                }
+            }
+        }
+
+        // Check fields with Unknown type
+        for field in &mut class.fields {
+            if matches!(field.field_type, Type::None) {
+                // Field initialized to None - should be Option<T>
+                // Try to infer T from the field name
+                let capitalized = capitalize_first(&field.name);
+                if let Some(matching_class) =
+                    class_names.iter().find(|cn| cn.as_str() == capitalized)
+                {
+                    field.field_type =
+                        Type::Optional(Box::new(Type::Custom(matching_class.clone())));
+                } else if let Some(matching_class) =
+                    class_names.iter().find(|cn| cn.as_str() == field.name)
+                {
+                    field.field_type =
+                        Type::Optional(Box::new(Type::Custom(matching_class.clone())));
+                }
+            }
+        }
+    }
+}
+
+/// Capitalize the first character of a string
+fn capitalize_first(s: &str) -> String {
+    let mut chars = s.chars();
+    match chars.next() {
+        None => String::new(),
+        Some(first) => first.to_uppercase().collect::<String>() + chars.as_str(),
+    }
 }

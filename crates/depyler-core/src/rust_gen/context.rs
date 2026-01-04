@@ -648,6 +648,18 @@ impl<'a> CodeGenContext<'a> {
         }
     }
 
+    /// Get the type of a field in the current class (when accessed via self.field)
+    pub fn get_self_field_type(&self, field_name: &str) -> Option<Type> {
+        // Find the class we're currently in by looking at class_field_types
+        // The current class is tracked when we enter a class impl block
+        for (_, field_types) in &self.class_field_types {
+            if let Some(field_type) = field_types.get(field_name) {
+                return Some(field_type.clone());
+            }
+        }
+        None
+    }
+
     /// Analyze variable usage in function body before code generation
     pub fn analyze_var_usage(&mut self, stmts: &[crate::hir::HirStmt]) {
         self.reset_var_usage();
@@ -1174,6 +1186,7 @@ impl<'a> CodeGenContext<'a> {
             AssignTarget::Tuple(targets) => targets
                 .iter()
                 .any(|t| self.assign_target_mutates_var(t, var_name)),
+            AssignTarget::Starred(_) => false, // Starred target doesn't mutate a var
         }
     }
 

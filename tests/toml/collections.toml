@@ -1296,7 +1296,11 @@ def lookup_with_default(data: dict[str, str], key: str) -> str:
 rust = '''
 use std::collections::HashMap;
 pub fn lookup_with_default(data: &HashMap<String, String>, key: String) -> String {
-    return data.get(&key).cloned().unwrap_or("unknown".to_string());
+    return data
+        .get(&key)
+        .cloned()
+        .unwrap_or_else(|| "unknown".to_string())
+        .unwrap();
 }
 '''
 

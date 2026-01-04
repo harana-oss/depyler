@@ -319,6 +319,9 @@ fn handle_assign_target(
                 #base_tokens.extend(#value_tokens);
             })
         }
+        AssignTarget::Starred(_) => {
+            bail!("Starred expression can only appear inside tuple unpacking")
+        }
     }
 }
 
@@ -358,6 +361,11 @@ fn codegen_complex_tuple_unpack(
             AssignTarget::Tuple(_) => anyhow::bail!("Nested tuple unpacking not supported"),
             AssignTarget::Slice { .. } => {
                 anyhow::bail!("Slice target in tuple unpacking not supported")
+            }
+            AssignTarget::Starred(_) => {
+                anyhow::bail!(
+                    "Starred expression in tuple unpacking not yet supported in old codegen"
+                )
             }
         };
         assignments.push(assign);

@@ -15,7 +15,7 @@ def increment(x: int) -> int:
 
 rust = '''
 pub fn increment(mut x: i32) -> i32 {
-    x = x + 1;
+    x += 1;
     return x;
 }
 '''
@@ -32,7 +32,7 @@ def scale(x: float, factor: float) -> float:
 
 rust = '''
 pub fn scale(mut x: f64, factor: f64) -> f64 {
-    x = x * factor;
+    x *= factor;
     return x;
 }
 '''

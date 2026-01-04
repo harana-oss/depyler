@@ -350,6 +350,14 @@ impl<'a> MutationPropagator<'a> {
                             }
                         }
                     }
+                    AssignTarget::Starred(name) => {
+                        // Starred target in unpacking - treat as variable assignment
+                        if param_names.contains(name) {
+                            mutation_info.mutated_params.insert(name.clone());
+                        } else {
+                            mutation_info.mutated_locals.insert(name.clone());
+                        }
+                    }
                 }
 
                 // Also analyze the value expression for method calls

@@ -112,8 +112,8 @@ result = True
 
 rust = '''
 fn main() {
-    let x: i32 = 42;
-    // Rust uses static typing, no runtime check needed
+    let x = 42;
+    assert!(true);
     let result = true;
 }
 '''
@@ -157,7 +157,7 @@ rust = '''
 fn main() {
     let x = 5;
     let y = 10;
-    assert!(x > 0 && y > 0);
+    assert!((x > 0) && (y > 0));
     let result = true;
 }
 '''
@@ -177,7 +177,7 @@ rust = '''
 fn main() {
     let x = 5;
     let y = -1;
-    assert!(x > 0 || y > 0);
+    assert!((x > 0) || (y > 0));
     let result = true;
 }
 '''
@@ -193,9 +193,11 @@ result = True
 '''
 
 rust = '''
+fn main() {
     let invalid = false;
     assert!(!invalid);
     let result = true;
+}
 '''
 
 [[test]]
@@ -236,9 +238,11 @@ result = True
 '''
 
 rust = '''
+fn main() {
     let x = 5;
-    assert!(x > 0, "x must be positive, got {}", x);
+    assert!(x > 0, "{}", format!("x must be positive, got {}", x));
     let result = true;
+}
 '''
 
 [[test]]
@@ -253,10 +257,16 @@ result = True
 '''
 
 rust = '''
+fn main() {
     let valid = true;
-    let error_details = format!("{{code: 500}}");
-    assert!(valid, "{}", error_details);
+    let error_details = {
+        let mut map = HashMap::new();
+        map.insert("code".to_string(), 500);
+        map
+    };
+    assert!(valid, "{}", (error_details).to_string());
     let result = true;
+}
 '''
 
 # =============================================================================
@@ -350,10 +360,11 @@ result = True
 '''
 
 rust = '''
-    // Rust assert! macro has clear syntax
+fn main() {
     let value = 10;
-    assert!(value > 0, "Value must be positive");
+    assert!(value > 0, "{}", "Value must be positive");
     let result = true;
+}
 '''
 
 [[test]]

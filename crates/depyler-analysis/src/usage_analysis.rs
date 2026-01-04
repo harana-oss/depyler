@@ -242,6 +242,9 @@ impl UsageAnalyzer {
                     self.analyze_assign_target(t);
                 }
             }
+            AssignTarget::Starred(_) => {
+                // Starred target in unpacking - simple assignment
+            }
         }
     }
 

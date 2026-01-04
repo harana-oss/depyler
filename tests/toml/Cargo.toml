@@ -1,13 +1,12 @@
 [package]
-name = "slicing"
+name = "dict_get_simple"
 version = "0.1.0"
 edition = "2021"
 
 [[bin]]
-name = "slicing"
-path = "slicing.rs"
+name = "dict_get_simple"
+path = "dict_get_simple.rs"
 
 [dependencies]
-lazy_static = "1.4"
 bevy_reflect = "0.17"
 log = "0.4"

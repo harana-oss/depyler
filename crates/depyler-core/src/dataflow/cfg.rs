@@ -450,6 +450,17 @@ impl CfgBuilder {
                     );
                 }
             }
+            AssignTarget::Starred(name) => {
+                // Starred target in unpacking - treat as variable assignment
+                self.cfg.add_stmt(
+                    self.current_block,
+                    CfgStmt::Assign {
+                        target: name.clone(),
+                        value: value.clone(),
+                        type_annotation: None,
+                    },
+                );
+            }
         }
     }
 

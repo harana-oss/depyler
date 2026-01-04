@@ -159,3 +159,105 @@ fn main() {
     log::info!("Result: {}", result);
 }
 """
+
+[[test]]
+name = "walrus_while_simple"
+description = "Simple walrus operator in while loop condition"
+python = """
+x = 0
+while (y := x * 2) < 10:
+    print(y)
+    x += 1
+"""
+rust = """
+fn main() {
+    let mut x = 0;
+    loop {
+        let y = x * 2;
+        if !(y < 10) {
+            break;
+        }
+        log::info!("{}", y);
+        x += 1;
+    }
+}
+"""
+expected_output = """0
+2
+4
+6
+8"""
+
+[[test]]
+name = "walrus_comprehensive_demo"
+description = "Comprehensive demonstration of walrus operator in if, while, and multiple conditions"
+python = """
+def test_walrus_if():
+    items = [1, 2, 3, 4, 5]
+    if (n := len(items)) > 3:
+        print(f"List has {n} items")
+    print(f"n is still accessible: {n}")
+
+def test_walrus_while():
+    x = 0
+    while (y := x * 2) < 10:
+        print(f"y = {y}")
+        x += 1
+
+def test_multiple_walrus():
+    x = 5
+    y = 10
+    if (a := x * 2) > 5 and (b := y * 2) > 15:
+        print(f"a={a}, b={b}")
+
+test_walrus_if()
+test_walrus_while()
+test_multiple_walrus()
+"""
+rust = """
+fn test_walrus_if() {
+    let items = vec![1, 2, 3, 4, 5];
+    let n = items.len() as i32;
+    if n > 3 {
+        log::info!("List has {} items", n);
+    }
+    log::info!("n is still accessible: {}", n);
+}
+
+fn test_walrus_while() {
+    let mut x = 0;
+    loop {
+        let y = x * 2;
+        if !(y < 10) {
+            break;
+        }
+        log::info!("y = {}", y);
+        x += 1;
+    }
+}
+
+fn test_multiple_walrus() {
+    let x = 5;
+    let y = 10;
+    let a = x * 2;
+    let b = y * 2;
+    if a > 5 && b > 15 {
+        log::info!("a={}, b={}", a, b);
+    }
+}
+
+fn main() {
+    test_walrus_if();
+    test_walrus_while();
+    test_multiple_walrus();
+}
+"""
+expected_output = """List has 5 items
+n is still accessible: 5
+y = 0
+y = 2
+y = 4
+y = 6
+y = 8
+a=10, b=20"""
+

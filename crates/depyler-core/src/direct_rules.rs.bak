@@ -1372,10 +1372,6 @@ fn is_potentially_mutating_method(method: &str) -> bool {
             | "write"
             | "write_all"
             | "flush"
-            | "close"
-            | "connect"
-            | "disconnect"
-            | "delete"
     )
 }
 
@@ -2614,12 +2610,8 @@ fn convert_stmt_with_context(
 
                     // Only proceed if we have a valid operator
                     if !op_token.is_empty() {
-                        let right_expr = convert_expr_with_full_context(
-                            right,
-                            type_mapper,
-                            is_classmethod,
-                            field_types,
-                        )?;
+                        let right_expr =
+                            convert_expr_with_context(right, type_mapper, is_classmethod)?;
                         let target_expr = match target {
                             AssignTarget::Symbol(var_name) => {
                                 let ident =
@@ -2627,29 +2619,17 @@ fn convert_stmt_with_context(
                                 parse_quote! { #ident }
                             }
                             AssignTarget::Attribute { value, attr } => {
-                                let base_expr = convert_expr_with_full_context(
-                                    value,
-                                    type_mapper,
-                                    is_classmethod,
-                                    field_types,
-                                )?;
+                                let base_expr =
+                                    convert_expr_with_context(value, type_mapper, is_classmethod)?;
                                 let attr_ident =
                                     syn::Ident::new(attr, proc_macro2::Span::call_site());
                                 parse_quote! { #base_expr.#attr_ident }
                             }
                             AssignTarget::Index { base, index } => {
-                                let base_expr = convert_expr_with_full_context(
-                                    base,
-                                    type_mapper,
-                                    is_classmethod,
-                                    field_types,
-                                )?;
-                                let index_expr = convert_expr_with_full_context(
-                                    index,
-                                    type_mapper,
-                                    is_classmethod,
-                                    field_types,
-                                )?;
+                                let base_expr =
+                                    convert_expr_with_context(base, type_mapper, is_classmethod)?;
+                                let index_expr =
+                                    convert_expr_with_context(index, type_mapper, is_classmethod)?;
                                 parse_quote! { #base_expr[#index_expr] }
                             }
                             _ => {
@@ -2670,14 +2650,12 @@ fn convert_stmt_with_context(
             }
 
             // Fall through to normal assignment handling
-            let value_expr =
-                convert_expr_with_full_context(value, type_mapper, is_classmethod, field_types)?;
+            let value_expr = convert_expr_with_context(value, type_mapper, is_classmethod)?;
             convert_assign_stmt_with_expr(target, value_expr, type_mapper, field_types)
         }
         HirStmt::Return(expr) => {
             let ret_expr = if let Some(e) = expr {
-                let converted =
-                    convert_expr_with_full_context(e, type_mapper, is_classmethod, field_types)?;
+                let converted = convert_expr_with_context(e, type_mapper, is_classmethod)?;
                 // Add .clone() when returning a self.field that's a String
                 if let HirExpr::Attribute { value, attr } = e {
                     if let HirExpr::Var(var_name) = &**value {
@@ -2735,12 +2713,7 @@ fn convert_stmt_with_context(
             if is_option_check {
                 // Generate if let Some(...) pattern for Option<T> fields
                 if let HirExpr::Attribute { value, attr } = condition {
-                    let base_expr = convert_expr_with_full_context(
-                        value,
-                        type_mapper,
-                        is_classmethod,
-                        field_types,
-                    )?;
+                    let base_expr = convert_expr_with_context(value, type_mapper, is_classmethod)?;
                     let binding_name = syn::Ident::new(attr, proc_macro2::Span::call_site());
                     let attr_ident = syn::Ident::new(attr, proc_macro2::Span::call_site());
 
@@ -2779,12 +2752,7 @@ fn convert_stmt_with_context(
             }
 
             // Regular if statement (not an Option check)
-            let cond = convert_expr_with_full_context(
-                condition,
-                type_mapper,
-                is_classmethod,
-                field_types,
-            )?;
+            let cond = convert_expr_with_context(condition, type_mapper, is_classmethod)?;
             let then_block =
                 convert_block_with_context(then_body, type_mapper, is_classmethod, field_types)?;
 
@@ -2807,12 +2775,7 @@ fn convert_stmt_with_context(
             Ok(syn::Stmt::Expr(if_expr, None))
         }
         HirStmt::While { condition, body } => {
-            let cond = convert_expr_with_full_context(
-                condition,
-                type_mapper,
-                is_classmethod,
-                field_types,
-            )?;
+            let cond = convert_expr_with_context(condition, type_mapper, is_classmethod)?;
             let body_block =
                 convert_block_with_context(body, type_mapper, is_classmethod, field_types)?;
 
@@ -2848,13 +2811,11 @@ fn convert_stmt_with_context(
             let iter_expr = if let HirExpr::Tuple(elts) = iter {
                 let elt_exprs: Vec<syn::Expr> = elts
                     .iter()
-                    .map(|e| {
-                        convert_expr_with_full_context(e, type_mapper, is_classmethod, field_types)
-                    })
+                    .map(|e| convert_expr_with_context(e, type_mapper, is_classmethod))
                     .collect::<Result<Vec<_>>>()?;
                 parse_quote! { [#(#elt_exprs),*] }
             } else {
-                convert_expr_with_full_context(iter, type_mapper, is_classmethod, field_types)?
+                convert_expr_with_context(iter, type_mapper, is_classmethod)?
             };
             let body_block =
                 convert_block_with_context(body, type_mapper, is_classmethod, field_types)?;
@@ -2866,8 +2827,7 @@ fn convert_stmt_with_context(
             Ok(syn::Stmt::Expr(for_expr, Some(Default::default())))
         }
         HirStmt::Expr(expr) => {
-            let rust_expr =
-                convert_expr_with_full_context(expr, type_mapper, is_classmethod, field_types)?;
+            let rust_expr = convert_expr_with_context(expr, type_mapper, is_classmethod)?;
             Ok(syn::Stmt::Expr(rust_expr, Some(Default::default())))
         }
         HirStmt::Raise {
@@ -2876,8 +2836,7 @@ fn convert_stmt_with_context(
         } => {
             // Convert to Rust panic for direct rules
             let panic_expr = if let Some(exc) = exception {
-                let exc_expr =
-                    convert_expr_with_full_context(exc, type_mapper, is_classmethod, field_types)?;
+                let exc_expr = convert_expr_with_context(exc, type_mapper, is_classmethod)?;
                 parse_quote! { panic!("Exception: {}", #exc_expr) }
             } else {
                 parse_quote! { panic!("Exception raised") }
@@ -2910,8 +2869,7 @@ fn convert_stmt_with_context(
             body,
         } => {
             // Convert context expression
-            let context_expr =
-                convert_expr_with_full_context(context, type_mapper, is_classmethod, field_types)?;
+            let context_expr = convert_expr_with_context(context, type_mapper, is_classmethod)?;
 
             // Convert body to a block
             let body_block =
@@ -3006,15 +2964,9 @@ fn convert_stmt_with_context(
         }
         HirStmt::Assert { test, msg } => {
             // Generate assert! macro call
-            let test_expr =
-                convert_expr_with_full_context(test, type_mapper, is_classmethod, field_types)?;
+            let test_expr = convert_expr_with_context(test, type_mapper, is_classmethod)?;
             let assert_macro: syn::Stmt = if let Some(message) = msg {
-                let msg_expr = convert_expr_with_full_context(
-                    message,
-                    type_mapper,
-                    is_classmethod,
-                    field_types,
-                )?;
+                let msg_expr = convert_expr_with_context(message, type_mapper, is_classmethod)?;
                 parse_quote! { assert!(#test_expr, "{}", #msg_expr); }
             } else {
                 parse_quote! { assert!(#test_expr); }
@@ -3039,8 +2991,7 @@ fn convert_stmt_with_context(
             Ok(syn::Stmt::Expr(parse_quote! { {} }, None))
         }
         HirStmt::AsyncFor { target, iter, body } => {
-            let iter_expr =
-                convert_expr_with_full_context(iter, type_mapper, is_classmethod, field_types)?;
+            let iter_expr = convert_expr_with_context(iter, type_mapper, is_classmethod)?;
             let body_block =
                 convert_block_with_context(body, type_mapper, is_classmethod, field_types)?;
             let target_ident = match target {
@@ -3059,8 +3010,7 @@ fn convert_stmt_with_context(
             target,
             body,
         } => {
-            let context_expr =
-                convert_expr_with_full_context(context, type_mapper, is_classmethod, field_types)?;
+            let context_expr = convert_expr_with_context(context, type_mapper, is_classmethod)?;
             let body_block =
                 convert_block_with_context(body, type_mapper, is_classmethod, field_types)?;
             let block_expr = if let Some(var_name) = target {
@@ -3090,20 +3040,10 @@ fn convert_stmt_with_context(
                         Some(parse_quote! { drop(#ident); })
                     }
                     AssignTarget::Index { base, index } => {
-                        let base_expr = convert_expr_with_full_context(
-                            base,
-                            type_mapper,
-                            is_classmethod,
-                            field_types,
-                        )
-                        .ok()?;
-                        let index_expr = convert_expr_with_full_context(
-                            index,
-                            type_mapper,
-                            is_classmethod,
-                            field_types,
-                        )
-                        .ok()?;
+                        let base_expr =
+                            convert_expr_with_context(base, type_mapper, is_classmethod).ok()?;
+                        let index_expr =
+                            convert_expr_with_context(index, type_mapper, is_classmethod).ok()?;
                         Some(parse_quote! { #base_expr.remove(&#index_expr); })
                     }
                     _ => None,
@@ -3123,8 +3063,7 @@ fn convert_stmt_with_context(
             Ok(syn::Stmt::Expr(parse_quote! { {} }, None))
         }
         HirStmt::Match { subject, cases } => {
-            let subject_expr =
-                convert_expr_with_full_context(subject, type_mapper, is_classmethod, field_types)?;
+            let subject_expr = convert_expr_with_context(subject, type_mapper, is_classmethod)?;
             let arms: Vec<syn::Arm> = cases
                 .iter()
                 .filter_map(|case| {
@@ -3137,8 +3076,7 @@ fn convert_stmt_with_context(
                     )
                     .ok()?;
                     let guard = case.guard.as_ref().and_then(|g| {
-                        convert_expr_with_full_context(g, type_mapper, is_classmethod, field_types)
-                            .ok()
+                        convert_expr_with_context(g, type_mapper, is_classmethod).ok()
                     });
                     Some(syn::Arm {
                         attrs: vec![],
@@ -3409,7 +3347,7 @@ struct ExprConverter<'a> {
     #[allow(dead_code)]
     type_mapper: &'a TypeMapper,
     is_classmethod: bool,
-    field_types: Option<&'a HashMap<String, Type>>,
+    field_types: &'a HashMap<String, Type>,
 }
 
 impl<'a> ExprConverter<'a> {
@@ -3418,7 +3356,7 @@ impl<'a> ExprConverter<'a> {
         Self {
             type_mapper,
             is_classmethod: false,
-            field_types: None,
+            field_types: &HashMap::new(),
         }
     }
 
@@ -3426,7 +3364,7 @@ impl<'a> ExprConverter<'a> {
         Self {
             type_mapper,
             is_classmethod,
-            field_types: None,
+            field_types: &HashMap::new(),
         }
     }
 
@@ -3438,7 +3376,7 @@ impl<'a> ExprConverter<'a> {
         Self {
             type_mapper,
             is_classmethod,
-            field_types: Some(field_types),
+            field_types,
         }
     }
 
@@ -3506,35 +3444,6 @@ impl<'a> ExprConverter<'a> {
     }
 
     fn convert_binary(&self, op: BinOp, left: &HirExpr, right: &HirExpr) -> Result<syn::Expr> {
-        // Special handling for And/Or with Option<T> fields
-        // Convert `self.field && condition` to `self.field.is_some() && condition`
-        if matches!(op, BinOp::And | BinOp::Or) {
-            let left_is_option = self.is_option_field(left);
-            let right_is_option = self.is_option_field(right);
-
-            let left_expr = if left_is_option {
-                // Convert Option field to .is_some() for boolean context
-                let base_expr = self.convert(left)?;
-                parse_quote! { #base_expr.is_some() }
-            } else {
-                self.convert(left)?
-            };
-
-            let right_expr = if right_is_option {
-                // Convert Option field to .is_some() for boolean context
-                let base_expr = self.convert(right)?;
-                parse_quote! { #base_expr.is_some() }
-            } else {
-                self.convert(right)?
-            };
-
-            return match op {
-                BinOp::And => Ok(parse_quote! { #left_expr && #right_expr }),
-                BinOp::Or => Ok(parse_quote! { #left_expr || #right_expr }),
-                _ => unreachable!(),
-            };
-        }
-
         let left_expr = self.convert(left)?;
         let right_expr = self.convert(right)?;
 
@@ -4051,22 +3960,6 @@ impl<'a> ExprConverter<'a> {
         }
     }
 
-    /// Check if an expression is an Option<T> field
-    fn is_option_field(&self, expr: &HirExpr) -> bool {
-        if let Some(field_types) = self.field_types {
-            if let HirExpr::Attribute { value, attr } = expr {
-                if let HirExpr::Var(var_name) = value.as_ref() {
-                    if var_name == "self" {
-                        return field_types
-                            .get(attr.as_str())
-                            .map_or(false, |ty| matches!(ty, Type::Optional(_)));
-                    }
-                }
-            }
-        }
-        false
-    }
-
     fn convert_set_operation(
         &self,
         op: BinOp,
@@ -4144,23 +4037,19 @@ impl<'a> ExprConverter<'a> {
             if let HirExpr::Var(var_name) = value.as_ref() {
                 if var_name == "self" {
                     // Check if this field is an Option<T> type
-                    if let Some(field_types) = self.field_types {
-                        if let Some(field_type) = field_types.get(attr) {
-                            if matches!(field_type, Type::Optional(_)) {
-                                // This is a method call on an Option<T> field
-                                // Generate: self.field.as_mut().unwrap().method(args)
-                                let field_ident =
-                                    syn::Ident::new(attr, proc_macro2::Span::call_site());
-                                let method_ident =
-                                    syn::Ident::new(method, proc_macro2::Span::call_site());
-                                let arg_exprs: Vec<syn::Expr> = args
-                                    .iter()
-                                    .map(|arg| self.convert(arg))
-                                    .collect::<Result<Vec<_>>>()?;
-                                return Ok(parse_quote! {
-                                    self.#field_ident.as_mut().unwrap().#method_ident(#(#arg_exprs),*)
-                                });
-                            }
+                    if let Some(field_type) = self.field_types.get(attr) {
+                        if matches!(field_type, Type::Optional(_)) {
+                            // This is a method call on an Option<T> field
+                            // Generate: self.field.as_mut().unwrap().method(args)
+                            let field_ident = syn::Ident::new(attr, proc_macro2::Span::call_site());
+                            let method_ident = syn::Ident::new(method, proc_macro2::Span::call_site());
+                            let arg_exprs: Vec<syn::Expr> = args
+                                .iter()
+                                .map(|arg| self.convert(arg))
+                                .collect::<Result<Vec<_>>>()?;
+                            return Ok(parse_quote! { 
+                                self.#field_ident.as_mut().unwrap().#method_ident(#(#arg_exprs),*) 
+                            });
                         }
                     }
                 }
@@ -4809,15 +4698,6 @@ impl<'a> ExprConverter<'a> {
                 let attr_ident = syn::Ident::new(attr, proc_macro2::Span::call_site());
                 return Ok(parse_quote! { Self::#attr_ident });
             }
-        }
-
-        // Check if the base value is an Option<T> field that needs unwrapping
-        // Pattern: self.field.attr where field is Option<T>
-        if self.is_option_field(value) {
-            let value_expr = self.convert(value)?;
-            let attr_ident = syn::Ident::new(attr, proc_macro2::Span::call_site());
-            // Unwrap the Option to access the inner field
-            return Ok(parse_quote! { #value_expr.as_ref().unwrap().#attr_ident });
         }
 
         let value_expr = self.convert(value)?;
