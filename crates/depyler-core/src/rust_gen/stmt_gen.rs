@@ -335,8 +335,15 @@ fn expr_is_optional(expr: &HirExpr, ctx: &CodeGenContext) -> bool {
             false
         }
         // Method calls that return Optional
-        HirExpr::MethodCall { method, .. } => {
-            matches!(method.as_str(), "get")
+        HirExpr::MethodCall { method, args, .. } => {
+            // dict.get(key) returns Option, but dict.get(key, default) returns T
+            // list.get(index) returns Option
+            if method == "get" {
+                // Only consider it optional if there's exactly 1 argument (no default)
+                args.len() == 1
+            } else {
+                false
+            }
         }
         // next(iterator, None) returns Option<T>
         HirExpr::Call { func, args, .. } => {
