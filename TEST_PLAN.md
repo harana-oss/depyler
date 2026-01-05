@@ -2,6 +2,73 @@
 
 ## Recent Updates
 
+### 2026-01-05: Dict Augmented Assignment Fixed (DEPYLER-0352) ✅
+- **Fixed**: Dict augmented assignment now modifies original dict instead of clone
+- **Files Updated**: `crates/depyler-core/src/rust_gen/stmt_gen.rs`
+- **Changes**:
+  - Enhanced `is_dict_augassign_pattern` to detect string literal keys and other expression types, not just variables
+  - Added `exprs_are_equivalent` helper function to recursively compare HIR expressions (Var, Literal, Attribute, Index)
+  - Changed from `base.to_rust_expr(ctx)?` to `build_expr_no_clone(base)` to avoid unnecessary `.clone()` calls
+  - Added automatic `.to_string()` conversion for string literal keys to match HashMap<String, V> type
+- **Impact**:
+  - `d["score"] += 50` now generates correct code: `d.insert(_key, _old_val + 50)` instead of `d.clone().insert(...)`
+  - Works for all key types: variables, string literals, integers, etc.
+  - Generated code compiles and runs correctly (verified with test)
+- **Example**:
+  ```python
+  def test():
+      d = {"score": 100}
+      d["score"] += 50  # Should modify original dict
+      return d["score"]
+  ```
+  Now generates:
+  ```rust
+  pub fn test() -> i32 {
+      let mut d = { /* ... */ };
+      {
+          let _key = "score".to_string();
+          let _old_val = d.get(&_key).cloned().unwrap_or_default();
+          d.insert(_key, _old_val + 50);  // ✅ Modifies original
+      }
+      return d.get("score").cloned().unwrap();
+  }
+  ```
+- **Note**: DEPYLER-0352 is now fully resolved. Both list and dict augmented assignment work correctly.
+
+### 2026-01-05: Walrus Operator Mutability Detection Fixed (DEPYLER-0363) ✅
+- **Fixed**: Walrus operators in while loops now correctly detect when walrus-assigned variables are mutated
+- **Files Updated**: `crates/depyler-core/src/rust_gen/stmt_gen.rs`
+- **Changes**:
+  - Added `is_var_mutated_in_stmts` and `is_var_mutated_in_stmt` helper functions to detect variable mutations
+  - Modified `codegen_while_stmt` to check if walrus-assigned variables are mutated in the loop body
+  - Walrus variables that are mutated (e.g., `y += 1`) are now declared with `mut` keyword
+- **Impact**:
+  - `while (y := x * 2) < 10: y += 1` now generates `let mut y = x * 2;` instead of `let y = x * 2;`
+  - Code with walrus operators in while loops now compiles correctly
+  - All 9 walrus operator tests now pass
+- **Example**:
+  ```python
+  def test():
+      x = 0
+      while (y := x * 2) < 100:
+          y += 1
+          x += 1
+  ```
+  Now generates:
+  ```rust
+  pub fn test() {
+      let mut x = 0;
+      loop {
+          let mut y = x * 2;  // ✅ Correctly marked as mut
+          if !(y < 100) {
+              break;
+          }
+          y += 1;
+          x += 1;
+      }
+  }
+  ```
+
 ### 2026-01-05: List Field Type Inference Fixed (DEPYLER-0353) ✅
 - **Fixed**: List literals now correctly infer element types instead of defaulting to `Vec<serde_json::Value>`
 - **Files Updated**: `crates/depyler-core/src/ast_bridge.rs`, `crates/depyler-core/src/direct_rules.rs`
@@ -225,9 +292,9 @@
 | ID | Issue | Severity | Category |
 |----|-------|----------|----------|
 | 0347 | Walrus operator scope | HIGH | Transpiler |
-| 0352 | Complex augmented assignment (dict only) | MEDIUM | Transpiler |
+| 0352 | Complex augmented assignment ✅ FIXED | MEDIUM | Transpiler |
 | 0353 | List field type inference ✅ FIXED | MEDIUM | Transpiler |
-| 0363 | Walrus in while loops | MEDIUM | Transpiler |
+| 0363 | Walrus in while loops ✅ FIXED | MEDIUM | Transpiler |
 
 ---
 
@@ -629,11 +696,11 @@ pub fn process(value: &object) -> i32 {  // ❌ Should narrow to i32
 
 ---
 
-### DEPYLER-0352: Complex Augmented Assignment ✅ PARTIALLY FIXED
+### DEPYLER-0352: Complex Augmented Assignment ✅ FIXED
 
-**Files**: `test_augassign_complex.py`
+**Files**: `test_augassign_complex.py`, `crates/depyler-core/src/rust_gen/stmt_gen.rs`
 
-**Status**: PARTIALLY FIXED (2026-01-05) - Index augmented assignment now generates correct code
+**Status**: FULLY FIXED (2026-01-05) - Both list and dict augmented assignment now work correctly
 
 **Issue 1**: Index augmented assignment: ✅ FIXED
 ```python
@@ -660,23 +727,39 @@ self.values[index as usize] += value;  // ✅
 - `crates/depyler-core/src/rust_gen/stmt_gen.rs`: Enhanced `is_dict_augassign_pattern` to check actual types, extended `is_augassign_pattern` for more patterns
 - `crates/depyler-core/src/direct_rules.rs`: Fixed `convert_index_assignment` to use direct indexing for lists, extended augmented assignment detection
 
-**Issue 2**: Dict augmented assignment modifies clone instead of original.
+**Issue 2**: Dict augmented assignment modifies clone instead of original. ✅ FIXED (2026-01-05)
 
-Remains unfixed - still generates:
+Previously generated:
 ```rust
 d.clone().insert("score".to_string(), d.get("score").cloned().unwrap() + 50);  // ❌
 ```
 
-Should generate:
+Now generates:
 ```rust
 {
     let _key = "score".to_string();
     let _old_val = d.get(&_key).cloned().unwrap_or_default();
-    d.insert(_key, _old_val + 50);
+    d.insert(_key, _old_val + 50);  // ✅ Modifies original dict
 }
 ```
 
-**Note**: The dict augmented assignment pattern detection (`is_dict_augassign_pattern`) only works for simple variable cases like `d[key] += value`, not for standalone dict operations. The type-based filtering now prevents it from incorrectly triggering on lists, but dict operations in standalone functions may still have issues.
+**Fix Applied (2026-01-05)**:
+- Enhanced `is_dict_augassign_pattern` to support not just variable indices, but also string literals and other expression types
+- Added `exprs_are_equivalent` helper function to recursively compare HIR expressions for equivalence
+- Updated code generation to use `build_expr_no_clone` instead of `to_rust_expr` for the dict base, avoiding unnecessary `.clone()` calls
+- Added automatic `.to_string()` conversion for string literal keys to match HashMap<String, V> type requirements
+
+**Files Updated**:
+- `crates/depyler-core/src/rust_gen/stmt_gen.rs`: 
+  - Replaced simple pattern matching with `exprs_are_equivalent` function that handles Var, Literal, Attribute, and Index expressions
+  - Changed from `base.to_rust_expr(ctx)?` to `build_expr_no_clone(base)` to avoid cloning
+  - Added string literal to String conversion for HashMap key compatibility
+
+**Root Cause**: The original pattern matching only handled `d[key] += value` where both base and key were simple variables. String literals like `d["score"] += 50` weren't detected, causing the transpiler to fall back to the default index assignment path which incorrectly added `.clone()` calls.
+
+**Impact**: Dict augmented assignment now works correctly for all key types (variables, string literals, etc.) and properly modifies the original dict instead of a clone.
+
+**Note**: DEPYLER-0352 is now FULLY FIXED. Both list index augmented assignment and dict augmented assignment work correctly.
 
 ---
 
@@ -730,18 +813,37 @@ Self {
 
 ---
 
-### DEPYLER-0363: Walrus in While Loops
+### DEPYLER-0363: Walrus in While Loops ✅ FIXED
 
 **Files**: `test_walrus_while.py`, `test_walrus_while2.py`, `tests/toml/walrus-operator.toml`
 
-**Status**: CONFIRMED BUG - Tests skipped
+**Status**: FIXED (2026-01-05)
 
-**Issue**: Same scoping problem as DEPYLER-0347 but in loop headers. Variables need per-iteration re-binding.
+**Issue**: Walrus operators in while loops didn't mark variables as `mut` when they were modified in the loop body.
 
-**Update (2026-01-04)**:
-- Additional issue found: Variables with `+=` in loops not marked as `mut`
-- Simple walrus while loops fail to compile due to missing `mut` on loop counter
-- Related tests skipped until transpiler fixes mutability detection
+**Fix Applied**: 
+- Added mutability detection for walrus-assigned variables in `codegen_while_stmt`
+- Walrus variables are now analyzed to see if they're mutated in the loop body
+- If mutated, they're declared with `mut` keyword
+- All 9 walrus operator tests now pass
+
+**Example Fix**:
+```python
+# Before: Would fail to compile
+while (y := x * 2) < 100:
+    y += 1  # y not marked as mut
+```
+
+Now generates:
+```rust
+loop {
+    let mut y = x * 2;  // ✅ Correctly marked as mut
+    if !(y < 100) {
+        break;
+    }
+    y += 1;
+}
+```
 
 ---
 

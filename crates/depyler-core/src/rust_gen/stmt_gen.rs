@@ -950,6 +950,77 @@ pub(crate) fn codegen_return_stmt(
     }
 }
 
+/// Check if a variable is mutated (reassigned) in a sequence of statements
+fn is_var_mutated_in_stmts(var_name: &str, stmts: &[HirStmt]) -> bool {
+    for stmt in stmts {
+        if is_var_mutated_in_stmt(var_name, stmt) {
+            return true;
+        }
+    }
+    false
+}
+
+/// Check if a variable is mutated in a single statement
+fn is_var_mutated_in_stmt(var_name: &str, stmt: &HirStmt) -> bool {
+    match stmt {
+        HirStmt::Assign { target, .. } => {
+            match target {
+                AssignTarget::Symbol(name) => name == var_name,
+                AssignTarget::Attribute { value, .. } => {
+                    // Check if it's an attribute of the variable (e.g., x.field = ...)
+                    matches!(value.as_ref(), HirExpr::Var(v) if v == var_name)
+                }
+                AssignTarget::Index { base, .. } => {
+                    // Check if it's an index of the variable (e.g., x[i] = ...)
+                    matches!(base.as_ref(), HirExpr::Var(v) if v == var_name)
+                }
+                AssignTarget::Tuple(targets) => {
+                    // Check if variable is in any tuple element
+                    targets.iter().any(|t| match t {
+                        AssignTarget::Symbol(name) => name == var_name,
+                        _ => false,
+                    })
+                }
+                _ => false,
+            }
+        }
+        HirStmt::If {
+            then_body,
+            else_body,
+            ..
+        } => {
+            is_var_mutated_in_stmts(var_name, then_body)
+                || else_body
+                    .as_ref()
+                    .map(|body| is_var_mutated_in_stmts(var_name, body))
+                    .unwrap_or(false)
+        }
+        HirStmt::While { body, .. } | HirStmt::For { body, .. } => {
+            is_var_mutated_in_stmts(var_name, body)
+        }
+        HirStmt::Try {
+            body,
+            handlers,
+            orelse,
+            finalbody,
+        } => {
+            is_var_mutated_in_stmts(var_name, body)
+                || handlers
+                    .iter()
+                    .any(|h| is_var_mutated_in_stmts(var_name, &h.body))
+                || orelse
+                    .as_ref()
+                    .map(|o| is_var_mutated_in_stmts(var_name, o))
+                    .unwrap_or(false)
+                || finalbody
+                    .as_ref()
+                    .map(|f| is_var_mutated_in_stmts(var_name, f))
+                    .unwrap_or(false)
+        }
+        _ => false,
+    }
+}
+
 /// Generate code for While loop statement
 ///
 #[inline]
@@ -969,6 +1040,15 @@ pub(crate) fn codegen_while_stmt(
 
     // If there are walrus operators, we need to use loop {} with assignments at the start
     if !walrus_assignments.is_empty() {
+        // Check which walrus variables are mutated in the loop body
+        let mut mutated_walrus_vars = std::collections::HashSet::new();
+        for (var_name, _) in &walrus_assignments {
+            // Check if this variable is reassigned in the loop body
+            if is_var_mutated_in_stmts(var_name, body) {
+                mutated_walrus_vars.insert(var_name.clone());
+            }
+        }
+
         // Generate assignment statements for walrus operators
         let mut assignment_stmts = Vec::new();
         for (var_name, value_expr) in &walrus_assignments {
@@ -978,7 +1058,13 @@ pub(crate) fn codegen_while_stmt(
             // Mark variable as declared so it can be used in condition and body
             ctx.declare_var(var_name);
 
-            assignment_stmts.push(quote! { let #var_ident = #value_tokens; });
+            // Mark as mutable if it's mutated in the loop body
+            if mutated_walrus_vars.contains(var_name) {
+                ctx.mutable_vars.insert(var_name.clone());
+                assignment_stmts.push(quote! { let mut #var_ident = #value_tokens; });
+            } else {
+                assignment_stmts.push(quote! { let #var_ident = #value_tokens; });
+            }
         }
 
         // Generate the condition check (with walrus operators replaced by variable references)
@@ -2658,13 +2744,43 @@ pub(crate) fn codegen_for_stmt(
 }
 
 /// Check if this is a dict augmented assignment pattern (dict[key] op= value)
-/// Returns true if target is Index and value is Binary with left being an Index to same location
-fn is_dict_augassign_pattern(target: &AssignTarget, value: &HirExpr) -> bool {
+/// Returns true ONLY if target is a Dict/HashMap index (not List/Vec)
+fn is_dict_augassign_pattern(target: &AssignTarget, value: &HirExpr, ctx: &CodeGenContext) -> bool {
     if let AssignTarget::Index {
         base: target_base,
         index: target_index,
     } = target
     {
+        // First check if this is actually a Dict, not a List
+        // For lists/vectors, we want to use direct augmented assignment (arr[i] += x)
+        // For dicts/hashmaps, we need the get/insert pattern to avoid borrow checker issues
+        let is_dict = match target_base.as_ref() {
+            HirExpr::Var(var_name) => {
+                // Check type information
+                matches!(ctx.var_types.get(var_name), Some(Type::Dict(_, _)))
+            }
+            HirExpr::Attribute { value, attr } => {
+                // For self.field, check the field type in current class
+                if let HirExpr::Var(base_var) = value.as_ref() {
+                    if base_var == "self" {
+                        // Check if this field is a Dict
+                        matches!(ctx.get_self_field_type(attr), Some(Type::Dict(_, _)))
+                    } else {
+                        // Can't determine, assume not dict to prefer augmented assignment
+                        false
+                    }
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        };
+
+        // Only proceed if this is actually a dict
+        if !is_dict {
+            return false;
+        }
+
         if let HirExpr::Binary { left, .. } = value {
             if let HirExpr::Index {
                 base: value_base,
@@ -2672,16 +2788,54 @@ fn is_dict_augassign_pattern(target: &AssignTarget, value: &HirExpr) -> bool {
             } = left.as_ref()
             {
                 // Check if both indices refer to the same dict[key] location
-                // Simple heuristic: compare base and index expressions
-                // (This is simplified - a full solution would do deeper structural comparison)
-                return matches!((target_base.as_ref(), value_base.as_ref()),
-                    (HirExpr::Var(t_var), HirExpr::Var(v_var)) if t_var == v_var)
-                    && matches!((target_index.as_ref(), value_index.as_ref()),
-                        (HirExpr::Var(t_idx), HirExpr::Var(v_idx)) if t_idx == v_idx);
+                // Compare base and index expressions
+                let bases_match = exprs_are_equivalent(target_base.as_ref(), value_base.as_ref());
+                let indices_match =
+                    exprs_are_equivalent(target_index.as_ref(), value_index.as_ref());
+                return bases_match && indices_match;
             }
         }
     }
     false
+}
+
+/// Helper function to check if two HIR expressions are equivalent
+fn exprs_are_equivalent(expr1: &HirExpr, expr2: &HirExpr) -> bool {
+    match (expr1, expr2) {
+        // Variables with same name
+        (HirExpr::Var(v1), HirExpr::Var(v2)) => v1 == v2,
+        // String literals with same value
+        (HirExpr::Literal(Literal::String(s1)), HirExpr::Literal(Literal::String(s2))) => s1 == s2,
+        // Integer literals with same value
+        (HirExpr::Literal(Literal::Int(i1)), HirExpr::Literal(Literal::Int(i2))) => i1 == i2,
+        // Attribute access with same base and attr
+        (
+            HirExpr::Attribute {
+                value: v1,
+                attr: a1,
+            },
+            HirExpr::Attribute {
+                value: v2,
+                attr: a2,
+            },
+        ) => a1 == a2 && exprs_are_equivalent(v1.as_ref(), v2.as_ref()),
+        // Index access with same base and index
+        (
+            HirExpr::Index {
+                base: b1,
+                index: i1,
+            },
+            HirExpr::Index {
+                base: b2,
+                index: i2,
+            },
+        ) => {
+            exprs_are_equivalent(b1.as_ref(), b2.as_ref())
+                && exprs_are_equivalent(i1.as_ref(), i2.as_ref())
+        }
+        // Other cases - not equivalent
+        _ => false,
+    }
 }
 
 /// Check if this is an augmented assignment on an Optional field (obj.field op= value)
@@ -2781,16 +2935,47 @@ fn is_augassign_pattern(target: &AssignTarget, value: &HirExpr) -> Option<BinOp>
                     index: left_index,
                 },
             ) => {
-                // Check if both base and index are the same (simple heuristic)
-                match (
-                    (target_base.as_ref(), left_base.as_ref()),
-                    (target_index.as_ref(), left_index.as_ref()),
-                ) {
+                // Check if both base and index are the same
+                // Support multiple patterns:
+                // 1. Simple variables: arr[i] where both arr and i are vars
+                // 2. Attributes: self.values[index] where base is attribute access
+                // 3. Literal indices: arr[0] where index is a literal
+
+                let bases_match = match (target_base.as_ref(), left_base.as_ref()) {
+                    // Both simple vars with same name
+                    (HirExpr::Var(t_base), HirExpr::Var(l_base)) => t_base == l_base,
+                    // Both attribute access with same var and attr
                     (
-                        (HirExpr::Var(t_base), HirExpr::Var(l_base)),
-                        (HirExpr::Var(t_idx), HirExpr::Var(l_idx)),
-                    ) if t_base == l_base && t_idx == l_idx => Some(*op),
-                    _ => None,
+                        HirExpr::Attribute {
+                            value: t_val,
+                            attr: t_attr,
+                        },
+                        HirExpr::Attribute {
+                            value: l_val,
+                            attr: l_attr,
+                        },
+                    ) if t_attr == l_attr => {
+                        matches!((t_val.as_ref(), l_val.as_ref()),
+                            (HirExpr::Var(t_var), HirExpr::Var(l_var)) if t_var == l_var)
+                    }
+                    _ => false,
+                };
+
+                let indices_match = match (target_index.as_ref(), left_index.as_ref()) {
+                    // Both vars with same name
+                    (HirExpr::Var(t_idx), HirExpr::Var(l_idx)) => t_idx == l_idx,
+                    // Both literal ints with same value
+                    (
+                        HirExpr::Literal(crate::hir::Literal::Int(t_val)),
+                        HirExpr::Literal(crate::hir::Literal::Int(l_val)),
+                    ) => t_val == l_val,
+                    _ => false,
+                };
+
+                if bases_match && indices_match {
+                    Some(*op)
+                } else {
+                    None
                 }
             }
             _ => None,
@@ -2979,14 +3164,20 @@ pub(crate) fn codegen_assign_stmt(
     }
 
     // If we have dict[key] += value, avoid borrow-after-move by evaluating old value first
-    if is_dict_augassign_pattern(target, value) {
+    if is_dict_augassign_pattern(target, value, ctx) {
         if let AssignTarget::Index { base, index } = target {
             if let HirExpr::Binary { op, left: _, right } = value {
                 // Generate: let old_val = dict.get(&key).cloned().unwrap_or_default();
                 //           dict.insert(key, old_val + right_value);
-                let base_expr = base.to_rust_expr(ctx)?;
-                let index_expr = index.to_rust_expr(ctx)?;
+                let base_expr = build_expr_no_clone(base);
+                let mut index_expr = index.to_rust_expr(ctx)?;
                 let right_expr = right.to_rust_expr(ctx)?;
+
+                // Convert string literal keys to String for HashMap operations
+                if matches!(index.as_ref(), HirExpr::Literal(Literal::String(_))) {
+                    index_expr = parse_quote! { #index_expr.to_string() };
+                }
+
                 let op_token = match op {
                     BinOp::Add => quote! { + },
                     BinOp::Sub => quote! { - },

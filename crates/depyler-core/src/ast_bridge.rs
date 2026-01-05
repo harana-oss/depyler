@@ -1286,7 +1286,8 @@ impl AstBridge {
                 if list.elts.is_empty() {
                     Some(Type::List(Box::new(Type::Unknown)))
                 } else {
-                    let elem_type = self.infer_type_from_expr(&list.elts[0])
+                    let elem_type = self
+                        .infer_type_from_expr(&list.elts[0])
                         .unwrap_or(Type::Unknown);
                     Some(Type::List(Box::new(elem_type)))
                 }
@@ -1299,7 +1300,8 @@ impl AstBridge {
                         .as_ref()
                         .and_then(|k| self.infer_type_from_expr(k))
                         .unwrap_or(Type::Unknown);
-                    let value_type = self.infer_type_from_expr(&dict.values[0])
+                    let value_type = self
+                        .infer_type_from_expr(&dict.values[0])
                         .unwrap_or(Type::Unknown);
                     Some(Type::Dict(Box::new(key_type), Box::new(value_type)))
                 }
@@ -1308,7 +1310,8 @@ impl AstBridge {
                 if set.elts.is_empty() {
                     Some(Type::Set(Box::new(Type::Unknown)))
                 } else {
-                    let elem_type = self.infer_type_from_expr(&set.elts[0])
+                    let elem_type = self
+                        .infer_type_from_expr(&set.elts[0])
                         .unwrap_or(Type::Unknown);
                     Some(Type::Set(Box::new(elem_type)))
                 }
