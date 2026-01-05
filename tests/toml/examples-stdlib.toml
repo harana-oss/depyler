@@ -1178,11 +1178,6 @@ pub fn test_all_bisect_features() -> Result<(), Box<dyn std::error::Error>> {
             if input_sorted != result {
                 return TestResult::failed();
             }
-            TestResult::passed()
-        }
-        quickcheck(prop as fn(Vec<()>) -> TestResult);
-    }
-}
 '''
 
 [[test]]
@@ -5200,11 +5195,6 @@ pub fn test_all_functools_features() -> Result<(), Box<dyn std::error::Error>> {
             if result1 != result2 {
                 return TestResult::failed();
             }
-            TestResult::passed()
-        }
-        quickcheck(prop as fn(i32, i32) -> TestResult);
-    }
-}
 '''
 
 [[test]]
@@ -6683,11 +6673,6 @@ pub fn test_all_heapq_features() -> Result<(), IndexError> {
             if input_sorted != result {
                 return TestResult::failed();
             }
-            TestResult::passed()
-        }
-        quickcheck(prop as fn(Vec<Vec<i32>>) -> TestResult);
-    }
-}
 '''
 
 [[test]]
@@ -9133,11 +9118,6 @@ pub fn test_all_operator_features() -> Result<(), Box<dyn std::error::Error>> {
         }
         quickcheck(prop as fn(Vec<()>) -> TestResult);
     }
-            TestResult::passed()
-        }
-        quickcheck(prop as fn() -> TestResult);
-    }
-}
 '''
 
 [[test]]
@@ -9915,11 +9895,6 @@ pub fn test_all_os_sys_features() -> Result<(), Box<dyn std::error::Error>> {
     log::info!("{}", "All os/sys module tests completed successfully");
     Ok(())
 };
-            TestResult::passed()
-        }
-        quickcheck(prop as fn() -> TestResult);
-    }
-}
 '''
 
 [[test]]
@@ -10007,11 +9982,6 @@ pub fn normalize_path(path: &str) -> String {
 pub fn get_relative_path<'a, 'b>(path: &'a str, start: &'b str) -> String {
     std::path::Path.relpath(path, start)
 };
-            TestResult::passed()
-        }
-        quickcheck(prop as fn(String) -> TestResult);
-    }
-}
 '''
 
 [[test]]
@@ -11914,11 +11884,6 @@ pub fn test_all_re_features() -> Result<(), Box<dyn std::error::Error>> {
     log::info!("{}", "All regex module tests completed successfully");
     Ok(())
 };
-            TestResult::passed()
-        }
-        quickcheck(prop as fn(String) -> TestResult);
-    }
-}
 '''
 
 [[test]]
@@ -12908,11 +12873,6 @@ pub fn test_all_statistics_features() -> Result<(), Box<dyn std::error::Error>> 
     log::info!("{}", "All statistics module tests completed successfully");
     Ok(())
 };
-            TestResult::passed()
-        }
-        quickcheck(prop as fn(Vec<f64>) -> TestResult);
-    }
-}
 '''
 
 [[test]]
@@ -16044,11 +16004,6 @@ pub fn test_all_bisect_features() -> Result<(), Box<dyn std::error::Error>> {
             if input_sorted != result {
                 return TestResult::failed();
             }
-            TestResult::passed()
-        }
-        quickcheck(prop as fn(Vec<()>) -> TestResult);
-    }
-}
 '''
 
 [[test]]
@@ -20066,11 +20021,6 @@ pub fn test_all_functools_features() -> Result<(), Box<dyn std::error::Error>> {
             if result1 != result2 {
                 return TestResult::failed();
             }
-            TestResult::passed()
-        }
-        quickcheck(prop as fn(i32, i32) -> TestResult);
-    }
-}
 '''
 
 [[test]]
@@ -21549,11 +21499,6 @@ pub fn test_all_heapq_features() -> Result<(), IndexError> {
             if input_sorted != result {
                 return TestResult::failed();
             }
-            TestResult::passed()
-        }
-        quickcheck(prop as fn(Vec<Vec<i32>>) -> TestResult);
-    }
-}
 '''
 
 [[test]]
@@ -23999,11 +23944,6 @@ pub fn test_all_operator_features() -> Result<(), Box<dyn std::error::Error>> {
         }
         quickcheck(prop as fn(Vec<()>) -> TestResult);
     }
-            TestResult::passed()
-        }
-        quickcheck(prop as fn() -> TestResult);
-    }
-}
 '''
 
 [[test]]
@@ -24781,11 +24721,6 @@ pub fn test_all_os_sys_features() -> Result<(), Box<dyn std::error::Error>> {
     log::info!("{}", "All os/sys module tests completed successfully");
     Ok(())
 };
-            TestResult::passed()
-        }
-        quickcheck(prop as fn() -> TestResult);
-    }
-}
 '''
 
 [[test]]
@@ -24873,11 +24808,6 @@ pub fn normalize_path(path: &str) -> String {
 pub fn get_relative_path<'a, 'b>(path: &'a str, start: &'b str) -> String {
     std::path::Path.relpath(path, start)
 };
-            TestResult::passed()
-        }
-        quickcheck(prop as fn(String) -> TestResult);
-    }
-}
 '''
 
 [[test]]
@@ -26780,11 +26710,6 @@ pub fn test_all_re_features() -> Result<(), Box<dyn std::error::Error>> {
     log::info!("{}", "All regex module tests completed successfully");
     Ok(())
 };
-            TestResult::passed()
-        }
-        quickcheck(prop as fn(String) -> TestResult);
-    }
-}
 '''
 
 [[test]]
@@ -27774,11 +27699,6 @@ pub fn test_all_statistics_features() -> Result<(), Box<dyn std::error::Error>> 
     log::info!("{}", "All statistics module tests completed successfully");
     Ok(())
 };
-            TestResult::passed()
-        }
-        quickcheck(prop as fn(Vec<f64>) -> TestResult);
-    }
-}
 '''
 
 [[test]]

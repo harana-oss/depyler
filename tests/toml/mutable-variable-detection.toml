@@ -79,8 +79,8 @@ pub fn accumulate(n: i32) -> i32 {
     let mut total = 0;
     let mut i = 0;
     while i < n {
-        total = total + i;
-        i = i + 1;
+        total += i;
+        i += 1;
     }
     return total;
 }
@@ -103,8 +103,8 @@ rust = '''
 pub fn countdown(mut n: i32) -> i32 {
     let mut count = 0;
     while n > 0 {
-        n = n - 1;
-        count = count + 1;
+        n -= 1;
+        count += 1;
     }
     return count;
 }
@@ -154,8 +154,8 @@ pub fn sum_range(start: i32, end: i32) -> i32 {
     let mut total = 0;
     let mut i = start;
     while i < end {
-        total = total + i;
-        i = i + 1;
+        total += i;
+        i += 1;
     }
     return total;
 }

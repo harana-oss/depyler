@@ -106,11 +106,6 @@ rust = '''
 pub fn identity(s: String) -> String {
     return s;
 };
-            TestResult::passed()
-        }
-        quickcheck(prop as fn(String) -> TestResult);
-    }
-}
 '''
 
 [[test]]
@@ -314,11 +309,6 @@ pub fn outer(s: String) -> String {
 pub fn inner(s: String) -> String {
     return s;
 };
-            TestResult::passed()
-        }
-        quickcheck(prop as fn(String) -> TestResult);
-    }
-}
 '''
 
 [[test]]

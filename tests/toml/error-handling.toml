@@ -273,11 +273,6 @@ rust = '''
 pub fn success(value: i32) -> i32 {
     return value;
 };
-            TestResult::passed()
-        }
-        quickcheck(prop as fn(i32) -> TestResult);
-    }
-}
 '''
 
 [[test]]
@@ -882,11 +877,6 @@ pub fn operation_with_cleanup(value: i32) -> i32 {
         return 0;
     }
 };
-            TestResult::passed()
-        }
-        quickcheck(prop as fn(i32) -> TestResult);
-    }
-}
 '''
 
 [[test]]
@@ -1324,11 +1314,6 @@ pub fn simple_add(a: i32, b: i32) -> i32 {
             if result1 != result2 {
                 return TestResult::failed();
             }
-            TestResult::passed()
-        }
-        quickcheck(prop as fn(i32, i32) -> TestResult);
-    }
-}
 '''
 
 [[test]]
@@ -1630,11 +1615,6 @@ pub fn cleanup_example() -> i32 {
     }
     return x;
 };
-            TestResult::passed()
-        }
-        quickcheck(prop as fn() -> TestResult);
-    }
-}
 '''
 
 [[test]]

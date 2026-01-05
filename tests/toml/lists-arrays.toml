@@ -180,11 +180,6 @@ pub fn sort_list(items: &mut Vec<i32>) {
             if input_sorted != result {
                 return TestResult::failed();
             }
-            TestResult::passed()
-        }
-        quickcheck(prop as fn(Vec<i32>) -> TestResult);
-    }
-}
 '''
 
 [[test]]
@@ -480,11 +475,6 @@ rust = '''
 pub fn concat_lists(a: &Vec<i32>, b: &Vec<i32>) -> Vec<i32> {
     return a.iter().chain(b.iter()).cloned().collect::<Vec<_>>();
 };
-            TestResult::passed()
-        }
-        quickcheck(prop as fn(Vec<i32>, Vec<i32>) -> TestResult);
-    }
-}
 '''
 
 [[test]]
@@ -500,11 +490,6 @@ rust = '''
 pub fn repeat_list(items: &Vec<i32>, n: i32) -> Vec<i32> {
     return items * n;
 };
-            TestResult::passed()
-        }
-        quickcheck(prop as fn(Vec<i32>, i32) -> TestResult);
-    }
-}
 '''
 
 [[test]]
@@ -581,11 +566,6 @@ pub fn sort_copy(items: Vec<i32>) -> Vec<i32> {
             if input_sorted != result {
                 return TestResult::failed();
             }
-            TestResult::passed()
-        }
-        quickcheck(prop as fn(Vec<i32>) -> TestResult);
-    }
-}
 '''
 
 [[test]]

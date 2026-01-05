@@ -60,7 +60,7 @@ rust = '''
 pub fn accumulate(items: &Vec<i32>) -> i32 {
     let mut total = 0;
     for item in items.iter().cloned() {
-        total = total + item;
+        total += item;
     }
     return total;
 }
@@ -127,24 +127,6 @@ rust = '''
 pub fn sort_in_place(mut items: Vec<i32>) -> Vec<i32> {
     items.sort();
     return items;
-};
-            let result = sort_in_place(&items);
-            for i in 1..result.len() {
-                if result[i - 1] > result[i] {
-                    return TestResult::failed();
-                }
-            }
-            let mut input_sorted = items.clone();
-            input_sorted.sort();
-            let mut result = sort_in_place(&items);
-            result.sort();
-            if input_sorted != result {
-                return TestResult::failed();
-            }
-            TestResult::passed()
-        }
-        quickcheck(prop as fn(Vec<i32>) -> TestResult);
-    }
 }
 '''
 
@@ -194,23 +176,6 @@ pub fn sorted_copy(items: Vec<i32>) -> Vec<i32> {
         __sorted_result.sort();
         __sorted_result
     };
-            let result = sorted_copy(&items);
-            for i in 1..result.len() {
-                if result[i - 1] > result[i] {
-                    return TestResult::failed();
-                }
-            }
-            let mut input_sorted = items.clone();
-            input_sorted.sort();
-            let mut result = sorted_copy(&items);
-            result.sort();
-            if input_sorted != result {
-                return TestResult::failed();
-            }
-            TestResult::passed()
-        }
-        quickcheck(prop as fn(Vec<i32>) -> TestResult);
-    }
 }
 '''
 
@@ -285,7 +250,7 @@ class Counter:
 '''
 
 rust = '''
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct Counter {
     pub value: i32,
 }
@@ -294,7 +259,7 @@ impl Counter {
         Self { value: 0 }
     }
     pub fn increment(&mut self) {
-        self.value = format!("{}{}", self.value, 1);
+        self.value += 1;
     }
     pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
         match name {
@@ -332,13 +297,13 @@ class Counter:
 '''
 
 rust = '''
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct Counter {
     pub value: i32,
 }
 impl Counter {
     pub fn new(start: i32) -> Self {
-        Self { value: 0 }
+        Self { value: start }
     }
     pub fn get(&self) -> i32 {
         return self.value.clone();
@@ -387,7 +352,6 @@ def refresh_players(state: State) -> None:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'dataclasses'()"]
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Player {
     pub name: String,
@@ -478,7 +442,6 @@ def update_items(state: State) -> None:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'dataclasses'()"]
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct State {
     pub items: Vec<i32>,
@@ -564,7 +527,6 @@ def calculate_margin(state: State) -> int:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'dataclasses'()"]
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct State {
     pub current_play_type: String,
@@ -639,19 +601,17 @@ impl State {
 }
 #[doc = "Read-only function - should take &State not &mut State"]
 pub fn calculate_margin(state: &State) -> i32 {
-    let _cse_temp_0 = state.current_play_type.clone() == "WonPenalty";
     let penalty_team;
-    if _cse_temp_0 {
+    if state.current_play_type == "WonPenalty" {
         penalty_team = state.team_in_possession.clone();
     } else {
-        penalty_team = if state.team_in_possession.clone() == "Home" {
+        penalty_team = if state.team_in_possession == "Home" {
             "Away".to_string()
         } else {
             "Home".to_string()
         };
     }
-    let _cse_temp_1 = penalty_team == "Home".to_string();
-    if _cse_temp_1 {
+    if penalty_team == "Home" {
         return state.home_score - state.away_score;
     } else {
         return state.away_score - state.home_score;
@@ -673,23 +633,6 @@ def gcd(a: int, b: int) -> int:
 '''
 
 rust = '''
-#[derive(Debug, Clone)]
-pub struct ZeroDivisionError {
-    message: String,
-}
-impl std::fmt::Display for ZeroDivisionError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "division by zero: {}", self.message)
-    }
-}
-impl std::error::Error for ZeroDivisionError {}
-impl ZeroDivisionError {
-    pub fn new(message: impl Into<String>) -> Self {
-        Self {
-            message: message.into(),
-        }
-    }
-}
 pub fn gcd(mut a: i32, mut b: i32) -> i32 {
     while b != 0 {
         let temp = a % b;
@@ -777,7 +720,7 @@ rust = '''
 pub fn count_up(limit: i32) -> i32 {
     let mut counter = 0;
     while counter < limit {
-        counter = counter + 1;
+        counter += 1;
     }
     return counter;
 }
@@ -825,9 +768,9 @@ rust = '''
 use serde_json;
 pub fn nested_mutation() -> Vec<serde_json::Value> {
     let mut items = vec![];
-    items.clone().push(vec![1, 2, 3]);
+    items.push(vec![1, 2, 3]);
     items.get(0usize).cloned().unwrap().push(4);
-    return items;
+    return items.clone();
 }
 '''
 
@@ -852,18 +795,15 @@ def complex_mutations(initial: int) -> list:
 rust = '''
 use serde_json;
 pub fn complex_mutations(mut initial: i32) -> Vec<serde_json::Value> {
-    let _cse_temp_0 = initial * 2;
-    initial = _cse_temp_0;
+    initial *= 2;
     let mut results = vec![];
-    results.clone().push(initial);
+    results.push(initial);
     let mut counter = 0;
     while counter < 3 {
         results.push(counter);
-        counter = counter + 1;
+        counter += 1;
     }
-    let _cse_temp_1 = results.len() as i32;
-    let _cse_temp_2 = _cse_temp_1 > 0;
-    if _cse_temp_2 {
+    if results.len() as i32 > 0 {
         results.pop().unwrap();
     }
     return results;
@@ -940,21 +880,21 @@ def mutate_nested_field(state: State, value: int) -> None:
 '''
 
 rust = '''
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct Inner {}
 impl Inner {
     pub fn new() -> Self {
         Self {}
     }
 }
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct Outer {}
 impl Outer {
     pub fn new() -> Self {
         Self {}
     }
 }
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct State {}
 impl State {
     pub fn new() -> Self {
@@ -992,21 +932,21 @@ def mutate_deeply_nested(root: Level1, item: str) -> None:
 '''
 
 rust = '''
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct Level3 {}
 impl Level3 {
     pub fn new() -> Self {
         Self {}
     }
 }
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct Level2 {}
 impl Level2 {
     pub fn new() -> Self {
         Self {}
     }
 }
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct Level1 {}
 impl Level1 {
     pub fn new() -> Self {
@@ -1040,14 +980,14 @@ def record_try(state: State, player_index: int) -> None:
 '''
 
 rust = '''
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct TryTracker {}
 impl TryTracker {
     pub fn new() -> Self {
         Self {}
     }
 }
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct State {}
 impl State {
     pub fn new() -> Self {
@@ -1076,7 +1016,7 @@ def add_time_to_players(players: list[PlayerStats], seconds: int) -> None:
 '''
 
 rust = '''
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct PlayerStats {}
 impl PlayerStats {
     pub fn new() -> Self {
@@ -1085,7 +1025,7 @@ impl PlayerStats {
 }
 pub fn add_time_to_players(players: &Vec<PlayerStats>, seconds: i32) {
     for mut s in players.iter().cloned() {
-        s.time_on_field_in_seconds = s.time_on_field_in_seconds + seconds;
+        s.time_on_field_in_seconds += seconds;
     }
 }
 '''
@@ -1116,21 +1056,21 @@ def add_try_to_all(player_stats: list[PlayerStatistics]) -> None:
 '''
 
 rust = '''
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct Scores {}
 impl Scores {
     pub fn new() -> Self {
         Self {}
     }
 }
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct MatchStats {}
 impl MatchStats {
     pub fn new() -> Self {
         Self {}
     }
 }
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct PlayerStatistics {}
 impl PlayerStatistics {
     pub fn new() -> Self {
@@ -1161,7 +1101,7 @@ def print_player_names(players: list[Player]) -> None:
 '''
 
 rust = '''
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct Player {}
 impl Player {
     pub fn new() -> Self {
@@ -1190,7 +1130,7 @@ def update_first_items(containers: list[Container], value: int) -> None:
 '''
 
 rust = '''
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct Container {}
 impl Container {
     pub fn new() -> Self {
@@ -1199,7 +1139,7 @@ impl Container {
 }
 pub fn update_first_items(containers: &Vec<Container>, value: i32) {
     for mut c in containers.iter().cloned() {
-        c.items.insert((0) as usize, value);
+        c.items[0 as usize] = value;
     }
 }
 '''

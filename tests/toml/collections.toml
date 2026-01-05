@@ -26,32 +26,16 @@ def work_with_lists():
 '''
 
 rust = '''
-#[derive(Debug, Clone)]
-pub struct IndexError {
-    message: String,
-}
-impl std::fmt::Display for IndexError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "index out of range: {}", self.message)
-    }
-}
-impl std::error::Error for IndexError {}
-impl IndexError {
-    pub fn new(message: impl Into<String>) -> Self {
-        Self {
-            message: message.into(),
-        }
-    }
-}
 pub fn work_with_lists() -> i32 {
     let mut numbers = vec![1, 2, 3, 4, 5];
-    let first = numbers.clone().get(0usize).cloned().unwrap();
-    let last = numbers.clone().last().cloned().unwrap();
-    numbers.clone().push(6);
+    let first = numbers.get(0usize).cloned().unwrap();
+    let last = numbers.last().cloned().unwrap();
+    numbers.push(6);
     numbers.extend(vec![7, 8].iter().cloned());
     let squares = numbers
         .clone()
-        .into_iter()
+        .iter()
+        .cloned()
         .map(|x| x * x)
         .collect::<Vec<_>>();
     return numbers.len() as i32;
@@ -107,19 +91,6 @@ rust = '''
 use serde_json;
 pub fn sort_list(lst: &mut Vec<serde_json::Value>) {
     lst.sort();
-};
-            }
-            let mut input_sorted = lst.clone();
-            input_sorted.sort();
-            let mut result = sort_list(&lst);
-            result.sort();
-            if input_sorted != result {
-                return TestResult::failed();
-            }
-            TestResult::passed()
-        }
-        quickcheck(prop as fn(Vec<()>) -> TestResult);
-    }
 }
 '''
 
@@ -187,7 +158,8 @@ pub fn remove_item(lst: &mut Vec<serde_json::Value>, value: i32) {
         lst.remove(pos)
     } else {
         panic!("ValueError: list.remove(x): x not in list")
-    }
+    };
+}
 '''
 
 [[test]]
@@ -205,11 +177,6 @@ rust = '''
 #[doc = "Concatenate two lists."]
 pub fn concat_lists(list1: &Vec<i32>, list2: &Vec<i32>) -> Vec<i32> {
     return list1.iter().chain(list2.iter()).cloned().collect::<Vec<_>>();
-};
-            TestResult::passed()
-        }
-        quickcheck(prop as fn(Vec<i32>, Vec<i32>) -> TestResult);
-    }
 }
 '''
 
@@ -281,23 +248,6 @@ def work_with_dicts():
 
 rust = '''
 use std::collections::HashMap;
-#[derive(Debug, Clone)]
-pub struct IndexError {
-    message: String,
-}
-impl std::fmt::Display for IndexError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "index out of range: {}", self.message)
-    }
-}
-impl std::error::Error for IndexError {}
-impl IndexError {
-    pub fn new(message: impl Into<String>) -> Self {
-        Self {
-            message: message.into(),
-        }
-    }
-}
 pub fn work_with_dicts() -> i32 {
     let mut scores = {
         let mut map = HashMap::new();
@@ -306,8 +256,8 @@ pub fn work_with_dicts() -> i32 {
         map.insert("charlie".to_string(), 92);
         map
     };
-    let alice_score = scores.clone().get("alice").cloned().unwrap();
-    scores.insert("david".to_string(), 89);
+    let alice_score = scores.get("alice").cloned().unwrap();
+    scores.clone().insert("david".to_string(), 89);
     let all_names = scores.keys().cloned().collect::<Vec<_>>();
     return scores.len() as i32;
 }
@@ -331,23 +281,6 @@ def work_with_tuples():
 '''
 
 rust = '''
-#[derive(Debug, Clone)]
-pub struct IndexError {
-    message: String,
-}
-impl std::fmt::Display for IndexError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "index out of range: {}", self.message)
-    }
-}
-impl std::error::Error for IndexError {}
-impl IndexError {
-    pub fn new(message: impl Into<String>) -> Self {
-        Self {
-            message: message.into(),
-        }
-    }
-}
 pub fn work_with_tuples() -> i32 {
     let point = (10, 20);
     let person = ("Alice", 30, true);
@@ -498,8 +431,9 @@ use serde_json;
 use std::collections::HashSet;
 pub fn remove_item(s: &mut HashSet<serde_json::Value>, item: i32) {
     if !s.remove(&item) {
-        panic!("KeyError: element not in set")
-    }
+        panic!("KeyError: element not in set");
+    };
+}
 '''
 
 [[test]]
@@ -579,7 +513,7 @@ pub fn typed_collections(
 ) -> Vec<String> {
     let mut result = vec![];
     for num in numbers.iter().cloned() {
-        result.push(num.to_string());
+        result.push((num).to_string());
     }
     return result;
 }
@@ -633,7 +567,7 @@ pub fn collection_methods() -> i32 {
     } {
         data.insert(k, v);
     }
-    let value = data.get("a").cloned().unwrap_or(0);
+    let value = *data.get("a").unwrap_or(&0);
     data.remove("b").expect("KeyError: key not found");
     let unique = vec![1, 2, 2, 3].into_iter().collect::<HashSet<_>>();
     return numbers.len() as i32;
@@ -668,7 +602,7 @@ pub fn iterate_collections() -> i32 {
     let numbers = vec![1, 2, 3, 4, 5];
     let mut total = 0;
     for num in numbers.iter().cloned() {
-        total = total + num;
+        total += num;
     }
     let scores = {
         let mut map = HashMap::new();
@@ -825,7 +759,6 @@ def get_name_attr(obj) -> str:
 
 rust = '''
 use serde_json;
-#[doc = "// NOTE: Map Python module 'operator'()"]
 pub fn get_name_attr(obj: &serde_json::Value) -> String {
     let getter = operator.attrgetter("name");
     return getter(obj);
@@ -846,7 +779,6 @@ def get_first_item(obj) -> object:
 
 rust = '''
 use serde_json;
-#[doc = "// NOTE: Map Python module 'operator'()"]
 pub fn get_first_item(obj: &serde_json::Value) -> object {
     let getter = operator.itemgetter(0);
     return getter(obj);
@@ -867,7 +799,6 @@ def call_upper(obj) -> str:
 
 rust = '''
 use serde_json;
-#[doc = "// NOTE: Map Python module 'operator'()"]
 pub fn call_upper(obj: &serde_json::Value) -> String {
     let caller = operator.methodcaller("upper");
     return caller(obj);
@@ -901,7 +832,7 @@ def get_type(value: int) -> str:
 
 rust = '''
 pub fn get_type(value: i32) -> String {
-    return std::any::type_name_of_val(&value).to_string();
+    return (std::any::type_name_of_val(&value)).to_string();
 }
 '''
 
@@ -983,7 +914,8 @@ pub fn round_to_decimals(x: f64, n: i32) -> f64 {
     return {
         let multiplier = (10.0_f64).powi(n as i32);
         (x * multiplier).round() / multiplier
-    }
+    };
+}
 '''
 
 [[test]]
@@ -1141,7 +1073,7 @@ pub fn test_set() -> HashSet<i32> {
         set
     };
     if !s.remove(&2) {
-        panic!("KeyError: element not in set")
+        panic!("KeyError: element not in set");
     };
     return s;
 }
@@ -1278,7 +1210,8 @@ pub fn use_dict() -> HashMap<String, String> {
         let mut map = HashMap::new();
         map.insert("key".to_string(), "value".to_string());
         map
-    }
+    };
+}
 '''
 
 [[test]]
@@ -1319,7 +1252,8 @@ pub fn use_set() -> HashSet<i32> {
         set.insert(2);
         set.insert(3);
         set
-    }
+    };
+}
 '''
 
 [[test]]
@@ -1345,7 +1279,6 @@ lazy_static! {
 use lazy_static::lazy_static;
 pub fn find_index() -> i32 {
     return VALUES
-        .clone()
         .iter()
         .position(|x| x == &"4")
         .map(|i| i as i32)
@@ -1370,9 +1303,8 @@ rust = '''
 pub fn find_first_positive(items: &Vec<i32>) -> i32 {
     return items
         .iter()
+        .find(|x| x > 0)
         .copied()
-        .filter(|x| *x > 0)
-        .next()
         .expect("StopIteration: iterator is empty");
 }
 '''
@@ -1388,7 +1320,7 @@ def find_first_positive_or_none(items: list[int]) -> int | None:
 
 rust = '''
 pub fn find_first_positive_or_none(items: &Vec<i32>) -> Option<i32> {
-    return items.iter().copied().filter(|x| *x > 0).next();
+    return items.iter().find(|x| x > 0).copied();
 }
 '''
 
@@ -1451,9 +1383,8 @@ impl Player {
 pub fn find_high_scorer(players: &Vec<Player>) -> i32 {
     let candidate = players
         .iter()
+        .find(|p| p.score > 100)
         .cloned()
-        .filter(|p| p.score > 100)
-        .next()
         .expect("StopIteration: iterator is empty");
     return candidate.score;
 }
@@ -1473,7 +1404,7 @@ pub fn get_doubled(items: &Vec<i32>) -> Vec<i32> {
     return items
         .iter()
         .copied()
-        .filter(|x| *x > 0)
+        .filter(|x| x > 0)
         .map(|x| x * 2)
         .collect::<Vec<_>>();
 }

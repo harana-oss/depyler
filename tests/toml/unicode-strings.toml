@@ -82,11 +82,6 @@ rust = '''
 pub fn normalize_nfc(s: String) -> String {
     return unicodedata.normalize("NFC", s);
 };
-            TestResult::passed()
-        }
-        quickcheck(prop as fn(String) -> TestResult);
-    }
-}
 '''
 
 [[test]]
@@ -105,11 +100,6 @@ rust = '''
 pub fn normalize_nfd(s: String) -> String {
     return unicodedata.normalize("NFD", s);
 };
-            TestResult::passed()
-        }
-        quickcheck(prop as fn(String) -> TestResult);
-    }
-}
 '''
 
 [[test]]
@@ -128,11 +118,6 @@ rust = '''
 pub fn normalize_nfkc(s: String) -> String {
     return unicodedata.normalize("NFKC", s);
 };
-            TestResult::passed()
-        }
-        quickcheck(prop as fn(String) -> TestResult);
-    }
-}
 '''
 
 [[test]]
@@ -151,11 +136,6 @@ rust = '''
 pub fn normalize_nfkd(s: String) -> String {
     return unicodedata.normalize("NFKD", s);
 };
-            TestResult::passed()
-        }
-        quickcheck(prop as fn(String) -> TestResult);
-    }
-}
 '''
 
 [[test]]
@@ -367,11 +347,6 @@ rust = '''
 pub fn compare_normalized(s1: String, s2: String) -> bool {
     return unicodedata.normalize("NFC", s1) == unicodedata.normalize("NFC", s2);
 };
-            TestResult::passed()
-        }
-        quickcheck(prop as fn(String, String) -> TestResult);
-    }
-}
 '''
 
 [[test]]

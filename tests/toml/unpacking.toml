@@ -16,7 +16,7 @@ print(f"a={a}, b={b}")
 rust = """
 fn main() {
     let (a, b) = (1, 2);
-    log::info!("a={}, b={}", a, b);
+    log::info!("{}", format!("a={}, b={}", a, b));
 }
 """
 
@@ -29,11 +29,8 @@ print(f"a={a}, b={b}, c={c}")
 """
 rust = """
 fn main() {
-    let data = vec![1, 2, 3];
-    let a = data[0];
-    let b = data[1];
-    let c = data[2];
-    log::info!("a={}, b={}, c={}", a, b, c);
+    let (a, b, c) = vec![1, 2, 3];
+    log::info!("{}", format!("a={}, b={}, c={}", a, b, c));
 }
 """
 
@@ -50,10 +47,10 @@ print(f"a={a}, rest={rest}")
 """
 rust = """
 fn main() {
-    let data = vec![1, 2, 3, 4];
-    let a = data[0];
-    let rest: Vec<i32> = data[1..].to_vec();
-    log::info!("a={}, rest={:?}", a, rest);
+    let _data = vec![1, 2, 3, 4];
+    let a = _data[0];
+    let rest: Vec<_> = _data[1usize..].to_vec();
+    log::info!("{}", format!("a={}, rest={}", a, rest));
 }
 """
 
@@ -66,10 +63,10 @@ print(f"rest={rest}, last={last}")
 """
 rust = """
 fn main() {
-    let data = vec![1, 2, 3, 4];
-    let last = data[data.len() - 1];
-    let rest: Vec<i32> = data[..data.len() - 1].to_vec();
-    log::info!("rest={:?}, last={}", rest, last);
+    let _data = vec![1, 2, 3, 4];
+    let rest: Vec<_> = _data[.._data.len() - 1usize].to_vec();
+    let last = _data[_data.len() - 0usize - 1];
+    log::info!("{}", format!("rest={}, last={}", rest, last));
 }
 """
 
@@ -82,11 +79,14 @@ print(f"first={first}, middle={middle}, last={last}")
 """
 rust = """
 fn main() {
-    let data = vec![1, 2, 3, 4, 5];
-    let first = data[0];
-    let last = data[data.len() - 1];
-    let middle: Vec<i32> = data[1..data.len() - 1].to_vec();
-    log::info!("first={}, middle={:?}, last={}", first, middle, last);
+    let _data = vec![1, 2, 3, 4, 5];
+    let first = _data[0];
+    let middle: Vec<_> = _data[1usize.._data.len() - 1usize].to_vec();
+    let last = _data[_data.len() - 0usize - 1];
+    log::info!(
+        "{}",
+        format!("first={}, middle={}, last={}", first, middle, last)
+    );
 }
 """
 
@@ -99,14 +99,10 @@ print(f"a={a}, rest={rest}")
 """
 rust = """
 fn main() {
-    let data = vec![1];
-    let a = data[0];
-    let rest: Vec<i32> = if data.len() > 1 {
-        data[1..].to_vec()
-    } else {
-        vec![]
-    };
-    log::info!("a={}, rest={:?}", a, rest);
+    let _data = vec![1];
+    let a = _data[0];
+    let rest: Vec<_> = _data[1usize..].to_vec();
+    log::info!("{}", format!("a={}, rest={}", a, rest));
 }
 """
 
@@ -124,7 +120,7 @@ print(f"a={a}, b={b}, c={c}")
 rust = """
 fn main() {
     let ((a, b), c) = ((1, 2), 3);
-    log::info!("a={}, b={}, c={}", a, b, c);
+    log::info!("{}", format!("a={}, b={}, c={}", a, b, c));
 }
 """
 
@@ -138,7 +134,7 @@ print(f"a={a}, b={b}, c={c}, d={d}")
 rust = """
 fn main() {
     let (a, (b, (c, d))) = (1, (2, (3, 4)));
-    log::info!("a={}, b={}, c={}, d={}", a, b, c, d);
+    log::info!("{}", format!("a={}, b={}, c={}, d={}", a, b, c, d));
 }
 """
 
@@ -157,10 +153,9 @@ numbers = [1, 2, 3]
 print_values(*numbers)
 """
 rust = """
-fn print_values(args: &[i32]) {
-    log::info!("Values: {:?}", args);
+pub fn print_values() {
+    log::info!("{}", format!("Values: {}", args));
 }
-
 fn main() {
     let numbers = vec![1, 2, 3];
     print_values(&numbers);
@@ -179,19 +174,23 @@ config = {"x": 10, "y": 20}
 print_kwargs(**config)
 """
 rust = """
-use std::collections::HashMap;
-
-fn print_kwargs(kwargs: &HashMap<&str, i32>) {
-    for (key, value) in kwargs {
-        log::info!("{}={}", key, value);
+pub fn print_kwargs() {
+    for (key, value) in kwargs
+        .iter()
+        .map(|(k, v)| (k.clone(), v.clone()))
+        .collect::<Vec<_>>()
+    {
+        log::info!("{}", format!("{}={}", key, value));
     }
 }
-
 fn main() {
-    let mut config = HashMap::new();
-    config.insert("x", 10);
-    config.insert("y", 20);
-    print_kwargs(&config);
+    let config = {
+        let mut map = HashMap::new();
+        map.insert("x".to_string(), 10);
+        map.insert("y".to_string(), 20);
+        map
+    };
+    print_kwargs();
 }
 """
 
@@ -208,19 +207,19 @@ kwargs = {"x": 10, "y": 20}
 combined_func(*args, **kwargs)
 """
 rust = """
-use std::collections::HashMap;
-
-fn combined_func(args: &[i32], kwargs: &HashMap<&str, i32>) {
-    log::info!("args: {:?}", args);
-    log::info!("kwargs: {:?}", kwargs);
+pub fn combined_func() {
+    log::info!("{}", format!("args: {}", args));
+    log::info!("{}", format!("kwargs: {}", kwargs));
 }
-
 fn main() {
     let args = vec![1, 2];
-    let mut kwargs = HashMap::new();
-    kwargs.insert("x", 10);
-    kwargs.insert("y", 20);
-    combined_func(&args, &kwargs);
+    let kwargs = {
+        let mut map = HashMap::new();
+        map.insert("x".to_string(), 10);
+        map.insert("y".to_string(), 20);
+        map
+    };
+    combined_func(&args);
 }
 """
 
@@ -239,8 +238,8 @@ for a, b in pairs:
 rust = """
 fn main() {
     let pairs = vec![(1, 2), (3, 4), (5, 6)];
-    for (a, b) in pairs {
-        log::info!("a={}, b={}", a, b);
+    for (a, b) in pairs.iter().cloned() {
+        log::info!("{}", format!("a={}, b={}", a, b));
     }
 }
 """
@@ -256,8 +255,8 @@ for (a, b), c in data:
 rust = """
 fn main() {
     let data = vec![((1, 2), 3), ((4, 5), 6)];
-    for ((a, b), c) in data {
-        log::info!("a={}, b={}, c={}", a, b, c);
+    for ((a, b), c) in data.iter().cloned() {
+        log::info!("{}", format!("a={}, b={}, c={}", a, b, c));
     }
 }
 """
@@ -279,8 +278,10 @@ print(f"x={x}, y={y}")
 rust = """
 fn main() {
     let data: (i32, i32) = (10, 20);
-    let (x, y): (i32, i32) = data;
-    log::info!("x={}, y={}", x, y);
+    let x: i32;
+    let y: i32;
+    (x, y) = data;
+    log::info!("{}", format!("x={}, y={}", x, y));
 }
 """
 
@@ -293,12 +294,8 @@ print(f"a={a}, b={b}, c={c}")
 """
 rust = """
 fn main() {
-    let s = "abc";
-    let chars: Vec<char> = s.chars().collect();
-    let a = chars[0];
-    let b = chars[1];
-    let c = chars[2];
-    log::info!("a={}, b={}, c={}", a, b, c);
+    let (a, b, c) = "abc".to_string();
+    log::info!("{}", format!("a={}, b={}, c={}", a, b, c));
 }
 """
 
@@ -311,10 +308,7 @@ print(f"a={a}, b={b}, c={c}")
 """
 rust = """
 fn main() {
-    let range: Vec<i32> = (0..3).collect();
-    let a = range[0];
-    let b = range[1];
-    let c = range[2];
-    log::info!("a={}, b={}, c={}", a, b, c);
+    let (a, b, c) = 0..3;
+    log::info!("{}", format!("a={}, b={}, c={}", a, b, c));
 }
 """

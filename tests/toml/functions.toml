@@ -24,11 +24,6 @@ use serde_json;
 pub fn identity<T: Clone>(value: T) -> T {
     return value;
 }
-            TestResult::passed()
-        }
-        quickcheck(prop as fn(()) -> TestResult);
-    }
-}
 '''
 
 [[test]]
@@ -463,11 +458,6 @@ pub fn clean_right(text: String) -> String {
         }
         quickcheck(prop as fn(String) -> TestResult);
     }
-            TestResult::passed()
-        }
-        quickcheck(prop as fn(String) -> TestResult);
-    }
-}
 '''
 
 [[test]]
@@ -763,11 +753,6 @@ pub fn test() -> i32 {
             if result1 != result2 {
                 return TestResult::failed();
             }
-            TestResult::passed()
-        }
-        quickcheck(prop as fn(i32, i32) -> TestResult);
-    }
-}
 '''
 
 [[test]]
@@ -793,11 +778,6 @@ pub fn test() -> i32 {
             if result1 != result2 {
                 return TestResult::failed();
             }
-            TestResult::passed()
-        }
-        quickcheck(prop as fn(i32, i32) -> TestResult);
-    }
-}
 '''
 
 [[test]]
@@ -1109,11 +1089,6 @@ pub fn main() {
     let result = merge(&a, &b);
     log::info!("{:?}", result);
 }
-            TestResult::passed()
-        }
-        quickcheck(prop as fn(Vec<i32>, Vec<i32>) -> TestResult);
-    }
-}
 '''
 
 [[test]]
@@ -1332,11 +1307,6 @@ pub fn add(a: i32, b: i32) -> i32 {
             if result1 != result2 {
                 return TestResult::failed();
             }
-            TestResult::passed()
-        }
-        quickcheck(prop as fn(i32, i32) -> TestResult);
-    }
-}
 '''
 
 [[test]]
@@ -1394,11 +1364,6 @@ pub fn add(a: i32, b: i32) -> i32 {
             if result1 != result2 {
                 return TestResult::failed();
             }
-            TestResult::passed()
-        }
-        quickcheck(prop as fn(i32, i32) -> TestResult);
-    }
-}
 '''
 
 [[test]]
@@ -1484,11 +1449,6 @@ pub fn bubble_sort(mut arr: Vec<i32>) -> Vec<i32> {
             if input_sorted != result {
                 return TestResult::failed();
             }
-            TestResult::passed()
-        }
-        quickcheck(prop as fn(Vec<i32>) -> TestResult);
-    }
-}
 '''
 
 [[test]]
@@ -1510,11 +1470,6 @@ pub fn abs_value(x: i32) -> i32 {
         return (-x);
     }
     return x;
-}
-            TestResult::passed()
-        }
-        quickcheck(prop as fn(i32) -> TestResult);
-    }
 }
 '''
 
@@ -1598,11 +1553,6 @@ pub fn normalize_path(mut path: String) -> String {
         };
     }
     return path;
-}
-            TestResult::passed()
-        }
-        quickcheck(prop as fn(String) -> TestResult);
-    }
 }
 '''
 
@@ -1731,11 +1681,6 @@ pub fn add_numbers(a: i32, b: i32) -> i32 {
             if result1 != result2 {
                 return TestResult::failed();
             }
-            TestResult::passed()
-        }
-        quickcheck(prop as fn(i32, i32) -> TestResult);
-    }
-}
 '''
 
 [[test]]

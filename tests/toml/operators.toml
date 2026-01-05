@@ -24,11 +24,6 @@ pub fn add(a: i32, b: i32) -> i32 {
             if result1 != result2 {
                 return TestResult::failed();
             }
-            TestResult::passed()
-        }
-        quickcheck(prop as fn(i32, i32) -> TestResult);
-    }
-}
 '''
 
 [[test]]
@@ -64,11 +59,6 @@ pub fn multiply(a: i32, b: i32) -> i32 {
             if result1 != result2 {
                 return TestResult::failed();
             }
-            TestResult::passed()
-        }
-        quickcheck(prop as fn(i32, i32) -> TestResult);
-    }
-}
 '''
 
 [[test]]
@@ -429,11 +419,6 @@ pub fn bitwise_and(a: i32, b: i32) -> i32 {
             if result1 != result2 {
                 return TestResult::failed();
             }
-            TestResult::passed()
-        }
-        quickcheck(prop as fn(i32, i32) -> TestResult);
-    }
-}
 '''
 
 [[test]]
@@ -454,11 +439,6 @@ pub fn bitwise_or(a: i32, b: i32) -> i32 {
             if result1 != result2 {
                 return TestResult::failed();
             }
-            TestResult::passed()
-        }
-        quickcheck(prop as fn(i32, i32) -> TestResult);
-    }
-}
 '''
 
 [[test]]
@@ -479,11 +459,6 @@ pub fn bitwise_xor(a: i32, b: i32) -> i32 {
             if result1 != result2 {
                 return TestResult::failed();
             }
-            TestResult::passed()
-        }
-        quickcheck(prop as fn(i32, i32) -> TestResult);
-    }
-}
 '''
 
 [[test]]
@@ -986,11 +961,6 @@ use std::collections::HashSet;
 pub fn test_union(a: &HashSet<serde_json::Value>, b: &HashSet<serde_json::Value>) -> HashSet<serde_json::Value> {
     return a.union(&b).cloned().collect::<std::collections::HashSet<_>>();
 };
-            TestResult::passed()
-        }
-        quickcheck(prop as fn((), ()) -> TestResult);
-    }
-}
 '''
 
 [[test]]
@@ -1008,11 +978,6 @@ use std::collections::HashSet;
 pub fn test_intersection(a: &HashSet<serde_json::Value>, b: &HashSet<serde_json::Value>) -> HashSet<serde_json::Value> {
     return a.intersection(&b).cloned().collect::<std::collections::HashSet<_>>();
 };
-            TestResult::passed()
-        }
-        quickcheck(prop as fn((), ()) -> TestResult);
-    }
-}
 '''
 
 [[test]]
@@ -1059,11 +1024,6 @@ pub fn test_symmetric_diff(
         .cloned()
         .collect::<std::collections::HashSet<_>>();
 };
-            TestResult::passed()
-        }
-        quickcheck(prop as fn((), ()) -> TestResult);
-    }
-}
 '''
 
 [[test]]

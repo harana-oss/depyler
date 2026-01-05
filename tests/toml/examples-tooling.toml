@@ -405,11 +405,6 @@ pub fn compute_hash(text: &str) -> Result<i32, ZeroDivisionError> {
             if result1 != result2 {
                 return TestResult::failed();
             }
-            TestResult::passed()
-        }
-        quickcheck(prop as fn(i32, i32) -> TestResult);
-    }
-}
 '''
 
 [[test]]
@@ -2889,11 +2884,6 @@ pub fn multiply(x: i32, y: i32) -> i32 {
             if result1 != result2 {
                 return TestResult::failed();
             }
-            TestResult::passed()
-        }
-        quickcheck(prop as fn(i32, i32) -> TestResult);
-    }
-}
 '''
 
 [[test]]
@@ -3101,11 +3091,6 @@ pub fn process(x: serde_json::Value) -> i32 {
 pub fn default_value() -> i32 {
     0
 };
-            TestResult::passed()
-        }
-        quickcheck(prop as fn(()) -> TestResult);
-    }
-}
 '''
 
 [[test]]
@@ -3747,11 +3732,6 @@ pub fn main() -> Result<(), Box<dyn std::error::Error>> {
             if result1 != result2 {
                 return TestResult::failed();
             }
-            TestResult::passed()
-        }
-        quickcheck(prop as fn(i32, i32) -> TestResult);
-    }
-}
 '''
 
 [[test]]
@@ -3882,9 +3862,4 @@ pub fn hot_loop() -> i32 {
             if result1 != result2 {
                 return TestResult::failed();
             }
-            TestResult::passed()
-        }
-        quickcheck(prop as fn(i32, i32) -> TestResult);
-    }
-}
 '''

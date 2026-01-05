@@ -216,11 +216,6 @@ pub fn add(a: i32, b: i32) -> i32 {
             if result1 != result2 {
                 return TestResult::failed();
             }
-            TestResult::passed()
-        }
-        quickcheck(prop as fn(i32, i32) -> TestResult);
-    }
-}
 '''
 
 [[test]]
@@ -1042,11 +1037,6 @@ rust = '''
 pub fn identity<T: Clone>(x: T) -> T {
     return x;
 };
-            TestResult::passed()
-        }
-        quickcheck(prop as fn(()) -> TestResult);
-    }
-}
 '''
 
 [[test]]
@@ -1165,11 +1155,6 @@ rust = '''
 pub fn maybe_value<T: Clone>(x: Option<T>) -> T {
     return x.unwrap();
 };
-            TestResult::passed()
-        }
-        quickcheck(prop as fn(()) -> TestResult);
-    }
-}
 '''
 
 [[test]]
@@ -1412,11 +1397,6 @@ impl IntOrStringUnion {
 pub fn union_func(value: IntOrStringUnion) -> IntOrStringUnion {
     return value;
 };
-            TestResult::passed()
-        }
-        quickcheck(prop as fn(()) -> TestResult);
-    }
-}
 '''
 
 [[test]]
@@ -1473,11 +1453,6 @@ use serde_json;
 pub fn identity<T: Clone>(value: T) -> T {
     return value;
 };
-            TestResult::passed()
-        }
-        quickcheck(prop as fn(()) -> TestResult);
-    }
-}
 '''
 
 [[test]]
@@ -1503,11 +1478,6 @@ impl MyClass {
 pub fn use_custom(obj: MyClass) -> MyClass {
     return obj;
 };
-            TestResult::passed()
-        }
-        quickcheck(prop as fn(()) -> TestResult);
-    }
-}
 '''
 
 [[test]]
@@ -1538,11 +1508,6 @@ rust = '''
 pub fn borrow_str(s: String) -> String {
     return s;
 };
-            TestResult::passed()
-        }
-        quickcheck(prop as fn(String) -> TestResult);
-    }
-}
 '''
 
 [[test]]
@@ -1828,11 +1793,6 @@ pub fn add_numbers(a: i32, b: i32) -> i32 {
             if result1 != result2 {
                 return TestResult::failed();
             }
-            TestResult::passed()
-        }
-        quickcheck(prop as fn(i32, i32) -> TestResult);
-    }
-}
 '''
 
 [[test]]
@@ -1853,11 +1813,6 @@ pub fn calculate(x: f64, y: f64) -> f64 {
             if result1 != result2 {
                 return TestResult::failed();
             }
-            TestResult::passed()
-        }
-        quickcheck(prop as fn(f64, f64) -> TestResult);
-    }
-}
 '''
 
 [[test]]
@@ -1997,11 +1952,6 @@ use serde_json;
 pub fn identity<T: Clone>(value: T) -> T {
     return value;
 };
-            TestResult::passed()
-        }
-        quickcheck(prop as fn(()) -> TestResult);
-    }
-}
 '''
 
 [[test]]
@@ -2080,11 +2030,6 @@ use serde_json;
 pub fn wrap<T: Clone>(value: T) -> T {
     return value;
 };
-            TestResult::passed()
-        }
-        quickcheck(prop as fn(()) -> TestResult);
-    }
-}
 '''
 
 [[test]]
@@ -2385,11 +2330,6 @@ impl IntOrStringUnion {
 pub fn union_func(value: IntOrStringUnion) -> IntOrStringUnion {
     return value;
 };
-            TestResult::passed()
-        }
-        quickcheck(prop as fn(()) -> TestResult);
-    }
-}
 '''
 
 [[test]]
@@ -2609,11 +2549,6 @@ pub fn func2(value: IntOrStringUnion) -> IntOrStringUnion {
         }
         quickcheck(prop as fn(()) -> TestResult);
     }
-            TestResult::passed()
-        }
-        quickcheck(prop as fn(()) -> TestResult);
-    }
-}
 '''
 
 [[test]]
@@ -2838,11 +2773,6 @@ rust = '''
 pub fn accepts_any(value: Any) -> Any {
     return value;
 };
-            TestResult::passed()
-        }
-        quickcheck(prop as fn(()) -> TestResult);
-    }
-}
 '''
 
 [[test]]
@@ -2864,11 +2794,6 @@ use serde_json;
 pub fn generic_func<T: Clone>(value: T) -> T {
     return value;
 };
-            TestResult::passed()
-        }
-        quickcheck(prop as fn(()) -> TestResult);
-    }
-}
 '''
 
 [[test]]

@@ -332,11 +332,6 @@ rust = '''
 pub fn repeat_string(s: String, n: i32) -> String {
     return s.repeat(n as usize);
 };
-            TestResult::passed()
-        }
-        quickcheck(prop as fn(String, i32) -> TestResult);
-    }
-}
 '''
 
 [[test]]
@@ -642,11 +637,6 @@ pub fn helper(s: String) -> String {
 pub fn test(name: String) -> String {
     return helper(format!("Hello {}", name));
 };
-            TestResult::passed()
-        }
-        quickcheck(prop as fn(String) -> TestResult);
-    }
-}
 '''
 
 [[test]]
@@ -815,11 +805,6 @@ rust = '''
 pub fn expand_tabs(s: String) -> String {
     return s.expandtabs();
 };
-            TestResult::passed()
-        }
-        quickcheck(prop as fn(String) -> TestResult);
-    }
-}
 '''
 
 [[test]]
@@ -1015,11 +1000,6 @@ rust = '''
 pub fn greet(name: String) -> String {
     return name;
 };
-            TestResult::passed()
-        }
-        quickcheck(prop as fn(String) -> TestResult);
-    }
-}
 '''
 
 [[test]]
@@ -1219,11 +1199,6 @@ rust = '''
 pub fn repeat_string(s: String, n: i32) -> String {
     return s.repeat(n as usize);
 };
-            TestResult::passed()
-        }
-        quickcheck(prop as fn(String, i32) -> TestResult);
-    }
-}
 '''
 
 [[test]]
@@ -1284,11 +1259,6 @@ rust = '''
 pub fn process_names(names: Vec<String>) -> Vec<String> {
     return names;
 };
-            TestResult::passed()
-        }
-        quickcheck(prop as fn(Vec<String>) -> TestResult);
-    }
-}
 '''
 
 [[test]]
@@ -1337,11 +1307,6 @@ rust = '''
 pub fn normalize(s: String) -> String {
     return s.trim().to_lowercase();
 };
-            TestResult::passed()
-        }
-        quickcheck(prop as fn(String) -> TestResult);
-    }
-}
 '''
 
 [[test]]

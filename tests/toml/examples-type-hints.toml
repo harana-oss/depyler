@@ -577,11 +577,6 @@ pub fn list_operations(items: &mut serde_json::Value) -> i32 {
     items.push(42);
     items.len() as i32
 };
-            TestResult::passed()
-        }
-        quickcheck(prop as fn((), ()) -> TestResult);
-    }
-}
 '''
 
 [[test]]

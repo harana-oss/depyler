@@ -253,11 +253,6 @@ use std::f64 as math;
 pub fn absolute_float(x: f64) -> f64 {
     return (x as f64).abs();
 };
-            TestResult::passed()
-        }
-        quickcheck(prop as fn(f64) -> TestResult);
-    }
-}
 '''
 
 [[test]]
@@ -273,11 +268,6 @@ rust = '''
 pub fn absolute_int(x: i32) -> i32 {
     return x.abs();
 };
-            TestResult::passed()
-        }
-        quickcheck(prop as fn(i32) -> TestResult);
-    }
-}
 '''
 
 [[test]]

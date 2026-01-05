@@ -34,11 +34,6 @@ rust = '''
 pub fn identity_map(items: Vec<i32>) -> Vec<i32> {
     return items.iter().map(|x| x).collect::<Vec<_>>();
 };
-            TestResult::passed()
-        }
-        quickcheck(prop as fn(Vec<i32>) -> TestResult);
-    }
-}
 '''
 
 [[test]]
@@ -103,11 +98,6 @@ pub fn sort_by_length(words: &Vec<String>) -> Vec<String> {
             if input_sorted != result {
                 return TestResult::failed();
             }
-            TestResult::passed()
-        }
-        quickcheck(prop as fn(Vec<String>) -> TestResult);
-    }
-}
 '''
 
 [[test]]
@@ -139,11 +129,6 @@ pub fn sort_descending(numbers: &Vec<i32>) -> Vec<i32> {
             if input_sorted != result {
                 return TestResult::failed();
             }
-            TestResult::passed()
-        }
-        quickcheck(prop as fn(Vec<i32>) -> TestResult);
-    }
-}
 '''
 
 [[test]]
@@ -1272,11 +1257,6 @@ pub fn demonstrate_functional_patterns() -> Result<(), Box<dyn std::error::Error
             if input_sorted != result {
                 return TestResult::failed();
             }
-            TestResult::passed()
-        }
-        quickcheck(prop as fn(Vec<()>) -> TestResult);
-    }
-}
 '''
 
 [[test]]
@@ -1958,9 +1938,4 @@ pub fn get_height() -> i32 {
             if result1 != result2 {
                 return TestResult::failed();
             }
-            TestResult::passed()
-        }
-        quickcheck(prop as fn(i32, i32) -> TestResult);
-    }
-}
 '''
