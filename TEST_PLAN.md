@@ -2,6 +2,33 @@
 
 ## Recent Updates
 
+### 2026-01-05: List Field Type Inference Fixed (DEPYLER-0353) ✅
+- **Fixed**: List literals now correctly infer element types instead of defaulting to `Vec<serde_json::Value>`
+- **Files Updated**: `crates/depyler-core/src/ast_bridge.rs`, `crates/depyler-core/src/direct_rules.rs`
+- **Changes**:
+  - Enhanced `infer_type_from_expr` to recursively inspect list/dict/set elements and infer concrete types
+  - Changed `convert_list` to always use `vec!` macro instead of array syntax `[...]`
+  - Dict and set type inference also improved to infer from first element
+- **Impact**:
+  - `self.values = [1, 2, 3, 4, 5]` now generates `pub values: Vec<i32>` instead of `Vec<serde_json::Value>`
+  - List initialization uses `vec![1, 2, 3, 4, 5]` instead of invalid array syntax `[1, 2, 3, 4, 5]`
+  - More precise type inference for collections leads to more idiomatic and efficient Rust code
+  - Dict fields infer as `HashMap<K, V>` with concrete types (e.g., `HashMap<String, i32>`)
+  - Set fields infer as `HashSet<T>` with concrete element types
+
+### 2026-01-05: Complex Augmented Assignment Partially Fixed (DEPYLER-0352)
+- **Fixed**: Index augmented assignment for lists/vectors now generates proper `+=` operators
+- **Files Updated**: `crates/depyler-core/src/rust_gen/stmt_gen.rs`, `crates/depyler-core/src/direct_rules.rs`
+- **Changes**:
+  - Extended `is_augassign_pattern` to detect augmented assignment for attribute-based index patterns (e.g., `self.values[index] += value`)
+  - Updated `is_dict_augassign_pattern` to only trigger for Dict types, not List/Vec, preventing incorrect handling
+  - Fixed `convert_index_assignment` in direct_rules.rs to use direct index assignment (`arr[i] = value`) for numeric indices
+  - Added pattern matching for attribute bases and literal indices in augmented assignment detection
+- **Impact**: 
+  - `self.values[index] += value` now correctly generates `self.values[index as usize] += value;` instead of `.insert()` with string concatenation
+  - Works in both class methods (direct_rules path) and standalone functions (rust_gen path)
+- **Remaining Issue**: Dict augmented assignment still modifies clone instead of original (standalone dicts only)
+
 ### 2026-01-05: Mutability Tests Fully Fixed
 - **Fixed**: Tests in `tests/toml/mutability.toml` (34/34 tests now passing, up from 16/34)
 - **Files Updated**: `tests/toml/mutability.toml`
@@ -198,8 +225,8 @@
 | ID | Issue | Severity | Category |
 |----|-------|----------|----------|
 | 0347 | Walrus operator scope | HIGH | Transpiler |
-| 0352 | Complex augmented assignment | MEDIUM | Transpiler |
-| 0353 | List field type inference | MEDIUM | Transpiler |
+| 0352 | Complex augmented assignment (dict only) | MEDIUM | Transpiler |
+| 0353 | List field type inference ✅ FIXED | MEDIUM | Transpiler |
 | 0363 | Walrus in while loops | MEDIUM | Transpiler |
 
 ---
@@ -602,42 +629,104 @@ pub fn process(value: &object) -> i32 {  // ❌ Should narrow to i32
 
 ---
 
-### DEPYLER-0352: Complex Augmented Assignment
+### DEPYLER-0352: Complex Augmented Assignment ✅ PARTIALLY FIXED
 
 **Files**: `test_augassign_complex.py`
 
-**Issue 1**: Index augmented assignment:
+**Status**: PARTIALLY FIXED (2026-01-05) - Index augmented assignment now generates correct code
+
+**Issue 1**: Index augmented assignment: ✅ FIXED
 ```python
 self.values[index] += value
 ```
 
-Generates:
+Previously generated:
 ```rust
 self.values.insert(index, format!("{}{}", self.values[index as usize], value));  // ❌
 ```
 
-Should be:
+Now generates:
 ```rust
-self.values[index as usize] += value;
+self.values[index as usize] += value;  // ✅
 ```
+
+**Fix Applied**:
+- Updated `is_augassign_pattern` in `rust_gen/stmt_gen.rs` to detect augmented assignment patterns for Index targets with attribute bases (e.g., `self.values[index]`)
+- Updated `is_dict_augassign_pattern` to only trigger for actual Dict types (not List/Vec), preventing it from incorrectly handling list augmented assignments
+- Updated `convert_index_assignment` in `direct_rules.rs` to generate direct index assignment (`arr[i] = value`) for numeric indices instead of `.insert()`
+- Extended augmented assignment pattern matching in `direct_rules.rs` to handle attribute bases and literal indices
+
+**Files Updated**:
+- `crates/depyler-core/src/rust_gen/stmt_gen.rs`: Enhanced `is_dict_augassign_pattern` to check actual types, extended `is_augassign_pattern` for more patterns
+- `crates/depyler-core/src/direct_rules.rs`: Fixed `convert_index_assignment` to use direct indexing for lists, extended augmented assignment detection
 
 **Issue 2**: Dict augmented assignment modifies clone instead of original.
 
+Remains unfixed - still generates:
+```rust
+d.clone().insert("score".to_string(), d.get("score").cloned().unwrap() + 50);  // ❌
+```
+
+Should generate:
+```rust
+{
+    let _key = "score".to_string();
+    let _old_val = d.get(&_key).cloned().unwrap_or_default();
+    d.insert(_key, _old_val + 50);
+}
+```
+
+**Note**: The dict augmented assignment pattern detection (`is_dict_augassign_pattern`) only works for simple variable cases like `d[key] += value`, not for standalone dict operations. The type-based filtering now prevents it from incorrectly triggering on lists, but dict operations in standalone functions may still have issues.
+
 ---
 
-### DEPYLER-0353: List Field Type Inference
+### DEPYLER-0353: List Field Type Inference ✅ FIXED
 
-**Files**: `test_augassign_complex.py`
+**Files**: `test_augassign_complex.py`, `crates/depyler-core/src/ast_bridge.rs`, `crates/depyler-core/src/direct_rules.rs`
 
-**Issue**: List literals infer `Vec<serde_json::Value>`:
+**Status**: FIXED (2026-01-05)
+
+**Issue**: List literals infer `Vec<serde_json::Value>` instead of concrete element types:
 ```python
 self.values = [1, 2, 3, 4, 5]
 ```
 
-Generates:
+Previously generated:
 ```rust
 pub values: Vec<serde_json::Value>,  // ❌ Should be Vec<i32>
+
+// In new() constructor:
+Self {
+    count: 0,
+    values: [1, 2, 3, 4, 5],  // ❌ Array syntax instead of vec!
+}
 ```
+
+Now generates:
+```rust
+pub values: Vec<i32>,  // ✅ Correct type inference
+
+// In new() constructor:
+Self {
+    count: 0,
+    values: vec![1, 2, 3, 4, 5],  // ✅ Correct Vec syntax
+}
+```
+
+**Fix Applied**:
+1. **Type Inference**: Updated `infer_type_from_expr` in `ast_bridge.rs` to inspect list/dict/set elements and infer concrete element types instead of defaulting to `Type::Unknown`
+2. **List Literal Generation**: Simplified `convert_list` in `direct_rules.rs` to always use `vec!` macro instead of array syntax `[...]` to ensure Vec<T> type compatibility
+
+**Files Updated**:
+- `crates/depyler-core/src/ast_bridge.rs`: Enhanced `infer_type_from_expr` to recursively infer types from collection elements
+- `crates/depyler-core/src/direct_rules.rs`: Changed `convert_list` to always generate `vec![...]` instead of array literals
+
+**Impact**:
+- List fields now correctly infer element types (e.g., `Vec<i32>` instead of `Vec<serde_json::Value>`)
+- Dict fields infer key/value types from first entry (e.g., `HashMap<String, i32>`)
+- Set fields infer element types from first element (e.g., `HashSet<String>`)
+- All list literals now use `vec!` macro, ensuring type compatibility with Vec fields
+- More idiomatic and efficient Rust code generation
 
 ---
 

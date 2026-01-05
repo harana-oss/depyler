@@ -2080,6 +2080,7 @@ fn convert_symbol_assignment(symbol: &str, value_expr: syn::Expr) -> Result<syn:
 /// Convert subscript assignment: `d[k] = value` or `d[k1][k2] = value`
 ///
 /// Handles both simple and nested subscript assignments.
+/// Also handles augmented assignments like `arr[i] += value` which are expanded to `arr[i] = arr[i] + value`
 fn convert_index_assignment(
     base: &HirExpr,
     index: &HirExpr,
@@ -2090,11 +2091,34 @@ fn convert_index_assignment(
     let (base_expr, indices) = extract_nested_indices(base, type_mapper)?;
 
     if indices.is_empty() {
-        // Simple assignment: d[k] = v
-        let assign_expr = parse_quote! {
-            #base_expr.insert(#final_index, #value_expr)
-        };
-        Ok(syn::Stmt::Expr(assign_expr, Some(Default::default())))
+        // Check if this is a Vec/List (numeric index) vs HashMap/Dict (string key)
+        // For lists, we want direct index assignment: arr[i] = value
+        // For dicts, we want .insert(): dict.insert(key, value)
+
+        // Heuristic: if index looks numeric (is a var, literal int, or arithmetic expr), assume Vec
+        let is_numeric_index = matches!(
+            index,
+            HirExpr::Var(_)
+                | HirExpr::Literal(crate::hir::Literal::Int(_))
+                | HirExpr::Binary { .. }
+        );
+
+        if is_numeric_index {
+            // For Vec/List: use direct index assignment
+            let assign_expr = parse_quote! {
+                #base_expr[#final_index as usize] = #value_expr
+            };
+            Ok(syn::Stmt::Expr(
+                assign_expr,
+                Some(syn::token::Semi::default()),
+            ))
+        } else {
+            // For HashMap/Dict: use insert
+            let assign_expr = parse_quote! {
+                #base_expr.insert(#final_index, #value_expr)
+            };
+            Ok(syn::Stmt::Expr(assign_expr, Some(Default::default())))
+        }
     } else {
         // Nested assignment: build chain of get_mut calls
         let mut chain = base_expr;
@@ -2104,11 +2128,28 @@ fn convert_index_assignment(
             };
         }
 
-        let assign_expr = parse_quote! {
-            #chain.insert(#final_index, #value_expr)
-        };
+        // Use same heuristic for nested case
+        let is_numeric_index = matches!(
+            index,
+            HirExpr::Var(_)
+                | HirExpr::Literal(crate::hir::Literal::Int(_))
+                | HirExpr::Binary { .. }
+        );
 
-        Ok(syn::Stmt::Expr(assign_expr, Some(Default::default())))
+        if is_numeric_index {
+            let assign_expr = parse_quote! {
+                #chain[#final_index as usize] = #value_expr
+            };
+            Ok(syn::Stmt::Expr(
+                assign_expr,
+                Some(syn::token::Semi::default()),
+            ))
+        } else {
+            let assign_expr = parse_quote! {
+                #chain.insert(#final_index, #value_expr)
+            };
+            Ok(syn::Stmt::Expr(assign_expr, Some(Default::default())))
+        }
     }
 }
 
@@ -2565,7 +2606,7 @@ fn convert_stmt_with_context(
                             _ => false,
                         }
                     }
-                    // Index: arr[i] += 1
+                    // Index: arr[i] += 1 or self.values[i] += x
                     (
                         AssignTarget::Index {
                             base: target_base,
@@ -2577,16 +2618,43 @@ fn convert_stmt_with_context(
                         },
                     ) => {
                         // Check if both base and index are the same
-                        match (
-                            (target_base.as_ref(), left_base.as_ref()),
-                            (target_index.as_ref(), left_index.as_ref()),
-                        ) {
+                        // Support multiple patterns:
+                        // 1. Simple variables: arr[i] where both arr and i are vars
+                        // 2. Attributes: self.values[index] where base is attribute access
+                        // 3. Literal indices: arr[0] where index is a literal
+
+                        let bases_match = match (target_base.as_ref(), left_base.as_ref()) {
+                            // Both simple vars with same name
+                            (HirExpr::Var(t_base), HirExpr::Var(l_base)) => t_base == l_base,
+                            // Both attribute access with same var and attr
                             (
-                                (HirExpr::Var(t_base), HirExpr::Var(l_base)),
-                                (HirExpr::Var(t_idx), HirExpr::Var(l_idx)),
-                            ) => t_base == l_base && t_idx == l_idx,
+                                HirExpr::Attribute {
+                                    value: t_val,
+                                    attr: t_attr,
+                                },
+                                HirExpr::Attribute {
+                                    value: l_val,
+                                    attr: l_attr,
+                                },
+                            ) if t_attr == l_attr => {
+                                matches!((t_val.as_ref(), l_val.as_ref()),
+                                    (HirExpr::Var(t_var), HirExpr::Var(l_var)) if t_var == l_var)
+                            }
                             _ => false,
-                        }
+                        };
+
+                        let indices_match = match (target_index.as_ref(), left_index.as_ref()) {
+                            // Both vars with same name
+                            (HirExpr::Var(t_idx), HirExpr::Var(l_idx)) => t_idx == l_idx,
+                            // Both literal ints with same value
+                            (
+                                HirExpr::Literal(crate::hir::Literal::Int(t_val)),
+                                HirExpr::Literal(crate::hir::Literal::Int(l_val)),
+                            ) => t_val == l_val,
+                            _ => false,
+                        };
+
+                        bases_match && indices_match
                     }
                     _ => false,
                 };
@@ -2650,7 +2718,8 @@ fn convert_stmt_with_context(
                                     is_classmethod,
                                     field_types,
                                 )?;
-                                parse_quote! { #base_expr[#index_expr] }
+                                // Add 'as usize' cast for array/vec indexing
+                                parse_quote! { #base_expr[#index_expr as usize] }
                             }
                             _ => {
                                 // Fall through to normal assignment for unsupported targets
@@ -3920,24 +3989,9 @@ impl<'a> ExprConverter<'a> {
             .map(|e| self.convert(e))
             .collect::<Result<Vec<_>>>()?;
 
-        // Check if this list has a known fixed size that should be an array
-        // Arrays are preferred for small fixed sizes (typically < 32 elements)
-        if !elts.is_empty() && elts.len() <= 32 {
-            // Check if all elements are literals or constants (good candidate for array)
-            let all_literals = elts.iter().all(|e| matches!(e, HirExpr::Literal(_)));
-
-            if all_literals {
-                // Generate array literal instead of vec!
-                Ok(parse_quote! { [#(#elt_exprs),*] })
-            } else {
-                // For now, still use vec! for non-literal lists
-                // Future: integrate with const generic inference for smarter detection
-                Ok(parse_quote! { vec![#(#elt_exprs),*] })
-            }
-        } else {
-            // Use vec! for empty lists or large lists
-            Ok(parse_quote! { vec![#(#elt_exprs),*] })
-        }
+        // Always use vec! macro for Python lists to ensure Vec<T> type
+        // Arrays [T; N] have different semantics and can't be assigned to Vec<T> fields
+        Ok(parse_quote! { vec![#(#elt_exprs),*] })
     }
 
     fn convert_dict(&self, items: &[(HirExpr, HirExpr)]) -> Result<syn::Expr> {
